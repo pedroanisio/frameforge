@@ -1048,8 +1048,10 @@ class FigureTikz:
         else:
             lines = set(str(line or "").replace(",", " ").split())
         if "underline" in lines:
-            command = "uwave" if "wavy" in lines else "underline"
+            command = "uwave" if "wavy" in lines else "uuline" if "double" in lines else "underline"
             content = f"\\{command}{{{content}}}"
+        if "overline" in lines:
+            content = f"\\overline{{\\mbox{{{content}}}}}"
         if "line-through" in lines:
             content = f"\\sout{{{content}}}"
         return content
