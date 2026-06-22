@@ -199,7 +199,12 @@ def test_vector_uses_style_fill_and_stroke_geometry() -> None:
                         "stroke": "hairline",
                         "stroke_width": 3,
                         "stroke_dasharray": [5, 2],
+                        "stroke_dashoffset": 1.5,
                         "stroke_linecap": "round",
+                        "stroke_linejoin": "bevel",
+                        "stroke_miterlimit": 6,
+                        "paint_order": "stroke fill markers",
+                        "vector_effect": "non-scaling-stroke",
                     },
                 },
             },
@@ -211,7 +216,12 @@ def test_vector_uses_style_fill_and_stroke_geometry() -> None:
     assert ' stroke="#123456"' in path
     assert ' stroke-width="3"' in path
     assert ' stroke-dasharray="5 2"' in path
+    assert ' stroke-dashoffset="1.5"' in path
     assert ' stroke-linecap="round"' in path
+    assert ' stroke-linejoin="bevel"' in path
+    assert ' stroke-miterlimit="6"' in path
+    assert ' paint-order="stroke fill markers"' in path
+    assert ' vector-effect="non-scaling-stroke"' in path
 
 
 def test_table_style_surface_is_emitted() -> None:

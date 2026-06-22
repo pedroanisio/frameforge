@@ -54,11 +54,23 @@ class StrokeResolver:
         out = f' stroke="{esc(col)}" stroke-width="{fnum(width)}"'
         if dash:
             out += f' stroke-dasharray="{esc(dash)}"'
+        dashoffset = bundle.get("stroke_dashoffset")
+        if dashoffset is not None:
+            out += f' stroke-dashoffset="{fnum(num(dashoffset, 0))}"'
         cap = bundle.get("stroke_linecap"); join = bundle.get("stroke_linejoin")
         if cap:
             out += f' stroke-linecap="{esc(cap)}"'
         if join:
             out += f' stroke-linejoin="{esc(join)}"'
+        miter = bundle.get("stroke_miterlimit")
+        if miter is not None:
+            out += f' stroke-miterlimit="{fnum(num(miter, 4))}"'
+        paint_order = bundle.get("paint_order")
+        if paint_order:
+            out += f' paint-order="{esc(paint_order)}"'
+        vector_effect = bundle.get("vector_effect")
+        if vector_effect:
+            out += f' vector-effect="{esc(vector_effect)}"'
         opacity = o.get("stroke_opacity", bundle.get("opacity"))
         if opacity is not None:
             out += f' stroke-opacity="{fnum(num(opacity, 1))}"'
