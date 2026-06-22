@@ -147,6 +147,7 @@ class FigureTikz:
             return ""
         try:
             body = fn(o)
+            body = body + self._side_borders(o) if body else ""
             body = self._clip_scope(o, body) if body else ""
             return self._wrap_object(o, body) if body else ""
         except Exception:
@@ -612,6 +613,29 @@ class FigureTikz:
         ox, oy = x - offset, y - offset
         geom = f"({fnum(ox)},{fnum(oy)}) rectangle ({fnum(ox + w + 2 * offset)},{fnum(oy + h + 2 * offset)})"
         return self._path(opts, geom)
+
+    def _side_borders(self, o):
+        box = o.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            return ""
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        sides = (
+            ("border_top", (x, y, x + w, y)),
+            ("border_right", (x + w, y, x + w, y + h)),
+            ("border_bottom", (x, y + h, x + w, y + h)),
+            ("border_left", (x, y, x, y + h)),
+        )
+        out = []
+        style = self._style_dict(o)
+        for key, (x1, y1, x2, y2) in sides:
+            border = style.get(key)
+            if not isinstance(border, dict):
+                continue
+            opts = self._border_opts(border)
+            if opts:
+                geom = f"({fnum(x1)},{fnum(y1)}) -- ({fnum(x2)},{fnum(y2)})"
+                out.append(self._path(opts, geom))
+        return "".join(out)
 
     def _ellipse_effects(self, o, cx, cy, rx, ry):
         out = []

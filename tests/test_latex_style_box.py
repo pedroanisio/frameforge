@@ -126,3 +126,30 @@ def test_rect_style_outline_none_does_not_draw_extra_path():
     assert "(10,20) rectangle (90,60)" in tex
     assert "fill=none" not in tex
     assert tex.count("rectangle") == 1
+
+
+def test_box_side_borders_draw_tikz_lines_after_text():
+    tex = _fig().render({
+        "type": "text",
+        "box": [20, 30, 100, 40],
+        "text": "side borders",
+        "style": {
+            "border_top": {"width": 1, "style": "solid", "color": "#111111"},
+            "border_right": {"width": 2, "style": "dashed", "color": "#222222"},
+            "border_bottom": {"width": 3, "style": "dotted", "color": "#333333"},
+            "border_left": {"width": 4, "style": "solid", "color": "#444444"},
+        },
+    })
+
+    assert "side borders" in tex
+    assert "(20,30) -- (120,30)" in tex
+    assert "(120,30) -- (120,70)" in tex
+    assert "(20,70) -- (120,70)" in tex
+    assert "(20,30) -- (20,70)" in tex
+    assert "draw={rgb,255:red,17;green,17;blue,17}" in tex
+    assert "draw={rgb,255:red,34;green,34;blue,34}" in tex
+    assert "draw={rgb,255:red,51;green,51;blue,51}" in tex
+    assert "draw={rgb,255:red,68;green,68;blue,68}" in tex
+    assert "line width=4pt" in tex
+    assert "dash pattern=on 4pt off 4pt" in tex
+    assert "dash pattern=on 1pt off 3pt" in tex
