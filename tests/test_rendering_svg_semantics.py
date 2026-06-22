@@ -50,6 +50,7 @@ def test_vector_fill_and_stroke_opacity_are_emitted() -> None:
             "d": "M 10 10 L 40 10 L 25 35 Z",
             "fill": "panel",
             "fill_opacity": 0.4,
+            "fill_rule": "evenodd",
         },
         {
             "type": "line",
@@ -61,6 +62,7 @@ def test_vector_fill_and_stroke_opacity_are_emitted() -> None:
     ])
 
     assert 'fill-opacity="0.4"' in svg
+    assert 'fill-rule="evenodd"' in svg
     assert 'stroke="#123456"' in svg
     assert 'stroke-width="4"' in svg
     assert 'stroke-opacity="0.35"' in svg
@@ -226,6 +228,7 @@ def test_vector_uses_style_fill_and_stroke_geometry() -> None:
                 "styles": {
                     "vector_style": {
                         "fill": "none",
+                        "fill_rule": "evenodd",
                         "stroke": "hairline",
                         "stroke_width": 3,
                         "stroke_dasharray": [5, 2],
@@ -243,6 +246,7 @@ def test_vector_uses_style_fill_and_stroke_geometry() -> None:
 
     path = svg.split("<path", 1)[1].split("/>", 1)[0]
     assert ' fill="none"' in path
+    assert ' fill-rule="evenodd"' in path
     assert ' stroke="#123456"' in path
     assert ' stroke-width="3"' in path
     assert ' stroke-dasharray="5 2"' in path

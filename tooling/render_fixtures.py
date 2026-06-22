@@ -393,6 +393,7 @@ class Renderer:
         # fill must allocate its <defs> id here, before stroke, to keep ids stable.
         fill = self._shape_fill(o, style)
         fill_opacity = o.get("fill_opacity", style.get("fill_opacity"))
+        fill_rule = o.get("fill_rule", style.get("fill_rule"))
 
         if t == "rect" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
@@ -428,7 +429,8 @@ class Renderer:
             tag = "polygon" if closed else "polyline"
             return p.poly(tag, ptstr, fill if closed else None,
                           self._shape_stroke(o, style) + self._arrow_attrs(o),
-                          fill_opacity=fill_opacity if closed else None)
+                          fill_opacity=fill_opacity if closed else None,
+                          fill_rule=fill_rule if closed else None)
 
         if t == "path":
             d = o.get("d")
@@ -437,7 +439,8 @@ class Renderer:
                              if isinstance(seg, list) else str(seg) for seg in d)
             if not isinstance(d, str) or not d.strip():
                 return ""
-            return p.path(d, fill, self._shape_stroke(o, style) + self._arrow_attrs(o), fill_opacity=fill_opacity)
+            return p.path(d, fill, self._shape_stroke(o, style) + self._arrow_attrs(o),
+                          fill_opacity=fill_opacity, fill_rule=fill_rule)
 
         if t == "text" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])

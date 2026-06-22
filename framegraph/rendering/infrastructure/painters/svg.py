@@ -48,11 +48,13 @@ class SvgPainter:
 
     # ---- small attribute / style helpers ---------------------------------- #
     @staticmethod
-    def fill_attr(fill, fill_opacity=None):
+    def fill_attr(fill, fill_opacity=None, fill_rule=None):
         """The SVG `fill` attribute for a resolved paint value (None ⇒ 'none')."""
         attr = f' fill="{esc(fill)}"' if fill is not None else ' fill="none"'
         if fill_opacity is not None:
             attr += f' fill-opacity="{fnum(num(fill_opacity, 1))}"'
+        if fill_rule:
+            attr += f' fill-rule="{esc(fill_rule)}"'
         return attr
 
     @staticmethod
@@ -247,11 +249,11 @@ class SvgPainter:
         return (f'<line x1="{fnum(x1)}" y1="{fnum(y1)}" '
                 f'x2="{fnum(x2)}" y2="{fnum(y2)}"{stroke}/>')
 
-    def poly(self, tag, points, fill, stroke, fill_opacity=None):
-        return f'<{tag} points="{points}"{self.fill_attr(fill, fill_opacity)}{stroke}/>'
+    def poly(self, tag, points, fill, stroke, fill_opacity=None, fill_rule=None):
+        return f'<{tag} points="{points}"{self.fill_attr(fill, fill_opacity, fill_rule)}{stroke}/>'
 
-    def path(self, d, fill, stroke, fill_opacity=None):
-        return f'<path d="{esc(d)}"{self.fill_attr(fill, fill_opacity)}{stroke}/>'
+    def path(self, d, fill, stroke, fill_opacity=None, fill_rule=None):
+        return f'<path d="{esc(d)}"{self.fill_attr(fill, fill_opacity, fill_rule)}{stroke}/>'
 
     def image(self, x, y, w, h, href, preserve_aspect_ratio="xMidYMid meet"):
         return (f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '
