@@ -321,6 +321,18 @@ class SvgPainter:
             for i, ln in enumerate(lines))
         return f'<text y="{fnum(base_y)}" text-anchor="{anchor}" style="{style}">{spans}</text>'
 
+    def text_runs(self, base_y, anchor, tx, base_style, runs):
+        """A single baseline of inline styled runs (rich `text.spans`).
+
+        `runs` is a list of (text, run_style) pairs. The first run carries the
+        anchor x; the rest flow inline. Each run's style overrides the base."""
+        segs = []
+        for i, (text, run_style) in enumerate(runs):
+            xa = f' x="{fnum(tx)}"' if i == 0 else ""
+            segs.append(f'<tspan{xa} style="{run_style}">{esc(text)}</tspan>')
+        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}" '
+                f'style="{base_style}">{"".join(segs)}</text>')
+
     # ---- grouping / document ---------------------------------------------- #
     def group(self, inner, translate=None):
         if translate is not None:

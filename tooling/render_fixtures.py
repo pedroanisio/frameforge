@@ -186,7 +186,24 @@ class Renderer:
     # anchor() / text_tag() / clip_rect() emission moved to the SvgPainter
     # (step 4); the builder calls self._painter.* for them.
 
-    def render_text(self, x, y, w, h, content, st):
+    def _span_runs(self, spans, base_st, size):
+        """Resolve `text.spans` to (text, run_style) pairs for one styled line.
+
+        Mirrors the flatten used for fit (str | dict's `text`), so the run texts
+        concatenate to the fitted line; each run's style comes from the span's own
+        `style` (else the base), rendered at the fitted size."""
+        runs = []
+        for sp in spans:
+            if isinstance(sp, dict):
+                text = sp.get("text", "")
+                sty = self.text_style(sp["style"]) if sp.get("style") else base_st
+            else:
+                text, sty = (sp if isinstance(sp, str) else str(sp)), base_st
+            text = self._transform_text(str(text), base_st.get("text_transform"))
+            runs.append((text, self._painter.font_style(sty, size)))
+        return runs
+
+    def render_text(self, x, y, w, h, content, st, spans=None):
         """Render a text object honouring the FrameGraph text-fit contract:
         wrap-to-box (default), `shrink_to_fit` (down to min_font_size), `clip`/
         `hidden`, `text_overflow: ellipsis`, `line_clamp`/`max_lines`, plus a
@@ -260,7 +277,13 @@ class Renderer:
         a = self._painter.anchor(st["align"])
         tx = x + (w / 2 if a == "middle" else (w if a == "end" else 0))
         style = self._painter.font_style(st, size)
-        el = self._painter.text_block(base, a, style, lines, tx, size * lh)
+        # Rich `text.spans`: when the fitted text is a single, untruncated line,
+        # emit per-run styled tspans (the common inline-emphasis case). Wrapped or
+        # truncated span text falls back to the flattened single-style line.
+        if spans and len(lines) == 1 and lines[0] == content:
+            el = self._painter.text_runs(base, a, tx, style, self._span_runs(spans, st, size))
+        else:
+            el = self._painter.text_block(base, a, style, lines, tx, size * lh)
 
         # telemetry: is it visually contained?
         widest = max((self.measure(ln, size, avg) for ln in lines), default=0)
@@ -672,10 +695,11 @@ class Renderer:
         if t == "text" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
             content = o.get("text")
-            if content is None and o.get("spans"):
+            spans = o.get("spans")
+            if content is None and spans:
                 content = "".join(s if isinstance(s, str) else s.get("text", "")
-                                  for s in o["spans"])
-            return self.render_text(x, y, w, h, content, self.text_style(o.get("style")))
+                                  for s in spans)
+            return self.render_text(x, y, w, h, content, self.text_style(o.get("style")), spans=spans)
 
         if t == "bullet_list" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
