@@ -18,13 +18,23 @@ const doc = normalizeFrameGraphDoc({
       {
         type: "paragraph",
         spans: [
-          "Inline ",
+          "Inline MathML ",
           {
             kind: "math",
             mathml: "<math><mi>y</mi><mo>=</mo><mn>1</mn></math>",
           },
-          " renders.",
+          " and TeX ",
+          {
+            kind: "math",
+            tex: "S = \\sqrt{s(s+1)}\\,\\hbar",
+          },
+          " render.",
         ],
+      },
+      {
+        type: "math",
+        tex: "E = mc^2",
+        alt: "E equals m c squared",
       },
       {
         type: "math",
@@ -48,12 +58,17 @@ await page.waitForFunction(() => window.__FRAMEGRAPH_VIEWER__?.state().title ===
 
 const result = await page.locator('[data-framegraph-page="active"]').evaluate((el) => {
   const mathNodes = Array.from(el.querySelectorAll(".fg-mathml math"));
+  const katexNodes = Array.from(el.querySelectorAll(".fg-math .katex"));
   const text = el.textContent || "";
   return {
     mathNodeCount: mathNodes.length,
     inlineCount: el.querySelectorAll(".fg-math-inline.fg-mathml math").length,
     displayCount: el.querySelectorAll(".fg-math-display.fg-mathml math").length,
+    katexCount: katexNodes.length,
+    inlineKatexCount: el.querySelectorAll(".fg-math-inline .katex").length,
+    displayKatexCount: el.querySelectorAll(".fg-math-display .katex-display").length,
     rawXml: text.includes("<math>") || text.includes("&lt;math&gt;"),
+    rawTex: /\\(?:sqrt|hbar|frac|left|right)\b/.test(text),
     fallback: text.includes("math expression"),
   };
 });
@@ -61,7 +76,11 @@ const result = await page.locator('[data-framegraph-page="active"]').evaluate((e
 if (result.mathNodeCount !== 2) failures.push(`expected 2 MathML nodes, found ${result.mathNodeCount}`);
 if (result.inlineCount !== 1) failures.push(`expected 1 inline MathML node, found ${result.inlineCount}`);
 if (result.displayCount !== 1) failures.push(`expected 1 display MathML node, found ${result.displayCount}`);
+if (result.katexCount !== 2) failures.push(`expected 2 KaTeX nodes, found ${result.katexCount}`);
+if (result.inlineKatexCount !== 1) failures.push(`expected 1 inline KaTeX node, found ${result.inlineKatexCount}`);
+if (result.displayKatexCount !== 1) failures.push(`expected 1 display KaTeX node, found ${result.displayKatexCount}`);
 if (result.rawXml) failures.push("raw MathML XML leaked into viewer text");
+if (result.rawTex) failures.push("raw TeX command leaked into viewer text");
 if (result.fallback) failures.push("valid MathML fell back instead of rendering");
 
 await browser.close();

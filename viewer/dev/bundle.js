@@ -42729,7 +42729,7 @@ ${exception.mark.snippet}`;
     };
     const colTemplate = columns.length ? columns.map(colWidth).join(" ") : `repeat(${Math.max(1, header.length || rows[0]?.length || 1)}, 1fr)`;
     const pad2 = o.cell_padding;
-    const cellPad = Array.isArray(pad2) ? pad2.map(toPx) : pad2 != null ? [toPx(pad2), toPx(pad2), toPx(pad2), toPx(pad2)] : [5, 8, 5, 8];
+    const cellPad = Array.isArray(pad2) ? pad2.map(toPx) : pad2 != null ? [toPx(pad2), toPx(pad2), toPx(pad2), toPx(pad2)] : absolute ? [5, 8, 5, 8] : [3, 8, 3, 8];
     const headerFill = tableStyle.header_fill ? resolveColor(doc, tableStyle.header_fill) : null;
     const headerTextStyle = tableStyle.header_text;
     const cellTextStyle = tableStyle.cell_text;
@@ -42763,7 +42763,7 @@ ${exception.mark.snippet}`;
       o.caption && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 6, ...textCss(doc, "caption", { size: 12, color: UI.mid, align: "center" }) }, children: o.caption })
     ] });
   }
-  function FlowBlock({ doc, block }) {
+  function FlowBlock({ doc, block, width }) {
     const type = block?.type;
     if (!block || type === "page_break") return null;
     if (type === "spacer") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { height: toPx(block.size || block.height) || 16 } });
@@ -42789,12 +42789,18 @@ ${exception.mark.snippet}`;
     if (type === "toc") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "8px 0 12px", ...textCss(doc, block.style, { size: 14, weight: 700 }) }, children: block.title || "Contents" });
     if (type === "figure") {
       const size = block.size || [320, 160];
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("figure", { style: { margin: "12px auto", width: toPx(size[0]) || "80%" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { position: "relative", width: toPx(size[0]) || 320, height: toPx(size[1]) || 160 }, children: block.object ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RenderObject, { doc, o: block.object, cw: toPx(size[0]) || 320, ch: toPx(size[1]) || 160, reg: {}, active: true }) : null }),
+      const rawW = toPx(size[0]) || 320;
+      const rawH = toPx(size[1]) || 160;
+      const maxW = width || rawW;
+      const scale = Math.min(1, maxW / rawW);
+      const shownW = rawW * scale;
+      const shownH = rawH * scale;
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("figure", { style: { margin: "12px auto", width: shownW }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { position: "relative", width: shownW, height: shownH }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { position: "relative", width: rawW, height: rawH, transform: `scale(${scale})`, transformOrigin: "top left" }, children: block.object ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RenderObject, { doc, o: block.object, cw: rawW, ch: rawH, reg: {}, active: true }) : null }) }),
         block.caption && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("figcaption", { style: { marginTop: 6, ...textCss(doc, "caption", { size: 12, color: UI.mid, align: "center" }) }, children: block.caption })
       ] });
     }
-    if (type === "block") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "8px 0", padding: 10, borderLeft: `3px solid ${UI.accent}`, ...textCss(doc, block.style, { size: 14 }) }, children: (block.children || []).map((c, i2) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FlowBlock, { doc, block: c }, i2)) });
+    if (type === "block") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "8px 0", padding: 10, borderLeft: `3px solid ${UI.accent}`, ...textCss(doc, block.style, { size: 14 }) }, children: (block.children || []).map((c, i2) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FlowBlock, { doc, block: c, width: width ? Math.max(0, width - 24) : width }, i2)) });
     if (type === "bibliography") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 12, ...textCss(doc, block.style, { size: 13 }) }, children: block.title || "References" });
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "6px 0", ...textCss(doc, block.style, { size: 13, color: UI.mid }) }, children: textContent(block) || `[${type}]` });
   }
@@ -42891,7 +42897,13 @@ ${exception.mark.snippet}`;
     }
     if (type === "math") return 48;
     if (type === "toc") return 42;
-    if (type === "figure") return (toPx(block.size?.[1]) || 160) + (block.caption ? 58 : 30);
+    if (type === "figure") {
+      const rawW = toPx(block.size?.[0]) || 320;
+      const rawH = toPx(block.size?.[1]) || 160;
+      const maxW = width || rawW;
+      const scale = Math.min(1, maxW / rawW);
+      return rawH * scale + (block.caption ? 58 : 30);
+    }
     if (type === "block") {
       return (block.children || []).reduce((sum, child) => sum + estimateFlowBlockHeight(doc, child, width - 24), 42);
     }
@@ -42924,7 +42936,7 @@ ${exception.mark.snippet}`;
         pushPage();
         continue;
       }
-      const h = estimateFlowBlockHeight(doc, block, rw);
+      const h = estimateFlowBlockHeight(doc, block, rw) + 8;
       if (current.length && used + h > rh) pushPage();
       current.push(block);
       used += Math.min(h, rh);
@@ -42969,7 +42981,7 @@ ${exception.mark.snippet}`;
             overflow: "hidden",
             fontFamily: resolveFont(doc, "serif"),
             color: resolveColor(doc, "ink")
-          }, children: story.map((block, i2) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FlowBlock, { doc, block }, block.id || i2)) })
+          }, children: story.map((block, i2) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FlowBlock, { doc, block, width: rw }, block.id || i2)) })
         ]
       }
     );
