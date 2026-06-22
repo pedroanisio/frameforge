@@ -1673,6 +1673,27 @@ class Renderer:
                 lines.append(cur)
             return lines or [""]
 
+        def text_of(value):
+            if value is None:
+                return ""
+            if isinstance(value, (str, int, float)):
+                return str(value)
+            if isinstance(value, list):
+                return "".join(text_of(item) for item in value)
+            if not isinstance(value, dict):
+                return str(value)
+            if value.get("text") is not None:
+                return str(value.get("text"))
+            if isinstance(value.get("content"), list):      # LinkInline / FootnoteInline inline content
+                return "".join(text_of(item) for item in value.get("content") or [])
+            if value.get("tex") is not None:                # inline math fallback
+                return str(value.get("tex"))
+            if isinstance(value.get("spans"), list):
+                return "".join(text_of(span) for span in value.get("spans") or [])
+            if isinstance(value.get("children"), list):
+                return "\n".join(text_of(child) for child in value.get("children") or [])
+            return ""
+
         def emit(text, st, indent=0, gap_after=6):
             nonlocal cy
             for ln in wrap(text, st["size"]):
@@ -1683,69 +1704,120 @@ class Renderer:
                 cy += st["size"] * st["lh"]
             cy += gap_after
 
-        base = {"family": "serif", "size": 12, "weight": "normal", "italic": False,
-                "color": "#1c1c1c", "align": "left", "lh": 1.4}
-        for fl in page.get("story") or []:
-            if not isinstance(fl, dict):
-                continue
+        def emit_table(fl):
+            nonlocal cy
+            header = fl.get("header") if isinstance(fl.get("header"), list) else []
+            rows = fl.get("rows") if isinstance(fl.get("rows"), list) else []
+            if not header and not rows:
+                return
+            col_count = max(len(header), *(len(r) for r in rows if isinstance(r, list)), 1)
+            col_w = usable / col_count
+            row_h = 18
+            font_size = 6.5 if col_count > 6 else 8
+            cell_st = {**base, "family": "sans-serif", "size": font_size, "lh": 1.1}
+            head_st = {**cell_st, "weight": "bold", "color": "#222"}
+
+            def emit_row(values, st, fill):
+                nonlocal cy
+                if cy + row_h > bottom:
+                    newpage()
+                for idx in range(col_count):
+                    tx = x + idx * col_w
+                    value = values[idx] if idx < len(values) else ""
+                    body.append(p.rect(tx, cy, col_w, row_h, fill, ' stroke="#d8d8d8" stroke-width="0.5"'))
+                    body.append(p.text_tag(tx + 3, cy + 3, col_w - 6, row_h - 6, text_of(value), st, vcenter=False))
+                cy += row_h
+
+            caption = text_of(fl.get("caption"))
+            if caption:
+                emit(caption, {**base, "family": "sans-serif", "size": 9, "weight": "bold"}, gap_after=4)
+            if header:
+                emit_row(header, head_st, "#f1f3f5")
+            for idx, row in enumerate(rows):
+                emit_row(row if isinstance(row, list) else [row], cell_st, "#ffffff" if idx % 2 == 0 else "#fafafa")
+            cy += 10
+
+        def emit_flow(fl):
+            nonlocal cy
             ft = fl.get("type")
             stref = self.text_style(fl.get("style")) if fl.get("style") else None
             if ft == "heading":
                 sz = max(15, 30 - 3 * (fl.get("level", 1) - 1))
-                emit(fl.get("text", ""), {**base, "size": sz, "weight": "bold",
-                                          **({"color": stref["color"]} if stref else {})}, gap_after=10)
+                emit(text_of(fl), {**base, "size": sz, "weight": "bold",
+                                  **({"color": stref["color"]} if stref else {})}, gap_after=10)
             elif ft == "paragraph":
-                txt = fl.get("text")
-                if txt is None and fl.get("spans"):
-                    txt = "".join(s if isinstance(s, str) else s.get("text", "") for s in fl["spans"])
-                emit(txt or "", stref or base)
+                emit(text_of(fl), stref or base)
             elif ft == "list":
-                for it in fl.get("items", []):
-                    txt = it if isinstance(it, str) else (it.get("text", "") if isinstance(it, dict) else str(it))
-                    emit("• " + str(txt), base, indent=16, gap_after=2)
+                ordered = bool(fl.get("ordered"))
+                for idx, it in enumerate(fl.get("items", []), start=1):
+                    bullet = f"{idx}. " if ordered else "• "
+                    emit(bullet + text_of(it), base, indent=16, gap_after=2)
                 cy += 6
+            elif ft == "block":
+                children = fl.get("children") if isinstance(fl.get("children"), list) else []
+                for child in children:
+                    if isinstance(child, dict):
+                        emit_flow(child)
+                cy += 4
+            elif ft == "table":
+                emit_table(fl)
+            elif ft in ("math", "code"):
+                text = fl.get("tex") if ft == "math" else fl.get("code")
+                text = text if text is not None else text_of(fl)
+                mono = {**base, "family": "monospace", "size": 10, "color": "#333"}
+                for ln in str(text).splitlines() or [""]:
+                    emit(ln, mono, gap_after=1)
+                cy += 8
             elif ft == "spacer":
                 cy += num(fl.get("height"), 12) or 12
             elif ft in ("page_break", "column_break"):
                 newpage()
             elif ft == "figure" and isinstance(fl.get("object"), dict):
-                # Draw the figure's actual geometry (the "drawing"), not a stub.
-                ob = fl["object"]
-                obox = ob.get("box") if isinstance(ob.get("box"), list) else None
-                size = fl.get("size") if isinstance(fl.get("size"), list) else None
-                fw = (num(size[0], 0) if size and len(size) >= 2
-                      else num(obox[2], usable) if obox and len(obox) >= 4 else usable)
-                fh = (num(size[1], 0) if size and len(size) >= 2
-                      else num(obox[3], 0) if obox and len(obox) >= 4 else 0)
-                scale = min(1.0, usable / fw) if fw else 1.0
-                draw_h = (fh or 0) * scale
-                if cy + draw_h > bottom and cy > top:        # keep a figure whole
-                    newpage()
-                inner = self.obj(ob)
-                if inner:
-                    ox = num(obox[0], 0) if obox and len(obox) >= 2 else 0
-                    oy = num(obox[1], 0) if obox and len(obox) >= 2 else 0
-                    tx, ty = x - ox * scale, cy - oy * scale
-                    if scale != 1.0:
-                        body.append(f'<g transform="translate({fnum(tx)},{fnum(ty)}) '
-                                    f'scale({fnum(scale)})">{inner}</g>')
-                    else:
-                        body.append(p.group(inner, translate=(tx, ty)) if (tx or ty) else inner)
-                    cy += draw_h + 6
-                cap = fl.get("caption")
-                captxt = cap if isinstance(cap, str) else (cap.get("text", "") if isinstance(cap, dict) else "")
-                if captxt:
-                    emit(captxt, {**base, "size": 10, "italic": True, "color": "#666",
-                                  "align": "center"}, gap_after=12)
+                emit_figure(fl)
+            else:
+                text = text_of(fl)
+                if text:
+                    emit(text, stref or base)
+
+        def emit_figure(fl):
+            nonlocal cy
+            # Draw the figure's actual geometry (the "drawing"), not a stub.
+            ob = fl["object"]
+            obox = ob.get("box") if isinstance(ob.get("box"), list) else None
+            size = fl.get("size") if isinstance(fl.get("size"), list) else None
+            fw = (num(size[0], 0) if size and len(size) >= 2
+                  else num(obox[2], usable) if obox and len(obox) >= 4 else usable)
+            fh = (num(size[1], 0) if size and len(size) >= 2
+                  else num(obox[3], 0) if obox and len(obox) >= 4 else 0)
+            scale = min(1.0, usable / fw) if fw else 1.0
+            draw_h = (fh or 0) * scale
+            if cy + draw_h > bottom and cy > top:        # keep a figure whole
+                newpage()
+            inner = self.obj(ob)
+            if inner:
+                ox = num(obox[0], 0) if obox and len(obox) >= 2 else 0
+                oy = num(obox[1], 0) if obox and len(obox) >= 2 else 0
+                tx, ty = x - ox * scale, cy - oy * scale
+                if scale != 1.0:
+                    body.append(f'<g transform="translate({fnum(tx)},{fnum(ty)}) '
+                                f'scale({fnum(scale)})">{inner}</g>')
                 else:
-                    cy += 8
-            else:                                      # table/image/code/math/toc/...
-                if cy + 26 > bottom:
-                    newpage()
-                ph = {**base, "family": "monospace", "size": 11, "italic": True, "color": "#999"}
-                body.append(p.rect(x, cy, usable, 22, "#f5f5f5", ' stroke="#ddd" stroke-dasharray="3 3"'))
-                body.append(p.text_tag(x + 6, cy, usable, 22, f"[{ft}]", ph, vcenter=True))
-                cy += 30
+                    body.append(p.group(inner, translate=(tx, ty)) if (tx or ty) else inner)
+                cy += draw_h + 6
+            cap = fl.get("caption")
+            captxt = cap if isinstance(cap, str) else (cap.get("text", "") if isinstance(cap, dict) else "")
+            if captxt:
+                emit(captxt, {**base, "size": 10, "italic": True, "color": "#666",
+                              "align": "center"}, gap_after=12)
+            else:
+                cy += 8
+
+        base = {"family": "serif", "size": 12, "weight": "normal", "italic": False,
+                "color": "#1c1c1c", "align": "left", "lh": 1.4}
+        for fl in page.get("story") or []:
+            if not isinstance(fl, dict):
+                continue
+            emit_flow(fl)
         flush()
         return pages or [p.document(w, h, "")]
 

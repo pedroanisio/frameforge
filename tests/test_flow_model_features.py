@@ -89,20 +89,30 @@ def test_schema_carries_the_new_surface():
 
 
 # --- the authoritative fixture exercises every feature (the oracle) ----------- #
+# The fixture contains out-of-profile `use` objects, so it is validated through
+# the profile-aware validator (the real gate), not strict Document.model_validate;
+# feature presence is then asserted on the raw story (codebase-standards §8).
+def test_standard_model_fixture_validates_with_no_errors():
+    _, _findings, rc = V.validate_doc(FIXTURE)
+    assert rc == 0, [str(f) for f in _findings if f.severity == "ERROR"]
+
+
 def test_standard_model_fixture_uses_all_four_features():
-    doc = fg.Document.model_validate(yaml.safe_load(open(FIXTURE, encoding="utf-8")))
-    section = doc.pages[0]
-    assert isinstance(section, fg.FlowSection)
+    doc = yaml.safe_load(open(FIXTURE, encoding="utf-8"))
+    section = doc["pages"][0]
+    assert section["mode"] == "flow"
+    story = section["story"]
 
     # FlowSection.links
-    assert section.links and any(l.relation == "source" for l in section.links)
+    assert any(l.get("relation") == "source" for l in section.get("links", []))
 
-    # LinkInline somewhere in the story's paragraph spans
-    links = [s for fl in section.story if isinstance(fl, fg.ParagraphFlow)
-             for s in (fl.spans or []) if isinstance(s, fg.LinkInline)]
-    assert any(l.content == ["Enrico Fermi"] for l in links)
+    # LinkInline somewhere in a paragraph's spans
+    link_contents = [s.get("content") for fl in story if fl.get("type") == "paragraph"
+                     for s in (fl.get("spans") or [])
+                     if isinstance(s, dict) and s.get("kind") == "link"]
+    assert ["Enrico Fermi"] in link_contents
 
-    # MathFlow.alt and FigureFlow.units
-    assert any(isinstance(fl, fg.MathFlow) and fl.alt for fl in section.story)
-    figs = [fl for fl in section.story if isinstance(fl, fg.FigureFlow)]
-    assert figs and all(fl.units == "px" for fl in figs)
+    # MathFlow.alt and FigureFlow.units (every figure declares units)
+    assert any(fl.get("type") == "math" and fl.get("alt") for fl in story)
+    figs = [fl for fl in story if fl.get("type") == "figure"]
+    assert figs and all(fl.get("units") == "px" for fl in figs)

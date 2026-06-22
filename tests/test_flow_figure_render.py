@@ -4,10 +4,10 @@ test_flow_figure_render.py — regression for flow-mode figure rendering in the
 SVG proxy (tooling/render_fixtures.py).
 
 Bug: `_render_flow` only drew heading/paragraph/list and stubbed everything else
-(figure/table/math/...) as a dashed `[figure]` placeholder — so the *drawings*
-of a `mode: flow` document (e.g. fixtures/standard-model.fg.yaml) never rendered.
-The fix draws the figure's `object` (including expanded symbol `use`) at the
-flowed position, scaled to fit the column, with its caption.
+(figure/table/math/...) as dashed `[type]` placeholders — so the *drawings* and
+structured flow content of a `mode: flow` document (e.g.
+fixtures/standard-model.fg.yaml) never rendered. The fix draws figures, tables,
+math/code, and nested blocks as real SVG/text content.
 
 Renderer-only import (the `framegraph` package must win) — evict a models-module
 shadow first, per test_render_cli.py.
@@ -92,7 +92,7 @@ def test_flow_figure_draws_geometry_not_placeholder(tmp_path):
 
 def test_standard_model_figures_all_render(tmp_path):
     """The checked-in fixture that surfaced the bug: every figure must draw, so
-    no `[figure]` placeholder may survive and real geometry (ellipses) appears."""
+    no flow placeholder may survive and real geometry/content appears."""
     rc = R.main([STANDARD_MODEL, "--out", str(tmp_path), "-q"])
     assert rc == 0
     pages_dir = tmp_path / R.stem_of(STANDARD_MODEL)
@@ -101,5 +101,9 @@ def test_standard_model_figures_all_render(tmp_path):
         for f in sorted(os.listdir(pages_dir))
         if f.endswith(".svg")
     )
-    assert "[figure]" not in combined          # no figure was stubbed
+    for placeholder in ("[figure]", "[table]", "[math]", "[block]"):
+        assert placeholder not in combined
     assert combined.count("<ellipse") > 50     # the SM-grid quark/colour dots drew
+    assert "standard model particles" in combined
+    assert "S = \\left" in combined
+    assert "Masses as reported by the Particle Data Group" in combined
