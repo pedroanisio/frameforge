@@ -102,6 +102,13 @@ DOC = {
                             {"type": "use", "symbol": "dot", "box": [20, 20, 10, 10]},
                             {"type": "line", "from": [40, 30], "to": [95, 30], "stroke_style": "arrow"},
                             {"type": "text", "box": [45, 34, 50, 14], "text": "A_B", "style": "body"},
+                            {"type": "path", "d": "M 6 52 L 24 52 L 15 42 Z", "fill": "accent"},
+                            {"type": "curve", "from": [32, 52], "control1": [42, 42], "control2": [52, 62], "to": [62, 52], "stroke": "#333333"},
+                            {"type": "icon", "glyph": "*", "box": [100, 8, 12, 12], "color": "accent"},
+                            {"type": "bullet_list", "box": [70, 38, 42, 18], "items": ["one", "two"], "style": "fig_caption"},
+                            {"type": "dimension", "kind": "linear", "from": [8, 8], "to": [38, 8], "value": "auto", "suffix": " pt"},
+                            {"type": "table", "box": [78, 4, 36, 22], "rows": [["q", "r"], ["s", "t"]]},
+                            {"type": "image", "box": [4, 18, 20, 14], "src": "diagram.png", "alt": "Diagram"},
                         ],
                     },
                     "caption": "Figure #1",
@@ -146,6 +153,13 @@ def test_transpile_emits_native_latex_math_and_tikz():
     assert "ellipse (5pt and 5pt)" in tex
     assert "->" in tex
     assert "A\\_B" in tex
+    assert "-- cycle" in tex
+    assert ".. controls (42,42) and (52,62) .. (62,52)" in tex
+    assert "{*}" in tex
+    assert "{one}" in tex and "{two}" in tex
+    assert "<->" in tex and "30 pt" in tex
+    assert "{q}" in tex and "{t}" in tex
+    assert "{Diagram}" in tex
     assert "Figure \\#1\\label{fg:fig-smoke}" in tex
     assert "\\begin{thebibliography}{99}" in tex
     assert "\\bibitem{einstein1905}A. Einstein, 1905." in tex
@@ -191,6 +205,9 @@ def test_transpile_emits_extended_latex_flow_controls():
 def test_render_latex_cli_tex_only_writes_tex(tmp_path):
     src = tmp_path / "latex-smoke.fg.yaml"
     src.write_text(yaml.safe_dump(DOC), encoding="utf-8")
+    assets = tmp_path / "assets"
+    assets.mkdir()
+    (assets / "logo a.png").write_bytes(b"not decoded in tex-only mode")
     out = tmp_path / "out"
 
     rc = CLI.main([str(src), "--out", str(out), "--tex-only", "-q"])

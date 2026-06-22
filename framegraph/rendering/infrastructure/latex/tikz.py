@@ -11,6 +11,8 @@ counted in `.skipped` and dropped, mirroring the SVG proxy's tolerance.
 """
 from __future__ import annotations
 
+import re
+
 from framegraph.rendering.domain.geometry import fnum, is_point, num
 
 # ---- LaTeX text escaping --------------------------------------------------- #
@@ -236,6 +238,127 @@ class FigureTikz:
         chain = " -- ".join(f"({fnum(x)},{fnum(y)})" for x, y in pts) + " -- cycle"
         return self._path(opts, chain)
 
+    def _draw_path(self, o) -> str:
+        geom = self._path_d(o.get("d"))
+        if not geom:
+            return ""
+        opts = self._fill_opts(o) + self._stroke_opts(o)
+        return self._path(opts, geom)
+
+    def _draw_curve(self, o) -> str:
+        fr, to = o.get("from"), o.get("to")
+        if not (is_point(fr) and is_point(to)):
+            return ""
+        c1 = o.get("control1") or o.get("c1") or fr
+        c2 = o.get("control2") or o.get("c2") or to
+        if not (is_point(c1) and is_point(c2)):
+            return ""
+        opts = self._fill_opts(o) + self._stroke_opts(o, default_color="#000000")
+        geom = (
+            f"({fnum(num(fr[0], 0))},{fnum(num(fr[1], 0))}) .. controls "
+            f"({fnum(num(c1[0], 0))},{fnum(num(c1[1], 0))}) and "
+            f"({fnum(num(c2[0], 0))},{fnum(num(c2[1], 0))}) .. "
+            f"({fnum(num(to[0], 0))},{fnum(num(to[1], 0))})"
+        )
+        return self._path(opts, geom)
+
+    def _draw_bezier(self, o) -> str:
+        return self._draw_curve(o)
+
+    def _path_d(self, d):
+        if isinstance(d, list):
+            return self._path_segments(d)
+        if not isinstance(d, str):
+            return ""
+        tokens = re.findall(r"[MmLlHhVvCcZz]|-?\d+(?:\.\d+)?", d.replace(",", " "))
+        out, cmd, cur, start, i = [], None, (0.0, 0.0), (0.0, 0.0), 0
+
+        def point(relative=False):
+            nonlocal i, cur
+            if i + 1 >= len(tokens):
+                return None
+            x, y = num(tokens[i], None), num(tokens[i + 1], None)
+            i += 2
+            if x is None or y is None:
+                return None
+            if relative:
+                x, y = cur[0] + x, cur[1] + y
+            cur = (x, y)
+            return cur
+
+        while i < len(tokens):
+            if re.match(r"^[A-Za-z]$", tokens[i]):
+                cmd = tokens[i]
+                i += 1
+            if cmd is None:
+                break
+            rel = cmd.islower()
+            c = cmd.upper()
+            if c == "M":
+                p = point(rel)
+                if p is None:
+                    break
+                start = p
+                out.append(f"({fnum(p[0])},{fnum(p[1])})")
+                cmd = "l" if rel else "L"
+            elif c == "L":
+                p = point(rel)
+                if p is None:
+                    break
+                out.append(f"-- ({fnum(p[0])},{fnum(p[1])})")
+            elif c == "H":
+                x = num(tokens[i], None) if i < len(tokens) else None
+                i += 1
+                if x is None:
+                    break
+                cur = ((cur[0] + x) if rel else x, cur[1])
+                out.append(f"-- ({fnum(cur[0])},{fnum(cur[1])})")
+            elif c == "V":
+                y = num(tokens[i], None) if i < len(tokens) else None
+                i += 1
+                if y is None:
+                    break
+                cur = (cur[0], (cur[1] + y) if rel else y)
+                out.append(f"-- ({fnum(cur[0])},{fnum(cur[1])})")
+            elif c == "C":
+                vals = [num(tokens[i + j], None) for j in range(6)] if i + 5 < len(tokens) else []
+                i += 6
+                if len(vals) != 6 or any(v is None for v in vals):
+                    break
+                x1, y1, x2, y2, x, y = vals
+                if rel:
+                    x1, y1, x2, y2, x, y = cur[0] + x1, cur[1] + y1, cur[0] + x2, cur[1] + y2, cur[0] + x, cur[1] + y
+                cur = (x, y)
+                out.append(
+                    f".. controls ({fnum(x1)},{fnum(y1)}) and ({fnum(x2)},{fnum(y2)}) .. ({fnum(x)},{fnum(y)})"
+                )
+            elif c == "Z":
+                cur = start
+                out.append("-- cycle")
+            else:
+                break
+        return " ".join(out)
+
+    def _path_segments(self, segments):
+        out = []
+        for seg in segments:
+            if not isinstance(seg, list) or not seg:
+                continue
+            cmd = str(seg[0]).upper()
+            vals = [num(v, None) for v in seg[1:]]
+            if cmd == "M" and len(vals) >= 2:
+                out.append(f"({fnum(vals[0])},{fnum(vals[1])})")
+            elif cmd == "L" and len(vals) >= 2:
+                out.append(f"-- ({fnum(vals[0])},{fnum(vals[1])})")
+            elif cmd == "C" and len(vals) >= 6:
+                out.append(
+                    f".. controls ({fnum(vals[0])},{fnum(vals[1])}) and ({fnum(vals[2])},{fnum(vals[3])}) "
+                    f".. ({fnum(vals[4])},{fnum(vals[5])})"
+                )
+            elif cmd == "Z":
+                out.append("-- cycle")
+        return " ".join(out)
+
     # -- text -------------------------------------------------------------- #
     def _draw_text(self, o) -> str:
         box = o.get("box")
@@ -269,3 +392,106 @@ class FigureTikz:
         if cexpr:
             opts.append(f"text={cexpr}")
         return f"\\node[{','.join(opts)}] at ({fnum(ax)},{fnum(ay)}) {{{ltx_escape(content)}}};\n"
+
+    def _draw_icon(self, o) -> str:
+        box = o.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            return ""
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        size = num(o.get("size"), min(w, h)) or min(w, h) or 12
+        color, _ = color_expr(self._color.resolve(o.get("color") or "#000000"))
+        opts = ["anchor=center", "inner sep=0pt", f"font=\\fontsize{{{fnum(size)}}}{{{fnum(size)}}}\\selectfont"]
+        if color:
+            opts.append(f"text={color}")
+        return f"\\node[{','.join(opts)}] at ({fnum(x + w / 2)},{fnum(y + h / 2)}) {{{ltx_escape(o.get('glyph') or '')}}};\n"
+
+    def _draw_bullet_list(self, o) -> str:
+        box = o.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            return ""
+        x, y, w, _h = (num(v, 0) for v in box[:4])
+        st = self._ts.resolve(o.get("style"))
+        size = st.get("size", 12) or 12
+        gap = num(o.get("gap"), size * 1.35) or size * 1.35
+        indent = num(o.get("indent"), size * 1.2) or size * 1.2
+        marker = o.get("marker") or "*"
+        out = []
+        for idx, item in enumerate(o.get("items") or []):
+            text = item.get("text") if isinstance(item, dict) else item
+            yy = y + size + idx * gap
+            out.append(
+                f"\\node[anchor=west,inner sep=0pt,font=\\fontsize{{{fnum(size)}}}{{{fnum(size * 1.2)}}}\\selectfont] "
+                f"at ({fnum(x)},{fnum(yy)}) {{{ltx_escape(marker)}}};\n"
+            )
+            out.append(
+                f"\\node[anchor=west,inner sep=0pt,text width={fnum(max(w - indent, 1))}pt,"
+                f"font=\\fontsize{{{fnum(size)}}}{{{fnum(size * 1.2)}}}\\selectfont] "
+                f"at ({fnum(x + indent)},{fnum(yy)}) {{{ltx_escape(text)}}};\n"
+            )
+        return "".join(out)
+
+    def _draw_dimension(self, o) -> str:
+        fr, to = o.get("from"), o.get("to")
+        if not (is_point(fr) and is_point(to)):
+            return ""
+        x1, y1, x2, y2 = num(fr[0], 0), num(fr[1], 0), num(to[0], 0), num(to[1], 0)
+        opts = self._stroke_opts(o, default_color="#000000")
+        arrow = o.get("arrows") or "both"
+        if arrow == "both":
+            opts.insert(0, "<->")
+        elif arrow == "first":
+            opts.insert(0, "<-")
+        elif arrow == "second":
+            opts.insert(0, "->")
+        label = o.get("text")
+        if label is None:
+            value = o.get("value")
+            if value == "auto" or value is None:
+                value = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+                label = fnum(value)
+            else:
+                label = fnum(value)
+            label = f"{o.get('prefix') or ''}{label}{o.get('suffix') or ''}"
+        midx, midy = (x1 + x2) / 2, (y1 + y2) / 2
+        return (
+            f"\\draw[{','.join(opts)}] ({fnum(x1)},{fnum(y1)}) -- ({fnum(x2)},{fnum(y2)});\n"
+            f"\\node[fill=white,inner sep=1pt,font=\\scriptsize] at ({fnum(midx)},{fnum(midy)}) {{{ltx_escape(label)}}};\n"
+        )
+
+    def _draw_table(self, o) -> str:
+        box = o.get("box")
+        rows = [r for r in (o.get("rows") or []) if isinstance(r, list)]
+        if not rows or not (isinstance(box, list) and len(box) >= 4):
+            return ""
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        nrow = len(rows)
+        ncol = max([len(r) for r in rows] + [1])
+        cw, rh = w / ncol if ncol else w, h / nrow if nrow else h
+        out = [f"\\draw ({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)});\n"]
+        for c in range(1, ncol):
+            xx = x + c * cw
+            out.append(f"\\draw ({fnum(xx)},{fnum(y)}) -- ({fnum(xx)},{fnum(y + h)});\n")
+        for r in range(1, nrow):
+            yy = y + r * rh
+            out.append(f"\\draw ({fnum(x)},{fnum(yy)}) -- ({fnum(x + w)},{fnum(yy)});\n")
+        for r, row in enumerate(rows):
+            for c, cell in enumerate(row):
+                text = cell.get("content") if isinstance(cell, dict) else cell
+                out.append(
+                    f"\\node[anchor=center,inner sep=1pt,font=\\scriptsize,text width={fnum(max(cw - 2, 1))}pt,align=center] "
+                    f"at ({fnum(x + c * cw + cw / 2)},{fnum(y + r * rh + rh / 2)}) {{{ltx_escape(text)}}};\n"
+                )
+        return "".join(out)
+
+    def _draw_image(self, o) -> str:
+        box = o.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            return ""
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        label = o.get("alt") or o.get("actual_text") or o.get("label") or o.get("src") or "image"
+        return (
+            f"\\path[draw={{rgb,255:red,153;green,153;blue,153}},fill={{rgb,255:red,245;green,245;blue,245}}] "
+            f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)});\n"
+            f"\\node[anchor=center,inner sep=1pt,font=\\scriptsize,text width={fnum(max(w - 4, 1))}pt,align=center] "
+            f"at ({fnum(x + w / 2)},{fnum(y + h / 2)}) {{{ltx_escape(label)}}};\n"
+        )

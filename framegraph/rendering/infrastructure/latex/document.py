@@ -196,9 +196,9 @@ class _Transpiler:
             return None
         if resolved.startswith("data:"):
             return None
-        if os.path.isabs(resolved) or not self._asset_base:
-            return os.path.normpath(resolved)
-        return os.path.normpath(os.path.join(self._asset_base, resolved))
+        path = os.path.normpath(resolved if os.path.isabs(resolved) or not self._asset_base
+                                else os.path.join(self._asset_base, resolved))
+        return path if not self._asset_base or os.path.exists(path) else None
 
     def _para_body(self, fl):
         if isinstance(fl.get("spans"), list):
