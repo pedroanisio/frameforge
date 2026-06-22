@@ -919,6 +919,8 @@ class FigureTikz:
             font += "\\bfseries"
         if st.get("italic"):
             font += "\\itshape"
+        if st.get("font_variant_caps") == "small-caps":
+            font += "\\scshape"
         return font
 
     def _text_opts(self, st, anchor, width, align):
@@ -968,7 +970,18 @@ class FigureTikz:
     def _text_node(self, st, anchor, width, align, x, y, content):
         opts = self._text_opts(st, anchor, width, align)
         content = self._transform_text(content, st.get("text_transform"))
-        return f"\\node[{','.join(opts)}] at ({fnum(x)},{fnum(y)}) {{{ltx_escape(content)}}};\n"
+        body = self._decorate_text(st, ltx_escape(content))
+        return f"\\node[{','.join(opts)}] at ({fnum(x)},{fnum(y)}) {{{body}}};\n"
+
+    @staticmethod
+    def _decorate_text(st, content):
+        deco = st.get("text_decoration") if isinstance(st, dict) else None
+        line = deco.get("line") if isinstance(deco, dict) else deco
+        if isinstance(line, (list, tuple, set)):
+            lines = {str(v).strip().lower() for v in line}
+        else:
+            lines = set(str(line or "").replace(",", " ").split())
+        return f"\\underline{{{content}}}" if "underline" in lines else content
 
     def _text_shadow_nodes(self, st, anchor, width, align, x, y, content):
         out = []

@@ -55,3 +55,26 @@ def test_text_transform_capitalize_applies_to_spans():
     assert "{First Run}" in tex
     assert "{ second}" in tex
     assert "{first run}" not in tex
+
+
+def test_text_decoration_underline_wraps_tikz_text_content():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "under_score",
+        "style": {"text_decoration": {"line": "underline"}},
+    })
+
+    assert "{\\underline{under\\_score}}" in tex
+
+
+def test_font_variant_small_caps_maps_to_tikz_font_shape():
+    tex = _fig({"label": {"font_variant_caps": "small-caps"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "Caps",
+        "style": "label",
+    })
+
+    assert "\\scshape" in tex
+    assert "{Caps}" in tex
