@@ -250,6 +250,17 @@ def test_letter_spacing_maps_to_fontspec_letterspace():
     assert "\\addfontfeatures{LetterSpace=-0.2}" in tightened
 
 
+def test_word_spacing_maps_to_tex_spaceskip():
+    tex = _fig({"label": {"word_spacing": 12}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "wide words",
+        "style": "label",
+    })
+
+    assert "{\\spaceskip=12pt wide words}" in tex
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",
