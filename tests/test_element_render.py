@@ -53,6 +53,17 @@ OBJECT_SAMPLES = {
     "group": {"type": "group", "children": [{"type": "rect", "box": [0, 0, 5, 5], "fill": "#111"}]},
     "chip_row": {"type": "chip_row", "origin": [0, 0], "items": [{"text": "api", "width": 32}]},
     "uml.marker_glyph": {"type": "uml.marker_glyph", "position": [10, 10], "kind": "filled_diamond", "color": "#111"},
+    "uml.classifier_box": {"type": "uml.classifier_box", "box": [0, 0, 100, 70], "name": "Order",
+                           "stereotype": "entity", "attributes": [{"name": "id", "type": "UUID"}],
+                           "operations": [{"name": "total", "return_type": "Money"}]},
+    "uml.component_box": {"type": "uml.component_box", "box": [0, 0, 120, 50], "name": "API",
+                          "provided_interfaces": ["IOrders"], "required_interfaces": ["IAuth"]},
+    "uml.state_box": {"type": "uml.state_box", "box": [0, 0, 100, 55], "name": "Ready",
+                      "entry": "start", "do": "wait"},
+    "uml.action": {"type": "uml.action", "box": [0, 0, 80, 36], "name": "Submit"},
+    "uml.artifact_box": {"type": "uml.artifact_box", "box": [0, 0, 100, 44], "name": "Report",
+                         "stereotype": "artifact"},
+    "uml.node_box": {"type": "uml.node_box", "box": [0, 0, 100, 44], "name": "Worker", "kind": "device"},
 }
 
 # the SVG primitive each painted element must emit
@@ -63,6 +74,9 @@ EXPECT = {
     "icon": "<text", "bullet_list": "<text", "dimension": "<g",
     "image": "<rect", "table": "<rect", "group": "<g",
     "chip_row": "<rect", "uml.marker_glyph": "<polygon",
+    "uml.classifier_box": "<rect", "uml.component_box": "<rect",
+    "uml.state_box": "<rect", "uml.action": "<rect", "uml.artifact_box": "<rect",
+    "uml.node_box": "<rect",
 }
 
 # documented silent-ignore set. Any change here must be deliberate (this is the gate).
@@ -90,6 +104,8 @@ def test_element_render_footprint(t, obj):
     else:
         assert _has_element(body), f"{t!r} produced NO SVG element (silent ignore!)"
         assert EXPECT[t] in body, f"{t!r} expected {EXPECT[t]!r} in its SVG, got: {body[:120]!r}"
+        if t.startswith("uml.") and t != "uml.marker_glyph":
+            assert f"?{t}" not in body
 
 
 def test_no_unexpected_silent_ignores():

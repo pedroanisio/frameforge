@@ -26965,6 +26965,14 @@ ${exception.mark.snippet}`;
     tablet: [834, 1112],
     web: [1280, 800]
   };
+  var UML_BOX_TYPES = /* @__PURE__ */ new Set([
+    "uml.classifier_box",
+    "uml.component_box",
+    "uml.state_box",
+    "uml.action",
+    "uml.artifact_box",
+    "uml.node_box"
+  ]);
   function toPx(v) {
     if (v == null) return 0;
     if (typeof v === "number") return v;
@@ -27851,6 +27859,86 @@ ${exception.mark.snippet}`;
       }
     );
   }
+  function formatUmlAttr(attr) {
+    if (attr == null) return "";
+    if (typeof attr !== "object") return String(attr);
+    let row = `${attr.visibility || ""}${attr.name || attr.label || ""}`;
+    if (attr.type) row += `: ${attr.type}`;
+    if (attr.multiplicity) row += ` [${attr.multiplicity}]`;
+    if (attr.default != null) row += ` = ${attr.default}`;
+    if (attr.readonly) row += " {readOnly}";
+    return row;
+  }
+  function formatUmlOp(op) {
+    if (op == null) return "";
+    if (typeof op !== "object") return String(op);
+    const params = op.params || op.parameters || [];
+    const paramText = Array.isArray(params) ? params.map((p) => p && typeof p === "object" ? p.name || String(p) : String(p)).join(", ") : String(params || "");
+    let row = `${op.visibility || ""}${op.name || op.label || ""}(${paramText})`;
+    if (op.return_type || op.returns) row += `: ${op.return_type || op.returns}`;
+    return row;
+  }
+  function umlBoxSections(o) {
+    if (o.type === "uml.state_box") {
+      return [[o.entry ? `entry / ${o.entry}` : "", o.do ? `do / ${o.do}` : ""].filter(Boolean)];
+    }
+    if (o.type === "uml.component_box") {
+      const rows = [];
+      if (o.provided_interfaces?.length) rows.push(`provides: ${o.provided_interfaces.join(", ")}`);
+      if (o.required_interfaces?.length) rows.push(`requires: ${o.required_interfaces.join(", ")}`);
+      return [rows];
+    }
+    return [
+      (o.attributes || []).map(formatUmlAttr).filter(Boolean),
+      (o.operations || []).map(formatUmlOp).filter(Boolean)
+    ].filter((section) => section.length);
+  }
+  function UmlBoxObj({ doc, o }) {
+    const box = (o.box || [0, 0, 0, 0]).map(toPx);
+    const [x, y, w, h] = box;
+    const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+    const border = stroke ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}` : "1px solid #777";
+    const fill = resolveFill(doc, o.fill);
+    const titleRows = [
+      o.stereotype ? `<<${o.stereotype}>>` : "",
+      o.type === "uml.node_box" && o.kind ? `<<${o.kind}>>` : "",
+      o.name || o.label || o.id || o.type
+    ].filter(Boolean);
+    const sections = umlBoxSections(o);
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { "data-framegraph-object": o.id || "", "data-framegraph-type": o.type, style: {
+      position: "absolute",
+      left: x,
+      top: y,
+      width: w,
+      height: h,
+      boxSizing: "border-box",
+      overflow: "hidden",
+      border,
+      borderRadius: o.type === "uml.action" ? 10 : toPx(o.radius || 0),
+      background: fill && fill !== "transparent" ? fill : "#fff",
+      color: "#222",
+      fontFamily: resolveFont(doc, o.font),
+      opacity: o.opacity != null ? o.opacity : 1,
+      ...styleToCss(doc, o.style),
+      ...rotationStyle(o.rotation, box)
+    }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { padding: "5px 7px 4px", textAlign: "center", lineHeight: 1.15 }, children: titleRows.map((row, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+        fontSize: i === titleRows.length - 1 ? 12 : 10,
+        fontWeight: i === titleRows.length - 1 ? 700 : 400,
+        fontStyle: o.abstract && i === titleRows.length - 1 ? "italic" : "normal",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis"
+      }, children: row }, i)) }),
+      sections.map((rows, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+        borderTop: "1px solid #999",
+        padding: "4px 7px",
+        fontSize: 10,
+        lineHeight: 1.25,
+        textAlign: "left"
+      }, children: rows.map((row, j) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: row }, j)) }, i))
+    ] });
+  }
   function textContent(v) {
     if (v == null) return "";
     if (typeof v === "string" || typeof v === "number") return String(v);
@@ -28021,6 +28109,7 @@ ${exception.mark.snippet}`;
       case "uml.marker_glyph":
         return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlMarkerGlyphObj, { doc, o });
       default:
+        if (UML_BOX_TYPES.has(o.type)) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlBoxObj, { doc, o });
         if (o.from && o.to) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VectorObj, { doc, o: { ...o, type: "line" }, cw, ch, reg });
         if (o.children) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GroupObj, { doc, o: { ...o, type: "group" }, cw, ch, active });
         if (o.box) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TextObj, { doc, o: { ...o, text: textContent(o) || `[${o.type}]`, style: o.style || { size: 12, color: "muted" } }, active });

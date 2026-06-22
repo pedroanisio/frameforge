@@ -729,6 +729,16 @@ class Renderer:
         if t == "uml.marker_glyph":
             return self._uml_marker_glyph(o)
 
+        if t in {
+            "uml.classifier_box",
+            "uml.component_box",
+            "uml.state_box",
+            "uml.action",
+            "uml.artifact_box",
+            "uml.node_box",
+        } and box:
+            return self._uml_box(o, style, fill)
+
         if t == "icon" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
             col = self.color(o.get("color")) or "#444"
@@ -948,6 +958,121 @@ class Renderer:
         if any(k in style for k in ("stroke", "stroke_width", "stroke_dasharray", "stroke_linecap", "stroke_linejoin")):
             return self.stroke({"stroke": style.get("stroke"), "stroke_style": style})
         return ""
+
+    def _uml_box(self, o, style, fill):
+        box = o.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            self.skipped += 1
+            return ""
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        p = self._painter
+        fill = fill if fill not in (None, "") else "#fff"
+        stroke = self._shape_stroke(o, style) or ' stroke="#777" stroke-width="1"'
+        radius = 10 if o.get("type") == "uml.action" else self._shape_radius(o, style)
+        out = [p.rect(x, y, w, h, fill, stroke, radius=radius)]
+
+        title_rows = []
+        stereotype = o.get("stereotype")
+        if stereotype:
+            title_rows.append(f"<<{stereotype}>>")
+        if o.get("kind") and o.get("type") == "uml.node_box":
+            title_rows.append(f"<<{o.get('kind')}>>")
+        title_rows.append(str(o.get("name") or o.get("label") or o.get("id") or o.get("type")))
+
+        base = {"family": "sans-serif", "size": 11, "weight": "normal",
+                "italic": False, "color": "#222", "align": "center", "lh": 1.1}
+        cy = y + 5
+        for i, text in enumerate(title_rows):
+            st = {**base, "size": 10 if text.startswith("<<") else 12,
+                  "weight": "bold" if i == len(title_rows) - 1 else "normal",
+                  "italic": bool(o.get("abstract")) and i == len(title_rows) - 1}
+            row_h = st["size"] * 1.35
+            out.append(p.text_tag(x + 5, cy, max(1, w - 10), row_h,
+                                  self.ellipsize(text, max(1, w - 10), st["size"], 0.58),
+                                  st, vcenter=True))
+            cy += row_h
+
+        def add_separator():
+            out.append(p.line(x, cy + 3, x + w, cy + 3, ' stroke="#999" stroke-width="1"'))
+
+        def add_body_rows(rows):
+            nonlocal cy
+            if not rows:
+                return
+            add_separator()
+            cy += 7
+            row_st = {**base, "size": 10, "align": "left", "lh": 1.05}
+            for row in rows:
+                if cy + row_st["size"] * 1.3 > y + h - 3:
+                    break
+                out.append(p.text_tag(x + 7, cy, max(1, w - 14), row_st["size"] * 1.25,
+                                      self.ellipsize(row, max(1, w - 14), row_st["size"], 0.55),
+                                      row_st, vcenter=False))
+                cy += row_st["size"] * 1.25
+
+        add_body_rows(self._uml_box_attribute_rows(o))
+        add_body_rows(self._uml_box_operation_rows(o))
+        return p.group("".join(out))
+
+    def _uml_box_attribute_rows(self, o):
+        t = o.get("type")
+        if t == "uml.state_box":
+            rows = []
+            if o.get("entry"):
+                rows.append(f"entry / {o.get('entry')}")
+            if o.get("do"):
+                rows.append(f"do / {o.get('do')}")
+            return rows
+        if t == "uml.component_box":
+            rows = []
+            provided = o.get("provided_interfaces") or []
+            required = o.get("required_interfaces") or []
+            if provided:
+                rows.append("provides: " + ", ".join(map(str, provided)))
+            if required:
+                rows.append("requires: " + ", ".join(map(str, required)))
+            return rows
+        attrs = o.get("attributes") or []
+        rows = []
+        for attr in attrs:
+            if not isinstance(attr, dict):
+                rows.append(str(attr))
+                continue
+            prefix = attr.get("visibility") or ""
+            name = attr.get("name") or attr.get("label") or ""
+            typ = attr.get("type")
+            mult = attr.get("multiplicity")
+            default = attr.get("default")
+            row = f"{prefix}{name}"
+            if typ:
+                row += f": {typ}"
+            if mult:
+                row += f" [{mult}]"
+            if default is not None:
+                row += f" = {default}"
+            if attr.get("readonly"):
+                row += " {readOnly}"
+            rows.append(row)
+        return rows
+
+    def _uml_box_operation_rows(self, o):
+        ops = o.get("operations") or []
+        rows = []
+        for op in ops:
+            if not isinstance(op, dict):
+                rows.append(str(op))
+                continue
+            prefix = op.get("visibility") or ""
+            name = op.get("name") or op.get("label") or ""
+            params = op.get("params") or op.get("parameters") or []
+            if isinstance(params, list):
+                params = ", ".join(p.get("name", str(p)) if isinstance(p, dict) else str(p) for p in params)
+            ret = op.get("return_type") or op.get("returns")
+            row = f"{prefix}{name}({params})"
+            if ret:
+                row += f": {ret}"
+            rows.append(row)
+        return rows
 
     def _chip_row(self, o):
         origin = o.get("origin") or o.get("position")
