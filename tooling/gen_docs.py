@@ -99,12 +99,13 @@ def gen_reference():
         f"Do not hand-edit. The schema itself is generated from the Pydantic models.",
         "",
     ]
-    # Document first (the root), then the rest alphabetically.
-    order = (["Document"] if "Document" in defs else []) + sorted(k for k in defs if k != "Document")
+    # Document is the schema root, not a $defs member. Render it first so the
+    # reference covers the full public model surface, then list $defs alphabetically.
+    order = ["Document"] + sorted(defs)
     lines.append("**Models:** " + " · ".join(f"[`{k}`](#{_anchor(k)})" for k in order))
     lines.append("")
     for name in order:
-        lines.append(_model_section(name, defs[name]))
+        lines.append(_model_section(name, schema if name == "Document" else defs[name]))
     return "\n".join(lines) + "\n"
 
 

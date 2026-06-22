@@ -27,6 +27,7 @@ tooling/
   codemod.py                  ← migrates a document to HEAD (stroke split, size→sizing, gradient, aliases).
   render_fixtures.py          ← dependency-free SVG proxy renderer (+ `--check-overflow` text-fit gate).
   render_fg_doc.py            ← the matplotlib PROXY renderer, patched to HEAD (sanity check only).
+  pdf_to_framegraph_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameGraph YAML extractor.
   gen_status.py               ← GENERATES FIXTURE-STATUS.md from the validator (`--check` gates drift).
   gen_docs.py                 ← GENERATES the docs-site pages (schema reference, gallery, spec, grammar).
 fixtures/                     ← the original fixtures, migrated to 2.2.0.
@@ -81,6 +82,10 @@ uv run pytest
 
 # SVG proxy renderer (dependency-free core) -> out/render/index.html
 uv run python tooling/render_fixtures.py --all
+
+# optional PDF text/layout extractor (install PyMuPDF first)
+uv sync --group pdf
+uv run python tooling/pdf_to_framegraph_yml.py input.pdf output.framegraph.yml
 
 # the whole local gate (schema · tests · validate · overflow · fixture-status · docs nav)
 make check
