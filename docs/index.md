@@ -10,6 +10,32 @@ books, and letters.
     against them — so the docs can't silently drift. The prose and grammar are
     design targets to verify.
 
+## A minimal document
+
+A complete FrameGraph document is `dsl` + `version` + at least one page. This
+example is **validated in CI** (`tests/test_doc_examples.py` parses every complete
+example in these docs and checks it against the models) — so it can't drift:
+
+```yaml
+dsl: FrameGraph
+version: "2.2.0"
+title: Minimal document
+pages:
+  - mode: page
+    id: hello
+    canvas: { size: [320, 200], units: px }
+    layers:
+      - id: main
+        objects:
+          - type: rect
+            box: [0, 0, 320, 200]
+            fill: "#0d9648"
+          - type: text
+            box: [24, 84, 272, 40]
+            text: "Hello, FrameGraph"
+            style: { color: "#ffffff", font_size: 24, text_align: center }
+```
+
 ## This site
 
 | Page | What it is | Source |
