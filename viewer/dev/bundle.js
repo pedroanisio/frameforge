@@ -27396,12 +27396,15 @@ ${exception.mark.snippet}`;
     const box = (o.box || [0, 0, 0, 0]).map(toPx);
     const [x, y, w, h] = box;
     const fit = /slice|cover/i.test(o.preserve_aspect_ratio || "") ? "cover" : "contain";
-    const radius = o.clip === "ellipse" ? "50%" : o.radius != null ? toPx(o.radius) : 0;
+    const clipShape = typeof o.clip === "string" ? o.clip : o.clip?.shape;
+    const radius = ["ellipse", "circle"].includes(clipShape) ? "50%" : o.radius != null ? toPx(o.radius) : 0;
     const src = o.src || o.href || o.url;
     const asset = src && doc?.defs?.assets?.[src];
     const resolvedSrc = asset?.data || asset?.url || asset?.src || src;
     const canLoad = typeof resolvedSrc === "string" && /^(data:|blob:|https?:\/\/)/i.test(resolvedSrc);
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+    const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+    const border = stroke ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}` : void 0;
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { "data-framegraph-object": o.id || "", "data-framegraph-type": "image", style: {
       position: "absolute",
       left: x,
       top: y,
@@ -27409,6 +27412,8 @@ ${exception.mark.snippet}`;
       height: h,
       overflow: "hidden",
       borderRadius: radius,
+      border,
+      boxSizing: "border-box",
       background: "repeating-linear-gradient(45deg,#f3f3f3 0 8px,#e8e8e8 8px 16px)",
       opacity: o.opacity != null ? o.opacity : 1,
       ...rotationStyle(o.rotation, box)

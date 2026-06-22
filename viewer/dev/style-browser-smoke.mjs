@@ -12,7 +12,7 @@ const doc = {
   title: "Style smoke",
   defs: {
     tokens: {
-      colors: { ink: "#111111", panel: "#ffeecc" },
+      colors: { ink: "#111111", panel: "#ffeecc", hairline: "#123456" },
       fonts: { sans: { family: "Arial", fallback: ["sans-serif"] } },
       styles: {
         fx: {
@@ -48,6 +48,7 @@ const doc = {
     layers: [{ id: "l1", objects: [
       { type: "rect", id: "styled_rect", box: [40, 40, 180, 80], style: "fx" },
       { type: "text", id: "styled_text", box: [40, 140, 260, 44], style: "display", text: "styled text" },
+      { type: "image", id: "styled_image", box: [320, 40, 48, 48], src: "assets/avatar.png", clip: { shape: "ellipse" }, stroke: { color: "hairline", width: 3 } },
     ] }],
   }],
 };
@@ -65,6 +66,7 @@ await page.waitForSelector('[data-framegraph-object="styled_rect"]');
 
 const styles = await page.evaluate(() => {
   const rect = getComputedStyle(document.querySelector('[data-framegraph-object="styled_rect"]'));
+  const image = getComputedStyle(document.querySelector('[data-framegraph-object="styled_image"]'));
   const textWrap = getComputedStyle(document.querySelector('[data-framegraph-object="styled_text"]'));
   const textInner = getComputedStyle(document.querySelector('[data-framegraph-object="styled_text"] > div'));
   return {
@@ -75,6 +77,9 @@ const styles = await page.evaluate(() => {
     rectOpacity: rect.opacity,
     rectPaddingLeft: rect.paddingLeft,
     rectRadius: rect.borderTopLeftRadius,
+    imageRadius: image.borderTopLeftRadius,
+    imageBorderColor: image.borderTopColor,
+    imageBorderWidth: image.borderTopWidth,
     textLetterSpacing: textInner.letterSpacing,
     textTransform: textInner.textTransform || textWrap.textTransform,
     textDecoration: textInner.textDecorationLine,
@@ -91,6 +96,9 @@ const checks = [
   ["rect opacity", Number(styles.rectOpacity) < 1],
   ["rect padding", styles.rectPaddingLeft === "10px"],
   ["rect border_radius", styles.rectRadius === "9px"],
+  ["image object clip ellipse", styles.imageRadius === "50%"],
+  ["image stroke color", styles.imageBorderColor === "rgb(18, 52, 86)"],
+  ["image stroke width", styles.imageBorderWidth === "3px"],
   ["text letter_spacing", styles.textLetterSpacing === "2px"],
   ["text text_transform", styles.textTransform === "uppercase"],
   ["text text_decoration", styles.textDecoration.includes("underline")],
