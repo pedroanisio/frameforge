@@ -110,9 +110,14 @@ class Renderer:
         self.stroke_styles = tok.get("stroke_styles") or {}
         self.assets = defs.get("assets") or {}
         self.masters = defs.get("masters") or {}
+        self.doc_contract = self.doc.get("text_contract") or {}
+        self.contract = {}       # effective per-page text contract (set in render_page)
         self._gid = 0
-        self._defs = []          # per-page <defs> entries (gradients)
+        self._defs = []          # per-page <defs> entries (gradients, clip paths)
         self.skipped = 0
+        # text-fit telemetry (asserted by --check-overflow)
+        self.tstats = dict(total=0, naive_overflow=0, shrunk=0, wrapped=0,
+                           clipped=0, contained=0, visible_overflow=0, uncontained=0)
 
     # ---- colour / paint ---------------------------------------------------- #
     def color(self, c, depth=0):
@@ -205,15 +210,64 @@ class Renderer:
         fam = merged.get("font_family") or merged.get("font") or "sans"
         if isinstance(fam, list):
             fam = fam[0] if fam else "sans"
+        family = FONT_MAP.get(str(fam), str(fam))
+        size = num(merged.get("font_size") or merged.get("size"), 14) or 14
+        weight = merged.get("font_weight") or merged.get("weight") or "normal"
+        bold = str(weight) in ("bold", "600", "700", "800", "900") or (isinstance(weight, int) and weight >= 600)
+        # line-height: a ratio (<=4) or an absolute length ("68px") → ratio
+        lhv = merged.get("line_height")
+        if isinstance(lhv, str):
+            n = num(lhv)
+            lh = (n / size) if (n and size) else 1.25
+        elif isinstance(lhv, (int, float)) and not isinstance(lhv, bool):
+            lh = lhv if lhv <= 4 else lhv / size
+        else:
+            lh = 1.25
+        # per-char advance estimate (no real shaping available) — used for fit + the check
+        avg = 0.60 if "mono" in family else 0.52
+        if bold:
+            avg *= 1.04
+        tw = merged.get("text_wrap")
         return {
-            "family": FONT_MAP.get(str(fam), str(fam)),
-            "size": num(merged.get("font_size") or merged.get("size"), 14) or 14,
-            "weight": merged.get("font_weight") or merged.get("weight") or "normal",
+            "family": family, "size": size, "weight": weight, "bold": bold,
             "italic": bool(merged.get("italic")) or merged.get("font_style") == "italic",
             "color": self.color(merged.get("color")) or "#1c1c1c",
             "align": merged.get("text_align") or merged.get("align") or "left",
-            "lh": num(merged.get("line_height"), None) or 1.25,
+            "lh": lh, "avg": avg,
+            # ---- text-fit contract surface ----
+            "overflow": merged.get("overflow"),
+            "min_font_size": num(merged.get("min_font_size")),
+            "text_overflow": merged.get("text_overflow"),
+            "max_lines": merged.get("line_clamp") or merged.get("max_lines"),
+            "valign": merged.get("vertical_align"),
+            "nowrap": merged.get("white_space") == "nowrap" or tw == "nowrap" or merged.get("wrap") is False,
         }
+
+    # ---- text measurement / fitting (estimated; no font metrics here) ------ #
+    def measure(self, s, size, avg):
+        return len(s) * size * avg
+
+    def wrap_words(self, text, w, size, avg):
+        maxc = max(1, int(w / (size * avg)))
+        out, cur = [], ""
+        for word in str(text).split():
+            while len(word) > maxc:                  # hard-break an over-long token
+                if cur:
+                    out.append(cur); cur = ""
+                out.append(word[:maxc]); word = word[maxc:]
+            if cur and len(cur) + 1 + len(word) > maxc:
+                out.append(cur); cur = word
+            else:
+                cur = (cur + " " + word).strip()
+        if cur:
+            out.append(cur)
+        return out or [""]
+
+    def ellipsize(self, s, w, size, avg):
+        maxc = max(0, int(w / (size * avg)))
+        if len(s) <= maxc:
+            return s
+        return (s[: max(0, maxc - 1)].rstrip() + "…") if maxc else "…"
 
     @staticmethod
     def anchor(align):
@@ -239,6 +293,112 @@ class Renderer:
             style += ";font-style:italic"
         return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}"{baseline} '
                 f'style="{style}">{esc(content)}</text>')
+
+    def _clip_rect(self, x, y, w, h):
+        self._gid += 1
+        cid = f"clip{self._gid}"
+        self._defs.append(f'<clipPath id="{cid}">'
+                          f'<rect x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}"/></clipPath>')
+        return cid
+
+    def render_text(self, x, y, w, h, content, st):
+        """Render a text object honouring the FrameGraph text-fit contract:
+        wrap-to-box (default), `shrink_to_fit` (down to min_font_size), `clip`/
+        `hidden`, `text_overflow: ellipsis`, `line_clamp`/`max_lines`, plus a
+        hard clip-path safety net so contained text can never spill its box."""
+        self.tstats["total"] += 1
+        if content is None or content == "":
+            return ""
+        size, avg, lh = st["size"], st["avg"], st["lh"]
+        # Default unspecified text to `clip`: no fixture ever requests `visible`,
+        # and an authoring box is a containment constraint, so the proxy contains
+        # by default (wrap first, then clip the remainder) rather than spilling.
+        overflow = st["overflow"] or self.contract.get("overflow") or "clip"
+        min_fs = st["min_font_size"] or num(self.contract.get("min_font_size")) or size * 0.5
+        text_ovf = st["text_overflow"] or self.contract.get("text_overflow")
+        max_lines = st["max_lines"] or self.contract.get("line_clamp")
+        do_wrap = w > 0 and not st["nowrap"]
+        contained_policy = overflow in ("clip", "hidden", "scroll", "auto", "shrink_to_fit")
+
+        # would the naive (single-line, no fit) render have spilled? (the reported bug)
+        if self.measure(content, size, avg) > w + 0.5 or size * lh > h + 0.5:
+            self.tstats["naive_overflow"] += 1
+
+        def layout(sz):
+            return self.wrap_words(content, w, sz, avg) if do_wrap else [content]
+
+        lines = layout(size)
+        if len(lines) > 1:
+            self.tstats["wrapped"] += 1
+        if overflow == "shrink_to_fit":
+            start = size
+            while size > min_fs:
+                lines = layout(size)
+                too_tall = len(lines) * size * lh > h + 0.5
+                too_wide = max((self.measure(ln, size, avg) for ln in lines), default=0) > w + 0.5
+                if not too_tall and not too_wide:
+                    break
+                size = max(min_fs, size - 1)
+            lines = layout(size)
+            if size < start:
+                self.tstats["shrunk"] += 1
+
+        clipped = False
+        # clamp number of lines to box height (non-visible policies) and/or max_lines
+        caps = [n for n in (max_lines, (int(h // (size * lh)) if (h > 0 and contained_policy) else None)) if n]
+        cap = min(caps) if caps else None
+        if cap is not None and len(lines) > max(1, cap):
+            lines = lines[: max(1, cap)]
+            clipped = True
+            if text_ovf == "ellipsis":
+                lines[-1] = self.ellipsize(lines[-1], w, size, avg)
+        # single unwrapped line wider than the box
+        if not do_wrap and self.measure(lines[0], size, avg) > w + 0.5:
+            if text_ovf == "ellipsis":
+                lines[0] = self.ellipsize(lines[0], w, size, avg)
+            clipped = True
+
+        # vertical placement
+        total_h = len(lines) * size * lh
+        va = st["valign"]
+        if va in ("top", "text-top", "super"):
+            top = y
+        elif va in ("bottom", "text-bottom", "sub"):
+            top = y + max(0, h - total_h)
+        elif va in ("middle", "central", "center", "baseline"):
+            top = y + max(0, (h - total_h) / 2)
+        else:
+            top = y if (len(lines) > 1 or h > size * 2.4) else y + max(0, (h - total_h) / 2)
+        base = top + size * 0.82
+
+        a = self.anchor(st["align"])
+        tx = x + (w / 2 if a == "middle" else (w if a == "end" else 0))
+        style = f'font-family:{esc(st["family"])};font-size:{fnum(size)}px;fill:{esc(st["color"])}'
+        if str(st["weight"]) not in ("normal", "400"):
+            style += f';font-weight:{esc(st["weight"])}'
+        if st["italic"]:
+            style += ";font-style:italic"
+        spans = "".join(
+            f'<tspan x="{fnum(tx)}"' + (f' dy="{fnum(size * lh)}"' if i else "") + f'>{esc(ln)}</tspan>'
+            for i, ln in enumerate(lines))
+        el = f'<text y="{fnum(base)}" text-anchor="{a}" style="{style}">{spans}</text>'
+
+        # telemetry: is it visually contained?
+        widest = max((self.measure(ln, size, avg) for ln in lines), default=0)
+        fits = widest <= w + 0.5 and len(lines) * size * lh <= h + 0.5
+        if contained_policy:
+            if clipped or not fits:                  # clip only when something exceeds the box
+                self.tstats["clipped"] += 1
+                el = f'<g clip-path="url(#{self._clip_rect(x, y, w, h)})">{el}</g>'
+            else:
+                self.tstats["contained"] += 1
+        elif fits:
+            self.tstats["contained"] += 1
+        else:
+            # explicit overflow:visible long text — permitted to spill, but flagged
+            self.tstats["visible_overflow"] += 1
+            self.tstats["uncontained"] += 1
+        return el
 
     # ---- per-object dispatch ---------------------------------------------- #
     def obj(self, o):
@@ -306,12 +466,11 @@ class Renderer:
 
         if t == "text" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
-            st = self.text_style(o.get("style"))
             content = o.get("text")
             if content is None and o.get("spans"):
                 content = "".join(s if isinstance(s, str) else s.get("text", "")
                                   for s in o["spans"])
-            return self.text_tag(x, y, w, h, content, st)
+            return self.render_text(x, y, w, h, content, self.text_style(o.get("style")))
 
         if t == "bullet_list" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
@@ -443,6 +602,7 @@ class Renderer:
     def render_page(self, page):
         """Return a list of SVG strings (1 for page-mode, N for paginated flow)."""
         self._defs = []
+        self.contract = {**self.doc_contract, **((page.get("rendering") or {}).get("text") or {})}
         w, h = self.canvas_wh(page)
         if page.get("mode") == "flow":
             return self._render_flow(page, w, h)
@@ -596,6 +756,8 @@ def main(argv=None):
     ap.add_argument("--out", default=os.path.join(ROOT, "out", "render"), help="output dir")
     ap.add_argument("--max-pages", type=int, default=0, help="cap pages rendered per doc (0 = all)")
     ap.add_argument("--list", action="store_true", help="list discoverable docs and exit")
+    ap.add_argument("--check-overflow", action="store_true",
+                    help="render, then assert no text visually overflows a containing box (exit 1 on failure)")
     ap.add_argument("-q", "--quiet", action="store_true")
     args = ap.parse_args(argv)
 
@@ -611,6 +773,7 @@ def main(argv=None):
 
     os.makedirs(args.out, exist_ok=True)
     index_entries, total_pages = [], 0
+    agg = {}
     for f, doc in docs:
         stem = stem_of(f)
         doc_dir = os.path.join(args.out, stem)
@@ -635,13 +798,32 @@ def main(argv=None):
                     f"FrameGraph proxy — {stem}", page_links=True)
         index_entries.append((stem, f"{stem}/index.html", thumbs))
         total_pages += len(svgs)
+        for k, v in r.tstats.items():
+            agg[k] = agg.get(k, 0) + v
         if not args.quiet:
             note = f" ({r.skipped} skipped)" if r.skipped else ""
-            print(f"  {stem}: {len(svgs)} page(s){note}")
+            ov = f"  ⚠ {r.tstats['uncontained']} text overflow" if r.tstats["uncontained"] else ""
+            print(f"  {stem}: {len(svgs)} page(s){note}{ov}")
 
     write_index(args.out, index_entries, "FrameGraph fixtures — SVG proxy contact sheet")
     print(f"\nRendered {len(docs)} document(s), {total_pages} page(s) -> {args.out}")
     print(f"Open {os.path.join(args.out, 'index.html')}")
+
+    if args.check_overflow:
+        print("\n=== text-fit overflow check ===")
+        print(f"  text objects ............................ {agg.get('total',0)}")
+        print(f"  would overflow naively (1-line, no fit) . {agg.get('naive_overflow',0)}   <- the reported bug")
+        print(f"  fixed by wrap ........................... {agg.get('wrapped',0)}")
+        print(f"  fixed by shrink_to_fit .................. {agg.get('shrunk',0)}")
+        print(f"  contained by clip/ellipsis net ......... {agg.get('clipped',0)}")
+        print(f"  fit without change ...................... {agg.get('contained',0)}")
+        print(f"  overflow:visible (permitted to spill) .. {agg.get('visible_overflow',0)}")
+        bad = agg.get("uncontained", 0) - agg.get("visible_overflow", 0)  # contained-policy spill (must be 0)
+        print(f"  text spilling a CONTAINING box .......... {bad}   (must be 0)")
+        ok = bad == 0
+        print(f"\n  RESULT: {'PASS' if ok else 'FAIL'} — "
+              f"{'every box-contained text fits or is clipped to its box' if ok else 'some contained text still overflows'}")
+        return 0 if ok else 1
     return 0
 
 
