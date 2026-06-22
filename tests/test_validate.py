@@ -47,6 +47,17 @@ def test_r1_stroke_single_form():
         {"type": "line", "from": [0, 0], "to": [1, 0], "stroke": {"color": "#000", "width": 2}}]))
 
 
+def test_r1_gradient_stroke_paint_is_allowed():
+    codes = _codes(_doc([{
+        "type": "line",
+        "from": [0, 0],
+        "to": [1, 0],
+        "stroke": {"kind": "linear", "stops": [{"color": "#000", "position": "0%"}]},
+        "stroke_style": {"stroke_width": 2},
+    }]))
+    assert "stroke-single-form" not in codes
+
+
 def test_r2_size_renamed():
     assert "size-renamed" in _codes(_doc([{"type": "rect", "box": [0, 0, 5, 5], "size": {"width": "fill"}}]))
 

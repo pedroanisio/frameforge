@@ -65,6 +65,46 @@ def test_transparent_stop_falls_back_to_solid_fill():
     assert "fill={rgb,255:red,255;green,45;blue,149}" in tex   # first stop, solid
 
 
+def test_axis_aligned_gradient_stroke_line_emits_shaded_stroke_rectangles():
+    tex = _fig().render({
+        "type": "line",
+        "from": [10, 20],
+        "to": [110, 20],
+        "stroke": {
+            "kind": "linear",
+            "angle": "90deg",
+            "stops": [
+                {"color": "#ff0000", "position": "0%"},
+                {"color": "#00ff00", "position": "50%"},
+                {"color": "#0000ff", "position": "100%"},
+            ],
+        },
+        "stroke_style": {"stroke_width": 10},
+    })
+    assert tex.count("\\shade[") == 2
+    assert "(10,15) rectangle (60,25)" in tex
+    assert "(60,15) rectangle (110,25)" in tex
+    assert "\\draw[draw={rgb" not in tex
+
+
+def test_diagonal_gradient_stroke_line_falls_back_to_solid_stroke():
+    tex = _fig().render({
+        "type": "line",
+        "from": [10, 20],
+        "to": [110, 80],
+        "stroke": {
+            "kind": "linear",
+            "stops": [
+                {"color": "#ff0000", "position": "0%"},
+                {"color": "#0000ff", "position": "100%"},
+            ],
+        },
+        "stroke_style": {"stroke_width": 4},
+    })
+    assert "\\shade[" not in tex
+    assert "\\draw[draw={rgb,255:red,255;green,0;blue,0}" in tex
+
+
 def test_b1_chroma_spectrum_renders_as_gradient():
     from framegraph.rendering.infrastructure.latex import transpile
     doc = json.load(open(os.path.join(ROOT, "fixtures", "b1",

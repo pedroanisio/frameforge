@@ -169,7 +169,10 @@ def rule_checks(doc, findings):
         t = o.get("type")
         sizing = o.get("sizing") or {}
         # R1 stroke single-form (P3)
-        if isinstance(o.get("stroke"), dict):
+        stroke_value = o.get("stroke")
+        if isinstance(stroke_value, dict) and any(
+            k in stroke_value for k in ("width", "dash", "linecap", "linejoin")
+        ):
             findings.append(Finding("ERROR", "stroke-single-form",
                                     "inline-geometry `stroke` removed in P3; use paint in `stroke` "
                                     "+ geometry in `stroke_style` (codemod)", path))

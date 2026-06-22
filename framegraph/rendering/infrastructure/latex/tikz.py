@@ -273,7 +273,7 @@ class FigureTikz:
         bundle = self._stroke_styles.get(ssv, {}) if isinstance(ssv, str) else (ssv or {})
         if not isinstance(bundle, dict):
             bundle = {}
-        col = self._color.resolve(sv) if isinstance(sv, str) else None
+        col = self._color.resolve(sv) if isinstance(sv, (str, dict)) else None
         if not col or col == "none":
             col = self._color.resolve(bundle.get("stroke") or bundle.get("color"))
         opts, tip = [], self._arrow_tip(bundle)
@@ -299,6 +299,16 @@ class FigureTikz:
         if tip:
             opts.insert(0, tip)
         return opts
+
+    def _stroke_bundle(self, o):
+        ssv = o.get("stroke_style")
+        bundle = self._stroke_styles.get(ssv, {}) if isinstance(ssv, str) else (ssv or {})
+        return bundle if isinstance(bundle, dict) else {}
+
+    def _stroke_width(self, o):
+        bundle = self._stroke_bundle(o)
+        width = num(bundle.get("stroke_width", bundle.get("width")), None)
+        return width if width is not None else 1
 
     @staticmethod
     def _arrow_tip(bundle):
@@ -401,9 +411,38 @@ class FigureTikz:
         fr, to = o.get("from"), o.get("to")
         if not (is_point(fr) and is_point(to)):
             return ""
+        grad = self._gradient_stroke_line(o, fr, to)
+        if grad:
+            return grad
         opts = self._stroke_opts(o, default_color="#000000")
         geom = f"({fnum(num(fr[0], 0))},{fnum(num(fr[1], 0))}) -- ({fnum(num(to[0], 0))},{fnum(num(to[1], 0))})"
         return f"\\draw[{','.join(opts)}] {geom};\n" if opts else f"\\draw {geom};\n"
+
+    def _gradient_stroke_line(self, o, fr, to):
+        """Render a linear-gradient stroke for straight horizontal/vertical lines.
+
+        TikZ cannot apply a multi-stop color ramp directly to a stroked path. For
+        axis-aligned fixture lines, we approximate the stroke as adjacent shaded
+        rectangles with the same thickness as the stroke. Other paths fall back
+        to the normal solid-stroke path.
+        """
+        stroke = o.get("stroke")
+        if not isinstance(stroke, dict) or str(stroke.get("kind")) not in ("linear", "linear-gradient"):
+            return None
+        x0, y0 = num(fr[0], 0), num(fr[1], 0)
+        x1, y1 = num(to[0], 0), num(to[1], 0)
+        width = self._stroke_width(o)
+        if width <= 0:
+            return ""
+        if abs(y1 - y0) < 1e-9 and abs(x1 - x0) > 1e-9:
+            x, y = min(x0, x1), y0 - width / 2
+            w, h = abs(x1 - x0), width
+        elif abs(x1 - x0) < 1e-9 and abs(y1 - y0) > 1e-9:
+            x, y = x0 - width / 2, min(y0, y1)
+            w, h = width, abs(y1 - y0)
+        else:
+            return None
+        return self._gradient_rect(stroke, x, y, w, h)
 
     def _poly_points(self, o):
         return [(num(p[0], 0), num(p[1], 0)) for p in (o.get("points") or []) if is_point(p)]
