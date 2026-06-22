@@ -369,13 +369,15 @@ class Renderer:
         return re.sub(r"\s+", " ", s).strip()
 
     @classmethod
-    def render_math_svg(cls, tex):
-        """Render TeX to a path-based SVG fragment using the viewer MathJax dep."""
-        source = str(tex or "")
+    def render_math_svg(cls, source, input_kind="tex"):
+        """Render TeX/MathML to a path-based SVG fragment using MathJax."""
+        source = str(source or "")
+        input_kind = "mathml" if input_kind == "mathml" else "tex"
+        cache_key = (input_kind, source)
         if not source or cls._math_svg_failed:
             return None
-        if source in cls._math_svg_cache:
-            return cls._math_svg_cache[source]
+        if cache_key in cls._math_svg_cache:
+            return cls._math_svg_cache[cache_key]
         script = os.path.join(ROOT, "tooling", "mathjax_tex_to_svg.mjs")
         if not os.path.exists(script):
             cls._math_svg_failed = True
@@ -383,7 +385,7 @@ class Renderer:
         try:
             proc = subprocess.run(
                 ["node", script],
-                input=json.dumps([source]),
+                input=json.dumps([{"input": input_kind, "source": source}]),
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -397,7 +399,7 @@ class Renderer:
             return None
         if not isinstance(result, dict) or not result.get("body") or not result.get("viewBox"):
             return None
-        cls._math_svg_cache[source] = result
+        cls._math_svg_cache[cache_key] = result
         return result
 
     # ---- per-object dispatch ---------------------------------------------- #
@@ -1825,8 +1827,9 @@ class Renderer:
 
         def emit_math(fl):
             nonlocal cy
-            source = fl.get("tex") or fl.get("mathml") or text_of(fl)
-            rendered = self.render_math_svg(source)
+            input_kind = "tex" if fl.get("tex") is not None else "mathml" if fl.get("mathml") is not None else "tex"
+            source = fl.get("tex") if fl.get("tex") is not None else fl.get("mathml") if fl.get("mathml") is not None else text_of(fl)
+            rendered = self.render_math_svg(source, input_kind)
             if rendered:
                 natural_w = max(1.0, num(rendered.get("width"), 120))
                 natural_h = max(1.0, num(rendered.get("height"), 24))

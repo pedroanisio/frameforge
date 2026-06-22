@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { mathjax } from '../viewer/node_modules/mathjax-full/js/mathjax.js';
 import { TeX } from '../viewer/node_modules/mathjax-full/js/input/tex.js';
+import { MathML } from '../viewer/node_modules/mathjax-full/js/input/mathml.js';
 import { SVG } from '../viewer/node_modules/mathjax-full/js/output/svg.js';
 import { liteAdaptor } from '../viewer/node_modules/mathjax-full/js/adaptors/liteAdaptor.js';
 import { RegisterHTMLHandler } from '../viewer/node_modules/mathjax-full/js/handlers/html.js';
@@ -25,15 +26,24 @@ function convertAll(expressions) {
   const adaptor = liteAdaptor();
   RegisterHTMLHandler(adaptor);
   const tex = new TeX({ packages: AllPackages });
+  const mathml = new MathML();
   const svg = new SVG({ fontCache: 'none' });
-  const html = mathjax.document('', { InputJax: tex, OutputJax: svg });
+  const documents = {
+    tex: mathjax.document('', { InputJax: tex, OutputJax: svg }),
+    mathml: mathjax.document('', { InputJax: mathml, OutputJax: svg }),
+  };
 
   return expressions.map((expr) => {
-    const node = html.convert(String(expr || ''), { display: true });
+    const item = typeof expr === 'object' && expr !== null
+      ? expr
+      : { input: 'tex', source: expr };
+    const input = item.input === 'mathml' ? 'mathml' : 'tex';
+    const source = String(item.source ?? item.tex ?? item.mathml ?? '');
+    const node = documents[input].convert(source, { display: true });
     const outer = adaptor.outerHTML(node);
     const svgMatch = outer.match(/<svg\b([^>]*)>([\s\S]*)<\/svg>/);
     if (!svgMatch) {
-      throw new Error(`MathJax did not return SVG for ${expr}`);
+      throw new Error(`MathJax did not return SVG for ${input} input`);
     }
     const attrs = svgMatch[1];
     const viewBox = (attrs.match(/\bviewBox="([^"]+)"/) || [])[1];
@@ -44,7 +54,8 @@ function convertAll(expressions) {
     const height = unitToPx(heightAttr, Number.isFinite(vb[3]) ? vb[3] / 50 : 24);
 
     return {
-      tex: String(expr || ''),
+      input,
+      source,
       viewBox,
       width,
       height,

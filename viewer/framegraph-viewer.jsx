@@ -1282,13 +1282,52 @@ function katexMarkup(tex, displayMode = false) {
   }
 }
 
-function MathInline({ tex }) {
+const MATHML_TAGS = new Set([
+  "math", "mrow", "mi", "mn", "mo", "ms", "mtext", "msup", "msub", "msubsup",
+  "mfrac", "msqrt", "mroot", "mspace", "mpadded", "mphantom", "menclose",
+  "mtable", "mtr", "mtd", "semantics",
+]);
+
+const MATHML_ATTRS = new Set([
+  "xmlns", "display", "mathvariant", "accent", "accentunder", "stretchy", "fence",
+  "separator", "lspace", "rspace", "width", "height", "depth", "rowalign",
+  "columnalign", "columnspacing", "rowspacing", "linethickness",
+]);
+
+function sanitizeMathmlMarkup(mathml) {
+  if (!mathml || typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") return null;
+  const parsed = new DOMParser().parseFromString(String(mathml), "application/xml");
+  if (parsed.querySelector("parsererror")) return null;
+  const root = parsed.documentElement;
+  if (!root || root.localName !== "math") return null;
+  const nodes = [root, ...Array.from(root.querySelectorAll("*"))];
+  for (const node of nodes) {
+    if (!MATHML_TAGS.has(node.localName)) return null;
+    for (const attr of Array.from(node.attributes || [])) {
+      if (!MATHML_ATTRS.has(attr.name)) node.removeAttribute(attr.name);
+    }
+  }
+  if (!root.getAttribute("xmlns")) root.setAttribute("xmlns", "http://www.w3.org/1998/Math/MathML");
+  return new XMLSerializer().serializeToString(root);
+}
+
+function MathInline({ tex, mathml }) {
+  if (mathml && !tex) {
+    const html = sanitizeMathmlMarkup(mathml);
+    if (html) return <span className="fg-math fg-math-inline fg-mathml" dangerouslySetInnerHTML={{ __html: html }} />;
+    return <span className="fg-math-fallback">math expression</span>;
+  }
   const html = katexMarkup(tex, false);
   if (!html) return <span className="fg-math-fallback">{mathText(tex)}</span>;
   return <span className="fg-math fg-math-inline" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-function MathDisplay({ tex }) {
+function MathDisplay({ tex, mathml }) {
+  if (mathml && !tex) {
+    const html = sanitizeMathmlMarkup(mathml);
+    if (html) return <div className="fg-math fg-math-display fg-mathml" dangerouslySetInnerHTML={{ __html: html }} />;
+    return <div className="fg-math-fallback">math expression</div>;
+  }
   const html = katexMarkup(tex, true);
   if (!html) return <div className="fg-math-fallback">{mathText(tex)}</div>;
   return <div className="fg-math fg-math-display" dangerouslySetInnerHTML={{ __html: html }} />;
@@ -1301,7 +1340,7 @@ function inlineNodes(v) {
     return v.map((item, i) => <React.Fragment key={i}>{inlineNodes(item)}</React.Fragment>);
   }
   if (typeof v === "object") {
-    if (v.kind === "math") return <MathInline tex={v.tex || v.mathml || v.text} />;
+    if (v.kind === "math") return <MathInline tex={v.tex || v.text} mathml={v.mathml} />;
     if (v.kind === "code") return <code>{v.text}</code>;
     if (v.kind === "link") return <a href={v.href} title={v.title || undefined}>{inlineNodes(v.content)}</a>;
     if (v.text != null) return v.text;
@@ -1472,7 +1511,7 @@ function FlowBlock({ doc, block }) {
   }
   if (type === "table") return <div style={{ margin: "10px 0 12px" }}><TableView doc={doc} o={block} absolute={false} /></div>;
   if (type === "code") return <pre style={{ margin: "8px 0 12px", padding: 10, background: resolveColor(doc, "code_bg") || "#f4f4f4", overflow: "hidden", ...textCss(doc, block.style, { size: 12, line_height: 1.35 }) }}>{block.source || block.text || ""}</pre>;
-  if (type === "math") return <div data-framegraph-type="math" style={{ margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }}><MathDisplay tex={block.tex || block.mathml || block.text} /></div>;
+  if (type === "math") return <div data-framegraph-type="math" style={{ margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }}><MathDisplay tex={block.tex || block.text} mathml={block.mathml} /></div>;
   if (type === "toc") return <div style={{ margin: "8px 0 12px", ...textCss(doc, block.style, { size: 14, weight: 700 }) }}>{block.title || "Contents"}</div>;
   if (type === "figure") {
     const size = block.size || [320, 160];

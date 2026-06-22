@@ -69,6 +69,27 @@ SYNTH = {
     ],
 }
 
+MATHML_DOC = {
+    "dsl": "FrameGraph",
+    "version": "2.2.0",
+    "profile": "report",
+    "title": "mathml render",
+    "pages": [
+        {
+            "mode": "flow",
+            "id": "p",
+            "story": [
+                {"type": "heading", "level": 1, "text": "MathML"},
+                {
+                    "type": "math",
+                    "mathml": "<math><mi>x</mi><mo>=</mo><msqrt><mn>2</mn></msqrt></math>",
+                    "alt": "x equals square root of two",
+                },
+            ],
+        }
+    ],
+}
+
 
 def _render_to_svg(tmp_path, doc, name):
     src = tmp_path / name
@@ -88,6 +109,16 @@ def test_flow_figure_draws_geometry_not_placeholder(tmp_path):
     # ... and NO figure stub remains (dashed placeholder box + "[figure]" label).
     assert "[figure]" not in svg
     assert 'stroke-dasharray="3 3"' not in svg
+
+
+def test_flow_mathml_renders_as_mathjax_svg_not_raw_xml(tmp_path):
+    svg = _render_to_svg(tmp_path, MATHML_DOC, "mathml.fg.yaml")
+    assert 'data-framegraph-math="true"' in svg
+    assert 'data-mml-node="math"' in svg
+    assert "<path" in svg
+    assert "<math><mi>x</mi>" not in svg
+    assert "&lt;math&gt;" not in svg
+    assert "x equals square root of two" in svg
 
 
 def test_standard_model_figures_all_render(tmp_path):

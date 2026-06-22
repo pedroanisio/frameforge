@@ -42524,12 +42524,81 @@ ${exception.mark.snippet}`;
       return null;
     }
   }
-  function MathInline({ tex }) {
+  var MATHML_TAGS = /* @__PURE__ */ new Set([
+    "math",
+    "mrow",
+    "mi",
+    "mn",
+    "mo",
+    "ms",
+    "mtext",
+    "msup",
+    "msub",
+    "msubsup",
+    "mfrac",
+    "msqrt",
+    "mroot",
+    "mspace",
+    "mpadded",
+    "mphantom",
+    "menclose",
+    "mtable",
+    "mtr",
+    "mtd",
+    "semantics"
+  ]);
+  var MATHML_ATTRS = /* @__PURE__ */ new Set([
+    "xmlns",
+    "display",
+    "mathvariant",
+    "accent",
+    "accentunder",
+    "stretchy",
+    "fence",
+    "separator",
+    "lspace",
+    "rspace",
+    "width",
+    "height",
+    "depth",
+    "rowalign",
+    "columnalign",
+    "columnspacing",
+    "rowspacing",
+    "linethickness"
+  ]);
+  function sanitizeMathmlMarkup(mathml) {
+    if (!mathml || typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") return null;
+    const parsed = new DOMParser().parseFromString(String(mathml), "application/xml");
+    if (parsed.querySelector("parsererror")) return null;
+    const root = parsed.documentElement;
+    if (!root || root.localName !== "math") return null;
+    const nodes = [root, ...Array.from(root.querySelectorAll("*"))];
+    for (const node of nodes) {
+      if (!MATHML_TAGS.has(node.localName)) return null;
+      for (const attr of Array.from(node.attributes || [])) {
+        if (!MATHML_ATTRS.has(attr.name)) node.removeAttribute(attr.name);
+      }
+    }
+    if (!root.getAttribute("xmlns")) root.setAttribute("xmlns", "http://www.w3.org/1998/Math/MathML");
+    return new XMLSerializer().serializeToString(root);
+  }
+  function MathInline({ tex, mathml }) {
+    if (mathml && !tex) {
+      const html2 = sanitizeMathmlMarkup(mathml);
+      if (html2) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "fg-math fg-math-inline fg-mathml", dangerouslySetInnerHTML: { __html: html2 } });
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "fg-math-fallback", children: "math expression" });
+    }
     const html = katexMarkup(tex, false);
     if (!html) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "fg-math-fallback", children: mathText(tex) });
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "fg-math fg-math-inline", dangerouslySetInnerHTML: { __html: html } });
   }
-  function MathDisplay({ tex }) {
+  function MathDisplay({ tex, mathml }) {
+    if (mathml && !tex) {
+      const html2 = sanitizeMathmlMarkup(mathml);
+      if (html2) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "fg-math fg-math-display fg-mathml", dangerouslySetInnerHTML: { __html: html2 } });
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "fg-math-fallback", children: "math expression" });
+    }
     const html = katexMarkup(tex, true);
     if (!html) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "fg-math-fallback", children: mathText(tex) });
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "fg-math fg-math-display", dangerouslySetInnerHTML: { __html: html } });
@@ -42541,7 +42610,7 @@ ${exception.mark.snippet}`;
       return v.map((item, i2) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react3.default.Fragment, { children: inlineNodes(item) }, i2));
     }
     if (typeof v === "object") {
-      if (v.kind === "math") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MathInline, { tex: v.tex || v.mathml || v.text });
+      if (v.kind === "math") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MathInline, { tex: v.tex || v.text, mathml: v.mathml });
       if (v.kind === "code") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("code", { children: v.text });
       if (v.kind === "link") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: v.href, title: v.title || void 0, children: inlineNodes(v.content) });
       if (v.text != null) return v.text;
@@ -42716,7 +42785,7 @@ ${exception.mark.snippet}`;
     }
     if (type === "table") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "10px 0 12px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableView, { doc, o: block, absolute: false }) });
     if (type === "code") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", { style: { margin: "8px 0 12px", padding: 10, background: resolveColor(doc, "code_bg") || "#f4f4f4", overflow: "hidden", ...textCss(doc, block.style, { size: 12, line_height: 1.35 }) }, children: block.source || block.text || "" });
-    if (type === "math") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { "data-framegraph-type": "math", style: { margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MathDisplay, { tex: block.tex || block.mathml || block.text }) });
+    if (type === "math") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { "data-framegraph-type": "math", style: { margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MathDisplay, { tex: block.tex || block.text, mathml: block.mathml }) });
     if (type === "toc") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "8px 0 12px", ...textCss(doc, block.style, { size: 14, weight: 700 }) }, children: block.title || "Contents" });
     if (type === "figure") {
       const size = block.size || [320, 160];
