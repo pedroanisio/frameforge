@@ -509,6 +509,7 @@ class Renderer:
     def _table(self, o, box):
         p = self._painter
         x0, y0, w, h = (num(v, 0) for v in box[:4])
+        style = self._style_dict(o.get("style"))
         cols = o.get("columns") or []
         header = o.get("header")
         rows = o.get("rows") or []
@@ -524,24 +525,36 @@ class Renderer:
             cw[i] = each
         colx = [x0 + sum(cw[:k]) for k in range(ncol)]
         rh = h / nrow
-        out = [p.rect(x0, y0, w, h, "white", ' stroke="#bbb"')]
+        grid_stroke = self._shape_stroke(o, style) or ' stroke="#bbb"'
+        row_stroke = grid_stroke
+        col_stroke = grid_stroke
+        header_fill = self.paint(style.get("header_fill")) if "header_fill" in style else "#3b6ea5"
+        padding = max(0, num(o.get("cell_padding"), 4) or 0)
+        out = [p.rect(x0, y0, w, h, "white", grid_stroke)]
         st_h = {"family": "sans-serif", "size": min(13, rh * 0.5), "weight": "bold",
                 "italic": False, "color": "#fff", "align": "left", "lh": 1.2}
         st_c = {**st_h, "weight": "normal", "color": "#222"}
+        if style.get("header_text"):
+            st_h = {**st_h, **self.text_style(style.get("header_text"))}
+        if style.get("cell_text"):
+            st_c = {**st_c, **self.text_style(style.get("cell_text"))}
         for ri, (kind, row) in enumerate(visual):
             ry = y0 + ri * rh
             if kind == "h":
-                out.append(p.rect(x0, ry, w, rh, "#3b6ea5", ""))
+                out.append(p.rect(x0, ry, w, rh, header_fill, ""))
             elif o.get("zebra") and (ri % 2):
                 out.append(p.rect(x0, ry, w, rh, "#f4f6f9", ""))
-            st = st_h if kind == "h" else st_c
             for ci in range(ncol):
                 cell = row[ci] if ci < len(row) else ""
                 txt = cell.get("content", "") if isinstance(cell, dict) else ("" if cell is None else str(cell))
-                out.append(p.text_tag(colx[ci] + 4, ry, cw[ci] - 6, rh, txt, st, vcenter=True))
-            out.append(p.line(x0, ry, x0 + w, ry, ' stroke="#ddd"'))
+                col = cols[ci] if ci < len(cols) and isinstance(cols[ci], dict) else {}
+                st = st_h if kind == "h" else st_c
+                if col.get("align"):
+                    st = {**st, "align": col.get("align")}
+                out.append(p.text_tag(colx[ci] + padding, ry, max(0, cw[ci] - 2 * padding), rh, txt, st, vcenter=True))
+            out.append(p.line(x0, ry, x0 + w, ry, row_stroke))
         for cx in colx[1:]:
-            out.append(p.line(cx, y0, cx, y0 + h, ' stroke="#eee"'))
+            out.append(p.line(cx, y0, cx, y0 + h, col_stroke))
         return "".join(out)
 
     # ---- page / flow ------------------------------------------------------- #

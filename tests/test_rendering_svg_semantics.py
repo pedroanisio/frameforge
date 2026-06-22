@@ -196,3 +196,49 @@ def test_vector_uses_style_fill_and_stroke_geometry() -> None:
     assert ' stroke-width="3"' in path
     assert ' stroke-dasharray="5 2"' in path
     assert ' stroke-linecap="round"' in path
+
+
+def test_table_style_surface_is_emitted() -> None:
+    svg = _svg_for(
+        [{
+            "type": "table",
+            "box": [10, 10, 160, 80],
+            "columns": [{"width": 90, "align": "left"}, {"width": 70, "align": "right"}],
+            "header": ["Metric", "Value"],
+            "rows": [["Coverage", "19"], ["Pages", "229"]],
+            "cell_padding": 6,
+            "stroke_style": {"color": "hairline", "width": 2},
+            "style": {
+                "header_fill": "brand",
+                "header_text": "tbl_head",
+                "cell_text": "tbl_cell",
+            },
+            "zebra": True,
+        }],
+        {
+            "tokens": {
+                "colors": {
+                    "brand": "#005c46",
+                    "hairline": "#123456",
+                    "white": "#ffffff",
+                    "ink": "#202020",
+                },
+                "text_styles": {
+                    "tbl_head": {"color": "white", "font_size": 12, "font_weight": 700},
+                    "tbl_cell": {"color": "ink", "font_size": 10},
+                },
+            },
+        },
+    )
+
+    assert ' fill="#005c46"' in svg
+    assert ' stroke="#123456"' in svg
+    assert ' stroke-width="2"' in svg
+    assert "font-size:12px" in svg
+    assert "fill:#ffffff" in svg
+    assert "font-weight:700" in svg
+    assert "font-size:10px" in svg
+    assert "fill:#202020" in svg
+    assert 'x="164" y="76.667" text-anchor="end"' in svg
+    assert "Coverage" in svg
+    assert "229" in svg
