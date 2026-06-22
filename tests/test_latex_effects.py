@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""Regression coverage for TikZ approximations of SVG effect surfaces."""
+from __future__ import annotations
+
+import os
+import sys
+
+ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+sys.path.insert(0, ROOT)
+
+from framegraph.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
+from framegraph.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
+
+
+def _fig(colors=None):
+    color = ColorResolver(colors or {})
+    return FigureTikz(color, TextStyleResolver({}, {}, color), {})
+
+
+def test_rect_shadow_draws_translucent_offset_shape_before_rect():
+    tex = _fig({"panel": "#ffeecc", "ink": "#123456"}).render({
+        "type": "rect",
+        "box": [10, 20, 60, 35],
+        "radius": 4,
+        "fill": "panel",
+        "shadow": {"color": "ink", "dx": 2, "dy": 3, "opacity": 0.3, "blur": 6},
+    })
+    assert tex.index("(12,23) rectangle (72,58)") < tex.index("(10,20) rectangle (70,55)")
+    assert "fill={rgb,255:red,18;green,52;blue,86}" in tex
+    assert "fill opacity=0.3" in tex
+    assert "rounded corners=4pt" in tex
+
+
+def test_glow_expands_ellipse_behind_source_shape():
+    tex = _fig({"brand": "#005c46"}).render({
+        "type": "ellipse",
+        "center": [120, 30],
+        "rx": 28,
+        "ry": 18,
+        "fill": "brand",
+        "glow": {"color": "brand", "blur": 6, "opacity": 0.5},
+    })
+    assert tex.index("ellipse (31pt and 21pt)") < tex.index("ellipse (28pt and 18pt)")
+    assert "fill opacity=0.5" in tex
+
+
+def test_style_box_shadow_maps_to_latex_shadow_shape():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {
+            "box_shadow": [
+                {"offset_x": 1, "offset_y": 2, "blur": 3, "color": "#111111", "opacity": 0.25}
+            ],
+        },
+    })
+    assert "(1,2) rectangle (21,12)" in tex
+    assert "fill opacity=0.25" in tex

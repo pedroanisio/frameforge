@@ -15,6 +15,7 @@ import math
 import re
 
 from framegraph.rendering.domain.geometry import fnum, is_point, num
+from framegraph.rendering.domain.services.effect_resolver import EffectResolver
 
 # ---- LaTeX text escaping --------------------------------------------------- #
 # Order matters: backslash first, then the brace/special set. Unicode (Greek,
@@ -119,6 +120,7 @@ class FigureTikz:
         self._color = color_resolver
         self._ts = text_style_resolver
         self._stroke_styles = stroke_styles or {}
+        self._effect = EffectResolver(color_resolver)
         self._asset_path = asset_path
         self._font_macro = font_macro
         self.skipped = 0
@@ -328,23 +330,76 @@ class FigureTikz:
         cmd = "\\path" if not any(o for o in opts) else "\\path"
         return f"{cmd}[{','.join(opts)}] {geom};\n" if opts else f"\\path {geom};\n"
 
+    def _effect_specs(self, o):
+        specs = []
+        for kind in ("glow", "shadow"):
+            params = self._effect.resolve(o.get(kind), kind)
+            if params is not None:
+                specs.append((kind, params))
+        for kind, params in self._effect.style_effects(self._style_dict(o)):
+            if kind == "shadow":
+                specs.append((kind, params))
+        return specs
+
+    def _effect_opts(self, kind, params):
+        expr, _ = color_expr(params.get("color") or ("#000000" if kind == "shadow" else "#FFD700"))
+        if expr is None:
+            return []
+        opacity = num(params.get("opacity"), 0.14 if kind == "shadow" else 0.55)
+        return [f"fill={expr}", f"fill opacity={fnum(opacity)}"]
+
+    def _rect_effects(self, o, x, y, w, h, r=0):
+        out = []
+        for kind, params in self._effect_specs(o):
+            if kind == "glow":
+                spread = max(1, num(params.get("blur"), 4) / 2)
+                gx, gy = x - spread, y - spread
+                gw, gh = w + 2 * spread, h + 2 * spread
+                rr = r + spread if r else 0
+            else:
+                gx = x + num(params.get("dx"), 0)
+                gy = y + num(params.get("dy"), 2)
+                gw, gh, rr = w, h, r
+            opts = self._effect_opts(kind, params)
+            if rr:
+                opts.append(f"rounded corners={fnum(rr)}pt")
+            geom = f"({fnum(gx)},{fnum(gy)}) rectangle ({fnum(gx + gw)},{fnum(gy + gh)})"
+            out.append(self._path(opts, geom))
+        return "".join(out)
+
+    def _ellipse_effects(self, o, cx, cy, rx, ry):
+        out = []
+        for kind, params in self._effect_specs(o):
+            if kind == "glow":
+                spread = max(1, num(params.get("blur"), 4) / 2)
+                ex, ey = cx, cy
+                erx, ery = rx + spread, ry + spread
+            else:
+                ex = cx + num(params.get("dx"), 0)
+                ey = cy + num(params.get("dy"), 2)
+                erx, ery = rx, ry
+            geom = f"({fnum(ex)},{fnum(ey)}) ellipse ({fnum(erx)}pt and {fnum(ery)}pt)"
+            out.append(self._path(self._effect_opts(kind, params), geom))
+        return "".join(out)
+
     def _draw_rect(self, o) -> str:
         box = o.get("box")
         if not (isinstance(box, list) and len(box) >= 4):
             return ""
         x, y, w, h = (num(v, 0) for v in box[:4])
+        r = num(o.get("radius"), 0) or 0
+        effects = self._rect_effects(o, x, y, w, h, r)
         grad = self._gradient_rect(o.get("fill"), x, y, w, h)
         if grad:
             # gradient fill, then the (optional) outline drawn over it.
             stroke = self._stroke_opts(o)
             geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
-            return grad + (self._path(stroke, geom) if stroke else "")
+            return effects + grad + (self._path(stroke, geom) if stroke else "")
         opts = self._fill_opts(o) + self._stroke_opts(o)
-        r = num(o.get("radius"), 0) or 0
         if r:
             opts.append(f"rounded corners={fnum(r)}pt")
         geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
-        return self._path(opts, geom)
+        return effects + self._path(opts, geom)
 
     def _gradient_rect(self, fill, x, y, w, h):
         """A linear-gradient rect fill to piecewise TikZ `\\shade` segments.
@@ -398,14 +453,15 @@ class FigureTikz:
             rx, ry = num(box[2], 0) / 2, num(box[3], 0) / 2
         opts = self._fill_opts(o) + self._stroke_opts(o)
         geom = f"({fnum(cx)},{fnum(cy)}) ellipse ({fnum(rx)}pt and {fnum(ry)}pt)"
-        return self._path(opts, geom)
+        return self._ellipse_effects(o, cx, cy, rx, ry) + self._path(opts, geom)
 
     def _draw_circle(self, o) -> str:
         c = o.get("center") or [0, 0]
         r = num(o.get("r"), 0)
         opts = self._fill_opts(o) + self._stroke_opts(o)
-        geom = f"({fnum(num(c[0], 0))},{fnum(num(c[1], 0))}) circle ({fnum(r)}pt)"
-        return self._path(opts, geom)
+        cx, cy = num(c[0], 0), num(c[1], 0)
+        geom = f"({fnum(cx)},{fnum(cy)}) circle ({fnum(r)}pt)"
+        return self._ellipse_effects(o, cx, cy, r, r) + self._path(opts, geom)
 
     def _draw_line(self, o) -> str:
         fr, to = o.get("from"), o.get("to")
