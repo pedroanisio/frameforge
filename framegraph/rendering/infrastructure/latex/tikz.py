@@ -939,7 +939,19 @@ class FigureTikz:
         raw_features = self._raw_font_features(st.get("font_feature_settings"))
         if raw_features:
             font += f"\\addfontfeatures{{RawFeature={{{raw_features}}}}}"
+        letter_space = self._letter_space_amount(st.get("letter_spacing"))
+        if letter_space is not None:
+            font += f"\\addfontfeatures{{LetterSpace={fnum(letter_space)}}}"
         return font
+
+    @staticmethod
+    def _letter_space_amount(value):
+        if value is None:
+            return None
+        amount = num(value, None)
+        if amount in (None, 0):
+            return None
+        return amount
 
     @staticmethod
     def _raw_font_features(value):

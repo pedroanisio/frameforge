@@ -209,6 +209,24 @@ def test_font_stretch_maps_to_fontspec_fake_stretch():
     assert "\\addfontfeatures{FakeStretch=1.25}" in percent
 
 
+def test_letter_spacing_maps_to_fontspec_letterspace():
+    tracked = _fig({"label": {"letter_spacing": 4}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "Tracked",
+        "style": "label",
+    })
+    tightened = _fig({"label": {"letter_spacing": "-0.2px"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "Tight",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{LetterSpace=4}" in tracked
+    assert "\\addfontfeatures{LetterSpace=-0.2}" in tightened
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",
