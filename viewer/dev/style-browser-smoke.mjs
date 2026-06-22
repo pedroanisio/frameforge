@@ -56,6 +56,8 @@ const doc = {
       { type: "text", id: "styled_text", box: [40, 140, 260, 44], style: "display", text: "styled text" },
       { type: "image", id: "styled_image", box: [320, 40, 48, 48], src: "assets/avatar.png", clip: { shape: "ellipse" }, stroke: { color: "hairline", width: 3 } },
       { type: "text", id: "styled_spans", box: [40, 195, 320, 26], style: { font_size: 16, color: "ink" }, spans: ["Prefix ", { text: "styled", style: "accent_span" }, " suffix"] },
+      { type: "path", id: "filled_path", d: "M 310 135 l 42 0 l -21 34 z", fill: "panel", fill_opacity: 0.4 },
+      { type: "line", id: "faded_line", from: [310, 185], to: [370, 185], stroke: { color: "hairline", width: 4 }, stroke_opacity: 0.35 },
     ] }],
   }],
 };
@@ -79,6 +81,8 @@ const styles = await page.evaluate(() => {
   const spanWrap = document.querySelector('[data-framegraph-object="styled_spans"]');
   const span = spanWrap.querySelector('[data-framegraph-span="1"]');
   const spanStyle = getComputedStyle(span);
+  const filledPath = document.querySelector('[data-framegraph-vector="filled_path"]');
+  const fadedLine = document.querySelector('[data-framegraph-vector="faded_line"]');
   return {
     rectBg: rect.backgroundColor,
     rectShadow: rect.boxShadow,
@@ -100,6 +104,11 @@ const styles = await page.evaluate(() => {
     spanSize: spanStyle.fontSize,
     spanWeight: spanStyle.fontWeight,
     spanDecoration: spanStyle.textDecorationLine,
+    filledPathStroke: filledPath.getAttribute("stroke"),
+    filledPathFillOpacity: filledPath.getAttribute("fill-opacity"),
+    fadedLineStroke: fadedLine.getAttribute("stroke"),
+    fadedLineStrokeWidth: fadedLine.getAttribute("stroke-width"),
+    fadedLineStrokeOpacity: fadedLine.getAttribute("stroke-opacity"),
   };
 });
 
@@ -124,6 +133,11 @@ const checks = [
   ["span size", styles.spanSize === "14px"],
   ["span weight", Number(styles.spanWeight) >= 700],
   ["span decoration", styles.spanDecoration.includes("underline")],
+  ["fill-only vector has no default stroke", styles.filledPathStroke === "none"],
+  ["vector fill_opacity", styles.filledPathFillOpacity === "0.4"],
+  ["legacy stroke vector color", styles.fadedLineStroke === "#123456" || styles.fadedLineStroke === "rgb(18, 52, 86)"],
+  ["legacy stroke vector width", styles.fadedLineStrokeWidth === "4"],
+  ["vector stroke_opacity", styles.fadedLineStrokeOpacity === "0.35"],
 ];
 
 for (const [name, ok] of checks) if (!ok) failures.push(`${name} not reflected in computed style: ${JSON.stringify(styles)}`);

@@ -496,18 +496,21 @@ function TextObj({ doc, o, active }) {
 }
 
 function VectorObj({ doc, o, cw, ch, reg }) {
-  const stroke = resolveStroke(doc, o.stroke_style, o.stroke) || { color: "#000", width: 1 };   // 2.2.0 split form
   const fill = o.fill != null ? resolveFill(doc, o.fill) : "none";
+  const hasFill = o.fill != null && o.fill !== "none" && fill !== "none" && fill !== "transparent";
+  const stroke = resolveStroke(doc, o.stroke_style, o.stroke) || (hasFill ? null : { color: "#000", width: 1 });   // 2.2.0 split form
   const op = o.opacity != null ? o.opacity : 1;
   const mid = o.id ? o.id.replace(/[^a-zA-Z0-9_-]/g, "_") : Math.random().toString(36).slice(2);
-  const arrow = stroke.arrowStart || stroke.arrowEnd;
-  const dash = stroke.dash ? stroke.dash.join(" ") : undefined;
+  const arrow = stroke && (stroke.arrowStart || stroke.arrowEnd);
+  const dash = stroke?.dash ? stroke.dash.join(" ") : undefined;
   const common = {
-    stroke: stroke.color, strokeWidth: stroke.width, strokeDasharray: dash,
-    strokeLinecap: stroke.linecap, strokeLinejoin: stroke.linejoin,
-    fill, opacity: stroke.opacity,
-    markerEnd: stroke.arrowEnd ? `url(#${mid}-ah)` : undefined,
-    markerStart: stroke.arrowStart ? `url(#${mid}-ah)` : undefined,
+    "data-framegraph-vector": o.id || "",
+    stroke: stroke?.color || "none", strokeWidth: stroke?.width, strokeDasharray: dash,
+    strokeLinecap: stroke?.linecap, strokeLinejoin: stroke?.linejoin,
+    strokeOpacity: o.stroke_opacity != null ? o.stroke_opacity : stroke?.opacity,
+    fill, fillOpacity: o.fill_opacity,
+    markerEnd: stroke?.arrowEnd ? `url(#${mid}-ah)` : undefined,
+    markerStart: stroke?.arrowStart ? `url(#${mid}-ah)` : undefined,
   };
 
   let shape = null;
@@ -540,7 +543,7 @@ function VectorObj({ doc, o, cw, ch, reg }) {
         <defs>
           <marker id={`${mid}-ah`} markerWidth="10" markerHeight="10" refX="8" refY="3"
             orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L8,3 L0,6 z" fill={stroke.color} />
+            <path d="M0,0 L8,3 L0,6 z" fill={stroke?.color || "#000"} />
           </marker>
         </defs>
       )}

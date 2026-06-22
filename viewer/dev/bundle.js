@@ -27267,22 +27267,25 @@ ${exception.mark.snippet}`;
     }, children: content }) });
   }
   function VectorObj({ doc, o, cw, ch, reg }) {
-    const stroke = resolveStroke(doc, o.stroke_style, o.stroke) || { color: "#000", width: 1 };
     const fill = o.fill != null ? resolveFill(doc, o.fill) : "none";
+    const hasFill = o.fill != null && o.fill !== "none" && fill !== "none" && fill !== "transparent";
+    const stroke = resolveStroke(doc, o.stroke_style, o.stroke) || (hasFill ? null : { color: "#000", width: 1 });
     const op = o.opacity != null ? o.opacity : 1;
     const mid = o.id ? o.id.replace(/[^a-zA-Z0-9_-]/g, "_") : Math.random().toString(36).slice(2);
-    const arrow = stroke.arrowStart || stroke.arrowEnd;
-    const dash = stroke.dash ? stroke.dash.join(" ") : void 0;
+    const arrow = stroke && (stroke.arrowStart || stroke.arrowEnd);
+    const dash = stroke?.dash ? stroke.dash.join(" ") : void 0;
     const common = {
-      stroke: stroke.color,
-      strokeWidth: stroke.width,
+      "data-framegraph-vector": o.id || "",
+      stroke: stroke?.color || "none",
+      strokeWidth: stroke?.width,
       strokeDasharray: dash,
-      strokeLinecap: stroke.linecap,
-      strokeLinejoin: stroke.linejoin,
+      strokeLinecap: stroke?.linecap,
+      strokeLinejoin: stroke?.linejoin,
+      strokeOpacity: o.stroke_opacity != null ? o.stroke_opacity : stroke?.opacity,
       fill,
-      opacity: stroke.opacity,
-      markerEnd: stroke.arrowEnd ? `url(#${mid}-ah)` : void 0,
-      markerStart: stroke.arrowStart ? `url(#${mid}-ah)` : void 0
+      fillOpacity: o.fill_opacity,
+      markerEnd: stroke?.arrowEnd ? `url(#${mid}-ah)` : void 0,
+      markerStart: stroke?.arrowStart ? `url(#${mid}-ah)` : void 0
     };
     let shape = null;
     if (o.type === "line") {
@@ -27322,7 +27325,7 @@ ${exception.mark.snippet}`;
               refY: "3",
               orient: "auto",
               markerUnits: "strokeWidth",
-              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M0,0 L8,3 L0,6 z", fill: stroke.color })
+              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M0,0 L8,3 L0,6 z", fill: stroke?.color || "#000" })
             }
           ) }),
           shape
