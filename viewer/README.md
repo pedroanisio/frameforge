@@ -21,6 +21,9 @@ framegraph-viewer/
 │   ├── esfera.yml            Same deck as YAML (regenerated from the JSON — see note below).
 │   └── (schema)              See "The schema" section; not redistributed in this bundle.
 ├── package.json              Project manifest (deps + build/start/verify scripts).
+├── Dockerfile                Multi-stage: Node builds the bundle, nginx serves it.
+├── docker-compose.yml        `docker compose up` -> browse everything at :8088.
+├── docker/                   nginx site config + landing page used by the image.
 ├── dev/                      Local build + headless-verification harness.
 │   ├── entry.jsx             Mounts <App/> into #root (imports ../framegraph-viewer.jsx).
 │   ├── harness.html          Loads Tailwind (CDN) + bundle.js. Open to view without building.
@@ -58,26 +61,55 @@ For a live dev server with rebuild-on-reload:
 npm start              # serves dev/ at http://127.0.0.1:8000/harness.html
 ```
 
+### Option D — Docker (browse the whole bundle)
+Builds the bundle in a Node stage and serves the **entire** `viewer/` tree (the app, the
+demo data, and the verification screenshots) from nginx with directory listing on, so you
+can navigate everything from one URL.
+```bash
+docker compose up --build          # then open http://localhost:8088
+# pick a different host port if 8088 is taken:
+VIEWER_PORT=9000 docker compose up --build
+docker compose down                # stop & remove
+```
+The landing page links to the app (`/dev/harness.html`) and to the browsable
+`dev/`, `demo/`, and `verification/` folders. Source/data files (`.jsx`, `.json`, `.yml`,
+`.md`) render in-browser instead of downloading.
+
 ### Re-run visual verification
 ```bash
 npm install
 npx playwright install chromium
+npm test              # static fixture/object/style coverage
+npm run test:browser # loads every fixture in Chromium and walks expanded pages
+npm run test:style   # computed-style smoke assertions
+npm run test:layout  # row/grid layout placement smoke assertions
 npm run verify         # runs dev/shot.cjs; writes shot_*.png into dev/
+npm run test:all     # build + all of the above gates
 ```
 
 ---
 
 ## Using your own documents
-The app's **JSON** button loads any FrameGraph v2 document in JSON form. YAML isn't parsed
-in-app by design (no YAML parser is bundled) — convert first, e.g.
-`python3 -c "import yaml,json,sys; json.dump(yaml.safe_load(open(sys.argv[1])), open(sys.argv[2],'w'))" deck.yml deck.json`.
+The app's **Open** button loads FrameGraph v2 documents in JSON, YAML, or YML form.
+The fixture coverage tests parse every checked-in fixture, verify page/object/style policy
+coverage, and load every document in Chromium:
+```bash
+npm test
+npm run test:browser
+```
 
 ---
 
 ## What the renderer supports
 Resolved from `defs.tokens`: colors, fonts, text styles, stroke styles, fill styles.
-Objects: `rect`, `ellipse`, `line`, `polyline`, `path`, `text` (incl. `spans`/`field`),
-`icon`, `group` (with `row`/`column`/`grid`/`free` layout). Fills: solid, `linear`/`radial`
+Page modes: absolute `page` layers and approximate paginated `flow`/story pages with
+master canvas regions and running header/footer objects.
+Objects: `rect`, `ellipse`, `circle`, `line`, `polyline`, `polygon`, `path`, `text`
+(incl. `spans`/`field`), `image`, `bullet_list`, `table`, `icon`, `group` (with
+`row`/`column`/`grid`/`free` layout), plus generic boxed/relation fallbacks for semantic fixture
+objects. Flow blocks: `heading`, `paragraph`, `list`, `bullet_list`, `table`, `code`,
+`math`, `toc`, `figure`, `block`, `bibliography`, `page_break`, and `spacer`.
+Fills: solid, `linear`/`radial`
 gradients (stops use `position`), and `hatch`/`cross_hatch`/`dots`/`grid` patterns.
 **Strokes (FrameGraph 2.2.0): paint comes from `stroke` (a colour/gradient) and geometry from
 `stroke_style` — a named `Style` with CSS-named `stroke_width`/`stroke_dasharray`/`stroke_linecap`/

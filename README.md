@@ -48,22 +48,36 @@ RENDERER-PATCH.md             ← the specified changes for the big ReportLab re
 
 ## Run it
 
+The project is managed with [uv](https://docs.astral.sh/uv/). `uv sync` once to
+create `.venv` with the runtime deps (`pydantic>=2`, `pyyaml`) plus the `dev`
+group (`pytest`); prefix commands with `uv run`.
+
 ```bash
+uv sync                                    # create/populate .venv
+
 # schema is generated and in sync
-python3 schema/build_schema.py --check
+uv run python schema/build_schema.py --check
 
 # validate the (migrated) fixtures — 0 errors on the core profile
-python3 tooling/validate.py fixtures/*.fg.yaml
+uv run python tooling/validate.py fixtures/*.fg.yaml
 
 # migrate a legacy v2 document to HEAD
-python3 tooling/codemod.py path/to/legacy.fg.json --in-place --bump
+uv run python tooling/codemod.py path/to/legacy.fg.json --in-place --bump
 
-# run the assertions (12/12 green)
-python3 tests/test_head.py
+# run the assertions (13/13 green), either runner
+uv run python tests/test_head.py
+uv run pytest
+
+# SVG proxy renderer (dependency-free core) -> out/render/index.html
+uv run python tooling/render_fixtures.py --all
 ```
 
-(Requires `pydantic>=2` and `pyyaml`; the proxy renderer additionally needs
-`matplotlib` and `pillow`.)
+The matplotlib proxy renderer (`tooling/render_fg_doc.py`) needs the extra
+`render` dependency group:
+
+```bash
+uv sync --group render                     # adds matplotlib + pillow
+```
 
 ## What changed vs the pre-HEAD bundle (one-line summary)
 
