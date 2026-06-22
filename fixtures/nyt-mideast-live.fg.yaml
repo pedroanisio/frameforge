@@ -1,0 +1,557 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: report
+title: Mideast Live Updates — fixture
+description: Fixed-Page reproduction of an NYT live-updates mobile article view.
+lang: en
+defs:
+  tokens:
+    colors:
+      bg_black: '#000000'
+      bg_feed: '#121212'
+      text_white: '#FFFFFF'
+      text_dek: '#DADADA'
+      text_secondary: '#A6A6A6'
+      text_credit: '#7D7D7D'
+      nyt_red: '#D0021B'
+      button_bg: '#2A2A2A'
+      divider: '#3A3A3A'
+    fonts:
+      serif_head:
+        family: Georgia
+        fallback:
+        - Times New Roman
+        - serif
+      serif_body:
+        family: Georgia
+        fallback:
+        - Times New Roman
+        - serif
+      sans:
+        family: Helvetica Neue
+        fallback:
+        - Arial
+        - sans-serif
+    text_styles:
+      nav_title:
+        font: sans
+        size: 15
+        weight: 700
+        color: text_white
+        line_height: 1.05
+        wrap: true
+      nav_tab:
+        font: sans
+        size: 15
+        weight: 400
+        color: text_secondary
+      nav_tab_active:
+        font: sans
+        size: 15
+        weight: 700
+        color: text_white
+      time_label:
+        font: sans
+        size: 13
+        weight: 400
+        color: text_secondary
+      time_city:
+        font: sans
+        size: 14
+        weight: 700
+        color: text_white
+      time_time:
+        font: sans
+        size: 14
+        weight: 400
+        color: text_secondary
+      live_badge:
+        font: sans
+        size: 12
+        weight: 700
+        color: text_white
+        align: center
+        v_align: middle
+      updated_red:
+        font: sans
+        size: 14
+        weight: 700
+        color: nyt_red
+      headline:
+        font: serif_head
+        size: 30
+        weight: 700
+        color: text_white
+        line_height: 1.1
+        wrap: true
+      dek:
+        font: serif_body
+        size: 19
+        weight: 400
+        color: text_dek
+        line_height: 1.35
+        wrap: true
+      caption:
+        font: sans
+        size: 14
+        weight: 400
+        color: text_secondary
+        line_height: 1.3
+        wrap: true
+      credit:
+        font: sans
+        size: 13
+        weight: 400
+        color: text_credit
+      pinned:
+        font: sans
+        size: 15
+        weight: 700
+        color: text_white
+      authors:
+        font: sans
+        size: 14
+        weight: 400
+        color: text_secondary
+        line_height: 1.3
+        wrap: true
+      nyt_t:
+        font: serif_head
+        size: 22
+        weight: 700
+        color: text_white
+        align: center
+        v_align: middle
+      section_head:
+        font: serif_head
+        size: 26
+        weight: 700
+        color: text_white
+        wrap: true
+      body:
+        font: serif_body
+        size: 19
+        weight: 400
+        color: text_white
+        line_height: 1.45
+        wrap: true
+      show_more:
+        font: sans
+        size: 15
+        weight: 600
+        color: text_secondary
+        align: center
+        v_align: middle
+    glyph_map:
+      pin: 📌
+      share: ↗
+pages:
+- mode: page
+  id: nyt-mideast-live
+  canvas:
+    size:
+    - 412
+    - 1700
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+  layers:
+  - id: background
+    z: 0
+    objects:
+    - type: rect
+      id: bg_top
+      box:
+      - 0
+      - 0
+      - 412
+      - 1000
+      fill: bg_black
+    - type: rect
+      id: bg_feed
+      box:
+      - 0
+      - 1000
+      - 412
+      - 700
+      fill: bg_feed
+  - id: content
+    z: 1
+    objects:
+    - type: text
+      id: nav_title
+      text: War in the Middle East
+      box:
+      - 16
+      - 10
+      - 104
+      - 34
+      style: nav_title
+    - type: text
+      id: nav_updates
+      text: Updates
+      box:
+      - 150
+      - 16
+      - 66
+      - 20
+      style: nav_tab_active
+    - type: text
+      id: nav_iran
+      text: U.S.-Iran Talks
+      box:
+      - 224
+      - 16
+      - 118
+      - 20
+      style: nav_tab
+    - type: text
+      id: nav_lebanon
+      text: Lebanon
+      box:
+      - 352
+      - 16
+      - 60
+      - 20
+      style: nav_tab
+    - type: line
+      id: nav_underline
+      from:
+      - 150
+      - 40
+      to:
+      - 210
+      - 40
+      stroke: text_white
+      stroke_style:
+        stroke_width: 2
+    - type: line
+      id: nav_border
+      from:
+      - 0
+      - 50
+      to:
+      - 412
+      - 50
+      stroke: divider
+      stroke_style:
+        stroke_width: 1
+    - type: text
+      id: time_label
+      text: 'Current time in:'
+      box:
+      - 16
+      - 72
+      - 220
+      - 18
+      style: time_label
+    - type: text
+      id: time_lucerne
+      box:
+      - 16
+      - 94
+      - 380
+      - 20
+      spans:
+      - text: 'Lucerne, Switzerland '
+        style: time_city
+      - text: 3:50 a.m. June 22
+        style: time_time
+    - type: text
+      id: time_beirut
+      box:
+      - 16
+      - 116
+      - 380
+      - 20
+      spans:
+      - text: 'Beirut/Tel Aviv '
+        style: time_city
+      - text: 4:50 a.m. June 22
+        style: time_time
+    - type: line
+      id: time_border
+      from:
+      - 0
+      - 140
+      to:
+      - 412
+      - 140
+      stroke: divider
+      stroke_style:
+        stroke_width: 1
+    - type: rect
+      id: live_bg
+      box:
+      - 16
+      - 156
+      - 52
+      - 24
+      fill: nyt_red
+      radius: 3
+    - type: text
+      id: live_text
+      text: LIVE
+      box:
+      - 16
+      - 156
+      - 52
+      - 24
+      style: live_badge
+    - type: text
+      id: updated_top
+      text: Updated 53 minutes ago
+      box:
+      - 78
+      - 158
+      - 300
+      - 20
+      style: updated_red
+    - type: text
+      id: headline
+      text: 'Mideast Live Updates: Strains Emerge on First Day of U.S.-Iran Talks'
+      box:
+      - 16
+      - 192
+      - 384
+      - 145
+      style: headline
+    - type: text
+      id: dek
+      text: Negotiations were expected to continue through the night, a U.S. official said. Iranian negotiators insisted on
+        an end to the war in Lebanon as a condition for further talks, state media reported, as President Trump renewed threats
+        against Iran.
+      box:
+      - 16
+      - 345
+      - 384
+      - 185
+      style: dek
+    - type: image
+      id: hero
+      src: assets/vance-burgenstock.jpg
+      box:
+      - 0
+      - 545
+      - 412
+      - 300
+      placeholder: true
+      preserve_aspect_ratio: true
+      label: VP JD Vance with PM Shehbaz Sharif and Sheikh Mohammed bin Abdulrahman al-Thani, Bürgenstock resort, Switzerland.
+    - type: text
+      id: caption
+      box:
+      - 16
+      - 858
+      - 384
+      - 115
+      spans:
+      - text: Vice President JD Vance speaking next to Prime Minister Shehbaz Sharif of Pakistan and Sheikh Mohammed bin Abdulrahman
+          al-Thani of Qatar at the Bürgenstock resort, Switzerland, on Sunday.
+        style: caption
+      - text: '  Pool photo by Fabrice Coffrini'
+        style: credit
+    - type: icon
+      id: pin_icon
+      glyph: pin
+      box:
+      - 16
+      - 1016
+      - 18
+      - 18
+      color: text_white
+      size: 16
+    - type: text
+      id: pinned_label
+      text: Pinned
+      box:
+      - 40
+      - 1015
+      - 200
+      - 20
+      style: pinned
+    - type: ellipse
+      id: t_ring
+      center:
+      - 33
+      - 1069
+      rx: 17
+      ry: 17
+      stroke: text_white
+      stroke_style:
+        stroke_width: 1
+    - type: text
+      id: t_logo
+      text: T
+      box:
+      - 22
+      - 1054
+      - 22
+      - 30
+      style: nyt_t
+    - type: text
+      id: byline_updated
+      text: Updated 53 minutes ago
+      box:
+      - 62
+      - 1052
+      - 280
+      - 18
+      style: updated_red
+    - type: text
+      id: byline_authors
+      text: Aurelien Breeden, Zolan Kanno-Youngs and Ephrat Livni
+      box:
+      - 62
+      - 1072
+      - 290
+      - 40
+      style: authors
+    - type: ellipse
+      id: share1_ring
+      center:
+      - 389
+      - 1066
+      rx: 16
+      ry: 16
+      fill: button_bg
+    - type: icon
+      id: share1
+      glyph: share
+      box:
+      - 379
+      - 1056
+      - 20
+      - 20
+      color: text_white
+      size: 16
+    - type: text
+      id: section_head
+      text: Here’s the latest.
+      box:
+      - 16
+      - 1128
+      - 384
+      - 40
+      style: section_head
+    - type: text
+      id: body1
+      text: Negotiators for Iran and the United States met in Switzerland on Sunday as they sought to turn a 60-day cease-fire
+        into a lasting peace, but it was quickly apparent how far apart the two sides are.
+      box:
+      - 16
+      - 1180
+      - 384
+      - 160
+      style: body
+    - type: text
+      id: body2
+      text: The talks were expected to continue into the night, according to a U.S. official who spoke on the condition of
+        anonymity to detail the negotiations.
+      box:
+      - 16
+      - 1342
+      - 384
+      - 115
+      style: body
+    - type: rect
+      id: show_more_bg
+      box:
+      - 150
+      - 1466
+      - 112
+      - 40
+      fill: button_bg
+      radius: 6
+    - type: text
+      id: show_more_text
+      text: Show more
+      box:
+      - 150
+      - 1466
+      - 112
+      - 40
+      style: show_more
+    - type: line
+      id: div2
+      from:
+      - 16
+      - 1532
+      to:
+      - 396
+      - 1532
+      stroke: divider
+      stroke_style:
+        stroke_width: 1
+    - type: image
+      id: avatar2
+      src: assets/zolan.jpg
+      box:
+      - 16
+      - 1548
+      - 36
+      - 36
+      placeholder: true
+      clip:
+        shape: ellipse
+    - type: text
+      id: u2_time
+      text: 2 hours ago
+      box:
+      - 62
+      - 1550
+      - 200
+      - 18
+      style: updated_red
+    - type: text
+      id: u2_author
+      text: Zolan Kanno-Youngs
+      box:
+      - 62
+      - 1570
+      - 300
+      - 18
+      style: authors
+    - type: ellipse
+      id: share2_ring
+      center:
+      - 389
+      - 1564
+      rx: 16
+      ry: 16
+      fill: button_bg
+    - type: icon
+      id: share2
+      glyph: share
+      box:
+      - 379
+      - 1554
+      - 20
+      - 20
+      color: text_white
+      size: 16
+    - type: text
+      id: u2_body
+      text: U.S. officials anticipate the talks with Iran in Switzerland will continue through the night, according to an…
+      box:
+      - 16
+      - 1596
+      - 384
+      - 80
+      style: body
+  notes: Fixed-Page reproduction of an NYT live-updates mobile view; see header comment for flags.
+meta:
+  disclaimer: Nothing in this fixture should be taken for granted. Values not backed by a logical definition or verifiable
+    reference (coordinates, colors, fonts) are marked [APPROX] and may be wrong. Editorial text is third-party content reproduced
+    only as layout payload; no truth claim is made about it.
+  source: 'User-supplied screenshot: Screenshot_20260621_225012_NYTimes.png'
+  provenance:
+    GRAMMAR: verified against uploaded framegraph-v2.ebnf
+    SCREENSHOT: transcribed from the supplied image
+    APPROX: author estimate; not authoritative
+    GAP: fidelity compromise forced by the uploaded grammar (see header)
+  open_questions:
+  - Group-relative vs page-absolute coordinates were sidestepped by using a flat, page-absolute object list (no GroupObject).
+  - text_decoration:underline for links needs framegraph-v2-style.ebnf, which was not uploaded.
+  - An idiomatic article would use a FlowSection; this fixture uses a fixed Page for screenshot fidelity.

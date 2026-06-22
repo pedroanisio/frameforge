@@ -1,0 +1,923 @@
+{
+  "dsl": "FrameGraph",
+  "version": "2.0.0",
+  "profile": "mixed",
+  "title": "CHROMA — advanced styling showcase",
+  "description": "Exercises the CSS-parity style module: gradients, gradient text, blend modes, filters, transforms, box-shadow, small-caps, text-decoration, styled tables and callouts.",
+  "lang": "en-US",
+  "defs": {
+    "tokens": {
+      "colors": {
+        "ink": "#14121a",
+        "paper": "#ffffff",
+        "bg0": "#0b0a12",
+        "bg1": "#241047",
+        "bg2": "#3a0f5c",
+        "magenta": "#ff2d95",
+        "violet": "#7a5cff",
+        "cyan": "#25e0d8",
+        "amber": "#ffb020",
+        "muted": "#8a8597",
+        "line": "#d9d6e0",
+        "tint": "#f5f3fb",
+        "tintv": "#efeafc"
+      },
+      "fonts": {
+        "sans": {
+          "family": "Inter",
+          "fallback": [
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
+        },
+        "serif": {
+          "family": "Source Serif 4",
+          "fallback": [
+            "Georgia",
+            "serif"
+          ]
+        }
+      },
+      "text_styles": {
+        "kicker": {
+          "font_family": "sans",
+          "font_size": 12,
+          "font_weight": 700,
+          "font_variant_caps": "all-small-caps",
+          "letter_spacing": "0.32em",
+          "color": "cyan"
+        },
+        "masthead": {
+          "font_family": "sans",
+          "font_size": 132,
+          "font_weight": 800,
+          "letter_spacing": "-0.04em",
+          "line_height": 0.9,
+          "background_image": {
+            "kind": "linear",
+            "stops": [
+              {
+                "color": "#ff2d95",
+                "position": "0%"
+              },
+              {
+                "color": "#7a5cff",
+                "position": "52%"
+              },
+              {
+                "color": "#25e0d8",
+                "position": "100%"
+              }
+            ],
+            "angle": "105deg"
+          },
+          "background_clip": "text",
+          "color": "transparent"
+        },
+        "tagline": {
+          "font_family": "serif",
+          "font_size": 19,
+          "font_style": "italic",
+          "color": "#e9e6f5",
+          "letter_spacing": "0.01em",
+          "line_height": 1.3
+        },
+        "issue": {
+          "font_family": "sans",
+          "font_size": 11,
+          "font_weight": 600,
+          "font_variant_caps": "all-small-caps",
+          "letter_spacing": "0.4em",
+          "color": "muted"
+        },
+        "badge_tx": {
+          "font_family": "sans",
+          "font_size": 12.5,
+          "font_weight": 800,
+          "color": "bg1",
+          "text_transform": "uppercase",
+          "letter_spacing": "0.12em",
+          "text_align": "center"
+        },
+        "h1": {
+          "font_family": "sans",
+          "font_size": 30,
+          "font_weight": 800,
+          "color": "ink",
+          "text_transform": "uppercase",
+          "letter_spacing": "0.02em",
+          "line_height": 1.05,
+          "border_bottom": {
+            "width": "2px",
+            "style": "solid",
+            "color": "magenta"
+          },
+          "padding": [
+            0,
+            0,
+            "7px",
+            0
+          ]
+        },
+        "byline": {
+          "font_family": "sans",
+          "font_size": 10,
+          "font_variant_caps": "all-small-caps",
+          "letter_spacing": "0.18em",
+          "color": "violet",
+          "font_weight": 600
+        },
+        "body": {
+          "font_family": "serif",
+          "font_size": 10.3,
+          "color": "ink",
+          "line_height": 1.5,
+          "text_align": "justify",
+          "hyphens": "auto",
+          "hanging_punctuation": "first",
+          "text_wrap": "pretty"
+        },
+        "dropcap": {
+          "font_family": "sans",
+          "font_size": 46,
+          "font_weight": 800,
+          "color": "magenta",
+          "line_height": 0.8,
+          "letter_spacing": "0.01em"
+        },
+        "pull": {
+          "font_family": "serif",
+          "font_size": 18,
+          "font_style": "italic",
+          "color": "violet",
+          "line_height": 1.32,
+          "font_weight": 500,
+          "hanging_punctuation": "first"
+        },
+        "co_label": {
+          "font_family": "sans",
+          "font_size": 9.5,
+          "font_weight": 800,
+          "color": "amber",
+          "font_variant_caps": "all-small-caps",
+          "letter_spacing": "0.22em"
+        },
+        "co_body": {
+          "font_family": "serif",
+          "font_size": 9.8,
+          "color": "ink",
+          "line_height": 1.45
+        },
+        "link": {
+          "color": "cyan",
+          "text_decoration": {
+            "line": "underline",
+            "style": "wavy",
+            "color": "cyan",
+            "thickness": "1.4px"
+          }
+        },
+        "sc": {
+          "font_variant_caps": "small-caps",
+          "letter_spacing": "0.04em"
+        },
+        "track": {
+          "letter_spacing": "0.35em",
+          "text_transform": "uppercase",
+          "color": "muted",
+          "font_size": 8.5
+        },
+        "th": {
+          "font_family": "sans",
+          "font_size": 9,
+          "font_weight": 800,
+          "color": "paper",
+          "text_transform": "uppercase",
+          "letter_spacing": "0.06em",
+          "background_color": "violet"
+        },
+        "cell": {
+          "font_family": "serif",
+          "font_size": 9.6,
+          "color": "ink"
+        },
+        "cellHi": {
+          "font_family": "sans",
+          "font_size": 9.6,
+          "font_weight": 800,
+          "color": "magenta",
+          "background_color": "#ffe6f2"
+        },
+        "figcap": {
+          "font_family": "sans",
+          "font_size": 8.8,
+          "font_style": "italic",
+          "color": "muted",
+          "text_align": "center",
+          "letter_spacing": "0.02em"
+        }
+      },
+      "styles": {
+        "glow_m": {
+          "filter": [
+            {
+              "fn": "blur",
+              "value": "46px"
+            }
+          ],
+          "mix_blend_mode": "screen",
+          "opacity": 0.85
+        },
+        "glow_c": {
+          "filter": [
+            {
+              "fn": "blur",
+              "value": "54px"
+            }
+          ],
+          "mix_blend_mode": "screen",
+          "opacity": 0.7
+        },
+        "spectrum": {
+          "border_radius": "4px",
+          "transform": [
+            {
+              "fn": "rotate",
+              "args": [
+                "-4deg"
+              ]
+            }
+          ],
+          "box_shadow": [
+            {
+              "offset_x": 0,
+              "offset_y": "5px",
+              "blur": "16px",
+              "color": "rgba(0,0,0,0.45)"
+            }
+          ]
+        },
+        "badge": {
+          "border_radius": "999px",
+          "box_shadow": [
+            {
+              "offset_x": 0,
+              "offset_y": "4px",
+              "blur": "14px",
+              "color": "rgba(255,45,149,0.45)"
+            }
+          ]
+        },
+        "pullblock": {
+          "border_left": {
+            "width": "4px",
+            "style": "solid",
+            "color": "magenta"
+          },
+          "border_radius": "8px",
+          "padding": [
+            "12px",
+            "16px"
+          ],
+          "background": [
+            {
+              "image": {
+                "kind": "linear",
+                "stops": [
+                  {
+                    "color": "#faf7ff",
+                    "position": "0%"
+                  },
+                  {
+                    "color": "#f0eafd",
+                    "position": "100%"
+                  }
+                ],
+                "angle": "180deg"
+              }
+            }
+          ],
+          "box_shadow": [
+            {
+              "offset_x": 0,
+              "offset_y": "8px",
+              "blur": "22px",
+              "color": "rgba(122,92,255,0.18)"
+            }
+          ]
+        },
+        "callout": {
+          "background_color": "tint",
+          "border": {
+            "width": "1px",
+            "style": "solid",
+            "color": "line"
+          },
+          "border_radius": "10px",
+          "padding": [
+            "12px",
+            "14px"
+          ],
+          "box_shadow": [
+            {
+              "offset_x": 0,
+              "offset_y": "2px",
+              "blur": "8px",
+              "color": "rgba(20,18,26,0.06)"
+            }
+          ]
+        },
+        "figcard": {
+          "border_radius": "12px",
+          "transform": [
+            {
+              "fn": "rotate",
+              "args": [
+                "-1.5deg"
+              ]
+            }
+          ],
+          "box_shadow": [
+            {
+              "offset_x": 0,
+              "offset_y": "12px",
+              "blur": "30px",
+              "color": "rgba(20,18,26,0.28)"
+            }
+          ]
+        }
+      }
+    },
+    "masters": {
+      "mag": {
+        "canvas": {
+          "preset": "A4"
+        },
+        "regions": [
+          {
+            "id": "cols",
+            "box": [
+              54,
+              86,
+              487,
+              700
+            ],
+            "columns": 2,
+            "column_gap": "26px",
+            "column_rule": {
+              "width": "0.5px",
+              "style": "solid",
+              "color": "line"
+            }
+          }
+        ],
+        "running": {
+          "header": [
+            {
+              "type": "text",
+              "text": "CHROMA",
+              "style": "track",
+              "box": [
+                54,
+                56,
+                240,
+                14
+              ]
+            },
+            {
+              "type": "text",
+              "text": "§",
+              "field": {
+                "string": "section"
+              },
+              "style": "issue",
+              "box": [
+                300,
+                56,
+                180,
+                14
+              ]
+            },
+            {
+              "type": "text",
+              "text": "0",
+              "field": "page",
+              "style": "track",
+              "box": [
+                441,
+                56,
+                100,
+                14
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "pages": [
+    {
+      "mode": "page",
+      "id": "cover",
+      "canvas": {
+        "preset": "A4"
+      },
+      "layers": [
+        {
+          "id": "art",
+          "objects": [
+            {
+              "type": "rect",
+              "box": [
+                0,
+                0,
+                595,
+                842
+              ],
+              "fill": {
+                "kind": "linear",
+                "stops": [
+                  {
+                    "color": "#0b0a12",
+                    "position": "0%"
+                  },
+                  {
+                    "color": "#241047",
+                    "position": "58%"
+                  },
+                  {
+                    "color": "#3a0f5c",
+                    "position": "100%"
+                  }
+                ],
+                "angle": "155deg"
+              },
+              "z": 0
+            },
+            {
+              "type": "ellipse",
+              "center": [
+                150,
+                250
+              ],
+              "rx": 220,
+              "ry": 220,
+              "fill": {
+                "kind": "radial",
+                "stops": [
+                  {
+                    "color": "#ff2d95",
+                    "position": "0%"
+                  },
+                  {
+                    "color": "rgba(255,45,149,0)",
+                    "position": "70%"
+                  }
+                ],
+                "shape": "circle",
+                "at": "50% 50%"
+              },
+              "style": "glow_m",
+              "z": 1
+            },
+            {
+              "type": "ellipse",
+              "center": [
+                470,
+                560
+              ],
+              "rx": 250,
+              "ry": 250,
+              "fill": {
+                "kind": "radial",
+                "stops": [
+                  {
+                    "color": "#25e0d8",
+                    "position": "0%"
+                  },
+                  {
+                    "color": "rgba(37,224,216,0)",
+                    "position": "70%"
+                  }
+                ],
+                "shape": "circle",
+                "at": "50% 50%"
+              },
+              "style": "glow_c",
+              "z": 1
+            },
+            {
+              "type": "rect",
+              "box": [
+                70,
+                470,
+                360,
+                14
+              ],
+              "fill": {
+                "kind": "linear",
+                "stops": [
+                  {
+                    "color": "#ff004d",
+                    "position": "0%"
+                  },
+                  {
+                    "color": "#ff7a00",
+                    "position": "16%"
+                  },
+                  {
+                    "color": "#ffd400",
+                    "position": "33%"
+                  },
+                  {
+                    "color": "#14d957",
+                    "position": "50%"
+                  },
+                  {
+                    "color": "#00c2ff",
+                    "position": "66%"
+                  },
+                  {
+                    "color": "#2b5bff",
+                    "position": "83%"
+                  },
+                  {
+                    "color": "#8a2be2",
+                    "position": "100%"
+                  }
+                ],
+                "angle": "90deg"
+              },
+              "style": "spectrum",
+              "z": 3
+            },
+            {
+              "type": "text",
+              "text": "The Quarterly of Color & Light",
+              "style": "kicker",
+              "box": [
+                72,
+                150,
+                451,
+                20
+              ],
+              "z": 4
+            },
+            {
+              "type": "text",
+              "text": "CHROMA",
+              "style": "masthead",
+              "box": [
+                66,
+                180,
+                470,
+                150
+              ],
+              "z": 4
+            },
+            {
+              "type": "text",
+              "text": "On iridescence, thin films, and the colors that live\nin geometry rather than pigment.",
+              "style": "tagline",
+              "box": [
+                72,
+                360,
+                430,
+                60
+              ],
+              "z": 4
+            },
+            {
+              "type": "text",
+              "text": "Issue 07 — Spectra",
+              "style": "issue",
+              "box": [
+                72,
+                760,
+                300,
+                18
+              ],
+              "z": 4
+            },
+            {
+              "type": "rect",
+              "box": [
+                398,
+                752,
+                125,
+                30
+              ],
+              "fill": {
+                "kind": "linear",
+                "stops": [
+                  {
+                    "color": "#ff2d95",
+                    "position": "0%"
+                  },
+                  {
+                    "color": "#ffb020",
+                    "position": "100%"
+                  }
+                ],
+                "angle": "90deg"
+              },
+              "style": "badge",
+              "z": 4
+            },
+            {
+              "type": "text",
+              "text": "Aurora Edition",
+              "style": "badge_tx",
+              "box": [
+                398,
+                760,
+                125,
+                16
+              ],
+              "z": 5
+            },
+            {
+              "type": "line",
+              "from": [
+                72,
+                430
+              ],
+              "to": [
+                523,
+                430
+              ],
+              "stroke": {
+                "color": "rgba(255,255,255,0.25)",
+                "width": 0.75
+              },
+              "z": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "flow",
+      "id": "article",
+      "master": "mag",
+      "lang": "en-US",
+      "story": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "On the Physics of Iridescence",
+          "style": "h1",
+          "set_string": [
+            {
+              "name": "section",
+              "value": "Iridescence"
+            }
+          ],
+          "id": "h-irid"
+        },
+        {
+          "type": "paragraph",
+          "text": "By the Optics Desk",
+          "style": "byline"
+        },
+        {
+          "type": "spacer",
+          "height": "6px"
+        },
+        {
+          "type": "paragraph",
+          "spans": [
+            {
+              "text": "I",
+              "style": "dropcap"
+            },
+            "ridescence is structural color: hue produced not by pigment but by the way light interferes with itself across features the size of its own wavelength. Tilt the surface and the color shifts — the signature that geometry, not chemistry, is doing the work."
+          ],
+          "style": "body"
+        },
+        {
+          "type": "paragraph",
+          "text": "In a thin film, light reflects from both the top and bottom surfaces. The two reflected waves travel paths that differ by twice the film thickness, and where that difference is a whole number of wavelengths the waves reinforce; elsewhere they cancel. Because the condition depends on wavelength, each thickness favors a particular color.",
+          "style": "body"
+        },
+        {
+          "type": "block",
+          "role": "pullquote",
+          "style": "pullblock",
+          "children": [
+            {
+              "type": "paragraph",
+              "text": "Color you can tilt: the hue lives in the geometry, not in the pigment.",
+              "style": "pull"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "spans": [
+            "The same mechanism paints the soap bubble, the beetle's shell, and the ",
+            {
+              "text": "compact-disc",
+              "style": "link"
+            },
+            " sheen. Engineers exploit it deliberately in ",
+            {
+              "text": "dielectric mirrors",
+              "style": "sc"
+            },
+            ", stacking dozens of quarter-wave layers so that a chosen band reflects almost perfectly while the rest passes through."
+          ],
+          "style": "body"
+        },
+        {
+          "type": "block",
+          "role": "note",
+          "style": "callout",
+          "children": [
+            {
+              "type": "paragraph",
+              "text": "Field Note",
+              "style": "co_label"
+            },
+            {
+              "type": "paragraph",
+              "text": "To see thin-film color at home, float a drop of oil on a puddle. The film thins as it spreads, so the bands of color map directly onto thickness.",
+              "style": "co_body"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The table below pairs film thickness with the hue it reflects most strongly at normal incidence, for a film of refractive index near 1.4.",
+          "style": "body"
+        },
+        {
+          "type": "table",
+          "header": [
+            {
+              "content": "Thickness (nm)",
+              "style": "th"
+            },
+            {
+              "content": "Reflected hue",
+              "style": "th"
+            },
+            {
+              "content": "Everyday example",
+              "style": "th"
+            }
+          ],
+          "columns": [
+            {
+              "width": "30%",
+              "align": "left"
+            },
+            {
+              "width": "30%",
+              "align": "left"
+            },
+            {
+              "width": "40%",
+              "align": "left"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "content": "~110",
+                "style": "cell"
+              },
+              {
+                "content": "violet",
+                "style": "cell"
+              },
+              {
+                "content": "thinning soap film",
+                "style": "cell"
+              }
+            ],
+            [
+              {
+                "content": "~180",
+                "style": "cell"
+              },
+              {
+                "content": "blue–cyan",
+                "style": "cell"
+              },
+              {
+                "content": "beetle elytra",
+                "style": "cell"
+              }
+            ],
+            [
+              {
+                "content": "~250",
+                "style": "cellHi"
+              },
+              {
+                "content": "green",
+                "style": "cellHi"
+              },
+              {
+                "content": "peacock barbule",
+                "style": "cellHi"
+              }
+            ],
+            [
+              {
+                "content": "~340",
+                "style": "cell"
+              },
+              {
+                "content": "amber",
+                "style": "cell"
+              },
+              {
+                "content": "oil sheen",
+                "style": "cell"
+              }
+            ]
+          ],
+          "zebra": true,
+          "row_height": "16px",
+          "number": {
+            "series": "table",
+            "suffix": "."
+          },
+          "caption": "Reflected hue by film thickness (n ≈ 1.4, normal incidence)."
+        },
+        {
+          "type": "figure",
+          "object": {
+            "type": "rect",
+            "box": [
+              0,
+              0,
+              360,
+              96
+            ],
+            "fill": {
+              "kind": "linear",
+              "stops": [
+                {
+                  "color": "#ff004d",
+                  "position": "0%"
+                },
+                {
+                  "color": "#ff7a00",
+                  "position": "16%"
+                },
+                {
+                  "color": "#ffd400",
+                  "position": "33%"
+                },
+                {
+                  "color": "#14d957",
+                  "position": "50%"
+                },
+                {
+                  "color": "#00c2ff",
+                  "position": "66%"
+                },
+                {
+                  "color": "#2b5bff",
+                  "position": "83%"
+                },
+                {
+                  "color": "#8a2be2",
+                  "position": "100%"
+                }
+              ],
+              "angle": "90deg"
+            },
+            "style": "figcard"
+          },
+          "size": [
+            "100%",
+            "96px"
+          ],
+          "align": "center",
+          "number": {
+            "series": "figure",
+            "suffix": "."
+          },
+          "caption": "A continuous visible spectrum rendered as a single gradient fill — no raster image."
+        },
+        {
+          "type": "paragraph",
+          "spans": [
+            "Read the spectrum above as the family of hues a single film sweeps through as it thickens. ",
+            {
+              "text": "the geometry is the palette",
+              "style": "track"
+            },
+            "."
+          ],
+          "style": "body"
+        }
+      ]
+    }
+  ]
+}
