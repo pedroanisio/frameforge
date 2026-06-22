@@ -985,7 +985,11 @@ class FigureTikz:
             lines = {str(v).strip().lower() for v in line}
         else:
             lines = set(str(line or "").replace(",", " ").split())
-        return f"\\underline{{{content}}}" if "underline" in lines else content
+        if "underline" in lines:
+            content = f"\\underline{{{content}}}"
+        if "line-through" in lines:
+            content = f"\\sout{{{content}}}"
+        return content
 
     def _text_shadow_nodes(self, st, anchor, width, align, x, y, content):
         out = []

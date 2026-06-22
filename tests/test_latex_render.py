@@ -226,6 +226,7 @@ def test_transpile_emits_extended_latex_flow_controls():
     assert r"\renewcommand{\indexname}{Concept Index}" in tex
     assert r"\printindex" in tex
     assert r"\usepackage{makeidx}" in tex
+    assert r"\usepackage[normalem]{ulem}" in tex
     assert r"\makeindex" in tex
 
 

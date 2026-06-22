@@ -588,6 +588,7 @@ class _Transpiler:
             "\\usepackage{enumitem}\n"
             "\\usepackage{graphicx}\n"
             "\\usepackage{makeidx}\n"
+            "\\usepackage[normalem]{ulem}\n"
             "\\usepackage[hidelinks]{hyperref}\n"
             "\\usepackage{nameref}\n"
             "\\usepackage{tikz}\n"

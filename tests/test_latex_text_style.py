@@ -68,6 +68,28 @@ def test_text_decoration_underline_wraps_tikz_text_content():
     assert "{\\underline{under\\_score}}" in tex
 
 
+def test_text_decoration_line_through_wraps_tikz_text_content():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "deleted",
+        "style": {"text_decoration": {"line": "line-through"}},
+    })
+
+    assert "{\\sout{deleted}}" in tex
+
+
+def test_text_decoration_combines_underline_and_line_through():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "marked",
+        "style": {"text_decoration": {"line": ["underline", "line-through"]}},
+    })
+
+    assert "{\\sout{\\underline{marked}}}" in tex
+
+
 def test_font_variant_small_caps_maps_to_tikz_font_shape():
     tex = _fig({"label": {"font_variant_caps": "small-caps"}}).render({
         "type": "text",
