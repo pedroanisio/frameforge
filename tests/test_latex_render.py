@@ -352,6 +352,80 @@ def test_transpile_page_mode_text_spans_keep_run_styles():
     assert "{styled value}" in tex
 
 
+def test_transpile_page_mode_emits_tikz_transform_scopes():
+    doc = {
+        "dsl": "FrameGraph",
+        "version": "2.2.0",
+        "pages": [
+            {
+                "mode": "page",
+                "id": "p",
+                "canvas": {"size": [770, 200]},
+                "layers": [
+                    {
+                        "objects": [
+                            {
+                                "type": "rect",
+                                "box": [48, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "opacity": 0.82,
+                                "style": {"transform": [{"fn": "translate_y", "args": [22]}]},
+                            },
+                            {
+                                "type": "rect",
+                                "box": [172, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "style": {"transform": [{"fn": "scale_y", "args": [1.6]}]},
+                            },
+                            {
+                                "type": "rect",
+                                "box": [296, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "style": {"transform": [{"fn": "skew_y", "args": [18]}]},
+                            },
+                            {
+                                "type": "rect",
+                                "box": [420, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "style": {"transform": [{"fn": "rotate", "args": [20]}]},
+                            },
+                            {
+                                "type": "rect",
+                                "box": [544, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "style": {
+                                    "transform": [{"fn": "rotate", "args": [20]}],
+                                    "transform_origin": [544, 64],
+                                },
+                            },
+                            {
+                                "type": "rect",
+                                "box": [668, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "style": {
+                                    "transform": [
+                                        {"fn": "translate_y", "args": [14]},
+                                        {"fn": "rotate", "args": [16]},
+                                    ],
+                                },
+                            },
+                        ]
+                    }
+                ],
+            }
+        ],
+    }
+
+    tex = transpile(doc)
+
+    assert r"\begin{scope}[opacity=0.82,shift={(0,22)}]" in tex
+    assert r"\begin{scope}[shift={(201,91)},yscale=1.6,shift={(-201,-91)}]" in tex
+    assert r"\begin{scope}[shift={(325,91)},yslant=0.325,shift={(-325,-91)}]" in tex
+    assert r"\begin{scope}[rotate around={20:(449,91)}]" in tex
+    assert r"\begin{scope}[rotate around={20:(544,64)}]" in tex
+    assert r"\begin{scope}[shift={(0,14)},rotate around={16:(697,91)}]" in tex
+
+
 def test_render_latex_cli_lists_framegraph_docs(tmp_path, capsys):
     flow = tmp_path / "flow.fg.yaml"
     page = tmp_path / "page.fg.yaml"

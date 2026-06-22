@@ -11,6 +11,7 @@ counted in `.skipped` and dropped, mirroring the SVG proxy's tolerance.
 """
 from __future__ import annotations
 
+import math
 import re
 
 from framegraph.rendering.domain.geometry import fnum, is_point, num
@@ -100,10 +101,108 @@ class FigureTikz:
             self.skipped += 1
             return ""
         try:
-            return fn(o)
+            body = fn(o)
+            return self._wrap_object(o, body) if body else ""
         except Exception:
             self.skipped += 1
             return ""
+
+    def _style_dict(self, o):
+        style = o.get("style")
+        return style if isinstance(style, dict) else {}
+
+    def _wrap_object(self, o, body):
+        opts = []
+        opacity = o.get("opacity")
+        if opacity in (None, 1):
+            opacity = self._style_dict(o).get("opacity")
+        if opacity not in (None, 1):
+            opts.append(f"opacity={fnum(num(opacity, 1))}")
+        transform = self._tikz_transform(o)
+        if transform:
+            opts += transform
+        return f"\\begin{{scope}}[{','.join(opts)}]\n{body}\\end{{scope}}\n" if opts else body
+
+    def _tikz_transform(self, o):
+        style = self._style_dict(o)
+        value = style.get("transform")
+        if not value or value == "none":
+            return []
+        if isinstance(value, str):
+            return [value.replace("deg", "")]
+        items = value if isinstance(value, list) else [value]
+        ox, oy = self._transform_origin(style.get("transform_origin"), o.get("box"))
+        opts = []
+        for item in items:
+            if isinstance(item, str):
+                opts.append(item.replace("deg", ""))
+                continue
+            if not isinstance(item, dict):
+                continue
+            fn = item.get("fn") or item.get("kind") or item.get("name")
+            args = item.get("args") or []
+            vals = [self._transform_arg(v) for v in args]
+            if fn == "rotate" and vals:
+                opts.append(f"rotate around={{{vals[0]}:({fnum(ox)},{fnum(oy)})}}" if ox is not None else f"rotate={vals[0]}")
+            elif fn == "translate":
+                x = vals[0] if vals else "0"
+                y = vals[1] if len(vals) > 1 else "0"
+                opts.append(f"shift={{({x},{y})}}")
+            elif fn == "translate_x" and vals:
+                opts.append(f"shift={{({vals[0]},0)}}")
+            elif fn == "translate_y" and vals:
+                opts.append(f"shift={{(0,{vals[0]})}}")
+            elif fn == "scale" and vals:
+                sx, sy = vals[0], vals[1] if len(vals) > 1 else vals[0]
+                opts += self._origin_opts([f"xscale={sx}", f"yscale={sy}"], ox, oy)
+            elif fn == "scale_x" and vals:
+                opts += self._origin_opts([f"xscale={vals[0]}"], ox, oy)
+            elif fn == "scale_y" and vals:
+                opts += self._origin_opts([f"yscale={vals[0]}"], ox, oy)
+            elif fn == "skew_x" and vals:
+                opts += self._origin_opts([f"xslant={self._tan_arg(vals[0])}"], ox, oy)
+            elif fn == "skew_y" and vals:
+                opts += self._origin_opts([f"yslant={self._tan_arg(vals[0])}"], ox, oy)
+            elif fn == "skew" and vals:
+                opts += self._origin_opts([f"xslant={self._tan_arg(vals[0])}"], ox, oy)
+                if len(vals) > 1:
+                    opts += self._origin_opts([f"yslant={self._tan_arg(vals[1])}"], ox, oy)
+            elif fn == "matrix" and len(vals) >= 6:
+                opts.append(f"cm={{{vals[0]},{vals[1]},{vals[2]},{vals[3]},({vals[4]},{vals[5]})}}")
+        return opts
+
+    @staticmethod
+    def _origin_opts(opts, ox, oy):
+        if ox is None:
+            return opts
+        return [f"shift={{({fnum(ox)},{fnum(oy)})}}"] + opts + [f"shift={{({fnum(-ox)},{fnum(-oy)})}}"]
+
+    @staticmethod
+    def _transform_arg(value):
+        n = num(value, None)
+        return fnum(n) if n is not None else str(value).replace("deg", "")
+
+    @staticmethod
+    def _tan_arg(value):
+        n = num(value, None)
+        if n is None:
+            try:
+                n = float(str(value).replace("deg", ""))
+            except ValueError:
+                return str(value).replace("deg", "")
+        return fnum(math.tan(math.radians(n)))
+
+    @staticmethod
+    def _transform_origin(origin, box):
+        if isinstance(origin, (list, tuple)) and len(origin) >= 2:
+            return num(origin[0], 0), num(origin[1], 0)
+        if isinstance(origin, str):
+            vals = origin.replace(",", " ").split()
+            if len(vals) >= 2 and not any("%" in v for v in vals[:2]):
+                return num(vals[0], 0), num(vals[1], 0)
+        if isinstance(box, list) and len(box) >= 4:
+            return num(box[0], 0) + num(box[2], 0) / 2, num(box[1], 0) + num(box[3], 0) / 2
+        return None, None
 
     # -- grouping ---------------------------------------------------------- #
     def _draw_group(self, o) -> str:
