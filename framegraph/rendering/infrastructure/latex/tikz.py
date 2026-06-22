@@ -921,6 +921,8 @@ class FigureTikz:
             font += "\\itshape"
         if st.get("font_variant_caps") == "small-caps":
             font += "\\scshape"
+        if st.get("font_variant_numeric") == "tabular-nums":
+            font += "\\addfontfeatures{Numbers=Monospaced}"
         return font
 
     def _text_opts(self, st, anchor, width, align):

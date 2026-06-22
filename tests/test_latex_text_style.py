@@ -80,6 +80,18 @@ def test_font_variant_small_caps_maps_to_tikz_font_shape():
     assert "{Caps}" in tex
 
 
+def test_font_variant_numeric_tabular_nums_maps_to_fontspec_feature():
+    tex = _fig({"metric": {"font_variant_numeric": "tabular-nums"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "0123456789",
+        "style": "metric",
+    })
+
+    assert "\\addfontfeatures{Numbers=Monospaced}" in tex
+    assert "{0123456789}" in tex
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",
