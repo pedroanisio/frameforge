@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as yaml from "js-yaml";
+import { normalizeFrameGraphDoc } from "../framegraph-normalize.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
@@ -34,7 +35,8 @@ function files(dir) {
 
 function loadDoc(file) {
   const raw = fs.readFileSync(file, "utf8");
-  return /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
+  const doc = /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
+  return normalizeFrameGraphDoc(doc);
 }
 
 function walkLayerObject(obj, visit) {

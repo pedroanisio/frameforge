@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as yaml from "js-yaml";
 import { chromium } from "playwright";
+import { normalizeFrameGraphDoc } from "../framegraph-normalize.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VIEWER = path.resolve(__dirname, "..");
@@ -22,7 +23,8 @@ function files(dir) {
 
 function loadDoc(file) {
   const raw = fs.readFileSync(file, "utf8");
-  return /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
+  const doc = /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
+  return normalizeFrameGraphDoc(doc);
 }
 
 function hasLayerContent(pageRecord) {

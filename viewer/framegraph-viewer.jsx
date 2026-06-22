@@ -6,6 +6,7 @@ import {
   ChevronLeft, ChevronRight, Maximize2, Crosshair, Upload, X,
   Palette, Layers, Type as TypeIcon, Info,
 } from "lucide-react";
+import { normalizeFrameGraphDoc } from "./framegraph-normalize.mjs";
 
 /* ============================================================ *
  *  Embedded demo document (Esfera deck, FrameGraph v2)
@@ -1554,8 +1555,9 @@ function App() {
   useEffect(() => {
     window.__FRAMEGRAPH_VIEWER__ = {
       loadDoc(nextDoc) {
-        if (!nextDoc || !Array.isArray(nextDoc.pages)) throw new Error("No pages array found.");
-        setDoc(nextDoc);
+        const normalized = normalizeFrameGraphDoc(nextDoc);
+        if (!normalized || !Array.isArray(normalized.pages)) throw new Error("No pages array found.");
+        setDoc(normalized);
         setIdx(0);
         setErr(null);
       },
@@ -1589,8 +1591,9 @@ function App() {
       try {
         const raw = String(r.result);
         const parsed = /\.ya?ml$/i.test(f.name) ? yaml.load(raw) : JSON.parse(raw);
-        if (!parsed.pages || !Array.isArray(parsed.pages)) throw new Error("No pages array found.");
-        setDoc(parsed); setIdx(0); setErr(null);
+        const normalized = normalizeFrameGraphDoc(parsed);
+        if (!normalized.pages || !Array.isArray(normalized.pages)) throw new Error("No pages array found.");
+        setDoc(normalized); setIdx(0); setErr(null);
       } catch (e2) {
         setErr("Couldn't parse that FrameGraph document: " + e2.message);
       }

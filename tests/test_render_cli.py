@@ -19,6 +19,8 @@ sys.path.insert(0, ROOT)
 from tooling import render_fixtures as R  # noqa: E402
 
 CAL = os.path.join(R.FIXTURES, "calendar-3day.fg.yaml")
+LEGACY_COVER = os.path.join(R.FIXTURES, "newset", "cover-minimal-sidebar.yml")
+LEGACY_AGENDA = os.path.join(R.FIXTURES, "newset", "agenda-left-pane.yml")
 
 
 # --- discover / stem_of ------------------------------------------------------- #
@@ -34,6 +36,17 @@ def test_discover_file_glob_dir_default_and_missing():
     assert len(R.discover([os.path.join(R.FIXTURES, "b1")])) >= 1   # directory walk
     assert len(R.discover([])) >= 8                                  # defaults to fixtures/
     assert R.discover(["/no/such/path.fg.yaml"]) == []              # nothing matches
+
+
+def test_legacy_presentation_decks_normalize_to_pages():
+    docs = dict(R.discover([LEGACY_COVER, LEGACY_AGENDA]))
+    assert set(docs) == {LEGACY_COVER, LEGACY_AGENDA}
+    cover = docs[LEGACY_COVER]
+    agenda = docs[LEGACY_AGENDA]
+    assert cover["version"] == "2.2.0"
+    assert cover["pages"][0]["layers"][0]["objects"][0]["type"] == "group"
+    assert cover["pages"][0]["layers"][0]["objects"][0]["children"][3]["text"] == "Docusign Workshop 1.1"
+    assert agenda["pages"][0]["layers"][0]["objects"][0]["children"][0]["fill"] == "ink_navy"
 
 
 # --- write_index -------------------------------------------------------------- #
@@ -57,6 +70,13 @@ def test_main_renders_single_doc(tmp_path):
     assert rc == 0
     assert (tmp_path / "index.html").exists()
     assert (tmp_path / R.stem_of(CAL) / "p001.svg").exists()
+
+
+def test_main_renders_legacy_deck(tmp_path):
+    rc = R.main([LEGACY_COVER, "--out", str(tmp_path), "--max-pages", "1", "-q"])
+    assert rc == 0
+    svg = (tmp_path / R.stem_of(LEGACY_COVER) / "p001.svg").read_text(encoding="utf-8")
+    assert "Docusign Workshop 1.1" in svg
 
 
 def test_main_no_documents_found(tmp_path):
