@@ -109,6 +109,7 @@ DOC = {
                             {"type": "dimension", "kind": "linear", "from": [8, 8], "to": [38, 8], "value": "auto", "suffix": " pt"},
                             {"type": "table", "box": [78, 4, 36, 22], "rows": [["q", "r"], ["s", "t"]]},
                             {"type": "image", "box": [4, 18, 20, 14], "src": "diagram.png", "alt": "Diagram"},
+                            {"type": "image", "box": [28, 18, 20, 14], "src": "logo", "alt": "Logo"},
                             {"type": "component", "box": [122, 0, 44, 24], "component": "Card", "title": "Panel", "body": "Body"},
                             {"type": "connector", "from": [120, 30], "to": [165, 30], "label": "link"},
                             {"type": "legend", "box": [122, 36, 70, 12], "items": [{"label": "Series", "color": "accent"}]},
@@ -174,6 +175,7 @@ def test_transpile_emits_native_latex_math_and_tikz():
     assert "<->" in tex and "30 pt" in tex
     assert "{q}" in tex and "{t}" in tex
     assert "{Diagram}" in tex
+    assert r"\includegraphics[width=20pt,height=14pt,keepaspectratio]{\detokenize{assets/logo a.png}}" in tex
     assert "{Panel}" in tex and "{Body}" in tex
     assert "{link}" in tex
     assert "{Series}" in tex

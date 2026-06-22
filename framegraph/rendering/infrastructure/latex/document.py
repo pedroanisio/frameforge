@@ -80,7 +80,7 @@ class _Transpiler:
         self._ts = TextStyleResolver(tok.get("text_styles") or {}, tok.get("styles") or {}, self._color)
         self._font_macros, self._font_decls = self._register_fonts(tok.get("fonts") or {})
         self._canvas = CanvasResolver(defs.get("masters") or {})
-        self._figtikz = FigureTikz(self._color, self._ts, tok.get("stroke_styles") or {})
+        self._figtikz = FigureTikz(self._color, self._ts, tok.get("stroke_styles") or {}, asset_path=self._figure_asset_path)
         self._book = _ColorBook()
         self._gloss_terms = []
         self._endnotes = []
@@ -239,6 +239,19 @@ class _Transpiler:
         path = os.path.normpath(resolved if os.path.isabs(resolved) or not self._asset_base
                                 else os.path.join(self._asset_base, resolved))
         return path if not self._asset_base or os.path.exists(path) else None
+
+    def _figure_asset_path(self, src):
+        resolved = self._asset_src(src)
+        if not isinstance(resolved, str) or not resolved.strip() or resolved.startswith("data:"):
+            return None
+        if src in self._assets:
+            return self._asset_path(src)
+        if os.path.isabs(resolved):
+            return os.path.normpath(resolved) if os.path.exists(resolved) else None
+        if self._asset_base:
+            path = os.path.normpath(os.path.join(self._asset_base, resolved))
+            return path if os.path.exists(path) else None
+        return os.path.normpath(resolved) if os.path.exists(resolved) else None
 
     def _para_body(self, fl):
         if isinstance(fl.get("spans"), list):

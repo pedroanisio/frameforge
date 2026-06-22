@@ -73,10 +73,11 @@ def color_expr(resolved):
 
 
 class FigureTikz:
-    def __init__(self, color_resolver, text_style_resolver, stroke_styles=None):
+    def __init__(self, color_resolver, text_style_resolver, stroke_styles=None, asset_path=None):
         self._color = color_resolver
         self._ts = text_style_resolver
         self._stroke_styles = stroke_styles or {}
+        self._asset_path = asset_path
         self.skipped = 0
 
     # -- entry ------------------------------------------------------------- #
@@ -488,6 +489,15 @@ class FigureTikz:
         if not (isinstance(box, list) and len(box) >= 4):
             return ""
         x, y, w, h = (num(v, 0) for v in box[:4])
+        path = self._asset_path(o.get("src")) if self._asset_path else None
+        if path:
+            opts = [f"width={fnum(w)}pt", f"height={fnum(h)}pt"]
+            if o.get("preserve_aspect_ratio") is not False:
+                opts.append("keepaspectratio")
+            return (
+                f"\\node[anchor=center,inner sep=0pt] at ({fnum(x + w / 2)},{fnum(y + h / 2)}) "
+                f"{{\\includegraphics[{','.join(opts)}]{{\\detokenize{{{path}}}}}}};\n"
+            )
         label = o.get("alt") or o.get("actual_text") or o.get("label") or o.get("src") or "image"
         return (
             f"\\path[draw={{rgb,255:red,153;green,153;blue,153}},fill={{rgb,255:red,245;green,245;blue,245}}] "
