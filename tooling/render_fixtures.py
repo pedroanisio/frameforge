@@ -1841,6 +1841,8 @@ class Renderer:
             source = fl.get("tex") if fl.get("tex") is not None else fl.get("mathml") if fl.get("mathml") is not None else text_of(fl)
             rendered = self.render_math_svg(source, input_kind)
             if rendered:
+                math_color = "#111"
+                math_body = str(rendered.get("body")).replace("currentColor", math_color)
                 natural_w = max(1.0, num(rendered.get("width"), 120))
                 natural_h = max(1.0, num(rendered.get("height"), 24))
                 scale = min(1.0, usable / natural_w)
@@ -1854,8 +1856,8 @@ class Renderer:
                     f'<svg x="{fnum(mx)}" y="{fnum(cy)}" width="{fnum(draw_w)}" '
                     f'height="{fnum(draw_h)}" viewBox="{esc(rendered.get("viewBox"))}" '
                     f'preserveAspectRatio="xMidYMid meet" role="img" focusable="false" '
-                    f'color="#111" data-framegraph-math="true">'
-                    f'<title>{esc(title)}</title>{rendered.get("body")}</svg>'
+                    f'color="{math_color}" data-framegraph-math="true">'
+                    f'<title>{esc(title)}</title>{math_body}</svg>'
                 )
                 cy += draw_h + 12
                 return

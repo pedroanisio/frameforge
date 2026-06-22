@@ -141,6 +141,9 @@ def test_flow_mathml_renders_as_mathjax_svg_not_raw_xml(tmp_path):
     assert 'data-framegraph-math="true"' in svg
     assert 'data-mml-node="math"' in svg
     assert "<path" in svg
+    assert 'fill="#111"' in svg
+    assert 'stroke="#111"' in svg
+    assert "currentColor" not in svg
     assert "<math><mi>x</mi>" not in svg
     assert "&lt;math&gt;" not in svg
     assert "x equals square root of two" in svg
