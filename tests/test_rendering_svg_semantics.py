@@ -108,8 +108,16 @@ def test_text_style_css_surface_is_emitted() -> None:
                     "thickness": "1px",
                 },
                 "text_transform": "uppercase",
+                "text_shadow": [{"offset_x": 1, "offset_y": 2, "blur": 3, "color": "hairline"}],
+                "white_space": "pre-wrap",
+                "word_break": "break-word",
+                "overflow_wrap": "anywhere",
+                "hyphens": "auto",
                 "font_variant_caps": "small-caps",
                 "font_kerning": "normal",
+                "writing_mode": "horizontal-tb",
+                "direction": "ltr",
+                "unicode_bidi": "isolate",
                 "css": "font-stretch:condensed;",
             },
         }],
@@ -129,8 +137,16 @@ def test_text_style_css_surface_is_emitted() -> None:
     assert "word-spacing:3px" in text
     assert "text-decoration:underline wavy #123456 1px" in text
     assert "text-transform:uppercase" in text
+    assert "text-shadow:1px 2px 3px #123456" in text
+    assert "white-space:pre-wrap" in text
+    assert "word-break:break-word" in text
+    assert "overflow-wrap:anywhere" in text
+    assert "hyphens:auto" in text
     assert "font-variant-caps:small-caps" in text
     assert "font-kerning:normal" in text
+    assert "writing-mode:horizontal-tb" in text
+    assert "direction:ltr" in text
+    assert "unicode-bidi:isolate" in text
     assert "font-stretch:condensed" in text
 
 

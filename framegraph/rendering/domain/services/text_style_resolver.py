@@ -71,11 +71,19 @@ class TextStyleResolver:
             "word_spacing": self._css_length(merged.get("word_spacing")),
             "text_decoration": self._text_decoration(merged.get("text_decoration")),
             "text_transform": merged.get("text_transform"),
+            "text_shadow": self._text_shadow(merged.get("text_shadow")),
+            "white_space": merged.get("white_space"),
+            "word_break": merged.get("word_break"),
+            "overflow_wrap": merged.get("overflow_wrap"),
+            "hyphens": merged.get("hyphens"),
             "font_variant": merged.get("font_variant"),
             "font_variant_caps": merged.get("font_variant_caps"),
             "font_variant_numeric": merged.get("font_variant_numeric"),
             "font_kerning": merged.get("font_kerning"),
             "font_stretch": merged.get("font_stretch"),
+            "writing_mode": merged.get("writing_mode"),
+            "direction": merged.get("direction"),
+            "unicode_bidi": merged.get("unicode_bidi"),
             "css": merged.get("css"),
             # ---- text-fit contract surface ----
             "overflow": merged.get("overflow"),
@@ -112,3 +120,24 @@ class TextStyleResolver:
         if thickness:
             parts.append(thickness)
         return " ".join(parts) if parts else None
+
+    def _text_shadow(self, value):
+        if value is None or value == "none":
+            return None
+        items = value if isinstance(value, list) else [value]
+        shadows = []
+        for item in items:
+            if isinstance(item, str):
+                shadows.append(item)
+                continue
+            if not isinstance(item, dict):
+                continue
+            x = self._css_length(item.get("offset_x", item.get("x", 0)))
+            y = self._css_length(item.get("offset_y", item.get("y", 0)))
+            blur = self._css_length(item.get("blur", 0))
+            color = self._color.resolve(item.get("color")) or item.get("color")
+            parts = [x, y, blur]
+            if color:
+                parts.append(str(color))
+            shadows.append(" ".join(str(p) for p in parts if p is not None))
+        return ", ".join(shadows) if shadows else None

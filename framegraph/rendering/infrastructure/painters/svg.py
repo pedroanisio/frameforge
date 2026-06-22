@@ -76,6 +76,14 @@ class SvgPainter:
             ("word_spacing", "word-spacing"),
             ("text_decoration", "text-decoration"),
             ("text_transform", "text-transform"),
+            ("text_shadow", "text-shadow"),
+            ("white_space", "white-space"),
+            ("word_break", "word-break"),
+            ("overflow_wrap", "overflow-wrap"),
+            ("hyphens", "hyphens"),
+            ("writing_mode", "writing-mode"),
+            ("direction", "direction"),
+            ("unicode_bidi", "unicode-bidi"),
         ):
             if st.get(key):
                 style += f';{css_name}:{esc(st[key])}'
