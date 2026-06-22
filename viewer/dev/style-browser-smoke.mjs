@@ -38,6 +38,12 @@ const doc = {
           hyphens: "auto",
           wrap: true,
         },
+        accent_span: {
+          color: "hairline",
+          font_size: 14,
+          font_weight: 700,
+          text_decoration: "underline",
+        },
       },
     },
   },
@@ -49,6 +55,7 @@ const doc = {
       { type: "rect", id: "styled_rect", box: [40, 40, 180, 80], style: "fx" },
       { type: "text", id: "styled_text", box: [40, 140, 260, 44], style: "display", text: "styled text" },
       { type: "image", id: "styled_image", box: [320, 40, 48, 48], src: "assets/avatar.png", clip: { shape: "ellipse" }, stroke: { color: "hairline", width: 3 } },
+      { type: "text", id: "styled_spans", box: [40, 195, 320, 26], style: { font_size: 16, color: "ink" }, spans: ["Prefix ", { text: "styled", style: "accent_span" }, " suffix"] },
     ] }],
   }],
 };
@@ -69,6 +76,9 @@ const styles = await page.evaluate(() => {
   const image = getComputedStyle(document.querySelector('[data-framegraph-object="styled_image"]'));
   const textWrap = getComputedStyle(document.querySelector('[data-framegraph-object="styled_text"]'));
   const textInner = getComputedStyle(document.querySelector('[data-framegraph-object="styled_text"] > div'));
+  const spanWrap = document.querySelector('[data-framegraph-object="styled_spans"]');
+  const span = spanWrap.querySelector('[data-framegraph-span="1"]');
+  const spanStyle = getComputedStyle(span);
   return {
     rectBg: rect.backgroundColor,
     rectShadow: rect.boxShadow,
@@ -85,6 +95,11 @@ const styles = await page.evaluate(() => {
     textDecoration: textInner.textDecorationLine,
     textCaps: textInner.fontVariantCaps,
     textHyphens: textInner.hyphens,
+    spanText: spanWrap.textContent,
+    spanColor: spanStyle.color,
+    spanSize: spanStyle.fontSize,
+    spanWeight: spanStyle.fontWeight,
+    spanDecoration: spanStyle.textDecorationLine,
   };
 });
 
@@ -104,6 +119,11 @@ const checks = [
   ["text text_decoration", styles.textDecoration.includes("underline")],
   ["text font_variant_caps", styles.textCaps === "small-caps"],
   ["text hyphens", styles.textHyphens === "auto"],
+  ["mixed string spans", styles.spanText === "Prefix styled suffix"],
+  ["span color", styles.spanColor === "rgb(18, 52, 86)"],
+  ["span size", styles.spanSize === "14px"],
+  ["span weight", Number(styles.spanWeight) >= 700],
+  ["span decoration", styles.spanDecoration.includes("underline")],
 ];
 
 for (const [name, ok] of checks) if (!ok) failures.push(`${name} not reflected in computed style: ${JSON.stringify(styles)}`);

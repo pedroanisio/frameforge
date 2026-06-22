@@ -27230,13 +27230,19 @@ ${exception.mark.snippet}`;
       Object.assign(baseStyle, { overflow: "hidden", textOverflow: "ellipsis" });
     }
     const content = o.spans ? o.spans.map((sp, i) => {
+      if (typeof sp === "string" || typeof sp === "number") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react3.default.Fragment, { children: sp }, i);
       const ss = sp.style ? resolveTextStyle(doc, sp.style) : {};
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: {
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "data-framegraph-span": sp.id || i, style: {
+        ...styleToCss(doc, sp.style, { text: true }),
         fontWeight: ss.weight,
         fontStyle: ss.italic ? "italic" : void 0,
         color: ss.color ? resolveColor(doc, ss.color) : void 0,
-        fontFamily: ss.font ? resolveFont(doc, ss.font) : void 0
-      }, children: sp.text }, i);
+        fontFamily: ss.font ? resolveFont(doc, ss.font) : void 0,
+        fontSize: ss.size || void 0,
+        lineHeight: ss.line_height || void 0,
+        textDecoration: ss.text_decoration || void 0,
+        textTransform: ss.text_transform || void 0
+      }, children: textContent(sp) }, i);
     }) : o.text != null ? o.text : o.field != null ? `{${typeof o.field === "string" ? o.field : "field"}}` : "";
     const wrapStyle = {
       position: "absolute",

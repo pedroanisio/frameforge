@@ -451,13 +451,20 @@ function TextObj({ doc, o, active }) {
 
   const content = o.spans
     ? o.spans.map((sp, i) => {
+        if (typeof sp === "string" || typeof sp === "number") return <React.Fragment key={i}>{sp}</React.Fragment>;
         const ss = sp.style ? resolveTextStyle(doc, sp.style) : {};
         return (
-          <span key={i} style={{
-            fontWeight: ss.weight, fontStyle: ss.italic ? "italic" : undefined,
+          <span key={i} data-framegraph-span={sp.id || i} style={{
+            ...styleToCss(doc, sp.style, { text: true }),
+            fontWeight: ss.weight,
+            fontStyle: ss.italic ? "italic" : undefined,
             color: ss.color ? resolveColor(doc, ss.color) : undefined,
             fontFamily: ss.font ? resolveFont(doc, ss.font) : undefined,
-          }}>{sp.text}</span>
+            fontSize: ss.size || undefined,
+            lineHeight: ss.line_height || undefined,
+            textDecoration: ss.text_decoration || undefined,
+            textTransform: ss.text_transform || undefined,
+          }}>{textContent(sp)}</span>
         );
       })
     : (o.text != null ? o.text : (o.field != null ? `{${typeof o.field === "string" ? o.field : "field"}}` : ""));
