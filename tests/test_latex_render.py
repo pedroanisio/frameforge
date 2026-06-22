@@ -52,7 +52,8 @@ DOC = {
             "id": "p",
             "master": "article",
             "story": [
-                {"type": "heading", "level": 1, "text": "A&B"},
+                {"type": "toc", "title": "Contents"},
+                {"type": "heading", "level": 1, "id": "intro", "text": "A&B"},
                 {
                     "type": "paragraph",
                     "spans": [
@@ -60,11 +61,24 @@ DOC = {
                         {"kind": "math", "tex": r"E = mc^2"},
                         " and ",
                         {"kind": "link", "href": "https://example.org/a_b#c", "content": ["link_text"]},
+                        " see ",
+                        {"kind": "ref", "target": "eq-energy", "show": "label"},
+                        " cited ",
+                        {"kind": "cite", "key": ["einstein1905", "noether1918"], "prefix": "see", "locator": "p. 12"},
+                        " note",
+                        {"kind": "footnote", "content": [{"type": "paragraph", "text": "Footnote A&B"}]},
+                        " code ",
+                        {"kind": "code", "text": "x_y"},
                     ],
                 },
+                {"type": "spacer", "height": 9},
+                {"type": "keep_together", "children": [{"type": "paragraph", "text": "Kept with next line."}]},
+                {"type": "page_break"},
                 {"type": "math", "tex": r"\int_0^1 x^2\,dx = \frac{1}{3}"},
+                {"type": "math", "id": "eq-energy", "tex": r"E = mc^2"},
                 {
                     "type": "figure",
+                    "id": "fig-smoke",
                     "size": [120, 60],
                     "object": {
                         "type": "group",
@@ -78,6 +92,14 @@ DOC = {
                     },
                     "caption": "Figure #1",
                 },
+                {
+                    "type": "bibliography",
+                    "title": "References",
+                    "entries": [
+                        {"id": "einstein1905", "text": "A. Einstein, 1905."},
+                        {"id": "noether1918", "text": "E. Noether, 1918."},
+                    ],
+                },
             ],
         }
     ],
@@ -88,16 +110,27 @@ def test_transpile_emits_native_latex_math_and_tikz():
     tex = transpile(DOC)
     assert "\\documentclass" in tex
     assert "paperwidth=320pt,paperheight=240pt" in tex
-    assert "A\\&B" in tex
+    assert "A\\&B\\label{fg:intro}" in tex
+    assert "\\tableofcontents" in tex
     assert r"\(E = mc^2\)" in tex
     assert r"\[" in tex and r"\int_0^1 x^2\,dx = \frac{1}{3}" in tex
+    assert r"E = mc^2\label{fg:eq-energy}" in tex
     assert r"\href{https://example.org/a\_b\#c}{link\_text}" in tex
+    assert r"\ref{fg:eq-energy}" in tex
+    assert r"\cite[see, p. 12]{einstein1905,noether1918}" in tex
+    assert r"\footnote{Footnote A\&B}" in tex
+    assert r"\texttt{x\_y}" in tex
+    assert r"\vspace{9pt}" in tex
+    assert "\\begin{samepage}" in tex and "Kept with next line." in tex
+    assert "\\clearpage" in tex
     assert "\\begin{tikzpicture}[x=1pt,y=-1pt]" in tex
     assert "rectangle (120,60)" in tex
     assert "ellipse (5pt and 5pt)" in tex
     assert "->" in tex
     assert "A\\_B" in tex
-    assert "Figure \\#1" in tex
+    assert "Figure \\#1\\label{fg:fig-smoke}" in tex
+    assert "\\begin{thebibliography}{99}" in tex
+    assert "\\bibitem{einstein1905}A. Einstein, 1905." in tex
 
 
 def test_render_latex_cli_tex_only_writes_tex(tmp_path):

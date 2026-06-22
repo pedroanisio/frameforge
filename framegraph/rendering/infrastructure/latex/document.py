@@ -26,6 +26,11 @@ except Exception:                                    # pragma: no cover - import
 MARGIN_PT = 56.0                                     # matches the SVG proxy's flow column
 
 
+def _latex_label(value) -> str:
+    raw = str(value or "")
+    return "fg:" + "".join(ch if ch.isalnum() or ch in ".:-" else "-" for ch in raw)
+
+
 class _ColorBook:
     """Allocates `\\definecolor`s for the resolved colours used in flowing text."""
 
@@ -92,16 +97,62 @@ class _Transpiler:
         if value.get("kind") == "link" and value.get("href"):
             inner = _Transpiler._inline_text(value.get("content"))
             return f"\\href{{{ltx_url_escape(value['href'])}}}{{{inner}}}"
+        if value.get("kind") == "ref" and value.get("target"):
+            target = _latex_label(value.get("target"))
+            if value.get("show") == "page":
+                return f"\\pageref{{{target}}}"
+            if value.get("show") == "title":
+                return f"\\nameref{{{target}}}"
+            return f"\\ref{{{target}}}"
+        if value.get("kind") == "cite" and value.get("key"):
+            keys = value.get("key")
+            key_text = ",".join(str(k) for k in keys) if isinstance(keys, list) else str(keys)
+            note = ", ".join(str(x) for x in (value.get("prefix"), value.get("locator")) if x)
+            return f"\\cite{f'[{ltx_escape(note)}]' if note else ''}{{{ltx_escape(key_text)}}}"
+        if value.get("kind") == "footnote":
+            content = "".join(_Transpiler._flow_text_content(fl) for fl in (value.get("content") or []))
+            return "\\footnote{" + (content or ltx_escape(value.get("id") or "")) + "}"
         if value.get("kind") == "math":
             tex = value.get("tex") or value.get("latex")
             if tex:
                 return f"\\({tex}\\)"
             return ltx_escape(value.get("alt") or "math expression")
+        if value.get("kind") == "code":
+            return f"\\texttt{{{ltx_escape(value.get('text') or '')}}}"
         if value.get("text") is not None:
             return ltx_escape(value["text"])
         if isinstance(value.get("content"), list):
             return _Transpiler._inline_text(value["content"])
         return ""
+
+    @staticmethod
+    def _flow_text_content(fl):
+        if isinstance(fl, str):
+            return ltx_escape(fl)
+        if isinstance(fl, list):
+            return "".join(_Transpiler._flow_text_content(item) for item in fl)
+        if not isinstance(fl, dict):
+            return ltx_escape(fl)
+        if isinstance(fl.get("spans"), list):
+            return "".join(_Transpiler._inline_text(s) for s in fl["spans"])
+        if fl.get("text") is not None:
+            return ltx_escape(fl.get("text"))
+        if fl.get("type") == "math" and fl.get("tex"):
+            return f"\\({fl.get('tex')}\\)"
+        if fl.get("type") == "code":
+            return f"\\texttt{{{ltx_escape(fl.get('source') or fl.get('code') or '')}}}"
+        if isinstance(fl.get("children"), list):
+            return "".join(_Transpiler._flow_text_content(child) for child in fl["children"])
+        return ""
+
+    def _caption_text(self, value):
+        if isinstance(value, list):
+            return self._inline_text(value)
+        if isinstance(value, dict):
+            if isinstance(value.get("spans"), list):
+                return self._inline_text(value.get("spans"))
+            return self._inline_text(value.get("text") or value.get("content"))
+        return ltx_escape(value)
 
     def _para_body(self, fl):
         if isinstance(fl.get("spans"), list):
@@ -122,7 +173,8 @@ class _Transpiler:
 
     def _emit_heading(self, fl, out):
         st = self._ts.resolve(fl.get("style") or f"h{fl.get('level', 1)}")
-        out.append("\\addvspace{10pt}\n" + self._styled(st, ltx_escape(fl.get("text")), gap="4pt"))
+        label = f"\\label{{{_latex_label(fl.get('id'))}}}" if fl.get("id") else ""
+        out.append("\\addvspace{10pt}\n" + self._styled(st, ltx_escape(fl.get("text")) + label, gap="4pt"))
 
     def _emit_paragraph(self, fl, out):
         out.append(self._styled(self._ts.resolve(fl.get("style") or "body"), self._para_body(fl)))
@@ -139,12 +191,29 @@ class _Transpiler:
             if isinstance(child, dict):
                 self._emit(child, out)
 
+    def _emit_keep_together(self, fl, out):
+        inner = []
+        for child in (fl.get("children") or []):
+            if isinstance(child, dict):
+                self._emit(child, inner)
+        out.append("\\begin{samepage}\n" + "".join(inner) + "\\end{samepage}\n")
+
+    def _emit_spacer(self, fl, out):
+        out.append(f"\\vspace{{{fnum(num(fl.get('height'), 12) or 12)}pt}}\n")
+
+    def _emit_page_break(self, _fl, out):
+        out.append("\\clearpage\n")
+
+    def _emit_column_break(self, _fl, out):
+        out.append("\\newpage\n")
+
     def _emit_math(self, fl, out):
         tex = fl.get("tex") or fl.get("latex")
         if not tex:
             self.skipped += 1
             return
-        out.append("\\[\n" + str(tex) + "\n\\]\n")
+        label = f"\\label{{{_latex_label(fl.get('id'))}}}" if fl.get("id") else ""
+        out.append("\\[\n" + str(tex) + label + "\n\\]\n")
 
     def _emit_code(self, fl, out):
         code = fl.get("code") or fl.get("source") or ""
@@ -157,10 +226,8 @@ class _Transpiler:
             return
         ncol = max([len(header)] + [len(r) for r in rows] + [1])
         cap = fl.get("caption")
-        if isinstance(cap, dict):
-            cap = cap.get("text")
         if cap:
-            out.append(self._styled(self._ts.resolve("caption"), "\\textbf{" + ltx_escape(cap) + "}", gap="3pt"))
+            out.append(self._styled(self._ts.resolve("caption"), "\\textbf{" + self._caption_text(cap) + "}", gap="3pt"))
 
         def cells(row, bold=False):
             xs = [ltx_escape(row[i]) if i < len(row) and row[i] is not None else "" for i in range(ncol)]
@@ -175,6 +242,8 @@ class _Transpiler:
         lines += [cells(r) for r in rows]
         lines.append("\\bottomrule\n\\end{tabular}")
         table = "".join(lines)
+        if fl.get("id"):
+            table += f"\n\\label{{{_latex_label(fl.get('id'))}}}"
         inkname = self._book.name(self._color.resolve("ink")) or "black"
         if ncol >= 6:
             table = f"\\resizebox{{\\textwidth}}{{!}}{{{table}}}"
@@ -198,12 +267,32 @@ class _Transpiler:
             pic = f"\\resizebox{{\\textwidth}}{{!}}{{{pic}}}"
         out.append("\\begin{center}\n" + pic + "\n\\end{center}\n")
         cap = fl.get("caption")
-        if isinstance(cap, dict):
-            cap = cap.get("text")
         if cap:
             out.append("{\\centering" + self._font(self._ts.resolve("fig_caption"))
-                       + "\\itshape " + ltx_escape(cap) + "\\par}\n")
+                       + "\\itshape " + self._caption_text(cap)
+                       + (f"\\label{{{_latex_label(fl.get('id'))}}}" if fl.get("id") else "")
+                       + "\\par}\n")
         out.append("\\addvspace{12pt}\n")
+
+    def _emit_toc(self, fl, out):
+        title = fl.get("title")
+        if title:
+            out.append(self._styled(self._ts.resolve(fl.get("style") or "h2"), ltx_escape(title), gap="4pt"))
+        out.append("\\tableofcontents\n\\addvspace{8pt}\n")
+
+    def _emit_bibliography(self, fl, out):
+        title = fl.get("title")
+        entries = fl.get("entries") if isinstance(fl.get("entries"), list) else []
+        if title:
+            out.append(self._styled(self._ts.resolve("h2"), ltx_escape(title), gap="4pt"))
+        out.append("\\begin{thebibliography}{99}\n")
+        for idx, entry in enumerate(entries, start=1):
+            if not isinstance(entry, dict):
+                continue
+            key = entry.get("id") or entry.get("key") or str(idx)
+            text = entry.get("text") or entry.get("title") or entry.get("citation") or key
+            out.append(f"\\bibitem{{{ltx_escape(key)}}}{ltx_escape(text)}\n")
+        out.append("\\end{thebibliography}\n")
 
     # -- assembly ---------------------------------------------------------- #
     def build(self):
@@ -240,6 +329,7 @@ class _Transpiler:
             "\\usepackage{enumitem}\n"
             "\\usepackage{graphicx}\n"
             "\\usepackage[hidelinks]{hyperref}\n"
+            "\\usepackage{nameref}\n"
             "\\usepackage{tikz}\n"
             "\\usetikzlibrary{arrows.meta}\n"
             "\\setmainfont{DejaVu Sans}\n"
