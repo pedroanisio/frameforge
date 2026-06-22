@@ -312,17 +312,17 @@ class Renderer:
             rx, ry = num(o.get("rx"), 0), num(o.get("ry"), 0)
             if not rx and box:
                 cx, cy, rx, ry = box[0] + box[2] / 2, box[1] + box[3] / 2, box[2] / 2, box[3] / 2
-            return p.ellipse(cx, cy, rx, ry, fill, self.stroke(o), fill_opacity=fill_opacity)
+            return p.ellipse(cx, cy, rx, ry, fill, self._shape_stroke(o, style), fill_opacity=fill_opacity)
 
         if t == "circle":
             c = o.get("center") or [0, 0]
             r = num(o.get("r"), 0)
-            return p.circle(num(c[0], 0), num(c[1], 0), r, fill, self.stroke(o), fill_opacity=fill_opacity)
+            return p.circle(num(c[0], 0), num(c[1], 0), r, fill, self._shape_stroke(o, style), fill_opacity=fill_opacity)
 
         if t == "line":
             fr, to = o.get("from"), o.get("to")
             if is_point(fr) and is_point(to):
-                stk = self.stroke(o) or ' stroke="#000" stroke-width="1"'
+                stk = self._shape_stroke(o, style) or ' stroke="#000" stroke-width="1"'
                 return p.line(fr[0], fr[1], to[0], to[1], stk + self._arrow_attrs(o))
             return ""
 
@@ -334,7 +334,7 @@ class Renderer:
             closed = t == "polygon" or o.get("closed")
             tag = "polygon" if closed else "polyline"
             return p.poly(tag, ptstr, fill if closed else None,
-                          self.stroke(o) + self._arrow_attrs(o),
+                          self._shape_stroke(o, style) + self._arrow_attrs(o),
                           fill_opacity=fill_opacity if closed else None)
 
         if t == "path":
@@ -344,7 +344,7 @@ class Renderer:
                              if isinstance(seg, list) else str(seg) for seg in d)
             if not isinstance(d, str) or not d.strip():
                 return ""
-            return p.path(d, fill, self.stroke(o) + self._arrow_attrs(o), fill_opacity=fill_opacity)
+            return p.path(d, fill, self._shape_stroke(o, style) + self._arrow_attrs(o), fill_opacity=fill_opacity)
 
         if t == "text" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])

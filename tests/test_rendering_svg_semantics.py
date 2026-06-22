@@ -165,3 +165,34 @@ def test_rect_uses_style_fill_border_radius_and_opacity() -> None:
     assert ' stroke="#123456"' in rect
     assert ' stroke-width="2"' in rect
     assert ' stroke-dasharray="4 4"' in rect
+
+
+def test_vector_uses_style_fill_and_stroke_geometry() -> None:
+    svg = _svg_for(
+        [{
+            "type": "path",
+            "d": "M 10 10 L 80 10",
+            "style": "vector_style",
+        }],
+        {
+            "tokens": {
+                "colors": {"panel": "#ffeecc", "hairline": "#123456"},
+                "styles": {
+                    "vector_style": {
+                        "fill": "none",
+                        "stroke": "hairline",
+                        "stroke_width": 3,
+                        "stroke_dasharray": [5, 2],
+                        "stroke_linecap": "round",
+                    },
+                },
+            },
+        },
+    )
+
+    path = svg.split("<path", 1)[1].split("/>", 1)[0]
+    assert ' fill="none"' in path
+    assert ' stroke="#123456"' in path
+    assert ' stroke-width="3"' in path
+    assert ' stroke-dasharray="5 2"' in path
+    assert ' stroke-linecap="round"' in path

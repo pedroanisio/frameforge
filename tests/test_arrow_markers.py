@@ -94,3 +94,23 @@ def test_named_stroke_style_arrow_on_path():
             "edge": {"stroke_width": 2, "arrow_end": "filled_diamond"}}}},
     )
     assert "marker-end" in svg and "<marker " in svg
+
+
+def test_arrows_fixture_is_the_oracle():
+    """fixtures/arrows.fg.yaml is the checked-in oracle for arrowheads — it flows
+    through validate + overflow in `make check`; here we assert it actually
+    renders every marker kind (per codebase-standards §6: assert against the
+    authoritative fixture, not only synthetic docs)."""
+    fixture = os.path.join(ROOT, "fixtures", "arrows.fg.yaml")
+    with tempfile.TemporaryDirectory() as td:
+        subprocess.run([sys.executable, RENDER, fixture, "--out", td, "--quiet"],
+                       check=True, cwd=ROOT)
+        svgs = sorted(glob.glob(os.path.join(td, "**", "p*.svg"), recursive=True))
+        assert svgs, "fixture produced no SVG"
+        with open(svgs[0], encoding="utf-8") as fh:
+            svg = fh.read()
+    assert svg.count("<marker ") == 5            # 5 distinct (kind, colour) markers, deduped
+    assert "marker-start" in svg and "marker-end" in svg
+    assert 'viewBox="0 0 8 5"' in svg            # filled_triangle (default)
+    assert 'viewBox="0 0 12 10"' in svg          # filled_diamond
+    assert 'fill="none"' in svg                  # open_arrow renders as a stroked V
