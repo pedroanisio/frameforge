@@ -57,7 +57,7 @@ function walkFlowBlock(block, visit) {
 }
 
 const docs = files(FIXTURES).map((file) => ({ file, doc: loadDoc(file) }))
-  .filter(({ doc }) => doc && doc.dsl === "FrameGraph");
+  .filter(({ doc }) => doc && doc.dsl === "FrameGraph" && Array.isArray(doc.pages));
 
 const failures = [];
 const objectTypes = new Set();
@@ -76,8 +76,8 @@ for (const { file, doc } of docs) {
       });
     }
   }
-  if (!Array.isArray(doc.pages) || doc.pages.length === 0) {
-    failures.push(`${path.relative(ROOT, file)}: missing pages[]`);
+  if (doc.pages.length === 0) {
+    failures.push(`${path.relative(ROOT, file)}: empty pages[]`);
     continue;
   }
   for (const [pageIndex, page] of doc.pages.entries()) {

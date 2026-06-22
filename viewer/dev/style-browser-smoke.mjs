@@ -102,7 +102,7 @@ const doc = {
       { type: "rect", id: "styled_rect", box: [40, 40, 180, 80], style: "fx" },
       { type: "text", id: "styled_text", box: [40, 140, 260, 44], style: "display", text: "styled text" },
       { type: "text", id: "alias_text", box: [235, 40, 70, 66], style: "alias_text", text: "alias style text wraps" },
-      { type: "image", id: "styled_image", box: [320, 40, 48, 48], src: "assets/avatar.png", clip: { shape: "ellipse" }, stroke: { color: "hairline", width: 3 } },
+      { type: "image", id: "styled_image", box: [320, 40, 48, 48], src: "data:image/gif;base64,R0lGODlhAQABAAAAACw=", alt: "Transparent avatar", clip: { shape: "ellipse" }, stroke: { color: "hairline", width: 3 } },
       { type: "text", id: "styled_spans", box: [40, 195, 320, 26], style: { font_size: 16, color: "ink" }, spans: ["Prefix ", { text: "styled", style: "accent_span" }, " suffix"] },
       { type: "path", id: "filled_path", d: "M 310 135 l 42 0 l -21 34 z", fill: "panel", fill_opacity: 0.4 },
       { type: "line", id: "faded_line", from: [310, 185], to: [370, 185], stroke: { color: "hairline", width: 4 }, stroke_opacity: 0.35 },
@@ -124,6 +124,7 @@ await page.waitForSelector('[data-framegraph-object="styled_rect"]');
 const styles = await page.evaluate(() => {
   const rect = getComputedStyle(document.querySelector('[data-framegraph-object="styled_rect"]'));
   const image = getComputedStyle(document.querySelector('[data-framegraph-object="styled_image"]'));
+  const imageNode = document.querySelector('[data-framegraph-object="styled_image"] img');
   const textWrap = getComputedStyle(document.querySelector('[data-framegraph-object="styled_text"]'));
   const textInner = getComputedStyle(document.querySelector('[data-framegraph-object="styled_text"] > div'));
   const aliasWrap = getComputedStyle(document.querySelector('[data-framegraph-object="alias_text"]'));
@@ -165,6 +166,7 @@ const styles = await page.evaluate(() => {
     imageRadius: image.borderTopLeftRadius,
     imageBorderColor: image.borderTopColor,
     imageBorderWidth: image.borderTopWidth,
+    imageAlt: imageNode?.getAttribute("alt"),
     textLetterSpacing: textInner.letterSpacing,
     textWordSpacing: textInner.wordSpacing,
     textAlignLast: textInner.textAlignLast,
@@ -236,6 +238,7 @@ const checks = [
   ["image object clip ellipse", styles.imageRadius === "50%"],
   ["image stroke color", styles.imageBorderColor === "rgb(18, 52, 86)"],
   ["image stroke width", styles.imageBorderWidth === "3px"],
+  ["image alt text", styles.imageAlt === "Transparent avatar"],
   ["text letter_spacing", styles.textLetterSpacing === "2px"],
   ["text word_spacing", styles.textWordSpacing === "3px"],
   ["text text_align_last", styles.textAlignLast === "center"],

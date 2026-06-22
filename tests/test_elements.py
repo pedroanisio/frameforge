@@ -130,6 +130,30 @@ def test_flowable_validates(t, flow):
     fg.Document.model_validate(_flow_doc(flow))
 
 
+def test_images_and_figures_accept_accessibility_text():
+    fg.Document.model_validate(_page_doc([
+        {
+            "type": "image",
+            "src": "chart.png",
+            "box": [0, 0, 100, 80],
+            "alt": "Quarterly revenue chart",
+            "actual_text": "Revenue rose from Q1 to Q4.",
+        }
+    ]))
+    fg.Document.model_validate(_flow_doc({
+        "type": "image",
+        "src": "diagram.png",
+        "alt": "System boundary diagram",
+        "actual_text": "The service boundary surrounds the API and worker.",
+    }))
+    fg.Document.model_validate(_flow_doc({
+        "type": "figure",
+        "object": {"type": "rect", "box": [0, 0, 5, 5]},
+        "alt": "Legend swatch",
+        "actual_text": "A colored swatch representing the legend.",
+    }))
+
+
 @pytest.mark.parametrize("kind,inline", sorted(INLINE_SAMPLES.items()))
 def test_inline_validates(kind, inline):
     fg.Document.model_validate(_page_doc([{"type": "text", "box": [0, 0, 50, 10], "spans": [inline]}]))

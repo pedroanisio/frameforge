@@ -39,7 +39,7 @@ function hasRenderableContent(pageRecord) {
 
 const docs = files(FIXTURES)
   .map((file) => ({ file, rel: path.relative(ROOT, file), doc: loadDoc(file) }))
-  .filter(({ doc }) => doc && doc.dsl === "FrameGraph");
+  .filter(({ doc }) => doc && doc.dsl === "FrameGraph" && Array.isArray(doc.pages));
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1366, height: 820 }, deviceScaleFactor: 1 });

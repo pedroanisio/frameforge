@@ -607,6 +607,8 @@ class Text(ObjBase):
 class Image(ObjBase):
     type: Literal["image"]
     src: str
+    alt: Optional[str] = None
+    actual_text: Optional[str] = None
     placeholder: Optional[bool] = None
     preserve_aspect_ratio: Optional[Union[bool, str]] = None   # bool or SVG preserveAspectRatio string
     clip: Optional[Union[bool, str, ClipSpec]] = None
@@ -782,6 +784,8 @@ class TableFlow(BreakFields):
 class ImageFlow(BreakFields):
     type: Literal["image"]
     src: str
+    alt: Optional[str] = None
+    actual_text: Optional[str] = None
     width: Optional[Length] = None
     height: Optional[Length] = None
     preserve_aspect_ratio: Optional[Union[bool, str]] = None
@@ -792,6 +796,8 @@ class ImageFlow(BreakFields):
 class FigureFlow(BreakFields):
     type: Literal["figure"]
     object: "VisualObject"
+    alt: Optional[str] = None
+    actual_text: Optional[str] = None
     align: Optional[Literal["left", "center", "right"]] = None
     size: Optional[Annotated[list[Length], Field(min_length=2, max_length=2)]] = None
     caption: Optional[Caption] = None

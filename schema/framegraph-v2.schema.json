@@ -3475,6 +3475,30 @@
           ],
           "title": "Object"
         },
+        "alt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alt"
+        },
+        "actual_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Text"
+        },
         "align": {
           "anyOf": [
             {
@@ -5451,6 +5475,30 @@
           "title": "Src",
           "type": "string"
         },
+        "alt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alt"
+        },
+        "actual_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Text"
+        },
         "placeholder": {
           "anyOf": [
             {
@@ -5601,6 +5649,30 @@
         "src": {
           "title": "Src",
           "type": "string"
+        },
+        "alt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alt"
+        },
+        "actual_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Text"
         },
         "width": {
           "anyOf": [

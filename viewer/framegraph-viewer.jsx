@@ -789,7 +789,7 @@ function ImageObj({ doc, o }) {
       background: "repeating-linear-gradient(45deg,#f3f3f3 0 8px,#e8e8e8 8px 16px)",
       opacity: o.opacity != null ? o.opacity : 1, ...rotationStyle(o.rotation, box),
     }}>
-      {canLoad ? <img src={resolvedSrc} alt={o.alt || o.id || ""} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /> : null}
+      {canLoad ? <img src={resolvedSrc} alt={o.alt || o.actual_text || o.id || ""} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /> : null}
       {!canLoad && <div style={{
         width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
         textAlign: "center", fontFamily: UI.mono, fontSize: Math.max(9, Math.min(12, h / 5)), color: UI.lo,

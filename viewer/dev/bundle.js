@@ -27569,7 +27569,7 @@ ${exception.mark.snippet}`;
       opacity: o.opacity != null ? o.opacity : 1,
       ...rotationStyle(o.rotation, box)
     }, children: [
-      canLoad ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: resolvedSrc, alt: o.alt || o.id || "", style: { width: "100%", height: "100%", objectFit: fit, display: "block" } }) : null,
+      canLoad ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: resolvedSrc, alt: o.alt || o.actual_text || o.id || "", style: { width: "100%", height: "100%", objectFit: fit, display: "block" } }) : null,
       !canLoad && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
         width: "100%",
         height: "100%",
