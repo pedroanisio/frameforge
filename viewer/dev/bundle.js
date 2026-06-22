@@ -26847,10 +26847,16 @@ ${exception.mark.snippet}`;
   function expandUseObject(obj, symbols) {
     if (!obj || typeof obj !== "object") return obj;
     if (obj.type !== "use") {
-      if (Array.isArray(obj.children)) {
-        return { ...obj, children: obj.children.map((child) => expandUseObject(child, symbols)) };
+      const out = { ...obj };
+      for (const key of ["children", "content", "items"]) {
+        if (Array.isArray(out[key])) {
+          out[key] = out[key].map((child) => expandUseObject(child, symbols));
+        }
       }
-      return obj;
+      if (out.object && typeof out.object === "object") {
+        out.object = expandUseObject(out.object, symbols);
+      }
+      return out;
     }
     const symbol = symbols[obj.symbol];
     if (!symbol || !Array.isArray(symbol.objects)) {
@@ -28086,6 +28092,89 @@ ${exception.mark.snippet}`;
       ...rotationStyle(o.rotation, box)
     } });
   }
+  function UmlGlyphBoxObj({ doc, o }) {
+    const box = (o.box || [0, 0, 0, 0]).map(toPx);
+    const [x, y, w, h] = box;
+    const color = resolveColor(doc, o.color || o.stroke || "ink") || "#222";
+    const r = Math.max(2, Math.min(w, h) / 2 - 2);
+    const cx = w / 2;
+    const cy = h / 2;
+    let shape = null;
+    if (o.type === "uml.actor") {
+      shape = /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("foreignObject", { x: "0", y: "4", width: w, height: Math.max(20, h - 22), children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { xmlns: "http://www.w3.org/1999/xhtml", style: { width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlActorGlyph, { size: Math.min(w * 0.62, h * 0.55), color }) }) }),
+        o.name ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("text", { x: cx, y: h - 6, textAnchor: "middle", fontSize: "10", fill: color, children: o.name }) : null
+      ] });
+    } else if (o.type === "uml.lollipop") {
+      shape = /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx, cy, r, fill: "#fff", stroke: color, strokeWidth: "1.2" }),
+        o.name ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("text", { x: cx, y: h + 10, textAnchor: "middle", fontSize: "9", fill: color, children: o.name }) : null
+      ] });
+    } else if (o.type === "uml.socket") {
+      shape = /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: `M ${cx + r} ${cy - r} A ${r} ${r} 0 0 0 ${cx + r} ${cy + r}`, fill: "none", stroke: color, strokeWidth: "1.2" }),
+        o.name ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("text", { x: cx, y: h + 10, textAnchor: "middle", fontSize: "9", fill: color, children: o.name }) : null
+      ] });
+    } else if (o.kind === "decision") {
+      shape = /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polygon", { points: `${cx},0 ${w},${cy} ${cx},${h} 0,${cy}`, fill: "#fff", stroke: color, strokeWidth: "1.2" }),
+        o.name ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("text", { x: cx, y: cy + 3, textAnchor: "middle", fontSize: "10", fill: color, children: o.name }) : null
+      ] });
+    } else if (o.kind === "final") {
+      shape = /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx, cy, r, fill: "none", stroke: color, strokeWidth: "1.2" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx, cy, r: Math.max(1, r - 4), fill: color })
+      ] });
+    } else {
+      shape = /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx, cy, r, fill: color, stroke: color, strokeWidth: "1.2" });
+    }
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "svg",
+      {
+        "data-framegraph-object": o.id || "",
+        "data-framegraph-type": o.type,
+        width: w,
+        height: h + (o.name && o.type !== "uml.actor" ? 12 : 0),
+        viewBox: `0 0 ${w} ${h + (o.name && o.type !== "uml.actor" ? 12 : 0)}`,
+        style: {
+          position: "absolute",
+          left: x,
+          top: y,
+          overflow: "visible",
+          opacity: o.opacity != null ? o.opacity : 1,
+          ...rotationStyle(o.rotation, box)
+        },
+        children: shape
+      }
+    );
+  }
+  function ContainerObj({ doc, o, cw, ch, active }) {
+    const children = o.children || [];
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { "data-framegraph-object": o.id || "", "data-framegraph-type": "container", style: {
+      position: "absolute",
+      left: 0,
+      top: 0,
+      width: cw,
+      height: ch,
+      opacity: o.opacity != null ? o.opacity : 1
+    }, children: children.map((child, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RenderObject, { doc, o: child, cw, ch, reg: {}, active }, child.id || i)) });
+  }
+  function LegendObj({ doc, o, cw, ch, active }) {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { "data-framegraph-object": o.id || "", "data-framegraph-type": "legend", style: {
+      position: "absolute",
+      left: 0,
+      top: 0,
+      width: cw,
+      height: ch,
+      opacity: o.opacity != null ? o.opacity : 1
+    }, children: (o.items || []).map((item, i) => {
+      const sample = item.sample ? { ...item.sample, type: item.sample.type === "rounded_rect" ? "rect" : item.sample.type } : null;
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react3.default.Fragment, { children: [
+        sample ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RenderObject, { doc, o: sample, cw, ch, reg: {}, active }) : null,
+        item.label ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TextObj, { doc, o: { type: "text", box: item.label.box, text: item.label.text, style: item.label.style }, active }) : null
+      ] }, item.id || i);
+    }) });
+  }
   function textContent(v) {
     if (v == null) return "";
     if (typeof v === "string" || typeof v === "number") return String(v);
@@ -28261,6 +28350,16 @@ ${exception.mark.snippet}`;
         return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlLifelineObj, { doc, o });
       case "uml.activation_bar":
         return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlActivationBarObj, { doc, o });
+      case "uml.actor":
+      case "uml.socket":
+      case "uml.lollipop":
+      case "uml.activity_node":
+      case "uml.pseudostate":
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlGlyphBoxObj, { doc, o });
+      case "container":
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ContainerObj, { doc, o, cw, ch, active });
+      case "legend":
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LegendObj, { doc, o, cw, ch, active });
       default:
         if (UML_BOX_TYPES.has(o.type)) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlBoxObj, { doc, o });
         if (o.from && o.to) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VectorObj, { doc, o: { ...o, type: "line" }, cw, ch, reg });

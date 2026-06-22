@@ -51,7 +51,13 @@ OBJECT_SAMPLES = {
     "dimension": {"type": "dimension", "kind": "linear", "from": [0, 0], "to": [10, 0]},
     "table": {"type": "table", "rows": [["a", "b"]], "box": [0, 0, 100, 40]},
     "group": {"type": "group", "children": [{"type": "rect", "box": [0, 0, 5, 5], "fill": "#111"}]},
+    "container": {"type": "container", "box": [0, 0, 100, 40],
+                  "children": [{"type": "rect", "box": [0, 0, 20, 20], "fill": "#111"}]},
     "component": {"type": "component", "box": [0, 0, 110, 50], "title": "Card", "body": "Body", "fill": "#fff"},
+    "legend": {"type": "legend", "box": [0, 0, 100, 20], "items": [{
+        "sample": {"type": "line", "from": [0, 10], "to": [20, 10], "stroke": "#111"},
+        "label": {"text": "edge", "box": [24, 2, 60, 16]},
+    }]},
     "chip_row": {"type": "chip_row", "origin": [0, 0], "items": [{"text": "api", "width": 32}]},
     "uml.marker_glyph": {"type": "uml.marker_glyph", "position": [10, 10], "kind": "filled_diamond", "color": "#111"},
     "uml.classifier_box": {"type": "uml.classifier_box", "box": [0, 0, 100, 70], "name": "Order",
@@ -68,6 +74,11 @@ OBJECT_SAMPLES = {
     "uml.lifeline": {"type": "uml.lifeline", "box": [0, 0, 100, 80], "name": "svc", "type_name": "Service",
                      "head_height": 30},
     "uml.activation_bar": {"type": "uml.activation_bar", "box": [45, 20, 10, 50]},
+    "uml.actor": {"type": "uml.actor", "box": [0, 0, 60, 80], "name": "User"},
+    "uml.socket": {"type": "uml.socket", "box": [0, 0, 32, 16], "name": "IFace"},
+    "uml.lollipop": {"type": "uml.lollipop", "box": [0, 0, 32, 16], "name": "IFace"},
+    "uml.activity_node": {"type": "uml.activity_node", "box": [0, 0, 50, 30], "kind": "decision", "name": "ok?"},
+    "uml.pseudostate": {"type": "uml.pseudostate", "box": [0, 0, 22, 22], "kind": "final"},
 }
 
 # the SVG primitive each painted element must emit
@@ -76,11 +87,13 @@ EXPECT = {
     "polyline": "<polyline", "polygon": "<polygon", "path": "<path",
     "curve": "<path", "bezier": "<path", "text": "<text",
     "icon": "<text", "bullet_list": "<text", "dimension": "<g",
-    "image": "<rect", "table": "<rect", "group": "<g", "component": "<rect",
-    "chip_row": "<rect", "uml.marker_glyph": "<polygon",
+    "image": "<rect", "table": "<rect", "group": "<g", "container": "<rect",
+    "component": "<rect", "legend": "<line", "chip_row": "<rect", "uml.marker_glyph": "<polygon",
     "uml.classifier_box": "<rect", "uml.component_box": "<rect",
     "uml.state_box": "<rect", "uml.action": "<rect", "uml.artifact_box": "<rect",
     "uml.node_box": "<rect", "uml.lifeline": "<line", "uml.activation_bar": "<rect",
+    "uml.actor": "<circle", "uml.socket": "<path", "uml.lollipop": "<circle",
+    "uml.activity_node": "<polygon", "uml.pseudostate": "<circle",
 }
 
 # documented silent-ignore set. Any change here must be deliberate (this is the gate).

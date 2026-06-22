@@ -23,10 +23,16 @@ function substitute(value, context) {
 function expandUseObject(obj, symbols) {
   if (!obj || typeof obj !== "object") return obj;
   if (obj.type !== "use") {
-    if (Array.isArray(obj.children)) {
-      return { ...obj, children: obj.children.map((child) => expandUseObject(child, symbols)) };
+    const out = { ...obj };
+    for (const key of ["children", "content", "items"]) {
+      if (Array.isArray(out[key])) {
+        out[key] = out[key].map((child) => expandUseObject(child, symbols));
+      }
     }
-    return obj;
+    if (out.object && typeof out.object === "object") {
+      out.object = expandUseObject(out.object, symbols);
+    }
+    return out;
   }
 
   const symbol = symbols[obj.symbol];

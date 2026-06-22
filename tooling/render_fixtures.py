@@ -732,6 +732,15 @@ class Renderer:
         if t == "component" and box:
             return self._component(o, style)
 
+        if t == "container" and box:
+            return self._group_children(o)
+
+        if t == "legend" and box:
+            return self._legend(o)
+
+        if t in ("uml.actor", "uml.socket", "uml.lollipop", "uml.activity_node", "uml.pseudostate") and box:
+            return self._uml_glyph_box(o, style)
+
         if t == "uml.lifeline" and box:
             return self._uml_lifeline(o, style)
 
@@ -1219,6 +1228,76 @@ class Renderer:
         stroke = self._shape_stroke(o, style) or ' stroke="#555" stroke-width="1"'
         return self._painter.rect(x, y, w, h, fill, stroke)
 
+    def _uml_glyph_box(self, o, style):
+        box = o.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            self.skipped += 1
+            return ""
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        t = o.get("type")
+        p = self._painter
+        color = self.color(o.get("color") or o.get("stroke") or "ink") or "#222"
+        stroke = self._shape_stroke(o, style) or f' stroke="{esc(color)}" stroke-width="1.2"'
+        cx, cy = x + w / 2, y + h / 2
+        out = []
+        if t == "uml.actor":
+            out.extend(self._uml_actor_glyph(cx, y + h * 0.42, min(w * 0.62, h * 0.55), color))
+            name = o.get("name")
+            if name:
+                st = {"family": "sans-serif", "size": 10, "weight": "normal",
+                      "italic": False, "color": color, "align": "center", "lh": 1.0}
+                out.append(p.text_tag(x, y + h - 18, w, 14, str(name), st, vcenter=True))
+        elif t == "uml.lollipop":
+            r = max(2, min(w, h) / 2 - 2)
+            out.append(p.circle(cx, cy, r, "#fff", stroke))
+            if o.get("name"):
+                st = {"family": "sans-serif", "size": 9, "weight": "normal",
+                      "italic": False, "color": color, "align": "center", "lh": 1.0}
+                out.append(p.text_tag(x, y + h, max(w, 48), 12, str(o.get("name")), st, vcenter=True))
+        elif t == "uml.socket":
+            r = max(2, min(w, h) / 2 - 2)
+            d = f"M {fnum(cx + r)} {fnum(cy - r)} A {fnum(r)} {fnum(r)} 0 0 0 {fnum(cx + r)} {fnum(cy + r)}"
+            out.append(p.path(d, "none", stroke))
+            if o.get("name"):
+                st = {"family": "sans-serif", "size": 9, "weight": "normal",
+                      "italic": False, "color": color, "align": "center", "lh": 1.0}
+                out.append(p.text_tag(x - max(w, 48), y + h, max(w, 64), 12, str(o.get("name")), st, vcenter=True))
+        else:
+            kind = o.get("kind")
+            if kind == "decision":
+                pts = f"{fnum(cx)},{fnum(y)} {fnum(x + w)},{fnum(cy)} {fnum(cx)},{fnum(y + h)} {fnum(x)},{fnum(cy)}"
+                out.append(p.poly("polygon", pts, "#fff", stroke))
+                if o.get("name"):
+                    st = {"family": "sans-serif", "size": 10, "weight": "normal",
+                          "italic": False, "color": color, "align": "center", "lh": 1.0}
+                    out.append(p.text_tag(x + 4, y + h / 2 - 6, max(1, w - 8), 12, str(o.get("name")), st, vcenter=True))
+            elif kind == "final":
+                r = max(2, min(w, h) / 2 - 1)
+                out.append(p.circle(cx, cy, r, "none", stroke))
+                out.append(p.circle(cx, cy, max(1, r - 4), color, ""))
+            else:
+                r = max(2, min(w, h) / 2 - 1)
+                out.append(p.circle(cx, cy, r, color, stroke))
+        return p.group("".join(out))
+
+    def _legend(self, o):
+        out = []
+        for item in o.get("items") or []:
+            if not isinstance(item, dict):
+                continue
+            sample = item.get("sample")
+            if isinstance(sample, dict):
+                sample_obj = dict(sample)
+                if sample_obj.get("type") == "rounded_rect":
+                    sample_obj["type"] = "rect"
+                out.append(self.obj(sample_obj))
+            label = item.get("label")
+            if isinstance(label, dict) and isinstance(label.get("box"), list):
+                bx = label["box"]
+                out.append(self.render_text(num(bx[0], 0), num(bx[1], 0), num(bx[2], 0), num(bx[3], 0),
+                                            label.get("text", ""), self.text_style(label.get("style"))))
+        return self._painter.group("".join(out))
+
     def _chip_row(self, o):
         origin = o.get("origin") or o.get("position")
         if not is_point(origin):
@@ -1660,8 +1739,11 @@ def _expand_legacy_use(obj, symbols):
         return obj
     if obj.get("type") != "use":
         out = copy.deepcopy(obj)
-        if isinstance(out.get("children"), list):
-            out["children"] = [_expand_legacy_use(child, symbols) for child in out["children"]]
+        for key in ("children", "content", "items"):
+            if isinstance(out.get(key), list):
+                out[key] = [_expand_legacy_use(child, symbols) for child in out[key]]
+        if isinstance(out.get("object"), dict):
+            out["object"] = _expand_legacy_use(out["object"], symbols)
         return out
 
     symbol = symbols.get(obj.get("symbol")) or {}

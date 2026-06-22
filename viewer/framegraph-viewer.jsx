@@ -1166,6 +1166,98 @@ function UmlActivationBarObj({ doc, o }) {
   );
 }
 
+function UmlGlyphBoxObj({ doc, o }) {
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const color = resolveColor(doc, o.color || o.stroke || "ink") || "#222";
+  const r = Math.max(2, Math.min(w, h) / 2 - 2);
+  const cx = w / 2;
+  const cy = h / 2;
+  let shape = null;
+  if (o.type === "uml.actor") {
+    shape = (
+      <>
+        <foreignObject x="0" y="4" width={w} height={Math.max(20, h - 22)}>
+          <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <UmlActorGlyph size={Math.min(w * 0.62, h * 0.55)} color={color} />
+          </div>
+        </foreignObject>
+        {o.name ? <text x={cx} y={h - 6} textAnchor="middle" fontSize="10" fill={color}>{o.name}</text> : null}
+      </>
+    );
+  } else if (o.type === "uml.lollipop") {
+    shape = (
+      <>
+        <circle cx={cx} cy={cy} r={r} fill="#fff" stroke={color} strokeWidth="1.2" />
+        {o.name ? <text x={cx} y={h + 10} textAnchor="middle" fontSize="9" fill={color}>{o.name}</text> : null}
+      </>
+    );
+  } else if (o.type === "uml.socket") {
+    shape = (
+      <>
+        <path d={`M ${cx + r} ${cy - r} A ${r} ${r} 0 0 0 ${cx + r} ${cy + r}`} fill="none" stroke={color} strokeWidth="1.2" />
+        {o.name ? <text x={cx} y={h + 10} textAnchor="middle" fontSize="9" fill={color}>{o.name}</text> : null}
+      </>
+    );
+  } else if (o.kind === "decision") {
+    shape = (
+      <>
+        <polygon points={`${cx},0 ${w},${cy} ${cx},${h} 0,${cy}`} fill="#fff" stroke={color} strokeWidth="1.2" />
+        {o.name ? <text x={cx} y={cy + 3} textAnchor="middle" fontSize="10" fill={color}>{o.name}</text> : null}
+      </>
+    );
+  } else if (o.kind === "final") {
+    shape = (
+      <>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth="1.2" />
+        <circle cx={cx} cy={cy} r={Math.max(1, r - 4)} fill={color} />
+      </>
+    );
+  } else {
+    shape = <circle cx={cx} cy={cy} r={r} fill={color} stroke={color} strokeWidth="1.2" />;
+  }
+  return (
+    <svg data-framegraph-object={o.id || ""} data-framegraph-type={o.type}
+      width={w} height={h + (o.name && o.type !== "uml.actor" ? 12 : 0)}
+      viewBox={`0 0 ${w} ${h + (o.name && o.type !== "uml.actor" ? 12 : 0)}`}
+      style={{ position: "absolute", left: x, top: y, overflow: "visible",
+        opacity: o.opacity != null ? o.opacity : 1, ...rotationStyle(o.rotation, box) }}>
+      {shape}
+    </svg>
+  );
+}
+
+function ContainerObj({ doc, o, cw, ch, active }) {
+  const children = o.children || [];
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="container" style={{
+      position: "absolute", left: 0, top: 0, width: cw, height: ch,
+      opacity: o.opacity != null ? o.opacity : 1,
+    }}>
+      {children.map((child, i) => <RenderObject key={child.id || i} doc={doc} o={child} cw={cw} ch={ch} reg={{}} active={active} />)}
+    </div>
+  );
+}
+
+function LegendObj({ doc, o, cw, ch, active }) {
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="legend" style={{
+      position: "absolute", left: 0, top: 0, width: cw, height: ch,
+      opacity: o.opacity != null ? o.opacity : 1,
+    }}>
+      {(o.items || []).map((item, i) => {
+        const sample = item.sample ? { ...item.sample, type: item.sample.type === "rounded_rect" ? "rect" : item.sample.type } : null;
+        return (
+          <React.Fragment key={item.id || i}>
+            {sample ? <RenderObject doc={doc} o={sample} cw={cw} ch={ch} reg={{}} active={active} /> : null}
+            {item.label ? <TextObj doc={doc} o={{ type: "text", box: item.label.box, text: item.label.text, style: item.label.style }} active={active} /> : null}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
 function textContent(v) {
   if (v == null) return "";
   if (typeof v === "string" || typeof v === "number") return String(v);
@@ -1346,6 +1438,13 @@ function RenderObject({ doc, o, cw, ch, reg, active }) {
     case "component": return <ComponentObj doc={doc} o={o} active={active} />;
     case "uml.lifeline": return <UmlLifelineObj doc={doc} o={o} />;
     case "uml.activation_bar": return <UmlActivationBarObj doc={doc} o={o} />;
+    case "uml.actor":
+    case "uml.socket":
+    case "uml.lollipop":
+    case "uml.activity_node":
+    case "uml.pseudostate": return <UmlGlyphBoxObj doc={doc} o={o} />;
+    case "container": return <ContainerObj doc={doc} o={o} cw={cw} ch={ch} active={active} />;
+    case "legend": return <LegendObj doc={doc} o={o} cw={cw} ch={ch} active={active} />;
     default:
       if (UML_BOX_TYPES.has(o.type)) return <UmlBoxObj doc={doc} o={o} />;
       if (o.from && o.to) return <VectorObj doc={doc} o={{ ...o, type: "line" }} cw={cw} ch={ch} reg={reg} />;
