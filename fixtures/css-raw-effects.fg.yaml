@@ -1,0 +1,112 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: CSS DSL — raw-CSS compositing effects
+description: >-
+  Exercises SVG-applicable compositing properties written as literal CSS in the
+  `css` escape: the CSS `clip-path` functions (`circle()`, `ellipse()`,
+  `inset(... round ...)`, `polygon()`), `opacity`, and `mix-blend-mode` (over a
+  backdrop). These properties DO apply to SVG geometry, so the escape — emitted on
+  the compositing <g> wrapper — renders. (HTML-only properties such as
+  `background`/`box-shadow` are intentionally excluded: SVG geometry ignores them;
+  use the typed paint/effects, see gradients.fg.yaml / effects.fg.yaml.)
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#0f172a'
+      sub: '#64748b'
+      page: '#f8fafc'
+      a: '#6366f1'
+      b: '#ec4899'
+      c: '#14b8a6'
+      d: '#f59e0b'
+      warm: '#f97316'
+      cool: '#0ea5e9'
+    styles:
+      cap: {font: sans, size: 11, color: sub, align: center}
+      title: {font: sans, size: 18, weight: 700, color: ink}
+pages:
+- mode: page
+  id: css_effects
+  canvas:
+    size: [820, 300]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: rect
+      box: [0, 0, 820, 300]
+      fill: page
+    - type: text
+      box: [24, 18, 772, 24]
+      text: Raw-CSS compositing — clip-path, opacity, blend
+      style: title
+
+    - type: rect
+      box: [24, 56, 110, 120]
+      fill: a
+      style: {css: 'clip-path: circle(50% at 50% 50%)'}
+    - type: text
+      box: [16, 182, 126, 16]
+      text: 'clip-path: circle()'
+      style: cap
+
+    - type: rect
+      box: [152, 56, 110, 120]
+      fill: b
+      style: {css: 'clip-path: ellipse(48% 32% at 50% 50%)'}
+    - type: text
+      box: [144, 182, 126, 16]
+      text: 'clip-path: ellipse()'
+      style: cap
+
+    - type: rect
+      box: [280, 56, 110, 120]
+      fill: c
+      style: {css: 'clip-path: inset(12% round 16px)'}
+    - type: text
+      box: [272, 182, 126, 16]
+      text: 'clip-path: inset()'
+      style: cap
+
+    - type: rect
+      box: [408, 56, 110, 120]
+      fill: d
+      style: {css: 'clip-path: polygon(50% 0%, 100% 100%, 0% 100%)'}
+    - type: text
+      box: [400, 182, 126, 16]
+      text: 'clip-path: polygon()'
+      style: cap
+
+    - type: rect
+      box: [536, 56, 110, 120]
+      fill: a
+      style: {css: 'opacity: 0.45'}
+    - type: text
+      box: [528, 182, 126, 16]
+      text: 'opacity: 0.45'
+      style: cap
+
+    # mix-blend-mode needs something behind it to composite against
+    - type: ellipse
+      center: [718, 116]
+      rx: 52
+      ry: 52
+      fill: warm
+    - type: rect
+      box: [664, 56, 110, 120]
+      fill: cool
+      style: {css: 'mix-blend-mode: multiply'}
+    - type: text
+      box: [656, 182, 126, 16]
+      text: 'mix-blend-mode'
+      style: cap
+
+    - type: text
+      box: [24, 252, 772, 18]
+      text: 'All six properties apply to SVG geometry, so the css escape renders natively.'
+      style: cap

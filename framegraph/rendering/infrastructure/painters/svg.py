@@ -237,8 +237,13 @@ class SvgPainter:
         return f'<g transform="{esc(transform)}">{inner}</g>'
 
     @staticmethod
-    def style_group(inner: str, attrs: dict[str, str]) -> str:
+    def style_group(inner: str, attrs: dict[str, str], raw: str = "") -> str:
+        # `raw` carries the bounded `css` escape (§8.4) for non-text objects, which
+        # have no inline style of their own; text emits its css via font_style().
         style = ";".join(f"{name}:{value}" for name, value in attrs.items() if value)
+        if raw:
+            raw = str(raw).strip().rstrip(";")
+            style = f"{style};{raw}" if style else raw
         return f'<g style="{esc(style)}">{inner}</g>' if style else inner
 
     @staticmethod

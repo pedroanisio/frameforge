@@ -529,7 +529,11 @@ class Renderer:
         perspective = style.get("perspective")
         if perspective and perspective != "none":
             attrs["perspective"] = self._css_length(perspective)
-        return self._painter.style_group(svg, attrs)
+        # The bounded `css` escape (§8.4) on a non-text object: text emits its css
+        # inline via font_style(); shapes carry it on the compositing <g> wrapper.
+        css = style.get("css")
+        raw = css if (css and o.get("type") != "text") else ""
+        return self._painter.style_group(svg, attrs, raw)
 
     def _css_filter_value(self, value):
         if isinstance(value, str):
