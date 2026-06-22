@@ -88,3 +88,47 @@ def test_image_ellipse_clip_and_slice_aspect_ratio_are_emitted() -> None:
     assert '<g clip-path="url(#clip1)">' in svg
     assert 'href="data:image/png;base64,iVBORw0KGgo="' in svg
     assert 'preserveAspectRatio="xMidYMid slice"' in svg
+
+
+def test_text_style_css_surface_is_emitted() -> None:
+    svg = _svg_for(
+        [{
+            "type": "text",
+            "box": [10, 10, 180, 50],
+            "text": "styled text",
+            "style": {
+                "class": ["base_text"],
+                "bold": True,
+                "letter_spacing": "2px",
+                "word_spacing": 3,
+                "text_decoration": {
+                    "line": "underline",
+                    "style": "wavy",
+                    "color": "hairline",
+                    "thickness": "1px",
+                },
+                "text_transform": "uppercase",
+                "font_variant_caps": "small-caps",
+                "font_kerning": "normal",
+                "css": "font-stretch:condensed;",
+            },
+        }],
+        {
+            "tokens": {
+                "colors": {"panel": "#ffeecc", "hairline": "#123456", "ink": "#111111"},
+                "styles": {"base_text": {"font_size": 18, "color": "ink"}},
+            },
+        },
+    )
+
+    text = svg.split("<text", 1)[1].split("</text>", 1)[0]
+    assert "STYLED TEXT" in text
+    assert "font-size:18px" in text
+    assert "font-weight:700" in text
+    assert "letter-spacing:2px" in text
+    assert "word-spacing:3px" in text
+    assert "text-decoration:underline wavy #123456 1px" in text
+    assert "text-transform:uppercase" in text
+    assert "font-variant-caps:small-caps" in text
+    assert "font-kerning:normal" in text
+    assert "font-stretch:condensed" in text

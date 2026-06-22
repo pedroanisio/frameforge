@@ -182,6 +182,7 @@ class Renderer:
         self.tstats["total"] += 1
         if content is None or content == "":
             return ""
+        content = self._transform_text(str(content), st.get("text_transform"))
         size, avg, lh = st["size"], st["avg"], st["lh"]
         # Default unspecified text to `clip`: no fixture ever requests `visible`,
         # and an authoring box is a containment constraint, so the proxy contains
@@ -265,6 +266,16 @@ class Renderer:
             self.tstats["visible_overflow"] += 1
             self.tstats["uncontained"] += 1
         return el
+
+    @staticmethod
+    def _transform_text(content, transform):
+        if transform == "uppercase":
+            return content.upper()
+        if transform == "lowercase":
+            return content.lower()
+        if transform == "capitalize":
+            return content.title()
+        return content
 
     # ---- per-object dispatch ---------------------------------------------- #
     def obj(self, o):

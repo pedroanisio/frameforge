@@ -64,6 +64,21 @@ class SvgPainter:
             style += f';font-weight:{esc(st["weight"])}'
         if st["italic"]:
             style += ";font-style:italic"
+        for key, css_name in (
+            ("font_stretch", "font-stretch"),
+            ("font_variant", "font-variant"),
+            ("font_variant_caps", "font-variant-caps"),
+            ("font_variant_numeric", "font-variant-numeric"),
+            ("font_kerning", "font-kerning"),
+            ("letter_spacing", "letter-spacing"),
+            ("word_spacing", "word-spacing"),
+            ("text_decoration", "text-decoration"),
+            ("text_transform", "text-transform"),
+        ):
+            if st.get(key):
+                style += f';{css_name}:{esc(st[key])}'
+        if st.get("css"):
+            style += ";" + esc(str(st["css"]).strip().rstrip(";"))
         return style
 
     # ---- paint registry (gradients + clips share the id counter) ---------- #
