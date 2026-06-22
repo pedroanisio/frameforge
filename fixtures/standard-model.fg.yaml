@@ -72,7 +72,7 @@ defs:
   masters:
     article:
       canvas:
-        preset: web
+        preset: A4
         orientation: portrait
         margin:
         - 24px
