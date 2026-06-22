@@ -15,7 +15,7 @@ against them.
 ```
 models/framegraph.py          ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 schema/
-  framegraph-v2.schema.json   ← GENERATED from the models (72 $defs). Do not hand-edit.
+  framegraph-v2.schema.json   ← GENERATED from the models (77 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
 grammar/
   framegraph-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.
@@ -29,7 +29,7 @@ fixtures/                     ← the original fixtures, migrated to 2.2.0.
   b1/                         ← the 8 AUTHORITATIVE fixtures (the oracle the tests assert against).
 tests/test_head.py            ← assertions: authoritative fixtures validate, schema in sync, style surface, P3.
 CHANGELOG.md                  ← version, the breaking change + migration, conformance classes, rec. resolution.
-RENDERER-PATCH.md             ← the specified changes for the big ReportLab renderer (not re-emitted).
+Makefile                      ← project check gate: schema, tests, validation, fixture rendering, overflow checks.
 ```
 
 ## The sync guarantee (what "in sync" means here, concretely)

@@ -6,6 +6,7 @@ import * as yaml from "js-yaml";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
 const FIXTURES = path.join(ROOT, "fixtures");
+const SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, "schema/framegraph-v2.schema.json"), "utf8"));
 
 const PAGE_MODES = new Set(["page", "flow", undefined]);
 const ABSOLUTE_TYPES = new Set([
@@ -16,19 +17,7 @@ const FLOW_TYPES = new Set([
   "heading", "paragraph", "list", "bullet_list", "table", "code", "math", "toc",
   "figure", "block", "bibliography", "page_break", "spacer",
 ]);
-const STYLE_KEYS = new Set([
-  "align", "background", "background_clip", "background_color", "background_image",
-  "backdrop_filter", "border", "border_bottom", "border_left", "border_radius",
-  "border_right", "border_top", "box_shadow", "box_sizing", "class", "class_",
-  "clip_path", "color", "css", "filter", "font", "font_family", "font_size",
-  "font_style", "font_variant_caps", "font_weight", "hanging_punctuation", "hyphens",
-  "italic", "letter_spacing", "line_height", "margin", "min_font_size",
-  "mix_blend_mode", "opacity", "overflow", "padding", "radius", "size", "stroke",
-  "stroke_dasharray", "stroke_linecap", "stroke_linejoin", "stroke_width",
-  "text_align", "text_decoration", "text_overflow", "text_transform", "text_wrap",
-  "transform", "transform_box", "transform_origin", "v_align", "vertical_align",
-  "weight", "white_space", "wrap",
-]);
+const STYLE_KEYS = new Set([...Object.keys(SCHEMA.$defs.Style.properties), "class_"]);
 const STYLE_METADATA_KEYS = new Set([
   "cell_text", "header_fill", "header_text", "meta",
 ]);

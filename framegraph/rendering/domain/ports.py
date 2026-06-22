@@ -37,6 +37,9 @@ class ScenePainter(Protocol):
     def clip_wrap(self, inner: str, clip_id: str) -> str:
         """Wrap already-emitted content in the given clip."""
 
+    def marker(self, color: str, kind: str = "filled_triangle") -> str:
+        """Register an arrowhead marker for (kind, colour); return its id."""
+
     # ---- primitives ----
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None) -> str: ...
     def ellipse(self, cx, cy, rx, ry, fill, stroke, fill_opacity=None) -> str: ...

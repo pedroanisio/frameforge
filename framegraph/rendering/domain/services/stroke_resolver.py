@@ -63,3 +63,41 @@ class StrokeResolver:
         if opacity is not None:
             out += f' stroke-opacity="{fnum(num(opacity, 1))}"'
         return out
+
+    def arrow_spec(self, o) -> dict | None:
+        """Arrowheads declared on the object's `stroke_style`, or None.
+
+        Per the v2 single form, stroke geometry (incl. arrows) lives in
+        `stroke_style` (a named bundle or inline dict). `arrow_start`/`arrow_end`
+        are `bool | str`: True selects the default filled triangle, a string is a
+        marker-kind ref. Returns {'start': kind|None, 'end': kind|None, 'color':
+        solid colour} so the builder can register/attach markers; None when no
+        arrow is requested."""
+        ssv = o.get("stroke_style")
+        bundle = self.stroke_styles.get(ssv, {}) if isinstance(ssv, str) else (ssv or {})
+        if not isinstance(bundle, dict):
+            bundle = {}
+        sv = o.get("stroke")
+        # A legacy inline-geometry stroke may carry arrow_* (pre-P3); merge as resolve() does.
+        if isinstance(sv, dict) and any(k in sv for k in ("color", "width", "dash")):
+            merged = dict(sv)
+            merged.update(bundle)
+            bundle = merged
+        start = self._arrow_kind(bundle.get("arrow_start"))
+        end = self._arrow_kind(bundle.get("arrow_end"))
+        if start is None and end is None:
+            return None
+        col = self._color.resolve(sv) if isinstance(sv, str) else None
+        if col is None or col == "none":
+            col = self._color.resolve(bundle.get("stroke") or bundle.get("color"))
+        if col is None or col == "none":
+            col = "#000"
+        return {"start": start, "end": end, "color": col}
+
+    @staticmethod
+    def _arrow_kind(v) -> str | None:
+        if v is True:
+            return "filled_triangle"
+        if isinstance(v, str) and v:
+            return v
+        return None

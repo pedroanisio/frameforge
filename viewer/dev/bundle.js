@@ -26919,7 +26919,7 @@ ${exception.mark.snippet}`;
       ...merged,
       font: merged.font != null ? merged.font : merged.font_family,
       size: merged.size != null ? toPx(merged.size) : toPx(merged.font_size),
-      weight: merged.weight != null ? merged.weight : merged.font_weight,
+      weight: merged.weight != null ? merged.weight : merged.font_weight != null ? merged.font_weight : merged.bold ? 700 : void 0,
       italic: merged.italic != null ? merged.italic : merged.font_style === "italic",
       align: merged.align != null ? merged.align : merged.text_align,
       v_align: merged.v_align != null ? merged.v_align : merged.vertical_align,
@@ -27003,6 +27003,21 @@ ${exception.mark.snippet}`;
     if (Array.isArray(v)) return v.map(cssLength).filter(Boolean).join(" ");
     return String(v);
   }
+  function camelCss(prop) {
+    return String(prop).trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+  }
+  function parseCssDeclarations(cssText) {
+    if (!cssText || typeof cssText !== "string") return {};
+    const out = {};
+    for (const part of cssText.split(";")) {
+      const idx = part.indexOf(":");
+      if (idx <= 0) continue;
+      const key = camelCss(part.slice(0, idx));
+      const val = part.slice(idx + 1).trim();
+      if (key && val) out[key] = val;
+    }
+    return out;
+  }
   function cssEdges(v) {
     if (v == null) return void 0;
     if (typeof v === "number" || typeof v === "string") return cssLength(v);
@@ -27011,6 +27026,15 @@ ${exception.mark.snippet}`;
       return [v.top, v.right, v.bottom, v.left].map((x) => cssLength(x ?? 0)).join(" ");
     }
     return void 0;
+  }
+  function cssBorder(doc, border) {
+    if (!border) return void 0;
+    if (typeof border === "string") return border;
+    if (typeof border !== "object") return void 0;
+    const width = cssLength(border.width ?? border.stroke_width ?? 1);
+    const style = border.style || (border.stroke_dasharray ? "dashed" : "solid");
+    const color = resolveColor(doc, border.color ?? border.stroke ?? "currentColor");
+    return [width, style, color].filter(Boolean).join(" ");
   }
   function cssShadow(doc, shadow) {
     if (!shadow || shadow === "none") return shadow;
@@ -27050,49 +27074,111 @@ ${exception.mark.snippet}`;
   function styleToCss(doc, ref, opts = {}) {
     const st = resolveStyle(doc, ref);
     const css = {};
+    if (st.visibility) css.visibility = st.visibility;
+    if (st.z_index != null) css.zIndex = st.z_index;
     if (st.opacity != null) css.opacity = st.opacity;
     if (st.mix_blend_mode) css.mixBlendMode = st.mix_blend_mode;
+    if (st.isolation) css.isolation = st.isolation;
     if (st.box_shadow) css.boxShadow = cssShadow(doc, st.box_shadow);
     if (st.filter) css.filter = cssFilter(st.filter);
     if (st.backdrop_filter) css.backdropFilter = cssFilter(st.backdrop_filter);
     if (st.transform) css.transform = cssTransform(st.transform);
     if (st.transform_origin) css.transformOrigin = Array.isArray(st.transform_origin) ? st.transform_origin.map(cssLength).join(" ") : st.transform_origin;
     if (st.transform_box) css.transformBox = st.transform_box;
+    if (st.perspective != null) css.perspective = cssLength(st.perspective);
     if (st.clip_path) {
       if (typeof st.clip_path === "string") css.clipPath = st.clip_path;
       else if (st.clip_path.shape) css.clipPath = `${st.clip_path.shape}()`;
     }
+    if (st.mask) css.mask = typeof st.mask === "string" ? st.mask : void 0;
     if (st.padding != null) css.padding = cssEdges(st.padding);
     if (st.margin != null) css.margin = cssEdges(st.margin);
+    for (const [key, cssKey] of [
+      ["width", "width"],
+      ["height", "height"],
+      ["min_width", "minWidth"],
+      ["max_width", "maxWidth"],
+      ["min_height", "minHeight"],
+      ["max_height", "maxHeight"]
+    ]) {
+      if (st[key] != null) css[cssKey] = cssLength(st[key]);
+    }
     if (st.box_sizing) css.boxSizing = st.box_sizing;
     const radius = st.border_radius ?? st.radius;
     if (radius != null) css.borderRadius = cssEdges(radius);
+    if (st.background) css.background = typeof st.background === "string" ? resolveColor(doc, st.background) : resolveFill(doc, st.background);
     if (st.background_color) css.backgroundColor = resolveColor(doc, st.background_color);
     if (st.background_image) css.backgroundImage = resolveFill(doc, st.background_image);
+    if (st.background_position) css.backgroundPosition = st.background_position;
+    if (st.background_size) css.backgroundSize = st.background_size;
+    if (st.background_repeat) css.backgroundRepeat = st.background_repeat;
     if (st.background_clip) css.backgroundClip = st.background_clip;
     if (st.background_origin) css.backgroundOrigin = st.background_origin;
-    if (st.border) css.border = typeof st.border === "string" ? st.border : void 0;
+    if (st.background_blend_mode) css.backgroundBlendMode = st.background_blend_mode;
+    if (st.border) css.border = cssBorder(doc, st.border);
     for (const [key, cssKey] of [["border_top", "borderTop"], ["border_right", "borderRight"], ["border_bottom", "borderBottom"], ["border_left", "borderLeft"]]) {
-      if (st[key]) css[cssKey] = typeof st[key] === "string" ? st[key] : void 0;
+      if (st[key]) css[cssKey] = cssBorder(doc, st[key]);
     }
+    if (st.outline) css.outline = cssBorder(doc, st.outline);
+    if (st.outline_offset != null) css.outlineOffset = cssLength(st.outline_offset);
+    if (st.overflow) css.overflow = st.overflow === "shrink_to_fit" ? "hidden" : st.overflow;
+    if (st.overflow_x) css.overflowX = st.overflow_x;
+    if (st.overflow_y) css.overflowY = st.overflow_y;
+    if (st.fill) css.fill = resolveFill(doc, st.fill);
+    if (st.fill_rule) css.fillRule = st.fill_rule;
+    if (st.stroke) css.stroke = resolveFill(doc, st.stroke);
+    if (st.stroke_width != null) css.strokeWidth = cssLength(st.stroke_width);
+    if (st.stroke_dasharray != null) css.strokeDasharray = Array.isArray(st.stroke_dasharray) ? st.stroke_dasharray.map(cssLength).join(" ") : st.stroke_dasharray;
+    if (st.stroke_dashoffset != null) css.strokeDashoffset = cssLength(st.stroke_dashoffset);
+    if (st.stroke_linecap) css.strokeLinecap = st.stroke_linecap;
+    if (st.stroke_linejoin) css.strokeLinejoin = st.stroke_linejoin;
+    if (st.stroke_miterlimit != null) css.strokeMiterlimit = st.stroke_miterlimit;
+    if (st.paint_order) css.paintOrder = st.paint_order;
+    if (st.vector_effect) css.vectorEffect = st.vector_effect;
     if (opts.text) {
       if (st.color) css.color = resolveColor(doc, st.color);
       if (st.font) css.fontFamily = resolveFont(doc, st.font);
       if (st.size) css.fontSize = st.size;
       if (st.weight != null) css.fontWeight = st.weight;
       if (st.italic != null) css.fontStyle = st.italic ? "italic" : "normal";
+      if (st.font_stretch) css.fontStretch = st.font_stretch;
+      if (st.font_variant) css.fontVariant = st.font_variant;
       if (st.align) css.textAlign = st.align;
+      if (st.text_align_last) css.textAlignLast = st.text_align_last;
       if (st.line_height != null) css.lineHeight = st.line_height;
       if (st.letter_spacing != null) css.letterSpacing = cssLength(st.letter_spacing);
+      if (st.word_spacing != null) css.wordSpacing = cssLength(st.word_spacing);
       if (st.text_transform) css.textTransform = st.text_transform;
       if (st.text_decoration) css.textDecoration = st.text_decoration;
+      if (st.text_indent != null) css.textIndent = cssLength(st.text_indent);
+      if (st.text_shadow) css.textShadow = cssShadow(doc, st.text_shadow);
       if (st.font_variant_caps) css.fontVariantCaps = st.font_variant_caps;
+      if (st.font_variant_numeric) css.fontVariantNumeric = st.font_variant_numeric;
+      if (st.font_variant_ligatures) css.fontVariantLigatures = st.font_variant_ligatures;
+      if (st.font_feature_settings) css.fontFeatureSettings = st.font_feature_settings;
+      if (st.font_variation_settings) css.fontVariationSettings = st.font_variation_settings;
+      if (st.font_kerning) css.fontKerning = st.font_kerning;
       if (st.hyphens) css.hyphens = st.hyphens;
       if (st.hanging_punctuation) css.hangingPunctuation = st.hanging_punctuation;
+      if (st.hyphenate_character) css.hyphenateCharacter = st.hyphenate_character;
+      if (st.hyphenate_limit_chars) css.hyphenateLimitChars = st.hyphenate_limit_chars;
       if (st.white_space) css.whiteSpace = st.white_space;
+      if (st.word_break) css.wordBreak = st.word_break;
+      if (st.overflow_wrap) css.overflowWrap = st.overflow_wrap;
       if (st.text_wrap) css.textWrap = st.text_wrap;
+      if (st.text_overflow) css.textOverflow = st.text_overflow;
+      if (st.line_clamp != null || st.max_lines != null) {
+        css.display = "-webkit-box";
+        css.WebkitBoxOrient = "vertical";
+        css.WebkitLineClamp = st.line_clamp ?? st.max_lines;
+        css.overflow = "hidden";
+      }
+      if (st.tab_size != null) css.tabSize = st.tab_size;
+      if (st.writing_mode) css.writingMode = st.writing_mode;
+      if (st.direction) css.direction = st.direction;
+      if (st.unicode_bidi) css.unicodeBidi = st.unicode_bidi;
     }
-    return css;
+    return { ...css, ...parseCssDeclarations(st.css) };
   }
   function canvasOf(doc, page) {
     const masters = doc?.defs?.masters || {};

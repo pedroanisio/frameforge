@@ -15,16 +15,34 @@ from __future__ import annotations
 
 from framegraph.rendering.domain.geometry import esc, fnum, num
 
+# Arrowhead `<marker>` shapes. Kind names are the v2 marker refs the grammar
+# allows for `arrow_start` / `arrow_end` (grammar/framegraph-v2-style.ebnf
+# L190-191; glyph set in framegraph-v2.ebnf L631). Each entry is
+# (path_d, viewBox, markerWidth, markerHeight, refX, refY, mode):
+#   mode "fill"   — colour fill (solid arrowhead)
+#   mode "hollow" — white fill + colour stroke (UML generalization/aggregation)
+#   mode "open"   — colour stroke, no fill (open V)
+_MARKER_SHAPES: dict[str, tuple[str, str, float, float, float, float, str]] = {
+    "filled_triangle": ("M0,0 L8,2.5 L0,5 Z", "0 0 8 5", 8, 5, 8, 2.5, "fill"),
+    "hollow_triangle": ("M0,0 L10,5 L0,10 Z", "0 0 10 10", 10, 10, 10, 5, "hollow"),
+    "filled_diamond": ("M0,5 L6,0 L12,5 L6,10 Z", "0 0 12 10", 12, 10, 12, 5, "fill"),
+    "hollow_diamond": ("M0,5 L6,0 L12,5 L6,10 Z", "0 0 12 10", 12, 10, 12, 5, "hollow"),
+    "open_arrow": ("M0,0 L10,5 L0,10", "0 0 10 10", 10, 10, 10, 5, "open"),
+}
+_DEFAULT_MARKER = "filled_triangle"
+
 
 class SvgPainter:
     def __init__(self, color_resolver):
         self._color = color_resolver
         self._gid = 0
-        self._defs = []          # per-page <defs> entries (gradients, clip paths)
+        self._defs = []          # per-page <defs> entries (gradients, clip paths, markers)
+        self._markers: dict[tuple[str, str], str] = {}   # (kind, colour) -> marker id
 
     # ---- per-page backend state ------------------------------------------- #
     def new_page(self):
         self._defs = []
+        self._markers = {}
 
     # ---- small attribute / style helpers ---------------------------------- #
     @staticmethod
@@ -88,6 +106,37 @@ class SvgPainter:
 
     def clip_wrap(self, inner, clip_id):
         return f'<g clip-path="url(#{clip_id})">{inner}</g>'
+
+    def marker(self, color: str, kind: str = _DEFAULT_MARKER) -> str:
+        """Register an arrowhead `<marker>` for (kind, colour); return its id.
+
+        Deduped per page by (kind, colour): repeated calls reuse one `<defs>`
+        entry. Unknown kinds fall back to the default filled triangle. This is
+        additive — no marker is registered unless a stroke requests an arrow."""
+        if kind not in _MARKER_SHAPES:
+            kind = _DEFAULT_MARKER
+        key = (kind, color)
+        mid = self._markers.get(key)
+        if mid is not None:
+            return mid
+        mid = f"ah{len(self._markers) + 1}"
+        self._markers[key] = mid
+        self._defs.append(self._marker_def(mid, color, kind))
+        return mid
+
+    @staticmethod
+    def _marker_def(mid: str, color: str, kind: str) -> str:
+        d, vb, mw, mh, refx, refy, mode = _MARKER_SHAPES[kind]
+        if mode == "hollow":
+            paint = f'fill="#FFFFFF" stroke="{esc(color)}" stroke-width="1"'
+        elif mode == "open":
+            paint = f'fill="none" stroke="{esc(color)}" stroke-width="1.5"'
+        else:
+            paint = f'fill="{esc(color)}"'
+        return (f'<marker id="{esc(mid)}" viewBox="{vb}" markerWidth="{fnum(mw)}" '
+                f'markerHeight="{fnum(mh)}" refX="{fnum(refx)}" refY="{fnum(refy)}" '
+                f'orient="auto-start-reverse" markerUnits="userSpaceOnUse">'
+                f'<path d="{d}" {paint}/></marker>')
 
     # ---- primitives ------------------------------------------------------- #
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None):

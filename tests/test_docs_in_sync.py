@@ -26,6 +26,9 @@ import tomllib
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [os.path.join(ROOT, "models"), os.path.join(ROOT, "schema")]
+shadow = sys.modules.get("framegraph")
+if shadow is not None and hasattr(shadow, "__path__"):
+    del sys.modules["framegraph"]
 
 import framegraph as fg  # noqa: E402
 import build_schema as B  # noqa: E402

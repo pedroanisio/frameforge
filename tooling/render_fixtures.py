@@ -124,6 +124,23 @@ class Renderer:
     def stroke(self, o):
         return self._stroke.resolve(o)
 
+    def _arrow_attrs(self, o):
+        """SVG marker attrs for an open shape's arrowheads, or '' if none.
+
+        Reads `arrow_start`/`arrow_end` off the resolved `stroke_style`, registers
+        the needed `<marker>`s with the painter (deduped), and returns e.g.
+        ' marker-start="url(#ah1)" marker-end="url(#ah1)"'. Additive: emits nothing
+        unless the stroke requests an arrow, so arrow-free fixtures are unchanged."""
+        spec = self._stroke.arrow_spec(o)
+        if not spec:
+            return ""
+        out = ""
+        if spec["start"]:
+            out += f' marker-start="url(#{self._painter.marker(spec["color"], spec["start"])})"'
+        if spec["end"]:
+            out += f' marker-end="url(#{self._painter.marker(spec["color"], spec["end"])})"'
+        return out
+
     # ---- text style resolution -------------------------------------------- #
     def text_style(self, ref):
         return self._text_style.resolve(ref)
@@ -290,7 +307,7 @@ class Renderer:
             fr, to = o.get("from"), o.get("to")
             if is_point(fr) and is_point(to):
                 stk = self.stroke(o) or ' stroke="#000" stroke-width="1"'
-                return p.line(fr[0], fr[1], to[0], to[1], stk)
+                return p.line(fr[0], fr[1], to[0], to[1], stk + self._arrow_attrs(o))
             return ""
 
         if t in ("polyline", "polygon"):
@@ -300,7 +317,9 @@ class Renderer:
                 return ""
             closed = t == "polygon" or o.get("closed")
             tag = "polygon" if closed else "polyline"
-            return p.poly(tag, ptstr, fill if closed else None, self.stroke(o), fill_opacity=fill_opacity if closed else None)
+            return p.poly(tag, ptstr, fill if closed else None,
+                          self.stroke(o) + self._arrow_attrs(o),
+                          fill_opacity=fill_opacity if closed else None)
 
         if t == "path":
             d = o.get("d")
@@ -309,7 +328,7 @@ class Renderer:
                              if isinstance(seg, list) else str(seg) for seg in d)
             if not isinstance(d, str) or not d.strip():
                 return ""
-            return p.path(d, fill, self.stroke(o), fill_opacity=fill_opacity)
+            return p.path(d, fill, self.stroke(o) + self._arrow_attrs(o), fill_opacity=fill_opacity)
 
         if t == "text" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
