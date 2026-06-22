@@ -1,0 +1,13 @@
+# Never copy host build artifacts into the image — they're rebuilt inside it.
+node_modules
+**/node_modules
+dev/App.jsx
+
+# VCS / editor / OS noise
+.git
+.gitignore
+*.log
+.DS_Store
+
+# Docker assets don't need to be in the build context's app copy
+# (they're referenced explicitly by the Dockerfile, which is fine).

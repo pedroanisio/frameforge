@@ -1,0 +1,9 @@
+services:
+  viewer:
+    build: .
+    image: framegraph-viewer:2.2.0
+    container_name: framegraph-viewer
+    # Override the host port with VIEWER_PORT, e.g. VIEWER_PORT=9000 docker compose up
+    ports:
+      - "${VIEWER_PORT:-8088}:80"
+    restart: unless-stopped

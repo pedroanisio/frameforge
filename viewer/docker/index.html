@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FrameGraph v2 Viewer</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: #FBF7F2; color: #181211;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #181211; color: #FBF7F2; }
+      .card { background: #231B19 !important; border-color: #4A3F3B !important; }
+      a.tile { background: #302421 !important; border-color: #4A3F3B !important; color: inherit; }
+      a.tile:hover { border-color: #D71920 !important; }
+    }
+    .card {
+      width: min(720px, 92vw); padding: 2rem 2.25rem; border-radius: 16px;
+      background: #FFFDF8; border: 1px solid #DED1C9;
+      box-shadow: 0 10px 40px rgba(0,0,0,.08);
+    }
+    h1 { margin: 0 0 .25rem; font-size: 1.6rem; }
+    h1 .v { color: #D71920; }
+    p.lead { margin: 0 0 1.5rem; color: #756963; }
+    .primary {
+      display: inline-block; margin-bottom: 1.75rem; padding: .7rem 1.25rem;
+      background: #D71920; color: #fff; text-decoration: none; border-radius: 10px;
+      font-weight: 600;
+    }
+    .primary:hover { background: #9F161E; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem; }
+    a.tile {
+      display: block; padding: .85rem 1rem; border-radius: 10px; text-decoration: none;
+      color: inherit; background: #F7EEE8; border: 1px solid #DED1C9;
+    }
+    a.tile:hover { border-color: #D71920; }
+    a.tile b { display: block; }
+    a.tile span { color: #756963; font-size: .85rem; }
+    footer { margin-top: 1.5rem; font-size: .8rem; color: #A39288; }
+    code { background: rgba(128,128,128,.15); padding: .1rem .35rem; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>FrameGraph <span class="v">v2</span> Viewer</h1>
+    <p class="lead">React renderer for FrameGraph v2 documents, shipping the <em>esfera</em> style-guide deck as the live demo.</p>
+
+    <a class="primary" href="/dev/harness.html">▶ Launch the viewer</a>
+
+    <div class="grid">
+      <a class="tile" href="/dev/">
+        <b>dev/</b><span>build harness &amp; bundle.js</span>
+      </a>
+      <a class="tile" href="/demo/">
+        <b>demo/</b><span>esfera deck — JSON &amp; YAML</span>
+      </a>
+      <a class="tile" href="/verification/">
+        <b>verification/</b><span>QA screenshots</span>
+      </a>
+      <a class="tile" href="/framegraph-viewer.jsx">
+        <b>framegraph-viewer.jsx</b><span>app source</span>
+      </a>
+      <a class="tile" href="/README.md">
+        <b>README.md</b><span>project docs</span>
+      </a>
+    </div>
+
+    <footer>
+      Inside the viewer, use <b>Arrow keys</b> / <b>Home</b> to navigate slides and the
+      <b>JSON</b> button to load your own FrameGraph v2 document.
+    </footer>
+  </main>
+</body>
+</html>
