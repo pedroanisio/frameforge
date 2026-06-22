@@ -158,7 +158,17 @@ class SvgPainter:
     def filter_effect(self, kind: str, params: dict) -> str:
         """Register a shadow/glow `<filter>` for params; return its id (deduped).
 
-        Additive — only called for objects that declare `shadow`/`glow`."""
+        Additive — only called for objects/styles that declare supported effects."""
+        if kind == "blur":
+            blur = fnum(num(params.get("blur"), 0))
+            key = ("blur", blur)
+            fid = self._filters.get(key)
+            if fid is not None:
+                return fid
+            fid = f"fx{len(self._filters) + 1}"
+            self._filters[key] = fid
+            self._defs.append(self._filter_def(fid, kind, params))
+            return fid
         color = params.get("color") or ("#000000" if kind == "shadow" else "#FFD700")
         blur = fnum(num(params.get("blur"), 4))
         opacity = fnum(num(params.get("opacity"), 0.14 if kind == "shadow" else 0.55))
@@ -181,6 +191,11 @@ class SvgPainter:
 
     @staticmethod
     def _filter_def(fid: str, kind: str, p: dict) -> str:
+        if kind == "blur":
+            blur = fnum(num(p.get("blur"), 0))
+            return (f'<filter id="{esc(fid)}" x="-20%" y="-20%" width="140%" height="140%">'
+                    f'<feGaussianBlur in="SourceGraphic" stdDeviation="{blur}"/>'
+                    f'</filter>')
         color = p.get("color") or ("#000000" if kind == "shadow" else "#FFD700")
         blur = fnum(num(p.get("blur"), 4))
         if kind == "shadow":

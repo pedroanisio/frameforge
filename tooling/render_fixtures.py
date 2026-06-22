@@ -288,7 +288,7 @@ class Renderer:
         try:
             inner = self._obj(o)
             if inner:
-                inner = self._with_effects(o, inner)
+                inner = self._with_effects(o, self._style_dict(o.get("style")), inner)
             opacity = o.get("opacity")
             if inner and opacity not in (None, 1):
                 return self._painter.opacity_group(inner, num(opacity, 1))
@@ -297,16 +297,18 @@ class Renderer:
             self.skipped += 1
             return ""
 
-    def _with_effects(self, o, svg):
-        """Wrap an object's SVG in shadow/glow filter group(s) if it declares them.
+    def _with_effects(self, o, style, svg):
+        """Wrap an object's SVG in effect filter group(s) if it declares them.
 
         Additive: emits nothing unless `shadow`/`glow` is present, so effect-free
-        fixtures are byte-identical. shadow and glow are independent v2 fields;
-        when both are set, both apply (glow inner, shadow outer)."""
+        fixtures are byte-identical. Object effects wrap before supported style
+        effects so authored style filters apply to the fully drawn primitive."""
         for kind in ("glow", "shadow"):
             params = self._effect.resolve(o.get(kind), kind)
             if params is not None:
                 svg = self._painter.filter_wrap(svg, self._painter.filter_effect(kind, params))
+        for kind, params in self._effect.style_effects(style):
+            svg = self._painter.filter_wrap(svg, self._painter.filter_effect(kind, params))
         return svg
 
     def _obj(self, o):

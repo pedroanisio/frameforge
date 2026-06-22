@@ -294,3 +294,65 @@ def test_shadow_and_glow_effect_filters_are_emitted() -> None:
     assert 'flood-color="#123456" flood-opacity="0.3"' in svg
     assert 'flood-color="#FFD700" flood-opacity="0.55"' in svg
     assert 'flood-color="#005c46" flood-opacity="0.5"' in svg
+
+
+def test_style_effect_filters_are_emitted() -> None:
+    svg = _svg_for(
+        [
+            {
+                "type": "rect",
+                "box": [10, 10, 60, 35],
+                "fill": "panel",
+                "style": "card_effects",
+            },
+            {
+                "type": "rect",
+                "box": [90, 10, 60, 35],
+                "fill": "panel",
+                "style": {
+                    "filter": [
+                        {"fn": "blur", "value": "2px"},
+                        {
+                            "fn": "drop_shadow",
+                            "shadow": {
+                                "offset_x": 3,
+                                "offset_y": 4,
+                                "blur": 5,
+                                "color": "brand",
+                            },
+                        },
+                    ],
+                },
+            },
+        ],
+        {
+            "tokens": {
+                "colors": {
+                    "panel": "#ffeecc",
+                    "hairline": "#123456",
+                    "brand": "#005c46",
+                },
+                "styles": {
+                    "card_effects": {
+                        "box_shadow": [
+                            {
+                                "offset_x": 1,
+                                "offset_y": 2,
+                                "blur": 6,
+                                "color": "hairline",
+                            }
+                        ],
+                    }
+                },
+            },
+        },
+    )
+
+    assert svg.count("<filter ") == 3
+    assert svg.count('<g filter="url(#fx') == 3
+    assert 'stdDeviation="6"' in svg
+    assert 'dx="1" dy="2"' in svg
+    assert 'flood-color="#123456" flood-opacity="0.25"' in svg
+    assert '<feGaussianBlur in="SourceGraphic" stdDeviation="2"/>' in svg
+    assert 'dx="3" dy="4"' in svg
+    assert 'flood-color="#005c46" flood-opacity="0.25"' in svg

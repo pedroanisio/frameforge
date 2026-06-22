@@ -57,3 +57,50 @@ class EffectResolver:
             return None
         params["color"] = self._color.resolve(params.get("color")) or _DEFAULT_COLOR[kind]
         return params
+
+    def style_effects(self, style: dict) -> list[tuple[str, dict]]:
+        """Return SVG-filter-compatible effects from the CSS style surface.
+
+        The SVG proxy renders the deterministic subset that maps cleanly to SVG
+        filters: box-shadow / drop-shadow and blur. Other CSS filters remain a
+        declarable style surface for targets with native CSS support.
+        """
+        out: list[tuple[str, dict]] = []
+        out.extend(("shadow", p) for p in self._box_shadow(style.get("box_shadow")))
+        out.extend(self._filter(style.get("filter")))
+        return out
+
+    def _box_shadow(self, value) -> list[dict]:
+        if value in (None, False, "none", ""):
+            return []
+        items = value if isinstance(value, list) else [value]
+        out = []
+        for item in items:
+            if isinstance(item, str) or not isinstance(item, dict) or item.get("inset"):
+                continue
+            params = {
+                "dx": item.get("offset_x", item.get("x", 0)),
+                "dy": item.get("offset_y", item.get("y", 0)),
+                "blur": item.get("blur", 0),
+                "color": item.get("color", "#000000"),
+                "opacity": item.get("opacity", 0.25),
+            }
+            params["color"] = self._color.resolve(params.get("color")) or "#000000"
+            out.append(params)
+        return out
+
+    def _filter(self, value) -> list[tuple[str, dict]]:
+        if value in (None, False, "none", ""):
+            return []
+        items = value if isinstance(value, list) else [value]
+        out: list[tuple[str, dict]] = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            name = item.get("fn") or item.get("kind") or item.get("name")
+            if name == "blur":
+                out.append(("blur", {"blur": item.get("value", 0)}))
+            elif name == "drop_shadow":
+                shadows = self._box_shadow(item.get("shadow"))
+                out.extend(("shadow", p) for p in shadows)
+        return out
