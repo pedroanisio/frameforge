@@ -115,6 +115,14 @@ DOC = {
                             {"type": "chip_row", "origin": [122, 50], "items": [{"text": "api", "width": 24}], "height": 10},
                             {"type": "bar_chart", "box": [170, 2, 24, 20], "data": [1, 3, 2]},
                             {"type": "line_chart", "box": [170, 30, 24, 20], "data": [1, 4, 2]},
+                            {"type": "uml.classifier_box", "box": [196, 0, 48, 34], "name": "Order", "attributes": ["id"], "operations": ["total"]},
+                            {"type": "uml.lifeline", "box": [196, 38, 40, 42], "name": "svc", "type_name": "API"},
+                            {"type": "uml.actor", "box": [246, 0, 28, 42], "name": "User"},
+                            {"type": "uml.activity_node", "box": [246, 46, 30, 22], "kind": "decision", "name": "ok?"},
+                            {"type": "uml.pseudostate", "box": [278, 2, 16, 16], "kind": "final"},
+                            {"type": "uml.marker_glyph", "position": [286, 34], "kind": "filled_diamond", "color": "accent"},
+                            {"type": "uml.fragment_frame", "box": [296, 0, 44, 28], "kind": "alt"},
+                            {"type": "uml.timing_lane", "box": [296, 34, 52, 24], "name": "clock", "states": ["A", "B"]},
                         ],
                     },
                     "caption": "Figure #1",
@@ -172,6 +180,11 @@ def test_transpile_emits_native_latex_math_and_tikz():
     assert "{api}" in tex
     assert "(173,15.333) rectangle" in tex
     assert "line width=1.2pt" in tex
+    assert "{Order}" in tex and "{total}" in tex
+    assert "{svc: API}" in tex
+    assert "{User}" in tex and "{ok?}" in tex
+    assert "{alt}" in tex
+    assert "{clock}" in tex and "{A}" in tex and "{B}" in tex
     assert "Figure \\#1\\label{fg:fig-smoke}" in tex
     assert "\\begin{thebibliography}{99}" in tex
     assert "\\bibitem{einstein1905}A. Einstein, 1905." in tex

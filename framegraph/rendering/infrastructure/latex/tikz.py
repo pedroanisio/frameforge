@@ -93,7 +93,7 @@ class FigureTikz:
 
     def _draw(self, o) -> str:
         t = o.get("type")
-        fn = getattr(self, f"_draw_{t}", None) if isinstance(t, str) else None
+        fn = getattr(self, f"_draw_{t.replace('.', '_')}", None) if isinstance(t, str) else None
         if fn is None:
             self.skipped += 1
             return ""
@@ -674,3 +674,204 @@ class FigureTikz:
             f"\\draw[draw={{rgb,255:red,170;green,170;blue,170}}] ({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)});\n"
             f"\\draw[draw={{rgb,255:red,51;green,102;blue,170}},line width=1.2pt] {chain};\n"
         )
+
+    def _draw_uml_box_like(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        t = o.get("type")
+        radius = 9 if t == "uml.action" else 2
+        opts = ["fill={rgb,255:red,255;green,255;blue,255}", "draw={rgb,255:red,85;green,85;blue,85}", "line width=1pt"]
+        if radius:
+            opts.append(f"rounded corners={fnum(radius)}pt")
+        rows = []
+        if o.get("stereotype"):
+            rows.append(f"<<{o.get('stereotype')}>>")
+        elif t == "uml.node_box" and o.get("kind"):
+            rows.append(f"<<{o.get('kind')}>>")
+        rows.append(o.get("name") or o.get("label") or t)
+        for value in (o.get("entry"), o.get("do"), o.get("exit")):
+            if value:
+                rows.append(str(value))
+        for item in (o.get("attributes") or [])[:2]:
+            rows.append(item.get("name") if isinstance(item, dict) else str(item))
+        for item in (o.get("operations") or [])[:2]:
+            rows.append((item.get("name") + "()") if isinstance(item, dict) and item.get("name") else str(item))
+        if t == "uml.component_box":
+            if o.get("provided_interfaces"):
+                rows.append("provides: " + ", ".join(map(str, o.get("provided_interfaces") or [])))
+            if o.get("required_interfaces"):
+                rows.append("requires: " + ", ".join(map(str, o.get("required_interfaces") or [])))
+        out = [self._path(opts, f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})")]
+        row_h = min(13, h / max(len(rows), 1))
+        for idx, row in enumerate(rows):
+            weight = "\\bfseries" if idx == (1 if rows and str(rows[0]).startswith("<<") else 0) else ""
+            out.append(
+                f"\\node[anchor=north,inner sep=1pt,font=\\scriptsize{weight},text width={fnum(max(w - 6, 1))}pt,align=center] "
+                f"at ({fnum(x + w / 2)},{fnum(y + 3 + idx * row_h)}) {{{ltx_escape(row)}}};\n"
+            )
+        return "".join(out)
+
+    def _draw_uml_classifier_box(self, o) -> str:
+        return self._draw_uml_box_like(o)
+
+    def _draw_uml_component_box(self, o) -> str:
+        return self._draw_uml_box_like(o)
+
+    def _draw_uml_state_box(self, o) -> str:
+        return self._draw_uml_box_like(o)
+
+    def _draw_uml_action(self, o) -> str:
+        return self._draw_uml_box_like(o)
+
+    def _draw_uml_artifact_box(self, o) -> str:
+        return self._draw_uml_box_like(o)
+
+    def _draw_uml_node_box(self, o) -> str:
+        return self._draw_uml_box_like(o)
+
+    def _draw_uml_lifeline(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        head_h = min(max(num(o.get("head_height"), 28) or 28, 18), h)
+        cx = x + w / 2
+        name = o.get("name") or o.get("id") or "lifeline"
+        type_name = o.get("type_name")
+        label = f"{name}: {type_name}" if type_name else str(name)
+        return (
+            f"\\path[fill={{rgb,255:red,255;green,255;blue,255}},draw={{rgb,255:red,85;green,85;blue,85}}] "
+            f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + head_h)});\n"
+            f"\\draw[dash pattern=on 4pt off 3pt,draw={{rgb,255:red,85;green,85;blue,85}}] ({fnum(cx)},{fnum(y + head_h)}) -- ({fnum(cx)},{fnum(y + h)});\n"
+            f"\\node[anchor=center,inner sep=1pt,font=\\scriptsize,text width={fnum(max(w - 4, 1))}pt,align=center] "
+            f"at ({fnum(cx)},{fnum(y + head_h / 2)}) {{{ltx_escape(label)}}};\n"
+        )
+
+    def _draw_uml_activation_bar(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        return (
+            f"\\path[fill={{rgb,255:red,255;green,255;blue,255}},draw={{rgb,255:red,85;green,85;blue,85}}] "
+            f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)});\n"
+        )
+
+    def _actor_glyph(self, cx, cy, size):
+        r = size * 0.18
+        return (
+            f"\\draw ({fnum(cx)},{fnum(cy - size * 0.34)}) circle ({fnum(r)}pt);\n"
+            f"\\draw ({fnum(cx)},{fnum(cy - size * 0.16)}) -- ({fnum(cx)},{fnum(cy + size * 0.28)});\n"
+            f"\\draw ({fnum(cx - size * 0.28)},{fnum(cy)}) -- ({fnum(cx + size * 0.28)},{fnum(cy)});\n"
+            f"\\draw ({fnum(cx)},{fnum(cy + size * 0.28)}) -- ({fnum(cx - size * 0.22)},{fnum(cy + size * 0.58)});\n"
+            f"\\draw ({fnum(cx)},{fnum(cy + size * 0.28)}) -- ({fnum(cx + size * 0.22)},{fnum(cy + size * 0.58)});\n"
+        )
+
+    def _draw_uml_actor(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        size = min(w, h) * 0.72
+        cx, cy = x + w / 2, y + h * 0.42
+        out = [self._actor_glyph(cx, cy, size)]
+        if o.get("name"):
+            out.append(f"\\node[anchor=north,inner sep=1pt,font=\\scriptsize] at ({fnum(cx)},{fnum(y + h - 12)}) {{{ltx_escape(o.get('name'))}}};\n")
+        return "".join(out)
+
+    def _draw_uml_lollipop(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        cx, cy, r = x + w / 2, y + h / 2, max(2, min(w, h) / 2 - 2)
+        out = [f"\\draw[fill=white] ({fnum(cx)},{fnum(cy)}) circle ({fnum(r)}pt);\n"]
+        if o.get("name"):
+            out.append(f"\\node[anchor=north,inner sep=1pt,font=\\scriptsize] at ({fnum(cx)},{fnum(y + h)}) {{{ltx_escape(o.get('name'))}}};\n")
+        return "".join(out)
+
+    def _draw_uml_socket(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        cx, cy, r = x + w / 2, y + h / 2, max(2, min(w, h) / 2 - 2)
+        out = [f"\\draw ({fnum(cx + r)},{fnum(cy - r)}) arc[start angle=-90,end angle=90,radius={fnum(r)}pt];\n"]
+        if o.get("name"):
+            out.append(f"\\node[anchor=north,inner sep=1pt,font=\\scriptsize] at ({fnum(cx)},{fnum(y + h)}) {{{ltx_escape(o.get('name'))}}};\n")
+        return "".join(out)
+
+    def _draw_uml_activity_node(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        cx, cy = x + w / 2, y + h / 2
+        kind = o.get("kind")
+        if kind == "decision":
+            out = [self._path(["fill=white", "draw={rgb,255:red,85;green,85;blue,85}"],
+                              f"({fnum(cx)},{fnum(y)}) -- ({fnum(x + w)},{fnum(cy)}) -- ({fnum(cx)},{fnum(y + h)}) -- ({fnum(x)},{fnum(cy)}) -- cycle")]
+        elif kind in ("fork", "join"):
+            out = [f"\\path[fill={{rgb,255:red,85;green,85;blue,85}}] ({fnum(x)},{fnum(cy - 2)}) rectangle ({fnum(x + w)},{fnum(cy + 2)});\n"]
+        else:
+            out = [f"\\draw[fill={{rgb,255:red,85;green,85;blue,85}}] ({fnum(cx)},{fnum(cy)}) circle ({fnum(max(3, min(w, h) / 4))}pt);\n"]
+        if o.get("name"):
+            out.append(f"\\node[anchor=center,inner sep=1pt,font=\\scriptsize] at ({fnum(cx)},{fnum(cy)}) {{{ltx_escape(o.get('name'))}}};\n")
+        return "".join(out)
+
+    def _draw_uml_pseudostate(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        cx, cy, r = x + w / 2, y + h / 2, max(2, min(w, h) / 2 - 1)
+        if o.get("kind") == "final":
+            return f"\\draw ({fnum(cx)},{fnum(cy)}) circle ({fnum(r)}pt);\n\\path[fill={{rgb,255:red,85;green,85;blue,85}}] ({fnum(cx)},{fnum(cy)}) circle ({fnum(max(1, r - 4))}pt);\n"
+        return f"\\path[fill={{rgb,255:red,85;green,85;blue,85}}] ({fnum(cx)},{fnum(cy)}) circle ({fnum(r)}pt);\n"
+
+    def _draw_uml_marker_glyph(self, o) -> str:
+        pos = o.get("position") or o.get("origin")
+        if not is_point(pos):
+            return ""
+        x, y = num(pos[0], 0), num(pos[1], 0)
+        size = num(o.get("size"), 12) or 12
+        half = size / 2
+        color, _ = color_expr(self._color.resolve(o.get("color") or "#000000"))
+        kind = str(o.get("kind") or "")
+        if "triangle" in kind or "arrow" in kind:
+            geom = f"({fnum(x - half)},{fnum(y - half)}) -- ({fnum(x + half)},{fnum(y)}) -- ({fnum(x - half)},{fnum(y + half)}) -- cycle"
+        else:
+            geom = f"({fnum(x)},{fnum(y - half)}) -- ({fnum(x + half)},{fnum(y)}) -- ({fnum(x)},{fnum(y + half)}) -- ({fnum(x - half)},{fnum(y)}) -- cycle"
+        opts = [f"draw={color}", "line width=1pt"]
+        opts.append(f"fill={color}" if "filled" in kind else "fill=white")
+        return self._path(opts, geom)
+
+    def _draw_uml_fragment_frame(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        kind = o.get("kind") or "fragment"
+        return (
+            f"\\path[draw={{rgb,255:red,85;green,85;blue,85}}] ({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)});\n"
+            f"\\node[anchor=north west,inner sep=2pt,font=\\scriptsize\\bfseries] at ({fnum(x)},{fnum(y)}) {{{ltx_escape(kind)}}};\n"
+        )
+
+    def _draw_uml_swimlane(self, o) -> str:
+        return self._draw_uml_fragment_frame({**o, "kind": o.get("name") or "swimlane"})
+
+    def _draw_uml_timing_lane(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        states = o.get("states") if isinstance(o.get("states"), list) else []
+        out = [f"\\path[draw={{rgb,255:red,85;green,85;blue,85}}] ({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)});\n"]
+        out.append(f"\\node[anchor=west,inner sep=1pt,font=\\scriptsize\\bfseries] at ({fnum(x + 3)},{fnum(y + 8)}) {{{ltx_escape(o.get('name') or 'timing')}}};\n")
+        if states:
+            step = w / max(len(states), 1)
+            for idx, state in enumerate(states):
+                out.append(f"\\node[anchor=center,inner sep=1pt,font=\\scriptsize] at ({fnum(x + step * (idx + 0.5))},{fnum(y + h / 2)}) {{{ltx_escape(state)}}};\n")
+        return "".join(out)
