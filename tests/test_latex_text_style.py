@@ -78,3 +78,28 @@ def test_font_variant_small_caps_maps_to_tikz_font_shape():
 
     assert "\\scshape" in tex
     assert "{Caps}" in tex
+
+
+def test_alpha_text_color_maps_to_tikz_text_opacity():
+    tex = _fig({"muted": {"color": "#12345680"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "Muted",
+        "style": "muted",
+    })
+
+    assert "text={rgb,255:red,18;green,52;blue,86}" in tex
+    assert "text opacity=0.502" in tex
+
+
+def test_alpha_text_color_applies_to_spans():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "spans": [
+            {"text": "Run", "style": {"color": "#abcdef40"}},
+        ],
+    })
+
+    assert "text={rgb,255:red,171;green,205;blue,239}" in tex
+    assert "text opacity=0.251" in tex

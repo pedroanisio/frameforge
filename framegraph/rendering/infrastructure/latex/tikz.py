@@ -931,9 +931,11 @@ class FigureTikz:
             f"align={align}",
             f"font={self._font(st)}",
         ]
-        cexpr, _ = color_expr(st.get("color"))
+        cexpr, op = color_expr(st.get("color"))
         if cexpr:
             opts.append(f"text={cexpr}")
+        if op is not None:
+            opts.append(f"text opacity={fnum(op)}")
         return opts
 
     @staticmethod
