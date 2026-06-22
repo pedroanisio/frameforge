@@ -292,6 +292,7 @@ class Renderer:
         try:
             inner = self._obj(o)
             if inner:
+                inner = self._with_side_borders(o, self._style_dict(o.get("style")), inner)
                 inner = self._with_outline(o, self._style_dict(o.get("style")), inner)
                 inner = self._with_style_clip(o, self._style_dict(o.get("style")), inner)
                 inner = self._with_effects(o, self._style_dict(o.get("style")), inner)
@@ -304,6 +305,26 @@ class Renderer:
         except Exception:                              # never let one object kill a page
             self.skipped += 1
             return ""
+
+    def _with_side_borders(self, o, style, svg):
+        box = o.get("box")
+        if not isinstance(box, list) or len(box) < 4:
+            return svg
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        sides = (
+            ("border_top", (x, y, x + w, y)),
+            ("border_right", (x + w, y, x + w, y + h)),
+            ("border_bottom", (x, y + h, x + w, y + h)),
+            ("border_left", (x, y, x, y + h)),
+        )
+        lines = []
+        for key, (x1, y1, x2, y2) in sides:
+            border = style.get(key)
+            if isinstance(border, dict):
+                stroke = self._border_stroke(border)
+                if stroke:
+                    lines.append(self._painter.line(x1, y1, x2, y2, stroke))
+        return svg + "".join(lines)
 
     def _with_outline(self, o, style, svg):
         outline = style.get("outline")

@@ -297,6 +297,37 @@ def test_rect_uses_style_fill_border_radius_and_opacity() -> None:
     assert ' stroke-dasharray="1 3"' in outline
 
 
+def test_box_side_borders_are_emitted() -> None:
+    svg = _svg_for(
+        [{
+            "type": "text",
+            "box": [20, 30, 100, 40],
+            "text": "side borders",
+            "style": {
+                "border_top": {"width": 1, "style": "solid", "color": "top"},
+                "border_right": {"width": 2, "style": "dashed", "color": "right"},
+                "border_bottom": {"width": 3, "style": "dotted", "color": "bottom"},
+                "border_left": {"width": 4, "style": "solid", "color": "left"},
+            },
+        }],
+        {
+            "tokens": {
+                "colors": {
+                    "top": "#111111",
+                    "right": "#222222",
+                    "bottom": "#333333",
+                    "left": "#444444",
+                },
+            },
+        },
+    )
+
+    assert '<line x1="20" y1="30" x2="120" y2="30" stroke="#111111" stroke-width="1"/>' in svg
+    assert '<line x1="120" y1="30" x2="120" y2="70" stroke="#222222" stroke-width="2" stroke-dasharray="4 4"/>' in svg
+    assert '<line x1="20" y1="70" x2="120" y2="70" stroke="#333333" stroke-width="3" stroke-dasharray="1 3"/>' in svg
+    assert '<line x1="20" y1="30" x2="20" y2="70" stroke="#444444" stroke-width="4"/>' in svg
+
+
 def test_style_transform_wraps_svg_objects() -> None:
     svg = _svg_for(
         [
