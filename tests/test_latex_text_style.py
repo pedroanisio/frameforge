@@ -261,6 +261,17 @@ def test_word_spacing_maps_to_tex_spaceskip():
     assert "{\\spaceskip=12pt wide words}" in tex
 
 
+def test_text_indent_maps_to_initial_hspace():
+    tex = _fig({"label": {"text_indent": "12px"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "indented",
+        "style": "label",
+    })
+
+    assert "{\\hspace*{12pt}indented}" in tex
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",

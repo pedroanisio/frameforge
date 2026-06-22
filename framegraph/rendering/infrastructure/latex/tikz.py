@@ -1036,8 +1036,15 @@ class FigureTikz:
     def _text_node(self, st, anchor, width, align, x, y, content):
         opts = self._text_opts(st, anchor, width, align)
         content = self._transform_text(content, st.get("text_transform"))
-        body = self._decorate_text(st, self._space_text(st, ltx_escape(content)))
+        body = self._decorate_text(st, self._space_text(st, self._indent_text(st, ltx_escape(content))))
         return f"\\node[{','.join(opts)}] at ({fnum(x)},{fnum(y)}) {{{body}}};\n"
+
+    @staticmethod
+    def _indent_text(st, content):
+        indent = num(st.get("text_indent"), None) if isinstance(st, dict) else None
+        if indent in (None, 0):
+            return content
+        return f"\\hspace*{{{fnum(indent)}pt}}{content}"
 
     @staticmethod
     def _space_text(st, content):
@@ -1076,7 +1083,10 @@ class FigureTikz:
                 opts.append(f"text opacity={fnum(opacity)}")
             body = self._decorate_text(
                 st,
-                self._space_text(st, ltx_escape(self._transform_text(content, st.get("text_transform")))),
+                self._space_text(
+                    st,
+                    self._indent_text(st, ltx_escape(self._transform_text(content, st.get("text_transform")))),
+                ),
             )
             out.append(
                 f"\\node[{','.join(opts)}] at "
