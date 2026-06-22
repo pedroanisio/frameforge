@@ -51,6 +51,8 @@ OBJECT_SAMPLES = {
     "dimension": {"type": "dimension", "kind": "linear", "from": [0, 0], "to": [10, 0]},
     "table": {"type": "table", "rows": [["a", "b"]], "box": [0, 0, 100, 40]},
     "group": {"type": "group", "children": [{"type": "rect", "box": [0, 0, 5, 5], "fill": "#111"}]},
+    "chip_row": {"type": "chip_row", "origin": [0, 0], "items": [{"text": "api", "width": 32}]},
+    "uml.marker_glyph": {"type": "uml.marker_glyph", "position": [10, 10], "kind": "filled_diamond", "color": "#111"},
 }
 
 # the SVG primitive each painted element must emit
@@ -60,6 +62,7 @@ EXPECT = {
     "curve": "<path", "bezier": "<path", "text": "<text",
     "icon": "<text", "bullet_list": "<text", "dimension": "<g",
     "image": "<rect", "table": "<rect", "group": "<g",
+    "chip_row": "<rect", "uml.marker_glyph": "<polygon",
 }
 
 # documented silent-ignore set. Any change here must be deliberate (this is the gate).

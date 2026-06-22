@@ -723,6 +723,12 @@ class Renderer:
                 cy += gap
             return "".join(out)
 
+        if t == "chip_row":
+            return self._chip_row(o)
+
+        if t == "uml.marker_glyph":
+            return self._uml_marker_glyph(o)
+
         if t == "icon" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
             col = self.color(o.get("color")) or "#444"
@@ -942,6 +948,60 @@ class Renderer:
         if any(k in style for k in ("stroke", "stroke_width", "stroke_dasharray", "stroke_linecap", "stroke_linejoin")):
             return self.stroke({"stroke": style.get("stroke"), "stroke_style": style})
         return ""
+
+    def _chip_row(self, o):
+        origin = o.get("origin") or o.get("position")
+        if not is_point(origin):
+            self.skipped += 1
+            return ""
+        p = self._painter
+        x, y = num(origin[0], 0), num(origin[1], 0)
+        gap = num(o.get("gap"), 6) or 0
+        height = num(o.get("height"), 18) or 18
+        fill = self.color(o.get("fill") or "paper") or "#fff"
+        stroke = self.color(o.get("stroke") or "rule") or "#d0d0d0"
+        color = self.color(o.get("color") or "text_muted") or "#555"
+        st = {"family": "sans-serif", "size": max(9, min(12, height - 5)), "weight": "normal",
+              "italic": False, "color": color, "align": "center", "lh": 1.0}
+        out = []
+        cursor = x
+        for item in o.get("items") or []:
+            if not isinstance(item, dict):
+                item = {"text": str(item)}
+            text = item.get("text") or item.get("label") or ""
+            width = num(item.get("width"), None)
+            if width is None:
+                width = max(height * 1.6, self.measure(text, st["size"], 0.58) + 14)
+            item_fill = self.color(item.get("fill")) or fill
+            item_stroke = self.color(item.get("stroke")) or stroke
+            item_color = self.color(item.get("color")) or color
+            item_st = {**st, "color": item_color}
+            out.append(p.rect(cursor, y, width, height, item_fill,
+                              f' stroke="{esc(item_stroke)}" stroke-width="1"', radius=height / 2))
+            out.append(p.text_tag(cursor, y, width, height, text, item_st, vcenter=True))
+            cursor += width + gap
+        return p.group("".join(out)) if out else ""
+
+    def _uml_marker_glyph(self, o):
+        pos = o.get("position") or o.get("origin")
+        if not is_point(pos):
+            self.skipped += 1
+            return ""
+        size = num(o.get("size"), None)
+        if size is None:
+            meta = o.get("meta") if isinstance(o.get("meta"), dict) else {}
+            migration = meta.get("_fg1_migration") if isinstance(meta.get("_fg1_migration"), dict) else {}
+            size = num(migration.get("size"), 12) or 12
+        x, y = num(pos[0], 0), num(pos[1], 0)
+        half = size / 2
+        color = self.color(o.get("color") or o.get("stroke") or "ink") or "#111"
+        fill = color if "filled" in str(o.get("kind") or "") else "none"
+        points = (
+            f"{fnum(x)},{fnum(y - half)} {fnum(x + half)},{fnum(y)} "
+            f"{fnum(x)},{fnum(y + half)} {fnum(x - half)},{fnum(y)}"
+        )
+        return self._painter.poly("polygon", points, fill,
+                                  f' stroke="{esc(color)}" stroke-width="1.4"')
 
     def _dimension(self, o, style):
         kind = o.get("kind")
