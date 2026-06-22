@@ -367,6 +367,9 @@ class FigureTikz:
         cap = bundle.get("stroke_linecap")
         if cap in ("round", "butt", "square"):
             opts.append("line cap=" + ("rect" if cap == "square" else cap))
+        join = bundle.get("stroke_linejoin")
+        if join in ("miter", "round", "bevel"):
+            opts.append("line join=" + join)
         if tip:
             opts.insert(0, tip)
         return opts
