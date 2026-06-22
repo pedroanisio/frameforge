@@ -642,9 +642,43 @@ class Renderer:
     def _shape_fill(self, o, style):
         if "fill" in o:
             return self.paint(o.get("fill"))
-        for key in ("fill", "background_color", "background"):
-            if key in style:
-                return self.paint(style.get(key))
+        if "fill" in style:
+            return self.paint(style.get("fill"))
+        if "background_image" in style:
+            paint = self._background_paint(style.get("background_image"))
+            if paint is not None:
+                return paint
+        if "background" in style:
+            paint = self._background_paint(style.get("background"))
+            if paint is not None:
+                return paint
+        if "background_color" in style:
+            return self.paint(style.get("background_color"))
+        return None
+
+    def _background_paint(self, value):
+        if isinstance(value, list):
+            for item in value:
+                paint = self._background_paint(item)
+                if paint is not None:
+                    return paint
+            return None
+        if isinstance(value, dict):
+            image = value.get("image")
+            if image is not None:
+                paint = self._background_paint(image)
+                if paint is not None:
+                    return paint
+            if value.get("stops") and value.get("kind") in ("linear", "radial", "conic"):
+                return self.paint(value)
+            if "color" in value:
+                return self.paint(value.get("color"))
+            return None
+        if isinstance(value, str):
+            stripped = value.strip()
+            if stripped.startswith(("url(", "http://", "https://", "data:")):
+                return None
+            return self.paint(stripped)
         return None
 
     def _shape_radius(self, o, style):

@@ -328,6 +328,50 @@ def test_box_side_borders_are_emitted() -> None:
     assert '<line x1="20" y1="30" x2="20" y2="70" stroke="#444444" stroke-width="4"/>' in svg
 
 
+def test_style_background_image_gradient_is_emitted_as_fill() -> None:
+    svg = _svg_for(
+        [{
+            "type": "rect",
+            "box": [20, 20, 90, 45],
+            "style": {
+                "background_color": "panel",
+                "background_image": {
+                    "kind": "linear",
+                    "stops": [
+                        {"color": "panel", "position": 0},
+                        {"color": "hairline", "position": "100%"},
+                    ],
+                },
+            },
+        }],
+    )
+
+    assert '<linearGradient id="g1">' in svg
+    assert '<stop offset="0%" stop-color="#ffeecc"/>' in svg
+    assert '<stop offset="100%" stop-color="#123456"/>' in svg
+    rect = svg.split("<rect", 2)[2].split("/>", 1)[0]
+    assert ' fill="url(#g1)"' in rect
+
+
+def test_style_background_layers_use_first_renderable_paint() -> None:
+    svg = _svg_for(
+        [{
+            "type": "circle",
+            "center": [50, 50],
+            "r": 24,
+            "style": {
+                "background": [
+                    {"image": {"url": "missing.png"}},
+                    {"color": "hairline"},
+                ],
+            },
+        }],
+    )
+
+    circle = svg.split("<circle", 1)[1].split("/>", 1)[0]
+    assert ' fill="#123456"' in circle
+
+
 def test_style_transform_wraps_svg_objects() -> None:
     svg = _svg_for(
         [
