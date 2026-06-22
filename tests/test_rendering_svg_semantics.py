@@ -297,6 +297,31 @@ def test_rect_uses_style_fill_border_radius_and_opacity() -> None:
     assert ' stroke-dasharray="1 3"' in outline
 
 
+def test_named_style_token_composes_class_styles() -> None:
+    svg = _svg_for(
+        [{
+            "type": "rect",
+            "box": [20, 20, 80, 40],
+            "style": "panel_variant",
+        }],
+        {
+            "tokens": {
+                "colors": {"panel": "#ffeecc", "hairline": "#123456"},
+                "styles": {
+                    "panel_base": {"background_color": "panel", "border": {"width": 2, "color": "hairline"}},
+                    "panel_variant": {"class": "panel_base", "border_radius": 8},
+                },
+            },
+        },
+    )
+
+    rect = svg.split("<rect", 2)[2].split("/>", 1)[0]
+    assert ' fill="#ffeecc"' in rect
+    assert ' stroke="#123456"' in rect
+    assert ' stroke-width="2"' in rect
+    assert ' rx="8"' in rect
+
+
 def test_border_shorthand_string_is_emitted() -> None:
     svg = _svg_for(
         [{

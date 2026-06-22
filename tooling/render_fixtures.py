@@ -684,15 +684,19 @@ class Renderer:
         self.skipped += 1
         return ""
 
-    def _style_dict(self, ref):
+    def _style_dict(self, ref, _seen=None):
+        _seen = set() if _seen is None else set(_seen)
         if isinstance(ref, str):
-            return dict(self.text_styles.get(ref) or self.styles.get(ref) or {})
+            if ref in _seen:
+                return {}
+            _seen.add(ref)
+            return self._style_dict(self.text_styles.get(ref) or self.styles.get(ref) or {}, _seen)
         if not isinstance(ref, dict):
             return {}
         cls = ref.get("class") or ref.get("class_")
         merged = {}
         for name in ([cls] if isinstance(cls, str) else (cls or [])):
-            merged.update(self.text_styles.get(name) or self.styles.get(name) or {})
+            merged.update(self._style_dict(name, _seen))
         merged.update(ref)
         return merged
 
