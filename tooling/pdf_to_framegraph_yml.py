@@ -629,23 +629,25 @@ class PDFToFrameGraph:
     def _column_widths(self, tbl: Any, ncol: int) -> list[float] | None:
         """Per-column pixel widths from detected cell geometry (layout-preserving).
 
+        Reads the per-row ``cells`` (row-major, column-ordered) — the flat
+        ``tbl.cells`` is column-major, so column index there is not ``idx % ncol``.
         Returns ``None`` when the geometry is incomplete so the renderer falls back
         to an equal split rather than emitting bogus widths."""
         try:
-            flat = list(getattr(tbl, "cells", []) or [])
+            row_objs = list(getattr(tbl, "rows", []) or [])
         except Exception:
-            flat = []
-        if not flat or ncol <= 0:
+            row_objs = []
+        if not row_objs or ncol <= 0:
             return None
         lefts: list[float | None] = [None] * ncol
         rights: list[float | None] = [None] * ncol
-        for idx, cell in enumerate(flat):
-            if cell is None:
-                continue
-            ci = idx % ncol
-            rect = self.fitz.Rect(cell)
-            lefts[ci] = rect.x0 if lefts[ci] is None else min(lefts[ci], rect.x0)
-            rights[ci] = rect.x1 if rights[ci] is None else max(rights[ci], rect.x1)
+        for row in row_objs:
+            for ci, cell in enumerate(list(getattr(row, "cells", []) or [])[:ncol]):
+                if cell is None:
+                    continue
+                rect = self.fitz.Rect(cell)
+                lefts[ci] = rect.x0 if lefts[ci] is None else min(lefts[ci], rect.x0)
+                rights[ci] = rect.x1 if rights[ci] is None else max(rights[ci], rect.x1)
         widths: list[float] = []
         for lo, hi in zip(lefts, rights):
             if lo is None or hi is None or hi <= lo:

@@ -116,6 +116,32 @@ class _FakePage:
         return []
 
 
+class _FakeTableRow:
+    def __init__(self, cells):
+        self.cells = cells
+
+
+class _FakeTable:
+    bbox = [0, 0, 150, 40]
+
+    def __init__(self):
+        # Real PyMuPDF exposes row geometry through rows[*].cells. The flat
+        # cells list is not safe for idx % ncol because its ordering can differ.
+        self.rows = [
+            _FakeTableRow([[0, 0, 40, 20], [40, 0, 150, 20]]),
+            _FakeTableRow([[0, 20, 40, 40], [40, 20, 150, 40]]),
+        ]
+        self.cells = [
+            [0, 0, 40, 20],
+            [0, 20, 40, 40],
+            [40, 0, 150, 20],
+            [40, 20, 150, 40],
+        ]
+
+    def extract(self):
+        return [["Name", "Description"], ["A", "Wide cell"]]
+
+
 def _fake_page_doc(tmp_path, **opts_kw):
     conv = _converter(tmp_path, **opts_kw)
     conv.fitz = _FakeFitz()
@@ -279,6 +305,13 @@ def test_background_layer_toggle(tmp_path):
     _, without = _fake_page_doc(tmp_path, include_background=False)
     assert any(L["id"] == "background" for L in with_bg["layers"])
     assert not any(L["id"] == "background" for L in without["layers"])
+
+
+def test_table_column_widths_use_row_geometry(tmp_path):
+    conv = _converter(tmp_path)
+    conv.fitz = _FakeFitz()
+
+    assert conv._column_widths(_FakeTable(), 2) == [40, 110]
 
 
 # --------------------------------------------------------------------------- #
