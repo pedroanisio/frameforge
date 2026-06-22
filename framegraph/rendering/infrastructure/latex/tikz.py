@@ -145,6 +145,7 @@ class FigureTikz:
             return ""
         try:
             body = fn(o)
+            body = self._clip_scope(o, body) if body else ""
             return self._wrap_object(o, body) if body else ""
         except Exception:
             self.skipped += 1
@@ -165,6 +166,66 @@ class FigureTikz:
         if transform:
             opts += transform
         return f"\\begin{{scope}}[{','.join(opts)}]\n{body}\\end{{scope}}\n" if opts else body
+
+    def _clip_scope(self, o, body):
+        geom = self._clip_geom(o)
+        if not geom:
+            return body
+        return f"\\begin{{scope}}\n\\clip {geom};\n{body}\\end{{scope}}\n"
+
+    def _clip_geom(self, o):
+        spec = o.get("clip")
+        if spec in (None, False, "none"):
+            spec = self._style_dict(o).get("clip_path")
+        if spec in (None, False, "none"):
+            return None
+        shape, args = None, {}
+        if isinstance(spec, str):
+            shape = spec
+        elif isinstance(spec, dict):
+            shape = spec.get("shape") or spec.get("kind") or spec.get("type")
+            args = spec.get("args") if isinstance(spec.get("args"), dict) else spec
+        if not shape:
+            return None
+        shape = str(shape).replace("_", "-")
+        box = self._box(o)
+        if shape in ("ellipse", "circle"):
+            center = args.get("center") if isinstance(args, dict) else None
+            if is_point(center):
+                cx, cy = num(center[0], 0), num(center[1], 0)
+            elif box:
+                cx, cy = box[0] + box[2] / 2, box[1] + box[3] / 2
+            else:
+                return None
+            if shape == "circle":
+                r = num(args.get("r"), None) if isinstance(args, dict) else None
+                if r is None and box:
+                    r = min(box[2], box[3]) / 2
+                return f"({fnum(cx)},{fnum(cy)}) circle ({fnum(r or 0)}pt)"
+            rx = num(args.get("rx"), None) if isinstance(args, dict) else None
+            ry = num(args.get("ry"), None) if isinstance(args, dict) else None
+            if (rx is None or ry is None) and box:
+                rx, ry = box[2] / 2, box[3] / 2
+            return f"({fnum(cx)},{fnum(cy)}) ellipse ({fnum(rx or 0)}pt and {fnum(ry or 0)}pt)"
+        if shape in ("rect", "inset"):
+            if not box:
+                return None
+            x, y, w, h = box
+            if shape == "inset" and isinstance(args, dict):
+                top = num(args.get("top"), 0) or 0
+                right = num(args.get("right"), 0) or 0
+                bottom = num(args.get("bottom"), 0) or 0
+                left = num(args.get("left"), 0) or 0
+                x, y, w, h = x + left, y + top, max(w - left - right, 0), max(h - top - bottom, 0)
+            return f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
+        if shape == "polygon" and isinstance(args, dict):
+            pts = [(num(p[0], 0), num(p[1], 0)) for p in args.get("points", []) if is_point(p)]
+            if len(pts) < 3:
+                return None
+            return " -- ".join(f"({fnum(x)},{fnum(y)})" for x, y in pts) + " -- cycle"
+        if shape == "path" and isinstance(args, dict):
+            return self._path_d(args.get("d")) or None
+        return None
 
     def _tikz_transform(self, o):
         style = self._style_dict(o)
