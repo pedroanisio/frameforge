@@ -18,6 +18,7 @@ tests/test_text_spans.py.
 """
 import glob
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -25,6 +26,7 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 RENDER = os.path.join(ROOT, "tooling", "render_fixtures.py")
+RENDER_LATEX = os.path.join(ROOT, "tooling", "render_latex.py")
 
 
 def _render_fixture(name):
@@ -34,6 +36,28 @@ def _render_fixture(name):
         svgs = sorted(glob.glob(os.path.join(out, "**", "p*.svg"), recursive=True))
         assert svgs, "renderer produced no SVG"
         with open(svgs[0], encoding="utf-8") as fh:
+            return fh.read()
+
+
+def _render_all_pages(name):
+    """Every page's SVG concatenated, for flow docs that paginate."""
+    with tempfile.TemporaryDirectory() as out:
+        subprocess.run([sys.executable, RENDER, os.path.join(ROOT, "fixtures", name),
+                        "--out", out, "--quiet"], check=True, cwd=ROOT)
+        svgs = sorted(glob.glob(os.path.join(out, "**", "p*.svg"), recursive=True))
+        assert svgs, "renderer produced no SVG"
+        return "\n".join(open(p, encoding="utf-8").read() for p in svgs)
+
+
+def _transpile_latex(name):
+    """Transpile a fixture to LaTeX source via the CLI (subprocess: same
+    name-clash dodge as the SVG path)."""
+    with tempfile.TemporaryDirectory() as out:
+        subprocess.run([sys.executable, RENDER_LATEX, os.path.join(ROOT, "fixtures", name),
+                        "--out", out, "--tex-only", "--quiet"], check=True, cwd=ROOT)
+        tex = glob.glob(os.path.join(out, "*.tex"))
+        assert tex, "transpiler produced no .tex"
+        with open(tex[0], encoding="utf-8") as fh:
             return fh.read()
 
 
@@ -72,3 +96,28 @@ def test_features_render_per_run_not_flattened():
     # 17 text objects, but the multi-span rows expand to many styled <tspan>s —
     # proof the per-run feature styles survive (a flattened line would be 1 tspan each)
     assert svg.count("<tspan") >= 30
+
+
+# --- the multi-face capacity proof: support >= 100 font faces --------------- #
+# font-faces-100.fg.yaml declares 100 distinct faces in defs.tokens.fonts and
+# renders one paragraph per face. These two tests are the regression gate that
+# both render paths carry an arbitrary number of faces with no cap/truncation.
+
+def test_hundred_faces_render_distinct_font_families_svg():
+    svg = _render_all_pages("font-faces-100.fg.yaml")
+    families = set(re.findall(r"font-family:([^;\"]+)", svg))
+    # 100 declared faces each emit their own font-family (plus the page-number's
+    # generic sans), so the SVG proxy carries >= 100 distinct families.
+    assert len(families) >= 100, f"only {len(families)} distinct font-family in SVG"
+
+
+def test_hundred_faces_map_to_distinct_latex_font_families():
+    tex = _transpile_latex("font-faces-100.fg.yaml")
+    # one guarded \newfontfamily per declared face: no cap, no collision.
+    assert tex.count(r"\newfontfamily") == 100
+    assert tex.count(r"\IfFontExistsTF") == 100
+    # each face is actually *selected* by its paragraph, not just declared.
+    selections = set(re.findall(r"\\fgff[a-z]+\\fontsize", tex))
+    assert len(selections) >= 100, f"only {len(selections)} faces selected in LaTeX"
+    # the declaration degrades gracefully on hosts missing a face (still compiles).
+    assert r"{\newcommand\fgffa{}}" in tex
