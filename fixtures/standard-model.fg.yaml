@@ -809,6 +809,19 @@ pages:
   master: article
   media: continuous
   lang: en
+  links:
+  - to: https://physics.info/radiobiology/
+    relation: prev
+    label: radiobiology
+    external: true
+  - to: https://physics.info/qed/
+    relation: next
+    label: qed
+    external: true
+  - to: https://physics.info/standard/
+    relation: source
+    label: The Standard Model (physics.info)
+    external: true
   story:
   - type: heading
     level: 1
@@ -836,6 +849,7 @@ pages:
       particles discovered were the W and Z bosons in 1983, the top quark in 1995, the tau neutrino in 2000, and
       the higgs boson in 2012.
   - type: figure
+    units: px
     id: fig-family-base
     object:
       type: group
@@ -851,6 +865,7 @@ pages:
     style: body
     text: The symbols used to represent the particles of the standard model are a mix of Latin and Greek characters.
   - type: figure
+    units: px
     id: fig-family-base-symbols
     object:
       type: group
@@ -1089,6 +1104,7 @@ pages:
     id: particle-families
     style: h3
   - type: figure
+    units: px
     id: fig-family-boson-fermion
     object:
       type: group
@@ -1131,12 +1147,27 @@ pages:
       called bosons. There are twelve named fermions and five named bosons in the standard model.
   - type: paragraph
     style: body
-    text: Fermions obey a statistical rule described by Enrico Fermi (1901–1954) of Italy, Paul Dirac (1902–1984)
-      of England, and Wolfgang Pauli (1900–1958) of Austria called the exclusion principle. Simply stated, fermions
-      cannot occupy the same place at the same time. (More formally, no two fermions may be described by the same
-      quantum numbers.) Leptons and quarks are fermions, but so are things made from them like protons, neutrons,
-      atoms, molecules, people, and walls. This agrees with our macroscopic observations of matter in everyday life.
-      People cannot walk through walls unless the wall gets out of their way.
+    spans:
+    - 'Fermions obey a statistical rule described by '
+    - kind: link
+      href: https://en.wikipedia.org/wiki/Enrico_Fermi
+      content:
+      - Enrico Fermi
+    - ' (1901–1954) of Italy, '
+    - kind: link
+      href: https://en.wikipedia.org/wiki/Paul_Dirac
+      content:
+      - Paul Dirac
+    - ' (1902–1984) of England, and '
+    - kind: link
+      href: https://en.wikipedia.org/wiki/Wolfgang_Pauli
+      content:
+      - Wolfgang Pauli
+    - ' (1900–1958) of Austria called the exclusion principle. Simply stated, fermions cannot occupy the same place
+      at the same time. (More formally, no two fermions may be described by the same quantum numbers.) Leptons and
+      quarks are fermions, but so are things made from them like protons, neutrons, atoms, molecules, people, and
+      walls. This agrees with our macroscopic observations of matter in everyday life. People cannot walk through
+      walls unless the wall gets out of their way.'
   - type: paragraph
     style: body
     text: Bosons, in contrast, are have no problem occupying the same place at the same time. (More formally, two
@@ -1147,6 +1178,7 @@ pages:
       never see beams of light crash into one another. Photons behave like phantoms. They pass through one another
       with no effect.
   - type: figure
+    units: px
     id: fig-quantity-spin
     object:
       type: group
@@ -1218,6 +1250,7 @@ pages:
       combinations of ½ ± ½. That shows that all all mesons (like the pion of the residual strong interaction, for
       example) are also bosons.
   - type: figure
+    units: px
     id: fig-family-scalar-vector
     object:
       type: group
@@ -1274,6 +1307,8 @@ pages:
   - type: math
     id: spin-angular-momentum
     tex: S = \left[\, s\left(s + 1\right) \right]^{1/2} \hbar
+    alt: Spin angular momentum S equals the square root of s times (s plus 1), all multiplied by the reduced Planck
+      constant ℏ.
   - type: paragraph
     style: body
     text: For particles with spin quantum number of 0, the solution is a sensible spin angular momentum of 0 ℏ.
@@ -1297,6 +1332,7 @@ pages:
     id: spin-s2
     tex: S(2) = \left[\, 2\left(2 + 1\right) \right]^{1/2} \hbar = \sqrt{6}\,\hbar
   - type: figure
+    units: px
     id: fig-family-lepton-quark
     object:
       type: group
@@ -1363,6 +1399,7 @@ pages:
       quark but no charm, bottom, or top quarks are called hyperons. The Greek word for beyond is υπέρ (yper), which
       morphed into the English prefix hyper-. Hyperons are particles that are "way out" in a certain sense.
   - type: figure
+    units: px
     id: fig-family-neutrino
     object:
       type: group
@@ -1395,6 +1432,7 @@ pages:
       diminutive suffix -ino and you have a "little neutral", which is a good description of what a neutrino is
       — a diminutive neutral particle. Aaaaaw, so small and neutral.
   - type: figure
+    units: px
     id: fig-family-generations
     object:
       type: group
@@ -1453,6 +1491,7 @@ pages:
     id: particle-interactions
     style: h3
   - type: figure
+    units: px
     id: fig-three-forces
     object:
       type: group
@@ -1706,6 +1745,7 @@ pages:
       gauge bosons — the photon for electromagnetism, gluons for the strong force, and the W and Z bosons for the
       weak force.
   - type: figure
+    units: px
     id: fig-quantity-charge
     object:
       type: group
@@ -1758,6 +1798,7 @@ pages:
       addition, since opposite charges attract, electrons tend to bind to protons to form atoms that are neutral
       overall. We don't normally notice the electrical nature of matter because of this.
   - type: figure
+    units: px
     id: fig-force-em
     object:
       type: group
@@ -1836,6 +1877,7 @@ pages:
       uncharged, and have an unlimited range. The mathematical model used to describe the interaction of charged
       particles through the exchange of photons is known as quantum electrodynamics (QED).
   - type: figure
+    units: px
     id: fig-quantity-color
     object:
       type: group
@@ -1908,6 +1950,7 @@ pages:
       color from the outside world. One color is never favored over another when quarks get together. Matter is
       color neutral down to the very small scale.
   - type: figure
+    units: px
     id: fig-force-strong
     object:
       type: group
@@ -1972,6 +2015,7 @@ pages:
       since it results in forces in the nucleus that are stronger than the electromagnetic force. Without the strong
       force, every nucleus would blow itself to smithereens.
   - type: figure
+    units: px
     id: fig-quantity-flavor
     object:
       type: group
@@ -2054,6 +2098,7 @@ pages:
       is used here to mean "type" and it applies only to fermions. Don't let the word mislead you. Subatomic particles
       are much too small to have any characteristics that could be directly observed by human senses.
   - type: figure
+    units: px
     id: fig-force-weak
     object:
       type: group
@@ -2155,6 +2200,7 @@ pages:
     id: mass
     style: h3
   - type: figure
+    units: px
     id: fig-quantity-mass
     object:
       type: group
@@ -2273,6 +2319,7 @@ pages:
       reason, the interaction that gives mass to elementary particles is called the higgs mechanism and the particle
       that mediates the interaction is called the higgs boson, the higgs particle, or (rarely) the higgson.
   - type: figure
+    units: px
     id: fig-force-higgs
     object:
       type: group
@@ -2487,18 +2534,21 @@ pages:
   - type: math
     id: sm-gauge-group
     tex: SU(3) \times SU(2) \times U(1)
+    alt: The standard model gauge group, SU(3) cross SU(2) cross U(1).
   - type: paragraph
     style: body
     text: where the gauge group of strong interactions is…
   - type: math
     id: strong-gauge-group
     tex: SU(3)
+    alt: SU(3), the gauge group of the strong interaction.
   - type: paragraph
     style: body
     text: and the gauge group of electroweak interactions is…
   - type: math
     id: electroweak-gauge-group
     tex: SU(2) \times U(1)
+    alt: SU(2) cross U(1), the gauge group of the electroweak interaction.
   - type: paragraph
     style: body
     text: Notes…
@@ -2693,16 +2743,17 @@ pages:
       - '''fources'' (for ''forces''), ''force-carying''/''carying'' (for ''carrying''), ''mass-genrating'' (for
         ''mass-generating''), ''massleess'' (for ''massless''), ''propogates'' (for ''propagates''), ''are have
         no problem'' (sic), ''much too small to to be'' (sic), ''they they'' (sic), ''all all mesons'' (sic).'
-    grammar_gaps_observed:
-    - 'No inline hyperlink type in `Inline`/`Span`; `ParagraphFlow` is closed with no `meta`. Proposed fix: add
-      a `LinkInline = { kind: ''link'', href: string, content: [Inline...] }` to the Inline union.'
-    - '`FlowSection` has no `links` field (unlike `Page`), so page-level navigation (prev/next topic, sub-tabs)
-      cannot attach to a flow. Captured under meta.navigation instead. Proposed fix: allow `links: [PageLink]` on
-      FlowSection.'
-    - '`MathFlow` carries tex/mathml but no plain-text/alt fallback for accessibility. Proposed fix: add optional
-      `alt: string`.'
-    - 'FigureFlow has no per-figure coordinate-unit declaration; drawing units (px) are documented in meta rather
-      than declarable on the figure. Proposed fix: optional `units` on FigureFlow.'
+    grammar_gaps_observed: []
+    grammar_gaps_resolved:
+    - '`LinkInline = { kind: link, href, content: [Inline...], title? }` added to the Inline union — this document
+      now uses it for the inline physicist links in the fermion-statistics paragraph (Fermi/Dirac/Pauli). Closes the
+      former "no inline hyperlink type" gap.'
+    - '`links: [PageLink]` added to FlowSection (mirrors Page.links) — the section''s prev/next/source navigation is
+      now declared on the flow itself rather than only under meta.navigation.'
+    - '`alt: string` added to MathFlow — the spin-angular-momentum equation and the three gauge-group equations now
+      carry plain-text fallbacks for accessibility / tagged export.'
+    - '`units: Units` added to FigureFlow — every figure now declares `units: px` instead of relying on the prose
+      note in meta.drawings.coordinate_system.'
     links:
       Enrico_Fermi: https://en.wikipedia.org/wiki/Enrico_Fermi
       Paul_Dirac: https://en.wikipedia.org/wiki/Paul_Dirac

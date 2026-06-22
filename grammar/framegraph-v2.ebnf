@@ -119,6 +119,7 @@ FlowSection =                                                   (* +P2: media *)
       [ "media"  , ":" , ( "paged" | "continuous" ) ] ,   (* +P2: default paged; continuous ⇒ §3.9 *)
       [ "page_numbering" , ":" , PageNumbering ] ,
       [ "lang"     , ":" , string ] ,
+      [ "links"    , ":" , "[" , PageLink , { "," , PageLink } , "]" ] ,  (* section-level nav, mirrors Page.links *)
       [ "semantic" , ":" , Semantic ] ,
       [ "meta"     , ":" , object-any ] ,
     "}" ;
@@ -247,6 +248,7 @@ FigureFlow =                                  (* +P2: caption→Caption, credit 
       [ "caption" , ":" , Caption ] ,        (* +P2 *)
       [ "credit"  , ":" , Caption ] ,        (* +P2 *)
       [ "align"   , ":" , ( "left" | "center" | "right" ) ] ,
+      [ "units"   , ":" , Units ] ,          (* coordinate unit of the drawing space (default px) *)
       [ "float"   , ":" , Float ] ,
       break-fields ,
     "}" ;
@@ -877,7 +879,7 @@ Caption = string | "[" , Inline , { "," , Inline } , "]" ;
 
 TextContent = ( "text" , ":" , string ) | ( "spans" , ":" , "[" , Inline , { "," , Inline } , "]" ) ;
 
-Inline = string | Span | RefInline | CiteInline | FootnoteInline | MathInline | CodeInline
+Inline = string | Span | RefInline | CiteInline | FootnoteInline | MathInline | CodeInline | LinkInline
        | IndexInline | GlossaryInline | MarginNoteInline ;
 
 Span = "{" , "text" , ":" , string , [ "," , "style" , ":" , StyleRef ] , [ "," , "lang" , ":" , string ] , "}" ;
@@ -906,6 +908,13 @@ FootnoteInline =
 
 MathInline = "{" , "kind" , ":" , "math" , [ "mathml" , ":" , string ] , [ "tex" , ":" , string ] , "}" ;
 CodeInline = "{" , "kind" , ":" , "code" , "text" , ":" , string , "}" ;
+
+LinkInline =
+    "{" , "kind" , ":" , "link" ,
+      "href" , ":" , string ,
+      "content" , ":" , "[" , Inline , { "," , Inline } , "]" ,
+      [ "title" , ":" , string ] ,
+    "}" ;
 
 Anchor = string | Point | AnchorObject ;
 AnchorObject = "{" , "ref" , ":" , string , [ "," , "port" , ":" , string ] , "}" ;

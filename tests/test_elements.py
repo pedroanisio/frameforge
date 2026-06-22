@@ -76,6 +76,7 @@ INLINE_SAMPLES = {
     "cite": {"kind": "cite", "key": "smith2020"},
     "math": {"kind": "math", "tex": "x"},
     "code": {"kind": "code", "text": "x = 1"},
+    "link": {"kind": "link", "href": "https://example.com", "content": ["example"]},
     "footnote": {"kind": "footnote", "content": [{"type": "paragraph", "text": "n"}]},
 }
 

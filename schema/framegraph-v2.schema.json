@@ -3516,6 +3516,25 @@
           "default": null,
           "title": "Align"
         },
+        "units": {
+          "anyOf": [
+            {
+              "enum": [
+                "pt",
+                "px",
+                "mm",
+                "in",
+                "cm"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Units"
+        },
         "size": {
           "anyOf": [
             {
@@ -3570,6 +3589,9 @@
                     "$ref": "#/$defs/FootnoteInline"
                   },
                   {
+                    "$ref": "#/$defs/LinkInline"
+                  },
+                  {
                     "$ref": "#/$defs/Span"
                   }
                 ]
@@ -3608,6 +3630,9 @@
                   },
                   {
                     "$ref": "#/$defs/FootnoteInline"
+                  },
+                  {
+                    "$ref": "#/$defs/LinkInline"
                   },
                   {
                     "$ref": "#/$defs/Span"
@@ -3945,6 +3970,21 @@
           ],
           "default": null,
           "title": "Lang"
+        },
+        "links": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PageLink"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Links"
         },
         "semantic": {
           "anyOf": [
@@ -5752,6 +5792,9 @@
                     "$ref": "#/$defs/FootnoteInline"
                   },
                   {
+                    "$ref": "#/$defs/LinkInline"
+                  },
+                  {
                     "$ref": "#/$defs/Span"
                   }
                 ]
@@ -5790,6 +5833,9 @@
                   },
                   {
                     "$ref": "#/$defs/FootnoteInline"
+                  },
+                  {
+                    "$ref": "#/$defs/LinkInline"
                   },
                   {
                     "$ref": "#/$defs/Span"
@@ -6560,6 +6606,71 @@
       "title": "Line",
       "type": "object"
     },
+    "LinkInline": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "link",
+          "title": "Kind",
+          "type": "string"
+        },
+        "href": {
+          "title": "Href",
+          "type": "string"
+        },
+        "content": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/RefInline"
+              },
+              {
+                "$ref": "#/$defs/CiteInline"
+              },
+              {
+                "$ref": "#/$defs/MathInline"
+              },
+              {
+                "$ref": "#/$defs/CodeInline"
+              },
+              {
+                "$ref": "#/$defs/FootnoteInline"
+              },
+              {
+                "$ref": "#/$defs/LinkInline"
+              },
+              {
+                "$ref": "#/$defs/Span"
+              }
+            ]
+          },
+          "title": "Content",
+          "type": "array"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        }
+      },
+      "required": [
+        "kind",
+        "href",
+        "content"
+      ],
+      "title": "LinkInline",
+      "type": "object"
+    },
     "ListFlow": {
       "additionalProperties": false,
       "properties": {
@@ -6730,6 +6841,9 @@
                     "$ref": "#/$defs/FootnoteInline"
                   },
                   {
+                    "$ref": "#/$defs/LinkInline"
+                  },
+                  {
                     "$ref": "#/$defs/Span"
                   }
                 ]
@@ -6849,6 +6963,18 @@
           ],
           "default": null,
           "title": "Mathml"
+        },
+        "alt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alt"
         },
         "id": {
           "anyOf": [
@@ -7608,6 +7734,9 @@
                   },
                   {
                     "$ref": "#/$defs/FootnoteInline"
+                  },
+                  {
+                    "$ref": "#/$defs/LinkInline"
                   },
                   {
                     "$ref": "#/$defs/Span"
@@ -12143,6 +12272,9 @@
                     "$ref": "#/$defs/FootnoteInline"
                   },
                   {
+                    "$ref": "#/$defs/LinkInline"
+                  },
+                  {
                     "$ref": "#/$defs/Span"
                   }
                 ]
@@ -12181,6 +12313,9 @@
                   },
                   {
                     "$ref": "#/$defs/FootnoteInline"
+                  },
+                  {
+                    "$ref": "#/$defs/LinkInline"
                   },
                   {
                     "$ref": "#/$defs/Span"
@@ -13051,6 +13186,9 @@
                   },
                   {
                     "$ref": "#/$defs/FootnoteInline"
+                  },
+                  {
+                    "$ref": "#/$defs/LinkInline"
                   },
                   {
                     "$ref": "#/$defs/Span"

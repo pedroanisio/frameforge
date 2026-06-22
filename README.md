@@ -16,7 +16,7 @@ against them.
 models/framegraph.py          ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 framegraph/                   ← rendering package (DDD split, in progress): the SVG proxy's domain/infra.
 schema/
-  framegraph-v2.schema.json   ← GENERATED from the models (77 $defs). Do not hand-edit.
+  framegraph-v2.schema.json   ← GENERATED from the models (78 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
 grammar/
   framegraph-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.
