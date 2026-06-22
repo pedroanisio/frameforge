@@ -9,7 +9,7 @@ UV ?= uv
 FIXTURES_YAML := fixtures/*.fg.yaml
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render check schema-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test
+.PHONY: help sync schema render check schema-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test corpus corpus-check
 
 help:  ## list targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort \
@@ -37,6 +37,12 @@ validate:  ## structurally validate the curated (passing) fixtures
 
 overflow:  ## assert no text overflows its box (SVG proxy)
 	$(UV) run python tooling/render_fixtures.py --all --check-overflow
+
+corpus:  ## download + archive the public-domain expressiveness corpus
+	$(UV) run python tooling/fetch_corpus.py
+
+corpus-check:  ## offline: verify archived corpus files match the lockfile
+	$(UV) run python tooling/fetch_corpus.py --check
 
 status:  ## regenerate FIXTURE-STATUS.md from the validator
 	$(UV) run python tooling/gen_status.py

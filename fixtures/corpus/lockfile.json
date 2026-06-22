@@ -1,0 +1,93 @@
+{
+  "files": {
+    "gutenberg-pride-prejudice-html": {
+      "bytes": 852576,
+      "content_type": "text/html; charset=utf-8",
+      "dest": "html/gutenberg-pride-and-prejudice.html",
+      "fetched_at": "2026-06-22T19:35:25Z",
+      "http_status": 200,
+      "license": "PD",
+      "sha256": "fddd9715a3b1e3ce6ac8680a3650d7982d7230619eb1b6c17237912f3a6561fd",
+      "source": "Project Gutenberg",
+      "url": "https://www.gutenberg.org/cache/epub/1342/pg1342-images.html"
+    },
+    "gutenberg-pride-prejudice-txt": {
+      "bytes": 772386,
+      "content_type": "text/plain; charset=utf-8",
+      "dest": "flow/gutenberg-pride-and-prejudice.txt",
+      "fetched_at": "2026-06-22T19:35:22Z",
+      "http_status": 200,
+      "license": "PD",
+      "sha256": "74f2665d6e6925fc2c17dec644bec9e87df478a0f1836822125e8acbb3777806",
+      "source": "Project Gutenberg",
+      "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.txt"
+    },
+    "nasa-gao-reporting-2021": {
+      "bytes": 278498,
+      "content_type": "application/pdf",
+      "dest": "documents/nasa-fy2021-gao-reporting.pdf",
+      "fetched_at": "2026-06-22T19:35:21Z",
+      "http_status": 200,
+      "license": "PD-USGov",
+      "sha256": "d6e04d778a2736511c1957699e4712b38729d63761d77f0e1e430fd2bc4c1f29",
+      "source": "NASA",
+      "url": "https://www.nasa.gov/wp-content/uploads/2021/04/fy_2021_required_reporting_under_gaog.pdf"
+    },
+    "openclipart-map-pin": {
+      "bytes": 77425,
+      "content_type": "image/svg+xml",
+      "dest": "vector/openclipart-map-pin.svg",
+      "fetched_at": "2026-06-22T19:35:18Z",
+      "http_status": 200,
+      "license": "CC0-1.0",
+      "sha256": "060f6c2eff2dbf99d67e7fbf73764e0705a31c36c2e6c5dee2ec0a33c1d0287a",
+      "source": "Openclipart",
+      "url": "https://openclipart.org/download/210391/Map-Pin.svg"
+    },
+    "openclipart-nupath": {
+      "bytes": 7360,
+      "content_type": "image/svg+xml",
+      "dest": "vector/openclipart-nupath.svg",
+      "fetched_at": "2026-06-22T19:35:19Z",
+      "http_status": 200,
+      "license": "CC0-1.0",
+      "sha256": "b7c8081821f5231c7b195c3a36417c1f08f07cbb67658b2629d6fdce7868f217",
+      "source": "Openclipart",
+      "url": "https://openclipart.org/download/193793/1nupath.svg"
+    },
+    "openclipart-solar-system": {
+      "bytes": 2023162,
+      "content_type": "image/svg+xml",
+      "dest": "vector/openclipart-solar-system.svg",
+      "fetched_at": "2026-06-22T19:35:17Z",
+      "http_status": 200,
+      "license": "CC0-1.0",
+      "sha256": "d59f8bd88f8a7112138958c9d40593fd777842a66083e9f8d32d18e23b7c2684",
+      "source": "Openclipart",
+      "url": "https://openclipart.org/download/271605/solar-system.svg"
+    },
+    "wikimedia-flag-us": {
+      "bytes": 823,
+      "content_type": "image/svg+xml",
+      "dest": "vector/wikimedia-flag-us.svg",
+      "fetched_at": "2026-06-22T19:35:19Z",
+      "http_status": 200,
+      "license": "PD",
+      "sha256": "48f0d3e4a7bf2d5c0c8d09cd975696acb2f3af601aaca80c537933ad9ec166ec",
+      "source": "Wikimedia Commons",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg"
+    },
+    "wikimedia-nasa-logo": {
+      "bytes": 6592,
+      "content_type": "image/svg+xml",
+      "dest": "vector/wikimedia-nasa-logo.svg",
+      "fetched_at": "2026-06-22T19:35:21Z",
+      "http_status": 200,
+      "license": "PD-USGov",
+      "sha256": "e03e455100c083590c507df7870c3887a9f2298388cf6f421b6d72bc7eae9008",
+      "source": "Wikimedia Commons",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg"
+    }
+  },
+  "generated_at": "2026-06-22T19:35:31Z"
+}

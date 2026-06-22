@@ -1,0 +1,111 @@
+# FrameGraph expressiveness corpus — source manifest (public-domain only).
+#
+# Every entry is genuinely public domain (CC0, expired copyright, or a U.S.
+# federal-government work under 17 U.S.C. §105), so the downloaded files can be
+# archived in this repository with no attribution or no-derivatives strings.
+#
+# This is the INPUT to tooling/fetch_corpus.py. The script downloads each `url`
+# to `fixtures/corpus/<dest>`, records a sha256 + metadata in lockfile.json, and
+# regenerates PROVENANCE.md. Add entries here; do not hand-edit the generated
+# files. Re-run `python tooling/fetch_corpus.py` to (idempotently) sync.
+#
+# license codes:
+#   CC0-1.0     Creative Commons Zero 1.0 public-domain dedication
+#   PD-USGov    U.S. federal government work (public domain, 17 U.S.C. §105)
+#   PD          public domain (expired copyright / dedicated)
+#
+# Each entry: id, url, dest, tier, format, license, license_url, source, title.
+# `expect` (optional) is a substring the response content-type must contain;
+# a mismatch is recorded as a WARN (catches bot-challenge HTML served as 200).
+
+entries:
+  # ---- Tier 1: vector & layered (the HD / vectorizable / layered core) ----
+  - id: openclipart-solar-system
+    url: https://openclipart.org/download/271605/solar-system.svg
+    dest: vector/openclipart-solar-system.svg
+    tier: vector
+    format: svg
+    license: CC0-1.0
+    license_url: https://creativecommons.org/publicdomain/zero/1.0/
+    source: Openclipart
+    title: Solar system (radial gradients, nested groups)
+    expect: svg
+
+  - id: openclipart-map-pin
+    url: https://openclipart.org/download/210391/Map-Pin.svg
+    dest: vector/openclipart-map-pin.svg
+    tier: vector
+    format: svg
+    license: CC0-1.0
+    license_url: https://creativecommons.org/publicdomain/zero/1.0/
+    source: Openclipart
+    title: Map pin (detailed paths, gradients, filters)
+    expect: svg
+
+  - id: openclipart-nupath
+    url: https://openclipart.org/download/193793/1nupath.svg
+    dest: vector/openclipart-nupath.svg
+    tier: vector
+    format: svg
+    license: CC0-1.0
+    license_url: https://creativecommons.org/publicdomain/zero/1.0/
+    source: Openclipart
+    title: Molecular path figure (complex path data)
+    expect: svg
+
+  - id: wikimedia-flag-us
+    url: https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg
+    dest: vector/wikimedia-flag-us.svg
+    tier: vector
+    format: svg
+    license: PD
+    license_url: https://commons.wikimedia.org/wiki/File:Flag_of_the_United_States.svg
+    source: Wikimedia Commons
+    title: Flag of the United States (precise geometry, tiled stars)
+    expect: svg
+
+  - id: wikimedia-nasa-logo
+    url: https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg
+    dest: vector/wikimedia-nasa-logo.svg
+    tier: vector
+    format: svg
+    license: PD-USGov
+    license_url: https://commons.wikimedia.org/wiki/File:NASA_logo.svg
+    source: Wikimedia Commons
+    title: NASA insignia (curves, clipped text-as-path)
+    expect: svg
+
+  # ---- Tier 2: paged documents (HD documents) ----
+  - id: nasa-gao-reporting-2021
+    url: https://www.nasa.gov/wp-content/uploads/2021/04/fy_2021_required_reporting_under_gaog.pdf
+    dest: documents/nasa-fy2021-gao-reporting.pdf
+    tier: documents
+    format: pdf
+    license: PD-USGov
+    license_url: https://guides.lib.utexas.edu/pd/fedgov
+    source: NASA
+    title: NASA FY2021 GAO reporting (multi-page, tables, headers)
+    expect: pdf
+
+  # ---- Tier 3: long-form flow & HTML+CSS typography ----
+  - id: gutenberg-pride-prejudice-txt
+    url: https://www.gutenberg.org/cache/epub/1342/pg1342.txt
+    dest: flow/gutenberg-pride-and-prejudice.txt
+    tier: flow
+    format: txt
+    license: PD
+    license_url: https://www.gutenberg.org/policy/permission.html
+    source: Project Gutenberg
+    title: "Pride and Prejudice — plain text (long-form flow)"
+    expect: text
+
+  - id: gutenberg-pride-prejudice-html
+    url: https://www.gutenberg.org/cache/epub/1342/pg1342-images.html
+    dest: html/gutenberg-pride-and-prejudice.html
+    tier: html
+    format: html
+    license: PD
+    license_url: https://www.gutenberg.org/policy/permission.html
+    source: Project Gutenberg
+    title: "Pride and Prejudice — HTML+CSS edition (typography, flow)"
+    expect: html
