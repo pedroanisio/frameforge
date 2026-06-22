@@ -81,8 +81,8 @@ different thing from the controls themselves.
 | 1 | Automatic *graph* layout for diagrams | **High** | Missing capability |
 | 2 | Accessibility / tagged-export model | **High** | Vocabulary done → tagged export remains |
 | 4 | Conformance suite + reference-renderer semantics | **High** | Missing capability |
-| 3 | Data layer for charts | **Medium** | Scope decision |
-| 5 | Print color management (ICC / CMYK) | **Medium** | Scope decision |
+| 3 | Data layer for charts | **Medium** | Scope decision → out of scope (provisional) |
+| 5 | Print color management (ICC / CMYK) | **Medium** | Scope decision → deferred (provisional) |
 | 7 | Geometry / transformed spaces / 3D authoring SDK | **Medium** | Additive capability |
 | 6 | Interaction / animation for presented decks | **Low** | Conditional on goal |
 
@@ -92,6 +92,42 @@ different thing from the controls themselves.
 > additive and renderer-neutral — high leverage for diagram, engineering, and math
 > figures, but lower-risk and lower-priority than the foundational gaps because it
 > emits only primitives the grammar already has.
+
+## Implementation sequence (recommended)
+
+Recommended *ordering* — sequence logic, **not** dates or commitments (see the
+front-matter disclaimer). It departs from the "net ordering" above on purpose:
+item 2's vocabulary already landed (commit bc90f15), so it is cheap to finish and
+moves up; item 4 is an **enabler** that should precede the high-risk item-1 work,
+so it moves ahead of item 1.
+
+0. **Scope decisions — DECIDED (provisional, 2026-06-22).** Recorded so nothing
+   downstream waits on them: item 3 (chart data layer) → **out of scope** (embed
+   compiled Vega-Lite as a figure object); item 5 (print color) → **deferred**
+   behind an optional target-level ICC / output-intent hook (no CMYK separation
+   now). Both revisitable. *Effort: S.*
+1. **Item 2 — accessibility export.** Fields exist; only the consumer is missing.
+   Deliver SVG a11y (`<title>`/`<desc>`, `role`, `aria-*`, DOM order from
+   `reading_order`, `decorative` → `aria-hidden`) against the existing proxy first;
+   full PDF/UA tagging follows once a PDF backend exists. *Effort: M → L.*
+2. **Item 4 — golden-render harness.** Pin the `b1/` fixtures to reference renders
+   with an explicit tolerance before the big feature, so item 1 is regression-safe.
+   *Effort: M. Enabler.*
+3. **Item 1 — diagram auto-layout.** The flagship capability, now under golden-test
+   protection: an ELK-backed layout tier for `mode: page` diagram groups keyed off
+   the semantic graph, with absolute positioning as the override. *Effort: XL;
+   depends on step 2.*
+4. **Item 7 — geometry / 3D authoring SDK.** Additive, renderer-neutral, emits
+   existing primitives; its one grammar change (G-1) is enforced by `grammar-check`.
+   Format-safe, so it can run **in parallel** with step 3. *Effort: L; parallelizable.*
+5. **Deferred / conditional.** Items 3 / 5 *implementation* only if a later decision
+   reverses step 0; item 6 (interaction / animation) only if live presentation
+   becomes a goal. *Lowest priority.*
+
+> **Cross-cutting dependency:** item 2's PDF/UA half and item 4's reference-renderer
+> semantics both presuppose a real renderer/exporter beyond today's SVG / matplotlib
+> proxies. If one does not exist, building it is an implicit prerequisite beneath
+> steps 1 (PDF), 2, and 3.
 
 ---
 
@@ -193,11 +229,12 @@ and composes views through a layer / concat / facet / repeat algebra that aligns
 scales and axes. The cost of FrameGraph's choice is real: no single source of
 truth from data to multiple views.
 
-**Decision / fix.** This may be a deliberate scope choice — a document format need
-not be a visualization grammar. If it stays out of scope, **say so explicitly**
-and lean on embedding compiled Vega-Lite output as a figure object. If not, add a
-minimal data + encoding block to the chart objects rather than reinventing the
-algebra.
+**Decision (provisional, 2026-06-22): out of scope.** A document format need not be
+a visualization grammar, and charts already sit outside the core profile, so this is
+consistent with the existing boundary rather than a new exclusion. Authors embed
+compiled Vega-Lite output as a figure object. Revisit only if first-class,
+data-driven charts become a product goal — at which point the additive fix is a
+minimal data + encoding block on the chart objects, not a reinvented algebra.
 
 ### 5. Print color management
 
@@ -208,8 +245,10 @@ omission.
 **Comparator.** PDF/X-style print workflows require unambiguous color through a
 specified ICC output intent or full color management, with fonts embedded.
 
-**Fix.** Add an optional output-intent / ICC reference at the target level so print
-targets can declare a profile; screen targets ignore it.
+**Decision (provisional, 2026-06-22): deferred behind a target-level hook.** Reserve
+an optional output-intent / ICC reference on `RenderTarget` so print targets can
+declare a profile and screen targets ignore it — but do not build CMYK separation
+now. The reservation keeps it additive when a print target becomes real.
 
 ### 7. Geometry, transformed spaces, and 3D authoring — additive SDK, not a format change
 
