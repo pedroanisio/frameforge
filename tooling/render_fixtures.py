@@ -725,7 +725,7 @@ class Renderer:
         if any(k in o for k in ("stroke", "stroke_style")):
             return self.stroke(o)
         border = style.get("border")
-        if isinstance(border, dict):
+        if isinstance(border, (dict, str)):
             return self._border_stroke(border)
         if any(k in style for k in ("stroke", "stroke_width", "stroke_dasharray", "stroke_linecap", "stroke_linejoin")):
             return self.stroke({"stroke": style.get("stroke"), "stroke_style": style})
@@ -837,6 +837,9 @@ class Renderer:
         )
 
     def _border_stroke(self, border):
+        border = self._border_dict(border)
+        if not border:
+            return ""
         if border.get("style") in ("none", "hidden"):
             return ""
         col = self.color(border.get("color")) or "#000"
@@ -845,6 +848,26 @@ class Renderer:
         if border.get("style") in ("dashed", "dotted"):
             dash = "4 4" if border.get("style") == "dashed" else "1 3"
             out += f' stroke-dasharray="{dash}"'
+        return out
+
+    @staticmethod
+    def _border_dict(border):
+        if isinstance(border, dict):
+            return border
+        if not isinstance(border, str):
+            return {}
+        styles = {"none", "hidden", "solid", "dashed", "dotted", "double", "groove", "ridge", "inset", "outset"}
+        out = {}
+        colors = []
+        for part in border.split():
+            if part in styles:
+                out["style"] = part
+            elif num(part, None) is not None:
+                out["width"] = part
+            else:
+                colors.append(part)
+        if colors:
+            out["color"] = " ".join(colors)
         return out
 
     def _image(self, o, box):

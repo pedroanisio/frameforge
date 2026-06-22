@@ -297,6 +297,22 @@ def test_rect_uses_style_fill_border_radius_and_opacity() -> None:
     assert ' stroke-dasharray="1 3"' in outline
 
 
+def test_border_shorthand_string_is_emitted() -> None:
+    svg = _svg_for(
+        [{
+            "type": "rect",
+            "box": [20, 20, 90, 45],
+            "fill": "panel",
+            "style": {"border": "3px dotted hairline"},
+        }],
+    )
+
+    rect = svg.split("<rect", 2)[2].split("/>", 1)[0]
+    assert ' stroke="#123456"' in rect
+    assert ' stroke-width="3"' in rect
+    assert ' stroke-dasharray="1 3"' in rect
+
+
 def test_box_side_borders_are_emitted() -> None:
     svg = _svg_for(
         [{
