@@ -27036,6 +27036,12 @@ ${exception.mark.snippet}`;
     const color = resolveColor(doc, border.color ?? border.stroke ?? "currentColor");
     return [width, style, color].filter(Boolean).join(" ");
   }
+  function cssTextDecoration(doc, value) {
+    if (!value || typeof value === "string") return value;
+    const line = Array.isArray(value.line) ? value.line.join(" ") : value.line;
+    const color = value.color ? resolveColor(doc, value.color) : void 0;
+    return [line, value.style, color, cssLength(value.thickness)].filter(Boolean).join(" ");
+  }
   function cssShadow(doc, shadow) {
     if (!shadow || shadow === "none") return shadow;
     const list = Array.isArray(shadow) ? shadow : [shadow];
@@ -27059,6 +27065,35 @@ ${exception.mark.snippet}`;
       const value = f.value ?? f.amount ?? "";
       return name ? `${name}(${value})` : "";
     }).filter(Boolean).join(" ");
+  }
+  function cssPoint(point) {
+    return Array.isArray(point) ? point.map(cssLength).join(" ") : point;
+  }
+  function cssClipPath(clip) {
+    if (!clip || typeof clip === "string") return clip;
+    const shape = clip.shape;
+    const args = clip.args || {};
+    if (shape === "inset") {
+      return `inset(${[args.top, args.right, args.bottom, args.left].map((v) => cssLength(v ?? 0)).join(" ")})`;
+    }
+    if (shape === "circle") {
+      const r = cssLength(args.radius ?? args.r ?? "50%");
+      const at = cssPoint(args.at ?? args.center);
+      return `circle(${[r, at ? `at ${at}` : ""].filter(Boolean).join(" ")})`;
+    }
+    if (shape === "ellipse") {
+      const rx = cssLength(args.rx ?? args.radius_x ?? "50%");
+      const ry = cssLength(args.ry ?? args.radius_y ?? "50%");
+      const at = cssPoint(args.at ?? args.center);
+      return `ellipse(${[`${rx} ${ry}`, at ? `at ${at}` : ""].filter(Boolean).join(" ")})`;
+    }
+    if (shape === "polygon" && Array.isArray(args.points)) {
+      return `polygon(${args.points.map(cssPoint).join(", ")})`;
+    }
+    if (shape === "path" && args.d) {
+      return `path("${String(args.d).replace(/"/g, '\\"')}")`;
+    }
+    return shape ? `${shape}()` : void 0;
   }
   function cssTransform(tx) {
     if (!tx || tx === "none") return tx;
@@ -27086,10 +27121,7 @@ ${exception.mark.snippet}`;
     if (st.transform_origin) css.transformOrigin = Array.isArray(st.transform_origin) ? st.transform_origin.map(cssLength).join(" ") : st.transform_origin;
     if (st.transform_box) css.transformBox = st.transform_box;
     if (st.perspective != null) css.perspective = cssLength(st.perspective);
-    if (st.clip_path) {
-      if (typeof st.clip_path === "string") css.clipPath = st.clip_path;
-      else if (st.clip_path.shape) css.clipPath = `${st.clip_path.shape}()`;
-    }
+    if (st.clip_path) css.clipPath = cssClipPath(st.clip_path);
     if (st.mask) css.mask = typeof st.mask === "string" ? st.mask : void 0;
     if (st.padding != null) css.padding = cssEdges(st.padding);
     if (st.margin != null) css.margin = cssEdges(st.margin);
@@ -27149,7 +27181,7 @@ ${exception.mark.snippet}`;
       if (st.letter_spacing != null) css.letterSpacing = cssLength(st.letter_spacing);
       if (st.word_spacing != null) css.wordSpacing = cssLength(st.word_spacing);
       if (st.text_transform) css.textTransform = st.text_transform;
-      if (st.text_decoration) css.textDecoration = st.text_decoration;
+      if (st.text_decoration) css.textDecoration = cssTextDecoration(doc, st.text_decoration);
       if (st.text_indent != null) css.textIndent = cssLength(st.text_indent);
       if (st.text_shadow) css.textShadow = cssShadow(doc, st.text_shadow);
       if (st.font_variant_caps) css.fontVariantCaps = st.font_variant_caps;
