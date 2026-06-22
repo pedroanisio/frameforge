@@ -128,6 +128,36 @@ def test_font_variant_numeric_tabular_nums_maps_to_fontspec_feature():
     assert "{0123456789}" in tex
 
 
+def test_font_variant_ligatures_none_maps_to_fontspec_feature():
+    tex = _fig({"label": {"font_variant_ligatures": "none"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "office",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{Ligatures=NoCommon}" in tex
+    assert "{office}" in tex
+
+
+def test_font_kerning_maps_to_fontspec_feature():
+    disabled = _fig({"label": {"font_kerning": "none"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "AV",
+        "style": "label",
+    })
+    enabled = _fig({"label": {"font_kerning": "normal"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "AV",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{Kerning=Off}" in disabled
+    assert "\\addfontfeatures{Kerning=On}" in enabled
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",

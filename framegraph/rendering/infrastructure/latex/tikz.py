@@ -923,6 +923,13 @@ class FigureTikz:
             font += "\\scshape"
         if st.get("font_variant_numeric") == "tabular-nums":
             font += "\\addfontfeatures{Numbers=Monospaced}"
+        if st.get("font_variant_ligatures") == "none":
+            font += "\\addfontfeatures{Ligatures=NoCommon}"
+        kerning = st.get("font_kerning")
+        if kerning == "none":
+            font += "\\addfontfeatures{Kerning=Off}"
+        elif kerning == "normal":
+            font += "\\addfontfeatures{Kerning=On}"
         return font
 
     def _text_opts(self, st, anchor, width, align):
