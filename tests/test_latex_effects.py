@@ -58,3 +58,42 @@ def test_style_box_shadow_maps_to_latex_shadow_shape():
     })
     assert "(1,2) rectangle (21,12)" in tex
     assert "fill opacity=0.25" in tex
+
+
+def test_text_shadow_draws_offset_text_before_source_text():
+    tex = _fig({"ink": "#111111", "shade": "#123456"}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "Shadow",
+        "style": {
+            "font_size": 16,
+            "color": "ink",
+            "text_shadow": [{"offset_x": 2, "offset_y": 3, "blur": 4, "color": "shade"}],
+        },
+    })
+
+    shadow = "at (12,38) {Shadow}"
+    source = "at (10,35) {Shadow}"
+    assert tex.index(shadow) < tex.index(source)
+    assert "text={rgb,255:red,18;green,52;blue,86}" in tex
+    assert "text opacity=0.45" in tex
+    assert "text={rgb,255:red,17;green,17;blue,17}" in tex
+
+
+def test_text_shadow_applies_to_text_spans():
+    tex = _fig({"shade": "#123456"}).render({
+        "type": "text",
+        "box": [0, 0, 120, 20],
+        "spans": [
+            {
+                "text": "Run",
+                "style": {
+                    "font_size": 10,
+                    "text_shadow": [{"offset_x": 1, "offset_y": 2, "color": "shade"}],
+                },
+            },
+        ],
+    })
+
+    assert tex.index("at (1,12) {Run}") < tex.index("at (0,10) {Run}")
+    assert "text={rgb,255:red,18;green,52;blue,86}" in tex

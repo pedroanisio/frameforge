@@ -676,6 +676,47 @@ class FigureTikz:
             opts.append(f"text={cexpr}")
         return opts
 
+    @staticmethod
+    def _text_shadow_specs(st):
+        value = st.get("text_shadow") if isinstance(st, dict) else None
+        if not value:
+            return []
+        specs = []
+        for raw in str(value).split(","):
+            parts = raw.strip().split()
+            if len(parts) < 2:
+                continue
+            dx, dy = num(parts[0], None), num(parts[1], None)
+            if dx is None or dy is None:
+                continue
+            blur = num(parts[2], 0) if len(parts) >= 3 else 0
+            color = parts[3] if len(parts) >= 4 else "#000000"
+            expr, op = color_expr(color)
+            if expr:
+                specs.append({"dx": dx, "dy": dy, "blur": blur or 0, "expr": expr, "opacity": op})
+        return specs
+
+    def _text_node(self, st, anchor, width, align, x, y, content):
+        opts = self._text_opts(st, anchor, width, align)
+        return f"\\node[{','.join(opts)}] at ({fnum(x)},{fnum(y)}) {{{ltx_escape(content)}}};\n"
+
+    def _text_shadow_nodes(self, st, anchor, width, align, x, y, content):
+        out = []
+        for spec in self._text_shadow_specs(st):
+            shadow_st = dict(st)
+            shadow_st["color"] = spec["expr"]
+            opts = self._text_opts(shadow_st, anchor, width, align)
+            opacity = spec.get("opacity")
+            if opacity is None:
+                opacity = 0.45 if spec.get("blur") else None
+            if opacity is not None:
+                opts.append(f"text opacity={fnum(opacity)}")
+            out.append(
+                f"\\node[{','.join(opts)}] at "
+                f"({fnum(x + spec['dx'])},{fnum(y + spec['dy'])}) {{{ltx_escape(content)}}};\n"
+            )
+        return "".join(out)
+
     def _draw_text_spans(self, o, x, y, w, h, base_st, anchor, align):
         spans = [sp for sp in (o.get("spans") or []) if isinstance(sp, (str, dict))]
         if not spans:
@@ -700,8 +741,8 @@ class FigureTikz:
             else:
                 node_x = cursor
                 cursor += run_w
-            opts = self._text_opts(st, "west", run_w, "flush left")
-            out.append(f"\\node[{','.join(opts)}] at ({fnum(node_x)},{fnum(ay)}) {{{ltx_escape(text)}}};\n")
+            out.append(self._text_shadow_nodes(st, "west", run_w, "flush left", node_x, ay, text))
+            out.append(self._text_node(st, "west", run_w, "flush left", node_x, ay, text))
         return "".join(out)
 
     def _draw_text(self, o) -> str:
@@ -728,8 +769,10 @@ class FigureTikz:
             span_body = self._draw_text_spans(o, x, y, w, h, st, anchor, talign)
             if span_body:
                 return span_body
-        opts = self._text_opts(st, anchor, w, talign)
-        return f"\\node[{','.join(opts)}] at ({fnum(ax)},{fnum(ay)}) {{{ltx_escape(content)}}};\n"
+        return (
+            self._text_shadow_nodes(st, anchor, w, talign, ax, ay, content)
+            + self._text_node(st, anchor, w, talign, ax, ay, content)
+        )
 
     def _draw_icon(self, o) -> str:
         box = o.get("box")
