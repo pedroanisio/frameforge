@@ -1,0 +1,26 @@
+{
+  "name": "framegraph-viewer",
+  "version": "2.2.0",
+  "private": true,
+  "description": "A React app that renders FrameGraph v2 documents — a coordinate-space scene-graph DSL for decks, diagrams, books, and letters. Ships with the esfera style-guide deck embedded as the live demo.",
+  "license": "ISC",
+  "main": "framegraph-viewer.jsx",
+  "scripts": {
+    "build": "esbuild dev/entry.jsx --bundle --format=iife --jsx=automatic --loader:.jsx=jsx --outfile=dev/bundle.js",
+    "watch": "npm run build -- --watch",
+    "start": "esbuild dev/entry.jsx --bundle --format=iife --jsx=automatic --loader:.jsx=jsx --outfile=dev/bundle.js --servedir=dev --serve=127.0.0.1:8000",
+    "verify": "cd dev && node shot.cjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "lucide-react": "^0.383.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "playwright": "^1.49.0"
+  }
+}

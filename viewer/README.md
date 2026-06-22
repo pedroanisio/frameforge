@@ -20,13 +20,12 @@ framegraph-viewer/
 │   ├── esfera.json           The demo deck the app renders (canonical, what ships embedded).
 │   ├── esfera.yml            Same deck as YAML (regenerated from the JSON — see note below).
 │   └── (schema)              See "The schema" section; not redistributed in this bundle.
+├── package.json              Project manifest (deps + build/start/verify scripts).
 ├── dev/                      Local build + headless-verification harness.
-│   ├── entry.jsx             Mounts <App/> into #root.
+│   ├── entry.jsx             Mounts <App/> into #root (imports ../framegraph-viewer.jsx).
 │   ├── harness.html          Loads Tailwind (CDN) + bundle.js. Open to view without building.
 │   ├── bundle.js             Pre-built IIFE bundle (so harness.html works out of the box).
-│   ├── shot.cjs              Playwright script that screenshots representative slides.
-│   ├── package.json
-│   └── package-lock.json
+│   └── shot.cjs              Playwright script that screenshots representative slides.
 └── verification/             Headless-Chromium screenshots used to QA the render output.
     ├── shot_slide01.png            cover
     ├── shot_slide05_palette.png    palette (dark bg + color swatches)
@@ -51,21 +50,19 @@ Tailwind **core utilities only** (custom colors via inline styles), no browser s
 
 ### Option C — rebuild the bundle yourself
 ```bash
-cd dev
-npm install
-cp ../framegraph-viewer.jsx App.jsx     # entry.jsx imports ./App.jsx
-./node_modules/.bin/esbuild entry.jsx \
-  --bundle --format=iife --jsx=automatic \
-  --loader:.jsx=jsx --outfile=bundle.js
-# then open harness.html
+npm install            # run once, from this viewer/ folder
+npm run build          # bundles dev/entry.jsx -> dev/bundle.js, then open dev/harness.html
+```
+For a live dev server with rebuild-on-reload:
+```bash
+npm start              # serves dev/ at http://127.0.0.1:8000/harness.html
 ```
 
 ### Re-run visual verification
 ```bash
-cd dev
 npm install
 npx playwright install chromium
-node shot.cjs          # writes shot_*.png next to the script
+npm run verify         # runs dev/shot.cjs; writes shot_*.png into dev/
 ```
 
 ---
