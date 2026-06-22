@@ -36,13 +36,15 @@ class SvgPainter:
     def __init__(self, color_resolver):
         self._color = color_resolver
         self._gid = 0
-        self._defs = []          # per-page <defs> entries (gradients, clip paths, markers)
+        self._defs = []          # per-page <defs> entries (gradients, clip paths, markers, filters)
         self._markers: dict[tuple[str, str], str] = {}   # (kind, colour) -> marker id
+        self._filters: dict[tuple, str] = {}             # effect signature -> filter id
 
     # ---- per-page backend state ------------------------------------------- #
     def new_page(self):
         self._defs = []
         self._markers = {}
+        self._filters = {}
 
     # ---- small attribute / style helpers ---------------------------------- #
     @staticmethod
@@ -152,6 +154,54 @@ class SvgPainter:
                 f'markerHeight="{fnum(mh)}" refX="{fnum(refx)}" refY="{fnum(refy)}" '
                 f'orient="auto-start-reverse" markerUnits="userSpaceOnUse">'
                 f'<path d="{d}" {paint}/></marker>')
+
+    def filter_effect(self, kind: str, params: dict) -> str:
+        """Register a shadow/glow `<filter>` for params; return its id (deduped).
+
+        Additive — only called for objects that declare `shadow`/`glow`."""
+        color = params.get("color") or ("#000000" if kind == "shadow" else "#FFD700")
+        blur = fnum(num(params.get("blur"), 4))
+        opacity = fnum(num(params.get("opacity"), 0.14 if kind == "shadow" else 0.55))
+        if kind == "shadow":
+            dx = fnum(num(params.get("dx"), 0))
+            dy = fnum(num(params.get("dy"), 2))
+            key = ("shadow", dx, dy, blur, color, opacity)
+        else:
+            key = ("glow", blur, color, opacity)
+        fid = self._filters.get(key)
+        if fid is not None:
+            return fid
+        fid = f"fx{len(self._filters) + 1}"
+        self._filters[key] = fid
+        self._defs.append(self._filter_def(fid, kind, params))
+        return fid
+
+    def filter_wrap(self, inner: str, filter_id: str) -> str:
+        return f'<g filter="url(#{filter_id})">{inner}</g>'
+
+    @staticmethod
+    def _filter_def(fid: str, kind: str, p: dict) -> str:
+        color = p.get("color") or ("#000000" if kind == "shadow" else "#FFD700")
+        blur = fnum(num(p.get("blur"), 4))
+        if kind == "shadow":
+            dx = fnum(num(p.get("dx"), 0))
+            dy = fnum(num(p.get("dy"), 2))
+            opacity = fnum(num(p.get("opacity"), 0.14))
+            # Region padded so the offset blur is not clipped at the edges.
+            return (f'<filter id="{esc(fid)}" x="-20%" y="-20%" width="140%" height="140%">'
+                    f'<feGaussianBlur in="SourceAlpha" stdDeviation="{blur}"/>'
+                    f'<feOffset dx="{dx}" dy="{dy}" result="off"/>'
+                    f'<feFlood flood-color="{esc(color)}" flood-opacity="{opacity}"/>'
+                    f'<feComposite in2="off" operator="in" result="shadow"/>'
+                    f'<feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>'
+                    f'</filter>')
+        opacity = fnum(num(p.get("opacity"), 0.55))
+        return (f'<filter id="{esc(fid)}" x="-50%" y="-50%" width="200%" height="200%">'
+                f'<feGaussianBlur in="SourceAlpha" stdDeviation="{blur}"/>'
+                f'<feFlood flood-color="{esc(color)}" flood-opacity="{opacity}"/>'
+                f'<feComposite in2="SourceAlpha" operator="in" result="glow"/>'
+                f'<feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>'
+                f'</filter>')
 
     # ---- primitives ------------------------------------------------------- #
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None):

@@ -205,7 +205,7 @@ def test_table_style_surface_is_emitted() -> None:
             "box": [10, 10, 160, 80],
             "columns": [{"width": 90, "align": "left"}, {"width": 70, "align": "right"}],
             "header": ["Metric", "Value"],
-            "rows": [["Coverage", "19"], ["Pages", "229"]],
+            "rows": [["Coverage", "20"], ["Pages", "230"]],
             "cell_padding": 6,
             "stroke_style": {"color": "hairline", "width": 2},
             "style": {
@@ -241,4 +241,56 @@ def test_table_style_surface_is_emitted() -> None:
     assert "fill:#202020" in svg
     assert 'x="164" y="76.667" text-anchor="end"' in svg
     assert "Coverage" in svg
-    assert "229" in svg
+    assert "230" in svg
+
+
+def test_shadow_and_glow_effect_filters_are_emitted() -> None:
+    svg = _svg_for(
+        [
+            {
+                "type": "rect",
+                "box": [10, 10, 60, 35],
+                "fill": "panel",
+                "shadow": {"color": "hairline", "blur": 6, "dx": 2, "dy": 3, "opacity": 0.3},
+            },
+            {
+                "type": "ellipse",
+                "center": [120, 30],
+                "rx": 28,
+                "ry": 18,
+                "fill": "brand",
+                "glow": True,
+            },
+            {
+                "type": "circle",
+                "center": [175, 30],
+                "r": 16,
+                "fill": "brand",
+                "shadow": "small",
+                "glow": {"color": "brand", "blur": 5, "opacity": 0.5},
+            },
+        ],
+        {
+            "tokens": {
+                "colors": {
+                    "panel": "#ffeecc",
+                    "hairline": "#123456",
+                    "brand": "#005c46",
+                },
+            },
+        },
+    )
+
+    assert '<filter id="fx1"' in svg
+    assert '<filter id="fx2"' in svg
+    assert '<filter id="fx3"' in svg
+    assert '<filter id="fx4"' in svg
+    assert 'filter="url(#fx1)"' in svg
+    assert 'filter="url(#fx2)"' in svg
+    assert 'filter="url(#fx3)"' in svg
+    assert 'filter="url(#fx4)"' in svg
+    assert 'stdDeviation="6"' in svg
+    assert 'dx="2" dy="3"' in svg
+    assert 'flood-color="#123456" flood-opacity="0.3"' in svg
+    assert 'flood-color="#FFD700" flood-opacity="0.55"' in svg
+    assert 'flood-color="#005c46" flood-opacity="0.5"' in svg

@@ -43,7 +43,7 @@ const doc = {
       box: [40, 40, 320, 150],
       columns: [{ width: 140, align: "left" }, { width: 90, align: "right" }],
       header: ["Metric", "Value"],
-      rows: [["Coverage", "19"], ["Pages", "229"]],
+      rows: [["Coverage", "20"], ["Pages", "230"]],
       cell_padding: 4,
       stroke_style: { color: "hairline", width: 2 },
       style: {

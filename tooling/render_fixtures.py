@@ -56,6 +56,9 @@ from framegraph.rendering.domain.services.canvas_resolver import (  # noqa: E402
 from framegraph.rendering.domain.services.paint_resolver import (  # noqa: E402
     ColorResolver,
 )
+from framegraph.rendering.domain.services.effect_resolver import (  # noqa: E402
+    EffectResolver,
+)
 from framegraph.rendering.domain.services.stroke_resolver import (  # noqa: E402
     StrokeResolver,
 )
@@ -106,6 +109,7 @@ class Renderer:
         self._text_style = TextStyleResolver(self.text_styles, self.styles, self._color)
         self._canvas = CanvasResolver(self.masters)
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)
+        self._effect = EffectResolver(self._color)
 
     # ---- colour / paint ---------------------------------------------------- #
     def color(self, c, depth=0):
@@ -283,6 +287,8 @@ class Renderer:
             return ""
         try:
             inner = self._obj(o)
+            if inner:
+                inner = self._with_effects(o, inner)
             opacity = o.get("opacity")
             if inner and opacity not in (None, 1):
                 return self._painter.opacity_group(inner, num(opacity, 1))
@@ -290,6 +296,18 @@ class Renderer:
         except Exception:                              # never let one object kill a page
             self.skipped += 1
             return ""
+
+    def _with_effects(self, o, svg):
+        """Wrap an object's SVG in shadow/glow filter group(s) if it declares them.
+
+        Additive: emits nothing unless `shadow`/`glow` is present, so effect-free
+        fixtures are byte-identical. shadow and glow are independent v2 fields;
+        when both are set, both apply (glow inner, shadow outer)."""
+        for kind in ("glow", "shadow"):
+            params = self._effect.resolve(o.get(kind), kind)
+            if params is not None:
+                svg = self._painter.filter_wrap(svg, self._painter.filter_effect(kind, params))
+        return svg
 
     def _obj(self, o):
         p = self._painter

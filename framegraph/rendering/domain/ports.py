@@ -40,6 +40,12 @@ class ScenePainter(Protocol):
     def marker(self, color: str, kind: str = "filled_triangle") -> str:
         """Register an arrowhead marker for (kind, colour); return its id."""
 
+    def filter_effect(self, kind: str, params: dict) -> str:
+        """Register a shadow/glow filter for params; return its id."""
+
+    def filter_wrap(self, inner: str, filter_id: str) -> str:
+        """Wrap already-emitted content in the given filter."""
+
     # ---- primitives ----
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None) -> str: ...
     def ellipse(self, cx, cy, rx, ry, fill, stroke, fill_opacity=None) -> str: ...

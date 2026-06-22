@@ -118,7 +118,7 @@ for (const { file, doc } of docs) {
   }
 }
 
-if (docs.length !== 19) failures.push(`expected 19 FrameGraph fixture docs, found ${docs.length}`);
+if (docs.length !== 20) failures.push(`expected 20 FrameGraph fixture docs, found ${docs.length}`);
 
 if (failures.length) {
   console.error(failures.join("\n"));
