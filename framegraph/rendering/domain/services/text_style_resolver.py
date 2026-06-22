@@ -79,8 +79,17 @@ class TextStyleResolver:
             "font_variant": merged.get("font_variant"),
             "font_variant_caps": merged.get("font_variant_caps"),
             "font_variant_numeric": merged.get("font_variant_numeric"),
+            "font_variant_ligatures": merged.get("font_variant_ligatures"),
+            "font_feature_settings": merged.get("font_feature_settings"),
+            "font_variation_settings": merged.get("font_variation_settings"),
             "font_kerning": merged.get("font_kerning"),
             "font_stretch": merged.get("font_stretch"),
+            "text_align_last": merged.get("text_align_last"),
+            "text_indent": self._css_length(merged.get("text_indent")),
+            "hanging_punctuation": merged.get("hanging_punctuation"),
+            "hyphenate_character": merged.get("hyphenate_character"),
+            "hyphenate_limit_chars": self._hyphenate_limit_chars(merged.get("hyphenate_limit_chars")),
+            "tab_size": self._css_length(merged.get("tab_size")),
             "writing_mode": merged.get("writing_mode"),
             "direction": merged.get("direction"),
             "unicode_bidi": merged.get("unicode_bidi"),
@@ -120,6 +129,14 @@ class TextStyleResolver:
         if thickness:
             parts.append(thickness)
         return " ".join(parts) if parts else None
+
+    @staticmethod
+    def _hyphenate_limit_chars(value):
+        if not isinstance(value, list) or len(value) != 3:
+            return None
+        if not all(isinstance(v, int) and not isinstance(v, bool) for v in value):
+            return None
+        return " ".join(str(v) for v in value)
 
     def _text_shadow(self, value):
         if value is None or value == "none":

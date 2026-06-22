@@ -198,8 +198,18 @@ def test_text_style_css_surface_is_emitted() -> None:
                 "word_break": "break-word",
                 "overflow_wrap": "anywhere",
                 "hyphens": "auto",
+                "hanging_punctuation": "allow-end",
+                "hyphenate_character": "-",
+                "hyphenate_limit_chars": [6, 3, 2],
+                "tab_size": 4,
                 "font_variant_caps": "small-caps",
+                "font_variant_numeric": "tabular-nums",
+                "font_variant_ligatures": "none",
+                "font_feature_settings": '"kern" 1',
+                "font_variation_settings": '"wght" 650',
                 "font_kerning": "normal",
+                "text_align_last": "center",
+                "text_indent": "12px",
                 "writing_mode": "horizontal-tb",
                 "direction": "ltr",
                 "unicode_bidi": "isolate",
@@ -227,8 +237,18 @@ def test_text_style_css_surface_is_emitted() -> None:
     assert "word-break:break-word" in text
     assert "overflow-wrap:anywhere" in text
     assert "hyphens:auto" in text
+    assert "hanging-punctuation:allow-end" in text
+    assert "hyphenate-character:-" in text
+    assert "hyphenate-limit-chars:6 3 2" in text
+    assert "tab-size:4px" in text
     assert "font-variant-caps:small-caps" in text
+    assert "font-variant-numeric:tabular-nums" in text
+    assert "font-variant-ligatures:none" in text
+    assert "font-feature-settings:&quot;kern&quot; 1" in text
+    assert "font-variation-settings:&quot;wght&quot; 650" in text
     assert "font-kerning:normal" in text
+    assert "text-align-last:center" in text
+    assert "text-indent:12px" in text
     assert "writing-mode:horizontal-tb" in text
     assert "direction:ltr" in text
     assert "unicode-bidi:isolate" in text
