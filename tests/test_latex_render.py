@@ -300,6 +300,58 @@ def test_transpile_page_mode_emits_full_page_tikz():
     assert "Page text" in tex
 
 
+def test_transpile_page_mode_text_spans_keep_run_styles():
+    doc = {
+        "dsl": "FrameGraph",
+        "version": "2.2.0",
+        "defs": {
+            "tokens": {
+                "colors": {"ink": "#111111", "muted": "#777777"},
+                "fonts": {
+                    "brand": {"family": "Source Serif 4"},
+                    "label": {"family": "Inter"},
+                },
+                "text_styles": {
+                    "base": {"font": "brand", "size": 16, "color": "ink"},
+                    "label": {"font": "label", "size": 13, "weight": 700, "color": "muted"},
+                    "emph": {"font": "brand", "size": 16, "italic": True, "color": "ink"},
+                },
+            }
+        },
+        "pages": [
+            {
+                "mode": "page",
+                "id": "p",
+                "canvas": {"size": [300, 120]},
+                "layers": [
+                    {
+                        "objects": [
+                            {
+                                "type": "text",
+                                "box": [20, 40, 260, 22],
+                                "style": "base",
+                                "spans": [
+                                    {"text": "Label ", "style": "label"},
+                                    {"text": "styled value", "style": "emph"},
+                                ],
+                            }
+                        ]
+                    }
+                ],
+            }
+        ],
+    }
+
+    tex = transpile(doc)
+
+    assert r"\IfFontExistsTF{Source Serif 4}{\newfontfamily\fgffa{Source Serif 4}}{\newcommand\fgffa{}}" in tex
+    assert r"\IfFontExistsTF{Inter}{\newfontfamily\fgffb{Inter}}{\newcommand\fgffb{}}" in tex
+    assert r"font=\fgffb\fontsize{13}{14.56}\selectfont\bfseries" in tex
+    assert r"font=\fgffa\fontsize{16}{17.92}\selectfont\itshape" in tex
+    assert "{Label }" in tex
+    assert "{styled value}" in tex
+
+
 def test_render_latex_cli_lists_framegraph_docs(tmp_path, capsys):
     flow = tmp_path / "flow.fg.yaml"
     page = tmp_path / "page.fg.yaml"

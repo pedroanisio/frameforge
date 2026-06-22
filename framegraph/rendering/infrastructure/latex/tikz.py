@@ -73,11 +73,12 @@ def color_expr(resolved):
 
 
 class FigureTikz:
-    def __init__(self, color_resolver, text_style_resolver, stroke_styles=None, asset_path=None):
+    def __init__(self, color_resolver, text_style_resolver, stroke_styles=None, asset_path=None, font_macro=None):
         self._color = color_resolver
         self._ts = text_style_resolver
         self._stroke_styles = stroke_styles or {}
         self._asset_path = asset_path
+        self._font_macro = font_macro
         self.skipped = 0
 
     # -- entry ------------------------------------------------------------- #
@@ -361,6 +362,57 @@ class FigureTikz:
         return " ".join(out)
 
     # -- text -------------------------------------------------------------- #
+    def _font(self, st):
+        size = st.get("size", 12) or 12
+        macro = self._font_macro(st.get("family")) if self._font_macro else ""
+        font = macro + f"\\fontsize{{{fnum(size)}}}{{{fnum(size * 1.12)}}}\\selectfont"
+        if st.get("bold"):
+            font += "\\bfseries"
+        if st.get("italic"):
+            font += "\\itshape"
+        return font
+
+    def _text_opts(self, st, anchor, width, align):
+        opts = [
+            f"anchor={anchor}",
+            "inner sep=0pt",
+            f"text width={fnum(max(width, 1))}pt",
+            f"align={align}",
+            f"font={self._font(st)}",
+        ]
+        cexpr, _ = color_expr(st.get("color"))
+        if cexpr:
+            opts.append(f"text={cexpr}")
+        return opts
+
+    def _draw_text_spans(self, o, x, y, w, h, base_st, anchor, align):
+        spans = [sp for sp in (o.get("spans") or []) if isinstance(sp, (str, dict))]
+        if not spans:
+            return ""
+        start_x = x + w / 2 if anchor == "center" else x + w if anchor == "east" else x
+        cursor = start_x
+        ay = y + h / 2
+        out = []
+        for sp in spans:
+            text = sp if isinstance(sp, str) else sp.get("text", "")
+            if text is None or text == "":
+                continue
+            st = self._ts.resolve(sp.get("style")) if isinstance(sp, dict) and sp.get("style") else base_st
+            run_w = max(len(str(text)) * (st.get("size", 12) or 12) * (st.get("avg", 0.52) or 0.52), 1)
+            if anchor == "center":
+                # Multi-run centered text is placed from the left edge so run order
+                # remains readable; exact centering requires real shaping metrics.
+                node_x = x + (cursor - start_x)
+            elif anchor == "east":
+                node_x = cursor - run_w
+                cursor -= run_w
+            else:
+                node_x = cursor
+                cursor += run_w
+            opts = self._text_opts(st, "west", run_w, "flush left")
+            out.append(f"\\node[{','.join(opts)}] at ({fnum(node_x)},{fnum(ay)}) {{{ltx_escape(text)}}};\n")
+        return "".join(out)
+
     def _draw_text(self, o) -> str:
         box = o.get("box")
         if not (isinstance(box, list) and len(box) >= 4):
@@ -381,17 +433,11 @@ class FigureTikz:
         else:
             ax, anchor, talign = x, "west", "flush left"
         ay = y + h / 2
-        size = st.get("size", 12) or 12
-        font = f"\\fontsize{{{fnum(size)}}}{{{fnum(size * 1.12)}}}\\selectfont"
-        if st.get("bold"):
-            font += "\\bfseries"
-        if st.get("italic"):
-            font += "\\itshape"
-        opts = [f"anchor={anchor}", "inner sep=0pt", f"text width={fnum(max(w, 1))}pt",
-                f"align={talign}", f"font={font}"]
-        cexpr, _ = color_expr(st.get("color"))
-        if cexpr:
-            opts.append(f"text={cexpr}")
+        if isinstance(o.get("spans"), list):
+            span_body = self._draw_text_spans(o, x, y, w, h, st, anchor, talign)
+            if span_body:
+                return span_body
+        opts = self._text_opts(st, anchor, w, talign)
         return f"\\node[{','.join(opts)}] at ({fnum(ax)},{fnum(ay)}) {{{ltx_escape(content)}}};\n"
 
     def _draw_icon(self, o) -> str:

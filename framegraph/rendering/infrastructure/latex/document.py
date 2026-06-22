@@ -80,7 +80,13 @@ class _Transpiler:
         self._ts = TextStyleResolver(tok.get("text_styles") or {}, tok.get("styles") or {}, self._color)
         self._font_macros, self._font_decls = self._register_fonts(tok.get("fonts") or {})
         self._canvas = CanvasResolver(defs.get("masters") or {})
-        self._figtikz = FigureTikz(self._color, self._ts, tok.get("stroke_styles") or {}, asset_path=self._figure_asset_path)
+        self._figtikz = FigureTikz(
+            self._color,
+            self._ts,
+            tok.get("stroke_styles") or {},
+            asset_path=self._figure_asset_path,
+            font_macro=self._font_macro,
+        )
         self._book = _ColorBook()
         self._gloss_terms = []
         self._endnotes = []
@@ -116,7 +122,7 @@ class _Transpiler:
     def _font(self, st):
         size = st.get("size", 12) or 12
         lh = st.get("lh", 1.25) or 1.25
-        out = self._font_macros.get(st.get("family"), "")
+        out = self._font_macro(st.get("family"))
         out += f"\\fontsize{{{fnum(size)}}}{{{fnum(size * lh)}}}\\selectfont"
         if st.get("bold"):
             out += "\\bfseries"
@@ -126,6 +132,9 @@ class _Transpiler:
         if name:
             out += f"\\color{{{name}}}"
         return out
+
+    def _font_macro(self, family):
+        return self._font_macros.get(family, "")
 
     def _styled(self, st, latex_body, gap="6pt"):
         return "{" + self._font(st) + " " + latex_body + "\\par}\n" + (f"\\addvspace{{{gap}}}\n" if gap else "")
