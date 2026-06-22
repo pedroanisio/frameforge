@@ -282,7 +282,11 @@ class Renderer:
         if not isinstance(o, dict):
             return ""
         try:
-            return self._obj(o)
+            inner = self._obj(o)
+            opacity = o.get("opacity")
+            if inner and opacity not in (None, 1):
+                return self._painter.opacity_group(inner, num(opacity, 1))
+            return inner
         except Exception:                              # never let one object kill a page
             self.skipped += 1
             return ""
@@ -291,15 +295,16 @@ class Renderer:
         p = self._painter
         t = o.get("type")
         box = o.get("box")
+        style = self._style_dict(o.get("style"))
         # Resolve fill up-front for every object (even box-less ones): a gradient
         # fill must allocate its <defs> id here, before stroke, to keep ids stable.
-        fill = self.paint(o.get("fill")) if "fill" in o else None
-        fill_opacity = o.get("fill_opacity")
+        fill = self._shape_fill(o, style)
+        fill_opacity = o.get("fill_opacity", style.get("fill_opacity"))
 
         if t == "rect" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
-            r = num(o.get("radius") or o.get("rx"), 0) or 0
-            return p.rect(x, y, w, h, fill, self.stroke(o), radius=r, fill_opacity=fill_opacity)
+            r = self._shape_radius(o, style)
+            return p.rect(x, y, w, h, fill, self._shape_stroke(o, style), radius=r, fill_opacity=fill_opacity)
 
         if t == "ellipse":
             c = o.get("center") or [0, 0]
@@ -397,6 +402,53 @@ class Renderer:
                     + p.text_tag(x, y, w, h, f"?{t}", st, vcenter=True))
         self.skipped += 1
         return ""
+
+    def _style_dict(self, ref):
+        if isinstance(ref, str):
+            return dict(self.text_styles.get(ref) or self.styles.get(ref) or {})
+        if not isinstance(ref, dict):
+            return {}
+        cls = ref.get("class") or ref.get("class_")
+        merged = {}
+        for name in ([cls] if isinstance(cls, str) else (cls or [])):
+            merged.update(self.text_styles.get(name) or self.styles.get(name) or {})
+        merged.update(ref)
+        return merged
+
+    def _shape_fill(self, o, style):
+        if "fill" in o:
+            return self.paint(o.get("fill"))
+        for key in ("fill", "background_color", "background"):
+            if key in style:
+                return self.paint(style.get(key))
+        return None
+
+    def _shape_radius(self, o, style):
+        val = o.get("radius", o.get("rx", style.get("border_radius", style.get("radius"))))
+        if isinstance(val, list):
+            val = val[0] if val else 0
+        return num(val, 0) or 0
+
+    def _shape_stroke(self, o, style):
+        if any(k in o for k in ("stroke", "stroke_style")):
+            return self.stroke(o)
+        border = style.get("border")
+        if isinstance(border, dict):
+            return self._border_stroke(border)
+        if any(k in style for k in ("stroke", "stroke_width", "stroke_dasharray", "stroke_linecap", "stroke_linejoin")):
+            return self.stroke({"stroke": style.get("stroke"), "stroke_style": style})
+        return ""
+
+    def _border_stroke(self, border):
+        if border.get("style") in ("none", "hidden"):
+            return ""
+        col = self.color(border.get("color")) or "#000"
+        width = num(border.get("width"), 1) or 1
+        out = f' stroke="{esc(col)}" stroke-width="{fnum(width)}"'
+        if border.get("style") in ("dashed", "dotted"):
+            dash = "4 4" if border.get("style") == "dashed" else "1 3"
+            out += f' stroke-dasharray="{dash}"'
+        return out
 
     def _image(self, o, box):
         p = self._painter

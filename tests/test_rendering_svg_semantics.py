@@ -132,3 +132,36 @@ def test_text_style_css_surface_is_emitted() -> None:
     assert "font-variant-caps:small-caps" in text
     assert "font-kerning:normal" in text
     assert "font-stretch:condensed" in text
+
+
+def test_rect_uses_style_fill_border_radius_and_opacity() -> None:
+    svg = _svg_for(
+        [{
+            "type": "rect",
+            "box": [10, 20, 80, 40],
+            "opacity": 0.6,
+            "style": {
+                "class": "panel_style",
+                "border": {"width": 2, "style": "dashed", "color": "hairline"},
+            },
+        }],
+        {
+            "tokens": {
+                "colors": {"panel": "#ffeecc", "hairline": "#123456"},
+                "styles": {
+                    "panel_style": {
+                        "background_color": "panel",
+                        "border_radius": 6,
+                    },
+                },
+            },
+        },
+    )
+
+    assert '<g opacity="0.6">' in svg
+    rect = svg.split("<rect", 2)[2].split("/>", 1)[0]
+    assert ' fill="#ffeecc"' in rect
+    assert ' rx="6"' in rect
+    assert ' stroke="#123456"' in rect
+    assert ' stroke-width="2"' in rect
+    assert ' stroke-dasharray="4 4"' in rect
