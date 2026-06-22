@@ -31,7 +31,7 @@ pdf:  ## transpile a PDF -> FrameGraph YAML (pulls the `pdf` group): make pdf PD
 	@test -n "$(PDF)" || { echo "usage: make pdf PDF=<input.pdf> [OUT=<out.fg.yaml>] [ARGS='--text-mode spans']"; exit 2; }
 	$(UV) run --group pdf python tooling/pdf_to_framegraph_yml.py "$(PDF)" "$(if $(OUT),$(OUT),$(PDF:.pdf=.fg.yaml))" $(ARGS)
 
-check: schema-check grammar-check a11y-check test validate overflow golden-check status-check docs-check  ## run every local gate
+check: schema-check grammar-check a11y-check status-check test validate overflow golden-check docs-check  ## run every local gate
 
 schema-check:  ## fail if the committed schema drifted from the models
 	$(UV) run python schema/build_schema.py --check
