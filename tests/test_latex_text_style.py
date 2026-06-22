@@ -158,6 +158,31 @@ def test_font_kerning_maps_to_fontspec_feature():
     assert "\\addfontfeatures{Kerning=On}" in enabled
 
 
+def test_font_stretch_maps_to_fontspec_fake_stretch():
+    condensed = _fig({"label": {"font_stretch": "condensed"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "Condensed",
+        "style": "label",
+    })
+    expanded = _fig({"label": {"font_stretch": "expanded"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "Expanded",
+        "style": "label",
+    })
+    percent = _fig({"label": {"font_stretch": "125%"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "Percent",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{FakeStretch=0.75}" in condensed
+    assert "\\addfontfeatures{FakeStretch=1.25}" in expanded
+    assert "\\addfontfeatures{FakeStretch=1.25}" in percent
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",

@@ -930,7 +930,34 @@ class FigureTikz:
             font += "\\addfontfeatures{Kerning=Off}"
         elif kerning == "normal":
             font += "\\addfontfeatures{Kerning=On}"
+        stretch = self._font_stretch_factor(st.get("font_stretch"))
+        if stretch is not None:
+            font += f"\\addfontfeatures{{FakeStretch={fnum(stretch)}}}"
         return font
+
+    @staticmethod
+    def _font_stretch_factor(value):
+        if value is None:
+            return None
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            return max(0.01, num(value, 100) / 100)
+        raw = str(value).strip().lower()
+        named = {
+            "ultra-condensed": 0.5,
+            "extra-condensed": 0.625,
+            "condensed": 0.75,
+            "semi-condensed": 0.875,
+            "normal": 1,
+            "semi-expanded": 1.125,
+            "expanded": 1.25,
+            "extra-expanded": 1.5,
+            "ultra-expanded": 2,
+        }
+        if raw in named:
+            return None if named[raw] == 1 else named[raw]
+        if raw.endswith("%"):
+            return max(0.01, num(raw[:-1], 100) / 100)
+        return None
 
     def _text_opts(self, st, anchor, width, align):
         opts = [
