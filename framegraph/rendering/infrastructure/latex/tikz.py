@@ -261,8 +261,15 @@ class FigureTikz:
         return self._draw_group(o)
 
     # -- shapes ------------------------------------------------------------ #
+    def _paint_opacity(self, o, key, fallback=None):
+        value = o.get(key)
+        if value is None:
+            value = self._style_dict(o).get(key)
+        return num(value, fallback) if value is not None else fallback
+
     def _fill_opts(self, o):
         expr, op = color_expr(self._color.resolve(o.get("fill")))
+        op = self._paint_opacity(o, "fill_opacity", op)
         opts = []
         if expr is not None:
             opts.append(f"fill={expr}")
@@ -283,6 +290,7 @@ class FigureTikz:
             return opts
         col = col if (col and col != "none") else (default_color or "#000000")
         expr, op = color_expr(col)
+        op = self._paint_opacity(o, "stroke_opacity", op)
         opts.append(f"draw={expr}")
         if op is not None:
             opts.append(f"draw opacity={fnum(op)}")
