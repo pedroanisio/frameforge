@@ -39,6 +39,10 @@ DOC = {
         "masters": {
             "article": {"canvas": {"size": [320, 240]}},
         },
+        "assets": {
+            "logo": {"src": "assets/logo a.png", "kind": "image", "media_type": "image/png"},
+            "embedded": {"data": "data:image/png;base64,AAAA", "kind": "image"},
+        },
         "symbols": {
             "dot": {
                 "box": [0, 0, 10, 10],
@@ -74,6 +78,15 @@ DOC = {
                 {"type": "spacer", "height": 9},
                 {"type": "keep_together", "children": [{"type": "paragraph", "text": "Kept with next line."}]},
                 {"type": "page_break"},
+                {
+                    "type": "image",
+                    "src": "logo",
+                    "width": 96,
+                    "height": 24,
+                    "caption": "Raster #1",
+                    "credit": "Image credit",
+                },
+                {"type": "image", "src": "embedded", "alt": "Embedded image fallback"},
                 {"type": "math", "tex": r"\int_0^1 x^2\,dx = \frac{1}{3}"},
                 {"type": "math", "id": "eq-energy", "tex": r"E = mc^2"},
                 {
@@ -123,6 +136,10 @@ def test_transpile_emits_native_latex_math_and_tikz():
     assert r"\vspace{9pt}" in tex
     assert "\\begin{samepage}" in tex and "Kept with next line." in tex
     assert "\\clearpage" in tex
+    assert r"\includegraphics[width=96pt,height=24pt,keepaspectratio]{\detokenize{assets/logo a.png}}" in tex
+    assert "Raster \\#1" in tex
+    assert "Image credit" in tex
+    assert "Embedded image fallback" in tex
     assert "\\begin{tikzpicture}[x=1pt,y=-1pt]" in tex
     assert "rectangle (120,60)" in tex
     assert "ellipse (5pt and 5pt)" in tex
@@ -146,6 +163,7 @@ def test_render_latex_cli_tex_only_writes_tex(tmp_path):
     tex = tex_path.read_text(encoding="utf-8")
     assert "\\begin{document}" in tex
     assert r"\(E = mc^2\)" in tex
+    assert rf"\detokenize{{{tmp_path / 'assets' / 'logo a.png'}}}" in tex
 
 
 def test_render_latex_cli_lists_only_flow_docs(tmp_path, capsys):

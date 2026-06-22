@@ -111,7 +111,7 @@ def main(argv=None):
         name = os.path.splitext(os.path.basename(f))[0].replace(".fg", "")
         tex_path = os.path.join(args.out, name + ".tex")
         try:
-            tex = transpile(doc)
+            tex = transpile(doc, asset_base=os.path.dirname(os.path.abspath(f)))
         except Exception as exc:                       # never let one doc kill the batch
             print(f"  ! transpile failed for {name}: {exc}", file=sys.stderr)
             continue

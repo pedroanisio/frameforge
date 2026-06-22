@@ -8,6 +8,8 @@ face (fontspec) carries the body — "LaTeX-quality rendering OF the FrameGraph 
 """
 from __future__ import annotations
 
+import os
+
 from framegraph.rendering.domain.geometry import fnum, num
 from framegraph.rendering.domain.services.canvas_resolver import CanvasResolver
 from framegraph.rendering.domain.services.paint_resolver import ColorResolver
@@ -55,9 +57,11 @@ class _ColorBook:
 
 
 class _Transpiler:
-    def __init__(self, doc):
+    def __init__(self, doc, asset_base=None):
         self.doc = normalize_doc(doc) if isinstance(doc, dict) else {}
         defs = self.doc.get("defs") or {}
+        self._assets = defs.get("assets") or {}
+        self._asset_base = asset_base
         tok = defs.get("tokens") or {}
         self._color = ColorResolver(tok.get("colors") or {})
         self._ts = TextStyleResolver(tok.get("text_styles") or {}, tok.get("styles") or {}, self._color)
@@ -153,6 +157,24 @@ class _Transpiler:
                 return self._inline_text(value.get("spans"))
             return self._inline_text(value.get("text") or value.get("content"))
         return ltx_escape(value)
+
+    def _asset_src(self, src):
+        asset = self._assets.get(src)
+        if isinstance(asset, dict):
+            return asset.get("data") or asset.get("src") or asset.get("path") or src
+        if isinstance(asset, str):
+            return asset
+        return src
+
+    def _asset_path(self, src):
+        resolved = self._asset_src(src)
+        if not isinstance(resolved, str) or not resolved.strip():
+            return None
+        if resolved.startswith("data:"):
+            return None
+        if os.path.isabs(resolved) or not self._asset_base:
+            return os.path.normpath(resolved)
+        return os.path.normpath(os.path.join(self._asset_base, resolved))
 
     def _para_body(self, fl):
         if isinstance(fl.get("spans"), list):
@@ -251,6 +273,49 @@ class _Transpiler:
             table = f"{{\\fontsize{{{size}}}{{{fnum(size * 1.2)}}}\\selectfont {table}}}"
         out.append(f"\\begin{{center}}\\color{{{inkname}}}{table}\\end{{center}}\n\\addvspace{{8pt}}\n")
 
+    def _image_graphics_options(self, fl):
+        width = num(fl.get("width"), None)
+        height = num(fl.get("height"), None)
+        opts = []
+        if width is not None and width > 0:
+            opts.append("width=\\textwidth" if width > self._textwidth else f"width={fnum(width)}pt")
+        elif height is None:
+            opts.append("width=\\textwidth")
+        if height is not None and height > 0:
+            opts.append(f"height={fnum(height)}pt")
+        if fl.get("preserve_aspect_ratio") is not False:
+            opts.append("keepaspectratio")
+        return ",".join(opts)
+
+    def _image_placeholder(self, fl):
+        label = fl.get("alt") or fl.get("actual_text") or fl.get("caption") or fl.get("src") or "image"
+        return (
+            "\\fbox{\\begin{minipage}{0.9\\textwidth}\\centering "
+            + self._font(self._ts.resolve("caption"))
+            + ltx_escape(label)
+            + "\\end{minipage}}\n"
+        )
+
+    def _emit_image(self, fl, out):
+        path = self._asset_path(fl.get("src"))
+        if path:
+            opts = self._image_graphics_options(fl)
+            out.append("\\begin{center}\n")
+            out.append(f"\\includegraphics[{opts}]{{\\detokenize{{{path}}}}}\n")
+            out.append("\\end{center}\n")
+        else:
+            self.skipped += 1
+            out.append("\\begin{center}\n" + self._image_placeholder(fl) + "\\end{center}\n")
+        cap = fl.get("caption")
+        if cap:
+            out.append("{\\centering" + self._font(self._ts.resolve("fig_caption"))
+                       + "\\itshape " + self._caption_text(cap) + "\\par}\n")
+        credit = fl.get("credit")
+        if credit:
+            out.append("{\\centering" + self._font(self._ts.resolve("caption"))
+                       + self._caption_text(credit) + "\\par}\n")
+        out.append("\\addvspace{12pt}\n")
+
     def _emit_figure(self, fl, out):
         ob = fl.get("object")
         if not isinstance(ob, dict):
@@ -342,5 +407,5 @@ class _Transpiler:
         )
 
 
-def transpile(doc) -> str:
-    return _Transpiler(doc).build()
+def transpile(doc, asset_base=None) -> str:
+    return _Transpiler(doc, asset_base=asset_base).build()
