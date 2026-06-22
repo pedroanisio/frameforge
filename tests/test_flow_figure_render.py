@@ -105,5 +105,7 @@ def test_standard_model_figures_all_render(tmp_path):
         assert placeholder not in combined
     assert combined.count("<ellipse") > 50     # the SM-grid quark/colour dots drew
     assert "standard model particles" in combined
-    assert "S = \\left" in combined
+    assert "S = [ s(s + 1) ]¹/² ℏ" in combined
+    for raw_tex in ("\\left", "\\right", "\\tfrac", "\\frac", "\\sqrt", "\\hbar"):
+        assert raw_tex not in combined
     assert "Masses as reported by the Particle Data Group" in combined

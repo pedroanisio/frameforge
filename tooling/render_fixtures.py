@@ -37,6 +37,7 @@ import copy
 import glob
 import math
 import os
+import re
 import sys
 
 import yaml
@@ -313,6 +314,54 @@ class Renderer:
         if transform == "capitalize":
             return content.title()
         return content
+
+    @staticmethod
+    def render_math_text(tex):
+        """Dependency-free display fallback for flow math.
+
+        This is intentionally small, not a TeX engine. It covers the fixture math
+        vocabulary so rendered docs show readable equations instead of raw
+        backslash commands when KaTeX/MathJax/matplotlib are not available.
+        """
+        s = str(tex or "")
+        replacements = {
+            r"\left": "", r"\right": "", r"\,": " ", r"\;": " ",
+            r"\times": "×", r"\hbar": "ℏ", r"\mu": "μ", r"\nu": "ν",
+            r"\psi": "ψ", r"\phi": "φ", r"\alpha": "α", r"\beta": "β",
+            r"\gamma": "γ", r"\mathcal{L}": "ℒ", r"\slashed{D}": "D̸",
+            r"\text{h.c.}": "h.c.", r"\bar{\psi}": "ψ̄",
+        }
+        for old, new in replacements.items():
+            s = s.replace(old, new)
+
+        frac_map = {
+            ("1", "2"): "½", ("3", "2"): "3⁄2", ("1", "4"): "¼",
+            ("3", "4"): "¾", (r"\sqrt{3}", "2"): "√3⁄2",
+            (r"\sqrt{15}", "2"): "√15⁄2",
+        }
+
+        def frac_repl(m):
+            a, b = m.group(1).strip(), m.group(2).strip()
+            a = a.replace(r"\sqrt{", "√").replace("}", "")
+            return frac_map.get((m.group(1).strip(), m.group(2).strip()), f"{a}⁄{b}")
+
+        s = re.sub(r"\\t?frac\{([^{}]+(?:\{[^{}]+\}[^{}]*)?)\}\{([^{}]+)\}", frac_repl, s)
+        s = re.sub(r"\\sqrt\{([^{}]+)\}", r"√\1", s)
+
+        supers = str.maketrans("0123456789+-=()n", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿ")
+        subs = str.maketrans("0123456789+-=()abcdefghijklmnopqrstuvwxyz",
+                             "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐᵦ꜀ᑯₑբ₉ₕᵢⱼₖₗₘₙₒₚ૧ᵣₛₜᵤᵥwₓᵧ₂")
+
+        def script_repl(trans):
+            return lambda m: m.group(1).translate(trans)
+
+        s = re.sub(r"\^\{([^{}]+)\}", script_repl(supers), s)
+        s = re.sub(r"_\{([^{}]+)\}", script_repl(subs), s)
+        s = re.sub(r"\^([A-Za-z0-9])", script_repl(supers), s)
+        s = re.sub(r"_([A-Za-z0-9])", script_repl(subs), s)
+        s = s.replace("{", "").replace("}", "")
+        s = re.sub(r"\\([A-Za-z]+)", r"\1", s)
+        return re.sub(r"\s+", " ", s).strip()
 
     # ---- per-object dispatch ---------------------------------------------- #
     def obj(self, o):
@@ -1761,9 +1810,14 @@ class Renderer:
                 cy += 4
             elif ft == "table":
                 emit_table(fl)
-            elif ft in ("math", "code"):
-                text = fl.get("tex") if ft == "math" else fl.get("code")
-                text = text if text is not None else text_of(fl)
+            elif ft == "math":
+                text = self.render_math_text(fl.get("tex") or fl.get("mathml") or text_of(fl))
+                st = {**base, "family": "serif", "size": 13, "color": "#111", "align": "center", "lh": 1.25}
+                for ln in str(text).splitlines() or [""]:
+                    emit(ln, st, gap_after=1)
+                cy += 8
+            elif ft == "code":
+                text = fl.get("code") or fl.get("source") or text_of(fl)
                 mono = {**base, "family": "monospace", "size": 10, "color": "#333"}
                 for ln in str(text).splitlines() or [""]:
                     emit(ln, mono, gap_after=1)

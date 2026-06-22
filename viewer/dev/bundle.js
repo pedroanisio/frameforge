@@ -28182,6 +28182,52 @@ ${exception.mark.snippet}`;
     if (typeof v === "object") return textContent(v.text ?? v.content ?? v.label ?? v.tex ?? v.source ?? "");
     return "";
   }
+  function mathText(tex) {
+    let s = String(tex || "");
+    const replacements = [
+      [/\\left/g, ""],
+      [/\\right/g, ""],
+      [/\\,/g, " "],
+      [/\\;/g, " "],
+      [/\\times/g, "\xD7"],
+      [/\\hbar/g, "\u210F"],
+      [/\\mu/g, "\u03BC"],
+      [/\\nu/g, "\u03BD"],
+      [/\\psi/g, "\u03C8"],
+      [/\\phi/g, "\u03C6"],
+      [/\\alpha/g, "\u03B1"],
+      [/\\beta/g, "\u03B2"],
+      [/\\gamma/g, "\u03B3"],
+      [/\\mathcal\{L\}/g, "\u2112"],
+      [/\\slashed\{D\}/g, "D\u0338"],
+      [/\\text\{h\.c\.\}/g, "h.c."],
+      [/\\bar\{\\psi\}/g, "\u03C8\u0304"]
+    ];
+    replacements.forEach(([from, to]) => {
+      s = s.replace(from, to);
+    });
+    const fracMap = /* @__PURE__ */ new Map([
+      ["1/2", "\xBD"],
+      ["3/2", "3\u20442"],
+      ["1/4", "\xBC"],
+      ["3/4", "\xBE"],
+      ["\\sqrt{3}/2", "\u221A3\u20442"],
+      ["\\sqrt{15}/2", "\u221A15\u20442"]
+    ]);
+    s = s.replace(/\\t?frac\{([^{}]+(?:\{[^{}]+\}[^{}]*)?)\}\{([^{}]+)\}/g, (_, a, b) => {
+      const key = `${a.trim()}/${b.trim()}`;
+      if (fracMap.has(key)) return fracMap.get(key);
+      return `${a.replace(/\\sqrt\{([^{}]+)\}/g, "\u221A$1").replace(/[{}]/g, "")}\u2044${b.trim()}`;
+    });
+    s = s.replace(/\\sqrt\{([^{}]+)\}/g, "\u221A$1");
+    const sup = { "0": "\u2070", "1": "\xB9", "2": "\xB2", "3": "\xB3", "4": "\u2074", "5": "\u2075", "6": "\u2076", "7": "\u2077", "8": "\u2078", "9": "\u2079", "+": "\u207A", "-": "\u207B", "=": "\u207C", "(": "\u207D", ")": "\u207E", "n": "\u207F" };
+    const sub = { "0": "\u2080", "1": "\u2081", "2": "\u2082", "3": "\u2083", "4": "\u2084", "5": "\u2085", "6": "\u2086", "7": "\u2087", "8": "\u2088", "9": "\u2089", "+": "\u208A", "-": "\u208B", "=": "\u208C", "(": "\u208D", ")": "\u208E", "i": "\u1D62", "j": "\u2C7C", "k": "\u2096", "m": "\u2098", "n": "\u2099", "u": "\u1D64", "v": "\u1D65", "x": "\u2093" };
+    const mapScript = (map) => (_, body) => [...body].map((ch) => map[ch] || ch).join("");
+    s = s.replace(/\^\{([^{}]+)\}/g, mapScript(sup)).replace(/_\{([^{}]+)\}/g, mapScript(sub));
+    s = s.replace(/\^([A-Za-z0-9])/g, mapScript(sup)).replace(/_([A-Za-z0-9])/g, mapScript(sub));
+    s = s.replace(/[{}]/g, "").replace(/\\([A-Za-z]+)/g, "$1");
+    return s.replace(/\s+/g, " ").trim();
+  }
   function readingText(o) {
     if (!o || o.decorative) return "";
     const direct = o.actual_text ?? o.alt ?? o.text ?? o.title ?? o.label ?? o.caption ?? o.tex ?? o.source;
@@ -28302,7 +28348,7 @@ ${exception.mark.snippet}`;
     }
     if (type === "table") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "10px 0 12px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableView, { doc, o: block, absolute: false }) });
     if (type === "code") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", { style: { margin: "8px 0 12px", padding: 10, background: resolveColor(doc, "code_bg") || "#f4f4f4", overflow: "hidden", ...textCss(doc, block.style, { size: 12, line_height: 1.35 }) }, children: block.source || block.text || "" });
-    if (type === "math") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }, children: block.tex || block.text });
+    if (type === "math") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }, children: mathText(block.tex || block.text) });
     if (type === "toc") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "8px 0 12px", ...textCss(doc, block.style, { size: 14, weight: 700 }) }, children: block.title || "Contents" });
     if (type === "figure") {
       const size = block.size || [320, 160];

@@ -1266,6 +1266,35 @@ function textContent(v) {
   return "";
 }
 
+function mathText(tex) {
+  let s = String(tex || "");
+  const replacements = [
+    [/\\left/g, ""], [/\\right/g, ""], [/\\,/g, " "], [/\\;/g, " "],
+    [/\\times/g, "×"], [/\\hbar/g, "ℏ"], [/\\mu/g, "μ"], [/\\nu/g, "ν"],
+    [/\\psi/g, "ψ"], [/\\phi/g, "φ"], [/\\alpha/g, "α"], [/\\beta/g, "β"],
+    [/\\gamma/g, "γ"], [/\\mathcal\{L\}/g, "ℒ"], [/\\slashed\{D\}/g, "D̸"],
+    [/\\text\{h\.c\.\}/g, "h.c."], [/\\bar\{\\psi\}/g, "ψ̄"],
+  ];
+  replacements.forEach(([from, to]) => { s = s.replace(from, to); });
+  const fracMap = new Map([
+    ["1/2", "½"], ["3/2", "3⁄2"], ["1/4", "¼"], ["3/4", "¾"],
+    ["\\sqrt{3}/2", "√3⁄2"], ["\\sqrt{15}/2", "√15⁄2"],
+  ]);
+  s = s.replace(/\\t?frac\{([^{}]+(?:\{[^{}]+\}[^{}]*)?)\}\{([^{}]+)\}/g, (_, a, b) => {
+    const key = `${a.trim()}/${b.trim()}`;
+    if (fracMap.has(key)) return fracMap.get(key);
+    return `${a.replace(/\\sqrt\{([^{}]+)\}/g, "√$1").replace(/[{}]/g, "")}⁄${b.trim()}`;
+  });
+  s = s.replace(/\\sqrt\{([^{}]+)\}/g, "√$1");
+  const sup = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "+": "⁺", "-": "⁻", "=": "⁼", "(": "⁽", ")": "⁾", "n": "ⁿ" };
+  const sub = { "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄", "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉", "+": "₊", "-": "₋", "=": "₌", "(": "₍", ")": "₎", "i": "ᵢ", "j": "ⱼ", "k": "ₖ", "m": "ₘ", "n": "ₙ", "u": "ᵤ", "v": "ᵥ", "x": "ₓ" };
+  const mapScript = (map) => (_, body) => [...body].map((ch) => map[ch] || ch).join("");
+  s = s.replace(/\^\{([^{}]+)\}/g, mapScript(sup)).replace(/_\{([^{}]+)\}/g, mapScript(sub));
+  s = s.replace(/\^([A-Za-z0-9])/g, mapScript(sup)).replace(/_([A-Za-z0-9])/g, mapScript(sub));
+  s = s.replace(/[{}]/g, "").replace(/\\([A-Za-z]+)/g, "$1");
+  return s.replace(/\s+/g, " ").trim();
+}
+
 function readingText(o) {
   if (!o || o.decorative) return "";
   const direct = o.actual_text ?? o.alt ?? o.text ?? o.title ?? o.label ?? o.caption ?? o.tex ?? o.source;
@@ -1398,7 +1427,7 @@ function FlowBlock({ doc, block }) {
   }
   if (type === "table") return <div style={{ margin: "10px 0 12px" }}><TableView doc={doc} o={block} absolute={false} /></div>;
   if (type === "code") return <pre style={{ margin: "8px 0 12px", padding: 10, background: resolveColor(doc, "code_bg") || "#f4f4f4", overflow: "hidden", ...textCss(doc, block.style, { size: 12, line_height: 1.35 }) }}>{block.source || block.text || ""}</pre>;
-  if (type === "math") return <div style={{ margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }}>{block.tex || block.text}</div>;
+  if (type === "math") return <div style={{ margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }}>{mathText(block.tex || block.text)}</div>;
   if (type === "toc") return <div style={{ margin: "8px 0 12px", ...textCss(doc, block.style, { size: 14, weight: 700 }) }}>{block.title || "Contents"}</div>;
   if (type === "figure") {
     const size = block.size || [320, 160];
