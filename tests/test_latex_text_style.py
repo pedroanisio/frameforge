@@ -68,6 +68,20 @@ def test_text_decoration_underline_wraps_tikz_text_content():
     assert "{\\underline{under\\_score}}" in tex
 
 
+def test_text_decoration_wavy_underline_uses_ulem_wave():
+    color = ColorResolver({"accent": "#123456"})
+    fig = FigureTikz(color, TextStyleResolver({}, {}, color), {})
+    tex = fig.render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "wavy",
+        "style": {"text_decoration": {"line": "underline", "style": "wavy", "color": "accent", "thickness": 2}},
+    })
+
+    assert "{\\uwave{wavy}}" in tex
+    assert "\\underline{wavy}" not in tex
+
+
 def test_text_decoration_line_through_wraps_tikz_text_content():
     tex = _fig().render({
         "type": "text",
