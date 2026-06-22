@@ -336,7 +336,21 @@ class FigureTikz:
             opts.append(f"fill={expr}")
             if op is not None:
                 opts.append(f"fill opacity={fnum(op)}")
+            rule = self._fill_rule(o)
+            if rule:
+                opts.append(rule)
         return opts
+
+    def _fill_rule(self, o):
+        value = o.get("fill_rule")
+        if value is None:
+            value = self._style_dict(o).get("fill_rule")
+        if value is None:
+            return None
+        norm = str(value).strip().replace("_", "-").replace(" ", "-").lower()
+        if norm in ("evenodd", "even-odd"):
+            return "even odd rule"
+        return None
 
     def _stroke_opts(self, o, default_color=None):
         sv, ssv = o.get("stroke"), o.get("stroke_style")
