@@ -9,7 +9,7 @@ UV ?= uv
 FIXTURES_YAML := fixtures/*.fg.yaml
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render pdf check schema-check grammar-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test
+.PHONY: help sync schema render render-latex pdf check schema-check grammar-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test
 
 help:  ## list targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort \
@@ -23,6 +23,9 @@ schema:  ## regenerate schema/framegraph-v2.schema.json from the models
 
 render:  ## render every fixture to out/render/ (+ contact sheet)
 	$(UV) run python tooling/render_fixtures.py --all
+
+render-latex:  ## render flow fixtures to LaTeX/TikZ + PDF via lualatex (out/latex/)
+	$(UV) run python tooling/render_latex.py --all
 
 pdf:  ## transpile a PDF -> FrameGraph YAML (pulls the `pdf` group): make pdf PDF=paper.pdf [OUT=...] [ARGS='--text-mode spans']
 	@test -n "$(PDF)" || { echo "usage: make pdf PDF=<input.pdf> [OUT=<out.fg.yaml>] [ARGS='--text-mode spans']"; exit 2; }

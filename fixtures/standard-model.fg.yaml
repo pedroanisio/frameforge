@@ -45,30 +45,30 @@ defs:
       card_symbol:
         font_size: 22pt
         text_align: center
-        color: '#001f3d'
+        color: ink
       card_name:
         font_size: 9pt
         text_align: center
-        color: '#001f3d'
+        color: ink
         text_wrap: balance
       region_label:
         font_size: 12pt
         font_weight: bold
-        color: '#001f3d'
+        color: ink
       fig_title:
         font_size: 14pt
         text_align: center
-        color: '#001f3d'
+        color: ink
       panel_title:
         font_size: 12pt
         font_weight: bold
-        color: '#001f3d'
+        color: ink
       panel_sub:
         font_size: 10pt
-        color: '#001f3d'
+        color: ink
       fig_caption:
         font_size: 9pt
-        color: '#001f3d'
+        color: ink
   masters:
     article:
       canvas:
