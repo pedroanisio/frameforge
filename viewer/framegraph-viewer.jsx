@@ -227,7 +227,9 @@ function cssLength(v) {
 }
 
 function camelCss(prop) {
-  return String(prop).trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+  const name = String(prop).trim();
+  if (name.startsWith("--")) return name;
+  return name.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 }
 
 function parseCssDeclarations(cssText) {
