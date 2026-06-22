@@ -470,6 +470,20 @@ class FigureTikz:
         cmd = "\\path" if not any(o for o in opts) else "\\path"
         return f"{cmd}[{','.join(opts)}] {geom};\n" if opts else f"\\path {geom};\n"
 
+    def _painted_path(self, o, geom, extra_opts=None, default_stroke=None):
+        extra_opts = extra_opts or []
+        fill = self._fill_opts(o)
+        stroke = self._stroke_opts(o, default_color=default_stroke)
+        if self._paint_order(o).startswith("stroke fill") and fill and stroke:
+            return self._path(stroke + extra_opts, geom) + self._path(fill + extra_opts, geom)
+        return self._path(fill + stroke + extra_opts, geom)
+
+    def _paint_order(self, o):
+        value = o.get("paint_order")
+        if value is None:
+            value = self._stroke_bundle(o).get("paint_order")
+        return str(value or "").strip().lower()
+
     def _effect_specs(self, o):
         specs = []
         for kind in ("glow", "shadow"):
@@ -535,11 +549,11 @@ class FigureTikz:
             stroke = self._stroke_opts(o)
             geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
             return effects + grad + (self._path(stroke, geom) if stroke else "")
-        opts = self._fill_opts(o) + self._stroke_opts(o)
+        extra = []
         if r:
-            opts.append(f"rounded corners={fnum(r)}pt")
+            extra.append(f"rounded corners={fnum(r)}pt")
         geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
-        return effects + self._path(opts, geom)
+        return effects + self._painted_path(o, geom, extra)
 
     def _gradient_rect(self, fill, x, y, w, h):
         """A linear-gradient rect fill to piecewise TikZ `\\shade` segments.
@@ -591,17 +605,15 @@ class FigureTikz:
         if not rx and isinstance(box, list) and len(box) >= 4:
             cx, cy = num(box[0], 0) + num(box[2], 0) / 2, num(box[1], 0) + num(box[3], 0) / 2
             rx, ry = num(box[2], 0) / 2, num(box[3], 0) / 2
-        opts = self._fill_opts(o) + self._stroke_opts(o)
         geom = f"({fnum(cx)},{fnum(cy)}) ellipse ({fnum(rx)}pt and {fnum(ry)}pt)"
-        return self._ellipse_effects(o, cx, cy, rx, ry) + self._path(opts, geom)
+        return self._ellipse_effects(o, cx, cy, rx, ry) + self._painted_path(o, geom)
 
     def _draw_circle(self, o) -> str:
         c = o.get("center") or [0, 0]
         r = num(o.get("r"), 0)
-        opts = self._fill_opts(o) + self._stroke_opts(o)
         cx, cy = num(c[0], 0), num(c[1], 0)
         geom = f"({fnum(cx)},{fnum(cy)}) circle ({fnum(r)}pt)"
-        return self._ellipse_effects(o, cx, cy, r, r) + self._path(opts, geom)
+        return self._ellipse_effects(o, cx, cy, r, r) + self._painted_path(o, geom)
 
     def _draw_line(self, o) -> str:
         fr, to = o.get("from"), o.get("to")
@@ -659,16 +671,14 @@ class FigureTikz:
         pts = self._poly_points(o)
         if not pts:
             return ""
-        opts = self._fill_opts(o) + self._stroke_opts(o)
         chain = " -- ".join(f"({fnum(x)},{fnum(y)})" for x, y in pts) + " -- cycle"
-        return self._path(opts, chain)
+        return self._painted_path(o, chain)
 
     def _draw_path(self, o) -> str:
         geom = self._path_d(o.get("d"))
         if not geom:
             return ""
-        opts = self._fill_opts(o) + self._stroke_opts(o)
-        return self._path(opts, geom)
+        return self._painted_path(o, geom)
 
     def _draw_curve(self, o) -> str:
         fr, to = o.get("from"), o.get("to")
@@ -678,14 +688,13 @@ class FigureTikz:
         c2 = o.get("control2") or o.get("c2") or to
         if not (is_point(c1) and is_point(c2)):
             return ""
-        opts = self._fill_opts(o) + self._stroke_opts(o, default_color="#000000")
         geom = (
             f"({fnum(num(fr[0], 0))},{fnum(num(fr[1], 0))}) .. controls "
             f"({fnum(num(c1[0], 0))},{fnum(num(c1[1], 0))}) and "
             f"({fnum(num(c2[0], 0))},{fnum(num(c2[1], 0))}) .. "
             f"({fnum(num(to[0], 0))},{fnum(num(to[1], 0))})"
         )
-        return self._path(opts, geom)
+        return self._painted_path(o, geom, default_stroke="#000000")
 
     def _draw_bezier(self, o) -> str:
         return self._draw_curve(o)

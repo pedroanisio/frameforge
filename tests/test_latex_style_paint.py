@@ -67,3 +67,45 @@ def test_object_paint_overrides_named_style_paint():
     assert "fill={rgb,255:red,255;green,238;blue,204}" not in tex
     assert "draw={rgb,255:red,0;green,0;blue,0}" in tex
     assert "line width=2pt" in tex
+
+
+def test_paint_order_stroke_fill_draws_stroke_before_fill():
+    tex = _fig({
+        "vector_style": {
+            "fill": "panel",
+            "stroke": "hairline",
+            "stroke_width": 6,
+            "paint_order": "stroke fill markers",
+        },
+    }).render({
+        "type": "path",
+        "d": "M 10 10 L 80 10 L 80 40 L 10 40 Z",
+        "style": "vector_style",
+    })
+
+    stroke = "\\path[draw={rgb,255:red,18;green,52;blue,86},line width=6pt]"
+    fill = "\\path[fill={rgb,255:red,255;green,238;blue,204}]"
+    assert stroke in tex
+    assert fill in tex
+    assert tex.index(stroke) < tex.index(fill)
+
+
+def test_default_paint_order_uses_single_fill_and_stroke_path():
+    tex = _fig({
+        "vector_style": {
+            "fill": "panel",
+            "stroke": "hairline",
+            "stroke_width": 6,
+        },
+    }).render({
+        "type": "path",
+        "d": "M 10 10 L 80 10 L 80 40 L 10 40 Z",
+        "style": "vector_style",
+    })
+
+    combined = (
+        "\\path[fill={rgb,255:red,255;green,238;blue,204},"
+        "draw={rgb,255:red,18;green,52;blue,86},line width=6pt]"
+    )
+    assert combined in tex
+    assert tex.count("\\path[") == 1
