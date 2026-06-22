@@ -51,6 +51,7 @@ OBJECT_SAMPLES = {
     "dimension": {"type": "dimension", "kind": "linear", "from": [0, 0], "to": [10, 0]},
     "table": {"type": "table", "rows": [["a", "b"]], "box": [0, 0, 100, 40]},
     "group": {"type": "group", "children": [{"type": "rect", "box": [0, 0, 5, 5], "fill": "#111"}]},
+    "component": {"type": "component", "box": [0, 0, 110, 50], "title": "Card", "body": "Body", "fill": "#fff"},
     "chip_row": {"type": "chip_row", "origin": [0, 0], "items": [{"text": "api", "width": 32}]},
     "uml.marker_glyph": {"type": "uml.marker_glyph", "position": [10, 10], "kind": "filled_diamond", "color": "#111"},
     "uml.classifier_box": {"type": "uml.classifier_box", "box": [0, 0, 100, 70], "name": "Order",
@@ -72,7 +73,7 @@ EXPECT = {
     "polyline": "<polyline", "polygon": "<polygon", "path": "<path",
     "curve": "<path", "bezier": "<path", "text": "<text",
     "icon": "<text", "bullet_list": "<text", "dimension": "<g",
-    "image": "<rect", "table": "<rect", "group": "<g",
+    "image": "<rect", "table": "<rect", "group": "<g", "component": "<rect",
     "chip_row": "<rect", "uml.marker_glyph": "<polygon",
     "uml.classifier_box": "<rect", "uml.component_box": "<rect",
     "uml.state_box": "<rect", "uml.action": "<rect", "uml.artifact_box": "<rect",
@@ -114,6 +115,36 @@ def test_no_unexpected_silent_ignores():
     assert empty == UNRENDERED, (
         f"silent-ignore set changed: rendered-empty={sorted(empty)}, declared={sorted(UNRENDERED)}. "
         "Implement a painter, or update UNRENDERED deliberately.")
+
+
+def test_component_uses_definition_variant_and_slots():
+    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+           "defs": {"tokens": {"colors": {"panel": "#eef6ff", "border": "#335577"},
+                               "text_styles": {
+                                   "heading": {"size": 12, "weight": 700, "align": "center", "color": "#111"},
+                                   "body": {"size": 10, "align": "center", "color": "#333"},
+                               },
+                               "stroke_styles": {"rule": {"stroke": "border", "stroke_width": 2}}},
+                    "components": {
+                        "card": {"geometry": {"radius": 7},
+                                 "variants": {"selected": {"fill": "panel", "stroke_style": "rule"}},
+                                 "internal_layout": {
+                                     "title": {"box_offset": [0, 5, "100%", 16], "style": "heading"},
+                                     "body": {"box_offset": [8, 24, "calc(100% - 16)", 22], "style": "body"},
+                                 }}}},
+           "pages": [{"mode": "page", "id": "p", "canvas": {"size": [140, 80]},
+                      "layers": [{"id": "l", "objects": [{
+                          "type": "component", "component": "card", "variant": "selected",
+                          "box": [10, 10, 100, 50], "title": "Variant Card", "body": "Slot body",
+                      }]}]}]}
+    rendered = Renderer(doc, ".").render_page(doc["pages"][0])
+    svg = "".join(rendered) if isinstance(rendered, list) else rendered
+    assert "?component" not in svg
+    assert 'fill="#eef6ff"' in svg
+    assert 'stroke="#335577"' in svg
+    assert 'rx="7"' in svg
+    assert "Variant Card" in svg
+    assert "Slot body" in svg
 
 
 @settings(max_examples=60, deadline=None, suppress_health_check=[HealthCheck.too_slow])

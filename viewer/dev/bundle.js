@@ -27939,6 +27939,68 @@ ${exception.mark.snippet}`;
       }, children: rows.map((row, j) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: row }, j)) }, i))
     ] });
   }
+  function componentSpec(doc, o) {
+    const def = doc?.defs?.components?.[o.component];
+    if (!def || typeof def !== "object") return {};
+    const { variants, slots, ...base } = def;
+    const variant = variants?.[o.variant];
+    return variant && typeof variant === "object" ? { ...base, ...variant } : base;
+  }
+  function componentLength(value, total) {
+    if (typeof value === "number") return value;
+    if (typeof value !== "string") return toPx(value);
+    const s = value.trim();
+    if (s.endsWith("%")) return total * ((parseFloat(s) || 0) / 100);
+    const m = /^calc\(\s*100%\s*([+-])\s*(-?\d+(?:\.\d+)?)\s*\)$/.exec(s);
+    if (m) return total + (m[1] === "-" ? -1 : 1) * parseFloat(m[2]);
+    return toPx(s);
+  }
+  function componentSlotBox(box, offset) {
+    const [x, y, w, h] = box;
+    const raw = Array.isArray(offset) && offset.length >= 4 ? offset : [0, 0, "100%", "100%"];
+    return [
+      x + componentLength(raw[0], w),
+      y + componentLength(raw[1], h),
+      componentLength(raw[2], w),
+      componentLength(raw[3], h)
+    ];
+  }
+  function ComponentObj({ doc, o, active }) {
+    const spec = componentSpec(doc, o);
+    const renderObj = { ...spec, ...o };
+    const box = (o.box || [0, 0, 0, 0]).map(toPx);
+    const [x, y, w, h] = box;
+    const stroke = resolveStroke(doc, renderObj.stroke_style, renderObj.stroke);
+    const geometry = spec.geometry || {};
+    const radius = toPx(renderObj.radius ?? geometry.radius ?? 0);
+    const baseStyle = {
+      position: "absolute",
+      left: x,
+      top: y,
+      width: w,
+      height: h,
+      boxSizing: "border-box",
+      overflow: "hidden",
+      borderRadius: radius,
+      background: resolveFill(doc, renderObj.fill) || "#fff",
+      opacity: o.opacity != null ? o.opacity : 1,
+      ...styleToCss(doc, renderObj.style),
+      ...rotationStyle(o.rotation, box)
+    };
+    if (stroke) baseStyle.border = `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}`;
+    else baseStyle.border = "1px solid #bbb";
+    const layout = spec.internal_layout || {};
+    const titleLayout = { box_offset: [0, 6, "100%", 18], style: "heading", ...layout.title || {} };
+    const bodyLayout = { box_offset: [8, 26, "calc(100% - 16)", "calc(100% - 30)"], style: "body", ...layout.body || {} };
+    const childBox = (slotLayout) => {
+      const [cx, cy, cw, ch] = componentSlotBox(box, slotLayout.box_offset);
+      return [cx - x, cy - y, cw, ch];
+    };
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { "data-framegraph-object": o.id || "", "data-framegraph-type": "component", "data-framegraph-component": o.component || "", style: baseStyle, children: [
+      o.title ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TextObj, { doc, active, o: { type: "text", box: childBox(titleLayout), text: o.title, style: titleLayout.style } }) : null,
+      o.body ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TextObj, { doc, active, o: { type: "text", box: childBox(bodyLayout), text: o.body, style: bodyLayout.style } }) : null
+    ] });
+  }
   function textContent(v) {
     if (v == null) return "";
     if (typeof v === "string" || typeof v === "number") return String(v);
@@ -28108,6 +28170,8 @@ ${exception.mark.snippet}`;
         return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChipRowObj, { doc, o });
       case "uml.marker_glyph":
         return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlMarkerGlyphObj, { doc, o });
+      case "component":
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ComponentObj, { doc, o, active });
       default:
         if (UML_BOX_TYPES.has(o.type)) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlBoxObj, { doc, o });
         if (o.from && o.to) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VectorObj, { doc, o: { ...o, type: "line" }, cw, ch, reg });

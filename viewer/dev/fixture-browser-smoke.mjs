@@ -67,10 +67,11 @@ for (const { rel, doc } of docs) {
   const sourcePages = doc.pages || [];
   const sourceRenderablePages = sourcePages.map(hasRenderableContent);
   const hasFlow = sourcePages.some((p) => p.mode === "flow" || p.story || p.sections);
+  const hasContinuousFlow = sourcePages.some((p) => (p.mode === "flow" || p.story || p.sections) && p.media === "continuous");
   if (state.pageCount < sourcePages.length) {
     failures.push(`${rel}: expanded page count ${state.pageCount} is smaller than source page count ${sourcePages.length}`);
   }
-  if (hasFlow && state.pageCount <= sourcePages.length) {
+  if (hasFlow && !hasContinuousFlow && state.pageCount <= sourcePages.length) {
     failures.push(`${rel}: flow document did not expand beyond ${sourcePages.length} source page record(s)`);
   }
   renderedPages += state.pageCount;

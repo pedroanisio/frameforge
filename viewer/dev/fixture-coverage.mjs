@@ -12,7 +12,7 @@ const SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, "schema/framegraph-v2.
 const PAGE_MODES = new Set(["page", "flow", undefined]);
 const ABSOLUTE_TYPES = new Set([
   "rect", "text", "line", "polyline", "polygon", "path", "ellipse", "circle",
-  "icon", "image", "bullet_list", "table", "group", "chip_row", "uml.marker_glyph",
+  "icon", "image", "bullet_list", "table", "group", "component", "chip_row", "uml.marker_glyph",
   "dimension",
   "uml.classifier_box", "uml.component_box", "uml.state_box", "uml.action",
   "uml.artifact_box", "uml.node_box",

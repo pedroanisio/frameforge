@@ -729,6 +729,9 @@ class Renderer:
         if t == "uml.marker_glyph":
             return self._uml_marker_glyph(o)
 
+        if t == "component" and box:
+            return self._component(o, style)
+
         if t in {
             "uml.classifier_box",
             "uml.component_box",
@@ -958,6 +961,83 @@ class Renderer:
         if any(k in style for k in ("stroke", "stroke_width", "stroke_dasharray", "stroke_linecap", "stroke_linejoin")):
             return self.stroke({"stroke": style.get("stroke"), "stroke_style": style})
         return ""
+
+    def _component(self, o, style):
+        box = o.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            self.skipped += 1
+            return ""
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        p = self._painter
+        spec = self._component_spec(o)
+        render_o = {**spec, **o}
+        comp_style = self._style_dict(render_o.get("style"))
+        comp_style.update(style or {})
+        geometry = spec.get("geometry") if isinstance(spec.get("geometry"), dict) else {}
+        radius = num(render_o.get("radius", geometry.get("radius")), 0) or 0
+        fill = self._shape_fill(render_o, comp_style) or "#fff"
+        stroke = self._shape_stroke(render_o, comp_style) or ' stroke="#bbb" stroke-width="1"'
+        out = [p.rect(x, y, w, h, fill, stroke, radius=radius)]
+
+        layout = spec.get("internal_layout") if isinstance(spec.get("internal_layout"), dict) else {}
+        slots = (
+            ("title", o.get("title"), {"box_offset": [0, 6, "100%", 18], "style": "heading"}),
+            ("body", o.get("body"), {"box_offset": [8, 26, "calc(100% - 16)", "calc(100% - 30)"], "style": "body"}),
+        )
+        for slot, value, fallback in slots:
+            if value is None or value == "":
+                continue
+            slot_layout = layout.get(slot) if isinstance(layout.get(slot), dict) else {}
+            slot_layout = {**fallback, **slot_layout}
+            sx, sy, sw, sh = self._component_slot_box(x, y, w, h, slot_layout.get("box_offset"))
+            if sw <= 0 or sh <= 0:
+                continue
+            text_style = self.text_style(slot_layout.get("style"))
+            out.append(self.render_text(sx, sy, sw, sh, value, text_style))
+        return p.group("".join(out))
+
+    def _component_spec(self, o):
+        comps = (self.doc.get("defs") or {}).get("components") or {}
+        spec = comps.get(o.get("component"))
+        if not isinstance(spec, dict):
+            return {}
+        merged = {
+            k: v for k, v in spec.items()
+            if k not in ("variants", "slots")
+        }
+        variants = spec.get("variants") if isinstance(spec.get("variants"), dict) else {}
+        variant = variants.get(o.get("variant"))
+        if isinstance(variant, dict):
+            merged.update(variant)
+        return merged
+
+    def _component_slot_box(self, x, y, w, h, offset):
+        if not (isinstance(offset, list) and len(offset) >= 4):
+            offset = [0, 0, w, h]
+        ox = self._component_length(offset[0], w)
+        oy = self._component_length(offset[1], h)
+        ow = self._component_length(offset[2], w)
+        oh = self._component_length(offset[3], h)
+        return x + ox, y + oy, ow, oh
+
+    def _component_length(self, value, total):
+        if isinstance(value, (int, float)):
+            return num(value, 0)
+        if not isinstance(value, str):
+            return num(value, 0)
+        s = value.strip()
+        if s.endswith("%"):
+            return total * (num(s[:-1], 0) / 100)
+        if s.startswith("calc(") and s.endswith(")"):
+            inner = s[5:-1].strip()
+            if inner.startswith("100%"):
+                rest = inner[4:].strip()
+                if rest.startswith("-"):
+                    return total - num(rest[1:].strip(), 0)
+                if rest.startswith("+"):
+                    return total + num(rest[1:].strip(), 0)
+                return total
+        return num(s, 0)
 
     def _uml_box(self, o, style, fill):
         box = o.get("box")
