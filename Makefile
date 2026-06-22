@@ -9,7 +9,7 @@ UV ?= uv
 FIXTURES_YAML := fixtures/*.fg.yaml
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render check schema-check test validate overflow status status-check lint clean viewer-build viewer-test
+.PHONY: help sync schema render check schema-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test
 
 help:  ## list targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort \
@@ -24,7 +24,7 @@ schema:  ## regenerate schema/framegraph-v2.schema.json from the models
 render:  ## render every fixture to out/render/ (+ contact sheet)
 	$(UV) run python tooling/render_fixtures.py --all
 
-check: schema-check test validate overflow status-check  ## run every gate (what CI enforces)
+check: schema-check test validate overflow status-check docs-check  ## run every local gate
 
 schema-check:  ## fail if the committed schema drifted from the models
 	$(UV) run python schema/build_schema.py --check
@@ -44,11 +44,23 @@ status:  ## regenerate FIXTURE-STATUS.md from the validator
 status-check:  ## fail if FIXTURE-STATUS.md drifted from the validator
 	$(UV) run python tooling/gen_status.py --check
 
+docs:  ## generate pages + build the static site into site/ (theme fetched ephemerally)
+	$(UV) run python tooling/gen_docs.py
+	$(UV) run --with mkdocs-material mkdocs build --strict
+
+docs-serve:  ## generate pages + serve with live reload (http://127.0.0.1:8000)
+	$(UV) run python tooling/gen_docs.py
+	$(UV) run --with mkdocs-material mkdocs serve
+
+docs-check:  ## generate pages + assert every mkdocs.yml nav page exists (no full build)
+	$(UV) run python tooling/gen_docs.py --check
+
 lint:  ## ruff (non-gating; fetched ephemerally)
 	-$(UV)x ruff check .
 
 clean:  ## remove generated output + caches
-	rm -rf out .ruff_cache .pytest_cache
+	rm -rf out site docs/assets .ruff_cache .pytest_cache
+	rm -f docs/reference.md docs/grammar.md docs/spec.md docs/fixtures.md docs/changelog.md
 	find . -name __pycache__ -type d -prune -exec rm -rf {} +
 
 viewer-build:  ## build the JS viewer bundle

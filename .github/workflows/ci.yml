@@ -44,6 +44,50 @@ jobs:
         continue-on-error: true
         run: uvx ruff check .
 
+  docs:
+    name: docs build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Generate doc pages (nav must resolve)
+        run: uv run python tooling/gen_docs.py --check
+      - name: Build the site (strict)
+        run: uv run --with mkdocs-material mkdocs build --strict
+
+  # Publish versioned docs to GitHub Pages on pushes to main (mike -> gh-pages).
+  # Requires Pages enabled for the repo, serving from the gh-pages branch.
+  docs-deploy:
+    name: deploy docs (main)
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Configure git for mike
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Generate pages + deploy versioned docs
+        run: |
+          uv run python tooling/gen_docs.py
+          VERSION=$(uv run python -c "import sys; sys.path.insert(0,'models'); import framegraph as fg; print(fg.HEAD_VERSION)")
+          uv run --with mkdocs-material --with mike mike deploy --push --update-aliases "$VERSION" latest
+          uv run --with mkdocs-material --with mike mike set-default --push latest
+
   # The JS viewer is mid-refactor; surface its status without blocking the gate.
   viewer:
     name: viewer smoke (non-blocking)
