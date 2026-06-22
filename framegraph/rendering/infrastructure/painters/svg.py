@@ -28,9 +28,12 @@ class SvgPainter:
 
     # ---- small attribute / style helpers ---------------------------------- #
     @staticmethod
-    def fill_attr(fill):
+    def fill_attr(fill, fill_opacity=None):
         """The SVG `fill` attribute for a resolved paint value (None ⇒ 'none')."""
-        return f' fill="{esc(fill)}"' if fill is not None else ' fill="none"'
+        attr = f' fill="{esc(fill)}"' if fill is not None else ' fill="none"'
+        if fill_opacity is not None:
+            attr += f' fill-opacity="{fnum(num(fill_opacity, 1))}"'
+        return attr
 
     @staticmethod
     def anchor(align):
@@ -79,27 +82,28 @@ class SvgPainter:
         return f'<g clip-path="url(#{clip_id})">{inner}</g>'
 
     # ---- primitives ------------------------------------------------------- #
-    def rect(self, x, y, w, h, fill, stroke, radius=0):
+    def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None):
         rr = f' rx="{fnum(radius)}"' if radius else ""
         return (f'<rect x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" '
-                f'height="{fnum(h)}"{rr}{self.fill_attr(fill)}{stroke}/>')
+                f'height="{fnum(h)}"{rr}{self.fill_attr(fill, fill_opacity)}{stroke}/>')
 
-    def ellipse(self, cx, cy, rx, ry, fill, stroke):
+    def ellipse(self, cx, cy, rx, ry, fill, stroke, fill_opacity=None):
         return (f'<ellipse cx="{fnum(cx)}" cy="{fnum(cy)}" rx="{fnum(rx)}" '
-                f'ry="{fnum(ry)}"{self.fill_attr(fill)}{stroke}/>')
+                f'ry="{fnum(ry)}"{self.fill_attr(fill, fill_opacity)}{stroke}/>')
 
-    def circle(self, cx, cy, r, fill, stroke):
-        return f'<circle cx="{fnum(cx)}" cy="{fnum(cy)}" r="{fnum(r)}"{self.fill_attr(fill)}{stroke}/>'
+    def circle(self, cx, cy, r, fill, stroke, fill_opacity=None):
+        return (f'<circle cx="{fnum(cx)}" cy="{fnum(cy)}" r="{fnum(r)}"'
+                f'{self.fill_attr(fill, fill_opacity)}{stroke}/>')
 
     def line(self, x1, y1, x2, y2, stroke):
         return (f'<line x1="{fnum(x1)}" y1="{fnum(y1)}" '
                 f'x2="{fnum(x2)}" y2="{fnum(y2)}"{stroke}/>')
 
-    def poly(self, tag, points, fill, stroke):
-        return f'<{tag} points="{points}"{self.fill_attr(fill)}{stroke}/>'
+    def poly(self, tag, points, fill, stroke, fill_opacity=None):
+        return f'<{tag} points="{points}"{self.fill_attr(fill, fill_opacity)}{stroke}/>'
 
-    def path(self, d, fill, stroke):
-        return f'<path d="{esc(d)}"{self.fill_attr(fill)}{stroke}/>'
+    def path(self, d, fill, stroke, fill_opacity=None):
+        return f'<path d="{esc(d)}"{self.fill_attr(fill, fill_opacity)}{stroke}/>'
 
     def image(self, x, y, w, h, href):
         return (f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '

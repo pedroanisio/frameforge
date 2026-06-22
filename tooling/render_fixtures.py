@@ -266,11 +266,12 @@ class Renderer:
         # Resolve fill up-front for every object (even box-less ones): a gradient
         # fill must allocate its <defs> id here, before stroke, to keep ids stable.
         fill = self.paint(o.get("fill")) if "fill" in o else None
+        fill_opacity = o.get("fill_opacity")
 
         if t == "rect" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
             r = num(o.get("radius") or o.get("rx"), 0) or 0
-            return p.rect(x, y, w, h, fill, self.stroke(o), radius=r)
+            return p.rect(x, y, w, h, fill, self.stroke(o), radius=r, fill_opacity=fill_opacity)
 
         if t == "ellipse":
             c = o.get("center") or [0, 0]
@@ -278,12 +279,12 @@ class Renderer:
             rx, ry = num(o.get("rx"), 0), num(o.get("ry"), 0)
             if not rx and box:
                 cx, cy, rx, ry = box[0] + box[2] / 2, box[1] + box[3] / 2, box[2] / 2, box[3] / 2
-            return p.ellipse(cx, cy, rx, ry, fill, self.stroke(o))
+            return p.ellipse(cx, cy, rx, ry, fill, self.stroke(o), fill_opacity=fill_opacity)
 
         if t == "circle":
             c = o.get("center") or [0, 0]
             r = num(o.get("r"), 0)
-            return p.circle(num(c[0], 0), num(c[1], 0), r, fill, self.stroke(o))
+            return p.circle(num(c[0], 0), num(c[1], 0), r, fill, self.stroke(o), fill_opacity=fill_opacity)
 
         if t == "line":
             fr, to = o.get("from"), o.get("to")
@@ -299,7 +300,7 @@ class Renderer:
                 return ""
             closed = t == "polygon" or o.get("closed")
             tag = "polygon" if closed else "polyline"
-            return p.poly(tag, ptstr, fill if closed else None, self.stroke(o))
+            return p.poly(tag, ptstr, fill if closed else None, self.stroke(o), fill_opacity=fill_opacity if closed else None)
 
         if t == "path":
             d = o.get("d")
@@ -308,7 +309,7 @@ class Renderer:
                              if isinstance(seg, list) else str(seg) for seg in d)
             if not isinstance(d, str) or not d.strip():
                 return ""
-            return p.path(d, fill, self.stroke(o))
+            return p.path(d, fill, self.stroke(o), fill_opacity=fill_opacity)
 
         if t == "text" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])

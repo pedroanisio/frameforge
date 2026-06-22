@@ -35,7 +35,13 @@ class StrokeResolver:
         if not isinstance(bundle, dict):
             bundle = {}
         sv = o.get("stroke")
-        col = self._paint(sv) if sv is not None else None
+        if isinstance(sv, dict) and any(k in sv for k in ("color", "width", "dash")):
+            legacy = dict(sv)
+            legacy.update(bundle)
+            bundle = legacy
+            col = self._color.resolve(sv.get("color"))
+        else:
+            col = self._paint(sv) if sv is not None else None
         if col is None or col == "none":
             col = self._color.resolve(bundle.get("stroke") or bundle.get("color"))
         width = num(bundle.get("stroke_width", bundle.get("width")), None)
@@ -53,4 +59,7 @@ class StrokeResolver:
             out += f' stroke-linecap="{esc(cap)}"'
         if join:
             out += f' stroke-linejoin="{esc(join)}"'
+        opacity = o.get("stroke_opacity", bundle.get("opacity"))
+        if opacity is not None:
+            out += f' stroke-opacity="{fnum(num(opacity, 1))}"'
         return out
