@@ -327,6 +327,22 @@ class _Transpiler:
         code = fl.get("code") or fl.get("source") or ""
         out.append("\\begin{verbatim}\n" + str(code) + "\n\\end{verbatim}\n")
 
+    def _cell_text(self, cell):
+        """A table `CellValue` → LaTeX text.
+
+        Cells are scalars *or* structured values — a `Cell` (`{content, style}`)
+        or a rich `Span` (`{text/spans, …}`). Escaping the raw value (the old
+        behaviour) leaked the dict repr into the tabular; pull the text out the
+        same way the SVG painter does, then let `_inline_text` escape it.
+        """
+        if cell is None:
+            return ""
+        if isinstance(cell, dict):
+            if cell.get("content") is not None:
+                return self._inline_text(cell.get("content"))
+            return self._inline_text(cell)
+        return ltx_escape(cell)
+
     def _emit_table(self, fl, out):
         header = fl.get("header") if isinstance(fl.get("header"), list) else []
         rows = [r for r in (fl.get("rows") or []) if isinstance(r, list)]
@@ -338,7 +354,7 @@ class _Transpiler:
             out.append(self._styled(self._ts.resolve("caption"), "\\textbf{" + self._caption_text(cap) + "}", gap="3pt"))
 
         def cells(row, bold=False):
-            xs = [ltx_escape(row[i]) if i < len(row) and row[i] is not None else "" for i in range(ncol)]
+            xs = [self._cell_text(row[i]) if i < len(row) else "" for i in range(ncol)]
             if bold:
                 xs = [("\\textbf{" + c + "}" if c else "") for c in xs]
             return " & ".join(xs) + " \\\\\n"
