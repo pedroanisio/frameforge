@@ -1416,6 +1416,18 @@ def normalize_doc(doc):
     if not isinstance(doc, dict) or doc.get("dsl") != "FrameGraph":
         return doc
     if isinstance(doc.get("pages"), list):
+        symbols = ((doc.get("defs") or {}).get("symbols") or {})
+        if not symbols:
+            return doc
+        out = copy.deepcopy(doc)
+        for page in out.get("pages") or []:
+            for layer in page.get("layers") or []:
+                layer["objects"] = [_expand_legacy_use(obj, symbols) for obj in layer.get("objects") or []]
+            for key in ("story", "sections"):
+                if isinstance(page.get(key), list):
+                    page[key] = [_expand_legacy_use(block, symbols) for block in page[key]]
+        return out
+    if isinstance(doc.get("pages"), list):
         return doc
     if doc.get("kind") != "presentation-deck" or not isinstance(doc.get("slides"), list):
         return doc

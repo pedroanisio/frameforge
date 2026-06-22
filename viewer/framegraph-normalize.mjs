@@ -83,9 +83,31 @@ function normalizeLegacyDeck(doc) {
   };
 }
 
+function normalizeSymbolUses(doc) {
+  const symbols = doc.defs?.symbols || {};
+  if (!Object.keys(symbols).length || !Array.isArray(doc.pages)) return doc;
+  const out = clone(doc);
+  out.pages = out.pages.map((page) => {
+    const next = { ...page };
+    if (Array.isArray(next.layers)) {
+      next.layers = next.layers.map((layer) => ({
+        ...layer,
+        objects: (layer.objects || []).map((obj) => expandUseObject(obj, symbols)),
+      }));
+    }
+    for (const key of ["story", "sections"]) {
+      if (Array.isArray(next[key])) {
+        next[key] = next[key].map((block) => expandUseObject(block, symbols));
+      }
+    }
+    return next;
+  });
+  return out;
+}
+
 export function normalizeFrameGraphDoc(doc) {
   if (!doc || typeof doc !== "object") return doc;
-  if (Array.isArray(doc.pages)) return doc;
+  if (Array.isArray(doc.pages)) return normalizeSymbolUses(doc);
   if (doc.dsl === "FrameGraph" && doc.kind === "presentation-deck" && Array.isArray(doc.slides)) {
     return normalizeLegacyDeck(doc);
   }

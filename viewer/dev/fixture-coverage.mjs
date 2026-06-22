@@ -99,6 +99,9 @@ for (const { file, doc } of docs) {
             }
           });
           objectTypes.add(o.type);
+          if (o.type === "use") {
+            failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: unexpanded symbol use reached viewer render policy`);
+          }
           const covered = ABSOLUTE_TYPES.has(o.type) || o.box || (o.from && o.to) || o.children;
           if (!covered) failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: no absolute render policy for ${o.type}`);
         });
@@ -114,6 +117,9 @@ for (const { file, doc } of docs) {
           }
         });
         objectTypes.add(o.type);
+        if (o.type === "use") {
+          failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: unexpanded symbol use reached viewer flow render policy`);
+        }
         const covered = FLOW_TYPES.has(o.type) || ABSOLUTE_TYPES.has(o.type) || o.box || (o.from && o.to) || o.children;
         if (!covered) failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: no flow render policy for ${o.type}`);
       });
