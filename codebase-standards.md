@@ -103,7 +103,7 @@ Rules of reading:
 The gate is the contract for "done." It has **one definition**, run two places.
 
 - **`[Enforced]`** `make check = schema-check + grammar-check + a11y-check + test + validate +
-  overflow + status-check + docs-check` ([Makefile:31](./Makefile#L31)). A change is not done until it passes.
+  overflow + golden-check + status-check + docs-check` ([Makefile:31](./Makefile#L31)). A change is not done until it passes.
   - `schema-check` — `uv run python schema/build_schema.py --check`: fails if the committed
     [schema/framegraph-v2.schema.json](./schema/framegraph-v2.schema.json) drifted from the
     models ([Makefile:33-34](./Makefile#L33-L34)).
@@ -122,16 +122,19 @@ The gate is the contract for "done." It has **one definition**, run two places.
     geometric rules ([Makefile:45-46](./Makefile#L45-L46)).
   - `overflow` — `uv run python tooling/render_fixtures.py --all --check-overflow`: asserts
     no text spills its box ([Makefile:48-49](./Makefile#L48-L49)).
+  - `golden-check` — `uv run python tooling/render_golden.py`: fails if the b1/ oracle's per-page
+    SVG renders drift from the committed hash lock (`tests/golden/oracle.lock.json`); re-pin an
+    intentional render change with `make golden` ([Makefile:85-86](./Makefile#L85-L86)).
   - `status-check` — `uv run python tooling/gen_status.py --check`: fails if
     [FIXTURE-STATUS.md](./FIXTURE-STATUS.md) drifted from the validator ([Makefile:54-55](./Makefile#L54-L55)).
   - `docs-check` — `uv run python tooling/gen_docs.py --check`: regenerates the docs pages and
     asserts every `mkdocs.yml` nav entry resolves ([Makefile:65-66](./Makefile#L65-L66)).
 - **`[Enforced]`** **CI mirrors `make check`.** The `python` job
-  ([ci.yml:28-47](./.github/workflows/ci.yml#L28-L47)) runs schema-check, grammar-check, a11y-check,
-  test, validate, overflow, and status-check as separate steps after `uv sync --locked --group pdf` (the
+  ([ci.yml:28-50](./.github/workflows/ci.yml#L28-L50)) runs schema-check, grammar-check, a11y-check,
+  test, validate, overflow, golden-check, and status-check as separate steps after `uv sync --locked --group pdf` (the
   `pdf` group only lets the transpiler's gated e2e test execute; the gate *commands* still
-  match `make check`); the eighth gate, `docs-check`, runs in the dedicated `docs` job
-  ([ci.yml:54-66](./.github/workflows/ci.yml#L54-L66)) which also builds the site with
+  match `make check`); the ninth gate, `docs-check`, runs in the dedicated `docs` job
+  ([ci.yml:57-69](./.github/workflows/ci.yml#L57-L69)) which also builds the site with
   `mkdocs build --strict`. Keep make and CI in lockstep; if they must diverge, document why here.
 - **`[Target]`** Fold `lint` and `typecheck` (§4, §5) into the gate once they are green
   (see §16). Today they are **not** in `make check`.
@@ -141,7 +144,7 @@ The gate is the contract for "done." It has **one definition**, run two places.
 - **`[Enforced — non-gating]`** `ruff` is the linter, fetched ephemerally via `uvx`. It is
   deliberately **non-blocking** today: `make lint` runs `-uvx ruff check .` (leading `-`
   ignores failure, [Makefile:68-69](./Makefile#L68-L69)) and CI runs it with
-  `continue-on-error: true` ([ci.yml:49-51](./.github/workflows/ci.yml#L49-L51)). Lint
+  `continue-on-error: true` ([ci.yml:52-54](./.github/workflows/ci.yml#L52-L54)). Lint
   output is advisory; a lint failure does **not** fail the build.
 - **`[Target]`** A committed, gating ruff configuration. When adopted, the intended shape is:
   line length **100**; rule families `E, F, W, I, UP, B, C4, SIM, RET, D`; ignore `E501`
@@ -219,10 +222,13 @@ else is generated from or checked against them** ([README.md](./README.md), *The
   (a broken structure tree); missing image `alt` and pages without a `reading_order` are advisory.
   It keeps the accessibility vocabulary (`decorative`, `alt`/`actual_text`, `reading_order`) coherent
   for a future tagged export (roadmap item 2).
-- **`[Target]`** A formal golden-snapshot harness with an explicit drift tolerance, so that a
-  change pushing prior v1.x/v2.x output outside tolerance is flagged automatically as breaking.
-  Today regression is covered by the fixture-validation + overflow gates and the HEAD oracle,
-  not a tolerance-configured snapshot diff.
+- **`[Enforced]`** **Golden renders.** [tooling/render_golden.py](./tooling/render_golden.py)
+  (the `golden-check` gate, §3) pins each b1/ oracle fixture's per-page SVG output by SHA-256 in
+  `tests/golden/oracle.lock.json`; any change in rendered output fails the gate until re-pinned
+  with `make golden`. This catches output regressions the validate/overflow gates cannot.
+- **`[Target]`** An explicit **drift tolerance** (rasterized pixel diff) so a cosmetically-trivial
+  change need not force a re-pin. Today the lock is exact (hash) over the deterministic SVG; there
+  is no tolerance band yet.
 
 ## 9. Versioning and backward compatibility
 
@@ -244,8 +250,8 @@ else is generated from or checked against them** ([README.md](./README.md), *The
 ## 10. Pre-commit and CI
 
 - **`[Enforced]`** CI is the gate ([.github/workflows/ci.yml](./.github/workflows/ci.yml)):
-  the `python` job runs seven of the eight `make check` gates (schema, grammar, a11y, test, validate,
-  overflow, status-check); a `docs` job runs `docs-check` + `mkdocs build --strict`, and on pushes to
+  the `python` job runs eight of the nine `make check` gates (schema, grammar, a11y, test, validate,
+  overflow, golden, status-check); a `docs` job runs `docs-check` + `mkdocs build --strict`, and on pushes to
   `main` a `docs-deploy` job publishes versioned docs to GitHub Pages via `mike`; the `viewer`
   job is a **non-blocking** smoke build of the JS bundle (`continue-on-error: true`).
 - **`[Target]`** A `.pre-commit-config.yaml` that runs the same lint/format/type checks at
@@ -339,7 +345,7 @@ explicit and shrinking, never silently assumed-met. Complexity scale per §12.
 | 2 | `mypy --strict` + `pydantic.mypy`, in the gate | absent entirely | §5 | M |
 | 3 | Coverage measured + gated (target 90% branch) | not measured | §7 | M |
 | 4 | TDD loop, `unit`/`integration` trees, hypothesis | single oracle module | §6 | M |
-| 5 | Golden-snapshot harness + drift tolerance | fixture-validate + overflow only | §8 | M |
+| 5 | Golden-render **drift tolerance** (rasterized) | exact hash lock (`render_golden.py`) | §8 | M |
 | 6 | `.pre-commit-config.yaml` mirroring CI | none | §10 | S |
 | 7 | Governance docs: `PURPOSE.md`, `AGENTS.md`, `CLAUDE.md`, `DISCLAIMER.md` | none | table, §12, §13 | S–M |
 | 8 | Runtime `__version__` + `make release` | single literal, no recipe | §9 | S |

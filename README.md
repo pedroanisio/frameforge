@@ -32,6 +32,7 @@ tooling/
   gen_docs.py                 ← GENERATES the docs-site pages (schema reference, gallery, spec, grammar).
   check_grammar_sync.py       ← GATES grammar ⇄ models drift (core profile); `--strict` for full parity.
   check_accessibility.py      ← GATES page reading_order integrity; warns on missing image alt (a11y).
+  render_golden.py            ← GATES b1/ oracle SVG output against a pinned hash lock (golden).
 fixtures/                     ← the original fixtures, migrated to 2.2.0.
   b1/                         ← the 8 AUTHORITATIVE fixtures (the oracle the tests assert against).
 tests/
@@ -91,7 +92,7 @@ uv run python tooling/render_fixtures.py --all
 uv sync --group pdf
 uv run python tooling/pdf_to_framegraph_yml.py input.pdf output.framegraph.yml
 
-# the whole local gate (schema · tests · validate · overflow · fixture-status · docs nav)
+# the whole local gate (schema · grammar · a11y · tests · validate · overflow · golden · fixture-status · docs nav)
 make check
 
 # build & browse the generated documentation site (Material theme, live reload)
