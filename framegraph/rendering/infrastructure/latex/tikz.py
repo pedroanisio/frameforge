@@ -437,6 +437,9 @@ class FigureTikz:
 
     def _stroke_bundle(self, o):
         style = self._style_dict(o)
+        border = None
+        if not any(k in o for k in ("stroke", "stroke_style")):
+            border = self._border_bundle(style.get("border"))
         ssv = o.get("stroke_style")
         if ssv is None:
             ssv = style.get("stroke_style")
@@ -444,20 +447,57 @@ class FigureTikz:
         if not isinstance(bundle, dict):
             bundle = {}
         legacy = self._legacy_stroke_bundle(o)
+        direct = dict(border or {})
+        style_keys = (
+            "stroke", "color", "stroke_width", "width", "stroke_dasharray", "dash",
+            "stroke_dashoffset", "stroke_linecap", "stroke_linejoin",
+            "stroke_miterlimit", "paint_order", "vector_effect", "opacity",
+            "arrow_start", "arrow_end",
+        )
+        if border:
+            style_keys = ("paint_order", "vector_effect", "opacity", "arrow_start", "arrow_end")
         direct = {
-            key: style[key]
-            for key in (
-                "stroke", "color", "stroke_width", "width", "stroke_dasharray", "dash",
-                "stroke_dashoffset", "stroke_linecap", "stroke_linejoin",
-                "stroke_miterlimit", "paint_order", "vector_effect", "opacity",
-                "arrow_start", "arrow_end",
-            )
-            if key in style and not (key == "stroke" and self._is_legacy_stroke(style[key]))
+            **direct,
+            **{
+                key: style[key]
+                for key in style_keys
+                if key in style and not (key == "stroke" and self._is_legacy_stroke(style[key]))
+            },
         }
         if legacy:
             direct.update(legacy)
         direct.update(bundle)
         return direct
+
+    def _border_bundle(self, border):
+        border = self._border_dict(border)
+        if not border or border.get("style") in ("none", "hidden"):
+            return {}
+        out = {"color": border.get("color"), "width": border.get("width", 1)}
+        if border.get("style") == "dashed":
+            out["dash"] = [4, 4]
+        elif border.get("style") == "dotted":
+            out["dash"] = [1, 3]
+        return out
+
+    @staticmethod
+    def _border_dict(border):
+        if isinstance(border, dict):
+            return border
+        if not isinstance(border, str):
+            return {}
+        styles = {"none", "hidden", "solid", "dashed", "dotted", "double", "groove", "ridge", "inset", "outset"}
+        out, colors = {}, []
+        for part in border.split():
+            if part in styles:
+                out["style"] = part
+            elif num(part, None) is not None:
+                out["width"] = part
+            else:
+                colors.append(part)
+        if colors:
+            out["color"] = colors[-1]
+        return out
 
     @staticmethod
     def _is_legacy_stroke(value):

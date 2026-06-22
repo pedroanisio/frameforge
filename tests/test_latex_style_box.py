@@ -43,3 +43,48 @@ def test_rect_object_fill_and_radius_override_style_box_fallbacks():
     assert "fill={rgb,255:red,255;green,238;blue,204}" not in tex
     assert "rounded corners=3pt" in tex
     assert "rounded corners=6pt" not in tex
+
+
+def test_rect_style_border_dict_feeds_tikz_stroke():
+    tex = _fig({
+        "panel_style": {
+            "background_color": "panel",
+            "border": {"width": 2, "style": "dashed", "color": "accent"},
+        },
+    }).render({
+        "type": "rect",
+        "box": [10, 20, 80, 40],
+        "style": "panel_style",
+    })
+
+    assert "draw={rgb,255:red,171;green,205;blue,239}" in tex
+    assert "line width=2pt" in tex
+    assert "dash pattern=on 4pt off 4pt" in tex
+
+
+def test_rect_style_border_shorthand_feeds_tikz_stroke():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [10, 20, 80, 40],
+        "fill": "panel",
+        "style": {"border": "3px dotted accent"},
+    })
+
+    assert "draw={rgb,255:red,171;green,205;blue,239}" in tex
+    assert "line width=3pt" in tex
+    assert "dash pattern=on 1pt off 3pt" in tex
+
+
+def test_explicit_rect_stroke_overrides_style_border():
+    tex = _fig({"panel_style": {"border": {"width": 4, "style": "dashed", "color": "panel"}}}).render({
+        "type": "rect",
+        "box": [10, 20, 80, 40],
+        "fill": "panel",
+        "stroke": "accent",
+        "stroke_style": {"stroke_width": 1},
+        "style": "panel_style",
+    })
+
+    assert "draw={rgb,255:red,171;green,205;blue,239}" in tex
+    assert "line width=1pt" in tex
+    assert "dash pattern=on 4pt off 4pt" not in tex
