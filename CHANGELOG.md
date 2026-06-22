@@ -56,6 +56,14 @@ those that carry legacy inline strokes (`amazon-proxy`, `chroma-styling-showcase
 `wireframing-guide`, `docusign-deck-v2` — **544 strokes migrated**). The schema is
 generated-in-sync, and the P3 inline-geometry `stroke` is still rejected.
 
+**Grammar ⇄ models is now gated.** A new `grammar-check` gate
+(`tooling/check_grammar_sync.py`, wired into `make check` and CI) introspects the models
+and diffs the EBNF, failing on **core-profile** drift — a mismatched object/flow `type`
+discriminator or a divergent enum. The out-of-profile superset (charts, the UML zoo,
+connectors) is reported as a non-blocking warning (`--strict` demands full parity). It
+immediately caught and fixed two real grammar omissions against the models: `Units` was
+missing `cm`, and `ImageObject` lacked the `alt`/`actual_text` accessibility fields.
+
 **Two source contradictions adjudicated** (flagged, not hidden): the base core grammar's
 `GradientStop` uses `offset` while the authoritative style module uses `position` — the
 module wins; and the base grammar still carried `Stroke = string | StrokeStyle` while

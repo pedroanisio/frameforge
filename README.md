@@ -30,6 +30,7 @@ tooling/
   pdf_to_framegraph_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameGraph YAML extractor.
   gen_status.py               ← GENERATES FIXTURE-STATUS.md from the validator (`--check` gates drift).
   gen_docs.py                 ← GENERATES the docs-site pages (schema reference, gallery, spec, grammar).
+  check_grammar_sync.py       ← GATES grammar ⇄ models drift (core profile); `--strict` for full parity.
 fixtures/                     ← the original fixtures, migrated to 2.2.0.
   b1/                         ← the 8 AUTHORITATIVE fixtures (the oracle the tests assert against).
 tests/
@@ -53,10 +54,12 @@ Makefile + .github/workflows/ ← `make check` = the local gate; CI mirrors it (
    then layers the §3.3/§3.6/§9.6 rules.
 3. **Codemod ⇄ validator.** The codemod's migrations are exactly the breaking/renamed
    forms the validator rejects; running it makes a legacy document pass.
-4. **Grammar ⇄ models.** The EBNF is kept consistent by hand (the grammar is a *view*;
-   the models are the source). Every production the models add — `Style`, `BorderSide`,
-   `Sizing`/`SizeMode`, `DimensionObject`, `sizing`, `Stroke = Color` — is present in
-   the grammar, and the grammar has no remaining dangling references.
+4. **Grammar ⇄ models.** The EBNF is a *view* of the models (the source). This is now
+   enforced, not trusted: `tooling/check_grammar_sync.py` (the `grammar-check` gate)
+   introspects the models and diffs the EBNF, failing CI on **core-profile** drift — a
+   mismatched object/flow `type` discriminator or a divergent enum. Out-of-profile
+   grammar (charts, the UML zoo, connectors) is reported as a non-blocking warning;
+   `--strict` demands full parity.
 
 ## Run it
 
@@ -125,8 +128,9 @@ folded into the artifacts above; they are listed only for historical context:
 
 - This is a **proposed** format. No renderer is conformant; the proxy renderer uses
   DejaVu stand-in fonts and is a sanity check, not a fidelity guarantee.
-- The grammar is consolidated and paren-balanced but is a **view** kept in sync by hand;
-  the models are the authority if the two ever disagree.
+- The grammar is consolidated and paren-balanced and is a **view** of the models — now
+  kept honest by the `grammar-check` gate (`check_grammar_sync.py`) for the core profile;
+  the models remain the authority if the two ever disagree.
 - Font pinning enables deterministic *layout* only up to a stated rounding **tolerance**
   (a defined shaping model is also required) — not pixel-exact identity (§9.6).
 - Two of the nine fixtures (Coopera) retain **2 genuine errors each** (an `image` with a
