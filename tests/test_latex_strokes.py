@@ -67,3 +67,33 @@ def test_stroke_miterlimit_maps_to_tikz_miter_limit():
 
     assert "line join=miter" in tex
     assert "miter limit=6" in tex
+
+
+def test_legacy_inline_stroke_bundle_maps_to_tikz_stroke_options():
+    tex = _fig().render({
+        "type": "line",
+        "from": [0, 0],
+        "to": [50, 0],
+        "stroke": {"color": "ink", "width": 4, "dash": [6, 3], "stroke_dashoffset": 2},
+    })
+
+    assert "draw={rgb,255:red,18;green,52;blue,86}" in tex
+    assert "line width=4pt" in tex
+    assert "dash pattern=on 6pt off 3pt" in tex
+    assert "dash phase=2pt" in tex
+
+
+def test_stroke_style_geometry_overrides_legacy_inline_stroke_bundle():
+    tex = _fig().render({
+        "type": "line",
+        "from": [0, 0],
+        "to": [50, 0],
+        "stroke": {"color": "ink", "width": 4, "dash": [6, 3]},
+        "stroke_style": {"stroke_width": 2, "stroke_dasharray": [1, 2]},
+    })
+
+    assert "draw={rgb,255:red,18;green,52;blue,86}" in tex
+    assert "line width=2pt" in tex
+    assert "dash pattern=on 1pt off 2pt" in tex
+    assert "line width=4pt" not in tex
+    assert "dash pattern=on 6pt off 3pt" not in tex

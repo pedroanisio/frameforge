@@ -375,7 +375,10 @@ class FigureTikz:
         style = self._style_dict(o)
         sv = o.get("stroke") if "stroke" in o else style.get("stroke")
         bundle = self._stroke_bundle(o)
-        col = self._color.resolve(sv) if isinstance(sv, (str, dict)) else None
+        legacy = self._legacy_stroke_bundle(o)
+        col = self._color.resolve(legacy.get("color")) if legacy else (
+            self._color.resolve(sv) if isinstance(sv, (str, dict)) else None
+        )
         if not col or col == "none":
             col = self._color.resolve(bundle.get("stroke") or bundle.get("color"))
         opts, tip = [], self._arrow_tip(bundle)
@@ -420,6 +423,7 @@ class FigureTikz:
         bundle = self._stroke_styles.get(ssv, {}) if isinstance(ssv, str) else (ssv or {})
         if not isinstance(bundle, dict):
             bundle = {}
+        legacy = self._legacy_stroke_bundle(o)
         direct = {
             key: style[key]
             for key in (
@@ -428,10 +432,20 @@ class FigureTikz:
                 "stroke_miterlimit", "paint_order", "vector_effect", "opacity",
                 "arrow_start", "arrow_end",
             )
-            if key in style
+            if key in style and not (key == "stroke" and self._is_legacy_stroke(style[key]))
         }
+        if legacy:
+            direct.update(legacy)
         direct.update(bundle)
         return direct
+
+    @staticmethod
+    def _is_legacy_stroke(value):
+        return isinstance(value, dict) and any(k in value for k in ("color", "width", "dash"))
+
+    def _legacy_stroke_bundle(self, o):
+        value = o.get("stroke") if "stroke" in o else self._style_dict(o).get("stroke")
+        return value if self._is_legacy_stroke(value) else None
 
     def _stroke_width(self, o):
         bundle = self._stroke_bundle(o)
