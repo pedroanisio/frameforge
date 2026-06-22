@@ -31,6 +31,9 @@ jobs:
       - name: Grammar (EBNF) in sync with the models (core profile)
         run: uv run python tooling/check_grammar_sync.py
 
+      - name: Accessibility conformance (reading_order integrity)
+        run: uv run python tooling/check_accessibility.py fixtures/*.fg.yaml --quiet
+
       - name: HEAD assertion suite
         run: uv run pytest -q
 

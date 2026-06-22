@@ -31,6 +31,7 @@ tooling/
   gen_status.py               ← GENERATES FIXTURE-STATUS.md from the validator (`--check` gates drift).
   gen_docs.py                 ← GENERATES the docs-site pages (schema reference, gallery, spec, grammar).
   check_grammar_sync.py       ← GATES grammar ⇄ models drift (core profile); `--strict` for full parity.
+  check_accessibility.py      ← GATES page reading_order integrity; warns on missing image alt (a11y).
 fixtures/                     ← the original fixtures, migrated to 2.2.0.
   b1/                         ← the 8 AUTHORITATIVE fixtures (the oracle the tests assert against).
 tests/

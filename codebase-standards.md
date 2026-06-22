@@ -102,8 +102,8 @@ Rules of reading:
 
 The gate is the contract for "done." It has **one definition**, run two places.
 
-- **`[Enforced]`** `make check = schema-check + grammar-check + test + validate + overflow +
-  status-check + docs-check` ([Makefile:31](./Makefile#L31)). A change is not done until it passes.
+- **`[Enforced]`** `make check = schema-check + grammar-check + a11y-check + test + validate +
+  overflow + status-check + docs-check` ([Makefile:31](./Makefile#L31)). A change is not done until it passes.
   - `schema-check` — `uv run python schema/build_schema.py --check`: fails if the committed
     [schema/framegraph-v2.schema.json](./schema/framegraph-v2.schema.json) drifted from the
     models ([Makefile:33-34](./Makefile#L33-L34)).
@@ -111,23 +111,27 @@ The gate is the contract for "done." It has **one definition**, run two places.
     drifted from the models on the **core profile** (a mismatched object/flow `type` or a
     divergent enum). Out-of-profile grammar (charts, the UML zoo, connectors) is a non-blocking
     warning; `--strict` demands full parity ([Makefile:36-37](./Makefile#L36-L37)).
-  - `test` — `uv run pytest -q` ([Makefile:39-40](./Makefile#L39-L40)). The suite includes the
+  - `a11y-check` — `uv run python tooling/check_accessibility.py fixtures/*.fg.yaml`: fails if a
+    page's `reading_order` references a missing or duplicate id (a broken/ambiguous structure
+    tree); missing image `alt` and pages without a `reading_order` are advisory warnings that
+    `--strict` promotes ([Makefile:39-40](./Makefile#L39-L40)).
+  - `test` — `uv run pytest -q` ([Makefile:42-43](./Makefile#L42-L43)). The suite includes the
     documentation drift gate (`test_docs_in_sync.py`) and the executable-examples gate
     (`test_doc_examples.py`) — see §8.
   - `validate` — `uv run python tooling/validate.py fixtures/*.fg.yaml`: structural +
-    geometric rules ([Makefile:42-43](./Makefile#L42-L43)).
+    geometric rules ([Makefile:45-46](./Makefile#L45-L46)).
   - `overflow` — `uv run python tooling/render_fixtures.py --all --check-overflow`: asserts
-    no text spills its box ([Makefile:45-46](./Makefile#L45-L46)).
+    no text spills its box ([Makefile:48-49](./Makefile#L48-L49)).
   - `status-check` — `uv run python tooling/gen_status.py --check`: fails if
-    [FIXTURE-STATUS.md](./FIXTURE-STATUS.md) drifted from the validator ([Makefile:51-52](./Makefile#L51-L52)).
+    [FIXTURE-STATUS.md](./FIXTURE-STATUS.md) drifted from the validator ([Makefile:54-55](./Makefile#L54-L55)).
   - `docs-check` — `uv run python tooling/gen_docs.py --check`: regenerates the docs pages and
-    asserts every `mkdocs.yml` nav entry resolves ([Makefile:62-63](./Makefile#L62-L63)).
+    asserts every `mkdocs.yml` nav entry resolves ([Makefile:65-66](./Makefile#L65-L66)).
 - **`[Enforced]`** **CI mirrors `make check`.** The `python` job
-  ([ci.yml:28-44](./.github/workflows/ci.yml#L28-L44)) runs schema-check, grammar-check, test,
-  validate, overflow, and status-check as separate steps after `uv sync --locked --group pdf` (the
+  ([ci.yml:28-47](./.github/workflows/ci.yml#L28-L47)) runs schema-check, grammar-check, a11y-check,
+  test, validate, overflow, and status-check as separate steps after `uv sync --locked --group pdf` (the
   `pdf` group only lets the transpiler's gated e2e test execute; the gate *commands* still
-  match `make check`); the seventh gate, `docs-check`, runs in the dedicated `docs` job
-  ([ci.yml:51-63](./.github/workflows/ci.yml#L51-L63)) which also builds the site with
+  match `make check`); the eighth gate, `docs-check`, runs in the dedicated `docs` job
+  ([ci.yml:54-66](./.github/workflows/ci.yml#L54-L66)) which also builds the site with
   `mkdocs build --strict`. Keep make and CI in lockstep; if they must diverge, document why here.
 - **`[Target]`** Fold `lint` and `typecheck` (§4, §5) into the gate once they are green
   (see §16). Today they are **not** in `make check`.
@@ -136,8 +140,8 @@ The gate is the contract for "done." It has **one definition**, run two places.
 
 - **`[Enforced — non-gating]`** `ruff` is the linter, fetched ephemerally via `uvx`. It is
   deliberately **non-blocking** today: `make lint` runs `-uvx ruff check .` (leading `-`
-  ignores failure, [Makefile:58-59](./Makefile#L58-L59)) and CI runs it with
-  `continue-on-error: true` ([ci.yml:43-44](./.github/workflows/ci.yml#L43-L44)). Lint
+  ignores failure, [Makefile:68-69](./Makefile#L68-L69)) and CI runs it with
+  `continue-on-error: true` ([ci.yml:49-51](./.github/workflows/ci.yml#L49-L51)). Lint
   output is advisory; a lint failure does **not** fail the build.
 - **`[Target]`** A committed, gating ruff configuration. When adopted, the intended shape is:
   line length **100**; rule families `E, F, W, I, UP, B, C4, SIM, RET, D`; ignore `E501`
@@ -210,6 +214,11 @@ else is generated from or checked against them** ([README.md](./README.md), *The
   object/flow `type` or a divergent enum). Out-of-profile grammar (charts, the UML zoo,
   connectors) is a non-blocking warning; `--strict` demands full parity. The models are the
   authority if the two disagree.
+- **`[Enforced]`** **Accessibility conformance.** [tooling/check_accessibility.py](./tooling/check_accessibility.py)
+  (the `a11y-check` gate, §3) fails if a page's `reading_order` references a missing or duplicate id
+  (a broken structure tree); missing image `alt` and pages without a `reading_order` are advisory.
+  It keeps the accessibility vocabulary (`decorative`, `alt`/`actual_text`, `reading_order`) coherent
+  for a future tagged export (roadmap item 2).
 - **`[Target]`** A formal golden-snapshot harness with an explicit drift tolerance, so that a
   change pushing prior v1.x/v2.x output outside tolerance is flagged automatically as breaking.
   Today regression is covered by the fixture-validation + overflow gates and the HEAD oracle,
@@ -235,7 +244,7 @@ else is generated from or checked against them** ([README.md](./README.md), *The
 ## 10. Pre-commit and CI
 
 - **`[Enforced]`** CI is the gate ([.github/workflows/ci.yml](./.github/workflows/ci.yml)):
-  the `python` job runs six of the seven `make check` gates (schema, grammar, test, validate,
+  the `python` job runs seven of the eight `make check` gates (schema, grammar, a11y, test, validate,
   overflow, status-check); a `docs` job runs `docs-check` + `mkdocs build --strict`, and on pushes to
   `main` a `docs-deploy` job publishes versioned docs to GitHub Pages via `mike`; the `viewer`
   job is a **non-blocking** smoke build of the JS bundle (`continue-on-error: true`).
