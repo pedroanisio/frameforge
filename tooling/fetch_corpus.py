@@ -80,9 +80,12 @@ def _load_manifest() -> list[dict]:
         data = yaml.safe_load(fh) or {}
     entries = data.get("entries") or []
     for e in entries:
-        for key in ("id", "url", "dest", "license"):
+        for key in ("id", "dest", "license"):
             if not e.get(key):
                 raise SystemExit(f"manifest entry missing '{key}': {e!r}")
+        if not e.get("generated") and not e.get("url"):
+            raise SystemExit(f"manifest entry {e['id']!r} needs a 'url' "
+                             "(or 'generated: true' for a rendered artifact)")
         if e["license"] in _ATTRIBUTION_REQUIRED and not e.get("attribution"):
             raise SystemExit(
                 f"manifest entry {e['id']!r} has license {e['license']} which "
@@ -156,6 +159,23 @@ def cmd_fetch(entries: list[dict], force: bool) -> int:
         if not force and rec and os.path.exists(dest) and _sha256(dest) == rec.get("sha256"):
             print(f"  skip   {e['id']:<32} (up to date)")
             skipped += 1
+            continue
+        # Generated artifacts (e.g. rendered UI rasters) are not downloaded; we
+        # pin the bytes produced by their generator. Ingest the on-disk file.
+        if e.get("generated"):
+            if not os.path.exists(dest):
+                print(f"  MISSING {e['id']:<32} run generator: {e.get('generator','?')}")
+                failed += 1
+                continue
+            files[e["id"]] = {
+                "url": "", "dest": e["dest"], "sha256": _sha256(dest),
+                "bytes": os.path.getsize(dest), "content_type": "generated",
+                "http_status": 0, "license": e["license"], "source": e.get("source", ""),
+                "attribution": e.get("attribution", ""), "generated": True,
+                "fetched_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            }
+            print(f"  gen    {e['id']:<32} {os.path.getsize(dest):>9,} B  (pinned)")
+            fetched += 1
             continue
         try:
             body, ctype, status = _download(e["url"], last_hit)
