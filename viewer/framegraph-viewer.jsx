@@ -671,7 +671,8 @@ function VectorObj({ doc, o, cw, ch, reg }) {
   const stroke = resolveStroke(doc, o.stroke_style, o.stroke) || (hasFill ? null : { color: "#000", width: 1 });   // 2.2.0 split form
   const op = o.opacity != null ? o.opacity : 1;
   const mid = o.id ? o.id.replace(/[^a-zA-Z0-9_-]/g, "_") : Math.random().toString(36).slice(2);
-  const arrow = stroke && (stroke.arrowStart || stroke.arrowEnd);
+  const dimArrows = o.type === "dimension" && (o.arrows == null || o.arrows === "both" || o.arrows === "first" || o.arrows === "second");
+  const arrow = stroke && (stroke.arrowStart || stroke.arrowEnd || dimArrows);
   const dash = stroke?.dash ? stroke.dash.join(" ") : undefined;
   const common = {
     "data-framegraph-vector": o.id || "",
@@ -684,7 +685,55 @@ function VectorObj({ doc, o, cw, ch, reg }) {
   };
 
   let shape = null;
-  if (o.type === "connector") {
+  if (o.type === "dimension") {
+    const start = anchorPoint(o.from, reg);
+    const end = anchorPoint(o.to, reg);
+    const kind = o.kind || "linear";
+    const arrows = o.arrows || "both";
+    const markerStart = (arrows === "both" || arrows === "first") ? `url(#${mid}-ah)` : undefined;
+    const markerEnd = (arrows === "both" || arrows === "second") ? `url(#${mid}-ah)` : undefined;
+    const lineAttrs = { ...common, markerStart, markerEnd, fill: "none" };
+    const label = o.text ?? (o.value === "auto" || o.value == null ? null : o.value);
+    const textStyle = resolveStyle(doc, o.text_style || o.style);
+    const fontSize = toPx(textStyle.size ?? textStyle.font_size) || 12;
+    const textFill = resolveColor(doc, textStyle.color || o.color || "ink") || stroke?.color || "#111";
+    if (kind === "radial" || kind === "diameter") {
+      const dx = start[0] - end[0], dy = start[1] - end[1];
+      const r = Math.hypot(dx, dy);
+      const auto = `${kind === "diameter" ? "⌀" : "R"}${Number.isFinite(r) ? Math.round((kind === "diameter" ? 2 : 1) * r) : ""}`;
+      const lx = (start[0] + end[0]) / 2;
+      const ly = (start[1] + end[1]) / 2 - fontSize * 0.7;
+      shape = (
+        <g>
+          <line x1={start[0]} y1={start[1]} x2={end[0]} y2={end[1]} {...lineAttrs} markerStart={undefined} markerEnd={markerEnd} />
+          <text x={lx} y={ly} textAnchor="middle" fill={textFill} fontSize={fontSize} fontFamily={resolveFont(doc, textStyle.font)}>
+            {label ?? auto}
+          </text>
+        </g>
+      );
+    } else {
+      const dx = end[0] - start[0], dy = end[1] - start[1];
+      const dist = Math.hypot(dx, dy);
+      const off = toPx(o.offset) || 12;
+      const nx = dist ? -dy / dist : 0;
+      const ny = dist ? dx / dist : 0;
+      const a = [start[0] + nx * off, start[1] + ny * off];
+      const b = [end[0] + nx * off, end[1] + ny * off];
+      const shown = label ?? `${Math.round(dist)}`;
+      shape = (
+        <g>
+          <line x1={start[0]} y1={start[1]} x2={a[0]} y2={a[1]} {...common} fill="none" />
+          <line x1={end[0]} y1={end[1]} x2={b[0]} y2={b[1]} {...common} fill="none" />
+          <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} {...lineAttrs} />
+          <text x={(a[0] + b[0]) / 2} y={(a[1] + b[1]) / 2 - fontSize * 0.45}
+            textAnchor="middle" dominantBaseline="central" fill={textFill}
+            fontSize={fontSize} fontFamily={resolveFont(doc, textStyle.font)}>
+            {shown}
+          </text>
+        </g>
+      );
+    }
+  } else if (o.type === "connector") {
     const start = anchorPoint(o.from, reg);
     const end = anchorPoint(o.to, reg);
     const routePoints = Array.isArray(o.route?.points) ? o.route.points.map((p) => [toPx(p[0]), toPx(p[1])]) : [];
@@ -1050,6 +1099,7 @@ function RenderObject({ doc, o, cw, ch, reg, active }) {
     case "text": return <TextObj doc={doc} o={o} active={active} />;
     case "line":
     case "connector":
+    case "dimension":
     case "polyline":
     case "polygon":
     case "path":
