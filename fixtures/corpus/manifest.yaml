@@ -1,8 +1,10 @@
-# FrameGraph expressiveness corpus — source manifest (public-domain only).
+# FrameGraph expressiveness corpus — source manifest.
 #
-# Every entry is genuinely public domain (CC0, expired copyright, or a U.S.
-# federal-government work under 17 U.S.C. §105), so the downloaded files can be
-# archived in this repository with no attribution or no-derivatives strings.
+# The corpus is split into two licensing classes, both freely vendorable here:
+#   * PUBLIC DOMAIN  — CC0, expired copyright, or U.S. federal works (no strings)
+#   * PERMISSIVE     — MIT / BSD / CC-BY: vendorable WITH attribution (recorded
+#                      per-file in `attribution`, surfaced in PROVENANCE.md)
+# Share-alike (CC-BY-SA) and non-derivative licenses are intentionally excluded.
 #
 # This is the INPUT to tooling/fetch_corpus.py. The script downloads each `url`
 # to `fixtures/corpus/<dest>`, records a sha256 + metadata in lockfile.json, and
@@ -10,11 +12,16 @@
 # files. Re-run `python tooling/fetch_corpus.py` to (idempotently) sync.
 #
 # license codes:
-#   CC0-1.0     Creative Commons Zero 1.0 public-domain dedication
-#   PD-USGov    U.S. federal government work (public domain, 17 U.S.C. §105)
-#   PD          public domain (expired copyright / dedicated)
+#   CC0-1.0        Creative Commons Zero 1.0 public-domain dedication
+#   PD-USGov       U.S. federal government work (public domain, 17 U.S.C. §105)
+#   PD             public domain (expired copyright / dedicated)
+#   MIT            MIT License (permissive; requires attribution)
+#   BSD-3-Clause   3-Clause BSD (permissive; requires attribution)
+#   CC-BY-4.0      Creative Commons Attribution 4.0 (requires attribution)
 #
 # Each entry: id, url, dest, tier, format, license, license_url, source, title.
+# `attribution` is REQUIRED for permissive (non-public-domain) licenses and is
+# reproduced in PROVENANCE.md to satisfy the attribution obligation.
 # `expect` (optional) is a substring the response content-type must contain;
 # a mismatch is recorded as a WARN (catches bot-challenge HTML served as 200).
 
@@ -109,3 +116,114 @@ entries:
     source: Project Gutenberg
     title: "Pride and Prejudice — HTML+CSS edition (typography, flow)"
     expect: html
+
+  - id: gutenberg-pride-prejudice-epub
+    url: https://www.gutenberg.org/cache/epub/1342/pg1342.epub
+    dest: ebook/gutenberg-pride-and-prejudice.epub
+    tier: ebook
+    format: epub
+    license: PD
+    license_url: https://www.gutenberg.org/policy/permission.html
+    source: Project Gutenberg
+    title: "Pride and Prejudice — EPUB (packaged reflowable book)"
+    expect: epub
+
+  # ---- Reference suite: per-feature SVG (resvg test suite, MIT — permissive) ----
+  # The isolated-feature reference fixtures that fill the per-effect coverage gap:
+  # one SVG construct per file, each exercising a Style/effect surface FrameGraph
+  # models. MIT-licensed, so vendored WITH attribution (below).
+  - id: resvg-filter-simple
+    url: https://raw.githubusercontent.com/linebender/resvg-test-suite/master/tests/filters/filter/simple-case.svg
+    dest: reference/svg/resvg-filter-simple.svg
+    tier: reference
+    format: svg
+    license: MIT
+    license_url: https://github.com/linebender/resvg-test-suite/blob/master/LICENSE
+    source: resvg-test-suite
+    attribution: "resvg-test-suite © 2018 Reizner Evgeniy (MIT)"
+    title: "filter — isolated feature (effects surface)"
+    expect: svg
+
+  - id: resvg-mask-simple
+    url: https://raw.githubusercontent.com/linebender/resvg-test-suite/master/tests/masking/mask/simple-case.svg
+    dest: reference/svg/resvg-mask-simple.svg
+    tier: reference
+    format: svg
+    license: MIT
+    license_url: https://github.com/linebender/resvg-test-suite/blob/master/LICENSE
+    source: resvg-test-suite
+    attribution: "resvg-test-suite © 2018 Reizner Evgeniy (MIT)"
+    title: "mask — isolated feature (compositing surface)"
+    expect: svg
+
+  - id: resvg-clippath-simple
+    url: https://raw.githubusercontent.com/linebender/resvg-test-suite/master/tests/masking/clipPath/simple-case.svg
+    dest: reference/svg/resvg-clippath-simple.svg
+    tier: reference
+    format: svg
+    license: MIT
+    license_url: https://github.com/linebender/resvg-test-suite/blob/master/LICENSE
+    source: resvg-test-suite
+    attribution: "resvg-test-suite © 2018 Reizner Evgeniy (MIT)"
+    title: "clipPath — isolated feature (clip surface)"
+    expect: svg
+
+  - id: resvg-linear-gradient
+    url: https://raw.githubusercontent.com/linebender/resvg-test-suite/master/tests/paint-servers/linearGradient/hsla-color.svg
+    dest: reference/svg/resvg-linear-gradient.svg
+    tier: reference
+    format: svg
+    license: MIT
+    license_url: https://github.com/linebender/resvg-test-suite/blob/master/LICENSE
+    source: resvg-test-suite
+    attribution: "resvg-test-suite © 2018 Reizner Evgeniy (MIT)"
+    title: "linearGradient — isolated feature (gradient paint)"
+    expect: svg
+
+  - id: resvg-pattern-simple
+    url: https://raw.githubusercontent.com/linebender/resvg-test-suite/master/tests/paint-servers/pattern/simple-case.svg
+    dest: reference/svg/resvg-pattern-simple.svg
+    tier: reference
+    format: svg
+    license: MIT
+    license_url: https://github.com/linebender/resvg-test-suite/blob/master/LICENSE
+    source: resvg-test-suite
+    attribution: "resvg-test-suite © 2018 Reizner Evgeniy (MIT)"
+    title: "pattern — isolated feature (tiled paint)"
+    expect: svg
+
+  - id: resvg-stroke-linejoin
+    url: https://raw.githubusercontent.com/linebender/resvg-test-suite/master/tests/painting/stroke-linejoin/arcs.svg
+    dest: reference/svg/resvg-stroke-linejoin.svg
+    tier: reference
+    format: svg
+    license: MIT
+    license_url: https://github.com/linebender/resvg-test-suite/blob/master/LICENSE
+    source: resvg-test-suite
+    attribution: "resvg-test-suite © 2018 Reizner Evgeniy (MIT)"
+    title: "stroke-linejoin — isolated feature (stroke geometry)"
+    expect: svg
+
+  - id: resvg-shape-rect
+    url: https://raw.githubusercontent.com/linebender/resvg-test-suite/master/tests/shapes/rect/simple-case.svg
+    dest: reference/svg/resvg-shape-rect.svg
+    tier: reference
+    format: svg
+    license: MIT
+    license_url: https://github.com/linebender/resvg-test-suite/blob/master/LICENSE
+    source: resvg-test-suite
+    attribution: "resvg-test-suite © 2018 Reizner Evgeniy (MIT)"
+    title: "rect — isolated feature (basic shape)"
+    expect: svg
+
+  - id: resvg-text-simple
+    url: https://raw.githubusercontent.com/linebender/resvg-test-suite/master/tests/text/text/simple-case.svg
+    dest: reference/svg/resvg-text-simple.svg
+    tier: reference
+    format: svg
+    license: MIT
+    license_url: https://github.com/linebender/resvg-test-suite/blob/master/LICENSE
+    source: resvg-test-suite
+    attribution: "resvg-test-suite © 2018 Reizner Evgeniy (MIT)"
+    title: "text — isolated feature (text rendering)"
+    expect: svg
