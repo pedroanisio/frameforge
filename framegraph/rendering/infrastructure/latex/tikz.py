@@ -954,8 +954,20 @@ class FigureTikz:
                 specs.append({"dx": dx, "dy": dy, "blur": blur or 0, "expr": expr, "opacity": op})
         return specs
 
+    @staticmethod
+    def _transform_text(content, transform):
+        text = str(content)
+        if transform == "uppercase":
+            return text.upper()
+        if transform == "lowercase":
+            return text.lower()
+        if transform == "capitalize":
+            return " ".join(word[:1].upper() + word[1:] for word in text.split(" "))
+        return text
+
     def _text_node(self, st, anchor, width, align, x, y, content):
         opts = self._text_opts(st, anchor, width, align)
+        content = self._transform_text(content, st.get("text_transform"))
         return f"\\node[{','.join(opts)}] at ({fnum(x)},{fnum(y)}) {{{ltx_escape(content)}}};\n"
 
     def _text_shadow_nodes(self, st, anchor, width, align, x, y, content):
