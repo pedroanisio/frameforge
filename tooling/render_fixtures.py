@@ -1706,7 +1706,38 @@ class Renderer:
                 cy += num(fl.get("height"), 12) or 12
             elif ft in ("page_break", "column_break"):
                 newpage()
-            else:                                      # table/figure/image/code/math/toc/...
+            elif ft == "figure" and isinstance(fl.get("object"), dict):
+                # Draw the figure's actual geometry (the "drawing"), not a stub.
+                ob = fl["object"]
+                obox = ob.get("box") if isinstance(ob.get("box"), list) else None
+                size = fl.get("size") if isinstance(fl.get("size"), list) else None
+                fw = (num(size[0], 0) if size and len(size) >= 2
+                      else num(obox[2], usable) if obox and len(obox) >= 4 else usable)
+                fh = (num(size[1], 0) if size and len(size) >= 2
+                      else num(obox[3], 0) if obox and len(obox) >= 4 else 0)
+                scale = min(1.0, usable / fw) if fw else 1.0
+                draw_h = (fh or 0) * scale
+                if cy + draw_h > bottom and cy > top:        # keep a figure whole
+                    newpage()
+                inner = self.obj(ob)
+                if inner:
+                    ox = num(obox[0], 0) if obox and len(obox) >= 2 else 0
+                    oy = num(obox[1], 0) if obox and len(obox) >= 2 else 0
+                    tx, ty = x - ox * scale, cy - oy * scale
+                    if scale != 1.0:
+                        body.append(f'<g transform="translate({fnum(tx)},{fnum(ty)}) '
+                                    f'scale({fnum(scale)})">{inner}</g>')
+                    else:
+                        body.append(p.group(inner, translate=(tx, ty)) if (tx or ty) else inner)
+                    cy += draw_h + 6
+                cap = fl.get("caption")
+                captxt = cap if isinstance(cap, str) else (cap.get("text", "") if isinstance(cap, dict) else "")
+                if captxt:
+                    emit(captxt, {**base, "size": 10, "italic": True, "color": "#666",
+                                  "align": "center"}, gap_after=12)
+                else:
+                    cy += 8
+            else:                                      # table/image/code/math/toc/...
                 if cy + 26 > bottom:
                     newpage()
                 ph = {**base, "family": "monospace", "size": 11, "italic": True, "color": "#999"}
