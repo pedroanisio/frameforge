@@ -227,6 +227,27 @@ def test_transpile_emits_extended_latex_flow_controls():
     assert r"\makeindex" in tex
 
 
+def test_transpile_uses_declared_token_fonts_for_flow_text():
+    doc = copy.deepcopy(DOC)
+    doc["defs"]["tokens"]["fonts"] = {
+        "sans": {"family": "Inter"},
+        "brand": {"family": "Source Serif 4"},
+    }
+    doc["defs"]["tokens"]["text_styles"]["body"]["font_family"] = "brand"
+    doc["defs"]["tokens"]["text_styles"]["h1"]["font_family"] = "sans"
+    doc["pages"][0]["story"] = [
+        {"type": "heading", "level": 1, "text": "Head"},
+        {"type": "paragraph", "text": "Body"},
+    ]
+
+    tex = transpile(doc)
+
+    assert r"\IfFontExistsTF{Inter}{\newfontfamily\fgffa{Inter}}{\newcommand\fgffa{}}" in tex
+    assert r"\IfFontExistsTF{Source Serif 4}{\newfontfamily\fgffb{Source Serif 4}}{\newcommand\fgffb{}}" in tex
+    assert r"{\fgffa\fontsize{18}" in tex
+    assert r"{\fgffb\fontsize{11}" in tex
+
+
 def test_render_latex_cli_tex_only_writes_tex(tmp_path):
     src = tmp_path / "latex-smoke.fg.yaml"
     src.write_text(yaml.safe_dump(DOC), encoding="utf-8")

@@ -13,7 +13,7 @@ import os
 from framegraph.rendering.domain.geometry import fnum, num
 from framegraph.rendering.domain.services.canvas_resolver import CanvasResolver
 from framegraph.rendering.domain.services.paint_resolver import ColorResolver
-from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver
+from framegraph.rendering.domain.services.text_style_resolver import FONT_MAP, TextStyleResolver
 
 from .tikz import FigureTikz, _parse_hex, color_expr, ltx_escape, ltx_url_escape
 
@@ -31,6 +31,19 @@ MARGIN_PT = 56.0                                     # matches the SVG proxy's f
 def _latex_label(value) -> str:
     raw = str(value or "")
     return "fg:" + "".join(ch if ch.isalnum() or ch in ".:-" else "-" for ch in raw)
+
+
+def _font_macro_name(i: int) -> str:
+    """Index → a letters-only control sequence (\\fgffa, …, \\fgffz, \\fgffaa, …).
+
+    TeX control words may only contain catcode-11 letters, so the per-face macros
+    are named with a base-26 a–z suffix rather than the face's index digits.
+    """
+    s, n = "", i + 1
+    while n > 0:
+        n, r = divmod(n - 1, 26)
+        s = chr(97 + r) + s
+    return "\\fgff" + s
 
 
 class _ColorBook:
@@ -65,6 +78,7 @@ class _Transpiler:
         tok = defs.get("tokens") or {}
         self._color = ColorResolver(tok.get("colors") or {})
         self._ts = TextStyleResolver(tok.get("text_styles") or {}, tok.get("styles") or {}, self._color)
+        self._font_macros, self._font_decls = self._register_fonts(tok.get("fonts") or {})
         self._canvas = CanvasResolver(defs.get("masters") or {})
         self._figtikz = FigureTikz(self._color, self._ts, tok.get("stroke_styles") or {})
         self._book = _ColorBook()
@@ -73,11 +87,37 @@ class _Transpiler:
         self._use_endnotes = False
         self.skipped = 0
 
+    # -- font faces (`defs.tokens.fonts`) → fontspec families -------------- #
+    @staticmethod
+    def _register_fonts(fonts):
+        """Map each declared face to a distinct fontspec family.
+
+        `defs.tokens.fonts` carries arbitrarily many faces; each becomes a
+        `\\newfontfamily` macro so flowing text can switch typeface, not just
+        size/series/shape. The declaration is wrapped in `\\IfFontExistsTF` so a
+        face whose typeface is not installed degrades to the main font (the macro
+        becomes a no-op) and the document still compiles — there is no cap on the
+        number of faces. The lookup is keyed by the family string the resolver
+        hands `_font()` (the token name, after the generic-role map), so it lands
+        on the same value `st["family"]` carries.
+        """
+        macros, decls = {}, []
+        for i, (key, fd) in enumerate(fonts.items()):
+            target = (fd.get("family") or key) if isinstance(fd, dict) else (str(fd) if fd else key)
+            resolved = FONT_MAP.get(str(key), str(key))
+            macro = _font_macro_name(i)
+            macros[resolved] = macro
+            decls.append(f"\\IfFontExistsTF{{{target}}}"
+                         f"{{\\newfontfamily{macro}{{{target}}}}}"
+                         f"{{\\newcommand{macro}{{}}}}")
+        return macros, decls
+
     # -- style → LaTeX font run ------------------------------------------- #
     def _font(self, st):
         size = st.get("size", 12) or 12
         lh = st.get("lh", 1.25) or 1.25
-        out = f"\\fontsize{{{fnum(size)}}}{{{fnum(size * lh)}}}\\selectfont"
+        out = self._font_macros.get(st.get("family"), "")
+        out += f"\\fontsize{{{fnum(size)}}}{{{fnum(size * lh)}}}\\selectfont"
         if st.get("bold"):
             out += "\\bfseries"
         if st.get("italic"):
@@ -511,7 +551,8 @@ class _Transpiler:
             "\\usepackage{tikz}\n"
             "\\usetikzlibrary{arrows.meta}\n"
             "\\setmainfont{DejaVu Sans}\n"
-            "\\makeindex\n"
+            + ("".join(d + "\n" for d in self._font_decls))
+            + "\\makeindex\n"
             f"{colordefs}\n"
             "\\setlength{\\parindent}{0pt}\n"
             "\\setlength{\\parskip}{0pt}\n"
