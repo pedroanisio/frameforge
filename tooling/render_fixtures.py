@@ -812,15 +812,28 @@ class Renderer:
             marker = o.get("marker", "•")
             gap = num(o.get("gap"), None) or st["size"] * 1.5
             mc = self.color(o.get("marker_color")) or st["color"]
+            indent = st["size"] * 1.1
+            line_h = st["size"] * st["lh"]
+            # Wrap each item to the width remaining right of the marker so long
+            # items don't run off the box; `nowrap` keeps the legacy single-line
+            # behaviour. The text width must stay positive for narrow boxes.
+            text_w = max(1.0, w - indent)
+            do_wrap = text_w > 0 and not st.get("nowrap")
             out = []
             cy = y + st["size"]
             for it in o.get("items", []):
                 txt = it if isinstance(it, str) else (it.get("text", "") if isinstance(it, dict) else str(it))
+                lines = self.wrap_words(txt, text_w, st["size"], st["avg"]) if do_wrap else [txt]
                 out.append(p.text_tag(x, cy - st["size"], st["size"] + 4, st["size"] + 4,
                                       marker, {**st, "color": mc}, vcenter=False))
-                out.append(p.text_tag(x + st["size"] * 1.1, cy - st["size"], w, st["size"] + 4,
-                                      txt, st, vcenter=False))
-                cy += gap
+                for i, ln in enumerate(lines):
+                    out.append(p.text_tag(x + indent, cy - st["size"] + i * line_h, w, st["size"] + 4,
+                                          ln, st, vcenter=False))
+                # Advance past every wrapped line, and never less than one line —
+                # `gap` is the inter-item pitch (default a comfortable 1.5x), but a
+                # too-small authored gap must not let items overlap, so floor the
+                # single-line step at the line height.
+                cy += max(gap, line_h) + (len(lines) - 1) * line_h
             return "".join(out)
 
         if t == "chip_row":
@@ -1888,7 +1901,7 @@ class Renderer:
                     bullet = f"{idx}. " if ordered else "• "
                     emit(bullet + text_of(it), base, indent=16, gap_after=2)
                 cy += 6
-            elif ft == "block":
+            elif ft in ("block", "keep_together"):
                 children = fl.get("children") if isinstance(fl.get("children"), list) else []
                 for child in children:
                     if isinstance(child, dict):

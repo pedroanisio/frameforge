@@ -20,20 +20,20 @@ defs:
       rule: '#cccccc'
     styles:
       h1:
-        font_size: 32pt
+        font_size: 22pt
         font_weight: bold
         color: ink
       h2:
-        font_size: 24pt
+        font_size: 16pt
         font_weight: bold
         color: ink
       h3:
-        font_size: 18pt
+        font_size: 13pt
         font_weight: bold
         color: ink
       body:
         font_size: 11pt
-        line_height: 1.5
+        line_height: 1.4
         color: ink
       caption:
         font_size: 9pt
@@ -72,22 +72,20 @@ defs:
   masters:
     article:
       canvas:
-        size:
-        - 792
-        - 1120
+        preset: A4
         orientation: portrait
         margin:
-        - 48
-        - 48
-        - 48
-        - 48
+        - 24
+        - 24
+        - 24
+        - 24
       regions:
       - id: body
         box:
-        - 48
-        - 48
-        - 696
-        - 100000
+        - 24
+        - 24
+        - 547
+        - 770
   symbols:
     card:
       box: [0, 0, 72, 72]
@@ -809,7 +807,7 @@ pages:
 - mode: flow
   id: standard-model
   master: article
-  media: continuous
+  media: paged
   lang: en
   links:
   - to: https://physics.info/radiobiology/

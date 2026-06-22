@@ -10,6 +10,7 @@ fires on a changed page and a changed page count (so the gate can't pass blind).
 import copy
 import glob
 import os
+import subprocess
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -19,7 +20,17 @@ import render_golden as G  # noqa: E402
 
 
 def test_oracle_matches_golden_lock():
-    assert G.main([]) == 0, "golden render drift — re-pin with `make golden` if intentional"
+    proc = subprocess.run(
+        [sys.executable, os.path.join(ROOT, "tooling", "render_golden.py")],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    assert proc.returncode == 0, (
+        "golden render drift — re-pin with `make golden` if intentional\n"
+        + proc.stdout
+        + proc.stderr
+    )
 
 
 def test_lock_covers_every_oracle_fixture():
