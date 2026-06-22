@@ -495,3 +495,182 @@ class FigureTikz:
             f"\\node[anchor=center,inner sep=1pt,font=\\scriptsize,text width={fnum(max(w - 4, 1))}pt,align=center] "
             f"at ({fnum(x + w / 2)},{fnum(y + h / 2)}) {{{ltx_escape(label)}}};\n"
         )
+
+    def _box(self, o):
+        box = o.get("box")
+        if isinstance(box, list) and len(box) >= 4:
+            return tuple(num(v, 0) for v in box[:4])
+        return None
+
+    def _draw_component(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        fill, _ = color_expr(self._color.resolve(o.get("fill") or "#ffffff"))
+        stroke = self._stroke_opts(o, default_color="#777777")
+        opts = [f"fill={fill}"] if fill else []
+        opts += stroke or ["draw={rgb,255:red,119;green,119;blue,119}", "line width=1pt"]
+        radius = num(o.get("radius"), 4) or 0
+        if radius:
+            opts.append(f"rounded corners={fnum(radius)}pt")
+        title = o.get("title") or o.get("name") or o.get("component") or "component"
+        body = o.get("body") or o.get("label")
+        out = [self._path(opts, f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})")]
+        out.append(
+            f"\\node[anchor=north,inner sep=2pt,font=\\scriptsize\\bfseries,text width={fnum(max(w - 6, 1))}pt,align=center] "
+            f"at ({fnum(x + w / 2)},{fnum(y + 3)}) {{{ltx_escape(title)}}};\n"
+        )
+        if body:
+            out.append(
+                f"\\node[anchor=center,inner sep=2pt,font=\\scriptsize,text width={fnum(max(w - 8, 1))}pt,align=center] "
+                f"at ({fnum(x + w / 2)},{fnum(y + h * 0.62)}) {{{ltx_escape(body)}}};\n"
+            )
+        return "".join(out)
+
+    def _draw_use(self, o) -> str:
+        box = self._box(o)
+        if not box:
+            return ""
+        x, y, w, h = box
+        label = o.get("label") or o.get("symbol") or "symbol"
+        return (
+            f"\\path[draw={{rgb,255:red,153;green,153;blue,153}},dash pattern=on 3pt off 2pt] "
+            f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)});\n"
+            f"\\node[anchor=center,inner sep=1pt,font=\\scriptsize,text width={fnum(max(w - 4, 1))}pt,align=center] "
+            f"at ({fnum(x + w / 2)},{fnum(y + h / 2)}) {{{ltx_escape(label)}}};\n"
+        )
+
+    def _anchor_point(self, value):
+        if is_point(value):
+            return num(value[0], 0), num(value[1], 0)
+        if isinstance(value, dict):
+            for key in ("point", "position", "at", "center"):
+                if is_point(value.get(key)):
+                    return num(value[key][0], 0), num(value[key][1], 0)
+            if all(k in value for k in ("x", "y")):
+                return num(value.get("x"), 0), num(value.get("y"), 0)
+        return None
+
+    def _draw_connector(self, o) -> str:
+        fr, to = self._anchor_point(o.get("from")), self._anchor_point(o.get("to"))
+        if not (fr and to):
+            return ""
+        opts = self._stroke_opts(o, default_color="#000000") or ["draw={rgb,255:red,0;green,0;blue,0}", "line width=1pt"]
+        if not any(opt in ("->", "<-", "<->") for opt in opts):
+            opts.insert(0, "->")
+        route = o.get("route") if isinstance(o.get("route"), list) else []
+        pts = [fr] + [self._anchor_point(p) for p in route] + [to]
+        pts = [p for p in pts if p]
+        chain = " -- ".join(f"({fnum(x)},{fnum(y)})" for x, y in pts)
+        out = [f"\\draw[{','.join(opts)}] {chain};\n"]
+        if o.get("label"):
+            mid = pts[len(pts) // 2]
+            out.append(f"\\node[fill=white,inner sep=1pt,font=\\scriptsize] at ({fnum(mid[0])},{fnum(mid[1])}) {{{ltx_escape(o.get('label'))}}};\n")
+        return "".join(out)
+
+    def _draw_legend(self, o) -> str:
+        box = self._box(o)
+        x, y, w, _h = box if box else (0, 0, 120, 18)
+        out = []
+        cursor = x
+        for item in o.get("items") or []:
+            if not isinstance(item, dict):
+                continue
+            label = item.get("label")
+            if isinstance(label, dict):
+                label = label.get("text")
+            label = label or ""
+            color, _ = color_expr(self._color.resolve(item.get("color") or "#666666"))
+            marker = item.get("marker") or "square"
+            if marker == "line":
+                out.append(f"\\draw[draw={color},line width=1pt] ({fnum(cursor)},{fnum(y + 6)}) -- ({fnum(cursor + 10)},{fnum(y + 6)});\n")
+            else:
+                out.append(f"\\path[fill={color},draw={color}] ({fnum(cursor)},{fnum(y + 2)}) rectangle ({fnum(cursor + 8)},{fnum(y + 10)});\n")
+            out.append(f"\\node[anchor=west,inner sep=0pt,font=\\scriptsize] at ({fnum(cursor + 12)},{fnum(y + 6)}) {{{ltx_escape(label)}}};\n")
+            cursor += min(max(len(str(label)) * 5 + 24, 34), max(w, 34))
+        return "".join(out)
+
+    def _draw_chip_row(self, o) -> str:
+        origin = o.get("origin") or o.get("position")
+        box = self._box(o)
+        if is_point(origin):
+            x, y = num(origin[0], 0), num(origin[1], 0)
+        elif box:
+            x, y = box[0], box[1]
+        else:
+            return ""
+        height = num(o.get("height"), 18) or 18
+        gap = num(o.get("gap"), 6) or 0
+        fill, _ = color_expr(self._color.resolve(o.get("fill") or "#ffffff"))
+        stroke, _ = color_expr(self._color.resolve(o.get("stroke") or "#cccccc"))
+        out, cursor = [], x
+        for item in o.get("items") or []:
+            text = item.get("text") if isinstance(item, dict) else str(item)
+            width = num(item.get("width"), None) if isinstance(item, dict) else None
+            width = width or max(height * 1.8, len(str(text)) * 5 + 14)
+            out.append(
+                f"\\path[fill={fill},draw={stroke},rounded corners={fnum(height / 2)}pt] "
+                f"({fnum(cursor)},{fnum(y)}) rectangle ({fnum(cursor + width)},{fnum(y + height)});\n"
+            )
+            out.append(f"\\node[anchor=center,inner sep=1pt,font=\\scriptsize] at ({fnum(cursor + width / 2)},{fnum(y + height / 2)}) {{{ltx_escape(text)}}};\n")
+            cursor += width + gap
+        return "".join(out)
+
+    def _chart_values(self, o):
+        data = o.get("data")
+        if isinstance(data, list):
+            vals = []
+            for item in data:
+                if isinstance(item, dict):
+                    vals.append(num(item.get("value") or item.get("y"), None))
+                else:
+                    vals.append(num(item, None))
+            return [v for v in vals if v is not None]
+        if isinstance(data, dict):
+            if isinstance(data.get("values"), list):
+                return [v for v in (num(x, None) for x in data["values"]) if v is not None]
+            series = data.get("series")
+            if isinstance(series, list) and series:
+                first = series[0]
+                vals = first.get("values") if isinstance(first, dict) else first
+                if isinstance(vals, list):
+                    return [v for v in (num(x.get("value") if isinstance(x, dict) else x, None) for x in vals) if v is not None]
+        return []
+
+    def _draw_bar_chart(self, o) -> str:
+        box = self._box(o)
+        values = self._chart_values(o)
+        if not (box and values):
+            return ""
+        x, y, w, h = box
+        maxv = max(max(values), 1)
+        gap = 3
+        bw = max((w - gap * (len(values) + 1)) / len(values), 1)
+        style = o.get("style") if isinstance(o.get("style"), dict) else {}
+        fill, _ = color_expr(self._color.resolve(style.get("fill") or "#6699cc"))
+        out = [f"\\draw[draw={{rgb,255:red,170;green,170;blue,170}}] ({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)});\n"]
+        for i, value in enumerate(values):
+            bh = h * value / maxv
+            x0 = x + gap + i * (bw + gap)
+            out.append(f"\\path[fill={fill}] ({fnum(x0)},{fnum(y + h - bh)}) rectangle ({fnum(x0 + bw)},{fnum(y + h)});\n")
+        return "".join(out)
+
+    def _draw_line_chart(self, o) -> str:
+        box = self._box(o)
+        values = self._chart_values(o)
+        if not (box and len(values) >= 2):
+            return ""
+        x, y, w, h = box
+        maxv, minv = max(values), min(values)
+        span = max(maxv - minv, 1)
+        pts = []
+        for i, value in enumerate(values):
+            xx = x + (w * i / (len(values) - 1))
+            yy = y + h - ((value - minv) / span) * h
+            pts.append((xx, yy))
+        chain = " -- ".join(f"({fnum(px)},{fnum(py)})" for px, py in pts)
+        return (
+            f"\\draw[draw={{rgb,255:red,170;green,170;blue,170}}] ({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)});\n"
+            f"\\draw[draw={{rgb,255:red,51;green,102;blue,170}},line width=1.2pt] {chain};\n"
+        )

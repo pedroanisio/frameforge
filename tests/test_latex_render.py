@@ -109,6 +109,12 @@ DOC = {
                             {"type": "dimension", "kind": "linear", "from": [8, 8], "to": [38, 8], "value": "auto", "suffix": " pt"},
                             {"type": "table", "box": [78, 4, 36, 22], "rows": [["q", "r"], ["s", "t"]]},
                             {"type": "image", "box": [4, 18, 20, 14], "src": "diagram.png", "alt": "Diagram"},
+                            {"type": "component", "box": [122, 0, 44, 24], "component": "Card", "title": "Panel", "body": "Body"},
+                            {"type": "connector", "from": [120, 30], "to": [165, 30], "label": "link"},
+                            {"type": "legend", "box": [122, 36, 70, 12], "items": [{"label": "Series", "color": "accent"}]},
+                            {"type": "chip_row", "origin": [122, 50], "items": [{"text": "api", "width": 24}], "height": 10},
+                            {"type": "bar_chart", "box": [170, 2, 24, 20], "data": [1, 3, 2]},
+                            {"type": "line_chart", "box": [170, 30, 24, 20], "data": [1, 4, 2]},
                         ],
                     },
                     "caption": "Figure #1",
@@ -160,6 +166,12 @@ def test_transpile_emits_native_latex_math_and_tikz():
     assert "<->" in tex and "30 pt" in tex
     assert "{q}" in tex and "{t}" in tex
     assert "{Diagram}" in tex
+    assert "{Panel}" in tex and "{Body}" in tex
+    assert "{link}" in tex
+    assert "{Series}" in tex
+    assert "{api}" in tex
+    assert "(173,15.333) rectangle" in tex
+    assert "line width=1.2pt" in tex
     assert "Figure \\#1\\label{fg:fig-smoke}" in tex
     assert "\\begin{thebibliography}{99}" in tex
     assert "\\bibitem{einstein1905}A. Einstein, 1905." in tex
