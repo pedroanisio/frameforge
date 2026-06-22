@@ -8,7 +8,7 @@ footprint. The key assertion is `test_no_unexpected_silent_ignores`: the set of
 elements that render to NOTHING must equal the documented `UNRENDERED` allowlist.
 So:
   * a new element type that the proxy silently drops -> FAILS (no silent ignore),
-  * and if `curve`/`bezier`/`dimension` ever gain a painter, the test forces us to
+  * and if `dimension` ever gains a painter, the test forces us to
     remove them from the allowlist (the gap is tracked, never assumed-met).
 
 Plus a Hypothesis property: the renderer never raises on fuzzed box coordinates
@@ -56,13 +56,14 @@ OBJECT_SAMPLES = {
 # the SVG primitive each painted element must emit
 EXPECT = {
     "rect": "<rect", "ellipse": "<ellipse", "circle": "<circle", "line": "<line",
-    "polyline": "<polyline", "polygon": "<polygon", "path": "<path", "text": "<text",
+    "polyline": "<polyline", "polygon": "<polygon", "path": "<path",
+    "curve": "<path", "bezier": "<path", "text": "<text",
     "icon": "<text", "bullet_list": "<text", "image": "<rect", "table": "<rect", "group": "<g",
 }
 
-# documented silent-ignore set: deprecated aliases + the composite dimension have no
-# painter in the proxy yet. Any change here must be deliberate (this is the gate).
-UNRENDERED = {"curve", "bezier", "dimension"}
+# documented silent-ignore set: the composite dimension has no painter in the proxy
+# yet. Any change here must be deliberate (this is the gate).
+UNRENDERED = {"dimension"}
 
 
 def _render_body(obj):

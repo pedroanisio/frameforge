@@ -10,7 +10,7 @@ runs in a bare environment, and it tolerates the full fixture variety:
   * canvas from explicit `size`, a `preset`, or inherited from a master
   * `page` layers AND `flow` sections (naive vertical text flow, paginated)
   * the core object set: rect / ellipse / circle / line / polyline / polygon /
-    path / text / bullet_list / icon / image / table / group
+    path / curve / bezier / text / bullet_list / icon / image / table / group
   * HEAD stroke single-form (paint in `stroke`, geometry in `stroke_style`)
   * token colour deref, CSS-named *and* legacy shorthand text styles,
     linear/radial gradient fills (conic ≈ first stop)
@@ -456,6 +456,21 @@ class Renderer:
                              if isinstance(seg, list) else str(seg) for seg in d)
             if not isinstance(d, str) or not d.strip():
                 return ""
+            return p.path(d, fill, self._shape_stroke(o, style) + self._arrow_attrs(o),
+                          fill_opacity=fill_opacity, fill_rule=fill_rule)
+
+        if t in ("curve", "bezier"):
+            fr, to = o.get("from"), o.get("to")
+            c1 = o.get("control1") or o.get("c1") or fr
+            c2 = o.get("control2") or o.get("c2") or c1
+            if not (is_point(fr) and is_point(to) and is_point(c1) and is_point(c2)):
+                return ""
+            d = (
+                f"M {fnum(num(fr[0], 0))} {fnum(num(fr[1], 0))} "
+                f"C {fnum(num(c1[0], 0))} {fnum(num(c1[1], 0))} "
+                f"{fnum(num(c2[0], 0))} {fnum(num(c2[1], 0))} "
+                f"{fnum(num(to[0], 0))} {fnum(num(to[1], 0))}"
+            )
             return p.path(d, fill, self._shape_stroke(o, style) + self._arrow_attrs(o),
                           fill_opacity=fill_opacity, fill_rule=fill_rule)
 

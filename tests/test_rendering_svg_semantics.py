@@ -68,6 +68,34 @@ def test_vector_fill_and_stroke_opacity_are_emitted() -> None:
     assert 'stroke-opacity="0.35"' in svg
 
 
+def test_curve_aliases_emit_cubic_paths() -> None:
+    svg = _svg_for([
+        {
+            "type": "curve",
+            "from": [10, 10],
+            "control1": [20, 5],
+            "control2": [30, 35],
+            "to": [40, 20],
+            "fill": "none",
+            "stroke": "hairline",
+        },
+        {
+            "type": "bezier",
+            "from": [60, 10],
+            "c1": [70, 5],
+            "c2": [80, 35],
+            "to": [90, 20],
+            "stroke": {"color": "hairline", "width": 2},
+        },
+    ])
+
+    assert '<path d="M 10 10 C 20 5 30 35 40 20"' in svg
+    assert '<path d="M 60 10 C 70 5 80 35 90 20"' in svg
+    assert 'fill="none"' in svg
+    assert 'stroke="#123456"' in svg
+    assert 'stroke-width="2"' in svg
+
+
 def test_image_ellipse_clip_and_slice_aspect_ratio_are_emitted() -> None:
     svg = _svg_for(
         [{
