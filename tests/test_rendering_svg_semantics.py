@@ -17,11 +17,11 @@ sys.path.insert(0, ROOT)
 from tooling.render_fixtures import Renderer
 
 
-def _svg_for(objects: list[dict]) -> str:
+def _svg_for(objects: list[dict], defs: dict | None = None) -> str:
     doc = {
         "dsl": "FrameGraph",
         "version": "2.2.0",
-        "defs": {"tokens": {"colors": {"panel": "#ffeecc", "hairline": "#123456"}}},
+        "defs": defs or {"tokens": {"colors": {"panel": "#ffeecc", "hairline": "#123456"}}},
         "pages": [{
             "mode": "page",
             "id": "p1",
@@ -64,3 +64,27 @@ def test_vector_fill_and_stroke_opacity_are_emitted() -> None:
     assert 'stroke="#123456"' in svg
     assert 'stroke-width="4"' in svg
     assert 'stroke-opacity="0.35"' in svg
+
+
+def test_image_ellipse_clip_and_slice_aspect_ratio_are_emitted() -> None:
+    svg = _svg_for(
+        [{
+            "type": "image",
+            "box": [20, 10, 64, 48],
+            "src": "avatar",
+            "clip": {"shape": "ellipse"},
+            "preserve_aspect_ratio": "xMidYMid slice",
+        }],
+        {
+            "assets": {
+                "avatar": {"data": "data:image/png;base64,iVBORw0KGgo="},
+            },
+            "tokens": {"colors": {"panel": "#ffeecc", "hairline": "#123456"}},
+        },
+    )
+
+    assert "<clipPath" in svg
+    assert '<ellipse cx="52" cy="34" rx="32" ry="24"/>' in svg
+    assert '<g clip-path="url(#clip1)">' in svg
+    assert 'href="data:image/png;base64,iVBORw0KGgo="' in svg
+    assert 'preserveAspectRatio="xMidYMid slice"' in svg

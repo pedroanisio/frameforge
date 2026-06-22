@@ -372,20 +372,57 @@ class Renderer:
         p = self._painter
         x, y, w, h = (num(v, 0) for v in box[:4])
         src = o.get("src", "")
-        asset = self.assets.get(src)
-        path = asset.get("src") if isinstance(asset, dict) else src
-        if path and not os.path.isabs(path):
-            path = os.path.normpath(os.path.join(self.base_dir, path))
-        if path and os.path.exists(path):
-            href = "file://" + path
-            return p.image(x, y, w, h, href)
+        href = self._image_href(src)
+        clip_id = self._image_clip_id(o.get("clip"), x, y, w, h)
+        preserve = self._image_preserve_aspect_ratio(o.get("preserve_aspect_ratio"))
+
+        if href:
+            image = p.image(x, y, w, h, href, preserve)
+            return p.clip_wrap(image, clip_id) if clip_id else image
         label = o.get("label") or os.path.basename(str(src)) or "image"
         st = {"family": "sans-serif", "size": 11, "weight": "normal", "italic": False,
               "color": "#888", "align": "center", "lh": 1.2}
-        return (p.rect(x, y, w, h, "#eee", ' stroke="#bbb"')
-                + p.line(x, y, x + w, y + h, ' stroke="#ccc"')
-                + p.line(x + w, y, x, y + h, ' stroke="#ccc"')
-                + p.text_tag(x, y + h / 2 - 8, w, 16, "▣ " + str(label), st, vcenter=True))
+        placeholder = (p.rect(x, y, w, h, "#eee", ' stroke="#bbb"')
+                       + p.line(x, y, x + w, y + h, ' stroke="#ccc"')
+                       + p.line(x + w, y, x, y + h, ' stroke="#ccc"')
+                       + p.text_tag(x, y + h / 2 - 8, w, 16, "▣ " + str(label), st, vcenter=True))
+        return p.clip_wrap(placeholder, clip_id) if clip_id else placeholder
+
+    def _image_href(self, src):
+        asset = self.assets.get(src)
+        href = None
+        if isinstance(asset, dict):
+            href = asset.get("data") or asset.get("url")
+            path = asset.get("src") or asset.get("path")
+        else:
+            path = asset if asset else src
+
+        if href:
+            return str(href)
+        if not path:
+            return None
+        path = str(path)
+        if path.startswith(("data:", "http://", "https://", "file://")):
+            return path
+        if not os.path.isabs(path):
+            path = os.path.normpath(os.path.join(self.base_dir, path))
+        if os.path.exists(path):
+            return "file://" + path
+        return None
+
+    def _image_clip_id(self, clip, x, y, w, h):
+        shape = clip
+        if isinstance(clip, dict):
+            shape = clip.get("shape") or clip.get("type")
+        if isinstance(shape, str) and shape.lower() in ("ellipse", "circle", "oval"):
+            return self._painter.clip_ellipse(x + w / 2, y + h / 2, w / 2, h / 2)
+        return None
+
+    @staticmethod
+    def _image_preserve_aspect_ratio(value):
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+        return "xMidYMid meet"
 
     def _table(self, o, box):
         p = self._painter

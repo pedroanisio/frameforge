@@ -78,6 +78,14 @@ class SvgPainter:
                           f'<rect x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}"/></clipPath>')
         return cid
 
+    def clip_ellipse(self, cx, cy, rx, ry):
+        self._gid += 1
+        cid = f"clip{self._gid}"
+        self._defs.append(f'<clipPath id="{cid}">'
+                          f'<ellipse cx="{fnum(cx)}" cy="{fnum(cy)}" '
+                          f'rx="{fnum(rx)}" ry="{fnum(ry)}"/></clipPath>')
+        return cid
+
     def clip_wrap(self, inner, clip_id):
         return f'<g clip-path="url(#{clip_id})">{inner}</g>'
 
@@ -105,9 +113,9 @@ class SvgPainter:
     def path(self, d, fill, stroke, fill_opacity=None):
         return f'<path d="{esc(d)}"{self.fill_attr(fill, fill_opacity)}{stroke}/>'
 
-    def image(self, x, y, w, h, href):
+    def image(self, x, y, w, h, href, preserve_aspect_ratio="xMidYMid meet"):
         return (f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '
-                f'href="{esc(href)}" preserveAspectRatio="xMidYMid meet"/>')
+                f'href="{esc(href)}" preserveAspectRatio="{esc(preserve_aspect_ratio)}"/>')
 
     def text_tag(self, x, y, w, h, content, st, vcenter=None):
         if content is None or content == "":
