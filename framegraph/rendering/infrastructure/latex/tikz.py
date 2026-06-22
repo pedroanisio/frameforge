@@ -936,7 +936,20 @@ class FigureTikz:
         stretch = self._font_stretch_factor(st.get("font_stretch"))
         if stretch is not None:
             font += f"\\addfontfeatures{{FakeStretch={fnum(stretch)}}}"
+        raw_features = self._raw_font_features(st.get("font_feature_settings"))
+        if raw_features:
+            font += f"\\addfontfeatures{{RawFeature={{{raw_features}}}}}"
         return font
+
+    @staticmethod
+    def _raw_font_features(value):
+        if not value or not isinstance(value, str):
+            return ""
+        features = []
+        for tag, flag in re.findall(r'"([A-Za-z0-9]{4})"\s+(-?\d+(?:\.\d+)?)', value):
+            enabled = num(flag, 0) != 0
+            features.append(("+" if enabled else "-") + tag)
+        return ",".join(features)
 
     @staticmethod
     def _font_stretch_factor(value):

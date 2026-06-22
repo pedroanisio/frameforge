@@ -166,6 +166,24 @@ def test_font_kerning_maps_to_fontspec_feature():
     assert "\\addfontfeatures{Kerning=On}" in enabled
 
 
+def test_font_feature_settings_map_to_fontspec_raw_features():
+    enabled = _fig({"label": {"font_feature_settings": '"dlig" 1, "liga" 1, "calt" 1'}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "office",
+        "style": "label",
+    })
+    disabled = _fig({"label": {"font_feature_settings": '"liga" 0'}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "office",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{RawFeature={+dlig,+liga,+calt}}" in enabled
+    assert "\\addfontfeatures{RawFeature={-liga}}" in disabled
+
+
 def test_font_stretch_maps_to_fontspec_fake_stretch():
     condensed = _fig({"label": {"font_stretch": "condensed"}}).render({
         "type": "text",
