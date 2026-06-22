@@ -443,19 +443,45 @@ class _Transpiler:
             out.append("\\item " + note + "\n")
         out.append("\\end{enumerate}\n\\addvspace{8pt}\n")
 
+    def _page_objects(self, page):
+        for layer in (page.get("layers") or []):
+            if not isinstance(layer, dict):
+                continue
+            for obj in (layer.get("objects") or []):
+                if isinstance(obj, dict):
+                    yield obj
+
+    def _page_picture(self, page):
+        body = "".join(self._figtikz.render(obj) for obj in self._page_objects(page))
+        w, h = self._canvas.resolve(page)
+        return (
+            "\\noindent\\begin{tikzpicture}[x=1pt,y=-1pt]\n"
+            f"\\path[use as bounding box] (0,0) rectangle ({fnum(w)},{fnum(h)});\n"
+            + body +
+            "\\end{tikzpicture}\n"
+        )
+
     # -- assembly ---------------------------------------------------------- #
     def build(self):
         pages = [p for p in (self.doc.get("pages") or []) if isinstance(p, dict)]
-        flow = next((p for p in pages if p.get("mode") == "flow"), pages[0] if pages else {})
-        w, h = self._canvas.resolve(flow)
+        flow = next((p for p in pages if p.get("mode") == "flow"), None)
+        geometry_page = flow or (pages[0] if pages else {})
+        w, h = self._canvas.resolve(geometry_page)
         self._textwidth = w - 2 * MARGIN_PT
 
-        story = flow.get("story") or []
-        self._use_endnotes = any(isinstance(fl, dict) and fl.get("type") == "endnotes" for fl in story)
-        out = []
-        for fl in story:
-            if isinstance(fl, dict):
-                self._emit(fl, out)
+        if flow:
+            story = flow.get("story") or []
+            self._use_endnotes = any(isinstance(fl, dict) and fl.get("type") == "endnotes" for fl in story)
+            out = []
+            for fl in story:
+                if isinstance(fl, dict):
+                    self._emit(fl, out)
+        else:
+            out = []
+            for idx, page in enumerate(pages):
+                if idx:
+                    out.append("\\clearpage\n")
+                out.append(self._page_picture(page))
         body = "".join(out)
         return self._preamble(w, h) + "\\begin{document}\n" + body + "\\end{document}\n"
 

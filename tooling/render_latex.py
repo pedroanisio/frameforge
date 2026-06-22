@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """render_latex.py — the LaTeX/TikZ render engine CLI (a peer to render_fixtures.py).
 
-Transpiles FrameGraph v2 *flow* documents to native LaTeX (TeX owns pagination,
-justification, hyphenation, microtype, and real math) with figures emitted as vector
-TikZ, then compiles with `lualatex`. Design tokens are honoured (sizes / `ink` colour /
-sans body via fontspec).
+Transpiles FrameGraph v2 documents to native LaTeX (TeX owns pagination,
+justification, hyphenation, microtype, and real math for flow docs) with figures
+and page-mode documents emitted as vector TikZ, then compiles with `lualatex`.
+Design tokens are honoured (sizes / `ink` colour / sans body via fontspec).
 
 Usage:
     uv run python tooling/render_latex.py fixtures/standard-model.fg.yaml --out /tmp/sm_latex --png
@@ -50,8 +50,7 @@ def discover(paths):
         except Exception:
             continue
         if isinstance(d, dict) and d.get("dsl") == "FrameGraph" and d.get("pages"):
-            if any(isinstance(p, dict) and p.get("mode") == "flow" for p in d["pages"]):
-                docs.append((f, d))
+            docs.append((f, d))
     return docs
 
 
@@ -81,13 +80,13 @@ def rasterize(pdf_path, dpi=130):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Render FrameGraph flow docs to LaTeX/TikZ + PDF.")
+    ap = argparse.ArgumentParser(description="Render FrameGraph docs to LaTeX/TikZ + PDF.")
     ap.add_argument("paths", nargs="*", help="files / dirs / globs (default: all fixtures/)")
-    ap.add_argument("--all", action="store_true", help="render every flow fixture under fixtures/")
+    ap.add_argument("--all", action="store_true", help="render every fixture under fixtures/")
     ap.add_argument("--out", default=os.path.join(ROOT, "out", "latex"), help="output dir")
     ap.add_argument("--png", action="store_true", help="also rasterize each PDF to PNG (pdftoppm)")
     ap.add_argument("--tex-only", action="store_true", help="write .tex but do not compile")
-    ap.add_argument("--list", action="store_true", help="list discoverable flow docs and exit")
+    ap.add_argument("--list", action="store_true", help="list discoverable FrameGraph docs and exit")
     ap.add_argument("-q", "--quiet", action="store_true")
     args = ap.parse_args(argv)
 
@@ -98,7 +97,7 @@ def main(argv=None):
             print(os.path.relpath(f, ROOT))
         return 0
     if not docs:
-        print("no FrameGraph flow documents found", file=sys.stderr)
+        print("no FrameGraph documents found", file=sys.stderr)
         return 1
     if not args.tex_only and not shutil.which("lualatex"):
         print("lualatex not found — install TeX Live (texlive-luatex) or pass --tex-only",

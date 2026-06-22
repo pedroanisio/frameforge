@@ -246,7 +246,38 @@ def test_render_latex_cli_tex_only_writes_tex(tmp_path):
     assert rf"\detokenize{{{tmp_path / 'assets' / 'logo a.png'}}}" in tex
 
 
-def test_render_latex_cli_lists_only_flow_docs(tmp_path, capsys):
+def test_transpile_page_mode_emits_full_page_tikz():
+    doc = {
+        "dsl": "FrameGraph",
+        "version": "2.2.0",
+        "pages": [
+            {
+                "mode": "page",
+                "id": "p",
+                "canvas": {"size": [200, 120]},
+                "layers": [
+                    {
+                        "id": "l",
+                        "objects": [
+                            {"type": "rect", "box": [10, 20, 40, 30], "fill": "#ff0000"},
+                            {"type": "text", "box": [20, 60, 80, 20], "text": "Page text"},
+                        ],
+                    }
+                ],
+            }
+        ],
+    }
+
+    tex = transpile(doc)
+
+    assert "paperwidth=200pt,paperheight=120pt" in tex
+    assert "\\begin{tikzpicture}[x=1pt,y=-1pt]" in tex
+    assert "\\path[use as bounding box] (0,0) rectangle (200,120);" in tex
+    assert "rectangle (50,50)" in tex
+    assert "Page text" in tex
+
+
+def test_render_latex_cli_lists_framegraph_docs(tmp_path, capsys):
     flow = tmp_path / "flow.fg.yaml"
     page = tmp_path / "page.fg.yaml"
     flow.write_text(yaml.safe_dump(DOC), encoding="utf-8")
@@ -257,4 +288,4 @@ def test_render_latex_cli_lists_only_flow_docs(tmp_path, capsys):
     assert rc == 0
     listed = capsys.readouterr().out
     assert "flow.fg.yaml" in listed
-    assert "page.fg.yaml" not in listed
+    assert "page.fg.yaml" in listed
