@@ -480,6 +480,25 @@ class FigureTikz:
             out["dash"] = [1, 3]
         return out
 
+    def _border_opts(self, border):
+        bundle = self._border_bundle(border)
+        if not bundle:
+            return []
+        col = self._color.resolve(bundle.get("color")) or "#000000"
+        expr, op = color_expr(col)
+        if expr is None:
+            return []
+        opts = ["fill=none", f"draw={expr}", f"line width={fnum(num(bundle.get('width'), 1) or 1)}pt"]
+        if op is not None:
+            opts.append(f"draw opacity={fnum(op)}")
+        dash = bundle.get("dash")
+        if isinstance(dash, list) and dash:
+            parts = []
+            for i, d in enumerate(dash):
+                parts.append(("off " if i % 2 else "on ") + fnum(num(d, 0)) + "pt")
+            opts.append("dash pattern=" + " ".join(parts))
+        return opts
+
     @staticmethod
     def _border_dict(border):
         if isinstance(border, dict):
@@ -581,6 +600,19 @@ class FigureTikz:
             out.append(self._path(opts, geom))
         return "".join(out)
 
+    def _rect_outline(self, o, x, y, w, h, r=0):
+        style = self._style_dict(o)
+        opts = self._border_opts(style.get("outline"))
+        if not opts:
+            return ""
+        offset = num(style.get("outline_offset"), 0) or 0
+        rr = max(0, r + offset)
+        if rr:
+            opts.append(f"rounded corners={fnum(rr)}pt")
+        ox, oy = x - offset, y - offset
+        geom = f"({fnum(ox)},{fnum(oy)}) rectangle ({fnum(ox + w + 2 * offset)},{fnum(oy + h + 2 * offset)})"
+        return self._path(opts, geom)
+
     def _ellipse_effects(self, o, cx, cy, rx, ry):
         out = []
         for kind, params in self._effect_specs(o):
@@ -609,12 +641,12 @@ class FigureTikz:
             # gradient fill, then the (optional) outline drawn over it.
             stroke = self._stroke_opts(o)
             geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
-            return effects + grad + (self._path(stroke, geom) if stroke else "")
+            return effects + grad + (self._path(stroke, geom) if stroke else "") + self._rect_outline(o, x, y, w, h, r)
         extra = []
         if r:
             extra.append(f"rounded corners={fnum(r)}pt")
         geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
-        return effects + self._painted_path(o, geom, extra)
+        return effects + self._painted_path(o, geom, extra) + self._rect_outline(o, x, y, w, h, r)
 
     def _gradient_rect(self, fill, x, y, w, h):
         """A linear-gradient rect fill to piecewise TikZ `\\shade` segments.

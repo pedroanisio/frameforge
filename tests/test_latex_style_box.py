@@ -88,3 +88,41 @@ def test_explicit_rect_stroke_overrides_style_border():
     assert "draw={rgb,255:red,171;green,205;blue,239}" in tex
     assert "line width=1pt" in tex
     assert "dash pattern=on 4pt off 4pt" not in tex
+
+
+def test_rect_style_outline_draws_offset_tikz_rect_after_source():
+    tex = _fig({
+        "panel_style": {
+            "background_color": "panel",
+            "border_radius": 6,
+            "outline": {"width": 3, "style": "dotted", "color": "accent"},
+            "outline_offset": 4,
+        },
+    }).render({
+        "type": "rect",
+        "box": [10, 20, 80, 40],
+        "style": "panel_style",
+    })
+
+    source = "(10,20) rectangle (90,60)"
+    outline = "(6,16) rectangle (94,64)"
+    assert source in tex
+    assert outline in tex
+    assert tex.index(source) < tex.index(outline)
+    assert "fill=none" in tex
+    assert "draw={rgb,255:red,171;green,205;blue,239}" in tex
+    assert "line width=3pt" in tex
+    assert "dash pattern=on 1pt off 3pt" in tex
+    assert "rounded corners=10pt" in tex
+
+
+def test_rect_style_outline_none_does_not_draw_extra_path():
+    tex = _fig({"panel_style": {"background_color": "panel", "outline": "none"}}).render({
+        "type": "rect",
+        "box": [10, 20, 80, 40],
+        "style": "panel_style",
+    })
+
+    assert "(10,20) rectangle (90,60)" in tex
+    assert "fill=none" not in tex
+    assert tex.count("rectangle") == 1
