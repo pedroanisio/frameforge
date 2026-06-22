@@ -35,9 +35,11 @@ from __future__ import annotations
 import argparse
 import copy
 import glob
+import json
 import math
 import os
 import re
+import subprocess
 import sys
 
 import yaml
@@ -89,6 +91,9 @@ from framegraph.rendering.infrastructure.painters.svg import (  # noqa: E402
 #  the renderer                                                               #
 # --------------------------------------------------------------------------- #
 class Renderer:
+    _math_svg_cache = {}
+    _math_svg_failed = False
+
     def __init__(self, doc, base_dir):
         self.doc = doc if isinstance(doc, dict) else {}
         self.base_dir = base_dir
@@ -362,6 +367,38 @@ class Renderer:
         s = s.replace("{", "").replace("}", "")
         s = re.sub(r"\\([A-Za-z]+)", r"\1", s)
         return re.sub(r"\s+", " ", s).strip()
+
+    @classmethod
+    def render_math_svg(cls, tex):
+        """Render TeX to a path-based SVG fragment using the viewer MathJax dep."""
+        source = str(tex or "")
+        if not source or cls._math_svg_failed:
+            return None
+        if source in cls._math_svg_cache:
+            return cls._math_svg_cache[source]
+        script = os.path.join(ROOT, "tooling", "mathjax_tex_to_svg.mjs")
+        if not os.path.exists(script):
+            cls._math_svg_failed = True
+            return None
+        try:
+            proc = subprocess.run(
+                ["node", script],
+                input=json.dumps([source]),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=ROOT,
+                check=True,
+            )
+            converted = json.loads(proc.stdout or "[]")
+            result = converted[0] if converted else None
+        except (OSError, subprocess.CalledProcessError, json.JSONDecodeError, IndexError, TypeError):
+            cls._math_svg_failed = True
+            return None
+        if not isinstance(result, dict) or not result.get("body") or not result.get("viewBox"):
+            return None
+        cls._math_svg_cache[source] = result
+        return result
 
     # ---- per-object dispatch ---------------------------------------------- #
     def obj(self, o):
@@ -1786,6 +1823,36 @@ class Renderer:
                 emit_row(row if isinstance(row, list) else [row], cell_st, "#ffffff" if idx % 2 == 0 else "#fafafa")
             cy += 10
 
+        def emit_math(fl):
+            nonlocal cy
+            source = fl.get("tex") or fl.get("mathml") or text_of(fl)
+            rendered = self.render_math_svg(source)
+            if rendered:
+                natural_w = max(1.0, num(rendered.get("width"), 120))
+                natural_h = max(1.0, num(rendered.get("height"), 24))
+                scale = min(1.0, usable / natural_w)
+                draw_w = natural_w * scale
+                draw_h = natural_h * scale
+                if cy + draw_h > bottom:
+                    newpage()
+                mx = x + (usable - draw_w) / 2
+                title = fl.get("alt") or fl.get("aria_label") or "math expression"
+                body.append(
+                    f'<svg x="{fnum(mx)}" y="{fnum(cy)}" width="{fnum(draw_w)}" '
+                    f'height="{fnum(draw_h)}" viewBox="{esc(rendered.get("viewBox"))}" '
+                    f'preserveAspectRatio="xMidYMid meet" role="img" focusable="false" '
+                    f'color="#111" data-framegraph-math="true">'
+                    f'<title>{esc(title)}</title>{rendered.get("body")}</svg>'
+                )
+                cy += draw_h + 12
+                return
+
+            text = self.render_math_text(source)
+            st = {**base, "family": "serif", "size": 13, "color": "#111", "align": "center", "lh": 1.25}
+            for ln in str(text).splitlines() or [""]:
+                emit(ln, st, gap_after=1)
+            cy += 8
+
         def emit_flow(fl):
             nonlocal cy
             ft = fl.get("type")
@@ -1811,11 +1878,7 @@ class Renderer:
             elif ft == "table":
                 emit_table(fl)
             elif ft == "math":
-                text = self.render_math_text(fl.get("tex") or fl.get("mathml") or text_of(fl))
-                st = {**base, "family": "serif", "size": 13, "color": "#111", "align": "center", "lh": 1.25}
-                for ln in str(text).splitlines() or [""]:
-                    emit(ln, st, gap_after=1)
-                cy += 8
+                emit_math(fl)
             elif ft == "code":
                 text = fl.get("code") or fl.get("source") or text_of(fl)
                 mono = {**base, "family": "monospace", "size": 10, "color": "#333"}

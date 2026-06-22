@@ -21,7 +21,7 @@ Delivered top-level fixtures validated against the HEAD core profile (`tooling/v
 | `myfiles-internal.fg.yaml` | 0 | 19 | advisory warnings only (containment, overlap) |
 | `nyt-mideast-live.fg.yaml` | 0 | 1 | advisory warnings only (tabular-box-model) |
 | `pdf_table_extraction.fg.yaml` | 0 | 1 | advisory warnings only (out-of-profile) |
-| `standard-model.fg.yaml` | 0 | 121 | advisory warnings only (out-of-profile, overlap) |
+| `standard-model.fg.yaml` | 0 | 17 | advisory warnings only (out-of-profile) |
 | `table-rows.fg.yaml` | 0 | 0 | clean |
 | `tables.fg.yaml` | 0 | 0 | clean |
 | `text-spans.fg.yaml` | 0 | 0 | clean |

@@ -72,20 +72,22 @@ defs:
   masters:
     article:
       canvas:
-        preset: A4
+        size:
+        - 792
+        - 1120
         orientation: portrait
         margin:
-        - 24px
-        - 24px
-        - 24px
-        - 24px
+        - 48
+        - 48
+        - 48
+        - 48
       regions:
       - id: body
         box:
-        - 0px
-        - 0px
-        - 760px
-        - 100000px
+        - 48
+        - 48
+        - 696
+        - 100000
   symbols:
     card:
       box: [0, 0, 72, 72]
@@ -1110,16 +1112,19 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [112, 26, 260, 346]
         fill: '#e74c3c33'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [370, 26, 88, 346]
         fill: '#3498db33'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [456, 198, 88, 88]
         fill: '#3498db33'
         radius: 16
@@ -1129,11 +1134,13 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: fermions
         box: [6, 144, 108, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: bosons
         box: [548, 144, 100, 28]
         style: region_label
@@ -1184,21 +1191,25 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [112, 26, 260, 346]
         fill: '#9b59b633'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [370, 26, 88, 260]
         fill: '#9b59b633'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [456, 198, 88, 88]
         fill: '#9b59b633'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [370, 284, 88, 88]
         fill: '#ecf0f133'
         radius: 16
@@ -1208,16 +1219,19 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: spin ½
         box: [6, 144, 108, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: spin 1
         box: [548, 58, 100, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: spin 0
         box: [548, 316, 100, 28]
         style: region_label
@@ -1256,16 +1270,19 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [370, 26, 88, 260]
         fill: '#3498db33'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [456, 198, 88, 88]
         fill: '#3498db33'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [370, 284, 88, 88]
         fill: '#ecf0f133'
         radius: 16
@@ -1275,11 +1292,13 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: vector bosons (spin 1)
         box: [548, 58, 108, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: scalar boson (spin 0)
         box: [548, 316, 108, 28]
         style: region_label
@@ -1338,11 +1357,13 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [112, 26, 260, 174]
         fill: '#e91e6333'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [112, 198, 260, 174]
         fill: '#f39c1233'
         radius: 16
@@ -1352,11 +1373,13 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: quarks
         box: [6, 58, 108, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: leptons
         box: [6, 230, 108, 28]
         style: region_label
@@ -1405,6 +1428,7 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [112, 284, 260, 88]
         fill: '#f1c40f55'
         radius: 16
@@ -1414,6 +1438,7 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: neutrinos
         box: [6, 316, 108, 28]
         style: region_label
@@ -1438,16 +1463,19 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [112, 26, 88, 346]
         fill: '#7f8c8d22'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [198, 26, 88, 346]
         fill: '#7f8c8d22'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [284, 26, 88, 346]
         fill: '#7f8c8d22'
         radius: 16
@@ -1457,16 +1485,19 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: I
         box: [150, 8, 30, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: II
         box: [234, 8, 30, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: III
         box: [318, 8, 34, 28]
         style: region_label
@@ -1497,21 +1528,25 @@ pages:
       type: group
       children:
       - type: text
+        decorative: true
         text: standard model particle interactions
         box: [150, 4, 360, 28]
         style: fig_title
         z: 10
       - type: text
+        decorative: true
         text: electromagnetic
         box: [20, 44, 200, 24]
         style: panel_title
         z: 10
       - type: text
+        decorative: true
         text: (charge)
         box: [20, 66, 200, 20]
         style: panel_sub
         z: 10
       - type: ellipse
+        decorative: true
         center: [110, 170]
         rx: 42
         ry: 42
@@ -1521,33 +1556,39 @@ pages:
           stroke_width: 2
         z: 2
       - type: text
+        decorative: true
         text: Au
         box: [86, 156, 60, 28]
         style: panel_sub
         z: 4
       - type: ellipse
+        decorative: true
         center: [45, 120]
         rx: 9
         ry: 9
         fill: '#c0392b'
         z: 4
       - type: text
+        decorative: true
         text: α
         box: [20, 118, 24, 20]
         style: panel_sub
         z: 5
       - type: ellipse
+        decorative: true
         center: [175, 95]
         rx: 9
         ry: 9
         fill: '#c0392b'
         z: 4
       - type: text
+        decorative: true
         text: α
         box: [186, 88, 24, 20]
         style: panel_sub
         z: 5
       - type: polyline
+        decorative: true
         points:
         - [52, 124]
         - [78, 140]
@@ -1558,36 +1599,43 @@ pages:
         stroke_style: *id001
         z: 3
       - type: text
+        decorative: true
         text: γ
         box: [82, 128, 24, 20]
         style: panel_sub
         z: 5
       - type: text
+        decorative: true
         text: alpha particle scattering
         box: [20, 224, 200, 20]
         style: fig_caption
         z: 10
       - type: text
+        decorative: true
         text: off a gold nucleus
         box: [20, 240, 200, 20]
         style: fig_caption
         z: 10
       - type: text
+        decorative: true
         text: interaction mediated by photons
         box: [20, 262, 200, 20]
         style: fig_caption
         z: 10
       - type: text
+        decorative: true
         text: strong
         box: [250, 44, 200, 24]
         style: panel_title
         z: 10
       - type: text
+        decorative: true
         text: (color)
         box: [250, 66, 200, 20]
         style: panel_sub
         z: 10
       - type: ellipse
+        decorative: true
         center: [345, 170]
         rx: 48
         ry: 48
@@ -1596,109 +1644,129 @@ pages:
         stroke_style: *id001
         z: 2
       - type: text
+        decorative: true
         text: p⁺
         box: [328, 150, 40, 24]
         style: panel_sub
         z: 3
       - type: ellipse
+        decorative: true
         center: [328, 150]
         rx: 5
         ry: 5
         fill: '#e8302a'
         z: 4
       - type: ellipse
+        decorative: true
         center: [365, 150]
         rx: 5
         ry: 5
         fill: '#2ca02c'
         z: 4
       - type: ellipse
+        decorative: true
         center: [345, 196]
         rx: 5
         ry: 5
         fill: '#1f5fd0'
         z: 4
       - type: line
+        decorative: true
         from: [328, 150]
         to: [365, 150]
         stroke: '#7f8c8d'
         stroke_style: *id001
         z: 3
       - type: line
+        decorative: true
         from: [365, 150]
         to: [345, 196]
         stroke: '#7f8c8d'
         stroke_style: *id001
         z: 3
       - type: line
+        decorative: true
         from: [345, 196]
         to: [328, 150]
         stroke: '#7f8c8d'
         stroke_style: *id001
         z: 3
       - type: text
+        decorative: true
         text: g
         box: [342, 166, 16, 18]
         style: panel_sub
         z: 5
       - type: text
+        decorative: true
         text: quarks bound together
         box: [250, 224, 200, 20]
         style: fig_caption
         z: 10
       - type: text
+        decorative: true
         text: within a proton
         box: [250, 240, 200, 20]
         style: fig_caption
         z: 10
       - type: text
+        decorative: true
         text: interaction mediated by gluons
         box: [250, 262, 200, 20]
         style: fig_caption
         z: 10
       - type: text
+        decorative: true
         text: weak
         box: [470, 44, 200, 24]
         style: panel_title
         z: 10
       - type: text
+        decorative: true
         text: (flavor)
         box: [470, 66, 200, 20]
         style: panel_sub
         z: 10
       - type: text
+        decorative: true
         text: e⁻
         box: [470, 104, 24, 20]
         style: panel_sub
         z: 5
       - type: text
+        decorative: true
         text: ν⁰
         box: [620, 104, 30, 20]
         style: panel_sub
         z: 5
       - type: text
+        decorative: true
         text: p⁺
         box: [470, 214, 30, 20]
         style: panel_sub
         z: 5
       - type: text
+        decorative: true
         text: n⁰
         box: [620, 214, 30, 20]
         style: panel_sub
         z: 5
       - type: line
+        decorative: true
         from: [492, 118]
         to: [520, 150]
         stroke: '#001f3d'
         stroke_style: *id001
         z: 3
       - type: line
+        decorative: true
         from: [492, 222]
         to: [520, 150]
         stroke: '#001f3d'
         stroke_style: *id001
         z: 3
       - type: line
+        decorative: true
         from: [520, 150]
         to: [550, 190]
         stroke: '#7f8c8d'
@@ -1707,28 +1775,33 @@ pages:
           stroke_dasharray: [5, 4]
         z: 3
       - type: text
+        decorative: true
         text: W⁻
         box: [556, 162, 30, 20]
         style: panel_sub
         z: 5
       - type: line
+        decorative: true
         from: [550, 190]
         to: [620, 118]
         stroke: '#001f3d'
         stroke_style: *id001
         z: 3
       - type: line
+        decorative: true
         from: [550, 190]
         to: [620, 222]
         stroke: '#001f3d'
         stroke_style: *id001
         z: 3
       - type: text
+        decorative: true
         text: reverse beta decay
         box: [470, 224, 200, 20]
         style: fig_caption
         z: 10
       - type: text
+        decorative: true
         text: interaction mediated by W and Z particles
         box: [470, 262, 210, 20]
         style: fig_caption
@@ -1751,16 +1824,19 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [112, 26, 260, 88]
         fill: '#e67e2233'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [112, 112, 260, 88]
         fill: '#e67e2233'
         radius: 16
         z: 1
       - type: rect
+        decorative: true
         box: [112, 198, 260, 88]
         fill: '#e67e2233'
         radius: 16
@@ -1770,16 +1846,19 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: +⅔ e
         box: [6, 58, 108, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: −⅓ e
         box: [6, 144, 108, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: −1 e
         box: [6, 230, 108, 28]
         style: region_label
@@ -1804,56 +1883,67 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [115, 29, 82, 82]
         fill: '#e91e6338'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 29, 82, 82]
         fill: '#e91e6338'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 29, 82, 82]
         fill: '#e91e6338'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 115, 82, 82]
         fill: '#e91e6338'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 115, 82, 82]
         fill: '#e91e6338'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 115, 82, 82]
         fill: '#e91e6338'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 201, 82, 82]
         fill: '#e91e6338'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 201, 82, 82]
         fill: '#e91e6338'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 201, 82, 82]
         fill: '#e91e6338'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [373, 201, 82, 82]
         fill: '#e91e6338'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [373, 115, 82, 82]
         fill: '#e91e6338'
         radius: 12
@@ -1863,6 +1953,7 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: em
         box: [6, 144, 108, 28]
         style: region_label
@@ -1883,36 +1974,43 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [115, 29, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 29, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 29, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 115, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 115, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 115, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [373, 29, 82, 82]
         fill: '#1abc9c38'
         radius: 12
@@ -1922,6 +2020,7 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: colored
         box: [6, 58, 108, 28]
         style: region_label
@@ -1956,36 +2055,43 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [115, 29, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 29, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 29, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 115, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 115, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 115, 82, 82]
         fill: '#1abc9c38'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [373, 29, 82, 82]
         fill: '#1abc9c38'
         radius: 12
@@ -1995,6 +2101,7 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: strong
         box: [6, 58, 108, 28]
         style: region_label
@@ -2021,61 +2128,73 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [115, 29, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 29, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 29, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 115, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 115, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 115, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 201, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 201, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 201, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 287, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 287, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 287, 82, 82]
         fill: '#f1c40f55'
         radius: 12
@@ -2085,6 +2204,7 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: flavored
         box: [6, 230, 108, 28]
         style: region_label
@@ -2104,71 +2224,85 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [115, 29, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 29, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 29, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 115, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 115, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 115, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 201, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 201, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 201, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 287, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 287, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 287, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [373, 201, 82, 82]
         fill: '#f1c40f55'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [459, 201, 82, 82]
         fill: '#f1c40f55'
         radius: 12
@@ -2178,6 +2312,7 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: weak
         box: [6, 230, 108, 28]
         style: region_label
@@ -2206,6 +2341,7 @@ pages:
       type: group
       children:
       - type: line
+        decorative: true
         from: [104, 28]
         to: [104, 370]
         stroke: '#7f8c8d'
@@ -2215,22 +2351,26 @@ pages:
           arrow_end: true
         z: 2
       - type: line
+        decorative: true
         from: [560, 28]
         to: [560, 370]
         stroke: '#7f8c8d'
         stroke_style: *id002
         z: 2
       - type: rect
+        decorative: true
         box: [373, 201, 82, 82]
         fill: '#2ecc7133'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [459, 201, 82, 82]
         fill: '#2ecc7133'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [373, 287, 82, 82]
         fill: '#2ecc7133'
         radius: 12
@@ -2240,21 +2380,25 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: heavier fermions
         box: [6, 58, 108, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: lighter fermions
         box: [6, 316, 108, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: massless bosons
         box: [548, 58, 108, 28]
         style: region_label
         z: 10
       - type: text
+        decorative: true
         text: massive bosons
         box: [548, 316, 108, 28]
         style: region_label
@@ -2325,61 +2469,73 @@ pages:
       type: group
       children:
       - type: rect
+        decorative: true
         box: [115, 29, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 29, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 29, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 115, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 115, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 115, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [115, 201, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [201, 201, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [287, 201, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [373, 201, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [459, 201, 82, 82]
         fill: '#2ecc7144'
         radius: 12
         z: 1
       - type: rect
+        decorative: true
         box: [373, 287, 82, 82]
         fill: '#2ecc7144'
         radius: 12
@@ -2389,6 +2545,7 @@ pages:
         box: [0, 0, 560, 408]
         z: 5
       - type: text
+        decorative: true
         text: higgs
         box: [548, 316, 100, 28]
         style: region_label
