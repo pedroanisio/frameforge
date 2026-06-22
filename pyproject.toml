@@ -16,7 +16,10 @@ dependencies = [
 # install the matplotlib proxy renderer's deps explicitly with:
 #   uv sync --group render
 [dependency-groups]
-dev = ["pytest>=8"]
+dev = [
+    "hypothesis>=6",
+    "pytest>=8",
+]
 render = ["matplotlib>=3.7", "pillow>=10"]
 
 [tool.uv]
