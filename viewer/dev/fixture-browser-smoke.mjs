@@ -25,6 +25,18 @@ function loadDoc(file) {
   return /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
 }
 
+function hasLayerContent(pageRecord) {
+  return (pageRecord.layers || []).some((layer) => (layer.objects || []).length > 0);
+}
+
+function hasFlowContent(pageRecord) {
+  return (pageRecord.story || pageRecord.sections || []).length > 0;
+}
+
+function hasRenderableContent(pageRecord) {
+  return hasLayerContent(pageRecord) || (pageRecord.objects || []).length > 0 || hasFlowContent(pageRecord);
+}
+
 const docs = files(FIXTURES)
   .map((file) => ({ file, rel: path.relative(ROOT, file), doc: loadDoc(file) }))
   .filter(({ doc }) => doc && doc.dsl === "FrameGraph");
@@ -51,6 +63,7 @@ for (const { rel, doc } of docs) {
   );
   const state = await page.evaluate(() => window.__FRAMEGRAPH_VIEWER__.state());
   const sourcePages = doc.pages || [];
+  const sourceRenderablePages = sourcePages.map(hasRenderableContent);
   const hasFlow = sourcePages.some((p) => p.mode === "flow" || p.story || p.sections);
   if (state.pageCount < sourcePages.length) {
     failures.push(`${rel}: expanded page count ${state.pageCount} is smaller than source page count ${sourcePages.length}`);
@@ -84,7 +97,8 @@ for (const { rel, doc } of docs) {
     if (result.width <= 0 || result.height <= 0) {
       failures.push(`${rel} rendered page ${i + 1}: active canvas has invalid size ${result.width}x${result.height}`);
     }
-    if (result.elementCount === 0 && result.textLength === 0) {
+    const sourceHasContent = i >= sourceRenderablePages.length || sourceRenderablePages[i];
+    if (sourceHasContent && result.elementCount === 0 && result.textLength === 0) {
       failures.push(`${rel} rendered page ${i + 1}: active canvas rendered no content`);
     }
     if (result.mode === "flow" && result.flowScrollHeight > result.flowClientHeight + 2) {

@@ -63,6 +63,9 @@ from framegraph.rendering.domain.services.effect_resolver import (  # noqa: E402
 from framegraph.rendering.domain.services.stroke_resolver import (  # noqa: E402
     StrokeResolver,
 )
+from framegraph.rendering.domain.services.layout_engine import (  # noqa: E402
+    LayoutEngine,
+)
 from framegraph.rendering.domain.services.table_layout import (  # noqa: E402
     resolve_column_widths,
 )
@@ -114,6 +117,7 @@ class Renderer:
         self._canvas = CanvasResolver(self.masters)
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)
         self._effect = EffectResolver(self._color)
+        self._layout = LayoutEngine()
 
     # ---- colour / paint ---------------------------------------------------- #
     def color(self, c, depth=0):
@@ -383,6 +387,15 @@ class Renderer:
         bg_blend = style.get("background_blend_mode")
         if bg_blend and bg_blend != "normal":
             attrs["background-blend-mode"] = bg_blend
+        for key, css_name in (
+            ("background_position", "background-position"),
+            ("background_repeat", "background-repeat"),
+            ("background_clip", "background-clip"),
+            ("background_origin", "background-origin"),
+        ):
+            val = style.get(key)
+            if val:
+                attrs[css_name] = str(val)
         mask = style.get("mask")
         if isinstance(mask, str) and mask.strip() and mask.strip() != "none":
             attrs["mask"] = mask.strip()
@@ -551,6 +564,35 @@ class Renderer:
             return transform
         return f"translate({fnum(ox)} {fnum(oy)}) {transform} translate({fnum(-ox)} {fnum(-oy)})"
 
+    def _group_children(self, o):
+        """Render a group's children, arranging them when the group declares a
+        row/column/grid `layout` (else children keep their authored boxes).
+
+        Arrangement repositions each child via a translate group — it does NOT
+        resize them — so per-box text-fit is unchanged. Children render in the
+        group's local frame; the group's own box-origin translate is applied by
+        the caller. A child already at its target position is not wrapped, so a
+        free/no-layout group is byte-identical to before."""
+        children = o.get("children") or []
+        layout = o.get("layout") or {}
+        box = o.get("box")
+        if not (layout.get("kind") in ("row", "column", "grid")
+                and isinstance(box, list) and len(box) >= 4):
+            return "".join(self.obj(ch) for ch in children)
+        p = self._painter
+        positions = self._layout.arrange(num(box[2], 0), num(box[3], 0), children, layout)
+        parts = []
+        for ch, (tx, ty) in zip(children, positions):
+            csvg = self.obj(ch)
+            if not csvg:
+                continue
+            cb = ch.get("box") if isinstance(ch, dict) else None
+            ox = num(cb[0], 0) or 0 if isinstance(cb, list) and len(cb) >= 2 else 0
+            oy = num(cb[1], 0) or 0 if isinstance(cb, list) and len(cb) >= 2 else 0
+            dx, dy = tx - ox, ty - oy
+            parts.append(p.group(csvg, translate=(dx, dy)) if (dx or dy) else csvg)
+        return "".join(parts)
+
     def _obj(self, o):
         p = self._painter
         t = o.get("type")
@@ -667,7 +709,7 @@ class Renderer:
             return self._table(o, box)
 
         if t == "group":
-            inner = "".join(self.obj(ch) for ch in (o.get("children") or []))
+            inner = self._group_children(o)
             bx = o.get("box")
             if is_point(bx[:2]) if isinstance(bx, list) and len(bx) >= 2 else False:
                 # only translate when the group declares an origin box (P1 nesting)

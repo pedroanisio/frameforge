@@ -502,6 +502,10 @@ def test_style_compositing_wraps_svg_objects() -> None:
                     {"fn": "blur", "value": 4},
                     {"fn": "drop_shadow", "shadow": {"offset_x": 1, "offset_y": 2, "blur": 3, "color": "hairline"}},
                 ],
+                "background_position": "10px 20px",
+                "background_repeat": "no-repeat",
+                "background_clip": "text",
+                "background_origin": "content-box",
                 "background_blend_mode": "screen",
                 "mask": "url(#mask1)",
                 "z_index": 7,
@@ -517,12 +521,34 @@ def test_style_compositing_wraps_svg_objects() -> None:
     assert "isolation:isolate" in svg
     assert "opacity:0.45" in svg
     assert "backdrop-filter:blur(4px) drop-shadow(1px 2px 3px #123456)" in svg
+    assert "background-position:10px 20px" in svg
+    assert "background-repeat:no-repeat" in svg
+    assert "background-clip:text" in svg
+    assert "background-origin:content-box" in svg
     assert "background-blend-mode:screen" in svg
     assert "mask:url(#mask1)" in svg
     assert "z-index:7" in svg
     assert "transform-box:fill-box" in svg
     assert "perspective:120px" in svg
     assert '<rect x="20" y="20" width="80" height="40"' in svg
+
+
+def test_group_layout_repositions_children_in_svg() -> None:
+    svg = _svg_for([
+        {
+            "type": "group",
+            "box": [10, 10, 80, 30],
+            "layout": {"kind": "row", "gap": 6},
+            "children": [
+                {"type": "rect", "id": "a", "box": [0, 0, 20, 12], "fill": "panel"},
+                {"type": "rect", "id": "b", "box": [0, 0, 20, 12], "fill": "hairline"},
+            ],
+        }
+    ])
+
+    assert '<g transform="translate(10,10)">' in svg
+    assert '<rect x="0" y="0" width="20" height="12"' in svg
+    assert '<g transform="translate(26,0)">' in svg
 
 
 def test_style_clip_path_shapes_are_emitted() -> None:

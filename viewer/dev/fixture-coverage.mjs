@@ -11,7 +11,7 @@ const SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, "schema/framegraph-v2.
 const PAGE_MODES = new Set(["page", "flow", undefined]);
 const ABSOLUTE_TYPES = new Set([
   "rect", "text", "line", "polyline", "polygon", "path", "ellipse", "circle",
-  "icon", "image", "bullet_list", "table", "group",
+  "icon", "image", "bullet_list", "table", "group", "chip_row", "uml.marker_glyph",
 ]);
 const FLOW_TYPES = new Set([
   "heading", "paragraph", "list", "bullet_list", "table", "code", "math", "toc",

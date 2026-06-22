@@ -27585,6 +27585,80 @@ ${exception.mark.snippet}`;
       }, children: src || "image" })
     ] });
   }
+  function ChipRowObj({ doc, o }) {
+    const [x, y] = (o.origin || [0, 0]).map(toPx);
+    const gap = toPx(o.gap) || 6;
+    const height = toPx(o.height) || 18;
+    const items = o.items || [];
+    const fill = resolveColor(doc, o.fill || "paper") || "#fff";
+    const stroke = resolveColor(doc, o.stroke || "rule") || "rgba(0,0,0,.16)";
+    const color = resolveColor(doc, o.color || "text_muted") || "#555";
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { "data-framegraph-object": o.id || "", "data-framegraph-type": "chip_row", style: {
+      position: "absolute",
+      left: x,
+      top: y,
+      display: "flex",
+      gap,
+      height,
+      alignItems: "center",
+      opacity: o.opacity != null ? o.opacity : 1,
+      ...styleToCss(doc, o.style)
+    }, children: items.map((item, i) => {
+      const width = toPx(item.width) || void 0;
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+        flex: "0 0 auto",
+        width,
+        height,
+        borderRadius: height / 2,
+        border: `1px solid ${resolveColor(doc, item.stroke) || stroke}`,
+        background: resolveColor(doc, item.fill) || fill,
+        color: resolveColor(doc, item.color) || color,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "0 7px",
+        boxSizing: "border-box",
+        fontFamily: resolveFont(doc, item.font || o.font),
+        fontSize: Math.max(9, Math.min(12, height - 5)),
+        lineHeight: 1,
+        whiteSpace: "nowrap",
+        overflow: "hidden"
+      }, children: textContent(item) }, item.id || i);
+    }) });
+  }
+  function UmlMarkerGlyphObj({ doc, o }) {
+    const [x, y] = (o.position || o.origin || [0, 0]).map(toPx);
+    const size = toPx(o.size ?? o.meta?._fg1_migration?.size) || 12;
+    const half = size / 2;
+    const color = resolveColor(doc, o.color || o.stroke || "ink") || "#111";
+    const filled = String(o.kind || "").includes("filled");
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "svg",
+      {
+        "data-framegraph-object": o.id || "",
+        "data-framegraph-type": "uml.marker_glyph",
+        width: size,
+        height: size,
+        viewBox: `0 0 ${size} ${size}`,
+        style: {
+          position: "absolute",
+          left: x - half,
+          top: y - half,
+          overflow: "visible",
+          opacity: o.opacity != null ? o.opacity : 1
+        },
+        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "polygon",
+          {
+            points: `${half},0 ${size},${half} ${half},${size} 0,${half}`,
+            fill: filled ? color : "transparent",
+            stroke: color,
+            strokeWidth: "1.4"
+          }
+        )
+      }
+    );
+  }
   function textContent(v) {
     if (v == null) return "";
     if (typeof v === "string" || typeof v === "number") return String(v);
@@ -27737,6 +27811,10 @@ ${exception.mark.snippet}`;
         return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableView, { doc, o });
       case "group":
         return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GroupObj, { doc, o, cw, ch, active });
+      case "chip_row":
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChipRowObj, { doc, o });
+      case "uml.marker_glyph":
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlMarkerGlyphObj, { doc, o });
       default:
         if (o.from && o.to) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VectorObj, { doc, o: { ...o, type: "line" }, cw, ch, reg });
         if (o.children) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GroupObj, { doc, o: { ...o, type: "group" }, cw, ch, active });
