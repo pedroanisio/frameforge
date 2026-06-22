@@ -82,15 +82,17 @@ Rules of reading:
 - **`[Enforced]`** Runtime deps are minimal, pinned by floor: `pydantic>=2`, `pyyaml>=6`
   ([pyproject.toml:11-12](./pyproject.toml#L11-L12)).
 - **`[Enforced]`** Optional capability sets are **PEP 735 dependency-groups**, not PEP
-  621 extras: `dev = ["pytest>=8"]` and `render = ["matplotlib>=3.7", "pillow>=10"]`
-  ([pyproject.toml:18-20](./pyproject.toml#L18-L20)). `uv sync` installs `dev` by default;
-  `uv sync --group render` adds the matplotlib proxy renderer's deps.
+  621 extras: `dev` (hypothesis + pytest), `render = ["matplotlib>=3.7", "pillow>=10"]`, and
+  `pdf = ["pymupdf>=1.24"]` ([pyproject.toml:20-26](./pyproject.toml#L20-L26)). `uv sync`
+  installs `dev` by default; `uv sync --group render` adds the matplotlib proxy renderer's
+  deps, and `uv sync --group pdf` adds PyMuPDF for the PDF -> FrameGraph transpiler.
 - **`[Enforced]`** This is a **virtual project**: `package = false`
-  ([pyproject.toml:27](./pyproject.toml#L27)). The tree runs via `sys.path`-rooted scripts;
+  ([pyproject.toml:33](./pyproject.toml#L33)). The tree runs via `sys.path`-rooted scripts;
   it is deliberately **not** built or installed (an installed `framegraph` distribution
   would shadow the [models/framegraph.py](./models/framegraph.py) module the tooling imports).
 - **`[Enforced]`** Lock state lives in [uv.lock](./uv.lock). Do not hand-edit it; CI syncs
-  with `uv sync --locked` ([ci.yml:25](./.github/workflows/ci.yml#L25)).
+  from the lock with `uv sync --locked` — the `python` job adds `--group pdf` so the PDF
+  transpiler's `importorskip`-gated e2e test runs ([ci.yml:25](./.github/workflows/ci.yml#L25)).
 - **`[Adopted]`** No new runtime dependency without justification. Do not pull a
   browser/GUI/graphics stack into the core (§13).
 - **`[Target]`** Floor on `pydantic>=2.7` (today the floor is `>=2`). Tighten only with a
@@ -118,10 +120,11 @@ The gate is the contract for "done." It has **one definition**, run two places.
     asserts every `mkdocs.yml` nav entry resolves ([Makefile:55](./Makefile#L55)).
 - **`[Enforced]`** **CI mirrors `make check`.** The `python` job
   ([ci.yml:28-40](./.github/workflows/ci.yml#L28-L40)) runs schema-check, test, validate,
-  overflow, and status-check as separate steps after `uv sync --locked`; the sixth gate,
-  `docs-check`, runs in the dedicated `docs` job ([ci.yml:48-59](./.github/workflows/ci.yml#L48-L59))
-  which also builds the site with `mkdocs build --strict`. Keep make and CI in lockstep; if
-  they must diverge, document why here.
+  overflow, and status-check as separate steps after `uv sync --locked --group pdf` (the
+  `pdf` group only lets the transpiler's gated e2e test execute; the gate *commands* still
+  match `make check`); the sixth gate, `docs-check`, runs in the dedicated `docs` job
+  ([ci.yml:48-59](./.github/workflows/ci.yml#L48-L59)) which also builds the site with
+  `mkdocs build --strict`. Keep make and CI in lockstep; if they must diverge, document why here.
 - **`[Target]`** Fold `lint` and `typecheck` (§4, §5) into the gate once they are green
   (see §16). Today they are **not** in `make check`.
 

@@ -21,8 +21,8 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Sync deps from the lockfile
-        run: uv sync --locked
+      - name: Sync deps from the lockfile (+ pdf group for the transpiler e2e)
+        run: uv sync --locked --group pdf
 
       # --- the gates (mirror `make check`) ---
       - name: Schema is generated and in sync with the models
