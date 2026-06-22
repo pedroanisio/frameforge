@@ -53,10 +53,11 @@ distinction resolves what was previously an ad-hoc, per-feature decision:
 | Concern | Who solves it | Why | Tier |
 |---------|---------------|-----|------|
 | Layout / sizing / fit | the renderer's measure pass | it owns font metrics and box resolution | author *describes* (sets `Layout`/`Sizing`); never writes computed boxes |
-| Geometry / curves / 3D projection | the SDK | the page renderer is not a geometry kernel | SDK *solves* at expansion; emits concrete 2D |
+| Geometry / curves / 3D projection | the SDK | the page renderer is not a geometry kernel | draw helpers *solve* before validation; emit concrete 2D |
 
 So a `grid` helper sets fields and stops; a `Scene3D` helper runs the full
-projection and emits polygons. Confusing the two is the recurring authoring bug.
+projection and emits polygons before the model is validated. Confusing the two
+is the recurring authoring bug.
 
 **1.3 The renderer is the final arbiter — therefore conformance is not
 optional.** The format states that every construct is a proposal to verify
@@ -82,14 +83,14 @@ proved why (§8).
    ├─ /macros                  theme(), md``, intermediate methods (defer-vs-flatten).
    └─ /draw                    Path/Frame/Scene3D builders → VisualObjects.
 @framegraph/expand     Tier 3  Asset resolution, hashing, use/component instantiation,
-                               AND geometry/projection realization (§6).
+                               and post-expansion validation (§6).
 @framegraph/io         —       serialize (closed write) / parse (forgiving read).
 @framegraph/conform    —       Golden corpus + math property tests (§8).
 ```
 
 Dependency order: `model` ← everything; `geometry` is standalone; `validate`,
 `author`, `expand`, `io`, `conform` all consume `model`; `author/draw` consumes
-`geometry`; `expand` realizes both asset and geometry computation.
+`geometry`; `expand` realizes asset/font pinning and reusable authoring forms.
 
 ### 2.1 Python SDK implemented in this repository
 
@@ -100,20 +101,22 @@ The Python SDK maps the package tiers above onto importable modules under
 |---|---|---|
 | `@framegraph/model` | `framegraph.sdk.model` | imports `models.framegraph` as the sole authority; exposes `Document`, `HEAD_VERSION`, validation, and plain-dict conversion |
 | `@framegraph/geometry` | `framegraph.sdk.geometry` | `Vec2`, `Vec3`, `Mat3`, `Mat4`, `CubicBezier`, `Path`, and the quarter-circle kappa helper |
-| `@framegraph/validate` | `framegraph.sdk.validate` | `ValidationReport`, `Issue`, `validate_static_rules()` over Pydantic structure plus the existing static validator |
-| `@framegraph/author` | `framegraph.sdk.author` | `DocumentBuilder`, `PageBuilder`, and nominal `Handle` values for defs/tokens |
+| `@framegraph/validate` | `framegraph.sdk.validate` | `ValidationReport`, `Issue`, `validate_static_rules()` over Pydantic structure, the existing static validator, SDK reference checks, target checks, and path parsing |
+| `@framegraph/author` | `framegraph.sdk.author` | `DocumentBuilder`, `PageBuilder`, nominal `Handle` values for defs/tokens, symbol/component authoring helpers, and runtime handle-kind checks |
 | `@framegraph/author/macros` | `framegraph.sdk.macros` | `theme()`, `md()`, and `paragraph()` macros that lower to token definitions and `Inline` / flow fragments |
 | `@framegraph/author/draw` | `framegraph.sdk.draw` | `Frame` data-space mapping and `Scene3D` mesh/surface/extrude/revolve helpers that emit 2D visual objects |
-| `@framegraph/expand` | `framegraph.sdk.expand` | deterministic asset/font hash pinning and post-expansion model validation |
-| `@framegraph/io` | `framegraph.sdk.io` | validated JSON/YAML parse and canonical JSON/YAML serialization |
+| `@framegraph/expand` | `framegraph.sdk.expand` | deterministic asset/font hash pinning, `use` lowering, simple `component` lowering, and post-expansion model validation |
+| `@framegraph/io` | `framegraph.sdk.io` | forgiving JSON/YAML parse for newer documents plus canonical JSON/YAML serialization |
 | `@framegraph/conform` | `framegraph.sdk.conform` | proxy-render SVG extraction and per-page SHA-256 golden helpers |
 
 The Python binding deliberately does not generate or redeclare core model types.
 Every public document-producing API validates through `models.framegraph.Document`.
-Unsupported future constructs, such as component slot content, must be
-represented as SDK-side helpers that lower to current 2D model objects before
-`build()` / `expand()`, or they fail validation. The shipped `Scene3D` follows
-that rule: it projects to a `group` of 2D polygons before the model sees it.
+Unsupported future constructs must be represented as SDK-side helpers that lower
+to current 2D model objects before `build()` / `expand()`, or they fail
+validation. The shipped `Scene3D` follows that rule: it projects to a `group` of
+2D polygons before the model sees it. The authoring builder also accepts
+grammar-level `use` and simple `component` objects and lowers them during
+`build()`.
 
 ---
 
@@ -123,22 +126,21 @@ that rule: it projects to a `group` of 2D polygons before the model sees it.
 
 Objects are **closed** (`extra="forbid"`): no index signature, and a single
 `meta?: Record<string, unknown>` is the only open data. The large sets are
-**discriminated** — `VisualObject` on `type` (37 members: 5 primitives, dimension,
-text/image/icon, 2 charts, legend/bullet_list/chip_row/table, connector, group,
-component, use, 19 `uml.*`), `Flowable` on `type` (17 members), `PageProducer` on
-`mode` (`page`|`flow`). `TextContent` is `text` XOR `spans`; `Inline` is keyed on
-`kind`. This tier is generated; the hand-written form documents the contract the
-generator must honor.
+**discriminated** — `VisualObject` on `type`, `Flowable` on `type`, and
+`PageProducer` on `mode` (`page`|`flow`). The current model-level visual union is
+the executable contract; grammar-only authoring forms such as `use` and
+`component` are lowered by the SDK before validation. `TextContent` is `text` XOR
+`spans`; `Inline` is keyed on `kind`. This tier is generated; the hand-written
+form documents the contract the generator must honor.
 
 ### 3.2 Value types and handles (canonical statement)
 
-Value types are branded so a bare `string`/`number[]` cannot pose as a validated
-value: `SemVer`, `Length` (= `number | \`${number}${LengthUnit}\` | LengthToken`),
-`Box = [Length,Length,Length,Length]`, `Point = [number,number]` (unitless),
-`Color` (CSS string or `ColorHandle`), `Angle`. Every `defs` key has a nominal
-handle (`ColorHandle`, `MasterHandle`, `SymbolHandle`, …); reference sites take
-the handle, never a string, moving dangling-reference errors to compile time. The
-sole runtime-checked reference is `cite` (the bibliography is an external file).
+Value types are branded in generated SDKs so a bare `string`/`number[]` cannot
+pose as a validated value: `SemVer`, `Length`, `Box`, `Point`, `Color`, `Angle`.
+The Python SDK has runtime nominal handles instead of compile-time branded
+types. Direct reference sites and nested builder fields reject handles of the
+wrong kind, while plain strings remain accepted for compatibility; dangling
+string references are reported by `validate_static_rules()`.
 
 ### 3.3 Geometry algebra (`@framegraph/geometry`)
 
@@ -162,8 +164,11 @@ interface Issue { ruleId: string; severity: "error"|"warning"; path: string; mes
 function validateStaticRules(model: Document, opts?: { targets?: string[] }): ValidationReport;
 ```
 
-`path` is a JSON pointer to the offending node. One catalogue, merging the
-structural and geometry rules that were previously split:
+`path` is a JSON pointer to the offending node. The implemented Python catalogue
+runs the Pydantic structure check, the repository's existing tooling validator,
+and SDK checks for master/reading-order/image references, requested targets,
+target `hide` references, master-region chains, and `path.d` parsing. The full
+language-neutral catalogue remains:
 
 - **Reference resolution** — `bind`→semantic node; `master`→masters; `component`→components; `symbol`→symbols; `style`→text_styles/styles; `stroke_style` (string)→stroke_styles; `Color` token arm→colors; `font`→fonts; `glyph`→glyph_map; `src`→assets; counter `series`/`reset_with`→counters; `cite`→bib; `ref`→an existing id.
 - **Exactly-one-of** — `TextContent` (text XOR spans); `CanvasObject` (preset XOR size); `Anchor` (string | Point | object).
@@ -180,8 +185,9 @@ structural and geometry rules that were previously split:
 ### 5.1 Builder + handles
 
 `define*` methods return handles; `page`/`flow` open builders; `build()` produces
-the Tier-0 model or throws. References are correct by construction because the
-only token a ref site accepts is a handle.
+the Tier-0 model or throws. Generated typed SDKs should make reference sites
+handle-only. The Python SDK keeps string compatibility, rejects wrong-kind
+`Handle` values, and relies on `validate_static_rules()` for dangling strings.
 
 ### 5.2 Macros (`/macros`)
 
@@ -204,26 +210,27 @@ express) and only uses a `matrix` group transform for pure-affine view frames.
 
 ---
 
-## 6. Tier 3 — expansion, the single home for computed output (`@framegraph/expand`)
+## 6. Tier 3 — expansion and reproducibility (`@framegraph/expand`)
 
 ```ts
 function expand(model: Document, opts?: ExpandOptions): Promise<ExpandedDocument>;
 ```
 
-This resolves and hash-pins assets/imports, instantiates `use`/`component`, **and
-realizes all geometry and 3D projection** — curve flattening, frame application,
-`Scene3D.render`. Stating this once removes the earlier ambiguity about where
-geometry runs: it runs here, offline and deterministic, and is pinned with the
-asset hashes so the document is reproducible. After expansion the renderer sees
-only 2D primitives that exist in the grammar today.
+This resolves and hash-pins local assets/fonts, instantiates `use` and simple
+`component` authoring forms, and validates the expanded result. Geometry helpers
+solve before this boundary: `Path`, `Frame`, and `Scene3D.render()` emit concrete
+2D primitives, so unsupported future computed nodes fail validation instead of
+leaking through. After expansion the renderer sees only 2D primitives that exist
+in the model today.
 
 ---
 
 ## 7. io — serialization (`@framegraph/io`)
 
 `serialize(model, {format})` writes canonical JSON/YAML (closed). `parse(text)`
-is forgiving: unknown union members fall through a left-to-right parser fallback
-rather than throwing, so newer documents degrade instead of breaking.
+is forgiving by default: it returns a validated model when possible and returns
+raw YAML/JSON data when a syntactically valid newer document is outside the
+current SDK model. Pass `forgiving=false` to require current-schema validation.
 
 ---
 
@@ -261,15 +268,16 @@ available now; `GRAMMAR` = needs a model/grammar change; `ECO` = ecosystem/proce
 | ID | Gap (grounded) | Sev | Class | Fix |
 |----|----------------|-----|-------|-----|
 | D-1 | Diagrams: 19 `uml.*` types + connectors, but node placement is manual/absolute — no auto-layout, unlike dagre/ELK/Graphviz | high | GRAMMAR+SDK | add an optional auto-layout pass over the semantic graph (it already has `bind`/edges), or embed ELK; keep absolute as override |
-| A-1 | Accessibility: has `decorative`, `role`, `lang`, but no **alt text** and no **reading-order/structure tree** independent of visual position; deck side can't export tagged/PDF-UA | high | GRAMMAR | add `alt`/`actual_text` to image/figure; add a per-page reading-order list → tagged structure tree on export |
+| A-1 | Accessibility export: the model has `decorative`, `role`, `lang`, image/figure `alt`/`actual_text`, and per-page `reading_order`, but tagged/PDF-UA structure-tree export is not implemented | high | ECO | map existing vocabulary to tagged export and golden-test the structure tree |
 | C-1 | `ComponentObject` exposes only visual overrides; `ComponentDef` declares slots but instances have no slot-content channel; only `use` has `params` | med | GRAMMAR | add `slots`/`content` to `ComponentObject`, or document that content reuse goes through `use`/`symbol` |
-| G-1 | `path.d` is an opaque string the schema cannot validate | med | GRAMMAR+SDK | add structured `segments: PathSeg[]` alongside `d`; validator parses `d` until then |
+| G-1 | `path.d` is an opaque string the schema cannot validate | med | GRAMMAR | SDK validator parses `d`; add structured `segments: PathSeg[]` alongside `d` for schema-level validation |
 | L-1 | `Color` resolves a token; `Length` has no token arm, so a spacing scale can't be locked at the data layer | med | GRAMMAR | add `tokens.space`/`tokens.lengths`; let `Length` resolve a bare token name, mirroring `Color` |
 | K-1 | No conformance corpus / reference-render semantics; "valid" is underdetermined | med | ECO | §8 corpus; version the schema at a resolvable URL |
 | U-1 | `Length` defined twice (core vs style), both via special sequence; out-of-set units uncatchable by grammar | low | GRAMMAR | one shared `Unit` production both files import; validator enforces it |
 | DAT-1 | Charts take literal data; no data→encoding mapping or transforms (vs Vega-Lite) | low | SDK | likely intentional scope — state it; embed compiled Vega-Lite as a figure when needed |
 | PR-1 | No ICC/CMYK/output-intent; screen color only | low | GRAMMAR | add an output-intent reference at the target level for print targets |
-| G-2 | 3D transforms/`perspective` "declared, may not render" — a trap | n/a | resolved | SDK never emits them; projects to 2D at expansion (§6) |
+| H-1 | Compile-time handle safety exists only in generated typed SDKs; Python can enforce handle kinds only at runtime | n/a | resolved | Python builder rejects wrong-kind `Handle` values and validator catches dangling string references |
+| G-2 | 3D transforms/`perspective` "declared, may not render" — a trap | n/a | resolved | SDK never emits them; draw helpers project to 2D before model validation (§6) |
 | F-1 | Fit-safe decks rely on shrink-to-fit; computed layout shifts fit to the measure pass | n/a | resolved | keep the fit contract on text styles; enforce via golden render (§8) |
 
 **Calibration (do not re-add as gaps).** Verified against the grammar: typography
@@ -281,9 +289,10 @@ covered**. The earlier instinct to list them as weaknesses was wrong.
 the generated types exist. (2) `@framegraph/validate` with the §4 catalogue.
 (3) `@framegraph/conform` seed corpus (the deck), pinned. (4) `@framegraph/author`
 + `/macros`, then `/draw` on top of `@framegraph/geometry`. (5) `@framegraph/expand`
-projection. **Grammar fixes to push first:** D-1 (auto-layout) and A-1 (a11y) are
-the two that change what the format can *do*; G-1/L-1/C-1 are the smaller additive
-ones.
+lowering and pinning. **Grammar fixes to push first:** D-1 (auto-layout) and C-1
+(component slot content) are the two that change authoring capability; G-1/L-1
+are smaller additive data-layer fixes, while A-1 is now primarily an export
+implementation task.
 
 ---
 
@@ -293,7 +302,8 @@ ones.
 - Stated **describe-vs-solve** (§1.2) as the principle that assigns computations to tiers, replacing per-feature reasoning.
 - Merged the **two package layouts** into one map (§2) and integrated `@framegraph/geometry` and `/draw`.
 - Recorded the **implemented Python mapping** in §2.1: `framegraph.sdk.{model,geometry,validate,author,expand,io,conform}`.
-- Fixed the **home of geometry computation**: it runs at expansion (§6), stated once.
+- Fixed the **home of geometry computation**: draw helpers solve before validation; expansion handles reusable authoring forms and pinning (§6).
+- Closed the SDK implementation gaps for forgiving parse, `use`/simple `component` lowering, SDK reference/path/target validation, and runtime handle-kind checks.
 - Unified the **three gap ID schemes** into one prioritized register (§9) and classified each as SDK / GRAMMAR / ECO.
 - Folded in the **comparison findings** (auto-layout, accessibility, conformance, data, print color) that previously lived only in chat.
 - Recorded the **calibration correction**: typography and i18n are not gaps.

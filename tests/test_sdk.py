@@ -65,6 +65,24 @@ def test_parse_serialize_roundtrip_validates():
     assert parse(json_text).title == "SDK smoke"
 
 
+def test_parse_is_forgiving_by_default_for_future_documents():
+    text = """
+dsl: FrameGraph
+version: 2.2.0
+pages:
+  - mode: page
+    id: p
+    layers:
+      - id: l
+        objects:
+          - type: future-node
+            box: [0, 0, 10, 10]
+"""
+    assert isinstance(parse(text), dict)
+    with pytest.raises(Exception):
+        parse(text, forgiving=False)
+
+
 def test_validate_static_rules_reports_tooling_warnings():
     builder = DocumentBuilder()
     builder.page("p", canvas={"size": [100, 100], "units": "px"}).layer("main").add(
@@ -93,6 +111,42 @@ def test_validate_static_rules_reports_structure_errors():
     assert any(issue.rule_id == "structure" for issue in report.issues)
 
 
+def test_validate_static_rules_reports_sdk_reference_and_path_errors():
+    report = validate_static_rules(
+        {
+            "dsl": "FrameGraph",
+            "version": "2.2.0",
+            "targets": [
+                {
+                    "name": "screen",
+                    "canvas": {"size": [100, 100], "units": "px"},
+                    "adjustments": {"hide": ["missing"]},
+                }
+            ],
+            "pages": [
+                {
+                    "mode": "page",
+                    "id": "p",
+                    "master": "missing-master",
+                    "reading_order": ["missing"],
+                    "layers": [
+                        {
+                            "id": "l",
+                            "objects": [
+                                {"type": "path", "id": "shape", "d": "M 0", "stroke": "#000"},
+                                {"type": "image", "box": [0, 0, 10, 10], "src": "missing_asset", "alt": "x"},
+                            ],
+                        }
+                    ],
+                }
+            ],
+        },
+        targets=["print"],
+    )
+    assert not report.ok
+    assert {issue.rule_id for issue in report.issues} >= {"reference", "path-data", "target"}
+
+
 def test_expand_pins_local_assets(tmp_path):
     asset = tmp_path / "asset.txt"
     asset.write_text("payload", encoding="utf-8")
@@ -107,6 +161,70 @@ def test_expand_pins_local_assets(tmp_path):
     data = result.document.model_dump(by_alias=True, exclude_none=True)
     assert result.pinned == ("defs.assets.payload",)
     assert data["defs"]["assets"]["payload"]["hash"].startswith("sha256:")
+
+
+def test_expand_lowers_symbol_use_to_valid_group():
+    doc = {
+        "dsl": "FrameGraph",
+        "version": "2.2.0",
+        "defs": {
+            "symbols": {
+                "card": {
+                    "box": [0, 0, 10, 10],
+                    "objects": [{"type": "rect", "box": [0, 0, 10, 10], "fill": "$fill"}],
+                }
+            }
+        },
+        "pages": [
+            {
+                "mode": "page",
+                "id": "p",
+                "layers": [
+                    {
+                        "id": "l",
+                        "objects": [
+                            {
+                                "type": "use",
+                                "symbol": "card",
+                                "box": [10, 20, 100, 50],
+                                "params": {"fill": "#f00"},
+                            }
+                        ],
+                    }
+                ],
+            }
+        ],
+    }
+    group = expand(doc, opts=ExpandOptions(pin_assets=False)).document.pages[0].layers[0].objects[0]
+    assert group.type == "group"
+    assert group.children[0].type == "rect"
+    assert group.children[0].box == [10, 20, 100, 50]
+    assert group.children[0].fill == "#f00"
+
+
+def test_builder_symbols_components_and_handle_kind_checks():
+    builder = DocumentBuilder()
+    symbol = builder.define_symbol(
+        "badge",
+        box=[0, 0, 10, 10],
+        objects=[{"type": "text", "box": [0, 0, 10, 10], "text": "$label"}],
+    )
+    component = builder.define_component(
+        "panel",
+        {"fill": "#eee", "internal_layout": {"title": {"box_offset": [4, 4, "100%", 16]}}},
+    )
+    page = builder.page("p", canvas={"size": [120, 80], "units": "px"})
+    page.layer("main").use(symbol, [0, 0, 40, 20], params={"label": "A"}).component(
+        component,
+        [0, 24, 80, 40],
+        title="Title",
+    )
+    doc = builder.build()
+    assert [obj.type for obj in doc.pages[0].layers[0].objects] == ["group", "group"]
+
+    color = builder.define_color("brand", "#c00")
+    with pytest.raises(TypeError):
+        builder.page("bad", master=color)
 
 
 def test_geometry_matrix_inverse_and_projection():
@@ -138,6 +256,46 @@ def test_draw_frame_and_scene3d_lower_to_valid_objects():
     doc = builder.build()
     assert doc.pages[0].layers[0].objects[0].type == "polyline"
     assert doc.pages[0].layers[0].objects[1].type == "group"
+
+
+def test_scene3d_render_children_are_box_local():
+    """Regression: Scene3D.render must emit children LOCAL to the group box.
+
+    A renderer translates a group's children by the group box origin, so render()
+    must position faces relative to (0,0)-(bw,bh). A prior version baked the box
+    origin into the points as well, double-offsetting the projection off-canvas
+    (the isometric block rendered blank). It also emitted the deprecated 'polygon'
+    alias instead of a canonical closed polyline.
+    """
+    scene = Scene3D().extrude([(0, 0), (1, 0), (1, 1), (0, 1)], depth=0.5)
+    bx, by, bw, bh = 680, 250, 500, 350
+    group = scene.render(box=[bx, by, bw, bh])
+
+    assert group["type"] == "group"
+    assert group["box"] == [bx, by, bw, bh]
+
+    children = group["children"]
+    assert children, "scene produced no faces"
+    # canonical closed-polyline form, never the deprecated 'polygon' alias
+    assert all(c["type"] == "polyline" and c.get("closed") is True for c in children)
+
+    pts = [p for c in children for p in c["points"]]
+    eps = 1e-6
+    assert all(-eps <= x <= bw + eps and -eps <= y <= bh + eps for x, y in pts), (
+        "Scene3D.render leaked the box origin into child coordinates"
+    )
+    # the fit must actually consume the box: at least one edge touches a bound
+    assert min(x for x, _ in pts) <= eps or min(y for _, y in pts) <= eps
+
+
+def test_scene3d_render_empty_scene_is_safe():
+    """An empty scene still returns a well-formed, validatable group."""
+    group = Scene3D().render(box=[10, 20, 100, 80], id="empty")
+    assert group["children"] == []
+    assert group["box"] == [10, 20, 100, 80]
+    builder = DocumentBuilder()
+    builder.page("p", canvas={"size": [200, 200], "units": "px"}).layer("main").add(group)
+    builder.build()  # must validate
 
 
 def test_macros_theme_markdown_and_paragraph():

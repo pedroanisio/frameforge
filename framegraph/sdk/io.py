@@ -5,21 +5,29 @@ import json
 from typing import Any, Literal
 
 import yaml
+from pydantic import ValidationError
 
 from framegraph.sdk.model import to_plain_dict, validate_document
 
 Format = Literal["json", "yaml"]
 
 
-def parse(text: str, *, validate: bool = True):
+def parse(text: str, *, validate: bool = True, forgiving: bool = True):
     """Parse JSON or YAML text.
 
-    By default this returns a validated Pydantic ``Document``. Set
-    ``validate=False`` to get the raw mapping for forgiving inspection.
+    Valid current FrameGraph text returns a Pydantic ``Document``. By default,
+    text that is syntactically valid YAML/JSON but ahead of the SDK's model is
+    returned as raw data for inspection. Pass ``forgiving=False`` to require a
+    current-schema document.
     """
     data = yaml.safe_load(text)
     if validate:
-        return validate_document(data)
+        try:
+            return validate_document(data)
+        except ValidationError:
+            if forgiving:
+                return data
+            raise
     return data
 
 

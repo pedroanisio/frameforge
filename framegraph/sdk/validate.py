@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 from typing import Any
 
@@ -56,6 +57,7 @@ def validate_static_rules(model: Any, targets: list[str] | None = None) -> Valid
         return ValidationReport(ok=False, issues=tuple(issues))
 
     issues.extend(_tooling_issues(raw))
+    issues.extend(_sdk_issues(raw, targets or []))
     ok = not any(issue.severity == "error" for issue in issues)
     return ValidationReport(ok=ok, issues=tuple(issues))
 
@@ -105,6 +107,213 @@ def _load_tooling_validate():
             sys.modules.pop("framegraph", None)
         else:
             sys.modules["framegraph"] = previous
+
+
+def _sdk_issues(raw: dict[str, Any], requested_targets: list[str]) -> list[Issue]:
+    issues: list[Issue] = []
+    defs = raw.get("defs") if isinstance(raw.get("defs"), dict) else {}
+    masters = defs.get("masters") if isinstance(defs.get("masters"), dict) else {}
+    assets = defs.get("assets") if isinstance(defs.get("assets"), dict) else {}
+    targets = raw.get("targets") if isinstance(raw.get("targets"), list) else []
+    target_names = {
+        target.get("name")
+        for target in targets
+        if isinstance(target, dict) and isinstance(target.get("name"), str)
+    }
+
+    for name in requested_targets:
+        if name not in target_names:
+            issues.append(_error("target", "/targets", f"requested target {name!r} is not defined"))
+
+    for page_index, page in enumerate(raw.get("pages") or []):
+        if not isinstance(page, dict):
+            continue
+        base = f"/pages/{page_index}"
+        master = page.get("master")
+        if isinstance(master, str) and master not in masters:
+            issues.append(_error("reference", f"{base}/master", f"master {master!r} is not defined"))
+
+        object_ids = _page_object_ids(page)
+        for order_index, object_id in enumerate(page.get("reading_order") or []):
+            if isinstance(object_id, str) and object_id not in object_ids:
+                issues.append(
+                    _error(
+                        "reference",
+                        f"{base}/reading_order/{order_index}",
+                        f"reading_order id {object_id!r} does not resolve to a page object",
+                    )
+                )
+
+        for path, obj in _walk_objects(page, base):
+            kind = obj.get("type")
+            if kind == "path" and "d" in obj and not _path_is_parseable(obj.get("d")):
+                issues.append(_error("path-data", f"{path}/d", "path data is not parseable"))
+            if kind == "image":
+                src = obj.get("src")
+                if _looks_like_asset_ref(src) and src not in assets:
+                    issues.append(_error("reference", f"{path}/src", f"asset {src!r} is not defined"))
+
+    issues.extend(_master_region_issues(masters))
+    issues.extend(_target_adjustment_issues(targets, raw))
+    return issues
+
+
+def _master_region_issues(masters: dict[str, Any]) -> list[Issue]:
+    issues: list[Issue] = []
+    for master_name, master in masters.items():
+        if not isinstance(master, dict):
+            continue
+        regions = master.get("regions") if isinstance(master.get("regions"), list) else []
+        region_ids = {
+            region.get("id")
+            for region in regions
+            if isinstance(region, dict) and isinstance(region.get("id"), str)
+        }
+        edges: dict[str, str] = {}
+        for index, region in enumerate(regions):
+            if not isinstance(region, dict):
+                continue
+            region_id = region.get("id")
+            next_id = region.get("next")
+            if not isinstance(next_id, str):
+                continue
+            path = f"/defs/masters/{_ptr(master_name)}/regions/{index}/next"
+            if next_id not in region_ids:
+                issues.append(_error("reference", path, f"region {next_id!r} is not defined"))
+            elif isinstance(region_id, str):
+                edges[region_id] = next_id
+        seen: set[str] = set()
+        for start in edges:
+            if start in seen:
+                continue
+            trail: set[str] = set()
+            node = start
+            while node in edges:
+                if node in trail:
+                    issues.append(
+                        _error(
+                            "reference-cycle",
+                            f"/defs/masters/{_ptr(master_name)}/regions",
+                            f"region flow contains a cycle at {node!r}",
+                        )
+                    )
+                    break
+                trail.add(node)
+                seen.add(node)
+                node = edges[node]
+    return issues
+
+
+def _target_adjustment_issues(targets: list[Any], raw: dict[str, Any]) -> list[Issue]:
+    ids = _document_object_ids(raw)
+    issues: list[Issue] = []
+    for index, target in enumerate(targets):
+        if not isinstance(target, dict):
+            continue
+        adjustments = target.get("adjustments")
+        if not isinstance(adjustments, dict):
+            continue
+        hidden = adjustments.get("hide")
+        if not isinstance(hidden, list):
+            continue
+        for hide_index, object_id in enumerate(hidden):
+            if isinstance(object_id, str) and object_id not in ids:
+                issues.append(
+                    _error(
+                        "reference",
+                        f"/targets/{index}/adjustments/hide/{hide_index}",
+                        f"target hide id {object_id!r} does not resolve to an object",
+                    )
+                )
+    return issues
+
+
+def _walk_objects(root: dict[str, Any], base: str):
+    for layer_index, layer in enumerate(root.get("layers") or []):
+        if isinstance(layer, dict):
+            for object_index, obj in enumerate(layer.get("objects") or []):
+                yield from _walk_object(obj, f"{base}/layers/{layer_index}/objects/{object_index}")
+    for story_index, flow in enumerate(root.get("story") or []):
+        if isinstance(flow, dict) and isinstance(flow.get("object"), dict):
+            yield from _walk_object(flow["object"], f"{base}/story/{story_index}/object")
+
+
+def _walk_object(obj: Any, path: str):
+    if not isinstance(obj, dict):
+        return
+    yield path, obj
+    for child_index, child in enumerate(obj.get("children") or []):
+        yield from _walk_object(child, f"{path}/children/{child_index}")
+
+
+def _page_object_ids(page: dict[str, Any]) -> set[str]:
+    return {
+        obj["id"]
+        for _path, obj in _walk_objects(page, "")
+        if isinstance(obj.get("id"), str)
+    }
+
+
+def _document_object_ids(raw: dict[str, Any]) -> set[str]:
+    ids: set[str] = set()
+    for page in raw.get("pages") or []:
+        if isinstance(page, dict):
+            ids.update(_page_object_ids(page))
+    return ids
+
+
+def _path_is_parseable(value: Any) -> bool:
+    if isinstance(value, list):
+        return bool(value)
+    if not isinstance(value, str):
+        return False
+    tokens = re.findall(r"[A-Za-z]|[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?", value)
+    if not tokens:
+        return False
+    i = 0
+    command = ""
+    arity = {"M": 2, "L": 2, "H": 1, "V": 1, "C": 6, "S": 4, "Q": 4, "T": 2, "A": 7, "Z": 0}
+    saw_command = False
+    while i < len(tokens):
+        token = tokens[i]
+        if re.fullmatch(r"[A-Za-z]", token):
+            command = token.upper()
+            if command not in arity:
+                return False
+            saw_command = True
+            i += 1
+            if arity[command] == 0:
+                continue
+        if not command or command not in arity:
+            return False
+        needed = arity[command]
+        if needed == 0:
+            return False
+        if i + needed > len(tokens):
+            return False
+        for part in tokens[i : i + needed]:
+            if re.fullmatch(r"[A-Za-z]", part):
+                return False
+        i += needed
+    return saw_command
+
+
+def _looks_like_asset_ref(value: Any) -> bool:
+    if not isinstance(value, str) or _is_remote_or_data(value):
+        return False
+    return "/" not in value and "\\" not in value and not value.startswith(".") and "." not in value
+
+
+def _is_remote_or_data(src: str) -> bool:
+    return src.strip().lower().startswith(("http://", "https://", "data:", "url("))
+
+
+def _error(rule_id: str, path: str, message: str) -> Issue:
+    return Issue(rule_id=rule_id, severity="error", path=path, message=message)
+
+
+def _ptr(value: str) -> str:
+    return value.replace("~", "~0").replace("/", "~1")
 
 
 def _json_pointer(loc: tuple[object, ...] | list[object]) -> str:

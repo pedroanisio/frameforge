@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from framegraph.sdk.expand import ExpandOptions, expand
 from framegraph.sdk.model import HEAD_VERSION, validate_document
 
 
@@ -77,6 +78,16 @@ class DocumentBuilder:
         self._defs("masters")[name] = _coerce_handles(master)
         return Handle("master", name)
 
+    def define_symbol(self, name: str, *, box: list[Any], objects: list[dict[str, Any]], **fields: Any) -> Handle:
+        symbol = {"box": box, "objects": _coerce_handles(objects)}
+        symbol.update(_coerce_handles(fields))
+        self._defs("symbols")[name] = symbol
+        return Handle("symbol", name)
+
+    def define_component(self, name: str, spec: dict[str, Any]) -> Handle:
+        self._defs("components")[name] = _coerce_handles(spec)
+        return Handle("component", name)
+
     def page(
         self,
         id: str,
@@ -89,7 +100,7 @@ class DocumentBuilder:
         if canvas is not None:
             page["canvas"] = _coerce_handles(canvas)
         if master is not None:
-            page["master"] = str(master)
+            page["master"] = _handle_name(master, {"master"}, "master")
         if reading_order is not None:
             page["reading_order"] = reading_order
         self._doc["pages"].append(page)
@@ -99,17 +110,24 @@ class DocumentBuilder:
         section: dict[str, Any] = {
             "mode": "flow",
             "id": id,
-            "master": str(master),
+            "master": _handle_name(master, {"master"}, "master"),
             "story": _coerce_handles(story),
         }
         section.update(_coerce_handles(fields))
         self._doc["pages"].append(section)
 
-    def build_dict(self) -> dict[str, Any]:
+    def build_dict(self, *, expand_reuse: bool = True) -> dict[str, Any]:
+        if expand_reuse:
+            return expand(self._doc, opts=ExpandOptions(pin_assets=False)).document.model_dump(
+                by_alias=True,
+                exclude_none=True,
+            )
         validate_document(self._doc)
         return _coerce_handles(self._doc)
 
-    def build(self):
+    def build(self, *, expand_reuse: bool = True):
+        if expand_reuse:
+            return expand(self._doc, opts=ExpandOptions(pin_assets=False)).document
         return validate_document(self._doc)
 
     def _defs(self, key: str) -> dict[str, Any]:
@@ -147,13 +165,26 @@ class PageBuilder:
         return self.add({"type": "text", "box": box, "text": text, **fields})
 
     def image(self, box: list[Any], src: Handle | str, **fields: Any) -> "PageBuilder":
-        return self.add({"type": "image", "box": box, "src": str(src), **fields})
+        return self.add({"type": "image", "box": box, "src": _handle_name(src, {"asset"}, "src"), **fields})
 
     def line(self, start: list[float], end: list[float], **fields: Any) -> "PageBuilder":
         return self.add({"type": "line", "from": start, "to": end, **fields})
 
     def group(self, children: list[dict[str, Any]], **fields: Any) -> "PageBuilder":
         return self.add({"type": "group", "children": children, **fields})
+
+    def use(self, symbol: Handle | str, box: list[Any], **fields: Any) -> "PageBuilder":
+        return self.add({"type": "use", "symbol": _handle_name(symbol, {"symbol"}, "symbol"), "box": box, **fields})
+
+    def component(self, component: Handle | str, box: list[Any], **fields: Any) -> "PageBuilder":
+        return self.add(
+            {
+                "type": "component",
+                "component": _handle_name(component, {"component"}, "component"),
+                "box": box,
+                **fields,
+            }
+        )
 
     def _objects(self) -> list[dict[str, Any]]:
         if self._current_layer is None:
@@ -162,16 +193,50 @@ class PageBuilder:
         return self._current_layer.setdefault("objects", [])
 
 
-def _coerce_handles(value: Any) -> Any:
+def _coerce_handles(value: Any, field: str | None = None) -> Any:
     if isinstance(value, Handle):
+        _check_handle(value, _allowed_handle_kinds(field), field or "value")
         return value.name
     if isinstance(value, dict):
-        return {k: _coerce_handles(v) for k, v in value.items()}
+        return {k: _coerce_handles(v, str(k)) for k, v in value.items()}
     if isinstance(value, list):
-        return [_coerce_handles(v) for v in value]
+        return [_coerce_handles(v, field) for v in value]
     if isinstance(value, tuple):
-        return tuple(_coerce_handles(v) for v in value)
+        return tuple(_coerce_handles(v, field) for v in value)
     return value
+
+
+def _handle_name(value: Handle | str, allowed: set[str], field: str) -> str:
+    if isinstance(value, Handle):
+        _check_handle(value, allowed, field)
+        return value.name
+    return str(value)
+
+
+def _check_handle(handle: Handle, allowed: set[str], field: str) -> None:
+    if allowed and handle.kind not in allowed:
+        expected = ", ".join(sorted(allowed))
+        raise TypeError(f"{field} expects handle kind {expected}; got {handle.kind}")
+
+
+def _allowed_handle_kinds(field: str | None) -> set[str]:
+    if field == "master":
+        return {"master"}
+    if field in {"src", "asset"}:
+        return {"asset"}
+    if field in {"symbol"}:
+        return {"symbol"}
+    if field in {"component"}:
+        return {"component"}
+    if field == "style":
+        return {"style", "text_style"}
+    if field == "stroke_style":
+        return {"stroke_style"}
+    if field in {"fill", "stroke", "color", "marker_color"}:
+        return {"color"}
+    if field in {"font", "font_family"}:
+        return {"font"}
+    return set()
 
 
 __all__ = ["DocumentBuilder", "Handle", "PageBuilder"]

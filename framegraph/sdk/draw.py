@@ -131,7 +131,11 @@ class Scene3D:
         matrix = camera or Mat4.isometric()
         projected = [([matrix.project(p) for p in face], _avg_z(matrix, face), style) for face, style in self.faces]
         all_points = [p for face, _z, _style in projected for p in face]
-        bx, by, bw, bh = (float(box[0]), float(box[1]), float(box[2]), float(box[3]))
+        # Children are positioned LOCAL to the returned group's box: a renderer
+        # translates a group's children by its box origin, so baking the box origin
+        # (bx, by) into the points here as well would offset every face twice and
+        # push the projection off-canvas. Only the box *extent* scales the fit.
+        bw, bh = float(box[2]), float(box[3])
         if not all_points:
             children: list[dict[str, object]] = []
         else:
@@ -140,12 +144,14 @@ class Scene3D:
             min_y = min(p.y for p in all_points)
             max_y = max(p.y for p in all_points)
             scale = min(bw / max(max_x - min_x, 1e-9), bh / max(max_y - min_y, 1e-9))
-            ox = bx + (bw - (max_x - min_x) * scale) / 2
-            oy = by + (bh - (max_y - min_y) * scale) / 2
+            ox = (bw - (max_x - min_x) * scale) / 2
+            oy = (bh - (max_y - min_y) * scale) / 2
             children = []
             for face, _z, style in sorted(projected, key=lambda item: item[1]):
                 points = [[ox + (p.x - min_x) * scale, oy + (p.y - min_y) * scale] for p in face]
-                obj: dict[str, object] = {"type": "polygon", "points": points, "fill": fill, "stroke": stroke}
+                # Canonical closed polyline — not the deprecated 'polygon' alias.
+                obj: dict[str, object] = {"type": "polyline", "closed": True,
+                                          "points": points, "fill": fill, "stroke": stroke}
                 obj.update(style)
                 children.append(obj)
         group: dict[str, object] = {"type": "group", "box": list(box), "children": children}
