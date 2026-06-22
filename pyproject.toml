@@ -1,0 +1,30 @@
+[project]
+name = "framegraph"
+version = "2.2.0"
+description = "FrameGraph v2 — HEAD toolchain: Pydantic models (source of truth), generated JSON schema, validator, codemod, and the dependency-free SVG / matplotlib proxy renderers."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    # Runtime core: the models are Pydantic v2; documents load via PyYAML
+    # (PyYAML also parses JSON, so it covers .json / .yaml / .yml fixtures).
+    "pydantic>=2",
+    "pyyaml>=6",
+]
+
+# Optional/auxiliary sets (PEP 735). uv installs `dev` by default on `uv sync`;
+# install the matplotlib proxy renderer's deps explicitly with:
+#   uv sync --group render
+[dependency-groups]
+dev = ["pytest>=8"]
+render = ["matplotlib>=3.7", "pillow>=10"]
+
+[tool.uv]
+# Virtual project: manage the venv + dependencies, but do NOT build/install this
+# tree as a package. The repo runs via `sys.path`-rooted scripts, and an
+# installed `framegraph` distribution would shadow the `models/framegraph.py`
+# module that validate.py / tests import as `framegraph`.
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
