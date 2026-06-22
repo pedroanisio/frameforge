@@ -119,6 +119,7 @@ class Renderer:
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)
         self._effect = EffectResolver(self._color)
         self._layout = LayoutEngine()
+        self._object_index = {}
 
     # ---- colour / paint ---------------------------------------------------- #
     def color(self, c, depth=0):
@@ -693,6 +694,9 @@ class Renderer:
         if t == "dimension":
             return self._dimension(o, style)
 
+        if t == "connector":
+            return self._connector(o, style)
+
         if t == "text" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
             content = o.get("text")
@@ -750,6 +754,86 @@ class Renderer:
                     + p.text_tag(x, y, w, h, f"?{t}", st, vcenter=True))
         self.skipped += 1
         return ""
+
+    def _index_objects(self, page):
+        index = {}
+
+        def visit(o, offset=(0, 0)):
+            if not isinstance(o, dict):
+                return
+            local = dict(o)
+            box = local.get("box")
+            if isinstance(box, list) and len(box) >= 4:
+                local["box"] = [num(box[0], 0) + offset[0], num(box[1], 0) + offset[1],
+                                num(box[2], 0), num(box[3], 0)]
+            if local.get("id") and local.get("id") not in index:
+                index[local["id"]] = local
+            child_offset = offset
+            if o.get("type") == "group" and isinstance(box, list) and len(box) >= 2:
+                child_offset = (offset[0] + num(box[0], 0), offset[1] + num(box[1], 0))
+            for child in o.get("children") or []:
+                visit(child, child_offset)
+
+        for layer in page.get("layers") or []:
+            for obj in layer.get("objects") or []:
+                visit(obj)
+        return index
+
+    def _anchor_ref(self, ref):
+        if is_point(ref):
+            return num(ref[0], 0), num(ref[1], 0)
+        if not isinstance(ref, dict):
+            return None
+        if is_point(ref.get("point")):
+            p = ref.get("point")
+            return num(p[0], 0), num(p[1], 0)
+        obj_id = ref.get("object") or ref.get("ref")
+        obj = self._object_index.get(obj_id)
+        box = obj.get("box") if isinstance(obj, dict) else None
+        if not (isinstance(box, list) and len(box) >= 4):
+            return None
+        ports = obj.get("ports") or {}
+        port = ref.get("port")
+        if port in ports and is_point(ports[port]):
+            p = ports[port]
+            return num(p[0], 0), num(p[1], 0)
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        side = ref.get("side") or port
+        offset = num(ref.get("offset"), 0) or 0
+        if side == "north":
+            return x + w / 2 + offset, y
+        if side == "south":
+            return x + w / 2 + offset, y + h
+        if side == "east":
+            return x + w, y + h / 2 + offset
+        if side == "west":
+            return x, y + h / 2 + offset
+        return x + w / 2, y + h / 2
+
+    def _connector(self, o, style):
+        p = self._painter
+        start = self._anchor_ref(o.get("from"))
+        end = self._anchor_ref(o.get("to"))
+        if start is None or end is None:
+            self.skipped += 1
+            return ""
+        route = o.get("route") or {}
+        points = route.get("points") if isinstance(route, dict) else None
+        pts = [start] + [(num(pt[0], 0), num(pt[1], 0)) for pt in (points or []) if is_point(pt)] + [end]
+        stroke = self._shape_stroke(o, style) or ' stroke="#000" stroke-width="1"'
+        stroke += self._arrow_attrs(o)
+        if len(pts) == 2:
+            body = p.line(pts[0][0], pts[0][1], pts[1][0], pts[1][1], stroke)
+        else:
+            ptstr = " ".join(f"{fnum(x)},{fnum(y)}" for x, y in pts)
+            body = p.poly("polyline", ptstr, None, stroke)
+        label = o.get("label")
+        if isinstance(label, dict) and isinstance(label.get("box"), list):
+            bx = label["box"]
+            st = self.text_style(label.get("style"))
+            body += self.render_text(num(bx[0], 0), num(bx[1], 0), num(bx[2], 0), num(bx[3], 0),
+                                     label.get("text", ""), st)
+        return body
 
     def _style_dict(self, ref, _seen=None):
         _seen = set() if _seen is None else set(_seen)
@@ -1141,6 +1225,7 @@ class Renderer:
         w, h = self.canvas_wh(page)
         if page.get("mode") == "flow":
             return self._render_flow(page, w, h)
+        self._object_index = self._index_objects(page)
         body = []
         for layer in sorted(page.get("layers") or [], key=lambda L: L.get("z", 0)):
             lo = layer.get("opacity")
