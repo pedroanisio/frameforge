@@ -473,11 +473,30 @@ def test_style_compositing_wraps_svg_objects() -> None:
                 "visibility": "hidden",
                 "mix_blend_mode": "multiply",
                 "isolation": "isolate",
+                "backdrop_filter": [
+                    {"fn": "blur", "value": 4},
+                    {"fn": "drop_shadow", "shadow": {"offset_x": 1, "offset_y": 2, "blur": 3, "color": "hairline"}},
+                ],
+                "background_blend_mode": "screen",
+                "mask": "url(#mask1)",
+                "z_index": 7,
+                "transform_box": "fill-box",
+                "perspective": "120px",
             },
         }
     ])
 
-    assert '<g style="visibility:hidden;mix-blend-mode:multiply;isolation:isolate;opacity:0.45">' in svg
+    assert '<g style="' in svg
+    assert "visibility:hidden" in svg
+    assert "mix-blend-mode:multiply" in svg
+    assert "isolation:isolate" in svg
+    assert "opacity:0.45" in svg
+    assert "backdrop-filter:blur(4px) drop-shadow(1px 2px 3px #123456)" in svg
+    assert "background-blend-mode:screen" in svg
+    assert "mask:url(#mask1)" in svg
+    assert "z-index:7" in svg
+    assert "transform-box:fill-box" in svg
+    assert "perspective:120px" in svg
     assert '<rect x="20" y="20" width="80" height="40"' in svg
 
 

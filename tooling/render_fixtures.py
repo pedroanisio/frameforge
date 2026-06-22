@@ -377,7 +377,64 @@ class Renderer:
         clip = style.get("clip_path")
         if isinstance(clip, str) and clip.strip():
             attrs["clip-path"] = clip.strip()
+        backdrop = self._css_filter_value(style.get("backdrop_filter"))
+        if backdrop:
+            attrs["backdrop-filter"] = backdrop
+        bg_blend = style.get("background_blend_mode")
+        if bg_blend and bg_blend != "normal":
+            attrs["background-blend-mode"] = bg_blend
+        mask = style.get("mask")
+        if isinstance(mask, str) and mask.strip() and mask.strip() != "none":
+            attrs["mask"] = mask.strip()
+        z_index = style.get("z_index")
+        if z_index is not None:
+            attrs["z-index"] = str(z_index)
+        transform_box = style.get("transform_box")
+        if transform_box:
+            attrs["transform-box"] = transform_box
+        perspective = style.get("perspective")
+        if perspective and perspective != "none":
+            attrs["perspective"] = self._css_length(perspective)
         return self._painter.style_group(svg, attrs)
+
+    def _css_filter_value(self, value):
+        if isinstance(value, str):
+            return value.strip() if value.strip() and value.strip() != "none" else ""
+        if not isinstance(value, list):
+            return ""
+        parts = []
+        for item in value:
+            if not isinstance(item, dict):
+                continue
+            fn = item.get("fn") or item.get("kind") or item.get("name")
+            if not fn:
+                continue
+            css_fn = "hue-rotate" if fn == "hue_rotate" else fn.replace("_", "-")
+            if fn == "drop_shadow":
+                shadow = self._css_shadow_value(item.get("shadow"))
+                if shadow:
+                    parts.append(f"drop-shadow({shadow})")
+            else:
+                val = item.get("value")
+                if val is not None:
+                    parts.append(f"{css_fn}({self._css_length(val)})")
+        return " ".join(parts)
+
+    def _css_shadow_value(self, value):
+        if isinstance(value, str):
+            return value.strip()
+        if not isinstance(value, dict):
+            return ""
+        x = self._css_length(value.get("offset_x", value.get("x", 0)))
+        y = self._css_length(value.get("offset_y", value.get("y", 0)))
+        blur = self._css_length(value.get("blur", 0))
+        color = self.color(value.get("color")) or value.get("color")
+        return " ".join(str(v) for v in (x, y, blur, color) if v)
+
+    @staticmethod
+    def _css_length(value):
+        n = num(value, None)
+        return f"{fnum(n)}px" if n is not None else str(value)
 
     def _with_style_clip(self, o, style, svg):
         clip = style.get("clip_path")
