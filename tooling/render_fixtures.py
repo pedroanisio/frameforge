@@ -203,7 +203,10 @@ class Renderer:
         runs = []
         for sp in spans:
             if isinstance(sp, dict):
-                text = sp.get("text", "")
+                if sp.get("kind") == "math" and (sp.get("tex") is not None or sp.get("latex") is not None):
+                    text = self.render_math_text(sp.get("tex") if sp.get("tex") is not None else sp.get("latex"))
+                else:
+                    text = sp.get("text", "")
                 sty = self.text_style(sp["style"]) if sp.get("style") else base_st
             else:
                 text, sty = (sp if isinstance(sp, str) else str(sp)), base_st
@@ -333,11 +336,16 @@ class Renderer:
             r"\left": "", r"\right": "", r"\,": " ", r"\;": " ",
             r"\times": "×", r"\hbar": "ℏ", r"\mu": "μ", r"\nu": "ν",
             r"\psi": "ψ", r"\phi": "φ", r"\alpha": "α", r"\beta": "β",
-            r"\gamma": "γ", r"\mathcal{L}": "ℒ", r"\slashed{D}": "D̸",
+            r"\gamma": "γ", r"\rho": "ρ", r"\mathcal{L}": "ℒ", r"\slashed{D}": "D̸",
             r"\text{h.c.}": "h.c.", r"\bar{\psi}": "ψ̄",
+            r"\in": "∈", r"\approx": "≈", r"\le": "≤", r"\ge": "≥",
+            r"\arctan": "arctan", r"\max": "max",
         }
         for old, new in replacements.items():
             s = s.replace(old, new)
+        s = re.sub(r"\\mathbb\{([^{}]+)\}", lambda m: "".join({
+            "P": "ℙ", "R": "ℝ", "C": "ℂ", "Z": "ℤ", "N": "ℕ", "Q": "ℚ",
+        }.get(ch, ch) for ch in m.group(1)), s)
 
         frac_map = {
             ("1", "2"): "½", ("3", "2"): "3⁄2", ("1", "4"): "¼",
@@ -1775,7 +1783,9 @@ class Renderer:
             if isinstance(value.get("content"), list):      # LinkInline / FootnoteInline inline content
                 return "".join(text_of(item) for item in value.get("content") or [])
             if value.get("tex") is not None:                # inline math fallback
-                return str(value.get("tex"))
+                return self.render_math_text(value.get("tex"))
+            if value.get("latex") is not None:
+                return self.render_math_text(value.get("latex"))
             if isinstance(value.get("spans"), list):
                 return "".join(text_of(span) for span in value.get("spans") or [])
             if isinstance(value.get("children"), list):

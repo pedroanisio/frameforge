@@ -90,6 +90,31 @@ MATHML_DOC = {
     ],
 }
 
+INLINE_MATH_DOC = {
+    "dsl": "FrameGraph",
+    "version": "2.2.0",
+    "profile": "report",
+    "title": "inline math render",
+    "pages": [
+        {
+            "mode": "flow",
+            "id": "p",
+            "story": [
+                {
+                    "type": "paragraph",
+                    "spans": [
+                        "Exactness means ",
+                        {"kind": "math", "tex": "E_n(f) = 0"},
+                        " for every ",
+                        {"kind": "math", "tex": "f \\in \\mathbb{P}_{2n-1}"},
+                        ".",
+                    ],
+                }
+            ],
+        }
+    ],
+}
+
 
 def _render_to_svg(tmp_path, doc, name):
     src = tmp_path / name
@@ -119,6 +144,14 @@ def test_flow_mathml_renders_as_mathjax_svg_not_raw_xml(tmp_path):
     assert "<math><mi>x</mi>" not in svg
     assert "&lt;math&gt;" not in svg
     assert "x equals square root of two" in svg
+
+
+def test_flow_inline_math_spans_do_not_leak_raw_tex(tmp_path):
+    svg = _render_to_svg(tmp_path, INLINE_MATH_DOC, "inline-math.fg.yaml")
+    assert "Eₙ(f) = 0" in svg
+    assert "f ∈ ℙ₂ₙ₋₁" in svg
+    for raw_tex in ("\\in", "\\mathbb", "_{2n-1}", "E_n"):
+        assert raw_tex not in svg
 
 
 def test_standard_model_figures_all_render(tmp_path):
