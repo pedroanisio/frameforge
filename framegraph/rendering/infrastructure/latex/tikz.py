@@ -73,6 +73,47 @@ def color_expr(resolved):
     return str(resolved), None     # a bare xcolor name (white/black/…)
 
 
+def _grad_pct(v, default):
+    """A gradient stop `position` ("58%", 0.58, 58) to a 0-1 fraction."""
+    if v is None:
+        return default
+    if isinstance(v, bool):
+        return default
+    if isinstance(v, (int, float)):
+        return v / 100.0 if v > 1 else float(v)
+    s = str(v).strip()
+    pct = s.endswith("%")
+    try:
+        f = float(s.rstrip("%"))
+    except ValueError:
+        return default
+    return f / 100.0 if (pct or f > 1) else f
+
+
+def _grad_angle(v, default=180.0):
+    """A CSS gradient `angle` ("90deg", 155) to degrees (0=up, 90=right, 180=down)."""
+    if v is None or isinstance(v, bool):
+        return default
+    if isinstance(v, (int, float)):
+        return float(v)
+    try:
+        return float(str(v).strip().lower().replace("deg", "").strip())
+    except ValueError:
+        return default
+
+
+def _grad_orientation(angle):
+    """CSS angle to (axis, reversed): which way the stops run across the box."""
+    a = angle % 360
+    if 45 <= a < 135:
+        return "h", False          # right: stop 0 at the left edge
+    if 225 <= a < 315:
+        return "h", True           # left
+    if 135 <= a < 225:
+        return "v", False          # bottom: stop 0 at the top edge
+    return "v", True               # top
+
+
 class FigureTikz:
     def __init__(self, color_resolver, text_style_resolver, stroke_styles=None, asset_path=None, font_macro=None):
         self._color = color_resolver
@@ -282,12 +323,60 @@ class FigureTikz:
         if not (isinstance(box, list) and len(box) >= 4):
             return ""
         x, y, w, h = (num(v, 0) for v in box[:4])
+        grad = self._gradient_rect(o.get("fill"), x, y, w, h)
+        if grad:
+            # gradient fill, then the (optional) outline drawn over it.
+            stroke = self._stroke_opts(o)
+            geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
+            return grad + (self._path(stroke, geom) if stroke else "")
         opts = self._fill_opts(o) + self._stroke_opts(o)
         r = num(o.get("radius"), 0) or 0
         if r:
             opts.append(f"rounded corners={fnum(r)}pt")
         geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
         return self._path(opts, geom)
+
+    def _gradient_rect(self, fill, x, y, w, h):
+        """A linear-gradient rect fill to piecewise TikZ `\\shade` segments.
+
+        `ColorResolver` collapses a paint object to its first stop, so a
+        multi-stop gradient would otherwise render as a flat block. TikZ has no
+        native multi-stop axis shading, so each consecutive stop pair is drawn as
+        its own two-color `\\shade` rectangle along the gradient axis; adjacent
+        segments share an endpoint color, so the result reads as one continuous
+        gradient. Falls back to `None` (solid fill) for non-linear paints or any
+        stop whose color is not opaque hex (e.g. an `rgba(...,0)` fade)."""
+        if not isinstance(fill, dict) or str(fill.get("kind")) not in ("linear", "linear-gradient"):
+            return None
+        raw = fill.get("stops")
+        if not isinstance(raw, list) or len(raw) < 2 or w <= 0 or h <= 0:
+            return None
+        stops = []
+        for i, s in enumerate(raw):
+            if not isinstance(s, dict):
+                return None
+            resolved = self._color.resolve(s.get("color"))
+            if not _parse_hex(resolved):       # transparent / non-hex: bail to solid
+                return None
+            expr, _op = color_expr(resolved)
+            stops.append((_grad_pct(s.get("position"), i / (len(raw) - 1)), expr))
+        stops.sort(key=lambda s: s[0])
+        axis, reverse = _grad_orientation(_grad_angle(fill.get("angle")))
+        if reverse:
+            stops = [(1.0 - p, c) for p, c in reversed(stops)]
+        out = []
+        for (p0, c0), (p1, c1) in zip(stops, stops[1:]):
+            if p1 <= p0:
+                continue
+            if axis == "h":
+                geom = (f"({fnum(x + p0 * w)},{fnum(y)}) rectangle "
+                        f"({fnum(x + p1 * w)},{fnum(y + h)})")
+                out.append(f"\\shade[left color={c0},right color={c1}] {geom};\n")
+            else:
+                geom = (f"({fnum(x)},{fnum(y + p0 * h)}) rectangle "
+                        f"({fnum(x + w)},{fnum(y + p1 * h)})")
+                out.append(f"\\shade[top color={c0},bottom color={c1}] {geom};\n")
+        return "".join(out) or None
 
     def _draw_ellipse(self, o) -> str:
         c = o.get("center") or [0, 0]

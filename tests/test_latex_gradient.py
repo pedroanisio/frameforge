@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+"""Regression: TikZ figures must render linear-gradient fills, not flat blocks.
+
+`ColorResolver` collapses a paint object to its first stop, so a multi-stop
+gradient rect used to fill as a single solid colour (the spectrum figure in
+b1/chroma-styling-showcase rendered as a magenta block). The TikZ backend now
+emits one two-color `\\shade` segment per consecutive stop pair along the
+gradient axis.
+"""
+from __future__ import annotations
+
+import json
+import os
+import sys
+
+ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+sys.path.insert(0, ROOT)
+
+from framegraph.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
+from framegraph.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
+
+
+def _fig():
+    color = ColorResolver({})
+    return FigureTikz(color, TextStyleResolver({}, {}, color), {})
+
+
+def _rect(stops, angle="90deg"):
+    return {"type": "rect", "box": [0, 0, 300, 100],
+            "fill": {"kind": "linear", "angle": angle, "stops": stops}}
+
+
+def test_horizontal_gradient_emits_piecewise_left_right_shades():
+    tex = _fig().render(_rect([
+        {"color": "#ff0000", "position": "0%"},
+        {"color": "#00ff00", "position": "50%"},
+        {"color": "#0000ff", "position": "100%"},
+    ]))
+    assert tex.count("\\shade[") == 2          # 3 stops -> 2 segments
+    assert "left color=" in tex and "right color=" in tex
+    assert "top color=" not in tex             # 90deg is horizontal
+    assert "fill={rgb" not in tex              # not collapsed to a flat fill
+    # endpoint colours are shared between adjacent segments (continuous)
+    assert tex.count("green,255") >= 2         # the mid stop appears on both segments
+
+
+def test_vertical_gradient_uses_top_bottom_shades():
+    tex = _fig().render(_rect([
+        {"color": "#000000", "position": "0%"},
+        {"color": "#ffffff", "position": "100%"},
+    ], angle="180deg"))
+    assert tex.count("\\shade[") == 1
+    assert "top color=" in tex and "bottom color=" in tex
+    assert "left color=" not in tex
+
+
+def test_transparent_stop_falls_back_to_solid_fill():
+    # an rgba(...,0) fade has no opaque hex: keep the old solid behavior, no crash
+    tex = _fig().render(_rect([
+        {"color": "#ff2d95", "position": "0%"},
+        {"color": "rgba(255,45,149,0)", "position": "100%"},
+    ]))
+    assert "\\shade[" not in tex
+    assert "fill={rgb,255:red,255;green,45;blue,149}" in tex   # first stop, solid
+
+
+def test_b1_chroma_spectrum_renders_as_gradient():
+    from framegraph.rendering.infrastructure.latex import transpile
+    doc = json.load(open(os.path.join(ROOT, "fixtures", "b1",
+                                      "chroma-styling-showcase.fg.json"), encoding="utf-8"))
+    tex = transpile(doc)
+    # the 7-stop spectrum -> 6 horizontal segments (plus the other gradients)
+    assert tex.count("\\shade[left color=") >= 6
