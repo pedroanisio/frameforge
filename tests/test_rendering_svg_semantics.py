@@ -161,11 +161,13 @@ def test_rect_uses_style_fill_border_radius_and_opacity() -> None:
             "style": {
                 "class": "panel_style",
                 "border": {"width": 2, "style": "dashed", "color": "hairline"},
+                "outline": {"width": 3, "style": "dotted", "color": "outline"},
+                "outline_offset": 4,
             },
         }],
         {
             "tokens": {
-                "colors": {"panel": "#ffeecc", "hairline": "#123456"},
+                "colors": {"panel": "#ffeecc", "hairline": "#123456", "outline": "#654321"},
                 "styles": {
                     "panel_style": {
                         "background_color": "panel",
@@ -183,6 +185,13 @@ def test_rect_uses_style_fill_border_radius_and_opacity() -> None:
     assert ' stroke="#123456"' in rect
     assert ' stroke-width="2"' in rect
     assert ' stroke-dasharray="4 4"' in rect
+    outline = svg.split("<rect", 3)[3].split("/>", 1)[0]
+    assert ' x="6" y="16" width="88" height="48"' in outline
+    assert ' fill="none"' in outline
+    assert ' rx="10"' in outline
+    assert ' stroke="#654321"' in outline
+    assert ' stroke-width="3"' in outline
+    assert ' stroke-dasharray="1 3"' in outline
 
 
 def test_style_transform_wraps_svg_objects() -> None:

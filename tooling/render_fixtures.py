@@ -291,6 +291,7 @@ class Renderer:
         try:
             inner = self._obj(o)
             if inner:
+                inner = self._with_outline(o, self._style_dict(o.get("style")), inner)
                 inner = self._with_effects(o, self._style_dict(o.get("style")), inner)
                 inner = self._with_transform(o, self._style_dict(o.get("style")), inner)
             opacity = o.get("opacity")
@@ -300,6 +301,22 @@ class Renderer:
         except Exception:                              # never let one object kill a page
             self.skipped += 1
             return ""
+
+    def _with_outline(self, o, style, svg):
+        outline = style.get("outline")
+        box = o.get("box")
+        if not isinstance(outline, dict) or not isinstance(box, list) or len(box) < 4:
+            return svg
+        stroke = self._border_stroke(outline)
+        if not stroke:
+            return svg
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        offset = num(style.get("outline_offset"), 0) or 0
+        radius = max(0, self._shape_radius(o, style) + offset)
+        outline_rect = self._painter.rect(
+            x - offset, y - offset, w + 2 * offset, h + 2 * offset, None, stroke, radius=radius
+        )
+        return svg + outline_rect
 
     def _with_effects(self, o, style, svg):
         """Wrap an object's SVG in effect filter group(s) if it declares them.
