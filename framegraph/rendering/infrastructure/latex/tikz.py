@@ -152,8 +152,25 @@ class FigureTikz:
             return ""
 
     def _style_dict(self, o):
-        style = o.get("style")
-        return style if isinstance(style, dict) else {}
+        return self._resolve_style_ref(o.get("style"))
+
+    def _resolve_style_ref(self, ref, _seen=None):
+        _seen = set() if _seen is None else set(_seen)
+        text_styles = getattr(self._ts, "text_styles", {}) or {}
+        styles = getattr(self._ts, "styles", {}) or {}
+        if isinstance(ref, str):
+            if ref in _seen:
+                return {}
+            _seen.add(ref)
+            return self._resolve_style_ref(text_styles.get(ref) or styles.get(ref) or {}, _seen)
+        if not isinstance(ref, dict):
+            return {}
+        cls = ref.get("class") or ref.get("class_")
+        merged = {}
+        for name in ([cls] if isinstance(cls, str) else (cls or [])):
+            merged.update(self._resolve_style_ref(name, _seen))
+        merged.update(ref)
+        return merged
 
     def _wrap_object(self, o, body):
         opts = []
@@ -329,7 +346,9 @@ class FigureTikz:
         return num(value, fallback) if value is not None else fallback
 
     def _fill_opts(self, o):
-        expr, op = color_expr(self._color.resolve(o.get("fill")))
+        style = self._style_dict(o)
+        fill = o.get("fill") if "fill" in o else style.get("fill")
+        expr, op = color_expr(self._color.resolve(fill))
         op = self._paint_opacity(o, "fill_opacity", op)
         opts = []
         if expr is not None:
@@ -353,10 +372,9 @@ class FigureTikz:
         return None
 
     def _stroke_opts(self, o, default_color=None):
-        sv, ssv = o.get("stroke"), o.get("stroke_style")
-        bundle = self._stroke_styles.get(ssv, {}) if isinstance(ssv, str) else (ssv or {})
-        if not isinstance(bundle, dict):
-            bundle = {}
+        style = self._style_dict(o)
+        sv = o.get("stroke") if "stroke" in o else style.get("stroke")
+        bundle = self._stroke_bundle(o)
         col = self._color.resolve(sv) if isinstance(sv, (str, dict)) else None
         if not col or col == "none":
             col = self._color.resolve(bundle.get("stroke") or bundle.get("color"))
@@ -395,9 +413,25 @@ class FigureTikz:
         return opts
 
     def _stroke_bundle(self, o):
+        style = self._style_dict(o)
         ssv = o.get("stroke_style")
+        if ssv is None:
+            ssv = style.get("stroke_style")
         bundle = self._stroke_styles.get(ssv, {}) if isinstance(ssv, str) else (ssv or {})
-        return bundle if isinstance(bundle, dict) else {}
+        if not isinstance(bundle, dict):
+            bundle = {}
+        direct = {
+            key: style[key]
+            for key in (
+                "stroke", "color", "stroke_width", "width", "stroke_dasharray", "dash",
+                "stroke_dashoffset", "stroke_linecap", "stroke_linejoin",
+                "stroke_miterlimit", "paint_order", "vector_effect", "opacity",
+                "arrow_start", "arrow_end",
+            )
+            if key in style
+        }
+        direct.update(bundle)
+        return direct
 
     def _stroke_width(self, o):
         bundle = self._stroke_bundle(o)
