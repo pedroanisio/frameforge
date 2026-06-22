@@ -229,6 +229,29 @@ def test_transpile_emits_extended_latex_flow_controls():
     assert r"\makeindex" in tex
 
 
+def test_transpile_numbered_math_uses_equation_environment():
+    doc = copy.deepcopy(DOC)
+    doc["pages"][0]["story"] = [
+        {"type": "math", "tex": "a=b"},
+        {
+            "type": "math",
+            "id": "eq-numbered",
+            "number": {"series": "equation", "prefix": "(", "suffix": ")"},
+            "tex": "E=mc^2",
+        },
+        {
+            "type": "paragraph",
+            "spans": ["See ", {"kind": "ref", "target": "eq-numbered", "show": "number"}, "."],
+        },
+    ]
+
+    tex = transpile(doc)
+
+    assert "\\[\na=b\n\\]" in tex
+    assert "\\begin{equation}\nE=mc^2\\label{fg:eq-numbered}\n\\end{equation}" in tex
+    assert r"See \ref{fg:eq-numbered}." in tex
+
+
 def test_transpile_uses_declared_token_fonts_for_flow_text():
     doc = copy.deepcopy(DOC)
     doc["defs"]["tokens"]["fonts"] = {

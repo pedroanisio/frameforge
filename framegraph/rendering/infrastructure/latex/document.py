@@ -321,6 +321,10 @@ class _Transpiler:
             self.skipped += 1
             return
         label = f"\\label{{{_latex_label(fl.get('id'))}}}" if fl.get("id") else ""
+        number = fl.get("number")
+        if number:
+            out.append("\\begin{equation}\n" + str(tex) + label + "\n\\end{equation}\n")
+            return
         out.append("\\[\n" + str(tex) + label + "\n\\]\n")
 
     def _emit_code(self, fl, out):
