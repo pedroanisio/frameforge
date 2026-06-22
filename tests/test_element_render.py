@@ -65,6 +65,9 @@ OBJECT_SAMPLES = {
     "uml.artifact_box": {"type": "uml.artifact_box", "box": [0, 0, 100, 44], "name": "Report",
                          "stereotype": "artifact"},
     "uml.node_box": {"type": "uml.node_box", "box": [0, 0, 100, 44], "name": "Worker", "kind": "device"},
+    "uml.lifeline": {"type": "uml.lifeline", "box": [0, 0, 100, 80], "name": "svc", "type_name": "Service",
+                     "head_height": 30},
+    "uml.activation_bar": {"type": "uml.activation_bar", "box": [45, 20, 10, 50]},
 }
 
 # the SVG primitive each painted element must emit
@@ -77,7 +80,7 @@ EXPECT = {
     "chip_row": "<rect", "uml.marker_glyph": "<polygon",
     "uml.classifier_box": "<rect", "uml.component_box": "<rect",
     "uml.state_box": "<rect", "uml.action": "<rect", "uml.artifact_box": "<rect",
-    "uml.node_box": "<rect",
+    "uml.node_box": "<rect", "uml.lifeline": "<line", "uml.activation_bar": "<rect",
 }
 
 # documented silent-ignore set. Any change here must be deliberate (this is the gate).

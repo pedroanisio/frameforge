@@ -28001,6 +28001,91 @@ ${exception.mark.snippet}`;
       o.body ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TextObj, { doc, active, o: { type: "text", box: childBox(bodyLayout), text: o.body, style: bodyLayout.style } }) : null
     ] });
   }
+  function UmlActorGlyph({ size = 18, color = "#333" }) {
+    const cx = size / 2;
+    const cy = size / 2;
+    const r = size * 0.16;
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { width: size, height: size, viewBox: `0 0 ${size} ${size}`, "aria-hidden": "true", style: { flex: "0 0 auto", overflow: "visible" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx, cy: cy - size * 0.32, r, fill: "none", stroke: color, strokeWidth: "1.1" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: cx, y1: cy - size * 0.12, x2: cx, y2: cy + size * 0.28, stroke: color, strokeWidth: "1.1" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: cx - size * 0.28, y1: cy + size * 0.02, x2: cx + size * 0.28, y2: cy + size * 0.02, stroke: color, strokeWidth: "1.1" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: cx, y1: cy + size * 0.28, x2: cx - size * 0.24, y2: cy + size * 0.58, stroke: color, strokeWidth: "1.1" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: cx, y1: cy + size * 0.28, x2: cx + size * 0.24, y2: cy + size * 0.58, stroke: color, strokeWidth: "1.1" })
+    ] });
+  }
+  function UmlLifelineObj({ doc, o }) {
+    const box = (o.box || [0, 0, 0, 0]).map(toPx);
+    const [x, y, w, h] = box;
+    const headH = Math.max(18, Math.min(h, toPx(o.head_height) || 42));
+    const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+    const lineColor = stroke?.color || "#555";
+    const border = stroke ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}` : "1px solid #555";
+    const fill = resolveFill(doc, o.fill);
+    const rows = [o.name || o.id || "", o.type_name || ""].filter(Boolean);
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { "data-framegraph-object": o.id || "", "data-framegraph-type": "uml.lifeline", style: {
+      position: "absolute",
+      left: x,
+      top: y,
+      width: w,
+      height: h,
+      opacity: o.opacity != null ? o.opacity : 1,
+      ...rotationStyle(o.rotation, box)
+    }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: w,
+        height: headH,
+        boxSizing: "border-box",
+        border,
+        borderRadius: toPx(o.radius || 0),
+        background: fill && fill !== "transparent" ? fill : "#fff",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 5,
+        padding: "3px 6px",
+        overflow: "hidden",
+        fontFamily: resolveFont(doc, o.font)
+      }, children: [
+        o.actor ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlActorGlyph, { size: Math.min(18, headH * 0.42), color: "#333" }) : null,
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { minWidth: 0, textAlign: "center", lineHeight: 1.12 }, children: rows.map((row, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+          fontSize: i ? 10 : 11,
+          fontWeight: i ? 400 : 700,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis"
+        }, children: row }, i)) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+        position: "absolute",
+        left: w / 2,
+        top: headH,
+        height: Math.max(0, h - headH),
+        borderLeft: `1px dashed ${lineColor}`
+      } })
+    ] });
+  }
+  function UmlActivationBarObj({ doc, o }) {
+    const box = (o.box || [0, 0, 0, 0]).map(toPx);
+    const [x, y, w, h] = box;
+    const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+    const fill = resolveFill(doc, o.fill);
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { "data-framegraph-object": o.id || "", "data-framegraph-type": "uml.activation_bar", style: {
+      position: "absolute",
+      left: x,
+      top: y,
+      width: w,
+      height: h,
+      boxSizing: "border-box",
+      background: fill && fill !== "transparent" ? fill : "#fff",
+      border: stroke ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}` : "1px solid #555",
+      opacity: o.opacity != null ? o.opacity : 1,
+      ...styleToCss(doc, o.style),
+      ...rotationStyle(o.rotation, box)
+    } });
+  }
   function textContent(v) {
     if (v == null) return "";
     if (typeof v === "string" || typeof v === "number") return String(v);
@@ -28172,6 +28257,10 @@ ${exception.mark.snippet}`;
         return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlMarkerGlyphObj, { doc, o });
       case "component":
         return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ComponentObj, { doc, o, active });
+      case "uml.lifeline":
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlLifelineObj, { doc, o });
+      case "uml.activation_bar":
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlActivationBarObj, { doc, o });
       default:
         if (UML_BOX_TYPES.has(o.type)) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UmlBoxObj, { doc, o });
         if (o.from && o.to) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VectorObj, { doc, o: { ...o, type: "line" }, cw, ch, reg });

@@ -15,7 +15,7 @@ const ABSOLUTE_TYPES = new Set([
   "icon", "image", "bullet_list", "table", "group", "component", "chip_row", "uml.marker_glyph",
   "dimension",
   "uml.classifier_box", "uml.component_box", "uml.state_box", "uml.action",
-  "uml.artifact_box", "uml.node_box",
+  "uml.artifact_box", "uml.node_box", "uml.lifeline", "uml.activation_bar",
 ]);
 const FLOW_TYPES = new Set([
   "heading", "paragraph", "list", "bullet_list", "table", "code", "math", "toc",

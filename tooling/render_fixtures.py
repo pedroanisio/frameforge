@@ -732,6 +732,12 @@ class Renderer:
         if t == "component" and box:
             return self._component(o, style)
 
+        if t == "uml.lifeline" and box:
+            return self._uml_lifeline(o, style)
+
+        if t == "uml.activation_bar" and box:
+            return self._uml_activation_bar(o, style, fill)
+
         if t in {
             "uml.classifier_box",
             "uml.component_box",
@@ -1153,6 +1159,65 @@ class Renderer:
                 row += f": {ret}"
             rows.append(row)
         return rows
+
+    def _uml_lifeline(self, o, style):
+        box = o.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            self.skipped += 1
+            return ""
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        head_h = max(18, min(h, num(o.get("head_height"), 42) or 42))
+        p = self._painter
+        stroke = self._shape_stroke(o, style) or ' stroke="#555" stroke-width="1"'
+        fill = self._shape_fill(o, style) or "#fff"
+        cx = x + w / 2
+        out = [
+            p.rect(x, y, w, head_h, fill, stroke, radius=self._shape_radius(o, style)),
+            p.line(cx, y + head_h, cx, y + h, ' stroke="#555" stroke-width="1" stroke-dasharray="5 5"'),
+        ]
+        if o.get("actor"):
+            out.extend(self._uml_actor_glyph(cx, y + head_h / 2 - 2, min(18, head_h * 0.42), "#333"))
+        label_x = x + (22 if o.get("actor") else 5)
+        label_w = max(1, w - (27 if o.get("actor") else 10))
+        st = {"family": "sans-serif", "size": 11, "weight": "bold",
+              "italic": False, "color": "#222", "align": "center", "lh": 1.1}
+        rows = [str(o.get("name") or o.get("id") or "")]
+        if o.get("type_name"):
+            rows.append(str(o.get("type_name")))
+        row_h = min(head_h / max(1, len(rows)), 15)
+        start_y = y + max(3, (head_h - row_h * len(rows)) / 2)
+        for i, row in enumerate(rows):
+            row_st = {**st, "size": 10 if i else 11, "weight": "normal" if i else "bold"}
+            out.append(p.text_tag(label_x, start_y + i * row_h, label_w, row_h,
+                                  self.ellipsize(row, label_w, row_st["size"], 0.56),
+                                  row_st, vcenter=True))
+        return p.group("".join(out))
+
+    def _uml_actor_glyph(self, cx, cy, size, color):
+        p = self._painter
+        r = size * 0.22
+        head_y = cy - size * 0.42
+        body_top = cy - size * 0.16
+        body_bottom = cy + size * 0.32
+        arm_y = cy + size * 0.02
+        stroke = f' stroke="{esc(color)}" stroke-width="1.1" fill="none"'
+        return [
+            p.circle(cx, head_y, r, "none", f' stroke="{esc(color)}" stroke-width="1.1"'),
+            p.line(cx, body_top, cx, body_bottom, stroke),
+            p.line(cx - size * 0.32, arm_y, cx + size * 0.32, arm_y, stroke),
+            p.line(cx, body_bottom, cx - size * 0.28, cy + size * 0.62, stroke),
+            p.line(cx, body_bottom, cx + size * 0.28, cy + size * 0.62, stroke),
+        ]
+
+    def _uml_activation_bar(self, o, style, fill):
+        box = o.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            self.skipped += 1
+            return ""
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        fill = fill if fill not in (None, "") else "#fff"
+        stroke = self._shape_stroke(o, style) or ' stroke="#555" stroke-width="1"'
+        return self._painter.rect(x, y, w, h, fill, stroke)
 
     def _chip_row(self, o):
         origin = o.get("origin") or o.get("position")

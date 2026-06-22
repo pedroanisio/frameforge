@@ -1094,6 +1094,78 @@ function ComponentObj({ doc, o, active }) {
   );
 }
 
+function UmlActorGlyph({ size = 18, color = "#333" }) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = size * 0.16;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" style={{ flex: "0 0 auto", overflow: "visible" }}>
+      <circle cx={cx} cy={cy - size * 0.32} r={r} fill="none" stroke={color} strokeWidth="1.1" />
+      <line x1={cx} y1={cy - size * 0.12} x2={cx} y2={cy + size * 0.28} stroke={color} strokeWidth="1.1" />
+      <line x1={cx - size * 0.28} y1={cy + size * 0.02} x2={cx + size * 0.28} y2={cy + size * 0.02} stroke={color} strokeWidth="1.1" />
+      <line x1={cx} y1={cy + size * 0.28} x2={cx - size * 0.24} y2={cy + size * 0.58} stroke={color} strokeWidth="1.1" />
+      <line x1={cx} y1={cy + size * 0.28} x2={cx + size * 0.24} y2={cy + size * 0.58} stroke={color} strokeWidth="1.1" />
+    </svg>
+  );
+}
+
+function UmlLifelineObj({ doc, o }) {
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const headH = Math.max(18, Math.min(h, toPx(o.head_height) || 42));
+  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+  const lineColor = stroke?.color || "#555";
+  const border = stroke ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}` : "1px solid #555";
+  const fill = resolveFill(doc, o.fill);
+  const rows = [o.name || o.id || "", o.type_name || ""].filter(Boolean);
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="uml.lifeline" style={{
+      position: "absolute", left: x, top: y, width: w, height: h,
+      opacity: o.opacity != null ? o.opacity : 1,
+      ...rotationStyle(o.rotation, box),
+    }}>
+      <div style={{
+        position: "absolute", left: 0, top: 0, width: w, height: headH,
+        boxSizing: "border-box", border,
+        borderRadius: toPx(o.radius || 0), background: fill && fill !== "transparent" ? fill : "#fff",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+        padding: "3px 6px", overflow: "hidden", fontFamily: resolveFont(doc, o.font),
+      }}>
+        {o.actor ? <UmlActorGlyph size={Math.min(18, headH * 0.42)} color="#333" /> : null}
+        <div style={{ minWidth: 0, textAlign: "center", lineHeight: 1.12 }}>
+          {rows.map((row, i) => (
+            <div key={i} style={{
+              fontSize: i ? 10 : 11, fontWeight: i ? 400 : 700,
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}>{row}</div>
+          ))}
+        </div>
+      </div>
+      <div style={{
+        position: "absolute", left: w / 2, top: headH, height: Math.max(0, h - headH),
+        borderLeft: `1px dashed ${lineColor}`,
+      }} />
+    </div>
+  );
+}
+
+function UmlActivationBarObj({ doc, o }) {
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+  const fill = resolveFill(doc, o.fill);
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="uml.activation_bar" style={{
+      position: "absolute", left: x, top: y, width: w, height: h,
+      boxSizing: "border-box",
+      background: fill && fill !== "transparent" ? fill : "#fff",
+      border: stroke ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}` : "1px solid #555",
+      opacity: o.opacity != null ? o.opacity : 1,
+      ...styleToCss(doc, o.style), ...rotationStyle(o.rotation, box),
+    }} />
+  );
+}
+
 function textContent(v) {
   if (v == null) return "";
   if (typeof v === "string" || typeof v === "number") return String(v);
@@ -1272,6 +1344,8 @@ function RenderObject({ doc, o, cw, ch, reg, active }) {
     case "chip_row": return <ChipRowObj doc={doc} o={o} />;
     case "uml.marker_glyph": return <UmlMarkerGlyphObj doc={doc} o={o} />;
     case "component": return <ComponentObj doc={doc} o={o} active={active} />;
+    case "uml.lifeline": return <UmlLifelineObj doc={doc} o={o} />;
+    case "uml.activation_bar": return <UmlActivationBarObj doc={doc} o={o} />;
     default:
       if (UML_BOX_TYPES.has(o.type)) return <UmlBoxObj doc={doc} o={o} />;
       if (o.from && o.to) return <VectorObj doc={doc} o={{ ...o, type: "line" }} cw={cw} ch={ch} reg={reg} />;
