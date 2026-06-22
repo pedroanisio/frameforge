@@ -1,6 +1,7 @@
 import React, {
   useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback,
 } from "react";
+import * as yaml from "js-yaml";
 import {
   ChevronLeft, ChevronRight, Maximize2, Crosshair, Upload, X,
   Palette, Layers, Type as TypeIcon, Info,
@@ -31,6 +32,21 @@ const UI = {
   accentDim: "#B8412E",
   mono: "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace",
   sans: "'Space Grotesk', ui-sans-serif, system-ui, sans-serif",
+};
+
+const PRESET_CANVASES = {
+  A3: [842, 1191],
+  A4: [595, 842],
+  A5: [419.5, 595.3],
+  Letter: [612, 792],
+  Legal: [612, 1008],
+  Tabloid: [792, 1224],
+  "deck-16x9": [1920, 1080],
+  "deck-4x3": [1024, 768],
+  square: [1080, 1080],
+  phone: [390, 844],
+  tablet: [834, 1112],
+  web: [1280, 800],
 };
 
 /* ============================================================ *
@@ -69,7 +85,7 @@ function withAlpha(color, a) {
 function resolveColor(doc, c) {
   if (c == null) return "transparent";
   const colors = doc?.defs?.tokens?.colors || {};
-  if (typeof c === "string") return colors[c] != null ? colors[c] : c;
+  if (typeof c === "string") return colors[c] != null ? resolveColor(doc, colors[c]) : c;
   return "transparent";
 }
 
@@ -88,7 +104,27 @@ function resolveFont(doc, name) {
 
 function resolveTextStyle(doc, ref) {
   const ts = doc?.defs?.tokens?.text_styles || {};
-  return typeof ref === "string" ? (ts[ref] || {}) : (ref || {});
+  const styles = doc?.defs?.tokens?.styles || {};
+  const raw = typeof ref === "string" ? (ts[ref] || styles[ref] || {}) : (ref || {});
+  const classNames = typeof raw.class === "string" ? [raw.class] : (raw.class || raw.class_ || []);
+  const merged = {};
+  classNames.forEach((name) => Object.assign(merged, ts[name] || styles[name] || {}));
+  Object.assign(merged, raw);
+  return {
+    ...merged,
+    font: merged.font != null ? merged.font : merged.font_family,
+    size: merged.size != null ? toPx(merged.size) : toPx(merged.font_size),
+    weight: merged.weight != null ? merged.weight : merged.font_weight,
+    italic: merged.italic != null ? merged.italic : merged.font_style === "italic",
+    align: merged.align != null ? merged.align : merged.text_align,
+    v_align: merged.v_align != null ? merged.v_align : merged.vertical_align,
+    wrap: merged.wrap != null ? merged.wrap : ["wrap", "balance", "pretty"].includes(merged.text_wrap),
+    line_height: merged.line_height != null ? (typeof merged.line_height === "string" && /px|pt|in|cm|mm/.test(merged.line_height) ? `${toPx(merged.line_height)}px` : merged.line_height) : undefined,
+  };
+}
+
+function resolveStyle(doc, ref) {
+  return resolveTextStyle(doc, ref);
 }
 
 // 2.2.0: stroke is PAINT-ONLY (a Paint) and geometry lives in `stroke_style`
@@ -135,7 +171,11 @@ function resolveStroke(doc, geomRef, paint) {
 
 function resolveFill(doc, fill) {
   if (fill == null) return "transparent";
-  if (typeof fill === "string") return resolveColor(doc, fill);
+  const fillStyles = doc?.defs?.tokens?.fill_styles || {};
+  if (typeof fill === "string") {
+    if (fillStyles[fill]) return resolveFill(doc, fillStyles[fill]);
+    return resolveColor(doc, fill);
+  }
   if (fill.kind === "linear" || fill.kind === "radial" || fill.kind === "conic") {
     // 2.2.0: stops use `position` (Length | %); accept legacy 0..1 `offset` too
     const stopPos = (s) => {
@@ -168,8 +208,114 @@ function resolveFill(doc, fill) {
   return "transparent";
 }
 
+function cssLength(v) {
+  if (v == null) return undefined;
+  if (typeof v === "number") return `${v}px`;
+  if (Array.isArray(v)) return v.map(cssLength).filter(Boolean).join(" ");
+  return String(v);
+}
+
+function cssEdges(v) {
+  if (v == null) return undefined;
+  if (typeof v === "number" || typeof v === "string") return cssLength(v);
+  if (Array.isArray(v)) return v.map(cssLength).join(" ");
+  if (typeof v === "object") {
+    return [v.top, v.right, v.bottom, v.left].map((x) => cssLength(x ?? 0)).join(" ");
+  }
+  return undefined;
+}
+
+function cssShadow(doc, shadow) {
+  if (!shadow || shadow === "none") return shadow;
+  const list = Array.isArray(shadow) ? shadow : [shadow];
+  return list.map((s) => {
+    if (typeof s === "string") return s;
+    const inset = s.inset ? "inset " : "";
+    const x = cssLength(s.offset_x ?? s.x ?? 0);
+    const y = cssLength(s.offset_y ?? s.y ?? 0);
+    const blur = cssLength(s.blur ?? 0);
+    const spread = s.spread != null ? ` ${cssLength(s.spread)}` : "";
+    const color = resolveColor(doc, s.color || "rgba(0,0,0,.25)");
+    return `${inset}${x} ${y} ${blur}${spread} ${color}`;
+  }).join(", ");
+}
+
+function cssFilter(fn) {
+  if (!fn || fn === "none") return fn;
+  const list = Array.isArray(fn) ? fn : [fn];
+  return list.map((f) => {
+    if (typeof f === "string") return f;
+    const name = f.fn || f.kind || f.name;
+    const value = f.value ?? f.amount ?? "";
+    return name ? `${name}(${value})` : "";
+  }).filter(Boolean).join(" ");
+}
+
+function cssTransform(tx) {
+  if (!tx || tx === "none") return tx;
+  if (typeof tx === "string") return tx;
+  const list = Array.isArray(tx) ? tx : [tx];
+  return list.map((t) => {
+    if (typeof t === "string") return t;
+    const fn = t.fn || t.kind || t.name;
+    const args = Array.isArray(t.args) ? t.args : [t.value ?? t.x, t.y].filter((x) => x != null);
+    return fn ? `${fn}(${args.join(", ")})` : "";
+  }).filter(Boolean).join(" ");
+}
+
+function styleToCss(doc, ref, opts = {}) {
+  const st = resolveStyle(doc, ref);
+  const css = {};
+  if (st.opacity != null) css.opacity = st.opacity;
+  if (st.mix_blend_mode) css.mixBlendMode = st.mix_blend_mode;
+  if (st.box_shadow) css.boxShadow = cssShadow(doc, st.box_shadow);
+  if (st.filter) css.filter = cssFilter(st.filter);
+  if (st.backdrop_filter) css.backdropFilter = cssFilter(st.backdrop_filter);
+  if (st.transform) css.transform = cssTransform(st.transform);
+  if (st.transform_origin) css.transformOrigin = Array.isArray(st.transform_origin) ? st.transform_origin.map(cssLength).join(" ") : st.transform_origin;
+  if (st.transform_box) css.transformBox = st.transform_box;
+  if (st.clip_path) {
+    if (typeof st.clip_path === "string") css.clipPath = st.clip_path;
+    else if (st.clip_path.shape) css.clipPath = `${st.clip_path.shape}()`;
+  }
+  if (st.padding != null) css.padding = cssEdges(st.padding);
+  if (st.margin != null) css.margin = cssEdges(st.margin);
+  if (st.box_sizing) css.boxSizing = st.box_sizing;
+  const radius = st.border_radius ?? st.radius;
+  if (radius != null) css.borderRadius = cssEdges(radius);
+  if (st.background_color) css.backgroundColor = resolveColor(doc, st.background_color);
+  if (st.background_image) css.backgroundImage = resolveFill(doc, st.background_image);
+  if (st.background_clip) css.backgroundClip = st.background_clip;
+  if (st.background_origin) css.backgroundOrigin = st.background_origin;
+  if (st.border) css.border = typeof st.border === "string" ? st.border : undefined;
+  for (const [key, cssKey] of [["border_top", "borderTop"], ["border_right", "borderRight"], ["border_bottom", "borderBottom"], ["border_left", "borderLeft"]]) {
+    if (st[key]) css[cssKey] = typeof st[key] === "string" ? st[key] : undefined;
+  }
+  if (opts.text) {
+    if (st.color) css.color = resolveColor(doc, st.color);
+    if (st.font) css.fontFamily = resolveFont(doc, st.font);
+    if (st.size) css.fontSize = st.size;
+    if (st.weight != null) css.fontWeight = st.weight;
+    if (st.italic != null) css.fontStyle = st.italic ? "italic" : "normal";
+    if (st.align) css.textAlign = st.align;
+    if (st.line_height != null) css.lineHeight = st.line_height;
+    if (st.letter_spacing != null) css.letterSpacing = cssLength(st.letter_spacing);
+    if (st.text_transform) css.textTransform = st.text_transform;
+    if (st.text_decoration) css.textDecoration = st.text_decoration;
+    if (st.font_variant_caps) css.fontVariantCaps = st.font_variant_caps;
+    if (st.hyphens) css.hyphens = st.hyphens;
+    if (st.hanging_punctuation) css.hangingPunctuation = st.hanging_punctuation;
+    if (st.white_space) css.whiteSpace = st.white_space;
+    if (st.text_wrap) css.textWrap = st.text_wrap;
+  }
+  return css;
+}
+
 function canvasOf(doc, page) {
-  const c = page?.canvas?.size || doc?.targets?.[0]?.canvas?.size || [1600, 900];
+  const masters = doc?.defs?.masters || {};
+  const master = page?.master ? masters[page.master] : null;
+  const raw = page?.canvas || master?.canvas || doc?.targets?.[0]?.canvas || { size: [1600, 900] };
+  const c = Array.isArray(raw) ? raw : (typeof raw === "string" ? (PRESET_CANVASES[raw] || [1600, 900]) : (raw.size || PRESET_CANVASES[raw.preset] || [1600, 900]));
   return { w: toPx(c[0]), h: toPx(c[1]) };
 }
 
@@ -262,13 +408,14 @@ function RectObj({ doc, o }) {
     position: "absolute", left: x, top: y, width: w, height: h,
     background: bg, borderRadius: radius, boxSizing: "border-box",
     opacity: o.opacity != null ? o.opacity : 1,
+    ...styleToCss(doc, o.style),
     ...rotationStyle(o.rotation, box),
   };
   if (stroke) {
     const col = o.stroke_opacity != null ? withAlpha(stroke.color, o.stroke_opacity) : stroke.color;
     st.border = `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${col}`;
   }
-  return <div style={st} />;
+  return <div data-framegraph-object={o.id || ""} data-framegraph-type="rect" style={st} />;
 }
 
 function TextObj({ doc, o, active }) {
@@ -290,6 +437,7 @@ function TextObj({ doc, o, active }) {
     lineHeight: style.line_height != null ? style.line_height : 1.2,
     textAlign: align,
     fontStyle: style.italic ? "italic" : "normal",
+    ...styleToCss(doc, o.style, { text: true }),
   };
   if (lineClamp) {
     Object.assign(baseStyle, {
@@ -319,12 +467,13 @@ function TextObj({ doc, o, active }) {
     display: "flex", flexDirection: "column", justifyContent: justify,
     overflow: overflow === "visible" ? "visible" : "hidden",
     opacity: o.opacity != null ? o.opacity : 1,
+    ...styleToCss(doc, o.style),
     ...rotationStyle(o.rotation, box),
   };
 
   const useFit = overflow === "shrink_to_fit";
   return (
-    <div style={wrapStyle}>
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="text" style={wrapStyle}>
       {useFit ? (
         <FitText style={style} baseStyle={baseStyle} width={w} height={h} active={active}>
           {content}
@@ -364,11 +513,17 @@ function VectorObj({ doc, o, cw, ch, reg }) {
     shape = o.closed
       ? <polygon points={pts} {...common} />
       : <polyline points={pts} {...common} fill={fill === "none" ? "none" : fill} />;
+  } else if (o.type === "polygon") {
+    const pts = (o.points || []).map((p) => `${toPx(p[0])},${toPx(p[1])}`).join(" ");
+    shape = <polygon points={pts} {...common} />;
   } else if (o.type === "path") {
     shape = <path d={o.d} {...common} />;
   } else if (o.type === "ellipse") {
     const c = o.center || [0, 0];
     shape = <ellipse cx={toPx(c[0])} cy={toPx(c[1])} rx={o.rx} ry={o.ry} {...common} />;
+  } else if (o.type === "circle") {
+    const c = o.center || [0, 0];
+    shape = <circle cx={toPx(c[0])} cy={toPx(c[1])} r={toPx(o.r || o.radius)} {...common} />;
   }
 
   return (
@@ -410,6 +565,7 @@ function GroupObj({ doc, o, cw, ch, active }) {
   const st = { position: "absolute", opacity: o.opacity != null ? o.opacity : 1 };
   if (box) Object.assign(st, { left: box[0], top: box[1], width: box[2], height: box[3] });
   else Object.assign(st, { left: 0, top: 0, width: cw, height: ch });
+  const isCellLayout = layout && ["row", "column", "grid"].includes(layout.kind);
   if (layout && (layout.kind === "row" || layout.kind === "column")) {
     Object.assign(st, {
       display: "flex",
@@ -419,18 +575,214 @@ function GroupObj({ doc, o, cw, ch, active }) {
         : layout.align === "stretch" ? "stretch" : "flex-start",
       padding: layout.padding ? layout.padding.map(toPx).join("px ") + "px" : undefined,
     });
+  } else if (layout?.kind === "grid") {
+    const cols = Math.max(1, Number(layout.columns || 1));
+    const firstBox = (o.children?.[0]?.box || [0, 0, box?.[2] || cw, box?.[3] || ch]).map(toPx);
+    Object.assign(st, {
+      display: "grid",
+      gridTemplateColumns: `repeat(${cols}, ${firstBox[2]}px)`,
+      gridAutoRows: `${firstBox[3]}px`,
+      gap: toPx(layout.gap) || 0,
+      alignContent: layout.align_content || "start",
+      justifyContent: layout.justify_content || "start",
+      padding: layout.padding ? layout.padding.map(toPx).join("px ") + "px" : undefined,
+    });
   }
+  Object.assign(st, styleToCss(doc, o.style));
   Object.assign(st, rotationStyle(o.rotation, box || [0, 0, 0, 0]));
   const childCw = box ? box[2] : cw;
   const childCh = box ? box[3] : ch;
   const reg = {};
+  const renderChild = (c, i) => {
+    if (!isCellLayout) {
+      return <RenderObject key={c.id || i} doc={doc} o={c} cw={childCw} ch={childCh} reg={reg} active={active} />;
+    }
+    const childBox = (c.box || [0, 0, childCw, childCh]).map(toPx);
+    const cellW = childBox[2] || childCw;
+    const cellH = childBox[3] || childCh;
+    const localChild = { ...c, box: [0, 0, cellW, cellH] };
+    return (
+      <div key={c.id || i} style={{ position: "relative", width: cellW, height: cellH, flex: "0 0 auto" }}>
+        <RenderObject doc={doc} o={localChild} cw={cellW} ch={cellH} reg={reg} active={active} />
+      </div>
+    );
+  };
   return (
-    <div style={st}>
-      {(o.children || []).map((c, i) => (
-        <RenderObject key={c.id || i} doc={doc} o={c} cw={childCw} ch={childCh} reg={reg} active={active} />
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="group" data-layout-kind={layout?.kind || "free"} style={st}>
+      {(o.children || []).map(renderChild)}
+    </div>
+  );
+}
+
+function ImageObj({ doc, o }) {
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const fit = /slice|cover/i.test(o.preserve_aspect_ratio || "") ? "cover" : "contain";
+  const radius = o.clip === "ellipse" ? "50%" : (o.radius != null ? toPx(o.radius) : 0);
+  const src = o.src || o.href || o.url;
+  const asset = src && doc?.defs?.assets?.[src];
+  const resolvedSrc = asset?.data || asset?.url || asset?.src || src;
+  const canLoad = typeof resolvedSrc === "string" && /^(data:|blob:|https?:\/\/)/i.test(resolvedSrc);
+  return (
+    <div style={{
+      position: "absolute", left: x, top: y, width: w, height: h,
+      overflow: "hidden", borderRadius: radius, background: "repeating-linear-gradient(45deg,#f3f3f3 0 8px,#e8e8e8 8px 16px)",
+      opacity: o.opacity != null ? o.opacity : 1, ...rotationStyle(o.rotation, box),
+    }}>
+      {canLoad ? <img src={resolvedSrc} alt={o.alt || o.id || ""} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /> : null}
+      {!canLoad && <div style={{
+        width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
+        textAlign: "center", fontFamily: UI.mono, fontSize: Math.max(9, Math.min(12, h / 5)), color: UI.lo,
+        padding: 8, boxSizing: "border-box",
+      }}>{src || "image"}</div>}
+    </div>
+  );
+}
+
+function textContent(v) {
+  if (v == null) return "";
+  if (typeof v === "string" || typeof v === "number") return String(v);
+  if (Array.isArray(v)) return v.map(textContent).join("");
+  if (typeof v === "object") return textContent(v.text ?? v.content ?? v.label ?? v.tex ?? v.source ?? "");
+  return "";
+}
+
+function textCss(doc, ref, fallback = {}) {
+  const style = { ...fallback, ...resolveTextStyle(doc, ref) };
+  return {
+    fontFamily: resolveFont(doc, style.font),
+    fontWeight: style.weight != null ? style.weight : 400,
+    fontStyle: style.italic ? "italic" : "normal",
+    fontSize: style.size || fallback.size || 16,
+    lineHeight: style.line_height != null ? style.line_height : (fallback.line_height || 1.25),
+    color: style.color ? resolveColor(doc, style.color) : (fallback.color || "#181211"),
+    textAlign: style.align || fallback.align || "left",
+    whiteSpace: style.white_space === "pre" ? "pre" : (style.wrap ? "pre-wrap" : "normal"),
+    ...styleToCss(doc, ref, { text: true }),
+  };
+}
+
+function BulletListObj({ doc, o }) {
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const marker = o.marker || "•";
+  const items = o.items || [];
+  const css = textCss(doc, o.style, { size: 16, line_height: 1.25 });
+  return (
+    <div style={{
+      position: "absolute", left: x, top: y, width: w, height: h,
+      overflow: "hidden", opacity: o.opacity != null ? o.opacity : 1,
+      ...rotationStyle(o.rotation, box),
+    }}>
+      {items.map((item, i) => (
+        <div key={i} style={{ display: "grid", gridTemplateColumns: "1.2em 1fr", gap: toPx(o.gap) || 4, ...css }}>
+          <span style={{ color: resolveColor(doc, o.marker_color || css.color), textAlign: "center" }}>{marker}</span>
+          <span>{textContent(item)}</span>
+        </div>
       ))}
     </div>
   );
+}
+
+function TableView({ doc, o, absolute = true }) {
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const header = o.header || [];
+  const rows = o.rows || [];
+  const columns = o.columns || [];
+  const tableStyle = resolveStyle(doc, o.style);
+  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+  const strokeColor = stroke?.color || resolveColor(doc, "rule") || "#ddd";
+  const strokeWidth = stroke?.width != null ? stroke.width : 1;
+  const strokeCss = `${strokeWidth}px ${stroke?.dash ? "dashed" : "solid"} ${strokeColor}`;
+  const colWidth = (c) => {
+    const width = c?.width;
+    if (width == null) return "1fr";
+    if (typeof width === "number") return `${width}px`;
+    return String(width);
+  };
+  const colTemplate = columns.length
+    ? columns.map(colWidth).join(" ")
+    : `repeat(${Math.max(1, header.length || rows[0]?.length || 1)}, 1fr)`;
+  const pad = o.cell_padding;
+  const cellPad = Array.isArray(pad)
+    ? pad.map(toPx)
+    : (pad != null ? [toPx(pad), toPx(pad), toPx(pad), toPx(pad)] : [5, 8, 5, 8]);
+  const headerFill = tableStyle.header_fill ? resolveColor(doc, tableStyle.header_fill) : null;
+  const headerTextStyle = tableStyle.header_text;
+  const cellTextStyle = tableStyle.cell_text;
+  const outer = absolute ? {
+    position: "absolute", left: x, top: y, width: w || "auto", height: h || "auto",
+    overflow: "hidden", ...styleToCss(doc, o.style), ...rotationStyle(o.rotation, box),
+  } : { width: "100%", ...styleToCss(doc, o.style) };
+  const cellStyle = (cell, isHead, ri, ci) => ({
+    padding: cellPad.map((v) => `${v}px`).join(" "),
+    minHeight: toPx(isHead ? o.header_height : o.row_height) || undefined,
+    borderBottom: strokeCss,
+    borderRight: ci < Math.max(header.length, rows[0]?.length || 0) - 1 ? strokeCss : undefined,
+    background: isHead && headerFill ? headerFill : (!isHead && o.zebra && ri % 2 ? "rgba(0,0,0,.035)" : "transparent"),
+    ...textCss(doc, cell?.style || (isHead ? headerTextStyle || "th" : cellTextStyle || "cell"), {
+      size: tableStyle.size || tableStyle.font_size || 13,
+      line_height: tableStyle.line_height || 1.25,
+      align: columns[ci]?.align,
+    }),
+  });
+  return (
+    <div data-framegraph-table={o.id || ""} style={outer}>
+      <div style={{ display: "grid", gridTemplateColumns: colTemplate, borderTop: strokeCss, borderLeft: strokeCss }}>
+        {header.map((cell, i) => <div key={`h${i}`} data-table-cell={`${o.id || "table"}:h:0:${i}`} style={cellStyle(cell, true, 0, i)}>{textContent(cell)}</div>)}
+        {rows.flatMap((row, ri) => (row || []).map((cell, ci) => (
+          <div key={`${ri}-${ci}`} data-table-cell={`${o.id || "table"}:r:${ri}:${ci}`} style={cellStyle(cell, false, ri, ci)}>{textContent(cell)}</div>
+        )))}
+      </div>
+      {o.caption && <div style={{ marginTop: 6, ...textCss(doc, "caption", { size: 12, color: UI.mid, align: "center" }) }}>{o.caption}</div>}
+    </div>
+  );
+}
+
+function FlowBlock({ doc, block }) {
+  const type = block?.type;
+  if (!block || type === "page_break") return null;
+  if (type === "spacer") return <div style={{ height: toPx(block.size || block.height) || 16 }} />;
+  if (type === "heading") {
+    const tagSize = block.level === 1 ? 24 : block.level === 2 ? 18 : 15;
+    return <div style={{ margin: "10px 0 6px", ...textCss(doc, block.style, { size: tagSize, weight: 700, line_height: 1.2 }) }}>{textContent(block)}</div>;
+  }
+  if (type === "paragraph") {
+    return <p style={{ margin: "0 0 8px", ...textCss(doc, block.style, { size: 14, line_height: 1.45 }) }}>{textContent(block.text ?? block.spans)}</p>;
+  }
+  if (type === "list") {
+    return (
+      <ul style={{ margin: "0 0 10px 1.25em", padding: 0, ...textCss(doc, block.style, { size: 14, line_height: 1.35 }) }}>
+        {(block.items || []).map((item, i) => <li key={i}>{textContent(item)}</li>)}
+      </ul>
+    );
+  }
+  if (type === "bullet_list") {
+    return (
+      <div style={{ margin: "0 0 10px" }}>
+        {(block.items || []).map((item, i) => <div key={i} style={{ ...textCss(doc, block.style, { size: 14, line_height: 1.35 }) }}>• {textContent(item)}</div>)}
+      </div>
+    );
+  }
+  if (type === "table") return <div style={{ margin: "10px 0 12px" }}><TableView doc={doc} o={block} absolute={false} /></div>;
+  if (type === "code") return <pre style={{ margin: "8px 0 12px", padding: 10, background: resolveColor(doc, "code_bg") || "#f4f4f4", overflow: "hidden", ...textCss(doc, block.style, { size: 12, line_height: 1.35 }) }}>{block.source || block.text || ""}</pre>;
+  if (type === "math") return <div style={{ margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }}>{block.tex || block.text}</div>;
+  if (type === "toc") return <div style={{ margin: "8px 0 12px", ...textCss(doc, block.style, { size: 14, weight: 700 }) }}>{block.title || "Contents"}</div>;
+  if (type === "figure") {
+    const size = block.size || [320, 160];
+    return (
+      <figure style={{ margin: "12px auto", width: toPx(size[0]) || "80%" }}>
+        <div style={{ position: "relative", width: toPx(size[0]) || 320, height: toPx(size[1]) || 160 }}>
+          {block.object ? <RenderObject doc={doc} o={block.object} cw={toPx(size[0]) || 320} ch={toPx(size[1]) || 160} reg={{}} active /> : null}
+        </div>
+        {block.caption && <figcaption style={{ marginTop: 6, ...textCss(doc, "caption", { size: 12, color: UI.mid, align: "center" }) }}>{block.caption}</figcaption>}
+      </figure>
+    );
+  }
+  if (type === "block") return <div style={{ margin: "8px 0", padding: 10, borderLeft: `3px solid ${UI.accent}`, ...textCss(doc, block.style, { size: 14 }) }}>{(block.children || []).map((c, i) => <FlowBlock key={i} doc={doc} block={c} />)}</div>;
+  if (type === "bibliography") return <div style={{ marginTop: 12, ...textCss(doc, block.style, { size: 13 }) }}>{block.title || "References"}</div>;
+  return <div style={{ margin: "6px 0", ...textCss(doc, block.style, { size: 13, color: UI.mid }) }}>{textContent(block) || `[${type}]`}</div>;
 }
 
 function RenderObject({ doc, o, cw, ch, reg, active }) {
@@ -439,18 +791,159 @@ function RenderObject({ doc, o, cw, ch, reg, active }) {
     case "text": return <TextObj doc={doc} o={o} active={active} />;
     case "line":
     case "polyline":
+    case "polygon":
     case "path":
-    case "ellipse": return <VectorObj doc={doc} o={o} cw={cw} ch={ch} reg={reg} />;
+    case "ellipse":
+    case "circle": return <VectorObj doc={doc} o={o} cw={cw} ch={ch} reg={reg} />;
     case "icon": return <IconObj doc={doc} o={o} />;
+    case "image": return <ImageObj doc={doc} o={o} />;
+    case "bullet_list": return <BulletListObj doc={doc} o={o} />;
+    case "table": return <TableView doc={doc} o={o} />;
     case "group": return <GroupObj doc={doc} o={o} cw={cw} ch={ch} active={active} />;
-    default: return null;
+    default:
+      if (o.from && o.to) return <VectorObj doc={doc} o={{ ...o, type: "line" }} cw={cw} ch={ch} reg={reg} />;
+      if (o.children) return <GroupObj doc={doc} o={{ ...o, type: "group" }} cw={cw} ch={ch} active={active} />;
+      if (o.box) return <TextObj doc={doc} o={{ ...o, text: textContent(o) || `[${o.type}]`, style: o.style || { size: 12, color: "muted" } }} active={active} />;
+      return null;
   }
+}
+
+function masterOf(doc, page) {
+  return page?.master ? (doc?.defs?.masters || {})[page.master] : null;
+}
+
+function flowRegionOf(doc, page) {
+  const { w, h } = canvasOf(doc, page);
+  const master = masterOf(doc, page);
+  const region = master?.regions?.[0]?.box || [72, 72, Math.max(100, w - 144), Math.max(100, h - 144)];
+  return region.map(toPx);
+}
+
+function estimateTextHeight(doc, styleRef, content, width, fallback = {}) {
+  const st = { ...fallback, ...resolveTextStyle(doc, styleRef) };
+  const size = st.size || fallback.size || 14;
+  const lineHeight = typeof st.line_height === "number" ? st.line_height : parseFloat(st.line_height) || fallback.line_height || 1.35;
+  const avg = /mono/i.test(resolveFont(doc, st.font || "")) ? 0.62 : 0.54;
+  const charsPerLine = Math.max(12, Math.floor(width / Math.max(1, size * avg)));
+  const lines = String(content || "").split(/\n/).reduce((sum, line) => sum + Math.max(1, Math.ceil(line.length / charsPerLine)), 0);
+  return Math.max(size * lineHeight, lines * size * lineHeight);
+}
+
+function estimateFlowBlockHeight(doc, block, width) {
+  const type = block?.type;
+  if (!block || type === "page_break") return 0;
+  if (type === "spacer") return toPx(block.size || block.height) || 16;
+  if (type === "heading") {
+    const tagSize = block.level === 1 ? 24 : block.level === 2 ? 18 : 15;
+    return estimateTextHeight(doc, block.style, textContent(block), width, { size: tagSize, weight: 700, line_height: 1.2 }) + 16;
+  }
+  if (type === "paragraph") return estimateTextHeight(doc, block.style, textContent(block.text ?? block.spans), width, { size: 14, line_height: 1.45 }) + 12;
+  if (type === "list" || type === "bullet_list") {
+    return (block.items || []).reduce((sum, item) => sum + estimateTextHeight(doc, block.style, textContent(item), width - 24, { size: 14, line_height: 1.35 }) + 4, 18);
+  }
+  if (type === "table") {
+    const head = block.header?.length ? 1 : 0;
+    return Math.max(toPx(block.header_height) || 0, 34) * head
+      + (block.rows || []).length * Math.max(toPx(block.row_height) || 0, 38)
+      + (block.caption ? 40 : 0) + 32;
+  }
+  if (type === "code") {
+    const lines = String(block.source || block.text || "").split("\n").length || 1;
+    return Math.max(40, lines * 18 + 28);
+  }
+  if (type === "math") return 48;
+  if (type === "toc") return 42;
+  if (type === "figure") return (toPx(block.size?.[1]) || 160) + (block.caption ? 58 : 30);
+  if (type === "block") {
+    return (block.children || []).reduce((sum, child) => sum + estimateFlowBlockHeight(doc, child, width - 24), 42);
+  }
+  if (type === "bibliography") return 44;
+  return estimateTextHeight(doc, block.style, textContent(block) || `[${type}]`, width, { size: 13, line_height: 1.3 }) + 12;
+}
+
+function paginateFlowPage(doc, page, sourceIndex) {
+  const [, , rw, rh] = flowRegionOf(doc, page);
+  const story = page.story || page.sections || [];
+  const pages = [];
+  let current = [];
+  let used = 0;
+  const pushPage = () => {
+    if (!current.length && pages.length) return;
+    pages.push({
+      ...page,
+      id: `${page.id || `flow_${sourceIndex + 1}`}__p${pages.length + 1}`,
+      source_id: page.id,
+      source_index: sourceIndex,
+      virtual_page: pages.length + 1,
+      story: current,
+      sections: undefined,
+      meta: { ...(page.meta || {}), virtualized_from: page.id || sourceIndex },
+    });
+    current = [];
+    used = 0;
+  };
+  for (const block of story) {
+    if (block?.type === "page_break") {
+      pushPage();
+      continue;
+    }
+    const h = estimateFlowBlockHeight(doc, block, rw);
+    if (current.length && used + h > rh) pushPage();
+    current.push(block);
+    used += Math.min(h, rh);
+  }
+  pushPage();
+  return pages.length ? pages : [{ ...page, source_index: sourceIndex, virtual_page: 1 }];
+}
+
+function expandDocumentPages(doc) {
+  return (doc.pages || []).flatMap((page, i) => (
+    page?.mode === "flow" || page?.story || page?.sections
+      ? paginateFlowPage(doc, page, i)
+      : [{ ...page, source_index: i, virtual_page: 1 }]
+  ));
+}
+
+function FlowPageCanvas({ doc, page, active = true }) {
+  const { w, h } = canvasOf(doc, page);
+  const master = masterOf(doc, page);
+  const region = flowRegionOf(doc, page);
+  const [x, y, rw, rh] = region.map(toPx);
+  const running = [
+    ...(master?.running?.header || []),
+    ...(master?.running?.footer || []),
+    ...(master?.running?.page_number ? [{
+      type: "text",
+      text: "1",
+      style: master.running.page_number,
+      box: [w / 2 - 20, h - 44, 40, 16],
+    }] : []),
+  ];
+  const story = page.story || page.sections || [];
+  return (
+    <div
+      data-framegraph-page={active ? "active" : "thumb"}
+      data-page-mode="flow"
+      data-page-id={page?.id || ""}
+      style={{ position: "relative", width: w, height: h, background: "#fff", overflow: "hidden" }}>
+      {running.map((o, i) => <RenderObject key={o.id || i} doc={doc} o={o} cw={w} ch={h} reg={{}} active={active} />)}
+      <div data-flow-region={active ? "active" : "thumb"} style={{
+        position: "absolute", left: x, top: y, width: rw, height: rh,
+        overflow: "hidden", fontFamily: resolveFont(doc, "serif"), color: resolveColor(doc, "ink"),
+      }}>
+        {story.map((block, i) => <FlowBlock key={block.id || i} doc={doc} block={block} />)}
+      </div>
+    </div>
+  );
 }
 
 /* ============================================================ *
  *  Page canvas — renders all layers at native canvas size
  * ============================================================ */
 function PageCanvas({ doc, page, active = true }) {
+  if (page?.mode === "flow" || page?.story || page?.sections) {
+    return <FlowPageCanvas doc={doc} page={page} active={active} />;
+  }
   const { w, h } = canvasOf(doc, page);
   const reg = useMemo(() => buildRegistry(page), [page]);
   const baseBg = resolveColor(doc, "bg") || "#ffffff";
@@ -460,7 +953,11 @@ function PageCanvas({ doc, page, active = true }) {
   }, [page]);
 
   return (
-    <div style={{ position: "relative", width: w, height: h, background: baseBg, overflow: "hidden" }}>
+    <div
+      data-framegraph-page={active ? "active" : "thumb"}
+      data-page-mode={page?.mode || "page"}
+      data-page-id={page?.id || ""}
+      style={{ position: "relative", width: w, height: h, background: baseBg, overflow: "hidden" }}>
       {layers.map((layer, li) => {
         const objs = (layer.objects || []).map((o, i) => ({ o, i }));
         objs.sort((a, b) => (a.o.z || 0) - (b.o.z || 0) || a.i - b.i);
@@ -833,11 +1330,29 @@ function App() {
   const [err, setErr] = useState(null);
   const fileRef = useRef(null);
 
-  const pages = doc.pages || [];
+  const pages = useMemo(() => expandDocumentPages(doc), [doc]);
   const page = pages[Math.min(idx, pages.length - 1)];
   const total = pages.length;
 
   const go = useCallback((d) => setIdx((i) => Math.max(0, Math.min(total - 1, i + d))), [total]);
+
+  useEffect(() => {
+    window.__FRAMEGRAPH_VIEWER__ = {
+      loadDoc(nextDoc) {
+        if (!nextDoc || !Array.isArray(nextDoc.pages)) throw new Error("No pages array found.");
+        setDoc(nextDoc);
+        setIdx(0);
+        setErr(null);
+      },
+      setPage(nextIdx) {
+        setIdx(Math.max(0, Math.min((nextIdx || 0), Math.max(0, pages.length - 1))));
+      },
+      state() {
+        return { title: doc.title, pageIndex: idx, pageCount: pages.length, sourcePageCount: (doc.pages || []).length };
+      },
+    };
+    return () => { delete window.__FRAMEGRAPH_VIEWER__; };
+  }, [doc, idx, pages]);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -857,13 +1372,12 @@ function App() {
     const r = new FileReader();
     r.onload = () => {
       try {
-        const parsed = JSON.parse(String(r.result));
+        const raw = String(r.result);
+        const parsed = /\.ya?ml$/i.test(f.name) ? yaml.load(raw) : JSON.parse(raw);
         if (!parsed.pages || !Array.isArray(parsed.pages)) throw new Error("No pages array found.");
         setDoc(parsed); setIdx(0); setErr(null);
       } catch (e2) {
-        setErr(/\.ya?ml$/i.test(f.name)
-          ? "YAML isn't supported here — export your FrameGraph as JSON and open that."
-          : "Couldn't parse that file as FrameGraph JSON: " + e2.message);
+        setErr("Couldn't parse that FrameGraph document: " + e2.message);
       }
     };
     r.readAsText(f);
@@ -904,9 +1418,9 @@ function App() {
           className="flex items-center gap-1.5 outline-none"
           style={{ fontFamily: UI.mono, fontSize: 11, color: UI.mid, padding: "5px 10px",
             borderRadius: 5, border: `1px solid ${UI.hair}`, background: UI.panelAlt }}>
-          <Upload size={12} /> JSON
+          <Upload size={12} /> Open
         </button>
-        <input ref={fileRef} type="file" accept=".json,application/json" onChange={openFile} className="hidden" />
+        <input ref={fileRef} type="file" accept=".json,.yaml,.yml,application/json,text/yaml,application/yaml" onChange={openFile} className="hidden" />
         <button onClick={() => setShowInspector((s) => !s)}
           className="outline-none flex items-center justify-center"
           title={showInspector ? "Hide inspector" : "Show inspector"}

@@ -7,6 +7,12 @@
   "main": "framegraph-viewer.jsx",
   "scripts": {
     "build": "esbuild dev/entry.jsx --bundle --format=iife --jsx=automatic --loader:.jsx=jsx --outfile=dev/bundle.js",
+    "test": "node dev/fixture-coverage.mjs",
+    "test:browser": "node dev/fixture-browser-smoke.mjs",
+    "test:layout": "node dev/layout-browser-smoke.mjs",
+    "test:style": "node dev/style-browser-smoke.mjs",
+    "test:table": "node dev/table-browser-smoke.mjs",
+    "test:all": "npm run build && npm test && npm run test:browser && npm run test:style && npm run test:layout && npm run test:table && npm run verify",
     "watch": "npm run build -- --watch",
     "start": "esbuild dev/entry.jsx --bundle --format=iife --jsx=automatic --loader:.jsx=jsx --outfile=dev/bundle.js --servedir=dev --serve=127.0.0.1:8000",
     "verify": "cd dev && node shot.cjs"
@@ -15,6 +21,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "js-yaml": "^5.0.0",
     "lucide-react": "^0.383.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

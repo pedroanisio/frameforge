@@ -1,0 +1,139 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import * as yaml from "js-yaml";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, "../..");
+const FIXTURES = path.join(ROOT, "fixtures");
+
+const PAGE_MODES = new Set(["page", "flow", undefined]);
+const ABSOLUTE_TYPES = new Set([
+  "rect", "text", "line", "polyline", "polygon", "path", "ellipse", "circle",
+  "icon", "image", "bullet_list", "table", "group",
+]);
+const FLOW_TYPES = new Set([
+  "heading", "paragraph", "list", "bullet_list", "table", "code", "math", "toc",
+  "figure", "block", "bibliography", "page_break", "spacer",
+]);
+const STYLE_KEYS = new Set([
+  "align", "background", "background_clip", "background_color", "background_image",
+  "backdrop_filter", "border", "border_bottom", "border_left", "border_radius",
+  "border_right", "border_top", "box_shadow", "box_sizing", "class", "class_",
+  "clip_path", "color", "css", "filter", "font", "font_family", "font_size",
+  "font_style", "font_variant_caps", "font_weight", "hanging_punctuation", "hyphens",
+  "italic", "letter_spacing", "line_height", "margin", "min_font_size",
+  "mix_blend_mode", "opacity", "overflow", "padding", "radius", "size", "stroke",
+  "stroke_dasharray", "stroke_linecap", "stroke_linejoin", "stroke_width",
+  "text_align", "text_decoration", "text_overflow", "text_transform", "text_wrap",
+  "transform", "transform_box", "transform_origin", "v_align", "vertical_align",
+  "weight", "white_space", "wrap",
+]);
+const STYLE_METADATA_KEYS = new Set([
+  "cell_text", "header_fill", "header_text", "meta",
+]);
+
+function files(dir) {
+  const out = [];
+  for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, ent.name);
+    if (ent.isDirectory()) out.push(...files(p));
+    else if (/\.(json|ya?ml)$/i.test(ent.name)) out.push(p);
+  }
+  return out.sort();
+}
+
+function loadDoc(file) {
+  const raw = fs.readFileSync(file, "utf8");
+  return /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
+}
+
+function walkLayerObject(obj, visit) {
+  if (!obj || typeof obj !== "object") return;
+  visit(obj);
+  for (const child of obj.children || []) walkLayerObject(child, visit);
+}
+
+function visitStyleKeys(style, visit) {
+  if (!style || typeof style !== "object" || Array.isArray(style)) return;
+  for (const key of Object.keys(style)) visit(key);
+}
+
+function walkFlowBlock(block, visit) {
+  if (!block || typeof block !== "object") return;
+  visit(block);
+  for (const child of block.children || block.content || []) walkFlowBlock(child, visit);
+  if (block.object) walkLayerObject(block.object, visit);
+  for (const item of block.items || []) walkFlowBlock(item, visit);
+}
+
+const docs = files(FIXTURES).map((file) => ({ file, doc: loadDoc(file) }))
+  .filter(({ doc }) => doc && doc.dsl === "FrameGraph");
+
+const failures = [];
+const objectTypes = new Set();
+const styleKeys = new Set();
+let pageCount = 0;
+
+for (const { file, doc } of docs) {
+  const tokens = doc.defs?.tokens || {};
+  for (const group of ["text_styles", "styles", "stroke_styles"]) {
+    for (const [name, style] of Object.entries(tokens[group] || {})) {
+      visitStyleKeys(style, (key) => {
+        styleKeys.add(key);
+        if (!STYLE_KEYS.has(key) && !STYLE_METADATA_KEYS.has(key)) {
+          failures.push(`${path.relative(ROOT, file)} ${group}.${name}: no style render policy for ${key}`);
+        }
+      });
+    }
+  }
+  if (!Array.isArray(doc.pages) || doc.pages.length === 0) {
+    failures.push(`${path.relative(ROOT, file)}: missing pages[]`);
+    continue;
+  }
+  for (const [pageIndex, page] of doc.pages.entries()) {
+    pageCount += 1;
+    if (!PAGE_MODES.has(page.mode)) {
+      failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: unsupported page mode ${page.mode}`);
+    }
+    for (const layer of page.layers || []) {
+      for (const obj of layer.objects || []) {
+        walkLayerObject(obj, (o) => {
+          if (!o.type) return;
+          visitStyleKeys(o.style, (key) => {
+            styleKeys.add(key);
+            if (!STYLE_KEYS.has(key) && !STYLE_METADATA_KEYS.has(key)) {
+              failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: no inline style render policy for ${key}`);
+            }
+          });
+          objectTypes.add(o.type);
+          const covered = ABSOLUTE_TYPES.has(o.type) || o.box || (o.from && o.to) || o.children;
+          if (!covered) failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: no absolute render policy for ${o.type}`);
+        });
+      }
+    }
+    for (const block of page.story || page.sections || []) {
+      walkFlowBlock(block, (o) => {
+        if (!o.type) return;
+        visitStyleKeys(o.style, (key) => {
+          styleKeys.add(key);
+          if (!STYLE_KEYS.has(key) && !STYLE_METADATA_KEYS.has(key)) {
+            failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: no inline flow style render policy for ${key}`);
+          }
+        });
+        objectTypes.add(o.type);
+        const covered = FLOW_TYPES.has(o.type) || ABSOLUTE_TYPES.has(o.type) || o.box || (o.from && o.to) || o.children;
+        if (!covered) failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: no flow render policy for ${o.type}`);
+      });
+    }
+  }
+}
+
+if (docs.length !== 18) failures.push(`expected 18 FrameGraph fixture docs, found ${docs.length}`);
+
+if (failures.length) {
+  console.error(failures.join("\n"));
+  process.exit(1);
+}
+
+console.log(`Fixture coverage: ${docs.length} docs, ${pageCount} page records, ${objectTypes.size} object/block types, ${styleKeys.size} style keys.`);
