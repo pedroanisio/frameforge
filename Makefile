@@ -9,7 +9,7 @@ UV ?= uv
 FIXTURES_YAML := fixtures/*.fg.yaml
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render check schema-check test validate overflow lint clean viewer-build viewer-test
+.PHONY: help sync schema render check schema-check test validate overflow status status-check lint clean viewer-build viewer-test
 
 help:  ## list targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort \
@@ -24,7 +24,7 @@ schema:  ## regenerate schema/framegraph-v2.schema.json from the models
 render:  ## render every fixture to out/render/ (+ contact sheet)
 	$(UV) run python tooling/render_fixtures.py --all
 
-check: schema-check test validate overflow  ## run every gate (what CI enforces)
+check: schema-check test validate overflow status-check  ## run every gate (what CI enforces)
 
 schema-check:  ## fail if the committed schema drifted from the models
 	$(UV) run python schema/build_schema.py --check
@@ -37,6 +37,12 @@ validate:  ## structurally validate the curated (passing) fixtures
 
 overflow:  ## assert no text overflows its box (SVG proxy)
 	$(UV) run python tooling/render_fixtures.py --all --check-overflow
+
+status:  ## regenerate FIXTURE-STATUS.md from the validator
+	$(UV) run python tooling/gen_status.py
+
+status-check:  ## fail if FIXTURE-STATUS.md drifted from the validator
+	$(UV) run python tooling/gen_status.py --check
 
 lint:  ## ruff (non-gating; fetched ephemerally)
 	-$(UV)x ruff check .

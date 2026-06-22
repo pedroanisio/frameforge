@@ -37,6 +37,9 @@ jobs:
       - name: Text-fit overflow check (no text spills its box)
         run: uv run python tooling/render_fixtures.py --all --check-overflow
 
+      - name: Fixture-status table in sync with the validator
+        run: uv run python tooling/gen_status.py --check
+
       - name: Lint (non-blocking)
         continue-on-error: true
         run: uvx ruff check .
