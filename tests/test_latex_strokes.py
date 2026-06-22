@@ -42,3 +42,28 @@ def test_named_stroke_linejoin_maps_all_supported_values():
     assert "line join=miter" in miter
     assert "line join=round" in rounded
     assert "-- cycle" in miter and "-- cycle" in rounded
+
+
+def test_dashoffset_maps_to_tikz_dash_phase():
+    tex = _fig().render({
+        "type": "line",
+        "from": [0, 0],
+        "to": [60, 0],
+        "stroke": "ink",
+        "stroke_style": {"stroke_width": 2, "stroke_dasharray": [10, 8], "stroke_dashoffset": 9},
+    })
+
+    assert "dash pattern=on 10pt off 8pt" in tex
+    assert "dash phase=9pt" in tex
+
+
+def test_stroke_miterlimit_maps_to_tikz_miter_limit():
+    tex = _fig().render({
+        "type": "polyline",
+        "points": [[0, 30], [20, 0], [40, 30]],
+        "stroke": "ink",
+        "stroke_style": {"stroke_width": 6, "stroke_linejoin": "miter", "stroke_miterlimit": 6},
+    })
+
+    assert "line join=miter" in tex
+    assert "miter limit=6" in tex

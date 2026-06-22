@@ -364,12 +364,18 @@ class FigureTikz:
             for i, d in enumerate(seq[1:], start=1):
                 parts.append(("off " if i % 2 else "on ") + fnum(d) + "pt")
             opts.append("dash pattern=" + " ".join(parts))
+            dashoffset = bundle.get("stroke_dashoffset")
+            if dashoffset is not None:
+                opts.append(f"dash phase={fnum(num(dashoffset, 0))}pt")
         cap = bundle.get("stroke_linecap")
         if cap in ("round", "butt", "square"):
             opts.append("line cap=" + ("rect" if cap == "square" else cap))
         join = bundle.get("stroke_linejoin")
         if join in ("miter", "round", "bevel"):
             opts.append("line join=" + join)
+        miter = bundle.get("stroke_miterlimit")
+        if miter is not None:
+            opts.append(f"miter limit={fnum(num(miter, 4))}")
         if tip:
             opts.insert(0, tip)
         return opts
