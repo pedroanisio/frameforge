@@ -27056,15 +27056,26 @@ ${exception.mark.snippet}`;
       return `${inset}${x} ${y} ${blur}${spread} ${color}`;
     }).join(", ");
   }
-  function cssFilter(fn) {
+  function cssFilter(doc, fn) {
     if (!fn || fn === "none") return fn;
     const list = Array.isArray(fn) ? fn : [fn];
     return list.map((f) => {
       if (typeof f === "string") return f;
       const name = f.fn || f.kind || f.name;
-      const value = f.value ?? f.amount ?? "";
-      return name ? `${name}(${value})` : "";
+      if (!name) return "";
+      if (name === "drop_shadow") {
+        const shadow = cssShadow(doc, f.shadow);
+        return shadow ? `drop-shadow(${shadow})` : "";
+      }
+      const cssName = name === "hue_rotate" ? "hue-rotate" : name.replaceAll("_", "-");
+      const value = f.value ?? f.amount;
+      return value != null ? `${cssName}(${cssFilterArg(name, value)})` : "";
     }).filter(Boolean).join(" ");
+  }
+  function cssFilterArg(name, value) {
+    if (name === "blur") return cssLength(value);
+    if (name === "hue_rotate") return cssAngle(value);
+    return String(value);
   }
   function cssPoint(point) {
     return Array.isArray(point) ? point.map(cssLength).join(" ") : point;
@@ -27095,6 +27106,9 @@ ${exception.mark.snippet}`;
     }
     return shape ? `${shape}()` : void 0;
   }
+  function cssAngle(value) {
+    return typeof value === "number" ? `${value}deg` : String(value);
+  }
   function cssTransform(tx) {
     if (!tx || tx === "none") return tx;
     if (typeof tx === "string") return tx;
@@ -27103,7 +27117,17 @@ ${exception.mark.snippet}`;
       if (typeof t === "string") return t;
       const fn = t.fn || t.kind || t.name;
       const args = Array.isArray(t.args) ? t.args : [t.value ?? t.x, t.y].filter((x) => x != null);
-      return fn ? `${fn}(${args.join(", ")})` : "";
+      if (!fn) return "";
+      if (fn === "translate_x") return `translateX(${args.map(cssLength).join(", ")})`;
+      if (fn === "translate_y") return `translateY(${args.map(cssLength).join(", ")})`;
+      if (fn === "scale_x") return `scaleX(${args.join(", ")})`;
+      if (fn === "scale_y") return `scaleY(${args.join(", ")})`;
+      if (fn === "skew_x") return `skewX(${args.map(cssAngle).join(", ")})`;
+      if (fn === "skew_y") return `skewY(${args.map(cssAngle).join(", ")})`;
+      if (fn === "rotate") return `rotate(${args.map(cssAngle).join(", ")})`;
+      const cssName = fn.replaceAll("_", "-");
+      const vals = fn === "translate" ? args.map(cssLength) : fn === "skew" ? args.map(cssAngle) : args;
+      return `${cssName}(${vals.join(", ")})`;
     }).filter(Boolean).join(" ");
   }
   function styleToCss(doc, ref, opts = {}) {
@@ -27115,8 +27139,8 @@ ${exception.mark.snippet}`;
     if (st.mix_blend_mode) css.mixBlendMode = st.mix_blend_mode;
     if (st.isolation) css.isolation = st.isolation;
     if (st.box_shadow) css.boxShadow = cssShadow(doc, st.box_shadow);
-    if (st.filter) css.filter = cssFilter(st.filter);
-    if (st.backdrop_filter) css.backdropFilter = cssFilter(st.backdrop_filter);
+    if (st.filter) css.filter = cssFilter(doc, st.filter);
+    if (st.backdrop_filter) css.backdropFilter = cssFilter(doc, st.backdrop_filter);
     if (st.transform) css.transform = cssTransform(st.transform);
     if (st.transform_origin) css.transformOrigin = Array.isArray(st.transform_origin) ? st.transform_origin.map(cssLength).join(" ") : st.transform_origin;
     if (st.transform_box) css.transformBox = st.transform_box;
