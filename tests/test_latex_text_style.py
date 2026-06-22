@@ -272,6 +272,31 @@ def test_text_indent_maps_to_initial_hspace():
     assert "{\\hspace*{12pt}indented}" in tex
 
 
+def test_vertical_align_places_text_within_box():
+    top = _fig({"label": {"size": 10, "vertical_align": "top"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 40],
+        "text": "Top",
+        "style": "label",
+    })
+    middle = _fig({"label": {"size": 10, "vertical_align": "middle"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 40],
+        "text": "Middle",
+        "style": "label",
+    })
+    bottom = _fig({"label": {"size": 10, "vertical_align": "bottom"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 40],
+        "text": "Bottom",
+        "style": "label",
+    })
+
+    assert "at (10,25) {Top}" in top
+    assert "at (10,40) {Middle}" in middle
+    assert "at (10,55) {Bottom}" in bottom
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",

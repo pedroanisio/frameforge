@@ -1094,13 +1094,23 @@ class FigureTikz:
             )
         return "".join(out)
 
+    @staticmethod
+    def _text_y(st, y, h):
+        size = st.get("size", 12) or 12
+        valign = str(st.get("valign") or "").strip().lower()
+        if valign in ("top", "text-top", "super"):
+            return y + size / 2
+        if valign in ("bottom", "text-bottom", "sub"):
+            return y + max(0, h - size / 2)
+        return y + h / 2
+
     def _draw_text_spans(self, o, x, y, w, h, base_st, anchor, align):
         spans = [sp for sp in (o.get("spans") or []) if isinstance(sp, (str, dict))]
         if not spans:
             return ""
         start_x = x + w / 2 if anchor == "center" else x + w if anchor == "east" else x
         cursor = start_x
-        ay = y + h / 2
+        ay = self._text_y(base_st, y, h)
         out = []
         for sp in spans:
             text = sp if isinstance(sp, str) else sp.get("text", "")
@@ -1141,7 +1151,7 @@ class FigureTikz:
             ax, anchor, talign = x + w, "east", "flush right"
         else:
             ax, anchor, talign = x, "west", "flush left"
-        ay = y + h / 2
+        ay = self._text_y(st, y, h)
         if isinstance(o.get("spans"), list):
             span_body = self._draw_text_spans(o, x, y, w, h, st, anchor, talign)
             if span_body:
