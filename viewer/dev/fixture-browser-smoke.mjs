@@ -76,6 +76,7 @@ for (const { rel, doc } of docs) {
   }
   renderedPages += state.pageCount;
   expandedPages += Math.max(0, state.pageCount - sourcePages.length);
+  const mathAudit = { katexCount: 0, rawTex: false };
   for (let i = 0; i < state.pageCount; i += 1) {
     await page.evaluate((idx) => window.__FRAMEGRAPH_VIEWER__.setPage(idx), i);
     await page.waitForFunction(
@@ -95,8 +96,12 @@ for (const { rel, doc } of docs) {
         id: el.getAttribute("data-page-id"),
         flowScrollHeight: flowRegion ? flowRegion.scrollHeight : 0,
         flowClientHeight: flowRegion ? flowRegion.clientHeight : 0,
+        katexCount: el.querySelectorAll(".katex").length,
+        rawTex: /\\(?:left|right|tfrac|frac|sqrt|hbar)\b/.test(el.textContent || ""),
       };
     });
+    mathAudit.katexCount += result.katexCount;
+    mathAudit.rawTex = mathAudit.rawTex || result.rawTex;
     if (result.width <= 0 || result.height <= 0) {
       failures.push(`${rel} rendered page ${i + 1}: active canvas has invalid size ${result.width}x${result.height}`);
     }
@@ -106,6 +111,14 @@ for (const { rel, doc } of docs) {
     }
     if (result.mode === "flow" && result.flowScrollHeight > result.flowClientHeight + 2) {
       failures.push(`${rel} rendered page ${i + 1}: flow region clips vertically (${result.flowScrollHeight} > ${result.flowClientHeight})`);
+    }
+  }
+  if (rel === path.join("fixtures", "standard-model.fg.yaml")) {
+    if (mathAudit.katexCount < 1) {
+      failures.push(`${rel}: expected KaTeX-rendered math but found none`);
+    }
+    if (mathAudit.rawTex) {
+      failures.push(`${rel}: raw TeX command leaked into rendered viewer text`);
     }
   }
 }

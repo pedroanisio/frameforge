@@ -2,6 +2,7 @@ import React, {
   useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback,
 } from "react";
 import * as yaml from "js-yaml";
+import katex from "katex";
 import {
   ChevronLeft, ChevronRight, Maximize2, Crosshair, Upload, X,
   Palette, Layers, Type as TypeIcon, Info,
@@ -643,7 +644,7 @@ function TextObj({ doc, o, active }) {
             lineHeight: ss.line_height || undefined,
             textDecoration: ss.text_decoration || undefined,
             textTransform: ss.text_transform || undefined,
-          }}>{textContent(sp)}</span>
+          }}>{inlineNodes(sp)}</span>
         );
       })
     : (o.text != null ? o.text : (o.field != null ? `{${typeof o.field === "string" ? o.field : "field"}}` : ""));
@@ -1266,6 +1267,50 @@ function textContent(v) {
   return "";
 }
 
+function katexMarkup(tex, displayMode = false) {
+  const source = String(tex || "");
+  try {
+    return katex.renderToString(source, {
+      displayMode,
+      throwOnError: false,
+      strict: false,
+      trust: false,
+      output: "html",
+    });
+  } catch {
+    return null;
+  }
+}
+
+function MathInline({ tex }) {
+  const html = katexMarkup(tex, false);
+  if (!html) return <span className="fg-math-fallback">{mathText(tex)}</span>;
+  return <span className="fg-math fg-math-inline" dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+function MathDisplay({ tex }) {
+  const html = katexMarkup(tex, true);
+  if (!html) return <div className="fg-math-fallback">{mathText(tex)}</div>;
+  return <div className="fg-math fg-math-display" dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+function inlineNodes(v) {
+  if (v == null) return "";
+  if (typeof v === "string" || typeof v === "number") return String(v);
+  if (Array.isArray(v)) {
+    return v.map((item, i) => <React.Fragment key={i}>{inlineNodes(item)}</React.Fragment>);
+  }
+  if (typeof v === "object") {
+    if (v.kind === "math") return <MathInline tex={v.tex || v.mathml || v.text} />;
+    if (v.kind === "code") return <code>{v.text}</code>;
+    if (v.kind === "link") return <a href={v.href} title={v.title || undefined}>{inlineNodes(v.content)}</a>;
+    if (v.text != null) return v.text;
+    if (v.content != null) return inlineNodes(v.content);
+    if (v.tex != null) return <MathInline tex={v.tex} />;
+  }
+  return textContent(v);
+}
+
 function mathText(tex) {
   let s = String(tex || "");
   const replacements = [
@@ -1409,7 +1454,7 @@ function FlowBlock({ doc, block }) {
     return <div style={{ margin: "10px 0 6px", ...textCss(doc, block.style, { size: tagSize, weight: 700, line_height: 1.2 }) }}>{textContent(block)}</div>;
   }
   if (type === "paragraph") {
-    return <p style={{ margin: "0 0 8px", ...textCss(doc, block.style, { size: 14, line_height: 1.45 }) }}>{textContent(block.text ?? block.spans)}</p>;
+    return <p style={{ margin: "0 0 8px", ...textCss(doc, block.style, { size: 14, line_height: 1.45 }) }}>{inlineNodes(block.text ?? block.spans)}</p>;
   }
   if (type === "list") {
     return (
@@ -1427,7 +1472,7 @@ function FlowBlock({ doc, block }) {
   }
   if (type === "table") return <div style={{ margin: "10px 0 12px" }}><TableView doc={doc} o={block} absolute={false} /></div>;
   if (type === "code") return <pre style={{ margin: "8px 0 12px", padding: 10, background: resolveColor(doc, "code_bg") || "#f4f4f4", overflow: "hidden", ...textCss(doc, block.style, { size: 12, line_height: 1.35 }) }}>{block.source || block.text || ""}</pre>;
-  if (type === "math") return <div style={{ margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }}>{mathText(block.tex || block.text)}</div>;
+  if (type === "math") return <div data-framegraph-type="math" style={{ margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }}><MathDisplay tex={block.tex || block.mathml || block.text} /></div>;
   if (type === "toc") return <div style={{ margin: "8px 0 12px", ...textCss(doc, block.style, { size: 14, weight: 700 }) }}>{block.title || "Contents"}</div>;
   if (type === "figure") {
     const size = block.size || [320, 160];
