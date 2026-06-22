@@ -154,6 +154,22 @@ def test_images_and_figures_accept_accessibility_text():
     }))
 
 
+def test_page_accepts_logical_reading_order():
+    fg.Document.model_validate({
+        "dsl": "FrameGraph",
+        "version": "2.2.0",
+        "pages": [{
+            "mode": "page",
+            "id": "p",
+            "reading_order": ["title", "chart"],
+            "layers": [{"id": "l", "objects": [
+                {"type": "image", "id": "chart", "src": "chart.png", "box": [0, 0, 100, 80], "alt": "Revenue chart"},
+                {"type": "text", "id": "title", "box": [0, 90, 100, 20], "text": "Revenue"},
+            ]}],
+        }],
+    })
+
+
 @pytest.mark.parametrize("kind,inline", sorted(INLINE_SAMPLES.items()))
 def test_inline_validates(kind, inline):
     fg.Document.model_validate(_page_doc([{"type": "text", "box": [0, 0, 50, 10], "spans": [inline]}]))

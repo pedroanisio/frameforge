@@ -27351,6 +27351,16 @@ ${exception.mark.snippet}`;
     (page.layers || []).forEach((l) => (l.objects || []).forEach(visit));
     return reg;
   }
+  function buildObjectIndex(page) {
+    const index = {};
+    const visit = (o) => {
+      if (!o || typeof o !== "object") return;
+      if (o.id && index[o.id] == null) index[o.id] = o;
+      (o.children || []).forEach(visit);
+    };
+    (page.layers || []).forEach((l) => (l.objects || []).forEach(visit));
+    return index;
+  }
   function anchorPoint(a, reg) {
     if (Array.isArray(a)) return [toPx(a[0]), toPx(a[1])];
     if (a && typeof a === "object" && a.ref && reg[a.ref]) {
@@ -27753,6 +27763,17 @@ ${exception.mark.snippet}`;
     if (typeof v === "object") return textContent(v.text ?? v.content ?? v.label ?? v.tex ?? v.source ?? "");
     return "";
   }
+  function readingText(o) {
+    if (!o || o.decorative) return "";
+    const direct = o.actual_text ?? o.alt ?? o.text ?? o.title ?? o.label ?? o.caption ?? o.tex ?? o.source;
+    const parts = [];
+    if (direct != null) parts.push(textContent(direct));
+    if (o.spans) parts.push(textContent(o.spans));
+    if (Array.isArray(o.header)) parts.push(textContent(o.header));
+    if (Array.isArray(o.rows)) parts.push(textContent(o.rows));
+    if (Array.isArray(o.children)) parts.push(...o.children.map(readingText));
+    return parts.map((part) => String(part).trim()).filter(Boolean).join(" ");
+  }
   function textCss(doc, ref, fallback = {}) {
     const style = { ...fallback, ...resolveTextStyle(doc, ref) };
     return {
@@ -28032,33 +28053,54 @@ ${exception.mark.snippet}`;
       }
     );
   }
+  function ReadingOrder({ page, objectIndex }) {
+    const ids = Array.isArray(page?.reading_order) ? page.reading_order : [];
+    const items = ids.map((id) => ({ id, text: readingText(objectIndex[id]) })).filter((item) => item.text);
+    if (!items.length) return null;
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", { "data-framegraph-reading-order": page.id || "", style: {
+      position: "absolute",
+      width: 1,
+      height: 1,
+      margin: -1,
+      padding: 0,
+      overflow: "hidden",
+      clip: "rect(0 0 0 0)",
+      clipPath: "inset(50%)",
+      whiteSpace: "nowrap",
+      border: 0
+    }, children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { "data-reading-object": item.id, children: item.text }, item.id)) });
+  }
   function PageCanvas({ doc, page, active = true }) {
     if (page?.mode === "flow" || page?.story || page?.sections) {
       return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FlowPageCanvas, { doc, page, active });
     }
     const { w, h } = canvasOf(doc, page);
     const reg = (0, import_react3.useMemo)(() => buildRegistry(page), [page]);
+    const objectIndex = (0, import_react3.useMemo)(() => buildObjectIndex(page), [page]);
     const baseBg = resolveColor(doc, "bg") || "#ffffff";
     const layers = (0, import_react3.useMemo)(() => {
       const ls = (page.layers || []).map((l, i) => ({ l, i }));
       return ls.sort((a, b) => (a.l.z || 0) - (b.l.z || 0) || a.i - b.i).map((x) => x.l);
     }, [page]);
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
       "div",
       {
         "data-framegraph-page": active ? "active" : "thumb",
         "data-page-mode": page?.mode || "page",
         "data-page-id": page?.id || "",
         style: { position: "relative", width: w, height: h, background: baseBg, overflow: "hidden" },
-        children: layers.map((layer, li) => {
-          const objs = (layer.objects || []).map((o, i) => ({ o, i }));
-          objs.sort((a, b) => (a.o.z || 0) - (b.o.z || 0) || a.i - b.i);
-          return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-            position: "absolute",
-            inset: 0,
-            opacity: layer.opacity != null ? layer.opacity : 1
-          }, children: objs.map(({ o }, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RenderObject, { doc, o, cw: w, ch: h, reg, active }, o.id || i)) }, layer.id || li);
-        })
+        children: [
+          layers.map((layer, li) => {
+            const objs = (layer.objects || []).map((o, i) => ({ o, i }));
+            objs.sort((a, b) => (a.o.z || 0) - (b.o.z || 0) || a.i - b.i);
+            return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              position: "absolute",
+              inset: 0,
+              opacity: layer.opacity != null ? layer.opacity : 1
+            }, children: objs.map(({ o }, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RenderObject, { doc, o, cw: w, ch: h, reg, active }, o.id || i)) }, layer.id || li);
+          }),
+          active && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ReadingOrder, { page, objectIndex })
+        ]
       }
     );
   }

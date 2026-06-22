@@ -103,6 +103,7 @@ Page =
       [ "canvas" , ":" , CanvasSpec ] ,
       [ "rendering" , ":" , RenderingContract ] ,
       [ "layers"    , ":" , "[" , Layer , { "," , Layer } , "]" ] ,
+      [ "reading_order" , ":" , "[" , string , { "," , string } , "]" ] ,
       [ "semantic"  , ":" , Semantic ] ,
       [ "links"     , ":" , "[" , PageLink , { "," , PageLink } , "]" ] ,
       [ "notes"     , ":" , string ] ,
@@ -166,7 +167,7 @@ PagePreset  = "A3" | "A4" | "A5" | "Letter" | "Legal" | "Tabloid"   (* +P2: scre
             | "deck-16x9" | "deck-4x3" | "square"
             | "phone" | "tablet" | "web" ;   (* +P2: px screen presets — see spec §4 *)
 Orientation = "portrait" | "landscape" ;
-Units       = "pt" | "px" | "mm" | "in" ;
+Units       = "pt" | "px" | "mm" | "in" | "cm" ;
 
 
 (* ═══ 4. Flow vocabulary (the story for FlowSections) ═════════════════ *)
@@ -424,6 +425,8 @@ TextObject =
 ImageObject =
     "{" , "type" , ":" , "image" ,
       "src" , ":" , string ,         (* required; literal path OR a key in defs.assets — §3.5 *)
+      [ "alt"         , ":" , string ] ,   (* accessibility: alternative text *)
+      [ "actual_text" , ":" , string ] ,   (* accessibility: PDF/UA ActualText *)
       [ "placeholder" , ":" , boolean ] ,
       [ "preserve_aspect_ratio" , ":" , boolean ] ,
       [ "clip"   , ":" , ClipSpec ] ,

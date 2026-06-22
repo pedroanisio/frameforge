@@ -951,6 +951,7 @@ class Page(FG):
     canvas: Optional[CanvasSpec] = None
     rendering: Optional[RenderingContract] = None
     layers: Optional[list[Layer]] = None
+    reading_order: Optional[list[str]] = None
     semantic: Optional[dict] = None
     links: Optional[list[PageLink]] = None
     notes: Optional[str] = None

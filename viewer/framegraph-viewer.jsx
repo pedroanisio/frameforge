@@ -489,6 +489,16 @@ function buildRegistry(page) {
   (page.layers || []).forEach((l) => (l.objects || []).forEach(visit));
   return reg;
 }
+function buildObjectIndex(page) {
+  const index = {};
+  const visit = (o) => {
+    if (!o || typeof o !== "object") return;
+    if (o.id && index[o.id] == null) index[o.id] = o;
+    (o.children || []).forEach(visit);
+  };
+  (page.layers || []).forEach((l) => (l.objects || []).forEach(visit));
+  return index;
+}
 function anchorPoint(a, reg) {
   if (Array.isArray(a)) return [toPx(a[0]), toPx(a[1])];
   if (a && typeof a === "object" && a.ref && reg[a.ref]) {
@@ -861,6 +871,18 @@ function textContent(v) {
   return "";
 }
 
+function readingText(o) {
+  if (!o || o.decorative) return "";
+  const direct = o.actual_text ?? o.alt ?? o.text ?? o.title ?? o.label ?? o.caption ?? o.tex ?? o.source;
+  const parts = [];
+  if (direct != null) parts.push(textContent(direct));
+  if (o.spans) parts.push(textContent(o.spans));
+  if (Array.isArray(o.header)) parts.push(textContent(o.header));
+  if (Array.isArray(o.rows)) parts.push(textContent(o.rows));
+  if (Array.isArray(o.children)) parts.push(...o.children.map(readingText));
+  return parts.map((part) => String(part).trim()).filter(Boolean).join(" ");
+}
+
 function textCss(doc, ref, fallback = {}) {
   const style = { ...fallback, ...resolveTextStyle(doc, ref) };
   return {
@@ -1153,6 +1175,23 @@ function FlowPageCanvas({ doc, page, active = true }) {
   );
 }
 
+function ReadingOrder({ page, objectIndex }) {
+  const ids = Array.isArray(page?.reading_order) ? page.reading_order : [];
+  const items = ids
+    .map((id) => ({ id, text: readingText(objectIndex[id]) }))
+    .filter((item) => item.text);
+  if (!items.length) return null;
+  return (
+    <ol data-framegraph-reading-order={page.id || ""} style={{
+      position: "absolute", width: 1, height: 1, margin: -1, padding: 0,
+      overflow: "hidden", clip: "rect(0 0 0 0)", clipPath: "inset(50%)",
+      whiteSpace: "nowrap", border: 0,
+    }}>
+      {items.map((item) => <li key={item.id} data-reading-object={item.id}>{item.text}</li>)}
+    </ol>
+  );
+}
+
 /* ============================================================ *
  *  Page canvas — renders all layers at native canvas size
  * ============================================================ */
@@ -1162,6 +1201,7 @@ function PageCanvas({ doc, page, active = true }) {
   }
   const { w, h } = canvasOf(doc, page);
   const reg = useMemo(() => buildRegistry(page), [page]);
+  const objectIndex = useMemo(() => buildObjectIndex(page), [page]);
   const baseBg = resolveColor(doc, "bg") || "#ffffff";
   const layers = useMemo(() => {
     const ls = (page.layers || []).map((l, i) => ({ l, i }));
@@ -1186,6 +1226,7 @@ function PageCanvas({ doc, page, active = true }) {
           </div>
         );
       })}
+      {active && <ReadingOrder page={page} objectIndex={objectIndex} />}
     </div>
   );
 }

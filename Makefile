@@ -9,7 +9,7 @@ UV ?= uv
 FIXTURES_YAML := fixtures/*.fg.yaml
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render pdf check schema-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test
+.PHONY: help sync schema render pdf check schema-check grammar-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test
 
 help:  ## list targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort \
@@ -28,10 +28,13 @@ pdf:  ## transpile a PDF -> FrameGraph YAML (pulls the `pdf` group): make pdf PD
 	@test -n "$(PDF)" || { echo "usage: make pdf PDF=<input.pdf> [OUT=<out.fg.yaml>] [ARGS='--text-mode spans']"; exit 2; }
 	$(UV) run --group pdf python tooling/pdf_to_framegraph_yml.py "$(PDF)" "$(if $(OUT),$(OUT),$(PDF:.pdf=.fg.yaml))" $(ARGS)
 
-check: schema-check test validate overflow status-check docs-check  ## run every local gate
+check: schema-check grammar-check test validate overflow status-check docs-check  ## run every local gate
 
 schema-check:  ## fail if the committed schema drifted from the models
 	$(UV) run python schema/build_schema.py --check
+
+grammar-check:  ## fail if the EBNF grammar drifted from the models (core profile)
+	$(UV) run python tooling/check_grammar_sync.py
 
 test:  ## HEAD assertion suite
 	$(UV) run pytest -q

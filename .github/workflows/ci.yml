@@ -28,6 +28,9 @@ jobs:
       - name: Schema is generated and in sync with the models
         run: uv run python schema/build_schema.py --check
 
+      - name: Grammar (EBNF) in sync with the models (core profile)
+        run: uv run python tooling/check_grammar_sync.py
+
       - name: HEAD assertion suite
         run: uv run pytest -q
 

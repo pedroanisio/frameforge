@@ -98,6 +98,7 @@ const doc = {
     mode: "page",
     id: "p1",
     canvas: { size: [400, 240] },
+    reading_order: ["styled_image", "styled_text", "styled_spans"],
     layers: [{ id: "l1", objects: [
       { type: "rect", id: "styled_rect", box: [40, 40, 180, 80], style: "fx" },
       { type: "text", id: "styled_text", box: [40, 140, 260, 44], style: "display", text: "styled text" },
@@ -134,6 +135,8 @@ const styles = await page.evaluate(() => {
   const spanStyle = getComputedStyle(span);
   const filledPath = document.querySelector('[data-framegraph-vector="filled_path"]');
   const fadedLine = document.querySelector('[data-framegraph-vector="faded_line"]');
+  const readingItems = Array.from(document.querySelectorAll('[data-framegraph-reading-order="p1"] [data-reading-object]'))
+    .map((node) => `${node.getAttribute("data-reading-object")}:${node.textContent.trim()}`);
   return {
     rectBg: rect.backgroundColor,
     rectShadow: rect.boxShadow,
@@ -203,6 +206,7 @@ const styles = await page.evaluate(() => {
     fadedLineStroke: fadedLine.getAttribute("stroke"),
     fadedLineStrokeWidth: fadedLine.getAttribute("stroke-width"),
     fadedLineStrokeOpacity: fadedLine.getAttribute("stroke-opacity"),
+    readingItems,
   };
 });
 
@@ -275,6 +279,7 @@ const checks = [
   ["legacy stroke vector color", styles.fadedLineStroke === "#123456" || styles.fadedLineStroke === "rgb(18, 52, 86)"],
   ["legacy stroke vector width", styles.fadedLineStrokeWidth === "4"],
   ["vector stroke_opacity", styles.fadedLineStrokeOpacity === "0.35"],
+  ["page reading_order", styles.readingItems.join("|") === "styled_image:Transparent avatar|styled_text:styled text|styled_spans:Prefix styled suffix"],
 ];
 
 for (const [name, ok] of checks) if (!ok) failures.push(`${name} not reflected in computed style: ${JSON.stringify(styles)}`);

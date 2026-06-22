@@ -7166,6 +7166,21 @@
           "default": null,
           "title": "Layers"
         },
+        "reading_order": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reading Order"
+        },
         "semantic": {
           "anyOf": [
             {
