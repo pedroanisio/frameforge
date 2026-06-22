@@ -343,8 +343,35 @@ class SvgPainter:
     def opacity_group(self, inner, opacity):
         return f'<g opacity="{fnum(opacity)}">{inner}</g>'
 
-    def document(self, w, h, body):
+    @staticmethod
+    def a11y_wrap(svg, obj):
+        """Wrap one object's SVG with accessibility markup when it carries any.
+
+        Additive and minimal: objects with no accessibility semantics are returned
+        byte-for-byte unchanged, so only `decorative` nodes (→ `aria-hidden`) and
+        images with `alt`/`actual_text` (→ `role="img"` + `<title>`/`<desc>`) change
+        the output. `alt` is the short label; `actual_text` the verbatim content."""
+        if not svg or not isinstance(obj, dict):
+            return svg
+        if obj.get("decorative"):
+            return f'<g aria-hidden="true">{svg}</g>'
+        if obj.get("type") == "image":
+            alt, actual = obj.get("alt"), obj.get("actual_text")
+            if alt or actual:
+                title = f"<title>{esc(alt)}</title>" if alt else ""
+                desc = f"<desc>{esc(actual)}</desc>" if actual else ""
+                label = f' aria-label="{esc(alt)}"' if alt else ""
+                return f'<g role="img"{label}>{title}{desc}{svg}</g>'
+        return svg
+
+    def document(self, w, h, body, lang=None, title=None, desc=None):
+        """Assemble the page `<svg>`. `lang`/`title`/`desc` are the document-level
+        accessibility surface; each is omitted when absent, so a document without
+        them renders byte-for-byte as before."""
         defs = f"<defs>{''.join(self._defs)}</defs>" if self._defs else ""
+        lang_attr = f' xml:lang="{esc(lang)}"' if lang else ""
+        meta = ((f"<title>{esc(title)}</title>" if title else "")
+                + (f"<desc>{esc(desc)}</desc>" if desc else ""))
         return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{fnum(w)}" height="{fnum(h)}" '
-                f'viewBox="0 0 {fnum(w)} {fnum(h)}">'
-                f'<rect width="100%" height="100%" fill="white"/>{defs}{body}</svg>\n')
+                f'viewBox="0 0 {fnum(w)} {fnum(h)}"{lang_attr}>'
+                f'{meta}<rect width="100%" height="100%" fill="white"/>{defs}{body}</svg>\n')

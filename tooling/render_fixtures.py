@@ -329,8 +329,8 @@ class Renderer:
                 inner = self._with_style_compositing(o, self._style_dict(o.get("style")), inner)
             opacity = o.get("opacity")
             if inner and opacity not in (None, 1):
-                return self._painter.opacity_group(inner, num(opacity, 1))
-            return inner
+                inner = self._painter.opacity_group(inner, num(opacity, 1))
+            return self._painter.a11y_wrap(inner, o)
         except Exception:                              # never let one object kill a page
             self.skipped += 1
             return ""
@@ -1561,7 +1561,9 @@ class Renderer:
             lo = layer.get("opacity")
             inner = "".join(self.obj(o) for o in (layer.get("objects") or []))
             body.append(self._painter.opacity_group(inner, lo) if lo not in (None, 1) else inner)
-        return [self._painter.document(w, h, "".join(body))]
+        return [self._painter.document(w, h, "".join(body),
+                                       lang=self.doc.get("lang"), title=self.doc.get("title"),
+                                       desc=self.doc.get("description"))]
 
     def _render_flow(self, page, w, h):
         p = self._painter
