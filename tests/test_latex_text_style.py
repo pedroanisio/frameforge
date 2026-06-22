@@ -116,16 +116,24 @@ def test_font_variant_small_caps_maps_to_tikz_font_shape():
     assert "{Caps}" in tex
 
 
-def test_font_variant_numeric_tabular_nums_maps_to_fontspec_feature():
-    tex = _fig({"metric": {"font_variant_numeric": "tabular-nums"}}).render({
+def test_font_variant_numeric_maps_to_fontspec_feature():
+    tabular = _fig({"metric": {"font_variant_numeric": "tabular-nums"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "0123456789",
+        "style": "metric",
+    })
+    oldstyle = _fig({"metric": {"font_variant_numeric": "oldstyle-nums"}}).render({
         "type": "text",
         "box": [10, 20, 120, 30],
         "text": "0123456789",
         "style": "metric",
     })
 
-    assert "\\addfontfeatures{Numbers=Monospaced}" in tex
-    assert "{0123456789}" in tex
+    assert "\\addfontfeatures{Numbers=Monospaced}" in tabular
+    assert "\\addfontfeatures{Numbers=OldStyle}" in oldstyle
+    assert "{0123456789}" in tabular
+    assert "{0123456789}" in oldstyle
 
 
 def test_font_variant_ligatures_none_maps_to_fontspec_feature():

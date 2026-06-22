@@ -921,8 +921,11 @@ class FigureTikz:
             font += "\\itshape"
         if st.get("font_variant_caps") == "small-caps":
             font += "\\scshape"
-        if st.get("font_variant_numeric") == "tabular-nums":
+        numeric = st.get("font_variant_numeric")
+        if numeric == "tabular-nums":
             font += "\\addfontfeatures{Numbers=Monospaced}"
+        elif numeric == "oldstyle-nums":
+            font += "\\addfontfeatures{Numbers=OldStyle}"
         if st.get("font_variant_ligatures") == "none":
             font += "\\addfontfeatures{Ligatures=NoCommon}"
         kerning = st.get("font_kerning")
