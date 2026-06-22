@@ -357,7 +357,7 @@ class FigureTikz:
 
     def _fill_opts(self, o):
         style = self._style_dict(o)
-        fill = o.get("fill") if "fill" in o else style.get("fill")
+        fill = self._fill_value(o, style)
         expr, op = color_expr(self._color.resolve(fill))
         op = self._paint_opacity(o, "fill_opacity", op)
         opts = []
@@ -369,6 +369,16 @@ class FigureTikz:
             if rule:
                 opts.append(rule)
         return opts
+
+    @staticmethod
+    def _fill_value(o, style):
+        if "fill" in o:
+            return o.get("fill")
+        if "fill" in style:
+            return style.get("fill")
+        if "background_color" in style:
+            return style.get("background_color")
+        return None
 
     def _fill_rule(self, o):
         value = o.get("fill_rule")
@@ -551,7 +561,8 @@ class FigureTikz:
         if not (isinstance(box, list) and len(box) >= 4):
             return ""
         x, y, w, h = (num(v, 0) for v in box[:4])
-        r = num(o.get("radius"), 0) or 0
+        style = self._style_dict(o)
+        r = num(o.get("radius", o.get("rx", style.get("border_radius", style.get("radius")))), 0) or 0
         effects = self._rect_effects(o, x, y, w, h, r)
         grad = self._gradient_rect(o.get("fill"), x, y, w, h)
         if grad:
