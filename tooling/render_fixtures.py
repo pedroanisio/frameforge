@@ -645,41 +645,75 @@ class Renderer:
         if "fill" in style:
             return self.paint(style.get("fill"))
         if "background_image" in style:
-            paint = self._background_paint(style.get("background_image"))
+            paint = self._background_paint(style.get("background_image"), o.get("box"), style)
             if paint is not None:
                 return paint
         if "background" in style:
-            paint = self._background_paint(style.get("background"))
+            paint = self._background_paint(style.get("background"), o.get("box"), style)
             if paint is not None:
                 return paint
         if "background_color" in style:
             return self.paint(style.get("background_color"))
         return None
 
-    def _background_paint(self, value):
+    def _background_paint(self, value, box=None, style=None):
         if isinstance(value, list):
             for item in value:
-                paint = self._background_paint(item)
+                paint = self._background_paint(item, box, style)
                 if paint is not None:
                     return paint
             return None
         if isinstance(value, dict):
             image = value.get("image")
             if image is not None:
-                paint = self._background_paint(image)
+                paint = self._background_paint(image, box, {**(style or {}), **value})
                 if paint is not None:
                     return paint
             if value.get("stops") and value.get("kind") in ("linear", "radial", "conic"):
                 return self.paint(value)
+            if "url" in value:
+                return self._background_image_pattern(value.get("url"), box, style or {})
             if "color" in value:
                 return self.paint(value.get("color"))
             return None
         if isinstance(value, str):
             stripped = value.strip()
             if stripped.startswith(("url(", "http://", "https://", "data:")):
-                return None
+                return self._background_image_pattern(stripped, box, style or {})
+            if stripped in self.assets:
+                return self._background_image_pattern(stripped, box, style or {})
             return self.paint(stripped)
         return None
+
+    def _background_image_pattern(self, src, box, style):
+        if not isinstance(box, list) or len(box) < 4:
+            return None
+        href = self._background_image_href(src)
+        if not href:
+            return None
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        preserve = self._background_preserve_aspect_ratio(style.get("background_size"))
+        return self._painter.image_pattern(href, x, y, w, h, preserve)
+
+    def _background_image_href(self, src):
+        if isinstance(src, dict):
+            src = src.get("url") or src.get("src") or src.get("path")
+        if not isinstance(src, str):
+            return None
+        s = src.strip()
+        if s.startswith("url(") and s.endswith(")"):
+            s = s[4:-1].strip().strip("'\"")
+        if s.startswith(("data:", "http://", "https://", "file://")):
+            return s
+        return self._image_href(s)
+
+    @staticmethod
+    def _background_preserve_aspect_ratio(size):
+        if size == "contain":
+            return "xMidYMid meet"
+        if size in (None, "auto", "cover"):
+            return "xMidYMid slice"
+        return "none"
 
     def _shape_radius(self, o, style):
         val = o.get("radius", o.get("rx", style.get("border_radius", style.get("radius"))))

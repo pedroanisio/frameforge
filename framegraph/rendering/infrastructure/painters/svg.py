@@ -125,6 +125,18 @@ class SvgPainter:
             self._defs.append(f'<linearGradient id="{gid}">{body}</linearGradient>')
         return f"url(#{gid})"
 
+    def image_pattern(self, href, x, y, w, h, preserve_aspect_ratio="xMidYMid slice"):
+        self._gid += 1
+        pid = f"pat{self._gid}"
+        self._defs.append(
+            f'<pattern id="{pid}" patternUnits="userSpaceOnUse" '
+            f'x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}">'
+            f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '
+            f'href="{esc(href)}" preserveAspectRatio="{esc(preserve_aspect_ratio)}"/>'
+            f'</pattern>'
+        )
+        return f"url(#{pid})"
+
     def clip_rect(self, x, y, w, h):
         self._gid += 1
         cid = f"clip{self._gid}"

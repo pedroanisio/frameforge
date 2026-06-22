@@ -372,6 +372,50 @@ def test_style_background_layers_use_first_renderable_paint() -> None:
     assert ' fill="#123456"' in circle
 
 
+def test_style_background_image_url_is_emitted_as_pattern_fill() -> None:
+    svg = _svg_for([
+        {
+            "type": "rect",
+            "box": [20, 20, 90, 45],
+            "style": {
+                "background_image": {"url": "data:image/png;base64,iVBORw0KGgo="},
+                "background_size": "contain",
+            },
+        },
+    ])
+
+    assert '<pattern id="pat1" patternUnits="userSpaceOnUse" x="20" y="20" width="90" height="45">' in svg
+    assert 'href="data:image/png;base64,iVBORw0KGgo="' in svg
+    assert 'preserveAspectRatio="xMidYMid meet"' in svg
+    rect = svg.split("<rect", 2)[2].split("/>", 1)[0]
+    assert ' fill="url(#pat1)"' in rect
+
+
+def test_style_background_image_asset_token_is_emitted_as_pattern_fill() -> None:
+    svg = _svg_for(
+        [{
+            "type": "rect",
+            "box": [12, 16, 40, 30],
+            "style": {
+                "background_image": "avatar",
+                "background_size": "cover",
+            },
+        }],
+        {
+            "assets": {
+                "avatar": {"data": "data:image/png;base64,AAAA"},
+            },
+            "tokens": {"colors": {"panel": "#ffeecc", "hairline": "#123456"}},
+        },
+    )
+
+    assert '<pattern id="pat1" patternUnits="userSpaceOnUse" x="12" y="16" width="40" height="30">' in svg
+    assert 'href="data:image/png;base64,AAAA"' in svg
+    assert 'preserveAspectRatio="xMidYMid slice"' in svg
+    rect = svg.split("<rect", 2)[2].split("/>", 1)[0]
+    assert ' fill="url(#pat1)"' in rect
+
+
 def test_style_transform_wraps_svg_objects() -> None:
     svg = _svg_for(
         [
