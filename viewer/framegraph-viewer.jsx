@@ -481,12 +481,15 @@ function rotationStyle(rot, box) {
 // id -> box registry for anchor refs (best effort; per page)
 function buildRegistry(page) {
   const reg = {};
-  const visit = (o) => {
+  const visit = (o, offset = [0, 0]) => {
     if (!o || typeof o !== "object") return;
-    if (o.id && o.box) reg[o.id] = o.box.map(toPx);
-    (o.children || []).forEach(visit);
+    const box = o.box ? o.box.map(toPx) : null;
+    const absBox = box ? [box[0] + offset[0], box[1] + offset[1], box[2], box[3]] : null;
+    if (o.id && absBox) reg[o.id] = { box: absBox, ports: o.ports || {} };
+    const childOffset = o.type === "group" && box ? [offset[0] + box[0], offset[1] + box[1]] : offset;
+    (o.children || []).forEach((child) => visit(child, childOffset));
   };
-  (page.layers || []).forEach((l) => (l.objects || []).forEach(visit));
+  (page.layers || []).forEach((l) => (l.objects || []).forEach((o) => visit(o)));
   return reg;
 }
 function buildObjectIndex(page) {
@@ -501,8 +504,18 @@ function buildObjectIndex(page) {
 }
 function anchorPoint(a, reg) {
   if (Array.isArray(a)) return [toPx(a[0]), toPx(a[1])];
-  if (a && typeof a === "object" && a.ref && reg[a.ref]) {
-    const [x, y, w, h] = reg[a.ref];
+  if (a && typeof a === "object" && Array.isArray(a.point)) return [toPx(a.point[0]), toPx(a.point[1])];
+  if (a && typeof a === "object" && (a.ref || a.object) && reg[a.ref || a.object]) {
+    const entry = reg[a.ref || a.object];
+    const port = a.port;
+    if (port && Array.isArray(entry.ports?.[port])) return [toPx(entry.ports[port][0]), toPx(entry.ports[port][1])];
+    const [x, y, w, h] = entry.box || entry;
+    const side = a.side || port;
+    const offset = toPx(a.offset) || 0;
+    if (side === "north") return [x + w / 2 + offset, y];
+    if (side === "south") return [x + w / 2 + offset, y + h];
+    if (side === "east") return [x + w, y + h / 2 + offset];
+    if (side === "west") return [x, y + h / 2 + offset];
     return [x + w / 2, y + h / 2]; // center; ports not modelled
   }
   return [0, 0];
@@ -671,7 +684,17 @@ function VectorObj({ doc, o, cw, ch, reg }) {
   };
 
   let shape = null;
-  if (o.type === "line") {
+  if (o.type === "connector") {
+    const start = anchorPoint(o.from, reg);
+    const end = anchorPoint(o.to, reg);
+    const routePoints = Array.isArray(o.route?.points) ? o.route.points.map((p) => [toPx(p[0]), toPx(p[1])]) : [];
+    const pts = [start, ...routePoints, end];
+    if (pts.length === 2) {
+      shape = <line x1={start[0]} y1={start[1]} x2={end[0]} y2={end[1]} {...common} />;
+    } else {
+      shape = <polyline points={pts.map((p) => `${p[0]},${p[1]}`).join(" ")} {...common} fill="none" />;
+    }
+  } else if (o.type === "line") {
     const [x1, y1] = anchorPoint(o.from, reg);
     const [x2, y2] = anchorPoint(o.to, reg);
     shape = <line x1={x1} y1={y1} x2={x2} y2={y2} {...common} />;
@@ -1026,6 +1049,7 @@ function RenderObject({ doc, o, cw, ch, reg, active }) {
     case "rect": return <RectObj doc={doc} o={o} />;
     case "text": return <TextObj doc={doc} o={o} active={active} />;
     case "line":
+    case "connector":
     case "polyline":
     case "polygon":
     case "path":

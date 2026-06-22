@@ -26,6 +26,10 @@ const doc = {
         { type: "rect", id: "grid_c", box: [0, 0, 40, 40], fill: "c" },
         { type: "rect", id: "grid_d", box: [0, 0, 40, 40], fill: "a" },
       ] },
+      { type: "rect", id: "conn_left", box: [300, 54, 50, 40], fill: "a", ports: { east: [350, 74] } },
+      { type: "rect", id: "conn_right", box: [420, 54, 50, 40], fill: "b" },
+      { type: "connector", id: "conn_line", from: { object: "conn_left", port: "east" }, to: { object: "conn_right", side: "west" }, stroke: "c", stroke_style: { stroke_width: 2, arrow_end: true } },
+      { type: "connector", id: "conn_route", from: { object: "conn_left", side: "south" }, to: { point: [455, 160] }, route: { type: "orthogonal", points: [[325, 145], [455, 145]] }, stroke: "c" },
     ] }],
   }],
 };
@@ -53,12 +57,16 @@ const boxes = await page.evaluate(() => {
     gridB: box("grid_b"),
     gridC: box("grid_c"),
     gridD: box("grid_d"),
+    connLine: document.querySelector('[data-framegraph-vector="conn_line"]')?.outerHTML || "",
+    connRoute: document.querySelector('[data-framegraph-vector="conn_route"]')?.outerHTML || "",
   };
 });
 
 if (!(boxes.rowB.left > boxes.rowA.left + boxes.rowA.width)) failures.push(`row layout overlapped: ${JSON.stringify(boxes)}`);
 if (!(boxes.gridB.left > boxes.gridA.left && boxes.gridC.left > boxes.gridB.left)) failures.push(`grid first row did not advance columns: ${JSON.stringify(boxes)}`);
 if (!(boxes.gridD.top > boxes.gridA.top + boxes.gridA.height && boxes.gridD.left === boxes.gridA.left)) failures.push(`grid wrap row is wrong: ${JSON.stringify(boxes)}`);
+if (!/x1="350" y1="74" x2="420" y2="74"/.test(boxes.connLine)) failures.push(`connector line anchors wrong: ${boxes.connLine}`);
+if (!/points="325,94 325,145 455,145 455,160"/.test(boxes.connRoute)) failures.push(`connector route anchors wrong: ${boxes.connRoute}`);
 
 await browser.close();
 
