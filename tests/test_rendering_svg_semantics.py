@@ -96,6 +96,61 @@ def test_curve_aliases_emit_cubic_paths() -> None:
     assert 'stroke-width="2"' in svg
 
 
+def test_point_dimension_decomposes_to_lines_arrows_and_label() -> None:
+    svg = _svg_for(
+        [{
+            "type": "dimension",
+            "kind": "linear",
+            "from": [10, 30],
+            "to": [70, 30],
+            "value": "auto",
+            "suffix": " mm",
+            "offset": 10,
+            "arrows": "both",
+            "stroke": "hairline",
+            "stroke_style": {"stroke_width": 2},
+            "text_style": "dim_label",
+        }],
+        {
+            "tokens": {
+                "colors": {"hairline": "#123456", "label": "#654321"},
+                "text_styles": {"dim_label": {"size": 10, "color": "label"}},
+            },
+        },
+    )
+
+    assert '<line x1="10" y1="30" x2="10" y2="40" stroke="#123456" stroke-width="2"/>' in svg
+    assert '<line x1="70" y1="30" x2="70" y2="40" stroke="#123456" stroke-width="2"/>' in svg
+    assert 'marker-start="url(#ah1)" marker-end="url(#ah1)"' in svg
+    assert ">60 mm</text>" in svg
+    assert "fill:#654321" in svg
+
+
+def test_radial_and_diameter_dimensions_compute_labels() -> None:
+    svg = _svg_for([
+        {
+            "type": "dimension",
+            "kind": "radial",
+            "from": [70, 60],
+            "to": [50, 60],
+            "prefix": "R",
+        },
+        {
+            "type": "dimension",
+            "kind": "diameter",
+            "from": [110, 60],
+            "to": [100, 60],
+            "prefix": "D",
+            "arrows": "both",
+        },
+    ])
+
+    assert ">R20</text>" in svg
+    assert ">D20</text>" in svg
+    assert '<line x1="50" y1="60" x2="70" y2="60"' in svg
+    assert '<line x1="90" y1="60" x2="110" y2="60"' in svg
+
+
 def test_image_ellipse_clip_and_slice_aspect_ratio_are_emitted() -> None:
     svg = _svg_for(
         [{

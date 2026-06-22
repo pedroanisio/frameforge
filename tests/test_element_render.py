@@ -4,12 +4,12 @@ test_element_render.py — render-side coverage of every visual element, and the
 SILENT-IGNORE GATE.
 
 For each visual object type we render a minimal sample and check its SVG
-footprint. The key assertion is `test_no_unexpected_silent_ignores`: the set of
-elements that render to NOTHING must equal the documented `UNRENDERED` allowlist.
+footprint. The key assertion is `test_no_unexpected_silent_ignores`: no visual
+element in the local renderer's supported point-anchor profile renders to NOTHING.
 So:
   * a new element type that the proxy silently drops -> FAILS (no silent ignore),
-  * and if `dimension` ever gains a painter, the test forces us to
-    remove them from the allowlist (the gap is tracked, never assumed-met).
+  * and if an element is intentionally outside this profile, it must be tracked by
+    changing this gate deliberately.
 
 Plus a Hypothesis property: the renderer never raises on fuzzed box coordinates
 and arbitrary text.
@@ -58,12 +58,12 @@ EXPECT = {
     "rect": "<rect", "ellipse": "<ellipse", "circle": "<circle", "line": "<line",
     "polyline": "<polyline", "polygon": "<polygon", "path": "<path",
     "curve": "<path", "bezier": "<path", "text": "<text",
-    "icon": "<text", "bullet_list": "<text", "image": "<rect", "table": "<rect", "group": "<g",
+    "icon": "<text", "bullet_list": "<text", "dimension": "<g",
+    "image": "<rect", "table": "<rect", "group": "<g",
 }
 
-# documented silent-ignore set: the composite dimension has no painter in the proxy
-# yet. Any change here must be deliberate (this is the gate).
-UNRENDERED = {"dimension"}
+# documented silent-ignore set. Any change here must be deliberate (this is the gate).
+UNRENDERED = set()
 
 
 def _render_body(obj):

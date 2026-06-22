@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import glob
+import math
 import os
 import sys
 
@@ -474,6 +475,9 @@ class Renderer:
             return p.path(d, fill, self._shape_stroke(o, style) + self._arrow_attrs(o),
                           fill_opacity=fill_opacity, fill_rule=fill_rule)
 
+        if t == "dimension":
+            return self._dimension(o, style)
+
         if t == "text" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
             content = o.get("text")
@@ -566,6 +570,111 @@ class Renderer:
         if any(k in style for k in ("stroke", "stroke_width", "stroke_dasharray", "stroke_linecap", "stroke_linejoin")):
             return self.stroke({"stroke": style.get("stroke"), "stroke_style": style})
         return ""
+
+    def _dimension(self, o, style):
+        kind = o.get("kind")
+        fr = self._point_anchor(o.get("from"))
+        to = self._point_anchor(o.get("to"))
+        if fr is None or to is None:
+            self.skipped += 1
+            return ""
+        if kind in ("radial", "diameter"):
+            return self._radial_dimension(o, style, fr, to, diameter=kind == "diameter")
+        if kind not in ("linear", "aligned"):
+            self.skipped += 1
+            return ""
+        return self._linear_dimension(o, style, fr, to)
+
+    @staticmethod
+    def _point_anchor(anchor):
+        if is_point(anchor):
+            return num(anchor[0], 0), num(anchor[1], 0)
+        return None
+
+    def _dimension_stroke(self, o, style):
+        return self._shape_stroke(o, style) or ' stroke="#000" stroke-width="1"'
+
+    def _dimension_arrows(self, o, start=True, end=True):
+        arrows = o.get("arrows") or "both"
+        if arrows == "none":
+            start = end = False
+        elif arrows == "first":
+            end = False
+        elif arrows == "second":
+            start = False
+        elif arrows != "both":
+            start = end = False
+        if not (start or end):
+            return ""
+        marker_o = dict(o)
+        ssv = o.get("stroke_style")
+        bundle = dict(self.stroke_styles.get(ssv) or {}) if isinstance(ssv, str) else dict(ssv or {})
+        if start:
+            bundle["arrow_start"] = bundle.get("arrow_start") or True
+        if end:
+            bundle["arrow_end"] = bundle.get("arrow_end") or True
+        marker_o["stroke_style"] = bundle
+        marker_o["stroke"] = marker_o.get("stroke") or bundle.get("stroke") or bundle.get("color") or "#000"
+        return self._arrow_attrs(marker_o)
+
+    def _dimension_label(self, o, distance):
+        if o.get("text") is not None:
+            return str(o.get("text"))
+        value = o.get("value")
+        measured = distance if value in (None, "auto") else num(value, distance)
+        label = fnum(measured)
+        return f"{o.get('prefix') or ''}{label}{o.get('suffix') or ''}"
+
+    def _dimension_text(self, o):
+        st = self.text_style(o.get("text_style") or o.get("style"))
+        return {**st, "align": "center"}
+
+    def _linear_dimension(self, o, style, fr, to):
+        x1, y1 = fr
+        x2, y2 = to
+        dx, dy = x2 - x1, y2 - y1
+        dist = math.hypot(dx, dy)
+        if dist <= 0:
+            return ""
+        off = num(o.get("offset"), 12) or 0
+        nx, ny = -dy / dist, dx / dist
+        ax, ay = x1 + nx * off, y1 + ny * off
+        bx, by = x2 + nx * off, y2 + ny * off
+        stroke = self._dimension_stroke(o, style)
+        body = [
+            self._painter.line(x1, y1, ax, ay, stroke),
+            self._painter.line(x2, y2, bx, by, stroke),
+            self._painter.line(ax, ay, bx, by, stroke + self._dimension_arrows(o)),
+        ]
+        label = self._dimension_label(o, dist)
+        st = self._dimension_text(o)
+        midx, midy = (ax + bx) / 2, (ay + by) / 2
+        body.append(self._painter.text_tag(midx - 40, midy - st["size"] * 0.7, 80, st["size"] * 1.4, label, st, vcenter=True))
+        return self._painter.group("".join(body))
+
+    def _radial_dimension(self, o, style, fr, to, diameter=False):
+        px, py = fr
+        cx, cy = to
+        dx, dy = px - cx, py - cy
+        radius = math.hypot(dx, dy)
+        if radius <= 0:
+            return ""
+        if diameter:
+            ax, ay = cx - dx, cy - dy
+            bx, by = px, py
+            distance = radius * 2
+        else:
+            ax, ay = cx, cy
+            bx, by = px, py
+            distance = radius
+        stroke = self._dimension_stroke(o, style)
+        label = self._dimension_label(o, distance)
+        st = self._dimension_text(o)
+        midx, midy = (ax + bx) / 2, (ay + by) / 2
+        return self._painter.group(
+            self._painter.line(ax, ay, bx, by, stroke + self._dimension_arrows(o, start=diameter, end=True))
+            + self._painter.text_tag(midx - 40, midy - st["size"] * 1.5, 80, st["size"] * 1.4, label, st, vcenter=True)
+        )
 
     def _border_stroke(self, border):
         if border.get("style") in ("none", "hidden"):
