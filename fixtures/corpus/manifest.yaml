@@ -128,6 +128,33 @@ entries:
     title: "Pride and Prejudice — EPUB (packaged reflowable book)"
     expect: epub
 
+  # ---- UI rasters (generated): high-def screenshots of original CC0 mockups ----
+  # Real app screenshots are copyrighted; instead we render self-contained,
+  # public-domain (CC0) UI source pages (fixtures/corpus/ui/_src/*.html) to
+  # high-DPI PNG via viewer/dev/render-ui-corpus.cjs. `generated: true` ⇒ the
+  # downloader pins the produced bytes rather than fetching a URL.
+  - id: ui-mobile-app-feed
+    dest: ui/mobile-app-feed.png
+    tier: ui
+    format: png
+    license: CC0-1.0
+    license_url: https://creativecommons.org/publicdomain/zero/1.0/
+    source: FrameGraph (original mockup)
+    generated: true
+    generator: viewer/dev/render-ui-corpus.cjs
+    title: "Mobile app screen @3x (1170×2532) — cards, gradients, chart, nav"
+
+  - id: ui-analytics-dashboard
+    dest: ui/analytics-dashboard.png
+    tier: ui
+    format: png
+    license: CC0-1.0
+    license_url: https://creativecommons.org/publicdomain/zero/1.0/
+    source: FrameGraph (original mockup)
+    generated: true
+    generator: viewer/dev/render-ui-corpus.cjs
+    title: "Analytics dashboard @2x (2880×1800) — sidebar, KPIs, charts, table"
+
   # ---- Reference suite: per-feature SVG (resvg test suite, MIT — permissive) ----
   # The isolated-feature reference fixtures that fill the per-effect coverage gap:
   # one SVG construct per file, each exercising a Style/effect surface FrameGraph

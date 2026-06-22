@@ -7,7 +7,7 @@ Documents archived as FrameGraph's expressiveness / completeness target, in two 
 - **Public domain** — CC0, expired copyright, or U.S. federal works (17 U.S.C. §105): no obligations.
 - **Permissive** — MIT / BSD / CC-BY: vendored *with attribution*, recorded below and in `NOTICE`.
 
-Integrity is pinned in `lockfile.json`. Total archived: **4,581,246 bytes** across **17** files.
+Integrity is pinned in `lockfile.json`. Total archived: **5,322,563 bytes** across **19** files.
 
 | File | Tier | License | Source | Attribution | sha256 |
 |---|---|---|---|---|---|
@@ -20,6 +20,8 @@ Integrity is pinned in `lockfile.json`. Total archived: **4,581,246 bytes** acro
 | `flow/gutenberg-pride-and-prejudice.txt` | flow | [Public domain](https://www.gutenberg.org/policy/permission.html) | Project Gutenberg | — | `74f2665d6e69…` |
 | `html/gutenberg-pride-and-prejudice.html` | html | [Public domain](https://www.gutenberg.org/policy/permission.html) | Project Gutenberg | — | `fddd9715a3b1…` |
 | `ebook/gutenberg-pride-and-prejudice.epub` | ebook | [Public domain](https://www.gutenberg.org/policy/permission.html) | Project Gutenberg | — | `cd69e5b72eeb…` |
+| `ui/mobile-app-feed.png` | ui | [CC0 1.0 (public-domain dedication)](https://creativecommons.org/publicdomain/zero/1.0/) | FrameGraph (original mockup) | — | `6b85af006055…` |
+| `ui/analytics-dashboard.png` | ui | [CC0 1.0 (public-domain dedication)](https://creativecommons.org/publicdomain/zero/1.0/) | FrameGraph (original mockup) | — | `6a1c1dd40395…` |
 | `reference/svg/resvg-filter-simple.svg` | reference | [MIT License (attribution required)](https://github.com/linebender/resvg-test-suite/blob/master/LICENSE) | resvg-test-suite | resvg-test-suite © 2018 Reizner Evgeniy (MIT) | `95468e1dff6e…` |
 | `reference/svg/resvg-mask-simple.svg` | reference | [MIT License (attribution required)](https://github.com/linebender/resvg-test-suite/blob/master/LICENSE) | resvg-test-suite | resvg-test-suite © 2018 Reizner Evgeniy (MIT) | `2a7587ab5e0f…` |
 | `reference/svg/resvg-clippath-simple.svg` | reference | [MIT License (attribution required)](https://github.com/linebender/resvg-test-suite/blob/master/LICENSE) | resvg-test-suite | resvg-test-suite © 2018 Reizner Evgeniy (MIT) | `a78d7b16b366…` |

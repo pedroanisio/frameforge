@@ -15,7 +15,8 @@
     "test:all": "npm run build && npm test && npm run test:browser && npm run test:style && npm run test:layout && npm run test:table && npm run verify",
     "watch": "npm run build -- --watch",
     "start": "esbuild dev/entry.jsx --bundle --format=iife --jsx=automatic --loader:.jsx=jsx --outfile=dev/bundle.js --servedir=dev --serve=127.0.0.1:8000",
-    "verify": "cd dev && node shot.cjs"
+    "verify": "cd dev && node shot.cjs",
+    "render-ui-corpus": "node dev/render-ui-corpus.cjs"
   },
   "engines": {
     "node": ">=18"

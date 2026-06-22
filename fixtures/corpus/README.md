@@ -26,7 +26,26 @@ documents/        ← paged PDFs (multi-page layout, tables, headers)
 flow/             ← long-form plain text (story flow)
 html/             ← HTML+CSS (typography + flow cascade)
 ebook/            ← EPUB (packaged reflowable book)
+ui/               ← GENERATED high-def UI rasters (PNG)
+ui/_src/          ← the CC0 UI source pages they are rendered from
 ```
+
+## Generated UI rasters
+
+Real app screenshots are copyrighted, so the `ui/` PNGs are high-DPI renders of
+original, self-contained, public-domain (CC0) mockups under `ui/_src/*.html` —
+a mobile app screen (@3x) and an analytics dashboard (@2x). They exercise the
+raster-UI surface (layered cards, gradients, shadows, inline-SVG charts).
+
+```bash
+npm --prefix viewer ci                              # installs playwright (a viewer devDep)
+npx --prefix viewer playwright install chromium     # one-time browser download
+node viewer/dev/render-ui-corpus.cjs                # render ui/_src/*.html -> ui/*.png
+python tooling/fetch_corpus.py                       # re-pin the produced bytes in the lockfile
+```
+
+The PNGs are committed; `make corpus-check` verifies their bytes like any other
+corpus file. Re-render only when a source page changes.
 
 ## Manage it
 
@@ -53,14 +72,10 @@ record its `license` and `license_url`) and run `make corpus`. The lockfile and
 | `flow` | `Flowable` story, pagination, long-form line-breaking |
 | `html` | the `Style` + `tokens.styles` cascade, typography fidelity |
 | `ebook` | packaged reflowable layout (XHTML + CSS in a container) |
+| `ui` | raster UI: layered cards, gradients, shadows, inline-SVG charts |
 
 ## Open gaps (not yet sourced)
 
-- **High-def UI rasters** — real app screenshots are copyrighted; CC0 sources
-  (rawpixel) are download-gated and Wikimedia UI screenshots are uniformly
-  CC-BY-**SA** (share-alike, excluded). The clean path is to render a
-  public-domain UI (e.g. the U.S. Web Design System) to PNG ourselves — our own
-  screenshot of PD content is PD.
 - **Layered `.psd`** and clean-licensed **`.ai` / `.docx` / `.pptx`** — best
   added once a verified permissive/PD direct source (or a generation step) is in
   place.
