@@ -49,7 +49,7 @@ Style, and `tokens.stroke_styles` bundle rewrite. Run:
 python3 tooling/codemod.py your-doc.fg.json --in-place --bump
 ```
 
-**Verification (asserted by `tests/test_head.py`, 13/13 green):** all **nine
+**Verification (asserted by `tests/test_head.py`, 13/13 green):** all **eight
 authoritative fixtures validate at 2.2.0** — directly for those without legacy strokes
 (`ieee`, `neutron-stars`, `spectral-methods`, `mckinsey-7s`), and after the codemod for
 those that carry legacy inline strokes (`amazon-proxy`, `chroma-styling-showcase`,
