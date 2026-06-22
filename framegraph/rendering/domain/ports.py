@@ -46,6 +46,9 @@ class ScenePainter(Protocol):
     def filter_wrap(self, inner: str, filter_id: str) -> str:
         """Wrap already-emitted content in the given filter."""
 
+    def transform_group(self, inner: str, transform: str) -> str:
+        """Wrap already-emitted content in a backend transform group."""
+
     # ---- primitives ----
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None) -> str: ...
     def ellipse(self, cx, cy, rx, ry, fill, stroke, fill_opacity=None) -> str: ...

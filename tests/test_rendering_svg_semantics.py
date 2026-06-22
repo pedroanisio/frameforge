@@ -183,6 +183,36 @@ def test_rect_uses_style_fill_border_radius_and_opacity() -> None:
     assert ' stroke-dasharray="4 4"' in rect
 
 
+def test_style_transform_wraps_svg_objects() -> None:
+    svg = _svg_for(
+        [
+            {
+                "type": "rect",
+                "box": [10, 20, 80, 40],
+                "fill": "panel",
+                "style": {
+                    "transform": [{"fn": "rotate", "args": ["12deg"]}],
+                    "transform_origin": [50, 40],
+                },
+            },
+            {
+                "type": "rect",
+                "box": [100, 20, 40, 20],
+                "fill": "panel",
+                "style": {
+                    "transform": [
+                        {"fn": "translate_x", "args": [8]},
+                        {"fn": "scale", "args": [1.2, 0.8]},
+                    ],
+                },
+            },
+        ],
+    )
+
+    assert '<g transform="rotate(12 50 40)">' in svg
+    assert '<g transform="translate(8 0) translate(120 30) scale(1.2 0.8) translate(-120 -30)">' in svg
+
+
 def test_vector_uses_style_fill_and_stroke_geometry() -> None:
     svg = _svg_for(
         [{
@@ -231,7 +261,7 @@ def test_table_style_surface_is_emitted() -> None:
             "box": [10, 10, 160, 80],
             "columns": [{"width": 90, "align": "left"}, {"width": 70, "align": "right"}],
             "header": ["Metric", "Value"],
-            "rows": [["Coverage", "20"], ["Pages", "230"]],
+            "rows": [["Coverage", "21"], ["Pages", "231"]],
             "cell_padding": 6,
             "stroke_style": {"color": "hairline", "width": 2},
             "style": {
@@ -267,7 +297,29 @@ def test_table_style_surface_is_emitted() -> None:
     assert "fill:#202020" in svg
     assert 'x="164" y="76.667" text-anchor="end"' in svg
     assert "Coverage" in svg
-    assert "230" in svg
+    assert "231" in svg
+
+
+def test_table_column_width_lengths_are_resolved() -> None:
+    svg = _svg_for(
+        [{
+            "type": "table",
+            "box": [10, 10, 160, 80],
+            "columns": [
+                {"width": "40%"},
+                {"width": 30},
+                {"width": "1fr"},
+                {"width": "auto"},
+            ],
+            "header": ["A", "B", "C", "D"],
+            "rows": [["a", "b", "c", "d"]],
+            "stroke_style": {"color": "hairline", "width": 1},
+        }],
+    )
+
+    assert 'x1="74" y1="10" x2="74" y2="90"' in svg
+    assert 'x1="104" y1="10" x2="104" y2="90"' in svg
+    assert 'x1="137" y1="10" x2="137" y2="90"' in svg
 
 
 def test_shadow_and_glow_effect_filters_are_emitted() -> None:

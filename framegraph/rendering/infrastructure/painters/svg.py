@@ -197,6 +197,9 @@ class SvgPainter:
     def filter_wrap(self, inner: str, filter_id: str) -> str:
         return f'<g filter="url(#{filter_id})">{inner}</g>'
 
+    def transform_group(self, inner: str, transform: str) -> str:
+        return f'<g transform="{esc(transform)}">{inner}</g>'
+
     @staticmethod
     def _filter_def(fid: str, kind: str, p: dict) -> str:
         if kind == "blur":

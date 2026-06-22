@@ -62,6 +62,9 @@ from framegraph.rendering.domain.services.effect_resolver import (  # noqa: E402
 from framegraph.rendering.domain.services.stroke_resolver import (  # noqa: E402
     StrokeResolver,
 )
+from framegraph.rendering.domain.services.table_layout import (  # noqa: E402
+    resolve_column_widths,
+)
 from framegraph.rendering.domain.services.text_style_resolver import (  # noqa: E402
     TextStyleResolver,
 )
@@ -289,6 +292,7 @@ class Renderer:
             inner = self._obj(o)
             if inner:
                 inner = self._with_effects(o, self._style_dict(o.get("style")), inner)
+                inner = self._with_transform(o, self._style_dict(o.get("style")), inner)
             opacity = o.get("opacity")
             if inner and opacity not in (None, 1):
                 return self._painter.opacity_group(inner, num(opacity, 1))
@@ -310,6 +314,75 @@ class Renderer:
         for kind, params in self._effect.style_effects(style):
             svg = self._painter.filter_wrap(svg, self._painter.filter_effect(kind, params))
         return svg
+
+    def _with_transform(self, o, style, svg):
+        transform = self._svg_transform(style.get("transform"), style.get("transform_origin"), o.get("box"))
+        return self._painter.transform_group(svg, transform) if transform else svg
+
+    def _svg_transform(self, value, origin, box):
+        if not value or value == "none":
+            return ""
+        if isinstance(value, str):
+            return value.replace("deg", "")
+        items = value if isinstance(value, list) else [value]
+        ox, oy = self._transform_origin(origin, box)
+        parts = []
+        for item in items:
+            if isinstance(item, str):
+                parts.append(item.replace("deg", ""))
+                continue
+            if not isinstance(item, dict):
+                continue
+            fn = item.get("fn") or item.get("kind") or item.get("name")
+            args = item.get("args") or []
+            vals = [self._transform_arg(v) for v in args]
+            if fn == "rotate" and vals:
+                parts.append(f"rotate({vals[0]} {fnum(ox)} {fnum(oy)})" if ox is not None else f"rotate({vals[0]})")
+            elif fn == "translate":
+                parts.append(f"translate({' '.join(vals)})")
+            elif fn == "translate_x" and vals:
+                parts.append(f"translate({vals[0]} 0)")
+            elif fn == "translate_y" and vals:
+                parts.append(f"translate(0 {vals[0]})")
+            elif fn == "scale":
+                parts.append(self._origin_transform(f"scale({' '.join(vals)})", ox, oy))
+            elif fn == "scale_x" and vals:
+                parts.append(self._origin_transform(f"scale({vals[0]} 1)", ox, oy))
+            elif fn == "scale_y" and vals:
+                parts.append(self._origin_transform(f"scale(1 {vals[0]})", ox, oy))
+            elif fn == "skew_x" and vals:
+                parts.append(self._origin_transform(f"skewX({vals[0]})", ox, oy))
+            elif fn == "skew_y" and vals:
+                parts.append(self._origin_transform(f"skewY({vals[0]})", ox, oy))
+            elif fn == "skew" and vals:
+                parts.append(self._origin_transform(f"skewX({vals[0]})", ox, oy))
+                if len(vals) > 1:
+                    parts.append(self._origin_transform(f"skewY({vals[1]})", ox, oy))
+            elif fn == "matrix" and vals:
+                parts.append(f"matrix({' '.join(vals)})")
+        return " ".join(p for p in parts if p)
+
+    def _transform_origin(self, origin, box):
+        if isinstance(origin, (list, tuple)) and len(origin) >= 2:
+            return num(origin[0], 0), num(origin[1], 0)
+        if isinstance(origin, str):
+            vals = origin.replace(",", " ").split()
+            if len(vals) >= 2 and not any("%" in v for v in vals[:2]):
+                return num(vals[0], 0), num(vals[1], 0)
+        if isinstance(box, list) and len(box) >= 4:
+            return num(box[0], 0) + num(box[2], 0) / 2, num(box[1], 0) + num(box[3], 0) / 2
+        return None, None
+
+    @staticmethod
+    def _transform_arg(value):
+        n = num(value, None)
+        return fnum(n) if n is not None else str(value).replace("deg", "")
+
+    @staticmethod
+    def _origin_transform(transform, ox, oy):
+        if ox is None:
+            return transform
+        return f"translate({fnum(ox)} {fnum(oy)}) {transform} translate({fnum(-ox)} {fnum(-oy)})"
 
     def _obj(self, o):
         p = self._painter
@@ -536,13 +609,7 @@ class Renderer:
         visual = ([("h", header)] if header else []) + [("b", r) for r in rows]
         nrow = max(1, len(visual))
         ncol = max(1, len(cols) or (max((len(r) for _, r in visual), default=1)))
-        cw = [num(c.get("width"), None) if isinstance(c, dict) else None for c in cols]
-        cw += [None] * (ncol - len(cw))
-        known = sum(v for v in cw if v)
-        free = [i for i, v in enumerate(cw) if not v]
-        each = (w - known) / len(free) if free else 0
-        for i in free:
-            cw[i] = each
+        cw = resolve_column_widths(cols, ncol, w)
         colx = [x0 + sum(cw[:k]) for k in range(ncol)]
         rh = h / nrow
         grid_stroke = self._shape_stroke(o, style) or ' stroke="#bbb"'
