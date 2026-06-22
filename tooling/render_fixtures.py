@@ -293,8 +293,10 @@ class Renderer:
             inner = self._obj(o)
             if inner:
                 inner = self._with_outline(o, self._style_dict(o.get("style")), inner)
+                inner = self._with_style_clip(o, self._style_dict(o.get("style")), inner)
                 inner = self._with_effects(o, self._style_dict(o.get("style")), inner)
                 inner = self._with_transform(o, self._style_dict(o.get("style")), inner)
+                inner = self._with_style_compositing(o, self._style_dict(o.get("style")), inner)
             opacity = o.get("opacity")
             if inner and opacity not in (None, 1):
                 return self._painter.opacity_group(inner, num(opacity, 1))
@@ -336,6 +338,75 @@ class Renderer:
     def _with_transform(self, o, style, svg):
         transform = self._svg_transform(style.get("transform"), style.get("transform_origin"), o.get("box"))
         return self._painter.transform_group(svg, transform) if transform else svg
+
+    def _with_style_compositing(self, o, style, svg):
+        attrs = {}
+        visibility = style.get("visibility")
+        if visibility in ("hidden", "collapse"):
+            attrs["visibility"] = visibility
+        blend = style.get("mix_blend_mode")
+        if blend and blend != "normal":
+            attrs["mix-blend-mode"] = blend
+        isolation = style.get("isolation")
+        if isolation and isolation != "auto":
+            attrs["isolation"] = isolation
+        opacity = style.get("opacity")
+        if opacity not in (None, 1):
+            attrs["opacity"] = fnum(num(opacity, 1))
+        clip = style.get("clip_path")
+        if isinstance(clip, str) and clip.strip():
+            attrs["clip-path"] = clip.strip()
+        return self._painter.style_group(svg, attrs)
+
+    def _with_style_clip(self, o, style, svg):
+        clip = style.get("clip_path")
+        if not isinstance(clip, dict):
+            return svg
+        cid = self._style_clip_id(clip, o.get("box"))
+        return self._painter.clip_wrap(svg, cid) if cid else svg
+
+    def _style_clip_id(self, clip, box):
+        shape = clip.get("shape")
+        args = clip.get("args") or {}
+        if shape == "inset" and isinstance(box, list) and len(box) >= 4:
+            x, y, w, h = (num(v, 0) for v in box[:4])
+            if isinstance(args.get("box"), list) and len(args["box"]) >= 4:
+                x, y, w, h = (num(v, 0) for v in args["box"][:4])
+            else:
+                top = num(args.get("top"), 0) or 0
+                right = num(args.get("right"), top) or 0
+                bottom = num(args.get("bottom"), top) or 0
+                left = num(args.get("left"), right) or 0
+                x, y, w, h = x + left, y + top, max(0, w - left - right), max(0, h - top - bottom)
+            return self._painter.clip_rect(x, y, w, h)
+        if shape == "circle":
+            center = args.get("center")
+            radius = num(args.get("r", args.get("radius")), None)
+            if center is None and isinstance(box, list) and len(box) >= 4:
+                x, y, w, h = (num(v, 0) for v in box[:4])
+                center = [x + w / 2, y + h / 2]
+                radius = min(w, h) / 2 if radius is None else radius
+            if is_point(center) and radius is not None:
+                return self._painter.clip_ellipse(center[0], center[1], radius, radius)
+        if shape == "ellipse":
+            center = args.get("center")
+            rx = num(args.get("rx"), None)
+            ry = num(args.get("ry"), None)
+            if center is None and isinstance(box, list) and len(box) >= 4:
+                x, y, w, h = (num(v, 0) for v in box[:4])
+                center = [x + w / 2, y + h / 2]
+                rx = w / 2 if rx is None else rx
+                ry = h / 2 if ry is None else ry
+            if is_point(center) and rx is not None and ry is not None:
+                return self._painter.clip_ellipse(center[0], center[1], rx, ry)
+        if shape == "polygon":
+            pts = [tuple(num(v, 0) for v in pt[:2]) for pt in args.get("points", []) if is_point(pt)]
+            return self._painter.clip_polygon(pts) if pts else None
+        if shape == "path":
+            d = args.get("d")
+            if isinstance(d, str) and d.strip():
+                return self._painter.clip_path_d(d)
+        return None
 
     def _svg_transform(self, value, origin, box):
         if not value or value == "none":

@@ -307,6 +307,56 @@ def test_style_transform_wraps_svg_objects() -> None:
     assert '<g transform="translate(8 0) translate(120 30) scale(1.2 0.8) translate(-120 -30)">' in svg
 
 
+def test_style_compositing_wraps_svg_objects() -> None:
+    svg = _svg_for([
+        {
+            "type": "rect",
+            "box": [20, 20, 80, 40],
+            "fill": "panel",
+            "style": {
+                "opacity": 0.45,
+                "visibility": "hidden",
+                "mix_blend_mode": "multiply",
+                "isolation": "isolate",
+            },
+        }
+    ])
+
+    assert '<g style="visibility:hidden;mix-blend-mode:multiply;isolation:isolate;opacity:0.45">' in svg
+    assert '<rect x="20" y="20" width="80" height="40"' in svg
+
+
+def test_style_clip_path_shapes_are_emitted() -> None:
+    svg = _svg_for([
+        {
+            "type": "rect",
+            "box": [10, 10, 80, 60],
+            "fill": "panel",
+            "style": {"clip_path": {"shape": "inset", "args": {"top": 5, "right": 10, "bottom": 15, "left": 20}}},
+        },
+        {
+            "type": "circle",
+            "center": [130, 40],
+            "r": 30,
+            "fill": "panel",
+            "style": {"clip_path": {"shape": "polygon", "args": {"points": [[100, 10], [160, 10], [130, 70]]}}},
+        },
+        {
+            "type": "path",
+            "d": "M 10 90 L 80 90 L 45 115 Z",
+            "fill": "panel",
+            "style": {"clip_path": {"shape": "path", "args": {"d": "M 10 85 L 90 85 L 50 120 Z"}}},
+        },
+    ])
+
+    assert '<clipPath id="clip1"><rect x="30" y="15" width="50" height="40"/></clipPath>' in svg
+    assert '<g clip-path="url(#clip1)"><rect x="10" y="10" width="80" height="60"' in svg
+    assert '<clipPath id="clip2"><polygon points="100,10 160,10 130,70"/></clipPath>' in svg
+    assert '<g clip-path="url(#clip2)"><circle cx="130" cy="40" r="30"' in svg
+    assert '<clipPath id="clip3"><path d="M 10 85 L 90 85 L 50 120 Z"/></clipPath>' in svg
+    assert '<g clip-path="url(#clip3)"><path d="M 10 90 L 80 90 L 45 115 Z"' in svg
+
+
 def test_vector_uses_style_fill_and_stroke_geometry() -> None:
     svg = _svg_for(
         [{

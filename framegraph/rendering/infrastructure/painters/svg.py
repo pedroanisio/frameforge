@@ -131,6 +131,19 @@ class SvgPainter:
                           f'rx="{fnum(rx)}" ry="{fnum(ry)}"/></clipPath>')
         return cid
 
+    def clip_polygon(self, points):
+        self._gid += 1
+        cid = f"clip{self._gid}"
+        pts = " ".join(f"{fnum(x)},{fnum(y)}" for x, y in points)
+        self._defs.append(f'<clipPath id="{cid}"><polygon points="{esc(pts)}"/></clipPath>')
+        return cid
+
+    def clip_path_d(self, d):
+        self._gid += 1
+        cid = f"clip{self._gid}"
+        self._defs.append(f'<clipPath id="{cid}"><path d="{esc(d)}"/></clipPath>')
+        return cid
+
     def clip_wrap(self, inner, clip_id):
         return f'<g clip-path="url(#{clip_id})">{inner}</g>'
 
@@ -201,6 +214,11 @@ class SvgPainter:
 
     def transform_group(self, inner: str, transform: str) -> str:
         return f'<g transform="{esc(transform)}">{inner}</g>'
+
+    @staticmethod
+    def style_group(inner: str, attrs: dict[str, str]) -> str:
+        style = ";".join(f"{name}:{value}" for name, value in attrs.items() if value)
+        return f'<g style="{esc(style)}">{inner}</g>' if style else inner
 
     @staticmethod
     def _filter_def(fid: str, kind: str, p: dict) -> str:
