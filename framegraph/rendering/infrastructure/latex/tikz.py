@@ -1003,9 +1003,10 @@ class FigureTikz:
                 opacity = 0.45 if spec.get("blur") else None
             if opacity is not None:
                 opts.append(f"text opacity={fnum(opacity)}")
+            body = self._decorate_text(st, ltx_escape(self._transform_text(content, st.get("text_transform"))))
             out.append(
                 f"\\node[{','.join(opts)}] at "
-                f"({fnum(x + spec['dx'])},{fnum(y + spec['dy'])}) {{{ltx_escape(content)}}};\n"
+                f"({fnum(x + spec['dx'])},{fnum(y + spec['dy'])}) {{{body}}};\n"
             )
         return "".join(out)
 

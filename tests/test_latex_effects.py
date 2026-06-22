@@ -97,3 +97,23 @@ def test_text_shadow_applies_to_text_spans():
 
     assert tex.index("at (1,12) {Run}") < tex.index("at (0,10) {Run}")
     assert "text={rgb,255:red,18;green,52;blue,86}" in tex
+
+
+def test_text_shadow_uses_transformed_and_decorated_text():
+    tex = _fig({"shade": "#123456"}).render({
+        "type": "text",
+        "box": [0, 0, 120, 20],
+        "text": "shadow_text",
+        "style": {
+            "text_transform": "uppercase",
+            "text_decoration": {"line": "underline"},
+            "text_shadow": [{"offset_x": 1, "offset_y": 2, "color": "shade"}],
+        },
+    })
+
+    shadow = "at (1,12) {\\underline{SHADOW\\_TEXT}}"
+    source = "at (0,10) {\\underline{SHADOW\\_TEXT}}"
+    assert shadow in tex
+    assert source in tex
+    assert tex.index(shadow) < tex.index(source)
+    assert "shadow\\_text" not in tex
