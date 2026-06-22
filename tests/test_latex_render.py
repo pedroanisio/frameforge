@@ -2,6 +2,7 @@
 """Regression coverage for the LaTeX/TikZ rendering backend."""
 from __future__ import annotations
 
+import copy
 import os
 import sys
 
@@ -148,6 +149,43 @@ def test_transpile_emits_native_latex_math_and_tikz():
     assert "Figure \\#1\\label{fg:fig-smoke}" in tex
     assert "\\begin{thebibliography}{99}" in tex
     assert "\\bibitem{einstein1905}A. Einstein, 1905." in tex
+
+
+def test_transpile_emits_extended_latex_flow_controls():
+    doc = copy.deepcopy(DOC)
+    doc["defs"]["glossary"] = {
+        "lagrangian": {"term": "Lagrangian", "definition": "Function for dynamics"},
+    }
+    doc["pages"][0]["story"] = [
+        {
+            "type": "paragraph",
+            "spans": [
+                "Indexed",
+                {"kind": "index", "term": "Gauge field", "sort": "gauge field"},
+                " term ",
+                {"kind": "gloss", "term": "Lagrangian", "show": "short"},
+                {"kind": "margin_note", "content": [{"type": "paragraph", "text": "Side A&B"}]},
+                {"kind": "footnote", "content": [{"type": "paragraph", "text": "Collected note"}]},
+            ],
+        },
+        {"type": "glossary", "title": "Glossary"},
+        {"type": "endnotes", "title": "Notes"},
+        {"type": "index", "title": "Concept Index", "columns": 2},
+    ]
+
+    tex = transpile(doc)
+
+    assert r"Indexed\index{gauge field@Gauge field}" in tex
+    assert r"Lagrangian\index{Lagrangian}" in tex
+    assert r"\marginpar{\footnotesize Side A\&B}" in tex
+    assert r"\textsuperscript{1}" in tex
+    assert r"\item Collected note" in tex
+    assert "Glossary" in tex
+    assert r"\item[Lagrangian] Function for dynamics" in tex
+    assert r"\renewcommand{\indexname}{Concept Index}" in tex
+    assert r"\printindex" in tex
+    assert r"\usepackage{makeidx}" in tex
+    assert r"\makeindex" in tex
 
 
 def test_render_latex_cli_tex_only_writes_tex(tmp_path):

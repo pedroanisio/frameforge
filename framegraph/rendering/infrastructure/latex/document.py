@@ -68,6 +68,9 @@ class _Transpiler:
         self._canvas = CanvasResolver(defs.get("masters") or {})
         self._figtikz = FigureTikz(self._color, self._ts, tok.get("stroke_styles") or {})
         self._book = _ColorBook()
+        self._gloss_terms = []
+        self._endnotes = []
+        self._use_endnotes = False
         self.skipped = 0
 
     # -- style → LaTeX font run ------------------------------------------- #
@@ -89,17 +92,23 @@ class _Transpiler:
 
     # -- inline ------------------------------------------------------------ #
     @staticmethod
-    def _inline_text(value):
+    def _index_entry(term, sort=None, see=None):
+        shown = ltx_escape(term)
+        prefix = f"{ltx_escape(sort)}@" if sort else ""
+        suffix = f"|see{{{ltx_escape(see)}}}" if see else ""
+        return f"\\index{{{prefix}{shown}{suffix}}}"
+
+    def _inline_text(self, value):
         if value is None:
             return ""
         if isinstance(value, (str, int, float)):
             return ltx_escape(value)
         if isinstance(value, list):
-            return "".join(_Transpiler._inline_text(v) for v in value)
+            return "".join(self._inline_text(v) for v in value)
         if not isinstance(value, dict):
             return ltx_escape(value)
         if value.get("kind") == "link" and value.get("href"):
-            inner = _Transpiler._inline_text(value.get("content"))
+            inner = self._inline_text(value.get("content"))
             return f"\\href{{{ltx_url_escape(value['href'])}}}{{{inner}}}"
         if value.get("kind") == "ref" and value.get("target"):
             target = _latex_label(value.get("target"))
@@ -114,8 +123,12 @@ class _Transpiler:
             note = ", ".join(str(x) for x in (value.get("prefix"), value.get("locator")) if x)
             return f"\\cite{f'[{ltx_escape(note)}]' if note else ''}{{{ltx_escape(key_text)}}}"
         if value.get("kind") == "footnote":
-            content = "".join(_Transpiler._flow_text_content(fl) for fl in (value.get("content") or []))
-            return "\\footnote{" + (content or ltx_escape(value.get("id") or "")) + "}"
+            content = "".join(self._flow_text_content(fl) for fl in (value.get("content") or []))
+            content = content or ltx_escape(value.get("id") or "")
+            if self._use_endnotes:
+                self._endnotes.append(content)
+                return f"\\textsuperscript{{{len(self._endnotes)}}}"
+            return "\\footnote{" + content + "}"
         if value.get("kind") == "math":
             tex = value.get("tex") or value.get("latex")
             if tex:
@@ -123,22 +136,33 @@ class _Transpiler:
             return ltx_escape(value.get("alt") or "math expression")
         if value.get("kind") == "code":
             return f"\\texttt{{{ltx_escape(value.get('text') or '')}}}"
+        if value.get("kind") == "index" and value.get("term"):
+            return self._index_entry(value.get("term"), value.get("sort"), value.get("see"))
+        if value.get("kind") == "gloss" and value.get("term"):
+            term = str(value.get("term"))
+            if term not in self._gloss_terms:
+                self._gloss_terms.append(term)
+            return ltx_escape(term) + self._index_entry(term)
+        if value.get("kind") == "margin_note":
+            content = "".join(self._flow_text_content(fl) for fl in (value.get("content") or []))
+            return "\\marginpar{\\footnotesize " + content + "}"
         if value.get("text") is not None:
             return ltx_escape(value["text"])
+        if isinstance(value.get("spans"), list):
+            return self._inline_text(value["spans"])
         if isinstance(value.get("content"), list):
-            return _Transpiler._inline_text(value["content"])
+            return self._inline_text(value["content"])
         return ""
 
-    @staticmethod
-    def _flow_text_content(fl):
+    def _flow_text_content(self, fl):
         if isinstance(fl, str):
             return ltx_escape(fl)
         if isinstance(fl, list):
-            return "".join(_Transpiler._flow_text_content(item) for item in fl)
+            return "".join(self._flow_text_content(item) for item in fl)
         if not isinstance(fl, dict):
             return ltx_escape(fl)
         if isinstance(fl.get("spans"), list):
-            return "".join(_Transpiler._inline_text(s) for s in fl["spans"])
+            return "".join(self._inline_text(s) for s in fl["spans"])
         if fl.get("text") is not None:
             return ltx_escape(fl.get("text"))
         if fl.get("type") == "math" and fl.get("tex"):
@@ -146,7 +170,7 @@ class _Transpiler:
         if fl.get("type") == "code":
             return f"\\texttt{{{ltx_escape(fl.get('source') or fl.get('code') or '')}}}"
         if isinstance(fl.get("children"), list):
-            return "".join(_Transpiler._flow_text_content(child) for child in fl["children"])
+            return "".join(self._flow_text_content(child) for child in fl["children"])
         return ""
 
     def _caption_text(self, value):
@@ -359,6 +383,66 @@ class _Transpiler:
             out.append(f"\\bibitem{{{ltx_escape(key)}}}{ltx_escape(text)}\n")
         out.append("\\end{thebibliography}\n")
 
+    def _emit_index(self, fl, out):
+        title = fl.get("title")
+        if title:
+            out.append(f"\\renewcommand{{\\indexname}}{{{ltx_escape(title)}}}\n")
+        out.append("\\printindex\n")
+
+    def _glossary_entries(self, source=None):
+        defs = self.doc.get("defs") if isinstance(self.doc.get("defs"), dict) else {}
+        candidates = []
+        if source and isinstance(defs.get(source), (dict, list)):
+            candidates.append(defs.get(source))
+        if isinstance(defs.get("glossary"), (dict, list)):
+            candidates.append(defs.get("glossary"))
+        if isinstance(defs.get("glossaries"), dict):
+            if source and isinstance(defs["glossaries"].get(source), (dict, list)):
+                candidates.append(defs["glossaries"][source])
+            candidates += [v for v in defs["glossaries"].values() if isinstance(v, (dict, list))]
+        for candidate in candidates:
+            if isinstance(candidate, dict):
+                for term, body in candidate.items():
+                    if isinstance(body, dict):
+                        yield str(body.get("term") or term), body.get("definition") or body.get("text") or body.get("long") or body.get("short") or ""
+                    else:
+                        yield str(term), body
+            elif isinstance(candidate, list):
+                for item in candidate:
+                    if isinstance(item, dict):
+                        term = item.get("term") or item.get("id")
+                        if term:
+                            yield str(term), item.get("definition") or item.get("text") or item.get("long") or item.get("short") or ""
+                    elif item:
+                        yield str(item), ""
+
+    def _emit_glossary(self, fl, out):
+        title = fl.get("title")
+        if title:
+            out.append(self._styled(self._ts.resolve(fl.get("style") or "h2"), ltx_escape(title), gap="4pt"))
+        entries = list(self._glossary_entries(fl.get("source")))
+        known = {term for term, _ in entries}
+        entries += [(term, "") for term in self._gloss_terms if term not in known]
+        if not entries:
+            self.skipped += 1
+            return
+        out.append("\\begin{description}[leftmargin=2.2em,style=nextline]\n")
+        for term, definition in entries:
+            out.append(f"\\item[{ltx_escape(term)}] {self._inline_text(definition)}\n")
+        out.append("\\end{description}\n\\addvspace{8pt}\n")
+
+    def _emit_endnotes(self, fl, out):
+        title = fl.get("title")
+        if title:
+            out.append(self._styled(self._ts.resolve(fl.get("style") or "h2"), ltx_escape(title), gap="4pt"))
+        if not self._endnotes:
+            self.skipped += 1
+            return
+        out.append("\\begin{enumerate}[leftmargin=2.2em,topsep=2pt,itemsep=1pt]\n")
+        for note in self._endnotes:
+            out.append("\\item " + note + "\n")
+        out.append("\\end{enumerate}\n\\addvspace{8pt}\n")
+
     # -- assembly ---------------------------------------------------------- #
     def build(self):
         pages = [p for p in (self.doc.get("pages") or []) if isinstance(p, dict)]
@@ -366,8 +450,10 @@ class _Transpiler:
         w, h = self._canvas.resolve(flow)
         self._textwidth = w - 2 * MARGIN_PT
 
+        story = flow.get("story") or []
+        self._use_endnotes = any(isinstance(fl, dict) and fl.get("type") == "endnotes" for fl in story)
         out = []
-        for fl in (flow.get("story") or []):
+        for fl in story:
             if isinstance(fl, dict):
                 self._emit(fl, out)
         body = "".join(out)
@@ -393,11 +479,13 @@ class _Transpiler:
             "\\usepackage{array}\n"
             "\\usepackage{enumitem}\n"
             "\\usepackage{graphicx}\n"
+            "\\usepackage{makeidx}\n"
             "\\usepackage[hidelinks]{hyperref}\n"
             "\\usepackage{nameref}\n"
             "\\usepackage{tikz}\n"
             "\\usetikzlibrary{arrows.meta}\n"
             "\\setmainfont{DejaVu Sans}\n"
+            "\\makeindex\n"
             f"{colordefs}\n"
             "\\setlength{\\parindent}{0pt}\n"
             "\\setlength{\\parskip}{0pt}\n"
