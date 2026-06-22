@@ -138,6 +138,8 @@ class FigureTikz:
         return sorted(kids, key=lambda o: num(o.get("z"), 0) or 0)
 
     def _draw(self, o) -> str:
+        if self._is_hidden(o):
+            return ""
         t = o.get("type")
         fn = getattr(self, f"_draw_{t.replace('.', '_')}", None) if isinstance(t, str) else None
         if fn is None:
@@ -150,6 +152,14 @@ class FigureTikz:
         except Exception:
             self.skipped += 1
             return ""
+
+    def _is_hidden(self, o):
+        style = self._style_dict(o)
+        visibility = o.get("visibility", style.get("visibility"))
+        display = o.get("display", style.get("display"))
+        hidden = visibility is not None and str(visibility).strip().lower() in ("hidden", "collapse")
+        no_display = display is not None and str(display).strip().lower() == "none"
+        return hidden or no_display
 
     def _style_dict(self, o):
         return self._resolve_style_ref(o.get("style"))
