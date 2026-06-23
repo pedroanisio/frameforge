@@ -835,6 +835,27 @@ class FigureTikz:
                 out.append(value[start:i - 1].strip())
         return out
 
+    @staticmethod
+    def _css_split_top_level(value, sep=","):
+        s = str(value)
+        out = []
+        start = 0
+        depth = 0
+        for i, ch in enumerate(s):
+            if ch == "(":
+                depth += 1
+            elif ch == ")" and depth:
+                depth -= 1
+            elif ch == sep and depth == 0:
+                part = s[start:i].strip()
+                if part:
+                    out.append(part)
+                start = i + 1
+        tail = s[start:].strip()
+        if tail:
+            out.append(tail)
+        return out
+
     def _css_shadow_params(self, body):
         color_match = re.search(r"(rgba?\([^)]*\)|#[0-9A-Fa-f]{3,8})", body)
         color, opacity = "#000000", 0.25
@@ -844,10 +865,19 @@ class FigureTikz:
         parts = [p for p in body.split() if p]
         if len(parts) < 2:
             return None
+        rest = parts[2:]
+        blur = 0
+        if rest:
+            parsed_blur = num(rest[0], None)
+            if parsed_blur is not None:
+                blur = parsed_blur
+                rest = rest[1:]
+        if rest and not color_match:
+            color = " ".join(rest)
         return {
             "dx": num(parts[0], 0),
             "dy": num(parts[1], 0),
-            "blur": num(parts[2], 0) if len(parts) > 2 else 0,
+            "blur": blur,
             "color": color,
             "opacity": opacity,
         }
@@ -876,6 +906,13 @@ class FigureTikz:
             except ValueError:
                 opacity = 0.25
         return f"#{r:02x}{g:02x}{b:02x}", opacity
+
+    @staticmethod
+    def _css_shadow_has_explicit_opacity(value):
+        s = str(value)
+        if re.search(r"rgba\(", s, flags=re.I):
+            return True
+        return re.search(r"#[0-9A-Fa-f]{8}\b", s) is not None
 
     def _effect_opts(self, kind, params):
         expr, _ = color_expr(params.get("color") or ("#000000" if kind == "shadow" else "#FFD700"))
@@ -1394,24 +1431,43 @@ class FigureTikz:
             return ["rotate=90"]
         return []
 
-    @staticmethod
-    def _text_shadow_specs(st):
+    def _text_shadow_specs(self, st):
         value = st.get("text_shadow") if isinstance(st, dict) else None
+        from_css = False
+        if not value and isinstance(st, dict):
+            value = self._css_decl(st, "text-shadow")
+            from_css = value is not None
         if not value:
             return []
         specs = []
-        for raw in str(value).split(","):
-            parts = raw.strip().split()
-            if len(parts) < 2:
-                continue
-            dx, dy = num(parts[0], None), num(parts[1], None)
+        if isinstance(value, dict):
+            values = [value]
+        elif isinstance(value, list):
+            values = value
+        else:
+            values = self._css_split_top_level(value)
+        for raw in values:
+            if isinstance(raw, dict):
+                dx = num(raw.get("dx", raw.get("offset_x")), None)
+                dy = num(raw.get("dy", raw.get("offset_y")), None)
+                blur = num(raw.get("blur"), 0)
+                color = raw.get("color", "#000000")
+                opacity = raw.get("opacity")
+            else:
+                params = self._css_shadow_params(str(raw))
+                if not params:
+                    continue
+                dx, dy = num(params.get("dx"), None), num(params.get("dy"), None)
+                blur = num(params.get("blur"), 0)
+                color = params.get("color", "#000000")
+                opacity = params.get("opacity")
+                if not from_css and not self._css_shadow_has_explicit_opacity(raw):
+                    opacity = None
             if dx is None or dy is None:
                 continue
-            blur = num(parts[2], 0) if len(parts) >= 3 else 0
-            color = parts[3] if len(parts) >= 4 else "#000000"
             expr, op = color_expr(color)
             if expr:
-                specs.append({"dx": dx, "dy": dy, "blur": blur or 0, "expr": expr, "opacity": op})
+                specs.append({"dx": dx, "dy": dy, "blur": blur or 0, "expr": expr, "opacity": op if op is not None else opacity})
         return specs
 
     @staticmethod

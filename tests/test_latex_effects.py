@@ -159,6 +159,41 @@ def test_text_shadow_uses_transformed_and_decorated_text():
     assert "shadow\\_text" not in tex
 
 
+def test_raw_css_text_shadow_draws_offset_text_before_source_text():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 180, 30],
+        "text": "CSS Shadow",
+        "style": {
+            "css": "text-shadow: 1px 2px 3px rgba(15,23,42,.45)",
+            "color": "#111111",
+        },
+    })
+
+    shadow = "at (11,37) {CSS Shadow}"
+    source = "at (10,35) {CSS Shadow}"
+    assert tex.index(shadow) < tex.index(source)
+    assert "text={rgb,255:red,15;green,23;blue,42}" in tex
+    assert "text opacity=0.45" in tex
+
+
+def test_raw_css_text_shadow_allows_multiple_color_function_shadows():
+    tex = _fig().render({
+        "type": "text",
+        "box": [0, 0, 160, 20],
+        "text": "Layered",
+        "style": {
+            "css": "text-shadow: 1px 2px 3px rgba(15,23,42,.45), 4px 5px 0 #12345680",
+        },
+    })
+
+    assert "at (1,12) {Layered}" in tex
+    assert "at (4,15) {Layered}" in tex
+    assert "text={rgb,255:red,15;green,23;blue,42}" in tex
+    assert "text={rgb,255:red,18;green,52;blue,86}" in tex
+    assert "text opacity=0.502" in tex
+
+
 def test_object_isolation_maps_to_tikz_transparency_group():
     tex = _fig().render({
         "type": "rect",
