@@ -339,6 +339,29 @@ def test_raw_css_filter_opacity_multiplies_existing_opacity():
     assert "\\begin{scope}[opacity=0.2]" in tex
 
 
+def test_raw_css_opacity_resolves_custom_property_calc():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {"css": "--a: 0.9; opacity: calc(var(--a) - 0.35)"},
+    })
+
+    assert "\\begin{scope}[opacity=0.55]" in tex
+
+
+def test_raw_css_filter_opacity_resolves_custom_property():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "opacity": 0.5,
+        "style": {"css": "--a: 40%; filter: blur(2px) opacity(var(--a))"},
+    })
+
+    assert "\\begin{scope}[opacity=0.2]" in tex
+
+
 def test_style_opacity_filter_maps_to_tikz_scope_opacity():
     tex = _fig().render({
         "type": "rect",

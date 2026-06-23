@@ -260,14 +260,60 @@ class FigureTikz:
         if not isinstance(css, str):
             return None
         target = name.strip().lower()
+        custom = {}
         for decl in css.split(";"):
             if ":" not in decl:
                 continue
             key, value = decl.split(":", 1)
-            if key.strip().lower() == target:
+            key = key.strip().lower()
+            value = value.strip()
+            if key.startswith("--"):
+                custom[key] = value
+            if key == target:
                 value = value.strip()
-                return value or None
+                return FigureTikz._css_resolve_value(value, custom) or None
         return None
+
+    @staticmethod
+    def _css_resolve_value(value, custom):
+        def repl_var(match):
+            key = match.group(1).strip().lower()
+            fallback = match.group(2)
+            if key in custom:
+                return custom[key]
+            return fallback.strip() if fallback is not None else match.group(0)
+
+        out = re.sub(r"var\(\s*(--[A-Za-z0-9_-]+)\s*(?:,\s*([^)]+?))?\s*\)", repl_var, str(value))
+
+        def repl_calc(match):
+            resolved = FigureTikz._css_eval_calc(match.group(1))
+            return resolved if resolved is not None else match.group(0)
+
+        return re.sub(r"calc\(\s*([^()]+?)\s*\)", repl_calc, out)
+
+    @staticmethod
+    def _css_eval_calc(expr):
+        tokens = re.findall(r"([+-]?)\s*(-?\d+(?:\.\d+)?)([A-Za-z%]*)", str(expr))
+        if not tokens:
+            return None
+        consumed = "".join(f"{sign}{amount}{unit}" for sign, amount, unit in tokens)
+        compact = re.sub(r"\s+", "", str(expr))
+        if consumed != compact:
+            return None
+        unit = ""
+        total = 0.0
+        for idx, (sign, amount, item_unit) in enumerate(tokens):
+            if item_unit:
+                if unit and item_unit != unit:
+                    return None
+                unit = item_unit
+            elif unit and idx > 0:
+                return None
+            value = num(amount, None)
+            if value is None:
+                return None
+            total += -value if sign == "-" else value
+        return f"{fnum(total)}{unit}"
 
     @staticmethod
     def _opacity_filter_value(value):

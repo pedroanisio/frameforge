@@ -516,6 +516,37 @@ def test_transpile_page_mode_emits_raw_css_transform_scopes():
     assert r"\begin{scope}[rotate around={12:(668,64)},shift={(668,64)},xscale=1.1,yscale=1.1,shift={(-668,-64)}]" in tex
 
 
+def test_raw_css_transform_resolves_custom_property():
+    doc = {
+        "dsl": "FrameGraph",
+        "version": "2.2.0",
+        "pages": [
+            {
+                "id": "p",
+                "canvas": {"size": [120, 100]},
+                "layers": [
+                    {
+                        "objects": [
+                            {
+                                "type": "rect",
+                                "box": [10, 20, 40, 30],
+                                "fill": "#2e86de",
+                                "style": {
+                                    "css": "--deg: 6deg; transform: rotate(var(--deg)); transform-origin: center",
+                                },
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+
+    tex = transpile(doc)
+
+    assert r"\begin{scope}[rotate around={6:(30,35)}]" in tex
+
+
 def test_render_latex_cli_lists_framegraph_docs(tmp_path, capsys):
     flow = tmp_path / "flow.fg.yaml"
     page = tmp_path / "page.fg.yaml"
