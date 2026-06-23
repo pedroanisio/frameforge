@@ -157,6 +157,54 @@ def test_isolation_composes_with_opacity_scope_options():
     assert "\\begin{scope}[transparency group,opacity=0.5]" in tex
 
 
+def test_style_mix_blend_mode_maps_to_tikz_blend_scope():
+    tex = _fig().render({
+        "type": "circle",
+        "center": [20, 20],
+        "r": 10,
+        "fill": "#00aaff",
+        "style": {"mix_blend_mode": "multiply"},
+    })
+
+    assert "\\begin{scope}[blend mode=multiply]" in tex
+    assert "(20,20) circle (10pt)" in tex
+
+
+def test_hyphenated_mix_blend_mode_maps_to_tikz_spaced_name():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {"mix_blend_mode": "color-dodge"},
+    })
+
+    assert "\\begin{scope}[blend mode=color dodge]" in tex
+
+
+def test_normal_mix_blend_mode_does_not_create_scope():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {"mix_blend_mode": "normal"},
+    })
+
+    assert "\\begin{scope}" not in tex
+    assert "(0,0) rectangle (20,10)" in tex
+
+
+def test_mix_blend_mode_composes_with_isolation_and_opacity():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "opacity": 0.5,
+        "style": {"mix_blend_mode": "screen", "isolation": "isolate"},
+    })
+
+    assert "\\begin{scope}[transparency group,blend mode=screen,opacity=0.5]" in tex
+
+
 def test_style_opacity_filter_maps_to_tikz_scope_opacity():
     tex = _fig().render({
         "type": "rect",

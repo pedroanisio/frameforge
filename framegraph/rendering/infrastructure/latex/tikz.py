@@ -191,6 +191,9 @@ class FigureTikz:
             isolation = style.get("isolation")
         if str(isolation or "").strip().lower() == "isolate":
             opts.append("transparency group")
+        blend_mode = self._blend_mode(style.get("mix_blend_mode"))
+        if blend_mode:
+            opts.append(f"blend mode={blend_mode}")
         opacity = o.get("opacity")
         if opacity in (None, 1):
             opacity = style.get("opacity")
@@ -203,6 +206,18 @@ class FigureTikz:
         if transform:
             opts += transform
         return f"\\begin{{scope}}[{','.join(opts)}]\n{body}\\end{{scope}}\n" if opts else body
+
+    @staticmethod
+    def _blend_mode(value):
+        if value in (None, False, "normal", ""):
+            return None
+        mode = str(value).strip().lower().replace("_", "-")
+        allowed = {
+            "multiply", "screen", "overlay", "darken", "lighten", "color-dodge",
+            "color-burn", "hard-light", "soft-light", "difference", "exclusion",
+            "hue", "saturation", "color", "luminosity",
+        }
+        return mode.replace("-", " ") if mode in allowed else None
 
     def _filter_opacity(self, value):
         if value in (None, False, "none", ""):
