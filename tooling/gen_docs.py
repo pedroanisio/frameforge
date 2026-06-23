@@ -2,22 +2,24 @@
 """
 gen_docs.py — generate the MkDocs site content from the source of truth.
 
-Writes the git-ignored pages under docs/ that `mkdocs build` consumes, so the
-documentation site is generated (never hand-drifted), the same way the schema and
-the fixture-status table are:
+Writes the generated pages under docs/ that `mkdocs build` consumes, so the
+documentation site is generated from source artifacts instead of hand-drifted,
+the same way the schema and the fixture-status table are:
 
   docs/reference.md  ← generated from schema/framegraph-v2.schema.json ($defs)
   docs/grammar.md    ← the two grammar/*.ebnf files, embedded
   docs/fixtures.md   ← gallery: every fixture rendered to SVG (render_fixtures.py)
                        + the validator status table (gen_status.py)
-  docs/sdk.md        ← practical Python SDK guide
-  docs/sdk-api.md    ← Python SDK API reference generated from docstrings
+  docs/sdk.md        ← practical Python SDK guide (committed generated snapshot)
+  docs/sdk-api.md    ← Python SDK API reference generated from docstrings (committed)
   docs/spec.md       ← spec/framegraph-v2-spec.md (verbatim)
   docs/changelog.md  ← CHANGELOG.md (verbatim)
 
-Only docs/index.md is hand-written/committed. Run via `make docs` (which then
-builds the site). Needs only stdlib + pydantic + pyyaml — no docs tooling — so it
-runs in a bare/offline env; the theme is fetched at build time by `make docs`.
+`docs/index.md` is hand-written. The SDK guide/API are committed generated
+snapshots; the reference/spec/grammar/fixtures/changelog pages and render assets
+are transient build artifacts. Run via `make docs` (which then builds the site).
+Needs only stdlib + pydantic + pyyaml — no docs tooling — so it runs in a
+bare/offline env; the theme is fetched at build time by `make docs`.
 
 Usage:
     python tooling/gen_docs.py            # (re)generate the pages

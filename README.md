@@ -30,7 +30,7 @@ tooling/
   render_fg_doc.py            ← the matplotlib PROXY renderer, patched to HEAD (sanity check only).
   pdf_to_framegraph_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameGraph YAML extractor.
   gen_status.py               ← GENERATES FIXTURE-STATUS.md from the validator (`--check` gates drift).
-  gen_docs.py                 ← GENERATES the docs-site pages (schema reference, gallery, spec, grammar).
+  gen_docs.py                 ← GENERATES the docs-site pages (reference/gallery/spec/grammar plus SDK docs).
   check_grammar_sync.py       ← GATES grammar ⇄ models drift (core profile); `--strict` for full parity.
   check_accessibility.py      ← GATES page reading_order integrity; warns on missing image alt (a11y).
   render_golden.py            ← GATES b1/ oracle SVG output against a pinned hash lock (golden).
@@ -38,9 +38,9 @@ fixtures/                     ← the original fixtures, migrated to 2.2.0.
   b1/                         ← the 8 AUTHORITATIVE fixtures (the oracle the tests assert against).
 tests/
   test_head.py                ← assertions: authoritative fixtures validate, schema in sync, style surface, P3.
-  test_docs_in_sync.py        ← doc drift gate: README/CHANGELOG numbers + Layout paths match the tooling.
+  test_docs_in_sync.py        ← doc drift gate: numbers, Layout paths, generated-doc policy, fixture status.
   test_doc_examples.py        ← validates every complete FrameGraph example shown in the prose.
-docs/ + mkdocs.yml            ← the GENERATED MkDocs site (only docs/index.md is committed; `make docs`).
+docs/ + mkdocs.yml            ← the MkDocs site: `index.md` is hand-written, `sdk*.md` are committed generated snapshots, and transient generated pages are ignored.
 FIXTURE-STATUS.md             ← GENERATED validator status for the delivered fixtures (gen_status.py).
 CHANGELOG.md                  ← version, the breaking change + migration, conformance classes, rec. resolution.
 codebase-standards.md         ← the elevated engineering bar, status-tagged (Enforced / Adopted / Target).
@@ -76,7 +76,7 @@ uv sync                                    # create/populate .venv
 # schema is generated and in sync
 uv run python schema/build_schema.py --check
 
-# validate the (migrated) fixtures — 0 errors on the core profile
+# validate the delivered top-level fixtures — 21/21 zero errors in FIXTURE-STATUS.md
 uv run python tooling/validate.py fixtures/*.fg.yaml
 
 # migrate a legacy v2 document to HEAD
@@ -141,5 +141,6 @@ folded into the artifacts above; they are listed only for historical context:
   the models remain the authority if the two ever disagree.
 - Font pinning enables deterministic *layout* only up to a stated rounding **tolerance**
   (a defined shaping model is also required) — not pixel-exact identity (§9.6).
-- Two of the nine fixtures (Coopera) retain **2 genuine errors each** (an `image` with a
-  `stroke`, which images don't have) — surfaced by the validator, to be fixed at source.
+- The current delivered top-level fixture status is generated in `FIXTURE-STATUS.md`;
+  at this snapshot **21/21** have zero errors. Advisory warnings, when present, are
+  recorded there instead of summarized by hand here.

@@ -41,10 +41,9 @@ There are really two layers of "intermediate":
 ## The IR: the `Document` model tree
 
 The IR is the Pydantic model hierarchy rooted at `Document`, defined in
-[models/framegraph.py:1033](https://github.com/pedroanisio/frameforge/blob/main/models/framegraph.py#L1033). It is produced by
-validating the input file via
-[`validate_document()`](https://github.com/pedroanisio/frameforge/blob/main/framegraph/sdk/model.py#L26) in
-`framegraph/sdk/model.py`.
+[`models/framegraph.py`](https://github.com/pedroanisio/frameforge/blob/main/models/framegraph.py).
+It is produced by validating the input file via `validate_document()` in
+[`framegraph/sdk/model.py`](https://github.com/pedroanisio/frameforge/blob/main/framegraph/sdk/model.py).
 
 Because it is a Pydantic tree, the IR is:
 
@@ -73,7 +72,7 @@ across backends.
 
 ### 1. Parse → IR
 
-`validate_document()` ([framegraph/sdk/model.py:26](https://github.com/pedroanisio/frameforge/blob/main/framegraph/sdk/model.py#L26))
+`validate_document()` ([framegraph/sdk/model.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/sdk/model.py))
 loads JSON/YAML and validates it into a `Document` instance. The SDK
 (`framegraph/sdk/`) also provides authoring, conform, expand, draw, and IO
 helpers around this model.
@@ -99,7 +98,7 @@ colors. The resolvers live in
 | `geometry` | Shared geometric math |
 
 For the SVG path, the builder is the `Renderer` class in
-[tooling/render_fixtures.py:93](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_fixtures.py#L93). It wires up
+[`tooling/render_fixtures.py`](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_fixtures.py). It wires up
 the resolvers and an `SvgPainter`, then emits primitives page by page
 (`render_page`, `render_text`, …).
 
@@ -107,7 +106,7 @@ the resolvers and an `SvgPainter`, then emits primitives page by page
 
 The seam between the builder and a backend is the **`ScenePainter` port**, an
 *immediate-mode display list* defined in
-[framegraph/rendering/domain/ports.py:22](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/domain/ports.py#L22).
+[`framegraph/rendering/domain/ports.py`](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/domain/ports.py).
 The builder calls methods like `rect()`, `ellipse()`, `path()`, `text_block()`,
 `group()`, `document()`; each returns the backend's representation of that
 primitive and manages per-page backend resources (gradient/clip id counters, the
@@ -123,9 +122,9 @@ Backends are infrastructure adapters under
 - **LaTeX / TikZ** — driven by `render_latex.py`
   ([tooling/render_latex.py](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_latex.py)), which transpiles the
   IR via `_Transpiler`
-  ([latex/document.py:72](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/infrastructure/latex/document.py#L72))
+  ([latex/document.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/infrastructure/latex/document.py))
   and renders vector figures through `FigureTikz`
-  ([latex/tikz.py:118](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/infrastructure/latex/tikz.py#L118)).
+  ([latex/tikz.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/infrastructure/latex/tikz.py)).
   The emitted `.tex` is compiled to PDF with `lualatex`.
 
 ## Design notes

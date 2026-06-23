@@ -11,3 +11,8 @@ out2/
 fixture_old/
 fixture.tar
 .repo/
+.agent-tasks/
+doc-hygiene-report.md
+doc-quarantine.sh
+quarantine-manifest.json
+quarantine-summaries.md

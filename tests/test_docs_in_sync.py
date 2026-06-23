@@ -20,6 +20,7 @@ Runs under pytest (`uv run pytest`) or standalone (`uv run python tests/test_doc
 """
 import os
 import re
+import subprocess
 import sys
 import tomllib
 
@@ -35,8 +36,26 @@ import build_schema as B  # noqa: E402
 
 README = open(os.path.join(ROOT, "README.md"), encoding="utf-8").read()
 CHANGELOG = open(os.path.join(ROOT, "CHANGELOG.md"), encoding="utf-8").read()
+CLAUDE = open(os.path.join(ROOT, "CLAUDE.md"), encoding="utf-8").read()
+FIXTURE_STATUS = open(os.path.join(ROOT, "FIXTURE-STATUS.md"), encoding="utf-8").read()
+DOCS_GITIGNORE = open(os.path.join(ROOT, "docs", ".gitignore"), encoding="utf-8").read()
+MKDOCS = open(os.path.join(ROOT, "mkdocs.yml"), encoding="utf-8").read()
+GEN_DOCS = open(os.path.join(ROOT, "tooling", "gen_docs.py"), encoding="utf-8").read()
+ARCHITECTURE = open(os.path.join(ROOT, "docs", "architecture.md"), encoding="utf-8").read()
+ROADMAP = open(os.path.join(ROOT, "docs", "roadmap-draft.md"), encoding="utf-8").read()
 
 _SKIP_DIRS = {".git", ".venv", "node_modules", "out", "__pycache__", ".pytest_cache", ".ruff_cache"}
+_TRANSIENT_GENERATED_DOCS = {
+    "docs/reference.md",
+    "docs/grammar.md",
+    "docs/spec.md",
+    "docs/fixtures.md",
+    "docs/changelog.md",
+}
+_TRACKED_GENERATED_DOCS = {
+    "docs/sdk.md",
+    "docs/sdk-api.md",
+}
 
 
 def _test_count():
@@ -51,6 +70,11 @@ def _exists_in_repo(name, want_dir):
         if (name in dirs) if want_dir else (name in files):
             return True
     return False
+
+
+def _git_ls_files(*paths):
+    out = subprocess.check_output(["git", "ls-files", *paths], cwd=ROOT, text=True)
+    return set(out.splitlines())
 
 
 def test_readme_defs_count_matches_schema():
@@ -99,6 +123,50 @@ def test_layout_paths_exist():
             if not ok:
                 missing.append(tok)
     assert not missing, f"README Layout names paths that don't exist (deleted/renamed?): {missing}"
+
+
+def test_generated_docs_tracking_policy_matches_git():
+    tracked = _git_ls_files("docs")
+    leaked = sorted(_TRANSIENT_GENERATED_DOCS & tracked)
+    missing_tracked = sorted(_TRACKED_GENERATED_DOCS - tracked)
+
+    assert not leaked, f"transient generated docs should stay ignored/untracked: {leaked}"
+    assert not missing_tracked, f"committed generated SDK docs missing from git: {missing_tracked}"
+    assert "Only docs/index.md" not in README + "\n" + DOCS_GITIGNORE + "\n" + GEN_DOCS
+    assert "they are git-ignored" not in MKDOCS
+
+
+def test_readme_fixture_status_claim_matches_generated_status():
+    m = re.search(r"\*\*(\d+)/(\d+)\*\* have zero errors", FIXTURE_STATUS)
+    assert m, "FIXTURE-STATUS.md no longer exposes the generated clean/total summary"
+    clean, total = m.groups()
+
+    assert f"{clean}/{total}" in README, (
+        f"README should cite current generated fixture status {clean}/{total}"
+    )
+    assert "Two of the nine fixtures" not in README
+
+
+def test_claude_guidelines_are_project_specific():
+    forbidden = [
+        "SEED VERSION",
+        "Project Name",
+        "<RELATIVE_PATH_TO_DISCLAIMER>",
+        "Every README file in this repository **must** reference",
+    ]
+    for needle in forbidden:
+        assert needle not in CLAUDE, f"CLAUDE.md still contains template/policy drift text: {needle}"
+    if not os.path.exists(os.path.join(ROOT, "PURPOSE.md")):
+        assert "@PURPOSE.md" not in CLAUDE, "CLAUDE.md references missing PURPOSE.md"
+
+
+def test_architecture_doc_avoids_stale_line_anchors():
+    assert "#L" not in ARCHITECTURE, "docs/architecture.md should not use fragile GitHub line anchors"
+
+
+def test_roadmap_doc_avoids_stale_commit_pins():
+    assert "verified_at_commit:" not in ROADMAP
+    assert "bc90f15" not in ROADMAP
 
 
 if __name__ == "__main__":
