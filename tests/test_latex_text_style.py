@@ -318,6 +318,44 @@ def test_word_spacing_maps_to_tex_spaceskip():
     assert "{\\spaceskip=12pt wide words}" in tex
 
 
+def test_raw_css_letter_and_word_spacing_map_to_latex_text_features():
+    tex = _fig({"label": {"css": "letter-spacing: 4px; word-spacing: 10px"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "spaced out",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{LetterSpace=4}" in tex
+    assert "{\\spaceskip=10pt spaced out}" in tex
+
+
+def test_normalized_text_spacing_wins_over_raw_css_spacing():
+    tex = _fig({"label": {"letter_spacing": 2, "word_spacing": 6, "css": "letter-spacing: 4px; word-spacing: 10px"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "spaced out",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{LetterSpace=2}" in tex
+    assert "\\addfontfeatures{LetterSpace=4}" not in tex
+    assert "{\\spaceskip=6pt spaced out}" in tex
+    assert "\\spaceskip=10pt" not in tex
+
+
+def test_raw_css_text_spacing_applies_to_spans():
+    tex = _fig({"base": {"size": 10}, "tracked": {"css": "letter-spacing: 3px; word-spacing: 8px"}}).render({
+        "type": "text",
+        "box": [0, 0, 160, 20],
+        "style": "base",
+        "spans": [{"text": "span words", "style": "tracked"}],
+    })
+
+    assert "\\addfontfeatures{LetterSpace=3}" in tex
+    assert "{\\spaceskip=8pt span words}" in tex
+
+
 def test_text_indent_maps_to_initial_hspace():
     tex = _fig({"label": {"text_indent": "12px"}}).render({
         "type": "text",

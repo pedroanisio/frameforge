@@ -1246,6 +1246,17 @@ class FigureTikz:
             font += f"\\addfontfeatures{{LetterSpace={fnum(letter_space)}}}"
         return font
 
+    def _css_text_style(self, st):
+        if not isinstance(st, dict) or not isinstance(st.get("css"), str):
+            return st
+        out = dict(st)
+        for css_name, key in (("letter-spacing", "letter_spacing"), ("word-spacing", "word_spacing")):
+            if out.get(key) is None:
+                value = self._css_decl(out, css_name)
+                if value is not None:
+                    out[key] = value
+        return out
+
     @staticmethod
     def _letter_space_amount(value):
         if value is None:
@@ -1623,6 +1634,7 @@ class FigureTikz:
             if text is None or text == "":
                 continue
             st = self._ts.resolve(sp.get("style")) if isinstance(sp, dict) and sp.get("style") else base_st
+            st = self._css_text_style(st)
             run_w = max(len(str(text)) * (st.get("size", 12) or 12) * (st.get("avg", 0.52) or 0.52), 1)
             if anchor == "center":
                 # Multi-run centered text is placed from the left edge so run order
@@ -1649,7 +1661,7 @@ class FigureTikz:
         if content is None or content == "":
             return ""
         x, y, w, h = (num(v, 0) for v in box[:4])
-        st = self._ts.resolve(o.get("style"))
+        st = self._css_text_style(self._ts.resolve(o.get("style")))
         align = st.get("align") or "left"
         if align in ("center", "middle"):
             ax, anchor, talign = x + w / 2, "center", "center"
