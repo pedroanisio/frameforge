@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `CubicBezier`, `Document`, `DocumentBuilder`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `ValidationReport`, `Vec2`, `Vec3`, `column`, `expand`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `model_module`, `paragraph`, `parse`, `radial_gradient`, `rgba`, `row`, `serialize`, `shadow`, `stroke`, `theme`, `validate_static_rules`
+`Chart`, `CubicBezier`, `Document`, `DocumentBuilder`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `ValidationReport`, `Vec2`, `Vec3`, `column`, `expand`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `paragraph`, `parse`, `radial_gradient`, `rgba`, `row`, `serialize`, `shadow`, `stroke`, `text_height`, `theme`, `validate_static_rules`, `wrap_text`
 
 ## `framegraph.sdk.author`
 

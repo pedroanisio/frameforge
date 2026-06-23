@@ -24,6 +24,10 @@ dev = [
 ]
 render = ["matplotlib>=3.7", "pillow>=10"]
 pdf = ["pymupdf>=1.24"]
+# Real font-advance metrics for accurate text wrap/fit (framegraph.sdk.measure_text
+# and render_fixtures.py --real-metrics). Optional: absent it, callers fall back to
+# the per-character estimate, so core rendering stays dependency-free (§13).
+metrics = ["fonttools>=4"]
 
 [tool.uv]
 # Virtual project: manage the venv + dependencies, but do NOT build/install this

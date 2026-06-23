@@ -274,6 +274,9 @@ dev = [
     { name = "hypothesis" },
     { name = "pytest" },
 ]
+metrics = [
+    { name = "fonttools" },
+]
 pdf = [
     { name = "pymupdf" },
 ]
@@ -294,6 +297,7 @@ dev = [
     { name = "hypothesis", specifier = ">=6" },
     { name = "pytest", specifier = ">=8" },
 ]
+metrics = [{ name = "fonttools", specifier = ">=4" }]
 pdf = [{ name = "pymupdf", specifier = ">=1.24" }]
 render = [
     { name = "matplotlib", specifier = ">=3.7" },
