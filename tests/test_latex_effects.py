@@ -205,6 +205,65 @@ def test_mix_blend_mode_composes_with_isolation_and_opacity():
     assert "\\begin{scope}[transparency group,blend mode=screen,opacity=0.5]" in tex
 
 
+def test_raw_css_mix_blend_mode_maps_to_tikz_blend_scope():
+    tex = _fig().render({
+        "type": "circle",
+        "center": [20, 20],
+        "r": 10,
+        "fill": "#00aaff",
+        "style": {"css": "mix-blend-mode: multiply"},
+    })
+
+    assert "\\begin{scope}[blend mode=multiply]" in tex
+
+
+def test_normalized_mix_blend_mode_wins_over_raw_css():
+    tex = _fig().render({
+        "type": "circle",
+        "center": [20, 20],
+        "r": 10,
+        "fill": "#00aaff",
+        "style": {"mix_blend_mode": "screen", "css": "mix-blend-mode: multiply"},
+    })
+
+    assert "\\begin{scope}[blend mode=screen]" in tex
+    assert "blend mode=multiply" not in tex
+
+
+def test_raw_css_opacity_maps_to_tikz_scope_opacity():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {"css": "opacity: 0.45"},
+    })
+
+    assert "\\begin{scope}[opacity=0.45]" in tex
+
+
+def test_raw_css_opacity_accepts_percent_values():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {"css": "opacity: 45%"},
+    })
+
+    assert "\\begin{scope}[opacity=0.45]" in tex
+
+
+def test_raw_css_filter_opacity_multiplies_existing_opacity():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "opacity": 0.5,
+        "style": {"css": "filter: blur(2px) opacity(40%)"},
+    })
+
+    assert "\\begin{scope}[opacity=0.2]" in tex
+
+
 def test_style_opacity_filter_maps_to_tikz_scope_opacity():
     tex = _fig().render({
         "type": "rect",

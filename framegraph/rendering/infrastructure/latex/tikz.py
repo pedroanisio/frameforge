@@ -191,13 +191,15 @@ class FigureTikz:
             isolation = style.get("isolation")
         if str(isolation or "").strip().lower() == "isolate":
             opts.append("transparency group")
-        blend_mode = self._blend_mode(style.get("mix_blend_mode"))
+        blend_mode = self._blend_mode(style.get("mix_blend_mode") or self._css_decl(style, "mix-blend-mode"))
         if blend_mode:
             opts.append(f"blend mode={blend_mode}")
         opacity = o.get("opacity")
         if opacity in (None, 1):
             opacity = style.get("opacity")
-        filter_opacity = self._filter_opacity(style.get("filter"))
+        if opacity in (None, 1):
+            opacity = self._opacity_filter_value(self._css_decl(style, "opacity"))
+        filter_opacity = self._filter_opacity(style.get("filter"), self._css_decl(style, "filter"))
         if filter_opacity is not None:
             opacity = num(opacity, 1) * filter_opacity
         if opacity not in (None, 1):
@@ -219,32 +221,53 @@ class FigureTikz:
         }
         return mode.replace("-", " ") if mode in allowed else None
 
-    def _filter_opacity(self, value):
-        if value in (None, False, "none", ""):
-            return None
+    def _filter_opacity(self, *values):
         opacities = []
-        if isinstance(value, str):
-            for raw in re.findall(r"opacity\(\s*([^)]+?)\s*\)", value, flags=re.I):
-                parsed = self._opacity_filter_value(raw)
-                if parsed is not None:
-                    opacities.append(parsed)
-        else:
+        for value in values:
+            if value in (None, False, "none", ""):
+                continue
+            if isinstance(value, str):
+                for raw in re.findall(r"opacity\(\s*([^)]+?)\s*\)", value, flags=re.I):
+                    parsed = self._opacity_filter_value(raw)
+                    if parsed is not None:
+                        opacities.append(parsed)
+                continue
             items = value if isinstance(value, list) else [value]
             for item in items:
-                if not isinstance(item, dict):
-                    continue
-                name = item.get("fn") or item.get("kind") or item.get("name")
-                if str(name or "").strip().lower() != "opacity":
-                    continue
-                parsed = self._opacity_filter_value(item.get("value", 1))
-                if parsed is not None:
-                    opacities.append(parsed)
+                if isinstance(item, dict):
+                    name = item.get("fn") or item.get("kind") or item.get("name")
+                    if str(name or "").strip().lower() != "opacity":
+                        continue
+                    parsed = self._opacity_filter_value(item.get("value", 1))
+                    if parsed is not None:
+                        opacities.append(parsed)
+                else:
+                    parsed = self._opacity_filter_value(item)
+                    if parsed is not None:
+                        opacities.append(parsed)
         if not opacities:
             return None
         opacity = 1.0
         for value in opacities:
             opacity *= value
         return opacity
+
+    @staticmethod
+    def _css_decl(style, name):
+        if not isinstance(style, dict):
+            return None
+        css = style.get("css")
+        if not isinstance(css, str):
+            return None
+        target = name.strip().lower()
+        for decl in css.split(";"):
+            if ":" not in decl:
+                continue
+            key, value = decl.split(":", 1)
+            if key.strip().lower() == target:
+                value = value.strip()
+                return value or None
+        return None
 
     @staticmethod
     def _opacity_filter_value(value):
