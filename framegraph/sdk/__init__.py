@@ -14,6 +14,7 @@ from framegraph.sdk.geometry import CubicBezier, Mat3, Mat4, Path, Vec2, Vec3
 from framegraph.sdk.io import parse, serialize
 from framegraph.sdk.layout import column, grid, inset, row
 from framegraph.sdk.macros import lorem, lorem_paragraphs, md, paragraph, theme
+from framegraph.sdk.metrics import measure_text, text_height, wrap_text
 from framegraph.sdk.model import HEAD_VERSION, Document, model_module
 from framegraph.sdk.paint import (
     glow,
@@ -52,6 +53,7 @@ __all__ = [
     "lorem",
     "lorem_paragraphs",
     "md",
+    "measure_text",
     "model_module",
     "paragraph",
     "parse",
@@ -61,6 +63,8 @@ __all__ = [
     "serialize",
     "shadow",
     "stroke",
+    "text_height",
     "theme",
     "validate_static_rules",
+    "wrap_text",
 ]
