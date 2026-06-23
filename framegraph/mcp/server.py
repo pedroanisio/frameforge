@@ -7,10 +7,12 @@ this module validates and renders that generated YAML into per-session artifacts
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -24,6 +26,10 @@ from framegraph.sdk.validate import ValidationReport, validate_static_rules
 SESSION_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
 DEFAULT_TIMEOUT_SECONDS = 10
 MAX_CODE_BYTES = 200_000
+MAX_CLIENT_BYTES = 2_000_000
+DEFAULT_CLIENT_ROOTS = ("examples",)
+BUILD_FUNCTION_NAMES = ("build", "build_deck", "build_book", "build_package")
+FRAMEGRAPH_YAML_PATTERNS = ("*.fg.yaml", "*.fg.yml", "*.framegraph.yaml", "*.framegraph.yml")
 
 
 def get_default_session_root() -> Path:
@@ -32,6 +38,11 @@ def get_default_session_root() -> Path:
     if configured:
         return Path(configured).expanduser()
     return Path(tempfile.gettempdir()) / "framegraph-mcp-sessions"
+
+
+def get_default_repo_root() -> Path:
+    """Return the repository root that contains this MCP package."""
+    return Path(__file__).resolve().parents[2]
 
 
 def run_sdk_code(
@@ -67,7 +78,7 @@ def run_sdk_code(
     script_path.write_text(code, encoding="utf-8")
     harness_path.write_text(_harness_source(script_path, yaml_path, session_dir), encoding="utf-8")
 
-    env = _subprocess_env()
+    env = _subprocess_env(get_default_repo_root())
     proc = subprocess.run(
         [sys.executable, str(harness_path)],
         cwd=str(session_dir),
@@ -95,6 +106,171 @@ def run_sdk_code(
         session_id=sid,
         session_dir=session_dir,
         base_dir=session_dir,
+        max_pages=max_pages,
+        raster_png=raster_png,
+    )
+    result.update(rendered)
+    _write_diagnostics(session_dir, result)
+    return result
+
+
+def list_sdk_clients(
+    *,
+    repo_root: str | Path | None = None,
+    edit_roots: str | list[str] | tuple[str, ...] | None = None,
+) -> dict[str, Any]:
+    """List editable Python SDK client files under the configured safe roots."""
+    root = _repo_root(repo_root)
+    roots = _client_roots(root, edit_roots)
+    clients: list[dict[str, Any]] = []
+    for allowed_root in roots:
+        if not allowed_root.exists():
+            continue
+        for path in sorted(allowed_root.rglob("*.py")):
+            if not path.is_file():
+                continue
+            resolved = path.resolve()
+            if not any(_is_relative_to(resolved, candidate) for candidate in roots):
+                continue
+            data = resolved.read_bytes()
+            clients.append(
+                {
+                    "path": _repo_relative_path(resolved, root),
+                    "bytes": len(data),
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                }
+            )
+    return {
+        "ok": True,
+        "repo_root": str(root),
+        "allowed_roots": [_repo_relative_path(path, root) for path in roots],
+        "clients": clients,
+    }
+
+
+def read_sdk_client(
+    path: str,
+    *,
+    repo_root: str | Path | None = None,
+    edit_roots: str | list[str] | tuple[str, ...] | None = None,
+) -> dict[str, Any]:
+    """Read a whitelisted Python SDK client file for MCP-assisted editing."""
+    root = _repo_root(repo_root)
+    client_path = _resolve_client_path(path, repo_root=root, edit_roots=edit_roots, must_exist=True)
+    code = client_path.read_text(encoding="utf-8")
+    return {
+        "ok": True,
+        "path": _repo_relative_path(client_path, root),
+        "absolute_path": str(client_path),
+        "bytes": len(code.encode("utf-8")),
+        "sha256": _sha256_text(code),
+        "code": code,
+    }
+
+
+def write_sdk_client(
+    path: str,
+    code: str,
+    *,
+    create: bool = False,
+    repo_root: str | Path | None = None,
+    edit_roots: str | list[str] | tuple[str, ...] | None = None,
+) -> dict[str, Any]:
+    """Replace or create a whitelisted Python SDK client file."""
+    if not isinstance(code, str) or not code.strip():
+        raise ValueError("code must be a non-empty string")
+    if len(code.encode("utf-8")) > MAX_CLIENT_BYTES:
+        raise ValueError(f"code exceeds {MAX_CLIENT_BYTES} bytes")
+
+    root = _repo_root(repo_root)
+    client_path = _resolve_client_path(path, repo_root=root, edit_roots=edit_roots, must_exist=not create)
+    if client_path.exists() and not client_path.is_file():
+        raise ValueError("SDK client path must resolve to a file")
+    if not client_path.exists() and not create:
+        raise FileNotFoundError(str(client_path))
+    compile(code, _repo_relative_path(client_path, root), "exec")
+
+    previous_sha = None
+    if client_path.exists():
+        previous_sha = hashlib.sha256(client_path.read_bytes()).hexdigest()
+    client_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = client_path.with_name(f".{client_path.name}.tmp")
+    tmp_path.write_text(code, encoding="utf-8")
+    tmp_path.replace(client_path)
+
+    data = client_path.read_bytes()
+    return {
+        "ok": True,
+        "path": _repo_relative_path(client_path, root),
+        "absolute_path": str(client_path),
+        "created": previous_sha is None,
+        "previous_sha256": previous_sha,
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "bytes": len(data),
+    }
+
+
+def run_sdk_client(
+    path: str,
+    *,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+    max_pages: int = 3,
+    raster_png: bool = False,
+    invoke_main: bool = False,
+    repo_root: str | Path | None = None,
+    edit_roots: str | list[str] | tuple[str, ...] | None = None,
+) -> dict[str, Any]:
+    """Run an editable Python SDK client file, then validate and render YAML."""
+    root = _repo_root(repo_root)
+    client_path = _resolve_client_path(path, repo_root=root, edit_roots=edit_roots, must_exist=True)
+    session_base = _session_root(session_root)
+    sid = _session_id(session_id)
+    session_dir = _prepare_session(session_base, sid)
+    harness_path = session_dir / "_run_sdk_client.py"
+    yaml_path = session_dir / "generated.fg.yaml"
+    snapshot = _framegraph_yaml_snapshot(root)
+
+    harness_path.write_text(
+        _harness_source(client_path, yaml_path, session_dir, invoke_main=invoke_main),
+        encoding="utf-8",
+    )
+    env = _subprocess_env(root)
+    proc = subprocess.run(
+        [sys.executable, str(harness_path)],
+        cwd=str(root),
+        env=env,
+        text=True,
+        capture_output=True,
+        timeout=max(1, int(timeout_seconds)),
+        check=False,
+    )
+
+    result = _base_result(sid, session_dir, yaml_path, proc.stdout, proc.stderr, proc.returncode)
+    result["client_path"] = str(client_path)
+    result["client_uri"] = _repo_relative_path(client_path, root)
+    if proc.returncode != 0:
+        result["ok"] = False
+        result["error"] = "SDK client exited with a non-zero status"
+        _write_diagnostics(session_dir, result)
+        return result
+    if not yaml_path.exists():
+        generated = _new_generated_yaml(root, snapshot)
+        if generated is not None:
+            shutil.copyfile(generated, yaml_path)
+            result["generated_yaml_source"] = str(generated)
+    if not yaml_path.exists():
+        result["ok"] = False
+        result["error"] = "SDK client did not generate FrameGraph YAML"
+        _write_diagnostics(session_dir, result)
+        return result
+
+    rendered = _validate_and_render_yaml(
+        yaml_path.read_text(encoding="utf-8"),
+        session_id=sid,
+        session_dir=session_dir,
+        base_dir=root,
         max_pages=max_pages,
         raster_png=raster_png,
     )
@@ -214,6 +390,8 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
 def create_server(
     *,
     session_root: str | Path | None = None,
+    repo_root: str | Path | None = None,
+    edit_roots: str | list[str] | tuple[str, ...] | None = None,
     fastmcp_cls: Any | None = None,
 ):
     """Create the FastMCP server exposing the FrameGraph feedback tools."""
@@ -227,13 +405,52 @@ def create_server(
             ) from exc
 
     root = _session_root(session_root)
+    repo = _repo_root(repo_root)
     server = fastmcp_cls(
         "FrameGraph",
         instructions=(
-            "Execute Python code that uses framegraph.sdk, inspect the generated "
-            "FrameGraph YAML, and read rendered SVG artifacts for visual feedback."
+            "Execute or edit Python clients that use framegraph.sdk, inspect the "
+            "generated FrameGraph YAML, and read rendered SVG artifacts for visual feedback."
         ),
     )
+
+    @server.tool()
+    def list_sdk_clients():
+        """List editable Python SDK clients under the configured safe roots."""
+        return globals()["list_sdk_clients"](repo_root=repo, edit_roots=edit_roots)
+
+    @server.tool()
+    def read_sdk_client(path: str) -> dict[str, Any]:
+        """Read an editable Python SDK client file."""
+        return globals()["read_sdk_client"](path, repo_root=repo, edit_roots=edit_roots)
+
+    @server.tool()
+    def write_sdk_client(path: str, code: str, create: bool = False) -> dict[str, Any]:
+        """Replace or create an editable Python SDK client file."""
+        return globals()["write_sdk_client"](path, code, create=create, repo_root=repo, edit_roots=edit_roots)
+
+    @server.tool()
+    def run_sdk_client(
+        path: str,
+        session_id: str | None = None,
+        timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+        max_pages: int = 3,
+        raster_png: bool = False,
+        invoke_main: bool = False,
+    ):
+        """Run an editable Python SDK client, validate its YAML, and return render feedback."""
+        result = globals()["run_sdk_client"](
+            path,
+            session_id=session_id,
+            session_root=root,
+            timeout_seconds=timeout_seconds,
+            max_pages=max_pages,
+            raster_png=raster_png,
+            invoke_main=invoke_main,
+            repo_root=repo,
+            edit_roots=edit_roots,
+        )
+        return _maybe_call_tool_result(result)
 
     @server.tool()
     def run_sdk_code(
@@ -313,6 +530,10 @@ def _session_root(session_root: str | Path | None) -> Path:
     return root
 
 
+def _repo_root(repo_root: str | Path | None) -> Path:
+    return (Path(repo_root) if repo_root is not None else get_default_repo_root()).expanduser().resolve()
+
+
 def _session_id(session_id: str | None) -> str:
     sid = session_id or "session"
     if not SESSION_ID_RE.fullmatch(sid):
@@ -328,9 +549,12 @@ def _prepare_session(root: Path, session_id: str) -> Path:
     return session_dir
 
 
-def _subprocess_env() -> dict[str, str]:
-    repo_root = Path(__file__).resolve().parents[2]
-    pythonpath = str(repo_root)
+def _subprocess_env(repo_root: Path) -> dict[str, str]:
+    pythonpath_entries = [str(repo_root)]
+    package_root = get_default_repo_root()
+    if package_root != repo_root:
+        pythonpath_entries.append(str(package_root))
+    pythonpath = os.pathsep.join(pythonpath_entries)
     if os.environ.get("PYTHONPATH"):
         pythonpath = pythonpath + os.pathsep + os.environ["PYTHONPATH"]
     env = os.environ.copy()
@@ -338,7 +562,8 @@ def _subprocess_env() -> dict[str, str]:
     return env
 
 
-def _harness_source(script_path: Path, yaml_path: Path, session_dir: Path) -> str:
+def _harness_source(script_path: Path, yaml_path: Path, session_dir: Path, *, invoke_main: bool = True) -> str:
+    module_name = "__main__" if invoke_main else "__framegraph_mcp_client__"
     return f"""\
 from pathlib import Path
 
@@ -346,9 +571,10 @@ from framegraph.sdk.io import serialize
 
 SESSION_DIR = {str(session_dir)!r}
 OUTPUT_YAML_PATH = {str(yaml_path)!r}
+BUILD_FUNCTION_NAMES = {BUILD_FUNCTION_NAMES!r}
 namespace = {{
     "__file__": {str(script_path)!r},
-    "__name__": "__main__",
+    "__name__": {module_name!r},
     "SESSION_DIR": SESSION_DIR,
     "OUTPUT_YAML_PATH": OUTPUT_YAML_PATH,
 }}
@@ -362,12 +588,105 @@ if not out.exists():
         if value is not None:
             candidate = value
             break
+    if candidate is None:
+        for name in BUILD_FUNCTION_NAMES:
+            value = namespace.get(name)
+            if callable(value):
+                candidate = value()
+                break
     if candidate is not None and hasattr(candidate, "build"):
         candidate = candidate.build()
     if candidate is None:
-        raise SystemExit("no FrameGraph document found; write OUTPUT_YAML_PATH or set doc/document/builder")
+        raise SystemExit("no FrameGraph document found; write OUTPUT_YAML_PATH, set doc/document/builder, or expose build()")
     out.write_text(serialize(candidate, format="yaml"), encoding="utf-8")
 """
+
+
+def _client_roots(repo_root: Path, edit_roots: str | list[str] | tuple[str, ...] | None) -> list[Path]:
+    configured = edit_roots
+    if configured is None:
+        configured = os.environ.get("FRAMEGRAPH_MCP_EDIT_ROOTS")
+    if configured is None:
+        entries: list[str] = list(DEFAULT_CLIENT_ROOTS)
+    elif isinstance(configured, str):
+        entries = [entry for entry in configured.split(os.pathsep) if entry]
+    else:
+        entries = list(configured)
+
+    roots: list[Path] = []
+    for entry in entries:
+        candidate = Path(entry).expanduser()
+        if candidate.is_absolute():
+            resolved = candidate.resolve()
+            if not _is_relative_to(resolved, repo_root):
+                as_repo_relative = (repo_root / str(entry).lstrip("/")).resolve()
+                resolved = as_repo_relative
+        else:
+            resolved = (repo_root / candidate).resolve()
+        if not _is_relative_to(resolved, repo_root):
+            raise ValueError("editable SDK client roots must stay inside the repository")
+        roots.append(resolved)
+    if not roots:
+        raise ValueError("at least one editable SDK client root is required")
+    return roots
+
+
+def _resolve_client_path(
+    path: str,
+    *,
+    repo_root: Path,
+    edit_roots: str | list[str] | tuple[str, ...] | None,
+    must_exist: bool,
+) -> Path:
+    if not isinstance(path, str) or not path.strip():
+        raise ValueError("path must be a non-empty string")
+    raw = Path(path).expanduser()
+    if raw.is_absolute():
+        resolved = raw.resolve()
+        if not _is_relative_to(resolved, repo_root):
+            resolved = (repo_root / str(path).lstrip("/")).resolve()
+    else:
+        resolved = (repo_root / raw).resolve()
+    if resolved.suffix != ".py":
+        raise ValueError("SDK client path must be a Python .py file")
+    allowed_roots = _client_roots(repo_root, edit_roots)
+    if not any(_is_relative_to(resolved, root) for root in allowed_roots):
+        raise ValueError("SDK client path must stay under the allowed SDK client roots")
+    if must_exist and not resolved.is_file():
+        raise FileNotFoundError(str(resolved))
+    return resolved
+
+
+def _repo_relative_path(path: Path, repo_root: Path) -> str:
+    return path.resolve().relative_to(repo_root).as_posix()
+
+
+def _framegraph_yaml_snapshot(repo_root: Path) -> dict[Path, int]:
+    return {path: path.stat().st_mtime_ns for path in _framegraph_yaml_candidates(repo_root) if path.is_file()}
+
+
+def _new_generated_yaml(repo_root: Path, before: dict[Path, int]) -> Path | None:
+    changed: list[Path] = []
+    for path in _framegraph_yaml_candidates(repo_root):
+        if not path.is_file():
+            continue
+        previous = before.get(path)
+        current = path.stat().st_mtime_ns
+        if previous is None or current > previous:
+            changed.append(path)
+    if not changed:
+        return None
+    return max(changed, key=lambda candidate: candidate.stat().st_mtime_ns)
+
+
+def _framegraph_yaml_candidates(repo_root: Path) -> list[Path]:
+    candidates: list[Path] = []
+    for root in (repo_root / "examples", repo_root / "fixtures"):
+        if not root.exists():
+            continue
+        for pattern in FRAMEGRAPH_YAML_PATTERNS:
+            candidates.extend(root.rglob(pattern))
+    return candidates
 
 
 def _base_result(
