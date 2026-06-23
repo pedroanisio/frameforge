@@ -377,6 +377,96 @@ pages:
       fill: '#05050A'
       stroke: '#05050A'
     - stroke_style:
+        stroke_width: 3.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 258 96 C 330 48 470 42 588 88 C 666 118 720 220 716 324 C 712 414 654 504
+        586 528 C 618 412 614 274 548 178 C 486 92 362 62 258 96 Z
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#ED102A'
+          position: 34%
+        - color: '#9B0617'
+          position: 72%
+        - color: '#190007'
+          position: 100%
+        angle: 44.6
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 250 104 C 292 84 336 104 386 154 C 354 244 302 326 238 374 C 218 268 222
+        174 250 104 Z
+      fill:
+        kind: linear
+        stops:
+        - color: '#FFF0A5'
+          position: 0%
+        - color: '#F7C63A'
+          position: 45%
+        - color: '#8F5A08'
+          position: 100%
+        angle: 69.9
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 2.5
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 238 374 C 286 366 348 388 420 350 C 414 396 404 430 386 456 C 344 472 300
+        470 258 456 C 246 430 240 404 238 374 Z
+      fill:
+        kind: linear
+        stops:
+        - color: '#F7C63A'
+          position: 0%
+        - color: '#8F5A08'
+          position: 58%
+        - color: '#251405'
+          position: 100%
+        angle: 27.8
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 2.8
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 260 520 C 314 552 372 548 438 500 C 458 518 474 532 492 548 C 436 594 386
+        626 350 634 C 306 620 268 600 240 586 C 246 560 252 538 260 520 Z
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#ED102A'
+          position: 55%
+        - color: '#9B0617'
+          position: 100%
+        angle: 25.8
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 2.8
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 600 214 C 684 290 706 396 676 492 C 642 526 606 536 558 520 C 594 430 600
+        316 600 214 Z
+      fill:
+        kind: linear
+        stops:
+        - color: '#0B0911'
+          position: 0%
+        - color: '#010106'
+          position: 100%
+        angle: 71.2
+      stroke: '#05050A'
+    - stroke_style:
         stroke_width: 4
         stroke_linejoin: round
       type: polyline
@@ -995,6 +1085,79 @@ pages:
         - color: '#9B0617'
           position: 100%
         angle: 42.5
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3.6
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 112 684 C 184 642 268 626 358 648 C 480 678 598 756 654 878 C 630 982 584
+        1052 520 1080 C 388 1046 272 1018 182 960 C 112 914 76 842 78 760 C 86 724
+        96 700 112 684 Z
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#ED102A'
+          position: 45%
+        - color: '#9B0617'
+          position: 100%
+        angle: 46.0
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 2.8
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 154 676 C 210 642 266 646 304 706 C 278 790 242 890 182 960 C 126 916 88
+        852 84 776 C 100 730 124 696 154 676 Z
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#ED102A'
+          position: 52%
+        - color: '#9B0617'
+          position: 100%
+        angle: 52.2
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 282 642 C 366 646 448 668 522 714 C 506 742 490 764 472 784 C 416 774 352
+        752 302 726 C 292 696 286 668 282 642 Z
+      fill:
+        kind: linear
+        stops:
+        - color: '#EDF9FA'
+          position: 0%
+        - color: '#7C8C92'
+          position: 45%
+        - color: '#1A2228'
+          position: 100%
+        angle: 30.6
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 520 760 C 590 792 650 850 674 934 C 658 984 640 1024 614 1068 C 572 1028
+        538 972 512 902 C 520 848 524 804 520 760 Z
+      fill:
+        kind: linear
+        stops:
+        - color: '#161118'
+          position: 0%
+        - color: '#15131A'
+          position: 55%
+        - color: '#05050A'
+          position: 100%
+        angle: 63.4
       stroke: '#05050A'
     - stroke_style:
         stroke_width: 2.0

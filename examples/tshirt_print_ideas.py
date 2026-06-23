@@ -76,6 +76,10 @@ def brush_path(layer, d: str, width: float, color: str):
     layer.path(d, fill="none", **stroke(width, color=color, cap="round", join="round"))
 
 
+def curved_panel(layer, d: str, fill, border=INK, width=2.8):
+    layer.path(d, fill=fill, **stroke(width, color=border, cap="round", join="round"))
+
+
 def build() -> DocumentBuilder:
     doc = DocumentBuilder(title="T-shirt print ideas - armored hero vector", profile="diagram", lang="en")
     doc.define_text_style("caption", font_family=["DejaVu Sans", "Arial", "sans-serif"], font_size=18, color="#202020")
@@ -111,6 +115,36 @@ def build() -> DocumentBuilder:
     poly(page, [[292, 470], [402, 442], [456, 492], [350, 560], [248, 522]], fill=lg([260, 472], [456, 556], [(0, GOLD_LT), (0.45, GOLD), (1, GOLD_DK)]), width=3)
     poly(page, [[250, 522], [350, 560], [446, 500], [492, 542], [352, 634], [240, 586]], fill=lg([240, 516], [492, 634], [(0, RED_LT), (0.5, RED), (1, RED_DK)]), width=4)
     poly(page, [[240, 586], [352, 634], [416, 610], [360, 672], [252, 650]], fill=INK, width=3)
+    curved_panel(
+        page,
+        "M 258 96 C 330 48 470 42 588 88 C 666 118 720 220 716 324 C 712 414 654 504 586 528 C 618 412 614 274 548 178 C 486 92 362 62 258 96 Z",
+        fill=lg([258, 76], [716, 528], [(0, RED_LT), (0.34, RED), (0.72, RED_DK), (1, "#190007")]),
+        width=3.2,
+    )
+    curved_panel(
+        page,
+        "M 250 104 C 292 84 336 104 386 154 C 354 244 302 326 238 374 C 218 268 222 174 250 104 Z",
+        fill=gold_face,
+        width=3.0,
+    )
+    curved_panel(
+        page,
+        "M 238 374 C 286 366 348 388 420 350 C 414 396 404 430 386 456 C 344 472 300 470 258 456 C 246 430 240 404 238 374 Z",
+        fill=lg([238, 360], [420, 456], [(0, GOLD), (0.58, GOLD_DK), (1, "#251405")]),
+        width=2.5,
+    )
+    curved_panel(
+        page,
+        "M 260 520 C 314 552 372 548 438 500 C 458 518 474 532 492 548 C 436 594 386 626 350 634 C 306 620 268 600 240 586 C 246 560 252 538 260 520 Z",
+        fill=lg([240, 512], [492, 634], [(0, RED_LT), (0.55, RED), (1, RED_DK)]),
+        width=2.8,
+    )
+    curved_panel(
+        page,
+        "M 600 214 C 684 290 706 396 676 492 C 642 526 606 536 558 520 C 594 430 600 316 600 214 Z",
+        fill=black_cut,
+        width=2.8,
+    )
 
     # Helmet eye, ear ring, seams and highlights.
     lens(page, [[278, 324], [362, 286], [388, 304], [346, 340], [274, 352]])
@@ -168,6 +202,30 @@ def build() -> DocumentBuilder:
     poly(page, [[304, 642], [438, 672], [512, 718], [472, 770], [302, 726]], fill=lg([310, 650], [512, 770], [(0, "#DFEEF1"), (0.48, STEEL), (1, "#1A2228")]), width=3)
     poly(page, [[478, 752], [626, 792], [654, 902], [544, 880]], fill=INK2, width=3)
     poly(page, [[514, 910], [656, 944], [640, 1040], [470, 1010]], fill=lg([514, 910], [656, 1040], [(0, RED), (1, RED_DK)]), width=3)
+    curved_panel(
+        page,
+        "M 112 684 C 184 642 268 626 358 648 C 480 678 598 756 654 878 C 630 982 584 1052 520 1080 C 388 1046 272 1018 182 960 C 112 914 76 842 78 760 C 86 724 96 700 112 684 Z",
+        fill=red_panel,
+        width=3.6,
+    )
+    curved_panel(
+        page,
+        "M 154 676 C 210 642 266 646 304 706 C 278 790 242 890 182 960 C 126 916 88 852 84 776 C 100 730 124 696 154 676 Z",
+        fill=lg([84, 676], [304, 960], [(0, RED_LT), (0.52, RED), (1, RED_DK)]),
+        width=2.8,
+    )
+    curved_panel(
+        page,
+        "M 282 642 C 366 646 448 668 522 714 C 506 742 490 764 472 784 C 416 774 352 752 302 726 C 292 696 286 668 282 642 Z",
+        fill=lg([282, 642], [522, 784], [(0, "#EDF9FA"), (0.45, STEEL), (1, "#1A2228")]),
+        width=2.4,
+    )
+    curved_panel(
+        page,
+        "M 520 760 C 590 792 650 850 674 934 C 658 984 640 1024 614 1068 C 572 1028 538 972 512 902 C 520 848 524 804 520 760 Z",
+        fill=lg([520, 760], [674, 1068], [(0, "#161118"), (0.55, INK2), (1, INK)]),
+        width=2.4,
+    )
     for d, w in [
         ("M 356 526 C 416 548 488 604 546 686", 2.0),
         ("M 426 538 C 498 570 572 650 632 770", 1.4),
