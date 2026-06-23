@@ -272,6 +272,17 @@ def test_text_indent_maps_to_initial_hspace():
     assert "{\\hspace*{12pt}indented}" in tex
 
 
+def test_preformatted_white_space_preserves_newlines():
+    tex = _fig({"label": {"white_space": "pre-wrap"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 40],
+        "text": "Line 1\nLine 2",
+        "style": "label",
+    })
+
+    assert "{Line 1\\\\Line 2}" in tex
+
+
 def test_vertical_align_places_text_within_box():
     top = _fig({"label": {"size": 10, "vertical_align": "top"}}).render({
         "type": "text",

@@ -1035,9 +1035,15 @@ class FigureTikz:
 
     def _text_node(self, st, anchor, width, align, x, y, content):
         opts = self._text_opts(st, anchor, width, align)
-        content = self._transform_text(content, st.get("text_transform"))
-        body = self._decorate_text(st, self._space_text(st, self._indent_text(st, ltx_escape(content))))
+        body = self._format_text(st, content)
         return f"\\node[{','.join(opts)}] at ({fnum(x)},{fnum(y)}) {{{body}}};\n"
+
+    def _format_text(self, st, content):
+        content = self._transform_text(content, st.get("text_transform"))
+        escaped = ltx_escape(content)
+        if str(st.get("white_space") or "").strip().lower() in ("pre", "pre-wrap", "pre-line"):
+            escaped = escaped.replace("\n", r"\\")
+        return self._decorate_text(st, self._space_text(st, self._indent_text(st, escaped)))
 
     @staticmethod
     def _indent_text(st, content):
@@ -1081,13 +1087,7 @@ class FigureTikz:
                 opacity = 0.45 if spec.get("blur") else None
             if opacity is not None:
                 opts.append(f"text opacity={fnum(opacity)}")
-            body = self._decorate_text(
-                st,
-                self._space_text(
-                    st,
-                    self._indent_text(st, ltx_escape(self._transform_text(content, st.get("text_transform")))),
-                ),
-            )
+            body = self._format_text(st, content)
             out.append(
                 f"\\node[{','.join(opts)}] at "
                 f"({fnum(x + spec['dx'])},{fnum(y + spec['dy'])}) {{{body}}};\n"
