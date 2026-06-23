@@ -936,6 +936,9 @@ class FigureTikz:
         raw_features = self._raw_font_features(st.get("font_feature_settings"))
         if raw_features:
             font += f"\\addfontfeatures{{RawFeature={{{raw_features}}}}}"
+        axis_features = self._variation_axis_features(st.get("font_variation_settings"))
+        if axis_features:
+            font += "\\addfontfeatures{RawFeature={+axis={" + axis_features + "}}}"
         letter_space = self._letter_space_amount(st.get("letter_spacing"))
         if letter_space is not None:
             font += f"\\addfontfeatures{{LetterSpace={fnum(letter_space)}}}"
@@ -993,6 +996,15 @@ class FigureTikz:
             enabled = num(flag, 0) != 0
             features.append(("+" if enabled else "-") + tag)
         return ",".join(features)
+
+    @staticmethod
+    def _variation_axis_features(value):
+        if not value or not isinstance(value, str):
+            return ""
+        axes = []
+        for tag, amount in re.findall(r'"([A-Za-z0-9]{4})"\s+(-?\d+(?:\.\d+)?)', value):
+            axes.append(f"{tag}={fnum(num(amount, 0))}")
+        return ",".join(axes)
 
     @staticmethod
     def _font_stretch_factor(value):

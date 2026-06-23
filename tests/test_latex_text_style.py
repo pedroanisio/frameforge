@@ -240,6 +240,30 @@ def test_font_feature_settings_map_to_fontspec_raw_features():
     assert "\\addfontfeatures{RawFeature={-liga}}" in disabled
 
 
+def test_font_variation_settings_map_to_fontspec_axis_features():
+    tex = _fig({"label": {"font_variation_settings": '"wght" 350, "slnt" -6, "opsz" 28'}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "Variable",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{RawFeature={+axis={wght=350,slnt=-6,opsz=28}}}" in tex
+    assert "{Variable}" in tex
+
+
+def test_font_variation_settings_ignore_malformed_axes():
+    tex = _fig({"label": {"font_variation_settings": '"wght" 650, invalid, "opsz" 12.5'}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "Variable",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{RawFeature={+axis={wght=650,opsz=12.5}}}" in tex
+    assert "invalid" not in tex
+
+
 def test_font_stretch_maps_to_fontspec_fake_stretch():
     condensed = _fig({"label": {"font_stretch": "condensed"}}).render({
         "type": "text",
