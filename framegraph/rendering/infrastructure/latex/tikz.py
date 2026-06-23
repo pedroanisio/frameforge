@@ -1196,6 +1196,12 @@ class FigureTikz:
             cx, cy = num(box[0], 0) + num(box[2], 0) / 2, num(box[1], 0) + num(box[3], 0) / 2
             rx, ry = num(box[2], 0) / 2, num(box[3], 0) / 2
         geom = f"({fnum(cx)},{fnum(cy)}) ellipse ({fnum(rx)}pt and {fnum(ry)}pt)"
+        style = self._style_dict(o)
+        grad = self._gradient_rect(self._fill_value(o, style), cx - rx, cy - ry, rx * 2, ry * 2)
+        if grad:
+            stroke = self._stroke_opts(o)
+            body = f"\\begin{{scope}}\n\\clip {geom};\n{grad}\\end{{scope}}\n"
+            return self._ellipse_effects(o, cx, cy, rx, ry) + body + (self._path(stroke, geom) if stroke else "")
         return self._ellipse_effects(o, cx, cy, rx, ry) + self._painted_path(o, geom)
 
     def _draw_circle(self, o) -> str:
@@ -1203,6 +1209,12 @@ class FigureTikz:
         r = num(o.get("r"), 0)
         cx, cy = num(c[0], 0), num(c[1], 0)
         geom = f"({fnum(cx)},{fnum(cy)}) circle ({fnum(r)}pt)"
+        style = self._style_dict(o)
+        grad = self._gradient_rect(self._fill_value(o, style), cx - r, cy - r, r * 2, r * 2)
+        if grad:
+            stroke = self._stroke_opts(o)
+            body = f"\\begin{{scope}}\n\\clip {geom};\n{grad}\\end{{scope}}\n"
+            return self._ellipse_effects(o, cx, cy, r, r) + body + (self._path(stroke, geom) if stroke else "")
         return self._ellipse_effects(o, cx, cy, r, r) + self._painted_path(o, geom)
 
     def _draw_line(self, o) -> str:

@@ -189,6 +189,52 @@ def test_style_background_image_conic_gradient_emits_radial_fallback():
     assert "fill={rgb" not in tex
 
 
+def test_radial_gradient_ellipse_is_clipped_to_ellipse_shape():
+    tex = _fig().render({
+        "type": "ellipse",
+        "center": [100, 80],
+        "rx": 60,
+        "ry": 30,
+        "fill": {
+            "kind": "radial",
+            "shape": "ellipse",
+            "at": "center",
+            "stops": [
+                {"color": "#ffffff", "position": "0%"},
+                {"color": "#000000", "position": "100%"},
+            ],
+        },
+    })
+
+    assert "\\clip (100,80) ellipse (60pt and 30pt);" in tex
+    assert "\\clip (40,50) rectangle (160,110);" in tex
+    assert "\\shade[inner color={rgb,255:red,255;green,255;blue,255},outer color={rgb,255:red,0;green,0;blue,0}]" in tex
+    assert "fill={rgb" not in tex
+
+
+def test_linear_gradient_circle_is_clipped_to_circle_and_keeps_stroke_overlay():
+    tex = _fig().render({
+        "type": "circle",
+        "center": [50, 50],
+        "r": 20,
+        "fill": {
+            "kind": "linear",
+            "angle": "90deg",
+            "stops": [
+                {"color": "#ff0000", "position": "0%"},
+                {"color": "#0000ff", "position": "100%"},
+            ],
+        },
+        "stroke": "#111111",
+        "stroke_style": {"stroke_width": 2},
+    })
+
+    assert "\\clip (50,50) circle (20pt);" in tex
+    assert "\\shade[left color={rgb,255:red,255;green,0;blue,0},right color={rgb,255:red,0;green,0;blue,255}]" in tex
+    assert "\\path[draw={rgb,255:red,17;green,17;blue,17},line width=2pt] (50,50) circle (20pt);" in tex
+    assert tex.index("\\shade[") < tex.rindex("\\path[draw=")
+
+
 def test_object_fill_overrides_style_background_image_gradient():
     tex = _fig().render({
         "type": "rect",
