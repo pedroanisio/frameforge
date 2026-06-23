@@ -340,6 +340,40 @@ def test_preformatted_white_space_preserves_newlines():
     assert "{Line 1\\\\Line 2}" in tex
 
 
+def test_word_break_break_all_inserts_discretionary_breaks():
+    tex = _fig({"label": {"word_break": "break-all"}}).render({
+        "type": "text",
+        "box": [10, 20, 80, 30],
+        "text": "Long",
+        "style": "label",
+    })
+
+    assert r"L\allowbreak{}o\allowbreak{}n\allowbreak{}g" in tex
+
+
+def test_overflow_wrap_anywhere_inserts_discretionary_breaks():
+    tex = _fig({"label": {"overflow_wrap": "anywhere"}}).render({
+        "type": "text",
+        "box": [10, 20, 80, 30],
+        "text": "AB",
+        "style": "label",
+    })
+
+    assert r"A\allowbreak{}B" in tex
+
+
+def test_word_break_preserves_escaped_special_character_sequences():
+    tex = _fig({"label": {"word_break": "break-word"}}).render({
+        "type": "text",
+        "box": [10, 20, 80, 30],
+        "text": "a_b",
+        "style": "label",
+    })
+
+    assert r"a\allowbreak{}\_\allowbreak{}b" in tex
+    assert r"\\allowbreak{}_" not in tex
+
+
 def test_tab_size_maps_to_explicit_horizontal_skip():
     tex = _fig({"label": {"size": 10, "tab_size": 4}}).render({
         "type": "text",

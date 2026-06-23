@@ -1093,7 +1093,7 @@ class FigureTikz:
 
     def _format_text(self, st, content):
         content = self._transform_text(content, st.get("text_transform"))
-        escaped = ltx_escape(content)
+        escaped = self._break_text(st, content)
         escaped = self._tab_text(st, escaped)
         if str(st.get("white_space") or "").strip().lower() in ("pre", "pre-wrap", "pre-line"):
             escaped = escaped.replace("\n", r"\\")
@@ -1102,6 +1102,16 @@ class FigureTikz:
         escaped = self._hyphen_text(st, escaped)
         escaped = self._direction_text(st, escaped)
         return self._decorate_text(st, escaped)
+
+    @staticmethod
+    def _break_text(st, content):
+        if not isinstance(st, dict):
+            return ltx_escape(content)
+        word_break = str(st.get("word_break") or "").strip().lower()
+        overflow_wrap = str(st.get("overflow_wrap") or "").strip().lower()
+        if word_break not in ("break-all", "break-word") and overflow_wrap not in ("anywhere", "break-word"):
+            return ltx_escape(content)
+        return r"\allowbreak{}".join(ltx_escape(ch) for ch in str(content))
 
     @staticmethod
     def _tab_text(st, content):
