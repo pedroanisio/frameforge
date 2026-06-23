@@ -194,12 +194,61 @@ class FigureTikz:
         opacity = o.get("opacity")
         if opacity in (None, 1):
             opacity = style.get("opacity")
+        filter_opacity = self._filter_opacity(style.get("filter"))
+        if filter_opacity is not None:
+            opacity = num(opacity, 1) * filter_opacity
         if opacity not in (None, 1):
             opts.append(f"opacity={fnum(num(opacity, 1))}")
         transform = self._tikz_transform(o)
         if transform:
             opts += transform
         return f"\\begin{{scope}}[{','.join(opts)}]\n{body}\\end{{scope}}\n" if opts else body
+
+    def _filter_opacity(self, value):
+        if value in (None, False, "none", ""):
+            return None
+        opacities = []
+        if isinstance(value, str):
+            for raw in re.findall(r"opacity\(\s*([^)]+?)\s*\)", value, flags=re.I):
+                parsed = self._opacity_filter_value(raw)
+                if parsed is not None:
+                    opacities.append(parsed)
+        else:
+            items = value if isinstance(value, list) else [value]
+            for item in items:
+                if not isinstance(item, dict):
+                    continue
+                name = item.get("fn") or item.get("kind") or item.get("name")
+                if str(name or "").strip().lower() != "opacity":
+                    continue
+                parsed = self._opacity_filter_value(item.get("value", 1))
+                if parsed is not None:
+                    opacities.append(parsed)
+        if not opacities:
+            return None
+        opacity = 1.0
+        for value in opacities:
+            opacity *= value
+        return opacity
+
+    @staticmethod
+    def _opacity_filter_value(value):
+        if isinstance(value, bool):
+            return None
+        if isinstance(value, (int, float)):
+            raw = float(value)
+        elif isinstance(value, str):
+            s = value.strip()
+            is_percent = s.endswith("%")
+            try:
+                raw = float(s.rstrip("%"))
+            except ValueError:
+                return None
+            if is_percent:
+                raw /= 100.0
+        else:
+            return None
+        return max(0.0, min(raw, 1.0))
 
     def _clip_scope(self, o, body):
         geom = self._clip_geom(o)

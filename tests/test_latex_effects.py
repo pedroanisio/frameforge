@@ -155,3 +155,51 @@ def test_isolation_composes_with_opacity_scope_options():
     })
 
     assert "\\begin{scope}[transparency group,opacity=0.5]" in tex
+
+
+def test_style_opacity_filter_maps_to_tikz_scope_opacity():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {"filter": [{"fn": "opacity", "value": 0.4}]},
+    })
+
+    assert "\\begin{scope}[opacity=0.4]" in tex
+    assert "(0,0) rectangle (20,10)" in tex
+
+
+def test_style_opacity_filter_accepts_percent_values():
+    tex = _fig().render({
+        "type": "ellipse",
+        "center": [20, 20],
+        "rx": 10,
+        "ry": 8,
+        "fill": "#111111",
+        "style": {"filter": [{"fn": "opacity", "value": "35%"}]},
+    })
+
+    assert "\\begin{scope}[opacity=0.35]" in tex
+
+
+def test_style_opacity_filter_string_maps_to_tikz_scope_opacity():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {"filter": "blur(2px) opacity(45%)"},
+    })
+
+    assert "\\begin{scope}[opacity=0.45]" in tex
+
+
+def test_style_opacity_filter_multiplies_existing_opacity():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "opacity": 0.5,
+        "style": {"filter": [{"fn": "opacity", "value": 0.4}]},
+    })
+
+    assert "\\begin{scope}[opacity=0.2]" in tex
