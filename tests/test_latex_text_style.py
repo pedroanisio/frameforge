@@ -457,6 +457,36 @@ def test_writing_mode_applies_to_spans():
     assert "{Side}" in tex
 
 
+def test_direction_maps_to_guarded_tex_textdir():
+    rtl = _fig({"label": {"direction": "rtl"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "rtl text",
+        "style": "label",
+    })
+    ltr = _fig({"label": {"direction": "ltr"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "hello",
+        "style": "label",
+    })
+
+    assert "{\\ifdefined\\textdir\\textdir TRT\\fi rtl text}" in rtl
+    assert "{\\ifdefined\\textdir\\textdir TLT\\fi hello}" in ltr
+
+
+def test_direction_applies_to_spans():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "spans": [
+            {"text": "span rtl", "style": {"direction": "rtl"}},
+        ],
+    })
+
+    assert "{\\ifdefined\\textdir\\textdir TRT\\fi span rtl}" in tex
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",

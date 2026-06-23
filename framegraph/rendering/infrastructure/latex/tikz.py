@@ -1100,6 +1100,7 @@ class FigureTikz:
         escaped = self._indent_text(st, escaped)
         escaped = self._space_text(st, escaped)
         escaped = self._hyphen_text(st, escaped)
+        escaped = self._direction_text(st, escaped)
         return self._decorate_text(st, escaped)
 
     @staticmethod
@@ -1147,6 +1148,17 @@ class FigureTikz:
         if not commands:
             return content
         return "{" + "".join(commands) + " " + content + "}"
+
+    @staticmethod
+    def _direction_text(st, content):
+        if not isinstance(st, dict):
+            return content
+        direction = str(st.get("direction") or "").strip().lower()
+        if direction == "rtl":
+            return "{\\ifdefined\\textdir\\textdir TRT\\fi " + content + "}"
+        if direction == "ltr":
+            return "{\\ifdefined\\textdir\\textdir TLT\\fi " + content + "}"
+        return content
 
     @staticmethod
     def _decorate_text(st, content):
