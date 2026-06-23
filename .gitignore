@@ -9,3 +9,4 @@ __pycache__/
 .claude/settings.json
 out2/
 fixture_old/
+fixture.tar
