@@ -138,3 +138,15 @@ def test_normalized_clip_path_wins_over_raw_css_clip_path():
 
     assert "\\clip (20,5) rectangle (90,65);" in tex
     assert "circle" not in tex.split("\\clip", 1)[1].split(";", 1)[0]
+
+
+def test_path_clip_accepts_svg_quadratic_commands():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 120, 80],
+        "fill": "#ffffff",
+        "style": {"clip_path": {"shape": "path", "args": {"d": "M 0 80 Q 60 0 120 80 Z"}}},
+    })
+
+    assert "\\clip (0,80) .. controls (40,26.667) and (80,26.667) .. (120,80) -- cycle;" in tex
+    assert tex.index("\\clip") < tex.index("(0,0) rectangle (120,80)")

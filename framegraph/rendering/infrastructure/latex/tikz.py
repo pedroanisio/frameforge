@@ -1294,8 +1294,10 @@ class FigureTikz:
             return self._path_segments(d)
         if not isinstance(d, str):
             return ""
-        tokens = re.findall(r"[MmLlHhVvCcZz]|-?\d+(?:\.\d+)?", d.replace(",", " "))
+        tokens = re.findall(r"[MmLlHhVvCcSsQqTtZz]|-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?", d.replace(",", " "))
         out, cmd, cur, start, i = [], None, (0.0, 0.0), (0.0, 0.0), 0
+        last_cubic_ctrl = None
+        last_quad_ctrl = None
 
         def point(relative=False):
             nonlocal i, cur
@@ -1309,6 +1311,17 @@ class FigureTikz:
                 x, y = cur[0] + x, cur[1] + y
             cur = (x, y)
             return cur
+
+        def cubic(c1, c2, end):
+            return (
+                f".. controls ({fnum(c1[0])},{fnum(c1[1])}) and ({fnum(c2[0])},{fnum(c2[1])}) .. "
+                f"({fnum(end[0])},{fnum(end[1])})"
+            )
+
+        def quad(c, end, start_point):
+            c1 = (start_point[0] + 2 / 3 * (c[0] - start_point[0]), start_point[1] + 2 / 3 * (c[1] - start_point[1]))
+            c2 = (end[0] + 2 / 3 * (c[0] - end[0]), end[1] + 2 / 3 * (c[1] - end[1]))
+            return cubic(c1, c2, end)
 
         while i < len(tokens):
             if re.match(r"^[A-Za-z]$", tokens[i]):
@@ -1325,11 +1338,15 @@ class FigureTikz:
                 start = p
                 out.append(f"({fnum(p[0])},{fnum(p[1])})")
                 cmd = "l" if rel else "L"
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
             elif c == "L":
                 p = point(rel)
                 if p is None:
                     break
                 out.append(f"-- ({fnum(p[0])},{fnum(p[1])})")
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
             elif c == "H":
                 x = num(tokens[i], None) if i < len(tokens) else None
                 i += 1
@@ -1337,6 +1354,8 @@ class FigureTikz:
                     break
                 cur = ((cur[0] + x) if rel else x, cur[1])
                 out.append(f"-- ({fnum(cur[0])},{fnum(cur[1])})")
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
             elif c == "V":
                 y = num(tokens[i], None) if i < len(tokens) else None
                 i += 1
@@ -1344,6 +1363,8 @@ class FigureTikz:
                     break
                 cur = (cur[0], (cur[1] + y) if rel else y)
                 out.append(f"-- ({fnum(cur[0])},{fnum(cur[1])})")
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
             elif c == "C":
                 vals = [num(tokens[i + j], None) for j in range(6)] if i + 5 < len(tokens) else []
                 i += 6
@@ -1353,33 +1374,123 @@ class FigureTikz:
                 if rel:
                     x1, y1, x2, y2, x, y = cur[0] + x1, cur[1] + y1, cur[0] + x2, cur[1] + y2, cur[0] + x, cur[1] + y
                 cur = (x, y)
-                out.append(
-                    f".. controls ({fnum(x1)},{fnum(y1)}) and ({fnum(x2)},{fnum(y2)}) .. ({fnum(x)},{fnum(y)})"
-                )
+                last_cubic_ctrl = (x2, y2)
+                last_quad_ctrl = None
+                out.append(cubic((x1, y1), (x2, y2), cur))
+            elif c == "S":
+                vals = [num(tokens[i + j], None) for j in range(4)] if i + 3 < len(tokens) else []
+                i += 4
+                if len(vals) != 4 or any(v is None for v in vals):
+                    break
+                x2, y2, x, y = vals
+                if rel:
+                    x2, y2, x, y = cur[0] + x2, cur[1] + y2, cur[0] + x, cur[1] + y
+                c1 = (2 * cur[0] - last_cubic_ctrl[0], 2 * cur[1] - last_cubic_ctrl[1]) if last_cubic_ctrl else cur
+                cur = (x, y)
+                last_cubic_ctrl = (x2, y2)
+                last_quad_ctrl = None
+                out.append(cubic(c1, (x2, y2), cur))
+            elif c == "Q":
+                vals = [num(tokens[i + j], None) for j in range(4)] if i + 3 < len(tokens) else []
+                i += 4
+                if len(vals) != 4 or any(v is None for v in vals):
+                    break
+                x1, y1, x, y = vals
+                if rel:
+                    x1, y1, x, y = cur[0] + x1, cur[1] + y1, cur[0] + x, cur[1] + y
+                start_point = cur
+                cur = (x, y)
+                last_cubic_ctrl = None
+                last_quad_ctrl = (x1, y1)
+                out.append(quad(last_quad_ctrl, cur, start_point))
+            elif c == "T":
+                x = num(tokens[i], None) if i < len(tokens) else None
+                y = num(tokens[i + 1], None) if i + 1 < len(tokens) else None
+                i += 2
+                if x is None or y is None:
+                    break
+                p = (cur[0] + x, cur[1] + y) if rel else (x, y)
+                control = (2 * cur[0] - last_quad_ctrl[0], 2 * cur[1] - last_quad_ctrl[1]) if last_quad_ctrl else cur
+                start_point = cur
+                cur = p
+                last_cubic_ctrl = None
+                last_quad_ctrl = control
+                out.append(quad(control, cur, start_point))
             elif c == "Z":
                 cur = start
                 out.append("-- cycle")
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
             else:
                 break
         return " ".join(out)
 
     def _path_segments(self, segments):
         out = []
+        cur = start = (0.0, 0.0)
+        last_cubic_ctrl = None
+        last_quad_ctrl = None
+
+        def cubic(c1, c2, end):
+            return (
+                f".. controls ({fnum(c1[0])},{fnum(c1[1])}) and ({fnum(c2[0])},{fnum(c2[1])}) "
+                f".. ({fnum(end[0])},{fnum(end[1])})"
+            )
+
+        def quad(c, end, start_point):
+            c1 = (start_point[0] + 2 / 3 * (c[0] - start_point[0]), start_point[1] + 2 / 3 * (c[1] - start_point[1]))
+            c2 = (end[0] + 2 / 3 * (c[0] - end[0]), end[1] + 2 / 3 * (c[1] - end[1]))
+            return cubic(c1, c2, end)
+
         for seg in segments:
+            rel = isinstance(seg[0], str) and seg[0].islower() if isinstance(seg, list) and seg else False
             if not isinstance(seg, list) or not seg:
                 continue
             cmd = str(seg[0]).upper()
             vals = [num(v, None) for v in seg[1:]]
             if cmd == "M" and len(vals) >= 2:
-                out.append(f"({fnum(vals[0])},{fnum(vals[1])})")
+                cur = ((cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1]))
+                start = cur
+                out.append(f"({fnum(cur[0])},{fnum(cur[1])})")
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
             elif cmd == "L" and len(vals) >= 2:
-                out.append(f"-- ({fnum(vals[0])},{fnum(vals[1])})")
+                cur = ((cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1]))
+                out.append(f"-- ({fnum(cur[0])},{fnum(cur[1])})")
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
             elif cmd == "C" and len(vals) >= 6:
-                out.append(
-                    f".. controls ({fnum(vals[0])},{fnum(vals[1])}) and ({fnum(vals[2])},{fnum(vals[3])}) "
-                    f".. ({fnum(vals[4])},{fnum(vals[5])})"
-                )
+                c1 = ((cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1]))
+                c2 = ((cur[0] + vals[2], cur[1] + vals[3]) if rel else (vals[2], vals[3]))
+                cur = ((cur[0] + vals[4], cur[1] + vals[5]) if rel else (vals[4], vals[5]))
+                last_cubic_ctrl = c2
+                last_quad_ctrl = None
+                out.append(cubic(c1, c2, cur))
+            elif cmd == "S" and len(vals) >= 4:
+                c1 = (2 * cur[0] - last_cubic_ctrl[0], 2 * cur[1] - last_cubic_ctrl[1]) if last_cubic_ctrl else cur
+                c2 = ((cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1]))
+                cur = ((cur[0] + vals[2], cur[1] + vals[3]) if rel else (vals[2], vals[3]))
+                last_cubic_ctrl = c2
+                last_quad_ctrl = None
+                out.append(cubic(c1, c2, cur))
+            elif cmd == "Q" and len(vals) >= 4:
+                control = ((cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1]))
+                start_point = cur
+                cur = ((cur[0] + vals[2], cur[1] + vals[3]) if rel else (vals[2], vals[3]))
+                last_cubic_ctrl = None
+                last_quad_ctrl = control
+                out.append(quad(control, cur, start_point))
+            elif cmd == "T" and len(vals) >= 2:
+                control = (2 * cur[0] - last_quad_ctrl[0], 2 * cur[1] - last_quad_ctrl[1]) if last_quad_ctrl else cur
+                start_point = cur
+                cur = ((cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1]))
+                last_cubic_ctrl = None
+                last_quad_ctrl = control
+                out.append(quad(control, cur, start_point))
             elif cmd == "Z":
+                cur = start
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
                 out.append("-- cycle")
         return " ".join(out)
 

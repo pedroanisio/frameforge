@@ -97,3 +97,43 @@ def test_stroke_style_geometry_overrides_legacy_inline_stroke_bundle():
     assert "dash pattern=on 1pt off 2pt" in tex
     assert "line width=4pt" not in tex
     assert "dash pattern=on 6pt off 3pt" not in tex
+
+
+def test_svg_quadratic_path_commands_convert_to_tikz_cubic_controls():
+    tex = _fig().render({
+        "type": "path",
+        "d": "M 0 0 Q 30 60 60 0 T 120 0",
+        "stroke": "ink",
+        "fill": "none",
+        "stroke_style": {"stroke_width": 2},
+    })
+
+    assert "(0,0)" in tex
+    assert ".. controls (20,40) and (40,40) .. (60,0)" in tex
+    assert ".. controls (80,-40) and (100,-40) .. (120,0)" in tex
+
+
+def test_svg_smooth_cubic_path_reflects_previous_control_point():
+    tex = _fig().render({
+        "type": "path",
+        "d": "M 0 0 C 10 20 30 20 40 0 S 70 -20 80 0",
+        "stroke": "ink",
+        "fill": "none",
+        "stroke_style": {"stroke_width": 2},
+    })
+
+    assert ".. controls (10,20) and (30,20) .. (40,0)" in tex
+    assert ".. controls (50,-20) and (70,-20) .. (80,0)" in tex
+
+
+def test_list_form_quadratic_path_segments_convert_to_tikz_cubic_controls():
+    tex = _fig().render({
+        "type": "path",
+        "d": [["M", 0, 0], ["Q", 30, 60, 60, 0], ["T", 120, 0]],
+        "stroke": "ink",
+        "fill": "none",
+        "stroke_style": {"stroke_width": 2},
+    })
+
+    assert ".. controls (20,40) and (40,40) .. (60,0)" in tex
+    assert ".. controls (80,-40) and (100,-40) .. (120,0)" in tex
