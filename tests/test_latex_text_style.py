@@ -618,6 +618,67 @@ def test_direction_applies_to_spans():
     assert "{\\ifdefined\\textdir\\textdir TRT\\fi span rtl}" in tex
 
 
+def test_unicode_bidi_embed_uses_guarded_text_direction():
+    tex = _fig({"label": {"direction": "rtl", "unicode_bidi": "embed"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "embedded",
+        "style": "label",
+    })
+
+    assert tex.count("\\ifdefined\\textdir\\textdir TRT\\fi") >= 2
+    assert "embedded" in tex
+
+
+def test_unicode_bidi_isolate_uses_guarded_text_direction():
+    tex = _fig({"label": {"direction": "ltr", "unicode_bidi": "isolate"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "isolated",
+        "style": "label",
+    })
+
+    assert tex.count("\\ifdefined\\textdir\\textdir TLT\\fi") >= 2
+    assert "isolated" in tex
+
+
+def test_unicode_bidi_plaintext_defaults_to_ltr_direction():
+    tex = _fig({"label": {"unicode_bidi": "plaintext"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "plain",
+        "style": "label",
+    })
+
+    assert "\\ifdefined\\textdir\\textdir TLT\\fi plain" in tex
+
+
+def test_unicode_bidi_override_uses_guarded_begin_end_primitives():
+    tex = _fig({"label": {"unicode_bidi": "bidi-override"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "override",
+        "style": "label",
+    })
+
+    assert "\\ifdefined\\beginR\\beginR" in tex
+    assert "\\ifdefined\\endR\\endR" in tex
+    assert "override" in tex
+
+
+def test_unicode_bidi_applies_to_spans():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "spans": [
+            {"text": "span bidi", "style": {"direction": "rtl", "unicode_bidi": "isolate"}},
+        ],
+    })
+
+    assert tex.count("\\ifdefined\\textdir\\textdir TRT\\fi") >= 2
+    assert "span bidi" in tex
+
+
 def test_hanging_punctuation_enables_microtype_protrusion():
     tex = _fig({"label": {"hanging_punctuation": "allow-end"}}).render({
         "type": "text",

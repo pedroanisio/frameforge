@@ -1116,6 +1116,7 @@ class FigureTikz:
         escaped = self._space_text(st, escaped)
         escaped = self._hyphen_text(st, escaped)
         escaped = self._direction_text(st, escaped)
+        escaped = self._unicode_bidi_text(st, escaped)
         escaped = self._hanging_punctuation_text(st, escaped)
         escaped = self._text_align_last_text(st, escaped)
         return self._decorate_text(st, escaped)
@@ -1204,6 +1205,23 @@ class FigureTikz:
             return "{\\ifdefined\\textdir\\textdir TRT\\fi " + content + "}"
         if direction == "ltr":
             return "{\\ifdefined\\textdir\\textdir TLT\\fi " + content + "}"
+        return content
+
+    @staticmethod
+    def _unicode_bidi_text(st, content):
+        if not isinstance(st, dict):
+            return content
+        value = str(st.get("unicode_bidi") or "").strip().lower()
+        direction = str(st.get("direction") or "").strip().lower()
+        dir_token = "TRT" if direction == "rtl" else "TLT"
+        if value in ("embed", "isolate", "plaintext"):
+            return "{\\ifdefined\\textdir\\textdir " + dir_token + "\\fi " + content + "}"
+        if value in ("bidi-override", "isolate-override"):
+            return (
+                "{\\ifdefined\\beginR\\beginR\\else\\ifdefined\\beginL\\beginL\\fi\\fi "
+                + content +
+                "\\ifdefined\\endR\\endR\\else\\ifdefined\\endL\\endL\\fi\\fi}"
+            )
         return content
 
     @staticmethod
