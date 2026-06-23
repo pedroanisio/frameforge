@@ -921,11 +921,8 @@ class FigureTikz:
             font += "\\itshape"
         if st.get("font_variant_caps") == "small-caps":
             font += "\\scshape"
-        numeric = st.get("font_variant_numeric")
-        if numeric == "tabular-nums":
-            font += "\\addfontfeatures{Numbers=Monospaced}"
-        elif numeric == "oldstyle-nums":
-            font += "\\addfontfeatures{Numbers=OldStyle}"
+        for feature in self._numeric_font_features(st.get("font_variant_numeric")):
+            font += f"\\addfontfeatures{{Numbers={feature}}}"
         if st.get("font_variant_ligatures") == "none":
             font += "\\addfontfeatures{Ligatures=NoCommon}"
         kerning = st.get("font_kerning")
@@ -952,6 +949,20 @@ class FigureTikz:
         if amount in (None, 0):
             return None
         return amount
+
+    @staticmethod
+    def _numeric_font_features(value):
+        if not value:
+            return []
+        mapping = {
+            "tabular-nums": "Monospaced",
+            "proportional-nums": "Proportional",
+            "oldstyle-nums": "OldStyle",
+            "lining-nums": "Lining",
+            "slashed-zero": "SlashedZero",
+        }
+        tokens = str(value).replace(",", " ").split()
+        return [mapping[token] for token in tokens if token in mapping]
 
     @staticmethod
     def _raw_font_features(value):

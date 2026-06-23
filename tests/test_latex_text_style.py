@@ -159,6 +159,19 @@ def test_font_variant_numeric_maps_to_fontspec_feature():
     assert "{0123456789}" in oldstyle
 
 
+def test_font_variant_numeric_maps_combined_number_features():
+    tex = _fig({"metric": {"font_variant_numeric": "lining-nums proportional-nums slashed-zero"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "0123456789",
+        "style": "metric",
+    })
+
+    assert "\\addfontfeatures{Numbers=Lining}" in tex
+    assert "\\addfontfeatures{Numbers=Proportional}" in tex
+    assert "\\addfontfeatures{Numbers=SlashedZero}" in tex
+
+
 def test_font_variant_ligatures_none_maps_to_fontspec_feature():
     tex = _fig({"label": {"font_variant_ligatures": "none"}}).render({
         "type": "text",
