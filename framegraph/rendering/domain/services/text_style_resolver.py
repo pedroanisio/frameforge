@@ -36,9 +36,16 @@ class TextStyleResolver:
             merged.update(self.text_styles.get(name) or self.styles.get(name) or {})
         merged.update(st)
         fam = merged.get("font_family") or merged.get("font") or "sans"
-        if isinstance(fam, list):
-            fam = fam[0] if fam else "sans"
-        family = FONT_MAP.get(str(fam), str(fam))
+        # Preserve the WHOLE fallback stack so the SVG stays portable when the
+        # primary face isn't installed in the viewer (else a bare "font-family:Inter"
+        # falls back to the UA default serif). Role strings ("sans"/"serif"/"mono")
+        # already map to a terminating generic, so single-role styles are unchanged.
+        fam_list = [str(x) for x in (fam if isinstance(fam, list) else [fam]) if x] or ["sans"]
+        families = [FONT_MAP.get(x, x) for x in fam_list]
+        if families[-1] not in ("sans-serif", "serif", "monospace"):
+            families.append("sans-serif")
+        family = ", ".join(families)
+        family_primary = families[0]
         size = num(merged.get("font_size") or merged.get("size"), 14) or 14
         weight = merged.get("font_weight") or merged.get("weight")
         if weight is None and merged.get("bold"):
@@ -61,7 +68,8 @@ class TextStyleResolver:
             avg *= 1.04
         tw = merged.get("text_wrap")
         return {
-            "family": family, "size": size, "weight": weight, "bold": bold,
+            "family": family, "family_primary": family_primary,
+            "size": size, "weight": weight, "bold": bold,
             "italic": bool(merged.get("italic")) or merged.get("font_style") == "italic",
             "color": self._color.resolve(merged.get("color")) or "#1c1c1c",
             "align": merged.get("text_align") or merged.get("align") or "left",
@@ -71,11 +79,28 @@ class TextStyleResolver:
             "word_spacing": self._css_length(merged.get("word_spacing")),
             "text_decoration": self._text_decoration(merged.get("text_decoration")),
             "text_transform": merged.get("text_transform"),
+            "text_shadow": self._text_shadow(merged.get("text_shadow")),
+            "white_space": merged.get("white_space"),
+            "word_break": merged.get("word_break"),
+            "overflow_wrap": merged.get("overflow_wrap"),
+            "hyphens": merged.get("hyphens"),
             "font_variant": merged.get("font_variant"),
             "font_variant_caps": merged.get("font_variant_caps"),
             "font_variant_numeric": merged.get("font_variant_numeric"),
+            "font_variant_ligatures": merged.get("font_variant_ligatures"),
+            "font_feature_settings": merged.get("font_feature_settings"),
+            "font_variation_settings": merged.get("font_variation_settings"),
             "font_kerning": merged.get("font_kerning"),
             "font_stretch": merged.get("font_stretch"),
+            "text_align_last": merged.get("text_align_last"),
+            "text_indent": self._css_length(merged.get("text_indent")),
+            "hanging_punctuation": merged.get("hanging_punctuation"),
+            "hyphenate_character": merged.get("hyphenate_character"),
+            "hyphenate_limit_chars": self._hyphenate_limit_chars(merged.get("hyphenate_limit_chars")),
+            "tab_size": self._css_length(merged.get("tab_size")),
+            "writing_mode": merged.get("writing_mode"),
+            "direction": merged.get("direction"),
+            "unicode_bidi": merged.get("unicode_bidi"),
             "css": merged.get("css"),
             # ---- text-fit contract surface ----
             "overflow": merged.get("overflow"),
@@ -112,3 +137,32 @@ class TextStyleResolver:
         if thickness:
             parts.append(thickness)
         return " ".join(parts) if parts else None
+
+    @staticmethod
+    def _hyphenate_limit_chars(value):
+        if not isinstance(value, list) or len(value) != 3:
+            return None
+        if not all(isinstance(v, int) and not isinstance(v, bool) for v in value):
+            return None
+        return " ".join(str(v) for v in value)
+
+    def _text_shadow(self, value):
+        if value is None or value == "none":
+            return None
+        items = value if isinstance(value, list) else [value]
+        shadows = []
+        for item in items:
+            if isinstance(item, str):
+                shadows.append(item)
+                continue
+            if not isinstance(item, dict):
+                continue
+            x = self._css_length(item.get("offset_x", item.get("x", 0)))
+            y = self._css_length(item.get("offset_y", item.get("y", 0)))
+            blur = self._css_length(item.get("blur", 0))
+            color = self._color.resolve(item.get("color")) or item.get("color")
+            parts = [x, y, blur]
+            if color:
+                parts.append(str(color))
+            shadows.append(" ".join(str(p) for p in parts if p is not None))
+        return ", ".join(shadows) if shadows else None

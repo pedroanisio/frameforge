@@ -36,21 +36,25 @@ class SvgPainter:
     def __init__(self, color_resolver):
         self._color = color_resolver
         self._gid = 0
-        self._defs = []          # per-page <defs> entries (gradients, clip paths, markers)
+        self._defs = []          # per-page <defs> entries (gradients, clip paths, markers, filters)
         self._markers: dict[tuple[str, str], str] = {}   # (kind, colour) -> marker id
+        self._filters: dict[tuple, str] = {}             # effect signature -> filter id
 
     # ---- per-page backend state ------------------------------------------- #
     def new_page(self):
         self._defs = []
         self._markers = {}
+        self._filters = {}
 
     # ---- small attribute / style helpers ---------------------------------- #
     @staticmethod
-    def fill_attr(fill, fill_opacity=None):
+    def fill_attr(fill, fill_opacity=None, fill_rule=None):
         """The SVG `fill` attribute for a resolved paint value (None ⇒ 'none')."""
         attr = f' fill="{esc(fill)}"' if fill is not None else ' fill="none"'
         if fill_opacity is not None:
             attr += f' fill-opacity="{fnum(num(fill_opacity, 1))}"'
+        if fill_rule:
+            attr += f' fill-rule="{esc(fill_rule)}"'
         return attr
 
     @staticmethod
@@ -69,11 +73,28 @@ class SvgPainter:
             ("font_variant", "font-variant"),
             ("font_variant_caps", "font-variant-caps"),
             ("font_variant_numeric", "font-variant-numeric"),
+            ("font_variant_ligatures", "font-variant-ligatures"),
+            ("font_feature_settings", "font-feature-settings"),
+            ("font_variation_settings", "font-variation-settings"),
             ("font_kerning", "font-kerning"),
             ("letter_spacing", "letter-spacing"),
             ("word_spacing", "word-spacing"),
+            ("text_align_last", "text-align-last"),
+            ("text_indent", "text-indent"),
             ("text_decoration", "text-decoration"),
             ("text_transform", "text-transform"),
+            ("text_shadow", "text-shadow"),
+            ("white_space", "white-space"),
+            ("word_break", "word-break"),
+            ("overflow_wrap", "overflow-wrap"),
+            ("hyphens", "hyphens"),
+            ("hanging_punctuation", "hanging-punctuation"),
+            ("hyphenate_character", "hyphenate-character"),
+            ("hyphenate_limit_chars", "hyphenate-limit-chars"),
+            ("tab_size", "tab-size"),
+            ("writing_mode", "writing-mode"),
+            ("direction", "direction"),
+            ("unicode_bidi", "unicode-bidi"),
         ):
             if st.get(key):
                 style += f';{css_name}:{esc(st[key])}'
@@ -104,6 +125,18 @@ class SvgPainter:
             self._defs.append(f'<linearGradient id="{gid}">{body}</linearGradient>')
         return f"url(#{gid})"
 
+    def image_pattern(self, href, x, y, w, h, preserve_aspect_ratio="xMidYMid slice"):
+        self._gid += 1
+        pid = f"pat{self._gid}"
+        self._defs.append(
+            f'<pattern id="{pid}" patternUnits="userSpaceOnUse" '
+            f'x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}">'
+            f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '
+            f'href="{esc(href)}" preserveAspectRatio="{esc(preserve_aspect_ratio)}"/>'
+            f'</pattern>'
+        )
+        return f"url(#{pid})"
+
     def clip_rect(self, x, y, w, h):
         self._gid += 1
         cid = f"clip{self._gid}"
@@ -117,6 +150,19 @@ class SvgPainter:
         self._defs.append(f'<clipPath id="{cid}">'
                           f'<ellipse cx="{fnum(cx)}" cy="{fnum(cy)}" '
                           f'rx="{fnum(rx)}" ry="{fnum(ry)}"/></clipPath>')
+        return cid
+
+    def clip_polygon(self, points):
+        self._gid += 1
+        cid = f"clip{self._gid}"
+        pts = " ".join(f"{fnum(x)},{fnum(y)}" for x, y in points)
+        self._defs.append(f'<clipPath id="{cid}"><polygon points="{esc(pts)}"/></clipPath>')
+        return cid
+
+    def clip_path_d(self, d):
+        self._gid += 1
+        cid = f"clip{self._gid}"
+        self._defs.append(f'<clipPath id="{cid}"><path d="{esc(d)}"/></clipPath>')
         return cid
 
     def clip_wrap(self, inner, clip_id):
@@ -153,6 +199,177 @@ class SvgPainter:
                 f'orient="auto-start-reverse" markerUnits="userSpaceOnUse">'
                 f'<path d="{d}" {paint}/></marker>')
 
+    def filter_effect(self, kind: str, params: dict) -> str:
+        """Register a shadow/glow `<filter>` for params; return its id (deduped).
+
+        Additive — only called for objects/styles that declare supported effects."""
+        if kind in {"turbulence", "displacement_map", "diffuse_lighting", "specular_lighting"}:
+            key = (kind, tuple(sorted((k, str(v)) for k, v in params.items())))
+            fid = self._filters.get(key)
+            if fid is not None:
+                return fid
+            fid = f"fx{len(self._filters) + 1}"
+            self._filters[key] = fid
+            self._defs.append(self._filter_def(fid, kind, params))
+            return fid
+        if kind == "blur":
+            blur = fnum(num(params.get("blur"), 0))
+            key = ("blur", blur)
+            fid = self._filters.get(key)
+            if fid is not None:
+                return fid
+            fid = f"fx{len(self._filters) + 1}"
+            self._filters[key] = fid
+            self._defs.append(self._filter_def(fid, kind, params))
+            return fid
+        color = params.get("color") or ("#000000" if kind == "shadow" else "#FFD700")
+        blur = fnum(num(params.get("blur"), 4))
+        opacity = fnum(num(params.get("opacity"), 0.14 if kind == "shadow" else 0.55))
+        if kind == "shadow":
+            dx = fnum(num(params.get("dx"), 0))
+            dy = fnum(num(params.get("dy"), 2))
+            key = ("shadow", dx, dy, blur, color, opacity)
+        else:
+            key = ("glow", blur, color, opacity)
+        fid = self._filters.get(key)
+        if fid is not None:
+            return fid
+        fid = f"fx{len(self._filters) + 1}"
+        self._filters[key] = fid
+        self._defs.append(self._filter_def(fid, kind, params))
+        return fid
+
+    def filter_wrap(self, inner: str, filter_id: str) -> str:
+        return f'<g filter="url(#{filter_id})">{inner}</g>'
+
+    def transform_group(self, inner: str, transform: str) -> str:
+        return f'<g transform="{esc(transform)}">{inner}</g>'
+
+    @staticmethod
+    def style_group(inner: str, attrs: dict[str, str], raw: str = "") -> str:
+        # `raw` carries the bounded `css` escape (§8.4) for non-text objects, which
+        # have no inline style of their own; text emits its css via font_style().
+        style = ";".join(f"{name}:{value}" for name, value in attrs.items() if value)
+        if raw:
+            raw = str(raw).strip().rstrip(";")
+            style = f"{style};{raw}" if style else raw
+        return f'<g style="{esc(style)}">{inner}</g>' if style else inner
+
+    @staticmethod
+    def _filter_def(fid: str, kind: str, p: dict) -> str:
+        if kind == "turbulence":
+            return SvgPainter._turbulence_filter_def(fid, p)
+        if kind == "displacement_map":
+            return SvgPainter._displacement_filter_def(fid, p)
+        if kind == "diffuse_lighting":
+            return SvgPainter._lighting_filter_def(fid, p, specular=False)
+        if kind == "specular_lighting":
+            return SvgPainter._lighting_filter_def(fid, p, specular=True)
+        if kind == "blur":
+            blur = fnum(num(p.get("blur"), 0))
+            return (f'<filter id="{esc(fid)}" x="-20%" y="-20%" width="140%" height="140%">'
+                    f'<feGaussianBlur in="SourceGraphic" stdDeviation="{blur}"/>'
+                    f'</filter>')
+        color = p.get("color") or ("#000000" if kind == "shadow" else "#FFD700")
+        blur = fnum(num(p.get("blur"), 4))
+        if kind == "shadow":
+            dx = fnum(num(p.get("dx"), 0))
+            dy = fnum(num(p.get("dy"), 2))
+            opacity = fnum(num(p.get("opacity"), 0.14))
+            # Region padded so the offset blur is not clipped at the edges.
+            return (f'<filter id="{esc(fid)}" x="-20%" y="-20%" width="140%" height="140%">'
+                    f'<feGaussianBlur in="SourceAlpha" stdDeviation="{blur}"/>'
+                    f'<feOffset dx="{dx}" dy="{dy}" result="off"/>'
+                    f'<feFlood flood-color="{esc(color)}" flood-opacity="{opacity}"/>'
+                    f'<feComposite in2="off" operator="in" result="shadow"/>'
+                    f'<feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>'
+                    f'</filter>')
+        opacity = fnum(num(p.get("opacity"), 0.55))
+        return (f'<filter id="{esc(fid)}" x="-50%" y="-50%" width="200%" height="200%">'
+                f'<feGaussianBlur in="SourceAlpha" stdDeviation="{blur}"/>'
+                f'<feFlood flood-color="{esc(color)}" flood-opacity="{opacity}"/>'
+                f'<feComposite in2="SourceAlpha" operator="in" result="glow"/>'
+                f'<feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>'
+                f'</filter>')
+
+    @staticmethod
+    def _turbulence_filter_def(fid: str, p: dict) -> str:
+        base = SvgPainter._base_frequency(p.get("base_frequency", p.get("value", 0.035)))
+        octaves = int(num(p.get("num_octaves"), 2) or 2)
+        seed = int(num(p.get("seed"), 0) or 0)
+        noise_type = p.get("type") or "fractalNoise"
+        stitch = p.get("stitch_tiles") or "noStitch"
+        opacity = fnum(num(p.get("opacity"), 0.35))
+        return (f'<filter id="{esc(fid)}" x="-20%" y="-20%" width="140%" height="140%">'
+                f'<feTurbulence type="{esc(noise_type)}" baseFrequency="{esc(base)}" '
+                f'numOctaves="{octaves}" seed="{seed}" stitchTiles="{esc(stitch)}" result="noise"/>'
+                f'<feComponentTransfer in="noise" result="texture">'
+                f'<feFuncA type="linear" slope="{opacity}"/></feComponentTransfer>'
+                f'<feBlend in="SourceGraphic" in2="texture" mode="{esc(p.get("mode") or "multiply")}"/>'
+                f'</filter>')
+
+    @staticmethod
+    def _displacement_filter_def(fid: str, p: dict) -> str:
+        base = SvgPainter._base_frequency(p.get("base_frequency", 0.035))
+        octaves = int(num(p.get("num_octaves"), 2) or 2)
+        seed = int(num(p.get("seed"), 0) or 0)
+        scale = fnum(num(p.get("scale", p.get("value")), 12))
+        return (f'<filter id="{esc(fid)}" x="-20%" y="-20%" width="140%" height="140%">'
+                f'<feTurbulence type="{esc(p.get("type") or "fractalNoise")}" baseFrequency="{esc(base)}" '
+                f'numOctaves="{octaves}" seed="{seed}" result="noise"/>'
+                f'<feDisplacementMap in="SourceGraphic" in2="noise" scale="{scale}" '
+                f'xChannelSelector="{esc(p.get("x_channel") or "R")}" '
+                f'yChannelSelector="{esc(p.get("y_channel") or "G")}"/>'
+                f'</filter>')
+
+    @staticmethod
+    def _lighting_filter_def(fid: str, p: dict, *, specular: bool) -> str:
+        surface = fnum(num(p.get("surface_scale"), 2))
+        color = p.get("lighting_color") or "#ffffff"
+        light = SvgPainter._light_node(p)
+        if specular:
+            constant = fnum(num(p.get("specular_constant"), 0.8))
+            exponent = fnum(num(p.get("specular_exponent"), 20))
+            primitive = (f'<feSpecularLighting in="SourceAlpha" surfaceScale="{surface}" '
+                         f'specularConstant="{constant}" specularExponent="{exponent}" '
+                         f'lighting-color="{esc(color)}" result="light">{light}</feSpecularLighting>'
+                         f'<feComposite in="light" in2="SourceAlpha" operator="in" result="spec"/>'
+                         f'<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="spec"/></feMerge>')
+        else:
+            constant = fnum(num(p.get("diffuse_constant"), p.get("value", 1)))
+            primitive = (f'<feDiffuseLighting in="SourceAlpha" surfaceScale="{surface}" '
+                         f'diffuseConstant="{constant}" lighting-color="{esc(color)}" '
+                         f'result="light">{light}</feDiffuseLighting>'
+                         f'<feComposite in="light" in2="SourceGraphic" operator="arithmetic" '
+                         f'k1="1" k2="0" k3="0" k4="0"/>')
+        return f'<filter id="{esc(fid)}" x="-30%" y="-30%" width="160%" height="160%">{primitive}</filter>'
+
+    @staticmethod
+    def _light_node(p: dict) -> str:
+        if p.get("x") is not None or p.get("y") is not None or p.get("z") is not None:
+            attrs = (
+                f'x="{fnum(num(p.get("x"), 0))}" '
+                f'y="{fnum(num(p.get("y"), 0))}" '
+                f'z="{fnum(num(p.get("z"), 80))}"'
+            )
+            if p.get("points_at_x") is not None or p.get("points_at_y") is not None or p.get("points_at_z") is not None:
+                attrs += (
+                    f' pointsAtX="{fnum(num(p.get("points_at_x"), 0))}"'
+                    f' pointsAtY="{fnum(num(p.get("points_at_y"), 0))}"'
+                    f' pointsAtZ="{fnum(num(p.get("points_at_z"), 0))}"'
+                )
+                return f"<feSpotLight {attrs}/>"
+            return f"<fePointLight {attrs}/>"
+        return (f'<feDistantLight azimuth="{fnum(num(p.get("azimuth"), 225))}" '
+                f'elevation="{fnum(num(p.get("elevation"), 45))}"/>')
+
+    @staticmethod
+    def _base_frequency(value) -> str:
+        if isinstance(value, (list, tuple)):
+            return " ".join(fnum(num(v, 0.035)) for v in value[:2])
+        n = num(value, None)
+        return fnum(n) if n is not None else str(value)
+
     # ---- primitives ------------------------------------------------------- #
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None):
         rr = f' rx="{fnum(radius)}"' if radius else ""
@@ -171,11 +388,11 @@ class SvgPainter:
         return (f'<line x1="{fnum(x1)}" y1="{fnum(y1)}" '
                 f'x2="{fnum(x2)}" y2="{fnum(y2)}"{stroke}/>')
 
-    def poly(self, tag, points, fill, stroke, fill_opacity=None):
-        return f'<{tag} points="{points}"{self.fill_attr(fill, fill_opacity)}{stroke}/>'
+    def poly(self, tag, points, fill, stroke, fill_opacity=None, fill_rule=None):
+        return f'<{tag} points="{points}"{self.fill_attr(fill, fill_opacity, fill_rule)}{stroke}/>'
 
-    def path(self, d, fill, stroke, fill_opacity=None):
-        return f'<path d="{esc(d)}"{self.fill_attr(fill, fill_opacity)}{stroke}/>'
+    def path(self, d, fill, stroke, fill_opacity=None, fill_rule=None):
+        return f'<path d="{esc(d)}"{self.fill_attr(fill, fill_opacity, fill_rule)}{stroke}/>'
 
     def image(self, x, y, w, h, href, preserve_aspect_ratio="xMidYMid meet"):
         return (f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '
@@ -204,6 +421,18 @@ class SvgPainter:
             for i, ln in enumerate(lines))
         return f'<text y="{fnum(base_y)}" text-anchor="{anchor}" style="{style}">{spans}</text>'
 
+    def text_runs(self, base_y, anchor, tx, base_style, runs):
+        """A single baseline of inline styled runs (rich `text.spans`).
+
+        `runs` is a list of (text, run_style) pairs. The first run carries the
+        anchor x; the rest flow inline. Each run's style overrides the base."""
+        segs = []
+        for i, (text, run_style) in enumerate(runs):
+            xa = f' x="{fnum(tx)}"' if i == 0 else ""
+            segs.append(f'<tspan{xa} style="{run_style}">{esc(text)}</tspan>')
+        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}" '
+                f'style="{base_style}">{"".join(segs)}</text>')
+
     # ---- grouping / document ---------------------------------------------- #
     def group(self, inner, translate=None):
         if translate is not None:
@@ -214,8 +443,36 @@ class SvgPainter:
     def opacity_group(self, inner, opacity):
         return f'<g opacity="{fnum(opacity)}">{inner}</g>'
 
-    def document(self, w, h, body):
+    @staticmethod
+    def a11y_wrap(svg, obj):
+        """Wrap one object's SVG with accessibility markup when it carries any.
+
+        Additive and minimal: objects with no accessibility semantics are returned
+        byte-for-byte unchanged. `decorative` nodes become `aria-hidden`; any
+        object with `role`, `alt`, or `actual_text` gets a semantic group. `alt`
+        is the short label; `actual_text` is the verbatim content."""
+        if not svg or not isinstance(obj, dict):
+            return svg
+        if obj.get("decorative"):
+            return f'<g aria-hidden="true">{svg}</g>'
+        role = obj.get("role")
+        alt, actual = obj.get("alt"), obj.get("actual_text")
+        if role or alt or actual:
+            semantic_role = role or "img"
+            title = f"<title>{esc(alt)}</title>" if alt else ""
+            desc = f"<desc>{esc(actual)}</desc>" if actual else ""
+            label = f' aria-label="{esc(alt)}"' if alt else ""
+            return f'<g role="{esc(semantic_role)}"{label}>{title}{desc}{svg}</g>'
+        return svg
+
+    def document(self, w, h, body, lang=None, title=None, desc=None):
+        """Assemble the page `<svg>`. `lang`/`title`/`desc` are the document-level
+        accessibility surface; each is omitted when absent, so a document without
+        them renders byte-for-byte as before."""
         defs = f"<defs>{''.join(self._defs)}</defs>" if self._defs else ""
+        lang_attr = f' xml:lang="{esc(lang)}"' if lang else ""
+        meta = ((f"<title>{esc(title)}</title>" if title else "")
+                + (f"<desc>{esc(desc)}</desc>" if desc else ""))
         return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{fnum(w)}" height="{fnum(h)}" '
-                f'viewBox="0 0 {fnum(w)} {fnum(h)}">'
-                f'<rect width="100%" height="100%" fill="white"/>{defs}{body}</svg>\n')
+                f'viewBox="0 0 {fnum(w)} {fnum(h)}"{lang_attr}>'
+                f'{meta}<rect width="100%" height="100%" fill="white"/>{defs}{body}</svg>\n')

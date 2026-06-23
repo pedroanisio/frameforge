@@ -1,0 +1,142 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: SDK geometry + pattern helpers
+lang: en
+defs:
+  tokens:
+    text_styles:
+      label:
+        color: '#263238'
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 16
+        font_weight: 700
+pages:
+- mode: page
+  id: geometry_patterns
+  canvas:
+    size:
+    - 760.0
+    - 420.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 760
+      - 420
+      type: rect
+      fill: '#f8fafc'
+    - id: title
+      box:
+      - 40
+      - 28
+      - 500
+      - 28
+      style: label
+      type: text
+      text: Pattern paint and geometry helpers
+    - box:
+      - 46
+      - 86
+      - 130
+      - 90
+      stroke_style:
+        stroke_width: 2
+      type: rect
+      fill:
+        kind: pattern
+        pattern: hatch
+        angle: 45
+        spacing: 8
+        stroke: '#64748b'
+        background: '#e2e8f0'
+      stroke: '#334155'
+    - stroke_style:
+        stroke_width: 2
+      type: polyline
+      points:
+      - - 270.0
+        - 76.0
+      - - 318.4974226119286
+        - 104.0
+      - - 318.4974226119286
+        - 160.0
+      - - 270.0
+        - 188.0
+      - - 221.50257738807142
+        - 160.0
+      - - 221.50257738807144
+        - 104.0
+      closed: true
+      fill:
+        kind: pattern
+        pattern: dots
+        spacing: 12
+        stroke: '#0f766e'
+        background: '#ccfbf1'
+      stroke: '#0f766e'
+    - stroke_style:
+        stroke_width: 2
+      type: polyline
+      points:
+      - - 430.0
+        - 70.0
+      - - 445.8702018118968
+        - 110.15654115187641
+      - - 488.9655040102995
+        - 112.84094634875326
+      - - 455.6785259399691
+        - 140.3434588481236
+      - - 466.4426856421333
+        - 182.15905365124675
+      - - 430.0
+        - 159.0
+      - - 393.5573143578667
+        - 182.15905365124675
+      - - 404.3214740600309
+        - 140.3434588481236
+      - - 371.0344959897005
+        - 112.84094634875326
+      - - 414.1297981881032
+        - 110.15654115187643
+      closed: true
+      fill: '#fde68a'
+      stroke: '#92400e'
+    - stroke_style:
+        stroke_width: 5
+        stroke_linecap: round
+      type: path
+      d: M 533.809 105.798 A 62 62 0 1 1 533.809 158.202
+      stroke: '#2563eb'
+    - stroke_style:
+        stroke_width: 2
+      type: path
+      d: M 128 300 L 92 237.646 A 72 72 0 0 1 193.254 330.429 Z
+      fill: '#fed7aa'
+      stroke: '#c2410c'
+    - stroke_style:
+        stroke_width: 2
+      style:
+        fill_rule: evenodd
+      type: path
+      d: M 392 300 A 74 74 0 1 1 244 300 A 74 74 0 1 1 392 300 Z M 360 300 A 42 42
+        0 1 0 276 300 A 42 42 0 1 0 360 300 Z
+      fill: '#bfdbfe'
+      stroke: '#1d4ed8'
+    - stroke_style:
+        stroke_width: 4
+      type: path
+      d: M 470 320 C 480 308.333 506.667 250.333 530 250 C 553.333 249.667 585 317.167
+        610 318 C 635 318.833 668.333 265.5 680 255
+      fill: none
+      stroke: '#7c3aed'
+  reading_order:
+  - title

@@ -29,6 +29,9 @@ nav:
   - Specification: spec.md
   - Schema reference: reference.md
   - Grammar: grammar.md
+  - Python SDK:
+      - Guide: sdk.md
+      - API reference: sdk-api.md
   - Fixture gallery: fixtures.md
   - Changelog: changelog.md
 

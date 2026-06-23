@@ -56,6 +56,7 @@ Color = str                 # hex (#rgb[a]/#rrggbb[aa]), CSS name, or a tokens.c
 UnitInterval = Annotated[float, Field(ge=0.0, le=1.0)]
 Point = Annotated[list[float], Field(min_length=2, max_length=2)]
 Box = Annotated[list[Length], Field(min_length=4, max_length=4)]  # [x, y, w, h], top-left, +y down
+Padding = Union[Length, Annotated[list[Length], Field(min_length=1, max_length=4)]]
 
 NumberFormat = Literal["decimal", "lower-roman", "upper-roman", "lower-alpha", "upper-alpha"]
 PagePreset = Literal[
@@ -162,9 +163,33 @@ ShadowVal = Union[str, Shadow]
 
 class FilterFn(FG):
     fn: Literal["blur", "brightness", "contrast", "drop_shadow", "grayscale",
-                "hue_rotate", "invert", "opacity", "saturate", "sepia"]
+                "hue_rotate", "invert", "opacity", "saturate", "sepia",
+                "turbulence", "displacement_map", "diffuse_lighting", "specular_lighting"]
     value: Optional[Union[float, int, str]] = None
     shadow: Optional[ShadowVal] = None
+    base_frequency: Optional[Union[float, int, str, list[Union[float, int, str]]]] = None
+    num_octaves: Optional[int] = None
+    seed: Optional[int] = None
+    stitch_tiles: Optional[Literal["stitch", "noStitch"]] = None
+    type: Optional[Literal["fractalNoise", "turbulence"]] = None
+    mode: Optional[str] = None
+    opacity: Optional[Union[float, int, str]] = None
+    scale: Optional[Union[float, int, str]] = None
+    x_channel: Optional[Literal["R", "G", "B", "A"]] = None
+    y_channel: Optional[Literal["R", "G", "B", "A"]] = None
+    surface_scale: Optional[Union[float, int, str]] = None
+    lighting_color: Optional[Color] = None
+    azimuth: Optional[Union[float, int, str]] = None
+    elevation: Optional[Union[float, int, str]] = None
+    x: Optional[Union[float, int, str]] = None
+    y: Optional[Union[float, int, str]] = None
+    z: Optional[Union[float, int, str]] = None
+    points_at_x: Optional[Union[float, int, str]] = None
+    points_at_y: Optional[Union[float, int, str]] = None
+    points_at_z: Optional[Union[float, int, str]] = None
+    diffuse_constant: Optional[Union[float, int, str]] = None
+    specular_constant: Optional[Union[float, int, str]] = None
+    specular_exponent: Optional[Union[float, int, str]] = None
 
 
 Filter = Union[str, list[FilterFn]]
@@ -357,13 +382,14 @@ class AssetDef(FG):
 #  Layout + content sizing (P1 + P4)                                          #
 # --------------------------------------------------------------------------- #
 class Layout(FG):
-    kind: Literal["row", "column", "grid", "free"]
+    kind: Literal["row", "column", "grid", "wrap", "free"]
     gap: Optional[Length] = None
     row_gap: Optional[Length] = None
     column_gap: Optional[Length] = None
-    padding: Optional[Box] = None
+    padding: Optional[Padding] = None
     columns: Optional[int] = None
     align: Optional[Literal["start", "center", "end", "stretch"]] = None
+    justify: Optional[Literal["start", "center", "end", "space-between", "space-around", "space-evenly"]] = None
 
 
 SizeMode = Literal["fixed", "hug", "fill"]
@@ -474,7 +500,14 @@ class FootnoteInline(FG):
     id: Optional[str] = None
 
 
-Inline = Union[str, RefInline, CiteInline, MathInline, CodeInline, FootnoteInline, Span]
+class LinkInline(FG):
+    kind: Literal["link"]
+    href: str
+    content: list["Inline"]
+    title: Optional[str] = None
+
+
+Inline = Union[str, RefInline, CiteInline, MathInline, CodeInline, FootnoteInline, LinkInline, Span]
 Caption = Union[str, list[Inline]]
 
 
@@ -607,6 +640,8 @@ class Text(ObjBase):
 class Image(ObjBase):
     type: Literal["image"]
     src: str
+    alt: Optional[str] = None
+    actual_text: Optional[str] = None
     placeholder: Optional[bool] = None
     preserve_aspect_ratio: Optional[Union[bool, str]] = None   # bool or SVG preserveAspectRatio string
     clip: Optional[Union[bool, str, ClipSpec]] = None
@@ -782,6 +817,8 @@ class TableFlow(BreakFields):
 class ImageFlow(BreakFields):
     type: Literal["image"]
     src: str
+    alt: Optional[str] = None
+    actual_text: Optional[str] = None
     width: Optional[Length] = None
     height: Optional[Length] = None
     preserve_aspect_ratio: Optional[Union[bool, str]] = None
@@ -792,7 +829,10 @@ class ImageFlow(BreakFields):
 class FigureFlow(BreakFields):
     type: Literal["figure"]
     object: "VisualObject"
+    alt: Optional[str] = None
+    actual_text: Optional[str] = None
     align: Optional[Literal["left", "center", "right"]] = None
+    units: Optional[Units] = None        # coordinate unit of the figure's drawing space (default px)
     size: Optional[Annotated[list[Length], Field(min_length=2, max_length=2)]] = None
     caption: Optional[Caption] = None
     credit: Optional[Caption] = None
@@ -829,6 +869,7 @@ class MathFlow(BreakFields):
     type: Literal["math"]
     tex: Optional[str] = None
     mathml: Optional[str] = None
+    alt: Optional[str] = None        # plain-text fallback for accessibility (a11y/tagged export)
     id: Optional[str] = None
     number: Optional[Number] = None
 
@@ -945,6 +986,7 @@ class Page(FG):
     canvas: Optional[CanvasSpec] = None
     rendering: Optional[RenderingContract] = None
     layers: Optional[list[Layer]] = None
+    reading_order: Optional[list[str]] = None
     semantic: Optional[dict] = None
     links: Optional[list[PageLink]] = None
     notes: Optional[str] = None
@@ -959,6 +1001,7 @@ class FlowSection(FG):
     media: Optional[Literal["paged", "continuous"]] = None
     page_numbering: Optional[dict] = None
     lang: Optional[str] = None
+    links: Optional[list[PageLink]] = None        # section-level navigation, mirroring Page.links
     semantic: Optional[dict] = None
     meta: Optional[dict] = None
 
@@ -1029,8 +1072,8 @@ class Document(FG):
 
 # Resolve forward references (recursive groups, footnotes-in-spans, blocks).
 for _m in (
-    Style, Gradient, GradientStop, FootnoteInline, Group, Text, FigureFlow, BlockFlow, KeepTogetherFlow,
-    ListFlow, Running, PageMaster, Layer,
+    Style, Gradient, GradientStop, FootnoteInline, LinkInline, Group, Text, FigureFlow, BlockFlow,
+    KeepTogetherFlow, ListFlow, Running, PageMaster, Layer,
 ):
     _m.model_rebuild()
 Document.model_rebuild()

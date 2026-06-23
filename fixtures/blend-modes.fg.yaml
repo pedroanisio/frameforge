@@ -1,0 +1,197 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Blend modes gallery (fixture)
+description: >-
+  Exercises the `mix_blend_mode` style property — the proxy emits a real
+  `mix-blend-mode` SVG attribute so each overlap composites differently against
+  what is behind it. Every cell is the SAME pair (a warm gradient rectangle with
+  a cool circle laid over it); only the circle's blend mode changes, so the ten
+  separable-and-non-separable modes can be read side by side.
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#1c2733'
+      warm1: '#f9d423'
+      warm2: '#ff4e50'
+      cool: '#3a7bd5'
+    text_styles:
+      title:
+        font: sans
+        size: 15
+        weight: 600
+        color: ink
+      cap:
+        font: sans
+        size: 11
+        color: ink
+        align: center
+pages:
+- mode: page
+  id: blend_modes
+  canvas:
+    size: [900, 360]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: text
+      box: [24, 16, 840, 22]
+      text: mix_blend_mode — cool circle over a warm gradient
+      style: title
+
+    # --- Row 1 ---
+    - type: rect
+      box: [24, 56, 150, 116]
+      radius: 6
+      fill: {kind: linear, angle: 45, stops: [{color: warm1, position: '0%'}, {color: warm2, position: '100%'}]}
+    - type: ellipse
+      center: [120, 110]
+      rx: 46
+      ry: 46
+      fill: cool
+      style: {mix_blend_mode: multiply}
+    - type: text
+      box: [24, 176, 150, 16]
+      text: multiply
+      style: cap
+
+    - type: rect
+      box: [194, 56, 150, 116]
+      radius: 6
+      fill: {kind: linear, angle: 45, stops: [{color: warm1, position: '0%'}, {color: warm2, position: '100%'}]}
+    - type: ellipse
+      center: [290, 110]
+      rx: 46
+      ry: 46
+      fill: cool
+      style: {mix_blend_mode: screen}
+    - type: text
+      box: [194, 176, 150, 16]
+      text: screen
+      style: cap
+
+    - type: rect
+      box: [364, 56, 150, 116]
+      radius: 6
+      fill: {kind: linear, angle: 45, stops: [{color: warm1, position: '0%'}, {color: warm2, position: '100%'}]}
+    - type: ellipse
+      center: [460, 110]
+      rx: 46
+      ry: 46
+      fill: cool
+      style: {mix_blend_mode: overlay}
+    - type: text
+      box: [364, 176, 150, 16]
+      text: overlay
+      style: cap
+
+    - type: rect
+      box: [534, 56, 150, 116]
+      radius: 6
+      fill: {kind: linear, angle: 45, stops: [{color: warm1, position: '0%'}, {color: warm2, position: '100%'}]}
+    - type: ellipse
+      center: [630, 110]
+      rx: 46
+      ry: 46
+      fill: cool
+      style: {mix_blend_mode: darken}
+    - type: text
+      box: [534, 176, 150, 16]
+      text: darken
+      style: cap
+
+    - type: rect
+      box: [704, 56, 150, 116]
+      radius: 6
+      fill: {kind: linear, angle: 45, stops: [{color: warm1, position: '0%'}, {color: warm2, position: '100%'}]}
+    - type: ellipse
+      center: [800, 110]
+      rx: 46
+      ry: 46
+      fill: cool
+      style: {mix_blend_mode: lighten}
+    - type: text
+      box: [704, 176, 150, 16]
+      text: lighten
+      style: cap
+
+    # --- Row 2 ---
+    - type: rect
+      box: [24, 200, 150, 116]
+      radius: 6
+      fill: {kind: linear, angle: 45, stops: [{color: warm1, position: '0%'}, {color: warm2, position: '100%'}]}
+    - type: ellipse
+      center: [120, 254]
+      rx: 46
+      ry: 46
+      fill: cool
+      style: {mix_blend_mode: color-dodge}
+    - type: text
+      box: [24, 320, 150, 16]
+      text: color-dodge
+      style: cap
+
+    - type: rect
+      box: [194, 200, 150, 116]
+      radius: 6
+      fill: {kind: linear, angle: 45, stops: [{color: warm1, position: '0%'}, {color: warm2, position: '100%'}]}
+    - type: ellipse
+      center: [290, 254]
+      rx: 46
+      ry: 46
+      fill: cool
+      style: {mix_blend_mode: hard-light}
+    - type: text
+      box: [194, 320, 150, 16]
+      text: hard-light
+      style: cap
+
+    - type: rect
+      box: [364, 200, 150, 116]
+      radius: 6
+      fill: {kind: linear, angle: 45, stops: [{color: warm1, position: '0%'}, {color: warm2, position: '100%'}]}
+    - type: ellipse
+      center: [460, 254]
+      rx: 46
+      ry: 46
+      fill: cool
+      style: {mix_blend_mode: soft-light}
+    - type: text
+      box: [364, 320, 150, 16]
+      text: soft-light
+      style: cap
+
+    - type: rect
+      box: [534, 200, 150, 116]
+      radius: 6
+      fill: {kind: linear, angle: 45, stops: [{color: warm1, position: '0%'}, {color: warm2, position: '100%'}]}
+    - type: ellipse
+      center: [630, 254]
+      rx: 46
+      ry: 46
+      fill: cool
+      style: {mix_blend_mode: difference}
+    - type: text
+      box: [534, 320, 150, 16]
+      text: difference
+      style: cap
+
+    - type: rect
+      box: [704, 200, 150, 116]
+      radius: 6
+      fill: {kind: linear, angle: 45, stops: [{color: warm1, position: '0%'}, {color: warm2, position: '100%'}]}
+    - type: ellipse
+      center: [800, 254]
+      rx: 46
+      ry: 46
+      fill: cool
+      style: {mix_blend_mode: luminosity}
+    - type: text
+      box: [704, 320, 150, 16]
+      text: luminosity
+      style: cap

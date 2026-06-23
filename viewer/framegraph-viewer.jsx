@@ -2,10 +2,13 @@ import React, {
   useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback,
 } from "react";
 import * as yaml from "js-yaml";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 import {
   ChevronLeft, ChevronRight, Maximize2, Crosshair, Upload, X,
   Palette, Layers, Type as TypeIcon, Info,
 } from "lucide-react";
+import { normalizeFrameGraphDoc } from "./framegraph-normalize.mjs";
 
 /* ============================================================ *
  *  Embedded demo document (Esfera deck, FrameGraph v2)
@@ -48,6 +51,15 @@ const PRESET_CANVASES = {
   tablet: [834, 1112],
   web: [1280, 800],
 };
+
+const UML_BOX_TYPES = new Set([
+  "uml.classifier_box",
+  "uml.component_box",
+  "uml.state_box",
+  "uml.action",
+  "uml.artifact_box",
+  "uml.node_box",
+]);
 
 /* ============================================================ *
  *  Resolver engine — turns FrameGraph tokens/objects into CSS.
@@ -216,7 +228,9 @@ function cssLength(v) {
 }
 
 function camelCss(prop) {
-  return String(prop).trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+  const name = String(prop).trim();
+  if (name.startsWith("--")) return name;
+  return name.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 }
 
 function parseCssDeclarations(cssText) {
@@ -252,6 +266,13 @@ function cssBorder(doc, border) {
   return [width, style, color].filter(Boolean).join(" ");
 }
 
+function cssTextDecoration(doc, value) {
+  if (!value || typeof value === "string") return value;
+  const line = Array.isArray(value.line) ? value.line.join(" ") : value.line;
+  const color = value.color ? resolveColor(doc, value.color) : undefined;
+  return [line, value.style, color, cssLength(value.thickness)].filter(Boolean).join(" ");
+}
+
 function cssShadow(doc, shadow) {
   if (!shadow || shadow === "none") return shadow;
   const list = Array.isArray(shadow) ? shadow : [shadow];
@@ -267,15 +288,62 @@ function cssShadow(doc, shadow) {
   }).join(", ");
 }
 
-function cssFilter(fn) {
+function cssFilter(doc, fn) {
   if (!fn || fn === "none") return fn;
   const list = Array.isArray(fn) ? fn : [fn];
   return list.map((f) => {
     if (typeof f === "string") return f;
     const name = f.fn || f.kind || f.name;
-    const value = f.value ?? f.amount ?? "";
-    return name ? `${name}(${value})` : "";
+    if (!name) return "";
+    if (name === "drop_shadow") {
+      const shadow = cssShadow(doc, f.shadow);
+      return shadow ? `drop-shadow(${shadow})` : "";
+    }
+    const cssName = name === "hue_rotate" ? "hue-rotate" : name.replaceAll("_", "-");
+    const value = f.value ?? f.amount;
+    return value != null ? `${cssName}(${cssFilterArg(name, value)})` : "";
   }).filter(Boolean).join(" ");
+}
+
+function cssFilterArg(name, value) {
+  if (name === "blur") return cssLength(value);
+  if (name === "hue_rotate") return cssAngle(value);
+  return String(value);
+}
+
+function cssPoint(point) {
+  return Array.isArray(point) ? point.map(cssLength).join(" ") : point;
+}
+
+function cssClipPath(clip) {
+  if (!clip || typeof clip === "string") return clip;
+  const shape = clip.shape;
+  const args = clip.args || {};
+  if (shape === "inset") {
+    return `inset(${[args.top, args.right, args.bottom, args.left].map((v) => cssLength(v ?? 0)).join(" ")})`;
+  }
+  if (shape === "circle") {
+    const r = cssLength(args.radius ?? args.r ?? "50%");
+    const at = cssPoint(args.at ?? args.center);
+    return `circle(${[r, at ? `at ${at}` : ""].filter(Boolean).join(" ")})`;
+  }
+  if (shape === "ellipse") {
+    const rx = cssLength(args.rx ?? args.radius_x ?? "50%");
+    const ry = cssLength(args.ry ?? args.radius_y ?? "50%");
+    const at = cssPoint(args.at ?? args.center);
+    return `ellipse(${[`${rx} ${ry}`, at ? `at ${at}` : ""].filter(Boolean).join(" ")})`;
+  }
+  if (shape === "polygon" && Array.isArray(args.points)) {
+    return `polygon(${args.points.map(cssPoint).join(", ")})`;
+  }
+  if (shape === "path" && args.d) {
+    return `path("${String(args.d).replace(/"/g, '\\"')}")`;
+  }
+  return shape ? `${shape}()` : undefined;
+}
+
+function cssAngle(value) {
+  return typeof value === "number" ? `${value}deg` : String(value);
 }
 
 function cssTransform(tx) {
@@ -286,7 +354,17 @@ function cssTransform(tx) {
     if (typeof t === "string") return t;
     const fn = t.fn || t.kind || t.name;
     const args = Array.isArray(t.args) ? t.args : [t.value ?? t.x, t.y].filter((x) => x != null);
-    return fn ? `${fn}(${args.join(", ")})` : "";
+    if (!fn) return "";
+    if (fn === "translate_x") return `translateX(${args.map(cssLength).join(", ")})`;
+    if (fn === "translate_y") return `translateY(${args.map(cssLength).join(", ")})`;
+    if (fn === "scale_x") return `scaleX(${args.join(", ")})`;
+    if (fn === "scale_y") return `scaleY(${args.join(", ")})`;
+    if (fn === "skew_x") return `skewX(${args.map(cssAngle).join(", ")})`;
+    if (fn === "skew_y") return `skewY(${args.map(cssAngle).join(", ")})`;
+    if (fn === "rotate") return `rotate(${args.map(cssAngle).join(", ")})`;
+    const cssName = fn.replaceAll("_", "-");
+    const vals = fn === "translate" ? args.map(cssLength) : (fn === "skew" ? args.map(cssAngle) : args);
+    return `${cssName}(${vals.join(", ")})`;
   }).filter(Boolean).join(" ");
 }
 
@@ -299,16 +377,13 @@ function styleToCss(doc, ref, opts = {}) {
   if (st.mix_blend_mode) css.mixBlendMode = st.mix_blend_mode;
   if (st.isolation) css.isolation = st.isolation;
   if (st.box_shadow) css.boxShadow = cssShadow(doc, st.box_shadow);
-  if (st.filter) css.filter = cssFilter(st.filter);
-  if (st.backdrop_filter) css.backdropFilter = cssFilter(st.backdrop_filter);
+  if (st.filter) css.filter = cssFilter(doc, st.filter);
+  if (st.backdrop_filter) css.backdropFilter = cssFilter(doc, st.backdrop_filter);
   if (st.transform) css.transform = cssTransform(st.transform);
   if (st.transform_origin) css.transformOrigin = Array.isArray(st.transform_origin) ? st.transform_origin.map(cssLength).join(" ") : st.transform_origin;
   if (st.transform_box) css.transformBox = st.transform_box;
   if (st.perspective != null) css.perspective = cssLength(st.perspective);
-  if (st.clip_path) {
-    if (typeof st.clip_path === "string") css.clipPath = st.clip_path;
-    else if (st.clip_path.shape) css.clipPath = `${st.clip_path.shape}()`;
-  }
+  if (st.clip_path) css.clipPath = cssClipPath(st.clip_path);
   if (st.mask) css.mask = typeof st.mask === "string" ? st.mask : undefined;
   if (st.padding != null) css.padding = cssEdges(st.padding);
   if (st.margin != null) css.margin = cssEdges(st.margin);
@@ -364,7 +439,7 @@ function styleToCss(doc, ref, opts = {}) {
     if (st.letter_spacing != null) css.letterSpacing = cssLength(st.letter_spacing);
     if (st.word_spacing != null) css.wordSpacing = cssLength(st.word_spacing);
     if (st.text_transform) css.textTransform = st.text_transform;
-    if (st.text_decoration) css.textDecoration = st.text_decoration;
+    if (st.text_decoration) css.textDecoration = cssTextDecoration(doc, st.text_decoration);
     if (st.text_indent != null) css.textIndent = cssLength(st.text_indent);
     if (st.text_shadow) css.textShadow = cssShadow(doc, st.text_shadow);
     if (st.font_variant_caps) css.fontVariantCaps = st.font_variant_caps;
@@ -419,18 +494,41 @@ function rotationStyle(rot, box) {
 // id -> box registry for anchor refs (best effort; per page)
 function buildRegistry(page) {
   const reg = {};
+  const visit = (o, offset = [0, 0]) => {
+    if (!o || typeof o !== "object") return;
+    const box = o.box ? o.box.map(toPx) : null;
+    const absBox = box ? [box[0] + offset[0], box[1] + offset[1], box[2], box[3]] : null;
+    if (o.id && absBox) reg[o.id] = { box: absBox, ports: o.ports || {} };
+    const childOffset = o.type === "group" && box ? [offset[0] + box[0], offset[1] + box[1]] : offset;
+    (o.children || []).forEach((child) => visit(child, childOffset));
+  };
+  (page.layers || []).forEach((l) => (l.objects || []).forEach((o) => visit(o)));
+  return reg;
+}
+function buildObjectIndex(page) {
+  const index = {};
   const visit = (o) => {
     if (!o || typeof o !== "object") return;
-    if (o.id && o.box) reg[o.id] = o.box.map(toPx);
+    if (o.id && index[o.id] == null) index[o.id] = o;
     (o.children || []).forEach(visit);
   };
   (page.layers || []).forEach((l) => (l.objects || []).forEach(visit));
-  return reg;
+  return index;
 }
 function anchorPoint(a, reg) {
   if (Array.isArray(a)) return [toPx(a[0]), toPx(a[1])];
-  if (a && typeof a === "object" && a.ref && reg[a.ref]) {
-    const [x, y, w, h] = reg[a.ref];
+  if (a && typeof a === "object" && Array.isArray(a.point)) return [toPx(a.point[0]), toPx(a.point[1])];
+  if (a && typeof a === "object" && (a.ref || a.object) && reg[a.ref || a.object]) {
+    const entry = reg[a.ref || a.object];
+    const port = a.port;
+    if (port && Array.isArray(entry.ports?.[port])) return [toPx(entry.ports[port][0]), toPx(entry.ports[port][1])];
+    const [x, y, w, h] = entry.box || entry;
+    const side = a.side || port;
+    const offset = toPx(a.offset) || 0;
+    if (side === "north") return [x + w / 2 + offset, y];
+    if (side === "south") return [x + w / 2 + offset, y + h];
+    if (side === "east") return [x + w, y + h / 2 + offset];
+    if (side === "west") return [x, y + h / 2 + offset];
     return [x + w / 2, y + h / 2]; // center; ports not modelled
   }
   return [0, 0];
@@ -549,7 +647,7 @@ function TextObj({ doc, o, active }) {
             lineHeight: ss.line_height || undefined,
             textDecoration: ss.text_decoration || undefined,
             textTransform: ss.text_transform || undefined,
-          }}>{textContent(sp)}</span>
+          }}>{inlineNodes(sp)}</span>
         );
       })
     : (o.text != null ? o.text : (o.field != null ? `{${typeof o.field === "string" ? o.field : "field"}}` : ""));
@@ -586,7 +684,8 @@ function VectorObj({ doc, o, cw, ch, reg }) {
   const stroke = resolveStroke(doc, o.stroke_style, o.stroke) || (hasFill ? null : { color: "#000", width: 1 });   // 2.2.0 split form
   const op = o.opacity != null ? o.opacity : 1;
   const mid = o.id ? o.id.replace(/[^a-zA-Z0-9_-]/g, "_") : Math.random().toString(36).slice(2);
-  const arrow = stroke && (stroke.arrowStart || stroke.arrowEnd);
+  const dimArrows = o.type === "dimension" && (o.arrows == null || o.arrows === "both" || o.arrows === "first" || o.arrows === "second");
+  const arrow = stroke && (stroke.arrowStart || stroke.arrowEnd || dimArrows);
   const dash = stroke?.dash ? stroke.dash.join(" ") : undefined;
   const common = {
     "data-framegraph-vector": o.id || "",
@@ -599,7 +698,65 @@ function VectorObj({ doc, o, cw, ch, reg }) {
   };
 
   let shape = null;
-  if (o.type === "line") {
+  if (o.type === "dimension") {
+    const start = anchorPoint(o.from, reg);
+    const end = anchorPoint(o.to, reg);
+    const kind = o.kind || "linear";
+    const arrows = o.arrows || "both";
+    const markerStart = (arrows === "both" || arrows === "first") ? `url(#${mid}-ah)` : undefined;
+    const markerEnd = (arrows === "both" || arrows === "second") ? `url(#${mid}-ah)` : undefined;
+    const lineAttrs = { ...common, markerStart, markerEnd, fill: "none" };
+    const label = o.text ?? (o.value === "auto" || o.value == null ? null : o.value);
+    const textStyle = resolveStyle(doc, o.text_style || o.style);
+    const fontSize = toPx(textStyle.size ?? textStyle.font_size) || 12;
+    const textFill = resolveColor(doc, textStyle.color || o.color || "ink") || stroke?.color || "#111";
+    if (kind === "radial" || kind === "diameter") {
+      const dx = start[0] - end[0], dy = start[1] - end[1];
+      const r = Math.hypot(dx, dy);
+      const auto = `${kind === "diameter" ? "⌀" : "R"}${Number.isFinite(r) ? Math.round((kind === "diameter" ? 2 : 1) * r) : ""}`;
+      const lx = (start[0] + end[0]) / 2;
+      const ly = (start[1] + end[1]) / 2 - fontSize * 0.7;
+      shape = (
+        <g>
+          <line x1={start[0]} y1={start[1]} x2={end[0]} y2={end[1]} {...lineAttrs} markerStart={undefined} markerEnd={markerEnd} />
+          <text x={lx} y={ly} textAnchor="middle" fill={textFill} fontSize={fontSize} fontFamily={resolveFont(doc, textStyle.font)}>
+            {label ?? auto}
+          </text>
+        </g>
+      );
+    } else {
+      const dx = end[0] - start[0], dy = end[1] - start[1];
+      const dist = Math.hypot(dx, dy);
+      const off = toPx(o.offset) || 12;
+      const nx = dist ? -dy / dist : 0;
+      const ny = dist ? dx / dist : 0;
+      const a = [start[0] + nx * off, start[1] + ny * off];
+      const b = [end[0] + nx * off, end[1] + ny * off];
+      const shown = label ?? `${Math.round(dist)}`;
+      shape = (
+        <g>
+          <line x1={start[0]} y1={start[1]} x2={a[0]} y2={a[1]} {...common} fill="none" />
+          <line x1={end[0]} y1={end[1]} x2={b[0]} y2={b[1]} {...common} fill="none" />
+          <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} {...lineAttrs} />
+          <text x={(a[0] + b[0]) / 2} y={(a[1] + b[1]) / 2 - fontSize * 0.45}
+            textAnchor="middle" dominantBaseline="central" fill={textFill}
+            fontSize={fontSize} fontFamily={resolveFont(doc, textStyle.font)}>
+            {shown}
+          </text>
+        </g>
+      );
+    }
+  } else if (o.type === "connector") {
+    const start = anchorPoint(o.from, reg);
+    const end = anchorPoint(o.to, reg);
+    const routePoints = Array.isArray(o.route?.points) ? o.route.points.map((p) => [toPx(p[0]), toPx(p[1])]) : [];
+    const pts = [start, ...routePoints, end];
+    if (pts.length === 2) {
+      shape = <line x1={start[0]} y1={start[1]} x2={end[0]} y2={end[1]} {...common} />;
+    } else {
+      shape = <polyline points={pts.map((p) => `${p[0]},${p[1]}`).join(" ")} {...common} fill="none" />;
+    }
+  } else if (o.type === "line") {
     const [x1, y1] = anchorPoint(o.from, reg);
     const [x2, y2] = anchorPoint(o.to, reg);
     shape = <line x1={x1} y1={y1} x2={x2} y2={y2} {...common} />;
@@ -728,12 +885,379 @@ function ImageObj({ doc, o }) {
       background: "repeating-linear-gradient(45deg,#f3f3f3 0 8px,#e8e8e8 8px 16px)",
       opacity: o.opacity != null ? o.opacity : 1, ...rotationStyle(o.rotation, box),
     }}>
-      {canLoad ? <img src={resolvedSrc} alt={o.alt || o.id || ""} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /> : null}
+      {canLoad ? <img src={resolvedSrc} alt={o.alt || o.actual_text || o.id || ""} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /> : null}
       {!canLoad && <div style={{
         width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
         textAlign: "center", fontFamily: UI.mono, fontSize: Math.max(9, Math.min(12, h / 5)), color: UI.lo,
         padding: 8, boxSizing: "border-box",
       }}>{src || "image"}</div>}
+    </div>
+  );
+}
+
+function ChipRowObj({ doc, o }) {
+  const [x, y] = (o.origin || [0, 0]).map(toPx);
+  const gap = toPx(o.gap) || 6;
+  const height = toPx(o.height) || 18;
+  const items = o.items || [];
+  const fill = resolveColor(doc, o.fill || "paper") || "#fff";
+  const stroke = resolveColor(doc, o.stroke || "rule") || "rgba(0,0,0,.16)";
+  const color = resolveColor(doc, o.color || "text_muted") || "#555";
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="chip_row" style={{
+      position: "absolute", left: x, top: y, display: "flex", gap,
+      height, alignItems: "center", opacity: o.opacity != null ? o.opacity : 1,
+      ...styleToCss(doc, o.style),
+    }}>
+      {items.map((item, i) => {
+        const width = toPx(item.width) || undefined;
+        return (
+          <div key={item.id || i} style={{
+            flex: "0 0 auto", width, height, borderRadius: height / 2,
+            border: `1px solid ${resolveColor(doc, item.stroke) || stroke}`,
+            background: resolveColor(doc, item.fill) || fill,
+            color: resolveColor(doc, item.color) || color,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: "0 7px", boxSizing: "border-box",
+            fontFamily: resolveFont(doc, item.font || o.font),
+            fontSize: Math.max(9, Math.min(12, height - 5)),
+            lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden",
+          }}>
+            {textContent(item)}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function UmlMarkerGlyphObj({ doc, o }) {
+  const [x, y] = (o.position || o.origin || [0, 0]).map(toPx);
+  const size = toPx(o.size ?? o.meta?._fg1_migration?.size) || 12;
+  const half = size / 2;
+  const color = resolveColor(doc, o.color || o.stroke || "ink") || "#111";
+  const filled = String(o.kind || "").includes("filled");
+  return (
+    <svg data-framegraph-object={o.id || ""} data-framegraph-type="uml.marker_glyph"
+      width={size} height={size} viewBox={`0 0 ${size} ${size}`}
+      style={{ position: "absolute", left: x - half, top: y - half, overflow: "visible",
+        opacity: o.opacity != null ? o.opacity : 1 }}>
+      <polygon points={`${half},0 ${size},${half} ${half},${size} 0,${half}`}
+        fill={filled ? color : "transparent"} stroke={color} strokeWidth="1.4" />
+    </svg>
+  );
+}
+
+function formatUmlAttr(attr) {
+  if (attr == null) return "";
+  if (typeof attr !== "object") return String(attr);
+  let row = `${attr.visibility || ""}${attr.name || attr.label || ""}`;
+  if (attr.type) row += `: ${attr.type}`;
+  if (attr.multiplicity) row += ` [${attr.multiplicity}]`;
+  if (attr.default != null) row += ` = ${attr.default}`;
+  if (attr.readonly) row += " {readOnly}";
+  return row;
+}
+
+function formatUmlOp(op) {
+  if (op == null) return "";
+  if (typeof op !== "object") return String(op);
+  const params = op.params || op.parameters || [];
+  const paramText = Array.isArray(params)
+    ? params.map((p) => (p && typeof p === "object" ? p.name || String(p) : String(p))).join(", ")
+    : String(params || "");
+  let row = `${op.visibility || ""}${op.name || op.label || ""}(${paramText})`;
+  if (op.return_type || op.returns) row += `: ${op.return_type || op.returns}`;
+  return row;
+}
+
+function umlBoxSections(o) {
+  if (o.type === "uml.state_box") {
+    return [[o.entry ? `entry / ${o.entry}` : "", o.do ? `do / ${o.do}` : ""].filter(Boolean)];
+  }
+  if (o.type === "uml.component_box") {
+    const rows = [];
+    if (o.provided_interfaces?.length) rows.push(`provides: ${o.provided_interfaces.join(", ")}`);
+    if (o.required_interfaces?.length) rows.push(`requires: ${o.required_interfaces.join(", ")}`);
+    return [rows];
+  }
+  return [
+    (o.attributes || []).map(formatUmlAttr).filter(Boolean),
+    (o.operations || []).map(formatUmlOp).filter(Boolean),
+  ].filter((section) => section.length);
+}
+
+function UmlBoxObj({ doc, o }) {
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+  const border = stroke
+    ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}`
+    : "1px solid #777";
+  const fill = resolveFill(doc, o.fill);
+  const titleRows = [
+    o.stereotype ? `<<${o.stereotype}>>` : "",
+    o.type === "uml.node_box" && o.kind ? `<<${o.kind}>>` : "",
+    o.name || o.label || o.id || o.type,
+  ].filter(Boolean);
+  const sections = umlBoxSections(o);
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type={o.type} style={{
+      position: "absolute", left: x, top: y, width: w, height: h,
+      boxSizing: "border-box", overflow: "hidden",
+      border, borderRadius: o.type === "uml.action" ? 10 : toPx(o.radius || 0),
+      background: fill && fill !== "transparent" ? fill : "#fff",
+      color: "#222", fontFamily: resolveFont(doc, o.font),
+      opacity: o.opacity != null ? o.opacity : 1,
+      ...styleToCss(doc, o.style), ...rotationStyle(o.rotation, box),
+    }}>
+      <div style={{ padding: "5px 7px 4px", textAlign: "center", lineHeight: 1.15 }}>
+        {titleRows.map((row, i) => (
+          <div key={i} style={{
+            fontSize: i === titleRows.length - 1 ? 12 : 10,
+            fontWeight: i === titleRows.length - 1 ? 700 : 400,
+            fontStyle: o.abstract && i === titleRows.length - 1 ? "italic" : "normal",
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+          }}>{row}</div>
+        ))}
+      </div>
+      {sections.map((rows, i) => (
+        <div key={i} style={{
+          borderTop: "1px solid #999", padding: "4px 7px",
+          fontSize: 10, lineHeight: 1.25, textAlign: "left",
+        }}>
+          {rows.map((row, j) => (
+            <div key={j} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row}</div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function componentSpec(doc, o) {
+  const def = doc?.defs?.components?.[o.component];
+  if (!def || typeof def !== "object") return {};
+  const { variants, slots, ...base } = def;
+  const variant = variants?.[o.variant];
+  return variant && typeof variant === "object" ? { ...base, ...variant } : base;
+}
+
+function componentLength(value, total) {
+  if (typeof value === "number") return value;
+  if (typeof value !== "string") return toPx(value);
+  const s = value.trim();
+  if (s.endsWith("%")) return total * ((parseFloat(s) || 0) / 100);
+  const m = /^calc\(\s*100%\s*([+-])\s*(-?\d+(?:\.\d+)?)\s*\)$/.exec(s);
+  if (m) return total + (m[1] === "-" ? -1 : 1) * parseFloat(m[2]);
+  return toPx(s);
+}
+
+function componentSlotBox(box, offset) {
+  const [x, y, w, h] = box;
+  const raw = Array.isArray(offset) && offset.length >= 4 ? offset : [0, 0, "100%", "100%"];
+  return [
+    x + componentLength(raw[0], w),
+    y + componentLength(raw[1], h),
+    componentLength(raw[2], w),
+    componentLength(raw[3], h),
+  ];
+}
+
+function ComponentObj({ doc, o, active }) {
+  const spec = componentSpec(doc, o);
+  const renderObj = { ...spec, ...o };
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const stroke = resolveStroke(doc, renderObj.stroke_style, renderObj.stroke);
+  const geometry = spec.geometry || {};
+  const radius = toPx(renderObj.radius ?? geometry.radius ?? 0);
+  const baseStyle = {
+    position: "absolute", left: x, top: y, width: w, height: h,
+    boxSizing: "border-box", overflow: "hidden",
+    borderRadius: radius,
+    background: resolveFill(doc, renderObj.fill) || "#fff",
+    opacity: o.opacity != null ? o.opacity : 1,
+    ...styleToCss(doc, renderObj.style), ...rotationStyle(o.rotation, box),
+  };
+  if (stroke) baseStyle.border = `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}`;
+  else baseStyle.border = "1px solid #bbb";
+
+  const layout = spec.internal_layout || {};
+  const titleLayout = { box_offset: [0, 6, "100%", 18], style: "heading", ...(layout.title || {}) };
+  const bodyLayout = { box_offset: [8, 26, "calc(100% - 16)", "calc(100% - 30)"], style: "body", ...(layout.body || {}) };
+  const childBox = (slotLayout) => {
+    const [cx, cy, cw, ch] = componentSlotBox(box, slotLayout.box_offset);
+    return [cx - x, cy - y, cw, ch];
+  };
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="component" data-framegraph-component={o.component || ""} style={baseStyle}>
+      {o.title ? <TextObj doc={doc} active={active} o={{ type: "text", box: childBox(titleLayout), text: o.title, style: titleLayout.style }} /> : null}
+      {o.body ? <TextObj doc={doc} active={active} o={{ type: "text", box: childBox(bodyLayout), text: o.body, style: bodyLayout.style }} /> : null}
+    </div>
+  );
+}
+
+function UmlActorGlyph({ size = 18, color = "#333" }) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = size * 0.16;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" style={{ flex: "0 0 auto", overflow: "visible" }}>
+      <circle cx={cx} cy={cy - size * 0.32} r={r} fill="none" stroke={color} strokeWidth="1.1" />
+      <line x1={cx} y1={cy - size * 0.12} x2={cx} y2={cy + size * 0.28} stroke={color} strokeWidth="1.1" />
+      <line x1={cx - size * 0.28} y1={cy + size * 0.02} x2={cx + size * 0.28} y2={cy + size * 0.02} stroke={color} strokeWidth="1.1" />
+      <line x1={cx} y1={cy + size * 0.28} x2={cx - size * 0.24} y2={cy + size * 0.58} stroke={color} strokeWidth="1.1" />
+      <line x1={cx} y1={cy + size * 0.28} x2={cx + size * 0.24} y2={cy + size * 0.58} stroke={color} strokeWidth="1.1" />
+    </svg>
+  );
+}
+
+function UmlLifelineObj({ doc, o }) {
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const headH = Math.max(18, Math.min(h, toPx(o.head_height) || 42));
+  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+  const lineColor = stroke?.color || "#555";
+  const border = stroke ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}` : "1px solid #555";
+  const fill = resolveFill(doc, o.fill);
+  const rows = [o.name || o.id || "", o.type_name || ""].filter(Boolean);
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="uml.lifeline" style={{
+      position: "absolute", left: x, top: y, width: w, height: h,
+      opacity: o.opacity != null ? o.opacity : 1,
+      ...rotationStyle(o.rotation, box),
+    }}>
+      <div style={{
+        position: "absolute", left: 0, top: 0, width: w, height: headH,
+        boxSizing: "border-box", border,
+        borderRadius: toPx(o.radius || 0), background: fill && fill !== "transparent" ? fill : "#fff",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+        padding: "3px 6px", overflow: "hidden", fontFamily: resolveFont(doc, o.font),
+      }}>
+        {o.actor ? <UmlActorGlyph size={Math.min(18, headH * 0.42)} color="#333" /> : null}
+        <div style={{ minWidth: 0, textAlign: "center", lineHeight: 1.12 }}>
+          {rows.map((row, i) => (
+            <div key={i} style={{
+              fontSize: i ? 10 : 11, fontWeight: i ? 400 : 700,
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}>{row}</div>
+          ))}
+        </div>
+      </div>
+      <div style={{
+        position: "absolute", left: w / 2, top: headH, height: Math.max(0, h - headH),
+        borderLeft: `1px dashed ${lineColor}`,
+      }} />
+    </div>
+  );
+}
+
+function UmlActivationBarObj({ doc, o }) {
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+  const fill = resolveFill(doc, o.fill);
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="uml.activation_bar" style={{
+      position: "absolute", left: x, top: y, width: w, height: h,
+      boxSizing: "border-box",
+      background: fill && fill !== "transparent" ? fill : "#fff",
+      border: stroke ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}` : "1px solid #555",
+      opacity: o.opacity != null ? o.opacity : 1,
+      ...styleToCss(doc, o.style), ...rotationStyle(o.rotation, box),
+    }} />
+  );
+}
+
+function UmlGlyphBoxObj({ doc, o }) {
+  const box = (o.box || [0, 0, 0, 0]).map(toPx);
+  const [x, y, w, h] = box;
+  const color = resolveColor(doc, o.color || o.stroke || "ink") || "#222";
+  const r = Math.max(2, Math.min(w, h) / 2 - 2);
+  const cx = w / 2;
+  const cy = h / 2;
+  let shape = null;
+  if (o.type === "uml.actor") {
+    shape = (
+      <>
+        <foreignObject x="0" y="4" width={w} height={Math.max(20, h - 22)}>
+          <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <UmlActorGlyph size={Math.min(w * 0.62, h * 0.55)} color={color} />
+          </div>
+        </foreignObject>
+        {o.name ? <text x={cx} y={h - 6} textAnchor="middle" fontSize="10" fill={color}>{o.name}</text> : null}
+      </>
+    );
+  } else if (o.type === "uml.lollipop") {
+    shape = (
+      <>
+        <circle cx={cx} cy={cy} r={r} fill="#fff" stroke={color} strokeWidth="1.2" />
+        {o.name ? <text x={cx} y={h + 10} textAnchor="middle" fontSize="9" fill={color}>{o.name}</text> : null}
+      </>
+    );
+  } else if (o.type === "uml.socket") {
+    shape = (
+      <>
+        <path d={`M ${cx + r} ${cy - r} A ${r} ${r} 0 0 0 ${cx + r} ${cy + r}`} fill="none" stroke={color} strokeWidth="1.2" />
+        {o.name ? <text x={cx} y={h + 10} textAnchor="middle" fontSize="9" fill={color}>{o.name}</text> : null}
+      </>
+    );
+  } else if (o.kind === "decision") {
+    shape = (
+      <>
+        <polygon points={`${cx},0 ${w},${cy} ${cx},${h} 0,${cy}`} fill="#fff" stroke={color} strokeWidth="1.2" />
+        {o.name ? <text x={cx} y={cy + 3} textAnchor="middle" fontSize="10" fill={color}>{o.name}</text> : null}
+      </>
+    );
+  } else if (o.kind === "final") {
+    shape = (
+      <>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth="1.2" />
+        <circle cx={cx} cy={cy} r={Math.max(1, r - 4)} fill={color} />
+      </>
+    );
+  } else {
+    shape = <circle cx={cx} cy={cy} r={r} fill={color} stroke={color} strokeWidth="1.2" />;
+  }
+  return (
+    <svg data-framegraph-object={o.id || ""} data-framegraph-type={o.type}
+      width={w} height={h + (o.name && o.type !== "uml.actor" ? 12 : 0)}
+      viewBox={`0 0 ${w} ${h + (o.name && o.type !== "uml.actor" ? 12 : 0)}`}
+      style={{ position: "absolute", left: x, top: y, overflow: "visible",
+        opacity: o.opacity != null ? o.opacity : 1, ...rotationStyle(o.rotation, box) }}>
+      {shape}
+    </svg>
+  );
+}
+
+function ContainerObj({ doc, o, cw, ch, active }) {
+  const children = o.children || [];
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="container" style={{
+      position: "absolute", left: 0, top: 0, width: cw, height: ch,
+      opacity: o.opacity != null ? o.opacity : 1,
+    }}>
+      {children.map((child, i) => <RenderObject key={child.id || i} doc={doc} o={child} cw={cw} ch={ch} reg={{}} active={active} />)}
+    </div>
+  );
+}
+
+function LegendObj({ doc, o, cw, ch, active }) {
+  return (
+    <div data-framegraph-object={o.id || ""} data-framegraph-type="legend" style={{
+      position: "absolute", left: 0, top: 0, width: cw, height: ch,
+      opacity: o.opacity != null ? o.opacity : 1,
+    }}>
+      {(o.items || []).map((item, i) => {
+        const sample = item.sample ? { ...item.sample, type: item.sample.type === "rounded_rect" ? "rect" : item.sample.type } : null;
+        return (
+          <React.Fragment key={item.id || i}>
+            {sample ? <RenderObject doc={doc} o={sample} cw={cw} ch={ch} reg={{}} active={active} /> : null}
+            {item.label ? <TextObj doc={doc} o={{ type: "text", box: item.label.box, text: item.label.text, style: item.label.style }} active={active} /> : null}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }
@@ -744,6 +1268,130 @@ function textContent(v) {
   if (Array.isArray(v)) return v.map(textContent).join("");
   if (typeof v === "object") return textContent(v.text ?? v.content ?? v.label ?? v.tex ?? v.source ?? "");
   return "";
+}
+
+function katexMarkup(tex, displayMode = false) {
+  const source = String(tex || "");
+  try {
+    return katex.renderToString(source, {
+      displayMode,
+      throwOnError: false,
+      strict: false,
+      trust: false,
+      output: "html",
+    });
+  } catch {
+    return null;
+  }
+}
+
+const MATHML_TAGS = new Set([
+  "math", "mrow", "mi", "mn", "mo", "ms", "mtext", "msup", "msub", "msubsup",
+  "mfrac", "msqrt", "mroot", "mspace", "mpadded", "mphantom", "menclose",
+  "mtable", "mtr", "mtd", "semantics",
+]);
+
+const MATHML_ATTRS = new Set([
+  "xmlns", "display", "mathvariant", "accent", "accentunder", "stretchy", "fence",
+  "separator", "lspace", "rspace", "width", "height", "depth", "rowalign",
+  "columnalign", "columnspacing", "rowspacing", "linethickness",
+]);
+
+function sanitizeMathmlMarkup(mathml) {
+  if (!mathml || typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") return null;
+  const parsed = new DOMParser().parseFromString(String(mathml), "application/xml");
+  if (parsed.querySelector("parsererror")) return null;
+  const root = parsed.documentElement;
+  if (!root || root.localName !== "math") return null;
+  const nodes = [root, ...Array.from(root.querySelectorAll("*"))];
+  for (const node of nodes) {
+    if (!MATHML_TAGS.has(node.localName)) return null;
+    for (const attr of Array.from(node.attributes || [])) {
+      if (!MATHML_ATTRS.has(attr.name)) node.removeAttribute(attr.name);
+    }
+  }
+  if (!root.getAttribute("xmlns")) root.setAttribute("xmlns", "http://www.w3.org/1998/Math/MathML");
+  return new XMLSerializer().serializeToString(root);
+}
+
+function MathInline({ tex, mathml }) {
+  if (mathml && !tex) {
+    const html = sanitizeMathmlMarkup(mathml);
+    if (html) return <span className="fg-math fg-math-inline fg-mathml" dangerouslySetInnerHTML={{ __html: html }} />;
+    return <span className="fg-math-fallback">math expression</span>;
+  }
+  const html = katexMarkup(tex, false);
+  if (!html) return <span className="fg-math-fallback">{mathText(tex)}</span>;
+  return <span className="fg-math fg-math-inline" dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+function MathDisplay({ tex, mathml }) {
+  if (mathml && !tex) {
+    const html = sanitizeMathmlMarkup(mathml);
+    if (html) return <div className="fg-math fg-math-display fg-mathml" dangerouslySetInnerHTML={{ __html: html }} />;
+    return <div className="fg-math-fallback">math expression</div>;
+  }
+  const html = katexMarkup(tex, true);
+  if (!html) return <div className="fg-math-fallback">{mathText(tex)}</div>;
+  return <div className="fg-math fg-math-display" dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+function inlineNodes(v) {
+  if (v == null) return "";
+  if (typeof v === "string" || typeof v === "number") return String(v);
+  if (Array.isArray(v)) {
+    return v.map((item, i) => <React.Fragment key={i}>{inlineNodes(item)}</React.Fragment>);
+  }
+  if (typeof v === "object") {
+    if (v.kind === "math") return <MathInline tex={v.tex || v.text} mathml={v.mathml} />;
+    if (v.kind === "code") return <code>{v.text}</code>;
+    if (v.kind === "link") return <a href={v.href} title={v.title || undefined}>{inlineNodes(v.content)}</a>;
+    if (v.text != null) return v.text;
+    if (v.content != null) return inlineNodes(v.content);
+    if (v.tex != null) return <MathInline tex={v.tex} />;
+  }
+  return textContent(v);
+}
+
+function mathText(tex) {
+  let s = String(tex || "");
+  const replacements = [
+    [/\\left/g, ""], [/\\right/g, ""], [/\\,/g, " "], [/\\;/g, " "],
+    [/\\times/g, "×"], [/\\hbar/g, "ℏ"], [/\\mu/g, "μ"], [/\\nu/g, "ν"],
+    [/\\psi/g, "ψ"], [/\\phi/g, "φ"], [/\\alpha/g, "α"], [/\\beta/g, "β"],
+    [/\\gamma/g, "γ"], [/\\mathcal\{L\}/g, "ℒ"], [/\\slashed\{D\}/g, "D̸"],
+    [/\\text\{h\.c\.\}/g, "h.c."], [/\\bar\{\\psi\}/g, "ψ̄"],
+  ];
+  replacements.forEach(([from, to]) => { s = s.replace(from, to); });
+  const fracMap = new Map([
+    ["1/2", "½"], ["3/2", "3⁄2"], ["1/4", "¼"], ["3/4", "¾"],
+    ["\\sqrt{3}/2", "√3⁄2"], ["\\sqrt{15}/2", "√15⁄2"],
+  ]);
+  s = s.replace(/\\t?frac\{([^{}]+(?:\{[^{}]+\}[^{}]*)?)\}\{([^{}]+)\}/g, (_, a, b) => {
+    const key = `${a.trim()}/${b.trim()}`;
+    if (fracMap.has(key)) return fracMap.get(key);
+    return `${a.replace(/\\sqrt\{([^{}]+)\}/g, "√$1").replace(/[{}]/g, "")}⁄${b.trim()}`;
+  });
+  s = s.replace(/\\sqrt\{([^{}]+)\}/g, "√$1");
+  const sup = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "+": "⁺", "-": "⁻", "=": "⁼", "(": "⁽", ")": "⁾", "n": "ⁿ" };
+  const sub = { "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄", "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉", "+": "₊", "-": "₋", "=": "₌", "(": "₍", ")": "₎", "i": "ᵢ", "j": "ⱼ", "k": "ₖ", "m": "ₘ", "n": "ₙ", "u": "ᵤ", "v": "ᵥ", "x": "ₓ" };
+  const mapScript = (map) => (_, body) => [...body].map((ch) => map[ch] || ch).join("");
+  s = s.replace(/\^\{([^{}]+)\}/g, mapScript(sup)).replace(/_\{([^{}]+)\}/g, mapScript(sub));
+  s = s.replace(/\^([A-Za-z0-9])/g, mapScript(sup)).replace(/_([A-Za-z0-9])/g, mapScript(sub));
+  s = s.replace(/[{}]/g, "").replace(/\\([A-Za-z]+)/g, "$1");
+  return s.replace(/\s+/g, " ").trim();
+}
+
+function readingText(o) {
+  if (!o || o.decorative) return "";
+  const direct = o.actual_text ?? o.alt ?? o.text ?? o.title ?? o.label ?? o.caption ?? o.tex ?? o.source;
+  const parts = [];
+  if (direct != null) parts.push(textContent(direct));
+  if (o.spans) parts.push(textContent(o.spans));
+  if (Array.isArray(o.header)) parts.push(textContent(o.header));
+  if (Array.isArray(o.rows)) parts.push(textContent(o.rows));
+  if (Array.isArray(o.children)) parts.push(...o.children.map(readingText));
+  return parts.map((part) => String(part).trim()).filter(Boolean).join(" ");
 }
 
 function textCss(doc, ref, fallback = {}) {
@@ -806,7 +1454,7 @@ function TableView({ doc, o, absolute = true }) {
   const pad = o.cell_padding;
   const cellPad = Array.isArray(pad)
     ? pad.map(toPx)
-    : (pad != null ? [toPx(pad), toPx(pad), toPx(pad), toPx(pad)] : [5, 8, 5, 8]);
+    : (pad != null ? [toPx(pad), toPx(pad), toPx(pad), toPx(pad)] : (absolute ? [5, 8, 5, 8] : [3, 8, 3, 8]));
   const headerFill = tableStyle.header_fill ? resolveColor(doc, tableStyle.header_fill) : null;
   const headerTextStyle = tableStyle.header_text;
   const cellTextStyle = tableStyle.cell_text;
@@ -839,7 +1487,7 @@ function TableView({ doc, o, absolute = true }) {
   );
 }
 
-function FlowBlock({ doc, block }) {
+function FlowBlock({ doc, block, width }) {
   const type = block?.type;
   if (!block || type === "page_break") return null;
   if (type === "spacer") return <div style={{ height: toPx(block.size || block.height) || 16 }} />;
@@ -848,7 +1496,7 @@ function FlowBlock({ doc, block }) {
     return <div style={{ margin: "10px 0 6px", ...textCss(doc, block.style, { size: tagSize, weight: 700, line_height: 1.2 }) }}>{textContent(block)}</div>;
   }
   if (type === "paragraph") {
-    return <p style={{ margin: "0 0 8px", ...textCss(doc, block.style, { size: 14, line_height: 1.45 }) }}>{textContent(block.text ?? block.spans)}</p>;
+    return <p style={{ margin: "0 0 8px", ...textCss(doc, block.style, { size: 14, line_height: 1.45 }) }}>{inlineNodes(block.text ?? block.spans)}</p>;
   }
   if (type === "list") {
     return (
@@ -866,20 +1514,28 @@ function FlowBlock({ doc, block }) {
   }
   if (type === "table") return <div style={{ margin: "10px 0 12px" }}><TableView doc={doc} o={block} absolute={false} /></div>;
   if (type === "code") return <pre style={{ margin: "8px 0 12px", padding: 10, background: resolveColor(doc, "code_bg") || "#f4f4f4", overflow: "hidden", ...textCss(doc, block.style, { size: 12, line_height: 1.35 }) }}>{block.source || block.text || ""}</pre>;
-  if (type === "math") return <div style={{ margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }}>{block.tex || block.text}</div>;
+  if (type === "math") return <div data-framegraph-type="math" style={{ margin: "10px 0", textAlign: "center", fontFamily: "serif", fontSize: 16 }}><MathDisplay tex={block.tex || block.text} mathml={block.mathml} /></div>;
   if (type === "toc") return <div style={{ margin: "8px 0 12px", ...textCss(doc, block.style, { size: 14, weight: 700 }) }}>{block.title || "Contents"}</div>;
   if (type === "figure") {
     const size = block.size || [320, 160];
+    const rawW = toPx(size[0]) || 320;
+    const rawH = toPx(size[1]) || 160;
+    const maxW = width || rawW;
+    const scale = Math.min(1, maxW / rawW);
+    const shownW = rawW * scale;
+    const shownH = rawH * scale;
     return (
-      <figure style={{ margin: "12px auto", width: toPx(size[0]) || "80%" }}>
-        <div style={{ position: "relative", width: toPx(size[0]) || 320, height: toPx(size[1]) || 160 }}>
-          {block.object ? <RenderObject doc={doc} o={block.object} cw={toPx(size[0]) || 320} ch={toPx(size[1]) || 160} reg={{}} active /> : null}
+      <figure style={{ margin: "12px auto", width: shownW }}>
+        <div style={{ position: "relative", width: shownW, height: shownH }}>
+          <div style={{ position: "relative", width: rawW, height: rawH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+            {block.object ? <RenderObject doc={doc} o={block.object} cw={rawW} ch={rawH} reg={{}} active /> : null}
+          </div>
         </div>
         {block.caption && <figcaption style={{ marginTop: 6, ...textCss(doc, "caption", { size: 12, color: UI.mid, align: "center" }) }}>{block.caption}</figcaption>}
       </figure>
     );
   }
-  if (type === "block") return <div style={{ margin: "8px 0", padding: 10, borderLeft: `3px solid ${UI.accent}`, ...textCss(doc, block.style, { size: 14 }) }}>{(block.children || []).map((c, i) => <FlowBlock key={i} doc={doc} block={c} />)}</div>;
+  if (type === "block") return <div style={{ margin: "8px 0", padding: 10, borderLeft: `3px solid ${UI.accent}`, ...textCss(doc, block.style, { size: 14 }) }}>{(block.children || []).map((c, i) => <FlowBlock key={i} doc={doc} block={c} width={width ? Math.max(0, width - 24) : width} />)}</div>;
   if (type === "bibliography") return <div style={{ marginTop: 12, ...textCss(doc, block.style, { size: 13 }) }}>{block.title || "References"}</div>;
   return <div style={{ margin: "6px 0", ...textCss(doc, block.style, { size: 13, color: UI.mid }) }}>{textContent(block) || `[${type}]`}</div>;
 }
@@ -889,6 +1545,8 @@ function RenderObject({ doc, o, cw, ch, reg, active }) {
     case "rect": return <RectObj doc={doc} o={o} />;
     case "text": return <TextObj doc={doc} o={o} active={active} />;
     case "line":
+    case "connector":
+    case "dimension":
     case "polyline":
     case "polygon":
     case "path":
@@ -899,7 +1557,20 @@ function RenderObject({ doc, o, cw, ch, reg, active }) {
     case "bullet_list": return <BulletListObj doc={doc} o={o} />;
     case "table": return <TableView doc={doc} o={o} />;
     case "group": return <GroupObj doc={doc} o={o} cw={cw} ch={ch} active={active} />;
+    case "chip_row": return <ChipRowObj doc={doc} o={o} />;
+    case "uml.marker_glyph": return <UmlMarkerGlyphObj doc={doc} o={o} />;
+    case "component": return <ComponentObj doc={doc} o={o} active={active} />;
+    case "uml.lifeline": return <UmlLifelineObj doc={doc} o={o} />;
+    case "uml.activation_bar": return <UmlActivationBarObj doc={doc} o={o} />;
+    case "uml.actor":
+    case "uml.socket":
+    case "uml.lollipop":
+    case "uml.activity_node":
+    case "uml.pseudostate": return <UmlGlyphBoxObj doc={doc} o={o} />;
+    case "container": return <ContainerObj doc={doc} o={o} cw={cw} ch={ch} active={active} />;
+    case "legend": return <LegendObj doc={doc} o={o} cw={cw} ch={ch} active={active} />;
     default:
+      if (UML_BOX_TYPES.has(o.type)) return <UmlBoxObj doc={doc} o={o} />;
       if (o.from && o.to) return <VectorObj doc={doc} o={{ ...o, type: "line" }} cw={cw} ch={ch} reg={reg} />;
       if (o.children) return <GroupObj doc={doc} o={{ ...o, type: "group" }} cw={cw} ch={ch} active={active} />;
       if (o.box) return <TextObj doc={doc} o={{ ...o, text: textContent(o) || `[${o.type}]`, style: o.style || { size: 12, color: "muted" } }} active={active} />;
@@ -952,7 +1623,13 @@ function estimateFlowBlockHeight(doc, block, width) {
   }
   if (type === "math") return 48;
   if (type === "toc") return 42;
-  if (type === "figure") return (toPx(block.size?.[1]) || 160) + (block.caption ? 58 : 30);
+  if (type === "figure") {
+    const rawW = toPx(block.size?.[0]) || 320;
+    const rawH = toPx(block.size?.[1]) || 160;
+    const maxW = width || rawW;
+    const scale = Math.min(1, maxW / rawW);
+    return rawH * scale + (block.caption ? 58 : 30);
+  }
   if (type === "block") {
     return (block.children || []).reduce((sum, child) => sum + estimateFlowBlockHeight(doc, child, width - 24), 42);
   }
@@ -986,7 +1663,7 @@ function paginateFlowPage(doc, page, sourceIndex) {
       pushPage();
       continue;
     }
-    const h = estimateFlowBlockHeight(doc, block, rw);
+    const h = estimateFlowBlockHeight(doc, block, rw) + 8;
     if (current.length && used + h > rh) pushPage();
     current.push(block);
     used += Math.min(h, rh);
@@ -1030,9 +1707,26 @@ function FlowPageCanvas({ doc, page, active = true }) {
         position: "absolute", left: x, top: y, width: rw, height: rh,
         overflow: "hidden", fontFamily: resolveFont(doc, "serif"), color: resolveColor(doc, "ink"),
       }}>
-        {story.map((block, i) => <FlowBlock key={block.id || i} doc={doc} block={block} />)}
+        {story.map((block, i) => <FlowBlock key={block.id || i} doc={doc} block={block} width={rw} />)}
       </div>
     </div>
+  );
+}
+
+function ReadingOrder({ page, objectIndex }) {
+  const ids = Array.isArray(page?.reading_order) ? page.reading_order : [];
+  const items = ids
+    .map((id) => ({ id, text: readingText(objectIndex[id]) }))
+    .filter((item) => item.text);
+  if (!items.length) return null;
+  return (
+    <ol data-framegraph-reading-order={page.id || ""} style={{
+      position: "absolute", width: 1, height: 1, margin: -1, padding: 0,
+      overflow: "hidden", clip: "rect(0 0 0 0)", clipPath: "inset(50%)",
+      whiteSpace: "nowrap", border: 0,
+    }}>
+      {items.map((item) => <li key={item.id} data-reading-object={item.id}>{item.text}</li>)}
+    </ol>
   );
 }
 
@@ -1045,6 +1739,7 @@ function PageCanvas({ doc, page, active = true }) {
   }
   const { w, h } = canvasOf(doc, page);
   const reg = useMemo(() => buildRegistry(page), [page]);
+  const objectIndex = useMemo(() => buildObjectIndex(page), [page]);
   const baseBg = resolveColor(doc, "bg") || "#ffffff";
   const layers = useMemo(() => {
     const ls = (page.layers || []).map((l, i) => ({ l, i }));
@@ -1069,6 +1764,7 @@ function PageCanvas({ doc, page, active = true }) {
           </div>
         );
       })}
+      {active && <ReadingOrder page={page} objectIndex={objectIndex} />}
     </div>
   );
 }
@@ -1438,8 +2134,9 @@ function App() {
   useEffect(() => {
     window.__FRAMEGRAPH_VIEWER__ = {
       loadDoc(nextDoc) {
-        if (!nextDoc || !Array.isArray(nextDoc.pages)) throw new Error("No pages array found.");
-        setDoc(nextDoc);
+        const normalized = normalizeFrameGraphDoc(nextDoc);
+        if (!normalized || !Array.isArray(normalized.pages)) throw new Error("No pages array found.");
+        setDoc(normalized);
         setIdx(0);
         setErr(null);
       },
@@ -1473,8 +2170,9 @@ function App() {
       try {
         const raw = String(r.result);
         const parsed = /\.ya?ml$/i.test(f.name) ? yaml.load(raw) : JSON.parse(raw);
-        if (!parsed.pages || !Array.isArray(parsed.pages)) throw new Error("No pages array found.");
-        setDoc(parsed); setIdx(0); setErr(null);
+        const normalized = normalizeFrameGraphDoc(parsed);
+        if (!normalized.pages || !Array.isArray(normalized.pages)) throw new Error("No pages array found.");
+        setDoc(normalized); setIdx(0); setErr(null);
       } catch (e2) {
         setErr("Couldn't parse that FrameGraph document: " + e2.message);
       }

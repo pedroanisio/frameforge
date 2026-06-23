@@ -54,7 +54,7 @@ Rules of reading:
 | The quality gate (what must pass) | [Makefile](./Makefile) (`make check`), mirrored by [ci.yml](./.github/workflows/ci.yml) | exists |
 | Format / conformance (the data model) | [models/framegraph.py](./models/framegraph.py) (Pydantic v2, **source of truth**) | exists |
 | Generated JSON schema | [schema/build_schema.py](./schema/build_schema.py) (`--check` fails on drift) | exists |
-| Normative prose & grammar | [spec/](./spec/), [grammar/](./grammar/) | exists |
+| Normative prose & grammar | [spec/](./spec/), [grammar/](./grammar/) (grammar ⇄ models gated by [check_grammar_sync.py](./tooling/check_grammar_sync.py)) | exists |
 | Status, scope, honest limits | [README.md](./README.md), [CHANGELOG.md](./CHANGELOG.md) | exists |
 | Mission / non-goals, CLI contracts, process, disclaimer | `PURPOSE.md`, `AGENTS.md`, `CLAUDE.md`, `DISCLAIMER.md` | **`[Target]` — do not exist yet** |
 
@@ -82,15 +82,19 @@ Rules of reading:
 - **`[Enforced]`** Runtime deps are minimal, pinned by floor: `pydantic>=2`, `pyyaml>=6`
   ([pyproject.toml:11-12](./pyproject.toml#L11-L12)).
 - **`[Enforced]`** Optional capability sets are **PEP 735 dependency-groups**, not PEP
-  621 extras: `dev = ["pytest>=8"]` and `render = ["matplotlib>=3.7", "pillow>=10"]`
-  ([pyproject.toml:18-20](./pyproject.toml#L18-L20)). `uv sync` installs `dev` by default;
-  `uv sync --group render` adds the matplotlib proxy renderer's deps.
+  621 extras: `dev` (hypothesis + pytest), `render = ["matplotlib>=3.7", "pillow>=10"]`,
+  `browser = ["playwright>=1.44"]`, and `pdf = ["pymupdf>=1.24"]`
+  ([pyproject.toml:21-28](./pyproject.toml#L21-L28)). `uv sync` installs `dev` by default;
+  `uv sync --group render` adds the matplotlib proxy renderer's deps,
+  `uv sync --group browser` adds the Headless-Chromium raster renderer's deps, and
+  `uv sync --group pdf` adds PyMuPDF for the PDF -> FrameGraph transpiler.
 - **`[Enforced]`** This is a **virtual project**: `package = false`
-  ([pyproject.toml:27](./pyproject.toml#L27)). The tree runs via `sys.path`-rooted scripts;
+  ([pyproject.toml:33](./pyproject.toml#L33)). The tree runs via `sys.path`-rooted scripts;
   it is deliberately **not** built or installed (an installed `framegraph` distribution
   would shadow the [models/framegraph.py](./models/framegraph.py) module the tooling imports).
 - **`[Enforced]`** Lock state lives in [uv.lock](./uv.lock). Do not hand-edit it; CI syncs
-  with `uv sync --locked` ([ci.yml:25](./.github/workflows/ci.yml#L25)).
+  from the lock with `uv sync --locked` — the `python` job adds `--group pdf` so the PDF
+  transpiler's `importorskip`-gated e2e test runs ([ci.yml:25](./.github/workflows/ci.yml#L25)).
 - **`[Adopted]`** No new runtime dependency without justification. Do not pull a
   browser/GUI/graphics stack into the core (§13).
 - **`[Target]`** Floor on `pydantic>=2.7` (today the floor is `>=2`). Tighten only with a
@@ -100,20 +104,40 @@ Rules of reading:
 
 The gate is the contract for "done." It has **one definition**, run two places.
 
-- **`[Enforced]`** `make check = schema-check + test + validate + overflow`
-  ([Makefile:27](./Makefile#L27)). A change is not done until it passes.
+- **`[Enforced]`** `make check = schema-check + grammar-check + a11y-check + test + validate +
+  overflow + golden-check + status-check + docs-check` ([Makefile:31](./Makefile#L31)). A change is not done until it passes.
   - `schema-check` — `uv run python schema/build_schema.py --check`: fails if the committed
     [schema/framegraph-v2.schema.json](./schema/framegraph-v2.schema.json) drifted from the
-    models ([Makefile:29-30](./Makefile#L29-L30)).
-  - `test` — `uv run pytest -q` ([Makefile:32-33](./Makefile#L32-L33)).
+    models ([Makefile:33-34](./Makefile#L33-L34)).
+  - `grammar-check` — `uv run python tooling/check_grammar_sync.py`: fails if the EBNF grammar
+    drifted from the models on the **core profile** (a mismatched object/flow `type` or a
+    divergent enum). Out-of-profile grammar (charts, the UML zoo, connectors) is a non-blocking
+    warning; `--strict` demands full parity ([Makefile:36-37](./Makefile#L36-L37)).
+  - `a11y-check` — `uv run python tooling/check_accessibility.py fixtures/*.fg.yaml`: fails if a
+    page's `reading_order` references a missing or duplicate id (a broken/ambiguous structure
+    tree); missing image `alt` and pages without a `reading_order` are advisory warnings that
+    `--strict` promotes ([Makefile:39-40](./Makefile#L39-L40)).
+  - `test` — `uv run pytest -q` ([Makefile:42-43](./Makefile#L42-L43)). The suite includes the
+    documentation drift gate (`test_docs_in_sync.py`) and the executable-examples gate
+    (`test_doc_examples.py`) — see §8.
   - `validate` — `uv run python tooling/validate.py fixtures/*.fg.yaml`: structural +
-    geometric rules ([Makefile:35-36](./Makefile#L35-L36)).
+    geometric rules ([Makefile:45-46](./Makefile#L45-L46)).
   - `overflow` — `uv run python tooling/render_fixtures.py --all --check-overflow`: asserts
-    no text spills its box ([Makefile:38-39](./Makefile#L38-L39)).
-- **`[Enforced]`** **CI mirrors `make check`.** [ci.yml:27-38](./.github/workflows/ci.yml#L27-L38)
-  runs the same four gates as separate steps after `uv sync --locked`. The Makefile header
-  and CI both state CI runs exactly what `make check` runs — keep them in lockstep; if they
-  must diverge, document why here.
+    no text spills its box ([Makefile:48-49](./Makefile#L48-L49)).
+  - `golden-check` — `uv run python tooling/render_golden.py`: fails if the b1/ oracle's per-page
+    SVG renders drift from the committed hash lock (`tests/golden/oracle.lock.json`); re-pin an
+    intentional render change with `make golden` ([Makefile:85-86](./Makefile#L85-L86)).
+  - `status-check` — `uv run python tooling/gen_status.py --check`: fails if
+    [FIXTURE-STATUS.md](./FIXTURE-STATUS.md) drifted from the validator ([Makefile:54-55](./Makefile#L54-L55)).
+  - `docs-check` — `uv run python tooling/gen_docs.py --check`: regenerates the docs pages and
+    asserts every `mkdocs.yml` nav entry resolves ([Makefile:65-66](./Makefile#L65-L66)).
+- **`[Enforced]`** **CI mirrors `make check`.** The `python` job
+  ([ci.yml:28-50](./.github/workflows/ci.yml#L28-L50)) runs schema-check, grammar-check, a11y-check,
+  test, validate, overflow, golden-check, and status-check as separate steps after `uv sync --locked --group pdf` (the
+  `pdf` group only lets the transpiler's gated e2e test execute; the gate *commands* still
+  match `make check`); the ninth gate, `docs-check`, runs in the dedicated `docs` job
+  ([ci.yml:57-69](./.github/workflows/ci.yml#L57-L69)) which also builds the site with
+  `mkdocs build --strict`. Keep make and CI in lockstep; if they must diverge, document why here.
 - **`[Target]`** Fold `lint` and `typecheck` (§4, §5) into the gate once they are green
   (see §16). Today they are **not** in `make check`.
 
@@ -121,8 +145,8 @@ The gate is the contract for "done." It has **one definition**, run two places.
 
 - **`[Enforced — non-gating]`** `ruff` is the linter, fetched ephemerally via `uvx`. It is
   deliberately **non-blocking** today: `make lint` runs `-uvx ruff check .` (leading `-`
-  ignores failure, [Makefile:41-42](./Makefile#L41-L42)) and CI runs it with
-  `continue-on-error: true` ([ci.yml:40-42](./.github/workflows/ci.yml#L40-L42)). Lint
+  ignores failure, [Makefile:68-69](./Makefile#L68-L69)) and CI runs it with
+  `continue-on-error: true` ([ci.yml:52-54](./.github/workflows/ci.yml#L52-L54)). Lint
   output is advisory; a lint failure does **not** fail the build.
 - **`[Target]`** A committed, gating ruff configuration. When adopted, the intended shape is:
   line length **100**; rule families `E, F, W, I, UP, B, C4, SIM, RET, D`; ignore `E501`
@@ -175,14 +199,38 @@ else is generated from or checked against them** ([README.md](./README.md), *The
   validates against the same `Document` model, then layers the §3.3 / §3.6 / §9.6 rules; the
   gate runs it over the curated fixtures.
 - **`[Enforced]`** **Text-fit.** The overflow gate asserts no text overflows its box (§3).
+- **`[Enforced]`** **Docs ⇄ tooling.** [tests/test_docs_in_sync.py](./tests/test_docs_in_sync.py)
+  asserts the README's `$defs` count, every `N/N green` test count, `pyproject` version ==
+  `HEAD_VERSION`, and that every path in the README Layout map exists; `gen_status.py --check`
+  keeps [FIXTURE-STATUS.md](./FIXTURE-STATUS.md) in sync with the validator; and
+  [tests/test_doc_examples.py](./tests/test_doc_examples.py) validates every complete FrameGraph
+  example shown in the prose. Documentation cannot silently drift from the code (the `status-check`
+  and `docs-check` gates plus the pytest suite, §3).
+- **`[Adopted]`** **Site ⇄ source.** The MkDocs site is generated by
+  [tooling/gen_docs.py](./tooling/gen_docs.py) — schema reference from the schema, fixture
+  gallery from the renderer, spec/grammar/changelog verbatim; `docs/index.md` is the only
+  hand-written page, the rest are build artifacts (`make docs`).
 - **`[Adopted]`** **Codemod ⇄ validator.** [tooling/codemod.py](./tooling/codemod.py)'s
   migrations are exactly the breaking/renamed forms the validator rejects — running it makes a
-  legacy document pass. **Grammar ⇄ models** is kept consistent by hand; the grammar is a *view*,
-  the models are the authority if the two disagree.
-- **`[Target]`** A formal golden-snapshot harness with an explicit drift tolerance, so that a
-  change pushing prior v1.x/v2.x output outside tolerance is flagged automatically as breaking.
-  Today regression is covered by the fixture-validation + overflow gates and the HEAD oracle,
-  not a tolerance-configured snapshot diff.
+  legacy document pass.
+- **`[Enforced]`** **Grammar ⇄ models.** The grammar is a *view*;
+  [tooling/check_grammar_sync.py](./tooling/check_grammar_sync.py) (the `grammar-check` gate, §3)
+  introspects the models and diffs the EBNF, failing on **core-profile** drift (a mismatched
+  object/flow `type` or a divergent enum). Out-of-profile grammar (charts, the UML zoo,
+  connectors) is a non-blocking warning; `--strict` demands full parity. The models are the
+  authority if the two disagree.
+- **`[Enforced]`** **Accessibility conformance.** [tooling/check_accessibility.py](./tooling/check_accessibility.py)
+  (the `a11y-check` gate, §3) fails if a page's `reading_order` references a missing or duplicate id
+  (a broken structure tree); missing image `alt` and pages without a `reading_order` are advisory.
+  It keeps the accessibility vocabulary (`decorative`, `alt`/`actual_text`, `reading_order`) coherent
+  for a future tagged export (roadmap item 2).
+- **`[Enforced]`** **Golden renders.** [tooling/render_golden.py](./tooling/render_golden.py)
+  (the `golden-check` gate, §3) pins each b1/ oracle fixture's per-page SVG output by SHA-256 in
+  `tests/golden/oracle.lock.json`; any change in rendered output fails the gate until re-pinned
+  with `make golden`. This catches output regressions the validate/overflow gates cannot.
+- **`[Target]`** An explicit **drift tolerance** (rasterized pixel diff) so a cosmetically-trivial
+  change need not force a re-pin. Today the lock is exact (hash) over the deterministic SVG; there
+  is no tolerance band yet.
 
 ## 9. Versioning and backward compatibility
 
@@ -204,8 +252,10 @@ else is generated from or checked against them** ([README.md](./README.md), *The
 ## 10. Pre-commit and CI
 
 - **`[Enforced]`** CI is the gate ([.github/workflows/ci.yml](./.github/workflows/ci.yml)):
-  the `python` job runs the four `make check` gates; the `viewer` job is a **non-blocking**
-  smoke build of the JS bundle (`continue-on-error: true`).
+  the `python` job runs eight of the nine `make check` gates (schema, grammar, a11y, test, validate,
+  overflow, golden, status-check); a `docs` job runs `docs-check` + `mkdocs build --strict`, and on pushes to
+  `main` a `docs-deploy` job publishes versioned docs to GitHub Pages via `mike`; the `viewer`
+  job is a **non-blocking** smoke build of the JS bundle (`continue-on-error: true`).
 - **`[Target]`** A `.pre-commit-config.yaml` that runs the same lint/format/type checks at
   commit time — "the same gate, earlier." **No pre-commit config exists today;** earlier drafts
   described hooks and tool pins that are not present. Do not rely on commit-time hooks until this
@@ -297,7 +347,7 @@ explicit and shrinking, never silently assumed-met. Complexity scale per §12.
 | 2 | `mypy --strict` + `pydantic.mypy`, in the gate | absent entirely | §5 | M |
 | 3 | Coverage measured + gated (target 90% branch) | not measured | §7 | M |
 | 4 | TDD loop, `unit`/`integration` trees, hypothesis | single oracle module | §6 | M |
-| 5 | Golden-snapshot harness + drift tolerance | fixture-validate + overflow only | §8 | M |
+| 5 | Golden-render **drift tolerance** (rasterized) | exact hash lock (`render_golden.py`) | §8 | M |
 | 6 | `.pre-commit-config.yaml` mirroring CI | none | §10 | S |
 | 7 | Governance docs: `PURPOSE.md`, `AGENTS.md`, `CLAUDE.md`, `DISCLAIMER.md` | none | table, §12, §13 | S–M |
 | 8 | Runtime `__version__` + `make release` | single literal, no recipe | §9 | S |

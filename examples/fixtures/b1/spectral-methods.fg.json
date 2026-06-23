@@ -1,0 +1,211 @@
+{
+  "dsl": "FrameGraph",
+  "version": "2.0.0",
+  "profile": "report",
+  "title": "Spectral Methods for the Heat Equation",
+  "description": "A short technical note exercising numbering, cross-references, TOC, footnotes, citations, math, and code.",
+  "defs": {
+    "tokens": {
+      "colors": {
+        "ink": "#111418",
+        "accent": "#1f5fa6",
+        "muted": "#6b7280",
+        "rule": "#d9dee5",
+        "code_bg": "#f4f6f8"
+      },
+      "fonts": {
+        "serif": { "family": "Source Serif 4", "fallback": ["Georgia", "serif"] },
+        "sans": { "family": "Source Sans 3", "fallback": ["Helvetica", "Arial", "sans-serif"] },
+        "mono": { "family": "Source Code Pro", "fallback": ["Menlo", "Consolas", "monospace"] }
+      },
+      "text_styles": {
+        "h1": { "font_family": "sans", "font_size": "18pt", "font_weight": "bold", "color": "accent", "line_height": 1.2 },
+        "h2": { "font_family": "sans", "font_size": "13pt", "font_weight": "bold", "color": "accent", "line_height": 1.2 },
+        "body": { "font_family": "serif", "font_size": "11pt", "color": "ink", "line_height": 1.5, "text_align": "justify" },
+        "caption": { "font_family": "sans", "font_size": "9pt", "font_style": "italic", "color": "muted", "text_align": "center" },
+        "code": { "font_family": "mono", "font_size": "9.5pt", "color": "ink", "line_height": 1.4, "white_space": "pre" },
+        "th": { "font_family": "sans", "font_size": "9.5pt", "font_weight": "bold", "color": "accent", "text_transform": "uppercase" },
+        "toc_title": { "font_family": "sans", "font_size": "11pt", "font_weight": "bold", "color": "ink" },
+        "running": { "font_family": "sans", "font_size": "8.5pt", "color": "muted" }
+      },
+      "stroke_styles": {
+        "rule_thin": { "stroke": "rule", "stroke_width": "0.75pt" },
+        "grid": { "stroke": "accent", "stroke_width": "1pt" }
+      }
+    },
+    "masters": {
+      "main": {
+        "canvas": "A4",
+        "regions": [
+          { "id": "col", "box": [72, 96, 451, 668] }
+        ],
+        "running": {
+          "header": [
+            { "type": "text", "text": "Spectral Methods · Technical Note", "style": "running", "box": [72, 56, 451, 14] }
+          ],
+          "footer": [
+            { "type": "line", "from": [72, 784], "to": [523, 784], "stroke_style": "rule_thin" }
+          ],
+          "page_number": { "font_family": "sans", "font_size": "9pt", "color": "muted", "text_align": "center" }
+        }
+      }
+    }
+  },
+  "pages": [
+    {
+      "mode": "flow",
+      "id": "note",
+      "master": "main",
+      "story": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Spectral Methods for the Heat Equation",
+          "id": "intro",
+          "number": { "series": "section" },
+          "style": "h1",
+          "break_after": "avoid"
+        },
+        {
+          "type": "toc",
+          "levels": [1, 2],
+          "leader": ".",
+          "title": "Contents",
+          "style": "toc_title"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Discretization",
+          "id": "disc",
+          "number": { "series": "section" },
+          "style": "h2",
+          "break_after": "avoid"
+        },
+        {
+          "type": "paragraph",
+          "spans": [
+            "The discrete Laplacian (see ",
+            { "kind": "ref", "target": "eq-laplacian", "show": "label" },
+            ") converges spectrally for smooth periodic data ",
+            { "kind": "cite", "key": "trefethen2000" },
+            ". In practice we apply ",
+            { "kind": "code", "text": "fft()" },
+            " to the grid values",
+            {
+              "kind": "footnote",
+              "id": "fn-fft",
+              "content": [
+                { "type": "paragraph", "text": "We use a real-to-complex transform, which halves the work for real input.", "style": "body" }
+              ]
+            },
+            " and monitor the residual ",
+            { "kind": "math", "tex": "r = A u - f" },
+            " at every step."
+          ],
+          "style": "body"
+        },
+        {
+          "type": "figure",
+          "id": "fig-grid",
+          "number": { "series": "figure", "prefix": "Figure " },
+          "caption": "A uniform one-dimensional spectral grid.",
+          "align": "center",
+          "size": [360, 90],
+          "break_before": "avoid",
+          "object": {
+            "type": "group",
+            "id": "grid_fig",
+            "children": [
+              { "type": "line", "from": [10, 45], "to": [350, 45], "stroke_style": "grid" },
+              { "type": "line", "from": [10, 38], "to": [10, 52], "stroke_style": "grid" },
+              { "type": "line", "from": [95, 38], "to": [95, 52], "stroke_style": "grid" },
+              { "type": "line", "from": [180, 38], "to": [180, 52], "stroke_style": "grid" },
+              { "type": "line", "from": [265, 38], "to": [265, 52], "stroke_style": "grid" },
+              { "type": "line", "from": [350, 38], "to": [350, 52], "stroke_style": "grid" },
+              { "type": "text", "text": "x₀   x₁   x₂   x₃   x₄", "style": "caption", "box": [10, 58, 340, 16] }
+            ]
+          }
+        },
+        {
+          "type": "paragraph",
+          "spans": [
+            "As shown in ",
+            { "kind": "ref", "target": "fig-grid", "show": "label" },
+            ", the nodes are equally spaced, which is what makes the FFT applicable."
+          ],
+          "style": "body"
+        },
+        {
+          "type": "math",
+          "id": "eq-laplacian",
+          "number": { "series": "equation", "prefix": "Eq. " },
+          "tex": "\\widehat{u_{xx}}(k) = -k^{2}\\,\\widehat{u}(k)",
+          "break_before": "avoid"
+        },
+        {
+          "type": "paragraph",
+          "spans": [
+            { "kind": "ref", "target": "eq-laplacian", "show": "label" },
+            " turns differentiation into multiplication in frequency space, the heart of the method."
+          ],
+          "style": "body"
+        },
+        {
+          "type": "table",
+          "id": "tbl-conv",
+          "number": { "series": "table", "prefix": "Table " },
+          "caption": "Error versus grid size for a smooth test function.",
+          "header": [
+            { "content": "N", "style": "th" },
+            { "content": "Max error", "style": "th" },
+            { "content": "Order", "style": "th" }
+          ],
+          "columns": [
+            { "width": "20%", "align": "left" },
+            { "width": "45%", "align": "left" },
+            { "width": "35%", "align": "left" }
+          ],
+          "rows": [
+            ["8", "2.1 × 10⁻³", "—"],
+            ["16", "3.4 × 10⁻⁶", "spectral"],
+            ["32", "1.2 × 10⁻¹²", "spectral"]
+          ],
+          "header_height": "20pt",
+          "row_height": "18pt",
+          "zebra": true,
+          "cell_padding": [5, 8, 5, 8],
+          "break_before": "avoid"
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "line_numbers": true,
+          "style": "code",
+          "source": "import numpy as np\n\ndef laplacian(u, L):\n    n = u.size\n    k = 2*np.pi*np.fft.fftfreq(n, d=L/n)\n    return np.real(np.fft.ifft(-(k**2) * np.fft.fft(u)))\n"
+        },
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "References",
+          "id": "refs-head",
+          "style": "h1",
+          "break_after": "avoid"
+        },
+        {
+          "type": "bibliography",
+          "source": "refs",
+          "csl": "ieee",
+          "title": "References"
+        }
+      ],
+      "meta": {
+        "note": "`source: \"refs\"` references an imported CSL-JSON binding; `csl: \"ieee\"` references a CSL style. Both are resolved at expansion (see spec §9.6, §10.5)."
+      }
+    }
+  ],
+  "meta": {
+    "encoding": "FrameGraph v2 (JSON projection)",
+    "exercises": ["numbering", "cross-references", "toc", "footnotes", "citations", "bibliography", "block-math", "inline-math", "block-code", "inline-code"]
+  }
+}

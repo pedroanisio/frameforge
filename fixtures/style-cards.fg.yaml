@@ -1,0 +1,148 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Composed styling — pricing cards (fixture)
+description: >-
+  A composition fixture: each card layers several advanced-styling features at
+  once — a `linear` gradient `fill`, corner `radius`, an object-level elevation
+  `shadow`, a translucent divider via `stroke_opacity`, mixed-size `text.spans`
+  for the price, and (on the middle card) a `rotate`-transformed gradient badge.
+  Demonstrates that the styling primitives compose into a realistic UI surface.
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#1c2733'
+      bg: '#f2f4f8'
+      white: '#ffffff'
+      faint: '#eaf1ff'
+    text_styles:
+      h: {font: sans, size: 20, weight: 700, color: white}
+      feat: {font: sans, size: 13, color: faint}
+      badge: {font: sans, size: 10, weight: 700, color: ink, align: center}
+pages:
+- mode: page
+  id: style_cards
+  canvas:
+    size: [820, 360]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: rect
+      box: [0, 0, 820, 360]
+      fill: bg
+
+    # ---------- Card A : Starter ----------
+    - type: rect
+      box: [24, 48, 240, 280]
+      radius: 16
+      fill: {kind: linear, angle: 135, stops: [{color: '#3a7bd5', position: '0%'}, {color: '#2b5876', position: '100%'}]}
+      shadow: {color: ink, blur: 16, dy: 8, opacity: 0.22}
+    - type: text
+      box: [44, 84, 200, 26]
+      text: Starter
+      style: h
+    - type: text
+      box: [44, 116, 200, 44]
+      spans:
+      - {text: '$9', style: {font: sans, size: 34, weight: 800, color: white}}
+      - {text: ' /mo', style: {font: sans, size: 14, color: faint}}
+    - type: line
+      from: [44, 174]
+      to: [244, 174]
+      stroke: white
+      stroke_opacity: 0.35
+      stroke_style: {stroke_width: 1}
+    - type: text
+      box: [44, 190, 200, 20]
+      text: 1 project
+      style: feat
+    - type: text
+      box: [44, 216, 200, 20]
+      text: Community support
+      style: feat
+    - type: text
+      box: [44, 242, 200, 20]
+      text: 1 GB storage
+      style: feat
+
+    # ---------- Card B : Pro (popular) ----------
+    - type: rect
+      box: [288, 48, 240, 280]
+      radius: 16
+      fill: {kind: linear, angle: 135, stops: [{color: '#7b4397', position: '0%'}, {color: '#dc2430', position: '100%'}]}
+      shadow: {color: ink, blur: 22, dy: 11, opacity: 0.28}
+    - type: rect
+      box: [466, 58, 66, 26]
+      radius: 6
+      fill: {kind: linear, angle: 90, stops: [{color: '#f7971e', position: '0%'}, {color: '#ffd200', position: '100%'}]}
+      style: {transform: [{fn: rotate, args: [-8]}], transform_origin: [499, 71]}
+    - type: text
+      box: [466, 62, 66, 18]
+      text: POPULAR
+      style: badge
+    - type: text
+      box: [308, 84, 200, 26]
+      text: Pro
+      style: h
+    - type: text
+      box: [308, 116, 200, 44]
+      spans:
+      - {text: '$29', style: {font: sans, size: 34, weight: 800, color: white}}
+      - {text: ' /mo', style: {font: sans, size: 14, color: faint}}
+    - type: line
+      from: [308, 174]
+      to: [508, 174]
+      stroke: white
+      stroke_opacity: 0.35
+      stroke_style: {stroke_width: 1}
+    - type: text
+      box: [308, 190, 200, 20]
+      text: 10 projects
+      style: feat
+    - type: text
+      box: [308, 216, 200, 20]
+      text: Priority support
+      style: feat
+    - type: text
+      box: [308, 242, 200, 20]
+      text: 50 GB storage
+      style: feat
+
+    # ---------- Card C : Scale ----------
+    - type: rect
+      box: [552, 48, 240, 280]
+      radius: 16
+      fill: {kind: linear, angle: 135, stops: [{color: '#11998e', position: '0%'}, {color: '#1a5d3a', position: '100%'}]}
+      shadow: {color: ink, blur: 16, dy: 8, opacity: 0.22}
+    - type: text
+      box: [572, 84, 200, 26]
+      text: Scale
+      style: h
+    - type: text
+      box: [572, 116, 200, 44]
+      spans:
+      - {text: '$99', style: {font: sans, size: 34, weight: 800, color: white}}
+      - {text: ' /mo', style: {font: sans, size: 14, color: faint}}
+    - type: line
+      from: [572, 174]
+      to: [772, 174]
+      stroke: white
+      stroke_opacity: 0.35
+      stroke_style: {stroke_width: 1}
+    - type: text
+      box: [572, 190, 200, 20]
+      text: Unlimited projects
+      style: feat
+    - type: text
+      box: [572, 216, 200, 20]
+      text: 24/7 support
+      style: feat
+    - type: text
+      box: [572, 242, 200, 20]
+      text: 1 TB storage
+      style: feat

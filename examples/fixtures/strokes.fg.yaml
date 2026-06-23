@@ -1,0 +1,197 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Stroke styling (fixture)
+description: >-
+  Exercises the SVG stroke geometry carried in `stroke_style` (HEAD single-form:
+  paint in `stroke`, geometry in `stroke_style`): `stroke_dasharray` patterns,
+  `stroke_dashoffset`, the three `stroke_linecap`s (butt / round / square), the
+  three `stroke_linejoin`s (miter / round / bevel), a `stroke_width` ladder, and
+  a linear-gradient paint used as a thick stroke.
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#1c2733'
+      accent: '#2e86de'
+      g1: '#16a085'
+      g2: '#9b59b6'
+    text_styles:
+      title:
+        font: sans
+        size: 15
+        weight: 600
+        color: ink
+      lab:
+        font: sans
+        size: 12
+        color: ink
+pages:
+- mode: page
+  id: strokes
+  canvas:
+    size: [780, 470]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: text
+      box: [24, 16, 720, 22]
+      text: Stroke styling — dash · cap · join · width · gradient
+      style: title
+
+    # dasharray: simple
+    - type: text
+      box: [24, 58, 150, 16]
+      text: 'dasharray [8,5]'
+      style: lab
+    - type: line
+      from: [184, 64]
+      to: [752, 64]
+      stroke: ink
+      stroke_style: {stroke_width: 3, stroke_dasharray: [8, 5]}
+
+    # dasharray: fine / dotted
+    - type: text
+      box: [24, 92, 150, 16]
+      text: 'dasharray [2,6]'
+      style: lab
+    - type: line
+      from: [184, 98]
+      to: [752, 98]
+      stroke: ink
+      stroke_style: {stroke_width: 3, stroke_dasharray: [2, 6], stroke_linecap: round}
+
+    # dasharray: dash-dot
+    - type: text
+      box: [24, 126, 150, 16]
+      text: 'dash-dot [14,5,3,5]'
+      style: lab
+    - type: line
+      from: [184, 132]
+      to: [752, 132]
+      stroke: accent
+      stroke_style: {stroke_width: 3, stroke_dasharray: [14, 5, 3, 5]}
+
+    # dashoffset
+    - type: text
+      box: [24, 160, 150, 16]
+      text: 'dashoffset 9 on [10,8]'
+      style: lab
+    - type: line
+      from: [184, 166]
+      to: [752, 166]
+      stroke: accent
+      stroke_style: {stroke_width: 3, stroke_dasharray: [10, 8], stroke_dashoffset: 9}
+
+    # linecap: butt / round / square (thick short segments)
+    - type: text
+      box: [24, 206, 150, 16]
+      text: 'linecap'
+      style: lab
+    - type: line
+      from: [210, 212]
+      to: [330, 212]
+      stroke: ink
+      stroke_style: {stroke_width: 14, stroke_linecap: butt}
+    - type: line
+      from: [410, 212]
+      to: [530, 212]
+      stroke: ink
+      stroke_style: {stroke_width: 14, stroke_linecap: round}
+    - type: line
+      from: [610, 212]
+      to: [730, 212]
+      stroke: ink
+      stroke_style: {stroke_width: 14, stroke_linecap: square}
+    - type: text
+      box: [184, 230, 160, 14]
+      text: butt
+      style: lab
+    - type: text
+      box: [384, 230, 160, 14]
+      text: round
+      style: lab
+    - type: text
+      box: [584, 230, 160, 14]
+      text: square
+      style: lab
+
+    # linejoin: miter / round / bevel (sharp polyline corners)
+    - type: text
+      box: [24, 286, 150, 16]
+      text: 'linejoin'
+      style: lab
+    - type: polyline
+      points: [[210, 312], [270, 268], [330, 312]]
+      fill: none
+      stroke: g1
+      stroke_style: {stroke_width: 12, stroke_linejoin: miter}
+    - type: polyline
+      points: [[410, 312], [470, 268], [530, 312]]
+      fill: none
+      stroke: g1
+      stroke_style: {stroke_width: 12, stroke_linejoin: round}
+    - type: polyline
+      points: [[610, 312], [670, 268], [730, 312]]
+      fill: none
+      stroke: g1
+      stroke_style: {stroke_width: 12, stroke_linejoin: bevel}
+    - type: text
+      box: [184, 318, 160, 14]
+      text: miter
+      style: lab
+    - type: text
+      box: [384, 318, 160, 14]
+      text: round
+      style: lab
+    - type: text
+      box: [584, 318, 160, 14]
+      text: bevel
+      style: lab
+
+    # stroke_width ladder
+    - type: text
+      box: [24, 356, 150, 16]
+      text: 'stroke_width 1·3·6·11'
+      style: lab
+    - type: line
+      from: [184, 350]
+      to: [752, 350]
+      stroke: ink
+      stroke_style: {stroke_width: 1}
+    - type: line
+      from: [184, 366]
+      to: [752, 366]
+      stroke: ink
+      stroke_style: {stroke_width: 3}
+    - type: line
+      from: [184, 384]
+      to: [752, 384]
+      stroke: ink
+      stroke_style: {stroke_width: 6}
+    - type: line
+      from: [184, 406]
+      to: [752, 406]
+      stroke: ink
+      stroke_style: {stroke_width: 11}
+
+    # gradient stroke
+    - type: text
+      box: [24, 436, 150, 16]
+      text: 'gradient stroke'
+      style: lab
+    - type: line
+      from: [184, 442]
+      to: [752, 442]
+      stroke:
+        kind: linear
+        angle: 0
+        stops:
+        - {color: g1, position: '0%'}
+        - {color: accent, position: '50%'}
+        - {color: g2, position: '100%'}
+      stroke_style: {stroke_width: 10, stroke_linecap: round}

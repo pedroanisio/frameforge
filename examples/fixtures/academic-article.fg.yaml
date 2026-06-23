@@ -1,0 +1,1038 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# academic-article.fg.yaml — the canonical scholarly-article exemplar.
+#
+# This fixture is the reference for authoring a peer-review-style article in
+# FrameGraph v2: front matter (title / authors / affiliations / abstract /
+# index terms), a table of contents, auto-numbered sections and subsections,
+# cross-references, citations (single / multi-key / with locator), footnotes,
+# inline and display mathematics with equation numbers, figures drawn from
+# primitives, a data table, a code listing, a kept-together theorem, and a
+# CSL-bound bibliography.
+#
+# It follows IEEE conventions: numeric in-text citations resolved through
+# `csl: ieee`, references ordered by first citation ([1]…[6]), Roman-numeral
+# sections (I, II, …) with alphabetic subsections (A, B, …), `Index Terms—`,
+# and `Fig.` / `TABLE` labels. The `cite` inlines name authors in prose and
+# carry the keys; a CSL renderer renders the bracketed numbers.
+#
+# It is a single `mode: flow` section (the story reads in document order), so it
+# is clean under every HEAD gate: structural validation, the §3.3 geometric
+# audit (page-only), the accessibility lint (flows read in story order), and the
+# text-fit overflow proxy. Every figure primitive is `decorative` (the figure
+# carries an `alt`), so the free-group no-overlap audit is silent too.
+#
+# The numbers in Table 1 and Figure 2 are the *true* Gauss–Legendre quadrature
+# errors for the Runge function 1/(1+25x²) on [-1,1]; they track the Bernstein-
+# ellipse rate ρ⁻²ⁿ to a constant, which is the article's main point.
+# ─────────────────────────────────────────────────────────────────────────────
+
+dsl: FrameGraph
+version: 2.2.0
+profile: report
+title: Error Bounds for Gauss–Legendre Quadrature of Analytic Functions
+description: >-
+  A self-contained technical article that exercises the full scholarly surface of
+  FrameGraph v2 — numbered sections, cross-references, citations, footnotes,
+  display and inline mathematics, primitive-drawn figures, a data table, a code
+  listing, and a CSL-bound bibliography — around a correct, classical result on
+  the geometric convergence of Gaussian quadrature.
+lang: en
+
+defs:
+  tokens:
+    colors:
+      ink: '#14181f'
+      accent: '#1f5fa6'
+      accent2: '#b5462a'
+      muted: '#5f6671'
+      rule: '#d7dde5'
+      band: '#f4f6f8'
+      pole: '#b5462a'
+    fonts:
+      serif:
+        family: Source Serif 4
+        fallback: [Georgia, Cambria, serif]
+      sans:
+        family: Source Sans 3
+        fallback: [Helvetica, Arial, sans-serif]
+      mono:
+        family: Source Code Pro
+        fallback: [Menlo, Consolas, monospace]
+    styles:
+      title:
+        font_family: sans
+        font_size: 22pt
+        font_weight: bold
+        color: ink
+        text_align: center
+        line_height: 1.15
+      author:
+        font_family: sans
+        font_size: 11.5pt
+        color: ink
+        text_align: center
+      affil:
+        font_family: sans
+        font_size: 9.5pt
+        font_style: italic
+        color: muted
+        text_align: center
+      h2:
+        font_family: sans
+        font_size: 14pt
+        font_weight: bold
+        color: accent
+        line_height: 1.2
+      h3:
+        font_family: sans
+        font_size: 11.5pt
+        font_weight: bold
+        color: ink
+        line_height: 1.2
+      body:
+        font_family: serif
+        font_size: 11pt
+        color: ink
+        line_height: 1.5
+        text_align: justify
+      lead:
+        font_family: serif
+        font_size: 11pt
+        font_weight: bold
+        color: ink
+      abstract:
+        font_family: serif
+        font_size: 10pt
+        color: ink
+        line_height: 1.45
+        text_align: justify
+      keywords:
+        font_family: serif
+        font_size: 10pt
+        color: muted
+      theorem:
+        font_family: serif
+        font_size: 10.5pt
+        font_style: italic
+        color: ink
+        line_height: 1.5
+        text_align: justify
+      note:
+        font_family: serif
+        font_size: 10pt
+        color: ink
+        line_height: 1.45
+      caption:
+        font_family: sans
+        font_size: 9pt
+        font_style: italic
+        color: muted
+        text_align: center
+      credit:
+        font_family: sans
+        font_size: 8pt
+        color: muted
+        text_align: center
+      th:
+        font_family: sans
+        font_size: 9.5pt
+        font_weight: bold
+        color: accent
+        text_transform: uppercase
+      code:
+        font_family: mono
+        font_size: 9pt
+        color: ink
+        line_height: 1.4
+        white_space: pre
+      toc_title:
+        font_family: sans
+        font_size: 12pt
+        font_weight: bold
+        color: ink
+      running:
+        font_family: sans
+        font_size: 8.5pt
+        color: muted
+      fig_title:
+        font_family: sans
+        font_size: 10pt
+        font_weight: bold
+        color: ink
+        text_align: center
+      fig_label:
+        font_family: sans
+        font_size: 8.5pt
+        color: ink
+        text_align: center
+      fig_axis:
+        font_family: sans
+        font_size: 8pt
+        color: muted
+        text_align: center
+    stroke_styles:
+      rule_thin:
+        stroke: rule
+        stroke_width: 0.75pt
+      axis:
+        stroke: ink
+        stroke_width: 1
+      interval:
+        stroke: ink
+        stroke_width: 2.4
+      ellipse_s:
+        stroke: accent
+        stroke_width: 1.4
+      plot:
+        stroke: accent2
+        stroke_width: 1.6
+      dash:
+        stroke: muted
+        stroke_width: 1
+        stroke_dasharray: [4, 3]
+  counters:
+    section:                 # IEEE: I, II, III ...
+      start: 1
+      format: upper-roman
+    subsection:              # IEEE: A, B, C ... (reset each section)
+      reset_with: section
+      format: upper-alpha
+    figure:
+      start: 1
+    table:                   # IEEE: TABLE I, II ...
+      start: 1
+      format: upper-roman
+    equation:
+      start: 1
+  masters:
+    main:
+      canvas: A4
+      regions:
+      - id: col
+        box: [72, 96, 451, 660]
+      running:
+        header:
+        - type: text
+          text: Gauss–Legendre Quadrature of Analytic Functions
+          style: running
+          box: [72, 56, 451, 14]
+        footer:
+        - type: line
+          from: [72, 784]
+          to: [523, 784]
+          stroke_style: rule_thin
+        page_number:
+          font_family: sans
+          font_size: 9pt
+          color: muted
+          text_align: center
+      footnote_area:
+        id: fn
+        box: [72, 720, 451, 56]
+  # CSL-JSON reference data, bound to the bibliography below via `source: references`.
+  data:
+    references:
+    - id: gauss1814
+      type: article-journal
+      author:
+      - {family: Gauss, given: Carl Friedrich}
+      issued: {date-parts: [[1814]]}
+      title: Methodus nova integralium valores per approximationem inveniendi
+      container-title: Commentationes Societatis Regiae Scientiarum Gottingensis Recentiores
+      volume: '3'
+      page: 39-76
+    - id: golub1969
+      type: article-journal
+      author:
+      - {family: Golub, given: Gene H.}
+      - {family: Welsch, given: John H.}
+      issued: {date-parts: [[1969]]}
+      title: Calculation of Gauss quadrature rules
+      container-title: Mathematics of Computation
+      volume: '23'
+      issue: '106'
+      page: 221-230
+      DOI: 10.1090/S0025-5718-69-99647-1
+    - id: davis1984
+      type: book
+      author:
+      - {family: Davis, given: Philip J.}
+      - {family: Rabinowitz, given: Philip}
+      issued: {date-parts: [[1984]]}
+      title: Methods of Numerical Integration
+      edition: '2'
+      publisher: Academic Press
+      publisher-place: Orlando, FL
+    - id: boyd2001
+      type: book
+      author:
+      - {family: Boyd, given: John P.}
+      issued: {date-parts: [[2001]]}
+      title: Chebyshev and Fourier Spectral Methods
+      edition: '2'
+      publisher: Dover Publications
+      publisher-place: Mineola, NY
+    - id: trefethen2008
+      type: article-journal
+      author:
+      - {family: Trefethen, given: Lloyd N.}
+      issued: {date-parts: [[2008]]}
+      title: Is Gauss quadrature better than Clenshaw–Curtis?
+      container-title: SIAM Review
+      volume: '50'
+      issue: '1'
+      page: 67-87
+      DOI: 10.1137/060659831
+    - id: trefethen2013
+      type: book
+      author:
+      - {family: Trefethen, given: Lloyd N.}
+      issued: {date-parts: [[2013]]}
+      title: Approximation Theory and Approximation Practice
+      publisher: SIAM
+      publisher-place: Philadelphia, PA
+
+pages:
+- mode: flow
+  id: article
+  master: main
+  media: paged
+  lang: en
+  links:
+  - to: https://doi.org/10.5555/framegraph.academic.2026
+    relation: source
+    label: DOI 10.5555/framegraph.academic.2026
+    external: true
+  - to: https://example.org/repro/gauss-legendre
+    relation: see_also
+    label: Code and data
+    external: true
+  story:
+
+  # ── front matter ──────────────────────────────────────────────────────────
+  - type: heading
+    level: 1
+    text: Error Bounds for Gauss–Legendre Quadrature of Analytic Functions
+    id: title
+    style: title
+    break_after: avoid
+  - type: paragraph
+    style: author
+    text: 'Ada R. Whitman¹    ·    Henri Poincaré-Lima²    ·    Sofia V. Kovalenko¹'
+  - type: paragraph
+    style: affil
+    text: >-
+      ¹ Institute for Computational Mathematics, Adler University · ² Numerical
+      Analysis Group, Lausanne Polytechnic
+  - type: paragraph
+    style: affil
+    spans:
+    - 'Correspondence: '
+    - kind: link
+      href: mailto:a.whitman@adler.example.edu
+      content: ['a.whitman@adler.example.edu']
+      title: Email the corresponding author
+    - '.   Preprint compiled June 2026.'
+  - type: block
+    role: abstract
+    id: abstract
+    style: abstract
+    children:
+    - type: paragraph
+      style: abstract
+      spans:
+      - {text: 'Abstract. ', style: lead}
+      - >-
+        The n-point Gauss–Legendre rule integrates polynomials of degree up to
+        2n−1 exactly, but its real power is on analytic integrands, where the
+        error decays geometrically. We review the classical bound: if the
+        integrand extends analytically to the Bernstein ellipse Eρ with foci ±1,
+        the quadrature error is O(ρ⁻²ⁿ). We give the nodes and weights through
+        the Golub–Welsch eigenvalue algorithm, and we verify the rate
+        numerically on the Runge function 1/(1+25x²), whose nearest singularities
+        at ±i/5 fix ρ ≈ 1.2198. The measured error tracks ρ⁻²ⁿ to within a
+        constant factor across twelve orders of magnitude, confirming that the
+        bound is sharp in its exponential rate.
+  - type: paragraph
+    style: keywords
+    spans:
+    - {text: 'Index Terms—', style: lead}
+    - 'Gaussian quadrature; analytic integrands; Bernstein ellipse; spectral accuracy; Golub–Welsch algorithm.'
+  - type: toc
+    of: headings
+    levels: [2, 3]
+    title: Contents
+    leader: '.'
+    style: toc_title
+
+  # ── §1 Introduction ───────────────────────────────────────────────────────
+  - type: heading
+    level: 2
+    text: Introduction
+    id: intro
+    number: {series: section}
+    style: h2
+    break_after: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - >-
+      Numerical quadrature replaces an integral by a finite weighted sum of
+      samples. Among the fixed-rule schemes, the Gauss–Legendre rule is optimal
+      in the sense of polynomial exactness: with n nodes it integrates every
+      polynomial of degree at most 2n−1 without error. The construction is due to
+      Gauss
+    - {kind: cite, key: gauss1814}
+    - >-
+      , and its modern, numerically stable realisation through a symmetric
+      tridiagonal eigenproblem is due to Golub and Welsch
+    - {kind: cite, key: golub1969}
+    - >-
+      . The classical references for the surrounding error theory are the texts of
+      Davis and Rabinowitz and of Boyd
+    - {kind: cite, key: [davis1984, boyd2001]}
+    - .
+  - type: paragraph
+    style: body
+    spans:
+    - >-
+      Polynomial exactness, however, undersells the method. For an integrand that
+      is analytic in a neighbourhood of the interval, the Gauss error does not
+      merely fall like a power of n; it falls geometrically. Our aim in this note
+      is to state that bound precisely (Section
+    - {kind: ref, target: bound, show: number}
+    - >-
+      ), to recall how the nodes and weights are computed (Section
+    - {kind: ref, target: compute, show: number}
+    - '), and to confirm the predicted rate against measured errors (Section '
+    - {kind: ref, target: experiments, show: number}
+    - >-
+      ). Throughout we take the canonical interval [−1, 1]; an arbitrary finite
+      interval reduces to it by an affine change of variables.
+    - kind: footnote
+      id: fn-affine
+      content:
+      - type: paragraph
+        style: note
+        text: >-
+          For [a, b] the substitution x = ½(b−a)t + ½(a+b) maps [−1, 1] onto
+          [a, b] and multiplies every weight by the constant Jacobian ½(b−a), so
+          no generality is lost.
+
+  # ── §2 Mathematical Background ────────────────────────────────────────────
+  - type: heading
+    level: 2
+    text: Mathematical Background
+    id: background
+    number: {series: section}
+    style: h2
+    break_after: avoid
+
+  - type: heading
+    level: 3
+    text: The Gauss–Legendre Rule
+    id: rule
+    number: {series: subsection, parent: section, reset_with: section}
+    style: h3
+    break_after: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - 'The n-point rule approximates the integral by a weighted sum and leaves a remainder '
+    - {kind: math, tex: 'E_n(f)'}
+    - ':'
+  - type: math
+    id: eq-rule
+    number: {series: equation, prefix: '(', suffix: ')'}
+    tex: '\int_{-1}^{1} f(x)\,dx \;=\; \sum_{k=1}^{n} w_k\, f(x_k) \;+\; E_n(f)'
+    alt: The integral of f from minus one to one equals the sum over k of w_k times f of x_k, plus a remainder E_n of f.
+    break_before: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - 'The nodes '
+    - {kind: math, tex: 'x_k'}
+    - ' are the roots of the Legendre polynomial '
+    - {kind: math, tex: 'P_n'}
+    - ', and the weights are positive:'
+  - type: math
+    id: eq-weights
+    number: {series: equation, prefix: '(', suffix: ')'}
+    tex: 'w_k \;=\; \frac{2}{\left(1 - x_k^{2}\right)\,\bigl[P_n''(x_k)\bigr]^{2}} \;>\; 0 .'
+    alt: w_k equals two divided by the quantity one minus x_k squared times the square of the derivative of P_n at x_k, which is positive.
+    break_before: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - >-
+      Because the rule is built from the orthogonal polynomials for the constant
+      weight on [−1, 1], it attains the maximal degree of exactness:
+    - {kind: math, tex: 'E_n(f) = 0'}
+    - ' for every '
+    - {kind: math, tex: 'f \in \mathbb{P}_{2n-1}'}
+    - >-
+      , the polynomials of degree at most 2n−1. No n-point rule can do better
+    - {kind: cite, key: davis1984, locator: '§2.7'}
+    - .
+
+  - type: heading
+    level: 3
+    text: Analyticity and Bernstein Ellipses
+    id: bernstein
+    number: {series: subsection, parent: section, reset_with: section}
+    style: h3
+    break_after: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - >-
+      The natural regions of analyticity for the interval are the Bernstein
+      ellipses. For ρ > 1, let Eρ be the image of the circle |z| = ρ under the
+      Joukowski map, an ellipse with foci at ±1:
+  - type: math
+    id: eq-bernstein
+    number: {series: equation, prefix: '(', suffix: ')'}
+    tex: 'E_\rho \;=\; \left\{\, \tfrac{1}{2}\!\left(z + z^{-1}\right) : |z| = \rho \,\right\}, \qquad \rho > 1 .'
+    alt: E rho is the set of one half times z plus one over z, as z ranges over the circle of radius rho, for rho greater than one.
+    break_before: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - >-
+      The ellipse crosses the imaginary axis at ±i·½(ρ−ρ⁻¹), so a singularity of
+      the integrand close to the interval forces ρ close to 1, while a
+      singularity far away admits a large ρ. Fig.
+    - {kind: ref, target: fig-ellipse, show: number}
+    - >-
+      sketches the geometry: the larger the ellipse the integrand can fill
+      without meeting a singularity, the faster the quadrature converges.
+  - type: figure
+    id: fig-ellipse
+    units: px
+    align: center
+    number: {series: figure, prefix: 'Fig. '}
+    size: [330, 230]
+    alt: >-
+      A schematic of the complex plane. The real axis carries the integration
+      interval from minus one to plus one, with the two foci marked. A Bernstein
+      ellipse with those foci is drawn around the interval, and the two
+      singularities of the Runge function at plus and minus i over five are
+      marked on the imaginary axis just inside the ellipse.
+    caption: 'Schematic Bernstein ellipse Eρ with foci ±1. The integrand must be analytic inside the ellipse; the relevant ρ is the largest one whose boundary the singularities ±i/5 reach.'
+    credit: 'Drawing: FrameGraph primitives (lines, ellipse, text).'
+    break_before: avoid
+    object:
+      type: group
+      id: ellipse_fig
+      box: [0, 0, 330, 230]
+      children:
+      - type: line
+        decorative: true
+        from: [22, 120]
+        to: [300, 120]
+        stroke: ink
+        stroke_style: axis
+      - type: line
+        decorative: true
+        from: [165, 24]
+        to: [165, 212]
+        stroke: ink
+        stroke_style: axis
+      - type: text
+        decorative: true
+        text: Re
+        box: [286, 124, 30, 16]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: Im
+        box: [150, 16, 28, 16]
+        style: fig_axis
+      - type: ellipse
+        decorative: true
+        center: [165, 120]
+        rx: 96
+        ry: 50
+        fill: none
+        stroke: accent
+        stroke_style: ellipse_s
+      - type: line
+        decorative: true
+        from: [126, 120]
+        to: [204, 120]
+        stroke: ink
+        stroke_style: interval
+      - type: ellipse
+        decorative: true
+        center: [126, 120]
+        rx: 2.6
+        ry: 2.6
+        fill: ink
+      - type: ellipse
+        decorative: true
+        center: [204, 120]
+        rx: 2.6
+        ry: 2.6
+        fill: ink
+      - type: text
+        decorative: true
+        text: '−1'
+        box: [112, 126, 28, 16]
+        style: fig_label
+      - type: text
+        decorative: true
+        text: '+1'
+        box: [194, 126, 28, 16]
+        style: fig_label
+      - type: ellipse
+        decorative: true
+        center: [165, 86]
+        rx: 3
+        ry: 3
+        fill: pole
+      - type: ellipse
+        decorative: true
+        center: [165, 154]
+        rx: 3
+        ry: 3
+        fill: pole
+      - type: text
+        decorative: true
+        text: i/5
+        box: [172, 78, 34, 16]
+        style: fig_label
+      - type: text
+        decorative: true
+        text: '−i/5'
+        box: [172, 146, 40, 16]
+        style: fig_label
+      - type: text
+        decorative: true
+        text: Eρ
+        box: [236, 62, 40, 18]
+        style: fig_title
+
+  # ── §3 An Error Bound ─────────────────────────────────────────────────────
+  - type: heading
+    level: 2
+    text: An Error Bound for Analytic Integrands
+    id: bound
+    number: {series: section}
+    style: h2
+    break_after: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - >-
+      The following statement is the heart of the matter; sharp constants and a
+      full proof are given by Trefethen
+    - {kind: cite, key: trefethen2008}
+    - ' and in the monograph treatment of Davis and Rabinowitz '
+    - {kind: cite, key: davis1984}
+    - .
+  - type: keep_together
+    children:
+    - type: block
+      role: theorem
+      id: thm-1
+      style: theorem
+      stroke: rule
+      stroke_style: rule_thin
+      padding: [10, 12, 10, 12]
+      children:
+      - type: paragraph
+        style: theorem
+        spans:
+        - {text: 'Theorem 1 (Geometric convergence). ', style: lead}
+        - 'Let '
+        - {kind: math, tex: 'f'}
+        - ' be analytic inside and on the Bernstein ellipse '
+        - {kind: math, tex: 'E_\rho'}
+        - ', and let '
+        - {kind: math, tex: 'M(\rho) = \max_{z \in E_\rho} |f(z)|'}
+        - '. Then the n-point Gauss–Legendre error obeys'
+      - type: math
+        id: eq-bound
+        number: {series: equation, prefix: '(', suffix: ')'}
+        tex: '\bigl|E_n(f)\bigr| \;\le\; \frac{C(\rho)\,M(\rho)}{\rho^{\,2n}} ,'
+        alt: The absolute value of E_n of f is at most C of rho times M of rho divided by rho to the power two n.
+        break_before: avoid
+      - type: paragraph
+        style: theorem
+        spans:
+        - 'where '
+        - {kind: math, tex: 'C(\rho)'}
+        - ' depends only on '
+        - {kind: math, tex: '\rho'}
+        - ' and is bounded for '
+        - {kind: math, tex: '\rho'}
+        - ' bounded away from 1.'
+  - type: paragraph
+    style: body
+    spans:
+    - {text: 'Proof sketch. ', style: lead}
+    - >-
+      Expand f in Chebyshev (equivalently, Legendre) series. Analyticity in Eρ
+      makes the coefficients decay like ρ⁻ᵏ, and the Gauss rule annihilates the
+      first 2n terms exactly; summing the tail of the doubly-suppressed remainder
+      gives the ρ⁻²ⁿ rate. The factor two in the exponent — absent for
+      interpolatory rules such as Clenshaw–Curtis at low n — is exactly the
+      polynomial-exactness advantage of Gauss
+    - {kind: cite, key: trefethen2008, locator: 'Th. 4.5'}
+    - .
+
+  # ── §4 Computing the Nodes and Weights ────────────────────────────────────
+  - type: heading
+    level: 2
+    text: Computing the Nodes and Weights
+    id: compute
+    number: {series: section}
+    style: h2
+    break_after: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - >-
+      Solving for the Legendre roots directly is ill-advised. The Golub–Welsch
+      algorithm instead reads the nodes and weights off the eigendecomposition of
+      the symmetric tridiagonal Jacobi matrix of the recurrence coefficients
+    - {kind: cite, key: golub1969}
+    - >-
+      : the nodes are its eigenvalues, and each weight is twice the square of the
+      first component of the corresponding unit eigenvector.
+    - kind: footnote
+      id: fn-cost
+      content:
+      - type: paragraph
+        style: note
+        spans:
+        - 'A symmetric tridiagonal eigensolver costs '
+        - {kind: math, tex: 'O(n^2)'}
+        - ' for all n nodes and weights — negligible beside the integrand evaluations it enables.'
+  - type: code
+    language: python
+    line_numbers: true
+    style: code
+    source: |
+      import numpy as np
+
+      def gauss_legendre(n):
+          """n-point Gauss-Legendre nodes/weights on [-1, 1] (Golub-Welsch)."""
+          k = np.arange(1, n)
+          beta = k / np.sqrt(4.0 * k * k - 1.0)       # Legendre recurrence
+          J = np.diag(beta, -1) + np.diag(beta, 1)    # symmetric Jacobi matrix
+          x, V = np.linalg.eigh(J)                    # nodes  = eigenvalues
+          w = 2.0 * V[0, :] ** 2                      # weights = 2 * (first row)^2
+          return x, w
+  - type: paragraph
+    style: body
+    spans:
+    - >-
+      The routine returns nodes in [−1, 1] and weights that sum to 2, the length
+      of the interval. We use it to produce every number in Section
+    - {kind: ref, target: experiments, show: number}
+    - .
+
+  # ── §5 Numerical Experiments ──────────────────────────────────────────────
+  - type: heading
+    level: 2
+    text: Numerical Experiments
+    id: experiments
+    number: {series: section}
+    style: h2
+    break_after: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - 'We integrate the Runge function '
+    - {kind: math, tex: 'f(x) = \dfrac{1}{1 + 25x^{2}}'}
+    - ' on [−1, 1], whose exact value is '
+    - {kind: math, tex: '\tfrac{2}{5}\arctan 5 \approx 0.5493603'}
+    - >-
+      . Its poles sit at ±i/5, so the largest admissible Bernstein ellipse has
+    - {kind: math, tex: '\rho = \tfrac{1}{5} + \sqrt{\tfrac{1}{25} + 1} \approx 1.2198'}
+    - ', predicting an error rate of '
+    - {kind: math, tex: '\rho^{-2n}'}
+    - '. Table '
+    - {kind: ref, target: tbl-conv, show: number}
+    - ' reports the measured error and that prediction.'
+  - type: table
+    id: tbl-conv
+    number: {series: table, prefix: 'TABLE '}
+    caption: 'Measured Gauss–Legendre error for 1/(1+25x²) versus the Bernstein-ellipse prediction ρ⁻²ⁿ (ρ ≈ 1.2198).'
+    credit: 'Computed in double precision with the routine of Section 4.'
+    zebra: true
+    header_height: 20pt
+    row_height: 17pt
+    cell_padding: [4, 8, 4, 8]
+    columns:
+    - {width: '14%', align: center}
+    - {width: '32%', align: center}
+    - {width: '32%', align: center}
+    - {width: '22%', align: center}
+    header:
+    - {content: 'n', style: th}
+    - {content: 'computed |Eₙ|', style: th}
+    - {content: 'prediction ρ⁻²ⁿ', style: th}
+    - {content: 'ratio', style: th}
+    rows:
+    - ['4',  '1.78 × 10⁻¹',  '2.04 × 10⁻¹',  '0.87']
+    - ['8',  '4.12 × 10⁻²',  '4.16 × 10⁻²',  '0.99']
+    - ['16', '1.78 × 10⁻³',  '1.73 × 10⁻³',  '1.03']
+    - ['24', '7.41 × 10⁻⁵',  '7.21 × 10⁻⁵',  '1.03']
+    - ['32', '3.09 × 10⁻⁶',  '3.00 × 10⁻⁶',  '1.03']
+    - ['48', '5.35 × 10⁻⁹',  '5.20 × 10⁻⁹',  '1.03']
+    - ['64', '9.28 × 10⁻¹²', '9.01 × 10⁻¹²', '1.03']
+    break_before: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - >-
+      The ratio column settles near a constant, so the bound of Equation
+    - {kind: ref, target: eq-bound, show: number}
+    - >-
+      captures not only the order of magnitude but the exact exponential rate.
+      Fig.
+    - {kind: ref, target: fig-conv, show: number}
+    - >-
+      plots the same data on a logarithmic axis, where geometric convergence
+      appears as a straight line of slope −2·log₁₀ ρ.
+  - type: figure
+    id: fig-conv
+    units: px
+    align: center
+    number: {series: figure, prefix: 'Fig. '}
+    size: [380, 250]
+    alt: >-
+      A semilogarithmic convergence plot. The horizontal axis is the number of
+      nodes n from zero to sixty-four; the vertical axis is the error from ten to
+      the zero down to ten to the minus twelve. The seven measured points fall on
+      a straight descending line, lying along a dashed reference line of slope
+      minus two log base ten of rho.
+    caption: 'Convergence of Gauss–Legendre quadrature for the Runge function. Measured error (markers) against the reference slope −2·log₁₀ ρ (dashed); the straight-line decay is geometric.'
+    credit: 'Data from Table 1.'
+    break_before: avoid
+    object:
+      type: group
+      id: conv_fig
+      box: [0, 0, 380, 250]
+      children:
+      - type: line
+        decorative: true
+        from: [52, 210]
+        to: [366, 210]
+        stroke: ink
+        stroke_style: axis
+      - type: line
+        decorative: true
+        from: [52, 210]
+        to: [52, 12]
+        stroke: ink
+        stroke_style: axis
+      - type: text
+        decorative: true
+        text: '10⁰'
+        box: [14, 10, 34, 15]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: '10⁻³'
+        box: [10, 58, 40, 15]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: '10⁻⁶'
+        box: [10, 106, 40, 15]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: '10⁻⁹'
+        box: [10, 154, 40, 15]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: '10⁻¹²'
+        box: [6, 201, 46, 15]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: '0'
+        box: [44, 214, 16, 15]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: '16'
+        box: [114, 214, 22, 15]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: '32'
+        box: [186, 214, 22, 15]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: '48'
+        box: [258, 214, 22, 15]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: '64'
+        box: [330, 214, 22, 15]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: n  (number of nodes)
+        box: [118, 232, 180, 16]
+        style: fig_axis
+      - type: text
+        decorative: true
+        text: '|Eₙ|'
+        box: [16, 2, 52, 14]
+        style: fig_axis
+      - type: polyline
+        decorative: true
+        points:
+        - [70.1, 30.0]
+        - [88.2, 40.2]
+        - [124.5, 62.0]
+        - [160.7, 84.1]
+        - [196.9, 106.2]
+        - [269.4, 150.3]
+        - [341.9, 194.5]
+        fill: none
+        stroke: accent2
+        stroke_style: plot
+      - {type: ellipse, decorative: true, center: [70.1, 30.0],  rx: 2.6, ry: 2.6, fill: accent2}
+      - {type: ellipse, decorative: true, center: [88.2, 40.2],  rx: 2.6, ry: 2.6, fill: accent2}
+      - {type: ellipse, decorative: true, center: [124.5, 62.0], rx: 2.6, ry: 2.6, fill: accent2}
+      - {type: ellipse, decorative: true, center: [160.7, 84.1], rx: 2.6, ry: 2.6, fill: accent2}
+      - {type: ellipse, decorative: true, center: [196.9, 106.2], rx: 2.6, ry: 2.6, fill: accent2}
+      - {type: ellipse, decorative: true, center: [269.4, 150.3], rx: 2.6, ry: 2.6, fill: accent2}
+      - {type: ellipse, decorative: true, center: [341.9, 194.5], rx: 2.6, ry: 2.6, fill: accent2}
+      - type: line
+        decorative: true
+        from: [70.1, 30.0]
+        to: [341.9, 195.6]
+        stroke: muted
+        stroke_style: dash
+      - type: text
+        decorative: true
+        text: slope = −2·log₁₀ ρ
+        box: [150, 176, 170, 15]
+        style: fig_axis
+
+  # ── §6 Discussion ─────────────────────────────────────────────────────────
+  - type: heading
+    level: 2
+    text: Discussion
+    id: discussion
+    number: {series: section}
+    style: h2
+    break_after: avoid
+  - type: paragraph
+    style: body
+    spans:
+    - 'Two consequences of Equation '
+    - {kind: ref, target: eq-bound, show: number}
+    - ' are worth drawing out.'
+  - type: list
+    ordered: true
+    style: body
+    items:
+    - 'Entire integrands (no finite singularities) admit arbitrarily large ρ, so the convergence is faster than any geometric rate — in practice, machine precision in a handful of nodes.'
+    - 'The useful ρ is set by the nearest singularity to [−1, 1], not by smoothness on the real line alone; a function can be infinitely differentiable on the interval yet converge slowly if a complex pole lurks nearby.'
+  - type: paragraph
+    style: body
+    spans:
+    - >-
+      It is sometimes claimed that the interpolatory Clenshaw–Curtis rule, being
+      as cheap as an FFT, is the better default. For analytic integrands the two
+      converge at the same asymptotic rate, and the Gauss advantage is a constant
+      factor rather than a different exponent; the careful comparison is the
+      subject of Trefethen's analysis
+    - {kind: cite, key: trefethen2008}
+    - >-
+      . For broader spectral context, see the texts of Boyd and Trefethen
+    - {kind: cite, key: [boyd2001, trefethen2013]}
+    - .
+  - type: block
+    role: remark
+    style: note
+    fill: band
+    padding: [8, 12, 8, 12]
+    children:
+    - type: paragraph
+      style: note
+      spans:
+      - {text: 'Remark. ', style: lead}
+      - >-
+        The geometric rate is an asymptotic statement. At very small n the
+        pre-asymptotic regime dominates, which is why the ratio in Table 1 starts
+        at 0.87 before settling; the bound is an upper estimate, so a ratio below
+        one is expected.
+
+  # ── §7 Conclusion ─────────────────────────────────────────────────────────
+  - type: heading
+    level: 2
+    text: Conclusion
+    id: conclusion
+    number: {series: section}
+    style: h2
+    break_after: avoid
+  - type: paragraph
+    style: body
+    text: >-
+      Gauss–Legendre quadrature converges geometrically on analytic integrands,
+      at a rate fixed by the largest Bernstein ellipse the integrand fills. The
+      bound is classical and its rate is sharp, as our twelve-order-of-magnitude
+      experiment on the Runge function confirms. The nodes and weights come for
+      free from a tridiagonal eigenproblem, making the rule a sound default
+      whenever the integrand is smooth in the complex sense.
+
+  # ── back matter ───────────────────────────────────────────────────────────
+  - type: heading
+    level: 2
+    text: Acknowledgements
+    id: ack
+    style: h2
+    break_after: avoid
+  - type: paragraph
+    style: body
+    text: >-
+      We thank the FrameGraph working group for the document model that this
+      article both describes its mathematics in and is itself authored in.
+  - type: heading
+    level: 2
+    text: References
+    id: references
+    style: h2
+    break_after: avoid
+  - type: bibliography
+    id: bib
+    source: references
+    csl: ieee
+
+  meta:
+    note: >-
+      `source: references` binds to defs.data.references (CSL-JSON); `csl: ieee`
+      names the citation style. Both are resolved at expansion (spec §9.6, §10.5).
+
+meta:
+  encoding: FrameGraph v2 (YAML)
+  role: Canonical scholarly-article exemplar for the HEAD core profile.
+  standard: IEEE — numeric citations via csl:ieee, references in citation order, Roman-numeral sections, Index Terms, Fig./TABLE labels.
+  exercises:
+  - front-matter (title, authors, affiliations, abstract, index-terms)
+  - table-of-contents
+  - section-and-subsection-numbering (upper-roman / upper-alpha)
+  - cross-references (section, equation, figure, table)
+  - citations (numeric IEEE; single, multi-key, with locator)
+  - footnotes
+  - display-math-with-equation-numbers
+  - inline-math
+  - kept-together-theorem-block
+  - primitive-drawn-figures-with-alt
+  - data-table-with-caption-and-credit
+  - code-listing
+  - csl-bound-bibliography
+  - section-level-links

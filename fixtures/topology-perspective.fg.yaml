@@ -1,0 +1,4235 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Topology & perspective
+lang: en
+defs:
+  tokens:
+    text_styles:
+      h1:
+        color: '#0f172a'
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 30
+        font_weight: 800
+      sub:
+        color: '#475569'
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 15
+pages:
+- mode: page
+  id: topology_perspective
+  canvas:
+    size:
+    - 1160.0
+    - 760.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1160
+      - 760
+      type: rect
+      fill: '#ffffff'
+    - id: h1
+      box:
+      - 40
+      - 30
+      - 900
+      - 36
+      style: h1
+      type: text
+      text: Topology & perspective in the FrameGraph SDK
+    - box:
+      - 40
+      - 70
+      - 1000
+      - 24
+      style: sub
+      type: text
+      text: Deterministic graph layouts + a perspective camera — node-link diagrams
+        and 3D scenes from one toolkit.
+    - box:
+      - 40.0
+      - 112.0
+      - 345.3333333333333
+      - 293.0
+      decorative: true
+      stroke_style:
+        stroke_width: 1.5
+      type: rect
+      fill: '#f8fafc'
+      radius: 12
+      stroke: '#cbd5e1'
+    - box:
+      - 40.0
+      - 144.0
+      - 345.3333333333333
+      - 253.0
+      type: group
+      children:
+      - box:
+        - 10.0
+        - -23.0
+        - 325.3333333333333
+        - 22.0
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 15
+          font_weight: 700
+          text_align: center
+        type: text
+        text: circular_layout
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 172.66666666666666
+          - 12.0
+        - - 262.4692278773582
+          - 49.19743878930847
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 262.4692278773582
+          - 49.19743878930847
+        - - 299.66666666666663
+          - 139.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 299.66666666666663
+          - 139.0
+        - - 262.4692278773582
+          - 228.80256121069152
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 262.4692278773582
+          - 228.80256121069152
+        - - 172.66666666666666
+          - 266.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 172.66666666666666
+          - 266.0
+        - - 82.86410545597514
+          - 228.80256121069152
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 82.86410545597514
+          - 228.80256121069152
+        - - 45.66666666666666
+          - 139.00000000000003
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 45.66666666666666
+          - 139.00000000000003
+        - - 82.8641054559751
+          - 49.19743878930847
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 82.8641054559751
+          - 49.19743878930847
+        - - 172.66666666666666
+          - 12.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 299.66666666666663
+          - 139.0
+        - - 45.66666666666666
+          - 139.00000000000003
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 262.4692278773582
+          - 228.80256121069152
+        - - 172.66666666666666
+          - 266.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 172.66666666666666
+        - 12.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#2563eb'
+        stroke: '#1e3a8a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 262.4692278773582
+        - 49.19743878930847
+        rx: 9.0
+        ry: 9.0
+        fill: '#2563eb'
+        stroke: '#1e3a8a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 299.66666666666663
+        - 139.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#2563eb'
+        stroke: '#1e3a8a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 262.4692278773582
+        - 228.80256121069152
+        rx: 9.0
+        ry: 9.0
+        fill: '#2563eb'
+        stroke: '#1e3a8a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 172.66666666666666
+        - 266.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#2563eb'
+        stroke: '#1e3a8a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 82.86410545597514
+        - 228.80256121069152
+        rx: 9.0
+        ry: 9.0
+        fill: '#2563eb'
+        stroke: '#1e3a8a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 45.66666666666666
+        - 139.00000000000003
+        rx: 9.0
+        ry: 9.0
+        fill: '#2563eb'
+        stroke: '#1e3a8a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 82.8641054559751
+        - 49.19743878930847
+        rx: 9.0
+        ry: 9.0
+        fill: '#2563eb'
+        stroke: '#1e3a8a'
+      - box:
+        - 156.91666666666666
+        - 23.0
+        - 31.5
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: edge
+      - box:
+        - 250.4682513148582
+        - 60.19743878930847
+        - 24.001953125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: cdn
+      - box:
+        - 289.27701822916663
+        - 150.0
+        - 20.779296875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: api
+      - box:
+        - 247.9706927211082
+        - 239.80256121069152
+        - 28.9970703125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: auth
+      - box:
+        - 154.37882486979166
+        - 277.0
+        - 36.57568359375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: cache
+      - box:
+        - 63.633636705975135
+        - 239.80256121069152
+        - 38.4609375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: queue
+      - box:
+        - 36.68424479166666
+        - 150.00000000000003
+        - 17.96484375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: db
+      - box:
+        - 72.4798281122251
+        - 60.19743878930847
+        - 20.7685546875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: log
+    - box:
+      - 407.3333333333333
+      - 112.0
+      - 345.3333333333333
+      - 293.0
+      decorative: true
+      stroke_style:
+        stroke_width: 1.5
+      type: rect
+      fill: '#f8fafc'
+      radius: 12
+      stroke: '#cbd5e1'
+    - box:
+      - 407.3333333333333
+      - 144.0
+      - 345.3333333333333
+      - 253.0
+      type: group
+      children:
+      - box:
+        - 10.0
+        - -23.0
+        - 325.3333333333333
+        - 22.0
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 15
+          font_weight: 700
+          text_align: center
+        type: text
+        text: radial_layout
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 166.4373590143598
+          - 139.0
+        - - 292.24239669016436
+          - 139.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 166.4373590143598
+          - 139.0
+        - - 244.87551702767772
+          - 237.35833910802063
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 166.4373590143598
+          - 139.0
+        - - 138.44310453433044
+          - 261.6508427232278
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 166.4373590143598
+          - 139.0
+        - - 53.09093664316898
+          - 193.58476014660337
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 166.4373590143598
+          - 139.0
+        - - 53.090936643168966
+          - 84.41523985339666
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 166.4373590143598
+          - 139.0
+        - - 138.44310453433042
+          - 16.349157276772196
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 166.4373590143598
+          - 139.0
+        - - 244.87551702767766
+          - 40.64166089197936
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 292.24239669016436
+          - 139.0
+        - - 244.87551702767772
+          - 237.35833910802063
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 138.44310453433042
+          - 16.349157276772196
+        - - 244.87551702767766
+          - 40.64166089197936
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 166.4373590143598
+        - 139.0
+        rx: 13.349157276772194
+        ry: 13.349157276772194
+        fill: '#0d9488'
+        stroke: '#134e4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 292.24239669016436
+        - 139.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#0d9488'
+        stroke: '#134e4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 244.87551702767772
+        - 237.35833910802063
+        rx: 9.0
+        ry: 9.0
+        fill: '#0d9488'
+        stroke: '#134e4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 138.44310453433044
+        - 261.6508427232278
+        rx: 9.0
+        ry: 9.0
+        fill: '#0d9488'
+        stroke: '#134e4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 53.09093664316898
+        - 193.58476014660337
+        rx: 9.0
+        ry: 9.0
+        fill: '#0d9488'
+        stroke: '#134e4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 53.090936643168966
+        - 84.41523985339666
+        rx: 9.0
+        ry: 9.0
+        fill: '#0d9488'
+        stroke: '#134e4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 138.44310453433042
+        - 16.349157276772196
+        rx: 9.0
+        ry: 9.0
+        fill: '#0d9488'
+        stroke: '#134e4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 244.87551702767766
+        - 40.64166089197936
+        rx: 9.0
+        ry: 9.0
+        fill: '#0d9488'
+        stroke: '#134e4a'
+      - box:
+        - 152.4034234674848
+        - 154.3491572767722
+        - 28.06787109375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: core
+      - box:
+        - 278.86910567453936
+        - 150.0
+        - 26.74658203125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: web
+      - box:
+        - 235.11697210580272
+        - 248.35833910802063
+        - 19.51708984375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: ios
+      - box:
+        - 115.45018461245544
+        - 272.6508427232278
+        - 45.98583984375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: android
+      - box:
+        - 45.01085851816898
+        - 204.58476014660337
+        - 16.16015625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: cli
+      - box:
+        - 42.078241330668966
+        - 95.41523985339666
+        - 22.025390625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: bot
+      - box:
+        - 129.37474515933042
+        - 27.349157276772196
+        - 18.13671875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: etl
+      - box:
+        - 235.98977484017766
+        - 51.64166089197936
+        - 17.771484375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: ml
+    - box:
+      - 774.6666666666666
+      - 112.0
+      - 345.3333333333333
+      - 293.0
+      decorative: true
+      stroke_style:
+        stroke_width: 1.5
+      type: rect
+      fill: '#f8fafc'
+      radius: 12
+      stroke: '#cbd5e1'
+    - box:
+      - 774.6666666666666
+      - 144.0
+      - 345.3333333333333
+      - 253.0
+      type: group
+      children:
+      - box:
+        - 10.0
+        - -23.0
+        - 325.3333333333333
+        - 22.0
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 15
+          font_weight: 700
+          text_align: center
+        type: text
+        text: layered_layout (DAG)
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 14.384199576606166
+          - 139.0
+        - - 67.14502193995966
+          - 139.0
+        stroke: '#a16207'
+      - type: polyline
+        points:
+        - - 58.14502193995966
+          - 139.0
+        - - 49.14502193995966
+          - 143.0
+        - - 49.14502193995966
+          - 135.0
+        closed: true
+        fill: '#a16207'
+        stroke: '#a16207'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 67.14502193995966
+          - 139.0
+        - - 119.90584430331316
+          - 139.0
+        stroke: '#a16207'
+      - type: polyline
+        points:
+        - - 110.90584430331316
+          - 139.0
+        - - 101.90584430331316
+          - 143.0
+        - - 101.90584430331316
+          - 135.0
+        closed: true
+        fill: '#a16207'
+        stroke: '#a16207'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 119.90584430331316
+          - 139.0
+        - - 172.66666666666666
+          - 139.0
+        stroke: '#a16207'
+      - type: polyline
+        points:
+        - - 163.66666666666666
+          - 139.0
+        - - 154.66666666666666
+          - 143.0
+        - - 154.66666666666666
+          - 135.0
+        closed: true
+        fill: '#a16207'
+        stroke: '#a16207'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 172.66666666666666
+          - 139.0
+        - - 225.42748903002015
+          - 112.61958881832324
+        stroke: '#a16207'
+      - type: polyline
+        points:
+        - - 215.24515138093386
+          - 117.71075764286638
+        - - 208.98416104393445
+          - 125.31338876636568
+        - - 205.40645227993477
+          - 118.15797123836634
+        closed: true
+        fill: '#a16207'
+        stroke: '#a16207'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 172.66666666666666
+          - 139.0
+        - - 225.42748903002015
+          - 165.38041118167672
+        stroke: '#a16207'
+      - type: polyline
+        points:
+        - - 217.3776443110209
+          - 161.3554888221771
+        - - 207.5389452100218
+          - 160.90827522667715
+        - - 211.1166539740215
+          - 153.75285769867784
+        closed: true
+        fill: '#a16207'
+        stroke: '#a16207'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 225.42748903002015
+          - 112.61958881832324
+        - - 278.1883113933737
+          - 139.0
+        stroke: '#a16207'
+      - type: polyline
+        points:
+        - - 268.0059737442874
+          - 133.90883117545687
+        - - 258.16727464328835
+          - 133.4616175799569
+        - - 261.74498340728803
+          - 126.30620005195759
+        closed: true
+        fill: '#a16207'
+        stroke: '#a16207'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 225.42748903002015
+          - 165.38041118167672
+        - - 278.1883113933737
+          - 139.0
+        stroke: '#a16207'
+      - type: polyline
+        points:
+        - - 268.0059737442874
+          - 144.09116882454313
+        - - 261.74498340728803
+          - 151.6937999480424
+        - - 258.16727464328835
+          - 144.5383824200431
+        closed: true
+        fill: '#a16207'
+        stroke: '#a16207'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 278.1883113933737
+          - 139.0
+        - - 330.9491337567272
+          - 139.0
+        stroke: '#a16207'
+      - type: polyline
+        points:
+        - - 321.9491337567272
+          - 139.0
+        - - 312.9491337567272
+          - 143.0
+        - - 312.9491337567272
+          - 135.0
+        closed: true
+        fill: '#a16207'
+        stroke: '#a16207'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 14.384199576606166
+        - 139.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#d97706'
+        stroke: '#7c2d12'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 67.14502193995966
+        - 139.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#d97706'
+        stroke: '#7c2d12'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 119.90584430331316
+        - 139.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#d97706'
+        stroke: '#7c2d12'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 172.66666666666666
+        - 139.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#d97706'
+        stroke: '#7c2d12'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 225.42748903002015
+        - 112.61958881832324
+        rx: 11.384199576606166
+        ry: 11.384199576606166
+        fill: '#d97706'
+        stroke: '#7c2d12'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 225.42748903002015
+        - 165.38041118167672
+        rx: 9.0
+        ry: 9.0
+        fill: '#d97706'
+        stroke: '#7c2d12'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 278.1883113933737
+        - 139.0
+        rx: 11.384199576606166
+        ry: 11.384199576606166
+        fill: '#d97706'
+        stroke: '#7c2d12'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 330.9491337567272
+        - 139.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#d97706'
+        stroke: '#7c2d12'
+      - box:
+        - 0.0
+        - 150.0
+        - 37.82177734375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: ingest
+      - box:
+        - 49.77295162745966
+        - 150.0
+        - 34.744140625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: parse
+      - box:
+        - 103.11385211581316
+        - 150.0
+        - 33.583984375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: clean
+      - box:
+        - 150.68888346354166
+        - 150.0
+        - 43.95556640625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: feature
+      - box:
+        - 210.62548707689515
+        - 126.0037883949294
+        - 29.60400390625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: train
+      - box:
+        - 209.90307496752015
+        - 176.38041118167672
+        - 31.048828125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: rules
+      - box:
+        - 261.0391414714987
+        - 152.38419957660616
+        - 34.29833984375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: serve
+      - box:
+        - 313.2693684895833
+        - 150.0
+        - 32.06396484375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: audit
+    - box:
+      - 40.0
+      - 427.0
+      - 345.3333333333333
+      - 293.0
+      decorative: true
+      stroke_style:
+        stroke_width: 1.5
+      type: rect
+      fill: '#f8fafc'
+      radius: 12
+      stroke: '#cbd5e1'
+    - box:
+      - 40.0
+      - 459.0
+      - 345.3333333333333
+      - 253.0
+      type: group
+      children:
+      - box:
+        - 10.0
+        - -23.0
+        - 325.3333333333333
+        - 22.0
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 15
+          font_weight: 700
+          text_align: center
+        type: text
+        text: spring_layout (force)
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 222.01805104455352
+          - 91.50052407872656
+        - - 242.07685999394081
+          - 15.074767078498878
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 222.01805104455352
+          - 91.50052407872656
+        - - 250.85755756193325
+          - 45.94211778828522
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 222.01805104455352
+          - 91.50052407872656
+        - - 282.5252204794848
+          - 40.698554523232765
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 242.07685999394081
+          - 15.074767078498878
+        - - 250.85755756193325
+          - 45.94211778828522
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 250.85755756193325
+          - 45.94211778828522
+        - - 282.5252204794848
+          - 40.698554523232765
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 282.5252204794848
+          - 40.698554523232765
+        - - 242.07685999394081
+          - 15.074767078498878
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 218.19003575583508
+          - 185.12350340396776
+        - - 274.34727792892727
+          - 240.70782059667434
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 218.19003575583508
+          - 185.12350340396776
+        - - 243.2250199301262
+          - 232.87845002282958
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 218.19003575583508
+          - 185.12350340396776
+        - - 231.93224726810115
+          - 262.92523292150116
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 274.34727792892727
+          - 240.70782059667434
+        - - 243.2250199301262
+          - 232.87845002282958
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 243.2250199301262
+          - 232.87845002282958
+        - - 231.93224726810115
+          - 262.92523292150116
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 231.93224726810115
+          - 262.92523292150116
+        - - 274.34727792892727
+          - 240.70782059667434
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 139.0241647031246
+          - 134.9968553605445
+        - - 62.80811285384854
+          - 155.83829512282756
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 139.0241647031246
+          - 134.9968553605445
+        - - 85.14967570289168
+          - 132.80031437726677
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 139.0241647031246
+          - 134.9968553605445
+        - - 64.77478473484064
+          - 107.99709489456198
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 62.80811285384854
+          - 155.83829512282756
+        - - 85.14967570289168
+          - 132.80031437726677
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 85.14967570289168
+          - 132.80031437726677
+        - - 64.77478473484064
+          - 107.99709489456198
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 64.77478473484064
+          - 107.99709489456198
+        - - 62.80811285384854
+          - 155.83829512282756
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 222.01805104455352
+          - 91.50052407872656
+        - - 218.19003575583508
+          - 185.12350340396776
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 218.19003575583508
+          - 185.12350340396776
+        - - 139.0241647031246
+          - 134.9968553605445
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 139.0241647031246
+          - 134.9968553605445
+        - - 222.01805104455352
+          - 91.50052407872656
+        stroke: '#a78bfa'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 222.01805104455352
+        - 91.50052407872656
+        rx: 12.074767078498864
+        ry: 12.074767078498864
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 242.07685999394081
+        - 15.074767078498878
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 250.85755756193325
+        - 45.94211778828522
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 282.5252204794848
+        - 40.698554523232765
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 218.19003575583508
+        - 185.12350340396776
+        rx: 12.074767078498864
+        ry: 12.074767078498864
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 274.34727792892727
+        - 240.70782059667434
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 243.2250199301262
+        - 232.87845002282958
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 231.93224726810115
+        - 262.92523292150116
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 139.0241647031246
+        - 134.9968553605445
+        rx: 12.074767078498864
+        ry: 12.074767078498864
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 62.80811285384854
+        - 155.83829512282756
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 85.14967570289168
+        - 132.80031437726677
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 64.77478473484064
+        - 107.99709489456198
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#3b0764'
+      - box:
+        - 216.64768971642852
+        - 105.57529115722542
+        - 10.74072265625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: a
+      - box:
+        - 233.20723108769081
+        - 26.07476707849888
+        - 17.7392578125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: a1
+      - box:
+        - 241.98792865568325
+        - 56.94211778828522
+        - 17.7392578125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: a2
+      - box:
+        - 273.6555915732348
+        - 51.698554523232765
+        - 17.7392578125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: a3
+      - box:
+        - 212.69882481833508
+        - 199.19827048246663
+        - 10.982421875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: b
+      - box:
+        - 265.35679941330227
+        - 251.70782059667434
+        - 17.98095703125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: b1
+      - box:
+        - 234.2345414145012
+        - 243.87845002282958
+        - 17.98095703125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: b2
+      - box:
+        - 222.94176875247615
+        - 273.92523292150116
+        - 17.98095703125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: b3
+      - box:
+        - 134.0002389218746
+        - 149.07162243904335
+        - 10.0478515625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: c
+      - box:
+        - 54.28491949447354
+        - 166.83829512282756
+        - 17.04638671875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: c1
+      - box:
+        - 76.62648234351668
+        - 143.80031437726677
+        - 17.04638671875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: c2
+      - box:
+        - 56.25159137546564
+        - 118.99709489456198
+        - 17.04638671875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: c3
+    - box:
+      - 407.3333333333333
+      - 427.0
+      - 345.3333333333333
+      - 293.0
+      decorative: true
+      stroke_style:
+        stroke_width: 1.5
+      type: rect
+      fill: '#f8fafc'
+      radius: 12
+      stroke: '#cbd5e1'
+    - box:
+      - 407.3333333333333
+      - 459.0
+      - 345.3333333333333
+      - 253.0
+      type: group
+      children:
+      - box:
+        - 10.0
+        - -23.0
+        - 325.3333333333333
+        - 22.0
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 15
+          font_weight: 700
+          text_align: center
+        type: text
+        text: Scene3D + Camera
+      - type: polyline
+        points:
+        - - 174.48753790819939
+          - 87.24555854452352
+        - - 153.33145210941083
+          - 86.48680398733686
+        - - 150.1240302316057
+          - 51.205739932072824
+        - - 174.8120965952346
+          - 51.947912455912444
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 195.49818541463645
+          - 86.15389306375307
+        - - 174.48753790819939
+          - 87.24555854452352
+        - - 174.8120965952346
+          - 51.947912455912444
+        - - 199.32098019639278
+          - 50.880377267926356
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 153.33145210941083
+          - 86.48680398733686
+        - - 133.60498312781255
+          - 83.95282267602424
+        - - 127.19368187366305
+          - 48.73338789041062
+        - - 150.1240302316057
+          - 51.205739932072824
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 214.80894522613121
+          - 83.31963245107411
+        - - 195.49818541463645
+          - 86.15389306375307
+        - - 199.32098019639278
+          - 50.880377267926356
+        - - 221.74172395980713
+          - 48.11709546425659
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 133.60498312781255
+          - 83.95282267602424
+        - - 116.68476658645264
+          - 79.88650852669264
+        - - 107.69003559888525
+          - 44.785965169313435
+        - - 127.19368187366305
+          - 48.73338789041062
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 231.09915123819243
+          - 79.01177448013276
+        - - 214.80894522613121
+          - 83.31963245107411
+        - - 221.74172395980713
+          - 48.11709546425659
+        - - 240.48043254679806
+          - 43.94000817579008
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 116.68476658645264
+          - 79.88650852669264
+        - - 103.58477654232071
+          - 74.65163883966775
+        - - 92.79963745201893
+          - 39.740099668348215
+        - - 107.69003559888525
+          - 44.785965169313435
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 243.43134254756916
+          - 73.60950524309096
+        - - 231.09915123819243
+          - 79.01177448013276
+        - - 240.48043254679806
+          - 43.94000817579008
+        - - 254.4510217482154
+          - 38.7403835202397
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 103.58477654232071
+          - 74.65163883966775
+        - - 94.88280007395323
+          - 68.67073081113945
+        - - 83.14347932897763
+          - 34.02408154509466
+        - - 92.79963745201893
+          - 39.740099668348215
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 251.30734422423365
+          - 67.53931922675956
+        - - 243.43134254756916
+          - 73.60950524309096
+        - - 254.4510217482154
+          - 38.74038352023969
+        - - 263.13365617345994
+          - 32.94859652571054
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 172.92807229555805
+          - 114.59818965828137
+        - - 168.79499713862327
+          - 114.4313364940146
+        - - 153.33145210941083
+          - 86.48680398733686
+        - - 174.48753790819939
+          - 87.24555854452352
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 177.0403762930295
+          - 114.35783200012392
+        - - 172.92807229555805
+          - 114.59818965828137
+        - - 174.48753790819939
+          - 87.24555854452352
+        - - 195.49818541463645
+          - 86.15389306375307
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 168.79499713862327
+          - 114.4313364940146
+        - - 164.86820094666825
+          - 113.86725115371405
+        - - 133.60498312781255
+          - 83.95282267602424
+        - - 153.33145210941083
+          - 86.48680398733686
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 180.90629437885977
+          - 113.72462647649522
+        - - 177.0403762930295
+          - 114.35783200012392
+        - - 195.49818541463645
+          - 86.15389306375307
+        - - 214.80894522613121
+          - 83.31963245107411
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 94.88280007395323
+          - 68.67073081113945
+        - - 90.73736067918793
+          - 62.36588185677328
+        - - 78.81885880789463
+          - 28.05424753792777
+        - - 83.14347932897763
+          - 34.02408154509466
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 164.86820094666825
+          - 113.86725115371405
+        - - 161.36056797574793
+          - 112.93939781349543
+        - - 116.68476658645264
+          - 79.88650852669264
+        - - 133.60498312781255
+          - 83.95282267602424
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 184.31708522859563
+          - 112.73604802268227
+        - - 180.90629437885977
+          - 113.72462647649522
+        - - 214.80894522613121
+          - 83.31963245107411
+        - - 231.09915123819243
+          - 79.01177448013276
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 254.63739935202418
+          - 61.2180092412618
+        - - 251.30734422423365
+          - 67.53931922675956
+        - - 263.13365617345994
+          - 32.94859652571054
+        - - 266.5144745254387
+          - 26.97346626905756
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 161.36056797574793
+          - 112.93939781349543
+        - - 158.45680616704212
+          - 111.70191507265118
+        - - 103.58477654232071
+          - 74.65163883966775
+        - - 116.68476658645264
+          - 79.88650852669264
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 187.0944345114276
+          - 111.44955533272822
+        - - 184.31708522859563
+          - 112.73604802268227
+        - - 231.09915123819243
+          - 79.01177448013276
+        - - 243.43134254756916
+          - 73.60950524309096
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 158.45680616704212
+          - 111.70191507265118
+        - - 156.30246758367886
+          - 110.22526565832955
+        - - 94.88280007395323
+          - 68.67073081113945
+        - - 103.58477654232071
+          - 74.65163883966775
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 90.73736067918793
+          - 62.36588185677328
+        - - 90.96723103892855
+          - 56.1153574907039
+        - - 79.52034377675952
+          - 22.191576840737266
+        - - 78.81885880789463
+          - 28.05424753792777
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 189.10077206545364
+          - 109.93802240829983
+        - - 187.0944345114276
+          - 111.44955533272822
+        - - 243.43134254756916
+          - 73.60950524309096
+        - - 251.30734422423365
+          - 67.53931922675956
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 253.65328596402748
+          - 55.01281131846679
+        - - 254.63739935202418
+          - 61.2180092412618
+        - - 266.5144745254387
+          - 26.97346626905756
+        - - 264.95631401237375
+          - 21.16314294599634
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 156.30246758367886
+          - 110.22526565832955
+        - - 154.99687232680503
+          - 108.59094777198518
+        - - 90.73736067918793
+          - 62.36588185677328
+        - - 94.88280007395323
+          - 68.67073081113945
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 190.2455983158289
+          - 108.28435023462423
+        - - 189.10077206545364
+          - 109.93802240829983
+        - - 251.30734422423365
+          - 67.53931922675956
+        - - 254.63739935202418
+          - 61.2180092412618
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 90.96723103892855
+          - 56.1153574907039
+        - - 95.1566696312624
+          - 50.23022166030163
+        - - 84.68538473558945
+          - 16.72163739916341
+        - - 79.52034377675952
+          - 22.191576840737266
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 154.99687232680503
+          - 108.59094777198518
+        - - 154.59014573614715
+          - 106.88592005962903
+        - - 90.96723103892855
+          - 56.1153574907039
+        - - 90.73736067918793
+          - 62.36588185677328
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 248.80200983796655
+          - 49.221545955482924
+        - - 253.65328596402748
+          - 55.01281131846679
+        - - 264.95631401237375
+          - 21.16314294599634
+        - - 259.05355636093145
+          - 15.788945655342356
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 190.48772725724297
+          - 106.57590548784862
+        - - 190.2455983158289
+          - 108.28435023462423
+        - - 254.63739935202418
+          - 61.2180092412618
+        - - 253.65328596402748
+          - 55.01281131846679
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 173.803485971189
+          - 293.0
+        - - 160.1037880087206
+          - 292.04530631098373
+        - - 157.81022916717123
+          - 253.1740443677769
+        - - 174.03496278902162
+          - 254.2011946240982
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 187.42009590725604
+          - 291.62568384440675
+        - - 173.803485971189
+          - 293.0
+        - - 174.03496278902162
+          - 254.2011946240982
+        - - 190.15684521242446
+          - 252.722844835154
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 160.1037880087206
+          - 292.04530631098373
+        - - 147.2244197409721
+          - 288.8398740048082
+        - - 142.59942311427366
+          - 249.73157626335333
+        - - 157.81022916717123
+          - 253.1740443677769
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 200.05940389755415
+          - 288.0347701574387
+        - - 187.42009590725604
+          - 291.62568384440675
+        - - 190.15684521242446
+          - 252.722844835154
+        - - 205.07158059409232
+          - 248.86844433698425
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 174.03496278902162
+          - 254.2011946240982
+        - - 157.81022916717123
+          - 253.1740443677769
+        - - 168.55907023780048
+          - 199.22691481420773
+        - - 172.95179943001764
+          - 199.46553284600006
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 190.15684521242446
+          - 252.722844835154
+        - - 174.03496278902162
+          - 254.2011946240982
+        - - 172.95179943001764
+          - 199.46553284600006
+        - - 177.3223285855413
+          - 199.12180192267368
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 154.59014573614715
+          - 106.88592005962903
+        - - 155.08398487087658
+          - 105.19731707060096
+        - - 95.1566696312624
+          - 50.23022166030163
+        - - 90.96723103892855
+          - 56.1153574907039
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 157.81022916717123
+          - 253.1740443677769
+        - - 142.59942311427366
+          - 249.73157626335333
+        - - 164.38677423486007
+          - 198.4203628144454
+        - - 168.55907023780048
+          - 199.22691481420773
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 205.07158059409232
+          - 248.86844433698425
+        - - 190.15684521242446
+          - 252.722844835154
+        - - 177.3223285855413
+          - 199.12180192267368
+        - - 181.42958453744453
+          - 198.216469175381
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 189.83392006158414
+          - 104.89933873861163
+        - - 190.48772725724297
+          - 106.57590548784862
+        - - 253.65328596402748
+          - 55.01281131846679
+        - - 248.80200983796655
+          - 49.221545955482924
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 147.2244197409721
+          - 288.8398740048082
+        - - 135.97930812146268
+          - 283.640466976622
+        - - 129.39836020137156
+          - 244.16805132017467
+        - - 142.59942311427366
+          - 249.73157626335333
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 172.95179943001764
+          - 199.46553284600006
+        - - 168.55907023780048
+          - 199.22691481420773
+        - - 168.79499713862327
+          - 114.4313364940146
+        - - 172.92807229555805
+          - 114.59818965828137
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 177.3223285855413
+          - 199.12180192267368
+        - - 172.95179943001764
+          - 199.46553284600006
+        - - 172.92807229555805
+          - 114.59818965828137
+        - - 177.0403762930295
+          - 114.35783200012392
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 168.55907023780048
+          - 199.22691481420773
+        - - 164.38677423486007
+          - 198.4203628144454
+        - - 164.86820094666825
+          - 113.86725115371405
+        - - 168.79499713862327
+          - 114.4313364940146
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 210.93309075050544
+          - 282.51292060134347
+        - - 200.05940389755415
+          - 288.0347701574387
+        - - 205.07158059409232
+          - 248.86844433698425
+        - - 217.81779418873668
+          - 242.9648534989271
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 181.42958453744453
+          - 198.216469175381
+        - - 177.3223285855413
+          - 199.12180192267368
+        - - 177.0403762930295
+          - 114.35783200012392
+        - - 180.90629437885977
+          - 113.72462647649522
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 95.1566696312624
+          - 50.23022166030163
+        - - 102.75610679310978
+          - 44.94850634384145
+        - - 93.62425987303595
+          - 11.853316036297644
+        - - 84.68538473558945
+          - 16.72163739916341
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 142.59942311427366
+          - 249.73157626335333
+        - - 129.39836020137156
+          - 244.16805132017467
+        - - 160.6621555959838
+          - 197.09418710092092
+        - - 164.38677423486007
+          - 198.4203628144454
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 164.38677423486007
+          - 198.4203628144454
+        - - 160.6621555959838
+          - 197.09418710092092
+        - - 161.36056797574793
+          - 112.93939781349543
+        - - 164.86820094666825
+          - 113.86725115371405
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 185.05082063847695
+          - 196.80362447783736
+        - - 181.42958453744453
+          - 198.216469175381
+        - - 180.90629437885977
+          - 113.72462647649522
+        - - 184.31708522859563
+          - 112.73604802268227
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 217.81779418873668
+          - 242.9648534989271
+        - - 205.07158059409232
+          - 248.86844433698425
+        - - 181.42958453744453
+          - 198.216469175381
+        - - 185.05082063847695
+          - 196.80362447783736
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 160.6621555959838
+          - 197.09418710092092
+        - - 157.58189938329002
+          - 195.32643944277677
+        - - 158.45680616704212
+          - 111.70191507265118
+        - - 161.36056797574793
+          - 112.93939781349543
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 240.64817931449315
+          - 44.06939337574343
+        - - 248.80200983796655
+          - 49.221545955482924
+        - - 259.05355636093145
+          - 15.788945655342356
+        - - 249.50767896407763
+          - 11.046720491593296
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 187.9962765083705
+          - 194.9660802021569
+        - - 185.05082063847695
+          - 196.80362447783736
+        - - 184.31708522859563
+          - 112.73604802268227
+        - - 187.0944345114276
+          - 111.44955533272822
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 155.08398487087658
+          - 105.19731707060096
+        - - 156.43536298716893
+          - 103.60787031079455
+        - - 102.75610679310978
+          - 44.94850634384145
+        - - 95.1566696312624
+          - 50.23022166030163
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 135.97930812146268
+          - 283.640466976622
+        - - 127.01325856647068
+          - 276.84403003109566
+        - - 118.97691152658768
+          - 236.93340605022624
+        - - 129.39836020137156
+          - 244.16805132017467
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 157.58189938329002
+          - 195.32643944277677
+        - - 155.30034111878405
+          - 193.21850542483702
+        - - 156.30246758367886
+          - 110.22526565832955
+        - - 158.45680616704212
+          - 111.70191507265118
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 129.39836020137156
+          - 244.16805132017467
+        - - 118.97691152658768
+          - 236.93340605022624
+        - - 157.58189938329002
+          - 195.32643944277677
+        - - 160.6621555959838
+          - 197.09418710092092
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 190.12023176007744
+          - 192.80864730865204
+        - - 187.9962765083705
+          - 194.9660802021569
+        - - 187.0944345114276
+          - 111.44955533272822
+        - - 189.10077206545364
+          - 109.93802240829983
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 188.3347497700134
+          - 103.3361627544686
+        - - 189.83392006158414
+          - 104.89933873861163
+        - - 248.80200983796655
+          - 49.221545955482924
+        - - 240.64817931449315
+          - 44.06939337574343
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 227.67419411512407
+          - 235.4833432648864
+        - - 217.81779418873668
+          - 242.9648534989271
+        - - 185.05082063847695
+          - 196.80362447783736
+        - - 187.9962765083705
+          - 194.9660802021569
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 219.4330827114548
+          - 275.4769723349974
+        - - 210.93309075050544
+          - 282.51292060134347
+        - - 217.81779418873668
+          - 242.9648534989271
+        - - 227.67419411512407
+          - 235.4833432648864
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 155.30034111878405
+          - 193.21850542483702
+        - - 153.9220064079635
+          - 190.8873529125951
+        - - 154.99687232680503
+          - 108.59094777198518
+        - - 156.30246758367886
+          - 110.22526565832955
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 191.32763822795522
+          - 190.45024634315737
+        - - 190.12023176007744
+          - 192.80864730865204
+        - - 189.10077206545364
+          - 109.93802240829983
+        - - 190.2455983158289
+          - 108.28435023462423
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 153.9220064079635
+          - 190.8873529125951
+        - - 153.49867749627697
+          - 188.45741641147885
+        - - 154.59014573614715
+          - 106.88592005962903
+        - - 154.99687232680503
+          - 108.59094777198518
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 118.97691152658768
+          - 236.93340605022624
+        - - 111.8228758658333
+          - 228.56645163597244
+        - - 155.30034111878405
+          - 193.21850542483702
+        - - 157.58189938329002
+          - 195.32643944277677
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 191.57626609762377
+          - 188.015823621411
+        - - 191.32763822795522
+          - 190.45024634315737
+        - - 190.2455983158289
+          - 108.28435023462423
+        - - 190.48772725724297
+          - 106.57590548784862
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 156.43536298716893
+          - 103.60787031079455
+        - - 158.56220539963016
+          - 102.19225461357414
+        - - 113.16112012191287
+          - 40.441193659943934
+        - - 102.75610679310978
+          - 44.94850634384145
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 234.20598361237157
+          - 226.97135722754314
+        - - 227.6741941151241
+          - 235.48334326488634
+        - - 187.9962765083705
+          - 194.9660802021569
+        - - 190.12023176007744
+          - 192.80864730865204
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 186.07867145373126
+          - 101.95927553968356
+        - - 188.3347497700134
+          - 103.3361627544686
+        - - 240.64817931449315
+          - 44.06939337574343
+        - - 229.79980802174794
+          - 39.716356918514535
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 102.75610679310978
+          - 44.94850634384145
+        - - 113.16112012191287
+          - 40.441193659943934
+        - - 105.6150284788171
+          - 7.728929982304788
+        - - 93.62425987303595
+          - 11.853316036297644
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 127.01325856647068
+          - 276.84403003109566
+        - - 120.75567573051688
+          - 268.9336988364127
+        - - 111.8228758658333
+          - 228.56645163597244
+        - - 118.97691152658768
+          - 236.93340605022624
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 153.49867749627697
+          - 188.45741641147885
+        - - 154.03051715746784
+          - 186.05297333739264
+        - - 155.08398487087658
+          - 105.19731707060096
+        - - 154.59014573614715
+          - 106.88592005962903
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 190.87493341386494
+          - 185.6288899425808
+        - - 191.57626609762377
+          - 188.015823621411
+        - - 190.48772725724297
+          - 106.57590548784862
+        - - 189.83392006158414
+          - 104.89933873861163
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 225.1710795778729
+          - 267.41950587299095
+        - - 219.43308271145483
+          - 275.4769723349974
+        - - 227.6741941151241
+          - 235.48334326488634
+        - - 234.20598361237157
+          - 226.97135722754314
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 229.79980802174794
+          - 39.716356918514535
+        - - 240.64817931449315
+          - 44.06939337574343
+        - - 249.50767896407763
+          - 11.046720491593296
+        - - 237.03929715988136
+          - 7.068243838251001
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 154.03051715746784
+          - 186.05297333739264
+        - - 155.4703338974016
+          - 183.7916150791054
+        - - 156.43536298716893
+          - 103.60787031079455
+        - - 155.08398487087658
+          - 105.19731707060096
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 189.2787873227254
+          - 183.40523143102348
+        - - 190.87493341386494
+          - 185.6288899425808
+        - - 189.83392006158414
+          - 104.89933873861163
+        - - 188.3347497700134
+          - 103.3361627544686
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 111.8228758658333
+          - 228.56645163597244
+        - - 108.13793959264854
+          - 219.62712149239266
+        - - 153.9220064079635
+          - 190.8873529125951
+        - - 155.30034111878405
+          - 193.21850542483702
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 158.56220539963016
+          - 102.19225461357414
+        - - 161.35010542463357
+          - 101.01439846112643
+        - - 125.7645273977423
+          - 36.82410506194811
+        - - 113.16112012191287
+          - 40.441193659943934
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 183.18520471360432
+          - 100.83043819130744
+        - - 186.07867145373126
+          - 101.95927553968356
+        - - 229.79980802174794
+          - 39.716356918514535
+        - - 216.86098768470038
+          - 36.269689132083954
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 237.2603631723303
+          - 217.98625083037675
+        - - 234.20598361237157
+          - 226.97135722754314
+        - - 190.12023176007744
+          - 192.80864730865204
+        - - 191.32763822795522
+          - 190.45024634315737
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 155.4703338974016
+          - 183.7916150791054
+        - - 157.7298933585861
+          - 181.77911639817663
+        - - 158.56220539963016
+          - 102.19225461357414
+        - - 156.43536298716893
+          - 103.60787031079455
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 186.88273739256942
+          - 181.448042895963
+        - - 189.2787873227254
+          - 183.40523143102348
+        - - 188.3347497700134
+          - 103.3361627544686
+        - - 186.07867145373126
+          - 101.95927553968356
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 172.7588195989158
+          - 263.0658447319833
+        - - 170.4785185992236
+          - 262.9181308479058
+        - - 160.1037880087206
+          - 292.04530631098373
+        - - 173.803485971189
+          - 293.0
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 175.02811993455498
+          - 262.85302928503063
+        - - 172.7588195989158
+          - 263.0658447319833
+        - - 173.803485971189
+          - 293.0
+        - - 187.42009590725604
+          - 291.62568384440675
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 170.4785185992236
+          - 262.9181308479058
+        - - 168.30759379622376
+          - 262.418082811423
+        - - 147.2244197409721
+          - 288.8398740048082
+        - - 160.1037880087206
+          - 292.04530631098373
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 177.1667103872769
+          - 262.291486059887
+        - - 175.02811993455498
+          - 262.85302928503063
+        - - 187.42009590725604
+          - 291.62568384440675
+        - - 200.05940389755415
+          - 288.0347701574387
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 157.7298933585861
+          - 181.77911639817663
+        - - 160.68723911533795
+          - 180.1057344875686
+        - - 161.35010542463357
+          - 101.01439846112643
+        - - 158.56220539963016
+          - 102.19225461357414
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 161.35010542463357
+          - 101.01439846112643
+        - - 164.65933226017273
+          - 100.1256615406514
+        - - 139.98397507806305
+          - 34.17118775587573
+        - - 125.7645273977423
+          - 36.82410506194811
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 183.81404735487962
+          - 179.8444726593542
+        - - 186.88273739256942
+          - 181.448042895963
+        - - 186.07867145373126
+          - 101.95927553968356
+        - - 183.18520471360432
+          - 100.83043819130744
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 120.75567573051688
+          - 268.9336988364127
+        - - 117.41112205753271
+          - 260.42217111406575
+        - - 108.13793959264854
+          - 219.62712149239266
+        - - 111.8228758658333
+          - 228.56645163597244
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 179.7979335000353
+          - 99.99859245405838
+        - - 183.18520471360432
+          - 100.83043819130744
+        - - 216.86098768470038
+          - 36.269689132083954
+        - - 202.40818441700566
+          - 33.7970853815668
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 113.16112012191287
+          - 40.441193659943934
+        - - 125.7645273977423
+          - 36.82410506194811
+        - - 119.96083249657227
+          - 4.439015489252524
+        - - 105.6150284788171
+          - 7.728929982304788
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 160.68723911533795
+          - 180.1057344875686
+        - - 164.19420603062045
+          - 178.84377016749653
+        - - 164.65933226017273
+          - 100.1256615406514
+        - - 161.35010542463357
+          - 101.01439846112643
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 168.30759379622376
+          - 262.418082811423
+        - - 166.35980897716811
+          - 261.5933156235914
+        - - 135.97930812146268
+          - 283.640466976622
+        - - 147.2244197409721
+          - 288.8398740048082
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 180.22485174321963
+          - 178.66338482810772
+        - - 183.81404735487962
+          - 179.8444726593542
+        - - 183.18520471360432
+          - 100.83043819130744
+        - - 179.7979335000353
+          - 99.99859245405838
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 227.98176753709683
+          - 258.8530342887307
+        - - 225.1710795778729
+          - 267.41950587299095
+        - - 234.20598361237157
+          - 226.97135722754314
+        - - 237.2603631723303
+          - 217.98625083037675
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 108.13793959264854
+          - 219.62712149239266
+        - - 107.87422299332778
+          - 210.6415690756676
+        - - 153.49867749627697
+          - 188.45741641147885
+        - - 153.9220064079635
+          - 190.8873529125951
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 179.0627714777075
+          - 261.41218371012934
+        - - 177.1667103872769
+          - 262.291486059887
+        - - 200.05940389755415
+          - 288.0347701574387
+        - - 210.93309075050544
+          - 282.51292060134347
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 216.86098768470038
+          - 36.269689132083954
+        - - 229.79980802174794
+          - 39.716356918514535
+        - - 237.03929715988136
+          - 7.068243838251001
+        - - 222.33716567818922
+          - 3.936302152982098
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 164.19420603062045
+          - 178.84377016749653
+        - - 168.08360431824295
+          - 178.04611468820352
+        - - 168.3316387553728
+          - 99.56370570183981
+        - - 164.65933226017273
+          - 100.1256615406514
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 176.28506379363625
+          - 177.95405210211774
+        - - 180.22485174321963
+          - 178.66338482810772
+        - - 179.7979335000353
+          - 99.99859245405838
+        - - 176.07776640347657
+          - 99.49883636941694
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 164.65933226017273
+          - 100.1256615406514
+        - - 168.3316387553728
+          - 99.56370570183981
+        - - 155.2706140773563
+          - 32.526402596910906
+        - - 139.98397507806305
+          - 34.17118775587573
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 236.92454028858444
+          - 209.0436594692401
+        - - 237.2603631723303
+          - 217.98625083037675
+        - - 191.32763822795522
+          - 190.45024634315737
+        - - 191.57626609762377
+          - 188.015823621411
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 168.08360431824295
+          - 178.04611468820352
+        - - 172.17584950655856
+          - 177.7454802231616
+        - - 172.19664084456858
+          - 99.3518640757175
+        - - 168.3316387553728
+          - 99.56370570183981
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 176.07776640347657
+          - 99.49883636941694
+        - - 179.7979335000353
+          - 99.99859245405838
+        - - 202.40818441700566
+          - 33.7970853815668
+        - - 186.98433541555085
+          - 32.33813364859988
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 172.17584950655856
+          - 177.7454802231616
+        - - 176.28506379363625
+          - 177.95405210211774
+        - - 176.07776640347657
+          - 99.49883636941694
+        - - 172.19664084456858
+          - 99.3518640757175
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 168.3316387553728
+          - 99.56370570183981
+        - - 172.19664084456858
+          - 99.3518640757175
+        - - 171.10485484158534
+          - 31.91278888001289
+        - - 155.2706140773563
+          - 32.526402596910906
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 172.19664084456858
+          - 99.3518640757175
+        - - 176.07776640347657
+          - 99.49883636941694
+        - - 186.98433541555085
+          - 32.33813364859988
+        - - 171.10485484158534
+          - 31.91278888001289
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 166.35980897716811
+          - 261.5933156235914
+        - - 164.73560951098477
+          - 260.4889469695317
+        - - 127.01325856647068
+          - 276.84403003109566
+        - - 135.97930812146268
+          - 283.640466976622
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 180.61891187866084
+          - 260.2631169411504
+        - - 179.0627714777075
+          - 261.41218371012934
+        - - 210.93309075050544
+          - 282.51292060134347
+        - - 219.4330827114548
+          - 275.4769723349974
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 107.87422299332778
+          - 210.6415690756676
+        - - 110.79288640849109
+          - 202.06681885593883
+        - - 154.03051715746784
+          - 186.05297333739264
+        - - 153.49867749627697
+          - 188.45741641147885
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 125.7645273977423
+          - 36.82410506194811
+        - - 139.98397507806305
+          - 34.17118775587573
+        - - 136.0158147124997
+          - 2.0372228782951565
+        - - 119.96083249657227
+          - 4.439015489252524
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 164.73560951098477
+          - 260.4889469695317
+        - - 163.51653985720276
+          - 259.16455473350635
+        - - 120.75567573051688
+          - 268.9336988364127
+        - - 127.01325856647068
+          - 276.84403003109566
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 117.41112205753271
+          - 260.42217111406575
+        - - 116.9803392140966
+          - 251.80342928220986
+        - - 107.87422299332778
+          - 210.6415690756676
+        - - 108.13793959264854
+          - 219.62712149239266
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 233.46514059460068
+          - 200.58585152024222
+        - - 236.92454028858444
+          - 209.0436594692401
+        - - 191.57626609762377
+          - 188.015823621411
+        - - 190.87493341386494
+          - 185.6288899425808
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 202.40818441700566
+          - 33.7970853815668
+        - - 216.86098768470038
+          - 36.269689132083954
+        - - 222.33716567818922
+          - 3.936302152982098
+        - - 206.037003146543
+          - 1.6992891547284952
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 181.75750030598675
+          - 258.9060922001206
+        - - 180.61891187866087
+          - 260.2631169411504
+        - - 219.43308271145483
+          - 275.4769723349974
+        - - 225.1710795778729
+          - 267.41950587299095
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 227.89746599452826
+          - 250.2640602857862
+        - - 227.98176753709683
+          - 258.8530342887307
+        - - 237.2603631723303
+          - 217.98625083037675
+        - - 236.92454028858444
+          - 209.0436594692401
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 163.51653985720276
+          - 259.16455473350635
+        - - 162.7611697497586
+          - 257.69033209963493
+        - - 117.41112205753271
+          - 260.42217111406575
+        - - 120.75567573051688
+          - 268.9336988364127
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 139.98397507806305
+          - 34.17118775587573
+        - - 155.2706140773563
+          - 32.526402596910906
+        - - 153.18858527842147
+          - 0.5528486569944002
+        - - 136.0158147124997
+          - 2.0372228782951565
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 110.79288640849109
+          - 202.06681885593883
+        - - 116.52707742499278
+          - 194.27488625086318
+        - - 155.4703338974016
+          - 183.7916150791054
+        - - 154.03051715746784
+          - 186.05297333739264
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 182.42443977316347
+          - 257.41277676912205
+        - - 181.75750030598675
+          - 258.9060922001206
+        - - 225.1710795778729
+          - 267.41950587299095
+        - - 227.98176753709683
+          - 258.8530342887307
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 186.98433541555085
+          - 32.33813364859988
+        - - 202.40818441700566
+          - 33.7970853815668
+        - - 206.037003146543
+          - 1.6992891547284952
+        - - 188.72117317723587
+          - 0.3831704844702097
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 227.26598386720238
+          - 192.96899132689651
+        - - 233.46514059460068
+          - 200.58585152024222
+        - - 190.87493341386494
+          - 185.6288899425808
+        - - 189.2787873227254
+          - 183.40523143102348
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 155.2706140773563
+          - 32.526402596910906
+        - - 171.10485484158534
+          - 31.91278888001289
+        - - 170.93138777625734
+          - 0.0
+        - - 153.18858527842147
+          - 0.5528486569944002
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 171.10485484158534
+          - 31.91278888001289
+        - - 186.98433541555085
+          - 32.33813364859988
+        - - 188.72117317723587
+          - 0.3831704844702097
+        - - 170.93138777625734
+          - 0.0
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 116.9803392140966
+          - 251.80342928220986
+        - - 119.29988345354737
+          - 243.51898461429803
+        - - 110.79288640849109
+          - 202.06681885593883
+        - - 107.87422299332778
+          - 210.6415690756676
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 162.7611697497586
+          - 257.69033209963493
+        - - 162.5027142329651
+          - 256.14281401078694
+        - - 116.9803392140966
+          - 251.80342928220986
+        - - 117.41112205753271
+          - 260.42217111406575
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 182.5912363578418
+          - 255.8603877200734
+        - - 182.42443977316347
+          - 257.41277676912205
+        - - 227.98176753709683
+          - 258.8530342887307
+        - - 227.89746599452826
+          - 250.2640602857862
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 116.52707742499278
+          - 194.27488625086318
+        - - 124.63690201095923
+          - 187.55203098348017
+        - - 157.7298933585861
+          - 181.77911639817663
+        - - 155.4703338974016
+          - 183.7916150791054
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 225.10649167700595
+          - 242.08220222049403
+        - - 227.89746599452826
+          - 250.2640602857862
+        - - 236.92454028858444
+          - 209.0436594692401
+        - - 233.46514059460068
+          - 200.58585152024222
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 218.7753720660856
+          - 186.46452368716965
+        - - 227.26598386720238
+          - 192.96899132689651
+        - - 189.2787873227254
+          - 183.40523143102348
+        - - 186.88273739256942
+          - 181.448042895963
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 162.5027142329651
+          - 256.14281401078694
+        - - 162.74833423023244
+          - 254.60054013918315
+        - - 119.29988345354737
+          - 243.51898461429803
+        - - 116.9803392140966
+          - 251.80342928220986
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 124.63690201095923
+          - 187.55203098348017
+        - - 134.65043749933585
+          - 182.10737462082258
+        - - 160.68723911533795
+          - 180.1057344875686
+        - - 157.7298933585861
+          - 181.77911639817663
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 182.25540866183547
+          - 254.32737863346304
+        - - 182.5912363578418
+          - 255.8603877200734
+        - - 227.89746599452826
+          - 250.2640602857862
+        - - 225.10649167700595
+          - 242.08220222049403
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 208.46782852988107
+          - 181.2688921971534
+        - - 218.7753720660856
+          - 186.46452368716965
+        - - 186.88273739256942
+          - 181.448042895963
+        - - 183.81404735487962
+          - 179.8444726593542
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 119.29988345354737
+          - 243.51898461429803
+        - - 124.0880205834647
+          - 235.93973032931342
+        - - 116.52707742499278
+          - 194.27488625086318
+        - - 110.79288640849109
+          - 202.06681885593883
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 134.65043749933585
+          - 182.10737462082258
+        - - 146.08978689435307
+          - 178.08562195528137
+        - - 164.19420603062045
+          - 178.84377016749653
+        - - 160.68723911533795
+          - 180.1057344875686
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 162.74833423023244
+          - 254.60054013918315
+        - - 163.47994290823436
+          - 253.13996236051045
+        - - 124.0880205834647
+          - 235.93973032931342
+        - - 119.29988345354737
+          - 243.51898461429803
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 219.90725880332147
+          - 234.6646815938692
+        - - 225.10649167700595
+          - 242.08220222049403
+        - - 233.46514059460068
+          - 200.58585152024222
+        - - 227.26598386720238
+          - 192.96899132689651
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 196.82060373492374
+          - 177.5165429302231
+        - - 208.46782852988107
+          - 181.2688921971534
+        - - 183.81404735487962
+          - 179.8444726593542
+        - - 180.22485174321963
+          - 178.66338482810772
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 181.43943610105754
+          - 252.8894179316687
+        - - 182.25540866183547
+          - 254.32737863346304
+        - - 225.10649167700595
+          - 242.08220222049403
+        - - 219.90725880332147
+          - 234.6646815938692
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 146.08978689435307
+          - 178.08562195528137
+        - - 158.48412149174146
+          - 175.5799830159208
+        - - 168.08360431824295
+          - 178.04611468820352
+        - - 164.19420603062045
+          - 178.84377016749653
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 184.30266698981387
+          - 175.2925790941356
+        - - 196.82060373492374
+          - 177.5165429302231
+        - - 180.22485174321963
+          - 178.66338482810772
+        - - 176.28506379363625
+          - 177.95405210211774
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 158.48412149174146
+          - 175.5799830159208
+        - - 171.3729007192968
+          - 174.64281114159508
+        - - 172.17584950655856
+          - 177.7454802231616
+        - - 168.08360431824295
+          - 178.04611468820352
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 171.3729007192968
+          - 174.64281114159508
+        - - 184.30266698981387
+          - 175.2925790941356
+        - - 176.28506379363625
+          - 177.95405210211774
+        - - 172.17584950655856
+          - 177.7454802231616
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 163.47994290823436
+          - 253.13996236051045
+        - - 164.656239915028
+          - 251.8318182471623
+        - - 130.98740034567786
+          - 229.36087860896168
+        - - 124.0880205834647
+          - 235.93973032931342
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 180.1885357838166
+          - 251.6158632057447
+        - - 181.43943610105754
+          - 252.8894179316687
+        - - 219.90725880332147
+          - 234.6646815938692
+        - - 212.66688797483786
+          - 228.29320561590015
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 124.0880205834647
+          - 235.93973032931342
+        - - 130.98740034567786
+          - 229.36087860896168
+        - - 124.63690201095923
+          - 187.55203098348017
+        - - 116.52707742499278
+          - 194.27488625086318
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 164.656239915028
+          - 251.8318182471623
+        - - 166.21565572808973
+          - 250.73809767296243
+        - - 139.59908789707765
+          - 224.0058105481826
+        - - 130.98740034567786
+          - 229.36087860896168
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 212.66688797483786
+          - 228.29320561590015
+        - - 219.90725880332147
+          - 234.6646815938692
+        - - 227.26598386720238
+          - 192.96899132689651
+        - - 218.7753720660856
+          - 186.46452368716965
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 178.56758667377295
+          - 250.56684215867327
+        - - 180.1885357838166
+          - 251.6158632057447
+        - - 212.66688797483786
+          - 228.29320561590015
+        - - 203.78902495124157
+          - 223.17896311536833
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 166.21565572808973
+          - 250.73809767296243
+        - - 168.07990337546445
+          - 249.90964548563835
+        - - 149.5061441947745
+          - 220.03459088550807
+        - - 139.59908789707765
+          - 224.0058105481826
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 176.6574964103056
+          - 249.7909700118517
+        - - 178.56758667377295
+          - 250.56684215867327
+        - - 203.78902495124157
+          - 223.17896311536833
+        - - 193.69213791730215
+          - 219.47158438374373
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 168.07990337546445
+          - 249.90964548563835
+        - - 170.15788779237508
+          - 249.38438138198163
+        - - 160.2874118932106
+          - 217.5536816136528
+        - - 149.5061441947745
+          - 220.03459088550807
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 174.55124838660822
+          - 249.3236761886124
+        - - 176.6574964103056
+          - 249.7909700118517
+        - - 193.69213791730215
+          - 219.47158438374373
+        - - 182.79731989951307
+          - 217.26878184351156
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 130.98740034567786
+          - 229.36087860896168
+        - - 139.59908789707765
+          - 224.0058105481826
+        - - 134.65043749933585
+          - 182.10737462082258
+        - - 124.63690201095923
+          - 187.55203098348017
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 170.15788779237508
+          - 249.38438138198163
+        - - 172.34979426112164
+          - 249.18608371977786
+        - - 171.52348128737242
+          - 216.6244227946115
+        - - 160.2874118932106
+          - 217.5536816136528
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 172.34979426112164
+          - 249.18608371977786
+        - - 174.55124838660822
+          - 249.3236761886124
+        - - 182.79731989951307
+          - 217.26878184351156
+        - - 171.52348128737242
+          - 216.6244227946115
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 203.78902495124157
+          - 223.17896311536833
+        - - 212.66688797483786
+          - 228.29320561590015
+        - - 218.7753720660856
+          - 186.46452368716965
+        - - 208.46782852988107
+          - 181.2688921971534
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 139.59908789707765
+          - 224.0058105481826
+        - - 149.5061441947745
+          - 220.03459088550807
+        - - 146.08978689435307
+          - 178.08562195528137
+        - - 134.65043749933585
+          - 182.10737462082258
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 193.69213791730215
+          - 219.47158438374373
+        - - 203.78902495124157
+          - 223.17896311536833
+        - - 208.46782852988107
+          - 181.2688921971534
+        - - 196.82060373492374
+          - 177.5165429302231
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 149.5061441947745
+          - 220.03459088550807
+        - - 160.2874118932106
+          - 217.5536816136528
+        - - 158.48412149174146
+          - 175.5799830159208
+        - - 146.08978689435307
+          - 178.08562195528137
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 182.79731989951307
+          - 217.26878184351156
+        - - 193.69213791730215
+          - 219.47158438374373
+        - - 196.82060373492374
+          - 177.5165429302231
+        - - 184.30266698981387
+          - 175.2925790941356
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 160.2874118932106
+          - 217.5536816136528
+        - - 171.52348128737242
+          - 216.6244227946115
+        - - 171.3729007192968
+          - 174.64281114159508
+        - - 158.48412149174146
+          - 175.5799830159208
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+      - type: polyline
+        points:
+        - - 171.52348128737242
+          - 216.6244227946115
+        - - 182.79731989951307
+          - 217.26878184351156
+        - - 184.30266698981387
+          - 175.2925790941356
+        - - 171.3729007192968
+          - 174.64281114159508
+        closed: true
+        fill: '#fecaca'
+        stroke: '#7f1d1d'
+    - box:
+      - 774.6666666666666
+      - 427.0
+      - 345.3333333333333
+      - 293.0
+      decorative: true
+      stroke_style:
+        stroke_width: 1.5
+      type: rect
+      fill: '#f8fafc'
+      radius: 12
+      stroke: '#cbd5e1'
+    - box:
+      - 774.6666666666666
+      - 459.0
+      - 345.3333333333333
+      - 253.0
+      type: group
+      children:
+      - box:
+        - 10.0
+        - -23.0
+        - 325.3333333333333
+        - 22.0
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 15
+          font_weight: 700
+          text_align: center
+        type: text
+        text: Graph + Camera (3D)
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 168.39306892423167
+          - 142.28141227659378
+        - - 265.64018274453383
+          - 189.48700326807435
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 265.64018274453383
+          - 189.48700326807435
+        - - 282.37606557574725
+          - 41.576151494768624
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 282.37606557574725
+          - 41.576151494768624
+        - - 167.35948297960766
+          - 15.074767078498864
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 167.35948297960766
+          - 15.074767078498864
+        - - 168.39306892423167
+          - 142.28141227659378
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 81.21891778984542
+          - 201.23083322205247
+        - - 185.9972523882028
+          - 277.92523292150116
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 185.9972523882028
+          - 277.92523292150116
+        - - 188.74874903749037
+          - 95.80206114652063
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 188.74874903749037
+          - 95.80206114652063
+        - - 62.95726775758604
+          - 48.4201983440189
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 62.95726775758604
+          - 48.4201983440189
+        - - 81.21891778984542
+          - 201.23083322205247
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 168.39306892423167
+          - 142.28141227659378
+        - - 81.21891778984542
+          - 201.23083322205247
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 265.64018274453383
+          - 189.48700326807435
+        - - 185.9972523882028
+          - 277.92523292150116
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 282.37606557574725
+          - 41.576151494768624
+        - - 188.74874903749037
+          - 95.80206114652063
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 167.35948297960766
+          - 15.074767078498864
+        - - 62.95726775758604
+          - 48.4201983440189
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 175.26641545598136
+          - 126.58708592098468
+        - - 168.39306892423167
+          - 142.28141227659378
+        stroke: '#67e8f9'
+      - type: polyline
+        points:
+        - - 172.00355917874973
+          - 134.03736229360422
+        - - 171.95002721860575
+          - 124.1886499752733
+        - - 179.2780716479298
+          - 127.39797464595601
+        closed: true
+        fill: '#67e8f9'
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 175.26641545598136
+          - 126.58708592098468
+        - - 265.64018274453383
+          - 189.48700326807435
+        stroke: '#67e8f9'
+      - type: polyline
+        points:
+        - - 258.2532320154178
+          - 184.34570392592244
+        - - 248.58125935645643
+          - 182.487493796711
+        - - 253.15130321614703
+          - 175.92131537083006
+        closed: true
+        fill: '#67e8f9'
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 175.26641545598136
+          - 126.58708592098468
+        - - 282.37606557574725
+          - 41.576151494768624
+        stroke: '#67e8f9'
+      - type: polyline
+        points:
+        - - 275.32657042644917
+          - 47.171204500775175
+        - - 270.7637655020429
+          - 55.89936646202531
+        - - 265.7903850522593
+          - 49.63314855153814
+        closed: true
+        fill: '#67e8f9'
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 175.26641545598136
+          - 126.58708592098468
+        - - 167.35948297960766
+          - 15.074767078498864
+        stroke: '#67e8f9'
+      - type: polyline
+        points:
+        - - 167.99604199637983
+          - 24.052227332833944
+        - - 172.62258334841204
+          - 32.746772468603616
+        - - 164.64261867789196
+          - 33.31260270573443
+        closed: true
+        fill: '#67e8f9'
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 175.26641545598136
+          - 126.58708592098468
+        - - 81.21891778984542
+          - 201.23083322205247
+        stroke: '#67e8f9'
+      - type: polyline
+        points:
+        - - 88.26841293914349
+          - 195.6357802160459
+        - - 92.83121786354975
+          - 186.90761825479575
+        - - 97.80459831333336
+          - 193.17383616528292
+        closed: true
+        fill: '#67e8f9'
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 175.26641545598136
+          - 126.58708592098468
+        - - 185.9972523882028
+          - 277.92523292150116
+        stroke: '#67e8f9'
+      - type: polyline
+        points:
+        - - 185.36069337143064
+          - 268.9477726671661
+        - - 180.73415201939844
+          - 260.2532275313964
+        - - 188.7141166899185
+          - 259.68739729426557
+        closed: true
+        fill: '#67e8f9'
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 175.26641545598136
+          - 126.58708592098468
+        - - 188.74874903749037
+          - 95.80206114652063
+        stroke: '#67e8f9'
+      - type: polyline
+        points:
+        - - 185.13825878297231
+          - 104.0461111295102
+        - - 185.1917907431163
+          - 113.89482344784112
+        - - 177.86374631379223
+          - 110.6854987771584
+        closed: true
+        fill: '#67e8f9'
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 175.26641545598136
+          - 126.58708592098468
+        - - 62.95726775758604
+          - 48.4201983440189
+        stroke: '#67e8f9'
+      - type: polyline
+        points:
+        - - 70.3442184867021
+          - 53.5614976861708
+        - - 80.01619114566346
+          - 55.41970781538223
+        - - 75.44614728597288
+          - 61.98588624126318
+        closed: true
+        fill: '#67e8f9'
+        stroke: '#67e8f9'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 168.39306892423167
+        - 142.28141227659378
+        rx: 9.0
+        ry: 9.0
+        fill: '#0891b2'
+        stroke: '#0e3a4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 167.35948297960766
+        - 15.074767078498864
+        rx: 9.0
+        ry: 9.0
+        fill: '#0891b2'
+        stroke: '#0e3a4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 265.64018274453383
+        - 189.48700326807435
+        rx: 9.0
+        ry: 9.0
+        fill: '#0891b2'
+        stroke: '#0e3a4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 81.21891778984542
+        - 201.23083322205247
+        rx: 9.0
+        ry: 9.0
+        fill: '#0891b2'
+        stroke: '#0e3a4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 175.26641545598136
+        - 126.58708592098468
+        rx: 12.074767078498864
+        ry: 12.074767078498864
+        fill: '#0891b2'
+        stroke: '#0e3a4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 282.37606557574725
+        - 41.576151494768624
+        rx: 9.0
+        ry: 9.0
+        fill: '#0891b2'
+        stroke: '#0e3a4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 62.95726775758604
+        - 48.4201983440189
+        rx: 9.0
+        ry: 9.0
+        fill: '#0891b2'
+        stroke: '#0e3a4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 185.9972523882028
+        - 277.92523292150116
+        rx: 9.0
+        ry: 9.0
+        fill: '#0891b2'
+        stroke: '#0e3a4a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 188.74874903749037
+        - 95.80206114652063
+        rx: 9.0
+        ry: 9.0
+        fill: '#0891b2'
+        stroke: '#0e3a4a'
+  reading_order:
+  - h1

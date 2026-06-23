@@ -103,6 +103,7 @@ Page =
       [ "canvas" , ":" , CanvasSpec ] ,
       [ "rendering" , ":" , RenderingContract ] ,
       [ "layers"    , ":" , "[" , Layer , { "," , Layer } , "]" ] ,
+      [ "reading_order" , ":" , "[" , string , { "," , string } , "]" ] ,
       [ "semantic"  , ":" , Semantic ] ,
       [ "links"     , ":" , "[" , PageLink , { "," , PageLink } , "]" ] ,
       [ "notes"     , ":" , string ] ,
@@ -118,6 +119,7 @@ FlowSection =                                                   (* +P2: media *)
       [ "media"  , ":" , ( "paged" | "continuous" ) ] ,   (* +P2: default paged; continuous ⇒ §3.9 *)
       [ "page_numbering" , ":" , PageNumbering ] ,
       [ "lang"     , ":" , string ] ,
+      [ "links"    , ":" , "[" , PageLink , { "," , PageLink } , "]" ] ,  (* section-level nav, mirrors Page.links *)
       [ "semantic" , ":" , Semantic ] ,
       [ "meta"     , ":" , object-any ] ,
     "}" ;
@@ -166,7 +168,7 @@ PagePreset  = "A3" | "A4" | "A5" | "Letter" | "Legal" | "Tabloid"   (* +P2: scre
             | "deck-16x9" | "deck-4x3" | "square"
             | "phone" | "tablet" | "web" ;   (* +P2: px screen presets — see spec §4 *)
 Orientation = "portrait" | "landscape" ;
-Units       = "pt" | "px" | "mm" | "in" ;
+Units       = "pt" | "px" | "mm" | "in" | "cm" ;
 
 
 (* ═══ 4. Flow vocabulary (the story for FlowSections) ═════════════════ *)
@@ -246,6 +248,7 @@ FigureFlow =                                  (* +P2: caption→Caption, credit 
       [ "caption" , ":" , Caption ] ,        (* +P2 *)
       [ "credit"  , ":" , Caption ] ,        (* +P2 *)
       [ "align"   , ":" , ( "left" | "center" | "right" ) ] ,
+      [ "units"   , ":" , Units ] ,          (* coordinate unit of the drawing space (default px) *)
       [ "float"   , ":" , Float ] ,
       break-fields ,
     "}" ;
@@ -424,6 +427,8 @@ TextObject =
 ImageObject =
     "{" , "type" , ":" , "image" ,
       "src" , ":" , string ,         (* required; literal path OR a key in defs.assets — §3.5 *)
+      [ "alt"         , ":" , string ] ,   (* accessibility: alternative text *)
+      [ "actual_text" , ":" , string ] ,   (* accessibility: PDF/UA ActualText *)
       [ "placeholder" , ":" , boolean ] ,
       [ "preserve_aspect_ratio" , ":" , boolean ] ,
       [ "clip"   , ":" , ClipSpec ] ,
@@ -874,7 +879,7 @@ Caption = string | "[" , Inline , { "," , Inline } , "]" ;
 
 TextContent = ( "text" , ":" , string ) | ( "spans" , ":" , "[" , Inline , { "," , Inline } , "]" ) ;
 
-Inline = string | Span | RefInline | CiteInline | FootnoteInline | MathInline | CodeInline
+Inline = string | Span | RefInline | CiteInline | FootnoteInline | MathInline | CodeInline | LinkInline
        | IndexInline | GlossaryInline | MarginNoteInline ;
 
 Span = "{" , "text" , ":" , string , [ "," , "style" , ":" , StyleRef ] , [ "," , "lang" , ":" , string ] , "}" ;
@@ -904,6 +909,13 @@ FootnoteInline =
 MathInline = "{" , "kind" , ":" , "math" , [ "mathml" , ":" , string ] , [ "tex" , ":" , string ] , "}" ;
 CodeInline = "{" , "kind" , ":" , "code" , "text" , ":" , string , "}" ;
 
+LinkInline =
+    "{" , "kind" , ":" , "link" ,
+      "href" , ":" , string ,
+      "content" , ":" , "[" , Inline , { "," , Inline } , "]" ,
+      [ "title" , ":" , string ] ,
+    "}" ;
+
 Anchor = string | Point | AnchorObject ;
 AnchorObject = "{" , "ref" , ":" , string , [ "," , "port" , ":" , string ] , "}" ;
 
@@ -915,19 +927,21 @@ Route =
 
 (* +P1  Layout box model is specified in spec §3.6 (deterministic placement of *)
 (* a container's children). `gap` applies to both axes unless overridden by     *)
-(* `row_gap`/`column_gap`. `align` is the CROSS-axis alignment (main axis packs *)
-(* from the start after `padding`). `columns` applies to `grid`, row-major.     *)
-(* Child x/y are IGNORED under row/column/grid and COMPUTED by the model; under *)
-(* `free`, child boxes are used as-is. Absent `layout` ⇒ `free`. See §3.6.      *)
+(* `row_gap`/`column_gap`. `align` is the CROSS-axis alignment; `justify` packs *)
+(* or distributes the MAIN axis. `columns` applies to `grid`, row-major. `wrap` *)
+(* flows children left-to-right into rows. Child x/y are IGNORED under layout   *)
+(* containers and COMPUTED by the model; under `free`, child boxes are used     *)
+(* as-is. Absent `layout` ⇒ `free`. See §3.6.                                  *)
 Layout =
     "{" ,
-      "kind" , ":" , ( "row" | "column" | "grid" | "free" ) ,
+      "kind" , ":" , ( "row" | "column" | "grid" | "wrap" | "free" ) ,
       [ "gap"        , ":" , Length ] ,
       [ "row_gap"    , ":" , Length ] ,                                 (* +P1 *)
       [ "column_gap" , ":" , Length ] ,                                 (* +P1 *)
-      [ "padding"    , ":" , Box ] ,
+      [ "padding"    , ":" , ( Length | "[" , Length , { "," , Length } , "]" ) ] ,
       [ "columns"    , ":" , integer ] ,    (* grid: cells per row, row-major *)
       [ "align"      , ":" , ( "start" | "center" | "end" | "stretch" ) ] ,  (* +P1: cross-axis; default start *)
+      [ "justify"    , ":" , ( "start" | "center" | "end" | "space-between" | "space-around" | "space-evenly" ) ] ,
     "}" ;
 
 ClipSpec = boolean | "{" , "shape" , ":" , ( "rect" | "ellipse" | "path" ) , [ "," , "radius" , ":" , Length ] , "}" ;
@@ -936,7 +950,7 @@ ClipSpec = boolean | "{" , "shape" , ":" , ( "rect" | "ellipse" | "path" ) , [ "
 (* fixed: declared box dimension (DEFAULT). hug: size to content (text=>measured *)
 (* wrapped extent; group=>children bbox + padding; INVALID on rect/ellipse/line/ *)
 (* path). fill: share of the container free MAIN-axis space by `grow`; cross-axis *)
-(* stretch; only meaningful as a direct row/column/grid child — error under free. *)
+(* stretch; only meaningful as a direct layout child — error under free.        *)
 (* Algorithm + determinism precondition: §3.6g + §9.6. *)
 Sizing =
     "{" ,

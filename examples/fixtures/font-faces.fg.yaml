@@ -1,0 +1,196 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Font faces, families & OpenType features (fixture)
+description: >-
+  Exercises multi-face / multi-family typography and the advanced text surface
+  the renderer maps to CSS. `defs.tokens.fonts` declares four @font-face faces
+  across three families (a variable Inter roman + its italic companion, a
+  variable Source Serif 4, a static JetBrains Mono), each with `src`, a `weight`
+  range/value, `style`, and a `fallback` stack. The pages then switch families,
+  walk the Inter weight axis (200→900) and slant, and drive the OpenType
+  controls — `font_variant_caps`, `font_variant_numeric` (tabular / oldstyle),
+  `font_feature_settings` (ligatures, ss01), `font_variation_settings`
+  (wght/slnt/opsz), `font_stretch`, and `letter_spacing`. Each row is one `text`
+  with a muted label span + a feature span, so the per-run styles render as
+  styled `<tspan>`s. Backs the reused text-style renderer's advanced-typography
+  path. Proxy notes: faces are declared but not embedded (the SVG proxy uses the
+  named family and CSS feature props; webfont loading + the `fallback` stack are
+  the browser viewer's job).
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#1c2733'
+      muted: '#7a8694'
+      accent: '#2e86de'
+    fonts:
+      # ---- four @font-face faces across three families ----
+      Inter:                       # variable roman face — whole weight axis from one file
+        family: Inter
+        src: fonts/Inter-roman.var.woff2
+        weight: '100 900'
+        style: normal
+        fallback: [Inter, 'Helvetica Neue', Arial, sans-serif]
+      Inter Italic:                # companion italic face, matched by font-style:italic
+        family: Inter
+        src: fonts/Inter-italic.var.woff2
+        weight: '100 900'
+        style: italic
+        fallback: [Inter, 'Helvetica Neue', Arial, sans-serif]
+      Source Serif 4:              # variable serif family, its own file
+        family: Source Serif 4
+        src: fonts/SourceSerif4.var.woff2
+        weight: '200 900'
+        style: normal
+        fallback: ['Source Serif 4', Georgia, Cambria, serif]
+      JetBrains Mono:              # static monospace face
+        family: JetBrains Mono
+        src: fonts/JetBrainsMono-Regular.woff2
+        weight: 400
+        style: normal
+        fallback: ['JetBrains Mono', 'SFMono-Regular', Consolas, monospace]
+    text_styles:
+      title:   {font: Inter, size: 20, weight: 800, color: ink, letter_spacing: -0.2}
+      sect:    {font: Inter, size: 12, weight: 700, color: muted, letter_spacing: 1.2}
+      label:   {font: Inter, size: 13, weight: 600, color: muted}
+      base:    {font: Inter, size: 16, weight: 400, color: ink}
+      # families
+      sans:    {font: Inter, size: 16, weight: 400, color: ink}
+      serif:   {font: Source Serif 4, size: 16, weight: 400, color: ink}
+      mono:    {font: JetBrains Mono, size: 15, weight: 400, color: ink}
+      # Inter weight axis (one variable face, many instances)
+      w_thin:  {font: Inter, size: 16, weight: 200, color: ink}
+      w_reg:   {font: Inter, size: 16, weight: 400, color: ink}
+      w_semi:  {font: Inter, size: 16, weight: 600, color: ink}
+      w_bold:  {font: Inter, size: 16, weight: 800, color: ink}
+      w_black: {font: Inter, size: 16, weight: 900, color: ink}
+      italic:  {font: Inter, size: 16, weight: 400, italic: true, color: accent}
+      # advanced OpenType surface
+      smallcaps: {font: Inter, size: 16, color: ink, font_variant_caps: small-caps, letter_spacing: 0.3}
+      tabular:   {font: Inter, size: 16, color: ink, font_variant_numeric: tabular-nums}
+      oldstyle:  {font: Source Serif 4, size: 16, color: ink, font_variant_numeric: oldstyle-nums}
+      liga:      {font: Inter, size: 16, color: ink, font_feature_settings: '"dlig" 1, "liga" 1, "calt" 1'}
+      ss01:      {font: Inter, size: 16, color: ink, font_feature_settings: '"ss01" 1'}
+      varaxes:   {font: Inter, size: 16, color: ink, font_variation_settings: '"wght" 350, "slnt" -6, "opsz" 28'}
+      condensed: {font: Inter, size: 16, color: ink, font_stretch: condensed}
+      expanded:  {font: Inter, size: 16, color: ink, font_stretch: expanded}
+      tracked:   {font: Inter, size: 16, weight: 600, color: ink, letter_spacing: 4}
+pages:
+- mode: page
+  id: type
+  canvas:
+    size: [720, 500]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: text
+      box: [40, 24, 660, 26]
+      text: Type system — faces, families & OpenType features
+      style: title
+
+    # ---- families ----
+    - type: text
+      box: [40, 62, 660, 16]
+      text: MULTIPLE FONT FAMILIES
+      style: sect
+    - type: text
+      box: [40, 86, 660, 22]
+      style: base
+      spans:
+      - {text: 'Inter ', style: label}
+      - {text: 'The quick brown fox jumps — 1234567890', style: sans}
+    - type: text
+      box: [40, 112, 660, 22]
+      style: base
+      spans:
+      - {text: 'Source Serif 4 ', style: label}
+      - {text: 'Elegant body copy for long-form reading', style: serif}
+    - type: text
+      box: [40, 138, 660, 22]
+      style: base
+      spans:
+      - {text: 'JetBrains Mono ', style: label}
+      - {text: 'let total = sum(items) // 42 != 0', style: mono}
+
+    # ---- multiple faces of one family ----
+    - type: text
+      box: [40, 174, 660, 16]
+      text: MULTIPLE FACES — WEIGHT & SLANT
+      style: sect
+    - type: text
+      box: [40, 198, 660, 22]
+      style: base
+      spans:
+      - {text: 'Weight axis ', style: label}
+      - {text: 'Thin ', style: w_thin}
+      - {text: 'Regular ', style: w_reg}
+      - {text: 'Semibold ', style: w_semi}
+      - {text: 'Bold ', style: w_bold}
+      - {text: 'Black', style: w_black}
+    - type: text
+      box: [40, 224, 660, 22]
+      style: base
+      spans:
+      - {text: 'Slant ', style: label}
+      - {text: 'upright roman, then ', style: w_reg}
+      - {text: 'true italic', style: italic}
+
+    # ---- advanced OpenType rendering ----
+    - type: text
+      box: [40, 260, 660, 16]
+      text: ADVANCED OPENTYPE RENDERING
+      style: sect
+    - type: text
+      box: [40, 284, 660, 22]
+      style: base
+      spans:
+      - {text: 'Small caps ', style: label}
+      - {text: 'Cap Height Versus X-Height', style: smallcaps}
+    - type: text
+      box: [40, 310, 660, 22]
+      style: base
+      spans:
+      - {text: 'Tabular figures ', style: label}
+      - {text: '1,204.50 · 8,769.00 · 330.25', style: tabular}
+    - type: text
+      box: [40, 336, 660, 22]
+      style: base
+      spans:
+      - {text: 'Oldstyle figures ', style: label}
+      - {text: 'in 1729 and 1882, see page 047', style: oldstyle}
+    - type: text
+      box: [40, 362, 660, 22]
+      style: base
+      spans:
+      - {text: 'Ligatures ', style: label}
+      - {text: 'office fjord waffle difficult', style: liga}
+    - type: text
+      box: [40, 388, 660, 22]
+      style: base
+      spans:
+      - {text: 'Stylistic set ss01 ', style: label}
+      - {text: 'a single-storey alphabet', style: ss01}
+    - type: text
+      box: [40, 414, 660, 22]
+      style: base
+      spans:
+      - {text: 'Variable axes ', style: label}
+      - {text: 'wght 350 · slnt -6 · opsz 28', style: varaxes}
+    - type: text
+      box: [40, 440, 660, 22]
+      style: base
+      spans:
+      - {text: 'Width axis ', style: label}
+      - {text: 'Condensed ', style: condensed}
+      - {text: '· Expanded', style: expanded}
+    - type: text
+      box: [40, 466, 660, 22]
+      style: base
+      spans:
+      - {text: 'Letter-spacing ', style: label}
+      - {text: 'deliberate tracking', style: tracked}

@@ -1,0 +1,121 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: CSS DSL — raw-CSS filter functions
+description: >-
+  Exercises the CSS `filter` function family written as a literal string in the
+  `css` escape — `blur`, `brightness`, `contrast`, `grayscale`, `hue-rotate`,
+  `invert`, `saturate`, `sepia`. `filter` IS an SVG-applicable property, so the
+  escape (now emitted on the compositing <g> wrapper for non-text objects) renders
+  in any SVG engine. Each swatch shares the same gradient base so the effect reads
+  by comparison. (Replaces the earlier css-gradients fixture: CSS `background`
+  gradients do NOT apply to SVG geometry — use the typed Gradient paint, see
+  gradients.fg.yaml.)
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#0f172a'
+      sub: '#64748b'
+      page: '#f8fafc'
+      g1: '#ff5e62'
+      g2: '#ffd200'
+      g3: '#2e86de'
+    styles:
+      cap: {font: sans, size: 11, color: sub, align: center}
+      title: {font: sans, size: 18, weight: 700, color: ink}
+pages:
+- mode: page
+  id: css_filters
+  canvas:
+    size: [820, 320]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: rect
+      box: [0, 0, 820, 320]
+      fill: page
+    - type: text
+      box: [24, 18, 772, 24]
+      text: Raw-CSS filter functions (same gradient base)
+      style: title
+
+    # Row 1
+    - type: rect
+      box: [24, 56, 170, 96]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {css: 'filter: blur(3px)'}
+    - type: text
+      box: [24, 158, 170, 16]
+      text: blur(3px)
+      style: cap
+    - type: rect
+      box: [217, 56, 170, 96]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {css: 'filter: brightness(1.5)'}
+    - type: text
+      box: [217, 158, 170, 16]
+      text: brightness(1.5)
+      style: cap
+    - type: rect
+      box: [410, 56, 170, 96]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {css: 'filter: contrast(1.8)'}
+    - type: text
+      box: [410, 158, 170, 16]
+      text: contrast(1.8)
+      style: cap
+    - type: rect
+      box: [603, 56, 170, 96]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {css: 'filter: grayscale(1)'}
+    - type: text
+      box: [603, 158, 170, 16]
+      text: grayscale(1)
+      style: cap
+
+    # Row 2
+    - type: rect
+      box: [24, 188, 170, 96]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {css: 'filter: hue-rotate(120deg)'}
+    - type: text
+      box: [24, 290, 170, 16]
+      text: hue-rotate(120deg)
+      style: cap
+    - type: rect
+      box: [217, 188, 170, 96]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {css: 'filter: invert(1)'}
+    - type: text
+      box: [217, 290, 170, 16]
+      text: invert(1)
+      style: cap
+    - type: rect
+      box: [410, 188, 170, 96]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {css: 'filter: saturate(2.5)'}
+    - type: text
+      box: [410, 290, 170, 16]
+      text: saturate(2.5)
+      style: cap
+    - type: rect
+      box: [603, 188, 170, 96]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {css: 'filter: sepia(0.9)'}
+    - type: text
+      box: [603, 290, 170, 16]
+      text: sepia(0.9)
+      style: cap

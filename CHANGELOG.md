@@ -49,17 +49,65 @@ Style, and `tokens.stroke_styles` bundle rewrite. Run:
 python3 tooling/codemod.py your-doc.fg.json --in-place --bump
 ```
 
-**Verification (asserted by `tests/test_head.py`, 13/13 green):** all **nine
+**Verification (asserted by `tests/test_head.py`, 13/13 green):** all **eight
 authoritative fixtures validate at 2.2.0** — directly for those without legacy strokes
 (`ieee`, `neutron-stars`, `spectral-methods`, `mckinsey-7s`), and after the codemod for
 those that carry legacy inline strokes (`amazon-proxy`, `chroma-styling-showcase`,
 `wireframing-guide`, `docusign-deck-v2` — **544 strokes migrated**). The schema is
 generated-in-sync, and the P3 inline-geometry `stroke` is still rejected.
 
+**Grammar ⇄ models is now gated.** A new `grammar-check` gate
+(`tooling/check_grammar_sync.py`, wired into `make check` and CI) introspects the models
+and diffs the EBNF, failing on **core-profile** drift — a mismatched object/flow `type`
+discriminator or a divergent enum. The out-of-profile superset (charts, the UML zoo,
+connectors) is reported as a non-blocking warning (`--strict` demands full parity). It
+immediately caught and fixed two real grammar omissions against the models: `Units` was
+missing `cm`, and `ImageObject` lacked the `alt`/`actual_text` accessibility fields.
+
 **Two source contradictions adjudicated** (flagged, not hidden): the base core grammar's
 `GradientStop` uses `offset` while the authoritative style module uses `position` — the
 module wins; and the base grammar still carried `Stroke = string | StrokeStyle` while
 base-spec §3.5 says paint-only — already resolved (Stroke = Paint).
+
+### SDK — topology, perspective, fields, lattices & manifolds (additive)
+
+Five solver modules join the Python SDK, each lowering to a single core-model `group`
+(so the geometric audit, which does not recurse into groups, stays silent) and each
+fully deterministic:
+
+- **`framegraph.sdk.topology`** — `Graph` node-link networks with `circular_layout`,
+  `radial_layout`, `layered_layout` (DAG), `grid_layout`, and a seeded
+  `spring_layout` (Fruchterman–Reingold). `render()` emits fitted edges, arrowheads
+  and labels.
+- **`framegraph.sdk.geometry.Camera`** — a `look_at` + field-of-view perspective camera
+  composing a view/projection `Mat4` (plus `Mat4.look_at`/`perspective_fov`/`rotate_*`
+  and `Camera.orbit`). `Scene3D.render()` now accepts a `Camera` and sorts faces by
+  perspective-divided depth.
+- **`framegraph.sdk.draw.Material` + Scene3D lighting** — translucent material/style
+  fields (`opacity`, blend mode, filters) stay model-native, while optional
+  `shading="lambert"` or `"gouraud"` bakes pure-Python light intensity into each
+  face's emitted 2D fill.
+- **`framegraph.sdk.fields`** — `VectorField` (arrow grids) and `ScalarField`
+  (`heatmap` + marching-squares `contours`).
+- **`framegraph.sdk.lattices`** — `lattice(kind, …)` for 2D (square/triangular/
+  honeycomb) and 3D (cubic/bcc/fcc) crystals with nearest-neighbour bonds, rendered
+  through the topology engine.
+- **`framegraph.sdk.manifold`** — perspective-ready parametric `Scene3D` surfaces:
+  `sphere`, `torus`, `mobius`, `klein_bottle`, `saddle`, and the `wave` interference
+  heightfield.
+- **`tooling/render_chromium.py`** — optional Headless-Chromium raster path: reuse the
+  SVG proxy output, then let browser-native rendering produce PNGs for CSS filters,
+  blend/backdrop modes, masks and SVG filter fidelity (`uv sync --group browser`;
+  `uv run playwright install chromium`).
+- **Filter shader-lite primitives** — typed `FilterFn` now covers SVG procedural and
+  lighting primitives (`turbulence`, `displacement_map`, `diffuse_lighting`,
+  `specular_lighting`) with a new `filter-lighting.fg.yaml` fixture rendered by the
+  Chromium path.
+
+Two demo fixtures cover the surface: `topology-perspective.fg.yaml` (six layout/camera
+panels) and `fields-lattices-manifolds.fg.yaml` (eight field/lattice/manifold panels),
+both at 0 errors / 0 warnings and passing `--check-overflow`. The generated SDK API and
+guide docs (`tooling/gen_docs.py`) now cover all five modules.
 
 ---
 

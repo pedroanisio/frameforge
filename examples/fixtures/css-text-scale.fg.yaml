@@ -1,0 +1,93 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: CSS DSL — typographic scale (text classes)
+description: >-
+  Exercises a `tokens.styles` stylesheet of TEXT classes — `display`, `h1`, `h2`,
+  `body`, `small`, `code`, `quote` — applied by `style:` reference so a document
+  reads from one consistent type scale. Demonstrates that `TextStyle` is a
+  projection of `Style`: each class carries `font`/`size`/`weight`/`color`, plus
+  `letter_spacing`, `line_height`, and `italic` sugar. All resolve natively in
+  the proxy.
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#0f172a'
+      ink2: '#1e293b'
+      body: '#334155'
+      mute: '#64748b'
+      code: '#9333ea'
+      page: '#ffffff'
+      rule: '#e2e8f0'
+    styles:
+      display: {font: sans, size: 30, weight: 800, color: ink, letter_spacing: -0.5}
+      h1: {font: sans, size: 22, weight: 700, color: ink}
+      h2: {font: sans, size: 17, weight: 700, color: ink2}
+      copy: {font: sans, size: 14, color: body, line_height: 1.5}
+      small: {font: sans, size: 12, color: mute}
+      mono: {font: mono, size: 13, color: code}
+      quote: {font: serif, size: 16, italic: true, color: body}
+pages:
+- mode: page
+  id: css_text_scale
+  canvas:
+    size: [680, 430]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: rect
+      box: [0, 0, 680, 430]
+      fill: page
+    - type: text
+      box: [40, 34, 600, 40]
+      text: Typographic scale
+      style: display
+    - type: text
+      box: [40, 78, 600, 18]
+      text: display · 30 / 800
+      style: small
+
+    - type: text
+      box: [40, 116, 600, 28]
+      text: Heading level one
+      style: h1
+    - type: text
+      box: [40, 146, 600, 18]
+      text: h1 · 22 / 700
+      style: small
+
+    - type: text
+      box: [40, 184, 600, 24]
+      text: Heading level two
+      style: h2
+    - type: text
+      box: [40, 210, 600, 18]
+      text: h2 · 17 / 700
+      style: small
+
+    - type: text
+      box: [40, 244, 600, 44]
+      text: Body copy uses a relaxed line-height so long paragraphs stay legible across the measure of the column.
+      style: copy
+
+    - type: text
+      box: [40, 300, 600, 24]
+      text: const scale = tokens.styles
+      style: mono
+    - type: text
+      box: [40, 326, 600, 18]
+      text: code · monospace
+      style: small
+
+    - type: rect
+      box: [40, 356, 4, 44]
+      fill: rule
+    - type: text
+      box: [56, 360, 584, 36]
+      text: A blockquote rendered from the serif italic quote class.
+      style: quote

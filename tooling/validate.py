@@ -169,7 +169,10 @@ def rule_checks(doc, findings):
         t = o.get("type")
         sizing = o.get("sizing") or {}
         # R1 stroke single-form (P3)
-        if isinstance(o.get("stroke"), dict):
+        stroke_value = o.get("stroke")
+        if isinstance(stroke_value, dict) and any(
+            k in stroke_value for k in ("width", "dash", "linecap", "linejoin")
+        ):
             findings.append(Finding("ERROR", "stroke-single-form",
                                     "inline-geometry `stroke` removed in P3; use paint in `stroke` "
                                     "+ geometry in `stroke_style` (codemod)", path))
@@ -197,8 +200,8 @@ def rule_checks(doc, findings):
             if parent_layout != "grid":
                 findings.append(Finding("WARN", "grid_span-parent",
                                         "`grid_span` only applies under a `grid` layout parent", path))
-        # R6 box-less primitive directly under row/column/grid
-        if parent_layout in ("row", "column", "grid") and t in BOXLESS and not o.get("box"):
+        # R6 box-less primitive directly under layout containers
+        if parent_layout in ("row", "column", "grid", "wrap") and t in BOXLESS and not o.get("box"):
             findings.append(Finding("ERROR", "boxless-under-layout",
                                     f"box-less {t!r} cannot be a direct {parent_layout} child "
                                     "(no extent to advance by); wrap in a group or give a box", path))
@@ -302,7 +305,7 @@ def _geometric_audit(doc, findings):
                     if not o.get("decorative") and (x < -1 or y < -1 or x + w > cw + 1 or y + h > ch + 1):
                         findings.append(Finding("WARN", "containment",
                                                 f"object box extends outside the {cw:g}×{ch:g} canvas", p))
-                    if o.get("type") == "text":
+                    if o.get("type") == "text" and (o.get("meta") or {}).get("role") != "lettering":
                         boxed_text.append((x, y, w, h))
             # NOTE: layer-level overlap is NOT flagged — global overlap is legal
             # (z-order is intentional, §3.3). Overlap is only checked inside `free`

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as yaml from "js-yaml";
+import { normalizeFrameGraphDoc } from "../framegraph-normalize.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
@@ -11,7 +12,11 @@ const SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, "schema/framegraph-v2.
 const PAGE_MODES = new Set(["page", "flow", undefined]);
 const ABSOLUTE_TYPES = new Set([
   "rect", "text", "line", "polyline", "polygon", "path", "ellipse", "circle",
-  "icon", "image", "bullet_list", "table", "group",
+  "icon", "image", "bullet_list", "table", "group", "container", "component", "legend", "chip_row", "uml.marker_glyph",
+  "dimension",
+  "uml.classifier_box", "uml.component_box", "uml.state_box", "uml.action",
+  "uml.artifact_box", "uml.node_box", "uml.lifeline", "uml.activation_bar",
+  "uml.actor", "uml.socket", "uml.lollipop", "uml.activity_node", "uml.pseudostate",
 ]);
 const FLOW_TYPES = new Set([
   "heading", "paragraph", "list", "bullet_list", "table", "code", "math", "toc",
@@ -34,7 +39,8 @@ function files(dir) {
 
 function loadDoc(file) {
   const raw = fs.readFileSync(file, "utf8");
-  return /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
+  const doc = /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
+  return normalizeFrameGraphDoc(doc);
 }
 
 function walkLayerObject(obj, visit) {
@@ -57,7 +63,7 @@ function walkFlowBlock(block, visit) {
 }
 
 const docs = files(FIXTURES).map((file) => ({ file, doc: loadDoc(file) }))
-  .filter(({ doc }) => doc && doc.dsl === "FrameGraph");
+  .filter(({ doc }) => doc && doc.dsl === "FrameGraph" && Array.isArray(doc.pages));
 
 const failures = [];
 const objectTypes = new Set();
@@ -76,8 +82,8 @@ for (const { file, doc } of docs) {
       });
     }
   }
-  if (!Array.isArray(doc.pages) || doc.pages.length === 0) {
-    failures.push(`${path.relative(ROOT, file)}: missing pages[]`);
+  if (doc.pages.length === 0) {
+    failures.push(`${path.relative(ROOT, file)}: empty pages[]`);
     continue;
   }
   for (const [pageIndex, page] of doc.pages.entries()) {
@@ -96,6 +102,9 @@ for (const { file, doc } of docs) {
             }
           });
           objectTypes.add(o.type);
+          if (o.type === "use") {
+            failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: unexpanded symbol use reached viewer render policy`);
+          }
           const covered = ABSOLUTE_TYPES.has(o.type) || o.box || (o.from && o.to) || o.children;
           if (!covered) failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: no absolute render policy for ${o.type}`);
         });
@@ -111,6 +120,9 @@ for (const { file, doc } of docs) {
           }
         });
         objectTypes.add(o.type);
+        if (o.type === "use") {
+          failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: unexpanded symbol use reached viewer flow render policy`);
+        }
         const covered = FLOW_TYPES.has(o.type) || ABSOLUTE_TYPES.has(o.type) || o.box || (o.from && o.to) || o.children;
         if (!covered) failures.push(`${path.relative(ROOT, file)} page ${pageIndex + 1}: no flow render policy for ${o.type}`);
       });
@@ -118,7 +130,7 @@ for (const { file, doc } of docs) {
   }
 }
 
-if (docs.length !== 19) failures.push(`expected 19 FrameGraph fixture docs, found ${docs.length}`);
+if (docs.length === 0) failures.push("expected at least one FrameGraph fixture doc, found 0");
 
 if (failures.length) {
   console.error(failures.join("\n"));

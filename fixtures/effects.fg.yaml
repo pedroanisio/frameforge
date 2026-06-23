@@ -1,0 +1,97 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Shadow & glow effects (fixture)
+description: >-
+  Exercises object `shadow`/`glow` — the v2 Effect union (bool | preset string |
+  EffectObject{color,blur,dx,dy,opacity}) — rendered as SVG `<filter>`s. Backs
+  the ported shadow/glow renderer component; covers each input form plus an
+  object carrying both effects.
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#1c2733'
+      card: '#ffffff'
+      accent: '#2e86de'
+      gold: '#f1c40f'
+    stroke_styles:
+      hair:
+        stroke_width: 1
+      hair2:
+        stroke_width: 2
+    text_styles:
+      title:
+        font: sans
+        size: 14
+        weight: 600
+        color: ink
+pages:
+- mode: page
+  id: effects
+  canvas:
+    size:
+    - 640
+    - 360
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: text
+      box: [40, 12, 560, 22]
+      text: Shadow and glow effects
+      style: title
+    - type: rect          # bool -> default (medium) shadow
+      box: [40, 50, 160, 90]
+      fill: card
+      stroke: ink
+      stroke_style: hair
+      radius: 8
+      shadow: true
+    - type: rect          # preset-name string
+      box: [240, 50, 160, 90]
+      fill: card
+      stroke: ink
+      stroke_style: hair
+      radius: 8
+      shadow: large
+    - type: rect          # EffectObject (explicit params)
+      box: [440, 50, 160, 90]
+      fill: card
+      stroke: ink
+      stroke_style: hair
+      radius: 8
+      shadow:
+        color: accent
+        blur: 6
+        dy: 3
+        opacity: 0.3
+    - type: ellipse       # bool -> default glow
+      center: [120, 250]
+      rx: 60
+      ry: 40
+      fill: accent
+      glow: true
+    - type: ellipse       # EffectObject glow
+      center: [320, 250]
+      rx: 60
+      ry: 40
+      fill: gold
+      glow:
+        color: gold
+        blur: 8
+        opacity: 0.7
+    - type: rect          # BOTH shadow and glow on one object
+      box: [440, 210, 160, 80]
+      fill: card
+      stroke: accent
+      stroke_style: hair2
+      radius: 8
+      shadow: small
+      glow:
+        color: accent
+        blur: 5
+        opacity: 0.5

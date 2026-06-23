@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as yaml from "js-yaml";
 import { chromium } from "playwright";
+import { normalizeFrameGraphDoc } from "../framegraph-normalize.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VIEWER = path.resolve(__dirname, "..");
@@ -22,12 +23,37 @@ function files(dir) {
 
 function loadDoc(file) {
   const raw = fs.readFileSync(file, "utf8");
-  return /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
+  const doc = /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
+  return normalizeFrameGraphDoc(doc);
+}
+
+function hasLayerContent(pageRecord) {
+  return (pageRecord.layers || []).some((layer) => (layer.objects || []).length > 0);
+}
+
+function hasFlowContent(pageRecord) {
+  return (pageRecord.story || pageRecord.sections || []).length > 0;
+}
+
+function hasRenderableContent(pageRecord) {
+  return hasLayerContent(pageRecord) || (pageRecord.objects || []).length > 0 || hasFlowContent(pageRecord);
+}
+
+function countFlowMath(pageRecord) {
+  const blocks = [];
+  if (Array.isArray(pageRecord.story)) blocks.push(...pageRecord.story);
+  if (Array.isArray(pageRecord.sections)) {
+    for (const section of pageRecord.sections) {
+      if (Array.isArray(section.blocks)) blocks.push(...section.blocks);
+      if (Array.isArray(section.content)) blocks.push(...section.content);
+    }
+  }
+  return blocks.filter((block) => block?.type === "math").length;
 }
 
 const docs = files(FIXTURES)
   .map((file) => ({ file, rel: path.relative(ROOT, file), doc: loadDoc(file) }))
-  .filter(({ doc }) => doc && doc.dsl === "FrameGraph");
+  .filter(({ doc }) => doc && doc.dsl === "FrameGraph" && Array.isArray(doc.pages));
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1366, height: 820 }, deviceScaleFactor: 1 });
@@ -51,15 +77,19 @@ for (const { rel, doc } of docs) {
   );
   const state = await page.evaluate(() => window.__FRAMEGRAPH_VIEWER__.state());
   const sourcePages = doc.pages || [];
+  const sourceRenderablePages = sourcePages.map(hasRenderableContent);
+  const sourceMathBlocks = sourcePages.reduce((sum, pageRecord) => sum + countFlowMath(pageRecord), 0);
   const hasFlow = sourcePages.some((p) => p.mode === "flow" || p.story || p.sections);
+  const hasContinuousFlow = sourcePages.some((p) => (p.mode === "flow" || p.story || p.sections) && p.media === "continuous");
   if (state.pageCount < sourcePages.length) {
     failures.push(`${rel}: expanded page count ${state.pageCount} is smaller than source page count ${sourcePages.length}`);
   }
-  if (hasFlow && state.pageCount <= sourcePages.length) {
+  if (hasFlow && !hasContinuousFlow && state.pageCount <= sourcePages.length) {
     failures.push(`${rel}: flow document did not expand beyond ${sourcePages.length} source page record(s)`);
   }
   renderedPages += state.pageCount;
   expandedPages += Math.max(0, state.pageCount - sourcePages.length);
+  const mathAudit = { katexCount: 0, rawTex: false };
   for (let i = 0; i < state.pageCount; i += 1) {
     await page.evaluate((idx) => window.__FRAMEGRAPH_VIEWER__.setPage(idx), i);
     await page.waitForFunction(
@@ -79,16 +109,29 @@ for (const { rel, doc } of docs) {
         id: el.getAttribute("data-page-id"),
         flowScrollHeight: flowRegion ? flowRegion.scrollHeight : 0,
         flowClientHeight: flowRegion ? flowRegion.clientHeight : 0,
+        katexCount: el.querySelectorAll(".katex").length,
+        rawTex: /\\(?:left|right|tfrac|frac|sqrt|hbar)\b/.test(el.textContent || ""),
       };
     });
+    mathAudit.katexCount += result.katexCount;
+    mathAudit.rawTex = mathAudit.rawTex || result.rawTex;
     if (result.width <= 0 || result.height <= 0) {
       failures.push(`${rel} rendered page ${i + 1}: active canvas has invalid size ${result.width}x${result.height}`);
     }
-    if (result.elementCount === 0 && result.textLength === 0) {
+    const sourceHasContent = i >= sourceRenderablePages.length || sourceRenderablePages[i];
+    if (sourceHasContent && result.elementCount === 0 && result.textLength === 0) {
       failures.push(`${rel} rendered page ${i + 1}: active canvas rendered no content`);
     }
     if (result.mode === "flow" && result.flowScrollHeight > result.flowClientHeight + 2) {
       failures.push(`${rel} rendered page ${i + 1}: flow region clips vertically (${result.flowScrollHeight} > ${result.flowClientHeight})`);
+    }
+  }
+  if (rel === path.join("fixtures", "standard-model.fg.yaml")) {
+    if (mathAudit.katexCount !== sourceMathBlocks) {
+      failures.push(`${rel}: expected ${sourceMathBlocks} KaTeX-rendered math blocks, found ${mathAudit.katexCount}`);
+    }
+    if (mathAudit.rawTex) {
+      failures.push(`${rel}: raw TeX command leaked into rendered viewer text`);
     }
   }
 }

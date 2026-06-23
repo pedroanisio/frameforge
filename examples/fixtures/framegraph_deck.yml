@@ -1,0 +1,4174 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: deck
+title: The Software Engineering Practitioner in the Age of AI
+description: A research briefing on the state of software-engineering practitioners in the age of AI (2025–26
+  data).
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#11182B'
+      ink2: '#1B2440'
+      inkline: '#2C3553'
+      slate: '#26304F'
+      body: '#414B6B'
+      muted: '#8089A2'
+      faint: '#AAB2C6'
+      line: '#E2E7F1'
+      panel: '#F4F6FB'
+      panel2: '#EBF0F8'
+      teal: '#11B3A2'
+      tealD: '#0B8C7E'
+      tealTint: '#E6F6F3'
+      tealInk: '#0A6F64'
+      amber: '#E0903B'
+      amberD: '#BF7327'
+      amberTint: '#FAEDDC'
+      red: '#D4574A'
+      redTint: '#FBECE9'
+      white: '#FFFFFF'
+    styles:
+      kicker:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 15
+        font_weight: 700
+        color: '#11B3A2'
+        text_transform: uppercase
+        letter_spacing: 2.4
+      kickerD:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 15
+        font_weight: 700
+        color: '#11B3A2'
+        text_transform: uppercase
+        letter_spacing: 2.4
+      h1:
+        font_family:
+        - Charter
+        - Georgia
+        - Cambria
+        - serif
+        font_size: 52
+        font_weight: 700
+        color: '#FFFFFF'
+        line_height: 1.05
+      title:
+        font_family:
+        - Charter
+        - Georgia
+        - Cambria
+        - serif
+        font_size: 33
+        font_weight: 700
+        color: '#26304F'
+        line_height: 1.08
+      subtitle:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 400
+        color: '#AAB2C6'
+        line_height: 1.3
+      lede:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 17
+        font_weight: 400
+        color: '#414B6B'
+        line_height: 1.4
+      body:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 14.5
+        font_weight: 400
+        color: '#414B6B'
+        line_height: 1.42
+      bodyD:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 14.5
+        font_weight: 400
+        color: '#C9D0E0'
+        line_height: 1.45
+      cardh:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 15.5
+        font_weight: 700
+        color: '#26304F'
+        line_height: 1.18
+      cardb:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 400
+        color: '#414B6B'
+        line_height: 1.38
+      statbig:
+        font_family:
+        - Charter
+        - Georgia
+        - Cambria
+        - serif
+        font_size: 46
+        font_weight: 700
+        color: '#26304F'
+        line_height: 1.0
+      statbigT:
+        font_family:
+        - Charter
+        - Georgia
+        - Cambria
+        - serif
+        font_size: 46
+        font_weight: 700
+        color: '#11B3A2'
+        line_height: 1.0
+      statbigA:
+        font_family:
+        - Charter
+        - Georgia
+        - Cambria
+        - serif
+        font_size: 46
+        font_weight: 700
+        color: '#BF7327'
+        line_height: 1.0
+      statlbl:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 12.5
+        font_weight: 400
+        color: '#8089A2'
+        line_height: 1.3
+      source:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 10.5
+        font_weight: 400
+        color: '#8089A2'
+        line_height: 1.3
+      sourceD:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 10.5
+        font_weight: 400
+        color: '#6C7794'
+        line_height: 1.3
+      pnum:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 10.5
+        font_weight: 600
+        color: '#8089A2'
+        letter_spacing: 1
+      pnumD:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 10.5
+        font_weight: 600
+        color: '#5C6B86'
+        letter_spacing: 1
+      chip:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 12.5
+        font_weight: 600
+        color: '#0A6F64'
+        line_height: 1.15
+      quote:
+        font_family:
+        - Charter
+        - Georgia
+        - Cambria
+        - serif
+        font_size: 21
+        font_weight: 400
+        color: '#26304F'
+        font_style: italic
+        line_height: 1.32
+      num:
+        font_family:
+        - Charter
+        - Georgia
+        - Cambria
+        - serif
+        font_size: 20
+        font_weight: 700
+        color: '#FFFFFF'
+        line_height: 1.0
+      axis:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11.5
+        font_weight: 600
+        color: '#8089A2'
+        line_height: 1.1
+      barval:
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+        color: '#26304F'
+        line_height: 1.0
+  masters:
+    deck:
+      canvas:
+        size:
+        - 1280
+        - 720
+        units: px
+      margin:
+      - 76
+      - 72
+      - 1128
+      - 576
+pages:
+- mode: page
+  id: cover
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#11182B'
+    - type: line
+      from:
+      - 1110
+      - 180
+      to:
+      - 1040
+      - 250
+      stroke: '#2C3553'
+      stroke_style:
+        stroke_width: 1
+    - type: line
+      from:
+      - 1110
+      - 180
+      to:
+      - 1170
+      - 300
+      stroke: '#2C3553'
+      stroke_style:
+        stroke_width: 1
+    - type: line
+      from:
+      - 1110
+      - 180
+      to:
+      - 1190
+      - 150
+      stroke: '#2C3553'
+      stroke_style:
+        stroke_width: 1
+    - type: line
+      from:
+      - 1040
+      - 250
+      to:
+      - 1170
+      - 300
+      stroke: '#2C3553'
+      stroke_style:
+        stroke_width: 1
+    - type: line
+      from:
+      - 1040
+      - 250
+      to:
+      - 1090
+      - 360
+      stroke: '#2C3553'
+      stroke_style:
+        stroke_width: 1
+    - type: line
+      from:
+      - 1040
+      - 250
+      to:
+      - 960
+      - 300
+      stroke: '#2C3553'
+      stroke_style:
+        stroke_width: 1
+    - type: line
+      from:
+      - 1170
+      - 300
+      to:
+      - 1090
+      - 360
+      stroke: '#2C3553'
+      stroke_style:
+        stroke_width: 1
+    - type: ellipse
+      center:
+      - 980
+      - 120
+      rx: 9
+      ry: 9
+      fill: '#11B3A2'
+    - type: ellipse
+      center:
+      - 1110
+      - 180
+      rx: 7
+      ry: 7
+      fill: '#2C3553'
+    - type: ellipse
+      center:
+      - 1040
+      - 250
+      rx: 7
+      ry: 7
+      fill: '#2C3553'
+    - type: ellipse
+      center:
+      - 1170
+      - 300
+      rx: 9
+      ry: 9
+      fill: '#11B3A2'
+    - type: ellipse
+      center:
+      - 1090
+      - 360
+      rx: 7
+      ry: 7
+      fill: '#2C3553'
+    - type: ellipse
+      center:
+      - 960
+      - 300
+      rx: 7
+      ry: 7
+      fill: '#2C3553'
+    - type: ellipse
+      center:
+      - 1190
+      - 150
+      rx: 9
+      ry: 9
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 76
+      - 250
+      - 420
+      - 24
+      text: State of the profession · 2026
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 288
+      - 1040
+      - 180
+      text: The Software Engineering Practitioner in the Age of AI
+      style:
+        class: h1
+    - type: text
+      box:
+      - 76
+      - 470
+      - 820
+      - 30
+      text: From writing code to directing, reviewing, and governing it
+      style:
+        class: subtitle
+    - type: line
+      from:
+      - 76
+      - 548
+      to:
+      - 196
+      - 548
+      stroke: '#11B3A2'
+      stroke_style:
+        stroke_width: 3
+    - type: text
+      box:
+      - 76
+      - 566
+      - 820
+      - 24
+      text: Research briefing  ·  Grounded in DORA, Stack Overflow, METR, Stanford, GitHub & McKinsey
+        2025–26 data
+      style:
+        class: sourceD
+    - type: text
+      box:
+      - 1044
+      - 680
+      - 160
+      - 22
+      text: 01 / 20
+      style:
+        class: pnum
+        align: right
+        color: '#6B7690'
+- mode: page
+  id: exec
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: Executive summary
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: What the data actually says
+      style:
+        class: title
+        color: '#26304F'
+    - type: rect
+      box:
+      - 76
+      - 212
+      - 1128
+      - 66
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 98
+      - 224
+      - 150
+      - 46
+      text: 90% / 84%
+      style:
+        class: statbig
+        font_size: 30
+        color: '#11B3A2'
+    - type: text
+      box:
+      - 276
+      - 223
+      - 300
+      - 24
+      text: Adoption is effectively universal
+      style:
+        class: cardh
+    - type: text
+      box:
+      - 276
+      - 247
+      - 908
+      - 26
+      text: Nine in ten developers now use AI at work (DORA); 84% on Stack Overflow, up from 76% a year
+        earlier.
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 76
+      - 292
+      - 1128
+      - 66
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 98
+      - 304
+      - 150
+      - 46
+      text: +19%
+      style:
+        class: statbig
+        font_size: 30
+        color: '#BF7327'
+    - type: text
+      box:
+      - 276
+      - 303
+      - 300
+      - 24
+      text: Productivity gains are real but overstated
+      style:
+        class: cardh
+    - type: text
+      box:
+      - 276
+      - 327
+      - 908
+      - 26
+      text: In a controlled trial, experienced developers were 19% slower with AI while believing they
+        were 20% faster (METR).
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 76
+      - 372
+      - 1128
+      - 66
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 98
+      - 384
+      - 150
+      - 46
+      text: 29%
+      style:
+        class: statbig
+        font_size: 30
+        color: '#D4574A'
+    - type: text
+      box:
+      - 276
+      - 383
+      - 300
+      - 24
+      text: Trust is falling as usage climbs
+      style:
+        class: cardh
+    - type: text
+      box:
+      - 276
+      - 407
+      - 908
+      - 26
+      text: Only 29% trust the accuracy of AI output, down from 40% — a widening adoption–trust gap (Stack
+        Overflow).
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 76
+      - 452
+      - 1128
+      - 66
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 98
+      - 464
+      - 150
+      - 46
+      text: 3.4×
+      style:
+        class: statbig
+        font_size: 30
+        color: '#BF7327'
+    - type: text
+      box:
+      - 276
+      - 463
+      - 300
+      - 24
+      text: A multiplier, not a fix
+      style:
+        class: cardh
+    - type: text
+      box:
+      - 276
+      - 487
+      - 908
+      - 26
+      text: 'Throughput rises, but so does instability: incidents per pull request more than tripled in
+        2026 telemetry (DORA / Faros).'
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 76
+      - 532
+      - 1128
+      - 66
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 98
+      - 544
+      - 150
+      - 46
+      text: −20%
+      style:
+        class: statbig
+        font_size: 30
+        color: '#D4574A'
+    - type: text
+      box:
+      - 276
+      - 543
+      - 300
+      - 24
+      text: The junior rung is thinning
+      style:
+        class: cardh
+    - type: text
+      box:
+      - 276
+      - 567
+      - 908
+      - 26
+      text: Employment of developers aged 22–25 has fallen ~20% from its 2022 peak even as senior employment
+        grew (Stanford).
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: DORA 2025; Stack Overflow 2025; METR 2025; Faros AI 2026; Stanford Digital Economy
+        Lab 2025'
+      style:
+        class: source
+- mode: page
+  id: contents
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: How this briefing is structured
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: Four shifts reshaping the practitioner
+      style:
+        class: title
+        color: '#26304F'
+    - type: ellipse
+      center:
+      - 106
+      - 248
+      rx: 30
+      ry: 30
+      fill: '#11182B'
+    - type: text
+      box:
+      - 88
+      - 232
+      - 36
+      - 34
+      text: '01'
+      style:
+        class: num
+        align: center
+    - type: text
+      box:
+      - 162
+      - 222
+      - 1028
+      - 30
+      text: Adoption has gone universal
+      style:
+        class: cardh
+        font_size: 21
+    - type: text
+      box:
+      - 162
+      - 256
+      - 1018
+      - 40
+      text: From novelty to near-default in under three years — and what developers actually feel about
+        it.
+      style:
+        class: body
+        color: '#8089A2'
+    - type: line
+      from:
+      - 162
+      - 300
+      to:
+      - 1204
+      - 300
+      stroke: '#E2E7F1'
+      stroke_style:
+        stroke_width: 1
+    - type: ellipse
+      center:
+      - 106
+      - 346
+      rx: 30
+      ry: 30
+      fill: '#11182B'
+    - type: text
+      box:
+      - 88
+      - 330
+      - 36
+      - 34
+      text: '02'
+      style:
+        class: num
+        align: center
+    - type: text
+      box:
+      - 162
+      - 320
+      - 1028
+      - 30
+      text: 'The multiplier effect: speed vs. stability'
+      style:
+        class: cardh
+        font_size: 21
+    - type: text
+      box:
+      - 162
+      - 354
+      - 1018
+      - 40
+      text: AI amplifies existing engineering conditions; throughput and risk rise together.
+      style:
+        class: body
+        color: '#8089A2'
+    - type: line
+      from:
+      - 162
+      - 398
+      to:
+      - 1204
+      - 398
+      stroke: '#E2E7F1'
+      stroke_style:
+        stroke_width: 1
+    - type: ellipse
+      center:
+      - 106
+      - 444
+      rx: 30
+      ry: 30
+      fill: '#11182B'
+    - type: text
+      box:
+      - 88
+      - 428
+      - 36
+      - 34
+      text: '03'
+      style:
+        class: num
+        align: center
+    - type: text
+      box:
+      - 162
+      - 418
+      - 1028
+      - 30
+      text: The role is being restructured
+      style:
+        class: cardh
+        font_size: 21
+    - type: text
+      box:
+      - 162
+      - 452
+      - 1018
+      - 40
+      text: From author to reviewer and systems-thinker — and a contracting entry-level pipeline.
+      style:
+        class: body
+        color: '#8089A2'
+    - type: line
+      from:
+      - 162
+      - 496
+      to:
+      - 1204
+      - 496
+      stroke: '#E2E7F1'
+      stroke_style:
+        stroke_width: 1
+    - type: ellipse
+      center:
+      - 106
+      - 542
+      rx: 30
+      ry: 30
+      fill: '#11182B'
+    - type: text
+      box:
+      - 88
+      - 526
+      - 36
+      - 34
+      text: '04'
+      style:
+        class: num
+        align: center
+    - type: text
+      box:
+      - 162
+      - 516
+      - 1028
+      - 30
+      text: Implications & the path forward
+      style:
+        class: cardh
+        font_size: 21
+    - type: text
+      box:
+      - 162
+      - 550
+      - 1018
+      - 40
+      text: What the next two years demand of engineering leaders and individual practitioners.
+      style:
+        class: body
+        color: '#8089A2'
+    - type: text
+      box:
+      - 1044
+      - 680
+      - 160
+      - 22
+      text: 03 / 20
+      style:
+        class: pnum
+        align: right
+        color: '#8089A2'
+- mode: page
+  id: div01
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#11182B'
+    - type: text
+      box:
+      - 76
+      - 236
+      - 300
+      - 150
+      text: '01'
+      style:
+        class: h1
+        font_size: 150
+        color: '#222C49'
+    - type: text
+      box:
+      - 82
+      - 210
+      - 400
+      - 24
+      text: Section 01
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 326
+      - 300
+      - 760
+      - 120
+      text: Adoption has gone universal
+      style:
+        class: h1
+        font_size: 44
+        color: '#FFFFFF'
+    - type: line
+      from:
+      - 332
+      - 344
+      to:
+      - 422
+      - 344
+      stroke: '#11B3A2'
+      stroke_style:
+        stroke_width: 3
+    - type: text
+      box:
+      - 332
+      - 420
+      - 720
+      - 60
+      text: In under three years, AI assistance moved from experiment to the default surface developers
+        build on.
+      style:
+        class: subtitle
+        color: '#A7AFC6'
+    - type: text
+      box:
+      - 1044
+      - 680
+      - 160
+      - 22
+      text: 04 / 20
+      style:
+        class: pnum
+        align: right
+        color: '#6B7690'
+- mode: page
+  id: adoption
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 01 · Adoption
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: Near-universal, and deeply relied upon
+      style:
+        class: title
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 216
+      - 300
+      - 52
+      text: 90%
+      style:
+        class: statbig
+        font_size: 44
+        color: '#11B3A2'
+    - type: text
+      box:
+      - 76
+      - 274
+      - 360
+      - 46
+      text: of developers use AI at work — up 14 points year-on-year (DORA, ~5,000 respondents).
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 76
+      - 324
+      - 300
+      - 52
+      text: 65%
+      style:
+        class: statbig
+        font_size: 44
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 382
+      - 360
+      - 46
+      text: rely on AI 'a moderate amount' or more for day-to-day development (DORA).
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 76
+      - 432
+      - 300
+      - 52
+      text: 30–50%
+      style:
+        class: statbig
+        font_size: 44
+        color: '#BF7327'
+    - type: text
+      box:
+      - 76
+      - 490
+      - 360
+      - 46
+      text: estimated share of enterprise code now AI-generated (GitHub Octoverse / Stack Overflow).
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 636
+      - 210
+      - 568
+      - 300
+      fill: '#F4F6FB'
+      radius: 14
+    - type: text
+      box:
+      - 660
+      - 230
+      - 520
+      - 22
+      text: Developers using or planning to use AI tools
+      style:
+        class: cardh
+        font_size: 14
+    - type: text
+      box:
+      - 660
+      - 254
+      - 520
+      - 18
+      text: Share of respondents, Stack Overflow Developer Survey
+      style:
+        class: statlbl
+    - type: rect
+      box:
+      - 694.0
+      - 335.0
+      - 70
+      - 105.0
+      fill: '#0B8C7E'
+      radius: 8
+      opacity: 0.55
+    - type: text
+      box:
+      - 688.0
+      - 309.0
+      - 82
+      - 20
+      text: 70%
+      style:
+        class: barval
+        align: center
+        color: '#26304F'
+    - type: text
+      box:
+      - 688.0
+      - 448
+      - 82
+      - 18
+      text: '2023'
+      style:
+        class: axis
+        align: center
+    - type: rect
+      box:
+      - 833.3333333333334
+      - 326.0
+      - 70
+      - 114.0
+      fill: '#0B8C7E'
+      radius: 8
+      opacity: 0.55
+    - type: text
+      box:
+      - 827.3333333333334
+      - 300.0
+      - 82
+      - 20
+      text: 76%
+      style:
+        class: barval
+        align: center
+        color: '#26304F'
+    - type: text
+      box:
+      - 827.3333333333334
+      - 448
+      - 82
+      - 18
+      text: '2024'
+      style:
+        class: axis
+        align: center
+    - type: rect
+      box:
+      - 972.6666666666667
+      - 314.0
+      - 70
+      - 126.0
+      fill: '#11B3A2'
+      radius: 8
+      opacity: 1.0
+    - type: text
+      box:
+      - 966.6666666666667
+      - 288.0
+      - 82
+      - 20
+      text: 84%
+      style:
+        class: barval
+        align: center
+        color: '#26304F'
+    - type: text
+      box:
+      - 966.6666666666667
+      - 448
+      - 82
+      - 18
+      text: '2025'
+      style:
+        class: axis
+        align: center
+    - type: text
+      box:
+      - 660
+      - 476
+      - 520
+      - 22
+      text: 'Octoverse 2025: ~80% of new developers used Copilot within their first week.'
+      style:
+        class: statlbl
+        font_size: 11.5
+        color: '#0A6F64'
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: DORA 2025; Stack Overflow 2025; GitHub Octoverse 2025'
+      style:
+        class: source
+- mode: page
+  id: paradox
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 01 · Adoption
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: The productivity paradox
+      style:
+        class: title
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 200
+      - 1128
+      - 46
+      text: In the first randomized controlled trial of AI coding tools, perception and measured reality
+        diverged sharply.
+      style:
+        class: lede
+    - type: rect
+      box:
+      - 76.0
+      - 274
+      - 357.3333333333333
+      - 168
+      fill: '#F4F6FB'
+      radius: 14
+    - type: text
+      box:
+      - 98.0
+      - 292
+      - 317.3333333333333
+      - 20
+      text: PREDICTED
+      style:
+        class: kicker
+        color: '#8089A2'
+        letter_spacing: 1.8
+        font_size: 12
+    - type: text
+      box:
+      - 96.0
+      - 314
+      - 321.3333333333333
+      - 60
+      text: −24%
+      style:
+        class: statbig
+        font_size: 52
+        color: '#8089A2'
+    - type: text
+      box:
+      - 98.0
+      - 382
+      - 317.3333333333333
+      - 52
+      text: Experienced developers forecast AI would cut task time by 24%.
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 437.3333333333333
+      - 340
+      - 22
+      - 30
+      text: ›
+      style:
+        class: title
+        color: '#AAB2C6'
+        align: center
+    - type: rect
+      box:
+      - 461.3333333333333
+      - 274
+      - 357.3333333333333
+      - 168
+      fill: '#FAEDDC'
+      radius: 14
+    - type: text
+      box:
+      - 483.3333333333333
+      - 292
+      - 317.3333333333333
+      - 20
+      text: FELT
+      style:
+        class: kicker
+        color: '#BF7327'
+        letter_spacing: 1.8
+        font_size: 12
+    - type: text
+      box:
+      - 481.3333333333333
+      - 314
+      - 321.3333333333333
+      - 60
+      text: −20%
+      style:
+        class: statbig
+        font_size: 52
+        color: '#BF7327'
+    - type: text
+      box:
+      - 483.3333333333333
+      - 382
+      - 317.3333333333333
+      - 52
+      text: After finishing, they still believed AI had sped them up by 20%.
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 822.6666666666666
+      - 340
+      - 22
+      - 30
+      text: ›
+      style:
+        class: title
+        color: '#AAB2C6'
+        align: center
+    - type: rect
+      box:
+      - 846.6666666666666
+      - 274
+      - 357.3333333333333
+      - 168
+      fill: '#FBECE9'
+      radius: 14
+    - type: text
+      box:
+      - 868.6666666666666
+      - 292
+      - 317.3333333333333
+      - 20
+      text: MEASURED
+      style:
+        class: kicker
+        color: '#D4574A'
+        letter_spacing: 1.8
+        font_size: 12
+    - type: text
+      box:
+      - 866.6666666666666
+      - 314
+      - 321.3333333333333
+      - 60
+      text: +19%
+      style:
+        class: statbig
+        font_size: 52
+        color: '#D4574A'
+    - type: text
+      box:
+      - 868.6666666666666
+      - 382
+      - 317.3333333333333
+      - 52
+      text: AI actually increased completion time by 19% — they were slower.
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 76
+      - 468
+      - 1128
+      - 52
+      fill: '#11182B'
+      radius: 12
+    - type: text
+      box:
+      - 98
+      - 481
+      - 928
+      - 28
+      text: Developers accepted fewer than 44% of AI suggestions — time shifted from writing to prompting,
+        reviewing and correcting.
+      style:
+        class: bodyD
+        font_size: 13.5
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: METR randomized controlled trial, 16 developers / 246 tasks, 2025'
+      style:
+        class: source
+- mode: page
+  id: trust
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 01 · Adoption
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: Usage is rising; trust is falling
+      style:
+        class: title
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 206
+      - 520
+      - 80
+      text: As reliance deepens, confidence in output is going the other way — an inversion of the usual
+        technology-adoption curve.
+      style:
+        class: lede
+    - type: text
+      box:
+      - 76
+      - 300
+      - 150
+      - 40
+      text: 46%
+      style:
+        class: statbig
+        font_size: 34
+        color: '#D4574A'
+    - type: text
+      box:
+      - 226
+      - 304
+      - 380
+      - 40
+      text: actively distrust AI accuracy — versus 33% who trust it; just 3% 'highly trust' it.
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 76
+      - 370
+      - 150
+      - 40
+      text: 66%
+      style:
+        class: statbig
+        font_size: 34
+        color: '#BF7327'
+    - type: text
+      box:
+      - 226
+      - 374
+      - 380
+      - 40
+      text: are frustrated by output that is 'almost right, but not quite'.
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 76
+      - 440
+      - 150
+      - 40
+      text: 45%
+      style:
+        class: statbig
+        font_size: 34
+        color: '#BF7327'
+    - type: text
+      box:
+      - 226
+      - 444
+      - 380
+      - 40
+      text: say debugging AI-generated code takes longer than writing it themselves.
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 656
+      - 206
+      - 548
+      - 314
+      fill: '#F4F6FB'
+      radius: 14
+    - type: text
+      box:
+      - 680
+      - 224
+      - 500
+      - 20
+      text: Usage vs. trust in AI accuracy
+      style:
+        class: cardh
+        font_size: 14
+    - type: text
+      box:
+      - 680
+      - 248
+      - 500
+      - 18
+      text: Share of developers, by year (Stack Overflow)
+      style:
+        class: statlbl
+    - type: rect
+      box:
+      - 700.0
+      - 366.3
+      - 40
+      - 103.7
+      fill: '#11B3A2'
+      radius: 6
+    - type: rect
+      box:
+      - 750.0
+      - 396.9
+      - 40
+      - 73.1
+      fill: '#D4574A'
+      radius: 6
+    - type: text
+      box:
+      - 694.0
+      - 478
+      - 96
+      - 16
+      text: '2023'
+      style:
+        class: axis
+    - type: rect
+      box:
+      - 846.0
+      - 340.8
+      - 40
+      - 129.2
+      fill: '#11B3A2'
+      radius: 6
+    - type: rect
+      box:
+      - 896.0
+      - 402.0
+      - 40
+      - 68.0
+      fill: '#D4574A'
+      radius: 6
+    - type: text
+      box:
+      - 840.0
+      - 478
+      - 96
+      - 16
+      text: '2024'
+      style:
+        class: axis
+    - type: rect
+      box:
+      - 992.0
+      - 327.20000000000005
+      - 40
+      - 142.79999999999998
+      fill: '#11B3A2'
+      radius: 6
+    - type: rect
+      box:
+      - 1042.0
+      - 420.7
+      - 40
+      - 49.3
+      fill: '#D4574A'
+      radius: 6
+    - type: text
+      box:
+      - 986.0
+      - 478
+      - 96
+      - 16
+      text: '2025'
+      style:
+        class: axis
+    - type: rect
+      box:
+      - 680
+      - 486
+      - 14
+      - 14
+      fill: '#11B3A2'
+      radius: 3
+    - type: text
+      box:
+      - 700
+      - 485
+      - 90
+      - 16
+      text: Use AI
+      style:
+        class: statlbl
+        font_size: 11
+    - type: rect
+      box:
+      - 796
+      - 486
+      - 14
+      - 14
+      fill: '#D4574A'
+      radius: 3
+    - type: text
+      box:
+      - 816
+      - 485
+      - 120
+      - 16
+      text: Trust accuracy
+      style:
+        class: statlbl
+        font_size: 11
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: Stack Overflow Developer Survey 2025 (49,000+ respondents)'
+      style:
+        class: source
+- mode: page
+  id: div02
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#11182B'
+    - type: text
+      box:
+      - 76
+      - 236
+      - 300
+      - 150
+      text: '02'
+      style:
+        class: h1
+        font_size: 150
+        color: '#222C49'
+    - type: text
+      box:
+      - 82
+      - 210
+      - 400
+      - 24
+      text: Section 02
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 326
+      - 300
+      - 760
+      - 120
+      text: Speed versus stability
+      style:
+        class: h1
+        font_size: 44
+        color: '#FFFFFF'
+    - type: line
+      from:
+      - 332
+      - 344
+      to:
+      - 422
+      - 344
+      stroke: '#11B3A2'
+      stroke_style:
+        stroke_width: 3
+    - type: text
+      box:
+      - 332
+      - 420
+      - 720
+      - 60
+      text: 'DORA''s central 2025 finding: AI is a mirror and a multiplier — it amplifies whatever a team
+        already is.'
+      style:
+        class: subtitle
+        color: '#A7AFC6'
+    - type: text
+      box:
+      - 1044
+      - 680
+      - 160
+      - 22
+      text: 08 / 20
+      style:
+        class: pnum
+        align: right
+        color: '#6B7690'
+- mode: page
+  id: multiplier
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 02 · The multiplier effect
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: Throughput up — and instability up with it
+      style:
+        class: title
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 200
+      - 620
+      - 120
+      text: AI lifts how much teams ship. Without strong testing, version control and fast feedback, the
+        same acceleration pushes risk downstream. 2026 telemetry across 22,000 developers quantifies the
+        cost.
+      style:
+        class: lede
+    - type: rect
+      box:
+      - 76
+      - 346
+      - 560
+      - 170
+      fill: '#E6F6F3'
+      radius: 14
+    - type: text
+      box:
+      - 100
+      - 366
+      - 520
+      - 22
+      text: THE UPSIDE
+      style:
+        class: kicker
+        color: '#0A6F64'
+        font_size: 12
+    - type: text
+      box:
+      - 100
+      - 396
+      - 250
+      - 60
+      text: Higher delivery throughput
+      style:
+        class: statbig
+        font_size: 24
+        color: '#0A6F64'
+        line_height: 1.1
+    - type: text
+      box:
+      - 100
+      - 462
+      - 512
+      - 44
+      text: AI adoption is now linked to more software shipped — a reversal of the prior year's finding.
+      style:
+        class: cardb
+        color: '#0A6F64'
+    - type: rect
+      box:
+      - 676
+      - 224
+      - 458
+      - 20
+      fill: '#EBF0F8'
+      radius: 10.0
+    - type: rect
+      box:
+      - 676
+      - 224
+      - 458.0
+      - 20
+      fill: '#D4574A'
+      radius: 10.0
+    - type: text
+      box:
+      - 676
+      - 202
+      - 320.59999999999997
+      - 18
+      text: Incidents per PR
+      style:
+        class: axis
+        color: '#26304F'
+    - type: text
+      box:
+      - 1146
+      - 223
+      - 90
+      - 22
+      text: +243%
+      style:
+        class: barval
+        color: '#D4574A'
+    - type: rect
+      box:
+      - 676
+      - 292
+      - 458
+      - 20
+      fill: '#EBF0F8'
+      radius: 10.0
+    - type: rect
+      box:
+      - 676
+      - 292
+      - 458.0
+      - 20
+      fill: '#BF7327'
+      radius: 10.0
+    - type: text
+      box:
+      - 676
+      - 270
+      - 320.59999999999997
+      - 18
+      text: Time in PR review
+      style:
+        class: axis
+        color: '#26304F'
+    - type: text
+      box:
+      - 1146
+      - 291
+      - 90
+      - 22
+      text: +441%
+      style:
+        class: barval
+        color: '#BF7327'
+    - type: rect
+      box:
+      - 676
+      - 360
+      - 458
+      - 20
+      fill: '#EBF0F8'
+      radius: 10.0
+    - type: rect
+      box:
+      - 676
+      - 360
+      - 206.1
+      - 20
+      fill: '#BF7327'
+      radius: 10.0
+    - type: text
+      box:
+      - 676
+      - 338
+      - 320.59999999999997
+      - 18
+      text: Bugs per developer
+      style:
+        class: axis
+        color: '#26304F'
+    - type: text
+      box:
+      - 1146
+      - 359
+      - 90
+      - 22
+      text: +54%
+      style:
+        class: barval
+        color: '#BF7327'
+    - type: rect
+      box:
+      - 676
+      - 428
+      - 458
+      - 20
+      fill: '#EBF0F8'
+      radius: 10.0
+    - type: rect
+      box:
+      - 676
+      - 428
+      - 137.4
+      - 20
+      fill: '#E0903B'
+      radius: 10.0
+    - type: text
+      box:
+      - 676
+      - 406
+      - 320.59999999999997
+      - 18
+      text: PRs merged with no review
+      style:
+        class: axis
+        color: '#26304F'
+    - type: text
+      box:
+      - 1146
+      - 427
+      - 90
+      - 22
+      text: +31%
+      style:
+        class: barval
+        color: '#E0903B'
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: DORA 2025; Faros AI 2026 telemetry (22,000 developers)'
+      style:
+        class: source
+- mode: page
+  id: security
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 02 · The multiplier effect
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: The quality and security debt
+      style:
+        class: title
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 200
+      - 1128
+      - 40
+      text: Volume has outpaced oversight. Generated code inherits patterns — including insecure ones
+        — without the defensive intuition experienced engineers build over time.
+      style:
+        class: lede
+    - type: rect
+      box:
+      - 76.0
+      - 288
+      - 360.0
+      - 128
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 96.0
+      - 304
+      - 324.0
+      - 46
+      text: +37%
+      style:
+        class: statbig
+        font_size: 32
+        color: '#D4574A'
+    - type: text
+      box:
+      - 96.0
+      - 352
+      - 324.0
+      - 56
+      text: critical vulnerabilities after five rounds of AI 'refinement' of the same code (Univ. of San
+        Francisco).
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 460.0
+      - 288
+      - 360.0
+      - 128
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 480.0
+      - 304
+      - 324.0
+      - 46
+      text: 10×
+      style:
+        class: statbig
+        font_size: 32
+        color: '#D4574A'
+    - type: text
+      box:
+      - 480.0
+      - 352
+      - 324.0
+      - 56
+      text: more security findings from AI-assisted developers, who commit 3–4× as often (Fortune 50 study).
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 844.0
+      - 288
+      - 360.0
+      - 128
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 864.0
+      - 304
+      - 324.0
+      - 46
+      text: 43%
+      style:
+        class: statbig
+        font_size: 32
+        color: '#BF7327'
+    - type: text
+      box:
+      - 864.0
+      - 352
+      - 324.0
+      - 56
+      text: of AI-generated patches fixed the issue but introduced new failures under adverse conditions
+        (SWE-bench review).
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 76.0
+      - 434
+      - 360.0
+      - 128
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 96.0
+      - 450
+      - 324.0
+      - 46
+      text: 6 → 15
+      style:
+        class: statbig
+        font_size: 32
+        color: '#BF7327'
+    - type: text
+      box:
+      - 96.0
+      - 498
+      - 324.0
+      - 56
+      text: CVEs traced to AI-generated code, Jan→Feb 2026 — an early but steepening curve (Georgia Tech).
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 460.0
+      - 434
+      - 360.0
+      - 128
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 480.0
+      - 450
+      - 324.0
+      - 46
+      text: $4–9M
+      style:
+        class: statbig
+        font_size: 32
+        color: '#D4574A'
+    - type: text
+      box:
+      - 480.0
+      - 498
+      - 324.0
+      - 56
+      text: typical cost of a breach involving AI-generated logic (IBM / Verizon DBIR 2025).
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 844.0
+      - 434
+      - 360.0
+      - 128
+      fill: '#F4F6FB'
+      radius: 12
+    - type: text
+      box:
+      - 864.0
+      - 450
+      - 324.0
+      - 46
+      text: ~25%
+      style:
+        class: statbig
+        font_size: 32
+        color: '#E0903B'
+    - type: text
+      box:
+      - 864.0
+      - 498
+      - 324.0
+      - 56
+      text: of one YC batch had codebases 95%+ AI-generated — governance is lagging adoption.
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: USF 2025; CSA / Georgia Tech 2026; IBM & Verizon DBIR 2025; Y Combinator'
+      style:
+        class: source
+- mode: page
+  id: winners
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 02 · The multiplier effect
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: The differentiator is the system, not the tool
+      style:
+        class: title
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 200
+      - 640
+      - 120
+      text: With 90%+ adoption, tool access no longer distinguishes anyone. Returns come from the surrounding
+        system of work. DORA names seven capabilities that amplify AI's value.
+      style:
+        class: lede
+    - type: rect
+      box:
+      - 76.0
+      - 336
+      - 304.0
+      - 46
+      fill: '#E6F6F3'
+      radius: 10
+    - type: ellipse
+      center:
+      - 102.0
+      - 359
+      rx: 7
+      ry: 7
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 122.0
+      - 349
+      - 244.0
+      - 24
+      text: Clear AI stance & policy
+      style:
+        class: chip
+    - type: rect
+      box:
+      - 396.0
+      - 336
+      - 304.0
+      - 46
+      fill: '#E6F6F3'
+      radius: 10
+    - type: ellipse
+      center:
+      - 422.0
+      - 359
+      rx: 7
+      ry: 7
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 442.0
+      - 349
+      - 244.0
+      - 24
+      text: Healthy internal data
+      style:
+        class: chip
+    - type: rect
+      box:
+      - 76.0
+      - 394
+      - 304.0
+      - 46
+      fill: '#E6F6F3'
+      radius: 10
+    - type: ellipse
+      center:
+      - 102.0
+      - 417
+      rx: 7
+      ry: 7
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 122.0
+      - 407
+      - 244.0
+      - 24
+      text: Strong version control
+      style:
+        class: chip
+    - type: rect
+      box:
+      - 396.0
+      - 394
+      - 304.0
+      - 46
+      fill: '#E6F6F3'
+      radius: 10
+    - type: ellipse
+      center:
+      - 422.0
+      - 417
+      rx: 7
+      ry: 7
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 442.0
+      - 407
+      - 244.0
+      - 24
+      text: Working in small batches
+      style:
+        class: chip
+    - type: rect
+      box:
+      - 76.0
+      - 452
+      - 304.0
+      - 46
+      fill: '#E6F6F3'
+      radius: 10
+    - type: ellipse
+      center:
+      - 102.0
+      - 475
+      rx: 7
+      ry: 7
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 122.0
+      - 465
+      - 244.0
+      - 24
+      text: User-centric focus
+      style:
+        class: chip
+    - type: rect
+      box:
+      - 396.0
+      - 452
+      - 304.0
+      - 46
+      fill: '#E6F6F3'
+      radius: 10
+    - type: ellipse
+      center:
+      - 422.0
+      - 475
+      rx: 7
+      ry: 7
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 442.0
+      - 465
+      - 244.0
+      - 24
+      text: Quality internal platforms
+      style:
+        class: chip
+    - type: rect
+      box:
+      - 76
+      - 510
+      - 304.0
+      - 46
+      fill: '#E6F6F3'
+      radius: 10
+    - type: ellipse
+      center:
+      - 102
+      - 533
+      rx: 7
+      ry: 7
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 122
+      - 523
+      - 244.0
+      - 24
+      text: Great developer experience
+      style:
+        class: chip
+    - type: rect
+      box:
+      - 776
+      - 300
+      - 428
+      - 210
+      fill: '#11182B'
+      radius: 16
+      shadow:
+        color: '#0B1430'
+        blur: 22
+        dx: 0
+        dy: 7
+        opacity: 0.12
+    - type: text
+      box:
+      - 802
+      - 326
+      - 378
+      - 60
+      text: 5.5%
+      style:
+        class: h1
+        font_size: 64
+        color: '#11B3A2'
+    - type: text
+      box:
+      - 802
+      - 398
+      - 378
+      - 90
+      text: of organizations capture real financial return from AI. High performers are 3× more likely
+        to have redesigned their workflows.
+      style:
+        class: bodyD
+        font_size: 14
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: DORA AI Capabilities Model 2025; McKinsey State of AI 2025'
+      style:
+        class: source
+- mode: page
+  id: div03
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#11182B'
+    - type: text
+      box:
+      - 76
+      - 236
+      - 300
+      - 150
+      text: '03'
+      style:
+        class: h1
+        font_size: 150
+        color: '#222C49'
+    - type: text
+      box:
+      - 82
+      - 210
+      - 400
+      - 24
+      text: Section 03
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 326
+      - 300
+      - 760
+      - 120
+      text: The role is being restructured
+      style:
+        class: h1
+        font_size: 44
+        color: '#FFFFFF'
+    - type: line
+      from:
+      - 332
+      - 344
+      to:
+      - 422
+      - 344
+      stroke: '#11B3A2'
+      stroke_style:
+        stroke_width: 3
+    - type: text
+      box:
+      - 332
+      - 420
+      - 720
+      - 60
+      text: Less time authoring lines; more time directing, reviewing and judging — and a narrowing path
+        in at the bottom.
+      style:
+        class: subtitle
+        color: '#A7AFC6'
+    - type: text
+      box:
+      - 1044
+      - 680
+      - 160
+      - 22
+      text: 12 / 20
+      style:
+        class: pnum
+        align: right
+        color: '#6B7690'
+- mode: page
+  id: craft
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 03 · The restructured role
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: From author to reviewer and judge
+      style:
+        class: title
+        color: '#26304F'
+    - type: rect
+      box:
+      - 76
+      - 210
+      - 550.0
+      - 150
+      fill: '#F4F6FB'
+      radius: 14
+    - type: text
+      box:
+      - 98
+      - 228
+      - 510.0
+      - 20
+      text: YESTERDAY
+      style:
+        class: kicker
+        color: '#8089A2'
+        font_size: 12
+    - type: text
+      box:
+      - 98
+      - 254
+      - 510.0
+      - 90
+      text: Write the implementation. Learn the codebase by doing the simpler, task-oriented work that
+        built proficiency.
+      style:
+        class: cardb
+        font_size: 14
+    - type: rect
+      box:
+      - 654.0
+      - 210
+      - 550.0
+      - 150
+      fill: '#E6F6F3'
+      radius: 14
+    - type: text
+      box:
+      - 676.0
+      - 228
+      - 510.0
+      - 20
+      text: NOW
+      style:
+        class: kicker
+        color: '#0A6F64'
+        font_size: 12
+    - type: text
+      box:
+      - 676.0
+      - 254
+      - 510.0
+      - 90
+      text: Specify intent, then review, debug and validate generated output. The scarce work is judgment,
+        not keystrokes.
+      style:
+        class: cardb
+        font_size: 14
+        color: '#0A6F64'
+    - type: text
+      box:
+      - 76
+      - 392
+      - 1128
+      - 60
+      text: “Every change feels like being a judge on an assembly line that never ends — you just keep
+        stamping the pull requests.”
+      style:
+        class: quote
+    - type: text
+      box:
+      - 76
+      - 452
+      - 1128
+      - 20
+      text: — Software engineer, on the shift to AI-augmented workflows (paraphrased)
+      style:
+        class: source
+    - type: rect
+      box:
+      - 76
+      - 490
+      - 1128
+      - 40
+      fill: '#11182B'
+      radius: 10
+    - type: text
+      box:
+      - 98
+      - 500
+      - 1088
+      - 22
+      text: 'Skills that compound as tools churn:  problem framing · systems design · debugging · testing
+        · trade-offs · mentoring'
+      style:
+        class: bodyD
+        font_size: 13
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: Stack Overflow 2025; practitioner interviews; senior review time +19% post-AI'
+      style:
+        class: source
+- mode: page
+  id: juniors
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 03 · The restructured role
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: The entry-level rung is thinning
+      style:
+        class: title
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 200
+      - 560
+      - 160
+      text: AI is absorbing the routine tasks juniors once cut their teeth on. The labour data shows the
+        impact landing squarely on the youngest cohort — not on developers overall.
+      style:
+        class: lede
+    - type: text
+      box:
+      - 76
+      - 300
+      - 170
+      - 38
+      text: −20%
+      style:
+        class: statbig
+        font_size: 30
+        color: '#D4574A'
+    - type: text
+      box:
+      - 256
+      - 302
+      - 400
+      - 40
+      text: employment of developers aged 22–25 vs. its 2022 peak (Stanford, ADP payroll data).
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 76
+      - 364
+      - 170
+      - 38
+      text: 15% → 7%
+      style:
+        class: statbig
+        font_size: 30
+        color: '#BF7327'
+    - type: text
+      box:
+      - 256
+      - 366
+      - 400
+      - 40
+      text: junior share of IT employment over three years.
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 76
+      - 428
+      - 170
+      - 38
+      text: −25%
+      style:
+        class: statbig
+        font_size: 30
+        color: '#BF7327'
+    - type: text
+      box:
+      - 256
+      - 430
+      - 400
+      - 40
+      text: entry-level tech hiring, year-on-year (2024).
+      style:
+        class: cardb
+    - type: text
+      box:
+      - 76
+      - 492
+      - 170
+      - 38
+      text: 6.1%
+      style:
+        class: statbig
+        font_size: 30
+        color: '#BF7327'
+    - type: text
+      box:
+      - 256
+      - 494
+      - 400
+      - 40
+      text: CS-graduate unemployment — close to double the national rate.
+      style:
+        class: cardb
+    - type: rect
+      box:
+      - 696
+      - 206
+      - 508
+      - 314
+      fill: '#F4F6FB'
+      radius: 14
+    - type: text
+      box:
+      - 720
+      - 224
+      - 460
+      - 20
+      text: Employment change by age cohort
+      style:
+        class: cardh
+        font_size: 14
+    - type: text
+      box:
+      - 720
+      - 248
+      - 460
+      - 18
+      text: Software developers, same firms, 2022–25
+      style:
+        class: statlbl
+    - type: line
+      from:
+      - 726
+      - 400
+      to:
+      - 1174
+      - 400
+      stroke: '#E2E7F1'
+      stroke_style:
+        stroke_width: 1
+    - type: rect
+      box:
+      - 766.0
+      - 400
+      - 46
+      - 68.0
+      fill: '#D4574A'
+      radius: 6
+    - type: text
+      box:
+      - 752.0
+      - 476.0
+      - 74
+      - 18
+      text: -20%
+      style:
+        class: barval
+        align: center
+        color: '#D4574A'
+        font_size: 12
+    - type: text
+      box:
+      - 752.0
+      - 494
+      - 74
+      - 16
+      text: 22–25
+      style:
+        class: axis
+        align: center
+    - type: rect
+      box:
+      - 895.3333333333334
+      - 400
+      - 46
+      - 13.6
+      fill: '#E0903B'
+      radius: 6
+    - type: text
+      box:
+      - 881.3333333333334
+      - 421.6
+      - 74
+      - 18
+      text: -4%
+      style:
+        class: barval
+        align: center
+        color: '#E0903B'
+        font_size: 12
+    - type: text
+      box:
+      - 881.3333333333334
+      - 494
+      - 74
+      - 16
+      text: 26–29
+      style:
+        class: axis
+        align: center
+    - type: rect
+      box:
+      - 1024.6666666666667
+      - 369.4
+      - 46
+      - 30.599999999999998
+      fill: '#11B3A2'
+      radius: 6
+    - type: text
+      box:
+      - 1010.6666666666667
+      - 343.4
+      - 74
+      - 18
+      text: +9%
+      style:
+        class: barval
+        align: center
+        color: '#11B3A2'
+        font_size: 12
+    - type: text
+      box:
+      - 1010.6666666666667
+      - 494
+      - 74
+      - 16
+      text: 30+
+      style:
+        class: axis
+        align: center
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: Stanford Digital Economy Lab 2025; US BLS; IEEE Spectrum 2026'
+      style:
+        class: source
+- mode: page
+  id: timebomb
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 03 · The restructured role
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: Cutting juniors is a deferred liability
+      style:
+        class: title
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 200
+      - 1128
+      - 46
+      text: Routine tasks are automatable; a career is not. Removing the entry rung saves cost now and
+        creates a mid-level talent gap in three to five years — a pattern the industry has run before.
+      style:
+        class: lede
+    - type: rect
+      box:
+      - 76.0
+      - 290
+      - 360.0
+      - 168
+      fill: '#E6F6F3'
+      radius: 14
+    - type: text
+      box:
+      - 98.0
+      - 308
+      - 320.0
+      - 26
+      text: IBM
+      style:
+        class: cardh
+        font_size: 18
+        color: '#11B3A2'
+    - type: text
+      box:
+      - 98.0
+      - 342
+      - 320.0
+      - 100
+      text: Tripled US entry-level hiring in 2026, re-scoping juniors toward validating AI output and
+        customer problems.
+      style:
+        class: cardb
+        font_size: 13.5
+    - type: rect
+      box:
+      - 460.0
+      - 290
+      - 360.0
+      - 168
+      fill: '#FAEDDC'
+      radius: 14
+    - type: text
+      box:
+      - 482.0
+      - 308
+      - 320.0
+      - 26
+      text: Klarna
+      style:
+        class: cardh
+        font_size: 18
+        color: '#BF7327'
+    - type: text
+      box:
+      - 482.0
+      - 342
+      - 320.0
+      - 100
+      text: Paused developer hiring in 2023 to lean on AI; resumed in 2025 after hitting the limits of
+        automation.
+      style:
+        class: cardb
+        font_size: 13.5
+    - type: rect
+      box:
+      - 844.0
+      - 290
+      - 360.0
+      - 168
+      fill: '#F4F6FB'
+      radius: 14
+    - type: text
+      box:
+      - 866.0
+      - 308
+      - 320.0
+      - 26
+      text: AWS (CEO)
+      style:
+        class: cardh
+        font_size: 18
+        color: '#26304F'
+    - type: text
+      box:
+      - 866.0
+      - 342
+      - 320.0
+      - 100
+      text: Called replacing junior developers with AI “one of the dumbest things I've ever heard.”
+      style:
+        class: cardb
+        font_size: 13.5
+    - type: rect
+      box:
+      - 76
+      - 478
+      - 1128
+      - 44
+      fill: '#11182B'
+      radius: 10
+    - type: text
+      box:
+      - 98
+      - 489
+      - 1088
+      - 24
+      text: 'Historical echo: the 2008 hiring freeze produced a shortage of 3–5-year engineers by 2012.
+        The pipeline interrupts quietly and reappears as scarcity.'
+      style:
+        class: bodyD
+        font_size: 13
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: Bloomberg 2026; company statements; IEEE Spectrum 2026'
+      style:
+        class: source
+- mode: page
+  id: reallocation
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 03 · The restructured role
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: Demand is reallocating, not vanishing
+      style:
+        class: title
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 200
+      - 520
+      - 160
+      text: The market is splitting. Roles centred on writing routine code are contracting; roles centred
+        on AI, security and systems design are expanding fast. Tech-sector unemployment hit 5.8% in early
+        2026 — its highest since the dot-com bust.
+      style:
+        class: lede
+    - type: text
+      box:
+      - 636
+      - 206
+      - 568
+      - 20
+      text: Change in job-postings vs. pre-pandemic / YoY
+      style:
+        class: cardh
+        font_size: 14
+    - type: rect
+      box:
+      - 636
+      - 252
+      - 490
+      - 20
+      fill: '#EBF0F8'
+      radius: 10.0
+    - type: rect
+      box:
+      - 636
+      - 252
+      - 490.0
+      - 20
+      fill: '#11B3A2'
+      radius: 10.0
+    - type: text
+      box:
+      - 636
+      - 230
+      - 343.0
+      - 18
+      text: Cybersecurity postings
+      style:
+        class: axis
+        color: '#26304F'
+    - type: text
+      box:
+      - 1138
+      - 251
+      - 90
+      - 22
+      text: +124%
+      style:
+        class: barval
+        color: '#11B3A2'
+    - type: rect
+      box:
+      - 636
+      - 310
+      - 490
+      - 20
+      fill: '#EBF0F8'
+      radius: 10.0
+    - type: rect
+      box:
+      - 636
+      - 310
+      - 382.2
+      - 20
+      fill: '#11B3A2'
+      radius: 10.0
+    - type: text
+      box:
+      - 636
+      - 288
+      - 343.0
+      - 18
+      text: AI / ML postings (YoY)
+      style:
+        class: axis
+        color: '#26304F'
+    - type: text
+      box:
+      - 1138
+      - 309
+      - 90
+      - 22
+      text: +85%
+      style:
+        class: barval
+        color: '#11B3A2'
+    - type: rect
+      box:
+      - 636
+      - 368
+      - 490
+      - 20
+      fill: '#EBF0F8'
+      radius: 10.0
+    - type: rect
+      box:
+      - 636
+      - 368
+      - 294.0
+      - 20
+      fill: '#0B8C7E'
+      radius: 10.0
+    - type: text
+      box:
+      - 636
+      - 346
+      - 343.0
+      - 18
+      text: ML-engineer openings
+      style:
+        class: axis
+        color: '#26304F'
+    - type: text
+      box:
+      - 1138
+      - 367
+      - 90
+      - 22
+      text: +59%
+      style:
+        class: barval
+        color: '#0B8C7E'
+    - type: rect
+      box:
+      - 636
+      - 426
+      - 490
+      - 20
+      fill: '#EBF0F8'
+      radius: 10.0
+    - type: rect
+      box:
+      - 636
+      - 426
+      - 196.0
+      - 20
+      fill: '#E0903B'
+      radius: 10.0
+    - type: text
+      box:
+      - 636
+      - 404
+      - 343.0
+      - 18
+      text: AI skills in entry-level ads
+      style:
+        class: axis
+        color: '#26304F'
+    - type: text
+      box:
+      - 1138
+      - 425
+      - 90
+      - 22
+      text: 35%
+      style:
+        class: barval
+        color: '#E0903B'
+    - type: rect
+      box:
+      - 636
+      - 484
+      - 490
+      - 20
+      fill: '#EBF0F8'
+      radius: 10.0
+    - type: rect
+      box:
+      - 636
+      - 484
+      - 269.5
+      - 20
+      fill: '#D4574A'
+      radius: 10.0
+    - type: text
+      box:
+      - 636
+      - 462
+      - 343.0
+      - 18
+      text: General SWE openings
+      style:
+        class: axis
+        color: '#26304F'
+    - type: text
+      box:
+      - 1138
+      - 483
+      - 90
+      - 22
+      text: −49%
+      style:
+        class: barval
+        color: '#D4574A'
+    - type: rect
+      box:
+      - 76
+      - 470
+      - 520
+      - 52
+      fill: '#E6F6F3'
+      radius: 12
+    - type: text
+      box:
+      - 96
+      - 483
+      - 500
+      - 30
+      text: 'AI-skill fluency now carries roughly a 56% wage premium; TypeScript became GitHub''s #1 language
+        as typed code suits agent-assisted work.'
+      style:
+        class: cardb
+        font_size: 12.5
+        color: '#0A6F64'
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: NACE 2026; Indeed; TrueUp; GitHub Octoverse 2025'
+      style:
+        class: source
+- mode: page
+  id: div04
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#11182B'
+    - type: text
+      box:
+      - 76
+      - 236
+      - 300
+      - 150
+      text: '04'
+      style:
+        class: h1
+        font_size: 150
+        color: '#222C49'
+    - type: text
+      box:
+      - 82
+      - 210
+      - 400
+      - 24
+      text: Section 04
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 326
+      - 300
+      - 760
+      - 120
+      text: Implications & the path forward
+      style:
+        class: h1
+        font_size: 44
+        color: '#FFFFFF'
+    - type: line
+      from:
+      - 332
+      - 344
+      to:
+      - 422
+      - 344
+      stroke: '#11B3A2'
+      stroke_style:
+        stroke_width: 3
+    - type: text
+      box:
+      - 332
+      - 420
+      - 720
+      - 60
+      text: The next two years reward those who rebuild the system of work — and who keep growing the
+        people who run it.
+      style:
+        class: subtitle
+        color: '#A7AFC6'
+    - type: text
+      box:
+      - 1044
+      - 680
+      - 160
+      - 22
+      text: 17 / 20
+      style:
+        class: pnum
+        align: right
+        color: '#6B7690'
+- mode: page
+  id: outlook
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 04 · The path forward
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: Where this goes by 2028
+      style:
+        class: title
+        color: '#26304F'
+    - type: text
+      box:
+      - 76
+      - 200
+      - 1128
+      - 40
+      text: Agents are arriving faster than organizations can absorb them. The near-term equilibrium is
+        human-directed, not human-replaced — with review and governance as the new control layer.
+      style:
+        class: lede
+    - type: rect
+      box:
+      - 76.0
+      - 276
+      - 360.0
+      - 200
+      fill: '#E6F6F3'
+      radius: 14
+    - type: text
+      box:
+      - 98.0
+      - 294
+      - 320.0
+      - 26
+      text: Augmented
+      style:
+        class: cardh
+        font_size: 18
+        color: '#11B3A2'
+    - type: text
+      box:
+      - 98.0
+      - 324
+      - 320.0
+      - 18
+      text: MOST TEAMS
+      style:
+        class: kicker
+        color: '#11B3A2'
+        font_size: 11
+        letter_spacing: 1.4
+    - type: text
+      box:
+      - 98.0
+      - 352
+      - 320.0
+      - 110
+      text: Developers direct AI on bounded tasks; humans own review, architecture and accountability.
+        The dominant near-term mode.
+      style:
+        class: cardb
+        font_size: 13
+    - type: rect
+      box:
+      - 460.0
+      - 276
+      - 360.0
+      - 200
+      fill: '#FAEDDC'
+      radius: 14
+    - type: text
+      box:
+      - 482.0
+      - 294
+      - 320.0
+      - 26
+      text: Agentic at scale
+      style:
+        class: cardh
+        font_size: 18
+        color: '#BF7327'
+    - type: text
+      box:
+      - 482.0
+      - 324
+      - 320.0
+      - 18
+      text: THE ~23% SCALING AGENTS
+      style:
+        class: kicker
+        color: '#BF7327'
+        font_size: 11
+        letter_spacing: 1.4
+    - type: text
+      box:
+      - 482.0
+      - 352
+      - 320.0
+      - 110
+      text: Multi-step agents wired into CI, repos and tickets — unlocked only by redesigned workflows
+        and strong guardrails.
+      style:
+        class: cardb
+        font_size: 13
+    - type: rect
+      box:
+      - 844.0
+      - 276
+      - 360.0
+      - 200
+      fill: '#FBECE9'
+      radius: 14
+    - type: text
+      box:
+      - 866.0
+      - 294
+      - 320.0
+      - 26
+      text: Fragmented
+      style:
+        class: cardh
+        font_size: 18
+        color: '#D4574A'
+    - type: text
+      box:
+      - 866.0
+      - 324
+      - 320.0
+      - 18
+      text: LAGGARDS
+      style:
+        class: kicker
+        color: '#D4574A'
+        font_size: 11
+        letter_spacing: 1.4
+    - type: text
+      box:
+      - 866.0
+      - 352
+      - 320.0
+      - 110
+      text: Tools bolted onto weak systems amplify instability; speed without stability becomes accelerated
+        rework.
+      style:
+        class: cardb
+        font_size: 13
+    - type: text
+      box:
+      - 76
+      - 496
+      - 1128
+      - 30
+      text: 'Signals: Copilot''s coding agent authored 1M+ pull requests in five months; yet 52% of developers
+        still avoid agents and 38% have no plans — adoption is real but shallow.'
+      style:
+        class: source
+        font_size: 11.5
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: GitHub Octoverse 2025; Stack Overflow 2025; McKinsey State of AI 2025'
+      style:
+        class: source
+- mode: page
+  id: recommendations
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#FFFFFF'
+    - type: text
+      box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      text: 04 · The path forward
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 122
+      - 1128
+      - 96
+      text: What to do about it
+      style:
+        class: title
+        color: '#26304F'
+    - type: rect
+      box:
+      - 76
+      - 206
+      - 549.0
+      - 316
+      fill: '#F4F6FB'
+      radius: 14
+    - type: text
+      box:
+      - 100
+      - 224
+      - 505.0
+      - 24
+      text: FOR ENGINEERING LEADERS
+      style:
+        class: kicker
+        color: '#26304F'
+        font_size: 13
+    - type: ellipse
+      center:
+      - 110
+      - 268
+      rx: 5
+      ry: 5
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 126
+      - 258
+      - 475.0
+      - 20
+      text: Rebuild the system, not the toolbelt
+      style:
+        class: cardh
+        font_size: 14.5
+    - type: text
+      box:
+      - 126
+      - 280
+      - 475.0
+      - 38
+      text: Invest in platforms, internal data, version control and small-batch flow — the conditions
+        that let AI compound.
+      style:
+        class: cardb
+        font_size: 12.5
+    - type: ellipse
+      center:
+      - 110
+      - 332
+      rx: 5
+      ry: 5
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 126
+      - 322
+      - 475.0
+      - 20
+      text: Re-scope juniors; don't cut them
+      style:
+        class: cardh
+        font_size: 14.5
+    - type: text
+      box:
+      - 126
+      - 344
+      - 475.0
+      - 38
+      text: Measure learning velocity and review depth; keep an AI-free sandbox so fundamentals still
+        get built.
+      style:
+        class: cardb
+        font_size: 12.5
+    - type: ellipse
+      center:
+      - 110
+      - 396
+      rx: 5
+      ry: 5
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 126
+      - 386
+      - 475.0
+      - 20
+      text: Govern generated code
+      style:
+        class: cardh
+        font_size: 14.5
+    - type: text
+      box:
+      - 126
+      - 408
+      - 475.0
+      - 38
+      text: Mandatory review gates, security scanning and agentic remediation; track no-review merges
+        as explicit risk.
+      style:
+        class: cardb
+        font_size: 12.5
+    - type: ellipse
+      center:
+      - 110
+      - 460
+      rx: 5
+      ry: 5
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 126
+      - 450
+      - 475.0
+      - 20
+      text: Measure stability, not just speed
+      style:
+        class: cardh
+        font_size: 14.5
+    - type: text
+      box:
+      - 126
+      - 472
+      - 475.0
+      - 38
+      text: Pair throughput with incidents-per-PR and change-failure; track trust alongside usage.
+      style:
+        class: cardb
+        font_size: 12.5
+    - type: rect
+      box:
+      - 655.0
+      - 206
+      - 549.0
+      - 316
+      fill: '#11182B'
+      radius: 14
+    - type: text
+      box:
+      - 679.0
+      - 224
+      - 505.0
+      - 24
+      text: FOR PRACTITIONERS
+      style:
+        class: kicker
+        color: '#11B3A2'
+        font_size: 13
+    - type: ellipse
+      center:
+      - 689.0
+      - 268
+      rx: 5
+      ry: 5
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 705.0
+      - 258
+      - 475.0
+      - 20
+      text: Move up the stack
+      style:
+        class: cardh
+        font_size: 14.5
+        color: '#FFFFFF'
+    - type: text
+      box:
+      - 705.0
+      - 280
+      - 475.0
+      - 38
+      text: Trade keystrokes for judgment — problem framing, systems design and trade-off reasoning.
+      style:
+        class: bodyD
+        font_size: 12.5
+    - type: ellipse
+      center:
+      - 689.0
+      - 332
+      rx: 5
+      ry: 5
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 705.0
+      - 322
+      - 475.0
+      - 20
+      text: Be AI-native, but skeptical
+      style:
+        class: cardh
+        font_size: 14.5
+        color: '#FFFFFF'
+    - type: text
+      box:
+      - 705.0
+      - 344
+      - 475.0
+      - 38
+      text: Treat output as a fast, unreliable draft; verify the 'almost-right' and own the outcome.
+      style:
+        class: bodyD
+        font_size: 12.5
+    - type: ellipse
+      center:
+      - 689.0
+      - 396
+      rx: 5
+      ry: 5
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 705.0
+      - 386
+      - 475.0
+      - 20
+      text: Master review & debugging
+      style:
+        class: cardh
+        font_size: 14.5
+        color: '#FFFFFF'
+    - type: text
+      box:
+      - 705.0
+      - 408
+      - 475.0
+      - 38
+      text: The scarce, durable skill in a world of cheap generation is finding what's wrong.
+      style:
+        class: bodyD
+        font_size: 12.5
+    - type: ellipse
+      center:
+      - 689.0
+      - 460
+      rx: 5
+      ry: 5
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 705.0
+      - 450
+      - 475.0
+      - 20
+      text: Bank the fundamentals
+      style:
+        class: cardh
+        font_size: 14.5
+        color: '#FFFFFF'
+    - type: text
+      box:
+      - 705.0
+      - 472
+      - 475.0
+      - 38
+      text: Languages and tools churn; framing, testing and architecture compound across them.
+      style:
+        class: bodyD
+        font_size: 12.5
+    - type: text
+      box:
+      - 76
+      - 680
+      - 1008
+      - 26
+      text: 'Source: Synthesis — DORA, McKinsey, Stack Overflow, Stanford 2025–26'
+      style:
+        class: source
+- mode: page
+  id: closing
+  master: deck
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - type: rect
+      box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      fill: '#11182B'
+    - type: text
+      box:
+      - 76
+      - 96
+      - 1128
+      - 24
+      text: In summary
+      style:
+        class: kicker
+    - type: text
+      box:
+      - 76
+      - 128
+      - 1128
+      - 60
+      text: The practitioner is being redefined, not retired
+      style:
+        class: h1
+        font_size: 40
+        color: '#FFFFFF'
+    - type: ellipse
+      center:
+      - 98
+      - 258
+      rx: 18
+      ry: 18
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 90
+      - 246
+      - 20
+      - 24
+      text: '1'
+      style:
+        class: num
+        font_size: 16
+        align: center
+        color: '#11182B'
+    - type: text
+      box:
+      - 138
+      - 236
+      - 1048
+      - 26
+      text: Universal, not magical
+      style:
+        class: cardh
+        font_size: 20
+        color: '#FFFFFF'
+    - type: text
+      box:
+      - 138
+      - 266
+      - 1008
+      - 40
+      text: 'Near-total adoption with falling trust: AI is a default surface, not an autopilot.'
+      style:
+        class: bodyD
+        font_size: 14.5
+    - type: ellipse
+      center:
+      - 98
+      - 344
+      rx: 18
+      ry: 18
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 90
+      - 332
+      - 20
+      - 24
+      text: '2'
+      style:
+        class: num
+        font_size: 16
+        align: center
+        color: '#11182B'
+    - type: text
+      box:
+      - 138
+      - 322
+      - 1048
+      - 26
+      text: Speed exposes the system
+      style:
+        class: cardh
+        font_size: 20
+        color: '#FFFFFF'
+    - type: text
+      box:
+      - 138
+      - 352
+      - 1008
+      - 40
+      text: It multiplies strengths and weaknesses alike; stability is now the binding constraint.
+      style:
+        class: bodyD
+        font_size: 14.5
+    - type: ellipse
+      center:
+      - 98
+      - 430
+      rx: 18
+      ry: 18
+      fill: '#11B3A2'
+    - type: text
+      box:
+      - 90
+      - 418
+      - 20
+      - 24
+      text: '3'
+      style:
+        class: num
+        font_size: 16
+        align: center
+        color: '#11182B'
+    - type: text
+      box:
+      - 138
+      - 408
+      - 1048
+      - 26
+      text: People remain the moat
+      style:
+        class: cardh
+        font_size: 20
+        color: '#FFFFFF'
+    - type: text
+      box:
+      - 138
+      - 438
+      - 1008
+      - 40
+      text: Judgment, review and a healthy talent pipeline decide who captures the upside.
+      style:
+        class: bodyD
+        font_size: 14.5
+    - type: line
+      from:
+      - 76
+      - 520
+      to:
+      - 1204
+      - 520
+      stroke: '#2C3553'
+      stroke_style:
+        stroke_width: 1
+    - type: text
+      box:
+      - 76
+      - 534
+      - 1128
+      - 20
+      text: Sources
+      style:
+        class: kicker
+        font_size: 11
+        color: '#11B3A2'
+    - type: text
+      box:
+      - 76
+      - 556
+      - 1128
+      - 40
+      text: DORA State of AI-assisted Software Development 2025 · Stack Overflow Developer Survey 2025
+        · METR RCT 2025 · Stanford Digital Economy Lab 2025 · GitHub Octoverse 2025 · McKinsey State of
+        AI 2025 · Faros AI 2026 · US BLS · IEEE Spectrum · CSA / Georgia Tech 2026
+      style:
+        class: sourceD
+        font_size: 10.5
+    - type: text
+      box:
+      - 1044
+      - 680
+      - 160
+      - 22
+      text: 20 / 20
+      style:
+        class: pnum
+        align: right
+        color: '#6B7690'

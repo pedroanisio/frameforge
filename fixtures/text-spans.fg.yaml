@@ -1,0 +1,44 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Rich inline text spans (fixture)
+description: >-
+  Exercises text.spans — per-run inline typography on a single line. Each span
+  carries its own style (weight / colour); the renderer emits one <text> with a
+  styled <tspan> per run instead of flattening the spans to a single style.
+  Backs the reused spans renderer. (Multi-line/wrapped spans fall back to the
+  flattened single-style line — a documented proxy limitation.)
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#1c2733'
+      accent: '#c0392b'
+    text_styles:
+      lead:
+        font: sans
+        size: 16
+        color: ink
+      strong:
+        font: sans
+        size: 16
+        weight: 700
+        color: accent
+pages:
+- mode: page
+  id: spans
+  canvas:
+    size: [600, 120]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: text
+      box: [20, 44, 560, 28]
+      spans:
+      - {text: 'Shipping ', style: lead}
+      - {text: FREE, style: strong}
+      - {text: ' on orders over $35.', style: lead}

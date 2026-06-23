@@ -1,0 +1,68 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Connector anchors fixture
+description: Exercises connector object/port/side anchors, route points, arrowheads, and labels.
+defs:
+  tokens:
+    colors:
+      ink: "#1f2937"
+      card: "#eef4ff"
+      accent: "#2563eb"
+    stroke_styles:
+      arrow:
+        stroke: accent
+        stroke_width: 2
+        arrow_end: true
+      dashed:
+        stroke: ink
+        stroke_width: 1.5
+        stroke_dasharray: [5, 3]
+    text_styles:
+      label:
+        font: sans
+        size: 12
+        color: ink
+        align: center
+pages:
+- mode: page
+  id: connectors
+  canvas: {size: [360, 180], units: px}
+  layers:
+  - id: nodes
+    objects:
+    - type: rect
+      id: left
+      box: [40, 54, 80, 50]
+      fill: card
+      stroke: ink
+      stroke_style: {stroke_width: 1}
+      ports:
+        east: [120, 79]
+    - type: rect
+      id: right
+      box: [240, 54, 80, 50]
+      fill: card
+      stroke: ink
+      stroke_style: {stroke_width: 1}
+  - id: connectors
+    z: 10
+    objects:
+    - type: connector
+      id: c_port_to_side
+      from: {object: left, port: east}
+      to: {object: right, side: west}
+      route: {type: straight}
+      stroke_style: arrow
+      label:
+        text: port to side
+        box: [130, 60, 100, 18]
+        style: label
+    - type: connector
+      id: c_orthogonal_to_point
+      from: {object: left, side: south}
+      to: {point: [300, 140]}
+      route:
+        type: orthogonal
+        points: [[80, 130], [300, 130]]
+      stroke_style: dashed

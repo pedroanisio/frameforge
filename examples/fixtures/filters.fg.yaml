@@ -1,0 +1,161 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: CSS filter functions (fixture)
+description: >-
+  Exercises the `filter` style property as a `FilterFn` list — the proxy desugars
+  each `{fn, value}` to a CSS filter primitive (`blur(px)`, `brightness(n)`,
+  `hue-rotate(deg)`, …). Eight functions are each applied to the SAME gradient
+  base so the effect is legible by comparison, plus a `drop_shadow` (carrying a
+  `Shadow`) and a `backdrop_filter` "frosted glass" panel over a busy background.
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#1c2733'
+      g1: '#ff5e62'
+      g2: '#ff9966'
+      g3: '#2e86de'
+      hot: '#e74c3c'
+      cool: '#16a085'
+    text_styles:
+      title:
+        font: sans
+        size: 15
+        weight: 600
+        color: ink
+      cap:
+        font: sans
+        size: 11
+        color: ink
+        align: center
+      glass:
+        font: sans
+        size: 13
+        weight: 600
+        color: '#ffffff'
+        align: center
+pages:
+- mode: page
+  id: filters
+  canvas:
+    size: [820, 430]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: text
+      box: [24, 16, 760, 22]
+      text: CSS filter functions (same gradient base)
+      style: title
+
+    # Row 1
+    - type: rect
+      box: [24, 56, 170, 100]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {filter: [{fn: blur, value: '3px'}]}
+    - type: text
+      box: [24, 162, 170, 16]
+      text: blur 3px
+      style: cap
+    - type: rect
+      box: [217, 56, 170, 100]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {filter: [{fn: brightness, value: '1.5'}]}
+    - type: text
+      box: [217, 162, 170, 16]
+      text: brightness 1.5
+      style: cap
+    - type: rect
+      box: [410, 56, 170, 100]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {filter: [{fn: contrast, value: '1.8'}]}
+    - type: text
+      box: [410, 162, 170, 16]
+      text: contrast 1.8
+      style: cap
+    - type: rect
+      box: [603, 56, 170, 100]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {filter: [{fn: grayscale, value: '1'}]}
+    - type: text
+      box: [603, 162, 170, 16]
+      text: grayscale 1
+      style: cap
+
+    # Row 2
+    - type: rect
+      box: [24, 192, 170, 100]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {filter: [{fn: hue_rotate, value: '120deg'}]}
+    - type: text
+      box: [24, 298, 170, 16]
+      text: hue-rotate 120°
+      style: cap
+    - type: rect
+      box: [217, 192, 170, 100]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {filter: [{fn: invert, value: '1'}]}
+    - type: text
+      box: [217, 298, 170, 16]
+      text: invert 1
+      style: cap
+    - type: rect
+      box: [410, 192, 170, 100]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style: {filter: [{fn: saturate, value: '2.5'}]}
+    - type: text
+      box: [410, 298, 170, 16]
+      text: saturate 2.5
+      style: cap
+    - type: rect
+      box: [603, 192, 170, 100]
+      radius: 8
+      fill: {kind: linear, angle: 60, stops: [{color: g1, position: '0%'}, {color: g2, position: '50%'}, {color: g3, position: '100%'}]}
+      style:
+        filter:
+        - {fn: drop_shadow, shadow: {offset_x: 4, offset_y: 5, blur: 5, color: ink}}
+    - type: text
+      box: [603, 298, 170, 16]
+      text: drop-shadow
+      style: cap
+
+    # backdrop_filter — frosted-glass panel over a colourful background
+    - type: ellipse
+      center: [150, 372]
+      rx: 120
+      ry: 46
+      fill: hot
+    - type: ellipse
+      center: [430, 372]
+      rx: 130
+      ry: 46
+      fill: cool
+    - type: ellipse
+      center: [690, 372]
+      rx: 120
+      ry: 46
+      fill: g3
+    - type: rect
+      box: [120, 338, 580, 70]
+      radius: 12
+      fill: '#ffffff'
+      fill_opacity: 0.18
+      stroke: '#ffffff'
+      stroke_style: {stroke_width: 1}
+      style:
+        backdrop_filter: [{fn: blur, value: '6px'}, {fn: saturate, value: '1.4'}]
+    - type: text
+      box: [120, 364, 580, 18]
+      text: backdrop_filter — blur(6px) saturate(1.4) over a busy background
+      style: glass
