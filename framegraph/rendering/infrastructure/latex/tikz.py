@@ -1093,6 +1093,7 @@ class FigureTikz:
 
     def _format_text(self, st, content):
         content = self._transform_text(content, st.get("text_transform"))
+        content = self._clamp_text(st, content)
         escaped = self._break_text(st, content)
         escaped = self._tab_text(st, escaped)
         if str(st.get("white_space") or "").strip().lower() in ("pre", "pre-wrap", "pre-line"):
@@ -1103,6 +1104,22 @@ class FigureTikz:
         escaped = self._direction_text(st, escaped)
         escaped = self._hanging_punctuation_text(st, escaped)
         return self._decorate_text(st, escaped)
+
+    @staticmethod
+    def _clamp_text(st, content):
+        text = str(content)
+        if not isinstance(st, dict):
+            return text
+        limit = num(st.get("max_lines"), None)
+        if limit is None or limit <= 0:
+            return text
+        lines = text.splitlines()
+        if len(lines) <= int(limit):
+            return text
+        kept = lines[:int(limit)]
+        if str(st.get("text_overflow") or "").strip().lower() == "ellipsis" and kept:
+            kept[-1] += "\u2026"
+        return "\n".join(kept)
 
     @staticmethod
     def _break_text(st, content):

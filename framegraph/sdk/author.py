@@ -1,10 +1,12 @@
 """Authoring builders for the Python SDK."""
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Iterator
 
 from framegraph.sdk.expand import ExpandOptions, expand
+from framegraph.sdk.geometry import Mat3, Path as _GeomPath, Vec2
 from framegraph.sdk.model import HEAD_VERSION, validate_document
 
 
@@ -95,7 +97,15 @@ class DocumentBuilder:
         canvas: str | dict[str, Any] | None = None,
         master: Handle | str | None = None,
         reading_order: list[str] | None = None,
+        coordinate_mode: str | None = None,
     ) -> "PageBuilder":
+        """Append a page and return its builder.
+
+        ``coordinate_mode`` ("absolute" or "flow") sets the page's
+        ``rendering.coordinate_mode``; absolute is the natural choice for decks
+        that place objects at explicit page coordinates. The value is validated
+        against the model at :meth:`build` time, not here.
+        """
         page: dict[str, Any] = {"mode": "page", "id": id, "layers": []}
         if canvas is not None:
             page["canvas"] = _coerce_handles(canvas)
@@ -103,6 +113,8 @@ class DocumentBuilder:
             page["master"] = _handle_name(master, {"master"}, "master")
         if reading_order is not None:
             page["reading_order"] = reading_order
+        if coordinate_mode is not None:
+            page["rendering"] = {"coordinate_mode": coordinate_mode}
         self._doc["pages"].append(page)
         return PageBuilder(page)
 
@@ -158,6 +170,12 @@ class PageBuilder:
         self._objects().append(_coerce_handles(obj))
         return self
 
+    def extend(self, objects: list[dict[str, Any]]) -> "PageBuilder":
+        """Add many objects at once (e.g. the output of a Chart or a layout)."""
+        objs = self._objects()
+        objs.extend(_coerce_handles(obj) for obj in objects)
+        return self
+
     def rect(self, box: list[Any], **fields: Any) -> "PageBuilder":
         return self.add({"type": "rect", "box": box, **fields})
 
@@ -170,8 +188,110 @@ class PageBuilder:
     def line(self, start: list[float], end: list[float], **fields: Any) -> "PageBuilder":
         return self.add({"type": "line", "from": start, "to": end, **fields})
 
-    def group(self, children: list[dict[str, Any]], **fields: Any) -> "PageBuilder":
+    def ellipse(self, center: Any, rx: float, ry: float, **fields: Any) -> "PageBuilder":
+        """Add an ellipse centred at ``center`` (a ``Vec2`` or ``[x, y]``)."""
+        return self.add({"type": "ellipse", "center": _point(center),
+                         "rx": rx, "ry": ry, **fields})
+
+    def circle(self, center: Any, r: float, **fields: Any) -> "PageBuilder":
+        """Add a circle. Lowers to the canonical ``ellipse`` (rx == ry == r), so it
+        never emits the deprecated ``circle`` alias."""
+        return self.ellipse(center, r, r, **fields)
+
+    def polyline(self, points: Any, *, closed: bool = False, **fields: Any) -> "PageBuilder":
+        """Add a polyline through ``points`` (``Vec2`` values or ``[x, y]`` pairs)."""
+        obj: dict[str, Any] = {"type": "polyline", "points": _points(points)}
+        if closed:
+            obj["closed"] = True
+        obj.update(fields)
+        return self.add(obj)
+
+    def polygon(self, points: Any, **fields: Any) -> "PageBuilder":
+        """Add a filled polygon. Lowers to a canonical closed ``polyline``, so it
+        never emits the deprecated ``polygon`` alias."""
+        return self.polyline(points, closed=True, **fields)
+
+    def path(self, d: Any, **fields: Any) -> "PageBuilder":
+        """Add a path. ``d`` may be an SVG path string, a segment list, or a
+        :class:`framegraph.sdk.Path` builder (whose geometry is lowered for you)."""
+        if isinstance(d, _GeomPath):
+            return self.add(d.object(**fields))
+        return self.add({"type": "path", "d": d, **fields})
+
+    def arrow(self, start: Any, end: Any, *, color: str = "#000000", width: float = 2.0,
+              head: float = 9.0, head_width: float | None = None, **fields: Any) -> "PageBuilder":
+        """Draw a vector from ``start`` to ``end`` with a filled arrowhead at ``end``.
+
+        Emits a ``line`` (shortened to the arrowhead base so the shaft does not
+        poke through the tip) plus a closed ``polyline`` head, both in ``color`` —
+        so callers stop hand-rolling triangle polygons and mis-placing them.
+        ``head`` is the head length in px; extra ``fields`` (e.g. an opacity, or a
+        ``stroke_style`` with a dash) are merged onto the shaft line.
+        """
+        sx, sy = _point(start)
+        ex, ey = _point(end)
+        dx, dy = ex - sx, ey - sy
+        length = (dx * dx + dy * dy) ** 0.5 or 1.0
+        ux, uy = dx / length, dy / length          # unit vector along the shaft
+        px, py = -uy, ux                           # unit perpendicular
+        hw = head * 0.6 if head_width is None else head_width
+        bx, by = ex - ux * head, ey - uy * head    # arrowhead base, on the shaft
+        stroke_style = {"stroke_width": width, **fields.pop("stroke_style", {})}
+        self.line([sx, sy], [bx, by], stroke=color, stroke_style=stroke_style, **fields)
+        self.polygon([[ex, ey], [bx + px * hw, by + py * hw], [bx - px * hw, by - py * hw]],
+                     fill=color)
+        return self
+
+    def group(
+        self,
+        children: list[dict[str, Any]],
+        *,
+        transform: "Mat3 | list[Any] | None" = None,
+        **fields: Any,
+    ) -> "PageBuilder":
+        """Add a group of ``children``.
+
+        ``transform`` (a :class:`~framegraph.sdk.Mat3` or a list of transform
+        functions) is lowered onto the group's ``style.transform`` so the whole
+        group is placed/scaled/rotated as a unit. See :meth:`frame` for authoring
+        children in a local coordinate system.
+        """
+        if transform is not None:
+            fields = _transform_fields(transform, fields)
         return self.add({"type": "group", "children": children, **fields})
+
+    @contextmanager
+    def frame(
+        self,
+        x: float = 0.0,
+        y: float = 0.0,
+        *,
+        scale: float = 1.0,
+        scale_y: float | None = None,
+        flip: float = 1.0,
+        rotate: float = 0.0,
+    ) -> "Iterator[PageBuilder]":
+        """Draw into a transformed group, authoring children at the local origin.
+
+        Yields a detached :class:`PageBuilder` exposing the same primitives; on
+        exit their objects are wrapped in a single group whose ``style.transform``
+        places them — ``translate(x, y)`` then ``rotate(rotate)`` degrees then
+        ``scale(flip * scale, scale_y or scale)``. Use it to stamp a reusable
+        figure at a position, size and mirroring without threading coordinate
+        math through every call::
+
+            with layer.frame(600, 540, scale=1.5, flip=-1) as f:
+                draw_whale(f)   # f.ellipse(...)/f.path(...) in local coordinates
+
+        Frames nest: a frame opened on a yielded builder composes its transform
+        with the parent's. An empty frame lowers to an empty (valid) group.
+        """
+        sy = scale if scale_y is None else scale_y
+        matrix = Mat3.translate(x, y) @ Mat3.rotate(rotate) @ Mat3.scale(flip * scale, sy)
+        sub = PageBuilder({"layers": []}).layer("_frame")
+        yield sub
+        children = sub._current_layer.get("objects", []) if sub._current_layer else []
+        self.group(children, transform=matrix)
 
     def use(self, symbol: Handle | str, box: list[Any], **fields: Any) -> "PageBuilder":
         return self.add({"type": "use", "symbol": _handle_name(symbol, {"symbol"}, "symbol"), "box": box, **fields})
@@ -191,6 +311,40 @@ class PageBuilder:
             self.layer("main")
         assert self._current_layer is not None
         return self._current_layer.setdefault("objects", [])
+
+
+def _point(value: Any) -> list[float]:
+    """Coerce a ``Vec2`` or ``[x, y]`` sequence to a plain ``[x, y]`` list."""
+    if isinstance(value, Vec2):
+        return [value.x, value.y]
+    return [float(value[0]), float(value[1])]
+
+
+def _transform_fields(transform: Any, fields: dict[str, Any]) -> dict[str, Any]:
+    """Merge ``transform`` (a ``Mat3`` or transform-fn list) into ``fields['style']``.
+
+    ``style.transform`` is where the model carries an affine transform; a ``Mat3``
+    lowers via its canonical ``matrix`` transform function. An existing inline
+    style dict is preserved and its own transforms are kept ahead of these.
+    """
+    fns = transform if isinstance(transform, list) else [transform]
+    lowered = [fn.transform_fn() if isinstance(fn, Mat3) else fn for fn in fns]
+    style = fields.get("style")
+    if style is None:
+        merged: dict[str, Any] = {"transform": lowered}
+    elif isinstance(style, dict):
+        existing = style.get("transform")
+        base = list(existing) if isinstance(existing, list) else ([existing] if existing else [])
+        merged = {**style, "transform": base + lowered}
+    else:
+        raise TypeError(
+            "group(transform=...) needs an inline style dict, not a style reference"
+        )
+    return {**fields, "style": merged}
+
+
+def _points(values: Any) -> list[list[float]]:
+    return [_point(v) for v in values]
 
 
 def _coerce_handles(value: Any, field: str | None = None) -> Any:

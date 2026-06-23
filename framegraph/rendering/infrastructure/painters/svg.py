@@ -353,20 +353,21 @@ class SvgPainter:
         """Wrap one object's SVG with accessibility markup when it carries any.
 
         Additive and minimal: objects with no accessibility semantics are returned
-        byte-for-byte unchanged, so only `decorative` nodes (→ `aria-hidden`) and
-        images with `alt`/`actual_text` (→ `role="img"` + `<title>`/`<desc>`) change
-        the output. `alt` is the short label; `actual_text` the verbatim content."""
+        byte-for-byte unchanged. `decorative` nodes become `aria-hidden`; any
+        object with `role`, `alt`, or `actual_text` gets a semantic group. `alt`
+        is the short label; `actual_text` is the verbatim content."""
         if not svg or not isinstance(obj, dict):
             return svg
         if obj.get("decorative"):
             return f'<g aria-hidden="true">{svg}</g>'
-        if obj.get("type") == "image":
-            alt, actual = obj.get("alt"), obj.get("actual_text")
-            if alt or actual:
-                title = f"<title>{esc(alt)}</title>" if alt else ""
-                desc = f"<desc>{esc(actual)}</desc>" if actual else ""
-                label = f' aria-label="{esc(alt)}"' if alt else ""
-                return f'<g role="img"{label}>{title}{desc}{svg}</g>'
+        role = obj.get("role")
+        alt, actual = obj.get("alt"), obj.get("actual_text")
+        if role or alt or actual:
+            semantic_role = role or "img"
+            title = f"<title>{esc(alt)}</title>" if alt else ""
+            desc = f"<desc>{esc(actual)}</desc>" if actual else ""
+            label = f' aria-label="{esc(alt)}"' if alt else ""
+            return f'<g role="{esc(semantic_role)}"{label}>{title}{desc}{svg}</g>'
         return svg
 
     def document(self, w, h, body, lang=None, title=None, desc=None):

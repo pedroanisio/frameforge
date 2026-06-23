@@ -340,6 +340,30 @@ def test_preformatted_white_space_preserves_newlines():
     assert "{Line 1\\\\Line 2}" in tex
 
 
+def test_line_clamp_keeps_first_explicit_lines():
+    tex = _fig({"label": {"white_space": "pre-wrap", "max_lines": 2}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 60],
+        "text": "Line 1\nLine 2\nLine 3",
+        "style": "label",
+    })
+
+    assert "{Line 1\\\\Line 2}" in tex
+    assert "Line 3" not in tex
+
+
+def test_line_clamp_with_ellipsis_marks_last_kept_line():
+    tex = _fig({"label": {"white_space": "pre-wrap", "max_lines": 2, "text_overflow": "ellipsis"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 60],
+        "text": "Line 1\nLine 2\nLine 3",
+        "style": "label",
+    })
+
+    assert "{Line 1\\\\Line 2\u2026}" in tex
+    assert "Line 3" not in tex
+
+
 def test_word_break_break_all_inserts_discretionary_breaks():
     tex = _fig({"label": {"word_break": "break-all"}}).render({
         "type": "text",

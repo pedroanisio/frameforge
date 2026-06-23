@@ -1,0 +1,1420 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: report
+title: Composition on A4
+lang: en
+defs:
+  tokens:
+    colors:
+      paper: '#fbfaf6'
+      ink: '#1d1e22'
+      sub: '#6c7077'
+      accent: '#b5402c'
+      panel: '#ece7dc'
+      dark: '#1d1e22'
+      white: '#ffffff'
+      hair: '#d8d2c4'
+    text_styles:
+      foot:
+        color: sub
+        font_family:
+        - DejaVu Sans Mono
+        - Fira Mono
+        - monospace
+        font_size: 10
+        letter_spacing: 1
+      kicker:
+        color: accent
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 3
+        text_transform: uppercase
+      kickerC:
+        align: center
+        color: accent
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 3
+        text_transform: uppercase
+      h1:
+        color: ink
+        font_family:
+        - Bitstream Charter
+        - Noto Serif
+        - Georgia
+        - serif
+        font_size: 82
+        font_weight: 800
+        line_height: 0.98
+        letter_spacing: -1
+      h1C:
+        align: center
+        color: ink
+        font_family:
+        - Bitstream Charter
+        - Noto Serif
+        - Georgia
+        - serif
+        font_size: 64
+        font_weight: 800
+        line_height: 1.0
+        letter_spacing: -1
+      h2:
+        color: ink
+        font_family:
+        - Bitstream Charter
+        - Noto Serif
+        - Georgia
+        - serif
+        font_size: 34
+        font_weight: 800
+        line_height: 1.05
+      h3:
+        color: ink
+        font_family:
+        - Bitstream Charter
+        - Noto Serif
+        - Georgia
+        - serif
+        font_size: 20
+        font_weight: 800
+      h3w:
+        color: white
+        font_family:
+        - Bitstream Charter
+        - Noto Serif
+        - Georgia
+        - serif
+        font_size: 20
+        font_weight: 800
+      lead:
+        color: ink
+        font_family:
+        - Bitstream Charter
+        - Noto Serif
+        - Georgia
+        - serif
+        font_size: 19
+        line_height: 1.4
+      leadC:
+        align: center
+        color: sub
+        font_family:
+        - Bitstream Charter
+        - Noto Serif
+        - Georgia
+        - serif
+        font_size: 18
+        line_height: 1.45
+      body:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.55
+      bodysub:
+        color: sub
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.55
+      bodyw:
+        color: white
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.55
+      big:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 230
+        font_weight: 800
+        line_height: 0.9
+        letter_spacing: -8
+      stat:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 52
+        font_weight: 800
+        letter_spacing: -2
+      num:
+        color: accent
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 15
+        font_weight: 800
+      quote:
+        italic: true
+        color: ink
+        font_family:
+        - Bitstream Charter
+        - Noto Serif
+        - Georgia
+        - serif
+        font_size: 22
+        font_weight: 600
+        line_height: 1.35
+      cap:
+        color: sub
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 11
+        letter_spacing: 1
+      meta:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        line_height: 1.5
+      metah:
+        color: sub
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 10
+        font_weight: 700
+        letter_spacing: 2
+        text_transform: uppercase
+      th:
+        color: white
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      td:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+    stroke_styles:
+      grid:
+        color: hair
+        width: 1
+pages:
+- mode: page
+  id: a1-cover
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: paper
+  - id: body
+    objects:
+    - box:
+      - 64
+      - 1051
+      - 666
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 64
+      - 1065
+      - 400
+      - 14
+      style: foot
+      type: text
+      text: Composition on A4 — a print specimen
+    - box:
+      - 610
+      - 1065
+      - 120
+      - 14
+      style: foot
+      type: text
+      text: COVER   ·   p.1
+    - box:
+      - 64
+      - 96
+      - 666
+      - 18
+      style: kicker
+      type: text
+      text: Quarterly Review · No. 12 · 2026
+    - box:
+      - 64
+      - 124
+      - 666
+      - 2
+      type: rect
+      fill: ink
+    - box:
+      - 64
+      - 678
+      - 240
+      - 12
+      type: rect
+      fill: accent
+    - box:
+      - 64
+      - 712
+      - 660
+      - 110
+      style: h1
+      type: text
+      text: Composition
+    - box:
+      - 64
+      - 800
+      - 660
+      - 110
+      style: h1
+      type: text
+      text: on A4.
+    - box:
+      - 64
+      - 944
+      - 600
+      - 90
+      style: lead
+      type: text
+      text: Eight pages, one identity, eight ways to arrange the same elements on
+        a tall page.
+- mode: page
+  id: a2-article
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: paper
+  - id: body
+    objects:
+    - box:
+      - 64
+      - 1051
+      - 666
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 64
+      - 1065
+      - 400
+      - 14
+      style: foot
+      type: text
+      text: Composition on A4 — a print specimen
+    - box:
+      - 610
+      - 1065
+      - 120
+      - 14
+      style: foot
+      type: text
+      text: ARTICLE   ·   p.2
+    - box:
+      - 64
+      - 96
+      - 666
+      - 16
+      style: kicker
+      type: text
+      text: Pattern 02 — the two-column article
+    - box:
+      - 64
+      - 124
+      - 666
+      - 48
+      style: h2
+      type: text
+      text: The measure of a column.
+    - box:
+      - 64
+      - 182
+      - 666
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 64
+      - 210
+      - 312.0
+      - 760
+      style: body
+      type: text
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor
+        sit amet consectetur adipiscing elit, sed do eiusmod tempor. Incididunt ut
+        labore et, dolore magna. Aliqua enim ad minim veniam quis nostrud exercitation
+        ullamco, laboris nisi aliquip ex ea. Commodo consequat duis aute irure in,
+        reprehenderit voluptate velit. Esse cillum eu fugiat nulla pariatur excepteur,
+        sint occaecat cupidatat non. Proident sunt culpa qui officia, deserunt mollit.
+        Anim id est laborum lorem ipsum dolor sit, amet consectetur adipiscing elit
+        sed. Do eiusmod tempor incididunt ut labore et, dolore magna aliqua. Enim
+        ad minim veniam quis, nostrud exercitation ullamco. Laboris nisi aliquip ex
+        ea commodo consequat duis, aute irure in reprehenderit.Lorem ipsum dolor sit
+        amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet consectetur
+        adipiscing elit, sed do eiusmod tempor. Incididunt ut labore et, dolore magna.
+        Aliqua enim ad minim veniam quis nostrud exercitation ullamco, laboris nisi
+        aliquip ex ea. Commodo consequat duis aute irure in, reprehenderit voluptate
+        velit. Esse cillum eu fugiat nulla pariatur excepteur, sint occaecat cupidatat
+        non. Proident sunt culpa qui officia, deserunt mollit. Anim id est laborum
+        lorem ipsum dolor sit, amet consectetur adipiscing elit sed. Do eiusmod tempor
+        incididunt ut labore et, dolore magna aliqua. Enim ad minim veniam quis, nostrud
+        exercitation ullamco. Laboris nisi aliquip ex ea commodo consequat duis, aute
+        irure in reprehenderit.
+    - box:
+      - 418.0
+      - 210
+      - 312.0
+      - 470
+      style: body
+      type: text
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor
+        sit amet consectetur adipiscing elit, sed do eiusmod tempor. Incididunt ut
+        labore et, dolore magna. Aliqua enim ad minim veniam quis nostrud exercitation
+        ullamco, laboris nisi aliquip ex ea. Commodo consequat duis aute irure in,
+        reprehenderit voluptate velit. Esse cillum eu fugiat nulla pariatur excepteur,
+        sint occaecat cupidatat non. Proident sunt culpa qui officia, deserunt mollit.
+        Anim id est laborum lorem ipsum dolor sit, amet consectetur adipiscing elit
+        sed. Do eiusmod tempor incididunt ut labore et, dolore magna aliqua. Enim
+        ad minim veniam quis, nostrud exercitation ullamco. Laboris nisi aliquip ex
+        ea commodo consequat duis, aute irure in reprehenderit.
+    - box:
+      - 418.0
+      - 700
+      - 312.0
+      - 270
+      type: rect
+      fill: panel
+      radius: 4
+    - box:
+      - 444.0
+      - 726.0
+      - 40
+      - 5
+      type: rect
+      fill: accent
+    - box:
+      - 444.0
+      - 748.0
+      - 260.0
+      - 200
+      style: quote
+      type: text
+      text: Set the measure for reading, not for filling the space.
+- mode: page
+  id: a3-modular
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: paper
+  - id: body
+    objects:
+    - box:
+      - 64
+      - 1051
+      - 666
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 64
+      - 1065
+      - 400
+      - 14
+      style: foot
+      type: text
+      text: Composition on A4 — a print specimen
+    - box:
+      - 610
+      - 1065
+      - 120
+      - 14
+      style: foot
+      type: text
+      text: REPORT   ·   p.3
+    - box:
+      - 64
+      - 96
+      - 666
+      - 16
+      style: kicker
+      type: text
+      text: Pattern 03 — modular report
+    - box:
+      - 64
+      - 124
+      - 666
+      - 48
+      style: h2
+      type: text
+      text: Numbers in tiles.
+    - box:
+      - 64.0
+      - 210.0
+      - 322.0
+      - 179.0
+      type: rect
+      fill: panel
+      radius: 10
+    - box:
+      - 90.0
+      - 236.0
+      - 270.0
+      - 16
+      style: metah
+      type: text
+      text: REVENUE
+    - box:
+      - 90.0
+      - 262.0
+      - 270.0
+      - 70
+      style: stat
+      type: text
+      text: +18%
+    - box:
+      - 408.0
+      - 210.0
+      - 322.0
+      - 179.0
+      type: rect
+      fill: panel
+      radius: 10
+    - box:
+      - 434.0
+      - 236.0
+      - 270.0
+      - 16
+      style: metah
+      type: text
+      text: CHURN
+    - box:
+      - 434.0
+      - 262.0
+      - 270.0
+      - 70
+      style: stat
+      type: text
+      text: 2.1%
+    - box:
+      - 64.0
+      - 411.0
+      - 322.0
+      - 179.0
+      type: rect
+      fill: panel
+      radius: 10
+    - box:
+      - 90.0
+      - 437.0
+      - 270.0
+      - 16
+      style: metah
+      type: text
+      text: MARGIN
+    - box:
+      - 90.0
+      - 463.0
+      - 270.0
+      - 70
+      style: stat
+      type: text
+      text: 41%
+    - box:
+      - 408.0
+      - 411.0
+      - 322.0
+      - 179.0
+      type: rect
+      fill: panel
+      radius: 10
+    - box:
+      - 434.0
+      - 437.0
+      - 270.0
+      - 16
+      style: metah
+      type: text
+      text: NPS
+    - box:
+      - 434.0
+      - 463.0
+      - 270.0
+      - 70
+      style: stat
+      type: text
+      text: '62'
+    - box:
+      - 64
+      - 614
+      - 666
+      - 356
+      type: rect
+      fill: dark
+      radius: 10
+    - box:
+      - 94.0
+      - 644.0
+      - 606.0
+      - 30
+      style: h3w
+      type: text
+      text: What the quarter means
+    - box:
+      - 94.0
+      - 688.0
+      - 606.0
+      - 250
+      style: bodyw
+      type: text
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor
+        sit amet consectetur adipiscing elit, sed do eiusmod tempor. Incididunt ut
+        labore et, dolore magna. Aliqua enim ad minim veniam quis nostrud exercitation
+        ullamco, laboris nisi aliquip ex ea. Commodo consequat duis aute irure in,
+        reprehenderit voluptate velit. Esse cillum eu fugiat nulla pariatur excepteur,
+        sint occaecat cupidatat non. Proident sunt culpa qui officia, deserunt mollit.
+        Anim id est laborum lorem ipsum dolor sit, amet consectetur adipiscing elit
+        sed. Do eiusmod tempor incididunt ut labore et, dolore magna aliqua. Enim
+        ad minim veniam quis, nostrud exercitation ullamco. Laboris nisi aliquip ex
+        ea commodo consequat duis, aute irure in reprehenderit.
+- mode: page
+  id: a4-number
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: paper
+  - id: body
+    objects:
+    - box:
+      - 64
+      - 1051
+      - 666
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 64
+      - 1065
+      - 400
+      - 14
+      style: foot
+      type: text
+      text: Composition on A4 — a print specimen
+    - box:
+      - 610
+      - 1065
+      - 120
+      - 14
+      style: foot
+      type: text
+      text: FIGURE   ·   p.4
+    - box:
+      - 64
+      - 120
+      - 666
+      - 16
+      style: kicker
+      type: text
+      text: Pattern 04 — the figure that leads
+    - box:
+      - 54
+      - 230
+      - 720
+      - 280
+      style: big
+      type: text
+      text: 42%
+    - box:
+      - 64
+      - 520
+      - 360
+      - 6
+      type: rect
+      fill: accent
+    - box:
+      - 64
+      - 556
+      - 620
+      - 120
+      style: lead
+      type: text
+      text: of readers never reach the second page — so the first number has to carry
+        the argument by itself.
+    - box:
+      - 64
+      - 980
+      - 620
+      - 16
+      style: cap
+      type: text
+      text: 'Source: an illustrative figure for this specimen.'
+- mode: page
+  id: a5-sidebar
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: paper
+  - id: body
+    objects:
+    - box:
+      - 64
+      - 1051
+      - 666
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 64
+      - 1065
+      - 400
+      - 14
+      style: foot
+      type: text
+      text: Composition on A4 — a print specimen
+    - box:
+      - 610
+      - 1065
+      - 120
+      - 14
+      style: foot
+      type: text
+      text: SIDEBAR   ·   p.5
+    - box:
+      - 64
+      - 96
+      - 666
+      - 16
+      style: kicker
+      type: text
+      text: Pattern 05 — sidebar + main
+    - box:
+      - 64
+      - 150
+      - 188
+      - 820
+      type: rect
+      fill: panel
+      radius: 8
+    - box:
+      - 86.0
+      - 186.0
+      - 152.0
+      - 14
+      style: metah
+      type: text
+      text: SECTION
+    - box:
+      - 86.0
+      - 208.0
+      - 152.0
+      - 20
+      style: meta
+      type: text
+      text: 05 / 08
+    - box:
+      - 86.0
+      - 340.0
+      - 152.0
+      - 14
+      style: metah
+      type: text
+      text: FORMAT
+    - box:
+      - 86.0
+      - 362.0
+      - 152.0
+      - 20
+      style: meta
+      type: text
+      text: A4 portrait
+    - box:
+      - 86.0
+      - 494.0
+      - 152.0
+      - 14
+      style: metah
+      type: text
+      text: GRID
+    - box:
+      - 86.0
+      - 516.0
+      - 152.0
+      - 20
+      style: meta
+      type: text
+      text: sidebar + col
+    - box:
+      - 86.0
+      - 648.0
+      - 152.0
+      - 14
+      style: metah
+      type: text
+      text: TYPE
+    - box:
+      - 86.0
+      - 670.0
+      - 152.0
+      - 20
+      style: meta
+      type: text
+      text: serif + sans
+    - box:
+      - 86.0
+      - 802.0
+      - 152.0
+      - 14
+      style: metah
+      type: text
+      text: INK
+    - box:
+      - 86.0
+      - 824.0
+      - 152.0
+      - 20
+      style: meta
+      type: text
+      text: 1 accent
+    - box:
+      - 300
+      - 150
+      - 430
+      - 50
+      style: h2
+      type: text
+      text: The main column reads beside a fixed rail.
+    - box:
+      - 300
+      - 240
+      - 430
+      - 730
+      style: body
+      type: text
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor
+        sit amet consectetur adipiscing elit, sed do eiusmod tempor. Incididunt ut
+        labore et, dolore magna. Aliqua enim ad minim veniam quis nostrud exercitation
+        ullamco, laboris nisi aliquip ex ea. Commodo consequat duis aute irure in,
+        reprehenderit voluptate velit. Esse cillum eu fugiat nulla pariatur excepteur,
+        sint occaecat cupidatat non. Proident sunt culpa qui officia, deserunt mollit.
+        Anim id est laborum lorem ipsum dolor sit, amet consectetur adipiscing elit
+        sed. Do eiusmod tempor incididunt ut labore et, dolore magna aliqua. Enim
+        ad minim veniam quis, nostrud exercitation ullamco. Laboris nisi aliquip ex
+        ea commodo consequat duis, aute irure in reprehenderit.Lorem ipsum dolor sit
+        amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet consectetur
+        adipiscing elit, sed do eiusmod tempor. Incididunt ut labore et, dolore magna.
+        Aliqua enim ad minim veniam quis nostrud exercitation ullamco, laboris nisi
+        aliquip ex ea. Commodo consequat duis aute irure in, reprehenderit voluptate
+        velit. Esse cillum eu fugiat nulla pariatur excepteur, sint occaecat cupidatat
+        non. Proident sunt culpa qui officia, deserunt mollit. Anim id est laborum
+        lorem ipsum dolor sit, amet consectetur adipiscing elit sed. Do eiusmod tempor
+        incididunt ut labore et, dolore magna aliqua. Enim ad minim veniam quis, nostrud
+        exercitation ullamco. Laboris nisi aliquip ex ea commodo consequat duis, aute
+        irure in reprehenderit.Lorem ipsum dolor sit amet, consectetur adipiscing
+        elit. Lorem ipsum dolor sit amet consectetur adipiscing elit, sed do eiusmod
+        tempor. Incididunt ut labore et, dolore magna. Aliqua enim ad minim veniam
+        quis nostrud exercitation ullamco, laboris nisi aliquip ex ea. Commodo consequat
+        duis aute irure in, reprehenderit voluptate velit. Esse cillum eu fugiat nulla
+        pariatur excepteur, sint occaecat cupidatat non. Proident sunt culpa qui officia,
+        deserunt mollit. Anim id est laborum lorem ipsum dolor sit, amet consectetur
+        adipiscing elit sed. Do eiusmod tempor incididunt ut labore et, dolore magna
+        aliqua. Enim ad minim veniam quis, nostrud exercitation ullamco. Laboris nisi
+        aliquip ex ea commodo consequat duis, aute irure in reprehenderit.
+- mode: page
+  id: a6-gallery
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: paper
+  - id: body
+    objects:
+    - box:
+      - 64
+      - 1051
+      - 666
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 64
+      - 1065
+      - 400
+      - 14
+      style: foot
+      type: text
+      text: Composition on A4 — a print specimen
+    - box:
+      - 610
+      - 1065
+      - 120
+      - 14
+      style: foot
+      type: text
+      text: GALLERY   ·   p.6
+    - box:
+      - 64
+      - 96
+      - 666
+      - 16
+      style: kicker
+      type: text
+      text: Pattern 06 — image gallery
+    - box:
+      - 64
+      - 124
+      - 666
+      - 48
+      style: h2
+      type: text
+      text: A grid of figures.
+    - box:
+      - 64.0
+      - 210.0
+      - 323.0
+      - 206.0
+      type: rect
+      fill: panel
+      radius: 8
+    - box:
+      - 207.5
+      - 295.0
+      - 36
+      - 36
+      type: rect
+      fill: accent
+      radius: 18
+    - box:
+      - 64.0
+      - 424.0
+      - 323.0
+      - 14
+      style: cap
+      type: text
+      text: Fig. 1 — a placeholder figure.
+    - box:
+      - 407.0
+      - 210.0
+      - 323.0
+      - 206.0
+      type: rect
+      fill: panel
+      radius: 8
+    - box:
+      - 550.5
+      - 295.0
+      - 36
+      - 36
+      type: rect
+      fill: accent
+      radius: 18
+    - box:
+      - 407.0
+      - 424.0
+      - 323.0
+      - 14
+      style: cap
+      type: text
+      text: Fig. 2 — a placeholder figure.
+    - box:
+      - 64.0
+      - 470.0
+      - 323.0
+      - 206.0
+      type: rect
+      fill: panel
+      radius: 8
+    - box:
+      - 207.5
+      - 555.0
+      - 36
+      - 36
+      type: rect
+      fill: accent
+      radius: 18
+    - box:
+      - 64.0
+      - 684.0
+      - 323.0
+      - 14
+      style: cap
+      type: text
+      text: Fig. 3 — a placeholder figure.
+    - box:
+      - 407.0
+      - 470.0
+      - 323.0
+      - 206.0
+      type: rect
+      fill: panel
+      radius: 8
+    - box:
+      - 550.5
+      - 555.0
+      - 36
+      - 36
+      type: rect
+      fill: accent
+      radius: 18
+    - box:
+      - 407.0
+      - 684.0
+      - 323.0
+      - 14
+      style: cap
+      type: text
+      text: Fig. 4 — a placeholder figure.
+    - box:
+      - 64.0
+      - 730.0
+      - 323.0
+      - 206.0
+      type: rect
+      fill: panel
+      radius: 8
+    - box:
+      - 207.5
+      - 815.0
+      - 36
+      - 36
+      type: rect
+      fill: accent
+      radius: 18
+    - box:
+      - 64.0
+      - 944.0
+      - 323.0
+      - 14
+      style: cap
+      type: text
+      text: Fig. 5 — a placeholder figure.
+    - box:
+      - 407.0
+      - 730.0
+      - 323.0
+      - 206.0
+      type: rect
+      fill: panel
+      radius: 8
+    - box:
+      - 550.5
+      - 815.0
+      - 36
+      - 36
+      type: rect
+      fill: accent
+      radius: 18
+    - box:
+      - 407.0
+      - 944.0
+      - 323.0
+      - 14
+      style: cap
+      type: text
+      text: Fig. 6 — a placeholder figure.
+- mode: page
+  id: a7-timeline
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: paper
+  - id: body
+    objects:
+    - box:
+      - 64
+      - 1051
+      - 666
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 64
+      - 1065
+      - 400
+      - 14
+      style: foot
+      type: text
+      text: Composition on A4 — a print specimen
+    - box:
+      - 610
+      - 1065
+      - 120
+      - 14
+      style: foot
+      type: text
+      text: TIMELINE   ·   p.7
+    - box:
+      - 64
+      - 96
+      - 666
+      - 16
+      style: kicker
+      type: text
+      text: Pattern 07 — vertical timeline
+    - box:
+      - 64
+      - 124
+      - 666
+      - 48
+      style: h2
+      type: text
+      text: A spine down the page.
+    - box:
+      - 82
+      - 220
+      - 2
+      - 730
+      type: rect
+      fill: ink
+    - box:
+      - 74
+      - 284.0
+      - 18
+      - 18
+      type: rect
+      fill: accent
+      radius: 9
+    - box:
+      - 126
+      - 263.0
+      - 604
+      - 26
+      style: h3
+      type: text
+      text: Phase 1 — a step on the path
+    - box:
+      - 126
+      - 295.0
+      - 604
+      - 60
+      style: bodysub
+      type: text
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor
+        sit amet consectetur adipiscing elit, sed do eiusmod tempor.
+    - box:
+      - 74
+      - 430.0
+      - 18
+      - 18
+      type: rect
+      fill: accent
+      radius: 9
+    - box:
+      - 126
+      - 409.0
+      - 604
+      - 26
+      style: h3
+      type: text
+      text: Phase 2 — a step on the path
+    - box:
+      - 126
+      - 441.0
+      - 604
+      - 60
+      style: bodysub
+      type: text
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor
+        sit amet consectetur adipiscing elit, sed do eiusmod tempor.
+    - box:
+      - 74
+      - 576.0
+      - 18
+      - 18
+      type: rect
+      fill: accent
+      radius: 9
+    - box:
+      - 126
+      - 555.0
+      - 604
+      - 26
+      style: h3
+      type: text
+      text: Phase 3 — a step on the path
+    - box:
+      - 126
+      - 587.0
+      - 604
+      - 60
+      style: bodysub
+      type: text
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor
+        sit amet consectetur adipiscing elit, sed do eiusmod tempor.
+    - box:
+      - 74
+      - 722.0
+      - 18
+      - 18
+      type: rect
+      fill: accent
+      radius: 9
+    - box:
+      - 126
+      - 701.0
+      - 604
+      - 26
+      style: h3
+      type: text
+      text: Phase 4 — a step on the path
+    - box:
+      - 126
+      - 733.0
+      - 604
+      - 60
+      style: bodysub
+      type: text
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor
+        sit amet consectetur adipiscing elit, sed do eiusmod tempor.
+    - box:
+      - 74
+      - 868.0
+      - 18
+      - 18
+      type: rect
+      fill: accent
+      radius: 9
+    - box:
+      - 126
+      - 847.0
+      - 604
+      - 26
+      style: h3
+      type: text
+      text: Phase 5 — a step on the path
+    - box:
+      - 126
+      - 879.0
+      - 604
+      - 60
+      style: bodysub
+      type: text
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor
+        sit amet consectetur adipiscing elit, sed do eiusmod tempor.
+- mode: page
+  id: a8-table
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: paper
+  - id: body
+    objects:
+    - box:
+      - 64
+      - 1051
+      - 666
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 64
+      - 1065
+      - 400
+      - 14
+      style: foot
+      type: text
+      text: Composition on A4 — a print specimen
+    - box:
+      - 610
+      - 1065
+      - 120
+      - 14
+      style: foot
+      type: text
+      text: DATA   ·   p.8
+    - box:
+      - 64
+      - 96
+      - 666
+      - 16
+      style: kicker
+      type: text
+      text: Pattern 08 — data table
+    - box:
+      - 64
+      - 124
+      - 666
+      - 48
+      style: h2
+      type: text
+      text: Rows and columns.
+    - box:
+      - 64
+      - 210
+      - 666
+      - 520
+      stroke_style: grid
+      style:
+        header_fill: ink
+        header_text: th
+        cell_text: td
+      type: table
+      rows:
+      - - Q1 2026
+        - $4.2M
+        - 38%
+        - '54'
+      - - Q2 2026
+        - $4.8M
+        - 39%
+        - '58'
+      - - Q3 2026
+        - $5.3M
+        - 40%
+        - '60'
+      - - Q4 2026
+        - $6.1M
+        - 41%
+        - '62'
+      columns:
+      - label: Quarter
+        width: 28%
+        align: left
+      - label: Revenue
+        width: 24%
+        align: right
+      - label: Margin
+        width: 24%
+        align: right
+      - label: NPS
+        width: 24%
+        align: right
+      header:
+      - Quarter
+      - Revenue
+      - Margin
+      - NPS
+      row_height: 44
+      header_height: 50
+      zebra: true
+      cell_padding: 12
+    - box:
+      - 64
+      - 760
+      - 666
+      - 16
+      style: cap
+      type: text
+      text: Table — illustrative quarterly figures for this specimen.

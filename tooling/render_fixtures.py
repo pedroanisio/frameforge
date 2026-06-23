@@ -92,6 +92,7 @@ from framegraph.rendering.infrastructure.painters.svg import (  # noqa: E402
 # --------------------------------------------------------------------------- #
 class Renderer:
     _math_svg_cache = {}
+    _math_svg_failures = set()
     _math_svg_failed = False
 
     def __init__(self, doc, base_dir):
@@ -386,6 +387,8 @@ class Renderer:
             return None
         if cache_key in cls._math_svg_cache:
             return cls._math_svg_cache[cache_key]
+        if cache_key in cls._math_svg_failures:
+            return None
         script = os.path.join(ROOT, "tooling", "mathjax_tex_to_svg.mjs")
         if not os.path.exists(script):
             cls._math_svg_failed = True
@@ -402,10 +405,17 @@ class Renderer:
             )
             converted = json.loads(proc.stdout or "[]")
             result = converted[0] if converted else None
-        except (OSError, subprocess.CalledProcessError, json.JSONDecodeError, IndexError, TypeError):
+        except subprocess.CalledProcessError:
+            cls._math_svg_failures.add(cache_key)
+            return None
+        except OSError:
             cls._math_svg_failed = True
             return None
+        except (json.JSONDecodeError, IndexError, TypeError):
+            cls._math_svg_failures.add(cache_key)
+            return None
         if not isinstance(result, dict) or not result.get("body") or not result.get("viewBox"):
+            cls._math_svg_failures.add(cache_key)
             return None
         cls._math_svg_cache[cache_key] = result
         return result
@@ -1748,14 +1758,56 @@ class Renderer:
         if page.get("mode") == "flow":
             return self._render_flow(page, w, h)
         self._object_index = self._index_objects(page)
+        body = self._render_page_body(page)
+        return [self._painter.document(w, h, body,
+                                       lang=self.doc.get("lang"), title=self.doc.get("title"),
+                                       desc=self.doc.get("description"))]
+
+    def _render_page_body(self, page):
+        ordered = page.get("reading_order")
+        if isinstance(ordered, list):
+            return self._render_page_body_in_reading_order(page, ordered)
+
         body = []
         for layer in sorted(page.get("layers") or [], key=lambda L: L.get("z", 0)):
             lo = layer.get("opacity")
             inner = "".join(self.obj(o) for o in (layer.get("objects") or []))
             body.append(self._painter.opacity_group(inner, lo) if lo not in (None, 1) else inner)
-        return [self._painter.document(w, h, "".join(body),
-                                       lang=self.doc.get("lang"), title=self.doc.get("title"),
-                                       desc=self.doc.get("description"))]
+        return "".join(body)
+
+    def _render_page_body_in_reading_order(self, page, reading_order):
+        top_level = []
+        first_by_id = {}
+        for layer in sorted(page.get("layers") or [], key=lambda L: L.get("z", 0)):
+            lo = layer.get("opacity")
+            for index, obj in enumerate(layer.get("objects") or []):
+                if not isinstance(obj, dict):
+                    continue
+                entry = (obj, lo, index)
+                top_level.append(entry)
+                oid = obj.get("id")
+                if oid is not None and oid not in first_by_id:
+                    first_by_id[oid] = entry
+
+        used = set()
+        pieces = []
+        for oid in reading_order:
+            entry = first_by_id.get(oid)
+            if entry is None:
+                continue
+            used.add(id(entry[0]))
+            pieces.append(self._render_page_object_entry(entry))
+        for entry in top_level:
+            if id(entry[0]) not in used:
+                pieces.append(self._render_page_object_entry(entry))
+        return "".join(pieces)
+
+    def _render_page_object_entry(self, entry):
+        obj, layer_opacity, _index = entry
+        rendered = self.obj(obj)
+        if rendered and layer_opacity not in (None, 1):
+            rendered = self._painter.opacity_group(rendered, layer_opacity)
+        return rendered
 
     def _render_flow(self, page, w, h):
         p = self._painter

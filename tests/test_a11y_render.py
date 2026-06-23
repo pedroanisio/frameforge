@@ -37,8 +37,30 @@ def test_image_emits_role_alt_and_actual_text():
     assert "<desc>client to API to database</desc>" in svg  # actual_text -> <desc>
 
 
+def test_reading_order_controls_page_dom_order():
+    svg = _render_fixture()
+    title_pos = svg.index("Accessible by construction")
+    subtitle_pos = svg.index("alt text, actual_text")
+    diagram_pos = svg.index("System architecture diagram")
+    footer_pos = svg.index("FrameGraph v2")
+    backdrop_pos = svg.index('aria-hidden="true"')
+    assert title_pos < subtitle_pos < diagram_pos < footer_pos < backdrop_pos
+
+
 def test_decorative_object_is_aria_hidden():
     assert 'aria-hidden="true"' in _render_fixture()
+
+
+def test_role_alt_and_actual_text_wrap_non_image_objects():
+    doc = {"pages": [{"mode": "page", "id": "p", "canvas": "deck-16x9",
+                      "layers": [{"objects": [{"type": "rect", "role": "graphics-symbol",
+                                               "box": [0, 0, 10, 10], "fill": "#000",
+                                               "alt": "Black square",
+                                               "actual_text": "a ten by ten black square"}]}]}]}
+    svg = Renderer(doc, ".").render_page(doc["pages"][0])[0]
+    assert 'role="graphics-symbol"' in svg
+    assert '<title>Black square</title>' in svg
+    assert '<desc>a ten by ten black square</desc>' in svg
 
 
 def test_plain_object_is_not_wrapped():

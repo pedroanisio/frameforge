@@ -1,0 +1,1597 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: mixed
+title: Beyond the Box — Layout Mechanisms
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#0b1020'
+      ink2: '#141a36'
+      faint: '#1b2347'
+      line: '#2a325c'
+      sub: '#9aa3c7'
+      white: '#ffffff'
+      inkd: '#11162e'
+      paper: '#ffffff'
+      a1: '#ff5e7e'
+      a2: '#7c5cff'
+      a3: '#22d3ee'
+      a4: '#fde047'
+    text_styles:
+      kicker:
+        color: a3
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 15
+        font_weight: 700
+        letter_spacing: 3
+        text_transform: uppercase
+      title:
+        color: white
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 44
+        font_weight: 800
+        line_height: 1.02
+        letter_spacing: -1
+      big:
+        color: white
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 92
+        font_weight: 800
+        line_height: 0.95
+        letter_spacing: -3
+      sub:
+        color: sub
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 19
+        line_height: 1.45
+      note:
+        color: sub
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 15
+        line_height: 1.5
+      foot:
+        color: sub
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 13
+        letter_spacing: 1
+      ghost:
+        color: faint
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 300
+        font_weight: 800
+        line_height: 0.9
+      swatch:
+        align: center
+        color: white
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 600
+      fTitle:
+        color: inkd
+        font_family:
+        - Charter
+        - Georgia
+        - serif
+        font_size: 24
+        font_weight: 800
+      fLead:
+        color: sub
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 12
+        line_height: 1.5
+      fBody:
+        color: inkd
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 10.5
+        line_height: 1.55
+      fH:
+        color: a2
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 1
+        text_transform: uppercase
+      running:
+        color: sub
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 9
+      thw:
+        color: white
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 14
+        font_weight: 700
+      tdd:
+        color: inkd
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 14
+      chartlab:
+        color: sub
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 12
+    stroke_styles:
+      grid:
+        color: line
+        width: 1
+  masters:
+    report:
+      canvas: A4
+      regions:
+      - id: col
+        box:
+        - 56
+        - 96
+        - 483
+        - 700
+        columns: 2
+        column_gap: 26
+      running:
+        header:
+        - box:
+          - 56
+          - 56
+          - 483
+          - 14
+          style: running
+          type: text
+          text: Beyond the Box — appendix
+        page_number:
+          color: sub
+          font_family:
+          - Inter
+          - Arial
+          - sans-serif
+          font_size: 9pt
+          text_align: center
+pages:
+- mode: page
+  id: s0-title
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: ink
+    - box:
+      - 0
+      - 0
+      - 10
+      - 720
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: a1
+          position: 0%
+        - color: a2
+          position: 50%
+        - color: a3
+          position: 100%
+        angle: 180
+    - box:
+      - 850
+      - 70
+      - 600
+      - 420
+      style: ghost
+      type: text
+      text: '?'
+  - id: chrome
+    objects:
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 22
+      style: kicker
+      type: text
+      text: A presentation about presentations
+    - box:
+      - 72
+      - 96
+      - 1136
+      - 60
+      style: title
+      type: text
+      text: 'Are all layouts
+
+        just the same set?'
+    - box:
+      - 72
+      - 656
+      - 1136
+      - 2
+      type: rect
+      fill: line
+    - box:
+      - 72
+      - 670
+      - 600
+      - 18
+      style: foot
+      type: text
+      text: FrameGraph · layout mechanism 0 of 5
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 250
+      - 760
+      - 120
+      style: sub
+      type: text
+      text: 'Only if you author at one altitude: hand-placed [x, y, w, h] boxes. Then
+        bento, editorial and collage are the SAME primitive with different numbers.'
+    - box:
+      - 72
+      - 470
+      - 820
+      - 120
+      style: note
+      type: text
+      text: The next five slides are each produced by a DIFFERENT mechanism — engine-arranged
+        groups, a chart, a table, and a reflowing flow document — so the structure
+        differs, not just the coordinates.
+- mode: page
+  id: s1-grid
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: ink
+    - box:
+      - 0
+      - 0
+      - 10
+      - 720
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: a1
+          position: 0%
+        - color: a2
+          position: 50%
+        - color: a3
+          position: 100%
+        angle: 180
+  - id: chrome
+    objects:
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 22
+      style: kicker
+      type: text
+      text: Mechanism 1 — renderer-arranged group
+    - box:
+      - 72
+      - 96
+      - 1136
+      - 60
+      style: title
+      type: text
+      text: I pass a list. The engine tiles it.
+    - box:
+      - 72
+      - 656
+      - 1136
+      - 2
+      type: rect
+      fill: line
+    - box:
+      - 72
+      - 670
+      - 600
+      - 18
+      style: foot
+      type: text
+      text: FrameGraph · layout mechanism 1 of 5
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 196
+      - 760
+      - 430
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 240
+        - 130
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: a1
+            position: 0%
+          - color: a2
+            position: 100%
+          angle: 90
+        radius: 16
+      - box:
+        - 0
+        - 0
+        - 240
+        - 130
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: a2
+            position: 0%
+          - color: a3
+            position: 100%
+          angle: 107
+        radius: 16
+      - box:
+        - 0
+        - 0
+        - 240
+        - 130
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: a3
+            position: 0%
+          - color: a4
+            position: 100%
+          angle: 124
+        radius: 16
+      - box:
+        - 0
+        - 0
+        - 240
+        - 130
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: a4
+            position: 0%
+          - color: a1
+            position: 100%
+          angle: 141
+        radius: 16
+      - box:
+        - 0
+        - 0
+        - 240
+        - 130
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: a1
+            position: 0%
+          - color: a3
+            position: 100%
+          angle: 158
+        radius: 16
+      - box:
+        - 0
+        - 0
+        - 240
+        - 130
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: a2
+            position: 0%
+          - color: a4
+            position: 100%
+          angle: 175
+        radius: 16
+      - box:
+        - 0
+        - 0
+        - 240
+        - 130
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: a3
+            position: 0%
+          - color: a1
+            position: 100%
+          angle: 102
+        radius: 16
+      - box:
+        - 0
+        - 0
+        - 240
+        - 130
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: a4
+            position: 0%
+          - color: a2
+            position: 100%
+          angle: 119
+        radius: 16
+      - box:
+        - 0
+        - 0
+        - 240
+        - 130
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: a1
+            position: 0%
+          - color: a4
+            position: 100%
+          angle: 136
+        radius: 16
+      layout:
+        kind: grid
+        gap: 20
+        columns: 3
+    - box:
+      - 880
+      - 200
+      - 340
+      - 28
+      style: note
+      type: text
+      text: layout = grid, columns 3
+    - box:
+      - 880
+      - 250
+      - 340
+      - 380
+      style: sub
+      type: text
+      text: Every tile's box is [0, 0, w, h]. Not one x/y coordinate is typed. Add
+        or remove an item from the list and the engine re-tiles — the layout is computed
+        from intent, not transcribed.
+- mode: page
+  id: s2-nest
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: ink
+    - box:
+      - 0
+      - 0
+      - 10
+      - 720
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: a1
+          position: 0%
+        - color: a2
+          position: 50%
+        - color: a3
+          position: 100%
+        angle: 180
+  - id: chrome
+    objects:
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 22
+      style: kicker
+      type: text
+      text: Mechanism 2 — layouts compose
+    - box:
+      - 72
+      - 96
+      - 1136
+      - 60
+      style: title
+      type: text
+      text: A row of columns.
+    - box:
+      - 72
+      - 656
+      - 1136
+      - 2
+      type: rect
+      fill: line
+    - box:
+      - 72
+      - 670
+      - 600
+      - 18
+      style: foot
+      type: text
+      text: FrameGraph · layout mechanism 2 of 5
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 210
+      - 760
+      - 320
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 150
+        - 320
+        type: group
+        children:
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a1
+              position: 0%
+            - color: a2
+              position: 100%
+            angle: 90
+          radius: 12
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a2
+              position: 0%
+            - color: a3
+              position: 100%
+            angle: 107
+          radius: 12
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a3
+              position: 0%
+            - color: a4
+              position: 100%
+            angle: 124
+          radius: 12
+        layout:
+          kind: column
+          gap: 16
+      - box:
+        - 0
+        - 0
+        - 150
+        - 320
+        type: group
+        children:
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a3
+              position: 0%
+            - color: a4
+              position: 100%
+            angle: 124
+          radius: 12
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a4
+              position: 0%
+            - color: a1
+              position: 100%
+            angle: 141
+          radius: 12
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a1
+              position: 0%
+            - color: a3
+              position: 100%
+            angle: 158
+          radius: 12
+        layout:
+          kind: column
+          gap: 16
+      - box:
+        - 0
+        - 0
+        - 150
+        - 320
+        type: group
+        children:
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a1
+              position: 0%
+            - color: a3
+              position: 100%
+            angle: 158
+          radius: 12
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a2
+              position: 0%
+            - color: a4
+              position: 100%
+            angle: 175
+          radius: 12
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a3
+              position: 0%
+            - color: a1
+              position: 100%
+            angle: 102
+          radius: 12
+        layout:
+          kind: column
+          gap: 16
+      - box:
+        - 0
+        - 0
+        - 150
+        - 320
+        type: group
+        children:
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a3
+              position: 0%
+            - color: a1
+              position: 100%
+            angle: 102
+          radius: 12
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a4
+              position: 0%
+            - color: a2
+              position: 100%
+            angle: 119
+          radius: 12
+        - box:
+          - 0
+          - 0
+          - 150
+          - 90
+          type: rect
+          fill:
+            kind: linear
+            stops:
+            - color: a1
+              position: 0%
+            - color: a4
+              position: 100%
+            angle: 136
+          radius: 12
+        layout:
+          kind: column
+          gap: 16
+      layout:
+        kind: row
+        gap: 24
+    - box:
+      - 880
+      - 220
+      - 330
+      - 300
+      style: sub
+      type: text
+      text: 'Outer group: kind=row. Each child is itself a kind=column group. The
+        engine arranges the row, then each column arranges its own children. Layouts
+        nest and compose — you can''t get that by typing coordinates faster.'
+- mode: page
+  id: s3-chart
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: ink
+    - box:
+      - 0
+      - 0
+      - 10
+      - 720
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: a1
+          position: 0%
+        - color: a2
+          position: 50%
+        - color: a3
+          position: 100%
+        angle: 180
+  - id: chrome
+    objects:
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 22
+      style: kicker
+      type: text
+      text: Mechanism 3 — chart
+    - box:
+      - 72
+      - 96
+      - 1136
+      - 60
+      style: title
+      type: text
+      text: Geometry derived from data.
+    - box:
+      - 72
+      - 656
+      - 1136
+      - 2
+      type: rect
+      fill: line
+    - box:
+      - 72
+      - 670
+      - 600
+      - 18
+      style: foot
+      type: text
+      text: FrameGraph · layout mechanism 3 of 5
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 200
+      - 760
+      - 460
+      type: rect
+      fill: ink2
+      radius: 18
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 150.0
+      - 250.0
+      to:
+      - 150.0
+      - 610.0
+      stroke: '#3a4374'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 150.0
+      - 610.0
+      to:
+      - 770.0
+      - 610.0
+      stroke: '#3a4374'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 150.0
+      - 250.0
+      to:
+      - 150.0
+      - 610.0
+      stroke: '#222a52'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 150.0
+      - 610.0
+      to:
+      - 150.0
+      - 615.0
+      stroke: '#3a4374'
+    - box:
+      - 120.0
+      - 619.0
+      - 60
+      - 16
+      style:
+        class: chartlab
+        align: center
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '0'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 305.0
+      - 250.0
+      to:
+      - 305.0
+      - 610.0
+      stroke: '#222a52'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 305.0
+      - 610.0
+      to:
+      - 305.0
+      - 615.0
+      stroke: '#3a4374'
+    - box:
+      - 275.0
+      - 619.0
+      - 60
+      - 16
+      style:
+        class: chartlab
+        align: center
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '3'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 460.0
+      - 250.0
+      to:
+      - 460.0
+      - 610.0
+      stroke: '#222a52'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 460.0
+      - 610.0
+      to:
+      - 460.0
+      - 615.0
+      stroke: '#3a4374'
+    - box:
+      - 430.0
+      - 619.0
+      - 60
+      - 16
+      style:
+        class: chartlab
+        align: center
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '6'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 615.0
+      - 250.0
+      to:
+      - 615.0
+      - 610.0
+      stroke: '#222a52'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 615.0
+      - 610.0
+      to:
+      - 615.0
+      - 615.0
+      stroke: '#3a4374'
+    - box:
+      - 585.0
+      - 619.0
+      - 60
+      - 16
+      style:
+        class: chartlab
+        align: center
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '9'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 770.0
+      - 250.0
+      to:
+      - 770.0
+      - 610.0
+      stroke: '#222a52'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 770.0
+      - 610.0
+      to:
+      - 770.0
+      - 615.0
+      stroke: '#3a4374'
+    - box:
+      - 740.0
+      - 619.0
+      - 60
+      - 16
+      style:
+        class: chartlab
+        align: center
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '12'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 150.0
+      - 610.0
+      to:
+      - 770.0
+      - 610.0
+      stroke: '#222a52'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 145.0
+      - 610.0
+      to:
+      - 150.0
+      - 610.0
+      stroke: '#3a4374'
+    - box:
+      - 92.0
+      - 602.0
+      - 48
+      - 16
+      style:
+        class: chartlab
+        align: right
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '0'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 150.0
+      - 520.0
+      to:
+      - 770.0
+      - 520.0
+      stroke: '#222a52'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 145.0
+      - 520.0
+      to:
+      - 150.0
+      - 520.0
+      stroke: '#3a4374'
+    - box:
+      - 92.0
+      - 512.0
+      - 48
+      - 16
+      style:
+        class: chartlab
+        align: right
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '25'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 150.0
+      - 430.0
+      to:
+      - 770.0
+      - 430.0
+      stroke: '#222a52'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 145.0
+      - 430.0
+      to:
+      - 150.0
+      - 430.0
+      stroke: '#3a4374'
+    - box:
+      - 92.0
+      - 422.0
+      - 48
+      - 16
+      style:
+        class: chartlab
+        align: right
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '50'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 150.0
+      - 340.0
+      to:
+      - 770.0
+      - 340.0
+      stroke: '#222a52'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 145.0
+      - 340.0
+      to:
+      - 150.0
+      - 340.0
+      stroke: '#3a4374'
+    - box:
+      - 92.0
+      - 332.0
+      - 48
+      - 16
+      style:
+        class: chartlab
+        align: right
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '75'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 150.0
+      - 250.0
+      to:
+      - 770.0
+      - 250.0
+      stroke: '#222a52'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 145.0
+      - 250.0
+      to:
+      - 150.0
+      - 250.0
+      stroke: '#3a4374'
+    - box:
+      - 92.0
+      - 242.0
+      - 48
+      - 16
+      style:
+        class: chartlab
+        align: right
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '100'
+    - stroke_style:
+        stroke_width: 3
+      type: path
+      d: M 150 610 C 158.611 605.2 184.444 590.8 201.667 581.2 C 218.889 571.6 236.111
+        562 253.333 552.4 C 270.556 542.8 287.778 533.2 305 523.6 C 322.222 514 339.444
+        504.4 356.667 494.8 C 373.889 485.2 391.111 475.6 408.333 466 C 425.556 456.4
+        442.778 446.8 460 437.2 C 477.222 427.6 494.444 418 511.667 408.4 C 528.889
+        398.8 546.111 389.2 563.333 379.6 C 580.556 370 597.778 360.4 615 350.8 C
+        632.222 341.2 649.444 331.6 666.667 322 C 683.889 312.4 701.111 302.8 718.333
+        293.2 C 735.556 283.6 761.389 269.2 770 264.4
+      fill: none
+      stroke: '#22d3ee'
+    - stroke_style:
+        stroke_width: 3
+      type: path
+      d: M 150 610 C 158.611 607.6 184.444 602.157 201.667 595.6 C 218.889 589.043
+        236.111 580.062 253.333 570.658 C 270.556 561.254 287.778 550.532 305 539.175
+        C 322.222 527.817 339.444 515.469 356.667 502.515 C 373.889 489.561 391.111
+        475.787 408.333 461.451 C 425.556 447.115 442.778 432.069 460 416.5 C 477.222
+        400.93 494.444 384.727 511.667 368.034 C 528.889 351.341 546.111 334.072 563.333
+        316.341 C 580.556 298.611 597.778 272.708 615 261.651 C 632.222 250.594 649.444
+        251.942 666.667 250 C 683.889 248.058 701.111 250 718.333 250 C 735.556 250
+        761.389 250 770 250
+      fill: none
+      stroke: '#ff5e7e'
+    - box:
+      - 162.0
+      - 262.0
+      - 12.0
+      - 12.0
+      type: rect
+      fill: '#22d3ee'
+      radius: 3
+    - box:
+      - 182.0
+      - 261.0
+      - 170.0
+      - 16
+      style:
+        class: chartlab
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: absolute (linear effort)
+    - box:
+      - 341.20000000000005
+      - 262.0
+      - 12.0
+      - 12.0
+      type: rect
+      fill: '#ff5e7e'
+      radius: 3
+    - box:
+      - 361.20000000000005
+      - 261.0
+      - 206.0
+      - 16
+      style:
+        class: chartlab
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: mechanisms (compounding reuse)
+    - box:
+      - 880
+      - 220
+      - 330
+      - 300
+      style: sub
+      type: text
+      text: Axes, ticks, gridlines and two smoothed series come from a data domain
+        mapped into a box by Frame. No point was hand-placed; move the domain and
+        everything re-scales.
+- mode: page
+  id: s4-table
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: ink
+    - box:
+      - 0
+      - 0
+      - 10
+      - 720
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: a1
+          position: 0%
+        - color: a2
+          position: 50%
+        - color: a3
+          position: 100%
+        angle: 180
+  - id: chrome
+    objects:
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 22
+      style: kicker
+      type: text
+      text: Mechanism 4 — table
+    - box:
+      - 72
+      - 96
+      - 1136
+      - 60
+      style: title
+      type: text
+      text: Rows and columns, not free boxes.
+    - box:
+      - 72
+      - 656
+      - 1136
+      - 2
+      type: rect
+      fill: line
+    - box:
+      - 72
+      - 670
+      - 600
+      - 18
+      style: foot
+      type: text
+      text: FrameGraph · layout mechanism 4 of 5
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 200
+      - 1136
+      - 420
+      type: rect
+      fill: paper
+      radius: 18
+    - box:
+      - 104
+      - 232
+      - 1072
+      - 356
+      stroke_style: grid
+      style:
+        header_fill: a2
+        header_text: thw
+        cell_text: tdd
+      type: table
+      rows:
+      - - Absolute boxes
+        - You (x, y)
+        - 'No'
+        - 'No'
+      - - Group layout
+        - The engine
+        - Yes — re-tiles
+        - 'Yes'
+      - - Chart / Frame
+        - Data domain
+        - Yes — re-scales
+        - 'Yes'
+      - - Flow + master
+        - The paginator
+        - Yes — reflows
+        - Yes (master)
+      columns:
+      - label: Mechanism
+        width: 30%
+        align: left
+      - label: Who places it
+        width: 26%
+        align: left
+      - label: Adapts to content?
+        width: 22%
+        align: center
+      - label: Reusable?
+        width: 22%
+        align: center
+      header:
+      - Mechanism
+      - Who places it
+      - Adapts to content?
+      - Reusable?
+      row_height: 46
+      header_height: 52
+      zebra: true
+      cell_padding: 12
+- mode: flow
+  id: s5-flow
+  master: report
+  story:
+  - type: heading
+    level: 1
+    text: The flow model
+    style: fTitle
+  - type: paragraph
+    text: Same document, a completely different layout engine — text that sets itself
+      into the master's region and across as many pages as it takes. (The region declares
+      two columns; the SVG proxy renders one — multi-column validates but is a backend
+      feature.)
+    style: fLead
+  - type: heading
+    level: 2
+    text: Why it is not the same set
+    style: fH
+  - type: paragraph
+    text: 'A flow section is not a slide. There are no object coordinates at all:
+      a story of headings and paragraphs is poured into the master''s regions and
+      the paginator breaks it into as many pages as the content needs. Change a sentence
+      and the column rebalances; change the region and the whole document repaginates.
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+      incididunt ut labore et, dolore magna aliqua enim. Ad minim veniam quis, nostrud
+      exercitation. Ullamco laboris nisi aliquip ex ea commodo consequat duis, aute
+      irure in reprehenderit voluptate. Velit esse cillum eu fugiat nulla, pariatur
+      excepteur sint. Occaecat cupidatat non proident sunt culpa qui, officia deserunt
+      mollit anim. Id est laborum lorem ipsum, dolor sit. Amet consectetur adipiscing
+      elit sed do eiusmod tempor, incididunt ut labore et dolore.'
+    style: fBody
+  - type: paragraph
+    text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consectetur adipiscing
+      elit sed do, eiusmod tempor. Incididunt ut labore et dolore magna aliqua enim,
+      ad minim veniam quis nostrud. Exercitation ullamco laboris nisi aliquip ex ea,
+      commodo consequat duis. Aute irure in reprehenderit voluptate, velit esse cillum.
+      Eu fugiat nulla pariatur excepteur sint occaecat cupidatat, non proident sunt
+      culpa. Qui officia deserunt mollit, anim id. Est laborum lorem ipsum dolor sit
+      amet consectetur adipiscing, elit sed do eiusmod tempor. Incididunt ut labore
+      et dolore magna, aliqua enim ad. Minim veniam quis nostrud exercitation ullamco
+      laboris, nisi aliquip ex ea. Commodo consequat duis aute irure, in reprehenderit.
+      Voluptate velit esse cillum eu fugiat nulla pariatur, excepteur sint occaecat
+      cupidatat non.
+    style: fBody
+  - type: heading
+    level: 2
+    text: What the author writes
+    style: fH
+  - type: paragraph
+    text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Do eiusmod tempor
+      incididunt ut labore et dolore, magna aliqua enim ad. Minim veniam quis nostrud,
+      exercitation ullamco. Laboris nisi aliquip ex ea commodo consequat duis aute,
+      irure in reprehenderit voluptate velit. Esse cillum eu fugiat nulla pariatur,
+      excepteur sint occaecat. Cupidatat non proident sunt culpa qui officia, deserunt
+      mollit anim id. Est laborum lorem ipsum dolor, sit amet. Consectetur adipiscing
+      elit sed do eiusmod tempor incididunt, ut labore et dolore magna. Aliqua enim
+      ad minim veniam quis nostrud, exercitation ullamco laboris. Nisi aliquip ex
+      ea commodo, consequat duis aute. Irure in reprehenderit voluptate velit esse
+      cillum eu, fugiat nulla pariatur excepteur. Sint occaecat cupidatat non, proident
+      sunt.
+    style: fBody
+  - type: paragraph
+    text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Labore et dolore
+      magna aliqua, enim ad. Minim veniam quis nostrud exercitation ullamco laboris
+      nisi, aliquip ex ea commodo consequat. Duis aute irure in reprehenderit voluptate
+      velit, esse cillum eu. Fugiat nulla pariatur excepteur sint, occaecat cupidatat
+      non. Proident sunt culpa qui officia deserunt mollit anim, id est laborum lorem.
+      Ipsum dolor sit amet, consectetur adipiscing. Elit sed do eiusmod tempor incididunt
+      ut labore et, dolore magna aliqua enim ad. Minim veniam quis nostrud exercitation
+      ullamco, laboris nisi aliquip. Ex ea commodo consequat duis aute irure, in reprehenderit
+      voluptate velit.
+    style: fBody

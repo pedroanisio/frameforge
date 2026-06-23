@@ -1,0 +1,728 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: deck
+title: SDK Toolkit Demo
+lang: en
+defs:
+  tokens:
+    styles:
+      kicker:
+        color: '#1FA39B'
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 15
+        font_weight: 700
+        letter_spacing: 2.0
+        text_transform: uppercase
+      title:
+        color: '#21364C'
+        font_family:
+        - Charter
+        - Georgia
+        - serif
+        font_size: 33
+        font_weight: 700
+      stat:
+        color: '#21364C'
+        font_family:
+        - Charter
+        - Georgia
+        - serif
+        font_size: 40
+        font_weight: 700
+      lbl:
+        color: '#7C8AA0'
+        font_family:
+        - Inter
+        - Arial
+        - sans-serif
+        font_size: 13
+pages:
+- mode: page
+  id: kpis
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FFFFFF'
+    - box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      style:
+        class: kicker
+      type: text
+      text: layout.grid
+    - box:
+      - 76
+      - 122
+      - 1128
+      - 60
+      style:
+        class: title
+      type: text
+      text: Six cards, one grid call
+    - box:
+      - 76.0
+      - 212.0
+      - 360.0
+      - 196.0
+      type: rect
+      fill: '#F1F5FA'
+      radius: 14
+    - box:
+      - 100.0
+      - 234.0
+      - 312.0
+      - 18
+      style:
+        class: lbl
+      type: text
+      text: Δ
+    - box:
+      - 100.0
+      - 260.0
+      - 312.0
+      - 48
+      style:
+        class: stat
+      type: text
+      text: 7 700 t
+    - box:
+      - 460.0
+      - 212.0
+      - 360.0
+      - 196.0
+      type: rect
+      fill: '#F1F5FA'
+      radius: 14
+    - box:
+      - 484.0
+      - 234.0
+      - 312.0
+      - 18
+      style:
+        class: lbl
+      type: text
+      text: Speed
+    - box:
+      - 484.0
+      - 260.0
+      - 312.0
+      - 48
+      style:
+        class: stat
+      type: text
+      text: 16 kn
+    - box:
+      - 844.0
+      - 212.0
+      - 360.0
+      - 196.0
+      type: rect
+      fill: '#F1F5FA'
+      radius: 14
+    - box:
+      - 868.0
+      - 234.0
+      - 312.0
+      - 18
+      style:
+        class: lbl
+      type: text
+      text: Fn
+    - box:
+      - 868.0
+      - 260.0
+      - 312.0
+      - 48
+      style:
+        class: stat
+      type: text
+      text: '0.30'
+    - box:
+      - 76.0
+      - 436.0
+      - 360.0
+      - 196.0
+      type: rect
+      fill: '#F1F5FA'
+      radius: 14
+    - box:
+      - 100.0
+      - 458.0
+      - 312.0
+      - 18
+      style:
+        class: lbl
+      type: text
+      text: P_D
+    - box:
+      - 100.0
+      - 484.0
+      - 312.0
+      - 48
+      style:
+        class: stat
+      type: text
+      text: 7.6 MW
+    - box:
+      - 460.0
+      - 436.0
+      - 360.0
+      - 196.0
+      type: rect
+      fill: '#F1F5FA'
+      radius: 14
+    - box:
+      - 484.0
+      - 458.0
+      - 312.0
+      - 18
+      style:
+        class: lbl
+      type: text
+      text: GM
+    - box:
+      - 484.0
+      - 484.0
+      - 312.0
+      - 48
+      style:
+        class: stat
+      type: text
+      text: 0.90 m
+    - box:
+      - 844.0
+      - 436.0
+      - 360.0
+      - 196.0
+      type: rect
+      fill: '#F1F5FA'
+      radius: 14
+    - box:
+      - 868.0
+      - 458.0
+      - 312.0
+      - 18
+      style:
+        class: lbl
+      type: text
+      text: D_T
+    - box:
+      - 868.0
+      - 484.0
+      - 312.0
+      - 48
+      style:
+        class: stat
+      type: text
+      text: 5 L
+- mode: page
+  id: chart
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FFFFFF'
+    - box:
+      - 76
+      - 92
+      - 1128
+      - 26
+      style:
+        class: kicker
+      type: text
+      text: Chart + layout.row
+    - box:
+      - 76
+      - 122
+      - 1128
+      - 60
+      style:
+        class: title
+      type: text
+      text: A figure in three lines
+    - box:
+      - 76.0
+      - 210.0
+      - 453.33333333333337
+      - 120
+      style:
+        class: lbl
+        font_size: 16
+      type: text
+      text: layout.row splits the body into a caption column and a plot panel; Chart
+        lowers axes, gridlines, a smooth series and a legend over a Frame.
+    - box:
+      - 569.3333333333334
+      - 210.0
+      - 634.6666666666667
+      - 430.0
+      type: rect
+      fill: '#F1F5FA'
+      radius: 14
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 629.3333333333334
+      - 280.0
+      to:
+      - 629.3333333333334
+      - 570.0
+      stroke: '#C4D0DD'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 629.3333333333334
+      - 570.0
+      to:
+      - 1144.0
+      - 570.0
+      stroke: '#C4D0DD'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 629.3333333333334
+      - 280.0
+      to:
+      - 629.3333333333334
+      - 570.0
+      stroke: '#EAF0F6'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 629.3333333333334
+      - 570.0
+      to:
+      - 629.3333333333334
+      - 575.0
+      stroke: '#C4D0DD'
+    - box:
+      - 599.3333333333334
+      - 579.0
+      - 60
+      - 16
+      style:
+        align: center
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '0'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 758.0
+      - 280.0
+      to:
+      - 758.0
+      - 570.0
+      stroke: '#EAF0F6'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 758.0
+      - 570.0
+      to:
+      - 758.0
+      - 575.0
+      stroke: '#C4D0DD'
+    - box:
+      - 728.0
+      - 579.0
+      - 60
+      - 16
+      style:
+        align: center
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '5'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 886.6666666666667
+      - 280.0
+      to:
+      - 886.6666666666667
+      - 570.0
+      stroke: '#EAF0F6'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 886.6666666666667
+      - 570.0
+      to:
+      - 886.6666666666667
+      - 575.0
+      stroke: '#C4D0DD'
+    - box:
+      - 856.6666666666667
+      - 579.0
+      - 60
+      - 16
+      style:
+        align: center
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '10'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 1015.3333333333335
+      - 280.0
+      to:
+      - 1015.3333333333335
+      - 570.0
+      stroke: '#EAF0F6'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 1015.3333333333335
+      - 570.0
+      to:
+      - 1015.3333333333335
+      - 575.0
+      stroke: '#C4D0DD'
+    - box:
+      - 985.3333333333335
+      - 579.0
+      - 60
+      - 16
+      style:
+        align: center
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '15'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 1144.0
+      - 280.0
+      to:
+      - 1144.0
+      - 570.0
+      stroke: '#EAF0F6'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 1144.0
+      - 570.0
+      to:
+      - 1144.0
+      - 575.0
+      stroke: '#C4D0DD'
+    - box:
+      - 1114.0
+      - 579.0
+      - 60
+      - 16
+      style:
+        align: center
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '20'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 629.3333333333334
+      - 570.0
+      to:
+      - 1144.0
+      - 570.0
+      stroke: '#EAF0F6'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 624.3333333333334
+      - 570.0
+      to:
+      - 629.3333333333334
+      - 570.0
+      stroke: '#C4D0DD'
+    - box:
+      - 571.3333333333334
+      - 562.0
+      - 48
+      - 16
+      style:
+        align: right
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '0'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 629.3333333333334
+      - 473.33333333333337
+      to:
+      - 1144.0
+      - 473.33333333333337
+      stroke: '#EAF0F6'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 624.3333333333334
+      - 473.33333333333337
+      to:
+      - 629.3333333333334
+      - 473.33333333333337
+      stroke: '#C4D0DD'
+    - box:
+      - 571.3333333333334
+      - 465.33333333333337
+      - 48
+      - 16
+      style:
+        align: right
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '200'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 629.3333333333334
+      - 376.6666666666667
+      to:
+      - 1144.0
+      - 376.6666666666667
+      stroke: '#EAF0F6'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 624.3333333333334
+      - 376.6666666666667
+      to:
+      - 629.3333333333334
+      - 376.6666666666667
+      stroke: '#C4D0DD'
+    - box:
+      - 571.3333333333334
+      - 368.6666666666667
+      - 48
+      - 16
+      style:
+        align: right
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '400'
+    - stroke_style:
+        stroke_width: 0.8
+      type: line
+      from:
+      - 629.3333333333334
+      - 280.0
+      to:
+      - 1144.0
+      - 280.0
+      stroke: '#EAF0F6'
+    - stroke_style:
+        stroke_width: 1.2
+      type: line
+      from:
+      - 624.3333333333334
+      - 280.0
+      to:
+      - 629.3333333333334
+      - 280.0
+      stroke: '#C4D0DD'
+    - box:
+      - 571.3333333333334
+      - 272.0
+      - 48
+      - 16
+      style:
+        align: right
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: '600'
+    - stroke_style:
+        stroke_width: 2.4
+      type: path
+      d: M 629.333 570 C 633.622 569.903 646.489 569.762 655.067 569.42 C 663.644
+        569.078 672.222 568.566 680.8 567.945 C 689.378 567.324 697.956 566.564 706.533
+        565.693 C 715.111 564.822 723.689 563.825 732.267 562.719 C 740.844 561.613
+        749.422 560.389 758 559.059 C 766.578 557.729 775.156 556.286 783.733 554.74
+        C 792.311 553.194 800.889 551.538 809.467 549.782 C 818.044 548.026 826.622
+        546.164 835.2 544.203 C 843.778 542.242 852.356 540.178 860.933 538.017 C
+        869.511 535.856 878.089 533.594 886.667 531.236 C 895.244 528.878 903.822
+        526.422 912.4 523.871 C 920.978 521.321 929.556 518.673 938.133 515.933 C
+        946.711 513.192 955.289 510.356 963.867 507.429 C 972.444 504.501 981.022
+        501.479 989.6 498.367 C 998.178 495.255 1006.76 492.05 1015.33 488.755 C 1023.91
+        485.461 1032.49 482.075 1041.07 478.6 C 1049.64 475.125 1058.22 471.56 1066.8
+        467.907 C 1075.38 464.254 1083.96 460.511 1092.53 456.682 C 1101.11 452.852
+        1109.69 448.934 1118.27 444.93 C 1126.84 440.926 1139.71 434.702 1144 432.657
+      fill: none
+      stroke: '#E0903B'
+    - stroke_style:
+        stroke_width: 2.4
+      type: path
+      d: M 629.333 570 C 633.622 569.999 646.489 570.004 655.067 569.994 C 663.644
+        569.984 672.222 569.978 680.8 569.939 C 689.378 569.899 697.956 569.854 706.533
+        569.757 C 715.111 569.659 723.689 569.543 732.267 569.354 C 740.844 569.164
+        749.422 568.94 758 568.62 C 766.578 568.3 775.156 567.927 783.733 567.435
+        C 792.311 566.943 800.889 566.377 809.467 565.667 C 818.044 564.958 826.622
+        564.153 835.2 563.178 C 843.778 562.203 852.356 561.109 860.933 559.818 C
+        869.511 558.526 878.089 557.091 886.667 555.431 C 895.244 553.771 903.822
+        551.94 912.4 549.855 C 920.978 547.77 929.556 545.488 938.133 542.92 C 946.711
+        540.353 955.289 537.56 963.867 534.45 C 972.444 531.341 981.022 527.977 989.6
+        524.263 C 998.178 520.55 1006.76 516.552 1015.33 512.172 C 1023.91 507.792
+        1032.49 503.095 1041.07 497.983 C 1049.64 492.87 1058.22 487.409 1066.8 481.498
+        C 1075.38 475.586 1083.96 469.293 1092.53 462.513 C 1101.11 455.734 1109.69
+        448.539 1118.27 440.822 C 1126.84 433.104 1139.71 420.311 1144 416.209
+      fill: none
+      stroke: '#1FA39B'
+    - box:
+      - 641.3333333333334
+      - 292.0
+      - 12.0
+      - 12.0
+      type: rect
+      fill: '#E0903B'
+      radius: 3
+    - box:
+      - 661.3333333333334
+      - 291.0
+      - 74.0
+      - 16
+      style:
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: friction
+    - box:
+      - 721.3333333333334
+      - 292.0
+      - 12.0
+      - 12.0
+      type: rect
+      fill: '#1FA39B'
+      radius: 3
+    - box:
+      - 741.3333333333334
+      - 291.0
+      - 50.0
+      - 16
+      style:
+        color: '#6B7A90'
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+      type: text
+      text: wave

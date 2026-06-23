@@ -15,6 +15,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
 
 from framegraph.sdk import (
+    Chart,
     DocumentBuilder,
     ExpandOptions,
     Frame,
@@ -22,16 +23,28 @@ from framegraph.sdk import (
     Path,
     Scene3D,
     Vec2,
+    column,
     expand,
+    grid,
+    inset,
     lorem,
     lorem_paragraphs,
     md,
     paragraph,
     parse,
+    row,
     serialize,
     theme,
 )
-from framegraph.sdk.conform import page_hashes
+from framegraph.sdk import (
+    glow,
+    linear_gradient,
+    radial_gradient,
+    rgba,
+    shadow,
+    stroke,
+)
+from framegraph.sdk.conform import page_hashes, render_page_svgs
 from framegraph.sdk.geometry import CubicBezier, Mat4, quarter_circle_kappa
 from framegraph.sdk.validate import validate_static_rules
 
@@ -229,6 +242,184 @@ def test_builder_symbols_components_and_handle_kind_checks():
         builder.page("bad", master=color)
 
 
+def test_pagebuilder_primitive_helpers_lower_to_canonical_objects():
+    """ellipse/circle/polyline/polygon/path builders emit canonical model objects.
+
+    These typed helpers replace the raw ``add({...})`` escape hatch for the
+    illustration primitives. ``circle``/``polygon`` must lower to the canonical
+    ``ellipse``/closed-``polyline`` forms (never the deprecated aliases), points
+    and centres accept ``Vec2`` as well as ``[x, y]``, a ``Path`` builder is
+    lowered for you, and ``Handle`` fills are coerced like every other field.
+    """
+    builder = DocumentBuilder()
+    gold = builder.define_color("gold", "#FCC23D")
+    page = builder.page("p", canvas={"size": [200, 200], "units": "px"},
+                        coordinate_mode="absolute")
+    layer = page.layer("art")
+    layer.ellipse(Vec2(50, 60), 30, 20, fill=gold)            # Vec2 centre + Handle fill
+    layer.circle([100, 100], 25, fill="#fff")                 # lowers to ellipse
+    layer.polyline([Vec2(0, 0), (10, 10), (20, 0)], stroke="#000")
+    layer.polygon([(0, 0), (40, 0), (20, 30)], fill="#abc")   # lowers to closed polyline
+    layer.path("M 0 0 L 10 10", stroke="#000")
+    layer.path(Path().move_to(0, 0).through([(5, 5), (10, 0)]), fill="none", stroke="#111")
+
+    doc = builder.build()                                     # validates against the model
+    objs = doc.pages[0].layers[0].objects
+    assert [o.type for o in objs] == [
+        "ellipse", "ellipse", "polyline", "polyline", "path", "path",
+    ]
+    # Vec2 centre coerced to a plain point; Handle fill coerced to its token name
+    assert objs[0].center == [50.0, 60.0] and objs[0].fill == "gold"
+    # circle() lowered to a canonical ellipse with rx == ry == r
+    assert objs[1].rx == 25 and objs[1].ry == 25
+    # Vec2/tuple points normalised; polygon() lowered to a *closed* polyline
+    assert objs[2].points == [[0.0, 0.0], [10.0, 10.0], [20.0, 0.0]]
+    assert objs[3].closed is True
+    # a geometry.Path lowered to a real SVG path (cubic segments from Catmull-Rom)
+    assert objs[5].type == "path" and "C " in objs[5].d
+
+    # The canonical lowerings must NOT trip the deprecated-alias rule that raw
+    # `circle`/`polygon`/`curve` object types do (cf.
+    # test_validate_static_rules_reports_tooling_warnings).
+    report = validate_static_rules(doc)
+    assert report.ok
+    assert not any(issue.rule_id == "deprecated-alias" for issue in report.issues)
+
+
+def test_pagebuilder_arrow_lowers_to_shortened_shaft_and_head():
+    """arrow() emits a shaft line + a filled closed-polyline head at the tip.
+
+    Replaces the hand-rolled vline+triangle pattern (whose manual head placement
+    produced the page-08 free-body bug). The shaft must stop short of the tip and
+    the head must close on the end point, both in the arrow colour.
+    """
+    builder = DocumentBuilder()
+    builder.page("p", canvas={"size": [100, 100], "units": "px"}).layer("main").arrow(
+        [10, 10], [10, 90], color="#cc0000", width=2, head=12)
+    doc = builder.build()
+    shaft, head = doc.pages[0].layers[0].objects
+    dump = doc.model_dump(by_alias=True, exclude_none=True)
+    shaft_d, head_d = dump["pages"][0]["layers"][0]["objects"]
+
+    assert shaft.type == "line" and head.type == "polyline"
+    assert head.closed is True and head.fill == "#cc0000"
+    # the shaft stops at the arrowhead base, short of the 90px tip
+    assert shaft_d["to"] == [10.0, 78.0]
+    # the head's first vertex is the tip (the end point)
+    assert head.points[0] == [10.0, 90.0]
+    # the head is symmetric about the shaft (±head_width on the perpendicular)
+    assert sorted(p[0] for p in head.points[1:]) == pytest.approx([10.0 - 7.2, 10.0 + 7.2])
+
+
+def test_paint_rgba_and_gradient_constructors_lower_to_valid_paint():
+    """rgba()/linear_gradient()/radial_gradient() build the model's Paint forms."""
+    assert rgba("#9DE9FF", 0.4) == "rgba(157,233,255,0.4)"
+    assert rgba("#fff", 1) == "rgba(255,255,255,1)"          # short hex expands
+    assert rgba("#000000", 2) == "rgba(0,0,0,1)"             # alpha clamped to [0,1]
+
+    lg = linear_gradient([("#1B1B3A", 0.0), ("#7C5C8E", 1.0)], angle=180)
+    assert lg == {"kind": "linear", "angle": 180,
+                  "stops": [{"color": "#1B1B3A", "position": "0%"},
+                            {"color": "#7C5C8E", "position": "100%"}]}
+    # bare colours auto-distribute their stop positions
+    assert [s["position"] for s in linear_gradient(["#a", "#b", "#c"])["stops"]] == \
+        ["0%", "50%", "100%"]
+    rg = radial_gradient([("#FFF7D8", 0.0), (rgba("#FFF7D8", 0.0), 1.0)], at="50% 40%")
+    assert rg["kind"] == "radial" and rg["at"] == "50% 40%"
+
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [200, 200], "units": "px"},
+                         coordinate_mode="absolute").layer("a")
+    layer.rect([0, 0, 200, 200], fill=lg)
+    layer.ellipse([100, 100], 60, 60, fill=rg)
+    doc = builder.build()
+    assert doc.pages[0].layers[0].objects[0].fill.kind == "linear"
+    assert doc.pages[0].layers[0].objects[1].fill.kind == "radial"
+
+
+def test_paint_stroke_and_effect_constructors_lower_to_model_fields():
+    """stroke()/shadow()/glow() and the latent opacity/rotation fields lower cleanly."""
+    assert stroke(3, color="#E8743B", cap="round", dash=[4, 8]) == {
+        "stroke": "#E8743B",
+        "stroke_style": {"stroke_width": 3, "stroke_linecap": "round",
+                         "stroke_dasharray": [4, 8]},
+    }
+    assert "stroke" not in stroke(2, cap="round")             # geometry-only is valid (P3)
+
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [200, 200], "units": "px"},
+                         coordinate_mode="absolute").layer("a")
+    layer.path(Path().move_to(0, 0).line_to(10, 10), **stroke(2, color="#000", cap="round"))
+    layer.rect([10, 10, 50, 50], fill="#eee", opacity=0.8, rotation=12,
+               shadow=shadow(dy=4, blur=6, color="#06243C", opacity=0.5),
+               glow=glow(blur=8, color="#9DE9FF"))
+    doc = builder.build()
+    rect = doc.pages[0].layers[0].objects[1]
+    assert rect.opacity == 0.8 and rect.rotation == 12
+    assert rect.shadow.dy == 4 and rect.shadow.blur == 6
+    assert rect.glow.blur == 8 and rect.glow.dx is None       # a glow is a blur, not offset
+
+
+def test_pagebuilder_frame_emits_a_transformed_group_in_local_coordinates():
+    """layer.frame() collects local-coordinate primitives into one transformed group."""
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [400, 400], "units": "px"},
+                         coordinate_mode="absolute").layer("a")
+    with layer.frame(100, 50, scale=2.0, flip=-1) as f:
+        f.circle([0, 0], 10, fill="#f00")                     # authored at the origin
+        f.rect([5, 5, 20, 10], fill="#0f0")
+    doc = builder.build()
+    objs = doc.pages[0].layers[0].objects
+    assert len(objs) == 1
+    grp = objs[0]
+    assert grp.type == "group" and grp.box is None            # no box → pure matrix origin
+    # children are untouched local coordinates; the group transform places them
+    assert grp.children[0].type == "ellipse" and grp.children[0].center == [0.0, 0.0]
+    assert [c.type for c in grp.children] == ["ellipse", "rect"]
+    fns = grp.style.transform
+    assert len(fns) == 1 and fns[0].fn == "matrix"
+    a_, b_, c_, d_, e_, f_ = fns[0].args
+    # translate(100,50) ∘ scale(flip*2, 2): a=-2, d=2, e=100, f=50
+    assert (a_, b_, c_, d_, e_, f_) == (-2.0, 0.0, 0.0, 2.0, 100.0, 50.0)
+
+
+def test_frame_nests_composes_and_is_safe_when_empty():
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [200, 200], "units": "px"},
+                         coordinate_mode="absolute").layer("a")
+    with layer.frame(10, 10) as f:
+        with f.frame(5, 5, scale=2) as g:
+            g.rect([0, 0, 4, 4], fill="#000")
+    with layer.frame(0, 0):                                   # empty frame
+        pass
+    doc = builder.build()
+    objs = doc.pages[0].layers[0].objects
+    assert objs[0].type == "group" and objs[0].children[0].type == "group"
+    assert objs[0].children[0].children[0].type == "rect"     # nested transform composes
+    assert objs[1].children == []                             # empty frame → empty valid group
+
+
+def test_frame_transform_renders_as_an_svg_matrix():
+    """Honest-scope check: the transform actually reaches the proxy SVG output."""
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [200, 200], "units": "px"},
+                         coordinate_mode="absolute").layer("a")
+    with layer.frame(100, 100, scale=1.5, rotate=30) as f:
+        f.circle([0, 0], 20, fill="#abc")
+    svg = render_page_svgs(builder.build(), base_dir=ROOT)[0]
+    assert "matrix(" in svg
+
+
+def test_group_accepts_a_mat3_transform_directly():
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [100, 100], "units": "px"},
+                         coordinate_mode="absolute").layer("a")
+    layer.group([{"type": "rect", "box": [0, 0, 10, 10], "fill": "#000"}],
+                transform=Mat3.rotate(90))
+    grp = builder.build().pages[0].layers[0].objects[0]
+    assert grp.style.transform[0].fn == "matrix"
+
+
 def test_geometry_matrix_inverse_and_projection():
     matrix = Mat3.translate(10, 5) @ Mat3.rotate(90) @ Mat3.scale(2)
     point = Vec2(3, 4)
@@ -300,6 +491,78 @@ def test_scene3d_render_empty_scene_is_safe():
     builder.build()  # must validate
 
 
+def test_page_coordinate_mode_is_set_and_validated():
+    builder = DocumentBuilder()
+    builder.page(
+        "p", canvas={"size": [100, 100], "units": "px"}, coordinate_mode="absolute"
+    ).layer("main").rect([0, 0, 10, 10], fill="#fff")
+    doc = builder.build()
+    assert doc.pages[0].rendering.coordinate_mode == "absolute"
+
+    bad = DocumentBuilder()
+    bad.page(
+        "p", canvas={"size": [100, 100], "units": "px"}, coordinate_mode="sideways"
+    ).layer("main").rect([0, 0, 10, 10], fill="#fff")
+    with pytest.raises(Exception):
+        bad.build()
+
+
+def test_layout_row_and_column_tile_the_box():
+    boxes = row([0, 0, 100, 40], 4, gap=4)
+    assert len(boxes) == 4
+    assert all(b[2] == pytest.approx((100 - 3 * 4) / 4) for b in boxes)
+    assert boxes[0][0] == 0
+    assert boxes[-1][0] + boxes[-1][2] == pytest.approx(100)  # exact fill, no drift
+
+    col = column([0, 0, 50, 90], weights=[2, 1])
+    assert col[0][3] == pytest.approx(60)
+    assert col[1][3] == pytest.approx(30)
+    assert col[1][1] == pytest.approx(60)  # second box starts where the first ends
+
+
+def test_layout_grid_wraps_and_inset_shrinks():
+    cells = grid([0, 0, 100, 100], cols=2, count=3, gap=10)
+    assert len(cells) == 3
+    assert cells[0][2] == pytest.approx(45) and cells[0][3] == pytest.approx(45)
+    assert cells[2][0] == pytest.approx(0) and cells[2][1] == pytest.approx(55)  # wraps to row 2
+
+    assert inset([0, 0, 100, 100], [10, 20]) == [20, 10, 60, 80]  # [vertical, horizontal]
+
+
+def test_layout_input_validation():
+    with pytest.raises(ValueError):
+        row([0, 0, 10, 10])  # neither count nor weights
+    with pytest.raises(ValueError):
+        grid([0, 0, 10, 10], cols=2)  # neither rows nor count
+    with pytest.raises(ValueError):
+        grid([0, 0, 10, 10], cols=0, count=1)
+
+
+def test_chart_lowers_to_valid_objects():
+    frame = Frame(domain=(0, 0, 10, 100), box=(100, 100, 400, 200))
+    chart = (
+        Chart(frame)
+        .axes(x_ticks=[0, 5, 10], y_ticks=[0, 50, 100], grid=True)
+        .line([(0, 0), (5, 50), (10, 100)], stroke="#1133AA", width=2, label="series")
+        .bars([(2, 30), (8, 80)], fill="#AA1133")
+        .marker(5, 50, fill="#11AA33")
+        .legend()
+    )
+    objs = chart.objects()
+    assert {"line", "polyline", "rect", "text", "ellipse"} <= {o["type"] for o in objs}
+    # every emitted object lowers into a valid document via the new extend() helper
+    builder = DocumentBuilder()
+    builder.page("p", canvas={"size": [640, 440], "units": "px"}).layer("main").extend(objs)
+    builder.build()
+
+
+def test_chart_smooth_series_emits_path_inside_plot():
+    frame = Frame(domain=(0, 0, 10, 10), box=(0, 0, 100, 100))
+    chart = Chart(frame).line([(0, 0), (5, 5), (10, 10)], smooth=True)
+    paths = [o for o in chart.objects() if o["type"] == "path"]
+    assert len(paths) == 1 and paths[0]["d"].startswith("M ")
+
+
 def test_macros_theme_markdown_and_paragraph():
     builder = DocumentBuilder()
     handles = theme(
@@ -317,12 +580,6 @@ def test_macros_theme_markdown_and_paragraph():
     )
     builder.flow("story", master=master, story=[flow])
     assert builder.build().pages[0].story[0].type == "paragraph"
-
-
-def test_conformance_page_hashes_are_stable():
-    hashes = page_hashes(_minimal_doc())
-    assert len(hashes) == 1
-    assert len(hashes[0]) == 64
 
 
 def test_macros_lorem_is_deterministic_and_shaped():
@@ -350,3 +607,9 @@ def test_macros_lorem_is_deterministic_and_shaped():
     # usable as flow paragraph text via the existing macro
     flow = paragraph(lorem(words=8))
     assert flow["type"] == "paragraph" and flow["text"].endswith(".")
+
+
+def test_conformance_page_hashes_are_stable():
+    hashes = page_hashes(_minimal_doc())
+    assert len(hashes) == 1
+    assert len(hashes[0]) == 64
