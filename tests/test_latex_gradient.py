@@ -145,6 +145,50 @@ def test_style_background_image_radial_gradient_emits_shade():
     assert "fill={rgb" not in tex
 
 
+def test_conic_gradient_rect_uses_radial_fallback_like_svg_proxy():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 100, 100],
+        "fill": {
+            "kind": "conic",
+            "from": 0,
+            "at": "center",
+            "stops": [
+                {"color": "#ff0000", "position": "0%"},
+                {"color": "#00ff00", "position": "50%"},
+                {"color": "#0000ff", "position": "100%"},
+            ],
+        },
+    })
+
+    assert tex.count("\\shade[") == 2
+    assert "\\clip (0,0) rectangle (100,100);" in tex
+    assert "(50,50) ellipse (50pt and 50pt)" in tex
+    assert "inner color={rgb,255:red,255;green,0;blue,0}" in tex
+    assert "outer color={rgb,255:red,0;green,0;blue,255}" in tex
+    assert "fill={rgb" not in tex
+
+
+def test_style_background_image_conic_gradient_emits_radial_fallback():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 80, 80],
+        "style": {
+            "background_image": {
+                "kind": "conic",
+                "stops": [
+                    {"color": "#ffffff", "position": "0%"},
+                    {"color": "#000000", "position": "100%"},
+                ],
+            },
+        },
+    })
+
+    assert "\\shade[inner color=" in tex
+    assert "\\clip (0,0) rectangle (80,80);" in tex
+    assert "fill={rgb" not in tex
+
+
 def test_object_fill_overrides_style_background_image_gradient():
     tex = _fig().render({
         "type": "rect",

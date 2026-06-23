@@ -681,7 +681,7 @@ class FigureTikz:
                 if paint is not None:
                     return paint
             if value.get("stops") and value.get("kind") in (
-                "linear", "linear-gradient", "radial", "radial-gradient",
+                "linear", "linear-gradient", "radial", "radial-gradient", "conic",
             ):
                 return value
             if "color" in value:
@@ -1107,7 +1107,7 @@ class FigureTikz:
         if not isinstance(fill, dict):
             return None
         kind = str(fill.get("kind"))
-        if kind in ("radial", "radial-gradient"):
+        if kind in ("radial", "radial-gradient", "conic"):
             return self._radial_gradient_rect(fill, x, y, w, h)
         if kind not in ("linear", "linear-gradient"):
             return None
