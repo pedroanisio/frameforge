@@ -1145,6 +1145,9 @@ class FigureTikz:
                 commands.append(f"\\lefthyphenmin={int(before)}\\relax")
             if after is not None:
                 commands.append(f"\\righthyphenmin={int(after)}\\relax")
+        marker = st.get("hyphenate_character")
+        if isinstance(marker, str) and marker:
+            commands.append(f"\\hyphenchar\\font={ord(marker[0])}\\relax")
         if not commands:
             return content
         return "{" + "".join(commands) + " " + content + "}"

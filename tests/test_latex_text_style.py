@@ -401,6 +401,29 @@ def test_hyphenate_limit_chars_maps_to_tex_hyphen_minima():
     assert "\\righthyphenmin=2\\relax" in tex
 
 
+def test_hyphenate_character_maps_to_tex_font_hyphenchar():
+    tex = _fig({"label": {"hyphenate_character": "~"}}).render({
+        "type": "text",
+        "box": [10, 20, 80, 30],
+        "text": "hyphenation",
+        "style": "label",
+    })
+
+    assert "\\hyphenchar\\font=126\\relax" in tex
+    assert "hyphenation" in tex
+
+
+def test_hyphenate_character_uses_first_character():
+    tex = _fig({"label": {"hyphenate_character": "->"}}).render({
+        "type": "text",
+        "box": [10, 20, 80, 30],
+        "text": "hyphenation",
+        "style": "label",
+    })
+
+    assert "\\hyphenchar\\font=45\\relax" in tex
+
+
 def test_vertical_align_places_text_within_box():
     top = _fig({"label": {"size": 10, "vertical_align": "top"}}).render({
         "type": "text",
