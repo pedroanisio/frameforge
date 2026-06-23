@@ -19,6 +19,13 @@ sys.path.insert(0, ROOT)
 from framegraph.rendering.infrastructure.latex import transpile  # noqa: E402
 
 
+def _fixture_path(*parts):
+    root_path = os.path.join(ROOT, "fixtures", *parts)
+    if os.path.exists(root_path):
+        return root_path
+    return os.path.join(ROOT, "examples", "fixtures", *parts)
+
+
 def _flow(*story):
     return {
         "dsl": "FrameGraph", "version": "2.2.0", "profile": "report",
@@ -53,8 +60,7 @@ def test_structured_cells_render_text_not_dict_repr():
 
 
 def test_b1_chroma_table_renders_cleanly():
-    doc = json.load(open(os.path.join(ROOT, "fixtures", "b1",
-                                      "chroma-styling-showcase.fg.json"), encoding="utf-8"))
+    doc = json.load(open(_fixture_path("b1", "chroma-styling-showcase.fg.json"), encoding="utf-8"))
     tex = transpile(doc)
     assert "'content'" not in tex
     assert r"\textbf{Thickness (nm)}" in tex

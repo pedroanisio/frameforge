@@ -591,6 +591,56 @@ def test_hanging_punctuation_none_disables_microtype_protrusion():
     assert "\\ifdefined\\microtypesetup\\microtypesetup{protrusion=false}\\fi" in tex
 
 
+def test_text_align_last_center_maps_to_balanced_final_line_glue():
+    tex = _fig({"label": {"text_align_last": "center"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 60],
+        "text": "Line 1\nLine 2",
+        "style": "label",
+    })
+
+    assert "\\leftskip=0pt plus 1fil" in tex
+    assert "\\rightskip=0pt plus 1fil" in tex
+    assert "\\parfillskip=0pt" in tex
+    assert "Line 1" in tex
+
+
+def test_text_align_last_right_maps_to_left_fill_glue():
+    tex = _fig({"label": {"text_align_last": "right"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 60],
+        "text": "Last",
+        "style": "label",
+    })
+
+    assert "\\leftskip=0pt plus 1fil" in tex
+    assert "\\rightskip=0pt\\parfillskip=0pt" in tex
+
+
+def test_text_align_last_justify_removes_final_line_raggedness():
+    tex = _fig({"label": {"text_align_last": "justify"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 60],
+        "text": "Justified last",
+        "style": "label",
+    })
+
+    assert "{\\parfillskip=0pt Justified last}" in tex
+
+
+def test_text_align_last_applies_to_spans():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "spans": [
+            {"text": "Span", "style": {"text_align_last": "end"}},
+        ],
+    })
+
+    assert "\\leftskip=0pt plus 1fil" in tex
+    assert "{\\leftskip=0pt plus 1fil\\rightskip=0pt\\parfillskip=0pt Span}" in tex
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",

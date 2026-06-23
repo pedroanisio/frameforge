@@ -29,10 +29,17 @@ RENDER = os.path.join(ROOT, "tooling", "render_fixtures.py")
 RENDER_LATEX = os.path.join(ROOT, "tooling", "render_latex.py")
 
 
+def _fixture_path(name):
+    root_path = os.path.join(ROOT, "fixtures", name)
+    if os.path.exists(root_path):
+        return root_path
+    return os.path.join(ROOT, "examples", "fixtures", name)
+
+
 def _render_fixture(name):
     with tempfile.TemporaryDirectory() as out:
-        subprocess.run([sys.executable, RENDER, os.path.join(ROOT, "fixtures", name),
-                        "--out", out, "--quiet"], check=True, cwd=ROOT)
+        subprocess.run([sys.executable, RENDER, _fixture_path(name), "--out", out, "--quiet"],
+                       check=True, cwd=ROOT)
         svgs = sorted(glob.glob(os.path.join(out, "**", "p*.svg"), recursive=True))
         assert svgs, "renderer produced no SVG"
         with open(svgs[0], encoding="utf-8") as fh:
@@ -42,8 +49,8 @@ def _render_fixture(name):
 def _render_all_pages(name):
     """Every page's SVG concatenated, for flow docs that paginate."""
     with tempfile.TemporaryDirectory() as out:
-        subprocess.run([sys.executable, RENDER, os.path.join(ROOT, "fixtures", name),
-                        "--out", out, "--quiet"], check=True, cwd=ROOT)
+        subprocess.run([sys.executable, RENDER, _fixture_path(name), "--out", out, "--quiet"],
+                       check=True, cwd=ROOT)
         svgs = sorted(glob.glob(os.path.join(out, "**", "p*.svg"), recursive=True))
         assert svgs, "renderer produced no SVG"
         return "\n".join(open(p, encoding="utf-8").read() for p in svgs)
@@ -53,8 +60,8 @@ def _transpile_latex(name):
     """Transpile a fixture to LaTeX source via the CLI (subprocess: same
     name-clash dodge as the SVG path)."""
     with tempfile.TemporaryDirectory() as out:
-        subprocess.run([sys.executable, RENDER_LATEX, os.path.join(ROOT, "fixtures", name),
-                        "--out", out, "--tex-only", "--quiet"], check=True, cwd=ROOT)
+        subprocess.run([sys.executable, RENDER_LATEX, _fixture_path(name), "--out", out, "--tex-only", "--quiet"],
+                       check=True, cwd=ROOT)
         tex = glob.glob(os.path.join(out, "*.tex"))
         assert tex, "transpiler produced no .tex"
         with open(tex[0], encoding="utf-8") as fh:

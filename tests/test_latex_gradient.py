@@ -21,6 +21,13 @@ from framegraph.rendering.domain.services.text_style_resolver import TextStyleRe
 from framegraph.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
 
 
+def _fixture_path(*parts):
+    root_path = os.path.join(ROOT, "fixtures", *parts)
+    if os.path.exists(root_path):
+        return root_path
+    return os.path.join(ROOT, "examples", "fixtures", *parts)
+
+
 def _fig():
     color = ColorResolver({})
     return FigureTikz(color, TextStyleResolver({}, {}, color), {})
@@ -107,8 +114,7 @@ def test_diagonal_gradient_stroke_line_falls_back_to_solid_stroke():
 
 def test_b1_chroma_spectrum_renders_as_gradient():
     from framegraph.rendering.infrastructure.latex import transpile
-    doc = json.load(open(os.path.join(ROOT, "fixtures", "b1",
-                                      "chroma-styling-showcase.fg.json"), encoding="utf-8"))
+    doc = json.load(open(_fixture_path("b1", "chroma-styling-showcase.fg.json"), encoding="utf-8"))
     tex = transpile(doc)
     # the 7-stop spectrum -> 6 horizontal segments (plus the other gradients)
     assert tex.count("\\shade[left color=") >= 6

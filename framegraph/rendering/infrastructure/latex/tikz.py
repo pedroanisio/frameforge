@@ -1103,6 +1103,7 @@ class FigureTikz:
         escaped = self._hyphen_text(st, escaped)
         escaped = self._direction_text(st, escaped)
         escaped = self._hanging_punctuation_text(st, escaped)
+        escaped = self._text_align_last_text(st, escaped)
         return self._decorate_text(st, escaped)
 
     @staticmethod
@@ -1200,6 +1201,24 @@ class FigureTikz:
             return "{\\ifdefined\\microtypesetup\\microtypesetup{protrusion=false}\\fi " + content + "}"
         if value in ("first", "last", "allow-end", "force-end"):
             return "{\\ifdefined\\microtypesetup\\microtypesetup{protrusion=true}\\fi " + content + "}"
+        return content
+
+    @staticmethod
+    def _text_align_last_text(st, content):
+        if not isinstance(st, dict):
+            return content
+        value = str(st.get("text_align_last") or "").strip().lower()
+        if value in ("left", "start"):
+            return "{\\leftskip=0pt\\rightskip=0pt plus 1fil\\parfillskip=0pt " + content + "}"
+        if value in ("right", "end"):
+            return "{\\leftskip=0pt plus 1fil\\rightskip=0pt\\parfillskip=0pt " + content + "}"
+        if value == "center":
+            return (
+                "{\\leftskip=0pt plus 1fil\\rightskip=0pt plus 1fil"
+                "\\parfillskip=0pt " + content + "}"
+            )
+        if value == "justify":
+            return "{\\parfillskip=0pt " + content + "}"
         return content
 
     @staticmethod
