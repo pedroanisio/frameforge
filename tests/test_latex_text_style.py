@@ -340,6 +340,30 @@ def test_preformatted_white_space_preserves_newlines():
     assert "{Line 1\\\\Line 2}" in tex
 
 
+def test_tab_size_maps_to_explicit_horizontal_skip():
+    tex = _fig({"label": {"size": 10, "tab_size": 4}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "A\tB",
+        "style": "label",
+    })
+
+    assert "{A\\hspace*{20.8pt}B}" in tex
+    assert "\t" not in tex
+
+
+def test_tab_size_applies_to_spans():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "spans": [
+            {"text": "A\tB", "style": {"size": 10, "tab_size": 2}},
+        ],
+    })
+
+    assert "{A\\hspace*{10.4pt}B}" in tex
+
+
 def test_vertical_align_places_text_within_box():
     top = _fig({"label": {"size": 10, "vertical_align": "top"}}).render({
         "type": "text",

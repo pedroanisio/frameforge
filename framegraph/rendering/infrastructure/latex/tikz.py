@@ -1084,9 +1084,21 @@ class FigureTikz:
     def _format_text(self, st, content):
         content = self._transform_text(content, st.get("text_transform"))
         escaped = ltx_escape(content)
+        escaped = self._tab_text(st, escaped)
         if str(st.get("white_space") or "").strip().lower() in ("pre", "pre-wrap", "pre-line"):
             escaped = escaped.replace("\n", r"\\")
         return self._decorate_text(st, self._space_text(st, self._indent_text(st, escaped)))
+
+    @staticmethod
+    def _tab_text(st, content):
+        if "\t" not in content or not isinstance(st, dict):
+            return content
+        size = num(st.get("size"), 12) or 12
+        avg = num(st.get("avg"), 0.52) or 0.52
+        count = num(st.get("tab_size"), 8)
+        if count is None or count <= 0:
+            count = 8
+        return content.replace("\t", f"\\hspace*{{{fnum(count * size * avg)}pt}}")
 
     @staticmethod
     def _indent_text(st, content):
