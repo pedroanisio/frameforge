@@ -927,19 +927,21 @@ Route =
 
 (* +P1  Layout box model is specified in spec §3.6 (deterministic placement of *)
 (* a container's children). `gap` applies to both axes unless overridden by     *)
-(* `row_gap`/`column_gap`. `align` is the CROSS-axis alignment (main axis packs *)
-(* from the start after `padding`). `columns` applies to `grid`, row-major.     *)
-(* Child x/y are IGNORED under row/column/grid and COMPUTED by the model; under *)
-(* `free`, child boxes are used as-is. Absent `layout` ⇒ `free`. See §3.6.      *)
+(* `row_gap`/`column_gap`. `align` is the CROSS-axis alignment; `justify` packs *)
+(* or distributes the MAIN axis. `columns` applies to `grid`, row-major. `wrap` *)
+(* flows children left-to-right into rows. Child x/y are IGNORED under layout   *)
+(* containers and COMPUTED by the model; under `free`, child boxes are used     *)
+(* as-is. Absent `layout` ⇒ `free`. See §3.6.                                  *)
 Layout =
     "{" ,
-      "kind" , ":" , ( "row" | "column" | "grid" | "free" ) ,
+      "kind" , ":" , ( "row" | "column" | "grid" | "wrap" | "free" ) ,
       [ "gap"        , ":" , Length ] ,
       [ "row_gap"    , ":" , Length ] ,                                 (* +P1 *)
       [ "column_gap" , ":" , Length ] ,                                 (* +P1 *)
-      [ "padding"    , ":" , Box ] ,
+      [ "padding"    , ":" , ( Length | "[" , Length , { "," , Length } , "]" ) ] ,
       [ "columns"    , ":" , integer ] ,    (* grid: cells per row, row-major *)
       [ "align"      , ":" , ( "start" | "center" | "end" | "stretch" ) ] ,  (* +P1: cross-axis; default start *)
+      [ "justify"    , ":" , ( "start" | "center" | "end" | "space-between" | "space-around" | "space-evenly" ) ] ,
     "}" ;
 
 ClipSpec = boolean | "{" , "shape" , ":" , ( "rect" | "ellipse" | "path" ) , [ "," , "radius" , ":" , Length ] , "}" ;
@@ -948,7 +950,7 @@ ClipSpec = boolean | "{" , "shape" , ":" , ( "rect" | "ellipse" | "path" ) , [ "
 (* fixed: declared box dimension (DEFAULT). hug: size to content (text=>measured *)
 (* wrapped extent; group=>children bbox + padding; INVALID on rect/ellipse/line/ *)
 (* path). fill: share of the container free MAIN-axis space by `grow`; cross-axis *)
-(* stretch; only meaningful as a direct row/column/grid child — error under free. *)
+(* stretch; only meaningful as a direct layout child — error under free.        *)
 (* Algorithm + determinism precondition: §3.6g + §9.6. *)
 Sizing =
     "{" ,

@@ -197,6 +197,101 @@ class DocumentBuilder:
         return tokens.setdefault(key, {})
 
 
+class StackBuilder:
+    """Collect local children for a layout-native group."""
+
+    def __init__(self, parent: "PageBuilder", box: list[Any], layout: dict[str, Any], fields: dict[str, Any]) -> None:
+        self._parent = parent
+        self._box = box
+        self._layout = layout
+        self._fields = fields
+        self._children: list[dict[str, Any]] = []
+
+    def add(self, obj: dict[str, Any]) -> "StackBuilder":
+        self._children.append(_local_child(_coerce_handles(obj)))
+        return self
+
+    def extend(self, objects: list[dict[str, Any]]) -> "StackBuilder":
+        for obj in objects:
+            self.add(obj)
+        return self
+
+    def spacer(
+        self,
+        *,
+        w: float = 0.0,
+        h: float = 0.0,
+        grow: float = 1.0,
+        axis: str = "width",
+    ) -> "StackBuilder":
+        """Add an invisible fill/grow spacer."""
+        sizing = {"grow": grow, axis: "fill"}
+        return self.add({
+            "type": "group",
+            "box": [0, 0, w, h],
+            "sizing": sizing,
+            "decorative": True,
+            "children": [],
+        })
+
+    def widget(self, obj: dict[str, Any]) -> "StackBuilder":
+        return self.add(obj)
+
+    def button(self, label: str, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import button
+
+        return self.add(button(label, **fields))
+
+    def badge(self, text: str, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import badge
+
+        return self.add(badge(text, **fields))
+
+    def pill(self, text: str | None = None, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import pill
+
+        return self.add(pill(text, **fields))
+
+    def avatar(self, initials: str | None = None, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import avatar
+
+        return self.add(avatar(initials, **fields))
+
+    def kpi(self, label: str, value: str, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import kpi
+
+        return self.add(kpi(label, value, **fields))
+
+    def field(self, label: str, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import field
+
+        return self.add(field(label, **fields))
+
+    def toggle(self, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import toggle
+
+        return self.add(toggle(**fields))
+
+    def tabs(self, items: list[str], **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import tabs
+
+        return self.add(tabs(items, **fields))
+
+    def progress(self, frac: float, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import progress
+
+        return self.add(progress(frac, **fields))
+
+    def divider(self, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import divider
+
+        return self.add(divider(**fields))
+
+    def commit(self) -> PageBuilder:
+        self._parent.group(self._children, box=self._box, layout=self._layout, **self._fields)
+        return self._parent
+
+
 class PageBuilder:
     """Builder for a single page's layers and visual objects."""
 
@@ -222,6 +317,60 @@ class PageBuilder:
         objs = self._objects()
         objs.extend(_coerce_handles(self._stamp(obj)) for obj in objects)
         return self
+
+    @contextmanager
+    def stack(
+        self,
+        box: list[Any],
+        *,
+        kind: str,
+        gap: float | int | str | None = None,
+        pad: Any = None,
+        align: str | None = None,
+        justify: str | None = None,
+        columns: int | None = None,
+        row_gap: float | int | str | None = None,
+        column_gap: float | int | str | None = None,
+        **fields: Any,
+    ) -> "Iterator[StackBuilder]":
+        """Collect children into a layout-native group."""
+        layout = _layout(kind, gap=gap, pad=pad, align=align, justify=justify,
+                         columns=columns, row_gap=row_gap, column_gap=column_gap)
+        stack = StackBuilder(self, box, layout, fields)
+        yield stack
+        stack.commit()
+
+    def hstack(self, box: list[Any], *, gap: float | int | str | None = None,
+               pad: Any = None, align: str | None = None,
+               justify: str | None = None, **fields: Any):
+        """Context manager for a row layout group."""
+        return self.stack(box, kind="row", gap=gap, pad=pad, align=align,
+                          justify=justify, **fields)
+
+    def vstack(self, box: list[Any], *, gap: float | int | str | None = None,
+               pad: Any = None, align: str | None = None,
+               justify: str | None = None, **fields: Any):
+        """Context manager for a column layout group."""
+        return self.stack(box, kind="column", gap=gap, pad=pad, align=align,
+                          justify=justify, **fields)
+
+    def wrap(self, box: list[Any], *, gap: float | int | str | None = None,
+             pad: Any = None, align: str | None = None,
+             justify: str | None = None, row_gap: float | int | str | None = None,
+             column_gap: float | int | str | None = None, **fields: Any):
+        """Context manager for a wrapping row layout group."""
+        return self.stack(box, kind="wrap", gap=gap, pad=pad, align=align,
+                          justify=justify, row_gap=row_gap, column_gap=column_gap,
+                          **fields)
+
+    def grid_stack(self, box: list[Any], *, columns: int, gap: float | int | str | None = None,
+                   pad: Any = None, align: str | None = None,
+                   row_gap: float | int | str | None = None,
+                   column_gap: float | int | str | None = None, **fields: Any):
+        """Context manager for a grid layout group."""
+        return self.stack(box, kind="grid", gap=gap, pad=pad, align=align,
+                          columns=columns, row_gap=row_gap, column_gap=column_gap,
+                          **fields)
 
     @contextmanager
     def bleed(self) -> "Iterator[PageBuilder]":
@@ -312,7 +461,7 @@ class PageBuilder:
         """Add a prebuilt SDK widget object and return the page builder."""
         return self.add(obj)
 
-    def badge(self, box: Any, text: str, **fields: Any) -> "PageBuilder":
+    def badge(self, box: Any, text: str | None = None, **fields: Any) -> "PageBuilder":
         from framegraph.sdk.widgets import badge
 
         return self.add(badge(box, text, **fields))
@@ -322,42 +471,42 @@ class PageBuilder:
 
         return self.add(pill(box, text, **fields))
 
-    def button(self, box: Any, label: str, **fields: Any) -> "PageBuilder":
+    def button(self, box: Any, label: str | None = None, **fields: Any) -> "PageBuilder":
         from framegraph.sdk.widgets import button
 
         return self.add(button(box, label, **fields))
 
-    def avatar(self, box: Any, name: str, **fields: Any) -> "PageBuilder":
+    def avatar(self, box: Any, name: str | None = None, **fields: Any) -> "PageBuilder":
         from framegraph.sdk.widgets import avatar
 
         return self.add(avatar(box, name, **fields))
 
-    def kpi(self, box: Any, label: str, value: str, **fields: Any) -> "PageBuilder":
+    def kpi(self, box: Any, label: str, value: str | None = None, **fields: Any) -> "PageBuilder":
         from framegraph.sdk.widgets import kpi
 
         return self.add(kpi(box, label, value, **fields))
 
-    def field(self, box: Any, label: str, **fields: Any) -> "PageBuilder":
+    def field(self, box: Any, label: str | None = None, **fields: Any) -> "PageBuilder":
         from framegraph.sdk.widgets import field
 
         return self.add(field(box, label, **fields))
 
-    def toggle(self, box: Any, *, on: bool = False, **fields: Any) -> "PageBuilder":
+    def toggle(self, box: Any = None, *, on: bool = False, **fields: Any) -> "PageBuilder":
         from framegraph.sdk.widgets import toggle
 
         return self.add(toggle(box, on=on, **fields))
 
-    def tabs(self, box: Any, items: list[str], **fields: Any) -> "PageBuilder":
+    def tabs(self, box: Any, items: list[str] | None = None, **fields: Any) -> "PageBuilder":
         from framegraph.sdk.widgets import tabs
 
         return self.add(tabs(box, items, **fields))
 
-    def progress(self, box: Any, value: float, **fields: Any) -> "PageBuilder":
+    def progress(self, box: Any, value: float | None = None, **fields: Any) -> "PageBuilder":
         from framegraph.sdk.widgets import progress
 
         return self.add(progress(box, value, **fields))
 
-    def divider(self, box: Any, **fields: Any) -> "PageBuilder":
+    def divider(self, box: Any = None, **fields: Any) -> "PageBuilder":
         from framegraph.sdk.widgets import divider
 
         return self.add(divider(box, **fields))
@@ -733,6 +882,44 @@ def _points(values: Any) -> list[list[float]]:
     return [_point(v) for v in values]
 
 
+def _layout(
+    kind: str,
+    *,
+    gap: Any = None,
+    pad: Any = None,
+    align: str | None = None,
+    justify: str | None = None,
+    columns: int | None = None,
+    row_gap: Any = None,
+    column_gap: Any = None,
+) -> dict[str, Any]:
+    layout: dict[str, Any] = {"kind": kind}
+    if gap is not None:
+        layout["gap"] = gap
+    if row_gap is not None:
+        layout["row_gap"] = row_gap
+    if column_gap is not None:
+        layout["column_gap"] = column_gap
+    if pad is not None:
+        layout["padding"] = pad
+    if columns is not None:
+        layout["columns"] = columns
+    if align is not None:
+        layout["align"] = align
+    if justify is not None:
+        layout["justify"] = justify
+    return _coerce_handles(layout)
+
+
+def _local_child(obj: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(obj, dict):
+        return obj
+    box = obj.get("box")
+    if isinstance(box, list) and len(box) >= 4:
+        return {**obj, "box": [0, 0, box[2], box[3]]}
+    return obj
+
+
 def _coerce_handles(value: Any, field: str | None = None) -> Any:
     if isinstance(value, Handle):
         _check_handle(value, _allowed_handle_kinds(field), field or "value")
@@ -781,4 +968,4 @@ def _allowed_handle_kinds(field: str | None) -> set[str]:
     return set()
 
 
-__all__ = ["DocumentBuilder", "Handle", "PageBuilder"]
+__all__ = ["DocumentBuilder", "Handle", "PageBuilder", "StackBuilder"]

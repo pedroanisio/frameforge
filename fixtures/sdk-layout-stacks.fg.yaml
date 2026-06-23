@@ -1,0 +1,648 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: deck
+title: SDK layout stacks
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#111827'
+    text_styles:
+      title:
+        color: ink
+        font_family: Inter
+        font_size: 30
+pages:
+- mode: page
+  id: stacks
+  canvas:
+    size:
+    - 900.0
+    - 520.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 900
+      - 520
+      type: rect
+      fill: '#f8fafc'
+    - id: title
+      box:
+      - 48
+      - 34
+      - 520
+      - 40
+      style: title
+      type: text
+      text: Layout-native SDK stacks
+    - id: caption
+      box:
+      - 50
+      - 82
+      - 700
+      - 24
+      style:
+        color: '#475569'
+        font_family: Inter
+        font_size: 14
+      type: text
+      text: Rows, columns, wrapping chips and grow spacers are emitted as layout groups.
+    - id: actions
+      box:
+      - 48
+      - 128
+      - 804
+      - 72
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 75.00399999999999
+        - 36.0
+        meta:
+          widget: button
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 75.00399999999999
+          - 36.0
+          decorative: true
+          stroke_style:
+            stroke_width: 1.0
+          type: rect
+          fill: '#FFFFFF'
+          radius: 8
+          stroke: '#D7DCE4'
+        - box:
+          - 0.0
+          - 0.0
+          - 75.00399999999999
+          - 36.0
+          style:
+            align: center
+            color: '#56607A'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 13
+            font_weight: 700
+            vertical_align: middle
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: Cancel
+      - box:
+        - 0
+        - 0
+        - 0.0
+        - 36
+        decorative: true
+        sizing:
+          width: fill
+          grow: 1.0
+        type: group
+        children: []
+      - box:
+        - 0
+        - 0
+        - 83.922
+        - 36.0
+        meta:
+          widget: button
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 83.922
+          - 36.0
+          decorative: true
+          type: rect
+          fill: '#EEF1F5'
+          radius: 8
+        - box:
+          - 0.0
+          - 0.0
+          - 83.922
+          - 36.0
+          style:
+            align: center
+            color: '#56607A'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 13
+            font_weight: 700
+            vertical_align: middle
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: Preview
+      - box:
+        - 0
+        - 0
+        - 76.941
+        - 36.0
+        sizing:
+          width: fill
+          grow: 1.0
+        meta:
+          widget: button
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 76.941
+          - 36.0
+          decorative: true
+          type: rect
+          fill: '#2563EB'
+          radius: 8
+        - box:
+          - 0.0
+          - 0.0
+          - 76.941
+          - 36.0
+          style:
+            align: center
+            color: '#FFFFFF'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 13
+            font_weight: 700
+            vertical_align: middle
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: Deploy
+      layout:
+        kind: row
+        gap: 12
+        padding: 16
+        align: center
+    - id: chips
+      box:
+      - 48
+      - 228
+      - 360
+      - 120
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 36.962
+        - 24.0
+        meta:
+          widget: badge
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 36.962
+          - 24.0
+          decorative: true
+          type: rect
+          fill: '#E6EEFC'
+          radius: 12.0
+        - box:
+          - 0.0
+          - 0.0
+          - 36.962
+          - 24.0
+          style:
+            align: center
+            color: '#2563EB'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 11
+            font_weight: 700
+            vertical_align: middle
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: api
+      - box:
+        - 0
+        - 0
+        - 68.675
+        - 24.0
+        meta:
+          widget: badge
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 68.675
+          - 24.0
+          decorative: true
+          type: rect
+          fill: '#E2F3E9'
+          radius: 12.0
+        - box:
+          - 0.0
+          - 0.0
+          - 68.675
+          - 24.0
+          style:
+            align: center
+            color: '#1F9254'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 11
+            font_weight: 700
+            vertical_align: middle
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: renderer
+      - box:
+        - 0
+        - 0
+        - 62.294999999999995
+        - 24.0
+        meta:
+          widget: badge
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 62.294999999999995
+          - 24.0
+          decorative: true
+          type: rect
+          fill: '#FBF0DA'
+          radius: 12.0
+        - box:
+          - 0.0
+          - 0.0
+          - 62.294999999999995
+          - 24.0
+          style:
+            align: center
+            color: '#B7791F'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 11
+            font_weight: 700
+            vertical_align: middle
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: schema
+      - box:
+        - 0
+        - 0
+        - 93.37
+        - 24.0
+        meta:
+          widget: badge
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 93.37
+          - 24.0
+          decorative: true
+          type: rect
+          fill: '#E6EEFC'
+          radius: 12.0
+        - box:
+          - 0.0
+          - 0.0
+          - 93.37
+          - 24.0
+          style:
+            align: center
+            color: '#2563EB'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 11
+            font_weight: 700
+            vertical_align: middle
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: layout-native
+      - box:
+        - 0
+        - 0
+        - 44.893
+        - 24.0
+        meta:
+          widget: badge
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 44.893
+          - 24.0
+          decorative: true
+          type: rect
+          fill: '#EEF1F5'
+          radius: 12.0
+        - box:
+          - 0.0
+          - 0.0
+          - 44.893
+          - 24.0
+          style:
+            align: center
+            color: '#56607A'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 11
+            font_weight: 700
+            vertical_align: middle
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: docs
+      - box:
+        - 0
+        - 0
+        - 62.933
+        - 24.0
+        meta:
+          widget: badge
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 62.933
+          - 24.0
+          decorative: true
+          type: rect
+          fill: '#E2F3E9'
+          radius: 12.0
+        - box:
+          - 0.0
+          - 0.0
+          - 62.933
+          - 24.0
+          style:
+            align: center
+            color: '#1F9254'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 11
+            font_weight: 700
+            vertical_align: middle
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: fixtures
+      layout:
+        kind: wrap
+        gap: 10
+        padding: 16
+    - id: metrics
+      box:
+      - 456
+      - 228
+      - 396
+      - 220
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 180.0
+        - 108.0
+        meta:
+          widget: kpi
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 180.0
+          - 108.0
+          decorative: true
+          stroke_style:
+            stroke_width: 1.0
+          type: rect
+          fill: '#FFFFFF'
+          radius: 12
+          stroke: '#D7DCE4'
+        - box:
+          - 16.0
+          - 16.0
+          - 148.0
+          - 14.0
+          style:
+            align: left
+            color: '#8A93A3'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 11
+            font_weight: 700
+            letter_spacing: 0.6
+            vertical_align: top
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: BUILD
+        - box:
+          - 16.0
+          - 34.0
+          - 148.0
+          - 36.0
+          style:
+            align: left
+            color: '#1D2430'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 30
+            font_weight: 800
+            letter_spacing: -1
+            vertical_align: top
+            white_space: nowrap
+            min_font_size: 18.0
+            overflow: shrink_to_fit
+          type: text
+          text: 588 passed
+        - box:
+          - 16.0
+          - 76.0
+          - 148.0
+          - 16.0
+          style:
+            align: left
+            color: '#1F9254'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 12
+            font_weight: 700
+            vertical_align: top
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: full gate
+      - box:
+        - 0
+        - 0
+        - 180.0
+        - 108.0
+        meta:
+          widget: kpi
+        type: group
+        children:
+        - box:
+          - 0.0
+          - 0.0
+          - 180.0
+          - 108.0
+          decorative: true
+          stroke_style:
+            stroke_width: 1.0
+          type: rect
+          fill: '#FFFFFF'
+          radius: 12
+          stroke: '#D7DCE4'
+        - box:
+          - 16.0
+          - 16.0
+          - 148.0
+          - 14.0
+          style:
+            align: left
+            color: '#8A93A3'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 11
+            font_weight: 700
+            letter_spacing: 0.6
+            vertical_align: top
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: DX
+        - box:
+          - 16.0
+          - 34.0
+          - 148.0
+          - 36.0
+          style:
+            align: left
+            color: '#1D2430'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 30
+            font_weight: 800
+            letter_spacing: -1
+            vertical_align: top
+            white_space: nowrap
+            min_font_size: 18.0
+            overflow: shrink_to_fit
+          type: text
+          text: less math
+        - box:
+          - 16.0
+          - 76.0
+          - 148.0
+          - 16.0
+          style:
+            align: left
+            color: '#1F9254'
+            font_family:
+            - Inter
+            - Helvetica
+            - Arial
+            - sans-serif
+            font_size: 12
+            font_weight: 700
+            vertical_align: top
+            white_space: nowrap
+            overflow: clip
+          type: text
+          text: layout groups
+      layout:
+        kind: column
+        gap: 14
+        padding: 16
+    - box:
+      - 48
+      - 388
+      - 804
+      - 72
+      decorative: true
+      shadow:
+        color: '#000000'
+        blur: 14.0
+        dx: 0.0
+        dy: 6.0
+        opacity: 0.18
+      type: rect
+      fill: '#ffffff'
+      radius: 12
+    - box:
+      - 72
+      - 410
+      - 740
+      - 26
+      style:
+        color: '#334155'
+        font_family: Inter
+        font_size: 16
+      type: text
+      text: The child boxes stay local; layout controls placement and fill-space growth.
+  reading_order:
+  - title
+  - caption

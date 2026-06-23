@@ -124,7 +124,7 @@ def test_hundred_faces_map_to_distinct_latex_font_families():
     assert tex.count(r"\newfontfamily") == 100
     assert tex.count(r"\IfFontExistsTF") == 100
     # each face is actually *selected* by its paragraph, not just declared.
-    selections = set(re.findall(r"\\fgff[a-z]+\\fontsize", tex))
+    selections = set(re.findall("\\\\fgff[a-z]+\\\\fontsize", tex))
     assert len(selections) >= 100, f"only {len(selections)} faces selected in LaTeX"
     # the declaration degrades gracefully on hosts missing a face (still compiles).
     assert r"{\newcommand\fgffa{}}" in tex

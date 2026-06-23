@@ -82,6 +82,28 @@ doc = builder.build()
 
 `builder.symbol()` is the author-once path for reusable motifs; `page.use_at()` places instances from scalar coordinates. `page.local()` and its `page.panel()` alias collect children in local coordinates under a box-anchored group.
 
+## Layout-Native Stacks
+
+`PageBuilder.hstack()`, `vstack()`, `wrap()`, and `grid_stack()` collect local children and emit real `group.layout` containers. Widget atoms such as `button("Save")` and `badge("api")` can now create intrinsic local boxes for stack use, and `StackBuilder.spacer()` emits a grow/fill spacer.
+
+```python
+from framegraph.sdk import DocumentBuilder, badge, button
+
+builder = DocumentBuilder()
+layer = builder.page("p", canvas={"size": [640, 240], "units": "px"}).layer("main")
+
+with layer.hstack([24, 24, 520, 56], gap=12, pad=12, align="center") as row:
+    row.add(button("Cancel", kind="ghost"))
+    row.spacer(h=36, grow=1)
+    row.add(button("Deploy", grow=1))
+
+with layer.wrap([24, 104, 360, 96], gap=8, pad=12) as chips:
+    for label in ["api", "renderer", "schema", "layout-native", "docs"]:
+        chips.add(badge(label, tone="accent"))
+
+doc = builder.build()
+```
+
 ## Paint and Geometry
 
 Paint helpers return model-native paint dictionaries. Geometry helpers on `PageBuilder` solve author-time math and lower to existing `path` or canonical closed `polyline` objects.

@@ -6,7 +6,7 @@ core schema types; builders and helpers lower into the model and validate there.
 """
 from __future__ import annotations
 
-from framegraph.sdk.author import DocumentBuilder, PageBuilder
+from framegraph.sdk.author import DocumentBuilder, Handle, PageBuilder, StackBuilder
 from framegraph.sdk.chart import Chart
 from framegraph.sdk.clip import (
     clip_circle,
@@ -15,12 +15,28 @@ from framegraph.sdk.clip import (
     clip_path,
     clip_polygon,
     clip_rect,
+    normalize_clip,
+)
+from framegraph.sdk.conform import (
+    assert_golden,
+    page_hashes,
+    render_page_svgs,
+    write_golden,
 )
 from framegraph.sdk.draw import Frame, Material, Scene3D
 from framegraph.sdk.expand import ExpandOptions, ExpandedDocument, expand
-from framegraph.sdk.geometry import Camera, CubicBezier, Mat3, Mat4, Path, Vec2, Vec3
+from framegraph.sdk.geometry import (
+    Camera,
+    CubicBezier,
+    Mat3,
+    Mat4,
+    Path,
+    Vec2,
+    Vec3,
+    quarter_circle_kappa,
+)
 from framegraph.sdk.io import parse, serialize
-from framegraph.sdk.layout import Box, column, grid, inset, row
+from framegraph.sdk.layout import Box, BoxLike, column, grid, inset, row
 from framegraph.sdk.macros import (
     greeble,
     grid_lines,
@@ -33,11 +49,27 @@ from framegraph.sdk.macros import (
     theme,
 )
 from framegraph.sdk.metrics import measure_text, text_height, wrap_text
-from framegraph.sdk.model import HEAD_VERSION, Document, model_module
+from framegraph.sdk.model import (
+    HEAD_VERSION,
+    Document,
+    ValidationError,
+    model_module,
+    to_plain_dict,
+    validate_document,
+)
 from framegraph.sdk.topology import Edge, Graph, Node
 from framegraph.sdk.fields import ScalarField, VectorField
 from framegraph.sdk.lattices import Lattice, lattice
 from framegraph.sdk import manifold
+from framegraph.sdk.manifold import (
+    klein_bottle,
+    mobius,
+    parametric,
+    saddle,
+    sphere,
+    torus,
+    wave,
+)
 from framegraph.sdk.paint import (
     dots,
     effects,
@@ -79,6 +111,7 @@ __all__ = [
     "Chart",
     "Panel",
     "Theme",
+    "assert_golden",
     "avatar",
     "badge",
     "badge_width",
@@ -112,6 +145,7 @@ __all__ = [
     "grid_lines",
     "grid_pattern",
     "Graph",
+    "Handle",
     "hatch",
     "hatch_fill",
     "Lattice",
@@ -128,10 +162,12 @@ __all__ = [
     "PageBuilder",
     "Path",
     "Scene3D",
+    "StackBuilder",
     "ValidationReport",
     "Vec2",
     "Vec3",
     "Box",
+    "BoxLike",
     "column",
     "dots",
     "effects",
@@ -146,20 +182,35 @@ __all__ = [
     "md",
     "measure_text",
     "model_module",
+    "klein_bottle",
+    "mobius",
     "neon",
+    "normalize_clip",
+    "page_hashes",
     "paragraph",
+    "parametric",
     "pattern",
     "parse",
+    "quarter_circle_kappa",
     "radial_gradient",
+    "render_page_svgs",
     "rgba",
     "row",
     "serialize",
     "shadow",
     "soft_shadow",
+    "saddle",
     "sparkline",
+    "sphere",
     "stroke",
     "text_height",
     "theme",
+    "to_plain_dict",
+    "torus",
+    "validate_document",
     "validate_static_rules",
+    "ValidationError",
     "wrap_text",
+    "wave",
+    "write_golden",
 ]

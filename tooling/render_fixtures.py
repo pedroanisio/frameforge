@@ -179,7 +179,8 @@ class Renderer:
         if not self.real_metrics or not st:
             return None
         from framegraph.rendering.infrastructure.font_metrics import get_font_metrics
-        return get_font_metrics(st.get("family", ""), bool(st.get("bold")))
+        # `family` is now the full CSS stack; metrics want the primary face only.
+        return get_font_metrics(st.get("family_primary") or st.get("family", ""), bool(st.get("bold")))
 
     def measure(self, s, size, avg, st=None):
         fm = self._font_metrics(st)
@@ -777,22 +778,22 @@ class Renderer:
         """Render a group's children, arranging them when the group declares a
         row/column/grid `layout` (else children keep their authored boxes).
 
-        Arrangement repositions each child via a translate group — it does NOT
-        resize them — so per-box text-fit is unchanged. Children render in the
-        group's local frame; the group's own box-origin translate is applied by
-        the caller. A child already at its target position is not wrapped, so a
-        free/no-layout group is byte-identical to before."""
+        Arrangement repositions each child via a translate group. Children with
+        fill sizing get their direct box extent overridden for this render pass;
+        the source document is not mutated. Children render in the group's local
+        frame; the group's own box-origin translate is applied by the caller."""
         children = o.get("children") or []
         layout = o.get("layout") or {}
         box = o.get("box")
-        if not (layout.get("kind") in ("row", "column", "grid")
+        if not (layout.get("kind") in ("row", "column", "grid", "wrap")
                 and isinstance(box, list) and len(box) >= 4):
             return "".join(self.obj(ch) for ch in children)
         p = self._painter
         positions = self._layout.arrange(num(box[2], 0), num(box[3], 0), children, layout)
         parts = []
-        for ch, (tx, ty) in zip(children, positions):
-            csvg = self.obj(ch)
+        for ch, (tx, ty, tw, th) in zip(children, positions):
+            child = self._layout_child(ch, tw, th)
+            csvg = self.obj(child)
             if not csvg:
                 continue
             cb = ch.get("box") if isinstance(ch, dict) else None
@@ -801,6 +802,19 @@ class Renderer:
             dx, dy = tx - ox, ty - oy
             parts.append(p.group(csvg, translate=(dx, dy)) if (dx or dy) else csvg)
         return "".join(parts)
+
+    @staticmethod
+    def _layout_child(ch, width, height):
+        if not isinstance(ch, dict):
+            return ch
+        box = ch.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            return ch
+        if (num(box[2], 0), num(box[3], 0)) == (width, height):
+            return ch
+        child = copy.deepcopy(ch)
+        child["box"] = [box[0], box[1], width, height]
+        return child
 
     def _obj(self, o):
         p = self._painter

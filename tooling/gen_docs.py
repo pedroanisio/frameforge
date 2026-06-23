@@ -273,6 +273,23 @@ def gen_sdk_guide():
         panel.extend(greeble([168, 16, 160, 84], seed=7, density=0.7, fill="#94a3b8"))
         panel.add(sparkline([(0, 2), (1, 4), (2, 3), (3, 7)], [168, 116, 160, 32]))
     """
+    stack_example = """\
+    from framegraph.sdk import DocumentBuilder, badge, button
+
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [640, 240], "units": "px"}).layer("main")
+
+    with layer.hstack([24, 24, 520, 56], gap=12, pad=12, align="center") as row:
+        row.add(button("Cancel", kind="ghost"))
+        row.spacer(h=36, grow=1)
+        row.add(button("Deploy", grow=1))
+
+    with layer.wrap([24, 104, 360, 96], gap=8, pad=12) as chips:
+        for label in ["api", "renderer", "schema", "layout-native", "docs"]:
+            chips.add(badge(label, tone="accent"))
+
+    doc = builder.build()
+    """
     topology_example = """\
     import math
 
@@ -359,6 +376,16 @@ def gen_sdk_guide():
         "scalar coordinates. `page.local()` and its `page.panel()` alias collect children in local coordinates "
         "under a box-anchored group.",
         "",
+        "## Layout-Native Stacks",
+        "",
+        "`PageBuilder.hstack()`, `vstack()`, `wrap()`, and `grid_stack()` collect local children and emit real "
+        "`group.layout` containers. Widget atoms such as `button(\"Save\")` and `badge(\"api\")` can now create "
+        "intrinsic local boxes for stack use, and `StackBuilder.spacer()` emits a grow/fill spacer.",
+        "",
+        "```python",
+        textwrap.dedent(stack_example).rstrip(),
+        "```",
+        "",
         "## Paint and Geometry",
         "",
         "Paint helpers return model-native paint dictionaries. Geometry helpers on `PageBuilder` solve author-time "
@@ -438,6 +465,8 @@ def gen_sdk_api():
     modules = [
         "framegraph.sdk.author",
         "framegraph.sdk.chart",
+        "framegraph.sdk.clip",
+        "framegraph.sdk.conform",
         "framegraph.sdk.draw",
         "framegraph.sdk.expand",
         "framegraph.sdk.fields",
@@ -451,6 +480,7 @@ def gen_sdk_api():
         "framegraph.sdk.paint",
         "framegraph.sdk.topology",
         "framegraph.sdk.validate",
+        "framegraph.sdk.widgets",
     ]
     lines = [
         "# Python SDK API",

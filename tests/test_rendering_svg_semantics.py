@@ -551,6 +551,42 @@ def test_group_layout_repositions_children_in_svg() -> None:
     assert '<g transform="translate(26,0)">' in svg
 
 
+def test_group_layout_wrap_justify_and_fill_resize_children_in_svg() -> None:
+    svg = _svg_for([
+        {
+            "type": "group",
+            "box": [0, 0, 120, 80],
+            "layout": {"kind": "wrap", "gap": 10, "padding": 0, "justify": "center"},
+            "children": [
+                {"type": "rect", "id": "a", "box": [0, 0, 50, 12], "fill": "panel"},
+                {"type": "rect", "id": "b", "box": [0, 0, 50, 12], "fill": "hairline"},
+                {"type": "rect", "id": "c", "box": [0, 0, 70, 12], "fill": "panel"},
+            ],
+        },
+        {
+            "type": "group",
+            "box": [0, 90, 120, 30],
+            "layout": {"kind": "row", "gap": 8},
+            "children": [
+                {"type": "rect", "id": "fixed", "box": [0, 0, 20, 12], "fill": "panel"},
+                {
+                    "type": "rect",
+                    "id": "fill",
+                    "box": [0, 0, 1, 12],
+                    "sizing": {"width": "fill", "grow": 1},
+                    "fill": "hairline",
+                },
+            ],
+        },
+    ])
+
+    assert '<g transform="translate(5,0)">' in svg
+    assert '<g transform="translate(65,0)">' in svg
+    assert '<g transform="translate(25,22)">' in svg
+    assert '<g transform="translate(28,0)">' in svg
+    assert '<rect x="0" y="0" width="92" height="12" fill="#123456"' in svg
+
+
 def test_style_clip_path_shapes_are_emitted() -> None:
     svg = _svg_for([
         {

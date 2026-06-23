@@ -24,14 +24,12 @@ How widgets lower (and why):
   path the validator recommends.
 
 **Honest scope (§13).** This is a *lowering* layer, not a UI framework. It does
-no automatic layout (compose boxes with :func:`~framegraph.sdk.row` /
-``column`` / ``grid`` / ``inset`` exactly as you would by hand), no responsive
-reflow, and no theming engine beyond a flat :class:`Theme` of literal values.
+no theming engine beyond a flat :class:`Theme` of literal values.
 Widgets emit inline styles built from the theme, so they render with zero
 document setup; :func:`register_theme` is optional sugar for authors who also
 want to reference the same tokens by name elsewhere. ``table`` cells are text
 only — for rich cells (a badge or progress bar inside a row) compose the atoms
-inside a :func:`card` instead.
+inside a :func:`card` or a layout-native builder stack instead.
 """
 from __future__ import annotations
 
@@ -215,6 +213,15 @@ def _initials(name: str) -> str:
     return (parts[0][:1] + (parts[1][:1] if len(parts) > 1 else "")).upper()
 
 
+def _is_box(value: Any) -> bool:
+    if isinstance(value, (str, bytes)) or value is None:
+        return False
+    try:
+        return len(value) >= 4
+    except TypeError:
+        return False
+
+
 # --------------------------------------------------------------------------- #
 #  atoms
 # --------------------------------------------------------------------------- #
@@ -225,9 +232,13 @@ def badge_width(text: str, *, theme: Theme | None = None, size: float = 11.0,
     return measure_text(str(text), font_family=th.font, font_size=size, bold=True) + pad
 
 
-def badge(box: Box, text: str, *, tone: str = "muted", theme: Theme | None = None) -> Obj:
+def badge(box: Box | str, text: str | None = None, *, tone: str = "muted",
+          theme: Theme | None = None) -> Obj:
     """A small status chip: a soft rounded fill with centred, toned label."""
     th = theme or default_theme()
+    if text is None:
+        text = str(box)
+        box = [0, 0, badge_width(text, theme=th), 24]
     _, _, w, h = _wh(box)
     bg, fg = _tone(th, tone)
     children = [
@@ -238,7 +249,7 @@ def badge(box: Box, text: str, *, tone: str = "muted", theme: Theme | None = Non
 
 
 def pill(
-    box: Box,
+    box: Box | str | None = None,
     text: str | None = None,
     *,
     fill: str | None = None,
@@ -249,6 +260,10 @@ def pill(
 ) -> Obj:
     """A rounded container with optional outline and centred-left label."""
     th = theme or default_theme()
+    if not _is_box(box):
+        text = str(box) if text is None and box is not None else text
+        label = "" if text is None else str(text)
+        box = [0, 0, max(48, badge_width(label, theme=th, size=12, pad=28)), th.control_h]
     _, _, w, h = _wh(box)
     r = radius if radius is not None else h / 2
     rect_fields: dict[str, Any] = {"fill": fill or th.fill, "radius": r}
@@ -262,10 +277,16 @@ def pill(
     return _group(box, children, "pill")
 
 
-def button(box: Box, label: str, *, kind: str = "primary",
-           theme: Theme | None = None) -> Obj:
+def button(box: Box | str, label: str | None = None, *, kind: str = "primary",
+           theme: Theme | None = None, w: float | None = None, h: float | None = None,
+           grow: float | None = None) -> Obj:
     """A button. ``kind`` is ``primary`` (accent), ``ghost`` (outline) or ``subtle``."""
     th = theme or default_theme()
+    if label is None:
+        label = str(box)
+        bw = w if w is not None else measure_text(label, font_family=th.font, font_size=13, bold=True) + 32
+        bh = h if h is not None else th.control_h
+        box = [0, 0, bw, bh]
     _, _, w, h = _wh(box)
     if kind == "primary":
         rect_fields = {"fill": th.accent, "radius": 8}
@@ -281,13 +302,20 @@ def button(box: Box, label: str, *, kind: str = "primary",
         _bg([0, 0, w, h], **rect_fields),
         _text([0, 0, w, h], label, _style(th, 13, weight=700, color=color, align="center")),
     ]
-    return _group(box, children, "button")
+    fields: dict[str, Any] = {}
+    if grow is not None:
+        fields["sizing"] = {"width": "fill", "grow": grow}
+    return _group(box, children, "button", **fields)
 
 
-def avatar(box: Box, initials: str | None = None, *, tone: str = "muted",
-           theme: Theme | None = None) -> Obj:
+def avatar(box: Box | str | None = None, initials: str | None = None, *, tone: str = "muted",
+           theme: Theme | None = None, size: float | None = None) -> Obj:
     """A circular avatar placeholder with optional initials (auto-derived if a name)."""
     th = theme or default_theme()
+    if not _is_box(box):
+        initials = str(box) if initials is None and box is not None else initials
+        d = size if size is not None else th.control_h
+        box = [0, 0, d, d]
     _, _, w, h = _wh(box)
     d = min(w, h)
     bg, fg = _tone(th, tone)
@@ -304,10 +332,14 @@ def avatar(box: Box, initials: str | None = None, *, tone: str = "muted",
     return _group(box, children, "avatar")
 
 
-def kpi(box: Box, label: str, value: str, *, delta: str | None = None,
+def kpi(box: Box | str, label: str, value: str | None = None, *, delta: str | None = None,
         down: bool = False, theme: Theme | None = None) -> Obj:
     """A metric tile: card surface, uppercase label, large value, optional delta."""
     th = theme or default_theme()
+    if value is None:
+        value = str(label)
+        label = str(box)
+        box = [0, 0, 180, 108]
     _, _, w, h = _wh(box)
     pad = th.pad
     children = [
@@ -327,10 +359,14 @@ def kpi(box: Box, label: str, value: str, *, delta: str | None = None,
     return _group(box, children, "kpi")
 
 
-def field(box: Box, label: str, *, value: str = "", placeholder: str = "",
-          kind: str = "input", theme: Theme | None = None) -> Obj:
+def field(box: Box | str, label: str | None = None, *, value: str = "", placeholder: str = "",
+          kind: str = "input", theme: Theme | None = None, w: float | None = None,
+          h: float | None = None) -> Obj:
     """A form field: uppercase label over an input/select/textarea control."""
     th = theme or default_theme()
+    if label is None:
+        label = str(box)
+        box = [0, 0, w if w is not None else 220, h if h is not None else (96 if kind == "area" else 58)]
     _, _, w, h = _wh(box)
     top = 18.0
     ih = h - top
@@ -355,9 +391,12 @@ def field(box: Box, label: str, *, value: str = "", placeholder: str = "",
     return _group(box, children, "field")
 
 
-def toggle(box: Box, *, on: bool = True, theme: Theme | None = None) -> Obj:
+def toggle(box: Box | None = None, *, on: bool = True, theme: Theme | None = None,
+           w: float | None = None, h: float | None = None) -> Obj:
     """A switch sized to ``box`` (the track). Knob sits left (off) or right (on)."""
     th = theme or default_theme()
+    if box is None:
+        box = [0, 0, w if w is not None else 46, h if h is not None else 26]
     _, _, w, h = _wh(box)
     knob_r = h / 2 - 3
     cx = (w - h / 2) if on else (h / 2)
@@ -369,10 +408,14 @@ def toggle(box: Box, *, on: bool = True, theme: Theme | None = None) -> Obj:
     return _group(box, children, "toggle")
 
 
-def tabs(box: Box, items: Sequence[str], *, active: int = 0,
-         theme: Theme | None = None) -> Obj:
+def tabs(box: Box | Sequence[str], items: Sequence[str] | None = None, *, active: int = 0,
+         theme: Theme | None = None, h: float | None = None) -> Obj:
     """A horizontal tab strip with a baseline rule and an accent underline."""
     th = theme or default_theme()
+    if items is None:
+        items = [str(item) for item in box]  # type: ignore[union-attr]
+        width = sum(measure_text(str(item), font_family=th.font, font_size=13, bold=True) + 30 for item in items)
+        box = [0, 0, width, h if h is not None else 36]
     _, _, w, h = _wh(box)
     children: list[Obj] = [_bg([0, h - 1, w, 1], fill=th.line)]
     cx = 0.0
@@ -389,10 +432,13 @@ def tabs(box: Box, items: Sequence[str], *, active: int = 0,
     return _group(box, children, "tabs")
 
 
-def progress(box: Box, frac: float, *, tone: str = "accent",
-             theme: Theme | None = None) -> Obj:
+def progress(box: Box | float, frac: float | None = None, *, tone: str = "accent",
+             theme: Theme | None = None, w: float | None = None, h: float | None = None) -> Obj:
     """A progress / meter bar filled to ``frac`` (0..1) in the toned colour."""
     th = theme or default_theme()
+    if frac is None:
+        frac = float(box)
+        box = [0, 0, w if w is not None else 160, h if h is not None else 10]
     _, _, w, h = _wh(box)
     f = max(0.0, min(1.0, float(frac)))
     fg = th.accent if tone == "accent" else _tone(th, tone)[1]
@@ -403,9 +449,12 @@ def progress(box: Box, frac: float, *, tone: str = "accent",
     return _group(box, children, "progress")
 
 
-def divider(box: Box, *, theme: Theme | None = None) -> Obj:
+def divider(box: Box | None = None, *, theme: Theme | None = None,
+            w: float | None = None, h: float | None = None) -> Obj:
     """A 1px hairline rule spanning ``box`` (drawn at its vertical centre)."""
     th = theme or default_theme()
+    if box is None:
+        box = [0, 0, w if w is not None else 160, h if h is not None else 1]
     _, _, w, h = _wh(box)
     return _group(box, [_rect([0, h / 2, w, 1], fill=th.line)], "divider")
 
@@ -469,7 +518,6 @@ def table(
     numbers). Emitting a real table — rather than positioned text — silences the
     ``tabular-box-model`` warning and clips every cell to its column.
     """
-    th = theme or default_theme()
     x, y, w, h = _wh(box)
     labels: list[str] = []
     specs: list[Any] = []

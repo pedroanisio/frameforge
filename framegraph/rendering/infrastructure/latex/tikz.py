@@ -1836,7 +1836,8 @@ class FigureTikz:
     # -- text -------------------------------------------------------------- #
     def _font(self, st):
         size = st.get("size", 12) or 12
-        macro = self._font_macro(st.get("family")) if self._font_macro else ""
+        family = st.get("family_primary") or st.get("family")
+        macro = self._font_macro(family) if self._font_macro else ""
         font = macro + f"\\fontsize{{{fnum(size)}}}{{{fnum(size * 1.12)}}}\\selectfont"
         if st.get("bold"):
             font += "\\bfseries"

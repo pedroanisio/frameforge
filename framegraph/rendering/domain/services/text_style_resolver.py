@@ -36,9 +36,16 @@ class TextStyleResolver:
             merged.update(self.text_styles.get(name) or self.styles.get(name) or {})
         merged.update(st)
         fam = merged.get("font_family") or merged.get("font") or "sans"
-        if isinstance(fam, list):
-            fam = fam[0] if fam else "sans"
-        family = FONT_MAP.get(str(fam), str(fam))
+        # Preserve the WHOLE fallback stack so the SVG stays portable when the
+        # primary face isn't installed in the viewer (else a bare "font-family:Inter"
+        # falls back to the UA default serif). Role strings ("sans"/"serif"/"mono")
+        # already map to a terminating generic, so single-role styles are unchanged.
+        fam_list = [str(x) for x in (fam if isinstance(fam, list) else [fam]) if x] or ["sans"]
+        families = [FONT_MAP.get(x, x) for x in fam_list]
+        if families[-1] not in ("sans-serif", "serif", "monospace"):
+            families.append("sans-serif")
+        family = ", ".join(families)
+        family_primary = families[0]
         size = num(merged.get("font_size") or merged.get("size"), 14) or 14
         weight = merged.get("font_weight") or merged.get("weight")
         if weight is None and merged.get("bold"):
@@ -61,7 +68,8 @@ class TextStyleResolver:
             avg *= 1.04
         tw = merged.get("text_wrap")
         return {
-            "family": family, "size": size, "weight": weight, "bold": bold,
+            "family": family, "family_primary": family_primary,
+            "size": size, "weight": weight, "bold": bold,
             "italic": bool(merged.get("italic")) or merged.get("font_style") == "italic",
             "color": self._color.resolve(merged.get("color")) or "#1c1c1c",
             "align": merged.get("text_align") or merged.get("align") or "left",

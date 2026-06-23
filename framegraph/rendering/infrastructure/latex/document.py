@@ -122,7 +122,7 @@ class _Transpiler:
     def _font(self, st):
         size = st.get("size", 12) or 12
         lh = st.get("lh", 1.25) or 1.25
-        out = self._font_macro(st.get("family"))
+        out = self._font_macro(st.get("family_primary") or st.get("family"))
         out += f"\\fontsize{{{fnum(size)}}}{{{fnum(size * lh)}}}\\selectfont"
         if st.get("bold"):
             out += "\\bfseries"

@@ -56,6 +56,7 @@ Color = str                 # hex (#rgb[a]/#rrggbb[aa]), CSS name, or a tokens.c
 UnitInterval = Annotated[float, Field(ge=0.0, le=1.0)]
 Point = Annotated[list[float], Field(min_length=2, max_length=2)]
 Box = Annotated[list[Length], Field(min_length=4, max_length=4)]  # [x, y, w, h], top-left, +y down
+Padding = Union[Length, Annotated[list[Length], Field(min_length=1, max_length=4)]]
 
 NumberFormat = Literal["decimal", "lower-roman", "upper-roman", "lower-alpha", "upper-alpha"]
 PagePreset = Literal[
@@ -381,13 +382,14 @@ class AssetDef(FG):
 #  Layout + content sizing (P1 + P4)                                          #
 # --------------------------------------------------------------------------- #
 class Layout(FG):
-    kind: Literal["row", "column", "grid", "free"]
+    kind: Literal["row", "column", "grid", "wrap", "free"]
     gap: Optional[Length] = None
     row_gap: Optional[Length] = None
     column_gap: Optional[Length] = None
-    padding: Optional[Box] = None
+    padding: Optional[Padding] = None
     columns: Optional[int] = None
     align: Optional[Literal["start", "center", "end", "stretch"]] = None
+    justify: Optional[Literal["start", "center", "end", "space-between", "space-around", "space-evenly"]] = None
 
 
 SizeMode = Literal["fixed", "hug", "fill"]

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Project Northwind — a complete 40-slide management-consulting deck, built with the SDK.
+"""Project Northwind - a complete 40-slide management-consulting deck, built with the SDK.
 
 A fictional strategy & operating-model review for "Meridian Retail Group". The deck
-follows the classic consulting arc (situation → diagnosis → strategy → operating
-model & roadmap → the ask) and exercises a broad slice of the SDK: KPI tiles,
+follows the classic consulting arc (situation  diagnosis  strategy  operating
+model & roadmap  the ask) and exercises a broad slice of the SDK: KPI tiles,
 Chart line/bar/waterfall, 2x2 matrices, SWOT, tables, Gantt timelines, plus the new
-math modules — topology Graphs (issue tree, value tree, operating-model network),
+math modules - topology Graphs (issue tree, value tree, operating-model network),
 ScalarField heatmaps (customer pain, opportunity), and a perspective Camera + lattice
 (data architecture mesh).
 
@@ -51,13 +51,15 @@ CW = W - MX - MR
 TOP = 150  # content top below the title band
 
 # --- palette ---------------------------------------------------------------- #
-NAVY, NAVY2, TEAL, TEALL, GOLD = "#0A2540", "#103A5E", "#0E7C86", "#3AA0A8", "#C8902A"
-INK, MUTE, LINE = "#1B2733", "#64748B", "#D9E0E7"
-BG, SOFT, CARD = "#FFFFFF", "#F4F7FA", "#FFFFFF"
-POS, NEG = "#1E8A5B", "#C0432B"
-TEAL_T, GOLD_T, NAVY_T, RED_T, GREEN_T = "#E3F0F1", "#F7ECD6", "#E7ECF2", "#F6E1DC", "#E1F0E8"
-SANS = ["Helvetica Neue", "Arial", "DejaVu Sans", "sans-serif"]
-SERIF = ["Georgia", "Times New Roman", "DejaVu Serif", "serif"]
+# Indigo & Cobalt palette. The legacy names are kept (NAVY = deep indigo ground,
+# TEAL = cobalt primary accent, GOLD = magenta highlight) so every slide remaps in one place.
+NAVY, NAVY2, TEAL, TEALL, GOLD = "#1E1B4B", "#312E81", "#2563EB", "#60A5FA", "#DB2777"
+INK, MUTE, LINE = "#1A1B2E", "#64748B", "#E2E8F0"
+BG, SOFT, CARD = "#FFFFFF", "#F4F6FB", "#FFFFFF"
+POS, NEG = "#1E8A5B", "#DC2626"
+TEAL_T, GOLD_T, NAVY_T, RED_T, GREEN_T = "#E5EDFD", "#FCE7F1", "#E7E7F6", "#FBE3E3", "#E1F0E8"
+SANS = ["IBM Plex Sans", "Helvetica Neue", "Arial", "DejaVu Sans", "sans-serif"]
+SERIF = ["IBM Plex Serif", "Georgia", "DejaVu Serif", "serif"]
 FOOTER = "Meridian Retail Group   ·   Project Northwind   ·   Strategy & Operating-Model Review"
 
 
@@ -97,7 +99,7 @@ def _deco_all(node):
     """Recursively flag every box-bearing object decorative. Inside a group,
     overlap is intentional z-order; the audit's free-group rule (a layout-less
     group counts as ``free``) skips decorative children and the overflow check
-    ignores the flag — so dense slides stay at zero warnings with no visual
+    ignores the flag - so dense slides stay at zero warnings with no visual
     change. The one layer-top-level title is added before this runs."""
     if isinstance(node, dict):
         if "box" in node:
@@ -121,9 +123,21 @@ def ADD(pb, obj):
 
 
 # --- chrome ----------------------------------------------------------------- #
+# Each content slide carries a drawn pictogram in the title band, so no slide is
+# text-only. Keyed by slide number.
+SLIDE_ICONS = {
+    2: "shield", 3: "compass", 4: "target", 6: "compass", 7: "bars", 8: "coin",
+    9: "target", 10: "bars", 12: "search", 13: "coin", 14: "users", 15: "users",
+    16: "grid", 17: "flag", 19: "route", 20: "check", 21: "target", 22: "tag",
+    23: "truck", 24: "bulb", 25: "route", 26: "coin", 27: "coin", 28: "grid",
+    30: "gear", 31: "grid", 32: "layers", 33: "clock", 34: "clock", 35: "check",
+    36: "gear", 37: "shield", 38: "bars", 39: "coin",
+}
+
+
 def slide(b, n, kicker, title):
     page = b.page(f"s{n:02d}", canvas={"size": [W, H], "units": "px"},
-                  coordinate_mode="absolute", reading_order=["title"])
+                  coordinate_mode="absolute", reading_order=None)
     L = page.layer("main")
     ADD(L, R(0, 0, W, H, fill=BG, decorative=True))
     ADD(L, R(0, 0, 8, H, fill=TEAL, decorative=True))
@@ -135,12 +149,15 @@ def slide(b, n, kicker, title):
           size=10, color=MUTE, align="right"),
     ])
     ADD(L, T(MX, 70, CW, 42, title, size=27, color=INK, weight=800, font=SERIF, id="title"))
+    ic = SLIDE_ICONS.get(n)
+    if ic:
+        GRP(L, badge(W - MR - 20, 84, 22, ic, TEAL, TEAL_T))
     return L
 
 
 def section(b, n, num, label, sub):
     page = b.page(f"s{n:02d}", canvas={"size": [W, H], "units": "px"},
-                  coordinate_mode="absolute", reading_order=["title"])
+                  coordinate_mode="absolute", reading_order=None)
     L = page.layer("main")
     ADD(L, R(0, 0, W, H, fill=NAVY, decorative=True))
     # faint topology motif (decorative)
@@ -149,8 +166,8 @@ def section(b, n, num, label, sub):
                   ("2", "5"), ("5", "6"), ("6", "3"), ("4", "6")]:
         g.edge(a, bb)
     motif = g.render(g.spring_layout(iterations=120), box=[W - 560, 80, 560, 560],
-                     node_radius=6, node_fill=rgba("#3AA0A8", 0.5),
-                     node_stroke=rgba("#3AA0A8", 0.0), edge_color=rgba("#FFFFFF", 0.10),
+                     node_radius=6, node_fill=rgba("#60A5FA", 0.55),
+                     node_stroke=rgba("#60A5FA", 0.0), edge_color=rgba("#FFFFFF", 0.10),
                      labels=False)
     motif["decorative"] = True
     ADD(L, motif)
@@ -165,6 +182,90 @@ def section(b, n, num, label, sub):
 
 
 # --- composite helpers ------------------------------------------------------ #
+def icon(name, cx, cy, h, color, width=2.2):
+    """Tiny stroke-based pictograms drawn from SDK primitives (no glyph fonts).
+    ``h`` is the half-size; returns a list of shape dicts centred on (cx, cy)."""
+    ss = {"stroke_width": width}
+
+    def L_(x1, y1, x2, y2):
+        return {"type": "line", "from": [cx + x1 * h, cy + y1 * h],
+                "to": [cx + x2 * h, cy + y2 * h], "stroke": color, "stroke_style": ss}
+
+    def C_(x, y, r, fill="none"):
+        return {"type": "ellipse", "center": [cx + x * h, cy + y * h], "rx": r * h, "ry": r * h,
+                "fill": fill, "stroke": color, "stroke_style": ss}
+
+    def P_(pts, closed=True, fill="none"):
+        return {"type": "polyline", "closed": closed, "fill": fill, "stroke": color,
+                "stroke_style": ss, "points": [[cx + a * h, cy + b * h] for a, b in pts]}
+
+    def R_(x, y, w, ht, rad=0):
+        out = {"type": "rect", "box": [cx + x * h, cy + y * h, w * h, ht * h],
+               "fill": "none", "stroke": color, "stroke_style": ss}
+        if rad:
+            out["radius"] = rad * h
+        return out
+
+    if name == "compass":
+        return [C_(0, 0, 0.92), P_([(0, -0.5), (0.28, 0.12), (0, 0.5), (-0.28, 0.12)], fill=color)]
+    if name == "search":
+        return [C_(-0.18, -0.18, 0.55), L_(0.22, 0.22, 0.7, 0.7)]
+    if name == "target":
+        return [C_(0, 0, 0.9), C_(0, 0, 0.5), {"type": "ellipse", "center": [cx, cy],
+                "rx": 0.14 * h, "ry": 0.14 * h, "fill": color}]
+    if name == "gear":
+        out = [C_(0, 0, 0.55), C_(0, 0, 0.22)]
+        import math as _m
+        for k in range(8):
+            a = _m.radians(k * 45)
+            out.append(L_(0.62 * _m.cos(a), 0.62 * _m.sin(a), 0.92 * _m.cos(a), 0.92 * _m.sin(a)))
+        return out
+    if name == "bars":
+        return [L_(-0.6, 0.7, 0.7, 0.7), R_(-0.55, 0.0, 0.28, 0.7), R_(-0.12, -0.35, 0.28, 1.05),
+                R_(0.32, -0.15, 0.28, 0.85)]
+    if name == "truck":
+        return [R_(-0.85, -0.35, 0.95, 0.75, 0.1), P_([(0.1, -0.1), (0.55, -0.1), (0.85, 0.2),
+                (0.85, 0.4), (0.1, 0.4)]), C_(-0.5, 0.55, 0.2), C_(0.55, 0.55, 0.2)]
+    if name == "users":
+        return [C_(-0.32, -0.3, 0.32), P_([(-0.72, 0.7), (-0.62, 0.1), (-0.02, 0.1), (0.08, 0.7)]),
+                C_(0.42, -0.18, 0.26), P_([(0.12, 0.7), (0.2, 0.22), (0.72, 0.22), (0.8, 0.7)])]
+    if name == "shield":
+        return [P_([(0, -0.92), (0.7, -0.6), (0.7, 0.15), (0, 0.92), (-0.7, 0.15), (-0.7, -0.6)]),
+                P_([(-0.3, 0.0), (-0.08, 0.28), (0.36, -0.32)], closed=False)]
+    if name == "bulb":
+        return [C_(0, -0.25, 0.55), L_(-0.25, 0.42, 0.25, 0.42), L_(-0.2, 0.62, 0.2, 0.62),
+                L_(-0.12, 0.8, 0.12, 0.8)]
+    if name == "flag":
+        return [L_(-0.5, -0.85, -0.5, 0.9), P_([(-0.5, -0.8), (0.6, -0.55), (-0.5, -0.2)], fill=color)]
+    if name == "coin":
+        return [C_(0, 0, 0.88), L_(0, -0.45, 0, 0.45), P_([(0.22, -0.28), (-0.22, -0.28),
+                (-0.22, 0.0), (0.22, 0.0), (0.22, 0.3), (-0.22, 0.3)], closed=False)]
+    if name == "grid":
+        return [R_(-0.8, -0.8, 0.62, 0.62), R_(0.18, -0.8, 0.62, 0.62),
+                R_(-0.8, 0.18, 0.62, 0.62), R_(0.18, 0.18, 0.62, 0.62)]
+    if name == "layers":
+        return [P_([(0, -0.7), (0.85, -0.25), (0, 0.2), (-0.85, -0.25)], fill=color),
+                P_([(-0.85, 0.25), (0, 0.7), (0.85, 0.25)], closed=False)]
+    if name == "clock":
+        return [C_(0, 0, 0.9), L_(0, 0, 0, -0.5), L_(0, 0, 0.4, 0.15)]
+    if name == "tag":
+        return [P_([(-0.1, -0.75), (0.8, -0.75), (0.8, 0.15), (-0.05, 0.85), (-0.85, 0.05),
+                (-0.85, -0.7)]), C_(0.45, -0.4, 0.16)]
+    if name == "doc":
+        return [P_([(-0.6, -0.85), (0.35, -0.85), (0.65, -0.5), (0.65, 0.85), (-0.6, 0.85)]),
+                L_(-0.35, -0.25, 0.4, -0.25), L_(-0.35, 0.1, 0.4, 0.1), L_(-0.35, 0.45, 0.15, 0.45)]
+    if name == "check":
+        return [C_(0, 0, 0.92), P_([(-0.42, 0.0), (-0.12, 0.34), (0.45, -0.38)], closed=False)]
+    if name == "route":
+        return [C_(-0.6, -0.55, 0.22), C_(0.6, 0.55, 0.22),
+                P_([(-0.6, -0.33), (-0.6, 0.2), (0.6, 0.2), (0.6, 0.33)], closed=False)]
+    return [C_(0, 0, 0.8)]
+
+
+def badge(cx, cy, r, name, color, tint, width=2.2):
+    return [EL(cx, cy, r, fill=tint), *icon(name, cx, cy, r * 0.52, color, width)]
+
+
 def panel(x, y, w, h, *, title=None, fill=CARD, border=LINE, accent=None):
     out = [R(x, y, w, h, fill=fill, stroke=border, stroke_style={"stroke_width": 1},
              radius=10, decorative=True)]
@@ -197,8 +298,12 @@ def kpi_tiles(x, y, w, h, tiles, *, gap=20):
         out.append(T(tx + 18, y + 20, tw - 36, 34, value, size=31, color=NAVY, weight=800, font=SERIF))
         out.append(T(tx + 18, y + 58, tw - 36, 15, label, size=11, color=MUTE))
         if delta:
-            out.append(T(tx + 18, y + 80, tw - 36, 16, ("▲ " if good else "▼ ") + delta,
-                         size=12, color=POS if good else NEG, weight=700))
+            tcol = POS if good else NEG
+            ty = y + 82
+            tri = ([[tx + 18, ty + 11], [tx + 27, ty + 11], [tx + 22.5, ty + 2]] if good
+                   else [[tx + 18, ty + 2], [tx + 27, ty + 2], [tx + 22.5, ty + 11]])
+            out.append({"type": "polyline", "closed": True, "points": tri, "fill": tcol, "stroke": tcol})
+            out.append(T(tx + 34, ty, tw - 52, 16, delta, size=12, color=tcol, weight=700))
     return out
 
 
@@ -226,8 +331,8 @@ def matrix2x2(x, y, w, h, *, xlab, ylab, quads, bubbles):
         ax, ay = x + bx * w, y + (1 - by) * h
         out.append(EL(ax, ay, r, fill=col, stroke="#FFFFFF", stroke_style={"stroke_width": 1.5}))
         out.append(T(ax - 55, ay + r + 3, 110, 14, lab, size=10, color=INK, weight=700, align="center"))
-    out.append(T(x, y + h + 10, w, 14, "→  " + xlab, size=11, color=MUTE, align="center"))
-    out.append(T(x, y - 22, 320, 14, "↑  " + ylab, size=11, color=MUTE))
+    out.append(T(x, y + h + 10, w, 14, xlab + " (low to high)", size=11, color=MUTE, align="center"))
+    out.append(T(x, y - 22, 320, 14, ylab + "", size=11, color=MUTE))
     return out
 
 
@@ -259,7 +364,7 @@ def waterfall(x, y, w, h, start, steps, end, *, ymax, unit="%"):
     out = [*panel(x, y, w, h)]
     px, py = x + 56, y + 24
     pw, ph = w - 84, h - 78
-    cats = [("Current", start, NAVY, True)] + [(l, d, c, False) for l, d, c in steps] + \
+    cats = [("Current", start, NAVY, True)] + [(lb, d, c, False) for lb, d, c in steps] + \
            [("Target", end, TEAL, True)]
     gap = pw / len(cats)
     bw = gap * 0.56
@@ -298,7 +403,7 @@ def timeline(x, y, w, h, bars, *, months=18, title=None):
     top = y + (44 if title else 24)
     for q in range(0, months + 1, 3):
         gxx = gx0 + gw * q / months
-        out.append(LN(gxx, top + 4, gxx, y + h - 16, color="#EEF2F6", width=1))
+        out.append(LN(gxx, top + 4, gxx, y + h - 16, color="#EEF1FB", width=1))
         out.append(T(gxx - 18, top - 14, 36, 12, f"M{q}", size=9, color=MUTE, align="center"))
     rowh = (y + h - 26 - (top + 14)) / max(1, len(bars))
     for i, (label, start, dur, color) in enumerate(bars):
@@ -316,7 +421,7 @@ def heatmap_panel(L, x, y, w, h, *, title, fn, domain, bubbles, low, high):
     hx, hy, hw, hh = x + 20, y + 44, w - 40, h - 64
     hm = sf.heatmap(box=[hx, hy, hw, hh], steps_x=34, steps_y=24, low=low, high=high)
     ct = sf.contours(box=[hx, hy, hw, hh], levels=5, steps_x=44, steps_y=32,
-                     color=rgba("#0A2540", 0.25), width=0.8)
+                     color=rgba("#1E1B4B", 0.28), width=0.8)
     hm["children"].extend(ct["children"])
     ADD(L, hm)
     art = []
@@ -331,21 +436,21 @@ def heatmap_panel(L, x, y, w, h, *, title, fn, domain, bubbles, low, high):
 #  THE DECK                                                                     #
 # ============================================================================ #
 def build() -> DocumentBuilder:
-    b = DocumentBuilder(title="Project Northwind — Strategy & Operating-Model Review",
+    b = DocumentBuilder(title="Project Northwind - Strategy & Operating-Model Review",
                         profile="deck", lang="en")
 
-    # 01 — COVER
+    # 01 - COVER
     page = b.page("s01", canvas={"size": [W, H], "units": "px"},
-                  coordinate_mode="absolute", reading_order=["title"])
+                  coordinate_mode="absolute", reading_order=None)
     L = page.layer("main")
     ADD(L, R(0, 0, W, H, fill=NAVY, decorative=True))
-    ADD(L, R(0, 0, W, H, fill=rgba("#0E7C86", 0.12), decorative=True))
+    ADD(L, R(0, 0, W, H, fill=rgba("#312E81", 0.14), decorative=True))
     gc = Graph()
     for a, bb in [("a", "b"), ("b", "c"), ("c", "d"), ("d", "e"), ("e", "a"), ("a", "c"),
                   ("b", "e"), ("c", "f"), ("f", "g"), ("g", "d"), ("f", "a"), ("g", "b")]:
         gc.edge(a, bb)
     cov = gc.render(gc.spring_layout(iterations=140), box=[W - 620, 60, 620, 620],
-                    node_radius=7, node_fill=rgba("#3AA0A8", 0.55),
+                    node_radius=7, node_fill=rgba("#60A5FA", 0.6),
                     node_stroke=rgba("#FFFFFF", 0.0),
                     edge_color=rgba("#FFFFFF", 0.12), labels=False)
     cov["decorative"] = True
@@ -365,18 +470,27 @@ def build() -> DocumentBuilder:
         LN(MX, 456, MX + 520, 456, color=rgba("#FFFFFF", 0.18), width=1),
     ])
 
-    # 02 — IMPORTANT NOTICE
+    # 02 - IMPORTANT NOTICE
     L = slide(b, 2, "Disclaimer", "Important notice & basis of preparation")
-    GRP(L, panel(MX, TOP, CW, 470))
-    GRP(L, bullets(MX + 30, TOP + 40, CW - 60, [
-        "This document is strictly confidential and prepared solely for the Board of Meridian Retail Group.",
-        "It reflects a six-week diagnostic and is intended to support discussion, not as a standalone basis for investment decisions.",
-        "Financials are illustrative, drawn from management information, public filings and benchmark databases.",
-        "Forward-looking estimates carry inherent uncertainty; ranges express the team's confidence, not guarantees.",
-        "No part may be reproduced or distributed outside the Board without written consent.",
-    ], gap=46, size=15))
+    nw = CW * 0.6
+    GRP(L, panel(MX, TOP, nw, 470))
+    GRP(L, bullets(MX + 30, TOP + 44, nw - 60, [
+        "Strictly confidential - prepared solely for the Board of Meridian Retail Group.",
+        "Reflects a six-week diagnostic; intended to support discussion, not decisions alone.",
+        "Financials are illustrative - from management data, filings and benchmarks.",
+        "Forward estimates carry uncertainty; ranges express confidence, not guarantees.",
+        "No part may be reproduced or distributed outside the Board without consent.",
+    ], gap=78, size=14))
+    sx = MX + nw + 24
+    sw = CW - nw - 24
+    GRP(L, panel(sx, TOP, sw, 470, fill=NAVY))
+    GRP(L, badge(sx + sw / 2, TOP + 175, 86, "shield", "#FFFFFF", rgba("#FFFFFF", 0.08), width=3.5))
+    GRP(L, [T(sx + 24, TOP + 300, sw - 48, 26, "Confidential", size=20, color="#FFFFFF",
+              weight=700, align="center", font=SERIF),
+            T(sx + 24, TOP + 336, sw - 48, 40, "Board draft - not for circulation",
+              size=13, color=rgba("#FFFFFF", 0.7), align="center")])
 
-    # 03 — CONTENTS
+    # 03 - CONTENTS
     L = slide(b, 3, "Agenda", "What we will cover today")
     items = [
         ("01", "Situation", "Where Meridian stands in its market today", TEAL),
@@ -385,17 +499,19 @@ def build() -> DocumentBuilder:
         ("04", "Operating model & roadmap", "How we deliver it, and in what sequence", TEALL),
         ("05", "The ask", "Decisions and resources required from the Board", NEG),
     ]
+    icons3 = ["compass", "search", "target", "gear", "flag"]
     cards = []
     cy = TOP + 6
-    for num, t, d, col in items:
+    for i, (num, t, d, col) in enumerate(items):
         cards += panel(MX, cy, CW, 78, accent=col)
-        cards.append(T(MX + 26, cy + 24, 70, 34, num, size=26, color=col, weight=800, font=SERIF))
-        cards.append(T(MX + 120, cy + 18, 360, 24, t, size=18, color=NAVY, weight=700))
-        cards.append(T(MX + 120, cy + 46, CW - 160, 18, d, size=13, color=MUTE))
+        cards += badge(MX + 58, cy + 39, 26, icons3[i], col, SOFT)
+        cards.append(T(MX + 100, cy + 22, 56, 34, num, size=24, color=col, weight=800, font=SERIF))
+        cards.append(T(MX + 168, cy + 18, 420, 24, t, size=18, color=NAVY, weight=700))
+        cards.append(T(MX + 168, cy + 46, CW - 210, 18, d, size=13, color=MUTE))
         cy += 92
     GRP(L, cards)
 
-    # 04 — EXECUTIVE SUMMARY
+    # 04 - EXECUTIVE SUMMARY
     L = slide(b, 4, "Executive summary", "Meridian can rebuild ~320 bps of EBITDA margin within three years")
     GRP(L, kpi_tiles(MX, TOP, CW, 112, [
         ("+320 bps", "EBITDA margin recovery", "to ~10.0% by FY28", True),
@@ -404,13 +520,15 @@ def build() -> DocumentBuilder:
         ("4", "Bold but executable moves", "one owner each", True),
     ]))
     GRP(L, panel(MX, TOP + 140, CW * 0.5 - 12, 300, title="What we found", accent=GOLD))
+    GRP(L, badge(MX + CW * 0.5 - 12 - 32, TOP + 168, 20, "search", GOLD, GOLD_T))
     GRP(L, bullets(MX + 22, TOP + 188, CW * 0.5 - 56, [
-        "Growth is real but unprofitable — digital scales faster than the model can serve it.",
+        "Growth is real but unprofitable - digital scales faster than the model can serve it.",
         "Three structural root causes drive 80% of the margin gap.",
         "Competitors with a tighter operating model out-earn Meridian by 400+ bps.",
     ], gap=52, size=14))
     px = MX + CW * 0.5 + 12
     GRP(L, panel(px, TOP + 140, CW * 0.5 - 12, 300, title="What we recommend", accent=TEAL))
+    GRP(L, badge(px + CW * 0.5 - 12 - 32, TOP + 168, 20, "target", TEAL, TEAL_T))
     GRP(L, bullets(px + 22, TOP + 188, CW * 0.5 - 56, [
         "Commercial excellence: reset pricing, promotions and assortment.",
         "Cost-to-serve: redesign fulfilment and supply chain economics.",
@@ -420,7 +538,7 @@ def build() -> DocumentBuilder:
     # ====================== 05 SECTION: SITUATION ========================== #
     section(b, 5, "01", "Situation", "Where Meridian stands in a shifting retail market")
 
-    # 06 — MANDATE & APPROACH
+    # 06 - MANDATE & APPROACH
     L = slide(b, 6, "Situation · Mandate", "A six-week diagnostic across five workstreams")
     GRP(L, panel(MX, TOP, CW * 0.4, 440, title="The mandate", accent=NAVY2))
     GRP(L, bullets(MX + 22, TOP + 50, CW * 0.4 - 44, [
@@ -431,26 +549,29 @@ def build() -> DocumentBuilder:
     ], gap=50))
     sx = MX + CW * 0.4 + 24
     sw = CW - CW * 0.4 - 24
-    GRP(L, panel(sx, TOP, sw, 440, title="Our approach — five parallel workstreams"))
-    ws = ["Commercial & pricing", "Customer & channel", "Supply chain & cost",
-          "Digital & technology", "Organisation & finance"]
+    GRP(L, panel(sx, TOP, sw, 440, title="Our approach - five parallel workstreams"))
+    ws = [("Commercial & pricing", "tag"), ("Customer & channel", "users"),
+          ("Supply chain & cost", "truck"), ("Digital & technology", "bulb"),
+          ("Organisation & finance", "coin")]
+    cols6 = [TEAL, GOLD, NAVY2, TEALL, NEG]
     flow = []
     yy = TOP + 60
-    for i, w in enumerate(ws):
-        flow += panel(sx + 24, yy, sw - 48, 56, fill=SOFT, accent=[TEAL, GOLD, NAVY2, TEALL, NEG][i])
-        flow.append(T(sx + 46, yy + 18, sw - 90, 22, f"WS{i+1}  ·  {w}", size=15, color=NAVY, weight=700))
+    for i, (w, ico) in enumerate(ws):
+        flow += panel(sx + 24, yy, sw - 48, 56, fill=SOFT, accent=cols6[i])
+        flow += badge(sx + 58, yy + 28, 18, ico, cols6[i], "#FFFFFF")
+        flow.append(T(sx + 90, yy + 18, sw - 130, 22, f"WS{i+1}   {w}", size=15, color=NAVY, weight=700))
         yy += 70
     GRP(L, flow)
 
-    # 07 — MARKET CONTEXT
-    L = slide(b, 7, "Situation · Market", "The market is growing — but value is migrating online and to discounters")
+    # 07 - MARKET CONTEXT
+    L = slide(b, 7, "Situation · Market", "The market is growing - but value is migrating online and to discounters")
     GRP(L, kpi_tiles(MX, TOP, CW, 104, [
         ("$310B", "Addressable market", "+4.2% CAGR", True),
         ("27%", "Online penetration", "+9 pts in 4 yrs", True),
         ("+11%", "Discounter growth", "vs +2% mainline", True),
-        ("−6 pts", "Mainline share", "value migrating", False),
+        ("-6 pts", "Mainline share", "value migrating", False),
     ]))
-    GRP(L, panel(MX, TOP + 132, CW, 308, title="Market size & channel mix, 2021–2028E ($B)"))
+    GRP(L, panel(MX, TOP + 132, CW, 308, title="Market size & channel mix, 2021-2028E ($B)"))
     fr = Frame(domain=(2021, 0, 2028, 320), box=(MX + 64, TOP + 176, CW - 110, 220))
     ch = Chart(frame=fr)
     yrs = [2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028]
@@ -463,12 +584,12 @@ def build() -> DocumentBuilder:
     ch.legend(at="tl")
     chart_group(L, ch)
 
-    # 08 — COMPANY SNAPSHOT
+    # 08 - COMPANY SNAPSHOT
     L = slide(b, 8, "Situation · Company", "Meridian enters FY25 larger, but materially less profitable")
     GRP(L, kpi_tiles(MX, TOP, CW, 110, [
         ("$4.2B", "Group revenue", "+3.1% YoY", True),
-        ("6.8%", "EBITDA margin", "−180 bps", False),
-        ("11.4M", "Active customers", "−2.4% YoY", False),
+        ("6.8%", "EBITDA margin", "-180 bps", False),
+        ("11.4M", "Active customers", "-2.4% YoY", False),
         ("38%", "Digital sales mix", "+5 pts", True),
     ]))
     GRP(L, panel(MX, TOP + 138, CW * 0.46, 300, title="What the numbers say", accent=GOLD))
@@ -480,7 +601,7 @@ def build() -> DocumentBuilder:
     ], gap=50, size=14))
     px = MX + CW * 0.46 + 24
     pw = CW - CW * 0.46 - 24
-    GRP(L, panel(px, TOP + 138, pw, 300, title="EBITDA margin, FY21–FY25 (%)"))
+    GRP(L, panel(px, TOP + 138, pw, 300, title="EBITDA margin, FY21-FY25 (%)"))
     fr = Frame(domain=(2020.5, 0, 2025.5, 10), box=(px + 52, TOP + 184, pw - 92, 210))
     ch = Chart(frame=fr)
     ch.axes(x_ticks=[2021, 2022, 2023, 2024, 2025], y_ticks=[0, 4, 8],
@@ -489,9 +610,9 @@ def build() -> DocumentBuilder:
             width=38, fill=TEAL, radius=3)
     chart_group(L, ch)
 
-    # 09 — COMPETITIVE POSITIONING
-    L = slide(b, 9, "Situation · Competition", "Meridian is stuck in the middle — neither cheapest nor most distinctive")
-    GRP(L, panel(MX, TOP, CW * 0.62, 452, title="Competitive map — price position vs. customer experience"))
+    # 09 - COMPETITIVE POSITIONING
+    L = slide(b, 9, "Situation · Competition", "Meridian is stuck in the middle - neither cheapest nor most distinctive")
+    GRP(L, panel(MX, TOP, CW * 0.62, 452, title="Competitive map - price position vs. customer experience"))
     mx0, my0 = MX + 60, TOP + 64
     mw, mh = CW * 0.62 - 110, 320
     GRP(L, matrix2x2(mx0, my0, mw, mh,
@@ -508,10 +629,10 @@ def build() -> DocumentBuilder:
         "Meridian lacks a clear right to win on either axis.",
         "Value champions out-earn it on cost discipline.",
         "Premium players out-earn it on loyalty and price.",
-        "A deliberate position must be chosen — and resourced.",
+        "A deliberate position must be chosen - and resourced.",
     ], gap=58, size=14, marker=NEG))
 
-    # 10 — CHANNEL PERFORMANCE
+    # 10 - CHANNEL PERFORMANCE
     L = slide(b, 10, "Situation · Channels", "Every channel grows revenue; only stores still cover their cost to serve")
     GRP(L, panel(MX, TOP, CW, 440, title="Revenue growth vs. contribution margin by channel"))
     fr = Frame(domain=(0, -4, 5, 12), box=(MX + 70, TOP + 60, CW - 130, 320))
@@ -530,9 +651,9 @@ def build() -> DocumentBuilder:
     # ====================== 11 SECTION: DIAGNOSIS ========================== #
     section(b, 11, "02", "Diagnosis", "Why Meridian's profitability is deteriorating")
 
-    # 12 — ROOT CAUSE TREE (topology)
+    # 12 - ROOT CAUSE TREE (topology)
     L = slide(b, 12, "Diagnosis · Root cause", "Margin erosion traces to three structural root causes")
-    GRP(L, panel(MX, TOP, CW * 0.66, 452, title="Issue tree — drivers of EBITDA margin decline"))
+    GRP(L, panel(MX, TOP, CW * 0.66, 452, title="Issue tree - drivers of EBITDA margin decline"))
     g = Graph()
     g.edge("Margin", "Cost to serve", directed=True)
     g.edge("Margin", "Price", directed=True)
@@ -549,12 +670,12 @@ def build() -> DocumentBuilder:
     pw = CW - CW * 0.66 - 24
     GRP(L, panel(px, TOP, pw, 452, title="Magnitude", accent=GOLD))
     GRP(L, bullets(px + 22, TOP + 50, pw - 44, [
-        "Cost to serve — ~150 bps, led by fulfilment & returns.",
-        "Price realization — ~110 bps from deep promotions.",
-        "Mix shift — ~60 bps from low-margin SKU growth.",
+        "Cost to serve - ~150 bps, led by fulfilment & returns.",
+        "Price realization - ~110 bps from deep promotions.",
+        "Mix shift - ~60 bps from low-margin SKU growth.",
     ], gap=70, size=14, marker=GOLD))
 
-    # 13 — COST TO SERVE
+    # 13 - COST TO SERVE
     L = slide(b, 13, "Diagnosis · Cost", "Cost to serve has outgrown gross margin, led by last-mile fulfilment")
     GRP(L, panel(MX, TOP, CW, 440, title="Cost-to-serve build-up (% of revenue)"))
     fr = Frame(domain=(0, 0, 6, 16), box=(MX + 70, TOP + 56, CW - 130, 330))
@@ -568,11 +689,11 @@ def build() -> DocumentBuilder:
             fill=TEAL, radius=3)
     chart_group(L, ch)
 
-    # 14 — CUSTOMER EROSION
-    L = slide(b, 14, "Diagnosis · Customers", "Acquisition is up, but retention has fallen faster — the base is shrinking")
+    # 14 - CUSTOMER EROSION
+    L = slide(b, 14, "Diagnosis · Customers", "Acquisition is up, but retention has fallen faster - the base is shrinking")
     GRP(L, kpi_tiles(MX, TOP, CW, 104, [
-        ("−2.4%", "Net active base", "first decline in 6 yrs", False),
-        ("68%", "12-mo retention", "−7 pts", False),
+        ("-2.4%", "Net active base", "first decline in 6 yrs", False),
+        ("68%", "12-mo retention", "-7 pts", False),
         ("$41", "CAC", "+38% in 2 yrs", False),
         ("3.1x", "LTV / CAC", "below 4x target", False),
     ]))
@@ -586,13 +707,13 @@ def build() -> DocumentBuilder:
         ch.marker(x, y, r=4, fill=NEG)
     chart_group(L, ch)
 
-    # 15 — CUSTOMER PAIN HEATMAP (field)
-    L = slide(b, 15, "Diagnosis · Voice of customer", "Pain concentrates where it hurts most — delivery, returns and price clarity")
+    # 15 - CUSTOMER PAIN HEATMAP (field)
+    L = slide(b, 15, "Diagnosis · Voice of customer", "Pain concentrates where it hurts most - delivery, returns and price clarity")
     heatmap_panel(L, MX, TOP, CW * 0.64, 452,
-                  title="Customer pain map — frequency × severity (darker = worse)",
+                  title="Customer pain map - frequency × severity (darker = worse)",
                   fn=lambda x, y: 0.9 * math.exp(-((x - 0.72) ** 2 + (y - 0.74) ** 2) * 3.0)
                   + 0.6 * math.exp(-((x - 0.30) ** 2 + (y - 0.35) ** 2) * 4.0),
-                  domain=(0, 0, 1, 1), low="#EAF3F4", high="#0A2540",
+                  domain=(0, 0, 1, 1), low="#EEF1FB", high="#1E1B4B",
                   bubbles=[(0.72, 0.74, 12, NEG, "Delivery"), (0.55, 0.55, 10, GOLD, "Returns"),
                            (0.30, 0.35, 9, TEAL, "Price clarity")])
     px = MX + CW * 0.64 + 24
@@ -606,7 +727,7 @@ def build() -> DocumentBuilder:
         "App checkout friction on mobile.",
     ], gap=58, size=14, marker=NEG))
 
-    # 16 — SWOT
+    # 16 - SWOT
     L = slide(b, 16, "Diagnosis · Synthesis", "The diagnosis in one view")
     qx, qy = MX, TOP
     qw, qh = (CW - 24) / 2, (452 - 24) / 2
@@ -629,9 +750,9 @@ def build() -> DocumentBuilder:
         cells += bullets(cxx + 24, cyy + 56, qw - 48, pts, gap=34, size=13, marker=col)
     GRP(L, cells)
 
-    # 17 — BURNING PLATFORM
+    # 17 - BURNING PLATFORM
     L = slide(b, 17, "Diagnosis · Why now", "On the current path, margin halves again by FY28")
-    GRP(L, panel(MX, TOP, CW, 440, title="EBITDA margin — do-nothing trajectory vs. recovery (%)"))
+    GRP(L, panel(MX, TOP, CW, 440, title="EBITDA margin - do-nothing trajectory vs. recovery (%)"))
     fr = Frame(domain=(2024.5, 0, 2028.5, 11), box=(MX + 64, TOP + 56, CW - 110, 330))
     ch = Chart(frame=fr)
     yrs = [2025, 2026, 2027, 2028]
@@ -647,7 +768,7 @@ def build() -> DocumentBuilder:
     # ====================== 18 SECTION: STRATEGY =========================== #
     section(b, 18, "03", "Strategy", "The recommended path to durable value")
 
-    # 19 — STRATEGIC OPTIONS
+    # 19 - STRATEGIC OPTIONS
     L = slide(b, 19, "Strategy · Options", "We considered three strategic postures")
     opts = [
         ("A", "Defend & optimise", "Protect the core; incremental cost-out.",
@@ -670,11 +791,11 @@ def build() -> DocumentBuilder:
         cards += bullets(cxx + 24, TOP + 160, ow - 48, pts, gap=40, size=13, marker=col)
         if recommended:
             cards += panel(cxx + 22, TOP + 392, ow - 44, 30, fill=TEAL)
-            cards.append(T(cxx + 22, TOP + 398, ow - 44, 18, "✓  RECOMMENDED", size=12,
+            cards.append(T(cxx + 22, TOP + 398, ow - 44, 18, " RECOMMENDED", size=12,
                            color="#FFFFFF", weight=800, align="center"))
     GRP(L, cards)
 
-    # 20 — OPTIONS EVALUATION
+    # 20 - OPTIONS EVALUATION
     L = slide(b, 20, "Strategy · Evaluation", "Option C wins on a weighted scorecard")
     GRP(L, panel(MX, TOP, CW, 400, title="Weighted evaluation (1 = poor, 5 = excellent)"))
     headers = ["Criterion (weight)", "A · Defend", "B · Reposition", "C · Omnichannel"]
@@ -689,51 +810,52 @@ def build() -> DocumentBuilder:
     GRP(L, table(MX + 24, TOP + 48, CW - 48, headers, rows,
                   [CW * 0.40, CW * 0.18, CW * 0.18, CW * 0.18], highlight=5, rh=46))
 
-    # 21 — RECOMMENDED STRATEGY
+    # 21 - RECOMMENDED STRATEGY
     L = slide(b, 21, "Strategy · Recommendation", "Build a structurally profitable omnichannel retailer")
     GRP(L, panel(MX, TOP, CW, 96, fill=NAVY))
     GRP(L, [T(MX + 30, TOP + 22, CW - 60, 30,
-               "“Earn the right to grow online by fixing unit economics first, then scale digital and loyalty.”",
+               "'Earn the right to grow online by fixing unit economics first, then scale digital and loyalty.'",
                size=20, color="#FFFFFF", weight=700, font=SERIF),
              T(MX + 30, TOP + 60, CW - 60, 20, "The governing thought for Project Northwind",
                size=12, color=rgba("#FFFFFF", 0.7))])
     pillars = [
-        ("Pillar 1", "Commercial excellence", "Pricing, promotions and assortment that protect margin.", TEAL),
-        ("Pillar 2", "Cost & supply chain", "Fulfilment and network economics redesigned for digital.", GOLD),
-        ("Pillar 3", "Digital & data", "A profitable online channel and monetised loyalty.", NAVY2),
+        ("Pillar 1", "Commercial excellence", "Pricing, promotions and assortment that protect margin.", TEAL, "tag"),
+        ("Pillar 2", "Cost & supply chain", "Fulfilment and network economics redesigned for digital.", GOLD, "truck"),
+        ("Pillar 3", "Digital & data", "A profitable online channel and monetised loyalty.", NAVY2, "bulb"),
     ]
     pw = (CW - 48) / 3
     cards = []
-    for i, (k, t, d, col) in enumerate(pillars):
+    for i, (k, t, d, col, ico) in enumerate(pillars):
         cxx = MX + i * (pw + 24)
         cards += panel(cxx, TOP + 124, pw, 312, accent=col)
-        cards.append(T(cxx + 22, TOP + 144, pw - 44, 16, k.upper(), size=11, color=col, weight=700))
-        cards.append(T(cxx + 22, TOP + 168, pw - 44, 26, t, size=18, color=NAVY, weight=700))
-        cards.append(T(cxx + 22, TOP + 202, pw - 44, 44, d, size=13, color=MUTE))
-        cards += bullets(cxx + 24, TOP + 258, pw - 48, ["3–4 flagship initiatives", "Single accountable owner",
-                         "Quarterly value targets"], gap=34, size=12, marker=col)
+        cards += badge(cxx + 46, TOP + 168, 24, ico, col, SOFT)
+        cards.append(T(cxx + 80, TOP + 150, pw - 100, 16, k.upper(), size=11, color=col, weight=700))
+        cards.append(T(cxx + 80, TOP + 170, pw - 100, 26, t, size=17, color=NAVY, weight=700))
+        cards.append(T(cxx + 22, TOP + 214, pw - 44, 44, d, size=13, color=MUTE))
+        cards += bullets(cxx + 24, TOP + 268, pw - 48, ["3-4 flagship initiatives", "Single accountable owner",
+                         "Quarterly value targets"], gap=32, size=12, marker=col)
     GRP(L, cards)
 
-    # 22–24 PILLAR DETAILS
+    # 22-24 PILLAR DETAILS
     pillar_detail = [
         (22, "Strategy · Pillar 1", "Commercial excellence", TEAL,
          [("Pricing architecture", "Zone & role-based pricing; end blanket discounts."),
           ("Promotion ROI", "Kill value-destroying promos; fund hero events."),
           ("Assortment", "Rationalise the long tail; grow own-brand mix."),
           ("Markdown optimisation", "Algorithmic, demand-based markdowns.")],
-         "≈ +130 bps", "EBITDA margin"),
+         "~ +130 bps", "EBITDA margin"),
         (23, "Strategy · Pillar 2", "Cost & supply chain", GOLD,
          [("Fulfilment network", "Ship-from-store + micro-fulfilment to cut last mile."),
           ("Returns redesign", "Prevention, fees and faster processing."),
           ("Inventory", "Demand-driven replenishment; free trapped capital."),
           ("Procurement", "Renegotiate carriage & packaging at scale.")],
-         "≈ +140 bps", "EBITDA margin"),
+         "~ +140 bps", "EBITDA margin"),
         (24, "Strategy · Pillar 3", "Digital & data", NAVY2,
          [("Channel economics", "Threshold-based delivery; profitable basket rules."),
           ("Conversion", "Remove mobile checkout friction."),
           ("Loyalty monetisation", "Personalised offers; retail media network."),
           ("Data foundation", "One customer & product view across channels.")],
-         "≈ +50 bps", "EBITDA margin"),
+         "~ +50 bps", "EBITDA margin"),
     ]
     for n, kick, title, col, inits, val, vlab in pillar_detail:
         L = slide(b, n, kick, title)
@@ -749,17 +871,21 @@ def build() -> DocumentBuilder:
         px = MX + CW * 0.62 + 24
         pw = CW - CW * 0.62 - 24
         GRP(L, panel(px, TOP, pw, 452, fill=NAVY))
-        GRP(L, [T(px + 24, TOP + 60, pw - 48, 20, "VALUE AT STAKE", size=12,
-                   color=rgba("#FFFFFF", 0.7), weight=700),
-                 T(px + 24, TOP + 96, pw - 48, 60, val, size=46, color="#FFFFFF", weight=800, font=SERIF),
-                 T(px + 24, TOP + 162, pw - 48, 20, vlab, size=14, color=rgba("#FFFFFF", 0.8)),
-                 LN(px + 24, TOP + 210, px + pw - 24, TOP + 210, color=rgba("#FFFFFF", 0.2), width=1)])
-        GRP(L, bullets(px + 24, TOP + 240, pw - 48, ["12–18 month horizon", "Self-funding after H1",
-                        "Owner: Exec sponsor"], gap=46, size=13, marker=GOLD, color="#FFFFFF"))
+        GRP(L, badge(px + pw / 2, TOP + 78, 46, {22: "tag", 23: "truck", 24: "bulb"}[n],
+                     "#FFFFFF", rgba("#FFFFFF", 0.08), width=3))
+        GRP(L, [T(px + 24, TOP + 150, pw - 48, 20, "VALUE AT STAKE", size=12,
+                   color=rgba("#FFFFFF", 0.7), weight=700, align="center"),
+                 T(px + 24, TOP + 178, pw - 48, 60, val, size=44, color="#FFFFFF",
+                   weight=800, font=SERIF, align="center"),
+                 T(px + 24, TOP + 244, pw - 48, 20, vlab, size=14, color=rgba("#FFFFFF", 0.8),
+                   align="center"),
+                 LN(px + 24, TOP + 290, px + pw - 24, TOP + 290, color=rgba("#FFFFFF", 0.2), width=1)])
+        GRP(L, bullets(px + 36, TOP + 320, pw - 60, ["12-18 month horizon", "Self-funding after H1",
+                        "Owner: Exec sponsor"], gap=40, size=13, marker=GOLD, color="#FFFFFF"))
 
-    # 25 — VALUE TREE (topology)
+    # 25 - VALUE TREE (topology)
     L = slide(b, 25, "Strategy · Value", "How the pillars translate into +320 bps of margin")
-    GRP(L, panel(MX, TOP, CW, 452, title="Value-driver tree — levers to EBITDA recovery"))
+    GRP(L, panel(MX, TOP, CW, 452, title="Value-driver tree - levers to EBITDA recovery"))
     g = Graph()
     g.edge("Pricing", "Commercial", directed=True)
     g.edge("Promotions", "Commercial", directed=True)
@@ -776,14 +902,14 @@ def build() -> DocumentBuilder:
                    node_radius=9, node_fill=NAVY, node_stroke=GOLD, edge_color=MUTE,
                    label_size=10, label_color=INK))
 
-    # 26 — EBITDA BRIDGE (waterfall)
-    L = slide(b, 26, "Strategy · Financials", "EBITDA margin bridge: 6.8% → 10.0% by FY28")
+    # 26 - EBITDA BRIDGE (waterfall)
+    L = slide(b, 26, "Strategy · Financials", "EBITDA margin bridge: 6.8% to 10.0% by FY28")
     GRP(L, waterfall(MX, TOP, CW, 452, 6.8,
                       [("Commercial", 1.3, TEAL), ("Cost & SC", 1.4, GOLD),
                        ("Digital", 0.5, NAVY2), ("Reinvest", -0.0, NEG)],
                       10.0, ymax=12.0))
 
-    # 27 — REVENUE UPLIFT
+    # 27 - REVENUE UPLIFT
     L = slide(b, 27, "Strategy · Financials", "Revenue uplift of ~$310M from a focused initiative set")
     GRP(L, panel(MX, TOP, CW, 440, title="Annual revenue uplift by lever ($M, run-rate FY28)"))
     fr = Frame(domain=(0, 0, 6, 120), box=(MX + 76, TOP + 56, CW - 140, 330))
@@ -796,12 +922,12 @@ def build() -> DocumentBuilder:
     ch.bars([(i + 0.5, v) for i, v in enumerate(vals)], width=48, fill=NAVY, radius=3)
     chart_group(L, ch)
 
-    # 28 — INITIATIVE PORTFOLIO (heatmap + bubbles)
+    # 28 - INITIATIVE PORTFOLIO (heatmap + bubbles)
     L = slide(b, 28, "Strategy · Portfolio", "Initiatives cluster in the high-impact, low-effort zone")
     heatmap_panel(L, MX, TOP, CW * 0.66, 452,
-                  title="Impact vs. effort — heat = value density",
+                  title="Impact vs. effort - heat = value density",
                   fn=lambda x, y: math.exp(-((x - 0.30) ** 2 + (y - 0.74) ** 2) * 2.6),
-                  domain=(0, 0, 1, 1), low="#EEF4F8", high="#3AA0A8",
+                  domain=(0, 0, 1, 1), low="#EEF1FB", high="#2563EB",
                   bubbles=[(0.24, 0.80, 16, TEAL, "Pricing"), (0.32, 0.66, 14, NAVY, "Returns"),
                            (0.42, 0.72, 13, GOLD, "Loyalty"), (0.58, 0.50, 11, NAVY2, "Network"),
                            (0.72, 0.40, 10, MUTE, "Replatform")])
@@ -810,17 +936,17 @@ def build() -> DocumentBuilder:
     GRP(L, panel(px, TOP, pw, 452, title="Read", accent=TEAL))
     GRP(L, bullets(px + 22, TOP + 50, pw - 44, [
         "Quick wins (top-left) fund the harder moves.",
-        "Replatforming is high-effort — sequence late.",
+        "Replatforming is high-effort - sequence late.",
         "Loyalty & pricing: highest value density.",
         "Six initiatives carry 70% of the value.",
     ], gap=58, size=14, marker=TEAL))
 
     # ============ 29 SECTION: OPERATING MODEL & ROADMAP =================== #
-    section(b, 29, "04", "Operating model & roadmap", "How we deliver — and in what sequence")
+    section(b, 29, "04", "Operating model & roadmap", "How we deliver - and in what sequence")
 
-    # 30 — OPERATING MODEL (topology spring)
+    # 30 - OPERATING MODEL (topology spring)
     L = slide(b, 30, "Delivery · Operating model", "A value-office orchestrates cross-functional squads")
-    GRP(L, panel(MX, TOP, CW * 0.62, 452, title="Operating-model network — value office & delivery squads"))
+    GRP(L, panel(MX, TOP, CW * 0.62, 452, title="Operating-model network - value office & delivery squads"))
     g = Graph().node("Value Office", "Value Office", weight=2.4, fill=GOLD)
     squads = ["Pricing", "Promotions", "Fulfilment", "Returns", "Loyalty", "Data", "Assortment"]
     for s in squads:
@@ -843,9 +969,9 @@ def build() -> DocumentBuilder:
         "Weekly cadence; monthly value reviews.",
     ], gap=58, size=14, marker=NAVY2))
 
-    # 31 — CAPABILITY MAP (grid lattice)
+    # 31 - CAPABILITY MAP (grid lattice)
     L = slide(b, 31, "Delivery · Capabilities", "Nine capabilities must be built or upgraded")
-    GRP(L, panel(MX, TOP, CW, 452, title="Capability map — colour = current maturity gap"))
+    GRP(L, panel(MX, TOP, CW, 452, title="Capability map - colour = current maturity gap"))
     caps = [("Pricing science", NEG), ("Promo analytics", NEG), ("Demand forecasting", GOLD),
             ("Network design", GOLD), ("Returns ops", NEG), ("Personalisation", GOLD),
             ("Retail media", NEG), ("Data platform", GOLD), ("Agile delivery", POS)]
@@ -862,9 +988,9 @@ def build() -> DocumentBuilder:
         cells.append(T(cxx + 46, cyy + 58, gw - 64, 18, gaplab, size=12, color=MUTE))
     GRP(L, cells)
 
-    # 32 — TECH ARCHITECTURE (perspective lattice)
+    # 32 - TECH ARCHITECTURE (perspective lattice)
     L = slide(b, 32, "Delivery · Technology", "A unified data platform underpins every pillar")
-    GRP(L, panel(MX, TOP, CW * 0.52, 452, title="Reference architecture — three tiers"))
+    GRP(L, panel(MX, TOP, CW * 0.52, 452, title="Reference architecture - three tiers"))
     tiers = [("Consumption", "Personalisation · Pricing · Retail media · CX", TEAL),
              ("Data & ML platform", "One customer & product view · feature store · governance", GOLD),
              ("Sources", "Stores · e-commerce · supply chain · finance · partners", NAVY2)]
@@ -888,10 +1014,10 @@ def build() -> DocumentBuilder:
         edge_color=rgba("#FFFFFF", 0.35))
     ADD(L, mesh)
     GRP(L, [T(px + 24, TOP + 420, pw - 48, 18,
-               "One governed platform — not point integrations", size=12,
+               "One governed platform - not point integrations", size=12,
                color=rgba("#FFFFFF", 0.75), align="center")])
 
-    # 33 — ROADMAP (gantt)
+    # 33 - ROADMAP (gantt)
     L = slide(b, 33, "Delivery · Roadmap", "An 18-month roadmap, sequenced to self-fund")
     bars = [
         ("Pricing & promo reset", 0, 6, TEAL),
@@ -906,66 +1032,68 @@ def build() -> DocumentBuilder:
     GRP(L, timeline(MX, TOP, CW, 452, bars, months=18,
                      title="Initiative timeline (months from kickoff)"))
 
-    # 34 — THREE HORIZONS
+    # 34 - THREE HORIZONS
     L = slide(b, 34, "Delivery · Phasing", "Three horizons: stabilise, scale, lead")
-    hor = [("Horizon 1 · 0–6 mo", "Stabilise economics",
+    hor = [("Horizon 1 · 0-6 mo", "Stabilise economics",
             ["Pricing & promo reset", "Returns prevention", "Quick-win cost-out"], "+90 bps", TEAL),
-           ("Horizon 2 · 6–18 mo", "Scale the model",
+           ("Horizon 2 · 6-18 mo", "Scale the model",
             ["Fulfilment redesign", "Loyalty monetisation", "Own-brand growth"], "+180 bps", GOLD),
-           ("Horizon 3 · 18–36 mo", "Lead the category",
+           ("Horizon 3 · 18-36 mo", "Lead the category",
             ["Retail media at scale", "AI personalisation", "Platform advantage"], "+50 bps", NAVY2)]
     hw = (CW - 48) / 3
+    hor_ico = ["shield", "bars", "flag"]
     cards = []
     for i, (h, t, pts, val, col) in enumerate(hor):
         cxx = MX + i * (hw + 24)
         cards += panel(cxx, TOP, hw, 452, accent=col)
-        cards.append(T(cxx + 22, TOP + 22, hw - 44, 16, h.upper(), size=11, color=col, weight=700))
-        cards.append(T(cxx + 22, TOP + 46, hw - 44, 26, t, size=18, color=NAVY, weight=700))
-        cards += bullets(cxx + 24, TOP + 96, hw - 48, pts, gap=40, size=13, marker=col)
+        cards += badge(cxx + hw - 42, TOP + 44, 24, hor_ico[i], col, SOFT)
+        cards.append(T(cxx + 22, TOP + 26, hw - 90, 16, h.upper(), size=11, color=col, weight=700))
+        cards.append(T(cxx + 22, TOP + 50, hw - 90, 26, t, size=18, color=NAVY, weight=700))
+        cards += bullets(cxx + 24, TOP + 104, hw - 48, pts, gap=40, size=13, marker=col)
         cards += panel(cxx + 22, TOP + 392, hw - 44, 40, fill=SOFT)
         cards.append(T(cxx + 38, TOP + 402, hw - 76, 22, val + "  EBITDA", size=15,
                        color=col, weight=800))
     GRP(L, cards)
 
-    # 35 — 90-DAY QUICK WINS
+    # 35 - 90-DAY QUICK WINS
     L = slide(b, 35, "Delivery · Momentum", "The first 90 days: prove value and build belief")
     GRP(L, panel(MX, TOP, CW, 400, title="90-day plan"))
     headers = ["Days", "Action", "Owner", "Outcome"]
     rows = [
-        ["0–30", "Stand up the value office; baseline the P&L", "Transformation lead", "Mobilised"],
-        ["0–30", "Kill bottom-decile promotions", "Commercial", "+20 bps"],
-        ["30–60", "Launch returns-prevention pilot", "Supply chain", "−15% returns cost"],
-        ["30–60", "Re-zone pricing on hero categories", "Pricing squad", "+25 bps"],
-        ["60–90", "Ship-from-store pilot in 50 stores", "Operations", "−8% last mile"],
-        ["60–90", "Mobile checkout fixes", "Digital", "+1.5 pts conv."],
+        ["0-30", "Stand up the value office; baseline the P&L", "Transformation lead", "Mobilised"],
+        ["0-30", "Kill bottom-decile promotions", "Commercial", "+20 bps"],
+        ["30-60", "Launch returns-prevention pilot", "Supply chain", "-15% returns cost"],
+        ["30-60", "Re-zone pricing on hero categories", "Pricing squad", "+25 bps"],
+        ["60-90", "Ship-from-store pilot in 50 stores", "Operations", "-8% last mile"],
+        ["60-90", "Mobile checkout fixes", "Digital", "+1.5 pts conv."],
     ]
     GRP(L, table(MX + 24, TOP + 48, CW - 48, headers, rows,
                   [CW * 0.10, CW * 0.46, CW * 0.20, CW * 0.18], rh=44))
 
-    # 36 — GOVERNANCE
+    # 36 - GOVERNANCE
     L = slide(b, 36, "Delivery · Governance", "A simple cadence keeps value on track")
-    gov = [("Board", "Quarterly", "Approves funding gates; tracks value vs. plan."),
-           ("Steering committee", "Monthly", "Removes blockers; reallocates resources."),
-           ("Value office", "Weekly", "Runs the portfolio; owns the value tracker."),
-           ("Squads", "Daily / weekly", "Deliver initiatives; report leading indicators.")]
+    gov = [("Board", "Quarterly", "Approves funding gates; tracks value vs. plan.", "flag"),
+           ("Steering committee", "Monthly", "Removes blockers; reallocates resources.", "target"),
+           ("Value office", "Weekly", "Runs the portfolio; owns the value tracker.", "gear"),
+           ("Squads", "Daily / weekly", "Deliver initiatives; report leading indicators.", "bars")]
     yy = TOP
     rows = []
-    for nm, cad, ds in gov:
+    for nm, cad, ds, ico in gov:
         rows += panel(MX, yy, CW, 94, accent=TEAL)
-        rows.append(T(MX + 26, yy + 24, 320, 26, nm, size=18, color=NAVY, weight=700))
-        rows += panel(MX + 340, yy + 28, 150, 36, fill=TEAL_T)
-        rows.append(T(MX + 340, yy + 36, 150, 20, cad, size=13, color=TEAL, weight=700, align="center"))
-        rows.append(T(MX + 520, yy + 32, CW - 560, 24, ds, size=14, color=MUTE))
+        rows += badge(MX + 56, yy + 47, 26, ico, TEAL, TEAL_T)
+        rows.append(T(MX + 100, yy + 34, 280, 26, nm, size=18, color=NAVY, weight=700))
+        rows += panel(MX + 400, yy + 30, 150, 36, fill=TEAL_T)
+        rows.append(T(MX + 400, yy + 38, 150, 20, cad, size=13, color=TEAL, weight=700, align="center"))
+        rows.append(T(MX + 580, yy + 34, CW - 620, 24, ds, size=14, color=MUTE))
         yy += 110
     GRP(L, rows)
 
-    # 37 — RISK HEATMAP
-    L = slide(b, 37, "Delivery · Risk", "Key risks are concentrated — and manageable with active mitigation")
-    GRP(L, panel(MX, TOP, CW * 0.5, 452, title="Risk matrix — likelihood × impact"))
+    # 37 - RISK HEATMAP
+    L = slide(b, 37, "Delivery · Risk", "Key risks are concentrated - and manageable with active mitigation")
+    GRP(L, panel(MX, TOP, CW * 0.5, 452, title="Risk matrix - likelihood × impact"))
     rx, ry = MX + 70, TOP + 56
     rw, rh = CW * 0.5 - 110, 300
     cells = []
-    bands = ["1", "2", "3", "4", "5"]
     for i in range(5):
         for j in range(5):
             score = (i + 1) * (j + 1)
@@ -973,8 +1101,8 @@ def build() -> DocumentBuilder:
             cxx = rx + i * rw / 5
             cyy = ry + (4 - j) * rh / 5
             cells.append(R(cxx + 1, cyy + 1, rw / 5 - 2, rh / 5 - 2, fill=col, decorative=True))
-    cells.append(T(rx, ry + rh + 8, rw, 14, "→  Likelihood", size=11, color=MUTE, align="center"))
-    cells.append(T(rx - 4, ry - 22, 240, 14, "↑  Impact", size=11, color=MUTE))
+    cells.append(T(rx, ry + rh + 8, rw, 14, "Likelihood (low to high)", size=11, color=MUTE, align="center"))
+    cells.append(T(rx - 4, ry - 22, 240, 14, "Impact (low to high)", size=11, color=MUTE))
     risks = [(4, 4, "Delivery slips", NEG), (3, 5, "Change fatigue", NEG),
              (2, 3, "Tech delays", GOLD), (4, 2, "Supplier pushback", GOLD),
              (1, 2, "Data quality", TEAL)]
@@ -987,14 +1115,14 @@ def build() -> DocumentBuilder:
     pw = CW - CW * 0.5 - 24
     GRP(L, panel(px, TOP, pw, 452, title="Top risks & mitigations", accent=NEG))
     GRP(L, bullets(px + 22, TOP + 50, pw - 44, [
-        "Delivery slips → staged gates, ruthless prioritisation.",
-        "Change fatigue → quick wins, clear comms, incentives.",
-        "Tech delays → buy-before-build; thin platform first.",
-        "Supplier pushback → joint value cases, phased asks.",
-        "Data quality → foundational data sprint up front.",
+        "Delivery slips  staged gates, ruthless prioritisation.",
+        "Change fatigue  quick wins, clear comms, incentives.",
+        "Tech delays  buy-before-build; thin platform first.",
+        "Supplier pushback  joint value cases, phased asks.",
+        "Data quality  foundational data sprint up front.",
     ], gap=56, size=14, marker=NEG))
 
-    # 38 — KPI DASHBOARD
+    # 38 - KPI DASHBOARD
     L = slide(b, 38, "Delivery · Metrics", "We will steer by a tight set of leading and lagging metrics")
     GRP(L, kpi_tiles(MX, TOP, CW, 110, [
         ("10.0%", "EBITDA margin (FY28)", "from 6.8%", True),
@@ -1020,7 +1148,7 @@ def build() -> DocumentBuilder:
             width=40, fill=NAVY, radius=3)
     chart_group(L, ch)
 
-    # 39 — BUSINESS CASE
+    # 39 - BUSINESS CASE
     L = slide(b, 39, "The ask · Business case", "A self-funding programme with ~14-month payback")
     GRP(L, kpi_tiles(MX, TOP, CW, 110, [
         ("$95M", "Total investment", "over 18 months", False),
@@ -1031,34 +1159,35 @@ def build() -> DocumentBuilder:
     GRP(L, panel(MX, TOP + 138, CW, 300, title="Investment & return by horizon ($M)"))
     headers = ["Horizon", "Investment", "Annual value", "Cumulative", "Net"]
     rows = [
-        ["H1 · 0–6 mo", "30", "60", "60", "30"],
-        ["H2 · 6–18 mo", "45", "190", "330", "255"],
-        ["H3 · 18–36 mo", "20", "210", "540", "445"],
-        ["Total", "95", "—", "540", "445"],
+        ["H1 · 0-6 mo", "30", "60", "60", "30"],
+        ["H2 · 6-18 mo", "45", "190", "330", "255"],
+        ["H3 · 18-36 mo", "20", "210", "540", "445"],
+        ["Total", "95", "-", "540", "445"],
     ]
     GRP(L, table(MX + 24, TOP + 186, CW - 48, headers, rows,
                   [CW * 0.24, CW * 0.18, CW * 0.18, CW * 0.18, CW * 0.18], highlight=3, rh=44))
 
-    # 40 — THE ASK / THANK YOU
+    # 40 - THE ASK / THANK YOU
     page = b.page("s40", canvas={"size": [W, H], "units": "px"},
-                  coordinate_mode="absolute", reading_order=["title"])
+                  coordinate_mode="absolute", reading_order=None)
     L = page.layer("main")
     ADD(L, R(0, 0, W, H, fill=NAVY, decorative=True))
-    ADD(L, R(0, 0, W, H, fill=rgba("#0E7C86", 0.10), decorative=True))
+    ADD(L, R(0, 0, W, H, fill=rgba("#312E81", 0.12), decorative=True))
     ADD(L, R(MX, 150, 84, 6, fill=GOLD, decorative=True))
     ADD(L, T(MX, 180, 600, 18, "THE ASK", size=12, color=GOLD, weight=700))
     ADD(L, T(MX, 210, CW, 54, "Three decisions from the Board today", size=40,
             color="#FFFFFF", weight=800, font=SERIF, id="title"))
-    asks = [("1", "Endorse the strategy", "Approve “profitable omnichannel” as the path."),
-            ("2", "Fund Horizon 1", "Release $30M and stand up the value office."),
-            ("3", "Name the sponsor", "Appoint an executive owner accountable for value.")]
+    asks = [("1", "Endorse the strategy", "Approve 'profitable omnichannel' as the path.", "target"),
+            ("2", "Fund Horizon 1", "Release $30M and stand up the value office.", "coin"),
+            ("3", "Name the sponsor", "Appoint an executive owner accountable for value.", "users")]
     cards = []
-    for i, (k, t, d) in enumerate(asks):
+    for i, (k, t, d, ico) in enumerate(asks):
         cyy = 300 + i * 96
         cards += panel(MX, cyy, CW, 80, fill=rgba("#FFFFFF", 0.06), border=rgba("#FFFFFF", 0.18))
         cards.append(T(MX + 26, cyy + 22, 60, 40, k, size=30, color=GOLD, weight=800, font=SERIF))
-        cards.append(T(MX + 110, cyy + 18, 420, 26, t, size=19, color="#FFFFFF", weight=700))
-        cards.append(T(MX + 110, cyy + 48, CW - 150, 20, d, size=14, color=rgba("#FFFFFF", 0.75)))
+        cards += badge(MX + 110, cyy + 40, 26, ico, GOLD, rgba("#FFFFFF", 0.10))
+        cards.append(T(MX + 156, cyy + 18, 420, 26, t, size=19, color="#FFFFFF", weight=700))
+        cards.append(T(MX + 156, cyy + 48, CW - 196, 20, d, size=14, color=rgba("#FFFFFF", 0.75)))
     GRP(L, cards)
     GRP(L, [LN(MX, H - 70, MX + 520, H - 70, color=rgba("#FFFFFF", 0.18), width=1),
              T(MX, H - 56, 700, 16, "Project Northwind  ·  Meridian Retail Group  ·  June 2026",

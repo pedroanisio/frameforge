@@ -6540,6 +6540,7 @@
             "row",
             "column",
             "grid",
+            "wrap",
             "free"
           ],
           "title": "Kind",
@@ -6602,6 +6603,15 @@
         "padding": {
           "anyOf": [
             {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
               "items": {
                 "anyOf": [
                   {
@@ -6616,7 +6626,7 @@
                 ]
               },
               "maxItems": 4,
-              "minItems": 4,
+              "minItems": 1,
               "type": "array"
             },
             {
@@ -6655,6 +6665,26 @@
           ],
           "default": null,
           "title": "Align"
+        },
+        "justify": {
+          "anyOf": [
+            {
+              "enum": [
+                "start",
+                "center",
+                "end",
+                "space-between",
+                "space-around",
+                "space-evenly"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Justify"
         }
       },
       "required": [

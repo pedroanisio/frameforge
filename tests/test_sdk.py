@@ -2,6 +2,7 @@
 """Public-surface tests for the Python FrameGraph SDK."""
 from __future__ import annotations
 
+import importlib
 import math
 import os
 import sys
@@ -80,6 +81,40 @@ from framegraph.sdk import (
 from framegraph.sdk.conform import page_hashes, render_page_svgs
 from framegraph.sdk.geometry import CubicBezier, Mat4, quarter_circle_kappa
 from framegraph.sdk.validate import validate_static_rules
+
+
+def test_top_level_sdk_reexports_module_public_surface():
+    import framegraph.sdk as sdk
+
+    modules = [
+        "author",
+        "chart",
+        "clip",
+        "conform",
+        "draw",
+        "expand",
+        "fields",
+        "geometry",
+        "io",
+        "lattices",
+        "layout",
+        "macros",
+        "manifold",
+        "metrics",
+        "model",
+        "paint",
+        "topology",
+        "validate",
+        "widgets",
+    ]
+    missing: list[str] = []
+    for module_name in modules:
+        module = importlib.import_module(f"framegraph.sdk.{module_name}")
+        for name in getattr(module, "__all__", ()):
+            if name not in sdk.__all__ or not hasattr(sdk, name):
+                missing.append(f"{module_name}.{name}")
+
+    assert missing == []
 
 
 def _minimal_doc():
@@ -831,6 +866,71 @@ def test_layout_input_validation():
         grid([0, 0, 10, 10], cols=2)  # neither rows nor count
     with pytest.raises(ValueError):
         grid([0, 0, 10, 10], cols=0, count=1)
+
+
+def test_layout_native_stacks_emit_layout_groups_with_intrinsic_widgets():
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [420, 180], "units": "px"}).layer("main")
+    with layer.hstack([20, 20, 300, 52], gap=12, pad=8, align="center") as actions:
+        actions.add(button("Cancel", kind="ghost"))
+        actions.spacer(h=36, grow=1)
+        actions.add(button("Deploy", grow=2))
+    with layer.wrap([20, 92, 260, 70], gap=8, pad=8) as chips:
+        chips.add(badge("api", tone="accent"))
+        chips.add(badge("renderer", tone="good"))
+        chips.add(badge("layout-native", tone="warn"))
+    with layer.vstack([300, 92, 100, 70], gap=6) as status:
+        status.avatar("Ada Lovelace", size=28)
+        status.toggle(on=True)
+        status.progress(0.65, w=90)
+        status.divider(w=90)
+    with layer.vstack([20, 168, 360, 120], gap=8) as controls:
+        controls.tabs(["One", "Two"])
+        controls.field("Owner", value="Ada")
+        controls.kpi("Latency", "42 ms")
+
+    doc = builder.build()
+    row_group, wrap_group, status_group, controls_group = doc.pages[0].layers[0].objects
+    assert row_group.type == "group"
+    assert row_group.layout.kind == "row"
+    assert row_group.layout.padding == 8
+    assert row_group.children[0].box[:2] == [0, 0]
+    assert row_group.children[2].sizing.width == "fill"
+    assert row_group.children[2].sizing.grow == 2
+    assert wrap_group.layout.kind == "wrap"
+    assert [child.meta["widget"] for child in wrap_group.children] == ["badge", "badge", "badge"]
+    assert [child.meta["widget"] for child in status_group.children] == [
+        "avatar", "toggle", "progress", "divider",
+    ]
+    assert [child.meta["widget"] for child in controls_group.children] == [
+        "tabs", "field", "kpi",
+    ]
+    assert validate_static_rules(doc).ok
+
+
+def test_page_widget_helpers_accept_intrinsic_layout_native_forms():
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [520, 220], "units": "px"}).layer("main")
+
+    layer.button("Save", grow=1)
+    layer.badge("api", tone="accent")
+    layer.pill("Open")
+    layer.avatar("Ada Lovelace")
+    layer.field("Owner", value="Ada")
+    layer.toggle(on=True)
+    layer.tabs(["One", "Two"])
+    layer.progress(0.5)
+    layer.divider()
+    layer.kpi("Latency", "42 ms")
+
+    objects = builder.build().pages[0].layers[0].objects
+    assert [obj.meta["widget"] for obj in objects] == [
+        "button", "badge", "pill", "avatar", "field", "toggle", "tabs",
+        "progress", "divider", "kpi",
+    ]
+    assert objects[0].box[:2] == [0, 0]
+    assert objects[0].sizing.width == "fill"
+    assert objects[0].sizing.grow == 1
 
 
 def test_chart_lowers_to_valid_objects():

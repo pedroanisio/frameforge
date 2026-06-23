@@ -200,8 +200,8 @@ def rule_checks(doc, findings):
             if parent_layout != "grid":
                 findings.append(Finding("WARN", "grid_span-parent",
                                         "`grid_span` only applies under a `grid` layout parent", path))
-        # R6 box-less primitive directly under row/column/grid
-        if parent_layout in ("row", "column", "grid") and t in BOXLESS and not o.get("box"):
+        # R6 box-less primitive directly under layout containers
+        if parent_layout in ("row", "column", "grid", "wrap") and t in BOXLESS and not o.get("box"):
             findings.append(Finding("ERROR", "boxless-under-layout",
                                     f"box-less {t!r} cannot be a direct {parent_layout} child "
                                     "(no extent to advance by); wrap in a group or give a box", path))
