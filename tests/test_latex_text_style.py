@@ -401,6 +401,30 @@ def test_raw_css_font_size_and_weight_feed_latex_font_selection():
     assert "\\fontsize{24}{26.88}\\selectfont\\bfseries" in tex
 
 
+def test_raw_css_fill_none_and_stroke_maps_to_latex_text_outline():
+    tex = _fig({"label": {"css": "fill: none; stroke: #0f172a; stroke-width: 1.2"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "Outlined",
+        "style": "label",
+    })
+
+    assert "text={rgb,255:red,15;green,23;blue,42}" in tex
+    assert "\\pdfliteral direct {1 Tr 1.2 w}Outlined\\pdfliteral direct {0 Tr}" in tex
+
+
+def test_raw_css_fill_none_without_stroke_keeps_normal_text_paint():
+    tex = _fig({"label": {"css": "fill: none", "color": "#123456"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "Plain",
+        "style": "label",
+    })
+
+    assert "text={rgb,255:red,18;green,52;blue,86}" in tex
+    assert "\\pdfliteral direct {1 Tr" not in tex
+
+
 def test_text_indent_maps_to_initial_hspace():
     tex = _fig({"label": {"text_indent": "12px"}}).render({
         "type": "text",

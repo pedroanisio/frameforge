@@ -1293,6 +1293,9 @@ class FigureTikz:
             ("font-stretch", "font_stretch"),
             ("font-feature-settings", "font_feature_settings"),
             ("font-variant-numeric", "font_variant_numeric"),
+            ("fill", "text_fill"),
+            ("stroke", "text_stroke"),
+            ("stroke-width", "text_stroke_width"),
         ):
             if out.get(key) is None:
                 value = self._css_decl(out, css_name)
@@ -1403,7 +1406,9 @@ class FigureTikz:
                 f"text width={fnum(max(width, 1))}pt",
                 f"align={align}",
             ])
-        cexpr, op = color_expr(st.get("color"))
+        fill = st.get("text_fill")
+        text_color = st.get("text_stroke") if str(fill or "").strip().lower() == "none" and st.get("text_stroke") else st.get("color")
+        cexpr, op = color_expr(text_color)
         if cexpr:
             opts.append(f"text={cexpr}")
         if op is not None:
@@ -1499,7 +1504,15 @@ class FigureTikz:
         escaped = self._unicode_bidi_text(st, escaped)
         escaped = self._hanging_punctuation_text(st, escaped)
         escaped = self._text_align_last_text(st, escaped)
-        return self._decorate_text(st, escaped)
+        return self._text_paint_text(st, self._decorate_text(st, escaped))
+
+    @staticmethod
+    def _text_paint_text(st, content):
+        fill = str(st.get("text_fill") or "").strip().lower() if isinstance(st, dict) else ""
+        if fill != "none" or not st.get("text_stroke"):
+            return content
+        width = max(0.01, num(st.get("text_stroke_width"), 1) or 1)
+        return f"\\pdfliteral direct {{1 Tr {fnum(width)} w}}{content}\\pdfliteral direct {{0 Tr}}"
 
     @staticmethod
     def _clamp_text(st, content):
