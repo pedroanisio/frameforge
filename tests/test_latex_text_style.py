@@ -337,7 +337,53 @@ def test_preformatted_white_space_preserves_newlines():
         "style": "label",
     })
 
-    assert "{Line 1\\\\Line 2}" in tex
+    assert r"{Line\ 1\\Line\ 2}" in tex
+
+
+def test_preformatted_white_space_preserves_repeated_spaces():
+    tex = _fig({"label": {"white_space": "pre"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 40],
+        "text": "A  B",
+        "style": "label",
+    })
+
+    assert r"{A\ \ B}" in tex
+
+
+def test_break_spaces_preserves_spaces_and_newlines():
+    tex = _fig({"label": {"white_space": "break-spaces"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 40],
+        "text": "A  B\nC",
+        "style": "label",
+    })
+
+    assert r"{A\ \ B\\C}" in tex
+
+
+def test_pre_line_preserves_newlines_but_allows_space_collapse():
+    tex = _fig({"label": {"white_space": "pre-line"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 40],
+        "text": "A  B\nC",
+        "style": "label",
+    })
+
+    assert "{A  B\\\\C}" in tex
+    assert r"A\ \ B" not in tex
+
+
+def test_break_spaces_applies_to_spans():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "spans": [
+            {"text": "A  B", "style": {"white_space": "break-spaces"}},
+        ],
+    })
+
+    assert r"{A\ \ B}" in tex
 
 
 def test_text_wrap_wrap_keeps_tikz_text_width():
@@ -398,7 +444,7 @@ def test_line_clamp_keeps_first_explicit_lines():
         "style": "label",
     })
 
-    assert "{Line 1\\\\Line 2}" in tex
+    assert r"{Line\ 1\\Line\ 2}" in tex
     assert "Line 3" not in tex
 
 
@@ -410,7 +456,7 @@ def test_line_clamp_with_ellipsis_marks_last_kept_line():
         "style": "label",
     })
 
-    assert "{Line 1\\\\Line 2\u2026}" in tex
+    assert "{Line\\ 1\\\\Line\\ 2\u2026}" in tex
     assert "Line 3" not in tex
 
 

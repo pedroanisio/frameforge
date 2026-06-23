@@ -1110,8 +1110,7 @@ class FigureTikz:
         content = self._clamp_text(st, content)
         escaped = self._break_text(st, content)
         escaped = self._tab_text(st, escaped)
-        if str(st.get("white_space") or "").strip().lower() in ("pre", "pre-wrap", "pre-line"):
-            escaped = escaped.replace("\n", r"\\")
+        escaped = self._white_space_text(st, escaped)
         escaped = self._indent_text(st, escaped)
         escaped = self._space_text(st, escaped)
         escaped = self._hyphen_text(st, escaped)
@@ -1157,6 +1156,17 @@ class FigureTikz:
         if count is None or count <= 0:
             count = 8
         return content.replace("\t", f"\\hspace*{{{fnum(count * size * avg)}pt}}")
+
+    @staticmethod
+    def _white_space_text(st, content):
+        if not isinstance(st, dict):
+            return content
+        mode = str(st.get("white_space") or "").strip().lower()
+        if mode in ("pre", "pre-wrap", "pre-line", "break-spaces"):
+            content = content.replace("\n", r"\\")
+        if mode in ("pre", "pre-wrap", "break-spaces"):
+            content = content.replace(" ", r"\ ")
+        return content
 
     @staticmethod
     def _indent_text(st, content):
