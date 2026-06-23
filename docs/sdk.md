@@ -85,6 +85,28 @@ page.layer("main").use(
 doc = builder.build()
 ```
 
+## Paint and Geometry
+
+Paint helpers return model-native paint dictionaries. Geometry helpers on `PageBuilder` solve author-time math and lower to existing `path` or canonical closed `polyline` objects.
+
+```python
+from framegraph.sdk import DocumentBuilder, pattern, stroke
+
+builder = DocumentBuilder()
+page = builder.page("p", canvas={"size": [420, 240], "units": "px"})
+layer = page.layer("main")
+
+hatch = pattern("hatch", fg="#64748b", bg="#e2e8f0", scale=8, angle=45)
+layer.rect([24, 24, 120, 80], fill=hatch)
+layer.arc([220, 64], 40, 180, 360, **stroke(4, color="#2563eb", cap="round"))
+layer.sector([88, 170], 42, -110, 30, fill="#fed7aa")
+layer.ring([210, 170], 46, 26, fill="#bfdbfe")
+layer.regular_polygon([320, 72], 38, 6, rotation=-90, fill="#ccfbf1")
+layer.star([320, 170], 42, 18, 5, fill="#fde68a")
+layer.polyline([(40, 220), (120, 190), (200, 220)], smooth=True,
+               fill="none", stroke="#7c3aed")
+```
+
 ## Validation
 
 `validate_static_rules()` runs Pydantic structure validation, the repository static validator, and SDK checks for references, requested targets, target hide IDs, master-region chains, and path data.

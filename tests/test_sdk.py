@@ -16,6 +16,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 from framegraph.sdk import (
     Chart,
+    Box,
     DocumentBuilder,
     ExpandOptions,
     Frame,
@@ -37,8 +38,10 @@ from framegraph.sdk import (
     theme,
 )
 from framegraph.sdk import (
+    effects,
     glow,
     linear_gradient,
+    pattern,
     radial_gradient,
     rgba,
     shadow,
@@ -96,6 +99,35 @@ def test_parse_serialize_roundtrip_validates():
     )
     json_text = serialize(parsed, format="json")
     assert parse(json_text).title == "SDK smoke"
+
+
+def test_builder_write_serializes_and_returns_static_report(tmp_path):
+    builder = DocumentBuilder(title="write helper", profile="deck")
+    builder.page("p", canvas={"size": [120, 80], "units": "px"}).layer("main").text(
+        [10, 10, 60, 20],
+        "Hi",
+        id="t",
+    )
+    out = tmp_path / "nested" / "doc.fg.yaml"
+
+    report = builder.write(out)
+
+    assert out.exists()
+    parsed = parse(out.read_text(encoding="utf-8"))
+    assert parsed.title == "write helper"
+    assert report is not None and report.ok
+
+
+def test_builder_write_can_fail_on_static_errors(tmp_path):
+    builder = DocumentBuilder()
+    builder.page("p", canvas={"size": [100, 100], "units": "px"}).layer("main").add(
+        {"type": "path", "d": "M 0", "stroke": "#000"}
+    )
+
+    with pytest.raises(ValueError):
+        builder.write(tmp_path / "bad.fg.yaml", fail_on_error=True)
+
+    assert not (tmp_path / "bad.fg.yaml").exists()
 
 
 def test_parse_is_forgiving_by_default_for_future_documents():
@@ -230,8 +262,12 @@ def test_expand_lowers_symbol_use_to_valid_group():
     }
     group = expand(doc, opts=ExpandOptions(pin_assets=False)).document.pages[0].layers[0].objects[0]
     assert group.type == "group"
+    # The group carries the placement box; its children are LOCAL to that box
+    # (origin 0,0), scaled from the symbol's 10x10 frame to the 100x50 use box,
+    # so the renderer's box-origin translate places them once (cf. Scene3D).
+    assert group.box == [10, 20, 100, 50]
     assert group.children[0].type == "rect"
-    assert group.children[0].box == [10, 20, 100, 50]
+    assert group.children[0].box == [0, 0, 100, 50]
     assert group.children[0].fill == "#f00"
 
 
@@ -304,6 +340,50 @@ def test_pagebuilder_primitive_helpers_lower_to_canonical_objects():
     assert not any(issue.rule_id == "deprecated-alias" for issue in report.issues)
 
 
+def test_pagebuilder_geometry_helpers_lower_to_existing_primitives():
+    """Higher-level geometry helpers stay SDK-side and emit path/polyline objects."""
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [300, 220], "units": "px"},
+                         coordinate_mode="absolute").layer("art")
+    layer.arc([60, 60], 32, 0, 180, stroke="#111", fill="none")
+    layer.sector([140, 60], 36, -90, 60, fill="#fed7aa")
+    layer.ring([220, 60], 38, 22, fill="#bae6fd")
+    layer.regular_polygon([80, 150], 34, 6, rotation=-90, fill="#bbf7d0")
+    layer.star([170, 150], 38, 16, 5, fill="#fde68a")
+    layer.polyline([(220, 130), (245, 155), (280, 130)], smooth=True,
+                   stroke="#111", fill="none")
+
+    doc = builder.build()
+    objs = doc.pages[0].layers[0].objects
+    assert [obj.type for obj in objs] == [
+        "path", "path", "path", "polyline", "polyline", "path",
+    ]
+    assert objs[2].style.fill_rule == "evenodd"
+    assert objs[3].closed is True and len(objs[3].points) == 6
+    assert objs[4].closed is True and len(objs[4].points) == 10
+    assert " A " in objs[0].d and "C " in objs[5].d
+    assert validate_static_rules(doc).ok
+
+
+def test_sdk_geometry_patterns_fixture_exercises_public_helpers():
+    """The checked-in fixture is the oracle for pattern + geometry helper output."""
+    path = os.path.join(ROOT, "fixtures", "sdk-geometry-patterns.fg.yaml")
+    doc = parse(open(path, encoding="utf-8").read(), forgiving=False)
+    data = doc.model_dump(by_alias=True, exclude_none=True)
+    objects = data["pages"][0]["layers"][0]["objects"]
+
+    assert any(
+        isinstance(obj.get("fill"), dict) and obj["fill"].get("kind") == "pattern"
+        for obj in objects
+    )
+    assert any(obj["type"] == "path" and " A " in obj.get("d", "") for obj in objects)
+    assert any(obj["type"] == "path" and "C " in obj.get("d", "") for obj in objects)
+    assert any(obj["type"] == "path" and obj.get("style", {}).get("fill_rule") == "evenodd"
+               for obj in objects)
+    assert any(obj["type"] == "polyline" and obj.get("closed") for obj in objects)
+    assert validate_static_rules(doc).ok
+
+
 def test_pagebuilder_arrow_lowers_to_shortened_shaft_and_head():
     """arrow() emits a shaft line + a filled closed-polyline head at the tip.
 
@@ -329,8 +409,21 @@ def test_pagebuilder_arrow_lowers_to_shortened_shaft_and_head():
     assert sorted(p[0] for p in head.points[1:]) == pytest.approx([10.0 - 7.2, 10.0 + 7.2])
 
 
+def test_pagebuilder_grouped_collects_children_into_one_group():
+    builder = DocumentBuilder()
+    page = builder.page("p", canvas={"size": [200, 100], "units": "px"}).layer("main")
+    with page.grouped(meta={"role": "labels"}) as labels:
+        labels.text([10, 10, 80, 20], "A")
+        labels.text([10, 36, 80, 20], "B")
+
+    group = builder.build().pages[0].layers[0].objects[0]
+    assert group.type == "group"
+    assert group.meta == {"role": "labels"}
+    assert [child.text for child in group.children] == ["A", "B"]
+
+
 def test_paint_rgba_and_gradient_constructors_lower_to_valid_paint():
-    """rgba()/linear_gradient()/radial_gradient() build the model's Paint forms."""
+    """rgba()/gradient()/pattern() constructors build the model's Paint forms."""
     assert rgba("#9DE9FF", 0.4) == "rgba(157,233,255,0.4)"
     assert rgba("#fff", 1) == "rgba(255,255,255,1)"          # short hex expands
     assert rgba("#000000", 2) == "rgba(0,0,0,1)"             # alpha clamped to [0,1]
@@ -344,15 +437,26 @@ def test_paint_rgba_and_gradient_constructors_lower_to_valid_paint():
         ["0%", "50%", "100%"]
     rg = radial_gradient([("#FFF7D8", 0.0), (rgba("#FFF7D8", 0.0), 1.0)], at="50% 40%")
     assert rg["kind"] == "radial" and rg["at"] == "50% 40%"
+    hatch = pattern("hatch", fg="#334155", bg="#f8fafc", scale=8, angle=45)
+    assert hatch == {
+        "kind": "pattern",
+        "pattern": "hatch",
+        "angle": 45,
+        "spacing": 8,
+        "stroke": "#334155",
+        "background": "#f8fafc",
+    }
 
     builder = DocumentBuilder()
     layer = builder.page("p", canvas={"size": [200, 200], "units": "px"},
                          coordinate_mode="absolute").layer("a")
     layer.rect([0, 0, 200, 200], fill=lg)
     layer.ellipse([100, 100], 60, 60, fill=rg)
+    layer.rect([20, 20, 40, 40], fill=hatch)
     doc = builder.build()
     assert doc.pages[0].layers[0].objects[0].fill.kind == "linear"
     assert doc.pages[0].layers[0].objects[1].fill.kind == "radial"
+    assert doc.pages[0].layers[0].objects[2].fill.pattern == "hatch"
 
 
 def test_paint_stroke_and_effect_constructors_lower_to_model_fields():
@@ -363,14 +467,20 @@ def test_paint_stroke_and_effect_constructors_lower_to_model_fields():
                          "stroke_dasharray": [4, 8]},
     }
     assert "stroke" not in stroke(2, cap="round")             # geometry-only is valid (P3)
+    assert effects(glow=glow(blur=4), shadow=shadow(dy=2)) == {
+        "glow": {"blur": 4},
+        "shadow": {"dx": 0.0, "dy": 2, "blur": 0.0},
+    }
 
     builder = DocumentBuilder()
     layer = builder.page("p", canvas={"size": [200, 200], "units": "px"},
                          coordinate_mode="absolute").layer("a")
     layer.path(Path().move_to(0, 0).line_to(10, 10), **stroke(2, color="#000", cap="round"))
     layer.rect([10, 10, 50, 50], fill="#eee", opacity=0.8, rotation=12,
-               shadow=shadow(dy=4, blur=6, color="#06243C", opacity=0.5),
-               glow=glow(blur=8, color="#9DE9FF"))
+               **effects(
+                   shadow=shadow(dy=4, blur=6, color="#06243C", opacity=0.5),
+                   glow=glow(blur=8, color="#9DE9FF"),
+               ))
     doc = builder.build()
     rect = doc.pages[0].layers[0].objects[1]
     assert rect.opacity == 0.8 and rect.rotation == 12
@@ -547,6 +657,30 @@ def test_layout_grid_wraps_and_inset_shrinks():
     assert inset([0, 0, 100, 100], [10, 20]) == [20, 10, 60, 80]  # [vertical, horizontal]
 
 
+def test_layout_box_is_sequence_compatible_and_has_geometry_helpers():
+    box = Box(10, 20, 100, 50)
+    assert list(box) == [10, 20, 100, 50]
+    assert box.right == 110
+    assert box.bottom == 70
+    assert box.center == [60, 45]
+    assert box.inset(10).list() == [20, 30, 80, 30]
+    assert box.move(5, -5).list() == [15, 15, 100, 50]
+    assert box.resize(h=20).list() == [10, 20, 100, 20]
+
+    cols = box.row(2, gap=10)
+    assert all(isinstance(col, Box) for col in cols)
+    assert cols[0].list() == [10, 20, 45, 50]
+    assert cols[1].right == 110
+
+    builder = DocumentBuilder()
+    builder.page("p", canvas={"size": [160, 100], "units": "px"}).layer("main").rect(
+        box.inset(10),
+        fill="#fff",
+    )
+    rect = builder.build().pages[0].layers[0].objects[0]
+    assert rect.box == [20.0, 30.0, 80.0, 30.0]
+
+
 def test_layout_input_validation():
     with pytest.raises(ValueError):
         row([0, 0, 10, 10])  # neither count nor weights
@@ -572,6 +706,24 @@ def test_chart_lowers_to_valid_objects():
     builder = DocumentBuilder()
     builder.page("p", canvas={"size": [640, 440], "units": "px"}).layer("main").extend(objs)
     builder.build()
+
+
+def test_chart_can_attach_to_page_from_page_factory():
+    builder = DocumentBuilder()
+    page = builder.page("p", canvas={"size": [640, 440], "units": "px"}).layer("main")
+    returned = (
+        page.chart([100, 100, 400, 200], domain=(0, 0, 10, 100))
+        .axes(x_ticks=[0, 10], y_ticks=[0, 100])
+        .line([(0, 0), (10, 100)], label="series")
+        .legend()
+        .add_to(page)
+    )
+
+    doc = builder.build()
+    assert returned is page
+    assert {"line", "polyline", "text", "rect"} <= {
+        obj.type for obj in doc.pages[0].layers[0].objects
+    }
 
 
 def test_chart_smooth_series_emits_path_inside_plot():
@@ -680,6 +832,37 @@ def test_widgets_validate_with_zero_warnings():
     assert "tabular-box-model" not in rule_ids
     assert "overlap" not in rule_ids
     assert not [i for i in report.issues if i.severity == "error"]
+
+
+def test_pagebuilder_widget_methods_add_common_widgets():
+    b = DocumentBuilder(title="page widgets", profile="deck", lang="en")
+    th = default_theme()
+    page = b.page("w", canvas={"size": [600, 420], "units": "px"},
+                  coordinate_mode="absolute").layer("main")
+    page.rect([0, 0, 600, 420], fill=th.surface_alt)
+    page.kpi([24, 24, 180, 92], "Open", "248", delta="+12", theme=th)
+    page.badge([224, 32, 88, 24], "Urgent", tone="bad", theme=th)
+    page.pill([324, 30, 120, 28], "Filter", stroke=th.line, theme=th)
+    page.button([24, 136, 120, 34], "New", theme=th)
+    page.avatar([160, 135, 36, 36], "Jane Cooper", theme=th)
+    page.toggle([214, 142, 40, 22], on=True, theme=th)
+    page.tabs([24, 192, 260, 36], ["One", "Two"], theme=th)
+    page.progress([24, 248, 220, 8], 0.62, theme=th)
+    page.field([24, 280, 240, 58], "Status", value="Open", kind="select", theme=th)
+    page.divider([24, 356, 552, 1], theme=th)
+    panel = page.card([300, 136, 260, 160], title="Tickets", theme=th)
+    page.table(
+        panel.content,
+        [{"label": "ID", "width": "25%"}, {"label": "Subject", "width": "75%"}],
+        [["#1", "Refund"]],
+        theme=th,
+    )
+
+    doc = b.build()
+    types = [obj.type for obj in doc.pages[0].layers[0].objects]
+    assert types.count("group") >= 10
+    assert "table" in types
+    assert validate_static_rules(doc).ok
 
 
 def test_widget_table_lowers_to_table_object():

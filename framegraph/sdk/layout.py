@@ -23,14 +23,129 @@ by the renderer's layout engine: a scalar, ``[vertical, horizontal]``, or
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 import math
-from typing import Sequence
+from typing import Iterator, Sequence
 
-Box = list[float]
+BoxLike = Sequence[float]
 Pad = float | Sequence[float]
 
 
-def inset(box: Sequence[float], pad: Pad) -> Box:
+@dataclass(frozen=True)
+class Box(Sequence[float]):
+    """Author-friendly ``[x, y, w, h]`` wrapper.
+
+    ``Box`` behaves like a four-item sequence, so it can be passed anywhere the
+    SDK accepts a raw box list. Use :meth:`list` when a mutable/plain list is
+    needed for assertions or handwritten object dicts.
+    """
+
+    x: float
+    y: float
+    w: float
+    h: float
+
+    @classmethod
+    def from_xywh(cls, box: Sequence[float]) -> "Box":
+        """Coerce any ``[x, y, w, h]`` sequence to a :class:`Box`."""
+        x, y, w, h = _xywh(box)
+        return cls(x, y, w, h)
+
+    @property
+    def left(self) -> float:
+        return self.x
+
+    @property
+    def top(self) -> float:
+        return self.y
+
+    @property
+    def right(self) -> float:
+        return self.x + self.w
+
+    @property
+    def bottom(self) -> float:
+        return self.y + self.h
+
+    @property
+    def center(self) -> list[float]:
+        return [self.x + self.w / 2, self.y + self.h / 2]
+
+    def list(self) -> list[float]:
+        """Return this box as a plain ``[x, y, w, h]`` list."""
+        return [self.x, self.y, self.w, self.h]
+
+    def inset(self, pad: Pad) -> "Box":
+        """Return this box shrunk inward by ``pad``."""
+        return Box.from_xywh(inset(self, pad))
+
+    def move(self, dx: float = 0.0, dy: float = 0.0) -> "Box":
+        """Return this box translated by ``dx``/``dy``."""
+        return Box(self.x + dx, self.y + dy, self.w, self.h)
+
+    def resize(self, w: float | None = None, h: float | None = None) -> "Box":
+        """Return this box with a replaced width and/or height."""
+        return Box(self.x, self.y, self.w if w is None else w, self.h if h is None else h)
+
+    def row(
+        self,
+        count: int | None = None,
+        *,
+        gap: float = 0.0,
+        pad: Pad = 0.0,
+        weights: Sequence[float] | None = None,
+    ) -> list["Box"]:
+        """Split this box into horizontal child boxes."""
+        return [Box.from_xywh(b) for b in row(self, count, gap=gap, pad=pad, weights=weights)]
+
+    def column(
+        self,
+        count: int | None = None,
+        *,
+        gap: float = 0.0,
+        pad: Pad = 0.0,
+        weights: Sequence[float] | None = None,
+    ) -> list["Box"]:
+        """Split this box into vertical child boxes."""
+        return [Box.from_xywh(b) for b in column(self, count, gap=gap, pad=pad, weights=weights)]
+
+    def grid(
+        self,
+        *,
+        cols: int,
+        rows: int | None = None,
+        count: int | None = None,
+        gap: float = 0.0,
+        row_gap: float | None = None,
+        col_gap: float | None = None,
+        pad: Pad = 0.0,
+    ) -> list["Box"]:
+        """Tile this box into a row-major grid of child boxes."""
+        return [
+            Box.from_xywh(b)
+            for b in grid(
+                self,
+                cols=cols,
+                rows=rows,
+                count=count,
+                gap=gap,
+                row_gap=row_gap,
+                col_gap=col_gap,
+                pad=pad,
+            )
+        ]
+
+    def __iter__(self) -> Iterator[float]:
+        return iter((self.x, self.y, self.w, self.h))
+
+    def __len__(self) -> int:
+        return 4
+
+    def __getitem__(self, index):
+        return self.list()[index]
+
+
+def inset(box: Sequence[float], pad: Pad) -> list[float]:
     """Return ``box`` shrunk inward by ``pad`` on each side."""
     x, y, w, h = _xywh(box)
     t, r, b, left = _pad4(pad)
@@ -44,7 +159,7 @@ def row(
     gap: float = 0.0,
     pad: Pad = 0.0,
     weights: Sequence[float] | None = None,
-) -> list[Box]:
+) -> list[list[float]]:
     """Split ``box`` into a horizontal strip of child boxes.
 
     Provide ``count`` for equal columns, or ``weights`` for proportional ones
@@ -55,7 +170,7 @@ def row(
     ws = _weights(count, weights)
     inner = max(0.0, w - gap * (len(ws) - 1))
     total = sum(ws) or 1.0
-    out: list[Box] = []
+    out: list[list[float]] = []
     cx = x
     for wi in ws:
         cw = inner * (wi / total)
@@ -71,13 +186,13 @@ def column(
     gap: float = 0.0,
     pad: Pad = 0.0,
     weights: Sequence[float] | None = None,
-) -> list[Box]:
+) -> list[list[float]]:
     """Split ``box`` into a vertical stack of child boxes (see :func:`row`)."""
     x, y, w, h = _xywh(inset(box, pad))
     ws = _weights(count, weights)
     inner = max(0.0, h - gap * (len(ws) - 1))
     total = sum(ws) or 1.0
-    out: list[Box] = []
+    out: list[list[float]] = []
     cy = y
     for wi in ws:
         ch = inner * (wi / total)
@@ -96,7 +211,7 @@ def grid(
     row_gap: float | None = None,
     col_gap: float | None = None,
     pad: Pad = 0.0,
-) -> list[Box]:
+) -> list[list[float]]:
     """Tile ``box`` into a uniform ``cols``-wide grid, row-major.
 
     Give ``rows`` for a fixed grid, or ``count`` to size the grid to that many
@@ -115,7 +230,7 @@ def grid(
     x, y, w, h = _xywh(inset(box, pad))
     cell_w = max(0.0, (w - (cols - 1) * cg) / cols)
     cell_h = max(0.0, (h - (rows - 1) * rg) / rows)
-    out: list[Box] = []
+    out: list[list[float]] = []
     for i in range(n):
         c, r = i % cols, i // cols
         out.append([x + c * (cell_w + cg), y + r * (cell_h + rg), cell_w, cell_h])
@@ -158,4 +273,4 @@ def _pad4(pad: Pad) -> tuple[float, float, float, float]:
     raise ValueError("pad must be a scalar or a list of 1, 2, or 4 values")
 
 
-__all__ = ["Box", "column", "grid", "inset", "row"]
+__all__ = ["Box", "BoxLike", "column", "grid", "inset", "row"]

@@ -175,6 +175,10 @@ class Chart:
         """Return the accumulated chart objects (order = draw order)."""
         return self._objects
 
+    def add_to(self, page: Any) -> Any:
+        """Append this chart's objects to a page/layer builder and return it."""
+        return page.extend(self.objects())
+
     # ---- internals -------------------------------------------------------- #
     def _plot(self) -> tuple[float, float, float, float]:
         bx, by, bw, bh = self.frame.box

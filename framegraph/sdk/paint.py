@@ -16,11 +16,12 @@ arbitrary fields to the model, so the results compose directly::
 """
 from __future__ import annotations
 
-from typing import Any, Sequence, Union
+from typing import Any, Literal, Sequence, Union
 
 Color = str
 Position = Union[float, int, str]
 Stop = Union[Color, "tuple[Color, Position]"]
+PatternKind = Literal["hatch", "cross_hatch", "dots", "grid"]
 
 
 def rgba(color: Color, alpha: float) -> str:
@@ -78,6 +79,33 @@ def radial_gradient(
     if repeating is not None:
         grad["repeating"] = repeating
     return grad
+
+
+def pattern(
+    kind: PatternKind,
+    *,
+    fg: Color | None = None,
+    bg: Color | None = None,
+    scale: float | int | str | None = None,
+    angle: float | int | str | None = None,
+) -> dict[str, Any]:
+    """Build a tiled pattern ``Paint``.
+
+    ``kind`` is one of the model's pattern arms: ``"hatch"``,
+    ``"cross_hatch"``, ``"dots"``, or ``"grid"``. The ergonomic names map onto
+    the core model fields: ``fg`` -> ``stroke``, ``bg`` -> ``background``, and
+    ``scale`` -> ``spacing``.
+    """
+    paint: dict[str, Any] = {"kind": "pattern", "pattern": kind}
+    if angle is not None:
+        paint["angle"] = angle
+    if scale is not None:
+        paint["spacing"] = scale
+    if fg is not None:
+        paint["stroke"] = fg
+    if bg is not None:
+        paint["background"] = bg
+    return paint
 
 
 def stroke(
@@ -143,6 +171,32 @@ def glow(
     return effect
 
 
+def effects(
+    *,
+    glow: dict[str, Any] | None = None,
+    shadow: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Bundle :func:`glow` / :func:`shadow` into the object-level fields they belong on.
+
+    ``glow`` and ``shadow`` are *object* fields on the model, not stroke geometry —
+    a glow merged into ``stroke_style`` is silently dropped, and an unknown key
+    there fails validation. This returns ``{"glow": ..., "shadow": ...}`` (omitting
+    the ``None`` ones) to splat once at the primitive's top level, so a caller's own
+    stroke helper can keep merging into ``stroke_style`` without ever swallowing an
+    effect::
+
+        layer.ellipse(c, r, r, fill="#FCC23D",
+                      **stroke(2, color="#E8743B"),
+                      **effects(glow=glow(blur=8, color="#FFE6A0")))
+    """
+    out: dict[str, Any] = {}
+    if glow is not None:
+        out["glow"] = glow
+    if shadow is not None:
+        out["shadow"] = shadow
+    return out
+
+
 # ---- internals ------------------------------------------------------------ #
 
 def _hex_rgb(color: Color) -> tuple[int, int, int]:
@@ -175,4 +229,13 @@ def _position(position: Position) -> str:
     return f"{float(position) * 100:g}%"
 
 
-__all__ = ["glow", "linear_gradient", "radial_gradient", "rgba", "shadow", "stroke"]
+__all__ = [
+    "effects",
+    "glow",
+    "linear_gradient",
+    "pattern",
+    "radial_gradient",
+    "rgba",
+    "shadow",
+    "stroke",
+]

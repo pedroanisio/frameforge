@@ -305,7 +305,7 @@ def _geometric_audit(doc, findings):
                     if not o.get("decorative") and (x < -1 or y < -1 or x + w > cw + 1 or y + h > ch + 1):
                         findings.append(Finding("WARN", "containment",
                                                 f"object box extends outside the {cw:g}×{ch:g} canvas", p))
-                    if o.get("type") == "text":
+                    if o.get("type") == "text" and (o.get("meta") or {}).get("role") != "lettering":
                         boxed_text.append((x, y, w, h))
             # NOTE: layer-level overlap is NOT flagged — global overlap is legal
             # (z-order is intentional, §3.3). Overlap is only checked inside `free`

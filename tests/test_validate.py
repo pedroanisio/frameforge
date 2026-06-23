@@ -133,6 +133,20 @@ def test_tabular_box_model():
     assert "tabular-box-model" in _codes(doc)
 
 
+def test_tabular_box_model_exempts_lettering():
+    """Text the author has declared as lettering (``meta.role``) is not counted as
+    an accidental table — the escape hatch the SDK's ``page.lettering()`` sets."""
+    texts = []
+    for r in range(3):
+        for c in range(2):
+            texts.append({"type": "text", "box": [c * 120 + 10, r * 30 + 10, 80, 20],
+                          "text": "t"})
+    canvas = {"size": [400, 200], "units": "px"}
+    assert "tabular-box-model" in _codes(_doc(texts, canvas))
+    lettered = [{**o, "meta": {"role": "lettering"}} for o in texts]
+    assert "tabular-box-model" not in _codes(_doc(lettered, canvas))
+
+
 # --- CLI / strict / load failure ---------------------------------------------- #
 def test_strict_promotes_warnings_to_errors():
     doc = _doc([{"type": "circle", "center": [5, 5], "r": 4}])  # deprecated-alias = WARN

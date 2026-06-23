@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `Panel`, `Theme`, `avatar`, `badge`, `badge_width`, `button`, `card`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `CubicBezier`, `Document`, `DocumentBuilder`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `ValidationReport`, `Vec2`, `Vec3`, `column`, `expand`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `paragraph`, `parse`, `radial_gradient`, `rgba`, `row`, `serialize`, `shadow`, `stroke`, `text_height`, `theme`, `validate_static_rules`, `wrap_text`
+`Chart`, `Panel`, `Theme`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `CubicBezier`, `Document`, `DocumentBuilder`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `column`, `effects`, `expand`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `paragraph`, `pattern`, `parse`, `radial_gradient`, `rgba`, `row`, `serialize`, `shadow`, `stroke`, `text_height`, `theme`, `validate_static_rules`, `wrap_text`
 
 ## `framegraph.sdk.author`
 
@@ -34,6 +34,7 @@ DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lan
 | `define_text_style` | `(self, name: 'str', **style: 'Any') -> 'Handle'` |  |
 | `flow` | `(self, id: 'str', *, master: 'Handle \| str', story: 'list[dict[str, Any]]', **fields: 'Any') -> 'None'` |  |
 | `page` | `(self, id: 'str', *, canvas: 'str \| dict[str, Any] \| None' = None, master: 'Handle \| str \| None' = None, reading_order: 'list[str] \| None' = None, coordinate_mode: 'str \| None' = None) -> "'PageBuilder'"` | Append a page and return its builder. |
+| `write` | `(self, path: 'str \| FsPath', *, format: 'str' = 'yaml', validate: 'bool' = True, fail_on_error: 'bool' = False, expand_reuse: 'bool' = True)` | Build, optionally run static rules, and serialize the document to ``path``. |
 
 ### `Handle`
 
@@ -58,22 +59,44 @@ PageBuilder(page: 'dict[str, Any]') -> 'None'
 | Method | Signature | Summary |
 |---|---|---|
 | `add` | `(self, obj: 'dict[str, Any]') -> "'PageBuilder'"` |  |
+| `arc` | `(self, center: 'Any', r: 'float', start: 'float', end: 'float', *, ry: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add an open circular (or elliptical) arc, lowered to a canonical ``path``. |
 | `arrow` | `(self, start: 'Any', end: 'Any', *, color: 'str' = '#000000', width: 'float' = 2.0, head: 'float' = 9.0, head_width: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Draw a vector from ``start`` to ``end`` with a filled arrowhead at ``end``. |
+| `avatar` | `(self, box: 'Any', name: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `badge` | `(self, box: 'Any', text: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `bleed` | `(self) -> "'Iterator[PageBuilder]'"` | Mark every object added in this block ``decorative``. |
+| `button` | `(self, box: 'Any', label: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `card` | `(self, box: 'Any', **fields: 'Any')` | Add a card widget and return its :class:`~framegraph.sdk.Panel`. |
+| `chart` | `(self, box: 'Any', *, domain: 'tuple[float, float, float, float]', x_scale: 'Any' = 'linear', y_scale: 'Any' = 'linear')` | Return a :class:`~framegraph.sdk.Chart` mapped to ``box``. |
 | `circle` | `(self, center: 'Any', r: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add a circle. Lowers to the canonical ``ellipse`` (rx == ry == r), so it |
 | `component` | `(self, component: 'Handle \| str', box: 'list[Any]', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `divider` | `(self, box: 'Any', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `ellipse` | `(self, center: 'Any', rx: 'float', ry: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add an ellipse centred at ``center`` (a ``Vec2`` or ``[x, y]``). |
 | `extend` | `(self, objects: 'list[dict[str, Any]]') -> "'PageBuilder'"` | Add many objects at once (e.g. the output of a Chart or a layout). |
-| `frame` | `(self, x: 'float' = 0.0, y: 'float' = 0.0, *, scale: 'float' = 1.0, scale_y: 'float \| None' = None, flip: 'float' = 1.0, rotate: 'float' = 0.0) -> "'Iterator[PageBuilder]'"` | Draw into a transformed group, authoring children at the local origin. |
-| `group` | `(self, children: 'list[dict[str, Any]]', *, transform: "'Mat3 \| list[Any] \| None'" = None, **fields: 'Any') -> "'PageBuilder'"` | Add a group of ``children``. |
+| `field` | `(self, box: 'Any', label: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `frame` | `(self, x: 'float' = 0.0, y: 'float' = 0.0, *, scale: 'float' = 1.0, scale_y: 'float \| None' = None, flip: 'float' = 1.0, rotate: 'float' = 0.0, clip: 'Any' = None) -> "'Iterator[PageBuilder]'"` | Draw into a transformed group, authoring children at the local origin. |
+| `group` | `(self, children: 'list[dict[str, Any]]', *, transform: "'Mat3 \| list[Any] \| None'" = None, clip: 'Any' = None, **fields: 'Any') -> "'PageBuilder'"` | Add a group of ``children``. |
+| `grouped` | `(self, *, transform: "'Mat3 \| list[Any] \| None'" = None, clip: 'Any' = None, **fields: 'Any') -> "'Iterator[PageBuilder]'"` | Collect objects into one group when the block exits. |
 | `image` | `(self, box: 'list[Any]', src: 'Handle \| str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `kpi` | `(self, box: 'Any', label: 'str', value: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `layer` | `(self, id: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `lettering` | `(self) -> "'Iterator[PageBuilder]'"` | Tag text added in this block as lettering (``meta.role = "lettering"``). |
 | `line` | `(self, start: 'list[float]', end: 'list[float]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `path` | `(self, d: 'Any', **fields: 'Any') -> "'PageBuilder'"` | Add a path. ``d`` may be an SVG path string, a segment list, or a |
+| `pill` | `(self, box: 'Any', text: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `polygon` | `(self, points: 'Any', **fields: 'Any') -> "'PageBuilder'"` | Add a filled polygon. Lowers to a canonical closed ``polyline``, so it |
-| `polyline` | `(self, points: 'Any', *, closed: 'bool' = False, **fields: 'Any') -> "'PageBuilder'"` | Add a polyline through ``points`` (``Vec2`` values or ``[x, y]`` pairs). |
+| `polyline` | `(self, points: 'Any', *, closed: 'bool' = False, smooth: 'bool' = False, **fields: 'Any') -> "'PageBuilder'"` | Add a polyline through ``points`` (``Vec2`` values or ``[x, y]`` pairs). |
+| `progress` | `(self, box: 'Any', value: 'float', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `rect` | `(self, box: 'list[Any]', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `regular_polygon` | `(self, center: 'Any', r: 'float', sides: 'int', *, rotation: 'float' = 0.0, **fields: 'Any') -> "'PageBuilder'"` | Add a regular ``sides``-gon of circumradius ``r``, lowered to a closed polyline. |
+| `ring` | `(self, center: 'Any', r_outer: 'float', r_inner: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add a full annulus, lowered to an even-odd ``path``. |
+| `sector` | `(self, center: 'Any', r: 'float', start: 'float', end: 'float', *, ry: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add a filled pie sector (wedge) from ``start`` to ``end`` degrees. |
+| `star` | `(self, center: 'Any', r_outer: 'float', r_inner: 'float', points: 'int', *, rotation: 'float' = -90.0, **fields: 'Any') -> "'PageBuilder'"` | Add a ``points``-pointed star, lowered to a closed polyline. |
+| `table` | `(self, box: 'Any', columns: 'list[dict[str, Any]]', rows: 'list[list[Any]]', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `tabs` | `(self, box: 'Any', items: 'list[str]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `text` | `(self, box: 'list[Any]', text: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `toggle` | `(self, box: 'Any', *, on: 'bool' = False, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `use` | `(self, symbol: 'Handle \| str', box: 'list[Any]', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `widget` | `(self, obj: 'dict[str, Any]') -> "'PageBuilder'"` | Add a prebuilt SDK widget object and return the page builder. |
 
 ## `framegraph.sdk.chart`
 
@@ -89,6 +112,7 @@ Chart(frame: 'Frame', _objects: 'list[dict[str, Any]]' = <factory>, _legend: 'li
 
 | Method | Signature | Summary |
 |---|---|---|
+| `add_to` | `(self, page: 'Any') -> 'Any'` | Append this chart's objects to a page/layer builder and return it. |
 | `axes` | `(self, *, x_ticks: 'Sequence[float]' = (), y_ticks: 'Sequence[float]' = (), x_format: 'Callable[[float], str]' = <class 'str'>, y_format: 'Callable[[float], str]' = <class 'str'>, grid: 'bool' = False, axis_color: 'str' = '#C4D0DD', grid_color: 'str \| None' = None, label_style: 'Style \| None' = None, tick_len: 'float' = 5.0, label_gap: 'float' = 9.0) -> "'Chart'"` | Draw L-shaped axes with ticks, labels, and optional gridlines. |
 | `bars` | `(self, points: 'Sequence[Point]', *, baseline: 'float' = 0.0, width: 'float' = 14.0, fill: 'str' = '#333333', radius: 'float \| None' = None, label: 'str \| None' = None) -> "'Chart'"` | Draw a vertical bar from ``baseline`` to each data point. |
 | `legend` | `(self, entries: 'Sequence[tuple[str, str]] \| None' = None, *, at: 'str \| Point' = 'tr', swatch: 'float' = 12.0, gap: 'float' = 8.0, pitch: 'float' = 26.0, label_style: 'Style \| None' = None) -> "'Chart'"` | Render a horizontal legend; defaults to the labelled series so far. |
@@ -304,7 +328,29 @@ serialize(model: 'Any', *, format: 'Format' = 'yaml') -> 'str'
 
 ### `Box`
 
-`GenericAlias` value: `list[float]`
+`framegraph.sdk.layout.Box`
+
+Author-friendly ``[x, y, w, h]`` wrapper.
+
+```python
+Box(x: 'float', y: 'float', w: 'float', h: 'float') -> None
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `column` | `(self, count: 'int \| None' = None, *, gap: 'float' = 0.0, pad: 'Pad' = 0.0, weights: 'Sequence[float] \| None' = None) -> "list['Box']"` | Split this box into vertical child boxes. |
+| `count` | `(self, value)` | S.count(value) -> integer -- return number of occurrences of value |
+| `grid` | `(self, *, cols: 'int', rows: 'int \| None' = None, count: 'int \| None' = None, gap: 'float' = 0.0, row_gap: 'float \| None' = None, col_gap: 'float \| None' = None, pad: 'Pad' = 0.0) -> "list['Box']"` | Tile this box into a row-major grid of child boxes. |
+| `index` | `(self, value, start=0, stop=None)` | S.index(value, [start, [stop]]) -> integer -- return first index of value. |
+| `inset` | `(self, pad: 'Pad') -> "'Box'"` | Return this box shrunk inward by ``pad``. |
+| `list` | `(self) -> 'list[float]'` | Return this box as a plain ``[x, y, w, h]`` list. |
+| `move` | `(self, dx: 'float' = 0.0, dy: 'float' = 0.0) -> "'Box'"` | Return this box translated by ``dx``/``dy``. |
+| `resize` | `(self, w: 'float \| None' = None, h: 'float \| None' = None) -> "'Box'"` | Return this box with a replaced width and/or height. |
+| `row` | `(self, count: 'int \| None' = None, *, gap: 'float' = 0.0, pad: 'Pad' = 0.0, weights: 'Sequence[float] \| None' = None) -> "list['Box']"` | Split this box into horizontal child boxes. |
+
+### `BoxLike`
+
+`_GenericAlias` value: `typing.Sequence[float]`
 
 ### `column`
 
@@ -313,7 +359,7 @@ serialize(model: 'Any', *, format: 'Format' = 'yaml') -> 'str'
 Split ``box`` into a vertical stack of child boxes (see :func:`row`).
 
 ```python
-column(box: 'Sequence[float]', count: 'int | None' = None, *, gap: 'float' = 0.0, pad: 'Pad' = 0.0, weights: 'Sequence[float] | None' = None) -> 'list[Box]'
+column(box: 'Sequence[float]', count: 'int | None' = None, *, gap: 'float' = 0.0, pad: 'Pad' = 0.0, weights: 'Sequence[float] | None' = None) -> 'list[list[float]]'
 ```
 
 ### `grid`
@@ -323,7 +369,7 @@ column(box: 'Sequence[float]', count: 'int | None' = None, *, gap: 'float' = 0.0
 Tile ``box`` into a uniform ``cols``-wide grid, row-major.
 
 ```python
-grid(box: 'Sequence[float]', *, cols: 'int', rows: 'int | None' = None, count: 'int | None' = None, gap: 'float' = 0.0, row_gap: 'float | None' = None, col_gap: 'float | None' = None, pad: 'Pad' = 0.0) -> 'list[Box]'
+grid(box: 'Sequence[float]', *, cols: 'int', rows: 'int | None' = None, count: 'int | None' = None, gap: 'float' = 0.0, row_gap: 'float | None' = None, col_gap: 'float | None' = None, pad: 'Pad' = 0.0) -> 'list[list[float]]'
 ```
 
 ### `inset`
@@ -333,7 +379,7 @@ grid(box: 'Sequence[float]', *, cols: 'int', rows: 'int | None' = None, count: '
 Return ``box`` shrunk inward by ``pad`` on each side.
 
 ```python
-inset(box: 'Sequence[float]', pad: 'Pad') -> 'Box'
+inset(box: 'Sequence[float]', pad: 'Pad') -> 'list[float]'
 ```
 
 ### `row`
@@ -343,7 +389,7 @@ inset(box: 'Sequence[float]', pad: 'Pad') -> 'Box'
 Split ``box`` into a horizontal strip of child boxes.
 
 ```python
-row(box: 'Sequence[float]', count: 'int | None' = None, *, gap: 'float' = 0.0, pad: 'Pad' = 0.0, weights: 'Sequence[float] | None' = None) -> 'list[Box]'
+row(box: 'Sequence[float]', count: 'int | None' = None, *, gap: 'float' = 0.0, pad: 'Pad' = 0.0, weights: 'Sequence[float] | None' = None) -> 'list[list[float]]'
 ```
 
 ## `framegraph.sdk.macros`
@@ -464,6 +510,16 @@ validate_document(value: 'Any')
 
 ## `framegraph.sdk.paint`
 
+### `effects`
+
+`framegraph.sdk.paint.effects`
+
+Bundle :func:`glow` / :func:`shadow` into the object-level fields they belong on.
+
+```python
+effects(*, glow: 'dict[str, Any] | None' = None, shadow: 'dict[str, Any] | None' = None) -> 'dict[str, Any]'
+```
+
 ### `glow`
 
 `framegraph.sdk.paint.glow`
@@ -482,6 +538,16 @@ Build a linear-gradient ``Paint`` from ``stops``.
 
 ```python
 linear_gradient(stops: 'Sequence[Stop]', *, angle: 'float | int | str | None' = None, repeating: 'bool | None' = None) -> 'dict[str, Any]'
+```
+
+### `pattern`
+
+`framegraph.sdk.paint.pattern`
+
+Build a tiled pattern ``Paint``.
+
+```python
+pattern(kind: 'PatternKind', *, fg: 'Color | None' = None, bg: 'Color | None' = None, scale: 'float | int | str | None' = None, angle: 'float | int | str | None' = None) -> 'dict[str, Any]'
 ```
 
 ### `radial_gradient`

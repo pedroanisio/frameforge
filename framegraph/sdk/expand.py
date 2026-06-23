@@ -156,7 +156,13 @@ def _expand_use(obj: dict[str, Any], symbols: dict[str, Any], components: dict[s
     children = [_expand_object(child, symbols, components) for child in children]
     source_box = symbol.get("box") if _is_box(symbol.get("box")) else [0, 0, 1, 1]
     target_box = obj.get("box") if _is_box(obj.get("box")) else source_box
-    mapped = [_map_object(child, source_box, target_box) for child in children]
+    # Map children into the group's LOCAL frame (origin 0,0), not absolute page
+    # coords: a group carrying a `box` is translated to that box origin by the
+    # renderer (the same convention Scene3D.render follows — see its regression
+    # test), so absolute children here would be offset twice. Scaling still comes
+    # from the source→target size ratio.
+    local_box = [0.0, 0.0, float(target_box[2]), float(target_box[3])]
+    mapped = [_map_object(child, source_box, local_box) for child in children]
     group: dict[str, Any] = {
         "type": "group",
         "box": list(target_box),
