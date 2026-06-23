@@ -72,6 +72,10 @@ def fine_path(layer, d: str, width=1.45, color=None, dash=None):
     )
 
 
+def brush_path(layer, d: str, width: float, color: str):
+    layer.path(d, fill="none", **stroke(width, color=color, cap="round", join="round"))
+
+
 def build() -> DocumentBuilder:
     doc = DocumentBuilder(title="T-shirt print ideas - armored hero vector", profile="diagram", lang="en")
     doc.define_text_style("caption", font_family=["DejaVu Sans", "Arial", "sans-serif"], font_size=18, color="#202020")
@@ -138,6 +142,14 @@ def build() -> DocumentBuilder:
         "M 250 528 C 286 538 322 552 352 590",
     ]:
         fine_path(page, d, 1.25, rgba(INK, 0.58))
+    for d, w, color in [
+        ("M 272 122 C 240 198 236 292 250 378", 20, rgba("#FFF1A8", 0.34)),
+        ("M 640 162 C 700 248 704 390 624 510", 24, rgba("#08030A", 0.32)),
+        ("M 492 112 C 556 132 620 194 654 278", 10, rgba("#FF746C", 0.28)),
+        ("M 512 380 C 560 388 612 376 656 342", 12, rgba("#13060B", 0.22)),
+        ("M 288 512 C 330 550 378 560 432 526", 8, rgba("#FFE166", 0.28)),
+    ]:
+        brush_path(page, d, w, color)
     page.ellipse([574, 320], 94, 118, fill="none", **stroke(1.4, color=rgba(INK, 0.58)))
     page.ellipse([574, 320], 62, 74, fill="none", **stroke(1.2, color=rgba("#FFE1D1", 0.55)))
     page.ellipse([574, 320], 33, 39, fill="none", **stroke(1.4, color=rgba(INK, 0.72)))
@@ -167,6 +179,14 @@ def build() -> DocumentBuilder:
         ("M 666 706 C 706 778 724 868 718 970", 1.2),
     ]:
         fine_path(page, d, w)
+    for d, w, color in [
+        ("M 128 690 C 210 644 300 670 382 724", 16, rgba("#FFB7A5", 0.24)),
+        ("M 306 674 C 410 694 546 750 654 850", 14, rgba("#FF7768", 0.22)),
+        ("M 500 748 C 566 778 630 844 660 930", 18, rgba("#07040A", 0.3)),
+        ("M 180 884 C 276 970 444 1036 628 1070", 10, rgba("#1A0308", 0.24)),
+        ("M 116 1016 C 142 1000 172 992 210 996", 8, rgba("#FF6A5A", 0.22)),
+    ]:
+        brush_path(page, d, w, color)
 
     # Chest reactor.
     page.ellipse([204, 962], 66, 82, fill=INK, stroke=INK, stroke_style={"stroke_width": 3})
@@ -210,6 +230,14 @@ def build() -> DocumentBuilder:
         "M 584 744 C 628 792 646 842 640 900",
     ]:
         fine_path(page, d, 1.0, rgba("#FFB0A0", 0.52))
+    for d in [
+        "M 228 742 C 322 742 430 776 548 834",
+        "M 232 950 C 336 1000 476 1030 620 1034",
+        "M 456 924 C 526 944 586 970 638 1010",
+        "M 70 846 C 106 812 156 780 222 760",
+        "M 606 696 C 650 760 676 842 680 932",
+    ]:
+        fine_path(page, d, 0.9, rgba("#FFFFFF", 0.2))
     for x, y in [(172, 844), (230, 1026), (260, 1008), (506, 1024), (598, 816), (622, 904), (566, 1108), (690, 1062)]:
         rivet(page, x, y, 5)
 

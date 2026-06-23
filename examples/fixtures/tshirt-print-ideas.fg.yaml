@@ -644,6 +644,46 @@ pages:
       fill: none
       stroke: rgba(5,5,10,0.58)
     - stroke_style:
+        stroke_width: 20
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 272 122 C 240 198 236 292 250 378
+      fill: none
+      stroke: rgba(255,241,168,0.34)
+    - stroke_style:
+        stroke_width: 24
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 640 162 C 700 248 704 390 624 510
+      fill: none
+      stroke: rgba(8,3,10,0.32)
+    - stroke_style:
+        stroke_width: 10
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 492 112 C 556 132 620 194 654 278
+      fill: none
+      stroke: rgba(255,116,108,0.28)
+    - stroke_style:
+        stroke_width: 12
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 512 380 C 560 388 612 376 656 342
+      fill: none
+      stroke: rgba(19,6,11,0.22)
+    - stroke_style:
+        stroke_width: 8
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 288 512 C 330 550 378 560 432 526
+      fill: none
+      stroke: rgba(255,225,102,0.28)
+    - stroke_style:
         stroke_width: 1.4
       type: ellipse
       center:
@@ -1021,6 +1061,46 @@ pages:
       fill: none
       stroke: rgba(5,5,10,0.78)
     - stroke_style:
+        stroke_width: 16
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 128 690 C 210 644 300 670 382 724
+      fill: none
+      stroke: rgba(255,183,165,0.24)
+    - stroke_style:
+        stroke_width: 14
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 306 674 C 410 694 546 750 654 850
+      fill: none
+      stroke: rgba(255,119,104,0.22)
+    - stroke_style:
+        stroke_width: 18
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 500 748 C 566 778 630 844 660 930
+      fill: none
+      stroke: rgba(7,4,10,0.3)
+    - stroke_style:
+        stroke_width: 10
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 180 884 C 276 970 444 1036 628 1070
+      fill: none
+      stroke: rgba(26,3,8,0.24)
+    - stroke_style:
+        stroke_width: 8
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 116 1016 C 142 1000 172 992 210 996
+      fill: none
+      stroke: rgba(255,106,90,0.22)
+    - stroke_style:
         stroke_width: 3
       type: ellipse
       center:
@@ -1358,6 +1438,46 @@ pages:
       d: M 584 744 C 628 792 646 842 640 900
       fill: none
       stroke: rgba(255,176,160,0.52)
+    - stroke_style:
+        stroke_width: 0.9
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 228 742 C 322 742 430 776 548 834
+      fill: none
+      stroke: rgba(255,255,255,0.2)
+    - stroke_style:
+        stroke_width: 0.9
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 232 950 C 336 1000 476 1030 620 1034
+      fill: none
+      stroke: rgba(255,255,255,0.2)
+    - stroke_style:
+        stroke_width: 0.9
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 456 924 C 526 944 586 970 638 1010
+      fill: none
+      stroke: rgba(255,255,255,0.2)
+    - stroke_style:
+        stroke_width: 0.9
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 70 846 C 106 812 156 780 222 760
+      fill: none
+      stroke: rgba(255,255,255,0.2)
+    - stroke_style:
+        stroke_width: 0.9
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 606 696 C 650 760 676 842 680 932
+      fill: none
+      stroke: rgba(255,255,255,0.2)
     - type: ellipse
       center:
       - 172.0
