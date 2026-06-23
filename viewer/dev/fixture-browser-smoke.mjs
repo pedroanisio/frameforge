@@ -39,6 +39,18 @@ function hasRenderableContent(pageRecord) {
   return hasLayerContent(pageRecord) || (pageRecord.objects || []).length > 0 || hasFlowContent(pageRecord);
 }
 
+function countFlowMath(pageRecord) {
+  const blocks = [];
+  if (Array.isArray(pageRecord.story)) blocks.push(...pageRecord.story);
+  if (Array.isArray(pageRecord.sections)) {
+    for (const section of pageRecord.sections) {
+      if (Array.isArray(section.blocks)) blocks.push(...section.blocks);
+      if (Array.isArray(section.content)) blocks.push(...section.content);
+    }
+  }
+  return blocks.filter((block) => block?.type === "math").length;
+}
+
 const docs = files(FIXTURES)
   .map((file) => ({ file, rel: path.relative(ROOT, file), doc: loadDoc(file) }))
   .filter(({ doc }) => doc && doc.dsl === "FrameGraph" && Array.isArray(doc.pages));
@@ -66,6 +78,7 @@ for (const { rel, doc } of docs) {
   const state = await page.evaluate(() => window.__FRAMEGRAPH_VIEWER__.state());
   const sourcePages = doc.pages || [];
   const sourceRenderablePages = sourcePages.map(hasRenderableContent);
+  const sourceMathBlocks = sourcePages.reduce((sum, pageRecord) => sum + countFlowMath(pageRecord), 0);
   const hasFlow = sourcePages.some((p) => p.mode === "flow" || p.story || p.sections);
   const hasContinuousFlow = sourcePages.some((p) => (p.mode === "flow" || p.story || p.sections) && p.media === "continuous");
   if (state.pageCount < sourcePages.length) {
@@ -114,8 +127,8 @@ for (const { rel, doc } of docs) {
     }
   }
   if (rel === path.join("fixtures", "standard-model.fg.yaml")) {
-    if (mathAudit.katexCount < 1) {
-      failures.push(`${rel}: expected KaTeX-rendered math but found none`);
+    if (mathAudit.katexCount !== sourceMathBlocks) {
+      failures.push(`${rel}: expected ${sourceMathBlocks} KaTeX-rendered math blocks, found ${mathAudit.katexCount}`);
     }
     if (mathAudit.rawTex) {
       failures.push(`${rel}: raw TeX command leaked into rendered viewer text`);

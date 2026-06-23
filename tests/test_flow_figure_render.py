@@ -203,6 +203,7 @@ def test_standard_model_figures_all_render(tmp_path):
         assert placeholder not in combined
     assert combined.count("<ellipse") > 50     # the SM-grid quark/colour dots drew
     assert "standard model particles" in combined
+    assert combined.count('data-framegraph-math="true"') == 10
     assert 'data-framegraph-math="true"' in combined
     assert 'data-mml-node="math"' in combined
     assert "<path" in combined
