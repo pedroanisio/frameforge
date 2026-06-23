@@ -64,6 +64,14 @@ def panel_line(layer, pts, width=2.2):
     layer.polyline(pts, fill="none", **sw(width, rgba(INK, 0.8)))
 
 
+def fine_path(layer, d: str, width=1.45, color=None, dash=None):
+    layer.path(
+        d,
+        fill="none",
+        **stroke(width, color=color or rgba(INK, 0.78), cap="round", join="round", dash=dash),
+    )
+
+
 def build() -> DocumentBuilder:
     doc = DocumentBuilder(title="T-shirt print ideas - armored hero vector", profile="diagram", lang="en")
     doc.define_text_style("caption", font_family=["DejaVu Sans", "Arial", "sans-serif"], font_size=18, color="#202020")
@@ -110,6 +118,31 @@ def build() -> DocumentBuilder:
     panel_line(page, [[520, 150], [604, 142], [690, 212]], 2.1)
     panel_line(page, [[554, 306], [528, 434], [544, 438]], 2.2)
     panel_line(page, [[600, 458], [696, 446]], 2.2)
+    for d, w in [
+        ("M 268 112 C 324 58 448 46 568 88 C 646 116 704 210 718 304", 2.0),
+        ("M 306 84 C 368 108 414 154 430 230 C 436 258 426 286 404 318", 1.45),
+        ("M 424 76 C 472 108 506 162 520 234 C 528 276 520 310 500 352", 1.35),
+        ("M 548 102 C 608 132 654 190 674 260 C 690 314 684 382 660 444", 1.55),
+        ("M 624 172 C 658 220 682 284 682 342 C 682 404 654 462 606 506", 1.2),
+        ("M 478 382 C 520 356 562 352 610 378", 1.25),
+        ("M 536 424 C 584 440 636 432 680 404", 1.2),
+        ("M 456 512 C 506 526 554 530 598 512", 1.35),
+    ]:
+        fine_path(page, d, w)
+    for d in [
+        "M 242 136 C 284 112 326 118 360 154",
+        "M 232 256 C 270 244 326 250 374 286",
+        "M 238 378 C 282 374 340 392 402 444",
+        "M 272 328 C 310 332 348 320 384 300",
+        "M 286 470 C 328 478 370 466 410 440",
+        "M 250 528 C 286 538 322 552 352 590",
+    ]:
+        fine_path(page, d, 1.25, rgba(INK, 0.58))
+    page.ellipse([574, 320], 94, 118, fill="none", **stroke(1.4, color=rgba(INK, 0.58)))
+    page.ellipse([574, 320], 62, 74, fill="none", **stroke(1.2, color=rgba("#FFE1D1", 0.55)))
+    page.ellipse([574, 320], 33, 39, fill="none", **stroke(1.4, color=rgba(INK, 0.72)))
+    fine_path(page, "M 550 276 C 572 292 592 294 614 282", 1.25, rgba("#FFE7C8", 0.72))
+    fine_path(page, "M 548 350 C 570 366 598 366 620 348", 1.2, rgba(INK, 0.48))
     page.ellipse([326, 206], 22, 62, fill=rgba("#FFFFFF", 0.55), decorative=True)
     page.ellipse([505, 70], 36, 10, fill=rgba("#FFF7D0", 0.72), decorative=True)
     for x, y in [(462, 146), (676, 174), (706, 236), (458, 568), (622, 554)]:
@@ -123,6 +156,17 @@ def build() -> DocumentBuilder:
     poly(page, [[304, 642], [438, 672], [512, 718], [472, 770], [302, 726]], fill=lg([310, 650], [512, 770], [(0, "#DFEEF1"), (0.48, STEEL), (1, "#1A2228")]), width=3)
     poly(page, [[478, 752], [626, 792], [654, 902], [544, 880]], fill=INK2, width=3)
     poly(page, [[514, 910], [656, 944], [640, 1040], [470, 1010]], fill=lg([514, 910], [656, 1040], [(0, RED), (1, RED_DK)]), width=3)
+    for d, w in [
+        ("M 356 526 C 416 548 488 604 546 686", 2.0),
+        ("M 426 538 C 498 570 572 650 632 770", 1.4),
+        ("M 566 492 C 604 548 624 616 626 694", 1.35),
+        ("M 292 618 C 326 646 376 662 456 676", 1.35),
+        ("M 96 696 C 152 660 214 650 272 686", 1.5),
+        ("M 92 748 C 150 718 212 734 260 792", 1.25),
+        ("M 604 682 C 642 732 660 826 646 930", 1.4),
+        ("M 666 706 C 706 778 724 868 718 970", 1.2),
+    ]:
+        fine_path(page, d, w)
 
     # Chest reactor.
     page.ellipse([204, 962], 66, 82, fill=INK, stroke=INK, stroke_style={"stroke_width": 3})
@@ -147,6 +191,25 @@ def build() -> DocumentBuilder:
         [[596, 682], [614, 832], [666, 980]],
     ]:
         panel_line(page, pts, 2.3)
+    for d, w in [
+        ("M 170 644 L 214 740 L 170 808 L 104 766 L 132 684 Z", 1.6),
+        ("M 196 864 C 278 928 396 968 520 984", 1.4),
+        ("M 258 736 C 326 750 426 774 560 806", 1.25),
+        ("M 296 708 C 358 714 438 742 514 786", 1.15),
+        ("M 188 930 C 252 1020 388 1080 622 1088", 1.35),
+        ("M 504 862 C 558 874 610 892 656 920", 1.2),
+        ("M 526 980 C 574 992 618 1014 648 1048", 1.15),
+        ("M 84 1012 C 116 1000 148 996 178 1002", 1.1),
+        ("M 108 1078 C 130 1068 154 1060 178 1058", 1.1),
+    ]:
+        fine_path(page, d, w, rgba(INK, 0.72))
+    for d in [
+        "M 150 742 C 182 720 214 722 246 758",
+        "M 340 760 C 400 774 462 792 522 818",
+        "M 378 928 C 430 944 482 956 538 964",
+        "M 584 744 C 628 792 646 842 640 900",
+    ]:
+        fine_path(page, d, 1.0, rgba("#FFB0A0", 0.52))
     for x, y in [(172, 844), (230, 1026), (260, 1008), (506, 1024), (598, 816), (622, 904), (566, 1108), (690, 1062)]:
         rivet(page, x, y, 5)
 
