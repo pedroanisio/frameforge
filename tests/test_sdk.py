@@ -44,6 +44,24 @@ from framegraph.sdk import (
     shadow,
     stroke,
 )
+from framegraph.sdk import (
+    Panel,
+    avatar,
+    badge,
+    badge_width,
+    button,
+    card,
+    default_theme,
+    divider,
+    field,
+    kpi,
+    pill,
+    progress,
+    register_theme,
+    table,
+    tabs,
+    toggle,
+)
 from framegraph.sdk.conform import page_hashes, render_page_svgs
 from framegraph.sdk.geometry import CubicBezier, Mat4, quarter_circle_kappa
 from framegraph.sdk.validate import validate_static_rules
@@ -613,3 +631,113 @@ def test_conformance_page_hashes_are_stable():
     hashes = page_hashes(_minimal_doc())
     assert len(hashes) == 1
     assert len(hashes[0]) == 64
+
+
+# --------------------------------------------------------------------------- #
+#  widgets (framegraph.sdk.widgets)
+# --------------------------------------------------------------------------- #
+def _widgets_doc():
+    """A page exercising every widget, for validation + render assertions."""
+    b = DocumentBuilder(title="widgets", profile="deck", lang="en")
+    th = default_theme()
+    page = b.page("w", canvas={"size": [1200, 800], "units": "px"},
+                  coordinate_mode="absolute").layer("main")
+    page.rect([0, 0, 1200, 800], fill="#F4F6F9")
+    for spec, bx in zip(
+        [("Open", "248", "+12", False), ("CSAT", "94%", "+2", False),
+         ("Reply", "1h 42m", "-8%", False), ("Backlog", "31", "+5", True)],
+        row([24, 24, 1152, 104], count=4, gap=18),
+    ):
+        page.add(kpi(bx, spec[0], spec[1], delta=spec[2], down=spec[3], theme=th))
+    page.add(badge([24, 150, 90, 24], "Urgent", tone="bad", theme=th))
+    page.add(pill([130, 150, 120, 28], "Filter", stroke=th.line, theme=th))
+    page.add(button([260, 148, 120, 32], "New", kind="primary", theme=th))
+    page.add(button([390, 148, 100, 32], "Export", kind="ghost", theme=th))
+    page.add(avatar([500, 146, 36, 36], "Jane Cooper", theme=th))
+    page.add(toggle([560, 156, 40, 22], on=True, theme=th))
+    page.add(tabs([24, 200, 480, 36], ["One", "Two", "Three"], active=0, theme=th))
+    page.add(progress([24, 248, 300, 8], 0.62, tone="good", theme=th))
+    page.add(field([24, 272, 260, 58], "Status", value="Open", kind="select", theme=th))
+    page.add(divider([24, 344, 1152, 1], theme=th))
+    panel = card([24, 360, 1152, 360], title="Tickets", action="All", theme=th)
+    page.add(panel.object)
+    page.add(table(
+        panel.content,
+        [{"label": "ID", "width": "10%"}, {"label": "Subject", "width": "60%"},
+         {"label": "Priority", "width": "30%", "align": "center"}],
+        [["#1", "Refund not received", "Urgent"], ["#2", "Reset link", "High"]],
+        theme=th))
+    return b, panel
+
+
+def test_widgets_validate_with_zero_warnings():
+    """The central claim: a full widget-built page lowers to groups + a
+    TableObject and validates with no errors AND no tabular/overlap warnings."""
+    b, _ = _widgets_doc()
+    report = validate_static_rules(b.build())
+    assert report.ok
+    rule_ids = {i.rule_id for i in report.issues}
+    assert "tabular-box-model" not in rule_ids
+    assert "overlap" not in rule_ids
+    assert not [i for i in report.issues if i.severity == "error"]
+
+
+def test_widget_table_lowers_to_table_object():
+    b, _ = _widgets_doc()
+    doc = b.build()
+    types = [o.type for o in doc.pages[0].layers[0].objects]
+    assert "table" in types          # a real TableObject, not positioned text
+    tbl = next(o for o in doc.pages[0].layers[0].objects if o.type == "table")
+    assert tbl.header == ["ID", "Subject", "Priority"]
+    assert len(tbl.rows) == 2
+
+
+def test_widget_is_a_single_tagged_group():
+    obj = kpi([0, 0, 200, 100], "Open", "248", delta="+1", theme=default_theme())
+    assert obj["type"] == "group"
+    assert obj["box"] == [0.0, 0.0, 200.0, 100.0]
+    assert obj["meta"]["widget"] == "kpi"
+    # the background rect is decorative; the value text is real content
+    rects = [c for c in obj["children"] if c["type"] == "rect"]
+    texts = [c for c in obj["children"] if c["type"] == "text"]
+    assert all(r.get("decorative") for r in rects)
+    assert any(t["text"] == "248" for t in texts)
+    assert not any(t.get("decorative") for t in texts)
+
+
+def test_card_returns_panel_with_inner_content_box():
+    panel = card([100, 50, 400, 300], title="Hi", pad=16, theme=default_theme())
+    assert isinstance(panel, Panel)
+    cx, cy, cw, ch = panel.content
+    # content sits inside the card box, below the title row
+    assert cx >= 100 and cy >= 50 + 16
+    assert cx + cw <= 100 + 400 and cy + ch <= 50 + 300
+
+
+def test_theme_restyle_flows_into_widget_output():
+    from dataclasses import replace
+    th = replace(default_theme(), accent="#16A34A")
+    obj = button([0, 0, 100, 36], "Go", kind="primary", theme=th)
+    bg = next(c for c in obj["children"] if c["type"] == "rect")
+    assert bg["fill"] == "#16A34A"
+
+
+def test_badge_width_uses_measurement():
+    th = default_theme()
+    assert badge_width("Urgent", theme=th) > badge_width("Hi", theme=th)
+
+
+def test_register_theme_defines_tokens():
+    b = DocumentBuilder(profile="deck")
+    handles = register_theme(b)
+    assert handles["accent"].kind == "color"
+    assert handles["accent"].name == "accent"
+
+
+def test_widgets_reach_the_svg_proxy():
+    """Honest-scope: the widgets actually render through the proxy."""
+    b, _ = _widgets_doc()
+    svg = render_page_svgs(b.build(), base_dir=ROOT)[0]
+    assert "248" in svg          # a KPI value
+    assert "Urgent" in svg       # a badge label
+    assert "Tickets" in svg      # a card title

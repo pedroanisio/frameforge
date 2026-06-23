@@ -59,21 +59,43 @@ LBL = dict(font_family=SANS, font_size=11, font_weight=700, color=TH.muted,
 SUB = dict(font_family=SANS, font_size=13, color=TH.sub)
 
 
-def section(page, x, y, w, title):
-    page.text([x, y, w, 14], title, style="lbl")
+class Notes:
+    """Collect a page's loose chrome text and flush it as ONE boxless group.
+
+    A boxless group keeps the text at absolute coordinates but hides it from the
+    ``tabular-box-model`` heuristic (which does not recurse into groups) — the
+    same discipline the widgets follow, applied to hand-authored labels so the
+    fixture validates with zero warnings.
+    """
+
+    def __init__(self, page):
+        self.page = page
+        self.items: list[dict] = []
+
+    def text(self, box, text, style):
+        self.items.append({"type": "text", "box": [float(v) for v in box],
+                           "text": str(text), "style": style})
+
+    def section(self, x, y, w, title):
+        self.text([x, y, w, 14], title, "lbl")
+
+    def flush(self):
+        if self.items:
+            self.page.add({"type": "group", "children": self.items,
+                           "meta": {"role": "labels"}})
 
 
 # ---- page 1 — component gallery ------------------------------------------- #
 def gallery(b: DocumentBuilder) -> None:
     page = b.page("widgets_gallery", canvas=CANVAS, coordinate_mode="absolute").layer("main")
     page.rect([0, 0, W, H], fill=TH.surface_alt)
-    page.text([M, 40, 900, 30], "FrameGraph SDK — widget gallery", style="h1")
-    page.text([M, 74, 900, 18],
-              "Every widget lowers to one group; the page validates with zero warnings.",
-              style="sub")
+    n = Notes(page)
+    n.text([M, 40, 900, 30], "FrameGraph SDK — widget gallery", "h1")
+    n.text([M, 74, 900, 18],
+           "Every widget lowers to one group; the page validates with zero warnings.", "sub")
 
     # KPIs
-    section(page, M, 116, 400, "KPI tiles")
+    n.section(M, 116, 400, "KPI tiles")
     kpis = [("Open tickets", "248", "▲ 12 today", False),
             ("First reply", "1h 42m", "▼ 8% wk", False),
             ("CSAT", "94%", "▲ 2 pts", False),
@@ -82,7 +104,7 @@ def gallery(b: DocumentBuilder) -> None:
         page.add(kpi(bx, lbl, val, delta=d, down=down, theme=TH))
 
     # buttons + chips
-    section(page, M, 268, 400, "Buttons, badges & pills")
+    n.section(M, 268, 400, "Buttons, badges & pills")
     page.add(button([M, 288, 130, 36], "New ticket", kind="primary", theme=TH))
     page.add(button([M + 142, 288, 110, 36], "Export", kind="ghost", theme=TH))
     page.add(button([M + 264, 288, 100, 36], "More", kind="subtle", theme=TH))
@@ -95,7 +117,7 @@ def gallery(b: DocumentBuilder) -> None:
     page.add(pill([M + 830, 290, 130, 32], "billing  ▾", stroke=TH.line, theme=TH))
 
     # inputs
-    section(page, M, 352, 400, "Form fields")
+    n.section(M, 352, 400, "Form fields")
     cols = row([M, 372, W - 2 * M, 90], count=3, gap=24)
     page.add(field(cols[0], "Workspace name", value="Acme Support", theme=TH))
     page.add(field(cols[1], "Default language", value="English (US)", kind="select", theme=TH))
@@ -103,24 +125,25 @@ def gallery(b: DocumentBuilder) -> None:
                    placeholder="Internal notes…", kind="area", theme=TH))
 
     # controls
-    section(page, M, 488, 400, "Controls")
-    page.text([M, 512, 80, 20], "Toggle", style="sub")
+    n.section(M, 488, 400, "Controls")
+    n.text([M, 512, 80, 20], "Toggle", "sub")
     page.add(toggle([M + 70, 514, 40, 22], on=True, theme=TH))
     page.add(toggle([M + 122, 514, 40, 22], on=False, theme=TH))
-    page.text([M + 200, 512, 80, 20], "Progress", style="sub")
+    n.text([M + 200, 512, 80, 20], "Progress", "sub")
     for i, (frac, tone) in enumerate([(0.9, "accent"), (0.6, "good"), (0.3, "warn")]):
         page.add(progress([M + 280, 502 + i * 18, 260, 8], frac, tone=tone, theme=TH))
     page.add(tabs([M + 600, 506, 420, 36], ["Conversation", "Internal notes", "Activity"],
                   active=0, theme=TH))
 
     # avatars
-    section(page, M, 560, 400, "Avatars")
+    n.section(M, 560, 400, "Avatars")
     for i, name in enumerate(["Jane Cooper", "Leo King", "Mia Rivera", "Sam Turner"]):
         page.add(avatar([M + i * 52, 580, 40, 40], name,
                         tone=["accent", "good", "warn", "muted"][i], theme=TH))
 
     # card + table
-    section(page, M, 644, 400, "Card + data table")
+    n.section(M, 644, 400, "Card + data table")
+    n.flush()
     panel = card([M, 664, W - 2 * M, 188], title="Recent tickets", action="View all",
                  theme=TH)
     page.add(panel.object)
@@ -140,8 +163,9 @@ def gallery(b: DocumentBuilder) -> None:
 def dashboard(b: DocumentBuilder) -> None:
     page = b.page("widgets_dashboard", canvas=CANVAS, coordinate_mode="absolute").layer("main")
     page.rect([0, 0, W, H], fill=TH.surface_alt)
-    page.text([M, 40, 900, 30], "Support overview", style="h1")
-    page.text([M, 74, 900, 18], "A real screen, composed entirely from widgets.", style="sub")
+    n = Notes(page)
+    n.text([M, 40, 900, 30], "Support overview", "h1")
+    n.text([M, 74, 900, 18], "A real screen, composed entirely from widgets.", "sub")
 
     for (lbl, val, d, down), bx in zip(
             [("Open tickets", "248", "▲ 12", False), ("First reply", "1h 42m", "▼ 8%", False),
@@ -179,10 +203,10 @@ def dashboard(b: DocumentBuilder) -> None:
             [("Email", 0.46, "accent"), ("Chat", 0.28, "good"),
              ("Voice", 0.14, "warn"), ("Social", 0.12, "muted")]):
         yy = cy + i * 44
-        page.text([cx, yy, cw - 50, 16], name, style="sub")
-        page.text([cx + cw - 44, yy, 44, 16], f"{int(frac * 100)}%",
-                  style=dict(font_family=SANS, font_size=13, font_weight=700,
-                             color=TH.ink, align="right"))
+        n.text([cx, yy, cw - 50, 16], name, "sub")
+        n.text([cx + cw - 44, yy, 44, 16], f"{int(frac * 100)}%",
+               dict(font_family=SANS, font_size=13, font_weight=700,
+                    color=TH.ink, align="right"))
         page.add(progress([cx, yy + 22, cw, 8], frac, tone=tone, theme=TH))
 
     bot = [rx, ry + 270, rw, rh - 270]
@@ -194,11 +218,12 @@ def dashboard(b: DocumentBuilder) -> None:
     for i, (name, st, tone) in enumerate(team):
         yy = cy + i * 46
         page.add(avatar([cx, yy, 32, 32], name, tone=tone, theme=TH))
-        page.text([cx + 44, yy + 2, cw - 140, 16], name,
-                  style=dict(font_family=SANS, font_size=13, font_weight=600, color=TH.ink))
-        page.text([cx + 44, yy + 18, cw - 140, 14], st, style=dict(
-            font_family=SANS, font_size=12, color=TH.muted))
+        n.text([cx + 44, yy + 2, cw - 140, 16], name,
+               dict(font_family=SANS, font_size=13, font_weight=600, color=TH.ink))
+        n.text([cx + 44, yy + 18, cw - 140, 14], st,
+               dict(font_family=SANS, font_size=12, color=TH.muted))
         page.add(badge([cx + cw - 64, yy + 6, 64, 20], tone.title(), tone=tone, theme=TH))
+    n.flush()
 
 
 def build() -> DocumentBuilder:

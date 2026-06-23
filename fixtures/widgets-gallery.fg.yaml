@@ -73,30 +73,6 @@ pages:
       type: rect
       fill: '#F4F6F9'
     - box:
-      - 48
-      - 40
-      - 900
-      - 30
-      style: h1
-      type: text
-      text: FrameGraph SDK — widget gallery
-    - box:
-      - 48
-      - 74
-      - 900
-      - 18
-      style: sub
-      type: text
-      text: Every widget lowers to one group; the page validates with zero warnings.
-    - box:
-      - 48
-      - 116
-      - 400
-      - 14
-      style: lbl
-      type: text
-      text: KPI tiles
-    - box:
       - 48.0
       - 136.0
       - 322.5
@@ -432,14 +408,6 @@ pages:
           overflow: clip
         type: text
         text: ▲ 5 overdue
-    - box:
-      - 48
-      - 268
-      - 400
-      - 14
-      style: lbl
-      type: text
-      text: Buttons, badges & pills
     - box:
       - 48.0
       - 288.0
@@ -789,14 +757,6 @@ pages:
         type: text
         text: billing  ▾
     - box:
-      - 48
-      - 352
-      - 400
-      - 14
-      style: lbl
-      type: text
-      text: Form fields
-    - box:
       - 48.0
       - 372.0
       - 432.0
@@ -1003,22 +963,6 @@ pages:
         type: text
         text: Internal notes…
     - box:
-      - 48
-      - 488
-      - 400
-      - 14
-      style: lbl
-      type: text
-      text: Controls
-    - box:
-      - 48
-      - 512
-      - 80
-      - 20
-      style: sub
-      type: text
-      text: Toggle
-    - box:
       - 118.0
       - 514.0
       - 40.0
@@ -1068,14 +1012,6 @@ pages:
         rx: 8.0
         ry: 8.0
         fill: '#FFFFFF'
-    - box:
-      - 248
-      - 512
-      - 80
-      - 20
-      style: sub
-      type: text
-      text: Progress
     - box:
       - 328.0
       - 502.0
@@ -1241,14 +1177,6 @@ pages:
         type: text
         text: Activity
     - box:
-      - 48
-      - 560
-      - 400
-      - 14
-      style: lbl
-      type: text
-      text: Avatars
-    - box:
       - 48.0
       - 580.0
       - 40.0
@@ -1404,14 +1332,90 @@ pages:
           overflow: clip
         type: text
         text: ST
-    - box:
-      - 48
-      - 644
-      - 400
-      - 14
-      style: lbl
-      type: text
-      text: Card + data table
+    - meta:
+        role: labels
+      type: group
+      children:
+      - box:
+        - 48.0
+        - 40.0
+        - 900.0
+        - 30.0
+        style: h1
+        type: text
+        text: FrameGraph SDK — widget gallery
+      - box:
+        - 48.0
+        - 74.0
+        - 900.0
+        - 18.0
+        style: sub
+        type: text
+        text: Every widget lowers to one group; the page validates with zero warnings.
+      - box:
+        - 48.0
+        - 116.0
+        - 400.0
+        - 14.0
+        style: lbl
+        type: text
+        text: KPI tiles
+      - box:
+        - 48.0
+        - 268.0
+        - 400.0
+        - 14.0
+        style: lbl
+        type: text
+        text: Buttons, badges & pills
+      - box:
+        - 48.0
+        - 352.0
+        - 400.0
+        - 14.0
+        style: lbl
+        type: text
+        text: Form fields
+      - box:
+        - 48.0
+        - 488.0
+        - 400.0
+        - 14.0
+        style: lbl
+        type: text
+        text: Controls
+      - box:
+        - 48.0
+        - 512.0
+        - 80.0
+        - 20.0
+        style: sub
+        type: text
+        text: Toggle
+      - box:
+        - 248.0
+        - 512.0
+        - 80.0
+        - 20.0
+        style: sub
+        type: text
+        text: Progress
+      - box:
+        - 48.0
+        - 560.0
+        - 400.0
+        - 14.0
+        style: lbl
+        type: text
+        text: Avatars
+      - box:
+        - 48.0
+        - 644.0
+        - 400.0
+        - 14.0
+        style: lbl
+        type: text
+        text: Card + data table
     - box:
       - 48.0
       - 664.0
@@ -1538,22 +1542,6 @@ pages:
       - 900
       type: rect
       fill: '#F4F6F9'
-    - box:
-      - 48
-      - 40
-      - 900
-      - 30
-      style: h1
-      type: text
-      text: Support overview
-    - box:
-      - 48
-      - 74
-      - 900
-      - 18
-      style: sub
-      type: text
-      text: A real screen, composed entirely from widgets.
     - box:
       - 48.0
       - 110.0
@@ -2139,31 +2127,6 @@ pages:
         text: Channel mix
     - box:
       - 1006.7878787878788
-      - 284.0
-      - 319.21212121212125
-      - 16
-      style: sub
-      type: text
-      text: Email
-    - box:
-      - 1332.0
-      - 284.0
-      - 44
-      - 16
-      style:
-        align: right
-        color: '#1D2430'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 13
-        font_weight: 700
-      type: text
-      text: 46%
-    - box:
-      - 1006.7878787878788
       - 306.0
       - 369.21212121212125
       - 8.0
@@ -2188,31 +2151,6 @@ pages:
         type: rect
         fill: '#2563EB'
         radius: 4.0
-    - box:
-      - 1006.7878787878788
-      - 328.0
-      - 319.21212121212125
-      - 16
-      style: sub
-      type: text
-      text: Chat
-    - box:
-      - 1332.0
-      - 328.0
-      - 44
-      - 16
-      style:
-        align: right
-        color: '#1D2430'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 13
-        font_weight: 700
-      type: text
-      text: 28%
     - box:
       - 1006.7878787878788
       - 350.0
@@ -2241,31 +2179,6 @@ pages:
         radius: 4.0
     - box:
       - 1006.7878787878788
-      - 372.0
-      - 319.21212121212125
-      - 16
-      style: sub
-      type: text
-      text: Voice
-    - box:
-      - 1332.0
-      - 372.0
-      - 44
-      - 16
-      style:
-        align: right
-        color: '#1D2430'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 13
-        font_weight: 700
-      type: text
-      text: 14%
-    - box:
-      - 1006.7878787878788
       - 394.0
       - 369.21212121212125
       - 8.0
@@ -2290,31 +2203,6 @@ pages:
         type: rect
         fill: '#B7791F'
         radius: 4.0
-    - box:
-      - 1006.7878787878788
-      - 416.0
-      - 319.21212121212125
-      - 16
-      style: sub
-      type: text
-      text: Social
-    - box:
-      - 1332.0
-      - 416.0
-      - 44
-      - 16
-      style:
-        align: right
-        color: '#1D2430'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 13
-        font_weight: 700
-      type: text
-      text: 12%
     - box:
       - 1006.7878787878788
       - 438.0
@@ -2422,37 +2310,6 @@ pages:
         type: text
         text: AN
     - box:
-      - 1050.7878787878788
-      - 556.0
-      - 229.21212121212125
-      - 16
-      style:
-        color: '#1D2430'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 13
-        font_weight: 600
-      type: text
-      text: Ava Nelson
-    - box:
-      - 1050.7878787878788
-      - 572.0
-      - 229.21212121212125
-      - 14
-      style:
-        color: '#8A93A3'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 12
-      type: text
-      text: 12 open
-    - box:
       - 1312.0
       - 560.0
       - 64.0
@@ -2529,37 +2386,6 @@ pages:
           overflow: clip
         type: text
         text: LK
-    - box:
-      - 1050.7878787878788
-      - 602.0
-      - 229.21212121212125
-      - 16
-      style:
-        color: '#1D2430'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 13
-        font_weight: 600
-      type: text
-      text: Leo King
-    - box:
-      - 1050.7878787878788
-      - 618.0
-      - 229.21212121212125
-      - 14
-      style:
-        color: '#8A93A3'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 12
-      type: text
-      text: 9 open
     - box:
       - 1312.0
       - 606.0
@@ -2638,37 +2464,6 @@ pages:
         type: text
         text: MR
     - box:
-      - 1050.7878787878788
-      - 648.0
-      - 229.21212121212125
-      - 16
-      style:
-        color: '#1D2430'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 13
-        font_weight: 600
-      type: text
-      text: Mia Rivera
-    - box:
-      - 1050.7878787878788
-      - 664.0
-      - 229.21212121212125
-      - 14
-      style:
-        color: '#8A93A3'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 12
-      type: text
-      text: Away
-    - box:
       - 1312.0
       - 652.0
       - 64.0
@@ -2746,37 +2541,6 @@ pages:
         type: text
         text: ST
     - box:
-      - 1050.7878787878788
-      - 694.0
-      - 229.21212121212125
-      - 16
-      style:
-        color: '#1D2430'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 13
-        font_weight: 600
-      type: text
-      text: Sam Turner
-    - box:
-      - 1050.7878787878788
-      - 710.0
-      - 229.21212121212125
-      - 14
-      style:
-        color: '#8A93A3'
-        font_family:
-        - Inter
-        - Helvetica
-        - Arial
-        - sans-serif
-        font_size: 12
-      type: text
-      text: Offline
-    - box:
       - 1312.0
       - 698.0
       - 64.0
@@ -2814,3 +2578,247 @@ pages:
           overflow: clip
         type: text
         text: Muted
+    - meta:
+        role: labels
+      type: group
+      children:
+      - box:
+        - 48.0
+        - 40.0
+        - 900.0
+        - 30.0
+        style: h1
+        type: text
+        text: Support overview
+      - box:
+        - 48.0
+        - 74.0
+        - 900.0
+        - 18.0
+        style: sub
+        type: text
+        text: A real screen, composed entirely from widgets.
+      - box:
+        - 1006.7878787878788
+        - 284.0
+        - 319.21212121212125
+        - 16.0
+        style: sub
+        type: text
+        text: Email
+      - box:
+        - 1332.0
+        - 284.0
+        - 44.0
+        - 16.0
+        style:
+          align: right
+          color: '#1D2430'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 13
+          font_weight: 700
+        type: text
+        text: 46%
+      - box:
+        - 1006.7878787878788
+        - 328.0
+        - 319.21212121212125
+        - 16.0
+        style: sub
+        type: text
+        text: Chat
+      - box:
+        - 1332.0
+        - 328.0
+        - 44.0
+        - 16.0
+        style:
+          align: right
+          color: '#1D2430'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 13
+          font_weight: 700
+        type: text
+        text: 28%
+      - box:
+        - 1006.7878787878788
+        - 372.0
+        - 319.21212121212125
+        - 16.0
+        style: sub
+        type: text
+        text: Voice
+      - box:
+        - 1332.0
+        - 372.0
+        - 44.0
+        - 16.0
+        style:
+          align: right
+          color: '#1D2430'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 13
+          font_weight: 700
+        type: text
+        text: 14%
+      - box:
+        - 1006.7878787878788
+        - 416.0
+        - 319.21212121212125
+        - 16.0
+        style: sub
+        type: text
+        text: Social
+      - box:
+        - 1332.0
+        - 416.0
+        - 44.0
+        - 16.0
+        style:
+          align: right
+          color: '#1D2430'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 13
+          font_weight: 700
+        type: text
+        text: 12%
+      - box:
+        - 1050.7878787878788
+        - 556.0
+        - 229.21212121212125
+        - 16.0
+        style:
+          color: '#1D2430'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 13
+          font_weight: 600
+        type: text
+        text: Ava Nelson
+      - box:
+        - 1050.7878787878788
+        - 572.0
+        - 229.21212121212125
+        - 14.0
+        style:
+          color: '#8A93A3'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 12
+        type: text
+        text: 12 open
+      - box:
+        - 1050.7878787878788
+        - 602.0
+        - 229.21212121212125
+        - 16.0
+        style:
+          color: '#1D2430'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 13
+          font_weight: 600
+        type: text
+        text: Leo King
+      - box:
+        - 1050.7878787878788
+        - 618.0
+        - 229.21212121212125
+        - 14.0
+        style:
+          color: '#8A93A3'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 12
+        type: text
+        text: 9 open
+      - box:
+        - 1050.7878787878788
+        - 648.0
+        - 229.21212121212125
+        - 16.0
+        style:
+          color: '#1D2430'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 13
+          font_weight: 600
+        type: text
+        text: Mia Rivera
+      - box:
+        - 1050.7878787878788
+        - 664.0
+        - 229.21212121212125
+        - 14.0
+        style:
+          color: '#8A93A3'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 12
+        type: text
+        text: Away
+      - box:
+        - 1050.7878787878788
+        - 694.0
+        - 229.21212121212125
+        - 16.0
+        style:
+          color: '#1D2430'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 13
+          font_weight: 600
+        type: text
+        text: Sam Turner
+      - box:
+        - 1050.7878787878788
+        - 710.0
+        - 229.21212121212125
+        - 14.0
+        style:
+          color: '#8A93A3'
+          font_family:
+          - Inter
+          - Helvetica
+          - Arial
+          - sans-serif
+          font_size: 12
+        type: text
+        text: Offline
