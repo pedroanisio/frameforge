@@ -389,6 +389,37 @@ def test_vertical_align_places_text_within_box():
     assert "at (10,55) {Bottom}" in bottom
 
 
+def test_writing_mode_maps_to_tikz_node_rotation():
+    vertical_rl = _fig({"label": {"writing_mode": "vertical-rl"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 40],
+        "text": "Vertical",
+        "style": "label",
+    })
+    vertical_lr = _fig({"label": {"writing_mode": "vertical-lr"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 40],
+        "text": "Vertical",
+        "style": "label",
+    })
+
+    assert "rotate=-90" in vertical_rl
+    assert "rotate=90" in vertical_lr
+
+
+def test_writing_mode_applies_to_spans():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "spans": [
+            {"text": "Side", "style": {"writing_mode": "vertical-lr"}},
+        ],
+    })
+
+    assert "rotate=90" in tex
+    assert "{Side}" in tex
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",

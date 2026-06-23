@@ -1043,7 +1043,17 @@ class FigureTikz:
             opts.append(f"text={cexpr}")
         if op is not None:
             opts.append(f"text opacity={fnum(op)}")
+        opts.extend(self._writing_mode_opts(st))
         return opts
+
+    @staticmethod
+    def _writing_mode_opts(st):
+        mode = str(st.get("writing_mode") or "").strip().lower() if isinstance(st, dict) else ""
+        if mode == "vertical-rl":
+            return ["rotate=-90"]
+        if mode == "vertical-lr":
+            return ["rotate=90"]
+        return []
 
     @staticmethod
     def _text_shadow_specs(st):
