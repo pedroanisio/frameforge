@@ -99,9 +99,12 @@ colors. The resolvers live in
 | `geometry` | Shared geometric math |
 
 For the SVG path, the builder is the `Renderer` class in
-[tooling/render_fixtures.py:93](../tooling/render_fixtures.py#L93). It wires up
-the resolvers and an `SvgPainter`, then emits primitives page by page
-(`render_page`, `render_text`, …).
+[framegraph/rendering/application/renderer.py](../framegraph/rendering/application/renderer.py),
+the rendering bounded context's **application layer**. It wires up the resolvers
+and an `SvgPainter`, then emits primitives page by page (`render_page`,
+`render_text`, …). [tooling/render_fixtures.py](../tooling/render_fixtures.py) is
+the thin CLI driver (discovery, contact sheet, `--check-overflow`) and re-exports
+`Renderer` for backward compatibility.
 
 ### 3. Paint → backend output
 
@@ -131,9 +134,13 @@ Backends are infrastructure adapters under
 ## Design notes
 
 - **Hexagonal / DDD layout.** The `domain/` layer (resolvers, ports, geometry)
-  is pure and dependency-free; the `infrastructure/` layer holds the
-  format-specific adapters. The domain depends on the `ScenePainter` *abstraction*,
-  not on any concrete backend.
+  is pure and dependency-free; the `application/` layer holds the `Renderer`
+  orchestration use-case; the `infrastructure/` layer holds the format-specific
+  adapters. The domain depends on the `ScenePainter` *abstraction*, not on any
+  concrete backend. *In progress* (codebase-standards.md §13): the application
+  `Renderer` still constructs `SvgPainter` directly and the 83-method class is
+  being decomposed — the port is not yet backend-neutral, so LaTeX/Chromium
+  remain separate drivers rather than adapters behind the one port.
 - **One IR, many backends.** Both SVG and LaTeX consume the same `Document` IR
   and the same resolver normalization. Adding a backend means implementing the
   `ScenePainter` surface (the port docstring names a future `MatplotlibPainter`
@@ -152,7 +159,8 @@ Backends are infrastructure adapters under
 | Parse/validate + SDK | [framegraph/sdk/](../framegraph/sdk/) (`model.py`, `validate.py`, `io.py`, …) |
 | Domain resolvers | [framegraph/rendering/domain/services/](../framegraph/rendering/domain/services/) |
 | Painter port (seam) | [framegraph/rendering/domain/ports.py](../framegraph/rendering/domain/ports.py) |
+| Render orchestrator (application) | [framegraph/rendering/application/renderer.py](../framegraph/rendering/application/renderer.py) |
 | SVG backend | [framegraph/rendering/infrastructure/painters/svg.py](../framegraph/rendering/infrastructure/painters/svg.py) |
 | LaTeX/TikZ backend | [framegraph/rendering/infrastructure/latex/](../framegraph/rendering/infrastructure/latex/) |
-| SVG render CLI / builder | [tooling/render_fixtures.py](../tooling/render_fixtures.py) |
+| SVG render CLI driver | [tooling/render_fixtures.py](../tooling/render_fixtures.py) |
 | LaTeX render CLI | [tooling/render_latex.py](../tooling/render_latex.py) |

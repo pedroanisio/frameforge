@@ -14,7 +14,7 @@ against them.
 
 ```
 models/framegraph.py          ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
-framegraph/                   ← rendering package (DDD split, in progress): the SVG proxy's domain/infra.
+framegraph/                   ← rendering package (DDD split, in progress): domain + application (the Renderer) + infra.
 schema/
   framegraph-v2.schema.json   ← GENERATED from the models (78 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
@@ -25,7 +25,7 @@ spec/framegraph-v2-spec.md    ← the normative prose (folds P1–P4 + the style
 tooling/
   validate.py                 ← structural (models) + static/geometric rules the schema can't express.
   codemod.py                  ← migrates a document to HEAD (stroke split, size→sizing, gradient, aliases).
-  render_fixtures.py          ← dependency-free SVG proxy renderer (+ `--check-overflow` text-fit gate).
+  render_fixtures.py          ← SVG render CLI driver (re-exports the Renderer; `--check-overflow` text-fit gate).
   render_chromium.py          ← optional Headless-Chromium SVG→PNG raster renderer (CSS-fidelity path).
   render_fg_doc.py            ← the matplotlib PROXY renderer, patched to HEAD (sanity check only).
   pdf_to_framegraph_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameGraph YAML extractor.
