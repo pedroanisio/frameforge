@@ -218,9 +218,33 @@ Filter   = string | "[" , FilterFn , { "," , FilterFn } , "]" ;   (* string = CS
 FilterFn =
     "{" ,
       "fn" , ":" , ( "blur" | "brightness" | "contrast" | "drop_shadow" | "grayscale"
-                   | "hue_rotate" | "invert" | "opacity" | "saturate" | "sepia" ) ,
+                   | "hue_rotate" | "invert" | "opacity" | "saturate" | "sepia"
+                   | "turbulence" | "displacement_map"
+                   | "diffuse_lighting" | "specular_lighting" ) ,
       [ "value"  , ":" , ( number | Length | Percentage | Angle ) ] ,
       [ "shadow" , ":" , Shadow ] ,        (* for fn = drop_shadow *)
+      [ "base_frequency" , ":" , ( number | string | "[" , ( number | string ) , "," , ( number | string ) , "]" ) ] ,
+      [ "num_octaves" , ":" , integer ] ,
+      [ "seed" , ":" , integer ] ,
+      [ "type" , ":" , ( "fractalNoise" | "turbulence" ) ] ,
+      [ "mode" , ":" , string ] ,
+      [ "opacity" , ":" , number ] ,
+      [ "scale" , ":" , ( number | Length ) ] ,
+      [ "x_channel" , ":" , ( "R" | "G" | "B" | "A" ) ] ,
+      [ "y_channel" , ":" , ( "R" | "G" | "B" | "A" ) ] ,
+      [ "surface_scale" , ":" , ( number | Length ) ] ,
+      [ "lighting_color" , ":" , Color ] ,
+      [ "azimuth" , ":" , Angle ] ,
+      [ "elevation" , ":" , Angle ] ,
+      [ "x" , ":" , ( number | Length ) ] ,
+      [ "y" , ":" , ( number | Length ) ] ,
+      [ "z" , ":" , ( number | Length ) ] ,
+      [ "points_at_x" , ":" , ( number | Length ) ] ,
+      [ "points_at_y" , ":" , ( number | Length ) ] ,
+      [ "points_at_z" , ":" , ( number | Length ) ] ,
+      [ "diffuse_constant" , ":" , number ] ,
+      [ "specular_constant" , ":" , number ] ,
+      [ "specular_exponent" , ":" , number ] ,
     "}" ;
 
 BlendMode = "normal" | "multiply" | "screen" | "overlay" | "darken" | "lighten"

@@ -154,7 +154,9 @@ def gen_fixtures():
         "!!! warning \"Sanity-check proxy\"",
         "    Rendered by the dependency-free SVG proxy (`tooling/render_fixtures.py`): "
         "geometry, positions, colours and z-order are faithful, but there is no real "
-        "text shaping and fonts are the browser's generic families. Not pixel-accurate.",
+        "text shaping and fonts are the browser's generic families. Not pixel-accurate. "
+        "For browser-native CSS filter/blend/backdrop/mask raster fidelity, use "
+        "`tooling/render_chromium.py` after installing the optional `browser` group.",
         "",
         "## Validator status",
         status_body,
@@ -220,19 +222,14 @@ def gen_sdk_guide():
     from framegraph.sdk import DocumentBuilder
 
     builder = DocumentBuilder()
-    badge = builder.define_symbol(
-        "badge",
-        box=[0, 0, 100, 32],
-        objects=[
-            {"type": "rect", "box": [0, 0, 100, 32], "fill": "$fill", "radius": 8},
-            {"type": "text", "box": [12, 6, 76, 20], "text": "$label"},
-        ],
-    )
+    with builder.symbol("badge", [0, 0, 100, 32]) as badge:
+        badge.rect([0, 0, 100, 32], fill="$fill", radius=8)
+        badge.text([12, 6, 76, 20], "$label")
 
     page = builder.page("p", canvas={"size": [320, 180], "units": "px"})
-    page.layer("main").use(
-        badge,
-        [24, 24, 160, 48],
+    page.layer("main").use_at(
+        "badge",
+        24, 24, 160, 48,
         params={"fill": "#dbeafe", "label": "Generated"},
     )
 
@@ -240,21 +237,73 @@ def gen_sdk_guide():
     doc = builder.build()
     """
     paint_geometry_example = """\
-    from framegraph.sdk import DocumentBuilder, pattern, stroke
+    from framegraph.sdk import (
+        DocumentBuilder,
+        dots,
+        grid_pattern,
+        hatch,
+        neon,
+        stroke,
+    )
 
     builder = DocumentBuilder()
     page = builder.page("p", canvas={"size": [420, 240], "units": "px"})
     layer = page.layer("main")
 
-    hatch = pattern("hatch", fg="#64748b", bg="#e2e8f0", scale=8, angle=45)
-    layer.rect([24, 24, 120, 80], fill=hatch)
+    layer.rect([24, 24, 120, 80], fill=hatch(fg="#64748b", bg="#e2e8f0", scale=8))
+    layer.rect([164, 24, 80, 80], fill=dots(fg="#334155", bg="#f8fafc", scale=10))
+    layer.rect([264, 24, 80, 80], fill=grid_pattern(fg="#94a3b8", scale=12))
     layer.arc([220, 64], 40, 180, 360, **stroke(4, color="#2563eb", cap="round"))
     layer.sector([88, 170], 42, -110, 30, fill="#fed7aa")
     layer.ring([210, 170], 46, 26, fill="#bfdbfe")
     layer.regular_polygon([320, 72], 38, 6, rotation=-90, fill="#ccfbf1")
-    layer.star([320, 170], 42, 18, 5, fill="#fde68a")
+    layer.star([320, 170], 42, 18, 5, fill="#fde68a", **neon("#22d3ee"))
     layer.polyline([(40, 220), (120, 190), (200, 220)], smooth=True,
                    fill="none", stroke="#7c3aed")
+    """
+    macros_example = """\
+    from framegraph.sdk import DocumentBuilder, greeble, grid_lines, hatch_fill, sparkline
+
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [420, 220], "units": "px"}).layer("main")
+
+    with layer.local([24, 24, 360, 160], clip=[0, 0, 360, 160]) as panel:
+        panel.extend(hatch_fill([16, 16, 120, 56], fg="#64748b", bg="#f1f5f9"))
+        panel.extend(grid_lines([16, 92, 120, 48], cols=4, rows=3))
+        panel.extend(greeble([168, 16, 160, 84], seed=7, density=0.7, fill="#94a3b8"))
+        panel.add(sparkline([(0, 2), (1, 4), (2, 3), (3, 7)], [168, 116, 160, 32]))
+    """
+    topology_example = """\
+    import math
+
+    from framegraph.sdk import (
+        Camera, DocumentBuilder, Graph, ScalarField, Vec3, lattice, manifold,
+    )
+
+    builder = DocumentBuilder(profile="diagram")
+    layer = builder.page("p", canvas={"size": [960, 320], "units": "px"},
+                         coordinate_mode="absolute").layer("main")
+
+    # 1. Network topology — build a graph, lay it out, render to one group.
+    g = Graph()
+    for a, b in [("api", "auth"), ("api", "db"), ("auth", "cache"), ("db", "cache")]:
+        g.edge(a, b)
+    layer.add(g.render(g.spring_layout(), box=[20, 20, 280, 280]))
+
+    # 2. A scalar field as a heatmap + marching-squares contours.
+    sf = ScalarField(lambda x, y: math.sin(2 * x) * math.cos(2 * y),
+                     domain=(-1.5, -1.5, 1.5, 1.5))
+    field = sf.heatmap(box=[330, 20, 280, 280])
+    field["children"] += sf.contours(box=[330, 20, 280, 280], levels=6)["children"]
+    layer.add(field)
+
+    # 3. A 3D manifold + a crystal lattice through a perspective camera.
+    cam = Camera(eye=Vec3(2.6, 2.0, 3.4), target=Vec3(0, 0, 0), fov=46)
+    layer.add(manifold.torus().render(box=[640, 20, 140, 280], camera=cam,
+                                      fill="#f9a8d4", stroke="#9d174d"))
+    layer.add(lattice("fcc", nx=2, ny=2, nz=2).render(box=[800, 20, 140, 280], camera=cam))
+
+    doc = builder.build()
     """
     validate_example = """\
     from framegraph.sdk import validate_static_rules
@@ -306,13 +355,55 @@ def gen_sdk_guide():
         textwrap.dedent(reuse_example).rstrip(),
         "```",
         "",
+        "`builder.symbol()` is the author-once path for reusable motifs; `page.use_at()` places instances from "
+        "scalar coordinates. `page.local()` and its `page.panel()` alias collect children in local coordinates "
+        "under a box-anchored group.",
+        "",
         "## Paint and Geometry",
         "",
         "Paint helpers return model-native paint dictionaries. Geometry helpers on `PageBuilder` solve author-time "
         "math and lower to existing `path` or canonical closed `polyline` objects.",
+        "Translucency (`opacity` / `rgba()`), blend modes and CSS filters are already model-native style fields; "
+        "`Material` groups those fields for SDK-authored geometry, and `Scene3D.render(shading=\"lambert\"|\"gouraud\")` "
+        "bakes a pure-Python light pass into ordinary face fills.",
         "",
         "```python",
         textwrap.dedent(paint_geometry_example).rstrip(),
+        "```",
+        "",
+        "## Procedural Texture Macros",
+        "",
+        "Macros under `framegraph.sdk.macros` return ordinary objects/lists that can be added directly or passed "
+        "to `PageBuilder.extend()`.",
+        "",
+        "```python",
+        textwrap.dedent(macros_example).rstrip(),
+        "```",
+        "",
+        "## Topology, perspective & math surfaces",
+        "",
+        "Four solver modules turn data and parametric math into FrameGraph art, each lowering to a single "
+        "`group` (so the geometric audit, which does not recurse into groups, stays quiet):",
+        "",
+        "- **Topology** (`framegraph.sdk.topology`): `Graph` builds a node-link network and lays it out with "
+        "deterministic algorithms — `circular_layout`, `radial_layout`, `layered_layout` (DAG), `grid_layout`, "
+        "and a seeded `spring_layout` (Fruchterman–Reingold). `Graph.render()` draws edges, arrowheads and "
+        "fitted labels.",
+        "- **Perspective** (`framegraph.sdk.geometry.Camera`): a `look_at` + field-of-view camera composes a "
+        "view/projection `Mat4`. Pass a `Camera` to `Scene3D.render()`, `Graph.render()`, a `Lattice`, or any "
+        "manifold to project 3D positions; `Camera.orbit()` sweeps the eye for frame-by-frame motion.",
+        "- **Fields** (`framegraph.sdk.fields`): `VectorField` samples `(x, y) -> (u, v)` into a grid of arrows; "
+        "`ScalarField` renders `(x, y) -> value` as a `heatmap` and/or marching-squares `contours`.",
+        "- **Lattices & manifolds** (`framegraph.sdk.lattices`, `framegraph.sdk.manifold`): `lattice(kind, ...)` "
+        "builds 2D (square/triangular/honeycomb) and 3D (cubic/bcc/fcc) crystals with nearest-neighbour bonds, "
+        "rendered through the same `Graph` engine; `manifold.{sphere,torus,mobius,klein_bottle,saddle,wave}` "
+        "build perspective-ready parametric `Scene3D` surfaces — `wave` is the interference heightfield.",
+        "",
+        "See the `topology-perspective` and `fields-lattices-manifolds` entries in the "
+        "[Fixture gallery](fixtures.md) for full pages built from these helpers.",
+        "",
+        "```python",
+        textwrap.dedent(topology_example).rstrip(),
         "```",
         "",
         "## Validation",
@@ -349,12 +440,16 @@ def gen_sdk_api():
         "framegraph.sdk.chart",
         "framegraph.sdk.draw",
         "framegraph.sdk.expand",
+        "framegraph.sdk.fields",
         "framegraph.sdk.geometry",
         "framegraph.sdk.io",
+        "framegraph.sdk.lattices",
         "framegraph.sdk.layout",
         "framegraph.sdk.macros",
+        "framegraph.sdk.manifold",
         "framegraph.sdk.model",
         "framegraph.sdk.paint",
+        "framegraph.sdk.topology",
         "framegraph.sdk.validate",
     ]
     lines = [

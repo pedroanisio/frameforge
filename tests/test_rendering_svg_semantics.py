@@ -805,3 +805,84 @@ def test_style_effect_filters_are_emitted() -> None:
     assert '<feGaussianBlur in="SourceGraphic" stdDeviation="2"/>' in svg
     assert 'dx="3" dy="4"' in svg
     assert 'flood-color="#005c46" flood-opacity="0.25"' in svg
+
+
+def test_style_svg_lighting_and_procedural_filters_are_emitted() -> None:
+    svg = _svg_for(
+        [
+            {
+                "type": "rect",
+                "box": [10, 10, 64, 44],
+                "fill": "panel",
+                "style": {
+                    "filter": [
+                        {
+                            "fn": "turbulence",
+                            "base_frequency": [0.03, 0.08],
+                            "num_octaves": 3,
+                            "seed": 7,
+                            "type": "fractalNoise",
+                            "opacity": 0.4,
+                        },
+                        {
+                            "fn": "displacement_map",
+                            "base_frequency": 0.05,
+                            "scale": 9,
+                            "seed": 2,
+                        },
+                        {
+                            "fn": "diffuse_lighting",
+                            "surface_scale": 3,
+                            "lighting_color": "brand",
+                            "azimuth": 210,
+                            "elevation": 35,
+                        },
+                        {
+                            "fn": "specular_lighting",
+                            "surface_scale": 2,
+                            "lighting_color": "#ffffff",
+                            "x": 20,
+                            "y": 30,
+                            "z": 80,
+                            "specular_constant": 0.7,
+                            "specular_exponent": 18,
+                        },
+                    ],
+                },
+            },
+        ],
+        {"tokens": {"colors": {"panel": "#ffeecc", "brand": "#88ccff"}}},
+    )
+
+    assert svg.count("<filter ") == 4
+    assert svg.count('<g filter="url(#fx') == 4
+    assert '<feTurbulence type="fractalNoise" baseFrequency="0.03 0.08" numOctaves="3" seed="7"' in svg
+    assert '<feDisplacementMap in="SourceGraphic" in2="noise" scale="9"' in svg
+    assert '<feDiffuseLighting in="SourceAlpha" surfaceScale="3"' in svg
+    assert 'lighting-color="#88ccff"' in svg
+    assert '<feDistantLight azimuth="210" elevation="35"/>' in svg
+    assert '<feSpecularLighting in="SourceAlpha" surfaceScale="2"' in svg
+    assert '<fePointLight x="20" y="30" z="80"/>' in svg
+
+
+def test_css_filter_functions_remain_in_style_for_browser_rasterization() -> None:
+    svg = _svg_for([
+        {
+            "type": "rect",
+            "box": [10, 10, 80, 40],
+            "fill": "panel",
+            "style": {
+                "filter": [
+                    {"fn": "blur", "value": "2px"},
+                    {"fn": "brightness", "value": "1.3"},
+                    {"fn": "contrast", "value": "1.8"},
+                    {"fn": "hue_rotate", "value": "90deg"},
+                    {"fn": "turbulence", "base_frequency": 0.04},
+                ],
+            },
+        }
+    ])
+
+    assert '<feGaussianBlur in="SourceGraphic" stdDeviation="2"/>' in svg
+    assert '<feTurbulence' in svg
+    assert "filter:brightness(1.3) contrast(1.8) hue-rotate(90deg)" in svg

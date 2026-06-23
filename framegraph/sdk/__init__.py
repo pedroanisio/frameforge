@@ -16,22 +16,42 @@ from framegraph.sdk.clip import (
     clip_polygon,
     clip_rect,
 )
-from framegraph.sdk.draw import Frame, Scene3D
+from framegraph.sdk.draw import Frame, Material, Scene3D
 from framegraph.sdk.expand import ExpandOptions, ExpandedDocument, expand
-from framegraph.sdk.geometry import CubicBezier, Mat3, Mat4, Path, Vec2, Vec3
+from framegraph.sdk.geometry import Camera, CubicBezier, Mat3, Mat4, Path, Vec2, Vec3
 from framegraph.sdk.io import parse, serialize
 from framegraph.sdk.layout import Box, column, grid, inset, row
-from framegraph.sdk.macros import lorem, lorem_paragraphs, md, paragraph, theme
+from framegraph.sdk.macros import (
+    greeble,
+    grid_lines,
+    hatch_fill,
+    lorem,
+    lorem_paragraphs,
+    md,
+    paragraph,
+    sparkline,
+    theme,
+)
 from framegraph.sdk.metrics import measure_text, text_height, wrap_text
 from framegraph.sdk.model import HEAD_VERSION, Document, model_module
+from framegraph.sdk.topology import Edge, Graph, Node
+from framegraph.sdk.fields import ScalarField, VectorField
+from framegraph.sdk.lattices import Lattice, lattice
+from framegraph.sdk import manifold
 from framegraph.sdk.paint import (
+    dots,
     effects,
+    fill_stroke,
+    grid_pattern,
     glow,
+    hatch,
     linear_gradient,
+    neon,
     pattern,
     radial_gradient,
     rgba,
     shadow,
+    soft_shadow,
     stroke,
 )
 from framegraph.sdk.validate import Issue, ValidationReport, validate_static_rules
@@ -80,12 +100,27 @@ __all__ = [
     "table",
     "tabs",
     "toggle",
+    "Camera",
     "CubicBezier",
     "Document",
     "DocumentBuilder",
+    "Edge",
     "ExpandOptions",
     "ExpandedDocument",
     "Frame",
+    "greeble",
+    "grid_lines",
+    "grid_pattern",
+    "Graph",
+    "hatch",
+    "hatch_fill",
+    "Lattice",
+    "Material",
+    "Node",
+    "ScalarField",
+    "VectorField",
+    "lattice",
+    "manifold",
     "HEAD_VERSION",
     "Issue",
     "Mat3",
@@ -98,8 +133,10 @@ __all__ = [
     "Vec3",
     "Box",
     "column",
+    "dots",
     "effects",
     "expand",
+    "fill_stroke",
     "glow",
     "grid",
     "inset",
@@ -109,6 +146,7 @@ __all__ = [
     "md",
     "measure_text",
     "model_module",
+    "neon",
     "paragraph",
     "pattern",
     "parse",
@@ -117,6 +155,8 @@ __all__ = [
     "row",
     "serialize",
     "shadow",
+    "soft_shadow",
+    "sparkline",
     "stroke",
     "text_height",
     "theme",

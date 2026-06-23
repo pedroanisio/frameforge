@@ -20,13 +20,18 @@ from framegraph.sdk import (
     DocumentBuilder,
     ExpandOptions,
     Frame,
+    Material,
     Mat3,
     Path,
     Scene3D,
     Vec2,
+    Vec3,
     column,
+    greeble,
     expand,
     grid,
+    grid_lines,
+    hatch_fill,
     inset,
     lorem,
     lorem_paragraphs,
@@ -35,16 +40,23 @@ from framegraph.sdk import (
     parse,
     row,
     serialize,
+    sparkline,
     theme,
 )
 from framegraph.sdk import (
+    dots,
     effects,
+    fill_stroke,
+    grid_pattern,
     glow,
+    hatch,
     linear_gradient,
+    neon,
     pattern,
     radial_gradient,
     rgba,
     shadow,
+    soft_shadow,
     stroke,
 )
 from framegraph.sdk import (
@@ -296,6 +308,30 @@ def test_builder_symbols_components_and_handle_kind_checks():
         builder.page("bad", master=color)
 
 
+def test_symbol_context_use_at_and_local_panel_lower_to_groups():
+    builder = DocumentBuilder()
+    with builder.symbol("status_badge", [0, 0, 100, 32]) as sym:
+        sym.rect([0, 0, 100, 32], fill="$fill", radius=8)
+        sym.text([12, 7, 76, 18], "$label")
+
+    layer = builder.page("p", canvas={"size": [320, 180], "units": "px"}).layer("main")
+    layer.use_at("status_badge", 20, 20, 150, 48,
+                 params={"fill": "#dbeafe", "label": "Cached"})
+    with layer.local([20, 84, 150, 64], id="local_panel") as panel:
+        panel.rect([0, 0, 150, 64], fill="#f8fafc", radius=6)
+        panel.text([12, 12, 126, 20], "Local")
+
+    doc = builder.build()
+    badge_group, panel_group = doc.pages[0].layers[0].objects
+    assert badge_group.type == "group"
+    assert badge_group.box == [20, 20, 150, 48]
+    assert badge_group.children[0].fill == "#dbeafe"
+    assert badge_group.children[1].text == "Cached"
+    assert panel_group.type == "group" and panel_group.id == "local_panel"
+    assert panel_group.box == [20, 84, 150, 64]
+    assert panel_group.children[0].box == [0, 0, 150, 64]
+
+
 def test_pagebuilder_primitive_helpers_lower_to_canonical_objects():
     """ellipse/circle/polyline/polygon/path builders emit canonical model objects.
 
@@ -384,6 +420,27 @@ def test_sdk_geometry_patterns_fixture_exercises_public_helpers():
     assert validate_static_rules(doc).ok
 
 
+def test_sdk_ergonomics_showcase_fixture_exercises_high_level_helpers():
+    """The fixture pins symbol context, local panels, paint wrappers and macros."""
+    path = os.path.join(ROOT, "fixtures", "sdk-ergonomics-showcase.fg.yaml")
+    doc = parse(open(path, encoding="utf-8").read(), forgiving=False)
+    data = doc.model_dump(by_alias=True, exclude_none=True)
+
+    def walk(objects):
+        for obj in objects:
+            yield obj
+            yield from walk(obj.get("children", []))
+
+    objects = list(walk(data["pages"][0]["layers"][0]["objects"]))
+    assert any(obj["type"] == "group" and obj.get("meta", {}).get("source_symbol") == "metric_badge"
+               for obj in objects)
+    assert any(isinstance(obj.get("fill"), dict) and obj["fill"].get("kind") == "pattern"
+               for obj in objects)
+    assert any(obj["type"] == "line" for obj in objects)
+    assert any(obj["type"] == "path" and "C " in obj.get("d", "") for obj in objects)
+    assert validate_static_rules(doc).ok
+
+
 def test_pagebuilder_arrow_lowers_to_shortened_shaft_and_head():
     """arrow() emits a shaft line + a filled closed-polyline head at the tip.
 
@@ -446,6 +503,10 @@ def test_paint_rgba_and_gradient_constructors_lower_to_valid_paint():
         "stroke": "#334155",
         "background": "#f8fafc",
     }
+    assert hatch == pattern("hatch", fg="#334155", bg="#f8fafc", scale=8, angle=45)
+    assert dots(fg="#111", scale=6) == {"kind": "pattern", "pattern": "dots",
+                                        "spacing": 6, "stroke": "#111"}
+    assert grid_pattern(fg="#111", bg="#fff", scale=12)["pattern"] == "grid"
 
     builder = DocumentBuilder()
     layer = builder.page("p", canvas={"size": [200, 200], "units": "px"},
@@ -471,6 +532,14 @@ def test_paint_stroke_and_effect_constructors_lower_to_model_fields():
         "glow": {"blur": 4},
         "shadow": {"dx": 0.0, "dy": 2, "blur": 0.0},
     }
+    assert fill_stroke("#fff", "#111", 2)["stroke_style"]["stroke_width"] == 2
+    assert soft_shadow() == {"dx": 0.0, "dy": 6.0, "blur": 14.0,
+                             "color": "#000000", "opacity": 0.18}
+    assert neon("#22d3ee") == {
+        "stroke": "#22d3ee",
+        "stroke_style": {"stroke_width": 2.0},
+        "glow": {"blur": 10.0, "color": "#22d3ee", "opacity": 0.7},
+    }
 
     builder = DocumentBuilder()
     layer = builder.page("p", canvas={"size": [200, 200], "units": "px"},
@@ -486,6 +555,26 @@ def test_paint_stroke_and_effect_constructors_lower_to_model_fields():
     assert rect.opacity == 0.8 and rect.rotation == 12
     assert rect.shadow.dy == 4 and rect.shadow.blur == 6
     assert rect.glow.blur == 8 and rect.glow.dx is None       # a glow is a blur, not offset
+
+
+def test_procedural_texture_macros_lower_to_valid_objects():
+    objects = []
+    objects.extend(hatch_fill([10, 10, 120, 60], fg="#334155", bg="#f8fafc", scale=10))
+    objects.extend(grid_lines([10, 10, 120, 60], cols=4, rows=3, color="#cbd5e1"))
+    objects.extend(greeble([160, 10, 110, 60], seed=7, density=0.6, fill="#94a3b8"))
+    objects.append(sparkline([(0, 1), (1, 3), (2, 2), (3, 5)], [160, 100, 110, 40]))
+
+    builder = DocumentBuilder()
+    builder.page("p", canvas={"size": [300, 180], "units": "px"}).layer("main").extend(objects)
+    doc = builder.build()
+    data = doc.model_dump(by_alias=True, exclude_none=True)
+    lowered = data["pages"][0]["layers"][0]["objects"]
+
+    assert lowered[0]["fill"]["kind"] == "pattern"
+    assert any(obj["type"] == "line" for obj in lowered)
+    assert any(obj["type"] == "rect" and obj["fill"] == "#94a3b8" for obj in lowered)
+    assert lowered[-1]["type"] == "path" and "C " in lowered[-1]["d"]
+    assert validate_static_rules(doc).ok
 
 
 def test_pagebuilder_frame_emits_a_transformed_group_in_local_coordinates():
@@ -617,6 +706,60 @@ def test_scene3d_render_empty_scene_is_safe():
     builder = DocumentBuilder()
     builder.page("p", canvas={"size": [200, 200], "units": "px"}).layer("main").add(group)
     builder.build()  # must validate
+
+
+def test_material_helper_expands_to_plain_framegraph_fields():
+    material = Material(
+        fill="#88ccff",
+        stroke="#123456",
+        opacity=0.7,
+        mix_blend_mode="multiply",
+        filter=[{"fn": "blur", "value": "2px"}],
+    )
+
+    assert material.style() == {
+        "fill": "#88ccff",
+        "stroke": "#123456",
+        "opacity": 0.7,
+        "style": {
+            "mix_blend_mode": "multiply",
+            "filter": [{"fn": "blur", "value": "2px"}],
+        },
+    }
+    assert material.shaded(0.5)["fill"] == "#446680"
+
+
+def test_scene3d_lambert_shading_bakes_distinct_face_fills():
+    scene = Scene3D().extrude([(0, 0), (1, 0), (1, 1), (0, 1)], depth=0.5)
+    group = scene.render(
+        box=[0, 0, 120, 100],
+        material=Material(fill="#80c0ff", stroke="#0f172a"),
+        light=Vec3(0, 0, 1),
+        ambient=0.25,
+        diffuse=0.75,
+        shading="lambert",
+    )
+
+    fills = {child["fill"] for child in group["children"]}
+    assert "#80c0ff" in fills
+    assert "#203040" in fills
+    assert len(fills) >= 2
+
+
+def test_scene3d_gouraud_shading_bakes_vertex_normal_average():
+    scene = Scene3D().extrude([(0, 0), (1, 0), (1, 1), (0, 1)], depth=0.5)
+    group = scene.render(
+        box=[0, 0, 120, 100],
+        fill="#80c0ff",
+        light=Vec3(0, 0, 1),
+        ambient=0.25,
+        diffuse=0.75,
+        shading="gouraud",
+    )
+
+    fills = {child["fill"] for child in group["children"]}
+    assert "#80c0ff" not in fills
+    assert len(fills) >= 2
 
 
 def test_page_coordinate_mode_is_set_and_validated():

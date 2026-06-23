@@ -69,6 +69,46 @@ missing `cm`, and `ImageObject` lacked the `alt`/`actual_text` accessibility fie
 module wins; and the base grammar still carried `Stroke = string | StrokeStyle` while
 base-spec §3.5 says paint-only — already resolved (Stroke = Paint).
 
+### SDK — topology, perspective, fields, lattices & manifolds (additive)
+
+Five solver modules join the Python SDK, each lowering to a single core-model `group`
+(so the geometric audit, which does not recurse into groups, stays silent) and each
+fully deterministic:
+
+- **`framegraph.sdk.topology`** — `Graph` node-link networks with `circular_layout`,
+  `radial_layout`, `layered_layout` (DAG), `grid_layout`, and a seeded
+  `spring_layout` (Fruchterman–Reingold). `render()` emits fitted edges, arrowheads
+  and labels.
+- **`framegraph.sdk.geometry.Camera`** — a `look_at` + field-of-view perspective camera
+  composing a view/projection `Mat4` (plus `Mat4.look_at`/`perspective_fov`/`rotate_*`
+  and `Camera.orbit`). `Scene3D.render()` now accepts a `Camera` and sorts faces by
+  perspective-divided depth.
+- **`framegraph.sdk.draw.Material` + Scene3D lighting** — translucent material/style
+  fields (`opacity`, blend mode, filters) stay model-native, while optional
+  `shading="lambert"` or `"gouraud"` bakes pure-Python light intensity into each
+  face's emitted 2D fill.
+- **`framegraph.sdk.fields`** — `VectorField` (arrow grids) and `ScalarField`
+  (`heatmap` + marching-squares `contours`).
+- **`framegraph.sdk.lattices`** — `lattice(kind, …)` for 2D (square/triangular/
+  honeycomb) and 3D (cubic/bcc/fcc) crystals with nearest-neighbour bonds, rendered
+  through the topology engine.
+- **`framegraph.sdk.manifold`** — perspective-ready parametric `Scene3D` surfaces:
+  `sphere`, `torus`, `mobius`, `klein_bottle`, `saddle`, and the `wave` interference
+  heightfield.
+- **`tooling/render_chromium.py`** — optional Headless-Chromium raster path: reuse the
+  SVG proxy output, then let browser-native rendering produce PNGs for CSS filters,
+  blend/backdrop modes, masks and SVG filter fidelity (`uv sync --group browser`;
+  `uv run playwright install chromium`).
+- **Filter shader-lite primitives** — typed `FilterFn` now covers SVG procedural and
+  lighting primitives (`turbulence`, `displacement_map`, `diffuse_lighting`,
+  `specular_lighting`) with a new `filter-lighting.fg.yaml` fixture rendered by the
+  Chromium path.
+
+Two demo fixtures cover the surface: `topology-perspective.fg.yaml` (six layout/camera
+panels) and `fields-lattices-manifolds.fg.yaml` (eight field/lattice/manifold panels),
+both at 0 errors / 0 warnings and passing `--check-overflow`. The generated SDK API and
+guide docs (`tooling/gen_docs.py`) now cover all five modules.
+
 ---
 
 ## 2.1.0 — fold the patch series (P1–P4) + draft gap #1

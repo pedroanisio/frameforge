@@ -15,6 +15,7 @@ dependencies = [
 # Optional/auxiliary sets (PEP 735). uv installs `dev` by default on `uv sync`;
 # install an auxiliary set explicitly, e.g.:
 #   uv sync --group render   # matplotlib proxy renderer (tooling/render_fg_doc.py)
+#   uv sync --group browser  # Headless Chromium raster renderer (tooling/render_chromium.py)
 #   uv sync --group pdf      # PyMuPDF, for the PDF -> FrameGraph transpiler
 # or run one-off without syncing: `uv run --group pdf python tooling/pdf_to_framegraph_yml.py ...`
 [dependency-groups]
@@ -23,6 +24,7 @@ dev = [
     "pytest>=8",
 ]
 render = ["matplotlib>=3.7", "pillow>=10"]
+browser = ["playwright>=1.44"]
 pdf = ["pymupdf>=1.24"]
 # Real font-advance metrics for accurate text wrap/fit (framegraph.sdk.measure_text
 # and render_fixtures.py --real-metrics). Optional: absent it, callers fall back to

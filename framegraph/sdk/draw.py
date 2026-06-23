@@ -3,11 +3,51 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import math
-from typing import Callable, Iterable, Sequence
+from typing import Callable, Iterable, Literal, Sequence
 
-from framegraph.sdk.geometry import Mat4, Path, Vec2, Vec3
+from framegraph.sdk.geometry import Camera, Mat4, Path, Vec2, Vec3
 
 Scale = str | Callable[[float], float]
+
+
+@dataclass(frozen=True)
+class Material:
+    """Face material helper for SDK-authored 2D/3D geometry.
+
+    The helper only expands to ordinary FrameGraph object fields. Translucency,
+    blend modes and CSS filters already travel through the existing model/style
+    surface; this class gives 3D helpers a single place to keep those fields
+    together before :class:`Scene3D` bakes optional lighting into the face fill.
+    """
+
+    fill: str = "#dddddd"
+    stroke: str | None = "#333333"
+    opacity: float | None = None
+    mix_blend_mode: str | None = None
+    filter: object | None = None
+    backdrop_filter: object | None = None
+
+    def style(self) -> dict[str, object]:
+        out: dict[str, object] = {"fill": self.fill}
+        if self.stroke is not None:
+            out["stroke"] = self.stroke
+        if self.opacity is not None:
+            out["opacity"] = self.opacity
+        style: dict[str, object] = {}
+        if self.mix_blend_mode is not None:
+            style["mix_blend_mode"] = self.mix_blend_mode
+        if self.filter is not None:
+            style["filter"] = self.filter
+        if self.backdrop_filter is not None:
+            style["backdrop_filter"] = self.backdrop_filter
+        if style:
+            out["style"] = style
+        return out
+
+    def shaded(self, intensity: float) -> dict[str, object]:
+        out = self.style()
+        out["fill"] = _shade_color(self.fill, intensity)
+        return out
 
 
 @dataclass(frozen=True)
@@ -122,15 +162,29 @@ class Scene3D:
     def render(
         self,
         *,
-        camera: Mat4 | None = None,
+        camera: Mat4 | Camera | None = None,
         box: Sequence[float],
         fill: str = "#ddd",
         stroke: str = "#333",
+        material: Material | None = None,
+        light: Vec3 | Sequence[float] = Vec3(-0.35, -0.65, 0.8),
+        ambient: float = 0.38,
+        diffuse: float = 0.62,
+        shading: Literal["none", "lambert", "gouraud"] = "none",
         id: str | None = None,
     ) -> dict[str, object]:
-        matrix = camera or Mat4.isometric()
-        projected = [([matrix.project(p) for p in face], _avg_z(matrix, face), style) for face, style in self.faces]
-        all_points = [p for face, _z, _style in projected for p in face]
+        if camera is None:
+            matrix = Mat4.isometric()
+        elif isinstance(camera, Camera):
+            matrix = camera.matrix()
+        else:
+            matrix = camera
+        lit_faces = _face_lighting(self.faces, light, ambient=ambient, diffuse=diffuse, shading=shading)
+        projected = [
+            ([matrix.project(p) for p in face], _avg_z(matrix, face), style, intensity)
+            for (face, style), intensity in zip(self.faces, lit_faces)
+        ]
+        all_points = [p for face, _z, _style, _intensity in projected for p in face]
         # Children are positioned LOCAL to the returned group's box: a renderer
         # translates a group's children by its box origin, so baking the box origin
         # (bx, by) into the points here as well would offset every face twice and
@@ -147,12 +201,21 @@ class Scene3D:
             ox = (bw - (max_x - min_x) * scale) / 2
             oy = (bh - (max_y - min_y) * scale) / 2
             children = []
-            for face, _z, style in sorted(projected, key=lambda item: item[1]):
+            base_material = material or Material(fill=fill, stroke=stroke)
+            for face, _z, face_style, intensity in sorted(projected, key=lambda item: item[1]):
+                style = dict(face_style)
                 points = [[ox + (p.x - min_x) * scale, oy + (p.y - min_y) * scale] for p in face]
                 # Canonical closed polyline — not the deprecated 'polygon' alias.
-                obj: dict[str, object] = {"type": "polyline", "closed": True,
-                                          "points": points, "fill": fill, "stroke": stroke}
+                face_material = style.pop("material", base_material)
+                if isinstance(face_material, Material):
+                    material_style = face_material.style()
+                else:
+                    material_style = base_material.style()
+                obj: dict[str, object] = {"type": "polyline", "closed": True, "points": points}
+                obj.update(material_style)
                 obj.update(style)
+                if shading != "none" and isinstance(obj.get("fill"), str):
+                    obj["fill"] = _shade_color(str(obj["fill"]), intensity)
                 children.append(obj)
         group: dict[str, object] = {"type": "group", "box": list(box), "children": children}
         if id is not None:
@@ -187,11 +250,113 @@ def _v3(value: Sequence[float] | Vec3) -> Vec3:
 
 
 def _avg_z(matrix: Mat4, face: Sequence[Vec3]) -> float:
-    return sum(matrix.apply(p)[2] for p in face) / max(1, len(face))
+    """Painter's-algorithm depth key (larger = farther, drawn first).
+
+    Uses the perspective-divided NDC depth (``z / w``) so a real perspective
+    camera sorts faces correctly; for the isometric/orthographic default ``w``
+    is 1, so this reduces to the eye-space z it always used.
+    """
+    total = 0.0
+    for p in face:
+        x4 = matrix.apply(p)
+        w = x4[3]
+        total += x4[2] / w if abs(w) > 1e-12 else x4[2]
+    return total / max(1, len(face))
+
+
+def _face_lighting(
+    faces: Sequence[tuple[list[Vec3], dict[str, object]]],
+    light: Vec3 | Sequence[float],
+    *,
+    ambient: float,
+    diffuse: float,
+    shading: Literal["none", "lambert", "gouraud"],
+) -> list[float]:
+    if shading == "none":
+        return [1.0] * len(faces)
+    light_dir = _normalize(_v3(light))
+    ambient = max(0.0, min(1.0, ambient))
+    diffuse = max(0.0, diffuse)
+    if shading == "lambert":
+        return [_light_intensity(_face_normal(face), light_dir, ambient, diffuse) for face, _style in faces]
+    if shading == "gouraud":
+        vertex_normals: dict[tuple[float, float, float], Vec3] = {}
+        for face, _style in faces:
+            normal = _face_normal(face)
+            for point in face:
+                key = point.tuple()
+                vertex_normals[key] = vertex_normals.get(key, Vec3(0.0, 0.0, 0.0)) + normal
+        out = []
+        for face, _style in faces:
+            values = [
+                _light_intensity(_normalize(vertex_normals[p.tuple()]), light_dir, ambient, diffuse)
+                for p in face
+            ]
+            out.append(sum(values) / max(1, len(values)))
+        return out
+    raise ValueError(f"unsupported Scene3D shading mode: {shading!r}")
+
+
+def _light_intensity(normal: Vec3, light_dir: Vec3, ambient: float, diffuse: float) -> float:
+    lambert = max(0.0, _dot(normal, light_dir))
+    return max(0.0, min(1.0, ambient + diffuse * lambert))
+
+
+def _face_normal(face: Sequence[Vec3]) -> Vec3:
+    if len(face) < 3:
+        return Vec3(0.0, 0.0, 1.0)
+    origin = face[0]
+    for i in range(1, len(face) - 1):
+        normal = _cross(face[i] - origin, face[i + 1] - origin)
+        if _length(normal) > 1e-12:
+            return _normalize(normal)
+    return Vec3(0.0, 0.0, 1.0)
+
+
+def _shade_color(color: str, intensity: float) -> str:
+    rgb = _parse_hex_color(color)
+    if rgb is None:
+        return color
+    factor = max(0.0, min(1.0, intensity))
+    return "#" + "".join(f"{max(0, min(255, round(channel * factor))):02x}" for channel in rgb)
+
+
+def _parse_hex_color(color: str) -> tuple[int, int, int] | None:
+    value = color.strip()
+    if not value.startswith("#"):
+        return None
+    c = value[1:]
+    if len(c) == 3:
+        c = "".join(ch * 2 for ch in c)
+    if len(c) != 6:
+        return None
+    try:
+        return int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
+    except ValueError:
+        return None
+
+
+def _cross(a: Vec3, b: Vec3) -> Vec3:
+    return Vec3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x)
+
+
+def _dot(a: Vec3, b: Vec3) -> float:
+    return a.x * b.x + a.y * b.y + a.z * b.z
+
+
+def _length(v: Vec3) -> float:
+    return math.sqrt(_dot(v, v))
+
+
+def _normalize(v: Vec3) -> Vec3:
+    length = _length(v)
+    if length < 1e-12:
+        return Vec3(0.0, 0.0, 1.0)
+    return Vec3(v.x / length, v.y / length, v.z / length)
 
 
 def _lerp(a: float, b: float, t: float) -> float:
     return a + (b - a) * t
 
 
-__all__ = ["Frame", "Scene3D"]
+__all__ = ["Frame", "Material", "Scene3D"]

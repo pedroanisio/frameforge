@@ -108,6 +108,26 @@ def pattern(
     return paint
 
 
+def hatch(*, fg: Color | None = None, bg: Color | None = None,
+          scale: float | int | str | None = None,
+          angle: float | int | str | None = 45) -> dict[str, Any]:
+    """Build a hatch pattern paint."""
+    return pattern("hatch", fg=fg, bg=bg, scale=scale, angle=angle)
+
+
+def dots(*, fg: Color | None = None, bg: Color | None = None,
+         scale: float | int | str | None = None) -> dict[str, Any]:
+    """Build a dots pattern paint."""
+    return pattern("dots", fg=fg, bg=bg, scale=scale)
+
+
+def grid_pattern(*, fg: Color | None = None, bg: Color | None = None,
+                 scale: float | int | str | None = None,
+                 angle: float | int | str | None = None) -> dict[str, Any]:
+    """Build a grid pattern paint."""
+    return pattern("grid", fg=fg, bg=bg, scale=scale, angle=angle)
+
+
 def stroke(
     width: float,
     *,
@@ -139,6 +159,19 @@ def stroke(
     return fields
 
 
+def fill_stroke(
+    fill: Any,
+    stroke_color: Color,
+    width: float = 1.0,
+    *,
+    dash: Sequence[float] | None = None,
+    cap: str | None = None,
+    join: str | None = None,
+) -> dict[str, Any]:
+    """Bundle common ``fill`` + stroked-outline fields for a primitive."""
+    return {"fill": fill, **stroke(width, color=stroke_color, dash=dash, cap=cap, join=join)}
+
+
 def shadow(
     *,
     dx: float = 0.0,
@@ -156,6 +189,17 @@ def shadow(
     return effect
 
 
+def soft_shadow(
+    *,
+    dy: float = 6.0,
+    blur: float = 14.0,
+    color: Color = "#000000",
+    opacity: float = 0.18,
+) -> dict[str, Any]:
+    """Build a mild presentation-style shadow effect."""
+    return shadow(dy=dy, blur=blur, color=color, opacity=opacity)
+
+
 def glow(
     *,
     blur: float,
@@ -169,6 +213,20 @@ def glow(
     if opacity is not None:
         effect["opacity"] = opacity
     return effect
+
+
+def neon(
+    color: Color,
+    *,
+    stroke_width: float = 2.0,
+    blur: float = 10.0,
+    opacity: float = 0.7,
+) -> dict[str, Any]:
+    """Bundle a glowing stroked outline for line/path/shape primitives."""
+    return {
+        **stroke(stroke_width, color=color),
+        **effects(glow=glow(blur=blur, color=color, opacity=opacity)),
+    }
 
 
 def effects(
@@ -230,12 +288,18 @@ def _position(position: Position) -> str:
 
 
 __all__ = [
+    "dots",
     "effects",
+    "fill_stroke",
+    "grid_pattern",
     "glow",
+    "hatch",
     "linear_gradient",
+    "neon",
     "pattern",
     "radial_gradient",
     "rgba",
     "shadow",
+    "soft_shadow",
     "stroke",
 ]

@@ -574,6 +574,9 @@ class Renderer:
         backdrop = self._css_filter_value(style.get("backdrop_filter"))
         if backdrop:
             attrs["backdrop-filter"] = backdrop
+        css_filter = self._css_filter_value(style.get("filter"), svg_only=False)
+        if css_filter:
+            attrs["filter"] = css_filter
         bg_blend = style.get("background_blend_mode")
         if bg_blend and bg_blend != "normal":
             attrs["background-blend-mode"] = bg_blend
@@ -604,17 +607,22 @@ class Renderer:
         raw = css if (css and o.get("type") != "text") else ""
         return self._painter.style_group(svg, attrs, raw)
 
-    def _css_filter_value(self, value):
+    def _css_filter_value(self, value, *, svg_only: bool = True):
         if isinstance(value, str):
             return value.strip() if value.strip() and value.strip() != "none" else ""
         if not isinstance(value, list):
             return ""
+        svg_backed = {"blur", "drop_shadow", "turbulence", "displacement_map", "diffuse_lighting", "specular_lighting"}
         parts = []
         for item in value:
             if not isinstance(item, dict):
                 continue
             fn = item.get("fn") or item.get("kind") or item.get("name")
             if not fn:
+                continue
+            if not svg_only and fn in svg_backed:
+                continue
+            if svg_only and fn in {"turbulence", "displacement_map", "diffuse_lighting", "specular_lighting"}:
                 continue
             css_fn = "hue-rotate" if fn == "hue_rotate" else fn.replace("_", "-")
             if fn == "drop_shadow":
@@ -624,8 +632,15 @@ class Renderer:
             else:
                 val = item.get("value")
                 if val is not None:
-                    parts.append(f"{css_fn}({self._css_length(val)})")
+                    parts.append(f"{css_fn}({self._css_filter_arg(fn, val)})")
         return " ".join(parts)
+
+    def _css_filter_arg(self, fn, value):
+        if fn in {"brightness", "contrast", "grayscale", "invert", "opacity", "saturate", "sepia"}:
+            return str(value)
+        if fn == "hue_rotate":
+            return str(value)
+        return self._css_length(value)
 
     def _css_shadow_value(self, value):
         if isinstance(value, str):

@@ -1,0 +1,757 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: deck
+title: SDK ergonomics showcase
+defs:
+  tokens:
+    colors:
+      ink: '#111827'
+    text_styles:
+      title:
+        color: ink
+        font_family: Inter
+        font_size: 34
+        font_weight: 700
+      label:
+        color: '#334155'
+        font_family: Inter
+        font_size: 15
+  symbols:
+    metric_badge:
+      box:
+      - 0
+      - 0
+      - 140
+      - 48
+      objects:
+      - type: rect
+        box:
+        - 0
+        - 0
+        - 140
+        - 48
+        radius: 10
+        decorative: true
+        fill: $fill
+        stroke_style:
+          stroke_width: 1.2
+        stroke: '#0f172a'
+      - type: text
+        box:
+        - 14
+        - 8
+        - 112
+        - 14
+        text: $label
+        style: label
+      - type: text
+        box:
+        - 14
+        - 24
+        - 112
+        - 18
+        text: $value
+        style: label
+pages:
+- mode: page
+  id: sdk-ergonomics
+  canvas:
+    size:
+    - 960.0
+    - 540.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 960
+      - 540
+      type: rect
+      fill: '#f8fafc'
+    - id: title
+      box:
+      - 48
+      - 38
+      - 560
+      - 44
+      style: title
+      type: text
+      text: SDK ergonomics showcase
+    - id: caption
+      box:
+      - 50
+      - 92
+      - 700
+      - 26
+      style: label
+      type: text
+      text: Symbols, local panels, pattern paint and procedural texture lower to core
+        objects.
+    - box:
+      - 48
+      - 142
+      - 190
+      - 64
+      meta:
+        source_symbol: metric_badge
+      type: group
+      children:
+      - box:
+        - 0.0
+        - 0.0
+        - 190.0
+        - 64.0
+        decorative: true
+        stroke_style:
+          stroke_width: 1.2
+        type: rect
+        fill: '#dbeafe'
+        radius: 10
+        stroke: '#0f172a'
+      - box:
+        - 19.0
+        - 10.666666666666666
+        - 152.0
+        - 18.666666666666664
+        style: label
+        type: text
+        text: symbol
+      - box:
+        - 19.0
+        - 32.0
+        - 152.0
+        - 24.0
+        style: label
+        type: text
+        text: author once
+    - box:
+      - 258
+      - 142
+      - 190
+      - 64
+      meta:
+        source_symbol: metric_badge
+      type: group
+      children:
+      - box:
+        - 0.0
+        - 0.0
+        - 190.0
+        - 64.0
+        decorative: true
+        stroke_style:
+          stroke_width: 1.2
+        type: rect
+        fill: '#dcfce7'
+        radius: 10
+        stroke: '#0f172a'
+      - box:
+        - 19.0
+        - 10.666666666666666
+        - 152.0
+        - 18.666666666666664
+        style: label
+        type: text
+        text: use_at
+      - box:
+        - 19.0
+        - 32.0
+        - 152.0
+        - 24.0
+        style: label
+        type: text
+        text: place many
+    - id: texture-panel
+      box:
+      - 48
+      - 238
+      - 400
+      - 230
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 400
+        - 230
+        decorative: true
+        shadow:
+          color: '#000000'
+          blur: 14.0
+          dx: 0.0
+          dy: 6.0
+          opacity: 0.18
+        type: rect
+        fill: '#ffffff'
+        radius: 12
+      - box:
+        - 22
+        - 22
+        - 150
+        - 72
+        type: rect
+        fill:
+          kind: pattern
+          pattern: hatch
+          angle: 45.0
+          spacing: 9
+          stroke: '#64748b'
+          background: '#f1f5f9'
+      - box:
+        - 196
+        - 22
+        - 150
+        - 72
+        type: rect
+        fill:
+          kind: pattern
+          pattern: dots
+          spacing: 10
+          stroke: '#475569'
+          background: '#e0f2fe'
+      - stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 52.0
+        - 120.0
+        to:
+        - 52.0
+        - 192.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 82.0
+        - 120.0
+        to:
+        - 82.0
+        - 192.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 112.0
+        - 120.0
+        to:
+        - 112.0
+        - 192.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 142.0
+        - 120.0
+        to:
+        - 142.0
+        - 192.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 22.0
+        - 138.0
+        to:
+        - 172.0
+        - 138.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 22.0
+        - 156.0
+        to:
+        - 172.0
+        - 156.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 22.0
+        - 174.0
+        to:
+        - 172.0
+        - 174.0
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 2.0
+        type: path
+        d: M 196 192 C 202.25 187.2 221 165.6 233.5 163.2 C 246 160.8 258.5 184.8
+          271 177.6 C 283.5 170.4 296 124.8 308.5 120 C 321 115.2 339.75 144 346 148.8
+        fill: none
+        stroke: '#2563eb'
+    - id: procedural-panel
+      box:
+      - 500
+      - 142
+      - 360
+      - 326
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 360
+        - 326
+        decorative: true
+        shadow:
+          color: '#000000'
+          blur: 14.0
+          dx: 0.0
+          dy: 6.0
+          opacity: 0.18
+        type: rect
+        fill: '#0f172a'
+        radius: 12
+      - box:
+        - 30.95696432690832
+        - 227.7554453805365
+        - 17.41493131744182
+        - 5.965160261069527
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 222.95736775338418
+        - 94.6192882004692
+        - 6.579551039839943
+        - 5.6882888850145505
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 307.5722473070273
+        - 88.7706553114365
+        - 16.45371315714124
+        - 7.244380859805064
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 229.2930476568689
+        - 202.25741172328486
+        - 12.415992040245952
+        - 17.049226460814296
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 286.7236224583313
+        - 145.04868233701785
+        - 13.913609730975276
+        - 4.678164676427997
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 282.04473782842064
+        - 142.51032638950554
+        - 8.349536865213963
+        - 6.661859382148352
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 307.42492632148446
+        - 134.5242735819319
+        - 17.13184467110326
+        - 14.835329977889295
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 101.06397481535289
+        - 212.88220764242064
+        - 13.777394313887303
+        - 12.57254468416709
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 313.8512202014413
+        - 150.9627872948028
+        - 8.374613215105601
+        - 14.93553429983522
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 228.26115554863648
+        - 59.97818121628799
+        - 5.991127460549491
+        - 15.553163422558104
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 33.91522460285391
+        - 207.67903793089067
+        - 4.687751507713312
+        - 11.44543199700972
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 147.20608244472254
+        - 155.37876502304616
+        - 11.087915614097186
+        - 11.24236305319769
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 134.32800875532445
+        - 141.50784964602403
+        - 16.830489773959005
+        - 8.302288218481884
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 189.0204015705426
+        - 109.68052851601524
+        - 8.162459209989443
+        - 12.338882817761924
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 50.307252123135726
+        - 221.90636568732953
+        - 13.425328050471265
+        - 11.395369991531915
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 146.05749610693397
+        - 209.85935394594898
+        - 8.97979554072019
+        - 10.044630772897495
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 142.0621276882868
+        - 43.200389130053324
+        - 17.3301949706469
+        - 11.167908574211719
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 185.50776267628154
+        - 95.08481435859748
+        - 16.53700560859002
+        - 6.399542573259314
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 82.02914403264054
+        - 31.43198997549691
+        - 8.596032669669711
+        - 9.00091413269639
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 218.44919352618032
+        - 63.26520237139816
+        - 11.496335013838948
+        - 15.142702019987917
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 146.52113923987048
+        - 193.9848294725454
+        - 13.711155186697715
+        - 4.729289179524445
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 273.81684836050914
+        - 123.48295531564108
+        - 16.894211338602688
+        - 10.448063139655249
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 322.04412295657215
+        - 171.11175074047225
+        - 11.335376932456883
+        - 12.183604180655358
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 217.86639963764028
+        - 93.27533336210178
+        - 10.622526874142984
+        - 14.181555948571079
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 204.7102452150243
+        - 207.38212001567192
+        - 14.978441890707971
+        - 15.47713276228305
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 219.2880640422374
+        - 91.77414341936442
+        - 4.254652564344067
+        - 11.000118843491965
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 156.75271656452182
+        - 76.80698369474862
+        - 6.399303039954745
+        - 13.689092713270306
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 132.29545578143052
+        - 46.72786702476681
+        - 4.5861395081140754
+        - 17.539881636709353
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 288.1649010995752
+        - 60.569814122953545
+        - 7.028858285261991
+        - 7.56927431235389
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 166.92954550441326
+        - 66.50584767658788
+        - 7.869115982468766
+        - 5.362958596146879
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 304.46173721419495
+        - 187.25305324123582
+        - 8.817839232427081
+        - 14.288667550045123
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 285.0193841139812
+        - 30.61793716567725
+        - 4.535947392342876
+        - 9.288563220022096
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 140.70079420808668
+        - 173.41282970668172
+        - 6.844867218675131
+        - 10.859879828172744
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 98.19395552836491
+        - 70.03190030810005
+        - 14.053896187777259
+        - 10.502463814273359
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 226.5710241288993
+        - 56.3613530129558
+        - 7.727844513317008
+        - 4.9128832446870785
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 40.783862394751296
+        - 122.23384819458884
+        - 16.451704065977708
+        - 13.04333201396268
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 169.7996580679112
+        - 30.130601683902952
+        - 12.451317771674942
+        - 4.591566740418546
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 211.87346072605436
+        - 226.9665852493643
+        - 14.727866297659512
+        - 4.056964986135526
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 182.30634855952962
+        - 52.351413282982364
+        - 15.849299246498811
+        - 7.266477094611024
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 271.94329012441824
+        - 25.76434361093109
+        - 8.792060432034752
+        - 16.094079163640956
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 77.11541313331843
+        - 182.14656060259063
+        - 9.318359021222825
+        - 12.963281970478576
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 130.990334278144
+        - 192.24162270336848
+        - 16.50302216928334
+        - 11.719578348561624
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 107.55801138481453
+        - 56.36076094415255
+        - 11.179623318339083
+        - 6.636865076642355
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 230.39215736071338
+        - 186.5415018895375
+        - 15.742083334304809
+        - 11.138088993288033
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 143.43183622552792
+        - 201.75429784334221
+        - 17.63288978893693
+        - 6.666970722286533
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 218.98428699937264
+        - 63.11166342494904
+        - 14.66360626434092
+        - 9.414297992915898
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 140.0894586791362
+        - 72.4376622333939
+        - 6.26448441445517
+        - 4.708513579467191
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 69.97500407768639
+        - 131.3138543392883
+        - 11.24748600529043
+        - 17.573082878460205
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - box:
+        - 179.99380655879227
+        - 175.7338342173125
+        - 16.105189437701103
+        - 12.377643972699538
+        decorative: true
+        type: rect
+        fill: '#334155'
+      - stroke_style:
+          stroke_width: 2.0
+        glow:
+          color: '#22d3ee'
+          blur: 14.0
+          opacity: 0.7
+        type: polyline
+        points:
+        - - 180.0
+          - 60.0
+        - - 193.01651217352676
+          - 102.97093396292743
+        - - 234.72820377276207
+          - 86.35571386988866
+        - - 209.2478373654547
+          - 123.32437198131056
+        - - 248.24495385272763
+          - 145.57646537694202
+        - - 203.4549444740409
+          - 148.70469405576202
+        - - 210.3718617382291
+          - 193.06782075316931
+        - - 180.0
+          - 160.0
+        - - 149.62813826177094
+          - 193.06782075316934
+        - - 156.5450555259591
+          - 148.70469405576202
+        - - 111.75504614727234
+          - 145.576465376942
+        - - 150.7521626345453
+          - 123.32437198131059
+        - - 125.2717962272379
+          - 86.35571386988866
+        - - 166.98348782647327
+          - 102.97093396292743
+        closed: true
+        fill: '#facc15'
+        stroke: '#22d3ee'
+      - box:
+        - 36
+        - 264
+        - 288
+        - 28
+        style: label
+        type: text
+        text: deterministic macro texture
+  reading_order:
+  - title
+  - caption

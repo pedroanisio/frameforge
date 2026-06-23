@@ -36,6 +36,17 @@ class Vec3:
     y: float
     z: float
 
+    def __add__(self, other: "Vec3") -> "Vec3":
+        return Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
+
+    def __sub__(self, other: "Vec3") -> "Vec3":
+        return Vec3(self.x - other.x, self.y - other.y, self.z - other.z)
+
+    def __mul__(self, scalar: float) -> "Vec3":
+        return Vec3(self.x * scalar, self.y * scalar, self.z * scalar)
+
+    __rmul__ = __mul__
+
     def tuple(self) -> tuple[float, float, float]:
         return (self.x, self.y, self.z)
 
@@ -128,6 +139,57 @@ class Mat4:
         pitch = _mat4_rotate_x(math.atan(1 / math.sqrt(2)))
         return pitch @ yaw
 
+    @staticmethod
+    def rotate_x(degrees: float) -> "Mat4":
+        return _mat4_rotate_x(math.radians(degrees))
+
+    @staticmethod
+    def rotate_y(degrees: float) -> "Mat4":
+        return _mat4_rotate_y(math.radians(degrees))
+
+    @staticmethod
+    def rotate_z(degrees: float) -> "Mat4":
+        co = math.cos(math.radians(degrees))
+        si = math.sin(math.radians(degrees))
+        return Mat4(((co, -si, 0, 0), (si, co, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)))
+
+    @staticmethod
+    def look_at(
+        eye: Vec3 | Sequence[float],
+        target: Vec3 | Sequence[float] = Vec3(0.0, 0.0, 0.0),
+        up: Vec3 | Sequence[float] = Vec3(0.0, 1.0, 0.0),
+    ) -> "Mat4":
+        """Right-handed view matrix (à la ``gluLookAt``) looking down ``-z``."""
+        e = _v3(eye)
+        f = _normalize3(_v3(target) - e)
+        s = _normalize3(_cross3(f, _v3(up)))
+        u = _cross3(s, f)
+        return Mat4((
+            (s.x, s.y, s.z, -_dot3(s, e)),
+            (u.x, u.y, u.z, -_dot3(u, e)),
+            (-f.x, -f.y, -f.z, _dot3(f, e)),
+            (0.0, 0.0, 0.0, 1.0),
+        ))
+
+    @staticmethod
+    def perspective_fov(fov: float, aspect: float = 1.0, near: float = 0.1, far: float = 100.0) -> "Mat4":
+        """Standard right-handed perspective projection.
+
+        ``fov`` is the vertical field of view in degrees. The ``y`` row is
+        negated so world-up projects to screen-up under FrameGraph's Y-down page
+        space (otherwise the autofit in :class:`~framegraph.sdk.Scene3D` would
+        flip the scene upside-down).
+        """
+        if near <= 0 or far <= near:
+            raise ValueError("perspective_fov needs 0 < near < far")
+        g = 1.0 / math.tan(math.radians(fov) / 2.0)
+        return Mat4((
+            (g / aspect, 0.0, 0.0, 0.0),
+            (0.0, -g, 0.0, 0.0),
+            (0.0, 0.0, (far + near) / (near - far), (2 * far * near) / (near - far)),
+            (0.0, 0.0, -1.0, 0.0),
+        ))
+
     def __matmul__(self, other: "Mat4") -> "Mat4":
         rows = []
         for r in range(4):
@@ -147,6 +209,57 @@ class Mat4:
         if abs(w) < 1e-12:
             raise ValueError("projected point has zero homogeneous w")
         return Vec2(x / w, y / w)
+
+
+@dataclass(frozen=True)
+class Camera:
+    """A perspective (or orthographic-ish) camera that composes a view +
+    projection ``Mat4`` for :class:`~framegraph.sdk.Scene3D` and topology
+    rendering.
+
+    ``eye`` looks at ``target`` with ``up`` defining roll; ``fov`` is the
+    vertical field of view in degrees. Call :meth:`matrix` for the combined
+    ``projection @ view`` transform, or pass the ``Camera`` straight to a
+    renderer that accepts one.
+    """
+
+    eye: Vec3 = Vec3(3.0, 2.5, 4.0)
+    target: Vec3 = Vec3(0.0, 0.0, 0.0)
+    up: Vec3 = Vec3(0.0, 1.0, 0.0)
+    fov: float = 45.0
+    aspect: float = 1.0
+    near: float = 0.1
+    far: float = 100.0
+
+    def view(self) -> Mat4:
+        return Mat4.look_at(self.eye, self.target, self.up)
+
+    def projection(self) -> Mat4:
+        return Mat4.perspective_fov(self.fov, self.aspect, self.near, self.far)
+
+    def matrix(self) -> Mat4:
+        return self.projection() @ self.view()
+
+    def project(self, point: Vec3 | Sequence[float]) -> Vec2:
+        return self.matrix().project(point)
+
+    def orbit(self, *, azimuth: float = 0.0, elevation: float = 0.0) -> "Camera":
+        """Return a new camera with the eye orbited around ``target``.
+
+        ``azimuth``/``elevation`` are degrees; the orbit radius is preserved.
+        Handy for sweeping a perspective deck frame-by-frame without redoing the
+        spherical trigonometry each time.
+        """
+        offset = self.eye - self.target
+        radius = math.sqrt(offset.x**2 + offset.y**2 + offset.z**2)
+        if radius < 1e-9:
+            return self
+        az = math.atan2(offset.x, offset.z) + math.radians(azimuth)
+        el = math.asin(max(-1.0, min(1.0, offset.y / radius))) + math.radians(elevation)
+        el = max(-math.pi / 2 + 1e-3, min(math.pi / 2 - 1e-3, el))
+        co = math.cos(el)
+        new_eye = self.target + Vec3(radius * co * math.sin(az), radius * math.sin(el), radius * co * math.cos(az))
+        return Camera(new_eye, self.target, self.up, self.fov, self.aspect, self.near, self.far)
 
 
 @dataclass(frozen=True)
@@ -265,6 +378,21 @@ def _fmt(value: float) -> str:
     return f"{value:.6g}"
 
 
+def _cross3(a: Vec3, b: Vec3) -> Vec3:
+    return Vec3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x)
+
+
+def _dot3(a: Vec3, b: Vec3) -> float:
+    return a.x * b.x + a.y * b.y + a.z * b.z
+
+
+def _normalize3(v: Vec3) -> Vec3:
+    length = math.sqrt(_dot3(v, v))
+    if length < 1e-12:
+        raise ValueError("cannot normalize a zero-length vector")
+    return Vec3(v.x / length, v.y / length, v.z / length)
+
+
 def _mat4_rotate_x(radians: float) -> Mat4:
     co = math.cos(radians)
     si = math.sin(radians)
@@ -278,6 +406,7 @@ def _mat4_rotate_y(radians: float) -> Mat4:
 
 
 __all__ = [
+    "Camera",
     "CubicBezier",
     "Mat3",
     "Mat4",

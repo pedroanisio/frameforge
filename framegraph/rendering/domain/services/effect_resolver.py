@@ -103,4 +103,9 @@ class EffectResolver:
             elif name == "drop_shadow":
                 shadows = self._box_shadow(item.get("shadow"))
                 out.extend(("shadow", p) for p in shadows)
+            elif name in {"turbulence", "displacement_map", "diffuse_lighting", "specular_lighting"}:
+                params = {k: v for k, v in item.items() if k not in {"fn", "kind", "name"}}
+                if params.get("lighting_color") is not None:
+                    params["lighting_color"] = self._color.resolve(params.get("lighting_color")) or params.get("lighting_color")
+                out.append((name, params))
         return out

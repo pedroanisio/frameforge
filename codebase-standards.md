@@ -82,10 +82,12 @@ Rules of reading:
 - **`[Enforced]`** Runtime deps are minimal, pinned by floor: `pydantic>=2`, `pyyaml>=6`
   ([pyproject.toml:11-12](./pyproject.toml#L11-L12)).
 - **`[Enforced]`** Optional capability sets are **PEP 735 dependency-groups**, not PEP
-  621 extras: `dev` (hypothesis + pytest), `render = ["matplotlib>=3.7", "pillow>=10"]`, and
-  `pdf = ["pymupdf>=1.24"]` ([pyproject.toml:20-26](./pyproject.toml#L20-L26)). `uv sync`
-  installs `dev` by default; `uv sync --group render` adds the matplotlib proxy renderer's
-  deps, and `uv sync --group pdf` adds PyMuPDF for the PDF -> FrameGraph transpiler.
+  621 extras: `dev` (hypothesis + pytest), `render = ["matplotlib>=3.7", "pillow>=10"]`,
+  `browser = ["playwright>=1.44"]`, and `pdf = ["pymupdf>=1.24"]`
+  ([pyproject.toml:21-28](./pyproject.toml#L21-L28)). `uv sync` installs `dev` by default;
+  `uv sync --group render` adds the matplotlib proxy renderer's deps,
+  `uv sync --group browser` adds the Headless-Chromium raster renderer's deps, and
+  `uv sync --group pdf` adds PyMuPDF for the PDF -> FrameGraph transpiler.
 - **`[Enforced]`** This is a **virtual project**: `package = false`
   ([pyproject.toml:33](./pyproject.toml#L33)). The tree runs via `sys.path`-rooted scripts;
   it is deliberately **not** built or installed (an installed `framegraph` distribution

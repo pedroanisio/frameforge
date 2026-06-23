@@ -162,9 +162,33 @@ ShadowVal = Union[str, Shadow]
 
 class FilterFn(FG):
     fn: Literal["blur", "brightness", "contrast", "drop_shadow", "grayscale",
-                "hue_rotate", "invert", "opacity", "saturate", "sepia"]
+                "hue_rotate", "invert", "opacity", "saturate", "sepia",
+                "turbulence", "displacement_map", "diffuse_lighting", "specular_lighting"]
     value: Optional[Union[float, int, str]] = None
     shadow: Optional[ShadowVal] = None
+    base_frequency: Optional[Union[float, int, str, list[Union[float, int, str]]]] = None
+    num_octaves: Optional[int] = None
+    seed: Optional[int] = None
+    stitch_tiles: Optional[Literal["stitch", "noStitch"]] = None
+    type: Optional[Literal["fractalNoise", "turbulence"]] = None
+    mode: Optional[str] = None
+    opacity: Optional[Union[float, int, str]] = None
+    scale: Optional[Union[float, int, str]] = None
+    x_channel: Optional[Literal["R", "G", "B", "A"]] = None
+    y_channel: Optional[Literal["R", "G", "B", "A"]] = None
+    surface_scale: Optional[Union[float, int, str]] = None
+    lighting_color: Optional[Color] = None
+    azimuth: Optional[Union[float, int, str]] = None
+    elevation: Optional[Union[float, int, str]] = None
+    x: Optional[Union[float, int, str]] = None
+    y: Optional[Union[float, int, str]] = None
+    z: Optional[Union[float, int, str]] = None
+    points_at_x: Optional[Union[float, int, str]] = None
+    points_at_y: Optional[Union[float, int, str]] = None
+    points_at_z: Optional[Union[float, int, str]] = None
+    diffuse_constant: Optional[Union[float, int, str]] = None
+    specular_constant: Optional[Union[float, int, str]] = None
+    specular_exponent: Optional[Union[float, int, str]] = None
 
 
 Filter = Union[str, list[FilterFn]]

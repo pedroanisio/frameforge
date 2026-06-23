@@ -203,6 +203,15 @@ class SvgPainter:
         """Register a shadow/glow `<filter>` for params; return its id (deduped).
 
         Additive — only called for objects/styles that declare supported effects."""
+        if kind in {"turbulence", "displacement_map", "diffuse_lighting", "specular_lighting"}:
+            key = (kind, tuple(sorted((k, str(v)) for k, v in params.items())))
+            fid = self._filters.get(key)
+            if fid is not None:
+                return fid
+            fid = f"fx{len(self._filters) + 1}"
+            self._filters[key] = fid
+            self._defs.append(self._filter_def(fid, kind, params))
+            return fid
         if kind == "blur":
             blur = fnum(num(params.get("blur"), 0))
             key = ("blur", blur)
@@ -248,6 +257,14 @@ class SvgPainter:
 
     @staticmethod
     def _filter_def(fid: str, kind: str, p: dict) -> str:
+        if kind == "turbulence":
+            return SvgPainter._turbulence_filter_def(fid, p)
+        if kind == "displacement_map":
+            return SvgPainter._displacement_filter_def(fid, p)
+        if kind == "diffuse_lighting":
+            return SvgPainter._lighting_filter_def(fid, p, specular=False)
+        if kind == "specular_lighting":
+            return SvgPainter._lighting_filter_def(fid, p, specular=True)
         if kind == "blur":
             blur = fnum(num(p.get("blur"), 0))
             return (f'<filter id="{esc(fid)}" x="-20%" y="-20%" width="140%" height="140%">'
@@ -274,6 +291,84 @@ class SvgPainter:
                 f'<feComposite in2="SourceAlpha" operator="in" result="glow"/>'
                 f'<feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 f'</filter>')
+
+    @staticmethod
+    def _turbulence_filter_def(fid: str, p: dict) -> str:
+        base = SvgPainter._base_frequency(p.get("base_frequency", p.get("value", 0.035)))
+        octaves = int(num(p.get("num_octaves"), 2) or 2)
+        seed = int(num(p.get("seed"), 0) or 0)
+        noise_type = p.get("type") or "fractalNoise"
+        stitch = p.get("stitch_tiles") or "noStitch"
+        opacity = fnum(num(p.get("opacity"), 0.35))
+        return (f'<filter id="{esc(fid)}" x="-20%" y="-20%" width="140%" height="140%">'
+                f'<feTurbulence type="{esc(noise_type)}" baseFrequency="{esc(base)}" '
+                f'numOctaves="{octaves}" seed="{seed}" stitchTiles="{esc(stitch)}" result="noise"/>'
+                f'<feComponentTransfer in="noise" result="texture">'
+                f'<feFuncA type="linear" slope="{opacity}"/></feComponentTransfer>'
+                f'<feBlend in="SourceGraphic" in2="texture" mode="{esc(p.get("mode") or "multiply")}"/>'
+                f'</filter>')
+
+    @staticmethod
+    def _displacement_filter_def(fid: str, p: dict) -> str:
+        base = SvgPainter._base_frequency(p.get("base_frequency", 0.035))
+        octaves = int(num(p.get("num_octaves"), 2) or 2)
+        seed = int(num(p.get("seed"), 0) or 0)
+        scale = fnum(num(p.get("scale", p.get("value")), 12))
+        return (f'<filter id="{esc(fid)}" x="-20%" y="-20%" width="140%" height="140%">'
+                f'<feTurbulence type="{esc(p.get("type") or "fractalNoise")}" baseFrequency="{esc(base)}" '
+                f'numOctaves="{octaves}" seed="{seed}" result="noise"/>'
+                f'<feDisplacementMap in="SourceGraphic" in2="noise" scale="{scale}" '
+                f'xChannelSelector="{esc(p.get("x_channel") or "R")}" '
+                f'yChannelSelector="{esc(p.get("y_channel") or "G")}"/>'
+                f'</filter>')
+
+    @staticmethod
+    def _lighting_filter_def(fid: str, p: dict, *, specular: bool) -> str:
+        surface = fnum(num(p.get("surface_scale"), 2))
+        color = p.get("lighting_color") or "#ffffff"
+        light = SvgPainter._light_node(p)
+        if specular:
+            constant = fnum(num(p.get("specular_constant"), 0.8))
+            exponent = fnum(num(p.get("specular_exponent"), 20))
+            primitive = (f'<feSpecularLighting in="SourceAlpha" surfaceScale="{surface}" '
+                         f'specularConstant="{constant}" specularExponent="{exponent}" '
+                         f'lighting-color="{esc(color)}" result="light">{light}</feSpecularLighting>'
+                         f'<feComposite in="light" in2="SourceAlpha" operator="in" result="spec"/>'
+                         f'<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="spec"/></feMerge>')
+        else:
+            constant = fnum(num(p.get("diffuse_constant"), p.get("value", 1)))
+            primitive = (f'<feDiffuseLighting in="SourceAlpha" surfaceScale="{surface}" '
+                         f'diffuseConstant="{constant}" lighting-color="{esc(color)}" '
+                         f'result="light">{light}</feDiffuseLighting>'
+                         f'<feComposite in="light" in2="SourceGraphic" operator="arithmetic" '
+                         f'k1="1" k2="0" k3="0" k4="0"/>')
+        return f'<filter id="{esc(fid)}" x="-30%" y="-30%" width="160%" height="160%">{primitive}</filter>'
+
+    @staticmethod
+    def _light_node(p: dict) -> str:
+        if p.get("x") is not None or p.get("y") is not None or p.get("z") is not None:
+            attrs = (
+                f'x="{fnum(num(p.get("x"), 0))}" '
+                f'y="{fnum(num(p.get("y"), 0))}" '
+                f'z="{fnum(num(p.get("z"), 80))}"'
+            )
+            if p.get("points_at_x") is not None or p.get("points_at_y") is not None or p.get("points_at_z") is not None:
+                attrs += (
+                    f' pointsAtX="{fnum(num(p.get("points_at_x"), 0))}"'
+                    f' pointsAtY="{fnum(num(p.get("points_at_y"), 0))}"'
+                    f' pointsAtZ="{fnum(num(p.get("points_at_z"), 0))}"'
+                )
+                return f"<feSpotLight {attrs}/>"
+            return f"<fePointLight {attrs}/>"
+        return (f'<feDistantLight azimuth="{fnum(num(p.get("azimuth"), 225))}" '
+                f'elevation="{fnum(num(p.get("elevation"), 45))}"/>')
+
+    @staticmethod
+    def _base_frequency(value) -> str:
+        if isinstance(value, (list, tuple)):
+            return " ".join(fnum(num(v, 0.035)) for v in value[:2])
+        n = num(value, None)
+        return fnum(n) if n is not None else str(value)
 
     # ---- primitives ------------------------------------------------------- #
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None):

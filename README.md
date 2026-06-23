@@ -26,6 +26,7 @@ tooling/
   validate.py                 ← structural (models) + static/geometric rules the schema can't express.
   codemod.py                  ← migrates a document to HEAD (stroke split, size→sizing, gradient, aliases).
   render_fixtures.py          ← dependency-free SVG proxy renderer (+ `--check-overflow` text-fit gate).
+  render_chromium.py          ← optional Headless-Chromium SVG→PNG raster renderer (CSS-fidelity path).
   render_fg_doc.py            ← the matplotlib PROXY renderer, patched to HEAD (sanity check only).
   pdf_to_framegraph_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameGraph YAML extractor.
   gen_status.py               ← GENERATES FIXTURE-STATUS.md from the validator (`--check` gates drift).
@@ -43,7 +44,7 @@ docs/ + mkdocs.yml            ← the GENERATED MkDocs site (only docs/index.md 
 FIXTURE-STATUS.md             ← GENERATED validator status for the delivered fixtures (gen_status.py).
 CHANGELOG.md                  ← version, the breaking change + migration, conformance classes, rec. resolution.
 codebase-standards.md         ← the elevated engineering bar, status-tagged (Enforced / Adopted / Target).
-pyproject.toml + uv.lock      ← the uv virtual project (deps; dev/render groups; `package = false`).
+pyproject.toml + uv.lock      ← the uv virtual project (deps; dev/render/browser/pdf groups; `package = false`).
 Makefile + .github/workflows/ ← `make check` = the local gate; CI mirrors it (+ a docs build/deploy job).
 ```
 
@@ -87,6 +88,11 @@ uv run pytest
 
 # SVG proxy renderer (dependency-free core) -> out/render/index.html
 uv run python tooling/render_fixtures.py --all
+
+# optional browser-fidelity raster renderer (install Playwright + Chromium first)
+uv sync --group browser
+uv run playwright install chromium
+uv run python tooling/render_chromium.py fixtures/filters.fg.yaml --out out/chromium
 
 # optional PDF text/layout extractor (install PyMuPDF first)
 uv sync --group pdf

@@ -2,9 +2,12 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from random import Random
+from typing import Any, Sequence
 
 from framegraph.sdk.author import DocumentBuilder, Handle
+from framegraph.sdk.geometry import Path
+from framegraph.sdk.paint import hatch, stroke
 
 _TOKEN_RE = re.compile(r"(`[^`]+`|\$[^$]+\$|\[[^\]]+\]\([^)]+\))")
 
@@ -57,6 +60,120 @@ def paragraph(text: str, **fields: Any) -> dict[str, Any]:
     if len(spans) == 1 and isinstance(spans[0], str):
         return {"type": "paragraph", "text": spans[0], **fields}
     return {"type": "paragraph", "spans": spans, **fields}
+
+
+def hatch_fill(
+    box: Sequence[float],
+    *,
+    fg: str = "#64748b",
+    bg: str | None = None,
+    scale: float = 8.0,
+    angle: float = 45.0,
+    **fields: Any,
+) -> list[dict[str, Any]]:
+    """Return a hatch-filled rect object for procedural texture.
+
+    The macro returns a list so it composes with :meth:`PageBuilder.extend` and
+    can grow later without changing its call shape.
+    """
+    return [
+        {
+            "type": "rect",
+            "box": list(box),
+            "fill": hatch(fg=fg, bg=bg, scale=scale, angle=angle),
+            **fields,
+        }
+    ]
+
+
+def grid_lines(
+    box: Sequence[float],
+    *,
+    cols: int = 0,
+    rows: int = 0,
+    color: str = "#cbd5e1",
+    width: float = 1.0,
+    **fields: Any,
+) -> list[dict[str, Any]]:
+    """Return evenly spaced guide/grid lines inside ``box``."""
+    x, y, w, h = _box(box)
+    style = stroke(width, color=color)
+    style.update(fields)
+    objects: list[dict[str, Any]] = []
+    for i in range(1, max(0, int(cols))):
+        xx = x + w * i / cols
+        objects.append({"type": "line", "from": [xx, y], "to": [xx, y + h], **style})
+    for i in range(1, max(0, int(rows))):
+        yy = y + h * i / rows
+        objects.append({"type": "line", "from": [x, yy], "to": [x + w, yy], **style})
+    return objects
+
+
+def greeble(
+    box: Sequence[float],
+    *,
+    seed: int = 0,
+    density: float = 0.25,
+    fill: str = "#94a3b8",
+    stroke_color: str | None = None,
+    min_size: float = 4.0,
+    max_size: float = 18.0,
+    **fields: Any,
+) -> list[dict[str, Any]]:
+    """Return deterministic small rect details inside ``box``.
+
+    ``density`` is intentionally coarse: it scales object count by area while
+    keeping fixtures stable and bounded.
+    """
+    x, y, w, h = _box(box)
+    rng = Random(seed)
+    count = max(1, min(160, int((w * h / 1200.0) * max(0.05, density))))
+    objects: list[dict[str, Any]] = []
+    for _ in range(count):
+        rw = rng.uniform(min_size, max_size)
+        rh = rng.uniform(min_size, max_size)
+        obj: dict[str, Any] = {
+            "type": "rect",
+            "box": [
+                rng.uniform(x, max(x, x + w - rw)),
+                rng.uniform(y, max(y, y + h - rh)),
+                rw,
+                rh,
+            ],
+            "fill": fill,
+            **fields,
+        }
+        if stroke_color is not None:
+            obj.update(stroke(1, color=stroke_color))
+        objects.append(obj)
+    return objects
+
+
+def sparkline(
+    points: Sequence[Sequence[float]],
+    box: Sequence[float],
+    *,
+    color: str = "#2563eb",
+    width: float = 2.0,
+    smooth: bool = True,
+    **fields: Any,
+) -> dict[str, Any]:
+    """Map data points into ``box`` and return a line/path object."""
+    pts = [tuple(float(v) for v in p[:2]) for p in points]
+    if len(pts) < 2:
+        raise ValueError("sparkline needs at least two points")
+    x, y, w, h = _box(box)
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    x0, x1 = min(xs), max(xs)
+    y0, y1 = min(ys), max(ys)
+    dx = x1 - x0 or 1.0
+    dy = y1 - y0 or 1.0
+    mapped = [[x + (px - x0) / dx * w, y + h - (py - y0) / dy * h] for px, py in pts]
+    style = {"fill": "none", **stroke(width, color=color), **fields}
+    if smooth:
+        return Path().through(mapped).object(**style)
+    return {"type": "polyline", "points": mapped, **style}
 
 
 # Classic lorem-ipsum word pool and the canonical opening clause.
@@ -131,4 +248,20 @@ def lorem_paragraphs(count: int = 1, *, sentences: int = 4, start: bool = True) 
     ]
 
 
-__all__ = ["lorem", "lorem_paragraphs", "md", "paragraph", "theme"]
+def _box(box: Sequence[float]) -> tuple[float, float, float, float]:
+    if len(box) != 4:
+        raise ValueError(f"box must have four values; got {box!r}")
+    return tuple(float(v) for v in box)  # type: ignore[return-value]
+
+
+__all__ = [
+    "greeble",
+    "grid_lines",
+    "hatch_fill",
+    "lorem",
+    "lorem_paragraphs",
+    "md",
+    "paragraph",
+    "sparkline",
+    "theme",
+]

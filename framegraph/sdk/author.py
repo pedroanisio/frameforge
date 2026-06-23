@@ -90,6 +90,19 @@ class DocumentBuilder:
         self._defs("symbols")[name] = symbol
         return Handle("symbol", name)
 
+    @contextmanager
+    def symbol(self, name: str, box: list[Any], **fields: Any) -> "Iterator[PageBuilder]":
+        """Author a reusable symbol with normal ``PageBuilder`` calls.
+
+        The yielded builder records objects in the symbol's local coordinates; on
+        block exit they are installed under ``defs.symbols[name]``. Instances can
+        then be placed with :meth:`PageBuilder.use` or :meth:`PageBuilder.use_at`.
+        """
+        sub = PageBuilder({"layers": []}).layer("_symbol")
+        yield sub
+        objects = sub._current_layer.get("objects", []) if sub._current_layer else []
+        self.define_symbol(name, box=_coerce_handles(box), objects=objects, **fields)
+
     def define_component(self, name: str, spec: dict[str, Any]) -> Handle:
         self._defs("components")[name] = _coerce_handles(spec)
         return Handle("component", name)
@@ -568,6 +581,23 @@ class PageBuilder:
         self.group(children, transform=transform, clip=clip, **fields)
 
     @contextmanager
+    def local(self, box: list[Any], *, clip: Any = None, **fields: Any) -> "Iterator[PageBuilder]":
+        """Collect local-coordinate children into a box-anchored group.
+
+        Use this for panels, motifs and small diagrams that should be authored
+        from ``[0, 0]`` without manually adding the panel origin to every child.
+        The group carries ``box``; children remain local to that box.
+        """
+        sub = PageBuilder({"layers": []}).layer("_local")
+        yield sub
+        children = sub._current_layer.get("objects", []) if sub._current_layer else []
+        self.group(children, box=box, clip=clip, **fields)
+
+    def panel(self, box: list[Any], *, clip: Any = None, **fields: Any):
+        """Alias for :meth:`local` when the grouped children form a panel."""
+        return self.local(box, clip=clip, **fields)
+
+    @contextmanager
     def frame(
         self,
         x: float = 0.0,
@@ -603,6 +633,18 @@ class PageBuilder:
 
     def use(self, symbol: Handle | str, box: list[Any], **fields: Any) -> "PageBuilder":
         return self.add({"type": "use", "symbol": _handle_name(symbol, {"symbol"}, "symbol"), "box": box, **fields})
+
+    def use_at(
+        self,
+        symbol: Handle | str,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        **fields: Any,
+    ) -> "PageBuilder":
+        """Place a symbol instance from scalar coordinates."""
+        return self.use(symbol, [x, y, w, h], **fields)
 
     def component(self, component: Handle | str, box: list[Any], **fields: Any) -> "PageBuilder":
         return self.add(
