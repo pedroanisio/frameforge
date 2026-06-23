@@ -479,28 +479,28 @@ def index(b):
                       "✦ IA", "red")
 
 
-AI_FORWARD = {4, 6, 12, 15}  # proposals where AI is the load-bearing mechanism
+AI_FORWARD = {4, 12, 15, 18}  # proposals where AI is the load-bearing mechanism
 
 PROPOSALS = [
-    (1, "Cockpit do cooperado", "home centrada na conta"),
-    (2, "Cashback: 3 destinos", "ponto vira dinheiro"),
-    (3, "Acúmulo guiado", "transparência do ganho"),
-    (4, "Extrato auditável", "confiança / rastreio"),
-    (5, "Shop facetado", "layout (facetas)"),
-    (6, "Busca unificada", "IA orientada à busca"),
-    (7, "Checkout pontos+PIX", "fluxo / pagamento"),
-    (8, "Minha cooperativa", "identidade cooperativa"),
-    (9, "Produtos dos Cooperados", "curadoria / origem"),
-    (10, "Navegue por experiência", "IA por vertical"),
-    (11, "Coopera no Super App", "fator de forma"),
-    (12, "Feed personalizado", "conteúdo algorítmico"),
-    (13, "Valor do ponto", "transparência de preço"),
-    (14, "Central de validade", "ciclo de vida / 24m"),
-    (15, "Concierge IA", "interação conversacional"),
-    (16, "Diretório de parceiras", "descoberta de lojas"),
-    (17, "Doações & impacto", "propósito / ESG"),
-    (18, "Status de resgate", "pós-compra / rastreio"),
-    (19, "Como funciona", "compreensão / clareza"),
+    (1, "Cockpit do dono", "propriedade / conta"),
+    (2, "Carteira: pontos + sobras", "o que a coop devolve"),
+    (3, "Minha cooperativa", "identidade cooperativa"),
+    (4, "Assembleia digital", "governança / voz"),
+    (5, "Impacto cooperativo", "ESG / comunidade"),
+    (6, "Você é dono", "compreensão / pertencimento"),
+    (7, "Cashback: 3 destinos", "ponto vira dinheiro"),
+    (8, "Pix Coopera", "pagamento nativo (Pix)"),
+    (9, "Coopera no Super App", "fator de forma"),
+    (10, "Acúmulo guiado", "transparência do ganho"),
+    (11, "Hub Agro", "vertical do cooperado"),
+    (12, "Painel do produtor", "agro / safra"),
+    (13, "Hub Saúde", "vertical do cooperado"),
+    (14, "Produtos dos Cooperados", "economia cooperativa"),
+    (15, "Economia local", "economia circular"),
+    (16, "Doações votadas", "propósito / assembleia"),
+    (17, "Extrato auditável", "confiança / rastreio"),
+    (18, "Status de resgate", "pós-compra / garantia"),
+    (19, "Checkout pontos + PIX", "fluxo / pagamento"),
     (20, "Agência + app", "canal online ↔ físico"),
 ]
 
@@ -512,17 +512,25 @@ def p01_cockpit(page):
     region = browser(page, "shopcoopera.com.br/  ·  minha conta")
     body = site_header(page, region)
     x, y, w, _ = inset(body, 18)
+    # ownership-first hero: points + sobras + cooperative, side by side
     hero = [x, y, w, 132]
     page.rect(hero, fill="ink", radius=12)
-    hx, hy, hw, _ = inset(hero, 20)
-    T(page, [hx, hy, 240, 14], "SEUS PONTOS COOPERA",
-      style=ts(10.5, 700, "faint", letter_spacing=1.2))
-    T(page, [hx, hy + 18, 320, 40], "12.480 pts",
-      style=ts(34, 800, "paper", letter_spacing=-1))
-    T(page, [hx, hy + 64, 380, 14], "↘ 640 pts vencem em 38 dias · validade 24m",
-      style=ts(12, 600, "redSft"))
-    button(page, [hx + hw - 150, hy + 4, 150, 32], "Comprar pontos", "primary")
-    button(page, [hx + hw - 150, hy + 44, 150, 32], "Virar cashback", "ghost")
+    hx, hy, hw, _ = inset(hero, 22)
+    stats = [("PONTOS COOPERA", "12.480 pts", "↘ 640 vencem em 38 dias"),
+             ("SOBRAS A RECEBER", "R$ 1.240", "resultado distribuído a você"),
+             ("SUA COOPERATIVA", "Credicitrus", "cooperado · você é dono")]
+    sw3 = (hw - 168) / 3
+    for i, (lbl, big, sub) in enumerate(stats):
+        sx = hx + i * sw3
+        if i:
+            page.rect([sx - 16, hy + 4, 1, 80], fill="warm")
+        T(page, [sx, hy, sw3 - 10, 14], lbl,
+          style=ts(10, 700, "faint", letter_spacing=1.1))
+        T(page, [sx, hy + 18, sw3 - 10, 30], big,
+          style=ts(23, 800, "paper", letter_spacing=-0.6))
+        T(page, [sx, hy + 54, sw3 - 10, 14], sub, style=ts(11, 500, "faint"))
+    button(page, [hx + hw - 150, hy + 14, 150, 32], "Comprar pontos", "primary")
+    button(page, [hx + hw - 150, hy + 54, 150, 32], "Virar cashback", "ghost")
 
     qy = y + 148
     acts = [("↑", "Juntar"), ("↓", "Usar"), ("$", "Cashback"), ("◈", "Cooperativa"),
@@ -702,101 +710,6 @@ def p04_statement(page):
 
 
 # ======================================================================= #
-#  05 — shop facetado (marketplace)
-# ======================================================================= #
-def p05_shop(page):
-    region = browser(page, "shopcoopera.com.br/shopping")
-    body = site_header(page, region, active="Shopping")
-    x, y, w, h = inset(body, 18)
-    T(page, [x, y, 500, 18], "Shop Coopera — 250 mil itens", style="h1")
-    T(page, [x, y + 24, 600, 14],
-      "Marketplace com facetas claras e preço em pontos + reais visível.",
-      style="mut")
-    facet, results = row([x, y + 52, w, h - 52], gap=16, weights=[1, 3.4])
-    card(page, facet, fill="canvas")
-    fx, fy, fw, _ = inset(facet, 14)
-    T(page, [fx, fy, fw, 13], "CATEGORIA", style="lbl")
-    cats = [("Tudo", True), ("Eletrônicos", False), ("Casa", False),
-            ("Esporte", False), ("Beleza", False), ("Agro", False),
-            ("Saúde", False), ("Viagens", False)]
-    cyy = fy + 22
-    for label, on in cats:
-        circle(page, fx + 7, cyy + 7, 6, fill="red" if on else "paper",
-               stroke="faint")
-        T(page, [fx + 22, cyy, fw - 22, 14], label, style="td" if on else "mut")
-        cyy += 26
-    T(page, [fx, cyy + 8, fw, 13], "PAGAR COM", style="lbl")
-    for label in ["Só pontos", "Pontos + cartão", "PIX"]:
-        page.rect([fx, cyy + 30, 14, 14], fill="paper", stroke="faint",
-                  stroke_style=HAIR, radius=3)
-        T(page, [fx + 22, cyy + 30, fw - 22, 14], label, style="mut")
-        cyy += 26
-    T(page, [fx, cyy + 16, fw, 13], "✓ cabe nos meus pontos", style="chipA")
-
-    rx, ry, rw, rh = results
-    pill(page, [rx, ry, 200, 28], "Relevância · Menos pontos ▾", fill="paper",
-         stroke="line", style="chip", radius=8)
-    T(page, [rx + rw - 150, ry + 7, 150, 14], "12.842 produtos", style="mut")
-    for cb in grid([rx, ry + 40, rw, rh - 40], cols=4, rows=3, gap=12):
-        card(page, cb)
-        ix, iy, iw, ih = inset(cb, 12)
-        thumb(page, [ix, iy, iw, ih - 44])
-        T(page, [ix, iy + ih - 40, iw, 14], "Produto", style="h3")
-        T(page, [ix, iy + ih - 22, iw - 50, 14], "8.000 pts", style="pts")
-        T(page, [ix + iw - 48, iy + ih - 22, 48, 14], "+R$ 0", style="tiny")
-
-
-# ======================================================================= #
-#  06 — busca unificada
-# ======================================================================= #
-def p06_search(page):
-    region = browser(page, "shopcoopera.com.br/busca?q=cafeteira")
-    x, y, w, h = inset(region, 0)
-    page.rect([x, y, w, 64], fill="ink")
-    T(page, [x + 20, y + 22, 110, 20], "co coopera", style=ts(15, 800, "paper"))
-    pill(page, [x + 150, y + 16, w - 340, 32], None, fill="paper", radius=8)
-    T(page, [x + 166, y + 24, w - 380, 16], "cafeteira", style="td")
-    T(page, [x + w - 300, y + 24, 60, 16], "⌕", style="glyphW")
-    T(page, [x + w - 170, y + 22, 150, 16], "12.480 pts",
-      style=ts(12, 700, "paper"))
-
-    x, y = x + 18, y + 80
-    w = w - 36
-    facet, res = row([x, y, w, region[3] - 96], gap=16, weights=[1, 3.6])
-    card(page, facet, fill="canvas")
-    fx, fy, fw, _ = inset(facet, 14)
-    T(page, [fx, fy, fw, 13], "RESULTADOS EM", style="lbl")
-    kinds = [("Produtos", "412", True), ("Agro", "18", False),
-             ("Saúde", "7", False), ("Viagens", "9", False),
-             ("Cooperados", "23", False)]
-    ky = fy + 22
-    for lbl, n, on in kinds:
-        if on:
-            page.rect([fx - 4, ky - 4, fw + 8, 26], fill="redSft", radius=6)
-        T(page, [fx, ky, fw - 40, 16], lbl, style="navA" if on else "mut")
-        T(page, [fx + fw - 36, ky, 36, 16], n, style="chipA" if on else "tiny")
-        ky += 30
-    T(page, [fx, ky + 10, fw, 13], "PREÇO (PONTOS)", style="lbl")
-    progressbar(page, [fx, ky + 32, fw, 6], 0.5, fill="bar")
-    circle(page, fx + fw * 0.5, ky + 35, 7, fill="paper", stroke="red")
-    T(page, [fx, ky + 46, fw, 13], "até 12.480 (seu saldo)", style="chipA")
-
-    rx, ry, rw, rh = res
-    T(page, [rx, ry, 400, 14],
-      "412 resultados · ✓ só o que cabe no seu saldo", style="mut")
-    tags = ["Produto", "Cooperado", "Produto", "Produto", "Agro", "Produto",
-            "Produto", "Saúde", "Produto"]
-    for tg, cb in zip(tags, grid([rx, ry + 24, rw, rh - 24], cols=3, rows=3,
-                                 gap=12)):
-        card(page, cb)
-        ix, iy, iw, ih = inset(cb, 12)
-        thumb(page, [ix, iy, iw, ih - 42])
-        badge(page, [ix, iy + 8, 24 + len(tg) * 6, 18], tg, "muted")
-        T(page, [ix, iy + ih - 38, iw, 14], "Resultado", style="h3")
-        T(page, [ix, iy + ih - 20, iw, 14], "8.000 pts", style="pts")
-
-
-# ======================================================================= #
 #  07 — checkout pontos + cartão + PIX
 # ======================================================================= #
 def p07_checkout(page):
@@ -936,36 +849,6 @@ def p09_cooperados(page):
 
 
 # ======================================================================= #
-#  10 — navegue por experiência (verticais)
-# ======================================================================= #
-def p10_experiences(page):
-    region = browser(page, "shopcoopera.com.br/")
-    body = site_header(page, region)
-    x, y, w, h = inset(body, 18)
-    T(page, [x, y, 600, 18], "Navegue por experiência", style="h1")
-    T(page, [x, y + 24, 660, 14],
-      "Quatro mundos como portas reais, não ícones soltos — cada um com sua busca.",
-      style="mut")
-    exps = [("Shopping", "▦", "250 mil produtos pra resgatar"),
-            ("Agronegócio", "✦", "insumos, máquinas e crédito rural"),
-            ("Saúde", "✚", "consultas, exames e farmácia"),
-            ("Viagens", "✈", "passagens, hotéis e pacotes")]
-    cells = grid([x, y + 56, w, h - 56], cols=2, rows=2, gap=16)
-    for (ttl, g, sub), cb in zip(exps, cells):
-        page.rect(cb, fill="ink", radius=12)
-        ix, iy, iw, ih = inset(cb, 22)
-        icon(page, [ix, iy, 44, 44], g, fill="red", style="glyphW", radius=12)
-        T(page, [ix + 58, iy + 4, iw - 58, 20], ttl, style=ts(20, 800, "paper"))
-        T(page, [ix + 58, iy + 30, iw - 58, 14], sub, style=ts(12, 500, "faint"))
-        # mini search inside the world
-        sb = [ix, iy + ih - 44, iw, 34]
-        page.rect(sb, fill="paper", radius=8)
-        T(page, [sb[0] + 12, sb[1] + 10, iw - 100, 14],
-          "⌕  Buscar em " + ttl, style="place")
-        button(page, [sb[0] + iw - 84, sb[1] + 4, 76, 26], "Entrar", "primary")
-
-
-# ======================================================================= #
 #  11 — Coopera no Super App (mobile)
 # ======================================================================= #
 def p11_mobile(page):
@@ -1028,222 +911,6 @@ def p11_mobile(page):
               style="glyphR" if on else "glyph")
             T(page, [cx - 24, bar_y + 28, 48, 12], lab,
               style=ts(9, 700, "red" if on else "muted", align="center"))
-
-
-# ======================================================================= #
-#  12 — feed personalizado
-# ======================================================================= #
-def p12_feed(page):
-    region = browser(page, "shopcoopera.com.br/  ·  pra você")
-    body = site_header(page, region)
-    x, y, w, h = inset(body, 18)
-    T(page, [x, y, 400, 18], "Pra você, hoje", style="h1")
-    T(page, [x, y + 24, 600, 14],
-      "Ofertas, mais-vendidos e cooperados fixos → feed algorítmico de intenções.",
-      style="mut")
-    feed = [
-        ("EXPIRA", "640 pts vencem em 38 dias", "Vire cashback agora", "red"),
-        ("PERTO", "Faltam 1k p/ a Air Fryer", "Você olhou 2×", "muted"),
-        ("AGRO", "Insumos com 10 pts/R$", "Combina com seu perfil", "red"),
-        ("COOPERADO", "Café da Credicitrus", "Produtor perto de você", "muted"),
-        ("CASHBACK", "Centauro 10 pts/R$", "Dobro neste fim de semana", "muted"),
-        ("SAÚDE", "Consulta por pontos", "Rede credenciada", "muted"),
-        ("DOAÇÃO", "Projeto local a 80%", "Ajude a fechar a meta", "red"),
-        ("VIAGEM", "Gramado por 9k pts", "Alta no inverno", "muted"),
-    ]
-    cells = grid([x, y + 52, w, h - 52], cols=4, rows=2, gap=14)
-    for (tag, ttl, sub, tone), cb in zip(feed, cells):
-        card(page, cb)
-        ix, iy, iw, ih = inset(cb, 14)
-        badge(page, [ix, iy, 30 + len(tag) * 7, 18], tag, tone)
-        thumb(page, [ix, iy + 26, iw, ih - 96])
-        T(page, [ix, iy + ih - 64, iw, 16], _wrap(ttl, 22), style="h2")
-        T(page, [ix, iy + ih - 26, iw, 14], sub, style="mut")
-    T(page, [x, y + h - 6, w, 14],
-      "↻ reordena por comportamento · cada card é uma intenção distinta",
-      style="tiny")
-
-
-# ======================================================================= #
-#  13 — valor do ponto
-# ======================================================================= #
-def p13_value(page):
-    region = browser(page, "shopcoopera.com.br/valor-dos-pontos")
-    body = site_header(page, region)
-    x, y, w, _ = inset(body, 18)
-    hero = [x, y, w, 96]
-    page.rect(hero, fill="ink", radius=12)
-    hx, hy, hw, _ = inset(hero, 20)
-    T(page, [hx, hy, 360, 14], "SEUS 12.480 PTS VALEM, NO MELHOR USO",
-      style=ts(10.5, 700, "faint", letter_spacing=1.2))
-    T(page, [hx, hy + 18, 360, 34], "≈ R$ 374",
-      style=ts(30, 800, "paper", letter_spacing=-1))
-    T(page, [hx + hw - 240, hy + 6, 240, 14],
-      "1 ponto rende mais ou menos\nconforme onde você troca.",
-      style=ts(12, 500, "faint", line_height=1.4, align="right"))
-
-    left, right = row([x, y + 112, w, body[3] - 112 - 18], gap=16, weights=[1.2, 1])
-    card(page, left)
-    lx, ly, lw, _ = inset(left, 16)
-    T(page, [lx, ly, lw, 16], "Valor por ponto, por tipo de troca", style="h2")
-    methods = [("Viagens", 3.4, 1.0, "melhor"), ("Produtos do Shop", 2.6, 0.76, ""),
-               ("Produtos Cooperados", 2.6, 0.76, ""),
-               ("Cashback em conta", 2.6, 0.76, ""),
-               ("Desconto na fatura", 2.5, 0.73, "")]
-    my = ly + 30
-    for name, cents, frac, tag in methods:
-        T(page, [lx, my, 220, 14], name, style="td")
-        if tag:
-            badge(page, [lx + 168, my - 1, 56, 18], tag, "good")
-        T(page, [lx + lw - 70, my, 70, 14], f"{cents:.1f}¢", style="right")
-        progressbar(page, [lx, my + 20, lw, 8], frac,
-                    fill="good" if tag == "melhor" else "red")
-        my += 44
-
-    card(page, right)
-    rx, ry, rw, _ = inset(right, 16)
-    T(page, [rx, ry, rw, 16], "Melhores trocas pelo saldo", style="h2")
-    best = [("Passagem SP→Gramado", "3,4¢/pt"), ("Diária pousada", "3,1¢/pt"),
-            ("Café Cooperado", "2,8¢/pt"), ("Air Fryer 12L", "2,6¢/pt")]
-    for (nm, v), cb in zip(best, [[rx, ry + 30 + i * 64, rw, 56] for i in range(4)]):
-        card(page, cb, fill="canvas")
-        thumb(page, [cb[0] + 10, cb[1] + 10, 56, 36])
-        T(page, [cb[0] + 78, cb[1] + 12, cb[2] - 160, 16], nm, style="h3")
-        badge(page, [cb[0] + cb[2] - 78, cb[1] + 18, 64, 20], v, "good")
-
-
-# ======================================================================= #
-#  14 — central de validade (24 meses)
-# ======================================================================= #
-def p14_expiry(page):
-    region = browser(page, "shopcoopera.com.br/a-vencer")
-    body = site_header(page, region)
-    x, y, w, _ = inset(body, 18)
-    T(page, [x, y, 500, 18], "Seus pontos a vencer", style="h1")
-    T(page, [x, y + 24, 620, 14],
-      "Validade de 24 meses não pode ser surpresa. Aqui você nunca perde.",
-      style="mut")
-    buckets = [("38 dias", "640 pts", 0.9, "red"),
-               ("4 meses", "1.800 pts", 0.5, "red"),
-               ("12 meses", "4.200 pts", 0.25, "muted"),
-               ("> 18 meses", "5.840 pts", 0.05, "good")]
-    for (when, amt, urg, tone), cb in zip(buckets,
-                                          row([x, y + 52, w, 96], count=4, gap=14)):
-        card(page, cb, fill="canvas")
-        ix, iy, iw, _ = inset(cb, 14)
-        circle(page, ix + 7, iy + 8, 6, fill=_TONE.get(tone, _TONE["muted"])[1])
-        T(page, [ix + 20, iy, iw - 20, 14], "vence em " + when, style="mut")
-        T(page, [ix, iy + 22, iw, 22], amt, style="kpiR" if tone == "red" else "kpi")
-        progressbar(page, [ix, iy + 52, iw, 6], urg,
-                    fill="red" if tone == "red" else "bar")
-    T(page, [x, y + 168, 400, 14],
-      "QUEIME OS 640 PTS QUE VENCEM EM 38 DIAS", style="lbl")
-    micro = [("Cashback na conta", "640 pts"), ("Cupom farmácia", "300 pts"),
-             ("Doar p/ projeto local", "200 pts"), ("Crédito celular", "500 pts"),
-             ("Café Cooperado", "1.200 pts"), ("Desconto na fatura", "qualquer")]
-    for (nm, pts), cb in zip(micro, grid([x, y + 190, w, body[3] - 190 - 16],
-                                         cols=3, rows=2, gap=14)):
-        card(page, cb)
-        ix, iy, iw, ih = inset(cb, 14)
-        icon(page, [ix, iy, 36, 36], "↺", fill="redSft", style="glyphR")
-        T(page, [ix + 48, iy + 2, iw - 48, 16], nm, style="h3")
-        T(page, [ix + 48, iy + 22, iw - 48, 14], pts, style="pts")
-        button(page, [ix, iy + ih - 30, iw, 28], "Trocar 1-clique", "primary")
-
-
-# ======================================================================= #
-#  15 — concierge IA
-# ======================================================================= #
-def p15_concierge(page):
-    region = browser(page, "shopcoopera.com.br/assistente")
-    x, y, w, h = inset(region, 0)
-    page.rect([x, y, w, 52], fill="ink")
-    icon(page, [x + 16, y + 12, 28, 28], "✦", fill="red", style="glyphW", radius=14)
-    T(page, [x + 54, y + 16, 320, 20], "Assistente Coopera", style=ts(15, 800, "paper"))
-    T(page, [x + w - 170, y + 18, 150, 16], "Saldo 12.480 pts",
-      style=ts(12, 700, "paper"))
-
-    chat, side = row([x, y + 52, w, region[3] - 52], gap=0, weights=[2.5, 1])
-    cx, cy, cw, ch = inset(chat, 20)
-    ub = [cx + cw - 380, cy, 380, 44]
-    page.rect(ub, fill="redSft", radius=12)
-    T(page, [ub[0] + 16, ub[1] + 14, ub[2] - 32, 16],
-      "tenho 640 pts vencendo — qual o melhor uso?", style="td")
-    ay = cy + 60
-    page.rect([cx, ay, cw - 80, 48], fill="fill", radius=12)
-    T(page, [cx + 16, ay + 9, cw - 120, 32],
-      "Pelo seu perfil, cashback na conta rende mais. Posso também\nsugerir 3 "
-      "produtos. O que prefere?", style="body")
-    ay += 64
-    picks = [("Cashback R$ 16,60 na conta", "640 pts"),
-             ("Cupom farmácia", "300 pts"),
-             ("Doar a projeto local", "200 pts")]
-    for nm, pts in picks:
-        chip = [cx, ay, cw - 80, 56]
-        card(page, chip)
-        icon(page, [chip[0] + 12, chip[1] + 12, 36, 32], "$", fill="redSft",
-             style="glyphR")
-        T(page, [chip[0] + 60, chip[1] + 12, 220, 16], nm, style="h3")
-        T(page, [chip[0] + 60, chip[1] + 32, 160, 14], pts, style="pts")
-        button(page, [chip[0] + chip[2] - 110, chip[1] + 14, 94, 28],
-               "Fazer", "ghost")
-        ay += 66
-    comp = [cx, chat[1] + chat[3] - 70, cw, 44]
-    page.rect(comp, fill="paper", stroke="line", stroke_style=HAIR, radius=22)
-    T(page, [comp[0] + 18, comp[1] + 14, cw - 80, 16],
-      "Pergunte sobre seus pontos, lojas, validade…", style="place")
-    circle(page, comp[0] + cw - 24, comp[1] + 22, 16, fill="red")
-    T(page, [comp[0] + cw - 40, comp[1] + 13, 32, 18], "↑", style="glyphW")
-    page.rect(side, fill="canvas")
-    sx, sy, sw, _ = inset(side, 16)
-    T(page, [sx, sy, sw, 14], "ATALHOS", style="lbl")
-    for i, q in enumerate(["O que vence primeiro?", "Melhor uso do saldo",
-                           "Onde junto mais ponto?", "Status do meu resgate",
-                           "Minhas sobras"]):
-        pill(page, [sx, sy + 26 + i * 40, sw, 32], q, fill="paper", stroke="line",
-             style="chip", radius=8)
-
-
-# ======================================================================= #
-#  16 — diretório de lojas parceiras
-# ======================================================================= #
-def p16_directory(page):
-    region = browser(page, "shopcoopera.com.br/lojas-parceiras")
-    body = site_header(page, region)
-    x, y, w, h = inset(body, 18)
-    T(page, [x, y, 500, 18], "Lojas parceiras", style="h1")
-    T(page, [x, y + 24, 620, 14],
-      "Onde juntar pontos: buscável e filtrável por taxa, não uma lista solta.",
-      style="mut")
-    facet, results = row([x, y + 52, w, h - 52], gap=16, weights=[1, 3.4])
-    card(page, facet, fill="canvas")
-    fx, fy, fw, _ = inset(facet, 14)
-    T(page, [fx, fy, fw, 13], "CATEGORIA", style="lbl")
-    cats = [("Tudo", True), ("Eletrônicos", False), ("Moda", False),
-            ("Esporte", False), ("Casa", False), ("Beleza", False),
-            ("Agro", False), ("Saúde", False)]
-    cyy = fy + 22
-    for label, on in cats:
-        circle(page, fx + 7, cyy + 7, 6, fill="red" if on else "paper",
-               stroke="faint")
-        T(page, [fx + 22, cyy, fw - 22, 14], label, style="td" if on else "mut")
-        cyy += 26
-    T(page, [fx, cyy + 8, fw, 13], "ORDENAR · maior taxa", style="chipA")
-
-    rx, ry, rw, rh = results
-    pill(page, [rx, ry, 200, 28], "A–Z  ·  Mais pontos/R$ ▾", fill="paper",
-         stroke="line", style="chip", radius=8)
-    T(page, [rx + rw - 130, ry + 7, 130, 14], "96 parceiras", style="mut")
-    names = ["TokStok", "Amazon", "Nike", "Centauro", "Beleza na Web",
-             "Electrolux", "Netshoes", "Magalu", "Renner", "Natura",
-             "Fast Shop", "Adidas"]
-    for nm, cb in zip(names, grid([rx, ry + 40, rw, rh - 40], cols=4, rows=3,
-                                  gap=12)):
-        card(page, cb)
-        ix, iy, iw, ih = inset(cb, 12)
-        thumb(page, [ix, iy, iw, ih - 30], nm)
-        T(page, [ix, iy + ih - 24, iw - 50, 14], nm, style="h3")
-        T(page, [ix + iw - 48, iy + ih - 24, 48, 14], "8 pt", style="chipA")
 
 
 # ======================================================================= #
@@ -1331,61 +998,6 @@ def p18_status(page):
 
 
 # ======================================================================= #
-#  19 — como funciona (explainer)
-# ======================================================================= #
-def p19_explainer(page):
-    region = browser(page, "shopcoopera.com.br/como-funciona")
-    body = site_header(page, region)
-    x, y, w, _ = inset(body, 18)
-    T(page, [x, y, 600, 20], "Como o Coopera funciona", style="h1")
-    T(page, [x, y + 26, 660, 14],
-      "Sem jargão: você junta pontos e troca por produtos ou dinheiro.",
-      style="mut")
-    steps = [("1", "Junte", "Comprando nas parceiras pelo app — cashback de 3 a "
-              "8 pontos por real."),
-             ("2", "Acumule", "Pontos caem em até 45 dias e valem por 24 meses. "
-              "A gente avisa antes de vencer."),
-             ("3", "Use", "Troque por 250 mil produtos, viagens, ou vire "
-              "dinheiro na sua conta.")]
-    for (n, ttl, desc), cb in zip(steps, row([x, y + 56, w, 130], count=3,
-                                             gap=16)):
-        card(page, cb)
-        ix, iy, iw, _ = inset(cb, 18)
-        circle(page, ix + 18, iy + 18, 18, fill="redSft")
-        T(page, [ix, iy + 8, 36, 22], n, style="kpiR")
-        T(page, [ix + 48, iy + 6, iw - 48, 18], ttl, style="h1")
-        T(page, [ix, iy + 44, iw, 60], _wrap(desc, 40), style="body")
-
-    earn, redeem = row([x, y + 202, w, body[3] - 202 - 60], gap=16, weights=[1, 1])
-    for col, head, glyph, ways in [
-            (earn, "Formas de GANHAR", "↑",
-             ["Comprar nas 96 lojas parceiras", "Cartão de crédito Sicoob",
-              "Comprar pontos", "Campanhas com pontos em dobro"]),
-            (redeem, "Formas de USAR", "↓",
-             ["Produtos e viagens no Shop", "Produtos dos Cooperados",
-              "Cashback: conta, fatura ou carteira", "Doar a projetos locais"])]:
-        card(page, col, fill="canvas")
-        ix, iy, iw, _ = inset(col, 18)
-        icon(page, [ix, iy, 34, 34], glyph, fill="redSft", style="glyphR")
-        T(page, [ix + 46, iy + 7, iw - 46, 18], head, style="h2")
-        wy = iy + 50
-        for wtext in ways:
-            circle(page, ix + 7, wy + 7, 5, fill="red")
-            T(page, [ix + 22, wy, iw - 22, 14], wtext, style="td")
-            wy += 34
-
-    fy = body[1] + body[3] - 44
-    T(page, [x, fy - 18, 200, 14], "DÚVIDAS FREQUENTES", style="lbl")
-    fx = x
-    for q in ["Em quanto tempo pontua?", "Quanto vale 1 ponto?",
-              "Posso virar dinheiro?", "Meus pontos vencem?"]:
-        qw = 24 + len(q) * 7
-        pill(page, [fx, fy, qw, 28], q, fill="paper", stroke="line", style="chip",
-             radius=8)
-        fx += qw + 10
-
-
-# ======================================================================= #
 #  20 — agência + app (omnichannel cooperativo)
 # ======================================================================= #
 def p20_omni(page):
@@ -1438,6 +1050,430 @@ def p20_omni(page):
 
 
 # ======================================================================= #
+#  cooperative-native pages (no Esfera analog)
+# ======================================================================= #
+def p_carteira(page):
+    """Pontos + Sobras: a single 'what the cooperative gives back' wallet."""
+    region = browser(page, "shopcoopera.com.br/carteira")
+    body = site_header(page, region)
+    x, y, w, _ = inset(body, 18)
+    T(page, [x, y, 600, 18], "Sua carteira do cooperado", style="h1")
+    T(page, [x, y + 24, 660, 14],
+      "Pontos e sobras juntos: tudo que a cooperativa devolve a você, num lugar.",
+      style="mut")
+    hero = [x, y + 52, w, 110]
+    page.rect(hero, fill="ink", radius=12)
+    hx, hy, hw, _ = inset(hero, 20)
+    cols = [("PONTOS COOPERA", "12.480 pts", "≈ R$ 324"),
+            ("SOBRAS A RECEBER", "R$ 1.240", "exercício 2025"),
+            ("TOTAL DE VOLTA", "R$ 1.564", "no melhor uso")]
+    for i, (lbl, big, sub) in enumerate(cols):
+        sx = hx + i * (hw / 3)
+        if i:
+            page.rect([sx - 12, hy + 2, 1, 66], fill="warm")
+        T(page, [sx, hy, hw / 3 - 16, 13], lbl,
+          style=ts(10, 700, "faint", letter_spacing=1.1))
+        T(page, [sx, hy + 16, hw / 3 - 16, 28],
+          big, style=ts(24, 800, "red" if i == 2 else "paper", letter_spacing=-0.6))
+        T(page, [sx, hy + 52, hw / 3 - 16, 14], sub, style=ts(11, 500, "faint"))
+
+    use, hist = row([x, y + 178, w, body[3] - 178 - 18], gap=16, weights=[1, 1])
+    card(page, use)
+    ux, uy, uw, _ = inset(use, 18)
+    T(page, [ux, uy, uw, 16], "O que fazer com cada um", style="h2")
+    rows = [("Pontos → produtos", "no Shop ou cooperados"),
+            ("Pontos → dinheiro", "fatura, conta ou carteira"),
+            ("Sobras → sacar", "cai na conta corrente"),
+            ("Sobras → reinvestir", "vira capital na cooperativa")]
+    ry = uy + 30
+    for ttl, sub in rows:
+        icon(page, [ux, ry, 34, 34], "↦", fill="redSft", style="glyphR")
+        T(page, [ux + 46, ry + 2, uw - 46, 16], ttl, style="h3")
+        T(page, [ux + 46, ry + 20, uw - 46, 14], sub, style="mut")
+        ry += 48
+    card(page, hist, fill="canvas")
+    hx2, hy2, hw2, _ = inset(hist, 18)
+    T(page, [hx2, hy2, hw2, 16], "Histórico do que voltou", style="h2")
+    items = [("+ R$ 1.240", "Sobras 2025", "good"), ("+ 1.280 pts", "TokStok", "good"),
+             ("+ R$ 90", "Cashback conta", "good"), ("+ 2.460 pts", "Nike", "good"),
+             ("+ R$ 620", "Sobras 2024", "good")]
+    iy = hy2 + 30
+    for amt, lbl, tone in items:
+        circle(page, hx2 + 8, iy + 9, 4, fill=_TONE[tone][1])
+        T(page, [hx2 + 22, iy, hw2 - 120, 14], lbl, style="td")
+        T(page, [hx2 + hw2 - 110, iy, 110, 14], amt,
+          style=dict(font_family=MONO, font_size=11, color="good", align="right"))
+        iy += 32
+
+
+def p_assembleia(page):
+    """Digital assembly — one cooperado, one vote on where Coopera invests."""
+    region = browser(page, "shopcoopera.com.br/assembleia")
+    body = site_header(page, region)
+    x, y, w, _ = inset(body, 18)
+    T(page, [x, y, 600, 18], "Assembleia digital — sua voz decide", style="h1")
+    T(page, [x, y + 24, 660, 14],
+      "Você é dono: 1 cooperado = 1 voto. Decida onde o Coopera investe e doa.",
+      style="mut")
+
+    main, side = row([x, y + 56, w, body[3] - 56 - 18], gap=16, weights=[2, 1])
+    card(page, main)
+    mx, my, mw, _ = inset(main, 20)
+    badge(page, [mx, my, 84, 22], "PAUTA ABERTA", "red")
+    T(page, [mx + 96, my + 2, mw - 96, 16], "Encerra em 4 dias · 1.284 votos",
+      style="mut")
+    T(page, [mx, my + 36, mw, 18],
+      "Para onde direcionar o fundo de pontos doados deste trimestre?", style="h2")
+    opts = [("Educação no campo", 0.46, True),
+            ("Saúde da comunidade", 0.31, False),
+            ("Reflorestar nascentes", 0.23, False)]
+    oy = my + 70
+    for ttl, frac, sel in opts:
+        circle(page, mx + 10, oy + 10, 9, fill="red" if sel else "paper",
+               stroke="faint")
+        if sel:
+            circle(page, mx + 10, oy + 10, 4, fill="paper")
+        T(page, [mx + 32, oy, mw - 120, 16], ttl, style="h3")
+        T(page, [mx + mw - 60, oy, 60, 16], f"{int(frac*100)}%", style="right")
+        progressbar(page, [mx + 32, oy + 22, mw - 32, 8], frac)
+        oy += 50
+    button(page, [mx, oy + 6, 160, 36], "Confirmar voto", "primary")
+    T(page, [mx + 176, oy + 16, mw - 176, 14],
+      "transparente e auditável", style="mut")
+
+    card(page, side, fill="canvas")
+    sx, sy, sw, _ = inset(side, 16)
+    T(page, [sx, sy, sw, 16], "Outras pautas", style="h2")
+    pautas = [("Novos parceiros locais", "Aberta", "red"),
+              ("Calendário de safra", "Aberta", "red"),
+              ("Prestação de contas 2025", "Encerrada", "good"),
+              ("Taxa de adesão", "Encerrada", "good")]
+    py = sy + 30
+    for ttl, st, tone in pautas:
+        T(page, [sx, py, sw - 80, 28], _wrap(ttl, 26), style="td")
+        badge(page, [sx + sw - 74, py, 74, 20], st, tone)
+        page.rect([sx, py + 36, sw, 1], fill="line")
+        py += 48
+
+
+def p_impacto(page):
+    """ESG dashboard — the community impact your points & cooperative created."""
+    region = browser(page, "shopcoopera.com.br/impacto")
+    body = site_header(page, region)
+    x, y, w, _ = inset(body, 18)
+    T(page, [x, y, 600, 18], "O impacto da sua cooperativa", style="h1")
+    T(page, [x, y + 24, 660, 14],
+      "Onde seus pontos e suas sobras viraram comunidade — em números.",
+      style="mut")
+    kpis = [("Projetos apoiados", "32", "na sua região"),
+            ("Devolvido à comunidade", "R$ 1,2 mi", "em 2026"),
+            ("Cooperados ativos", "48 mil", "na Credicitrus"),
+            ("Sua contribuição", "R$ 64", "em doações de pontos")]
+    for (lbl, big, sub), cb in zip(kpis, row([x, y + 56, w, 100], count=4, gap=14)):
+        card(page, cb, fill="canvas")
+        ix, iy, iw, _ = inset(cb, 16)
+        T(page, [ix, iy, iw, 13], lbl.upper(), style="lbl")
+        T(page, [ix, iy + 18, iw, 26], big, style="kpiR")
+        T(page, [ix, iy + 52, iw, 14], sub, style="mut")
+
+    left, right = row([x, y + 172, w, body[3] - 172 - 18], gap=16, weights=[1.4, 1])
+    card(page, left)
+    lx, ly, lw, _ = inset(left, 18)
+    T(page, [lx, ly, lw, 16], "Projetos que seus pontos ajudaram", style="h2")
+    projs = [("Escola rural · Ribeirão", 0.9), ("Posto de saúde · Centro", 0.7),
+             ("Mata ciliar · Rio Pardo", 0.5), ("Escolinha de futebol", 0.8)]
+    py = ly + 30
+    for ttl, frac in projs:
+        T(page, [lx, py, lw - 60, 14], ttl, style="td")
+        T(page, [lx + lw - 56, py, 56, 14], f"{int(frac*100)}%", style="right")
+        progressbar(page, [lx, py + 20, lw, 8], frac, fill="good")
+        py += 44
+    card(page, right, fill="ink")
+    rx, ry, rw, _ = inset(right, 18)
+    T(page, [rx, ry, rw, 14], "PRINCÍPIO COOPERATIVO",
+      style=ts(10.5, 700, "faint", letter_spacing=1.1))
+    T(page, [rx, ry + 22, rw, 60],
+      _wrap("O que você gasta no Coopera volta como sobras e como projeto na "
+            "sua própria comunidade.", 30),
+      style=ts(15, 700, "paper", line_height=1.4))
+    T(page, [rx, ry + 120, rw, 14], "Interesse pela comunidade · 7º princípio",
+      style="chipA")
+
+
+def p_educacao(page):
+    """Cooperativism-first onboarding — you're an owner, not a customer."""
+    region = browser(page, "shopcoopera.com.br/sou-dono")
+    body = site_header(page, region)
+    x, y, w, _ = inset(body, 18)
+    T(page, [x, y, 600, 20], "Você é dono, não cliente", style="h1")
+    T(page, [x, y + 26, 660, 14],
+      "Antes do programa de pontos: entenda o que é ser cooperado do Sicoob.",
+      style="mut")
+    steps = [("1", "Cooperativismo", "Você é sócio da cooperativa — e participa "
+              "dos resultados dela."),
+             ("2", "Sobras", "O que a cooperativa lucra volta pra você como "
+              "sobras, todo ano."),
+             ("3", "Coopera", "O programa devolve ainda mais: pontos viram "
+              "produtos ou dinheiro.")]
+    for (n, ttl, desc), cb in zip(steps, row([x, y + 56, w, 130], count=3,
+                                             gap=16)):
+        card(page, cb)
+        ix, iy, iw, _ = inset(cb, 18)
+        circle(page, ix + 18, iy + 18, 18, fill="redSft")
+        T(page, [ix, iy + 8, 36, 22], n, style="kpiR")
+        T(page, [ix + 48, iy + 6, iw - 48, 18], ttl, style="h1")
+        T(page, [ix, iy + 44, iw, 60], _wrap(desc, 40), style="body")
+
+    bank, coop = row([x, y + 202, w, body[3] - 202 - 18], gap=16, weights=[1, 1])
+    card(page, bank, fill="canvas")
+    bx, by, bw, _ = inset(bank, 18)
+    T(page, [bx, by, bw, 16], "Banco comum", style="h2")
+    for i, t in enumerate(["Você é cliente", "Lucro vai pro acionista",
+                           "Decisão é de cima", "Pontos só viram produto"]):
+        T(page, [bx, by + 34 + i * 30, bw, 14], "✕  " + t, style="mut")
+    card(page, coop, stroke="red")
+    cx, cyy, cw, _ = inset(coop, 18)
+    T(page, [cx, cyy, cw, 16], "Cooperativa (você aqui)", style="h2")
+    for i, t in enumerate(["Você é dono", "Sobras voltam pra você",
+                           "1 cooperado = 1 voto", "Pontos viram dinheiro"]):
+        circle(page, cx + 6, cyy + 41 + i * 30, 5, fill="red")
+        T(page, [cx + 18, cyy + 34 + i * 30, cw - 18, 14], t, style="td")
+
+
+def p_pix(page):
+    """Pix Coopera — pay any Pix with points, round up change to earn."""
+    region = browser(page, "app Sicoob · Pix Coopera")
+    x, y, w, h = inset(region, 0)
+    # phone-style Pix screen on the left, explainer on the right
+    ph = [x + 40, y + 24, 320, region[3] - 48]
+    page.rect(ph, fill="ink", radius=26)
+    sc = inset(ph, [14, 12])
+    page.rect(sc, fill="paper", radius=16)
+    sx, sy, sw, sh = sc
+    T(page, [sx + 14, sy + 14, sw - 28, 14], "Pix", style="h2")
+    T(page, [sx + sw - 90, sy + 14, 78, 14], "12.480 pts", style="pts")
+    T(page, [sx + 14, sy + 44, sw - 28, 13], "VALOR", style="lbl")
+    T(page, [sx + 14, sy + 60, sw - 28, 30], "R$ 48,00", style="kpi")
+    # pay-with-points toggle
+    tg = [sx + 14, sy + 104, sw - 28, 54]
+    page.rect(tg, fill="redSft", radius=10)
+    T(page, [sx + 26, sy + 116, sw - 120, 16], "Pagar com pontos", style="h3")
+    T(page, [sx + 26, sy + 134, sw - 120, 13], "1.846 pts = R$ 48,00", style="chipA")
+    pill(page, [sx + sw - 78, sy + 120, 50, 24], None, fill="red", radius=12)
+    circle(page, sx + sw - 40, sy + 132, 9, fill="paper")
+    # round-up earn
+    ru = [sx + 14, sy + 174, sw - 28, 50]
+    card(page, ru, fill="canvas")
+    T(page, [sx + 26, sy + 184, sw - 60, 14], "Arredondar e juntar pontos",
+      style="h3")
+    T(page, [sx + 26, sy + 202, sw - 60, 13], "troco de R$ 0,00 → +pontos",
+      style="mut")
+    button(page, [sx + 14, sy + sh - 56, sw - 28, 40], "Confirmar Pix", "primary")
+
+    # right: why this matters
+    rx = x + 410
+    rw = region[0] + region[2] - rx - 30
+    T(page, [rx, y + 40, rw, 18], "O Pix do dia a dia vira pontos", style="h1")
+    T(page, [rx, y + 68, rw, 40],
+      _wrap("O cooperado usa Pix o tempo todo no Super App. Aqui ele também "
+            "paga COM pontos e ganha pontos no troco.", 52), style="body")
+    feats = [("Pagar com pontos", "qualquer Pix abatido do saldo"),
+             ("Arredondar o troco", "centavos viram pontos, sem esforço"),
+             ("Sem sair do app", "nasce onde o cooperado já está")]
+    fy = y + 130
+    for ttl, sub in feats:
+        icon(page, [rx, fy, 36, 36], "$", fill="redSft", style="glyphR")
+        T(page, [rx + 48, fy + 2, rw - 48, 16], ttl, style="h2")
+        T(page, [rx + 48, fy + 22, rw - 48, 14], sub, style="mut")
+        fy += 56
+
+
+def p_agro(page):
+    """Agro hub — Sicoob's rural backbone as a first-class vertical."""
+    region = browser(page, "shopcoopera.com.br/agronegocio")
+    body = site_header(page, region, active="Agronegócio")
+    x, y, w, _ = inset(body, 18)
+    hero = [x, y, w, 92]
+    page.rect(hero, fill="ink", radius=12)
+    T(page, [x + 20, y + 22, 400, 20], "Agro Coopera", style=ts(20, 800, "paper"))
+    T(page, [x + 20, y + 50, 520, 14],
+      "Insumos, máquinas e crédito rural — pontos no ritmo da sua safra.",
+      style=ts(12, 500, "faint"))
+    button(page, [x + w - 200, y + 28, 180, 36], "Falar com gerente agro",
+           "primary")
+
+    tiles = [("Insumos", "sementes, defensivos"), ("Máquinas", "tratores, peças"),
+             ("Crédito rural", "custeio e investimento"),
+             ("Seguro agrícola", "proteja a safra")]
+    for (ttl, sub), cb in zip(tiles, row([x, y + 108, w, 96], count=4, gap=14)):
+        card(page, cb)
+        ix, iy, iw, _ = inset(cb, 16)
+        icon(page, [ix, iy, 36, 36], "✦", fill="redSft", style="glyphR")
+        T(page, [ix, iy + 44, iw, 16], ttl, style="h2")
+        T(page, [ix, iy + 64, iw, 14], sub, style="mut")
+
+    # safra calendar strip
+    T(page, [x, y + 220, 300, 14], "CALENDÁRIO DA SAFRA · MILHO", style="lbl")
+    phases = [("Plantio", "set–out", True), ("Tratos", "nov–jan", True),
+              ("Colheita", "fev–abr", False), ("Comercialização", "mai–jun", False)]
+    cal = row([x, y + 242, w, 60], count=4, gap=10)
+    for (ph, when, on), cb in zip(phases, cal):
+        card(page, cb, fill="redSft" if on else "canvas")
+        T(page, [cb[0] + 14, cb[1] + 12, cb[2] - 28, 14], ph,
+          style="h3" if on else "mut")
+        T(page, [cb[0] + 14, cb[1] + 32, cb[2] - 28, 13], when, style="mut")
+
+    T(page, [x, y + 318, 300, 14], "OFERTAS COM PONTO EM DOBRO", style="lbl")
+    for cb in grid([x, y + 340, w, body[3] - 340 - 16], cols=4, rows=1, gap=14):
+        card(page, cb)
+        ix, iy, iw, ih = inset(cb, 12)
+        thumb(page, [ix, iy, iw, ih - 40], "insumo")
+        T(page, [ix, iy + ih - 36, iw, 14], "Insumo agro", style="h3")
+        T(page, [ix, iy + ih - 18, iw, 14], "10 pts/R$", style="pts")
+
+
+def p_safra(page):
+    """Producer cockpit — agribusiness dashboard for the rural cooperado."""
+    region = browser(page, "shopcoopera.com.br/produtor")
+    body = site_header(page, region, active="Agronegócio")
+    x, y, w, _ = inset(body, 18)
+    T(page, [x, y, 600, 18], "Painel do produtor", style="h1")
+    T(page, [x, y + 24, 660, 14],
+      "Coopera fala a língua de quem planta: safra, crédito e pontos por insumo.",
+      style="mut")
+    kpis = [("Área plantada", "320 ha", "milho · safra 25/26"),
+            ("Crédito disponível", "R$ 184 mil", "custeio aprovado"),
+            ("Pontos da safra", "42.800 pts", "em insumos este ciclo")]
+    for (lbl, big, sub), cb in zip(kpis, row([x, y + 56, w, 100], count=3, gap=14)):
+        card(page, cb, fill="canvas")
+        ix, iy, iw, _ = inset(cb, 16)
+        T(page, [ix, iy, iw, 13], lbl.upper(), style="lbl")
+        T(page, [ix, iy + 18, iw, 26], big, style="kpiR")
+        T(page, [ix, iy + 52, iw, 14], sub, style="mut")
+
+    left, right = row([x, y + 172, w, body[3] - 172 - 18], gap=16, weights=[1.5, 1])
+    card(page, left)
+    lx, ly, lw, _ = inset(left, 18)
+    T(page, [lx, ly, lw, 16], "Linha da safra 25/26", style="h2")
+    events = [("Custeio liberado", "set · R$ 184 mil", True),
+              ("Compra de sementes", "set · +12.000 pts", True),
+              ("Defensivos", "nov · +18.400 pts", True),
+              ("Colheita prevista", "mar · estimada", False),
+              ("Venda à cooperativa", "abr · +bônus pts", False)]
+    ey = ly + 30
+    for i, (lbl, when, done) in enumerate(events):
+        circle(page, lx + 9, ey + 8, 7, fill="red" if done else "paper",
+               stroke="faint")
+        if done:
+            circle(page, lx + 9, ey + 8, 3, fill="paper")
+        if i < len(events) - 1:
+            page.rect([lx + 8, ey + 16, 2, 30], fill="line")
+        T(page, [lx + 30, ey, lw - 170, 16], lbl, style="h3" if done else "mut")
+        T(page, [lx + lw - 160, ey, 160, 14], when, style="mut")
+        ey += 46
+    card(page, right, fill="ink")
+    rx, ry, rw, _ = inset(right, 18)
+    T(page, [rx, ry, rw, 14], "CRÉDITO + COOPERA",
+      style=ts(10.5, 700, "faint", letter_spacing=1.1))
+    T(page, [rx, ry + 22, rw, 60],
+      _wrap("Cada insumo financiado pela cooperativa rende pontos — que voltam "
+            "como desconto na próxima safra.", 30),
+      style=ts(15, 700, "paper", line_height=1.4))
+    button(page, [rx, ry + 140, rw, 36], "Simular próxima safra", "primary")
+
+
+def p_saude(page):
+    """Saúde hub — health vertical for the cooperado."""
+    region = browser(page, "shopcoopera.com.br/saude")
+    body = site_header(page, region, active="Saúde")
+    x, y, w, _ = inset(body, 18)
+    hero = [x, y, w, 92]
+    page.rect(hero, fill="ink", radius=12)
+    T(page, [x + 20, y + 22, 400, 20], "Saúde Coopera", style=ts(20, 800, "paper"))
+    T(page, [x + 20, y + 50, 540, 14],
+      "Consultas, exames e farmácia — cuidando do cooperado e da família.",
+      style=ts(12, 500, "faint"))
+    button(page, [x + w - 180, y + 28, 160, 36], "Agendar agora", "primary")
+
+    tiles = [("Consultas", "presencial ou online"), ("Exames", "rede credenciada"),
+             ("Farmácia", "desconto + pontos"), ("Telemedicina", "24h pelo app")]
+    for (ttl, sub), cb in zip(tiles, row([x, y + 108, w, 100], count=4, gap=14)):
+        card(page, cb)
+        ix, iy, iw, _ = inset(cb, 16)
+        icon(page, [ix, iy, 36, 36], "✚", fill="redSft", style="glyphR")
+        T(page, [ix, iy + 46, iw, 16], ttl, style="h2")
+        T(page, [ix, iy + 66, iw, 14], sub, style="mut")
+
+    book, near = row([x, y + 224, w, body[3] - 224 - 18], gap=16, weights=[1.3, 1])
+    card(page, book)
+    bx, by, bw, _ = inset(book, 18)
+    T(page, [bx, by, bw, 16], "Agendar consulta com pontos", style="h2")
+    field(page, [bx, by + 30, bw, 54], "Especialidade", "Clínico geral",
+          kind="select")
+    fr = row([bx, by + 96, bw, 54], count=2, gap=12)
+    field(page, fr[0], "Data", "18/jun", kind="select")
+    field(page, fr[1], "Pagar com", "2.000 pts", kind="select")
+    button(page, [bx, by + 162, bw, 38], "Confirmar agendamento", "primary")
+    card(page, near, fill="canvas")
+    nx, ny, nw, _ = inset(near, 16)
+    T(page, [nx, ny, nw, 16], "Rede perto de você", style="h2")
+    for i, (nm, dist) in enumerate([("Clínica Central", "800 m"),
+                                    ("Lab. Vida", "1,2 km"),
+                                    ("Farmácia Coop.", "300 m")]):
+        cb = [nx, ny + 32 + i * 52, nw, 44]
+        card(page, cb)
+        icon(page, [cb[0] + 10, cb[1] + 8, 28, 28], "✚", fill="paper")
+        T(page, [cb[0] + 48, cb[1] + 8, cb[2] - 110, 16], nm, style="h3")
+        T(page, [cb[0] + cb[2] - 60, cb[1] + 14, 52, 14], dist, style="td")
+
+
+def p_economia(page):
+    """Local economy — buy from nearby cooperados, value stays in the region."""
+    region = browser(page, "shopcoopera.com.br/economia-local")
+    body = site_header(page, region)
+    x, y, w, h = inset(body, 18)
+    T(page, [x, y, 600, 18], "Economia que volta pra sua região", style="h1")
+    T(page, [x, y + 24, 660, 14],
+      "Comprar de cooperados perto gira a economia local — e ainda rende pontos.",
+      style="mut")
+    mapcol, listcol = row([x, y + 56, w, h - 56], gap=16, weights=[1.2, 1])
+    # map placeholder with pins
+    page.rect(mapcol, fill="canvas", stroke="line", stroke_style=HAIR, radius=12)
+    mx, my, mw, mh = mapcol
+    for px, py in [(0.3, 0.3), (0.6, 0.45), (0.45, 0.65), (0.75, 0.7), (0.2, 0.6)]:
+        cxp, cyp = mx + mw * px, my + mh * py
+        circle(page, cxp, cyp, 10, fill="red")
+        circle(page, cxp, cyp, 4, fill="paper")
+    pill(page, [mx + 16, my + 16, 200, 28], "◉ Cooperados num raio de 20 km",
+         fill="paper", stroke="line", style="chip", radius=8)
+    # circular-economy callout
+    cc = [mx + 16, my + mh - 70, mw - 32, 54]
+    page.rect(cc, fill="ink", radius=10)
+    T(page, [cc[0] + 16, cc[1] + 10, cc[2] - 32, 14],
+      "Comprando aqui, 70% do valor fica na sua cidade",
+      style=ts(13, 700, "paper"))
+    T(page, [cc[0] + 16, cc[1] + 30, cc[2] - 32, 13],
+      "economia circular cooperativa", style=ts(11, 500, "faint"))
+
+    card(page, listcol)
+    lx, ly, lw, _ = inset(listcol, 16)
+    T(page, [lx, ly, lw, 16], "Produtores perto de você", style="h2")
+    prods = [("Café do Sítio Boa Vista", "Cooperado · 4 km", "1.200 pts"),
+             ("Mel da Serra", "Cooperado · 8 km", "600 pts"),
+             ("Queijo Artesanal", "Cooperado · 12 km", "900 pts"),
+             ("Hortaliças Orgânicas", "Cooperado · 6 km", "400 pts")]
+    py = ly + 30
+    for nm, who, pts in prods:
+        cb = [lx, py, lw, 64]
+        card(page, cb, fill="canvas")
+        thumb(page, [cb[0] + 10, cb[1] + 10, 54, 44], "foto")
+        T(page, [cb[0] + 76, cb[1] + 12, cb[2] - 90, 16], nm, style="h3")
+        T(page, [cb[0] + 76, cb[1] + 32, cb[2] - 180, 14], who, style="mut")
+        T(page, [cb[0] + cb[2] - 92, cb[1] + 33, 84, 14], pts, style="pts")
+        py += 74
+
+
+# ======================================================================= #
 #  capstone — how AI helps across the whole cooperado journey
 # ======================================================================= #
 def ai_journey(b):
@@ -1454,25 +1490,25 @@ def ai_journey(b):
 
     stages = [
         ("DESCOBRIR", "encontrar o que importa", "#", [
-            ("Recomendação", "feed ordena por propensão e urgência", "12"),
-            ("Busca semântica", "entende intenção, não palavra-chave", "06"),
-            ("Curadoria", "experiência/vertical certa pra você", "10")]),
+            ("Curadoria por vertical", "Agro ou Saúde certo pra você", "11"),
+            ("Match local", "cooperados perto que combinam", "15"),
+            ("Recomendação", "produtos de cooperados por afinidade", "14")]),
         ("JUNTAR", "ganhar sem fricção", "↑", [
-            ("Reconciliação", "detecta compra que não pontuou", "04"),
-            ("Previsão de crédito", "estima quando os 45 dias caem", "03"),
-            ("Melhor taxa", "qual parceira rende mais agora", "16")]),
-        ("DECIDIR", "ponto ou dinheiro?", "$", [
-            ("Otimização", "destino de cashback que mais rende", "02"),
-            ("Preço dinâmico", "valor-por-ponto em tempo real", "13"),
-            ("Agente / LLM", "assistente entende e executa", "15")]),
+            ("Reconciliação", "detecta compra que não pontuou", "10"),
+            ("Pix inteligente", "arredonda o troco e credita", "08"),
+            ("Push preditivo", "no Super App, na hora certa", "09")]),
+        ("DECIDIR", "ponto, dinheiro ou sobras?", "$", [
+            ("Otimização", "melhor destino de cashback", "07"),
+            ("Carteira unificada", "pontos + sobras no melhor uso", "02"),
+            ("Previsão de safra", "crédito e insumo no ciclo certo", "12")]),
         ("USAR", "resgatar sem erro", "↓", [
-            ("Antifraude", "checa o resgate antes de debitar", "07"),
+            ("Antifraude", "checa o resgate antes de debitar", "19"),
             ("Rastreio", "prevê atraso e estorna sozinho", "18"),
-            ("Curadoria", "o micro-resgate certo pra vencer", "14")]),
+            ("Auditoria", "reconcilia e contesta sozinho", "17")]),
         ("PERTENCER", "cooperar e ficar", "◈", [
-            ("Propensão / churn", "prevê breakage e evasão", "14"),
-            ("Match de causa", "projeto local que combina", "17"),
-            ("Personalização", "minha cooperativa em destaque", "08")]),
+            ("Síntese de assembleia", "resume pautas e projeta impacto", "04"),
+            ("Match de causa", "projeto local que combina", "16"),
+            ("Personalização", "minha cooperativa em destaque", "03")]),
     ]
     lanes = row([32, 130, W - 64, 560], count=5, gap=16)
     for (head, sub, glyph, caps), lane in zip(stages, lanes):
@@ -1523,105 +1559,35 @@ def ai_journey(b):
 #  build
 # ======================================================================= #
 CONCEPTS = [
-    dict(n=1, key="01_cockpit", title="Cockpit do cooperado",
-         axis="home centrada na conta",
-         problem="O marketplace vende antes de mostrar quem é o cooperado: saldo, "
-                 "validade e movimentação ficam invisíveis.",
-         approach=["Saldo + validade 24m + pendências no topo",
+    dict(n=1, key="01_cockpit", title="Cockpit do dono",
+         axis="propriedade / conta do dono",
+         problem="O marketplace vende antes de mostrar quem é o cooperado — e "
+                 "esconde que ele é dono, com pontos E sobras.",
+         approach=["Hero com pontos, sobras e sua cooperativa juntos",
                    "Ações rápidas: Juntar, Usar, Cashback, Cooperativa",
                    "‘Dá pra resgatar’ filtra pelo saldo real",
-                   "Extrato de movimentação sempre à mão"],
-         outcome="O cooperado entende seu valor em 1 olhada e age, em vez de "
-                 "navegar uma loja genérica.",
-         ai="IA prioriza o ‘dá pra resgatar’ por afinidade e prevê o que cabe no "
-            "saldo — o painel se monta sozinho.",
+                   "Movimentação de pontos e sobras à mão"],
+         outcome="O cooperado vê seu valor de dono em 1 olhada — não é cliente "
+                 "de loja, é sócio com retorno.",
+         ai="IA prioriza o ‘dá pra resgatar’ por afinidade e projeta o retorno "
+            "total (pontos + sobras) no melhor uso.",
          refactors="home  ·  /minha-conta",
          draw=p01_cockpit),
-    dict(n=2, key="02_cashback", title="Cashback: 3 destinos",
-         axis="ponto vira dinheiro",
-         problem="O grande diferencial do Coopera — ponto vira real — fica "
-                 "escondido; ninguém sabe que dá pra sacar.",
-         approach=["Destaca: fatura, conta corrente ou carteira",
-                   "Seletor de quanto resgatar, com valor em R$",
-                   "Mostra prazo de cada destino",
-                   "Produtos do Shop como alternativa"],
-         outcome="O cooperado percebe que o ponto é dinheiro líquido e escolhe o "
-                 "destino com clareza.",
-         ai="IA recomenda o destino que mais rende pelo seu perfil e prevê o "
-            "melhor momento de sacar.",
-         refactors="resgate  ·  /cashback",
-         draw=p02_cashback),
-    dict(n=3, key="03_earn", title="Acúmulo guiado",
-         axis="transparência do ganho",
-         problem="Juntar é confuso: compra na parceira pelo app e o ponto só cai "
-                 "em 45 dias, sem rastreio.",
-         approach=["Fluxo 1-2-3: ative → compre → receba",
-                   "Tracker de compras aguardando crédito",
-                   "Prazo de 45 dias visível por compra",
-                   "Melhores taxas de cashback agora"],
-         outcome="O cooperado confia que vai pontuar e sabe exatamente quando — "
-                 "menos ansiedade e suporte.",
-         ai="IA estima a data provável do crédito e avisa se uma compra "
-            "‘deveria ter pontuado’ e não pontuou.",
-         refactors="juntar  ·  /juntar",
-         draw=p03_earn),
-    dict(n=4, key="04_statement", title="Extrato auditável",
-         axis="confiança / rastreabilidade",
-         problem="‘Meus pontos não aparecem / foram zerados’ é a reclamação nº 1. "
-                 "Não há rastreio nem contestação.",
-         approach=["Cada compra com status: pendente/creditado/análise",
-                   "Alerta do que está dentro dos 45 dias",
-                   "Contestação com protocolo",
-                   "Extrato que parece um banco, não caixa-preta"],
-         outcome="Resolve a dor que mais gera reclamação e reconstrói a confiança "
-                 "no acúmulo de pontos.",
-         ai="IA reconcilia compras × pontos e sinaliza anomalias antes do "
-            "cooperado reclamar — auditoria automática.",
-         refactors="extrato  ·  /extrato",
-         draw=p04_statement),
-    dict(n=5, key="05_shop", title="Shop facetado",
-         axis="mecanismo de layout (facetas)",
-         problem="São 250 mil itens sem facetas claras; achar o que cabe nos "
-                 "pontos é difícil.",
-         approach=["Facetas: categoria, forma de pagar, preço",
-                   "Filtro ‘cabe nos meus pontos’",
-                   "Preço em pontos + reais em cada card",
-                   "Pague com pontos, pontos + cartão ou PIX"],
-         outcome="Descoberta real no marketplace em vez de rolar uma vitrine "
-                 "infinita sem filtro útil.",
-         ai="IA ranqueia por ‘menos pontos pra você’ e aprende suas categorias "
-            "preferidas a cada visita.",
-         refactors="marketplace  ·  /shopping",
-         draw=p05_shop),
-    dict(n=6, key="06_search", title="Busca unificada",
-         axis="IA orientada à busca",
-         problem="A busca não cruza Shopping, Agro, Saúde, Viagens e Produtos "
-                 "Cooperados num só lugar.",
-         approach=["Busca dominante cobre todas as experiências",
-                   "Facetas por tipo de resultado e por preço",
-                   "Filtro ‘cabe no meu saldo’ por padrão",
-                   "Resultados marcados por origem"],
-         outcome="Uma caixa de busca resolve qualquer intenção; o saldo vira "
-                 "filtro natural de relevância.",
-         ai="Busca em linguagem natural com ranqueamento por valor-por-ponto: a "
-            "IA interpreta a intenção, não só a palavra.",
-         refactors="busca global  ·  /busca",
-         draw=p06_search),
-    dict(n=7, key="07_checkout", title="Checkout pontos + PIX",
-         axis="fluxo / pagamento",
-         problem="Resgatar dá erro de pagamento por dias; e o split pontos + "
-                 "cartão + PIX não é claro.",
-         approach=["Escolha clara: só pontos, pontos+cartão, PIX",
-                   "Stepper sacola → entrega → pagamento",
-                   "PIX com 5% à vista destacado",
-                   "Pontos só debitados ao confirmar"],
-         outcome="Resgate ganha a confiança de um e-commerce moderno e reduz o "
-                 "abandono por erro.",
-         ai="IA sugere o split ótimo de pontos + dinheiro e detecta erro/fraude "
-            "antes de debitar.",
-         refactors="resgate  ·  /checkout",
-         draw=p07_checkout),
-    dict(n=8, key="08_coop", title="Minha cooperativa",
+    dict(n=2, key="02_carteira", title="Carteira: pontos + sobras",
+         axis="tudo que a cooperativa devolve",
+         problem="Pontos e sobras vivem em mundos separados; o cooperado não vê o "
+                 "total que a cooperativa devolve a ele.",
+         approach=["Carteira única: pontos, sobras e total em R$",
+                   "O que fazer com cada um, lado a lado",
+                   "Sobras: sacar ou reinvestir como capital",
+                   "Histórico unificado do que voltou"],
+         outcome="Materializa o diferencial cooperativo: o retorno não é só "
+                 "ponto, é dinheiro de dono — num lugar só.",
+         ai="IA recomenda o melhor uso combinado de pontos + sobras e projeta o "
+            "retorno do reinvestimento na cooperativa.",
+         refactors="conta  ·  /carteira",
+         draw=p_carteira),
+    dict(n=3, key="03_coop", title="Minha cooperativa",
          axis="identidade cooperativa",
          problem="O Coopera parece uma loja qualquer; o fato de o usuário ser "
                  "dono (cooperado) some por completo.",
@@ -1635,35 +1601,77 @@ CONCEPTS = [
             "sobras conforme o uso do Coopera.",
          refactors="institucional  ·  /minha-cooperativa",
          draw=p08_coop),
-    dict(n=9, key="09_cooperados", title="Produtos dos Cooperados",
-         axis="curadoria / origem",
-         problem="Os produtos feitos por cooperados ficam diluídos no catálogo "
-                 "geral, sem valorizar a origem.",
-         approach=["Vitrine exclusiva de produtos de cooperados",
-                   "Filtro por origem: café, agro, artesanato",
-                   "Selo ◈ Cooperado e cooperativa de origem",
-                   "Preço em pontos + reais"],
-         outcome="Valoriza a produção cooperativa e dá um motivo de compra que "
-                 "nenhum marketplace comum tem.",
-         ai="IA recomenda produtos de cooperados por afinidade e proximidade "
-            "geográfica — apoio local com relevância.",
-         refactors="marketplace  ·  /produtos-cooperados",
-         draw=p09_cooperados),
-    dict(n=10, key="10_experiences", title="Navegue por experiência",
-         axis="IA por vertical",
-         problem="‘Navegue por experiência’ existe, mas Shopping/Agro/Saúde/"
-                 "Viagens são só ícones, sem profundidade.",
-         approach=["Cada experiência vira um mundo com porta clara",
-                   "Busca própria dentro de cada vertical",
-                   "Agro e Saúde como verticais de 1ª classe",
-                   "Entrada direta, sem passar pelo genérico"],
-         outcome="Reflete quem é o cooperado (rural, saúde) e dá profundidade a "
-                 "verticais hoje subaproveitadas.",
-         ai="IA escolhe qual experiência abrir primeiro pelo seu perfil de "
-            "cooperado (ex.: produtor rural → Agro).",
-         refactors="home  ·  experiências",
-         draw=p10_experiences),
-    dict(n=11, key="11_mobile", title="Coopera no Super App",
+    dict(n=4, key="04_assembleia", title="Assembleia digital",
+         axis="governança / sua voz",
+         problem="A maior força do cooperativismo — decidir junto — está ausente "
+                 "do programa; o cooperado não tem voz no Coopera.",
+         approach=["1 cooperado = 1 voto, direto na plataforma",
+                   "Vote onde o fundo de pontos doados vai",
+                   "Pautas abertas e encerradas, transparentes",
+                   "Prestação de contas auditável"],
+         outcome="Transforma um programa de pontos em exercício de cooperativismo "
+                 "real — engajamento que loja nenhuma replica.",
+         ai="IA resume pautas longas em linguagem simples e projeta o impacto de "
+            "cada opção antes do voto.",
+         refactors="governança  ·  /assembleia",
+         draw=p_assembleia),
+    dict(n=5, key="05_impacto", title="Impacto cooperativo",
+         axis="ESG / comunidade",
+         problem="O cooperado não vê que seus pontos e sobras viram comunidade — "
+                 "o impacto social fica invisível.",
+         approach=["KPIs: projetos, R$ devolvido, cooperados, CO2",
+                   "Projetos locais que seus pontos ajudaram",
+                   "Liga gasto no Coopera a impacto na região",
+                   "Reforça o 7º princípio: interesse pela comunidade"],
+         outcome="Dá propósito ao programa e reduz breakage: usar pontos vira um "
+                 "ato com impacto local visível.",
+         ai="IA quantifica seu impacto individual e recomenda onde sua próxima "
+            "doação de pontos rende mais para a comunidade.",
+         refactors="institucional  ·  /impacto",
+         draw=p_impacto),
+    dict(n=6, key="06_educacao", title="Você é dono",
+         axis="compreensão / pertencimento",
+         problem="Cooperado não sabe o que é cooperativismo nem como sobras e "
+                 "Coopera se conectam — entra como ‘cliente’.",
+         approach=["Explica cooperativismo em 1-2-3, sem jargão",
+                   "Liga sobras (anual) ao Coopera (contínuo)",
+                   "Comparação clara: banco comum × cooperativa",
+                   "Deixa explícito: ponto vira dinheiro"],
+         outcome="Ativação mais rápida e fidelidade emocional: o cooperado "
+                 "entende que é dono, não cliente.",
+         ai="IA adapta a explicação ao perfil (urbano, produtor rural) e "
+            "responde dúvidas sobre ser cooperado em linguagem natural.",
+         refactors="onboarding  ·  /sou-dono",
+         draw=p_educacao),
+    dict(n=7, key="07_cashback", title="Cashback: 3 destinos",
+         axis="ponto vira dinheiro",
+         problem="O grande diferencial do Coopera — ponto vira real — fica "
+                 "escondido; ninguém sabe que dá pra sacar.",
+         approach=["Destaca: fatura, conta corrente ou carteira",
+                   "Seletor de quanto resgatar, com valor em R$",
+                   "Mostra prazo de cada destino",
+                   "Produtos do Shop como alternativa"],
+         outcome="O cooperado percebe que o ponto é dinheiro líquido e escolhe o "
+                 "destino com clareza.",
+         ai="IA recomenda o destino que mais rende pelo seu perfil e prevê o "
+            "melhor momento de sacar.",
+         refactors="resgate  ·  /cashback",
+         draw=p02_cashback),
+    dict(n=8, key="08_pix", title="Pix Coopera",
+         axis="pagamento nativo (Pix)",
+         problem="O cooperado usa Pix o tempo todo no app, mas isso não conversa "
+                 "com os pontos — duas experiências separadas.",
+         approach=["Pagar qualquer Pix com pontos do saldo",
+                   "Arredondar o troco do Pix e juntar pontos",
+                   "Tudo dentro do Super App, sem fricção",
+                   "Pontos no dia a dia, não só em compras grandes"],
+         outcome="O hábito mais brasileiro vira motor de pontos — acúmulo e "
+                 "resgate contínuos, no fluxo que já existe.",
+         ai="IA sugere quando pagar com pontos vale mais que reais e ativa o "
+            "arredondamento inteligente do troco.",
+         refactors="Super App  ·  Pix",
+         draw=p_pix),
+    dict(n=9, key="09_superapp", title="Coopera no Super App",
          axis="fator de forma",
          problem="O acúmulo nasce no Sicoob Super App, mas o Coopera vive num "
                  "site à parte, desconectado do dia a dia.",
@@ -1677,78 +1685,92 @@ CONCEPTS = [
             "certo, dentro do Super App.",
          refactors="Super App  ·  aba Coopera",
          draw=p11_mobile),
-    dict(n=12, key="12_feed", title="Feed personalizado",
-         axis="conteúdo algorítmico",
-         problem="Ofertas, Mais-vendidos e Cooperados são fileiras fixas, iguais "
-                 "pra todos, ignorando o comportamento.",
-         approach=["Feed algorítmico substitui fileiras fixas",
-                   "Cards de intenção: expira, perto, agro, doação",
-                   "Reordena por comportamento e perfil",
-                   "Cada card é uma ação distinta, não vitrine"],
-         outcome="A home fala com cada cooperado: o ponto que vence, a meta perto, "
-                 "o cooperado local que combina.",
-         ai="O feed é a IA: um modelo de recomendação ordena cada card por "
-            "propensão e urgência.",
-         refactors="home editorial  ·  /pra-voce",
-         draw=p12_feed),
-    dict(n=13, key="13_value", title="Valor do ponto",
-         axis="transparência de preço",
-         problem="O cooperado não sabe quanto vale 1 ponto, então não percebe "
-                 "quando faz uma troca ruim.",
-         approach=["Mostra o saldo em R$ pelo melhor uso",
-                   "Valor por ponto (¢/pt) em cada tipo de troca",
-                   "Marca o ‘melhor valor’ explicitamente",
-                   "Lista as melhores trocas pelo saldo"],
-         outcome="Decisão informada: o cooperado extrai mais de cada ponto e "
-                 "confia no programa.",
-         ai="IA calcula o valor-por-ponto em tempo real e recomenda a troca que "
-            "maximiza R$ por ponto.",
-         refactors="catálogo  ·  /valor-dos-pontos",
-         draw=p13_value),
-    dict(n=14, key="14_expiry", title="Central de validade",
-         axis="ciclo de vida / 24 meses",
-         problem="Pontos vencem em 24 meses e o cooperado é pego de surpresa — "
-                 "vira breakage e frustração.",
-         approach=["Linha do tempo por data de vencimento",
-                   "Sugestões de queima do tamanho do saldo",
-                   "Micro-resgates e cashback em 1 clique",
-                   "Nunca deixa perder por descuido"],
-         outcome="Menos breakage e mais uso recorrente — o cooperado sente que a "
-                 "cooperativa protege o valor dele.",
-         ai="IA prevê a probabilidade de breakage e dispara o lembrete certo, na "
-            "hora certa, com a melhor opção de queima.",
-         refactors="validade  ·  /a-vencer",
-         draw=p14_expiry),
-    dict(n=15, key="15_concierge", title="Concierge IA",
-         axis="interação conversacional",
-         problem="Achar a melhor ação (sacar, trocar, doar) exige navegar muitas "
-                 "telas; não há quem entenda o pedido.",
-         approach=["Chat resolve em linguagem natural",
-                   "Sugere a melhor opção pelo seu perfil",
-                   "Executa a ação direto da conversa",
-                   "Atalhos pras perguntas mais comuns"],
-         outcome="A jornada vira diálogo: o cooperado pergunta, o Coopera "
-                 "resolve — sem caçar em menus.",
-         ai="É IA-nativa: um agente conversacional (LLM) com as ferramentas de "
-            "saldo, catálogo, cashback e resgate plugadas.",
-         refactors="suporte/descoberta  ·  /assistente",
-         draw=p15_concierge),
-    dict(n=16, key="16_directory", title="Diretório de parceiras",
-         axis="descoberta de lojas",
-         problem="As lojas parceiras viram uma lista sem busca nem ordenação por "
-                 "taxa de cashback.",
-         approach=["Página dedicada, buscável e filtrável",
-                   "Facetas por categoria e maior taxa",
-                   "Grade A–Z das 96 parceiras",
-                   "Taxa de pontos/R$ visível em cada card"],
-         outcome="Descoberta real de onde juntar mais pontos, em vez de uma lista "
-                 "impossível de escanear.",
-         ai="Busca semântica entende ‘loja de esporte com mais ponto’ e a IA "
-            "reordena pelo seu padrão de compra.",
-         refactors="parceiras  ·  /lojas-parceiras",
-         draw=p16_directory),
-    dict(n=17, key="17_donate", title="Doações & impacto",
-         axis="propósito / ESG",
+    dict(n=10, key="10_earn", title="Acúmulo guiado",
+         axis="transparência do ganho",
+         problem="Juntar é confuso: compra na parceira pelo app e o ponto só cai "
+                 "em 45 dias, sem rastreio.",
+         approach=["Fluxo 1-2-3: ative → compre → receba",
+                   "Tracker de compras aguardando crédito",
+                   "Prazo de 45 dias visível por compra",
+                   "Melhores taxas de cashback agora"],
+         outcome="O cooperado confia que vai pontuar e sabe exatamente quando — "
+                 "menos ansiedade e suporte.",
+         ai="IA estima a data provável do crédito e avisa se uma compra "
+            "‘deveria ter pontuado’ e não pontuou.",
+         refactors="juntar  ·  /juntar",
+         draw=p03_earn),
+    dict(n=11, key="11_agro", title="Hub Agro",
+         axis="vertical do cooperado (agro)",
+         problem="Agronegócio é o coração do Sicoob, mas no Coopera é só um ícone "
+                 "— sem insumos, crédito rural ou safra.",
+         approach=["Vertical Agro de 1ª classe: insumos, máquinas",
+                   "Crédito rural e seguro agrícola integrados",
+                   "Calendário de safra orienta a navegação",
+                   "Ofertas de insumo com ponto em dobro"],
+         outcome="Fala com quem sustenta a cooperativa — o produtor rural — em "
+                 "vez de tratá-lo como comprador genérico.",
+         ai="IA recomenda insumos pela cultura e fase da safra e prevê a melhor "
+            "janela de compra de cada item.",
+         refactors="experiência Agro  ·  /agronegocio",
+         draw=p_agro),
+    dict(n=12, key="12_safra", title="Painel do produtor",
+         axis="agro / ciclo da safra",
+         problem="O produtor rural não tem um Coopera que entenda safra, crédito "
+                 "e os pontos gerados pelos insumos do ciclo.",
+         approach=["Cockpit: área, crédito e pontos da safra",
+                   "Linha do tempo do plantio à venda",
+                   "Pontos por insumo financiado pela coop.",
+                   "Simula a próxima safra com crédito + pontos"],
+         outcome="Coopera vira ferramenta de gestão do produtor, não só "
+                 "marketplace — fidelidade no core do Sicoob.",
+         ai="IA projeta crédito e pontos do próximo ciclo e antecipa quando cada "
+            "insumo será necessário na safra.",
+         refactors="experiência Agro  ·  /produtor",
+         draw=p_safra),
+    dict(n=13, key="13_saude", title="Hub Saúde",
+         axis="vertical do cooperado (saúde)",
+         problem="Saúde aparece em ‘experiências’ mas sem profundidade: faltam "
+                 "consultas, exames e farmácia com pontos.",
+         approach=["Vertical Saúde: consultas, exames, farmácia",
+                   "Agendamento pagando com pontos",
+                   "Telemedicina 24h pelo app",
+                   "Rede credenciada perto de você"],
+         outcome="Cuida do cooperado e da família — benefício de saúde que "
+                 "aprofunda o vínculo além de comprar produto.",
+         ai="IA sugere a especialidade pelos sintomas descritos e encontra o "
+            "horário/credenciado ideal por proximidade.",
+         refactors="experiência Saúde  ·  /saude",
+         draw=p_saude),
+    dict(n=14, key="14_cooperados", title="Produtos dos Cooperados",
+         axis="economia cooperativa",
+         problem="Os produtos feitos por cooperados ficam diluídos no catálogo "
+                 "geral, sem valorizar a origem.",
+         approach=["Vitrine exclusiva de produtos de cooperados",
+                   "Filtro por origem: café, agro, artesanato",
+                   "Selo ◈ Cooperado e cooperativa de origem",
+                   "Preço em pontos + reais"],
+         outcome="Valoriza a produção cooperativa e dá um motivo de compra que "
+                 "nenhum marketplace comum tem.",
+         ai="IA recomenda produtos de cooperados por afinidade e proximidade "
+            "geográfica — apoio local com relevância.",
+         refactors="marketplace  ·  /produtos-cooperados",
+         draw=p09_cooperados),
+    dict(n=15, key="15_economia", title="Economia local",
+         axis="economia circular local",
+         problem="Comprar no Coopera parece igual a comprar em qualquer e-commerce "
+                 "— some o efeito de girar a economia da região.",
+         approach=["Mapa de cooperados num raio perto de você",
+                   "Mostra quanto do valor fica na sua cidade",
+                   "Produtores locais com origem e distância",
+                   "Pontos por comprar de quem é da região"],
+         outcome="Transforma consumo em pertencimento territorial — comprar vira "
+                 "fortalecer a própria comunidade.",
+         ai="IA conecta sua demanda a cooperados próximos e prevê o impacto "
+            "econômico local de cada compra.",
+         refactors="marketplace  ·  /economia-local",
+         draw=p_economia),
+    dict(n=16, key="16_doacoes", title="Doações votadas",
+         axis="propósito / assembleia",
          problem="‘Doações’ existe no menu mas sem conexão com o cooperativismo "
                  "nem com projetos locais reais.",
          approach=["Causas com meta votada em assembleia",
@@ -1761,8 +1783,22 @@ CONCEPTS = [
             "quantifica o impacto previsto da doação.",
          refactors="doações  ·  /doacoes",
          draw=p17_donate),
+    dict(n=17, key="17_statement", title="Extrato auditável",
+         axis="confiança / rastreabilidade",
+         problem="‘Meus pontos não aparecem / foram zerados’ é a reclamação nº 1. "
+                 "Não há rastreio nem contestação.",
+         approach=["Cada compra com status: pendente/creditado/análise",
+                   "Alerta do que está dentro dos 45 dias",
+                   "Contestação com protocolo",
+                   "Extrato que parece um banco, não caixa-preta"],
+         outcome="Resolve a dor que mais gera reclamação e reconstrói a confiança "
+                 "no acúmulo de pontos.",
+         ai="IA reconcilia compras × pontos e sinaliza anomalias antes do "
+            "cooperado reclamar — auditoria automática.",
+         refactors="extrato  ·  /extrato",
+         draw=p04_statement),
     dict(n=18, key="18_status", title="Status de resgate",
-         axis="pós-compra / rastreio",
+         axis="pós-compra / garantia",
          problem="Depois do resgate, ‘deu erro e sumiu’: sem etapa, prazo ou "
                  "protocolo para acompanhar.",
          approach=["Timeline do pedido: confirmado → entregue",
@@ -1775,20 +1811,20 @@ CONCEPTS = [
             "quando um resgate falha.",
          refactors="resgate  ·  /meus-resgates",
          draw=p18_status),
-    dict(n=19, key="19_explainer", title="Como funciona",
-         axis="compreensão / clareza",
-         problem="O programa tem regras (45 dias, 24 meses, cashback) que "
-                 "ninguém explica de forma simples.",
-         approach=["Explicação em 1-2-3, sem juridiquês",
-                   "Colunas: formas de Ganhar × Usar",
-                   "Deixa claro que ponto vira dinheiro",
-                   "Dúvidas frequentes em destaque"],
-         outcome="Ativação mais rápida de cooperados e menos suporte — todo "
-                 "mundo entende o valor em 1 minuto.",
-         ai="IA responde dúvidas em linguagem natural e adapta a explicação ao "
-            "nível do cooperado — um FAQ que conversa.",
-         refactors="onboarding  ·  /como-funciona",
-         draw=p19_explainer),
+    dict(n=19, key="19_checkout", title="Checkout pontos + PIX",
+         axis="fluxo / pagamento",
+         problem="Resgatar dá erro de pagamento por dias; e o split pontos + "
+                 "cartão + PIX não é claro.",
+         approach=["Escolha clara: só pontos, pontos+cartão, PIX",
+                   "Stepper sacola → entrega → pagamento",
+                   "PIX com 5% à vista destacado",
+                   "Pontos só debitados ao confirmar"],
+         outcome="Resgate ganha a confiança de um e-commerce moderno e reduz o "
+                 "abandono por erro.",
+         ai="IA sugere o split ótimo de pontos + dinheiro e detecta erro/fraude "
+            "antes de debitar.",
+         refactors="resgate  ·  /checkout",
+         draw=p07_checkout),
     dict(n=20, key="20_omni", title="Agência + app",
          axis="canal online ↔ físico",
          problem="O cooperativismo é local e presencial, mas o Coopera é 100% "
