@@ -7,6 +7,7 @@ this module validates and renders that generated YAML into per-session artifacts
 from __future__ import annotations
 
 import base64
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -30,6 +31,7 @@ MAX_CLIENT_BYTES = 2_000_000
 DEFAULT_CLIENT_ROOTS = ("examples",)
 BUILD_FUNCTION_NAMES = ("build", "build_deck", "build_book", "build_package")
 FRAMEGRAPH_YAML_PATTERNS = ("*.fg.yaml", "*.fg.yml", "*.framegraph.yaml", "*.framegraph.yml")
+STRUCTURED_LOG_SCHEMA = "framegraph.mcp.structured_log.v1"
 
 
 def get_default_session_root() -> Path:
@@ -392,6 +394,7 @@ def create_server(
     session_root: str | Path | None = None,
     repo_root: str | Path | None = None,
     edit_roots: str | list[str] | tuple[str, ...] | None = None,
+    structured_log_path: str | Path | None = None,
     fastmcp_cls: Any | None = None,
 ):
     """Create the FastMCP server exposing the FrameGraph feedback tools."""
@@ -406,6 +409,7 @@ def create_server(
 
     root = _session_root(session_root)
     repo = _repo_root(repo_root)
+    log_path = _structured_log_path(root, structured_log_path)
     server = fastmcp_cls(
         "FrameGraph",
         instructions=(
@@ -417,17 +421,32 @@ def create_server(
     @server.tool()
     def list_sdk_clients():
         """List editable Python SDK clients under the configured safe roots."""
-        return globals()["list_sdk_clients"](repo_root=repo, edit_roots=edit_roots)
+        return _logged_call(
+            log_path,
+            "list_sdk_clients",
+            {},
+            lambda: globals()["list_sdk_clients"](repo_root=repo, edit_roots=edit_roots),
+        )
 
     @server.tool()
     def read_sdk_client(path: str) -> dict[str, Any]:
         """Read an editable Python SDK client file."""
-        return globals()["read_sdk_client"](path, repo_root=repo, edit_roots=edit_roots)
+        return _logged_call(
+            log_path,
+            "read_sdk_client",
+            {"path": path},
+            lambda: globals()["read_sdk_client"](path, repo_root=repo, edit_roots=edit_roots),
+        )
 
     @server.tool()
     def write_sdk_client(path: str, code: str, create: bool = False) -> dict[str, Any]:
         """Replace or create an editable Python SDK client file."""
-        return globals()["write_sdk_client"](path, code, create=create, repo_root=repo, edit_roots=edit_roots)
+        return _logged_call(
+            log_path,
+            "write_sdk_client",
+            {"path": path, "code": code, "create": create},
+            lambda: globals()["write_sdk_client"](path, code, create=create, repo_root=repo, edit_roots=edit_roots),
+        )
 
     @server.tool()
     def run_sdk_client(
@@ -439,16 +458,28 @@ def create_server(
         invoke_main: bool = False,
     ):
         """Run an editable Python SDK client, validate its YAML, and return render feedback."""
-        result = globals()["run_sdk_client"](
-            path,
-            session_id=session_id,
-            session_root=root,
-            timeout_seconds=timeout_seconds,
-            max_pages=max_pages,
-            raster_png=raster_png,
-            invoke_main=invoke_main,
-            repo_root=repo,
-            edit_roots=edit_roots,
+        result = _logged_call(
+            log_path,
+            "run_sdk_client",
+            {
+                "path": path,
+                "session_id": session_id,
+                "timeout_seconds": timeout_seconds,
+                "max_pages": max_pages,
+                "raster_png": raster_png,
+                "invoke_main": invoke_main,
+            },
+            lambda: globals()["run_sdk_client"](
+                path,
+                session_id=session_id,
+                session_root=root,
+                timeout_seconds=timeout_seconds,
+                max_pages=max_pages,
+                raster_png=raster_png,
+                invoke_main=invoke_main,
+                repo_root=repo,
+                edit_roots=edit_roots,
+            ),
         )
         return _maybe_call_tool_result(result)
 
@@ -461,13 +492,24 @@ def create_server(
         raster_png: bool = False,
     ):
         """Run Python SDK code, validate its YAML, and return render feedback."""
-        result = globals()["run_sdk_code"](
-            code,
-            session_id=session_id,
-            session_root=root,
-            timeout_seconds=timeout_seconds,
-            max_pages=max_pages,
-            raster_png=raster_png,
+        result = _logged_call(
+            log_path,
+            "run_sdk_code",
+            {
+                "code": code,
+                "session_id": session_id,
+                "timeout_seconds": timeout_seconds,
+                "max_pages": max_pages,
+                "raster_png": raster_png,
+            },
+            lambda: globals()["run_sdk_code"](
+                code,
+                session_id=session_id,
+                session_root=root,
+                timeout_seconds=timeout_seconds,
+                max_pages=max_pages,
+                raster_png=raster_png,
+            ),
         )
         return _maybe_call_tool_result(result)
 
@@ -479,41 +521,71 @@ def create_server(
         raster_png: bool = False,
     ):
         """Validate and render FrameGraph YAML without executing Python code."""
-        result = globals()["render_framegraph_yaml"](
-            yaml_text,
-            session_id=session_id,
-            session_root=root,
-            max_pages=max_pages,
-            raster_png=raster_png,
+        result = _logged_call(
+            log_path,
+            "render_framegraph_yaml",
+            {
+                "yaml_text": yaml_text,
+                "session_id": session_id,
+                "max_pages": max_pages,
+                "raster_png": raster_png,
+            },
+            lambda: globals()["render_framegraph_yaml"](
+                yaml_text,
+                session_id=session_id,
+                session_root=root,
+                max_pages=max_pages,
+                raster_png=raster_png,
+            ),
         )
         return _maybe_call_tool_result(result)
 
     @server.tool()
     def get_session_resource(uri: str) -> dict[str, str]:
         """Read a FrameGraph MCP session resource by URI."""
-        return read_session_resource(uri, session_root=root)
+        return _logged_call(
+            log_path,
+            "get_session_resource",
+            {"uri": uri},
+            lambda: read_session_resource(uri, session_root=root),
+        )
 
     @server.resource("framegraph://session/{session_id}/document.yaml")
     def session_document(session_id: str) -> str:
-        return read_session_resource(
-            f"framegraph://session/{session_id}/document.yaml",
-            session_root=root,
-        )["text"]
+        return _logged_call(
+            log_path,
+            "resource.session_document",
+            {"session_id": session_id},
+            lambda: read_session_resource(
+                f"framegraph://session/{session_id}/document.yaml",
+                session_root=root,
+            )["text"],
+        )
 
     @server.resource("framegraph://session/{session_id}/page/{page_number}.svg")
     def session_page(session_id: str, page_number: str) -> str:
         page = _positive_int(page_number, "page_number")
-        return read_session_resource(
-            f"framegraph://session/{session_id}/page/{page}.svg",
-            session_root=root,
-        )["text"]
+        return _logged_call(
+            log_path,
+            "resource.session_page",
+            {"session_id": session_id, "page_number": page_number},
+            lambda: read_session_resource(
+                f"framegraph://session/{session_id}/page/{page}.svg",
+                session_root=root,
+            )["text"],
+        )
 
     @server.resource("framegraph://session/{session_id}/diagnostics.json")
     def session_diagnostics(session_id: str) -> str:
-        return read_session_resource(
-            f"framegraph://session/{session_id}/diagnostics.json",
-            session_root=root,
-        )["text"]
+        return _logged_call(
+            log_path,
+            "resource.session_diagnostics",
+            {"session_id": session_id},
+            lambda: read_session_resource(
+                f"framegraph://session/{session_id}/diagnostics.json",
+                session_root=root,
+            )["text"],
+        )
 
     return server
 
@@ -532,6 +604,76 @@ def _session_root(session_root: str | Path | None) -> Path:
 
 def _repo_root(repo_root: str | Path | None) -> Path:
     return (Path(repo_root) if repo_root is not None else get_default_repo_root()).expanduser().resolve()
+
+
+def _structured_log_path(session_root: Path, configured: str | Path | None) -> Path:
+    path = configured
+    if path is None:
+        path = os.environ.get("FRAMEGRAPH_MCP_STRUCT_LOG_PATH")
+    if path is None:
+        path = session_root / "mcp-structured-log.jsonl"
+    resolved = Path(path).expanduser().resolve()
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    return resolved
+
+
+def _logged_call(log_path: Path, tool: str, instruction: dict[str, Any], call):
+    started_at = _utc_now()
+    try:
+        response = call()
+    except Exception as exc:
+        _append_structured_log(
+            log_path,
+            {
+                "schema": STRUCTURED_LOG_SCHEMA,
+                "timestamp": started_at,
+                "tool": tool,
+                "instruction": _json_safe(instruction),
+                "response": {
+                    "ok": False,
+                    "error": {"type": type(exc).__name__, "message": str(exc)},
+                },
+            },
+        )
+        raise
+    _append_structured_log(
+        log_path,
+        {
+            "schema": STRUCTURED_LOG_SCHEMA,
+            "timestamp": started_at,
+            "tool": tool,
+            "instruction": _json_safe(instruction),
+            "response": _json_safe(response),
+        },
+    )
+    return response
+
+
+def _append_structured_log(path: Path, event: dict[str, Any]) -> None:
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(event, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def _json_safe(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {str(key): _json_safe(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, tuple):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    try:
+        json.dumps(value)
+    except TypeError:
+        return repr(value)
+    return value
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _session_id(session_id: str | None) -> str:

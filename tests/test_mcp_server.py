@@ -2,6 +2,7 @@
 """Regression tests for the FrameGraph MCP feedback loop."""
 from __future__ import annotations
 
+import json
 import os
 import sys
 
@@ -201,3 +202,27 @@ def test_create_server_registers_feedback_loop_tools_and_resources(tmp_path):
     assert "framegraph://session/{session_id}/document.yaml" in server.resources
     assert "framegraph://session/{session_id}/page/{page_number}.svg" in server.resources
     assert "framegraph://session/{session_id}/diagnostics.json" in server.resources
+
+
+def test_create_server_writes_structured_log_for_tool_instructions_and_responses(tmp_path):
+    log_path = tmp_path / "mcp-events.jsonl"
+    server = create_server(session_root=tmp_path, structured_log_path=log_path, fastmcp_cls=FakeFastMCP)
+
+    result = server.tools["run_sdk_code"](SDK_SCRIPT, session_id="logged")
+    structured = getattr(result, "structuredContent", result)
+    assert structured["ok"] is True
+
+    with pytest.raises(FileNotFoundError):
+        server.tools["read_sdk_client"]("examples/missing.py")
+
+    events = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
+
+    assert [event["tool"] for event in events] == ["run_sdk_code", "read_sdk_client"]
+    assert events[0]["schema"] == "framegraph.mcp.structured_log.v1"
+    assert events[0]["instruction"]["code"] == SDK_SCRIPT
+    assert events[0]["instruction"]["session_id"] == "logged"
+    assert events[0]["response"]["ok"] is True
+    assert events[0]["response"]["session_id"] == "logged"
+    assert events[1]["instruction"]["path"] == "examples/missing.py"
+    assert events[1]["response"]["ok"] is False
+    assert events[1]["response"]["error"]["type"] == "FileNotFoundError"
