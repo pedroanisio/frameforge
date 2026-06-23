@@ -98,6 +98,12 @@ uv run python tooling/render_chromium.py fixtures/filters.fg.yaml --out out/chro
 uv sync --group pdf
 uv run python tooling/pdf_to_framegraph_yml.py input.pdf output.framegraph.yml
 
+# optional MCP server for AI feedback loops:
+# Python SDK code -> generated FrameGraph YAML -> validation + rendered SVG resources
+uv sync --group mcp
+uv run --group mcp python -m framegraph.mcp
+# or: make mcp
+
 # the whole local gate (schema · grammar · a11y · tests · validate · overflow · golden · fixture-status · docs nav)
 make check
 

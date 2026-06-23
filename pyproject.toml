@@ -30,6 +30,10 @@ pdf = ["pymupdf>=1.24"]
 # and render_fixtures.py --real-metrics). Optional: absent it, callers fall back to
 # the per-character estimate, so core rendering stays dependency-free (§13).
 metrics = ["fonttools>=4"]
+# Model Context Protocol server boundary for AI coding feedback loops. Optional:
+# the core SDK and renderers do not import it unless framegraph.mcp.create_server()
+# is called.
+mcp = ["mcp[cli]>=1.27,<2"]
 
 [tool.uv]
 # Virtual project: manage the venv + dependencies, but do NOT build/install this

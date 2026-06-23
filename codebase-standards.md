@@ -83,11 +83,13 @@ Rules of reading:
   ([pyproject.toml:11-12](./pyproject.toml#L11-L12)).
 - **`[Enforced]`** Optional capability sets are **PEP 735 dependency-groups**, not PEP
   621 extras: `dev` (hypothesis + pytest), `render = ["matplotlib>=3.7", "pillow>=10"]`,
-  `browser = ["playwright>=1.44"]`, and `pdf = ["pymupdf>=1.24"]`
-  ([pyproject.toml:21-28](./pyproject.toml#L21-L28)). `uv sync` installs `dev` by default;
+  `browser = ["playwright>=1.44"]`, `pdf = ["pymupdf>=1.24"]`,
+  `metrics = ["fonttools>=4"]`, and `mcp = ["mcp[cli]>=1.27,<2"]`
+  ([pyproject.toml:21-34](./pyproject.toml#L21-L34)). `uv sync` installs `dev` by default;
   `uv sync --group render` adds the matplotlib proxy renderer's deps,
   `uv sync --group browser` adds the Headless-Chromium raster renderer's deps, and
-  `uv sync --group pdf` adds PyMuPDF for the PDF -> FrameGraph transpiler.
+  `uv sync --group pdf` adds PyMuPDF for the PDF -> FrameGraph transpiler. `uv sync
+  --group mcp` installs the Model Context Protocol adapter; it is not a core dependency.
 - **`[Enforced]`** This is a **virtual project**: `package = false`
   ([pyproject.toml:33](./pyproject.toml#L33)). The tree runs via `sys.path`-rooted scripts;
   it is deliberately **not** built or installed (an installed `framegraph` distribution
@@ -290,6 +292,10 @@ non-negotiable absent an explicit, documented decision.
 - **Core commitments.** YAML/JSON is the authoring surface; the Pydantic models are the source
   of truth; SVG is the primary output; **pure-Python, dependency-free core rendering** stays
   first-class; the schema/validator/codemod/grammar stay **in sync** with the models (§8).
+- **MCP boundary.** [framegraph/mcp/](./framegraph/mcp/) is an optional adapter for AI coding
+  feedback loops: Python SDK code runs in a per-session subprocess, emits FrameGraph YAML, and
+  the existing validator/SVG proxy renderer produce artifacts for inspection. MCP dependencies
+  stay in the optional `mcp` group; do not import them from the core SDK or renderer path.
 - **Honest scope.** FrameGraph v2 is a **proposed** format. No renderer is conformant; the
   matplotlib and SVG proxies are sanity checks, not fidelity guarantees. Font pinning gives
   deterministic *layout* only up to a stated tolerance, not pixel-exact identity (§9.6).

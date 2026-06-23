@@ -9,7 +9,7 @@ UV ?= uv
 FIXTURES_YAML := fixtures/*.fg.yaml
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render render-latex pdf check schema-check grammar-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test corpus corpus-check corpus-ui
+.PHONY: help sync schema render render-latex pdf mcp check schema-check grammar-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test corpus corpus-check corpus-ui
 
 help:  ## list targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort \
@@ -30,6 +30,9 @@ render-latex:  ## render flow fixtures to LaTeX/TikZ + PDF via lualatex (out/lat
 pdf:  ## transpile a PDF -> FrameGraph YAML (pulls the `pdf` group): make pdf PDF=paper.pdf [OUT=...] [ARGS='--text-mode spans']
 	@test -n "$(PDF)" || { echo "usage: make pdf PDF=<input.pdf> [OUT=<out.fg.yaml>] [ARGS='--text-mode spans']"; exit 2; }
 	$(UV) run --group pdf python tooling/pdf_to_framegraph_yml.py "$(PDF)" "$(if $(OUT),$(OUT),$(PDF:.pdf=.fg.yaml))" $(ARGS)
+
+mcp:  ## run the optional MCP server for SDK-code -> YAML -> render feedback loops
+	$(UV) run --group mcp python -m framegraph.mcp
 
 check: schema-check grammar-check a11y-check status-check test validate overflow golden-check docs-check  ## run every local gate
 
