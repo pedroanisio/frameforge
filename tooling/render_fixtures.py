@@ -95,9 +95,13 @@ class Renderer:
     _math_svg_failures = set()
     _math_svg_failed = False
 
-    def __init__(self, doc, base_dir):
+    def __init__(self, doc, base_dir, *, real_metrics=False):
         self.doc = doc if isinstance(doc, dict) else {}
         self.base_dir = base_dir
+        # Opt-in: when True (and fontTools resolves the family) text width comes
+        # from real glyph advances instead of the per-char `avg` estimate. OFF by
+        # default so render_page()/golden output stays byte-identical (§8).
+        self.real_metrics = bool(real_metrics)
         defs = self.doc.get("defs") or {}
         tok = defs.get("tokens") or {}
         self.colors = tok.get("colors") or {}
@@ -166,11 +170,27 @@ class Renderer:
     def text_style(self, ref):
         return self._text_style.resolve(ref)
 
-    # ---- text measurement / fitting (estimated; no font metrics here) ------ #
-    def measure(self, s, size, avg):
+    # ---- text measurement / fitting --------------------------------------- #
+    # Default path: a per-character `avg` estimate (no font metrics). When the
+    # `real_metrics` opt-in is set AND fontTools resolves the family, width is
+    # taken from real glyph advances instead. The opt-in is OFF by default, so
+    # the estimate path below is reached unchanged and output is byte-identical.
+    def _font_metrics(self, st):
+        if not self.real_metrics or not st:
+            return None
+        from framegraph.rendering.infrastructure.font_metrics import get_font_metrics
+        return get_font_metrics(st.get("family", ""), bool(st.get("bold")))
+
+    def measure(self, s, size, avg, st=None):
+        fm = self._font_metrics(st)
+        if fm is not None:
+            return fm.width(str(s), size)
         return len(s) * size * avg
 
-    def wrap_words(self, text, w, size, avg):
+    def wrap_words(self, text, w, size, avg, st=None):
+        fm = self._font_metrics(st)
+        if fm is not None:
+            return self._wrap_real(str(text), w, size, fm)
         maxc = max(1, int(w / (size * avg)))
         out, cur = [], ""
         for word in str(text).split():
@@ -186,11 +206,50 @@ class Renderer:
             out.append(cur)
         return out or [""]
 
-    def ellipsize(self, s, w, size, avg):
+    def ellipsize(self, s, w, size, avg, st=None):
+        fm = self._font_metrics(st)
+        if fm is not None:
+            return self._ellipsize_real(str(s), w, size, fm)
         maxc = max(0, int(w / (size * avg)))
         if len(s) <= maxc:
             return s
         return (s[: max(0, maxc - 1)].rstrip() + "…") if maxc else "…"
+
+    @staticmethod
+    def _wrap_real(text, w, size, fm):
+        """Greedy word-wrap to pixel width `w` using real glyph advances."""
+        out, cur = [], ""
+        for word in text.split():
+            while fm.width(word, size) > w:          # hard-break an over-long token
+                take = 1
+                while take < len(word) and fm.width(word[: take + 1], size) <= w:
+                    take += 1
+                if cur:
+                    out.append(cur); cur = ""
+                out.append(word[:take]); word = word[take:]
+                if not word:
+                    break
+            if not word:
+                continue
+            cand = (cur + " " + word).strip()
+            if cur and fm.width(cand, size) > w:
+                out.append(cur); cur = word
+            else:
+                cur = cand
+        if cur:
+            out.append(cur)
+        return out or [""]
+
+    @staticmethod
+    def _ellipsize_real(s, w, size, fm):
+        """Trim `s` to pixel width `w` (real advances), appending an ellipsis."""
+        if fm.width(s, size) <= w:
+            return s
+        ell = fm.width("…", size)
+        take = 0
+        while take < len(s) and fm.width(s[: take + 1], size) + ell <= w:
+            take += 1
+        return (s[:take].rstrip() + "…") if take else "…"
 
     # anchor() / text_tag() / clip_rect() emission moved to the SvgPainter
     # (step 4); the builder calls self._painter.* for them.
@@ -236,11 +295,11 @@ class Renderer:
         contained_policy = overflow in ("clip", "hidden", "scroll", "auto", "shrink_to_fit")
 
         # would the naive (single-line, no fit) render have spilled? (the reported bug)
-        if self.measure(content, size, avg) > w + 0.5 or size * lh > h + 0.5:
+        if self.measure(content, size, avg, st) > w + 0.5 or size * lh > h + 0.5:
             self.tstats["naive_overflow"] += 1
 
         def layout(sz):
-            return self.wrap_words(content, w, sz, avg) if do_wrap else [content]
+            return self.wrap_words(content, w, sz, avg, st) if do_wrap else [content]
 
         lines = layout(size)
         if len(lines) > 1:
@@ -250,7 +309,7 @@ class Renderer:
             while size > min_fs:
                 lines = layout(size)
                 too_tall = len(lines) * size * lh > h + 0.5
-                too_wide = max((self.measure(ln, size, avg) for ln in lines), default=0) > w + 0.5
+                too_wide = max((self.measure(ln, size, avg, st) for ln in lines), default=0) > w + 0.5
                 if not too_tall and not too_wide:
                     break
                 size = max(min_fs, size - 1)
@@ -266,11 +325,11 @@ class Renderer:
             lines = lines[: max(1, cap)]
             clipped = True
             if text_ovf == "ellipsis":
-                lines[-1] = self.ellipsize(lines[-1], w, size, avg)
+                lines[-1] = self.ellipsize(lines[-1], w, size, avg, st)
         # single unwrapped line wider than the box
-        if not do_wrap and self.measure(lines[0], size, avg) > w + 0.5:
+        if not do_wrap and self.measure(lines[0], size, avg, st) > w + 0.5:
             if text_ovf == "ellipsis":
-                lines[0] = self.ellipsize(lines[0], w, size, avg)
+                lines[0] = self.ellipsize(lines[0], w, size, avg, st)
             clipped = True
 
         # vertical placement
@@ -298,7 +357,7 @@ class Renderer:
             el = self._painter.text_block(base, a, style, lines, tx, size * lh)
 
         # telemetry: is it visually contained?
-        widest = max((self.measure(ln, size, avg) for ln in lines), default=0)
+        widest = max((self.measure(ln, size, avg, st) for ln in lines), default=0)
         fits = widest <= w + 0.5 and len(lines) * size * lh <= h + 0.5
         if contained_policy:
             if clipped or not fits:                  # clip only when something exceeds the box
@@ -833,7 +892,7 @@ class Renderer:
             cy = y + st["size"]
             for it in o.get("items", []):
                 txt = it if isinstance(it, str) else (it.get("text", "") if isinstance(it, dict) else str(it))
-                lines = self.wrap_words(txt, text_w, st["size"], st["avg"]) if do_wrap else [txt]
+                lines = self.wrap_words(txt, text_w, st["size"], st["avg"], st) if do_wrap else [txt]
                 out.append(p.text_tag(x, cy - st["size"], st["size"] + 4, st["size"] + 4,
                                       marker, {**st, "color": mc}, vcenter=False))
                 for i, ln in enumerate(lines):
@@ -1735,7 +1794,7 @@ class Renderer:
             return ""
         size, lh = st["size"], st.get("lh", 1.2)
         avg = st.get("avg") or 0.52
-        lines = self.wrap_words(txt, w, size, avg) if w > 0 else [txt]
+        lines = self.wrap_words(txt, w, size, avg, st) if w > 0 else [txt]
         if len(lines) <= 1:
             return self._painter.text_tag(x, y, w, h, txt, st, vcenter=True)
         cap = max(1, int(h / (size * lh))) if (h > 0 and size > 0) else len(lines)
@@ -2195,6 +2254,9 @@ def main(argv=None):
     ap.add_argument("--list", action="store_true", help="list discoverable docs and exit")
     ap.add_argument("--check-overflow", action="store_true",
                     help="render, then assert no text visually overflows a containing box (exit 1 on failure)")
+    ap.add_argument("--real-metrics", action="store_true",
+                    help="wrap/fit text using real font advances (needs fontTools) instead of "
+                         "the per-character estimate; off by default so golden output is stable")
     ap.add_argument("-q", "--quiet", action="store_true")
     args = ap.parse_args(argv)
 
@@ -2215,7 +2277,7 @@ def main(argv=None):
         stem = stem_of(f)
         doc_dir = os.path.join(args.out, stem)
         os.makedirs(doc_dir, exist_ok=True)
-        r = Renderer(doc, os.path.dirname(os.path.abspath(f)))
+        r = Renderer(doc, os.path.dirname(os.path.abspath(f)), real_metrics=args.real_metrics)
         svgs, thumbs = [], []
         for page in doc.get("pages", []):
             if not isinstance(page, dict):

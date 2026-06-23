@@ -1,0 +1,102 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: CSS DSL — raw-CSS typography escape
+description: >-
+  Exercises the bounded `css` raw-CSS escape (§8.4) for the typographic long tail
+  — properties best expressed as literal CSS: `font-stretch`,
+  `font-feature-settings` (small-caps + ligatures), `font-variant-numeric`,
+  `text-shadow`, combined `letter-spacing`/`word-spacing`, and outlined text via
+  SVG `fill: none` + `stroke`. Each row shows a base line (a `tokens.styles`
+  class) plus its `css` escape. For text the escape is concatenated onto the
+  `<text>` element's inline `style=""` (font_style()), so it renders in every
+  renderer here, proxy included.
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#0f172a'
+      mute: '#64748b'
+      page: '#ffffff'
+    styles:
+      demo: {font: sans, size: 18, color: ink}
+      lab: {font: sans, size: 12, color: mute}
+      title: {font: sans, size: 18, weight: 700, color: ink}
+pages:
+- mode: page
+  id: css_typography
+  canvas:
+    size: [740, 380]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: rect
+      box: [0, 0, 740, 380]
+      fill: page
+    - type: text
+      box: [24, 20, 692, 24]
+      text: Raw-CSS typography (css escape)
+      style: title
+
+    - type: text
+      box: [24, 64, 210, 18]
+      text: font-stretch
+      style: lab
+    - type: text
+      box: [250, 60, 470, 24]
+      text: Condensed letterforms
+      style: {class: demo, css: 'font-stretch: condensed'}
+
+    - type: text
+      box: [24, 106, 210, 18]
+      text: font-feature-settings
+      style: lab
+    - type: text
+      box: [250, 102, 470, 24]
+      text: Small Caps & ligatures (ffi)
+      style: {class: demo, css: 'font-feature-settings: "smcp" 1, "liga" 1'}
+
+    - type: text
+      box: [24, 148, 210, 18]
+      text: font-variant-numeric
+      style: lab
+    - type: text
+      box: [250, 144, 470, 24]
+      text: Tabular 1234567 0/0
+      style: {class: demo, css: 'font-variant-numeric: tabular-nums slashed-zero'}
+
+    - type: text
+      box: [24, 190, 210, 18]
+      text: text-shadow
+      style: lab
+    - type: text
+      box: [250, 186, 470, 24]
+      text: Soft drop shadow on glyphs
+      style: {class: demo, css: 'text-shadow: 1px 2px 3px rgba(15,23,42,.45)'}
+
+    - type: text
+      box: [24, 232, 210, 18]
+      text: letter / word spacing
+      style: lab
+    - type: text
+      box: [250, 228, 470, 24]
+      text: spaced out widely
+      style: {class: demo, css: 'letter-spacing: 4px; word-spacing: 10px'}
+
+    - type: text
+      box: [24, 274, 210, 18]
+      text: outlined (fill none + stroke)
+      style: lab
+    - type: text
+      box: [250, 270, 470, 28]
+      text: Outlined
+      style: {class: demo, css: 'fill: none; stroke: #0f172a; stroke-width: 1.2; font-weight: 800; font-size: 24px'}
+
+    - type: text
+      box: [24, 332, 692, 18]
+      text: '* the css escape is concatenated onto each <text> style and renders natively.'
+      style: lab

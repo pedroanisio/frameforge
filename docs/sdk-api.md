@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `CubicBezier`, `Document`, `DocumentBuilder`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `ValidationReport`, `Vec2`, `Vec3`, `column`, `expand`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `paragraph`, `parse`, `radial_gradient`, `rgba`, `row`, `serialize`, `shadow`, `stroke`, `text_height`, `theme`, `validate_static_rules`, `wrap_text`
+`Chart`, `Panel`, `Theme`, `avatar`, `badge`, `badge_width`, `button`, `card`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `CubicBezier`, `Document`, `DocumentBuilder`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `ValidationReport`, `Vec2`, `Vec3`, `column`, `expand`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `paragraph`, `parse`, `radial_gradient`, `rgba`, `row`, `serialize`, `shadow`, `stroke`, `text_height`, `theme`, `validate_static_rules`, `wrap_text`
 
 ## `framegraph.sdk.author`
 

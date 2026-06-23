@@ -1,0 +1,97 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: CSS DSL — stylesheet (tokens.styles)
+description: >-
+  Exercises the CSS-DSL stylesheet: named style bundles declared once under
+  `defs.tokens.styles` (each value is a full `Style`) and applied by reference
+  via an object's `style:` (a string class name). This is the "define a class,
+  reuse it" half of the module (§5.2). Fill, corner radius and the text
+  font/size/weight/colour all resolve from the named class; the proxy renders
+  `tokens.styles` references natively.
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#0f172a'
+      sub: '#475569'
+      brand: '#2563eb'
+      white: '#ffffff'
+      line: '#e2e8f0'
+      soft: '#eef2ff'
+      indigo: '#3730a3'
+      page: '#f8fafc'
+    styles:
+      h1: {font: sans, size: 24, weight: 800, color: ink}
+      lead: {font: sans, size: 14, color: sub}
+      card: {fill: white, radius: 16}
+      body: {font: sans, size: 13, color: sub}
+      btnlabel: {font: sans, size: 14, weight: 600, color: white, align: center}
+      ghostlabel: {font: sans, size: 14, weight: 600, color: brand, align: center}
+      pilllabel: {font: sans, size: 12, weight: 700, color: indigo, align: center}
+      primary: {fill: brand, radius: 10}
+      ghost: {fill: white, radius: 10}
+      pill: {fill: soft, radius: 999}
+pages:
+- mode: page
+  id: css_stylesheet
+  canvas:
+    size: [700, 360]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: rect
+      box: [0, 0, 700, 360]
+      fill: page
+    - type: text
+      box: [32, 26, 636, 32]
+      text: CSS stylesheet — tokens.styles
+      style: h1
+    - type: text
+      box: [32, 64, 636, 20]
+      text: Named style classes applied by `style:` reference.
+      style: lead
+
+    # a card built from the `card` class + an explicit hairline border
+    - type: rect
+      box: [32, 100, 636, 150]
+      style: card
+      stroke: line
+      stroke_style: {stroke_width: 1}
+    - type: text
+      box: [56, 124, 420, 24]
+      text: Reusable surface
+      style: h1
+    - type: text
+      box: [56, 158, 588, 60]
+      text: "One `styles` entry defines the look; every object that sets `style: card` shares it. Change the class once and the whole document follows."
+      style: body
+
+    # button row — each is a class-styled rect + a class-styled label
+    - type: rect
+      box: [56, 280, 150, 44]
+      style: primary
+    - type: text
+      box: [56, 292, 150, 20]
+      text: Primary
+      style: btnlabel
+    - type: rect
+      box: [224, 280, 150, 44]
+      style: ghost
+      stroke: brand
+      stroke_style: {stroke_width: 1.5}
+    - type: text
+      box: [224, 292, 150, 20]
+      text: Secondary
+      style: ghostlabel
+    - type: rect
+      box: [392, 288, 96, 28]
+      style: pill
+    - type: text
+      box: [392, 294, 96, 16]
+      text: NEW
+      style: pilllabel

@@ -1,0 +1,3006 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# DISCLAIMER (required frontmatter / not part of the FrameGraph data model)
+
+# v2 CHANGE: every drawing is now DEFINED as FrameGraph objects (symbols + groups +
+# rects/ellipses/text/lines), not referenced as an external image. See meta.drawings.
+# ---------------------------------------------------------------------------------
+
+dsl: FrameGraph
+version: 2.2.0
+profile: report
+title: The Standard Model
+description: The standard model of particle physics is a mathematical model that describes electromagnetism, the
+  strong and weak nuclear forces, and the Higgs mechanism.
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#001f3d'
+      paper: '#ffffff'
+      rule: '#cccccc'
+    styles:
+      h1:
+        font_size: 22pt
+        font_weight: bold
+        color: ink
+      h2:
+        font_size: 16pt
+        font_weight: bold
+        color: ink
+      h3:
+        font_size: 13pt
+        font_weight: bold
+        color: ink
+      body:
+        font_size: 11pt
+        line_height: 1.4
+        color: ink
+      caption:
+        font_size: 9pt
+        font_style: italic
+        color: ink
+      note:
+        font_size: 9pt
+        color: ink
+      card_symbol:
+        font_size: 22pt
+        text_align: center
+        color: ink
+      card_name:
+        font_size: 9pt
+        text_align: center
+        color: ink
+        text_wrap: balance
+      region_label:
+        font_size: 12pt
+        font_weight: bold
+        color: ink
+      fig_title:
+        font_size: 14pt
+        text_align: center
+        color: ink
+      panel_title:
+        font_size: 12pt
+        font_weight: bold
+        color: ink
+      panel_sub:
+        font_size: 10pt
+        color: ink
+      fig_caption:
+        font_size: 9pt
+        color: ink
+  masters:
+    article:
+      canvas:
+        preset: A4
+        orientation: portrait
+        margin:
+        - 24
+        - 24
+        - 24
+        - 24
+      regions:
+      - id: body
+        box:
+        - 24
+        - 24
+        - 547
+        - 770
+  symbols:
+    card:
+      box: [0, 0, 72, 72]
+      ports:
+        center: [36.0, 36.0]
+      objects:
+      - type: rect
+        box: [0, 0, 72, 72]
+        fill: '#ffffff'
+        stroke: '#d0d0d0'
+        stroke_style:
+          stroke_width: 1
+        radius: 8
+        z: 1
+      - type: ellipse
+        center: [36.0, 60]
+        rx: 3
+        ry: 3
+        fill: none
+        stroke: '#b9b9b9'
+        stroke_style:
+          stroke_width: 1
+        z: 2
+    sm_grid_symbols:
+      box: [0, 0, 560, 408]
+      ports:
+        u: [156.0, 70.0]
+        c: [242.0, 70.0]
+        t: [328.0, 70.0]
+        g: [414.0, 70.0]
+        d: [156.0, 156.0]
+        s: [242.0, 156.0]
+        b: [328.0, 156.0]
+        γ: [414.0, 156.0]
+        e: [156.0, 242.0]
+        μ: [242.0, 242.0]
+        τ: [328.0, 242.0]
+        W: [414.0, 242.0]
+        Z: [500.0, 242.0]
+        νe: [156.0, 328.0]
+        νμ: [242.0, 328.0]
+        ντ: [328.0, 328.0]
+        H: [414.0, 328.0]
+      objects:
+      - type: use
+        symbol: card
+        box: [120, 34, 72, 72]
+        z: 1
+        id: bg_u
+      - type: ellipse
+        center: [156, 43]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [131, 95]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [181, 95]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: u
+        box: [120, 54, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [206, 34, 72, 72]
+        z: 1
+        id: bg_c
+      - type: ellipse
+        center: [242, 43]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [217, 95]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [267, 95]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: c
+        box: [206, 54, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [292, 34, 72, 72]
+        z: 1
+        id: bg_t
+      - type: ellipse
+        center: [328, 43]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [303, 95]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [353, 95]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: t
+        box: [292, 54, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [378, 34, 72, 72]
+        z: 1
+        id: bg_g
+      - type: ellipse
+        center: [400, 46]
+        rx: 3.5
+        ry: 3.5
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [414, 42]
+        rx: 3.5
+        ry: 3.5
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [428, 46]
+        rx: 3.5
+        ry: 3.5
+        fill: '#1f5fd0'
+        z: 3
+      - type: ellipse
+        center: [390, 66]
+        rx: 3.5
+        ry: 3.5
+        fill: '#f3a712'
+        z: 3
+      - type: ellipse
+        center: [438, 66]
+        rx: 3.5
+        ry: 3.5
+        fill: '#8e44ad'
+        z: 3
+      - type: ellipse
+        center: [400, 90]
+        rx: 3.5
+        ry: 3.5
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [414, 96]
+        rx: 3.5
+        ry: 3.5
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [428, 90]
+        rx: 3.5
+        ry: 3.5
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: g
+        box: [378, 54, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [120, 120, 72, 72]
+        z: 1
+        id: bg_d
+      - type: ellipse
+        center: [156, 129]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [131, 181]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [181, 181]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: d
+        box: [120, 140, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [206, 120, 72, 72]
+        z: 1
+        id: bg_s
+      - type: ellipse
+        center: [242, 129]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [217, 181]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [267, 181]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: s
+        box: [206, 140, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [292, 120, 72, 72]
+        z: 1
+        id: bg_b
+      - type: ellipse
+        center: [328, 129]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [303, 181]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [353, 181]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: b
+        box: [292, 140, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [378, 120, 72, 72]
+        z: 1
+        id: bg_γ
+      - type: text
+        text: γ
+        box: [378, 140, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [120, 206, 72, 72]
+        z: 1
+        id: bg_e
+      - type: text
+        text: e
+        box: [120, 226, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [206, 206, 72, 72]
+        z: 1
+        id: bg_μ
+      - type: text
+        text: μ
+        box: [206, 226, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [292, 206, 72, 72]
+        z: 1
+        id: bg_τ
+      - type: text
+        text: τ
+        box: [292, 226, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [378, 206, 72, 72]
+        z: 1
+        id: bg_W
+      - type: text
+        text: W
+        box: [378, 226, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [464, 206, 72, 72]
+        z: 1
+        id: bg_Z
+      - type: text
+        text: Z
+        box: [464, 226, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [120, 292, 72, 72]
+        z: 1
+        id: bg_νe
+      - type: text
+        text: νe
+        box: [120, 312, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [206, 292, 72, 72]
+        z: 1
+        id: bg_νμ
+      - type: text
+        text: νμ
+        box: [206, 312, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [292, 292, 72, 72]
+        z: 1
+        id: bg_ντ
+      - type: text
+        text: ντ
+        box: [292, 312, 72, 32]
+        style: card_symbol
+        z: 4
+      - type: use
+        symbol: card
+        box: [378, 292, 72, 72]
+        z: 1
+        id: bg_H
+      - type: text
+        text: H
+        box: [378, 312, 72, 32]
+        style: card_symbol
+        z: 4
+    sm_grid_names:
+      box: [0, 0, 560, 408]
+      ports:
+        u: [156.0, 70.0]
+        c: [242.0, 70.0]
+        t: [328.0, 70.0]
+        g: [414.0, 70.0]
+        d: [156.0, 156.0]
+        s: [242.0, 156.0]
+        b: [328.0, 156.0]
+        γ: [414.0, 156.0]
+        e: [156.0, 242.0]
+        μ: [242.0, 242.0]
+        τ: [328.0, 242.0]
+        W: [414.0, 242.0]
+        Z: [500.0, 242.0]
+        νe: [156.0, 328.0]
+        νμ: [242.0, 328.0]
+        ντ: [328.0, 328.0]
+        H: [414.0, 328.0]
+      objects:
+      - type: use
+        symbol: card
+        box: [120, 34, 72, 72]
+        z: 1
+        id: bg_u
+      - type: ellipse
+        center: [156, 43]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [131, 95]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [181, 95]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: up
+        box: [120, 56, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [206, 34, 72, 72]
+        z: 1
+        id: bg_c
+      - type: ellipse
+        center: [242, 43]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [217, 95]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [267, 95]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: charm
+        box: [206, 56, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [292, 34, 72, 72]
+        z: 1
+        id: bg_t
+      - type: ellipse
+        center: [328, 43]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [303, 95]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [353, 95]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: top
+        box: [292, 56, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [378, 34, 72, 72]
+        z: 1
+        id: bg_g
+      - type: ellipse
+        center: [400, 46]
+        rx: 3.5
+        ry: 3.5
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [414, 42]
+        rx: 3.5
+        ry: 3.5
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [428, 46]
+        rx: 3.5
+        ry: 3.5
+        fill: '#1f5fd0'
+        z: 3
+      - type: ellipse
+        center: [390, 66]
+        rx: 3.5
+        ry: 3.5
+        fill: '#f3a712'
+        z: 3
+      - type: ellipse
+        center: [438, 66]
+        rx: 3.5
+        ry: 3.5
+        fill: '#8e44ad'
+        z: 3
+      - type: ellipse
+        center: [400, 90]
+        rx: 3.5
+        ry: 3.5
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [414, 96]
+        rx: 3.5
+        ry: 3.5
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [428, 90]
+        rx: 3.5
+        ry: 3.5
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: gluon
+        box: [378, 56, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [120, 120, 72, 72]
+        z: 1
+        id: bg_d
+      - type: ellipse
+        center: [156, 129]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [131, 181]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [181, 181]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: down
+        box: [120, 142, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [206, 120, 72, 72]
+        z: 1
+        id: bg_s
+      - type: ellipse
+        center: [242, 129]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [217, 181]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [267, 181]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: strange
+        box: [206, 142, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [292, 120, 72, 72]
+        z: 1
+        id: bg_b
+      - type: ellipse
+        center: [328, 129]
+        rx: 4
+        ry: 4
+        fill: '#e8302a'
+        z: 3
+      - type: ellipse
+        center: [303, 181]
+        rx: 4
+        ry: 4
+        fill: '#2ca02c'
+        z: 3
+      - type: ellipse
+        center: [353, 181]
+        rx: 4
+        ry: 4
+        fill: '#1f5fd0'
+        z: 3
+      - type: text
+        text: bottom
+        box: [292, 142, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [378, 120, 72, 72]
+        z: 1
+        id: bg_γ
+      - type: text
+        text: photon
+        box: [378, 142, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [120, 206, 72, 72]
+        z: 1
+        id: bg_e
+      - type: text
+        text: electron
+        box: [120, 228, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [206, 206, 72, 72]
+        z: 1
+        id: bg_μ
+      - type: text
+        text: muon
+        box: [206, 228, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [292, 206, 72, 72]
+        z: 1
+        id: bg_τ
+      - type: text
+        text: tau
+        box: [292, 228, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [378, 206, 72, 72]
+        z: 1
+        id: bg_W
+      - type: text
+        text: W
+        box: [378, 228, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [464, 206, 72, 72]
+        z: 1
+        id: bg_Z
+      - type: text
+        text: Z
+        box: [464, 228, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [120, 292, 72, 72]
+        z: 1
+        id: bg_νe
+      - type: text
+        text: electron neutrino
+        box: [120, 314, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [206, 292, 72, 72]
+        z: 1
+        id: bg_νμ
+      - type: text
+        text: muon neutrino
+        box: [206, 314, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [292, 292, 72, 72]
+        z: 1
+        id: bg_ντ
+      - type: text
+        text: tau neutrino
+        box: [292, 314, 72, 32]
+        style: card_name
+        z: 4
+      - type: use
+        symbol: card
+        box: [378, 292, 72, 72]
+        z: 1
+        id: bg_H
+      - type: text
+        text: higgs
+        box: [378, 314, 72, 32]
+        style: card_name
+        z: 4
+pages:
+- mode: flow
+  id: standard-model
+  master: article
+  media: paged
+  lang: en
+  links:
+  - to: https://physics.info/radiobiology/
+    relation: prev
+    label: radiobiology
+    external: true
+  - to: https://physics.info/qed/
+    relation: next
+    label: qed
+    external: true
+  - to: https://physics.info/standard/
+    relation: source
+    label: The Standard Model (physics.info)
+    external: true
+  story:
+  - type: heading
+    level: 1
+    text: The Standard Model
+    id: standard-model
+    style: h1
+  - type: heading
+    level: 2
+    text: Discussion
+    id: discussion
+    style: h2
+  - type: heading
+    level: 3
+    text: Introduction
+    id: introduction
+    style: h3
+  - type: paragraph
+    style: body
+    text: The standard model is the name given in the 1970s to a theory of fundamental particles and how they interact.
+      It incorporated all that was known about subatomic particles at the time and predicted the existence of additional
+      particles as well.
+  - type: paragraph
+    style: body
+    text: There are seventeen named particles in the standard model, organized into the chart shown below. The last
+      particles discovered were the W and Z bosons in 1983, the top quark in 1995, the tau neutrino in 2000, and
+      the higgs boson in 2012.
+  - type: figure
+    units: px
+    id: fig-family-base
+    object:
+      type: group
+      children:
+      - type: use
+        symbol: sm_grid_names
+        box: [0, 0, 560, 408]
+        z: 5
+      box: [0, 0, 660, 410]
+    size: [560, 408]
+    caption: Standard model table
+  - type: paragraph
+    style: body
+    text: The symbols used to represent the particles of the standard model are a mix of Latin and Greek characters.
+  - type: figure
+    units: px
+    id: fig-family-base-symbols
+    object:
+      type: group
+      children:
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      box: [0, 0, 660, 410]
+    size: [560, 408]
+    caption: Standard model particles (nucleons included for comparison)
+  - type: block
+    role: notes
+    children:
+    - type: paragraph
+      style: note
+      text: '*Masses as reported by the Particle Data Group, 2024.'
+    - type: paragraph
+      style: note
+      text: '**Neutrino mass as reported by the KATRIN Collaboration, 2025.'
+    - type: paragraph
+      style: note
+      text: †The proton and neutron are hadrons (made of quarks), baryons (made of three quarks), and nucleons (found
+        in the nucleus), but they are not standard model particles.
+    - type: paragraph
+      style: note
+      text: ‡The higgs boson is the only known scalar boson.
+  - type: table
+    id: standard-model-particles
+    caption: Standard model particles
+    header:
+    - family
+    - group
+    - symbol
+    - particle
+    - predicted
+    - discovered
+    - spin
+    - charge (e)
+    - color
+    - mass (MeV/c²)
+    rows:
+    - - fermions
+      - quarks
+      - u
+      - up quark
+      - 1964
+      - 1968
+      - ½
+      - +⅔
+      - r, g, b
+      - 2.16
+    - - fermions
+      - quarks
+      - d
+      - down quark
+      - 1964
+      - 1968
+      - ½
+      - −⅓
+      - r, g, b
+      - 4.7
+    - - fermions
+      - quarks
+      - c
+      - charm quark
+      - 1970
+      - 1974
+      - ½
+      - +⅔
+      - r, g, b
+      - 1273.0
+    - - fermions
+      - quarks
+      - s
+      - strange quark
+      - 1964
+      - 1968
+      - ½
+      - −⅓
+      - r, g, b
+      - 93.5
+    - - fermions
+      - quarks
+      - t
+      - top quark
+      - 1973
+      - 1995
+      - ½
+      - +⅔
+      - r, g, b
+      - 172570
+    - - fermions
+      - quarks
+      - b
+      - bottom quark
+      - 1973
+      - 1977
+      - ½
+      - −⅓
+      - r, g, b
+      - 4183
+    - - fermions
+      - leptons
+      - e
+      - electron
+      - 1874
+      - 1897
+      - ½
+      - −1
+      - none
+      - 0.51099895
+    - - fermions
+      - leptons
+      - μ
+      - muon
+      - —
+      - 1936
+      - ½
+      - −1
+      - none
+      - 105.6583755
+    - - fermions
+      - leptons
+      - τ
+      - tau
+      - —
+      - 1975
+      - ½
+      - −1
+      - none
+      - 1776.93
+    - - fermions
+      - leptons
+      - νe
+      - electron neutrino**
+      - 1930
+      - 1956
+      - ½
+      - 0
+      - none
+      - < 0.000 000 45
+    - - fermions
+      - leptons
+      - νμ
+      - muon neutrino
+      - 1940s
+      - 1962
+      - ½
+      - 0
+      - none
+      - '?'
+    - - fermions
+      - leptons
+      - ντ
+      - tau neutrino
+      - 1970s
+      - 2000
+      - ½
+      - 0
+      - none
+      - '?'
+    - - fermions
+      - nucleons †
+      - p
+      - proton
+      - 1815
+      - 1917
+      - ½
+      - '+1'
+      - none
+      - 938.27208816
+    - - fermions
+      - nucleons †
+      - n
+      - neutron
+      - 1920
+      - 1932
+      - ½
+      - 0
+      - none
+      - 939.5654205
+    - - bosons
+      - scalar ‡
+      - H
+      - higgs boson
+      - 1964
+      - 2012
+      - 0
+      - 0
+      - none
+      - 125200
+    - - bosons
+      - vector
+      - g
+      - gluon
+      - 1962
+      - 1978
+      - 1
+      - 0
+      - 8 colors
+      - 0
+    - - bosons
+      - vector
+      - γ
+      - photon
+      - —
+      - 1899
+      - 1
+      - 0
+      - none
+      - 0
+    - - bosons
+      - vector
+      - W
+      - W boson
+      - 1968
+      - 1983
+      - 1
+      - ±1
+      - none
+      - 80369.2
+    - - bosons
+      - vector
+      - Z
+      - Z boson
+      - 1968
+      - 1983
+      - 1
+      - 0
+      - none
+      - 91188.0
+  - type: heading
+    level: 3
+    text: particle families
+    id: particle-families
+    style: h3
+  - type: figure
+    units: px
+    id: fig-family-boson-fermion
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [112, 26, 260, 346]
+        fill: '#e74c3c33'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [370, 26, 88, 346]
+        fill: '#3498db33'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [456, 198, 88, 88]
+        fill: '#3498db33'
+        radius: 16
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: fermions
+        box: [6, 144, 108, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: bosons
+        box: [548, 144, 100, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing bosons and fermions
+  - type: paragraph
+    style: body
+    text: Fundamental particles are either the building blocks of matter, called fermions, or the mediators of interactions,
+      called bosons. There are twelve named fermions and five named bosons in the standard model.
+  - type: paragraph
+    style: body
+    spans:
+    - 'Fermions obey a statistical rule described by '
+    - kind: link
+      href: https://en.wikipedia.org/wiki/Enrico_Fermi
+      content:
+      - Enrico Fermi
+    - ' (1901–1954) of Italy, '
+    - kind: link
+      href: https://en.wikipedia.org/wiki/Paul_Dirac
+      content:
+      - Paul Dirac
+    - ' (1902–1984) of England, and '
+    - kind: link
+      href: https://en.wikipedia.org/wiki/Wolfgang_Pauli
+      content:
+      - Wolfgang Pauli
+    - ' (1900–1958) of Austria called the exclusion principle. Simply stated, fermions cannot occupy the same place
+      at the same time. (More formally, no two fermions may be described by the same quantum numbers.) Leptons and
+      quarks are fermions, but so are things made from them like protons, neutrons, atoms, molecules, people, and
+      walls. This agrees with our macroscopic observations of matter in everyday life. People cannot walk through
+      walls unless the wall gets out of their way.'
+  - type: paragraph
+    style: body
+    text: Bosons, in contrast, are have no problem occupying the same place at the same time. (More formally, two
+      or more bosons may be described by the same quantum numbers.) The statistical rules that bosons obey were
+      first described by Satyendra Bose (1894–1974) of India and Albert Einstein (1879–1955) of Germany. Gluons,
+      photons, and the W, Z and higgs are all bosons. As the particles that make up light and other forms of electromagnetic
+      radiation, photons are the bosons we have the most direct experience with. In our everyday experience, we
+      never see beams of light crash into one another. Photons behave like phantoms. They pass through one another
+      with no effect.
+  - type: figure
+    units: px
+    id: fig-quantity-spin
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [112, 26, 260, 346]
+        fill: '#9b59b633'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [370, 26, 88, 260]
+        fill: '#9b59b633'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [456, 198, 88, 88]
+        fill: '#9b59b633'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [370, 284, 88, 88]
+        fill: '#ecf0f133'
+        radius: 16
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: spin ½
+        box: [6, 144, 108, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: spin 1
+        box: [548, 58, 100, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: spin 0
+        box: [548, 316, 100, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing spins
+  - type: paragraph
+    style: body
+    text: Elementary particles have an intrinsic spin angular momentum S. The adjective intrinsic means innate or
+      essential to the thing itself. Elementary particles don't have spin because someone is spinning them. They
+      just spin — or rather, they just have a measurable quantity with the same units as angular momentum. In current
+      physics, elementary particles are featureless — like a mathematical point. In order for something to be perceived
+      as spinning, the thing spinning would need something like a "front" and a "back". Featureless, point particles
+      don't have anything like that. Particle physics is best described with mathematics. Spin is a convenient label
+      for a measurable quality and not a description of reality.
+  - type: paragraph
+    style: body
+    text: Every elementary particle has associated with it a spin quantum number s (often called the spin number
+      or just the spin), where s is any whole number multiple of a half. Fermions have half integral spin quantum
+      numbers (½, 1½, 2½, etc.) and bosons have integral spin quantum numbers (0, 1, 2, etc.). No spin numbers are
+      possible in between these. Spin is a quantized quantity.
+  - type: paragraph
+    style: body
+    text: The elementary fermions have a spin of ½. Particles made from combinations of fermions will have an overall
+      spin that's a combination of the individual spins. A baryon composed three quarks will combine to an overall
+      spin of ½ or 1½, since those are the only possible, non-negative combinations of ½ ± ½ ± ½. That shows that
+      all baryons (like protons and neutrons, for example) are also fermions. Likewise, a meson composed of a quark
+      and an antiquark will combine to an overall spin of 0 or 1 since those are the only possible, non-negative
+      combinations of ½ ± ½. That shows that all all mesons (like the pion of the residual strong interaction, for
+      example) are also bosons.
+  - type: figure
+    units: px
+    id: fig-family-scalar-vector
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [370, 26, 88, 260]
+        fill: '#3498db33'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [456, 198, 88, 88]
+        fill: '#3498db33'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [370, 284, 88, 88]
+        fill: '#ecf0f133'
+        radius: 16
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: vector bosons (spin 1)
+        box: [548, 58, 108, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: scalar boson (spin 0)
+        box: [548, 316, 108, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing the vector and scalar bosons
+  - type: paragraph
+    style: body
+    text: The force-carying bosons of the standard model (gluons, photons, and the W and Z) have spin 1 since they
+      go with vector fields. The mass-genrating boson (the higgs boson) has spin 0 since mass is a scalar quantity.
+      If the particle of the gravitational field is ever discovered, it would be called a graviton and would have
+      a spin 2 since it corresponds to a tensor field. A tensor is a mathematical object that's more complex than
+      a vector, which is in turn more complex than a scalar. See the trend? A scalar field with no direction gets
+      a particle with spin 0. A vector field with a direction gets a particle with spin 1. A tensor field that stretches
+      and squeezes space along two directions gets a particle with spin 2.
+  - type: paragraph
+    style: body
+    text: All fundamental and composite particles have a spin quantum number s (lowercase). This is associated with
+      a spin angular momentum S (uppercase). The SI unit of angular momentum is the kilogram meter squared per second
+      [kg m²/s] or, equivalently, the joule second [J s], which is much too large for elementary particles. Instead
+      ℏ (h bar), also known as the reduced Planck constant (ℏ = h/2π), is used. For reasons that are beyond the
+      scope of this book, the spin quantum number s (which is just a number) and the spin angular momentum S (which
+      is a number with a unit) are not numerically the same. Instead, they are related by a non-obvious equation.
+  - type: math
+    id: spin-angular-momentum
+    tex: S = \left[\, s\left(s + 1\right) \right]^{1/2} \hbar
+    alt: Spin angular momentum S equals the square root of s times (s plus 1), all multiplied by the reduced Planck
+      constant ℏ.
+  - type: paragraph
+    style: body
+    text: For particles with spin quantum number of 0, the solution is a sensible spin angular momentum of 0 ℏ.
+  - type: math
+    id: spin-s0
+    tex: S(0) = \left[\, 0\left(0 + 1\right) \right]^{1/2} \hbar = 0\,\hbar
+  - type: paragraph
+    style: body
+    text: For higher spin quantum numbers the spin angular momentum increases, but beyond that there's not much
+      else that can be simply said.
+  - type: math
+    id: spin-s-half
+    tex: S(\tfrac{1}{2}) = \left[\, \tfrac{1}{2}\left(\tfrac{1}{2} + 1\right) \right]^{1/2} \hbar = \frac{\sqrt{3}}{2}\,\hbar
+  - type: math
+    id: spin-s1
+    tex: S(1) = \left[\, 1\left(1 + 1\right) \right]^{1/2} \hbar = \sqrt{2}\,\hbar
+  - type: math
+    id: spin-s-three-halves
+    tex: S(1\tfrac{1}{2}) = \left[\, \tfrac{3}{2}\left(\tfrac{3}{2} + 1\right) \right]^{1/2} \hbar = \frac{\sqrt{15}}{2}\,\hbar
+  - type: math
+    id: spin-s2
+    tex: S(2) = \left[\, 2\left(2 + 1\right) \right]^{1/2} \hbar = \sqrt{6}\,\hbar
+  - type: figure
+    units: px
+    id: fig-family-lepton-quark
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [112, 26, 260, 174]
+        fill: '#e91e6333'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [112, 198, 260, 174]
+        fill: '#f39c1233'
+        radius: 16
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: quarks
+        box: [6, 58, 108, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: leptons
+        box: [6, 230, 108, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing leptons and quarks
+  - type: paragraph
+    style: body
+    text: 'Fermions are divided into two groups of six: those that must bind together are called quarks and those
+      that can exist independently are called leptons.'
+  - type: paragraph
+    style: body
+    text: The word "quark" originally appeared in a single line of the the novel Finnegans Wake written by the Irish
+      author James Joyce (1882–1941). The protagonist of the book is a publican named Humphrey Chimpden Earwicker
+      who dreams that he is serving beer to a drunken seagull (no joke). Instead of asking for "three quarts for
+      Master Mark" the inebriated bird says "three quarks for Muster Mark". Since the pre-standard model theory
+      was complete with only three quarks, the name made some sense. The full standard model today needs six quarks.
+      That hasn't made the word any less fun to say. Quark! The six flavors of quark are up, down, strange, charm,
+      top, and bottom. The names of the flavors are essentially meaningless.
+  - type: paragraph
+    style: body
+    text: Quarks are known to bind into triplets and doublets. The triplets are called baryons, a term derived from
+      the Greek word βαρύς (varys) meaning "heavy". The doublets are called mesons, a term derived from the Greek
+      word μέσος (mesos) meaning "medium". Collectively baryons (the heavy triplets), mesons (the middleweight doublets),
+      and quarks (the fundamental particles) are known as hadrons, from the Greek word αδρός (adros) meaning thick,
+      robust, massive, or large. This name alludes to the ability of the point-like quarks to bind together and
+      form particles that are "thick" in a certain sense.
+  - type: paragraph
+    style: body
+    text: The other six fermions are called leptons, a name derived from the Greek word λεπτός (leptos) meaning
+      thin, delicate, lightweight, or small. These particles don't need to bind to each other, which keeps them
+      "thin" in a certain sense. Originally leptons were considered the "light" particles and hadrons the "heavy"
+      particles, but the discovery of the tau lepton in 1975 broke that rule. The tau (the heaviest lepton) is almost
+      twice as massive as a proton (the lightest hadron).
+  - type: paragraph
+    style: body
+    text: Baryons found in the nucleus (the proton and neutron) are called nucleons. The Latin word for kernel is
+      nucleus. Nucleons are found in the metaphorical "kernel" of the atom. Baryons that contain at least one strange
+      quark but no charm, bottom, or top quarks are called hyperons. The Greek word for beyond is υπέρ (yper), which
+      morphed into the English prefix hyper-. Hyperons are particles that are "way out" in a certain sense.
+  - type: figure
+    units: px
+    id: fig-family-neutrino
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [112, 284, 260, 88]
+        fill: '#f1c40f55'
+        radius: 16
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: neutrinos
+        box: [6, 316, 108, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing neutrinos
+  - type: paragraph
+    style: body
+    text: The neutrinos are an important subgroup within the leptons. They come in three flavors named for their
+      partner leptons. The electron, muon, and tau are matched with the electron neutrino, muon neutrino, and tau
+      neutrino. Neutrinos have very little mass (even for leptons) and interact so weakly with the rest of the particles
+      that they are exceptionally difficult to detect. The name is a play on words. The Italian word for neutron
+      (neutrone) sounds like the word neutral (neutro) with an augmentative suffix (-one) tacked on the end. That
+      is, it sounds something like "big neutral" to Italian ears. Replace the augmentative suffix -one with the
+      diminutive suffix -ino and you have a "little neutral", which is a good description of what a neutrino is
+      — a diminutive neutral particle. Aaaaaw, so small and neutral.
+  - type: figure
+    units: px
+    id: fig-family-generations
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [112, 26, 88, 346]
+        fill: '#7f8c8d22'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [198, 26, 88, 346]
+        fill: '#7f8c8d22'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [284, 26, 88, 346]
+        fill: '#7f8c8d22'
+        radius: 16
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: I
+        box: [150, 8, 30, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: II
+        box: [234, 8, 30, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: III
+        box: [318, 8, 34, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing fermion generations
+  - type: paragraph
+    style: body
+    text: Fermions belong to one of three known generations from ordinary (I), to exotic (II), to very exotic (III).
+      (These are the adjectives I selected to describe the generations.) Generation I particles can combine to form
+      hadrons with effectively infinite life spans (stable atoms made of electrons, protons, and neutrons for example).
+      Generation II particles always form unstable hadrons. The longest lived hadron containing a generation II
+      quark is the lambda particle (made of an up, down, and strange quark). It has a mean lifetime of less than
+      a billionth of a second, which is considered long-lived for an unstable hadron. Generation III particles are
+      divided in their behavior. The bottom quark isn't much stranger than a strange quark, but the top quark is
+      so short-lived that it doesn't exist long enough to do anything. It falls apart before the world even knows
+      it exists. Top quarks are only known from their decay products.
+  - type: heading
+    level: 3
+    text: particle interactions
+    id: particle-interactions
+    style: h3
+  - type: figure
+    units: px
+    id: fig-three-forces
+    object:
+      type: group
+      children:
+      - type: text
+        decorative: true
+        text: standard model particle interactions
+        box: [150, 4, 360, 28]
+        style: fig_title
+        z: 10
+      - type: text
+        decorative: true
+        text: electromagnetic
+        box: [20, 44, 200, 24]
+        style: panel_title
+        z: 10
+      - type: text
+        decorative: true
+        text: (charge)
+        box: [20, 66, 200, 20]
+        style: panel_sub
+        z: 10
+      - type: ellipse
+        decorative: true
+        center: [110, 170]
+        rx: 42
+        ry: 42
+        fill: '#d4af37'
+        stroke: '#a8861f'
+        stroke_style: &id001
+          stroke_width: 2
+        z: 2
+      - type: text
+        decorative: true
+        text: Au
+        box: [86, 156, 60, 28]
+        style: panel_sub
+        z: 4
+      - type: ellipse
+        decorative: true
+        center: [45, 120]
+        rx: 9
+        ry: 9
+        fill: '#c0392b'
+        z: 4
+      - type: text
+        decorative: true
+        text: α
+        box: [20, 118, 24, 20]
+        style: panel_sub
+        z: 5
+      - type: ellipse
+        decorative: true
+        center: [175, 95]
+        rx: 9
+        ry: 9
+        fill: '#c0392b'
+        z: 4
+      - type: text
+        decorative: true
+        text: α
+        box: [186, 88, 24, 20]
+        style: panel_sub
+        z: 5
+      - type: polyline
+        decorative: true
+        points:
+        - [52, 124]
+        - [78, 140]
+        - [70, 150]
+        - [96, 162]
+        fill: none
+        stroke: '#7f8c8d'
+        stroke_style: *id001
+        z: 3
+      - type: text
+        decorative: true
+        text: γ
+        box: [82, 128, 24, 20]
+        style: panel_sub
+        z: 5
+      - type: text
+        decorative: true
+        text: alpha particle scattering
+        box: [20, 224, 200, 20]
+        style: fig_caption
+        z: 10
+      - type: text
+        decorative: true
+        text: off a gold nucleus
+        box: [20, 240, 200, 20]
+        style: fig_caption
+        z: 10
+      - type: text
+        decorative: true
+        text: interaction mediated by photons
+        box: [20, 262, 200, 20]
+        style: fig_caption
+        z: 10
+      - type: text
+        decorative: true
+        text: strong
+        box: [250, 44, 200, 24]
+        style: panel_title
+        z: 10
+      - type: text
+        decorative: true
+        text: (color)
+        box: [250, 66, 200, 20]
+        style: panel_sub
+        z: 10
+      - type: ellipse
+        decorative: true
+        center: [345, 170]
+        rx: 48
+        ry: 48
+        fill: '#ff6b6b22'
+        stroke: '#c0392b'
+        stroke_style: *id001
+        z: 2
+      - type: text
+        decorative: true
+        text: p⁺
+        box: [328, 150, 40, 24]
+        style: panel_sub
+        z: 3
+      - type: ellipse
+        decorative: true
+        center: [328, 150]
+        rx: 5
+        ry: 5
+        fill: '#e8302a'
+        z: 4
+      - type: ellipse
+        decorative: true
+        center: [365, 150]
+        rx: 5
+        ry: 5
+        fill: '#2ca02c'
+        z: 4
+      - type: ellipse
+        decorative: true
+        center: [345, 196]
+        rx: 5
+        ry: 5
+        fill: '#1f5fd0'
+        z: 4
+      - type: line
+        decorative: true
+        from: [328, 150]
+        to: [365, 150]
+        stroke: '#7f8c8d'
+        stroke_style: *id001
+        z: 3
+      - type: line
+        decorative: true
+        from: [365, 150]
+        to: [345, 196]
+        stroke: '#7f8c8d'
+        stroke_style: *id001
+        z: 3
+      - type: line
+        decorative: true
+        from: [345, 196]
+        to: [328, 150]
+        stroke: '#7f8c8d'
+        stroke_style: *id001
+        z: 3
+      - type: text
+        decorative: true
+        text: g
+        box: [342, 166, 16, 18]
+        style: panel_sub
+        z: 5
+      - type: text
+        decorative: true
+        text: quarks bound together
+        box: [250, 224, 200, 20]
+        style: fig_caption
+        z: 10
+      - type: text
+        decorative: true
+        text: within a proton
+        box: [250, 240, 200, 20]
+        style: fig_caption
+        z: 10
+      - type: text
+        decorative: true
+        text: interaction mediated by gluons
+        box: [250, 262, 200, 20]
+        style: fig_caption
+        z: 10
+      - type: text
+        decorative: true
+        text: weak
+        box: [470, 44, 200, 24]
+        style: panel_title
+        z: 10
+      - type: text
+        decorative: true
+        text: (flavor)
+        box: [470, 66, 200, 20]
+        style: panel_sub
+        z: 10
+      - type: text
+        decorative: true
+        text: e⁻
+        box: [470, 104, 24, 20]
+        style: panel_sub
+        z: 5
+      - type: text
+        decorative: true
+        text: ν⁰
+        box: [620, 104, 30, 20]
+        style: panel_sub
+        z: 5
+      - type: text
+        decorative: true
+        text: p⁺
+        box: [470, 214, 30, 20]
+        style: panel_sub
+        z: 5
+      - type: text
+        decorative: true
+        text: n⁰
+        box: [620, 214, 30, 20]
+        style: panel_sub
+        z: 5
+      - type: line
+        decorative: true
+        from: [492, 118]
+        to: [520, 150]
+        stroke: '#001f3d'
+        stroke_style: *id001
+        z: 3
+      - type: line
+        decorative: true
+        from: [492, 222]
+        to: [520, 150]
+        stroke: '#001f3d'
+        stroke_style: *id001
+        z: 3
+      - type: line
+        decorative: true
+        from: [520, 150]
+        to: [550, 190]
+        stroke: '#7f8c8d'
+        stroke_style:
+          stroke_width: 2
+          stroke_dasharray: [5, 4]
+        z: 3
+      - type: text
+        decorative: true
+        text: W⁻
+        box: [556, 162, 30, 20]
+        style: panel_sub
+        z: 5
+      - type: line
+        decorative: true
+        from: [550, 190]
+        to: [620, 118]
+        stroke: '#001f3d'
+        stroke_style: *id001
+        z: 3
+      - type: line
+        decorative: true
+        from: [550, 190]
+        to: [620, 222]
+        stroke: '#001f3d'
+        stroke_style: *id001
+        z: 3
+      - type: text
+        decorative: true
+        text: reverse beta decay
+        box: [470, 224, 200, 20]
+        style: fig_caption
+        z: 10
+      - type: text
+        decorative: true
+        text: interaction mediated by W and Z particles
+        box: [470, 262, 210, 20]
+        style: fig_caption
+        z: 10
+      box: [0, 0, 660, 300]
+    size: [660, 300]
+    caption: Cartoon representation of the three fundamental forces of the standard model
+  - type: paragraph
+    style: body
+    text: Three of the four fundamental fources of nature are included in the standard model of particle physics
+      — electromagnetism, the strong force, and the weak force. (Gravity is not included in the standard model.)
+      Each force acts between particles because of some property of that particle — charge for electromagnetism,
+      color for the strong force, and flavor for the weak force. The bosons associated with each force are called
+      gauge bosons — the photon for electromagnetism, gluons for the strong force, and the W and Z bosons for the
+      weak force.
+  - type: figure
+    units: px
+    id: fig-quantity-charge
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [112, 26, 260, 88]
+        fill: '#e67e2233'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [112, 112, 260, 88]
+        fill: '#e67e2233'
+        radius: 16
+        z: 1
+      - type: rect
+        decorative: true
+        box: [112, 198, 260, 88]
+        fill: '#e67e2233'
+        radius: 16
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: +⅔ e
+        box: [6, 58, 108, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: −⅓ e
+        box: [6, 144, 108, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: −1 e
+        box: [6, 230, 108, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing charges
+  - type: paragraph
+    style: body
+    text: Charge is the property of matter that gives rise to electric and magnetic phenomena (known collectively
+      as electromagnetism). Charge is quantized, which means it can only exist in discrete amounts with restricted
+      values — multiples and fractions of the elementary charge (e = 1.6 × 10⁻¹⁹ C). Particles that exist independently
+      (the electron, muon, and tau) carry multiples of the elementary charge (−1 e), while quarks carry fractions
+      of the elementary charge (+⅔ e or −⅓ e). Quarks always bind together in groups whose total charge is an integral
+      multiple of the elementary charge, which is why no one has ever directly measured a fractional charge. In
+      addition, since opposite charges attract, electrons tend to bind to protons to form atoms that are neutral
+      overall. We don't normally notice the electrical nature of matter because of this.
+  - type: figure
+    units: px
+    id: fig-force-em
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [115, 29, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 29, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 29, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 115, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 115, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 115, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 201, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 201, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 201, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [373, 201, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [373, 115, 82, 82]
+        fill: '#e91e6338'
+        radius: 12
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: em
+        box: [6, 144, 108, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing particles that interact electromagnetically
+  - type: paragraph
+    style: body
+    text: Charged particles interact by the exchange of photons — the carrier of the electromagnetic force. Whenever
+      one electron repels another or any electron orbits a nucleus, a photon is responsible. Photons are massless,
+      uncharged, and have an unlimited range. The mathematical model used to describe the interaction of charged
+      particles through the exchange of photons is known as quantum electrodynamics (QED).
+  - type: figure
+    units: px
+    id: fig-quantity-color
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [115, 29, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 29, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 29, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 115, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 115, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 115, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [373, 29, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: colored
+        box: [6, 58, 108, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing particles with color
+  - type: paragraph
+    style: body
+    text: 'Quarks stick to other quarks because they possess a characteristic known as color (or color charge).
+      Quarks come in one of three colors: red, green, and blue. Don''t let the words mislead you. Quarks are much
+      too small to to be visible and thus could never have a perceptual property like color. The names were chosen
+      because of a convenient analogy. The colors of quarks in the standard model combine like the colors of light
+      in human vision.'
+  - type: paragraph
+    style: body
+    text: Red light plus green light plus blue light appears to us humans as "colorless" white light. A baryon is
+      a triplet of one red, one green, and one blue quark. Put them together and you get a color neutral particle.
+      A color plus its opposite color also gives white light. Red light plus cyan light looks the same to humans
+      as white light, for example. A meson is a doublet of one colored quark and one anticolored antiquark. Put
+      them together and you get a color neutral particle.
+  - type: paragraph
+    style: body
+    text: There's something about color that makes it want to hide itself from anything bigger than a nucleus. Quarks
+      can't stand being apart from one another. They just have to join up and always do so in a way that hides their
+      color from the outside world. One color is never favored over another when quarks get together. Matter is
+      color neutral down to the very small scale.
+  - type: figure
+    units: px
+    id: fig-force-strong
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [115, 29, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 29, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 29, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 115, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 115, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 115, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [373, 29, 82, 82]
+        fill: '#1abc9c38'
+        radius: 12
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: strong
+        box: [6, 58, 108, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing particles that interact through the strong force
+  - type: paragraph
+    style: body
+    text: Colored particles are bound together by the appropriately named gluons. Gluons are also colored, but in
+      a more complicated way than the quarks are. Six of the eight gluons have two colors, one has four, and another
+      has six. Gluons glue quarks together, but they also stick to themselves. One consequence of this is that they
+      they can't reach out and do much beyond the nucleus.
+  - type: paragraph
+    style: body
+    text: The mathematical model used to describe the interaction of colored particles through the exchange of gluons
+      is known as quantum chromodynamics (QCD). The whole sticky mess is called the strong force or the strong interaction
+      since it results in forces in the nucleus that are stronger than the electromagnetic force. Without the strong
+      force, every nucleus would blow itself to smithereens.
+  - type: figure
+    units: px
+    id: fig-quantity-flavor
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [115, 29, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 29, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 29, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 115, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 115, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 115, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 201, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 201, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 201, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 287, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 287, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 287, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: flavored
+        box: [6, 230, 108, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing particles with flavor
+  - type: paragraph
+    style: body
+    text: There are twelve named elementary fermions. The difference between them is one of flavor. The word "flavor"
+      is used here to mean "type" and it applies only to fermions. Don't let the word mislead you. Subatomic particles
+      are much too small to have any characteristics that could be directly observed by human senses.
+  - type: figure
+    units: px
+    id: fig-force-weak
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [115, 29, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 29, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 29, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 115, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 115, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 115, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 201, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 201, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 201, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 287, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 287, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 287, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [373, 201, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [459, 201, 82, 82]
+        fill: '#f1c40f55'
+        radius: 12
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: weak
+        box: [6, 230, 108, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing particles that interact through the weak force
+  - type: paragraph
+    style: body
+    text: Flavored particles interact weakly through the exchange of W or Z bosons — the carriers of the weak force
+      (also known as intermediate vector bosons). When a neutron decays into a proton, a W− boson is responsible.
+      The mathematical model used to describe the interaction of flavored particles through the exchange of W and
+      Z bosons is sometimes known as quantum flavordynamics (QFD), but this is a term that is not used by working
+      particle physicists. At higher energies, the weak and electromagnetic forces begin to look more and more alike.
+      The mathematical model that describes these interactions together is known as electroweak theory (EWT). This
+      is the conventional name for the theory of the weak force.
+  - type: heading
+    level: 3
+    text: mass
+    id: mass
+    style: h3
+  - type: figure
+    units: px
+    id: fig-quantity-mass
+    object:
+      type: group
+      children:
+      - type: line
+        decorative: true
+        from: [104, 28]
+        to: [104, 370]
+        stroke: '#7f8c8d'
+        stroke_style: &id002
+          stroke_width: 2
+          arrow_start: true
+          arrow_end: true
+        z: 2
+      - type: line
+        decorative: true
+        from: [560, 28]
+        to: [560, 370]
+        stroke: '#7f8c8d'
+        stroke_style: *id002
+        z: 2
+      - type: rect
+        decorative: true
+        box: [373, 201, 82, 82]
+        fill: '#2ecc7133'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [459, 201, 82, 82]
+        fill: '#2ecc7133'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [373, 287, 82, 82]
+        fill: '#2ecc7133'
+        radius: 12
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: heavier fermions
+        box: [6, 58, 108, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: lighter fermions
+        box: [6, 316, 108, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: massless bosons
+        box: [548, 58, 108, 28]
+        style: region_label
+        z: 10
+      - type: text
+        decorative: true
+        text: massive bosons
+        box: [548, 316, 108, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing masses
+  - type: paragraph
+    style: body
+    text: All fermions are thought to have a nonzero mass. Particles in generation I are less massive than those
+      in generation II, which are less massive than those in generation III. Within the generations, quarks are
+      more massive than leptons and neutrinos are less massive than the other leptons. Bosons are divided when it
+      comes to mass. Gluons and photons are massless. The W, Z, and higgs bosons are massive.
+  - type: paragraph
+    style: body
+    text: Mass is energy. A moving particle is more massive than a stationary particle because it has kinetic energy.
+      Logically then, a stationary particle should have no mass. If we could stop a photon (which we can't) it would
+      weigh nothing. Our logic appears to be working. If we could stop an electron (which we can) it would weigh
+      something. Our logic is broken. Why do some particles weigh something at rest and others weigh nothing?
+  - type: paragraph
+    style: body
+    text: 'Mass is energy and energy comes in two types: kinetic energy (the energy of motion) and potential energy
+      (the energy of arrangement). The kinetic energy contribution to mass is minor. Most of the mass around us
+      comes from some sort of potential energy. For example, a proton is made of two up quarks and a down quark.
+      The masses of these three quarks do not add up to the mass of a proton.'
+  - type: table
+    id: proton-mass-defect
+    caption: The mass of a proton is not the sum of its quark masses
+    rows:
+    - - mₚ
+      - ≠
+      - 2mᵤ + 1m_d
+    - - 938.272 MeV/c²
+      - ≠
+      - 2(2.3 MeV/c²) + 1(4.8 MeV/c²)
+    - - 938.272 MeV/c²
+      - ≠
+      - 9.4 MeV/c²
+  - type: paragraph
+    style: body
+    text: The masses of the parts are only 1% of the mass of the whole. The remaining 99% comes from the potential
+      energy of the strong force holding the proton together. The particles that mediate the strong force are gluons.
+      The interaction energy of these massleess particles is what gives the proton most of its mass.
+  - type: paragraph
+    style: body
+    text: So why do quarks have mass but the gluons don't? Or as the question was historically stated, why do the
+      W and Z bosons have mass but the photon doesn't? Maybe there's another kind of potential energy. Maybe there's
+      another interaction out there — an interaction that some particles feel and others don't. If there's an interaction,
+      there's a particle — a particle that gives mass to other particles when they're just sitting around doing
+      nothing. The interaction that gives mass to elementary particles was proposed in 1964 by scientists in three
+      independent locations.
+  - type: list
+    ordered: true
+    style: body
+    items:
+    - François Englert and Robert Brout at L'Université Libre de Bruxelles in Belgium
+    - Peter Higgs at the University of Edinburgh in Scotland
+    - Gerald Guralnik, Carl Hagen, and Tom Kibble at Imperial College, London
+  - type: paragraph
+    style: body
+    text: It should be called the Englert-Brout-Higgs-Guralnik-Hagen-Kibble mechanism, but it isn't. For whatever
+      reason, the interaction that gives mass to elementary particles is called the higgs mechanism and the particle
+      that mediates the interaction is called the higgs boson, the higgs particle, or (rarely) the higgson.
+  - type: figure
+    units: px
+    id: fig-force-higgs
+    object:
+      type: group
+      children:
+      - type: rect
+        decorative: true
+        box: [115, 29, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 29, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 29, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 115, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 115, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 115, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [115, 201, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [201, 201, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [287, 201, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [373, 201, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [459, 201, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: rect
+        decorative: true
+        box: [373, 287, 82, 82]
+        fill: '#2ecc7144'
+        radius: 12
+        z: 1
+      - type: use
+        symbol: sm_grid_symbols
+        box: [0, 0, 560, 408]
+        z: 5
+      - type: text
+        decorative: true
+        text: higgs
+        box: [548, 316, 100, 28]
+        style: region_label
+        z: 10
+      box: [0, 0, 660, 410]
+    size: [660, 410]
+    caption: Standard model table showing particles that interact through the higgs mechanism
+  - type: paragraph
+    style: body
+    text: All of space is assumed to be filled with a higgs field — a background sea of virtual higgs bosons that
+      pop in and out of existence. The quarks, leptons, and W and Z bosons moving around through space interact
+      with this field, which is why these particles have mass. The photons and gluons do not interact with the higgs
+      field, which is why these particles do not have mass. Even the higgs boson itself interacts with the higgs
+      field. It gives itself mass! The higgs boson is different from the other bosons (gluons, photons, W and Z
+      bosons) in that the higgs mechanism doesn't result in anything resembling a force (like the strong, electromagnetic,
+      and weak forces). The higgs field is a scalar field and the higgs boson is a particle with spin zero.
+  - type: heading
+    level: 3
+    text: gravity
+    id: gravity
+    style: h3
+  - type: paragraph
+    style: body
+    text: Gravity is the force between objects due to their mass. The mathematical model that would describe gravity
+      on the particle level is sometimes called quantum geometrodynamics (QGD), but is more often referred to as
+      quantum gravitation. The standard model of particle physics does not include gravity (nor could it ever) and
+      there currently is no quantum theory of gravitation. If there was, it would have to include a force carying
+      particle. The proposed name for this particle is the graviton. General relativity describes gravitational
+      waves as a tensor disturbance that propogates — one that shears spacetime along two alternating perpendicular
+      directions. This two dimensional behavior leads theoretical physicists to believe that the graviton would
+      have spin two.
+  - type: paragraph
+    style: body
+    text: It is hoped that gravity will be taken care of in a theory beyond the standard model. In an extreme case
+      of overconfidence, some theorists propose that such a theory would be a theory of everything. Given the history
+      of science (and of life in general), anything that claims to be the ultimate representation of reality (scientific,
+      economic, cultural, or religious) is certainly doomed to be superseded by something bigger and better — or
+      at the very least, something less wrong.
+  - type: heading
+    level: 3
+    text: names, names, names
+    id: names
+    style: h3
+  - type: paragraph
+    style: body
+    text: The theme of this topic seems to be "names, names, names".
+  - type: table
+    id: names-physicists
+    caption: Particle groups named after physicists
+    header:
+    - group
+    - statistics
+    - eponymous root (a)
+    - eponymous root (b)
+    rows:
+    - - fermions
+      - fermi-dirac
+      - Enrico Fermi (1901–1954) Italy
+      - Paul Dirac (1902–1984) England
+    - - bosons
+      - bose-einstein
+      - Satyendra Bose (1894–1974) India
+      - Albert Einstein (1879–1955) Germany
+    - - classical particles*
+      - maxwell-boltzmann
+      - James Clerk Maxwell (1831–1879) Scotland
+      - Ludwig Boltzmann (1844–1906) Austria
+    - - higgs boson
+      - higgs mechanism
+      - Peter Higgs (1929–2024) England
+      - ''
+  - type: block
+    role: notes
+    children:
+    - type: paragraph
+      style: note
+      text: '*Classical particles (the molecules of an ideal gas, for example) are not a part of the standard model,
+        but are included for comparison.'
+  - type: table
+    id: names-greek
+    caption: Particle groups with names of Greek origin
+    header:
+    - group
+    - greek root
+    - transliteration
+    - meaning
+    rows:
+    - - hadrons
+      - αδρός
+      - (adros)
+      - thick
+    - - leptons
+      - λεπτός
+      - (leptos)
+      - thin
+    - - baryons
+      - βαρύς
+      - (varys)
+      - heavy
+    - - mesons
+      - μέσος
+      - (mesos)
+      - medium
+    - - hyperons
+      - υπέρ
+      - (yper)
+      - beyond
+  - type: table
+    id: names-latin
+    caption: Particle groups with names of Latin origin
+    header:
+    - group
+    - latin root
+    - meaning
+    rows:
+    - - nucleons
+      - nucleus
+      - kernel
+  - type: table
+    id: names-misc
+    caption: Particle groups with names of miscellaneous origin
+    header:
+    - group
+    - source
+    - explanation
+    rows:
+    - - neutrinos
+      - Enrico Fermi (1901–1954) Italy
+      - Italian diminutive form of neutron (neutrone). Neutrino could be translated as the "little neutral" to contrast
+        it with neutrone, which is the "big neutral".
+    - - quarks
+      - Murray Gell-Mann (1929–2019) United States
+      - An arbitrary utterance later associated with a passage in Finnegans Wake — a novel by Irish modernist author
+        James Joyce. Meant to sound like a drunken seagull ordering "quarts" of beer.
+  - type: heading
+    level: 3
+    text: group theory
+    id: group-theory
+    style: h3
+  - type: paragraph
+    style: body
+    text: For those who like fancy math, the standard model is described using group theory notation as…
+  - type: math
+    id: sm-gauge-group
+    tex: SU(3) \times SU(2) \times U(1)
+    alt: The standard model gauge group, SU(3) cross SU(2) cross U(1).
+  - type: paragraph
+    style: body
+    text: where the gauge group of strong interactions is…
+  - type: math
+    id: strong-gauge-group
+    tex: SU(3)
+    alt: SU(3), the gauge group of the strong interaction.
+  - type: paragraph
+    style: body
+    text: and the gauge group of electroweak interactions is…
+  - type: math
+    id: electroweak-gauge-group
+    tex: SU(2) \times U(1)
+    alt: SU(2) cross U(1), the gauge group of the electroweak interaction.
+  - type: paragraph
+    style: body
+    text: Notes…
+  - type: paragraph
+    style: body
+    text: 'SU(3):'
+  - type: list
+    ordered: false
+    style: body
+    items:
+    - 3rd order special unitary group
+    - the set of all 3 × 3 unitary matrices with unit determinant
+  - type: paragraph
+    style: body
+    text: 'SU(2):'
+  - type: list
+    ordered: false
+    style: body
+    items:
+    - 2nd order special unitary group
+    - the set of all 2 × 2 unitary matrices with unit determinant
+    - 'isomorphic to the group of quaternions of absolute value 1, {x ∈ ℍ: |x| = 1}'
+    - diffeomorphic to a hypersphere (3-sphere)
+    - homomorphic to the rotation group SO(3), the set of all rotations about the origin in ordinary three dimensional
+      euclidean space
+  - type: paragraph
+    style: body
+    text: 'U(1):'
+  - type: list
+    ordered: false
+    style: body
+    items:
+    - 1st order unitary group
+    - the set of all 1 × 1 unitary matrices
+    - 'isomorphic to the circle group, the multiplicative group of complex numbers with absolute value 1, T
+      = {x ∈ ℂ: |x| = 1}'
+    - isomorphic to SO(2), the second order special orthogonal group
+  - type: heading
+    level: 3
+    text: lagrangian
+    id: lagrangian
+    style: h3
+  - type: paragraph
+    style: body
+    text: What is this? The standard model Lagrangian. What does it say? I'll let you know when I figure it out.
+  - type: math
+    id: sm-lagrangian
+    tex: \mathcal{L} = -\tfrac{1}{4} F_{\mu\nu} F^{\mu\nu} + i\bar{\psi}\,\slashed{D}\,\psi + \text{h.c.} + \psi_i\,
+      y_{ij}\, \psi_j\, \phi + \text{h.c.} + \left|D_\mu \phi\right|^2 - V(\phi)
+  semantic:
+    ontology:
+      node_types:
+        force:
+          meaning: a fundamental interaction of the standard model
+        boson:
+          meaning: a gauge (or scalar) boson that mediates an interaction
+        property:
+          meaning: the particle property a force couples to
+        theory:
+          meaning: the mathematical model describing an interaction
+      edge_types:
+        mediated_by:
+          meaning: force is carried by boson
+          directionality: directed
+        couples_to:
+          meaning: force acts via this particle property
+          directionality: directed
+        described_by:
+          meaning: force is modelled by this theory
+          directionality: directed
+    nodes:
+    - id: em
+      type: force
+      label: electromagnetism
+    - id: strong
+      type: force
+      label: strong force
+    - id: weak
+      type: force
+      label: weak force
+    - id: higgs_mech
+      type: force
+      label: higgs mechanism
+    - id: photon
+      type: boson
+      label: photon
+    - id: gluon
+      type: boson
+      label: gluon
+    - id: wz
+      type: boson
+      label: W and Z bosons
+    - id: higgs
+      type: boson
+      label: higgs boson
+    - id: charge
+      type: property
+      label: charge
+    - id: color
+      type: property
+      label: color
+    - id: flavor
+      type: property
+      label: flavor
+    - id: qed
+      type: theory
+      label: quantum electrodynamics (QED)
+    - id: qcd
+      type: theory
+      label: quantum chromodynamics (QCD)
+    - id: ewt
+      type: theory
+      label: electroweak theory (EWT)
+    edges:
+    - id: e1
+      type: mediated_by
+      from: em
+      to: photon
+    - id: e2
+      type: mediated_by
+      from: strong
+      to: gluon
+    - id: e3
+      type: mediated_by
+      from: weak
+      to: wz
+    - id: e4
+      type: mediated_by
+      from: higgs_mech
+      to: higgs
+    - id: e5
+      type: couples_to
+      from: em
+      to: charge
+    - id: e6
+      type: couples_to
+      from: strong
+      to: color
+    - id: e7
+      type: couples_to
+      from: weak
+      to: flavor
+    - id: e8
+      type: described_by
+      from: em
+      to: qed
+    - id: e9
+      type: described_by
+      from: strong
+      to: qcd
+    - id: e10
+      type: described_by
+      from: weak
+      to: ewt
+  meta:
+    disclaimer: Nothing here should be taken for granted. The target grammar is non-normative (no validator); content
+      is a single-source transcription; normalizations and one source inconsistency are documented below. Verify
+      every figure against the cited primaries (PDG 2024, KATRIN 2025) before use.
+    source:
+      url: https://physics.info/standard/
+      canonical: https://physics.info/standard/
+      title: The Standard Model
+      author: Glenn Elert
+      in_book: The Physics Hypertextbook
+      publisher: hypertextbook
+      citation_date: 2025
+      copyright: ©1998–2026 Glenn Elert
+      fetched: '2026-06-22'
+      og_image: https://physics.info/standard/og-image.jpg
+    data_sources:
+      particle_masses: Particle Data Group (PDG), 2024 — https://pdg.lbl.gov
+      neutrino_mass: KATRIN Collaboration, 2025 — https://doi.org/10.1126/science.adq9592
+    provenance:
+      normalizations:
+      - 'Main particle table: merged ''family''/''group'' cells flattened into two explicit, value-repeated leading
+        columns (lossless; original used rowspans).'
+      - 'Charge column: source doubled-sign artifacts (''+⅔+'', ''−⅓−'', ''−1−'', ''+1+'', ''±1±'') collapsed to
+        single physical values (+⅔, −⅓, −1, +1, ±1).'
+      - 'Predicted column: source sentinel ''0000'' (muon, tau, photon = no prediction date) rendered as ''—''.'
+      - 'Predicted column: source ''sNNNNs'' artifacts (''s1940s'', ''s1970s'') rendered as decade values (''1940s'',
+        ''1970s'').'
+      - Inline emphasis (italic) flattened to plain text; the grammar can carry it via Span but doing so per-run
+        was judged not worth the verbosity for fidelity of content.
+      - Inline hyperlinks flattened to plain text because the grammar has no inline-link construct; targets preserved
+        in meta.links.
+      - 'v2: opaque image `src` figures replaced by composed FrameGraph object graphs; defs.assets removed (URLs
+        retained in meta.source_images).'
+      known_inconsistencies:
+      - Source states up/down quark masses as 2.3 / 4.8 MeV/c² in the 'mass' section (proton mass-defect table)
+        but 2.16 / 4.70 MeV/c² in the main particle table. Both preserved as written; not reconciled.
+      verbatim_source_typos_preserved:
+      - '''fources'' (for ''forces''), ''force-carying''/''carying'' (for ''carrying''), ''mass-genrating'' (for
+        ''mass-generating''), ''massleess'' (for ''massless''), ''propogates'' (for ''propagates''), ''are have
+        no problem'' (sic), ''much too small to to be'' (sic), ''they they'' (sic), ''all all mesons'' (sic).'
+    grammar_gaps_observed: []
+    grammar_gaps_resolved:
+    - '`LinkInline = { kind: link, href, content: [Inline...], title? }` added to the Inline union — this document
+      now uses it for the inline physicist links in the fermion-statistics paragraph (Fermi/Dirac/Pauli). Closes the
+      former "no inline hyperlink type" gap.'
+    - '`links: [PageLink]` added to FlowSection (mirrors Page.links) — the section''s prev/next/source navigation is
+      now declared on the flow itself rather than only under meta.navigation.'
+    - '`alt: string` added to MathFlow — the spin-angular-momentum equation and the three gauge-group equations now
+      carry plain-text fallbacks for accessibility / tagged export.'
+    - '`units: Units` added to FigureFlow — every figure now declares `units: px` instead of relying on the prose
+      note in meta.drawings.coordinate_system.'
+    links:
+      Enrico_Fermi: https://en.wikipedia.org/wiki/Enrico_Fermi
+      Paul_Dirac: https://en.wikipedia.org/wiki/Paul_Dirac
+      Wolfgang_Pauli: https://en.wikipedia.org/wiki/Wolfgang_Pauli
+      Satyendra_Bose: https://en.wikipedia.org/wiki/Satyendra_Nath_Bose
+      Albert_Einstein: https://en.wikipedia.org/wiki/Albert_Einstein
+      Francois_Englert: https://en.wikipedia.org/wiki/François_Englert
+      Robert_Brout: https://en.wikipedia.org/wiki/Robert_Brout
+      Peter_Higgs: https://en.wikipedia.org/wiki/Peter_Higgs
+      Gerald_Guralnik: https://en.wikipedia.org/wiki/Gerald_Guralnik
+      Carl_Hagen: https://en.wikipedia.org/wiki/C._R._Hagen
+      Tom_Kibble: https://en.wikipedia.org/wiki/Tom_W._B._Kibble
+      Murray_Gell_Mann: https://en.wikipedia.org/wiki/Murray_Gell-Mann
+      James_Clerk_Maxwell: https://en.wikipedia.org/wiki/James_Clerk_Maxwell
+      Ludwig_Boltzmann: https://en.wikipedia.org/wiki/Ludwig_Boltzmann
+      Particle_Data_Group: https://pdg.lbl.gov
+      KATRIN: https://doi.org/10.1126/science.adq9592
+      beyond_the_standard_model: https://physics.info/beyond/
+    navigation:
+      previous_topic:
+        label: radiobiology
+        url: https://physics.info/radiobiology/
+      current_topic:
+        label: standard
+        url: https://physics.info/standard/
+      next_topic:
+        label: qed
+        url: https://physics.info/qed/
+      subtabs:
+      - label: discussion
+        url: https://physics.info/standard/
+      - label: summary
+        url: https://physics.info/standard/summary.shtml
+      - label: practice
+        url: https://physics.info/standard/practice.shtml
+      - label: problems
+        url: https://physics.info/standard/problems.shtml
+    excluded_from_transcription:
+    - 'Site-wide chrome: top nav (chaos/eworld/facts/get bent/physics), the full Physics Hypertextbook table of
+      contents, and the footer/copyright block. These are site furniture, not content of this document.'
+    source_images:
+      family-base: https://physics.info/standard/family-base.svg
+      family-base-symbols: https://physics.info/standard/family-base-symbols.svg
+      family-boson-fermion: https://physics.info/standard/family-boson-fermion.svg
+      quantity-spin: https://physics.info/standard/quantity-spin.svg
+      family-scalar-vector: https://physics.info/standard/family-scalar-vector.svg
+      family-lepton-quark: https://physics.info/standard/family-lepton-quark.svg
+      family-neutrino: https://physics.info/standard/family-neutrino.svg
+      family-generations: https://physics.info/standard/family-generations.svg
+      three-forces: https://physics.info/standard/three-forces.svg
+      quantity-charge: https://physics.info/standard/quantity-charge.svg
+      force-em: https://physics.info/standard/force-em.svg
+      quantity-color: https://physics.info/standard/quantity-color.svg
+      force-strong: https://physics.info/standard/force-strong.svg
+      quantity-flavor: https://physics.info/standard/quantity-flavor.svg
+      force-weak: https://physics.info/standard/force-weak.svg
+      quantity-mass: https://physics.info/standard/quantity-mass.svg
+      force-higgs: https://physics.info/standard/force-higgs.svg
+    drawings:
+      approach: All figures are composed from FrameGraph VisualObjects (no image src). The shared particle grid
+        is defined once as defs.symbols.sm_grid_symbols (symbols) / sm_grid_names (full names), built from a reusable
+        defs.symbols.card. Each overlay figure is a GroupObject = translucent region rects (low z) + use(sm_grid_symbols)
+        (z=5) + region labels (z=10), embedded in the article via FigureFlow.object.
+      coordinate_system: px, page-space top-left origin, +y down (per Box definition). card=72px, pitch=86px, grid
+        origin (120,34).
+      reuse_constructs_used:
+      - SymbolDef
+      - UseObject
+      - GroupObject
+      - RectObject
+      - EllipseObject
+      - TextObject
+      - LineObject
+      - PolylineObject
+      - Layer z-order
+      - StyleRef tokens.styles
+      fidelity_notes:
+      - family-base uses full particle names; all other figures use the symbol grid — matches source.
+      - Colour dots on quark cards encode the three colour charges (r,g,b); the gluon card shows 8 multi-colour
+        dots evoking the 8 gluon states (schematic, not a literal colour assignment).
+      - The small open circle on every card is a decorative marker reproduced from the source art; no physical quantity
+        is asserted by it.
+      - Force/quantity overlays (charge, color, flavor, em, strong, weak, higgs) highlight each participating card
+        individually; family groupings (fermion/boson, quark/lepton, neutrino, generations, spin) use contiguous
+        block rects — mirroring how the source shades them.
+      - three-forces is a SCHEMATIC Feynman-style reconstruction (lines, dots, ellipses, dashed W propagator). The
+        source art is richer (textured gold sphere, drawn gluon coils); geometry here is approximate, not a pixel
+        reproduction.
+      - quantity-mass uses two arrowed axis lines + labels instead of region fills, plus a green tint on the massive
+        bosons (W, Z, H).
+      unverifiable_without_renderer:
+      - Nested-symbol coordinate composition (figure group -> use(grid) -> use(card)) relies on spec section 3.6
+        local-coordinate rules, which no validator enforces here.
+      - Text vertical centering inside cards, region halo appearance, and arrowhead rendering (stroke_style.arrow_start/arrow_end)
+        depend on renderer behaviour that does not exist yet.

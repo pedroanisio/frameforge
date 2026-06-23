@@ -1,0 +1,65 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Table column widths (fixture)
+description: >-
+  Exercises the v2 ColumnSpec.width Length forms — percent / fixed-px / fr /
+  auto — resolved by the table column-width resolver. Backs that reused
+  component; also covers per-column align, header/cell text styles and zebra
+  (already supported). Table width 560: col0 40%=224, col1 120px, then 1fr + auto
+  split the remaining 216 → 108 each (separators at x=264, 384, 492).
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#1c2733'
+      head_bg: '#2e5e8c'
+      head_fg: '#ffffff'
+      zebra: '#eef3f8'
+      line: '#c7d2dd'
+    stroke_styles:
+      grid:
+        stroke: line
+        stroke_width: 1
+    text_styles:
+      th:
+        font: sans
+        size: 12
+        weight: 700
+        color: head_fg
+      td:
+        font: sans
+        size: 12
+        color: ink
+pages:
+- mode: page
+  id: tables
+  canvas:
+    size:
+    - 640
+    - 300
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: table
+      box: [40, 60, 560, 180]
+      zebra: true
+      stroke_style: grid
+      style:
+        header_fill: head_bg
+        header_text: th
+        cell_text: td
+      columns:
+      - {label: Name, width: 40%, align: left}
+      - {label: Code, width: 120, align: center}
+      - {label: Region, width: 1fr, align: left}
+      - {label: Qty, align: right}
+      header: [Name, Code, Region, Qty]
+      rows:
+      - [Northwind Trading, NW-001, Americas, '128']
+      - [Globex Pacific, GX-204, APAC, '64']
+      - [Initech Iberia, IN-330, EMEA, '256']

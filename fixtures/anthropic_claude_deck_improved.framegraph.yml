@@ -1,0 +1,3271 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: deck
+title: 'Anthropic / Claude-inspired deck template (improved: fit-safe labels)'
+description: 'A full FrameGraph v2 presentation template inspired by Anthropic and Claude design cues: warm editorial palette,
+  safety-forward narrative, restrained charts, thin rules, and clear decision framing.'
+lang: en
+defs:
+  tokens:
+    colors:
+      ivory: '#F7F4EC'
+      ivory_alt: '#EFE9DD'
+      paper: '#FFFCF5'
+      ink: '#141413'
+      ink_soft: '#343331'
+      muted: '#6F6A62'
+      muted_2: '#948D82'
+      rule: '#D8CEC0'
+      rule_dark: '#B9AC9A'
+      terracotta: '#B65C3C'
+      clay: '#D8A076'
+      sand: '#E8D7C4'
+      sage: '#7C8B73'
+      moss: '#50614B'
+      bluegray: '#697B83'
+      charcoal: '#242321'
+      white: '#FFFFFF'
+      soft_panel: '#FBF7EE'
+      warning: '#C27B42'
+      good: '#607C58'
+      bad: '#9D4B3D'
+    fonts:
+      serif:
+        family: DejaVu Serif
+        fallback:
+        - Georgia
+        - Times New Roman
+        - serif
+      sans:
+        family: DejaVu Sans
+        fallback:
+        - Inter
+        - Arial
+        - sans-serif
+      mono:
+        family: DejaVu Sans Mono
+        fallback:
+        - Courier New
+        - monospace
+    text_styles:
+      eyebrow:
+        font: sans
+        size: 22
+        weight: 700
+        color: terracotta
+        line_height: 1.0
+        overflow: shrink_to_fit
+        min_font_size: 14
+      title_xl:
+        font: serif
+        size: 74
+        weight: 500
+        color: ink
+        line_height: 1.0
+        wrap: true
+        overflow: shrink_to_fit
+      title_l:
+        font: serif
+        size: 58
+        weight: 500
+        color: ink
+        line_height: 1.05
+        wrap: true
+        overflow: shrink_to_fit
+      title_m:
+        font: serif
+        size: 44
+        weight: 500
+        color: ink
+        line_height: 1.08
+        wrap: true
+        overflow: shrink_to_fit
+      subtitle:
+        font: sans
+        size: 27
+        weight: 400
+        color: muted
+        line_height: 1.25
+        wrap: true
+      body:
+        font: sans
+        size: 26
+        weight: 400
+        color: ink_soft
+        line_height: 1.25
+        wrap: true
+        overflow: clip
+      body_small:
+        font: sans
+        size: 21
+        weight: 400
+        color: muted
+        line_height: 1.25
+        wrap: true
+        overflow: clip
+      body_bold:
+        font: sans
+        size: 26
+        weight: 700
+        color: ink
+        line_height: 1.2
+        wrap: true
+      label:
+        font: sans
+        size: 18
+        weight: 700
+        color: muted
+        line_height: 1.0
+        overflow: shrink_to_fit
+        min_font_size: 12
+      label_ink:
+        font: sans
+        size: 18
+        weight: 700
+        color: ink
+        line_height: 1.0
+        overflow: shrink_to_fit
+        min_font_size: 12
+      num:
+        font: serif
+        size: 54
+        weight: 500
+        color: terracotta
+        line_height: 1.0
+        overflow: shrink_to_fit
+        min_font_size: 30
+      quote:
+        font: serif
+        size: 42
+        weight: 400
+        color: ink
+        line_height: 1.18
+        wrap: true
+      footer:
+        font: sans
+        size: 16
+        weight: 400
+        color: muted_2
+        line_height: 1.0
+        overflow: shrink_to_fit
+        min_font_size: 11
+      caption:
+        font: sans
+        size: 17
+        weight: 400
+        color: muted
+        line_height: 1.15
+        wrap: true
+      table_header:
+        font: sans
+        size: 20
+        weight: 700
+        color: ink
+        line_height: 1.1
+        wrap: true
+      table_cell:
+        font: sans
+        size: 19
+        weight: 400
+        color: ink_soft
+        line_height: 1.1
+        wrap: true
+      inverse_title:
+        font: serif
+        size: 62
+        weight: 500
+        color: ivory
+        line_height: 1.05
+        wrap: true
+      inverse_body:
+        font: sans
+        size: 25
+        weight: 400
+        color: sand
+        line_height: 1.25
+        wrap: true
+      inverse_label:
+        font: sans
+        size: 18
+        weight: 700
+        color: clay
+        line_height: 1.0
+        overflow: shrink_to_fit
+        min_font_size: 12
+    stroke_styles:
+      rule:
+        stroke: rule
+        stroke_width: 1
+      rule_dark:
+        stroke: rule_dark
+        stroke_width: 1
+      terracotta:
+        stroke: terracotta
+        stroke_width: 3
+      sage:
+        stroke: sage
+        stroke_width: 2
+      thin_ink:
+        stroke: ink
+        stroke_width: 1
+      dashed:
+        stroke: rule_dark
+        stroke_width: 1
+        stroke_dasharray:
+        - 8
+        - 6
+    styles: {}
+    fill_styles: {}
+    glyph_map:
+      dot: ●
+      arrow: →
+      check: ✓
+      warn: '!'
+  ontology:
+    node_types:
+      deck_template:
+        meaning: Reusable presentation system
+      slide_layout:
+        meaning: Individual template layout
+      brand_token:
+        meaning: Reusable visual design token
+    edge_types:
+      contains:
+        meaning: Composition relationship
+        directionality: directed
+targets:
+- name: 16:9 deck
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+pages:
+- mode: page
+  id: slide_01_cover
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_01_cover_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s01_eyebrow
+      text: DECK TEMPLATE / CLAUDE DESIGN LANGUAGE
+      box:
+      - 80
+      - 92
+      - 520
+      - 32
+      style: eyebrow
+    - type: text
+      id: s01_title
+      text: A warm, editorial system for explaining frontier AI
+      box:
+      - 80
+      - 178
+      - 960
+      - 180
+      style: title_xl
+    - type: text
+      id: s01_subtitle
+      text: Reusable FrameGraph v2 deck template inspired by Anthropic’s restrained typography, safety-first narrative, and
+        Claude’s product ecosystem.
+      box:
+      - 84
+      - 390
+      - 790
+      - 82
+      style: subtitle
+    - type: rect
+      id: s01_monolith
+      box:
+      - 1160
+      - 92
+      - 280
+      - 620
+      fill: charcoal
+      radius: 140
+    - type: rect
+      id: s01_monolith_cut
+      box:
+      - 1186
+      - 118
+      - 228
+      - 568
+      fill: ivory
+      radius: 114
+    - type: line
+      id: s01_axis_1
+      from:
+      - 1090
+      - 624
+      to:
+      - 1510
+      - 204
+      stroke_style: terracotta
+    - type: line
+      id: s01_axis_2
+      from:
+      - 1090
+      - 204
+      to:
+      - 1510
+      - 624
+      stroke_style: sage
+    - type: rect
+      id: s01_tag
+      box:
+      - 84
+      - 680
+      - 325
+      - 48
+      fill: soft_panel
+      radius: 24
+      stroke_style: rule
+    - type: text
+      id: s01_tag_text
+      text: Use for strategy, research, product, policy
+      box:
+      - 108
+      - 694
+      - 286
+      - 22
+      style: label_ink
+    - type: line
+      id: slide_01_cover_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_01_cover_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_01_cover_footer_page
+      text: '01'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_02_design_system
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_02_design_system_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s02_eyebrow
+      text: DESIGN SYSTEM
+      box:
+      - 80
+      - 82
+      - 320
+      - 30
+      style: eyebrow
+    - type: text
+      id: s02_title
+      text: Claude-like, not Claude-copied
+      box:
+      - 80
+      - 132
+      - 860
+      - 70
+      style: title_l
+    - type: text
+      id: s02_body
+      text: 'A restrained system: ivory canvas, dark editorial typography, thin rules, terracotta accents, generous whitespace,
+        and calm evidence-led composition.'
+      box:
+      - 82
+      - 230
+      - 720
+      - 95
+      style: subtitle
+    - type: rect
+      id: s02_swatch_0
+      box:
+      - 92
+      - 430
+      - 120
+      - 120
+      fill: ivory
+      radius: 60
+    - type: rect
+      id: s02_swatch_1
+      box:
+      - 267
+      - 430
+      - 120
+      - 120
+      fill: charcoal
+      radius: 60
+    - type: rect
+      id: s02_swatch_2
+      box:
+      - 442
+      - 430
+      - 120
+      - 120
+      fill: terracotta
+      radius: 60
+    - type: rect
+      id: s02_swatch_3
+      box:
+      - 617
+      - 430
+      - 120
+      - 120
+      fill: sage
+      radius: 60
+    - type: rect
+      id: s02_swatch_4
+      box:
+      - 792
+      - 430
+      - 120
+      - 120
+      fill: bluegray
+      radius: 60
+    - type: rect
+      id: s02_swatch_5
+      box:
+      - 967
+      - 430
+      - 120
+      - 120
+      fill: sand
+      radius: 60
+    - type: text
+      id: s02_swatch_label_0
+      text: Ivory
+      box:
+      - 72
+      - 575
+      - 160
+      - 28
+      style: caption
+      decorative: true
+    - type: text
+      id: s02_swatch_label_1
+      text: Charcoal
+      box:
+      - 247
+      - 575
+      - 160
+      - 28
+      style: caption
+      decorative: true
+    - type: text
+      id: s02_swatch_label_2
+      text: Terracotta
+      box:
+      - 422
+      - 575
+      - 160
+      - 28
+      style: caption
+      decorative: true
+    - type: text
+      id: s02_swatch_label_3
+      text: Sage
+      box:
+      - 597
+      - 575
+      - 160
+      - 28
+      style: caption
+      decorative: true
+    - type: text
+      id: s02_swatch_label_4
+      text: Blue-gray
+      box:
+      - 772
+      - 575
+      - 160
+      - 28
+      style: caption
+      decorative: true
+    - type: text
+      id: s02_swatch_label_5
+      text: Sand
+      box:
+      - 947
+      - 575
+      - 160
+      - 28
+      style: caption
+      decorative: true
+    - type: line
+      id: s02_rule_a
+      from:
+      - 80
+      - 670
+      to:
+      - 1520
+      - 670
+      stroke_style: rule_dark
+    - type: text
+      id: s02_rule_label
+      text: 'Template principle: make the argument feel inevitable, not decorated.'
+      box:
+      - 80
+      - 710
+      - 930
+      - 54
+      style: quote
+    - type: line
+      id: slide_02_design_system_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_02_design_system_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_02_design_system_footer_page
+      text: '02'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_03_agenda
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_03_agenda_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s03_eyebrow
+      text: AGENDA
+      box:
+      - 80
+      - 80
+      - 220
+      - 28
+      style: eyebrow
+    - type: text
+      id: s03_title
+      text: Eight-slide narrative spine
+      box:
+      - 80
+      - 130
+      - 760
+      - 70
+      style: title_l
+    - type: text
+      id: s03_num_0
+      text: '01'
+      box:
+      - 90
+      - 260
+      - 70
+      - 44
+      style: num
+    - type: line
+      id: s03_line_0
+      from:
+      - 175
+      - 284
+      to:
+      - 650
+      - 284
+      stroke_style: rule
+    - type: text
+      id: s03_item_0
+      text: Context
+      box:
+      - 690
+      - 266
+      - 450
+      - 34
+      style: body_bold
+    - type: text
+      id: s03_num_1
+      text: '02'
+      box:
+      - 90
+      - 324
+      - 70
+      - 44
+      style: num
+    - type: line
+      id: s03_line_1
+      from:
+      - 175
+      - 348
+      to:
+      - 650
+      - 348
+      stroke_style: rule
+    - type: text
+      id: s03_item_1
+      text: Insight
+      box:
+      - 690
+      - 330
+      - 450
+      - 34
+      style: body_bold
+    - type: text
+      id: s03_num_2
+      text: '03'
+      box:
+      - 90
+      - 388
+      - 70
+      - 44
+      style: num
+    - type: line
+      id: s03_line_2
+      from:
+      - 175
+      - 412
+      to:
+      - 650
+      - 412
+      stroke_style: rule
+    - type: text
+      id: s03_item_2
+      text: Strategy
+      box:
+      - 690
+      - 394
+      - 450
+      - 34
+      style: body_bold
+    - type: text
+      id: s03_num_3
+      text: '04'
+      box:
+      - 90
+      - 452
+      - 70
+      - 44
+      style: num
+    - type: line
+      id: s03_line_3
+      from:
+      - 175
+      - 476
+      to:
+      - 650
+      - 476
+      stroke_style: rule
+    - type: text
+      id: s03_item_3
+      text: Architecture
+      box:
+      - 690
+      - 458
+      - 450
+      - 34
+      style: body_bold
+    - type: text
+      id: s03_num_4
+      text: '05'
+      box:
+      - 90
+      - 516
+      - 70
+      - 44
+      style: num
+    - type: line
+      id: s03_line_4
+      from:
+      - 175
+      - 540
+      to:
+      - 650
+      - 540
+      stroke_style: rule
+    - type: text
+      id: s03_item_4
+      text: Evidence
+      box:
+      - 690
+      - 522
+      - 450
+      - 34
+      style: body_bold
+    - type: text
+      id: s03_num_5
+      text: '06'
+      box:
+      - 90
+      - 580
+      - 70
+      - 44
+      style: num
+    - type: line
+      id: s03_line_5
+      from:
+      - 175
+      - 604
+      to:
+      - 650
+      - 604
+      stroke_style: rule
+    - type: text
+      id: s03_item_5
+      text: Roadmap
+      box:
+      - 690
+      - 586
+      - 450
+      - 34
+      style: body_bold
+    - type: text
+      id: s03_num_6
+      text: '07'
+      box:
+      - 90
+      - 644
+      - 70
+      - 44
+      style: num
+    - type: line
+      id: s03_line_6
+      from:
+      - 175
+      - 668
+      to:
+      - 650
+      - 668
+      stroke_style: rule
+    - type: text
+      id: s03_item_6
+      text: Risks
+      box:
+      - 690
+      - 650
+      - 450
+      - 34
+      style: body_bold
+    - type: text
+      id: s03_num_7
+      text: 08
+      box:
+      - 90
+      - 708
+      - 70
+      - 44
+      style: num
+    - type: line
+      id: s03_line_7
+      from:
+      - 175
+      - 732
+      to:
+      - 650
+      - 732
+      stroke_style: rule
+    - type: text
+      id: s03_item_7
+      text: Ask
+      box:
+      - 690
+      - 714
+      - 450
+      - 34
+      style: body_bold
+    - type: line
+      id: slide_03_agenda_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_03_agenda_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_03_agenda_footer_page
+      text: '03'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_04_exec_summary
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_04_exec_summary_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s04_eyebrow
+      text: EXECUTIVE SUMMARY
+      box:
+      - 80
+      - 80
+      - 300
+      - 28
+      style: eyebrow
+    - type: text
+      id: s04_title
+      text: A one-page thesis with evidence and decision
+      box:
+      - 80
+      - 130
+      - 940
+      - 70
+      style: title_l
+    - type: rect
+      id: s04_panel_0
+      box:
+      - 80
+      - 300
+      - 420
+      - 300
+      fill: soft_panel
+      radius: 12
+      stroke_style: rule
+    - type: text
+      id: s04_panel_h_0
+      text: What changed
+      box:
+      - 108
+      - 330
+      - 350
+      - 34
+      style: body_bold
+    - type: text
+      id: s04_panel_b_0
+      text: AI products moved from chat surfaces to agentic workflows, requiring trust, governance, and measurable reliability.
+      box:
+      - 108
+      - 386
+      - 350
+      - 128
+      style: body_small
+    - type: text
+      id: s04_panel_n_0
+      text: '1'
+      box:
+      - 108
+      - 560
+      - 50
+      - 50
+      style: num
+    - type: rect
+      id: s04_panel_1
+      box:
+      - 560
+      - 300
+      - 420
+      - 300
+      fill: soft_panel
+      radius: 12
+      stroke_style: rule
+    - type: text
+      id: s04_panel_h_1
+      text: Why it matters
+      box:
+      - 588
+      - 330
+      - 350
+      - 34
+      style: body_bold
+    - type: text
+      id: s04_panel_b_1
+      text: Enterprise adoption depends less on novelty and more on whether teams can reason about risk, value, and control.
+      box:
+      - 588
+      - 386
+      - 350
+      - 128
+      style: body_small
+    - type: text
+      id: s04_panel_n_1
+      text: '2'
+      box:
+      - 588
+      - 560
+      - 50
+      - 50
+      style: num
+    - type: rect
+      id: s04_panel_2
+      box:
+      - 1040
+      - 300
+      - 420
+      - 300
+      fill: soft_panel
+      radius: 12
+      stroke_style: rule
+    - type: text
+      id: s04_panel_h_2
+      text: What we recommend
+      box:
+      - 1068
+      - 330
+      - 350
+      - 34
+      style: body_bold
+    - type: text
+      id: s04_panel_b_2
+      text: 'Ship a staged deployment model: constrained first use cases, strong evaluation loops, and transparent operating
+        limits.'
+      box:
+      - 1068
+      - 386
+      - 350
+      - 128
+      style: body_small
+    - type: text
+      id: s04_panel_n_2
+      text: '3'
+      box:
+      - 1068
+      - 560
+      - 50
+      - 50
+      style: num
+    - type: line
+      id: slide_04_exec_summary_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_04_exec_summary_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_04_exec_summary_footer_page
+      text: '04'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_05_section_divider
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_05_section_divider_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: charcoal
+      decorative: true
+    - type: text
+      id: s05_label
+      text: PART I
+      box:
+      - 80
+      - 96
+      - 140
+      - 28
+      style: inverse_label
+    - type: text
+      id: s05_title
+      text: From capability to confidence
+      box:
+      - 80
+      - 180
+      - 900
+      - 140
+      style: inverse_title
+    - type: text
+      id: s05_body
+      text: 'A section divider for moments when the narrative changes altitude: context, shift, implication.'
+      box:
+      - 84
+      - 380
+      - 620
+      - 86
+      style: inverse_body
+    - type: line
+      id: s05_rule
+      from:
+      - 80
+      - 560
+      to:
+      - 720
+      - 560
+      stroke_style: terracotta
+    - type: rect
+      id: s05_orb
+      box:
+      - 1140
+      - 180
+      - 250
+      - 250
+      fill: terracotta
+      radius: 125
+      opacity: 0.82
+    - type: rect
+      id: s05_orb_2
+      box:
+      - 1245
+      - 292
+      - 260
+      - 260
+      fill: sage
+      radius: 130
+      opacity: 0.38
+    - type: line
+      id: slide_05_section_divider_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule_dark
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_05_section_divider_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: inverse_label
+      decorative: true
+    - type: text
+      id: slide_05_section_divider_footer_page
+      text: '05'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: inverse_label
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_06_problem
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_06_problem_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s06_eyebrow
+      text: PROBLEM
+      box:
+      - 80
+      - 80
+      - 220
+      - 28
+      style: eyebrow
+    - type: text
+      id: s06_title
+      text: Most AI decks oversell capability and under-explain control
+      box:
+      - 80
+      - 130
+      - 1060
+      - 110
+      style: title_l
+    - type: text
+      id: s06_body
+      text: Use this slide when the audience already believes the technology is powerful, but needs a credible account of
+        adoption risk and operational discipline.
+      box:
+      - 82
+      - 270
+      - 760
+      - 82
+      style: subtitle
+    - type: text
+      id: s06_label_0
+      text: Unclear value path
+      box:
+      - 100
+      - 450
+      - 330
+      - 30
+      style: body_bold
+    - type: rect
+      id: s06_bar_bg_0
+      box:
+      - 470
+      - 458
+      - 760
+      - 24
+      fill: sand
+      radius: 12
+    - type: rect
+      id: s06_bar_0
+      box:
+      - 470
+      - 458
+      - 610
+      - 24
+      fill: terracotta
+      radius: 12
+    - type: text
+      id: s06_val_0
+      text: High
+      box:
+      - 1260
+      - 450
+      - 100
+      - 30
+      style: label_ink
+    - type: text
+      id: s06_label_1
+      text: Unbounded risk
+      box:
+      - 100
+      - 540
+      - 330
+      - 30
+      style: body_bold
+    - type: rect
+      id: s06_bar_bg_1
+      box:
+      - 470
+      - 548
+      - 760
+      - 24
+      fill: sand
+      radius: 12
+    - type: rect
+      id: s06_bar_1
+      box:
+      - 470
+      - 548
+      - 610
+      - 24
+      fill: terracotta
+      radius: 12
+    - type: text
+      id: s06_val_1
+      text: High
+      box:
+      - 1260
+      - 540
+      - 100
+      - 30
+      style: label_ink
+    - type: text
+      id: s06_label_2
+      text: Operational confidence
+      box:
+      - 100
+      - 630
+      - 330
+      - 30
+      style: body_bold
+    - type: rect
+      id: s06_bar_bg_2
+      box:
+      - 470
+      - 638
+      - 760
+      - 24
+      fill: sand
+      radius: 12
+    - type: rect
+      id: s06_bar_2
+      box:
+      - 470
+      - 638
+      - 260
+      - 24
+      fill: sage
+      radius: 12
+    - type: text
+      id: s06_val_2
+      text: Low
+      box:
+      - 1260
+      - 630
+      - 100
+      - 30
+      style: label_ink
+    - type: line
+      id: slide_06_problem_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_06_problem_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_06_problem_footer_page
+      text: '06'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_07_insight
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_07_insight_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s07_eyebrow
+      text: INSIGHT
+      box:
+      - 80
+      - 80
+      - 220
+      - 28
+      style: eyebrow
+    - type: text
+      id: s07_title
+      text: Trust is designed through constraints, not asserted through claims
+      box:
+      - 80
+      - 130
+      - 1040
+      - 105
+      style: title_l
+    - type: text
+      id: s07_quote
+      text: “A safe product narrative shows what the system will do, what it will not do, and how the organization notices
+        when that boundary moves.”
+      box:
+      - 130
+      - 330
+      - 1050
+      - 150
+      style: quote
+    - type: line
+      id: s07_quote_rule
+      from:
+      - 90
+      - 320
+      to:
+      - 90
+      - 520
+      stroke_style: terracotta
+    - type: rect
+      id: s07_note
+      box:
+      - 1010
+      - 620
+      - 430
+      - 120
+      fill: soft_panel
+      radius: 12
+      stroke_style: rule
+    - type: text
+      id: s07_note_text
+      text: 'Template move: turn abstract safety into observable operating surfaces.'
+      box:
+      - 1040
+      - 650
+      - 360
+      - 60
+      style: body_small
+    - type: line
+      id: slide_07_insight_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_07_insight_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_07_insight_footer_page
+      text: '07'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_08_architecture
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_08_architecture_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s08_eyebrow
+      text: REFERENCE ARCHITECTURE
+      box:
+      - 80
+      - 80
+      - 360
+      - 28
+      style: eyebrow
+    - type: text
+      id: s08_title
+      text: A staged AI operating model
+      box:
+      - 80
+      - 130
+      - 760
+      - 70
+      style: title_l
+    - type: rect
+      id: s08_step_0
+      box:
+      - 90
+      - 330
+      - 225
+      - 180
+      fill: soft_panel
+      radius: 12
+      stroke_style: rule_dark
+    - type: text
+      id: s08_step_h_0
+      text: Use case intake
+      box:
+      - 110
+      - 358
+      - 180
+      - 32
+      style: body_bold
+    - type: text
+      id: s08_step_b_0
+      text: 'Business context
+
+        risk tiering'
+      box:
+      - 110
+      - 410
+      - 180
+      - 70
+      style: body_small
+    - type: rect
+      id: s08_step_1
+      box:
+      - 375
+      - 330
+      - 225
+      - 180
+      fill: soft_panel
+      radius: 12
+      stroke_style: rule_dark
+    - type: text
+      id: s08_step_h_1
+      text: Model / tool layer
+      box:
+      - 395
+      - 358
+      - 180
+      - 32
+      style: body_bold
+    - type: text
+      id: s08_step_b_1
+      text: 'Claude + approved
+
+        integrations'
+      box:
+      - 395
+      - 410
+      - 180
+      - 70
+      style: body_small
+    - type: rect
+      id: s08_step_2
+      box:
+      - 660
+      - 330
+      - 225
+      - 180
+      fill: soft_panel
+      radius: 12
+      stroke_style: rule_dark
+    - type: text
+      id: s08_step_h_2
+      text: Eval loop
+      box:
+      - 680
+      - 358
+      - 180
+      - 32
+      style: body_bold
+    - type: text
+      id: s08_step_b_2
+      text: 'Benchmarks
+
+        human review'
+      box:
+      - 680
+      - 410
+      - 180
+      - 70
+      style: body_small
+    - type: rect
+      id: s08_step_3
+      box:
+      - 945
+      - 330
+      - 225
+      - 180
+      fill: soft_panel
+      radius: 12
+      stroke_style: rule_dark
+    - type: text
+      id: s08_step_h_3
+      text: Release gate
+      box:
+      - 965
+      - 358
+      - 180
+      - 32
+      style: body_bold
+    - type: text
+      id: s08_step_b_3
+      text: 'Policy checks
+
+        audit log'
+      box:
+      - 965
+      - 410
+      - 180
+      - 70
+      style: body_small
+    - type: rect
+      id: s08_step_4
+      box:
+      - 1230
+      - 330
+      - 225
+      - 180
+      fill: soft_panel
+      radius: 12
+      stroke_style: rule_dark
+    - type: text
+      id: s08_step_h_4
+      text: Runtime monitor
+      box:
+      - 1250
+      - 358
+      - 180
+      - 32
+      style: body_bold
+    - type: text
+      id: s08_step_b_4
+      text: 'Feedback
+
+        incident path'
+      box:
+      - 1250
+      - 410
+      - 180
+      - 70
+      style: body_small
+    - type: text
+      id: s08_note
+      text: 'Use this as a neutral architecture slide: no glossy dashboards, no fake UI, just accountable flow.'
+      box:
+      - 180
+      - 650
+      - 900
+      - 66
+      style: subtitle
+    - type: line
+      id: slide_08_architecture_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_08_architecture_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_08_architecture_footer_page
+      text: 08
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_09_evidence_chart
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_09_evidence_chart_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s09_eyebrow
+      text: EVIDENCE
+      box:
+      - 80
+      - 80
+      - 220
+      - 28
+      style: eyebrow
+    - type: text
+      id: s09_title
+      text: Show movement with quiet confidence
+      box:
+      - 80
+      - 130
+      - 840
+      - 70
+      style: title_l
+    - type: rect
+      id: s09_chart_bg
+      box:
+      - 100
+      - 300
+      - 960
+      - 390
+      fill: paper
+      radius: 12
+      stroke_style: rule
+    - type: rect
+      id: s09_bar_0
+      box:
+      - 160
+      - 584.0
+      - 70
+      - 66.0
+      fill: terracotta
+      radius: 4
+    - type: text
+      id: s09_bar_label_0
+      text: Q1
+      box:
+      - 160
+      - 665
+      - 70
+      - 22
+      style: caption
+      decorative: true
+    - type: rect
+      id: s09_bar_1
+      box:
+      - 295
+      - 548.0
+      - 70
+      - 102.00000000000001
+      fill: terracotta
+      radius: 4
+    - type: text
+      id: s09_bar_label_1
+      text: Q2
+      box:
+      - 295
+      - 665
+      - 70
+      - 22
+      style: caption
+      decorative: true
+    - type: rect
+      id: s09_bar_2
+      box:
+      - 430
+      - 512.0
+      - 70
+      - 138.0
+      fill: terracotta
+      radius: 4
+    - type: text
+      id: s09_bar_label_2
+      text: Q3
+      box:
+      - 430
+      - 665
+      - 70
+      - 22
+      style: caption
+      decorative: true
+    - type: rect
+      id: s09_bar_3
+      box:
+      - 565
+      - 476.0
+      - 70
+      - 174.0
+      fill: terracotta
+      radius: 4
+    - type: text
+      id: s09_bar_label_3
+      text: Q4
+      box:
+      - 565
+      - 665
+      - 70
+      - 22
+      style: caption
+      decorative: true
+    - type: rect
+      id: s09_bar_4
+      box:
+      - 700
+      - 434.0
+      - 70
+      - 216.0
+      fill: terracotta
+      radius: 4
+    - type: text
+      id: s09_bar_label_4
+      text: Q5
+      box:
+      - 700
+      - 665
+      - 70
+      - 22
+      style: caption
+      decorative: true
+    - type: rect
+      id: s09_bar_5
+      box:
+      - 835
+      - 407.0
+      - 70
+      - 243.00000000000003
+      fill: terracotta
+      radius: 4
+    - type: text
+      id: s09_bar_label_5
+      text: Q6
+      box:
+      - 835
+      - 665
+      - 70
+      - 22
+      style: caption
+      decorative: true
+    - type: line
+      id: s09_grid_0
+      from:
+      - 130
+      - 350
+      to:
+      - 1030
+      - 350
+      stroke_style: rule
+      opacity: 0.5
+      decorative: true
+    - type: line
+      id: s09_grid_1
+      from:
+      - 130
+      - 425
+      to:
+      - 1030
+      - 425
+      stroke_style: rule
+      opacity: 0.5
+      decorative: true
+    - type: line
+      id: s09_grid_2
+      from:
+      - 130
+      - 500
+      to:
+      - 1030
+      - 500
+      stroke_style: rule
+      opacity: 0.5
+      decorative: true
+    - type: line
+      id: s09_grid_3
+      from:
+      - 130
+      - 575
+      to:
+      - 1030
+      - 575
+      stroke_style: rule
+      opacity: 0.5
+      decorative: true
+    - type: text
+      id: s09_caption
+      text: 'Chart placeholder: replace bars with measured adoption, evaluation pass rate, latency, cost, or quality index.'
+      box:
+      - 1120
+      - 360
+      - 340
+      - 160
+      style: body_small
+    - type: text
+      id: s09_metric
+      text: 81%
+      box:
+      - 1120
+      - 570
+      - 260
+      - 70
+      style: title_l
+    - type: text
+      id: s09_metric_label
+      text: example confidence metric
+      box:
+      - 1124
+      - 650
+      - 280
+      - 28
+      style: label
+    - type: line
+      id: slide_09_evidence_chart_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_09_evidence_chart_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_09_evidence_chart_footer_page
+      text: 09
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_10_table
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_10_table_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s10_eyebrow
+      text: COMPARISON TABLE
+      box:
+      - 80
+      - 80
+      - 320
+      - 28
+      style: eyebrow
+    - type: text
+      id: s10_title
+      text: Make trade-offs visible
+      box:
+      - 80
+      - 130
+      - 740
+      - 70
+      style: title_l
+    - type: rect
+      id: s10_h_bg_0
+      box:
+      - 100
+      - 285
+      - 330
+      - 92
+      fill: sand
+      stroke_style: rule_dark
+    - type: text
+      id: s10_h_txt_0
+      text: Option
+      box:
+      - 118
+      - 311
+      - 296
+      - 34
+      style: table_header
+    - type: rect
+      id: s10_h_bg_1
+      box:
+      - 430
+      - 285
+      - 330
+      - 92
+      fill: sand
+      stroke_style: rule_dark
+    - type: text
+      id: s10_h_txt_1
+      text: Value
+      box:
+      - 448
+      - 311
+      - 296
+      - 34
+      style: table_header
+    - type: rect
+      id: s10_h_bg_2
+      box:
+      - 760
+      - 285
+      - 330
+      - 92
+      fill: sand
+      stroke_style: rule_dark
+    - type: text
+      id: s10_h_txt_2
+      text: Risk
+      box:
+      - 778
+      - 311
+      - 296
+      - 34
+      style: table_header
+    - type: rect
+      id: s10_h_bg_3
+      box:
+      - 1090
+      - 285
+      - 330
+      - 92
+      fill: sand
+      stroke_style: rule_dark
+    - type: text
+      id: s10_h_txt_3
+      text: Governance move
+      box:
+      - 1108
+      - 311
+      - 296
+      - 34
+      style: table_header
+    - type: rect
+      id: s10_c_bg_0_0
+      box:
+      - 100
+      - 377
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_0_0
+      text: Pilot only
+      box:
+      - 118
+      - 399
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_0_1
+      box:
+      - 430
+      - 377
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_0_1
+      text: Fast learning
+      box:
+      - 448
+      - 399
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_0_2
+      box:
+      - 760
+      - 377
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_0_2
+      text: Low coverage
+      box:
+      - 778
+      - 399
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_0_3
+      box:
+      - 1090
+      - 377
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_0_3
+      text: Time-boxed evaluation
+      box:
+      - 1108
+      - 399
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_1_0
+      box:
+      - 100
+      - 469
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_1_0
+      text: Team rollout
+      box:
+      - 118
+      - 491
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_1_1
+      box:
+      - 430
+      - 469
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_1_1
+      text: Operational signal
+      box:
+      - 448
+      - 491
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_1_2
+      box:
+      - 760
+      - 469
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_1_2
+      text: Medium variance
+      box:
+      - 778
+      - 491
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_1_3
+      box:
+      - 1090
+      - 469
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_1_3
+      text: Role-based access
+      box:
+      - 1108
+      - 491
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_2_0
+      box:
+      - 100
+      - 561
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_2_0
+      text: Enterprise scale
+      box:
+      - 118
+      - 583
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_2_1
+      box:
+      - 430
+      - 561
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_2_1
+      text: Compounding value
+      box:
+      - 448
+      - 583
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_2_2
+      box:
+      - 760
+      - 561
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_2_2
+      text: Cross-functional risk
+      box:
+      - 778
+      - 583
+      - 296
+      - 42
+      style: table_cell
+    - type: rect
+      id: s10_c_bg_2_3
+      box:
+      - 1090
+      - 561
+      - 330
+      - 92
+      fill: paper
+      stroke_style: rule
+    - type: text
+      id: s10_c_txt_2_3
+      text: Release board + audit
+      box:
+      - 1108
+      - 583
+      - 296
+      - 42
+      style: table_cell
+    - type: line
+      id: slide_10_table_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_10_table_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_10_table_footer_page
+      text: '10'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_11_timeline
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_11_timeline_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s11_eyebrow
+      text: ROADMAP
+      box:
+      - 80
+      - 80
+      - 220
+      - 28
+      style: eyebrow
+    - type: text
+      id: s11_title
+      text: Sequence adoption by confidence, not ambition
+      box:
+      - 80
+      - 130
+      - 990
+      - 70
+      style: title_l
+    - type: line
+      id: s11_axis
+      from:
+      - 170
+      - 450
+      to:
+      - 1420
+      - 450
+      stroke_style: rule_dark
+    - type: rect
+      id: s11_dot_0
+      box:
+      - 142
+      - 422
+      - 56
+      - 56
+      fill: terracotta
+      radius: 28
+    - type: text
+      id: s11_num_0
+      text: '01'
+      box:
+      - 150
+      - 440
+      - 40
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: s11_h_0
+      text: Frame
+      box:
+      - 100
+      - 510
+      - 180
+      - 34
+      style: body_bold
+    - type: text
+      id: s11_b_0
+      text: Use cases and constraints
+      box:
+      - 100
+      - 558
+      - 240
+      - 58
+      style: body_small
+    - type: rect
+      id: s11_dot_1
+      box:
+      - 552
+      - 422
+      - 56
+      - 56
+      fill: terracotta
+      radius: 28
+    - type: text
+      id: s11_num_1
+      text: '02'
+      box:
+      - 560
+      - 440
+      - 40
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: s11_h_1
+      text: Pilot
+      box:
+      - 510
+      - 510
+      - 180
+      - 34
+      style: body_bold
+    - type: text
+      id: s11_b_1
+      text: Eval set and human loop
+      box:
+      - 510
+      - 558
+      - 240
+      - 58
+      style: body_small
+    - type: rect
+      id: s11_dot_2
+      box:
+      - 962
+      - 422
+      - 56
+      - 56
+      fill: terracotta
+      radius: 28
+    - type: text
+      id: s11_num_2
+      text: '03'
+      box:
+      - 970
+      - 440
+      - 40
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: s11_h_2
+      text: Launch
+      box:
+      - 920
+      - 510
+      - 180
+      - 34
+      style: body_bold
+    - type: text
+      id: s11_b_2
+      text: Workflow integration
+      box:
+      - 920
+      - 558
+      - 240
+      - 58
+      style: body_small
+    - type: rect
+      id: s11_dot_3
+      box:
+      - 1372
+      - 422
+      - 56
+      - 56
+      fill: terracotta
+      radius: 28
+    - type: text
+      id: s11_num_3
+      text: '04'
+      box:
+      - 1380
+      - 440
+      - 40
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: s11_h_3
+      text: Scale
+      box:
+      - 1330
+      - 510
+      - 180
+      - 34
+      style: body_bold
+    - type: text
+      id: s11_b_3
+      text: Monitoring and governance
+      box:
+      - 1330
+      - 558
+      - 240
+      - 58
+      style: body_small
+    - type: line
+      id: slide_11_timeline_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_11_timeline_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_11_timeline_footer_page
+      text: '11'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_12_risks
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_12_risks_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s12_eyebrow
+      text: RISK REGISTER
+      box:
+      - 80
+      - 80
+      - 260
+      - 28
+      style: eyebrow
+    - type: text
+      id: s12_title
+      text: Name the failure modes before they become incidents
+      box:
+      - 80
+      - 130
+      - 1040
+      - 70
+      style: title_l
+    - type: text
+      id: s12_num_0
+      text: '1'
+      box:
+      - 100
+      - 295
+      - 60
+      - 50
+      style: num
+    - type: text
+      id: s12_h_0
+      text: Boundary drift
+      box:
+      - 190
+      - 303
+      - 300
+      - 32
+      style: body_bold
+    - type: text
+      id: s12_b_0
+      text: System behavior exceeds approved use case
+      box:
+      - 520
+      - 303
+      - 390
+      - 44
+      style: body_small
+    - type: text
+      id: s12_m_0
+      text: Define escalation thresholds
+      box:
+      - 970
+      - 303
+      - 410
+      - 44
+      style: body_small
+    - type: line
+      id: s12_rule_0
+      from:
+      - 190
+      - 391
+      to:
+      - 1420
+      - 391
+      stroke_style: rule
+    - type: text
+      id: s12_num_1
+      text: '2'
+      box:
+      - 100
+      - 440
+      - 60
+      - 50
+      style: num
+    - type: text
+      id: s12_h_1
+      text: Data exposure
+      box:
+      - 190
+      - 448
+      - 300
+      - 32
+      style: body_bold
+    - type: text
+      id: s12_b_1
+      text: Sensitive context enters unsafe channel
+      box:
+      - 520
+      - 448
+      - 390
+      - 44
+      style: body_small
+    - type: text
+      id: s12_m_1
+      text: Approved connectors + redaction
+      box:
+      - 970
+      - 448
+      - 410
+      - 44
+      style: body_small
+    - type: line
+      id: s12_rule_1
+      from:
+      - 190
+      - 536
+      to:
+      - 1420
+      - 536
+      stroke_style: rule
+    - type: text
+      id: s12_num_2
+      text: '3'
+      box:
+      - 100
+      - 585
+      - 60
+      - 50
+      style: num
+    - type: text
+      id: s12_h_2
+      text: Quality decay
+      box:
+      - 190
+      - 593
+      - 300
+      - 32
+      style: body_bold
+    - type: text
+      id: s12_b_2
+      text: Outputs degrade as tasks diversify
+      box:
+      - 520
+      - 593
+      - 390
+      - 44
+      style: body_small
+    - type: text
+      id: s12_m_2
+      text: Continuous eval + sample review
+      box:
+      - 970
+      - 593
+      - 410
+      - 44
+      style: body_small
+    - type: line
+      id: s12_rule_2
+      from:
+      - 190
+      - 681
+      to:
+      - 1420
+      - 681
+      stroke_style: rule
+    - type: line
+      id: slide_12_risks_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_12_risks_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_12_risks_footer_page
+      text: '12'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_13_decision
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_13_decision_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s13_eyebrow
+      text: DECISION
+      box:
+      - 80
+      - 80
+      - 220
+      - 28
+      style: eyebrow
+    - type: text
+      id: s13_title
+      text: 'The ask: approve the next constrained step'
+      box:
+      - 80
+      - 130
+      - 920
+      - 120
+      style: title_l
+    - type: rect
+      id: s13_box
+      box:
+      - 100
+      - 350
+      - 620
+      - 260
+      fill: soft_panel
+      radius: 12
+      stroke_style: rule_dark
+    - type: text
+      id: s13_box_h
+      text: Approve
+      box:
+      - 140
+      - 390
+      - 300
+      - 34
+      style: body_bold
+    - type: text
+      id: s13_box_b
+      text: A 6-week pilot with defined users, use cases, evaluation criteria, and governance owners.
+      box:
+      - 140
+      - 445
+      - 500
+      - 90
+      style: body
+    - type: rect
+      id: s13_box_2
+      box:
+      - 780
+      - 350
+      - 620
+      - 260
+      fill: charcoal
+      radius: 12
+    - type: text
+      id: s13_box2_h
+      text: Do not approve
+      box:
+      - 820
+      - 390
+      - 340
+      - 34
+      style: inverse_label
+    - type: text
+      id: s13_box2_b
+      text: Unbounded experimentation without a release gate, audit surface, or success metric.
+      box:
+      - 820
+      - 445
+      - 500
+      - 90
+      style: inverse_body
+    - type: line
+      id: slide_13_decision_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_13_decision_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_13_decision_footer_page
+      text: '13'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+- mode: page
+  id: slide_14_appendix
+  canvas:
+    size:
+    - 1600
+    - 900
+    units: px
+  rendering:
+    coordinate_mode: absolute
+    preserve_manual_line_breaks: true
+    text:
+      overflow: clip
+      min_font_size: 10
+  layers:
+  - id: base
+    z: 0
+    objects:
+    - type: rect
+      id: slide_14_appendix_bg
+      box:
+      - 0
+      - 0
+      - 1600
+      - 900
+      fill: ivory
+      decorative: true
+    - type: text
+      id: s14_eyebrow
+      text: APPENDIX
+      box:
+      - 80
+      - 80
+      - 220
+      - 28
+      style: eyebrow
+    - type: text
+      id: s14_title
+      text: Reusable layout inventory
+      box:
+      - 80
+      - 130
+      - 840
+      - 70
+      style: title_l
+    - type: rect
+      id: s14_card_0
+      box:
+      - 90
+      - 290
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_0
+      text: Cover
+      box:
+      - 110
+      - 318
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_1
+      box:
+      - 450
+      - 290
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_1
+      text: Agenda
+      box:
+      - 470
+      - 318
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_2
+      box:
+      - 810
+      - 290
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_2
+      text: Summary
+      box:
+      - 830
+      - 318
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_3
+      box:
+      - 1170
+      - 290
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_3
+      text: Section divider
+      box:
+      - 1190
+      - 318
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_4
+      box:
+      - 90
+      - 420
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_4
+      text: Problem
+      box:
+      - 110
+      - 448
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_5
+      box:
+      - 450
+      - 420
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_5
+      text: Insight
+      box:
+      - 470
+      - 448
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_6
+      box:
+      - 810
+      - 420
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_6
+      text: Architecture
+      box:
+      - 830
+      - 448
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_7
+      box:
+      - 1170
+      - 420
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_7
+      text: Chart
+      box:
+      - 1190
+      - 448
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_8
+      box:
+      - 90
+      - 550
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_8
+      text: Table
+      box:
+      - 110
+      - 578
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_9
+      box:
+      - 450
+      - 550
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_9
+      text: Timeline
+      box:
+      - 470
+      - 578
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_10
+      box:
+      - 810
+      - 550
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_10
+      text: Risk
+      box:
+      - 830
+      - 578
+      - 260
+      - 26
+      style: body_bold
+    - type: rect
+      id: s14_card_11
+      box:
+      - 1170
+      - 550
+      - 300
+      - 86
+      fill: paper
+      radius: 8
+      stroke_style: rule
+    - type: text
+      id: s14_card_txt_11
+      text: Decision
+      box:
+      - 1190
+      - 578
+      - 260
+      - 26
+      style: body_bold
+    - type: line
+      id: slide_14_appendix_footer_rule
+      from:
+      - 80
+      - 830
+      to:
+      - 1520
+      - 830
+      stroke_style: rule
+      decorative: true
+      opacity: 0.55
+    - type: text
+      id: slide_14_appendix_footer_brand
+      text: Anthropic / Claude deck template
+      box:
+      - 80
+      - 846
+      - 420
+      - 22
+      style: footer
+      decorative: true
+    - type: text
+      id: slide_14_appendix_footer_page
+      text: '14'
+      box:
+      - 1460
+      - 846
+      - 60
+      - 22
+      style: footer
+      decorative: true
+  meta: {}
+meta:
+  design_reference:
+    source: Anthropic / Claude public product and company surfaces.
+    principles:
+    - Warm ivory editorial surface
+    - High-contrast restrained typography
+    - Terracotta accent rather than saturated tech-blue
+    - Safety/trust narrative structure
+    - Charts and tables are calm, legible, and evidence-led
+  schema: FrameGraph v2 representative schema
+  status: template; placeholder content intended to be replaced
+  improvement:
+    renderer: §3.7 text-fit measure pass (wrap + shrink_to_fit) implemented in the proxy; resolves all 39 prior overflows
+      with NO data change — the styles already declared wrap/shrink correctly.
+    data: added overflow:shrink_to_fit + min_font_size to 6 label styles that had no fit policy (eyebrow, label, label_ink,
+      num, footer, inverse_label), so the reusable template cannot overflow even with longer content.
+    not_changed: no text, geometry, palette, or layout altered; the charcoal monolith motif and its crossed axes are intentional
+      and left as-is.

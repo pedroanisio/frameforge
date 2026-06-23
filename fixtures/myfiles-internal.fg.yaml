@@ -1,0 +1,807 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Samsung My Files — internal storage (fixture)
+description: File-manager list view; the folder list uses the patched column layout (§3.6).
+lang: en
+defs:
+  tokens:
+    colors:
+      bg: '#000000'
+      text_primary: '#FFFFFF'
+      text_secondary: '#A8A8A8'
+      count: '#D0D0D0'
+      teal: '#33C9BC'
+      crumb_bg: '#4A3C38'
+      folder: '#F6C445'
+      folder_glyph: '#FFFFFF'
+      divider: '#2A2A2A'
+      icon: '#FFFFFF'
+      fab_bg: '#2A2A2A'
+    fonts:
+      sans:
+        family: DejaVu Sans
+        fallback:
+        - Roboto
+        - Arial
+        - sans-serif
+    glyph_map:
+      back: ‹
+      search: ⌕
+      more: ⋮
+      home: ⌂
+      chevron: ›
+      dropdown: ▾
+      sort: ≡
+      arrow_down: ↓
+      download: ↓
+      camera: ▣
+      edit: ✎
+    stroke_styles:
+      divider:
+        stroke: divider
+        stroke_width: 1
+    text_styles:
+      breadcrumb:
+        font: sans
+        size: 20
+        weight: 600
+        color: teal
+      sort_all:
+        font: sans
+        size: 17
+        weight: 600
+        color: text_primary
+      sort_date:
+        font: sans
+        size: 17
+        weight: 400
+        color: text_primary
+      name:
+        font: sans
+        size: 22
+        weight: 500
+        color: text_primary
+      date:
+        font: sans
+        size: 15
+        weight: 400
+        color: text_secondary
+      count:
+        font: sans
+        size: 17
+        weight: 400
+        color: count
+        align: right
+pages:
+- mode: page
+  id: myfiles-internal
+  canvas:
+    size:
+    - 412
+    - 940
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    z: 0
+    objects:
+    - type: rect
+      id: bg
+      box:
+      - 0
+      - 0
+      - 412
+      - 940
+      fill: bg
+  - id: list
+    z: 1
+    objects:
+    - type: group
+      id: filelist
+      box:
+      - 0
+      - 188
+      - 412
+      - 768
+      layout:
+        kind: column
+        gap: 0
+      children:
+      - type: group
+        id: entry_0
+        box:
+        - 0
+        - 0
+        - 412
+        - 96
+        layout:
+          kind: free
+        children:
+        - type: rect
+          id: fld_body0
+          box:
+          - 16
+          - 30
+          - 48
+          - 36
+          fill: folder
+          radius: 4
+        - type: rect
+          id: fld_tab0
+          box:
+          - 18
+          - 24
+          - 18
+          - 8
+          fill: folder
+          radius: 2
+        - type: icon
+          id: fld_g0
+          glyph: download
+          box:
+          - 30
+          - 40
+          - 20
+          - 20
+          color: folder_glyph
+          size: 16
+        - type: text
+          id: e_name0
+          text: Download
+          box:
+          - 80
+          - 16
+          - 240
+          - 30
+          style: name
+        - type: text
+          id: e_date0
+          text: Jun 22 01:01
+          box:
+          - 80
+          - 52
+          - 220
+          - 22
+          style: date
+        - type: text
+          id: e_count0
+          text: 885 items
+          box:
+          - 230
+          - 34
+          - 166
+          - 24
+          style: count
+        - type: rect
+          id: e_div0
+          box:
+          - 80
+          - 94
+          - 316
+          - 1
+          fill: divider
+      - type: group
+        id: entry_1
+        box:
+        - 0
+        - 0
+        - 412
+        - 96
+        layout:
+          kind: free
+        children:
+        - type: rect
+          id: fld_body1
+          box:
+          - 16
+          - 30
+          - 48
+          - 36
+          fill: folder
+          radius: 4
+        - type: rect
+          id: fld_tab1
+          box:
+          - 18
+          - 24
+          - 18
+          - 8
+          fill: folder
+          radius: 2
+        - type: text
+          id: e_name1
+          text: Pictures
+          box:
+          - 80
+          - 16
+          - 240
+          - 30
+          style: name
+        - type: text
+          id: e_date1
+          text: Jun 17 21:14
+          box:
+          - 80
+          - 52
+          - 220
+          - 22
+          style: date
+        - type: text
+          id: e_count1
+          text: 180 items
+          box:
+          - 230
+          - 34
+          - 166
+          - 24
+          style: count
+        - type: rect
+          id: e_div1
+          box:
+          - 80
+          - 94
+          - 316
+          - 1
+          fill: divider
+      - type: group
+        id: entry_2
+        box:
+        - 0
+        - 0
+        - 412
+        - 96
+        layout:
+          kind: free
+        children:
+        - type: rect
+          id: fld_body2
+          box:
+          - 16
+          - 30
+          - 48
+          - 36
+          fill: folder
+          radius: 4
+        - type: rect
+          id: fld_tab2
+          box:
+          - 18
+          - 24
+          - 18
+          - 8
+          fill: folder
+          radius: 2
+        - type: text
+          id: e_name2
+          text: Recordings
+          box:
+          - 80
+          - 16
+          - 240
+          - 30
+          style: name
+        - type: text
+          id: e_date2
+          text: Jun 10 13:41
+          box:
+          - 80
+          - 52
+          - 220
+          - 22
+          style: date
+        - type: text
+          id: e_count2
+          text: 3 items
+          box:
+          - 230
+          - 34
+          - 166
+          - 24
+          style: count
+        - type: rect
+          id: e_div2
+          box:
+          - 80
+          - 94
+          - 316
+          - 1
+          fill: divider
+      - type: group
+        id: entry_3
+        box:
+        - 0
+        - 0
+        - 412
+        - 96
+        layout:
+          kind: free
+        children:
+        - type: rect
+          id: fld_body3
+          box:
+          - 16
+          - 30
+          - 48
+          - 36
+          fill: folder
+          radius: 4
+        - type: rect
+          id: fld_tab3
+          box:
+          - 18
+          - 24
+          - 18
+          - 8
+          fill: folder
+          radius: 2
+        - type: icon
+          id: fld_g3
+          glyph: camera
+          box:
+          - 30
+          - 40
+          - 20
+          - 20
+          color: folder_glyph
+          size: 16
+        - type: text
+          id: e_name3
+          text: DCIM
+          box:
+          - 80
+          - 16
+          - 240
+          - 30
+          style: name
+        - type: text
+          id: e_date3
+          text: May 1 17:54
+          box:
+          - 80
+          - 52
+          - 220
+          - 22
+          style: date
+        - type: text
+          id: e_count3
+          text: 8 items
+          box:
+          - 230
+          - 34
+          - 166
+          - 24
+          style: count
+        - type: rect
+          id: e_div3
+          box:
+          - 80
+          - 94
+          - 316
+          - 1
+          fill: divider
+      - type: group
+        id: entry_4
+        box:
+        - 0
+        - 0
+        - 412
+        - 96
+        layout:
+          kind: free
+        children:
+        - type: rect
+          id: fld_body4
+          box:
+          - 16
+          - 30
+          - 48
+          - 36
+          fill: folder
+          radius: 4
+        - type: rect
+          id: fld_tab4
+          box:
+          - 18
+          - 24
+          - 18
+          - 8
+          fill: folder
+          radius: 2
+        - type: text
+          id: e_name4
+          text: Documents
+          box:
+          - 80
+          - 16
+          - 240
+          - 30
+          style: name
+        - type: text
+          id: e_date4
+          text: Apr 10 10:18
+          box:
+          - 80
+          - 52
+          - 220
+          - 22
+          style: date
+        - type: text
+          id: e_count4
+          text: 28 items
+          box:
+          - 230
+          - 34
+          - 166
+          - 24
+          style: count
+        - type: rect
+          id: e_div4
+          box:
+          - 80
+          - 94
+          - 316
+          - 1
+          fill: divider
+      - type: group
+        id: entry_5
+        box:
+        - 0
+        - 0
+        - 412
+        - 96
+        layout:
+          kind: free
+        children:
+        - type: rect
+          id: fld_body5
+          box:
+          - 16
+          - 30
+          - 48
+          - 36
+          fill: folder
+          radius: 4
+        - type: rect
+          id: fld_tab5
+          box:
+          - 18
+          - 24
+          - 18
+          - 8
+          fill: folder
+          radius: 2
+        - type: text
+          id: e_name5
+          text: Music
+          box:
+          - 80
+          - 16
+          - 240
+          - 30
+          style: name
+        - type: text
+          id: e_date5
+          text: Mar 26 15:56
+          box:
+          - 80
+          - 52
+          - 220
+          - 22
+          style: date
+        - type: text
+          id: e_count5
+          text: 3 items
+          box:
+          - 230
+          - 34
+          - 166
+          - 24
+          style: count
+        - type: rect
+          id: e_div5
+          box:
+          - 80
+          - 94
+          - 316
+          - 1
+          fill: divider
+      - type: group
+        id: entry_6
+        box:
+        - 0
+        - 0
+        - 412
+        - 96
+        layout:
+          kind: free
+        children:
+        - type: rect
+          id: fld_body6
+          box:
+          - 16
+          - 30
+          - 48
+          - 36
+          fill: folder
+          radius: 4
+        - type: rect
+          id: fld_tab6
+          box:
+          - 18
+          - 24
+          - 18
+          - 8
+          fill: folder
+          radius: 2
+        - type: text
+          id: e_name6
+          text: Movies
+          box:
+          - 80
+          - 16
+          - 240
+          - 30
+          style: name
+        - type: text
+          id: e_date6
+          text: Mar 25 19:46
+          box:
+          - 80
+          - 52
+          - 220
+          - 22
+          style: date
+        - type: text
+          id: e_count6
+          text: 6 items
+          box:
+          - 230
+          - 34
+          - 166
+          - 24
+          style: count
+        - type: rect
+          id: e_div6
+          box:
+          - 80
+          - 94
+          - 316
+          - 1
+          fill: divider
+      - type: group
+        id: entry_7
+        box:
+        - 0
+        - 0
+        - 412
+        - 96
+        layout:
+          kind: free
+        children:
+        - type: rect
+          id: fld_body7
+          box:
+          - 16
+          - 30
+          - 48
+          - 36
+          fill: folder
+          radius: 4
+        - type: rect
+          id: fld_tab7
+          box:
+          - 18
+          - 24
+          - 18
+          - 8
+          fill: folder
+          radius: 2
+        - type: text
+          id: e_name7
+          text: Android
+          box:
+          - 80
+          - 16
+          - 240
+          - 30
+          style: name
+        - type: text
+          id: e_date7
+          text: Mar 25 19:42
+          box:
+          - 80
+          - 52
+          - 220
+          - 22
+          style: date
+        - type: text
+          id: e_count7
+          text: 3 items
+          box:
+          - 230
+          - 34
+          - 166
+          - 24
+          style: count
+        - type: rect
+          id: e_div7
+          box:
+          - 80
+          - 94
+          - 316
+          - 1
+          fill: divider
+  - id: chrome
+    z: 2
+    objects:
+    - type: rect
+      id: topbar
+      box:
+      - 0
+      - 0
+      - 412
+      - 64
+      fill: bg
+    - type: icon
+      id: nav_back
+      glyph: back
+      box:
+      - 20
+      - 30
+      - 28
+      - 28
+      color: teal
+      size: 26
+    - type: icon
+      id: ic_search
+      glyph: search
+      box:
+      - 328
+      - 36
+      - 26
+      - 26
+      color: icon
+      size: 22
+    - type: icon
+      id: ic_more
+      glyph: more
+      box:
+      - 378
+      - 36
+      - 10
+      - 26
+      color: teal
+      size: 22
+    - type: rect
+      id: crumb
+      box:
+      - 24
+      - 82
+      - 364
+      - 46
+      fill: crumb_bg
+      radius: 23
+    - type: icon
+      id: crumb_home
+      glyph: home
+      box:
+      - 44
+      - 96
+      - 22
+      - 22
+      color: text_primary
+      size: 20
+    - type: icon
+      id: crumb_chev
+      glyph: chevron
+      box:
+      - 76
+      - 96
+      - 16
+      - 22
+      color: text_secondary
+      size: 18
+    - type: text
+      id: crumb_label
+      text: Internal storage
+      box:
+      - 100
+      - 92
+      - 260
+      - 30
+      style: breadcrumb
+    - type: text
+      id: sort_all
+      text: All
+      box:
+      - 28
+      - 150
+      - 48
+      - 24
+      style: sort_all
+    - type: icon
+      id: sort_drop
+      glyph: dropdown
+      box:
+      - 74
+      - 158
+      - 14
+      - 14
+      color: text_primary
+      size: 12
+    - type: icon
+      id: sort_icon
+      glyph: sort
+      box:
+      - 280
+      - 152
+      - 22
+      - 22
+      color: icon
+      size: 20
+    - type: text
+      id: sort_date
+      text: Date
+      box:
+      - 306
+      - 150
+      - 60
+      - 24
+      style: sort_date
+    - type: line
+      id: sort_div
+      from:
+      - 374
+      - 148
+      to:
+      - 374
+      - 172
+      stroke_style: divider
+    - type: icon
+      id: sort_arrow
+      glyph: arrow_down
+      box:
+      - 384
+      - 152
+      - 22
+      - 22
+      color: icon
+      size: 20
+  - id: fab
+    z: 3
+    objects:
+    - type: ellipse
+      id: fab_bg
+      center:
+      - 384
+      - 366
+      rx: 28
+      ry: 28
+      fill: fab_bg
+    - type: icon
+      id: fab_edit
+      glyph: edit
+      box:
+      - 372
+      - 354
+      - 24
+      - 24
+      color: icon
+      size: 18
+  notes: My Files internal-storage list; folder list uses the patched column layout.
+meta:
+  disclaimer: Nothing here is authoritative. Folder names/dates/counts are transcribed from the screenshot; coordinates, the
+    Samsung dark palette, the two-rect folder icon, and icon glyph stand-ins are [APPROX].
+  source: 'User-supplied screenshot: 27143.png (Samsung My Files)'
+  requires_patch: framegraph-v2-patch-nesting-textfit.md — §3.6 column layout + nesting
+  generated_by: gen_files.py (spec §9.7 external generator)
+  open_questions:
+  - Entry internals use free layout (so the item-count can sit at the right edge); the patched row/column layouts pack from
+    the start and have no space-between/justify, so a right-aligned trailing element still needs free placement — a candidate
+    refinement (justify) for a later patch.
+  - 'SPEC GAP surfaced here: §3.6(f) requires every child under a layout container to supply a box, but box-less primitives
+    (line via from/to, ellipse via center) have none. §3.6(f) should place box-less primitives under `free` by their intrinsic
+    coordinates (offset by the parent origin) and define/forbid them under row/column/grid. Worked around by using a thin
+    rect divider.'

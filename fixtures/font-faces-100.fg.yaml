@@ -1,0 +1,976 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# font-faces-100.fg.yaml — the multi-face capacity proof (>=100 font faces).
+#
+# Companion to font-faces.fg.yaml (which exercises the OpenType *surface* on a
+# few faces). This fixture exercises *count*: defs.tokens.fonts declares 100
+# distinct faces and the story renders one paragraph per face, each bound to its
+# own text_styles entry. It proves both render paths carry an arbitrary number
+# of faces with no cap or truncation:
+#
+#   * SVG proxy  — each paragraph emits its own font-family (100 distinct).
+#   * LaTeX flow — each face becomes a guarded \newfontfamily and the paragraph
+#     selects it, so TeX switches typeface per face (not just size/series).
+#
+# Each face's `family` is a real, installed, Latin-capable typeface; because the
+# host carries fewer than 100 distinct Latin families, the backing typefaces are
+# cycled over a whitelist (the proven quantity is the face count, not 100 unique
+# typefaces). The backend wraps each \newfontfamily in \IfFontExistsTF, so on a
+# host missing a face it degrades to the main font and the PDF still compiles.
+# A single mode: flow section keeps it clean under every HEAD gate.
+# ─────────────────────────────────────────────────────────────────────────────
+
+dsl: FrameGraph
+version: 2.2.0
+profile: report
+title: One hundred font faces — multi-face capacity proof
+description: >-
+  Declares 100 distinct font faces in defs.tokens.fonts and renders one paragraph
+  per face, each bound to its own text style, to prove the renderer carries an
+  arbitrary number of faces (>=100) through both the SVG proxy and the LaTeX/flow
+  backend with no cap, collision, or truncation.
+lang: en
+
+defs:
+  tokens:
+    colors:
+      ink: '#14181f'
+      muted: '#5f6671'
+      accent: '#1f5fa6'
+      paper: '#ffffff'
+      rule: '#d7dde5'
+    fonts:
+      face000:
+        family: 'Bitstream Charter'
+        fallback: ['Bitstream Charter', sans-serif]
+      face001:
+        family: 'C059'
+        fallback: ['C059', sans-serif]
+      face002:
+        family: 'Courier'
+        fallback: ['Courier', sans-serif]
+      face003:
+        family: 'DejaVu Sans'
+        fallback: ['DejaVu Sans', sans-serif]
+      face004:
+        family: 'DejaVu Sans Mono'
+        fallback: ['DejaVu Sans Mono', sans-serif]
+      face005:
+        family: 'DejaVu Serif'
+        fallback: ['DejaVu Serif', sans-serif]
+      face006:
+        family: 'Fira Mono'
+        fallback: ['Fira Mono', sans-serif]
+      face007:
+        family: 'Fira Sans'
+        fallback: ['Fira Sans', sans-serif]
+      face008:
+        family: 'Fira Sans Compressed'
+        fallback: ['Fira Sans Compressed', sans-serif]
+      face009:
+        family: 'Fira Sans Condensed'
+        fallback: ['Fira Sans Condensed', sans-serif]
+      face010:
+        family: 'FreeMono'
+        fallback: ['FreeMono', sans-serif]
+      face011:
+        family: 'FreeSans'
+        fallback: ['FreeSans', sans-serif]
+      face012:
+        family: 'FreeSerif'
+        fallback: ['FreeSerif', sans-serif]
+      face013:
+        family: 'Latin Modern Mono'
+        fallback: ['Latin Modern Mono', sans-serif]
+      face014:
+        family: 'Latin Modern Mono Caps'
+        fallback: ['Latin Modern Mono Caps', sans-serif]
+      face015:
+        family: 'Latin Modern Mono Light'
+        fallback: ['Latin Modern Mono Light', sans-serif]
+      face016:
+        family: 'Latin Modern Mono Light Cond'
+        fallback: ['Latin Modern Mono Light Cond', sans-serif]
+      face017:
+        family: 'Latin Modern Mono Prop'
+        fallback: ['Latin Modern Mono Prop', sans-serif]
+      face018:
+        family: 'Latin Modern Mono Prop Light'
+        fallback: ['Latin Modern Mono Prop Light', sans-serif]
+      face019:
+        family: 'Latin Modern Mono Slanted'
+        fallback: ['Latin Modern Mono Slanted', sans-serif]
+      face020:
+        family: 'Latin Modern Roman'
+        fallback: ['Latin Modern Roman', sans-serif]
+      face021:
+        family: 'Latin Modern Roman Caps'
+        fallback: ['Latin Modern Roman Caps', sans-serif]
+      face022:
+        family: 'Latin Modern Roman Demi'
+        fallback: ['Latin Modern Roman Demi', sans-serif]
+      face023:
+        family: 'Latin Modern Roman Dunhill'
+        fallback: ['Latin Modern Roman Dunhill', sans-serif]
+      face024:
+        family: 'Latin Modern Roman Slanted'
+        fallback: ['Latin Modern Roman Slanted', sans-serif]
+      face025:
+        family: 'Latin Modern Roman Unslanted'
+        fallback: ['Latin Modern Roman Unslanted', sans-serif]
+      face026:
+        family: 'Latin Modern Sans'
+        fallback: ['Latin Modern Sans', sans-serif]
+      face027:
+        family: 'Latin Modern Sans Demi Cond'
+        fallback: ['Latin Modern Sans Demi Cond', sans-serif]
+      face028:
+        family: 'Latin Modern Sans Quotation'
+        fallback: ['Latin Modern Sans Quotation', sans-serif]
+      face029:
+        family: 'Liberation Mono'
+        fallback: ['Liberation Mono', sans-serif]
+      face030:
+        family: 'Liberation Sans'
+        fallback: ['Liberation Sans', sans-serif]
+      face031:
+        family: 'Liberation Sans Narrow'
+        fallback: ['Liberation Sans Narrow', sans-serif]
+      face032:
+        family: 'Liberation Serif'
+        fallback: ['Liberation Serif', sans-serif]
+      face033:
+        family: 'Nimbus Mono PS'
+        fallback: ['Nimbus Mono PS', sans-serif]
+      face034:
+        family: 'Nimbus Roman'
+        fallback: ['Nimbus Roman', sans-serif]
+      face035:
+        family: 'Nimbus Sans'
+        fallback: ['Nimbus Sans', sans-serif]
+      face036:
+        family: 'Nimbus Sans Narrow'
+        fallback: ['Nimbus Sans Narrow', sans-serif]
+      face037:
+        family: 'Noto Mono'
+        fallback: ['Noto Mono', sans-serif]
+      face038:
+        family: 'Noto Sans'
+        fallback: ['Noto Sans', sans-serif]
+      face039:
+        family: 'Noto Sans Display'
+        fallback: ['Noto Sans Display', sans-serif]
+      face040:
+        family: 'Noto Sans Mono'
+        fallback: ['Noto Sans Mono', sans-serif]
+      face041:
+        family: 'Noto Serif'
+        fallback: ['Noto Serif', sans-serif]
+      face042:
+        family: 'Noto Serif Display'
+        fallback: ['Noto Serif Display', sans-serif]
+      face043:
+        family: 'Open Sans'
+        fallback: ['Open Sans', sans-serif]
+      face044:
+        family: 'Open Sans Condensed'
+        fallback: ['Open Sans Condensed', sans-serif]
+      face045:
+        family: 'P052'
+        fallback: ['P052', sans-serif]
+      face046:
+        family: 'Roboto Slab'
+        fallback: ['Roboto Slab', sans-serif]
+      face047:
+        family: 'Ubuntu'
+        fallback: ['Ubuntu', sans-serif]
+      face048:
+        family: 'Ubuntu Mono'
+        fallback: ['Ubuntu Mono', sans-serif]
+      face049:
+        family: 'Ubuntu Sans'
+        fallback: ['Ubuntu Sans', sans-serif]
+      face050:
+        family: 'Ubuntu Sans Mono'
+        fallback: ['Ubuntu Sans Mono', sans-serif]
+      face051:
+        family: 'URW Bookman'
+        fallback: ['URW Bookman', sans-serif]
+      face052:
+        family: 'URW Gothic'
+        fallback: ['URW Gothic', sans-serif]
+      face053:
+        family: 'Utopia'
+        fallback: ['Utopia', sans-serif]
+      face054:
+        family: 'Z003'
+        fallback: ['Z003', sans-serif]
+      face055:
+        family: 'Bitstream Charter'
+        fallback: ['Bitstream Charter', sans-serif]
+      face056:
+        family: 'C059'
+        fallback: ['C059', sans-serif]
+      face057:
+        family: 'Courier'
+        fallback: ['Courier', sans-serif]
+      face058:
+        family: 'DejaVu Sans'
+        fallback: ['DejaVu Sans', sans-serif]
+      face059:
+        family: 'DejaVu Sans Mono'
+        fallback: ['DejaVu Sans Mono', sans-serif]
+      face060:
+        family: 'DejaVu Serif'
+        fallback: ['DejaVu Serif', sans-serif]
+      face061:
+        family: 'Fira Mono'
+        fallback: ['Fira Mono', sans-serif]
+      face062:
+        family: 'Fira Sans'
+        fallback: ['Fira Sans', sans-serif]
+      face063:
+        family: 'Fira Sans Compressed'
+        fallback: ['Fira Sans Compressed', sans-serif]
+      face064:
+        family: 'Fira Sans Condensed'
+        fallback: ['Fira Sans Condensed', sans-serif]
+      face065:
+        family: 'FreeMono'
+        fallback: ['FreeMono', sans-serif]
+      face066:
+        family: 'FreeSans'
+        fallback: ['FreeSans', sans-serif]
+      face067:
+        family: 'FreeSerif'
+        fallback: ['FreeSerif', sans-serif]
+      face068:
+        family: 'Latin Modern Mono'
+        fallback: ['Latin Modern Mono', sans-serif]
+      face069:
+        family: 'Latin Modern Mono Caps'
+        fallback: ['Latin Modern Mono Caps', sans-serif]
+      face070:
+        family: 'Latin Modern Mono Light'
+        fallback: ['Latin Modern Mono Light', sans-serif]
+      face071:
+        family: 'Latin Modern Mono Light Cond'
+        fallback: ['Latin Modern Mono Light Cond', sans-serif]
+      face072:
+        family: 'Latin Modern Mono Prop'
+        fallback: ['Latin Modern Mono Prop', sans-serif]
+      face073:
+        family: 'Latin Modern Mono Prop Light'
+        fallback: ['Latin Modern Mono Prop Light', sans-serif]
+      face074:
+        family: 'Latin Modern Mono Slanted'
+        fallback: ['Latin Modern Mono Slanted', sans-serif]
+      face075:
+        family: 'Latin Modern Roman'
+        fallback: ['Latin Modern Roman', sans-serif]
+      face076:
+        family: 'Latin Modern Roman Caps'
+        fallback: ['Latin Modern Roman Caps', sans-serif]
+      face077:
+        family: 'Latin Modern Roman Demi'
+        fallback: ['Latin Modern Roman Demi', sans-serif]
+      face078:
+        family: 'Latin Modern Roman Dunhill'
+        fallback: ['Latin Modern Roman Dunhill', sans-serif]
+      face079:
+        family: 'Latin Modern Roman Slanted'
+        fallback: ['Latin Modern Roman Slanted', sans-serif]
+      face080:
+        family: 'Latin Modern Roman Unslanted'
+        fallback: ['Latin Modern Roman Unslanted', sans-serif]
+      face081:
+        family: 'Latin Modern Sans'
+        fallback: ['Latin Modern Sans', sans-serif]
+      face082:
+        family: 'Latin Modern Sans Demi Cond'
+        fallback: ['Latin Modern Sans Demi Cond', sans-serif]
+      face083:
+        family: 'Latin Modern Sans Quotation'
+        fallback: ['Latin Modern Sans Quotation', sans-serif]
+      face084:
+        family: 'Liberation Mono'
+        fallback: ['Liberation Mono', sans-serif]
+      face085:
+        family: 'Liberation Sans'
+        fallback: ['Liberation Sans', sans-serif]
+      face086:
+        family: 'Liberation Sans Narrow'
+        fallback: ['Liberation Sans Narrow', sans-serif]
+      face087:
+        family: 'Liberation Serif'
+        fallback: ['Liberation Serif', sans-serif]
+      face088:
+        family: 'Nimbus Mono PS'
+        fallback: ['Nimbus Mono PS', sans-serif]
+      face089:
+        family: 'Nimbus Roman'
+        fallback: ['Nimbus Roman', sans-serif]
+      face090:
+        family: 'Nimbus Sans'
+        fallback: ['Nimbus Sans', sans-serif]
+      face091:
+        family: 'Nimbus Sans Narrow'
+        fallback: ['Nimbus Sans Narrow', sans-serif]
+      face092:
+        family: 'Noto Mono'
+        fallback: ['Noto Mono', sans-serif]
+      face093:
+        family: 'Noto Sans'
+        fallback: ['Noto Sans', sans-serif]
+      face094:
+        family: 'Noto Sans Display'
+        fallback: ['Noto Sans Display', sans-serif]
+      face095:
+        family: 'Noto Sans Mono'
+        fallback: ['Noto Sans Mono', sans-serif]
+      face096:
+        family: 'Noto Serif'
+        fallback: ['Noto Serif', sans-serif]
+      face097:
+        family: 'Noto Serif Display'
+        fallback: ['Noto Serif Display', sans-serif]
+      face098:
+        family: 'Open Sans'
+        fallback: ['Open Sans', sans-serif]
+      face099:
+        family: 'Open Sans Condensed'
+        fallback: ['Open Sans Condensed', sans-serif]
+    text_styles:
+      title: {font: face000, size: 22, weight: 700, color: ink}
+      lead:  {font: face000, size: 12, color: muted}
+      label: {font: face000, size: 9, weight: 700, color: accent, letter_spacing: 0.6}
+      f000: {font: face000, size: 12, color: ink}
+      f001: {font: face001, size: 12, color: ink}
+      f002: {font: face002, size: 12, color: ink}
+      f003: {font: face003, size: 12, color: ink}
+      f004: {font: face004, size: 12, color: ink}
+      f005: {font: face005, size: 12, color: ink}
+      f006: {font: face006, size: 12, color: ink}
+      f007: {font: face007, size: 12, color: ink}
+      f008: {font: face008, size: 12, color: ink}
+      f009: {font: face009, size: 12, color: ink}
+      f010: {font: face010, size: 12, color: ink}
+      f011: {font: face011, size: 12, color: ink}
+      f012: {font: face012, size: 12, color: ink}
+      f013: {font: face013, size: 12, color: ink}
+      f014: {font: face014, size: 12, color: ink}
+      f015: {font: face015, size: 12, color: ink}
+      f016: {font: face016, size: 12, color: ink}
+      f017: {font: face017, size: 12, color: ink}
+      f018: {font: face018, size: 12, color: ink}
+      f019: {font: face019, size: 12, color: ink}
+      f020: {font: face020, size: 12, color: ink}
+      f021: {font: face021, size: 12, color: ink}
+      f022: {font: face022, size: 12, color: ink}
+      f023: {font: face023, size: 12, color: ink}
+      f024: {font: face024, size: 12, color: ink}
+      f025: {font: face025, size: 12, color: ink}
+      f026: {font: face026, size: 12, color: ink}
+      f027: {font: face027, size: 12, color: ink}
+      f028: {font: face028, size: 12, color: ink}
+      f029: {font: face029, size: 12, color: ink}
+      f030: {font: face030, size: 12, color: ink}
+      f031: {font: face031, size: 12, color: ink}
+      f032: {font: face032, size: 12, color: ink}
+      f033: {font: face033, size: 12, color: ink}
+      f034: {font: face034, size: 12, color: ink}
+      f035: {font: face035, size: 12, color: ink}
+      f036: {font: face036, size: 12, color: ink}
+      f037: {font: face037, size: 12, color: ink}
+      f038: {font: face038, size: 12, color: ink}
+      f039: {font: face039, size: 12, color: ink}
+      f040: {font: face040, size: 12, color: ink}
+      f041: {font: face041, size: 12, color: ink}
+      f042: {font: face042, size: 12, color: ink}
+      f043: {font: face043, size: 12, color: ink}
+      f044: {font: face044, size: 12, color: ink}
+      f045: {font: face045, size: 12, color: ink}
+      f046: {font: face046, size: 12, color: ink}
+      f047: {font: face047, size: 12, color: ink}
+      f048: {font: face048, size: 12, color: ink}
+      f049: {font: face049, size: 12, color: ink}
+      f050: {font: face050, size: 12, color: ink}
+      f051: {font: face051, size: 12, color: ink}
+      f052: {font: face052, size: 12, color: ink}
+      f053: {font: face053, size: 12, color: ink}
+      f054: {font: face054, size: 12, color: ink}
+      f055: {font: face055, size: 12, color: ink}
+      f056: {font: face056, size: 12, color: ink}
+      f057: {font: face057, size: 12, color: ink}
+      f058: {font: face058, size: 12, color: ink}
+      f059: {font: face059, size: 12, color: ink}
+      f060: {font: face060, size: 12, color: ink}
+      f061: {font: face061, size: 12, color: ink}
+      f062: {font: face062, size: 12, color: ink}
+      f063: {font: face063, size: 12, color: ink}
+      f064: {font: face064, size: 12, color: ink}
+      f065: {font: face065, size: 12, color: ink}
+      f066: {font: face066, size: 12, color: ink}
+      f067: {font: face067, size: 12, color: ink}
+      f068: {font: face068, size: 12, color: ink}
+      f069: {font: face069, size: 12, color: ink}
+      f070: {font: face070, size: 12, color: ink}
+      f071: {font: face071, size: 12, color: ink}
+      f072: {font: face072, size: 12, color: ink}
+      f073: {font: face073, size: 12, color: ink}
+      f074: {font: face074, size: 12, color: ink}
+      f075: {font: face075, size: 12, color: ink}
+      f076: {font: face076, size: 12, color: ink}
+      f077: {font: face077, size: 12, color: ink}
+      f078: {font: face078, size: 12, color: ink}
+      f079: {font: face079, size: 12, color: ink}
+      f080: {font: face080, size: 12, color: ink}
+      f081: {font: face081, size: 12, color: ink}
+      f082: {font: face082, size: 12, color: ink}
+      f083: {font: face083, size: 12, color: ink}
+      f084: {font: face084, size: 12, color: ink}
+      f085: {font: face085, size: 12, color: ink}
+      f086: {font: face086, size: 12, color: ink}
+      f087: {font: face087, size: 12, color: ink}
+      f088: {font: face088, size: 12, color: ink}
+      f089: {font: face089, size: 12, color: ink}
+      f090: {font: face090, size: 12, color: ink}
+      f091: {font: face091, size: 12, color: ink}
+      f092: {font: face092, size: 12, color: ink}
+      f093: {font: face093, size: 12, color: ink}
+      f094: {font: face094, size: 12, color: ink}
+      f095: {font: face095, size: 12, color: ink}
+      f096: {font: face096, size: 12, color: ink}
+      f097: {font: face097, size: 12, color: ink}
+      f098: {font: face098, size: 12, color: ink}
+      f099: {font: face099, size: 12, color: ink}
+  masters:
+    main:
+      canvas: A4
+      regions:
+      - id: col
+        box: [72, 72, 451, 698]
+      running:
+        page_number:
+          font_family: sans
+          font_size: 9pt
+          color: muted
+          text_align: center
+
+pages:
+- mode: flow
+  id: faces
+  master: main
+  media: paged
+  lang: en
+  story:
+  - type: heading
+    level: 1
+    text: One hundred font faces
+    id: title
+    style: title
+    break_after: avoid
+  - type: paragraph
+    style: lead
+    text: >-
+      Each line below is a distinct font face declared in defs.tokens.fonts and
+      bound to its own text style; there are one hundred of them.
+  - type: paragraph
+    style: f000
+    spans:
+    - {text: '001  ', style: label}
+    - {text: 'Bitstream Charter — The quick brown fox jumps over the lazy dog 0123456789', style: f000}
+  - type: paragraph
+    style: f001
+    spans:
+    - {text: '002  ', style: label}
+    - {text: 'C059 — The quick brown fox jumps over the lazy dog 0123456789', style: f001}
+  - type: paragraph
+    style: f002
+    spans:
+    - {text: '003  ', style: label}
+    - {text: 'Courier — The quick brown fox jumps over the lazy dog 0123456789', style: f002}
+  - type: paragraph
+    style: f003
+    spans:
+    - {text: '004  ', style: label}
+    - {text: 'DejaVu Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f003}
+  - type: paragraph
+    style: f004
+    spans:
+    - {text: '005  ', style: label}
+    - {text: 'DejaVu Sans Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f004}
+  - type: paragraph
+    style: f005
+    spans:
+    - {text: '006  ', style: label}
+    - {text: 'DejaVu Serif — The quick brown fox jumps over the lazy dog 0123456789', style: f005}
+  - type: paragraph
+    style: f006
+    spans:
+    - {text: '007  ', style: label}
+    - {text: 'Fira Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f006}
+  - type: paragraph
+    style: f007
+    spans:
+    - {text: '008  ', style: label}
+    - {text: 'Fira Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f007}
+  - type: paragraph
+    style: f008
+    spans:
+    - {text: '009  ', style: label}
+    - {text: 'Fira Sans Compressed — The quick brown fox jumps over the lazy dog 0123456789', style: f008}
+  - type: paragraph
+    style: f009
+    spans:
+    - {text: '010  ', style: label}
+    - {text: 'Fira Sans Condensed — The quick brown fox jumps over the lazy dog 0123456789', style: f009}
+  - type: paragraph
+    style: f010
+    spans:
+    - {text: '011  ', style: label}
+    - {text: 'FreeMono — The quick brown fox jumps over the lazy dog 0123456789', style: f010}
+  - type: paragraph
+    style: f011
+    spans:
+    - {text: '012  ', style: label}
+    - {text: 'FreeSans — The quick brown fox jumps over the lazy dog 0123456789', style: f011}
+  - type: paragraph
+    style: f012
+    spans:
+    - {text: '013  ', style: label}
+    - {text: 'FreeSerif — The quick brown fox jumps over the lazy dog 0123456789', style: f012}
+  - type: paragraph
+    style: f013
+    spans:
+    - {text: '014  ', style: label}
+    - {text: 'Latin Modern Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f013}
+  - type: paragraph
+    style: f014
+    spans:
+    - {text: '015  ', style: label}
+    - {text: 'Latin Modern Mono Caps — The quick brown fox jumps over the lazy dog 0123456789', style: f014}
+  - type: paragraph
+    style: f015
+    spans:
+    - {text: '016  ', style: label}
+    - {text: 'Latin Modern Mono Light — The quick brown fox jumps over the lazy dog 0123456789', style: f015}
+  - type: paragraph
+    style: f016
+    spans:
+    - {text: '017  ', style: label}
+    - {text: 'Latin Modern Mono Light Cond — The quick brown fox jumps over the lazy dog 0123456789', style: f016}
+  - type: paragraph
+    style: f017
+    spans:
+    - {text: '018  ', style: label}
+    - {text: 'Latin Modern Mono Prop — The quick brown fox jumps over the lazy dog 0123456789', style: f017}
+  - type: paragraph
+    style: f018
+    spans:
+    - {text: '019  ', style: label}
+    - {text: 'Latin Modern Mono Prop Light — The quick brown fox jumps over the lazy dog 0123456789', style: f018}
+  - type: paragraph
+    style: f019
+    spans:
+    - {text: '020  ', style: label}
+    - {text: 'Latin Modern Mono Slanted — The quick brown fox jumps over the lazy dog 0123456789', style: f019}
+  - type: paragraph
+    style: f020
+    spans:
+    - {text: '021  ', style: label}
+    - {text: 'Latin Modern Roman — The quick brown fox jumps over the lazy dog 0123456789', style: f020}
+  - type: paragraph
+    style: f021
+    spans:
+    - {text: '022  ', style: label}
+    - {text: 'Latin Modern Roman Caps — The quick brown fox jumps over the lazy dog 0123456789', style: f021}
+  - type: paragraph
+    style: f022
+    spans:
+    - {text: '023  ', style: label}
+    - {text: 'Latin Modern Roman Demi — The quick brown fox jumps over the lazy dog 0123456789', style: f022}
+  - type: paragraph
+    style: f023
+    spans:
+    - {text: '024  ', style: label}
+    - {text: 'Latin Modern Roman Dunhill — The quick brown fox jumps over the lazy dog 0123456789', style: f023}
+  - type: paragraph
+    style: f024
+    spans:
+    - {text: '025  ', style: label}
+    - {text: 'Latin Modern Roman Slanted — The quick brown fox jumps over the lazy dog 0123456789', style: f024}
+  - type: paragraph
+    style: f025
+    spans:
+    - {text: '026  ', style: label}
+    - {text: 'Latin Modern Roman Unslanted — The quick brown fox jumps over the lazy dog 0123456789', style: f025}
+  - type: paragraph
+    style: f026
+    spans:
+    - {text: '027  ', style: label}
+    - {text: 'Latin Modern Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f026}
+  - type: paragraph
+    style: f027
+    spans:
+    - {text: '028  ', style: label}
+    - {text: 'Latin Modern Sans Demi Cond — The quick brown fox jumps over the lazy dog 0123456789', style: f027}
+  - type: paragraph
+    style: f028
+    spans:
+    - {text: '029  ', style: label}
+    - {text: 'Latin Modern Sans Quotation — The quick brown fox jumps over the lazy dog 0123456789', style: f028}
+  - type: paragraph
+    style: f029
+    spans:
+    - {text: '030  ', style: label}
+    - {text: 'Liberation Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f029}
+  - type: paragraph
+    style: f030
+    spans:
+    - {text: '031  ', style: label}
+    - {text: 'Liberation Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f030}
+  - type: paragraph
+    style: f031
+    spans:
+    - {text: '032  ', style: label}
+    - {text: 'Liberation Sans Narrow — The quick brown fox jumps over the lazy dog 0123456789', style: f031}
+  - type: paragraph
+    style: f032
+    spans:
+    - {text: '033  ', style: label}
+    - {text: 'Liberation Serif — The quick brown fox jumps over the lazy dog 0123456789', style: f032}
+  - type: paragraph
+    style: f033
+    spans:
+    - {text: '034  ', style: label}
+    - {text: 'Nimbus Mono PS — The quick brown fox jumps over the lazy dog 0123456789', style: f033}
+  - type: paragraph
+    style: f034
+    spans:
+    - {text: '035  ', style: label}
+    - {text: 'Nimbus Roman — The quick brown fox jumps over the lazy dog 0123456789', style: f034}
+  - type: paragraph
+    style: f035
+    spans:
+    - {text: '036  ', style: label}
+    - {text: 'Nimbus Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f035}
+  - type: paragraph
+    style: f036
+    spans:
+    - {text: '037  ', style: label}
+    - {text: 'Nimbus Sans Narrow — The quick brown fox jumps over the lazy dog 0123456789', style: f036}
+  - type: paragraph
+    style: f037
+    spans:
+    - {text: '038  ', style: label}
+    - {text: 'Noto Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f037}
+  - type: paragraph
+    style: f038
+    spans:
+    - {text: '039  ', style: label}
+    - {text: 'Noto Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f038}
+  - type: paragraph
+    style: f039
+    spans:
+    - {text: '040  ', style: label}
+    - {text: 'Noto Sans Display — The quick brown fox jumps over the lazy dog 0123456789', style: f039}
+  - type: paragraph
+    style: f040
+    spans:
+    - {text: '041  ', style: label}
+    - {text: 'Noto Sans Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f040}
+  - type: paragraph
+    style: f041
+    spans:
+    - {text: '042  ', style: label}
+    - {text: 'Noto Serif — The quick brown fox jumps over the lazy dog 0123456789', style: f041}
+  - type: paragraph
+    style: f042
+    spans:
+    - {text: '043  ', style: label}
+    - {text: 'Noto Serif Display — The quick brown fox jumps over the lazy dog 0123456789', style: f042}
+  - type: paragraph
+    style: f043
+    spans:
+    - {text: '044  ', style: label}
+    - {text: 'Open Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f043}
+  - type: paragraph
+    style: f044
+    spans:
+    - {text: '045  ', style: label}
+    - {text: 'Open Sans Condensed — The quick brown fox jumps over the lazy dog 0123456789', style: f044}
+  - type: paragraph
+    style: f045
+    spans:
+    - {text: '046  ', style: label}
+    - {text: 'P052 — The quick brown fox jumps over the lazy dog 0123456789', style: f045}
+  - type: paragraph
+    style: f046
+    spans:
+    - {text: '047  ', style: label}
+    - {text: 'Roboto Slab — The quick brown fox jumps over the lazy dog 0123456789', style: f046}
+  - type: paragraph
+    style: f047
+    spans:
+    - {text: '048  ', style: label}
+    - {text: 'Ubuntu — The quick brown fox jumps over the lazy dog 0123456789', style: f047}
+  - type: paragraph
+    style: f048
+    spans:
+    - {text: '049  ', style: label}
+    - {text: 'Ubuntu Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f048}
+  - type: paragraph
+    style: f049
+    spans:
+    - {text: '050  ', style: label}
+    - {text: 'Ubuntu Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f049}
+  - type: paragraph
+    style: f050
+    spans:
+    - {text: '051  ', style: label}
+    - {text: 'Ubuntu Sans Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f050}
+  - type: paragraph
+    style: f051
+    spans:
+    - {text: '052  ', style: label}
+    - {text: 'URW Bookman — The quick brown fox jumps over the lazy dog 0123456789', style: f051}
+  - type: paragraph
+    style: f052
+    spans:
+    - {text: '053  ', style: label}
+    - {text: 'URW Gothic — The quick brown fox jumps over the lazy dog 0123456789', style: f052}
+  - type: paragraph
+    style: f053
+    spans:
+    - {text: '054  ', style: label}
+    - {text: 'Utopia — The quick brown fox jumps over the lazy dog 0123456789', style: f053}
+  - type: paragraph
+    style: f054
+    spans:
+    - {text: '055  ', style: label}
+    - {text: 'Z003 — The quick brown fox jumps over the lazy dog 0123456789', style: f054}
+  - type: paragraph
+    style: f055
+    spans:
+    - {text: '056  ', style: label}
+    - {text: 'Bitstream Charter — The quick brown fox jumps over the lazy dog 0123456789', style: f055}
+  - type: paragraph
+    style: f056
+    spans:
+    - {text: '057  ', style: label}
+    - {text: 'C059 — The quick brown fox jumps over the lazy dog 0123456789', style: f056}
+  - type: paragraph
+    style: f057
+    spans:
+    - {text: '058  ', style: label}
+    - {text: 'Courier — The quick brown fox jumps over the lazy dog 0123456789', style: f057}
+  - type: paragraph
+    style: f058
+    spans:
+    - {text: '059  ', style: label}
+    - {text: 'DejaVu Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f058}
+  - type: paragraph
+    style: f059
+    spans:
+    - {text: '060  ', style: label}
+    - {text: 'DejaVu Sans Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f059}
+  - type: paragraph
+    style: f060
+    spans:
+    - {text: '061  ', style: label}
+    - {text: 'DejaVu Serif — The quick brown fox jumps over the lazy dog 0123456789', style: f060}
+  - type: paragraph
+    style: f061
+    spans:
+    - {text: '062  ', style: label}
+    - {text: 'Fira Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f061}
+  - type: paragraph
+    style: f062
+    spans:
+    - {text: '063  ', style: label}
+    - {text: 'Fira Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f062}
+  - type: paragraph
+    style: f063
+    spans:
+    - {text: '064  ', style: label}
+    - {text: 'Fira Sans Compressed — The quick brown fox jumps over the lazy dog 0123456789', style: f063}
+  - type: paragraph
+    style: f064
+    spans:
+    - {text: '065  ', style: label}
+    - {text: 'Fira Sans Condensed — The quick brown fox jumps over the lazy dog 0123456789', style: f064}
+  - type: paragraph
+    style: f065
+    spans:
+    - {text: '066  ', style: label}
+    - {text: 'FreeMono — The quick brown fox jumps over the lazy dog 0123456789', style: f065}
+  - type: paragraph
+    style: f066
+    spans:
+    - {text: '067  ', style: label}
+    - {text: 'FreeSans — The quick brown fox jumps over the lazy dog 0123456789', style: f066}
+  - type: paragraph
+    style: f067
+    spans:
+    - {text: '068  ', style: label}
+    - {text: 'FreeSerif — The quick brown fox jumps over the lazy dog 0123456789', style: f067}
+  - type: paragraph
+    style: f068
+    spans:
+    - {text: '069  ', style: label}
+    - {text: 'Latin Modern Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f068}
+  - type: paragraph
+    style: f069
+    spans:
+    - {text: '070  ', style: label}
+    - {text: 'Latin Modern Mono Caps — The quick brown fox jumps over the lazy dog 0123456789', style: f069}
+  - type: paragraph
+    style: f070
+    spans:
+    - {text: '071  ', style: label}
+    - {text: 'Latin Modern Mono Light — The quick brown fox jumps over the lazy dog 0123456789', style: f070}
+  - type: paragraph
+    style: f071
+    spans:
+    - {text: '072  ', style: label}
+    - {text: 'Latin Modern Mono Light Cond — The quick brown fox jumps over the lazy dog 0123456789', style: f071}
+  - type: paragraph
+    style: f072
+    spans:
+    - {text: '073  ', style: label}
+    - {text: 'Latin Modern Mono Prop — The quick brown fox jumps over the lazy dog 0123456789', style: f072}
+  - type: paragraph
+    style: f073
+    spans:
+    - {text: '074  ', style: label}
+    - {text: 'Latin Modern Mono Prop Light — The quick brown fox jumps over the lazy dog 0123456789', style: f073}
+  - type: paragraph
+    style: f074
+    spans:
+    - {text: '075  ', style: label}
+    - {text: 'Latin Modern Mono Slanted — The quick brown fox jumps over the lazy dog 0123456789', style: f074}
+  - type: paragraph
+    style: f075
+    spans:
+    - {text: '076  ', style: label}
+    - {text: 'Latin Modern Roman — The quick brown fox jumps over the lazy dog 0123456789', style: f075}
+  - type: paragraph
+    style: f076
+    spans:
+    - {text: '077  ', style: label}
+    - {text: 'Latin Modern Roman Caps — The quick brown fox jumps over the lazy dog 0123456789', style: f076}
+  - type: paragraph
+    style: f077
+    spans:
+    - {text: '078  ', style: label}
+    - {text: 'Latin Modern Roman Demi — The quick brown fox jumps over the lazy dog 0123456789', style: f077}
+  - type: paragraph
+    style: f078
+    spans:
+    - {text: '079  ', style: label}
+    - {text: 'Latin Modern Roman Dunhill — The quick brown fox jumps over the lazy dog 0123456789', style: f078}
+  - type: paragraph
+    style: f079
+    spans:
+    - {text: '080  ', style: label}
+    - {text: 'Latin Modern Roman Slanted — The quick brown fox jumps over the lazy dog 0123456789', style: f079}
+  - type: paragraph
+    style: f080
+    spans:
+    - {text: '081  ', style: label}
+    - {text: 'Latin Modern Roman Unslanted — The quick brown fox jumps over the lazy dog 0123456789', style: f080}
+  - type: paragraph
+    style: f081
+    spans:
+    - {text: '082  ', style: label}
+    - {text: 'Latin Modern Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f081}
+  - type: paragraph
+    style: f082
+    spans:
+    - {text: '083  ', style: label}
+    - {text: 'Latin Modern Sans Demi Cond — The quick brown fox jumps over the lazy dog 0123456789', style: f082}
+  - type: paragraph
+    style: f083
+    spans:
+    - {text: '084  ', style: label}
+    - {text: 'Latin Modern Sans Quotation — The quick brown fox jumps over the lazy dog 0123456789', style: f083}
+  - type: paragraph
+    style: f084
+    spans:
+    - {text: '085  ', style: label}
+    - {text: 'Liberation Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f084}
+  - type: paragraph
+    style: f085
+    spans:
+    - {text: '086  ', style: label}
+    - {text: 'Liberation Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f085}
+  - type: paragraph
+    style: f086
+    spans:
+    - {text: '087  ', style: label}
+    - {text: 'Liberation Sans Narrow — The quick brown fox jumps over the lazy dog 0123456789', style: f086}
+  - type: paragraph
+    style: f087
+    spans:
+    - {text: '088  ', style: label}
+    - {text: 'Liberation Serif — The quick brown fox jumps over the lazy dog 0123456789', style: f087}
+  - type: paragraph
+    style: f088
+    spans:
+    - {text: '089  ', style: label}
+    - {text: 'Nimbus Mono PS — The quick brown fox jumps over the lazy dog 0123456789', style: f088}
+  - type: paragraph
+    style: f089
+    spans:
+    - {text: '090  ', style: label}
+    - {text: 'Nimbus Roman — The quick brown fox jumps over the lazy dog 0123456789', style: f089}
+  - type: paragraph
+    style: f090
+    spans:
+    - {text: '091  ', style: label}
+    - {text: 'Nimbus Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f090}
+  - type: paragraph
+    style: f091
+    spans:
+    - {text: '092  ', style: label}
+    - {text: 'Nimbus Sans Narrow — The quick brown fox jumps over the lazy dog 0123456789', style: f091}
+  - type: paragraph
+    style: f092
+    spans:
+    - {text: '093  ', style: label}
+    - {text: 'Noto Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f092}
+  - type: paragraph
+    style: f093
+    spans:
+    - {text: '094  ', style: label}
+    - {text: 'Noto Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f093}
+  - type: paragraph
+    style: f094
+    spans:
+    - {text: '095  ', style: label}
+    - {text: 'Noto Sans Display — The quick brown fox jumps over the lazy dog 0123456789', style: f094}
+  - type: paragraph
+    style: f095
+    spans:
+    - {text: '096  ', style: label}
+    - {text: 'Noto Sans Mono — The quick brown fox jumps over the lazy dog 0123456789', style: f095}
+  - type: paragraph
+    style: f096
+    spans:
+    - {text: '097  ', style: label}
+    - {text: 'Noto Serif — The quick brown fox jumps over the lazy dog 0123456789', style: f096}
+  - type: paragraph
+    style: f097
+    spans:
+    - {text: '098  ', style: label}
+    - {text: 'Noto Serif Display — The quick brown fox jumps over the lazy dog 0123456789', style: f097}
+  - type: paragraph
+    style: f098
+    spans:
+    - {text: '099  ', style: label}
+    - {text: 'Open Sans — The quick brown fox jumps over the lazy dog 0123456789', style: f098}
+  - type: paragraph
+    style: f099
+    spans:
+    - {text: '100  ', style: label}
+    - {text: 'Open Sans Condensed — The quick brown fox jumps over the lazy dog 0123456789', style: f099}

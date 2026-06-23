@@ -1,0 +1,965 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Google Calendar 3-day view (fixture)
+description: Mobile calendar 3-day view; hour grid via the patched grid layout (§3.6).
+lang: en
+defs:
+  tokens:
+    colors:
+      bg: '#202124'
+      bar_bg: '#202124'
+      cell: '#0E0F11'
+      text_primary: '#E8EAED'
+      text_secondary: '#9AA0A6'
+      body_text: '#D6D8DB'
+      accent_link: '#7FD0C0'
+      today_fill: '#A7D7C5'
+      today_text: '#0B3D2E'
+      event_blue: '#5C8BD6'
+      event_text: '#FFFFFF'
+      now_line: '#4F89F0'
+      purple: '#8E8FD8'
+      divider: '#3C4043'
+      icon: '#E8EAED'
+      fab_bg: '#2F4F4A'
+      fab_plus: '#D7F0E8'
+      fab_pencil: '#2A2B2D'
+    fonts:
+      sans:
+        family: DejaVu Sans
+        fallback:
+        - Roboto
+        - Arial
+        - sans-serif
+    glyph_map:
+      menu: ≡
+      search: ⌕
+      check: ✓
+      close: ✕
+      dropdown: ▾
+      edit: ✎
+    stroke_styles:
+      thin_icon:
+        stroke: icon
+        stroke_width: 1.5
+      ring:
+        stroke: accent_link
+        stroke_width: 2
+      divider:
+        stroke: divider
+        stroke_width: 1
+      now:
+        stroke: now_line
+        stroke_width: 2.5
+    text_styles:
+      top_month:
+        font: sans
+        size: 22
+        weight: 500
+        color: text_primary
+      tiny:
+        font: sans
+        size: 10
+        weight: 600
+        color: icon
+        align: center
+      bn_title:
+        font: sans
+        size: 19
+        weight: 500
+        color: text_primary
+        wrap: true
+        line_height: 1.2
+      bn_body:
+        font: sans
+        size: 16
+        weight: 400
+        color: body_text
+        wrap: true
+        line_height: 1.3
+      bn_link:
+        font: sans
+        size: 18
+        weight: 600
+        color: accent_link
+      day_name:
+        font: sans
+        size: 16
+        weight: 600
+        color: text_secondary
+        align: center
+      day_name_today:
+        font: sans
+        size: 16
+        weight: 600
+        color: accent_link
+        align: center
+      day_num:
+        font: sans
+        size: 24
+        weight: 500
+        color: text_primary
+        align: center
+      day_num_today:
+        font: sans
+        size: 24
+        weight: 600
+        color: today_text
+        align: center
+        v_align: middle
+      time_label:
+        font: sans
+        size: 14
+        weight: 400
+        color: text_secondary
+        align: right
+      event:
+        font: sans
+        size: 15
+        weight: 500
+        color: event_text
+        overflow: clip
+        text_overflow: clip
+      fab_plus:
+        font: sans
+        size: 30
+        weight: 400
+        color: fab_plus
+        align: center
+        v_align: middle
+pages:
+- mode: page
+  id: calendar-3day
+  canvas:
+    size:
+    - 412
+    - 1040
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    z: 0
+    objects:
+    - type: rect
+      id: bg
+      box:
+      - 0
+      - 0
+      - 412
+      - 1040
+      fill: bg
+  - id: grid
+    z: 1
+    objects:
+    - type: group
+      id: hourgrid
+      box:
+      - 56
+      - 392
+      - 348
+      - 666
+      layout:
+        kind: grid
+        columns: 3
+        gap: 6
+      children:
+      - type: rect
+        id: cell_4_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_4_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_4_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_5_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_5_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_5_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_6_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_6_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_6_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_7_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_7_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_7_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_8_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_8_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_8_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_9_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_9_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_9_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_10_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_10_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_10_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_11_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_11_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_11_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_12_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_12_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_12_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_13_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_13_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_13_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_14_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_14_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_14_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_15_0
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_15_1
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+      - type: rect
+        id: cell_15_2
+        box:
+        - 0
+        - 0
+        - 112
+        - 50
+        fill: cell
+        radius: 6
+  - id: overlay
+    z: 2
+    objects:
+    - type: text
+      id: t4
+      text: 04:00
+      box:
+      - 4
+      - 384
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t5
+      text: 05:00
+      box:
+      - 4
+      - 440
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t6
+      text: 06:00
+      box:
+      - 4
+      - 496
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t7
+      text: 07:00
+      box:
+      - 4
+      - 552
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t8
+      text: 08:00
+      box:
+      - 4
+      - 608
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t9
+      text: 09:00
+      box:
+      - 4
+      - 664
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t10
+      text: '10:00'
+      box:
+      - 4
+      - 720
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t11
+      text: '11:00'
+      box:
+      - 4
+      - 776
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t12
+      text: '12:00'
+      box:
+      - 4
+      - 832
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t13
+      text: '13:00'
+      box:
+      - 4
+      - 888
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t14
+      text: '14:00'
+      box:
+      - 4
+      - 944
+      - 48
+      - 16
+      style: time_label
+    - type: text
+      id: t15
+      text: '15:00'
+      box:
+      - 4
+      - 1000
+      - 48
+      - 16
+      style: time_label
+    - type: rect
+      id: ev_sc_bg0
+      box:
+      - 56
+      - 532.0
+      - 112
+      - 53.199999999999996
+      fill: event_blue
+      radius: 8
+    - type: text
+      id: ev_sc_t0
+      text: School comute
+      box:
+      - 64
+      - 538.0
+      - 98
+      - 20
+      style: event
+    - type: rect
+      id: ev_sc_bg1
+      box:
+      - 174
+      - 532.0
+      - 112
+      - 53.199999999999996
+      fill: event_blue
+      radius: 8
+    - type: text
+      id: ev_sc_t1
+      text: School comute
+      box:
+      - 182
+      - 538.0
+      - 98
+      - 20
+      style: event
+    - type: rect
+      id: ev_sc_bg2
+      box:
+      - 292
+      - 532.0
+      - 112
+      - 53.199999999999996
+      fill: event_blue
+      radius: 8
+    - type: text
+      id: ev_sc_t2
+      text: School comute
+      box:
+      - 300
+      - 538.0
+      - 98
+      - 20
+      style: event
+    - type: ellipse
+      id: now_dot
+      center:
+      - 176
+      - 886.48
+      rx: 3
+      ry: 3
+      fill: now_line
+    - type: line
+      id: now_line
+      from:
+      - 174
+      - 886.48
+      to:
+      - 286
+      - 886.48
+      stroke_style: now
+    - type: rect
+      id: ev_nina_bg
+      box:
+      - 174
+      - 1008
+      - 112
+      - 53.199999999999996
+      fill: event_blue
+      radius: 8
+    - type: text
+      id: ev_nina_t
+      text: '@NINA'
+      box:
+      - 182
+      - 1014
+      - 98
+      - 20
+      style: event
+  - id: chrome
+    z: 3
+    objects:
+    - type: rect
+      id: topbar
+      box:
+      - 0
+      - 0
+      - 412
+      - 56
+      fill: bar_bg
+    - type: icon
+      id: ic_menu
+      glyph: menu
+      box:
+      - 16
+      - 18
+      - 24
+      - 24
+      color: icon
+      size: 20
+    - type: text
+      id: month
+      text: June
+      box:
+      - 54
+      - 16
+      - 70
+      - 28
+      style: top_month
+    - type: icon
+      id: ic_drop
+      glyph: dropdown
+      box:
+      - 124
+      - 24
+      - 16
+      - 16
+      color: icon
+      size: 20
+    - type: icon
+      id: ic_search
+      glyph: search
+      box:
+      - 248
+      - 18
+      - 24
+      - 24
+      color: icon
+      size: 20
+    - type: rect
+      id: ic_cal
+      box:
+      - 294
+      - 18
+      - 28
+      - 24
+      stroke_style: thin_icon
+      radius: 4
+    - type: text
+      id: ic_cal_n
+      text: '22'
+      box:
+      - 294
+      - 24
+      - 28
+      - 12
+      style: tiny
+    - type: icon
+      id: ic_check
+      glyph: check
+      box:
+      - 342
+      - 18
+      - 24
+      - 24
+      color: icon
+      size: 20
+    - type: ellipse
+      id: avatar_ring
+      center:
+      - 388
+      - 30
+      rx: 17
+      ry: 17
+      stroke_style: ring
+    - type: image
+      id: avatar
+      src: assets/avatar.png
+      box:
+      - 372
+      - 14
+      - 32
+      - 32
+      placeholder: true
+      clip:
+        shape: ellipse
+    - type: rect
+      id: bn_icon
+      box:
+      - 24
+      - 92
+      - 40
+      - 40
+      fill: purple
+      radius: 8
+    - type: text
+      id: bn_title
+      text: Shared calendar created for your family
+      box:
+      - 76
+      - 84
+      - 280
+      - 64
+      style: bn_title
+    - type: icon
+      id: bn_close
+      glyph: close
+      box:
+      - 372
+      - 92
+      - 24
+      - 24
+      color: icon
+      size: 20
+    - type: text
+      id: bn_body
+      text: The 'Family' calendar has been automatically created for your Google family. Add events on this calendar for members
+        to see.
+      box:
+      - 76
+      - 152
+      - 300
+      - 150
+      style: bn_body
+    - type: text
+      id: bn_link1
+      text: Add an event
+      box:
+      - 56
+      - 262
+      - 170
+      - 30
+      style: bn_link
+    - type: text
+      id: bn_link2
+      text: Review members
+      box:
+      - 240
+      - 262
+      - 170
+      - 30
+      style: bn_link
+    - type: line
+      id: bn_div
+      from:
+      - 0
+      - 308
+      to:
+      - 412
+      - 308
+      stroke_style: divider
+    - type: text
+      id: dh_name0
+      text: Mon
+      box:
+      - 72.0
+      - 322
+      - 80
+      - 20
+      style: day_name_today
+    - type: ellipse
+      id: today_circle
+      center:
+      - 112.0
+      - 356
+      rx: 20
+      ry: 20
+      fill: today_fill
+    - type: text
+      id: dh_num0
+      text: '22'
+      box:
+      - 96.0
+      - 344
+      - 32
+      - 26
+      style: day_num_today
+    - type: text
+      id: dh_name1
+      text: Tue
+      box:
+      - 190.0
+      - 322
+      - 80
+      - 20
+      style: day_name
+    - type: text
+      id: dh_num1
+      text: '23'
+      box:
+      - 210.0
+      - 344
+      - 40
+      - 28
+      style: day_num
+    - type: text
+      id: dh_name2
+      text: Wed
+      box:
+      - 308.0
+      - 322
+      - 80
+      - 20
+      style: day_name
+    - type: text
+      id: dh_num2
+      text: '24'
+      box:
+      - 328.0
+      - 344
+      - 40
+      - 28
+      style: day_num
+  - id: fabs
+    z: 4
+    objects:
+    - type: ellipse
+      id: pencil_bg
+      center:
+      - 388
+      - 406
+      rx: 24
+      ry: 24
+      fill: fab_pencil
+    - type: icon
+      id: pencil
+      glyph: edit
+      box:
+      - 376
+      - 394
+      - 24
+      - 24
+      color: icon
+      size: 18
+    - type: rect
+      id: fab
+      box:
+      - 344
+      - 956
+      - 56
+      - 56
+      fill: fab_bg
+      radius: 16
+    - type: text
+      id: fab_plus
+      text: +
+      box:
+      - 344
+      - 956
+      - 56
+      - 56
+      style: fab_plus
+  notes: Google Calendar 3-day view; hour grid uses the patched grid layout.
+meta:
+  disclaimer: Nothing here is authoritative. Layout text is transcribed from the screenshot (including the source typo 'School
+    comute'); coordinates, the dark-theme palette, icon glyphs, and the simplified avatar ring are [APPROX].
+  source: 'User-supplied screenshot: Screenshot_20260622_001747_Calendar.png'
+  requires_patch: framegraph-v2-patch-nesting-textfit.md — §3.6 grid layout + nesting; §3.7 text clip on events
+  generated_by: gen_calendar.py (spec §9.7 external generator)
+  open_questions:
+  - Overlays use the same PITCH the grid layout computes; a renderer whose grid spacing differs would misalign events.
+  - The 12:50 'now' line vs the 00:17 capture time suggests the indicator is not the wall-clock now-line; modeled as a thin
+    blue line as seen.
