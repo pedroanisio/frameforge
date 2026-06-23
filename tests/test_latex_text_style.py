@@ -356,6 +356,51 @@ def test_raw_css_text_spacing_applies_to_spans():
     assert "{\\spaceskip=8pt span words}" in tex
 
 
+def test_raw_css_font_stretch_maps_to_latex_fake_stretch():
+    tex = _fig({"label": {"css": "font-stretch: condensed"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "Condensed",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{FakeStretch=0.75}" in tex
+
+
+def test_raw_css_font_feature_settings_map_to_latex_raw_features():
+    tex = _fig({"label": {"css": 'font-feature-settings: "smcp" 1, "liga" 1'}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "Small Caps ffi",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{RawFeature={+smcp,+liga}}" in tex
+
+
+def test_raw_css_font_variant_numeric_maps_to_latex_numbers_features():
+    tex = _fig({"label": {"css": "font-variant-numeric: tabular-nums slashed-zero"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "1234567 0",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{Numbers=Monospaced}" in tex
+    assert "\\addfontfeatures{Numbers=SlashedZero}" in tex
+
+
+def test_raw_css_font_size_and_weight_feed_latex_font_selection():
+    tex = _fig({"label": {"css": "font-weight: 800; font-size: 24px"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "text": "Outlined",
+        "style": "label",
+    })
+
+    assert "\\fontsize{24}{26.88}\\selectfont\\bfseries" in tex
+
+
 def test_text_indent_maps_to_initial_hspace():
     tex = _fig({"label": {"text_indent": "12px"}}).render({
         "type": "text",

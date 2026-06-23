@@ -1250,11 +1250,23 @@ class FigureTikz:
         if not isinstance(st, dict) or not isinstance(st.get("css"), str):
             return st
         out = dict(st)
-        for css_name, key in (("letter-spacing", "letter_spacing"), ("word-spacing", "word_spacing")):
+        for css_name, key in (
+            ("letter-spacing", "letter_spacing"),
+            ("word-spacing", "word_spacing"),
+            ("font-stretch", "font_stretch"),
+            ("font-feature-settings", "font_feature_settings"),
+            ("font-variant-numeric", "font_variant_numeric"),
+        ):
             if out.get(key) is None:
                 value = self._css_decl(out, css_name)
                 if value is not None:
                     out[key] = value
+        if self._css_decl(out, "font-size") is not None:
+            out["size"] = num(self._css_decl(out, "font-size"), out.get("size", 12))
+        weight = self._css_decl(out, "font-weight")
+        if weight is not None and out.get("weight") in (None, "normal"):
+            out["weight"] = weight
+            out["bold"] = str(weight).strip().lower() == "bold" or (num(weight, 0) or 0) >= 600
         return out
 
     @staticmethod
