@@ -340,6 +340,56 @@ def test_preformatted_white_space_preserves_newlines():
     assert "{Line 1\\\\Line 2}" in tex
 
 
+def test_text_wrap_wrap_keeps_tikz_text_width():
+    tex = _fig({"label": {"text_wrap": "wrap"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 40],
+        "text": "wrapped",
+        "style": "label",
+    })
+
+    assert "text width=160pt" in tex
+    assert "align=flush left" in tex
+
+
+def test_text_wrap_nowrap_uses_natural_width_node():
+    tex = _fig({"label": {"text_wrap": "nowrap"}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 40],
+        "text": "no wrap",
+        "style": "label",
+    })
+
+    assert "text width=160pt" not in tex
+    assert "align=flush left" not in tex
+    assert "{no wrap}" in tex
+
+
+def test_false_wrap_alias_uses_nowrap_node():
+    tex = _fig({"label": {"wrap": False}}).render({
+        "type": "text",
+        "box": [10, 20, 160, 40],
+        "text": "alias",
+        "style": "label",
+    })
+
+    assert "text width=160pt" not in tex
+    assert "{alias}" in tex
+
+
+def test_text_wrap_nowrap_applies_to_spans():
+    tex = _fig().render({
+        "type": "text",
+        "box": [10, 20, 160, 30],
+        "spans": [
+            {"text": "Run", "style": {"text_wrap": "nowrap"}},
+        ],
+    })
+
+    assert "text width=18.72pt" not in tex
+    assert "{Run}" in tex
+
+
 def test_line_clamp_keeps_first_explicit_lines():
     tex = _fig({"label": {"white_space": "pre-wrap", "max_lines": 2}}).render({
         "type": "text",

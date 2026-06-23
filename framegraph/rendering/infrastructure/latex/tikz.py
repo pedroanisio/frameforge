@@ -1034,10 +1034,13 @@ class FigureTikz:
         opts = [
             f"anchor={anchor}",
             "inner sep=0pt",
-            f"text width={fnum(max(width, 1))}pt",
-            f"align={align}",
             f"font={self._font(st)}",
         ]
+        if self._wrap_text_enabled(st):
+            opts.extend([
+                f"text width={fnum(max(width, 1))}pt",
+                f"align={align}",
+            ])
         cexpr, op = color_expr(st.get("color"))
         if cexpr:
             opts.append(f"text={cexpr}")
@@ -1045,6 +1048,17 @@ class FigureTikz:
             opts.append(f"text opacity={fnum(op)}")
         opts.extend(self._writing_mode_opts(st))
         return opts
+
+    @staticmethod
+    def _wrap_text_enabled(st):
+        if not isinstance(st, dict):
+            return True
+        if st.get("nowrap") is True:
+            return False
+        value = st.get("text_wrap")
+        if value is None and "wrap" in st:
+            value = "wrap" if st.get("wrap") else "nowrap"
+        return str(value or "wrap").strip().lower() != "nowrap"
 
     @staticmethod
     def _writing_mode_opts(st):
