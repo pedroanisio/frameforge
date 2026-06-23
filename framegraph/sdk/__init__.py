@@ -11,7 +11,7 @@ from framegraph.sdk.draw import Frame, Scene3D
 from framegraph.sdk.expand import ExpandOptions, ExpandedDocument, expand
 from framegraph.sdk.geometry import CubicBezier, Mat3, Mat4, Path, Vec2, Vec3
 from framegraph.sdk.io import parse, serialize
-from framegraph.sdk.macros import md, paragraph, theme
+from framegraph.sdk.macros import lorem, lorem_paragraphs, md, paragraph, theme
 from framegraph.sdk.model import HEAD_VERSION, Document, model_module
 from framegraph.sdk.validate import Issue, ValidationReport, validate_static_rules
 
@@ -33,6 +33,8 @@ __all__ = [
     "Vec2",
     "Vec3",
     "expand",
+    "lorem",
+    "lorem_paragraphs",
     "md",
     "model_module",
     "paragraph",

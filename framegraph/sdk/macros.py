@@ -59,4 +59,76 @@ def paragraph(text: str, **fields: Any) -> dict[str, Any]:
     return {"type": "paragraph", "spans": spans, **fields}
 
 
-__all__ = ["md", "paragraph", "theme"]
+# Classic lorem-ipsum word pool and the canonical opening clause.
+_LOREM_WORDS = (
+    "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor "
+    "incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud "
+    "exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute "
+    "irure in reprehenderit voluptate velit esse cillum eu fugiat nulla pariatur "
+    "excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt "
+    "mollit anim id est laborum"
+).split()
+_LOREM_OPENER = "lorem ipsum dolor sit amet consectetur adipiscing elit".split()
+# Varying sentence lengths so output reads like prose, not a fixed grid.
+_LOREM_SENT_LENS = (8, 12, 6, 14, 9, 11, 7, 13, 10)
+
+
+def _lorem_sentence(words: list[str]) -> str:
+    """Join words into one capitalised, period-terminated sentence with a comma."""
+    words = list(words)
+    if len(words) >= 6:
+        i = len(words) * 3 // 5
+        words[i] = words[i] + ","
+    text = " ".join(words)
+    return text[:1].upper() + text[1:] + "."
+
+
+def lorem(sentences: int = 3, *, words: int | None = None,
+          start: bool = True, offset: int = 0) -> str:
+    """Return deterministic lorem-ipsum filler text.
+
+    By default returns ``sentences`` sentences of varying length. Pass ``words``
+    to instead return exactly that many words as one capitalised, period-ended
+    string. ``start`` opens with the canonical "Lorem ipsum dolor sit amet …".
+    ``offset`` rotates the word stream so repeated calls can differ. The output
+    is purely a function of the arguments (no RNG), so fixtures and golden
+    renders stay stable. See :func:`lorem_paragraphs` for multi-paragraph text.
+    """
+    pool = _LOREM_WORDS
+    if words is not None:
+        n = max(1, int(words))
+        if start:
+            tail = [pool[(offset + i) % len(pool)]
+                    for i in range(max(0, n - len(_LOREM_OPENER)))]
+            picked = (_LOREM_OPENER + tail)[:n]
+        else:
+            picked = [pool[(offset + i) % len(pool)] for i in range(n)]
+        return _lorem_sentence(picked)
+
+    out: list[str] = []
+    idx = offset
+    for s in range(max(1, int(sentences))):
+        length = _LOREM_SENT_LENS[(s + offset) % len(_LOREM_SENT_LENS)]
+        if s == 0 and start:
+            picked = list(_LOREM_OPENER)
+        else:
+            picked = [pool[(idx + i) % len(pool)] for i in range(length)]
+            idx += length
+        out.append(_lorem_sentence(picked))
+    return " ".join(out)
+
+
+def lorem_paragraphs(count: int = 1, *, sentences: int = 4, start: bool = True) -> list[str]:
+    """Return ``count`` lorem-ipsum paragraphs as a list of strings.
+
+    Each paragraph is rotated so they differ; only the first opens with the
+    canonical "Lorem ipsum …" when ``start`` is true. Handy for filling a
+    ``mode: flow`` story or several text boxes.
+    """
+    return [
+        lorem(sentences=sentences, start=(start and i == 0), offset=i * 7)
+        for i in range(max(1, int(count)))
+    ]
+
+
+__all__ = ["lorem", "lorem_paragraphs", "md", "paragraph", "theme"]

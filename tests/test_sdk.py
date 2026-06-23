@@ -23,6 +23,8 @@ from framegraph.sdk import (
     Scene3D,
     Vec2,
     expand,
+    lorem,
+    lorem_paragraphs,
     md,
     paragraph,
     parse,
@@ -321,3 +323,30 @@ def test_conformance_page_hashes_are_stable():
     hashes = page_hashes(_minimal_doc())
     assert len(hashes) == 1
     assert len(hashes[0]) == 64
+
+
+def test_macros_lorem_is_deterministic_and_shaped():
+    # default: canonical opening, deterministic, sentence-terminated
+    text = lorem()
+    assert text.startswith("Lorem ipsum dolor sit amet")
+    assert text == lorem(), "lorem() must be deterministic (no RNG)"
+    assert text.endswith(".")
+
+    # words mode returns exactly N words as one capitalised sentence
+    five = lorem(words=5)
+    assert five == "Lorem ipsum dolor sit amet."
+    assert len(lorem(words=12, start=False).rstrip(".").split()) == 12
+
+    # sentence count is honoured
+    assert lorem(sentences=3).count(".") == 3
+
+    # offset rotates the stream; paragraphs differ but only the first opens canonically
+    paras = lorem_paragraphs(3, sentences=2)
+    assert len(paras) == 3
+    assert paras[0].startswith("Lorem ipsum")
+    assert not paras[1].startswith("Lorem ipsum")
+    assert paras[1] != paras[2]
+
+    # usable as flow paragraph text via the existing macro
+    flow = paragraph(lorem(words=8))
+    assert flow["type"] == "paragraph" and flow["text"].endswith(".")
