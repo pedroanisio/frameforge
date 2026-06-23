@@ -137,3 +137,31 @@ def test_list_form_quadratic_path_segments_convert_to_tikz_cubic_controls():
 
     assert ".. controls (20,40) and (40,40) .. (60,0)" in tex
     assert ".. controls (80,-40) and (100,-40) .. (120,0)" in tex
+
+
+def test_svg_arc_path_command_converts_to_tikz_cubic_controls():
+    tex = _fig().render({
+        "type": "path",
+        "d": "M 0 0 A 50 50 0 0 1 50 50",
+        "stroke": "ink",
+        "fill": "none",
+        "stroke_style": {"stroke_width": 2},
+    })
+
+    assert "(0,0)" in tex
+    assert ".. controls (27.614,0) and (50,22.386) .. (50,50)" in tex
+    assert "-- (50,50)" not in tex
+
+
+def test_list_form_arc_path_segments_convert_to_tikz_cubic_controls():
+    tex = _fig().render({
+        "type": "path",
+        "d": [["M", 0, 40], ["A", 40, 20, 0, 0, 1, 80, 40], ["Z"]],
+        "stroke": "ink",
+        "fill": "none",
+        "stroke_style": {"stroke_width": 2},
+    })
+
+    assert ".. controls (0,28.954) and (17.909,20) .. (40,20)" in tex
+    assert ".. controls (62.091,20) and (80,28.954) .. (80,40)" in tex
+    assert "-- cycle" in tex

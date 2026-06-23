@@ -1294,7 +1294,7 @@ class FigureTikz:
             return self._path_segments(d)
         if not isinstance(d, str):
             return ""
-        tokens = re.findall(r"[MmLlHhVvCcSsQqTtZz]|-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?", d.replace(",", " "))
+        tokens = re.findall(r"[MmLlHhVvCcSsQqTtAaZz]|-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?", d.replace(",", " "))
         out, cmd, cur, start, i = [], None, (0.0, 0.0), (0.0, 0.0), 0
         last_cubic_ctrl = None
         last_quad_ctrl = None
@@ -1416,6 +1416,21 @@ class FigureTikz:
                 last_cubic_ctrl = None
                 last_quad_ctrl = control
                 out.append(quad(control, cur, start_point))
+            elif c == "A":
+                vals = [num(tokens[i + j], None) for j in range(7)] if i + 6 < len(tokens) else []
+                i += 7
+                if len(vals) != 7 or any(v is None for v in vals):
+                    break
+                rx, ry, rot, large, sweep, x, y = vals
+                end = (cur[0] + x, cur[1] + y) if rel else (x, y)
+                segments = self._arc_to_cubics(cur, rx, ry, rot, large, sweep, end)
+                if not segments:
+                    out.append(f"-- ({fnum(end[0])},{fnum(end[1])})")
+                else:
+                    out.extend(cubic(c1, c2, p) for c1, c2, p in segments)
+                cur = end
+                last_cubic_ctrl = segments[-1][1] if segments else None
+                last_quad_ctrl = None
             elif c == "Z":
                 cur = start
                 out.append("-- cycle")
@@ -1487,12 +1502,99 @@ class FigureTikz:
                 last_cubic_ctrl = None
                 last_quad_ctrl = control
                 out.append(quad(control, cur, start_point))
+            elif cmd == "A" and len(vals) >= 7:
+                end = ((cur[0] + vals[5], cur[1] + vals[6]) if rel else (vals[5], vals[6]))
+                segments = self._arc_to_cubics(cur, vals[0], vals[1], vals[2], vals[3], vals[4], end)
+                if not segments:
+                    out.append(f"-- ({fnum(end[0])},{fnum(end[1])})")
+                else:
+                    out.extend(cubic(c1, c2, p) for c1, c2, p in segments)
+                cur = end
+                last_cubic_ctrl = segments[-1][1] if segments else None
+                last_quad_ctrl = None
             elif cmd == "Z":
                 cur = start
                 last_cubic_ctrl = None
                 last_quad_ctrl = None
                 out.append("-- cycle")
         return " ".join(out)
+
+    @staticmethod
+    def _arc_to_cubics(start, rx, ry, rotation, large_arc, sweep, end):
+        """Convert one SVG elliptical arc segment to cubic Bezier segments."""
+        x1, y1 = start
+        x2, y2 = end
+        if abs(x1 - x2) < 1e-9 and abs(y1 - y2) < 1e-9:
+            return []
+        rx, ry = abs(num(rx, 0) or 0), abs(num(ry, 0) or 0)
+        if rx <= 0 or ry <= 0:
+            return []
+
+        phi = math.radians(num(rotation, 0) or 0)
+        cos_phi, sin_phi = math.cos(phi), math.sin(phi)
+        dx2, dy2 = (x1 - x2) / 2, (y1 - y2) / 2
+        x1p = cos_phi * dx2 + sin_phi * dy2
+        y1p = -sin_phi * dx2 + cos_phi * dy2
+
+        lam = (x1p * x1p) / (rx * rx) + (y1p * y1p) / (ry * ry)
+        if lam > 1:
+            scale = math.sqrt(lam)
+            rx *= scale
+            ry *= scale
+
+        rx2, ry2 = rx * rx, ry * ry
+        x1p2, y1p2 = x1p * x1p, y1p * y1p
+        denom = rx2 * y1p2 + ry2 * x1p2
+        if denom <= 0:
+            return []
+        sign = -1 if bool(int(num(large_arc, 0) or 0)) == bool(int(num(sweep, 0) or 0)) else 1
+        factor = sign * math.sqrt(max(0, (rx2 * ry2 - rx2 * y1p2 - ry2 * x1p2) / denom))
+        cxp = factor * rx * y1p / ry
+        cyp = factor * -ry * x1p / rx
+        cx = cos_phi * cxp - sin_phi * cyp + (x1 + x2) / 2
+        cy = sin_phi * cxp + cos_phi * cyp + (y1 + y2) / 2
+
+        def angle_between(ux, uy, vx, vy):
+            dot = ux * vx + uy * vy
+            length = math.hypot(ux, uy) * math.hypot(vx, vy)
+            if length <= 0:
+                return 0.0
+            ang = math.acos(max(-1, min(1, dot / length)))
+            return -ang if ux * vy - uy * vx < 0 else ang
+
+        ux, uy = (x1p - cxp) / rx, (y1p - cyp) / ry
+        vx, vy = (-x1p - cxp) / rx, (-y1p - cyp) / ry
+        theta1 = angle_between(1, 0, ux, uy)
+        delta = angle_between(ux, uy, vx, vy)
+        if not bool(int(num(sweep, 0) or 0)) and delta > 0:
+            delta -= 2 * math.pi
+        elif bool(int(num(sweep, 0) or 0)) and delta < 0:
+            delta += 2 * math.pi
+
+        count = max(1, int(math.ceil(abs(delta) / (math.pi / 2))))
+        step = delta / count
+        segments = []
+        for idx in range(count):
+            t1 = theta1 + idx * step
+            t2 = t1 + step
+            alpha = 4 / 3 * math.tan((t2 - t1) / 4)
+            p1 = (math.cos(t1), math.sin(t1))
+            p2 = (math.cos(t2), math.sin(t2))
+            c1 = (p1[0] - alpha * p1[1], p1[1] + alpha * p1[0])
+            c2 = (p2[0] + alpha * p2[1], p2[1] - alpha * p2[0])
+
+            def map_point(p):
+                px, py = p[0] * rx, p[1] * ry
+                return (
+                    cos_phi * px - sin_phi * py + cx,
+                    sin_phi * px + cos_phi * py + cy,
+                )
+
+            segments.append((map_point(c1), map_point(c2), map_point(p2)))
+        if segments:
+            c1, c2, _p = segments[-1]
+            segments[-1] = (c1, c2, end)
+        return segments
 
     # -- text -------------------------------------------------------------- #
     def _font(self, st):

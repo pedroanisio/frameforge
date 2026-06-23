@@ -150,3 +150,16 @@ def test_path_clip_accepts_svg_quadratic_commands():
 
     assert "\\clip (0,80) .. controls (40,26.667) and (80,26.667) .. (120,80) -- cycle;" in tex
     assert tex.index("\\clip") < tex.index("(0,0) rectangle (120,80)")
+
+
+def test_path_clip_accepts_svg_arc_commands():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 80, 40],
+        "fill": "#ffffff",
+        "style": {"clip_path": {"shape": "path", "args": {"d": "M 0 40 A 40 20 0 0 1 80 40 Z"}}},
+    })
+
+    assert "\\clip (0,40) .. controls (0,28.954) and (17.909,20) .. (40,20)" in tex
+    assert ".. controls (62.091,20) and (80,28.954) .. (80,40) -- cycle;" in tex
+    assert tex.index("\\clip") < tex.index("(0,0) rectangle (80,40)")
