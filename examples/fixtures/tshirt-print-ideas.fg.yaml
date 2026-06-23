@@ -1,0 +1,1220 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: T-shirt print ideas - armored hero vector
+lang: en
+defs:
+  tokens:
+    text_styles:
+      caption:
+        color: '#202020'
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 18
+pages:
+- mode: page
+  id: tshirt_print_ideas
+  canvas:
+    size:
+    - 736.0
+    - 1308.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 736
+      - 1308
+      type: rect
+      fill: '#FFFFFF'
+    - decorative: true
+      type: ellipse
+      center:
+      - 456.0
+      - 166.0
+      rx: 150.0
+      ry: 70.0
+      fill: rgba(246,240,220,0.35)
+    - decorative: true
+      type: ellipse
+      center:
+      - 428.0
+      - 328.0
+      rx: 230.0
+      ry: 290.0
+      fill: rgba(242,217,101,0.08)
+    - stroke_style:
+        stroke_width: 3.5
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 360.0
+        - 520.0
+      - - 520.0
+        - 470.0
+      - - 604.0
+        - 720.0
+      - - 488.0
+        - 780.0
+      - - 326.0
+        - 690.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#ED102A'
+          position: 0%
+        - color: '#2A0208'
+          position: 100%
+        angle: 52.3
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 520.0
+        - 516.0
+      - - 640.0
+        - 590.0
+      - - 662.0
+        - 798.0
+      - - 530.0
+        - 734.0
+      closed: true
+      fill: '#15131A'
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 2.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 506.0
+        - 572.0
+      - - 606.0
+        - 642.0
+      - - 624.0
+        - 744.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - stroke_style:
+        stroke_width: 2.1
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 386.0
+        - 590.0
+      - - 462.0
+        - 742.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - stroke_style:
+        stroke_width: 4.2
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 245.0
+        - 92.0
+      - - 382.0
+        - 56.0
+      - - 520.0
+        - 84.0
+      - - 666.0
+        - 176.0
+      - - 720.0
+        - 324.0
+      - - 690.0
+        - 486.0
+      - - 594.0
+        - 538.0
+      - - 492.0
+        - 510.0
+      - - 424.0
+        - 556.0
+      - - 298.0
+        - 516.0
+      - - 244.0
+        - 396.0
+      - - 224.0
+        - 260.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#ED102A'
+          position: 35%
+        - color: '#9B0617'
+          position: 72%
+        - color: '#22030A'
+          position: 100%
+        angle: 50.7
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3.2
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 446.0
+        - 88.0
+      - - 544.0
+        - 96.0
+      - - 650.0
+        - 164.0
+      - - 714.0
+        - 298.0
+      - - 684.0
+        - 378.0
+      - - 618.0
+        - 330.0
+      - - 594.0
+        - 224.0
+      - - 520.0
+        - 150.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#ED102A'
+          position: 0%
+        - color: '#9B0617'
+          position: 55%
+        - color: '#170006'
+          position: 100%
+        angle: 47.0
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 594.0
+        - 224.0
+      - - 686.0
+        - 360.0
+      - - 674.0
+        - 474.0
+      - - 592.0
+        - 528.0
+      - - 544.0
+        - 438.0
+      - - 554.0
+        - 306.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#0B0911'
+          position: 0%
+        - color: '#010106'
+          position: 100%
+        angle: 71.2
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 4
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 246.0
+        - 96.0
+      - - 298.0
+        - 80.0
+      - - 386.0
+        - 154.0
+      - - 330.0
+        - 304.0
+      - - 238.0
+        - 374.0
+      - - 218.0
+        - 254.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#FFF0A5'
+          position: 0%
+        - color: '#F7C63A'
+          position: 45%
+        - color: '#8F5A08'
+          position: 100%
+        angle: 69.9
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3.4
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 388.0
+        - 154.0
+      - - 520.0
+        - 150.0
+      - - 594.0
+        - 224.0
+      - - 554.0
+        - 306.0
+      - - 424.0
+        - 252.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#8F5A08'
+          position: 0%
+        - color: '#F7C63A'
+          position: 55%
+        - color: '#5C3306'
+          position: 100%
+        angle: 41.6
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3.4
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 236.0
+        - 374.0
+      - - 330.0
+        - 304.0
+      - - 420.0
+        - 350.0
+      - - 402.0
+        - 442.0
+      - - 292.0
+        - 470.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#F7C63A'
+          position: 0%
+        - color: '#8F5A08'
+          position: 58%
+        - color: '#1D1205'
+          position: 100%
+        angle: 31.4
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 292.0
+        - 470.0
+      - - 402.0
+        - 442.0
+      - - 456.0
+        - 492.0
+      - - 350.0
+        - 560.0
+      - - 248.0
+        - 522.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#FFF0A5'
+          position: 0%
+        - color: '#F7C63A'
+          position: 45%
+        - color: '#8F5A08'
+          position: 100%
+        angle: 23.2
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 4
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 250.0
+        - 522.0
+      - - 350.0
+        - 560.0
+      - - 446.0
+        - 500.0
+      - - 492.0
+        - 542.0
+      - - 352.0
+        - 634.0
+      - - 240.0
+        - 586.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#ED102A'
+          position: 50%
+        - color: '#9B0617'
+          position: 100%
+        angle: 25.1
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 240.0
+        - 586.0
+      - - 352.0
+        - 634.0
+      - - 416.0
+        - 610.0
+      - - 360.0
+        - 672.0
+      - - 252.0
+        - 650.0
+      closed: true
+      fill: '#05050A'
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 4
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 278.0
+        - 324.0
+      - - 362.0
+        - 286.0
+      - - 388.0
+        - 304.0
+      - - 346.0
+        - 340.0
+      - - 274.0
+        - 352.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#021B2E'
+          position: 0%
+        - color: '#8CEAFF'
+          position: 35%
+        - color: '#FFFFFF'
+          position: 100%
+        angle: -8.5
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 1.4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 278.0
+        - 324.0
+      - - 362.0
+        - 286.0
+      - - 388.0
+        - 304.0
+      - - 346.0
+        - 340.0
+      - - 274.0
+        - 352.0
+      - - 278.0
+        - 324.0
+      fill: none
+      stroke: '#D9FBFF'
+    - stroke_style:
+        stroke_width: 4
+      type: ellipse
+      center:
+      - 574.0
+      - 320.0
+      rx: 78.0
+      ry: 102.0
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#9B0617'
+          position: 50%
+        - color: '#05050A'
+          position: 100%
+        angle: 58.2
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+      type: ellipse
+      center:
+      - 574.0
+      - 320.0
+      rx: 48.0
+      ry: 58.0
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF625D'
+          position: 0%
+        - color: '#ED102A'
+          position: 60%
+        - color: '#9B0617'
+          position: 100%
+        angle: 55.9
+      stroke: '#05050A'
+    - type: ellipse
+      center:
+      - 574.0
+      - 320.0
+      rx: 24.0
+      ry: 28.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 590.0
+      - 316.0
+      rx: 10.0
+      ry: 16.0
+      fill: '#9B0617'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 382.0
+        - 56.0
+      - - 430.0
+        - 116.0
+      - - 446.0
+        - 188.0
+      - - 424.0
+        - 252.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - stroke_style:
+        stroke_width: 2.1
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 520.0
+        - 150.0
+      - - 604.0
+        - 142.0
+      - - 690.0
+        - 212.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - stroke_style:
+        stroke_width: 2.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 554.0
+        - 306.0
+      - - 528.0
+        - 434.0
+      - - 544.0
+        - 438.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - stroke_style:
+        stroke_width: 2.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 600.0
+        - 458.0
+      - - 696.0
+        - 446.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - decorative: true
+      type: ellipse
+      center:
+      - 326.0
+      - 206.0
+      rx: 22.0
+      ry: 62.0
+      fill: rgba(255,255,255,0.55)
+    - decorative: true
+      type: ellipse
+      center:
+      - 505.0
+      - 70.0
+      rx: 36.0
+      ry: 10.0
+      fill: rgba(255,247,208,0.72)
+    - type: ellipse
+      center:
+      - 462.0
+      - 146.0
+      rx: 4.0
+      ry: 4.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 460.88
+      - 144.6
+      rx: 0.88
+      ry: 0.88
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 676.0
+      - 174.0
+      rx: 4.0
+      ry: 4.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 674.88
+      - 172.6
+      rx: 0.88
+      ry: 0.88
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 706.0
+      - 236.0
+      rx: 4.0
+      ry: 4.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 704.88
+      - 234.6
+      rx: 0.88
+      ry: 0.88
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 458.0
+      - 568.0
+      rx: 4.0
+      ry: 4.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 456.88
+      - 566.6
+      rx: 0.88
+      ry: 0.88
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 622.0
+      - 554.0
+      rx: 4.0
+      ry: 4.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 620.88
+      - 552.6
+      rx: 0.88
+      ry: 0.88
+      fill: '#77818D'
+    - stroke_style:
+        stroke_width: 2
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 106.0
+        - 700.0
+      - - 260.0
+        - 596.0
+      - - 436.0
+        - 640.0
+      - - 610.0
+        - 706.0
+      - - 704.0
+        - 828.0
+      - - 736.0
+        - 1060.0
+      - - 736.0
+        - 1308.0
+      - - 84.0
+        - 1308.0
+      - - 0.0
+        - 1160.0
+      - - 30.0
+        - 870.0
+      closed: true
+      fill: '#05050A'
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 4
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 78.0
+        - 686.0
+      - - 218.0
+        - 628.0
+      - - 304.0
+        - 706.0
+      - - 214.0
+        - 940.0
+      - - 82.0
+        - 1000.0
+      - - 28.0
+        - 846.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#ED102A'
+          position: 45%
+        - color: '#9B0617'
+          position: 100%
+        angle: 46.0
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 4
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 282.0
+        - 640.0
+      - - 606.0
+        - 716.0
+      - - 690.0
+        - 896.0
+      - - 622.0
+        - 1088.0
+      - - 258.0
+        - 1022.0
+      - - 178.0
+        - 854.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#ED102A'
+          position: 45%
+        - color: '#9B0617'
+          position: 100%
+        angle: 46.0
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 4
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 596.0
+        - 682.0
+      - - 690.0
+        - 688.0
+      - - 736.0
+        - 778.0
+      - - 736.0
+        - 1040.0
+      - - 666.0
+        - 980.0
+      - - 614.0
+        - 832.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#ED102A'
+          position: 45%
+        - color: '#9B0617'
+          position: 100%
+        angle: 67.0
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 304.0
+        - 642.0
+      - - 438.0
+        - 672.0
+      - - 512.0
+        - 718.0
+      - - 472.0
+        - 770.0
+      - - 302.0
+        - 726.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#DFEEF1'
+          position: 0%
+        - color: '#7C8C92'
+          position: 48%
+        - color: '#1A2228'
+          position: 100%
+        angle: 30.7
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 478.0
+        - 752.0
+      - - 626.0
+        - 792.0
+      - - 654.0
+        - 902.0
+      - - 544.0
+        - 880.0
+      closed: true
+      fill: '#15131A'
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 514.0
+        - 910.0
+      - - 656.0
+        - 944.0
+      - - 640.0
+        - 1040.0
+      - - 470.0
+        - 1010.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#ED102A'
+          position: 0%
+        - color: '#9B0617'
+          position: 100%
+        angle: 42.5
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+      type: ellipse
+      center:
+      - 204.0
+      - 962.0
+      rx: 66.0
+      ry: 82.0
+      fill: '#05050A'
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+      type: ellipse
+      center:
+      - 204.0
+      - 962.0
+      rx: 52.0
+      ry: 66.0
+      fill:
+        kind: radial
+        stops:
+        - color: '#FFFFFF'
+          position: 0%
+        - color: '#8CEAFF'
+          position: 72%
+        - color: '#0B446B'
+          position: 100%
+        at:
+        - 204.0
+        - 962.0
+        shape: circle
+      stroke: '#05050A'
+    - type: ellipse
+      center:
+      - 204.0
+      - 962.0
+      rx: 38.0
+      ry: 54.0
+      fill: '#F7FEFF'
+    - stroke_style:
+        stroke_width: 7
+      type: ellipse
+      center:
+      - 204.0
+      - 962.0
+      rx: 82.0
+      ry: 100.0
+      fill: none
+      stroke: rgba(140,234,255,0.35)
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 132.0
+        - 686.0
+      - - 214.0
+        - 652.0
+      - - 246.0
+        - 724.0
+      - - 170.0
+        - 780.0
+      - - 104.0
+        - 746.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#9B0617'
+          position: 100%
+        angle: 42.5
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 86.0
+        - 1022.0
+      - - 164.0
+        - 1000.0
+      - - 176.0
+        - 1198.0
+      - - 72.0
+        - 1260.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#ED102A'
+          position: 0%
+        - color: '#47030B'
+          position: 100%
+        angle: 70.9
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 2.6
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 256.0
+        - 734.0
+      - - 560.0
+        - 806.0
+      - - 502.0
+        - 1004.0
+      - - 238.0
+        - 942.0
+      - - 186.0
+        - 858.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#FF5B51'
+          position: 0%
+        - color: '#ED102A'
+          position: 52%
+        - color: '#9B0617'
+          position: 100%
+        angle: 41.3
+      stroke: '#05050A'
+    - decorative: true
+      type: ellipse
+      center:
+      - 254.0
+      - 794.0
+      rx: 32.0
+      ry: 48.0
+      fill: rgba(255,240,184,0.8)
+    - decorative: true
+      type: ellipse
+      center:
+      - 430.0
+      - 816.0
+      rx: 38.0
+      ry: 52.0
+      fill: rgba(255,240,184,0.85)
+    - decorative: true
+      type: ellipse
+      center:
+      - 650.0
+      - 720.0
+      rx: 14.0
+      ry: 30.0
+      fill: rgba(255,240,184,0.78)
+    - decorative: true
+      type: ellipse
+      center:
+      - 674.0
+      - 698.0
+      rx: 12.0
+      ry: 24.0
+      fill: rgba(255,240,184,0.78)
+    - decorative: true
+      type: ellipse
+      center:
+      - 586.0
+      - 632.0
+      rx: 44.0
+      ry: 18.0
+      fill: rgba(255,240,184,0.75)
+    - stroke_style:
+        stroke_width: 2.3
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 78.0
+        - 686.0
+      - - 186.0
+        - 858.0
+      - - 214.0
+        - 940.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - stroke_style:
+        stroke_width: 2.3
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 238.0
+        - 942.0
+      - - 502.0
+        - 1004.0
+      - - 622.0
+        - 1088.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - stroke_style:
+        stroke_width: 2.3
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 304.0
+        - 706.0
+      - - 286.0
+        - 858.0
+      - - 258.0
+        - 1022.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - stroke_style:
+        stroke_width: 2.3
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 560.0
+        - 806.0
+      - - 626.0
+        - 792.0
+      - - 654.0
+        - 902.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - stroke_style:
+        stroke_width: 2.3
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 596.0
+        - 682.0
+      - - 614.0
+        - 832.0
+      - - 666.0
+        - 980.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - type: ellipse
+      center:
+      - 172.0
+      - 844.0
+      rx: 5.0
+      ry: 5.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 170.6
+      - 842.25
+      rx: 1.1
+      ry: 1.1
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 230.0
+      - 1026.0
+      rx: 5.0
+      ry: 5.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 228.6
+      - 1024.25
+      rx: 1.1
+      ry: 1.1
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 260.0
+      - 1008.0
+      rx: 5.0
+      ry: 5.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 258.6
+      - 1006.25
+      rx: 1.1
+      ry: 1.1
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 506.0
+      - 1024.0
+      rx: 5.0
+      ry: 5.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 504.6
+      - 1022.25
+      rx: 1.1
+      ry: 1.1
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 598.0
+      - 816.0
+      rx: 5.0
+      ry: 5.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 596.6
+      - 814.25
+      rx: 1.1
+      ry: 1.1
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 622.0
+      - 904.0
+      rx: 5.0
+      ry: 5.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 620.6
+      - 902.25
+      rx: 1.1
+      ry: 1.1
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 566.0
+      - 1108.0
+      rx: 5.0
+      ry: 5.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 564.6
+      - 1106.25
+      rx: 1.1
+      ry: 1.1
+      fill: '#77818D'
+    - type: ellipse
+      center:
+      - 690.0
+      - 1062.0
+      rx: 5.0
+      ry: 5.0
+      fill: '#05050A'
+    - type: ellipse
+      center:
+      - 688.6
+      - 1060.25
+      rx: 1.1
+      ry: 1.1
+      fill: '#77818D'
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 168.0
+        - 1190.0
+      - - 328.0
+        - 1216.0
+      - - 360.0
+        - 1308.0
+      - - 150.0
+        - 1308.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#ED102A'
+          position: 0%
+        - color: '#3A020A'
+          position: 100%
+        angle: 31.6
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 3
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 438.0
+        - 1070.0
+      - - 664.0
+        - 1116.0
+      - - 736.0
+        - 1224.0
+      - - 736.0
+        - 1308.0
+      - - 518.0
+        - 1308.0
+      closed: true
+      fill:
+        kind: linear
+        stops:
+        - color: '#ED102A'
+          position: 0%
+        - color: '#9B0617'
+          position: 52%
+        - color: '#05050A'
+          position: 100%
+        angle: 38.6
+      stroke: '#05050A'
+    - stroke_style:
+        stroke_width: 2.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 482.0
+        - 1124.0
+      - - 704.0
+        - 1170.0
+      fill: none
+      stroke: rgba(5,5,10,0.8)
+    - id: caption
+      box:
+      - 24
+      - 1274
+      - 360
+      - 20
+      opacity: 0.0
+      style: caption
+      type: text
+      text: vector SDK recreation
+  reading_order:
+  - caption
