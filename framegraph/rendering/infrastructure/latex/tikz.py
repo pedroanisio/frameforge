@@ -185,9 +185,15 @@ class FigureTikz:
 
     def _wrap_object(self, o, body):
         opts = []
+        style = self._style_dict(o)
+        isolation = o.get("isolation")
+        if isolation in (None, "auto"):
+            isolation = style.get("isolation")
+        if str(isolation or "").strip().lower() == "isolate":
+            opts.append("transparency group")
         opacity = o.get("opacity")
         if opacity in (None, 1):
-            opacity = self._style_dict(o).get("opacity")
+            opacity = style.get("opacity")
         if opacity not in (None, 1):
             opts.append(f"opacity={fnum(num(opacity, 1))}")
         transform = self._tikz_transform(o)

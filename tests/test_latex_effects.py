@@ -117,3 +117,41 @@ def test_text_shadow_uses_transformed_and_decorated_text():
     assert source in tex
     assert tex.index(shadow) < tex.index(source)
     assert "shadow\\_text" not in tex
+
+
+def test_object_isolation_maps_to_tikz_transparency_group():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "isolation": "isolate",
+    })
+
+    assert "\\begin{scope}[transparency group]" in tex
+    assert "(0,0) rectangle (20,10)" in tex
+
+
+def test_style_isolation_maps_to_tikz_transparency_group():
+    tex = _fig().render({
+        "type": "ellipse",
+        "center": [20, 20],
+        "rx": 10,
+        "ry": 8,
+        "fill": "#111111",
+        "style": {"isolation": "isolate"},
+    })
+
+    assert "\\begin{scope}[transparency group]" in tex
+    assert "ellipse (10pt and 8pt)" in tex
+
+
+def test_isolation_composes_with_opacity_scope_options():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "opacity": 0.5,
+        "isolation": "isolate",
+    })
+
+    assert "\\begin{scope}[transparency group,opacity=0.5]" in tex
