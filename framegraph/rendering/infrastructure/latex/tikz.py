@@ -261,6 +261,7 @@ class FigureTikz:
             return None
         target = name.strip().lower()
         custom = {}
+        found = None
         for decl in css.split(";"):
             if ":" not in decl:
                 continue
@@ -270,9 +271,10 @@ class FigureTikz:
             if key.startswith("--"):
                 custom[key] = value
             if key == target:
-                value = value.strip()
-                return FigureTikz._css_resolve_value(value, custom) or None
-        return None
+                found = value
+        if found is None:
+            return None
+        return FigureTikz._css_resolve_value(found, custom) or None
 
     @staticmethod
     def _css_resolve_value(value, custom):

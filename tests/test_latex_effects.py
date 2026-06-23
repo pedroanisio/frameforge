@@ -350,6 +350,29 @@ def test_raw_css_opacity_resolves_custom_property_calc():
     assert "\\begin{scope}[opacity=0.55]" in tex
 
 
+def test_raw_css_custom_property_resolves_after_use_site():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {"css": "opacity: var(--a); --a: 0.35"},
+    })
+
+    assert "\\begin{scope}[opacity=0.35]" in tex
+
+
+def test_raw_css_duplicate_declarations_use_last_value():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {"css": "opacity: 0.1; opacity: 0.65"},
+    })
+
+    assert "\\begin{scope}[opacity=0.65]" in tex
+    assert "opacity=0.1" not in tex
+
+
 def test_raw_css_filter_opacity_resolves_custom_property():
     tex = _fig().render({
         "type": "rect",
