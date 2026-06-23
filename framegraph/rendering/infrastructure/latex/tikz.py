@@ -680,7 +680,9 @@ class FigureTikz:
                 paint = FigureTikz._background_paint(image)
                 if paint is not None:
                     return paint
-            if value.get("stops") and value.get("kind") in ("linear", "linear-gradient"):
+            if value.get("stops") and value.get("kind") in (
+                "linear", "linear-gradient", "radial", "radial-gradient",
+            ):
                 return value
             if "color" in value:
                 return value.get("color")
@@ -1095,30 +1097,23 @@ class FigureTikz:
         return effects + self._painted_path(o, geom, extra) + self._rect_outline(o, x, y, w, h, r)
 
     def _gradient_rect(self, fill, x, y, w, h):
-        """A linear-gradient rect fill to piecewise TikZ `\\shade` segments.
+        """A gradient rect fill to TikZ `\\shade` primitives.
 
         `ColorResolver` collapses a paint object to its first stop, so a
-        multi-stop gradient would otherwise render as a flat block. TikZ has no
-        native multi-stop axis shading, so each consecutive stop pair is drawn as
-        its own two-color `\\shade` rectangle along the gradient axis; adjacent
-        segments share an endpoint color, so the result reads as one continuous
-        gradient. Falls back to `None` (solid fill) for non-linear paints or any
-        stop whose color is not opaque hex (e.g. an `rgba(...,0)` fade)."""
-        if not isinstance(fill, dict) or str(fill.get("kind")) not in ("linear", "linear-gradient"):
+        multi-stop gradient would otherwise render as a flat block. Falls back
+        to `None` (solid fill) for unsupported paints or any stop whose color is
+        not opaque hex (e.g. an `rgba(...,0)` fade).
+        """
+        if not isinstance(fill, dict):
             return None
-        raw = fill.get("stops")
-        if not isinstance(raw, list) or len(raw) < 2 or w <= 0 or h <= 0:
+        kind = str(fill.get("kind"))
+        if kind in ("radial", "radial-gradient"):
+            return self._radial_gradient_rect(fill, x, y, w, h)
+        if kind not in ("linear", "linear-gradient"):
             return None
-        stops = []
-        for i, s in enumerate(raw):
-            if not isinstance(s, dict):
-                return None
-            resolved = self._color.resolve(s.get("color"))
-            if not _parse_hex(resolved):       # transparent / non-hex: bail to solid
-                return None
-            expr, _op = color_expr(resolved)
-            stops.append((_grad_pct(s.get("position"), i / (len(raw) - 1)), expr))
-        stops.sort(key=lambda s: s[0])
+        stops = self._gradient_stops(fill)
+        if stops is None or w <= 0 or h <= 0:
+            return None
         axis, reverse = _grad_orientation(_grad_angle(fill.get("angle")))
         if reverse:
             stops = [(1.0 - p, c) for p, c in reversed(stops)]
@@ -1135,6 +1130,62 @@ class FigureTikz:
                         f"({fnum(x + w)},{fnum(y + p1 * h)})")
                 out.append(f"\\shade[top color={c0},bottom color={c1}] {geom};\n")
         return "".join(out) or None
+
+    def _gradient_stops(self, fill):
+        raw = fill.get("stops")
+        if not isinstance(raw, list) or len(raw) < 2:
+            return None
+        stops = []
+        for i, s in enumerate(raw):
+            if not isinstance(s, dict):
+                return None
+            resolved = self._color.resolve(s.get("color"))
+            if not _parse_hex(resolved):       # transparent / non-hex: bail to solid
+                return None
+            expr, _op = color_expr(resolved)
+            stops.append((_grad_pct(s.get("position"), i / (len(raw) - 1)), expr))
+        stops.sort(key=lambda s: s[0])
+        return stops
+
+    def _radial_gradient_rect(self, fill, x, y, w, h):
+        stops = self._gradient_stops(fill)
+        if stops is None or w <= 0 or h <= 0:
+            return None
+        cx, cy = self._radial_gradient_center(fill.get("at"), x, y, w, h)
+        rx = max(abs(cx - x), abs(x + w - cx))
+        ry = max(abs(cy - y), abs(y + h - cy))
+        shape = str(fill.get("shape") or "ellipse").strip().lower()
+        if shape == "circle":
+            rx = ry = max(rx, ry)
+        clip = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
+        out = []
+        for (p0, c0), (p1, c1) in zip(stops, stops[1:]):
+            if p1 <= p0:
+                continue
+            prx, pry = rx * p1, ry * p1
+            geom = f"({fnum(cx)},{fnum(cy)}) ellipse ({fnum(prx)}pt and {fnum(pry)}pt)"
+            out.insert(0, f"\\shade[inner color={c0},outer color={c1}] {geom};\n")
+        return f"\\begin{{scope}}\n\\clip {clip};\n{''.join(out)}\\end{{scope}}\n" if out else None
+
+    @staticmethod
+    def _radial_gradient_center(value, x, y, w, h):
+        if value in (None, "", "center"):
+            return x + w / 2, y + h / 2
+        if is_point(value):
+            return x + num(value[0], 0), y + num(value[1], 0)
+        if isinstance(value, str):
+            parts = value.replace(",", " ").split()
+            if not parts:
+                return x + w / 2, y + h / 2
+            if len(parts) == 1 and parts[0].lower() == "center":
+                return x + w / 2, y + h / 2
+            if any(part.lower() in ("left", "center", "right", "top", "bottom") for part in parts):
+                return FigureTikz._keyword_origin(parts, (x, y, w, h))
+            return (
+                x + FigureTikz._css_clip_length(parts[0], w),
+                y + FigureTikz._css_clip_length(parts[1] if len(parts) > 1 else "50%", h),
+            )
+        return x + w / 2, y + h / 2
 
     def _draw_ellipse(self, o) -> str:
         c = o.get("center") or [0, 0]

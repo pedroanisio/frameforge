@@ -84,6 +84,67 @@ def test_style_background_image_gradient_emits_piecewise_shades():
     assert "fill={rgb" not in tex
 
 
+def test_radial_gradient_rect_emits_clipped_inner_outer_shade():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 300, 100],
+        "fill": {
+            "kind": "radial",
+            "shape": "ellipse",
+            "at": "center",
+            "stops": [
+                {"color": "#ff0000", "position": "0%"},
+                {"color": "#0000ff", "position": "100%"},
+            ],
+        },
+    })
+
+    assert tex.count("\\shade[") == 1
+    assert "\\clip (0,0) rectangle (300,100);" in tex
+    assert "inner color={rgb,255:red,255;green,0;blue,0}" in tex
+    assert "outer color={rgb,255:red,0;green,0;blue,255}" in tex
+    assert "(150,50) ellipse (150pt and 50pt)" in tex
+    assert "fill={rgb" not in tex
+
+
+def test_radial_gradient_at_local_point_uses_box_relative_center():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [10, 20, 100, 80],
+        "fill": {
+            "kind": "radial",
+            "shape": "circle",
+            "at": [20, 20],
+            "stops": [
+                {"color": "#ffffff", "position": "0%"},
+                {"color": "#000000", "position": "100%"},
+            ],
+        },
+    })
+
+    assert "\\clip (10,20) rectangle (110,100);" in tex
+    assert "(30,40) ellipse (80pt and 80pt)" in tex
+
+
+def test_style_background_image_radial_gradient_emits_shade():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 100, 100],
+        "style": {
+            "background_image": {
+                "kind": "radial",
+                "stops": [
+                    {"color": "#ffffff", "position": "0%"},
+                    {"color": "#000000", "position": "100%"},
+                ],
+            },
+        },
+    })
+
+    assert "\\shade[inner color=" in tex
+    assert "fill={rgb" not in tex
+
+
 def test_object_fill_overrides_style_background_image_gradient():
     tex = _fig().render({
         "type": "rect",
