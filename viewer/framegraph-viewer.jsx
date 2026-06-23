@@ -3,6 +3,7 @@ import React, {
 } from "react";
 import * as yaml from "js-yaml";
 import katex from "katex";
+import "katex/dist/katex.min.css";
 import {
   ChevronLeft, ChevronRight, Maximize2, Crosshair, Upload, X,
   Palette, Layers, Type as TypeIcon, Info,

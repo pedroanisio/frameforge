@@ -59,6 +59,7 @@ await page.waitForFunction(() => window.__FRAMEGRAPH_VIEWER__?.state().title ===
 const result = await page.locator('[data-framegraph-page="active"]').evaluate((el) => {
   const mathNodes = Array.from(el.querySelectorAll(".fg-mathml math"));
   const katexNodes = Array.from(el.querySelectorAll(".fg-math .katex"));
+  const katexStyle = katexNodes[0] ? getComputedStyle(katexNodes[0]) : null;
   const text = el.textContent || "";
   return {
     mathNodeCount: mathNodes.length,
@@ -67,6 +68,7 @@ const result = await page.locator('[data-framegraph-page="active"]').evaluate((e
     katexCount: katexNodes.length,
     inlineKatexCount: el.querySelectorAll(".fg-math-inline .katex").length,
     displayKatexCount: el.querySelectorAll(".fg-math-display .katex-display").length,
+    katexCssActive: katexStyle?.fontFamily.includes("KaTeX_Main"),
     rawXml: text.includes("<math>") || text.includes("&lt;math&gt;"),
     rawTex: /\\(?:sqrt|hbar|frac|left|right)\b/.test(text),
     fallback: text.includes("math expression"),
@@ -79,6 +81,7 @@ if (result.displayCount !== 1) failures.push(`expected 1 display MathML node, fo
 if (result.katexCount !== 2) failures.push(`expected 2 KaTeX nodes, found ${result.katexCount}`);
 if (result.inlineKatexCount !== 1) failures.push(`expected 1 inline KaTeX node, found ${result.inlineKatexCount}`);
 if (result.displayKatexCount !== 1) failures.push(`expected 1 display KaTeX node, found ${result.displayKatexCount}`);
+if (!result.katexCssActive) failures.push("KaTeX CSS is not active in the viewer bundle");
 if (result.rawXml) failures.push("raw MathML XML leaked into viewer text");
 if (result.rawTex) failures.push("raw TeX command leaked into viewer text");
 if (result.fallback) failures.push("valid MathML fell back instead of rendering");
