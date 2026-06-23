@@ -1097,7 +1097,10 @@ class FigureTikz:
         escaped = self._tab_text(st, escaped)
         if str(st.get("white_space") or "").strip().lower() in ("pre", "pre-wrap", "pre-line"):
             escaped = escaped.replace("\n", r"\\")
-        return self._decorate_text(st, self._space_text(st, self._indent_text(st, escaped)))
+        escaped = self._indent_text(st, escaped)
+        escaped = self._space_text(st, escaped)
+        escaped = self._hyphen_text(st, escaped)
+        return self._decorate_text(st, escaped)
 
     @staticmethod
     def _tab_text(st, content):
@@ -1123,6 +1126,27 @@ class FigureTikz:
         if spacing in (None, 0):
             return content
         return f"{{\\spaceskip={fnum(spacing)}pt {content}}}"
+
+    @staticmethod
+    def _hyphen_text(st, content):
+        if not isinstance(st, dict):
+            return content
+        commands = []
+        hyphens = str(st.get("hyphens") or "").strip().lower()
+        if hyphens == "none":
+            commands.extend(["\\hyphenpenalty=10000\\relax", "\\exhyphenpenalty=10000\\relax"])
+        elif hyphens == "manual":
+            commands.append("\\hyphenpenalty=10000\\relax")
+        limits = str(st.get("hyphenate_limit_chars") or "").split()
+        if len(limits) == 3:
+            before, after = num(limits[1], None), num(limits[2], None)
+            if before is not None:
+                commands.append(f"\\lefthyphenmin={int(before)}\\relax")
+            if after is not None:
+                commands.append(f"\\righthyphenmin={int(after)}\\relax")
+        if not commands:
+            return content
+        return "{" + "".join(commands) + " " + content + "}"
 
     @staticmethod
     def _decorate_text(st, content):

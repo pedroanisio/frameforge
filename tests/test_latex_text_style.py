@@ -364,6 +364,43 @@ def test_tab_size_applies_to_spans():
     assert "{A\\hspace*{10.4pt}B}" in tex
 
 
+def test_hyphens_none_disables_automatic_and_explicit_hyphen_breaks():
+    tex = _fig({"label": {"hyphens": "none"}}).render({
+        "type": "text",
+        "box": [10, 20, 80, 30],
+        "text": "well-known hyphenation",
+        "style": "label",
+    })
+
+    assert "\\hyphenpenalty=10000\\relax" in tex
+    assert "\\exhyphenpenalty=10000\\relax" in tex
+    assert "well-known hyphenation" in tex
+
+
+def test_hyphens_manual_disables_automatic_hyphen_breaks_only():
+    tex = _fig({"label": {"hyphens": "manual"}}).render({
+        "type": "text",
+        "box": [10, 20, 80, 30],
+        "text": "well-known hyphenation",
+        "style": "label",
+    })
+
+    assert "\\hyphenpenalty=10000\\relax" in tex
+    assert "\\exhyphenpenalty=10000\\relax" not in tex
+
+
+def test_hyphenate_limit_chars_maps_to_tex_hyphen_minima():
+    tex = _fig({"label": {"hyphenate_limit_chars": [6, 3, 2]}}).render({
+        "type": "text",
+        "box": [10, 20, 80, 30],
+        "text": "hyphenation",
+        "style": "label",
+    })
+
+    assert "\\lefthyphenmin=3\\relax" in tex
+    assert "\\righthyphenmin=2\\relax" in tex
+
+
 def test_vertical_align_places_text_within_box():
     top = _fig({"label": {"size": 10, "vertical_align": "top"}}).render({
         "type": "text",
