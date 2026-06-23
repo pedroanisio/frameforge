@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Sequence
 
 from framegraph.sdk.draw import Frame
-from framegraph.sdk.geometry import Path, Vec2
+from framegraph.sdk.geometry import Path
 
 Point = Sequence[float]
 Style = dict[str, Any]
