@@ -78,3 +78,63 @@ def test_style_clip_path_shapes_wrap_vector_objects():
     assert "\\clip (10,85) -- (90,85) -- (50,120) -- cycle;" in tex
     assert tex.index("\\clip (30,15) rectangle (80,55);") < tex.index("(10,10) rectangle (90,70)")
     assert tex.index("\\clip (100,10) -- (160,10) -- (130,70) -- cycle;") < tex.index("(130,40) circle")
+
+
+def test_raw_css_circle_clip_path_uses_box_percentages():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [24, 56, 110, 120],
+        "fill": "#ffffff",
+        "style": {"css": "clip-path: circle(50% at 50% 50%)"},
+    })
+
+    assert "\\clip (79,116) circle (55pt);" in tex
+    assert tex.index("\\clip") < tex.index("(24,56) rectangle (134,176)")
+
+
+def test_raw_css_ellipse_clip_path_uses_box_percentages():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [152, 56, 110, 120],
+        "fill": "#ffffff",
+        "style": {"css": "clip-path: ellipse(48% 32% at 50% 50%)"},
+    })
+
+    assert "\\clip (207,116) ellipse (52.8pt and 38.4pt);" in tex
+
+
+def test_raw_css_inset_clip_path_uses_css_edge_shorthand():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [280, 56, 110, 120],
+        "fill": "#ffffff",
+        "style": {"css": "clip-path: inset(12% round 16px)"},
+    })
+
+    assert "\\clip (293.2,70.4) rectangle (376.8,161.6);" in tex
+
+
+def test_raw_css_polygon_clip_path_uses_box_percentages():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [408, 56, 110, 120],
+        "fill": "#ffffff",
+        "style": {"css": "clip-path: polygon(50% 0%, 100% 100%, 0% 100%)"},
+    })
+
+    assert "\\clip (463,56) -- (518,176) -- (408,176) -- cycle;" in tex
+
+
+def test_normalized_clip_path_wins_over_raw_css_clip_path():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 100, 80],
+        "fill": "#ffffff",
+        "style": {
+            "clip_path": {"shape": "inset", "args": {"top": 5, "right": 10, "bottom": 15, "left": 20}},
+            "css": "clip-path: circle(50% at 50% 50%)",
+        },
+    })
+
+    assert "\\clip (20,5) rectangle (90,65);" in tex
+    assert "circle" not in tex.split("\\clip", 1)[1].split(";", 1)[0]

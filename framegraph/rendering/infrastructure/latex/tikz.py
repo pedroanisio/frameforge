@@ -296,8 +296,13 @@ class FigureTikz:
 
     def _clip_geom(self, o):
         spec = o.get("clip")
+        style = self._style_dict(o)
         if spec in (None, False, "none"):
-            spec = self._style_dict(o).get("clip_path")
+            spec = style.get("clip_path")
+        if spec in (None, False, "none"):
+            css_clip = self._css_decl(style, "clip-path")
+            if css_clip:
+                return self._css_clip_geom(o, css_clip)
         if spec in (None, False, "none"):
             return None
         shape, args = None, {}
@@ -347,6 +352,84 @@ class FigureTikz:
         if shape == "path" and isinstance(args, dict):
             return self._path_d(args.get("d")) or None
         return None
+
+    def _css_clip_geom(self, o, spec):
+        box = self._box(o)
+        if not box or not isinstance(spec, str):
+            return None
+        x, y, w, h = box
+        s = spec.strip()
+        m = re.match(r"^circle\(\s*([^)]*?)\s*\)$", s, flags=re.I)
+        if m:
+            body = m.group(1)
+            radius_part, _, center_part = body.partition(" at ")
+            cx, cy = self._css_clip_center(center_part, box)
+            r = self._css_clip_length(radius_part.strip() or "50%", min(w, h))
+            return f"({fnum(cx)},{fnum(cy)}) circle ({fnum(r)}pt)"
+        m = re.match(r"^ellipse\(\s*([^)]*?)\s*\)$", s, flags=re.I)
+        if m:
+            body = m.group(1)
+            radii_part, _, center_part = body.partition(" at ")
+            radii = radii_part.split()
+            rx = self._css_clip_length(radii[0] if radii else "50%", w)
+            ry = self._css_clip_length(radii[1] if len(radii) > 1 else "50%", h)
+            cx, cy = self._css_clip_center(center_part, box)
+            return f"({fnum(cx)},{fnum(cy)}) ellipse ({fnum(rx)}pt and {fnum(ry)}pt)"
+        m = re.match(r"^inset\(\s*([^)]*?)\s*\)$", s, flags=re.I)
+        if m:
+            body = m.group(1).split(" round ", 1)[0].strip()
+            parts = body.split() or ["0"]
+            top, right, bottom, left = self._css_edges(parts, w, h)
+            return f"({fnum(x + left)},{fnum(y + top)}) rectangle ({fnum(x + w - right)},{fnum(y + h - bottom)})"
+        m = re.match(r"^polygon\(\s*([^)]*?)\s*\)$", s, flags=re.I)
+        if m:
+            pts = []
+            for pair in m.group(1).split(","):
+                vals = pair.strip().split()
+                if len(vals) < 2:
+                    continue
+                px = x + self._css_clip_length(vals[0], w)
+                py = y + self._css_clip_length(vals[1], h)
+                pts.append((px, py))
+            if len(pts) >= 3:
+                return " -- ".join(f"({fnum(px)},{fnum(py)})" for px, py in pts) + " -- cycle"
+        return None
+
+    def _css_clip_center(self, value, box):
+        x, y, w, h = box
+        parts = value.split() if isinstance(value, str) and value.strip() else ["50%", "50%"]
+        cx = x + self._css_clip_length(parts[0], w)
+        cy = y + self._css_clip_length(parts[1] if len(parts) > 1 else "50%", h)
+        return cx, cy
+
+    @staticmethod
+    def _css_clip_length(value, size):
+        if value is None:
+            return 0.0
+        s = str(value).strip().lower()
+        if s.endswith("%"):
+            try:
+                return size * float(s[:-1]) / 100.0
+            except ValueError:
+                return 0.0
+        return num(s, 0) or 0.0
+
+    def _css_edges(self, parts, w, h):
+        vals = list(parts)
+        if len(vals) == 1:
+            vals *= 4
+        elif len(vals) == 2:
+            vals = [vals[0], vals[1], vals[0], vals[1]]
+        elif len(vals) == 3:
+            vals = [vals[0], vals[1], vals[2], vals[1]]
+        else:
+            vals = vals[:4]
+        return (
+            self._css_clip_length(vals[0], h),
+            self._css_clip_length(vals[1], w),
+            self._css_clip_length(vals[2], h),
+            self._css_clip_length(vals[3], w),
+        )
 
     def _tikz_transform(self, o):
         style = self._style_dict(o)
