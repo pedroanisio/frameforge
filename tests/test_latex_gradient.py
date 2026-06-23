@@ -62,6 +62,48 @@ def test_vertical_gradient_uses_top_bottom_shades():
     assert "left color=" not in tex
 
 
+def test_style_background_image_gradient_emits_piecewise_shades():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 300, 100],
+        "style": {
+            "background_image": {
+                "kind": "linear",
+                "angle": "90deg",
+                "stops": [
+                    {"color": "#ff0000", "position": "0%"},
+                    {"color": "#00ff00", "position": "50%"},
+                    {"color": "#0000ff", "position": "100%"},
+                ],
+            },
+        },
+    })
+
+    assert tex.count("\\shade[") == 2
+    assert "left color=" in tex and "right color=" in tex
+    assert "fill={rgb" not in tex
+
+
+def test_object_fill_overrides_style_background_image_gradient():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 300, 100],
+        "fill": "#123456",
+        "style": {
+            "background_image": {
+                "kind": "linear",
+                "stops": [
+                    {"color": "#ff0000", "position": "0%"},
+                    {"color": "#0000ff", "position": "100%"},
+                ],
+            },
+        },
+    })
+
+    assert "\\shade[" not in tex
+    assert "fill={rgb,255:red,18;green,52;blue,86}" in tex
+
+
 def test_transparent_stop_falls_back_to_solid_fill():
     # an rgba(...,0) fade has no opaque hex: keep the old solid behavior, no crash
     tex = _fig().render(_rect([

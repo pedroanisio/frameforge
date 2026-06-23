@@ -652,8 +652,42 @@ class FigureTikz:
             return o.get("fill")
         if "fill" in style:
             return style.get("fill")
+        if "background_image" in style:
+            paint = FigureTikz._background_paint(style.get("background_image"))
+            if paint is not None:
+                return paint
+        if "background" in style:
+            paint = FigureTikz._background_paint(style.get("background"))
+            if paint is not None:
+                return paint
         if "background_color" in style:
             return style.get("background_color")
+        return None
+
+    @staticmethod
+    def _background_paint(value):
+        if isinstance(value, list):
+            for item in value:
+                paint = FigureTikz._background_paint(item)
+                if paint is not None:
+                    return paint
+            return None
+        if isinstance(value, dict):
+            image = value.get("image")
+            if image is not None:
+                paint = FigureTikz._background_paint(image)
+                if paint is not None:
+                    return paint
+            if value.get("stops") and value.get("kind") in ("linear", "linear-gradient"):
+                return value
+            if "color" in value:
+                return value.get("color")
+            return None
+        if isinstance(value, str):
+            stripped = value.strip()
+            if stripped.startswith(("url(", "http://", "https://", "data:")):
+                return None
+            return stripped
         return None
 
     def _fill_rule(self, o):
@@ -1045,7 +1079,8 @@ class FigureTikz:
         style = self._style_dict(o)
         r = num(o.get("radius", o.get("rx", style.get("border_radius", style.get("radius")))), 0) or 0
         effects = self._rect_effects(o, x, y, w, h, r)
-        grad = self._gradient_rect(o.get("fill"), x, y, w, h)
+        fill = self._fill_value(o, style)
+        grad = self._gradient_rect(fill, x, y, w, h)
         if grad:
             # gradient fill, then the (optional) outline drawn over it.
             stroke = self._stroke_opts(o)
