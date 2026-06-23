@@ -1257,16 +1257,39 @@ class FigureTikz:
     def _poly_points(self, o):
         return [(num(p[0], 0), num(p[1], 0)) for p in (o.get("points") or []) if is_point(p)]
 
+    @staticmethod
+    def _points_bbox(points):
+        if not points:
+            return None
+        xs = [p[0] for p in points]
+        ys = [p[1] for p in points]
+        return (min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys))
+
+    def _gradient_clipped_path(self, o, geom, bbox):
+        if not bbox:
+            return None
+        style = self._style_dict(o)
+        x, y, w, h = bbox
+        grad = self._gradient_rect(self._fill_value(o, style), x, y, w, h)
+        if not grad:
+            return None
+        stroke = self._stroke_opts(o)
+        body = f"\\begin{{scope}}\n\\clip {geom};\n{grad}\\end{{scope}}\n"
+        return body + (self._path(stroke, geom) if stroke else "")
+
     def _draw_polyline(self, o) -> str:
         pts = self._poly_points(o)
         if not pts:
             return ""
-        opts = self._stroke_opts(o, default_color="#000000")
-        if o.get("closed"):
-            opts = self._fill_opts(o) + opts
         chain = " -- ".join(f"({fnum(x)},{fnum(y)})" for x, y in pts)
         if o.get("closed"):
             chain += " -- cycle"
+            grad = self._gradient_clipped_path(o, chain, self._points_bbox(pts))
+            if grad:
+                return grad
+        opts = self._stroke_opts(o, default_color="#000000")
+        if o.get("closed"):
+            opts = self._fill_opts(o) + opts
         return f"\\draw[{','.join(opts)}] {chain};\n" if opts else f"\\draw {chain};\n"
 
     def _draw_polygon(self, o) -> str:
@@ -1274,12 +1297,18 @@ class FigureTikz:
         if not pts:
             return ""
         chain = " -- ".join(f"({fnum(x)},{fnum(y)})" for x, y in pts) + " -- cycle"
+        grad = self._gradient_clipped_path(o, chain, self._points_bbox(pts))
+        if grad:
+            return grad
         return self._painted_path(o, chain)
 
     def _draw_path(self, o) -> str:
         geom = self._path_d(o.get("d"))
         if not geom:
             return ""
+        grad = self._gradient_clipped_path(o, geom, self._path_bbox(o.get("d")))
+        if grad:
+            return grad
         return self._painted_path(o, geom)
 
     def _draw_curve(self, o) -> str:
@@ -1300,6 +1329,202 @@ class FigureTikz:
 
     def _draw_bezier(self, o) -> str:
         return self._draw_curve(o)
+
+    def _path_bbox(self, d):
+        if isinstance(d, list):
+            return self._path_segments_bbox(d)
+        if not isinstance(d, str):
+            return None
+        tokens = re.findall(r"[MmLlHhVvCcSsQqTtAaZz]|-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?", d.replace(",", " "))
+        points, cmd, cur, start, i = [], None, (0.0, 0.0), (0.0, 0.0), 0
+        last_cubic_ctrl = None
+        last_quad_ctrl = None
+
+        def add(*pts):
+            points.extend(p for p in pts if p is not None)
+
+        def values(count):
+            nonlocal i
+            vals = [num(tokens[i + j], None) for j in range(count)] if i + count - 1 < len(tokens) else []
+            i += count
+            return vals if len(vals) == count and not any(v is None for v in vals) else None
+
+        while i < len(tokens):
+            if re.match(r"^[A-Za-z]$", tokens[i]):
+                cmd = tokens[i]
+                i += 1
+            if cmd is None:
+                break
+            rel = cmd.islower()
+            c = cmd.upper()
+            if c == "M":
+                vals = values(2)
+                if vals is None:
+                    break
+                cur = (cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1])
+                start = cur
+                add(cur)
+                cmd = "l" if rel else "L"
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
+            elif c == "L":
+                vals = values(2)
+                if vals is None:
+                    break
+                cur = (cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1])
+                add(cur)
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
+            elif c == "H":
+                vals = values(1)
+                if vals is None:
+                    break
+                cur = ((cur[0] + vals[0]) if rel else vals[0], cur[1])
+                add(cur)
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
+            elif c == "V":
+                vals = values(1)
+                if vals is None:
+                    break
+                cur = (cur[0], (cur[1] + vals[0]) if rel else vals[0])
+                add(cur)
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
+            elif c == "C":
+                vals = values(6)
+                if vals is None:
+                    break
+                x1, y1, x2, y2, x, y = vals
+                if rel:
+                    x1, y1, x2, y2, x, y = cur[0] + x1, cur[1] + y1, cur[0] + x2, cur[1] + y2, cur[0] + x, cur[1] + y
+                cur = (x, y)
+                last_cubic_ctrl = (x2, y2)
+                last_quad_ctrl = None
+                add((x1, y1), (x2, y2), cur)
+            elif c == "S":
+                vals = values(4)
+                if vals is None:
+                    break
+                x2, y2, x, y = vals
+                c1 = (2 * cur[0] - last_cubic_ctrl[0], 2 * cur[1] - last_cubic_ctrl[1]) if last_cubic_ctrl else cur
+                if rel:
+                    x2, y2, x, y = cur[0] + x2, cur[1] + y2, cur[0] + x, cur[1] + y
+                cur = (x, y)
+                last_cubic_ctrl = (x2, y2)
+                last_quad_ctrl = None
+                add(c1, (x2, y2), cur)
+            elif c == "Q":
+                vals = values(4)
+                if vals is None:
+                    break
+                x1, y1, x, y = vals
+                if rel:
+                    x1, y1, x, y = cur[0] + x1, cur[1] + y1, cur[0] + x, cur[1] + y
+                cur = (x, y)
+                last_cubic_ctrl = None
+                last_quad_ctrl = (x1, y1)
+                add(last_quad_ctrl, cur)
+            elif c == "T":
+                vals = values(2)
+                if vals is None:
+                    break
+                control = (2 * cur[0] - last_quad_ctrl[0], 2 * cur[1] - last_quad_ctrl[1]) if last_quad_ctrl else cur
+                cur = (cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1])
+                last_cubic_ctrl = None
+                last_quad_ctrl = control
+                add(control, cur)
+            elif c == "A":
+                vals = values(7)
+                if vals is None:
+                    break
+                rx, ry, rot, large, sweep, x, y = vals
+                end = (cur[0] + x, cur[1] + y) if rel else (x, y)
+                segments = self._arc_to_cubics(cur, rx, ry, rot, large, sweep, end)
+                for c1, c2, p in segments:
+                    add(c1, c2, p)
+                add(end)
+                cur = end
+                last_cubic_ctrl = segments[-1][1] if segments else None
+                last_quad_ctrl = None
+            elif c == "Z":
+                cur = start
+                add(cur)
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
+            else:
+                break
+        return self._points_bbox(points)
+
+    def _path_segments_bbox(self, segments):
+        points = []
+        cur = start = (0.0, 0.0)
+        last_cubic_ctrl = None
+        last_quad_ctrl = None
+
+        def add(*pts):
+            points.extend(p for p in pts if p is not None)
+
+        for seg in segments:
+            rel = isinstance(seg[0], str) and seg[0].islower() if isinstance(seg, list) and seg else False
+            if not isinstance(seg, list) or not seg:
+                continue
+            cmd = str(seg[0]).upper()
+            vals = [num(v, None) for v in seg[1:]]
+            if any(v is None for v in vals):
+                continue
+            if cmd == "M" and len(vals) >= 2:
+                cur = (cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1])
+                start = cur
+                add(cur)
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
+            elif cmd == "L" and len(vals) >= 2:
+                cur = (cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1])
+                add(cur)
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
+            elif cmd == "C" and len(vals) >= 6:
+                c1 = (cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1])
+                c2 = (cur[0] + vals[2], cur[1] + vals[3]) if rel else (vals[2], vals[3])
+                cur = (cur[0] + vals[4], cur[1] + vals[5]) if rel else (vals[4], vals[5])
+                last_cubic_ctrl = c2
+                last_quad_ctrl = None
+                add(c1, c2, cur)
+            elif cmd == "S" and len(vals) >= 4:
+                c1 = (2 * cur[0] - last_cubic_ctrl[0], 2 * cur[1] - last_cubic_ctrl[1]) if last_cubic_ctrl else cur
+                c2 = (cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1])
+                cur = (cur[0] + vals[2], cur[1] + vals[3]) if rel else (vals[2], vals[3])
+                last_cubic_ctrl = c2
+                last_quad_ctrl = None
+                add(c1, c2, cur)
+            elif cmd == "Q" and len(vals) >= 4:
+                control = (cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1])
+                cur = (cur[0] + vals[2], cur[1] + vals[3]) if rel else (vals[2], vals[3])
+                last_cubic_ctrl = None
+                last_quad_ctrl = control
+                add(control, cur)
+            elif cmd == "T" and len(vals) >= 2:
+                control = (2 * cur[0] - last_quad_ctrl[0], 2 * cur[1] - last_quad_ctrl[1]) if last_quad_ctrl else cur
+                cur = (cur[0] + vals[0], cur[1] + vals[1]) if rel else (vals[0], vals[1])
+                last_cubic_ctrl = None
+                last_quad_ctrl = control
+                add(control, cur)
+            elif cmd == "A" and len(vals) >= 7:
+                end = (cur[0] + vals[5], cur[1] + vals[6]) if rel else (vals[5], vals[6])
+                arc_segments = self._arc_to_cubics(cur, vals[0], vals[1], vals[2], vals[3], vals[4], end)
+                for c1, c2, p in arc_segments:
+                    add(c1, c2, p)
+                add(end)
+                cur = end
+                last_cubic_ctrl = arc_segments[-1][1] if arc_segments else None
+                last_quad_ctrl = None
+            elif cmd == "Z":
+                cur = start
+                add(cur)
+                last_cubic_ctrl = None
+                last_quad_ctrl = None
+        return self._points_bbox(points)
 
     def _path_d(self, d):
         if isinstance(d, list):

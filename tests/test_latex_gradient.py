@@ -235,6 +235,48 @@ def test_linear_gradient_circle_is_clipped_to_circle_and_keeps_stroke_overlay():
     assert tex.index("\\shade[") < tex.rindex("\\path[draw=")
 
 
+def test_linear_gradient_polygon_is_clipped_to_polygon_bbox():
+    tex = _fig().render({
+        "type": "polygon",
+        "points": [[0, 0], [100, 0], [50, 80]],
+        "fill": {
+            "kind": "linear",
+            "angle": "180deg",
+            "stops": [
+                {"color": "#ff0000", "position": "0%"},
+                {"color": "#0000ff", "position": "100%"},
+            ],
+        },
+    })
+
+    assert "\\clip (0,0) -- (100,0) -- (50,80) -- cycle;" in tex
+    assert "\\shade[top color={rgb,255:red,255;green,0;blue,0},bottom color={rgb,255:red,0;green,0;blue,255}] (0,0) rectangle (100,80);" in tex
+    assert "fill={rgb" not in tex
+
+
+def test_linear_gradient_path_is_clipped_to_path_bbox_and_keeps_stroke_overlay():
+    tex = _fig().render({
+        "type": "path",
+        "d": "M 10 20 L 110 20 L 110 70 L 10 70 Z",
+        "fill": {
+            "kind": "linear",
+            "angle": "90deg",
+            "stops": [
+                {"color": "#ff0000", "position": "0%"},
+                {"color": "#0000ff", "position": "100%"},
+            ],
+        },
+        "stroke": "#111111",
+        "stroke_style": {"stroke_width": 2},
+    })
+
+    geom = "(10,20) -- (110,20) -- (110,70) -- (10,70) -- cycle"
+    assert f"\\clip {geom};" in tex
+    assert "\\shade[left color={rgb,255:red,255;green,0;blue,0},right color={rgb,255:red,0;green,0;blue,255}] (10,20) rectangle (110,70);" in tex
+    assert f"\\path[draw={{rgb,255:red,17;green,17;blue,17}},line width=2pt] {geom};" in tex
+    assert tex.index("\\shade[") < tex.rindex("\\path[draw=")
+
+
 def test_object_fill_overrides_style_background_image_gradient():
     tex = _fig().render({
         "type": "rect",
