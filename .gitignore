@@ -10,3 +10,4 @@ __pycache__/
 out2/
 fixture_old/
 fixture.tar
+.repo/
