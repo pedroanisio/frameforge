@@ -544,6 +544,29 @@ def test_direction_applies_to_spans():
     assert "{\\ifdefined\\textdir\\textdir TRT\\fi span rtl}" in tex
 
 
+def test_hanging_punctuation_enables_microtype_protrusion():
+    tex = _fig({"label": {"hanging_punctuation": "allow-end"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": '"quoted"',
+        "style": "label",
+    })
+
+    assert "\\ifdefined\\microtypesetup\\microtypesetup{protrusion=true}\\fi" in tex
+    assert "quoted" in tex
+
+
+def test_hanging_punctuation_none_disables_microtype_protrusion():
+    tex = _fig({"label": {"hanging_punctuation": "none"}}).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": '"quoted"',
+        "style": "label",
+    })
+
+    assert "\\ifdefined\\microtypesetup\\microtypesetup{protrusion=false}\\fi" in tex
+
+
 def test_alpha_text_color_maps_to_tikz_text_opacity():
     tex = _fig({"muted": {"color": "#12345680"}}).render({
         "type": "text",

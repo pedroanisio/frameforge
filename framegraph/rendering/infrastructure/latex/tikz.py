@@ -1101,6 +1101,7 @@ class FigureTikz:
         escaped = self._space_text(st, escaped)
         escaped = self._hyphen_text(st, escaped)
         escaped = self._direction_text(st, escaped)
+        escaped = self._hanging_punctuation_text(st, escaped)
         return self._decorate_text(st, escaped)
 
     @staticmethod
@@ -1171,6 +1172,17 @@ class FigureTikz:
             return "{\\ifdefined\\textdir\\textdir TRT\\fi " + content + "}"
         if direction == "ltr":
             return "{\\ifdefined\\textdir\\textdir TLT\\fi " + content + "}"
+        return content
+
+    @staticmethod
+    def _hanging_punctuation_text(st, content):
+        if not isinstance(st, dict):
+            return content
+        value = str(st.get("hanging_punctuation") or "").strip().lower()
+        if value == "none":
+            return "{\\ifdefined\\microtypesetup\\microtypesetup{protrusion=false}\\fi " + content + "}"
+        if value in ("first", "last", "allow-end", "force-end"):
+            return "{\\ifdefined\\microtypesetup\\microtypesetup{protrusion=true}\\fi " + content + "}"
         return content
 
     @staticmethod
