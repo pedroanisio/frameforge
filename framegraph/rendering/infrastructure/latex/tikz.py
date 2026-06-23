@@ -923,8 +923,8 @@ class FigureTikz:
             font += "\\scshape"
         for feature in self._numeric_font_features(st.get("font_variant_numeric")):
             font += f"\\addfontfeatures{{Numbers={feature}}}"
-        if st.get("font_variant_ligatures") == "none":
-            font += "\\addfontfeatures{Ligatures=NoCommon}"
+        for feature in self._ligature_font_features(st.get("font_variant_ligatures")):
+            font += f"\\addfontfeatures{{Ligatures={feature}}}"
         kerning = st.get("font_kerning")
         if kerning == "none":
             font += "\\addfontfeatures{Kerning=Off}"
@@ -962,6 +962,26 @@ class FigureTikz:
             "slashed-zero": "SlashedZero",
         }
         tokens = str(value).replace(",", " ").split()
+        return [mapping[token] for token in tokens if token in mapping]
+
+    @staticmethod
+    def _ligature_font_features(value):
+        if not value:
+            return []
+        raw = str(value).strip()
+        if raw == "none":
+            return ["NoCommon"]
+        mapping = {
+            "common-ligatures": "Common",
+            "no-common-ligatures": "NoCommon",
+            "discretionary-ligatures": "Rare",
+            "no-discretionary-ligatures": "NoRare",
+            "historical-ligatures": "Historic",
+            "no-historical-ligatures": "NoHistoric",
+            "contextual": "Contextual",
+            "no-contextual": "NoContextual",
+        }
+        tokens = raw.replace(",", " ").split()
         return [mapping[token] for token in tokens if token in mapping]
 
     @staticmethod

@@ -184,6 +184,26 @@ def test_font_variant_ligatures_none_maps_to_fontspec_feature():
     assert "{office}" in tex
 
 
+def test_font_variant_ligatures_maps_combined_fontspec_features():
+    tex = _fig({
+        "label": {
+            "font_variant_ligatures": (
+                "common-ligatures discretionary-ligatures historical-ligatures no-contextual"
+            ),
+        },
+    }).render({
+        "type": "text",
+        "box": [10, 20, 120, 30],
+        "text": "office",
+        "style": "label",
+    })
+
+    assert "\\addfontfeatures{Ligatures=Common}" in tex
+    assert "\\addfontfeatures{Ligatures=Rare}" in tex
+    assert "\\addfontfeatures{Ligatures=Historic}" in tex
+    assert "\\addfontfeatures{Ligatures=NoContextual}" in tex
+
+
 def test_font_kerning_maps_to_fontspec_feature():
     disabled = _fig({"label": {"font_kerning": "none"}}).render({
         "type": "text",
