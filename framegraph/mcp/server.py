@@ -33,6 +33,59 @@ BUILD_FUNCTION_NAMES = ("build", "build_deck", "build_book", "build_package")
 FRAMEGRAPH_YAML_PATTERNS = ("*.fg.yaml", "*.fg.yml", "*.framegraph.yaml", "*.framegraph.yml")
 STRUCTURED_LOG_SCHEMA = "framegraph.mcp.structured_log.v1"
 
+FRAMEGRAPH_GUIDE = """\
+# FrameGraph MCP — what the SDK offers and the server's capabilities
+
+FrameGraph v2 is a document/graphics DSL. The Pydantic model is the source of
+truth; the SDK lowers Python to validated YAML and this server renders it. Always
+verify rendered output — CV/LLM output is unverified by default (PALS's Law).
+
+## Author with the SDK (`framegraph.sdk`)
+Fluent builder:
+    from framegraph.sdk import DocumentBuilder
+    doc = DocumentBuilder(title="Deck", profile="deck")
+    h1 = doc.define_text_style("h1", font_family="sans", font_size=48, color="#E8EAED")
+    page = doc.page("p1", canvas={"size": [1280, 720], "units": "px"}, coordinate_mode="absolute")
+    page.layer("main").rect([0, 0, 1280, 720], fill="#0E0F11")
+    page.text([64, 96, 900, 80], "Hello", id="title", style=h1)
+    doc.write(OUTPUT_YAML_PATH, fail_on_error=True)
+
+- Primitives via `PageBuilder`: `.rect` `.text` `.line` `.image`, plus `.add(obj)` /
+  `.extend(objs)` and `.stack(box, kind="row|column|grid|wrap")` layout groups.
+- Paint (`framegraph.sdk.paint`): `stroke(width, color=...)`, `fill_stroke(...)`,
+  `linear_gradient`/`radial_gradient`, `hatch`/`dots`/`grid_pattern`/`pattern`,
+  `glow`/`neon`/`shadow`/`soft_shadow`, `rgba`. Stroke geometry MUST go through
+  `stroke()` (paint in `stroke`, geometry in the inline `stroke_style` bundle);
+  an inline `stroke_width` on a paint-only line/polyline/path is rejected.
+- Widgets (`framegraph.sdk.widgets`): `avatar` `badge` `button` `card` `kpi` `pill`
+  `progress` `table` `tabs` `toggle` `divider` `field`, plus `Panel`/`Theme`.
+- Data & geometry: `Chart`+`Frame`, `Graph`/`Node`/`Edge`, `Camera`/`Scene3D`/`Mat3`/
+  `Mat4`, `CubicBezier`/`Path`, `ScalarField`/`VectorField`, `lattice`/`manifold`,
+  `greeble`, `grid_lines`.
+- Validation: `validate_static_rules(doc) -> ValidationReport(ok, issues)`,
+  `assert_golden(...)`; `HEAD_VERSION` is the current spec version.
+
+## Server tools
+Forward (author -> render):
+- `run_sdk_code` / `run_sdk_client` — run Python that builds a doc, then validate + render SVG.
+- `write_sdk_client` / `read_sdk_client` / `list_sdk_clients` — edit whitelisted SDK clients.
+- `render_framegraph_yaml` — validate + render caller-supplied YAML directly.
+- `get_session_resource` — read `framegraph://session/...` artifacts (YAML, SVG, diagnostics).
+
+Inverse (image/document -> author), the additional capability:
+- `propose_from_image` — classical OpenCV/numpy detectors (+ an optional VLM lane)
+  propose a DRAFT document from a screenshot/photo.
+- `propose_from_document` — the same pipeline over a rasterised PDF page.
+  Both proposals are UNVERIFIED: each tool round-trips the draft through
+  validate + render so you immediately see whether it holds, lists which
+  detectors ran vs were skipped, and returns the per-object observations. Treat
+  the result as a starting point to refine with the SDK — never as final.
+
+## Workflow
+Author or propose -> read the returned validation issues + rendered SVG -> refine
+the SDK code/YAML -> re-render. Verify every rendered result.
+"""
+
 
 def get_default_session_root() -> Path:
     """Return the default location for MCP session artifacts."""
@@ -313,6 +366,101 @@ def render_framegraph_yaml(
     return result
 
 
+def propose_from_image(
+    image_path: str | None = None,
+    *,
+    image_base64: str | None = None,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+    max_pages: int = 3,
+    raster_png: bool = False,
+    title: str = "Proposed from image",
+    detector_names: list[str] | None = None,
+) -> dict[str, Any]:
+    """Propose a draft FrameGraph document from an image, then validate and render it.
+
+    The proposal is unverified CV/VLM output; rendering it through the forward
+    pipeline (the same one ``render_framegraph_yaml`` uses) is the verification.
+    """
+    if not image_path and not image_base64:
+        raise ValueError("provide image_path or image_base64")
+    from framegraph.vision.application.service import propose_from_image as _vision_propose
+
+    try:
+        if image_base64:
+            proposal = _vision_propose(image_base64, is_base64=True, title=title, detector_names=detector_names)
+        else:
+            proposal = _vision_propose(image_path, is_base64=False, title=title, detector_names=detector_names)
+    except RuntimeError as exc:
+        return {"ok": False, "error": str(exc), "proposal": None, "renders": [], "resources": []}
+    return _render_proposal(
+        proposal, session_id=session_id, session_root=session_root, max_pages=max_pages, raster_png=raster_png
+    )
+
+
+def propose_from_document(
+    path: str,
+    *,
+    page: int = 1,
+    dpi: int = 144,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+    max_pages: int = 3,
+    raster_png: bool = False,
+    title: str | None = None,
+    detector_names: list[str] | None = None,
+) -> dict[str, Any]:
+    """Propose a draft FrameGraph document from a rasterised PDF page, then validate and render it."""
+    from framegraph.vision.application.service import propose_from_document as _vision_propose
+
+    try:
+        proposal = _vision_propose(path, page=page, dpi=dpi, title=title, detector_names=detector_names)
+    except (RuntimeError, ValueError) as exc:
+        return {"ok": False, "error": str(exc), "proposal": None, "renders": [], "resources": []}
+    return _render_proposal(
+        proposal, session_id=session_id, session_root=session_root, max_pages=max_pages, raster_png=raster_png
+    )
+
+
+def _render_proposal(
+    proposal: Any,
+    *,
+    session_id: str | None,
+    session_root: str | Path | None,
+    max_pages: int,
+    raster_png: bool,
+) -> dict[str, Any]:
+    import yaml as _yaml
+
+    yaml_text = _yaml.safe_dump(dict(proposal.document), sort_keys=False, allow_unicode=True)
+    result = render_framegraph_yaml(
+        yaml_text,
+        session_id=session_id,
+        session_root=session_root,
+        max_pages=max_pages,
+        raster_png=raster_png,
+    )
+    result["proposal"] = _proposal_summary(proposal)
+    return result
+
+
+def _proposal_summary(proposal: Any) -> dict[str, Any]:
+    return {
+        "object_count": len(proposal.observations),
+        "detectors_run": list(proposal.detectors_run),
+        "detectors_skipped": [{"name": s.name, "reason": s.reason} for s in proposal.detectors_skipped],
+        "observations": [
+            {
+                "kind": o.kind,
+                "bbox": [round(float(v), 2) for v in o.bbox] if o.bbox else None,
+                "confidence": o.confidence,
+                "detector": o.detector,
+            }
+            for o in proposal.observations
+        ],
+    }
+
+
 def read_session_resource(uri: str, *, session_root: str | Path | None = None) -> dict[str, str]:
     """Read a ``framegraph://session/...`` artifact as an MCP resource payload."""
     root = _session_root(session_root)
@@ -539,6 +687,86 @@ def create_server(
             ),
         )
         return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def propose_from_image(
+        image_path: str | None = None,
+        image_base64: str | None = None,
+        session_id: str | None = None,
+        max_pages: int = 3,
+        raster_png: bool = False,
+        title: str = "Proposed from image",
+        detector_names: list[str] | None = None,
+    ):
+        """Propose a DRAFT FrameGraph document from an image (OpenCV/numpy + optional VLM), then validate and render it."""
+        result = _logged_call(
+            log_path,
+            "propose_from_image",
+            {
+                "image_path": image_path,
+                "image_base64_bytes": len(image_base64) if image_base64 else 0,
+                "session_id": session_id,
+                "max_pages": max_pages,
+                "raster_png": raster_png,
+                "title": title,
+                "detector_names": detector_names,
+            },
+            lambda: globals()["propose_from_image"](
+                image_path,
+                image_base64=image_base64,
+                session_id=session_id,
+                session_root=root,
+                max_pages=max_pages,
+                raster_png=raster_png,
+                title=title,
+                detector_names=detector_names,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def propose_from_document(
+        path: str,
+        page: int = 1,
+        dpi: int = 144,
+        session_id: str | None = None,
+        max_pages: int = 3,
+        raster_png: bool = False,
+        title: str | None = None,
+        detector_names: list[str] | None = None,
+    ):
+        """Propose a DRAFT FrameGraph document from a rasterised PDF page, then validate and render it."""
+        result = _logged_call(
+            log_path,
+            "propose_from_document",
+            {
+                "path": path,
+                "page": page,
+                "dpi": dpi,
+                "session_id": session_id,
+                "max_pages": max_pages,
+                "raster_png": raster_png,
+                "title": title,
+                "detector_names": detector_names,
+            },
+            lambda: globals()["propose_from_document"](
+                path,
+                page=page,
+                dpi=dpi,
+                session_id=session_id,
+                session_root=root,
+                max_pages=max_pages,
+                raster_png=raster_png,
+                title=title,
+                detector_names=detector_names,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.prompt()
+    def framegraph_guide() -> str:
+        """Guide to what the FrameGraph SDK offers and the server's authoring + proposal tools."""
+        return _logged_call(log_path, "prompt.framegraph_guide", {}, lambda: FRAMEGRAPH_GUIDE)
 
     @server.tool()
     def get_session_resource(uri: str) -> dict[str, str]:

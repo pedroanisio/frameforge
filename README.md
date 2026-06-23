@@ -76,7 +76,7 @@ uv sync                                    # create/populate .venv
 # schema is generated and in sync
 uv run python schema/build_schema.py --check
 
-# validate the delivered top-level fixtures — 21/21 zero errors in FIXTURE-STATUS.md
+# validate the delivered top-level fixtures — 22/22 zero errors in FIXTURE-STATUS.md
 uv run python tooling/validate.py fixtures/*.fg.yaml
 
 # migrate a legacy v2 document to HEAD
@@ -148,5 +148,5 @@ folded into the artifacts above; they are listed only for historical context:
 - Font pinning enables deterministic *layout* only up to a stated rounding **tolerance**
   (a defined shaping model is also required) — not pixel-exact identity (§9.6).
 - The current delivered top-level fixture status is generated in `FIXTURE-STATUS.md`;
-  at this snapshot **21/21** have zero errors. Advisory warnings, when present, are
+  at this snapshot **22/22** have zero errors. Advisory warnings, when present, are
   recorded there instead of summarized by hand here.

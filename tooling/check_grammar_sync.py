@@ -282,6 +282,98 @@ def check_object_fields(out: list[Finding], prods: dict[str, str],
                                f"object {t!r}: " + "; ".join(parts)))
 
 
+# --------------------------------------------------------------------------- #
+#  Inline (un-named) style enums                                               #
+# --------------------------------------------------------------------------- #
+# The named style enums (FontStyle, BlendMode, Overflow, …) are module-level
+# Literal aliases, already covered by check_enums(). But most style enums are
+# *inline* on the field — ``[ "text_align" , ":" , ( "left" | "right" | … ) ]`` —
+# and were never compared to the models' inline Literal fields (drift-risk-map
+# Finding #3). The grammar's field names are underscore-form and match the model
+# field names verbatim, so the two sides can be lined up by field name.
+_INLINE_SLOT = re.compile(r'"([A-Za-z_][A-Za-z0-9_]*)"\s*,\s*":"\s*,\s*(.*)$')
+
+
+def style_inline_enum_slots() -> dict[str, set[str]]:
+    """``{field: {literal, …}}`` for every ``"field" , ":" , ( "a" | "b" )`` slot in
+    the style grammar. Quoted structural punctuation is dropped, so a slot whose
+    value is a named production / bare ``string`` / ``Length`` yields no literals
+    and is skipped by callers."""
+    text = _strip_comments(open(STYLE_EBNF, encoding="utf-8").read())
+    slots: dict[str, set[str]] = {}
+    for line in text.splitlines():
+        m = _INLINE_SLOT.search(line)
+        if not m:
+            continue
+        vals = {v for v in re.findall(r'"([^"]*)"', m.group(2)) if v not in _STRUCT}
+        if vals:
+            slots.setdefault(m.group(1), set()).update(vals)
+    return slots
+
+
+def _literal_strings(ann) -> set[str]:
+    """Every ``str`` value inside a (possibly Optional/Union-nested) annotation's
+    ``Literal``s."""
+    out: set[str] = set()
+    if typing.get_origin(ann) is typing.Literal:
+        out |= {a for a in typing.get_args(ann) if isinstance(a, str)}
+    for a in typing.get_args(ann):
+        out |= _literal_strings(a)
+    return out
+
+
+def _admits_free_str(ann) -> bool:
+    """True if the annotation accepts an arbitrary ``str`` (so the grammar may list
+    sample values without lying)."""
+    if ann is str:
+        return True
+    return any(_admits_free_str(a) for a in typing.get_args(ann))
+
+
+def model_closed_field_enums() -> dict[str, set[str]]:
+    """``{field: {value, …}}`` for every model field whose annotation pins a *closed*
+    string set — a ``Literal`` with no bare ``str`` alternative. A field that is
+    open (admits free ``str``) in any model is excluded everywhere: enumerating
+    sample values of a free-text field is not a contract violation."""
+    closed: dict[str, set[str]] = {}
+    open_fields: set[str] = set()
+    for obj in vars(fg).values():
+        mf = getattr(obj, "model_fields", None)
+        if not mf:
+            continue
+        for fname, f in mf.items():
+            vals = _literal_strings(f.annotation)
+            if not vals:
+                continue
+            if _admits_free_str(f.annotation):
+                open_fields.add(fname)
+            else:
+                closed.setdefault(fname, set()).update(vals)
+    for f in open_fields:
+        closed.pop(f, None)
+    return closed
+
+
+def check_inline_enums(out: list[Finding], slots: dict[str, set[str]] | None = None) -> None:
+    """ERROR when a style-grammar inline enum offers a value no closed model field of
+    that name accepts — i.e. the grammar lies to authors about a closed enum. The
+    reverse (a model value the grammar omits) is intentionally not gated: field-name
+    collisions across models make it noisy, and an under-documented grammar is not a
+    correctness hazard. ``slots`` defaults to the live grammar; pass a dict to test."""
+    model = model_closed_field_enums()
+    if slots is None:
+        slots = style_inline_enum_slots()
+    for field, gvals in sorted(slots.items()):
+        mvals = model.get(field)
+        if mvals is None:
+            continue  # no closed model field of this name — nothing to lie about
+        bogus = sorted(gvals - mvals)
+        if bogus:
+            out.append(Finding("ERROR", "inline-enum-drift",
+                               f"style enum {field!r}: grammar offers value(s) the model "
+                               f"rejects: {{{', '.join(bogus)}}}"))
+
+
 def run_checks() -> list[Finding]:
     prods = parse_productions(CORE_EBNF, STYLE_EBNF)
     out: list[Finding] = []
@@ -302,6 +394,7 @@ def run_checks() -> list[Finding]:
     check_discriminated(out, "inline", inline_model, inline_gram)
 
     check_enums(out, prods)
+    check_inline_enums(out)
     check_object_fields(out, prods, obj_model, obj_gram)
     return out
 

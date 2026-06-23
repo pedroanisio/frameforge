@@ -170,6 +170,7 @@ class FakeFastMCP:
         self.kwargs = kwargs
         self.tools = {}
         self.resources = {}
+        self.prompts = {}
 
     def tool(self, **_kwargs):
         def decorate(func):
@@ -181,6 +182,13 @@ class FakeFastMCP:
     def resource(self, uri: str, **_kwargs):
         def decorate(func):
             self.resources[uri] = func
+            return func
+
+        return decorate
+
+    def prompt(self, **_kwargs):
+        def decorate(func):
+            self.prompts[func.__name__] = func
             return func
 
         return decorate
@@ -198,10 +206,22 @@ def test_create_server_registers_feedback_loop_tools_and_resources(tmp_path):
         "run_sdk_client",
         "run_sdk_code",
         "write_sdk_client",
+        "propose_from_image",
+        "propose_from_document",
     } <= set(server.tools)
     assert "framegraph://session/{session_id}/document.yaml" in server.resources
     assert "framegraph://session/{session_id}/page/{page_number}.svg" in server.resources
     assert "framegraph://session/{session_id}/diagnostics.json" in server.resources
+
+
+def test_create_server_registers_authoring_guide_prompt(tmp_path):
+    server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
+
+    assert "framegraph_guide" in server.prompts
+    guide = server.prompts["framegraph_guide"]()
+    assert "DocumentBuilder" in guide
+    assert "propose_from_image" in guide
+    assert "PALS" in guide
 
 
 def test_create_server_writes_structured_log_for_tool_instructions_and_responses(tmp_path):

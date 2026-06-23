@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "framegraph": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--group", "mcp", "python", "-m", "framegraph.mcp"]
+    }
+  }
+}

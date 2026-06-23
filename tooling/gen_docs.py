@@ -587,6 +587,26 @@ def generate():
     return written
 
 
+# Generated pages that are *committed* (not gitignored): the SDK guide/API are
+# checked-in snapshots, so `--check` must fail if the committed copy drifts from a
+# fresh build — the same "generate + --check, never hand-drift" contract that
+# build_schema.py --check gives the schema. The transient pages are gitignored and
+# need no such gate.
+_TRACKED_GENERATED = {"sdk.md": gen_sdk_guide, "sdk-api.md": gen_sdk_api}
+
+
+def stale_tracked_pages():
+    """Committed generated pages whose on-disk content differs from a fresh build.
+    Read this BEFORE generate() runs, since generate() overwrites them in place."""
+    stale = []
+    for rel, builder in _TRACKED_GENERATED.items():
+        path = os.path.join(DOCS, rel)
+        on_disk = open(path, encoding="utf-8").read() if os.path.exists(path) else ""
+        if on_disk != builder():
+            stale.append(rel)
+    return stale
+
+
 def _nav_targets():
     import yaml
     cfg = yaml.safe_load(open(os.path.join(ROOT, "mkdocs.yml"), encoding="utf-8"))
@@ -609,18 +629,26 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true",
-                    help="generate, then assert every mkdocs.yml nav page exists")
+                    help="generate, then assert committed generated pages are fresh "
+                         "and every mkdocs.yml nav page exists")
     args = ap.parse_args(argv)
+
+    # Capture drift in the committed snapshots BEFORE generate() overwrites them.
+    stale = stale_tracked_pages() if args.check else []
 
     written = generate()
     print(f"Wrote {len(written)} page(s) to docs/: {', '.join(written)}")
 
     if args.check:
+        if stale:
+            print(f"STALE: committed generated docs differ from a fresh build: {stale}. "
+                  f"Run `make docs` and commit the result.")
+            return 1
         missing = [t for t in _nav_targets() if not os.path.exists(os.path.join(DOCS, t))]
         if missing:
             print(f"NAV BROKEN: mkdocs.yml references missing pages: {missing}")
             return 1
-        print("OK: every mkdocs.yml nav page exists.")
+        print("OK: committed generated docs are fresh and every mkdocs.yml nav page exists.")
     return 0
 
 

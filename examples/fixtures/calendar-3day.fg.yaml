@@ -134,7 +134,7 @@ pages:
   canvas:
     size:
     - 412
-    - 1040
+    - 1064
     units: px
   rendering:
     coordinate_mode: absolute
@@ -148,7 +148,7 @@ pages:
       - 0
       - 0
       - 412
-      - 1040
+      - 1064
       fill: bg
   - id: grid
     z: 1
@@ -492,114 +492,125 @@ pages:
   - id: overlay
     z: 2
     objects:
-    - type: text
-      id: t4
-      text: 04:00
+    - type: group
+      id: time_labels
       box:
       - 4
       - 384
       - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t5
-      text: 05:00
-      box:
-      - 4
-      - 440
-      - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t6
-      text: 06:00
-      box:
-      - 4
-      - 496
-      - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t7
-      text: 07:00
-      box:
-      - 4
-      - 552
-      - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t8
-      text: 08:00
-      box:
-      - 4
-      - 608
-      - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t9
-      text: 09:00
-      box:
-      - 4
-      - 664
-      - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t10
-      text: '10:00'
-      box:
-      - 4
-      - 720
-      - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t11
-      text: '11:00'
-      box:
-      - 4
-      - 776
-      - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t12
-      text: '12:00'
-      box:
-      - 4
-      - 832
-      - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t13
-      text: '13:00'
-      box:
-      - 4
-      - 888
-      - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t14
-      text: '14:00'
-      box:
-      - 4
-      - 944
-      - 48
-      - 16
-      style: time_label
-    - type: text
-      id: t15
-      text: '15:00'
-      box:
-      - 4
-      - 1000
-      - 48
-      - 16
-      style: time_label
+      - 632
+      layout:
+        kind: column
+        gap: 40
+      children:
+      - type: text
+        id: t4
+        text: 04:00
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t5
+        text: 05:00
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t6
+        text: 06:00
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t7
+        text: 07:00
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t8
+        text: 08:00
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t9
+        text: 09:00
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t10
+        text: '10:00'
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t11
+        text: '11:00'
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t12
+        text: '12:00'
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t13
+        text: '13:00'
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t14
+        text: '14:00'
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
+      - type: text
+        id: t15
+        text: '15:00'
+        box:
+        - 0
+        - 0
+        - 48
+        - 16
+        style: time_label
     - type: rect
       id: ev_sc_bg0
       box:
@@ -824,24 +835,34 @@ pages:
       - 300
       - 150
       style: bn_body
-    - type: text
-      id: bn_link1
-      text: Add an event
+    - type: group
+      id: bn_actions
       box:
       - 56
       - 262
-      - 170
+      - 354
       - 30
-      style: bn_link
-    - type: text
-      id: bn_link2
-      text: Review members
-      box:
-      - 240
-      - 262
-      - 170
-      - 30
-      style: bn_link
+      layout:
+        kind: free
+      children:
+      - type: text
+        id: bn_link1
+        text: Add an event
+        box:
+        - 0
+        - 0
+        - 170
+        - 30
+        style: bn_link
+      - type: text
+        id: bn_link2
+        text: Review members
+        box:
+        - 184
+        - 0
+        - 170
+        - 30
+        style: bn_link
     - type: line
       id: bn_div
       from:
@@ -851,68 +872,78 @@ pages:
       - 412
       - 308
       stroke_style: divider
-    - type: text
-      id: dh_name0
-      text: Mon
+    - type: group
+      id: day_header
       box:
-      - 72.0
+      - 56
       - 322
-      - 80
-      - 20
-      style: day_name_today
-    - type: ellipse
-      id: today_circle
-      center:
-      - 112.0
-      - 356
-      rx: 20
-      ry: 20
-      fill: today_fill
-    - type: text
-      id: dh_num0
-      text: '22'
-      box:
-      - 96.0
-      - 344
-      - 32
-      - 26
-      style: day_num_today
-    - type: text
-      id: dh_name1
-      text: Tue
-      box:
-      - 190.0
-      - 322
-      - 80
-      - 20
-      style: day_name
-    - type: text
-      id: dh_num1
-      text: '23'
-      box:
-      - 210.0
-      - 344
-      - 40
-      - 28
-      style: day_num
-    - type: text
-      id: dh_name2
-      text: Wed
-      box:
-      - 308.0
-      - 322
-      - 80
-      - 20
-      style: day_name
-    - type: text
-      id: dh_num2
-      text: '24'
-      box:
-      - 328.0
-      - 344
-      - 40
-      - 28
-      style: day_num
+      - 332
+      - 54
+      layout:
+        kind: free
+      children:
+      - type: text
+        id: dh_name0
+        text: Mon
+        box:
+        - 16
+        - 0
+        - 80
+        - 20
+        style: day_name_today
+      - type: ellipse
+        id: today_circle
+        center:
+        - 56
+        - 34
+        rx: 20
+        ry: 20
+        fill: today_fill
+      - type: text
+        id: dh_num0
+        text: '22'
+        box:
+        - 40
+        - 22
+        - 32
+        - 26
+        style: day_num_today
+      - type: text
+        id: dh_name1
+        text: Tue
+        box:
+        - 134
+        - 0
+        - 80
+        - 20
+        style: day_name
+      - type: text
+        id: dh_num1
+        text: '23'
+        box:
+        - 154
+        - 22
+        - 40
+        - 28
+        style: day_num
+      - type: text
+        id: dh_name2
+        text: Wed
+        box:
+        - 252
+        - 0
+        - 80
+        - 20
+        style: day_name
+      - type: text
+        id: dh_num2
+        text: '24'
+        box:
+        - 272
+        - 22
+        - 40
+        - 28
+        style: day_num
   - id: fabs
     z: 4
     objects:

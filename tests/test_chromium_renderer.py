@@ -7,6 +7,7 @@ downloaded browser. The optional end-to-end path is exercised by running
 """
 from __future__ import annotations
 
+import asyncio
 import os
 import sys
 
@@ -26,6 +27,15 @@ class FakePlaywrightModule:
 
     def sync_playwright(self):
         return self.manager
+
+
+class LoopSensitiveFakePlaywrightModule(FakePlaywrightModule):
+    def sync_playwright(self):
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return super().sync_playwright()
+        raise RuntimeError("Playwright Sync API inside the asyncio loop")
 
 
 class FakeManager:
@@ -102,6 +112,22 @@ def test_rasterize_svg_uses_headless_browser(tmp_path):
     assert "<base href=" in page.html
     assert page.screenshot_args["type"] == "png"
     assert fake.manager.chromium.browser.closed is True
+
+
+def test_rasterize_svg_runs_sync_playwright_outside_active_asyncio_loop(tmp_path):
+    fake = LoopSensitiveFakePlaywrightModule()
+
+    async def render():
+        return rasterize_svg(
+            '<svg width="120" height="80"><rect width="120" height="80" fill="red"/></svg>',
+            tmp_path / "page.png",
+            playwright_module=fake,
+        )
+
+    out = asyncio.run(render())
+
+    assert out.exists()
+    assert fake.manager.chromium.browser.pages
 
 
 def test_render_chromium_list_mode(capsys):

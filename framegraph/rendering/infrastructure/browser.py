@@ -7,7 +7,9 @@ PNG is needed.
 """
 from __future__ import annotations
 
+import asyncio
 import base64
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import re
 from typing import Iterable, Sequence
@@ -50,6 +52,31 @@ def rasterize_svg(
     playwright_module=None,
 ) -> Path:
     """Rasterize one SVG string to PNG with headless Chromium."""
+    if _in_running_event_loop():
+        return _rasterize_svg_in_worker(
+            svg,
+            out_path,
+            base_dir=base_dir,
+            scale=scale,
+            playwright_module=playwright_module,
+        )
+    return _rasterize_svg_sync(
+        svg,
+        out_path,
+        base_dir=base_dir,
+        scale=scale,
+        playwright_module=playwright_module,
+    )
+
+
+def _rasterize_svg_sync(
+    svg: str,
+    out_path: str | Path,
+    *,
+    base_dir: str | Path | None = None,
+    scale: float = 1.0,
+    playwright_module=None,
+) -> Path:
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     width, height = svg_size(svg)
@@ -73,6 +100,29 @@ def rasterize_svg(
         finally:
             browser.close()
     return out
+
+
+def _rasterize_svg_in_worker(
+    svg: str,
+    out_path: str | Path,
+    *,
+    base_dir: str | Path | None,
+    scale: float,
+    playwright_module=None,
+) -> Path:
+    # Playwright's sync API refuses to run in a thread that already owns an
+    # asyncio loop. MCP tools are often invoked from such a loop, so isolate the
+    # browser work in a short-lived worker thread while preserving this sync API.
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(
+            _rasterize_svg_sync,
+            svg,
+            out_path,
+            base_dir=base_dir,
+            scale=scale,
+            playwright_module=playwright_module,
+        )
+        return future.result()
 
 
 def rasterize_svgs(
@@ -109,6 +159,14 @@ def _load_playwright():
             "`uv sync --group browser`, then `uv run playwright install chromium`."
         ) from exc
     return sync_api
+
+
+def _in_running_event_loop() -> bool:
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return False
+    return True
 
 
 def _html(svg: str, *, base_dir: str | Path | None) -> str:

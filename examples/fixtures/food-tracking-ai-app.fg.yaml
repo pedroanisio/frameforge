@@ -1,0 +1,3227 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Food Tracking Mobile App UI with AI Scan
+lang: en
+defs:
+  tokens:
+    colors:
+      stage: '#C6BBAC'
+      stage2: '#BFB3A2'
+      ink: '#211D17'
+      ink2: '#2C2820'
+      muted: '#9C9384'
+      muted2: '#B7AE9F'
+      hair: '#E7E0D4'
+      cream: '#F5F1E9'
+      card: '#FFFFFF'
+      cardsoft: '#FBF8F2'
+      chip: '#FFFFFF'
+      orange: '#E98C5D'
+      orangeDk: '#DC7642'
+      orangeLt: '#F4AE86'
+      orangeWash: '#F7E3D4'
+      nav: '#191710'
+      navtext: '#F5F1E9'
+      green: '#7FA85A'
+      greenDk: '#4E7A37'
+      greenLt: '#A9CC7E'
+      tomato: '#D6492F'
+      purple: '#7E5285'
+      white: '#FFFFFF'
+    text_styles:
+      navTitle:
+        align: center
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 19
+        font_weight: 800
+        line_height: 1.3
+        letter_spacing: -0.3
+      kcalBig:
+        align: center
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 30
+        font_weight: 800
+        line_height: 1.3
+        letter_spacing: -0.6
+      kcalDate:
+        align: center
+        color: muted
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 600
+        line_height: 1.3
+        letter_spacing: 0.0
+      kcalGoal:
+        align: center
+        color: orange
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+        line_height: 1.3
+        letter_spacing: 0.0
+      cardTitle:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 17
+        font_weight: 700
+        line_height: 1.3
+        letter_spacing: -0.2
+      cardSub:
+        align: left
+        color: muted
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 12
+        font_weight: 500
+        line_height: 1.3
+        letter_spacing: 0.0
+      kcalR:
+        align: right
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 17
+        font_weight: 800
+        line_height: 1.3
+        letter_spacing: -0.2
+      pctR:
+        align: right
+        color: orange
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 12
+        font_weight: 700
+        line_height: 1.3
+        letter_spacing: 0.0
+      macro:
+        align: left
+        color: muted
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11
+        font_weight: 600
+        line_height: 1.3
+        letter_spacing: 0.0
+      macroV:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11
+        font_weight: 700
+        line_height: 1.3
+        letter_spacing: 0.0
+      plus:
+        align: center
+        color: muted
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 22
+        font_weight: 500
+        line_height: 1.3
+        letter_spacing: 0.0
+      h1:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 31
+        font_weight: 800
+        line_height: 1.08
+        letter_spacing: -0.8
+      sub:
+        align: left
+        color: muted
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 14
+        font_weight: 500
+        line_height: 1.45
+        letter_spacing: 0
+      btn:
+        align: center
+        color: navtext
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 16
+        font_weight: 700
+        line_height: 1.3
+        letter_spacing: 0.2
+      badgePill:
+        align: center
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 12
+        font_weight: 800
+        line_height: 1.3
+        letter_spacing: -0.2
+      search:
+        align: left
+        color: muted2
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 14
+        font_weight: 500
+        line_height: 1.3
+        letter_spacing: 0.0
+      chipLbl:
+        align: center
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 12
+        font_weight: 600
+        line_height: 1.3
+        letter_spacing: 0.0
+      section:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 18
+        font_weight: 800
+        line_height: 1.3
+        letter_spacing: -0.3
+      see:
+        align: right
+        color: muted
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 600
+        line_height: 1.3
+        letter_spacing: 0.0
+      cnt:
+        align: center
+        color: white
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11
+        font_weight: 800
+        line_height: 1.3
+        letter_spacing: 0.0
+      time:
+        align: left
+        color: muted
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 12
+        font_weight: 600
+        line_height: 1.3
+        letter_spacing: 0.0
+      easy:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 12
+        font_weight: 700
+        line_height: 1.3
+        letter_spacing: 0.0
+      kcalCard:
+        align: right
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 17
+        font_weight: 800
+        line_height: 1.3
+        letter_spacing: -0.2
+pages:
+- mode: page
+  id: food_tracking_ai_app
+  canvas:
+    size:
+    - 1500.0
+    - 900.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: stage
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1500
+      - 900
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: '#CCC2B4'
+          position: 0%
+        - color: '#C6BBAC'
+          position: 50%
+        - color: '#BCB09E'
+          position: 100%
+        angle: 31.0
+  - id: phones
+    objects:
+    - box:
+      - 147
+      - 158
+      - 356
+      - 720
+      decorative: true
+      type: rect
+      fill: rgba(90,74,48,0.16)
+      radius: 52
+    - box:
+      - 150
+      - 150
+      - 350
+      - 720
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: cream
+      radius: 46
+      stroke: rgba(255,255,255,0.6)
+    - box:
+      - 273.0
+      - 166
+      - 104
+      - 28
+      type: rect
+      fill: '#13110C'
+      radius: 14
+    - box:
+      - 566
+      - 72
+      - 368
+      - 772
+      decorative: true
+      type: rect
+      fill: rgba(90,74,48,0.16)
+      radius: 52
+    - box:
+      - 569
+      - 64
+      - 362
+      - 772
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: cream
+      radius: 46
+      stroke: rgba(255,255,255,0.6)
+    - box:
+      - 698.0
+      - 80
+      - 104
+      - 28
+      type: rect
+      fill: '#13110C'
+      radius: 14
+    - box:
+      - 997
+      - 158
+      - 356
+      - 720
+      decorative: true
+      type: rect
+      fill: rgba(90,74,48,0.16)
+      radius: 52
+    - box:
+      - 1000
+      - 150
+      - 350
+      - 720
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: cream
+      radius: 46
+      stroke: rgba(255,255,255,0.6)
+    - box:
+      - 1123.0
+      - 166
+      - 104
+      - 28
+      type: rect
+      fill: '#13110C'
+      radius: 14
+  - id: content
+    objects:
+    - box:
+      - 170
+      - 208
+      - 44
+      - 44
+      type: rect
+      fill: card
+      radius: 14
+    - box:
+      - 182
+      - 222.4
+      - 20
+      - 16.4
+      stroke_style:
+        stroke_width: 1.8
+      type: rect
+      fill: none
+      radius: 4
+      stroke: ink
+    - stroke_style:
+        stroke_width: 1.8
+      type: line
+      from:
+      - 182.0
+      - 228.0
+      to:
+      - 202.0
+      - 228.0
+      stroke: ink
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+      type: line
+      from:
+      - 187.6
+      - 220.0
+      to:
+      - 187.6
+      - 224.4
+      stroke: ink
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+      type: line
+      from:
+      - 196.4
+      - 220.0
+      to:
+      - 196.4
+      - 224.4
+      stroke: ink
+    - box:
+      - 220
+      - 220
+      - 210
+      - 22
+      style: navTitle
+      type: text
+      text: Dashboard
+    - box:
+      - 436
+      - 208
+      - 44
+      - 44
+      type: rect
+      fill: card
+      radius: 22
+    - stroke_style:
+        stroke_width: 1.8
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 450.8 234.95 C 450.8 228.2 453.05 221.9 458 221.9 C 462.95 221.9 465.2
+        228.2 465.2 234.95 Z
+      fill: none
+      stroke: ink
+    - stroke_style:
+        stroke_width: 1.8
+        stroke_linecap: round
+      type: line
+      from:
+      - 448.55
+      - 234.95
+      to:
+      - 467.45
+      - 234.95
+      stroke: ink
+    - type: ellipse
+      center:
+      - 458.0
+      - 238.55
+      rx: 1.98
+      ry: 1.98
+      fill: ink
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 263.1936684998751
+      - 404.86300939501234
+      to:
+      - 234.93934552838945
+      - 419.88609940416086
+      stroke: '#E98C5D'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 255.7390852993339
+      - 382.1452301515073
+      to:
+      - 224.07695286474365
+      - 386.78304964933915
+      stroke: '#E98C5D'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 256.3649652970814
+      - 358.2438373327019
+      to:
+      - 224.9889494328901
+      - 351.95530582765133
+      stroke: '#E98C5D'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 264.99828895085216
+      - 335.9473347562962
+      to:
+      - 237.56893532838455
+      - 319.46611635917446
+      stroke: '#E98C5D'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 280.6318322820903
+      - 317.8569885086225
+      to:
+      - 260.3492413253316
+      - 293.1058975411357
+      stroke: '#DC7642'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 301.4416766767712
+      - 306.0833450317887
+      to:
+      - 290.67215744329513
+      - 275.9500170463207
+      stroke: '#DC7642'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 325.0
+      - 302.0
+      to:
+      - 325.0
+      - 270.0
+      stroke: '#DC7642'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 348.5583233232289
+      - 306.0833450317887
+      to:
+      - 359.3278425567049
+      - 275.95001704632074
+      stroke: '#DC7642'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 369.3681677179097
+      - 317.8569885086225
+      to:
+      - 389.65075867466845
+      - 293.1058975411357
+      stroke: '#E5DED1'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 385.00171104914784
+      - 335.9473347562962
+      to:
+      - 412.43106467161545
+      - 319.46611635917446
+      stroke: '#E5DED1'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 393.6350347029186
+      - 358.2438373327019
+      to:
+      - 425.0110505671099
+      - 351.9553058276514
+      stroke: '#E5DED1'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 394.2609147006661
+      - 382.1452301515073
+      to:
+      - 425.92304713525635
+      - 386.7830496493392
+      stroke: '#E5DED1'
+    - stroke_style:
+        stroke_width: 15
+        stroke_linecap: round
+      type: line
+      from:
+      - 386.8063315001249
+      - 404.86300939501234
+      to:
+      - 415.0606544716105
+      - 419.88609940416086
+      stroke: '#E5DED1'
+    - box:
+      - 245.0
+      - 318
+      - 160
+      - 16
+      style: kcalDate
+      type: text
+      text: 20 Aug
+    - box:
+      - 225.0
+      - 338
+      - 200
+      - 34
+      style: kcalBig
+      type: text
+      text: 1250 kcal
+    - box:
+      - 235.0
+      - 376
+      - 180
+      - 16
+      style: kcalGoal
+      type: text
+      text: Goal 2000 kcal
+    - box:
+      - 172
+      - 450
+      - 306
+      - 42
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: cardsoft
+      radius: 21
+      stroke: hair
+    - box:
+      - 313.0
+      - 458
+      - 24
+      - 26
+      style: plus
+      type: text
+      text: +
+    - box:
+      - 166
+      - 510
+      - 318
+      - 120
+      shadow:
+        color: '#6E5B3E'
+        blur: 22.0
+        dx: 0.0
+        dy: 8.0
+        opacity: 0.1
+      type: rect
+      fill: card
+      radius: 22
+    - type: ellipse
+      center:
+      - 206.0
+      - 548.0
+      rx: 28.0
+      ry: 28.0
+      fill:
+        kind: linear
+        stops:
+        - color: '#F0E4CE'
+          position: 0%
+        - color: '#E4C79C'
+          position: 100%
+        angle: 45.0
+    - type: ellipse
+      center:
+      - 206.0
+      - 548.0
+      rx: 24.08
+      ry: 24.08
+      fill: '#EAD6AE'
+    - type: ellipse
+      center:
+      - 197.6
+      - 542.4
+      rx: 11.200000000000001
+      ry: 8.4
+      fill: '#83A94F'
+    - type: ellipse
+      center:
+      - 214.96
+      - 546.6
+      rx: 7.28
+      ry: 6.72
+      fill: '#CF4A30'
+    - type: ellipse
+      center:
+      - 207.4
+      - 557.8
+      rx: 8.4
+      ry: 6.16
+      fill: '#C57A38'
+    - type: ellipse
+      center:
+      - 195.36
+      - 556.4
+      rx: 5.04
+      ry: 4.48
+      fill: '#6E4326'
+    - decorative: true
+      type: ellipse
+      center:
+      - 194.24
+      - 536.24
+      rx: 8.4
+      ry: 5.04
+      fill: rgba(255,255,255,0.3)
+    - box:
+      - 236
+      - 532
+      - 150
+      - 20
+      style: cardTitle
+      type: text
+      text: Lunch
+    - box:
+      - 236
+      - 554
+      - 150
+      - 16
+      style: cardSub
+      type: text
+      text: 02:30 PM
+    - box:
+      - 350
+      - 531
+      - 134
+      - 20
+      style: kcalR
+      type: text
+      text: 693 kcal
+    - box:
+      - 350
+      - 554
+      - 134
+      - 16
+      style: pctR
+      type: text
+      text: 35% of goal
+    - stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 178.0
+      - 588.0
+      to:
+      - 472.0
+      - 588.0
+      stroke: hair
+    - type: ellipse
+      center:
+      - 183.0
+      - 606.0
+      rx: 3.0
+      ry: 3.0
+      fill: orange
+    - box:
+      - 192
+      - 599
+      - 60
+      - 14
+      style: macro
+      type: text
+      text: Protein
+    - box:
+      - 192
+      - 610
+      - 60
+      - 14
+      style: macroV
+      type: text
+      text: 48g
+    - type: ellipse
+      center:
+      - 269.0
+      - 606.0
+      rx: 3.0
+      ry: 3.0
+      fill: orange
+    - box:
+      - 278
+      - 599
+      - 60
+      - 14
+      style: macro
+      type: text
+      text: Carbs
+    - box:
+      - 278
+      - 610
+      - 60
+      - 14
+      style: macroV
+      type: text
+      text: 83g
+    - type: ellipse
+      center:
+      - 355.0
+      - 606.0
+      rx: 3.0
+      ry: 3.0
+      fill: orange
+    - box:
+      - 364
+      - 599
+      - 60
+      - 14
+      style: macro
+      type: text
+      text: Fat
+    - box:
+      - 364
+      - 610
+      - 60
+      - 14
+      style: macroV
+      type: text
+      text: 25g
+    - stroke_style:
+        stroke_width: 1.8
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 456.0
+        - 616.0
+      - - 459.08
+        - 612.92
+      - - 469.3
+        - 602.7
+      - - 466.22
+        - 599.62
+      closed: true
+      fill: none
+      stroke: orange
+    - stroke_style:
+        stroke_width: 1.8
+      type: line
+      from:
+      - 464.68
+      - 601.16
+      to:
+      - 467.76
+      - 604.24
+      stroke: orange
+    - box:
+      - 166
+      - 642
+      - 318
+      - 120
+      shadow:
+        color: '#6E5B3E'
+        blur: 22.0
+        dx: 0.0
+        dy: 8.0
+        opacity: 0.1
+      type: rect
+      fill: card
+      radius: 22
+    - type: ellipse
+      center:
+      - 206.0
+      - 680.0
+      rx: 28.0
+      ry: 28.0
+      fill:
+        kind: linear
+        stops:
+        - color: '#F0E4CE'
+          position: 0%
+        - color: '#E4C79C'
+          position: 100%
+        angle: 45.0
+    - type: ellipse
+      center:
+      - 206.0
+      - 680.0
+      rx: 24.08
+      ry: 24.08
+      fill: '#EAD6AE'
+    - type: ellipse
+      center:
+      - 200.96
+      - 677.2
+      rx: 9.520000000000001
+      ry: 9.520000000000001
+      fill: '#F6E7A8'
+    - type: ellipse
+      center:
+      - 200.96
+      - 677.2
+      rx: 4.2
+      ry: 4.2
+      fill: '#F2A93C'
+    - type: ellipse
+      center:
+      - 215.52
+      - 685.04
+      rx: 6.72
+      ry: 5.6000000000000005
+      fill: '#C0402C'
+    - type: ellipse
+      center:
+      - 197.6
+      - 689.52
+      rx: 6.16
+      ry: 4.48
+      fill: '#7FA64C'
+    - decorative: true
+      type: ellipse
+      center:
+      - 194.24
+      - 668.24
+      rx: 8.4
+      ry: 5.04
+      fill: rgba(255,255,255,0.3)
+    - box:
+      - 236
+      - 664
+      - 150
+      - 20
+      style: cardTitle
+      type: text
+      text: Breakfast
+    - box:
+      - 236
+      - 686
+      - 150
+      - 16
+      style: cardSub
+      type: text
+      text: 11:30 AM
+    - box:
+      - 350
+      - 663
+      - 134
+      - 20
+      style: kcalR
+      type: text
+      text: 500 kcal
+    - box:
+      - 350
+      - 686
+      - 134
+      - 16
+      style: pctR
+      type: text
+      text: 25% of goal
+    - stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 178.0
+      - 720.0
+      to:
+      - 472.0
+      - 720.0
+      stroke: hair
+    - type: ellipse
+      center:
+      - 183.0
+      - 738.0
+      rx: 3.0
+      ry: 3.0
+      fill: orange
+    - box:
+      - 192
+      - 731
+      - 60
+      - 14
+      style: macro
+      type: text
+      text: Protein
+    - box:
+      - 192
+      - 742
+      - 60
+      - 14
+      style: macroV
+      type: text
+      text: 36g
+    - type: ellipse
+      center:
+      - 269.0
+      - 738.0
+      rx: 3.0
+      ry: 3.0
+      fill: orange
+    - box:
+      - 278
+      - 731
+      - 60
+      - 14
+      style: macro
+      type: text
+      text: Carbs
+    - box:
+      - 278
+      - 742
+      - 60
+      - 14
+      style: macroV
+      type: text
+      text: 57g
+    - type: ellipse
+      center:
+      - 355.0
+      - 738.0
+      rx: 3.0
+      ry: 3.0
+      fill: orange
+    - box:
+      - 364
+      - 731
+      - 60
+      - 14
+      style: macro
+      type: text
+      text: Fat
+    - box:
+      - 364
+      - 742
+      - 60
+      - 14
+      style: macroV
+      type: text
+      text: 14g
+    - stroke_style:
+        stroke_width: 1.8
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 456.0
+        - 748.0
+      - - 459.08
+        - 744.92
+      - - 469.3
+        - 734.7
+      - - 466.22
+        - 731.62
+      closed: true
+      fill: none
+      stroke: orange
+    - stroke_style:
+        stroke_width: 1.8
+      type: line
+      from:
+      - 464.68
+      - 733.16
+      to:
+      - 467.76
+      - 736.24
+      stroke: orange
+    - box:
+      - 168
+      - 784
+      - 314
+      - 60
+      shadow:
+        color: '#3A2E18'
+        blur: 20.0
+        dx: 0.0
+        dy: 8.0
+        opacity: 0.3
+      type: rect
+      fill: nav
+      radius: 30
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 190.4
+        - 815.0
+      - - 199.4
+        - 806.0
+      - - 208.4
+        - 815.0
+      closed: true
+      fill: none
+      stroke: navtext
+    - box:
+      - 193.4
+      - 815
+      - 12
+      - 9
+      stroke_style:
+        stroke_width: 1.9
+        stroke_linejoin: round
+      type: rect
+      fill: none
+      radius: 1.5
+      stroke: navtext
+    - box:
+      - 254.2
+      - 806
+      - 16
+      - 16
+      stroke_style:
+        stroke_width: 1.9
+        stroke_linejoin: round
+      type: rect
+      fill: none
+      radius: 3
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+      type: line
+      from:
+      - 262.2
+      - 806.0
+      to:
+      - 262.2
+      - 822.0
+      stroke: '#8C857A'
+    - box:
+      - 303.0
+      - 792
+      - 44
+      - 44
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: '#F4AE86'
+          position: 0%
+        - color: '#DC7642'
+          position: 100%
+        angle: 45.0
+      radius: 15
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 321.0 805 L 316.0 805 L 316.0 810
+      fill: none
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 329.0 805 L 334.0 805 L 334.0 810
+      fill: none
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 321.0 823 L 316.0 823 L 316.0 818
+      fill: none
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 329.0 823 L 334.0 823 L 334.0 818
+      fill: none
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+      type: line
+      from:
+      - 316.0
+      - 814.0
+      to:
+      - 334.0
+      - 814.0
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 1.8
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 387.79999999999995
+        - 805.0
+      - - 390.0218282536655
+        - 810.9419157612627
+      - - 396.3595086466563
+        - 811.2188470506255
+      - - 391.39499363159564
+        - 815.1680842387373
+      - - 393.09006727063223
+        - 821.2811529493745
+      - - 387.79999999999995
+        - 817.78
+      - - 382.5099327293677
+        - 821.2811529493745
+      - - 384.20500636840427
+        - 815.1680842387373
+      - - 379.2404913533436
+        - 811.2188470506255
+      - - 385.5781717463344
+        - 810.9419157612627
+      closed: true
+      fill: none
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+      type: ellipse
+      center:
+      - 450.59999999999997
+      - 814.0
+      rx: 5.5
+      ry: 5.5
+      fill: none
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 457.09999999999997
+      - 814.0
+      to:
+      - 459.59999999999997
+      - 814.0
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 455.1961940777125
+      - 818.5961940777125
+      to:
+      - 456.9639610306789
+      - 820.363961030679
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 450.59999999999997
+      - 820.5
+      to:
+      - 450.59999999999997
+      - 823.0
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 446.0038059222874
+      - 818.5961940777125
+      to:
+      - 444.23603896932104
+      - 820.363961030679
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 444.09999999999997
+      - 814.0
+      to:
+      - 441.59999999999997
+      - 814.0
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 446.0038059222874
+      - 809.4038059222875
+      to:
+      - 444.23603896932104
+      - 807.636038969321
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 450.59999999999997
+      - 807.5
+      to:
+      - 450.59999999999997
+      - 805.0
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 455.1961940777125
+      - 809.4038059222875
+      to:
+      - 456.9639610306789
+      - 807.636038969321
+      stroke: '#8C857A'
+    - box:
+      - 585
+      - 120
+      - 330
+      - 432
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: '#EBD9BC'
+          position: 0%
+        - color: '#DDC8A4'
+          position: 50%
+        - color: '#C9AE83'
+          position: 100%
+        angle: 52.6
+      radius: 30
+    - type: polyline
+      points:
+      - - 819.12
+        - 240.96
+      - - 839.2800000000001
+        - 240.96
+      - - 835.9200000000001
+        - 291.36
+      - - 822.48
+        - 291.36
+      closed: true
+      fill: '#9CB86A'
+    - type: ellipse
+      center:
+      - 801.2
+      - 212.96
+      rx: 23.52
+      ry: 23.52
+      fill: '#4E7A37'
+    - type: ellipse
+      center:
+      - 834.8000000000001
+      - 201.76000000000002
+      rx: 25.76
+      ry: 25.76
+      fill: '#4E7A37'
+    - type: ellipse
+      center:
+      - 862.8000000000001
+      - 218.56
+      rx: 22.400000000000002
+      ry: 22.400000000000002
+      fill: '#4E7A37'
+    - type: ellipse
+      center:
+      - 818.0
+      - 229.76000000000002
+      rx: 22.400000000000002
+      ry: 22.400000000000002
+      fill: '#4E7A37'
+    - type: ellipse
+      center:
+      - 851.6
+      - 238.16
+      rx: 20.16
+      ry: 20.16
+      fill: '#4E7A37'
+    - type: ellipse
+      center:
+      - 798.4000000000001
+      - 238.16
+      rx: 19.040000000000003
+      ry: 19.040000000000003
+      fill: '#4E7A37'
+    - decorative: true
+      type: ellipse
+      center:
+      - 794.144
+      - 205.904
+      rx: 10.584
+      ry: 10.584
+      fill: '#69995088'
+    - decorative: true
+      type: ellipse
+      center:
+      - 827.0720000000001
+      - 194.032
+      rx: 11.592
+      ry: 11.592
+      fill: '#69995088'
+    - decorative: true
+      type: ellipse
+      center:
+      - 856.08
+      - 211.84
+      rx: 10.080000000000002
+      ry: 10.080000000000002
+      fill: '#69995088'
+    - decorative: true
+      type: ellipse
+      center:
+      - 811.28
+      - 223.04000000000002
+      rx: 10.080000000000002
+      ry: 10.080000000000002
+      fill: '#69995088'
+    - type: ellipse
+      center:
+      - 717.0
+      - 318.0
+      rx: 96.0
+      ry: 92.16
+      fill:
+        kind: linear
+        stops:
+        - color: '#B7D88A'
+          position: 0%
+        - color: '#86B257'
+          position: 60%
+        - color: '#5C8C3C'
+          position: 100%
+        angle: 45.0
+    - stroke_style:
+        stroke_width: 2.2
+        stroke_linecap: round
+      type: path
+      d: M 640.2 308.4 C 688.2 250.8 745.8 250.8 793.8 308.4
+      fill: none
+      stroke: rgba(63,107,43,0.7)
+    - stroke_style:
+        stroke_width: 2.2
+        stroke_linecap: round
+      type: path
+      d: M 649.8 346.8 C 697.8 298.8 736.2 298.8 784.2 346.8
+      fill: none
+      stroke: rgba(63,107,43,0.7)
+    - stroke_style:
+        stroke_width: 2.2
+        stroke_linecap: round
+      type: path
+      d: M 669.0 375.6 C 702.6 337.2 731.4 337.2 765.0 375.6
+      fill: none
+      stroke: rgba(63,107,43,0.7)
+    - type: ellipse
+      center:
+      - 717.0
+      - 322.8
+      rx: 32.64
+      ry: 28.799999999999997
+      fill: '#C9E29B'
+    - decorative: true
+      type: ellipse
+      center:
+      - 683.4
+      - 277.68
+      rx: 28.799999999999997
+      ry: 15.36
+      fill: rgba(255,255,255,0.35)
+    - type: ellipse
+      center:
+      - 789.6
+      - 439.68
+      rx: 78.0
+      ry: 78.0
+      fill: '#E98A2E'
+    - type: ellipse
+      center:
+      - 789.6
+      - 439.68
+      rx: 70.2
+      ry: 70.2
+      fill: '#FFFFFF'
+    - type: ellipse
+      center:
+      - 789.6
+      - 439.68
+      rx: 63.959999999999994
+      ry: 63.959999999999994
+      fill: '#F6B24A'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 852.0
+      - 439.68
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 842.0942204486657
+      - 473.4159870092293
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 815.5218968113178
+      - 496.44103651012193
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 780.719554091747
+      - 501.44485797337023
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 748.7366902018142
+      - 486.83877343970573
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 729.7276384464553
+      - 457.26011154690525
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 729.7276384464553
+      - 422.09988845309476
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 748.7366902018142
+      - 392.5212265602943
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 780.719554091747
+      - 377.9151420266298
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 815.5218968113178
+      - 382.9189634898781
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 789.6
+      - 439.68
+      to:
+      - 842.0942204486657
+      - 405.94401299077066
+      stroke: '#FFFFFF'
+    - decorative: true
+      type: ellipse
+      center:
+      - 823.2782033738689
+      - 449.5688127451342
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 812.5856117614795
+      - 466.2068100598345
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 794.5952508233923
+      - 474.4227326100207
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 775.0189330436339
+      - 471.6080830369436
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 760.0720009976255
+      - 458.6564926926915
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 754.5
+      - 439.68
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 760.0720009976255
+      - 420.70350730730854
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 775.0189330436339
+      - 407.75191696305643
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 794.5952508233923
+      - 404.93726738997924
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 812.5856117614795
+      - 413.15318994016553
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 823.2782033738689
+      - 429.7911872548658
+      rx: 7.800000000000001
+      ry: 12.48
+      fill: '#E07C1E'
+    - type: ellipse
+      center:
+      - 789.6
+      - 439.68
+      rx: 9.36
+      ry: 9.36
+      fill: '#FFF7E6'
+    - decorative: true
+      type: ellipse
+      center:
+      - 763.08
+      - 408.48
+      rx: 17.16
+      ry: 9.36
+      fill: rgba(255,255,255,0.45)
+    - type: ellipse
+      center:
+      - 664.2
+      - 465.6
+      rx: 56.0
+      ry: 56.0
+      fill: '#E68C5A'
+    - type: ellipse
+      center:
+      - 664.2
+      - 465.6
+      rx: 50.4
+      ry: 50.4
+      fill: '#FFFFFF'
+    - type: ellipse
+      center:
+      - 664.2
+      - 465.6
+      rx: 45.919999999999995
+      ry: 45.919999999999995
+      fill: '#F2A6A0'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 664.2
+      - 465.6
+      to:
+      - 709.0
+      - 465.6
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 664.2
+      - 465.6
+      to:
+      - 700.4439613479977
+      - 491.93277930270284
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 664.2
+      - 465.6
+      to:
+      - 678.0439613479977
+      - 508.2073319300229
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 664.2
+      - 465.6
+      to:
+      - 650.3560386520024
+      - 508.2073319300229
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 664.2
+      - 465.6
+      to:
+      - 627.9560386520023
+      - 491.93277930270284
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 664.2
+      - 465.6
+      to:
+      - 619.4000000000001
+      - 465.6
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 664.2
+      - 465.6
+      to:
+      - 627.9560386520023
+      - 439.2672206972972
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 664.2
+      - 465.6
+      to:
+      - 650.3560386520024
+      - 422.9926680699771
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 664.2
+      - 465.6
+      to:
+      - 678.0439613479977
+      - 422.9926680699771
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.4
+        stroke_linecap: round
+      type: line
+      from:
+      - 664.2
+      - 465.6
+      to:
+      - 700.4439613479977
+      - 439.2672206972972
+      stroke: '#FFFFFF'
+    - decorative: true
+      type: ellipse
+      center:
+      - 688.1666242106379
+      - 473.3872282582487
+      rx: 5.6000000000000005
+      ry: 8.96
+      fill: '#E06E76'
+    - decorative: true
+      type: ellipse
+      center:
+      - 679.0121883577704
+      - 485.9872282582487
+      rx: 5.6000000000000005
+      ry: 8.96
+      fill: '#E06E76'
+    - decorative: true
+      type: ellipse
+      center:
+      - 664.2
+      - 490.8
+      rx: 5.6000000000000005
+      ry: 8.96
+      fill: '#E06E76'
+    - decorative: true
+      type: ellipse
+      center:
+      - 649.3878116422297
+      - 485.9872282582487
+      rx: 5.6000000000000005
+      ry: 8.96
+      fill: '#E06E76'
+    - decorative: true
+      type: ellipse
+      center:
+      - 640.2333757893622
+      - 473.3872282582487
+      rx: 5.6000000000000005
+      ry: 8.96
+      fill: '#E06E76'
+    - decorative: true
+      type: ellipse
+      center:
+      - 640.2333757893622
+      - 457.81277174175136
+      rx: 5.6000000000000005
+      ry: 8.96
+      fill: '#E06E76'
+    - decorative: true
+      type: ellipse
+      center:
+      - 649.3878116422297
+      - 445.21277174175134
+      rx: 5.6000000000000005
+      ry: 8.96
+      fill: '#E06E76'
+    - decorative: true
+      type: ellipse
+      center:
+      - 664.2
+      - 440.40000000000003
+      rx: 5.6000000000000005
+      ry: 8.96
+      fill: '#E06E76'
+    - decorative: true
+      type: ellipse
+      center:
+      - 679.0121883577704
+      - 445.21277174175134
+      rx: 5.6000000000000005
+      ry: 8.96
+      fill: '#E06E76'
+    - decorative: true
+      type: ellipse
+      center:
+      - 688.1666242106379
+      - 457.81277174175136
+      rx: 5.6000000000000005
+      ry: 8.96
+      fill: '#E06E76'
+    - type: ellipse
+      center:
+      - 664.2
+      - 465.6
+      rx: 6.72
+      ry: 6.72
+      fill: '#FFF7E6'
+    - decorative: true
+      type: ellipse
+      center:
+      - 645.1600000000001
+      - 443.20000000000005
+      rx: 12.32
+      ry: 6.72
+      fill: rgba(255,255,255,0.45)
+    - type: ellipse
+      center:
+      - 868.8
+      - 405.12
+      rx: 30.0
+      ry: 22.0
+      fill: '#C7DD8E'
+    - decorative: true
+      type: ellipse
+      center:
+      - 624.6
+      - 249.6
+      rx: 26.0
+      ry: 20.0
+      fill: '#9CC065'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 665.0
+      - 204.12
+      to:
+      - 684.0
+      - 266.88
+      stroke: rgba(255,255,255,0.85)
+    - type: ellipse
+      center:
+      - 684.0
+      - 266.88
+      rx: 4.0
+      ry: 4.0
+      fill: '#FFFFFF'
+    - box:
+      - 618.0
+      - 189.12
+      - 94
+      - 30
+      shadow:
+        color: '#5A4A30'
+        blur: 8.0
+        dx: 0.0
+        dy: 3.0
+        opacity: 0.2
+      type: rect
+      fill: '#FFFFFF'
+      radius: 15
+    - type: ellipse
+      center:
+      - 634.0
+      - 204.12
+      rx: 5.0
+      ry: 5.0
+      fill: orange
+    - box:
+      - 642.0
+      - 197.12
+      - 64
+      - 16
+      style: badgePill
+      type: text
+      text: 170 kkal
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 849.8
+      - 186.84
+      to:
+      - 829.2
+      - 249.6
+      stroke: rgba(255,255,255,0.85)
+    - type: ellipse
+      center:
+      - 829.2
+      - 249.6
+      rx: 4.0
+      ry: 4.0
+      fill: '#FFFFFF'
+    - box:
+      - 802.8
+      - 171.84
+      - 94
+      - 30
+      shadow:
+        color: '#5A4A30'
+        blur: 8.0
+        dx: 0.0
+        dy: 3.0
+        opacity: 0.2
+      type: rect
+      fill: '#FFFFFF'
+      radius: 15
+    - type: ellipse
+      center:
+      - 818.8
+      - 186.84
+      rx: 5.0
+      ry: 5.0
+      fill: orange
+    - box:
+      - 826.8
+      - 179.84
+      - 64
+      - 16
+      style: badgePill
+      type: text
+      text: 110 kkal
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 764.0
+      - 351.0
+      to:
+      - 766.5
+      - 387.84
+      stroke: rgba(255,255,255,0.85)
+    - type: ellipse
+      center:
+      - 766.5
+      - 387.84
+      rx: 4.0
+      ry: 4.0
+      fill: '#FFFFFF'
+    - box:
+      - 717.0
+      - 336.0
+      - 94
+      - 30
+      shadow:
+        color: '#5A4A30'
+        blur: 8.0
+        dx: 0.0
+        dy: 3.0
+        opacity: 0.2
+      type: rect
+      fill: '#FFFFFF'
+      radius: 15
+    - type: ellipse
+      center:
+      - 733.0
+      - 351.0
+      rx: 5.0
+      ry: 5.0
+      fill: orange
+    - box:
+      - 741.0
+      - 344.0
+      - 64
+      - 16
+      style: badgePill
+      type: text
+      text: 90 kkal
+    - box:
+      - 597
+      - 576
+      - 306
+      - 38
+      style: h1
+      type: text
+      text: Your Food,
+    - box:
+      - 597
+      - 614
+      - 306
+      - 38
+      style: h1
+      type: text
+      text: Decoded By AI
+    - box:
+      - 597
+      - 664
+      - 298
+      - 48
+      style: sub
+      type: text
+      text: 'From scanning to tracking – everything
+
+        happens automatically.'
+    - type: ellipse
+      center:
+      - 600.0
+      - 729.0
+      rx: 3.5
+      ry: 3.5
+      fill: muted2
+    - box:
+      - 611
+      - 726
+      - 22
+      - 7
+      type: rect
+      fill: ink
+      radius: 3.5
+    - type: ellipse
+      center:
+      - 644.0
+      - 729.0
+      rx: 3.5
+      ry: 3.5
+      fill: muted2
+    - box:
+      - 593
+      - 758
+      - 314
+      - 58
+      shadow:
+        color: '#3A2E18'
+        blur: 18.0
+        dx: 0.0
+        dy: 8.0
+        opacity: 0.3
+      type: rect
+      fill: nav
+      radius: 29
+    - box:
+      - 593
+      - 776
+      - 314
+      - 22
+      style: btn
+      type: text
+      text: Get Started
+    - box:
+      - 1016
+      - 208
+      - 276
+      - 46
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: card
+      radius: 23
+      stroke: hair
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 1038.0
+      - 231.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: muted2
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+      type: line
+      from:
+      - 1043.6568542494924
+      - 236.65685424949237
+      to:
+      - 1047.8994949366117
+      - 240.89949493661166
+      stroke: muted2
+    - box:
+      - 1056
+      - 223
+      - 120
+      - 18
+      style: search
+      type: text
+      text: Search
+    - box:
+      - 1300
+      - 208
+      - 44
+      - 44
+      type: rect
+      fill: card
+      radius: 22
+    - stroke_style:
+        stroke_width: 1.8
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 1314.8 234.95 C 1314.8 228.2 1317.05 221.9 1322 221.9 C 1326.95 221.9 1329.2
+        228.2 1329.2 234.95 Z
+      fill: none
+      stroke: ink
+    - stroke_style:
+        stroke_width: 1.8
+        stroke_linecap: round
+      type: line
+      from:
+      - 1312.55
+      - 234.95
+      to:
+      - 1331.45
+      - 234.95
+      stroke: ink
+    - type: ellipse
+      center:
+      - 1322.0
+      - 238.55
+      rx: 1.98
+      ry: 1.98
+      fill: ink
+    - box:
+      - 1016.0
+      - 272
+      - 70.5
+      - 66
+      shadow:
+        color: '#6E5B3E'
+        blur: 22.0
+        dx: 0.0
+        dy: 8.0
+        opacity: 0.1
+      type: rect
+      fill: card
+      radius: 20
+    - box:
+      - 1016.0
+      - 272
+      - 70.5
+      - 66
+      stroke_style:
+        stroke_width: 1.6
+      type: rect
+      fill: none
+      radius: 20
+      stroke: orange
+    - type: ellipse
+      center:
+      - 1051.25
+      - 304.0
+      rx: 13.0
+      ry: 9.0
+      fill: '#E07B45'
+    - type: ellipse
+      center:
+      - 1051.25
+      - 298.0
+      rx: 13.0
+      ry: 7.0
+      fill: '#F2D7A0'
+    - type: ellipse
+      center:
+      - 1046.25
+      - 296.0
+      rx: 4.0
+      ry: 4.0
+      fill: '#CF4A30'
+    - type: ellipse
+      center:
+      - 1055.25
+      - 297.0
+      rx: 4.0
+      ry: 4.0
+      fill: '#83A94F'
+    - type: ellipse
+      center:
+      - 1051.25
+      - 294.0
+      rx: 3.5
+      ry: 3.5
+      fill: '#7E5285'
+    - box:
+      - 1016.0
+      - 346
+      - 70.5
+      - 16
+      style: chipLbl
+      type: text
+      text: All
+    - box:
+      - 1098.5
+      - 272
+      - 70.5
+      - 66
+      type: rect
+      fill: card
+      radius: 20
+    - stroke_style:
+        stroke_width: 1.2
+      type: ellipse
+      center:
+      - 1133.75
+      - 304.0
+      rx: 13.0
+      ry: 8.0
+      fill: '#FFFFFF'
+      stroke: '#E2D9C8'
+    - type: ellipse
+      center:
+      - 1129.75
+      - 300.0
+      rx: 6.0
+      ry: 5.0
+      fill: '#6E9D3F'
+    - type: ellipse
+      center:
+      - 1138.75
+      - 301.0
+      rx: 5.0
+      ry: 4.0
+      fill: '#86B257'
+    - type: path
+      d: M 1131.75 298 C 1131.75 291 1139.75 291 1139.75 298 Z
+      fill: '#4E7A37'
+    - box:
+      - 1098.5
+      - 346
+      - 70.5
+      - 16
+      style: chipLbl
+      type: text
+      text: Vegan
+    - box:
+      - 1181.0
+      - 272
+      - 70.5
+      - 66
+      type: rect
+      fill: card
+      radius: 20
+    - box:
+      - 1208.25
+      - 294
+      - 16
+      - 16
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: '#F2B23C'
+          position: 0%
+        - color: '#D98A1E'
+          position: 100%
+        angle: 0.0
+      radius: 4
+    - box:
+      - 1210.25
+      - 291
+      - 12
+      - 4
+      type: rect
+      fill: '#B8701A'
+      radius: 2
+    - box:
+      - 1211.25
+      - 298
+      - 10
+      - 7
+      type: rect
+      fill: '#FBE3B0'
+      radius: 2
+    - box:
+      - 1181.0
+      - 346
+      - 70.5
+      - 16
+      style: chipLbl
+      type: text
+      text: Protein
+    - box:
+      - 1263.5
+      - 272
+      - 70.5
+      - 66
+      type: rect
+      fill: card
+      radius: 20
+    - type: polyline
+      points:
+      - - 1290.75
+        - 298.0
+      - - 1306.75
+        - 298.0
+      - - 1304.75
+        - 309.0
+      - - 1292.75
+        - 309.0
+      closed: true
+      fill: '#D6492F'
+    - box:
+      - 1293.75
+      - 291
+      - 2.6
+      - 9
+      type: rect
+      fill: '#F2C84B'
+      radius: 1.3
+    - box:
+      - 1297.25
+      - 291
+      - 2.6
+      - 9
+      type: rect
+      fill: '#F2C84B'
+      radius: 1.3
+    - box:
+      - 1300.75
+      - 291
+      - 2.6
+      - 9
+      type: rect
+      fill: '#F2C84B'
+      radius: 1.3
+    - box:
+      - 1304.25
+      - 291
+      - 2.6
+      - 9
+      type: rect
+      fill: '#F2C84B'
+      radius: 1.3
+    - box:
+      - 1263.5
+      - 346
+      - 70.5
+      - 16
+      style: chipLbl
+      type: text
+      text: Snacks
+    - box:
+      - 1020
+      - 380
+      - 200
+      - 22
+      style: section
+      type: text
+      text: Trending Recipes
+    - type: ellipse
+      center:
+      - 1188.0
+      - 390.0
+      rx: 9.0
+      ry: 9.0
+      fill: orange
+    - box:
+      - 1179
+      - 383
+      - 18
+      - 16
+      style: cnt
+      type: text
+      text: '8'
+    - box:
+      - 1260
+      - 382
+      - 74
+      - 18
+      style: see
+      type: text
+      text: See All
+    - box:
+      - 1016
+      - 408
+      - 318
+      - 362
+      shadow:
+        color: '#6E5B3E'
+        blur: 22.0
+        dx: 0.0
+        dy: 8.0
+        opacity: 0.1
+      type: rect
+      fill: card
+      radius: 26
+    - box:
+      - 1032
+      - 430
+      - 220
+      - 22
+      style: cardTitle
+      type: text
+      text: Quinoa Veggie Bowl
+    - stroke_style:
+        stroke_width: 1.6
+      type: ellipse
+      center:
+      - 1040.0
+      - 466.0
+      rx: 7.0
+      ry: 7.0
+      fill: none
+      stroke: muted
+    - stroke_style:
+        stroke_width: 1.6
+        stroke_linecap: round
+      type: line
+      from:
+      - 1040.0
+      - 466.0
+      to:
+      - 1040.0
+      - 462.15
+      stroke: muted
+    - stroke_style:
+        stroke_width: 1.6
+        stroke_linecap: round
+      type: line
+      from:
+      - 1040.0
+      - 466.0
+      to:
+      - 1043.15
+      - 466.0
+      stroke: muted
+    - box:
+      - 1054
+      - 459
+      - 80
+      - 16
+      style: time
+      type: text
+      text: 45 min
+    - box:
+      - 1290
+      - 426
+      - 32
+      - 32
+      type: rect
+      fill: cardsoft
+      radius: 12
+    - type: polyline
+      points:
+      - - 1306.0
+        - 434.0
+      - - 1307.9749584477026
+        - 439.28170289890016
+      - - 1313.6084521303612
+        - 439.5278640450004
+      - - 1309.1955498947518
+        - 443.03829710109983
+      - - 1310.7022820183397
+        - 448.4721359549996
+      - - 1306.0
+        - 445.36
+      - - 1301.2977179816603
+        - 448.4721359549996
+      - - 1302.8044501052482
+        - 443.03829710109983
+      - - 1298.3915478696388
+        - 439.5278640450004
+      - - 1304.0250415522974
+        - 439.28170289890016
+      closed: true
+      fill: ink
+    - decorative: true
+      type: ellipse
+      center:
+      - 1175.0
+      - 597.76
+      rx: 97.92
+      ry: 97.92
+      fill: rgba(201,182,140,0.35)
+    - type: ellipse
+      center:
+      - 1175.0
+      - 592.0
+      rx: 96.0
+      ry: 96.0
+      fill: '#FFFFFF'
+    - type: ellipse
+      center:
+      - 1175.0
+      - 592.0
+      rx: 88.32000000000001
+      ry: 88.32000000000001
+      fill:
+        kind: linear
+        stops:
+        - color: '#EFE7D6'
+          position: 0%
+        - color: '#DACDB4'
+          position: 100%
+        angle: 90.0
+    - type: ellipse
+      center:
+      - 1175.0
+      - 592.0
+      rx: 76.80000000000001
+      ry: 76.80000000000001
+      fill:
+        kind: linear
+        stops:
+        - color: '#E2CFA2'
+          position: 0%
+        - color: '#CBB17C'
+          position: 100%
+        angle: 90.0
+    - decorative: true
+      type: ellipse
+      center:
+      - 1148.12
+      - 571.84
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: rgba(169,138,82,0.65)
+    - decorative: true
+      type: ellipse
+      center:
+      - 1168.28
+      - 618.88
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: rgba(169,138,82,0.65)
+    - decorative: true
+      type: ellipse
+      center:
+      - 1195.16
+      - 598.72
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: rgba(169,138,82,0.65)
+    - decorative: true
+      type: ellipse
+      center:
+      - 1205.24
+      - 568.48
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: rgba(169,138,82,0.65)
+    - decorative: true
+      type: ellipse
+      center:
+      - 1141.4
+      - 602.08
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: rgba(169,138,82,0.65)
+    - decorative: true
+      type: ellipse
+      center:
+      - 1175.0
+      - 558.4
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: rgba(169,138,82,0.65)
+    - decorative: true
+      type: ellipse
+      center:
+      - 1188.44
+      - 625.6
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: rgba(169,138,82,0.65)
+    - decorative: true
+      type: ellipse
+      center:
+      - 1158.2
+      - 588.64
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: rgba(169,138,82,0.65)
+    - decorative: true
+      type: ellipse
+      center:
+      - 1208.6
+      - 612.16
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: rgba(169,138,82,0.65)
+    - decorative: true
+      type: ellipse
+      center:
+      - 1151.48
+      - 622.24
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: rgba(169,138,82,0.65)
+    - type: ellipse
+      center:
+      - 1142.36
+      - 563.2
+      rx: 19.200000000000003
+      ry: 19.200000000000003
+      fill: '#C9402B'
+    - type: ellipse
+      center:
+      - 1165.4
+      - 553.6
+      rx: 16.32
+      ry: 16.32
+      fill: '#D84B33'
+    - type: ellipse
+      center:
+      - 1136.6
+      - 609.28
+      rx: 15.36
+      ry: 15.36
+      fill: '#7E5285'
+    - type: ellipse
+      center:
+      - 1155.8
+      - 620.8
+      rx: 14.399999999999999
+      ry: 14.399999999999999
+      fill: '#8C5C92'
+    - type: ellipse
+      center:
+      - 1192.28
+      - 601.6
+      rx: 8.64
+      ry: 19.200000000000003
+      fill: '#83A94F'
+    - type: ellipse
+      center:
+      - 1192.28
+      - 601.6
+      rx: 4.800000000000001
+      ry: 15.36
+      fill: '#A7C972'
+    - type: ellipse
+      center:
+      - 1202.84
+      - 597.76
+      rx: 8.64
+      ry: 19.200000000000003
+      fill: '#83A94F'
+    - type: ellipse
+      center:
+      - 1202.84
+      - 597.76
+      rx: 4.800000000000001
+      ry: 15.36
+      fill: '#A7C972'
+    - type: ellipse
+      center:
+      - 1213.3999999999999
+      - 593.9200000000001
+      rx: 8.64
+      ry: 19.200000000000003
+      fill: '#83A94F'
+    - type: ellipse
+      center:
+      - 1213.3999999999999
+      - 593.9200000000001
+      rx: 4.800000000000001
+      ry: 15.36
+      fill: '#A7C972'
+    - type: ellipse
+      center:
+      - 1223.96
+      - 590.08
+      rx: 8.64
+      ry: 19.200000000000003
+      fill: '#83A94F'
+    - type: ellipse
+      center:
+      - 1223.96
+      - 590.08
+      rx: 4.800000000000001
+      ry: 15.36
+      fill: '#A7C972'
+    - type: ellipse
+      center:
+      - 1203.8
+      - 561.28
+      rx: 8.64
+      ry: 7.68
+      fill: '#D8B86A'
+    - type: ellipse
+      center:
+      - 1218.2
+      - 574.72
+      rx: 8.64
+      ry: 7.68
+      fill: '#D8B86A'
+    - type: ellipse
+      center:
+      - 1192.28
+      - 553.6
+      rx: 8.64
+      ry: 7.68
+      fill: '#D8B86A'
+    - decorative: true
+      type: ellipse
+      center:
+      - 1175.0
+      - 635.2
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: '#5C8C3C'
+    - decorative: true
+      type: ellipse
+      center:
+      - 1170.2
+      - 582.4
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: '#5C8C3C'
+    - decorative: true
+      type: ellipse
+      center:
+      - 1208.6
+      - 625.6
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: '#5C8C3C'
+    - decorative: true
+      type: ellipse
+      center:
+      - 1146.2
+      - 587.2
+      rx: 4.800000000000001
+      ry: 4.800000000000001
+      fill: '#5C8C3C'
+    - decorative: true
+      type: ellipse
+      center:
+      - 1136.6
+      - 547.84
+      rx: 32.64
+      ry: 15.36
+      fill: rgba(255,255,255,0.28)
+    - box:
+      - 1036
+      - 720
+      - 60
+      - 18
+      style: easy
+      type: text
+      text: Easy
+    - box:
+      - 1036
+      - 739.0
+      - 12
+      - 5.0
+      type: rect
+      fill: orange
+      radius: 2
+    - box:
+      - 1052
+      - 736.4
+      - 12
+      - 7.6
+      type: rect
+      fill: orange
+      radius: 2
+    - box:
+      - 1068
+      - 733.8
+      - 12
+      - 10.2
+      type: rect
+      fill: hair
+      radius: 2
+    - box:
+      - 1084
+      - 731.2
+      - 12
+      - 12.8
+      type: rect
+      fill: hair
+      radius: 2
+    - box:
+      - 1100
+      - 728.6
+      - 12
+      - 15.4
+      type: rect
+      fill: hair
+      radius: 2
+    - box:
+      - 1220
+      - 718
+      - 114
+      - 22
+      style: kcalCard
+      type: text
+      text: 750 kcal
+    - box:
+      - 1018
+      - 784
+      - 314
+      - 60
+      shadow:
+        color: '#3A2E18'
+        blur: 20.0
+        dx: 0.0
+        dy: 8.0
+        opacity: 0.3
+      type: rect
+      fill: nav
+      radius: 30
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 1040.4
+        - 815.0
+      - - 1049.4
+        - 806.0
+      - - 1058.4
+        - 815.0
+      closed: true
+      fill: none
+      stroke: navtext
+    - box:
+      - 1043.4
+      - 815
+      - 12
+      - 9
+      stroke_style:
+        stroke_width: 1.9
+        stroke_linejoin: round
+      type: rect
+      fill: none
+      radius: 1.5
+      stroke: navtext
+    - box:
+      - 1104.2
+      - 806
+      - 16
+      - 16
+      stroke_style:
+        stroke_width: 1.9
+        stroke_linejoin: round
+      type: rect
+      fill: none
+      radius: 3
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+      type: line
+      from:
+      - 1112.2
+      - 806.0
+      to:
+      - 1112.2
+      - 822.0
+      stroke: '#8C857A'
+    - box:
+      - 1153.0
+      - 792
+      - 44
+      - 44
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: '#F4AE86'
+          position: 0%
+        - color: '#DC7642'
+          position: 100%
+        angle: 45.0
+      radius: 15
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 1171.0 805 L 1166.0 805 L 1166.0 810
+      fill: none
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 1179.0 805 L 1184.0 805 L 1184.0 810
+      fill: none
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 1171.0 823 L 1166.0 823 L 1166.0 818
+      fill: none
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: path
+      d: M 1179.0 823 L 1184.0 823 L 1184.0 818
+      fill: none
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_linecap: round
+      type: line
+      from:
+      - 1166.0
+      - 814.0
+      to:
+      - 1184.0
+      - 814.0
+      stroke: '#FFFFFF'
+    - stroke_style:
+        stroke_width: 1.8
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 1237.8
+        - 805.0
+      - - 1240.0218282536655
+        - 810.9419157612627
+      - - 1246.3595086466564
+        - 811.2188470506255
+      - - 1241.3949936315955
+        - 815.1680842387373
+      - - 1243.0900672706323
+        - 821.2811529493745
+      - - 1237.8
+        - 817.78
+      - - 1232.5099327293676
+        - 821.2811529493745
+      - - 1234.2050063684044
+        - 815.1680842387373
+      - - 1229.2404913533435
+        - 811.2188470506255
+      - - 1235.5781717463344
+        - 810.9419157612627
+      closed: true
+      fill: none
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+      type: ellipse
+      center:
+      - 1300.6
+      - 814.0
+      rx: 5.5
+      ry: 5.5
+      fill: none
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 1307.1
+      - 814.0
+      to:
+      - 1309.6
+      - 814.0
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 1305.1961940777126
+      - 818.5961940777125
+      to:
+      - 1306.9639610306788
+      - 820.363961030679
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 1300.6
+      - 820.5
+      to:
+      - 1300.6
+      - 823.0
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 1296.0038059222873
+      - 818.5961940777125
+      to:
+      - 1294.236038969321
+      - 820.363961030679
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 1294.1
+      - 814.0
+      to:
+      - 1291.6
+      - 814.0
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 1296.0038059222873
+      - 809.4038059222875
+      to:
+      - 1294.236038969321
+      - 807.636038969321
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 1300.6
+      - 807.5
+      to:
+      - 1300.6
+      - 805.0
+      stroke: '#8C857A'
+    - stroke_style:
+        stroke_width: 1.9
+        stroke_linecap: round
+      type: line
+      from:
+      - 1305.1961940777126
+      - 809.4038059222875
+      to:
+      - 1306.9639610306788
+      - 807.636038969321
+      stroke: '#8C857A'
