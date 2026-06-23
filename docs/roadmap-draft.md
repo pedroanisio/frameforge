@@ -144,7 +144,7 @@ author every box's coordinates, exactly as the fixture does. It models the
     FrameGraph does have **container** layout: `Group.layout` with
     `kind: row | column | grid | free` plus `gap` / `row_gap` / `column_gap` /
     `padding` / `align`, realized by `LayoutEngine.arrange`
-    ([framegraph/rendering/domain/services/layout_engine.py](../framegraph/rendering/domain/services/layout_engine.py)).
+    ([framegraph/rendering/domain/services/layout_engine.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/domain/services/layout_engine.py)).
     That is a box-model packer — it repositions a group's children into rows /
     columns / a grid and does **not** resize them. It is not a **graph** engine:
     it cannot place nodes from declared edges, route around obstacles, or minimize
@@ -218,7 +218,7 @@ resolvable URL the way Vega-Lite does, so documents can self-declare conformance
 **Gap.** Charts take literal `ChartData`; the `transform` keyword is CSS visual
 transforms (`TransformFn`), not data transforms. FrameGraph requires every chart
 to be pre-aggregated upstream and every axis specified. Note that charts already
-sit **outside the core conformance profile** ([models/framegraph.py:21](../models/framegraph.py#L21)),
+sit **outside the core conformance profile** ([models/framegraph.py:21](https://github.com/pedroanisio/frameforge/blob/main/models/framegraph.py#L21)),
 so treating the data layer as out-of-scope would be consistent with the existing
 profile boundary, not a new exclusion.
 
