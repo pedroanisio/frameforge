@@ -799,10 +799,83 @@ class FigureTikz:
             params = self._effect.resolve(o.get(kind), kind)
             if params is not None:
                 specs.append((kind, params))
-        for kind, params in self._effect.style_effects(self._style_dict(o)):
+        style = self._style_dict(o)
+        for kind, params in self._effect.style_effects(style):
             if kind == "shadow":
                 specs.append((kind, params))
+        specs.extend(("shadow", params) for params in self._css_drop_shadow_specs(self._css_decl(style, "filter")))
         return specs
+
+    def _css_drop_shadow_specs(self, value):
+        if not isinstance(value, str):
+            return []
+        out = []
+        for body in self._css_function_bodies(value, "drop-shadow"):
+            params = self._css_shadow_params(body)
+            if params:
+                out.append(params)
+        return out
+
+    @staticmethod
+    def _css_function_bodies(value, name):
+        out = []
+        pattern = re.compile(re.escape(name) + r"\s*\(", flags=re.I)
+        for match in pattern.finditer(str(value)):
+            depth = 1
+            start = match.end()
+            i = start
+            while i < len(value) and depth:
+                ch = value[i]
+                if ch == "(":
+                    depth += 1
+                elif ch == ")":
+                    depth -= 1
+                i += 1
+            if depth == 0:
+                out.append(value[start:i - 1].strip())
+        return out
+
+    def _css_shadow_params(self, body):
+        color_match = re.search(r"(rgba?\([^)]*\)|#[0-9A-Fa-f]{3,8})", body)
+        color, opacity = "#000000", 0.25
+        if color_match:
+            color, opacity = self._css_color_opacity(color_match.group(1))
+            body = (body[:color_match.start()] + body[color_match.end():]).strip()
+        parts = [p for p in body.split() if p]
+        if len(parts) < 2:
+            return None
+        return {
+            "dx": num(parts[0], 0),
+            "dy": num(parts[1], 0),
+            "blur": num(parts[2], 0) if len(parts) > 2 else 0,
+            "color": color,
+            "opacity": opacity,
+        }
+
+    @staticmethod
+    def _css_color_opacity(value):
+        s = str(value).strip()
+        hex_rgb = _parse_hex(s)
+        if hex_rgb:
+            r, g, b, a = hex_rgb
+            return f"#{r:02x}{g:02x}{b:02x}", 0.25 if a is None else a
+        m = re.match(r"rgba?\(\s*([^)]+?)\s*\)$", s, flags=re.I)
+        if not m:
+            return s, 0.25
+        parts = [p.strip() for p in m.group(1).split(",")]
+        if len(parts) < 3:
+            return "#000000", 0.25
+        try:
+            r, g, b = (max(0, min(255, int(float(parts[i])))) for i in range(3))
+        except ValueError:
+            return "#000000", 0.25
+        opacity = 0.25
+        if len(parts) > 3:
+            try:
+                opacity = max(0.0, min(1.0, float(parts[3])))
+            except ValueError:
+                opacity = 0.25
+        return f"#{r:02x}{g:02x}{b:02x}", opacity
 
     def _effect_opts(self, kind, params):
         expr, _ = color_expr(params.get("color") or ("#000000" if kind == "shadow" else "#FFD700"))

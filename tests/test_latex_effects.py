@@ -60,6 +60,46 @@ def test_style_box_shadow_maps_to_latex_shadow_shape():
     assert "fill opacity=0.25" in tex
 
 
+def test_raw_css_drop_shadow_filter_maps_to_latex_shadow_shape():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [24, 86, 240, 222],
+        "fill": "#ffffff",
+        "style": {"css": "filter: drop-shadow(0 14px 22px rgba(2,6,23,.30))"},
+    })
+
+    assert "(24,100) rectangle (264,322)" in tex
+    assert "(24,86) rectangle (264,308)" in tex
+    assert tex.index("(24,100) rectangle (264,322)") < tex.index("(24,86) rectangle (264,308)")
+    assert "fill={rgb,255:red,2;green,6;blue,23}" in tex
+    assert "fill opacity=0.3" in tex
+
+
+def test_raw_css_drop_shadow_filter_accepts_hex_color():
+    tex = _fig().render({
+        "type": "ellipse",
+        "center": [40, 40],
+        "rx": 20,
+        "ry": 12,
+        "fill": "#ffffff",
+        "style": {"css": "filter: drop-shadow(3px 4px 5px #12345680)"},
+    })
+
+    assert "\\path[fill={rgb,255:red,18;green,52;blue,86},fill opacity=0.502] (43,44) ellipse" in tex
+
+
+def test_raw_css_drop_shadow_filter_allows_multiple_shadows():
+    tex = _fig().render({
+        "type": "rect",
+        "box": [0, 0, 20, 10],
+        "fill": "#ffffff",
+        "style": {"css": "filter: drop-shadow(1px 2px 3px #111) drop-shadow(4px 5px 6px #222)"},
+    })
+
+    assert "(1,2) rectangle (21,12)" in tex
+    assert "(4,5) rectangle (24,15)" in tex
+
+
 def test_text_shadow_draws_offset_text_before_source_text():
     tex = _fig({"ink": "#111111", "shade": "#123456"}).render({
         "type": "text",
