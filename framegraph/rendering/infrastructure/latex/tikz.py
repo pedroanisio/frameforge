@@ -434,12 +434,19 @@ class FigureTikz:
     def _tikz_transform(self, o):
         style = self._style_dict(o)
         value = style.get("transform")
+        if not value:
+            value = self._css_decl(style, "transform")
         if not value or value == "none":
             return []
-        if isinstance(value, str):
+        if isinstance(value, str) and "(" not in value:
             return [value.replace("deg", "")]
+        if isinstance(value, str):
+            value = self._css_transform_items(value)
         items = value if isinstance(value, list) else [value]
-        ox, oy = self._transform_origin(style.get("transform_origin"), o.get("box"))
+        origin = style.get("transform_origin")
+        if origin is None:
+            origin = self._css_decl(style, "transform-origin")
+        ox, oy = self._transform_origin(origin, o.get("box"))
         opts = []
         for item in items:
             if isinstance(item, str):
@@ -480,6 +487,29 @@ class FigureTikz:
         return opts
 
     @staticmethod
+    def _css_transform_items(value):
+        out = []
+        for match in re.finditer(r"([A-Za-z][\w-]*)\(([^()]*)\)", str(value)):
+            name = match.group(1).strip().lower().replace("-", "_")
+            args = [part for part in re.split(r"\s*,\s*|\s+", match.group(2).strip()) if part]
+            aliases = {
+                "translatex": "translate_x",
+                "translate_x": "translate_x",
+                "translatey": "translate_y",
+                "translate_y": "translate_y",
+                "scalex": "scale_x",
+                "scale_x": "scale_x",
+                "scaley": "scale_y",
+                "scale_y": "scale_y",
+                "skewx": "skew_x",
+                "skew_x": "skew_x",
+                "skewy": "skew_y",
+                "skew_y": "skew_y",
+            }
+            out.append({"fn": aliases.get(name, name), "args": args})
+        return out
+
+    @staticmethod
     def _origin_opts(opts, ox, oy):
         if ox is None:
             return opts
@@ -502,15 +532,38 @@ class FigureTikz:
 
     @staticmethod
     def _transform_origin(origin, box):
+        box_ok = isinstance(box, list) and len(box) >= 4
+        if box_ok:
+            x, y, w, h = num(box[0], 0), num(box[1], 0), num(box[2], 0), num(box[3], 0)
         if isinstance(origin, (list, tuple)) and len(origin) >= 2:
             return num(origin[0], 0), num(origin[1], 0)
         if isinstance(origin, str):
             vals = origin.replace(",", " ").split()
             if len(vals) >= 2 and not any("%" in v for v in vals[:2]):
+                first, second = vals[0].lower(), vals[1].lower()
+                keywords = {"left", "center", "right", "top", "bottom"}
+                if first in keywords or second in keywords:
+                    return FigureTikz._keyword_origin(vals, (x, y, w, h)) if box_ok else (None, None)
                 return num(vals[0], 0), num(vals[1], 0)
-        if isinstance(box, list) and len(box) >= 4:
-            return num(box[0], 0) + num(box[2], 0) / 2, num(box[1], 0) + num(box[3], 0) / 2
+            if vals and box_ok:
+                return FigureTikz._keyword_origin(vals, (x, y, w, h))
+        if box_ok:
+            return x + w / 2, y + h / 2
         return None, None
+
+    @staticmethod
+    def _keyword_origin(vals, box):
+        x, y, w, h = box
+        horiz, vert = "center", "center"
+        for raw in vals:
+            value = raw.lower()
+            if value in ("left", "center", "right"):
+                horiz = value
+            if value in ("top", "center", "bottom"):
+                vert = value
+        ox = x if horiz == "left" else x + w if horiz == "right" else x + w / 2
+        oy = y if vert == "top" else y + h if vert == "bottom" else y + h / 2
+        return ox, oy
 
     # -- grouping ---------------------------------------------------------- #
     def _draw_group(self, o) -> str:

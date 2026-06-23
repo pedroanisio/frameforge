@@ -450,6 +450,72 @@ def test_transpile_page_mode_emits_tikz_transform_scopes():
     assert r"\begin{scope}[shift={(0,14)},rotate around={16:(697,91)}]" in tex
 
 
+def test_transpile_page_mode_emits_raw_css_transform_scopes():
+    doc = {
+        "dsl": "FrameGraph",
+        "version": "2.2.0",
+        "pages": [
+            {
+                "mode": "page",
+                "id": "p",
+                "canvas": {"size": [770, 200]},
+                "layers": [
+                    {
+                        "objects": [
+                            {
+                                "type": "rect",
+                                "box": [48, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "opacity": 0.82,
+                                "style": {"css": "transform: translate(22px, 14px)"},
+                            },
+                            {
+                                "type": "rect",
+                                "box": [172, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "style": {"css": "transform: scale(1.4); transform-origin: center"},
+                            },
+                            {
+                                "type": "rect",
+                                "box": [296, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "style": {"css": "transform: rotate(20deg); transform-origin: center"},
+                            },
+                            {
+                                "type": "rect",
+                                "box": [420, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "style": {"css": "transform: skew(16deg); transform-origin: center"},
+                            },
+                            {
+                                "type": "rect",
+                                "box": [544, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "style": {"css": "transform: matrix(1, 0, 0.36, 1, 0, 0)"},
+                            },
+                            {
+                                "type": "rect",
+                                "box": [668, 64, 58, 54],
+                                "fill": "#2e86de",
+                                "style": {"css": "transform: rotate(12deg) scale(1.1); transform-origin: top left"},
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+
+    tex = transpile(doc)
+
+    assert r"\begin{scope}[opacity=0.82,shift={(22,14)}]" in tex
+    assert r"\begin{scope}[shift={(201,91)},xscale=1.4,yscale=1.4,shift={(-201,-91)}]" in tex
+    assert r"\begin{scope}[rotate around={20:(325,91)}]" in tex
+    assert r"\begin{scope}[shift={(449,91)},xslant=0.287,shift={(-449,-91)}]" in tex
+    assert r"\begin{scope}[cm={1,0,0.36,1,(0,0)}]" in tex
+    assert r"\begin{scope}[rotate around={12:(668,64)},shift={(668,64)},xscale=1.1,yscale=1.1,shift={(-668,-64)}]" in tex
+
+
 def test_render_latex_cli_lists_framegraph_docs(tmp_path, capsys):
     flow = tmp_path / "flow.fg.yaml"
     page = tmp_path / "page.fg.yaml"
