@@ -16,7 +16,10 @@ this same seam.
 """
 from __future__ import annotations
 
-from typing import Any, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Optional, Protocol
+
+if TYPE_CHECKING:
+    from framegraph.rendering.domain.services.stroke_resolver import Stroke
 
 
 class RenderContext(Protocol):
@@ -43,7 +46,7 @@ class RenderContext(Protocol):
     def ellipsize(self, s, w, size, avg, st=None) -> str: ...
     def wrap_words(self, text, w, size, avg, st=None) -> list: ...
     def shape_fill(self, o, style) -> Any: ...
-    def shape_stroke(self, o, style) -> str: ...
+    def shape_stroke(self, o, style) -> "Stroke | None": ...
     def shape_radius(self, o, style) -> Any: ...
     def arrow_attrs(self, o) -> str: ...
     def obj(self, o) -> str: ...
@@ -55,27 +58,41 @@ class ScenePainter(Protocol):
     def new_page(self) -> None:
         """Reset per-page resources (e.g. the <defs> registry / id counter)."""
 
-    # ---- paint registry (allocate ids in document order) ----
+    # ---- paint / clip / filter registry (allocate ids in document order) ----
+    # These return an OPAQUE BACKEND HANDLE (an id/reference, not a neutral value):
+    # the `*_wrap`/paint methods take a handle a prior call returned and the backend
+    # is free to choose its representation. They are inherently backend-specific —
+    # a non-SVG adapter reimplements them rather than formatting a shared value.
     def gradient(self, g: dict) -> str:
         """Register a gradient paint and return a backend paint reference."""
 
+    def image_pattern(self, href: str, x, y, w, h,
+                      preserve_aspect_ratio: str = "xMidYMid slice") -> str:
+        """Register an image fill pattern and return a backend paint reference."""
+
     def clip_rect(self, x, y, w, h) -> str:
-        """Register a rectangular clip and return its id."""
+        """Register a rectangular clip and return its handle."""
 
     def clip_ellipse(self, cx, cy, rx, ry) -> str:
-        """Register an elliptical clip and return its id."""
+        """Register an elliptical clip and return its handle."""
+
+    def clip_polygon(self, points: str) -> str:
+        """Register a polygonal clip and return its handle."""
+
+    def clip_path_d(self, d: str) -> str:
+        """Register a path-data clip and return its handle."""
 
     def clip_wrap(self, inner: str, clip_id: str) -> str:
-        """Wrap already-emitted content in the given clip."""
+        """Wrap already-emitted content in the given clip handle."""
 
     def marker(self, color: str, kind: str = "filled_triangle") -> str:
-        """Register an arrowhead marker for (kind, colour); return its id."""
+        """Register an arrowhead marker for (kind, colour); return its handle."""
 
     def filter_effect(self, kind: str, params: dict) -> str:
-        """Register a shadow/glow filter for params; return its id."""
+        """Register a shadow/glow filter for params; return its handle."""
 
     def filter_wrap(self, inner: str, filter_id: str) -> str:
-        """Wrap already-emitted content in the given filter."""
+        """Wrap already-emitted content in the given filter handle."""
 
     def transform_group(self, inner: str, transform: str) -> str:
         """Wrap already-emitted content in a backend transform group."""
