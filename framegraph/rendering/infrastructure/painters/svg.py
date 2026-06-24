@@ -459,21 +459,24 @@ class SvgPainter:
         return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}"{baseline} '
                 f'style="{style}">{esc(content)}</text>')
 
-    def text_block(self, base_y, anchor, style, lines, tx, line_dy):
+    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy):
+        style = self.font_style(st, size)
         spans = "".join(
             f'<tspan x="{fnum(tx)}"' + (f' dy="{fnum(line_dy)}"' if i else "") + f'>{esc(ln)}</tspan>'
             for i, ln in enumerate(lines))
         return f'<text y="{fnum(base_y)}" text-anchor="{anchor}" style="{style}">{spans}</text>'
 
-    def text_runs(self, base_y, anchor, tx, base_style, runs):
+    def text_runs(self, base_y, anchor, tx, base_st, size, runs):
         """A single baseline of inline styled runs (rich `text.spans`).
 
-        `runs` is a list of (text, run_style) pairs. The first run carries the
-        anchor x; the rest flow inline. Each run's style overrides the base."""
+        `runs` is a list of (text, run_style_dict) pairs — the neutral style dicts;
+        this backend formats each at `size`. The first run carries the anchor x; the
+        rest flow inline. Each run's style overrides the base."""
+        base_style = self.font_style(base_st, size)
         segs = []
-        for i, (text, run_style) in enumerate(runs):
+        for i, (text, run_st) in enumerate(runs):
             xa = f' x="{fnum(tx)}"' if i == 0 else ""
-            segs.append(f'<tspan{xa} style="{run_style}">{esc(text)}</tspan>')
+            segs.append(f'<tspan{xa} style="{self.font_style(run_st, size)}">{esc(text)}</tspan>')
         return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}" '
                 f'style="{base_style}">{"".join(segs)}</text>')
 

@@ -214,6 +214,15 @@ updated and a per-fixture review replaces the hand-verified output):
     `painters/tikz_path.py` (a third module to avoid the painters↔latex import
     cycle); `FigureTikz` delegates (byte-identical), and `TikzPainter.path`/
     `clip_path_d` consume it. Gradient-on-path falls back to a solid first stop.
+  - **Parameter neutralization is now complete across the port.** The
+    `text_block`/`text_runs` `style`-string leak (which 3b-3's audit missed) is
+    closed: they take the neutral style dict + fitted size, and SvgPainter formats
+    the font internally — byte-identical (golden unchanged). So **every input the
+    Renderer hands the painter is now a neutral value** (Stroke / Markers /
+    GradientPaint / transform ops / style dict / colour-url fill); the builder
+    passes a non-SVG backend zero pre-formatted SVG. What remains is purely the TikZ
+    *implementation* of `text_block`/`text_runs` and the wire-up — both gated on a
+    LaTeX engine to validate (none in the current environment).
   - **Text** — the font-coupling decision is **resolved**: `text_tag` ✅. The painter
     only gets a resolved style dict, and faithful TikZ text needs the `_Transpiler`'s
     font-macro registry — so the registry is **threaded in** as an optional
@@ -222,8 +231,14 @@ updated and a per-fixture review replaces the hand-verified output):
     emits a `\node` (anchor/align/`_text_y`/font-chain/colour) on the proven latex/
     convention. Remaining: `text_block`/`text_runs` (multi-line/styled spans) and the
     CSS text-feature tail (variants/letter-spacing/bidi/decorations).
-  - **Def+ref handles** (`gradient`/`filter_effect`+`filter_wrap`/`marker`/
-    `embedded_svg`/`image_pattern`): these *look* like they encode SVG's `<defs>`+
+  - **Handle methods done.** `filter_effect`/`filter_wrap`/`image_pattern`/
+    `embedded_svg`/`marker` now have honest TikZ fallbacks (filters pass through —
+    TikZ effects are per-shape; image-pattern fill → unfilled; embedded SVG →
+    accessible-title text node; marker inert since arrowheads flow via the `Markers`
+    value object). **TikzPainter now implements the entire `ScenePainter` port except
+    `text_block`/`text_runs`** (a structural test pins this) — the adapter is
+    wire-up-ready.
+  - **Original def+ref framing.** These *looked* like they encode SVG's `<defs>`+
     `url(#id)` model. On inspection that framing was overstated — the port already
     defines `gradient()` as returning an **opaque backend handle**, and `paint()`
     delegates to it, so **no contract change is needed**: each backend returns its
