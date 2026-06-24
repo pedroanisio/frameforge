@@ -9,7 +9,12 @@ from framegraph.sdk.author import DocumentBuilder, Handle
 from framegraph.sdk.geometry import Path
 from framegraph.sdk.paint import hatch, stroke
 
-_TOKEN_RE = re.compile(r"(`[^`]+`|\$[^$]+\$|\[[^\]]+\]\([^)]+\))")
+_TOKEN_RE = re.compile(
+    r"(`[^`]+`"                                  # `code`
+    r"|\$[^$]+\$"                                # $math$
+    r"|\{(?:ref|pageref|nameref|cite):[^}]+\}"   # {ref:id} {pageref:id} {nameref:id} {cite:key}
+    r"|\[[^\]]+\]\([^)]+\))"                     # [label](href)
+)
 
 
 def theme(
@@ -33,8 +38,16 @@ def theme(
     return handles
 
 
+_REF_SHOW = {"ref": None, "pageref": "page", "nameref": "title"}
+
+
 def md(text: str) -> list[Any]:
-    """Lower a small Markdown inline subset to FrameGraph ``Inline`` values."""
+    """Lower a small Markdown inline subset to FrameGraph ``Inline`` values.
+
+    Handles `` `code` ``, ``$math$`` and ``[label](href)`` links, plus a
+    FrameGraph cross-reference/citation extension: ``{ref:id}`` (the target's
+    number), ``{pageref:id}`` (its page), ``{nameref:id}`` (its title) and
+    ``{cite:key}`` (a bibliography citation). See :func:`ref` / :func:`cite`."""
     out: list[Any] = []
     pos = 0
     for match in _TOKEN_RE.finditer(text):
@@ -45,6 +58,12 @@ def md(text: str) -> list[Any]:
             out.append({"kind": "code", "text": token[1:-1]})
         elif token.startswith("$"):
             out.append({"kind": "math", "tex": token[1:-1]})
+        elif token.startswith("{"):
+            kind, _, target = token[1:-1].partition(":")
+            if kind == "cite":
+                out.append(cite(target))
+            else:
+                out.append(ref(target, show=_REF_SHOW[kind]))
         else:
             label, href = token[1:].split("](", 1)
             out.append({"kind": "link", "href": href[:-1], "content": [label]})
@@ -52,6 +71,35 @@ def md(text: str) -> list[Any]:
     if pos < len(text):
         out.append(text[pos:])
     return [part for part in out if part != ""]
+
+
+def ref(target: str, *, show: str | None = None) -> dict[str, Any]:
+    """A cross-reference ``Inline`` to a labelled object (``id``).
+
+    ``show`` selects what is rendered: ``None``/``"number"`` the target's number
+    (LaTeX ``\\ref``), ``"page"`` its page (``\\pageref``), ``"title"`` its title
+    (``\\nameref``), ``"label"`` its label. Renderers that resolve references
+    substitute the live value; others fall back to the visible text."""
+    inline: dict[str, Any] = {"kind": "ref", "target": str(target)}
+    if show is not None:
+        inline["show"] = show
+    return inline
+
+
+def cite(key: str | list[str], *, prefix: str | None = None,
+         locator: str | None = None, mode: str | None = None) -> dict[str, Any]:
+    """A bibliography citation ``Inline`` to one or more entry ``key``s.
+
+    ``locator`` is a page/section pointer (``"p. 12"``); ``mode`` selects the
+    style (``"parenthetical"``, ``"textual"``, …). Lowers to LaTeX ``\\cite``."""
+    inline: dict[str, Any] = {"kind": "cite", "key": key}
+    if prefix is not None:
+        inline["prefix"] = prefix
+    if locator is not None:
+        inline["locator"] = locator
+    if mode is not None:
+        inline["mode"] = mode
+    return inline
 
 
 def paragraph(text: str, **fields: Any) -> dict[str, Any]:
@@ -255,6 +303,7 @@ def _box(box: Sequence[float]) -> tuple[float, float, float, float]:
 
 
 __all__ = [
+    "cite",
     "greeble",
     "grid_lines",
     "hatch_fill",
@@ -262,6 +311,7 @@ __all__ = [
     "lorem_paragraphs",
     "md",
     "paragraph",
+    "ref",
     "sparkline",
     "theme",
 ]

@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `fill_stroke`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `neon`, `normalize_clip`, `page_hashes`, `paragraph`, `parametric`, `pattern`, `place_figure`, `place_imported_figure`, `parse`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `fill_stroke`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `neon`, `normalize_clip`, `page_hashes`, `paragraph`, `parametric`, `pattern`, `place_figure`, `place_imported_figure`, `parse`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -757,6 +757,16 @@ row(box: 'Sequence[float]', count: 'int | None' = None, *, gap: 'float' = 0.0, p
 
 ## `framegraph.sdk.macros`
 
+### `cite`
+
+`framegraph.sdk.macros.cite`
+
+A bibliography citation ``Inline`` to one or more entry ``key``s.
+
+```python
+cite(key: 'str | list[str]', *, prefix: 'str | None' = None, locator: 'str | None' = None, mode: 'str | None' = None) -> 'dict[str, Any]'
+```
+
 ### `greeble`
 
 `framegraph.sdk.macros.greeble`
@@ -825,6 +835,16 @@ Create a paragraph flow, using spans when Markdown inline forms appear.
 
 ```python
 paragraph(text: 'str', **fields: 'Any') -> 'dict[str, Any]'
+```
+
+### `ref`
+
+`framegraph.sdk.macros.ref`
+
+A cross-reference ``Inline`` to a labelled object (``id``).
+
+```python
+ref(target: 'str', *, show: 'str | None' = None) -> 'dict[str, Any]'
 ```
 
 ### `sparkline`
