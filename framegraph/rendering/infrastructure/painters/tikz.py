@@ -115,6 +115,23 @@ class TikzPainter:
             return "<-"
         return ""
 
+    @staticmethod
+    def anchor(align):
+        """Neutral align → text-anchor enum (shared convention with SvgPainter); the
+        text methods map it to TikZ base-anchors."""
+        return {"center": "middle", "right": "end", "end": "middle"}.get(align, "start")
+
+    def style_group(self, inner, attrs, raw=""):
+        """CSS compositing wrapper. TikZ supports `opacity` and `visibility:hidden`;
+        blend-modes/backdrop/CSS filters/clip-path have no TikZ equivalent and pass
+        through (documented fidelity gap)."""
+        if attrs.get("visibility") in ("hidden", "collapse"):
+            return ""
+        opacity = attrs.get("opacity")
+        if opacity not in (None, "1", 1):
+            return f"\\begin{{scope}}[opacity={opacity}]\n{inner}\\end{{scope}}\n"
+        return inner
+
     # ---- backend-specific handle methods (TikZ fallbacks) ----------------- #
     # These encode SVG's <defs>+url(#id) / <filter> model, which TikZ does not
     # share. Each degrades honestly so a wired TikZ render still produces valid,
@@ -460,6 +477,39 @@ class TikzPainter:
         if op is not None:
             opts.append(f"text opacity={fnum(op)}")
         return f"\\node[{','.join(opts)}] at ({fnum(ax)},{fnum(ay)}) {{{ltx_escape(content)}}};\n"
+
+    @staticmethod
+    def _base_anchor(anchor):
+        # SVG text-anchor enum -> TikZ baseline anchor (so the baseline lands on the
+        # builder-computed y, matching the SVG baseline model).
+        return {"middle": "base", "end": "base east"}.get(anchor, "base west")
+
+    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy):
+        """Multi-line text: one `\\node` per line on the baseline grid (base_y +
+        i·line_dy). Structurally implemented; visual baseline/leading fidelity is
+        pending a LaTeX-engine validation pass (none in this environment)."""
+        opts = [f"anchor={self._base_anchor(anchor)}", "inner sep=0pt", f"font={self._font(st)}"]
+        cexpr, op = color_expr(st.get("color"))
+        if cexpr:
+            opts.append(f"text={cexpr}")
+        if op is not None:
+            opts.append(f"text opacity={fnum(op)}")
+        opt_str = ",".join(opts)
+        return "".join(
+            f"\\node[{opt_str}] at ({fnum(tx)},{fnum(base_y + i * line_dy)}) {{{ltx_escape(ln)}}};\n"
+            for i, ln in enumerate(lines))
+
+    def text_runs(self, base_y, anchor, tx, base_st, size, runs):
+        """A single baseline of inline styled runs (rich `text.spans`) as one node
+        whose body concatenates per-run font/colour groups. Structurally
+        implemented; inline-flow fidelity pending LaTeX-engine validation."""
+        opts = [f"anchor={self._base_anchor(anchor)}", "inner sep=0pt", f"font={self._font(base_st)}"]
+        body = []
+        for text, run_st in runs:
+            cexpr, _op = color_expr(run_st.get("color"))
+            color = f"\\color{{{cexpr}}}" if cexpr else ""
+            body.append(f"{{{self._font(run_st)}{color}{ltx_escape(text)}}}")
+        return f"\\node[{','.join(opts)}] at ({fnum(tx)},{fnum(base_y)}) {{{''.join(body)}}};\n"
 
     # ---- document --------------------------------------------------------- #
     def document(self, w, h, body):
