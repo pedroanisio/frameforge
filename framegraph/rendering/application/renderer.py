@@ -5,22 +5,21 @@ per-page SVG output, by walking it in z-order and driving the domain resolvers
 (colour/paint/stroke/effect/text-style/canvas), the layout engine, and the
 `SvgPainter` adapter. Relocated out of the monolithic `tooling/render_fixtures.py`
 (DDD step: populate the application layer); behaviour and byte output are
-unchanged. Includes the `_strip_mathml` helper used by the MathJax fallback.
+unchanged.
 
-Honest limits (codebase-standards.md §12): this still imports `SvgPainter`
-concretely and shells out to the MathJax node script (with a deterministic
-fallback) — infrastructure couplings slated to become injected adapters when
-`ScenePainter` is made backend-neutral. `tooling/render_fixtures.py` re-exports
-`Renderer` for backward compatibility.
+Decomposition in progress (codebase-standards.md §13): text fitting, CSS/SVG
+value building, and math->SVG rendering are extracted to injected services
+(`TextFitter`, `StyleValues`, `MathSvgRenderer`). The remaining concrete
+infrastructure coupling is the directly-constructed `SvgPainter`, slated to
+become backend-neutral. `tooling/render_fixtures.py` re-exports `Renderer` for
+backward compatibility.
 """
 from __future__ import annotations
 
 import copy
-import json
 import math
 import os
 import re
-import subprocess
 
 from framegraph.rendering.domain.geometry import (
     esc, fnum, is_point, num,
@@ -31,32 +30,18 @@ from framegraph.rendering.domain.services.effect_resolver import EffectResolver
 from framegraph.rendering.domain.services.stroke_resolver import StrokeResolver
 from framegraph.rendering.domain.services.layout_engine import LayoutEngine
 from framegraph.rendering.domain.services.table_layout import resolve_column_widths
+from framegraph.rendering.domain.services.math_text import math_text
 from framegraph.rendering.domain.services.style_values import StyleValues
 from framegraph.rendering.domain.services.text_fitter import TextFitter
 from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver
+from framegraph.rendering.infrastructure.math_svg import MathSvgRenderer
 from framegraph.rendering.infrastructure.painters.svg import SvgPainter
-
-# Repo root, derived from this module's own location (framegraph/rendering/
-# application/renderer.py -> three parents up). Used only to locate the MathJax
-# helper script under tooling/ (an infrastructure concern; see module docstring).
-_REPO_ROOT = os.path.normpath(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..")
-)
-
-
-def _strip_mathml(source):
-    """Extract readable text from a small MathML fragment for fallback sizing."""
-    text = re.sub(r"<[^>]+>", " ", str(source or ""))
-    return re.sub(r"\s+", " ", text).strip() or "math"
 
 
 # --------------------------------------------------------------------------- #
 #  the renderer                                                               #
 # --------------------------------------------------------------------------- #
 class Renderer:
-    _math_svg_cache = {}
-    _math_svg_failures = set()
-    _math_svg_failed = False
 
     def __init__(self, doc, base_dir, *, real_metrics=False):
         self.doc = doc if isinstance(doc, dict) else {}
@@ -101,6 +86,7 @@ class Renderer:
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)
         self._effect = EffectResolver(self._color)
         self._css = StyleValues(self.color)   # CSS/SVG value builder (filter/shadow/transform)
+        self._math = MathSvgRenderer(math_text)   # math -> SVG adapter (node MathJax + fallback)
         self._layout = LayoutEngine()
         self._object_index = {}
 
@@ -172,7 +158,7 @@ class Renderer:
         for sp in spans:
             if isinstance(sp, dict):
                 if sp.get("kind") == "math" and (sp.get("tex") is not None or sp.get("latex") is not None):
-                    text = self.render_math_text(sp.get("tex") if sp.get("tex") is not None else sp.get("latex"))
+                    text = math_text(sp.get("tex") if sp.get("tex") is not None else sp.get("latex"))
                 else:
                     text = sp.get("text", "")
                 sty = self.text_style(sp["style"]) if sp.get("style") else base_st
@@ -291,133 +277,6 @@ class Renderer:
             return content.title()
         return content
 
-    @staticmethod
-    def render_math_text(tex):
-        """Dependency-free display fallback for flow math.
-
-        This is intentionally small, not a TeX engine. It covers the fixture math
-        vocabulary so rendered docs show readable equations instead of raw
-        backslash commands when KaTeX/MathJax/matplotlib are not available.
-        """
-        s = str(tex or "")
-        replacements = {
-            r"\left": "", r"\right": "", r"\,": " ", r"\;": " ",
-            r"\times": "×", r"\hbar": "ℏ", r"\mu": "μ", r"\nu": "ν",
-            r"\psi": "ψ", r"\phi": "φ", r"\alpha": "α", r"\beta": "β",
-            r"\gamma": "γ", r"\rho": "ρ", r"\mathcal{L}": "ℒ", r"\slashed{D}": "D̸",
-            r"\text{h.c.}": "h.c.", r"\bar{\psi}": "ψ̄",
-            r"\in": "∈", r"\approx": "≈", r"\le": "≤", r"\ge": "≥",
-            r"\arctan": "arctan", r"\max": "max",
-        }
-        for old, new in replacements.items():
-            s = s.replace(old, new)
-        s = re.sub(r"\\mathbb\{([^{}]+)\}", lambda m: "".join({
-            "P": "ℙ", "R": "ℝ", "C": "ℂ", "Z": "ℤ", "N": "ℕ", "Q": "ℚ",
-        }.get(ch, ch) for ch in m.group(1)), s)
-
-        frac_map = {
-            ("1", "2"): "½", ("3", "2"): "3⁄2", ("1", "4"): "¼",
-            ("3", "4"): "¾", (r"\sqrt{3}", "2"): "√3⁄2",
-            (r"\sqrt{15}", "2"): "√15⁄2",
-        }
-
-        def frac_repl(m):
-            a, b = m.group(1).strip(), m.group(2).strip()
-            a = a.replace(r"\sqrt{", "√").replace("}", "")
-            return frac_map.get((m.group(1).strip(), m.group(2).strip()), f"{a}⁄{b}")
-
-        s = re.sub(r"\\t?frac\{([^{}]+(?:\{[^{}]+\}[^{}]*)?)\}\{([^{}]+)\}", frac_repl, s)
-        s = re.sub(r"\\sqrt\{([^{}]+)\}", r"√\1", s)
-
-        supers = str.maketrans("0123456789+-=()n", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿ")
-        subs = str.maketrans("0123456789+-=()abcdefghijklmnopqrstuvwxyz",
-                             "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐᵦ꜀ᑯₑբ₉ₕᵢⱼₖₗₘₙₒₚ૧ᵣₛₜᵤᵥwₓᵧ₂")
-
-        def script_repl(trans):
-            return lambda m: m.group(1).translate(trans)
-
-        s = re.sub(r"\^\{([^{}]+)\}", script_repl(supers), s)
-        s = re.sub(r"_\{([^{}]+)\}", script_repl(subs), s)
-        s = re.sub(r"\^([A-Za-z0-9])", script_repl(supers), s)
-        s = re.sub(r"_([A-Za-z0-9])", script_repl(subs), s)
-        s = s.replace("{", "").replace("}", "")
-        s = re.sub(r"\\([A-Za-z]+)", r"\1", s)
-        return re.sub(r"\s+", " ", s).strip()
-
-    @classmethod
-    def render_math_svg(cls, source, input_kind="tex"):
-        """Render TeX/MathML to a path-based SVG fragment using MathJax."""
-        source = str(source or "")
-        input_kind = "mathml" if input_kind == "mathml" else "tex"
-        cache_key = (input_kind, source)
-        if not source or cls._math_svg_failed:
-            return None
-        if cache_key in cls._math_svg_cache:
-            return cls._math_svg_cache[cache_key]
-        if cache_key in cls._math_svg_failures:
-            return None
-        script = os.path.join(_REPO_ROOT, "tooling", "mathjax_tex_to_svg.mjs")
-        if not os.path.exists(script):
-            result = cls._fallback_math_svg(source, input_kind)
-            cls._math_svg_cache[cache_key] = result
-            return result
-        try:
-            proc = subprocess.run(
-                ["node", script],
-                input=json.dumps([{"input": input_kind, "source": source}]),
-                text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                cwd=_REPO_ROOT,
-                check=True,
-            )
-            converted = json.loads(proc.stdout or "[]")
-            result = converted[0] if converted else None
-        except subprocess.CalledProcessError as exc:
-            stderr = str(getattr(exc, "stderr", "") or "")
-            if "ERR_MODULE_NOT_FOUND" in stderr or "Cannot find module" in stderr:
-                result = cls._fallback_math_svg(source, input_kind)
-                cls._math_svg_cache[cache_key] = result
-                return result
-            cls._math_svg_failures.add(cache_key)
-            return None
-        except OSError:
-            result = cls._fallback_math_svg(source, input_kind)
-            cls._math_svg_cache[cache_key] = result
-            return result
-        except (json.JSONDecodeError, IndexError, TypeError):
-            cls._math_svg_failures.add(cache_key)
-            return None
-        if not isinstance(result, dict) or not result.get("body") or not result.get("viewBox"):
-            cls._math_svg_failures.add(cache_key)
-            return None
-        cls._math_svg_cache[cache_key] = result
-        return result
-
-    @classmethod
-    def _fallback_math_svg(cls, source, input_kind="tex"):
-        """Return a deterministic SVG fragment when MathJax is unavailable.
-
-        The fallback is deliberately visual and non-normative: it avoids leaking
-        raw TeX/MathML into rendered pages, preserves the math-a11y marker used by
-        tests and consumers, and keeps the real MathJax path preferred whenever
-        the viewer's JS dependencies are installed.
-        """
-        text = cls.render_math_text(_strip_mathml(source) if input_kind == "mathml" else source)
-        width = max(48, min(360, 16 + len(text or "math") * 8))
-        height = 24
-        body = (
-            '<g data-mml-node="math">'
-            '<path d="M2 12 C 8 2, 16 2, 22 12 S 36 22, 44 12" '
-            'fill="none" stroke="currentColor" stroke-width="2"/>'
-            '<path d="M50 6 H 58 V 14 H 50 Z" fill="currentColor" stroke="currentColor"/>'
-            '<path d="M4 19 H 44" fill="none" stroke="currentColor" stroke-width="1"/>'
-            '</g>'
-        )
-        return {"input": input_kind, "source": str(source or ""), "viewBox": f"0 0 {width} {height}",
-                "width": width, "height": height, "body": body}
-
-    # ---- per-object dispatch ---------------------------------------------- #
     def obj(self, o):
         if not isinstance(o, dict):
             return ""
@@ -1761,9 +1620,9 @@ class Renderer:
             if isinstance(value.get("content"), list):      # LinkInline / FootnoteInline inline content
                 return "".join(text_of(item) for item in value.get("content") or [])
             if value.get("tex") is not None:                # inline math fallback
-                return self.render_math_text(value.get("tex"))
+                return math_text(value.get("tex"))
             if value.get("latex") is not None:
-                return self.render_math_text(value.get("latex"))
+                return math_text(value.get("latex"))
             if isinstance(value.get("spans"), list):
                 return "".join(text_of(span) for span in value.get("spans") or [])
             if isinstance(value.get("children"), list):
@@ -1817,7 +1676,7 @@ class Renderer:
             nonlocal cy
             input_kind = "tex" if fl.get("tex") is not None else "mathml" if fl.get("mathml") is not None else "tex"
             source = fl.get("tex") if fl.get("tex") is not None else fl.get("mathml") if fl.get("mathml") is not None else text_of(fl)
-            rendered = self.render_math_svg(source, input_kind)
+            rendered = self._math.render(source, input_kind)
             if rendered:
                 math_color = "#111"
                 math_body = str(rendered.get("body")).replace("currentColor", math_color)
@@ -1840,7 +1699,7 @@ class Renderer:
                 cy += draw_h + 12
                 return
 
-            text = self.render_math_text(source)
+            text = math_text(source)
             st = {**base, "family": "serif", "size": 13, "color": "#111", "align": "center", "lh": 1.25}
             for ln in str(text).splitlines() or [""]:
                 emit(ln, st, gap_after=1)
