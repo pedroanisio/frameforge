@@ -216,11 +216,17 @@ updated and a per-fixture review replaces the hand-verified output):
     (`_register_fonts`/`_font`) — so text couples the painter to the document scaffold
     and must be solved at wiring time.
   - **Def+ref handles** (`gradient`/`filter_effect`+`filter_wrap`/`marker`/
-    `embedded_svg`/`image_pattern`): these encode SVG's `<defs>`+`url(#id)` model,
-    which TikZ does not share (gradients are inline `\shade`, not a fill ref). They
-    are a **port-neutrality gap surfaced by 3b-5** — TikZ needs a different model
-    (inline shading / per-shape handling, as the current fork does), so closing 3b-5c
-    likely means revisiting these few methods' contract, not just implementing them.
+    `embedded_svg`/`image_pattern`): these *look* like they encode SVG's `<defs>`+
+    `url(#id)` model. On inspection that framing was overstated — the port already
+    defines `gradient()` as returning an **opaque backend handle**, and `paint()`
+    delegates to it, so **no contract change is needed**: each backend returns its
+    own handle. ✅ **Gradient is done** — `GradientPaint` (paint_resolver) is TikZ's
+    handle; `SvgPainter.gradient` still returns `url(#…)` (SVG byte-identical),
+    `TikzPainter.gradient` returns the value object and the fill-bearing primitives
+    render it inline as `\shade` (shape-coupled, since the primitive has the
+    geometry). `marker` is already internal via the `Markers` value object. Genuinely
+    SVG-specific remainders: `filter_effect`/`filter_wrap` (TikZ shadows differ),
+    `embedded_svg` (foreign-SVG embed — a TikZ backend falls back), `image_pattern`.
   - **Wire + delete**: drive the Renderer with `TikzPainter`, route `_Transpiler`'s
     figure path through it, delete `FigureTikz` (~2,700 LOC), rewrite the
     assertion-based LaTeX tests, and validate by `lualatex` compile + per-fixture
