@@ -5,7 +5,8 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-from tooling.render_fixtures import Renderer, normalize_doc
+from framegraph.rendering.application.normalize import normalize_doc
+from framegraph.rendering.application.renderer import Renderer
 
 from framegraph.sdk.model import validate_document
 
