@@ -324,6 +324,24 @@ def gen_sdk_guide():
 
     doc = builder.build()
     """
+    figure_example = """\
+    from framegraph.sdk import DocumentBuilder, FigureRef
+
+    def draw_plate(builder):
+        plate = builder.page("plate", canvas={"size": [400, 240], "units": "px"})
+        plate.layer("main").rect([0, 0, 400, 240], fill="#f8fafc")
+        plate.text([32, 32, 260, 32], "Live figure")
+
+    builder = DocumentBuilder()
+    page = builder.page("p", canvas={"size": [640, 360], "units": "px"}).layer("main")
+    page.figure(
+        FigureRef.from_callable(draw_plate, page="plate"),
+        [40, 40, 320, 180],
+        fit="contain",
+        align="center",
+        id_prefix="fig1-",
+    )
+    """
     validate_example = """\
     from framegraph.sdk import validate_static_rules
 
@@ -435,6 +453,17 @@ def gen_sdk_guide():
         textwrap.dedent(topology_example).rstrip(),
         "```",
         "",
+        "## Live Figure Imports",
+        "",
+        "`FigureRef` and `PageBuilder.figure()` import another FrameGraph page as live object children. "
+        "The source may be a callable plate function, builder/document/dict, or `.fg.yaml`/`.fg.json` path; "
+        "placement controls page/layer selection, fit mode, alignment, crop/viewbox, ID prefixing, clipping, "
+        "and whether the imported figure is treated as decorative.",
+        "",
+        "```python",
+        textwrap.dedent(figure_example).rstrip(),
+        "```",
+        "",
         "## Validation",
         "",
         "`validate_static_rules()` runs Pydantic structure validation, the repository static validator, and SDK "
@@ -472,6 +501,7 @@ def gen_sdk_api():
         "framegraph.sdk.draw",
         "framegraph.sdk.expand",
         "framegraph.sdk.fields",
+        "framegraph.sdk.figure",
         "framegraph.sdk.geometry",
         "framegraph.sdk.io",
         "framegraph.sdk.lattices",

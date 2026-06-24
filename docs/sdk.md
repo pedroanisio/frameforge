@@ -196,6 +196,29 @@ layer.add(lattice("fcc", nx=2, ny=2, nz=2).render(box=[800, 20, 140, 280], camer
 doc = builder.build()
 ```
 
+## Live Figure Imports
+
+`FigureRef` and `PageBuilder.figure()` import another FrameGraph page as live object children. The source may be a callable plate function, builder/document/dict, or `.fg.yaml`/`.fg.json` path; placement controls page/layer selection, fit mode, alignment, crop/viewbox, ID prefixing, clipping, and whether the imported figure is treated as decorative.
+
+```python
+from framegraph.sdk import DocumentBuilder, FigureRef
+
+def draw_plate(builder):
+    plate = builder.page("plate", canvas={"size": [400, 240], "units": "px"})
+    plate.layer("main").rect([0, 0, 400, 240], fill="#f8fafc")
+    plate.text([32, 32, 260, 32], "Live figure")
+
+builder = DocumentBuilder()
+page = builder.page("p", canvas={"size": [640, 360], "units": "px"}).layer("main")
+page.figure(
+    FigureRef.from_callable(draw_plate, page="plate"),
+    [40, 40, 320, 180],
+    fit="contain",
+    align="center",
+    id_prefix="fig1-",
+)
+```
+
 ## Validation
 
 `validate_static_rules()` runs Pydantic structure validation, the repository static validator, and SDK checks for references, requested targets, target hide IDs, master-region chains, and path data.

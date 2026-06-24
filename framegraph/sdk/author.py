@@ -133,7 +133,9 @@ class DocumentBuilder:
         if coordinate_mode is not None:
             page["rendering"] = {"coordinate_mode": coordinate_mode}
         self._doc["pages"].append(page)
-        return PageBuilder(page)
+        builder = PageBuilder(page)
+        builder._document = self._doc
+        return builder
 
     def flow(self, id: str, *, master: Handle | str, story: list[dict[str, Any]], **fields: Any) -> None:
         section: dict[str, Any] = {
@@ -297,6 +299,7 @@ class PageBuilder:
 
     def __init__(self, page: dict[str, Any]) -> None:
         self._page = page
+        self._document: dict[str, Any] | None = None
         self._current_layer: dict[str, Any] | None = None
         self._decorative_depth = 0
         self._lettering_depth = 0
@@ -710,6 +713,21 @@ class PageBuilder:
         if clip is not None:
             fields = _style_set(fields, "clip_path", normalize_clip(clip), "clip")
         return self.add({"type": "group", "children": children, **fields})
+
+    def figure(self, source: Any, box: list[Any], **options: Any) -> "PageBuilder":
+        """Import a live FrameGraph figure page into this page.
+
+        ``source`` may be a :class:`~framegraph.sdk.figure.FigureRef`, callable
+        plate function, builder/document/dict, or ``.fg.yaml``/``.fg.json`` path.
+        The selected source page is lowered to an ordinary transformed group, so
+        its objects remain inspectable and editable after import.
+        """
+        from framegraph.sdk.figure import merge_figure_defs, place_figure
+
+        placement = place_figure(source, box, **options)
+        if self._document is not None:
+            merge_figure_defs(self._document, placement.defs)
+        return self.add(placement.group)
 
     @contextmanager
     def grouped(
