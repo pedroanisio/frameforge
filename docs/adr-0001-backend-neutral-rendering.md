@@ -222,8 +222,14 @@ updated and a per-fixture review replaces the hand-verified output):
     emits a `\node` (anchor/align/`_text_y`/font-chain/colour) on the proven latex/
     convention. Remaining: `text_block`/`text_runs` (multi-line/styled spans) and the
     CSS text-feature tail (variants/letter-spacing/bidi/decorations).
-  - **Def+ref handles** (`gradient`/`filter_effect`+`filter_wrap`/`marker`/
-    `embedded_svg`/`image_pattern`): these *look* like they encode SVG's `<defs>`+
+  - **Handle methods done.** `filter_effect`/`filter_wrap`/`image_pattern`/
+    `embedded_svg`/`marker` now have honest TikZ fallbacks (filters pass through —
+    TikZ effects are per-shape; image-pattern fill → unfilled; embedded SVG →
+    accessible-title text node; marker inert since arrowheads flow via the `Markers`
+    value object). **TikzPainter now implements the entire `ScenePainter` port except
+    `text_block`/`text_runs`** (a structural test pins this) — the adapter is
+    wire-up-ready.
+  - **Original def+ref framing.** These *looked* like they encode SVG's `<defs>`+
     `url(#id)` model. On inspection that framing was overstated — the port already
     defines `gradient()` as returning an **opaque backend handle**, and `paint()`
     delegates to it, so **no contract change is needed**: each backend returns its
