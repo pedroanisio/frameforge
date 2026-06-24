@@ -149,12 +149,13 @@ class Renderer:
     # anchor() / text_tag() / clip_rect() emission moved to the SvgPainter
     # (step 4); the builder calls self._painter.* for them.
 
-    def _span_runs(self, spans, base_st, size):
-        """Resolve `text.spans` to (text, run_style) pairs for one styled line.
+    def _span_runs(self, spans, base_st):
+        """Resolve `text.spans` to (text, run_style_dict) pairs for one styled line.
 
         Mirrors the flatten used for fit (str | dict's `text`), so the run texts
-        concatenate to the fitted line; each run's style comes from the span's own
-        `style` (else the base), rendered at the fitted size."""
+        concatenate to the fitted line; each run's style is the neutral style dict
+        from the span's own `style` (else the base) — the backend formats it at the
+        fitted size."""
         runs = []
         for sp in spans:
             if isinstance(sp, dict):
@@ -166,7 +167,7 @@ class Renderer:
             else:
                 text, sty = (sp if isinstance(sp, str) else str(sp)), base_st
             text = self._transform_text(str(text), base_st.get("text_transform"))
-            runs.append((text, self._painter.font_style(sty, size)))
+            runs.append((text, sty))
         return runs
 
     def render_text(self, x, y, w, h, content, st, spans=None):
@@ -242,14 +243,14 @@ class Renderer:
 
         a = self._painter.anchor(st["align"])
         tx = x + (w / 2 if a == "middle" else (w if a == "end" else 0))
-        style = self._painter.font_style(st, size)
+        # Pass the neutral style dict + fitted size; the backend formats the font.
         # Rich `text.spans`: when the fitted text is a single, untruncated line,
         # emit per-run styled tspans (the common inline-emphasis case). Wrapped or
         # truncated span text falls back to the flattened single-style line.
         if spans and len(lines) == 1 and lines[0] == content:
-            el = self._painter.text_runs(base, a, tx, style, self._span_runs(spans, st, size))
+            el = self._painter.text_runs(base, a, tx, st, size, self._span_runs(spans, st))
         else:
-            el = self._painter.text_block(base, a, style, lines, tx, size * lh)
+            el = self._painter.text_block(base, a, st, size, lines, tx, size * lh)
 
         # telemetry: is it visually contained?
         widest = max((self.measure(ln, size, avg, st) for ln in lines), default=0)
