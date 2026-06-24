@@ -7,7 +7,7 @@ from typing import Callable, Iterable, Literal, Sequence
 
 from framegraph.sdk.geometry import Camera, Mat4, Path, Vec2, Vec3
 
-Scale = str | Callable[[float], float]
+Scale = str | Callable[[float], float] | dict
 
 
 @dataclass(frozen=True)
@@ -325,17 +325,84 @@ def polar_plot(
     return parametric_curve(fn, domain, frame=frame, **kwargs)
 
 
+# ---- orthographic multiview (roadmap Appendix A.6) ------------------------ #
+_VIEW_CAMERAS: dict[str, Callable[[], Mat4]] = {
+    "front": Mat4.identity,                 # look down -Z (XY plane)
+    "top": lambda: Mat4.rotate_x(90),       # look down -Y (XZ plane)
+    "side": lambda: Mat4.rotate_y(90),      # look down -X (ZY plane)
+    "iso": Mat4.isometric,                  # isometric 3/4 view
+}
+
+
+def multiview(
+    scene: "Scene3D",
+    *,
+    box: Sequence[float],
+    views: Sequence[str] = ("front", "top", "side", "iso"),
+    cols: int = 2,
+    gap: float = 8.0,
+    labels: bool = True,
+    label_size: float = 10.0,
+    **render_kw: object,
+) -> dict[str, object]:
+    """Render a :class:`Scene3D` as an engineering **orthographic multiview** — a
+    panel grid of front / top / side / isometric views (roadmap Appendix A.6).
+
+    Each panel projects the scene through a pure-rotation camera, and ``Scene3D``'s
+    projection drops depth without a perspective divide, so the views are true
+    orthographic projections. ``render_kw`` (fill/stroke/shading/light/…) pass
+    through to each :meth:`Scene3D.render`."""
+    bx, by, bw, bh = (float(v) for v in box[:4])
+    n = len(views)
+    cols = max(1, min(int(cols), n))
+    rows = math.ceil(n / cols)
+    pw = (bw - gap * (cols - 1)) / cols
+    ph = (bh - gap * (rows - 1)) / rows
+    children: list[dict[str, object]] = []
+    for i, view in enumerate(views):
+        cam = _VIEW_CAMERAS.get(view)
+        if cam is None:
+            raise ValueError(f"unknown view: {view!r} (use front/top/side/iso)")
+        r, c = divmod(i, cols)
+        px, py = bx + c * (pw + gap), by + r * (ph + gap)
+        children.append(scene.render(camera=cam(), box=[px, py, pw, ph], **render_kw))
+        if labels:
+            children.append({"type": "text", "box": [px, py, pw, 14.0], "text": view,
+                             "style": {"size": label_size, "color": "#475569", "align": "left"}})
+    return {"type": "group", "children": children}
+
+
+def _log(value: float, base: float | None = None) -> float:
+    if value <= 0:
+        raise ValueError("log scale requires positive values")
+    return math.log(value, base) if base else math.log(value)
+
+
+def _pow(value: float, exp: float) -> float:
+    return math.copysign(abs(value) ** exp, value)   # sign-preserving
+
+
 def _apply_scale(value: float, scale: Scale) -> float:
+    """Map a data value through a scale. Accepts a callable, a name
+    (``"linear"``/``"log"``/``"pow2"``), or a structured spec — ``{"kind":"log",
+    "base":b}`` / ``{"kind":"pow","exp":e}`` / ``{"kind":"linear"}`` (roadmap A.4)."""
     if callable(scale):
         return float(scale(value))
+    if isinstance(scale, dict):
+        kind = scale.get("kind", "linear")
+        if kind == "linear":
+            return value
+        if kind == "log":
+            return _log(value, scale.get("base"))
+        if kind == "pow":
+            return _pow(value, float(scale.get("exp", 1.0)))
+        raise ValueError(f"unsupported scale kind: {kind!r}")
     if scale == "linear":
         return value
     if scale == "log":
-        if value <= 0:
-            raise ValueError("log scale requires positive values")
-        return math.log(value)
+        return _log(value)
     if scale == "pow2":
-        return math.copysign(abs(value) ** 2, value)
+        return _pow(value, 2.0)
     raise ValueError(f"unsupported scale: {scale!r}")
 
 

@@ -24,7 +24,7 @@ from framegraph.sdk.conform import (
     write_golden,
 )
 from framegraph.sdk.draw import (
-    Frame, Material, Scene3D, function_plot, parametric_curve, polar_plot,
+    Frame, Material, Scene3D, function_plot, multiview, parametric_curve, polar_plot,
 )
 from framegraph.sdk.expand import ExpandOptions, ExpandedDocument, expand
 from framegraph.sdk.geometry import (
@@ -208,6 +208,7 @@ __all__ = [
     "model_module",
     "klein_bottle",
     "mobius",
+    "multiview",
     "neon",
     "normalize_clip",
     "page_hashes",
