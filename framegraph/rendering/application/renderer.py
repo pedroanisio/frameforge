@@ -31,6 +31,7 @@ from framegraph.rendering.domain.services.effect_resolver import EffectResolver
 from framegraph.rendering.domain.services.stroke_resolver import StrokeResolver
 from framegraph.rendering.domain.services.layout_engine import LayoutEngine
 from framegraph.rendering.domain.services.table_layout import resolve_column_widths
+from framegraph.rendering.domain.services.text_fitter import TextFitter
 from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver
 from framegraph.rendering.infrastructure.painters.svg import SvgPainter
 
@@ -63,6 +64,14 @@ class Renderer:
         # from real glyph advances instead of the per-char `avg` estimate. OFF by
         # default so render_page()/golden output stays byte-identical (§8).
         self.real_metrics = bool(real_metrics)
+        # Text fitting (measure/wrap/ellipsize) is a domain service; inject the
+        # infra font-metrics provider only when real_metrics is on (estimate mode
+        # otherwise), keeping the domain free of the infra import.
+        if self.real_metrics:
+            from framegraph.rendering.infrastructure.font_metrics import get_font_metrics
+            self._fit = TextFitter(get_font_metrics)
+        else:
+            self._fit = TextFitter(None)
         defs = self.doc.get("defs") or {}
         tok = defs.get("tokens") or {}
         self.colors = tok.get("colors") or {}
@@ -136,82 +145,17 @@ class Renderer:
     # `real_metrics` opt-in is set AND fontTools resolves the family, width is
     # taken from real glyph advances instead. The opt-in is OFF by default, so
     # the estimate path below is reached unchanged and output is byte-identical.
-    def _font_metrics(self, st):
-        if not self.real_metrics or not st:
-            return None
-        from framegraph.rendering.infrastructure.font_metrics import get_font_metrics
-        # `family` is now the full CSS stack; metrics want the primary face only.
-        return get_font_metrics(st.get("family_primary") or st.get("family", ""), bool(st.get("bold")))
-
+    # Text fitting is delegated to the TextFitter domain service (SRP). These
+    # thin wrappers preserve the call sites and the tested `Renderer.measure`/
+    # `wrap_words` surface (tests/test_font_metrics.py).
     def measure(self, s, size, avg, st=None):
-        fm = self._font_metrics(st)
-        if fm is not None:
-            return fm.width(str(s), size)
-        return len(s) * size * avg
+        return self._fit.measure(s, size, avg, st)
 
     def wrap_words(self, text, w, size, avg, st=None):
-        fm = self._font_metrics(st)
-        if fm is not None:
-            return self._wrap_real(str(text), w, size, fm)
-        maxc = max(1, int(w / (size * avg)))
-        out, cur = [], ""
-        for word in str(text).split():
-            while len(word) > maxc:                  # hard-break an over-long token
-                if cur:
-                    out.append(cur); cur = ""
-                out.append(word[:maxc]); word = word[maxc:]
-            if cur and len(cur) + 1 + len(word) > maxc:
-                out.append(cur); cur = word
-            else:
-                cur = (cur + " " + word).strip()
-        if cur:
-            out.append(cur)
-        return out or [""]
+        return self._fit.wrap_words(text, w, size, avg, st)
 
     def ellipsize(self, s, w, size, avg, st=None):
-        fm = self._font_metrics(st)
-        if fm is not None:
-            return self._ellipsize_real(str(s), w, size, fm)
-        maxc = max(0, int(w / (size * avg)))
-        if len(s) <= maxc:
-            return s
-        return (s[: max(0, maxc - 1)].rstrip() + "…") if maxc else "…"
-
-    @staticmethod
-    def _wrap_real(text, w, size, fm):
-        """Greedy word-wrap to pixel width `w` using real glyph advances."""
-        out, cur = [], ""
-        for word in text.split():
-            while fm.width(word, size) > w:          # hard-break an over-long token
-                take = 1
-                while take < len(word) and fm.width(word[: take + 1], size) <= w:
-                    take += 1
-                if cur:
-                    out.append(cur); cur = ""
-                out.append(word[:take]); word = word[take:]
-                if not word:
-                    break
-            if not word:
-                continue
-            cand = (cur + " " + word).strip()
-            if cur and fm.width(cand, size) > w:
-                out.append(cur); cur = word
-            else:
-                cur = cand
-        if cur:
-            out.append(cur)
-        return out or [""]
-
-    @staticmethod
-    def _ellipsize_real(s, w, size, fm):
-        """Trim `s` to pixel width `w` (real advances), appending an ellipsis."""
-        if fm.width(s, size) <= w:
-            return s
-        ell = fm.width("…", size)
-        take = 0
-        while take < len(s) and fm.width(s[: take + 1], size) + ell <= w:
-            take += 1
-        return (s[:take].rstrip() + "…") if take else "…"
+        return self._fit.ellipsize(s, w, size, avg, st)
 
     # anchor() / text_tag() / clip_rect() emission moved to the SvgPainter
     # (step 4); the builder calls self._painter.* for them.
