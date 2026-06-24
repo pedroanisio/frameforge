@@ -20,7 +20,7 @@ from .tikz import FigureTikz, _parse_hex, color_expr, ltx_escape, ltx_url_escape
 # Symbol (`use`) expansion is shared with the SVG engine so a figure's object
 # graph is already groups by the time we walk it.
 try:
-    from tooling.render_fixtures import normalize_doc
+    from framegraph.rendering.application.normalize import normalize_doc
 except Exception:                                    # pragma: no cover - import fallback
     def normalize_doc(doc):
         return doc

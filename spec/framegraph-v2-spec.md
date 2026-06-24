@@ -230,6 +230,15 @@ plus `orientation`/`bleed`/`margin`). Presets:
 |---|---|---|
 | A3, A4, A5, Letter, Legal, Tabloid | deck-16x9, deck-4x3, square | phone 390×844, tablet 834×1112, web 1280×800 |
 
+Social-media canvases (px) and aspect-ratio aliases are also presets: `instagram-square`
+1080×1080, `instagram-portrait` 1080×1350, `instagram-landscape` 1080×566, `instagram-story`
+1080×1920, `facebook-post` 1200×630, `facebook-cover` 820×312, `facebook-story` 1080×1920,
+`twitter-post` 1600×900, `twitter-header` 1500×500, `linkedin-post` 1200×627, `linkedin-cover`
+1584×396, `youtube-thumbnail` 1280×720, `youtube-banner` 2560×1440, `tiktok-video` 1080×1920,
+`pinterest-pin` 1000×1500, `snapchat` 1080×1920, `story` 1080×1920; ratio aliases `1x1`, `4x5`,
+`5x4`, `9x16`, `16x9`, `2x3`, `3x2`, `1.91x1`, `3x1`. These are platform creator-guideline
+conventions (subject to change); the renderer's `CanvasResolver.PRESETS` is their pixel source.
+
 ## 5. Styling, reuse, value types
 
 ### 5.1 Tokens

@@ -680,6 +680,15 @@ def stale_tracked_pages():
     return stale
 
 
+def write_tracked():
+    """Regenerate only the *committed* snapshots (``sdk.md``/``sdk-api.md``).
+
+    The cheap fix when ``--check`` reports SDK-snapshot drift: it skips the
+    fixture-gallery render the full :func:`generate` does (41 docs → SVG), so
+    refreshing the snapshot after an SDK change costs a fraction of `make docs`."""
+    return [_write(rel, builder()) for rel, builder in _TRACKED_GENERATED.items()]
+
+
 def _nav_targets():
     import yaml
     cfg = yaml.safe_load(open(os.path.join(ROOT, "mkdocs.yml"), encoding="utf-8"))
@@ -704,7 +713,15 @@ def main(argv=None):
     ap.add_argument("--check", action="store_true",
                     help="generate, then assert committed generated pages are fresh "
                          "and every mkdocs.yml nav page exists")
+    ap.add_argument("--sdk", action="store_true",
+                    help="regenerate ONLY the committed SDK snapshots (sdk.md, "
+                         "sdk-api.md) — fast; the cheap fix when --check reports drift")
     args = ap.parse_args(argv)
+
+    if args.sdk:
+        written = write_tracked()
+        print(f"Wrote {len(written)} SDK snapshot(s) to docs/: {', '.join(written)}")
+        return 0
 
     # Capture drift in the committed snapshots BEFORE generate() overwrites them.
     stale = stale_tracked_pages() if args.check else []
@@ -715,7 +732,7 @@ def main(argv=None):
     if args.check:
         if stale:
             print(f"STALE: committed generated docs differ from a fresh build: {stale}. "
-                  f"Run `make docs` and commit the result.")
+                  f"Run `make docs-sdk` (fast) and commit the result.")
             return 1
         missing = [t for t in _nav_targets() if not os.path.exists(os.path.join(DOCS, t))]
         if missing:

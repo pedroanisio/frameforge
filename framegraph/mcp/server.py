@@ -24,7 +24,7 @@ from urllib.parse import unquote, urlparse
 
 from pydantic import Field
 
-from framegraph.sdk.conform import render_page_svgs
+from framegraph.sdk.conform import render_pages_with_stats
 from framegraph.sdk.io import parse
 from framegraph.sdk.validate import ValidationReport, validate_static_rules
 
@@ -51,6 +51,14 @@ VIEWABLE_IMAGE_MIME = ("image/png", "image/jpeg", "image/gif", "image/webp")
 # response latency. Honest limit: it bounds the *response*, not the CPU work — a
 # runaway render keeps running in a detached daemon thread until it finishes.
 DEFAULT_RENDER_TIMEOUT_SECONDS = 30
+# Hard input ceilings for the in-process render. The render runs in a daemon thread
+# bounded only by a *soft* timeout (the thread is not force-killed — Python cannot
+# interrupt CPU-bound bytecode), so a pathological document could leave a thread
+# spinning. These caps refuse an obviously-runaway document *before* the thread starts,
+# bounding the work it can ever do; the timeout stays the backstop for in-budget slow
+# renders. Set generously so real decks never hit them; env-overridable.
+DEFAULT_RENDER_MAX_PAGES_HARD = 200
+DEFAULT_RENDER_MAX_OBJECTS = 50_000
 # Rasterization is far heavier than the SVG render: every page launches a fresh
 # headless Chromium. To keep a many-page deck from stalling (or dropping) the stdio
 # loop, the raster lane is bounded by a page cap and a soft wall-clock budget; pages
@@ -132,14 +140,19 @@ Fluent builder:
   `.extend(objs)` and `.stack(box, kind="row|column|grid|wrap")` layout groups.
 - Paint (`framegraph.sdk.paint`): `stroke(width, color=...)`, `fill_stroke(...)`,
   `linear_gradient`/`radial_gradient`, `hatch`/`dots`/`grid_pattern`/`pattern`,
-  `glow`/`neon`/`shadow`/`soft_shadow`, `rgba`. Stroke geometry MUST go through
-  `stroke()` (paint in `stroke`, geometry in the inline `stroke_style` bundle);
-  an inline `stroke_width` on a paint-only line/polyline/path is rejected.
+  `glow`/`neon`/`shadow`/`soft_shadow`, `rgba`, and `text_style(size, color=...)` for the
+  text subset of `Style`. Stroke geometry MUST go through `stroke()` (paint in `stroke`,
+  geometry in the inline `stroke_style` bundle); an inline `stroke_width` on a
+  paint-only line/polyline/path is rejected.
 - Widgets (`framegraph.sdk.widgets`): `avatar` `badge` `button` `card` `kpi` `pill`
   `progress` `table` `tabs` `toggle` `divider` `field`, plus `Panel`/`Theme`.
 - Data & geometry: `Chart`+`Frame`, `Graph`/`Node`/`Edge`, `Camera`/`Scene3D`/`Mat3`/
   `Mat4`, `CubicBezier`/`Path`, `ScalarField`/`VectorField`, `lattice`/`manifold`,
   `greeble`, `grid_lines`.
+- Figures (`framegraph.sdk.figure`): `place_figure(source, box)` / `load_figure` /
+  `FigureRef` import another FrameGraph page's objects as editable children (not a frozen
+  image); `FigureAsset` / `place_imported_figure` place an extracted book/PDF figure with
+  caption + provenance.
 - Validation: `validate_static_rules(doc) -> ValidationReport(ok, issues)`,
   `assert_golden(...)`; `HEAD_VERSION` is the current spec version.
 
@@ -1608,9 +1621,13 @@ def _validate_and_render_yaml(
 
     renders: list[dict[str, Any]] = []
     render_warning: str | None = None
+    text_fit: dict[str, int] | None = None
     if report.ok:
+        oversized = _render_size_guard(document)
+        if oversized:
+            return _render_failure(session_id, report, oversized, warning=oversized)
         try:
-            svgs = _render_page_svgs_bounded(document, base_dir)
+            svgs, text_stats = _render_page_svgs_bounded(document, base_dir)
         except RenderTimeoutError as exc:
             return _render_failure(session_id, report, str(exc), warning=str(exc))
         except Exception as exc:  # noqa: BLE001 — render is third-party-ish; surface it structured
@@ -1648,12 +1665,31 @@ def _validate_and_render_yaml(
             if raster_warning:
                 render_warning = raster_warning
 
+        # Surface the renderer's text-fit telemetry. A non-zero `clipped` means text
+        # exceeded its box and was clipped/ellipsized — the render returns ok:true, so
+        # without this the truncation is invisible to the author (PALS's Law: make the
+        # render's own signal visible). Advisory, not an error: some clips are the
+        # author's intent (text_overflow: ellipsis / line_clamp).
+        text_fit = {
+            k: int(text_stats.get(k, 0))
+            for k in ("total", "wrapped", "shrunk", "clipped", "contained")
+        }
+        if text_fit["clipped"]:
+            note = (
+                f"{text_fit['clipped']} text object(s) were clipped to their box — verify "
+                "nothing important was truncated (some clips are intentional "
+                "ellipsis/line-clamp)"
+            )
+            render_warning = f"{render_warning}; {note}" if render_warning else note
+
     result = {
         "ok": report.ok and bool(renders),
         "validation": _validation_payload(report),
         "renders": renders,
         "resources": _resource_links(session_id, renders=renders),
     }
+    if text_fit is not None:
+        result["text_fit"] = text_fit
     if render_warning:
         result["render_warning"] = render_warning
     return result
@@ -1675,20 +1711,21 @@ def _render_failure(
     return result
 
 
-def _render_page_svgs_bounded(document: Any, base_dir: Path) -> list[str]:
-    """Render page SVGs under :data:`DEFAULT_RENDER_TIMEOUT_SECONDS` (env-overridable).
+def _render_page_svgs_bounded(document: Any, base_dir: Path) -> tuple[list[str], dict[str, int]]:
+    """Render page SVGs (+ text-fit telemetry) under :data:`DEFAULT_RENDER_TIMEOUT_SECONDS`.
 
     Runs the pure-Python renderer in a daemon thread and joins with a timeout so a
     pathological document bounds the *response* latency. The work itself is not
     force-killed (Python cannot interrupt CPU-bound bytecode); a timed-out render
-    keeps running detached until it completes, then is discarded.
+    keeps running detached until it completes, then is discarded. Returns the page
+    SVGs and the renderer's ``tstats`` so the caller can surface clipped/wrapped text.
     """
     timeout = _render_timeout()
     box: dict[str, Any] = {}
 
     def _target() -> None:
         try:
-            box["value"] = render_page_svgs(document, base_dir=str(base_dir))
+            box["value"] = render_pages_with_stats(document, base_dir=str(base_dir))
         except BaseException as exc:  # noqa: BLE001 — re-raised on the calling thread
             box["error"] = exc
 
@@ -1701,7 +1738,7 @@ def _render_page_svgs_bounded(document: Any, base_dir: Path) -> list[str]:
         )
     if "error" in box:
         raise box["error"]
-    return box.get("value", [])
+    return box.get("value", ([], {}))
 
 
 def _render_timeout() -> float:
@@ -1714,6 +1751,57 @@ def _render_timeout() -> float:
         except ValueError:
             pass
     return float(DEFAULT_RENDER_TIMEOUT_SECONDS)
+
+
+def _positive_env(name: str, default: int) -> int:
+    raw = os.environ.get(name)
+    if raw:
+        try:
+            value = int(raw)
+            if value > 0:
+                return value
+        except ValueError:
+            pass
+    return default
+
+
+def _count_objects(node: Any) -> int:
+    """Count object-like nodes (anything with a ``type``) anywhere in the tree."""
+    if isinstance(node, dict):
+        total = 1 if "type" in node else 0
+        return total + sum(_count_objects(v) for v in node.values())
+    if isinstance(node, list):
+        return sum(_count_objects(v) for v in node)
+    return 0
+
+
+def _render_size_guard(document: Any) -> str | None:
+    """Refuse an obviously-runaway document before the in-process render thread starts.
+
+    Bounds the work the (un-killable) render daemon thread can do. Best-effort: any
+    failure to introspect the document falls through to a normal render rather than
+    blocking it.
+    """
+    try:
+        data = (
+            document.model_dump(by_alias=True, exclude_none=True)
+            if hasattr(document, "model_dump")
+            else dict(document)
+        )
+    except Exception:  # noqa: BLE001 — never let the guard itself block a valid render
+        return None
+    pages = data.get("pages")
+    n_pages = len(pages) if isinstance(pages, list) else 0
+    n_objects = _count_objects(pages)
+    max_pages = _positive_env("FRAMEGRAPH_MCP_RENDER_MAX_PAGES", DEFAULT_RENDER_MAX_PAGES_HARD)
+    max_objects = _positive_env("FRAMEGRAPH_MCP_RENDER_MAX_OBJECTS", DEFAULT_RENDER_MAX_OBJECTS)
+    if n_pages > max_pages or n_objects > max_objects:
+        return (
+            f"document too large to render in-process ({n_pages} pages, {n_objects} "
+            f"objects; caps {max_pages} pages / {max_objects} objects — override with "
+            "FRAMEGRAPH_MCP_RENDER_MAX_PAGES / FRAMEGRAPH_MCP_RENDER_MAX_OBJECTS)"
+        )
+    return None
 
 
 def _raster_timeout() -> float:

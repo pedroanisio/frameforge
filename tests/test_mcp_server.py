@@ -749,3 +749,69 @@ def test_session_page_png_resource_returns_png_bytes(tmp_path):
 
     payload = server.resources[uri]("shot", "1")
     assert payload == png_bytes  # binary content returned as raw bytes, not base64 text
+
+
+# --- text-fit telemetry: clipped text is surfaced even though the render is ok ---
+
+CLIP_SCRIPT = """
+from framegraph.sdk import DocumentBuilder
+b = DocumentBuilder(title="clip", profile="diagram")
+layer = b.page("p", canvas={"size": [200, 120], "units": "px"}, coordinate_mode="absolute").layer("m")
+layer.text([10, 10, 120, 16],
+           "This is a long sentence that cannot fit inside a sixteen pixel tall box and will be clipped.",
+           style={"font_family": ["DejaVu Sans", "Arial"], "font_size": 14})
+doc = b.build()
+"""
+
+
+def test_render_surfaces_clipped_text_fit_telemetry(tmp_path):
+    """A render that clips text stays ok:true but reports text_fit + an advisory warning."""
+    result = run_sdk_code(CLIP_SCRIPT, session_id="clip", session_root=tmp_path, raster_png=False)
+    assert result["ok"] is True
+    assert result["text_fit"]["clipped"] >= 1
+    assert "clipped" in (result.get("render_warning") or "")
+
+
+TWO_OBJECT_SCRIPT = """
+from framegraph.sdk import DocumentBuilder
+b = DocumentBuilder(title="two", profile="diagram")
+m = b.page("p", canvas={"size": [100, 100], "units": "px"}, coordinate_mode="absolute").layer("m")
+m.rect([0, 0, 50, 50], fill="#111")
+m.rect([50, 50, 50, 50], fill="#222")
+doc = b.build()
+"""
+
+
+def test_render_refuses_oversized_document_before_rendering(tmp_path, monkeypatch):
+    """An over-cap document is refused up front (bounds the un-killable render thread)."""
+    monkeypatch.setenv("FRAMEGRAPH_MCP_RENDER_MAX_OBJECTS", "1")
+    result = run_sdk_code(TWO_OBJECT_SCRIPT, session_id="big", session_root=tmp_path, raster_png=False)
+    assert result["ok"] is False
+    assert "too large" in result["error"]
+    assert result["renders"] == []
+    assert result["validation"]["ok"] is True  # it's valid — just too large to render in-process
+
+
+def test_mcp_guide_names_headline_sdk_capabilities():
+    """The model-facing guide must keep naming the SDK's headline capabilities.
+
+    The capability list inside FRAMEGRAPH_GUIDE is hand-maintained prose and has
+    silently drifted before (it once omitted the figure-import lane and `text_style`).
+    This pins that each headline public capability is both a real export and discoverable
+    in the guide, so a new SDK capability cannot ship invisible to MCP agents.
+    """
+    import framegraph.sdk as sdk
+    from framegraph.mcp.server import FRAMEGRAPH_GUIDE
+
+    headline = [
+        "DocumentBuilder", "stroke", "fill_stroke", "text_style",
+        "Chart", "Scene3D", "Graph", "table", "badge",
+        "place_figure", "FigureRef", "validate_static_rules",
+    ]
+    missing_export = [name for name in headline if name not in sdk.__all__]
+    assert missing_export == [], f"headline names that are not public exports: {missing_export}"
+    missing_guide = [name for name in headline if name not in FRAMEGRAPH_GUIDE]
+    assert missing_guide == [], (
+        f"FRAMEGRAPH_GUIDE omits headline SDK capabilities {missing_guide} — update the "
+        "guide in framegraph/mcp/server.py when the SDK surface grows"
+    )

@@ -21,6 +21,7 @@ from framegraph.sdk.conform import (
     assert_golden,
     page_hashes,
     render_page_svgs,
+    render_pages_with_stats,
     write_golden,
 )
 from framegraph.sdk.draw import (
@@ -52,6 +53,7 @@ from framegraph.sdk.figure import (
 from framegraph.sdk.io import parse, serialize
 from framegraph.sdk.layout import Box, BoxLike, column, grid, inset, row
 from framegraph.sdk.macros import (
+    cite,
     greeble,
     grid_lines,
     hatch_fill,
@@ -59,6 +61,7 @@ from framegraph.sdk.macros import (
     lorem_paragraphs,
     md,
     paragraph,
+    ref,
     sparkline,
     theme,
 )
@@ -203,6 +206,8 @@ __all__ = [
     "linear_gradient",
     "lorem",
     "lorem_paragraphs",
+    "cite",
+    "ref",
     "md",
     "measure_text",
     "model_module",
@@ -223,6 +228,7 @@ __all__ = [
     "quarter_circle_kappa",
     "radial_gradient",
     "render_page_svgs",
+    "render_pages_with_stats",
     "rgba",
     "row",
     "serialize",

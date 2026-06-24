@@ -29,7 +29,7 @@ _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
 
-from framegraph.sdk import DocumentBuilder  # noqa: E402
+from framegraph.sdk import DocumentBuilder, cite, ref  # noqa: E402
 import layout_methods_figures as plates     # noqa: E402
 
 INK = "#1F2530"
@@ -39,13 +39,18 @@ MUTE = "#5B6573"
 # --------------------------------------------------------------------------- #
 # Flowable constructors (plain model dicts — the SDK validates them on build).
 # --------------------------------------------------------------------------- #
-_INLINE = re.compile(r"(`[^`]+`|\$[^$]+\$|\*\*[^*]+\*\*|\*[^*]+\*|\{ref:[^}]+\})")
+_INLINE = re.compile(
+    r"(`[^`]+`|\$[^$]+\$|\*\*[^*]+\*\*|\*[^*]+\*"
+    r"|\{(?:ref|pageref|nameref|cite):[^}]+\})")
+_REF_SHOW = {"ref": None, "pageref": "page", "nameref": "title"}
 
 
 def _spans(text):
-    """Lower inline `code`, $math$, **bold**, *italic* and {ref:id} to model
-    inline values. The LaTeX backend honours a Span's bold/italic style (→
-    \\textbf / \\textit) and resolves a ref to the target's number (→ \\ref)."""
+    """Lower inline `code`, $math$, **bold**, *italic*, and the cross-reference /
+    citation extension ({ref:id} {pageref:id} {nameref:id} {cite:key}) to model
+    inline values. Emphasis rides a Span style (→ \\textbf / \\textit); the refs
+    and cite are built with the SDK helpers and resolve to \\ref / \\pageref /
+    \\nameref / \\cite."""
     parts = []
     for tok in _INLINE.split(text):
         if tok == "":
@@ -54,8 +59,10 @@ def _spans(text):
             parts.append({"kind": "code", "text": tok[1:-1]})
         elif tok.startswith("$"):
             parts.append({"kind": "math", "tex": tok[1:-1]})
-        elif tok.startswith("{ref:"):
-            parts.append({"kind": "ref", "target": tok[5:-1]})
+        elif tok.startswith("{"):
+            kind, _, target = tok[1:-1].partition(":")
+            parts.append(cite(target) if kind == "cite"
+                         else ref(target, show=_REF_SHOW[kind]))
         elif tok.startswith("**"):
             parts.append({"text": tok[2:-2], "style": {"font_weight": 700}})
         elif tok.startswith("*"):
@@ -176,7 +183,8 @@ def story():
             "their offsets by hand.",
         ]),
         P("For a small, curated, semantically-arranged diagram, absolute placement "
-          "is the correct method, not a deficiency. Automatic graph layout would "
+          "is the correct method, not a deficiency. Automatic graph layout "
+          "({nameref:sec-graph}) would "
           "actively destroy your intentional grouping. The value of the other "
           "methods is to compute the offsets you now hard-code, and to know when "
           "curation stops paying off and a solver should take over."),
@@ -251,7 +259,7 @@ def story():
             "  if (line.length) lines.push(line);\n"
             "  return lines;\n"
             "}"),
-        P("**Optimal (Knuth–Plass)** minimizes a global cost over the whole paragraph: "
+        P("**Optimal (Knuth–Plass)** {cite:knuth1981} minimizes a global cost over the whole paragraph: "
           "a per-line badness from how far the glue must stretch, plus demerits, "
           "solved as a shortest path by dynamic programming. This is the algorithm "
           "in TeX — and it is laying out this very paragraph."),
@@ -350,10 +358,10 @@ def story():
         H(3, "7c. Force-directed — Eades; Fruchterman–Reingold; Kamada–Kawai"),
         P("When the graph has no hierarchy, simulate physics: nodes repel, edges "
           "pull like springs, the system relaxes toward low energy. "
-          "Fruchterman–Reingold, with ideal edge length `k`:"),
+          "Fruchterman–Reingold {cite:fr1991}, with ideal edge length `k`:"),
         MATH(r"f_a(d) = \frac{d^{2}}{k}, \qquad f_r(d) = -\frac{k^{2}}{d}, "
              r"\qquad k = C\sqrt{\tfrac{\mathrm{area}}{|V|}}"),
-        P("Kamada–Kawai instead minimizes a stress energy over graph-theoretic "
+        P("Kamada–Kawai {cite:kk1989} instead minimizes a stress energy over graph-theoretic "
           "distances, so geometric distance tracks graph distance:"),
         MATH(r"E = \sum_{i<j} \frac{1}{d_{ij}^{2}}\,\bigl(\lVert p_i - p_j\rVert - "
              r"d_{ij}\bigr)^{2}"),
@@ -375,7 +383,7 @@ def story():
         H(2, "8. Space-filling layout (treemaps, packing)", id="sec-space"),
         P("To show quantity by area inside a bounded region, use space-filling "
           "methods. **Treemaps** map a hierarchy to nested rectangles whose areas "
-          "encode a value; *squarified* treemaps greedily keep each cell close to "
+          "encode a value; *squarified* treemaps {cite:bruls2000} greedily keep each cell close to "
           "square, because near-square cells are easier to compare."),
         FIG("fig-08-treemap", 12, "Slice-and-dice produces hard-to-compare "
             "slivers; squarified treemaps keep each cell close to square. Both "
@@ -424,7 +432,7 @@ def story():
             "consumes.", id="fig-lowering"),
         P("This keeps absolute mode as the compile target — so the golden SHA-256 "
           "page locks still hold — removes the brittle arithmetic, and makes "
-          "content-count changes free (Figure {ref:fig-lowering}). Author high, "
+          "content-count changes free (Figure {ref:fig-lowering}, p. {pageref:fig-lowering}). Author high, "
           "lower to a single canonical representation, render that."),
     ]
 

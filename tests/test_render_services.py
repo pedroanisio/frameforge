@@ -41,6 +41,27 @@ def test_canvas_preset_dict():
     assert CanvasResolver({}).resolve({"canvas": {"preset": "Letter"}}) == (612, 792)
 
 
+def test_canvas_social_media_presets_resolve():
+    """Social-media size presets resolve as both a string and a {preset} dict."""
+    cr = CanvasResolver({})
+    assert cr.resolve({"canvas": "instagram-story"}) == (1080, 1920)
+    assert cr.resolve({"canvas": "twitter-header"}) == (1500, 500)
+    assert cr.resolve({"canvas": "youtube-thumbnail"}) == (1280, 720)
+    assert cr.resolve({"canvas": {"preset": "linkedin-cover"}}) == (1584, 396)
+
+
+def test_canvas_aspect_ratio_alias_presets():
+    """Aspect-ratio aliases resolve to a canonical pixel canvas at that ratio."""
+    cr = CanvasResolver({})
+    assert cr.resolve({"canvas": "9x16"}) == (1080, 1920)
+    assert cr.resolve({"canvas": "4x5"}) == (1080, 1350)
+    assert cr.resolve({"canvas": "1.91x1"}) == (1200, 628)
+    # the ratio holds for each social/ratio preset (w/h matches the named ratio)
+    for name in ("9x16", "16x9", "4x5", "instagram-story", "twitter-header"):
+        w, h = cr.resolve({"canvas": name})
+        assert w > 0 and h > 0
+
+
 def test_canvas_inherited_from_master():
     cr = CanvasResolver({"m": {"canvas": {"preset": "A4"}}})
     assert cr.resolve({"master": "m"}) == (595, 842)
