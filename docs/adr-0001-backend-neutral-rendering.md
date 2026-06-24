@@ -119,6 +119,21 @@ The substantial remaining 3b work is therefore:
    is a **dedicated, carefully-staged effort** with real byte-identity risk — not a
    single drop-in change. `fill` is already near-neutral (a colour/url value the
    painter formats via `fill_attr`), so it is the cheap part.
+
+   **Update (3b-2): `stroke` is now neutralized.** A backend-neutral
+   `Stroke{color,width,dash,dashoffset,linecap,linejoin,miterlimit,paint_order,
+   vector_effect,opacity}` value object (`stroke_resolver.Stroke`) is the painter's
+   `stroke` parameter at every primitive call. `StrokeResolver.fields(o) -> Stroke`
+   resolves it; the SVG backend formats it via `StrokeResolver.format_attr` (the
+   one place SVG stroke bytes are produced). `_shape_stroke`/`_border_stroke` return
+   `Stroke | None`; the ~44 primitive calls and every hand-written stroke literal
+   were converted; the ~7 arrow-composition sites moved their marker attributes to a
+   contained `extra=` trailing-attrs param on `line`/`poly`/`path` (markers are
+   genuinely backend-specific — their value-object is a later slice). Delivered in
+   two byte-identical steps: **3b-2a** (Stroke value object + `resolve = format_attr
+   ∘ fields` split) and **3b-2b** (painter + all consumers migrated). Verified
+   byte-identical across all 252 fixture pages; no golden re-pin. `tests/
+   test_stroke_value.py` pins the value object and formatter.
 2. **Complete the `ScenePainter` port** to declare all ~30 methods a backend must
    implement (it is currently partial).
 3. **Add a second adapter** (the existing LaTeX `_Transpiler`/`FigureTikz` is the

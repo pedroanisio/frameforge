@@ -56,6 +56,19 @@ def test_fields_returns_structured_values():
     assert s.miterlimit == 8 and s.vector_effect == "non-scaling-stroke"
 
 
+def test_width_none_omits_attr():
+    # Bare-colour strokes (e.g. ' stroke="#bbb"') carry no width — format_attr
+    # must omit stroke-width so such literals round-trip byte-for-byte.
+    assert StrokeResolver.format_attr(Stroke(color="#bbb")) == ' stroke="#bbb"'
+    assert StrokeResolver.format_attr(Stroke(color="#ccc", dash="3 3")) == (
+        ' stroke="#ccc" stroke-dasharray="3 3"')
+
+
+def test_resolver_strokes_always_have_width():
+    sr = _resolver()
+    assert sr.fields({"stroke": "ink"}).width == 1.0
+
+
 def test_format_attr_attribute_order():
     s = Stroke(color="#000", width=1, dash="2 2", linecap="round",
                linejoin="bevel", opacity=0.5)

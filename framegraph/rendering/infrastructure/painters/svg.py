@@ -14,6 +14,7 @@ knowledge lives here.
 from __future__ import annotations
 
 from framegraph.rendering.domain.geometry import esc, fnum, num
+from framegraph.rendering.domain.services.stroke_resolver import StrokeResolver
 
 # Arrowhead `<marker>` shapes. Kind names are the v2 marker refs the grammar
 # allows for `arrow_start` / `arrow_end` (grammar/framegraph-v2-style.ebnf
@@ -381,28 +382,35 @@ class SvgPainter:
         return fnum(n) if n is not None else str(value)
 
     # ---- primitives ------------------------------------------------------- #
+    @staticmethod
+    def _stroke(stroke):
+        """Format a neutral `Stroke` value object (or None) to an SVG fragment."""
+        return StrokeResolver.format_attr(stroke)
+
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None):
         rr = f' rx="{fnum(radius)}"' if radius else ""
         return (f'<rect x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" '
-                f'height="{fnum(h)}"{rr}{self.fill_attr(fill, fill_opacity)}{stroke}/>')
+                f'height="{fnum(h)}"{rr}{self.fill_attr(fill, fill_opacity)}{self._stroke(stroke)}/>')
 
     def ellipse(self, cx, cy, rx, ry, fill, stroke, fill_opacity=None):
         return (f'<ellipse cx="{fnum(cx)}" cy="{fnum(cy)}" rx="{fnum(rx)}" '
-                f'ry="{fnum(ry)}"{self.fill_attr(fill, fill_opacity)}{stroke}/>')
+                f'ry="{fnum(ry)}"{self.fill_attr(fill, fill_opacity)}{self._stroke(stroke)}/>')
 
     def circle(self, cx, cy, r, fill, stroke, fill_opacity=None):
         return (f'<circle cx="{fnum(cx)}" cy="{fnum(cy)}" r="{fnum(r)}"'
-                f'{self.fill_attr(fill, fill_opacity)}{stroke}/>')
+                f'{self.fill_attr(fill, fill_opacity)}{self._stroke(stroke)}/>')
 
-    def line(self, x1, y1, x2, y2, stroke):
+    def line(self, x1, y1, x2, y2, stroke, extra=""):
         return (f'<line x1="{fnum(x1)}" y1="{fnum(y1)}" '
-                f'x2="{fnum(x2)}" y2="{fnum(y2)}"{stroke}/>')
+                f'x2="{fnum(x2)}" y2="{fnum(y2)}"{self._stroke(stroke)}{extra}/>')
 
-    def poly(self, tag, points, fill, stroke, fill_opacity=None, fill_rule=None):
-        return f'<{tag} points="{points}"{self.fill_attr(fill, fill_opacity, fill_rule)}{stroke}/>'
+    def poly(self, tag, points, fill, stroke, fill_opacity=None, fill_rule=None, extra=""):
+        return (f'<{tag} points="{points}"{self.fill_attr(fill, fill_opacity, fill_rule)}'
+                f'{self._stroke(stroke)}{extra}/>')
 
-    def path(self, d, fill, stroke, fill_opacity=None, fill_rule=None):
-        return f'<path d="{esc(d)}"{self.fill_attr(fill, fill_opacity, fill_rule)}{stroke}/>'
+    def path(self, d, fill, stroke, fill_opacity=None, fill_rule=None, extra=""):
+        return (f'<path d="{esc(d)}"{self.fill_attr(fill, fill_opacity, fill_rule)}'
+                f'{self._stroke(stroke)}{extra}/>')
 
     def image(self, x, y, w, h, href, preserve_aspect_ratio="xMidYMid meet"):
         return (f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from framegraph.rendering.domain.geometry import num
 from framegraph.rendering.domain.ports import RenderContext
+from framegraph.rendering.domain.services.stroke_resolver import Stroke
 from framegraph.rendering.domain.services.table_layout import resolve_column_widths
 
 
@@ -41,7 +42,7 @@ class TableRenderer:
                        for kind, _ in visual]
             total_h = sum(heights)
         rowy = [y0 + sum(heights[:i]) for i in range(nrow)]
-        grid_stroke = self._ctx.shape_stroke(o, style) or ' stroke="#bbb"'
+        grid_stroke = self._ctx.shape_stroke(o, style) or Stroke(color="#bbb")
         header_fill = self._ctx.paint(style.get("header_fill")) if "header_fill" in style else "#3b6ea5"
         padding = max(0, num(o.get("cell_padding"), 4) or 0)
         out = [p.rect(x0, y0, w, total_h, "white", grid_stroke)]
@@ -55,9 +56,9 @@ class TableRenderer:
         for ri, (kind, row) in enumerate(visual):
             ry, row_h = rowy[ri], heights[ri]
             if kind == "h":
-                out.append(p.rect(x0, ry, w, row_h, header_fill, ""))
+                out.append(p.rect(x0, ry, w, row_h, header_fill, None))
             elif o.get("zebra") and (ri % 2):
-                out.append(p.rect(x0, ry, w, row_h, "#f4f6f9", ""))
+                out.append(p.rect(x0, ry, w, row_h, "#f4f6f9", None))
             for ci in range(ncol):
                 cell = row[ci] if ci < len(row) else ""
                 txt = cell.get("content", "") if isinstance(cell, dict) else ("" if cell is None else str(cell))

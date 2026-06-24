@@ -12,8 +12,9 @@ reaching into the concrete Renderer.
 """
 from __future__ import annotations
 
-from framegraph.rendering.domain.geometry import esc, fnum, is_point, num
+from framegraph.rendering.domain.geometry import fnum, is_point, num
 from framegraph.rendering.domain.ports import RenderContext
+from framegraph.rendering.domain.services.stroke_resolver import Stroke
 
 
 class UmlRenderer:
@@ -28,7 +29,7 @@ class UmlRenderer:
         x, y, w, h = (num(v, 0) for v in box[:4])
         p = self._ctx.painter
         fill = fill if fill not in (None, "") else "#fff"
-        stroke = self._ctx.shape_stroke(o, style) or ' stroke="#777" stroke-width="1"'
+        stroke = self._ctx.shape_stroke(o, style) or Stroke(color="#777", width=1)
         radius = 10 if o.get("type") == "uml.action" else self._ctx.shape_radius(o, style)
         out = [p.rect(x, y, w, h, fill, stroke, radius=radius)]
 
@@ -54,7 +55,7 @@ class UmlRenderer:
             cy += row_h
 
         def add_separator():
-            out.append(p.line(x, cy + 3, x + w, cy + 3, ' stroke="#999" stroke-width="1"'))
+            out.append(p.line(x, cy + 3, x + w, cy + 3, Stroke(color="#999", width=1)))
 
         def add_body_rows(rows):
             nonlocal cy
@@ -143,12 +144,12 @@ class UmlRenderer:
         x, y, w, h = (num(v, 0) for v in box[:4])
         head_h = max(18, min(h, num(o.get("head_height"), 42) or 42))
         p = self._ctx.painter
-        stroke = self._ctx.shape_stroke(o, style) or ' stroke="#555" stroke-width="1"'
+        stroke = self._ctx.shape_stroke(o, style) or Stroke(color="#555", width=1)
         fill = self._ctx.shape_fill(o, style) or "#fff"
         cx = x + w / 2
         out = [
             p.rect(x, y, w, head_h, fill, stroke, radius=self._ctx.shape_radius(o, style)),
-            p.line(cx, y + head_h, cx, y + h, ' stroke="#555" stroke-width="1" stroke-dasharray="5 5"'),
+            p.line(cx, y + head_h, cx, y + h, Stroke(color="#555", width=1, dash="5 5")),
         ]
         if o.get("actor"):
             out.extend(self.actor_glyph(cx, y + head_h / 2 - 2, min(18, head_h * 0.42), "#333"))
@@ -175,13 +176,15 @@ class UmlRenderer:
         body_top = cy - size * 0.16
         body_bottom = cy + size * 0.32
         arm_y = cy + size * 0.02
-        stroke = f' stroke="{esc(color)}" stroke-width="1.1" fill="none"'
+        stroke = Stroke(color=color, width=1.1)
+        # The <line> elements carry an inert fill="none" (historical); preserved
+        # via `extra` for byte-identity.
         return [
-            p.circle(cx, head_y, r, "none", f' stroke="{esc(color)}" stroke-width="1.1"'),
-            p.line(cx, body_top, cx, body_bottom, stroke),
-            p.line(cx - size * 0.32, arm_y, cx + size * 0.32, arm_y, stroke),
-            p.line(cx, body_bottom, cx - size * 0.28, cy + size * 0.62, stroke),
-            p.line(cx, body_bottom, cx + size * 0.28, cy + size * 0.62, stroke),
+            p.circle(cx, head_y, r, "none", Stroke(color=color, width=1.1)),
+            p.line(cx, body_top, cx, body_bottom, stroke, extra=' fill="none"'),
+            p.line(cx - size * 0.32, arm_y, cx + size * 0.32, arm_y, stroke, extra=' fill="none"'),
+            p.line(cx, body_bottom, cx - size * 0.28, cy + size * 0.62, stroke, extra=' fill="none"'),
+            p.line(cx, body_bottom, cx + size * 0.28, cy + size * 0.62, stroke, extra=' fill="none"'),
         ]
 
     def activation_bar(self, o, style, fill):
@@ -191,7 +194,7 @@ class UmlRenderer:
             return ""
         x, y, w, h = (num(v, 0) for v in box[:4])
         fill = fill if fill not in (None, "") else "#fff"
-        stroke = self._ctx.shape_stroke(o, style) or ' stroke="#555" stroke-width="1"'
+        stroke = self._ctx.shape_stroke(o, style) or Stroke(color="#555", width=1)
         return self._ctx.painter.rect(x, y, w, h, fill, stroke)
 
     def glyph_box(self, o, style):
@@ -203,7 +206,7 @@ class UmlRenderer:
         t = o.get("type")
         p = self._ctx.painter
         color = self._ctx.color(o.get("color") or o.get("stroke") or "ink") or "#222"
-        stroke = self._ctx.shape_stroke(o, style) or f' stroke="{esc(color)}" stroke-width="1.2"'
+        stroke = self._ctx.shape_stroke(o, style) or Stroke(color=color, width=1.2)
         cx, cy = x + w / 2, y + h / 2
         out = []
         if t == "uml.actor":
@@ -240,7 +243,7 @@ class UmlRenderer:
             elif kind == "final":
                 r = max(2, min(w, h) / 2 - 1)
                 out.append(p.circle(cx, cy, r, "none", stroke))
-                out.append(p.circle(cx, cy, max(1, r - 4), color, ""))
+                out.append(p.circle(cx, cy, max(1, r - 4), color, None))
             else:
                 r = max(2, min(w, h) / 2 - 1)
                 out.append(p.circle(cx, cy, r, color, stroke))
@@ -292,7 +295,7 @@ class UmlRenderer:
             item_color = self._ctx.color(item.get("color")) or color
             item_st = {**st, "color": item_color}
             out.append(p.rect(cursor, y, width, height, item_fill,
-                              f' stroke="{esc(item_stroke)}" stroke-width="1"', radius=height / 2))
+                              Stroke(color=item_stroke, width=1), radius=height / 2))
             out.append(p.text_tag(cursor, y, width, height, text, item_st, vcenter=True))
             cursor += width + gap
         return p.group("".join(out)) if out else ""
@@ -316,4 +319,4 @@ class UmlRenderer:
             f"{fnum(x)},{fnum(y + half)} {fnum(x - half)},{fnum(y)}"
         )
         return self._ctx.painter.poly("polygon", points, fill,
-                                  f' stroke="{esc(color)}" stroke-width="1.4"')
+                                  Stroke(color=color, width=1.4))

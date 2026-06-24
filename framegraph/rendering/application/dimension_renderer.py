@@ -15,6 +15,7 @@ import math
 
 from framegraph.rendering.domain.geometry import fnum, is_point, num
 from framegraph.rendering.domain.ports import RenderContext
+from framegraph.rendering.domain.services.stroke_resolver import Stroke
 
 
 class DimensionRenderer:
@@ -42,7 +43,7 @@ class DimensionRenderer:
         return None
 
     def stroke(self, o, style):
-        return self._ctx.shape_stroke(o, style) or ' stroke="#000" stroke-width="1"'
+        return self._ctx.shape_stroke(o, style) or Stroke(color="#000", width=1)
 
     def arrows(self, o, start=True, end=True):
         arrows = o.get("arrows") or "both"
@@ -94,7 +95,7 @@ class DimensionRenderer:
         body = [
             self._ctx.painter.line(x1, y1, ax, ay, stroke),
             self._ctx.painter.line(x2, y2, bx, by, stroke),
-            self._ctx.painter.line(ax, ay, bx, by, stroke + self.arrows(o)),
+            self._ctx.painter.line(ax, ay, bx, by, stroke, extra=self.arrows(o)),
         ]
         label = self.label(o, dist)
         st = self.text(o)
@@ -122,6 +123,6 @@ class DimensionRenderer:
         st = self.text(o)
         midx, midy = (ax + bx) / 2, (ay + by) / 2
         return self._ctx.painter.group(
-            self._ctx.painter.line(ax, ay, bx, by, stroke + self.arrows(o, start=diameter, end=True))
+            self._ctx.painter.line(ax, ay, bx, by, stroke, extra=self.arrows(o, start=diameter, end=True))
             + self._ctx.painter.text_tag(midx - 40, midy - st["size"] * 1.5, 80, st["size"] * 1.4, label, st, vcenter=True)
         )

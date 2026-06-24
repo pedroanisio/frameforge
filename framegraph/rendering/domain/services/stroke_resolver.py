@@ -38,7 +38,7 @@ class Stroke:
     same bytes the resolver used to return directly). `None` means "no stroke".
     """
     color: str
-    width: float = 1.0
+    width: Optional[float] = None
     dash: Optional[str] = None
     dashoffset: object = None
     linecap: Optional[str] = None
@@ -100,7 +100,9 @@ class StrokeResolver:
         resolver used to return inline (the SVG backend's stroke formatter)."""
         if stroke is None:
             return ""
-        out = f' stroke="{esc(stroke.color)}" stroke-width="{fnum(stroke.width)}"'
+        out = f' stroke="{esc(stroke.color)}"'
+        if stroke.width is not None:
+            out += f' stroke-width="{fnum(stroke.width)}"'
         if stroke.dash:
             out += f' stroke-dasharray="{esc(stroke.dash)}"'
         if stroke.dashoffset is not None:

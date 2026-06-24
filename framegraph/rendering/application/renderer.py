@@ -22,12 +22,12 @@ import os
 import re
 
 from framegraph.rendering.domain.geometry import (
-    esc, fnum, is_point, num,
+    fnum, is_point, num,
 )
 from framegraph.rendering.domain.services.canvas_resolver import CanvasResolver
 from framegraph.rendering.domain.services.paint_resolver import ColorResolver
 from framegraph.rendering.domain.services.effect_resolver import EffectResolver
-from framegraph.rendering.domain.services.stroke_resolver import StrokeResolver
+from framegraph.rendering.domain.services.stroke_resolver import Stroke, StrokeResolver
 from framegraph.rendering.domain.services.layout_engine import LayoutEngine
 from framegraph.rendering.domain.services.table_layout import resolve_column_widths
 from framegraph.rendering.domain.services.math_text import math_text
@@ -112,7 +112,7 @@ class Renderer:
 
     # ---- stroke (HEAD P3: paint in `stroke`, geometry in `stroke_style`) --- #
     def stroke(self, o):
-        return self._stroke.resolve(o)
+        return self._stroke.fields(o)
 
     def _arrow_attrs(self, o):
         """SVG marker attrs for an open shape's arrowheads, or '' if none.
@@ -535,8 +535,8 @@ class Renderer:
         if t == "line":
             fr, to = o.get("from"), o.get("to")
             if is_point(fr) and is_point(to):
-                stk = self._shape_stroke(o, style) or ' stroke="#000" stroke-width="1"'
-                return p.line(fr[0], fr[1], to[0], to[1], stk + self._arrow_attrs(o))
+                stk = self._shape_stroke(o, style) or Stroke(color="#000", width=1)
+                return p.line(fr[0], fr[1], to[0], to[1], stk, extra=self._arrow_attrs(o))
             return ""
 
         if t in ("polyline", "polygon"):
@@ -547,9 +547,10 @@ class Renderer:
             closed = t == "polygon" or o.get("closed")
             tag = "polygon" if closed else "polyline"
             return p.poly(tag, ptstr, fill if closed else None,
-                          self._shape_stroke(o, style) + self._arrow_attrs(o),
+                          self._shape_stroke(o, style),
                           fill_opacity=fill_opacity if closed else None,
-                          fill_rule=fill_rule if closed else None)
+                          fill_rule=fill_rule if closed else None,
+                          extra=self._arrow_attrs(o))
 
         if t == "path":
             d = o.get("d")
@@ -558,8 +559,9 @@ class Renderer:
                              if isinstance(seg, list) else str(seg) for seg in d)
             if not isinstance(d, str) or not d.strip():
                 return ""
-            return p.path(d, fill, self._shape_stroke(o, style) + self._arrow_attrs(o),
-                          fill_opacity=fill_opacity, fill_rule=fill_rule)
+            return p.path(d, fill, self._shape_stroke(o, style),
+                          fill_opacity=fill_opacity, fill_rule=fill_rule,
+                          extra=self._arrow_attrs(o))
 
         if t in ("curve", "bezier"):
             fr, to = o.get("from"), o.get("to")
@@ -573,8 +575,9 @@ class Renderer:
                 f"{fnum(num(c2[0], 0))} {fnum(num(c2[1], 0))} "
                 f"{fnum(num(to[0], 0))} {fnum(num(to[1], 0))}"
             )
-            return p.path(d, fill, self._shape_stroke(o, style) + self._arrow_attrs(o),
-                          fill_opacity=fill_opacity, fill_rule=fill_rule)
+            return p.path(d, fill, self._shape_stroke(o, style),
+                          fill_opacity=fill_opacity, fill_rule=fill_rule,
+                          extra=self._arrow_attrs(o))
 
         if t == "dimension":
             return self._dim.draw(o, style)
@@ -682,7 +685,7 @@ class Renderer:
             x, y, w, h = box[:4]
             st = {"family": "monospace", "size": 11, "weight": "normal",
                   "italic": True, "color": "#999", "align": "center", "lh": 1.2}
-            return (p.rect(x, y, w, h, "#f3f3f3", ' stroke="#ccc" stroke-dasharray="3 3"')
+            return (p.rect(x, y, w, h, "#f3f3f3", Stroke(color="#ccc", dash="3 3"))
                     + p.text_tag(x, y, w, h, f"?{t}", st, vcenter=True))
         self.skipped += 1
         return ""
@@ -752,13 +755,13 @@ class Renderer:
         route = o.get("route") or {}
         points = route.get("points") if isinstance(route, dict) else None
         pts = [start] + [(num(pt[0], 0), num(pt[1], 0)) for pt in (points or []) if is_point(pt)] + [end]
-        stroke = self._shape_stroke(o, style) or ' stroke="#000" stroke-width="1"'
-        stroke += self._arrow_attrs(o)
+        stroke = self._shape_stroke(o, style) or Stroke(color="#000", width=1)
+        markers = self._arrow_attrs(o)
         if len(pts) == 2:
-            body = p.line(pts[0][0], pts[0][1], pts[1][0], pts[1][1], stroke)
+            body = p.line(pts[0][0], pts[0][1], pts[1][0], pts[1][1], stroke, extra=markers)
         else:
             ptstr = " ".join(f"{fnum(x)},{fnum(y)}" for x, y in pts)
-            body = p.poly("polyline", ptstr, None, stroke)
+            body = p.poly("polyline", ptstr, None, stroke, extra=markers)
         label = o.get("label")
         if isinstance(label, dict) and isinstance(label.get("box"), list):
             bx = label["box"]
@@ -866,6 +869,7 @@ class Renderer:
         return num(val, 0) or 0
 
     def _shape_stroke(self, o, style):
+        """Resolve an object's stroke to a neutral `Stroke` (or None)."""
         if any(k in o for k in ("stroke", "stroke_style")):
             return self.stroke(o)
         border = style.get("border")
@@ -873,7 +877,7 @@ class Renderer:
             return self._border_stroke(border)
         if any(k in style for k in ("stroke", "stroke_width", "stroke_dasharray", "stroke_linecap", "stroke_linejoin")):
             return self.stroke({"stroke": style.get("stroke"), "stroke_style": style})
-        return ""
+        return None
 
     def _component(self, o, style):
         box = o.get("box")
@@ -889,7 +893,7 @@ class Renderer:
         geometry = spec.get("geometry") if isinstance(spec.get("geometry"), dict) else {}
         radius = num(render_o.get("radius", geometry.get("radius")), 0) or 0
         fill = self._shape_fill(render_o, comp_style) or "#fff"
-        stroke = self._shape_stroke(render_o, comp_style) or ' stroke="#bbb" stroke-width="1"'
+        stroke = self._shape_stroke(render_o, comp_style) or Stroke(color="#bbb", width=1)
         out = [p.rect(x, y, w, h, fill, stroke, radius=radius)]
 
         layout = spec.get("internal_layout") if isinstance(spec.get("internal_layout"), dict) else {}
@@ -955,16 +959,15 @@ class Renderer:
     def _border_stroke(self, border):
         border = self._border_dict(border)
         if not border:
-            return ""
+            return None
         if border.get("style") in ("none", "hidden"):
-            return ""
+            return None
         col = self.color(border.get("color")) or "#000"
         width = num(border.get("width"), 1) or 1
-        out = f' stroke="{esc(col)}" stroke-width="{fnum(width)}"'
+        dash = None
         if border.get("style") in ("dashed", "dotted"):
             dash = "4 4" if border.get("style") == "dashed" else "1 3"
-            out += f' stroke-dasharray="{dash}"'
-        return out
+        return Stroke(color=col, width=width, dash=dash)
 
     @staticmethod
     def _border_dict(border):
@@ -1000,9 +1003,9 @@ class Renderer:
         label = o.get("label") or os.path.basename(str(src)) or "image"
         st = {"family": "sans-serif", "size": 11, "weight": "normal", "italic": False,
               "color": "#888", "align": "center", "lh": 1.2}
-        placeholder = (p.rect(x, y, w, h, "#eee", ' stroke="#bbb"')
-                       + p.line(x, y, x + w, y + h, ' stroke="#ccc"')
-                       + p.line(x + w, y, x, y + h, ' stroke="#ccc"')
+        placeholder = (p.rect(x, y, w, h, "#eee", Stroke(color="#bbb"))
+                       + p.line(x, y, x + w, y + h, Stroke(color="#ccc"))
+                       + p.line(x + w, y, x, y + h, Stroke(color="#ccc"))
                        + p.text_tag(x, y + h / 2 - 8, w, 16, "▣ " + str(label), st, vcenter=True))
         return p.clip_wrap(placeholder, clip_id) if clip_id else placeholder
 
@@ -1186,7 +1189,7 @@ class Renderer:
                 for idx in range(col_count):
                     tx = x + idx * col_w
                     value = values[idx] if idx < len(values) else ""
-                    body.append(p.rect(tx, cy, col_w, row_h, fill, ' stroke="#d8d8d8" stroke-width="0.5"'))
+                    body.append(p.rect(tx, cy, col_w, row_h, fill, Stroke(color="#d8d8d8", width=0.5)))
                     body.append(p.text_tag(tx + 3, cy + 3, col_w - 6, row_h - 6, text_of(value), st, vcenter=False))
                 cy += row_h
 
