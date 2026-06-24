@@ -122,3 +122,60 @@ def test_clip_registry_and_wrap():
     assert "ellipse (4pt and 2pt)" in p._clips[p.clip_ellipse(5, 5, 4, 2)]
     assert p._clips[p.clip_polygon("0,0 10,0 5,10")] == "(0,0) -- (10,0) -- (5,10) -- cycle"
     assert p.clip_wrap("BODY", "nonexistent") == "BODY"   # unknown id -> passthrough
+
+
+def _grad_painter():
+    from framegraph.rendering.domain.services.paint_resolver import ColorResolver
+    return TikzPainter(ColorResolver({}))
+
+
+def test_gradient_handle_is_value_object():
+    from framegraph.rendering.domain.services.paint_resolver import GradientPaint
+    p = _grad_painter()
+    g = p.gradient({"kind": "linear", "stops": [{"position": 0, "color": "#000"}]})
+    assert isinstance(g, GradientPaint) and g.spec["kind"] == "linear"
+
+
+def test_linear_gradient_rect_to_shade():
+    p = _grad_painter()
+    g = p.gradient({"kind": "linear", "angle": 90,
+                    "stops": [{"position": "0%", "color": "#ff0000"},
+                              {"position": "100%", "color": "#0000ff"}]})
+    out = p.rect(0, 0, 100, 50, g, None)
+    assert out == ("\\shade[left color={rgb,255:red,255;green,0;blue,0},"
+                   "right color={rgb,255:red,0;green,0;blue,255}] "
+                   "(0,0) rectangle (100,50);\n")
+
+
+def test_vertical_gradient_uses_top_bottom():
+    p = _grad_painter()
+    g = p.gradient({"kind": "linear", "angle": 180,
+                    "stops": [{"position": 0, "color": "#ffffff"},
+                              {"position": 1, "color": "#000000"}]})
+    assert "top color=" in p.rect(0, 0, 10, 10, g, None)
+
+
+def test_gradient_circle_clips_shade():
+    p = _grad_painter()
+    g = p.gradient({"kind": "radial",
+                    "stops": [{"position": 0, "color": "#fff"}, {"position": 1, "color": "#000"}]})
+    out = p.circle(50, 50, 20, g, None)
+    assert "\\clip (50,50) circle (20pt);" in out and "inner color=" in out
+
+
+def test_gradient_with_stroke_keeps_outline():
+    p = _grad_painter()
+    g = p.gradient({"kind": "linear",
+                    "stops": [{"position": 0, "color": "#aa0000"}, {"position": 1, "color": "#0000aa"}]})
+    out = p.rect(0, 0, 10, 10, g, Stroke(color="#000000", width=2))
+    assert "\\shade[" in out and "\\path[draw=" in out and "line width=2pt" in out
+
+
+def test_non_hex_stop_falls_back_to_solid():
+    # a stop colour that is not hex (a bare CSS name TikZ can't mix) bails to a
+    # solid first-stop fill rather than emitting a broken \shade.
+    p = _grad_painter()
+    g = p.gradient({"kind": "linear",
+                    "stops": [{"position": 0, "color": "red"}, {"position": 1, "color": "blue"}]})
+    out = p.rect(0, 0, 10, 10, g, None)
+    assert "\\shade" not in out and "fill=red" in out

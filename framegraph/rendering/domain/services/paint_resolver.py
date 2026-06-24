@@ -16,6 +16,21 @@ ResolvedPaint value object and the painter will emit from it.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, eq=False)
+class GradientPaint:
+    """A gradient paint as a backend-neutral handle — the gradient *spec*, not a
+    pre-resolved backend reference.
+
+    A painter's `gradient()` returns its own handle for the seam: `SvgPainter`
+    returns a `url(#…)` string (registering a `<defs>` entry), `TikzPainter` returns
+    this value object and renders it inline as `\\shade` at the shape (gradients are
+    shape-coupled in TikZ). `spec` is the raw gradient dict (`kind`/`stops`/`angle`/
+    `at`/…) so each backend resolves stops and geometry itself."""
+    spec: dict
+
 
 class ColorResolver:
     def __init__(self, colors):
