@@ -9,14 +9,19 @@ fills) directly — the concrete payoff of neutralizing the painter parameters i
 existing `latex/` transpiler's convention; the hex→xcolor conversion is shared with
 that transpiler (`latex.tikz.color_expr`).
 
-Coverage (3b-5a): the geometry primitives (`rect`/`ellipse`/`circle`/`line`/`poly`),
-grouping (`group`/`opacity_group`), the page wrapper (`new_page`/`document`), and
-the `Stroke`/`Markers`→TikZ formatters. Path data, text, images, gradients, clips,
-filters, and the marker/clip/gradient `<defs>` handle methods arrive in 3b-5b;
-until the adapter is complete it is intentionally NOT wired into the render path
-(the `latex/` fork still owns LaTeX output).
+Coverage: the geometry primitives (`rect`/`ellipse`/`circle`/`line`/`poly`),
+grouping (`group`/`opacity_group`/`transform_group`), images, clip scoping
+(`clip_rect`/`clip_ellipse`/`clip_polygon`/`clip_wrap`), the page wrapper
+(`new_page`/`document`), and the `Stroke`/`Markers`/transform-op → TikZ formatters
+(3b-5a + 3b-5b). Still to come in 3b-5c: SVG path data (`path`, `clip_path_d`),
+text (`text_tag`/`text_block`/`text_runs`, which need the document's font macros),
+and the SVG-shaped def+ref handle methods (gradient/filter/marker/embedded_svg/
+image_pattern). Until complete the adapter is intentionally NOT wired into the
+render path (the `latex/` fork still owns LaTeX output).
 """
 from __future__ import annotations
+
+import math
 
 from framegraph.rendering.domain.geometry import fnum, num
 from framegraph.rendering.infrastructure.latex.tikz import color_expr
@@ -24,11 +29,13 @@ from framegraph.rendering.infrastructure.latex.tikz import color_expr
 
 class TikzPainter:
     def __init__(self):
-        self._defs: list[str] = []   # reserved for gradient/marker defs (3b-5b)
+        self._defs: list[str] = []          # reserved for gradient/marker defs (3b-5b)
+        self._clips: dict[str, str] = {}     # clip id -> TikZ geometry
 
     # ---- per-page backend state ------------------------------------------- #
     def new_page(self):
         self._defs = []
+        self._clips = {}
 
     # ---- neutral value-object formatters (the TikZ side of the seam) ------ #
     @staticmethod
@@ -150,6 +157,79 @@ class TikzPainter:
 
     def opacity_group(self, inner, opacity):
         return f"\\begin{{scope}}[opacity={fnum(num(opacity, 1))}]\n{inner}\\end{{scope}}\n"
+
+    def transform_group(self, inner, transform):
+        """Wrap content in a TikZ scope formatting the neutral transform op list
+        (StyleValues.transform_ops) into TikZ scope options."""
+        opts = self._transform_opts(transform)
+        if not opts:
+            return inner
+        return f"\\begin{{scope}}[{','.join(opts)}]\n{inner}\\end{{scope}}\n"
+
+    @staticmethod
+    def _transform_opts(ops):
+        """Neutral transform ops -> TikZ scope options. SVG and TikZ differ here:
+        SVG joins `fn(args)`, TikZ uses keyed scope options (shift/rotate/scale/
+        slant/cm) and skew takes a tangent, not an angle."""
+        opts = []
+        for fn, args in ops:
+            if fn == "raw":
+                if args and args[0]:
+                    opts.append(args[0])        # SVG-syntax passthrough (not valid TikZ)
+            elif fn == "rotate":
+                if len(args) >= 3:
+                    opts.append(f"rotate around={{{args[0]}:({args[1]},{args[2]})}}")
+                elif args:
+                    opts.append(f"rotate={args[0]}")
+            elif fn == "translate":
+                x = args[0] if args else "0"
+                y = args[1] if len(args) > 1 else "0"
+                opts.append(f"shift={{({x},{y})}}")
+            elif fn == "scale":
+                sx = args[0] if args else "1"
+                sy = args[1] if len(args) > 1 else sx
+                opts.append(f"xscale={sx}")
+                opts.append(f"yscale={sy}")
+            elif fn == "skewX" and args:
+                opts.append(f"xslant={fnum(math.tan(math.radians(num(args[0], 0))))}")
+            elif fn == "skewY" and args:
+                opts.append(f"yslant={fnum(math.tan(math.radians(num(args[0], 0))))}")
+            elif fn == "matrix" and len(args) >= 6:
+                opts.append(f"cm={{{args[0]},{args[1]},{args[2]},{args[3]},({args[4]},{args[5]})}}")
+        return opts
+
+    # ---- image ------------------------------------------------------------ #
+    def image(self, x, y, w, h, href, preserve_aspect_ratio="xMidYMid meet"):
+        opts = [f"width={fnum(w)}pt", f"height={fnum(h)}pt"]
+        if preserve_aspect_ratio != "none":
+            opts.append("keepaspectratio")
+        return (f"\\node[anchor=center,inner sep=0pt] at "
+                f"({fnum(x + w / 2)},{fnum(y + h / 2)}) "
+                f"{{\\includegraphics[{','.join(opts)}]{{\\detokenize{{{href}}}}}}};\n")
+
+    # ---- clipping (id -> geometry registry; clip_wrap emits the scope) ----- #
+    def _register_clip(self, geom):
+        cid = f"clip{len(self._clips) + 1}"
+        self._clips[cid] = geom
+        return cid
+
+    def clip_rect(self, x, y, w, h):
+        return self._register_clip(
+            f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})")
+
+    def clip_ellipse(self, cx, cy, rx, ry):
+        return self._register_clip(
+            f"({fnum(cx)},{fnum(cy)}) ellipse ({fnum(rx)}pt and {fnum(ry)}pt)")
+
+    def clip_polygon(self, points):
+        pts = [p for p in points.split() if "," in p]
+        return self._register_clip(" -- ".join(f"({p})" for p in pts) + " -- cycle")
+
+    def clip_wrap(self, inner, clip_id):
+        geom = self._clips.get(clip_id, "")
+        if not geom:
+            return inner
+        return f"\\begin{{scope}}\n\\clip {geom};\n{inner}\\end{{scope}}\n"
 
     # ---- document --------------------------------------------------------- #
     def document(self, w, h, body):
