@@ -80,3 +80,45 @@ def test_gradient_url_fill_deferred():
     # invalid TikZ — they simply contribute no fill option.
     p = TikzPainter()
     assert p._fill_opts("url(#grad1)") == []
+
+
+def test_transform_ops_to_tikz_scope():
+    # The neutral transform op list (StyleValues.transform_ops) drives TikZ scope
+    # options — proving 3b-3b's value objects work across backends.
+    p = TikzPainter()
+    out = p.transform_group("BODY", [("translate", ["3", "4"]), ("scale", ["2"])])
+    assert out == "\\begin{scope}[shift={(3,4)},xscale=2,yscale=2]\nBODY\\end{scope}\n"
+    rot = p.transform_group("X", [("rotate", ["30", "10", "20"])])
+    assert "rotate around={30:(10,20)}" in rot
+    mat = p.transform_group("X", [("matrix", ["1", "0", "0", "1", "5", "6"])])
+    assert "cm={1,0,0,1,(5,6)}" in mat
+    assert p.transform_group("X", []) == "X"          # empty ops -> no scope
+
+
+def test_skew_op_converts_angle_to_tangent():
+    p = TikzPainter()
+    out = p.transform_group("X", [("skewX", ["45"])])
+    assert "xslant=1" in out                          # tan(45deg) == 1
+
+
+def test_image_node():
+    p = TikzPainter()
+    out = p.image(0, 0, 100, 50, "fig.png")
+    assert "\\includegraphics[width=100pt,height=50pt,keepaspectratio]" in out
+    assert "\\detokenize{fig.png}" in out
+    assert "anchor=center" in out and "at (50,25)" in out
+    # preserve_aspect_ratio="none" stretches (no keepaspectratio)
+    assert "keepaspectratio" not in p.image(0, 0, 10, 10, "f.png", preserve_aspect_ratio="none")
+
+
+def test_clip_registry_and_wrap():
+    p = TikzPainter()
+    p.new_page()
+    cid = p.clip_rect(0, 0, 10, 20)
+    assert cid == "clip1"
+    wrapped = p.clip_wrap("BODY", cid)
+    assert wrapped == "\\begin{scope}\n\\clip (0,0) rectangle (10,20);\nBODY\\end{scope}\n"
+    # ellipse + polygon clip geometry
+    assert "ellipse (4pt and 2pt)" in p._clips[p.clip_ellipse(5, 5, 4, 2)]
+    assert p._clips[p.clip_polygon("0,0 10,0 5,10")] == "(0,0) -- (10,0) -- (5,10) -- cycle"
+    assert p.clip_wrap("BODY", "nonexistent") == "BODY"   # unknown id -> passthrough
