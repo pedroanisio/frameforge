@@ -323,7 +323,12 @@ non-negotiable absent an explicit, documented decision.
   conformance/schema context still lives in [models/](./models/), [schema/](./schema/), and
   [tooling/](./tooling/) and is migrated in later steps
   ([framegraph/__init__.py](./framegraph/__init__.py)). Do not justify a decision by the *current*
-  mid-migration shape; move toward the target structure.
+  mid-migration shape; move toward the target structure. The render orchestrator
+  (`Renderer`) and `normalize_doc` now live under
+  [framegraph/rendering/application/](./framegraph/rendering/application/), and
+  `tooling/render_fixtures.py` re-exports them for its CLI. **The package no longer imports
+  up into `tooling/`** — [tests/test_package_boundary.py](./tests/test_package_boundary.py)
+  pins this in the gate.
 - **Non-goals (do not build):** a WYSIWYG editor; a browser-only rendering stack in the core;
   an interactive presentation runtime; a general-purpose scientific-charting replacement; a
   constraint-solver layout engine for every diagram class.
@@ -381,11 +386,14 @@ explicit and shrinking, never silently assumed-met. Complexity scale per §12.
 **Package-emit readiness** spans rows 1 (`py.typed`/`classifiers`), 8 (`__version__` + `make
 release`), and 9, plus the §2 `package = false` decision. That composite gap is now
 measurable: `make package-check` ([tooling/check_package_readiness.py](./tooling/check_package_readiness.py))
-asserts it and reports **NOT READY** today (4 blockers, 3 gaps). It is advisory — not part of
-`make check` — and shrinks as these rows close. The blockers are real: no `[build-system]`
-table, `[tool.uv] package = false`, the `framegraph` dist name shadowing `models/framegraph.py`
-(§2), and `framegraph/` importing the top-level `tooling` package (which would not ship in a
-wheel — the same coupling flagged as tension #1 in `conceptual-analysis.md`).
+asserts it and reports **NOT READY** today (3 blockers, 3 gaps). It is advisory — not part of
+`make check` — and shrinks as these rows close. The remaining blockers are the deliberate
+virtual-project decisions: no `[build-system]` table, `[tool.uv] package = false`, and the
+`framegraph` dist name shadowing `models/framegraph.py` (§2). The fourth blocker — `framegraph/`
+importing the top-level `tooling` package (the inverted dependency, tension #1 in
+`conceptual-analysis.md`) — has been **cleared**: the orchestrator + `normalize_doc` moved into
+the package (§13), and [tests/test_package_boundary.py](./tests/test_package_boundary.py) keeps
+it from regressing.
 
 **Rule of motion:** adding to the gate (`[Target]` → `[Enforced]`) is a `feat:`/`refactor:`
 that updates the relevant section's tag and removes its row here. Removing a gate, or letting
