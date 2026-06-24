@@ -105,9 +105,20 @@ The substantial remaining 3b work is therefore:
 
 1. **Neutralize the painter parameters** — pass neutral value objects (a
    `Stroke{color,width,dash,...}`, a `Fill`/paint, radii) instead of SVG attribute
-   strings; each backend formats them. The SVG backend can format them to the
-   *same* bytes, so this **can stay byte-identical** for SVG (no re-pin) if done
-   carefully — contrary to this ADR's first claim.
+   strings; each backend formats them.
+
+   **Finding (revised estimate → L–XL, not L).** `stroke` is not a clean
+   parameter: `StrokeResolver.resolve` builds a **10-attribute ordered SVG string**
+   (`stroke`/`-width`/`-dasharray`/`-dashoffset`/`-linecap`/`-linejoin`/
+   `-miterlimit`/`paint-order`/`vector-effect`/`-opacity`), and the builder treats
+   it as a **composable fragment** — `stroke + self._arrow_attrs(o)` concatenates
+   it with arrow-marker attribute strings across ~7 sites, over ~44 painter-
+   primitive calls. Neutralizing it therefore needs a `Stroke` *and* a marker/arrow
+   value object plus an object-level composition model, not a mechanical parameter
+   swap. The SVG backend can still format to identical bytes (no re-pin), but this
+   is a **dedicated, carefully-staged effort** with real byte-identity risk — not a
+   single drop-in change. `fill` is already near-neutral (a colour/url value the
+   painter formats via `fill_attr`), so it is the cheap part.
 2. **Complete the `ScenePainter` port** to declare all ~30 methods a backend must
    implement (it is currently partial).
 3. **Add a second adapter** (the existing LaTeX `_Transpiler`/`FigureTikz` is the
