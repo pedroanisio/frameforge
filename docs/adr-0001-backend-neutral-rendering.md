@@ -204,10 +204,27 @@ updated and a per-fixture review replaces the hand-verified output):
 - **3b-5a** ✅ `TikzPainter` adapter — geometry primitives (`rect`/`ellipse`/
   `circle`/`line`/`poly`), grouping, page wrapper, and the `Stroke`/`Markers`/fill→
   TikZ formatters. Additive; proves the neutral port drives a second backend.
-- **3b-5b** path data, text, images, and the backend-handle methods (gradient/
-  clip/filter/marker `<defs>`, `transform_group`, `embedded_svg`).
-- **3b-5c** wire the Renderer to drive `TikzPainter`, route `_Transpiler`'s figure
-  path through it, delete `FigureTikz`, and update the LaTeX tests.
+- **3b-5b** ✅ `transform_group` (the neutral transform ops → TikZ scope opts, skew→
+  tangent — 3b-3b's value objects working in TikZ), `image`, and clip scoping
+  (`clip_rect`/`clip_ellipse`/`clip_polygon`/`clip_wrap` via an id→geometry registry,
+  showing the port's id-handle model adapts to TikZ's inline `\clip`). Additive.
+- **3b-5c** the integration — and the genuinely hard, non-additive part:
+  - **SVG path data** (`path`, `clip_path_d`): relocate the ~250-line `d`→TikZ
+    converter out of `FigureTikz` (don't duplicate it) into the painter/a shared util.
+  - **Text** (`text_tag`/`text_block`/`text_runs`): the painter only gets a resolved
+    style dict, but faithful TikZ text needs the `_Transpiler`'s font-macro registry
+    (`_register_fonts`/`_font`) — so text couples the painter to the document scaffold
+    and must be solved at wiring time.
+  - **Def+ref handles** (`gradient`/`filter_effect`+`filter_wrap`/`marker`/
+    `embedded_svg`/`image_pattern`): these encode SVG's `<defs>`+`url(#id)` model,
+    which TikZ does not share (gradients are inline `\shade`, not a fill ref). They
+    are a **port-neutrality gap surfaced by 3b-5** — TikZ needs a different model
+    (inline shading / per-shape handling, as the current fork does), so closing 3b-5c
+    likely means revisiting these few methods' contract, not just implementing them.
+  - **Wire + delete**: drive the Renderer with `TikzPainter`, route `_Transpiler`'s
+    figure path through it, delete `FigureTikz` (~2,700 LOC), rewrite the
+    assertion-based LaTeX tests, and validate by `lualatex` compile + per-fixture
+    review (there is no `.tex` golden lock to lean on).
 
 With 3b-3 and 3b-4 landed, the painter's *neutral* surface is complete: every
 geometry primitive takes value objects (`Stroke`, `Markers`, transform ops, colour/
