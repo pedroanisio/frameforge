@@ -196,12 +196,31 @@ class _Transpiler:
             content = "".join(self._flow_text_content(fl) for fl in (value.get("content") or []))
             return "\\marginpar{\\footnotesize " + content + "}"
         if value.get("text") is not None:
-            return ltx_escape(value["text"])
+            return self._emphasis(value.get("style"), ltx_escape(value["text"]))
         if isinstance(value.get("spans"), list):
-            return self._inline_text(value["spans"])
+            return self._emphasis(value.get("style"), self._inline_text(value["spans"]))
         if isinstance(value.get("content"), list):
-            return self._inline_text(value["content"])
+            return self._emphasis(value.get("style"), self._inline_text(value["content"]))
         return ""
+
+    def _emphasis(self, style, body):
+        """Wrap inline ``body`` in the emphasis its ``Span.style`` carries.
+
+        A styled inline ``Span`` previously rendered as plain text — its bold /
+        italic intent was silently dropped. Resolve the style (a token name or an
+        inline Style dict) and apply the two inline weights TeX expresses
+        portably; size/colour stay block-level concerns. No style → unchanged, so
+        plain spans are untouched."""
+        if style is None or not body:
+            return body
+        st = self._ts.resolve(style)
+        if not isinstance(st, dict):
+            return body
+        if st.get("italic"):
+            body = "\\textit{" + body + "}"
+        if st.get("bold"):
+            body = "\\textbf{" + body + "}"
+        return body
 
     def _flow_text_content(self, fl):
         if isinstance(fl, str):
@@ -368,14 +387,32 @@ class _Transpiler:
         if cap:
             out.append(self._styled(self._ts.resolve("caption"), "\\textbf{" + self._caption_text(cap) + "}", gap="3pt"))
 
+        def text_at(row, i):
+            return self._cell_text(row[i]) if i < len(row) else ""
+
         def cells(row, bold=False):
-            xs = [self._cell_text(row[i]) if i < len(row) else "" for i in range(ncol)]
+            xs = [text_at(row, i) for i in range(ncol)]
             if bold:
                 xs = [("\\textbf{" + c + "}" if c else "") for c in xs]
             return " & ".join(xs) + " \\\\\n"
 
-        size = 7 if ncol >= 7 else (8 if ncol >= 5 else 9)
-        lines = [f"\\begin{{tabular}}{{{'l' * ncol}}}\n\\toprule\n"]
+        # Content-proportional p{} columns: each column's width tracks its
+        # longest cell, so a column of long file paths wraps inside the text
+        # block instead of overflowing the margin (the old `l` columns did, and
+        # `\resizebox` only shrank the whole table to a sometimes-illegible size).
+        maxlen = [1] * ncol
+        for row in ([header] if header else []) + rows:
+            for i in range(ncol):
+                maxlen[i] = max(maxlen[i], len(text_at(row, i)))
+        target = 0.95 - 0.015 * ncol                     # leave room for \tabcolsep
+        raw = [max(0.07, m / sum(maxlen)) for m in maxlen]
+        scale = target / sum(raw)
+        spec = "".join(
+            f">{{\\raggedright\\arraybackslash}}p{{{fnum(w * scale)}\\textwidth}}"
+            for w in raw)
+
+        size = 8 if ncol >= 6 else (9 if ncol >= 4 else 10)
+        lines = [f"\\begin{{tabular}}{{{spec}}}\n\\toprule\n"]
         if header:
             lines.append(cells(header, bold=True) + "\\midrule\n")
         lines += [cells(r) for r in rows]
@@ -384,10 +421,8 @@ class _Transpiler:
         if fl.get("id"):
             table += f"\n\\label{{{_latex_label(fl.get('id'))}}}"
         inkname = self._book.name(self._color.resolve("ink")) or "black"
-        if ncol >= 6:
-            table = f"\\resizebox{{\\textwidth}}{{!}}{{{table}}}"
-        else:
-            table = f"{{\\fontsize{{{size}}}{{{fnum(size * 1.2)}}}\\selectfont {table}}}"
+        table = (f"{{\\setlength{{\\tabcolsep}}{{4pt}}"
+                 f"\\fontsize{{{size}}}{{{fnum(size * 1.3)}}}\\selectfont {table}}}")
         out.append(f"\\begin{{center}}\\color{{{inkname}}}{table}\\end{{center}}\n\\addvspace{{8pt}}\n")
 
     def _image_graphics_options(self, fl):

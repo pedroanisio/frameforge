@@ -39,12 +39,13 @@ MUTE = "#5B6573"
 # --------------------------------------------------------------------------- #
 # Flowable constructors (plain model dicts — the SDK validates them on build).
 # --------------------------------------------------------------------------- #
-_INLINE = re.compile(r"(`[^`]+`|\$[^$]+\$)")
+_INLINE = re.compile(r"(`[^`]+`|\$[^$]+\$|\*\*[^*]+\*\*|\*[^*]+\*)")
 
 
 def _spans(text):
-    """Lower `code` and $math$ inline; strip ** / * (the LaTeX backend drops
-    Span emphasis styling, so we don't pretend to carry it)."""
+    """Lower inline `code`, $math$, **bold** and *italic* to model inline values.
+    The LaTeX backend now honours a Span's bold/italic style, so emphasis
+    survives into TeX as \\textbf / \\textit."""
     parts = []
     for tok in _INLINE.split(text):
         if tok == "":
@@ -53,8 +54,12 @@ def _spans(text):
             parts.append({"kind": "code", "text": tok[1:-1]})
         elif tok.startswith("$"):
             parts.append({"kind": "math", "tex": tok[1:-1]})
+        elif tok.startswith("**"):
+            parts.append({"text": tok[2:-2], "style": {"font_weight": 700}})
+        elif tok.startswith("*"):
+            parts.append({"text": tok[1:-1], "style": {"font_style": "italic"}})
         else:
-            parts.append(tok.replace("**", "").replace("*", ""))
+            parts.append(tok)
     return parts
 
 
@@ -143,9 +148,9 @@ def story():
     # §0
     s += [
         H(2, "0. Where your example actually sits", id="sec-absolute"),
-        P("Your map uses absolute placement. Every visual object is given explicit "
-          "`[x, y, w, h]` pixel coordinates, and the two helpers that look like "
-          "layout primitives are really just coordinate arithmetic:"),
+        P("Your map uses **absolute placement**. Every visual object is given "
+          "explicit `[x, y, w, h]` pixel coordinates, and the two helpers that "
+          "look like layout primitives are really just *coordinate arithmetic*:"),
         CODE(
             "def node(page, box, palette, title, ..., subs, ...):\n"
             "    x, y, w, h = box\n"
@@ -225,8 +230,8 @@ def story():
         H(2, "3. Flow layout — 1D document flow + line breaking", id="sec-flow"),
         P("Flow places objects one after another along a writing axis, wrapping "
           "when the line is full. Real text flow adds line breaking, in two "
-          "regimes. Greedy (first-fit) puts as many words on a line as fit, then "
-          "breaks — simple, local, fast."),
+          "regimes. **Greedy (first-fit)** puts as many words on a line as fit, "
+          "then breaks — simple, local, fast."),
         CODE(
             "function greedyWrap(words, maxWidth, measure, spaceWidth) {\n"
             "  const lines = []; let line = []; let width = 0;\n"
@@ -240,7 +245,7 @@ def story():
             "  if (line.length) lines.push(line);\n"
             "  return lines;\n"
             "}"),
-        P("Optimal (Knuth–Plass) minimizes a global cost over the whole paragraph: "
+        P("**Optimal (Knuth–Plass)** minimizes a global cost over the whole paragraph: "
           "a per-line badness from how far the glue must stretch, plus demerits, "
           "solved as a shortest path by dynamic programming. This is the algorithm "
           "in TeX — and it is laying out this very paragraph."),
@@ -363,8 +368,8 @@ def story():
     s += [
         H(2, "8. Space-filling layout (treemaps, packing)", id="sec-space"),
         P("To show quantity by area inside a bounded region, use space-filling "
-          "methods. Treemaps map a hierarchy to nested rectangles whose areas "
-          "encode a value; squarified treemaps greedily keep each cell close to "
+          "methods. **Treemaps** map a hierarchy to nested rectangles whose areas "
+          "encode a value; *squarified* treemaps greedily keep each cell close to "
           "square, because near-square cells are easier to compare."),
         FIG("fig-08-treemap", 12, "Slice-and-dice produces hard-to-compare "
             "slivers; squarified treemaps keep each cell close to square. Both "
