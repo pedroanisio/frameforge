@@ -205,9 +205,12 @@ def test_mcp_propose_from_image_validates_and_renders(tmp_path):
     summary = result["proposal"]
     assert "color_region" in summary["detectors_run"]
     assert summary["object_count"] >= 1
-    # the skipped backends are reported, not fatal
+    # unavailable backends are reported, not fatal; available optional OpenCV
+    # detectors may run in environments that install the vision group.
+    ran_names = set(summary["detectors_run"])
     skipped_names = {s["name"] for s in summary["detectors_skipped"]}
-    assert {"shape", "line", "text", "vlm"} <= skipped_names
+    assert {"shape", "line", "text", "vlm"} <= (ran_names | skipped_names)
+    assert {"text", "vlm"} <= skipped_names
 
 
 def test_mcp_propose_from_image_requires_an_image():

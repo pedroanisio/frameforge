@@ -743,6 +743,43 @@ def test_scene3d_render_empty_scene_is_safe():
     builder.build()  # must validate
 
 
+def _near_far_scene():
+    """Two full-frame quads: a NEAR one at +z (green) and a FAR one at -z (red)."""
+    scene = Scene3D()
+    scene.mesh([(-1, -1, 0.6), (1, -1, 0.6), (1, 1, 0.6), (-1, 1, 0.6)],
+               [[0, 1, 2, 3]], fill="#00ff00")   # NEAR (+z, toward the eye)
+    scene.mesh([(-1, -1, -0.6), (1, -1, -0.6), (1, 1, -0.6), (-1, 1, -0.6)],
+               [[0, 1, 2, 3]], fill="#ff0000")   # FAR
+    return scene
+
+
+def test_scene3d_perspective_paints_near_over_far():
+    """A near face must occlude a far one under a perspective Camera.
+
+    Regression: Scene3D.render() sorted faces by NDC depth ascending, which for a
+    perspective projection (near -> -1, far -> +1) painted FAR faces LAST, i.e.
+    on top — backwards. Invisible on a lone heightfield (it barely self-overlaps),
+    but wrong for any solid or separated geometry. The last child is drawn on top
+    and must be the NEAR (green) face.
+    """
+    from framegraph.sdk import Camera
+
+    cam = Camera(eye=Vec3(0, 0, 3), target=Vec3(0, 0, 0), fov=45, aspect=1.0)
+    group = _near_far_scene().render(box=[0, 0, 100, 100], camera=cam)
+    assert group["children"][-1]["fill"] == "#00ff00", "near face must be on top"
+    assert group["children"][0]["fill"] == "#ff0000", "far face must be at the back"
+
+
+def test_scene3d_isometric_paints_near_over_far_unchanged():
+    """The isometric/orthographic default already ordered near-over-far — keep it.
+
+    The fix negates the depth key only for perspective matrices, so the
+    orthographic path (and every isometric golden) is byte-for-byte untouched.
+    """
+    group = _near_far_scene().render(box=[0, 0, 100, 100])  # isometric default
+    assert group["children"][-1]["fill"] == "#00ff00", "near face must be on top"
+
+
 def test_material_helper_expands_to_plain_framegraph_fields():
     material = Material(
         fill="#88ccff",
