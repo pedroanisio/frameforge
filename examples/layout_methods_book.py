@@ -28,6 +28,7 @@ prose as didactic and verify the bibliographic specifics against primary sources
 from __future__ import annotations
 
 import os
+import re as _re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -113,8 +114,6 @@ def ts(size, color, *, family=SERIF, weight=None, align=None, spacing=None,
 # Inline rich text — a tiny run model so body prose can carry true monospace
 # code spans, bold and italic without losing the measured wrap.
 # --------------------------------------------------------------------------- #
-import re as _re
-
 _INLINE_RE = _re.compile(
     r"(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))"
 )
@@ -287,10 +286,12 @@ class Book:
         self.y += dh
 
     # -- block emitters ----------------------------------------------------- #
-    def section(self, num, title, running):
-        """A numbered §-heading: starts a new page only if it would crowd."""
+    def section(self, num, title, running, *, keep=96):
+        """A numbered §-heading: starts a new page if the heading would be
+        orphaned. ``keep`` is the room reserved for the first following block,
+        so a heading is never separated from the content it introduces."""
         self.running = running
-        need = 30 + 34 + 26
+        need = 30 + 34 + 26 + keep          # heading + rule + first content block
         if self.y + need > BOTTOM:
             self.new_page()
         else:
@@ -309,7 +310,7 @@ class Book:
         self.y += 18
 
     def subsection(self, title):
-        self.ensure(26 + 22 + 8)
+        self.ensure(26 + 22 + 70)          # keep the sub-heading with its first lines
         pg = self.page
         self.space(6)
         pg.text([MX, self.y, CONTENT_W, 20], title,
@@ -331,10 +332,10 @@ class Book:
         # Wrap a hair narrow so the renderer's metrics can never push a line
         # past the measure and force a second, clipped row inside the box.
         lines = wrap_atoms(text, (CONTENT_W - indent) * 0.985, size)
-        for li, line in enumerate(lines):
+        for line in lines:
             if self.y + step > BOTTOM:
                 self.new_page()
-            x = MX + (indent if li else indent)
+            x = MX + indent
             spans = line_spans(line, size, color)
             if spans:
                 self.page.add({"type": "text", "box": [x, self.y, CONTENT_W - indent, step],
@@ -379,7 +380,6 @@ class Book:
                                       font_size=CODE_SIZE):
                     lines.append(part)
         i = 0
-        first_slab = True
         while i < len(lines):
             avail = BOTTOM - self.y - 2 * pad - 6
             if avail < step * 3:                  # not enough room — new page
@@ -397,7 +397,6 @@ class Book:
                 ty += step
             self.y += slab_h + (6 if i + fit < len(lines) else 12)
             i += fit
-            first_slab = False
         if caption:
             self.caption_line(caption)
 
@@ -1095,7 +1094,7 @@ def build() -> DocumentBuilder:
     ], ordered=True, size=10.5, lh=1.45)
 
     # ---- Appendix A ------------------------------------------------------- #
-    bk.section("Appendix A", "Key formulas at a glance", "Appendix A")
+    bk.section("Appendix A", "Key formulas at a glance", "Appendix A", keep=175)
     bk.formula(
         "Box content:     [x+pL, y+pT, w−pL−pR, h−pT−pB]\n"
         "Flex (surplus):  size = basis + (grow / Σgrow) · free,        free ≥ 0\n"
