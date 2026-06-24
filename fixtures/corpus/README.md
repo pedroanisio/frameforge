@@ -79,3 +79,7 @@ record its `license` and `license_url`) and run `make corpus`. The lockfile and
 - **Layered `.psd`** and clean-licensed **`.ai` / `.docx` / `.pptx`** — best
   added once a verified permissive/PD direct source (or a generation step) is in
   place.
+
+---
+
+← Back to the [project README](../../README.md).

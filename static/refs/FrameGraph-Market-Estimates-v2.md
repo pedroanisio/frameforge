@@ -1,3 +1,14 @@
+---
+disclaimer:
+  notice: >-
+    No information within this document should be taken for granted. The figures
+    are third-party analyst estimates and ranges shown for scale — not a revenue
+    forecast or financial advice — and any claim not backed by a verifiable cited
+    source may be invalid, erroneous, or a hallucination.
+  generated_by: "Claude Opus 4.8 via Claude Code"
+  date: "2026-06-24"
+---
+
 # FrameGraph — Market Estimates v2
 
 *Updated after the output-space record + V2 roadmap. The product is broader than "produce business documents," so the sizing moves up and the framing changes. Figures are third-party analyst estimates and ranges, shown for scale — not a revenue forecast or financial advice.*

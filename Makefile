@@ -39,7 +39,7 @@ mcp:  ## run the optional MCP server for SDK-code -> YAML -> render feedback loo
 live:  ## run the local FrameGraph MCP live-session web UI
 	$(UV) run python -m framegraph.live --host "$(LIVE_HOST)" --port "$(LIVE_PORT)"
 
-check: schema-check grammar-check spec-check a11y-check status-check test validate overflow golden-check docs-check  ## run every local gate
+check: schema-check grammar-check spec-check a11y-check status-check test validate overflow golden-check docs-check docs-linkcheck brand-check disclaimer-check  ## run every local gate
 
 schema-check:  ## fail if the committed schema drifted from the models
 	$(UV) run python schema/build_schema.py --check
@@ -94,6 +94,15 @@ docs-check:  ## generate pages + assert every mkdocs.yml nav page exists (no ful
 
 docs-sdk:  ## regenerate ONLY the committed SDK snapshots (sdk.md/sdk-api.md) — fast
 	$(UV) run python tooling/gen_docs.py --sdk
+
+docs-linkcheck:  ## fail if a tracked Markdown file has a broken relative link (run after docs)
+	$(UV) run python tooling/check_doc_links.py
+
+brand-check:  ## fail if docs/BRAND.md palette drifts from brand/framegraph.tokens.fg.yaml
+	$(UV) run python tooling/check_brand_sync.py
+
+disclaimer-check:  ## fail if an AI-authored doc is missing the rule-5 disclaimer frontmatter
+	$(UV) run python tooling/check_disclaimers.py
 
 lint:  ## ruff (non-gating; fetched ephemerally)
 	-$(UV)x ruff check .

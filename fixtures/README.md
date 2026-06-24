@@ -34,8 +34,8 @@ of pages. If a file is hundreds of KB or 1 MB+, it almost certainly does **not**
 - **Large multi-slide SDK showcase / art decks** (30–40 page cinematic/neon/branded demos). The
   *builder* lives in `examples/`; the rendered deck is demo art, not a conformance gate. Checking a
   1–3 MB deck into the corpus taxes every full-corpus gate for zero extra capability coverage.
-  Archive the rendered output under [`../fixture_old/`](../fixture_old/) (ungated) or just
-  regenerate it from its `examples/*.py` builder on demand.
+  Archive the rendered output under an ungated `../fixture_old/` directory (create it if needed)
+  or just regenerate it from its `examples/*.py` builder on demand.
 - **One-off experiments, scratch renders, PDFs, or raw assets.** Out of this tree entirely.
 
 > The "a reused/ported component must be backed by a checked-in fixture" rule is satisfied by a

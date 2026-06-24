@@ -20,7 +20,7 @@ status: proposal
 This guideline governs how FrameGraph presents itself: its product definition,
 name, voice, color, type, and mark. The essence and positioning in §1 are
 anchored to the FrameGraph seed pitch
-([`FrameGraph-Seed-Pitch.pdf`](FrameGraph-Seed-Pitch.pdf)) — the outcome-first,
+([`FrameGraph-Seed-Canonical.pdf`](FrameGraph-Seed-Canonical.pdf)) — the outcome-first,
 agent-era framing — with the system's rigor recast as the *proof* of that
 promise rather than the pitch. It inherits the project's epistemic stance from
 [`DISCLAIMER.md`](../DISCLAIMER.md) and its operating constraints from
@@ -45,7 +45,7 @@ real file — a slide, report, web page, chart, or image — at any quality from
 quick sketch to print-ready. The output is **correct, on-brand, and yours**: an
 open file you own and can edit by hand, not a dead-end image you can only
 re-prompt. *(Definition sharpened from the seed pitch —
-[`FrameGraph-Seed-Pitch.pdf`](FrameGraph-Seed-Pitch.pdf).)*
+[`FrameGraph-Seed-Canonical.pdf`](FrameGraph-Seed-Canonical.pdf).)*
 
 > *Spell-check and a printing press — for everything AI makes that you can see.*
 

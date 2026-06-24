@@ -143,3 +143,7 @@ The deliverable was built against a `framegraph-v2_schema.json` contract (top le
 `meta`; objects discriminated by `type`). That input schema isn't redistributed in this
 bundle. The viewer performs structural resolution at runtime rather than hard JSON-Schema
 validation, so it isn't required to run.
+
+---
+
+← Back to the [project README](../README.md).

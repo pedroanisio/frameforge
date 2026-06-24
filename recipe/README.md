@@ -126,3 +126,7 @@ python recipe/tests/test_recipe.py  # or standalone
 
 See [`examples/packaging.yaml`](examples/packaging.yaml) for a worked recipe
 (the FrameGraph "installable package" migration, encoded as reversible steps).
+
+---
+
+← Back to the [project README](../README.md).

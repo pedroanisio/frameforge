@@ -1,3 +1,14 @@
+---
+disclaimer:
+  notice: >-
+    No information within this document should be taken for granted. The figures
+    are third-party analyst estimates and ranges shown for scale — not a revenue
+    forecast or financial advice — and any claim not backed by a verifiable cited
+    source may be invalid, erroneous, or a hallucination.
+  generated_by: "Claude Opus 4.8 via Claude Code"
+  date: "2026-06-24"
+---
+
 # FrameGraph — Market Estimates v3
 
 *Successor to v2 — standalone. Adds the marketing-agency / creative-automation segment, and tightens scope (what FrameGraph is, and what it deliberately is not). Figures are third-party analyst estimates and ranges, shown for scale — not a revenue forecast or financial advice.*
