@@ -23,7 +23,9 @@ from framegraph.sdk.conform import (
     render_page_svgs,
     write_golden,
 )
-from framegraph.sdk.draw import Frame, Material, Scene3D
+from framegraph.sdk.draw import (
+    Frame, Material, Scene3D, function_plot, parametric_curve, polar_plot,
+)
 from framegraph.sdk.expand import ExpandOptions, ExpandedDocument, expand
 from framegraph.sdk.geometry import (
     Camera,
@@ -194,6 +196,7 @@ __all__ = [
     "effects",
     "expand",
     "fill_stroke",
+    "function_plot",
     "glow",
     "grid",
     "inset",
@@ -210,8 +213,10 @@ __all__ = [
     "page_hashes",
     "paragraph",
     "parametric",
+    "parametric_curve",
     "pattern",
     "place_figure",
+    "polar_plot",
     "place_imported_figure",
     "parse",
     "quarter_circle_kappa",
