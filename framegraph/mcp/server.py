@@ -149,6 +149,12 @@ Fluent builder:
 - Data & geometry: `Chart`+`Frame`, `Graph`/`Node`/`Edge`, `Camera`/`Scene3D`/`Mat3`/
   `Mat4`, `CubicBezier`/`Path`, `ScalarField`/`VectorField`, `lattice`/`manifold`,
   `greeble`, `grid_lines`.
+  - Curve sampling: `parametric_curve(fn, domain)`, `function_plot(f, frame)`,
+    `polar_plot(r, frame)` — adaptive subdivision, emit polyline/path.
+  - `Frame` scales accept structured specs: `{"kind":"log","base":b}` / `{"kind":"pow","exp":e}`.
+  - `multiview(scene, box=...)` — orthographic front/top/side/iso panel grid of a `Scene3D`.
+  - `Graph.render(box=...)` auto-lays-out from declared edges (`auto_layout`/`layout_kind`);
+    omit `positions` and the algorithm is inferred (grid/radial/layered/spring).
 - Figures (`framegraph.sdk.figure`): `place_figure(source, box)` / `load_figure` /
   `FigureRef` import another FrameGraph page's objects as editable children (not a frozen
   image); `FigureAsset` / `place_imported_figure` place an extracted book/PDF figure with
