@@ -11,30 +11,35 @@ that transpiler (`latex.tikz.color_expr`).
 
 Coverage: the geometry primitives (`rect`/`ellipse`/`circle`/`line`/`poly`),
 grouping (`group`/`opacity_group`/`transform_group`), images, clip scoping
-(`clip_rect`/`clip_ellipse`/`clip_polygon`/`clip_wrap`), the page wrapper
-(`new_page`/`document`), and the `Stroke`/`Markers`/transform-op → TikZ formatters
-(3b-5a + 3b-5b). Still to come in 3b-5c: SVG path data (`path`, `clip_path_d`),
-text (`text_tag`/`text_block`/`text_runs`, which need the document's font macros),
-and the SVG-shaped def+ref handle methods (gradient/filter/marker/embedded_svg/
-image_pattern). Until complete the adapter is intentionally NOT wired into the
-render path (the `latex/` fork still owns LaTeX output).
+(`clip_rect`/`clip_ellipse`/`clip_polygon`/`clip_wrap`), gradient fills (`gradient`
+returns a `GradientPaint` handle the fill-bearing primitives render inline as
+`\\shade`), and the page wrapper (`new_page`/`document`), plus the `Stroke`/
+`Markers`/transform-op → TikZ formatters (3b-5a/b/c). Still to come: SVG path data
+(`path`, `clip_path_d`), text (`text_tag`/`text_block`/`text_runs`, which need the
+document's font macros), `filter_effect`/`embedded_svg`/`image_pattern`, and full
+radial-centre CSS parsing. Until complete the adapter is intentionally NOT wired
+into the render path (the `latex/` fork still owns LaTeX output).
 """
 from __future__ import annotations
 
 import math
 
-from framegraph.rendering.domain.geometry import fnum, num
-from framegraph.rendering.infrastructure.latex.tikz import color_expr
+from framegraph.rendering.domain.geometry import fnum, is_point, num
+from framegraph.rendering.domain.services.paint_resolver import GradientPaint
+from framegraph.rendering.infrastructure.latex.tikz import (
+    _grad_angle, _grad_orientation, _grad_pct, _parse_hex, color_expr,
+)
 
 
 class TikzPainter:
-    def __init__(self):
-        self._defs: list[str] = []          # reserved for gradient/marker defs (3b-5b)
+    def __init__(self, color_resolver=None):
+        # A ColorResolver is needed only to resolve gradient stop colours; the
+        # Renderer supplies one when it drives this backend (3b-5c).
+        self._color = color_resolver
         self._clips: dict[str, str] = {}     # clip id -> TikZ geometry
 
     # ---- per-page backend state ------------------------------------------- #
     def new_page(self):
-        self._defs = []
         self._clips = {}
 
     # ---- neutral value-object formatters (the TikZ side of the seam) ------ #
@@ -98,6 +103,109 @@ class TikzPainter:
             return "<-"
         return ""
 
+    # ---- gradients (the painter's gradient handle is the GradientPaint VO) - #
+    def gradient(self, g):
+        """Return this backend's gradient handle: the neutral `GradientPaint` value
+        object. Unlike SVG (which registers a `<defs>` entry and returns a url),
+        TikZ gradients are shape-coupled, so the spec is carried to the primitive
+        and rendered inline as `\\shade` there."""
+        return GradientPaint(g)
+
+    def _gradient_stops(self, spec):
+        raw = spec.get("stops")
+        if not isinstance(raw, list) or len(raw) < 2:
+            return None
+        stops = []
+        for i, s in enumerate(raw):
+            if not isinstance(s, dict):
+                return None
+            resolved = self._color.resolve(s.get("color")) if self._color else s.get("color")
+            if not _parse_hex(resolved):        # transparent / non-hex: bail to solid
+                return None
+            expr, _op = color_expr(resolved)
+            stops.append((_grad_pct(s.get("position"), i / (len(raw) - 1)), expr))
+        stops.sort(key=lambda s: s[0])
+        return stops
+
+    def _first_stop_color(self, spec):
+        """Solid fallback colour (the first stop) for an unsupported gradient."""
+        raw = spec.get("stops")
+        if isinstance(raw, list) and raw and isinstance(raw[0], dict):
+            c = self._color.resolve(raw[0].get("color")) if self._color else raw[0].get("color")
+            return c
+        return None
+
+    def _gradient_shade(self, spec, x, y, w, h):
+        """A linear/radial gradient over the box (x,y,w,h) → `\\shade` primitives,
+        or None if unsupported (caller falls back to a solid fill). Ported from the
+        latex/ transpiler's proven `_gradient_rect`/`_radial_gradient_rect`."""
+        if not isinstance(spec, dict) or w <= 0 or h <= 0:
+            return None
+        kind = str(spec.get("kind"))
+        stops = self._gradient_stops(spec)
+        if stops is None:
+            return None
+        if kind in ("radial", "radial-gradient", "conic"):
+            cx, cy = self._radial_center(spec.get("at"), x, y, w, h)
+            rx = max(abs(cx - x), abs(x + w - cx))
+            ry = max(abs(cy - y), abs(y + h - cy))
+            if str(spec.get("shape") or "ellipse").strip().lower() == "circle":
+                rx = ry = max(rx, ry)
+            clip = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
+            out = []
+            for (p0, c0), (p1, c1) in zip(stops, stops[1:]):
+                if p1 <= p0:
+                    continue
+                geom = f"({fnum(cx)},{fnum(cy)}) ellipse ({fnum(rx * p1)}pt and {fnum(ry * p1)}pt)"
+                out.insert(0, f"\\shade[inner color={c0},outer color={c1}] {geom};\n")
+            return (f"\\begin{{scope}}\n\\clip {clip};\n{''.join(out)}\\end{{scope}}\n"
+                    if out else None)
+        if kind not in ("linear", "linear-gradient"):
+            return None
+        axis, reverse = _grad_orientation(_grad_angle(spec.get("angle")))
+        if reverse:
+            stops = [(1.0 - p, c) for p, c in reversed(stops)]
+        out = []
+        for (p0, c0), (p1, c1) in zip(stops, stops[1:]):
+            if p1 <= p0:
+                continue
+            if axis == "h":
+                geom = (f"({fnum(x + p0 * w)},{fnum(y)}) rectangle "
+                        f"({fnum(x + p1 * w)},{fnum(y + h)})")
+                out.append(f"\\shade[left color={c0},right color={c1}] {geom};\n")
+            else:
+                geom = (f"({fnum(x)},{fnum(y + p0 * h)}) rectangle "
+                        f"({fnum(x + w)},{fnum(y + p1 * h)})")
+                out.append(f"\\shade[top color={c0},bottom color={c1}] {geom};\n")
+        return "".join(out) or None
+
+    @staticmethod
+    def _radial_center(value, x, y, w, h):
+        if is_point(value):
+            return x + num(value[0], 0), y + num(value[1], 0)
+        return x + w / 2, y + h / 2       # full CSS-keyword centres land in 3b-5c
+
+    @staticmethod
+    def _points_bbox(pts):
+        xs, ys = [], []
+        for p in pts:
+            a, _, b = p.partition(",")
+            xs.append(num(a, 0))
+            ys.append(num(b, 0))
+        if not xs:
+            return 0.0, 0.0, 0.0, 0.0
+        return min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)
+
+    def _gradient_or_clip(self, spec, geom, x, y, w, h, stroke):
+        """Emit a gradient fill for a non-rect shape: `\\shade` over the bbox clipped
+        to the shape geometry, then the stroke. Falls back to a solid first stop."""
+        shade = self._gradient_shade(spec, x, y, w, h)
+        stroke_opts = self._stroke_opts(stroke)
+        if shade is None:
+            return self._path(self._fill_opts(self._first_stop_color(spec)) + stroke_opts, geom)
+        body = f"\\begin{{scope}}\n\\clip {geom};\n{shade}\\end{{scope}}\n"
+        return body + (self._path(stroke_opts, geom) if stroke_opts else "")
+
     @staticmethod
     def _path(opts, geom):
         return f"\\path[{','.join(opts)}] {geom};\n" if opts else f"\\path {geom};\n"
@@ -108,20 +216,30 @@ class TikzPainter:
 
     # ---- primitives ------------------------------------------------------- #
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None):
+        geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
+        if isinstance(fill, GradientPaint):
+            shade = self._gradient_shade(fill.spec, x, y, w, h)
+            if shade is not None:
+                stroke_opts = self._stroke_opts(stroke)
+                return shade + (self._path(stroke_opts, geom) if stroke_opts else "")
+            fill = self._first_stop_color(fill.spec)   # solid fallback
         opts = self._fill_opts(fill, fill_opacity) + self._stroke_opts(stroke)
         if radius:
             opts.append(f"rounded corners={fnum(radius)}pt")
-        geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
         return self._path(opts, geom)
 
     def ellipse(self, cx, cy, rx, ry, fill, stroke, fill_opacity=None):
-        opts = self._fill_opts(fill, fill_opacity) + self._stroke_opts(stroke)
         geom = f"({fnum(cx)},{fnum(cy)}) ellipse ({fnum(rx)}pt and {fnum(ry)}pt)"
+        if isinstance(fill, GradientPaint):
+            return self._gradient_or_clip(fill.spec, geom, cx - rx, cy - ry, rx * 2, ry * 2, stroke)
+        opts = self._fill_opts(fill, fill_opacity) + self._stroke_opts(stroke)
         return self._path(opts, geom)
 
     def circle(self, cx, cy, r, fill, stroke, fill_opacity=None):
-        opts = self._fill_opts(fill, fill_opacity) + self._stroke_opts(stroke)
         geom = f"({fnum(cx)},{fnum(cy)}) circle ({fnum(r)}pt)"
+        if isinstance(fill, GradientPaint):
+            return self._gradient_or_clip(fill.spec, geom, cx - r, cy - r, r * 2, r * 2, stroke)
+        opts = self._fill_opts(fill, fill_opacity) + self._stroke_opts(stroke)
         return self._path(opts, geom)
 
     def line(self, x1, y1, x2, y2, stroke, markers=None, extra=""):
@@ -139,6 +257,9 @@ class TikzPainter:
         closed = tag == "polygon"
         if closed:
             chain += " -- cycle"
+            if isinstance(fill, GradientPaint):
+                bx, by, bw, bh = self._points_bbox(pts)
+                return self._gradient_or_clip(fill.spec, chain, bx, by, bw, bh, stroke)
             opts = self._fill_opts(fill, fill_opacity, fill_rule) + self._stroke_opts(stroke)
         else:
             opts = self._stroke_opts(stroke)
