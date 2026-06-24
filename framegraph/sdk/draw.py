@@ -358,6 +358,7 @@ def multiview(
     rows = math.ceil(n / cols)
     pw = (bw - gap * (cols - 1)) / cols
     ph = (bh - gap * (rows - 1)) / rows
+    lh = (label_size + 4.0) if labels else 0.0       # reserved label band per panel
     children: list[dict[str, object]] = []
     for i, view in enumerate(views):
         cam = _VIEW_CAMERAS.get(view)
@@ -365,10 +366,11 @@ def multiview(
             raise ValueError(f"unknown view: {view!r} (use front/top/side/iso)")
         r, c = divmod(i, cols)
         px, py = bx + c * (pw + gap), by + r * (ph + gap)
-        children.append(scene.render(camera=cam(), box=[px, py, pw, ph], **render_kw))
         if labels:
-            children.append({"type": "text", "box": [px, py, pw, 14.0], "text": view,
+            children.append({"type": "text", "box": [px, py, pw, lh], "text": view,
                              "style": {"size": label_size, "color": "#475569", "align": "left"}})
+        # the scene renders below the label band so the two never overlap
+        children.append(scene.render(camera=cam(), box=[px, py + lh, pw, max(ph - lh, 1.0)], **render_kw))
     return {"type": "group", "children": children}
 
 
