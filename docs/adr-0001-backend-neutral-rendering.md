@@ -209,8 +209,11 @@ updated and a per-fixture review replaces the hand-verified output):
   (`clip_rect`/`clip_ellipse`/`clip_polygon`/`clip_wrap` via an id→geometry registry,
   showing the port's id-handle model adapts to TikZ's inline `\clip`). Additive.
 - **3b-5c** the integration — and the genuinely hard, non-additive part:
-  - **SVG path data** (`path`, `clip_path_d`): relocate the ~250-line `d`→TikZ
-    converter out of `FigureTikz` (don't duplicate it) into the painter/a shared util.
+  - **SVG path data** (`path`, `clip_path_d`): ✅ **done** — the ~308-line `d`→TikZ
+    converter is relocated verbatim out of `FigureTikz` into the neutral, pure
+    `painters/tikz_path.py` (a third module to avoid the painters↔latex import
+    cycle); `FigureTikz` delegates (byte-identical), and `TikzPainter.path`/
+    `clip_path_d` consume it. Gradient-on-path falls back to a solid first stop.
   - **Text** (`text_tag`/`text_block`/`text_runs`): the painter only gets a resolved
     style dict, but faithful TikZ text needs the `_Transpiler`'s font-macro registry
     (`_register_fonts`/`_font`) — so text couples the painter to the document scaffold
