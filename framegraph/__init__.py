@@ -6,3 +6,7 @@ bounded context under `framegraph.rendering`; the conformance/schema context
 (models/, schema/, tooling/validate.py, tooling/codemod.py) is migrated in
 later steps.
 """
+
+from . import rendering as rendering
+
+__all__ = ["rendering"]
