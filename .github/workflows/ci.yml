@@ -24,33 +24,8 @@ jobs:
       - name: Sync deps from the lockfile (+ pdf group for the transpiler e2e)
         run: uv sync --locked --group pdf
 
-      # --- the gates (mirror `make check`) ---
-      - name: Schema is generated and in sync with the models
-        run: uv run python schema/build_schema.py --check
-
-      - name: Grammar (EBNF) in sync with the models (core profile)
-        run: uv run python tooling/check_grammar_sync.py
-
-      - name: Spec prose names every model type (membership)
-        run: uv run python tooling/check_spec_sync.py --quiet
-
-      - name: Accessibility conformance (reading_order integrity)
-        run: uv run python tooling/check_accessibility.py fixtures/*.fg.yaml --quiet
-
-      - name: HEAD assertion suite
-        run: uv run pytest -q
-
-      - name: Validate the curated fixtures
-        run: uv run python tooling/validate.py fixtures/*.fg.yaml
-
-      - name: Text-fit overflow check (no text spills its box)
-        run: uv run python tooling/render_fixtures.py --all --check-overflow
-
-      - name: Golden renders (b1/ oracle output is pinned)
-        run: uv run python tooling/render_golden.py
-
-      - name: Fixture-status table in sync with the validator
-        run: uv run python tooling/gen_status.py --check
+      - name: Run local gate
+        run: make check
 
       - name: Lint (non-blocking)
         continue-on-error: true

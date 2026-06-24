@@ -24,10 +24,12 @@ Run from the repository root::
 """
 from __future__ import annotations
 
+import argparse
 import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+OUT_DIR = os.path.join(ROOT, "brand")
 sys.path.insert(0, ROOT)
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
@@ -234,24 +236,75 @@ def build() -> DocumentBuilder:
     return b
 
 
-def main() -> int:
+def build_logo_document():
     b = build()
     doc = b.build()
     report = validate_static_rules(doc)
+    return doc, report
+
+
+def build_outputs(doc=None) -> dict[str, str]:
+    """Return the exact committed brand-asset bytes for a freshly built logo."""
+    if doc is None:
+        doc, _report = build_logo_document()
+    outputs: dict[str, str] = {}
+    for (_sid, fname, strip), svg in zip(MASTERS, render_page_svgs(doc)):
+        outputs[fname] = _transparent(svg) if strip else svg
+    outputs["framegraph-logo.fg.yaml"] = serialize(doc, format="yaml")
+    return outputs
+
+
+def stale_outputs(out_dir, outputs: dict[str, str]) -> list[str]:
+    """List generated logo outputs that are missing or differ on disk."""
+    stale: list[str] = []
+    out_dir = os.fspath(out_dir)
+    for fname, fresh in outputs.items():
+        path = os.path.join(out_dir, fname)
+        if not os.path.exists(path):
+            stale.append(fname)
+            continue
+        with open(path, encoding="utf-8") as fh:
+            if fh.read() != fresh:
+                stale.append(fname)
+    return stale
+
+
+def write_outputs(out_dir, outputs: dict[str, str]) -> None:
+    out_dir = os.fspath(out_dir)
+    os.makedirs(out_dir, exist_ok=True)
+    for fname, content in outputs.items():
+        with open(os.path.join(out_dir, fname), "w", encoding="utf-8") as fh:
+            fh.write(content)
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description="Build or check FrameGraph logo assets.")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="fail if committed brand logo assets differ from a fresh build",
+    )
+    args = parser.parse_args(argv)
+
+    doc, report = build_logo_document()
     errors = [i for i in report.issues if i.severity == "error"]
     print(f"Built {len(doc.pages)} logo master(s) — ok={report.ok} "
           f"errors={len(errors)} warnings={len(report.issues) - len(errors)}")
     for i in report.issues[:30]:
         print(f"  [{i.severity}] [{i.rule_id}] {i.path}: {i.message}")
-    out_dir = os.path.join(ROOT, "brand")        # the canonical brand-asset location
-    os.makedirs(out_dir, exist_ok=True)
-    for (sid, fname, strip), svg in zip(MASTERS, render_page_svgs(doc)):
-        with open(os.path.join(out_dir, fname), "w", encoding="utf-8") as fh:
-            fh.write(_transparent(svg) if strip else svg)
-    with open(os.path.join(out_dir, "framegraph-logo.fg.yaml"), "w",
-              encoding="utf-8") as fh:
-        fh.write(serialize(doc, format="yaml"))
-    print(f"Wrote {len(MASTERS)} master(s) to {out_dir} + framegraph-logo.fg.yaml")
+
+    outputs = build_outputs(doc)
+    if args.check:
+        stale = stale_outputs(OUT_DIR, outputs)
+        if stale:
+            print(f"STALE logo output(s): {', '.join(stale)}")
+            print("Run `uv run python examples/framegraph_logo.py` and commit the regenerated assets.")
+            return 1
+        print(f"Logo assets are fresh in {OUT_DIR}")
+        return 1 if errors else 0
+
+    write_outputs(OUT_DIR, outputs)
+    print(f"Wrote {len(MASTERS)} master(s) to {OUT_DIR} + framegraph-logo.fg.yaml")
     return 1 if errors else 0
 
 

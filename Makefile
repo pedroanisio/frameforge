@@ -11,7 +11,7 @@ LIVE_HOST ?= 127.0.0.1
 LIVE_PORT ?= 8789
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check
+.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check brand-logo-check
 
 help:  ## list targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort \
@@ -39,7 +39,7 @@ mcp:  ## run the optional MCP server for SDK-code -> YAML -> render feedback loo
 live:  ## run the local FrameGraph MCP live-session web UI
 	$(UV) run python -m framegraph.live --host "$(LIVE_HOST)" --port "$(LIVE_PORT)"
 
-check: schema-check grammar-check spec-check a11y-check status-check test validate overflow golden-check docs-check docs-linkcheck brand-check disclaimer-check  ## run every local gate
+check: schema-check grammar-check spec-check a11y-check status-check test validate overflow golden-check docs-check docs-linkcheck brand-check brand-logo-check disclaimer-check  ## run every local gate
 
 schema-check:  ## fail if the committed schema drifted from the models
 	$(UV) run python schema/build_schema.py --check
@@ -100,6 +100,9 @@ docs-linkcheck:  ## fail if a tracked Markdown file has a broken relative link (
 
 brand-check:  ## fail if docs/BRAND.md palette drifts from brand/framegraph.tokens.fg.yaml
 	$(UV) run python tooling/check_brand_sync.py
+
+brand-logo-check:  ## fail if committed logo masters drift from examples/framegraph_logo.py
+	$(UV) run python examples/framegraph_logo.py --check
 
 disclaimer-check:  ## fail if an AI-authored doc is missing the rule-5 disclaimer frontmatter
 	$(UV) run python tooling/check_disclaimers.py
