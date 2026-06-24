@@ -148,7 +148,7 @@ non-SVG backend droppable, each item grounded in the current `ports.py` /
 | **3b-2** | Neutralize the `stroke` parameter (`Stroke` value object) | ✅ **done** | L | byte-identical (verified, 252 pages) |
 | **3b-3** | Neutralize the remaining SVG-string-shaped painter params | ✅ **done** | M | byte-identical (transforms: 1 reviewed re-pin) |
 | **3b-4** | Complete + correct the `ScenePainter` port surface | ✅ **done** | S | declaration-only |
-| **3b-5** | Second adapter: drive LaTeX/TikZ through the port, delete the fork | next | L–XL | golden re-pin (new target) |
+| **3b-5** | Second adapter: drive LaTeX/TikZ through the port, delete the fork | in progress | L–XL | golden re-pin (new target) |
 
 **3b-3 — remaining non-neutral params (done):**
 
@@ -185,11 +185,29 @@ residual `extra=` (one inert `fill="none"` on UML lines).
 **3b-5 — the payoff and the real port test.** The LaTeX path
 (`latex/document.py::_Transpiler`, `latex/tikz.py::FigureTikz`, ~3,480 LOC, its own
 `transpile()` walk via `tooling/render_latex.py`) is today a **separate fork**, not
-driven through `ScenePainter`. Re-driving it through the Renderer + a `TikzPainter`
-adapter and deleting the fork is both the proof the port is genuinely neutral and
-the maintenance win (one builder, two backends). Unlike 3b-2/3b-3/3b-4 this is *not*
-byte-identical — TikZ is a different target, so it needs a reviewed `make golden`
-re-pin for the LaTeX corpus, decided per-fixture.
+driven through `ScenePainter`.
+
+*Grounded reframing (from mapping the fork).* `FigureTikz` does not merely
+reimplement the 8 geometry primitives — it independently re-derives **every**
+figure object (the 14 `uml.*` types, charts, dimensions, tables, components, …).
+But after 3b-1…3b-4 the Renderer + sub-renderers build *all* of those through
+`ScenePainter` primitive calls. So the fix is **not** a method-by-method port of
+`FigureTikz`: a `TikzPainter` implementing the port makes the *same Renderer* emit
+TikZ for every object type, and `FigureTikz`'s ~2,700 lines of figure logic become
+**redundant** — the fork is replaced, not translated. The `_Transpiler` document
+scaffold (preamble, flow emitters, page setup) stays LaTeX-specific and simply
+calls the Renderer-via-`TikzPainter` where it used to call `FigureTikz.render`.
+
+Staged (not byte-identical — TikZ is a new target; assertion-based LaTeX tests get
+updated and a per-fixture review replaces the hand-verified output):
+
+- **3b-5a** ✅ `TikzPainter` adapter — geometry primitives (`rect`/`ellipse`/
+  `circle`/`line`/`poly`), grouping, page wrapper, and the `Stroke`/`Markers`/fill→
+  TikZ formatters. Additive; proves the neutral port drives a second backend.
+- **3b-5b** path data, text, images, and the backend-handle methods (gradient/
+  clip/filter/marker `<defs>`, `transform_group`, `embedded_svg`).
+- **3b-5c** wire the Renderer to drive `TikzPainter`, route `_Transpiler`'s figure
+  path through it, delete `FigureTikz`, and update the LaTeX tests.
 
 With 3b-3 and 3b-4 landed, the painter's *neutral* surface is complete: every
 geometry primitive takes value objects (`Stroke`, `Markers`, transform ops, colour/
