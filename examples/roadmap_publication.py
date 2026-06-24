@@ -103,152 +103,199 @@ SW, SH = 1080, 1920
 MX = 84
 
 
-def _topbar(page, *, dark):
-    fg = PAPER if dark else INK
-    mark(page, MX + 22, 96, 44, frame=fg, graph=FRAME, node_fill=(INK if dark else CANVAS))
-    wordmark(page, MX + 54, 76, 30, frame_color=fg, graph_color=FRAME)
-    _in_sync(page, SW - MX, 78, fs=24, mono_w=16)
+PROG_N = 7   # number of story cards (drives the segmented progress bar)
 
 
-def _footer(page, n, *, dark):
-    page.rect([MX, SH - 116, SW - 2 * MX, 1.5], fill=(GRID_DK if dark else GRID))
-    page.text([MX, SH - 100, 640, 26], "framegraph v2 · roadmap · draft",
-              style=ts(22, MUTE_DK if dark else MUTE, family=MONO, spacing=1))
-    page.text([SW - MX - 160, SH - 100, 160, 26], f"{n:02d} / 05",
-              style=ts(22, MUTE_DK if dark else MUTE, family=MONO, align="right"))
-
-
-def _lcard(page, box, accent, kicker, title, body):
-    x, y, w, h = box
-    page.rect([x, y, w, h], radius=16, fill=CANVAS, stroke=GRID, stroke_style={"stroke_width": 1.5})
-    page.rect([x, y, 10, h], fill=accent)
-    page.text([x + 44, y + 34, w - 88, 30], kicker,
-              style=ts(25, accent, weight=700, family=MONO, spacing=2, transform="uppercase"))
-    if title:
-        page.text([x + 44, y + 74, w - 88, 56], title, style=ts(44, INK, weight=700, lh=1.04))
-        body_y = y + 138
-    else:
-        body_y = y + 86
-    page.text([x + 44, body_y, w - 88, y + h - body_y - 30], body, style=ts(31, MUTE, lh=1.42))
-
-
-def _story(b, sid, *, dark=False):
+def _ig(b, sid):
+    """One Instagram-story canvas (1080x1920) — dark, full-bleed, immersive. No
+    drafting-table chrome (hairline grid / crop-marks / page numbers): a story is
+    *output*, designed for the channel, not a print document auto-scaled to 9:16.
+    The brand stays FLAT — energy comes from a dark ground, electric blue/cyan, and
+    scale, never gradients."""
     page = b.page(sid, canvas="instagram-story", coordinate_mode="absolute")
     page.layer("bg")
-    page.rect([0, 0, SW, SH], fill=INK if dark else PAPER)
-    if not dark:
-        hairline_grid(page, SW, SH, GRID, step=120)
-    crop_marks(page, SW, SH, PAPER if dark else INK)
+    page.rect([0, 0, SW, SH], fill=INK)
     page.layer("body")
     return page
 
 
+def _progress(page, idx):
+    """The segmented progress bar — Instagram Stories' signature top chrome. Segments
+    up to ``idx`` (0-based) read as watched; the rest sit faint behind."""
+    gap, top, h = 11, 52, 7
+    seg = (SW - 2 * MX - (PROG_N - 1) * gap) / PROG_N
+    for i in range(PROG_N):
+        x = MX + i * (seg + gap)
+        page.rect([x, top, seg, h], radius=h / 2, fill=PAPER if i <= idx else GRID_DK)
+
+
+def _handle(page):
+    """The story header: the mark as a profile avatar + the @handle — reads as a real
+    Instagram account, not a slide footer."""
+    mark(page, MX + 20, 124, 40, frame=PAPER, graph=CYAN, node_fill=INK)
+    page.text([MX + 54, 102, 600, 36], "@framegraph", style=ts(31, PAPER, weight=700))
+    page.text([MX + 54, 142, 600, 26], "FrameGraph v2 · roadmap",
+              style=ts(22, MUTE_DK, family=MONO, spacing=1))
+
+
+def _dogfoot(page):
+    """A quiet watermark on every card: this artifact *is* FrameGraph output."""
+    page.text([MX, SH - 96, SW - 2 * MX, 28],
+              "made with FrameGraph — this story is a .fg document",
+              style=ts(21, MUTE_DK, family=MONO, align="center", spacing=1))
+
+
+def _chrome(page, idx):
+    _progress(page, idx)
+    _handle(page)
+    _dogfoot(page)
+
+
+def _fan(page, ox, oy, source_label, targets, *, span=620):
+    """The derivation fan (the brand mark, applied) on the dark story ground: one
+    filled blue source node fanning via cyan edges to N hollow target nodes (ink
+    fill, paper stroke) with paper mono labels."""
+    n = len(targets)
+    tx = SW - MX - 330
+    for i, label in enumerate(targets):
+        ty = oy + (i * span / (n - 1) - span / 2 if n > 1 else 0)
+        page.line([ox, oy], [tx, ty], stroke=CYAN, stroke_style={"stroke_width": 2.5})
+        page.circle([tx, ty], 13, fill=INK, stroke=PAPER, stroke_style={"stroke_width": 2.5})
+        page.text([tx + 32, ty - 20, 320, 40], label, style=ts(34, PAPER, weight=600, family=MONO))
+    page.circle([ox, oy], 18, fill=FRAME, stroke=FRAME, stroke_style={"stroke_width": 2})
+    page.text([ox - 250, oy - 20, 224, 40], source_label,
+              style=ts(30, PAPER, weight=700, family=MONO, align="right"))
+
+
+def _kicker(page, idx, text):
+    """The story title block: IG chrome + a mono eyebrow + the big headline area
+    start. Returns nothing; headline is drawn by the caller under y≈300."""
+    _chrome(page, idx)
+    page.text([MX, 232, SW - 2 * MX, 34], text,
+              style=ts(28, CYAN, weight=700, family=MONO, spacing=3, transform="uppercase"))
+
+
+def _head(page, y, text, *, size=64, color=PAPER):
+    """A big single-colour story headline. The renderer ignores '\\n' and breaks lines
+    only by width, so to control the break each line is emitted as its *own* text
+    object stacked downward from ``y`` (advance = size · 1.06). Colour is set at the
+    block level (per-span colour only resolves on a single line with no block colour —
+    see ``_runs``)."""
+    adv = size * 1.06
+    for i, line in enumerate(text.split("\n")):
+        page.add({"type": "text", "box": [MX, y + i * adv, SW - 2 * MX, int(size * 1.3)],
+                  "spans": [{"text": line}],
+                  "style": {"font_family": SANS, "font_size": size, "font_weight": 700,
+                            "line_height": 1.05, "color": color}})
+
+
+def _runs(page, y, runs, *, size):
+    """One headline line with multiple coloured runs. Per-span colour resolves only on
+    a single line with no block-level colour (the wordmark pattern), so a multi-colour
+    headline stacks one ``_runs`` call per line. ``runs`` is a list of (text, colour)."""
+    page.add({"type": "text", "box": [MX, y, SW - 2 * MX, int(size * 1.3)],
+              "spans": [{"text": t, "style": {"color": c}} for t, c in runs],
+              "style": {"font_family": SANS, "font_size": size, "font_weight": 700,
+                        "line_height": 1.05}})
+
+
 def build_stories() -> DocumentBuilder:
     b = DocumentBuilder(title="FrameGraph v2 — Roadmap (Stories)", profile="deck", lang="en")
+    HEAD, BODY = 64, 40        # card headline / body sizes (big + punchy)
+    CW = SW - 2 * MX
 
-    # 1 — cover (ink)
-    p = _story(b, "s1-cover", dark=True)
-    _topbar(p, dark=True)
-    mark(p, SW / 2, 560, 300, frame=PAPER, graph=FRAME, node_fill=INK)   # the original mark, hero
-    wordmark(p, MX, 770, 104, frame_color=PAPER, graph_color=FRAME)
-    p.text([MX, 912, SW - 2 * MX, 30], "v2 · roadmap · draft",
-           style=ts(27, FRAME, weight=700, family=MONO, spacing=3, transform="uppercase"))
-    p.text([MX, 980, SW - 2 * MX, 200], "The output layer\nfor the agent era.",
-           style=ts(66, PAPER, weight=700, lh=1.05))
-    p.text([MX, 1230, SW - 2 * MX, 200],
-           "A forward gap analysis — defensible gaps, explicit scope decisions, and the "
-           "next major step: the 2.3 content / presentation split.",
-           style=ts(34, MUTE_DK, lh=1.45))
-    _footer(p, 1, dark=True)
+    # 1 — cover: the mark, hero, on dark
+    p = _ig(b, "s1-cover")
+    _chrome(p, 0)
+    mark(p, SW / 2, 620, 320, frame=PAPER, graph=FRAME, node_fill=INK)   # the canonical mark, hero
+    wordmark(p, MX, 884, 112, frame_color=PAPER, graph_color=FRAME)
+    p.text([MX, 1034, CW, 34], "v2 · roadmap · draft",
+           style=ts(29, CYAN, weight=700, family=MONO, spacing=4, transform="uppercase"))
+    _head(p, 1108, "The output layer\nfor the agent era.", size=80)
 
-    # 2 — the bet (paper)
-    p = _story(b, "s2-bet")
-    _topbar(p, dark=False)
-    p.text([MX, 220, SW - 2 * MX, 30], "the bet",
-           style=ts(26, FRAME, weight=700, family=MONO, spacing=3, transform="uppercase"))
-    p.text([MX, 280, SW - 2 * MX, 360],
-           "One substrate for decks and books — with a semantic graph attached.",
-           style=ts(72, INK, weight=700, lh=1.06))
-    mark(p, MX + 150, 1020, 240, frame=INK, graph=FRAME, node_fill=CANVAS)  # the source→generated fan
-    p.text([MX, 1260, SW - 2 * MX, 280],
-           "Most tools pick one lane. FrameGraph spans both, strong on typographic, i18n, and "
-           "color vocabulary. The models are the source of truth — everything else is generated "
-           "from or checked against them, so a document can't silently drift.",
-           style=ts(34, MUTE, lh=1.5))
-    _footer(p, 2, dark=False)
+    # 2 — the bet (color-keyed headline)
+    p = _ig(b, "s2-bet")
+    _kicker(p, 1, "the bet")
+    _head(p, 320, "One substrate.", size=80)
+    _runs(p, 412, [("Decks", CYAN), (" and ", PAPER), ("books", FRAME), (".", PAPER)], size=80)
+    _head(p, 504, "One semantic graph.", size=80)
+    p.text([MX, 780, CW, 360],
+           "Most tools pick one lane. FrameGraph spans both — and the models are the "
+           "source of truth, so every artifact is generated from or checked against "
+           "them. A document can't silently drift.",
+           style=ts(BODY, MUTE_DK, lh=1.5))
 
-    # 3 — where the work is (paper)
-    p = _story(b, "s3-phases")
-    _topbar(p, dark=False)
-    p.text([MX, 220, SW - 2 * MX, 30], "roadmap · phases",
-           style=ts(26, FRAME, weight=700, family=MONO, spacing=3, transform="uppercase"))
-    p.text([MX, 274, SW - 2 * MX, 70], "Where the work is",
-           style=ts(58, INK, weight=700, lh=1.02))
-    cards = [
-        (FRAME, "Phase 1 · defensible gaps",
-         "Graph auto-layout for diagrams · accessibility / tagged (PDF-UA) export · "
-         "a conformance suite + a tolerance band over the golden-render lock.", 296),
-        (CYAN, "Phase 2 · scope decisions",
-         "Chart data layer · print color management · geometry / 3D (the SDK already ships) · "
-         "book composition API · generative content (resolved once, then pinned).", 340),
-        (MUTE, "Phase 3 · conditional",
-         "Interaction / animation for presented decks — lowest priority, only if live "
-         "presentation becomes a goal.", 280),
+    # 3 — where the work is (big numbered rows)
+    p = _ig(b, "s3-phases")
+    _kicker(p, 2, "the work")
+    _head(p, 296, "Where the work is", size=HEAD)
+    rows = [
+        ("01", FRAME, "Defensible gaps", "graph auto-layout · a11y / PDF-UA · conformance lock"),
+        ("02", CYAN, "Scope decisions", "chart data · print color · 3D · book API · generative"),
+        ("03", MUTE_DK, "Conditional", "interaction / animation — only if live decks land"),
     ]
-    y = 392
-    for accent, kicker, body, h in cards:
-        _lcard(p, [MX, y, SW - 2 * MX, h], accent, kicker, "", body)
-        y += h + 30
-    _footer(p, 3, dark=False)
+    y = 520
+    for num, col, label, sub in rows:
+        p.text([MX, y - 14, 200, 130], num, style=ts(116, col, weight=700, family=MONO))
+        p.text([MX + 210, y, CW - 210, 60], label, style=ts(50, PAPER, weight=700))
+        p.text([MX + 210, y + 70, CW - 210, 132], sub, style=ts(34, MUTE_DK, lh=1.36))
+        y += 300
 
-    # 4 — 2.3 split (paper)
-    p = _story(b, "s4-split")
-    _topbar(p, dark=False)
-    p.text([MX, 220, SW - 2 * MX, 30], "version 2.3 · a",
-           style=ts(26, FRAME, weight=700, family=MONO, spacing=3, transform="uppercase"))
-    p.text([MX, 274, SW - 2 * MX, 200], "Split content and presentation",
-           style=ts(58, INK, weight=700, lh=1.05))
-    # two crop-bracketed boxes joined by a mono mapping arrow
-    cw = (SW - 2 * MX - 120) / 2
-    by = 560
-    _lcard(p, [MX, by, cw, 300], CYAN, "content", "",
-           "what it says — sections, blocks, figures, reading order")
-    _lcard(p, [MX + cw + 120, by, cw, 300], FRAME, "presentation", "",
-           "how it looks — style, layout, canvas, paint, transforms")
-    p.text([MX + cw + 18, by + 120, 84, 60], "→", style=ts(64, INK, weight=700, family=MONO, align="center"))
-    p.text([MX + cw - 4, by + 200, 128, 28], "mapping", style=ts(22, MUTE, family=MONO, align="center"))
-    p.text([MX, by + 380, SW - 2 * MX, 280],
-           "Bound by a mapping, not co-located fields. The content tree stays the source of "
-           "truth; presentation becomes a resolved view — keeping the closed model and the "
-           "golden-render determinism the format is built on.",
-           style=ts(34, MUTE, lh=1.5))
-    _footer(p, 4, dark=False)
+    # 4 — 2.3-A: split content from presentation
+    p = _ig(b, "s4-split")
+    _kicker(p, 3, "version 2.3 · a")
+    _head(p, 296, "Split content\n& presentation", size=HEAD)
+    ny = 680
+    lcx, rcx = MX + 150, SW - MX - 150
+    p.circle([lcx, ny], 26, fill=CYAN, stroke=CYAN, stroke_style={"stroke_width": 2})
+    p.circle([rcx, ny], 26, fill=INK, stroke=FRAME, stroke_style={"stroke_width": 4})
+    p.line([lcx + 60, ny], [rcx - 60, ny], stroke=PAPER, stroke_style={"stroke_width": 2.5})
+    p.text([(lcx + rcx) / 2 - 80, ny - 64, 160, 40], "maps", style=ts(28, MUTE_DK, family=MONO, align="center"))
+    p.text([lcx - 150, ny + 52, 300, 44], "content", style=ts(36, PAPER, weight=700, align="center"))
+    p.text([lcx - 150, ny + 104, 300, 34], "what it says", style=ts(28, MUTE_DK, align="center"))
+    p.text([rcx - 150, ny + 52, 300, 44], "presentation", style=ts(36, PAPER, weight=700, align="center"))
+    p.text([rcx - 150, ny + 104, 300, 34], "how it looks", style=ts(28, MUTE_DK, align="center"))
+    p.text([MX, 1000, CW, 360],
+           "Bound by a mapping, not co-located fields — the content tree stays the "
+           "source of truth, presentation becomes a resolved view. The closed model "
+           "and golden-render determinism hold.",
+           style=ts(BODY, MUTE_DK, lh=1.5))
 
-    # 5 — 2.3 map: the derivation fan, applied to formats (paper)
-    p = _story(b, "s5-map")
-    _topbar(p, dark=False)
-    p.text([MX, 220, SW - 2 * MX, 30], "version 2.3 · b",
-           style=ts(26, FRAME, weight=700, family=MONO, spacing=3, transform="uppercase"))
-    p.text([MX, 274, SW - 2 * MX, 70], "Map to many formats",
-           style=ts(58, INK, weight=700, lh=1.02))
-    # one content node (frame-blue source) fanning to five generated format nodes
-    ox, oy = MX + 110, 760
-    formats = ["SVG", "PDF", "LaTeX", "HTML", "raster"]
-    tx = SW - MX - 320
-    for i, label in enumerate(formats):
-        ty = oy - 330 + i * 165
-        p.line([ox, oy], [tx, ty], stroke=CYAN, stroke_style={"stroke_width": 2})
-        p.circle([tx, ty], 12, fill=CANVAS, stroke=INK, stroke_style={"stroke_width": 2.5})
-        p.text([tx + 30, ty - 18, 260, 36], label, style=ts(34, INK, weight=600, family=MONO))
-    p.circle([ox, oy], 17, fill=FRAME, stroke=FRAME, stroke_style={"stroke_width": 2})
-    p.text([ox - 220, oy - 18, 196, 36], "content", style=ts(30, INK, weight=700, family=MONO, align="right"))
-    p.text([MX, 1230, SW - 2 * MX, 320],
-           "One content tree + a presentation profile → the format-specific artifact, so a "
-           "document renders to many targets without re-authoring. Deterministic and verifiable "
-           "(same input ⇒ same artifact, golden-locked); an unsupported feature degrades "
-           "explicitly — never silently.",
-           style=ts(34, MUTE, lh=1.5))
-    _footer(p, 5, dark=False)
+    # 5 — 2.3-B: retarget one content tree to any surface
+    p = _ig(b, "s5-retarget")
+    _kicker(p, 4, "version 2.3 · b")
+    _head(p, 296, "Retarget to\nany surface", size=HEAD)
+    _fan(p, MX + 110, 880, "content", ["IG story", "IG post", "A4 print", "YouTube", "LinkedIn"])
+    p.text([MX, 1300, CW, 420],
+           "One content tree + a canvas preset → the surface-specific artifact, no "
+           "re-authoring. The social presets already ship — instagram-story, "
+           "youtube-banner, tiktok, linkedin — synced across the model, grammar, "
+           "spec and renderer.",
+           style=ts(BODY, MUTE_DK, lh=1.5))
+
+    # 6 — 3.0: one source derives every artifact via select / filter
+    p = _ig(b, "s6-source")
+    _kicker(p, 5, "version 3.0")
+    _head(p, 296, "One source,\nevery audience", size=HEAD)
+    _fan(p, MX + 130, 880, "Q3 results",
+         ["SEC filing", "investor deck", "IG story", "LinkedIn", "press post"])
+    p.text([MX, 1300, CW, 420],
+           "One source derives every artifact: the same quarterly numbers become the "
+           "SEC / investor report and the media posts — via filters / selects, each "
+           "retargeted to its surface. The filing and the IG story can't disagree.",
+           style=ts(BODY, MUTE_DK, lh=1.5))
+
+    # 7 — dogfooding: this whole thing is FrameGraph output
+    p = _ig(b, "s7-proof")
+    _kicker(p, 6, "made with framegraph")
+    _head(p, 320, "You're reading", size=78)
+    _runs(p, 410, [("FrameGraph", FRAME), (" output.", PAPER)], size=78)
+    _fan(p, MX + 90, 940, "one .fg", ["this story", "the A4 PDF"], span=300)
+    p.text([MX, 1260, CW, 320],
+           "This Instagram story and the 4-page print PDF are one FrameGraph "
+           "document, rendered by the SDK — no Figma, no InDesign. Decks, books, "
+           "social: one substrate, generated and verified.",
+           style=ts(BODY, MUTE_DK, lh=1.5))
     return b
 
 
@@ -280,7 +327,7 @@ def _a4_top(page, *, dark):
 def _a4_foot(page, n, *, dark):
     page.text([PM, AH - 34, 360, 12], "framegraph v2 · roadmap · draft",
               style=ts(8.5, MUTE_DK if dark else MUTE, family=MONO, spacing=0.5))
-    page.text([AW - PM - 60, AH - 34, 60, 12], f"{n:02d} / 03",
+    page.text([AW - PM - 60, AH - 34, 60, 12], f"{n:02d} / 04",
               style=ts(8.5, MUTE_DK if dark else MUTE, family=MONO, align="right"))
 
 
@@ -309,6 +356,10 @@ def build_pdf() -> DocumentBuilder:
            "A forward gap analysis — defensible gaps, explicit scope decisions, and the 2.3 "
            "content / presentation split. DRAFT / design-target — not commitments.",
            style=ts(11, MUTE_DK, lh=1.55))
+    p.text([PM, 690, AW - 2 * PM, 40],
+           "Dogfooded — every page of this PDF, and the companion Instagram story, is one "
+           "FrameGraph document rendered by the SDK. No Figma, no InDesign.",
+           style=ts(10, CYAN, lh=1.6, family=MONO))
     _a4_foot(p, 1, dark=True)
 
     # 2 — the bet + priority (paper)
@@ -344,7 +395,7 @@ def build_pdf() -> DocumentBuilder:
     _a4_top(p, dark=False)
     p.text([PM, 96, AW - 2 * PM, 12], "the next major step",
            style=ts(11, FRAME, weight=700, family=MONO, spacing=2, transform="uppercase"))
-    p.text([PM, 116, AW - 2 * PM, 48], "Version 2.3 — content / presentation split + multi-format mapping",
+    p.text([PM, 116, AW - 2 * PM, 48], "Version 2.3 — split content from presentation + retarget to any surface",
            style=ts(21, INK, weight=700, lh=1.1))
     blocks = [
         (FRAME, "2.3-A · split content from presentation",
@@ -352,21 +403,49 @@ def build_pdf() -> DocumentBuilder:
          "is — separated from a presentation model (style, layout, canvas, paint). They bind "
          "through a mapping, not co-located fields; content stays the source of truth and "
          "presentation becomes a resolved view, preserving the closed model and golden determinism."),
-        (CYAN, "2.3-B · map the rendering to many formats",
-         "Promote the existing backend-neutral ScenePainter port (SVG · Chromium raster · "
-         "LaTeX/TikZ · HTML) and Document.targets into a first-class mapping layer: one content "
-         "tree maps to many formats (SVG, PDF, LaTeX, HTML, raster) without re-authoring. "
-         "Deterministic and verifiable; an unsupported feature degrades explicitly, never silently."),
-        (MUTE, "open questions",
-         "Migration of co-located style via the codemod · where the content / presentation "
-         "boundary sits (box and layout intent straddle both) · whether a mapping is data or "
-         "code, and how per-target overrides compose without re-introducing co-mingling."),
+        (CYAN, "2.3-B · retarget one content tree to any canvas / surface",
+         "The same content maps to many surfaces — social-media formats (Instagram story/post, "
+         "LinkedIn, YouTube, TikTok), print (A4, Letter), and screen — by pairing it with a canvas "
+         "preset + profile. The social-media presets already ship (instagram-story 1080×1920, "
+         "youtube-banner, …), synced across model / grammar / spec / CanvasResolver; 2.3 makes the "
+         "retarget first-class. Output formats (SVG · PDF · LaTeX · HTML · raster) are the "
+         "orthogonal axis the same mapping drives."),
+    ]
+    y = 196
+    for accent, kicker, body in blocks:
+        _a4_card(p, [PM, y, AW - 2 * PM, 212], accent, kicker, body)
+        y += 232
+    _a4_foot(p, 3, dark=False)
+
+    # 4 — version 3.0 (paper)
+    p = _a4(b, "p4-v30", dark=False)
+    _a4_top(p, dark=False)
+    p.text([PM, 96, AW - 2 * PM, 12], "the deeper payoff",
+           style=ts(11, FRAME, weight=700, family=MONO, spacing=2, transform="uppercase"))
+    p.text([PM, 116, AW - 2 * PM, 48], "Version 3.0 — derive every artifact from one source (select + filter)",
+           style=ts(21, INK, weight=700, lh=1.1))
+    blocks2 = [
+        (FRAME, "one source, every audience",
+         "The 2.3 split makes the payoff possible: the same quarterly results render as the formal "
+         "SEC / investor report (A4, full tables) AND the media posts (an Instagram story, a "
+         "LinkedIn card) — derived from the same numbers via filters / selects, each selecting the "
+         "subset its audience needs and retargeting (2.3) to its surface, never re-keyed by hand."),
+        (CYAN, "a view = select + surface",
+         "A declared view — a select / filter over the content graph, bound to a target surface + "
+         "profile — produces one audience artifact; many views over one source produce the full set "
+         "(filing, deck, story, post). One source of numbers: a figure that changes once propagates "
+         "everywhere, so the SEC table and the Instagram story can never disagree."),
+        (MUTE, "new surface area vs. 2.3",
+         "2.3 retargets one whole document to many canvases; 3.0 adds the selection layer (which "
+         "slice each artifact shows) — a query / view model over the content graph, not a canvas "
+         "swap. Deterministic and verifiable (golden-locked); a view selecting an element a surface "
+         "cannot represent degrades explicitly, never silently."),
     ]
     y = 188
-    for accent, kicker, body in blocks:
+    for accent, kicker, body in blocks2:
         _a4_card(p, [PM, y, AW - 2 * PM, 150], accent, kicker, body)
         y += 162
-    _a4_foot(p, 3, dark=False)
+    _a4_foot(p, 4, dark=False)
     return b
 
 

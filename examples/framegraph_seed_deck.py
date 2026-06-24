@@ -36,7 +36,7 @@ from framegraph.sdk.validate import validate_static_rules  # noqa: E402
 # The brand mark + wordmark are owned by the standalone logo document (single
 # source of truth — examples/framegraph_logo.py), imported here rather than redefined.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))   # the examples/ dir
-from framegraph_logo import mark, wordmark  # noqa: E402,F401
+from framegraph_logo import fan, mark, wordmark  # noqa: E402,F401
 
 # --------------------------------------------------------------------------- #
 # Brand system — straight from docs/BRAND.md §4–§5 (the official tokens).
@@ -58,7 +58,7 @@ SANS  = ["IBM Plex Sans", "DejaVu Sans", "Helvetica", "Arial", "sans-serif"]
 MONO  = ["IBM Plex Mono", "DejaVu Sans Mono", "Menlo", "monospace"]
 SERIF = ["IBM Plex Serif", "DejaVu Serif", "Georgia", "serif"]
 
-N_SLIDES = 15
+N_SLIDES = 16
 
 
 def ts(size, color, *, weight=None, align=None, spacing=None, lh=None,
@@ -174,6 +174,13 @@ def chrome(b, sid, n, kick, *, dark=False, grid=True, cover=False):
     else:
         on_profile(page)
         pagenum(page, n)
+    # Directional progress — a pitch reads forward; the bar fills left→right to the
+    # current slide, pointing the eye the way the story moves.
+    pb_w = W - 2 * M - 124
+    page.rect([M, H - 33, pb_w, 3], radius=1.5, decorative=True,
+              fill=("#2A2E3A" if dark else GRID))
+    page.rect([M, H - 33, pb_w * n / N_SLIDES, 3], radius=1.5, decorative=True,
+              fill=(GRAPH if dark else FRAME))
     if kick:
         kicker(page, kick, color=(GRAPH if dark else FRAME))
     page.layer("body")
@@ -566,8 +573,35 @@ def s13_team(b):
     return page
 
 
-def s14_vision(b):
-    page = chrome(b, "s14-vision", 14, "The vision", dark=True, grid=False)
+def s14_outputs(b):
+    """Pitch update — the output surface, told with the *canonical* derivation fan
+    (`fan()` from the brand module, the same native composition our roadmap dogfood
+    ships in its Instagram stories and A4 print PDF). One source → every audience,
+    on every surface. Dark, to match the shipped stories."""
+    page = chrome(b, "s14-outputs", 14, "The platform · 2.3 → 3.0",
+                  dark=True, grid=False)
+    headline(page, 100, "One source of truth. Every audience, every surface.",
+             size=34, color=PAPER, w=W - 2 * M)
+    page.text([M, 158, W - 2 * M, 20],
+              "Split the data from the look — one source derives every audience's "
+              "artifact, on every surface.", style=ts(15, "#9AA3B5", lh=1.4))
+
+    # The canonical fan (the brand mark, applied): Q3 numbers → audiences/surfaces.
+    fan(page, 300, 360, 812, "Q3 results",
+        ["SEC filing", "investor deck", "IG story", "LinkedIn", "A4 print"],
+        span=300, source=FRAME, edge=GRAPH, node_stroke=PAPER, node_fill=INK,
+        label=PAPER, label_size=16, node_r=9, src_r=15)
+
+    banner(page, [M, 556, W - 2 * M, 86],
+           "We already dogfood this: our own v2 roadmap → an A4 print PDF and "
+           "Instagram stories, one .fg source rendered by the SDK. No Figma, no "
+           "InDesign — and the figures can't disagree, by construction.",
+           fill=FRAME, color=PAPER, size=15)
+    return page
+
+
+def s15_vision(b):
+    page = chrome(b, "s15-vision", 15, "The vision", dark=True, grid=False)
     headline(page, 168, "Soon, every page a business shows the world will be "
              "produced and checked by a machine.", size=44, color=PAPER, w=820)
     lead(page, 472, "FrameGraph is the layer that makes that output real, "
@@ -577,12 +611,12 @@ def s14_vision(b):
     return page
 
 
-def s15_logo(b):
+def s16_logo(b):
     """Endcap — the FrameGraph mark, shown as a system, not an illustration: one
     square glyph (the Frame + a derivation Graph) that holds up two-tone, in one
     colour, and reversed, all the way down to favicon size. That a single geometry
     survives every context is exactly what makes it a mark."""
-    page = chrome(b, "s15-logo", 15, None, grid=False)
+    page = chrome(b, "s16-logo", 16, None, grid=False)
 
     # Primary mark — two-tone (Frame ink / Graph blue), large and centred.
     mark(page, W / 2, 292, 286)
@@ -617,7 +651,7 @@ def s15_logo(b):
 
 SLIDES = [s01_cover, s02_shift, s03_problem, s04_objection, s05_solution,
           s06_how, s07_moat, s08_proof, s09_reframe, s10_size, s11_model,
-          s12_ask, s13_team, s14_vision, s15_logo]
+          s12_ask, s13_team, s14_outputs, s15_vision, s16_logo]
 
 
 def build() -> DocumentBuilder:

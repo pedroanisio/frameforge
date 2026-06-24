@@ -545,7 +545,7 @@ animation is lowest priority unless live presentation becomes a goal.
 
 ---
 
-## Version 2.3 — content/presentation split + multi-format mapping (design direction)
+## Version 2.3 — split content from presentation + retarget to any surface (design direction)
 
 > **Status:** DRAFT / design-target for a future **2.3** line — *not* a 2.2.0
 > commitment. Recorded so the architecture moves toward it; the model, schema, and
@@ -553,9 +553,11 @@ animation is lowest priority unless live presentation becomes a goal.
 
 The 2.x line so far keeps **content and presentation in one closed model**: a
 `VisualObject`/`Flowable` carries its own `Style`, `box`, and canvas placement, so
-*what a document says* and *how it looks* are co-mingled on the same node. 2.3
-proposes to **separate them**, and to make rendering an explicit **mapping** from
-content to one of several presentation targets.
+*what a document says* (the data) and *how it looks* are co-mingled on the same node.
+2.3 proposes to **separate them**, and to make rendering an explicit **mapping** that
+retargets one content tree to many **surfaces** — print, screen, and the social-media
+canvases the renderer already enumerates. (The deeper payoff this unlocks — deriving
+many audience-specific artifacts from one source — is a 3.0 milestone, below.)
 
 ### 2.3-A — Split content from presentation
 
@@ -571,30 +573,85 @@ content to one of several presentation targets.
   becomes a **resolved view**, the same discipline by which schema/grammar/docs are
   already resolved views of the model.
 
-### 2.3-B — Mapping → render to multiple formats
+### 2.3-B — Retarget one content tree to any canvas / surface
 
-- FrameGraph already renders one validated document through a **backend-neutral
-  `ScenePainter` port** to several adapters (SVG canonical, Chromium raster,
-  LaTeX/TikZ, the HTML path) and carries a `Document.targets` list. 2.3 turns that
-  latent capability into a **first-class mapping layer**: a declared mapping takes
-  the content model + a presentation profile and emits the format-specific
-  artifact, so **one content tree maps to many formats** (SVG, PDF, LaTeX, HTML,
-  raster, and future targets) without re-authoring.
-- A mapping is **deterministic and verifiable** (PALS's Law): same content + same
-  mapping ⇒ same artifact, so each target keeps a golden lock. A target that cannot
-  represent a feature **degrades explicitly** (a reported capability gap), never
-  silently.
+- The same content should map to many **surfaces**: social-media formats (Instagram
+  story/post, Facebook, LinkedIn, X, YouTube, TikTok, Pinterest), print sizes
+  (A4, Letter), and screen — by pairing the content model with a **canvas preset** +
+  presentation profile, so a document written once retargets to each, layout re-fit per
+  surface rather than re-authored.
+- The **canvas-preset surface already ships** as the first instance: HEAD enumerates
+  social-media presets (`instagram-story` 1080×1920, `instagram-post`, `facebook-*`,
+  `linkedin-*`, `youtube-thumbnail` / `youtube-banner`, `tiktok-video`, `pinterest-pin`, …)
+  plus aspect-ratio aliases (`9x16`, `1x1`, `4x5`, `1.91x1`, …), synced across the model
+  `PagePreset`, the grammar, the spec, and the renderer's `CanvasResolver` (gated by
+  `make check` / `make package-check`). 2.3 makes the *retarget* itself first-class: one
+  content tree + a target canvas → the surface-specific artifact.
+- Output *formats* (SVG · PDF · LaTeX/TikZ · HTML · raster, via the backend-neutral
+  `ScenePainter` port + `Document.targets`) are the orthogonal axis the same mapping
+  drives. A surface that cannot represent a feature **degrades explicitly** — never
+  silently — and same content + same surface ⇒ same artifact (golden-locked, PALS's Law).
 
-### Open questions (resolve before 2.3 is normative)
+---
 
-- **Migration.** 2.2.0 documents co-locate style on objects; the codemod must lift
-  presentation into the mapping layer while keeping legacy documents renderable.
-- **Where the boundary sits.** `reading_order`, a11y tags, and figure semantics are
-  content; canvas / `Style` / transforms are presentation — but `box` and layout
-  *intent* straddle both and need an explicit rule.
-- **Mapping surface.** Whether a mapping is data (a profile document) or code (an
-  SDK / `ScenePainter` extension), and how per-target overrides compose without
-  reintroducing the co-mingling 2.3 set out to remove.
+## Version 3.0 — derive every artifact from one source (select + filter) (design direction)
+
+> **Status:** DRAFT / design-target for a future **3.0** line, built on the 2.3 split —
+> not a commitment; the model, schema, and gates describe 2.2.0 today.
+
+The 2.3 split makes the deeper payoff possible: **one data source derives many
+audience-specific artifacts.** The same quarterly results render as the formal
+**SEC / investor report** (A4, full tables, compliance register) *and* the **media posts**
+(an Instagram story, a LinkedIn card) — derived from the **same numbers** via
+**filters / selects**, each selecting the subset its audience needs and retargeting (2.3)
+to its surface, never re-keyed by hand.
+
+- A declared **view** — a select / filter over the content graph — bound to a target
+  surface + profile produces one audience artifact; many views over one source produce
+  the full set (filing, deck, story, post).
+- **One source of numbers.** A figure that changes once propagates to every derived
+  artifact; the SEC table and the Instagram story can never disagree, because they read
+  the same content.
+- Deterministic and verifiable (PALS's Law): same source + same view + same surface ⇒
+  same artifact (golden-locked). A view that selects an element a surface cannot
+  represent **degrades explicitly**, never silently.
+- **New surface area vs. 2.3.** 2.3 retargets *one whole document* to many canvases; 3.0
+  adds the **selection layer** (which slice of the source each artifact shows) — a
+  query / view model over the content graph, not just a canvas swap.
+
+*Effort: XL — a milestone, dependent on 2.3-A.*
+
+### Verifiable projection — the moat (content fidelity, not just determinism)
+
+The determinism bullet above (same source + view + surface ⇒ same artifact) is necessary
+but is **not** the differentiator — every templating engine is deterministic. The moat is
+the stronger property: the projection is **provably faithful to the source**.
+
+- A value shown in any view is **the same value** as in the source, by construction — a
+  view may *select, aggregate, or hide*, but may not *fabricate or alter*.
+- The system can **prove** it: every rendered figure carries provenance back to a source
+  cell, and a **content-fidelity gate** fails if a view shows a number with no source
+  lineage, or one that disagrees with it.
+
+This is PALS's Law applied to **data → view** — the 3.0 analogue of the golden-render
+lock, but over *content*, not pixels. It is the reason an agent can be trusted to post
+earnings: the Instagram figure *is* the SEC figure, and the build can show its work. BI
+suites and headless CMS fan one source to many channels, but none pair that with a typed,
+verifiable IR spanning *compliance-grade print and social surfaces* plus a gate proving no
+view distorts the source — that intersection is the 3.0 bet.
+
+### Honest scope — what 3.0 costs
+
+- **It reopens a closed decision.** Item 3 (data layer) is **out of scope** today ("no
+  data transforms by design"). 3.0 reverses that *deliberately, at the document level* — a
+  content-graph projection, not an in-chart data algebra (which item 3 still bars). Item 3
+  explicitly left this open: "revisit only if a single source of truth from data to
+  multiple views becomes a product goal."
+- **Provenance must reach the leaf.** A real addition to the content model: every value
+  carries a source reference that survives selection / aggregation into the artifact.
+- **It likely needs the temporal axis.** Quarter-over-quarter comparatives are time
+  series, and the IR has **no temporal axis** (`output-space.md` boundary) — a read-only
+  data / time binding may be a prerequisite, distinct from animation (non-goal, item 6).
 
 ---
 
