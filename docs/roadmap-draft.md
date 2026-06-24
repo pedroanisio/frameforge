@@ -517,6 +517,59 @@ animation is lowest priority unless live presentation becomes a goal.
 
 ---
 
+## Version 2.3 — content/presentation split + multi-format mapping (design direction)
+
+> **Status:** DRAFT / design-target for a future **2.3** line — *not* a 2.2.0
+> commitment. Recorded so the architecture moves toward it; the model, schema, and
+> gates still describe 2.2.0 today.
+
+The 2.x line so far keeps **content and presentation in one closed model**: a
+`VisualObject`/`Flowable` carries its own `Style`, `box`, and canvas placement, so
+*what a document says* and *how it looks* are co-mingled on the same node. 2.3
+proposes to **separate them**, and to make rendering an explicit **mapping** from
+content to one of several presentation targets.
+
+### 2.3-A — Split content from presentation
+
+- A **content model** — the semantic graph (sections, blocks, figures, relations,
+  `reading_order`) that says *what* a document is, independent of pixel/point
+  geometry or styling.
+- A **presentation model** — style, layout, canvas, paint, transforms (today's
+  `Style` / `Group.layout` / canvas) that says *how* a given content tree is
+  realized for a target.
+- The two bind through a **mapping** (below), not through co-located fields. The
+  closed model, semver gates, and golden determinism (*the sync guarantee*) must
+  survive the split: the content tree stays the source of truth and presentation
+  becomes a **resolved view**, the same discipline by which schema/grammar/docs are
+  already resolved views of the model.
+
+### 2.3-B — Mapping → render to multiple formats
+
+- FrameGraph already renders one validated document through a **backend-neutral
+  `ScenePainter` port** to several adapters (SVG canonical, Chromium raster,
+  LaTeX/TikZ, the HTML path) and carries a `Document.targets` list. 2.3 turns that
+  latent capability into a **first-class mapping layer**: a declared mapping takes
+  the content model + a presentation profile and emits the format-specific
+  artifact, so **one content tree maps to many formats** (SVG, PDF, LaTeX, HTML,
+  raster, and future targets) without re-authoring.
+- A mapping is **deterministic and verifiable** (PALS's Law): same content + same
+  mapping ⇒ same artifact, so each target keeps a golden lock. A target that cannot
+  represent a feature **degrades explicitly** (a reported capability gap), never
+  silently.
+
+### Open questions (resolve before 2.3 is normative)
+
+- **Migration.** 2.2.0 documents co-locate style on objects; the codemod must lift
+  presentation into the mapping layer while keeping legacy documents renderable.
+- **Where the boundary sits.** `reading_order`, a11y tags, and figure semantics are
+  content; canvas / `Style` / transforms are presentation — but `box` and layout
+  *intent* straddle both and need an explicit rule.
+- **Mapping surface.** Whether a mapping is data (a profile document) or code (an
+  SDK / `ScenePainter` extension), and how per-target overrides compose without
+  reintroducing the co-mingling 2.3 set out to remove.
+
+---
+
 # Appendix A — Geometry, Transformed Spaces, and 3D (design proposal, non-normative)
 
 > **Status:** documentation of an existing SDK + two grammar fixes (non-normative).
