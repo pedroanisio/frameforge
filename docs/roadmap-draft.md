@@ -14,9 +14,10 @@ disclaimer: >
   This is a forward-looking gap analysis, not a delivery plan. "Missing" means
   "not expressible in the grammar/fixtures as inspected"; the models are the
   source of truth and could narrow a gap. Priorities reflect how defensible and
-  consequential each gap is, not committed scheduling. Appendix A is a design
-  proposal, not a specification: the `@framegraph/*` packages and symbols in it
-  are invented to describe an interface and do not exist, and every formula's sign
+  consequential each gap is, not committed scheduling. Appendix A **documents the
+  existing geometry/3D SDK** (`framegraph.sdk.{geometry,draw,manifold,fields}`) plus
+  two grammar fixes (G-1/G-2); the TypeScript `@framegraph/*` names in it are
+  illustrative sketches of the shipping Python API, and every formula's sign
   convention must be verified against your renderer before use (canvas space is
   Y-DOWN, origin top-left). NOTHING IN THE APPENDIX SHOULD BE TAKEN FOR GRANTED.
 appendix_references:
@@ -32,10 +33,16 @@ appendix_references:
     A prioritized map of what FrameGraph cannot yet express, measured against the
     EBNF and the checked-in fixtures and benchmarked against the published specs
     of comparable systems. Each item states the gap, the evidence, the comparator
-    that closes it, and a proposed fix. Items 1, 2, and 4 are defensible gaps;
-    items 3 and 5 are **scope decisions worth making explicit** rather than gaps;
-    item 6 is conditional on a live-presentation goal; item 7 is an additive
-    author-time SDK whose full design lives in Appendix A.
+    that closes it, and a proposed fix. Items 1, 2, and 4 are **partly built
+    already** — each now states the *residual* gap after re-grounding against the
+    SDK and renderer (see the Verification-status note); items 3 and 5 are **scope
+    decisions worth making explicit** rather than gaps; item 6 is conditional on a
+    live-presentation goal; item 7's geometry/3D SDK **already ships** (Appendix A
+    documents it; only two grammar fixes remain); item 8 is an additive
+    book-composition API surface informed by the permissive book corpus inspection;
+    item 9 is a generative content object (prompt → image / block) resolved **once
+    at build and pinned**, carrying a high determinism / trust risk that the design
+    must contain.
     (Items keep their original IDs; sections run in priority order, so the IDs
     appear out of sequence.)
 
@@ -45,6 +52,17 @@ appendix_references:
     it was corrected (see item 1's container-layout note, the `uml.*` count, the
     refreshed model references for `widows`/`orphans` and `footnote_area`, and item 2,
     reframed after `alt`/`actual_text`/`reading_order` landed in the model).
+
+!!! warning "Re-grounded against the implementation (2026-06-24)"
+    An earlier pass checked the **format** (model + EBNF + fixtures) but not the
+    **implementation**, and so overstated four gaps that the SDK/renderer/tests
+    already fill. Capability questions live in `framegraph/sdk/*` and the renderer,
+    not the wire format. Corrected here: **item 1** (graph layout already exists
+    author-side in `sdk.topology`), **item 2** (SVG a11y is partly emitted by the
+    SVG painter), **item 4** (`tests/test_golden_render.py` is a working
+    golden-lock harness), and **item 7 / Appendix A** (the geometry/3D authoring
+    SDK already ships in `sdk.{geometry,draw,manifold,fields}`). Each item now
+    states the *residual* gap, with file evidence.
 
 ## Calibration — what is *not* missing
 
@@ -76,20 +94,23 @@ different thing from the controls themselves.
 
 | # | Item | Priority | Kind |
 |---|------|----------|------|
-| 1 | Automatic *graph* layout for diagrams | **High** | Missing capability |
-| 2 | Accessibility / tagged-export model | **High** | Vocabulary done → tagged export remains |
-| 4 | Conformance suite + reference-renderer semantics | **High** | Missing capability |
+| 1 | Automatic *graph* layout for diagrams | **High** | Algorithms exist (`sdk.topology`) → render-time wiring remains |
+| 2 | Accessibility / tagged-export model | **High** | Vocabulary + partial SVG a11y done → PDF/UA tagged export remains |
+| 4 | Conformance suite + reference-renderer semantics | **Medium** | Golden-lock harness exists → tolerance diff + schema URL remain |
 | 3 | Data layer for charts | **Medium** | Scope decision → out of scope (provisional) |
 | 5 | Print color management (ICC / CMYK) | **Medium** | Scope decision → deferred (provisional) |
-| 7 | Geometry / transformed spaces / 3D authoring SDK | **Medium** | Additive capability |
+| 7 | Geometry / transformed spaces / 3D authoring SDK | **Low** | SDK already ships → 2 grammar fixes (G-1/G-2) |
+| 8 | Book composition API | **Medium-High** | Additive product/API surface |
+| 9 | Generative content objects (prompt → image / content) | **Medium** | Additive object + generation tier; high determinism / trust risk |
 | 6 | Interaction / animation for presented decks | **Low** | Conditional on goal |
 
-> Net ordering (most defensible first): diagram auto-layout → accessible export →
-> conformance corpus. The data layer and print color are scope choices worth
-> stating outright rather than leaving implied. The geometry / 3D SDK (item 7) is
-> additive and renderer-neutral — high leverage for diagram, engineering, and math
-> figures, but lower-risk and lower-priority than the foundational gaps because it
-> emits only primitives the grammar already has.
+> Net ordering (most defensible first): wire the existing graph-layout engine into
+> a render pass → finish accessible export (PDF/UA) → add a tolerance band over the
+> existing golden lock. The data layer and print color are scope choices worth
+> stating outright rather than leaving implied. The geometry / 3D SDK (item 7)
+> **already ships** (`sdk.{geometry,draw,manifold,fields}`) — so it is lowest-risk
+> and now **Low** priority: the residual is documentation plus two grammar fixes,
+> not a build.
 
 ## Implementation sequence (recommended)
 
@@ -104,10 +125,11 @@ so it moves ahead of item 1.
    compiled Vega-Lite as a figure object); item 5 (print color) → **deferred**
    behind an optional target-level ICC / output-intent hook (no CMYK separation
    now). Both revisitable. *Effort: S.*
-1. **Item 2 — accessibility export.** Fields exist; only the consumer is missing.
-   Deliver SVG a11y (`<title>`/`<desc>`, `role`, `aria-*`, DOM order from
-   `reading_order`, `decorative` → `aria-hidden`) against the existing proxy first;
-   full PDF/UA tagging follows once a PDF backend exists. *Effort: M → L.*
+1. **Item 2 — accessibility export.** Vocabulary exists and the SVG painter
+   already emits `role=`/`aria-*`; **complete** SVG a11y (`<title>`/`<desc>`,
+   reading-order DOM ordering, `decorative` → `aria-hidden`) against the existing
+   proxy, then add full PDF/UA tagging once a tagging PDF backend exists (today's
+   PDF is untagged Chromium print). *Effort: S (finish SVG) → L (PDF/UA).*
 2. **Item 4 — golden-render harness.** Pin the `b1/` fixtures to reference renders
    with an explicit tolerance before the big feature, so item 1 is regression-safe.
    *Effort: M. Enabler.*
@@ -115,10 +137,18 @@ so it moves ahead of item 1.
    protection: an ELK-backed layout tier for `mode: page` diagram groups keyed off
    the semantic graph, with absolute positioning as the override. *Effort: XL;
    depends on step 2.*
-4. **Item 7 — geometry / 3D authoring SDK.** Additive, renderer-neutral, emits
-   existing primitives; its one grammar change (G-1) is enforced by `grammar-check`.
-   Format-safe, so it can run **in parallel** with step 3. *Effort: L; parallelizable.*
-5. **Deferred / conditional.** Items 3 / 5 *implementation* only if a later decision
+4. **Item 7 — geometry / 3D: document existing SDK + 2 grammar fixes.** The
+   authoring math already ships in `sdk.{geometry,draw,manifold,fields}`; the work
+   is documentation (Appendix A) plus G-1 (structured `segments`) and G-2 (close
+   the 3D "declared, may not render" trap), both enforced by `grammar-check`.
+   *Effort: S–M; parallelizable.*
+5. **Item 8 — Book composition API.** Build the semantic authoring layer above
+   pages: `BookBuilder`, chapter/section builders, block IR, deterministic
+   single-column pagination, figure numbering/captions, `keep_with_caption`, and
+   lowering to today's `DocumentBuilder` / `PageBuilder`. This can use the
+   existing imported-figure asset metadata without changing the core grammar.
+   *Effort: M → L; additive product surface.*
+6. **Deferred / conditional.** Items 3 / 5 *implementation* only if a later decision
    reverses step 0; item 6 (interaction / animation) only if live presentation
    becomes a goal. *Lowest priority.*
 
@@ -133,21 +163,31 @@ so it moves ahead of item 1.
 
 ### 1. Automatic *graph* layout for diagrams — the clearest gap
 
-**Gap.** FrameGraph ships 17 `uml.*` object types plus connectors with `route`
-kinds (straight / orthogonal / curved), but node *placement* is manual: you
-author every box's coordinates, exactly as the fixture does. It models the
-*result* of routing but not the *computation* of layout.
+**Gap (reframed — placement algorithms exist in the SDK; the render-time pass
+does not).** FrameGraph ships 17 `uml.*` object types plus connectors with
+`route` kinds (straight / orthogonal / curved), and the **SDK already computes
+graph layouts**: `framegraph/sdk/topology.py` (`Graph`) exposes `circular_layout`,
+`grid_layout`, `radial_layout`, `layered_layout` (hierarchical / Sugiyama) and
+`spring_layout` (force-directed) — each returning `dict[str, Vec2]` node positions
+from declared nodes and edges — plus a `render()`. So "node placement is manual"
+is too strong: the algorithms exist. What is missing is the **wiring** — nothing
+in `framegraph/rendering/` invokes them, so there is no *declarative, render-time*
+graph-placement pass keyed off the semantic graph for `mode: page` diagram groups;
+you must call a layout method explicitly in the SDK and bake the coordinates.
 
-!!! note "What already exists — and why it does not close this"
-    FrameGraph does have **container** layout: `Group.layout` with
+!!! note "What already exists — and what it does not yet do"
+    Two layers exist. **Container** layout: `Group.layout` with
     `kind: row | column | grid | free` plus `gap` / `row_gap` / `column_gap` /
     `padding` / `align`, realized by `LayoutEngine.arrange`
-    ([framegraph/rendering/domain/services/layout_engine.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/domain/services/layout_engine.py)).
-    That is a box-model packer — it repositions a group's children into rows /
-    columns / a grid and does **not** resize them. It is not a **graph** engine:
-    it cannot place nodes from declared edges, route around obstacles, or minimize
-    crossings. So the gap is specifically *graph / diagram* auto-layout, not
-    "no layout at all."
+    ([framegraph/rendering/domain/services/layout_engine.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/domain/services/layout_engine.py))
+    — a box-model packer that repositions a group's children into rows / columns /
+    a grid and does **not** resize them; it cannot place nodes from edges.
+    **Graph** layout: `sdk.topology.Graph.{layered,spring,circular,radial,grid}_layout`
+    *does* place nodes from declared edges (and `spring_layout` relaxes a
+    force model) — but author-side only, not as a render pass. So the gap is not
+    "no graph engine"; it is the missing **bridge** that auto-invokes the existing
+    engine at render time, plus optional obstacle-aware routing / exact crossing
+    minimization beyond the current heuristics.
 
 **Comparators.** Every analogous diagram-as-code tool computes placement from
 declared nodes and edges — D2 bundles dagre and ELK (with TALA as a premium
@@ -157,21 +197,27 @@ node-link diagrams with ports and direction. The category's whole appeal is that
 the same input always produces the same output — no manual positioning, and
 therefore no style drift across a team. FrameGraph's diagram side gives that up.
 
-**Fix.** Define an optional auto-layout pass keyed off the semantic graph (it
-already has `bind`, ontology, and edge directionality) that emits computed boxes
-before render — or formally adopt an external engine (ELK is embeddable) as the
-layout tier for `mode: page` diagram groups, leaving absolute positioning as the
-override.
+**Fix (narrower than first stated — the placement math is done).** Expose a
+declarative auto-layout on `mode: page` diagram groups that calls the existing
+`sdk.topology` engines from the semantic graph (it already has `bind`, ontology,
+and edge directionality) and emits computed boxes at expansion time, with absolute
+positioning as the override. Optionally adopt an external engine (ELK is
+embeddable) for obstacle-aware routing and exact crossing minimization beyond the
+current heuristics. Effort is **M–L (wiring + a render pass), not XL.**
 
 ### 2. Accessibility / tagged-export model
 
-**Gap (reframed — the authoring surface now exists).** In the current model the
-*vocabulary* is in the model: `decorative`, `role`, `lang`, **`alt`/`actual_text`
-on image and figure objects**, and a **per-page `reading_order`** over object ids. What is
-still missing is the **consumer**: no exporter maps these into a tagged PDF
-**logical structure tree** — roles, alt text, and a reading order independent of
-visual position. So the fields can be authored, but an accessible artifact cannot
-yet be produced from a deck like the fixture.
+**Gap (reframed — vocabulary done, SVG a11y partly done, PDF/UA export missing).**
+In the current model the *vocabulary* exists: `decorative`, `role`, `lang`,
+**`alt`/`actual_text` on image and figure objects**, and a **per-page
+`reading_order`** over object ids. The SVG proxy already *consumes* part of it —
+`framegraph/rendering/infrastructure/painters/svg.py` emits `role=` (line 266) and
+`aria-*` (lines 495, 501). What is still missing is the **PDF consumer**: no
+exporter maps these into a tagged PDF **logical structure tree** — roles, alt
+text, and a reading order independent of visual position — because there is no
+tagging PDF backend (today's PDF is untagged Chromium print). So SVG a11y is
+largely authorable *and* renderable already; an accessible **PDF/UA** artifact is
+the part that cannot yet be produced.
 
 **Comparators.** PDF/UA makes both non-negotiable: every meaningful element must
 sit in a structure tree with the correct semantic role, every non-text element
@@ -189,22 +235,28 @@ some page's `reading_order`.
 
 ### 4. Conformance suite + reference-renderer semantics
 
-**Gap.** The format's stance — treat each construct as a proposal to verify
-against the renderer — is honest but leaves "valid" underdetermined. FrameGraph
-has the schema, the models, the `b1/` authoritative fixtures as an oracle (the HEAD
-assertion suite validates them), and the `--check-overflow` text-fit gate — but no
-*golden-render* corpus with an explicit tolerance that pins correct output
-geometrically. (`codebase-standards.md` §8 already tags that golden-snapshot
-harness `[Target]`.)
+**Gap (reframed — a golden-lock harness exists; tolerance + schema URL remain).**
+The format's stance — treat each construct as a proposal to verify against the
+renderer — leaves "valid" underdetermined. FrameGraph already has the schema, the
+models, the `b1/` authoritative fixtures as an oracle, the `--check-overflow`
+text-fit gate, **and a working golden-render lock**: `tests/test_golden_render.py`
+builds an oracle manifest, pins each fixture's per-page render to a SHA-256 lock,
+and diffs current-vs-locked (detecting changed pages and page-count changes). What
+it does *not* have is a **tolerance band** — the lock is exact-hash, so any
+sub-pixel / font / AA change trips it — nor a **resolvable, versioned schema URL**
+documents can self-declare against.
 
 **Comparators.** The mature comparators close this loop. Vega-Lite publishes a
 versioned JSON Schema and an example gallery, and its CI recompiles every example
 to reference Vega specs and SVGs that serve as regression tests, with an explicit
 backward-compatibility commitment.
 
-**Fix.** Make the existing fixtures (the deck is a good start) golden tests — pin
-each to a reference render and diff on every change — and version the schema at a
-resolvable URL the way Vega-Lite does, so documents can self-declare conformance.
+**Fix (narrower — the harness exists).** Add a **tolerance mode** to the existing
+`test_golden_render.py` lock (a perceptual / pixel-distance diff with an explicit
+band, alongside the exact-hash mode) so cosmetically-irrelevant render changes do
+not produce false failures, and version the schema at a **resolvable URL** the way
+Vega-Lite does so documents can self-declare conformance. The corpus and diff
+machinery are already in place.
 
 ---
 
@@ -247,33 +299,170 @@ an optional output-intent / ICC reference on `RenderTarget` so print targets can
 declare a profile and screen targets ignore it — but do not build CMYK separation
 now. The reservation keeps it additive when a print target becomes real.
 
-### 7. Geometry, transformed spaces, and 3D authoring — additive SDK, not a format change
+### 7. Geometry, transformed spaces, and 3D authoring — the SDK already exists; two grammar fixes remain
 
-**Gap.** The grammar can *represent* arbitrary 2D geometry — `PathObject.d` (SVG
-path data), `PolylineObject.points`, and `TransformFn.matrix` (full 2D affine) —
-but there is no authoring layer that *computes* it: no vector / matrix algebra, no
-curve interpolation (Catmull-Rom / Hobby), no parametric / function / polar
-sampling, and no coordinate **frames** that map data or engineering units onto the
-page. 3D is worse than missing: the style module marks 3D transforms and
-`perspective` as "declared, may not render," so emitting them is a trap — a
-structurally valid document that no target draws.
+**Gap (reframed — the authoring layer already exists; the residual is two grammar
+items).** The grammar can *represent* arbitrary 2D geometry — `PathObject.d` (SVG
+path data), `PolylineObject.points`, `TransformFn.matrix` (full 2D affine) — and
+**the SDK already computes it.** `framegraph/sdk/geometry.py` exports `Mat3`,
+`Mat4`, `Path`, `Vec2`, `Vec3`, `CubicBezier`, `Camera`, and `quarter_circle_kappa`
+(the exact arc constant Appendix A derives); `framegraph/sdk/draw.py` has
+`Scene3D`, `Camera`, `Frame`, and `.render()` with orthographic / perspective /
+isometric projection (including painter's-algorithm depth sort);
+`framegraph/sdk/manifold.py` has `parametric` / `sphere` / `torus` / `saddle` /
+`wave`; `framegraph/sdk/fields.py` has `VectorField` (a quiver). Five examples
+already exercise it (`sdk_3d_scene.py`, `sdk_geometry_patterns.py`,
+`topology_perspective.py`, `fields_lattices_manifolds.py`,
+`geometry_topology_deck.py`). So this is **not** a missing authoring layer. The
+genuine residuals are two grammar-level items: **G-1** — `PathObject.d` is an
+opaque string the schema cannot validate (the EBNF has no structured `segments`);
+and **G-2** — the style module marks 3D transforms and `perspective` as "declared,
+may not render" (`grammar/framegraph-v2-style.ebnf` line 262), so emitting them is
+a trap. The SDK's answer to G-2 is already the right one: project to 2D and emit
+primitives the renderer draws.
 
 **Comparator.** A 2D&3D vector language (Asymptote) computes geometry and 3D and
 *projects to 2D vector output* rather than shipping a 3D scene to the page; D3's
 scales (`linear` / `log` / `pow`) model the data→page frame mapping. The lesson is
 that the geometry kernel belongs in the authoring tool, not the page renderer.
 
-**Fix.** Add author-time SDK packages (`@framegraph/geometry`,
-`@framegraph/author/draw`) that own the math and **emit only primitives the
-grammar already has** — `path`, `polyline`, `group`, `matrix` — resolving curves
-and 3D→2D projection at expansion time and pinning the result with the existing
-hash contract. The only optional grammar change is G-1: a structured
-`segments: PathSeg[]` alongside `d`, so geometry becomes schema-checkable — and if
-adopted it must land in **both** the models and the EBNF, which the `grammar-check`
-CI gate now enforces for the core profile (so it cannot silently drift).
-Because it is additive and renderer-neutral, its priority is **Medium** despite
-being a missing capability. Full design, math, and grammar-fix table in
-**Appendix A**.
+**Fix (documentation + two grammar fixes, not a build).** The author-time math
+already ships in `framegraph.sdk.{geometry,draw,manifold,fields}` and **emits only
+primitives the grammar has** — `path`, `polyline`, `group`, `matrix` — resolving
+curves and 3D→2D projection at expansion time and pinning the result with the hash
+contract. So the work is (a) **document** that SDK (Appendix A is effectively its
+spec) and (b) ship two grammar fixes: **G-1**, an optional structured
+`segments: PathSeg[]` alongside `d` so paths are schema-checkable (must land in
+**both** the models and the EBNF, which `grammar-check` enforces), and **G-2**,
+explicitly marking the 3D transforms non-conformant (or specifying a 3D renderer)
+so the "declared, may not render" trap is closed. Priority drops to **Low**: no
+new capability, two small grammar deltas. Full design, math, and grammar-fix table
+in **Appendix A** — now read as documentation of the existing SDK, not a build
+proposal.
+
+### 8. Book composition API — semantic layer above pages
+
+**Gap.** The SDK can author pages and can now place controlled imported figures,
+but there is no first-class surface for expressing a book as chapters, sections,
+paragraphs, figures, tables, callouts, examples, formulas, and references before
+pagination. Existing examples therefore hand-code book-like layout directly with
+page coordinates or local helper classes, which proves the product shape but does
+not give downstream tooling a stable API for import, restyling, pagination, or
+book-wide numbering.
+
+**Corpus evidence (2026-06-24).** The permissively licensed corpus inspection
+split the problem cleanly: Project Gutenberg EPUBs provide useful spine, chapter,
+front-matter, and DOM structure pressure, while OpenStax PDFs provide the strong
+figure/table/caption/formula/side-bar pressure. The immediate product need is not
+another drawing primitive; it is a semantic composition layer that can accept
+imported blocks and lower them to normal FrameGraph pages.
+
+**Fix.** Add a `BookBuilder` layer above `DocumentBuilder`, with
+`chapter()`, `section()`, `para()`, `figure()`, `table()`, `callout()`, `code()`,
+and `formula()` authoring methods backed by a small block IR. The composer should
+initially be deterministic and single-column: it paginates blocks, keeps captions
+with figures, numbers figures/tables, emits TOC metadata, and lowers to existing
+`PageBuilder` primitives. Imported PDF/EPUB figures should flow through
+`FigureAsset` so provenance, source bounding boxes, caption text, license,
+attribution, and confidence survive into the rendered group metadata.
+
+**First increment.** Implement only the minimum surface needed to validate the
+book-import workflow:
+
+- `BookBuilder` plus chapter and section builders.
+- Blocks for paragraph, heading, figure, table, callout, code, formula, and list.
+- `FigureAsset` integration with figure numbering, captions, and
+  `keep_with_caption`.
+- Deterministic single-column pagination with page templates and page numbers.
+- TOC/reference metadata sufficient for inspection and later export.
+- Lowering to existing `DocumentBuilder` / `PageBuilder`; no new renderer contract.
+
+**Not in this increment (as of 2026-06-24).** These are explicit non-goals for the
+first Book API slice, not permanent exclusions:
+
+- Full EPUB/PDF import automation. The first API accepts extracted blocks/assets;
+  robust extractors can be added behind it.
+- OCR-only scanned books and image-only PDFs.
+- Multi-column magazine layout, side floats, arbitrary float collision avoidance,
+  and advanced page-breaking optimization.
+- Full math-heavy EPUB import, equation parsing, or semantic MathML/LaTeX
+  preservation beyond a formula block placeholder.
+- Bidirectional/RTL and complex-script book composition beyond the typography
+  vocabulary already present in the model.
+- Citation management, bibliography formatting, cross-reference resolution, and
+  index generation.
+- PDF/UA tagging and print/PDF export guarantees; those remain tied to item 2 and
+  the renderer/exporter work.
+- DRM/proprietary formats, non-permissive corpora, and license automation beyond
+  carrying attribution/provenance metadata.
+- A general data-visualization grammar; item 3 remains out of scope unless the
+  chart-data decision is reopened.
+
+### 9. Generative content objects — prompt → asset, resolved once and pinned
+
+**Proposal.** A first-class object whose content is *produced by a model* from a
+prompt — the requested capability: pass a prompt to an image endpoint and the
+generated image lands in the document; or a prompt that yields a generated block
+(prose, a diagram, a table). Working shape: a `GenerativeObject` carrying
+`{ kind: "image" | "text" | "diagram", prompt, model, params (seed / size /
+style), box, alt }`, which a generation pass resolves into a concrete `image` /
+`figure` / flow block.
+
+**The constraint that defines the whole design — determinism.** FrameGraph's
+conformance rests on deterministic golden-render SHA-256 locks (item 4) and the
+expansion + hash-pinning contract (`framegraph/sdk/expand.py`,
+`framegraph/sdk/conform.py`). A model call is non-deterministic and
+network-dependent; resolving it **live on every render** would break golden locks,
+hermetic CI, offline builds, and reproducibility — the format's core promise. So
+the object MUST NOT be a paint-time call. It resolves **once**, at a dedicated
+generation tier — the same "compute at expansion, pin the result" move item 7 uses
+for geometry: the pass calls the endpoint, embeds the returned bytes / block, and
+**pins** them plus a content hash into the document. After resolution the document
+is an ordinary deterministic FrameGraph doc with no live calls, and golden locks
+apply to the *resolved* doc. The authored `prompt` is the **source**; the resolved
+asset is the **compiled view** — the same source→compiled pattern as `segments`→`d`
+and builders→model. A cache key over `(prompt, model, params)` makes re-runs
+reproducible; an explicit `regenerate` forces a fresh draw.
+
+**PALS's Law — verification is mandatory, not optional (see `CLAUDE.md`).** Model
+output is untrusted, incomplete, and may be wrong by default. FrameGraph already
+embodies this at *authoring* time: `framegraph/vision`
+(`propose_from_document` / `propose_from_image`) emits explicitly **UNVERIFIED
+drafts**. Item 9 promotes that pattern to a document object, so the same gate is
+non-negotiable before a generated asset enters the deterministic doc:
+**format / schema validation** (it is a real PNG / SVG / valid block),
+**containment / overflow** checks against `box`, **mandatory a11y** (a generated
+image with no `alt` / `actual_text` fails the gate — ties to item 2), and
+**provenance** (model id, prompt, seed, timestamp, license, confidence). Reuse the
+existing `FigureAsset` (`framegraph/sdk/figure.py`) so source / license /
+attribution / confidence survive into the rendered group metadata. An unverified
+generation is a draft, never a conformant artifact.
+
+**Comparator.** No deterministic document format (Typst, Vega-Lite) embeds live
+generation; this is novel, and its entire risk is exactly determinism + trust —
+which is why the resolve-once-pin + mandatory-verification design above is the
+load-bearing part, not the model call itself.
+
+**Fix / first increment.**
+
+- New `GenerativeObject` (or a `prompt`-bearing variant of `image` / `figure` /
+  group), **out of the core conformance profile** (gated like charts under §8.5),
+  so deterministic / offline targets can refuse it outright.
+- A **generation tier** in expansion: resolve each object → validate (PALS gate) →
+  embed as a normal `image` / `figure` / flow block → pin bytes + content hash +
+  `FigureAsset` provenance (reuse `expand.py`'s `ExpandOptions` / `pin_assets` and
+  the `conform.py` hashing).
+- **Determinism preserved:** post-generation the doc has zero live calls; golden
+  locks pin the resolved bytes. `(prompt, model, params)` cache → reproducible;
+  `regenerate: true` → new draw.
+- **a11y / provenance required:** generation without `alt` / `actual_text` fails;
+  model, prompt, seed, license, timestamp, confidence are recorded.
+
+**Priority / risk — Medium appeal, high design risk.** The value is real (figure
+and illustration authoring without a separate tool), but it pushes directly against
+the determinism and trust guarantees, so it is additive *only* with the
+resolve-once-pin + verification design. Sequence it **after** item 4 (the golden
+harness it relies on to stay honest) and item 2 (the a11y gate it must satisfy).
 
 ---
 
@@ -307,24 +496,39 @@ straight back to item 4 (no reference semantics).
 
 FrameGraph's distinctive bet — one substrate spanning decks and books with a
 semantic graph attached — is real and uncommon; most tools pick one lane. It is
-strong on typographic, i18n, and color **vocabulary**. The defensible missing
-pieces, in order, are **diagram auto-layout**, **accessible / tagged export**, and
-a **conformance corpus**. The **data layer** and **print color management** are
-scope decisions worth making explicit rather than leaving implied. A **geometry /
-transformed-spaces / 3D authoring SDK** (item 7, Appendix A) is high-leverage but
-additive — it ships entirely in author-time math that emits today's 2D primitives,
-so it carries Medium priority and near-zero format risk. Interaction / animation is
-lowest priority unless live presentation becomes a goal.
+strong on typographic, i18n, and color **vocabulary**. The defensible residual
+work, in order, is **wiring the existing graph-layout algorithms (`sdk.topology`)
+into a render-time pass**, **PDF/UA tagged export** (SVG a11y is already partly
+emitted), and a **tolerance band + schema URL over the existing golden-render
+lock**. The **data layer** and **print color management** are scope decisions
+worth making explicit rather than leaving implied. The **geometry /
+transformed-spaces / 3D authoring SDK** (item 7, Appendix A) already ships in
+`sdk.{geometry,draw,manifold,fields}` — what remains is documenting it and two
+small grammar fixes (G-1/G-2), so it carries **Low** priority and near-zero format
+risk. The **Book composition
+API** (item 8) is the clearest near-term product/API increment: semantic blocks and
+deterministic pagination above the current page primitives, with imported figures
+as controlled assets rather than raster-only shortcuts. **Generative content
+objects** (item 9) are a genuinely new capability — prompt-to-asset embedded in the
+document — but viable *only* if resolved once at a generation pass and pinned, with
+PALS's-Law verification; a live render-time model call would forfeit the
+determinism (golden locks) and hermeticity the format is built on. Interaction /
+animation is lowest priority unless live presentation becomes a goal.
 
 ---
 
 # Appendix A — Geometry, Transformed Spaces, and 3D (design proposal, non-normative)
 
-> **Status:** proposal / non-normative. This appendix is the full design behind
-> roadmap item 7. NOTHING HERE SHOULD BE TAKEN FOR GRANTED. The `@framegraph/*`
-> packages and symbols are invented to describe an interface and do not exist.
-> Statements not backed by a real definition (the EBNF files) or a citable
-> reference may be invalid or a hallucination. The MATH is stated concretely so it
+> **Status:** documentation of an existing SDK + two grammar fixes (non-normative).
+> This appendix is the design behind roadmap item 7 — and most of it **already
+> exists** in `framegraph.sdk.{geometry,draw,manifold,fields}`. The TypeScript
+> `@framegraph/*` names below are *illustrative interface sketches*; the real,
+> shipping implementation is Python (`framegraph/sdk/geometry.py`, `draw.py`,
+> `manifold.py`, `fields.py`) — e.g. `Mat3`/`Mat4`/`Path`/`Vec2`/`Vec3`/`Camera`/
+> `quarter_circle_kappa` and `Scene3D.render`. Read this as a spec of what ships,
+> not a build proposal; the only genuinely-new items are the grammar fixes G-1/G-2
+> (§A.7). NOTHING HERE SHOULD BE TAKEN FOR GRANTED: statements not backed by a real
+> definition (the code, the EBNF) or a citable reference may be invalid. The MATH is stated concretely so it
 > can be checked; verify each formula and sign convention against your own
 > renderer's coordinate system before relying on it. Coordinate convention assumed
 > throughout: page / canvas space is Y-DOWN, origin top-left (so a mathematically
