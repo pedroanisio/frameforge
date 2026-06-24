@@ -553,8 +553,17 @@ class Renderer:
         if t == "path":
             d = o.get("d")
             if isinstance(d, list):
-                d = " ".join(str(seg[0]) + " " + " ".join(fnum(num(n, 0)) for n in seg[1:])
-                             if isinstance(seg, list) else str(seg) for seg in d)
+                # Lower structured segments `[[cmd, *coords], ...]` (G-1) to a path-data
+                # string. A no-arg segment (Z) must emit just its command — no trailing
+                # space — so the structured form lowers identically to the string form.
+                parts = []
+                for seg in d:
+                    if isinstance(seg, list) and seg:
+                        parts.append(" ".join([str(seg[0]),
+                                               *(fnum(num(n, 0)) for n in seg[1:])]))
+                    elif not isinstance(seg, list):
+                        parts.append(str(seg))
+                d = " ".join(parts)
             if not isinstance(d, str) or not d.strip():
                 return ""
             return p.path(d, fill, self._shape_stroke(o, style),
