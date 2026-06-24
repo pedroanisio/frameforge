@@ -565,20 +565,29 @@ class _Transpiler:
                     out.append("\\clearpage\n")
                 out.append(self._page_picture(page))
         body = "".join(out)
-        return self._preamble(w, h) + "\\begin{document}\n" + body + "\\end{document}\n"
+        return (self._preamble(w, h, page_mode=flow is None)
+                + "\\begin{document}\n" + body + "\\end{document}\n")
 
-    def _preamble(self, w, h):
+    def _preamble(self, w, h, page_mode=False):
         title = ltx_escape(self.doc.get("title") or "")
         # Touch a few token colours up front so they exist even if unused in body.
         for key in ("ink", "paper", "rule"):
             self._book.name(self._color.resolve(key))
         colordefs = "\n".join(self._book.defs)
+        # Page-mode docs draw one full-canvas TikZ picture per sheet, so the page
+        # IS the canvas: zero the geometry margins (and head/foot reserve) so the
+        # picture fills the sheet exactly instead of overflowing onto a blank page.
+        if page_mode:
+            geom = (f"\\usepackage[paperwidth={fnum(w)}pt,paperheight={fnum(h)}pt,"
+                    "margin=0pt,headheight=0pt,headsep=0pt,footskip=0pt]{geometry}\n")
+        else:
+            geom = (f"\\usepackage[paperwidth={fnum(w)}pt,paperheight={fnum(h)}pt,"
+                    f"margin={fnum(MARGIN_PT)}pt]{{geometry}}\n")
         return (
             "\\documentclass[11pt]{article}\n"
             "\\usepackage{fontspec}\n"
-            f"\\usepackage[paperwidth={fnum(w)}pt,paperheight={fnum(h)}pt,"
-            f"margin={fnum(MARGIN_PT)}pt]{{geometry}}\n"
-            "\\usepackage{microtype}\n"
+            + geom
+            + "\\usepackage{microtype}\n"
             "\\usepackage{amsmath}\n"
             "\\usepackage{amssymb}\n"
             "\\usepackage{slashed}\n"
@@ -601,7 +610,7 @@ class _Transpiler:
             "\\setlength{\\parskip}{0pt}\n"
             "\\frenchspacing\n"
             f"\\title{{{title}}}\n"
-            "\\pagestyle{plain}\n"
+            f"\\pagestyle{{{'empty' if page_mode else 'plain'}}}\n"
         )
 
 

@@ -18,6 +18,17 @@ dependencies = [
 #   uv sync --group browser  # Headless Chromium raster renderer (tooling/render_chromium.py)
 #   uv sync --group pdf      # PyMuPDF, for the PDF -> FrameGraph transpiler
 # or run one-off without syncing: `uv run --group pdf python tooling/pdf_to_framegraph_yml.py ...`
+#
+# LaTeX/TikZ renderer (tooling/render_latex.py) — NO extra Python deps: it parses
+# documents with the core PyYAML and shells out to a system TeX engine (plus
+# poppler's `pdftoppm` for --png). It works out of the box with either toolchain;
+# `--engine auto` prefers lualatex + luaotfload and otherwise falls back to the
+# more widely available pdflatex (the fontspec preamble is rewritten automatically).
+#   Debian/Ubuntu system packages:
+#     apt install texlive-latex-recommended texlive-pictures \
+#                 texlive-fonts-recommended poppler-utils    # pdflatex path
+#     apt install texlive-luatex                             # optional: lualatex path
+#   then:  uv run python tooling/render_latex.py fixtures/<doc>.fg.yaml --png
 [dependency-groups]
 dev = [
     "hypothesis>=6",
