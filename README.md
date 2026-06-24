@@ -16,6 +16,10 @@ against them.
 models/framegraph.py          ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 framegraph/                   ← rendering package (DDD split, in progress): domain + application (the Renderer) + infra.
 framegraph/live/              ← local web UI for live MCP feedback sessions (`make live`).
+examples/                     ← runnable SDK clients.
+  framegraph_logo.py          ← the BRAND LOGO source of truth → GENERATES brand/framegraph-*.svg.
+  framegraph_seed_deck.py     ← the canonical seed pitch deck (imports the mark + wordmark from above).
+brand/                        ← GENERATED logo masters (mark/wordmark + mono/reversed/favicon) + tokens fragment.
 schema/
   framegraph-v2.schema.json   ← GENERATED from the models (78 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
@@ -43,6 +47,7 @@ tests/
   test_doc_examples.py        ← validates every complete FrameGraph example shown in the prose.
 docs/ + mkdocs.yml            ← the MkDocs site: `index.md` is hand-written, `sdk*.md` are committed generated snapshots, and transient generated pages are ignored.
 docs/output-space.md          ← what FrameGraph can generate: the verified-today backends + the conceptual output space (anchor drift-gated by tests/test_output_space_doc.py).
+docs/BRAND.md                 ← the brand guideline (proposal); §3 governs the logo generated into brand/.
 FIXTURE-STATUS.md             ← GENERATED validator status for the delivered fixtures (gen_status.py).
 CHANGELOG.md                  ← version, the breaking change + migration, conformance classes, rec. resolution.
 codebase-standards.md         ← the elevated engineering bar, status-tagged (Enforced / Adopted / Target).
@@ -159,3 +164,7 @@ folded into the artifacts above; they are listed only for historical context:
 - What FrameGraph can — and deliberately will not — generate is mapped in
   [docs/output-space.md](docs/output-space.md): the backends wired today (whose
   entry points are drift-gated) plus the conceptual output space the IR admits.
+- How FrameGraph presents itself — name, voice, colour, type, and the logo — is the
+  [docs/BRAND.md](docs/BRAND.md) guideline (a proposal). The logo is *generated*: the
+  mark/wordmark source of truth is [examples/framegraph_logo.py](examples/framegraph_logo.py),
+  which writes the masters into [brand/](brand/) (regenerate, don't hand-edit).

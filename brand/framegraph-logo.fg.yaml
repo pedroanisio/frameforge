@@ -1,0 +1,848 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: deck
+title: FrameGraph — Logo
+lang: en
+pages:
+- mode: page
+  id: logo-primary
+  canvas:
+    size:
+    - 512.0
+    - 512.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 85.33333333333334
+      to:
+      - 174.08
+      - 85.33333333333334
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 85.33333333333334
+      to:
+      - 85.33333333333334
+      - 174.08
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 426.66666666666663
+      to:
+      - 174.08
+      - 426.66666666666663
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 426.66666666666663
+      to:
+      - 85.33333333333334
+      - 337.91999999999996
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 85.33333333333334
+      to:
+      - 337.91999999999996
+      - 85.33333333333334
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 85.33333333333334
+      to:
+      - 426.66666666666663
+      - 174.08
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 426.66666666666663
+      to:
+      - 337.91999999999996
+      - 426.66666666666663
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 426.66666666666663
+      to:
+      - 426.66666666666663
+      - 337.91999999999996
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.413333333333333
+      type: line
+      from:
+      - 180.90666666666667
+      - 256.0
+      to:
+      - 316.8842020662073
+      - 177.49333333333334
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 3.413333333333333
+      type: line
+      from:
+      - 180.90666666666667
+      - 256.0
+      to:
+      - 337.91999999999996
+      - 256.0
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 3.413333333333333
+      type: line
+      from:
+      - 180.90666666666667
+      - 256.0
+      to:
+      - 316.8842020662073
+      - 334.50666666666666
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 316.8842020662073
+      - 177.49333333333334
+      rx: 17.749333333333333
+      ry: 17.749333333333333
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 337.91999999999996
+      - 256.0
+      rx: 17.749333333333333
+      ry: 17.749333333333333
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 316.8842020662073
+      - 334.50666666666666
+      rx: 17.749333333333333
+      ry: 17.749333333333333
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 180.90666666666667
+      - 256.0
+      rx: 25.599999999999998
+      ry: 25.599999999999998
+      fill: '#1F4FD8'
+      stroke: '#1F4FD8'
+- mode: page
+  id: logo-mono
+  canvas:
+    size:
+    - 512.0
+    - 512.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 85.33333333333334
+      to:
+      - 174.08
+      - 85.33333333333334
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 85.33333333333334
+      to:
+      - 85.33333333333334
+      - 174.08
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 426.66666666666663
+      to:
+      - 174.08
+      - 426.66666666666663
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 426.66666666666663
+      to:
+      - 85.33333333333334
+      - 337.91999999999996
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 85.33333333333334
+      to:
+      - 337.91999999999996
+      - 85.33333333333334
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 85.33333333333334
+      to:
+      - 426.66666666666663
+      - 174.08
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 426.66666666666663
+      to:
+      - 337.91999999999996
+      - 426.66666666666663
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 426.66666666666663
+      to:
+      - 426.66666666666663
+      - 337.91999999999996
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.413333333333333
+      type: line
+      from:
+      - 180.90666666666667
+      - 256.0
+      to:
+      - 316.8842020662073
+      - 177.49333333333334
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.413333333333333
+      type: line
+      from:
+      - 180.90666666666667
+      - 256.0
+      to:
+      - 337.91999999999996
+      - 256.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.413333333333333
+      type: line
+      from:
+      - 180.90666666666667
+      - 256.0
+      to:
+      - 316.8842020662073
+      - 334.50666666666666
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 316.8842020662073
+      - 177.49333333333334
+      rx: 17.749333333333333
+      ry: 17.749333333333333
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 337.91999999999996
+      - 256.0
+      rx: 17.749333333333333
+      ry: 17.749333333333333
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 316.8842020662073
+      - 334.50666666666666
+      rx: 17.749333333333333
+      ry: 17.749333333333333
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 180.90666666666667
+      - 256.0
+      rx: 25.599999999999998
+      ry: 25.599999999999998
+      fill: '#15181E'
+      stroke: '#15181E'
+- mode: page
+  id: logo-reversed
+  canvas:
+    size:
+    - 512.0
+    - 512.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 512
+      - 512
+      type: rect
+      fill: '#15181E'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 85.33333333333334
+      to:
+      - 174.08
+      - 85.33333333333334
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 85.33333333333334
+      to:
+      - 85.33333333333334
+      - 174.08
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 426.66666666666663
+      to:
+      - 174.08
+      - 426.66666666666663
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 85.33333333333334
+      - 426.66666666666663
+      to:
+      - 85.33333333333334
+      - 337.91999999999996
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 85.33333333333334
+      to:
+      - 337.91999999999996
+      - 85.33333333333334
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 85.33333333333334
+      to:
+      - 426.66666666666663
+      - 174.08
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 426.66666666666663
+      to:
+      - 337.91999999999996
+      - 426.66666666666663
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: line
+      from:
+      - 426.66666666666663
+      - 426.66666666666663
+      to:
+      - 426.66666666666663
+      - 337.91999999999996
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 3.413333333333333
+      type: line
+      from:
+      - 180.90666666666667
+      - 256.0
+      to:
+      - 316.8842020662073
+      - 177.49333333333334
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 3.413333333333333
+      type: line
+      from:
+      - 180.90666666666667
+      - 256.0
+      to:
+      - 337.91999999999996
+      - 256.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 3.413333333333333
+      type: line
+      from:
+      - 180.90666666666667
+      - 256.0
+      to:
+      - 316.8842020662073
+      - 334.50666666666666
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 316.8842020662073
+      - 177.49333333333334
+      rx: 17.749333333333333
+      ry: 17.749333333333333
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 337.91999999999996
+      - 256.0
+      rx: 17.749333333333333
+      ry: 17.749333333333333
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 316.8842020662073
+      - 334.50666666666666
+      rx: 17.749333333333333
+      ry: 17.749333333333333
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 4.437333333333333
+      type: ellipse
+      center:
+      - 180.90666666666667
+      - 256.0
+      rx: 25.599999999999998
+      ry: 25.599999999999998
+      fill: '#FBFAF6'
+      stroke: '#FBFAF6'
+- mode: page
+  id: logo-favicon
+  canvas:
+    size:
+    - 64.0
+    - 64.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 4.0
+      - 4.0
+      to:
+      - 18.560000000000002
+      - 4.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 4.0
+      - 4.0
+      to:
+      - 4.0
+      - 18.560000000000002
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 4.0
+      - 60.0
+      to:
+      - 18.560000000000002
+      - 60.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 4.0
+      - 60.0
+      to:
+      - 4.0
+      - 45.44
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 60.0
+      - 4.0
+      to:
+      - 45.44
+      - 4.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 60.0
+      - 4.0
+      to:
+      - 60.0
+      - 18.560000000000002
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 60.0
+      - 60.0
+      to:
+      - 45.44
+      - 60.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 60.0
+      - 60.0
+      to:
+      - 60.0
+      - 45.44
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 19.68
+      - 32.0
+      to:
+      - 41.98881440148715
+      - 19.12
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 19.68
+      - 32.0
+      to:
+      - 45.44
+      - 32.0
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 19.68
+      - 32.0
+      to:
+      - 41.98881440148715
+      - 44.879999999999995
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 41.98881440148715
+      - 19.12
+      rx: 2.912
+      ry: 2.912
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 45.44
+      - 32.0
+      rx: 2.912
+      ry: 2.912
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 41.98881440148715
+      - 44.879999999999995
+      rx: 2.912
+      ry: 2.912
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 19.68
+      - 32.0
+      rx: 4.2
+      ry: 4.2
+      fill: '#1F4FD8'
+      stroke: '#1F4FD8'
+- mode: page
+  id: logo-lockup
+  canvas:
+    size:
+    - 1043.0
+    - 264.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - stroke_style:
+        stroke_width: 2.288
+      type: line
+      from:
+      - 44.0
+      - 44.0
+      to:
+      - 89.76
+      - 44.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 2.288
+      type: line
+      from:
+      - 44.0
+      - 44.0
+      to:
+      - 44.0
+      - 89.76
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 2.288
+      type: line
+      from:
+      - 44.0
+      - 220.0
+      to:
+      - 89.76
+      - 220.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 2.288
+      type: line
+      from:
+      - 44.0
+      - 220.0
+      to:
+      - 44.0
+      - 174.24
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 2.288
+      type: line
+      from:
+      - 220.0
+      - 44.0
+      to:
+      - 174.24
+      - 44.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 2.288
+      type: line
+      from:
+      - 220.0
+      - 44.0
+      to:
+      - 220.0
+      - 89.76
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 2.288
+      type: line
+      from:
+      - 220.0
+      - 220.0
+      to:
+      - 174.24
+      - 220.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 2.288
+      type: line
+      from:
+      - 220.0
+      - 220.0
+      to:
+      - 220.0
+      - 174.24
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.76
+      type: line
+      from:
+      - 93.28
+      - 132.0
+      to:
+      - 163.39341669038816
+      - 91.52000000000001
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 1.76
+      type: line
+      from:
+      - 93.28
+      - 132.0
+      to:
+      - 174.24
+      - 132.0
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 1.76
+      type: line
+      from:
+      - 93.28
+      - 132.0
+      to:
+      - 163.39341669038816
+      - 172.48
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 2.288
+      type: ellipse
+      center:
+      - 163.39341669038816
+      - 91.52000000000001
+      rx: 9.152
+      ry: 9.152
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 2.288
+      type: ellipse
+      center:
+      - 174.24
+      - 132.0
+      rx: 9.152
+      ry: 9.152
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 2.288
+      type: ellipse
+      center:
+      - 163.39341669038816
+      - 172.48
+      rx: 9.152
+      ry: 9.152
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 2.288
+      type: ellipse
+      center:
+      - 93.28
+      - 132.0
+      rx: 13.2
+      ry: 13.2
+      fill: '#1F4FD8'
+      stroke: '#1F4FD8'
+    - box:
+      - 258.72
+      - 47.519999999999996
+      - 741
+      - 166
+      style:
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 128.0
+        font_weight: 700
+        letter_spacing: -1.5
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: Frame
+        style:
+          color: '#15181E'
+      - text: Graph
+        style:
+          color: '#1F4FD8'
