@@ -15,12 +15,38 @@ design names explicitly):
     its <defs> side effect and output stays byte-identical. Step 4 replaces it
     with a value-object PaintResolver and moves emission into the painter.
 
-The fragment it returns (e.g. ' stroke="#000" stroke-width="1"') is still SVG;
-the value-object Stroke + painter split is step 4.
+`fields(o)` resolves to a backend-neutral `Stroke` value object; `format_attr`
+renders it to the SVG fragment (e.g. ' stroke="#000" stroke-width="1"'), and the
+back-compat `resolve(o)` is just `format_attr(fields(o))` (ADR 0001 slice 3b-2).
+Consumers can move from the string `resolve` to the neutral `fields` so a non-SVG
+backend can format the stroke itself.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Optional
+
 from framegraph.rendering.domain.geometry import esc, fnum, num
+
+
+@dataclass(frozen=True)
+class Stroke:
+    """A resolved stroke as a backend-neutral value object (not SVG text).
+
+    Holds the already-dereferenced colour and the raw geometry values; a backend
+    formats it (the SVG backend via `StrokeResolver.format_attr`, to the exact
+    same bytes the resolver used to return directly). `None` means "no stroke".
+    """
+    color: str
+    width: float = 1.0
+    dash: Optional[str] = None
+    dashoffset: object = None
+    linecap: Optional[str] = None
+    linejoin: Optional[str] = None
+    miterlimit: object = None
+    paint_order: Optional[str] = None
+    vector_effect: Optional[str] = None
+    opacity: object = None
 
 
 class StrokeResolver:
@@ -30,6 +56,12 @@ class StrokeResolver:
         self._paint = paint_resolver
 
     def resolve(self, o):
+        """SVG stroke attribute fragment (back-compat string form)."""
+        return self.format_attr(self.fields(o))
+
+    def fields(self, o) -> Optional[Stroke]:
+        """Resolve an object's stroke to a neutral `Stroke` value object (or None
+        for no stroke). The colour is dereferenced; geometry is raw."""
         ssv = o.get("stroke_style")
         bundle = self.stroke_styles.get(ssv, {}) if isinstance(ssv, str) else (ssv or {})
         if not isinstance(bundle, dict):
@@ -48,32 +80,43 @@ class StrokeResolver:
         dash = bundle.get("stroke_dasharray") or bundle.get("dash")
         dash = " ".join(fnum(num(d, 0)) for d in dash) if isinstance(dash, list) else None
         if col is None or col == "none":
-            return ""
+            return None
         if width is None:
             width = 1.0
-        out = f' stroke="{esc(col)}" stroke-width="{fnum(width)}"'
-        if dash:
-            out += f' stroke-dasharray="{esc(dash)}"'
-        dashoffset = bundle.get("stroke_dashoffset")
-        if dashoffset is not None:
-            out += f' stroke-dashoffset="{fnum(num(dashoffset, 0))}"'
-        cap = bundle.get("stroke_linecap"); join = bundle.get("stroke_linejoin")
-        if cap:
-            out += f' stroke-linecap="{esc(cap)}"'
-        if join:
-            out += f' stroke-linejoin="{esc(join)}"'
-        miter = bundle.get("stroke_miterlimit")
-        if miter is not None:
-            out += f' stroke-miterlimit="{fnum(num(miter, 4))}"'
-        paint_order = bundle.get("paint_order")
-        if paint_order:
-            out += f' paint-order="{esc(paint_order)}"'
-        vector_effect = bundle.get("vector_effect")
-        if vector_effect:
-            out += f' vector-effect="{esc(vector_effect)}"'
-        opacity = o.get("stroke_opacity", bundle.get("opacity"))
-        if opacity is not None:
-            out += f' stroke-opacity="{fnum(num(opacity, 1))}"'
+        return Stroke(
+            color=col, width=width, dash=dash,
+            dashoffset=bundle.get("stroke_dashoffset"),
+            linecap=bundle.get("stroke_linecap"),
+            linejoin=bundle.get("stroke_linejoin"),
+            miterlimit=bundle.get("stroke_miterlimit"),
+            paint_order=bundle.get("paint_order"),
+            vector_effect=bundle.get("vector_effect"),
+            opacity=o.get("stroke_opacity", bundle.get("opacity")),
+        )
+
+    @staticmethod
+    def format_attr(stroke: Optional[Stroke]) -> str:
+        """Format a `Stroke` to the SVG attribute fragment — the exact bytes the
+        resolver used to return inline (the SVG backend's stroke formatter)."""
+        if stroke is None:
+            return ""
+        out = f' stroke="{esc(stroke.color)}" stroke-width="{fnum(stroke.width)}"'
+        if stroke.dash:
+            out += f' stroke-dasharray="{esc(stroke.dash)}"'
+        if stroke.dashoffset is not None:
+            out += f' stroke-dashoffset="{fnum(num(stroke.dashoffset, 0))}"'
+        if stroke.linecap:
+            out += f' stroke-linecap="{esc(stroke.linecap)}"'
+        if stroke.linejoin:
+            out += f' stroke-linejoin="{esc(stroke.linejoin)}"'
+        if stroke.miterlimit is not None:
+            out += f' stroke-miterlimit="{fnum(num(stroke.miterlimit, 4))}"'
+        if stroke.paint_order:
+            out += f' paint-order="{esc(stroke.paint_order)}"'
+        if stroke.vector_effect:
+            out += f' vector-effect="{esc(stroke.vector_effect)}"'
+        if stroke.opacity is not None:
+            out += f' stroke-opacity="{fnum(num(stroke.opacity, 1))}"'
         return out
 
     def arrow_spec(self, o) -> dict | None:
