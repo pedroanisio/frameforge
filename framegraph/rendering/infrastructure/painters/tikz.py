@@ -9,16 +9,17 @@ fills) directly — the concrete payoff of neutralizing the painter parameters i
 existing `latex/` transpiler's convention; the hex→xcolor conversion is shared with
 that transpiler (`latex.tikz.color_expr`).
 
-Coverage: the geometry primitives (`rect`/`ellipse`/`circle`/`line`/`poly`),
+Coverage: the geometry primitives (`rect`/`ellipse`/`circle`/`line`/`poly`/`path`),
 grouping (`group`/`opacity_group`/`transform_group`), images, clip scoping
-(`clip_rect`/`clip_ellipse`/`clip_polygon`/`clip_wrap`), gradient fills (`gradient`
-returns a `GradientPaint` handle the fill-bearing primitives render inline as
-`\\shade`), and the page wrapper (`new_page`/`document`), plus the `Stroke`/
-`Markers`/transform-op → TikZ formatters (3b-5a/b/c). Still to come: SVG path data
-(`path`, `clip_path_d`), text (`text_tag`/`text_block`/`text_runs`, which need the
-document's font macros), `filter_effect`/`embedded_svg`/`image_pattern`, and full
-radial-centre CSS parsing. Until complete the adapter is intentionally NOT wired
-into the render path (the `latex/` fork still owns LaTeX output).
+(`clip_rect`/`clip_ellipse`/`clip_polygon`/`clip_path_d`/`clip_wrap`), gradient
+fills (`gradient` returns a `GradientPaint` handle the fill-bearing primitives
+render inline as `\\shade`), the page wrapper (`new_page`/`document`), and the
+`Stroke`/`Markers`/transform-op/path-data → TikZ formatters (SVG path data via the
+shared `tikz_path` module). Still to come: text (`text_tag`/`text_block`/
+`text_runs`, which need the document's font macros), `filter_effect`/`embedded_svg`/
+`image_pattern`, gradient-on-path, and full radial-centre CSS parsing. Until
+complete the adapter is intentionally NOT wired into the render path (the `latex/`
+fork still owns LaTeX output).
 """
 from __future__ import annotations
 
@@ -26,6 +27,7 @@ import math
 
 from framegraph.rendering.domain.geometry import fnum, is_point, num
 from framegraph.rendering.domain.services.paint_resolver import GradientPaint
+from framegraph.rendering.infrastructure.painters.tikz_path import path_data
 from framegraph.rendering.infrastructure.latex.tikz import (
     _grad_angle, _grad_orientation, _grad_pct, _parse_hex, color_expr,
 )
@@ -268,6 +270,20 @@ class TikzPainter:
             opts.insert(0, tip)
         return self._draw(opts, chain)
 
+    def path(self, d, fill, stroke, fill_opacity=None, fill_rule=None, markers=None, extra=""):
+        geom = path_data(d)
+        if not geom:
+            return ""
+        if isinstance(fill, GradientPaint):
+            # gradient-on-path needs a path bbox to shade; solid first-stop for now
+            fill = self._first_stop_color(fill.spec)
+        opts = self._fill_opts(fill, fill_opacity, fill_rule) + self._stroke_opts(stroke)
+        tip = self._marker_tip(markers)
+        if tip:                          # arrows need a drawing op
+            opts.insert(0, tip)
+            return self._draw(opts, geom)
+        return self._path(opts, geom)
+
     # ---- grouping --------------------------------------------------------- #
     def group(self, inner, translate=None):
         if translate:
@@ -345,6 +361,9 @@ class TikzPainter:
     def clip_polygon(self, points):
         pts = [p for p in points.split() if "," in p]
         return self._register_clip(" -- ".join(f"({p})" for p in pts) + " -- cycle")
+
+    def clip_path_d(self, d):
+        return self._register_clip(path_data(d))
 
     def clip_wrap(self, inner, clip_id):
         geom = self._clips.get(clip_id, "")

@@ -179,3 +179,28 @@ def test_non_hex_stop_falls_back_to_solid():
                     "stops": [{"position": 0, "color": "red"}, {"position": 1, "color": "blue"}]})
     out = p.rect(0, 0, 10, 10, g, None)
     assert "\\shade" not in out and "fill=red" in out
+
+
+def test_path_data_to_tikz():
+    p = TikzPainter()
+    # straight segments -> chained TikZ path
+    out = p.path("M10 10 L20 20 Z", None, Stroke(color="#000000"))
+    assert out == "\\path[draw={rgb,255:red,0;green,0;blue,0},line width=1pt] (10,10) -- (20,20) -- cycle;\n"
+    # cubic curve -> .. controls .. syntax
+    assert "controls" in p.path("M0 0 C5 5 10 10 15 15", "#ff0000", None)
+    # empty/invalid d -> no output
+    assert p.path("", None, None) == "" and p.path(None, None, None) == ""
+
+
+def test_path_with_arrow_markers_uses_draw():
+    p = TikzPainter()
+    out = p.path("M0 0 L10 0", None, Stroke(color="#000000"),
+                 markers=Markers(color="#000000", end=True))
+    assert out.startswith("\\draw[->,")
+
+
+def test_clip_path_d_registers_geometry():
+    p = TikzPainter()
+    p.new_page()
+    cid = p.clip_path_d("M0 0 L10 0 L10 10 Z")
+    assert p._clips[cid] == "(0,0) -- (10,0) -- (10,10) -- cycle"
