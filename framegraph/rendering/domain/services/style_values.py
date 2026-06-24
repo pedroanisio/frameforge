@@ -82,17 +82,25 @@ class StyleValues:
         return f"{fnum(n)}px" if n is not None else str(value)
 
     # ---- transform ----
-    def svg_transform(self, value, origin, box):
+    def transform_ops(self, value, origin, box):
+        """Resolve a CSS `transform` to a backend-neutral op list.
+
+        Returns an ordered list of `(fn, [arg_str, ...])` ops, where `fn` is a
+        transform-function name (`rotate`/`translate`/`scale`/`skewX`/`skewY`/
+        `matrix`) or `'raw'` for a pre-formatted passthrough string. Origin
+        bookkeeping is expanded into explicit `translate` ops here, so the backend
+        only formats `fn(args)` in its own syntax (the SVG backend via
+        `SvgPainter.format_transform`). Empty list = no transform."""
         if not value or value == "none":
-            return ""
+            return []
         if isinstance(value, str):
-            return value.replace("deg", "")
+            return [("raw", [value.replace("deg", "")])]
         items = value if isinstance(value, list) else [value]
         ox, oy = self.transform_origin(origin, box)
-        parts = []
+        ops: list[tuple[str, list[str]]] = []
         for item in items:
             if isinstance(item, str):
-                parts.append(item.replace("deg", ""))
+                ops.append(("raw", [item.replace("deg", "")]))
                 continue
             if not isinstance(item, dict):
                 continue
@@ -100,30 +108,30 @@ class StyleValues:
             args = item.get("args") or []
             vals = [self.transform_arg(v) for v in args]
             if fn == "rotate" and vals:
-                parts.append(f"rotate({vals[0]} {fnum(ox)} {fnum(oy)})" if ox is not None else f"rotate({vals[0]})")
+                ops.append(("rotate", [vals[0], fnum(ox), fnum(oy)] if ox is not None else [vals[0]]))
             elif fn == "translate":
-                parts.append(f"translate({' '.join(vals)})")
+                ops.append(("translate", vals))
             elif fn == "translate_x" and vals:
-                parts.append(f"translate({vals[0]} 0)")
+                ops.append(("translate", [vals[0], "0"]))
             elif fn == "translate_y" and vals:
-                parts.append(f"translate(0 {vals[0]})")
+                ops.append(("translate", ["0", vals[0]]))
             elif fn == "scale":
-                parts.append(self.origin_transform(f"scale({' '.join(vals)})", ox, oy))
+                ops.extend(self._origin_ops("scale", vals, ox, oy))
             elif fn == "scale_x" and vals:
-                parts.append(self.origin_transform(f"scale({vals[0]} 1)", ox, oy))
+                ops.extend(self._origin_ops("scale", [vals[0], "1"], ox, oy))
             elif fn == "scale_y" and vals:
-                parts.append(self.origin_transform(f"scale(1 {vals[0]})", ox, oy))
+                ops.extend(self._origin_ops("scale", ["1", vals[0]], ox, oy))
             elif fn == "skew_x" and vals:
-                parts.append(self.origin_transform(f"skewX({vals[0]})", ox, oy))
+                ops.extend(self._origin_ops("skewX", [vals[0]], ox, oy))
             elif fn == "skew_y" and vals:
-                parts.append(self.origin_transform(f"skewY({vals[0]})", ox, oy))
+                ops.extend(self._origin_ops("skewY", [vals[0]], ox, oy))
             elif fn == "skew" and vals:
-                parts.append(self.origin_transform(f"skewX({vals[0]})", ox, oy))
+                ops.extend(self._origin_ops("skewX", [vals[0]], ox, oy))
                 if len(vals) > 1:
-                    parts.append(self.origin_transform(f"skewY({vals[1]})", ox, oy))
+                    ops.extend(self._origin_ops("skewY", [vals[1]], ox, oy))
             elif fn == "matrix" and vals:
-                parts.append(f"matrix({' '.join(vals)})")
-        return " ".join(p for p in parts if p)
+                ops.append(("matrix", vals))
+        return ops
 
     def transform_origin(self, origin, box):
         if isinstance(origin, (list, tuple)) and len(origin) >= 2:
@@ -142,7 +150,10 @@ class StyleValues:
         return fnum(n) if n is not None else str(value).replace("deg", "")
 
     @staticmethod
-    def origin_transform(transform, ox, oy):
+    def _origin_ops(fn, args, ox, oy):
+        """Wrap an op in the origin sandwich (translate(o) · op · translate(-o)) as
+        explicit neutral ops, mirroring the old `origin_transform` string."""
         if ox is None:
-            return transform
-        return f"translate({fnum(ox)} {fnum(oy)}) {transform} translate({fnum(-ox)} {fnum(-oy)})"
+            return [(fn, args)]
+        return [("translate", [fnum(ox), fnum(oy)]), (fn, args),
+                ("translate", [fnum(-ox), fnum(-oy)])]

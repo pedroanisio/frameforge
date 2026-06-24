@@ -58,8 +58,8 @@ class RendererContext:
     def shape_radius(self, o, style):
         return self._r._shape_radius(o, style)
 
-    def arrow_attrs(self, o):
-        return self._r._arrow_attrs(o)
+    def arrow_markers(self, o):
+        return self._r._arrow_markers(o)
 
     def obj(self, o):
         return self._r.obj(o)

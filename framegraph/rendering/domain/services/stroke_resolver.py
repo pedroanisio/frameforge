@@ -49,6 +49,19 @@ class Stroke:
     opacity: object = None
 
 
+@dataclass(frozen=True)
+class Markers:
+    """Arrowheads requested for an open shape, as a backend-neutral value object.
+
+    `start`/`end` are marker kinds (`bool | str`: True = default filled triangle, a
+    string is a marker-kind ref) or a falsy value for "no arrowhead at that end";
+    `color` is the solid arrowhead colour. The backend draws/registers its own
+    arrowheads from this (the SVG backend via `SvgPainter` marker `<defs>`)."""
+    color: str
+    start: object = None
+    end: object = None
+
+
 class StrokeResolver:
     def __init__(self, stroke_styles, color_resolver, paint_resolver):
         self.stroke_styles = stroke_styles or {}

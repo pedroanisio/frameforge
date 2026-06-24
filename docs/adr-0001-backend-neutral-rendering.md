@@ -12,9 +12,12 @@ disclaimer:
 
 ## Status
 
-Accepted, staged. Slice **3a** is implemented. Slice **3b** is in progress —
-step **3b-1** (application layer builds zero SVG) is done; the substantial
-remainder (parameter neutralization + a second backend) is scoped below.
+Accepted, staged. Slice **3a** is implemented. Slice **3b** is well advanced —
+**3b-1** (application layer builds zero SVG), **3b-2** (`stroke` → `Stroke`),
+**3b-3** (markers, transforms, text-style audit), and **3b-4** (port completion) are
+done. The painter's neutral-parameter surface is complete; only **3b-5** (a second
+backend driven through the port, collapsing the LaTeX fork) remains — scoped in the
+milestone table below.
 
 ### Update (3b-1): the builder was already painter-mediated
 
@@ -101,11 +104,10 @@ so the remaining blocker is narrower: the port's **parameter shapes are
 SVG-flavored** — `painter.rect(..., fill, stroke, ...)` receives pre-formatted SVG
 attribute strings (e.g. `stroke` is `' stroke="#000" stroke-width="1"'`, built by
 `_shape_stroke`/`_border_stroke`). A LaTeX/Chromium adapter cannot consume those.
-The substantial remaining 3b work is therefore:
-
-1. **Neutralize the painter parameters** — pass neutral value objects (a
-   `Stroke{color,width,dash,...}`, a `Fill`/paint, radii) instead of SVG attribute
-   strings; each backend formats them.
+The remaining 3b work splits into the milestones below. The original framing —
+**neutralize the painter parameters** (pass neutral value objects: a
+`Stroke{color,width,dash,...}`, a `Fill`/paint, radii — each backend formats them)
+— is preserved here for context, since its hardest piece (`stroke`) is now done:
 
    **Finding (revised estimate → L–XL, not L).** `stroke` is not a clean
    parameter: `StrokeResolver.resolve` builds a **10-attribute ordered SVG string**
@@ -134,22 +136,74 @@ The substantial remaining 3b work is therefore:
    ∘ fields` split) and **3b-2b** (painter + all consumers migrated). Verified
    byte-identical across all 252 fixture pages; no golden re-pin. `tests/
    test_stroke_value.py` pins the value object and formatter.
-2. **Complete the `ScenePainter` port** to declare all ~30 methods a backend must
-   implement (it is currently partial).
-3. **Add a second adapter** (the existing LaTeX `_Transpiler`/`FigureTikz` is the
-   natural candidate to port onto the port, then delete the fork).
 
-Steps 1–2 are **L** and largely byte-identical; step 3 is **L–XL**. Only if a
-backend cannot reproduce a given byte sequence does a reviewed `make golden`
-re-pin become necessary — a per-case decision, not a blanket one.
+### Remaining milestones (post-3b-2, grounded against the live tree)
+
+`stroke` — the hard one — is done (above). The set below is what is left to make a
+non-SVG backend droppable, each item grounded in the current `ports.py` /
+`painters/svg.py` / `latex/`:
+
+| ID | Milestone | Status | Effort | Output invariant |
+|----|-----------|--------|--------|------------------|
+| **3b-2** | Neutralize the `stroke` parameter (`Stroke` value object) | ✅ **done** | L | byte-identical (verified, 252 pages) |
+| **3b-3** | Neutralize the remaining SVG-string-shaped painter params | ✅ **done** | M | byte-identical (transforms: 1 reviewed re-pin) |
+| **3b-4** | Complete + correct the `ScenePainter` port surface | ✅ **done** | S | declaration-only |
+| **3b-5** | Second adapter: drive LaTeX/TikZ through the port, delete the fork | next | L–XL | golden re-pin (new target) |
+
+**3b-3 — remaining non-neutral params (done):**
+
+- **Markers / arrowheads** ✅ (3b-3a). A neutral `Markers{color,start,end}` value
+  object (`stroke_resolver`); `Renderer._arrow_markers` returns it, the SVG
+  marker-`<defs>` registration + ref formatting moved into `SvgPainter._marker_attrs`,
+  and `line`/`poly`/`path` take a neutral `markers=` param. `RenderContext.arrow_attrs`
+  → `arrow_markers`. Byte-identical.
+- **Transforms** ✅ (3b-3b). `StyleValues.svg_transform` → `transform_ops()` returning
+  a neutral op list `[(fn,[args]), …]` (origin sandwich expanded to explicit
+  `translate` ops); `SvgPainter.format_transform` owns the SVG syntax;
+  `transform_group(inner, ops)` formats internally. One operator-approved re-pin: the
+  flow site's `translate(x,y)` normalized to `translate(x y)` (18 transforms,
+  SVG-equivalent) — verified the *only* change across 252 pages.
+- **Text style** ✅ (audit). `text_tag`/`text_block`/`text_runs` already receive a
+  neutral style dict (`st` = family/size/weight/italic/color/align/lh); the painter's
+  `font_style` formats it. No SVG leaks — no change needed.
+- `fill` is already near-neutral (a colour/url the painter formats via `fill_attr`).
+
+After 3b-3 the only non-neutral painter inputs left are the **opaque backend handles**
+(gradient/clip/filter/marker ids) — inherently backend-specific (3b-4) — and the
+residual `extra=` (one inert `fill="none"` on UML lines).
+
+**3b-4 — port surface, completed:**
+
+- **Missing declarations** added — `image_pattern`, `clip_polygon`, `clip_path_d`
+  (builder-called, were absent from the `ScenePainter` Protocol).
+- **Stale annotation** fixed — `RenderContext.shape_stroke` now typed `Stroke | None`.
+- **Backend-specific handle methods** (`gradient`/`image_pattern`/`clip_*`/`filter_*`/
+  `marker`/`embedded_svg`) documented as returning opaque handles, distinct from the
+  neutral geometry primitives — so a backend author knows which to reimplement vs.
+  format. Confirmed structurally: every `ScenePainter` method exists on `SvgPainter`.
+
+**3b-5 — the payoff and the real port test.** The LaTeX path
+(`latex/document.py::_Transpiler`, `latex/tikz.py::FigureTikz`, ~3,480 LOC, its own
+`transpile()` walk via `tooling/render_latex.py`) is today a **separate fork**, not
+driven through `ScenePainter`. Re-driving it through the Renderer + a `TikzPainter`
+adapter and deleting the fork is both the proof the port is genuinely neutral and
+the maintenance win (one builder, two backends). Unlike 3b-2/3b-3/3b-4 this is *not*
+byte-identical — TikZ is a different target, so it needs a reviewed `make golden`
+re-pin for the LaTeX corpus, decided per-fixture.
+
+With 3b-3 and 3b-4 landed, the painter's *neutral* surface is complete: every
+geometry primitive takes value objects (`Stroke`, `Markers`, transform ops, colour/
+url fills) and the port declares the full surface. **3b-5 is all that remains** — the
+second adapter that proves the seam by construction and collapses the LaTeX fork.
 
 ## Consequences
 
 - After 3a, the sub-renderers depend on a small, documented, mockable contract
   rather than the Renderer's private surface — and that contract *is* the
   primitives list 3b must supply, so 3a is genuine groundwork, not ceremony.
-- 3b remains the real backend-neutral payoff (collapsing the LaTeX/Chromium forks)
-  but is gated by the byte-identity constraint and is scheduled as its own XL
-  effort with an explicit golden re-pin.
+- 3b remains the real backend-neutral payoff (collapsing the LaTeX/Chromium forks).
+  Its parameter-neutralization half is being delivered byte-identically, slice by
+  slice (3b-2 `stroke` done; 3b-3/3b-4 next, no re-pin); only the second adapter
+  itself (3b-5) introduces a new output target and the golden re-pin that implies.
 
 [↑ Back to root README](../README.md)

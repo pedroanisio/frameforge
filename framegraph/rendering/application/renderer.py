@@ -27,7 +27,7 @@ from framegraph.rendering.domain.geometry import (
 from framegraph.rendering.domain.services.canvas_resolver import CanvasResolver
 from framegraph.rendering.domain.services.paint_resolver import ColorResolver
 from framegraph.rendering.domain.services.effect_resolver import EffectResolver
-from framegraph.rendering.domain.services.stroke_resolver import Stroke, StrokeResolver
+from framegraph.rendering.domain.services.stroke_resolver import Markers, Stroke, StrokeResolver
 from framegraph.rendering.domain.services.layout_engine import LayoutEngine
 from framegraph.rendering.domain.services.table_layout import resolve_column_widths
 from framegraph.rendering.domain.services.math_text import math_text
@@ -114,22 +114,16 @@ class Renderer:
     def stroke(self, o):
         return self._stroke.fields(o)
 
-    def _arrow_attrs(self, o):
-        """SVG marker attrs for an open shape's arrowheads, or '' if none.
+    def _arrow_markers(self, o):
+        """Resolve an open shape's arrowheads to a neutral `Markers` (or None).
 
-        Reads `arrow_start`/`arrow_end` off the resolved `stroke_style`, registers
-        the needed `<marker>`s with the painter (deduped), and returns e.g.
-        ' marker-start="url(#ah1)" marker-end="url(#ah1)"'. Additive: emits nothing
-        unless the stroke requests an arrow, so arrow-free fixtures are unchanged."""
+        Reads `arrow_start`/`arrow_end` off the resolved `stroke_style`; the backend
+        draws/registers its own arrowheads from the returned value object. Additive:
+        returns None unless the stroke requests an arrow."""
         spec = self._stroke.arrow_spec(o)
         if not spec:
-            return ""
-        out = ""
-        if spec["start"]:
-            out += f' marker-start="url(#{self._painter.marker(spec["color"], spec["start"])})"'
-        if spec["end"]:
-            out += f' marker-end="url(#{self._painter.marker(spec["color"], spec["end"])})"'
-        return out
+            return None
+        return Markers(color=spec["color"], start=spec["start"], end=spec["end"])
 
     # ---- text style resolution -------------------------------------------- #
     def text_style(self, ref):
@@ -355,8 +349,8 @@ class Renderer:
         return svg
 
     def _with_transform(self, o, style, svg):
-        transform = self._css.svg_transform(style.get("transform"), style.get("transform_origin"), o.get("box"))
-        return self._painter.transform_group(svg, transform) if transform else svg
+        ops = self._css.transform_ops(style.get("transform"), style.get("transform_origin"), o.get("box"))
+        return self._painter.transform_group(svg, ops) if ops else svg
 
     def _with_style_compositing(self, o, style, svg):
         attrs = {}
@@ -536,7 +530,7 @@ class Renderer:
             fr, to = o.get("from"), o.get("to")
             if is_point(fr) and is_point(to):
                 stk = self._shape_stroke(o, style) or Stroke(color="#000", width=1)
-                return p.line(fr[0], fr[1], to[0], to[1], stk, extra=self._arrow_attrs(o))
+                return p.line(fr[0], fr[1], to[0], to[1], stk, markers=self._arrow_markers(o))
             return ""
 
         if t in ("polyline", "polygon"):
@@ -550,7 +544,7 @@ class Renderer:
                           self._shape_stroke(o, style),
                           fill_opacity=fill_opacity if closed else None,
                           fill_rule=fill_rule if closed else None,
-                          extra=self._arrow_attrs(o))
+                          markers=self._arrow_markers(o))
 
         if t == "path":
             d = o.get("d")
@@ -561,7 +555,7 @@ class Renderer:
                 return ""
             return p.path(d, fill, self._shape_stroke(o, style),
                           fill_opacity=fill_opacity, fill_rule=fill_rule,
-                          extra=self._arrow_attrs(o))
+                          markers=self._arrow_markers(o))
 
         if t in ("curve", "bezier"):
             fr, to = o.get("from"), o.get("to")
@@ -577,7 +571,7 @@ class Renderer:
             )
             return p.path(d, fill, self._shape_stroke(o, style),
                           fill_opacity=fill_opacity, fill_rule=fill_rule,
-                          extra=self._arrow_attrs(o))
+                          markers=self._arrow_markers(o))
 
         if t == "dimension":
             return self._dim.draw(o, style)
@@ -756,12 +750,12 @@ class Renderer:
         points = route.get("points") if isinstance(route, dict) else None
         pts = [start] + [(num(pt[0], 0), num(pt[1], 0)) for pt in (points or []) if is_point(pt)] + [end]
         stroke = self._shape_stroke(o, style) or Stroke(color="#000", width=1)
-        markers = self._arrow_attrs(o)
+        markers = self._arrow_markers(o)
         if len(pts) == 2:
-            body = p.line(pts[0][0], pts[0][1], pts[1][0], pts[1][1], stroke, extra=markers)
+            body = p.line(pts[0][0], pts[0][1], pts[1][0], pts[1][1], stroke, markers=markers)
         else:
             ptstr = " ".join(f"{fnum(x)},{fnum(y)}" for x, y in pts)
-            body = p.poly("polyline", ptstr, None, stroke, extra=markers)
+            body = p.poly("polyline", ptstr, None, stroke, markers=markers)
         label = o.get("label")
         if isinstance(label, dict) and isinstance(label.get("box"), list):
             bx = label["box"]
@@ -1297,7 +1291,7 @@ class Renderer:
                 tx, ty = x - ox * scale, cy - oy * scale
                 if scale != 1.0:
                     body.append(p.transform_group(
-                        inner, f"translate({fnum(tx)},{fnum(ty)}) scale({fnum(scale)})"))
+                        inner, [("translate", [fnum(tx), fnum(ty)]), ("scale", [fnum(scale)])]))
                 else:
                     body.append(p.group(inner, translate=(tx, ty)) if (tx or ty) else inner)
                 cy += draw_h + 6

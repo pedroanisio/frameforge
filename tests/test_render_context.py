@@ -71,8 +71,8 @@ class FakeContext:
     def shape_radius(self, o, style):
         return 0
 
-    def arrow_attrs(self, o):
-        return ""
+    def arrow_markers(self, o):
+        return None
 
     def obj(self, o):
         return "<g/>"

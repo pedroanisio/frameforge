@@ -243,8 +243,19 @@ class SvgPainter:
     def filter_wrap(self, inner: str, filter_id: str) -> str:
         return f'<g filter="url(#{filter_id})">{inner}</g>'
 
-    def transform_group(self, inner: str, transform: str) -> str:
-        return f'<g transform="{esc(transform)}">{inner}</g>'
+    @staticmethod
+    def format_transform(ops) -> str:
+        """Format a neutral transform op list (StyleValues.transform_ops) to an SVG
+        transform string — `fn(arg arg ...)` joined by spaces; `raw` passes through."""
+        parts = []
+        for fn, args in ops:
+            s = (args[0] if args else "") if fn == "raw" else f"{fn}({' '.join(args)})"
+            if s:
+                parts.append(s)
+        return " ".join(parts)
+
+    def transform_group(self, inner: str, transform) -> str:
+        return f'<g transform="{esc(self.format_transform(transform))}">{inner}</g>'
 
     def embedded_svg(self, x, y, w, h, *, viewbox, color, title, body) -> str:
         """Embed a foreign SVG fragment (e.g. a MathJax render) as a sized,
@@ -387,6 +398,18 @@ class SvgPainter:
         """Format a neutral `Stroke` value object (or None) to an SVG fragment."""
         return StrokeResolver.format_attr(stroke)
 
+    def _marker_attrs(self, markers):
+        """Format a neutral `Markers` value object (or None) to SVG marker-ref
+        attributes, registering the needed `<marker>` defs in document order."""
+        if markers is None:
+            return ""
+        out = ""
+        if markers.start:
+            out += f' marker-start="url(#{self.marker(markers.color, markers.start)})"'
+        if markers.end:
+            out += f' marker-end="url(#{self.marker(markers.color, markers.end)})"'
+        return out
+
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None):
         rr = f' rx="{fnum(radius)}"' if radius else ""
         return (f'<rect x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" '
@@ -400,17 +423,20 @@ class SvgPainter:
         return (f'<circle cx="{fnum(cx)}" cy="{fnum(cy)}" r="{fnum(r)}"'
                 f'{self.fill_attr(fill, fill_opacity)}{self._stroke(stroke)}/>')
 
-    def line(self, x1, y1, x2, y2, stroke, extra=""):
+    def line(self, x1, y1, x2, y2, stroke, markers=None, extra=""):
         return (f'<line x1="{fnum(x1)}" y1="{fnum(y1)}" '
-                f'x2="{fnum(x2)}" y2="{fnum(y2)}"{self._stroke(stroke)}{extra}/>')
+                f'x2="{fnum(x2)}" y2="{fnum(y2)}"{self._stroke(stroke)}'
+                f'{self._marker_attrs(markers)}{extra}/>')
 
-    def poly(self, tag, points, fill, stroke, fill_opacity=None, fill_rule=None, extra=""):
+    def poly(self, tag, points, fill, stroke, fill_opacity=None, fill_rule=None,
+             markers=None, extra=""):
         return (f'<{tag} points="{points}"{self.fill_attr(fill, fill_opacity, fill_rule)}'
-                f'{self._stroke(stroke)}{extra}/>')
+                f'{self._stroke(stroke)}{self._marker_attrs(markers)}{extra}/>')
 
-    def path(self, d, fill, stroke, fill_opacity=None, fill_rule=None, extra=""):
+    def path(self, d, fill, stroke, fill_opacity=None, fill_rule=None,
+             markers=None, extra=""):
         return (f'<path d="{esc(d)}"{self.fill_attr(fill, fill_opacity, fill_rule)}'
-                f'{self._stroke(stroke)}{extra}/>')
+                f'{self._stroke(stroke)}{self._marker_attrs(markers)}{extra}/>')
 
     def image(self, x, y, w, h, href, preserve_aspect_ratio="xMidYMid meet"):
         return (f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '
