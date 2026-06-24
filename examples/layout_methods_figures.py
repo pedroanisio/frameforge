@@ -62,7 +62,7 @@ CARD = "#FFFFFF"            # raised content rectangles, on the panel ground
 PANEL = "#F3F5F8"           # quiet section panels
 INK = "#1F2530"             # primary text
 MUTE = "#5B6573"            # secondary text
-FAINT = "#98A1AE"           # tertiary / mono micro-labels
+FAINT = "#646D7B"           # tertiary / mono micro-labels (AA ~4.8:1 on white)
 LINE = "#E5E8EC"            # hairlines
 RULE = "#C6CBD3"            # title rule / heavier separators
 INKBG = "#1F2A36"           # dark "code / formula" slab
@@ -226,8 +226,8 @@ def fig_absolute(b):
     page.text([px + 18, 214, 280, 16], "Already a box model",
               style=ts(13.5, INK, weight=800))
     page.text([px + 18, 236, W - MARGIN - px - 36, 40],
-              "x + 14 / w − 26 is padding. The inner content rectangle is "
-              "[x+14, y+9, w−26, h−…].", style=ts(11.5, MUTE, lh=1.4))
+              "x + 14 / w - 26 is padding. The inner content rectangle is "
+              "[x+14, y+9, w-26, h-…].", style=ts(11.5, MUTE, lh=1.4))
     page.text([px + 18, 294, 280, 16], "Already a flow",
               style=ts(13.5, INK, weight=800))
     page.text([px + 18, 316, W - MARGIN - px - 36, 56],
@@ -320,7 +320,7 @@ def fig_ladder(b):
 
 
 # --------------------------------------------------------------------------- #
-# §2 — Box model: margin → border → padding → content.
+# §2 — Box model: margin -> border -> padding -> content.
 # --------------------------------------------------------------------------- #
 def fig_box_model(b):
     H = 600
@@ -328,7 +328,7 @@ def fig_box_model(b):
                   coordinate_mode="absolute")
     header(page, H, "§2 · Box model",
            "Four nested rectangles become named space",
-           sub="content = [x + p, y + p, w − 2p, h − 2p]. Once you have content(), "
+           sub="content = [x + p, y + p, w - 2p, h - 2p]. Once you have content(), "
                "every method below operates inside it.")
 
     # Concentric boxes.
@@ -359,8 +359,8 @@ def fig_box_model(b):
     rows = [
         ("x", "box.x + p.left"),
         ("y", "box.y + p.top"),
-        ("w", "box.w − p.left − p.right"),
-        ("h", "box.h − p.top − p.bottom"),
+        ("w", "box.w - p.left - p.right"),
+        ("h", "box.h - p.top - p.bottom"),
     ]
     for i, (k, v) in enumerate(rows):
         yy = 204 + i * 30
@@ -450,7 +450,7 @@ def fig_line_breaking(b):
     lay(widths, right, 206, justify=True)
     page.rect([right + col_w, 206, 2, 184], fill=INDIGO[1])
 
-    # The cost shape, as a small inset (badness ≈ 100·|r|³).
+    # The cost shape, as a small inset (badness ~ 100·|r|³).
     page.text([110, 432, 500, 14], "Per-line cost grows steeply with the stretch ratio r:",
               style=ts(11, SLATE[2], weight=600))
     fr = Frame(domain=(-1, 0, 1, 100), box=(118, 456, 360, 124))
@@ -463,7 +463,7 @@ def fig_line_breaking(b):
                  for r in range(-20, 21)], stroke=INDIGO[1], width=2.5, smooth=True))
     page.extend(ch.objects())
     page.text([496, 466, 280, 40],
-              "badness b ≈ 100·|r|³,\nr = (desired − natural) / stretch",
+              "badness b ~ 100·|r|³,\nr = (desired - natural) / stretch",
               style=ts(11, MUTE, lh=1.5, family=MONO))
     page.text([496, 524, 320, 50],
               "Total demerits Σ(linePenalty + b)² are minimised as a shortest "
@@ -483,7 +483,7 @@ def fig_flexbox(b):
                   coordinate_mode="absolute")
     header(page, H, "§4 · Stack / Flexbox",
            "Lay items along an axis, distribute the surplus",
-           sub="free = container − Σ basis. Each item grows by its share "
+           sub="free = container - Σ basis. Each item grows by its share "
                "grow / Σgrow of that free space.")
 
     cont_x, cont_w = 110, 760
@@ -606,7 +606,7 @@ def fig_grid(b):
     page.rect([tx, 466, 460, 96], radius=10, fill=INKBG)
     page.text([tx + 16, 480, 440, 14], "trackOffsets(Array(6).fill(42), 8, 124)",
               style=ts(11, D_TITLE, family=MONO))
-    page.text([tx + 16, 504, 440, 14], "→ [124, 174, 224, 274, 324, 374]",
+    page.text([tx + 16, 504, 440, 14], "-> [124, 174, 224, 274, 324, 374]",
               style=ts(11.5, D_BODY, family=MONO, weight=700))
     page.text([tx + 16, 530, 440, 24],
               "identical to the hand-typed y values — a 7th view would cost zero "
@@ -650,7 +650,7 @@ def fig_constraints(b):
     # gap >= 16 between the two services.
     page.arrow([svcL[0] + svcL[2], 432], [svcR[0], 432], color=AMBER[1], width=1.3, head=6)
     page.arrow([svcR[0], 432], [svcL[0] + svcL[2], 432], color=AMBER[1], width=1.3, head=6)
-    page.text([svcL[0] + svcL[2] + 4, 438, 200, 13], "gap ≥ 16   required",
+    page.text([svcL[0] + svcL[2] + 4, 438, 200, 13], "gap >= 16   required",
               style=ts(10, AMBER[2], family=MONO))
     # equal width.
     page.text([svcL[0], 446, 200, 13], "L.width == R.width",
@@ -741,7 +741,7 @@ def fig_tree(b):
               stroke_style={"stroke_width": 1.2})
     page.text([px + 16, 184, 280, 14], "Aesthetic rules",
               style=ts(12.5, INK, weight=800))
-    for i, t in enumerate(["same depth → same line", "parent centred on children",
+    for i, t in enumerate(["same depth -> same line", "parent centred on children",
                            "isomorphic subtrees drawn alike", "as narrow as those allow"]):
         page.text([px + 16, 210 + i * 24, W - MARGIN - px - 32, 14], "•  " + t,
                   style=ts(10.5, MUTE))
@@ -777,7 +777,7 @@ def fig_sugiyama(b):
         "D": (200, 400), "E": (430, 400), "F": (660, 400),
         "G": (330, 510), "H": (560, 510),
     }
-    dummy = (430, 290)       # a dummy node on a long A→E edge
+    dummy = (430, 290)       # a dummy node on a long A->E edge
     edges = [("A", "B"), ("A", "C"), ("B", "D"), ("B", "E"),
              ("C", "E"), ("C", "F"), ("D", "G"), ("E", "G"),
              ("E", "H"), ("F", "H")]
@@ -788,7 +788,7 @@ def fig_sugiyama(b):
                   stroke=LINE, stroke_style={"stroke_width": 1})
         page.text([8, ly - 6, 80, 13], band_labels[i],
                   style=ts(9.5, FAINT, family=MONO, align="right"))
-    # Long edge A→E routed through a dummy node.
+    # Long edge A->E routed through a dummy node.
     page.line([430, 196], [dummy[0], dummy[1] - 8], stroke=RULE,
               stroke_style={"stroke_width": 1.3, "stroke_dasharray": [4, 3]})
     page.line([dummy[0], dummy[1] + 8], [430, 384], stroke=RULE,
@@ -862,7 +862,7 @@ def fig_force(b):
     # Repulsion between clusters.
     page.arrow([430, 300], [360, 300], color=RED, width=1.6, head=7)
     page.arrow([430, 300], [500, 300], color=RED, width=1.6, head=7)
-    page.text([372, 280, 200, 13], "repulsion  f_r = −k²/d",
+    page.text([372, 280, 200, 13], "repulsion  f_r = -k²/d",
               style=ts(10, RED, family=MONO))
 
     # Formula panel.
@@ -870,11 +870,11 @@ def fig_force(b):
     page.rect([px, 170, W - MARGIN - px, 230], radius=10, fill=INKBG)
     page.text([px + 16, 184, 300, 14], "Fruchterman–Reingold",
               style=ts(12, D_RED, weight=800))
-    page.text([px + 16, 208, W - MARGIN - px - 32, 14], "ideal length  k = C·√(area/|V|)",
+    page.text([px + 16, 208, W - MARGIN - px - 32, 14], "ideal length  k = C·sqrt(area/|V|)",
               style=ts(10.5, D_BODY, family=MONO))
     page.text([px + 16, 230, W - MARGIN - px - 32, 14], "attract  f_a(d) = d²/k",
               style=ts(10.5, D_GREEN, family=MONO))
-    page.text([px + 16, 252, W - MARGIN - px - 32, 14], "repel   f_r(d) = −k²/d",
+    page.text([px + 16, 252, W - MARGIN - px - 32, 14], "repel   f_r(d) = -k²/d",
               style=ts(10.5, D_RED, family=MONO))
     page.text([px + 16, 282, W - MARGIN - px - 32, 14], "cool displacement each step",
               style=ts(10, D_FAINT))
@@ -882,10 +882,10 @@ def fig_force(b):
     page.text([px + 16, 318, W - MARGIN - px - 32, 14], "Kamada–Kawai: minimise stress",
               style=ts(10.5, D_TITLE, weight=700))
     page.text([px + 16, 340, W - MARGIN - px - 32, 28],
-              "E = Σ (1/d_ij²)(‖pᵢ−pⱼ‖ − d_ij)²", style=ts(10.5, D_BODY,
+              "E = Σ (1/d_ij²)(‖pᵢ-pⱼ‖ - d_ij)²", style=ts(10.5, D_BODY,
               family=MONO, lh=1.3))
     page.text([px + 16, 372, W - MARGIN - px - 32, 14],
-              "Barnes–Hut → O(n log n)", style=ts(10, D_FAINT))
+              "Barnes–Hut -> O(n log n)", style=ts(10, D_FAINT))
 
     caption(page, H, "For exploratory networks (dependency clouds, social graphs) — "
                      "not a deliberately composed figure.")
@@ -955,7 +955,7 @@ def fig_treemap(b):
     values = [9, 7, 5, 4, 3, 3, 2, 2]
     total = sum(values)
 
-    # One sequential hue: bigger value → darker cell. Area already carries the
+    # One sequential hue: bigger value -> darker cell. Area already carries the
     # quantity; a single-hue ramp reinforces it instead of letting eight competing
     # identities imply a categorical difference that is not there.
     RAMP = [
@@ -972,7 +972,7 @@ def fig_treemap(b):
                else round((v - vlo) / (vhi - vlo) * (len(RAMP) - 1)))
         return RAMP[idx]
 
-    # Left: slice-and-dice (alternating splits → thin slivers).
+    # Left: slice-and-dice (alternating splits -> thin slivers).
     lx, ly, lw, lh = 110, 178, 340, 300
     page.text([lx, 152, lw, 14], "Slice-and-dice", style=ts(12.5, SLATE[2], weight=800))
     # First split horizontally by the first 2 vs rest, then vertical, etc. — but to
@@ -983,9 +983,11 @@ def fig_treemap(b):
         sf, ss = shade(v)
         page.rect([xx, ly, wv - 3, lh], radius=3, fill=sf, stroke=ss,
                   stroke_style={"stroke_width": 1.2})
-        if wv > 26:
-            page.text([xx + 4, ly + lh - 18, wv, 12], str(v),
-                      style=ts(10, BLUE[2], weight=700))
+        # Label every cell, including the thin v=2 slivers (a smaller, centred
+        # digit fits even a ~16px strip) so both panels visibly carry all eight.
+        fs = 10 if wv > 26 else 8.5
+        page.text([xx, ly + lh - 17, max(wv - 3, 8), 12], str(v),
+                  style=ts(fs, BLUE[2], weight=700, align="center"))
         xx += wv
     page.text([lx, ly + lh + 12, lw, 13], "thin slivers — hard to compare",
               style=ts(10, RED))
@@ -1072,7 +1074,7 @@ def fig_decision(b):
     root = [410, 150, 280, 50]
     chip(page, root, "Name the structure?", INDIGO, size=13)
 
-    # Branch A: structural → method rows.
+    # Branch A: structural -> method rows.
     page.arrow([460, 200], [300, 244], color=MUTE, width=1.4, head=8)
     page.arrow([640, 200], [820, 244], color=MUTE, width=1.4, head=8)
     page.text([300, 224, 200, 13], "yes — it has a name",
@@ -1095,7 +1097,7 @@ def fig_decision(b):
         page.arrow([lx + 230, yy + 21], [lx + 276, yy + 21], color=FAINT, width=1.3, head=7)
         chip(page, [lx + 276, yy, 250, 42], method, pal, size=11.5)
 
-    # Branch B: curation → absolute + borrow.
+    # Branch B: curation -> absolute + borrow.
     bx = 690
     page.rect([bx, 256, W - MARGIN - bx, 300], radius=12, fill=PANEL, stroke=LINE,
               stroke_style={"stroke_width": 1.3})
