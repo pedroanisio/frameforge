@@ -24,7 +24,7 @@ from urllib.parse import unquote, urlparse
 
 from pydantic import Field
 
-from framegraph.sdk.conform import render_page_svgs
+from framegraph.sdk.conform import render_pages_with_stats
 from framegraph.sdk.io import parse
 from framegraph.sdk.validate import ValidationReport, validate_static_rules
 
@@ -1608,9 +1608,10 @@ def _validate_and_render_yaml(
 
     renders: list[dict[str, Any]] = []
     render_warning: str | None = None
+    text_fit: dict[str, int] | None = None
     if report.ok:
         try:
-            svgs = _render_page_svgs_bounded(document, base_dir)
+            svgs, text_stats = _render_page_svgs_bounded(document, base_dir)
         except RenderTimeoutError as exc:
             return _render_failure(session_id, report, str(exc), warning=str(exc))
         except Exception as exc:  # noqa: BLE001 — render is third-party-ish; surface it structured
@@ -1648,12 +1649,31 @@ def _validate_and_render_yaml(
             if raster_warning:
                 render_warning = raster_warning
 
+        # Surface the renderer's text-fit telemetry. A non-zero `clipped` means text
+        # exceeded its box and was clipped/ellipsized — the render returns ok:true, so
+        # without this the truncation is invisible to the author (PALS's Law: make the
+        # render's own signal visible). Advisory, not an error: some clips are the
+        # author's intent (text_overflow: ellipsis / line_clamp).
+        text_fit = {
+            k: int(text_stats.get(k, 0))
+            for k in ("total", "wrapped", "shrunk", "clipped", "contained")
+        }
+        if text_fit["clipped"]:
+            note = (
+                f"{text_fit['clipped']} text object(s) were clipped to their box — verify "
+                "nothing important was truncated (some clips are intentional "
+                "ellipsis/line-clamp)"
+            )
+            render_warning = f"{render_warning}; {note}" if render_warning else note
+
     result = {
         "ok": report.ok and bool(renders),
         "validation": _validation_payload(report),
         "renders": renders,
         "resources": _resource_links(session_id, renders=renders),
     }
+    if text_fit is not None:
+        result["text_fit"] = text_fit
     if render_warning:
         result["render_warning"] = render_warning
     return result
@@ -1675,20 +1695,21 @@ def _render_failure(
     return result
 
 
-def _render_page_svgs_bounded(document: Any, base_dir: Path) -> list[str]:
-    """Render page SVGs under :data:`DEFAULT_RENDER_TIMEOUT_SECONDS` (env-overridable).
+def _render_page_svgs_bounded(document: Any, base_dir: Path) -> tuple[list[str], dict[str, int]]:
+    """Render page SVGs (+ text-fit telemetry) under :data:`DEFAULT_RENDER_TIMEOUT_SECONDS`.
 
     Runs the pure-Python renderer in a daemon thread and joins with a timeout so a
     pathological document bounds the *response* latency. The work itself is not
     force-killed (Python cannot interrupt CPU-bound bytecode); a timed-out render
-    keeps running detached until it completes, then is discarded.
+    keeps running detached until it completes, then is discarded. Returns the page
+    SVGs and the renderer's ``tstats`` so the caller can surface clipped/wrapped text.
     """
     timeout = _render_timeout()
     box: dict[str, Any] = {}
 
     def _target() -> None:
         try:
-            box["value"] = render_page_svgs(document, base_dir=str(base_dir))
+            box["value"] = render_pages_with_stats(document, base_dir=str(base_dir))
         except BaseException as exc:  # noqa: BLE001 — re-raised on the calling thread
             box["error"] = exc
 
@@ -1701,7 +1722,7 @@ def _render_page_svgs_bounded(document: Any, base_dir: Path) -> list[str]:
         )
     if "error" in box:
         raise box["error"]
-    return box.get("value", [])
+    return box.get("value", ([], {}))
 
 
 def _render_timeout() -> float:

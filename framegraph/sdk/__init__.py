@@ -21,6 +21,7 @@ from framegraph.sdk.conform import (
     assert_golden,
     page_hashes,
     render_page_svgs,
+    render_pages_with_stats,
     write_golden,
 )
 from framegraph.sdk.draw import Frame, Material, Scene3D
@@ -221,6 +222,7 @@ __all__ = [
     "quarter_circle_kappa",
     "radial_gradient",
     "render_page_svgs",
+    "render_pages_with_stats",
     "rgba",
     "row",
     "serialize",

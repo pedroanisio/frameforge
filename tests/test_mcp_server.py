@@ -749,3 +749,24 @@ def test_session_page_png_resource_returns_png_bytes(tmp_path):
 
     payload = server.resources[uri]("shot", "1")
     assert payload == png_bytes  # binary content returned as raw bytes, not base64 text
+
+
+# --- text-fit telemetry: clipped text is surfaced even though the render is ok ---
+
+CLIP_SCRIPT = """
+from framegraph.sdk import DocumentBuilder
+b = DocumentBuilder(title="clip", profile="diagram")
+layer = b.page("p", canvas={"size": [200, 120], "units": "px"}, coordinate_mode="absolute").layer("m")
+layer.text([10, 10, 120, 16],
+           "This is a long sentence that cannot fit inside a sixteen pixel tall box and will be clipped.",
+           style={"font_family": ["DejaVu Sans", "Arial"], "font_size": 14})
+doc = b.build()
+"""
+
+
+def test_render_surfaces_clipped_text_fit_telemetry(tmp_path):
+    """A render that clips text stays ok:true but reports text_fit + an advisory warning."""
+    result = run_sdk_code(CLIP_SCRIPT, session_id="clip", session_root=tmp_path, raster_png=False)
+    assert result["ok"] is True
+    assert result["text_fit"]["clipped"] >= 1
+    assert "clipped" in (result.get("render_warning") or "")
