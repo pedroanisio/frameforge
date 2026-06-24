@@ -15,6 +15,7 @@ against them.
 ```
 models/framegraph.py          ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 framegraph/                   ← rendering package (DDD split, in progress): the SVG proxy's domain/infra.
+framegraph/live/              ← local web UI for live MCP feedback sessions (`make live`).
 schema/
   framegraph-v2.schema.json   ← GENERATED from the models (78 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
@@ -76,8 +77,8 @@ uv sync                                    # create/populate .venv
 # schema is generated and in sync
 uv run python schema/build_schema.py --check
 
-# validate the delivered top-level fixtures — 22/22 zero errors in FIXTURE-STATUS.md
-uv run python tooling/validate.py fixtures/*.fg.yaml
+# validate the delivered tracked fixtures — 25/25 zero errors in FIXTURE-STATUS.md
+make validate
 
 # migrate a legacy v2 document to HEAD
 uv run python tooling/codemod.py path/to/legacy.fg.json --in-place --bump
@@ -103,6 +104,10 @@ uv run python tooling/pdf_to_framegraph_yml.py input.pdf output.framegraph.yml
 uv sync --group mcp
 uv run --group mcp python -m framegraph.mcp
 # or: make mcp
+
+# optional local web UI over the same MCP feedback functions
+make live                                  # http://127.0.0.1:8789
+# choose a port when needed: make live LIVE_PORT=8790
 
 # the whole local gate (schema · grammar · a11y · tests · validate · overflow · golden · fixture-status · docs nav)
 make check
@@ -148,5 +153,5 @@ folded into the artifacts above; they are listed only for historical context:
 - Font pinning enables deterministic *layout* only up to a stated rounding **tolerance**
   (a defined shaping model is also required) — not pixel-exact identity (§9.6).
 - The current delivered top-level fixture status is generated in `FIXTURE-STATUS.md`;
-  at this snapshot **22/22** have zero errors. Advisory warnings, when present, are
+  at this snapshot **25/25** have zero errors. Advisory warnings, when present, are
   recorded there instead of summarized by hand here.
