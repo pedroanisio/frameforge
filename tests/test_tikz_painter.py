@@ -204,3 +204,40 @@ def test_clip_path_d_registers_geometry():
     p.new_page()
     cid = p.clip_path_d("M0 0 L10 0 L10 10 Z")
     assert p._clips[cid] == "(0,0) -- (10,0) -- (10,10) -- cycle"
+
+
+def test_text_tag_node_with_font_and_anchor():
+    p = TikzPainter()
+    st = {"family": "serif", "size": 12, "weight": "normal", "italic": False,
+          "color": "#222222", "align": "left", "lh": 1.2}
+    out = p.text_tag(10, 20, 80, 16, "Hi", st)
+    assert out == ("\\node[anchor=west,inner sep=0pt,"
+                   "font=\\fontsize{12}{13.44}\\selectfont,text width=80pt,"
+                   "align=flush left,text={rgb,255:red,34;green,34;blue,34}] "
+                   "at (10,28) {Hi};\n")
+
+
+def test_text_tag_font_macro_threaded():
+    # the document's font-macro registry, threaded in, prefixes the font command
+    p = TikzPainter(font_macro=lambda fam: "\\myserif ")
+    st = {"family": "serif", "size": 10, "weight": "bold", "italic": True,
+          "color": "#000000", "align": "center"}
+    out = p.text_tag(0, 0, 40, 20, "T", st)
+    assert "font=\\myserif \\fontsize{10}{11.2}\\selectfont\\bfseries\\itshape" in out
+    assert "anchor=center" in out and "align=center" in out and "at (20,10)" in out
+
+
+def test_text_tag_align_right_and_escape():
+    p = TikzPainter()
+    st = {"family": "sans", "size": 11, "weight": 700, "italic": False,
+          "color": "#000000", "align": "end"}
+    out = p.text_tag(0, 0, 30, 10, "a&b_c", st)
+    assert "anchor=east" in out and "at (30,5)" in out and "\\bfseries" in out
+    assert "{a\\&b\\_c}" in out                  # LaTeX-escaped content
+
+
+def test_text_tag_valign_and_empty():
+    p = TikzPainter()
+    assert p.text_tag(0, 0, 10, 10, "", {"align": "left"}) == ""
+    st = {"family": "serif", "size": 8, "color": "#000", "align": "left", "valign": "top"}
+    assert "at (0,4)" in p.text_tag(0, 0, 20, 20, "x", st)   # valign top -> y + size/2

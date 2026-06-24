@@ -13,13 +13,14 @@ Coverage: the geometry primitives (`rect`/`ellipse`/`circle`/`line`/`poly`/`path
 grouping (`group`/`opacity_group`/`transform_group`), images, clip scoping
 (`clip_rect`/`clip_ellipse`/`clip_polygon`/`clip_path_d`/`clip_wrap`), gradient
 fills (`gradient` returns a `GradientPaint` handle the fill-bearing primitives
-render inline as `\\shade`), the page wrapper (`new_page`/`document`), and the
-`Stroke`/`Markers`/transform-op/path-data → TikZ formatters (SVG path data via the
-shared `tikz_path` module). Still to come: text (`text_tag`/`text_block`/
-`text_runs`, which need the document's font macros), `filter_effect`/`embedded_svg`/
-`image_pattern`, gradient-on-path, and full radial-centre CSS parsing. Until
-complete the adapter is intentionally NOT wired into the render path (the `latex/`
-fork still owns LaTeX output).
+render inline as `\\shade`), single-box text (`text_tag` → a `\\node`, with the
+font family resolved through a threaded `font_macro`), the page wrapper
+(`new_page`/`document`), and the `Stroke`/`Markers`/transform-op/path-data → TikZ
+formatters (SVG path data via the shared `tikz_path` module). Still to come:
+multi-line/styled text (`text_block`/`text_runs`) and the CSS text-feature tail,
+`filter_effect`/`embedded_svg`/`image_pattern`, gradient-on-path, and full
+radial-centre CSS parsing. Until complete the adapter is intentionally NOT wired
+into the render path (the `latex/` fork still owns LaTeX output).
 """
 from __future__ import annotations
 
@@ -29,15 +30,19 @@ from framegraph.rendering.domain.geometry import fnum, is_point, num
 from framegraph.rendering.domain.services.paint_resolver import GradientPaint
 from framegraph.rendering.infrastructure.painters.tikz_path import path_data
 from framegraph.rendering.infrastructure.latex.tikz import (
-    _grad_angle, _grad_orientation, _grad_pct, _parse_hex, color_expr,
+    _grad_angle, _grad_orientation, _grad_pct, _parse_hex, color_expr, ltx_escape,
 )
 
 
 class TikzPainter:
-    def __init__(self, color_resolver=None):
-        # A ColorResolver is needed only to resolve gradient stop colours; the
-        # Renderer supplies one when it drives this backend (3b-5c).
+    def __init__(self, color_resolver=None, font_macro=None):
+        # Threaded context for the two methods that need more than geometry:
+        # `color_resolver` resolves gradient stop colours; `font_macro` maps a
+        # resolved font family to its LaTeX `\newfontfamily` macro (the document
+        # scaffold owns the registry). The Renderer supplies both when it drives
+        # this backend (3b-5c); without them gradients/fonts degrade gracefully.
         self._color = color_resolver
+        self._font_macro = font_macro
         self._clips: dict[str, str] = {}     # clip id -> TikZ geometry
 
     # ---- per-page backend state ------------------------------------------- #
@@ -370,6 +375,57 @@ class TikzPainter:
         if not geom:
             return inner
         return f"\\begin{{scope}}\n\\clip {geom};\n{inner}\\end{{scope}}\n"
+
+    # ---- text (needs the threaded font-macro context) --------------------- #
+    def _font(self, st):
+        """The resolved style dict (`family`/`size`/`weight`/`italic`) → a LaTeX
+        font command, prefixed with the family's `\\newfontfamily` macro when the
+        document supplied a `font_macro` resolver. The long tail of CSS font
+        features (variants/features/letter-spacing) is 3b-5c follow-up."""
+        size = num(st.get("size"), 12) or 12
+        family = st.get("family")
+        macro = self._font_macro(family) if (self._font_macro and family) else ""
+        font = macro + f"\\fontsize{{{fnum(size)}}}{{{fnum(size * 1.12)}}}\\selectfont"
+        weight = st.get("weight")
+        if str(weight).strip().lower() == "bold" or (num(weight, 0) or 0) >= 600:
+            font += "\\bfseries"
+        if st.get("italic"):
+            font += "\\itshape"
+        return font
+
+    @staticmethod
+    def _text_y(st, y, h):
+        size = num(st.get("size"), 12) or 12
+        valign = str(st.get("valign") or "").strip().lower()
+        if valign in ("top", "text-top", "super"):
+            return y + size / 2
+        if valign in ("bottom", "text-bottom", "sub"):
+            return y + max(0, h - size / 2)
+        return y + h / 2
+
+    def text_tag(self, x, y, w, h, content, st, vcenter=None):
+        """A single text box → a TikZ `\\node` (anchor + font + colour), following
+        the proven latex/ convention: vertical-centred via `_text_y`, horizontal
+        anchor from `align`. Multi-line/spans (`text_block`/`text_runs`) and the
+        CSS text-feature tail are 3b-5c follow-up."""
+        if content is None or content == "":
+            return ""
+        align = str(st.get("align") or "left").strip().lower()
+        if align in ("center", "middle"):
+            ax, anchor, talign = x + w / 2, "center", "center"
+        elif align in ("right", "end"):
+            ax, anchor, talign = x + w, "east", "flush right"
+        else:
+            ax, anchor, talign = x, "west", "flush left"
+        ay = self._text_y(st, y, h)
+        opts = [f"anchor={anchor}", "inner sep=0pt", f"font={self._font(st)}",
+                f"text width={fnum(max(w, 1))}pt", f"align={talign}"]
+        cexpr, op = color_expr(st.get("color"))
+        if cexpr:
+            opts.append(f"text={cexpr}")
+        if op is not None:
+            opts.append(f"text opacity={fnum(op)}")
+        return f"\\node[{','.join(opts)}] at ({fnum(ax)},{fnum(ay)}) {{{ltx_escape(content)}}};\n"
 
     # ---- document --------------------------------------------------------- #
     def document(self, w, h, body):
