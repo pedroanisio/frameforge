@@ -62,7 +62,11 @@ appendix_references:
     SVG painter), **item 4** (`tests/test_golden_render.py` is a working
     golden-lock harness), and **item 7 / Appendix A** (the geometry/3D authoring
     SDK already ships in `sdk.{geometry,draw,manifold,fields}`). Each item now
-    states the *residual* gap, with file evidence.
+    states the *residual* gap, with file evidence. A capability can be **delivered
+    in the core (model/grammar/schema/renderer) yet not yet exposed in the SDK** —
+    these are distinct milestones, and SDK support trails core delivery by design
+    (see `adr-0002-sdk-lags-core-delivery.md`). "The SDK ships X" is therefore
+    verified against `framegraph/sdk/`, never inferred from the model.
 
 ## Ground-truth status (audited 2026-06-24)
 
