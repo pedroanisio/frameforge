@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="FrameGraph mark">
+  <title>FrameGraph mark</title>
+  <desc>A crop-marked frame enclosing a derivation graph: one source node fanning out to three generated nodes — the source-of-truth architecture.</desc>
+  <!-- Frame: technical-drawing corner brackets (the fixed page / bounding box) -->
+  <g fill="none" stroke="#15181E" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M14 32 L14 14 L32 14"/>
+    <path d="M88 14 L106 14 L106 32"/>
+    <path d="M14 88 L14 106 L32 106"/>
+    <path d="M106 88 L106 106 L88 106"/>
+  </g>
+  <!-- Graph: derivation edges (source of truth -> generated artifacts) -->
+  <g fill="none" stroke="#15181E" stroke-width="2.5" stroke-linecap="round">
+    <path d="M40 60 L82 38"/>
+    <path d="M40 60 L82 60"/>
+    <path d="M40 60 L82 82"/>
+  </g>
+  <!-- Derived nodes (schema · grammar · spec · render…) -->
+  <g fill="#FFFFFF" stroke="#15181E" stroke-width="2.5">
+    <circle cx="82" cy="38" r="5.5"/>
+    <circle cx="82" cy="60" r="5.5"/>
+    <circle cx="82" cy="82" r="5.5"/>
+  </g>
+  <!-- Source of truth (the model) -->
+  <circle cx="40" cy="60" r="7.5" fill="#1F4FD8"/>
+</svg>
