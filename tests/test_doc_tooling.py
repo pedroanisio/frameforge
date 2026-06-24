@@ -87,3 +87,14 @@ def test_gen_grammar_embeds_both_ebnf():
 def test_gen_docs_check_generates_and_resolves_nav():
     # heavy: generate() renders the fixture gallery (subprocess) + asserts nav exists
     assert GD.main(["--check"]) == 0
+
+
+def test_gen_docs_sdk_regenerates_only_the_committed_snapshots(tmp_path, monkeypatch):
+    # the fast `--sdk` fix path: writes ONLY sdk.md / sdk-api.md (no fixture
+    # gallery), so refreshing the snapshot after an SDK change is cheap.
+    monkeypatch.setattr(GD, "DOCS", str(tmp_path))
+    assert GD.main(["--sdk"]) == 0
+    assert sorted(os.listdir(tmp_path)) == ["sdk-api.md", "sdk.md"]
+    assert "API" in open(tmp_path / "sdk-api.md", encoding="utf-8").read()
+    # what it wrote is exactly what the --check gate rebuilds (self-consistent)
+    assert not GD.stale_tracked_pages()

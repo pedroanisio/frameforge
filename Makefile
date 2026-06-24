@@ -11,7 +11,7 @@ LIVE_HOST ?= 127.0.0.1
 LIVE_PORT ?= 8789
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check
+.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check
 
 help:  ## list targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort \
@@ -91,6 +91,9 @@ docs-serve:  ## generate pages + serve with live reload (http://127.0.0.1:8000)
 
 docs-check:  ## generate pages + assert every mkdocs.yml nav page exists (no full build)
 	$(UV) run python tooling/gen_docs.py --check
+
+docs-sdk:  ## regenerate ONLY the committed SDK snapshots (sdk.md/sdk-api.md) — fast
+	$(UV) run python tooling/gen_docs.py --sdk
 
 lint:  ## ruff (non-gating; fetched ephemerally)
 	-$(UV)x ruff check .
