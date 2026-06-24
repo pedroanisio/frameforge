@@ -816,3 +816,70 @@ def test_mcp_guide_names_headline_sdk_capabilities():
         f"FRAMEGRAPH_GUIDE omits headline SDK capabilities {missing_guide} — update the "
         "guide in framegraph/mcp/server.py when the SDK surface grows"
     )
+
+
+def _frameforge_meta(svg: str) -> str | None:
+    """Return the FrameForge provenance metatag element, or None if absent."""
+    import re
+
+    m = re.search(r"<frameforge\b[^>]*/>", svg)
+    return m.group(0) if m else None
+
+
+def test_run_sdk_code_sign_embeds_provenance_metatag(tmp_path):
+    """sign=True embeds a FrameForge provenance metatag (fingerprint + tool) in the SVG."""
+    result = run_sdk_code(
+        SDK_SCRIPT, session_id="sign-1", session_root=tmp_path, raster_png=False,
+        sign=True, signed_at="2026-06-24T00:00:00Z",
+    )
+    assert result["ok"] is True
+    assert result["signed"] == {"applied": True, "timestamp": "2026-06-24T00:00:00Z"}
+
+    svg = (tmp_path / "sign-1" / "page-001.svg").read_text(encoding="utf-8")
+    meta = _frameforge_meta(svg)
+    assert meta is not None, "signed SVG must carry a <frameforge> provenance metatag"
+    assert 'xmlns="https://framegraph.dev/ns/provenance"' in meta
+    assert 'fingerprint="sha256:' in meta
+    assert 'timestamp="2026-06-24T00:00:00Z"' in meta
+    # The summary surfaced to the model reports the signing state.
+    blocks = mcp_content_blocks(result)
+    assert '"signed"' in blocks[0]["text"]
+
+
+def test_render_unsigned_by_default_is_byte_identical_to_signed_body(tmp_path):
+    """Default render carries no metatag; signing is purely additive and deterministic."""
+    plain = run_sdk_code(SDK_SCRIPT, session_id="plain", session_root=tmp_path, raster_png=False)
+    plain_svg = (tmp_path / "plain" / "page-001.svg").read_text(encoding="utf-8")
+    assert _frameforge_meta(plain_svg) is None
+
+    # Fingerprint-only (empty signed_at) is deterministic: no timestamp, stable digest.
+    a = run_sdk_code(SDK_SCRIPT, session_id="sa", session_root=tmp_path, raster_png=False,
+                     sign=True, signed_at="")
+    b = run_sdk_code(SDK_SCRIPT, session_id="sb", session_root=tmp_path, raster_png=False,
+                     sign=True, signed_at="")
+    svg_a = (tmp_path / "sa" / "page-001.svg").read_text(encoding="utf-8")
+    svg_b = (tmp_path / "sb" / "page-001.svg").read_text(encoding="utf-8")
+    assert svg_a == svg_b
+    meta = _frameforge_meta(svg_a)
+    assert meta is not None and "timestamp=" not in meta
+    assert a["signed"] == {"applied": True, "timestamp": None}
+
+
+def test_render_framegraph_yaml_sign_threads_through(tmp_path):
+    """The YAML render tool also honors sign/signed_at."""
+    from framegraph.mcp.server import render_framegraph_yaml
+    from framegraph.sdk import DocumentBuilder
+    from framegraph.sdk.io import serialize
+
+    builder = DocumentBuilder(title="Signed YAML", profile="deck")
+    page = builder.page("p1", canvas={"size": [120, 80], "units": "px"})
+    page.layer("main").rect([0, 0, 120, 80], fill="#ffffff")
+    yaml_text = serialize(builder.build(), format="yaml")
+    result = render_framegraph_yaml(
+        yaml_text, session_id="y-sign", session_root=tmp_path, raster_png=False,
+        sign=True, signed_at="2026-06-24T12:00:00Z",
+    )
+    assert result["ok"] is True
+    assert result["signed"]["timestamp"] == "2026-06-24T12:00:00Z"
+    svg = (tmp_path / "y-sign" / "page-001.svg").read_text(encoding="utf-8")
+    assert _frameforge_meta(svg) is not None
