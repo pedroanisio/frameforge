@@ -12,12 +12,16 @@ disclaimer:
 
 ## Status
 
-Accepted, staged. Slice **3a** is implemented. Slice **3b** is well advanced —
+Accepted, staged. Slice **3a** is implemented. Slice **3b** is all but complete —
 **3b-1** (application layer builds zero SVG), **3b-2** (`stroke` → `Stroke`),
-**3b-3** (markers, transforms, text-style audit), and **3b-4** (port completion) are
-done. The painter's neutral-parameter surface is complete; only **3b-5** (a second
-backend driven through the port, collapsing the LaTeX fork) remains — scoped in the
-milestone table below.
+**3b-3** (markers, transforms, text), **3b-4** (port completion), and most of
+**3b-5** are done. The painter's neutral-parameter surface is complete, a second
+backend (`TikzPainter`) implements the full port, and the **Renderer drives it
+end-to-end** (a real fixture renders to TikZ from the neutral value objects). The
+**only** remaining work is replacing the LaTeX `FigureTikz` fork with that wired
+path and deleting it — deferred because it changes LaTeX output and needs a
+`lualatex` compile to validate, and there is no LaTeX engine in this environment.
+See the milestone table below.
 
 ### Update (3b-1): the builder was already painter-mediated
 
