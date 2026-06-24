@@ -1,0 +1,1860 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: FrameGraph v2 — Architecture Map
+lang: en
+pages:
+- mode: page
+  id: architecture-map
+  canvas:
+    size:
+    - 1340.0
+    - 984.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1340
+      - 984
+      type: rect
+      fill: '#FFFFFF'
+    - box:
+      - 40
+      - 26
+      - 1000
+      - 30
+      style:
+        color: '#0F172A'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 24
+        font_weight: 800
+        letter_spacing: -0.3
+      type: text
+      text: FrameGraph v2 — Architecture Map
+    - box:
+      - 40
+      - 58
+      - 1260
+      - 18
+      style:
+        color: '#64748B'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12.5
+        line_height: 1.3
+      type: text
+      text: 'A DSL + code-generation system: one closed Pydantic model is the source
+        of truth; every other artifact is generated from it or checked against it
+        by a wall of CI gates.'
+    - box:
+      - 40
+      - 214
+      - 360
+      - 300
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: '#F8FAFC'
+      radius: 14
+      stroke: '#CBD5E1'
+    - box:
+      - 58
+      - 228
+      - 324
+      - 16
+      style:
+        color: '#64748B'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12.5
+        font_weight: 800
+        letter_spacing: 0.6
+        text_transform: uppercase
+      type: text
+      text: Authoring · inputs
+    - box:
+      - 940
+      - 92
+      - 360
+      - 360
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: '#F8FAFC'
+      radius: 14
+      stroke: '#CBD5E1'
+    - box:
+      - 958
+      - 106
+      - 324
+      - 16
+      style:
+        color: '#64748B'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12.5
+        font_weight: 800
+        letter_spacing: 0.6
+        text_transform: uppercase
+      type: text
+      text: Generated / checked views
+    - box:
+      - 410
+      - 540
+      - 520
+      - 330
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: '#F8FAFC'
+      radius: 14
+      stroke: '#CBD5E1'
+    - box:
+      - 428
+      - 554
+      - 484
+      - 16
+      style:
+        color: '#64748B'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12.5
+        font_weight: 800
+        letter_spacing: 0.6
+        text_transform: uppercase
+      type: text
+      text: Rendering · capability
+    - box:
+      - 40
+      - 540
+      - 360
+      - 330
+      stroke_style:
+        stroke_width: 1.5
+      type: rect
+      fill: '#FFFBEB'
+      radius: 14
+      stroke: '#FCD34D'
+    - box:
+      - 58
+      - 554
+      - 324
+      - 16
+      style:
+        color: '#B45309'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12.5
+        font_weight: 800
+        letter_spacing: 0.6
+        text_transform: uppercase
+      type: text
+      text: Governance · make check (= CI)
+  - id: edges
+    objects:
+    - stroke_style:
+        stroke_width: 1.8
+      type: line
+      from:
+      - 392.0
+      - 286.0
+      to:
+      - 552.4293937216111
+      - 182.86681832182148
+      stroke: '#475569'
+    - type: polyline
+      points:
+      - - 560.0
+        - 178.0
+      - - 555.349484714704
+        - 187.40918208885486
+      - - 549.5093027285182
+        - 178.3244545547881
+      closed: true
+      fill: '#475569'
+    - box:
+      - 398
+      - 250
+      - 150
+      - 13
+      style:
+        color: '#475569'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10
+        font_weight: 600
+      type: text
+      text: build → validate
+    - stroke_style:
+        stroke_width: 2.0
+        stroke_dasharray:
+        - 6
+        - 4
+      type: line
+      from:
+      - 832.0
+      - 140.0
+      to:
+      - 927.0413187380975
+      - 149.1385883402017
+      stroke: '#B45309'
+    - type: polyline
+      points:
+      - - 936.0
+        - 150.0
+      - - 926.5244717422186
+        - 154.5137970973432
+      - - 927.5581657339765
+        - 143.76337958306019
+      closed: true
+      fill: '#B45309'
+    - stroke_style:
+        stroke_width: 1.3
+        stroke_dasharray:
+        - 6
+        - 4
+      type: line
+      from:
+      - 832.0
+      - 150.0
+      to:
+      - 930.954168545687
+      - 245.14823898623752
+      stroke: '#B45309'
+    - type: polyline
+      points:
+      - - 936.0
+        - 250.0
+      - - 928.0431119374296
+        - 248.1757378588253
+      - - 933.8652251539445
+        - 242.12074011364973
+      closed: true
+      fill: '#B45309'
+    - stroke_style:
+        stroke_width: 1.3
+        stroke_dasharray:
+        - 6
+        - 4
+      type: line
+      from:
+      - 832.0
+      - 158.0
+      to:
+      - 932.7957796137576
+      - 353.7764180959524
+      stroke: '#B45309'
+    - type: polyline
+      points:
+      - - 936.0
+        - 360.0
+      - - 929.0616304713291
+        - 355.6989503276978
+      - - 936.5299287561862
+        - 351.85388586420703
+      closed: true
+      fill: '#B45309'
+    - stroke_style:
+        stroke_width: 1.8
+      type: line
+      from:
+      - 655.0
+      - 186.0
+      to:
+      - 655.0
+      - 527.0
+      stroke: '#475569'
+    - type: polyline
+      points:
+      - - 655.0
+        - 536.0
+      - - 649.6
+        - 527.0
+      - - 660.4
+        - 527.0
+      closed: true
+      fill: '#475569'
+    - box:
+      - 548
+      - 356
+      - 100
+      - 13
+      style:
+        color: '#475569'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10
+        font_weight: 600
+      type: text
+      text: validated doc
+    - stroke_style:
+        stroke_width: 1.8
+      type: line
+      from:
+      - 430.0
+      - 604.0
+      to:
+      - 382.66681142021736
+      - 352.8443054950309
+      stroke: '#DC2626'
+    - type: polyline
+      points:
+      - - 381.0
+        - 344.0
+      - - 387.97339471723586
+        - 351.84421864290044
+      - - 377.36022812319885
+        - 353.8443923471613
+      closed: true
+      fill: '#DC2626'
+    - box:
+      - 430
+      - 520
+      - 420
+      - 13
+      style:
+        color: '#DC2626'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10
+        font_weight: 700
+      type: text
+      text: sdk.conform imports tooling.Renderer — inverted layering
+    - stroke_style:
+        stroke_width: 1.6
+        stroke_dasharray:
+        - 6
+        - 4
+      type: line
+      from:
+      - 392.0
+      - 726.0
+      to:
+      - 417.40766460640504
+      - 743.4677694169035
+      stroke: '#B45309'
+    - type: polyline
+      points:
+      - - 424.0
+        - 748.0
+      - - 414.6883262565471
+        - 747.4231706530604
+      - - 420.12700295626297
+        - 739.5123681807465
+      closed: true
+      fill: '#B45309'
+  - id: nodes
+    objects:
+    - box:
+      - 510
+      - 92
+      - 320
+      - 94
+      stroke_style:
+        stroke_width: 2.5
+      type: rect
+      fill: '#F5F3FF'
+      radius: 12
+      stroke: '#7C3AED'
+    - box:
+      - 510
+      - 108
+      - 320
+      - 18
+      style:
+        align: center
+        color: '#5B21B6'
+        font_family:
+        - JetBrains Mono
+        - SFMono-Regular
+        - Menlo
+        - monospace
+        font_size: 14
+        font_weight: 700
+      type: text
+      text: models/framegraph.py
+    - box:
+      - 510
+      - 130
+      - 320
+      - 13
+      style:
+        align: center
+        color: '#6D28D9'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: SINGLE SOURCE OF TRUTH · Document (Pydantic v2)
+    - box:
+      - 510
+      - 146
+      - 320
+      - 13
+      style:
+        align: center
+        color: '#6D28D9'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: VisualObject ∪ Flowable · Style bag · HEAD 2.2.0
+    - box:
+      - 510
+      - 163
+      - 320
+      - 13
+      style:
+        align: center
+        color: '#7C3AED'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: extra="forbid" — unknown keys are hard errors
+    - box:
+      - 60
+      - 250
+      - 320
+      - 62
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#EFF6FF'
+      radius: 9
+      stroke: '#2563EB'
+    - box:
+      - 74
+      - 259
+      - 294
+      - 17
+      style:
+        color: '#1E40AF'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: framegraph.sdk — DocumentBuilder
+    - box:
+      - 74
+      - 280
+      - 294
+      - 13
+      style:
+        color: '#1E40AF'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: PageBuilder · layout · paint · widgets · macros ·
+    - box:
+      - 74
+      - 294
+      - 294
+      - 13
+      style:
+        color: '#1E40AF'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: charts · geometry · 3D scenes · topology · fields
+    - box:
+      - 60
+      - 320
+      - 320
+      - 46
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#EFF6FF'
+      radius: 9
+      stroke: '#2563EB'
+    - box:
+      - 74
+      - 329
+      - 294
+      - 17
+      style:
+        color: '#1E40AF'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: sdk.expand · sdk.validate
+    - box:
+      - 74
+      - 350
+      - 294
+      - 13
+      style:
+        color: '#1E40AF'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: lowers builders → model; validates THERE
+    - box:
+      - 60
+      - 374
+      - 320
+      - 60
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#ECFEFF'
+      radius: 9
+      stroke: '#0D9488'
+    - box:
+      - 74
+      - 383
+      - 294
+      - 17
+      style:
+        color: '#0F766E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: framegraph.mcp — FastMCP server
+    - box:
+      - 74
+      - 404
+      - 294
+      - 13
+      style:
+        color: '#0F766E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: run_sdk_code · render SVG/PNG · propose_from_*
+    - box:
+      - 74
+      - 418
+      - 294
+      - 13
+      style:
+        color: '#0F766E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: the AI authoring feedback loop
+    - box:
+      - 60
+      - 442
+      - 320
+      - 58
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#ECFEFF'
+      radius: 9
+      stroke: '#0D9488'
+    - box:
+      - 74
+      - 451
+      - 294
+      - 17
+      style:
+        color: '#0F766E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: framegraph.vision — propose_from_*
+    - box:
+      - 74
+      - 472
+      - 294
+      - 13
+      style:
+        color: '#0F766E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: OpenCV/VLM + pdf_to_framegraph_yml → proposed doc
+    - box:
+      - 74
+      - 486
+      - 294
+      - 13
+      style:
+        color: '#0F766E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: UNVERIFIED draft (PALS's Law)
+    - box:
+      - 958
+      - 124
+      - 322
+      - 42
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#FEF9C3'
+      radius: 9
+      stroke: '#CA8A04'
+    - box:
+      - 972
+      - 133
+      - 296
+      - 17
+      style:
+        color: '#854D0E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: schema/…schema.json
+    - box:
+      - 972
+      - 154
+      - 296
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: regenerate + byte-equal
+    - box:
+      - 958
+      - 174
+      - 322
+      - 42
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#FEF9C3'
+      radius: 9
+      stroke: '#CA8A04'
+    - box:
+      - 972
+      - 183
+      - 296
+      - 17
+      style:
+        color: '#854D0E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: grammar/*.ebnf
+    - box:
+      - 972
+      - 204
+      - 296
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: hand view · discriminator/enum parity
+    - box:
+      - 958
+      - 224
+      - 322
+      - 42
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#FEF9C3'
+      radius: 9
+      stroke: '#CA8A04'
+    - box:
+      - 972
+      - 233
+      - 296
+      - 17
+      style:
+        color: '#854D0E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: spec/…spec.md
+    - box:
+      - 972
+      - 254
+      - 296
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: membership · every type named in prose
+    - box:
+      - 958
+      - 274
+      - 322
+      - 42
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#FEF9C3'
+      radius: 9
+      stroke: '#CA8A04'
+    - box:
+      - 972
+      - 283
+      - 296
+      - 17
+      style:
+        color: '#854D0E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: docs/ (MkDocs)
+    - box:
+      - 972
+      - 304
+      - 296
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: regenerate + diff · gen_docs.py
+    - box:
+      - 958
+      - 324
+      - 322
+      - 42
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#FEF9C3'
+      radius: 9
+      stroke: '#CA8A04'
+    - box:
+      - 972
+      - 333
+      - 296
+      - 17
+      style:
+        color: '#854D0E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: FIXTURE-STATUS.md
+    - box:
+      - 972
+      - 354
+      - 296
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: regenerate + byte-equal
+    - box:
+      - 958
+      - 374
+      - 322
+      - 42
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#FEF9C3'
+      radius: 9
+      stroke: '#CA8A04'
+    - box:
+      - 972
+      - 383
+      - 296
+      - 17
+      style:
+        color: '#854D0E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: viewer/ type sets
+    - box:
+      - 972
+      - 404
+      - 296
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: set-membership parity test
+    - box:
+      - 428
+      - 574
+      - 484
+      - 58
+      stroke_style:
+        stroke_width: 2.0
+      type: rect
+      fill: '#FEE2E2'
+      radius: 9
+      stroke: '#DC2626'
+    - box:
+      - 442
+      - 583
+      - 458
+      - 17
+      style:
+        color: '#991B1B'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: Renderer — tooling/render_fixtures.py  (~2,400 LOC)
+    - box:
+      - 442
+      - 604
+      - 458
+      - 13
+      style:
+        color: '#991B1B'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: 'orchestrator: type dispatch · page layout · flow pagination · text-fit'
+    - box:
+      - 428
+      - 642
+      - 234
+      - 80
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#F1F5F9'
+      radius: 9
+      stroke: '#475569'
+    - box:
+      - 442
+      - 651
+      - 208
+      - 17
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: rendering/domain — services
+    - box:
+      - 442
+      - 672
+      - 208
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: paint · stroke · text-style · canvas
+    - box:
+      - 442
+      - 686
+      - 208
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: effect · layout_engine · table_layout
+    - box:
+      - 442
+      - 700
+      - 208
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: behind domain/ports (clean hexagon)
+    - box:
+      - 670
+      - 642
+      - 242
+      - 80
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#F1F5F9'
+      radius: 9
+      stroke: '#475569'
+    - box:
+      - 684
+      - 651
+      - 216
+      - 17
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+      type: text
+      text: ScenePainter port → adapters
+    - box:
+      - 684
+      - 672
+      - 216
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: SVG painter (canonical)
+    - box:
+      - 684
+      - 686
+      - 216
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: Chromium/Playwright → PNG (raster)
+    - box:
+      - 684
+      - 700
+      - 216
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: LaTeX/TikZ → .tex (flow only)
+    - box:
+      - 428
+      - 730
+      - 484
+      - 38
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#F1F5F9'
+      radius: 9
+      stroke: '#475569'
+    - box:
+      - 442
+      - 744
+      - 470
+      - 14
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: font_metrics (fontTools/fc-match) · golden lock = SHA-256 per page (deterministic)
+    - box:
+      - 428
+      - 776
+      - 484
+      - 40
+      stroke_style:
+        stroke_width: 1.2
+        stroke_dasharray:
+        - 4
+        - 3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 9
+      stroke: '#94A3B8'
+    - box:
+      - 442
+      - 786
+      - 470
+      - 13
+      style:
+        color: '#475569'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+        font_weight: 700
+      type: text
+      text: 'TWO layout engines (a paradigm boundary):'
+    - box:
+      - 442
+      - 800
+      - 470
+      - 13
+      style:
+        color: '#475569'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: page-mode (absolute layers + Group.layout)  ≠  flow-mode (naive pagination)
+    - box:
+      - 60
+      - 574
+      - 320
+      - 36
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#FEF3C7'
+      radius: 9
+      stroke: '#B45309'
+    - box:
+      - 74
+      - 586
+      - 300
+      - 14
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12.5
+        font_weight: 700
+      type: text
+      text: validate.py — Pydantic + ~14 static rules
+    - box:
+      - 74
+      - 626
+      - 300
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 11
+      type: text
+      text: •  schema · status · docs-check  (regenerate + diff)
+    - box:
+      - 74
+      - 644
+      - 300
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 11
+      type: text
+      text: •  grammar-check  (discriminator / enum parity)
+    - box:
+      - 74
+      - 662
+      - 300
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 11
+      type: text
+      text: •  spec-check  (every type named in prose)
+    - box:
+      - 74
+      - 680
+      - 300
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 11
+      type: text
+      text: •  golden-check  (b1 oracle render hashes)
+    - box:
+      - 74
+      - 698
+      - 300
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 11
+      type: text
+      text: •  a11y-check  (reading_order · alt text)
+    - box:
+      - 74
+      - 716
+      - 300
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 11
+      type: text
+      text: •  overflow  (no text escapes its box)
+    - box:
+      - 74
+      - 734
+      - 300
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 11
+      type: text
+      text: •  §8.5  out-of-profile types ⇒ warn, not error
+    - box:
+      - 60
+      - 752
+      - 320
+      - 48
+      stroke_style:
+        stroke_width: 1.4
+      type: rect
+      fill: '#FEF3C7'
+      radius: 9
+      stroke: '#B45309'
+    - box:
+      - 74
+      - 762
+      - 300
+      - 14
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12.5
+        font_weight: 700
+      type: text
+      text: codemod.py — migrations
+    - box:
+      - 74
+      - 781
+      - 300
+      - 13
+      style:
+        color: '#92400E'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: P3 stroke-split · size→sizing · alias→canonical
+  - id: marks
+    objects:
+    - box:
+      - 940
+      - 470
+      - 360
+      - 196
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#CBD5E1'
+    - box:
+      - 958
+      - 484
+      - 320
+      - 16
+      style:
+        color: '#64748B'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12.5
+        font_weight: 800
+        letter_spacing: 0.6
+        text_transform: uppercase
+      type: text
+      text: Legend
+    - box:
+      - 958
+      - 506
+      - 16
+      - 16
+      stroke_style:
+        stroke_width: 1.6
+      type: rect
+      fill: '#F5F3FF'
+      radius: 3
+      stroke: '#7C3AED'
+    - box:
+      - 982
+      - 507
+      - 220
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: source of truth (model)
+    - box:
+      - 958
+      - 530
+      - 16
+      - 16
+      stroke_style:
+        stroke_width: 1.6
+      type: rect
+      fill: '#EFF6FF'
+      radius: 3
+      stroke: '#2563EB'
+    - box:
+      - 982
+      - 531
+      - 220
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: domain (authoring / model)
+    - box:
+      - 958
+      - 554
+      - 16
+      - 16
+      stroke_style:
+        stroke_width: 1.6
+      type: rect
+      fill: '#FEF3C7'
+      radius: 3
+      stroke: '#B45309'
+    - box:
+      - 982
+      - 555
+      - 220
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: control / governance (gates)
+    - box:
+      - 958
+      - 578
+      - 16
+      - 16
+      stroke_style:
+        stroke_width: 1.6
+      type: rect
+      fill: '#F1F5F9'
+      radius: 3
+      stroke: '#475569'
+    - box:
+      - 982
+      - 579
+      - 220
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: platform / rendering
+    - box:
+      - 958
+      - 602
+      - 16
+      - 16
+      stroke_style:
+        stroke_width: 1.6
+      type: rect
+      fill: '#ECFEFF'
+      radius: 3
+      stroke: '#0D9488'
+    - box:
+      - 982
+      - 603
+      - 220
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: integration (MCP / vision)
+    - box:
+      - 958
+      - 626
+      - 16
+      - 16
+      stroke_style:
+        stroke_width: 1.6
+      type: rect
+      fill: '#FEF9C3'
+      radius: 3
+      stroke: '#CA8A04'
+    - box:
+      - 982
+      - 627
+      - 220
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: generated / checked view
+    - stroke_style:
+        stroke_width: 1.8
+      type: line
+      from:
+      - 1138.0
+      - 514.0
+      to:
+      - 1168.0
+      - 514.0
+      stroke: '#475569'
+    - type: polyline
+      points:
+      - - 1176.0
+        - 514.0
+      - - 1168.0
+        - 518.8
+      - - 1168.0
+        - 509.2
+      closed: true
+      fill: '#475569'
+    - box:
+      - 1184
+      - 508
+      - 110
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: data flow
+    - stroke_style:
+        stroke_width: 1.8
+        stroke_dasharray:
+        - 6
+        - 4
+      type: line
+      from:
+      - 1138.0
+      - 538.0
+      to:
+      - 1168.0
+      - 538.0
+      stroke: '#B45309'
+    - type: polyline
+      points:
+      - - 1176.0
+        - 538.0
+      - - 1168.0
+        - 542.8
+      - - 1168.0
+        - 533.2
+      closed: true
+      fill: '#B45309'
+    - box:
+      - 1184
+      - 532
+      - 116
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: generates / governs
+    - stroke_style:
+        stroke_width: 1.8
+      type: line
+      from:
+      - 1138.0
+      - 562.0
+      to:
+      - 1168.0
+      - 562.0
+      stroke: '#DC2626'
+    - type: polyline
+      points:
+      - - 1176.0
+        - 562.0
+      - - 1168.0
+        - 566.8
+      - - 1168.0
+        - 557.2
+      closed: true
+      fill: '#DC2626'
+    - box:
+      - 1184
+      - 556
+      - 116
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: inverted dependency
+    - type: ellipse
+      center:
+      - 1146.0
+      - 588.0
+      rx: 8.0
+      ry: 8.0
+      fill: '#DC2626'
+    - box:
+      - 1162
+      - 582
+      - 130
+      - 13
+      style:
+        color: '#334155'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+      type: text
+      text: tension hotspot (§6)
+    - type: ellipse
+      center:
+      - 898.0
+      - 580.0
+      rx: 11.0
+      ry: 11.0
+      fill: '#DC2626'
+    - box:
+      - 887
+      - 573
+      - 22
+      - 14
+      style:
+        align: center
+        color: '#FFFFFF'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12
+        font_weight: 800
+      type: text
+      text: '1'
+    - type: ellipse
+      center:
+      - 1266.0
+      - 180.0
+      rx: 11.0
+      ry: 11.0
+      fill: '#DC2626'
+    - box:
+      - 1255
+      - 173
+      - 22
+      - 14
+      style:
+        align: center
+        color: '#FFFFFF'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12
+        font_weight: 800
+      type: text
+      text: '2'
+    - type: ellipse
+      center:
+      - 816.0
+      - 104.0
+      rx: 11.0
+      ry: 11.0
+      fill: '#DC2626'
+    - box:
+      - 805
+      - 97
+      - 22
+      - 14
+      style:
+        align: center
+        color: '#FFFFFF'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12
+        font_weight: 800
+      type: text
+      text: '3'
+    - type: ellipse
+      center:
+      - 898.0
+      - 782.0
+      rx: 11.0
+      ry: 11.0
+      fill: '#DC2626'
+    - box:
+      - 887
+      - 775
+      - 22
+      - 14
+      style:
+        align: center
+        color: '#FFFFFF'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12
+        font_weight: 800
+      type: text
+      text: '4'
+    - box:
+      - 40
+      - 888
+      - 1260
+      - 90
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: '#FEF2F2'
+      radius: 10
+      stroke: '#FECACA'
+    - box:
+      - 56
+      - 902
+      - 300
+      - 16
+      style:
+        color: '#991B1B'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 12
+        font_weight: 800
+      type: text
+      text: Tensions (§6)
+    - box:
+      - 56
+      - 916
+      - 600
+      - 30
+      style:
+        color: '#7F1D1D'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+        line_height: 1.35
+      type: text
+      text: 1 · Canonical Renderer is a 2.4K-LOC monolith in tooling/ the SDK depends
+        UP into — inverted layering; hexagonal extraction stopped at the orchestrator.
+    - box:
+      - 56
+      - 948
+      - 600
+      - 30
+      style:
+        color: '#7F1D1D'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+        line_height: 1.35
+      type: text
+      text: '2 · Drift surface: grammar + spec are hand-maintained VIEWS, held only
+        by membership/enum gates — looser than the byte-equal schema.'
+    - box:
+      - 672
+      - 916
+      - 612
+      - 30
+      style:
+        color: '#7F1D1D'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+        line_height: 1.35
+      type: text
+      text: 3 · Style is one ~100-field closed CSS bag; TextStyle / StrokeStyle alias
+        it — broad surface, only partly honoured by the renderer.
+    - box:
+      - 672
+      - 948
+      - 612
+      - 30
+      style:
+        color: '#7F1D1D'
+        font_family:
+        - Inter
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10.5
+        line_height: 1.35
+      type: text
+      text: '4 · Two paradigms: absolute page-mode vs naive flow-mode pagination —
+        separate engines, no shared layout model; flow is the weaker one.'
