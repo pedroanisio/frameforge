@@ -36,12 +36,16 @@ from framegraph.sdk.geometry import (
     quarter_circle_kappa,
 )
 from framegraph.sdk.figure import (
+    FigureAsset,
     FigureContent,
     FigurePlacement,
+    FigureProvenance,
     FigureRef,
+    ImportedFigurePlacement,
     load_figure,
     merge_figure_defs,
     place_figure,
+    place_imported_figure,
 )
 from framegraph.sdk.io import parse, serialize
 from framegraph.sdk.layout import Box, BoxLike, column, grid, inset, row
@@ -150,9 +154,12 @@ __all__ = [
     "ExpandOptions",
     "ExpandedDocument",
     "Frame",
+    "FigureAsset",
     "FigureContent",
     "FigurePlacement",
+    "FigureProvenance",
     "FigureRef",
+    "ImportedFigurePlacement",
     "greeble",
     "grid_lines",
     "grid_pattern",
@@ -205,6 +212,7 @@ __all__ = [
     "parametric",
     "pattern",
     "place_figure",
+    "place_imported_figure",
     "parse",
     "quarter_circle_kappa",
     "radial_gradient",

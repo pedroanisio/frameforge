@@ -729,6 +729,17 @@ class PageBuilder:
             merge_figure_defs(self._document, placement.defs)
         return self.add(placement.group)
 
+    def imported_figure(self, figure: Any, box: list[Any], **options: Any) -> "PageBuilder":
+        """Place an extracted PDF/EPUB/image figure with provenance metadata.
+
+        Use this for book-import pipelines that already have an image asset plus
+        source locator, page/spine selector, source bounding box, caption, and
+        confidence. For live FrameGraph pages, use :meth:`figure`.
+        """
+        from framegraph.sdk.figure import place_imported_figure
+
+        return self.add(place_imported_figure(figure, box, **options).group)
+
     @contextmanager
     def grouped(
         self,

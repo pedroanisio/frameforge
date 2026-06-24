@@ -219,6 +219,31 @@ page.figure(
 )
 ```
 
+## Imported Book Figures
+
+`FigureAsset` and `PageBuilder.imported_figure()` model figures extracted from PDF, EPUB, or image sources. Unlike `FigureRef`, this API is designed for book-import pipelines: it keeps source provenance, page/spine locator, source bounding box, caption fields, alt text, attribution, and confidence attached to the lowered image/caption group.
+
+```python
+from framegraph.sdk import DocumentBuilder, FigureAsset
+
+figure = FigureAsset.from_pdf_image(
+    "book-assets/biology-fig-1-1.jpg",
+    source="openstax-biology-2e.pdf",
+    page=29,
+    box=[108, 157, 826, 443],
+    number="1.1",
+    caption="This NASA image is a composite of satellite-based views of Earth.",
+    alt="Earth from space",
+    license="CC-BY-4.0",
+    attribution="Biology 2e, OpenStax, Rice University, CC BY 4.0",
+    confidence=0.91,
+)
+
+builder = DocumentBuilder()
+page = builder.page("p", canvas={"size": [640, 480], "units": "px"}).layer("main")
+page.imported_figure(figure, [48, 48, 420, 300], caption_position="below")
+```
+
 ## Validation
 
 `validate_static_rules()` runs Pydantic structure validation, the repository static validator, and SDK checks for references, requested targets, target hide IDs, master-region chains, and path data.

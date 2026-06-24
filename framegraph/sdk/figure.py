@@ -2,15 +2,16 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Literal, Sequence
+from typing import Any, Callable, Literal, Mapping, Sequence
 
 from framegraph.sdk.geometry import Mat3
 from framegraph.sdk.io import parse
 from framegraph.sdk.model import HEAD_VERSION, to_plain_dict
 
 FitMode = Literal["contain", "cover", "scale-down", "native", "stretch"]
+CaptionPosition = Literal["below", "above", "overlay", "none"]
 BoxLike = Sequence[float | int]
 
 
@@ -35,6 +36,189 @@ class FigurePlacement:
     drawn_box: tuple[float, float, float, float]
     transform: Mat3
     defs: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class FigureProvenance:
+    """Where an imported figure came from in a source book/document."""
+
+    source: str
+    format: str = "unknown"
+    locator: str | None = None
+    page: str | int | None = None
+    box: BoxLike | None = None
+    selector: str | None = None
+    license: str | None = None
+    attribution: str | None = None
+    confidence: float | None = None
+    extra: Mapping[str, Any] = field(default_factory=dict)
+
+    def to_meta(self) -> dict[str, Any]:
+        """Return a compact metadata dict suitable for object ``meta`` fields."""
+        meta: dict[str, Any] = {"source": self.source, "format": self.format}
+        for key in ("locator", "page", "selector", "license", "attribution", "confidence"):
+            value = getattr(self, key)
+            if value is not None:
+                meta[key] = value
+        if self.box is not None:
+            meta["box"] = list(_box(self.box))
+        meta.update(dict(self.extra))
+        return meta
+
+
+@dataclass(frozen=True)
+class FigureAsset:
+    """An extracted book/document figure with semantic control metadata.
+
+    ``FigureRef`` is for live FrameGraph page imports. ``FigureAsset`` is for the
+    corpus/book-import case where a PDF/EPUB extractor has produced an image
+    asset plus optional page/spine provenance, source bounding box, caption,
+    numbering, attribution, and extraction confidence.
+    """
+
+    src: str
+    id: str | None = None
+    intrinsic_size: BoxLike | None = None
+    caption: str | None = None
+    number: str | None = None
+    title: str | None = None
+    alt: str | None = None
+    provenance: FigureProvenance | Mapping[str, Any] | None = None
+    tags: tuple[str, ...] = ()
+    confidence: float | None = None
+
+    @classmethod
+    def from_pdf_image(
+        cls,
+        src: str | Path,
+        *,
+        source: str,
+        page: int,
+        box: BoxLike,
+        id: str | None = None,
+        caption: str | None = None,
+        number: str | None = None,
+        title: str | None = None,
+        alt: str | None = None,
+        intrinsic_size: BoxLike | None = None,
+        license: str | None = None,
+        attribution: str | None = None,
+        confidence: float | None = None,
+        tags: Sequence[str] = (),
+    ) -> "FigureAsset":
+        """Create a controlled figure asset extracted from PDF page geometry."""
+        provenance = FigureProvenance(
+            source=source,
+            format="pdf",
+            page=page,
+            box=box,
+            license=license,
+            attribution=attribution,
+            confidence=confidence,
+        )
+        return cls(
+            src=str(src),
+            id=id,
+            intrinsic_size=intrinsic_size,
+            caption=caption,
+            number=number,
+            title=title,
+            alt=alt,
+            provenance=provenance,
+            tags=tuple(str(tag) for tag in tags),
+            confidence=confidence,
+        )
+
+    @classmethod
+    def from_epub_image(
+        cls,
+        src: str | Path,
+        *,
+        source: str,
+        selector: str,
+        locator: str | None = None,
+        id: str | None = None,
+        caption: str | None = None,
+        number: str | None = None,
+        title: str | None = None,
+        alt: str | None = None,
+        intrinsic_size: BoxLike | None = None,
+        license: str | None = None,
+        attribution: str | None = None,
+        confidence: float | None = None,
+        tags: Sequence[str] = (),
+    ) -> "FigureAsset":
+        """Create a controlled figure asset extracted from EPUB DOM structure."""
+        provenance = FigureProvenance(
+            source=source,
+            format="epub",
+            locator=locator,
+            selector=selector,
+            license=license,
+            attribution=attribution,
+            confidence=confidence,
+        )
+        return cls(
+            src=str(src),
+            id=id,
+            intrinsic_size=intrinsic_size,
+            caption=caption,
+            number=number,
+            title=title,
+            alt=alt,
+            provenance=provenance,
+            tags=tuple(str(tag) for tag in tags),
+            confidence=confidence,
+        )
+
+    @property
+    def caption_text(self) -> str | None:
+        """Return a formatted caption string from number/title/body fields."""
+        parts: list[str] = []
+        if self.number:
+            label = self.number if self.number.lower().startswith("figure") else f"Figure {self.number}"
+            parts.append(label)
+        if self.title:
+            parts.append(self.title)
+        if self.caption:
+            parts.append(self.caption)
+        return ". ".join(part.rstrip(".") for part in parts if part)
+
+    def to_meta(self) -> dict[str, Any]:
+        """Return the semantic metadata carried by this imported figure."""
+        meta: dict[str, Any] = {
+            "kind": "imported-asset",
+            "src": self.src,
+        }
+        if self.id:
+            meta["id"] = self.id
+        if self.number:
+            meta["number"] = self.number
+        if self.title:
+            meta["title"] = self.title
+        if self.caption:
+            meta["caption"] = self.caption
+        if self.alt:
+            meta["alt"] = self.alt
+        if self.intrinsic_size is not None:
+            meta["intrinsic_size"] = list(_size(self.intrinsic_size))
+        if self.tags:
+            meta["tags"] = list(self.tags)
+        if self.confidence is not None:
+            meta["confidence"] = self.confidence
+        if self.provenance is not None:
+            meta["provenance"] = _provenance_meta(self.provenance)
+        return meta
+
+
+@dataclass(frozen=True)
+class ImportedFigurePlacement:
+    """A placed imported figure asset plus computed image/caption boxes."""
+
+    group: dict[str, Any]
+    target_box: tuple[float, float, float, float]
+    image_box: tuple[float, float, float, float]
+    caption_box: tuple[float, float, float, float] | None
 
 
 class FigureRef:
@@ -225,6 +409,124 @@ def place_figure(
     )
 
 
+def place_imported_figure(
+    figure: FigureAsset,
+    box: BoxLike,
+    *,
+    fit: FitMode = "contain",
+    align: str = "center",
+    caption_position: CaptionPosition = "below",
+    caption_height: float | None = None,
+    caption_gap: float = 8.0,
+    caption_style: Mapping[str, Any] | None = None,
+    decorative: bool | None = False,
+    id_prefix: str | None = None,
+    **fields: Any,
+) -> ImportedFigurePlacement:
+    """Place an extracted figure asset with provenance and optional caption.
+
+    The result is an ordinary group containing an ``image`` child and, when
+    available, a ``text`` caption child. The group metadata keeps the source
+    page/spine selector, extraction box, caption fields, attribution, and
+    confidence attached to the rendered object for downstream inspection.
+    """
+    tx, ty, tw, th = _box(box)
+    if tw <= 0 or th <= 0:
+        raise ValueError("imported figure target box must have positive width and height")
+    caption_text = figure.caption_text
+    has_caption = bool(caption_text and caption_position != "none")
+    if caption_position not in {"below", "above", "overlay", "none"}:
+        raise ValueError(f"unsupported caption_position: {caption_position!r}")
+
+    caption_box: tuple[float, float, float, float] | None = None
+    image_area = (tx, ty, tw, th)
+    if has_caption and caption_position in {"below", "above"}:
+        cap_h = _caption_height(th, caption_height)
+        image_h = th - cap_h - caption_gap
+        if image_h <= 0:
+            raise ValueError("caption leaves no room for imported figure image")
+        if caption_position == "below":
+            image_area = (tx, ty, tw, image_h)
+            caption_box = (tx, ty + image_h + caption_gap, tw, cap_h)
+        else:
+            caption_box = (tx, ty, tw, cap_h)
+            image_area = (tx, ty + cap_h + caption_gap, tw, image_h)
+    elif has_caption and caption_position == "overlay":
+        cap_h = _caption_height(th, caption_height)
+        caption_box = (tx, ty + th - cap_h, tw, cap_h)
+
+    sx, sy, sw, sh = _asset_source_box(figure, image_area)
+    ix, iy, iw, ih = image_area
+    scale_x, scale_y, drawn_w, drawn_h = _fit(sw, sh, iw, ih, fit)
+    dx, dy = _align(ix, iy, iw, ih, drawn_w, drawn_h, align)
+
+    base_id = f"{id_prefix or ''}{figure.id or 'figure'}"
+    image: dict[str, Any] = {
+        "type": "image",
+        "box": [dx, dy, drawn_w, drawn_h],
+        "src": figure.src,
+        "meta": {
+            "framegraph.figure.part": "image",
+            "source_box": [sx, sy, sw, sh],
+            "fit": fit,
+            "align": align,
+        },
+    }
+    if figure.alt is not None:
+        image["alt"] = figure.alt
+    if id_prefix is not None or figure.id is not None:
+        image["id"] = f"{base_id}-image"
+    if decorative is not None:
+        image["decorative"] = decorative
+
+    children = [image]
+    if caption_box is not None and caption_text is not None:
+        style = {
+            "font_size": 12,
+            "line_height": 1.25,
+            "fill": "#334155",
+            **dict(caption_style or {}),
+        }
+        caption: dict[str, Any] = {
+            "type": "text",
+            "box": list(caption_box),
+            "text": caption_text,
+            "style": style,
+            "meta": {"framegraph.figure.part": "caption"},
+        }
+        if id_prefix is not None or figure.id is not None:
+            caption["id"] = f"{base_id}-caption"
+        children.append(caption)
+
+    group_meta = {
+        "framegraph.figure": {
+            **figure.to_meta(),
+            "target_box": [tx, ty, tw, th],
+            "image_box": [dx, dy, drawn_w, drawn_h],
+            "caption_box": list(caption_box) if caption_box is not None else None,
+            "caption_position": caption_position,
+        }
+    }
+    group = {
+        "type": "group",
+        "box": [tx, ty, tw, th],
+        "children": children,
+        "meta": group_meta,
+        **fields,
+    }
+    if id_prefix is not None or figure.id is not None:
+        group["id"] = base_id
+    if decorative is not None:
+        group["decorative"] = decorative
+
+    return ImportedFigurePlacement(
+        group=group,
+        target_box=(tx, ty, tw, th),
+        image_box=(dx, dy, drawn_w, drawn_h),
+        caption_box=caption_box,
+    )
+
+
 def merge_figure_defs(target_doc: dict[str, Any], defs: dict[str, Any]) -> None:
     """Merge imported figure definitions into a target document."""
     if not defs:
@@ -314,6 +616,44 @@ def _box(value: BoxLike) -> tuple[float, float, float, float]:
     return (float(value[0]), float(value[1]), float(value[2]), float(value[3]))
 
 
+def _size(value: BoxLike) -> tuple[float, float]:
+    if len(value) == 2:
+        return (float(value[0]), float(value[1]))
+    if len(value) == 4:
+        return (float(value[2]), float(value[3]))
+    raise ValueError("intrinsic_size must be [w, h] or [x, y, w, h]")
+
+
+def _caption_height(target_height: float, explicit: float | None) -> float:
+    if explicit is not None:
+        height = float(explicit)
+    else:
+        height = min(64.0, max(32.0, target_height * 0.18))
+    if height <= 0:
+        raise ValueError("caption_height must be positive")
+    return height
+
+
+def _asset_source_box(figure: FigureAsset, image_area: tuple[float, float, float, float]) -> tuple[float, float, float, float]:
+    if figure.intrinsic_size is not None:
+        w, h = _size(figure.intrinsic_size)
+        return (0.0, 0.0, w, h)
+    provenance = _provenance_meta(figure.provenance) if figure.provenance is not None else {}
+    box = provenance.get("box")
+    if isinstance(box, list) and len(box) == 4:
+        return _box(box)
+    return (0.0, 0.0, image_area[2], image_area[3])
+
+
+def _provenance_meta(provenance: FigureProvenance | Mapping[str, Any]) -> dict[str, Any]:
+    if isinstance(provenance, FigureProvenance):
+        return provenance.to_meta()
+    meta = dict(provenance)
+    if "box" in meta and meta["box"] is not None:
+        meta["box"] = list(_box(meta["box"]))
+    return meta
+
+
 def _fit(sw: float, sh: float, tw: float, th: float, fit: FitMode) -> tuple[float, float, float, float]:
     if fit == "stretch":
         return tw / sw, th / sh, tw, th
@@ -388,4 +728,15 @@ def _merge_mapping(target: dict[str, Any], source: dict[str, Any], *, path: str)
             raise ValueError(f"conflicting imported figure definition at {path}.{key}")
 
 
-__all__ = ["FigureContent", "FigurePlacement", "FigureRef", "load_figure", "merge_figure_defs", "place_figure"]
+__all__ = [
+    "FigureAsset",
+    "FigureContent",
+    "FigurePlacement",
+    "FigureProvenance",
+    "FigureRef",
+    "ImportedFigurePlacement",
+    "load_figure",
+    "merge_figure_defs",
+    "place_figure",
+    "place_imported_figure",
+]

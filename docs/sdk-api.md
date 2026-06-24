@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `FigureContent`, `FigurePlacement`, `FigureRef`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `fill_stroke`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `neon`, `normalize_clip`, `page_hashes`, `paragraph`, `parametric`, `pattern`, `place_figure`, `parse`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `fill_stroke`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `neon`, `normalize_clip`, `page_hashes`, `paragraph`, `parametric`, `pattern`, `place_figure`, `place_imported_figure`, `parse`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -81,6 +81,7 @@ PageBuilder(page: 'dict[str, Any]') -> 'None'
 | `grouped` | `(self, *, transform: "'Mat3 \| list[Any] \| None'" = None, clip: 'Any' = None, **fields: 'Any') -> "'Iterator[PageBuilder]'"` | Collect objects into one group when the block exits. |
 | `hstack` | `(self, box: 'list[Any]', *, gap: 'float \| int \| str \| None' = None, pad: 'Any' = None, align: 'str \| None' = None, justify: 'str \| None' = None, **fields: 'Any')` | Context manager for a row layout group. |
 | `image` | `(self, box: 'list[Any]', src: 'Handle \| str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `imported_figure` | `(self, figure: 'Any', box: 'list[Any]', **options: 'Any') -> "'PageBuilder'"` | Place an extracted PDF/EPUB/image figure with provenance metadata. |
 | `kpi` | `(self, box: 'Any', label: 'str', value: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `layer` | `(self, id: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `lettering` | `(self) -> "'Iterator[PageBuilder]'"` | Tag text added in this block as lettering (``meta.role = "lettering"``). |
@@ -388,6 +389,20 @@ VectorField(fn: 'Callable[[float, float], Sequence[float]]', domain: 'tuple[floa
 
 ## `framegraph.sdk.figure`
 
+### `FigureAsset`
+
+`framegraph.sdk.figure.FigureAsset`
+
+An extracted book/document figure with semantic control metadata.
+
+```python
+FigureAsset(src: 'str', id: 'str | None' = None, intrinsic_size: 'BoxLike | None' = None, caption: 'str | None' = None, number: 'str | None' = None, title: 'str | None' = None, alt: 'str | None' = None, provenance: 'FigureProvenance | Mapping[str, Any] | None' = None, tags: 'tuple[str, ...]' = (), confidence: 'float | None' = None) -> None
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `to_meta` | `(self) -> 'dict[str, Any]'` | Return the semantic metadata carried by this imported figure. |
+
 ### `FigureContent`
 
 `framegraph.sdk.figure.FigureContent`
@@ -408,6 +423,20 @@ A placed figure group plus the geometry used to place it.
 FigurePlacement(group: 'dict[str, Any]', source_box: 'tuple[float, float, float, float]', target_box: 'tuple[float, float, float, float]', drawn_box: 'tuple[float, float, float, float]', transform: 'Mat3', defs: 'dict[str, Any]') -> None
 ```
 
+### `FigureProvenance`
+
+`framegraph.sdk.figure.FigureProvenance`
+
+Where an imported figure came from in a source book/document.
+
+```python
+FigureProvenance(source: 'str', format: 'str' = 'unknown', locator: 'str | None' = None, page: 'str | int | None' = None, box: 'BoxLike | None' = None, selector: 'str | None' = None, license: 'str | None' = None, attribution: 'str | None' = None, confidence: 'float | None' = None, extra: 'Mapping[str, Any]' = <factory>) -> None
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `to_meta` | `(self) -> 'dict[str, Any]'` | Return a compact metadata dict suitable for object ``meta`` fields. |
+
 ### `FigureRef`
 
 `framegraph.sdk.figure.FigureRef`
@@ -421,6 +450,16 @@ FigureRef(source: 'Any', *, page: 'str | int | None' = None, validate: 'bool' = 
 | Method | Signature | Summary |
 |---|---|---|
 | `load` | `(self, *, layers: 'str \| Sequence[str] \| None' = None, viewbox: 'BoxLike \| None' = None) -> 'FigureContent'` | Resolve this reference into selected live objects. |
+
+### `ImportedFigurePlacement`
+
+`framegraph.sdk.figure.ImportedFigurePlacement`
+
+A placed imported figure asset plus computed image/caption boxes.
+
+```python
+ImportedFigurePlacement(group: 'dict[str, Any]', target_box: 'tuple[float, float, float, float]', image_box: 'tuple[float, float, float, float]', caption_box: 'tuple[float, float, float, float] | None') -> None
+```
 
 ### `load_figure`
 
@@ -450,6 +489,16 @@ Place a live figure into ``box`` and return the lowered group object.
 
 ```python
 place_figure(source: 'FigureRef | Any', box: 'BoxLike', *, page: 'str | int | None' = None, layers: 'str | Sequence[str] | None' = None, viewbox: 'BoxLike | None' = None, crop: 'BoxLike | None' = None, fit: 'FitMode' = 'contain', align: 'str' = 'center', decorative: 'bool | None' = True, id_prefix: 'str | None' = None, clip: 'bool | BoxLike' = False, **fields: 'Any') -> 'FigurePlacement'
+```
+
+### `place_imported_figure`
+
+`framegraph.sdk.figure.place_imported_figure`
+
+Place an extracted figure asset with provenance and optional caption.
+
+```python
+place_imported_figure(figure: 'FigureAsset', box: 'BoxLike', *, fit: 'FitMode' = 'contain', align: 'str' = 'center', caption_position: 'CaptionPosition' = 'below', caption_height: 'float | None' = None, caption_gap: 'float' = 8.0, caption_style: 'Mapping[str, Any] | None' = None, decorative: 'bool | None' = False, id_prefix: 'str | None' = None, **fields: 'Any') -> 'ImportedFigurePlacement'
 ```
 
 ## `framegraph.sdk.geometry`

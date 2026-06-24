@@ -383,9 +383,6 @@ class _Transpiler:
         if not header and not rows:
             return
         ncol = max([len(header)] + [len(r) for r in rows] + [1])
-        cap = fl.get("caption")
-        if cap:
-            out.append(self._styled(self._ts.resolve("caption"), "\\textbf{" + self._caption_text(cap) + "}", gap="3pt"))
 
         def text_at(row, i):
             return self._cell_text(row[i]) if i < len(row) else ""
@@ -448,21 +445,34 @@ class _Transpiler:
             + "\\end{minipage}}\n"
         )
 
+    def _emit_float(self, out, env, body, cap, fl, *, credit=None, placement="H",
+                    caption_first=False):
+        """Emit ``body`` as a real LaTeX float so ``\\caption`` auto-numbers it
+        ("Figure N:" / "Table N:"), it is reachable by ``\\ref``/``\\pageref``,
+        and it joins ``\\listoffigures``/``\\listoftables``. ``\\label`` follows
+        ``\\caption`` so it captures the float number, not the section's.
+        ``caption_first`` puts the caption above the body (the table convention)."""
+        capline = "\\caption{" + self._caption_text(cap) + "}"
+        if fl.get("id"):
+            capline += "\\label{" + _latex_label(fl.get("id")) + "}"
+        out.append(f"\\begin{{{env}}}[{placement}]\n\\centering\n")
+        out.append((capline + "\n" + body if caption_first else body + "\n" + capline) + "\n")
+        if credit:
+            out.append("{\\footnotesize " + self._caption_text(credit) + "\\par}\n")
+        out.append(f"\\end{{{env}}}\n")
+
     def _emit_image(self, fl, out):
         path = self._asset_path(fl.get("src"))
         if path:
-            opts = self._image_graphics_options(fl)
-            out.append("\\begin{center}\n")
-            out.append(f"\\includegraphics[{opts}]{{\\detokenize{{{path}}}}}\n")
-            out.append("\\end{center}\n")
+            body = f"\\includegraphics[{self._image_graphics_options(fl)}]{{\\detokenize{{{path}}}}}"
         else:
             self.skipped += 1
-            out.append("\\begin{center}\n" + self._image_placeholder(fl) + "\\end{center}\n")
-        cap = fl.get("caption")
-        if cap:
-            out.append("{\\centering" + self._font(self._ts.resolve("fig_caption"))
-                       + "\\itshape " + self._caption_text(cap) + "\\par}\n")
-        credit = fl.get("credit")
+            body = self._image_placeholder(fl)
+        cap, credit = fl.get("caption"), fl.get("credit")
+        if cap is not None:
+            self._emit_float(out, "figure", body, cap, fl, credit=credit)
+            return
+        out.append("\\begin{center}\n" + body + "\n\\end{center}\n")
         if credit:
             out.append("{\\centering" + self._font(self._ts.resolve("caption"))
                        + self._caption_text(credit) + "\\par}\n")
@@ -477,25 +487,22 @@ class _Transpiler:
         obox = ob.get("box") if isinstance(ob.get("box"), list) else None
         figw = (num(size[0], 0) if size and len(size) >= 2
                 else num(obox[2], 0) if obox and len(obox) >= 4 else 0)
-        body = self._figtikz.render(ob)
-        pic = "\\begin{tikzpicture}[x=1pt,y=-1pt]\n" + body + "\\end{tikzpicture}"
-        tw = self._textwidth
-        if figw and figw > tw:
+        pic = "\\begin{tikzpicture}[x=1pt,y=-1pt]\n" + self._figtikz.render(ob) + "\\end{tikzpicture}"
+        if figw and figw > self._textwidth:
             pic = f"\\resizebox{{\\textwidth}}{{!}}{{{pic}}}"
-        out.append("\\begin{center}\n" + pic + "\n\\end{center}\n")
         cap = fl.get("caption")
-        if cap:
-            out.append("{\\centering" + self._font(self._ts.resolve("fig_caption"))
-                       + "\\itshape " + self._caption_text(cap)
-                       + (f"\\label{{{_latex_label(fl.get('id'))}}}" if fl.get("id") else "")
-                       + "\\par}\n")
-        out.append("\\addvspace{12pt}\n")
+        if cap is not None:
+            self._emit_float(out, "figure", pic, cap, fl)
+            return
+        out.append("\\begin{center}\n" + pic + "\n\\end{center}\n\\addvspace{12pt}\n")
 
     def _emit_toc(self, fl, out):
         title = fl.get("title")
         if title:
             out.append(self._styled(self._ts.resolve(fl.get("style") or "h2"), ltx_escape(title), gap="4pt"))
-        out.append("\\tableofcontents\n\\addvspace{8pt}\n")
+        cmd = {"figures": "\\listoffigures",
+               "tables": "\\listoftables"}.get(fl.get("of"), "\\tableofcontents")
+        out.append(cmd + "\n\\addvspace{8pt}\n")
 
     def _emit_bibliography(self, fl, out):
         title = fl.get("title")
@@ -642,6 +649,9 @@ class _Transpiler:
             "\\usepackage{array}\n"
             "\\usepackage{enumitem}\n"
             "\\usepackage{graphicx}\n"
+            "\\usepackage{float}\n"
+            "\\usepackage{caption}\n"
+            "\\captionsetup{font=small,labelfont=bf,textfont=it,skip=4pt}\n"
             "\\usepackage{makeidx}\n"
             "\\usepackage[normalem]{ulem}\n"
             "\\usepackage[hidelinks]{hyperref}\n"
