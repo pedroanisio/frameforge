@@ -9,19 +9,15 @@ const ROOT = path.resolve(__dirname, "../..");
 const FIXTURES = path.join(ROOT, "fixtures");
 const SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, "schema/framegraph-v2.schema.json"), "utf8"));
 
+// The viewer's known type sets come from the single registry that
+// schema-contract.mjs gates against the model (drift-risk-map C7). Sourcing them
+// here too means a new model type cannot be silently "covered" by a fixture
+// without first being declared in the registry, where the contract check sees it.
+const REGISTRY = JSON.parse(fs.readFileSync(path.join(__dirname, "type-registry.json"), "utf8"));
+
 const PAGE_MODES = new Set(["page", "flow", undefined]);
-const ABSOLUTE_TYPES = new Set([
-  "rect", "text", "line", "polyline", "polygon", "path", "ellipse", "circle",
-  "icon", "image", "bullet_list", "table", "group", "container", "component", "legend", "chip_row", "uml.marker_glyph",
-  "dimension",
-  "uml.classifier_box", "uml.component_box", "uml.state_box", "uml.action",
-  "uml.artifact_box", "uml.node_box", "uml.lifeline", "uml.activation_bar",
-  "uml.actor", "uml.socket", "uml.lollipop", "uml.activity_node", "uml.pseudostate",
-]);
-const FLOW_TYPES = new Set([
-  "heading", "paragraph", "list", "bullet_list", "table", "code", "math", "toc",
-  "figure", "block", "bibliography", "page_break", "spacer",
-]);
+const ABSOLUTE_TYPES = new Set(REGISTRY.supported.object_types);
+const FLOW_TYPES = new Set(REGISTRY.supported.flow_types);
 const STYLE_KEYS = new Set([...Object.keys(SCHEMA.$defs.Style.properties), "class_"]);
 const STYLE_METADATA_KEYS = new Set([
   "cell_text", "header_fill", "header_text", "meta",

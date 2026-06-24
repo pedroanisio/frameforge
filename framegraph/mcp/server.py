@@ -19,8 +19,10 @@ import sys
 import tempfile
 import threading
 import time
-from typing import Any
+from typing import Annotated, Any
 from urllib.parse import unquote, urlparse
+
+from pydantic import Field
 
 from framegraph.sdk.conform import render_page_svgs
 from framegraph.sdk.io import parse
@@ -66,10 +68,44 @@ DEFAULT_MAX_INLINE_IMAGES = 4
 # bloat (or leak) the whole log.
 STRUCTURED_LOG_MAX_BYTES = 5_000_000
 STRUCTURED_LOG_MAX_FIELD_CHARS = 20_000
+# The MCP tool result mirrors the full run dict as ``structuredContent``, which many
+# clients inject into the model context. Subprocess stdout/stderr are unbounded, so a
+# chatty SDK script could bloat the conversation. The transported copy clamps the
+# streams to this budget; the library result and the on-disk diagnostics resource keep
+# the full streams for debugging.
+TRANSPORT_STREAM_MAX_CHARS = 10_000
 # Env var name fragments that almost always carry a secret. The code-execution
 # subprocess runs untrusted SDK code, so these are stripped from its environment
 # unless ``FRAMEGRAPH_MCP_KEEP_ENV`` is truthy. Matching is case-insensitive.
 SECRET_ENV_RE = re.compile(r"KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|PRIVATE", re.IGNORECASE)
+
+# Parameter descriptions shared across the render/propose tool surface. They are
+# referenced from ``Annotated[..., Field(description=...)]`` in the registered tool
+# signatures so each parameter's semantics land in the tool's input JSON schema — an
+# agent sees what a parameter means, not just its name and type.
+_DESC_SESSION_ID = (
+    "Reuse a prior session id to overwrite its artifacts in place; omit for the default "
+    "'session'. Must match [A-Za-z0-9][A-Za-z0-9_.-]{0,79}."
+)
+_DESC_TIMEOUT = (
+    "Wall-clock budget in seconds for the build subprocess; an overrun returns ok:false "
+    "with timed_out set, never a raised traceback."
+)
+_DESC_MAX_PAGES = "Render only the first N pages (<=0 renders all). Ignored when 'pages' is given."
+_DESC_RASTER = (
+    "Also rasterize each rendered page to PNG so a vision model can see it (needs the "
+    "'browser' group); false renders SVG only."
+)
+_DESC_PAGES = (
+    "Render exactly these 1-based pages, e.g. '6-10,15'; overrides max_pages. Omit to use max_pages."
+)
+_DESC_DETECTORS = (
+    "Restrict which detectors run; omit to run all available. Known names: color_region, "
+    "shape, line, text, vlm."
+)
+_DESC_CLIENT_PATH = (
+    "Repo-relative path to the SDK client .py file, under the allowed edit roots (default: examples/)."
+)
 
 
 class RenderTimeoutError(RuntimeError):
@@ -796,7 +832,9 @@ def create_server(
         )
 
     @server.tool()
-    def read_sdk_client(path: str) -> dict[str, Any]:
+    def read_sdk_client(
+        path: Annotated[str, Field(description=_DESC_CLIENT_PATH)],
+    ) -> dict[str, Any]:
         """Read an editable Python SDK client file."""
         return _logged_call(
             log_path,
@@ -806,7 +844,13 @@ def create_server(
         )
 
     @server.tool()
-    def write_sdk_client(path: str, code: str, create: bool = False) -> dict[str, Any]:
+    def write_sdk_client(
+        path: Annotated[str, Field(description=_DESC_CLIENT_PATH)],
+        code: Annotated[str, Field(description="Full new contents of the SDK client file (replaces the file).")],
+        create: Annotated[
+            bool, Field(description="Allow creating the file when it does not yet exist; false requires an existing file.")
+        ] = False,
+    ) -> dict[str, Any]:
         """Replace or create an editable Python SDK client file."""
         return _logged_call(
             log_path,
@@ -817,13 +861,16 @@ def create_server(
 
     @server.tool()
     def run_sdk_client(
-        path: str,
-        session_id: str | None = None,
-        timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
-        max_pages: int = 3,
-        raster_png: bool = True,
-        invoke_main: bool = False,
-        pages: str | None = None,
+        path: Annotated[str, Field(description=_DESC_CLIENT_PATH)],
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+        timeout_seconds: Annotated[int, Field(description=_DESC_TIMEOUT)] = DEFAULT_TIMEOUT_SECONDS,
+        max_pages: Annotated[int, Field(description=_DESC_MAX_PAGES)] = 3,
+        raster_png: Annotated[bool, Field(description=_DESC_RASTER)] = True,
+        invoke_main: Annotated[
+            bool,
+            Field(description="Execute the client as __main__ (runs its `if __name__ == '__main__'` block) instead of importing it."),
+        ] = False,
+        pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
     ):
         """Run an editable Python SDK client, validate its YAML, and return render feedback.
 
@@ -859,12 +906,15 @@ def create_server(
 
     @server.tool()
     def run_sdk_code(
-        code: str,
-        session_id: str | None = None,
-        timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
-        max_pages: int = 3,
-        raster_png: bool = True,
-        pages: str | None = None,
+        code: Annotated[
+            str,
+            Field(description="Python source that uses framegraph.sdk and emits a document: write OUTPUT_YAML_PATH, or expose a doc/document/builder global or a build() function."),
+        ],
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+        timeout_seconds: Annotated[int, Field(description=_DESC_TIMEOUT)] = DEFAULT_TIMEOUT_SECONDS,
+        max_pages: Annotated[int, Field(description=_DESC_MAX_PAGES)] = 3,
+        raster_png: Annotated[bool, Field(description=_DESC_RASTER)] = True,
+        pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
     ):
         """Run Python SDK code, validate its YAML, and return render feedback.
 
@@ -896,11 +946,14 @@ def create_server(
 
     @server.tool()
     def render_framegraph_yaml(
-        yaml_text: str,
-        session_id: str | None = None,
-        max_pages: int = 3,
-        raster_png: bool = True,
-        pages: str | None = None,
+        yaml_text: Annotated[
+            str,
+            Field(description="FrameGraph document as YAML text to validate and render directly, without executing any Python."),
+        ],
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+        max_pages: Annotated[int, Field(description=_DESC_MAX_PAGES)] = 3,
+        raster_png: Annotated[bool, Field(description=_DESC_RASTER)] = True,
+        pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
     ):
         """Validate and render FrameGraph YAML without executing Python code.
 
@@ -930,14 +983,18 @@ def create_server(
 
     @server.tool()
     def propose_from_image(
-        image_path: str | None = None,
-        image_base64: str | None = None,
-        session_id: str | None = None,
-        max_pages: int = 3,
-        raster_png: bool = True,
-        pages: str | None = None,
-        title: str = "Proposed from image",
-        detector_names: list[str] | None = None,
+        image_path: Annotated[
+            str | None, Field(description="Filesystem path to the source image. Provide this or image_base64.")
+        ] = None,
+        image_base64: Annotated[
+            str | None, Field(description="Base64-encoded image bytes. Provide this or image_path.")
+        ] = None,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+        max_pages: Annotated[int, Field(description=_DESC_MAX_PAGES)] = 3,
+        raster_png: Annotated[bool, Field(description=_DESC_RASTER)] = True,
+        pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
+        title: Annotated[str, Field(description="Title for the proposed draft document.")] = "Proposed from image",
+        detector_names: Annotated[list[str] | None, Field(description=_DESC_DETECTORS)] = None,
     ):
         """Propose a DRAFT FrameGraph document from an image (OpenCV/numpy + optional VLM), then validate and render it."""
         result = _logged_call(
@@ -969,15 +1026,19 @@ def create_server(
 
     @server.tool()
     def propose_from_document(
-        path: str,
-        page: int = 1,
-        dpi: int = 144,
-        session_id: str | None = None,
-        max_pages: int = 3,
-        raster_png: bool = True,
-        pages: str | None = None,
-        title: str | None = None,
-        detector_names: list[str] | None = None,
+        path: Annotated[str, Field(description="Filesystem path to the source PDF.")],
+        page: Annotated[int, Field(description="1-based PDF page number to rasterize and analyze.")] = 1,
+        dpi: Annotated[
+            int, Field(description="Resolution (DPI) to rasterize the PDF page at before detection.")
+        ] = 144,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+        max_pages: Annotated[int, Field(description=_DESC_MAX_PAGES)] = 3,
+        raster_png: Annotated[bool, Field(description=_DESC_RASTER)] = True,
+        pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
+        title: Annotated[
+            str | None, Field(description="Title for the proposed draft document; defaults to the source name.")
+        ] = None,
+        detector_names: Annotated[list[str] | None, Field(description=_DESC_DETECTORS)] = None,
     ):
         """Propose a DRAFT FrameGraph document from a rasterised PDF page, then validate and render it."""
         result = _logged_call(
@@ -1015,7 +1076,12 @@ def create_server(
         return _logged_call(log_path, "prompt.framegraph_guide", {}, lambda: FRAMEGRAPH_GUIDE)
 
     @server.tool()
-    def get_session_resource(uri: str) -> dict[str, str]:
+    def get_session_resource(
+        uri: Annotated[
+            str,
+            Field(description="A framegraph://session/<id>/<artifact> URI: document.yaml, diagnostics.json, page/N.svg, or page/N.png. Prefer the registered resources; this tool exists for clients that do not surface resources."),
+        ],
+    ) -> dict[str, str]:
         """Read a FrameGraph MCP session resource by URI."""
         return _logged_call(
             log_path,
@@ -1036,9 +1102,17 @@ def create_server(
 
     @server.tool()
     def cleanup_sessions(
-        session_ids: list[str] | None = None,
-        older_than_seconds: float | None = None,
-        dry_run: bool = False,
+        session_ids: Annotated[
+            list[str] | None,
+            Field(description="Remove exactly these session ids. Takes precedence over older_than_seconds."),
+        ] = None,
+        older_than_seconds: Annotated[
+            float | None,
+            Field(description="Remove sessions whose directory is older than this many seconds (used only when session_ids is omitted)."),
+        ] = None,
+        dry_run: Annotated[
+            bool, Field(description="Report the selection without deleting anything.")
+        ] = False,
     ) -> dict[str, Any]:
         """Remove session scratch dirs by id or age (no selector removes nothing)."""
         return _logged_call(
@@ -1077,6 +1151,22 @@ def create_server(
                 session_root=root,
             )["text"],
         )
+
+    @server.resource(
+        "framegraph://session/{session_id}/page/{page_number}.png", mime_type="image/png"
+    )
+    def session_page_png(session_id: str, page_number: str) -> bytes:
+        page = _positive_int(page_number, "page_number")
+        payload = _logged_call(
+            log_path,
+            "resource.session_page_png",
+            {"session_id": session_id, "page_number": page_number},
+            lambda: read_session_resource(
+                f"framegraph://session/{session_id}/page/{page}.png",
+                session_root=root,
+            ),
+        )
+        return base64.b64decode(payload["blob"])
 
     @server.resource("framegraph://session/{session_id}/diagnostics.json")
     def session_diagnostics(session_id: str) -> str:
@@ -1415,6 +1505,42 @@ def _base_result(
     }
 
 
+def _clamp_stream(text: str, limit: int) -> str:
+    """Clamp an oversized subprocess stream, keeping its head and tail.
+
+    A traceback's signal lives at both ends — where it started and the final
+    exception line — so the middle is dropped with a marker rather than truncating
+    one end. A stream within ``limit`` is returned unchanged.
+    """
+    if len(text) <= limit:
+        return text
+    head = limit // 2
+    tail = limit - head
+    omitted = len(text) - limit
+    return f"{text[:head]}\n…[{omitted} chars truncated]…\n{text[-tail:]}"
+
+
+def _bounded_transport_result(result: dict[str, Any]) -> dict[str, Any]:
+    """Return a copy of ``result`` with subprocess streams bounded for transport.
+
+    Only the model-facing ``structuredContent`` is clamped; the original result
+    (returned to direct callers such as the live server) and the on-disk diagnostics
+    keep the full ``stdout``/``stderr``, which stay reachable via the diagnostics
+    resource. When nothing exceeds the budget the original object is returned as-is.
+    """
+    oversized = [
+        key
+        for key in ("stdout", "stderr")
+        if isinstance(result.get(key), str) and len(result[key]) > TRANSPORT_STREAM_MAX_CHARS
+    ]
+    if not oversized:
+        return result
+    bounded = dict(result)
+    for key in oversized:
+        bounded[key] = _clamp_stream(result[key], TRANSPORT_STREAM_MAX_CHARS)
+    return bounded
+
+
 def _decode_stream(value: Any) -> str:
     """Coerce a captured subprocess stream (``str``, ``bytes``, or ``None``) to text."""
     if value is None:
@@ -1743,7 +1869,11 @@ def _maybe_call_tool_result(result: dict[str, Any]):
                     mimeType=block["mimeType"],
                 )
             )
-    return CallToolResult(content=content, structuredContent=result, isError=not result.get("ok", False))
+    return CallToolResult(
+        content=content,
+        structuredContent=_bounded_transport_result(result),
+        isError=not result.get("ok", False),
+    )
 
 
 def _try_rasterize_pngs(

@@ -5,7 +5,7 @@ disclaimer:
     Any statement or premise not backed by a real logical definition
     or verifiable reference may be invalid, erroneous, or a hallucination.
   generated_by: "Claude Opus 4.8 via Claude Code"
-  date: "2026-06-22"
+  date: "2026-06-24"
 ---
 
 # codebase-standards
@@ -257,6 +257,11 @@ else is generated from or checked against them** ([README.md](./README.md), *The
   VERSION=X.Y.Z`) that runs the full gate, builds, tags, and lets CI publish. Today
   [framegraph/__init__.py](./framegraph/__init__.py) carries **no** version logic and there is no
   release target; the single literal in `pyproject.toml` is the only version site.
+- **`[Adopted]`** The distance to that target is **measurable**: `make package-check`
+  ([tooling/check_package_readiness.py](./tooling/check_package_readiness.py)) asserts
+  package-emit readiness, separating hard build/install blockers from advisory `[Target]`
+  gaps. It is advisory — deliberately **not** in `make check` — and reports **NOT READY**
+  today (4 blockers; FrameGraph is a virtual project by design, §2). See §16.
 
 ## 10. Pre-commit and CI
 
@@ -368,6 +373,15 @@ explicit and shrinking, never silently assumed-met. Complexity scale per §12.
 | 7 | Governance docs: `AGENTS.md` plus any remaining governance alignment | partial | table, §12, §13 | S–M |
 | 8 | Runtime `__version__` + `make release` | single literal, no recipe | §9 | S |
 | 9 | Multi-version CI matrix (3.10–3.12) + `classifiers` | 3.10 named, single runner | §1 | S |
+
+**Package-emit readiness** spans rows 1 (`py.typed`/`classifiers`), 8 (`__version__` + `make
+release`), and 9, plus the §2 `package = false` decision. That composite gap is now
+measurable: `make package-check` ([tooling/check_package_readiness.py](./tooling/check_package_readiness.py))
+asserts it and reports **NOT READY** today (4 blockers, 3 gaps). It is advisory — not part of
+`make check` — and shrinks as these rows close. The blockers are real: no `[build-system]`
+table, `[tool.uv] package = false`, the `framegraph` dist name shadowing `models/framegraph.py`
+(§2), and `framegraph/` importing the top-level `tooling` package (which would not ship in a
+wheel — the same coupling flagged as tension #1 in `conceptual-analysis.md`).
 
 **Rule of motion:** adding to the gate (`[Target]` → `[Enforced]`) is a `feat:`/`refactor:`
 that updates the relevant section's tag and removes its row here. Removing a gate, or letting

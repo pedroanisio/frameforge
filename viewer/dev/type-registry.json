@@ -1,0 +1,43 @@
+{
+  "$comment": "SINGLE SOURCE of the FrameGraph viewer's DECLARED render surface. Gated against schema/framegraph-v2.schema.json (itself byte-gated to models/framegraph.py by schema-check) by viewer/dev/schema-contract.mjs and tests/test_viewer_schema_contract.py. Closes drift-risk-map Finding C7: a model type added/removed without updating this file now fails CI instead of silently producing a viewer that mis-renders or drops it. supported = types the viewer renders; unsupported = model types it knowingly does NOT render yet (with reason); extensions = supported types that are out-of-core-profile and intentionally absent from the schema (the UML zoo, decorative containers).",
+  "supported": {
+    "object_types": [
+      "rect", "text", "line", "polyline", "polygon", "path", "ellipse", "circle",
+      "icon", "image", "bullet_list", "table", "group", "dimension",
+      "container", "component", "legend", "chip_row",
+      "uml.marker_glyph", "uml.classifier_box", "uml.component_box", "uml.state_box",
+      "uml.action", "uml.artifact_box", "uml.node_box", "uml.lifeline",
+      "uml.activation_bar", "uml.actor", "uml.socket", "uml.lollipop",
+      "uml.activity_node", "uml.pseudostate"
+    ],
+    "flow_types": [
+      "heading", "paragraph", "list", "bullet_list", "table", "code", "math",
+      "toc", "figure", "block", "bibliography", "page_break", "spacer"
+    ],
+    "inline_kinds": ["math", "code", "link"]
+  },
+  "unsupported": {
+    "object_types": {},
+    "flow_types": {
+      "column_break": "Multi-column page regions are not laid out by the viewer yet; the block is dropped rather than starting a new column.",
+      "keep_together": "Pagination/keep-with-next is a print concern the single-scroll viewer does not model.",
+      "image": "Flow-level image blocks are not rendered; absolute image objects (object_types.image) are."
+    },
+    "inline_kinds": {
+      "ref": "Cross-reference resolution (target numbering) is not implemented; would render as a dangling number.",
+      "cite": "Bibliographic citation resolution against defs.data (CSL) is not implemented.",
+      "footnote": "Footnote collection/placement is not implemented."
+    }
+  },
+  "extensions": {
+    "object_types": [
+      "container", "component", "legend", "chip_row",
+      "uml.marker_glyph", "uml.classifier_box", "uml.component_box", "uml.state_box",
+      "uml.action", "uml.artifact_box", "uml.node_box", "uml.lifeline",
+      "uml.activation_bar", "uml.actor", "uml.socket", "uml.lollipop",
+      "uml.activity_node", "uml.pseudostate"
+    ],
+    "flow_types": ["bullet_list"],
+    "inline_kinds": []
+  }
+}

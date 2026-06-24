@@ -59,6 +59,7 @@ from framegraph.sdk import (
     shadow,
     soft_shadow,
     stroke,
+    text_style,
 )
 from framegraph.sdk import (
     Panel,
@@ -590,6 +591,37 @@ def test_paint_stroke_and_effect_constructors_lower_to_model_fields():
     assert rect.opacity == 0.8 and rect.rotation == 12
     assert rect.shadow.dy == 4 and rect.shadow.blur == 6
     assert rect.glow.blur == 8 and rect.glow.dx is None       # a glow is a blur, not offset
+
+
+def test_paint_text_style_constructor_lowers_to_canonical_style_fields():
+    """text_style() names the text subset of Style and emits its canonical fields."""
+    assert text_style(24, weight=700, color="#0F172A", align="center") == {
+        "font_size": 24,
+        "font_weight": 700,
+        "color": "#0F172A",
+        "text_align": "center",
+    }
+    # ergonomic names map to canonical CSS fields; italic selects the font_style arm
+    assert text_style(italic=True, transform="uppercase",
+                      family=["Inter", "sans-serif"]) == {
+        "font_style": "italic",
+        "text_transform": "uppercase",
+        "font_family": ["Inter", "sans-serif"],
+    }
+    assert text_style(italic=False) == {"font_style": "normal"}
+    assert text_style() == {}                                 # all-None composes to nothing
+
+    # Lowers into the model both as a named token and as an inline text style.
+    builder = DocumentBuilder()
+    h1 = builder.define_text_style("h1", **text_style(32, family="Inter", weight=800))
+    layer = builder.page("p", canvas={"size": [320, 120], "units": "px"},
+                         coordinate_mode="absolute").layer("a")
+    layer.text([10, 10, 300, 40], "Title", style=h1)
+    layer.text([10, 60, 300, 40], "Sub",
+               style=text_style(14, color="#64748B", line_height=1.4))
+    doc = builder.build()                                     # validates against the model
+    inline = doc.pages[0].layers[0].objects[1].style
+    assert inline.font_size == 14 and inline.color == "#64748B"
 
 
 def test_procedural_texture_macros_lower_to_valid_objects():

@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `manifold`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `fill_stroke`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `neon`, `normalize_clip`, `page_hashes`, `paragraph`, `parametric`, `pattern`, `parse`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `manifold`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `fill_stroke`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `neon`, `normalize_clip`, `page_hashes`, `paragraph`, `parametric`, `pattern`, `parse`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -997,6 +997,16 @@ Build a primitive's stroke fields, honouring the P3 paint/geometry split.
 
 ```python
 stroke(width: 'float', *, color: 'Color | None' = None, dash: 'Sequence[float] | None' = None, cap: 'str | None' = None, join: 'str | None' = None, miterlimit: 'float | None' = None) -> 'dict[str, Any]'
+```
+
+### `text_style`
+
+`framegraph.sdk.paint.text_style`
+
+Build a text ``Style`` bundle from the dozen fields that actually shape text.
+
+```python
+text_style(size: 'float | int | str | None' = None, *, family: 'Sequence[str] | str | None' = None, weight: 'int | str | None' = None, color: 'Color | None' = None, align: 'str | None' = None, italic: 'bool | None' = None, line_height: 'float | int | str | None' = None, letter_spacing: 'float | int | str | None' = None, transform: 'str | None' = None, decoration: 'str | None' = None, overflow: 'str | None' = None, max_lines: 'int | None' = None) -> 'dict[str, Any]'
 ```
 
 ## `framegraph.sdk.topology`

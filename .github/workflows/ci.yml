@@ -100,7 +100,26 @@ jobs:
           uv run --with mkdocs-material --with mike mike deploy --push --update-aliases "$VERSION" latest
           uv run --with mkdocs-material --with mike mike set-default --push latest
 
-  # The JS viewer is mid-refactor; surface its status without blocking the gate.
+  # BLOCKING: the viewer hand-mirrors the document model, so its declared type
+  # surface (viewer/dev/type-registry.json) must stay reconciled with the model's
+  # discriminators. Dependency-free (reads two JSON files), so no `npm ci`.
+  # Closes drift-risk-map Finding C7. The same contract also runs in the blocking
+  # pytest gate (tests/test_viewer_schema_contract.py); this is its Node twin.
+  viewer-contract:
+    name: viewer ⇄ model contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: viewer type contract
+        run: node viewer/dev/schema-contract.mjs
+      - name: contract self-test
+        run: node viewer/dev/schema-contract.mjs --self-test
+
+  # The JS viewer's *rendering* is mid-refactor; surface its smoke status without
+  # blocking the gate. The type-surface contract above is separate and blocking.
   viewer:
     name: viewer smoke (non-blocking)
     runs-on: ubuntu-latest

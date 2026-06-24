@@ -525,6 +525,7 @@ def test_create_server_registers_feedback_loop_tools_and_resources(tmp_path):
     } <= set(server.tools)
     assert "framegraph://session/{session_id}/document.yaml" in server.resources
     assert "framegraph://session/{session_id}/page/{page_number}.svg" in server.resources
+    assert "framegraph://session/{session_id}/page/{page_number}.png" in server.resources
     assert "framegraph://session/{session_id}/diagnostics.json" in server.resources
 
 
@@ -658,3 +659,93 @@ def test_list_and_cleanup_sessions(tmp_path):
     assert done["removed"] == ["drop-me"]
     assert not (tmp_path / "drop-me").exists()
     assert (tmp_path / "keep-me").exists()
+
+
+# --- Finding 1: model-facing structuredContent must not carry unbounded streams ---
+
+
+def test_clamp_stream_keeps_head_and_tail_with_marker():
+    import framegraph.mcp.server as server
+
+    limit = server.TRANSPORT_STREAM_MAX_CHARS
+    text = "HEAD" + ("x" * (limit + 4_000)) + "TAIL"
+    clamped = server._clamp_stream(text, limit)
+
+    assert len(clamped) < len(text)
+    assert clamped.startswith("HEAD")  # start of a traceback survives
+    assert clamped.endswith("TAIL")  # the final exception line survives
+    assert "truncated" in clamped
+    # A stream within the limit is returned verbatim (no marker, identity).
+    assert server._clamp_stream("small output", limit) == "small output"
+
+
+def test_run_sdk_code_tool_bounds_streams_but_diagnostics_keep_full(tmp_path):
+    """The transported structuredContent clamps stdout/stderr; the on-disk
+    diagnostics resource keeps the full stream so debugging is not lost."""
+    import framegraph.mcp.server as server
+
+    noise = server.TRANSPORT_STREAM_MAX_CHARS + 5_000
+    code = (
+        f'print("N" * {noise})\n'
+        "from framegraph.sdk import DocumentBuilder\n"
+        'doc = DocumentBuilder(title="Chatty", profile="deck")\n'
+        'page = doc.page("p1", canvas={"size": [120, 80], "units": "px"})\n'
+        'page.layer("main").rect([0, 0, 120, 80], fill="#ffffff")\n'
+        "doc.write(OUTPUT_YAML_PATH, fail_on_error=True)\n"
+    )
+    srv = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
+
+    result = srv.tools["run_sdk_code"](code, session_id="chatty", raster_png=False)
+    structured = getattr(result, "structuredContent", result)
+
+    # Transported copy is bounded and marked.
+    assert structured["ok"] is True
+    assert len(structured["stdout"]) < noise
+    assert "truncated" in structured["stdout"]
+
+    # Full stream is preserved on disk, reachable as a resource.
+    diagnostics = read_session_resource(
+        "framegraph://session/chatty/diagnostics.json", session_root=tmp_path
+    )
+    assert ("N" * 2_000) in diagnostics["text"]
+
+    # The library function keeps full fidelity for non-MCP callers (e.g. the live server).
+    full = server.run_sdk_code(code, session_id="lib", session_root=tmp_path, raster_png=False)
+    assert len(full["stdout"]) >= noise
+
+
+# --- Finding 2: tool input schemas describe their parameters ---
+
+
+def test_tool_schemas_describe_their_parameters(tmp_path):
+    server = create_server(session_root=tmp_path)  # real FastMCP builds the schema
+    tools = {tool.name: tool for tool in server._tool_manager.list_tools()}
+
+    run_props = tools["run_sdk_code"].parameters["properties"]
+    for param in ("code", "max_pages", "raster_png", "timeout_seconds", "pages", "session_id"):
+        assert run_props[param].get("description"), f"run_sdk_code.{param} has no description"
+
+    # detector_names was the worst offender: a bare list[str] with no hint of valid values.
+    image_props = tools["propose_from_image"].parameters["properties"]
+    detector_desc = image_props["detector_names"].get("description", "")
+    assert "color_region" in detector_desc and "vlm" in detector_desc
+
+
+# --- Finding 3: rendered PNG pages are addressable as resources, not just via a tool ---
+
+
+def test_session_page_png_resource_returns_png_bytes(tmp_path):
+    server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
+    uri = "framegraph://session/{session_id}/page/{page_number}.png"
+    assert uri in server.resources
+
+    session_dir = tmp_path / "shot"
+    session_dir.mkdir()
+    png_bytes = bytes.fromhex(
+        "89504e470d0a1a0a0000000d4948445200000001000000010806000000"
+        "1f15c4890000000d49444154789c63000100000500010d0a2db40000000049454e44ae426082"
+    )
+    (session_dir / "p001.png").write_bytes(png_bytes)
+
+    payload = server.resources[uri]("shot", "1")
+    assert payload == png_bytes  # binary content returned as raw bytes, not base64 text
