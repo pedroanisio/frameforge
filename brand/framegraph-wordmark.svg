@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 120" width="470" height="120" role="img" aria-label="FrameGraph">
+  <title>FrameGraph wordmark</title>
+  <desc>FrameGraph horizontal lockup: the mark followed by the wordmark, "Frame" in ink and "Graph" in Frame Blue. Production use should outline the text.</desc>
+  <!-- mark (redrawn in-place; scaled 0.83 of the 120 grid) -->
+  <g transform="translate(6 10) scale(0.83)">
+    <g fill="none" stroke="#15181E" stroke-width="3.6" stroke-linecap="square" stroke-linejoin="miter">
+      <path d="M14 32 L14 14 L32 14"/>
+      <path d="M88 14 L106 14 L106 32"/>
+      <path d="M14 88 L14 106 L32 106"/>
+      <path d="M106 88 L106 106 L88 106"/>
+    </g>
+    <g fill="none" stroke="#15181E" stroke-width="3" stroke-linecap="round">
+      <path d="M40 60 L82 38"/>
+      <path d="M40 60 L82 60"/>
+      <path d="M40 60 L82 82"/>
+    </g>
+    <g fill="#FFFFFF" stroke="#15181E" stroke-width="3">
+      <circle cx="82" cy="38" r="5.5"/>
+      <circle cx="82" cy="60" r="5.5"/>
+      <circle cx="82" cy="82" r="5.5"/>
+    </g>
+    <circle cx="40" cy="60" r="7.5" fill="#1F4FD8"/>
+  </g>
+  <!-- wordmark: mono, "Frame" ink + "Graph" Frame Blue -->
+  <text x="128" y="76" font-family="'IBM Plex Mono','DejaVu Sans Mono',ui-monospace,monospace"
+        font-size="50" font-weight="600" letter-spacing="-1">
+    <tspan fill="#15181E">Frame</tspan><tspan fill="#1F4FD8">Graph</tspan>
+  </text>
+</svg>

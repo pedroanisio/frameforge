@@ -43,6 +43,18 @@ import yaml
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 FIXTURES = os.path.join(ROOT, "fixtures")
+_YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+
+def _load_yaml_file(path):
+    with open(path, encoding="utf-8") as fh:
+        try:
+            return yaml.load(fh, Loader=_YAML_LOADER)
+        except yaml.YAMLError:
+            if _YAML_LOADER is yaml.SafeLoader:
+                raise
+            fh.seek(0)
+            return yaml.load(fh, Loader=yaml.SafeLoader)
 
 sys.path.insert(0, ROOT)
 from framegraph.rendering.domain.geometry import esc  # noqa: E402
@@ -169,7 +181,7 @@ def discover(paths):
     seen, docs = set(), []
     for f in sorted(set(out)):
         try:
-            d = yaml.safe_load(open(f, encoding="utf-8"))
+            d = _load_yaml_file(f)
         except Exception:
             continue
         d = normalize_doc(d)

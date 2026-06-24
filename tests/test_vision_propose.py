@@ -220,11 +220,13 @@ def test_mcp_propose_from_image_requires_an_image():
         propose_from_image()
 
 
-def test_mcp_propose_from_document_reports_missing_backend_gracefully(tmp_path):
+def test_mcp_propose_from_document_reports_missing_backend_gracefully(tmp_path, monkeypatch):
+    from framegraph.vision.infrastructure.pdf_source import PdfDocumentSource
     from framegraph.mcp.server import propose_from_document
 
+    monkeypatch.setattr(PdfDocumentSource, "available", lambda self: False)
     result = propose_from_document("/nonexistent.pdf", session_id="vision-doc", session_root=tmp_path)
 
-    # PyMuPDF is not installed in this environment: a clean error, not a traceback.
+    # A missing optional backend is a clean error, not an import traceback.
     assert result["ok"] is False
     assert "PyMuPDF" in result["error"]

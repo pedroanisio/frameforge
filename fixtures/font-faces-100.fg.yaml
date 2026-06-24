@@ -1,0 +1,426 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: 100 font faces
+description: Uses 100 declared font faces in one rich text run set.
+defs:
+  tokens:
+    colors:
+      ink: '#1d2939'
+    fonts:
+      face001:
+        family: Face 001
+      face002:
+        family: Face 002
+      face003:
+        family: Face 003
+      face004:
+        family: Face 004
+      face005:
+        family: Face 005
+      face006:
+        family: Face 006
+      face007:
+        family: Face 007
+      face008:
+        family: Face 008
+      face009:
+        family: Face 009
+      face010:
+        family: Face 010
+      face011:
+        family: Face 011
+      face012:
+        family: Face 012
+      face013:
+        family: Face 013
+      face014:
+        family: Face 014
+      face015:
+        family: Face 015
+      face016:
+        family: Face 016
+      face017:
+        family: Face 017
+      face018:
+        family: Face 018
+      face019:
+        family: Face 019
+      face020:
+        family: Face 020
+      face021:
+        family: Face 021
+      face022:
+        family: Face 022
+      face023:
+        family: Face 023
+      face024:
+        family: Face 024
+      face025:
+        family: Face 025
+      face026:
+        family: Face 026
+      face027:
+        family: Face 027
+      face028:
+        family: Face 028
+      face029:
+        family: Face 029
+      face030:
+        family: Face 030
+      face031:
+        family: Face 031
+      face032:
+        family: Face 032
+      face033:
+        family: Face 033
+      face034:
+        family: Face 034
+      face035:
+        family: Face 035
+      face036:
+        family: Face 036
+      face037:
+        family: Face 037
+      face038:
+        family: Face 038
+      face039:
+        family: Face 039
+      face040:
+        family: Face 040
+      face041:
+        family: Face 041
+      face042:
+        family: Face 042
+      face043:
+        family: Face 043
+      face044:
+        family: Face 044
+      face045:
+        family: Face 045
+      face046:
+        family: Face 046
+      face047:
+        family: Face 047
+      face048:
+        family: Face 048
+      face049:
+        family: Face 049
+      face050:
+        family: Face 050
+      face051:
+        family: Face 051
+      face052:
+        family: Face 052
+      face053:
+        family: Face 053
+      face054:
+        family: Face 054
+      face055:
+        family: Face 055
+      face056:
+        family: Face 056
+      face057:
+        family: Face 057
+      face058:
+        family: Face 058
+      face059:
+        family: Face 059
+      face060:
+        family: Face 060
+      face061:
+        family: Face 061
+      face062:
+        family: Face 062
+      face063:
+        family: Face 063
+      face064:
+        family: Face 064
+      face065:
+        family: Face 065
+      face066:
+        family: Face 066
+      face067:
+        family: Face 067
+      face068:
+        family: Face 068
+      face069:
+        family: Face 069
+      face070:
+        family: Face 070
+      face071:
+        family: Face 071
+      face072:
+        family: Face 072
+      face073:
+        family: Face 073
+      face074:
+        family: Face 074
+      face075:
+        family: Face 075
+      face076:
+        family: Face 076
+      face077:
+        family: Face 077
+      face078:
+        family: Face 078
+      face079:
+        family: Face 079
+      face080:
+        family: Face 080
+      face081:
+        family: Face 081
+      face082:
+        family: Face 082
+      face083:
+        family: Face 083
+      face084:
+        family: Face 084
+      face085:
+        family: Face 085
+      face086:
+        family: Face 086
+      face087:
+        family: Face 087
+      face088:
+        family: Face 088
+      face089:
+        family: Face 089
+      face090:
+        family: Face 090
+      face091:
+        family: Face 091
+      face092:
+        family: Face 092
+      face093:
+        family: Face 093
+      face094:
+        family: Face 094
+      face095:
+        family: Face 095
+      face096:
+        family: Face 096
+      face097:
+        family: Face 097
+      face098:
+        family: Face 098
+      face099:
+        family: Face 099
+      face100:
+        family: Face 100
+pages:
+- mode: page
+  id: font-faces-100
+  canvas:
+    size: [5200, 160]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: text
+      box: [24, 60, 5100, 40]
+      style: {font_family: sans, size: 11, color: ink}
+      spans:
+      - text: 'F001 '
+        style: {font_family: face001, size: 11, color: ink}
+      - text: 'F002 '
+        style: {font_family: face002, size: 11, color: ink}
+      - text: 'F003 '
+        style: {font_family: face003, size: 11, color: ink}
+      - text: 'F004 '
+        style: {font_family: face004, size: 11, color: ink}
+      - text: 'F005 '
+        style: {font_family: face005, size: 11, color: ink}
+      - text: 'F006 '
+        style: {font_family: face006, size: 11, color: ink}
+      - text: 'F007 '
+        style: {font_family: face007, size: 11, color: ink}
+      - text: 'F008 '
+        style: {font_family: face008, size: 11, color: ink}
+      - text: 'F009 '
+        style: {font_family: face009, size: 11, color: ink}
+      - text: 'F010 '
+        style: {font_family: face010, size: 11, color: ink}
+      - text: 'F011 '
+        style: {font_family: face011, size: 11, color: ink}
+      - text: 'F012 '
+        style: {font_family: face012, size: 11, color: ink}
+      - text: 'F013 '
+        style: {font_family: face013, size: 11, color: ink}
+      - text: 'F014 '
+        style: {font_family: face014, size: 11, color: ink}
+      - text: 'F015 '
+        style: {font_family: face015, size: 11, color: ink}
+      - text: 'F016 '
+        style: {font_family: face016, size: 11, color: ink}
+      - text: 'F017 '
+        style: {font_family: face017, size: 11, color: ink}
+      - text: 'F018 '
+        style: {font_family: face018, size: 11, color: ink}
+      - text: 'F019 '
+        style: {font_family: face019, size: 11, color: ink}
+      - text: 'F020 '
+        style: {font_family: face020, size: 11, color: ink}
+      - text: 'F021 '
+        style: {font_family: face021, size: 11, color: ink}
+      - text: 'F022 '
+        style: {font_family: face022, size: 11, color: ink}
+      - text: 'F023 '
+        style: {font_family: face023, size: 11, color: ink}
+      - text: 'F024 '
+        style: {font_family: face024, size: 11, color: ink}
+      - text: 'F025 '
+        style: {font_family: face025, size: 11, color: ink}
+      - text: 'F026 '
+        style: {font_family: face026, size: 11, color: ink}
+      - text: 'F027 '
+        style: {font_family: face027, size: 11, color: ink}
+      - text: 'F028 '
+        style: {font_family: face028, size: 11, color: ink}
+      - text: 'F029 '
+        style: {font_family: face029, size: 11, color: ink}
+      - text: 'F030 '
+        style: {font_family: face030, size: 11, color: ink}
+      - text: 'F031 '
+        style: {font_family: face031, size: 11, color: ink}
+      - text: 'F032 '
+        style: {font_family: face032, size: 11, color: ink}
+      - text: 'F033 '
+        style: {font_family: face033, size: 11, color: ink}
+      - text: 'F034 '
+        style: {font_family: face034, size: 11, color: ink}
+      - text: 'F035 '
+        style: {font_family: face035, size: 11, color: ink}
+      - text: 'F036 '
+        style: {font_family: face036, size: 11, color: ink}
+      - text: 'F037 '
+        style: {font_family: face037, size: 11, color: ink}
+      - text: 'F038 '
+        style: {font_family: face038, size: 11, color: ink}
+      - text: 'F039 '
+        style: {font_family: face039, size: 11, color: ink}
+      - text: 'F040 '
+        style: {font_family: face040, size: 11, color: ink}
+      - text: 'F041 '
+        style: {font_family: face041, size: 11, color: ink}
+      - text: 'F042 '
+        style: {font_family: face042, size: 11, color: ink}
+      - text: 'F043 '
+        style: {font_family: face043, size: 11, color: ink}
+      - text: 'F044 '
+        style: {font_family: face044, size: 11, color: ink}
+      - text: 'F045 '
+        style: {font_family: face045, size: 11, color: ink}
+      - text: 'F046 '
+        style: {font_family: face046, size: 11, color: ink}
+      - text: 'F047 '
+        style: {font_family: face047, size: 11, color: ink}
+      - text: 'F048 '
+        style: {font_family: face048, size: 11, color: ink}
+      - text: 'F049 '
+        style: {font_family: face049, size: 11, color: ink}
+      - text: 'F050 '
+        style: {font_family: face050, size: 11, color: ink}
+      - text: 'F051 '
+        style: {font_family: face051, size: 11, color: ink}
+      - text: 'F052 '
+        style: {font_family: face052, size: 11, color: ink}
+      - text: 'F053 '
+        style: {font_family: face053, size: 11, color: ink}
+      - text: 'F054 '
+        style: {font_family: face054, size: 11, color: ink}
+      - text: 'F055 '
+        style: {font_family: face055, size: 11, color: ink}
+      - text: 'F056 '
+        style: {font_family: face056, size: 11, color: ink}
+      - text: 'F057 '
+        style: {font_family: face057, size: 11, color: ink}
+      - text: 'F058 '
+        style: {font_family: face058, size: 11, color: ink}
+      - text: 'F059 '
+        style: {font_family: face059, size: 11, color: ink}
+      - text: 'F060 '
+        style: {font_family: face060, size: 11, color: ink}
+      - text: 'F061 '
+        style: {font_family: face061, size: 11, color: ink}
+      - text: 'F062 '
+        style: {font_family: face062, size: 11, color: ink}
+      - text: 'F063 '
+        style: {font_family: face063, size: 11, color: ink}
+      - text: 'F064 '
+        style: {font_family: face064, size: 11, color: ink}
+      - text: 'F065 '
+        style: {font_family: face065, size: 11, color: ink}
+      - text: 'F066 '
+        style: {font_family: face066, size: 11, color: ink}
+      - text: 'F067 '
+        style: {font_family: face067, size: 11, color: ink}
+      - text: 'F068 '
+        style: {font_family: face068, size: 11, color: ink}
+      - text: 'F069 '
+        style: {font_family: face069, size: 11, color: ink}
+      - text: 'F070 '
+        style: {font_family: face070, size: 11, color: ink}
+      - text: 'F071 '
+        style: {font_family: face071, size: 11, color: ink}
+      - text: 'F072 '
+        style: {font_family: face072, size: 11, color: ink}
+      - text: 'F073 '
+        style: {font_family: face073, size: 11, color: ink}
+      - text: 'F074 '
+        style: {font_family: face074, size: 11, color: ink}
+      - text: 'F075 '
+        style: {font_family: face075, size: 11, color: ink}
+      - text: 'F076 '
+        style: {font_family: face076, size: 11, color: ink}
+      - text: 'F077 '
+        style: {font_family: face077, size: 11, color: ink}
+      - text: 'F078 '
+        style: {font_family: face078, size: 11, color: ink}
+      - text: 'F079 '
+        style: {font_family: face079, size: 11, color: ink}
+      - text: 'F080 '
+        style: {font_family: face080, size: 11, color: ink}
+      - text: 'F081 '
+        style: {font_family: face081, size: 11, color: ink}
+      - text: 'F082 '
+        style: {font_family: face082, size: 11, color: ink}
+      - text: 'F083 '
+        style: {font_family: face083, size: 11, color: ink}
+      - text: 'F084 '
+        style: {font_family: face084, size: 11, color: ink}
+      - text: 'F085 '
+        style: {font_family: face085, size: 11, color: ink}
+      - text: 'F086 '
+        style: {font_family: face086, size: 11, color: ink}
+      - text: 'F087 '
+        style: {font_family: face087, size: 11, color: ink}
+      - text: 'F088 '
+        style: {font_family: face088, size: 11, color: ink}
+      - text: 'F089 '
+        style: {font_family: face089, size: 11, color: ink}
+      - text: 'F090 '
+        style: {font_family: face090, size: 11, color: ink}
+      - text: 'F091 '
+        style: {font_family: face091, size: 11, color: ink}
+      - text: 'F092 '
+        style: {font_family: face092, size: 11, color: ink}
+      - text: 'F093 '
+        style: {font_family: face093, size: 11, color: ink}
+      - text: 'F094 '
+        style: {font_family: face094, size: 11, color: ink}
+      - text: 'F095 '
+        style: {font_family: face095, size: 11, color: ink}
+      - text: 'F096 '
+        style: {font_family: face096, size: 11, color: ink}
+      - text: 'F097 '
+        style: {font_family: face097, size: 11, color: ink}
+      - text: 'F098 '
+        style: {font_family: face098, size: 11, color: ink}
+      - text: 'F099 '
+        style: {font_family: face099, size: 11, color: ink}
+      - text: 'F100'
+        style: {font_family: face100, size: 11, color: ink}

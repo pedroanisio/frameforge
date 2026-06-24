@@ -37,6 +37,8 @@ import yaml  # noqa: E402
 import framegraph as fg  # noqa: E402
 from pydantic import ValidationError  # noqa: E402
 
+_YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
 CORE_OBJECT_TYPES = {
     "rect", "ellipse", "circle", "line", "polyline", "polygon", "path", "curve",
     "bezier", "text", "image", "icon", "bullet_list", "dimension", "table", "group",
@@ -63,7 +65,13 @@ class Finding:
 # --------------------------------------------------------------------------- #
 def _load(path):
     with open(path, encoding="utf-8") as fh:
-        return yaml.safe_load(fh)
+        try:
+            return yaml.load(fh, Loader=_YAML_LOADER)
+        except yaml.YAMLError:
+            if _YAML_LOADER is yaml.SafeLoader:
+                raise
+            fh.seek(0)
+            return yaml.load(fh, Loader=yaml.SafeLoader)
 
 
 def _num(v):

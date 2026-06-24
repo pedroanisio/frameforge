@@ -513,8 +513,14 @@ def _ensure_sdk_importable():
     existing = sys.modules.get("framegraph")
     if existing is not None and not hasattr(existing, "__path__"):
         sys.modules.pop("framegraph", None)
-    if ROOT not in sys.path:
-        sys.path.insert(0, ROOT)
+    models_path = os.path.join(ROOT, "models")
+    sys.path[:] = [
+        p for p in sys.path
+        if os.path.normpath(p or os.getcwd()) != models_path
+    ]
+    if ROOT in sys.path:
+        sys.path.remove(ROOT)
+    sys.path.insert(0, ROOT)
 
 
 def _api_object_block(name, obj):

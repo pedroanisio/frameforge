@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import glob
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -54,11 +55,61 @@ def discover(paths):
     return docs
 
 
-def compile_tex(tex_path, quiet=True, passes=2):
-    """Run lualatex (N passes) in the tex file's directory. Returns the PDF path or None."""
+def _has_luaotfload():
+    """lualatex needs luaotfload (the OpenType font loader) for fontspec; some
+    minimal/Debian TeX installs ship lualatex without it, so fontspec cannot load."""
+    try:
+        proc = subprocess.run(["kpsewhich", "luaotfload-main.lua"],
+                              capture_output=True, text=True)
+        return proc.returncode == 0 and proc.stdout.strip() != ""
+    except Exception:
+        return False
+
+
+def pick_engine(preferred="auto"):
+    """Resolve the TeX engine. ``auto`` prefers lualatex (full Unicode fonts via
+    fontspec) when luaotfload is present, else falls back to the more widely
+    available pdflatex. Returns the engine name, or ``None`` if none is usable."""
+    if preferred in ("lualatex", "pdflatex"):
+        return preferred if shutil.which(preferred) else None
+    if shutil.which("lualatex") and _has_luaotfload():
+        return "lualatex"
+    if shutil.which("pdflatex"):
+        return "pdflatex"
+    return "lualatex" if shutil.which("lualatex") else None
+
+
+# fontspec/lualatex-only constructs the transpiler emits, and their pdflatex swaps.
+_FONTSPEC_RE = re.compile(r"\\usepackage(?:\[[^\]]*\])?\{fontspec\}")
+_SETMAINFONT_RE = re.compile(r"\\setmainfont\{[^}]*\}")
+_ADDFONTFEAT_RE = re.compile(r"\\addfontfeatures\s*\{[^}]*\}")
+_PDFLATEX_FONTS = (
+    "\\usepackage[utf8]{inputenc}\n"
+    "\\usepackage[T1]{fontenc}\n"
+    "\\usepackage{lmodern}\n"
+    "\\usepackage{textcomp}"
+)
+
+
+def to_pdflatex(tex):
+    """Rewrite a fontspec/lualatex document so pdflatex can compile it.
+
+    Swaps the Unicode-font preamble for inputenc + fontenc + lmodern (a clean
+    sans default) and drops fontspec-only ``\\addfontfeatures`` letter-spacing,
+    which has no inline pdflatex equivalent. The TikZ body is engine-agnostic and
+    is left untouched, so the vector output is identical bar the body font."""
+    tex = _FONTSPEC_RE.sub(lambda m: _PDFLATEX_FONTS, tex, count=1)
+    tex = _SETMAINFONT_RE.sub(
+        lambda m: "\\renewcommand{\\familydefault}{\\sfdefault}", tex, count=1)
+    tex = _ADDFONTFEAT_RE.sub(lambda m: "", tex)
+    return tex
+
+
+def compile_tex(tex_path, engine="lualatex", quiet=True, passes=2):
+    """Run the TeX ``engine`` (N passes) in the tex file's directory. Returns the PDF path or None."""
     out_dir = os.path.dirname(tex_path)
     name = os.path.basename(tex_path)
-    cmd = ["lualatex", "-interaction=nonstopmode", "-halt-on-error", name]
+    cmd = [engine, "-interaction=nonstopmode", "-halt-on-error", name]
     log = ""
     for _ in range(passes):
         proc = subprocess.run(cmd, cwd=out_dir, capture_output=True, text=True)
@@ -66,7 +117,7 @@ def compile_tex(tex_path, quiet=True, passes=2):
         if proc.returncode != 0:
             if not quiet:
                 tail = "\n".join(log.splitlines()[-25:])
-                print(f"  ! lualatex failed for {name}:\n{tail}", file=sys.stderr)
+                print(f"  ! {engine} failed for {name}:\n{tail}", file=sys.stderr)
             return None
     pdf = os.path.splitext(tex_path)[0] + ".pdf"
     return pdf if os.path.exists(pdf) else None
@@ -86,6 +137,9 @@ def main(argv=None):
     ap.add_argument("--out", default=os.path.join(ROOT, "out", "latex"), help="output dir")
     ap.add_argument("--png", action="store_true", help="also rasterize each PDF to PNG (pdftoppm)")
     ap.add_argument("--tex-only", action="store_true", help="write .tex but do not compile")
+    ap.add_argument("--engine", choices=["auto", "lualatex", "pdflatex"], default="auto",
+                    help="TeX engine (default: auto — lualatex if luaotfload is present, "
+                         "else pdflatex)")
     ap.add_argument("--list", action="store_true", help="list discoverable FrameGraph docs and exit")
     ap.add_argument("-q", "--quiet", action="store_true")
     args = ap.parse_args(argv)
@@ -99,10 +153,13 @@ def main(argv=None):
     if not docs:
         print("no FrameGraph documents found", file=sys.stderr)
         return 1
-    if not args.tex_only and not shutil.which("lualatex"):
-        print("lualatex not found — install TeX Live (texlive-luatex) or pass --tex-only",
+    engine = pick_engine(args.engine)
+    if not args.tex_only and engine is None:
+        print("no TeX engine found — install TeX Live (lualatex or pdflatex) or pass --tex-only",
               file=sys.stderr)
         return 2
+    if not args.tex_only and not args.quiet:
+        print(f"  engine: {engine}")
 
     os.makedirs(args.out, exist_ok=True)
     n_pdf = 0
@@ -114,13 +171,15 @@ def main(argv=None):
         except Exception as exc:                       # never let one doc kill the batch
             print(f"  ! transpile failed for {name}: {exc}", file=sys.stderr)
             continue
+        if engine == "pdflatex":
+            tex = to_pdflatex(tex)
         with open(tex_path, "w", encoding="utf-8") as fh:
             fh.write(tex)
         if not args.quiet:
             print(f"  {name}.tex")
         if args.tex_only:
             continue
-        pdf = compile_tex(tex_path, quiet=args.quiet)
+        pdf = compile_tex(tex_path, engine=engine, quiet=args.quiet)
         if pdf:
             n_pdf += 1
             msg = f"  {os.path.relpath(pdf, ROOT)}"

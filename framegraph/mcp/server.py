@@ -18,6 +18,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 from typing import Any
 from urllib.parse import unquote, urlparse
 
@@ -26,7 +27,11 @@ from framegraph.sdk.io import parse
 from framegraph.sdk.validate import ValidationReport, validate_static_rules
 
 SESSION_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
-DEFAULT_TIMEOUT_SECONDS = 10
+# Wall-clock budget for the code-execution subprocess. A build that exceeds it is
+# reported as a structured ``ok:false`` (see ``_subprocess_timeout_result``), not a
+# raised traceback. 20s leaves headroom for heavier decks (3D meshes, large fixtures)
+# while still bounding a runaway client; callers can raise it per call.
+DEFAULT_TIMEOUT_SECONDS = 20
 MAX_CODE_BYTES = 200_000
 MAX_CLIENT_BYTES = 2_000_000
 DEFAULT_CLIENT_ROOTS = ("examples",)
@@ -44,6 +49,18 @@ VIEWABLE_IMAGE_MIME = ("image/png", "image/jpeg", "image/gif", "image/webp")
 # response latency. Honest limit: it bounds the *response*, not the CPU work — a
 # runaway render keeps running in a detached daemon thread until it finishes.
 DEFAULT_RENDER_TIMEOUT_SECONDS = 30
+# Rasterization is far heavier than the SVG render: every page launches a fresh
+# headless Chromium. To keep a many-page deck from stalling (or dropping) the stdio
+# loop, the raster lane is bounded by a page cap and a soft wall-clock budget; pages
+# beyond the bound keep their SVG render and are surfaced as a ``render_warning``.
+# Both are env-overridable (``FRAMEGRAPH_MCP_RASTER_MAX_PAGES`` / ``_RASTER_TIMEOUT``).
+DEFAULT_RASTER_MAX_PAGES = 8
+DEFAULT_RASTER_TIMEOUT_SECONDS = 60
+# A vision result may carry many raster pages, but inlining every PNG as an image
+# content block bloats the response (base64) and risks transport limits. Only the
+# first N PNGs are inlined; the rest remain reachable as resource links. Override
+# with ``FRAMEGRAPH_MCP_MAX_INLINE_IMAGES``.
+DEFAULT_MAX_INLINE_IMAGES = 4
 # Structured-log hygiene: rotate the JSONL once it crosses this size and clamp
 # any single oversized instruction/response string so one giant payload cannot
 # bloat (or leak) the whole log.
@@ -143,6 +160,7 @@ def run_sdk_code(
     timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
     max_pages: int = 3,
     raster_png: bool = True,
+    pages: str | list[int] | None = None,
 ) -> dict[str, Any]:
     """Execute Python SDK code, then validate and render its generated YAML.
 
@@ -162,6 +180,7 @@ def run_sdk_code(
     root = _session_root(session_root)
     sid = _session_id(session_id)
     session_dir = _prepare_session(root, sid)
+    _reset_session_outputs(session_dir)
     script_path = session_dir / "script.py"
     harness_path = session_dir / "_run_sdk.py"
     yaml_path = session_dir / "generated.fg.yaml"
@@ -169,15 +188,23 @@ def run_sdk_code(
     harness_path.write_text(_harness_source(script_path, yaml_path, session_dir), encoding="utf-8")
 
     env = _subprocess_env(get_default_repo_root())
-    proc = subprocess.run(
-        [sys.executable, str(harness_path)],
-        cwd=str(session_dir),
-        env=env,
-        text=True,
-        capture_output=True,
-        timeout=max(1, int(timeout_seconds)),
-        check=False,
-    )
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(harness_path)],
+            cwd=str(session_dir),
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=max(1, int(timeout_seconds)),
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        result = _subprocess_timeout_result(
+            "SDK code", session_id=sid, session_dir=session_dir, yaml_path=yaml_path,
+            exc=exc, timeout_seconds=timeout_seconds,
+        )
+        _write_diagnostics(session_dir, result)
+        return result
 
     result = _base_result(sid, session_dir, yaml_path, proc.stdout, proc.stderr, proc.returncode)
     if proc.returncode != 0:
@@ -198,6 +225,7 @@ def run_sdk_code(
         base_dir=session_dir,
         max_pages=max_pages,
         raster_png=raster_png,
+        pages=pages,
     )
     result.update(rendered)
     _write_diagnostics(session_dir, result)
@@ -309,6 +337,7 @@ def run_sdk_client(
     max_pages: int = 3,
     raster_png: bool = True,
     invoke_main: bool = False,
+    pages: str | list[int] | None = None,
     repo_root: str | Path | None = None,
     edit_roots: str | list[str] | tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
@@ -318,6 +347,7 @@ def run_sdk_client(
     session_base = _session_root(session_root)
     sid = _session_id(session_id)
     session_dir = _prepare_session(session_base, sid)
+    _reset_session_outputs(session_dir)
     harness_path = session_dir / "_run_sdk_client.py"
     yaml_path = session_dir / "generated.fg.yaml"
     snapshot = _framegraph_yaml_snapshot(root)
@@ -327,15 +357,25 @@ def run_sdk_client(
         encoding="utf-8",
     )
     env = _subprocess_env(root)
-    proc = subprocess.run(
-        [sys.executable, str(harness_path)],
-        cwd=str(root),
-        env=env,
-        text=True,
-        capture_output=True,
-        timeout=max(1, int(timeout_seconds)),
-        check=False,
-    )
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(harness_path)],
+            cwd=str(root),
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=max(1, int(timeout_seconds)),
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        result = _subprocess_timeout_result(
+            "SDK client", session_id=sid, session_dir=session_dir, yaml_path=yaml_path,
+            exc=exc, timeout_seconds=timeout_seconds,
+        )
+        result["client_path"] = str(client_path)
+        result["client_uri"] = _repo_relative_path(client_path, root)
+        _write_diagnostics(session_dir, result)
+        return result
 
     result = _base_result(sid, session_dir, yaml_path, proc.stdout, proc.stderr, proc.returncode)
     result["client_path"] = str(client_path)
@@ -363,6 +403,7 @@ def run_sdk_client(
         base_dir=root,
         max_pages=max_pages,
         raster_png=raster_png,
+        pages=pages,
     )
     result.update(rendered)
     _write_diagnostics(session_dir, result)
@@ -376,6 +417,7 @@ def render_framegraph_yaml(
     session_root: str | Path | None = None,
     max_pages: int = 3,
     raster_png: bool = True,
+    pages: str | list[int] | None = None,
 ) -> dict[str, Any]:
     """Validate and render caller-provided FrameGraph YAML."""
     if not isinstance(yaml_text, str) or not yaml_text.strip():
@@ -395,6 +437,7 @@ def render_framegraph_yaml(
             base_dir=session_dir,
             max_pages=max_pages,
             raster_png=raster_png,
+            pages=pages,
         )
     )
     _write_diagnostics(session_dir, result)
@@ -409,6 +452,7 @@ def propose_from_image(
     session_root: str | Path | None = None,
     max_pages: int = 3,
     raster_png: bool = True,
+    pages: str | list[int] | None = None,
     title: str = "Proposed from image",
     detector_names: list[str] | None = None,
 ) -> dict[str, Any]:
@@ -437,7 +481,8 @@ def propose_from_image(
     except RuntimeError as exc:
         return _vision_error(str(exc))
     return _render_proposal(
-        proposal, session_id=session_id, session_root=session_root, max_pages=max_pages, raster_png=raster_png
+        proposal, session_id=session_id, session_root=session_root,
+        max_pages=max_pages, raster_png=raster_png, pages=pages,
     )
 
 
@@ -450,6 +495,7 @@ def propose_from_document(
     session_root: str | Path | None = None,
     max_pages: int = 3,
     raster_png: bool = True,
+    pages: str | list[int] | None = None,
     title: str | None = None,
     detector_names: list[str] | None = None,
 ) -> dict[str, Any]:
@@ -468,7 +514,8 @@ def propose_from_document(
     except (RuntimeError, ValueError) as exc:
         return _vision_error(str(exc))
     return _render_proposal(
-        proposal, session_id=session_id, session_root=session_root, max_pages=max_pages, raster_png=raster_png
+        proposal, session_id=session_id, session_root=session_root,
+        max_pages=max_pages, raster_png=raster_png, pages=pages,
     )
 
 
@@ -509,6 +556,7 @@ def _render_proposal(
     session_root: str | Path | None,
     max_pages: int,
     raster_png: bool,
+    pages: str | list[int] | None = None,
 ) -> dict[str, Any]:
     import yaml as _yaml
 
@@ -519,6 +567,7 @@ def _render_proposal(
         session_root=session_root,
         max_pages=max_pages,
         raster_png=raster_png,
+        pages=pages,
     )
     result["proposal"] = _proposal_summary(proposal)
     return result
@@ -666,8 +715,17 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
 
     Only raster renders (:data:`VIEWABLE_IMAGE_MIME`) become image blocks — SVG is
     not a vision-decodable media type, so it is reported as a resource link in the
-    text summary instead of an undecodable image payload.
+    text summary instead of an undecodable image payload. At most
+    :func:`_max_inline_images` PNGs are inlined; any beyond that remain reachable as
+    resource links (the summary reports ``images_total`` vs ``images_inlined``) so a
+    many-page deck does not bloat the response with base64.
     """
+    image_renders = [
+        render
+        for render in result.get("renders", [])
+        if render.get("path") and str(render.get("mimeType")) in VIEWABLE_IMAGE_MIME
+    ]
+    cap = _max_inline_images()
     summary = {
         "ok": result.get("ok"),
         "session_id": result.get("session_id"),
@@ -680,21 +738,19 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
         ],
         "render_warning": result.get("render_warning"),
         "error": result.get("error"),
+        "images_total": len(image_renders),
+        "images_inlined": min(len(image_renders), cap),
     }
     blocks: list[dict[str, str]] = [
         {"type": "text", "text": json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True)}
     ]
-    for render in result.get("renders", []):
-        path_value = render.get("path")
-        mime = render.get("mimeType")
-        if not path_value or str(mime) not in VIEWABLE_IMAGE_MIME:
-            continue
-        data = Path(path_value).read_bytes()
+    for render in image_renders[:cap]:
+        data = Path(str(render["path"])).read_bytes()
         blocks.append(
             {
                 "type": "image",
                 "data": base64.b64encode(data).decode("ascii"),
-                "mimeType": str(mime),
+                "mimeType": str(render["mimeType"]),
             }
         )
     return blocks
@@ -767,8 +823,13 @@ def create_server(
         max_pages: int = 3,
         raster_png: bool = True,
         invoke_main: bool = False,
+        pages: str | None = None,
     ):
-        """Run an editable Python SDK client, validate its YAML, and return render feedback."""
+        """Run an editable Python SDK client, validate its YAML, and return render feedback.
+
+        ``pages`` selects specific 1-based pages to render (e.g. ``"6-10,15"``), overriding
+        ``max_pages``; omit it to render the first ``max_pages`` pages (``<=0`` = all).
+        """
         result = _logged_call(
             log_path,
             "run_sdk_client",
@@ -779,6 +840,7 @@ def create_server(
                 "max_pages": max_pages,
                 "raster_png": raster_png,
                 "invoke_main": invoke_main,
+                "pages": pages,
             },
             lambda: globals()["run_sdk_client"](
                 path,
@@ -788,6 +850,7 @@ def create_server(
                 max_pages=max_pages,
                 raster_png=raster_png,
                 invoke_main=invoke_main,
+                pages=pages,
                 repo_root=repo,
                 edit_roots=edit_roots,
             ),
@@ -801,8 +864,13 @@ def create_server(
         timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
         max_pages: int = 3,
         raster_png: bool = True,
+        pages: str | None = None,
     ):
-        """Run Python SDK code, validate its YAML, and return render feedback."""
+        """Run Python SDK code, validate its YAML, and return render feedback.
+
+        ``pages`` selects specific 1-based pages to render (e.g. ``"6-10,15"``), overriding
+        ``max_pages``; omit it to render the first ``max_pages`` pages (``<=0`` = all).
+        """
         result = _logged_call(
             log_path,
             "run_sdk_code",
@@ -812,6 +880,7 @@ def create_server(
                 "timeout_seconds": timeout_seconds,
                 "max_pages": max_pages,
                 "raster_png": raster_png,
+                "pages": pages,
             },
             lambda: globals()["run_sdk_code"](
                 code,
@@ -820,6 +889,7 @@ def create_server(
                 timeout_seconds=timeout_seconds,
                 max_pages=max_pages,
                 raster_png=raster_png,
+                pages=pages,
             ),
         )
         return _maybe_call_tool_result(result)
@@ -830,8 +900,13 @@ def create_server(
         session_id: str | None = None,
         max_pages: int = 3,
         raster_png: bool = True,
+        pages: str | None = None,
     ):
-        """Validate and render FrameGraph YAML without executing Python code."""
+        """Validate and render FrameGraph YAML without executing Python code.
+
+        ``pages`` selects specific 1-based pages to render (e.g. ``"6-10,15"``), overriding
+        ``max_pages``; omit it to render the first ``max_pages`` pages (``<=0`` = all).
+        """
         result = _logged_call(
             log_path,
             "render_framegraph_yaml",
@@ -840,6 +915,7 @@ def create_server(
                 "session_id": session_id,
                 "max_pages": max_pages,
                 "raster_png": raster_png,
+                "pages": pages,
             },
             lambda: globals()["render_framegraph_yaml"](
                 yaml_text,
@@ -847,6 +923,7 @@ def create_server(
                 session_root=root,
                 max_pages=max_pages,
                 raster_png=raster_png,
+                pages=pages,
             ),
         )
         return _maybe_call_tool_result(result)
@@ -858,6 +935,7 @@ def create_server(
         session_id: str | None = None,
         max_pages: int = 3,
         raster_png: bool = True,
+        pages: str | None = None,
         title: str = "Proposed from image",
         detector_names: list[str] | None = None,
     ):
@@ -871,6 +949,7 @@ def create_server(
                 "session_id": session_id,
                 "max_pages": max_pages,
                 "raster_png": raster_png,
+                "pages": pages,
                 "title": title,
                 "detector_names": detector_names,
             },
@@ -881,6 +960,7 @@ def create_server(
                 session_root=root,
                 max_pages=max_pages,
                 raster_png=raster_png,
+                pages=pages,
                 title=title,
                 detector_names=detector_names,
             ),
@@ -895,6 +975,7 @@ def create_server(
         session_id: str | None = None,
         max_pages: int = 3,
         raster_png: bool = True,
+        pages: str | None = None,
         title: str | None = None,
         detector_names: list[str] | None = None,
     ):
@@ -909,6 +990,7 @@ def create_server(
                 "session_id": session_id,
                 "max_pages": max_pages,
                 "raster_png": raster_png,
+                "pages": pages,
                 "title": title,
                 "detector_names": detector_names,
             },
@@ -920,6 +1002,7 @@ def create_server(
                 session_root=root,
                 max_pages=max_pages,
                 raster_png=raster_png,
+                pages=pages,
                 title=title,
                 detector_names=detector_names,
             ),
@@ -1129,6 +1212,24 @@ def _prepare_session(root: Path, session_id: str) -> Path:
     return session_dir
 
 
+def _reset_session_outputs(session_dir: Path) -> None:
+    """Remove a prior run's generated artifacts so a reused ``session_id`` re-renders fresh.
+
+    The code-execution harness only (re)derives the document when ``OUTPUT_YAML_PATH``
+    is absent (see :func:`_harness_source`), so a leftover ``generated.fg.yaml`` from an
+    earlier run under the same ``session_id`` would be re-rendered in place of the edited
+    document. Clearing the per-run outputs (the generated YAML and any page SVG/PNG
+    renders) makes each invocation hermetic without forcing callers to rotate the id.
+    """
+    stale = [
+        session_dir / "generated.fg.yaml",
+        *session_dir.glob("page-*.svg"),
+        *session_dir.glob("p*.png"),
+    ]
+    for path in stale:
+        path.unlink(missing_ok=True)
+
+
 def _subprocess_env(repo_root: Path) -> dict[str, str]:
     pythonpath_entries = [str(repo_root)]
     package_root = get_default_repo_root()
@@ -1314,6 +1415,49 @@ def _base_result(
     }
 
 
+def _decode_stream(value: Any) -> str:
+    """Coerce a captured subprocess stream (``str``, ``bytes``, or ``None``) to text."""
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", "replace")
+    return str(value)
+
+
+def _subprocess_timeout_result(
+    label: str,
+    *,
+    session_id: str,
+    session_dir: Path,
+    yaml_path: Path,
+    exc: subprocess.TimeoutExpired,
+    timeout_seconds: int,
+) -> dict[str, Any]:
+    """Structured ``ok:false`` result for a build subprocess that overran its budget.
+
+    Mirrors the render-timeout contract (a structured payload, never a raised
+    traceback): it surfaces whatever stdout/stderr was captured before the kill plus
+    an actionable hint to raise ``timeout_seconds``. ``returncode`` is ``-1`` (the
+    process was terminated, not exited).
+    """
+    budget = max(1, int(timeout_seconds))
+    result = _base_result(
+        session_id,
+        session_dir,
+        yaml_path,
+        _decode_stream(exc.stdout),
+        _decode_stream(exc.stderr),
+        -1,
+    )
+    result["ok"] = False
+    result["timed_out"] = True
+    result["error"] = (
+        f"{label} exceeded the {budget}s execution budget; raise timeout_seconds "
+        "or simplify the document."
+    )
+    return result
+
+
 def _validate_and_render_yaml(
     yaml_text: str,
     *,
@@ -1322,6 +1466,7 @@ def _validate_and_render_yaml(
     base_dir: Path,
     max_pages: int,
     raster_png: bool,
+    pages: str | list[int] | None = None,
 ) -> dict[str, Any]:
     try:
         document = parse(yaml_text, forgiving=False)
@@ -1345,24 +1490,37 @@ def _validate_and_render_yaml(
         except Exception as exc:  # noqa: BLE001 — render is third-party-ish; surface it structured
             return _render_failure(session_id, report, f"FrameGraph render failed: {exc}")
 
-        for index, svg in enumerate(svgs[_page_slice(max_pages, len(svgs))], 1):
-            path = session_dir / _page_svg_name(index)
+        try:
+            selected = _select_pages(pages, max_pages, len(svgs))
+        except ValueError as exc:
+            return _render_failure(session_id, report, f"invalid 'pages' selector: {exc}")
+
+        for page_no in selected:
+            svg = svgs[page_no - 1]
+            path = session_dir / _page_svg_name(page_no)
             path.write_text(svg, encoding="utf-8")
             renders.append(
                 {
-                    "page": index,
+                    "page": page_no,
                     "path": str(path),
-                    "uri": f"framegraph://session/{session_id}/page/{index}.svg",
+                    "uri": f"framegraph://session/{session_id}/page/{page_no}.svg",
                     "mimeType": "image/svg+xml",
                     "sha256": _sha256_text(svg),
                     "bytes": len(svg.encode("utf-8")),
                 }
             )
-        if raster_png:
-            pngs, render_warning = _try_rasterize_pngs(
-                [Path(item["path"]) for item in renders], session_dir, session_id
+        if pages is not None and not selected:
+            render_warning = (
+                f"no pages matched the 'pages' selector {pages!r}; the document has "
+                f"{len(svgs)} page(s)"
+            )
+        if raster_png and renders:
+            pngs, raster_warning = _try_rasterize_pngs(
+                [(item["page"], Path(item["path"])) for item in renders], session_dir, session_id
             )
             renders.extend(pngs)
+            if raster_warning:
+                render_warning = raster_warning
 
     result = {
         "ok": report.ok and bool(renders),
@@ -1432,12 +1590,96 @@ def _render_timeout() -> float:
     return float(DEFAULT_RENDER_TIMEOUT_SECONDS)
 
 
-def _page_slice(max_pages: int, total: int) -> slice:
-    """Page window for the render. ``max_pages <= 0`` means "all pages" (documented)."""
+def _raster_timeout() -> float:
+    """Soft wall-clock budget for the whole rasterization loop (env-overridable)."""
+    raw = os.environ.get("FRAMEGRAPH_MCP_RASTER_TIMEOUT")
+    if raw:
+        try:
+            value = float(raw)
+            if value > 0:
+                return value
+        except ValueError:
+            pass
+    return float(DEFAULT_RASTER_TIMEOUT_SECONDS)
+
+
+def _raster_max_pages() -> int:
+    """Cap on how many pages a single render call rasterizes to PNG (env-overridable)."""
+    raw = os.environ.get("FRAMEGRAPH_MCP_RASTER_MAX_PAGES")
+    if raw:
+        try:
+            value = int(raw)
+            if value > 0:
+                return value
+        except ValueError:
+            pass
+    return DEFAULT_RASTER_MAX_PAGES
+
+
+def _max_inline_images() -> int:
+    """Cap on how many raster pages are inlined as image content blocks (env-overridable)."""
+    raw = os.environ.get("FRAMEGRAPH_MCP_MAX_INLINE_IMAGES")
+    if raw:
+        try:
+            value = int(raw)
+            if value > 0:
+                return value
+        except ValueError:
+            pass
+    return DEFAULT_MAX_INLINE_IMAGES
+
+
+def _parse_page_selector(pages: str | list[int] | tuple[int, ...]) -> set[int]:
+    """Parse a ``pages`` selector into a set of 1-based page numbers.
+
+    Accepts a list/tuple of ints, or a string of comma-separated singletons and
+    ``lo-hi`` ranges, e.g. ``"6-10,15"``. Raises ``ValueError`` on a malformed
+    token or a non-positive / descending range.
+    """
+    if isinstance(pages, (list, tuple)):
+        out: set[int] = set()
+        for value in pages:
+            number = int(value)
+            if number < 1:
+                raise ValueError(f"page numbers are 1-based; got {number}")
+            out.add(number)
+        return out
+    if isinstance(pages, str):
+        out = set()
+        for token in pages.replace(" ", "").split(","):
+            if not token:
+                continue
+            if "-" in token:
+                lo_text, hi_text = token.split("-", 1)
+                lo, hi = int(lo_text), int(hi_text)
+                if lo < 1 or hi < lo:
+                    raise ValueError(f"invalid page range {token!r}")
+                out.update(range(lo, hi + 1))
+            else:
+                number = int(token)
+                if number < 1:
+                    raise ValueError(f"page numbers are 1-based; got {number}")
+                out.add(number)
+        return out
+    raise ValueError("pages must be a list of ints or a string like '6-10,15'")
+
+
+def _select_pages(pages: str | list[int] | None, max_pages: int, total: int) -> list[int]:
+    """Resolve the 1-based page numbers to render.
+
+    ``pages`` (when given) selects exactly those in-range pages and overrides
+    ``max_pages``; otherwise ``max_pages`` keeps its prefix semantics
+    (``<= 0`` means all pages).
+    """
+    if total <= 0:
+        return []
+    if pages is not None:
+        wanted = _parse_page_selector(pages)
+        return sorted(p for p in wanted if 1 <= p <= total)
     limit = int(max_pages)
     if limit <= 0:
-        return slice(None)
-    return slice(0, limit)
+        return list(range(1, total + 1))
+    return list(range(1, min(limit, total) + 1))
 
 
 def _validation_payload(report: ValidationReport) -> dict[str, Any]:
@@ -1505,43 +1747,65 @@ def _maybe_call_tool_result(result: dict[str, Any]):
 
 
 def _try_rasterize_pngs(
-    svg_paths: list[Path], session_dir: Path, session_id: str
+    pages_and_svgs: list[tuple[int, Path]], session_dir: Path, session_id: str
 ) -> tuple[list[dict[str, Any]], str | None]:
-    """Rasterize page SVGs to PNG. Returns ``(renders, warning)``.
+    """Rasterize selected page SVGs to PNG, bounded by a page cap and a soft time budget.
 
-    A non-``None`` warning means no viewable raster was produced — the model gets
-    only SVG/diagnostics text — so the warning names the missing backend instead of
-    failing silently.
+    ``pages_and_svgs`` pairs each TRUE 1-based page number with its SVG file. Returns
+    ``(renders, warning)``. A non-``None`` warning means either no viewable raster was
+    produced (the model gets only SVG/diagnostics text — the warning names the missing
+    backend) or the lane was truncated by the cap/budget (the rasterized pages render;
+    the rest keep their SVG resource link). PNGs carry the true page number in both the
+    filename (``pNNN.png``) and the resource URI, so a selected subset stays addressable.
     """
     try:
         from framegraph.rendering.infrastructure.browser import (
             BrowserRendererUnavailable,
-            rasterize_svgs,
+            rasterize_svg,
         )
     except ImportError as exc:
         return [], f"PNG rasterization unavailable: {exc}"
 
-    svgs = [path.read_text(encoding="utf-8") for path in svg_paths]
-    try:
-        pngs = rasterize_svgs(svgs, session_dir, base_dir=str(session_dir))
-    except BrowserRendererUnavailable as exc:
-        return [], (
-            f"PNG rasterization unavailable: {exc} The model cannot see SVG, so this "
-            "render was not visually verified — install the `browser` group and run "
-            "`uv run playwright install chromium`."
-        )
-    renders = []
-    for index, path in enumerate(pngs, 1):
+    total = len(pages_and_svgs)
+    cap = _raster_max_pages()
+    budget = _raster_timeout()
+    deadline = time.monotonic() + budget
+    renders: list[dict[str, Any]] = []
+    truncated = 0
+    for index, (page_no, svg_path) in enumerate(pages_and_svgs):
+        if index >= cap or time.monotonic() > deadline:
+            truncated = total - index
+            break
+        out_path = session_dir / f"p{page_no:03d}.png"
+        try:
+            rasterize_svg(svg_path.read_text(encoding="utf-8"), out_path, base_dir=str(session_dir))
+        except BrowserRendererUnavailable as exc:
+            if not renders:
+                return [], (
+                    f"PNG rasterization unavailable: {exc} The model cannot see SVG, so this "
+                    "render was not visually verified — install the `browser` group and run "
+                    "`uv run playwright install chromium`."
+                )
+            truncated = total - index
+            break
         renders.append(
             {
-                "page": index,
-                "path": str(path),
-                "uri": f"framegraph://session/{session_id}/page/{index}.png",
+                "page": page_no,
+                "path": str(out_path),
+                "uri": f"framegraph://session/{session_id}/page/{page_no}.png",
                 "mimeType": "image/png",
-                "bytes": path.stat().st_size,
+                "bytes": out_path.stat().st_size,
             }
         )
-    return renders, None
+    warning = None
+    if truncated:
+        warning = (
+            f"rasterized {len(renders)} of {total} selected page(s) (raster cap {cap}, "
+            f"budget {budget:g}s); the remaining {truncated} keep their SVG resource link — "
+            "raise FRAMEGRAPH_MCP_RASTER_MAX_PAGES / FRAMEGRAPH_MCP_RASTER_TIMEOUT or select "
+            "fewer pages."
+        )
+    return renders, warning
 
 
 def _write_diagnostics(session_dir: Path, result: dict[str, Any]) -> None:
