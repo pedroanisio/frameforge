@@ -209,12 +209,19 @@ updated and a per-fixture review replaces the hand-verified output):
   (`clip_rect`/`clip_ellipse`/`clip_polygon`/`clip_wrap` via an id→geometry registry,
   showing the port's id-handle model adapts to TikZ's inline `\clip`). Additive.
 - **3b-5c** the integration — and the genuinely hard, non-additive part:
-  - **SVG path data** (`path`, `clip_path_d`): relocate the ~250-line `d`→TikZ
-    converter out of `FigureTikz` (don't duplicate it) into the painter/a shared util.
-  - **Text** (`text_tag`/`text_block`/`text_runs`): the painter only gets a resolved
-    style dict, but faithful TikZ text needs the `_Transpiler`'s font-macro registry
-    (`_register_fonts`/`_font`) — so text couples the painter to the document scaffold
-    and must be solved at wiring time.
+  - **SVG path data** (`path`, `clip_path_d`): ✅ **done** — the ~308-line `d`→TikZ
+    converter is relocated verbatim out of `FigureTikz` into the neutral, pure
+    `painters/tikz_path.py` (a third module to avoid the painters↔latex import
+    cycle); `FigureTikz` delegates (byte-identical), and `TikzPainter.path`/
+    `clip_path_d` consume it. Gradient-on-path falls back to a solid first stop.
+  - **Text** — the font-coupling decision is **resolved**: `text_tag` ✅. The painter
+    only gets a resolved style dict, and faithful TikZ text needs the `_Transpiler`'s
+    font-macro registry — so the registry is **threaded in** as an optional
+    `font_macro` callable on `TikzPainter.__init__` (the Renderer supplies it at
+    wiring time; absent it, the font degrades to the default family). `text_tag`
+    emits a `\node` (anchor/align/`_text_y`/font-chain/colour) on the proven latex/
+    convention. Remaining: `text_block`/`text_runs` (multi-line/styled spans) and the
+    CSS text-feature tail (variants/letter-spacing/bidi/decorations).
   - **Def+ref handles** (`gradient`/`filter_effect`+`filter_wrap`/`marker`/
     `embedded_svg`/`image_pattern`): these *look* like they encode SVG's `<defs>`+
     `url(#id)` model. On inspection that framing was overstated — the port already

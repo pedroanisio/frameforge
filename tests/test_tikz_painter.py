@@ -179,3 +179,65 @@ def test_non_hex_stop_falls_back_to_solid():
                     "stops": [{"position": 0, "color": "red"}, {"position": 1, "color": "blue"}]})
     out = p.rect(0, 0, 10, 10, g, None)
     assert "\\shade" not in out and "fill=red" in out
+
+
+def test_path_data_to_tikz():
+    p = TikzPainter()
+    # straight segments -> chained TikZ path
+    out = p.path("M10 10 L20 20 Z", None, Stroke(color="#000000"))
+    assert out == "\\path[draw={rgb,255:red,0;green,0;blue,0},line width=1pt] (10,10) -- (20,20) -- cycle;\n"
+    # cubic curve -> .. controls .. syntax
+    assert "controls" in p.path("M0 0 C5 5 10 10 15 15", "#ff0000", None)
+    # empty/invalid d -> no output
+    assert p.path("", None, None) == "" and p.path(None, None, None) == ""
+
+
+def test_path_with_arrow_markers_uses_draw():
+    p = TikzPainter()
+    out = p.path("M0 0 L10 0", None, Stroke(color="#000000"),
+                 markers=Markers(color="#000000", end=True))
+    assert out.startswith("\\draw[->,")
+
+
+def test_clip_path_d_registers_geometry():
+    p = TikzPainter()
+    p.new_page()
+    cid = p.clip_path_d("M0 0 L10 0 L10 10 Z")
+    assert p._clips[cid] == "(0,0) -- (10,0) -- (10,10) -- cycle"
+
+
+def test_text_tag_node_with_font_and_anchor():
+    p = TikzPainter()
+    st = {"family": "serif", "size": 12, "weight": "normal", "italic": False,
+          "color": "#222222", "align": "left", "lh": 1.2}
+    out = p.text_tag(10, 20, 80, 16, "Hi", st)
+    assert out == ("\\node[anchor=west,inner sep=0pt,"
+                   "font=\\fontsize{12}{13.44}\\selectfont,text width=80pt,"
+                   "align=flush left,text={rgb,255:red,34;green,34;blue,34}] "
+                   "at (10,28) {Hi};\n")
+
+
+def test_text_tag_font_macro_threaded():
+    # the document's font-macro registry, threaded in, prefixes the font command
+    p = TikzPainter(font_macro=lambda fam: "\\myserif ")
+    st = {"family": "serif", "size": 10, "weight": "bold", "italic": True,
+          "color": "#000000", "align": "center"}
+    out = p.text_tag(0, 0, 40, 20, "T", st)
+    assert "font=\\myserif \\fontsize{10}{11.2}\\selectfont\\bfseries\\itshape" in out
+    assert "anchor=center" in out and "align=center" in out and "at (20,10)" in out
+
+
+def test_text_tag_align_right_and_escape():
+    p = TikzPainter()
+    st = {"family": "sans", "size": 11, "weight": 700, "italic": False,
+          "color": "#000000", "align": "end"}
+    out = p.text_tag(0, 0, 30, 10, "a&b_c", st)
+    assert "anchor=east" in out and "at (30,5)" in out and "\\bfseries" in out
+    assert "{a\\&b\\_c}" in out                  # LaTeX-escaped content
+
+
+def test_text_tag_valign_and_empty():
+    p = TikzPainter()
+    assert p.text_tag(0, 0, 10, 10, "", {"align": "left"}) == ""
+    st = {"family": "serif", "size": 8, "color": "#000", "align": "left", "valign": "top"}
+    assert "at (0,4)" in p.text_tag(0, 0, 20, 20, "x", st)   # valign top -> y + size/2
