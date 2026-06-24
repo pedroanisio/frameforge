@@ -561,7 +561,13 @@ def _signature_block(name, obj):
 
 def _safe_signature(obj):
     try:
-        return str(inspect.signature(obj))
+        # Normalize the typing repr across Python versions: `str(inspect.signature)`
+        # renders typing generics as `typing.Annotated[...]` on some interpreters
+        # and the bare `Annotated[...]` on others. Strip the module prefix so the
+        # generated signature — and therefore the committed sdk-api.md snapshot —
+        # is deterministic regardless of the local Python (keeps docs-check from
+        # drifting between a contributor's machine and CI).
+        return str(inspect.signature(obj)).replace("typing.", "")
     except (TypeError, ValueError):
         return "()"
 

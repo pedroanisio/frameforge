@@ -13,6 +13,7 @@ Renderer-only import (the `framegraph` package must win) — evict a models-modu
 shadow first, per test_render_cli.py.
 """
 import os
+import subprocess
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -119,9 +120,8 @@ INLINE_MATH_DOC = {
 
 
 def _render_to_svg(tmp_path, doc, name):
-    R.Renderer._math_svg_cache = {}
-    R.Renderer._math_svg_failures = set()
-    R.Renderer._math_svg_failed = False
+    # The math->SVG cache is now per-MathSvgRenderer instance (one per render),
+    # so no cross-render class state needs resetting here.
     src = tmp_path / name
     src.write_text(yaml.safe_dump(doc), encoding="utf-8")
     rc = R.main([str(src), "--out", str(tmp_path / "out"), "-q"])
@@ -155,28 +155,31 @@ def test_flow_mathml_renders_as_mathjax_svg_not_raw_xml(tmp_path):
 
 
 def test_math_svg_conversion_failure_does_not_disable_later_math(monkeypatch):
-    R.Renderer._math_svg_cache = {}
-    R.Renderer._math_svg_failures = set()
-    R.Renderer._math_svg_failed = False
+    # The math->SVG path is now the MathSvgRenderer infrastructure adapter.
+    from framegraph.rendering.domain.services.math_text import math_text
+    from framegraph.rendering.infrastructure.math_svg import MathSvgRenderer
+
+    m = MathSvgRenderer(math_text)
     calls = []
 
     def fake_run(_cmd, input=None, **_kwargs):
         calls.append(input)
         if len(calls) == 1:
-            raise R.subprocess.CalledProcessError(1, _cmd, stderr="bad expression")
+            raise subprocess.CalledProcessError(1, _cmd, stderr="bad expression")
 
         class Proc:
             stdout = '[{"body":"<g data-mml-node=\\"math\\"></g>","viewBox":"0 0 10 10","width":10,"height":10}]'
 
         return Proc()
 
-    monkeypatch.setattr(R.subprocess, "run", fake_run)
+    # Patch the shared stdlib `subprocess` module object the adapter calls through.
+    monkeypatch.setattr(subprocess, "run", fake_run)
 
-    assert R.Renderer.render_math_svg("bad") is None
-    rendered = R.Renderer.render_math_svg(r"E = mc^2")
+    assert m.render("bad") is None             # one conversion failure...
+    rendered = m.render(r"E = mc^2")           # ...does not disable later math
 
     assert rendered["body"] == '<g data-mml-node="math"></g>'
-    assert R.Renderer._math_svg_failed is False
+    assert m._failed is False
     assert len(calls) == 2
 
 
