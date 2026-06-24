@@ -148,7 +148,7 @@ non-SVG backend droppable, each item grounded in the current `ports.py` /
 | **3b-2** | Neutralize the `stroke` parameter (`Stroke` value object) | ✅ **done** | L | byte-identical (verified, 252 pages) |
 | **3b-3** | Neutralize the remaining SVG-string-shaped painter params | ✅ **done** | M | byte-identical (transforms: 1 reviewed re-pin) |
 | **3b-4** | Complete + correct the `ScenePainter` port surface | ✅ **done** | S | declaration-only |
-| **3b-5** | Second adapter: drive LaTeX/TikZ through the port, delete the fork | in progress | L–XL | golden re-pin (new target) |
+| **3b-5** | Second adapter: TikzPainter on the port; Renderer drives it end-to-end | adapter+wire done; fork deletion toolchain-gated | L–XL | golden re-pin (new target) |
 
 **3b-3 — remaining non-neutral params (done):**
 
@@ -249,10 +249,22 @@ updated and a per-fixture review replaces the hand-verified output):
     geometry). `marker` is already internal via the `Markers` value object. Genuinely
     SVG-specific remainders: `filter_effect`/`filter_wrap` (TikZ shadows differ),
     `embedded_svg` (foreign-SVG embed — a TikZ backend falls back), `image_pattern`.
-  - **Wire + delete**: drive the Renderer with `TikzPainter`, route `_Transpiler`'s
-    figure path through it, delete `FigureTikz` (~2,700 LOC), rewrite the
-    assertion-based LaTeX tests, and validate by `lualatex` compile + per-fixture
-    review (there is no `.tex` golden lock to lean on).
+  - **Wire — done (structurally).** The painter is injectable: `Renderer.__init__`
+    takes a `painter_factory(color_resolver) -> ScenePainter` (defaulting to
+    SvgPainter, so SVG/golden are unchanged). With a `TikzPainter` factory the **same
+    builder drives TikZ end-to-end** — a real oracle fixture renders to a complete
+    TikZ picture (gradient `\shade`, `\path`, text `\node`), zero objects skipped, no
+    SVG. The end-to-end render surfaced and closed the last drivability gaps
+    (`a11y_wrap` passthrough; `document` accepting the `lang`/`title`/`desc` a11y
+    attrs). This is the proof the seam is genuinely backend-neutral, not SVG-shaped.
+  - **Delete — toolchain-gated (the only true remainder).** Route `_Transpiler`'s
+    figure/page path through `Renderer`+`TikzPainter`, delete `FigureTikz`
+    (~2,500 LOC), and rewrite the assertion-based LaTeX tests — but this *replaces*
+    validated output with a new render that **must be `lualatex`-compiled and
+    reviewed per fixture**, and there is **no LaTeX engine in the current
+    environment** (nor a `.tex` golden lock). Doing the deletion blind would swap a
+    validated fork for an unvalidated one, so it is deferred to where the toolchain
+    exists. Everything verifiable without `lualatex` is done.
 
 With 3b-3 and 3b-4 landed, the painter's *neutral* surface is complete: every
 geometry primitive takes value objects (`Stroke`, `Markers`, transform ops, colour/
