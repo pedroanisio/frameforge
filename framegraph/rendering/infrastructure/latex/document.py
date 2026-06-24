@@ -414,13 +414,14 @@ class _Transpiler:
             lines.append(cells(header, bold=True) + "\\midrule\n")
         lines += [cells(r) for r in rows]
         lines.append("\\bottomrule\n\\end{tabular}")
-        table = "".join(lines)
-        if fl.get("id"):
-            table += f"\n\\label{{{_latex_label(fl.get('id'))}}}"
         inkname = self._book.name(self._color.resolve("ink")) or "black"
-        table = (f"{{\\setlength{{\\tabcolsep}}{{4pt}}"
-                 f"\\fontsize{{{size}}}{{{fnum(size * 1.3)}}}\\selectfont {table}}}")
-        out.append(f"\\begin{{center}}\\color{{{inkname}}}{table}\\end{{center}}\n\\addvspace{{8pt}}\n")
+        block = (f"{{\\setlength{{\\tabcolsep}}{{4pt}}\\color{{{inkname}}}"
+                 f"\\fontsize{{{size}}}{{{fnum(size * 1.3)}}}\\selectfont {''.join(lines)}}}")
+        cap = fl.get("caption")
+        if cap is not None:
+            self._emit_float(out, "table", block, cap, fl, caption_first=True)
+            return
+        out.append(f"\\begin{{center}}{block}\\end{{center}}\n\\addvspace{{8pt}}\n")
 
     def _image_graphics_options(self, fl):
         width = num(fl.get("width"), None)
@@ -507,8 +508,13 @@ class _Transpiler:
     def _emit_bibliography(self, fl, out):
         title = fl.get("title")
         entries = fl.get("entries") if isinstance(fl.get("entries"), list) else []
+        # `thebibliography` prints its OWN heading (`\section*{\refname}`), so a
+        # separate styled title wrote the word twice. Point `\refname` at the
+        # requested title and register it in the TOC instead.
         if title:
-            out.append(self._styled(self._ts.resolve("h2"), ltx_escape(title), gap="4pt"))
+            out.append("\\renewcommand{\\refname}{" + ltx_escape(title) + "}\n")
+            out.append("\\phantomsection\n\\addcontentsline{toc}{section}{"
+                       + ltx_escape(title) + "}\n")
         out.append("\\begin{thebibliography}{99}\n")
         for idx, entry in enumerate(entries, start=1):
             if not isinstance(entry, dict):

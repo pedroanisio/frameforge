@@ -39,13 +39,13 @@ MUTE = "#5B6573"
 # --------------------------------------------------------------------------- #
 # Flowable constructors (plain model dicts — the SDK validates them on build).
 # --------------------------------------------------------------------------- #
-_INLINE = re.compile(r"(`[^`]+`|\$[^$]+\$|\*\*[^*]+\*\*|\*[^*]+\*)")
+_INLINE = re.compile(r"(`[^`]+`|\$[^$]+\$|\*\*[^*]+\*\*|\*[^*]+\*|\{ref:[^}]+\})")
 
 
 def _spans(text):
-    """Lower inline `code`, $math$, **bold** and *italic* to model inline values.
-    The LaTeX backend now honours a Span's bold/italic style, so emphasis
-    survives into TeX as \\textbf / \\textit."""
+    """Lower inline `code`, $math$, **bold**, *italic* and {ref:id} to model
+    inline values. The LaTeX backend honours a Span's bold/italic style (→
+    \\textbf / \\textit) and resolves a ref to the target's number (→ \\ref)."""
     parts = []
     for tok in _INLINE.split(text):
         if tok == "":
@@ -54,6 +54,8 @@ def _spans(text):
             parts.append({"kind": "code", "text": tok[1:-1]})
         elif tok.startswith("$"):
             parts.append({"kind": "math", "tex": tok[1:-1]})
+        elif tok.startswith("{ref:"):
+            parts.append({"kind": "ref", "target": tok[5:-1]})
         elif tok.startswith("**"):
             parts.append({"text": tok[2:-2], "style": {"font_weight": 700}})
         elif tok.startswith("*"):
@@ -123,8 +125,10 @@ def FIG(fig_id, number, caption, *, id=None):
             for layer in page.get("layers", [])
             for o in layer.get("objects", [])]
     group = {"type": "group", "box": [0, 0, plates.W, h], "children": objs}
+    # The LaTeX backend now numbers figures via \caption ("Figure N:"), so the
+    # caption carries only the descriptive text — no hand-typed "Figure N —".
     return {"type": "figure", "object": group, "size": [plates.W, h],
-            "align": "center", "caption": f"Figure {number} — {caption}",
+            "align": "center", "caption": caption,
             **({"id": id} if id else {})}
 
 
@@ -142,6 +146,8 @@ def story():
           "a FrameGraph flow document, lowered to LaTeX so that TeX owns the "
           "pagination, line-breaking, float placement and math."),
         {"type": "toc", "leader": "."},
+        SP(10),
+        {"type": "toc", "of": "figures"},      # a real list of (numbered) figures
         PAGE_BREAK,
     ]
 
@@ -418,8 +424,8 @@ def story():
             "consumes.", id="fig-lowering"),
         P("This keeps absolute mode as the compile target — so the golden SHA-256 "
           "page locks still hold — removes the brittle arithmetic, and makes "
-          "content-count changes free. Author high, lower to a single canonical "
-          "representation, render that."),
+          "content-count changes free (Figure {ref:fig-lowering}). Author high, "
+          "lower to a single canonical representation, render that."),
     ]
 
     # References

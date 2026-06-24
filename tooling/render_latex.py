@@ -3,14 +3,19 @@
 
 Transpiles FrameGraph v2 documents to native LaTeX (TeX owns pagination,
 justification, hyphenation, microtype, and real math for flow docs) with figures
-and page-mode documents emitted as vector TikZ, then compiles with `lualatex`.
-Design tokens are honoured (sizes / `ink` colour / sans body via fontspec).
+and page-mode documents emitted as vector TikZ, then compiles to PDF. The TeX
+engine is auto-selected (``--engine auto``): `lualatex` when its OpenType font
+loader (luaotfload) is present, else `pdflatex` — for which `to_pdflatex`
+rewrites the fontspec preamble and maps the document's non-ASCII glyphs through
+newunicodechar so the same document compiles under either engine. Design tokens
+are honoured (sizes / `ink` colour / sans body).
 
 Usage:
     uv run python tooling/render_latex.py fixtures/standard-model.fg.yaml --out /tmp/sm_latex --png
     uv run python tooling/render_latex.py --all
     uv run python tooling/render_latex.py --list
     uv run python tooling/render_latex.py fixtures/standard-model.fg.yaml --tex-only
+    uv run python tooling/render_latex.py fixtures/standard-model.fg.yaml --engine pdflatex
 """
 from __future__ import annotations
 
@@ -83,11 +88,43 @@ def pick_engine(preferred="auto"):
 _FONTSPEC_RE = re.compile(r"\\usepackage(?:\[[^\]]*\])?\{fontspec\}")
 _SETMAINFONT_RE = re.compile(r"\\setmainfont\{[^}]*\}")
 _ADDFONTFEAT_RE = re.compile(r"\\addfontfeatures\s*\{[^}]*\}")
+
+# lualatex reads Unicode natively; pdflatex does not. inputenc+textcomp cover the
+# typographic glyphs, but NOT the maths / box-drawing glyphs that plate labels and
+# formulas emit (Σ, →, ‖, √, •, ■, subscripts, …). Map them to TeX via
+# newunicodechar — the maths ones through \ensuremath, using the amsmath/amssymb
+# the transpiler already loads. Without this, pdflatex aborts on the first such
+# glyph ("Unicode character … not set up for use with LaTeX").
+_PDFLATEX_GLYPHS = {
+    "—": r"\textemdash", "–": r"\textendash", "…": r"\textellipsis",
+    "§": r"\S", "·": r"\textperiodcentered", "•": r"\textbullet",
+    "“": r"\textquotedblleft", "”": r"\textquotedblright",
+    "‘": r"\textquoteleft", "’": r"\textquoteright",
+    "²": r"\textsuperscript{2}", "³": r"\textsuperscript{3}",
+    "°": r"\textdegree", "ü": "\\\"u",
+    "×": r"\ensuremath{\times}", "−": r"\ensuremath{-}", "±": r"\ensuremath{\pm}",
+    "→": r"\ensuremath{\rightarrow}", "←": r"\ensuremath{\leftarrow}",
+    "↑": r"\ensuremath{\uparrow}", "↓": r"\ensuremath{\downarrow}",
+    "≈": r"\ensuremath{\approx}", "≤": r"\ensuremath{\leq}",
+    "≥": r"\ensuremath{\geq}", "≠": r"\ensuremath{\neq}",
+    "∞": r"\ensuremath{\infty}", "‖": r"\ensuremath{\|}", "√": r"\ensuremath{\surd}",
+    "Σ": r"\ensuremath{\Sigma}", "Δ": r"\ensuremath{\Delta}", "Π": r"\ensuremath{\Pi}",
+    "α": r"\ensuremath{\alpha}", "β": r"\ensuremath{\beta}", "γ": r"\ensuremath{\gamma}",
+    "θ": r"\ensuremath{\theta}", "λ": r"\ensuremath{\lambda}", "μ": r"\ensuremath{\mu}",
+    "π": r"\ensuremath{\pi}", "σ": r"\ensuremath{\sigma}", "φ": r"\ensuremath{\phi}",
+    "ω": r"\ensuremath{\omega}",
+    "■": r"\ensuremath{\blacksquare}", "▪": r"\ensuremath{\blacksquare}",
+    "●": r"\ensuremath{\bullet}",
+    "ᵢ": r"\ensuremath{{}_{i}}", "ⱼ": r"\ensuremath{{}_{j}}",
+}
+_PDFLATEX_UNICHARS = "\\usepackage{newunicodechar}\n" + "".join(
+    f"\\newunicodechar{{{g}}}{{{c}}}\n" for g, c in _PDFLATEX_GLYPHS.items())
 _PDFLATEX_FONTS = (
     "\\usepackage[utf8]{inputenc}\n"
     "\\usepackage[T1]{fontenc}\n"
     "\\usepackage{lmodern}\n"
-    "\\usepackage{textcomp}"
+    "\\usepackage{textcomp}\n"
+    + _PDFLATEX_UNICHARS.rstrip("\n")
 )
 
 
@@ -95,7 +132,8 @@ def to_pdflatex(tex):
     """Rewrite a fontspec/lualatex document so pdflatex can compile it.
 
     Swaps the Unicode-font preamble for inputenc + fontenc + lmodern (a clean
-    sans default) and drops fontspec-only ``\\addfontfeatures`` letter-spacing,
+    sans default), teaches pdflatex the non-ASCII glyphs the document uses via
+    newunicodechar, and drops fontspec-only ``\\addfontfeatures`` letter-spacing,
     which has no inline pdflatex equivalent. The TikZ body is engine-agnostic and
     is left untouched, so the vector output is identical bar the body font."""
     tex = _FONTSPEC_RE.sub(lambda m: _PDFLATEX_FONTS, tex, count=1)
