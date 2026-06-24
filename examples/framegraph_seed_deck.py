@@ -174,6 +174,13 @@ def chrome(b, sid, n, kick, *, dark=False, grid=True, cover=False):
     else:
         on_profile(page)
         pagenum(page, n)
+    # Directional progress — a pitch reads forward; the bar fills left→right to the
+    # current slide, pointing the eye the way the story moves.
+    pb_w = W - 2 * M - 124
+    page.rect([M, H - 33, pb_w, 3], radius=1.5, decorative=True,
+              fill=("#2A2E3A" if dark else GRID))
+    page.rect([M, H - 33, pb_w * n / N_SLIDES, 3], radius=1.5, decorative=True,
+              fill=(GRAPH if dark else FRAME))
     if kick:
         kicker(page, kick, color=(GRAPH if dark else FRAME))
     page.layer("body")

@@ -200,6 +200,24 @@ pages:
         letter_spacing: 0.5
       type: text
       text: p.01 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#2A2E3A'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 63.25
+      - 3
+      decorative: true
+      type: rect
+      fill: '#12B0C3'
+      radius: 1.5
   - id: body
     objects:
     - box:
@@ -669,6 +687,24 @@ pages:
         letter_spacing: 0.5
       type: text
       text: p.02 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 126.5
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
     - box:
       - 72
       - 64
@@ -1356,6 +1392,24 @@ pages:
       text: p.03 / 16
     - box:
       - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 189.75
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
       - 64
       - 1136
       - 14
@@ -1943,6 +1997,24 @@ pages:
         letter_spacing: 0.5
       type: text
       text: p.04 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 253.0
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
     - box:
       - 72
       - 64
@@ -2641,6 +2713,24 @@ pages:
       text: p.05 / 16
     - box:
       - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 316.25
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
       - 64
       - 1136
       - 14
@@ -3095,6 +3185,24 @@ pages:
         letter_spacing: 0.5
       type: text
       text: p.06 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 379.5
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
     - box:
       - 72
       - 64
@@ -3756,6 +3864,24 @@ pages:
       text: p.07 / 16
     - box:
       - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 442.75
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
       - 64
       - 1136
       - 14
@@ -4413,6 +4539,24 @@ pages:
         letter_spacing: 0.5
       type: text
       text: p.08 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 506.0
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
     - box:
       - 72
       - 64
@@ -5273,6 +5417,24 @@ pages:
       text: p.09 / 16
     - box:
       - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 569.25
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
       - 64
       - 1136
       - 14
@@ -5909,6 +6071,24 @@ pages:
         letter_spacing: 0.5
       type: text
       text: p.10 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 632.5
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
     - box:
       - 72
       - 64
@@ -6589,6 +6769,24 @@ pages:
       text: p.11 / 16
     - box:
       - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 695.75
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
       - 64
       - 1136
       - 14
@@ -7047,6 +7245,24 @@ pages:
         letter_spacing: 0.5
       type: text
       text: p.12 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#2A2E3A'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 759.0
+      - 3
+      decorative: true
+      type: rect
+      fill: '#12B0C3'
+      radius: 1.5
     - box:
       - 72
       - 64
@@ -7585,6 +7801,24 @@ pages:
       text: p.13 / 16
     - box:
       - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 822.25
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
       - 64
       - 1136
       - 14
@@ -8043,6 +8277,24 @@ pages:
         letter_spacing: 0.5
       type: text
       text: p.14 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#2A2E3A'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 885.5
+      - 3
+      decorative: true
+      type: rect
+      fill: '#12B0C3'
+      radius: 1.5
     - box:
       - 72
       - 64
@@ -8531,6 +8783,24 @@ pages:
       text: p.15 / 16
     - box:
       - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#2A2E3A'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 948.75
+      - 3
+      decorative: true
+      type: rect
+      fill: '#12B0C3'
+      radius: 1.5
+    - box:
+      - 72
       - 64
       - 1136
       - 14
@@ -8772,6 +9042,24 @@ pages:
         letter_spacing: 0.5
       type: text
       text: p.16 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 1012.0
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
   - id: body
     objects:
     - stroke_style:
