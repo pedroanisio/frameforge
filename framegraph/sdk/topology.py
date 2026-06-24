@@ -217,10 +217,87 @@ class Graph:
             temp = max(temp * 0.97, 1e-3)  # cool down
         return pos
 
+    # -- automatic layout (infer the algorithm from graph structure) -------- #
+    def _is_directed(self) -> bool:
+        return any(e.directed for e in self._edges)
+
+    def _is_connected(self) -> bool:
+        if not self._nodes:
+            return True
+        start = next(iter(self._nodes))
+        seen, stack = {start}, [start]
+        while stack:
+            for nb in self.neighbors(stack.pop()):
+                if nb not in seen:
+                    seen.add(nb)
+                    stack.append(nb)
+        return len(seen) == len(self._nodes)
+
+    def _is_dag(self) -> bool:
+        """True if the src→dst edges form a directed acyclic graph (Kahn's)."""
+        indeg = {nid: 0 for nid in self._nodes}
+        succ: dict[str, list[str]] = {nid: [] for nid in self._nodes}
+        for e in self._edges:
+            succ[e.src].append(e.dst)
+            indeg[e.dst] += 1
+        queue = [nid for nid in self._nodes if indeg[nid] == 0]
+        seen = 0
+        while queue:
+            cur = queue.pop()
+            seen += 1
+            for nxt in succ[cur]:
+                indeg[nxt] -= 1
+                if indeg[nxt] == 0:
+                    queue.append(nxt)
+        return seen == len(self._nodes)
+
+    def _is_tree(self) -> bool:
+        return len(self._edges) == len(self._nodes) - 1 and self._is_connected()
+
+    def _auto_root(self) -> str | None:
+        """A natural root: a directed source (in-degree 0) if any, else the
+        highest-degree hub; deterministic (ties break by insertion order)."""
+        if not self._nodes:
+            return None
+        indeg = {nid: 0 for nid in self._nodes}
+        for e in self._edges:
+            indeg[e.dst] += 1
+        ids = list(self._nodes)
+        sources = [nid for nid in ids if indeg[nid] == 0]
+        if sources:
+            return sources[0]
+        return max(ids, key=self.degree)
+
+    def layout_kind(self) -> str:
+        """Infer the best-fit layout algorithm from the graph's structure:
+        ``grid`` (no edges), ``radial`` (undirected tree → hub view), ``layered``
+        (directed acyclic → hierarchy), or ``spring`` (cyclic / general)."""
+        if not self._edges:
+            return "grid"
+        if self._is_tree() and not self._is_directed():
+            return "radial"
+        if self._is_dag():
+            return "layered"
+        return "spring"
+
+    def auto_layout(self, **overrides: object) -> dict[str, Vec2]:
+        """Lay the graph out automatically — pick the algorithm from structure
+        (:meth:`layout_kind`) and apply it, so positioning is *inferred from the
+        declared edges* rather than chosen by hand. ``overrides`` pass through to the
+        chosen layout (e.g. ``gap=``/``radius=``)."""
+        kind = self.layout_kind()
+        if kind == "grid":
+            return self.grid_layout(**overrides)
+        if kind == "radial":
+            return self.radial_layout(self._auto_root(), **overrides)
+        if kind == "layered":
+            return self.layered_layout(**overrides)
+        return self.spring_layout(**overrides)
+
     # -- rendering ---------------------------------------------------------- #
     def render(
         self,
-        positions: dict[str, Point],
+        positions: dict[str, Point] | None = None,
         *,
         box: Sequence[float],
         camera: Camera | Mat4 | None = None,
@@ -243,7 +320,12 @@ class Graph:
         nodes; directed edges get an arrowhead; labels are sized to fit so the
         ``--check-overflow`` proxy stays happy. Children are emitted local to the
         group box (origin baked out), matching :class:`~framegraph.sdk.Scene3D`.
+
+        ``positions`` defaults to :meth:`auto_layout` — omit it and the graph lays
+        itself out from its declared edges (the algorithm inferred from structure).
         """
+        if positions is None:
+            positions = self.auto_layout()
         matrix = camera.matrix() if isinstance(camera, Camera) else camera
 
         screen: dict[str, Vec2] = {}

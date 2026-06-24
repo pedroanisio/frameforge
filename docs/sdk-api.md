@@ -1149,15 +1149,17 @@ Graph() -> 'None'
 
 | Method | Signature | Summary |
 |---|---|---|
+| `auto_layout` | `(self, **overrides: 'object') -> 'dict[str, Vec2]'` | Lay the graph out automatically — pick the algorithm from structure |
 | `circular_layout` | `(self, *, radius: 'float' = 1.0, start: 'float' = -90.0) -> 'dict[str, Vec2]'` | Evenly space nodes on a circle, first node at ``start`` degrees. |
 | `degree` | `(self, id: 'str') -> 'int'` |  |
 | `edge` | `(self, src: 'str', dst: 'str', *, directed: 'bool' = False, label: 'str \| None' = None, weight: 'float' = 1.0, **style: 'object') -> "'Graph'"` |  |
 | `grid_layout` | `(self, *, cols: 'int \| None' = None) -> 'dict[str, Vec2]'` | Row-major grid; ``cols`` defaults to ``ceil(sqrt(n))``. |
 | `layered_layout` | `(self, *, gap: 'float' = 1.0) -> 'dict[str, Vec2]'` | Left-to-right layered (Sugiyama-lite) layout for a DAG. |
+| `layout_kind` | `(self) -> 'str'` | Infer the best-fit layout algorithm from the graph's structure: |
 | `neighbors` | `(self, id: 'str') -> 'list[str]'` |  |
 | `node` | `(self, id: 'str', label: 'str \| None' = None, *, weight: 'float' = 1.0, pos: 'Point \| None' = None, **style: 'object') -> "'Graph'"` |  |
 | `radial_layout` | `(self, root: 'str', *, ring: 'float' = 1.0) -> 'dict[str, Vec2]'` | Concentric rings by BFS distance from ``root`` (a tree/hub view). |
-| `render` | `(self, positions: 'dict[str, Point]', *, box: 'Sequence[float]', camera: 'Camera \| Mat4 \| None' = None, node_radius: 'float' = 9.0, node_fill: 'str' = '#1d4ed8', node_stroke: 'str' = '#0b1f4d', node_stroke_width: 'float' = 1.5, edge_color: 'str' = '#94a3b8', edge_width: 'float' = 1.5, labels: 'bool' = True, label_color: 'str' = '#0f172a', label_size: 'float' = 11.0, font_family: 'Sequence[str]' = ('DejaVu Sans', 'Arial', 'sans-serif'), id: 'str \| None' = None) -> 'dict[str, object]'` | Render the graph to one FrameGraph ``group`` fitted into ``box``. |
+| `render` | `(self, positions: 'dict[str, Point] \| None' = None, *, box: 'Sequence[float]', camera: 'Camera \| Mat4 \| None' = None, node_radius: 'float' = 9.0, node_fill: 'str' = '#1d4ed8', node_stroke: 'str' = '#0b1f4d', node_stroke_width: 'float' = 1.5, edge_color: 'str' = '#94a3b8', edge_width: 'float' = 1.5, labels: 'bool' = True, label_color: 'str' = '#0f172a', label_size: 'float' = 11.0, font_family: 'Sequence[str]' = ('DejaVu Sans', 'Arial', 'sans-serif'), id: 'str \| None' = None) -> 'dict[str, object]'` | Render the graph to one FrameGraph ``group`` fitted into ``box``. |
 | `spring_layout` | `(self, *, iterations: 'int' = 220, k: 'float \| None' = None, seed_radius: 'float' = 1.0) -> 'dict[str, Vec2]'` | Deterministic Fruchterman–Reingold force layout. |
 
 ### `Node`
