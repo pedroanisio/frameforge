@@ -37,6 +37,11 @@ dev = [
 render = ["matplotlib>=3.7", "pillow>=10"]
 browser = ["playwright>=1.44"]
 pdf = ["pymupdf>=1.24"]
+# FrameGraph -> PDF: combine a document's solved SVG pages into one vector PDF
+# (tooling/render_pdf.py). Distinct from the `pdf` group above, which is for PDF
+# *input* (the PDF -> FrameGraph transpiler). Optional and only imported by that
+# tool, so core rendering stays dependency-free.
+pdfout = ["cairosvg>=2.7", "pypdf>=4"]
 # Real font-advance metrics for accurate text wrap/fit (framegraph.sdk.measure_text
 # and render_fixtures.py --real-metrics). Optional: absent it, callers fall back to
 # the per-character estimate, so core rendering stays dependency-free (§13).
