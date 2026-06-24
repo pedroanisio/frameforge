@@ -59,6 +59,7 @@ def _load_yaml_file(path):
 sys.path.insert(0, ROOT)
 from framegraph.rendering.domain.geometry import esc  # noqa: E402
 from framegraph.rendering.application.renderer import Renderer  # noqa: E402
+from framegraph.rendering.provenance import sign_svg, utc_now_iso  # noqa: E402
 
 __all__ = ["Renderer", "normalize_doc", "discover", "stem_of", "write_index", "main"]
 
@@ -236,7 +237,18 @@ def main(argv=None):
                     help="wrap/fit text using real font advances (needs fontTools) instead of "
                          "the per-character estimate; off by default so golden output is stable")
     ap.add_argument("-q", "--quiet", action="store_true")
+    ap.add_argument("--sign", action="store_true",
+                    help="embed a FrameForge provenance metatag (sha256 fingerprint + "
+                         "tool + UTC timestamp) in each rendered SVG; off by default so "
+                         "golden output stays deterministic")
+    ap.add_argument("--signed-at", metavar="ISO",
+                    help="fixed UTC sign timestamp (ISO-8601) for reproducible signed "
+                         "output; default is render time. Empty string = fingerprint only")
     args = ap.parse_args(argv)
+    # one timestamp per run so every page shares it; None when --sign is off
+    signed_at = None
+    if args.sign:
+        signed_at = args.signed_at if args.signed_at is not None else utc_now_iso()
 
     docs = discover([] if args.all else args.paths)
     if args.list:
@@ -261,6 +273,8 @@ def main(argv=None):
             if not isinstance(page, dict):
                 continue
             for s in r.render_page(page):
+                if args.sign:
+                    s = sign_svg(s, timestamp=signed_at or None)
                 svgs.append(s)
                 if args.max_pages and len(svgs) >= args.max_pages:
                     break
