@@ -244,13 +244,9 @@ When present, you MUST:
 4. **Run `test_ref`**: if a test file is referenced, run it after editing
 5. **Never remove or weaken** existing metadata blocks
 
-If the project includes FLAM tooling:
-
-```bash
-python -m lib.meta_reader <file>            # show metadata
-python -m lib.meta_reader <file> --rules    # rules only
-python -m lib.meta_reader <dir> -r          # scan directory
-```
+This project ships **no** FLAM reader (`lib/` does not exist): check for the
+metadata blocks above by reading the file directly before editing. If a metadata
+reader is ever added, document its real entry point here.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: "FrameGraph SDK — Consolidated Proposal (refined)"
-status: proposal / non-normative
+status: superseded — realized in framegraph.sdk (generated API reference: docs/sdk-api.md); retained as design rationale
 supersedes:
   - framegraph-sdk-interface.md
   - framegraph-sdk-geometry.md

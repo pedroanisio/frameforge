@@ -1,6 +1,6 @@
 ---
 title: "Improving FrameGraph for Reference Image Recreation"
-status: proposal / non-normative
+status: superseded — observations folded into docs/roadmap-draft.md; retained as design rationale
 context: "Written after recreating an abstract mixed-media reference image through framegraph.sdk over the FrameGraph MCP renderer."
 ---
 
