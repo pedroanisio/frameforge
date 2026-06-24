@@ -770,3 +770,23 @@ def test_render_surfaces_clipped_text_fit_telemetry(tmp_path):
     assert result["ok"] is True
     assert result["text_fit"]["clipped"] >= 1
     assert "clipped" in (result.get("render_warning") or "")
+
+
+TWO_OBJECT_SCRIPT = """
+from framegraph.sdk import DocumentBuilder
+b = DocumentBuilder(title="two", profile="diagram")
+m = b.page("p", canvas={"size": [100, 100], "units": "px"}, coordinate_mode="absolute").layer("m")
+m.rect([0, 0, 50, 50], fill="#111")
+m.rect([50, 50, 50, 50], fill="#222")
+doc = b.build()
+"""
+
+
+def test_render_refuses_oversized_document_before_rendering(tmp_path, monkeypatch):
+    """An over-cap document is refused up front (bounds the un-killable render thread)."""
+    monkeypatch.setenv("FRAMEGRAPH_MCP_RENDER_MAX_OBJECTS", "1")
+    result = run_sdk_code(TWO_OBJECT_SCRIPT, session_id="big", session_root=tmp_path, raster_png=False)
+    assert result["ok"] is False
+    assert "too large" in result["error"]
+    assert result["renders"] == []
+    assert result["validation"]["ok"] is True  # it's valid — just too large to render in-process

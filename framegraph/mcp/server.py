@@ -51,6 +51,14 @@ VIEWABLE_IMAGE_MIME = ("image/png", "image/jpeg", "image/gif", "image/webp")
 # response latency. Honest limit: it bounds the *response*, not the CPU work — a
 # runaway render keeps running in a detached daemon thread until it finishes.
 DEFAULT_RENDER_TIMEOUT_SECONDS = 30
+# Hard input ceilings for the in-process render. The render runs in a daemon thread
+# bounded only by a *soft* timeout (the thread is not force-killed — Python cannot
+# interrupt CPU-bound bytecode), so a pathological document could leave a thread
+# spinning. These caps refuse an obviously-runaway document *before* the thread starts,
+# bounding the work it can ever do; the timeout stays the backstop for in-budget slow
+# renders. Set generously so real decks never hit them; env-overridable.
+DEFAULT_RENDER_MAX_PAGES_HARD = 200
+DEFAULT_RENDER_MAX_OBJECTS = 50_000
 # Rasterization is far heavier than the SVG render: every page launches a fresh
 # headless Chromium. To keep a many-page deck from stalling (or dropping) the stdio
 # loop, the raster lane is bounded by a page cap and a soft wall-clock budget; pages
@@ -1610,6 +1618,9 @@ def _validate_and_render_yaml(
     render_warning: str | None = None
     text_fit: dict[str, int] | None = None
     if report.ok:
+        oversized = _render_size_guard(document)
+        if oversized:
+            return _render_failure(session_id, report, oversized, warning=oversized)
         try:
             svgs, text_stats = _render_page_svgs_bounded(document, base_dir)
         except RenderTimeoutError as exc:
@@ -1735,6 +1746,57 @@ def _render_timeout() -> float:
         except ValueError:
             pass
     return float(DEFAULT_RENDER_TIMEOUT_SECONDS)
+
+
+def _positive_env(name: str, default: int) -> int:
+    raw = os.environ.get(name)
+    if raw:
+        try:
+            value = int(raw)
+            if value > 0:
+                return value
+        except ValueError:
+            pass
+    return default
+
+
+def _count_objects(node: Any) -> int:
+    """Count object-like nodes (anything with a ``type``) anywhere in the tree."""
+    if isinstance(node, dict):
+        total = 1 if "type" in node else 0
+        return total + sum(_count_objects(v) for v in node.values())
+    if isinstance(node, list):
+        return sum(_count_objects(v) for v in node)
+    return 0
+
+
+def _render_size_guard(document: Any) -> str | None:
+    """Refuse an obviously-runaway document before the in-process render thread starts.
+
+    Bounds the work the (un-killable) render daemon thread can do. Best-effort: any
+    failure to introspect the document falls through to a normal render rather than
+    blocking it.
+    """
+    try:
+        data = (
+            document.model_dump(by_alias=True, exclude_none=True)
+            if hasattr(document, "model_dump")
+            else dict(document)
+        )
+    except Exception:  # noqa: BLE001 — never let the guard itself block a valid render
+        return None
+    pages = data.get("pages")
+    n_pages = len(pages) if isinstance(pages, list) else 0
+    n_objects = _count_objects(pages)
+    max_pages = _positive_env("FRAMEGRAPH_MCP_RENDER_MAX_PAGES", DEFAULT_RENDER_MAX_PAGES_HARD)
+    max_objects = _positive_env("FRAMEGRAPH_MCP_RENDER_MAX_OBJECTS", DEFAULT_RENDER_MAX_OBJECTS)
+    if n_pages > max_pages or n_objects > max_objects:
+        return (
+            f"document too large to render in-process ({n_pages} pages, {n_objects} "
+            f"objects; caps {max_pages} pages / {max_objects} objects — override with "
+            "FRAMEGRAPH_MCP_RENDER_MAX_PAGES / FRAMEGRAPH_MCP_RENDER_MAX_OBJECTS)"
+        )
+    return None
 
 
 def _raster_timeout() -> float:
