@@ -47,7 +47,7 @@ from framegraph.rendering.infrastructure.painters.svg import SvgPainter
 # --------------------------------------------------------------------------- #
 class Renderer:
 
-    def __init__(self, doc, base_dir, *, real_metrics=False):
+    def __init__(self, doc, base_dir, *, real_metrics=False, painter_factory=None):
         self.doc = doc if isinstance(doc, dict) else {}
         self.base_dir = base_dir
         # Opt-in: when True (and fontTools resolves the family) text width comes
@@ -84,7 +84,10 @@ class Renderer:
         # stroke resolver is handed `self.paint` so a gradient stroke still
         # allocates its <defs> entry in document order (byte-identical ids).
         self._color = ColorResolver(self.colors)
-        self._painter = SvgPainter(self._color)
+        # The backend is injectable: `painter_factory(color_resolver) -> ScenePainter`
+        # lets the same builder drive a non-SVG backend (e.g. TikzPainter). Defaults
+        # to the SVG adapter so existing callers and golden output are unchanged.
+        self._painter = painter_factory(self._color) if painter_factory else SvgPainter(self._color)
         self._text_style = TextStyleResolver(self.text_styles, self.styles, self._color)
         self._canvas = CanvasResolver(self.masters)
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)

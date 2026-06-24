@@ -262,10 +262,39 @@ def test_embedded_svg_falls_back_to_title_text():
     assert "text={rgb,255:red,255;green,0;blue,0}" in out and "at (20,10)" in out
 
 
-def test_tikz_painter_covers_scenepainter_surface_except_text_block_runs():
-    # TikzPainter should implement the whole ScenePainter port bar the two methods
-    # still pending a style-param neutralization (text_block/text_runs).
+def test_tikz_painter_covers_full_scenepainter_surface():
+    # TikzPainter now implements the entire ScenePainter port surface, plus the
+    # anchor/style_group helpers the builder calls.
     from framegraph.rendering.domain.ports import ScenePainter
     port_methods = {m for m in vars(ScenePainter) if not m.startswith("_")}
     missing = {m for m in port_methods if not hasattr(TikzPainter, m)}
-    assert missing == {"text_block", "text_runs"}, f"unexpected gaps: {missing}"
+    assert missing == set(), f"unexpected gaps: {missing}"
+    assert hasattr(TikzPainter, "anchor") and hasattr(TikzPainter, "style_group")
+
+
+def test_text_block_one_node_per_line():
+    p = TikzPainter()
+    st = {"family": "serif", "size": 12, "weight": "normal", "italic": False,
+          "color": "#000000", "align": "start"}
+    out = p.text_block(40, "start", st, 12, ["one", "two"], 10, 14.4)
+    assert out.count("\\node[") == 2 and "anchor=base west" in out
+    assert "at (10,40)" in out and "at (10,54.4)" in out      # baseline grid
+    assert "{one}" in out and "{two}" in out
+
+
+def test_text_runs_concatenates_font_groups():
+    p = TikzPainter()
+    base = {"family": "serif", "size": 12, "weight": "normal", "italic": False, "color": "#000000"}
+    em = {**base, "italic": True, "color": "#ff0000"}
+    out = p.text_runs(40, "middle", 30, base, 12, [("a", base), ("b", em)])
+    assert out.count("\\node[") == 1 and "anchor=base" in out
+    assert "\\itshape" in out and "\\color{{rgb,255:red,255;green,0;blue,0}}" in out
+    assert "a}" in out and "b}" in out          # each run text closes its font group
+
+
+def test_anchor_and_style_group():
+    p = TikzPainter()
+    assert p.anchor("center") == "middle" and p.anchor("left") == "start"
+    assert p.style_group("X", {"visibility": "hidden"}) == ""          # hidden -> dropped
+    assert p.style_group("X", {"opacity": "0.5"}) == "\\begin{scope}[opacity=0.5]\nX\\end{scope}\n"
+    assert p.style_group("X", {"mix-blend-mode": "multiply"}) == "X"   # unsupported -> passthrough
