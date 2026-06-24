@@ -280,9 +280,17 @@ class _Transpiler:
             self.skipped += 1
 
     def _emit_heading(self, fl, out):
-        st = self._ts.resolve(fl.get("style") or f"h{fl.get('level', 1)}")
+        level = int(fl.get("level", 1) or 1)
+        st = self._ts.resolve(fl.get("style") or f"h{level}")
         label = f"\\label{{{_latex_label(fl.get('id'))}}}" if fl.get("id") else ""
-        out.append("\\addvspace{10pt}\n" + self._styled(st, ltx_escape(fl.get("text")) + label, gap="4pt"))
+        # Register the heading in the table of contents (so a `toc` flowable is
+        # not empty) and give hyperref a stable anchor. Map the heading level to
+        # the article sectioning ladder, clamped to its three real depths.
+        toc_name = ("section", "subsection", "subsubsection")[min(max(level, 1), 3) - 1]
+        toc = ("\\phantomsection\n\\addcontentsline{toc}{" + toc_name + "}{"
+               + ltx_escape(fl.get("text")) + "}\n")
+        out.append("\\addvspace{10pt}\n" + toc
+                   + self._styled(st, ltx_escape(fl.get("text")) + label, gap="4pt"))
 
     def _emit_paragraph(self, fl, out):
         out.append(self._styled(self._ts.resolve(fl.get("style") or "body"), self._para_body(fl)))
@@ -322,10 +330,13 @@ class _Transpiler:
             return
         label = f"\\label{{{_latex_label(fl.get('id'))}}}" if fl.get("id") else ""
         number = fl.get("number")
+        # Display math ends in horizontal mode; a trailing \par returns to
+        # vertical mode so the next block flowable (a heading's \addvspace, a
+        # spacer's \vspace) is legal rather than a "missing \item" cascade.
         if number:
-            out.append("\\begin{equation}\n" + str(tex) + label + "\n\\end{equation}\n")
+            out.append("\\begin{equation}\n" + str(tex) + label + "\n\\end{equation}\n\\par\n")
             return
-        out.append("\\[\n" + str(tex) + label + "\n\\]\n")
+        out.append("\\[\n" + str(tex) + label + "\n\\]\n\\par\n")
 
     def _emit_code(self, fl, out):
         code = fl.get("code") or fl.get("source") or ""
