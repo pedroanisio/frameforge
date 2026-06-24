@@ -26,7 +26,11 @@ from framegraph.sdk.io import parse
 from framegraph.sdk.validate import ValidationReport, validate_static_rules
 
 SESSION_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
-DEFAULT_TIMEOUT_SECONDS = 10
+# Wall-clock budget for the code-execution subprocess. A build that exceeds it is
+# reported as a structured ``ok:false`` (see ``_subprocess_timeout_result``), not a
+# raised traceback. 20s leaves headroom for heavier decks (3D meshes, large fixtures)
+# while still bounding a runaway client; callers can raise it per call.
+DEFAULT_TIMEOUT_SECONDS = 20
 MAX_CODE_BYTES = 200_000
 MAX_CLIENT_BYTES = 2_000_000
 DEFAULT_CLIENT_ROOTS = ("examples",)
@@ -162,6 +166,7 @@ def run_sdk_code(
     root = _session_root(session_root)
     sid = _session_id(session_id)
     session_dir = _prepare_session(root, sid)
+    _reset_session_outputs(session_dir)
     script_path = session_dir / "script.py"
     harness_path = session_dir / "_run_sdk.py"
     yaml_path = session_dir / "generated.fg.yaml"
@@ -169,15 +174,23 @@ def run_sdk_code(
     harness_path.write_text(_harness_source(script_path, yaml_path, session_dir), encoding="utf-8")
 
     env = _subprocess_env(get_default_repo_root())
-    proc = subprocess.run(
-        [sys.executable, str(harness_path)],
-        cwd=str(session_dir),
-        env=env,
-        text=True,
-        capture_output=True,
-        timeout=max(1, int(timeout_seconds)),
-        check=False,
-    )
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(harness_path)],
+            cwd=str(session_dir),
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=max(1, int(timeout_seconds)),
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        result = _subprocess_timeout_result(
+            "SDK code", session_id=sid, session_dir=session_dir, yaml_path=yaml_path,
+            exc=exc, timeout_seconds=timeout_seconds,
+        )
+        _write_diagnostics(session_dir, result)
+        return result
 
     result = _base_result(sid, session_dir, yaml_path, proc.stdout, proc.stderr, proc.returncode)
     if proc.returncode != 0:
@@ -318,6 +331,7 @@ def run_sdk_client(
     session_base = _session_root(session_root)
     sid = _session_id(session_id)
     session_dir = _prepare_session(session_base, sid)
+    _reset_session_outputs(session_dir)
     harness_path = session_dir / "_run_sdk_client.py"
     yaml_path = session_dir / "generated.fg.yaml"
     snapshot = _framegraph_yaml_snapshot(root)
@@ -327,15 +341,25 @@ def run_sdk_client(
         encoding="utf-8",
     )
     env = _subprocess_env(root)
-    proc = subprocess.run(
-        [sys.executable, str(harness_path)],
-        cwd=str(root),
-        env=env,
-        text=True,
-        capture_output=True,
-        timeout=max(1, int(timeout_seconds)),
-        check=False,
-    )
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(harness_path)],
+            cwd=str(root),
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=max(1, int(timeout_seconds)),
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        result = _subprocess_timeout_result(
+            "SDK client", session_id=sid, session_dir=session_dir, yaml_path=yaml_path,
+            exc=exc, timeout_seconds=timeout_seconds,
+        )
+        result["client_path"] = str(client_path)
+        result["client_uri"] = _repo_relative_path(client_path, root)
+        _write_diagnostics(session_dir, result)
+        return result
 
     result = _base_result(sid, session_dir, yaml_path, proc.stdout, proc.stderr, proc.returncode)
     result["client_path"] = str(client_path)
@@ -1129,6 +1153,24 @@ def _prepare_session(root: Path, session_id: str) -> Path:
     return session_dir
 
 
+def _reset_session_outputs(session_dir: Path) -> None:
+    """Remove a prior run's generated artifacts so a reused ``session_id`` re-renders fresh.
+
+    The code-execution harness only (re)derives the document when ``OUTPUT_YAML_PATH``
+    is absent (see :func:`_harness_source`), so a leftover ``generated.fg.yaml`` from an
+    earlier run under the same ``session_id`` would be re-rendered in place of the edited
+    document. Clearing the per-run outputs (the generated YAML and any page SVG/PNG
+    renders) makes each invocation hermetic without forcing callers to rotate the id.
+    """
+    stale = [
+        session_dir / "generated.fg.yaml",
+        *session_dir.glob("page-*.svg"),
+        *session_dir.glob("p*.png"),
+    ]
+    for path in stale:
+        path.unlink(missing_ok=True)
+
+
 def _subprocess_env(repo_root: Path) -> dict[str, str]:
     pythonpath_entries = [str(repo_root)]
     package_root = get_default_repo_root()
@@ -1312,6 +1354,49 @@ def _base_result(
         "renders": [],
         "resources": [],
     }
+
+
+def _decode_stream(value: Any) -> str:
+    """Coerce a captured subprocess stream (``str``, ``bytes``, or ``None``) to text."""
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", "replace")
+    return str(value)
+
+
+def _subprocess_timeout_result(
+    label: str,
+    *,
+    session_id: str,
+    session_dir: Path,
+    yaml_path: Path,
+    exc: subprocess.TimeoutExpired,
+    timeout_seconds: int,
+) -> dict[str, Any]:
+    """Structured ``ok:false`` result for a build subprocess that overran its budget.
+
+    Mirrors the render-timeout contract (a structured payload, never a raised
+    traceback): it surfaces whatever stdout/stderr was captured before the kill plus
+    an actionable hint to raise ``timeout_seconds``. ``returncode`` is ``-1`` (the
+    process was terminated, not exited).
+    """
+    budget = max(1, int(timeout_seconds))
+    result = _base_result(
+        session_id,
+        session_dir,
+        yaml_path,
+        _decode_stream(exc.stdout),
+        _decode_stream(exc.stderr),
+        -1,
+    )
+    result["ok"] = False
+    result["timed_out"] = True
+    result["error"] = (
+        f"{label} exceeded the {budget}s execution budget; raise timeout_seconds "
+        "or simplify the document."
+    )
+    return result
 
 
 def _validate_and_render_yaml(

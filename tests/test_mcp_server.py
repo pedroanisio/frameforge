@@ -40,6 +40,20 @@ doc.write(OUTPUT_YAML_PATH, fail_on_error=True)
 """
 
 
+def _derive_code(marker: str) -> str:
+    """SDK code that exposes a built document (the *derive* path) without writing
+    ``OUTPUT_YAML_PATH`` — the path where session reuse could serve a stale render."""
+    return f"""
+from framegraph.sdk import DocumentBuilder
+
+builder = DocumentBuilder(title="Stale Probe", profile="deck")
+page = builder.page("p1", canvas={{"size": [200, 120], "units": "px"}})
+page.layer("main").rect([0, 0, 200, 120], fill="#ffffff")
+page.text([10, 10, 180, 28], {marker!r}, id="t")
+doc = builder.build()
+"""
+
+
 def test_run_sdk_code_generates_yaml_validates_and_renders_svg(tmp_path):
     result = run_sdk_code(SDK_SCRIPT, session_id="loop-1", session_root=tmp_path, raster_png=False)
 
@@ -160,6 +174,88 @@ doc = builder.build()
     assert (tmp_path / "derive" / "generated.fg.yaml").exists()
     assert "Derived YAML" in (tmp_path / "derive" / "generated.fg.yaml").read_text(encoding="utf-8")
     assert "derived" in (tmp_path / "derive" / "page-001.svg").read_text(encoding="utf-8")
+
+
+def test_run_sdk_code_rerun_same_session_rerenders_edited_document(tmp_path):
+    """Re-running edited code under the SAME session_id must render the NEW document.
+
+    Regression: the harness derives YAML only when OUTPUT_YAML_PATH is absent and
+    the session dir was never cleared, so a second run reused the first run's stale
+    generated.fg.yaml (the documented "rotate the session id" workaround). Per-run
+    outputs are now reset so a reused session re-renders the edit.
+    """
+    first = run_sdk_code(
+        _derive_code("alpha-marker"), session_id="reuse", session_root=tmp_path, raster_png=False
+    )
+    assert first["ok"] is True
+    assert "alpha-marker" in (tmp_path / "reuse" / "generated.fg.yaml").read_text(encoding="utf-8")
+
+    second = run_sdk_code(
+        _derive_code("beta-marker"), session_id="reuse", session_root=tmp_path, raster_png=False
+    )
+    assert second["ok"] is True
+    yaml_text = (tmp_path / "reuse" / "generated.fg.yaml").read_text(encoding="utf-8")
+    assert "beta-marker" in yaml_text
+    assert "alpha-marker" not in yaml_text
+    assert "beta-marker" in (tmp_path / "reuse" / "page-001.svg").read_text(encoding="utf-8")
+
+
+def test_run_sdk_client_rerun_same_session_rerenders_edited_client(tmp_path):
+    """The same stale-session fix must hold for the editable-client entry point."""
+    examples = tmp_path / "examples"
+    examples.mkdir()
+    client = examples / "probe.py"
+    sessions = tmp_path / "sessions"
+
+    client.write_text(_derive_code("alpha-client"), encoding="utf-8")
+    first = run_sdk_client(
+        "examples/probe.py", session_id="cl", session_root=sessions, repo_root=tmp_path, raster_png=False
+    )
+    assert first["ok"] is True
+    assert "alpha-client" in (sessions / "cl" / "generated.fg.yaml").read_text(encoding="utf-8")
+
+    client.write_text(_derive_code("beta-client"), encoding="utf-8")
+    second = run_sdk_client(
+        "examples/probe.py", session_id="cl", session_root=sessions, repo_root=tmp_path, raster_png=False
+    )
+    assert second["ok"] is True
+    yaml_text = (sessions / "cl" / "generated.fg.yaml").read_text(encoding="utf-8")
+    assert "beta-client" in yaml_text
+    assert "alpha-client" not in yaml_text
+
+
+def test_run_sdk_code_subprocess_timeout_returns_structured_error(tmp_path):
+    """A build that overruns ``timeout_seconds`` yields a structured ok:false result,
+    not a raised ``subprocess.TimeoutExpired`` (mirrors the render-timeout contract)."""
+    result = run_sdk_code(
+        "import time\ntime.sleep(5)\n",
+        session_id="slow",
+        session_root=tmp_path,
+        timeout_seconds=1,
+        raster_png=False,
+    )
+    assert result["ok"] is False
+    assert result["timed_out"] is True
+    assert "timeout_seconds" in result["error"]
+    assert result["validation"]["ok"] is False
+
+
+def test_run_sdk_client_subprocess_timeout_returns_structured_error(tmp_path):
+    examples = tmp_path / "examples"
+    examples.mkdir()
+    (examples / "slow.py").write_text("import time\ntime.sleep(5)\n", encoding="utf-8")
+    result = run_sdk_client(
+        "examples/slow.py",
+        session_id="slowcl",
+        session_root=tmp_path / "sessions",
+        repo_root=tmp_path,
+        timeout_seconds=1,
+        raster_png=False,
+    )
+    assert result["ok"] is False
+    assert result["timed_out"] is True
+    assert "timeout_seconds" in result["error"]
+    assert result["client_path"].endswith("slow.py")
 
 
 def test_run_sdk_code_rejects_unsafe_session_id(tmp_path):
