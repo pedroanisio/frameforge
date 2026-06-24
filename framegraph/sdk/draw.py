@@ -7,7 +7,7 @@ from typing import Callable, Iterable, Literal, Sequence
 
 from framegraph.sdk.geometry import Camera, Mat4, Path, Vec2, Vec3
 
-Scale = str | Callable[[float], float]
+Scale = str | Callable[[float], float] | dict
 
 
 @dataclass(frozen=True)
@@ -223,17 +223,186 @@ class Scene3D:
         return group
 
 
+# ---- parametric / function / polar curve sampling (roadmap Appendix A.3) --- #
+def _xy(value: Sequence[float] | Vec2) -> tuple[float, float]:
+    if isinstance(value, Vec2):
+        return value.x, value.y
+    return float(value[0]), float(value[1])
+
+
+def _perp_distance(p: Vec2, a: Vec2, b: Vec2) -> float:
+    """Perpendicular distance of `p` from the chord `a`→`b` (page units)."""
+    dx, dy = b.x - a.x, b.y - a.y
+    length = math.hypot(dx, dy)
+    if length == 0.0:
+        return math.hypot(p.x - a.x, p.y - a.y)
+    return abs((p.x - a.x) * dy - (p.y - a.y) * dx) / length
+
+
+def _refine(
+    project: Callable[[float], Vec2],
+    t0: float, t1: float, p0: Vec2, p1: Vec2,
+    tolerance: float, depth: int, max_depth: int,
+) -> list[Vec2]:
+    """Adaptive (de Casteljau-style) subdivision: split the interval at its midpoint
+    until the sampled midpoint lies within `tolerance` of the chord, concentrating
+    points where curvature is high. Returns the samples AFTER p0 (the caller emits
+    p0), so concatenation yields the ordered point list."""
+    tm = 0.5 * (t0 + t1)
+    pm = project(tm)
+    if depth >= max_depth or _perp_distance(pm, p0, p1) <= tolerance:
+        return [p1]
+    return (_refine(project, t0, tm, p0, pm, tolerance, depth + 1, max_depth)
+            + _refine(project, tm, t1, pm, p1, tolerance, depth + 1, max_depth))
+
+
+def parametric_curve(
+    fn: Callable[[float], Sequence[float] | Vec2],
+    domain: tuple[float, float] = (0.0, 1.0),
+    *,
+    frame: "Frame | None" = None,
+    tolerance: float = 0.5,
+    init_segments: int = 16,
+    max_depth: int = 16,
+    emit: Literal["polyline", "path"] = "polyline",
+    **fields: object,
+) -> dict[str, object]:
+    """Sample a parametric curve ``fn(t) -> (x, y)`` adaptively and emit a FrameGraph
+    object (roadmap Appendix A.3 — the 2D curve sampler; ``parametric`` is the 3D
+    surface builder).
+
+    Each interval is split at its midpoint until the midpoint lies within
+    ``tolerance`` page units of the chord, so samples concentrate where curvature is
+    high — correct curves at low point counts. With a ``frame`` the curve is authored
+    in data coordinates and flatness is measured in *page* space, so nonlinear scales
+    (log/pow) sample correctly; without one ``fn`` is already page-space. ``emit`` is
+    ``"polyline"`` or ``"path"`` (a smooth Catmull-Rom path through the samples).
+    ``init_segments`` seeds the refinement so symmetric curves (e.g. a full sine)
+    are not missed by a midpoint that coincidentally lands on the chord."""
+    t0, t1 = float(domain[0]), float(domain[1])
+    project = ((lambda t: frame.point(*_xy(fn(t)))) if frame is not None
+               else (lambda t: Vec2(*_xy(fn(t)))))
+    n = max(1, int(init_segments))
+    ts = [t0 + (t1 - t0) * i / n for i in range(n + 1)]
+    samples = [project(t) for t in ts]
+    points = [samples[0]]
+    for i in range(n):
+        points.extend(_refine(project, ts[i], ts[i + 1], samples[i], samples[i + 1],
+                              tolerance, 0, max_depth))
+    if emit == "path":
+        return Path().through(points).object(**fields)
+    obj: dict[str, object] = {"type": "polyline", "points": [[p.x, p.y] for p in points]}
+    obj.update(fields)
+    return obj
+
+
+def function_plot(
+    f: Callable[[float], float],
+    frame: "Frame",
+    *,
+    domain: tuple[float, float] | None = None,
+    **kwargs: object,
+) -> dict[str, object]:
+    """Plot ``y = f(x)`` over the frame's x-domain (or ``domain``): the parametric
+    curve ``(x, f(x))`` mapped through the frame (roadmap Appendix A.3)."""
+    lo = frame.domain[0] if domain is None else float(domain[0])
+    hi = frame.domain[2] if domain is None else float(domain[1])
+    return parametric_curve(lambda x: (x, f(x)), (lo, hi), frame=frame, **kwargs)
+
+
+def polar_plot(
+    r: Callable[[float], float],
+    frame: "Frame",
+    *,
+    domain: tuple[float, float] = (0.0, 2.0 * math.pi),
+    **kwargs: object,
+) -> dict[str, object]:
+    """Plot a polar function ``radius = r(theta)`` as ``(r·cosθ, r·sinθ)`` mapped
+    through the frame (roadmap Appendix A.3)."""
+    def fn(theta: float) -> tuple[float, float]:
+        radius = r(theta)
+        return (radius * math.cos(theta), radius * math.sin(theta))
+    return parametric_curve(fn, domain, frame=frame, **kwargs)
+
+
+# ---- orthographic multiview (roadmap Appendix A.6) ------------------------ #
+_VIEW_CAMERAS: dict[str, Callable[[], Mat4]] = {
+    "front": Mat4.identity,                 # look down -Z (XY plane)
+    "top": lambda: Mat4.rotate_x(90),       # look down -Y (XZ plane)
+    "side": lambda: Mat4.rotate_y(90),      # look down -X (ZY plane)
+    "iso": Mat4.isometric,                  # isometric 3/4 view
+}
+
+
+def multiview(
+    scene: "Scene3D",
+    *,
+    box: Sequence[float],
+    views: Sequence[str] = ("front", "top", "side", "iso"),
+    cols: int = 2,
+    gap: float = 8.0,
+    labels: bool = True,
+    label_size: float = 10.0,
+    **render_kw: object,
+) -> dict[str, object]:
+    """Render a :class:`Scene3D` as an engineering **orthographic multiview** — a
+    panel grid of front / top / side / isometric views (roadmap Appendix A.6).
+
+    Each panel projects the scene through a pure-rotation camera, and ``Scene3D``'s
+    projection drops depth without a perspective divide, so the views are true
+    orthographic projections. ``render_kw`` (fill/stroke/shading/light/…) pass
+    through to each :meth:`Scene3D.render`."""
+    bx, by, bw, bh = (float(v) for v in box[:4])
+    n = len(views)
+    cols = max(1, min(int(cols), n))
+    rows = math.ceil(n / cols)
+    pw = (bw - gap * (cols - 1)) / cols
+    ph = (bh - gap * (rows - 1)) / rows
+    children: list[dict[str, object]] = []
+    for i, view in enumerate(views):
+        cam = _VIEW_CAMERAS.get(view)
+        if cam is None:
+            raise ValueError(f"unknown view: {view!r} (use front/top/side/iso)")
+        r, c = divmod(i, cols)
+        px, py = bx + c * (pw + gap), by + r * (ph + gap)
+        children.append(scene.render(camera=cam(), box=[px, py, pw, ph], **render_kw))
+        if labels:
+            children.append({"type": "text", "box": [px, py, pw, 14.0], "text": view,
+                             "style": {"size": label_size, "color": "#475569", "align": "left"}})
+    return {"type": "group", "children": children}
+
+
+def _log(value: float, base: float | None = None) -> float:
+    if value <= 0:
+        raise ValueError("log scale requires positive values")
+    return math.log(value, base) if base else math.log(value)
+
+
+def _pow(value: float, exp: float) -> float:
+    return math.copysign(abs(value) ** exp, value)   # sign-preserving
+
+
 def _apply_scale(value: float, scale: Scale) -> float:
+    """Map a data value through a scale. Accepts a callable, a name
+    (``"linear"``/``"log"``/``"pow2"``), or a structured spec — ``{"kind":"log",
+    "base":b}`` / ``{"kind":"pow","exp":e}`` / ``{"kind":"linear"}`` (roadmap A.4)."""
     if callable(scale):
         return float(scale(value))
+    if isinstance(scale, dict):
+        kind = scale.get("kind", "linear")
+        if kind == "linear":
+            return value
+        if kind == "log":
+            return _log(value, scale.get("base"))
+        if kind == "pow":
+            return _pow(value, float(scale.get("exp", 1.0)))
+        raise ValueError(f"unsupported scale kind: {kind!r}")
     if scale == "linear":
         return value
     if scale == "log":
-        if value <= 0:
-            raise ValueError("log scale requires positive values")
-        return math.log(value)
+        return _log(value)
     if scale == "pow2":
-        return math.copysign(abs(value) ** 2, value)
+        return _pow(value, 2.0)
     raise ValueError(f"unsupported scale: {scale!r}")
 
 

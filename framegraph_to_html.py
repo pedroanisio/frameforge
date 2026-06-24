@@ -895,11 +895,19 @@ class Renderer:
 
 # Canonical preset -> (w, h) table, mirrored from tooling/validate.py::_canvas_wh
 # (keys match models.framegraph.PagePreset). Keep in sync with that table.
+# Mirrors CanvasResolver.PRESETS / models.PagePreset (kept in sync — see
+# tests/test_framegraph_to_html.py::test_preset_table_matches_model_page_presets).
 _CANVAS_PRESETS: dict[str, tuple[float, float]] = {
-    "A4": (595, 842), "A3": (842, 1191), "A5": (419.5, 595.3), "Letter": (612, 792),
-    "Legal": (612, 1008), "Tabloid": (792, 1224), "deck-16x9": (1920, 1080),
-    "deck-4x3": (1024, 768), "square": (1080, 1080), "phone": (390, 844),
-    "tablet": (834, 1112), "web": (1280, 800),
+    "A3": (842, 1191), "A4": (595, 842), "A5": (419.5, 595.3), "Letter": (612, 792),
+    "Legal": (612, 1008), "Tabloid": (792, 1224), "deck-16x9": (1920, 1080), "deck-4x3": (1024, 768),
+    "square": (1080, 1080), "phone": (390, 844), "tablet": (834, 1112), "web": (1280, 800),
+    "instagram-square": (1080, 1080), "instagram-portrait": (1080, 1350), "instagram-landscape": (1080, 566), "instagram-story": (1080, 1920),
+    "facebook-post": (1200, 630), "facebook-cover": (820, 312), "facebook-story": (1080, 1920), "twitter-post": (1600, 900),
+    "twitter-header": (1500, 500), "linkedin-post": (1200, 627), "linkedin-cover": (1584, 396), "youtube-thumbnail": (1280, 720),
+    "youtube-banner": (2560, 1440), "tiktok-video": (1080, 1920), "pinterest-pin": (1000, 1500), "snapchat": (1080, 1920),
+    "story": (1080, 1920), "1x1": (1080, 1080), "4x5": (1080, 1350), "5x4": (1350, 1080),
+    "9x16": (1080, 1920), "16x9": (1920, 1080), "2x3": (1080, 1620), "3x2": (1620, 1080),
+    "1.91x1": (1200, 628), "3x1": (1500, 500),
 }
 
 
