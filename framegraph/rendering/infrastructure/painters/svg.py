@@ -243,8 +243,19 @@ class SvgPainter:
     def filter_wrap(self, inner: str, filter_id: str) -> str:
         return f'<g filter="url(#{filter_id})">{inner}</g>'
 
-    def transform_group(self, inner: str, transform: str) -> str:
-        return f'<g transform="{esc(transform)}">{inner}</g>'
+    @staticmethod
+    def format_transform(ops) -> str:
+        """Format a neutral transform op list (StyleValues.transform_ops) to an SVG
+        transform string — `fn(arg arg ...)` joined by spaces; `raw` passes through."""
+        parts = []
+        for fn, args in ops:
+            s = (args[0] if args else "") if fn == "raw" else f"{fn}({' '.join(args)})"
+            if s:
+                parts.append(s)
+        return " ".join(parts)
+
+    def transform_group(self, inner: str, transform) -> str:
+        return f'<g transform="{esc(self.format_transform(transform))}">{inner}</g>'
 
     def embedded_svg(self, x, y, w, h, *, viewbox, color, title, body) -> str:
         """Embed a foreign SVG fragment (e.g. a MathJax render) as a sized,

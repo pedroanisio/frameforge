@@ -349,8 +349,8 @@ class Renderer:
         return svg
 
     def _with_transform(self, o, style, svg):
-        transform = self._css.svg_transform(style.get("transform"), style.get("transform_origin"), o.get("box"))
-        return self._painter.transform_group(svg, transform) if transform else svg
+        ops = self._css.transform_ops(style.get("transform"), style.get("transform_origin"), o.get("box"))
+        return self._painter.transform_group(svg, ops) if ops else svg
 
     def _with_style_compositing(self, o, style, svg):
         attrs = {}
@@ -1291,7 +1291,7 @@ class Renderer:
                 tx, ty = x - ox * scale, cy - oy * scale
                 if scale != 1.0:
                     body.append(p.transform_group(
-                        inner, f"translate({fnum(tx)},{fnum(ty)}) scale({fnum(scale)})"))
+                        inner, [("translate", [fnum(tx), fnum(ty)]), ("scale", [fnum(scale)])]))
                 else:
                     body.append(p.group(inner, translate=(tx, ty)) if (tx or ty) else inner)
                 cy += draw_h + 6

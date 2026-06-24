@@ -24,6 +24,13 @@ def test_oracle_manifest_builds():
     assert all(v for v in current.values()), "every oracle fixture must render at least one page"
 
 
+def test_lock_matches_current_renders():
+    """The live gate: the committed lock must match the current b1/ oracle renders.
+    Re-pin with `make golden` after an intentional render change."""
+    drift = G.diff(G.build(), G.load_lock())
+    assert drift == [], "golden drift (run `make golden` if intentional):\n" + "\n".join(drift)
+
+
 def test_lock_covers_every_oracle_fixture():
     locked = G.load_lock()
     assert locked is not None

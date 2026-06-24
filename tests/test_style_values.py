@@ -44,16 +44,24 @@ def test_drop_shadow_in_filter():
     assert out == "drop-shadow(1px 1px 0px #111)"   # blur defaults to 0px
 
 
-def test_svg_transform_rotate_with_origin():
-    out = SV.svg_transform([{"fn": "rotate", "args": [45]}], None, [0, 0, 100, 100])
-    assert out == "rotate(45 50 50)"   # origin = box centre
+def test_transform_ops_rotate_with_origin():
+    out = SV.transform_ops([{"fn": "rotate", "args": [45]}], None, [0, 0, 100, 100])
+    assert out == [("rotate", ["45", "50", "50"])]   # origin = box centre
 
 
-def test_svg_transform_scale_wraps_origin():
-    out = SV.svg_transform([{"fn": "scale", "args": [2]}], [10, 20], None)
-    assert out == "translate(10 20) scale(2) translate(-10 -20)"
+def test_transform_ops_scale_wraps_origin():
+    out = SV.transform_ops([{"fn": "scale", "args": [2]}], [10, 20], None)
+    assert out == [("translate", ["10", "20"]), ("scale", ["2"]), ("translate", ["-10", "-20"])]
 
 
-def test_svg_transform_translate_and_string():
-    assert SV.svg_transform([{"fn": "translate", "args": [5, 6]}], None, None) == "translate(5 6)"
-    assert SV.svg_transform("rotate(30deg)", None, None) == "rotate(30)"
+def test_transform_ops_translate_and_string():
+    assert SV.transform_ops([{"fn": "translate", "args": [5, 6]}], None, None) == [("translate", ["5", "6"])]
+    assert SV.transform_ops("rotate(30deg)", None, None) == [("raw", ["rotate(30)"])]
+
+
+def test_format_transform_svg_syntax():
+    # the SVG backend formats the neutral ops; raw passes through, fns space-join
+    from framegraph.rendering.infrastructure.painters.svg import SvgPainter
+    assert SvgPainter.format_transform(
+        [("translate", ["10", "20"]), ("scale", ["2"])]) == "translate(10 20) scale(2)"
+    assert SvgPainter.format_transform([("raw", ["rotate(30)"])]) == "rotate(30)"

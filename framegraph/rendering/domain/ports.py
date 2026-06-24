@@ -94,8 +94,9 @@ class ScenePainter(Protocol):
     def filter_wrap(self, inner: str, filter_id: str) -> str:
         """Wrap already-emitted content in the given filter handle."""
 
-    def transform_group(self, inner: str, transform: str) -> str:
-        """Wrap already-emitted content in a backend transform group."""
+    def transform_group(self, inner: str, transform) -> str:
+        """Wrap already-emitted content in a backend transform group. `transform` is
+        a neutral op list (StyleValues.transform_ops) the backend formats."""
 
     def embedded_svg(self, x, y, w, h, *, viewbox, color, title, body) -> str:
         """Embed a foreign SVG fragment (e.g. a MathJax render). Backend-specific:
