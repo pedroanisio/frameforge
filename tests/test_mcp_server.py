@@ -258,6 +258,137 @@ def test_run_sdk_client_subprocess_timeout_returns_structured_error(tmp_path):
     assert result["client_path"].endswith("slow.py")
 
 
+_PNG_1X1 = bytes.fromhex(
+    "89504e470d0a1a0a0000000d4948445200000001000000010806000000"
+    "1f15c4890000000d49444154789c63000100000500010d0a2db40000000049454e44ae426082"
+)
+
+
+def _multi_page_code(n: int) -> str:
+    return f"""
+from framegraph.sdk import DocumentBuilder
+
+b = DocumentBuilder(title="Pages", profile="deck")
+for i in range({n}):
+    page = b.page(f"p{{i + 1}}", canvas={{"size": [160, 100], "units": "px"}})
+    page.layer("main").rect([0, 0, 160, 100], fill="#ffffff")
+    page.text([10, 10, 140, 24], f"PAGE-{{i + 1}}", id=f"t{{i}}")
+doc = b.build()
+"""
+
+
+def _fake_rasterize_svg(svg, out_path, *, base_dir=None, scale=1.0, playwright_module=None):
+    out = os.fspath(out_path)
+    with open(out, "wb") as fh:
+        fh.write(_PNG_1X1)
+    from pathlib import Path as _P
+
+    return _P(out)
+
+
+def test_pages_selector_renders_only_named_pages_with_true_page_numbers(tmp_path):
+    """`pages` selects specific 1-based pages; render entries carry the TRUE page number.
+
+    Regression guard: the loop previously labelled renders with a post-slice sequential
+    index, which is wrong for any non-prefix selection.
+    """
+    result = run_sdk_code(
+        _multi_page_code(4), session_id="sel", session_root=tmp_path, pages="2-3", raster_png=False
+    )
+
+    assert result["ok"] is True
+    svg_renders = [r for r in result["renders"] if r["mimeType"] == "image/svg+xml"]
+    assert [r["page"] for r in svg_renders] == [2, 3]
+    assert [r["uri"] for r in svg_renders] == [
+        "framegraph://session/sel/page/2.svg",
+        "framegraph://session/sel/page/3.svg",
+    ]
+    assert (tmp_path / "sel" / "page-002.svg").exists()
+    assert (tmp_path / "sel" / "page-003.svg").exists()
+    assert not (tmp_path / "sel" / "page-001.svg").exists()
+    assert "PAGE-2" in (tmp_path / "sel" / "page-002.svg").read_text(encoding="utf-8")
+
+
+def test_pages_selector_accepts_int_list(tmp_path):
+    result = run_sdk_code(
+        _multi_page_code(4), session_id="sellist", session_root=tmp_path, pages=[1, 4], raster_png=False
+    )
+    svg_renders = [r for r in result["renders"] if r["mimeType"] == "image/svg+xml"]
+    assert [r["page"] for r in svg_renders] == [1, 4]
+
+
+def test_mcp_content_blocks_caps_inlined_images(tmp_path):
+    """Only the first N PNG renders are inlined as image blocks; the rest stay resource links."""
+    import framegraph.mcp.server as server
+
+    renders = []
+    for page in range(1, 7):
+        png = tmp_path / f"p{page:03d}.png"
+        png.write_bytes(_PNG_1X1)
+        renders.append({"page": page, "path": str(png), "mimeType": "image/png"})
+    result = {"ok": True, "session_id": "cap", "renders": renders, "render_warning": None}
+
+    blocks = server.mcp_content_blocks(result)
+
+    image_blocks = [b for b in blocks if b["type"] == "image"]
+    assert len(image_blocks) == server._max_inline_images()
+    assert len(image_blocks) < len(renders)
+    summary = json.loads(blocks[0]["text"])
+    assert summary["images_total"] == 6
+    assert summary["images_inlined"] == server._max_inline_images()
+
+
+def test_rasterization_respects_page_cap_and_uses_true_page_filenames(tmp_path, monkeypatch):
+    """P4: rasterization is capped; truncation is reported, ok stays True, PNGs keep true-page names."""
+    import framegraph.mcp.server as server
+
+    monkeypatch.setattr(
+        "framegraph.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
+    )
+    monkeypatch.setattr(server, "_raster_max_pages", lambda: 1)
+
+    result = run_sdk_code(
+        _multi_page_code(3), session_id="cap2", session_root=tmp_path, pages="2-3", raster_png=True
+    )
+
+    assert result["ok"] is True
+    png_renders = [r for r in result["renders"] if r["mimeType"] == "image/png"]
+    assert [r["page"] for r in png_renders] == [2]  # cap=1, first SELECTED page is 2
+    assert (tmp_path / "cap2" / "p002.png").exists()
+    assert png_renders[0]["uri"] == "framegraph://session/cap2/page/2.png"
+    assert "render_warning" in result and "1 of 2" in result["render_warning"]
+    # both selected pages still have SVG renders (only the raster was truncated)
+    svg_renders = [r for r in result["renders"] if r["mimeType"] == "image/svg+xml"]
+    assert [r["page"] for r in svg_renders] == [2, 3]
+
+
+def test_rasterization_respects_time_budget(tmp_path, monkeypatch):
+    """P4: a soft time budget stops the raster loop between pages with a structured warning."""
+    import framegraph.mcp.server as server
+
+    monkeypatch.setattr(
+        "framegraph.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
+    )
+    monkeypatch.setattr(server, "_raster_max_pages", lambda: 99)
+    monkeypatch.setattr(server, "_raster_timeout", lambda: 1.0)
+    # deadline base = 100.0; page-0 check 100.0 (<=101 -> rasterize); page-1 check 102.0 (> deadline -> stop)
+    clock = iter([100.0, 100.0, 102.0, 102.0, 102.0])
+    monkeypatch.setattr(server.time, "monotonic", lambda: next(clock))
+
+    session_dir = tmp_path / "budget"
+    session_dir.mkdir()
+    pairs = []
+    for page in (1, 2, 3):
+        svg = session_dir / f"page-{page:03d}.svg"
+        svg.write_text("<svg/>", encoding="utf-8")
+        pairs.append((page, svg))
+
+    renders, warning = server._try_rasterize_pngs(pairs, session_dir, "budget")
+
+    assert [r["page"] for r in renders] == [1]
+    assert warning is not None and "1 of 3" in warning
+
+
 def test_run_sdk_code_rejects_unsafe_session_id(tmp_path):
     with pytest.raises(ValueError, match="session_id"):
         run_sdk_code("print('nope')", session_id="../escape", session_root=tmp_path)
