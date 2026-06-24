@@ -124,5 +124,6 @@ class ScenePainter(Protocol):
     # ---- grouping / document ----
     def group(self, inner: str, translate=None) -> str: ...
     def opacity_group(self, inner: str, opacity) -> str: ...
-    def document(self, w, h, body: str) -> str:
-        """Assemble a full page document from accumulated <defs> + body."""
+    def document(self, w, h, body: str, lang=None, title=None, desc=None) -> str:
+        """Assemble a full page document from accumulated defs + body. `lang`/`title`/
+        `desc` are root accessibility attributes a backend may use or ignore."""

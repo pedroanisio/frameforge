@@ -116,6 +116,12 @@ class TikzPainter:
         return ""
 
     @staticmethod
+    def a11y_wrap(inner, obj):
+        """SVG wraps objects in an accessibility `<g role/aria-*>`; TikZ/PDF carries
+        no such per-object structure here, so this is a passthrough."""
+        return inner
+
+    @staticmethod
     def anchor(align):
         """Neutral align → text-anchor enum (shared convention with SvgPainter); the
         text methods map it to TikZ base-anchors."""
@@ -512,9 +518,10 @@ class TikzPainter:
         return f"\\node[{','.join(opts)}] at ({fnum(tx)},{fnum(base_y)}) {{{''.join(body)}}};\n"
 
     # ---- document --------------------------------------------------------- #
-    def document(self, w, h, body):
+    def document(self, w, h, body, lang=None, title=None, desc=None):
         """Assemble a page's TikZ picture (the LaTeX preamble/scaffold is the
-        `latex/` transpiler's job, not the painter's)."""
+        `latex/` transpiler's job, not the painter's). `lang`/`title`/`desc` are
+        SVG-root a11y attributes with no TikZ equivalent — ignored."""
         return ("\\noindent\\begin{tikzpicture}[x=1pt,y=-1pt]\n"
                 f"\\path[use as bounding box] (0,0) rectangle ({fnum(w)},{fnum(h)});\n"
                 f"{body}"
