@@ -30,6 +30,16 @@ pdf = ["pymupdf>=1.24"]
 # and render_fixtures.py --real-metrics). Optional: absent it, callers fall back to
 # the per-character estimate, so core rendering stays dependency-free (§13).
 metrics = ["fonttools>=4"]
+# Model Context Protocol server boundary for AI coding feedback loops. Optional:
+# the core SDK and renderers do not import it unless framegraph.mcp.create_server()
+# is called.
+mcp = ["mcp[cli]>=1.27,<2"]
+# Computer-vision lane: propose draft FrameGraph documents from images/PDF pages
+# (framegraph.vision). Optional and lazily imported — the classical detectors and
+# OCR only load when a propose tool runs; the VLM lane needs no extra dependency
+# (stdlib HTTP). `pytesseract` additionally needs the system Tesseract binary;
+# PDF input reuses the `pdf` group. numpy ships with opencv.
+vision = ["opencv-python-headless>=4.9", "pillow>=10", "pytesseract>=0.3.10"]
 
 [tool.uv]
 # Virtual project: manage the venv + dependencies, but do NOT build/install this

@@ -250,18 +250,28 @@ def _v3(value: Sequence[float] | Vec3) -> Vec3:
 
 
 def _avg_z(matrix: Mat4, face: Sequence[Vec3]) -> float:
-    """Painter's-algorithm depth key (larger = farther, drawn first).
+    """Painter's-algorithm depth key — LARGER = NEARER for every projection.
 
-    Uses the perspective-divided NDC depth (``z / w``) so a real perspective
-    camera sorts faces correctly; for the isometric/orthographic default ``w``
-    is 1, so this reduces to the eye-space z it always used.
+    :meth:`Scene3D.render` sorts ascending and paints in that order, so the face
+    closest to the camera must yield the LARGEST key (drawn last, on top).
+
+    The orthographic/isometric path (homogeneous ``w == 1``) already has larger
+    transformed ``z`` = nearer. A real perspective projection inverts that — its
+    NDC depth maps near ``-> -1`` and far ``-> +1`` — so the perspective key is
+    negated to keep one consistent convention. Without this, perspective scenes
+    painted far faces *over* near ones (harmless on a lone heightfield, which
+    barely self-overlaps, but wrong for any solid or separated geometry).
     """
+    w_row = matrix.values[3]
+    perspective = (abs(w_row[0]) > 1e-9 or abs(w_row[1]) > 1e-9
+                   or abs(w_row[2]) > 1e-9 or abs(w_row[3] - 1.0) > 1e-9)
     total = 0.0
     for p in face:
         x4 = matrix.apply(p)
         w = x4[3]
         total += x4[2] / w if abs(w) > 1e-12 else x4[2]
-    return total / max(1, len(face))
+    key = total / max(1, len(face))
+    return -key if perspective else key
 
 
 def _face_lighting(

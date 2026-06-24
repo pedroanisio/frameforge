@@ -56,11 +56,11 @@ Rules of reading:
 | Generated JSON schema | [schema/build_schema.py](./schema/build_schema.py) (`--check` fails on drift) | exists |
 | Normative prose & grammar | [spec/](./spec/), [grammar/](./grammar/) (grammar ⇄ models gated by [check_grammar_sync.py](./tooling/check_grammar_sync.py)) | exists |
 | Status, scope, honest limits | [README.md](./README.md), [CHANGELOG.md](./CHANGELOG.md) | exists |
-| Mission / non-goals, CLI contracts, process, disclaimer | `PURPOSE.md`, `AGENTS.md`, `CLAUDE.md`, `DISCLAIMER.md` | **`[Target]` — do not exist yet** |
+| Mission / non-goals, CLI contracts, process, disclaimer | `PURPOSE.md`, `AGENTS.md`, `CLAUDE.md`, `DISCLAIMER.md` | partial: `AGENTS.md` is still missing |
 
-> The four governance files in the last row are **planned, not present.** Earlier drafts
-> of this document cited them as live sources of truth; they are not. Until they land,
-> their topics are governed here. See §16.
+> The governance row is only partially closed. Earlier drafts of this document cited all
+> four files as live sources of truth; `AGENTS.md` is still absent, so agent/process topics
+> remain governed here until that file lands. See §16.
 
 ---
 
@@ -83,11 +83,13 @@ Rules of reading:
   ([pyproject.toml:11-12](./pyproject.toml#L11-L12)).
 - **`[Enforced]`** Optional capability sets are **PEP 735 dependency-groups**, not PEP
   621 extras: `dev` (hypothesis + pytest), `render = ["matplotlib>=3.7", "pillow>=10"]`,
-  `browser = ["playwright>=1.44"]`, and `pdf = ["pymupdf>=1.24"]`
-  ([pyproject.toml:21-28](./pyproject.toml#L21-L28)). `uv sync` installs `dev` by default;
+  `browser = ["playwright>=1.44"]`, `pdf = ["pymupdf>=1.24"]`,
+  `metrics = ["fonttools>=4"]`, and `mcp = ["mcp[cli]>=1.27,<2"]`
+  ([pyproject.toml:21-34](./pyproject.toml#L21-L34)). `uv sync` installs `dev` by default;
   `uv sync --group render` adds the matplotlib proxy renderer's deps,
   `uv sync --group browser` adds the Headless-Chromium raster renderer's deps, and
-  `uv sync --group pdf` adds PyMuPDF for the PDF -> FrameGraph transpiler.
+  `uv sync --group pdf` adds PyMuPDF for the PDF -> FrameGraph transpiler. `uv sync
+  --group mcp` installs the Model Context Protocol adapter; it is not a core dependency.
 - **`[Enforced]`** This is a **virtual project**: `package = false`
   ([pyproject.toml:33](./pyproject.toml#L33)). The tree runs via `sys.path`-rooted scripts;
   it is deliberately **not** built or installed (an installed `framegraph` distribution
@@ -97,6 +99,8 @@ Rules of reading:
   transpiler's `importorskip`-gated e2e test runs ([ci.yml:25](./.github/workflows/ci.yml#L25)).
 - **`[Adopted]`** No new runtime dependency without justification. Do not pull a
   browser/GUI/graphics stack into the core (§13).
+- **`[Adopted]`** `make live` is a stdlib local web adapter over the existing MCP/session
+  functions. It must not add a browser or web-framework dependency to the core runtime.
 - **`[Target]`** Floor on `pydantic>=2.7` (today the floor is `>=2`). Tighten only with a
   documented reason (a feature actually used).
 
@@ -104,8 +108,8 @@ Rules of reading:
 
 The gate is the contract for "done." It has **one definition**, run two places.
 
-- **`[Enforced]`** `make check = schema-check + grammar-check + a11y-check + test + validate +
-  overflow + golden-check + status-check + docs-check` ([Makefile:31](./Makefile#L31)). A change is not done until it passes.
+- **`[Enforced]`** `make check = schema-check + grammar-check + spec-check + a11y-check +
+  status-check + test + validate + overflow + golden-check + docs-check` ([Makefile](./Makefile)). A change is not done until it passes.
   - `schema-check` — `uv run python schema/build_schema.py --check`: fails if the committed
     [schema/framegraph-v2.schema.json](./schema/framegraph-v2.schema.json) drifted from the
     models ([Makefile:33-34](./Makefile#L33-L34)).
@@ -113,14 +117,16 @@ The gate is the contract for "done." It has **one definition**, run two places.
     drifted from the models on the **core profile** (a mismatched object/flow `type` or a
     divergent enum). Out-of-profile grammar (charts, the UML zoo, connectors) is a non-blocking
     warning; `--strict` demands full parity ([Makefile:36-37](./Makefile#L36-L37)).
-  - `a11y-check` — `uv run python tooling/check_accessibility.py fixtures/*.fg.yaml`: fails if a
+  - `spec-check` — `uv run python tooling/check_spec_sync.py --quiet`: fails if the spec prose
+    drops a model type, flow discriminator, or inline discriminator.
+  - `a11y-check` — `uv run python tooling/check_accessibility.py $(FIXTURES_YAML)`: fails if a
     page's `reading_order` references a missing or duplicate id (a broken/ambiguous structure
     tree); missing image `alt` and pages without a `reading_order` are advisory warnings that
     `--strict` promotes ([Makefile:39-40](./Makefile#L39-L40)).
   - `test` — `uv run pytest -q` ([Makefile:42-43](./Makefile#L42-L43)). The suite includes the
     documentation drift gate (`test_docs_in_sync.py`) and the executable-examples gate
     (`test_doc_examples.py`) — see §8.
-  - `validate` — `uv run python tooling/validate.py fixtures/*.fg.yaml`: structural +
+  - `validate` — `uv run python tooling/validate.py $(FIXTURES_YAML)`: structural +
     geometric rules ([Makefile:45-46](./Makefile#L45-L46)).
   - `overflow` — `uv run python tooling/render_fixtures.py --all --check-overflow`: asserts
     no text spills its box ([Makefile:48-49](./Makefile#L48-L49)).
@@ -133,7 +139,7 @@ The gate is the contract for "done." It has **one definition**, run two places.
     asserts every `mkdocs.yml` nav entry resolves ([Makefile:65-66](./Makefile#L65-L66)).
 - **`[Enforced]`** **CI mirrors `make check`.** The `python` job
   ([ci.yml:28-50](./.github/workflows/ci.yml#L28-L50)) runs schema-check, grammar-check, a11y-check,
-  test, validate, overflow, golden-check, and status-check as separate steps after `uv sync --locked --group pdf` (the
+  spec-check, test, validate, overflow, golden-check, and status-check as separate steps after `uv sync --locked --group pdf` (the
   `pdf` group only lets the transpiler's gated e2e test execute; the gate *commands* still
   match `make check`); the ninth gate, `docs-check`, runs in the dedicated `docs` job
   ([ci.yml:57-69](./.github/workflows/ci.yml#L57-L69)) which also builds the site with
@@ -228,6 +234,9 @@ else is generated from or checked against them** ([README.md](./README.md), *The
   (the `golden-check` gate, §3) pins each b1/ oracle fixture's per-page SVG output by SHA-256 in
   `tests/golden/oracle.lock.json`; any change in rendered output fails the gate until re-pinned
   with `make golden`. This catches output regressions the validate/overflow gates cannot.
+- **`[Adopted]`** **Curated fixture gate.** `FIXTURES_YAML` is resolved from tracked
+  `fixtures/*.fg.yaml` paths via `git ls-files`, so scratch/untracked fixture experiments do not
+  silently change `make check`. Add a fixture to git before expecting the gate to validate it.
 - **`[Target]`** An explicit **drift tolerance** (rasterized pixel diff) so a cosmetically-trivial
   change need not force a re-pin. Today the lock is exact (hash) over the deterministic SVG; there
   is no tolerance band yet.
@@ -290,6 +299,13 @@ non-negotiable absent an explicit, documented decision.
 - **Core commitments.** YAML/JSON is the authoring surface; the Pydantic models are the source
   of truth; SVG is the primary output; **pure-Python, dependency-free core rendering** stays
   first-class; the schema/validator/codemod/grammar stay **in sync** with the models (§8).
+- **MCP boundary.** [framegraph/mcp/](./framegraph/mcp/) is an optional adapter for AI coding
+  feedback loops: Python SDK code runs in a per-session subprocess, emits FrameGraph YAML, and
+  the existing validator/SVG proxy renderer produce artifacts for inspection. MCP dependencies
+  stay in the optional `mcp` group; do not import them from the core SDK or renderer path.
+- **Live-session boundary.** [framegraph/live/](./framegraph/live/) is a local HTTP UI over the
+  same MCP/session functions. It may serve browser chrome, session metadata, diagnostics, and
+  rendered artifacts, but it must not become a separate renderer or introduce core web deps.
 - **Honest scope.** FrameGraph v2 is a **proposed** format. No renderer is conformant; the
   matplotlib and SVG proxies are sanity checks, not fidelity guarantees. Font pinning gives
   deterministic *layout* only up to a stated tolerance, not pixel-exact identity (§9.6).
@@ -349,7 +365,7 @@ explicit and shrinking, never silently assumed-met. Complexity scale per §12.
 | 4 | TDD loop, `unit`/`integration` trees, hypothesis | single oracle module | §6 | M |
 | 5 | Golden-render **drift tolerance** (rasterized) | exact hash lock (`render_golden.py`) | §8 | M |
 | 6 | `.pre-commit-config.yaml` mirroring CI | none | §10 | S |
-| 7 | Governance docs: `PURPOSE.md`, `AGENTS.md`, `CLAUDE.md`, `DISCLAIMER.md` | none | table, §12, §13 | S–M |
+| 7 | Governance docs: `AGENTS.md` plus any remaining governance alignment | partial | table, §12, §13 | S–M |
 | 8 | Runtime `__version__` + `make release` | single literal, no recipe | §9 | S |
 | 9 | Multi-version CI matrix (3.10–3.12) + `classifiers` | 3.10 named, single runner | §1 | S |
 

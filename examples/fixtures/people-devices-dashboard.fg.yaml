@@ -1,0 +1,3985 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: People · Devices · Security — mobile dashboard
+lang: en
+defs:
+  tokens:
+    colors:
+      stage: '#9AA1AD'
+      stage2: '#888F9C'
+      body: '#6C7178'
+      body2: '#777C84'
+      panel: '#5E636B'
+      ink: '#23272E'
+      white: '#F4F4F6'
+      g9: '#9DA1A9'
+      g8: '#878C94'
+      g6: '#6B7079'
+      mut: '#B7BAC1'
+      card: '#FBFBFC'
+      cardLt: '#DDDEE2'
+      cardDk: '#2A2E36'
+      yellow: '#E9F24B'
+      yellowDk: '#D4DE39'
+      green: '#CDE8A2'
+      greenDot: '#6FAF4A'
+      graypill: '#C8CACF'
+      graydot: '#8B8F97'
+      line: '#E6E6EA'
+      land: '#C6C8CC'
+    text_styles:
+      h1:
+        align: left
+        color: white
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 40
+        font_weight: 800
+        line_height: 1.25
+        letter_spacing: -1.0
+      h2white:
+        align: left
+        color: white
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 25
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: -0.4
+      h2ink:
+        align: center
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 27
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: -0.4
+      statLbl:
+        align: left
+        color: mut
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 12
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      pctDark:
+        align: center
+        color: white
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 15
+        font_weight: 800
+        line_height: 1.25
+        letter_spacing: 0.0
+      pctYel:
+        align: center
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 16
+        font_weight: 800
+        line_height: 1.25
+        letter_spacing: 0.0
+      pctOut:
+        align: center
+        color: white
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 14
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: 0.0
+      name:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 17
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: -0.2
+      role:
+        align: left
+        color: g8
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      pillG:
+        align: center
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 600
+        line_height: 1.25
+        letter_spacing: 0.0
+      colLbl:
+        align: left
+        color: g9
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 12
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      colVal:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 14
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: 0.0
+      dateLbl:
+        align: left
+        color: g9
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      dateVal:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 14
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: 0.0
+      navPill:
+        align: center
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 14
+        font_weight: 600
+        line_height: 1.25
+        letter_spacing: 0.0
+      export:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 15
+        font_weight: 600
+        line_height: 1.25
+        letter_spacing: 0.0
+      devName:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: 0.0
+      devItems:
+        align: left
+        color: g8
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      macAir:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 16
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: 0.0
+      macVer:
+        align: left
+        color: g8
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      macLoc:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 14
+        font_weight: 600
+        line_height: 1.25
+        letter_spacing: 0.0
+      macTime:
+        align: right
+        color: g8
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      bigPct:
+        align: center
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 36
+        font_weight: 800
+        line_height: 1.25
+        letter_spacing: -1.0
+      risk:
+        align: center
+        color: g6
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 14
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      sessName:
+        align: left
+        color: white
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 15
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: 0.0
+      sessTime:
+        align: left
+        color: mut
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 12
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      city:
+        align: right
+        color: mut
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 12
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      count:
+        align: right
+        color: white
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 22
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: 0.0
+      mapNum:
+        align: center
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 800
+        line_height: 1.25
+        letter_spacing: 0.0
+pages:
+- mode: page
+  id: people_devices_dashboard
+  canvas:
+    size:
+    - 1500.0
+    - 1140.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: stage
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1500
+      - 1140
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: '#A2A8B3'
+          position: 0%
+        - color: '#9AA1AD'
+          position: 50%
+        - color: '#8C93A0'
+          position: 100%
+        angle: 37.2
+  - id: phones
+    objects:
+    - box:
+      - 91
+      - 247
+      - 368
+      - 880
+      decorative: true
+      type: rect
+      fill: rgba(58,63,71,0.22)
+      radius: 50
+    - box:
+      - 95
+      - 235
+      - 360
+      - 880
+      type: rect
+      fill: body
+      radius: 46
+    - style:
+        clip_path:
+          shape: path
+          args:
+            d: M141,235 H409 A46,46 0 0 1 455,281 V1069 A46,46 0 0 1 409,1115 H141
+              A46,46 0 0 1 95,1069 V281 A46,46 0 0 1 141,235 Z
+      type: group
+      children:
+      - box:
+        - 95
+        - 235
+        - 360
+        - 880
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: '#71767D'
+            position: 0%
+          - color: '#656A71'
+            position: 100%
+          angle: 90.0
+      - decorative: true
+        type: ellipse
+        center:
+        - 143.0
+        - 265.0
+        rx: 24.0
+        ry: 24.0
+        fill: cardLt
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.4
+          stroke_linecap: round
+          stroke_linejoin: round
+        type: polyline
+        points:
+        - - 146.6
+          - 256.0
+        - - 138.5
+          - 265.0
+        - - 146.6
+          - 274.0
+        fill: none
+        stroke: ink
+      - box:
+        - 315
+        - 241
+        - 116
+        - 48
+        decorative: true
+        type: rect
+        fill: cardLt
+        radius: 24
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.8
+        type: ellipse
+        center:
+        - 341.0
+        - 265.0
+        rx: 10.0
+        ry: 10.0
+        fill: none
+        stroke: ink
+      - decorative: true
+        type: ellipse
+        center:
+        - 337.8
+        - 263.2
+        rx: 1.4
+        ry: 1.4
+        fill: ink
+      - decorative: true
+        type: ellipse
+        center:
+        - 344.2
+        - 263.2
+        rx: 1.4
+        ry: 1.4
+        fill: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.8
+          stroke_linecap: round
+        type: path
+        d: M 336.8 266.8 Q 341 271.2 345.2 266.8
+        fill: none
+        stroke: ink
+      - box:
+        - 357
+        - 256
+        - 66
+        - 18
+        style: export
+        type: text
+        text: Export
+      - decorative: true
+        type: ellipse
+        center:
+        - 279.0
+        - 265.0
+        rx: 24.0
+        ry: 24.0
+        fill: cardLt
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+          stroke_linecap: round
+        type: line
+        from:
+        - 270.0
+        - 260.0
+        to:
+        - 288.0
+        - 260.0
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+        type: ellipse
+        center:
+        - 283.0
+        - 260.0
+        rx: 3.0
+        ry: 3.0
+        fill: white
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+          stroke_linecap: round
+        type: line
+        from:
+        - 270.0
+        - 270.0
+        to:
+        - 288.0
+        - 270.0
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+        type: ellipse
+        center:
+        - 275.0
+        - 270.0
+        rx: 3.0
+        ry: 3.0
+        fill: white
+        stroke: ink
+      - decorative: true
+        type: ellipse
+        center:
+        - 219.0
+        - 265.0
+        rx: 24.0
+        ry: 24.0
+        fill: cardLt
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.4
+          stroke_linecap: round
+        type: line
+        from:
+        - 211.0
+        - 265.0
+        to:
+        - 227.0
+        - 265.0
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.4
+          stroke_linecap: round
+        type: line
+        from:
+        - 219.0
+        - 257.0
+        to:
+        - 219.0
+        - 273.0
+        stroke: ink
+      - box:
+        - 119
+        - 323
+        - 260
+        - 52
+        style: h1
+        type: text
+        text: People
+      - box:
+        - 111
+        - 403
+        - 96
+        - 16
+        style: statLbl
+        type: text
+        text: Interviews
+      - box:
+        - 111
+        - 427
+        - 66
+        - 44
+        decorative: true
+        type: rect
+        fill: ink
+        radius: 22
+      - box:
+        - 111
+        - 440
+        - 66
+        - 18
+        style: pctDark
+        type: text
+        text: 25%
+      - box:
+        - 183
+        - 403
+        - 134
+        - 16
+        style: statLbl
+        type: text
+        text: Hired
+      - box:
+        - 183
+        - 421
+        - 104
+        - 56
+        decorative: true
+        type: rect
+        fill: yellow
+        radius: 28
+      - box:
+        - 183
+        - 439
+        - 104
+        - 20
+        style: pctYel
+        type: text
+        text: 51%
+      - box:
+        - 299
+        - 403
+        - 92
+        - 16
+        style: statLbl
+        type: text
+        text: Project time
+      - box:
+        - 299
+        - 427
+        - 62
+        - 44
+        decorative: true
+        stroke_style:
+          stroke_width: 1.4
+        type: rect
+        fill: rgba(255,255,255,0.06)
+        radius: 22
+        stroke: g9
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.4
+        type: line
+        from:
+        - 285.0
+        - 471.0
+        to:
+        - 307.0
+        - 427.0
+        stroke: rgba(255,255,255,0.3)
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.4
+        type: line
+        from:
+        - 299.0
+        - 471.0
+        to:
+        - 321.0
+        - 427.0
+        stroke: rgba(255,255,255,0.3)
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.4
+        type: line
+        from:
+        - 313.0
+        - 471.0
+        to:
+        - 335.0
+        - 427.0
+        stroke: rgba(255,255,255,0.3)
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.4
+        type: line
+        from:
+        - 327.0
+        - 471.0
+        to:
+        - 349.0
+        - 427.0
+        stroke: rgba(255,255,255,0.3)
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.4
+        type: line
+        from:
+        - 341.0
+        - 471.0
+        to:
+        - 363.0
+        - 427.0
+        stroke: rgba(255,255,255,0.3)
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.4
+        type: line
+        from:
+        - 355.0
+        - 471.0
+        to:
+        - 377.0
+        - 427.0
+        stroke: rgba(255,255,255,0.3)
+      - box:
+        - 299
+        - 440
+        - 62
+        - 18
+        style: pctOut
+        type: text
+        text: 10%
+      - box:
+        - 373
+        - 403
+        - 88
+        - 16
+        style: statLbl
+        type: text
+        text: Output
+      - box:
+        - 373
+        - 427
+        - 58
+        - 44
+        decorative: true
+        stroke_style:
+          stroke_width: 1.4
+        type: rect
+        fill: none
+        radius: 22
+        stroke: g9
+      - box:
+        - 373
+        - 440
+        - 58
+        - 18
+        style: pctOut
+        type: text
+        text: 14%
+      - box:
+        - 111
+        - 535
+        - 328
+        - 196
+        decorative: true
+        type: rect
+        fill: card
+        radius: 24
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 581.0
+        rx: 28.0
+        ry: 28.0
+        fill: '#EAEAEE'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 596.12
+        rx: 20.72
+        ry: 12.88
+        fill: '#46618F'
+      - box:
+        - 147.64
+        - 581.56
+        - 6.72
+        - 8.4
+        decorative: true
+        type: rect
+        fill: '#E7B488'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 579.32
+        rx: 11.200000000000001
+        ry: 12.04
+        fill: '#E7B488'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 574.28
+        rx: 11.76
+        ry: 8.96
+        fill: '#3B2E25'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 580.44
+        rx: 10.08
+        ry: 9.520000000000001
+        fill: '#E7B488'
+      - decorative: true
+        type: ellipse
+        center:
+        - 147.08
+        - 579.6
+        rx: 1.26
+        ry: 1.68
+        fill: '#33373E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 154.92
+        - 579.6
+        rx: 1.26
+        ry: 1.68
+        fill: '#33373E'
+      - box:
+        - 195
+        - 561
+        - 140
+        - 22
+        style: name
+        type: text
+        text: Harry Bender
+      - box:
+        - 195
+        - 585
+        - 150
+        - 16
+        style: role
+        type: text
+        text: Head of Design
+      - box:
+        - 323
+        - 557
+        - 108
+        - 34
+        decorative: true
+        type: rect
+        fill: green
+        radius: 17
+      - decorative: true
+        type: ellipse
+        center:
+        - 339.0
+        - 574.0
+        rx: 4.0
+        ry: 4.0
+        fill: greenDot
+      - box:
+        - 345
+        - 565
+        - 80
+        - 16
+        style: pillG
+        type: text
+        text: Invited
+      - box:
+        - 119
+        - 621
+        - 110
+        - 14
+        style: colLbl
+        type: text
+        text: Departament
+      - box:
+        - 119
+        - 641
+        - 100
+        - 18
+        style: colVal
+        type: text
+        text: Product
+      - box:
+        - 247
+        - 621
+        - 90
+        - 14
+        style: colLbl
+        type: text
+        text: Country
+      - box:
+        - 247.0
+        - 639
+        - 8.6
+        - 16
+        decorative: true
+        type: rect
+        fill: '#3A8E5C'
+        radius: 3
+      - box:
+        - 255.0
+        - 639
+        - 8.6
+        - 16
+        decorative: true
+        type: rect
+        fill: '#FFFFFF'
+        radius: 0
+      - box:
+        - 263.0
+        - 639
+        - 8.0
+        - 16
+        decorative: true
+        type: rect
+        fill: '#CE2B37'
+        radius: 3
+      - box:
+        - 277
+        - 641
+        - 90
+        - 18
+        style: colVal
+        type: text
+        text: Rome
+      - box:
+        - 357
+        - 621
+        - 80
+        - 14
+        style: colLbl
+        type: text
+        text: Salary
+      - box:
+        - 357
+        - 641
+        - 90
+        - 18
+        style: colVal
+        type: text
+        text: $1,350
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 119.0
+        - 675.0
+        to:
+        - 431.0
+        - 675.0
+        stroke: line
+      - box:
+        - 119
+        - 691
+        - 90
+        - 14
+        style: dateLbl
+        type: text
+        text: Start date
+      - box:
+        - 205
+        - 690
+        - 120
+        - 18
+        style: dateVal
+        type: text
+        text: Mar 13, 2023
+      - box:
+        - 399
+        - 685
+        - 30
+        - 30
+        decorative: true
+        stroke_style:
+          stroke_width: 1.8
+        type: rect
+        fill: none
+        radius: 9
+        stroke: g9
+      - box:
+        - 111
+        - 749
+        - 328
+        - 196
+        decorative: true
+        shadow:
+          color: '#3C4047'
+          blur: 26.0
+          dx: 0.0
+          dy: 10.0
+          opacity: 0.22
+        type: rect
+        fill: card
+        radius: 24
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 795.0
+        rx: 28.0
+        ry: 28.0
+        fill: '#EAEAEE'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 810.12
+        rx: 20.72
+        ry: 12.88
+        fill: '#C08A6A'
+      - box:
+        - 147.64
+        - 795.56
+        - 6.72
+        - 8.4
+        decorative: true
+        type: rect
+        fill: '#E2A983'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 794.44
+        rx: 13.44
+        ry: 14.56
+        fill: '#2C2420'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 794.44
+        rx: 9.520000000000001
+        ry: 11.76
+        fill: '#E2A983'
+      - decorative: true
+        type: ellipse
+        center:
+        - 147.08
+        - 793.6
+        rx: 1.26
+        ry: 1.68
+        fill: '#33373E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 154.92
+        - 793.6
+        rx: 1.26
+        ry: 1.68
+        fill: '#33373E'
+      - box:
+        - 195
+        - 775
+        - 140
+        - 22
+        style: name
+        type: text
+        text: Katy Fuller
+      - box:
+        - 195
+        - 799
+        - 150
+        - 16
+        style: role
+        type: text
+        text: Fullstack Engineer
+      - box:
+        - 323
+        - 771
+        - 108
+        - 34
+        decorative: true
+        type: rect
+        fill: graypill
+        radius: 17
+      - decorative: true
+        type: ellipse
+        center:
+        - 339.0
+        - 788.0
+        rx: 4.0
+        ry: 4.0
+        fill: graydot
+      - box:
+        - 345
+        - 779
+        - 80
+        - 16
+        style: pillG
+        type: text
+        text: Invited
+      - box:
+        - 119
+        - 835
+        - 110
+        - 14
+        style: colLbl
+        type: text
+        text: Departament
+      - box:
+        - 119
+        - 855
+        - 100
+        - 18
+        style: colVal
+        type: text
+        text: Engineering
+      - box:
+        - 247
+        - 835
+        - 90
+        - 14
+        style: colLbl
+        type: text
+        text: Country
+      - box:
+        - 247
+        - 853
+        - 24
+        - 16
+        decorative: true
+        type: rect
+        fill: '#FFFFFF'
+        radius: 3
+      - box:
+        - 247
+        - 854.6
+        - 24
+        - 1.75
+        decorative: true
+        type: rect
+        fill: '#B22234'
+      - box:
+        - 247
+        - 858.1
+        - 24
+        - 1.75
+        decorative: true
+        type: rect
+        fill: '#B22234'
+      - box:
+        - 247
+        - 861.6
+        - 24
+        - 1.75
+        decorative: true
+        type: rect
+        fill: '#B22234'
+      - box:
+        - 247
+        - 865.1
+        - 24
+        - 1.75
+        decorative: true
+        type: rect
+        fill: '#B22234'
+      - box:
+        - 247
+        - 853
+        - 10.8
+        - 8.8
+        decorative: true
+        type: rect
+        fill: '#2A3E8F'
+        radius: 3
+      - box:
+        - 277
+        - 855
+        - 90
+        - 18
+        style: colVal
+        type: text
+        text: Miami
+      - box:
+        - 357
+        - 835
+        - 80
+        - 14
+        style: colLbl
+        type: text
+        text: Salary
+      - box:
+        - 357
+        - 855
+        - 90
+        - 18
+        style: colVal
+        type: text
+        text: $1,500
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 119.0
+        - 889.0
+        to:
+        - 431.0
+        - 889.0
+        stroke: line
+      - box:
+        - 119
+        - 905
+        - 90
+        - 14
+        style: dateLbl
+        type: text
+        text: Start date
+      - box:
+        - 205
+        - 904
+        - 120
+        - 18
+        style: dateVal
+        type: text
+        text: Oct 13, 2023
+      - box:
+        - 399
+        - 899
+        - 30
+        - 30
+        decorative: true
+        type: rect
+        fill: ink
+        radius: 9
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.4
+          stroke_linecap: round
+          stroke_linejoin: round
+        type: polyline
+        points:
+        - - 406.8
+          - 914.6
+        - - 411.9
+          - 919.4
+        - - 421.2
+          - 908.6
+        fill: none
+        stroke: white
+      - box:
+        - 111
+        - 963
+        - 328
+        - 196
+        decorative: true
+        type: rect
+        fill: card
+        radius: 24
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 1009.0
+        rx: 28.0
+        ry: 28.0
+        fill: '#EAEAEE'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 1024.12
+        rx: 20.72
+        ry: 12.88
+        fill: '#6A707A'
+      - box:
+        - 147.64
+        - 1009.56
+        - 6.72
+        - 8.4
+        decorative: true
+        type: rect
+        fill: '#C2855A'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 1007.32
+        rx: 11.200000000000001
+        ry: 12.04
+        fill: '#C2855A'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 1002.28
+        rx: 11.76
+        ry: 8.96
+        fill: '#2A201B'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 1008.44
+        rx: 10.08
+        ry: 9.520000000000001
+        fill: '#C2855A'
+      - decorative: true
+        type: ellipse
+        center:
+        - 147.08
+        - 1007.6
+        rx: 1.26
+        ry: 1.68
+        fill: '#33373E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 154.92
+        - 1007.6
+        rx: 1.26
+        ry: 1.68
+        fill: '#33373E'
+      - box:
+        - 195
+        - 989
+        - 140
+        - 22
+        style: name
+        type: text
+        text: Jonathan Kelly
+      - box:
+        - 195
+        - 1013
+        - 150
+        - 16
+        style: role
+        type: text
+        text: Mobile Lead
+      - box:
+        - 323
+        - 985
+        - 108
+        - 34
+        decorative: true
+        type: rect
+        fill: green
+        radius: 17
+      - decorative: true
+        type: ellipse
+        center:
+        - 339.0
+        - 1002.0
+        rx: 4.0
+        ry: 4.0
+        fill: greenDot
+      - box:
+        - 345
+        - 993
+        - 80
+        - 16
+        style: pillG
+        type: text
+        text: Invited
+      - box:
+        - 119
+        - 1049
+        - 110
+        - 14
+        style: colLbl
+        type: text
+        text: Departament
+      - box:
+        - 119
+        - 1069
+        - 100
+        - 18
+        style: colVal
+        type: text
+        text: Product
+      - box:
+        - 247
+        - 1049
+        - 90
+        - 14
+        style: colLbl
+        type: text
+        text: Country
+      - box:
+        - 247
+        - 1067
+        - 24
+        - 8.0
+        decorative: true
+        type: rect
+        fill: '#0057B7'
+        radius: 3
+      - box:
+        - 247
+        - 1075.0
+        - 24
+        - 8.0
+        decorative: true
+        type: rect
+        fill: '#FFD700'
+        radius: 3
+      - box:
+        - 247
+        - 1073.0
+        - 24
+        - 4
+        decorative: true
+        type: rect
+        fill: '#0057B7'
+      - box:
+        - 247
+        - 1075.0
+        - 24
+        - 2
+        decorative: true
+        type: rect
+        fill: '#FFD700'
+      - box:
+        - 277
+        - 1069
+        - 90
+        - 18
+        style: colVal
+        type: text
+        text: Kyiv
+      - box:
+        - 357
+        - 1049
+        - 80
+        - 14
+        style: colLbl
+        type: text
+        text: Salary
+      - box:
+        - 357
+        - 1069
+        - 90
+        - 18
+        style: colVal
+        type: text
+        text: $1,350
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 119.0
+        - 1103.0
+        to:
+        - 431.0
+        - 1103.0
+        stroke: line
+      - box:
+        - 119
+        - 1119
+        - 90
+        - 14
+        style: dateLbl
+        type: text
+        text: Start date
+      - box:
+        - 205
+        - 1118
+        - 120
+        - 18
+        style: dateVal
+        type: text
+        text: Mar 13, 2023
+      - box:
+        - 399
+        - 1113
+        - 30
+        - 30
+        decorative: true
+        stroke_style:
+          stroke_width: 1.8
+        type: rect
+        fill: none
+        radius: 9
+        stroke: g9
+      - box:
+        - 111
+        - 1177
+        - 328
+        - 196
+        decorative: true
+        type: rect
+        fill: card
+        radius: 24
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 1223.0
+        rx: 28.0
+        ry: 28.0
+        fill: '#EAEAEE'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 1238.12
+        rx: 20.72
+        ry: 12.88
+        fill: '#566AA2'
+      - box:
+        - 147.64
+        - 1223.56
+        - 6.72
+        - 8.4
+        decorative: true
+        type: rect
+        fill: '#E8C49C'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 1221.32
+        rx: 11.200000000000001
+        ry: 12.04
+        fill: '#E8C49C'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 1216.28
+        rx: 11.76
+        ry: 8.96
+        fill: '#C7A24B'
+      - decorative: true
+        type: ellipse
+        center:
+        - 151.0
+        - 1222.44
+        rx: 10.08
+        ry: 9.520000000000001
+        fill: '#E8C49C'
+      - decorative: true
+        type: ellipse
+        center:
+        - 147.08
+        - 1221.6
+        rx: 1.26
+        ry: 1.68
+        fill: '#33373E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 154.92
+        - 1221.6
+        rx: 1.26
+        ry: 1.68
+        fill: '#33373E'
+      - box:
+        - 195
+        - 1203
+        - 140
+        - 22
+        style: name
+        type: text
+        text: Billie Wright
+      - box:
+        - 195
+        - 1227
+        - 150
+        - 16
+        style: role
+        type: text
+        text: Backend Engineer
+      - box:
+        - 323
+        - 1199
+        - 108
+        - 34
+        decorative: true
+        type: rect
+        fill: green
+        radius: 17
+      - decorative: true
+        type: ellipse
+        center:
+        - 339.0
+        - 1216.0
+        rx: 4.0
+        ry: 4.0
+        fill: greenDot
+      - box:
+        - 345
+        - 1207
+        - 80
+        - 16
+        style: pillG
+        type: text
+        text: Invited
+      - box:
+        - 119
+        - 1263
+        - 110
+        - 14
+        style: colLbl
+        type: text
+        text: Departament
+      - box:
+        - 119
+        - 1283
+        - 100
+        - 18
+        style: colVal
+        type: text
+        text: Engineering
+      - box:
+        - 247
+        - 1263
+        - 90
+        - 14
+        style: colLbl
+        type: text
+        text: Country
+      - box:
+        - 247.0
+        - 1281
+        - 8.6
+        - 16
+        decorative: true
+        type: rect
+        fill: '#2A3E8F'
+        radius: 3
+      - box:
+        - 255.0
+        - 1281
+        - 8.6
+        - 16
+        decorative: true
+        type: rect
+        fill: '#FFFFFF'
+        radius: 0
+      - box:
+        - 263.0
+        - 1281
+        - 8.0
+        - 16
+        decorative: true
+        type: rect
+        fill: '#CE2B37'
+        radius: 3
+      - box:
+        - 277
+        - 1283
+        - 90
+        - 18
+        style: colVal
+        type: text
+        text: Paris
+      - box:
+        - 357
+        - 1263
+        - 80
+        - 14
+        style: colLbl
+        type: text
+        text: Salary
+      - box:
+        - 357
+        - 1283
+        - 90
+        - 18
+        style: colVal
+        type: text
+        text: $1,400
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 119.0
+        - 1317.0
+        to:
+        - 431.0
+        - 1317.0
+        stroke: line
+      - box:
+        - 119
+        - 1333
+        - 90
+        - 14
+        style: dateLbl
+        type: text
+        text: Start date
+      - box:
+        - 205
+        - 1332
+        - 120
+        - 18
+        style: dateVal
+        type: text
+        text: Jan 9, 2023
+      - box:
+        - 399
+        - 1327
+        - 30
+        - 30
+        decorative: true
+        stroke_style:
+          stroke_width: 1.8
+        type: rect
+        fill: none
+        radius: 9
+        stroke: g9
+    - box:
+      - 95
+      - 235
+      - 360
+      - 880
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: none
+      radius: 46
+      stroke: rgba(255,255,255,0.35)
+    - box:
+      - 566
+      - 132
+      - 368
+      - 880
+      decorative: true
+      type: rect
+      fill: rgba(58,63,71,0.22)
+      radius: 50
+    - box:
+      - 570
+      - 120
+      - 360
+      - 880
+      type: rect
+      fill: body
+      radius: 46
+    - style:
+        clip_path:
+          shape: path
+          args:
+            d: M616,120 H884 A46,46 0 0 1 930,166 V954 A46,46 0 0 1 884,1000 H616
+              A46,46 0 0 1 570,954 V166 A46,46 0 0 1 616,120 Z
+      type: group
+      children:
+      - box:
+        - 570
+        - 120
+        - 360
+        - 880
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: '#71767D'
+            position: 0%
+          - color: '#646970'
+            position: 100%
+          angle: 90.0
+      - decorative: true
+        type: ellipse
+        center:
+        - 618.0
+        - 150.0
+        rx: 24.0
+        ry: 24.0
+        fill: cardLt
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.4
+          stroke_linecap: round
+          stroke_linejoin: round
+        type: polyline
+        points:
+        - - 621.6
+          - 141.0
+        - - 613.5
+          - 150.0
+        - - 621.6
+          - 159.0
+        fill: none
+        stroke: ink
+      - decorative: true
+        type: ellipse
+        center:
+        - 882.0
+        - 150.0
+        rx: 24.0
+        ry: 24.0
+        fill: cardLt
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+          stroke_linecap: round
+        type: line
+        from:
+        - 873.0
+        - 145.0
+        to:
+        - 891.0
+        - 145.0
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+        type: ellipse
+        center:
+        - 886.0
+        - 145.0
+        rx: 3.0
+        ry: 3.0
+        fill: white
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+          stroke_linecap: round
+        type: line
+        from:
+        - 873.0
+        - 155.0
+        to:
+        - 891.0
+        - 155.0
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+        type: ellipse
+        center:
+        - 878.0
+        - 155.0
+        rx: 3.0
+        ry: 3.0
+        fill: white
+        stroke: ink
+      - box:
+        - 750
+        - 128
+        - 96
+        - 44
+        decorative: true
+        type: rect
+        fill: cardLt
+        radius: 22.0
+      - box:
+        - 750
+        - 141.0
+        - 96
+        - 18
+        style: navPill
+        type: text
+        text: Org Chat
+      - box:
+        - 644
+        - 128
+        - 96
+        - 44
+        decorative: true
+        type: rect
+        fill: cardLt
+        radius: 22.0
+      - box:
+        - 644
+        - 141.0
+        - 96
+        - 18
+        style: navPill
+        type: text
+        text: Directory
+      - box:
+        - 594
+        - 190
+        - 260
+        - 52
+        style: h1
+        type: text
+        text: Devices
+      - box:
+        - 586
+        - 252
+        - 164
+        - 70
+        decorative: true
+        type: rect
+        fill: card
+        radius: 18
+      - box:
+        - 598
+        - 266
+        - 42
+        - 42
+        decorative: true
+        type: rect
+        fill: '#F0F0F2'
+        radius: 10
+      - box:
+        - 597
+        - 273
+        - 44
+        - 28
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: '#3A3F47'
+            position: 0%
+          - color: '#15181D'
+            position: 100%
+          angle: 90.0
+        radius: 4
+      - box:
+        - 601
+        - 277
+        - 36
+        - 20
+        decorative: true
+        type: rect
+        fill: '#0E1014'
+        radius: 2
+      - decorative: true
+        type: ellipse
+        center:
+        - 610.0
+        - 284.0
+        rx: 8.0
+        ry: 6.0
+        fill: rgba(124,131,144,0.5)
+      - box:
+        - 592
+        - 300
+        - 54
+        - 4
+        decorative: true
+        type: rect
+        fill: '#2A2E35'
+        radius: 2
+      - box:
+        - 650
+        - 270
+        - 96
+        - 18
+        style: devName
+        type: text
+        text: MacBook Pro
+      - box:
+        - 650
+        - 292
+        - 96
+        - 16
+        style: devItems
+        type: text
+        text: 2 items
+      - box:
+        - 760
+        - 252
+        - 164
+        - 70
+        decorative: true
+        type: rect
+        fill: card
+        radius: 18
+      - box:
+        - 772
+        - 266
+        - 42
+        - 42
+        decorative: true
+        type: rect
+        fill: '#F0F0F2'
+        radius: 10
+      - box:
+        - 780
+        - 269
+        - 26
+        - 36
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: '#3A3F47'
+            position: 0%
+          - color: '#101317'
+            position: 100%
+          angle: 90.0
+        radius: 7
+      - box:
+        - 784
+        - 273
+        - 18
+        - 28
+        decorative: true
+        type: rect
+        fill: '#0E1014'
+        radius: 4
+      - decorative: true
+        type: ellipse
+        center:
+        - 795.0
+        - 283.0
+        rx: 7.0
+        ry: 9.0
+        fill: rgba(154,160,172,0.45)
+      - box:
+        - 824
+        - 270
+        - 96
+        - 18
+        style: devName
+        type: text
+        text: iPhone 16 Pro
+      - box:
+        - 824
+        - 292
+        - 96
+        - 16
+        style: devItems
+        type: text
+        text: 4 items
+      - box:
+        - 594
+        - 352
+        - 240
+        - 32
+        style: h2white
+        type: text
+        text: Map Session
+      - decorative: true
+        type: polyline
+        points:
+        - - 584.4
+          - 450.56
+        - - 627.6
+          - 422.12
+        - - 667.2
+          - 431.6
+        - - 678.0
+          - 463.2
+        - - 667.2
+          - 494.8
+        - - 678.0
+          - 526.4
+        - - 649.2
+          - 558.0
+        - - 620.4
+          - 539.04
+        - - 602.4
+          - 501.12
+        - - 588.0
+          - 475.84000000000003
+        closed: true
+        fill: land
+      - decorative: true
+        type: polyline
+        points:
+        - - 667.2
+          - 573.8
+        - - 692.4
+          - 576.96
+        - - 699.6
+          - 608.56
+        - - 681.6
+          - 659.12
+        - - 660.0
+          - 684.4000000000001
+        - - 649.2
+          - 640.16
+        - - 652.8
+          - 599.08
+        closed: true
+        fill: land
+      - decorative: true
+        type: polyline
+        points:
+        - - 735.6
+          - 450.56
+        - - 771.6
+          - 441.08
+        - - 778.8
+          - 469.52
+        - - 757.2
+          - 485.32
+        - - 735.6
+          - 475.84000000000003
+        closed: true
+        fill: land
+      - decorative: true
+        type: polyline
+        points:
+        - - 739.2
+          - 507.44
+        - - 778.8
+          - 501.12
+        - - 796.8
+          - 545.36
+        - - 778.8
+          - 602.24
+        - - 746.4
+          - 608.56
+        - - 732.0
+          - 558.0
+        closed: true
+        fill: land
+      - decorative: true
+        type: polyline
+        points:
+        - - 778.8
+          - 431.6
+        - - 872.4
+          - 422.12
+        - - 915.5999999999999
+          - 463.2
+        - - 894.0
+          - 507.44
+        - - 836.4
+          - 520.08
+        - - 796.8
+          - 494.8
+        - - 778.8
+          - 456.88
+        closed: true
+        fill: land
+      - decorative: true
+        type: polyline
+        points:
+        - - 858.0
+          - 595.92
+        - - 904.8
+          - 589.6
+        - - 915.5999999999999
+          - 627.52
+        - - 876.0
+          - 640.16
+        - - 854.4000000000001
+          - 614.88
+        closed: true
+        fill: land
+      - decorative: true
+        type: polyline
+        points:
+        - - 595.2
+          - 494.8
+        - - 667.2
+          - 488.48
+        - - 678.0
+          - 526.4
+        - - 649.2
+          - 558.0
+        - - 613.2
+          - 545.36
+        - - 595.2
+          - 513.76
+        closed: true
+        fill: ink
+      - decorative: true
+        type: ellipse
+        center:
+        - 874.0
+        - 422.0
+        rx: 24.0
+        ry: 24.0
+        fill: card
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.4
+          stroke_linecap: round
+        type: line
+        from:
+        - 866.0
+        - 422.0
+        to:
+        - 882.0
+        - 422.0
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.4
+          stroke_linecap: round
+        type: line
+        from:
+        - 874.0
+        - 414.0
+        to:
+        - 874.0
+        - 430.0
+        stroke: ink
+      - decorative: true
+        type: ellipse
+        center:
+        - 874.0
+        - 476.0
+        rx: 24.0
+        ry: 24.0
+        fill: card
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.4
+          stroke_linecap: round
+        type: line
+        from:
+        - 866.0
+        - 476.0
+        to:
+        - 882.0
+        - 476.0
+        stroke: ink
+      - decorative: true
+        type: ellipse
+        center:
+        - 643.8
+        - 437.92
+        rx: 14.0
+        ry: 14.0
+        fill: yellow
+      - box:
+        - 629.8
+        - 429.92
+        - 28
+        - 16
+        style: mapNum
+        type: text
+        text: '2'
+      - decorative: true
+        type: ellipse
+        center:
+        - 633.0
+        - 504.28
+        rx: 14.0
+        ry: 14.0
+        fill: yellow
+      - box:
+        - 619.0
+        - 496.28
+        - 28
+        - 16
+        style: mapNum
+        type: text
+        text: '7'
+      - decorative: true
+        type: ellipse
+        center:
+        - 678.0
+        - 608.56
+        rx: 14.0
+        ry: 14.0
+        fill: yellow
+      - box:
+        - 664.0
+        - 600.56
+        - 28
+        - 16
+        style: mapNum
+        type: text
+        text: '3'
+      - decorative: true
+        type: polyline
+        points:
+        - - 755.4
+          - 477.2
+        - - 748.4
+          - 463.2
+        - - 762.4
+          - 463.2
+        closed: true
+        fill: yellow
+      - box:
+        - 744.4
+        - 445.2
+        - 7.933333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#2A3E8F'
+        radius: 3
+      - box:
+        - 751.7333333333333
+        - 445.2
+        - 7.933333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#FFFFFF'
+        radius: 0
+      - box:
+        - 759.0666666666666
+        - 445.2
+        - 7.333333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#CE2B37'
+        radius: 3
+      - box:
+        - 586
+        - 832
+        - 328
+        - 148
+        decorative: true
+        shadow:
+          color: '#3C4047'
+          blur: 26.0
+          dx: 0.0
+          dy: 10.0
+          opacity: 0.22
+        type: rect
+        fill: card
+        radius: 22
+      - box:
+        - 602
+        - 854
+        - 52
+        - 40
+        decorative: true
+        type: rect
+        fill: '#F0F0F2'
+        radius: 10
+      - box:
+        - 606
+        - 860
+        - 44
+        - 28
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: '#3A3F47'
+            position: 0%
+          - color: '#15181D'
+            position: 100%
+          angle: 90.0
+        radius: 4
+      - box:
+        - 610
+        - 864
+        - 36
+        - 20
+        decorative: true
+        type: rect
+        fill: '#0E1014'
+        radius: 2
+      - decorative: true
+        type: ellipse
+        center:
+        - 619.0
+        - 871.0
+        rx: 8.0
+        ry: 6.0
+        fill: rgba(124,131,144,0.5)
+      - box:
+        - 601
+        - 887
+        - 54
+        - 4
+        decorative: true
+        type: rect
+        fill: '#2A2E35'
+        radius: 2
+      - box:
+        - 670
+        - 856
+        - 180
+        - 22
+        style: macAir
+        type: text
+        text: MacBook Air
+      - box:
+        - 670
+        - 880
+        - 160
+        - 16
+        style: macVer
+        type: text
+        text: Version M1
+      - decorative: true
+        type: ellipse
+        center:
+        - 886.0
+        - 866.0
+        rx: 1.8
+        ry: 1.8
+        fill: g8
+      - decorative: true
+        type: ellipse
+        center:
+        - 886.0
+        - 872.0
+        rx: 1.8
+        ry: 1.8
+        fill: g8
+      - decorative: true
+        type: ellipse
+        center:
+        - 886.0
+        - 878.0
+        rx: 1.8
+        ry: 1.8
+        fill: g8
+      - decorative: true
+        type: ellipse
+        center:
+        - 602.0
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 612.9629629629629
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 623.925925925926
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 634.8888888888889
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 645.8518518518518
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 656.8148148148148
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 667.7777777777778
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 678.7407407407408
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 689.7037037037037
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 700.6666666666666
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 711.6296296296297
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 722.5925925925926
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 733.5555555555555
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 744.5185185185185
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 755.4814814814815
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 766.4444444444445
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 777.4074074074074
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 788.3703703703704
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 799.3333333333334
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 810.2962962962963
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 821.2592592592592
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 832.2222222222222
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 843.1851851851852
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 854.1481481481482
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 865.1111111111111
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 876.0740740740741
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 887.037037037037
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - decorative: true
+        type: ellipse
+        center:
+        - 898.0
+        - 916.0
+        rx: 1.3
+        ry: 1.3
+        fill: line
+      - box:
+        - 602.0
+        - 936
+        - 8.6
+        - 16
+        decorative: true
+        type: rect
+        fill: '#2A3E8F'
+        radius: 3
+      - box:
+        - 610.0
+        - 936
+        - 8.6
+        - 16
+        decorative: true
+        type: rect
+        fill: '#FFFFFF'
+        radius: 0
+      - box:
+        - 618.0
+        - 936
+        - 8.0
+        - 16
+        decorative: true
+        type: rect
+        fill: '#CE2B37'
+        radius: 3
+      - box:
+        - 632
+        - 938
+        - 120
+        - 18
+        style: macLoc
+        type: text
+        text: Paris, France
+      - box:
+        - 762
+        - 938
+        - 144
+        - 18
+        style: macTime
+        type: text
+        text: Sep 12, 13:00
+    - box:
+      - 570
+      - 120
+      - 360
+      - 880
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: none
+      radius: 46
+      stroke: rgba(255,255,255,0.35)
+    - box:
+      - 1041
+      - 197
+      - 368
+      - 880
+      decorative: true
+      type: rect
+      fill: rgba(58,63,71,0.22)
+      radius: 50
+    - box:
+      - 1045
+      - 185
+      - 360
+      - 880
+      type: rect
+      fill: body
+      radius: 46
+    - style:
+        clip_path:
+          shape: path
+          args:
+            d: M1091,185 H1359 A46,46 0 0 1 1405,231 V1019 A46,46 0 0 1 1359,1065
+              H1091 A46,46 0 0 1 1045,1019 V231 A46,46 0 0 1 1091,185 Z
+      type: group
+      children:
+      - box:
+        - 1045
+        - 185
+        - 360
+        - 880
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: '#70757C'
+            position: 0%
+          - color: '#646970'
+            position: 100%
+          angle: 90.0
+      - decorative: true
+        type: ellipse
+        center:
+        - 1093.0
+        - 215.0
+        rx: 24.0
+        ry: 24.0
+        fill: cardLt
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.4
+          stroke_linecap: round
+          stroke_linejoin: round
+        type: polyline
+        points:
+        - - 1096.6
+          - 206.0
+        - - 1088.5
+          - 215.0
+        - - 1096.6
+          - 224.0
+        fill: none
+        stroke: ink
+      - decorative: true
+        type: ellipse
+        center:
+        - 1357.0
+        - 215.0
+        rx: 24.0
+        ry: 24.0
+        fill: cardLt
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+          stroke_linecap: round
+        type: line
+        from:
+        - 1348.0
+        - 210.0
+        to:
+        - 1366.0
+        - 210.0
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+        type: ellipse
+        center:
+        - 1361.0
+        - 210.0
+        rx: 3.0
+        ry: 3.0
+        fill: white
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+          stroke_linecap: round
+        type: line
+        from:
+        - 1348.0
+        - 220.0
+        to:
+        - 1366.0
+        - 220.0
+        stroke: ink
+      - decorative: true
+        stroke_style:
+          stroke_width: 2.0
+        type: ellipse
+        center:
+        - 1353.0
+        - 220.0
+        rx: 3.0
+        ry: 3.0
+        fill: white
+        stroke: ink
+      - box:
+        - 1225
+        - 193
+        - 96
+        - 44
+        decorative: true
+        type: rect
+        fill: cardLt
+        radius: 22.0
+      - box:
+        - 1225
+        - 206.0
+        - 96
+        - 18
+        style: navPill
+        type: text
+        text: Org Chat
+      - box:
+        - 1119
+        - 193
+        - 96
+        - 44
+        decorative: true
+        type: rect
+        fill: cardLt
+        radius: 22.0
+      - box:
+        - 1119
+        - 206.0
+        - 96
+        - 18
+        style: navPill
+        type: text
+        text: Directory
+      - box:
+        - 1069
+        - 255
+        - 260
+        - 52
+        style: h1
+        type: text
+        text: Devices
+      - box:
+        - 1069
+        - 323
+        - 312
+        - 250
+        decorative: true
+        type: rect
+        fill: cardLt
+        radius: 28
+      - box:
+        - 1069
+        - 347
+        - 312
+        - 36
+        style: h2ink
+        type: text
+        text: Security status
+      - decorative: true
+        stroke_style:
+          stroke_width: 34
+          stroke_linecap: round
+          stroke_linejoin: round
+        type: polyline
+        points:
+        - - 1129.0
+          - 545.0
+        - - 1129.2959359616198
+          - 537.4679268101269
+        - - 1130.1819193028668
+          - 529.9822913561378
+        - - 1131.652487641823
+          - 522.589245069833
+        - - 1133.6985744356653
+          - 515.334368540005
+        - - 1136.3075648789165
+          - 508.26239049295134
+        - - 1139.4633736779167
+          - 501.4169120250035
+        - - 1143.1465442220072
+          - 494.8401377872689
+        - - 1147.334368540005
+          - 488.57261577992256
+        - - 1152.001027302397
+          - 482.65298736030235
+        - - 1157.1177490060913
+          - 477.11774900609146
+        - - 1162.6529873603024
+          - 472.001027302397
+        - - 1168.5726157799227
+          - 467.334368540005
+        - - 1174.840137787269
+          - 463.14654422200715
+        - - 1181.4169120250035
+          - 459.4633736779167
+        - - 1188.2623904929515
+          - 456.3075648789165
+        - - 1195.334368540005
+          - 453.69857443566525
+        - - 1202.5892450698332
+          - 451.65248764182303
+        - - 1209.982291356138
+          - 450.1819193028668
+        - - 1217.467926810127
+          - 449.2959359616197
+        - - 1225.0
+          - 449.0
+        - - 1232.532073189873
+          - 449.2959359616197
+        - - 1240.017708643862
+          - 450.1819193028668
+        fill: none
+        stroke: yellow
+      - decorative: true
+        stroke_style:
+          stroke_width: 34
+          stroke_linecap: round
+          stroke_linejoin: round
+        type: polyline
+        points:
+        - - 1240.017708643862
+          - 450.1819193028668
+        - - 1247.4107549301668
+          - 451.6524876418231
+        - - 1254.665631459995
+          - 453.69857443566525
+        - - 1261.7376095070485
+          - 456.3075648789165
+        - - 1268.5830879749965
+          - 459.4633736779167
+        - - 1275.159862212731
+          - 463.14654422200715
+        - - 1281.4273842200773
+          - 467.334368540005
+        - - 1287.3470126396976
+          - 472.001027302397
+        - - 1292.8822509939087
+          - 477.11774900609146
+        - - 1297.998972697603
+          - 482.65298736030235
+        - - 1302.665631459995
+          - 488.57261577992256
+        - - 1306.8534557779928
+          - 494.84013778726893
+        - - 1310.5366263220833
+          - 501.4169120250035
+        - - 1313.6924351210835
+          - 508.2623904929514
+        - - 1316.3014255643347
+          - 515.334368540005
+        - - 1318.347512358177
+          - 522.589245069833
+        - - 1319.8180806971332
+          - 529.9822913561378
+        - - 1320.7040640383802
+          - 537.4679268101269
+        - - 1321.0
+          - 545.0
+        fill: none
+        stroke: ink
+      - box:
+        - 1155.0
+        - 507
+        - 140
+        - 40
+        style: bigPct
+        type: text
+        text: 55%
+      - box:
+        - 1145.0
+        - 551
+        - 160
+        - 18
+        style: risk
+        type: text
+        text: Medium Risk
+      - box:
+        - 1069
+        - 591
+        - 312
+        - 452
+        decorative: true
+        type: rect
+        fill: cardDk
+        radius: 28
+      - box:
+        - 1089
+        - 615
+        - 214
+        - 28
+        style: h2white
+        type: text
+        text: Session History
+      - box:
+        - 1317
+        - 613
+        - 64
+        - 30
+        style: count
+        type: text
+        text: 2/8
+      - decorative: true
+        type: ellipse
+        center:
+        - 1093.0
+        - 669.0
+        rx: 17.0
+        ry: 17.0
+        fill: '#3A3F48'
+      - box:
+        - 1085
+        - 663.0
+        - 16
+        - 11
+        decorative: true
+        stroke_style:
+          stroke_width: 1.7
+        type: rect
+        fill: none
+        radius: 2
+        stroke: mut
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.7
+          stroke_linecap: round
+        type: line
+        from:
+        - 1082.0
+        - 676.0
+        to:
+        - 1104.0
+        - 676.0
+        stroke: mut
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 669.0
+        rx: 19.0
+        ry: 19.0
+        fill: '#EAEAEE'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 679.26
+        rx: 14.06
+        ry: 8.74
+        fill: '#46618F'
+      - box:
+        - 1134.72
+        - 669.38
+        - 4.56
+        - 5.7
+        decorative: true
+        type: rect
+        fill: '#E7B488'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 667.86
+        rx: 7.6000000000000005
+        ry: 8.17
+        fill: '#E7B488'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 664.44
+        rx: 7.9799999999999995
+        ry: 6.08
+        fill: '#3B2E25'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 668.62
+        rx: 6.84
+        ry: 6.460000000000001
+        fill: '#E7B488'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1134.34
+        - 668.05
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1139.66
+        - 668.05
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - box:
+        - 1167
+        - 657.0
+        - 150
+        - 18
+        style: sessName
+        type: text
+        text: Harry Bender
+      - box:
+        - 1167
+        - 677.0
+        - 110
+        - 16
+        style: sessTime
+        type: text
+        text: Jan 12, 13:00
+      - box:
+        - 1339.0
+        - 655.0
+        - 7.933333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#2A3E8F'
+        radius: 3
+      - box:
+        - 1346.3333333333333
+        - 655.0
+        - 7.933333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#FFFFFF'
+        radius: 0
+      - box:
+        - 1353.6666666666667
+        - 655.0
+        - 7.333333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#CE2B37'
+        radius: 3
+      - box:
+        - 1285
+        - 675.0
+        - 54
+        - 16
+        style: city
+        type: text
+        text: Paris
+      - decorative: true
+        type: ellipse
+        center:
+        - 1093.0
+        - 728.3333333333334
+        rx: 17.0
+        ry: 17.0
+        fill: '#3A3F48'
+      - box:
+        - 1086
+        - 719.3333333333334
+        - 14
+        - 18
+        decorative: true
+        stroke_style:
+          stroke_width: 1.7
+        type: rect
+        fill: none
+        radius: 3
+        stroke: mut
+      - decorative: true
+        type: ellipse
+        center:
+        - 1093.0
+        - 734.3333333333334
+        rx: 1.2
+        ry: 1.2
+        fill: mut
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 728.3333333333334
+        rx: 19.0
+        ry: 19.0
+        fill: '#EAEAEE'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 738.5933333333334
+        rx: 14.06
+        ry: 8.74
+        fill: '#C08A6A'
+      - box:
+        - 1134.72
+        - 728.7133333333334
+        - 4.56
+        - 5.7
+        decorative: true
+        type: rect
+        fill: '#E2A983'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 727.9533333333334
+        rx: 9.12
+        ry: 9.88
+        fill: '#2C2420'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 727.9533333333334
+        rx: 6.460000000000001
+        ry: 7.9799999999999995
+        fill: '#E2A983'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1134.34
+        - 727.3833333333333
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1139.66
+        - 727.3833333333333
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - box:
+        - 1167
+        - 716.3333333333334
+        - 150
+        - 18
+        style: sessName
+        type: text
+        text: Katy Fuller
+      - box:
+        - 1167
+        - 736.3333333333334
+        - 110
+        - 16
+        style: sessTime
+        type: text
+        text: Jan 12, 11:30
+      - box:
+        - 1339
+        - 714.3333333333334
+        - 22
+        - 14
+        decorative: true
+        type: rect
+        fill: '#FFFFFF'
+        radius: 3
+      - box:
+        - 1339
+        - 715.9333333333334
+        - 22
+        - 1.5
+        decorative: true
+        type: rect
+        fill: '#B22234'
+      - box:
+        - 1339
+        - 718.9333333333334
+        - 22
+        - 1.5
+        decorative: true
+        type: rect
+        fill: '#B22234'
+      - box:
+        - 1339
+        - 721.9333333333334
+        - 22
+        - 1.5
+        decorative: true
+        type: rect
+        fill: '#B22234'
+      - box:
+        - 1339
+        - 724.9333333333334
+        - 22
+        - 1.5
+        decorative: true
+        type: rect
+        fill: '#B22234'
+      - box:
+        - 1339
+        - 714.3333333333334
+        - 9.9
+        - 7.700000000000001
+        decorative: true
+        type: rect
+        fill: '#2A3E8F'
+        radius: 3
+      - box:
+        - 1285
+        - 734.3333333333334
+        - 54
+        - 16
+        style: city
+        type: text
+        text: New York
+      - decorative: true
+        type: ellipse
+        center:
+        - 1093.0
+        - 787.6666666666666
+        rx: 17.0
+        ry: 17.0
+        fill: '#3A3F48'
+      - box:
+        - 1087.5
+        - 778.6666666666666
+        - 11
+        - 18
+        decorative: true
+        stroke_style:
+          stroke_width: 1.7
+        type: rect
+        fill: none
+        radius: 3
+        stroke: mut
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.5
+          stroke_linecap: round
+        type: line
+        from:
+        - 1091.2
+        - 781.1666666666666
+        to:
+        - 1094.8
+        - 781.1666666666666
+        stroke: mut
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 787.6666666666666
+        rx: 19.0
+        ry: 19.0
+        fill: '#EAEAEE'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 797.9266666666666
+        rx: 14.06
+        ry: 8.74
+        fill: '#6A707A'
+      - box:
+        - 1134.72
+        - 788.0466666666666
+        - 4.56
+        - 5.7
+        decorative: true
+        type: rect
+        fill: '#C2855A'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 786.5266666666666
+        rx: 7.6000000000000005
+        ry: 8.17
+        fill: '#C2855A'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 783.1066666666667
+        rx: 7.9799999999999995
+        ry: 6.08
+        fill: '#2A201B'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 787.2866666666666
+        rx: 6.84
+        ry: 6.460000000000001
+        fill: '#C2855A'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1134.34
+        - 786.7166666666666
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1139.66
+        - 786.7166666666666
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - box:
+        - 1167
+        - 775.6666666666666
+        - 150
+        - 18
+        style: sessName
+        type: text
+        text: Jonathan Kelly
+      - box:
+        - 1167
+        - 795.6666666666666
+        - 110
+        - 16
+        style: sessTime
+        type: text
+        text: Jan 11, 16:45
+      - box:
+        - 1339
+        - 773.6666666666666
+        - 22
+        - 14
+        decorative: true
+        type: rect
+        fill: '#FFFFFF'
+        radius: 3
+      - box:
+        - 1339
+        - 773.6666666666666
+        - 5.720000000000001
+        - 14
+        decorative: true
+        type: rect
+        fill: '#D52B1E'
+        radius: 3
+      - box:
+        - 1355.28
+        - 773.6666666666666
+        - 5.720000000000001
+        - 14
+        decorative: true
+        type: rect
+        fill: '#D52B1E'
+        radius: 3
+      - decorative: true
+        type: ellipse
+        center:
+        - 1350.0
+        - 780.6666666666666
+        rx: 3.0
+        ry: 3.2
+        fill: '#D52B1E'
+      - box:
+        - 1285
+        - 793.6666666666666
+        - 54
+        - 16
+        style: city
+        type: text
+        text: Victoria
+      - decorative: true
+        type: ellipse
+        center:
+        - 1093.0
+        - 847.0
+        rx: 17.0
+        ry: 17.0
+        fill: '#3A3F48'
+      - box:
+        - 1087.5
+        - 838.0
+        - 11
+        - 18
+        decorative: true
+        stroke_style:
+          stroke_width: 1.7
+        type: rect
+        fill: none
+        radius: 3
+        stroke: mut
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.5
+          stroke_linecap: round
+        type: line
+        from:
+        - 1091.2
+        - 840.5
+        to:
+        - 1094.8
+        - 840.5
+        stroke: mut
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 847.0
+        rx: 19.0
+        ry: 19.0
+        fill: '#EAEAEE'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 857.26
+        rx: 14.06
+        ry: 8.74
+        fill: '#566AA2'
+      - box:
+        - 1134.72
+        - 847.38
+        - 4.56
+        - 5.7
+        decorative: true
+        type: rect
+        fill: '#E8C49C'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 845.86
+        rx: 7.6000000000000005
+        ry: 8.17
+        fill: '#E8C49C'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 842.44
+        rx: 7.9799999999999995
+        ry: 6.08
+        fill: '#C7A24B'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 846.62
+        rx: 6.84
+        ry: 6.460000000000001
+        fill: '#E8C49C'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1134.34
+        - 846.05
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1139.66
+        - 846.05
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - box:
+        - 1167
+        - 835.0
+        - 150
+        - 18
+        style: sessName
+        type: text
+        text: Billie Wright
+      - box:
+        - 1167
+        - 855.0
+        - 110
+        - 16
+        style: sessTime
+        type: text
+        text: Jan 11, 14:00
+      - box:
+        - 1339.0
+        - 833.0
+        - 7.933333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#2A3E8F'
+        radius: 3
+      - box:
+        - 1346.3333333333333
+        - 833.0
+        - 7.933333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#FFFFFF'
+        radius: 0
+      - box:
+        - 1353.6666666666667
+        - 833.0
+        - 7.333333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#CE2B37'
+        radius: 3
+      - box:
+        - 1285
+        - 853.0
+        - 54
+        - 16
+        style: city
+        type: text
+        text: Paris
+      - decorative: true
+        type: ellipse
+        center:
+        - 1093.0
+        - 906.3333333333334
+        rx: 17.0
+        ry: 17.0
+        fill: '#3A3F48'
+      - box:
+        - 1085
+        - 900.3333333333334
+        - 16
+        - 11
+        decorative: true
+        stroke_style:
+          stroke_width: 1.7
+        type: rect
+        fill: none
+        radius: 2
+        stroke: mut
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.7
+          stroke_linecap: round
+        type: line
+        from:
+        - 1082.0
+        - 913.3333333333334
+        to:
+        - 1104.0
+        - 913.3333333333334
+        stroke: mut
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 906.3333333333334
+        rx: 19.0
+        ry: 19.0
+        fill: '#EAEAEE'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 916.5933333333334
+        rx: 14.06
+        ry: 8.74
+        fill: '#B0644F'
+      - box:
+        - 1134.72
+        - 906.7133333333334
+        - 4.56
+        - 5.7
+        decorative: true
+        type: rect
+        fill: '#ECC6A4'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 905.9533333333334
+        rx: 9.12
+        ry: 9.88
+        fill: '#D8C07A'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 905.9533333333334
+        rx: 6.460000000000001
+        ry: 7.9799999999999995
+        fill: '#ECC6A4'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1134.34
+        - 905.3833333333333
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1139.66
+        - 905.3833333333333
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - box:
+        - 1167
+        - 894.3333333333334
+        - 150
+        - 18
+        style: sessName
+        type: text
+        text: Sarah Page
+      - box:
+        - 1167
+        - 914.3333333333334
+        - 110
+        - 16
+        style: sessTime
+        type: text
+        text: Jan 11, 10:30
+      - box:
+        - 1339
+        - 892.3333333333334
+        - 22
+        - 14
+        decorative: true
+        type: rect
+        fill: '#012169'
+        radius: 3
+      - box:
+        - 1339
+        - 892.3333333333334
+        - 11.0
+        - 7.0
+        decorative: true
+        type: rect
+        fill: '#0B2C7A'
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.4
+        type: line
+        from:
+        - 1339.0
+        - 892.3333333333334
+        to:
+        - 1350.0
+        - 899.3333333333334
+        stroke: '#FFFFFF'
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.0
+        type: line
+        from:
+        - 1350.0
+        - 892.3333333333334
+        to:
+        - 1339.0
+        - 899.3333333333334
+        stroke: '#FFFFFF'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1355.28
+        - 901.0133333333333
+        rx: 1.6
+        ry: 1.6
+        fill: '#FFFFFF'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1344.72
+        - 903.2533333333333
+        rx: 1.3
+        ry: 1.3
+        fill: '#FFFFFF'
+      - box:
+        - 1285
+        - 912.3333333333334
+        - 54
+        - 16
+        style: city
+        type: text
+        text: Perth
+      - decorative: true
+        type: ellipse
+        center:
+        - 1093.0
+        - 965.6666666666667
+        rx: 17.0
+        ry: 17.0
+        fill: '#3A3F48'
+      - box:
+        - 1087.5
+        - 956.6666666666667
+        - 11
+        - 18
+        decorative: true
+        stroke_style:
+          stroke_width: 1.7
+        type: rect
+        fill: none
+        radius: 3
+        stroke: mut
+      - decorative: true
+        stroke_style:
+          stroke_width: 1.5
+          stroke_linecap: round
+        type: line
+        from:
+        - 1091.2
+        - 959.1666666666667
+        to:
+        - 1094.8
+        - 959.1666666666667
+        stroke: mut
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 965.6666666666667
+        rx: 19.0
+        ry: 19.0
+        fill: '#EAEAEE'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 975.9266666666667
+        rx: 14.06
+        ry: 8.74
+        fill: '#7A5AA0'
+      - box:
+        - 1134.72
+        - 966.0466666666667
+        - 4.56
+        - 5.7
+        decorative: true
+        type: rect
+        fill: '#D7A87E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 965.2866666666667
+        rx: 9.12
+        ry: 9.88
+        fill: '#241C18'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1137.0
+        - 965.2866666666667
+        rx: 6.460000000000001
+        ry: 7.9799999999999995
+        fill: '#D7A87E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1134.34
+        - 964.7166666666667
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - decorative: true
+        type: ellipse
+        center:
+        - 1139.66
+        - 964.7166666666667
+        rx: 0.855
+        ry: 1.14
+        fill: '#33373E'
+      - box:
+        - 1167
+        - 953.6666666666667
+        - 150
+        - 18
+        style: sessName
+        type: text
+        text: Erica Wyatt
+      - box:
+        - 1167
+        - 973.6666666666667
+        - 110
+        - 16
+        style: sessTime
+        type: text
+        text: Jan 10, 15:40
+      - box:
+        - 1339.0
+        - 951.6666666666667
+        - 7.933333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#2A3E8F'
+        radius: 3
+      - box:
+        - 1346.3333333333333
+        - 951.6666666666667
+        - 7.933333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#FFFFFF'
+        radius: 0
+      - box:
+        - 1353.6666666666667
+        - 951.6666666666667
+        - 7.333333333333333
+        - 14
+        decorative: true
+        type: rect
+        fill: '#CE2B37'
+        radius: 3
+      - box:
+        - 1285
+        - 971.6666666666667
+        - 54
+        - 16
+        style: city
+        type: text
+        text: Paris
+    - box:
+      - 1045
+      - 185
+      - 360
+      - 880
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: none
+      radius: 46
+      stroke: rgba(255,255,255,0.35)

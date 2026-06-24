@@ -1,0 +1,2319 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: OpenAI — News index recreation
+lang: en
+defs:
+  tokens:
+    colors:
+      page: '#FFFFFF'
+      ink: '#0D0D0D'
+      nav: '#1A1A1A'
+      meta: '#1A1A1A'
+      metasub: '#9B9B9B'
+      loginbg: '#ECECEC'
+      black: '#0D0D0D'
+      white: '#FFFFFF'
+      peri: '#AEB4EF'
+      peri_lt: '#C2C7F4'
+      navy: '#23259A'
+      navy_dk: '#1B1C7E'
+      blueblock: '#3437EE'
+      green: '#73B985'
+      green_dk: '#5BA571'
+      purple: '#7C5CFF'
+      purple_lt: '#9070FF'
+      purple_dk: '#6A47F2'
+      card: '#FBFAFF'
+      indigo: '#2E2270'
+      indigo2: '#4A3AA8'
+      lilac: '#6B5BC9'
+      chrome: '#C9C9D6'
+      orange: '#FF9D4D'
+      amber: '#FFC766'
+      coral: '#F4B7A6'
+      rose: '#EFB6C9'
+      sky: '#BFE2F4'
+      sky_dk: '#7FC2EC'
+      footbg: '#F2F2F2'
+      footink: '#7A7A7A'
+    text_styles:
+      logo:
+        align: left
+        color: ink
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 27
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: -0.3
+      nav:
+        align: left
+        color: nav
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 18
+        font_weight: 400
+        line_height: 1.25
+        letter_spacing: 0.0
+      login:
+        align: center
+        color: ink
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 17
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      trybtn:
+        align: center
+        color: white
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 17
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      heroH:
+        align: left
+        color: ink
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 53
+        font_weight: 400
+        line_height: 1.06
+        letter_spacing: -0.8
+      metaCat:
+        align: left
+        color: meta
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 18
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      metaSub:
+        align: left
+        color: metasub
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 18
+        font_weight: 400
+        line_height: 1.25
+        letter_spacing: 0.0
+      cardH:
+        align: left
+        color: ink
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 25
+        font_weight: 500
+        line_height: 1.2
+        letter_spacing: -0.2
+      crop:
+        align: left
+        color: navy
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 74
+        font_weight: 700
+        line_height: 1.0
+        letter_spacing: -1.5
+      statnum:
+        align: left
+        color: navy
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 40
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: -0.5
+      sitesfaint:
+        align: left
+        color: rgba(255,255,255,0.16)
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 86
+        font_weight: 700
+        line_height: 1.05
+        letter_spacing: -1.0
+      elevate:
+        align: left
+        color: indigo2
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 31
+        font_weight: 600
+        line_height: 1.25
+        letter_spacing: 7.0
+      wnav:
+        align: left
+        color: indigo2
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 20
+        font_weight: 500
+        line_height: 1.25
+        letter_spacing: 0.0
+      finance:
+        align: left
+        color: indigo
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 82
+        font_weight: 700
+        line_height: 0.98
+        letter_spacing: -2.0
+      subline:
+        align: left
+        color: lilac
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 26
+        font_weight: 400
+        line_height: 1.25
+        letter_spacing: -0.2
+      oplabel:
+        align: left
+        color: lilac
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 17
+        font_weight: 600
+        line_height: 1.25
+        letter_spacing: 1.0
+      opval:
+        align: left
+        color: indigo
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 44
+        font_weight: 700
+        line_height: 1.25
+        letter_spacing: -1.0
+      tinypill:
+        align: left
+        color: navy_dk
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 15
+        font_weight: 600
+        line_height: 1.25
+        letter_spacing: 0.5
+      footword:
+        align: left
+        color: footink
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 15
+        font_weight: 600
+        line_height: 1.25
+        letter_spacing: 0.5
+      footnav:
+        align: left
+        color: navy_dk
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 15
+        font_weight: 600
+        line_height: 1.25
+        letter_spacing: 1.0
+      railimgH:
+        align: left
+        color: white
+        font_family:
+        - Helvetica Neue
+        - Inter
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 34
+        font_weight: 600
+        line_height: 1.12
+        letter_spacing: -0.4
+pages:
+- mode: page
+  id: openai_news
+  canvas:
+    size:
+    - 2000.0
+    - 1302.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 2000
+      - 1302
+      type: rect
+      fill: page
+  - id: main
+    objects:
+    - box:
+      - 88
+      - 22
+      - 200
+      - 30
+      style: logo
+      type: text
+      text: OpenAI
+    - box:
+      - 226
+      - 25
+      - 160
+      - 24
+      style: nav
+      type: text
+      text: Research
+    - box:
+      - 338
+      - 25
+      - 160
+      - 24
+      style: nav
+      type: text
+      text: Products
+    - box:
+      - 452
+      - 25
+      - 160
+      - 24
+      style: nav
+      type: text
+      text: Business
+    - box:
+      - 564
+      - 25
+      - 160
+      - 24
+      style: nav
+      type: text
+      text: Developers
+    - box:
+      - 692
+      - 25
+      - 160
+      - 24
+      style: nav
+      type: text
+      text: Company
+    - box:
+      - 808
+      - 25
+      - 160
+      - 24
+      style: nav
+      type: text
+      text: Foundation
+    - stroke_style:
+        stroke_width: 2
+      type: ellipse
+      center:
+      - 942.0
+      - 35.0
+      rx: 9.0
+      ry: 9.0
+      fill: none
+      stroke: nav
+    - stroke_style:
+        stroke_width: 2
+        stroke_linecap: round
+      type: line
+      from:
+      - 948.5
+      - 41.5
+      to:
+      - 954.0
+      - 47.0
+      stroke: nav
+    - box:
+      - 1752.76
+      - 12
+      - 155.24
+      - 46
+      type: rect
+      fill: black
+      radius: 23
+    - box:
+      - 1774.76
+      - 24.0
+      - 103.24000000000001
+      - 22
+      style: trybtn
+      type: text
+      text: Try ChatGPT
+    - stroke_style:
+        stroke_width: 2
+        stroke_linecap: round
+      type: line
+      from:
+      - 1881.0
+      - 40.0
+      to:
+      - 1892.0
+      - 29.0
+      stroke: white
+    - stroke_style:
+        stroke_width: 2
+        stroke_linecap: round
+      type: line
+      from:
+      - 1882.5
+      - 29.0
+      to:
+      - 1892.0
+      - 29.0
+      stroke: white
+    - stroke_style:
+        stroke_width: 2
+        stroke_linecap: round
+      type: line
+      from:
+      - 1892.0
+      - 29.0
+      to:
+      - 1892.0
+      - 38.5
+      stroke: white
+    - box:
+      - 1629.72
+      - 12
+      - 105.03999999999999
+      - 46
+      type: rect
+      fill: loginbg
+      radius: 23
+    - box:
+      - 1647.72
+      - 24.0
+      - 59.04
+      - 22
+      style: login
+      type: text
+      text: Log in
+    - stroke_style:
+        stroke_width: 1.6
+        stroke_linecap: round
+      type: line
+      from:
+      - 1710.26
+      - 32.75
+      to:
+      - 1714.76
+      - 37.25
+      stroke: ink
+    - stroke_style:
+        stroke_width: 1.6
+        stroke_linecap: round
+      type: line
+      from:
+      - 1714.76
+      - 37.25
+      to:
+      - 1719.26
+      - 32.75
+      stroke: ink
+    - style:
+        clip_path:
+          shape: path
+          args:
+            d: M102,78 H1431 A14,14 0 0 1 1445,92 V821 A14,14 0 0 1 1431,835 H102
+              A14,14 0 0 1 88,821 V92 A14,14 0 0 1 102,78 Z
+      type: group
+      children:
+      - box:
+        - 88
+        - 78
+        - 671
+        - 757
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: peri_lt
+            position: 0%
+          - color: peri
+            position: 100%
+          angle: 90.0
+      - box:
+        - -160
+        - 156
+        - 860
+        - 84
+        decorative: true
+        style: crop
+        type: text
+        text: together ideas.
+      - box:
+        - -36
+        - 274
+        - 760
+        - 84
+        decorative: true
+        style: crop
+        type: text
+        text: together.
+      - box:
+        - 100
+        - 378
+        - 400
+        - 26
+        decorative: true
+        style: subline
+        type: text
+        text: on ideas,
+      - box:
+        - 100
+        - 410
+        - 400
+        - 26
+        decorative: true
+        style: subline
+        type: text
+        text: build next.
+      - box:
+        - 44
+        - 474
+        - 150
+        - 40
+        decorative: true
+        stroke_style:
+          stroke_width: 1.5
+        type: rect
+        fill: white
+        radius: 20
+        stroke: peri
+      - box:
+        - 96
+        - 483
+        - 120
+        - 22
+        decorative: true
+        style: subline
+        type: text
+        text: w it works
+      - decorative: true
+        type: ellipse
+        center:
+        - 403.22831953658374
+        - 431.0719037740371
+        rx: 6.34384743266291
+        ry: 6.34384743266291
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 252.92716382561406
+        - 350.29439783627714
+        rx: 4.941578120651867
+        ry: 4.941578120651867
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 438.49946937325643
+        - 323.188315445463
+        rx: 6.189434662408194
+        ry: 6.189434662408194
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 236.3347197607654
+        - 390.4571335701528
+        rx: 6.774830776299268
+        ry: 6.774830776299268
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 593.3938926902127
+        - 260.2841611141938
+        rx: 7.691856007264772
+        ry: 7.691856007264772
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 539.9804470074331
+        - 324.6272447925993
+        rx: 7.7109553755685685
+        ry: 7.7109553755685685
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 431.2037701625403
+        - 370.6547773991685
+        rx: 5.447605118295169
+        ry: 5.447605118295169
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 386.2010521836647
+        - 318.99040002858226
+        rx: 4.827679385296225
+        ry: 4.827679385296225
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 495.80272501744844
+        - 378.20705140113836
+        rx: 7.563285019842725
+        ry: 7.563285019842725
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 410.4808360583853
+        - 282.88247588045425
+        rx: 5.311510355941676
+        ry: 5.311510355941676
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 475.6385241824437
+        - 268.11548331181416
+        rx: 7.375769465361829
+        ry: 7.375769465361829
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 312.85594561599487
+        - 382.5022869430432
+        rx: 5.046068675535706
+        ry: 5.046068675535706
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 499.58965889984944
+        - 256.49369152165934
+        rx: 6.043922317393099
+        ry: 6.043922317393099
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 296.37263215714023
+        - 391.5184824270586
+        rx: 4.881796094914612
+        ry: 4.881796094914612
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 578.0222955991671
+        - 287.3805051799455
+        rx: 4.861701656608679
+        ry: 4.861701656608679
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 516.2837289082904
+        - 354.67539979786
+        rx: 5.291369195934076
+        ry: 5.291369195934076
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 465.7396155478789
+        - 262.77707432625346
+        rx: 6.861284251438678
+        ry: 6.861284251438678
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 262.2251399369431
+        - 288.21712932385844
+        rx: 8.480576690553605
+        ry: 8.480576690553605
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 520.0939658017597
+        - 389.0749806788905
+        rx: 8.411161720741948
+        ry: 8.411161720741948
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 539.569563156871
+        - 401.6897197502662
+        rx: 4.939547467517905
+        ry: 4.939547467517905
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 313.4584548047438
+        - 316.32385067307274
+        rx: 6.3985625906714105
+        ry: 6.3985625906714105
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 559.1693202294242
+        - 289.17081035011137
+        rx: 6.482605078827854
+        ry: 6.482605078827854
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 390.05291668282314
+        - 318.3085204977453
+        rx: 4.7785848405875395
+        ry: 4.7785848405875395
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 219.5142439052
+        - 349.3668199610673
+        rx: 6.575861158489582
+        ry: 6.575861158489582
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 356.9181657328111
+        - 426.2009684974212
+        rx: 6.314200951600466
+        ry: 6.314200951600466
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 545.2180490636047
+        - 343.29441811342195
+        rx: 4.985219360895449
+        ry: 4.985219360895449
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 502.1606407540421
+        - 261.17503629733494
+        rx: 5.811651232837866
+        ry: 5.811651232837866
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 234.64865942067328
+        - 381.6862854705037
+        rx: 5.938063830191289
+        ry: 5.938063830191289
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 280.6735644315885
+        - 433.78227458863984
+        rx: 5.254286667748389
+        ry: 5.254286667748389
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 326.57551563499436
+        - 264.76981393048413
+        rx: 6.07610431820868
+        ry: 6.07610431820868
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 262.86680348323955
+        - 278.3432567447218
+        rx: 6.9141702686383155
+        ry: 6.9141702686383155
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 445.75235241980715
+        - 381.3277799086618
+        rx: 6.480335731544601
+        ry: 6.480335731544601
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 214.76635825887124
+        - 345.5001180837284
+        rx: 8.077905495212429
+        ry: 8.077905495212429
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 494.0878060009024
+        - 456.90402168725973
+        rx: 5.330617078496365
+        ry: 5.330617078496365
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 586.4831811727244
+        - 358.99869959528775
+        rx: 6.085816106716488
+        ry: 6.085816106716488
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 454.04914795796367
+        - 391.05032092978075
+        rx: 5.580709314211807
+        ry: 5.580709314211807
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 396.0232783889999
+        - 303.8969234921385
+        rx: 4.745509674197688
+        ry: 4.745509674197688
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 434.45136879112243
+        - 395.9109529700553
+        rx: 6.2325497209606615
+        ry: 6.2325497209606615
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 383.0749159029284
+        - 256.41181710375713
+        rx: 8.354405117908406
+        ry: 8.354405117908406
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 391.76761493509616
+        - 274.15084982641395
+        rx: 8.197370908775396
+        ry: 8.197370908775396
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 551.5503935450728
+        - 327.01286650532563
+        rx: 6.082235588088626
+        ry: 6.082235588088626
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 293.69390505037194
+        - 290.16170540976566
+        rx: 6.625845558310978
+        ry: 6.625845558310978
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 528.2358403571525
+        - 239.83768392317745
+        rx: 5.185569532622955
+        ry: 5.185569532622955
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 441.7937512289291
+        - 247.77104087726946
+        rx: 4.760344876729651
+        ry: 4.760344876729651
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 327.85039377218476
+        - 263.741894455506
+        rx: 6.884627768984716
+        ry: 6.884627768984716
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 563.6788616033768
+        - 343.6395767569705
+        rx: 5.653080995330647
+        ry: 5.653080995330647
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 236.22987261149137
+        - 319.85023689951294
+        rx: 6.043097107611965
+        ry: 6.043097107611965
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 620.1435500137802
+        - 356.3327929112865
+        rx: 8.411171570918253
+        ry: 8.411171570918253
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 434.4238400319344
+        - 443.0532850701884
+        rx: 5.492683608710954
+        ry: 5.492683608710954
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 440.5386926983812
+        - 296.2032224385268
+        rx: 5.56775220062195
+        ry: 5.56775220062195
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 443.98450663720195
+        - 244.62457981336112
+        rx: 7.507814297064565
+        ry: 7.507814297064565
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 443.7170769786462
+        - 425.75044820711514
+        rx: 4.920056034896286
+        ry: 4.920056034896286
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 606.5477850900318
+        - 321.8662581483228
+        rx: 7.441397125743228
+        ry: 7.441397125743228
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 658.8839848530209
+        - 325.17615317051843
+        rx: 6.023850103406499
+        ry: 6.023850103406499
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 461.20557674969376
+        - 337.1856746760657
+        rx: 6.56556021419296
+        ry: 6.56556021419296
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 501.5061685442899
+        - 313.81290397140157
+        rx: 8.072594562753364
+        ry: 8.072594562753364
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 272.8565591983824
+        - 415.09048094709055
+        rx: 6.539865313917625
+        ry: 6.539865313917625
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 312.6155465729522
+        - 301.4691432229042
+        rx: 5.329131266887861
+        ry: 5.329131266887861
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 600.7866144318754
+        - 270.9322123310086
+        rx: 5.786323559656228
+        ry: 5.786323559656228
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 622.8841394748607
+        - 356.84030067205765
+        rx: 6.568147158199546
+        ry: 6.568147158199546
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 593.6444431713523
+        - 285.49460150823654
+        rx: 6.349988264801889
+        ry: 6.349988264801889
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 516.7380622517658
+        - 361.68564623268765
+        rx: 7.639338587961899
+        ry: 7.639338587961899
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 240.49346010608977
+        - 419.533879303552
+        rx: 6.572079323432234
+        ry: 6.572079323432234
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 512.3775806573896
+        - 409.0899770583121
+        rx: 5.070007729979471
+        ry: 5.070007729979471
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 369.62808581448076
+        - 261.50104920171754
+        rx: 5.648723772693178
+        ry: 5.648723772693178
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 575.3584336549438
+        - 399.23549342807365
+        rx: 7.467887323377139
+        ry: 7.467887323377139
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 376.68348014788535
+        - 306.25102417936154
+        rx: 6.6235463277532425
+        ry: 6.6235463277532425
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 266.38204544883814
+        - 399.3806607894407
+        rx: 8.110578917280115
+        ry: 8.110578917280115
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 418.5308342725678
+        - 306.5633920563932
+        rx: 7.0140469587159116
+        ry: 7.0140469587159116
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 365.6594228944871
+        - 281.0970595449324
+        rx: 8.15684976256673
+        ry: 8.15684976256673
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 449.03698953807867
+        - 306.60982562966933
+        rx: 4.779297645287235
+        ry: 4.779297645287235
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 537.8770202420895
+        - 271.47022610690175
+        rx: 7.203032187446405
+        ry: 7.203032187446405
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 336.6525556553866
+        - 241.2429168099227
+        rx: 7.363852009521041
+        ry: 7.363852009521041
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 396.97269849466704
+        - 265.49677563752317
+        rx: 7.894115940186229
+        ry: 7.894115940186229
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 381.8739793680171
+        - 383.63407667434006
+        rx: 4.8688607700402455
+        ry: 4.8688607700402455
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 503.780624751723
+        - 242.29182822178979
+        rx: 7.877287234447367
+        ry: 7.877287234447367
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 438.8909236860926
+        - 347.2660321457432
+        rx: 7.777750433724503
+        ry: 7.777750433724503
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 412.05854360151807
+        - 333.42053620115956
+        rx: 7.18270703259136
+        ry: 7.18270703259136
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 664.5379294455154
+        - 362.29964762787864
+        rx: 5.558760242237762
+        ry: 5.558760242237762
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 559.475465522391
+        - 350.48326179737126
+        rx: 6.32598217355206
+        ry: 6.32598217355206
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 465.0007030411566
+        - 432.4684389351541
+        rx: 7.629035793340045
+        ry: 7.629035793340045
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 442.7256200782799
+        - 223.33013293414064
+        rx: 8.115642559354267
+        ry: 8.115642559354267
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 387.6542015991163
+        - 453.2480877905922
+        rx: 6.424753243132748
+        ry: 6.424753243132748
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 348.58404839076576
+        - 435.85813650170815
+        rx: 5.10896115903871
+        ry: 5.10896115903871
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 455.08207958326506
+        - 362.7997825831758
+        rx: 7.615986897593029
+        ry: 7.615986897593029
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 510.12333497205657
+        - 418.47749226042123
+        rx: 6.1451542069041345
+        ry: 6.1451542069041345
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 463.3973388806281
+        - 313.0011047227149
+        rx: 7.225092226251681
+        ry: 7.225092226251681
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 320.7983686332482
+        - 368.87639285278846
+        rx: 7.902127277997003
+        ry: 7.902127277997003
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 531.9896841253232
+        - 280.8484525402126
+        rx: 4.531236152817044
+        ry: 4.531236152817044
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 408.9698086343871
+        - 454.51885793041214
+        rx: 7.218720485086967
+        ry: 7.218720485086967
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 467.83601511108134
+        - 293.2541297614618
+        rx: 6.793424762067987
+        ry: 6.793424762067987
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 450.369161263106
+        - 326.45748980778944
+        rx: 6.138675340647312
+        ry: 6.138675340647312
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 589.9824649461482
+        - 299.83511385095505
+        rx: 6.50910705448038
+        ry: 6.50910705448038
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 589.4615082487172
+        - 336.76637050842294
+        rx: 6.6209466983094725
+        ry: 6.6209466983094725
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 457.85134065687765
+        - 342.1917955000586
+        rx: 5.77319075794677
+        ry: 5.77319075794677
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 481.54987388139733
+        - 395.8275774455871
+        rx: 5.345722978546192
+        ry: 5.345722978546192
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 268.45859907436943
+        - 432.61838037588217
+        rx: 5.417441212648884
+        ry: 5.417441212648884
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 536.3885180864299
+        - 252.4337951187752
+        rx: 4.917587679828554
+        ry: 4.917587679828554
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 574.9588238649693
+        - 374.6498026677507
+        rx: 5.702173219453879
+        ry: 5.702173219453879
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 570.4679921251208
+        - 371.7336731004588
+        rx: 4.775883256537725
+        ry: 4.775883256537725
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 441.1938537168787
+        - 462.67137157967346
+        rx: 5.115783326198174
+        ry: 5.115783326198174
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 601.1803697775973
+        - 416.8298784254662
+        rx: 7.081015019312403
+        ry: 7.081015019312403
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 299.89299794251343
+        - 258.80306933389807
+        rx: 7.070796494157291
+        ry: 7.070796494157291
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 598.1022583790575
+        - 253.70444668141317
+        rx: 8.047291445380376
+        ry: 8.047291445380376
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 238.67082056155908
+        - 309.3238795482961
+        rx: 6.115598990741146
+        ry: 6.115598990741146
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 471.2325680091525
+        - 361.7714458058524
+        rx: 6.010394345490578
+        ry: 6.010394345490578
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 260.5705632048155
+        - 316.9451332487862
+        rx: 6.614173243956742
+        ry: 6.614173243956742
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 453.05845976277556
+        - 367.8531382236135
+        rx: 5.492674755950043
+        ry: 5.492674755950043
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 577.5983214187304
+        - 252.22302412069166
+        rx: 5.912377728691381
+        ry: 5.912377728691381
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 291.72357567721326
+        - 364.49563599463096
+        rx: 8.130056683594445
+        ry: 8.130056683594445
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 393.3552086648973
+        - 433.67952288541755
+        rx: 7.00309135306876
+        ry: 7.00309135306876
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 334.89974511595005
+        - 312.97421359311846
+        rx: 6.391415107955126
+        ry: 6.391415107955126
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 632.5388109689871
+        - 304.7049898690229
+        rx: 6.718302988945138
+        ry: 6.718302988945138
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 320.3259919339476
+        - 431.3795386773077
+        rx: 5.804301770548047
+        ry: 5.804301770548047
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 371.5198857562322
+        - 307.7394119767501
+        rx: 6.342129301936134
+        ry: 6.342129301936134
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 624.2948274903317
+        - 300.6900208927872
+        rx: 6.125962084142758
+        ry: 6.125962084142758
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 578.2340100631201
+        - 425.44312572442817
+        rx: 5.326088205944311
+        ry: 5.326088205944311
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 530.480966645288
+        - 420.0256598511392
+        rx: 5.170936523317133
+        ry: 5.170936523317133
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 495.4340245331271
+        - 230.13558602119244
+        rx: 5.086942837052914
+        ry: 5.086942837052914
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 294.33023774084353
+        - 431.7866350648558
+        rx: 5.035332025994268
+        ry: 5.035332025994268
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 514.1737464204984
+        - 414.3082724964937
+        rx: 7.763863190693692
+        ry: 7.763863190693692
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 335.37608475138813
+        - 445.43289612585204
+        rx: 7.330604233111244
+        ry: 7.330604233111244
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 555.7782936337966
+        - 350.3060941160076
+        rx: 7.805327040505652
+        ry: 7.805327040505652
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 433.60182590788315
+        - 349.7376122069271
+        rx: 4.954963517164117
+        ry: 4.954963517164117
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 264.859150343447
+        - 329.5577563777778
+        rx: 5.470910757045674
+        ry: 5.470910757045674
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 228.76740596001514
+        - 276.7158501333593
+        rx: 5.914212093227697
+        ry: 5.914212093227697
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 210.69863432769537
+        - 387.48269222706614
+        rx: 7.847965350785377
+        ry: 7.847965350785377
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 454.64206651962326
+        - 440.1825303686636
+        rx: 4.888715163532103
+        ry: 4.888715163532103
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 542.0251186786209
+        - 290.56132596018494
+        rx: 7.899501897038052
+        ry: 7.899501897038052
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 299.0749031787354
+        - 338.01391766461677
+        rx: 5.812439167444955
+        ry: 5.812439167444955
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 411.9114687808955
+        - 405.45835413400243
+        rx: 4.634103415377666
+        ry: 4.634103415377666
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 366.51639234832095
+        - 270.99586681768244
+        rx: 6.578848190920475
+        ry: 6.578848190920475
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 430.54878624815086
+        - 378.1741235022704
+        rx: 7.702571686585484
+        ry: 7.702571686585484
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 477.8056974048543
+        - 270.9416830201675
+        rx: 6.863907898051508
+        ry: 6.863907898051508
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 386.79050101065656
+        - 340.99564576932966
+        rx: 7.710995110104923
+        ry: 7.710995110104923
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 506.4502017994711
+        - 303.50961428658604
+        rx: 5.746552987446121
+        ry: 5.746552987446121
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 667.3733005804893
+        - 389.2176415008672
+        rx: 5.213781972003804
+        ry: 5.213781972003804
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 478.5013955750249
+        - 235.17087566056557
+        rx: 8.057661132157055
+        ry: 8.057661132157055
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 478.8344309919743
+        - 267.6203572208971
+        rx: 4.753911863581505
+        ry: 4.753911863581505
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 234.8973414824838
+        - 295.31193034672737
+        rx: 6.202010910421889
+        ry: 6.202010910421889
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 337.9736588694163
+        - 397.0130921623005
+        rx: 7.035271574362141
+        ry: 7.035271574362141
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 297.95789545959695
+        - 392.79744218720674
+        rx: 6.3232989439138825
+        ry: 6.3232989439138825
+        fill: green_dk
+      - decorative: true
+        type: ellipse
+        center:
+        - 301.8378742170707
+        - 257.73503974974705
+        rx: 4.753136110629271
+        ry: 4.753136110629271
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 357.2175874518918
+        - 454.1204341772173
+        rx: 6.5250532513450565
+        ry: 6.5250532513450565
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 615.6480529963026
+        - 412.78263152099413
+        rx: 7.98963906847904
+        ry: 7.98963906847904
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 290.00785659533705
+        - 434.2665398483882
+        rx: 6.752632411827546
+        ry: 6.752632411827546
+        fill: green
+      - decorative: true
+        type: ellipse
+        center:
+        - 423.3263144912123
+        - 298.0937015413039
+        rx: 6.512516606277683
+        ry: 6.512516606277683
+        fill: green
+      - box:
+        - 114
+        - 548
+        - 200
+        - 50
+        decorative: true
+        style: statnum
+        type: text
+        text: 1.2k
+      - box:
+        - 288
+        - 548
+        - 200
+        - 50
+        decorative: true
+        style: statnum
+        type: text
+        text: '236'
+      - box:
+        - 448
+        - 548
+        - 200
+        - 50
+        decorative: true
+        style: statnum
+        type: text
+        text: '78'
+      - box:
+        - 88
+        - 602
+        - 386
+        - 168
+        decorative: true
+        type: rect
+        fill: blueblock
+      - box:
+        - 118
+        - 779
+        - 200
+        - 22
+        decorative: true
+        style: footnav
+        type: text
+        text: ABOUT
+      - box:
+        - 246
+        - 779
+        - 200
+        - 22
+        decorative: true
+        style: footnav
+        type: text
+        text: SPEAKERS
+      - box:
+        - 448
+        - 779
+        - 200
+        - 22
+        decorative: true
+        style: footnav
+        type: text
+        text: FAQ
+      - box:
+        - 554
+        - 770
+        - 116
+        - 40
+        decorative: true
+        type: rect
+        fill: navy_dk
+        radius: 8
+      - box:
+        - 580
+        - 780
+        - 100
+        - 22
+        decorative: true
+        style: trybtn
+        type: text
+        text: RE
+      - box:
+        - 759
+        - 78
+        - 686
+        - 757
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: purple_lt
+            position: 0%
+          - color: purple_dk
+            position: 100%
+          angle: 47.8
+      - box:
+        - 783
+        - 138
+        - 900
+        - 110
+        decorative: true
+        style: sitesfaint
+        type: text
+        text: '[Sites] in (Co'
+      - box:
+        - 783
+        - 310
+        - 900
+        - 110
+        decorative: true
+        style: sitesfaint
+        type: text
+        text: '[Sites] in (Co'
+      - box:
+        - 526
+        - 376
+        - 1010
+        - 560
+        decorative: true
+        type: rect
+        fill: rgba(42,30,94,0.18)
+        radius: 20
+      - box:
+        - 520
+        - 360
+        - 1010
+        - 560
+        decorative: true
+        type: rect
+        fill: card
+        radius: 20
+      - decorative: true
+        type: ellipse
+        center:
+        - 554.0
+        - 390.0
+        rx: 8.0
+        ry: 8.0
+        fill: chrome
+      - decorative: true
+        type: ellipse
+        center:
+        - 580.0
+        - 390.0
+        rx: 8.0
+        ry: 8.0
+        fill: chrome
+      - decorative: true
+        type: ellipse
+        center:
+        - 606.0
+        - 390.0
+        rx: 8.0
+        ry: 8.0
+        fill: chrome
+      - decorative: true
+        type: ellipse
+        center:
+        - 576.0
+        - 478.0
+        rx: 30.0
+        ry: 30.0
+        fill:
+          kind: radial
+          stops:
+          - color: '#C9A8FF'
+            position: 0%
+          - color: '#9A6CFF'
+            position: 55%
+          - color: '#6A3CE0'
+            position: 100%
+          at: 38% 32%
+          shape: circle
+      - decorative: true
+        type: ellipse
+        center:
+        - 568.0
+        - 469.0
+        rx: 9.0
+        ry: 9.0
+        fill: rgba(255,255,255,0.55)
+      - box:
+        - 618
+        - 460
+        - 280
+        - 38
+        decorative: true
+        style: elevate
+        type: text
+        text: ELEVATE
+      - box:
+        - 1040
+        - 462
+        - 180
+        - 26
+        decorative: true
+        style: wnav
+        type: text
+        text: Overview
+      - decorative: true
+        stroke_style:
+          stroke_width: 2
+        type: line
+        from:
+        - 1040.0
+        - 494.0
+        to:
+        - 1123.2
+        - 494.0
+        stroke: indigo2
+      - box:
+        - 1210
+        - 462
+        - 180
+        - 26
+        decorative: true
+        style: wnav
+        type: text
+        text: Reports
+      - box:
+        - 1358
+        - 462
+        - 180
+        - 26
+        decorative: true
+        style: wnav
+        type: text
+        text: Forecast
+      - box:
+        - 1520
+        - 462
+        - 180
+        - 26
+        decorative: true
+        style: wnav
+        type: text
+        text: An
+      - box:
+        - 576
+        - 556
+        - 620
+        - 190
+        decorative: true
+        style: finance
+        type: text
+        text: 'Financial
+
+          Landscape'
+      - box:
+        - 578
+        - 744
+        - 640
+        - 34
+        decorative: true
+        style: subline
+        type: text
+        text: See the big picture. Make better decisions.
+      - box:
+        - 1378
+        - 660
+        - 360
+        - 24
+        decorative: true
+        style: oplabel
+        type: text
+        text: OPERATING EXPEN
+      - box:
+        - 1376
+        - 682
+        - 260
+        - 56
+        decorative: true
+        style: opval
+        type: text
+        text: $430K
+    - box:
+      - 88
+      - 862
+      - 1357
+      - 70
+      style: heroH
+      type: text
+      text: Codex for every role, tool, and workflow
+    - box:
+      - 88
+      - 956
+      - 200
+      - 24
+      style: metaCat
+      type: text
+      text: Product
+    - box:
+      - 173.51999999999998
+      - 956
+      - 200
+      - 24
+      style: metaSub
+      type: text
+      text: 7 min read
+    - style:
+        clip_path:
+          shape: path
+          args:
+            d: M1489,78 H1894 A14,14 0 0 1 1908,92 V242 A14,14 0 0 1 1894,256 H1489
+              A14,14 0 0 1 1475,242 V92 A14,14 0 0 1 1489,78 Z
+      type: group
+      children:
+      - box:
+        - 1475
+        - 78
+        - 433
+        - 178
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: amber
+            position: 0%
+          - color: orange
+            position: 50%
+          - color: '#FF8A3D'
+            position: 100%
+          angle: 22.3
+      - decorative: true
+        type: ellipse
+        center:
+        - 1778.1
+        - 140.3
+        rx: 216.5
+        ry: 124.6
+        fill:
+          kind: radial
+          stops:
+          - color: rgba(255,230,176,0.7)
+            position: 0%
+          - color: rgba(255,230,176,0)
+            position: 100%
+          at: 50% 50%
+          shape: circle
+    - box:
+      - 1475
+      - 282
+      - 433
+      - 100
+      style: cardH
+      type: text
+      text: 'Daybreak: Tools for securing every
+
+        organization in the world'
+    - box:
+      - 1475
+      - 392
+      - 200
+      - 24
+      style: metaCat
+      type: text
+      text: Security
+    - box:
+      - 1569.88
+      - 392
+      - 200
+      - 24
+      style: metaSub
+      type: text
+      text: 8 min read
+    - style:
+        clip_path:
+          shape: path
+          args:
+            d: M1489,452 H1894 A14,14 0 0 1 1908,466 V838 A14,14 0 0 1 1894,852 H1489
+              A14,14 0 0 1 1475,838 V466 A14,14 0 0 1 1489,452 Z
+      type: group
+      children:
+      - box:
+        - 1475
+        - 452
+        - 433
+        - 400
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: coral
+            position: 0%
+          - color: rose
+            position: 100%
+          angle: 42.7
+      - decorative: true
+        type: ellipse
+        center:
+        - 1691.5
+        - 620.0
+        rx: 268.46
+        ry: 200.0
+        fill:
+          kind: radial
+          stops:
+          - color: rgba(249,214,200,0.65)
+            position: 0%
+          - color: rgba(249,214,200,0)
+            position: 100%
+          at: 50% 50%
+          shape: circle
+      - box:
+        - 1515
+        - 572.0
+        - 353
+        - 160
+        decorative: true
+        style: railimgH
+        type: text
+        text: 'Improving
+
+          health intelligence
+
+          in ChatGPT'
+    - box:
+      - 1475
+      - 906
+      - 433
+      - 90
+      style: cardH
+      type: text
+      text: 'Improving health intelligence
+
+        in ChatGPT'
+    - box:
+      - 1475
+      - 1016
+      - 200
+      - 24
+      style: metaCat
+      type: text
+      text: Product
+    - style:
+        clip_path:
+          shape: path
+          args:
+            d: M1489,1096 H1894 A14,14 0 0 1 1908,1110 V1322 A14,14 0 0 1 1894,1336
+              H1489 A14,14 0 0 1 1475,1322 V1110 A14,14 0 0 1 1489,1096 Z
+      type: group
+      children:
+      - box:
+        - 1475
+        - 1096
+        - 433
+        - 240
+        decorative: true
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: sky
+            position: 0%
+          - color: sky_dk
+            position: 100%
+          angle: 29.0
+      - decorative: true
+        type: ellipse
+        center:
+        - 1713.15
+        - 1192.0
+        rx: 238.15
+        ry: 168.0
+        fill:
+          kind: radial
+          stops:
+          - color: rgba(255,255,255,0.55)
+            position: 0%
+          - color: rgba(255,255,255,0)
+            position: 100%
+          at: 50% 50%
+          shape: circle
+      - box:
+        - 1515
+        - 1140
+        - 353
+        - 100
+        decorative: true
+        style: railimgH
+        type: text
+        text: Better memory for
+    - box:
+      - 0
+      - 1288
+      - 2000
+      - 14
+      decorative: true
+      type: rect
+      fill: footbg
+    - decorative: true
+      type: ellipse
+      center:
+      - 1080.0
+      - 1300.0
+      rx: 9.0
+      ry: 9.0
+      fill: footink
+    - decorative: true
+      type: ellipse
+      center:
+      - 1176.0
+      - 1300.0
+      rx: 9.0
+      ry: 9.0
+      fill: footink
+    - decorative: true
+      type: ellipse
+      center:
+      - 1272.0
+      - 1300.0
+      rx: 9.0
+      ry: 9.0
+      fill: footink
+    - decorative: true
+      type: ellipse
+      center:
+      - 1368.0
+      - 1300.0
+      rx: 9.0
+      ry: 9.0
+      fill: footink
+    - decorative: true
+      type: ellipse
+      center:
+      - 1464.0
+      - 1300.0
+      rx: 9.0
+      ry: 9.0
+      fill: footink
+    - decorative: true
+      type: ellipse
+      center:
+      - 1560.0
+      - 1300.0
+      rx: 9.0
+      ry: 9.0
+      fill: footink
+    - decorative: true
+      type: ellipse
+      center:
+      - 1656.0
+      - 1300.0
+      rx: 9.0
+      ry: 9.0
+      fill: footink
+    - decorative: true
+      type: ellipse
+      center:
+      - 1752.0
+      - 1300.0
+      rx: 9.0
+      ry: 9.0
+      fill: footink
+    - decorative: true
+      type: ellipse
+      center:
+      - 1848.0
+      - 1300.0
+      rx: 9.0
+      ry: 9.0
+      fill: footink

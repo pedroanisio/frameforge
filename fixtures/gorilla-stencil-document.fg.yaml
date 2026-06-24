@@ -1,0 +1,2170 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Gorilla Stencil Study
+lang: en
+defs:
+  tokens:
+    text_styles:
+      caption:
+        color: rgba(0,0,0,0)
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 14
+pages:
+- mode: page
+  id: gorilla_stencil
+  canvas:
+    size:
+    - 894.0
+    - 1000.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: stencil
+    objects:
+    - box:
+      - 0
+      - 0
+      - 894
+      - 1000
+      type: rect
+      fill: '#FFFFFF'
+    - opacity: 1.0
+      type: path
+      d: M 326 0 C 395 -7 454 7 502 35 C 548 63 579 109 597 166 C 618 238 662 276
+        725 296 C 775 311 815 343 840 391 C 870 449 876 552 858 664 C 848 726 850
+        799 875 894 C 884 926 886 957 872 1000 L 704 1000 C 700 915 690 831 672 748
+        C 652 660 637 597 643 541 C 646 502 637 470 616 446 C 586 412 535 400 466
+        407 C 399 413 351 440 325 488 C 297 539 298 614 322 710 C 346 803 373 891
+        379 1000 L 154 1000 C 159 895 148 813 122 755 C 87 680 58 607 56 528 C 54
+        433 88 345 157 295 C 198 265 236 243 270 220 C 287 158 300 64 326 0 Z
+      fill: '#000000'
+    - opacity: 1.0
+      type: path
+      d: M 262 71 C 306 26 383 9 449 34 C 503 55 536 99 541 151 C 550 238 506 314
+        438 344 C 362 378 269 359 228 299 C 193 247 207 151 262 71 Z
+      fill: '#000000'
+    - opacity: 1.0
+      type: path
+      d: M 213 151 C 173 192 167 254 197 304 C 226 352 282 379 342 376 C 300 397 250
+        389 216 360 C 165 316 146 248 164 194 C 175 164 191 151 213 151 Z
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 271.0
+        - 69.0
+      - - 282.0
+        - 34.0
+      - - 292.0
+        - 58.0
+      - - 311.0
+        - 18.0
+      - - 316.0
+        - 49.0
+      - - 341.0
+        - 10.0
+      - - 341.0
+        - 44.0
+      - - 370.0
+        - 2.0
+      - - 365.0
+        - 41.0
+      - - 401.0
+        - 0.0
+      - - 390.0
+        - 42.0
+      - - 429.0
+        - 9.0
+      - - 409.0
+        - 49.0
+      - - 459.0
+        - 29.0
+      - - 426.0
+        - 61.0
+      - - 486.0
+        - 52.0
+      - - 433.0
+        - 80.0
+      - - 357.0
+        - 79.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: ellipse
+      center:
+      - 444.0
+      - 150.0
+      rx: 22.0
+      ry: 36.0
+      fill: '#FFFFFF'
+    - decorative: true
+      type: ellipse
+      center:
+      - 451.0
+      - 152.0
+      rx: 12.0
+      ry: 26.0
+      fill: '#000000'
+    - decorative: true
+      type: ellipse
+      center:
+      - 456.0
+      - 154.0
+      rx: 8.0
+      ry: 17.0
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 308.0
+        - 95.0
+      - - 324.0
+        - 62.0
+      - - 332.0
+        - 121.0
+      - - 350.0
+        - 87.0
+      - - 355.0
+        - 148.0
+      - - 326.0
+        - 134.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 241.0
+        - 118.0
+      - - 260.0
+        - 88.0
+      - - 259.0
+        - 145.0
+      - - 285.0
+        - 104.0
+      - - 276.0
+        - 166.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      opacity: 1.0
+      type: path
+      d: M 220 166 C 258 137 305 126 351 129 C 326 154 303 171 275 181 C 249 189 231
+        185 220 166 Z
+      fill: '#FFFFFF'
+    - decorative: true
+      opacity: 1.0
+      type: path
+      d: M 311 134 C 362 132 407 146 436 174 C 407 183 372 184 333 175 C 317 162 309
+        149 311 134 Z
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 240.0
+        - 202.0
+      - - 296.0
+        - 195.0
+      - - 285.0
+        - 218.0
+      - - 247.0
+        - 221.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 327.0
+        - 198.0
+      - - 402.0
+        - 191.0
+      - - 383.0
+        - 220.0
+      - - 335.0
+        - 223.0
+      closed: true
+      fill: '#FFFFFF'
+    - type: polyline
+      points:
+      - - 249.0
+        - 206.0
+      - - 291.0
+        - 200.0
+      - - 279.0
+        - 213.0
+      - - 250.0
+        - 215.0
+      closed: true
+      fill: '#000000'
+    - type: polyline
+      points:
+      - - 343.0
+        - 204.0
+      - - 386.0
+        - 198.0
+      - - 375.0
+        - 212.0
+      - - 345.0
+        - 215.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      opacity: 1.0
+      type: path
+      d: M 224 239 C 251 249 286 250 311 238 C 329 226 353 225 378 238 C 367 264 342
+        276 309 273 C 277 271 244 261 224 239 Z
+      fill: '#FFFFFF'
+    - type: polyline
+      points:
+      - - 265.0
+        - 239.0
+      - - 288.0
+        - 227.0
+      - - 318.0
+        - 232.0
+      - - 337.0
+        - 246.0
+      - - 320.0
+        - 259.0
+      - - 286.0
+        - 257.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 281.0
+        - 244.0
+      - - 299.0
+        - 239.0
+      - - 297.0
+        - 253.0
+      - - 280.0
+        - 254.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 311.0
+        - 240.0
+      - - 331.0
+        - 247.0
+      - - 315.0
+        - 255.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      opacity: 1.0
+      type: path
+      d: M 237 287 C 276 311 336 312 381 286 C 371 323 338 350 293 351 C 260 351 240
+        327 237 287 Z
+      fill: '#FFFFFF'
+    - type: polyline
+      points:
+      - - 256.0
+        - 296.0
+      - - 299.0
+        - 307.0
+      - - 365.0
+        - 291.0
+      - - 343.0
+        - 322.0
+      - - 287.0
+        - 325.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      opacity: 1.0
+      type: path
+      d: M 283 328 C 314 341 343 331 365 314 C 350 354 304 369 271 347 Z
+      fill: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 7
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 233.0
+      - 305.0
+      to:
+      - 213.0
+      - 338.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 7
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 386.0
+      - 304.0
+      to:
+      - 413.0
+      - 334.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 203.0
+        - 142.0
+      - - 237.0
+        - 103.0
+      - - 227.0
+        - 160.0
+      - - 263.0
+        - 125.0
+      - - 247.0
+        - 182.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 284.0
+        - 111.0
+      - - 319.0
+        - 82.0
+      - - 311.0
+        - 145.0
+      - - 354.0
+        - 108.0
+      - - 341.0
+        - 171.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 217.0
+        - 224.0
+      - - 263.0
+        - 232.0
+      - - 242.0
+        - 244.0
+      - - 207.0
+        - 236.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 357.0
+        - 226.0
+      - - 413.0
+        - 215.0
+      - - 389.0
+        - 237.0
+      - - 344.0
+        - 240.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 273.0
+        - 247.0
+      - - 292.0
+        - 239.0
+      - - 286.0
+        - 259.0
+      - - 269.0
+        - 263.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 315.0
+        - 240.0
+      - - 339.0
+        - 249.0
+      - - 321.0
+        - 263.0
+      - - 307.0
+        - 258.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      stroke_style:
+        stroke_width: 3.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 249.0
+        - 285.0
+      - - 288.0
+        - 297.0
+      - - 341.0
+        - 293.0
+      - - 383.0
+        - 275.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 3.4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 258.0
+        - 319.0
+      - - 296.0
+        - 335.0
+      - - 343.0
+        - 330.0
+      - - 376.0
+        - 306.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 214.0
+        - 365.0
+      - - 258.0
+        - 374.0
+      - - 307.0
+        - 368.0
+      - - 264.0
+        - 388.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 331.0
+        - 367.0
+      - - 385.0
+        - 355.0
+      - - 418.0
+        - 330.0
+      - - 388.0
+        - 378.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 247.0
+        - 82.0
+      - - 263.0
+        - 42.0
+      - - 268.0
+        - 105.0
+      - - 290.0
+        - 67.0
+      - - 286.0
+        - 132.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 350.0
+        - 66.0
+      - - 381.0
+        - 30.0
+      - - 366.0
+        - 111.0
+      - - 409.0
+        - 75.0
+      - - 389.0
+        - 149.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 199.0
+        - 172.0
+      - - 223.0
+        - 146.0
+      - - 218.0
+        - 209.0
+      - - 247.0
+        - 181.0
+      - - 239.0
+        - 235.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 388.0
+        - 168.0
+      - - 431.0
+        - 151.0
+      - - 401.0
+        - 207.0
+      - - 447.0
+        - 190.0
+      - - 403.0
+        - 239.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 229.0
+        - 255.0
+      - - 267.0
+        - 272.0
+      - - 239.0
+        - 280.0
+      - - 211.0
+        - 266.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 344.0
+        - 270.0
+      - - 384.0
+        - 249.0
+      - - 371.0
+        - 276.0
+      - - 331.0
+        - 288.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 243.0
+        - 224.0
+      - - 263.0
+        - 222.0
+      - - 256.0
+        - 236.0
+      - - 237.0
+        - 236.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 372.0
+        - 219.0
+      - - 395.0
+        - 212.0
+      - - 383.0
+        - 230.0
+      - - 365.0
+        - 233.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      stroke_style:
+        stroke_width: 2.8
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 209.0
+        - 292.0
+      - - 250.0
+        - 311.0
+      - - 309.0
+        - 316.0
+      - - 374.0
+        - 297.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 3.1
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 232.0
+        - 352.0
+      - - 278.0
+        - 378.0
+      - - 341.0
+        - 374.0
+      - - 399.0
+        - 344.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 84.0
+        - 349.0
+      - - 122.0
+        - 302.0
+      - - 112.0
+        - 363.0
+      - - 166.0
+        - 291.0
+      - - 148.0
+        - 381.0
+      - - 215.0
+        - 288.0
+      - - 188.0
+        - 400.0
+      - - 270.0
+        - 293.0
+      - - 239.0
+        - 416.0
+      - - 327.0
+        - 332.0
+      - - 278.0
+        - 455.0
+      - - 195.0
+        - 428.0
+      - - 122.0
+        - 410.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 505.0
+        - 366.0
+      - - 548.0
+        - 297.0
+      - - 539.0
+        - 377.0
+      - - 602.0
+        - 312.0
+      - - 583.0
+        - 400.0
+      - - 669.0
+        - 322.0
+      - - 627.0
+        - 429.0
+      - - 724.0
+        - 351.0
+      - - 672.0
+        - 464.0
+      - - 781.0
+        - 418.0
+      - - 658.0
+        - 492.0
+      - - 560.0
+        - 455.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 95.0
+        - 389.0
+      - - 145.0
+        - 342.0
+      - - 128.0
+        - 418.0
+      - - 192.0
+        - 357.0
+      - - 166.0
+        - 451.0
+      - - 234.0
+        - 383.0
+      - - 198.0
+        - 487.0
+      - - 137.0
+        - 454.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 539.0
+        - 424.0
+      - - 598.0
+        - 370.0
+      - - 574.0
+        - 449.0
+      - - 646.0
+        - 385.0
+      - - 613.0
+        - 484.0
+      - - 697.0
+        - 414.0
+      - - 653.0
+        - 523.0
+      - - 579.0
+        - 491.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 694.0
+        - 382.0
+      - - 753.0
+        - 353.0
+      - - 725.0
+        - 405.0
+      - - 793.0
+        - 386.0
+      - - 746.0
+        - 442.0
+      - - 817.0
+        - 424.0
+      - - 743.0
+        - 474.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 156.0
+        - 392.0
+      - - 205.0
+        - 354.0
+      - - 190.0
+        - 413.0
+      - - 146.0
+        - 455.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 615.0
+        - 394.0
+      - - 675.0
+        - 350.0
+      - - 650.0
+        - 429.0
+      - - 598.0
+        - 465.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      opacity: 1.0
+      type: path
+      d: M 176 417 C 218 360 298 344 366 383 C 324 413 294 454 279 512 C 234 514 191
+        482 176 417 Z
+      fill: '#FFFFFF'
+    - decorative: true
+      opacity: 1.0
+      type: path
+      d: M 341 393 C 424 344 546 341 627 397 C 553 410 486 439 424 489 C 395 461 368
+        429 341 393 Z
+      fill: '#FFFFFF'
+    - decorative: true
+      opacity: 1.0
+      type: path
+      d: M 255 558 C 301 529 366 538 415 576 C 371 571 337 583 311 615 C 291 588 273
+        570 255 558 Z
+      fill: '#FFFFFF'
+    - opacity: 1.0
+      type: path
+      d: M 334 506 C 405 458 528 455 598 514 C 641 551 656 625 647 718 C 637 811 621
+        902 611 1000 L 333 1000 C 337 894 322 800 299 720 C 277 645 286 558 334 506
+        Z
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 236.0
+        - 620.0
+      - - 269.0
+        - 563.0
+      - - 271.0
+        - 701.0
+      - - 291.0
+        - 585.0
+      - - 304.0
+        - 721.0
+      - - 332.0
+        - 605.0
+      - - 335.0
+        - 758.0
+      - - 260.0
+        - 744.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 361.0
+        - 592.0
+      - - 407.0
+        - 570.0
+      - - 382.0
+        - 650.0
+      - - 443.0
+        - 595.0
+      - - 395.0
+        - 712.0
+      - - 470.0
+        - 620.0
+      - - 416.0
+        - 769.0
+      - - 367.0
+        - 731.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 329.0
+        - 438.0
+      - - 393.0
+        - 410.0
+      - - 366.0
+        - 451.0
+      - - 446.0
+        - 429.0
+      - - 405.0
+        - 476.0
+      - - 493.0
+        - 449.0
+      - - 451.0
+        - 506.0
+      - - 365.0
+        - 489.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 518.0
+        - 430.0
+      - - 589.0
+        - 399.0
+      - - 558.0
+        - 452.0
+      - - 633.0
+        - 423.0
+      - - 604.0
+        - 486.0
+      - - 673.0
+        - 459.0
+      - - 640.0
+        - 531.0
+      - - 562.0
+        - 499.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 190.0
+        - 521.0
+      - - 256.0
+        - 536.0
+      - - 218.0
+        - 555.0
+      - - 168.0
+        - 548.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 294.0
+        - 530.0
+      - - 380.0
+        - 495.0
+      - - 356.0
+        - 523.0
+      - - 306.0
+        - 552.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 6
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 425.0
+        - 497.0
+      - - 504.0
+        - 462.0
+      - - 588.0
+        - 471.0
+      - - 653.0
+        - 518.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 322.0
+        - 575.0
+      - - 384.0
+        - 535.0
+      - - 360.0
+        - 604.0
+      - - 430.0
+        - 553.0
+      - - 392.0
+        - 642.0
+      - - 461.0
+        - 588.0
+      - - 416.0
+        - 693.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 480.0
+        - 565.0
+      - - 547.0
+        - 534.0
+      - - 512.0
+        - 612.0
+      - - 585.0
+        - 568.0
+      - - 536.0
+        - 662.0
+      - - 609.0
+        - 612.0
+      - - 554.0
+        - 724.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 302.0
+        - 706.0
+      - - 356.0
+        - 673.0
+      - - 423.0
+        - 660.0
+      - - 497.0
+        - 675.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 397.0
+        - 735.0
+      - - 459.0
+        - 704.0
+      - - 526.0
+        - 701.0
+      - - 592.0
+        - 732.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 309.0
+        - 832.0
+      - - 347.0
+        - 760.0
+      - - 337.0
+        - 914.0
+      - - 377.0
+        - 794.0
+      - - 361.0
+        - 961.0
+      - - 411.0
+        - 831.0
+      - - 398.0
+        - 1000.0
+      - - 304.0
+        - 1000.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 428.0
+        - 824.0
+      - - 486.0
+        - 739.0
+      - - 444.0
+        - 917.0
+      - - 523.0
+        - 779.0
+      - - 468.0
+        - 975.0
+      - - 548.0
+        - 833.0
+      - - 512.0
+        - 1000.0
+      - - 418.0
+        - 1000.0
+      closed: true
+      fill: '#FFFFFF'
+    - opacity: 1.0
+      type: path
+      d: M 74 555 C 43 626 33 728 58 820 C 75 881 103 944 100 1000 L 0 1000 L 0 637
+        C 12 594 36 565 74 555 Z
+      fill: '#000000'
+    - opacity: 1.0
+      type: path
+      d: M 760 482 C 828 515 878 604 887 708 C 894 797 880 894 847 1000 L 725 1000
+        C 720 914 729 843 747 777 C 773 682 775 586 760 482 Z
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 23.0
+        - 600.0
+      - - 56.0
+        - 577.0
+      - - 45.0
+        - 644.0
+      - - 86.0
+        - 596.0
+      - - 68.0
+        - 696.0
+      - - 105.0
+        - 642.0
+      - - 81.0
+        - 753.0
+      - - 121.0
+        - 693.0
+      - - 91.0
+        - 828.0
+      - - 52.0
+        - 790.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 720.0
+        - 540.0
+      - - 756.0
+        - 493.0
+      - - 751.0
+        - 579.0
+      - - 801.0
+        - 527.0
+      - - 780.0
+        - 631.0
+      - - 835.0
+        - 584.0
+      - - 801.0
+        - 700.0
+      - - 851.0
+        - 660.0
+      - - 809.0
+        - 804.0
+      - - 754.0
+        - 754.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 39.0
+        - 849.0
+      - - 78.0
+        - 804.0
+      - - 76.0
+        - 890.0
+      - - 118.0
+        - 841.0
+      - - 104.0
+        - 944.0
+      - - 151.0
+        - 902.0
+      - - 126.0
+        - 1000.0
+      - - 37.0
+        - 1000.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 711.0
+        - 827.0
+      - - 760.0
+        - 763.0
+      - - 745.0
+        - 889.0
+      - - 797.0
+        - 805.0
+      - - 777.0
+        - 949.0
+      - - 835.0
+        - 868.0
+      - - 810.0
+        - 1000.0
+      - - 702.0
+        - 1000.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 34.0
+        - 708.0
+      - - 64.0
+        - 690.0
+      - - 57.0
+        - 744.0
+      - - 82.0
+        - 716.0
+      - - 75.0
+        - 779.0
+      - - 105.0
+        - 750.0
+      - - 95.0
+        - 814.0
+      - - 61.0
+        - 795.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 86.0
+        - 910.0
+      - - 119.0
+        - 884.0
+      - - 113.0
+        - 947.0
+      - - 151.0
+        - 913.0
+      - - 139.0
+        - 982.0
+      - - 182.0
+        - 940.0
+      - - 165.0
+        - 1000.0
+      - - 96.0
+        - 1000.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 744.0
+        - 614.0
+      - - 789.0
+        - 574.0
+      - - 768.0
+        - 677.0
+      - - 817.0
+        - 628.0
+      - - 792.0
+        - 742.0
+      - - 843.0
+        - 688.0
+      - - 820.0
+        - 808.0
+      - - 766.0
+        - 747.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 760.0
+        - 902.0
+      - - 802.0
+        - 846.0
+      - - 785.0
+        - 958.0
+      - - 833.0
+        - 897.0
+      - - 811.0
+        - 1000.0
+      - - 747.0
+        - 1000.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 86.0
+        - 843.0
+      - - 124.0
+        - 826.0
+      - - 141.0
+        - 858.0
+      - - 112.0
+        - 884.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 126.0
+        - 870.0
+      - - 171.0
+        - 852.0
+      - - 189.0
+        - 883.0
+      - - 152.0
+        - 911.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 152.0
+        - 920.0
+      - - 198.0
+        - 897.0
+      - - 213.0
+        - 934.0
+      - - 175.0
+        - 962.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 65.0
+        - 930.0
+      - - 104.0
+        - 905.0
+      - - 118.0
+        - 945.0
+      - - 82.0
+        - 974.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 115.0
+        - 956.0
+      - - 158.0
+        - 934.0
+      - - 176.0
+        - 973.0
+      - - 139.0
+        - 1000.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 57.0
+        - 875.0
+      - - 83.0
+        - 843.0
+      - - 80.0
+        - 914.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 105.0
+        - 908.0
+      - - 136.0
+        - 872.0
+      - - 129.0
+        - 954.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 155.0
+        - 940.0
+      - - 188.0
+        - 900.0
+      - - 178.0
+        - 985.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 72.0
+        - 964.0
+      - - 105.0
+        - 920.0
+      - - 101.0
+        - 1000.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 132.0
+        - 987.0
+      - - 166.0
+        - 940.0
+      - - 158.0
+        - 1000.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 742.0
+        - 808.0
+      - - 780.0
+        - 768.0
+      - - 772.0
+        - 864.0
+      - - 813.0
+        - 819.0
+      - - 793.0
+        - 922.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 798.0
+        - 836.0
+      - - 840.0
+        - 782.0
+      - - 824.0
+        - 900.0
+      - - 865.0
+        - 846.0
+      - - 846.0
+        - 958.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 713.0
+        - 934.0
+      - - 748.0
+        - 888.0
+      - - 741.0
+        - 1000.0
+      - - 699.0
+        - 1000.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 726.0
+        - 861.0
+      - - 754.0
+        - 821.0
+      - - 750.0
+        - 912.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 775.0
+        - 888.0
+      - - 806.0
+        - 840.0
+      - - 799.0
+        - 948.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 824.0
+        - 914.0
+      - - 854.0
+        - 865.0
+      - - 847.0
+        - 982.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 166.0
+        - 986.0
+      - - 212.0
+        - 882.0
+      - - 244.0
+        - 804.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 205.0
+        - 986.0
+      - - 247.0
+        - 875.0
+      - - 279.0
+        - 790.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 238.0
+        - 986.0
+      - - 280.0
+        - 872.0
+      - - 318.0
+        - 782.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 3.7
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 748.0
+        - 972.0
+      - - 766.0
+        - 878.0
+      - - 774.0
+        - 780.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 3.7
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 793.0
+        - 966.0
+      - - 811.0
+        - 868.0
+      - - 825.0
+        - 768.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 101.0
+        - 318.0
+      - - 153.0
+        - 290.0
+      - - 129.0
+        - 331.0
+      - - 196.0
+        - 295.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 118.0
+        - 449.0
+      - - 170.0
+        - 430.0
+      - - 137.0
+        - 463.0
+      - - 208.0
+        - 456.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 188.0
+        - 668.0
+      - - 233.0
+        - 628.0
+      - - 213.0
+        - 702.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 562.0
+        - 505.0
+      - - 611.0
+        - 488.0
+      - - 583.0
+        - 535.0
+      - - 642.0
+        - 517.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 613.0
+        - 576.0
+      - - 664.0
+        - 543.0
+      - - 649.0
+        - 614.0
+      - - 704.0
+        - 561.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 600.0
+        - 685.0
+      - - 648.0
+        - 631.0
+      - - 629.0
+        - 723.0
+      - - 680.0
+        - 661.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 548.0
+        - 826.0
+      - - 601.0
+        - 759.0
+      - - 572.0
+        - 898.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 169.0
+        - 553.0
+      - - 217.0
+        - 526.0
+      - - 190.0
+        - 568.0
+      - - 251.0
+        - 545.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 186.0
+        - 620.0
+      - - 240.0
+        - 594.0
+      - - 209.0
+        - 643.0
+      - - 270.0
+        - 615.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 226.0
+        - 740.0
+      - - 271.0
+        - 690.0
+      - - 252.0
+        - 786.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 258.0
+        - 784.0
+      - - 292.0
+        - 724.0
+      - - 283.0
+        - 846.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 632.0
+        - 353.0
+      - - 692.0
+        - 329.0
+      - - 663.0
+        - 378.0
+      - - 731.0
+        - 355.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 674.0
+        - 431.0
+      - - 735.0
+        - 398.0
+      - - 704.0
+        - 463.0
+      - - 774.0
+        - 437.0
+      closed: true
+      fill: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 5
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 211.0
+        - 180.0
+      - - 243.0
+        - 196.0
+      - - 284.0
+        - 194.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 5
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 321.0
+        - 188.0
+      - - 363.0
+        - 184.0
+      - - 409.0
+        - 171.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 226.0
+        - 257.0
+      - - 265.0
+        - 274.0
+      - - 321.0
+        - 276.0
+      - - 374.0
+        - 259.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 5
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 240.0
+        - 339.0
+      - - 284.0
+        - 366.0
+      - - 343.0
+        - 362.0
+      - - 394.0
+        - 333.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4.5
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 530.0
+        - 315.0
+      - - 593.0
+        - 302.0
+      - - 654.0
+        - 316.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 615.0
+        - 360.0
+      - - 687.0
+        - 348.0
+      - - 752.0
+        - 369.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 667.0
+        - 414.0
+      - - 728.0
+        - 408.0
+      - - 784.0
+        - 423.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 220.0
+      - 805.0
+      to:
+      - 178.0
+      - 980.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 248.0
+      - 805.0
+      to:
+      - 206.0
+      - 980.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 279.0
+      - 805.0
+      to:
+      - 237.0
+      - 980.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 313.0
+      - 805.0
+      to:
+      - 271.0
+      - 980.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 347.0
+      - 805.0
+      to:
+      - 305.0
+      - 980.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 381.0
+      - 805.0
+      to:
+      - 339.0
+      - 980.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 432.0
+      - 790.0
+      to:
+      - 348.0
+      - 1000.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 463.0
+      - 790.0
+      to:
+      - 379.0
+      - 1000.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 497.0
+      - 790.0
+      to:
+      - 413.0
+      - 1000.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 532.0
+      - 790.0
+      to:
+      - 448.0
+      - 1000.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 568.0
+      - 790.0
+      to:
+      - 484.0
+      - 1000.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 642.0
+      - 650.0
+      to:
+      - 657.0
+      - 880.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 677.0
+      - 650.0
+      to:
+      - 692.0
+      - 880.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 711.0
+      - 650.0
+      to:
+      - 726.0
+      - 880.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 746.0
+      - 650.0
+      to:
+      - 761.0
+      - 880.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 4
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: line
+      from:
+      - 779.0
+      - 650.0
+      to:
+      - 794.0
+      - 880.0
+      stroke: '#FFFFFF'
+    - decorative: true
+      type: polyline
+      points:
+      - - 196.0
+        - 438.0
+      - - 241.0
+        - 413.0
+      - - 222.0
+        - 466.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 420.0
+        - 430.0
+      - - 507.0
+        - 397.0
+      - - 471.0
+        - 453.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 304.0
+        - 612.0
+      - - 332.0
+        - 590.0
+      - - 329.0
+        - 682.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 719.0
+        - 731.0
+      - - 750.0
+        - 690.0
+      - - 748.0
+        - 800.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 354.0
+        - 519.0
+      - - 452.0
+        - 497.0
+      - - 420.0
+        - 536.0
+      - - 333.0
+        - 551.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 520.0
+        - 505.0
+      - - 608.0
+        - 520.0
+      - - 574.0
+        - 548.0
+      - - 491.0
+        - 532.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 126.0
+        - 424.0
+      - - 181.0
+        - 386.0
+      - - 169.0
+        - 444.0
+      - - 118.0
+        - 470.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 664.0
+        - 431.0
+      - - 724.0
+        - 389.0
+      - - 704.0
+        - 462.0
+      - - 646.0
+        - 493.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 205.0
+        - 560.0
+      - - 259.0
+        - 548.0
+      - - 241.0
+        - 590.0
+      - - 185.0
+        - 602.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 332.0
+        - 578.0
+      - - 384.0
+        - 548.0
+      - - 365.0
+        - 620.0
+      - - 318.0
+        - 645.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 748.0
+        - 846.0
+      - - 785.0
+        - 798.0
+      - - 778.0
+        - 902.0
+      - - 738.0
+        - 932.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      type: polyline
+      points:
+      - - 101.0
+        - 928.0
+      - - 141.0
+        - 880.0
+      - - 134.0
+        - 979.0
+      - - 89.0
+        - 1000.0
+      closed: true
+      fill: '#000000'
+    - decorative: true
+      stroke_style:
+        stroke_width: 3.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 520.0
+        - 340.0
+      - - 580.0
+        - 325.0
+      - - 649.0
+        - 334.0
+      - - 717.0
+        - 362.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 3.2
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 585.0
+        - 405.0
+      - - 652.0
+        - 391.0
+      - - 721.0
+        - 403.0
+      - - 782.0
+        - 431.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 3.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 312.0
+        - 428.0
+      - - 366.0
+        - 392.0
+      - - 438.0
+        - 382.0
+      - - 512.0
+        - 399.0
+      fill: none
+      stroke: '#FFFFFF'
+    - decorative: true
+      stroke_style:
+        stroke_width: 3.0
+        stroke_linecap: round
+        stroke_linejoin: round
+      type: polyline
+      points:
+      - - 298.0
+        - 475.0
+      - - 363.0
+        - 445.0
+      - - 438.0
+        - 438.0
+      - - 516.0
+        - 459.0
+      fill: none
+      stroke: '#FFFFFF'
+    - id: caption
+      box:
+      - 24
+      - 964
+      - 440
+      - 20
+      opacity: 0.0
+      style: caption
+      type: text
+      text: Black and white vector gorilla stencil study
+  reading_order:
+  - caption

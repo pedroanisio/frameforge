@@ -6,10 +6,12 @@
 # CI runs (.github/workflows/ci.yml).
 
 UV ?= uv
-FIXTURES_YAML := fixtures/*.fg.yaml
+FIXTURES_YAML := $(shell git ls-files fixtures 2>/dev/null | grep -E '^fixtures/[^/]+\.(fg\.yaml|framegraph\.yml)$$' || echo 'fixtures/*.fg.yaml')
+LIVE_HOST ?= 127.0.0.1
+LIVE_PORT ?= 8789
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render render-latex pdf check schema-check grammar-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test corpus corpus-check corpus-ui
+.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check lint clean viewer-build viewer-test corpus corpus-check corpus-ui
 
 help:  ## list targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort \
@@ -31,13 +33,22 @@ pdf:  ## transpile a PDF -> FrameGraph YAML (pulls the `pdf` group): make pdf PD
 	@test -n "$(PDF)" || { echo "usage: make pdf PDF=<input.pdf> [OUT=<out.fg.yaml>] [ARGS='--text-mode spans']"; exit 2; }
 	$(UV) run --group pdf python tooling/pdf_to_framegraph_yml.py "$(PDF)" "$(if $(OUT),$(OUT),$(PDF:.pdf=.fg.yaml))" $(ARGS)
 
-check: schema-check grammar-check a11y-check status-check test validate overflow golden-check docs-check  ## run every local gate
+mcp:  ## run the optional MCP server for SDK-code -> YAML -> render feedback loops
+	$(UV) run --group mcp python -m framegraph.mcp
+
+live:  ## run the local FrameGraph MCP live-session web UI
+	$(UV) run python -m framegraph.live --host "$(LIVE_HOST)" --port "$(LIVE_PORT)"
+
+check: schema-check grammar-check spec-check a11y-check status-check test validate overflow golden-check docs-check  ## run every local gate
 
 schema-check:  ## fail if the committed schema drifted from the models
 	$(UV) run python schema/build_schema.py --check
 
 grammar-check:  ## fail if the EBNF grammar drifted from the models (core profile)
 	$(UV) run python tooling/check_grammar_sync.py
+
+spec-check:  ## fail if the spec prose drops a model type/flow/inline discriminator
+	$(UV) run python tooling/check_spec_sync.py --quiet
 
 a11y-check:  ## fail if a page reading_order is broken (a11y lint; warns on missing alt)
 	$(UV) run python tooling/check_accessibility.py $(FIXTURES_YAML) --quiet

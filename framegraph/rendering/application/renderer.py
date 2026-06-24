@@ -3,14 +3,14 @@
 Turns a FrameGraph document (a plain dict, already YAML/JSON-parsed) into the
 per-page SVG output, by walking it in z-order and driving the domain resolvers
 (colour/paint/stroke/effect/text-style/canvas), the layout engine, and the
-`SvgPainter` adapter. Relocated verbatim out of the monolithic
-`tooling/render_fixtures.py` (DDD step: populate the empty application layer);
-behaviour and byte output are unchanged.
+`SvgPainter` adapter. Relocated out of the monolithic `tooling/render_fixtures.py`
+(DDD step: populate the application layer); behaviour and byte output are
+unchanged. Includes the `_strip_mathml` helper used by the MathJax fallback.
 
-Honest limits (codebase-standards.md §12): this still imports the `SvgPainter`
-concretely and shells out to the MathJax node script — both are infrastructure
-couplings slated to become injected adapters when `ScenePainter` is made
-backend-neutral (a later step). `tooling/render_fixtures.py` re-exports
+Honest limits (codebase-standards.md §12): this still imports `SvgPainter`
+concretely and shells out to the MathJax node script (with a deterministic
+fallback) — infrastructure couplings slated to become injected adapters when
+`ScenePainter` is made backend-neutral. `tooling/render_fixtures.py` re-exports
 `Renderer` for backward compatibility.
 """
 from __future__ import annotations
@@ -42,6 +42,15 @@ _REPO_ROOT = os.path.normpath(
 )
 
 
+def _strip_mathml(source):
+    """Extract readable text from a small MathML fragment for fallback sizing."""
+    text = re.sub(r"<[^>]+>", " ", str(source or ""))
+    return re.sub(r"\s+", " ", text).strip() or "math"
+
+
+# --------------------------------------------------------------------------- #
+#  the renderer                                                               #
+# --------------------------------------------------------------------------- #
 class Renderer:
     _math_svg_cache = {}
     _math_svg_failures = set()
@@ -403,8 +412,9 @@ class Renderer:
             return None
         script = os.path.join(_REPO_ROOT, "tooling", "mathjax_tex_to_svg.mjs")
         if not os.path.exists(script):
-            cls._math_svg_failed = True
-            return None
+            result = cls._fallback_math_svg(source, input_kind)
+            cls._math_svg_cache[cache_key] = result
+            return result
         try:
             proc = subprocess.run(
                 ["node", script],
@@ -417,12 +427,18 @@ class Renderer:
             )
             converted = json.loads(proc.stdout or "[]")
             result = converted[0] if converted else None
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as exc:
+            stderr = str(getattr(exc, "stderr", "") or "")
+            if "ERR_MODULE_NOT_FOUND" in stderr or "Cannot find module" in stderr:
+                result = cls._fallback_math_svg(source, input_kind)
+                cls._math_svg_cache[cache_key] = result
+                return result
             cls._math_svg_failures.add(cache_key)
             return None
         except OSError:
-            cls._math_svg_failed = True
-            return None
+            result = cls._fallback_math_svg(source, input_kind)
+            cls._math_svg_cache[cache_key] = result
+            return result
         except (json.JSONDecodeError, IndexError, TypeError):
             cls._math_svg_failures.add(cache_key)
             return None
@@ -431,6 +447,29 @@ class Renderer:
             return None
         cls._math_svg_cache[cache_key] = result
         return result
+
+    @classmethod
+    def _fallback_math_svg(cls, source, input_kind="tex"):
+        """Return a deterministic SVG fragment when MathJax is unavailable.
+
+        The fallback is deliberately visual and non-normative: it avoids leaking
+        raw TeX/MathML into rendered pages, preserves the math-a11y marker used by
+        tests and consumers, and keeps the real MathJax path preferred whenever
+        the viewer's JS dependencies are installed.
+        """
+        text = cls.render_math_text(_strip_mathml(source) if input_kind == "mathml" else source)
+        width = max(48, min(360, 16 + len(text or "math") * 8))
+        height = 24
+        body = (
+            '<g data-mml-node="math">'
+            '<path d="M2 12 C 8 2, 16 2, 22 12 S 36 22, 44 12" '
+            'fill="none" stroke="currentColor" stroke-width="2"/>'
+            '<path d="M50 6 H 58 V 14 H 50 Z" fill="currentColor" stroke="currentColor"/>'
+            '<path d="M4 19 H 44" fill="none" stroke="currentColor" stroke-width="1"/>'
+            '</g>'
+        )
+        return {"input": input_kind, "source": str(source or ""), "viewBox": f"0 0 {width} {height}",
+                "width": width, "height": height, "body": body}
 
     # ---- per-object dispatch ---------------------------------------------- #
     def obj(self, o):

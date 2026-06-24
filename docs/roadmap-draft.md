@@ -3,10 +3,9 @@ title: FrameGraph v2 — Roadmap (draft)
 version: 2.2.0
 status: DRAFT / design-target — not commitments
 date: 2026-06-22
-verified_at_commit: bc90f15   # line citations below hold at this commit; re-verify if HEAD has moved
 method: >
   Gaps asserted against the EBNF + checked-in fixtures, then verified against the
-  authoritative Pydantic models (models/framegraph.py, HEAD 2.2.0 @ bc90f15), and benchmarked
+  authoritative Pydantic models (`models/framegraph.py`, HEAD 2.2.0), and benchmarked
   against real specs of analogous systems (Typst, Vega-Lite, D2/dagre/ELK, Mermaid,
   PlantUML, PDF/UA, PDF/X). Item 7 and Appendix A are additionally derived from
   framegraph-v2.ebnf (PathObject, PolylineObject, ConnectorObject.Route, Point) and
@@ -44,8 +43,8 @@ appendix_references:
     Every gap below was checked against `models/framegraph.py` and the grammar at
     HEAD 2.2.0, not asserted from memory. Where the source contradicted the draft
     it was corrected (see item 1's container-layout note, the `uml.*` count, the
-    refreshed line citations for `widows`/`orphans` and `footnote_area`, and item 2,
-    reframed after `alt`/`actual_text`/`reading_order` landed in the model at bc90f15).
+    refreshed model references for `widows`/`orphans` and `footnote_area`, and item 2,
+    reframed after `alt`/`actual_text`/`reading_order` landed in the model).
 
 ## Calibration — what is *not* missing
 
@@ -65,12 +64,11 @@ systems, and listing those as gaps would be wrong. The real caveat is the layout
 **engine** that honors them — see the cross-cutting note below — which is a
 different thing from the controls themselves.
 
-> Verified in `models/framegraph.py`: `widows`/`orphans` (L717–718),
-> `hyphenate_limit_chars` (L253), `font_kerning` (L235), `unicode_bidi` (L261),
-> `writing_mode` (L259), `footnote_area` (L913); `oklch`/`lab`/`lch` in
-> `grammar/framegraph-v2-style.ebnf` (L279). `decorative`/`role`/`lang` exist —
-> and, as of commit bc90f15, so do `alt`/`actual_text` (Image L610–611, ImageFlow
-> L787–788, FigureFlow L799–800) and per-page `reading_order` (Page L954). The
+> Verified in `models/framegraph.py`: `widows`/`orphans`,
+> `hyphenate_limit_chars`, `font_kerning`, `unicode_bidi`, `writing_mode`, and
+> `footnote_area`; `oklch`/`lab`/`lch` in `grammar/framegraph-v2-style.ebnf`.
+> `decorative`/`role`/`lang` exist, as do `alt`/`actual_text` on image/figure
+> objects and per-page `reading_order`. The
 > accessibility *vocabulary* is therefore present; only the tagged-export that
 > consumes it remains (item 2, reframed).
 
@@ -97,7 +95,7 @@ different thing from the controls themselves.
 
 Recommended *ordering* — sequence logic, **not** dates or commitments (see the
 front-matter disclaimer). It departs from the "net ordering" above on purpose:
-item 2's vocabulary already landed (commit bc90f15), so it is cheap to finish and
+item 2's vocabulary already exists in the current model, so it is cheap to finish and
 moves up; item 4 is an **enabler** that should precede the high-risk item-1 work,
 so it moves ahead of item 1.
 
@@ -144,7 +142,7 @@ author every box's coordinates, exactly as the fixture does. It models the
     FrameGraph does have **container** layout: `Group.layout` with
     `kind: row | column | grid | free` plus `gap` / `row_gap` / `column_gap` /
     `padding` / `align`, realized by `LayoutEngine.arrange`
-    ([framegraph/rendering/domain/services/layout_engine.py](../framegraph/rendering/domain/services/layout_engine.py)).
+    ([framegraph/rendering/domain/services/layout_engine.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/domain/services/layout_engine.py)).
     That is a box-model packer — it repositions a group's children into rows /
     columns / a grid and does **not** resize them. It is not a **graph** engine:
     it cannot place nodes from declared edges, route around obstacles, or minimize
@@ -167,10 +165,9 @@ override.
 
 ### 2. Accessibility / tagged-export model
 
-**Gap (reframed — the authoring surface now exists).** As of commit bc90f15 the
+**Gap (reframed — the authoring surface now exists).** In the current model the
 *vocabulary* is in the model: `decorative`, `role`, `lang`, **`alt`/`actual_text`
-on image and figure objects** (Image L610–611, ImageFlow L787–788, FigureFlow
-L799–800), and a **per-page `reading_order`** over object ids (Page L954). What is
+on image and figure objects**, and a **per-page `reading_order`** over object ids. What is
 still missing is the **consumer**: no exporter maps these into a tagged PDF
 **logical structure tree** — roles, alt text, and a reading order independent of
 visual position. So the fields can be authored, but an accessible artifact cannot
@@ -186,7 +183,7 @@ standard.
 **Fix (export-side, not a format change).** Implement the tagged-export pass: map
 `reading_order` + `role` to a PDF structure tree, `alt`/`actual_text` to element
 alternative text, and `decorative` to PDF artifacts. The authoring fields already
-exist (the model/grammar work landed at bc90f15); what remains is renderer/exporter
+exist in the current model and grammar; what remains is renderer/exporter
 work plus a conformance check that every non-`decorative` object is reachable in
 some page's `reading_order`.
 
@@ -218,7 +215,7 @@ resolvable URL the way Vega-Lite does, so documents can self-declare conformance
 **Gap.** Charts take literal `ChartData`; the `transform` keyword is CSS visual
 transforms (`TransformFn`), not data transforms. FrameGraph requires every chart
 to be pre-aggregated upstream and every axis specified. Note that charts already
-sit **outside the core conformance profile** ([models/framegraph.py:21](../models/framegraph.py#L21)),
+sit **outside the core conformance profile** (`models/framegraph.py`),
 so treating the data layer as out-of-scope would be consistent with the existing
 profile boundary, not a new exclusion.
 
