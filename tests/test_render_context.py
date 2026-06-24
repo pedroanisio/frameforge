@@ -12,6 +12,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 sys.path.insert(0, ROOT)
 
 from framegraph.rendering.application.dimension_renderer import DimensionRenderer  # noqa: E402
+from framegraph.rendering.application.table_renderer import TableRenderer  # noqa: E402
 from framegraph.rendering.application.uml_renderer import UmlRenderer  # noqa: E402
 
 
@@ -39,6 +40,15 @@ class FakeContext:
 
     def color(self, c, depth=0):
         return c
+
+    def paint(self, p, depth=0):
+        return p if isinstance(p, str) else "#000"
+
+    def style_dict(self, ref):
+        return ref if isinstance(ref, dict) else {}
+
+    def wrap_words(self, text, w, size, avg, st=None):
+        return [str(text)]
 
     def text_style(self, ref):
         return {"size": 10, "align": "center", "color": "#000"}
@@ -93,4 +103,13 @@ def test_uml_renderer_runs_on_fake_context():
         {"box": [10, 10, 20, 100]}, {}, "#fff"
     )
     assert svg and "<rect/>" in svg          # drew via the fake painter
+    assert ctx.skipped == 0
+
+
+def test_table_renderer_runs_on_fake_context():
+    ctx = FakeContext()
+    svg = TableRenderer(ctx).draw(
+        {"box": [0, 0, 200, 80], "header": ["A", "B"], "rows": [["1", "2"]]}, [0, 0, 200, 80]
+    )
+    assert svg and "<rect/>" in svg and "<text/>" in svg   # cells + text via fake painter
     assert ctx.skipped == 0

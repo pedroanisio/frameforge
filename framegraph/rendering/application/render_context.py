@@ -28,8 +28,14 @@ class RendererContext:
     def color(self, c, depth=0):
         return self._r.color(c, depth)
 
+    def paint(self, p, depth=0):
+        return self._r.paint(p, depth)
+
     def text_style(self, ref):
         return self._r.text_style(ref)
+
+    def style_dict(self, ref):
+        return self._r._style_dict(ref)
 
     def render_text(self, *args, **kwargs):
         return self._r.render_text(*args, **kwargs)
@@ -39,6 +45,9 @@ class RendererContext:
 
     def ellipsize(self, s, w, size, avg, st=None):
         return self._r.ellipsize(s, w, size, avg, st)
+
+    def wrap_words(self, text, w, size, avg, st=None):
+        return self._r.wrap_words(text, w, size, avg, st)
 
     def shape_fill(self, o, style):
         return self._r._shape_fill(o, style)
