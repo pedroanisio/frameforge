@@ -56,18 +56,19 @@ appendix_references:
 |---|------|--------------|----------------------|-------------------------|
 | 4 | Conformance + golden render | gap | ✅ **DONE** | `tooling/render_golden.py`, `tests/golden/oracle.lock.json` (SHA-256 lock, CI-gated); schema `$id` resolvable. |
 | 2 | Accessibility / tagged export | gap | ✅ **SVG done**, PDF/UA open | `svg.py` a11y_wrap (decorative/role/alt/actual_text), root lang/title/desc, `_render_page_body_in_reading_order`, `tooling/check_accessibility.py`; tests. PDF/UA awaits a PDF backend. |
-| 7 | Geometry / 3D authoring SDK | additive gap | ✅ **mostly done** | `sdk/geometry.py` (Vec2/Vec3/Mat3/Mat4/Camera/Path = A.1/A.2), `sdk/manifold.py` + Scene3D (A.5), G-1 PathSeg in models. **A.3 now done** (`parametric_curve`/`function_plot`/`polar_plot`, adaptive sampling). Remaining: A.4 scale variety (pow-exp/categorical/time), A.6 prefab multiview. |
+| 7 | Geometry / 3D authoring SDK | additive gap | ✅ **done** | `sdk/geometry.py` (A.1/A.2), `sdk/manifold.py`+Scene3D (A.5), G-1 PathSeg in models; **A.3** curve sampling, **A.4** structured log-base/pow-exp scales, and **A.6** orthographic `multiview` now landed. Only minor extras remain (categorical/time scales). |
 | 1 | Diagram auto-layout | gap | ✅ **author-time done** | `sdk/topology.py`: 5 algorithms **plus `auto_layout`/`layout_kind`** — a graph now lays itself out from its declared edges (algorithm inferred: grid/radial/layered/spring), and `Graph.render()` auto-layouts by default. Remaining (optional): a *render-time* pass over `mode: page` diagram groups, or an ELK binding. |
 | 3 | Data layer for charts | out of scope | ✅ decision holds | `sdk/chart.py` is a lowering helper, no data transforms (by design). |
 | 5 | Print colour (ICC/CMYK) | deferred | ✅ decision holds | no ICC/CMYK code; hook not yet reserved. |
 | 6 | Interaction / animation | low | ✅ decision holds | no animation primitives. |
 
-> **Net (updated 2026-06-24):** with #1's author-time automatic layout and #7's A.3
-> curve sampler landed, **no HIGH-priority item has an open author-facing gap.** What
-> remains is: #1's optional *render-time* auto-layout pass (a deeper model/renderer
-> integration); #7 MEDIUM polish (A.4 scale variety, A.6 prefab multiview); and #2's
-> PDF/UA half, gated on a PDF backend that does not yet exist. Scope decisions
-> (#3/#5/#6) all hold.
+> **Net (updated 2026-06-24):** item #7 (geometry SDK) is now **complete** (A.1–A.6
+> + G-1), and #1 has author-time automatic layout. **No item has an open
+> author-facing gap.** What remains is all deeper integration or externally gated:
+> #1's optional *render-time* auto-layout pass (a model/renderer integration); #2's
+> PDF/UA half (gated on a PDF backend that does not yet exist); and the ADR 0001
+> LaTeX-fork deletion (gated on a `lualatex` toolchain). Scope decisions (#3/#5/#6)
+> hold.
 
 ## Calibration — what is *not* missing
 
