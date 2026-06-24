@@ -140,14 +140,19 @@ Fluent builder:
   `.extend(objs)` and `.stack(box, kind="row|column|grid|wrap")` layout groups.
 - Paint (`framegraph.sdk.paint`): `stroke(width, color=...)`, `fill_stroke(...)`,
   `linear_gradient`/`radial_gradient`, `hatch`/`dots`/`grid_pattern`/`pattern`,
-  `glow`/`neon`/`shadow`/`soft_shadow`, `rgba`. Stroke geometry MUST go through
-  `stroke()` (paint in `stroke`, geometry in the inline `stroke_style` bundle);
-  an inline `stroke_width` on a paint-only line/polyline/path is rejected.
+  `glow`/`neon`/`shadow`/`soft_shadow`, `rgba`, and `text_style(size, color=...)` for the
+  text subset of `Style`. Stroke geometry MUST go through `stroke()` (paint in `stroke`,
+  geometry in the inline `stroke_style` bundle); an inline `stroke_width` on a
+  paint-only line/polyline/path is rejected.
 - Widgets (`framegraph.sdk.widgets`): `avatar` `badge` `button` `card` `kpi` `pill`
   `progress` `table` `tabs` `toggle` `divider` `field`, plus `Panel`/`Theme`.
 - Data & geometry: `Chart`+`Frame`, `Graph`/`Node`/`Edge`, `Camera`/`Scene3D`/`Mat3`/
   `Mat4`, `CubicBezier`/`Path`, `ScalarField`/`VectorField`, `lattice`/`manifold`,
   `greeble`, `grid_lines`.
+- Figures (`framegraph.sdk.figure`): `place_figure(source, box)` / `load_figure` /
+  `FigureRef` import another FrameGraph page's objects as editable children (not a frozen
+  image); `FigureAsset` / `place_imported_figure` place an extracted book/PDF figure with
+  caption + provenance.
 - Validation: `validate_static_rules(doc) -> ValidationReport(ok, issues)`,
   `assert_golden(...)`; `HEAD_VERSION` is the current spec version.
 
