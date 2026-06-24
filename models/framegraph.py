@@ -62,6 +62,14 @@ NumberFormat = Literal["decimal", "lower-roman", "upper-roman", "lower-alpha", "
 PagePreset = Literal[
     "A3", "A4", "A5", "Letter", "Legal", "Tabloid",
     "deck-16x9", "deck-4x3", "square", "phone", "tablet", "web",
+    # Social-media canvases — pixel sizes mirror CanvasResolver.PRESETS.
+    "instagram-square", "instagram-portrait", "instagram-landscape", "instagram-story",
+    "facebook-post", "facebook-cover", "facebook-story",
+    "twitter-post", "twitter-header", "linkedin-post", "linkedin-cover",
+    "youtube-thumbnail", "youtube-banner", "tiktok-video", "pinterest-pin",
+    "snapchat", "story",
+    # Aspect-ratio aliases (canonical canvas at the named ratio).
+    "1x1", "4x5", "5x4", "9x16", "16x9", "2x3", "3x2", "1.91x1", "3x1",
 ]
 Units = Literal["pt", "px", "mm", "in", "cm"]
 Align = Literal["left", "center", "right"]
