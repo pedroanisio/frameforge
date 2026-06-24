@@ -24,6 +24,7 @@ from urllib.parse import unquote, urlparse
 
 from pydantic import Field
 
+from framegraph.rendering.provenance import sign_svg, utc_now_iso
 from framegraph.sdk.conform import render_pages_with_stats
 from framegraph.sdk.io import parse
 from framegraph.sdk.validate import ValidationReport, validate_static_rules
@@ -114,6 +115,15 @@ _DESC_DETECTORS = (
 _DESC_CLIENT_PATH = (
     "Repo-relative path to the SDK client .py file, under the allowed edit roots (default: examples/)."
 )
+_DESC_SIGN = (
+    "Embed a FrameForge provenance metatag (sha256 content fingerprint + tool + version, "
+    "plus a UTC timestamp) in each rendered SVG. Off by default; signing is opt-in and never "
+    "changes the visual render."
+)
+_DESC_SIGNED_AT = (
+    "Fixed UTC sign timestamp (ISO-8601) shared by every page; only used when sign=True. Omit "
+    "for render time; pass an empty string for a deterministic, fingerprint-only stamp (no timestamp)."
+)
 
 
 class RenderTimeoutError(RuntimeError):
@@ -170,6 +180,13 @@ Forward (author -> render):
 - `get_session_resource` — read `framegraph://session/...` artifacts (YAML, SVG, diagnostics).
 - `list_sessions` / `cleanup_sessions` — enumerate and prune per-session scratch dirs.
 
+Provenance (opt-in): the three render tools (`run_sdk_code` / `run_sdk_client` /
+`render_framegraph_yaml`) accept `sign=True` to embed a FrameForge provenance
+metatag — a sha256 content fingerprint + tool + version — in every rendered SVG.
+`signed_at` sets a fixed UTC timestamp shared by all pages (omit for render time;
+pass `""` for a deterministic, fingerprint-only stamp). Signing never alters the
+visual render; the result reports `signed: {applied, timestamp}`.
+
 ## Seeing the render (visual verification)
 A vision model can only *see* a raster (PNG), not SVG. The render tools therefore
 rasterize to PNG by default (`raster_png=True`) and attach the PNG as an image
@@ -216,6 +233,8 @@ def run_sdk_code(
     max_pages: int = 3,
     raster_png: bool = True,
     pages: str | list[int] | None = None,
+    sign: bool = False,
+    signed_at: str | None = None,
 ) -> dict[str, Any]:
     """Execute Python SDK code, then validate and render its generated YAML.
 
@@ -281,6 +300,8 @@ def run_sdk_code(
         max_pages=max_pages,
         raster_png=raster_png,
         pages=pages,
+        sign=sign,
+        signed_at=signed_at,
     )
     result.update(rendered)
     _write_diagnostics(session_dir, result)
@@ -393,6 +414,8 @@ def run_sdk_client(
     raster_png: bool = True,
     invoke_main: bool = False,
     pages: str | list[int] | None = None,
+    sign: bool = False,
+    signed_at: str | None = None,
     repo_root: str | Path | None = None,
     edit_roots: str | list[str] | tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
@@ -459,6 +482,8 @@ def run_sdk_client(
         max_pages=max_pages,
         raster_png=raster_png,
         pages=pages,
+        sign=sign,
+        signed_at=signed_at,
     )
     result.update(rendered)
     _write_diagnostics(session_dir, result)
@@ -473,6 +498,8 @@ def render_framegraph_yaml(
     max_pages: int = 3,
     raster_png: bool = True,
     pages: str | list[int] | None = None,
+    sign: bool = False,
+    signed_at: str | None = None,
 ) -> dict[str, Any]:
     """Validate and render caller-provided FrameGraph YAML."""
     if not isinstance(yaml_text, str) or not yaml_text.strip():
@@ -493,6 +520,8 @@ def render_framegraph_yaml(
             max_pages=max_pages,
             raster_png=raster_png,
             pages=pages,
+            sign=sign,
+            signed_at=signed_at,
         )
     )
     _write_diagnostics(session_dir, result)
@@ -796,6 +825,8 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
         "images_total": len(image_renders),
         "images_inlined": min(len(image_renders), cap),
     }
+    if result.get("signed"):
+        summary["signed"] = result.get("signed")
     blocks: list[dict[str, str]] = [
         {"type": "text", "text": json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True)}
     ]
@@ -890,6 +921,8 @@ def create_server(
             Field(description="Execute the client as __main__ (runs its `if __name__ == '__main__'` block) instead of importing it."),
         ] = False,
         pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
+        sign: Annotated[bool, Field(description=_DESC_SIGN)] = False,
+        signed_at: Annotated[str | None, Field(description=_DESC_SIGNED_AT)] = None,
     ):
         """Run an editable Python SDK client, validate its YAML, and return render feedback.
 
@@ -907,6 +940,8 @@ def create_server(
                 "raster_png": raster_png,
                 "invoke_main": invoke_main,
                 "pages": pages,
+                "sign": sign,
+                "signed_at": signed_at,
             },
             lambda: globals()["run_sdk_client"](
                 path,
@@ -917,6 +952,8 @@ def create_server(
                 raster_png=raster_png,
                 invoke_main=invoke_main,
                 pages=pages,
+                sign=sign,
+                signed_at=signed_at,
                 repo_root=repo,
                 edit_roots=edit_roots,
             ),
@@ -934,6 +971,8 @@ def create_server(
         max_pages: Annotated[int, Field(description=_DESC_MAX_PAGES)] = 3,
         raster_png: Annotated[bool, Field(description=_DESC_RASTER)] = True,
         pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
+        sign: Annotated[bool, Field(description=_DESC_SIGN)] = False,
+        signed_at: Annotated[str | None, Field(description=_DESC_SIGNED_AT)] = None,
     ):
         """Run Python SDK code, validate its YAML, and return render feedback.
 
@@ -950,6 +989,8 @@ def create_server(
                 "max_pages": max_pages,
                 "raster_png": raster_png,
                 "pages": pages,
+                "sign": sign,
+                "signed_at": signed_at,
             },
             lambda: globals()["run_sdk_code"](
                 code,
@@ -959,6 +1000,8 @@ def create_server(
                 max_pages=max_pages,
                 raster_png=raster_png,
                 pages=pages,
+                sign=sign,
+                signed_at=signed_at,
             ),
         )
         return _maybe_call_tool_result(result)
@@ -973,6 +1016,8 @@ def create_server(
         max_pages: Annotated[int, Field(description=_DESC_MAX_PAGES)] = 3,
         raster_png: Annotated[bool, Field(description=_DESC_RASTER)] = True,
         pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
+        sign: Annotated[bool, Field(description=_DESC_SIGN)] = False,
+        signed_at: Annotated[str | None, Field(description=_DESC_SIGNED_AT)] = None,
     ):
         """Validate and render FrameGraph YAML without executing Python code.
 
@@ -988,6 +1033,8 @@ def create_server(
                 "max_pages": max_pages,
                 "raster_png": raster_png,
                 "pages": pages,
+                "sign": sign,
+                "signed_at": signed_at,
             },
             lambda: globals()["render_framegraph_yaml"](
                 yaml_text,
@@ -996,6 +1043,8 @@ def create_server(
                 max_pages=max_pages,
                 raster_png=raster_png,
                 pages=pages,
+                sign=sign,
+                signed_at=signed_at,
             ),
         )
         return _maybe_call_tool_result(result)
@@ -1612,6 +1661,8 @@ def _validate_and_render_yaml(
     max_pages: int,
     raster_png: bool,
     pages: str | list[int] | None = None,
+    sign: bool = False,
+    signed_at: str | None = None,
 ) -> dict[str, Any]:
     try:
         document = parse(yaml_text, forgiving=False)
@@ -1644,8 +1695,15 @@ def _validate_and_render_yaml(
         except ValueError as exc:
             return _render_failure(session_id, report, f"invalid 'pages' selector: {exc}")
 
+        # One sign timestamp per run so every page shares it (mirrors
+        # tooling/render_fixtures.py): render-time when `sign` is on and no
+        # explicit `signed_at` is given; an empty `signed_at` means
+        # fingerprint-only (deterministic, no timestamp).
+        sign_ts = (signed_at if signed_at is not None else utc_now_iso()) if sign else None
         for page_no in selected:
             svg = svgs[page_no - 1]
+            if sign:
+                svg = sign_svg(svg, timestamp=sign_ts or None)
             path = session_dir / _page_svg_name(page_no)
             path.write_text(svg, encoding="utf-8")
             renders.append(
@@ -1696,6 +1754,10 @@ def _validate_and_render_yaml(
     }
     if text_fit is not None:
         result["text_fit"] = text_fit
+    if sign and renders:
+        # Record the provenance stamp applied to every rendered SVG so the caller
+        # can confirm the artifacts are signed (and with which timestamp).
+        result["signed"] = {"applied": True, "timestamp": (sign_ts or None)}
     if render_warning:
         result["render_warning"] = render_warning
     return result
