@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `manifold`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `fill_stroke`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `neon`, `normalize_clip`, `page_hashes`, `paragraph`, `parametric`, `pattern`, `parse`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `FigureContent`, `FigurePlacement`, `FigureRef`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `fill_stroke`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `neon`, `normalize_clip`, `page_hashes`, `paragraph`, `parametric`, `pattern`, `place_figure`, `parse`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -74,6 +74,7 @@ PageBuilder(page: 'dict[str, Any]') -> 'None'
 | `ellipse` | `(self, center: 'Any', rx: 'float', ry: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add an ellipse centred at ``center`` (a ``Vec2`` or ``[x, y]``). |
 | `extend` | `(self, objects: 'list[dict[str, Any]]') -> "'PageBuilder'"` | Add many objects at once (e.g. the output of a Chart or a layout). |
 | `field` | `(self, box: 'Any', label: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
+| `figure` | `(self, source: 'Any', box: 'list[Any]', **options: 'Any') -> "'PageBuilder'"` | Import a live FrameGraph figure page into this page. |
 | `frame` | `(self, x: 'float' = 0.0, y: 'float' = 0.0, *, scale: 'float' = 1.0, scale_y: 'float \| None' = None, flip: 'float' = 1.0, rotate: 'float' = 0.0, clip: 'Any' = None) -> "'Iterator[PageBuilder]'"` | Draw into a transformed group, authoring children at the local origin. |
 | `grid_stack` | `(self, box: 'list[Any]', *, columns: 'int', gap: 'float \| int \| str \| None' = None, pad: 'Any' = None, align: 'str \| None' = None, row_gap: 'float \| int \| str \| None' = None, column_gap: 'float \| int \| str \| None' = None, **fields: 'Any')` | Context manager for a grid layout group. |
 | `group` | `(self, children: 'list[dict[str, Any]]', *, transform: "'Mat3 \| list[Any] \| None'" = None, clip: 'Any' = None, **fields: 'Any') -> "'PageBuilder'"` | Add a group of ``children``. |
@@ -384,6 +385,72 @@ VectorField(fn: 'Callable[[float, float], Sequence[float]]', domain: 'tuple[floa
 | Method | Signature | Summary |
 |---|---|---|
 | `render` | `(self, *, box: 'Sequence[float]', steps_x: 'int' = 14, steps_y: 'int' = 14, color: 'str' = '#334155', warm: 'str \| None' = None, width: 'float' = 1.4, head: 'float' = 5.0, id: 'str \| None' = None) -> 'dict[str, object]'` |  |
+
+## `framegraph.sdk.figure`
+
+### `FigureContent`
+
+`framegraph.sdk.figure.FigureContent`
+
+Resolved live FrameGraph objects from one source page.
+
+```python
+FigureContent(page_id: 'str | None', source_box: 'tuple[float, float, float, float]', layers: 'tuple[str, ...]', objects: 'tuple[dict[str, Any], ...]', defs: 'dict[str, Any]') -> None
+```
+
+### `FigurePlacement`
+
+`framegraph.sdk.figure.FigurePlacement`
+
+A placed figure group plus the geometry used to place it.
+
+```python
+FigurePlacement(group: 'dict[str, Any]', source_box: 'tuple[float, float, float, float]', target_box: 'tuple[float, float, float, float]', drawn_box: 'tuple[float, float, float, float]', transform: 'Mat3', defs: 'dict[str, Any]') -> None
+```
+
+### `FigureRef`
+
+`framegraph.sdk.figure.FigureRef`
+
+Reference a FrameGraph figure source for live import.
+
+```python
+FigureRef(source: 'Any', *, page: 'str | int | None' = None, validate: 'bool' = True, expand_reuse: 'bool' = True) -> 'None'
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `load` | `(self, *, layers: 'str \| Sequence[str] \| None' = None, viewbox: 'BoxLike \| None' = None) -> 'FigureContent'` | Resolve this reference into selected live objects. |
+
+### `load_figure`
+
+`framegraph.sdk.figure.load_figure`
+
+Load one figure page as live object content.
+
+```python
+load_figure(source: 'FigureRef | Any', *, page: 'str | int | None' = None, layers: 'str | Sequence[str] | None' = None, viewbox: 'BoxLike | None' = None) -> 'FigureContent'
+```
+
+### `merge_figure_defs`
+
+`framegraph.sdk.figure.merge_figure_defs`
+
+Merge imported figure definitions into a target document.
+
+```python
+merge_figure_defs(target_doc: 'dict[str, Any]', defs: 'dict[str, Any]') -> 'None'
+```
+
+### `place_figure`
+
+`framegraph.sdk.figure.place_figure`
+
+Place a live figure into ``box`` and return the lowered group object.
+
+```python
+place_figure(source: 'FigureRef | Any', box: 'BoxLike', *, page: 'str | int | None' = None, layers: 'str | Sequence[str] | None' = None, viewbox: 'BoxLike | None' = None, crop: 'BoxLike | None' = None, fit: 'FitMode' = 'contain', align: 'str' = 'center', decorative: 'bool | None' = True, id_prefix: 'str | None' = None, clip: 'bool | BoxLike' = False, **fields: 'Any') -> 'FigurePlacement'
+```
 
 ## `framegraph.sdk.geometry`
 

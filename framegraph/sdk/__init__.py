@@ -35,6 +35,14 @@ from framegraph.sdk.geometry import (
     Vec3,
     quarter_circle_kappa,
 )
+from framegraph.sdk.figure import (
+    FigureContent,
+    FigurePlacement,
+    FigureRef,
+    load_figure,
+    merge_figure_defs,
+    place_figure,
+)
 from framegraph.sdk.io import parse, serialize
 from framegraph.sdk.layout import Box, BoxLike, column, grid, inset, row
 from framegraph.sdk.macros import (
@@ -142,6 +150,9 @@ __all__ = [
     "ExpandOptions",
     "ExpandedDocument",
     "Frame",
+    "FigureContent",
+    "FigurePlacement",
+    "FigureRef",
     "greeble",
     "grid_lines",
     "grid_pattern",
@@ -155,7 +166,9 @@ __all__ = [
     "ScalarField",
     "VectorField",
     "lattice",
+    "load_figure",
     "manifold",
+    "merge_figure_defs",
     "HEAD_VERSION",
     "Issue",
     "Mat3",
@@ -191,6 +204,7 @@ __all__ = [
     "paragraph",
     "parametric",
     "pattern",
+    "place_figure",
     "parse",
     "quarter_circle_kappa",
     "radial_gradient",

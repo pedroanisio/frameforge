@@ -95,6 +95,7 @@ def test_top_level_sdk_reexports_module_public_surface():
         "draw",
         "expand",
         "fields",
+        "figure",
         "geometry",
         "io",
         "lattices",

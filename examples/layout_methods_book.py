@@ -42,7 +42,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 from framegraph.sdk import (  # noqa: E402
     DocumentBuilder,
-    Mat3,
+    FigureRef,
     render_page_svgs,
     serialize,
 )
@@ -431,20 +431,10 @@ class Book:
     def figure(self, fig_id, number, title, *, caption=None, fig_w=None):
         """Embed a standalone plate, scaled into the column, keep-together."""
         fn = dict(plates.FIGURES)[fig_id]
-        tmp = DocumentBuilder()
-        h_native = fn(tmp)                         # plate returns its canvas H
-        page_dict = tmp._doc["pages"][-1]
-        # Each plate is a standalone absolute page whose objects overlap freely
-        # (text on rects, content rect inside a node). Embedding them as the
-        # children of one group would subject them to that group's free-layout
-        # no-overlap scope — so flag them decorative: the plate is a single,
-        # already-validated figure, not a free cluster to be packed.
-        objs = [{**o, "decorative": True}
-                for layer in page_dict.get("layers", [])
-                for o in layer.get("objects", [])]
+        ref = FigureRef.from_callable(fn)
+        content = ref.load()
         fw = fig_w or CONTENT_W
-        s = fw / plates.W
-        scaled_h = h_native * s
+        scaled_h = fw * content.source_box[3] / content.source_box[2]
         fx = MX + (CONTENT_W - fw) / 2
         cap_h = 0
         if caption:
@@ -462,8 +452,7 @@ class Book:
         pg.text([MX + 86, self.y, CONTENT_W - 86, 14], title,
                 style=ts(9.5, MUTE, family=SANS, weight=600))
         self.y += 20
-        M = Mat3.translate(fx, self.y) @ Mat3.scale(s, s)
-        pg.group(objs, transform=M, decorative=True)
+        pg.figure(ref, [fx, self.y, fw, scaled_h], fit="contain", align="top-left", decorative=True)
         pg.rect([fx, self.y, fw, scaled_h], fill="none", stroke=LINE,
                 stroke_style={"stroke_width": 1.0}, radius=6)
         self.y += scaled_h + 10
