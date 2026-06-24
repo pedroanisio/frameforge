@@ -56,7 +56,7 @@ class DimensionRenderer:
         elif arrows != "both":
             start = end = False
         if not (start or end):
-            return ""
+            return None
         marker_o = dict(o)
         ssv = o.get("stroke_style")
         bundle = dict(self._ctx.stroke_styles.get(ssv) or {}) if isinstance(ssv, str) else dict(ssv or {})
@@ -66,7 +66,7 @@ class DimensionRenderer:
             bundle["arrow_end"] = bundle.get("arrow_end") or True
         marker_o["stroke_style"] = bundle
         marker_o["stroke"] = marker_o.get("stroke") or bundle.get("stroke") or bundle.get("color") or "#000"
-        return self._ctx.arrow_attrs(marker_o)
+        return self._ctx.arrow_markers(marker_o)
 
     def label(self, o, distance):
         if o.get("text") is not None:
@@ -95,7 +95,7 @@ class DimensionRenderer:
         body = [
             self._ctx.painter.line(x1, y1, ax, ay, stroke),
             self._ctx.painter.line(x2, y2, bx, by, stroke),
-            self._ctx.painter.line(ax, ay, bx, by, stroke, extra=self.arrows(o)),
+            self._ctx.painter.line(ax, ay, bx, by, stroke, markers=self.arrows(o)),
         ]
         label = self.label(o, dist)
         st = self.text(o)
@@ -123,6 +123,6 @@ class DimensionRenderer:
         st = self.text(o)
         midx, midy = (ax + bx) / 2, (ay + by) / 2
         return self._ctx.painter.group(
-            self._ctx.painter.line(ax, ay, bx, by, stroke, extra=self.arrows(o, start=diameter, end=True))
+            self._ctx.painter.line(ax, ay, bx, by, stroke, markers=self.arrows(o, start=diameter, end=True))
             + self._ctx.painter.text_tag(midx - 40, midy - st["size"] * 1.5, 80, st["size"] * 1.4, label, st, vcenter=True)
         )

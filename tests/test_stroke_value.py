@@ -13,7 +13,8 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 sys.path.insert(0, ROOT)
 
 from framegraph.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-from framegraph.rendering.domain.services.stroke_resolver import Stroke, StrokeResolver  # noqa: E402
+from framegraph.rendering.domain.services.stroke_resolver import Markers, Stroke, StrokeResolver  # noqa: E402
+from framegraph.rendering.infrastructure.painters.svg import SvgPainter  # noqa: E402
 
 
 def _resolver():
@@ -76,3 +77,19 @@ def test_format_attr_attribute_order():
     assert out == (' stroke="#000" stroke-width="1" stroke-dasharray="2 2"'
                    ' stroke-linecap="round" stroke-linejoin="bevel"'
                    ' stroke-opacity="0.5"')
+
+
+def test_marker_attrs_formats_and_registers():
+    # The neutral Markers value object formats to SVG marker refs and registers
+    # one <marker> def per (kind, colour), deduped — reproducing the old inline
+    # _arrow_attrs output.
+    p = SvgPainter(ColorResolver({}))
+    p.new_page()
+    out = p._marker_attrs(Markers(color="#000", start=True, end=True))
+    assert out == ' marker-start="url(#ah1)" marker-end="url(#ah1)"'  # deduped to one id
+    assert p._marker_attrs(None) == ""
+
+
+def test_markers_none_when_no_arrow():
+    sr = _resolver()
+    assert sr.arrow_spec({"stroke": "ink"}) is None
