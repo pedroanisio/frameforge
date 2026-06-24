@@ -46,6 +46,28 @@ appendix_references:
     refreshed model references for `widows`/`orphans` and `footnote_area`, and item 2,
     reframed after `alt`/`actual_text`/`reading_order` landed in the model).
 
+## Ground-truth status (audited 2026-06-24)
+
+> **This roadmap (dated 2026-06-22) is substantially stale.** A line-by-line audit
+> against the live tree shows most "gaps" are already built. The gap analyses below
+> are kept as design context, but the *status* is:
+
+| # | Item | Roadmap said | TRUE state (audited) | Evidence / what remains |
+|---|------|--------------|----------------------|-------------------------|
+| 4 | Conformance + golden render | gap | ✅ **DONE** | `tooling/render_golden.py`, `tests/golden/oracle.lock.json` (SHA-256 lock, CI-gated); schema `$id` resolvable. |
+| 2 | Accessibility / tagged export | gap | ✅ **SVG done**, PDF/UA open | `svg.py` a11y_wrap (decorative/role/alt/actual_text), root lang/title/desc, `_render_page_body_in_reading_order`, `tooling/check_accessibility.py`; tests. PDF/UA awaits a PDF backend. |
+| 7 | Geometry / 3D authoring SDK | additive gap | ✅ **mostly done** | `sdk/geometry.py` (Vec2/Vec3/Mat3/Mat4/Camera/Path = A.1/A.2), `sdk/manifold.py` + Scene3D (A.5), G-1 PathSeg in models. **A.3 now done** (`parametric_curve`/`function_plot`/`polar_plot`, adaptive sampling). Remaining: A.4 scale variety (pow-exp/categorical/time), A.6 prefab multiview. |
+| 1 | Diagram auto-layout | gap | ⚠ **PARTIAL** | `sdk/topology.py` has 5 deterministic layout algorithms (circular/grid/radial/layered/spring) — but all **author-time, manual-invoke**. Genuinely open: an *automatic* pass keyed off the semantic graph (or an ELK binding) and render-time layout. |
+| 3 | Data layer for charts | out of scope | ✅ decision holds | `sdk/chart.py` is a lowering helper, no data transforms (by design). |
+| 5 | Print colour (ICC/CMYK) | deferred | ✅ decision holds | no ICC/CMYK code; hook not yet reserved. |
+| 6 | Interaction / animation | low | ✅ decision holds | no animation primitives. |
+
+> **Net:** the only HIGH-priority genuinely-open item is **#1's automatic
+> graph-layout pass** (the algorithms exist; auto-invocation does not). The
+> remaining MEDIUM work is small SDK polish (#7 A.4 scales, A.6 helpers). The PDF/UA
+> half of #2 is gated on a PDF backend that does not yet exist. Scope decisions
+> (#3/#5/#6) all hold.
+
 ## Calibration — what is *not* missing
 
 Before the gaps, a correction, because inspecting the grammar overturns the
