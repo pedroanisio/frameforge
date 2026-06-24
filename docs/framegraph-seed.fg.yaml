@@ -199,7 +199,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.01 / 15
+      text: p.01 / 16
   - id: body
     objects:
     - box:
@@ -668,7 +668,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.02 / 15
+      text: p.02 / 16
     - box:
       - 72
       - 64
@@ -1353,7 +1353,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.03 / 15
+      text: p.03 / 16
     - box:
       - 72
       - 64
@@ -1942,7 +1942,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.04 / 15
+      text: p.04 / 16
     - box:
       - 72
       - 64
@@ -2638,7 +2638,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.05 / 15
+      text: p.05 / 16
     - box:
       - 72
       - 64
@@ -3094,7 +3094,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.06 / 15
+      text: p.06 / 16
     - box:
       - 72
       - 64
@@ -3753,7 +3753,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.07 / 15
+      text: p.07 / 16
     - box:
       - 72
       - 64
@@ -4412,7 +4412,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.08 / 15
+      text: p.08 / 16
     - box:
       - 72
       - 64
@@ -5270,7 +5270,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.09 / 15
+      text: p.09 / 16
     - box:
       - 72
       - 64
@@ -5908,7 +5908,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.10 / 15
+      text: p.10 / 16
     - box:
       - 72
       - 64
@@ -6586,7 +6586,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.11 / 15
+      text: p.11 / 16
     - box:
       - 72
       - 64
@@ -7046,7 +7046,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.12 / 15
+      text: p.12 / 16
     - box:
       - 72
       - 64
@@ -7582,7 +7582,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.13 / 15
+      text: p.13 / 16
     - box:
       - 72
       - 64
@@ -7880,7 +7880,7 @@ pages:
       text: 'Note for you, not the investor: at seed, this is the slide they weigh
         most. Make it concrete and specific.'
 - mode: page
-  id: s14-vision
+  id: s14-outputs
   canvas:
     size:
     - 1280.0
@@ -8042,7 +8042,493 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.14 / 15
+      text: p.14 / 16
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: The platform · 2.3 → 3.0
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 100
+      - 1136
+      - 114
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 34
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: One source of truth. Every audience, every surface.
+    - box:
+      - 72
+      - 158
+      - 1136
+      - 20
+      style:
+        color: '#9AA3B5'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 15
+        line_height: 1.4
+      meta:
+        role: lettering
+      type: text
+      text: Split the data from the look — one source derives every audience's artifact,
+        on every surface.
+    - stroke_style:
+        stroke_width: 2.0
+      type: line
+      from:
+      - 300.0
+      - 360.0
+      to:
+      - 812.0
+      - 210.0
+      stroke: '#12B0C3'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 812.0
+      - 210.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - box:
+      - 835
+      - 194.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: SEC filing
+        style:
+          color: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 2.0
+      type: line
+      from:
+      - 300.0
+      - 360.0
+      to:
+      - 812.0
+      - 285.0
+      stroke: '#12B0C3'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 812.0
+      - 285.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - box:
+      - 835
+      - 269.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: investor deck
+        style:
+          color: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 2.0
+      type: line
+      from:
+      - 300.0
+      - 360.0
+      to:
+      - 812.0
+      - 360.0
+      stroke: '#12B0C3'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 812.0
+      - 360.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - box:
+      - 835
+      - 344.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: IG story
+        style:
+          color: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 2.0
+      type: line
+      from:
+      - 300.0
+      - 360.0
+      to:
+      - 812.0
+      - 435.0
+      stroke: '#12B0C3'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 812.0
+      - 435.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - box:
+      - 835
+      - 419.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: LinkedIn
+        style:
+          color: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 2.0
+      type: line
+      from:
+      - 300.0
+      - 360.0
+      to:
+      - 812.0
+      - 510.0
+      stroke: '#12B0C3'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 812.0
+      - 510.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - box:
+      - 835
+      - 494.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: A4 print
+        style:
+          color: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 300.0
+      - 360.0
+      rx: 15.0
+      ry: 15.0
+      fill: '#1F4FD8'
+      stroke: '#1F4FD8'
+    - box:
+      - 50
+      - 344
+      - 232
+      - 35.2
+      style:
+        align: right
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 700
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: Q3 results
+        style:
+          color: '#FBFAF6'
+    - box:
+      - 72
+      - 556
+      - 1136
+      - 86
+      type: rect
+      fill: '#1F4FD8'
+      radius: 12
+    - box:
+      - 100
+      - 572
+      - 1080
+      - 58
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 15
+        font_weight: 700
+        line_height: 1.35
+      meta:
+        role: lettering
+      type: text
+      text: 'We already dogfood this: our own v2 roadmap → an A4 print PDF and Instagram
+        stories, one .fg source rendered by the SDK. No Figma, no InDesign — and the
+        figures can''t disagree, by construction.'
+- mode: page
+  id: s15-vision
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#FBFAF6'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEGRAPH
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.15 / 16
     - box:
       - 72
       - 64
@@ -8123,7 +8609,7 @@ pages:
       type: text
       text: Let's talk.    [ email ]    ·    [ calendar link ]
 - mode: page
-  id: s15-logo
+  id: s16-logo
   canvas:
     size:
     - 1280.0
@@ -8285,7 +8771,7 @@ pages:
         font_size: 10.5
         letter_spacing: 0.5
       type: text
-      text: p.15 / 15
+      text: p.16 / 16
   - id: body
     objects:
     - stroke_style:

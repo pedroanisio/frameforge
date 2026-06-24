@@ -49,7 +49,9 @@ PAPER  = "#FBFAF6"   # warm technical paper (for reversed strokes)
 CANVAS = "#FFFFFF"   # open-node fill on a light ground
 FRAME  = "#1F4FD8"   # frame-blue — the "Graph" half
 
+GRAPH = "#12B0C3"   # graph-cyan — the derivation edges (the "Graph" flow)
 SANS = ["IBM Plex Sans", "DejaVu Sans", "Helvetica", "Arial", "sans-serif"]
+MONO = ["IBM Plex Mono", "DejaVu Sans Mono", "Menlo", "monospace"]
 
 
 # --------------------------------------------------------------------------- #
@@ -115,6 +117,38 @@ def wordmark(page, x, y, size, *, frame_color=INK, graph_color=FRAME, box_w=900)
                         {"text": "Graph", "style": {"color": graph_color}}],
               "style": {"font_family": SANS, "font_size": size,
                         "font_weight": 700, "letter_spacing": -1.5}})
+
+
+def fan(page, ox, oy, target_x, source_label, targets, *, span=300.0,
+        source=FRAME, edge=GRAPH, node_stroke=INK, node_fill=CANVAS,
+        label=INK, node_r=9.0, src_r=14.0, label_size=15.0, sw=2.0):
+    """The derivation fan — the brand mark, *applied* as a labelled diagram: one
+    filled source node fanning via edges to N target nodes, each labelled. This is
+    the same native composition the roadmap dogfood (examples/roadmap_publication.py)
+    ships in its Instagram stories and A4 print PDF, lifted here as a parametric
+    primitive so it scales to any ground (light deck or dark story). ``(ox, oy)`` is
+    the source; targets stack at ``target_x`` across ``span``; colours/sizes are
+    parameterised so it inverts cleanly onto a dark ground."""
+    n = len(targets)
+    for i, lab in enumerate(targets):
+        ty = oy + (i * span / (n - 1) - span / 2 if n > 1 else 0.0)
+        page.line([ox, oy], [target_x, ty], stroke=edge,
+                  stroke_style={"stroke_width": sw})
+        page.circle([target_x, ty], node_r, fill=node_fill, stroke=node_stroke,
+                    stroke_style={"stroke_width": sw})
+        page.add({"type": "text",
+                  "box": [target_x + node_r + 14, ty - label_size, 360,
+                          label_size * 2.2],
+                  "spans": [{"text": lab, "style": {"color": label}}],
+                  "style": {"font_family": MONO, "font_size": label_size,
+                            "font_weight": 600}})
+    page.circle([ox, oy], src_r, fill=source, stroke=source,
+                stroke_style={"stroke_width": sw})
+    page.add({"type": "text",
+              "box": [ox - 250, oy - label_size, 232, label_size * 2.2],
+              "spans": [{"text": source_label, "style": {"color": label}}],
+              "style": {"font_family": MONO, "font_size": label_size,
+                        "font_weight": 700, "align": "right"}})
 
 
 # --------------------------------------------------------------------------- #
