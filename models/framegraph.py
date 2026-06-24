@@ -611,9 +611,42 @@ class Polygon(ObjBase):
     stroke: Optional[Paint] = None
 
 
+# --------------------------------------------------------------------------- #
+#  Path segment algebra (G-1)                                                   #
+# --------------------------------------------------------------------------- #
+# A path's `d` may be either the SVG path-data string (the compiled view) or a
+# structured list of typed segments — one SVG command per segment, `[cmd, *coords]`.
+# Lowercase command letters are relative, uppercase absolute (mirroring SVG path
+# data). Typing each segment is what lets the JSON Schema validate geometry shape
+# and arity instead of accepting an opaque array; the `d` string remains the
+# compiled view of the same geometry (roadmap item G-1).
+PathCommand = Literal[
+    "M", "m", "L", "l", "H", "h", "V", "v",
+    "C", "c", "S", "s", "Q", "q", "T", "t", "A", "a", "Z", "z",
+]
+
+_SegMove = tuple[Literal["M", "m"], float, float]                      # moveto x y
+_SegLine = tuple[Literal["L", "l"], float, float]                      # lineto x y
+_SegHoriz = tuple[Literal["H", "h"], float]                            # horizontal x
+_SegVert = tuple[Literal["V", "v"], float]                             # vertical y
+_SegCubic = tuple[Literal["C", "c"], float, float, float, float, float, float]  # x1 y1 x2 y2 x y
+_SegSmooth = tuple[Literal["S", "s"], float, float, float, float]      # x2 y2 x y
+_SegQuad = tuple[Literal["Q", "q"], float, float, float, float]        # x1 y1 x y
+_SegTquad = tuple[Literal["T", "t"], float, float]                     # x y
+_SegArc = tuple[Literal["A", "a"], float, float, float, float, float, float, float]  # rx ry rot large sweep x y
+_SegClose = tuple[Literal["Z", "z"]]                                   # closepath
+
+# One typed segment: the first element is the command, the rest its coordinates.
+PathSeg = Union[
+    _SegMove, _SegLine, _SegHoriz, _SegVert, _SegCubic,
+    _SegSmooth, _SegQuad, _SegTquad, _SegArc, _SegClose,
+]
+
+
 class Path(ObjBase):
     type: Literal["path"]
-    d: Union[str, list] = Field(union_mode="left_to_right")  # SVG `d` string or [["M",x,y],...] segments
+    # SVG `d` string, or structured `[[cmd, *coords], ...]` segments (G-1).
+    d: Union[str, list[PathSeg]] = Field(union_mode="left_to_right")
     fill: Optional[Fill] = None
     stroke: Optional[Paint] = None
 

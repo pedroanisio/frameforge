@@ -418,11 +418,22 @@ PolylineObject =
 
 PathObject =
     "{" , "type" , ":" , "path" ,
-      "d" , ":" , string ,
+      "d" , ":" , ( string | PathSegList ) ,   (* SVG path-data string, OR structured segments (G-1) *)
       [ "fill"   , ":" , Fill ] ,
       [ "stroke" , ":" , Stroke ] ,
       common-object-fields ,
     "}" ;
+
+(* G-1: structured, schema-checkable path geometry. A PathSegList is the typed
+   author form of `d`; the path-data string is its compiled view. Each segment is
+   one SVG command followed by its coordinates: [cmd, *number]. Lowercase commands
+   are relative, uppercase absolute. PathCommand is enum-checked against the model
+   alias `PathCommand` by tooling/check_grammar_sync.py. *)
+PathSegList = "[" , PathSeg , { "," , PathSeg } , "]" ;
+PathSeg     = "[" , PathCommand , { "," , number } , "]" ;
+PathCommand =
+      "M" | "m" | "L" | "l" | "H" | "h" | "V" | "v"
+    | "C" | "c" | "S" | "s" | "Q" | "q" | "T" | "t" | "A" | "a" | "Z" | "z" ;
 
 TextObject =
     "{" , "type" , ":" , "text" ,

@@ -8611,7 +8611,237 @@
               "type": "string"
             },
             {
-              "items": {},
+              "items": {
+                "anyOf": [
+                  {
+                    "maxItems": 3,
+                    "minItems": 3,
+                    "prefixItems": [
+                      {
+                        "enum": [
+                          "M",
+                          "m"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "maxItems": 3,
+                    "minItems": 3,
+                    "prefixItems": [
+                      {
+                        "enum": [
+                          "L",
+                          "l"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "prefixItems": [
+                      {
+                        "enum": [
+                          "H",
+                          "h"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "prefixItems": [
+                      {
+                        "enum": [
+                          "V",
+                          "v"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "maxItems": 7,
+                    "minItems": 7,
+                    "prefixItems": [
+                      {
+                        "enum": [
+                          "C",
+                          "c"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "maxItems": 5,
+                    "minItems": 5,
+                    "prefixItems": [
+                      {
+                        "enum": [
+                          "S",
+                          "s"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "maxItems": 5,
+                    "minItems": 5,
+                    "prefixItems": [
+                      {
+                        "enum": [
+                          "Q",
+                          "q"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "maxItems": 3,
+                    "minItems": 3,
+                    "prefixItems": [
+                      {
+                        "enum": [
+                          "T",
+                          "t"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "maxItems": 8,
+                    "minItems": 8,
+                    "prefixItems": [
+                      {
+                        "enum": [
+                          "A",
+                          "a"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "maxItems": 1,
+                    "minItems": 1,
+                    "prefixItems": [
+                      {
+                        "enum": [
+                          "Z",
+                          "z"
+                        ],
+                        "type": "string"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ]
+              },
               "type": "array"
             }
           ],
