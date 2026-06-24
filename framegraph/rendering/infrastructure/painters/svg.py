@@ -245,6 +245,16 @@ class SvgPainter:
     def transform_group(self, inner: str, transform: str) -> str:
         return f'<g transform="{esc(transform)}">{inner}</g>'
 
+    def embedded_svg(self, x, y, w, h, *, viewbox, color, title, body) -> str:
+        """Embed a foreign SVG fragment (e.g. a MathJax render) as a sized,
+        titled `<svg>` element. Backend-specific: a non-SVG backend would
+        implement this differently (or fall back)."""
+        return (f'<svg x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" '
+                f'height="{fnum(h)}" viewBox="{esc(viewbox)}" '
+                f'preserveAspectRatio="xMidYMid meet" role="img" focusable="false" '
+                f'color="{color}" data-framegraph-math="true">'
+                f'<title>{esc(title)}</title>{body}</svg>')
+
     @staticmethod
     def style_group(inner: str, attrs: dict[str, str], raw: str = "") -> str:
         # `raw` carries the bounded `css` escape (§8.4) for non-text objects, which

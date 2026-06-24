@@ -77,6 +77,10 @@ class ScenePainter(Protocol):
     def transform_group(self, inner: str, transform: str) -> str:
         """Wrap already-emitted content in a backend transform group."""
 
+    def embedded_svg(self, x, y, w, h, *, viewbox, color, title, body) -> str:
+        """Embed a foreign SVG fragment (e.g. a MathJax render). Backend-specific:
+        a non-SVG backend implements this differently or falls back."""
+
     # ---- primitives ----
     def rect(self, x, y, w, h, fill, stroke, radius=0, fill_opacity=None) -> str: ...
     def ellipse(self, cx, cy, rx, ry, fill, stroke, fill_opacity=None) -> str: ...

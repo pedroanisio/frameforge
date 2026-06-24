@@ -12,8 +12,22 @@ disclaimer:
 
 ## Status
 
-Accepted, staged. Slice **3a** (this document's first deliverable) is implemented;
-slice **3b** is scoped but **not** started (its own effort).
+Accepted, staged. Slice **3a** is implemented. Slice **3b** is in progress —
+step **3b-1** (application layer builds zero SVG) is done; the substantial
+remainder (parameter neutralization + a second backend) is scoped below.
+
+### Update (3b-1): the builder was already painter-mediated
+
+Inspection corrected this ADR's initial pessimism (per §14, the prior claim is
+revised against the evidence). The builder does **not** itself do SVG string
+composition: it calls **29 painter methods** and concatenates their opaque
+return values, and the effect/transform/clip/group wrapping already delegates to
+the painter (`style_group`, `clip_wrap`, `transform_group`, …). Only **two** raw
+`<svg>`/`<g>` literals remained in the application layer (a MathJax embed and a
+scale group); both were routed through painter methods (`embedded_svg`,
+`transform_group`), **byte-identically**. The application layer now constructs no
+SVG syntax at all — so the real neutrality blocker is narrower than "rewrite the
+composition core."
 
 ## Context
 
@@ -82,13 +96,26 @@ core**:
   Smaller conceptual change, but `_with_effects`/`_with_transform`/`_with_style_clip`
   group-wrapping still has to move into the painter.
 
-**Trade-off / honest limit:** either path rewrites how effects, transforms, clips,
-and groups compose (all string-wrapping today) and **cannot stay byte-identical** —
-it requires a golden re-pin and a parallel LaTeX/Chromium unification. This is an
-**XL** effort and is intentionally *not* bundled with 3a. Recommended approach
-when undertaken: build the SVG adapter to the new neutral port first, re-pin
-golden once (reviewed), then port LaTeX/Chromium onto the same port and delete the
-forks.
+**Revised understanding (post 3b-1).** The composition is *already* in the painter,
+so the remaining blocker is narrower: the port's **parameter shapes are
+SVG-flavored** — `painter.rect(..., fill, stroke, ...)` receives pre-formatted SVG
+attribute strings (e.g. `stroke` is `' stroke="#000" stroke-width="1"'`, built by
+`_shape_stroke`/`_border_stroke`). A LaTeX/Chromium adapter cannot consume those.
+The substantial remaining 3b work is therefore:
+
+1. **Neutralize the painter parameters** — pass neutral value objects (a
+   `Stroke{color,width,dash,...}`, a `Fill`/paint, radii) instead of SVG attribute
+   strings; each backend formats them. The SVG backend can format them to the
+   *same* bytes, so this **can stay byte-identical** for SVG (no re-pin) if done
+   carefully — contrary to this ADR's first claim.
+2. **Complete the `ScenePainter` port** to declare all ~30 methods a backend must
+   implement (it is currently partial).
+3. **Add a second adapter** (the existing LaTeX `_Transpiler`/`FigureTikz` is the
+   natural candidate to port onto the port, then delete the fork).
+
+Steps 1–2 are **L** and largely byte-identical; step 3 is **L–XL**. Only if a
+backend cannot reproduce a given byte sequence does a reviewed `make golden`
+re-pin become necessary — a per-case decision, not a blanket one.
 
 ## Consequences
 

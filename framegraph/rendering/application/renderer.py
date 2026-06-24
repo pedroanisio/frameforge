@@ -1291,13 +1291,11 @@ class Renderer:
                     newpage()
                 mx = x + (usable - draw_w) / 2
                 title = fl.get("alt") or fl.get("aria_label") or "math expression"
-                body.append(
-                    f'<svg x="{fnum(mx)}" y="{fnum(cy)}" width="{fnum(draw_w)}" '
-                    f'height="{fnum(draw_h)}" viewBox="{esc(rendered.get("viewBox"))}" '
-                    f'preserveAspectRatio="xMidYMid meet" role="img" focusable="false" '
-                    f'color="{math_color}" data-framegraph-math="true">'
-                    f'<title>{esc(title)}</title>{math_body}</svg>'
-                )
+                body.append(p.embedded_svg(
+                    mx, cy, draw_w, draw_h,
+                    viewbox=rendered.get("viewBox"), color=math_color,
+                    title=title, body=math_body,
+                ))
                 cy += draw_h + 12
                 return
 
@@ -1370,8 +1368,8 @@ class Renderer:
                 oy = num(obox[1], 0) if obox and len(obox) >= 2 else 0
                 tx, ty = x - ox * scale, cy - oy * scale
                 if scale != 1.0:
-                    body.append(f'<g transform="translate({fnum(tx)},{fnum(ty)}) '
-                                f'scale({fnum(scale)})">{inner}</g>')
+                    body.append(p.transform_group(
+                        inner, f"translate({fnum(tx)},{fnum(ty)}) scale({fnum(scale)})"))
                 else:
                     body.append(p.group(inner, translate=(tx, ty)) if (tx or ty) else inner)
                 cy += draw_h + 6
