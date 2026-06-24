@@ -1,11 +1,12 @@
-"""Paint, stroke and effect constructors for the FrameGraph SDK.
+"""Paint, stroke, text-style and effect constructors for the FrameGraph SDK.
 
 These helpers assemble the plain ``dict`` / ``str`` values the authoritative
 model already accepts — ``Paint`` / ``Gradient`` for fills and strokes, an inline
-``Style`` bundle for stroke geometry, and an ``Effect`` object for shadows and
-glows. They add no schema of their own; they only spare callers the boilerplate
+``Style`` bundle for stroke geometry or text, and an ``Effect`` object for shadows
+and glows. They add no schema of their own; they only spare callers the boilerplate
 of hand-building gradient stops, honouring the P3 paint/geometry stroke split,
-and expressing translucency portably.
+naming the text-relevant subset of the ~100-field ``Style`` bag, and expressing
+translucency portably.
 
 Every visual primitive on :class:`framegraph.sdk.PageBuilder` already forwards
 arbitrary fields to the model, so the results compose directly::
@@ -172,6 +173,67 @@ def fill_stroke(
     return {"fill": fill, **stroke(width, color=stroke_color, dash=dash, cap=cap, join=join)}
 
 
+def text_style(
+    size: float | int | str | None = None,
+    *,
+    family: Sequence[str] | str | None = None,
+    weight: int | str | None = None,
+    color: Color | None = None,
+    align: str | None = None,
+    italic: bool | None = None,
+    line_height: float | int | str | None = None,
+    letter_spacing: float | int | str | None = None,
+    transform: str | None = None,
+    decoration: str | None = None,
+    overflow: str | None = None,
+    max_lines: int | None = None,
+) -> dict[str, Any]:
+    """Build a text ``Style`` bundle from the dozen fields that actually shape text.
+
+    ``Style`` is one ~100-field bag and ``TextStyle`` is an alias of it, so a caller
+    hand-building a text style gets no signpost toward the properties that apply to
+    glyphs. This constructor exposes that subset under ergonomic names and emits the
+    *canonical* CSS field for each (``size`` -> ``font_size``, ``align`` ->
+    ``text_align``, ``italic`` -> ``font_style``), mirroring how :func:`stroke`
+    bundles stroke geometry. The result splats onto a text primitive or feeds
+    ``DocumentBuilder.define_text_style`` / :func:`theme` unchanged::
+
+        page.text(box, "Title", style=text_style(24, weight=700, color="#0F172A"))
+        b.define_text_style("h1", **text_style(32, family=["Inter", "sans-serif"]))
+
+    Every argument is optional and ``None`` values are dropped, so callers compose
+    only what they set (and ``text_style()`` is an empty bundle). ``align`` is one of
+    left/right/center/justify/start/end and ``transform`` one of
+    none/uppercase/lowercase/capitalize — validated by the model, not here.
+    """
+    fields: dict[str, Any] = {}
+    if size is not None:
+        fields["font_size"] = size
+    if family is not None:
+        fields["font_family"] = family
+    if weight is not None:
+        fields["font_weight"] = weight
+    if color is not None:
+        fields["color"] = color
+    if align is not None:
+        fields["text_align"] = align
+    if italic is not None:
+        fields["font_style"] = "italic" if italic else "normal"
+    if line_height is not None:
+        fields["line_height"] = line_height
+    if letter_spacing is not None:
+        fields["letter_spacing"] = letter_spacing
+    if transform is not None:
+        fields["text_transform"] = transform
+    if decoration is not None:
+        fields["text_decoration"] = decoration
+    if overflow is not None:
+        fields["text_overflow"] = overflow
+    if max_lines is not None:
+        fields["max_lines"] = max_lines
+    return fields
+
+
 def shadow(
     *,
     dx: float = 0.0,
@@ -302,4 +364,5 @@ __all__ = [
     "shadow",
     "soft_shadow",
     "stroke",
+    "text_style",
 ]

@@ -85,6 +85,7 @@ from framegraph.sdk.paint import (
     shadow,
     soft_shadow,
     stroke,
+    text_style,
 )
 from framegraph.sdk.validate import Issue, ValidationReport, validate_static_rules
 from framegraph.sdk.widgets import (
@@ -204,6 +205,7 @@ __all__ = [
     "sphere",
     "stroke",
     "text_height",
+    "text_style",
     "theme",
     "to_plain_dict",
     "torus",
