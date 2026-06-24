@@ -241,3 +241,31 @@ def test_text_tag_valign_and_empty():
     assert p.text_tag(0, 0, 10, 10, "", {"align": "left"}) == ""
     st = {"family": "serif", "size": 8, "color": "#000", "align": "left", "valign": "top"}
     assert "at (0,4)" in p.text_tag(0, 0, 20, 20, "x", st)   # valign top -> y + size/2
+
+
+def test_backend_specific_handle_fallbacks():
+    p = TikzPainter()
+    # filter: no <filter> in TikZ -> inert handle + passthrough wrap
+    assert p.filter_wrap("BODY", p.filter_effect("shadow", {})) == "BODY"
+    # image_pattern: no TikZ fill -> None (shape renders unfilled)
+    assert p.image_pattern("bg.png", 0, 0, 10, 10) is None
+    # marker: unused (arrows go via Markers VO) -> empty
+    assert p.marker("#000") == ""
+
+
+def test_embedded_svg_falls_back_to_title_text():
+    p = TikzPainter()
+    out = p.embedded_svg(0, 0, 40, 20, viewbox="0 0 40 20", color="#ff0000",
+                         title="E = mc^2", body="<path/>")
+    assert "<path/>" not in out                       # foreign SVG dropped
+    assert "{E = mc\\textasciicircum{}2}" in out      # title text preserved + escaped
+    assert "text={rgb,255:red,255;green,0;blue,0}" in out and "at (20,10)" in out
+
+
+def test_tikz_painter_covers_scenepainter_surface_except_text_block_runs():
+    # TikzPainter should implement the whole ScenePainter port bar the two methods
+    # still pending a style-param neutralization (text_block/text_runs).
+    from framegraph.rendering.domain.ports import ScenePainter
+    port_methods = {m for m in vars(ScenePainter) if not m.startswith("_")}
+    missing = {m for m in port_methods if not hasattr(TikzPainter, m)}
+    assert missing == {"text_block", "text_runs"}, f"unexpected gaps: {missing}"

@@ -16,11 +16,16 @@ fills (`gradient` returns a `GradientPaint` handle the fill-bearing primitives
 render inline as `\\shade`), single-box text (`text_tag` → a `\\node`, with the
 font family resolved through a threaded `font_macro`), the page wrapper
 (`new_page`/`document`), and the `Stroke`/`Markers`/transform-op/path-data → TikZ
-formatters (SVG path data via the shared `tikz_path` module). Still to come:
-multi-line/styled text (`text_block`/`text_runs`) and the CSS text-feature tail,
-`filter_effect`/`embedded_svg`/`image_pattern`, gradient-on-path, and full
-radial-centre CSS parsing. Until complete the adapter is intentionally NOT wired
-into the render path (the `latex/` fork still owns LaTeX output).
+formatters (SVG path data via the shared `tikz_path` module), and the SVG-specific
+handle methods as honest TikZ fallbacks (`filter`/`embedded_svg`/`image_pattern`/
+`marker`). The adapter now implements the whole `ScenePainter` port **except
+`text_block`/`text_runs`**, which still receive a pre-formatted SVG style *string*
+(a leak 3b-3's text audit missed) and need that param neutralized to a style dict
+— plus the SVG-baseline→TikZ-anchor positioning rework — before they can render
+correctly; best done with a LaTeX engine to validate. The CSS text-feature tail,
+gradient-on-path, and full radial-centre CSS parsing are also follow-ups. Until
+complete the adapter is intentionally NOT wired into the render path (the `latex/`
+fork still owns LaTeX output).
 """
 from __future__ import annotations
 
@@ -109,6 +114,35 @@ class TikzPainter:
         if start:
             return "<-"
         return ""
+
+    # ---- backend-specific handle methods (TikZ fallbacks) ----------------- #
+    # These encode SVG's <defs>+url(#id) / <filter> model, which TikZ does not
+    # share. Each degrades honestly so a wired TikZ render still produces valid,
+    # content-preserving output; full-fidelity equivalents are 3b-5c+ follow-ups.
+    def marker(self, color, kind="filled_triangle"):
+        # Unused by the builder: arrowheads flow through the neutral Markers value
+        # object to line/poly (`_marker_tip`). Present only for port completeness.
+        return ""
+
+    def filter_effect(self, kind, params):
+        # TikZ has no <filter>; shadow/glow are per-shape there, not a post-wrap.
+        return "tikz-filter-noop"
+
+    def filter_wrap(self, inner, filter_id):
+        return inner                          # content renders without the filter
+
+    def image_pattern(self, href, x, y, w, h, preserve_aspect_ratio="xMidYMid slice"):
+        # An image fill-pattern has no direct TikZ fill; the shape renders unfilled
+        # (the background image is dropped). A clipped \includegraphics is a follow-up.
+        return None
+
+    def embedded_svg(self, x, y, w, h, *, viewbox, color, title, body):
+        # Foreign SVG (e.g. a MathJax render) cannot embed in TikZ; fall back to the
+        # accessible title text so the content is not lost.
+        cexpr, _ = color_expr(color)
+        text_opt = f",text={cexpr}" if cexpr else ""
+        return (f"\\node[anchor=center,inner sep=0pt,align=center{text_opt}] at "
+                f"({fnum(x + w / 2)},{fnum(y + h / 2)}) {{{ltx_escape(title)}}};\n")
 
     # ---- gradients (the painter's gradient handle is the GradientPaint VO) - #
     def gradient(self, g):
