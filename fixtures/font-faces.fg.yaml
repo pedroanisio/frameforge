@@ -1,0 +1,205 @@
+dsl: FrameGraph
+version: 2.2.0
+profile: diagram
+title: Font faces and OpenType features
+description: >-
+  Exercises multiple declared font families, weight/style selection, and the
+  advanced CSS typography fields emitted by the SVG proxy.
+defs:
+  tokens:
+    colors:
+      ink: '#172033'
+      muted: '#667085'
+    fonts:
+      inter:
+        family: Inter
+      inter-italic:
+        family: Inter
+      source-serif:
+        family: Source Serif 4
+      jetbrains-mono:
+        family: JetBrains Mono
+    text_styles:
+      label:
+        font_family: Inter
+        size: 18
+        color: muted
+      inter_regular:
+        font_family: Inter
+        size: 18
+        color: ink
+      inter_thin:
+        font_family: Inter
+        size: 18
+        weight: 200
+        color: ink
+      inter_semibold:
+        font_family: Inter
+        size: 18
+        weight: 600
+        color: ink
+      inter_bold:
+        font_family: Inter
+        size: 18
+        weight: 800
+        color: ink
+      inter_black:
+        font_family: Inter
+        size: 18
+        weight: 900
+        color: ink
+      inter_italic:
+        font_family: Inter
+        size: 18
+        font_style: italic
+        color: ink
+      serif_regular:
+        font_family: Source Serif 4
+        size: 18
+        color: ink
+      serif_caps:
+        font_family: Source Serif 4
+        size: 18
+        font_variant_caps: small-caps
+        color: ink
+      serif_tabular:
+        font_family: Source Serif 4
+        size: 18
+        font_variant_numeric: tabular-nums
+        color: ink
+      serif_oldstyle:
+        font_family: Source Serif 4
+        size: 18
+        font_variant_numeric: oldstyle-nums
+        color: ink
+      inter_condensed:
+        font_family: Inter
+        size: 18
+        font_stretch: condensed
+        color: ink
+      inter_expanded:
+        font_family: Inter
+        size: 18
+        font_stretch: expanded
+        color: ink
+      mono_regular:
+        font_family: JetBrains Mono
+        size: 18
+        color: ink
+      mono_tracking:
+        font_family: JetBrains Mono
+        size: 18
+        letter_spacing: 4
+        color: ink
+      feature_bundle:
+        font_family: Inter
+        size: 18
+        font_feature_settings: '"dlig" 1, "liga" 1, "calt" 1'
+        color: ink
+      feature_ss01:
+        font_family: Inter
+        size: 18
+        font_feature_settings: '"ss01" 1'
+        color: ink
+      variation_axes:
+        font_family: Inter
+        size: 18
+        font_variation_settings: '"wght" 350, "slnt" -6, "opsz" 28'
+        color: ink
+pages:
+- mode: page
+  id: font-faces
+  canvas:
+    size: [900, 660]
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    z: 0
+    objects:
+    - type: text
+      box: [32, 24, 820, 26]
+      spans:
+      - {text: 'Inter regular: ', style: label}
+      - {text: 'The quick brown fox.', style: inter_regular}
+    - type: text
+      box: [32, 60, 820, 26]
+      spans:
+      - {text: 'Inter thin: ', style: label}
+      - {text: 'Weight axis at 200.', style: inter_thin}
+    - type: text
+      box: [32, 96, 820, 26]
+      spans:
+      - {text: 'Inter semibold: ', style: label}
+      - {text: 'Weight axis at 600.', style: inter_semibold}
+    - type: text
+      box: [32, 132, 820, 26]
+      spans:
+      - {text: 'Inter bold: ', style: label}
+      - {text: 'Weight axis at 800.', style: inter_bold}
+    - type: text
+      box: [32, 168, 820, 26]
+      spans:
+      - {text: 'Inter black: ', style: label}
+      - {text: 'Weight axis at 900.', style: inter_black}
+    - type: text
+      box: [32, 204, 820, 26]
+      spans:
+      - {text: 'Inter italic: ', style: label}
+      - {text: 'Italic companion face.', style: inter_italic}
+    - type: text
+      box: [32, 240, 820, 26]
+      spans:
+      - {text: 'Source Serif: ', style: label}
+      - {text: 'A separate serif family.', style: serif_regular}
+    - type: text
+      box: [32, 276, 820, 26]
+      spans:
+      - {text: 'Small caps: ', style: label}
+      - {text: 'Mixed Capitals', style: serif_caps}
+    - type: text
+      box: [32, 312, 820, 26]
+      spans:
+      - {text: 'Tabular nums: ', style: label}
+      - {text: '1024 2048 4096', style: serif_tabular}
+    - type: text
+      box: [32, 348, 820, 26]
+      spans:
+      - {text: 'Oldstyle nums: ', style: label}
+      - {text: '1492 1776 2026', style: serif_oldstyle}
+    - type: text
+      box: [32, 384, 820, 26]
+      spans:
+      - {text: 'Condensed: ', style: label}
+      - {text: 'Narrow instance selection.', style: inter_condensed}
+    - type: text
+      box: [32, 420, 820, 26]
+      spans:
+      - {text: 'Expanded: ', style: label}
+      - {text: 'Wide instance selection.', style: inter_expanded}
+    - type: text
+      box: [32, 456, 820, 26]
+      spans:
+      - {text: 'JetBrains Mono: ', style: label}
+      - {text: 'Monospaced code face.', style: mono_regular}
+    - type: text
+      box: [32, 492, 820, 26]
+      spans:
+      - {text: 'Tracking: ', style: label}
+      - {text: 'CODE 1234', style: mono_tracking}
+    - type: text
+      box: [32, 528, 820, 26]
+      spans:
+      - {text: 'Feature bundle: ', style: label}
+      - {text: 'Discretionary ligatures.', style: feature_bundle}
+    - type: text
+      box: [32, 564, 820, 26]
+      spans:
+      - {text: 'Stylistic set: ', style: label}
+      - {text: 'Alternate glyph route.', style: feature_ss01}
+    - type: text
+      box: [32, 600, 820, 26]
+      spans:
+      - {text: 'Variation axes: ', style: label}
+      - {text: 'Weight slant optical size.', style: variation_axes}
