@@ -807,6 +807,7 @@ def test_mcp_guide_names_headline_sdk_capabilities():
         "DocumentBuilder", "stroke", "fill_stroke", "text_style",
         "Chart", "Scene3D", "Graph", "table", "badge",
         "place_figure", "FigureRef", "validate_static_rules",
+        "multiview", "parametric_curve", "function_plot",
     ]
     missing_export = [name for name in headline if name not in sdk.__all__]
     assert missing_export == [], f"headline names that are not public exports: {missing_export}"
