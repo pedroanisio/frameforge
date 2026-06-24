@@ -35,6 +35,7 @@ from framegraph.rendering.domain.services.style_values import StyleValues
 from framegraph.rendering.domain.services.text_fitter import TextFitter
 from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver
 from framegraph.rendering.application.dimension_renderer import DimensionRenderer
+from framegraph.rendering.application.render_context import RendererContext
 from framegraph.rendering.application.uml_renderer import UmlRenderer
 from framegraph.rendering.infrastructure.math_svg import MathSvgRenderer
 from framegraph.rendering.infrastructure.painters.svg import SvgPainter
@@ -89,8 +90,8 @@ class Renderer:
         self._effect = EffectResolver(self._color)
         self._css = StyleValues(self.color)   # CSS/SVG value builder (filter/shadow/transform)
         self._math = MathSvgRenderer(math_text)   # math -> SVG adapter (node MathJax + fallback)
-        self._uml = UmlRenderer(self)   # out-of-core UML sub-renderer
-        self._dim = DimensionRenderer(self)   # dimension-annotation sub-renderer
+        self._uml = UmlRenderer(RendererContext(self))   # out-of-core UML sub-renderer
+        self._dim = DimensionRenderer(RendererContext(self))   # dimension-annotation sub-renderer
         self._layout = LayoutEngine()
         self._object_index = {}
 

@@ -5,31 +5,31 @@ lifelines, activation bars, actors, legends, chip rows, marker glyphs —
 extracted from the Renderer (SRP, codebase-standards.md §13) to keep this niche
 surface out of the core orchestrator.
 
-These routines need the full rendering context (the painter and the Renderer's
-shape/text primitives), so the sub-renderer holds a back-reference to its
-Renderer as ``self._r``. That back-reference is the current coupling; a dedicated
-rendering-primitives interface is the cleaner target once the painter port is
-made backend-neutral (Increment 3).
+These routines need the rendering context (the painter and the builder's
+shape/text primitives), so they depend on the `RenderContext` port (ADR 0001
+slice 3a) — a named, mockable contract injected as ``self._ctx`` — rather than
+reaching into the concrete Renderer.
 """
 from __future__ import annotations
 
 from framegraph.rendering.domain.geometry import esc, fnum, is_point, num
+from framegraph.rendering.domain.ports import RenderContext
 
 
 class UmlRenderer:
-    def __init__(self, r):
-        self._r = r
+    def __init__(self, ctx: "RenderContext"):
+        self._ctx = ctx
 
     def box(self, o, style, fill):
         box = o.get("box")
         if not (isinstance(box, list) and len(box) >= 4):
-            self._r.skipped += 1
+            self._ctx.note_skip()
             return ""
         x, y, w, h = (num(v, 0) for v in box[:4])
-        p = self._r._painter
+        p = self._ctx.painter
         fill = fill if fill not in (None, "") else "#fff"
-        stroke = self._r._shape_stroke(o, style) or ' stroke="#777" stroke-width="1"'
-        radius = 10 if o.get("type") == "uml.action" else self._r._shape_radius(o, style)
+        stroke = self._ctx.shape_stroke(o, style) or ' stroke="#777" stroke-width="1"'
+        radius = 10 if o.get("type") == "uml.action" else self._ctx.shape_radius(o, style)
         out = [p.rect(x, y, w, h, fill, stroke, radius=radius)]
 
         title_rows = []
@@ -49,7 +49,7 @@ class UmlRenderer:
                   "italic": bool(o.get("abstract")) and i == len(title_rows) - 1}
             row_h = st["size"] * 1.35
             out.append(p.text_tag(x + 5, cy, max(1, w - 10), row_h,
-                                  self._r.ellipsize(text, max(1, w - 10), st["size"], 0.58),
+                                  self._ctx.ellipsize(text, max(1, w - 10), st["size"], 0.58),
                                   st, vcenter=True))
             cy += row_h
 
@@ -67,7 +67,7 @@ class UmlRenderer:
                 if cy + row_st["size"] * 1.3 > y + h - 3:
                     break
                 out.append(p.text_tag(x + 7, cy, max(1, w - 14), row_st["size"] * 1.25,
-                                      self._r.ellipsize(row, max(1, w - 14), row_st["size"], 0.55),
+                                      self._ctx.ellipsize(row, max(1, w - 14), row_st["size"], 0.55),
                                       row_st, vcenter=False))
                 cy += row_st["size"] * 1.25
 
@@ -138,16 +138,16 @@ class UmlRenderer:
     def lifeline(self, o, style):
         box = o.get("box")
         if not (isinstance(box, list) and len(box) >= 4):
-            self._r.skipped += 1
+            self._ctx.note_skip()
             return ""
         x, y, w, h = (num(v, 0) for v in box[:4])
         head_h = max(18, min(h, num(o.get("head_height"), 42) or 42))
-        p = self._r._painter
-        stroke = self._r._shape_stroke(o, style) or ' stroke="#555" stroke-width="1"'
-        fill = self._r._shape_fill(o, style) or "#fff"
+        p = self._ctx.painter
+        stroke = self._ctx.shape_stroke(o, style) or ' stroke="#555" stroke-width="1"'
+        fill = self._ctx.shape_fill(o, style) or "#fff"
         cx = x + w / 2
         out = [
-            p.rect(x, y, w, head_h, fill, stroke, radius=self._r._shape_radius(o, style)),
+            p.rect(x, y, w, head_h, fill, stroke, radius=self._ctx.shape_radius(o, style)),
             p.line(cx, y + head_h, cx, y + h, ' stroke="#555" stroke-width="1" stroke-dasharray="5 5"'),
         ]
         if o.get("actor"):
@@ -164,12 +164,12 @@ class UmlRenderer:
         for i, row in enumerate(rows):
             row_st = {**st, "size": 10 if i else 11, "weight": "normal" if i else "bold"}
             out.append(p.text_tag(label_x, start_y + i * row_h, label_w, row_h,
-                                  self._r.ellipsize(row, label_w, row_st["size"], 0.56),
+                                  self._ctx.ellipsize(row, label_w, row_st["size"], 0.56),
                                   row_st, vcenter=True))
         return p.group("".join(out))
 
     def actor_glyph(self, cx, cy, size, color):
-        p = self._r._painter
+        p = self._ctx.painter
         r = size * 0.22
         head_y = cy - size * 0.42
         body_top = cy - size * 0.16
@@ -187,23 +187,23 @@ class UmlRenderer:
     def activation_bar(self, o, style, fill):
         box = o.get("box")
         if not (isinstance(box, list) and len(box) >= 4):
-            self._r.skipped += 1
+            self._ctx.note_skip()
             return ""
         x, y, w, h = (num(v, 0) for v in box[:4])
         fill = fill if fill not in (None, "") else "#fff"
-        stroke = self._r._shape_stroke(o, style) or ' stroke="#555" stroke-width="1"'
-        return self._r._painter.rect(x, y, w, h, fill, stroke)
+        stroke = self._ctx.shape_stroke(o, style) or ' stroke="#555" stroke-width="1"'
+        return self._ctx.painter.rect(x, y, w, h, fill, stroke)
 
     def glyph_box(self, o, style):
         box = o.get("box")
         if not (isinstance(box, list) and len(box) >= 4):
-            self._r.skipped += 1
+            self._ctx.note_skip()
             return ""
         x, y, w, h = (num(v, 0) for v in box[:4])
         t = o.get("type")
-        p = self._r._painter
-        color = self._r.color(o.get("color") or o.get("stroke") or "ink") or "#222"
-        stroke = self._r._shape_stroke(o, style) or f' stroke="{esc(color)}" stroke-width="1.2"'
+        p = self._ctx.painter
+        color = self._ctx.color(o.get("color") or o.get("stroke") or "ink") or "#222"
+        stroke = self._ctx.shape_stroke(o, style) or f' stroke="{esc(color)}" stroke-width="1.2"'
         cx, cy = x + w / 2, y + h / 2
         out = []
         if t == "uml.actor":
@@ -256,26 +256,26 @@ class UmlRenderer:
                 sample_obj = dict(sample)
                 if sample_obj.get("type") == "rounded_rect":
                     sample_obj["type"] = "rect"
-                out.append(self._r.obj(sample_obj))
+                out.append(self._ctx.obj(sample_obj))
             label = item.get("label")
             if isinstance(label, dict) and isinstance(label.get("box"), list):
                 bx = label["box"]
-                out.append(self._r.render_text(num(bx[0], 0), num(bx[1], 0), num(bx[2], 0), num(bx[3], 0),
-                                            label.get("text", ""), self._r.text_style(label.get("style"))))
-        return self._r._painter.group("".join(out))
+                out.append(self._ctx.render_text(num(bx[0], 0), num(bx[1], 0), num(bx[2], 0), num(bx[3], 0),
+                                            label.get("text", ""), self._ctx.text_style(label.get("style"))))
+        return self._ctx.painter.group("".join(out))
 
     def chip_row(self, o):
         origin = o.get("origin") or o.get("position")
         if not is_point(origin):
-            self._r.skipped += 1
+            self._ctx.note_skip()
             return ""
-        p = self._r._painter
+        p = self._ctx.painter
         x, y = num(origin[0], 0), num(origin[1], 0)
         gap = num(o.get("gap"), 6) or 0
         height = num(o.get("height"), 18) or 18
-        fill = self._r.color(o.get("fill") or "paper") or "#fff"
-        stroke = self._r.color(o.get("stroke") or "rule") or "#d0d0d0"
-        color = self._r.color(o.get("color") or "text_muted") or "#555"
+        fill = self._ctx.color(o.get("fill") or "paper") or "#fff"
+        stroke = self._ctx.color(o.get("stroke") or "rule") or "#d0d0d0"
+        color = self._ctx.color(o.get("color") or "text_muted") or "#555"
         st = {"family": "sans-serif", "size": max(9, min(12, height - 5)), "weight": "normal",
               "italic": False, "color": color, "align": "center", "lh": 1.0}
         out = []
@@ -286,10 +286,10 @@ class UmlRenderer:
             text = item.get("text") or item.get("label") or ""
             width = num(item.get("width"), None)
             if width is None:
-                width = max(height * 1.6, self._r.measure(text, st["size"], 0.58) + 14)
-            item_fill = self._r.color(item.get("fill")) or fill
-            item_stroke = self._r.color(item.get("stroke")) or stroke
-            item_color = self._r.color(item.get("color")) or color
+                width = max(height * 1.6, self._ctx.measure(text, st["size"], 0.58) + 14)
+            item_fill = self._ctx.color(item.get("fill")) or fill
+            item_stroke = self._ctx.color(item.get("stroke")) or stroke
+            item_color = self._ctx.color(item.get("color")) or color
             item_st = {**st, "color": item_color}
             out.append(p.rect(cursor, y, width, height, item_fill,
                               f' stroke="{esc(item_stroke)}" stroke-width="1"', radius=height / 2))
@@ -300,7 +300,7 @@ class UmlRenderer:
     def marker_glyph(self, o):
         pos = o.get("position") or o.get("origin")
         if not is_point(pos):
-            self._r.skipped += 1
+            self._ctx.note_skip()
             return ""
         size = num(o.get("size"), None)
         if size is None:
@@ -309,11 +309,11 @@ class UmlRenderer:
             size = num(migration.get("size"), 12) or 12
         x, y = num(pos[0], 0), num(pos[1], 0)
         half = size / 2
-        color = self._r.color(o.get("color") or o.get("stroke") or "ink") or "#111"
+        color = self._ctx.color(o.get("color") or o.get("stroke") or "ink") or "#111"
         fill = color if "filled" in str(o.get("kind") or "") else "none"
         points = (
             f"{fnum(x)},{fnum(y - half)} {fnum(x + half)},{fnum(y)} "
             f"{fnum(x)},{fnum(y + half)} {fnum(x - half)},{fnum(y)}"
         )
-        return self._r._painter.poly("polygon", points, fill,
+        return self._ctx.painter.poly("polygon", points, fill,
                                   f' stroke="{esc(color)}" stroke-width="1.4"')

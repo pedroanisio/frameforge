@@ -5,33 +5,33 @@ diameter callouts with extension lines, arrows, and a measured label — extract
 from the Renderer (SRP, codebase-standards.md §13).
 
 Like UmlRenderer these are context-dependent drawing routines (they use the
-painter and the Renderer's stroke/text primitives), so the sub-renderer holds a
-back-reference to its Renderer as ``self._r`` — the current coupling, to be
-replaced by a rendering-primitives interface when the painter port is made
-backend-neutral (Increment 3).
+painter and the builder's stroke/text primitives), so they depend on the
+`RenderContext` port (ADR 0001 slice 3a) — a named, mockable contract injected
+as ``self._ctx`` — rather than reaching into the concrete Renderer.
 """
 from __future__ import annotations
 
 import math
 
 from framegraph.rendering.domain.geometry import fnum, is_point, num
+from framegraph.rendering.domain.ports import RenderContext
 
 
 class DimensionRenderer:
-    def __init__(self, r):
-        self._r = r
+    def __init__(self, ctx: "RenderContext"):
+        self._ctx = ctx
 
     def draw(self, o, style):
         kind = o.get("kind")
         fr = self.point_anchor(o.get("from"))
         to = self.point_anchor(o.get("to"))
         if fr is None or to is None:
-            self._r.skipped += 1
+            self._ctx.note_skip()
             return ""
         if kind in ("radial", "diameter"):
             return self.radial(o, style, fr, to, diameter=kind == "diameter")
         if kind not in ("linear", "aligned"):
-            self._r.skipped += 1
+            self._ctx.note_skip()
             return ""
         return self.linear(o, style, fr, to)
 
@@ -42,7 +42,7 @@ class DimensionRenderer:
         return None
 
     def stroke(self, o, style):
-        return self._r._shape_stroke(o, style) or ' stroke="#000" stroke-width="1"'
+        return self._ctx.shape_stroke(o, style) or ' stroke="#000" stroke-width="1"'
 
     def arrows(self, o, start=True, end=True):
         arrows = o.get("arrows") or "both"
@@ -58,14 +58,14 @@ class DimensionRenderer:
             return ""
         marker_o = dict(o)
         ssv = o.get("stroke_style")
-        bundle = dict(self._r.stroke_styles.get(ssv) or {}) if isinstance(ssv, str) else dict(ssv or {})
+        bundle = dict(self._ctx.stroke_styles.get(ssv) or {}) if isinstance(ssv, str) else dict(ssv or {})
         if start:
             bundle["arrow_start"] = bundle.get("arrow_start") or True
         if end:
             bundle["arrow_end"] = bundle.get("arrow_end") or True
         marker_o["stroke_style"] = bundle
         marker_o["stroke"] = marker_o.get("stroke") or bundle.get("stroke") or bundle.get("color") or "#000"
-        return self._r._arrow_attrs(marker_o)
+        return self._ctx.arrow_attrs(marker_o)
 
     def label(self, o, distance):
         if o.get("text") is not None:
@@ -76,7 +76,7 @@ class DimensionRenderer:
         return f"{o.get('prefix') or ''}{label}{o.get('suffix') or ''}"
 
     def text(self, o):
-        st = self._r.text_style(o.get("text_style") or o.get("style"))
+        st = self._ctx.text_style(o.get("text_style") or o.get("style"))
         return {**st, "align": "center"}
 
     def linear(self, o, style, fr, to):
@@ -92,15 +92,15 @@ class DimensionRenderer:
         bx, by = x2 + nx * off, y2 + ny * off
         stroke = self.stroke(o, style)
         body = [
-            self._r._painter.line(x1, y1, ax, ay, stroke),
-            self._r._painter.line(x2, y2, bx, by, stroke),
-            self._r._painter.line(ax, ay, bx, by, stroke + self.arrows(o)),
+            self._ctx.painter.line(x1, y1, ax, ay, stroke),
+            self._ctx.painter.line(x2, y2, bx, by, stroke),
+            self._ctx.painter.line(ax, ay, bx, by, stroke + self.arrows(o)),
         ]
         label = self.label(o, dist)
         st = self.text(o)
         midx, midy = (ax + bx) / 2, (ay + by) / 2
-        body.append(self._r._painter.text_tag(midx - 40, midy - st["size"] * 0.7, 80, st["size"] * 1.4, label, st, vcenter=True))
-        return self._r._painter.group("".join(body))
+        body.append(self._ctx.painter.text_tag(midx - 40, midy - st["size"] * 0.7, 80, st["size"] * 1.4, label, st, vcenter=True))
+        return self._ctx.painter.group("".join(body))
 
     def radial(self, o, style, fr, to, diameter=False):
         px, py = fr
@@ -121,7 +121,7 @@ class DimensionRenderer:
         label = self.label(o, distance)
         st = self.text(o)
         midx, midy = (ax + bx) / 2, (ay + by) / 2
-        return self._r._painter.group(
-            self._r._painter.line(ax, ay, bx, by, stroke + self.arrows(o, start=diameter, end=True))
-            + self._r._painter.text_tag(midx - 40, midy - st["size"] * 1.5, 80, st["size"] * 1.4, label, st, vcenter=True)
+        return self._ctx.painter.group(
+            self._ctx.painter.line(ax, ay, bx, by, stroke + self.arrows(o, start=diameter, end=True))
+            + self._ctx.painter.text_tag(midx - 40, midy - st["size"] * 1.5, 80, st["size"] * 1.4, label, st, vcenter=True)
         )
