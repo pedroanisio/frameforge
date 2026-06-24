@@ -187,7 +187,9 @@ def test_transpile_emits_native_latex_math_and_tikz():
     assert "{User}" in tex and "{ok?}" in tex
     assert "{alt}" in tex
     assert "{clock}" in tex and "{A}" in tex and "{B}" in tex
-    assert "Figure \\#1\\label{fg:fig-smoke}" in tex
+    # Figures are real numbered floats: \caption auto-numbers, \label follows it.
+    assert "\\begin{figure}[H]" in tex
+    assert "\\caption{Figure \\#1}\\label{fg:fig-smoke}" in tex
     assert "\\begin{thebibliography}{99}" in tex
     assert "\\bibitem{einstein1905}A. Einstein, 1905." in tex
 
