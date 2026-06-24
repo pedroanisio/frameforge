@@ -17,23 +17,49 @@ status: proposal
 > pillar below cites the source it was extracted from. Treat it as a pull
 > request against the project's identity, open to revision.
 
-This guideline governs how FrameGraph presents itself: name, voice, color,
-type, and mark. It inherits the project's epistemic stance from
-[`DISCLAIMER.md`](DISCLAIMER.md) and its operating constraints from
-[`CLAUDE.md`](CLAUDE.md) — the brand is the outward face of those rules, not a
+This guideline governs how FrameGraph presents itself: its product definition,
+name, voice, color, type, and mark. The essence and positioning in §1 are
+anchored to the FrameGraph seed pitch
+([`FrameGraph-Seed-Pitch.pdf`](FrameGraph-Seed-Pitch.pdf)) — the outcome-first,
+agent-era framing — with the system's rigor recast as the *proof* of that
+promise rather than the pitch. It inherits the project's epistemic stance from
+[`DISCLAIMER.md`](../DISCLAIMER.md) and its operating constraints from
+[`CLAUDE.md`](../CLAUDE.md) — the brand is the outward face of those rules, not a
 separate marketing layer.
 
 ---
 
 ## 1. Essence
 
-**FrameGraph is the format that refuses to drift.**
+**FrameGraph is the output layer for the agent era.**
 
-A proposed document/graphics DSL where one typed model is the single source of
-truth, and every other artifact — schema, grammar, prose, renders — is
-generated from it or gated against it. The brand's whole job is to *look as
-rigorous as the system actually is*, and to never promise more than the system
-delivers.
+AI learned to *read* the world — screens, documents, images. The unclaimed half
+is *output*: turning what a machine intends into a real, finished, trustworthy
+artifact a business can actually send. FrameGraph is that layer. You — or your
+AI — describe what you want, or point it at your data; FrameGraph assembles the
+artifact, **checks it the way a meticulous proofreader would**, and renders a
+real file — a slide, report, web page, chart, or image — at any quality from a
+quick sketch to print-ready. The output is **correct, on-brand, and yours**: an
+open file you own and can edit by hand, not a dead-end image you can only
+re-prompt. *(Definition sharpened from the seed pitch —
+[`FrameGraph-Seed-Pitch.pdf`](FrameGraph-Seed-Pitch.pdf).)*
+
+> *Spell-check and a printing press — for everything AI makes that you can see.*
+
+**Positioning (Moore template, with a namable "unlike").** *For* businesses and
+the AI agents acting for them *who* need a finished visual artifact they can
+trust without a human checking it, **FrameGraph is** an output layer *that* turns
+intent — or data — into a correct, on-brand, editable file. *Unlike* image
+generators (a dead-end you can only re-prompt) or code-it-yourself AI (output
+that *looks* right but breaks — text overflows, layouts collapse), FrameGraph
+hands you an open file you own and proofreads every render, so it ships
+unattended, at volume.
+
+The rigor in the pillars below is **not the pitch; it is the proof** that
+"correct, on-brand, and yours" is true rather than asserted — one typed source
+makes the output reproducible (same input, same file, every time, so it plugs
+into real systems), and gated verification is what lets a machine produce it at
+scale without a human checking each one.
 
 The name is two halves, and the brand keeps them visible:
 
@@ -56,8 +82,12 @@ The name is two halves, and the brand keeps them visible:
 
 ### Personality
 
-Instrument, not billboard. Drafting table, not showroom. The brand is a
-**precision instrument**: quiet, exact, legible, and honest about its tolerances.
+A **precision instrument that ships finished work.** The brand *chrome* stays
+quiet — drafting table, not billboard — but the *output* is the showroom: a
+rendered FrameGraph artifact should look as finished as it is correct. Confident
+because it is grounded in a working system ("not a concept — a working system"),
+and honest about what is still proposed in the *format* — never hedged about the
+*result* it produces.
 
 ---
 
@@ -77,10 +107,10 @@ Instrument, not billboard. Drafting table, not showroom. The brand is a
 
 ## 3. Logo
 
-Two assets ship in [`brand/`](brand/):
+Two assets ship in [`brand/`](../brand/):
 
-- [`brand/framegraph-mark.svg`](brand/framegraph-mark.svg) — the icon.
-- [`brand/framegraph-wordmark.svg`](brand/framegraph-wordmark.svg) — the horizontal lockup.
+- [`brand/framegraph-mark.svg`](../brand/framegraph-mark.svg) — the icon.
+- [`brand/framegraph-wordmark.svg`](../brand/framegraph-wordmark.svg) — the horizontal lockup.
 
 **The mark is the thesis, drawn.** Technical-drawing corner brackets (the *Frame*:
 a fixed page / bounding box) enclose a small derivation graph (the *Graph*): one
@@ -187,11 +217,17 @@ it is the same operating discipline pointed at the reader.
   appear in code (`defs`, `flow`, `.fg.yaml`, `make check`).
 - **No complexity theatre.** Say the thing and stop. *(CLAUDE.md §8.)*
 
-**Tagline (primary):** *"The models are the source of truth."*
-**Alternates:** *"Documents that can't silently drift."* · *"Typed documents,
-gated against drift."*
-Avoid: anything claiming conformance, fidelity, or completeness — the format is
-*proposed*, and the brand must not write a check the renderer can't cash.
+**Tagline (primary):** *"The output layer for the agent era."*
+**Alternates:** *"Turn intent into a finished, checked file."* · *"Spell-check
+and a printing press — for everything AI makes that you can see."* · *"Anyone can
+make a picture; FrameGraph makes a result you can trust."*
+**Internal / architecture line** (for a maintainer audience, not the public
+lead): *"The models are the source of truth · documents that can't silently
+drift."*
+Lead with the *output* claim — correct, on-brand, checked, yours — which is
+grounded in the working system and the seed pitch. Still avoid claiming
+conformance, fidelity, or completeness of the *format* itself (it remains
+*proposed*); the brand must not write a check the renderer can't cash.
 
 ---
 
@@ -211,9 +247,9 @@ Reusable motifs, all drawn from the toolchain's real vocabulary:
 ## 8. Design tokens (in FrameGraph's own model)
 
 The palette and type system map 1:1 onto the native `Defs.tokens` surface
-([`models/framegraph.py`](models/framegraph.py) `class Tokens`). The brand is
+([`models/framegraph.py`](../models/framegraph.py) `class Tokens`). The brand is
 therefore *consumable from FrameGraph itself* — see
-[`brand/framegraph.tokens.fg.yaml`](brand/framegraph.tokens.fg.yaml). Drop that
+[`brand/framegraph.tokens.fg.yaml`](../brand/framegraph.tokens.fg.yaml). Drop that
 `defs:` block into a document and reference the tokens by name. This is the
 intended dogfood: **the brand guideline should ultimately be authored as a
 FrameGraph document**, rendered by the project's own renderer, gated by the
