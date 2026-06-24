@@ -13,6 +13,7 @@ Renderer-only import (the `framegraph` package must win) — evict a models-modu
 shadow first, per test_render_cli.py.
 """
 import os
+import subprocess
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -163,14 +164,16 @@ def test_math_svg_conversion_failure_does_not_disable_later_math(monkeypatch):
     def fake_run(_cmd, input=None, **_kwargs):
         calls.append(input)
         if len(calls) == 1:
-            raise R.subprocess.CalledProcessError(1, _cmd, stderr="bad expression")
+            raise subprocess.CalledProcessError(1, _cmd, stderr="bad expression")
 
         class Proc:
             stdout = '[{"body":"<g data-mml-node=\\"math\\"></g>","viewBox":"0 0 10 10","width":10,"height":10}]'
 
         return Proc()
 
-    monkeypatch.setattr(R.subprocess, "run", fake_run)
+    # The Renderer's MathJax path lives in framegraph.rendering.application.renderer;
+    # patch the shared stdlib `subprocess` module object it calls through.
+    monkeypatch.setattr(subprocess, "run", fake_run)
 
     assert R.Renderer.render_math_svg("bad") is None
     rendered = R.Renderer.render_math_svg(r"E = mc^2")
