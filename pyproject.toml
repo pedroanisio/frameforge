@@ -12,6 +12,14 @@ dependencies = [
     "pyyaml>=6",
 ]
 
+# The render front-door (framegraph/cli.py): `framegraph-render <doc> --to <target>`
+# lists every render path and dispatches to it (`--list` shows live availability).
+# Declared here so it becomes a console command once the project is installable;
+# today this is a virtual project (`[tool.uv] package = false`), so run it with
+# `uv run python -m framegraph.cli ... --to pdf`.
+[project.scripts]
+framegraph-render = "framegraph.cli:main"
+
 # Optional/auxiliary sets (PEP 735). uv installs `dev` by default on `uv sync`;
 # install an auxiliary set explicitly, e.g.:
 #   uv sync --group render   # matplotlib proxy renderer (tooling/render_fg_doc.py)
