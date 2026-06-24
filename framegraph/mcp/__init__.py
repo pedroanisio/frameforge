@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 from framegraph.mcp.server import (
+    cleanup_sessions,
     create_server,
     get_default_session_root,
+    list_sessions,
     mcp_content_blocks,
     read_session_resource,
     render_framegraph_yaml,
@@ -12,8 +14,10 @@ from framegraph.mcp.server import (
 )
 
 __all__ = [
+    "cleanup_sessions",
     "create_server",
     "get_default_session_root",
+    "list_sessions",
     "mcp_content_blocks",
     "read_session_resource",
     "render_framegraph_yaml",

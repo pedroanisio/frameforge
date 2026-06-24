@@ -17,11 +17,12 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 from typing import Any
 from urllib.parse import unquote, urlparse
 
 from framegraph.sdk.conform import render_page_svgs
-from framegraph.sdk.io import parse, serialize
+from framegraph.sdk.io import parse
 from framegraph.sdk.validate import ValidationReport, validate_static_rules
 
 SESSION_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
@@ -32,6 +33,30 @@ DEFAULT_CLIENT_ROOTS = ("examples",)
 BUILD_FUNCTION_NAMES = ("build", "build_deck", "build_book", "build_package")
 FRAMEGRAPH_YAML_PATTERNS = ("*.fg.yaml", "*.fg.yml", "*.framegraph.yaml", "*.framegraph.yml")
 STRUCTURED_LOG_SCHEMA = "framegraph.mcp.structured_log.v1"
+
+# Vision models can only decode raster image bytes; SVG is not a viewable image
+# media type, so an ``image/svg+xml`` content block reaches the model as an
+# undecodable payload (silently dropped at best). Only these mimes are emitted as
+# image content blocks — SVG stays a resource link / text artifact.
+VIEWABLE_IMAGE_MIME = ("image/png", "image/jpeg", "image/gif", "image/webp")
+# The in-process SVG renderer is not subprocess-isolated; a pathological (but
+# schema-valid) document could spin without bound. This soft ceiling caps the
+# response latency. Honest limit: it bounds the *response*, not the CPU work — a
+# runaway render keeps running in a detached daemon thread until it finishes.
+DEFAULT_RENDER_TIMEOUT_SECONDS = 30
+# Structured-log hygiene: rotate the JSONL once it crosses this size and clamp
+# any single oversized instruction/response string so one giant payload cannot
+# bloat (or leak) the whole log.
+STRUCTURED_LOG_MAX_BYTES = 5_000_000
+STRUCTURED_LOG_MAX_FIELD_CHARS = 20_000
+# Env var name fragments that almost always carry a secret. The code-execution
+# subprocess runs untrusted SDK code, so these are stripped from its environment
+# unless ``FRAMEGRAPH_MCP_KEEP_ENV`` is truthy. Matching is case-insensitive.
+SECRET_ENV_RE = re.compile(r"KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|PRIVATE", re.IGNORECASE)
+
+
+class RenderTimeoutError(RuntimeError):
+    """Raised when in-process SVG rendering exceeds the soft time budget."""
 
 FRAMEGRAPH_GUIDE = """\
 # FrameGraph MCP — what the SDK offers and the server's capabilities
@@ -71,6 +96,15 @@ Forward (author -> render):
 - `write_sdk_client` / `read_sdk_client` / `list_sdk_clients` — edit whitelisted SDK clients.
 - `render_framegraph_yaml` — validate + render caller-supplied YAML directly.
 - `get_session_resource` — read `framegraph://session/...` artifacts (YAML, SVG, diagnostics).
+- `list_sessions` / `cleanup_sessions` — enumerate and prune per-session scratch dirs.
+
+## Seeing the render (visual verification)
+A vision model can only *see* a raster (PNG), not SVG. The render tools therefore
+rasterize to PNG by default (`raster_png=True`) and attach the PNG as an image
+content block; the SVG is kept as a resource link. Rasterization needs the
+`browser` dependency group plus `playwright install chromium`. When that backend
+is absent the result carries a `render_warning` and ships only the SVG/diagnostics
+text — read the warning, install the backend, and re-render to actually verify.
 
 Inverse (image/document -> author), the additional capability:
 - `propose_from_image` — classical OpenCV/numpy detectors (+ an optional VLM lane)
@@ -82,8 +116,9 @@ Inverse (image/document -> author), the additional capability:
   the result as a starting point to refine with the SDK — never as final.
 
 ## Workflow
-Author or propose -> read the returned validation issues + rendered SVG -> refine
-the SDK code/YAML -> re-render. Verify every rendered result.
+Author or propose -> read the returned validation issues + the rendered PNG (or
+the `render_warning` when raster is unavailable) -> refine the SDK code/YAML ->
+re-render. Verify every rendered result against pixels, never against the YAML alone.
 """
 
 
@@ -107,7 +142,7 @@ def run_sdk_code(
     session_root: str | Path | None = None,
     timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
     max_pages: int = 3,
-    raster_png: bool = False,
+    raster_png: bool = True,
 ) -> dict[str, Any]:
     """Execute Python SDK code, then validate and render its generated YAML.
 
@@ -272,7 +307,7 @@ def run_sdk_client(
     session_root: str | Path | None = None,
     timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
     max_pages: int = 3,
-    raster_png: bool = False,
+    raster_png: bool = True,
     invoke_main: bool = False,
     repo_root: str | Path | None = None,
     edit_roots: str | list[str] | tuple[str, ...] | None = None,
@@ -340,7 +375,7 @@ def render_framegraph_yaml(
     session_id: str | None = None,
     session_root: str | Path | None = None,
     max_pages: int = 3,
-    raster_png: bool = False,
+    raster_png: bool = True,
 ) -> dict[str, Any]:
     """Validate and render caller-provided FrameGraph YAML."""
     if not isinstance(yaml_text, str) or not yaml_text.strip():
@@ -373,7 +408,7 @@ def propose_from_image(
     session_id: str | None = None,
     session_root: str | Path | None = None,
     max_pages: int = 3,
-    raster_png: bool = False,
+    raster_png: bool = True,
     title: str = "Proposed from image",
     detector_names: list[str] | None = None,
 ) -> dict[str, Any]:
@@ -384,7 +419,15 @@ def propose_from_image(
     """
     if not image_path and not image_base64:
         raise ValueError("provide image_path or image_base64")
-    from framegraph.vision.application.service import propose_from_image as _vision_propose
+    if image_path and not image_base64:
+        try:
+            _assert_input_path_allowed(image_path)
+        except ValueError as exc:
+            return _vision_error(str(exc))
+    try:
+        from framegraph.vision.application.service import propose_from_image as _vision_propose
+    except ImportError:
+        return _vision_error(_VISION_GROUP_HINT)
 
     try:
         if image_base64:
@@ -392,7 +435,7 @@ def propose_from_image(
         else:
             proposal = _vision_propose(image_path, is_base64=False, title=title, detector_names=detector_names)
     except RuntimeError as exc:
-        return {"ok": False, "error": str(exc), "proposal": None, "renders": [], "resources": []}
+        return _vision_error(str(exc))
     return _render_proposal(
         proposal, session_id=session_id, session_root=session_root, max_pages=max_pages, raster_png=raster_png
     )
@@ -406,20 +449,57 @@ def propose_from_document(
     session_id: str | None = None,
     session_root: str | Path | None = None,
     max_pages: int = 3,
-    raster_png: bool = False,
+    raster_png: bool = True,
     title: str | None = None,
     detector_names: list[str] | None = None,
 ) -> dict[str, Any]:
     """Propose a draft FrameGraph document from a rasterised PDF page, then validate and render it."""
-    from framegraph.vision.application.service import propose_from_document as _vision_propose
+    try:
+        _assert_input_path_allowed(path)
+    except ValueError as exc:
+        return _vision_error(str(exc))
+    try:
+        from framegraph.vision.application.service import propose_from_document as _vision_propose
+    except ImportError:
+        return _vision_error(_VISION_GROUP_HINT)
 
     try:
         proposal = _vision_propose(path, page=page, dpi=dpi, title=title, detector_names=detector_names)
     except (RuntimeError, ValueError) as exc:
-        return {"ok": False, "error": str(exc), "proposal": None, "renders": [], "resources": []}
+        return _vision_error(str(exc))
     return _render_proposal(
         proposal, session_id=session_id, session_root=session_root, max_pages=max_pages, raster_png=raster_png
     )
+
+
+_VISION_GROUP_HINT = (
+    "The vision proposal lane needs the optional `vision` dependency group. "
+    "Install it with `uv sync --group vision` (or launch the MCP server with "
+    "`--group vision`)."
+)
+
+
+def _vision_error(message: str) -> dict[str, Any]:
+    return {"ok": False, "error": message, "proposal": None, "renders": [], "resources": []}
+
+
+def _assert_input_path_allowed(path: str) -> None:
+    """Confine propose inputs to ``FRAMEGRAPH_MCP_INPUT_ROOTS`` when it is set.
+
+    Unset (the default) preserves the open localhost-dev behavior: any readable
+    path is accepted. Setting the env var to a ``os.pathsep``-joined list of roots
+    locks the propose tools to those directories so the server cannot be used as a
+    confused-deputy file reader in a hardened deployment.
+    """
+    configured = os.environ.get("FRAMEGRAPH_MCP_INPUT_ROOTS")
+    if not configured:
+        return
+    roots = [Path(entry).expanduser().resolve() for entry in configured.split(os.pathsep) if entry]
+    if not roots:
+        return
+    resolved = Path(path).expanduser().resolve()
+    if not any(_is_relative_to(resolved, root) for root in roots):
+        raise ValueError("input path is outside the allowed FRAMEGRAPH_MCP_INPUT_ROOTS")
 
 
 def _render_proposal(
@@ -504,8 +584,90 @@ def read_session_resource(uri: str, *, session_root: str | Path | None = None) -
     return {"uri": uri, "mimeType": mime, "text": path.read_text(encoding="utf-8")}
 
 
+def list_sessions(*, session_root: str | Path | None = None) -> dict[str, Any]:
+    """List per-session scratch directories under the session root with their size."""
+    root = _session_root(session_root)
+    sessions: list[dict[str, Any]] = []
+    for entry in sorted(root.iterdir()):
+        if not entry.is_dir() or not SESSION_ID_RE.fullmatch(entry.name):
+            continue
+        files = [path for path in entry.rglob("*") if path.is_file()]
+        sessions.append(
+            {
+                "session_id": entry.name,
+                "has_document": (entry / "generated.fg.yaml").exists(),
+                "svg_pages": len(list(entry.glob("page-*.svg"))),
+                "png_pages": len(list(entry.glob("p*.png"))),
+                "bytes": sum(path.stat().st_size for path in files),
+                "modified": _iso_from_timestamp(entry.stat().st_mtime),
+                "document_uri": f"framegraph://session/{entry.name}/document.yaml",
+            }
+        )
+    return {
+        "ok": True,
+        "session_root": str(root),
+        "session_count": len(sessions),
+        "sessions": sessions,
+    }
+
+
+def cleanup_sessions(
+    *,
+    session_root: str | Path | None = None,
+    session_ids: list[str] | None = None,
+    older_than_seconds: float | None = None,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Remove session scratch dirs by id or age. No criteria removes nothing (safe by default).
+
+    Exactly one selector applies: ``session_ids`` removes those ids; otherwise
+    ``older_than_seconds`` removes sessions whose directory mtime is older than the
+    cutoff. ``dry_run`` reports the selection without deleting. The structured log
+    lives as a file at the root and is never a deletion target.
+    """
+    root = _session_root(session_root)
+    cutoff = None
+    if session_ids is None and older_than_seconds is not None:
+        cutoff = datetime.now(timezone.utc).timestamp() - float(older_than_seconds)
+
+    selected: list[Path] = []
+    for entry in sorted(root.iterdir()):
+        if not entry.is_dir() or not SESSION_ID_RE.fullmatch(entry.name):
+            continue
+        if session_ids is not None:
+            if entry.name in session_ids:
+                selected.append(entry)
+        elif cutoff is not None and entry.stat().st_mtime < cutoff:
+            selected.append(entry)
+
+    removed: list[str] = []
+    for entry in selected:
+        target = entry.resolve()
+        if not _is_relative_to(target, root):  # defense in depth — never escape the root
+            continue
+        if not dry_run:
+            shutil.rmtree(target, ignore_errors=True)
+        removed.append(entry.name)
+    return {
+        "ok": True,
+        "session_root": str(root),
+        "dry_run": dry_run,
+        "removed_count": len(removed),
+        "removed": removed,
+    }
+
+
+def _iso_from_timestamp(timestamp: float) -> str:
+    return datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+
+
 def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
-    """Return MCP-style text/image content blocks for a run result."""
+    """Return MCP-style text/image content blocks for a run result.
+
+    Only raster renders (:data:`VIEWABLE_IMAGE_MIME`) become image blocks — SVG is
+    not a vision-decodable media type, so it is reported as a resource link in the
+    text summary instead of an undecodable image payload.
+    """
     summary = {
         "ok": result.get("ok"),
         "session_id": result.get("session_id"),
@@ -516,6 +678,7 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
             {key: render.get(key) for key in ("page", "uri", "mimeType", "sha256") if key in render}
             for render in result.get("renders", [])
         ],
+        "render_warning": result.get("render_warning"),
         "error": result.get("error"),
     }
     blocks: list[dict[str, str]] = [
@@ -524,7 +687,7 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
     for render in result.get("renders", []):
         path_value = render.get("path")
         mime = render.get("mimeType")
-        if not path_value or not mime or not str(mime).startswith("image/"):
+        if not path_value or str(mime) not in VIEWABLE_IMAGE_MIME:
             continue
         data = Path(path_value).read_bytes()
         blocks.append(
@@ -602,7 +765,7 @@ def create_server(
         session_id: str | None = None,
         timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
         max_pages: int = 3,
-        raster_png: bool = False,
+        raster_png: bool = True,
         invoke_main: bool = False,
     ):
         """Run an editable Python SDK client, validate its YAML, and return render feedback."""
@@ -637,7 +800,7 @@ def create_server(
         session_id: str | None = None,
         timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
         max_pages: int = 3,
-        raster_png: bool = False,
+        raster_png: bool = True,
     ):
         """Run Python SDK code, validate its YAML, and return render feedback."""
         result = _logged_call(
@@ -666,7 +829,7 @@ def create_server(
         yaml_text: str,
         session_id: str | None = None,
         max_pages: int = 3,
-        raster_png: bool = False,
+        raster_png: bool = True,
     ):
         """Validate and render FrameGraph YAML without executing Python code."""
         result = _logged_call(
@@ -694,7 +857,7 @@ def create_server(
         image_base64: str | None = None,
         session_id: str | None = None,
         max_pages: int = 3,
-        raster_png: bool = False,
+        raster_png: bool = True,
         title: str = "Proposed from image",
         detector_names: list[str] | None = None,
     ):
@@ -731,7 +894,7 @@ def create_server(
         dpi: int = 144,
         session_id: str | None = None,
         max_pages: int = 3,
-        raster_png: bool = False,
+        raster_png: bool = True,
         title: str | None = None,
         detector_names: list[str] | None = None,
     ):
@@ -776,6 +939,35 @@ def create_server(
             "get_session_resource",
             {"uri": uri},
             lambda: read_session_resource(uri, session_root=root),
+        )
+
+    @server.tool()
+    def list_sessions() -> dict[str, Any]:
+        """List per-session scratch directories with their artifact counts and size."""
+        return _logged_call(
+            log_path,
+            "list_sessions",
+            {},
+            lambda: globals()["list_sessions"](session_root=root),
+        )
+
+    @server.tool()
+    def cleanup_sessions(
+        session_ids: list[str] | None = None,
+        older_than_seconds: float | None = None,
+        dry_run: bool = False,
+    ) -> dict[str, Any]:
+        """Remove session scratch dirs by id or age (no selector removes nothing)."""
+        return _logged_call(
+            log_path,
+            "cleanup_sessions",
+            {"session_ids": session_ids, "older_than_seconds": older_than_seconds, "dry_run": dry_run},
+            lambda: globals()["cleanup_sessions"](
+                session_root=root,
+                session_ids=session_ids,
+                older_than_seconds=older_than_seconds,
+                dry_run=dry_run,
+            ),
         )
 
     @server.resource("framegraph://session/{session_id}/document.yaml")
@@ -878,8 +1070,26 @@ def _logged_call(log_path: Path, tool: str, instruction: dict[str, Any], call):
 
 
 def _append_structured_log(path: Path, event: dict[str, Any]) -> None:
+    line = json.dumps(_truncate_log_strings(event), ensure_ascii=False, sort_keys=True) + "\n"
+    try:
+        if path.exists() and path.stat().st_size + len(line.encode("utf-8")) > STRUCTURED_LOG_MAX_BYTES:
+            path.replace(path.with_name(path.name + ".1"))
+    except OSError:
+        pass
     with path.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(event, ensure_ascii=False, sort_keys=True) + "\n")
+        fh.write(line)
+
+
+def _truncate_log_strings(value: Any) -> Any:
+    """Clamp oversized strings so one giant payload cannot bloat (or leak) the log."""
+    if isinstance(value, dict):
+        return {key: _truncate_log_strings(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_truncate_log_strings(item) for item in value]
+    if isinstance(value, str) and len(value) > STRUCTURED_LOG_MAX_FIELD_CHARS:
+        kept = value[:STRUCTURED_LOG_MAX_FIELD_CHARS]
+        return f"{kept}…[truncated {len(value) - STRUCTURED_LOG_MAX_FIELD_CHARS} chars]"
+    return value
 
 
 def _json_safe(value: Any) -> Any:
@@ -928,8 +1138,17 @@ def _subprocess_env(repo_root: Path) -> dict[str, str]:
     if os.environ.get("PYTHONPATH"):
         pythonpath = pythonpath + os.pathsep + os.environ["PYTHONPATH"]
     env = os.environ.copy()
+    if not _truthy_env("FRAMEGRAPH_MCP_KEEP_ENV"):
+        # The harness executes untrusted SDK code; strip likely-secret vars so a
+        # generated client cannot exfiltrate credentials inherited from the server.
+        for name in [key for key in env if SECRET_ENV_RE.search(key)]:
+            del env[name]
     env["PYTHONPATH"] = pythonpath
     return env
+
+
+def _truthy_env(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _harness_source(script_path: Path, yaml_path: Path, session_dir: Path, *, invoke_main: bool = True) -> str:
@@ -1031,21 +1250,32 @@ def _repo_relative_path(path: Path, repo_root: Path) -> str:
     return path.resolve().relative_to(repo_root).as_posix()
 
 
-def _framegraph_yaml_snapshot(repo_root: Path) -> dict[Path, int]:
-    return {path: path.stat().st_mtime_ns for path in _framegraph_yaml_candidates(repo_root) if path.is_file()}
+def _framegraph_yaml_snapshot(repo_root: Path) -> dict[Path, str]:
+    """Content-hash snapshot of candidate fixtures before a client run.
+
+    Hashes (not mtimes) so the post-run diff only fires on *content* change — a
+    fixture merely ``touch``-ed by an unrelated process is no longer mistaken for
+    this client's output, which the mtime heuristic could do.
+    """
+    return {
+        path: hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in _framegraph_yaml_candidates(repo_root)
+        if path.is_file()
+    }
 
 
-def _new_generated_yaml(repo_root: Path, before: dict[Path, int]) -> Path | None:
+def _new_generated_yaml(repo_root: Path, before: dict[Path, str]) -> Path | None:
     changed: list[Path] = []
     for path in _framegraph_yaml_candidates(repo_root):
         if not path.is_file():
             continue
         previous = before.get(path)
-        current = path.stat().st_mtime_ns
-        if previous is None or current > previous:
+        current = hashlib.sha256(path.read_bytes()).hexdigest()
+        if previous is None or current != previous:
             changed.append(path)
     if not changed:
         return None
+    # Tie-break by mtime when several fixtures changed in the same run.
     return max(changed, key=lambda candidate: candidate.stat().st_mtime_ns)
 
 
@@ -1106,9 +1336,16 @@ def _validate_and_render_yaml(
         }
 
     renders: list[dict[str, Any]] = []
+    render_warning: str | None = None
     if report.ok:
-        svgs = render_page_svgs(document, base_dir=str(base_dir))
-        for index, svg in enumerate(svgs[: max(0, int(max_pages)) or len(svgs)], 1):
+        try:
+            svgs = _render_page_svgs_bounded(document, base_dir)
+        except RenderTimeoutError as exc:
+            return _render_failure(session_id, report, str(exc), warning=str(exc))
+        except Exception as exc:  # noqa: BLE001 — render is third-party-ish; surface it structured
+            return _render_failure(session_id, report, f"FrameGraph render failed: {exc}")
+
+        for index, svg in enumerate(svgs[_page_slice(max_pages, len(svgs))], 1):
             path = session_dir / _page_svg_name(index)
             path.write_text(svg, encoding="utf-8")
             renders.append(
@@ -1122,14 +1359,85 @@ def _validate_and_render_yaml(
                 }
             )
         if raster_png:
-            renders.extend(_try_rasterize_pngs([Path(item["path"]) for item in renders], session_dir, session_id))
+            pngs, render_warning = _try_rasterize_pngs(
+                [Path(item["path"]) for item in renders], session_dir, session_id
+            )
+            renders.extend(pngs)
 
-    return {
+    result = {
         "ok": report.ok and bool(renders),
         "validation": _validation_payload(report),
         "renders": renders,
         "resources": _resource_links(session_id, renders=renders),
     }
+    if render_warning:
+        result["render_warning"] = render_warning
+    return result
+
+
+def _render_failure(
+    session_id: str, report: ValidationReport, error: str, *, warning: str | None = None
+) -> dict[str, Any]:
+    """Structured result for a render that crashed or timed out (validation passed)."""
+    result: dict[str, Any] = {
+        "ok": False,
+        "error": error,
+        "validation": _validation_payload(report),
+        "renders": [],
+        "resources": _resource_links(session_id, renders=[]),
+    }
+    if warning:
+        result["render_warning"] = warning
+    return result
+
+
+def _render_page_svgs_bounded(document: Any, base_dir: Path) -> list[str]:
+    """Render page SVGs under :data:`DEFAULT_RENDER_TIMEOUT_SECONDS` (env-overridable).
+
+    Runs the pure-Python renderer in a daemon thread and joins with a timeout so a
+    pathological document bounds the *response* latency. The work itself is not
+    force-killed (Python cannot interrupt CPU-bound bytecode); a timed-out render
+    keeps running detached until it completes, then is discarded.
+    """
+    timeout = _render_timeout()
+    box: dict[str, Any] = {}
+
+    def _target() -> None:
+        try:
+            box["value"] = render_page_svgs(document, base_dir=str(base_dir))
+        except BaseException as exc:  # noqa: BLE001 — re-raised on the calling thread
+            box["error"] = exc
+
+    worker = threading.Thread(target=_target, name="framegraph-render", daemon=True)
+    worker.start()
+    worker.join(timeout)
+    if worker.is_alive():
+        raise RenderTimeoutError(
+            f"FrameGraph render exceeded {timeout:g}s (FRAMEGRAPH_MCP_RENDER_TIMEOUT)"
+        )
+    if "error" in box:
+        raise box["error"]
+    return box.get("value", [])
+
+
+def _render_timeout() -> float:
+    raw = os.environ.get("FRAMEGRAPH_MCP_RENDER_TIMEOUT")
+    if raw:
+        try:
+            value = float(raw)
+            if value > 0:
+                return value
+        except ValueError:
+            pass
+    return float(DEFAULT_RENDER_TIMEOUT_SECONDS)
+
+
+def _page_slice(max_pages: int, total: int) -> slice:
+    """Page window for the render. ``max_pages <= 0`` means "all pages" (documented)."""
+    limit = int(max_pages)
+    if limit <= 0:
+        return slice(None)
+    return slice(0, limit)
 
 
 def _validation_payload(report: ValidationReport) -> dict[str, Any]:
@@ -1196,14 +1504,32 @@ def _maybe_call_tool_result(result: dict[str, Any]):
     return CallToolResult(content=content, structuredContent=result, isError=not result.get("ok", False))
 
 
-def _try_rasterize_pngs(svg_paths: list[Path], session_dir: Path, session_id: str) -> list[dict[str, Any]]:
-    from framegraph.rendering.infrastructure.browser import BrowserRendererUnavailable, rasterize_svgs
+def _try_rasterize_pngs(
+    svg_paths: list[Path], session_dir: Path, session_id: str
+) -> tuple[list[dict[str, Any]], str | None]:
+    """Rasterize page SVGs to PNG. Returns ``(renders, warning)``.
+
+    A non-``None`` warning means no viewable raster was produced — the model gets
+    only SVG/diagnostics text — so the warning names the missing backend instead of
+    failing silently.
+    """
+    try:
+        from framegraph.rendering.infrastructure.browser import (
+            BrowserRendererUnavailable,
+            rasterize_svgs,
+        )
+    except ImportError as exc:
+        return [], f"PNG rasterization unavailable: {exc}"
 
     svgs = [path.read_text(encoding="utf-8") for path in svg_paths]
     try:
         pngs = rasterize_svgs(svgs, session_dir, base_dir=str(session_dir))
-    except BrowserRendererUnavailable:
-        return []
+    except BrowserRendererUnavailable as exc:
+        return [], (
+            f"PNG rasterization unavailable: {exc} The model cannot see SVG, so this "
+            "render was not visually verified — install the `browser` group and run "
+            "`uv run playwright install chromium`."
+        )
     renders = []
     for index, path in enumerate(pngs, 1):
         renders.append(
@@ -1215,7 +1541,7 @@ def _try_rasterize_pngs(svg_paths: list[Path], session_dir: Path, session_id: st
                 "bytes": path.stat().st_size,
             }
         )
-    return renders
+    return renders, None
 
 
 def _write_diagnostics(session_dir: Path, result: dict[str, Any]) -> None:
