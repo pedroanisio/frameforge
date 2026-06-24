@@ -31,6 +31,7 @@ from framegraph.rendering.domain.services.effect_resolver import EffectResolver
 from framegraph.rendering.domain.services.stroke_resolver import StrokeResolver
 from framegraph.rendering.domain.services.layout_engine import LayoutEngine
 from framegraph.rendering.domain.services.table_layout import resolve_column_widths
+from framegraph.rendering.domain.services.style_values import StyleValues
 from framegraph.rendering.domain.services.text_fitter import TextFitter
 from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver
 from framegraph.rendering.infrastructure.painters.svg import SvgPainter
@@ -99,6 +100,7 @@ class Renderer:
         self._canvas = CanvasResolver(self.masters)
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)
         self._effect = EffectResolver(self._color)
+        self._css = StyleValues(self.color)   # CSS/SVG value builder (filter/shadow/transform)
         self._layout = LayoutEngine()
         self._object_index = {}
 
@@ -487,7 +489,7 @@ class Renderer:
         return svg
 
     def _with_transform(self, o, style, svg):
-        transform = self._svg_transform(style.get("transform"), style.get("transform_origin"), o.get("box"))
+        transform = self._css.svg_transform(style.get("transform"), style.get("transform_origin"), o.get("box"))
         return self._painter.transform_group(svg, transform) if transform else svg
 
     def _with_style_compositing(self, o, style, svg):
@@ -507,10 +509,10 @@ class Renderer:
         clip = style.get("clip_path")
         if isinstance(clip, str) and clip.strip():
             attrs["clip-path"] = clip.strip()
-        backdrop = self._css_filter_value(style.get("backdrop_filter"))
+        backdrop = self._css.filter_value(style.get("backdrop_filter"))
         if backdrop:
             attrs["backdrop-filter"] = backdrop
-        css_filter = self._css_filter_value(style.get("filter"), svg_only=False)
+        css_filter = self._css.filter_value(style.get("filter"), svg_only=False)
         if css_filter:
             attrs["filter"] = css_filter
         bg_blend = style.get("background_blend_mode")
@@ -536,63 +538,12 @@ class Renderer:
             attrs["transform-box"] = transform_box
         perspective = style.get("perspective")
         if perspective and perspective != "none":
-            attrs["perspective"] = self._css_length(perspective)
+            attrs["perspective"] = self._css.length(perspective)
         # The bounded `css` escape (§8.4) on a non-text object: text emits its css
         # inline via font_style(); shapes carry it on the compositing <g> wrapper.
         css = style.get("css")
         raw = css if (css and o.get("type") != "text") else ""
         return self._painter.style_group(svg, attrs, raw)
-
-    def _css_filter_value(self, value, *, svg_only: bool = True):
-        if isinstance(value, str):
-            return value.strip() if value.strip() and value.strip() != "none" else ""
-        if not isinstance(value, list):
-            return ""
-        svg_backed = {"blur", "drop_shadow", "turbulence", "displacement_map", "diffuse_lighting", "specular_lighting"}
-        parts = []
-        for item in value:
-            if not isinstance(item, dict):
-                continue
-            fn = item.get("fn") or item.get("kind") or item.get("name")
-            if not fn:
-                continue
-            if not svg_only and fn in svg_backed:
-                continue
-            if svg_only and fn in {"turbulence", "displacement_map", "diffuse_lighting", "specular_lighting"}:
-                continue
-            css_fn = "hue-rotate" if fn == "hue_rotate" else fn.replace("_", "-")
-            if fn == "drop_shadow":
-                shadow = self._css_shadow_value(item.get("shadow"))
-                if shadow:
-                    parts.append(f"drop-shadow({shadow})")
-            else:
-                val = item.get("value")
-                if val is not None:
-                    parts.append(f"{css_fn}({self._css_filter_arg(fn, val)})")
-        return " ".join(parts)
-
-    def _css_filter_arg(self, fn, value):
-        if fn in {"brightness", "contrast", "grayscale", "invert", "opacity", "saturate", "sepia"}:
-            return str(value)
-        if fn == "hue_rotate":
-            return str(value)
-        return self._css_length(value)
-
-    def _css_shadow_value(self, value):
-        if isinstance(value, str):
-            return value.strip()
-        if not isinstance(value, dict):
-            return ""
-        x = self._css_length(value.get("offset_x", value.get("x", 0)))
-        y = self._css_length(value.get("offset_y", value.get("y", 0)))
-        blur = self._css_length(value.get("blur", 0))
-        color = self.color(value.get("color")) or value.get("color")
-        return " ".join(str(v) for v in (x, y, blur, color) if v)
-
-    @staticmethod
-    def _css_length(value):
-        n = num(value, None)
-        return f"{fnum(n)}px" if n is not None else str(value)
 
     def _with_style_clip(self, o, style, svg):
         clip = style.get("clip_path")
@@ -643,71 +594,6 @@ class Renderer:
             if isinstance(d, str) and d.strip():
                 return self._painter.clip_path_d(d)
         return None
-
-    def _svg_transform(self, value, origin, box):
-        if not value or value == "none":
-            return ""
-        if isinstance(value, str):
-            return value.replace("deg", "")
-        items = value if isinstance(value, list) else [value]
-        ox, oy = self._transform_origin(origin, box)
-        parts = []
-        for item in items:
-            if isinstance(item, str):
-                parts.append(item.replace("deg", ""))
-                continue
-            if not isinstance(item, dict):
-                continue
-            fn = item.get("fn") or item.get("kind") or item.get("name")
-            args = item.get("args") or []
-            vals = [self._transform_arg(v) for v in args]
-            if fn == "rotate" and vals:
-                parts.append(f"rotate({vals[0]} {fnum(ox)} {fnum(oy)})" if ox is not None else f"rotate({vals[0]})")
-            elif fn == "translate":
-                parts.append(f"translate({' '.join(vals)})")
-            elif fn == "translate_x" and vals:
-                parts.append(f"translate({vals[0]} 0)")
-            elif fn == "translate_y" and vals:
-                parts.append(f"translate(0 {vals[0]})")
-            elif fn == "scale":
-                parts.append(self._origin_transform(f"scale({' '.join(vals)})", ox, oy))
-            elif fn == "scale_x" and vals:
-                parts.append(self._origin_transform(f"scale({vals[0]} 1)", ox, oy))
-            elif fn == "scale_y" and vals:
-                parts.append(self._origin_transform(f"scale(1 {vals[0]})", ox, oy))
-            elif fn == "skew_x" and vals:
-                parts.append(self._origin_transform(f"skewX({vals[0]})", ox, oy))
-            elif fn == "skew_y" and vals:
-                parts.append(self._origin_transform(f"skewY({vals[0]})", ox, oy))
-            elif fn == "skew" and vals:
-                parts.append(self._origin_transform(f"skewX({vals[0]})", ox, oy))
-                if len(vals) > 1:
-                    parts.append(self._origin_transform(f"skewY({vals[1]})", ox, oy))
-            elif fn == "matrix" and vals:
-                parts.append(f"matrix({' '.join(vals)})")
-        return " ".join(p for p in parts if p)
-
-    def _transform_origin(self, origin, box):
-        if isinstance(origin, (list, tuple)) and len(origin) >= 2:
-            return num(origin[0], 0), num(origin[1], 0)
-        if isinstance(origin, str):
-            vals = origin.replace(",", " ").split()
-            if len(vals) >= 2 and not any("%" in v for v in vals[:2]):
-                return num(vals[0], 0), num(vals[1], 0)
-        if isinstance(box, list) and len(box) >= 4:
-            return num(box[0], 0) + num(box[2], 0) / 2, num(box[1], 0) + num(box[3], 0) / 2
-        return None, None
-
-    @staticmethod
-    def _transform_arg(value):
-        n = num(value, None)
-        return fnum(n) if n is not None else str(value).replace("deg", "")
-
-    @staticmethod
-    def _origin_transform(transform, ox, oy):
-        if ox is None:
-            return transform
-        return f"translate({fnum(ox)} {fnum(oy)}) {transform} translate({fnum(-ox)} {fnum(-oy)})"
 
     def _group_children(self, o):
         """Render a group's children, arranging them when the group declares a
