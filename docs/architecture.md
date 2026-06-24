@@ -35,7 +35,7 @@ There are really two layers of "intermediate":
  (SVG fragments)     (LaTeX + TikZ)
    │                    │
    ▼                    ▼
-  .svg               .tex → lualatex → .pdf
+  .svg               .tex → lualatex/pdflatex → .pdf
 ```
 
 ## The IR: the `Document` model tree
