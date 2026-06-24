@@ -12,11 +12,12 @@ disclaimer:
 
 ## Status
 
-Accepted, staged. Slice **3a** is implemented. Slice **3b** is in progress —
-steps **3b-1** (application layer builds zero SVG) and **3b-2** (the `stroke`
-parameter is a neutral `Stroke` value object) are done; the remainder (the rest of
-the parameter neutralization, completing the port, and a second backend) is scoped
-in the milestone table below.
+Accepted, staged. Slice **3a** is implemented. Slice **3b** is well advanced —
+**3b-1** (application layer builds zero SVG), **3b-2** (`stroke` → `Stroke`),
+**3b-3** (markers, transforms, text-style audit), and **3b-4** (port completion) are
+done. The painter's neutral-parameter surface is complete; only **3b-5** (a second
+backend driven through the port, collapsing the LaTeX fork) remains — scoped in the
+milestone table below.
 
 ### Update (3b-1): the builder was already painter-mediated
 
@@ -145,33 +146,41 @@ non-SVG backend droppable, each item grounded in the current `ports.py` /
 | ID | Milestone | Status | Effort | Output invariant |
 |----|-----------|--------|--------|------------------|
 | **3b-2** | Neutralize the `stroke` parameter (`Stroke` value object) | ✅ **done** | L | byte-identical (verified, 252 pages) |
-| **3b-3** | Neutralize the remaining SVG-string-shaped painter params | next | M | byte-identical |
-| **3b-4** | Complete + correct the `ScenePainter` port surface | next (cheap) | S | declaration-only |
-| **3b-5** | Second adapter: drive LaTeX/TikZ through the port, delete the fork | after 3b-4 | L–XL | golden re-pin (new target) |
+| **3b-3** | Neutralize the remaining SVG-string-shaped painter params | ✅ **done** | M | byte-identical (transforms: 1 reviewed re-pin) |
+| **3b-4** | Complete + correct the `ScenePainter` port surface | ✅ **done** | S | declaration-only |
+| **3b-5** | Second adapter: drive LaTeX/TikZ through the port, delete the fork | next | L–XL | golden re-pin (new target) |
 
-**3b-3 — remaining non-neutral params.** Inspection finds these still SVG-flavored:
+**3b-3 — remaining non-neutral params (done):**
 
-- **Markers / arrowheads.** Deferred by 3b-2: `RenderContext.arrow_attrs(o) -> str`
-  and `painter.marker(...) -> str` emit SVG marker refs/defs, threaded through the
-  new `extra=` param on `line`/`poly`/`path`. Needs a neutral `Marker`/arrowhead
-  value object so a backend draws its own arrowheads.
-- **Transforms.** `transform_group(inner, transform: str)` takes a raw SVG
-  `transform` string. Neutralize to a transform value object (an affine matrix /
-  `TransformFn` list the backend formats).
-- **Text style.** Audit that `text_tag`/`text_block`/`text_runs` receive only
-  neutral style dicts (`st`), not pre-baked SVG — likely already neutral; confirm.
+- **Markers / arrowheads** ✅ (3b-3a). A neutral `Markers{color,start,end}` value
+  object (`stroke_resolver`); `Renderer._arrow_markers` returns it, the SVG
+  marker-`<defs>` registration + ref formatting moved into `SvgPainter._marker_attrs`,
+  and `line`/`poly`/`path` take a neutral `markers=` param. `RenderContext.arrow_attrs`
+  → `arrow_markers`. Byte-identical.
+- **Transforms** ✅ (3b-3b). `StyleValues.svg_transform` → `transform_ops()` returning
+  a neutral op list `[(fn,[args]), …]` (origin sandwich expanded to explicit
+  `translate` ops); `SvgPainter.format_transform` owns the SVG syntax;
+  `transform_group(inner, ops)` formats internally. One operator-approved re-pin: the
+  flow site's `translate(x,y)` normalized to `translate(x y)` (18 transforms,
+  SVG-equivalent) — verified the *only* change across 252 pages.
+- **Text style** ✅ (audit). `text_tag`/`text_block`/`text_runs` already receive a
+  neutral style dict (`st` = family/size/weight/italic/color/align/lh); the painter's
+  `font_style` formats it. No SVG leaks — no change needed.
 - `fill` is already near-neutral (a colour/url the painter formats via `fill_attr`).
 
-**3b-4 — port surface is partial and partly stale (confirmed):**
+After 3b-3 the only non-neutral painter inputs left are the **opaque backend handles**
+(gradient/clip/filter/marker ids) — inherently backend-specific (3b-4) — and the
+residual `extra=` (one inert `fill="none"` on UML lines).
 
-- **Missing declarations** — called by the builder but absent from the
-  `ScenePainter` Protocol: `image_pattern`, `clip_polygon`, `clip_path_d`.
-- **Stale annotation** — `RenderContext.shape_stroke(o, style) -> str` now returns
-  `Stroke | None` after 3b-2; the `-> str` is wrong.
-- **Document the backend-specific handle methods** (`gradient`/`clip_*`/`filter_*`/
-  `marker`/`embedded_svg` return opaque ids/fragments; `clip_id`/`filter_id` are
-  backend handles) as explicitly backend-specific, distinct from the neutral
-  geometry primitives — so a backend author knows which to reimplement vs. format.
+**3b-4 — port surface, completed:**
+
+- **Missing declarations** added — `image_pattern`, `clip_polygon`, `clip_path_d`
+  (builder-called, were absent from the `ScenePainter` Protocol).
+- **Stale annotation** fixed — `RenderContext.shape_stroke` now typed `Stroke | None`.
+- **Backend-specific handle methods** (`gradient`/`image_pattern`/`clip_*`/`filter_*`/
+  `marker`/`embedded_svg`) documented as returning opaque handles, distinct from the
+  neutral geometry primitives — so a backend author knows which to reimplement vs.
+  format. Confirmed structurally: every `ScenePainter` method exists on `SvgPainter`.
 
 **3b-5 — the payoff and the real port test.** The LaTeX path
 (`latex/document.py::_Transpiler`, `latex/tikz.py::FigureTikz`, ~3,480 LOC, its own
@@ -182,9 +191,10 @@ the maintenance win (one builder, two backends). Unlike 3b-2/3b-3/3b-4 this is *
 byte-identical — TikZ is a different target, so it needs a reviewed `make golden`
 re-pin for the LaTeX corpus, decided per-fixture.
 
-3b-3 and 3b-4 are **byte-identical** for the SVG backend (no re-pin); 3b-4 is the
-cheap quick win and unblocks 3b-5. Only 3b-5 introduces a new output target and the
-golden re-pin that implies.
+With 3b-3 and 3b-4 landed, the painter's *neutral* surface is complete: every
+geometry primitive takes value objects (`Stroke`, `Markers`, transform ops, colour/
+url fills) and the port declares the full surface. **3b-5 is all that remains** — the
+second adapter that proves the seam by construction and collapses the LaTeX fork.
 
 ## Consequences
 
