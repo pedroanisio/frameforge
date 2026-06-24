@@ -42,6 +42,7 @@ tests/
   test_docs_in_sync.py        ← doc drift gate: numbers, Layout paths, generated-doc policy, fixture status.
   test_doc_examples.py        ← validates every complete FrameGraph example shown in the prose.
 docs/ + mkdocs.yml            ← the MkDocs site: `index.md` is hand-written, `sdk*.md` are committed generated snapshots, and transient generated pages are ignored.
+docs/output-space.md          ← what FrameGraph can generate: the verified-today backends + the conceptual output space (anchor drift-gated by tests/test_output_space_doc.py).
 FIXTURE-STATUS.md             ← GENERATED validator status for the delivered fixtures (gen_status.py).
 CHANGELOG.md                  ← version, the breaking change + migration, conformance classes, rec. resolution.
 codebase-standards.md         ← the elevated engineering bar, status-tagged (Enforced / Adopted / Target).
@@ -155,3 +156,6 @@ folded into the artifacts above; they are listed only for historical context:
 - The current delivered top-level fixture status is generated in `FIXTURE-STATUS.md`;
   at this snapshot **27/27** have zero errors. Advisory warnings, when present, are
   recorded there instead of summarized by hand here.
+- What FrameGraph can — and deliberately will not — generate is mapped in
+  [docs/output-space.md](docs/output-space.md): the backends wired today (whose
+  entry points are drift-gated) plus the conceptual output space the IR admits.
