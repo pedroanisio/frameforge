@@ -226,6 +226,16 @@ def rule_checks(doc, findings):
                                     f"{t!r} is a renderer-shortcut alias; codemod normalises it "
                                     f"({'ellipse' if t=='circle' else 'closed polyline' if t=='polygon' else 'path'})",
                                     path))
+        # R11 non-conformant 3D (G-2): `perspective` is declared but no render
+        # target applies a 3D perspective — it passes through inert, a "declared,
+        # may not render" trap. Flag it (WARN, not ERROR — the doc is still valid);
+        # author 3D via the SDK Scene3D 2D-projection (Appendix A.5) instead.
+        st = o.get("style")
+        if isinstance(st, dict) and st.get("perspective") not in (None, "none"):
+            findings.append(Finding("WARN", "non-conformant-3d",
+                                    "`perspective` is non-conformant: no render target applies a 3D "
+                                    "perspective; it passes through inert. Author 3D via the SDK "
+                                    "Scene3D projection (Appendix A.5).", f"{path}.style.perspective"))
 
     # R8 geometric audit (box-based, page space) + tabular signature
     _geometric_audit(doc, findings)

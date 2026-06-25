@@ -13,7 +13,7 @@
 (*                                                                      *)
 (* GOAL: no gap against CSS for the STATIC PRESENTATIONAL surface.      *)
 (*   - In scope : Text, Fonts, Color, Backgrounds & Borders, Filter     *)
-(*     Effects, Transforms (2D; 3D declared but may be unrenderable),   *)
+(*     Effects, Transforms (2D only; `perspective` non-conformant, G-2),*)
 (*     Overflow, paint/SVG stroke.                                      *)
 (*   - Out of scope (by design): layout (flex/grid/float/position — FG  *)
 (*     owns this), and cascade/selectors/interaction/animation.         *)
@@ -259,13 +259,18 @@ ClipPath =
       "}" ;
 
 
-(* ═══ Transforms (CSS Transforms L1/L2; 3D declared, may not render) ══ *)
+(* ═══ Transforms (CSS Transforms L1/L2 — 2D only is conformant) ═══════ *)
+(* TransformFn is 2D-only. `perspective` is the sole 3D-declared surface and is   *)
+(* NON-CONFORMANT (G-2): accepted for round-trip but no render target applies a   *)
+(* 3D perspective — it passes through inert, and the validator WARNs              *)
+(* (`non-conformant-3d`). Author 3D via the SDK Scene3D 2D-projection (Appendix   *)
+(* A.5), never via this property.                                                 *)
 
 style-transform-group =
       [ "transform"        , ":" , ( "none" | string | "[" , TransformFn , { "," , TransformFn } , "]" ) ] ,
       [ "transform_origin" , ":" , ( string | Point ) ] ,
       [ "transform_box"    , ":" , ( "border-box" | "fill-box" | "view-box" | "content-box" ) ] ,
-      [ "perspective"      , ":" , ( "none" | Length ) ] ;     (* 3D: may be unrenderable per target *)
+      [ "perspective"      , ":" , ( "none" | Length ) ] ;     (* NON-CONFORMANT (G-2): inert, validator WARNs *)
 
 TransformFn =
     "{" ,

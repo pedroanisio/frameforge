@@ -353,6 +353,9 @@ class Style(FG):
     transform: Optional[Union[Literal["none"], str, list[TransformFn]]] = None
     transform_origin: Optional[Union[str, Point]] = None
     transform_box: Optional[Literal["border-box", "fill-box", "view-box", "content-box"]] = None
+    # NON-CONFORMANT (G-2): accepted for round-trip, but no render target applies a
+    # 3D perspective — it passes through inert and the validator WARNs
+    # (`non-conformant-3d`). Author 3D via the SDK Scene3D 2D-projection (Appendix A.5).
     perspective: Optional[Union[Literal["none"], Length]] = None
 
 

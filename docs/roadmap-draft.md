@@ -16,7 +16,7 @@ disclaimer: >
   source of truth and could narrow a gap. Priorities reflect how defensible and
   consequential each gap is, not committed scheduling. Appendix A **documents the
   existing geometry/3D SDK** (`framegraph.sdk.{geometry,draw,manifold,fields}`) plus
-  the grammar fixes G-1 (landed) and G-2 (open); the TypeScript `@framegraph/*` names in it are
+  the grammar fixes G-1 and G-2 (both landed); the TypeScript `@framegraph/*` names in it are
   illustrative sketches of the shipping Python API, and every formula's sign
   convention must be verified against your renderer before use (canvas space is
   Y-DOWN, origin top-left). NOTHING IN THE APPENDIX SHOULD BE TAKEN FOR GRANTED.
@@ -38,7 +38,7 @@ appendix_references:
     SDK and renderer (see the Verification-status note); items 3 and 5 are **scope
     decisions worth making explicit** rather than gaps; item 6 is conditional on a
     live-presentation goal; item 7's geometry/3D SDK **already ships** (Appendix A
-    documents it; G-1 landed, only G-2 remains); item 8 is an additive
+    documents it; G-1 and G-2 both landed — item 7 complete); item 8 is an additive
     book-composition API surface informed by the permissive book corpus inspection;
     item 9 is a generative content object (prompt → image / block) resolved **once
     at build and pinned**, carrying a high determinism / trust risk that the design
@@ -76,18 +76,18 @@ appendix_references:
 
 | # | Item | Roadmap said | TRUE state (audited) | Evidence / what remains |
 |---|------|--------------|----------------------|-------------------------|
-| 4 | Conformance + golden render | gap | ✅ **DONE** | `tooling/render_golden.py`, `tests/golden/oracle.lock.json` (SHA-256 lock, CI-gated); schema `$id` resolvable. |
+| 4 | Conformance + golden render | gap | ✅ **DONE** | `tooling/render_golden.py`, `tests/golden/oracle.lock.json` (SHA-256 lock, CI-gated). **Tolerance band** added: exact hash primary + committed reference renders (`tests/golden/refs/`), numeric ±ε classifies cosmetic vs real drift (`--tolerance`/`--strict`). **Schema URL** versioned + resolvable-shaped (`…/schema/2.2.0/framegraph-v2.schema.json` + `version`). Residual: pixel/font/AA perceptual tolerance (raster-gated). |
 | 2 | Accessibility / tagged export | gap | ✅ **SVG done**, PDF/UA open | `svg.py` a11y_wrap (decorative/role/alt/actual_text), root lang/title/desc, `_render_page_body_in_reading_order`, `tooling/check_accessibility.py`; tests. PDF/UA awaits a PDF backend. |
-| 7 | Geometry / 3D authoring SDK | additive gap | ✅ **done** | `sdk/geometry.py` (A.1/A.2), `sdk/manifold.py`+Scene3D (A.5); **A.3** curve sampling, **A.4** structured log-base/pow-exp scales, **A.6** orthographic `multiview`, and **G-1** typed structured path segments (model `PathSeg`/`PathCommand` + EBNF `PathSegList`, JSON Schema `prefixItems`, enum-gated by `check_grammar_sync`) all landed. Only **G-2** (3D "declared, may not render") and minor scale extras (categorical/time) remain. |
+| 7 | Geometry / 3D authoring SDK | additive gap | ✅ **done** | `sdk/geometry.py` (A.1/A.2), `sdk/manifold.py`+Scene3D (A.5); **A.3** curve sampling, **A.4** structured log-base/pow-exp scales, **A.6** orthographic `multiview`, **G-1** typed structured path segments (model `PathSeg`/`PathCommand` + EBNF `PathSegList`, JSON Schema `prefixItems`, enum-gated by `check_grammar_sync`), and **G-2** (`perspective` marked non-conformant in model + EBNF, validator WARN `non-conformant-3d`) all landed — **item 7 complete**. Only optional minor scale extras (categorical/time) remain. |
 | 1 | Diagram auto-layout | gap | ✅ **author-time done** | `sdk/topology.py`: 5 algorithms **plus `auto_layout`/`layout_kind`** — a graph now lays itself out from its declared edges (algorithm inferred: grid/radial/layered/spring), and `Graph.render()` auto-layouts by default. Remaining (optional): a *render-time* pass over `mode: page` diagram groups, or an ELK binding. |
 | 3 | Data layer for charts | out of scope | ✅ decision holds | `sdk/chart.py` is a lowering helper, no data transforms (by design). |
 | 5 | Print colour (ICC/CMYK) | deferred | ✅ decision holds | no ICC/CMYK code; hook not yet reserved. |
 | 6 | Interaction / animation | low | ✅ decision holds | no animation primitives. |
 | — | Provenance / document signing *(unplanned — not an original item)* | not in roadmap | ✅ **shipped (opt-in)** | `framegraph/rendering/provenance.py` (`sign_svg`/`FrameForgeStamp`): a deterministic sha256 **content fingerprint** + tool/version + optional UTC timestamp, injected as an SVG `<metadata><frameforge …>` in a private namespace (`https://framegraph.dev/ns/provenance`). Opt-in via `render_fixtures.py --sign/--signed-at` and the MCP render tools (`sign=`/`signed_at=`); byte-identity (item 4 golden lock) preserved when off, and deterministic when no timestamp. A parallel recipe fingerprint ships in `recipe/sign.py`. Tests: `tests/test_provenance.py`. **Residual:** SDK exposure (none yet, per ADR 0002) and a **keyed/authenticated** signature (HMAC) if non-repudiation is ever needed — today it is tamper-*evident*, not authenticated. |
 
-> **Net (updated 2026-06-24):** item #7 (geometry SDK) is now **complete** (A.1–A.6
-> + G-1), and #1 has author-time automatic layout. **No item has an open
-> author-facing gap.** What remains is all deeper integration or externally gated:
+> **Net (updated 2026-06-25):** item #7 (geometry SDK) is now **complete** (A.1–A.6
+> + G-1 + G-2), and #1 has author-time automatic layout. **No item (1–7) has an open
+> author-facing gap** (items 8–9 remain unbuilt additive proposals). What remains is all deeper integration or externally gated:
 > #1's optional *render-time* auto-layout pass (a model/renderer integration); #2's
 > PDF/UA half (gated on a PDF backend that does not yet exist); and the ADR 0001
 > LaTeX-fork deletion (gated on a `lualatex` toolchain). Scope decisions (#3/#5/#6)
@@ -125,10 +125,10 @@ different thing from the controls themselves.
 |---|------|----------|------|
 | 1 | Automatic *graph* layout for diagrams | **High** | Algorithms exist (`sdk.topology`) → render-time wiring remains |
 | 2 | Accessibility / tagged-export model | **High** | Vocabulary + partial SVG a11y done → PDF/UA tagged export remains |
-| 4 | Conformance suite + reference-renderer semantics | **Medium** | Golden-lock harness exists → tolerance diff + schema URL remain |
+| 4 | Conformance suite + reference-renderer semantics | **Low** | Golden lock + **tolerance band** + versioned schema URL done → only raster-perceptual tolerance remains |
 | 3 | Data layer for charts | **Medium** | Scope decision → out of scope (provisional) |
 | 5 | Print color management (ICC / CMYK) | **Medium** | Scope decision → deferred (provisional) |
-| 7 | Geometry / transformed spaces / 3D authoring SDK | **Low** | SDK ships + G-1 landed → 1 grammar fix (G-2) remains |
+| 7 | Geometry / transformed spaces / 3D authoring SDK | **Low** | SDK ships; G-1 + G-2 landed → **complete** (optional scale extras only) |
 | 8 | Book composition API | **Medium-High** | Additive product/API surface |
 | 9 | Generative content objects (prompt → image / content) | **Medium** | Additive object + generation tier; high determinism / trust risk |
 | 6 | Interaction / animation for presented decks | **Low** | Conditional on goal |
@@ -138,8 +138,8 @@ different thing from the controls themselves.
 > existing golden lock. The data layer and print color are scope choices worth
 > stating outright rather than leaving implied. The geometry / 3D SDK (item 7)
 > **already ships** (`sdk.{geometry,draw,manifold,fields}`) — so it is lowest-risk
-> and now **Low** priority: with G-1 landed, the residual is documentation plus one
-> grammar fix (G-2), not a build.
+> and now **Low** priority: with G-1 and G-2 both landed, item 7 is complete and the
+> only residual is documentation, not a build.
 
 ## Implementation sequence (recommended)
 
@@ -166,12 +166,12 @@ so it moves ahead of item 1.
    protection: an ELK-backed layout tier for `mode: page` diagram groups keyed off
    the semantic graph, with absolute positioning as the override. *Effort: XL;
    depends on step 2.*
-4. **Item 7 — geometry / 3D: document existing SDK + the remaining grammar fix.**
-   The authoring math already ships in `sdk.{geometry,draw,manifold,fields}`, and
-   **G-1 (typed structured path segments) has landed** — model `PathSeg`/`PathCommand`,
-   EBNF `PathSegList`, JSON-Schema `prefixItems`, enum-gated by `grammar-check`. The
-   residual work is documentation (Appendix A) plus G-2 (close the 3D "declared, may
-   not render" trap). *Effort: S; parallelizable.*
+4. **Item 7 — geometry / 3D: complete; document the existing SDK.** The authoring
+   math ships in `sdk.{geometry,draw,manifold,fields}`, and **both grammar fixes have
+   landed** — G-1 (typed structured path segments: model `PathSeg`/`PathCommand`, EBNF
+   `PathSegList`, JSON-Schema `prefixItems`, enum-gated by `grammar-check`) and G-2
+   (`perspective` marked non-conformant in model + EBNF, validator WARN
+   `non-conformant-3d`). The only residual is documentation (Appendix A). *Effort: XS.*
 5. **Item 8 — Book composition API.** Build the semantic authoring layer above
    pages: `BookBuilder`, chapter/section builders, block IR, deterministic
    single-column pagination, figure numbering/captions, `keep_with_caption`, and
@@ -265,28 +265,32 @@ some page's `reading_order`.
 
 ### 4. Conformance suite + reference-renderer semantics
 
-**Gap (reframed — a golden-lock harness exists; tolerance + schema URL remain).**
-The format's stance — treat each construct as a proposal to verify against the
-renderer — leaves "valid" underdetermined. FrameGraph already has the schema, the
-models, the `b1/` authoritative fixtures as an oracle, the `--check-overflow`
-text-fit gate, **and a working golden-render lock**: `tests/test_golden_render.py`
-builds an oracle manifest, pins each fixture's per-page render to a SHA-256 lock,
-and diffs current-vs-locked (detecting changed pages and page-count changes). What
-it does *not* have is a **tolerance band** — the lock is exact-hash, so any
-sub-pixel / font / AA change trips it — nor a **resolvable, versioned schema URL**
-documents can self-declare against.
+**Gap (reframed — golden lock, tolerance band, and schema URL all landed; only
+raster-perceptual tolerance remains).** The format's stance — treat each construct
+as a proposal to verify against the renderer — leaves "valid" underdetermined.
+FrameGraph has the schema, the models, the `b1/` authoritative fixtures as an oracle,
+the `--check-overflow` text-fit gate, and a working golden-render lock
+(`tooling/render_golden.py` + `tests/golden/oracle.lock.json`). The two former
+residuals are now closed: a **numeric tolerance band** (exact hash stays primary;
+on a mismatch the fresh render is compared against a committed reference under
+`tests/golden/refs/` within a coordinate ±ε, classifying cosmetic vs real drift —
+`--tolerance`/`--strict`), and a **resolvable, versioned schema URL**
+(`…/schema/2.2.0/framegraph-v2.schema.json` + a `version` field) documents can
+self-declare against. The only remaining piece is a **pixel/font/AA perceptual**
+tolerance, which needs a raster backend (out of scope in this environment).
 
 **Comparators.** The mature comparators close this loop. Vega-Lite publishes a
 versioned JSON Schema and an example gallery, and its CI recompiles every example
 to reference Vega specs and SVGs that serve as regression tests, with an explicit
 backward-compatibility commitment.
 
-**Fix (narrower — the harness exists).** Add a **tolerance mode** to the existing
-`test_golden_render.py` lock (a perceptual / pixel-distance diff with an explicit
-band, alongside the exact-hash mode) so cosmetically-irrelevant render changes do
-not produce false failures, and version the schema at a **resolvable URL** the way
-Vega-Lite does so documents can self-declare conformance. The corpus and diff
-machinery are already in place.
+**Fix (done — numeric tolerance + versioned URL landed).** The **tolerance mode** is
+implemented as a numeric coordinate-distance band alongside the exact-hash lock
+(committed reference renders + ±ε classification), so cosmetically-irrelevant
+sub-pixel jitter no longer produces false failures while real drift still fails. The
+schema is now versioned at a **resolvable URL** (`…/schema/2.2.0/…` + `version`) the
+way Vega-Lite does, so documents can self-declare conformance. A perceptual
+*pixel-distance* band (catching font/AA differences) remains a raster-gated follow-up.
 
 ---
 
@@ -329,10 +333,10 @@ an optional output-intent / ICC reference on `RenderTarget` so print targets can
 declare a profile and screen targets ignore it — but do not build CMYK separation
 now. The reservation keeps it additive when a print target becomes real.
 
-### 7. Geometry, transformed spaces, and 3D authoring — the SDK already exists; one grammar fix remains
+### 7. Geometry, transformed spaces, and 3D authoring — the SDK ships; both grammar fixes (G-1, G-2) have landed
 
-**Gap (reframed — the authoring layer already exists; G-1 has landed and only G-2
-remains).** The grammar can *represent* arbitrary 2D geometry — `PathObject.d` (SVG
+**Gap (reframed — the authoring layer already exists; G-1 and G-2 have both
+landed, so item 7 is complete).** The grammar can *represent* arbitrary 2D geometry — `PathObject.d` (SVG
 path data), `PolylineObject.points`, `TransformFn.matrix` (full 2D affine) — and
 **the SDK already computes it.** `framegraph/sdk/geometry.py` exports `Mat3`,
 `Mat4`, `Path`, `Vec2`, `Vec3`, `CubicBezier`, `Camera`, and `quarter_circle_kappa`
@@ -347,30 +351,29 @@ already exercise it (`sdk_3d_scene.py`, `sdk_geometry_patterns.py`,
 has now landed** — `PathObject.d` accepts a typed `list[PathSeg]` alongside the
 string (model `PathSeg`/`PathCommand`, EBNF `PathSegList`, JSON-Schema `prefixItems`,
 enum-gated by `check_grammar_sync`), so structured path geometry is schema-checkable.
-The genuine residual is one grammar-level item: **G-2** — the style module marks 3D
-transforms and `perspective` as "declared, may not render"
-(`grammar/framegraph-v2-style.ebnf` line 262), so emitting them is a trap. The SDK's
-answer to G-2 is already the right one: project to 2D and emit primitives the
-renderer draws.
+**G-2 has now landed too**: `TransformFn` is 2D-only (no 3D functions exist), and the
+lone 3D-declared surface — the `perspective` property — is marked NON-CONFORMANT in
+the model and EBNF, with the validator emitting a `non-conformant-3d` WARN when it is
+set. So the "declared, may not render" trap is closed: it surfaces at validation
+instead of silently. The SDK's answer remains the right one — author 3D via Scene3D
+2D-projection (§A.5), never the inert property.
 
 **Comparator.** A 2D&3D vector language (Asymptote) computes geometry and 3D and
 *projects to 2D vector output* rather than shipping a 3D scene to the page; D3's
 scales (`linear` / `log` / `pow`) model the data→page frame mapping. The lesson is
 that the geometry kernel belongs in the authoring tool, not the page renderer.
 
-**Fix (documentation + one remaining grammar fix, not a build).** The author-time
+**Fix (now just documentation — both grammar fixes are done).** The author-time
 math already ships in `framegraph.sdk.{geometry,draw,manifold,fields}` and **emits
 only primitives the grammar has** — `path`, `polyline`, `group`, `matrix` —
 resolving curves and 3D→2D projection at expansion time and pinning the result with
-the hash contract. **G-1 is done**: a typed `list[PathSeg]` now sits alongside the
-`d` string so paths are schema-checkable, landed in **both** the models and the EBNF
-(`check_grammar_sync` enum-gates the `PathCommand` vocabulary across the two). The
-remaining work is (a) **document** that SDK (Appendix A is effectively its spec) and
-(b) ship **G-2**, explicitly marking the 3D transforms non-conformant (or specifying
-a 3D renderer) so the "declared, may not render" trap is closed. Priority stays
-**Low**: no new capability, one small grammar delta. Full design, math, and
-grammar-fix table in **Appendix A** — now read as documentation of the existing SDK,
-not a build proposal.
+the hash contract. **G-1 is done** (a typed `list[PathSeg]` alongside the `d` string,
+schema-checkable, landed in both models and EBNF, enum-gated by `check_grammar_sync`)
+and **G-2 is done** (`perspective` marked non-conformant in model + EBNF, validator
+WARN `non-conformant-3d`). The only remaining work is to **document** the SDK
+(Appendix A is effectively its spec). Priority stays **Low** and item 7 carries no
+open gap. Full design, math, and grammar-fix table in **Appendix A** — read as
+documentation of the existing SDK, not a build proposal.
 
 ### 8. Book composition API — semantic layer above pages
 
@@ -535,10 +538,10 @@ emitted), and a **tolerance band + schema URL over the existing golden-render
 lock**. The **data layer** and **print color management** are scope decisions
 worth making explicit rather than leaving implied. The **geometry /
 transformed-spaces / 3D authoring SDK** (item 7, Appendix A) already ships in
-`sdk.{geometry,draw,manifold,fields}` — and with **G-1 landed** (typed structured
-path segments, schema-checkable and grammar-gated), what remains is documenting it
-and one small grammar fix (G-2), so it carries **Low** priority and near-zero format
-risk. The **Book composition
+`sdk.{geometry,draw,manifold,fields}` — and with **both grammar fixes landed** (G-1
+typed structured path segments, schema-checkable and grammar-gated; G-2 `perspective`
+marked non-conformant with a validator WARN), item 7 is complete and the only residual
+is documentation, so it carries **Low** priority and near-zero format risk. The **Book composition
 API** (item 8) is the clearest near-term product/API increment: semantic blocks and
 deterministic pagination above the current page primitives, with imported figures
 as controlled assets rather than raster-only shortcuts. **Generative content
@@ -672,15 +675,16 @@ view distorts the source — that intersection is the 3.0 bet.
 
 # Appendix A — Geometry, Transformed Spaces, and 3D (design proposal, non-normative)
 
-> **Status:** documentation of an existing SDK + one remaining grammar fix
+> **Status:** documentation of an existing, complete SDK (both grammar fixes landed)
 > (non-normative). This appendix is the design behind roadmap item 7 — and most of
 > it **already exists** in `framegraph.sdk.{geometry,draw,manifold,fields}`. The
 > TypeScript `@framegraph/*` names below are *illustrative interface sketches*; the
 > real, shipping implementation is Python (`framegraph/sdk/geometry.py`, `draw.py`,
 > `manifold.py`, `fields.py`) — e.g. `Mat3`/`Mat4`/`Path`/`Vec2`/`Vec3`/`Camera`/
 > `quarter_circle_kappa` and `Scene3D.render`. Read this as a spec of what ships,
-> not a build proposal; **G-1 (typed structured path segments) has landed**, so the
-> only genuinely-open item is grammar fix G-2 (§A.7). NOTHING HERE SHOULD BE TAKEN FOR GRANTED: statements not backed by a real
+> not a build proposal; **both grammar fixes have landed** — G-1 (typed structured
+> path segments) and G-2 (`perspective` marked non-conformant) — so item 7 is complete
+> and the appendix is documentation of shipped work (§A.7). NOTHING HERE SHOULD BE TAKEN FOR GRANTED: statements not backed by a real
 > definition (the code, the EBNF) or a citable reference may be invalid. The MATH is stated concretely so it
 > can be checked; verify each formula and sign convention against your own
 > renderer's coordinate system before relying on it. Coordinate convention assumed
@@ -905,7 +909,7 @@ Output of `render(...)` is a `group` of closed `polyline`/`path` objects with co
 | ID | Gap (grounded) | What the SDK does | Grammar fix |
 |----|----------------|-------------------|-------------|
 | G-1 ✅ **DONE** | `PathObject.d` was an opaque string the schema could not validate | builds correct `d`; the renderer lowers structured segments to the same path-data string | **landed**: `Path.d` is `Union[str, list[PathSeg]]` — a typed `PathSeg` union (M/L/H/V/C/S/Q/T/A/Z, absolute+relative) and a `PathCommand` alias; the JSON Schema validates command + arity via `prefixItems`; the EBNF carries `PathSegList`/`PathSeg`/`PathCommand` and `check_grammar_sync` enum-gates `PathCommand` across models + EBNF. `d` is the compiled view |
-| G-2 | 3D transforms / `perspective` are "declared, may not render" — a trap | refuses to emit them; projects to 2D instead (§A.5) | either deprecate/mark them explicitly non-conformant, or specify a real 3D renderer; until then, projection-only is the supported path |
+| G-2 ✅ **DONE** | `perspective` was "declared, may not render" — accepted but inert, a trap | refuses to emit 3D; projects to 2D instead (§A.5) | **marked explicitly non-conformant**: `TransformFn` is 2D-only (no 3D functions exist); `perspective` is annotated NON-CONFORMANT in the model + EBNF and the validator now WARNs (`non-conformant-3d`) when it is set, so the trap surfaces at validation instead of silently. Projection-only via the SDK Scene3D is the supported 3D path |
 | G-3 | `Point` is unitless 2D; `Length` may be relative (`%`,`fr`) — geometry over relative units is undefined | resolves all lengths to absolute canvas numbers before any geometry math | document the rule: computed geometry is absolute-units-only |
 | G-4 | curves/projection are not reproducible if recomputed per render | computes them once at **expansion** (Tier 3) and pins the result with the hash set | none — reuse the existing expansion/hashing contract |
 
