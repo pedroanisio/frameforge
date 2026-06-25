@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+"""SVG -> FrameGraph object importer (the ingestion back-end).
+
+Any tool that emits SVG (a vectorizer, Inkscape, Illustrator) lowers into
+FrameGraph primitives through svg_to_objects, which the renderer then draws 1:1.
+"""
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+_shadow = sys.modules.get("framegraph")
+if _shadow is not None and not hasattr(_shadow, "__path__"):
+    del sys.modules["framegraph"]
+sys.path.insert(0, ROOT)
+
+from framegraph.vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
+
+
+def test_circle_lowers_to_ellipse_with_fill():
+    objs = svg_to_objects('<svg viewBox="0 0 10 10"><circle cx="5" cy="6" r="3" fill="#abc"/></svg>')
+    assert len(objs) == 1
+    o = objs[0]
+    assert o["type"] == "ellipse" and o["center"] == [5.0, 6.0]
+    assert o["rx"] == 3.0 and o["ry"] == 3.0 and o["fill"] == "#abc"
+
+
+def test_rect_inherits_group_fill():
+    objs = svg_to_objects('<svg viewBox="0 0 20 20"><g fill="#00ff00">'
+                          '<rect x="1" y="2" width="4" height="6" rx="2"/></g></svg>')
+    r = objs[0]
+    assert r["type"] == "rect" and r["box"] == [1.0, 2.0, 4.0, 6.0]
+    assert r["fill"] == "#00ff00" and r["radius"] == 2.0
+
+
+def test_polygon_points_parsed():
+    objs = svg_to_objects('<svg viewBox="0 0 10 10"><polygon points="0,0 5,0 5,5" fill="#222"/></svg>')
+    assert objs[0]["type"] == "polygon" and objs[0]["points"] == [[0.0, 0.0], [5.0, 0.0], [5.0, 5.0]]
+
+
+def test_path_passthrough_and_boxfit_transform():
+    objs = svg_to_objects('<svg viewBox="0 0 100 100"><path d="M0 0 L10 0 Z" fill="#111"/></svg>',
+                          box=[200, 100, 50, 50])
+    o = objs[0]
+    assert o["type"] == "path" and o["d"] == "M0 0 L10 0 Z"
+    tr = o["style"]["transform"]
+    assert "scale(0.5" in tr and "translate(200" in tr
+
+
+def test_stroke_only_line():
+    objs = svg_to_objects('<svg viewBox="0 0 10 10"><line x1="0" y1="0" x2="9" y2="1" '
+                          'stroke="#f00" stroke-width="2"/></svg>')
+    o = objs[0]
+    assert o["type"] == "line" and o["from"] == [0.0, 0.0] and o["to"] == [9.0, 1.0]
+    assert o["stroke"] == "#f00" and o["stroke_style"]["stroke_width"] == 2.0
+
+
+def test_gradient_url_fill_falls_back_not_passed_through():
+    objs = svg_to_objects('<svg viewBox="0 0 10 10"><rect x="0" y="0" width="10" height="10" '
+                          'fill="url(#grad)"/></svg>')
+    assert not objs[0]["fill"].startswith("url(")  # url() can't resolve -> neutral fallback
+
+
+def test_real_corpus_svg_roundtrips_through_framegraph():
+    """A real multi-path vector imports and renders through FrameGraph's engine."""
+    objs = svg_to_objects(Path(ROOT) / "fixtures/corpus/vector/wikimedia-nasa-logo.svg",
+                          box=[0, 0, 200, 200])
+    assert len(objs) >= 40  # circles (stars) + the 11 paths
+    from framegraph.sdk import DocumentBuilder, render_page_svgs
+    b = DocumentBuilder(title="import")
+    pg = b.page("p", canvas={"size": [200, 200], "units": "px"}, coordinate_mode="absolute")
+    layer = pg.layer("m")
+    for o in objs:
+        layer.add(o)
+    svg = render_page_svgs(b.build())[0]
+    assert svg.startswith("<svg") and len(svg) > 1000
