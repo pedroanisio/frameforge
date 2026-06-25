@@ -64,6 +64,12 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
     }
     if result.get("signed"):
         summary["signed"] = result.get("signed")
+    if not result.get("ok"):
+        # Surface the failure's traceback tail inline so the caller can diagnose
+        # without a second round-trip to the diagnostics resource.
+        tail = _stderr_tail(result.get("stderr"))
+        if tail:
+            summary["stderr_tail"] = tail
     blocks: list[dict[str, str]] = [
         {"type": "text", "text": json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True)}
     ]
@@ -77,6 +83,23 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
             }
         )
     return blocks
+
+
+_STDERR_TAIL_MAX_CHARS = 1600
+
+
+def _stderr_tail(stderr: Any, *, max_chars: int = _STDERR_TAIL_MAX_CHARS) -> str:
+    """The last lines of a subprocess stderr, bounded for the model-facing summary."""
+    if not isinstance(stderr, str) or not stderr.strip():
+        return ""
+    text = stderr.rstrip()
+    if len(text) <= max_chars:
+        return text
+    clipped = text[-max_chars:]
+    newline = clipped.find("\n")
+    if newline != -1:
+        clipped = clipped[newline + 1:]
+    return "…\n" + clipped
 
 
 def _clamp_stream(text: str, limit: int) -> str:

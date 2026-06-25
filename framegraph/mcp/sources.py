@@ -26,6 +26,7 @@ from typing import Any
 from framegraph.mcp.config import DEFAULT_TIMEOUT_SECONDS
 from framegraph.mcp.discovery import _framegraph_yaml_snapshot, _new_generated_yaml
 from framegraph.mcp.execution import (
+    _apply_build_error,
     _harness_source,
     _subprocess_env,
     _subprocess_timeout_result,
@@ -162,6 +163,7 @@ class SdkCodeSource(DocumentSource):
         if proc.returncode != 0:
             result["ok"] = False
             result["error"] = "sdk code exited with a non-zero status"
+            _apply_build_error(result, session_dir)
             return Produced(sid, session_dir, yaml_path, result, proceed=False)
         if not yaml_path.exists():
             result["ok"] = False
@@ -233,6 +235,7 @@ class SdkClientSource(DocumentSource):
         if proc.returncode != 0:
             result["ok"] = False
             result["error"] = "SDK client exited with a non-zero status"
+            _apply_build_error(result, session_dir)
             return Produced(sid, session_dir, yaml_path, result, proceed=False)
         if not yaml_path.exists():
             generated = _new_generated_yaml(root, snapshot)
