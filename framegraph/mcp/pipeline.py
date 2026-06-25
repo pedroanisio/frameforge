@@ -303,46 +303,106 @@ def _select_pages(pages: str | list[int] | None, max_pages: int, total: int) -> 
     return list(range(1, min(limit, total) + 1))
 
 
-def _try_rasterize_pngs(
-    pages_and_svgs: list[tuple[int, Path]], session_dir: Path, session_id: str
-) -> tuple[list[dict[str, Any]], str | None]:
-    """Rasterize selected page SVGs to PNG, bounded by a page cap and a soft time budget.
+class _RasterBackendUnavailable(RuntimeError):
+    """No raster backend could produce a PNG (Chromium and CairoSVG both absent)."""
 
-    ``pages_and_svgs`` pairs each TRUE 1-based page number with its SVG file. Returns
-    ``(renders, warning)``. A non-``None`` warning means either no viewable raster was
-    produced (the model gets only SVG/diagnostics text — the warning names the missing
-    backend) or the lane was truncated by the cap/budget (the rasterized pages render;
-    the rest keep their SVG resource link). PNGs carry the true page number in both the
-    filename (``pNNN.png``) and the resource URI, so a selected subset stays addressable.
-    """
+
+def _raster_chromium(svg: str, out_path: Path, base_dir: Path) -> None:
+    """Rasterize via headless Chromium; mark the backend absent if it cannot run."""
     try:
         from framegraph.rendering.infrastructure.browser import (
             BrowserRendererUnavailable,
             rasterize_svg,
         )
     except ImportError as exc:
-        return [], f"PNG rasterization unavailable: {exc}"
+        raise _BackendAbsent(f"Headless Chromium: {exc}") from exc
+    try:
+        rasterize_svg(svg, out_path, base_dir=str(base_dir))
+    except BrowserRendererUnavailable as exc:
+        raise _BackendAbsent(f"Headless Chromium: {exc}") from exc
 
+
+def _raster_cairo(svg: str, out_path: Path, base_dir: Path) -> None:
+    """Rasterize via CairoSVG (browser-free fallback); mark absent if unavailable."""
+    try:
+        from framegraph.rendering.infrastructure.cairo import (
+            CairoRendererUnavailable,
+            rasterize_svg_cairo,
+        )
+    except ImportError as exc:
+        raise _BackendAbsent(f"CairoSVG: {exc}") from exc
+    try:
+        rasterize_svg_cairo(svg, out_path, base_dir=str(base_dir))
+    except CairoRendererUnavailable as exc:
+        raise _BackendAbsent(f"CairoSVG: {exc}") from exc
+
+
+class _BackendAbsent(RuntimeError):
+    """One raster backend is unavailable; try the next."""
+
+
+_RASTER_BACKENDS = {"chromium": _raster_chromium, "cairo": _raster_cairo}
+_RASTER_ORDER = ("chromium", "cairo")
+
+
+def _rasterize_one(svg: str, out_path: Path, base_dir: Path, *, prefer: str | None) -> str:
+    """Rasterize one SVG, trying Chromium then CairoSVG. Return the backend used.
+
+    ``prefer`` (a backend known to work this run) is tried first so a successful
+    backend is not re-probed per page. Raises :class:`_RasterBackendUnavailable`
+    with both backends' reasons when neither can run.
+    """
+    order = list(_RASTER_ORDER)
+    if prefer in _RASTER_BACKENDS:
+        order = [prefer] + [name for name in order if name != prefer]
+    reasons: list[str] = []
+    for name in order:
+        try:
+            _RASTER_BACKENDS[name](svg, out_path, base_dir)
+            return name
+        except _BackendAbsent as exc:
+            reasons.append(str(exc))
+    raise _RasterBackendUnavailable(
+        "PNG rasterization unavailable (" + " / ".join(reasons) + "). The model cannot see "
+        "SVG, so this render was not visually verified — install the `browser` group and run "
+        "`uv run playwright install chromium`, or the `mcp`/`pdfout` group for the CairoSVG "
+        "fallback."
+    )
+
+
+def _try_rasterize_pngs(
+    pages_and_svgs: list[tuple[int, Path]], session_dir: Path, session_id: str
+) -> tuple[list[dict[str, Any]], str | None]:
+    """Rasterize selected page SVGs to PNG, bounded by a page cap and a soft time budget.
+
+    Tries headless Chromium first and falls back to CairoSVG (browser-free) so a
+    vision model can still *see* — and verify — a render without a browser.
+    ``pages_and_svgs`` pairs each TRUE 1-based page number with its SVG file. Returns
+    ``(renders, warning)``. A non-``None`` warning means either no viewable raster was
+    produced (no backend available — the warning names both) or the lane was truncated
+    by the cap/budget (the rasterized pages render; the rest keep their SVG resource
+    link). PNGs carry the true page number in both the filename (``pNNN.png``) and the
+    resource URI, so a selected subset stays addressable.
+    """
     total = len(pages_and_svgs)
     cap = _raster_max_pages()
     budget = _raster_timeout()
     deadline = time.monotonic() + budget
     renders: list[dict[str, Any]] = []
     truncated = 0
+    backend: str | None = None
     for index, (page_no, svg_path) in enumerate(pages_and_svgs):
         if index >= cap or time.monotonic() > deadline:
             truncated = total - index
             break
         out_path = session_dir / f"p{page_no:03d}.png"
         try:
-            rasterize_svg(svg_path.read_text(encoding="utf-8"), out_path, base_dir=str(session_dir))
-        except BrowserRendererUnavailable as exc:
+            backend = _rasterize_one(
+                svg_path.read_text(encoding="utf-8"), out_path, session_dir, prefer=backend
+            )
+        except _RasterBackendUnavailable as exc:
             if not renders:
-                return [], (
-                    f"PNG rasterization unavailable: {exc} The model cannot see SVG, so this "
-                    "render was not visually verified — install the `browser` group and run "
-                    "`uv run playwright install chromium`."
-                )
+                return [], str(exc)
             truncated = total - index
             break
         renders.append(
@@ -352,6 +412,7 @@ def _try_rasterize_pngs(
                 "uri": f"framegraph://session/{session_id}/page/{page_no}.png",
                 "mimeType": "image/png",
                 "bytes": out_path.stat().st_size,
+                "backend": backend,
             }
         )
     warning = None

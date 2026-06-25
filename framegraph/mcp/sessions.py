@@ -44,6 +44,7 @@ def _reset_session_outputs(session_dir: Path) -> None:
     """
     stale = [
         session_dir / "generated.fg.yaml",
+        session_dir / "build_error.json",
         *session_dir.glob("page-*.svg"),
         *session_dir.glob("p*.png"),
     ]

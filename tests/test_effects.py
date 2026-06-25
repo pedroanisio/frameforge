@@ -81,6 +81,30 @@ def test_both_effects_nest_two_filters():
     assert svg.count('<g filter="url(#fx') == 2           # glow inner, shadow outer
 
 
+def test_css_string_box_shadow_renders_a_filter():
+    """A CSS-string `box_shadow` must render, not vanish.
+
+    Regression: `EffectResolver._box_shadow` skipped string items, so a
+    model-valid `box_shadow: "<css>"` (ShadowVal = Union[str, Shadow]) validated
+    but silently produced no shadow — a silent failure the project's honest-limits
+    ethos forbids.
+    """
+    svg = _render_obj({**_RECT, "style": {"box_shadow": "0px 4px 12px rgba(0,0,0,0.35)"}})
+    assert "<filter" in svg and 'filter="url(#fx1)"' in svg
+    assert "feGaussianBlur" in svg and "feFlood" in svg
+    assert 'flood-opacity="0.35"' in svg          # alpha lifted out of the rgba()
+    assert "feOffset" in svg                       # offset_y = 4 from the string
+
+
+def test_css_string_box_shadow_matches_the_dict_form():
+    """The string and structured forms both produce a drop-shadow filter."""
+    as_string = _render_obj({**_RECT, "style": {"box_shadow": "0 3px 6px #000000"}})
+    as_dict = _render_obj(
+        {**_RECT, "style": {"box_shadow": [{"offset_x": 0, "offset_y": 3, "blur": 6, "color": "#000000"}]}}
+    )
+    assert "feGaussianBlur" in as_string and "feGaussianBlur" in as_dict
+
+
 def test_effects_fixture_is_the_oracle():
     """fixtures/effects.fg.yaml is the checked-in oracle — it flows through
     validate + overflow in `make check`; here we assert it renders the filters."""

@@ -63,10 +63,12 @@ visual render; the result reports `signed: {applied, timestamp}`.
 ## Seeing the render (visual verification)
 A vision model can only *see* a raster (PNG), not SVG. The render tools therefore
 rasterize to PNG by default (`raster_png=True`) and attach the PNG as an image
-content block; the SVG is kept as a resource link. Rasterization needs the
-`browser` dependency group plus `playwright install chromium`. When that backend
-is absent the result carries a `render_warning` and ships only the SVG/diagnostics
-text — read the warning, install the backend, and re-render to actually verify.
+content block; the SVG is kept as a resource link. Rasterization prefers headless
+Chromium (`browser` group + `playwright install chromium`, highest CSS fidelity)
+and falls back to CairoSVG (browser-free; `mcp`/`pdfout` group) so a PNG is
+produced even without a browser; each render reports the `backend` it used. Only
+when *neither* backend is available does the result carry a `render_warning` and
+ship SVG/diagnostics text alone — read the warning, install a backend, re-render.
 
 Inverse (image/document -> author), the additional capability:
 - `propose_from_image` — classical OpenCV/numpy detectors (+ an optional VLM lane)
