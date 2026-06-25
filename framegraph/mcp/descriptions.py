@@ -38,3 +38,9 @@ _DESC_SIGNED_AT = (
     "Fixed UTC sign timestamp (ISO-8601) shared by every page; only used when sign=True. Omit "
     "for render time; pass an empty string for a deterministic, fingerprint-only stamp (no timestamp)."
 )
+_DESC_SILHOUETTE = (
+    "Run the silhouette readability gate: flatten the document to solid black-on-white before "
+    "rendering, so you can judge whether the construction reads as a recognizable shape BEFORE "
+    "adding detail. Returns a 'silhouette' block with a checklist; the judgement is yours "
+    "(advisory). Use it on illustration/figure construction, not on text-heavy layouts."
+)

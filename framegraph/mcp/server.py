@@ -26,6 +26,7 @@ from framegraph.mcp.descriptions import (
     _DESC_SESSION_ID,
     _DESC_SIGN,
     _DESC_SIGNED_AT,
+    _DESC_SILHOUETTE,
     _DESC_TIMEOUT,
 )
 from framegraph.mcp.guide import FRAMEGRAPH_GUIDE
@@ -177,6 +178,7 @@ def create_server(
         pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
         sign: Annotated[bool, Field(description=_DESC_SIGN)] = False,
         signed_at: Annotated[str | None, Field(description=_DESC_SIGNED_AT)] = None,
+        silhouette: Annotated[bool, Field(description=_DESC_SILHOUETTE)] = False,
     ):
         """Run an editable Python SDK client, validate its YAML, and return render feedback.
 
@@ -196,6 +198,7 @@ def create_server(
                 "pages": pages,
                 "sign": sign,
                 "signed_at": signed_at,
+                "silhouette": silhouette,
             },
             lambda: _uc_run_sdk_client(
                 path,
@@ -208,6 +211,7 @@ def create_server(
                 pages=pages,
                 sign=sign,
                 signed_at=signed_at,
+                silhouette=silhouette,
                 repo_root=repo,
                 edit_roots=edit_roots,
             ),
@@ -227,6 +231,7 @@ def create_server(
         pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
         sign: Annotated[bool, Field(description=_DESC_SIGN)] = False,
         signed_at: Annotated[str | None, Field(description=_DESC_SIGNED_AT)] = None,
+        silhouette: Annotated[bool, Field(description=_DESC_SILHOUETTE)] = False,
     ):
         """Run Python SDK code, validate its YAML, and return render feedback.
 
@@ -245,6 +250,7 @@ def create_server(
                 "pages": pages,
                 "sign": sign,
                 "signed_at": signed_at,
+                "silhouette": silhouette,
             },
             lambda: _uc_run_sdk_code(
                 code,
@@ -256,6 +262,7 @@ def create_server(
                 pages=pages,
                 sign=sign,
                 signed_at=signed_at,
+                silhouette=silhouette,
             ),
         )
         return _maybe_call_tool_result(result)
@@ -272,6 +279,7 @@ def create_server(
         pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
         sign: Annotated[bool, Field(description=_DESC_SIGN)] = False,
         signed_at: Annotated[str | None, Field(description=_DESC_SIGNED_AT)] = None,
+        silhouette: Annotated[bool, Field(description=_DESC_SILHOUETTE)] = False,
     ):
         """Validate and render FrameGraph YAML without executing Python code.
 
@@ -289,6 +297,7 @@ def create_server(
                 "pages": pages,
                 "sign": sign,
                 "signed_at": signed_at,
+                "silhouette": silhouette,
             },
             lambda: _uc_render_framegraph_yaml(
                 yaml_text,
@@ -299,6 +308,7 @@ def create_server(
                 pages=pages,
                 sign=sign,
                 signed_at=signed_at,
+                silhouette=silhouette,
             ),
         )
         return _maybe_call_tool_result(result)

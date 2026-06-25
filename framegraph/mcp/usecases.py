@@ -34,6 +34,7 @@ def _run_source(
     pages: str | list[int] | None,
     sign: bool,
     signed_at: str | None,
+    silhouette: bool = False,
 ) -> dict[str, Any]:
     """Drive any document source: produce, then (if produced) validate + render.
 
@@ -53,6 +54,7 @@ def _run_source(
             pages=pages,
             sign=sign,
             signed_at=signed_at,
+            silhouette=silhouette,
         )
         result.update(rendered)
     _write_diagnostics(produced.session_dir, result)
@@ -70,6 +72,7 @@ def run_sdk_code(
     pages: str | list[int] | None = None,
     sign: bool = False,
     signed_at: str | None = None,
+    silhouette: bool = False,
 ) -> dict[str, Any]:
     """Execute Python SDK code, then validate and render its generated YAML.
 
@@ -93,7 +96,7 @@ def run_sdk_code(
     )
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
-        sign=sign, signed_at=signed_at,
+        sign=sign, signed_at=signed_at, silhouette=silhouette,
     )
 
 
@@ -109,6 +112,7 @@ def run_sdk_client(
     pages: str | list[int] | None = None,
     sign: bool = False,
     signed_at: str | None = None,
+    silhouette: bool = False,
     repo_root: str | Path | None = None,
     edit_roots: str | list[str] | tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
@@ -124,7 +128,7 @@ def run_sdk_client(
     )
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
-        sign=sign, signed_at=signed_at,
+        sign=sign, signed_at=signed_at, silhouette=silhouette,
     )
 
 
@@ -138,6 +142,7 @@ def render_framegraph_yaml(
     pages: str | list[int] | None = None,
     sign: bool = False,
     signed_at: str | None = None,
+    silhouette: bool = False,
 ) -> dict[str, Any]:
     """Validate and render caller-provided FrameGraph YAML."""
     if not isinstance(yaml_text, str) or not yaml_text.strip():
@@ -145,7 +150,7 @@ def render_framegraph_yaml(
     source = RawYamlSource(yaml_text=yaml_text, session_id=session_id, session_root=session_root)
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
-        sign=sign, signed_at=signed_at,
+        sign=sign, signed_at=signed_at, silhouette=silhouette,
     )
 
 

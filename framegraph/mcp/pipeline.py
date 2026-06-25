@@ -43,9 +43,16 @@ def _validate_and_render_yaml(
     pages: str | list[int] | None = None,
     sign: bool = False,
     signed_at: str | None = None,
+    silhouette: bool = False,
 ) -> dict[str, Any]:
     try:
         document = parse(yaml_text, forgiving=False)
+        if silhouette:
+            # The silhouette gate (framegraph.coach): flatten to black-on-white so
+            # construction readability is judged BEFORE detail. Reuses this whole
+            # render path; the judgement itself is the caller's (advisory).
+            from framegraph.coach import to_silhouette
+            document = to_silhouette(document)
         report = validate_static_rules(document)
     except Exception as exc:  # noqa: BLE001
         return {
@@ -138,6 +145,9 @@ def _validate_and_render_yaml(
         # Record the provenance stamp applied to every rendered SVG so the caller
         # can confirm the artifacts are signed (and with which timestamp).
         result["signed"] = {"applied": True, "timestamp": (sign_ts or None)}
+    if silhouette:
+        from framegraph.coach import stage_rubric
+        result["silhouette"] = {"applied": True, "rubric": stage_rubric("silhouette")}
     if render_warning:
         result["render_warning"] = render_warning
     return result
