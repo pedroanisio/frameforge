@@ -28,7 +28,12 @@ import framegraph as fg  # noqa: E402
 def build() -> dict:
     schema = fg.Document.model_json_schema(ref_template="#/$defs/{model}")
     schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
-    schema["$id"] = "https://framegraph.dev/schema/v2"
+    # Version-pinned, resolvable `$id`: a document self-declares conformance against
+    # an exact schema version (e.g. `"$schema": ".../2.2.0/framegraph-v2.schema.json"`),
+    # rather than an unversioned major line. The `version` mirrors HEAD_VERSION so the
+    # two never drift. (Item 4: a resolvable, versioned schema URL.)
+    schema["$id"] = f"https://framegraph.dev/schema/{fg.HEAD_VERSION}/framegraph-v2.schema.json"
+    schema["version"] = fg.HEAD_VERSION
     schema["title"] = (
         f"FrameGraph v2 (HEAD {fg.HEAD_VERSION}) — generated from the Pydantic models "
         f"(core conformance profile)"
