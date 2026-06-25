@@ -14,6 +14,7 @@ per the package-boundary gate.
 from __future__ import annotations
 
 from framegraph.coach.clean import clean, denoise_strokes, node_count, simplify_strokes, smooth_strokes
+from framegraph.coach.compose import compose_from_image, compose_objects
 from framegraph.coach.critique import RUBRICS, stage_rubric
 from framegraph.coach.figures import (
     CANONS,
@@ -71,6 +72,9 @@ __all__ = [
     "node_count",
     "RUBRICS",
     "stage_rubric",
+    # end-to-end composition
+    "compose_objects",
+    "compose_from_image",
     # paint / atmosphere layer
     "atmosphere",
     "glow",

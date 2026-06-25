@@ -78,6 +78,12 @@ Inverse (image/document -> author), the additional capability:
   validate + render so you immediately see whether it holds, lists which
   detectors ran vs were skipped, and returns the per-object observations. Treat
   the result as a starting point to refine with the SDK — never as final.
+- `coach_vectorize` — the Vector Construction Coach pipeline end to end: ingest a
+  raster → clean → redraw (Bézier / snap) → recolor → gradientize → paint
+  atmosphere, all driven by a named `style` grammar (clean_line, flat_icon,
+  blueprint, comic_ink, woodcut, children_book), then validate + render with the
+  silhouette readability gate attached. One call: image → styled FrameGraph doc.
+  Still UNVERIFIED heuristic geometry — the render + gate is the check.
 
 ## Workflow
 Author or propose -> read the returned validation issues + the rendered PNG (or

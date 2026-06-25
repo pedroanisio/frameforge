@@ -87,7 +87,12 @@ with the silhouette gate on the cleaned line-art.
    style name now reconfigures the *whole* pipeline: `comic_ink` → heavy ink
    (width 5), keep detail, snap on; `flat_icon` → simplify hard. Wired into
    `coach_paint_showcase`.
-3. **Browser/resvg rasteriser path** — so the *blur* versions of glow/shadow
+3. ✅ **MCP tool** (DONE) — `coach_vectorize` exposes the whole pipeline as one
+   MCP call: image → ingest → clean → redraw → recolor → gradientize → paint,
+   driven by a named `style`, then validate + render + silhouette gate (reuses the
+   `RawYamlSource` tail). Orchestration lives in `coach.compose` (`compose_objects`
+   pure/testable + `compose_from_image`); the example/CLI and the tool share it.
+4. **Browser/resvg rasteriser path** — so the *blur* versions of glow/shadow
    render (not just the transparent-gradient fallback). The model already emits
    correct filters; only the rasteriser is the limit. (M)
 4. **Ingestion fidelity gate** — render→compare-to-source (POC-03's tolerance-

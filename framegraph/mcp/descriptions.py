@@ -44,3 +44,17 @@ _DESC_SILHOUETTE = (
     "adding detail. Returns a 'silhouette' block with a checklist; the judgement is yours "
     "(advisory). Use it on illustration/figure construction, not on text-heavy layouts."
 )
+_DESC_COACH_STYLE = (
+    "Named visual style grammar to drive the whole pipeline (cleanup tolerance, line weight, "
+    "snap, palette, atmosphere). One of: clean_line, flat_icon, blueprint, comic_ink, woodcut, "
+    "children_book. Unknown names fall back to clean_line."
+)
+_DESC_COACH_MODES = (
+    "Comma list of ingest modes: 'region' (closed colour fills) and/or 'outline' (line-art "
+    "strokes). 'region,outline' gives a coloured illustration; 'outline' alone gives clean "
+    "line-art. Line-art sources want 'outline'; flat/photographic sources want both."
+)
+_DESC_COACH_PAINT = (
+    "Add the style-driven atmosphere pass (soft key-light glow + vignette derived from the "
+    "style palette) for depth. Set False for flat, diagrammatic output."
+)
