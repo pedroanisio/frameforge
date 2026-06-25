@@ -58,3 +58,45 @@ def test_diff_detects_page_count_change():
 def test_diff_clean_when_identical():
     locked = G.load_lock()
     assert G.diff(copy.deepcopy(locked), locked) == []
+
+
+# --- tolerance band (item 4): cosmetic numeric jitter vs real drift ----------- #
+def test_within_tolerance_pure():
+    assert G.within_tolerance("M 10 20", "M 10 20", 0.5)          # identical
+    assert G.within_tolerance("M 10 20", "M 10.3 20", 0.5)        # sub-eps jitter
+    assert not G.within_tolerance("M 10 20", "M 11 20", 0.5)      # beyond eps
+    assert not G.within_tolerance('fill="#000"', 'fill="#001"', 0.5)  # colour digit (skeleton same, num 0->1)
+    assert not G.within_tolerance("M 10 20", "M 10 20 30", 0.5)   # different count
+    assert not G.within_tolerance("<a/>", "<b/>", 0.5)            # skeleton differs
+
+
+def _bump_first_number(svg: str, delta: float) -> str:
+    import re
+    m = re.search(r"-?\d+\.?\d*", svg)
+    val = float(m.group(0)) + delta
+    return svg[:m.start()] + (f"{val:g}") + svg[m.end():]
+
+
+def test_classify_clean_oracle_has_no_drift():
+    svgs = G.build_svgs()
+    real, cosmetic = G.classify(svgs, G.load_lock(), 0.5)
+    assert real == [] and cosmetic == []
+
+
+def test_classify_subpixel_jitter_is_cosmetic_not_real():
+    svgs = G.build_svgs()
+    k = sorted(svgs)[0]
+    svgs[k] = list(svgs[k])
+    svgs[k][0] = _bump_first_number(svgs[k][0], 0.3)   # within ±0.5
+    real, cosmetic = G.classify(svgs, G.load_lock(), 0.5)
+    assert real == []
+    assert any(f"{k} page 1" in line for line in cosmetic)
+
+
+def test_classify_large_move_is_real_drift():
+    svgs = G.build_svgs()
+    k = sorted(svgs)[0]
+    svgs[k] = list(svgs[k])
+    svgs[k][0] = _bump_first_number(svgs[k][0], 5.0)   # beyond ±0.5
+    real, cosmetic = G.classify(svgs, G.load_lock(), 0.5)
+    assert any(f"{k} page 1" in line for line in real)
