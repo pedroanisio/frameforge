@@ -328,13 +328,25 @@ def _geometric_audit(doc, findings):
             # NOTE: layer-level overlap is NOT flagged — global overlap is legal
             # (z-order is intentional, §3.3). Overlap is only checked inside `free`
             # groups / `meta.no_overlap` clusters (see _free_group_overlap).
-            # tabular box-model mandate: ≥6 absolutely-placed text in a regular grid
+            # tabular box-model mandate: ≥6 absolutely-placed text in a regular grid.
+            # A real table REUSES column/row positions: ≥2 columns each with stacked
+            # cells AND ≥3 rows each with side-by-side cells, with ≥6 cells on that
+            # grid. Scattered (free-placed) text has unique x/y per object, so it
+            # forms no shared columns/rows and is not flagged (avoids false positives
+            # on covers, contact pages, and other non-tabular layouts).
             if len(boxed_text) >= 6:
-                xs = sorted({round(b[0]) for b in boxed_text})
-                ys = sorted({round(b[1]) for b in boxed_text})
-                if len(xs) >= 2 and len(ys) >= 3 and len(xs) * len(ys) >= len(boxed_text):
+                xcount: dict[int, int] = {}
+                ycount: dict[int, int] = {}
+                for bx, by, _bw, _bh in boxed_text:
+                    xcount[round(bx)] = xcount.get(round(bx), 0) + 1
+                    ycount[round(by)] = ycount.get(round(by), 0) + 1
+                cols = {x for x, n in xcount.items() if n >= 2}
+                rows = {y for y, n in ycount.items() if n >= 2}
+                cells = sum(1 for bx, by, _bw, _bh in boxed_text
+                            if round(bx) in cols and round(by) in rows)
+                if len(cols) >= 2 and len(rows) >= 3 and cells >= 6:
                     findings.append(Finding("WARN", "tabular-box-model",
-                                            f"{len(boxed_text)} absolutely-positioned text objects form an "
+                                            f"{cells} absolutely-positioned text objects form an "
                                             "approximately regular grid; author as a row/column/grid group "
                                             "or a TableObject (§3.3)", f"pages[{pi}].layers[{li}]"))
 

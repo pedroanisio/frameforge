@@ -529,6 +529,7 @@ def table(
         else:
             labels.append(str(col))
             specs.append(str(col))
+    th = theme or default_theme()
     obj: Obj = {
         "type": "table",
         "box": [x, y, w, h],
@@ -537,6 +538,13 @@ def table(
         "zebra": zebra,
         "row_height": row_height,
         "meta": {"widget": "table"},
+        # Theme the header through `style` so `theme=` reaches the rendered table
+        # (the renderer reads style.header_fill / header_text; without this it falls
+        # back to a fixed blue, silently ignoring the theme).
+        "style": {
+            "header_fill": th.ink,
+            "header_text": {"color": th.surface, "font_weight": 700},
+        },
     }
     if header:
         obj["header"] = labels
