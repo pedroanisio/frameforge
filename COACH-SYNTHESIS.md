@@ -81,8 +81,12 @@ with the silhouette gate on the cleaned line-art.
    moving-averages polylines; `coach.redraw` emits true Bézier strokes and
    recognises primitives. Verified on the portrait: 666 polylines / 6891 nodes →
    606 smooth cubic paths.
-2. **Style-aware cleanup** — let `clean`'s `eps`/`smooth` come from the
-   `StyleProfile` (`woodcut` ≠ `clean_line` simplification). (S)
+2. ✅ **Style-aware cleanup** (DONE) — `cleanup_params(style)` / `redraw_params(style)`
+   derive the clean/redraw kwargs from the resolved `StyleProfile` (detail level →
+   RDP tolerance, edge → smoothing, line weight + snap from the grammar). One
+   style name now reconfigures the *whole* pipeline: `comic_ink` → heavy ink
+   (width 5), keep detail, snap on; `flat_icon` → simplify hard. Wired into
+   `coach_paint_showcase`.
 3. **Browser/resvg rasteriser path** — so the *blur* versions of glow/shadow
    render (not just the transparent-gradient fallback). The model already emits
    correct filters; only the rasteriser is the limit. (M)

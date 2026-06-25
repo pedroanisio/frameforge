@@ -32,8 +32,9 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
 
 from framegraph.coach import (  # noqa: E402
-    atmosphere, clean, create_plan, gradientize, ingest, node_count,
-    parse_intent, recolor_to_style, resolve_style, stage_rubric, to_silhouette, validate_order,
+    atmosphere, clean, cleanup_params, create_plan, curve_count, gradientize, ingest, node_count,
+    parse_intent, recolor_to_style, redraw, redraw_params, resolve_style, stage_rubric,
+    to_silhouette, validate_order,
 )
 from framegraph.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
 
@@ -66,12 +67,14 @@ def build(image, *, style_names=("children_book",), out_dir="out/coach_paint"):
     outline, _, _ = ingest(image, mode="outline", detail=0.0018, min_area=22.0)
     src = (w, h)
 
+    # clean + redraw are now STYLE-DRIVEN (params derived from the StyleProfile)
     n_before = node_count(outline)
-    outline = clean(outline, min_span=7.0, eps=2.0)
-    n_after = node_count(outline)
+    cleaned = clean(outline, **cleanup_params(style))
+    n_after = node_count(cleaned)
+    ink = redraw(cleaned, **redraw_params(style), stroke=style.palette[0])   # 06_line_art
+    n_curves = curve_count(ink)
 
     fills = gradientize(recolor_to_style(region, style))
-    ink = recolor_to_style(outline, style)        # strokes -> style ink + weight
     atm = atmosphere(style, w, h)
 
     # ---- hero: the coach layer plan, composed ----
@@ -112,7 +115,8 @@ def build(image, *, style_names=("children_book",), out_dir="out/coach_paint"):
     print(f"[coach] style={style.name} palette={list(style.palette)}")
     print(f"[coach] layer plan valid: {not plan_issues}  ({len(plan.layers)} stages)")
     print(f"[ingest] region={len(region)} fills, outline={len(outline)} strokes ({w}x{h})")
-    print(f"[clean] nodes {n_before} -> {n_after}")
+    print(f"[clean] nodes {n_before} -> {n_after}  (style: {cleanup_params(style)})")
+    print(f"[redraw] {n_curves} smooth Bézier strokes  (style: {redraw_params(style)})")
     print(f"[paint] atmosphere: {len(atm['back'])} back + {len(atm['front'])} front (style-driven)")
     print(f"[gate] silhouette rubric: {stage_rubric('silhouette')[0]}")
     print(f"[write] {out_dir}/hero.svg, silhouette.svg")
