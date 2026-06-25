@@ -110,12 +110,12 @@ def test_mcp_content_blocks_ships_png_not_svg_as_image(tmp_path):
 
 def test_render_warning_when_raster_backend_unavailable(tmp_path, monkeypatch):
     """raster_png=True but no browser backend -> ok stays True, but a warning is surfaced."""
-    import framegraph.mcp.server as server
+    import framegraph.mcp.pipeline as pipeline
 
     def _unavailable(svg_paths, session_dir, session_id):
         return [], "PNG rasterization unavailable: stub. install the `browser` group."
 
-    monkeypatch.setattr(server, "_try_rasterize_pngs", _unavailable)
+    monkeypatch.setattr(pipeline, "_try_rasterize_pngs", _unavailable)
     result = run_sdk_code(SDK_SCRIPT, session_id="warn", session_root=tmp_path, raster_png=True)
 
     assert result["ok"] is True  # SVG still rendered
@@ -125,12 +125,12 @@ def test_render_warning_when_raster_backend_unavailable(tmp_path, monkeypatch):
 
 
 def test_render_exception_returns_structured_error_not_traceback(tmp_path, monkeypatch):
-    import framegraph.mcp.server as server
+    import framegraph.mcp.pipeline as pipeline
 
     def _boom(document, base_dir):
         raise RuntimeError("renderer exploded")
 
-    monkeypatch.setattr(server, "_render_page_svgs_bounded", _boom)
+    monkeypatch.setattr(pipeline, "_render_page_svgs_bounded", _boom)
     result = run_sdk_code(SDK_SCRIPT, session_id="boom", session_root=tmp_path, raster_png=False)
 
     assert result["ok"] is False
@@ -340,12 +340,12 @@ def test_mcp_content_blocks_caps_inlined_images(tmp_path):
 
 def test_rasterization_respects_page_cap_and_uses_true_page_filenames(tmp_path, monkeypatch):
     """P4: rasterization is capped; truncation is reported, ok stays True, PNGs keep true-page names."""
-    import framegraph.mcp.server as server
+    import framegraph.mcp.pipeline as pipeline
 
     monkeypatch.setattr(
         "framegraph.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
     )
-    monkeypatch.setattr(server, "_raster_max_pages", lambda: 1)
+    monkeypatch.setattr(pipeline, "_raster_max_pages", lambda: 1)
 
     result = run_sdk_code(
         _multi_page_code(3), session_id="cap2", session_root=tmp_path, pages="2-3", raster_png=True
@@ -364,16 +364,16 @@ def test_rasterization_respects_page_cap_and_uses_true_page_filenames(tmp_path, 
 
 def test_rasterization_respects_time_budget(tmp_path, monkeypatch):
     """P4: a soft time budget stops the raster loop between pages with a structured warning."""
-    import framegraph.mcp.server as server
+    import framegraph.mcp.pipeline as pipeline
 
     monkeypatch.setattr(
         "framegraph.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
     )
-    monkeypatch.setattr(server, "_raster_max_pages", lambda: 99)
-    monkeypatch.setattr(server, "_raster_timeout", lambda: 1.0)
+    monkeypatch.setattr(pipeline, "_raster_max_pages", lambda: 99)
+    monkeypatch.setattr(pipeline, "_raster_timeout", lambda: 1.0)
     # deadline base = 100.0; page-0 check 100.0 (<=101 -> rasterize); page-1 check 102.0 (> deadline -> stop)
     clock = iter([100.0, 100.0, 102.0, 102.0, 102.0])
-    monkeypatch.setattr(server.time, "monotonic", lambda: next(clock))
+    monkeypatch.setattr(pipeline.time, "monotonic", lambda: next(clock))
 
     session_dir = tmp_path / "budget"
     session_dir.mkdir()
@@ -383,7 +383,7 @@ def test_rasterization_respects_time_budget(tmp_path, monkeypatch):
         svg.write_text("<svg/>", encoding="utf-8")
         pairs.append((page, svg))
 
-    renders, warning = server._try_rasterize_pngs(pairs, session_dir, "budget")
+    renders, warning = pipeline._try_rasterize_pngs(pairs, session_dir, "budget")
 
     assert [r["page"] for r in renders] == [1]
     assert warning is not None and "1 of 3" in warning
@@ -883,3 +883,45 @@ def test_render_framegraph_yaml_sign_threads_through(tmp_path):
     assert result["signed"]["timestamp"] == "2026-06-24T12:00:00Z"
     svg = (tmp_path / "y-sign" / "page-001.svg").read_text(encoding="utf-8")
     assert _frameforge_meta(svg) is not None
+
+
+# --- the DocumentSource open/closed seam: a new source needs no runner change ---
+
+
+def test_custom_document_source_drives_the_shared_runner(tmp_path):
+    """A new way to obtain a document is a new DocumentSource; the runner is untouched.
+
+    This is the open/closed payoff of the refactor: ``_run_source`` validates and
+    renders whatever YAML any ``DocumentSource.produce`` writes, so a bespoke source
+    flows through the same validate -> render -> diagnostics tail as the built-ins.
+    """
+    from framegraph.mcp.sources import DocumentSource, Produced
+    from framegraph.mcp.usecases import _run_source
+    from framegraph.sdk import DocumentBuilder
+    from framegraph.sdk.io import serialize
+
+    class _InMemorySource(DocumentSource):
+        def produce(self) -> Produced:
+            _, sid, session_dir, yaml_path = self._open()
+            builder = DocumentBuilder(title="From custom source", profile="deck")
+            page = builder.page("p1", canvas={"size": [160, 90], "units": "px"})
+            page.layer("main").rect([0, 0, 160, 90], fill="#ffffff")
+            page.text([12, 16, 140, 24], "custom-source-marker", id="t")
+            yaml_path.write_text(serialize(builder.build(), format="yaml"), encoding="utf-8")
+            from framegraph.mcp.results import _base_result
+
+            result = _base_result(sid, session_dir, yaml_path, "", "", 0)
+            return Produced(sid, session_dir, yaml_path, result, proceed=True, base_dir=session_dir)
+
+    result = _run_source(
+        _InMemorySource(session_id="custom", session_root=tmp_path),
+        max_pages=3, raster_png=False, pages=None, sign=False, signed_at=None,
+    )
+
+    assert result["ok"] is True
+    assert result["validation"]["ok"] is True
+    assert [r["page"] for r in result["renders"] if r["mimeType"] == "image/svg+xml"] == [1]
+    svg = (tmp_path / "custom" / "page-001.svg").read_text(encoding="utf-8")
+    assert "From custom source" in svg  # the source's document was the one rendered
+    # The shared tail persisted diagnostics for the custom source, just like the built-ins.
+    assert (tmp_path / "custom" / "diagnostics.json").exists()
