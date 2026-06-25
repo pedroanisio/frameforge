@@ -154,6 +154,34 @@ def test_gradientize_lifts_flat_fills_to_gradients():
     assert isinstance(grad, dict) and grad.get("stops") and grad["kind"] == "linear"
 
 
+# --- image-agnostic line/contour cleanup ----------------------------------- #
+def test_simplify_reduces_nodes_within_tolerance():
+    from framegraph.coach import simplify_strokes, node_count
+    # a near-straight noisy line: many points that RDP should collapse
+    pts = [[i, (i % 2) * 0.4] for i in range(40)]            # tiny ±0.4 jitter on y=~0
+    objs = [{"type": "polyline", "points": pts}]
+    out = simplify_strokes(objs, eps=1.5)
+    assert node_count(out) < node_count(objs)                # fewer vertices
+    assert node_count(out) <= 4                              # collapses to near-straight
+    assert out[0]["points"][0] == [0.0, 0.0] and out[0]["points"][-1] == [39.0, 0.4]  # endpoints kept
+
+
+def test_denoise_drops_speckle_keeps_real_strokes():
+    from framegraph.coach import denoise_strokes
+    speck = {"type": "polyline", "points": [[0, 0], [1, 1], [2, 0]]}       # ~2px
+    real = {"type": "polyline", "points": [[0, 0], [50, 10], [100, 0]]}    # ~100px
+    out = denoise_strokes([speck, real], min_span=6.0)
+    assert len(out) == 1 and out[0]["points"][-1] == [100, 0]
+
+
+def test_clean_preserves_object_type_and_shape_endpoints():
+    from framegraph.coach import clean
+    poly = {"type": "polygon", "points": [[0, 0], [10, 0.3], [20, 0], [20, 20], [0, 20]]}
+    out = clean([poly], eps=1.0)
+    assert out[0]["type"] == "polygon"
+    assert out[0]["points"][0] == [0.0, 0.0]                 # geometry anchored
+
+
 # --- MCP integration: the silhouette flag on the render pipeline ----------- #
 def test_mcp_pipeline_silhouette_flag(tmp_path):
     """The `silhouette=True` flag flattens the doc through the real render path
