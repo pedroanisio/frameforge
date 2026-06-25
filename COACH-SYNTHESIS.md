@@ -74,10 +74,13 @@ with the silhouette gate on the cleaned line-art.
 
 ## 4. What to improve next (ranked)
 
-1. **`coach.redraw`** — fold POC-05's `redraw_smooth` (Catmull-Rom cubic paths)
-   and `snap_primitives` (blob→ellipse/rect) into the coach's `06_line_art`
-   stage. Today `coach.clean.smooth_strokes` only moving-averages *polylines*; it
-   cannot emit true Bézier strokes or recognise primitives. (S)
+1. ✅ **`coach.redraw`** (DONE) — POC-05's `redraw_smooth` (Catmull-Rom cubic
+   paths) and `snap_primitives` (blob→ellipse/rect) are now the coach's
+   `06_line_art` stage, reusing `coach.clean`'s RDP (no duplicate geometry) and
+   the SDK `Path` builder (boundary-clean). `coach.clean.smooth_strokes` only
+   moving-averages polylines; `coach.redraw` emits true Bézier strokes and
+   recognises primitives. Verified on the portrait: 666 polylines / 6891 nodes →
+   606 smooth cubic paths.
 2. **Style-aware cleanup** — let `clean`'s `eps`/`smooth` come from the
    `StyleProfile` (`woodcut` ≠ `clean_line` simplification). (S)
 3. **Browser/resvg rasteriser path** — so the *blur* versions of glow/shadow

@@ -21,6 +21,9 @@ from framegraph.coach.layers import STAGES, LayerPlan, create_plan, validate_ord
 from framegraph.coach.paint import (
     atmosphere, darkest, fade, glow, haze, lightest, linear, radial, soft_shadow, stop, vignette, wash,
 )
+from framegraph.coach.redraw import (
+    curve_count, is_circular, is_rectangular, redraw, redraw_smooth, snap_primitives,
+)
 from framegraph.coach.silhouette import to_silhouette
 from framegraph.coach.style import STYLES, StyleProfile, apply_to_layerplan, resolve_style
 
@@ -58,4 +61,10 @@ __all__ = [
     "radial",
     "lightest",
     "darkest",
+    "redraw",
+    "redraw_smooth",
+    "snap_primitives",
+    "is_circular",
+    "is_rectangular",
+    "curve_count",
 ]
