@@ -15,6 +15,24 @@ from __future__ import annotations
 
 from framegraph.coach.clean import clean, denoise_strokes, node_count, simplify_strokes, smooth_strokes
 from framegraph.coach.critique import RUBRICS, stage_rubric
+from framegraph.coach.figures import (
+    CANONS,
+    FigureFrame,
+    FigureModel,
+    Landmark,
+    ProportionSignature,
+    analyze,
+    blend_signatures,
+    dominant_contour,
+    find_landmarks,
+    mirror_outer,
+    plausibility,
+    proportion_signature,
+    remap_dy,
+    retarget,
+    to_polygon_obj,
+    width_profile,
+)
 from framegraph.coach.ingest import gradientize, ingest, recolor_to_style
 from framegraph.coach.intent import DrawingIntent, parse_intent
 from framegraph.coach.layers import STAGES, LayerPlan, create_plan, validate_order
@@ -43,4 +61,21 @@ __all__ = [
     "node_count",
     "RUBRICS",
     "stage_rubric",
+    # proportion-aware figure layer
+    "ProportionSignature",
+    "Landmark",
+    "FigureFrame",
+    "FigureModel",
+    "CANONS",
+    "blend_signatures",
+    "width_profile",
+    "find_landmarks",
+    "proportion_signature",
+    "dominant_contour",
+    "analyze",
+    "to_polygon_obj",
+    "remap_dy",
+    "retarget",
+    "mirror_outer",
+    "plausibility",
 ]
