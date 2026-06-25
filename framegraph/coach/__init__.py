@@ -13,6 +13,7 @@ per the package-boundary gate.
 """
 from __future__ import annotations
 
+from framegraph.coach.clean import clean, denoise_strokes, node_count, simplify_strokes, smooth_strokes
 from framegraph.coach.critique import RUBRICS, stage_rubric
 from framegraph.coach.ingest import gradientize, ingest, recolor_to_style
 from framegraph.coach.intent import DrawingIntent, parse_intent
@@ -35,6 +36,11 @@ __all__ = [
     "ingest",
     "recolor_to_style",
     "gradientize",
+    "clean",
+    "denoise_strokes",
+    "simplify_strokes",
+    "smooth_strokes",
+    "node_count",
     "RUBRICS",
     "stage_rubric",
 ]
