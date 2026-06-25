@@ -110,8 +110,8 @@ def structural(doc, findings):
                                         f"({err.get('input')!r}); validated loosely", loc))
             elif err["type"] == "union_tag_invalid":
                 findings.append(Finding("WARN", "out-of-profile",
-                                        f"discriminated type not in the core profile; "
-                                        f"validated loosely", loc))
+                                        "discriminated type not in the core profile; "
+                                        "validated loosely", loc))
             elif "paint-only (P3)" in err["msg"] or "paint-only at HEAD (P3)" in err["msg"]:
                 continue  # the dedicated R1 stroke-single-form rule reports this
             else:
