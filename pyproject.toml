@@ -56,8 +56,10 @@ pdfout = ["cairosvg>=2.7", "pypdf>=4"]
 metrics = ["fonttools>=4"]
 # Model Context Protocol server boundary for AI coding feedback loops. Optional:
 # the core SDK and renderers do not import it unless framegraph.mcp.create_server()
-# is called.
-mcp = ["mcp[cli]>=1.27,<2"]
+# is called. CairoSVG is the browser-free PNG rasterizer the render tools fall back
+# to when headless Chromium is absent, so a vision model can still see — and thus
+# verify — a render without the `browser` group.
+mcp = ["mcp[cli]>=1.27,<2", "cairosvg>=2.7"]
 # Computer-vision lane: propose draft FrameGraph documents from images/PDF pages
 # (framegraph.vision). Optional and lazily imported — the classical detectors and
 # OCR only load when a propose tool runs; the VLM lane needs no extra dependency
