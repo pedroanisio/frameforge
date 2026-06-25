@@ -62,7 +62,11 @@ appendix_references:
     SVG painter), **item 4** (`tests/test_golden_render.py` is a working
     golden-lock harness), and **item 7 / Appendix A** (the geometry/3D authoring
     SDK already ships in `sdk.{geometry,draw,manifold,fields}`). Each item now
-    states the *residual* gap, with file evidence.
+    states the *residual* gap, with file evidence. A capability can be **delivered
+    in the core (model/grammar/schema/renderer) yet not yet exposed in the SDK** —
+    these are distinct milestones, and SDK support trails core delivery by design
+    (see `adr-0002-sdk-lags-core-delivery.md`). "The SDK ships X" is therefore
+    verified against `framegraph/sdk/`, never inferred from the model.
 
 ## Ground-truth status (audited 2026-06-24)
 
@@ -79,6 +83,7 @@ appendix_references:
 | 3 | Data layer for charts | out of scope | ✅ decision holds | `sdk/chart.py` is a lowering helper, no data transforms (by design). |
 | 5 | Print colour (ICC/CMYK) | deferred | ✅ decision holds | no ICC/CMYK code; hook not yet reserved. |
 | 6 | Interaction / animation | low | ✅ decision holds | no animation primitives. |
+| — | Provenance / document signing *(unplanned — not an original item)* | not in roadmap | ✅ **shipped (opt-in)** | `framegraph/rendering/provenance.py` (`sign_svg`/`FrameForgeStamp`): a deterministic sha256 **content fingerprint** + tool/version + optional UTC timestamp, injected as an SVG `<metadata><frameforge …>` in a private namespace (`https://framegraph.dev/ns/provenance`). Opt-in via `render_fixtures.py --sign/--signed-at` and the MCP render tools (`sign=`/`signed_at=`); byte-identity (item 4 golden lock) preserved when off, and deterministic when no timestamp. A parallel recipe fingerprint ships in `recipe/sign.py`. Tests: `tests/test_provenance.py`. **Residual:** SDK exposure (none yet, per ADR 0002) and a **keyed/authenticated** signature (HMAC) if non-repudiation is ever needed — today it is tamper-*evident*, not authenticated. |
 
 > **Net (updated 2026-06-24):** item #7 (geometry SDK) is now **complete** (A.1–A.6
 > + G-1), and #1 has author-time automatic layout. **No item has an open
@@ -639,6 +644,16 @@ earnings: the Instagram figure *is* the SEC figure, and the build can show its w
 suites and headless CMS fan one source to many channels, but none pair that with a typed,
 verifiable IR spanning *compliance-grade print and social surfaces* plus a gate proving no
 view distorts the source — that intersection is the 3.0 bet.
+
+> **Relation to today's document signing (distinct axes — do not conflate).** The
+> shipped provenance metatag (`framegraph/rendering/provenance.py`, status table above)
+> proves the **rendered artifact's bytes** were not altered after render — a sha256
+> fingerprint over the *output*. 3.0's verifiable projection proves the **content** is
+> faithful to its *source* — a value shown traces to a source cell. The first is
+> *output* tamper-evidence; the second is *content* fidelity. They are complementary
+> instruments toward the same trust story, not the same gate: the metatag is groundwork
+> a content-fidelity gate can build on (carry a source-lineage digest alongside the
+> render fingerprint), but it does not by itself establish source faithfulness.
 
 ### Honest scope — what 3.0 costs
 

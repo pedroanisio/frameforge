@@ -663,7 +663,7 @@ pages:
   id: logo-lockup
   canvas:
     size:
-    - 1043.0
+    - 1260.0
     - 264.0
     units: px
   rendering:
@@ -824,7 +824,7 @@ pages:
     - box:
       - 258.72
       - 47.519999999999996
-      - 741
+      - 957
       - 166
       style:
         font_family:
