@@ -608,8 +608,9 @@ Path() -> 'None'
 | `d` | `(self) -> 'str'` |  |
 | `line_to` | `(self, x: 'float', y: 'float') -> "'Path'"` |  |
 | `move_to` | `(self, x: 'float', y: 'float') -> "'Path'"` |  |
-| `object` | `(self, **fields: 'object') -> 'dict[str, object]'` |  |
+| `object` | `(self, *, structured: 'bool' = False, **fields: 'object') -> 'dict[str, object]'` | Emit a ``path`` object. ``structured=True`` authors the typed G-1 |
 | `quad_to` | `(self, control: 'Vec2 \| Sequence[float]', to: 'Vec2 \| Sequence[float]') -> "'Path'"` |  |
+| `segments` | `(self) -> 'list[list]'` | The structured G-1 form: a list of typed ``[cmd, *coords]`` segments |
 | `through` | `(self, points: 'Iterable[Vec2 \| Sequence[float]]') -> "'Path'"` |  |
 
 ### `Vec2`

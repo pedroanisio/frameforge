@@ -297,15 +297,21 @@ class Path:
 
     def __init__(self) -> None:
         self._segments: list[str] = []
+        # Parallel structured form (G-1): one typed `[cmd, *coords]` list per
+        # segment, carrying raw numbers. `d()` compiles the string view; the
+        # structured view is the schema-checkable source (model `PathSeg`).
+        self._struct: list[list] = []
         self._current: Vec2 | None = None
 
     def move_to(self, x: float, y: float) -> "Path":
         self._segments.append(f"M {_fmt(x)} {_fmt(y)}")
+        self._struct.append(["M", x, y])
         self._current = Vec2(x, y)
         return self
 
     def line_to(self, x: float, y: float) -> "Path":
         self._segments.append(f"L {_fmt(x)} {_fmt(y)}")
+        self._struct.append(["L", x, y])
         self._current = Vec2(x, y)
         return self
 
@@ -316,6 +322,7 @@ class Path:
         self._segments.append(
             f"C {_fmt(p1.x)} {_fmt(p1.y)} {_fmt(p2.x)} {_fmt(p2.y)} {_fmt(p3.x)} {_fmt(p3.y)}"
         )
+        self._struct.append(["C", p1.x, p1.y, p2.x, p2.y, p3.x, p3.y])
         self._current = p3
         return self
 
@@ -323,14 +330,17 @@ class Path:
         c = _v2(control)
         p = _v2(to)
         self._segments.append(f"Q {_fmt(c.x)} {_fmt(c.y)} {_fmt(p.x)} {_fmt(p.y)}")
+        self._struct.append(["Q", c.x, c.y, p.x, p.y])
         self._current = p
         return self
 
     def arc_to(self, rx: float, ry: float, rotation: float, large: bool, sweep: bool, to: Vec2 | Sequence[float]) -> "Path":
         p = _v2(to)
+        large_f, sweep_f = (1 if large else 0), (1 if sweep else 0)
         self._segments.append(
-            f"A {_fmt(rx)} {_fmt(ry)} {_fmt(rotation)} {1 if large else 0} {1 if sweep else 0} {_fmt(p.x)} {_fmt(p.y)}"
+            f"A {_fmt(rx)} {_fmt(ry)} {_fmt(rotation)} {large_f} {sweep_f} {_fmt(p.x)} {_fmt(p.y)}"
         )
+        self._struct.append(["A", rx, ry, rotation, large_f, sweep_f, p.x, p.y])
         self._current = p
         return self
 
@@ -347,13 +357,22 @@ class Path:
 
     def close(self) -> "Path":
         self._segments.append("Z")
+        self._struct.append(["Z"])
         return self
 
     def d(self) -> str:
         return " ".join(self._segments)
 
-    def object(self, **fields: object) -> dict[str, object]:
-        obj: dict[str, object] = {"type": "path", "d": self.d()}
+    def segments(self) -> list[list]:
+        """The structured G-1 form: a list of typed ``[cmd, *coords]`` segments
+        (the schema-checkable source the `d` string compiles from)."""
+        return [list(seg) for seg in self._struct]
+
+    def object(self, *, structured: bool = False, **fields: object) -> dict[str, object]:
+        """Emit a ``path`` object. ``structured=True`` authors the typed G-1
+        segment list (`d` as `list[PathSeg]`); the default emits the `d` string —
+        byte-identical to prior output, so golden renders are unaffected."""
+        obj: dict[str, object] = {"type": "path", "d": self.segments() if structured else self.d()}
         obj.update(fields)
         return obj
 
