@@ -18,6 +18,9 @@ from framegraph.coach.critique import RUBRICS, stage_rubric
 from framegraph.coach.ingest import gradientize, ingest, recolor_to_style
 from framegraph.coach.intent import DrawingIntent, parse_intent
 from framegraph.coach.layers import STAGES, LayerPlan, create_plan, validate_order
+from framegraph.coach.paint import (
+    atmosphere, darkest, fade, glow, haze, lightest, linear, radial, soft_shadow, stop, vignette, wash,
+)
 from framegraph.coach.silhouette import to_silhouette
 from framegraph.coach.style import STYLES, StyleProfile, apply_to_layerplan, resolve_style
 
@@ -43,4 +46,16 @@ __all__ = [
     "node_count",
     "RUBRICS",
     "stage_rubric",
+    "atmosphere",
+    "glow",
+    "vignette",
+    "haze",
+    "wash",
+    "soft_shadow",
+    "fade",
+    "stop",
+    "linear",
+    "radial",
+    "lightest",
+    "darkest",
 ]
