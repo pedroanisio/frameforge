@@ -133,6 +133,27 @@ def test_tabular_box_model():
     assert "tabular-box-model" in _codes(doc)
 
 
+def test_tabular_box_model_ignores_scattered_text():
+    """Many text objects at *unique* positions are not a table.
+
+    Regression: the heuristic fired whenever len(distinct_x)*len(distinct_y) >=
+    count, which is trivially true for scattered (non-aligned) text — so a cover or
+    contact page full of free-placed labels was wrongly flagged. A real table
+    *reuses* column/row positions; scattered text does not.
+    """
+    scattered = [
+        {"type": "text", "box": [12, 30, 200, 40], "text": "Big Title"},
+        {"type": "text", "box": [40, 110, 160, 24], "text": "subtitle here"},
+        {"type": "text", "box": [300, 70, 120, 20], "text": "a label"},
+        {"type": "text", "box": [88, 250, 240, 60], "text": "a paragraph block"},
+        {"type": "text", "box": [420, 360, 90, 18], "text": "footer-ish"},
+        {"type": "text", "box": [150, 420, 300, 30], "text": "tagline"},
+        {"type": "text", "box": [24, 520, 110, 22], "text": "page 1"},
+    ]
+    canvas = {"size": [600, 700], "units": "px"}
+    assert "tabular-box-model" not in _codes(_doc(scattered, canvas))
+
+
 def test_tabular_box_model_exempts_lettering():
     """Text the author has declared as lettering (``meta.role``) is not counted as
     an accidental table — the escape hatch the SDK's ``page.lettering()`` sets."""

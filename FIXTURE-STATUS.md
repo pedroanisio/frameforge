@@ -10,7 +10,7 @@ Delivered top-level fixtures validated against the HEAD core profile (`tooling/v
 | `arrows.fg.yaml` | 0 | 0 | clean |
 | `calendar-3day.fg.yaml` | 0 | 0 | clean |
 | `connectors.fg.yaml` | 0 | 2 | advisory warnings only (out-of-profile) |
-| `edst1-flange.fg.yaml` | 0 | 6 | advisory warnings only (containment, tabular-box-model) |
+| `edst1-flange.fg.yaml` | 0 | 5 | advisory warnings only (containment, tabular-box-model) |
 | `effects.fg.yaml` | 0 | 0 | clean |
 | `font-faces-100.fg.yaml` | 0 | 0 | clean |
 | `font-faces.fg.yaml` | 0 | 0 | clean |
@@ -20,7 +20,7 @@ Delivered top-level fixtures validated against the HEAD core profile (`tooling/v
 | `king-kong-manga.fg.yaml` | 0 | 0 | clean |
 | `myfiles-internal.fg.yaml` | 0 | 19 | advisory warnings only (containment, overlap) |
 | `ninja-hacker-manga.fg.yaml` | 0 | 0 | clean |
-| `nyt-mideast-live.fg.yaml` | 0 | 1 | advisory warnings only (tabular-box-model) |
+| `nyt-mideast-live.fg.yaml` | 0 | 0 | clean |
 | `pdf_table_extraction.fg.yaml` | 0 | 1 | advisory warnings only (out-of-profile) |
 | `sdk-ergonomics-showcase.fg.yaml` | 0 | 1 | advisory warnings only (out-of-profile) |
 | `sdk-geometry-patterns.fg.yaml` | 0 | 0 | clean |
