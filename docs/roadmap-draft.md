@@ -76,7 +76,7 @@ appendix_references:
 
 | # | Item | Roadmap said | TRUE state (audited) | Evidence / what remains |
 |---|------|--------------|----------------------|-------------------------|
-| 4 | Conformance + golden render | gap | ✅ **DONE** | `tooling/render_golden.py`, `tests/golden/oracle.lock.json` (SHA-256 lock, CI-gated); schema `$id` resolvable. |
+| 4 | Conformance + golden render | gap | ✅ **DONE** | `tooling/render_golden.py`, `tests/golden/oracle.lock.json` (SHA-256 lock, CI-gated). **Tolerance band** added: exact hash primary + committed reference renders (`tests/golden/refs/`), numeric ±ε classifies cosmetic vs real drift (`--tolerance`/`--strict`). **Schema URL** versioned + resolvable-shaped (`…/schema/2.2.0/framegraph-v2.schema.json` + `version`). Residual: pixel/font/AA perceptual tolerance (raster-gated). |
 | 2 | Accessibility / tagged export | gap | ✅ **SVG done**, PDF/UA open | `svg.py` a11y_wrap (decorative/role/alt/actual_text), root lang/title/desc, `_render_page_body_in_reading_order`, `tooling/check_accessibility.py`; tests. PDF/UA awaits a PDF backend. |
 | 7 | Geometry / 3D authoring SDK | additive gap | ✅ **done** | `sdk/geometry.py` (A.1/A.2), `sdk/manifold.py`+Scene3D (A.5); **A.3** curve sampling, **A.4** structured log-base/pow-exp scales, **A.6** orthographic `multiview`, **G-1** typed structured path segments (model `PathSeg`/`PathCommand` + EBNF `PathSegList`, JSON Schema `prefixItems`, enum-gated by `check_grammar_sync`), and **G-2** (`perspective` marked non-conformant in model + EBNF, validator WARN `non-conformant-3d`) all landed — **item 7 complete**. Only optional minor scale extras (categorical/time) remain. |
 | 1 | Diagram auto-layout | gap | ✅ **author-time done** | `sdk/topology.py`: 5 algorithms **plus `auto_layout`/`layout_kind`** — a graph now lays itself out from its declared edges (algorithm inferred: grid/radial/layered/spring), and `Graph.render()` auto-layouts by default. Remaining (optional): a *render-time* pass over `mode: page` diagram groups, or an ELK binding. |
@@ -125,7 +125,7 @@ different thing from the controls themselves.
 |---|------|----------|------|
 | 1 | Automatic *graph* layout for diagrams | **High** | Algorithms exist (`sdk.topology`) → render-time wiring remains |
 | 2 | Accessibility / tagged-export model | **High** | Vocabulary + partial SVG a11y done → PDF/UA tagged export remains |
-| 4 | Conformance suite + reference-renderer semantics | **Medium** | Golden-lock harness exists → tolerance diff + schema URL remain |
+| 4 | Conformance suite + reference-renderer semantics | **Low** | Golden lock + **tolerance band** + versioned schema URL done → only raster-perceptual tolerance remains |
 | 3 | Data layer for charts | **Medium** | Scope decision → out of scope (provisional) |
 | 5 | Print color management (ICC / CMYK) | **Medium** | Scope decision → deferred (provisional) |
 | 7 | Geometry / transformed spaces / 3D authoring SDK | **Low** | SDK ships; G-1 + G-2 landed → **complete** (optional scale extras only) |
@@ -265,28 +265,32 @@ some page's `reading_order`.
 
 ### 4. Conformance suite + reference-renderer semantics
 
-**Gap (reframed — a golden-lock harness exists; tolerance + schema URL remain).**
-The format's stance — treat each construct as a proposal to verify against the
-renderer — leaves "valid" underdetermined. FrameGraph already has the schema, the
-models, the `b1/` authoritative fixtures as an oracle, the `--check-overflow`
-text-fit gate, **and a working golden-render lock**: `tests/test_golden_render.py`
-builds an oracle manifest, pins each fixture's per-page render to a SHA-256 lock,
-and diffs current-vs-locked (detecting changed pages and page-count changes). What
-it does *not* have is a **tolerance band** — the lock is exact-hash, so any
-sub-pixel / font / AA change trips it — nor a **resolvable, versioned schema URL**
-documents can self-declare against.
+**Gap (reframed — golden lock, tolerance band, and schema URL all landed; only
+raster-perceptual tolerance remains).** The format's stance — treat each construct
+as a proposal to verify against the renderer — leaves "valid" underdetermined.
+FrameGraph has the schema, the models, the `b1/` authoritative fixtures as an oracle,
+the `--check-overflow` text-fit gate, and a working golden-render lock
+(`tooling/render_golden.py` + `tests/golden/oracle.lock.json`). The two former
+residuals are now closed: a **numeric tolerance band** (exact hash stays primary;
+on a mismatch the fresh render is compared against a committed reference under
+`tests/golden/refs/` within a coordinate ±ε, classifying cosmetic vs real drift —
+`--tolerance`/`--strict`), and a **resolvable, versioned schema URL**
+(`…/schema/2.2.0/framegraph-v2.schema.json` + a `version` field) documents can
+self-declare against. The only remaining piece is a **pixel/font/AA perceptual**
+tolerance, which needs a raster backend (out of scope in this environment).
 
 **Comparators.** The mature comparators close this loop. Vega-Lite publishes a
 versioned JSON Schema and an example gallery, and its CI recompiles every example
 to reference Vega specs and SVGs that serve as regression tests, with an explicit
 backward-compatibility commitment.
 
-**Fix (narrower — the harness exists).** Add a **tolerance mode** to the existing
-`test_golden_render.py` lock (a perceptual / pixel-distance diff with an explicit
-band, alongside the exact-hash mode) so cosmetically-irrelevant render changes do
-not produce false failures, and version the schema at a **resolvable URL** the way
-Vega-Lite does so documents can self-declare conformance. The corpus and diff
-machinery are already in place.
+**Fix (done — numeric tolerance + versioned URL landed).** The **tolerance mode** is
+implemented as a numeric coordinate-distance band alongside the exact-hash lock
+(committed reference renders + ±ε classification), so cosmetically-irrelevant
+sub-pixel jitter no longer produces false failures while real drift still fails. The
+schema is now versioned at a **resolvable URL** (`…/schema/2.2.0/…` + `version`) the
+way Vega-Lite does, so documents can self-declare conformance. A perceptual
+*pixel-distance* band (catching font/AA differences) remains a raster-gated follow-up.
 
 ---
 
