@@ -21,6 +21,7 @@ sys.path.insert(0, os.environ.get("FG_ROOT", os.path.dirname(os.path.dirname(os.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from framegraph.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from guided_paint import fade, glow, haze, linear, radial, soft_shadow, stop, vignette, wash  # noqa: E402
 from poc3_ingest_compose import place  # noqa: E402
 from poc4_color_and_guide import as_guide  # noqa: E402
 
@@ -28,49 +29,51 @@ Obj = dict[str, Any]
 
 
 def author_skier(src: tuple[int, int]) -> list[Obj]:
-    """Native colour, drawn against the skier guide (sunset-alpine palette)."""
+    """A painted sunset-alpine scene, drawn against the skier guide.
+
+    Built in passes like a real illustration: base local colour, then form
+    gradients, then atmosphere (glow / haze / wash), then a vignette to seat the
+    composition — all gradient/alpha based so it survives cairosvg rasterisation.
+    """
     w, h = src
-    sky = {"kind": "linear", "angle": "180deg",
-           "stops": [{"color": "#34537F", "position": "0%"},
-                     {"color": "#8FA9C9", "position": "52%"},
-                     {"color": "#F6C98C", "position": "100%"}]}
-    snow = {"kind": "linear", "angle": "205deg",
-            "stops": [{"color": "#FBFDFF", "position": "0%"}, {"color": "#C3D2EA", "position": "100%"}]}
-    sun_glow = {"kind": "radial", "at": "50% 50%",
-                "stops": [{"color": "#FFF6DA", "position": "0%"},
-                          {"color": "#FFE3A6", "position": "55%"},
-                          {"color": "#F6C98C", "position": "100%"}]}
-    spray = {"kind": "linear", "angle": "150deg",
-             "stops": [{"color": "#FFFFFF", "position": "0%"}, {"color": "#DCEBFF", "position": "100%"}]}
 
     def fx(x): return x * w
     def fy(y): return y * h
+
+    sky = linear([stop("#2E4E7C", 0.0), stop("#6E8FBC", 0.40),
+                  stop("#E9B98A", 0.82), stop("#F7D3A0", 1.0)], "180deg")
+    snow = linear([stop("#FCFDFF", 0.0), stop("#D4E0F2", 0.55), stop("#AEC2E0", 1.0)], "200deg")
+    ridge = linear([stop("#33456B", 0.0), stop("#212E4C", 1.0)], "180deg")
+    slope_pts = [[fx(0.0), fy(0.82)], [fx(0.42), fy(0.60)], [fx(0.72), fy(0.40)],
+                 [fx(1.0), fy(0.16)], [fx(1.0), fy(1.0)], [fx(0.0), fy(1.0)]]
     return [
-        # sky fills the frame
+        # --- base sky + atmosphere behind everything ---
         {"type": "rect", "box": [0, 0, w, h], "fill": sky},
-        # glowing sun behind the drawn circle (aligned to the guide's circle)
-        {"type": "ellipse", "center": [fx(0.452), fy(0.455)], "rx": fx(0.052), "ry": fx(0.052),
-         "fill": sun_glow, "style": {"opacity": 0.95}},
-        # soft outer halo
-        {"type": "ellipse", "center": [fx(0.452), fy(0.455)], "rx": fx(0.10), "ry": fx(0.10),
-         "fill": sun_glow, "style": {"opacity": 0.28}},
-        # the snow slope (below the ridge sweeping up to the right)
-        {"type": "polygon",
-         "points": [[fx(0.0), fy(0.82)], [fx(0.42), fy(0.60)], [fx(0.72), fy(0.40)],
-                    [fx(1.0), fy(0.16)], [fx(1.0), fy(1.0)], [fx(0.0), fy(1.0)]],
-         "fill": snow},
-        # dark alpine ridge, lower-left
+        haze([0, 0, w, fy(0.6)], "#F3D8B0", opacity=0.30, angle="180deg"),     # warm horizon glow
+        *glow(fx(0.452), fy(0.455), fx(0.052), "#FFF1CE", core=0.98, spread=3.0),  # the sun
+        # --- the snow slope, with a rim of light along the ridge ---
+        {"type": "polygon", "points": slope_pts, "fill": snow},
+        {"type": "polyline",
+         "points": [[fx(0.0), fy(0.82)], [fx(0.42), fy(0.60)], [fx(0.72), fy(0.40)], [fx(1.0), fy(0.16)]],
+         "stroke": fade("#FFF6E0", 0.85), "stroke_style": {"stroke_width": 3.0, "stroke_linecap": "round"}},
+        haze([0, fy(0.45), w, fy(0.55)], "#BFD2EE", opacity=0.22, angle="0deg"),   # snow distance haze
+        # --- dark alpine ridge, lower-left ---
         {"type": "polygon",
          "points": [[fx(0.0), fy(0.86)], [fx(0.12), fy(0.78)], [fx(0.22), fy(0.84)],
                     [fx(0.34), fy(0.76)], [fx(0.46), fy(0.85)], [fx(0.46), fy(1.0)], [fx(0.0), fy(1.0)]],
-         "fill": "#2B3A5C", "style": {"opacity": 0.92}},
-        # powder spray around the skier (upper-right)
-        {"type": "ellipse", "center": [fx(0.80), fy(0.22)], "rx": fx(0.17), "ry": fy(0.20),
-         "fill": spray, "style": {"opacity": 0.45}},
-        # the skier's jacket, a small warm accent on the figure's torso
+         "fill": ridge},
+        # --- powder spray: soft, transparent-edged (no blur filter) ---
+        {"type": "ellipse", "center": [fx(0.80), fy(0.22)], "rx": fx(0.18), "ry": fy(0.22),
+         "fill": radial([stop(fade("#FFFFFF", 0.65), 0.0), stop(fade("#DCEBFF", 0.25), 0.6),
+                         stop(fade("#DCEBFF", 0.0), 1.0)])},
+        # --- the skier: cast shadow on snow + warm jacket ---
+        soft_shadow(fx(0.60), fy(0.46), fx(0.06), fy(0.018), color="#22324E", strength=0.35),
         {"type": "polygon",
          "points": [[fx(0.600), fy(0.31)], [fx(0.632), fy(0.315)], [fx(0.636), fy(0.40)], [fx(0.604), fy(0.40)]],
-         "fill": "#C8472F", "style": {"opacity": 0.85}},
+         "fill": linear([stop("#E0573F", 0.0), stop("#B5371F", 1.0)], "160deg")},
+        # --- finishing: unifying warm wash + vignette to seat the frame ---
+        wash([0, 0, w, h], "#FFE9C8", "#2A3A60", opacity=0.12, angle="160deg"),
+        vignette(w, h, color="#0B1220", strength=0.42),
     ]
 
 
