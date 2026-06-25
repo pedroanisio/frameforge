@@ -196,3 +196,23 @@ def test_flow_section_figure_object_is_walked():
         {"type": "figure", "object": {"type": "circle", "center": [5, 5], "r": 4}}]}
     doc = {"dsl": "FrameGraph", "version": "2.2.0", "pages": [flow]}
     assert "deprecated-alias" in _codes(doc)
+
+
+# --- R11 non-conformant 3D (G-2): perspective is declared but never rendered --- #
+def test_r11_perspective_is_flagged_non_conformant():
+    """`perspective` passes through inert — no target renders 3D. G-2 flags it."""
+    codes = _codes(_doc([
+        {"type": "rect", "box": [0, 0, 10, 10], "style": {"perspective": "800px"}}]))
+    assert "non-conformant-3d" in codes
+
+
+def test_r11_perspective_none_is_not_flagged():
+    """`perspective: none` (the inert default) is not flagged."""
+    codes = _codes(_doc([
+        {"type": "rect", "box": [0, 0, 10, 10], "style": {"perspective": "none"}}]))
+    assert "non-conformant-3d" not in codes
+
+
+def test_r11_no_perspective_is_not_flagged():
+    codes = _codes(_doc([{"type": "rect", "box": [0, 0, 10, 10]}]))
+    assert "non-conformant-3d" not in codes
