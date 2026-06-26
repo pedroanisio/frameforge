@@ -63,6 +63,59 @@ def test_gradient_url_fill_falls_back_not_passed_through():
     assert not objs[0]["fill"].startswith("url(")  # url() can't resolve -> neutral fallback
 
 
+_GRAD_SVG = (
+    '<svg viewBox="0 0 10 10"><defs>'
+    '<linearGradient id="g" x1="0" y1="0" x2="10" y2="0">'
+    '<stop offset="0" stop-color="#ff0000"/><stop offset="1" stop-color="#0000ff"/>'
+    "</linearGradient></defs>"
+    '<rect width="10" height="10" fill="url(#g)"/></svg>'
+)
+
+
+def test_linear_gradient_url_resolves_to_fg_gradient():
+    g = svg_to_objects(_GRAD_SVG)[0]["fill"]
+    assert isinstance(g, dict) and g["kind"] == "linear"
+    assert [s["color"] for s in g["stops"]] == ["#ff0000", "#0000ff"]
+    assert g["stops"][0]["position"] == "0%" and g["stops"][1]["position"] == "100%"
+    assert round(g["angle"]) == 90          # left -> right vector == 90deg in CSS
+
+
+def test_vertical_gradient_angle_is_to_bottom():
+    svg = _GRAD_SVG.replace('x1="0" y1="0" x2="10" y2="0"', 'x1="0" y1="0" x2="0" y2="10"')
+    assert round(svg_to_objects(svg)[0]["fill"]["angle"]) == 180
+
+
+def test_undefined_gradient_still_falls_back_to_grey():
+    o = svg_to_objects('<svg viewBox="0 0 10 10"><rect width="10" height="10" '
+                       'fill="url(#missing)"/></svg>')[0]
+    assert o["fill"] == "#C7CCD6"
+
+
+def test_resolved_gradient_renders_a_gradient():
+    objs = svg_to_objects(_GRAD_SVG)
+    from framegraph.sdk import DocumentBuilder, render_page_svgs
+    b = DocumentBuilder(title="grad")
+    pg = b.page("p", canvas={"size": [10, 10], "units": "px"}, coordinate_mode="absolute")
+    layer = pg.layer("m")
+    for o in objs:
+        layer.add(o)
+    svg = render_page_svgs(b.build())[0]
+    assert "gradient" in svg.lower()        # the renderer actually paints it
+
+
+def test_data_attrs_opt_in_carries_into_meta():
+    svg = ('<svg viewBox="0 0 10 10"><path d="M0 0 L1 1" fill="#111" '
+           'data-class="foreground" data-id="7"/></svg>')
+    assert "meta" not in svg_to_objects(svg)[0]                      # default: dropped
+    o = svg_to_objects(svg, data_attrs=True)[0]
+    assert o["meta"]["data"] == {"class": "foreground", "id": "7"}   # opt-in: under meta.data
+
+
+def test_data_attrs_no_data_leaves_no_meta():
+    svg = '<svg viewBox="0 0 10 10"><rect width="4" height="4" fill="#111"/></svg>'
+    assert "meta" not in svg_to_objects(svg, data_attrs=True)[0]
+
+
 def test_real_corpus_svg_roundtrips_through_framegraph():
     """A real multi-path vector imports and renders through FrameGraph's engine."""
     objs = svg_to_objects(Path(ROOT) / "fixtures/corpus/vector/wikimedia-nasa-logo.svg",

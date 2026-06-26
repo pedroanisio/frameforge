@@ -16,6 +16,7 @@ richer pipeline (segmentation/OCR) layered on top.
 """
 from __future__ import annotations
 
+import math
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -24,6 +25,7 @@ from typing import Any, Optional, Sequence
 _NUM = r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?"
 _FILL_SHAPES = {"rect", "circle", "ellipse", "polygon", "path"}
 _FALLBACK_FILL = "#C7CCD6"
+_URL_REF = re.compile(r"url\(\s*['\"]?#([^)'\"]+)['\"]?\s*\)")
 
 
 def _localname(tag: str) -> str:
@@ -63,12 +65,75 @@ def _points(s: str) -> list[list[float]]:
     return [[nums[i], nums[i + 1]] for i in range(0, len(nums) - 1, 2)]
 
 
-def _clean_paint(value: Optional[str]) -> Optional[str]:
+def _hex_rgb(h: str) -> tuple[int, int, int]:
+    h = h.lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+
+
+def _stop_position(offset: Optional[str]) -> str:
+    """SVG ``offset`` (``0``..``1`` or ``%``) → FrameGraph ``position`` percentage."""
+    o = (offset or "0").strip()
+    if o.endswith("%"):
+        return o
+    v = _f(o, 0.0)
+    return f"{(v * 100 if v <= 1 else v):g}%"
+
+
+def _stop_color(stop) -> str:
+    color = (stop.get("stop-color") or "#000000").strip()
+    op = stop.get("stop-opacity")
+    if op is not None:
+        alpha = _f(op, 1.0)
+        if alpha < 1.0 and color.startswith("#"):
+            r, g, b = _hex_rgb(color)
+            return f"rgba({r},{g},{b},{alpha:g})"
+    return color
+
+
+def _gradient_to_fg(el) -> Optional[dict[str, Any]]:
+    """Convert an SVG ``<linear/radialGradient>`` to a FrameGraph ``Gradient`` paint.
+
+    Honest limits: ``userSpaceOnUse`` coordinates are reduced to a CSS gradient line
+    (a direction ``angle`` for linear; a centred ``at`` for radial), which matches
+    when the gradient vector spans the painted region — the raster-fit-per-region
+    case. ``xlink:href`` stop inheritance and ``gradientTransform`` are not resolved.
+    """
+    stops = [{"color": _stop_color(s), "position": _stop_position(s.get("offset"))}
+             for s in el if _localname(s.tag) == "stop"]
+    if not stops:
+        return None
+    if _localname(el.tag) == "radialGradient":
+        return {"kind": "radial", "stops": stops, "at": "50% 50%", "shape": "circle"}
+    x1, y1 = _f(el.get("x1"), 0.0), _f(el.get("y1"), 0.0)
+    x2, y2 = _f(el.get("x2"), 1.0), _f(el.get("y2"), 0.0)
+    angle = math.degrees(math.atan2(x2 - x1, -(y2 - y1))) % 360.0   # 0=up, 90=right (CSS)
+    return {"kind": "linear", "stops": stops, "angle": round(angle, 2)}
+
+
+def _collect_gradients(root) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+    for el in root.iter():
+        if _localname(el.tag) in ("linearGradient", "radialGradient"):
+            gid = el.get("id")
+            if not gid:
+                continue
+            grad = _gradient_to_fg(el)
+            if grad is not None:
+                out[gid] = grad
+    return out
+
+
+def _clean_paint(value: Optional[str], gradients: dict[str, dict[str, Any]]) -> Any:
     if value is None:
         return None
     v = value.strip()
+    m = _URL_REF.match(v)
+    if m:                              # url(#id): resolve a known gradient, else fall back
+        return gradients.get(m.group(1), _FALLBACK_FILL)
     if v.startswith("url("):
-        return _FALLBACK_FILL          # gradients/patterns can't resolve here
+        return _FALLBACK_FILL          # patterns / unparsable refs can't resolve here
     return v
 
 
@@ -99,9 +164,9 @@ def _emit(name: str, el) -> Optional[dict[str, Any]]:
     return None
 
 
-def _apply_paint(obj: dict[str, Any], name: str, fill, stroke, sw) -> None:
-    fill = _clean_paint(fill)
-    stroke = _clean_paint(stroke)
+def _apply_paint(obj: dict[str, Any], name: str, fill, stroke, sw, gradients) -> None:
+    fill = _clean_paint(fill, gradients)
+    stroke = _clean_paint(stroke, gradients)
     if name in _FILL_SHAPES:
         obj["fill"] = fill if fill is not None else "#000000"   # SVG default fill is black
     if stroke and stroke != "none":
@@ -109,15 +174,24 @@ def _apply_paint(obj: dict[str, Any], name: str, fill, stroke, sw) -> None:
         obj["stroke_style"] = {"stroke_width": _f(sw, 1.0)}
 
 
-def svg_to_objects(svg: "str | Path", *, box: Optional[Sequence[float]] = None) -> list[dict[str, Any]]:
+def svg_to_objects(svg: "str | Path", *, box: Optional[Sequence[float]] = None,
+                   data_attrs: bool = False) -> list[dict[str, Any]]:
     """Return FrameGraph object dicts for every drawable element in ``svg``.
 
     ``svg`` is SVG text or a path to a ``.svg`` file. ``box`` (``[x, y, w, h]``),
     when given, fits the document's viewBox into that box (centered, aspect
     preserved) via a ``style.transform`` applied to every object; element/group
     ``transform`` attributes are composed on top.
+
+    ``data_attrs`` (opt-in) carries an element's ``data-*`` attributes onto the
+    emitted object as ``meta['data']`` (keyed without the ``data-`` prefix), so
+    upstream semantics — e.g. ``data-class="foreground"`` from a segmenting
+    rebuild — survive ingestion and can drive region selection. Only leaf
+    (drawable) elements are carried; ``data-*`` on a ``<g>`` is not propagated.
+    Default ``False`` keeps the output byte-identical to a plain ingest.
     """
     root = ET.fromstring(_load(svg))
+    gradients = _collect_gradients(root)
     vb = _viewbox(root)
     boxfit = ""
     if box is not None and vb is not None:
@@ -147,7 +221,11 @@ def svg_to_objects(svg: "str | Path", *, box: Optional[Sequence[float]] = None) 
             for child in el:
                 walk(child, cur)
             return
-        _apply_paint(obj, name, cur["fill"], cur["stroke"], cur["sw"])
+        _apply_paint(obj, name, cur["fill"], cur["stroke"], cur["sw"], gradients)
+        if data_attrs:
+            data = {k[5:]: v for k, v in el.attrib.items() if k.startswith("data-")}
+            if data:
+                obj["meta"] = {"data": data}
         parts = ([boxfit] if boxfit else []) + cur["tr"]
         if parts:
             obj["style"] = {"transform": " ".join(parts)}
