@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `fill_stroke`, `function_plot`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `polar_plot`, `place_imported_figure`, `parse`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -1154,6 +1154,68 @@ Build a text ``Style`` bundle from the dozen fields that actually shape text.
 
 ```python
 text_style(size: 'float | int | str | None' = None, *, family: 'Sequence[str] | str | None' = None, weight: 'int | str | None' = None, color: 'Color | None' = None, align: 'str | None' = None, italic: 'bool | None' = None, line_height: 'float | int | str | None' = None, letter_spacing: 'float | int | str | None' = None, transform: 'str | None' = None, decoration: 'str | None' = None, overflow: 'str | None' = None, max_lines: 'int | None' = None) -> 'dict[str, Any]'
+```
+
+## `framegraph.sdk.region`
+
+### `extract_objects`
+
+`framegraph.sdk.region.extract_objects`
+
+Copy drawable objects out of a FrameGraph document, for pasting elsewhere.
+
+```python
+extract_objects(source: 'Any', *, page: "'str | int | None'" = None, layer: "'str | Sequence[str] | None'" = None, ids: "'str | Sequence[str] | None'" = None, bake: 'bool' = True) -> 'list[dict[str, Any]]'
+```
+
+### `gradient_map`
+
+`framegraph.sdk.region.gradient_map`
+
+Recolour every object by luminance through ``ramp`` (a global gradient map).
+
+```python
+gradient_map(objects: 'Sequence[dict[str, Any]]', ramp: 'Ramp') -> 'list[dict[str, Any]]'
+```
+
+### `object_bbox`
+
+`framegraph.sdk.region.object_bbox`
+
+Return ``(x0, y0, x1, y1)`` for ``obj``, or ``None`` if it carries no geometry.
+
+```python
+object_bbox(obj: 'dict[str, Any]') -> 'Optional[tuple[float, float, float, float]]'
+```
+
+### `place_region`
+
+`framegraph.sdk.region.place_region`
+
+Map ``source_box`` of ``objects`` into ``target_box`` as one transformed group.
+
+```python
+place_region(objects: 'Sequence[dict[str, Any]]', source_box: 'Box', target_box: 'Box', *, transform: "'Mat3 | None'" = None, clip: 'bool' = True, select: "'str | None'" = None, style: "'dict[str, Any] | None'" = None, **fields: 'Any') -> 'dict[str, Any]'
+```
+
+### `region_grade`
+
+`framegraph.sdk.region.region_grade`
+
+Recolour by region level — each object graded by the region it falls in.
+
+```python
+region_grade(objects: 'Sequence[dict[str, Any]]', regions: 'Sequence[tuple[Box, Paint]]', *, default: "'Paint | None'" = None) -> 'list[dict[str, Any]]'
+```
+
+### `select_in`
+
+`framegraph.sdk.region.select_in`
+
+Return deep copies of the objects that fall in ``box`` ``[x, y, w, h]``.
+
+```python
+select_in(objects: 'Sequence[dict[str, Any]]', box: 'Box', *, mode: 'str' = 'intersect') -> 'list[dict[str, Any]]'
 ```
 
 ## `framegraph.sdk.topology`

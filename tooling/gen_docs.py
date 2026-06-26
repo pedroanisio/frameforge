@@ -541,6 +541,7 @@ def gen_sdk_api():
         "framegraph.sdk.manifold",
         "framegraph.sdk.model",
         "framegraph.sdk.paint",
+        "framegraph.sdk.region",
         "framegraph.sdk.topology",
         "framegraph.sdk.validate",
         "framegraph.sdk.widgets",
