@@ -227,3 +227,90 @@ def propose_from_document(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages, sign=False, signed_at=None,
     )
+
+
+def _coerce_paint(value: Any) -> Any:
+    """Accept a solid ``#hex`` string or a JSON ramp ``[[pos, "#hex"], ...]``.
+
+    Region/default paint arrives over the wire as JSON, so a ramp is a list of
+    ``[position, colour]`` pairs; lower it to the ``(float, str)`` tuples
+    :func:`framegraph.sdk.region.region_grade` expects.
+    """
+    if value is None or isinstance(value, str):
+        return value
+    if isinstance(value, (list, tuple)):
+        return [(float(stop[0]), str(stop[1])) for stop in value]
+    raise ValueError("a ramp must be a #hex string or a list of [position, colour] pairs")
+
+
+def propose_from_svg(
+    svg_path: str | None = None,
+    *,
+    svg_text: str | None = None,
+    regions: list[dict[str, Any]] | None = None,
+    default_ramp: Any = None,
+    title: str = "Proposed from SVG",
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+    max_pages: int = 3,
+    raster_png: bool = True,
+    pages: str | list[int] | None = None,
+) -> dict[str, Any]:
+    """Ingest an SVG into a FrameGraph document, optionally grade it by region, then render.
+
+    Lowers the SVG's elements to FrameGraph primitives (1:1, no raster step) via
+    :func:`framegraph.vision.infrastructure.svg_import.svg_to_objects`, sizes a page
+    to the drawing's extent, and renders it through the same forward pipeline the
+    other tools use. When ``regions`` is given, each object is recoloured by the
+    region its centroid falls in (``framegraph.sdk.region.region_grade``): every
+    region is ``{"box": [x, y, w, h], "ramp": "#hex" | [[pos, "#hex"], ...]}``;
+    objects outside every region take ``default_ramp`` (omit it to leave them
+    unchanged). Region clip/transform stay in the SDK (``place_region``), reachable
+    via ``run_sdk_code``.
+    """
+    if not svg_text and not svg_path:
+        return _vision_error("provide svg_path or svg_text")
+    if svg_path and not svg_text:
+        try:
+            _assert_input_path_allowed(svg_path)
+        except ValueError as exc:
+            return _vision_error(str(exc))
+
+    from framegraph.sdk.author import DocumentBuilder
+    from framegraph.sdk.io import serialize
+    from framegraph.sdk.region import object_bbox, region_grade
+    from framegraph.vision.infrastructure.svg_import import svg_to_objects
+
+    try:
+        objects = svg_to_objects(svg_text if svg_text else svg_path)
+    except (ValueError, OSError) as exc:
+        return _vision_error(f"could not parse SVG: {exc}")
+    if not objects:
+        return _vision_error("the SVG produced no drawable objects")
+
+    boxes = [bb for bb in (object_bbox(o) for o in objects) if bb is not None]
+    if not boxes:
+        return _vision_error("the SVG produced no positioned geometry")
+    width = max(bb[2] for bb in boxes)
+    height = max(bb[3] for bb in boxes)
+
+    if regions:
+        try:
+            specs = [(list(r["box"]), _coerce_paint(r.get("ramp"))) for r in regions]
+        except (KeyError, TypeError, ValueError) as exc:
+            return _vision_error(f"invalid regions spec: {exc}")
+        objects = region_grade(objects, specs, default=_coerce_paint(default_ramp))
+
+    builder = DocumentBuilder(title=title, lang="en")
+    page = builder.page("svg", canvas={"size": [width, height], "units": "px"},
+                        coordinate_mode="absolute")
+    layer = page.layer("ingest")
+    with layer.bleed():
+        for obj in objects:
+            layer.add(obj)
+
+    source = RawYamlSource(yaml_text=serialize(builder.build(), format="yaml"),
+                           session_id=session_id, session_root=session_root)
+    return _run_source(
+        source, max_pages=max_pages, raster_png=raster_png, pages=pages, sign=False, signed_at=None,
+    )

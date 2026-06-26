@@ -51,6 +51,7 @@ from framegraph.mcp.sessions import (
 from framegraph.mcp.usecases import (
     propose_from_document as _uc_propose_from_document,
     propose_from_image as _uc_propose_from_image,
+    propose_from_svg as _uc_propose_from_svg,
     render_framegraph_yaml as _uc_render_framegraph_yaml,
     run_sdk_client as _uc_run_sdk_client,
     run_sdk_code as _uc_run_sdk_code,
@@ -80,6 +81,7 @@ from framegraph.mcp.sessions import (
 from framegraph.mcp.usecases import (
     propose_from_document as propose_from_document,
     propose_from_image as propose_from_image,
+    propose_from_svg as propose_from_svg,
     render_framegraph_yaml as render_framegraph_yaml,
     run_sdk_client as run_sdk_client,
     run_sdk_code as run_sdk_code,
@@ -398,6 +400,67 @@ def create_server(
                 pages=pages,
                 title=title,
                 detector_names=detector_names,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def propose_from_svg(
+        svg_path: Annotated[
+            str | None, Field(description="Filesystem path to a .svg file. Provide this or svg_text.")
+        ] = None,
+        svg_text: Annotated[
+            str | None, Field(description="SVG document as text. Provide this or svg_path.")
+        ] = None,
+        regions: Annotated[
+            list[dict] | None,
+            Field(description="Optional region-level grade: a list of "
+                  '{"box": [x, y, w, h], "ramp": "#hex" | [[pos, "#hex"], ...]}. Each object is '
+                  "recoloured by the region its centroid falls in (most-specific window first)."),
+        ] = None,
+        default_ramp: Annotated[
+            Any,
+            Field(description="Paint for objects in no region: a '#hex' string or a "
+                  "[[pos, '#hex'], ...] ramp. Omit to leave unmatched objects unchanged."),
+        ] = None,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+        max_pages: Annotated[int, Field(description=_DESC_MAX_PAGES)] = 3,
+        raster_png: Annotated[bool, Field(description=_DESC_RASTER)] = True,
+        pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
+        title: Annotated[str, Field(description="Title for the ingested document.")] = "Proposed from SVG",
+    ):
+        """Ingest an SVG into a FrameGraph document (1:1 vector lowering), optionally recolour it by region, then validate and render.
+
+        Unlike ``propose_from_image`` (which re-detects from pixels), this lowers the
+        SVG's own elements to FrameGraph primitives. ``regions`` applies a region-level
+        colour grade; region clip/transform stay in the SDK (``place_region``) via
+        ``run_sdk_code``.
+        """
+        result = _logged_call(
+            log_path,
+            "propose_from_svg",
+            {
+                "svg_path": svg_path,
+                "svg_text_bytes": len(svg_text) if svg_text else 0,
+                "regions": regions,
+                "default_ramp": default_ramp,
+                "session_id": session_id,
+                "max_pages": max_pages,
+                "raster_png": raster_png,
+                "pages": pages,
+                "title": title,
+            },
+            lambda: _uc_propose_from_svg(
+                svg_path,
+                svg_text=svg_text,
+                regions=regions,
+                default_ramp=default_ramp,
+                session_id=session_id,
+                session_root=root,
+                max_pages=max_pages,
+                raster_png=raster_png,
+                pages=pages,
+                title=title,
             ),
         )
         return _maybe_call_tool_result(result)
