@@ -1231,6 +1231,7 @@ __all__ = [
     "render_framegraph_yaml",
     "propose_from_image",
     "propose_from_document",
+    "propose_from_svg",
     "compare_images",
     "measure_image",
     "mark_points",
