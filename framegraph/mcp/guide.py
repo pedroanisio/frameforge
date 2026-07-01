@@ -70,50 +70,80 @@ produced even without a browser; each render reports the `backend` it used. Only
 when *neither* backend is available does the result carry a `render_warning` and
 ship SVG/diagnostics text alone — read the warning, install a backend, re-render.
 
-Inverse (image/document -> author), the additional capability:
+Inverse (image/document -> author):
 - `propose_from_image` — classical OpenCV/numpy detectors (+ an optional VLM lane)
   propose a DRAFT document from a screenshot/photo.
 - `propose_from_document` — the same pipeline over a rasterised PDF page.
-  Both proposals are UNVERIFIED: each tool round-trips the draft through
-  validate + render so you immediately see whether it holds, lists which
-  detectors ran vs were skipped, and returns the per-object observations. Treat
-  the result as a starting point to refine with the SDK — never as final.
+- `propose_from_svg` — ingest an existing SVG's elements as FrameGraph objects
+  (1:1 vector lowering), optionally recoloured by region.
+  The `propose_*` drafts are UNVERIFIED: each round-trips through validate + render
+  so you see whether it holds, lists which detectors ran vs were skipped, and returns
+  the per-object observations. A starting point to refine with the SDK — never final.
 
-Measure + reconstruct (raster -> reliable coordinates), for vector recreation:
-- `measure_image` — overlay an auto grid + rulers + coordinate system on an image
-  (and optional zoomed crops), box + ID named regions, and anchor landmarks;
-  returns the overlay PNG plus an exact `spatial` payload (coordinate system,
-  per-region bbox/centroid/area/offset, landmarks, and each zoom crop's
-  origin+scale back to source px). The overlay keeps the source's pixel size so
-  coordinates read 1:1; a zoomed crop's rulers stay labelled in SOURCE coordinates.
-- `mark_points` — aim + click: give points in any frame (normalized / source px /
-  coordinate-system / offset-from-landmark / viewport px) and get numbered
-  crosshairs plus each point resolved in every frame; anchored to the image, so the
-  aim stays fixed as the viewport moves. `connect` previews the path they trace —
-  the bridge to the (later) vector-construction commands.
-- `overlay_images` — align an overlay onto a base by matched landmark pairs; report
-  per-pair offsets + residuals and the best-fit scale+translation, and emit an
-  aligned composite.
-  Measured geometry and the structural anchors (A1..A9) are exact; detected
-  landmarks (L*) are UNVERIFIED hints (PALS's Law) — anchor to the structural ones.
+Visual QA:
+- `compare_images` — crop matching regions from a reference and a candidate, lay them
+  out reference|candidate|difference (bright red = mismatch) scaled up with a naive
+  pixel-match hint, so you *see* where a recreation is off. The score is a routing
+  hint, not a verdict — the panels are the signal.
 
-The coordinate workspace (the AI's precise pointer; state persists per session_id):
-- `workspace` — a stateful pin board bound to one image. Actions: `open` (bind image),
-  `pin` (add points in any frame; may reference existing pins), `nudge` (move selected
-  pins by a delta — the mouse, e.g. `unit='norm', dx=-0.01`), `move`, `unpin`, `clear`,
-  `viewport` (set a crop), `pan`/`zoom` (fixed aim), `render`. Pins persist across calls
-  and are image-anchored, so refine them over passes (multi-pass, multi-pin, group
-  adjust) until pixel-accurate, then feed them to construction.
-- `construct_vectors` — draw FrameGraph geometry from anchor points (workspace pins or
-  explicit pixels): line, path/trace, curve, spline, triangle, polygon, closed region,
-  rect, ellipse, circle, star. Sizes the page to the source so it overlays 1:1; validates
-  + renders. Diff against the source with `compare_images` and refine to converge.
-- `map_coordinates` — transpose coordinates between frames: `homography` (perspective
-  rectification / source→reference from >=4 pairs), `to_3d` (lift 2D onto a plane),
-  `project` (3D→2D via the SDK camera). For perspective correction + spatial reconstruction.
+## Coordinate-aware reconstruction (raster -> precise vectors)
+The measurement + workspace tools give you a coordinate-aware "mouse" for turning a
+raster into exact vector geometry. Six tools, one loop.
+
+Coordinate frames (a point is reported in all that apply):
+- image px — pixels from the image origin; the canonical, exact frame.
+- coordinate system — image px re-expressed under `origin` = `top-left` (default, +y
+  down, = FrameGraph page space), `bottom-left` (+y up), or `center` (+y up).
+- normalized — fractions 0..1 of width/height (resolution-independent).
+- viewport px — pixels within the current zoom crop; a crop is enlarged but its rulers
+  stay labelled in SOURCE coordinates, and `source_px = crop.origin_px + read_px/scale`.
+
+Tools:
+- `measure_image` — overlay an auto grid + rulers + coordinate system on an image (and
+  optional zoom crops), box + ID named regions, anchor landmarks; returns the overlay
+  PNG (same pixel size as the source, so it reads 1:1) plus an exact `spatial` payload:
+  coordinate system, per-region bbox/centroid/area/offset, landmarks, and each crop's
+  origin+scale back to source px.
+- `mark_points` — aim + click (stateless): give points in any frame and get numbered
+  crosshairs plus each point resolved in every frame; `connect` previews the traced path.
+- `overlay_images` — align an overlay onto a base by matched landmark pairs (opacity
+  adjustable); reports per-pair offset + residual + the best-fit scale+translation and
+  emits the aligned composite.
+- `workspace` — a STATEFUL pin board bound to one image; state persists per session_id
+  (`workspace.json`). Actions: `open` (bind image), `pin` (points in any frame; may
+  reference existing pins by id), `nudge` (move selected pins by a delta — the mouse:
+  `unit='norm'|'px'|'viewport'`, e.g. dx=-0.01 = a hair left), `move`, `unpin`, `clear`,
+  `viewport` (set/clear a crop), `pan`/`zoom` (the aim point stays put — coordinate
+  continuity), `render`. Pins are image-anchored, so refine them over many passes
+  (`select={ids:[...]}` or `{group:...}` for multi-pin / group adjust) until pixel-exact.
+- `construct_vectors` — draw FrameGraph geometry from anchor points (workspace `pins`
+  or explicit `points`): line, path/trace, curve, spline, triangle, polygon, closed
+  region, rect, ellipse, circle, star. Sizes the page to the source so it overlays 1:1,
+  then validates + renders.
+- `map_coordinates` — transpose coordinates: `homography` (perspective rectification /
+  source→reference from >=4 pairs), `to_3d` (lift 2D onto a plane), `project` (3D→2D via
+  the SDK camera) — for perspective correction and 2D/3D spatial reconstruction.
+
+Reconstruction loop:
+  measure_image (see the coordinate field) -> workspace open + pin the key points ->
+  zoom/pan and nudge pins over passes to refine -> construct_vectors from the pins ->
+  compare_images(source, reconstruction) to see the residual -> nudge + rebuild until
+  it converges. Use map_coordinates when the source is perspective-distorted or 3D.
+
+Exactness (PALS's Law): the coordinate system, grid, rulers, explicit regions, pins,
+and structural landmarks (A1..A9) are exact geometry — trust them. DETECTED landmarks
+(L*) and `propose_*` output are unverified guesses — anchor to the structural ones and
+verify. The overlay images are drawing aids; the `spatial` JSON is the source of truth.
+
+## Resources
+Every tool writes artifacts under `framegraph://session/<id>/`: `document.yaml`,
+`page/<n>.svg`, `page/<n>.png`, `diagnostics.json` (the full result incl. the complete
+`spatial` payload), and `workspace.json` (persisted pins). Read `diagnostics.json` for
+the exact numbers behind any measurement; the tool response only summarizes them.
 
 ## Workflow
-Author or propose -> read the returned validation issues + the rendered PNG (or
-the `render_warning` when raster is unavailable) -> refine the SDK code/YAML ->
-re-render. Verify every rendered result against pixels, never against the YAML alone.
+Author or propose -> read the returned validation issues + the rendered PNG (or the
+`render_warning` when raster is unavailable) -> refine the SDK code/YAML -> re-render.
+For reconstruction, follow the loop above. Verify every result against pixels, never
+against the YAML alone.
 """

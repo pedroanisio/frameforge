@@ -73,6 +73,9 @@ def read_session_resource(uri: str, *, session_root: str | Path | None = None) -
     elif artifact == ["diagnostics.json"]:
         path = session_dir / "diagnostics.json"
         mime = "application/json"
+    elif artifact == ["workspace.json"]:
+        path = session_dir / "workspace.json"
+        mime = "application/json"
     elif len(artifact) == 2 and artifact[0] == "page" and artifact[1].endswith(".svg"):
         page_number = artifact[1][:-4]
         path = session_dir / _page_svg_name(_positive_int(page_number, "page_number"))

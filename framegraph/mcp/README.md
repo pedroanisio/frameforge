@@ -87,7 +87,8 @@ Sessions:
 
 - `get_session_resource`, `list_sessions`, `cleanup_sessions`.
 - Resources: `framegraph://session/{id}/document.yaml`, `…/page/{n}.svg`, `…/page/{n}.png`,
-  `…/diagnostics.json`.
+  `…/diagnostics.json` (full result incl. the complete `spatial` coordinate payload),
+  `…/workspace.json` (persisted `workspace` pins + viewport).
 
 The `framegraph_guide` prompt returns a model-facing capability guide for the SDK.
 

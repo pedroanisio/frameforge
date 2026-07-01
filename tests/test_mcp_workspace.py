@@ -57,6 +57,22 @@ def test_workspace_open_requires_image(tmp_path):
     assert r["ok"] is False and "open" in r["error"]
 
 
+def test_workspace_state_is_readable_as_a_resource(tmp_path):
+    """The persisted pins are exposed at framegraph://session/<id>/workspace.json."""
+    import json
+
+    from framegraph.mcp.sessions import read_session_resource
+
+    img = _png(tmp_path / "src.png")
+    workspace("open", image=img, session_id="w", session_root=tmp_path)
+    workspace("pin", points=[{"px": [12, 34], "id": "a"}], session_id="w", session_root=tmp_path)
+    payload = read_session_resource("framegraph://session/w/workspace.json", session_root=tmp_path)
+    assert payload["mimeType"] == "application/json"
+    state = json.loads(payload["text"])
+    assert state["image_ref"] == img
+    assert [(p["id"], p["x"], p["y"]) for p in state["pins"]] == [("a", 12.0, 34.0)]
+
+
 def test_workspace_nudge_is_the_ai_mouse(tmp_path):
     img = _png(tmp_path / "src.png", size=(200, 100))
     workspace("open", image=img, session_id="w", session_root=tmp_path)

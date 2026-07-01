@@ -137,8 +137,28 @@ def create_server(
     server = fastmcp_cls(
         "FrameGraph",
         instructions=(
-            "Execute or edit Python clients that use framegraph.sdk, inspect the "
-            "generated FrameGraph YAML, and read rendered SVG artifacts for visual feedback."
+            "FrameGraph is a document/graphics DSL: author with the Python SDK, this "
+            "server validates + renders it, and you verify against the rendered pixels. "
+            "Capabilities, by group:\n"
+            "• Author → render: run_sdk_code / run_sdk_client / render_framegraph_yaml "
+            "(build a doc, get validation issues + a PNG); write_sdk_client / "
+            "read_sdk_client / list_sdk_clients (edit whitelisted clients).\n"
+            "• Image → draft: propose_from_image / propose_from_document / propose_from_svg "
+            "(UNVERIFIED drafts, round-tripped through render).\n"
+            "• Visual QA: compare_images (zoomed reference|candidate|diff panels + a "
+            "pixel-match hint).\n"
+            "• Coordinate-aware reconstruction (raster → precise vectors): measure_image "
+            "(grid + rulers + coordinate system + regions + landmarks + zoom crops), "
+            "mark_points (resolve points in every frame), overlay_images (landmark "
+            "alignment + offsets), workspace (a stateful pin board — the AI 'mouse': "
+            "pin / nudge / move / pan / zoom / multi-pass refine, state persists per "
+            "session_id), construct_vectors (draw SDK geometry from anchor points), "
+            "map_coordinates (homography / 2D↔3D).\n"
+            "• Sessions/resources: artifacts live at framegraph://session/<id>/... "
+            "(document.yaml, page/<n>.svg, page/<n>.png, diagnostics.json, workspace.json).\n"
+            "ARCHITECTURAL CONTRACT (PALS's Law): all CV/LLM output is unverified by "
+            "default — verify every result against the rendered PNG, never the YAML alone. "
+            "Call the `framegraph_guide` prompt for the full SDK + workflow reference."
         ),
     )
 
@@ -954,6 +974,7 @@ def create_server(
 
     @server.resource("framegraph://session/{session_id}/document.yaml")
     def session_document(session_id: str) -> str:
+        """The validated FrameGraph YAML a render tool produced for this session."""
         return _logged_call(
             log_path,
             "resource.session_document",
@@ -966,6 +987,7 @@ def create_server(
 
     @server.resource("framegraph://session/{session_id}/page/{page_number}.svg")
     def session_page(session_id: str, page_number: str) -> str:
+        """The vector SVG for page N (1-based) — exact geometry; not vision-decodable."""
         page = _positive_int(page_number, "page_number")
         return _logged_call(
             log_path,
@@ -981,6 +1003,7 @@ def create_server(
         "framegraph://session/{session_id}/page/{page_number}.png", mime_type="image/png"
     )
     def session_page_png(session_id: str, page_number: str) -> bytes:
+        """The rasterized PNG for page N (1-based) — the vision-decodable render to verify against."""
         page = _positive_int(page_number, "page_number")
         payload = _logged_call(
             log_path,
@@ -995,12 +1018,32 @@ def create_server(
 
     @server.resource("framegraph://session/{session_id}/diagnostics.json")
     def session_diagnostics(session_id: str) -> str:
+        """The full result of the last call in this session — validation issues, render
+        metadata, subprocess streams, and the complete `spatial` coordinate payload
+        (coordinate system, regions, landmarks, crop transforms, pins) that the tool
+        response summarizes. Read this for the exact numbers behind a measurement."""
         return _logged_call(
             log_path,
             "resource.session_diagnostics",
             {"session_id": session_id},
             lambda: read_session_resource(
                 f"framegraph://session/{session_id}/diagnostics.json",
+                session_root=root,
+            )["text"],
+        )
+
+    @server.resource("framegraph://session/{session_id}/workspace.json")
+    def session_workspace(session_id: str) -> str:
+        """The persisted `workspace` state for this session: the bound image, the pin
+        set (ids, image-pixel coordinates, groups, labels), and the current viewport.
+        Present only after `workspace` action='open'; this is what makes pins survive
+        across calls for multi-pass reconstruction."""
+        return _logged_call(
+            log_path,
+            "resource.session_workspace",
+            {"session_id": session_id},
+            lambda: read_session_resource(
+                f"framegraph://session/{session_id}/workspace.json",
                 session_root=root,
             )["text"],
         )
