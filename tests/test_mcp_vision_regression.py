@@ -362,6 +362,18 @@ def test_req8_custom_style_stroke_width_is_lowered(tmp_path):
     assert r["ok"] is True, r.get("error")
 
 
+def test_req8_background_is_painted_as_a_full_page_rect(tmp_path):
+    # regression: `background` must not go on the CanvasObject (it has no such field);
+    # it is lowered to a full-canvas fill rect so a white-on-dark mark is visible.
+    r = construct_vectors(
+        [{"kind": "closed", "points": [[10, 10], [90, 10], [50, 80]],
+          "style": {"stroke": "#f2f2f0", "stroke_width": 6}}],
+        width=200, height=120, background="#2e3238", raster_png=False,
+        session_id="bg", session_root=tmp_path)
+    assert r["ok"] is True, r.get("error")
+    assert r["shape_count"] == 1
+
+
 def test_req8_multiple_shapes_in_one_document(tmp_path):
     r = construct_vectors(
         [{"kind": "rect", "points": [[0, 0], [40, 40]]},

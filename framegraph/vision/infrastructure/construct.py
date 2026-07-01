@@ -162,9 +162,11 @@ def build_document(shapes: Sequence[dict[str, Any]], *, width: int, height: int,
         raise ValueError("no shapes to construct")
     doc = DocumentBuilder(title=title)
     canvas: dict[str, Any] = {"size": [int(width), int(height)], "units": "px"}
-    if background:
-        canvas["background"] = background
     page = doc.page("reconstruction", canvas=canvas, coordinate_mode="absolute")
+    # A page background is a full-canvas fill rect (the CanvasObject has no
+    # `background` field), drawn first so the shapes sit on top of it.
+    if background:
+        page.rect([0, 0, int(width), int(height)], fill=background)
     summaries = [_add_shape(page, dict(s)) for s in shapes]
     yaml_text = serialize(doc.build(), format="yaml")
     return yaml_text, summaries
