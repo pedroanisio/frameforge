@@ -491,3 +491,117 @@ def test_req9_to_3d_preserves_point_count():
     r = map_coordinates("to_3d", points=[[1, 2], [3, 4], [5, 6]])
     assert len(r["spatial"]["points_3d"]) == 3
     assert r["spatial"]["points_3d"][0] == [1.0, 2.0, 0.0]
+
+
+# ══════════════════════════════════════════════════════════════
+# Geometry-constrained refinement (P1–P4): constraint actions + score.geometry
+# ══════════════════════════════════════════════════════════════
+_EDGE_X, _EDGE_Y = 80.4, 120.6
+
+
+def _corner_png(path, size=(200, 200)):
+    """Bright quadrant x>_EDGE_X ∧ y<_EDGE_Y — one vertical + one horizontal sub-pixel edge."""
+    import numpy as np
+
+    xs = np.arange(size[0])[None, :]
+    ys = np.arange(size[1])[:, None]
+    sx = 1.0 / (1.0 + np.exp(-(xs - _EDGE_X) / 0.8))
+    sy = 1.0 / (1.0 + np.exp((ys - _EDGE_Y) / 0.8))
+    img = (255.0 * sx * sy).astype("uint8")
+    Image.fromarray(img, "L").convert("RGB").save(path, format="PNG")
+    return str(path)
+
+
+def test_geom_collinear_projects_pins_onto_one_line(tmp_path):
+    img = _png(tmp_path / "s.png", size=(120, 160))
+    workspace("open", image=img, session_id="gc", session_root=tmp_path)
+    workspace("pin", points=[{"px": [10, 10], "id": "a"}, {"px": [20, 60], "id": "b"},
+                             {"px": [30, 100], "id": "c"}], session_id="gc", session_root=tmp_path)
+    res = workspace("collinear", select={"ids": ["a", "b", "c"]},
+                    session_id="gc", session_root=tmp_path)
+    assert res["action_info"]["collinear"]["residual_before"]["max_dist_px"] > 0.3
+    (ax, ay) = _pin(res, "a")["image_px"]
+    (bx, by) = _pin(res, "b")["image_px"]
+    (cx, cy) = _pin(res, "c")["image_px"]
+    # perpendicular distance of the middle pin from the a–c line (was ~1.08px pre-projection)
+    base = ((cx - ax) ** 2 + (cy - ay) ** 2) ** 0.5
+    perp = abs((bx - ax) * (cy - ay) - (by - ay) * (cx - ax)) / base
+    assert perp < 0.05
+
+
+def test_geom_symmetrize_enforces_axis_and_flags_outlier(tmp_path):
+    img = _png(tmp_path / "s.png", size=(400, 300))
+    workspace("open", image=img, session_id="gs", session_root=tmp_path)
+    workspace("pin", points=[
+        {"px": [100, 250], "id": "l1"}, {"px": [300, 250], "id": "r1"},
+        {"px": [110, 180], "id": "l2"}, {"px": [290, 180], "id": "r2"},
+        {"px": [130, 100], "id": "l3"}, {"px": [290, 100], "id": "r3"},  # mid 210 — the outlier
+    ], session_id="gs", session_root=tmp_path)
+    res = workspace("symmetrize", geometry={"pairs": [["l1", "r1"], ["l2", "r2"], ["l3", "r3"]]},
+                    session_id="gs", session_root=tmp_path)
+    info = res["action_info"]["symmetrize"]
+    assert info["axis_x"] == pytest.approx(200.0, abs=1.0)
+    assert info["report"]["n_outliers"] == 1
+    mid3 = (_pin(res, "l3")["image_px"][0] + _pin(res, "r3")["image_px"][0]) / 2.0
+    assert mid3 == pytest.approx(200.0, abs=0.5)   # outlier pair now symmetric
+
+
+def test_geom_fit_edge_snaps_pins_to_subpixel_edge(tmp_path):
+    pytest.importorskip("numpy")
+    img = _corner_png(tmp_path / "corner.png")
+    workspace("open", image=img, session_id="gf", session_root=tmp_path)
+    workspace("pin", points=[{"px": [78, 40], "id": "e1"}, {"px": [82, 95], "id": "e2"}],
+              session_id="gf", session_root=tmp_path)
+    res = workspace("fit_edge", select={"ids": ["e1", "e2"]},
+                    geometry={"band": 8, "step": 4}, session_id="gf", session_root=tmp_path)
+    assert res["action_info"]["fit_edge"]["source"] == "subpixel-edge"
+    assert _pin(res, "e1")["image_px"][0] == pytest.approx(_EDGE_X, abs=0.6)
+    assert _pin(res, "e2")["image_px"][0] == pytest.approx(_EDGE_X, abs=0.6)
+
+
+def test_geom_intersect_sets_corner_pin(tmp_path):
+    pytest.importorskip("numpy")
+    img = _corner_png(tmp_path / "corner.png")
+    workspace("open", image=img, session_id="gi", session_root=tmp_path)
+    workspace("pin", points=[
+        {"px": [80, 40], "id": "v1"}, {"px": [80, 90], "id": "v2"},      # vertical edge
+        {"px": [100, 120], "id": "h1"}, {"px": [160, 120], "id": "h2"},  # horizontal edge
+    ], session_id="gi", session_root=tmp_path)
+    res = workspace("intersect", geometry={"edge1": ["v1", "v2"], "edge2": ["h1", "h2"],
+                                           "target": "corner", "band": 8, "step": 4},
+                    session_id="gi", session_root=tmp_path)
+    assert res["action_info"]["intersect"]["target"] == "corner"
+    cx, cy = _pin(res, "corner")["image_px"]
+    assert cx == pytest.approx(_EDGE_X, abs=0.8)
+    assert cy == pytest.approx(_EDGE_Y, abs=0.8)
+
+
+def test_geom_snap_subpixel_slides_pin_onto_edge(tmp_path):
+    pytest.importorskip("numpy")
+    img = _corner_png(tmp_path / "corner.png")
+    workspace("open", image=img, session_id="gsub", session_root=tmp_path)
+    workspace("pin", points=[{"px": [75, 70], "id": "p"}], session_id="gsub", session_root=tmp_path)
+    res = workspace("snap", snap_to="edge_subpixel", select={"ids": ["p"]},
+                    geometry={"band": 10}, session_id="gsub", session_root=tmp_path)
+    assert res["action_info"]["snapped"][0]["ok"] is True
+    assert _pin(res, "p")["image_px"][0] == pytest.approx(_EDGE_X, abs=0.6)
+
+
+def test_score_reconstruction_geometry_flags_shifted_pair(tmp_path):
+    p = _edge_png(tmp_path / "edge.png")
+    res = score_reconstruction(
+        p, [{"kind": "line", "points": [[20, 90], [220, 90]]}],
+        symmetry_pairs=[[[100, 90], [140, 90]], [[105, 70], [135, 70]], [[100, 50], [160, 50]]],
+        collinear_groups=[[[10, 10], [20, 30], [30, 60]]],
+        session_id="sg", session_root=tmp_path)
+    geom = res["score"]["geometry"]
+    assert geom["symmetry"]["n_outliers"] == 1
+    assert geom["worst_dev_px"] >= 8.0
+    assert geom["within_tol"] is False
+
+
+def test_score_reconstruction_without_pairs_has_no_geometry_key(tmp_path):
+    p = _edge_png(tmp_path / "edge.png")
+    res = score_reconstruction(p, [{"kind": "line", "points": [[20, 90], [220, 90]]}],
+                               session_id="sng", session_root=tmp_path)
+    assert "geometry" not in res["score"]
