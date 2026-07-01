@@ -10,9 +10,20 @@ from __future__ import annotations
 import asyncio
 import base64
 from concurrent.futures import ThreadPoolExecutor
+import os
 from pathlib import Path
 import re
 from typing import Iterable, Sequence
+
+
+# Chromium's setuid sandbox usually cannot initialize inside a container (no
+# user namespaces / running as root), so ``launch()`` fails there unless
+# ``--no-sandbox`` is passed. Local runs must be unchanged, so the flags are
+# opt-in via environment: ``FRAMEGRAPH_CHROMIUM_NO_SANDBOX=1`` adds the two
+# container-safe flags below (the Docker image sets it), or pass an explicit
+# space-separated ``FRAMEGRAPH_CHROMIUM_ARGS`` to override entirely.
+_CONTAINER_CHROMIUM_ARGS = ("--no-sandbox", "--disable-dev-shm-usage")
+_TRUTHY = {"1", "true", "yes", "on"}
 
 
 _SVG_OPEN_RE = re.compile(r"<svg\b(?P<attrs>[^>]*)>", re.IGNORECASE)
@@ -84,7 +95,7 @@ def _rasterize_svg_sync(
     browser_mod = playwright_module or _load_playwright()
     with browser_mod.sync_playwright() as pw:
         try:
-            browser = pw.chromium.launch()
+            browser = pw.chromium.launch(args=_chromium_launch_args())
         except Exception as exc:  # pragma: no cover - depends on local browser install state
             raise BrowserRendererUnavailable(
                 "Headless Chromium could not launch. Run `uv run playwright install chromium` "
@@ -148,6 +159,22 @@ def rasterize_svgs(
             )
         )
     return paths
+
+
+def _chromium_launch_args() -> list[str]:
+    """Return the Chromium launch flags, opt-in via environment.
+
+    Empty by default so local (non-container) runs behave exactly as before.
+    ``FRAMEGRAPH_CHROMIUM_ARGS`` (space-separated) takes precedence and replaces
+    the flags entirely; otherwise a truthy ``FRAMEGRAPH_CHROMIUM_NO_SANDBOX``
+    yields the container-safe defaults.
+    """
+    explicit = os.environ.get("FRAMEGRAPH_CHROMIUM_ARGS", "").strip()
+    if explicit:
+        return explicit.split()
+    if os.environ.get("FRAMEGRAPH_CHROMIUM_NO_SANDBOX", "").strip().lower() in _TRUTHY:
+        return list(_CONTAINER_CHROMIUM_ARGS)
+    return []
 
 
 def _load_playwright():

@@ -1,0 +1,14 @@
+{
+  "_comment": "Example MCP client config that spawns the FrameGraph MCP inside the font-rich container instead of the local uv env. Build the image first: `docker build -t frameforge .` (or `make docker-build`). Copy this into your client's mcp config (e.g. replace .mcp.json's `framegraph` entry). The named volume persists MCP session artifacts across runs.",
+  "mcpServers": {
+    "framegraph": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "-v", "framegraph-work:/work",
+        "frameforge"
+      ]
+    }
+  }
+}

@@ -1,0 +1,35 @@
+# Keep the FrameGraph image lean: exclude VCS, the host venv, generated render
+# output, caches, and the multi-MB SVG artifacts sitting at the repo root.
+.git
+.gitignore
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.hypothesis
+
+# generated render output / scratch
+out/
+_tmp/
+site/
+
+# large committed SVG artifacts at the repo root (regenerated on demand)
+/*.svg
+
+# agent/editor scaffolding
+.claude
+.codex
+.agents
+.agent-tasks
+.repo
+.github
+
+# the viewer ships its own image (viewer/Dockerfile)
+viewer/node_modules
+node_modules
+
+# docker build context doesn't need its own outputs
+Dockerfile
+.dockerignore

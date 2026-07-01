@@ -1,0 +1,105 @@
+# docker/fonts.apt.txt — Debian font packages installed into the FrameGraph image.
+#
+# This is the script/CJK/emoji/symbol coverage that the google/fonts corpus
+# (installed separately, see docker/collect-google-fonts.sh) does NOT ship well:
+# full Noto, the big CJK families, Indic/Arabic/Thai/Sinhala/Khmer scripts, and
+# emoji/symbol fallbacks. google/fonts covers the Latin display/text/mono breadth.
+#
+# One package per line. Comments (`#`) and blank lines are ignored by the build.
+# The Dockerfile installs these in bulk, then retries individually so a name that
+# is absent on a given Debian release is skipped instead of aborting the build.
+# For the absolute maximum, build with --build-arg FONTS_APT_WILDCARD=1 (adds
+# every `fonts-*` package apt knows about).
+
+# --- Latin core / metrics-compatible substitutes ---
+fonts-dejavu
+fonts-dejavu-extra
+fonts-liberation
+fonts-liberation2
+fonts-croscore
+fonts-crosextra-caladea
+fonts-crosextra-carlito
+fonts-freefont-ttf
+fonts-freefont-otf
+fonts-urw-base35
+fonts-texgyre
+fonts-lmodern
+
+# --- popular open Latin families (google/fonts also carries many) ---
+fonts-inter
+fonts-lato
+fonts-open-sans
+fonts-roboto
+fonts-cantarell
+fonts-cabin
+fonts-comfortaa
+fonts-linuxlibertine
+fonts-ebgaramond
+fonts-ebgaramond-extra
+fonts-inconsolata
+fonts-hack
+fonts-firacode
+fonts-font-awesome
+
+# --- Noto: near-universal script coverage ---
+fonts-noto-core
+fonts-noto-extra
+fonts-noto-ui-core
+fonts-noto-ui-extra
+fonts-noto-mono
+fonts-noto-cjk
+fonts-noto-cjk-extra
+fonts-noto-color-emoji
+
+# --- CJK (Chinese / Japanese / Korean) beyond Noto ---
+fonts-wqy-microhei
+fonts-wqy-zenhei
+fonts-arphic-ukai
+fonts-arphic-uming
+fonts-ipafont
+fonts-ipaexfont
+fonts-vlgothic
+fonts-hanazono
+fonts-unfonts-core
+fonts-unfonts-extra
+fonts-nanum
+fonts-nanum-coding
+fonts-nanum-extra
+
+# --- Indic scripts (metapackage pulls Devanagari/Bengali/Tamil/Telugu/...) ---
+fonts-indic
+fonts-lohit-deva
+fonts-lohit-beng-bengali
+fonts-lohit-taml
+fonts-lohit-telu
+fonts-lohit-gujr
+fonts-lohit-guru
+fonts-lohit-knda
+fonts-lohit-mlym
+fonts-lohit-orya
+fonts-samyak-deva
+fonts-gubbi
+
+# --- Arabic / Hebrew / Thai / SE-Asian / Ethiopic / Tibetan ---
+fonts-hosny-amiri
+fonts-kacst
+fonts-kacst-one
+fonts-sil-scheherazade
+fonts-sil-lateef
+fonts-sil-ezra
+fonts-thai-tlwg
+fonts-lklug-sinhala
+fonts-khmeros
+fonts-lao
+fonts-tibetan-machine
+fonts-sil-abyssinica
+fonts-sil-padauk
+
+# --- broad SIL text families (many scripts, high quality) ---
+fonts-sil-gentium
+fonts-sil-gentium-basic
+fonts-sil-charis
+fonts-sil-andika
+
+# --- symbols / math / emoji fallback ---
+fonts-symbola

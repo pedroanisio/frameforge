@@ -11,7 +11,10 @@ LIVE_HOST ?= 127.0.0.1
 LIVE_PORT ?= 8789
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check brand-logo-check
+.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check brand-logo-check docker-build docker-mcp docker-shell docker-fonts
+
+DOCKER ?= docker
+IMAGE ?= frameforge
 
 help:  ## list targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort \
@@ -126,3 +129,15 @@ golden:  ## re-pin the golden-render lock (after an intentional render change)
 
 golden-check:  ## fail if the b1/ oracle renders drift from the golden lock
 	$(UV) run python tooling/render_golden.py
+
+docker-build:  ## build the font-rich SDK/MCP image (ARGS='--build-arg FONTS_APT_WILDCARD=1')
+	$(DOCKER) build -t $(IMAGE) $(ARGS) .
+
+docker-mcp:  ## run the MCP server (stdio) from the container
+	$(DOCKER) run --rm -i -v framegraph-work:/work $(IMAGE)
+
+docker-shell:  ## interactive shell inside the container toolchain
+	$(DOCKER) run --rm -it -v framegraph-work:/work $(IMAGE) bash
+
+docker-fonts:  ## list the font families baked into the image
+	$(DOCKER) run --rm $(IMAGE) fonts

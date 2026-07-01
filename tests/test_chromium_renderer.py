@@ -17,7 +17,11 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
 sys.path.insert(0, ROOT)
 
-from framegraph.rendering.infrastructure.browser import rasterize_svg, svg_size  # noqa: E402
+from framegraph.rendering.infrastructure.browser import (  # noqa: E402
+    _chromium_launch_args,
+    rasterize_svg,
+    svg_size,
+)
 from tooling import render_chromium  # noqa: E402
 
 
@@ -52,8 +56,10 @@ class FakeManager:
 class FakeChromium:
     def __init__(self):
         self.browser = FakeBrowser()
+        self.launch_kwargs = None
 
-    def launch(self):
+    def launch(self, **kwargs):
+        self.launch_kwargs = kwargs
         return self.browser
 
 
@@ -128,6 +134,38 @@ def test_rasterize_svg_runs_sync_playwright_outside_active_asyncio_loop(tmp_path
 
     assert out.exists()
     assert fake.manager.chromium.browser.pages
+
+
+def test_chromium_launch_args_default_empty(monkeypatch):
+    monkeypatch.delenv("FRAMEGRAPH_CHROMIUM_NO_SANDBOX", raising=False)
+    monkeypatch.delenv("FRAMEGRAPH_CHROMIUM_ARGS", raising=False)
+    assert _chromium_launch_args() == []
+
+
+def test_chromium_launch_args_no_sandbox_flag(monkeypatch):
+    monkeypatch.delenv("FRAMEGRAPH_CHROMIUM_ARGS", raising=False)
+    monkeypatch.setenv("FRAMEGRAPH_CHROMIUM_NO_SANDBOX", "1")
+    assert _chromium_launch_args() == ["--no-sandbox", "--disable-dev-shm-usage"]
+
+
+def test_chromium_launch_args_explicit_override(monkeypatch):
+    monkeypatch.setenv("FRAMEGRAPH_CHROMIUM_NO_SANDBOX", "1")
+    monkeypatch.setenv("FRAMEGRAPH_CHROMIUM_ARGS", "--no-sandbox --font-render-hinting=none")
+    assert _chromium_launch_args() == ["--no-sandbox", "--font-render-hinting=none"]
+
+
+def test_rasterize_svg_threads_launch_args(tmp_path, monkeypatch):
+    monkeypatch.delenv("FRAMEGRAPH_CHROMIUM_ARGS", raising=False)
+    monkeypatch.setenv("FRAMEGRAPH_CHROMIUM_NO_SANDBOX", "1")
+    fake = FakePlaywrightModule()
+    rasterize_svg(
+        '<svg width="10" height="10"><rect width="10" height="10"/></svg>',
+        tmp_path / "page.png",
+        playwright_module=fake,
+    )
+    assert fake.manager.chromium.launch_kwargs == {
+        "args": ["--no-sandbox", "--disable-dev-shm-usage"]
+    }
 
 
 def test_render_chromium_list_mode(capsys):
