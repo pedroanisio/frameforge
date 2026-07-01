@@ -191,6 +191,35 @@ def nice_step(extent_px: float, *, divisions: int = 12) -> int:
     return _NICE_STEPS[-1]
 
 
+# ── the single norm ⇄ px authority — every tool routes its conversions here ──
+def denorm_point(nx: float, ny: float, width: float, height: float) -> tuple[float, float]:
+    """Normalized (0..1) → pixels, **unclamped**.
+
+    For POINT specs and landmark pairs: an out-of-bounds coordinate must stay out of
+    bounds (unlike a box, which is trimmed to the frame — see :func:`denorm_box`).
+    """
+    return (float(nx) * width, float(ny) * height)
+
+
+def normalize_point(px: float, py: float, width: float, height: float) -> tuple[float, float]:
+    """Pixels → normalized (0..1). A zero-size dimension yields ``0.0`` (no divide)."""
+    return (px / width if width else 0.0, py / height if height else 0.0)
+
+
+def denorm_box(x: float, y: float, w: float, h: float,
+               width: float, height: float) -> tuple[float, float, float, float]:
+    """Normalized box → pixel ``(px, py, pw, ph)``, **clamped** to the unit square.
+
+    For regions/crops: a box overrunning an edge is trimmed before denormalizing, so
+    its pixel extent never exceeds the image.
+    """
+    px = _clamp01(x) * width
+    py = _clamp01(y) * height
+    pw = max(0.0, _clamp01(x + w) - _clamp01(x)) * width
+    ph = max(0.0, _clamp01(y + h) - _clamp01(y)) * height
+    return (px, py, pw, ph)
+
+
 def measured_regions(regions: Sequence[Any], cs: CoordinateSystem) -> list[MeasuredRegion]:
     """Resolve normalized regions to exact pixel + coordinate-system geometry.
 
@@ -202,10 +231,7 @@ def measured_regions(regions: Sequence[Any], cs: CoordinateSystem) -> list[Measu
     out: list[MeasuredRegion] = []
     for i, r in enumerate(regions):
         x, y, w, h = r.box
-        px = _clamp01(x) * W
-        py = _clamp01(y) * H
-        pw = max(0.0, (_clamp01(x + w) - _clamp01(x))) * W
-        ph = max(0.0, (_clamp01(y + h) - _clamp01(y))) * H
+        px, py, pw, ph = denorm_box(x, y, w, h, W, H)
         cx, cy = px + pw / 2.0, py + ph / 2.0
         out.append(MeasuredRegion(
             id=f"R{i + 1}",
@@ -238,10 +264,8 @@ def crop_transform(name: str, box: Sequence[float], cs: CoordinateSystem, *,
     """Compute the offset+scale for a zoomed crop of ``box`` (normalized)."""
     W, H = cs.width, cs.height
     x, y, w, h = box
-    ox = _clamp01(x) * W
-    oy = _clamp01(y) * H
-    sw = max(1.0, (_clamp01(x + w) - _clamp01(x)) * W)
-    sh = max(1.0, (_clamp01(y + h) - _clamp01(y)) * H)
+    ox, oy, sw0, sh0 = denorm_box(x, y, w, h, W, H)
+    sw, sh = max(1.0, sw0), max(1.0, sh0)
     scale = max(1.0, render_long_edge / max(sw, sh))
     rw = max(1, int(round(sw * scale)))
     rh = max(1, int(round(sh * scale)))
@@ -266,7 +290,7 @@ def resolve_point_spec(spec: Any, cs: CoordinateSystem,
         return float(x), float(y)
     if "norm" in spec:
         nx, ny = spec["norm"]
-        return float(nx) * cs.width, float(ny) * cs.height
+        return denorm_point(nx, ny, cs.width, cs.height)
     if "cs" in spec:
         cx, cy = spec["cs"]
         return cs.from_cs(float(cx), float(cy))
@@ -289,8 +313,7 @@ def point_frames(px: float, py: float, cs: CoordinateSystem,
     frames: dict[str, Any] = {
         "image_px": [round(px, 2), round(py, 2)],
         "image_cs": [round(v, 2) for v in cs.to_cs(px, py)],
-        "normalized": [round(px / cs.width, 6) if cs.width else 0.0,
-                       round(py / cs.height, 6) if cs.height else 0.0],
+        "normalized": [round(v, 6) for v in normalize_point(px, py, cs.width, cs.height)],
     }
     if viewport is not None:
         vx, vy = viewport.to_render_px(px, py)

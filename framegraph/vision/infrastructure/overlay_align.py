@@ -26,6 +26,7 @@ from .image_compare import _font, _pil, load_rgb
 # The fit maths (Similarity + fit_similarity + landmark_offsets + rms_residual) is pure
 # and lives in the domain layer; this infra module keeps the PIL compositing and
 # re-exports those names so existing callers/tests keep working.
+from ..domain.coordinates import denorm_point
 from ..domain.fitting import (  # noqa: F401  (re-exported for back-compat)
     Similarity,
     fit_similarity,
@@ -50,8 +51,8 @@ def _to_pairs(landmarks: Sequence[dict[str, Any]], base_size, overlay_size):
         if len(b) != 2 or len(o) != 2:
             raise ValueError(f"landmark {i} points must be [x, y]")
         if lm.get("norm"):
-            pairs.append(((float(b[0]) * bw, float(b[1]) * bh),
-                          (float(o[0]) * ow, float(o[1]) * oh)))
+            pairs.append((denorm_point(b[0], b[1], bw, bh),
+                          denorm_point(o[0], o[1], ow, oh)))
         else:
             pairs.append(((float(b[0]), float(b[1])), (float(o[0]), float(o[1]))))
     if not pairs:

@@ -28,17 +28,17 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Sequence
 
-from .image_compare import Region, _font, _pil, load_rgb
+from .image_compare import Region, load_rgb
 from .measure import (
     CoordinateSystem,
     CropTransform,
     Landmark,
     Measurement,
-    _draw_points,
-    _Viewport,
-    annotate,
     crop_transform,
+    denorm_point,
+    draw_points_overlay,
     nice_step,
+    normalize_point,
     point_frames,
     resolve_point_spec,
     structural_landmarks,
@@ -186,8 +186,8 @@ def _delta_px(state: WorkspaceState, dx: float, dy: float, unit: str) -> tuple[f
         if vp is None:
             raise ValueError("unit 'viewport' needs a viewport; set one first")
         # a viewport-fraction step, expressed in source pixels
-        return float(dx) * vp.size_px[0], float(dy) * vp.size_px[1]
-    return float(dx) * state.width, float(dy) * state.height  # norm
+        return denorm_point(dx, dy, vp.size_px[0], vp.size_px[1])
+    return denorm_point(dx, dy, state.width, state.height)  # norm
 
 
 def nudge_pins(state: WorkspaceState, select: Any, dx: float, dy: float, unit: str) -> list[Pin]:
@@ -248,7 +248,7 @@ def zoom_viewport(state: WorkspaceState, factor: float, aim: Any = None) -> None
     x, y, w, h = state.viewport
     if aim is not None:
         ax, ay = resolve_point_spec(aim, state.cs(), state.anchors(), state.viewport_transform())
-        cx, cy = ax / state.width, ay / state.height
+        cx, cy = normalize_point(ax, ay, state.width, state.height)
     else:
         cx, cy = x + w / 2, y + h / 2
     nw, nh = w / factor, h / factor
@@ -261,7 +261,6 @@ def zoom_viewport(state: WorkspaceState, factor: float, aim: Any = None) -> None
 def render(image_bytes: bytes, state: WorkspaceState, *,
            grid: bool = True, rulers: bool = True, connect: bool = False) -> Measurement:
     """Render the workspace: overlay with pins, an optional viewport crop, and spatial."""
-    Image, _, ImageDraw, _, _ = _pil()
     img = load_rgb(image_bytes)
     cs = state.cs()
     step = nice_step(max(state.width, state.height))
@@ -269,22 +268,9 @@ def render(image_bytes: bytes, state: WorkspaceState, *,
     vp_xform = state.viewport_transform()
     pts = [(p.x, p.y, p.label or p.id) for p in state.pins]
 
-    identity = _Viewport(0.0, 0.0, 1.0)
-    base = annotate(img, cs, identity, step=step, label_every=2, grid=grid, rulers=rulers,
-                    landmarks=lms, crops=(vp_xform,) if vp_xform else ())
-    over = base.convert("RGBA")
-    layer = Image.new("RGBA", over.size, (0, 0, 0, 0))
-    _draw_points(ImageDraw.Draw(layer), pts, identity, connect=connect, font=_font(16, bold=True))
-    overlay = Image.alpha_composite(over, layer).convert("RGB")
-
-    crops: list[tuple[str, Any]] = []
-    if vp_xform is not None:
-        from .measure import _render_crop
-        crop_view = _render_crop(img, cs, vp_xform, step, 2, grid, rulers, lms).convert("RGBA")
-        clayer = Image.new("RGBA", crop_view.size, (0, 0, 0, 0))
-        cvp = _Viewport(vp_xform.origin_px[0], vp_xform.origin_px[1], vp_xform.scale)
-        _draw_points(ImageDraw.Draw(clayer), pts, cvp, connect=connect, font=_font(16, bold=True))
-        crops.append((vp_xform.name, Image.alpha_composite(crop_view, clayer).convert("RGB")))
+    overlay, crops = draw_points_overlay(
+        img, cs, pts, viewport=vp_xform, landmarks=lms, step=step,
+        label_every=2, grid=grid, rulers=rulers, connect=connect)
 
     pin_records = []
     for p in state.pins:

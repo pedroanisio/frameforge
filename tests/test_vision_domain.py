@@ -34,6 +34,40 @@ class _Region:
 
 
 # ─────────────────────────────────────────────────────────────
+# denorm / normalize primitives (the DUP #1 consolidation target)
+# ─────────────────────────────────────────────────────────────
+def test_denorm_point_and_normalize_point_are_inverses():
+    assert C.denorm_point(0.5, 0.25, 200, 100) == (100.0, 25.0)
+    assert C.normalize_point(100, 25, 200, 100) == (0.5, 0.25)
+    for nx, ny in [(0.0, 0.0), (1.0, 1.0), (0.3, 0.7)]:
+        px, py = C.denorm_point(nx, ny, 640, 480)
+        assert C.normalize_point(px, py, 640, 480) == pytest.approx((nx, ny))
+
+
+def test_normalize_point_zero_dimension_guard():
+    assert C.normalize_point(10, 10, 0, 0) == (0.0, 0.0)
+
+
+def test_denorm_point_is_unclamped():
+    # a POINT spec must not clamp — an out-of-bounds point stays out of bounds
+    assert C.denorm_point(1.5, -0.2, 200, 100) == (300.0, -20.0)
+
+
+def test_denorm_box_clamps_to_the_unit_square():
+    # a BOX overrunning an edge is clamped before denormalizing (approx: 0.9*200 is
+    # 180.00000000000003 in float — the same imprecision the original code rounds away)
+    assert C.denorm_box(0.9, 0.0, 0.5, 1.0, 200, 100) == pytest.approx((180.0, 0.0, 20.0, 100.0))
+    assert C.denorm_box(-0.1, 0.0, 0.4, 0.5, 200, 100) == pytest.approx((0.0, 0.0, 60.0, 50.0))
+
+
+def test_resolve_norm_stays_unclamped_after_consolidation():
+    cs = C.CoordinateSystem("top-left", 200, 100)
+    # regression guard: routing resolve_point_spec's norm branch through denorm_point
+    # must keep it UNCLAMPED (the box path clamps; the point path must not).
+    assert C.resolve_point_spec({"norm": [1.5, -0.2]}, cs, {}, None) == (300.0, -20.0)
+
+
+# ─────────────────────────────────────────────────────────────
 # CoordinateSystem
 # ─────────────────────────────────────────────────────────────
 @pytest.mark.parametrize("origin", ["top-left", "bottom-left", "center", "nonsense"])

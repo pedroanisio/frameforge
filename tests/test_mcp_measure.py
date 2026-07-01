@@ -37,11 +37,12 @@ from framegraph.vision.infrastructure.measure import (  # noqa: E402
     build_marks,
     build_measurement,
     crop_transform,
+    draw_points_overlay,
     measured_regions,
     nice_step,
     point_frames,
-    resolve_point_spec,
     structural_landmarks,
+    resolve_point_spec,
 )
 from framegraph.vision.infrastructure.overlay_align import (  # noqa: E402
     build_overlay,
@@ -52,6 +53,36 @@ from framegraph.vision.infrastructure.overlay_align import (  # noqa: E402
 def _png(path, color, size=(240, 180)):
     Image.new("RGB", size, color).save(path, format="PNG")
     return str(path)
+
+
+def test_draw_points_overlay_is_the_shared_marks_builder():
+    """draw_points_overlay annotates + draws points and returns (overlay, crops) at the
+    SOURCE size — the drawing body shared by build_marks and workspace.render. A viewport
+    adds exactly one enlarged crop rendered at the crop's render_px."""
+    from io import BytesIO
+
+    from framegraph.vision.infrastructure.image_compare import load_rgb
+
+    buf = BytesIO()
+    Image.new("RGB", (240, 180), (20, 20, 20)).save(buf, "PNG")
+    img = load_rgb(buf.getvalue())
+    cs = CoordinateSystem("top-left", 240, 180)
+    lms = structural_landmarks(cs)
+    pts = [(60.0, 40.0, "P1"), (120.0, 90.0, "P2")]
+
+    overlay, crops = draw_points_overlay(
+        img, cs, pts, viewport=None, landmarks=lms, step=nice_step(240),
+        label_every=2, grid=True, rulers=True, connect=False)
+    assert overlay.size == (240, 180)          # coordinate identity
+    assert crops == []
+
+    vp = crop_transform("Z", (0.1, 0.1, 0.4, 0.4), cs)
+    overlay2, crops2 = draw_points_overlay(
+        img, cs, pts, viewport=vp, landmarks=lms, step=nice_step(240),
+        label_every=2, grid=True, rulers=True, connect=True)
+    assert overlay2.size == (240, 180)
+    assert len(crops2) == 1 and crops2[0][0] == "Z"
+    assert crops2[0][1].size == tuple(vp.render_px)
 
 
 # ─────────────────────────────────────────────────────────────

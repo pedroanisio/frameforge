@@ -44,8 +44,11 @@ from ..domain.coordinates import (  # noqa: F401  (re-exported for back-compat)
     Landmark,
     MeasuredRegion,
     crop_transform,
+    denorm_box,
+    denorm_point,
     measured_regions,
     nice_step,
+    normalize_point,
     point_frames,
     resolve_point_spec,
     structural_landmarks,
@@ -383,6 +386,44 @@ def _draw_points(draw, points: Sequence[tuple[float, float, str]], vp: _Viewport
         _rounded_label(draw, rx + arm + 2, ry - arm - 2, tag, font=font, anchor="la")
 
 
+def draw_points_overlay(img, cs: CoordinateSystem,
+                        points: Sequence[tuple[float, float, str]], *,
+                        viewport: CropTransform | None,
+                        landmarks: Sequence[Landmark],
+                        step: int, label_every: int,
+                        grid: bool, rulers: bool, connect: bool):
+    """Annotate ``img`` (grid/rulers/landmarks) with numbered point crosshairs, plus —
+    when ``viewport`` is set — an enlarged, source-coordinate crop carrying the same
+    crosshairs. Returns ``(overlay_rgb, crops)`` where ``crops`` is a list of
+    ``(name, image)``.
+
+    This is the single drawing body shared by :func:`build_marks` and
+    ``framegraph.vision.infrastructure.workspace.render``; ``points`` are already in
+    image pixels, so the callers keep only their differing point-resolution and
+    ``spatial`` assembly.
+    """
+    Image, _, ImageDraw, _, _ = _pil()
+    font = _font(16, bold=True)
+    identity = _Viewport(0.0, 0.0, 1.0)
+    base = annotate(img, cs, identity, step=step, label_every=label_every,
+                    grid=grid, rulers=rulers, landmarks=landmarks,
+                    crops=(viewport,) if viewport else ())
+    over = base.convert("RGBA")
+    layer = Image.new("RGBA", over.size, (0, 0, 0, 0))
+    _draw_points(ImageDraw.Draw(layer), points, identity, connect=connect, font=font)
+    overlay = Image.alpha_composite(over, layer).convert("RGB")
+
+    crops: list[tuple[str, Any]] = []
+    if viewport is not None:
+        crop_view = _render_crop(img, cs, viewport, step, label_every, grid, rulers,
+                                 landmarks).convert("RGBA")
+        clayer = Image.new("RGBA", crop_view.size, (0, 0, 0, 0))
+        cvp = _Viewport(viewport.origin_px[0], viewport.origin_px[1], viewport.scale)
+        _draw_points(ImageDraw.Draw(clayer), points, cvp, connect=connect, font=font)
+        crops.append((viewport.name, Image.alpha_composite(crop_view, clayer).convert("RGB")))
+    return overlay, crops
+
+
 def build_marks(image_bytes: bytes, point_specs: Sequence[Any], *,
                 viewport_box: Region | None = None,
                 origin: str = "top-left",
@@ -415,24 +456,9 @@ def build_marks(image_bytes: bytes, point_specs: Sequence[Any], *,
         entry.update(point_frames(px, py, cs, viewport))
         frames.append(entry)
 
-    Image, _, ImageDraw, _, _ = _pil()
-    identity = _Viewport(0.0, 0.0, 1.0)
-    base = annotate(img, cs, identity, step=step, label_every=label_every,
-                    grid=grid, rulers=rulers, landmarks=lms,
-                    crops=(viewport,) if viewport else ())
-    over = base.convert("RGBA")
-    layer = Image.new("RGBA", over.size, (0, 0, 0, 0))
-    _draw_points(ImageDraw.Draw(layer), resolved, identity, connect=connect, font=_font(16, bold=True))
-    overlay = Image.alpha_composite(over, layer).convert("RGB")
-
-    crops_out: list[tuple[str, Any]] = []
-    if viewport is not None:
-        crop_view = _render_crop(img, cs, viewport, step, label_every, grid, rulers, lms)
-        cv = crop_view.convert("RGBA")
-        clayer = Image.new("RGBA", cv.size, (0, 0, 0, 0))
-        cvp = _Viewport(viewport.origin_px[0], viewport.origin_px[1], viewport.scale)
-        _draw_points(ImageDraw.Draw(clayer), resolved, cvp, connect=connect, font=_font(16, bold=True))
-        crops_out.append((viewport.name, Image.alpha_composite(cv, clayer).convert("RGB")))
+    overlay, crops_out = draw_points_overlay(
+        img, cs, resolved, viewport=viewport, landmarks=lms, step=step,
+        label_every=label_every, grid=grid, rulers=rulers, connect=connect)
 
     spatial = {
         "image": {"width_px": W, "height_px": H},
