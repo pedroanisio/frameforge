@@ -20,6 +20,9 @@ segmentation/OCR tiers layered on top.
 """
 from __future__ import annotations
 
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -133,6 +136,96 @@ def raster_to_objects(
         return objs, w, h
 
     raise ValueError(f"unknown mode {mode!r} (expected 'region' or 'outline')")
+
+
+_POTRACE_HINT = (
+    "smooth (Bézier) tracing needs the `potrace` binary on PATH (Debian/Ubuntu: "
+    "`apt install potrace`; it ships in the FrameGraph Docker image). The `region`/"
+    "`outline` modes need no extra binary."
+)
+
+
+def potrace_path() -> str | None:
+    """Return the potrace executable path, or None when it is not installed."""
+    return shutil.which("potrace")
+
+
+def _clamp01(v: float) -> float:
+    return 0.0 if v < 0.0 else 1.0 if v > 1.0 else v
+
+
+def _potrace_hex(color: str) -> str:
+    """potrace's --color needs a 6-digit #rrggbb; expand a 3-digit #rgb shorthand."""
+    c = (color or "").strip()
+    if len(c) == 4 and c.startswith("#"):
+        return "#" + "".join(ch * 2 for ch in c[1:])
+    return c
+
+
+def trace_to_svg(path: "str | Path", *, region_box: "list[float] | None" = None,
+                 threshold: int | None = None, invert: Any = "auto",
+                 turdsize: int = 2, alphamax: float = 1.0, opttolerance: float = 0.2,
+                 fill: str = "#000000") -> tuple[str, dict[str, Any]]:
+    """Threshold + potrace-trace an image (or a normalized region) into SVG text.
+
+    The smooth-curve complement to :func:`raster_to_objects`: potrace fits Bézier
+    outlines to the thresholded ink, which the caller lowers to FrameGraph objects
+    via :func:`framegraph.vision.infrastructure.svg_import.svg_to_objects`
+    (``box=region_px`` fits the traced crop back to its place in the full image).
+    Returns ``(svg_text, meta)``; ``meta`` carries the pixel region, threshold,
+    invert decision, and traced path count.
+    """
+    exe = potrace_path()
+    if not exe:
+        raise RuntimeError(_POTRACE_HINT)
+    from PIL import Image, ImageStat
+
+    img = Image.open(str(path)).convert("RGB")
+    W, H = img.size
+    if region_box:
+        x, y, w, h = region_box
+        ox, oy = _clamp01(x) * W, _clamp01(y) * H
+        cw = max(1.0, (_clamp01(x + w) - _clamp01(x)) * W)
+        ch = max(1.0, (_clamp01(y + h) - _clamp01(y)) * H)
+        crop = img.crop((int(ox), int(oy), int(round(ox + cw)), int(round(oy + ch))))
+    else:
+        ox, oy, cw, ch, crop = 0.0, 0.0, float(W), float(H), img
+
+    gray = crop.convert("L")
+    mean = ImageStat.Stat(gray).mean[0]
+    # potrace traces BLACK (0) as foreground; `invert=auto` makes the bright pixels
+    # the foreground when the ground is dark (a light mark on a dark panel).
+    do_invert = (mean < 127.0) if invert == "auto" else bool(invert)
+    thr = int(threshold) if threshold is not None else 128
+    bw = gray.point(lambda v: 255 if v >= thr else 0, mode="1")
+    if do_invert:
+        bw = bw.point(lambda v: 0 if v else 255, mode="1")
+
+    tmp = Path(tempfile.mkdtemp(prefix="fg-trace-"))
+    try:
+        src, out = tmp / "in.bmp", tmp / "out.svg"
+        bw.save(src)  # 1-bit BMP; potrace reads BMP + PNM
+        cmd = [exe, str(src), "--svg", "-o", str(out),
+               "--turdsize", str(int(turdsize)), "--alphamax", str(float(alphamax)),
+               "--opttolerance", str(float(opttolerance))]
+        if fill:
+            cmd += ["--color", _potrace_hex(fill)]
+        proc = subprocess.run(cmd, capture_output=True, text=True)
+        if proc.returncode != 0:
+            raise RuntimeError(f"potrace failed: {proc.stderr.strip() or proc.returncode}")
+        svg_text = out.read_text(encoding="utf-8")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    meta = {
+        "backend": "potrace",
+        "image": {"width_px": W, "height_px": H},
+        "region_px": [round(ox, 2), round(oy, 2), round(cw, 2), round(ch, 2)],
+        "threshold": thr,
+        "inverted": do_invert,
+        "path_count": svg_text.count("<path"),
+    }
+    return svg_text, meta
 
 
 def ocr_text_objects(path: "str | Path", *, max_dim: int = 1400,

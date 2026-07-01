@@ -69,6 +69,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 \
       shared-mime-info libffi8 libjpeg62-turbo \
       libglib2.0-0 libgomp1 \
+      potrace \
       tesseract-ocr tesseract-ocr-eng tesseract-ocr-osd \
  && if [ "$TESSERACT_ALL" = "1" ]; then apt-get install -y --no-install-recommends tesseract-ocr-all || true; fi \
  && FONT_PKGS="$(grep -vE '^\s*(#|$)' /tmp/fonts.apt.txt)" \

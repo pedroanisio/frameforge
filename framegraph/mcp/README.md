@@ -79,6 +79,11 @@ Coordinate workspace + reconstruction (the AI's precise pointer), needs Pillow:
   explicit `points`): `line`, `path`/`trace`, `curve`, `spline`, `triangle`, `polygon`,
   `closed`, `rect`, `ellipse`, `circle`, `star`. Sizes the page to the source so it overlays
   1:1, then validates + renders. Diff against the source with `compare_images` to converge.
+- `vectorize_image` — **automatic** raster→vector: `region` (k-means colour → filled polygons;
+  best for flat/logo art), `outline` (edges → polylines), or `trace` (potrace Bézier → SVG
+  ingest; smooth outlines of a crisp bi-level mark). `region_box` traces just a crop, placed
+  1:1 in the full image; `ocr` adds text objects. Use it when hand-pinning an intricate mark
+  can't converge — `trace` on a thresholded logomark reproduces its strokes far more faithfully.
 - `map_coordinates` — transpose coordinates: `homography` (perspective rectification /
   source→reference from ≥4 pairs), `to_3d` (lift 2D onto a plane), `project` (3D→2D via the
   SDK camera). Honest scope: plane-to-plane projective + pinhole camera (no lens distortion).

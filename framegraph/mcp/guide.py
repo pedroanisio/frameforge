@@ -88,7 +88,7 @@ Visual QA:
 
 ## Coordinate-aware reconstruction (raster -> precise vectors)
 The measurement + workspace tools give you a coordinate-aware "mouse" for turning a
-raster into exact vector geometry. Six tools, one loop.
+raster into exact vector geometry. Seven tools, one loop.
 
 Coordinate frames (a point is reported in all that apply):
 - image px — pixels from the image origin; the canonical, exact frame.
@@ -119,7 +119,13 @@ Tools:
 - `construct_vectors` — draw FrameGraph geometry from anchor points (workspace `pins`
   or explicit `points`): line, path/trace, curve, spline, triangle, polygon, closed
   region, rect, ellipse, circle, star. Sizes the page to the source so it overlays 1:1,
-  then validates + renders.
+  then validates + renders. Best for placing a handful of exact anchors by hand.
+- `vectorize_image` — AUTOMATIC trace of a raster into editable FrameGraph objects:
+  `region` (k-means colour → filled polygons; best for flat/logo art), `outline` (edges
+  → polylines), or `trace` (potrace Bézier → SVG ingest; smooth outlines of a crisp
+  bi-level mark). `region_box` traces just a crop, placed 1:1 in the full image; `ocr`
+  adds text objects. Reach for this when hand-pinning an intricate mark can't converge —
+  `trace` on a thresholded logomark reproduces its strokes far better than manual anchors.
 - `map_coordinates` — transpose coordinates: `homography` (perspective rectification /
   source→reference from >=4 pairs), `to_3d` (lift 2D onto a plane), `project` (3D→2D via
   the SDK camera) — for perspective correction and 2D/3D spatial reconstruction.
