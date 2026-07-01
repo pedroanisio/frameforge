@@ -8,13 +8,21 @@ runner removes the duplication so a new entry point is a new source, not a new c
 """
 from __future__ import annotations
 
+import base64
 from pathlib import Path
 from typing import Any
 
 from framegraph.mcp.config import DEFAULT_TIMEOUT_SECONDS, MAX_CODE_BYTES
+from framegraph.mcp.paths import _session_root
 from framegraph.mcp.pipeline import _validate_and_render_yaml
 from framegraph.mcp.results import _write_diagnostics
 from framegraph.mcp.security import _assert_input_path_allowed
+from framegraph.mcp.sessions import (
+    _prepare_session,
+    _reset_session_outputs,
+    _session_id,
+    read_session_resource,
+)
 from framegraph.mcp.sources import (
     DocumentSource,
     ProposalSource,
@@ -314,3 +322,672 @@ def propose_from_svg(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages, sign=False, signed_at=None,
     )
+
+
+def _resolve_image_arg(arg: str, *, session_root: str | Path | None) -> bytes:
+    """Read image bytes from a filesystem path or a ``framegraph://session`` PNG URI.
+
+    Accepting a session URI closes the render→compare loop: a page just rendered by
+    ``run_sdk_client`` can be compared against a reference without the caller having
+    to know its scratch-file path. Filesystem paths are confined by
+    ``_assert_input_path_allowed`` (the same guard the propose tools use).
+    """
+    if not isinstance(arg, str) or not arg.strip():
+        raise ValueError("image argument must be a non-empty path or framegraph:// URI")
+    if arg.startswith("framegraph://"):
+        payload = read_session_resource(arg, session_root=session_root)
+        blob = payload.get("blob")
+        if not blob:
+            raise ValueError(f"resource {arg} is not a raster image (expected a .png)")
+        return base64.b64decode(blob)
+    _assert_input_path_allowed(arg)
+    path = Path(arg).expanduser()
+    if not path.is_file():
+        raise FileNotFoundError(str(path))
+    return path.read_bytes()
+
+
+def _parse_regions(regions: list[dict[str, Any]] | None, grid: list[int] | None):
+    """Build the region list: explicit ``regions`` win, else a ``grid``, else 2×3."""
+    from framegraph.vision.infrastructure.image_compare import Region, auto_regions
+
+    if regions:
+        out = []
+        for i, r in enumerate(regions):
+            box = r.get("box") if isinstance(r, dict) else None
+            if not box or len(box) != 4:
+                raise ValueError(
+                    f"region {i} needs a normalized box [x, y, w, h] in 0..1")
+            name = str(r.get("name") or f"region {i + 1}")
+            out.append(Region(name, tuple(float(v) for v in box)))
+        return out
+    if grid:
+        if len(grid) != 2:
+            raise ValueError("grid must be [cols, rows]")
+        return auto_regions(int(grid[0]), int(grid[1]))
+    return auto_regions(2, 3)
+
+
+def _compare_resources(session_id: str, renders: list[dict[str, Any]]) -> list[dict[str, str]]:
+    links = [{
+        "type": "resource_link",
+        "uri": f"framegraph://session/{session_id}/diagnostics.json",
+        "name": "diagnostics.json",
+        "mimeType": "application/json",
+    }]
+    for render in renders:
+        links.append({
+            "type": "resource_link",
+            "uri": str(render["uri"]),
+            "name": Path(str(render["path"])).name,
+            "mimeType": str(render["mimeType"]),
+        })
+    return links
+
+
+def compare_images(
+    reference: str,
+    candidate: str,
+    *,
+    regions: list[dict[str, Any]] | None = None,
+    grid: list[int] | None = None,
+    diff: bool = True,
+    label_reference: str = "reference",
+    label_candidate: str = "recreation",
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Compose zoomed side-by-side comparison panels of two images for visual QA.
+
+    Renders an overview plus one ``reference | candidate | difference`` panel per
+    region — each cropped by a normalized box, scaled up, and stamped with a naive
+    pixel-match score — so a vision model can *see* where a recreation is off rather
+    than eyeball two downscaled thumbnails. ``reference``/``candidate`` are each a
+    filesystem path or a ``framegraph://session/<id>/page/<n>.png`` URI.
+
+    ⚠ PALS's LAW: the pixel-match score is a naive luminance-difference hint, not a
+    verdict; the panels (judged visually) are the signal. See
+    :mod:`framegraph.vision.infrastructure.image_compare`.
+    """
+    try:
+        ref_bytes = _resolve_image_arg(reference, session_root=session_root)
+        cand_bytes = _resolve_image_arg(candidate, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        from framegraph.vision.infrastructure.image_compare import build_panels
+    except RuntimeError as exc:  # Pillow missing
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        region_objs = _parse_regions(regions, grid)
+        panels = build_panels(
+            ref_bytes, cand_bytes, regions=region_objs, diff=diff,
+            labels=(label_reference, label_candidate),
+        )
+    except (ValueError, OSError) as exc:
+        return {"ok": False, "error": f"could not build comparison: {exc}",
+                "renders": [], "resources": []}
+
+    root = _session_root(session_root)
+    sid = _session_id(session_id)
+    session_dir = _prepare_session(root, sid)
+    _reset_session_outputs(session_dir)
+
+    renders: list[dict[str, Any]] = []
+    comparison: list[dict[str, Any]] = []
+    for idx, panel in enumerate(panels, start=1):
+        path = session_dir / f"p{idx:03d}.png"
+        panel.image.save(path, format="PNG")
+        renders.append({
+            "page": idx,
+            "label": panel.name,
+            "path": str(path),
+            "uri": f"framegraph://session/{sid}/page/{idx}.png",
+            "mimeType": "image/png",
+            "bytes": path.stat().st_size,
+        })
+        comparison.append({
+            "panel": idx,
+            "region": panel.name,
+            "pixel_match_pct": panel.match_pct,
+        })
+
+    result = {
+        "ok": True,
+        "session_id": sid,
+        "session_dir": str(session_dir),
+        "reference": reference,
+        "candidate": candidate,
+        "region_count": len(region_objs),
+        "renders": renders,
+        "resources": _compare_resources(sid, renders),
+        "comparison": comparison,
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
+    }
+    _write_diagnostics(session_dir, result)
+    return result
+
+
+def _parse_named_boxes(items: list[dict[str, Any]] | None, *, kind: str):
+    """Parse ``[{"name": str, "box": [x, y, w, h]}]`` (normalized) into Regions."""
+    from framegraph.vision.infrastructure.image_compare import Region
+
+    out = []
+    for i, r in enumerate(items or []):
+        box = r.get("box") if isinstance(r, dict) else None
+        if not box or len(box) != 4:
+            raise ValueError(f"{kind} {i} needs a normalized box [x, y, w, h] in 0..1")
+        name = str(r.get("name") or f"{kind}{i + 1}")
+        out.append(Region(name, tuple(float(v) for v in box)))
+    return out
+
+
+def _measure_regions(regions: list[dict[str, Any]] | None, region_grid: list[int] | None):
+    """Explicit named regions win; else a [cols, rows] grid; else none."""
+    from framegraph.vision.infrastructure.image_compare import auto_regions
+
+    if regions:
+        return _parse_named_boxes(regions, kind="region")
+    if region_grid:
+        if len(region_grid) != 2:
+            raise ValueError("region_grid must be [cols, rows]")
+        return auto_regions(int(region_grid[0]), int(region_grid[1]))
+    return []
+
+
+def _write_image_pages(session_dir: Path, sid: str,
+                       pages: list[tuple[str, Any]]) -> list[dict[str, Any]]:
+    """Save ``(label, PIL image)`` pages to the session dir as p001.png, p002.png, ..."""
+    renders: list[dict[str, Any]] = []
+    for idx, (label, page_img) in enumerate(pages, start=1):
+        path = session_dir / f"p{idx:03d}.png"
+        page_img.save(path, format="PNG")
+        renders.append({
+            "page": idx,
+            "label": label,
+            "path": str(path),
+            "uri": f"framegraph://session/{sid}/page/{idx}.png",
+            "mimeType": "image/png",
+            "bytes": path.stat().st_size,
+        })
+    return renders
+
+
+def _viewport_region(viewport: dict[str, Any] | None):
+    """Parse a single ``{"name", "box": [x, y, w, h]}`` viewport into a Region or None."""
+    if viewport is None:
+        return None
+    from framegraph.vision.infrastructure.image_compare import Region
+
+    box = viewport.get("box") if isinstance(viewport, dict) else None
+    if not box or len(box) != 4:
+        raise ValueError('viewport needs a normalized box [x, y, w, h] in 0..1')
+    name = str(viewport.get("name") or "viewport")
+    return Region(name, tuple(float(v) for v in box))
+
+
+def measure_image(
+    image: str,
+    *,
+    regions: list[dict[str, Any]] | None = None,
+    region_grid: list[int] | None = None,
+    zooms: list[dict[str, Any]] | None = None,
+    origin: str = "top-left",
+    grid: bool = True,
+    grid_step: int | None = None,
+    rulers: bool = True,
+    label_every: int = 2,
+    landmarks: bool = True,
+    detect_landmarks: bool = True,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Overlay a measurement layer on an image and extract exact spatial metadata.
+
+    Turns a rasterized image into a reliable coordinate reference for vector
+    reconstruction: the returned overlay PNG (same pixel size as the source, so
+    coordinates read 1:1) carries a grid, edge rulers labelled in the chosen
+    coordinate system, region boxes with stable IDs, and landmark crosshairs; the
+    ``spatial`` payload carries the exact numbers (coordinate system, per-region
+    bbox/centroid/area/offset, structural + detected landmarks, and — for each zoom
+    crop — the ``origin``+``scale`` transform back to source pixels). ``image`` is a
+    filesystem path or a ``framegraph://session/<id>/page/<n>.png`` URI.
+
+    ⚠ PALS's LAW: the coordinate system, grid, rulers, explicit regions, and
+    structural landmarks (A1..A9) are exact geometry; *detected* landmarks (L*) are
+    UNVERIFIED CV guesses — anchor to the structural anchors, treat the rest as hints.
+    """
+    try:
+        image_bytes = _resolve_image_arg(image, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        from framegraph.vision.infrastructure.measure import build_measurement
+    except RuntimeError as exc:  # Pillow missing
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        region_objs = _measure_regions(regions, region_grid)
+        zoom_objs = _parse_named_boxes(zooms, kind="zoom")
+        measurement = build_measurement(
+            image_bytes,
+            regions=region_objs,
+            origin=origin,
+            grid=grid,
+            grid_step=grid_step,
+            rulers=rulers,
+            label_every=label_every,
+            landmarks=landmarks,
+            detect_landmarks=detect_landmarks,
+            zooms=zoom_objs,
+        )
+    except (ValueError, OSError) as exc:
+        return {"ok": False, "error": f"could not build measurement: {exc}",
+                "renders": [], "resources": []}
+
+    root = _session_root(session_root)
+    sid = _session_id(session_id)
+    session_dir = _prepare_session(root, sid)
+    _reset_session_outputs(session_dir)
+
+    pages: list[tuple[str, Any]] = [("overlay", measurement.overlay)]
+    pages.extend(measurement.crops)
+    renders = _write_image_pages(session_dir, sid, pages)
+
+    result = {
+        "ok": True,
+        "session_id": sid,
+        "session_dir": str(session_dir),
+        "image": image,
+        "renders": renders,
+        "resources": _compare_resources(sid, renders),
+        "spatial": measurement.spatial,
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
+    }
+    _write_diagnostics(session_dir, result)
+    return result
+
+
+def mark_points(
+    image: str,
+    *,
+    points: list[dict[str, Any]],
+    viewport: dict[str, Any] | None = None,
+    connect: bool = False,
+    origin: str = "top-left",
+    grid: bool = True,
+    rulers: bool = True,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Mark coordinate points on an image and resolve each in every reference frame.
+
+    The AI's "aim + click": ``points`` may be given in any frame (normalized, source
+    pixels, coordinate-system units, an offset from a landmark, or viewport pixels);
+    each is drawn as a numbered crosshair and reported back in the full image (px +
+    coordinate system + normalized) and, when a ``viewport`` crop is set, in viewport
+    pixels. Points are anchored to the image, so the crosshair stays fixed as the
+    viewport moves. ``connect`` previews the path they would trace.
+    """
+    if not isinstance(points, list) or not points:
+        return {"ok": False, "error": "points must be a non-empty list", "renders": [], "resources": []}
+    try:
+        image_bytes = _resolve_image_arg(image, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        from framegraph.vision.infrastructure.measure import build_marks
+    except RuntimeError as exc:  # Pillow missing
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        vp_box = _viewport_region(viewport)
+        measurement = build_marks(
+            image_bytes, points, viewport_box=vp_box, origin=origin,
+            grid=grid, rulers=rulers, connect=connect,
+        )
+    except (ValueError, OSError) as exc:
+        return {"ok": False, "error": f"could not mark points: {exc}",
+                "renders": [], "resources": []}
+
+    root = _session_root(session_root)
+    sid = _session_id(session_id)
+    session_dir = _prepare_session(root, sid)
+    _reset_session_outputs(session_dir)
+
+    pages: list[tuple[str, Any]] = [("marks", measurement.overlay)]
+    pages.extend(measurement.crops)
+    renders = _write_image_pages(session_dir, sid, pages)
+
+    result = {
+        "ok": True,
+        "session_id": sid,
+        "session_dir": str(session_dir),
+        "image": image,
+        "renders": renders,
+        "resources": _compare_resources(sid, renders),
+        "spatial": measurement.spatial,
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
+    }
+    _write_diagnostics(session_dir, result)
+    return result
+
+
+def overlay_images(
+    base: str,
+    overlay: str,
+    *,
+    landmarks: list[dict[str, Any]],
+    opacity: float = 0.5,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Align an overlay image onto a base by matched landmarks and extract the offsets.
+
+    ``landmarks`` is a list of ``{"base": [x, y], "overlay": [x, y]}`` pairs (source
+    pixels, or 0..1 fractions with ``"norm": true``). Fits the scale+translation that
+    best maps overlay→base, reports each pair's raw offset and post-fit residual, and
+    emits an aligned composite. Rotation/shear are not modelled (large residuals flag
+    them). ``base``/``overlay`` are filesystem paths or framegraph://session PNG URIs.
+    """
+    if not isinstance(landmarks, list) or not landmarks:
+        return {"ok": False, "error": "landmarks must be a non-empty list of {base, overlay} pairs",
+                "renders": [], "resources": []}
+    try:
+        base_bytes = _resolve_image_arg(base, session_root=session_root)
+        overlay_bytes = _resolve_image_arg(overlay, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        from framegraph.vision.infrastructure.overlay_align import build_overlay
+    except RuntimeError as exc:  # Pillow missing
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        composite, spatial = build_overlay(
+            base_bytes, overlay_bytes, landmarks=landmarks, opacity=opacity,
+        )
+    except (ValueError, OSError) as exc:
+        return {"ok": False, "error": f"could not build overlay: {exc}",
+                "renders": [], "resources": []}
+
+    root = _session_root(session_root)
+    sid = _session_id(session_id)
+    session_dir = _prepare_session(root, sid)
+    _reset_session_outputs(session_dir)
+
+    renders = _write_image_pages(session_dir, sid, [("aligned-overlay", composite)])
+
+    result = {
+        "ok": True,
+        "session_id": sid,
+        "session_dir": str(session_dir),
+        "base": base,
+        "overlay": overlay,
+        "renders": renders,
+        "resources": _compare_resources(sid, renders),
+        "spatial": spatial,
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
+    }
+    _write_diagnostics(session_dir, result)
+    return result
+
+
+def workspace(
+    action: str = "render",
+    *,
+    image: str | None = None,
+    points: list[dict[str, Any]] | None = None,
+    select: Any = None,
+    to: dict[str, Any] | None = None,
+    dx: float = 0.0,
+    dy: float = 0.0,
+    unit: str = "norm",
+    viewport: dict[str, Any] | None = None,
+    factor: float | None = None,
+    aim: dict[str, Any] | None = None,
+    origin: str = "top-left",
+    grid: bool = True,
+    rulers: bool = True,
+    connect: bool = False,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Stateful coordinate workspace: persist + refine anchor pins across passes.
+
+    One workspace lives per ``session_id`` (persisted as ``workspace.json``). Actions:
+    ``open`` (bind an image), ``pin`` (add points in any frame; may reference existing
+    pins/landmarks), ``nudge`` (move selected pins by a delta — the AI "mouse", e.g.
+    ``unit='norm', dx=-0.01``), ``move`` (absolute), ``unpin``/``clear``, ``viewport``
+    (set/clear a crop), ``pan``/``zoom`` (with a fixed aim), and ``render``. Every call
+    re-renders the overlay (+ viewport crop) with all pins and returns each pin resolved
+    in every frame. Pins are image-anchored, so their coordinates hold as the viewport moves.
+    """
+    from framegraph.vision.infrastructure import workspace as ws
+
+    root = _session_root(session_root)
+    sid = _session_id(session_id)
+    session_dir = _prepare_session(root, sid)
+    state = ws.load_state(session_dir)
+    action = (action or "render").lower()
+
+    try:
+        if action == "open":
+            if not image:
+                raise ValueError("action 'open' needs an image")
+            img_bytes = _resolve_image_arg(image, session_root=session_root)
+            from framegraph.vision.infrastructure.image_compare import load_rgb
+            w, h = load_rgb(img_bytes).size
+            state = ws.WorkspaceState(image_ref=image, width=w, height=h, origin=origin)
+        else:
+            if state is None:
+                raise ValueError("no workspace in this session; call action='open' with an image first")
+            if action == "pin":
+                if not points:
+                    raise ValueError("action 'pin' needs a non-empty 'points' list")
+                ws.add_pins(state, points)
+            elif action == "nudge":
+                ws.nudge_pins(state, select, float(dx), float(dy), unit)
+            elif action == "move":
+                if to is None:
+                    raise ValueError("action 'move' needs a 'to' point")
+                ws.move_pins(state, select, to)
+            elif action == "unpin":
+                ws.remove_pins(state, select)
+            elif action == "clear":
+                state.pins = []
+            elif action == "viewport":
+                box = viewport.get("box") if isinstance(viewport, dict) else None
+                name = str(viewport.get("name", "viewport")) if isinstance(viewport, dict) else "viewport"
+                ws.set_viewport(state, box, name=name)
+            elif action == "pan":
+                ws.pan_viewport(state, float(dx), float(dy))
+            elif action == "zoom":
+                if factor is None:
+                    raise ValueError("action 'zoom' needs a 'factor'")
+                ws.zoom_viewport(state, float(factor), aim)
+            elif action in ("render", "status"):
+                pass
+            else:
+                raise ValueError(f"unknown action {action!r}")
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        img_bytes = _resolve_image_arg(state.image_ref, session_root=session_root)
+        measurement = ws.render(img_bytes, state, grid=grid, rulers=rulers, connect=connect)
+    except (ValueError, FileNotFoundError, RuntimeError, OSError) as exc:
+        return {"ok": False, "error": f"could not render workspace: {exc}",
+                "renders": [], "resources": []}
+
+    _reset_session_outputs(session_dir)
+    ws.save_state(session_dir, state)
+    pages: list[tuple[str, Any]] = [("workspace", measurement.overlay)]
+    pages.extend(measurement.crops)
+    renders = _write_image_pages(session_dir, sid, pages)
+
+    result = {
+        "ok": True,
+        "session_id": sid,
+        "session_dir": str(session_dir),
+        "action": action,
+        "image": state.image_ref,
+        "renders": renders,
+        "resources": _compare_resources(sid, renders),
+        "spatial": measurement.spatial,
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
+    }
+    _write_diagnostics(session_dir, result)
+    return result
+
+
+def _resolve_shape_points(shapes: list[dict[str, Any]], anchors: dict[str, tuple[float, float]]):
+    """Turn each shape's ``pins`` (workspace ids/landmarks) into image-pixel ``points``."""
+    out = []
+    for i, sh in enumerate(shapes):
+        sh = dict(sh)
+        if sh.get("pins"):
+            pts = []
+            for pid in sh["pins"]:
+                key = str(pid)
+                if key not in anchors:
+                    raise ValueError(f"shape {i}: unknown pin/landmark {key!r}")
+                pts.append(list(anchors[key]))
+            sh["points"] = pts
+        out.append(sh)
+    return out
+
+
+def construct_vectors(
+    shapes: list[dict[str, Any]],
+    *,
+    image: str | None = None,
+    from_workspace: str | None = None,
+    width: int | None = None,
+    height: int | None = None,
+    background: str | None = None,
+    title: str = "Vector reconstruction",
+    raster_png: bool = True,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Draw FrameGraph vector geometry from anchor points, then validate + render it.
+
+    ``shapes`` is a list of ``{"kind": ..., "points"|"pins": [...], "style"?: {...}}``.
+    ``points`` are image pixels; ``pins`` reference a workspace's pin ids (or structural
+    landmarks A1..A9) — resolved from the ``from_workspace`` (or ``session_id``) workspace.
+    The page is sized to the source (workspace/image dims, or explicit width/height), so
+    the drawing overlays the raster 1:1. Compare the render against the source with
+    ``compare_images`` to iterate toward pixel accuracy.
+    """
+    if not isinstance(shapes, list) or not shapes:
+        return {"ok": False, "error": "shapes must be a non-empty list", "renders": [], "resources": []}
+
+    root = _session_root(session_root)
+    state = None
+    ws_ref = from_workspace or session_id
+    if ws_ref:
+        from framegraph.vision.infrastructure import workspace as ws
+        ws_dir = root / _session_id(ws_ref)
+        if ws_dir.exists():
+            state = ws.load_state(ws_dir)
+
+    W = int(width) if width else None
+    H = int(height) if height else None
+    if not (W and H) and state is not None:
+        W, H = state.width, state.height
+    if not (W and H) and image:
+        try:
+            img_bytes = _resolve_image_arg(image, session_root=session_root)
+            from framegraph.vision.infrastructure.image_compare import load_rgb
+            W, H = load_rgb(img_bytes).size
+        except (ValueError, FileNotFoundError, OSError) as exc:
+            return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+    if not (W and H):
+        return {"ok": False, "error": "need a canvas size: pass width+height, a from_workspace, or an image",
+                "renders": [], "resources": []}
+
+    anchors: dict[str, tuple[float, float]] = {}
+    if state is not None:
+        from framegraph.vision.infrastructure.measure import structural_landmarks
+        anchors = {p.id: (p.x, p.y) for p in state.pins}
+        anchors.update({lm.id: (lm.x_px, lm.y_px) for lm in structural_landmarks(state.cs())})
+
+    try:
+        resolved = _resolve_shape_points(shapes, anchors)
+        from framegraph.vision.infrastructure.construct import build_document
+        yaml_text, summaries = build_document(
+            resolved, width=W, height=H, background=background, title=title)
+    except (ValueError, KeyError, TypeError) as exc:
+        return {"ok": False, "error": f"could not construct vectors: {exc}",
+                "renders": [], "resources": []}
+
+    source = RawYamlSource(yaml_text=yaml_text, session_id=session_id, session_root=session_root)
+    result = _run_source(
+        source, max_pages=1, raster_png=raster_png, pages=None, sign=False, signed_at=None)
+    result["construction"] = summaries
+    result["shape_count"] = len(summaries)
+    if image:
+        result["source_image"] = image
+    return result
+
+
+def map_coordinates(
+    mode: str,
+    *,
+    points: list[list[float]] | None = None,
+    pairs: list[dict[str, Any]] | None = None,
+    plane: dict[str, Any] | None = None,
+    camera: dict[str, Any] | None = None,
+    width: int | None = None,
+    height: int | None = None,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Transpose coordinates between 2D/3D frames: homography, plane lift, projection.
+
+    - ``mode='homography'``: fit a projective transform from ``pairs``
+      (``[{"src": [x, y], "dst": [x, y]}]``, >=4) and apply it to ``points``.
+    - ``mode='to_3d'``: lift 2D ``points`` onto a 3D ``plane`` ({origin, u, v}; default z=0).
+    - ``mode='project'``: project 3D ``points`` through a ``camera`` ({eye, target, up,
+      fov, ...}); returns NDC and, with ``width``/``height``, pixels.
+    """
+    try:
+        from framegraph.vision.infrastructure import mapping3d
+    except RuntimeError as exc:
+        return {"ok": False, "error": str(exc)}
+
+    mode = (mode or "").lower()
+    try:
+        if mode == "homography":
+            if not pairs or len(pairs) < 4:
+                raise ValueError("homography needs >= 4 pairs of {src, dst}")
+            pair_list = [(p["src"], p["dst"]) for p in pairs]
+            spatial = mapping3d.homography_map(pair_list, points or [])
+        elif mode == "to_3d":
+            pl = plane or {}
+            spatial = mapping3d.lift_to_plane(
+                points or [],
+                origin=pl.get("origin", (0.0, 0.0, 0.0)),
+                u=pl.get("u", (1.0, 0.0, 0.0)),
+                v=pl.get("v", (0.0, 1.0, 0.0)),
+            )
+        elif mode == "project":
+            spatial = mapping3d.project_points(
+                points or [], camera=camera, width=width, height=height)
+        else:
+            raise ValueError(f"unknown mode {mode!r}; use 'homography', 'to_3d', or 'project'")
+    except (ValueError, KeyError, TypeError, RuntimeError) as exc:
+        return {"ok": False, "error": f"could not map coordinates: {exc}"}
+
+    return {"ok": True, "mode": mode, "spatial": spatial}

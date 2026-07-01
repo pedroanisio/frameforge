@@ -74,5 +74,12 @@ vision = ["opencv-python-headless>=4.9", "pillow>=10", "pytesseract>=0.3.10"]
 # module that validate.py / tests import as `framegraph`.
 package = false
 
+# This environment's package index serves a CORRUPT starlette==1.3.1 (a
+# SyntaxError in starlette/datastructures.py) which uv resolves for the `mcp`
+# group and which breaks the FastMCP import chain. `mcp` only needs
+# starlette>=0.27, so force a clean build. Remove once the index stops serving
+# the broken 1.3.1.
+override-dependencies = ["starlette<1"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

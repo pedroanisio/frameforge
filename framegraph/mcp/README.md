@@ -34,6 +34,55 @@ Inverse (image / PDF → draft), needs the `vision` group:
   screenshot or rasterized PDF page, then round-trip it through validate + render. The
   proposal is unverified CV/VLM output; treat it as a starting point.
 
+Visual QA (reference vs. recreation), needs Pillow (`vision` or `render` group):
+
+- `compare_images` — crop matching regions from a **reference** and a **candidate** and lay
+  them out `reference | candidate | difference` (bright red = mismatch), each crop scaled up
+  and stamped with a naive pixel-match score. Lets a vision model *see* where a recreation is
+  off instead of eyeballing two downscaled thumbnails. Either image can be a filesystem path
+  or a `framegraph://session/<id>/page/<n>.png` URI, so a page just rendered by
+  `run_sdk_client` compares directly against a reference. `regions` are `{name, box}` with the
+  box normalized `[x, y, w, h]` in 0..1; omit them to auto-split by `grid` (default `[2, 3]`).
+  The pixel-match score is a routing hint (luminance difference), **not** a verdict — the
+  panels are the signal (PALS's Law).
+
+Measure + reconstruct (raster → reliable coordinates, for vector recreation), needs Pillow:
+
+- `measure_image` — overlay an auto **grid + rulers + coordinate system** on an image (and
+  optional zoomed crops), box + ID named **regions**, and anchor **landmarks**; returns the
+  overlay PNG plus an exact `spatial` payload — coordinate system (`top-left` / `bottom-left`
+  / `center`), per-region `bbox/centroid/area/offset`, structural + detected landmarks, and
+  each zoom crop's `origin`+`scale` back to source pixels. The overlay keeps the source's
+  pixel size, so coordinates read 1:1; a zoomed crop's rulers stay labelled in **source**
+  coordinates (zoom-aware).
+- `mark_points` — the AI's aim + click: give points in **any frame** (`norm` / `px` / `cs` /
+  `{landmark, dx, dy}` / `viewport_px`) and get numbered crosshairs plus each point resolved
+  in every frame (image px + coordinate system + normalized + viewport px). Points are
+  anchored to the image, so the aim stays fixed as the viewport moves; `connect` previews the
+  path they would trace.
+- `overlay_images` — align an overlay onto a base by matched **landmark pairs**, report
+  per-pair offsets + residuals and the best-fit **scale + translation** (rotation not
+  modelled), and emit an aligned composite.
+
+  All measured geometry and the structural anchors (`A1..A9`) are exact; **detected**
+  landmarks (`L*`) are UNVERIFIED CV hints (PALS's Law).
+
+Coordinate workspace + reconstruction (the AI's precise pointer), needs Pillow:
+
+- `workspace` — a **stateful** pin board bound to one image, persisted per `session_id`
+  (`workspace.json`). Actions: `open`, `pin` (points in any frame; may reference existing
+  pins), `nudge` (the "mouse" — move selected pins by a delta, e.g. `unit="norm", dx=-0.01`),
+  `move`, `unpin`, `clear`, `viewport` (set/clear a crop), `pan`/`zoom` (fixed aim), `render`.
+  Pins persist across calls and are image-anchored, enabling **multi-pass refinement**,
+  **multi-pinning**, and **group adjustment** until pixel-accurate.
+- `construct_vectors` — draw FrameGraph geometry from anchor points (workspace `pins` or
+  explicit `points`): `line`, `path`/`trace`, `curve`, `spline`, `triangle`, `polygon`,
+  `closed`, `rect`, `ellipse`, `circle`, `star`. Sizes the page to the source so it overlays
+  1:1, then validates + renders. Diff against the source with `compare_images` to converge.
+- `map_coordinates` — transpose coordinates: `homography` (perspective rectification /
+  source→reference from ≥4 pairs), `to_3d` (lift 2D onto a plane), `project` (3D→2D via the
+  SDK camera). Honest scope: plane-to-plane projective + pinhole camera (no lens distortion).
+
 Sessions:
 
 - `get_session_resource`, `list_sessions`, `cleanup_sessions`.

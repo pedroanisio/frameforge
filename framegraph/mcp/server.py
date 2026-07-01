@@ -49,6 +49,13 @@ from framegraph.mcp.sessions import (
     list_sessions as _uc_list_sessions,
 )
 from framegraph.mcp.usecases import (
+    compare_images as _uc_compare_images,
+    construct_vectors as _uc_construct_vectors,
+    map_coordinates as _uc_map_coordinates,
+    mark_points as _uc_mark_points,
+    measure_image as _uc_measure_image,
+    overlay_images as _uc_overlay_images,
+    workspace as _uc_workspace,
     propose_from_document as _uc_propose_from_document,
     propose_from_image as _uc_propose_from_image,
     propose_from_svg as _uc_propose_from_svg,
@@ -79,6 +86,13 @@ from framegraph.mcp.sessions import (
     list_sessions as list_sessions,
 )
 from framegraph.mcp.usecases import (
+    compare_images as compare_images,
+    construct_vectors as construct_vectors,
+    map_coordinates as map_coordinates,
+    mark_points as mark_points,
+    measure_image as measure_image,
+    overlay_images as overlay_images,
+    workspace as workspace,
     propose_from_document as propose_from_document,
     propose_from_image as propose_from_image,
     propose_from_svg as propose_from_svg,
@@ -465,6 +479,422 @@ def create_server(
         )
         return _maybe_call_tool_result(result)
 
+    @server.tool()
+    def compare_images(
+        reference: Annotated[
+            str,
+            Field(description="Reference/source image: a filesystem path or a framegraph://session/<id>/page/<n>.png URI."),
+        ],
+        candidate: Annotated[
+            str,
+            Field(description="Candidate/recreation image to compare against the reference: a filesystem path or a framegraph://session/<id>/page/<n>.png URI (e.g. a page just rendered by run_sdk_client)."),
+        ],
+        regions: Annotated[
+            list[dict] | None,
+            Field(description='Named crops to zoom into, as [{"name": str, "box": [x, y, w, h]}] with all values normalized 0..1 (fractions of width/height). Omit to auto-split.'),
+        ] = None,
+        grid: Annotated[
+            list[int] | None,
+            Field(description="Auto-split both images into a [cols, rows] grid of regions when `regions` is omitted (defaults to [2, 3])."),
+        ] = None,
+        diff: Annotated[
+            bool, Field(description="Include a per-region difference cell (bright red = mismatch).")
+        ] = True,
+        label_reference: Annotated[str, Field(description="Caption for the reference column.")] = "reference",
+        label_candidate: Annotated[str, Field(description="Caption for the candidate column.")] = "recreation",
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Compose zoomed side-by-side comparison panels of two images for visual QA.
+
+        Emits an overview plus one ``reference | candidate | difference`` panel per
+        region — each crop scaled up and stamped with a naive pixel-match score — so a
+        vision model can *see* where a recreation is off instead of eyeballing two
+        downscaled thumbnails. The pixel-match score is a hint (luminance difference),
+        not a verdict; the panels are the signal.
+        """
+        result = _logged_call(
+            log_path,
+            "compare_images",
+            {
+                "reference": reference,
+                "candidate": candidate,
+                "regions": regions,
+                "grid": grid,
+                "diff": diff,
+                "label_reference": label_reference,
+                "label_candidate": label_candidate,
+                "session_id": session_id,
+            },
+            lambda: _uc_compare_images(
+                reference,
+                candidate,
+                regions=regions,
+                grid=grid,
+                diff=diff,
+                label_reference=label_reference,
+                label_candidate=label_candidate,
+                session_id=session_id,
+                session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def measure_image(
+        image: Annotated[
+            str,
+            Field(description="Image to measure: a filesystem path or a framegraph://session/<id>/page/<n>.png URI."),
+        ],
+        regions: Annotated[
+            list[dict] | None,
+            Field(description='Named regions to box + ID + measure, as [{"name": str, "box": [x, y, w, h]}] with values normalized 0..1. Each gets a stable id (R1, R2, ...) plus exact bbox/centroid/area/offset in the spatial payload.'),
+        ] = None,
+        region_grid: Annotated[
+            list[int] | None,
+            Field(description="Segment the image into a [cols, rows] grid of measured regions when `regions` is omitted."),
+        ] = None,
+        zooms: Annotated[
+            list[dict] | None,
+            Field(description='Zoomed crops to also emit, as [{"name": str, "box": [x, y, w, h]}] normalized 0..1. Each crop is enlarged but its rulers stay labelled in SOURCE coordinates; its origin+scale transform back to source pixels is in spatial.crops.'),
+        ] = None,
+        origin: Annotated[
+            str,
+            Field(description="Coordinate-system origin: 'top-left' (image/page space, +y down; default), 'bottom-left' (+y up), or 'center' (+y up)."),
+        ] = "top-left",
+        grid: Annotated[bool, Field(description="Draw the measurement grid.")] = True,
+        grid_step: Annotated[
+            int | None,
+            Field(description="Grid/ruler tick spacing in source pixels (0/omit = a round auto step from the image size)."),
+        ] = None,
+        rulers: Annotated[bool, Field(description="Draw edge rulers (top + left) labelled in coordinate-system units.")] = True,
+        label_every: Annotated[int, Field(description="Label (and emphasise) every Nth grid tick.")] = 2,
+        landmarks: Annotated[bool, Field(description="Draw + report landmark anchors (the exact structural anchors A1..A9 always; detected L* when enabled).")] = True,
+        detect_landmarks: Annotated[bool, Field(description="Also run the CV detectors for extra (UNVERIFIED) landmark anchors. Needs the vision group.")] = True,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Overlay an auto grid + rulers + coordinate system on an image and extract exact spatial metadata.
+
+        Turns a rasterized image into a reliable coordinate reference for vector
+        reconstruction: the overlay PNG keeps the source's pixel size (so coordinates
+        read 1:1) and carries a grid, edge rulers, region boxes with stable IDs, and
+        landmark crosshairs; the ``spatial`` payload carries the exact numbers
+        (coordinate system, per-region bbox/centroid/area/offset, structural + detected
+        landmarks, and each zoom crop's origin+scale transform back to source pixels).
+
+        ⚠ PALS's LAW: the coordinate system, grid, rulers, explicit regions, and
+        structural landmarks (A1..A9) are exact geometry; detected landmarks (L*) are
+        UNVERIFIED CV guesses — anchor to the structural anchors, treat the rest as hints.
+        """
+        result = _logged_call(
+            log_path,
+            "measure_image",
+            {
+                "image": image,
+                "regions": regions,
+                "region_grid": region_grid,
+                "zooms": zooms,
+                "origin": origin,
+                "grid": grid,
+                "grid_step": grid_step,
+                "rulers": rulers,
+                "label_every": label_every,
+                "landmarks": landmarks,
+                "detect_landmarks": detect_landmarks,
+                "session_id": session_id,
+            },
+            lambda: _uc_measure_image(
+                image,
+                regions=regions,
+                region_grid=region_grid,
+                zooms=zooms,
+                origin=origin,
+                grid=grid,
+                grid_step=grid_step,
+                rulers=rulers,
+                label_every=label_every,
+                landmarks=landmarks,
+                detect_landmarks=detect_landmarks,
+                session_id=session_id,
+                session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def mark_points(
+        image: Annotated[
+            str,
+            Field(description="Image to mark on: a filesystem path or a framegraph://session/<id>/page/<n>.png URI."),
+        ],
+        points: Annotated[
+            list[dict],
+            Field(description=(
+                'Ordered points to mark. Each is ONE of: {"norm": [nx, ny]} (0..1 of the full image), '
+                '{"px": [x, y]} (source pixels), {"cs": [cx, cy]} (coordinate-system units), '
+                '{"landmark": "A9", "dx": 0, "dy": 0} (offset from a landmark), or '
+                '{"viewport_px": [vx, vy]} (pixels in the `viewport` crop). Optional "label" per point.'
+            )),
+        ],
+        viewport: Annotated[
+            dict | None,
+            Field(description='Optional current view as {"name": str, "box": [x, y, w, h]} normalized 0..1. Points are anchored to the IMAGE, so the crosshairs stay fixed as the viewport moves; the marked view is emitted zoomed with rulers in source coordinates.'),
+        ] = None,
+        connect: Annotated[
+            bool, Field(description="Draw a polyline through the points in order (a preview of the path they would trace).")
+        ] = False,
+        origin: Annotated[str, Field(description="Coordinate-system origin: 'top-left' (default), 'bottom-left', or 'center'.")] = "top-left",
+        grid: Annotated[bool, Field(description="Draw the measurement grid behind the marks.")] = True,
+        rulers: Annotated[bool, Field(description="Draw edge rulers.")] = True,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Mark coordinate points on an image and resolve each in every frame (image / coordinate-system / viewport).
+
+        The AI's "aim + click": give points in any frame and get back an annotated
+        image with numbered crosshairs plus, per point, its coordinates in the full
+        image (px + coordinate system + normalized) and in the current viewport crop.
+        Because points are anchored to the image, the crosshair stays fixed while the
+        viewport moves. ``connect`` previews the path the points would trace — the
+        bridge to the (later) vector-construction commands.
+        """
+        result = _logged_call(
+            log_path,
+            "mark_points",
+            {
+                "image": image,
+                "points": points,
+                "viewport": viewport,
+                "connect": connect,
+                "origin": origin,
+                "grid": grid,
+                "rulers": rulers,
+                "session_id": session_id,
+            },
+            lambda: _uc_mark_points(
+                image,
+                points=points,
+                viewport=viewport,
+                connect=connect,
+                origin=origin,
+                grid=grid,
+                rulers=rulers,
+                session_id=session_id,
+                session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def overlay_images(
+        base: Annotated[
+            str,
+            Field(description="Base/source image: a filesystem path or a framegraph://session/<id>/page/<n>.png URI."),
+        ],
+        overlay: Annotated[
+            str,
+            Field(description="Overlay image to align onto the base: a filesystem path or a framegraph://session/<id>/page/<n>.png URI."),
+        ],
+        landmarks: Annotated[
+            list[dict],
+            Field(description=(
+                'Matched landmark pairs, as [{"base": [x, y], "overlay": [x, y]}]. Coordinates are '
+                'source pixels by default; set "norm": true on a pair to give both as 0..1 fractions. '
+                'One pair → translation only; two or more → best-fit scale + translation.'
+            )),
+        ],
+        opacity: Annotated[
+            float, Field(description="Overlay opacity in the aligned composite, 0..1.")
+        ] = 0.5,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Align an overlay image onto a base by matched landmarks and extract the coordinate offsets.
+
+        Computes the offset between each landmark pair, fits a scale+translation that
+        best maps overlay→base (rotation is not modelled), reports per-pair residuals,
+        and emits an aligned composite so the fit is visible. Use it to compare, align,
+        and reconstruct visual structures across a source and a reference.
+        """
+        result = _logged_call(
+            log_path,
+            "overlay_images",
+            {
+                "base": base,
+                "overlay": overlay,
+                "landmarks": landmarks,
+                "opacity": opacity,
+                "session_id": session_id,
+            },
+            lambda: _uc_overlay_images(
+                base,
+                overlay,
+                landmarks=landmarks,
+                opacity=opacity,
+                session_id=session_id,
+                session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def workspace(
+        action: Annotated[
+            str,
+            Field(description=(
+                "Workspace action: 'open' (bind an image — required first), 'pin' (add points), "
+                "'nudge' (move selected pins by a delta — the AI mouse), 'move' (absolute), "
+                "'unpin', 'clear', 'viewport' (set/clear a crop), 'pan', 'zoom', or 'render'."
+            )),
+        ] = "render",
+        image: Annotated[
+            str | None,
+            Field(description="For 'open': the image path or framegraph://session/<id>/page/<n>.png URI to bind."),
+        ] = None,
+        points: Annotated[
+            list[dict] | None,
+            Field(description='For "pin": points to add, each in any frame — {"norm"|"px"|"cs"|"viewport_px": [a,b]} or {"landmark": id, "dx"?, "dy"?}; optional "id"/"group"/"label". A spec may reference an existing pin id.'),
+        ] = None,
+        select: Annotated[
+            dict | None,
+            Field(description='Which pins an action targets: omit for all, or {"ids": [...]} or {"group": name}. Enables multi-adjust.'),
+        ] = None,
+        to: Annotated[dict | None, Field(description="For 'move': the absolute target point (any frame).")] = None,
+        dx: Annotated[float, Field(description="For 'nudge'/'pan': x delta (see 'unit'; e.g. -0.01 norm = left).")] = 0.0,
+        dy: Annotated[float, Field(description="For 'nudge'/'pan': y delta.")] = 0.0,
+        unit: Annotated[str, Field(description="Nudge unit: 'norm' (fraction of image; default), 'px', or 'viewport'.")] = "norm",
+        viewport: Annotated[
+            dict | None,
+            Field(description='For "viewport": {"name"?, "box": [x, y, w, h]} normalized 0..1 to set, or omit box to clear.'),
+        ] = None,
+        factor: Annotated[float | None, Field(description="For 'zoom': zoom factor (>1 zooms in).")] = None,
+        aim: Annotated[dict | None, Field(description="For 'zoom': the point kept centred (fixed aim), any frame; default viewport centre.")] = None,
+        origin: Annotated[str, Field(description="For 'open': coordinate origin ('top-left'/'bottom-left'/'center').")] = "top-left",
+        grid: Annotated[bool, Field(description="Draw the measurement grid.")] = True,
+        rulers: Annotated[bool, Field(description="Draw edge rulers.")] = True,
+        connect: Annotated[bool, Field(description="Draw a polyline through the pins in order.")] = False,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Stateful coordinate workspace — the AI's precise pointer for multi-pass reconstruction.
+
+        One workspace persists per ``session_id``: pins (anchor points) and a viewport
+        survive across calls, so the AI can pin, look, nudge (e.g. 0.01 left), pin more,
+        and refine over passes until pixel-accurate. Pins are image-anchored, so their
+        coordinates hold as the viewport pans/zooms (fixed aim). Every call re-renders the
+        overlay (+ viewport crop) and returns each pin resolved in every frame.
+        """
+        result = _logged_call(
+            log_path,
+            "workspace",
+            {
+                "action": action, "image": image, "points": points, "select": select,
+                "to": to, "dx": dx, "dy": dy, "unit": unit, "viewport": viewport,
+                "factor": factor, "aim": aim, "origin": origin, "grid": grid,
+                "rulers": rulers, "connect": connect, "session_id": session_id,
+            },
+            lambda: _uc_workspace(
+                action, image=image, points=points, select=select, to=to,
+                dx=dx, dy=dy, unit=unit, viewport=viewport, factor=factor, aim=aim,
+                origin=origin, grid=grid, rulers=rulers, connect=connect,
+                session_id=session_id, session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def construct_vectors(
+        shapes: Annotated[
+            list[dict],
+            Field(description=(
+                'Shapes to draw, each {"kind": one of line/path/trace/polyline/curve/spline/'
+                'triangle/polygon/closed/rect/ellipse/circle/star, "points": [[x,y],...] (image px) '
+                'OR "pins": [ids from the workspace / landmarks A1..A9], optional "style": '
+                '{stroke, stroke_width, fill}, and for circle/star optional "r"/"points_count"/"inner_ratio"}.'
+            )),
+        ],
+        image: Annotated[
+            str | None,
+            Field(description="Optional source image (path or session URI) — used for canvas size and as the diff reference."),
+        ] = None,
+        from_workspace: Annotated[
+            str | None,
+            Field(description="Session id of a workspace whose pins the shapes reference (defaults to session_id)."),
+        ] = None,
+        width: Annotated[int | None, Field(description="Canvas width px (overrides workspace/image dims).")] = None,
+        height: Annotated[int | None, Field(description="Canvas height px.")] = None,
+        background: Annotated[str | None, Field(description="Optional page background colour (e.g. '#ffffff').")] = None,
+        title: Annotated[str, Field(description="Title for the reconstruction document.")] = "Vector reconstruction",
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Draw FrameGraph vector geometry from anchor points, then validate + render it.
+
+        Turns marked coordinates (workspace pins or explicit image pixels) into real SDK
+        primitives (line, path, curve/spline, polygon, triangle, rect, circle, ellipse,
+        star, closed region), authors a FrameGraph document sized to the source so it
+        overlays the raster 1:1, and runs it through validate + render. Diff the render
+        against the source with ``compare_images`` and refine the pins to converge.
+        """
+        result = _logged_call(
+            log_path,
+            "construct_vectors",
+            {
+                "shapes": shapes, "image": image, "from_workspace": from_workspace,
+                "width": width, "height": height, "background": background,
+                "title": title, "session_id": session_id,
+            },
+            lambda: _uc_construct_vectors(
+                shapes, image=image, from_workspace=from_workspace, width=width,
+                height=height, background=background, title=title,
+                session_id=session_id, session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def map_coordinates(
+        mode: Annotated[
+            str,
+            Field(description="'homography' (fit + apply a projective transform), 'to_3d' (lift 2D onto a plane), or 'project' (3D→2D via a camera)."),
+        ],
+        points: Annotated[
+            list[list[float]] | None,
+            Field(description="Points to transform: [x, y] for homography/to_3d, [x, y, z] for project."),
+        ] = None,
+        pairs: Annotated[
+            list[dict] | None,
+            Field(description='For "homography": >=4 correspondences [{"src": [x, y], "dst": [x, y]}].'),
+        ] = None,
+        plane: Annotated[
+            dict | None,
+            Field(description='For "to_3d": {"origin": [x,y,z], "u": [x,y,z], "v": [x,y,z]} (default: z=0 plane).'),
+        ] = None,
+        camera: Annotated[
+            dict | None,
+            Field(description='For "project": {"eye", "target", "up": [x,y,z], "fov", "aspect", "near", "far"} (all optional).'),
+        ] = None,
+        width: Annotated[int | None, Field(description="For 'project': map NDC to pixels of this width.")] = None,
+        height: Annotated[int | None, Field(description="For 'project': map NDC to pixels of this height.")] = None,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Transpose coordinates between 2D and 3D frames for perspective/spatial reconstruction.
+
+        `homography` rectifies a perspective-distorted plane (or maps source→reference)
+        from >=4 point pairs; `to_3d` lifts 2D image points onto a 3D plane; `project`
+        projects 3D points to 2D through the SDK camera (the renderer's own math). Honest
+        scope: a plane-to-plane projective map + a pinhole camera — no lens distortion or
+        multi-view calibration.
+        """
+        result = _logged_call(
+            log_path,
+            "map_coordinates",
+            {
+                "mode": mode, "points": points, "pairs": pairs, "plane": plane,
+                "camera": camera, "width": width, "height": height, "session_id": session_id,
+            },
+            lambda: _uc_map_coordinates(
+                mode, points=points, pairs=pairs, plane=plane, camera=camera,
+                width=width, height=height, session_id=session_id, session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
     @server.prompt()
     def framegraph_guide() -> str:
         """Guide to what the FrameGraph SDK offers and the server's authoring + proposal tools."""
@@ -591,6 +1021,13 @@ __all__ = [
     "render_framegraph_yaml",
     "propose_from_image",
     "propose_from_document",
+    "compare_images",
+    "measure_image",
+    "mark_points",
+    "overlay_images",
+    "workspace",
+    "construct_vectors",
+    "map_coordinates",
     "list_sdk_clients",
     "read_sdk_client",
     "write_sdk_client",

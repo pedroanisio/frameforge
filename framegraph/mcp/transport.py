@@ -64,6 +64,15 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
     }
     if result.get("signed"):
         summary["signed"] = result.get("signed")
+    if result.get("comparison"):
+        # compare_images carries per-region pixel-match hints; surface them in the
+        # text summary so the score sits next to the inlined comparison panels.
+        summary["comparison"] = result.get("comparison")
+    if result.get("spatial"):
+        # measure_image carries the exact coordinate system / regions / landmarks /
+        # crop transforms; surface them so the numbers sit next to the inlined
+        # overlay (the whole point is a reliable coordinate reference).
+        summary["spatial"] = result.get("spatial")
     if not result.get("ok"):
         # Surface the failure's traceback tail inline so the caller can diagnose
         # without a second round-trip to the diagnostics resource.
