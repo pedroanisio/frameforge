@@ -73,6 +73,10 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
         # crop transforms; surface them so the numbers sit next to the inlined
         # overlay (the whole point is a reliable coordinate reference).
         summary["spatial"] = result.get("spatial")
+    if result.get("score"):
+        # score_reconstruction carries the edge-match convergence numbers; surface
+        # them so on_edge_frac/mean_dist sit next to the inlined match overlay.
+        summary["score"] = result.get("score")
     if not result.get("ok"):
         # Surface the failure's traceback tail inline so the caller can diagnose
         # without a second round-trip to the diagnostics resource.

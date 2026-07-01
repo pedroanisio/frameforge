@@ -28,11 +28,13 @@ Forward (author → render):
 - `render_framegraph_yaml` — validate + render caller-supplied YAML directly (no Python).
 - `write_sdk_client` / `read_sdk_client` / `list_sdk_clients` — edit whitelisted SDK client files.
 
-Inverse (image / PDF → draft), needs the `vision` group:
+Inverse (image / PDF / SVG → draft), needs the `vision` group:
 
 - `propose_from_image` / `propose_from_document` — propose a **draft** document from a
   screenshot or rasterized PDF page, then round-trip it through validate + render. The
   proposal is unverified CV/VLM output; treat it as a starting point.
+- `propose_from_svg` — ingest an existing SVG's elements as FrameGraph objects (1:1
+  vector lowering, no raster step), optionally recoloured by region, then validate + render.
 
 Visual QA (reference vs. recreation), needs Pillow (`vision` or `render` group):
 
@@ -43,8 +45,9 @@ Visual QA (reference vs. recreation), needs Pillow (`vision` or `render` group):
   or a `framegraph://session/<id>/page/<n>.png` URI, so a page just rendered by
   `run_sdk_client` compares directly against a reference. `regions` are `{name, box}` with the
   box normalized `[x, y, w, h]` in 0..1; omit them to auto-split by `grid` (default `[2, 3]`).
-  The pixel-match score is a routing hint (luminance difference), **not** a verdict — the
-  panels are the signal (PALS's Law).
+  Each region also reports real `metrics` (**NCC / RMSE / MAE / pct_diff**); `align=True`
+  phase-aligns the candidate first (so a pure offset doesn't read as error) and reports
+  `shift_px`. Scores are relative hints, **not** verdicts — the panels are the signal (PALS's Law).
 
 Measure + reconstruct (raster → reliable coordinates, for vector recreation), needs Pillow:
 
@@ -67,26 +70,41 @@ Measure + reconstruct (raster → reliable coordinates, for vector recreation), 
   All measured geometry and the structural anchors (`A1..A9`) are exact; **detected**
   landmarks (`L*`) are UNVERIFIED CV hints (PALS's Law).
 
-Coordinate workspace + reconstruction (the AI's precise pointer), needs Pillow:
+Coordinate workspace + reconstruction (the AI's precise pointer), needs the `vision`
+group (Pillow + numpy; `score_reconstruction` needs numpy, `vectorize_image` needs
+OpenCV and — for `trace` — the potrace binary):
 
 - `workspace` — a **stateful** pin board bound to one image, persisted per `session_id`
   (`workspace.json`). Actions: `open`, `pin` (points in any frame; may reference existing
   pins), `nudge` (the "mouse" — move selected pins by a delta, e.g. `unit="norm", dx=-0.01`),
-  `move`, `unpin`, `clear`, `viewport` (set/clear a crop), `pan`/`zoom` (fixed aim), `render`.
-  Pins persist across calls and are image-anchored, enabling **multi-pass refinement**,
-  **multi-pinning**, and **group adjustment** until pixel-accurate.
+  `move`, `snap` (snap pins to the nearest **bright/dark/edge/centroid** pixel — pixel-accurate
+  refinement), `transform` (translate+scale+rotate a pin group about a pivot — fix
+  proportions/perspective), `unpin`, `clear`, `viewport` (set/clear a crop), `pan`/`zoom`
+  (fixed aim), `checkpoint`/`revert` (save + roll back — try, `score_reconstruction`, undo if
+  worse), `render`. Pins persist across calls and are image-anchored, enabling **multi-pass
+  refinement**, **multi-pinning**, and **group adjustment** until pixel-accurate.
 - `construct_vectors` — draw FrameGraph geometry from anchor points (workspace `pins` or
   explicit `points`): `line`, `path`/`trace`, `curve`, `spline`, `triangle`, `polygon`,
   `closed`, `rect`, `ellipse`, `circle`, `star`. Sizes the page to the source so it overlays
   1:1, then validates + renders. Diff against the source with `compare_images` to converge.
-- `vectorize_image` — **automatic** raster→vector: `region` (k-means colour → filled polygons;
-  best for flat/logo art), `outline` (edges → polylines), or `trace` (potrace Bézier → SVG
-  ingest; smooth outlines of a crisp bi-level mark). `region_box` traces just a crop, placed
-  1:1 in the full image; `ocr` adds text objects. Use it when hand-pinning an intricate mark
-  can't converge — `trace` on a thresholded logomark reproduces its strokes far more faithfully.
-- `map_coordinates` — transpose coordinates: `homography` (perspective rectification /
-  source→reference from ≥4 pairs), `to_3d` (lift 2D onto a plane), `project` (3D→2D via the
-  SDK camera). Honest scope: plane-to-plane projective + pinhole camera (no lens distortion).
+- `score_reconstruction` — the **numeric** convergence signal: samples the constructed
+  shapes (same schema as `construct_vectors`) and measures each sample's distance to the
+  source image's real edges, returning `on_edge_frac` (fraction within `tol` px of an edge)
+  + mean/median/p90 distances over a match overlay (edges cyan, samples green on-edge / red
+  off). Where `compare_images` shows *where* a recreation is off, this reports *how far* —
+  drive `on_edge_frac` up across passes. Edges are an adaptive-Sobel **heuristic**: a
+  RELATIVE guide, not ground truth (PALS's Law).
+- `vectorize_image` — **automatic** raster→vector: `region` (k-means colour → filled polygons),
+  `outline` (edges → polylines), `trace` (potrace Bézier → SVG ingest; smooth outlines of a
+  crisp bi-level mark), or `layers` (**solid-bg logo tracer**: AA-aware palette + even-odd
+  holes — highest fidelity for flat, solid-background logos). `region_box` traces just a crop,
+  placed 1:1 in the full image; `ocr` adds text objects. Use it when hand-pinning an intricate
+  mark can't converge — `trace` for a crisp mark on a busy/gradient ground, `layers` for a
+  solid-background multi-colour logo.
+- `map_coordinates` — transpose coordinates: `homography` (fit + apply a projective map to
+  points, ≥4 pairs), `to_3d` (lift 2D onto a plane), `project` (3D→2D via the SDK camera), or
+  `warp` (apply the fitted homography to **rectify/dewarp an image** — emits the corrected PNG).
+  Honest scope: plane-to-plane projective + pinhole camera (no lens distortion).
 
 Sessions:
 
@@ -94,6 +112,11 @@ Sessions:
 - Resources: `framegraph://session/{id}/document.yaml`, `…/page/{n}.svg`, `…/page/{n}.png`,
   `…/diagnostics.json` (full result incl. the complete `spatial` coordinate payload),
   `…/workspace.json` (persisted `workspace` pins + viewport).
+- **Render clobber:** every image tool resets the session's `page/*.png` on each call, so
+  `page/1.png` always holds the LAST tool's render — only `workspace.json` pins persist.
+  In a shared-session loop (construct → score/compare), pass a render's `framegraph://…/page/1.png`
+  into the next tool *before* the next call overwrites it, or use a distinct `session_id`
+  to keep both renders.
 
 The `framegraph_guide` prompt returns a model-facing capability guide for the SDK.
 

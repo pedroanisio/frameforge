@@ -66,6 +66,19 @@ def test_translate_objects_noop_on_zero():
     assert objs[0]["points"] == [[1, 2]]
 
 
+def test_shift_path_d_absolute_and_bails_on_curves():
+    from framegraph.mcp.usecases import _shift_path_d
+    assert _shift_path_d("M 1 2 L 3 4 Z", 10, 20) == "M 11.00 22.00 L 13.00 24.00 Z"
+    # unknown command (C) → returned unchanged rather than corrupted
+    assert _shift_path_d("M 0 0 C 1 1 2 2 3 3", 5, 5) == "M 0 0 C 1 1 2 2 3 3"
+
+
+def test_translate_objects_shifts_path_d():
+    objs = [{"type": "path", "d": "M 1 1 L 2 2 Z"}]
+    _translate_objects(objs, 100, 200)
+    assert objs[0]["d"] == "M 101.00 201.00 L 102.00 202.00 Z"
+
+
 # ─────────────────────────────────────────────────────────────
 # potrace trace backend
 # ─────────────────────────────────────────────────────────────
@@ -109,6 +122,52 @@ def test_vectorize_trace_region_box_places_in_full_image(tmp_path):
 # ─────────────────────────────────────────────────────────────
 # opencv region backend
 # ─────────────────────────────────────────────────────────────
+def _ring_png(path, size=(120, 120)):
+    """A white ring (filled disc with a hole) on a solid dark ground."""
+    im = Image.new("RGB", size, (20, 20, 24))
+    d = ImageDraw.Draw(im)
+    d.ellipse([30, 30, 90, 90], fill=(240, 240, 240))
+    d.ellipse([52, 52, 68, 68], fill=(20, 20, 24))     # the hole
+    im.save(path, format="PNG")
+    return str(path)
+
+
+@pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
+def test_raster_to_layers_emits_evenodd_paths(tmp_path):
+    from framegraph.vision.infrastructure.vectorize import raster_to_layers
+
+    objs, w, h = raster_to_layers(_ring_png(tmp_path / "ring.png"), max_colors=2)
+    assert (w, h) == (120, 120)
+    assert objs and objs[0]["type"] == "path" and "d" in objs[0]
+    assert objs[0]["style"]["fill_rule"] == "evenodd"   # holes via even-odd
+
+
+@pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
+def test_vectorize_layers_mode_end_to_end(tmp_path):
+    src = _ring_png(tmp_path / "ring.png")
+    r = vectorize_image(src, mode="layers", colors=2, raster_png=False,
+                        session_id="vlay", session_root=tmp_path)
+    assert r["ok"] is True, r.get("error")
+    assert r["vectorize"]["backend"] == "opencv:layers"
+    assert r["vectorize"]["object_count"] >= 1
+
+
+@pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
+def test_vectorize_layers_region_box_places_in_full_image(tmp_path):
+    # ring in the top-left quadrant of a larger image, traced via a region crop
+    im = Image.new("RGB", (240, 200), (20, 20, 24))
+    d = ImageDraw.Draw(im)
+    d.ellipse([30, 30, 90, 90], fill=(240, 240, 240))
+    d.ellipse([52, 52, 68, 68], fill=(20, 20, 24))
+    src = str(tmp_path / "q.png")
+    im.save(src)
+    r = vectorize_image(src, mode="layers", colors=2, region_box=[0.0, 0.0, 0.5, 0.6],
+                        raster_png=False, session_id="vlr", session_root=tmp_path)
+    assert r["ok"] is True, r.get("error")
+    assert r["vectorize"]["page_px"] == [240, 200]
+    assert r["vectorize"]["object_count"] >= 1
+
+
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
 def test_vectorize_region_mode_end_to_end(tmp_path):
     src = _mark_png(tmp_path / "mark.png", dark_bg=False)

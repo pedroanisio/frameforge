@@ -20,6 +20,7 @@ backend is only touched when a comparison is actually built.
 """
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from io import BytesIO
 from typing import Any, Sequence
@@ -41,11 +42,12 @@ class Region:
 
 @dataclass(frozen=True)
 class Panel:
-    """One composed comparison image plus its (naive) pixel-match score."""
+    """One composed comparison image plus its (naive) pixel-match score + metrics."""
 
     name: str
     image: Any            # PIL.Image.Image
     match_pct: float | None
+    metrics: dict | None = None
 
 
 _PIL_HINT = (
@@ -116,6 +118,99 @@ def _crop_norm(img, box: Sequence[float]):
     return img.crop((int(left), int(top), int(round(right)), int(round(bottom))))
 
 
+def _np():
+    try:
+        import numpy as np
+    except ImportError as exc:  # pragma: no cover - numpy ships with the vision group
+        raise RuntimeError("image metrics need numpy (the `vision` group).") from exc
+    return np
+
+
+def phase_align(ref, cand):
+    """Estimate the integer pixel shift aligning ``cand`` onto ``ref`` (FFT phase corr).
+
+    ``cand`` is resized to ``ref``'s size; returns ``(shifted_cand, (dx, dy))`` where
+    the shift maps cand→ref. A slight offset between a reference and a recreation
+    otherwise tanks NCC/MAE for reasons that are not real error.
+    """
+    Image, *_ = _pil()
+    np = _np()
+    a = np.asarray(ref.convert("L"), float)
+    cand_r = cand.resize(ref.size, Image.LANCZOS)
+    b = np.asarray(cand_r.convert("L"), float)
+    fa = np.fft.fft2(a)
+    fb = np.fft.fft2(b)
+    r = fa * np.conj(fb)
+    r /= np.abs(r) + 1e-9
+    corr = np.fft.ifft2(r).real
+    peak = np.unravel_index(int(np.argmax(corr)), corr.shape)
+    dy = peak[0] if peak[0] <= a.shape[0] // 2 else peak[0] - a.shape[0]
+    dx = peak[1] if peak[1] <= a.shape[1] // 2 else peak[1] - a.shape[1]
+    shifted = cand_r.transform(cand_r.size, Image.AFFINE, (1, 0, -dx, 0, 1, -dy),
+                               resample=Image.BILINEAR, fillcolor=(0, 0, 0))
+    return shifted, (int(dx), int(dy))
+
+
+def _valid_mask(shape, dx: int, dy: int):
+    """Boolean mask excluding the border that shifted into frame (invalid after align)."""
+    np = _np()
+    h, w = shape
+    m = np.ones((h, w), dtype=bool)
+    if dx > 0:
+        m[:, :dx] = False
+    elif dx < 0:
+        m[:, dx:] = False
+    if dy > 0:
+        m[:dy, :] = False
+    elif dy < 0:
+        m[dy:, :] = False
+    return m
+
+
+def image_metrics(a, b, *, size: int = 256, align: bool = False) -> dict:
+    """MAE / RMSE / NCC / pct_diff between two crops.
+
+    NCC is 1.0 for identical, ~0 for uncorrelated (0.0 when a crop is flat — no
+    variance to correlate). ``pct_diff`` is the share of pixels differing by
+    >25/255 on any channel. With ``align=True`` the candidate is phase-aligned onto
+    the reference first and metrics are computed only over the overlapping region
+    (the shifted-in border is masked out), so a pure offset does not read as error;
+    the applied shift is returned under ``shift_px``. Deterministic geometry over
+    pixels — a RELATIVE fidelity signal, not a perceptual verdict (PALS's Law).
+    """
+    Image, *_ = _pil()
+    np = _np()
+    if align:
+        ref = a.convert("RGB")
+        cand_al, (dx, dy) = phase_align(ref, b)
+        ga = np.asarray(ref, float)
+        gb = np.asarray(cand_al.convert("RGB"), float)
+        mask = _valid_mask(ga.shape[:2], dx, dy)
+        av = ga[mask]
+        bv = gb[mask]
+        shift = [dx, dy]
+    else:
+        ra = a.convert("RGB").resize((size, size), Image.LANCZOS)
+        rb = b.convert("RGB").resize((size, size), Image.LANCZOS)
+        av = np.asarray(ra, float).reshape(-1, 3)
+        bv = np.asarray(rb, float).reshape(-1, 3)
+        shift = None
+    d = av - bv
+    af = av.ravel() - av.mean()
+    bf = bv.ravel() - bv.mean()
+    den = math.sqrt(float((af ** 2).sum()) * float((bf ** 2).sum()))
+    ncc = float((af * bf).sum() / den) if den > 1e-9 else 0.0
+    out = {
+        "mae": round(float(np.abs(d).mean()), 2),
+        "rmse": round(float(np.sqrt((d ** 2).mean())), 2),
+        "ncc": round(ncc, 4),
+        "pct_diff": round(float((np.abs(d).max(-1) > 25).mean()), 4),
+    }
+    if shift is not None:
+        out["shift_px"] = shift
+    return out
+
+
 def pixel_match(a, b, *, size: int = 256) -> float:
     """A naive 0..100 match: 100 minus mean absolute luminance difference (rescaled).
 
@@ -169,12 +264,13 @@ def _fit_cell(img, cell: int):
 
 def region_panel(reference, candidate, region: Region, *, diff: bool = True,
                  labels: tuple[str, str] = ("reference", "recreation"),
-                 cell: int = 470) -> Panel:
+                 cell: int = 470, align: bool = False) -> Panel:
     """Compose one ``reference | candidate [| difference]`` strip for ``region``."""
     Image, _, ImageDraw, _, _ = _pil()
     ref_crop = _crop_norm(reference, region.box)
     cand_crop = _crop_norm(candidate, region.box)
     match = pixel_match(ref_crop, cand_crop)
+    metrics = image_metrics(ref_crop, cand_crop, align=align)
 
     cells = [(_fit_cell(ref_crop, cell), labels[0]),
              (_fit_cell(cand_crop, cell), labels[1])]
@@ -204,12 +300,12 @@ def region_panel(reference, candidate, region: Region, *, diff: bool = True,
         draw.rectangle([x, y, x + cell - 1, y + cell - 1], outline=_CELL_BORDER, width=1)
         draw.text((x + cell // 2, y + cell + 8), cap, font=_font(18),
                   fill=_CAP_FG, anchor="ma")
-    return Panel(region.name, sheet, match)
+    return Panel(region.name, sheet, match, metrics)
 
 
 def overview_panel(reference, candidate, *,
                    labels: tuple[str, str] = ("reference", "recreation"),
-                   height: int = 560) -> Panel:
+                   height: int = 560, align: bool = False) -> Panel:
     """A whole-image ``reference | candidate`` overview for context."""
     Image, _, ImageDraw, _, _ = _pil()
 
@@ -219,6 +315,7 @@ def overview_panel(reference, candidate, *,
 
     ri, ci = scaled(reference), scaled(candidate)
     match = pixel_match(reference, candidate)
+    metrics = image_metrics(reference, candidate, align=align)
     margin, gap, header, caption = 20, 18, 52, 34
     width = margin * 2 + ri.width + ci.width + gap
     total_h = margin + header + height + caption + margin
@@ -237,7 +334,7 @@ def overview_panel(reference, candidate, *,
                        outline=_CELL_BORDER, width=1)
         draw.text((x + img.width // 2, y + height + 8), cap, font=_font(18),
                   fill=_CAP_FG, anchor="ma")
-    return Panel("overview", sheet, match)
+    return Panel("overview", sheet, match, metrics)
 
 
 def auto_regions(cols: int, rows: int) -> list[Region]:
@@ -258,13 +355,14 @@ def build_panels(reference: bytes, candidate: bytes, *,
                  regions: Sequence[Region],
                  diff: bool = True,
                  labels: tuple[str, str] = ("reference", "recreation"),
-                 include_overview: bool = True) -> list[Panel]:
+                 include_overview: bool = True,
+                 align: bool = False) -> list[Panel]:
     """Decode both images and compose an overview + one panel per region."""
     ref = load_rgb(reference)
     cand = load_rgb(candidate)
     panels: list[Panel] = []
     if include_overview:
-        panels.append(overview_panel(ref, cand, labels=labels))
+        panels.append(overview_panel(ref, cand, labels=labels, align=align))
     for region in regions:
-        panels.append(region_panel(ref, cand, region, diff=diff, labels=labels))
+        panels.append(region_panel(ref, cand, region, diff=diff, labels=labels, align=align))
     return panels

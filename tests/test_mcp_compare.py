@@ -30,6 +30,7 @@ from framegraph.vision.infrastructure.image_compare import (  # noqa: E402
     Region,
     auto_regions,
     build_panels,
+    image_metrics,
     pixel_match,
 )
 
@@ -100,6 +101,52 @@ def test_compare_images_writes_panels_and_surfaces_metrics(tmp_path):
     # image blocks are emitted for the panels (raster contract)
     image_blocks = [b for b in mcp_content_blocks(result) if b["type"] == "image"]
     assert len(image_blocks) == 2
+
+
+def _two_tone(size=(64, 64)):
+    from PIL import ImageDraw
+    im = Image.new("RGB", size, (0, 0, 0))
+    ImageDraw.Draw(im).rectangle([0, 0, size[0], size[1] // 2], fill=(255, 255, 255))
+    return im
+
+
+def test_image_metrics_identity_and_opposite():
+    pytest.importorskip("numpy")
+    from PIL import ImageOps
+    a = _two_tone()
+    m = image_metrics(a, a)
+    assert m["ncc"] == 1.0 and m["mae"] == 0.0 and m["pct_diff"] == 0.0
+    m2 = image_metrics(a, ImageOps.invert(a))
+    assert m2["ncc"] < 0.0 and m2["mae"] > 100
+
+
+def test_compare_images_surfaces_metrics(tmp_path):
+    ref = _png(tmp_path / "r.png", (18, 18, 22))
+    cand = _png(tmp_path / "c.png", (200, 40, 40))
+    result = compare_images(ref, cand, regions=[{"name": "w", "box": [0.0, 0.0, 1.0, 1.0]}],
+                            session_id="metrics", session_root=tmp_path)
+    m = [c for c in result["comparison"] if c["region"] == "w"][0]["metrics"]
+    assert set(m) >= {"mae", "rmse", "ncc", "pct_diff"}
+
+
+def test_compare_align_reports_shift_without_hurting(tmp_path):
+    pytest.importorskip("numpy")
+    from PIL import ImageDraw
+    ref_im = Image.new("RGB", (80, 80), (0, 0, 0))
+    ImageDraw.Draw(ref_im).rectangle([30, 30, 50, 50], fill=(255, 255, 255))
+    cand_im = Image.new("RGB", (80, 80), (0, 0, 0))
+    ImageDraw.Draw(cand_im).rectangle([34, 30, 54, 50], fill=(255, 255, 255))  # shifted +4x
+    ref = str(tmp_path / "r.png")
+    ref_im.save(ref)
+    cand = str(tmp_path / "c.png")
+    cand_im.save(cand)
+    reg = [{"name": "w", "box": [0.0, 0.0, 1.0, 1.0]}]
+    r0 = compare_images(ref, cand, regions=reg, session_id="a0", session_root=tmp_path)
+    r1 = compare_images(ref, cand, regions=reg, align=True, session_id="a1", session_root=tmp_path)
+    m0 = [c for c in r0["comparison"] if c["region"] == "w"][0]["metrics"]
+    m1 = [c for c in r1["comparison"] if c["region"] == "w"][0]["metrics"]
+    assert "shift_px" not in m0 and "shift_px" in m1
+    assert m1["ncc"] >= m0["ncc"]        # alignment must not make it worse
 
 
 def test_compare_images_default_grid_when_no_regions(tmp_path):

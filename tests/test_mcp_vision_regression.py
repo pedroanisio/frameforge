@@ -9,6 +9,7 @@ silently drops or breaks a capability fails here.
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import sys
 
@@ -30,7 +31,9 @@ from framegraph.mcp.server import (  # noqa: E402
     map_coordinates,
     mark_points,
     measure_image,
+    mcp_content_blocks,
     overlay_images,
+    score_reconstruction,
     workspace,
 )
 from framegraph.vision.infrastructure.mapping3d import apply_homography  # noqa: E402
@@ -71,8 +74,78 @@ def _pin(result, pid):
 def test_all_vision_tools_are_registered():
     tools = {t.name for t in asyncio.run(create_server().list_tools())}
     for name in ("measure_image", "mark_points", "overlay_images",
-                 "workspace", "construct_vectors", "map_coordinates"):
+                 "workspace", "construct_vectors", "score_reconstruction",
+                 "vectorize_image", "map_coordinates"):
         assert name in tools, f"{name} is not registered"
+
+
+def _edge_png(path, size=(240, 180)):
+    im = Image.new("RGB", size, (245, 245, 245))
+    ImageDraw.Draw(im).line([(0, 90), (size[0], 90)], fill=(0, 0, 0), width=2)
+    im.save(path, format="PNG")
+    return str(path)
+
+
+def test_score_reconstruction_is_the_numeric_convergence_signal(tmp_path):
+    """Shapes ON the source's edges score a higher on_edge_frac than shapes OFF —
+    a numeric signal to drive the raster→vector loop, over a rendered match overlay
+    whose score is surfaced in the model-facing summary."""
+    p = _edge_png(tmp_path / "edge.png")
+    on = score_reconstruction(p, [{"kind": "line", "points": [[20, 90], [220, 90]]}],
+                              session_id="scon", session_root=tmp_path)
+    off = score_reconstruction(p, [{"kind": "line", "points": [[20, 20], [220, 20]]}],
+                               session_id="scoff", session_root=tmp_path)
+    assert on["ok"] is True and on["score"]["on_edge_frac"] > 0.9
+    assert off["score"]["on_edge_frac"] < 0.2
+    assert on["score"]["on_edge_frac"] > off["score"]["on_edge_frac"]
+    # a match overlay PNG is written and the score rides the model-facing summary
+    assert on["renders"] and os.path.isfile(on["renders"][0]["path"])
+    summary = json.loads(mcp_content_blocks(on)[0]["text"])
+    assert summary["score"]["on_edge_frac"] > 0.9
+    # error contract
+    assert score_reconstruction(p, [], session_id="e", session_root=tmp_path)["ok"] is False
+
+
+def test_score_reconstruction_resolves_pins_from_workspace(tmp_path):
+    p = _edge_png(tmp_path / "edge.png")
+    workspace("open", image=p, session_id="wsp", session_root=tmp_path)
+    workspace("pin", points=[{"px": [20, 90], "id": "a"}, {"px": [220, 90], "id": "b"}],
+              session_id="wsp", session_root=tmp_path)
+    r = score_reconstruction(p, [{"kind": "line", "pins": ["a", "b"]}],
+                             from_workspace="wsp", session_id="sc", session_root=tmp_path)
+    assert r["ok"] is True and r["score"]["on_edge_frac"] > 0.9
+
+
+def test_score_reconstruction_same_session_after_construct_does_not_crash(tmp_path):
+    """The documented loop shares one session_id across construct_vectors → score.
+    construct creates a session dir with no workspace.json; score must NOT crash on it."""
+    p = _edge_png(tmp_path / "edge.png")
+    construct_vectors([{"kind": "line", "points": [[20, 90], [220, 90]]}],
+                      image=p, session_id="loop", session_root=tmp_path)
+    r = score_reconstruction(p, [{"kind": "line", "points": [[20, 90], [220, 90]]}],
+                             session_id="loop", session_root=tmp_path)
+    assert r["ok"] is True and r["score"]["on_edge_frac"] > 0.9
+
+
+def test_score_reconstruction_unknown_pin_is_a_structured_error(tmp_path):
+    p = _edge_png(tmp_path / "edge.png")
+    workspace("open", image=p, session_id="wu", session_root=tmp_path)
+    workspace("pin", points=[{"px": [20, 90], "id": "a"}], session_id="wu", session_root=tmp_path)
+    r = score_reconstruction(p, [{"kind": "line", "pins": ["a", "zzz"]}],
+                             from_workspace="wu", session_id="sc2", session_root=tmp_path)
+    assert r["ok"] is False and "unknown pin" in r["error"]
+
+
+def test_score_reconstruction_scoring_error_matches_sibling_envelope(tmp_path):
+    """A no-edge image is a scoring error; the envelope must match the sibling tools:
+    a top-level `error` string and empty renders/resources (not a nested-only error)."""
+    blank = str(tmp_path / "blank.png")
+    Image.new("RGB", (240, 180), (245, 245, 245)).save(blank, format="PNG")
+    r = score_reconstruction(blank, [{"kind": "line", "points": [[20, 90], [220, 90]]}],
+                             session_id="se", session_root=tmp_path)
+    assert r["ok"] is False
+    assert isinstance(r.get("error"), str) and r["error"]
+    assert r["renders"] == [] and r["resources"] == []
 
 
 # ══════════════════════════════════════════════════════════════

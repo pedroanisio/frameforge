@@ -55,6 +55,8 @@ from framegraph.mcp.usecases import (
     mark_points as _uc_mark_points,
     measure_image as _uc_measure_image,
     overlay_images as _uc_overlay_images,
+    score_reconstruction as _uc_score_reconstruction,
+    vectorize_image as _uc_vectorize_image,
     workspace as _uc_workspace,
     propose_from_document as _uc_propose_from_document,
     propose_from_image as _uc_propose_from_image,
@@ -92,6 +94,8 @@ from framegraph.mcp.usecases import (
     mark_points as mark_points,
     measure_image as measure_image,
     overlay_images as overlay_images,
+    score_reconstruction as score_reconstruction,
+    vectorize_image as vectorize_image,
     workspace as workspace,
     propose_from_document as propose_from_document,
     propose_from_image as propose_from_image,
@@ -145,15 +149,19 @@ def create_server(
             "read_sdk_client / list_sdk_clients (edit whitelisted clients).\n"
             "• Image → draft: propose_from_image / propose_from_document / propose_from_svg "
             "(UNVERIFIED drafts, round-tripped through render).\n"
-            "• Visual QA: compare_images (zoomed reference|candidate|diff panels + a "
-            "pixel-match hint).\n"
+            "• Visual QA: compare_images (zoomed reference|candidate|diff panels + real "
+            "NCC/RMSE/MAE metrics; align=True phase-aligns first).\n"
             "• Coordinate-aware reconstruction (raster → precise vectors): measure_image "
             "(grid + rulers + coordinate system + regions + landmarks + zoom crops), "
             "mark_points (resolve points in every frame), overlay_images (landmark "
             "alignment + offsets), workspace (a stateful pin board — the AI 'mouse': "
-            "pin / nudge / move / pan / zoom / multi-pass refine, state persists per "
-            "session_id), construct_vectors (draw SDK geometry from anchor points), "
-            "map_coordinates (homography / 2D↔3D).\n"
+            "pin / nudge / move / snap / transform / pan / zoom / checkpoint+revert, "
+            "multi-pass refine, state persists per session_id), construct_vectors (draw "
+            "SDK geometry from anchor points), vectorize_image (AUTO trace: region / "
+            "outline / trace(potrace) / layers), score_reconstruction (NUMERIC convergence: "
+            "how far the drawn vectors sit from the source's edges — on_edge_frac / "
+            "mean_dist, complements compare_images), map_coordinates (homography / 2D↔3D / "
+            "warp image rectification).\n"
             "• Sessions/resources: artifacts live at framegraph://session/<id>/... "
             "(document.yaml, page/<n>.svg, page/<n>.png, diagnostics.json, workspace.json).\n"
             "ARCHITECTURAL CONTRACT (PALS's Law): all CV/LLM output is unverified by "
@@ -520,6 +528,9 @@ def create_server(
         diff: Annotated[
             bool, Field(description="Include a per-region difference cell (bright red = mismatch).")
         ] = True,
+        align: Annotated[
+            bool, Field(description="Phase-align the candidate onto the reference before scoring, so a pure offset doesn't read as error (adds `metrics.shift_px`).")
+        ] = False,
         label_reference: Annotated[str, Field(description="Caption for the reference column.")] = "reference",
         label_candidate: Annotated[str, Field(description="Caption for the candidate column.")] = "recreation",
         session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
@@ -541,6 +552,7 @@ def create_server(
                 "regions": regions,
                 "grid": grid,
                 "diff": diff,
+                "align": align,
                 "label_reference": label_reference,
                 "label_candidate": label_candidate,
                 "session_id": session_id,
@@ -551,6 +563,7 @@ def create_server(
                 regions=regions,
                 grid=grid,
                 diff=diff,
+                align=align,
                 label_reference=label_reference,
                 label_candidate=label_candidate,
                 session_id=session_id,
@@ -761,7 +774,15 @@ def create_server(
             Field(description=(
                 "Workspace action: 'open' (bind an image — required first), 'pin' (add points), "
                 "'nudge' (move selected pins by a delta — the AI mouse), 'move' (absolute), "
-                "'unpin', 'clear', 'viewport' (set/clear a crop), 'pan', 'zoom', or 'render'."
+                "'snap' (snap selected pins to the nearest bright/dark/edge/centroid pixel, or "
+                "sub-pixel edge with snap_to='edge_subpixel'), 'fit_edge' (re-project selected pins "
+                "onto one sub-pixel edge line — collinear + edge-accurate), 'collinear' (project "
+                "selected pins onto their best-fit line), 'symmetrize' (enforce bilateral symmetry "
+                "over pin pairs, geometry={'pairs':[[l,r],...]}), 'intersect' (set a corner pin at "
+                "the meeting of two edges, geometry={'edge1':[ids],'edge2':[ids],'target':id}), "
+                "'transform' (translate+scale+rotate selected pins as a group), 'unpin', 'clear', "
+                "'viewport' (set/clear a crop), 'pan', 'zoom', 'checkpoint' (save state), "
+                "'revert' (restore a checkpoint), or 'render'."
             )),
         ] = "render",
         image: Annotated[
@@ -785,7 +806,21 @@ def create_server(
             Field(description='For "viewport": {"name"?, "box": [x, y, w, h]} normalized 0..1 to set, or omit box to clear.'),
         ] = None,
         factor: Annotated[float | None, Field(description="For 'zoom': zoom factor (>1 zooms in).")] = None,
-        aim: Annotated[dict | None, Field(description="For 'zoom': the point kept centred (fixed aim), any frame; default viewport centre.")] = None,
+        aim: Annotated[dict | None, Field(description="For 'zoom' (kept centred) / 'transform' (pivot): a point in any frame; default viewport centre / selection centroid.")] = None,
+        snap_to: Annotated[str, Field(description="For 'snap': target — 'bright', 'dark', 'edge', 'centroid', or 'edge_subpixel' (sub-pixel edge via the gradient normal).")] = "bright",
+        radius: Annotated[int, Field(description="For 'snap': search window radius in pixels.")] = 4,
+        scale: Annotated[float, Field(description="For 'transform': uniform scale about the pivot.")] = 1.0,
+        rotate: Annotated[float, Field(description="For 'transform': rotation in degrees about the pivot.")] = 0.0,
+        tag: Annotated[str | None, Field(description="For 'checkpoint': an optional label.")] = None,
+        index: Annotated[int, Field(description="For 'revert': checkpoint index (default -1 = latest).")] = -1,
+        geometry: Annotated[
+            dict | None,
+            Field(description=(
+                "Args for the constraint actions: 'symmetrize' → {'pairs':[[leftId,rightId],...], "
+                "'axis'?}; 'intersect' → {'edge1':[ids],'edge2':[ids],'target':id}; sub-pixel edge "
+                "tuning for fit_edge/intersect/snap → {'band'?,'step'?,'min_strength'?,'search_dir'?}."
+            )),
+        ] = None,
         origin: Annotated[str, Field(description="For 'open': coordinate origin ('top-left'/'bottom-left'/'center').")] = "top-left",
         grid: Annotated[bool, Field(description="Draw the measurement grid.")] = True,
         rulers: Annotated[bool, Field(description="Draw edge rulers.")] = True,
@@ -806,14 +841,18 @@ def create_server(
             {
                 "action": action, "image": image, "points": points, "select": select,
                 "to": to, "dx": dx, "dy": dy, "unit": unit, "viewport": viewport,
-                "factor": factor, "aim": aim, "origin": origin, "grid": grid,
-                "rulers": rulers, "connect": connect, "session_id": session_id,
+                "factor": factor, "aim": aim, "snap_to": snap_to, "radius": radius,
+                "scale": scale, "rotate": rotate, "tag": tag, "index": index,
+                "geometry": geometry,
+                "origin": origin, "grid": grid, "rulers": rulers, "connect": connect,
+                "session_id": session_id,
             },
             lambda: _uc_workspace(
                 action, image=image, points=points, select=select, to=to,
                 dx=dx, dy=dy, unit=unit, viewport=viewport, factor=factor, aim=aim,
-                origin=origin, grid=grid, rulers=rulers, connect=connect,
-                session_id=session_id, session_root=root,
+                snap_to=snap_to, radius=radius, scale=scale, rotate=rotate, tag=tag,
+                index=index, geometry=geometry, origin=origin, grid=grid, rulers=rulers,
+                connect=connect, session_id=session_id, session_root=root,
             ),
         )
         return _maybe_call_tool_result(result)
@@ -868,10 +907,74 @@ def create_server(
         return _maybe_call_tool_result(result)
 
     @server.tool()
+    def score_reconstruction(
+        image: Annotated[
+            str,
+            Field(description="Source image (filesystem path or framegraph://session/<id>/page/<n>.png URI) whose edges the shapes are scored against."),
+        ],
+        shapes: Annotated[
+            list[dict],
+            Field(description=(
+                'Shapes to score — same schema as construct_vectors: each {"kind": one of '
+                'line/path/trace/polyline/curve/spline/triangle/polygon/closed/rect/ellipse/circle/star, '
+                '"points": [[x,y],...] (image px) OR "pins": [workspace ids / landmarks A1..A9], '
+                'and for circle/star optional "r"/"points_count"/"inner_ratio"}.'
+            )),
+        ],
+        from_workspace: Annotated[
+            str | None,
+            Field(description="Session id of a workspace whose pins the shapes reference (defaults to session_id)."),
+        ] = None,
+        roi: Annotated[
+            list[float] | None,
+            Field(description="Optional [x0, y0, x1, y1] pixel window to score within (defaults to the whole image)."),
+        ] = None,
+        tol: Annotated[
+            float, Field(description="A shape sample within this many pixels of a detected edge counts as on-edge.")
+        ] = 2.0,
+        symmetry_pairs: Annotated[
+            list | None,
+            Field(description='Optional bilateral pairs [[[lx,ly],[rx,ry]], ...] to check for symmetry — adds a geometry-consistency report (catches a single-corner offset the luminance % is blind to).'),
+        ] = None,
+        collinear_groups: Annotated[
+            list | None,
+            Field(description='Optional point groups [[[x,y],...], ...] that should each lie on one straight edge — adds each group\'s collinearity residual.'),
+        ] = None,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Score how well constructed vector shapes sit on the source image's edges.
+
+        The NUMERIC convergence signal for the raster→vector loop — complements
+        ``compare_images`` (which shows *where* a recreation is off) by reporting *how
+        far*: ``on_edge_frac`` (fraction of shape samples within ``tol`` px of a detected
+        edge) plus mean/median/p90 distances, over a match overlay (source dimmed, edges
+        cyan, samples green on-edge / red off). Drive ``on_edge_frac`` up and distances
+        down across passes. ``symmetry_pairs``/``collinear_groups`` add a
+        geometry-consistency report (``score.geometry``) — symmetry-axis and edge
+        collinearity residuals a whole-image luminance match cannot see. Edges are an
+        adaptive-Sobel heuristic — a RELATIVE guide, not ground truth (PALS's Law).
+        """
+        result = _logged_call(
+            log_path,
+            "score_reconstruction",
+            {
+                "image": image, "shapes": shapes, "from_workspace": from_workspace,
+                "roi": roi, "tol": tol, "symmetry_pairs": symmetry_pairs,
+                "collinear_groups": collinear_groups, "session_id": session_id,
+            },
+            lambda: _uc_score_reconstruction(
+                image, shapes, from_workspace=from_workspace, roi=roi, tol=tol,
+                symmetry_pairs=symmetry_pairs, collinear_groups=collinear_groups,
+                session_id=session_id, session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
     def map_coordinates(
         mode: Annotated[
             str,
-            Field(description="'homography' (fit + apply a projective transform), 'to_3d' (lift 2D onto a plane), or 'project' (3D→2D via a camera)."),
+            Field(description="'homography' (fit + apply a projective transform to points), 'to_3d' (lift 2D onto a plane), 'project' (3D→2D via a camera), or 'warp' (rectify an image by the fitted homography)."),
         ],
         points: Annotated[
             list[list[float]] | None,
@@ -879,7 +982,7 @@ def create_server(
         ] = None,
         pairs: Annotated[
             list[dict] | None,
-            Field(description='For "homography": >=4 correspondences [{"src": [x, y], "dst": [x, y]}].'),
+            Field(description='For "homography"/"warp": >=4 correspondences [{"src": [x, y], "dst": [x, y]}].'),
         ] = None,
         plane: Annotated[
             dict | None,
@@ -889,6 +992,14 @@ def create_server(
             dict | None,
             Field(description='For "project": {"eye", "target", "up": [x,y,z], "fov", "aspect", "near", "far"} (all optional).'),
         ] = None,
+        image: Annotated[
+            str | None,
+            Field(description="For 'warp': the image (path or session URI) to rectify."),
+        ] = None,
+        out_size: Annotated[
+            list[int] | None,
+            Field(description="For 'warp': output canvas [w, h] (default: the source size)."),
+        ] = None,
         width: Annotated[int | None, Field(description="For 'project': map NDC to pixels of this width.")] = None,
         height: Annotated[int | None, Field(description="For 'project': map NDC to pixels of this height.")] = None,
         session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
@@ -897,8 +1008,9 @@ def create_server(
 
         `homography` rectifies a perspective-distorted plane (or maps source→reference)
         from >=4 point pairs; `to_3d` lifts 2D image points onto a 3D plane; `project`
-        projects 3D points to 2D through the SDK camera (the renderer's own math). Honest
-        scope: a plane-to-plane projective map + a pinhole camera — no lens distortion or
+        projects 3D points to 2D through the SDK camera; `warp` applies the fitted
+        homography to actually dewarp an image (emits the rectified PNG). Honest scope: a
+        plane-to-plane projective map + a pinhole camera — no lens distortion or
         multi-view calibration.
         """
         result = _logged_call(
@@ -906,11 +1018,66 @@ def create_server(
             "map_coordinates",
             {
                 "mode": mode, "points": points, "pairs": pairs, "plane": plane,
-                "camera": camera, "width": width, "height": height, "session_id": session_id,
+                "camera": camera, "image": image, "out_size": out_size,
+                "width": width, "height": height, "session_id": session_id,
             },
             lambda: _uc_map_coordinates(
                 mode, points=points, pairs=pairs, plane=plane, camera=camera,
+                image=image, out_size=out_size,
                 width=width, height=height, session_id=session_id, session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def vectorize_image(
+        image: Annotated[
+            str,
+            Field(description="Image to vectorize: a filesystem path or a framegraph://session/<id>/page/<n>.png URI."),
+        ],
+        mode: Annotated[
+            str,
+            Field(description="'region' (k-means colour → filled polygons; default), 'outline' (edges → polylines), 'trace' (potrace Bézier → SVG ingest; smooth curves, needs potrace), or 'layers' (solid-bg logo tracer: AA-aware palette + even-odd holes — the highest-fidelity flat-logo mode)."),
+        ] = "region",
+        region_box: Annotated[
+            list[float] | None,
+            Field(description="Vectorize only this normalized [x, y, w, h] crop, placed back in full-image coordinates. Omit to vectorize the whole image."),
+        ] = None,
+        colors: Annotated[int, Field(description="region mode: number of quantised colours to trace.")] = 8,
+        detail: Annotated[float, Field(description="Douglas–Peucker epsilon as a fraction of contour length (higher = simpler).")] = 0.004,
+        min_area: Annotated[float, Field(description="Drop contours below this pixel area (noise floor).")] = 90.0,
+        max_dim: Annotated[int, Field(description="Downscale the longest side to this before tracing (whole-image region/outline). 0 = no scaling.")] = 900,
+        ink: Annotated[str, Field(description="outline mode: stroke colour for the polylines.")] = "#1E2440",
+        background: Annotated[str | None, Field(description="Optional page background colour (e.g. '#2e3238' for a light mark on dark).")] = None,
+        threshold: Annotated[int | None, Field(description="trace mode: 0..255 bi-level threshold (omit = 128).")] = None,
+        invert: Annotated[bool | None, Field(description="trace mode: invert so bright pixels are the traced foreground; omit for auto (invert when the ground is dark).")] = None,
+        fill: Annotated[str, Field(description="trace mode: fill colour for the traced paths.")] = "#000000",
+        ocr: Annotated[bool, Field(description="Also add Tesseract-detected text objects (needs the tesseract binary).")] = False,
+        title: Annotated[str, Field(description="Title for the reconstruction document.")] = "Vectorized reconstruction",
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Trace a raster into editable FrameGraph vector objects, then validate + render it.
+
+        The pixel-accurate complement to manual pin-and-construct: `region` k-means-traces
+        flat colour into filled polygons (ideal for logos/flat art), `outline` traces edges
+        into polylines, and `trace` runs potrace for smooth Bézier outlines lowered through
+        the SVG-ingest path. `region_box` vectorizes just a crop, placed 1:1 in the full
+        image; `ocr` adds text objects. Diff the render against the source with `compare_images`.
+        """
+        result = _logged_call(
+            log_path,
+            "vectorize_image",
+            {
+                "image": image, "mode": mode, "region_box": region_box, "colors": colors,
+                "detail": detail, "min_area": min_area, "max_dim": max_dim, "ink": ink,
+                "background": background, "threshold": threshold, "invert": invert,
+                "fill": fill, "ocr": ocr, "title": title, "session_id": session_id,
+            },
+            lambda: _uc_vectorize_image(
+                image, mode=mode, region_box=region_box, colors=colors, detail=detail,
+                min_area=min_area, max_dim=max_dim, ink=ink, background=background,
+                threshold=threshold, invert="auto" if invert is None else invert,
+                fill=fill, ocr=ocr, title=title, session_id=session_id, session_root=root,
             ),
         )
         return _maybe_call_tool_result(result)
@@ -1070,7 +1237,9 @@ __all__ = [
     "overlay_images",
     "workspace",
     "construct_vectors",
+    "score_reconstruction",
     "map_coordinates",
+    "vectorize_image",
     "list_sdk_clients",
     "read_sdk_client",
     "write_sdk_client",

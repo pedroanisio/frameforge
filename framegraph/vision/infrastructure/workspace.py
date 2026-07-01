@@ -79,6 +79,7 @@ class WorkspaceState:
     viewport: tuple[float, float, float, float] | None = None
     viewport_name: str = "viewport"
     seq: int = 0
+    checkpoints: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -90,6 +91,7 @@ class WorkspaceState:
             "viewport": list(self.viewport) if self.viewport else None,
             "viewport_name": self.viewport_name,
             "seq": self.seq,
+            "checkpoints": self.checkpoints,
         }
 
     @classmethod
@@ -104,7 +106,24 @@ class WorkspaceState:
             viewport=tuple(float(v) for v in vp) if vp else None,
             viewport_name=str(d.get("viewport_name", "viewport")),
             seq=int(d.get("seq", 0)),
+            checkpoints=list(d.get("checkpoints", [])),
         )
+
+    def snapshot(self) -> dict[str, Any]:
+        """A restorable snapshot of the mutable state (pins + viewport + id counter)."""
+        return {
+            "pins": [p.to_dict() for p in self.pins],
+            "viewport": list(self.viewport) if self.viewport else None,
+            "viewport_name": self.viewport_name,
+            "seq": self.seq,
+        }
+
+    def restore(self, snap: dict[str, Any]) -> None:
+        self.pins = [Pin.from_dict(p) for p in snap.get("pins", [])]
+        vp = snap.get("viewport")
+        self.viewport = tuple(float(v) for v in vp) if vp else None
+        self.viewport_name = snap.get("viewport_name", "viewport")
+        self.seq = int(snap.get("seq", self.seq))
 
     # -- coordinate helpers --------------------------------------------------
     def cs(self) -> CoordinateSystem:
@@ -291,6 +310,252 @@ def render(image_bytes: bytes, state: WorkspaceState, *,
         ),
     }
     return Measurement(overlay=overlay, spatial=spatial, crops=crops)
+
+
+def snap_pins(state: WorkspaceState, select: Any, image_bytes: bytes, *,
+              to: str = "bright", radius: int = 4) -> list[Pin]:
+    """Snap selected pins to the nearest salient pixel — pixel-accurate refinement.
+
+    ``to``: ``bright`` / ``dark`` (extreme luminance in the window), ``edge`` (max
+    gradient magnitude), or ``centroid`` (intensity-weighted centre). ``radius`` is
+    the search window in pixels around each pin.
+    """
+    import numpy as np
+    from io import BytesIO
+
+    from PIL import Image
+
+    if to not in ("bright", "dark", "edge", "centroid"):
+        raise ValueError("snap `to` must be one of: bright, dark, edge, centroid")
+    r = max(1, int(radius))
+    gray = np.asarray(Image.open(BytesIO(image_bytes)).convert("L"), dtype=float)
+    H, W = gray.shape
+    snapped = _select(state, select)
+    for p in snapped:
+        cx, cy = int(round(p.x)), int(round(p.y))
+        x0, y0 = max(0, cx - r), max(0, cy - r)
+        x1, y1 = min(W, cx + r + 1), min(H, cy + r + 1)
+        patch = gray[y0:y1, x0:x1]
+        if patch.size == 0:
+            continue
+        if to == "centroid":
+            w = patch - patch.min()
+            s = float(w.sum())
+            if s > 0:
+                ys, xs = np.mgrid[0:patch.shape[0], 0:patch.shape[1]]
+                p.x = float(x0 + (xs * w).sum() / s)
+                p.y = float(y0 + (ys * w).sum() / s)
+            continue
+        if to == "edge":
+            gy, gx = np.gradient(patch)
+            field = np.hypot(gx, gy)
+            idx = int(np.argmax(field))
+        else:
+            idx = int(np.argmax(patch) if to == "bright" else np.argmin(patch))
+        py, px = np.unravel_index(idx, patch.shape)
+        p.x, p.y = float(x0 + px), float(y0 + py)
+    return snapped
+
+
+# ─────────────────────────────────────────────────────────────
+# geometry-constrained refinement (sub-pixel edges + symmetry/collinearity)
+#
+# The coarse ``snap_pins`` above is an integer-pixel argmax in a window; these place
+# pins by the *right* method for a geometric mark — fit lines to edges (sub-pixel),
+# intersect them for corners, and enforce the rigid constraints (bilateral symmetry,
+# collinear edges) a luminance diff is blind to. Exact maths lives in
+# :mod:`framegraph.vision.domain.geometry`; sub-pixel edge sampling in
+# :mod:`framegraph.vision.infrastructure.edgesnap`.
+# ─────────────────────────────────────────────────────────────
+def fit_edge_pins(state: WorkspaceState, select: Any, image_bytes: bytes, *,
+                  band: float = 6.0, step: float = 2.0,
+                  min_strength: float = 6.0) -> tuple[list[Pin], dict[str, Any]]:
+    """Refine selected pins onto one sub-pixel edge line, re-projecting each onto it.
+
+    The first and last selected pins are the rough segment across the edge; the edge
+    is located to sub-pixel precision and every selected pin is projected onto the
+    fitted line — making them collinear AND edge-accurate. Falls back to a pure
+    best-fit line through the pins when no confident edge is found (PALS: never trust
+    a bad snap).
+    """
+    from ..domain.geometry import fit_line
+    from . import edgesnap
+    pins = _select(state, select)
+    if len(pins) < 2:
+        raise ValueError("action 'fit_edge' needs >=2 selected pins")
+    res = edgesnap.refine_edge_line(image_bytes, (pins[0].x, pins[0].y),
+                                    (pins[-1].x, pins[-1].y),
+                                    band=band, step=step, min_strength=min_strength)
+    if res.get("ok"):
+        line = res["_line"]
+        info = {"source": "subpixel-edge", "n_crossings": res["n_crossings"],
+                "rms_residual_px": res["rms_residual_px"], "line": res["line"]}
+    else:
+        line = fit_line([(p.x, p.y) for p in pins])
+        info = {"source": "collinear-only (no confident edge — PALS)",
+                "reason": res.get("reason"), "line": line.to_dict()}
+    for p in pins:
+        p.x, p.y = line.project((p.x, p.y))
+    return pins, info
+
+
+def collinear_pins(state: WorkspaceState, select: Any) -> tuple[list[Pin], dict[str, Any]]:
+    """Project selected pins onto their best-fit line — pure geometry, no image (≥2 pins)."""
+    from ..domain.geometry import collinearity_residual, fit_line
+    pins = _select(state, select)
+    if len(pins) < 2:
+        raise ValueError("action 'collinear' needs >=2 selected pins")
+    pts = [(p.x, p.y) for p in pins]
+    before = collinearity_residual(pts)
+    line = fit_line(pts)
+    for p in pins:
+        p.x, p.y = line.project((p.x, p.y))
+    return pins, {"residual_before": before, "line": line.to_dict()}
+
+
+def symmetrize_pins(state: WorkspaceState, pairs: Sequence[Sequence[str]], *,
+                    axis: float | None = None) -> tuple[list[tuple[Pin, Pin]], dict[str, Any]]:
+    """Enforce bilateral symmetry over ``(leftId, rightId)`` pin pairs about a vertical axis.
+
+    Snaps each pair symmetric about the consensus axis (median of pair mid-x, or a
+    supplied ``axis``) and equalises their y. Returns the *pre-snap* symmetry report so
+    the caller sees which pair was the outlier the metric could not.
+    """
+    from ..domain.geometry import reflect_across_vertical, symmetry_axis_x, symmetry_report
+    if not pairs:
+        raise ValueError("action 'symmetrize' needs 'pairs': [[leftId, rightId], ...]")
+    byid = {p.id: p for p in state.pins}
+    resolved: list[tuple[Pin, Pin]] = []
+    pt_pairs: list[tuple[tuple[float, float], tuple[float, float]]] = []
+    for pr in pairs:
+        if len(pr) != 2:
+            raise ValueError(f"each pair must be [leftId, rightId]; got {pr!r}")
+        lid, rid = str(pr[0]), str(pr[1])
+        if lid not in byid or rid not in byid:
+            raise ValueError(f"symmetrize: unknown pin id in pair {pr!r}")
+        L, R = byid[lid], byid[rid]
+        resolved.append((L, R))
+        pt_pairs.append(((L.x, L.y), (R.x, R.y)))
+    ax = float(axis) if axis is not None else symmetry_axis_x(pt_pairs)
+    report = symmetry_report(pt_pairs, axis=ax)
+    for L, R in resolved:
+        rl = reflect_across_vertical((R.x, R.y), ax)      # mirror R into left space
+        nlx, nly = (L.x + rl[0]) / 2.0, (L.y + rl[1]) / 2.0
+        L.x, L.y = nlx, nly
+        R.x, R.y = reflect_across_vertical((nlx, nly), ax)
+    return resolved, {"axis_x": round(ax, 3), "report": report}
+
+
+def intersect_to_pin(state: WorkspaceState, image_bytes: bytes, *,
+                     edge1: Sequence[str], edge2: Sequence[str], target: str,
+                     band: float = 6.0, step: float = 2.0,
+                     min_strength: float = 6.0) -> tuple[tuple[float, float], dict[str, Any]]:
+    """Set/create pin ``target`` at the corner where two edges meet (sub-pixel).
+
+    ``edge1``/``edge2`` are lists of ≥2 existing pin ids roughly on each edge; each is
+    refined to a sub-pixel line (falling back to the pins' best-fit line with no
+    confident edge) and the two lines are intersected. This is the right way to place a
+    corner: intersect two well-fit edges rather than eyeball the ill-conditioned tip.
+    """
+    from ..domain.geometry import fit_line
+    from ..domain.geometry import intersect as _intersect
+    from . import edgesnap
+    byid = {p.id: p for p in state.pins}
+
+    def _fit(ids: Sequence[str]) -> tuple[Any, dict[str, Any]]:
+        pins = [byid[str(i)] for i in ids if str(i) in byid]
+        if len(pins) < 2:
+            raise ValueError("each edge needs >=2 existing pins")
+        r = edgesnap.refine_edge_line(image_bytes, (pins[0].x, pins[0].y),
+                                      (pins[-1].x, pins[-1].y),
+                                      band=band, step=step, min_strength=min_strength)
+        if r.get("ok"):
+            return r["_line"], {"source": "subpixel-edge", "n_crossings": r["n_crossings"],
+                                "rms_residual_px": r["rms_residual_px"]}
+        return fit_line([(p.x, p.y) for p in pins]), {"source": "pins best-fit (no edge — PALS)"}
+
+    l1, i1 = _fit(edge1)
+    l2, i2 = _fit(edge2)
+    cx, cy = _intersect(l1, l2)
+    tid = str(target)
+    existing = [p for p in state.pins if p.id == tid]
+    if existing:
+        existing[0].x, existing[0].y = cx, cy
+    else:
+        state.pins.append(Pin(tid, cx, cy))
+    return (cx, cy), {"corner_px": [round(cx, 3), round(cy, 3)], "target": tid,
+                      "edge1": i1, "edge2": i2}
+
+
+def snap_pins_subpixel(state: WorkspaceState, select: Any, image_bytes: bytes, *,
+                       band: float = 8.0, search_dir: Sequence[float] | None = None,
+                       min_strength: float = 6.0) -> tuple[list[Pin], list[dict[str, Any]]]:
+    """Slide selected pins onto the nearest edge to sub-pixel precision (edgesnap).
+
+    ``search_dir`` is the axis to search along (the edge normal); omit it to snap
+    perpendicular to the local image gradient. Pins with no confident edge in range are
+    left untouched (reported ``ok=False``).
+    """
+    from . import edgesnap
+    pins = _select(state, select)
+    info: list[dict[str, Any]] = []
+    sd = tuple(float(v) for v in search_dir) if search_dir else None
+    for p in pins:
+        res = edgesnap.snap_point_to_edge(image_bytes, (p.x, p.y), search_dir=sd,
+                                          band=band, min_strength=min_strength)
+        if res.get("ok"):
+            p.x, p.y = float(res["point_px"][0]), float(res["point_px"][1])
+        info.append({"id": p.id, **{k: res.get(k) for k in ("ok", "moved_px", "strength")}})
+    return pins, info
+
+
+def transform_pins(state: WorkspaceState, select: Any, *,
+                   translate: Sequence[float] = (0.0, 0.0), scale: float = 1.0,
+                   rotate: float = 0.0, about: Any = None) -> list[Pin]:
+    """Translate/scale/rotate selected pins together about a pivot (default: their centroid).
+
+    Adjusts several pins as a rigid+scale group — for correcting proportions,
+    alignment, and local distortion. ``translate`` is in image pixels, ``rotate`` in
+    degrees; ``about`` is any point spec (else the selection centroid).
+    """
+    import math
+
+    pts = _select(state, select)
+    if not pts:
+        return pts
+    if about is not None:
+        ax, ay = resolve_point_spec(about, state.cs(), state.anchors(), state.viewport_transform())
+    else:
+        ax = sum(p.x for p in pts) / len(pts)
+        ay = sum(p.y for p in pts) / len(pts)
+    th = math.radians(float(rotate))
+    co, si = math.cos(th), math.sin(th)
+    s = float(scale)
+    tx, ty = float(translate[0]), float(translate[1])
+    for p in pts:
+        dx, dy = (p.x - ax) * s, (p.y - ay) * s
+        p.x = ax + (dx * co - dy * si) + tx
+        p.y = ay + (dx * si + dy * co) + ty
+    return pts
+
+
+def checkpoint_state(state: WorkspaceState, tag: str | None = None) -> int:
+    """Push a full snapshot of the pins/viewport; returns its index for revert."""
+    state.checkpoints.append({"tag": tag, **state.snapshot()})
+    return len(state.checkpoints) - 1
+
+
+def revert_state(state: WorkspaceState, index: int = -1) -> dict[str, Any]:
+    """Restore a checkpoint (default: latest) and drop it + everything pushed after."""
+    if not state.checkpoints:
+        raise ValueError("no checkpoints to revert to")
+    i = index if index >= 0 else len(state.checkpoints) + index
+    if i < 0 or i >= len(state.checkpoints):
+        raise ValueError(f"no checkpoint at index {index}")
+    snap = state.checkpoints[i]
+    state.restore(snap)
+    del state.checkpoints[i:]
+    return {"reverted_to": i, "tag": snap.get("tag")}
 
 
 def region_from_viewport(state: WorkspaceState) -> Region | None:

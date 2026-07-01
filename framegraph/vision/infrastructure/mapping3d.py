@@ -64,6 +64,26 @@ def apply_homography(H, x: float, y: float) -> tuple[float, float]:
     return wx / w, wy / w
 
 
+def warp_image(image_bytes: bytes, H, out_size: Sequence[int]):
+    """Rectify/dewarp an image by homography ``H`` into an ``out_size`` (w, h) canvas.
+
+    Returns a PIL image. Needs OpenCV (the ``vision`` group). Use it to flatten a
+    perspective-distorted plane (e.g. a photographed sign) before tracing it.
+    """
+    from io import BytesIO
+
+    import cv2
+    from PIL import Image
+
+    np = _np()
+    src = np.asarray(Image.open(BytesIO(image_bytes)).convert("RGB"))
+    Hm = np.array(H, dtype="float64")
+    w, h = int(out_size[0]), int(out_size[1])
+    out = cv2.warpPerspective(src, Hm, (w, h), flags=cv2.INTER_LINEAR,
+                              borderValue=(255, 255, 255))
+    return Image.fromarray(out)
+
+
 def homography_map(pairs, points) -> dict[str, Any]:
     H = fit_homography(pairs)
     mapped = [list(apply_homography(H, float(p[0]), float(p[1]))) for p in points]

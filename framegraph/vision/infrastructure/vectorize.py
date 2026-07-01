@@ -261,3 +261,118 @@ def ocr_text_objects(path: "str | Path", *, max_dim: int = 1400,
                               "font_size": float(hh), "font_weight": 700, "color": color,
                               "vertical_align": "middle"}})
     return out
+
+
+# --------------------------------------------------------------------------- #
+#  layered logo tracer  --  solid-bg detect + AA-aware palette + even-odd holes
+# --------------------------------------------------------------------------- #
+def _hex_rgb(rgb) -> str:
+    return "#%02X%02X%02X" % tuple(int(max(0, min(255, round(float(v))))) for v in rgb[:3])
+
+
+def _solid_fill(img, mask) -> str:
+    """The layer's true fill, read from its ERODED interior (ignores AA edge pixels)."""
+    import cv2
+    import numpy as np
+
+    er = cv2.erode(mask.astype("uint8"), np.ones((5, 5), "uint8"))
+    px = np.asarray(img, float)[er > 0] if er.any() else np.asarray(img, float)[mask]
+    return _hex_rgb([np.median(px[:, i]) for i in range(3)])
+
+
+def _trace_mask_d(mask, box, *, up: int, eps: float, min_area: float) -> str:
+    """cv2 contour trace of a binary mask inside ``box`` → one SVG ``d`` (even-odd holes)."""
+    import cv2
+
+    sub = mask[box[1]:box[3], box[0]:box[2]].astype("uint8") * 255
+    if sub.size == 0:
+        return ""
+    big = cv2.resize(sub, (sub.shape[1] * up, sub.shape[0] * up), interpolation=cv2.INTER_LINEAR)
+    _, bw = cv2.threshold(big, 127, 255, cv2.THRESH_BINARY)
+    cnts, _ = cv2.findContours(bw, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    ox, oy = box[0], box[1]
+    parts = []
+    for c in cnts:
+        if cv2.contourArea(c) < (up * up) * min_area:
+            continue
+        p = cv2.approxPolyDP(c, eps * cv2.arcLength(c, True), True).reshape(-1, 2).astype(float)
+        p[:, 0] = p[:, 0] / up + ox
+        p[:, 1] = p[:, 1] / up + oy
+        parts.append("M " + " L ".join("%.2f %.2f" % (x, y) for x, y in p) + " Z")
+    return " ".join(parts)
+
+
+def raster_to_layers(
+    path: "str | Path",
+    *,
+    max_colors: int = 4,
+    detail: float = 0.0012,
+    min_area: float = 2.0,
+    upscale: int = 6,
+    bg_diff: float = 40.0,
+    exclude_corner: bool = False,
+) -> tuple[list[dict[str, Any]], int, int]:
+    """Layered tracer for flat / logo art on a SOLID background.
+
+    Detects the background from the corners, clusters the *eroded* foreground into
+    its distinct true colours (so anti-aliased edge pixels don't spawn phantom
+    colours), assigns every pixel to its nearest colour, and traces each colour layer
+    with cv2 (all nesting levels → even-odd holes). Emits one ``path`` object per
+    layer (largest first, so fine detail paints on top). Returns ``(objects, w, h)``.
+
+    Honest limit: assumes a solid background — a gradient/photographic ground
+    posterises. Straight-segment paths (no Béziers); use ``trace`` (potrace) for
+    smooth curves, ``region`` for a quick colour base.
+    """
+    import cv2
+    import numpy as np
+    from PIL import Image
+
+    img = Image.open(str(path)).convert("RGB")
+    W, H = img.size
+    A = np.asarray(img, float)
+    g = A.mean(2)
+    bg = np.median(np.array([A[5, 5], A[5, W - 6], A[H - 6, 5], A[H - 6, W - 6]]), 0)
+    fg = np.abs(g - float(bg.mean())) > bg_diff
+    if exclude_corner:
+        fg[int(H * 0.72):, :int(W * 0.12)] = False
+    if not fg.any():
+        return [], W, H
+    ys, xs = np.where(fg)
+    box = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
+
+    er = cv2.erode(fg.astype("uint8"), np.ones((5, 5), "uint8"), iterations=2).astype(bool)
+    src = er if er.sum() > 500 else fg
+    px = np.float32(np.asarray(img)[src])
+    if len(px) == 0:
+        return [], W, H
+    uniq = len(np.unique(px.astype(np.uint8).reshape(-1, 3), axis=0))
+    K = int(min(8, max(1, uniq)))
+    crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
+    _, lab, cen = cv2.kmeans(px, K, None, crit, 3, cv2.KMEANS_PP_CENTERS)
+    counts = np.bincount(lab.flatten(), minlength=K)
+    kept = []
+    for i in np.argsort(-counts):
+        if counts[i] < 30:
+            continue
+        if any(np.linalg.norm(cen[i] - k) < 40.0 for k in kept):
+            continue
+        kept.append(cen[i])
+        if len(kept) >= max_colors:
+            break
+    if not kept:
+        return [], W, H
+
+    C = np.array([bg] + list(kept), float)
+    full = ((A.reshape(-1, 1, 3) - C.reshape(1, -1, 3)) ** 2).sum(-1).argmin(1).reshape(H, W)
+    masks = [full == (i + 1) for i in range(len(kept))]
+    order = sorted(range(len(masks)), key=lambda i: -int(masks[i].sum()))
+
+    objs: list[dict[str, Any]] = []
+    for k in order:
+        d = _trace_mask_d(masks[k], box, up=upscale, eps=detail, min_area=min_area)
+        if not d:
+            continue
+        objs.append({"type": "path", "d": d, "fill": _solid_fill(img, masks[k]),
+                     "style": {"fill_rule": "evenodd"}})
+    return objs, W, H

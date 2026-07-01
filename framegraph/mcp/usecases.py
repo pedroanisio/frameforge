@@ -392,6 +392,7 @@ def compare_images(
     regions: list[dict[str, Any]] | None = None,
     grid: list[int] | None = None,
     diff: bool = True,
+    align: bool = False,
     label_reference: str = "reference",
     label_candidate: str = "recreation",
     session_id: str | None = None,
@@ -423,7 +424,7 @@ def compare_images(
     try:
         region_objs = _parse_regions(regions, grid)
         panels = build_panels(
-            ref_bytes, cand_bytes, regions=region_objs, diff=diff,
+            ref_bytes, cand_bytes, regions=region_objs, diff=diff, align=align,
             labels=(label_reference, label_candidate),
         )
     except (ValueError, OSError) as exc:
@@ -452,6 +453,7 @@ def compare_images(
             "panel": idx,
             "region": panel.name,
             "pixel_match_pct": panel.match_pct,
+            "metrics": panel.metrics,
         })
 
     result = {
@@ -755,6 +757,13 @@ def workspace(
     viewport: dict[str, Any] | None = None,
     factor: float | None = None,
     aim: dict[str, Any] | None = None,
+    snap_to: str = "bright",
+    radius: int = 4,
+    scale: float = 1.0,
+    rotate: float = 0.0,
+    tag: str | None = None,
+    index: int = -1,
+    geometry: dict[str, Any] | None = None,
     origin: str = "top-left",
     grid: bool = True,
     rulers: bool = True,
@@ -779,6 +788,7 @@ def workspace(
     session_dir = _prepare_session(root, sid)
     state = ws.load_state(session_dir)
     action = (action or "render").lower()
+    action_info: dict[str, Any] = {}
 
     try:
         if action == "open":
@@ -815,6 +825,52 @@ def workspace(
                 if factor is None:
                     raise ValueError("action 'zoom' needs a 'factor'")
                 ws.zoom_viewport(state, float(factor), aim)
+            elif action == "snap":
+                snap_bytes = _resolve_image_arg(state.image_ref, session_root=session_root)
+                g = geometry or {}
+                if snap_to == "edge_subpixel":
+                    _, snap_info = ws.snap_pins_subpixel(
+                        state, select, snap_bytes,
+                        band=float(g.get("band", 8.0)), search_dir=g.get("search_dir"),
+                        min_strength=float(g.get("min_strength", 6.0)))
+                    action_info["snapped"] = snap_info
+                else:
+                    snapped = ws.snap_pins(state, select, snap_bytes, to=snap_to, radius=radius)
+                    action_info["snapped"] = [p.id for p in snapped]
+            elif action == "fit_edge":
+                g = geometry or {}
+                edge_bytes = _resolve_image_arg(state.image_ref, session_root=session_root)
+                _, info = ws.fit_edge_pins(state, select, edge_bytes,
+                                           band=float(g.get("band", 6.0)),
+                                           step=float(g.get("step", 2.0)),
+                                           min_strength=float(g.get("min_strength", 6.0)))
+                action_info["fit_edge"] = info
+            elif action == "collinear":
+                _, info = ws.collinear_pins(state, select)
+                action_info["collinear"] = info
+            elif action == "symmetrize":
+                g = geometry or {}
+                _, info = ws.symmetrize_pins(state, g.get("pairs") or [], axis=g.get("axis"))
+                action_info["symmetrize"] = info
+            elif action == "intersect":
+                g = geometry or {}
+                if not (g.get("edge1") and g.get("edge2") and g.get("target")):
+                    raise ValueError("action 'intersect' needs geometry={'edge1':[ids], "
+                                     "'edge2':[ids], 'target':id}")
+                inter_bytes = _resolve_image_arg(state.image_ref, session_root=session_root)
+                _, info = ws.intersect_to_pin(
+                    state, inter_bytes, edge1=g["edge1"], edge2=g["edge2"], target=g["target"],
+                    band=float(g.get("band", 6.0)), step=float(g.get("step", 2.0)),
+                    min_strength=float(g.get("min_strength", 6.0)))
+                action_info["intersect"] = info
+            elif action == "transform":
+                moved = ws.transform_pins(state, select, translate=(float(dx), float(dy)),
+                                          scale=float(scale), rotate=float(rotate), about=aim)
+                action_info["transformed"] = [p.id for p in moved]
+            elif action == "checkpoint":
+                action_info["checkpoint_index"] = ws.checkpoint_state(state, tag)
+            elif action == "revert":
+                action_info.update(ws.revert_state(state, int(index)))
             elif action in ("render", "status"):
                 pass
             else:
@@ -844,9 +900,12 @@ def workspace(
         "renders": renders,
         "resources": _compare_resources(sid, renders),
         "spatial": measurement.spatial,
+        "checkpoint_count": len(state.checkpoints),
         "diagnostics_path": str(session_dir / "diagnostics.json"),
         "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
     }
+    if action_info:
+        result["action_info"] = action_info
     _write_diagnostics(session_dir, result)
     return result
 
@@ -917,11 +976,7 @@ def construct_vectors(
         return {"ok": False, "error": "need a canvas size: pass width+height, a from_workspace, or an image",
                 "renders": [], "resources": []}
 
-    anchors: dict[str, tuple[float, float]] = {}
-    if state is not None:
-        from framegraph.vision.infrastructure.measure import structural_landmarks
-        anchors = {p.id: (p.x, p.y) for p in state.pins}
-        anchors.update({lm.id: (lm.x_px, lm.y_px) for lm in structural_landmarks(state.cs())})
+    anchors = _workspace_anchors(ws_ref, session_root)
 
     try:
         resolved = _resolve_shape_points(shapes, anchors)
@@ -942,6 +997,117 @@ def construct_vectors(
     return result
 
 
+def _workspace_anchors(ws_ref: str | None, session_root: str | Path | None):
+    """Resolve a workspace's pins + structural landmarks to {id: (x_px, y_px)} (or {}).
+
+    Returns ``{}`` when there is no such workspace — including the common case where the
+    session DIR exists (any image tool creates it) but has no ``workspace.json`` yet, so
+    ``load_state`` returns ``None``. Without this guard a shared session_id across e.g.
+    construct_vectors → score_reconstruction would crash dereferencing ``None.pins``.
+    """
+    if not ws_ref:
+        return {}
+    from framegraph.vision.infrastructure import workspace as ws
+    ws_dir = _session_root(session_root) / _session_id(ws_ref)
+    if not ws_dir.exists():
+        return {}
+    state = ws.load_state(ws_dir)
+    if state is None:
+        return {}
+    from framegraph.vision.infrastructure.measure import structural_landmarks
+    anchors = {p.id: (p.x, p.y) for p in state.pins}
+    anchors.update({lm.id: (lm.x_px, lm.y_px) for lm in structural_landmarks(state.cs())})
+    return anchors
+
+
+def score_reconstruction(
+    image: str,
+    shapes: list[dict[str, Any]],
+    *,
+    from_workspace: str | None = None,
+    roi: list[float] | None = None,
+    tol: float = 2.0,
+    symmetry_pairs: list[Any] | None = None,
+    collinear_groups: list[Any] | None = None,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Score how well constructed vector ``shapes`` sit on the source image's edges.
+
+    The NUMERIC convergence signal for the raster→vector loop: complements
+    ``compare_images`` (which shows *where* a reconstruction is off) by reporting *how
+    far* — ``on_edge_frac`` (fraction of shape samples within ``tol`` px of a detected
+    edge) plus mean/median/p90 distances. Drive ``on_edge_frac`` up and the distances
+    down across refinement passes. ``shapes`` use the same schema as
+    ``construct_vectors`` (``points`` image px, or ``pins`` referencing a
+    ``from_workspace``); ``roi`` is an optional ``[x0, y0, x1, y1]`` pixel window.
+
+    ``symmetry_pairs`` (``[[[lx,ly],[rx,ry]], ...]``) and ``collinear_groups``
+    (``[[[x,y],...], ...]``) add a **geometry-consistency** report under
+    ``score.geometry`` — the internal-symmetry and edge-collinearity residuals that
+    catch a single-corner offset (e.g. a 9 px apex shift) an image-wide luminance match
+    is blind to. This is the metric the luminance % could not be.
+
+    ⚠ PALS's LAW: edges come from an adaptive Sobel heuristic — use the score as a
+    RELATIVE guide across passes, not an absolute correctness proof.
+    """
+    if not isinstance(shapes, list) or not shapes:
+        return {"ok": False, "error": "shapes must be a non-empty list", "renders": [], "resources": []}
+    try:
+        img_bytes = _resolve_image_arg(image, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        from framegraph.vision.infrastructure import matchscore
+    except ImportError:
+        return _vision_error(_VISION_GROUP_HINT)
+
+    try:
+        anchors = _workspace_anchors(from_workspace or session_id, session_root)
+        resolved = _resolve_shape_points(shapes, anchors)
+        overlay, score = matchscore.build_score_overlay(img_bytes, resolved,
+                                                        roi=roi, tol=float(tol))
+    except (ValueError, KeyError, TypeError, RuntimeError, OSError) as exc:
+        return {"ok": False, "error": f"could not score reconstruction: {exc}",
+                "renders": [], "resources": []}
+
+    if "error" in score:
+        # a scoring failure (no edges / no samples in roi): match the sibling tools'
+        # degraded envelope — a top-level `error` and no artifacts — rather than writing
+        # a misleading overlay with the reason buried in `score`.
+        return {"ok": False, "error": score["error"], "score": score,
+                "renders": [], "resources": []}
+
+    if symmetry_pairs or collinear_groups:
+        from framegraph.vision.domain import geometry as _geom
+        try:
+            score["geometry"] = _geom.consistency_report(
+                symmetry_pairs=symmetry_pairs, collinear_groups=collinear_groups, tol=float(tol))
+        except (ValueError, TypeError, IndexError) as exc:
+            score["geometry"] = {"error": f"could not compute consistency: {exc}"}
+
+    root = _session_root(session_root)
+    sid = _session_id(session_id)
+    session_dir = _prepare_session(root, sid)
+    _reset_session_outputs(session_dir)
+    renders = _write_image_pages(session_dir, sid, [("match-score", overlay)])
+
+    result = {
+        "ok": True,
+        "session_id": sid,
+        "session_dir": str(session_dir),
+        "image": image,
+        "renders": renders,
+        "resources": _compare_resources(sid, renders),
+        "score": score,
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
+    }
+    _write_diagnostics(session_dir, result)
+    return result
+
+
 def map_coordinates(
     mode: str,
     *,
@@ -949,18 +1115,22 @@ def map_coordinates(
     pairs: list[dict[str, Any]] | None = None,
     plane: dict[str, Any] | None = None,
     camera: dict[str, Any] | None = None,
+    image: str | None = None,
+    out_size: list[int] | None = None,
     width: int | None = None,
     height: int | None = None,
     session_id: str | None = None,
     session_root: str | Path | None = None,
 ) -> dict[str, Any]:
-    """Transpose coordinates between 2D/3D frames: homography, plane lift, projection.
+    """Transpose coordinates between 2D/3D frames: homography, plane lift, projection, warp.
 
     - ``mode='homography'``: fit a projective transform from ``pairs``
       (``[{"src": [x, y], "dst": [x, y]}]``, >=4) and apply it to ``points``.
     - ``mode='to_3d'``: lift 2D ``points`` onto a 3D ``plane`` ({origin, u, v}; default z=0).
     - ``mode='project'``: project 3D ``points`` through a ``camera`` ({eye, target, up,
       fov, ...}); returns NDC and, with ``width``/``height``, pixels.
+    - ``mode='warp'``: fit the homography from ``pairs`` and rectify ``image`` into an
+      ``out_size`` [w, h] canvas (perspective correction); emits the dewarped PNG.
     """
     try:
         from framegraph.vision.infrastructure import mapping3d
@@ -968,6 +1138,37 @@ def map_coordinates(
         return {"ok": False, "error": str(exc)}
 
     mode = (mode or "").lower()
+    if mode == "warp":
+        if not pairs or len(pairs) < 4:
+            return {"ok": False, "error": "warp needs >= 4 pairs of {src, dst}", "renders": [], "resources": []}
+        if not image:
+            return {"ok": False, "error": "warp needs an 'image'", "renders": [], "resources": []}
+        try:
+            image_bytes = _resolve_image_arg(image, session_root=session_root)
+            from framegraph.vision.infrastructure.image_compare import load_rgb
+            iw, ih = load_rgb(image_bytes).size
+            osz = out_size or [iw, ih]
+            H = mapping3d.fit_homography([(p["src"], p["dst"]) for p in pairs])
+            warped = mapping3d.warp_image(image_bytes, H, osz)
+        except (ValueError, FileNotFoundError, KeyError, TypeError, RuntimeError, OSError) as exc:
+            return {"ok": False, "error": f"could not warp: {exc}", "renders": [], "resources": []}
+        root = _session_root(session_root)
+        sid = _session_id(session_id)
+        session_dir = _prepare_session(root, sid)
+        _reset_session_outputs(session_dir)
+        renders = _write_image_pages(session_dir, sid, [("rectified", warped)])
+        result = {
+            "ok": True, "session_id": sid, "session_dir": str(session_dir),
+            "mode": "warp", "image": image, "renders": renders,
+            "resources": _compare_resources(sid, renders),
+            "spatial": {"matrix": [[round(v, 8) for v in row] for row in H],
+                        "out_size": [int(osz[0]), int(osz[1])]},
+            "diagnostics_path": str(session_dir / "diagnostics.json"),
+            "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
+        }
+        _write_diagnostics(session_dir, result)
+        return result
+
     try:
         if mode == "homography":
             if not pairs or len(pairs) < 4:
@@ -986,8 +1187,195 @@ def map_coordinates(
             spatial = mapping3d.project_points(
                 points or [], camera=camera, width=width, height=height)
         else:
-            raise ValueError(f"unknown mode {mode!r}; use 'homography', 'to_3d', or 'project'")
+            raise ValueError(f"unknown mode {mode!r}; use 'homography', 'to_3d', 'project', or 'warp'")
     except (ValueError, KeyError, TypeError, RuntimeError) as exc:
         return {"ok": False, "error": f"could not map coordinates: {exc}"}
 
     return {"ok": True, "mode": mode, "spatial": spatial}
+
+
+def _shift_path_d(d: str, dx: float, dy: float) -> str:
+    """Shift an absolute M/L/Z path ``d`` (as emitted by the layers tracer) by (dx, dy).
+
+    Returns the string unchanged if it uses any command this simple shifter doesn't
+    handle, so it never silently corrupts a curve path.
+    """
+    toks = str(d).split()
+    out: list[str] = []
+    i = 0
+    while i < len(toks):
+        t = toks[i]
+        if t in ("M", "L"):
+            if i + 2 >= len(toks):
+                return d
+            out += [t, "%.2f" % (float(toks[i + 1]) + dx), "%.2f" % (float(toks[i + 2]) + dy)]
+            i += 3
+        elif t == "Z":
+            out.append("Z")
+            i += 1
+        else:
+            return d
+    return " ".join(out)
+
+
+def _translate_objects(objects: list[dict[str, Any]], dx: float, dy: float) -> list[dict[str, Any]]:
+    """Shift every object's geometry by (dx, dy) — for placing a cropped trace in the full image."""
+    if not dx and not dy:
+        return objects
+    for o in objects:
+        if isinstance(o.get("points"), list):
+            o["points"] = [[float(p[0]) + dx, float(p[1]) + dy] for p in o["points"]]
+        if isinstance(o.get("d"), str):
+            o["d"] = _shift_path_d(o["d"], dx, dy)
+        box = o.get("box")
+        if isinstance(box, list) and len(box) >= 2:
+            o["box"] = [float(box[0]) + dx, float(box[1]) + dy, *box[2:]]
+        center = o.get("center")
+        if isinstance(center, list) and len(center) == 2:
+            o["center"] = [float(center[0]) + dx, float(center[1]) + dy]
+    return objects
+
+
+def vectorize_image(
+    image: str,
+    *,
+    mode: str = "region",
+    region_box: list[float] | None = None,
+    colors: int = 8,
+    detail: float = 0.004,
+    min_area: float = 90.0,
+    max_dim: int = 900,
+    ink: str = "#1E2440",
+    stroke_width: float = 1.0,
+    threshold: int | None = None,
+    invert: Any = "auto",
+    turdsize: int = 2,
+    alphamax: float = 1.0,
+    opttolerance: float = 0.2,
+    fill: str = "#000000",
+    background: str | None = None,
+    ocr: bool = False,
+    title: str = "Vectorized reconstruction",
+    raster_png: bool = True,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Trace a raster into editable FrameGraph vector objects, then validate + render it.
+
+    Modes: ``region`` (k-means colour → filled polygons; best for flat/logo art),
+    ``outline`` (edge → polylines), ``trace`` (potrace Bézier → SVG ingest; smooth
+    curves — needs the potrace binary). ``region_box`` (normalized) vectorizes just a
+    crop, placed back in full-image coordinates. ``ocr=True`` adds Tesseract text
+    objects. Sizes the page to the source so the reconstruction overlays 1:1; diff it
+    against the source with ``compare_images``.
+    """
+    try:
+        image_bytes = _resolve_image_arg(image, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    import tempfile
+
+    try:
+        from PIL import Image
+    except ImportError:
+        return {"ok": False, "error": "vectorize needs Pillow (the `vision` group)",
+                "renders": [], "resources": []}
+
+    tmp = Path(tempfile.mkdtemp(prefix="fg-vec-"))
+    try:
+        src = tmp / "src.png"
+        src.write_bytes(image_bytes)
+        img = Image.open(src).convert("RGB")
+        W, H = img.size
+        ox = oy = 0.0
+        try:
+            if mode in ("region", "outline"):
+                from framegraph.vision.infrastructure.vectorize import raster_to_objects
+                if region_box:
+                    from framegraph.vision.infrastructure.measure import denorm_box
+                    ox, oy, cw, ch = denorm_box(
+                        region_box[0], region_box[1], region_box[2], region_box[3], W, H)
+                    crop_path = tmp / "crop.png"
+                    img.crop((int(ox), int(oy), int(round(ox + cw)), int(round(oy + ch)))).save(crop_path)
+                    objects, _, _ = raster_to_objects(
+                        crop_path, mode=mode, colors=colors, detail=detail,
+                        min_area=min_area, max_dim=0, ink=ink, stroke_width=stroke_width)
+                    _translate_objects(objects, ox, oy)
+                    page_w, page_h = W, H
+                else:
+                    objects, page_w, page_h = raster_to_objects(
+                        src, mode=mode, colors=colors, detail=detail, min_area=min_area,
+                        max_dim=max_dim, ink=ink, stroke_width=stroke_width)
+                backend = f"opencv:{mode}"
+            elif mode == "trace":
+                from framegraph.vision.infrastructure.svg_import import svg_to_objects
+                from framegraph.vision.infrastructure.vectorize import trace_to_svg
+                svg, tmeta = trace_to_svg(
+                    src, region_box=region_box, threshold=threshold, invert=invert,
+                    turdsize=turdsize, alphamax=alphamax, opttolerance=opttolerance, fill=fill)
+                box = tmeta["region_px"] if region_box else None
+                if region_box:
+                    ox, oy = tmeta["region_px"][0], tmeta["region_px"][1]
+                objects = svg_to_objects(svg, box=box)
+                page_w, page_h = W, H
+                backend = "potrace"
+            elif mode == "layers":
+                from framegraph.vision.infrastructure.vectorize import raster_to_layers
+                if region_box:
+                    from framegraph.vision.infrastructure.measure import denorm_box
+                    ox, oy, cw, ch = denorm_box(
+                        region_box[0], region_box[1], region_box[2], region_box[3], W, H)
+                    crop_path = tmp / "crop.png"
+                    img.crop((int(ox), int(oy), int(round(ox + cw)), int(round(oy + ch)))).save(crop_path)
+                    objects, _, _ = raster_to_layers(crop_path, max_colors=colors, detail=detail)
+                    _translate_objects(objects, ox, oy)
+                    page_w, page_h = W, H
+                else:
+                    objects, page_w, page_h = raster_to_layers(src, max_colors=colors, detail=detail)
+                backend = "opencv:layers"
+            else:
+                return {"ok": False,
+                        "error": f"unknown mode {mode!r}; use 'region', 'outline', 'trace', or 'layers'",
+                        "renders": [], "resources": []}
+            if ocr:
+                from framegraph.vision.infrastructure.vectorize import ocr_text_objects
+                objects = list(objects) + ocr_text_objects(src)
+        except ImportError as exc:
+            return {"ok": False, "error": f"vectorize backend unavailable: {exc}. "
+                    "region/outline need the `vision` group (OpenCV); trace needs the potrace binary.",
+                    "renders": [], "resources": []}
+        except (RuntimeError, ValueError, OSError) as exc:
+            return {"ok": False, "error": f"could not vectorize: {exc}", "renders": [], "resources": []}
+    finally:
+        import shutil
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    if not objects:
+        return {"ok": False, "error": "the image produced no drawable objects (tune colors/threshold/min_area)",
+                "renders": [], "resources": []}
+
+    from framegraph.sdk.author import DocumentBuilder
+    from framegraph.sdk.io import serialize
+
+    builder = DocumentBuilder(title=title, lang="en")
+    page = builder.page("vectorized", canvas={"size": [int(page_w), int(page_h)], "units": "px"},
+                        coordinate_mode="absolute")
+    if background:
+        page.rect([0, 0, int(page_w), int(page_h)], fill=background)
+    layer = page.layer("ingest")
+    with layer.bleed():
+        for obj in objects:
+            layer.add(obj)
+
+    source = RawYamlSource(yaml_text=serialize(builder.build(), format="yaml"),
+                           session_id=session_id, session_root=session_root)
+    result = _run_source(
+        source, max_pages=1, raster_png=raster_png, pages=None, sign=False, signed_at=None)
+    result["vectorize"] = {
+        "mode": mode, "backend": backend, "object_count": len(objects),
+        "page_px": [int(page_w), int(page_h)],
+        "region_px": [round(ox, 2), round(oy, 2)] if region_box else None,
+    }
+    result["source_image"] = image
+    return result

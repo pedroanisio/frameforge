@@ -120,6 +120,64 @@ def test_workspace_viewport_sets_and_reports_viewport_frame(tmp_path):
     assert "viewport" in _pin_by_id(r, "P1")
 
 
+def test_workspace_snap_to_bright(tmp_path):
+    """snap moves a pin onto the nearest bright pixel within radius."""
+    from PIL import ImageDraw  # noqa: F401
+    im = Image.new("RGB", (100, 100), (10, 10, 10))
+    im.putpixel((60, 40), (255, 255, 255))
+    p = str(tmp_path / "dot.png")
+    im.save(p)
+    workspace("open", image=p, session_id="w", session_root=tmp_path)
+    workspace("pin", points=[{"px": [58, 42], "id": "a"}], session_id="w", session_root=tmp_path)
+    r = workspace("snap", select={"ids": ["a"]}, snap_to="bright", radius=5,
+                  session_id="w", session_root=tmp_path)
+    assert r["ok"] is True
+    assert _pin_by_id(r, "a")["image_px"] == [60.0, 40.0]
+
+
+def test_workspace_transform_rotates_group_about_pivot(tmp_path):
+    img = _png(tmp_path / "s.png", size=(200, 200))
+    workspace("open", image=img, session_id="w", session_root=tmp_path)
+    workspace("pin", points=[{"px": [110, 100], "id": "a"}, {"px": [100, 110], "id": "b"}],
+              session_id="w", session_root=tmp_path)
+    # +90° about (100,100), image coords (y down): (110,100)->(100,110); (100,110)->(90,100)
+    r = workspace("transform", select={"ids": ["a", "b"]}, rotate=90, aim={"px": [100, 100]},
+                  session_id="w", session_root=tmp_path)
+    assert _pin_by_id(r, "a")["image_px"] == [100.0, 110.0]
+    assert _pin_by_id(r, "b")["image_px"] == [90.0, 100.0]
+
+
+def test_workspace_transform_scales_group_about_pivot(tmp_path):
+    img = _png(tmp_path / "s.png", size=(200, 200))
+    workspace("open", image=img, session_id="w", session_root=tmp_path)
+    workspace("pin", points=[{"px": [110, 100], "id": "a"}], session_id="w", session_root=tmp_path)
+    r = workspace("transform", select={"ids": ["a"]}, scale=2.0, aim={"px": [100, 100]},
+                  session_id="w", session_root=tmp_path)
+    assert _pin_by_id(r, "a")["image_px"] == [120.0, 100.0]
+
+
+def test_workspace_checkpoint_then_revert(tmp_path):
+    img = _png(tmp_path / "s.png", size=(200, 100))
+    workspace("open", image=img, session_id="w", session_root=tmp_path)
+    workspace("pin", points=[{"px": [50, 50], "id": "a"}], session_id="w", session_root=tmp_path)
+    c = workspace("checkpoint", tag="base", session_id="w", session_root=tmp_path)
+    assert c["action_info"]["checkpoint_index"] == 0 and c["checkpoint_count"] == 1
+    moved = workspace("nudge", select={"ids": ["a"]}, dx=10, dy=0, unit="px",
+                      session_id="w", session_root=tmp_path)
+    assert _pin_by_id(moved, "a")["image_px"] == [60.0, 50.0]
+    r = workspace("revert", session_id="w", session_root=tmp_path)
+    assert _pin_by_id(r, "a")["image_px"] == [50.0, 50.0]      # restored
+    assert r["action_info"]["reverted_to"] == 0
+    assert r["checkpoint_count"] == 0                           # checkpoint consumed
+
+
+def test_workspace_revert_without_checkpoint_is_error(tmp_path):
+    img = _png(tmp_path / "s.png")
+    workspace("open", image=img, session_id="w", session_root=tmp_path)
+    r = workspace("revert", session_id="w", session_root=tmp_path)
+    assert r["ok"] is False and "checkpoint" in r["error"]
+
+
 def test_workspace_zoom_keeps_aim_centred(tmp_path):
     img = _png(tmp_path / "src.png", size=(200, 100))
     workspace("open", image=img, session_id="w", session_root=tmp_path)
@@ -215,3 +273,24 @@ def test_map_project_is_deterministic_and_returns_pixels():
 def test_map_unknown_mode_is_error():
     r = map_coordinates("teleport", points=[[0, 0]])
     assert r["ok"] is False and "unknown mode" in r["error"]
+
+
+def test_map_warp_rectifies_an_image(tmp_path):
+    try:
+        import cv2  # noqa: F401
+    except Exception:
+        pytest.skip("OpenCV not installed")
+    img = _png(tmp_path / "s.png", size=(100, 100))
+    pairs = [{"src": [0, 0], "dst": [0, 0]}, {"src": [100, 0], "dst": [100, 0]},
+             {"src": [100, 100], "dst": [100, 100]}, {"src": [0, 100], "dst": [0, 100]}]
+    r = map_coordinates("warp", pairs=pairs, image=img, out_size=[100, 100],
+                        session_id="warp", session_root=tmp_path)
+    assert r["ok"] is True, r.get("error")
+    assert r["renders"] and os.path.isfile(r["renders"][0]["path"])
+    assert r["spatial"]["out_size"] == [100, 100]
+
+
+def test_map_warp_needs_image_and_pairs(tmp_path):
+    r = map_coordinates("warp", pairs=[{"src": [0, 0], "dst": [0, 0]}],
+                        session_id="warp2", session_root=tmp_path)
+    assert r["ok"] is False and "4 pairs" in r["error"]

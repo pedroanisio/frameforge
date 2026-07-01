@@ -82,13 +82,15 @@ Inverse (image/document -> author):
 
 Visual QA:
 - `compare_images` — crop matching regions from a reference and a candidate, lay them
-  out reference|candidate|difference (bright red = mismatch) scaled up with a naive
-  pixel-match hint, so you *see* where a recreation is off. The score is a routing
-  hint, not a verdict — the panels are the signal.
+  out reference|candidate|difference (bright red = mismatch) scaled up, so you *see*
+  where a recreation is off. Each region also reports real `metrics` (NCC/RMSE/MAE/
+  pct_diff); `align=True` phase-aligns the candidate first (so a pure offset doesn't read
+  as error) and reports the `shift_px`. Scores are relative hints, not verdicts — the
+  panels are the signal (PALS's Law).
 
 ## Coordinate-aware reconstruction (raster -> precise vectors)
 The measurement + workspace tools give you a coordinate-aware "mouse" for turning a
-raster into exact vector geometry. Seven tools, one loop.
+raster into exact vector geometry. Eight tools, one loop.
 
 Coordinate frames (a point is reported in all that apply):
 - image px — pixels from the image origin; the canonical, exact frame.
@@ -112,29 +114,44 @@ Tools:
 - `workspace` — a STATEFUL pin board bound to one image; state persists per session_id
   (`workspace.json`). Actions: `open` (bind image), `pin` (points in any frame; may
   reference existing pins by id), `nudge` (move selected pins by a delta — the mouse:
-  `unit='norm'|'px'|'viewport'`, e.g. dx=-0.01 = a hair left), `move`, `unpin`, `clear`,
-  `viewport` (set/clear a crop), `pan`/`zoom` (the aim point stays put — coordinate
-  continuity), `render`. Pins are image-anchored, so refine them over many passes
-  (`select={ids:[...]}` or `{group:...}` for multi-pin / group adjust) until pixel-exact.
+  `unit='norm'|'px'|'viewport'`, e.g. dx=-0.01 = a hair left), `move`, `snap` (snap
+  selected pins to the nearest bright/dark/edge/centroid pixel — pixel-accurate refine),
+  `transform` (translate+scale+rotate selected pins as a group about a pivot — fix
+  proportions/perspective), `unpin`, `clear`, `viewport` (set/clear a crop), `pan`/`zoom`
+  (aim stays put — coordinate continuity), `checkpoint`/`revert` (save + roll back state:
+  try an adjustment, `score_reconstruction` it, undo if worse), `render`. Pins are
+  image-anchored; refine over passes (`select={ids:[...]}` or `{group:...}` for multi-pin
+  / group adjust) until pixel-exact.
 - `construct_vectors` — draw FrameGraph geometry from anchor points (workspace `pins`
   or explicit `points`): line, path/trace, curve, spline, triangle, polygon, closed
   region, rect, ellipse, circle, star. Sizes the page to the source so it overlays 1:1,
   then validates + renders. Best for placing a handful of exact anchors by hand.
+- `score_reconstruction` — the NUMERIC convergence signal: samples the constructed
+  shapes and measures each sample's distance to the source's real edges, returning
+  `on_edge_frac` (fraction within `tol` px of an edge) + mean/median/p90 distances over
+  a match overlay (edges cyan, samples green on-edge / red off). Where `compare_images`
+  shows you *where* it's off, this tells you *how far* — drive `on_edge_frac` up and the
+  distances down across passes. Heuristic Sobel edges: a RELATIVE guide, not ground truth.
 - `vectorize_image` — AUTOMATIC trace of a raster into editable FrameGraph objects:
-  `region` (k-means colour → filled polygons; best for flat/logo art), `outline` (edges
-  → polylines), or `trace` (potrace Bézier → SVG ingest; smooth outlines of a crisp
-  bi-level mark). `region_box` traces just a crop, placed 1:1 in the full image; `ocr`
-  adds text objects. Reach for this when hand-pinning an intricate mark can't converge —
-  `trace` on a thresholded logomark reproduces its strokes far better than manual anchors.
-- `map_coordinates` — transpose coordinates: `homography` (perspective rectification /
-  source→reference from >=4 pairs), `to_3d` (lift 2D onto a plane), `project` (3D→2D via
-  the SDK camera) — for perspective correction and 2D/3D spatial reconstruction.
+  `region` (k-means colour → filled polygons), `outline` (edges → polylines), `trace`
+  (potrace Bézier → SVG ingest; smooth outlines of a crisp bi-level mark), or `layers`
+  (solid-bg logo tracer: AA-aware palette + even-odd holes — highest fidelity for flat,
+  solid-background logos). `region_box` traces just a crop, placed 1:1 in the full image;
+  `ocr` adds text objects. Reach for this when hand-pinning an intricate mark can't
+  converge — `trace` on a thresholded logomark reproduces its strokes far better than
+  manual anchors; `layers` for a solid-background multi-colour logo.
+- `map_coordinates` — transpose coordinates: `homography` (fit + apply a projective map
+  to points, from >=4 pairs), `to_3d` (lift 2D onto a plane), `project` (3D→2D via the
+  SDK camera), or `warp` (apply the fitted homography to actually rectify/dewarp an
+  image — perspective correction, emits the corrected PNG).
 
 Reconstruction loop:
   measure_image (see the coordinate field) -> workspace open + pin the key points ->
   zoom/pan and nudge pins over passes to refine -> construct_vectors from the pins ->
-  compare_images(source, reconstruction) to see the residual -> nudge + rebuild until
-  it converges. Use map_coordinates when the source is perspective-distorted or 3D.
+  score_reconstruction (a number: how far the vectors sit from the edges) +
+  compare_images(source, reconstruction) (see the residual) -> nudge + rebuild until
+  on_edge_frac stops climbing. Use map_coordinates when the source is perspective-
+  distorted or 3D; vectorize_image when hand-pinning an intricate mark can't converge.
 
 Exactness (PALS's Law): the coordinate system, grid, rulers, explicit regions, pins,
 and structural landmarks (A1..A9) are exact geometry — trust them. DETECTED landmarks
@@ -146,6 +163,10 @@ Every tool writes artifacts under `framegraph://session/<id>/`: `document.yaml`,
 `page/<n>.svg`, `page/<n>.png`, `diagnostics.json` (the full result incl. the complete
 `spatial` payload), and `workspace.json` (persisted pins). Read `diagnostics.json` for
 the exact numbers behind any measurement; the tool response only summarizes them.
+Only `workspace.json` (pins) persists: every image tool resets `page/*.png`, so
+`page/1.png` holds the LAST tool's render. In a shared-session loop, pass a render's
+`page/1.png` URI to the next tool before the following call overwrites it, or score/compare
+under a distinct `session_id` to keep the reconstruction render viewable alongside.
 
 ## Workflow
 Author or propose -> read the returned validation issues + the rendered PNG (or the

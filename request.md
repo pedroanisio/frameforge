@@ -34,7 +34,9 @@ FrameGraph has one spine: **author → render → verify.**
 For turning a **raster into vectors** there is a second loop:
 
 > **measure** (get a coordinate grid) → **pin** anchors in a **workspace** → **nudge/refine**
-> over passes → **construct_vectors** → **compare_images** vs the source → repeat.
+> over passes → **construct_vectors** → **score_reconstruction** (a number: how far the
+> vectors sit from the source's edges) + **compare_images** (see the residual) → repeat
+> until the score stops climbing.
 
 If you name these outcomes, the agent maps them to the right tools automatically.
 
@@ -85,8 +87,9 @@ Each recipe is a request template you can copy, an example, and the tool it driv
 > *"Compare `<reference>` against `<candidate>` and show me where they differ."*
 
 - "Compare `ref/poster.png` with the page I just rendered; zoom the logo and the headline."
-  → `compare_images` (pass regions to zoom, or a grid). The pixel-match % is a *hint*;
-  judge the panels.
+  → `compare_images` (pass regions to zoom, or a grid). Each region reports real metrics
+  (NCC/RMSE/MAE/pct_diff); add "align it first" for `align=True` when a pure offset is
+  inflating the error. The scores are *hints*; judge the panels.
 
 ### 5. Measure coordinates on an image
 > *"Put a grid + rulers + coordinate system on `<image>` and give me the coordinates of `<regions>`."*
@@ -124,6 +127,12 @@ Always name the session so the agent reuses it.
   (`unit` = `norm` / `px` / `viewport`; `dx=-0.01, dy=-0.01`).
 - "Zoom the viewport 3× on the star tip and keep it centered." → `action=zoom` (fixed aim).
 - "Move the whole `outline` group down 5px." → `action=nudge select={group:outline} unit=px dy=5`.
+- "Snap P3 onto the nearest edge (radius 6)." → `action=snap snap_to=edge radius=6` (also
+  `bright`/`dark`/`centroid`) — pixel-accurate refinement instead of eyeballing.
+- "Rotate the `outline` group 4° and scale 1.02 about A9." → `action=transform` (fix
+  proportions / perspective on a whole group at once).
+- "Checkpoint, try the nudge, then revert if it got worse." → `action=checkpoint` /
+  `action=revert` — safe multi-pass experimentation (pair with `score_reconstruction`).
 - Pins are image-anchored, so their coordinates hold as you pan/zoom (coordinate continuity).
 
 ### 9. Construct vectors from anchors
@@ -135,12 +144,20 @@ Always name the session so the agent reuses it.
 - Shape kinds: `line`, `path`/`trace`, `curve`, `spline`, `triangle`, `polygon`, `closed`,
   `rect`, `ellipse`, `circle`, `star`.
 - Close the loop: *"then compare the reconstruction against `ref/logo.png` and tell me the residual."*
+- Numeric convergence: *"score the reconstruction against the source"* → `score_reconstruction`
+  reports `on_edge_frac` + mean/median distance from the source's edges. Drive it up across passes.
+- **Intricate mark? Don't hand-pin — auto-trace it.** *"Vectorize the emblem crop with potrace"*
+  → `vectorize_image mode=trace region_box=[…]` (crisp mark on a busy/gradient ground); or
+  `mode=layers` for a flat, solid-background multi-colour logo (AA-aware, even-odd holes).
+  Then `compare_images` to verify.
 
 ### 10. 2D / 3D mapping
 > *"Map these coordinates: `<mode>`."*
 
-- Perspective correction: "Fit a homography from these 4 corner pairs and map the rest." →
-  `map_coordinates mode=homography`.
+- Perspective correction (points): "Fit a homography from these 4 corner pairs and map the rest."
+  → `map_coordinates mode=homography`.
+- Dewarp the whole image: "Rectify `photo.png` from these 4 corner pairs to a 600×400 canvas."
+  → `mode=warp` (emits the corrected PNG).
 - Lift to 3D: "Put these 2D points on the z=0 plane." → `mode=to_3d`.
 - Project 3D→2D: "Project these 3D points through a camera at eye [0,0,5]." → `mode=project`.
 
@@ -157,24 +174,28 @@ Always name the session so the agent reuses it.
 
 Paste something like this and let the agent run the loop:
 
-> "I want to reconstruct `ref/logo.png` as clean FrameGraph vectors.
-> 1. Measure it (grid + rulers, top-left origin) and show me the coordinate overlay.
-> 2. Open a workspace (session `logo`) and pin the key corners and curve endpoints.
-> 3. Zoom into each corner and nudge the pins until they sit exactly on the artwork.
-> 4. Construct the shapes from the pins (outline as a closed region, mark as a triangle).
-> 5. Compare the reconstruction against the source and show me the diff.
-> 6. Refine the worst-off pins and rebuild until it's within ~2px.
-> Verify every step against the rendered PNG."
-
+```txt
+I want to reconstruct `ref/logo.png` as clean FrameGraph vectors.
+1. Measure it (grid + rulers, top-left origin) and show me the coordinate overlay.
+2. Open a workspace (session `logo`) and pin the key corners and curve endpoints.
+3. Zoom into each corner and nudge the pins until they sit exactly on the artwork.
+4. Construct the shapes from the pins (outline as a closed region, mark as a triangle).
+5. Compare the reconstruction against the source and show me the diff.
+6. Refine the worst-off pins and rebuild until it's within ~2px.
+Verify every step against the rendered PNG.
+```
 The agent will chain `measure_image → workspace(open/pin) → workspace(zoom/nudge) →
-construct_vectors → compare_images → workspace(nudge) → construct_vectors`, keeping all
+construct_vectors → score_reconstruction + compare_images → workspace(nudge) →
+construct_vectors`, keeping all
 pins in the `logo` session, and stop when the compare panels look right.
 
 ---
 
 ## Phrasing tips that get better results
 
-- **Name a `session_id`** for anything iterative ("session `logo`") so pins/renders are reused.
+- **Name a `session_id`** for anything iterative ("session `logo`") so **pins** persist; each
+  image tool re-renders `page/1.png` fresh (a prior render in the same session is replaced),
+  so use a distinct `session_id` when a render must be kept for a later comparison.
 - **Ask for the numbers**: "return the spatial JSON" or "read `diagnostics.json`" when you need
   exact coordinates, not just the picture.
 - **Iterate in small deltas**: "nudge P3 left 0.01 and re-render" beats "make it better".
