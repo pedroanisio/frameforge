@@ -340,6 +340,15 @@ def test_builder_symbols_components_and_handle_kind_checks():
     )
     doc = builder.build()
     assert [obj.type for obj in doc.pages[0].layers[0].objects] == ["group", "group"]
+    # Component children are LOCAL to the group box (origin 0,0), like symbol
+    # expansion: a group carrying a box is translated to that box origin by the
+    # renderer, so absolute children here would be offset twice.
+    comp = doc.pages[0].layers[0].objects[1]
+    assert comp.box == [0, 24, 80, 40]
+    assert comp.children[0].type == "rect"
+    assert comp.children[0].box == [0, 0, 80, 40]
+    assert comp.children[1].type == "text"
+    assert comp.children[1].box[:2] == [4, 4]
 
     color = builder.define_color("brand", "#c00")
     with pytest.raises(TypeError):

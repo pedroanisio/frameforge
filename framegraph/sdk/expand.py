@@ -188,10 +188,14 @@ def _expand_component(obj: dict[str, Any], components: dict[str, Any]) -> dict[s
         merged.update(variant)
     merged.update({k: v for k, v in obj.items() if k not in {"type", "component", "variant", "title", "body"}})
     x, y, w, h = [float(v) for v in box[:4]]
+    # Children are LOCAL to the group's box (origin 0,0), mirroring _expand_use:
+    # the renderer translates a box-carrying group to its box origin, so
+    # absolute children here would be offset twice.
+    local_box = [0.0, 0.0, w, h]
     radius = merged.get("radius")
     rect: dict[str, Any] = {
         "type": "rect",
-        "box": [x, y, w, h],
+        "box": list(local_box),
         "fill": merged.get("fill", "#fff"),
         "stroke": merged.get("stroke", "#bbb"),
     }
@@ -211,7 +215,7 @@ def _expand_component(obj: dict[str, Any], components: dict[str, Any]) -> dict[s
         slot_layout = {**fallback, **slot_layout}
         text_obj: dict[str, Any] = {
             "type": "text",
-            "box": _slot_box([x, y, w, h], slot_layout.get("box_offset")),
+            "box": _slot_box(local_box, slot_layout.get("box_offset")),
             "text": str(value),
         }
         if slot_layout.get("style"):
