@@ -25,3 +25,5 @@ static/examples/saas_hero_headers.fg.yaml
 static/examples/saas_hero_headers.pdf
 *egg-info*
 site/
+# generated render/build output (examples, tours, brand masters)
+_tmp/

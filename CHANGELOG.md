@@ -4,6 +4,58 @@
 
 ---
 
+## Unreleased — design-canon SDK modules (2026-07-02)
+
+Two pure-helper modules codify working design rules for document authors
+(human or agent), sourced from Chevreul (1839) and Johnston (1906); no schema
+change. Surfaced in the SDK guide/API snapshots, the capability manifest, and
+the MCP guide's module catalog.
+
+- `framegraph.sdk.chevreul` — the 12-station painter's wheel + `complement`,
+  Chevreul tone scales, the six harmonies, WCAG 2.1 `relative_luminance` /
+  `contrast_ratio` (the numeric primitives for text-on-ground legibility and
+  the #44 diagnostics work), `grey_document` (the tone audit), and
+  `closed_palette` with duties + the 62/30/8 area guide emitting a
+  `defs.tokens.colors` fragment.
+- `framegraph.sdk.canon` — `modular_scale`, Johnston's margin canon
+  (`johnston_margins` / recto-verso `content_box`), the 45–75 measure band,
+  `caps_tracking`.
+- **Canonical fixtures** `tests/fixtures/chevreul-harmonies.fg.yaml` and
+  `canon-typography.fg.yaml` — generated from the modules' own output, so a
+  regression in either module shows up as a fixture diff.
+- **Renderer bugfix (render change)**: `reading_order` no longer reorders SVG
+  emission. The old path hoisted listed objects to the *front* of the paint
+  stack, so any unlisted background painted over every listed text (found by
+  rasterizing the new fixtures). Paint order is now always layer/z/document
+  order; the authored order rides on the page group as `data-reading-order`
+  for a future tagged export. Pages using `reading_order` with overlapping
+  content render differently (correctly) from 2.3.x snapshots; the b1 golden
+  corpus is unaffected (no `reading_order` usage).
+
+## Unreleased — dockerized MCP for foreign codebases (2026-07-02)
+
+The container contract now lets any codebase fully interact with the SDK and
+MCP surface (2026-07-02 audit findings: stale image, invisible host paths,
+ephemeral SDK clients). Gated by `tests/test_docker_contract.py` and
+`tests/test_mcp_edit_roots.py`.
+
+- **Edit roots may leave the repo** (behavior change): explicitly configured
+  absolute `FRAMEGRAPH_MCP_EDIT_ROOTS` entries are honored literally — the
+  image sets `/work/clients:/app/static/examples`, so `write_sdk_client` with
+  a **bare filename** creates on the persistent volume and survives `--rm`.
+  Bare names are searched across roots (a miss is now `FileNotFoundError`,
+  not a confinement error); relative paths *with* directories keep the strict
+  repo-relative rejection. Out-of-repo paths are reported absolute.
+- **Foreign-codebase wiring** (`docker/mcp.docker.json`): the consuming
+  project mounts read-only at `/workspace` (tool calls reference
+  `/workspace/<path>`), with `FRAMEGRAPH_MCP_INPUT_ROOTS=/workspace:/work:/app`
+  confining propose inputs.
+- **Freshness is detectable**: a `version` entrypoint verb (package +
+  `HEAD_VERSION` + build stamp), an OCI version label wired by
+  `make docker-build`, and `PYTHONPATH=/app/src:/app/docs` fixing the
+  post-refactor in-image imports.
+- **Installable consumption skill**: `skills/framegraph-mcp-docker/SKILL.md`.
+
 ## Unreleased — src-layout folder refactor (2026-07-02, complete)
 
 Repository reorganisation; rendered output verified byte-identical (the golden
