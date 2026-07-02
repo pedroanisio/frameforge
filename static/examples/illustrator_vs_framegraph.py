@@ -225,9 +225,15 @@ def row(p, y, i, fid, feat, ai, ordn, cov, fg):
     if ordn:
         p.text([FE_X, y + ROWH - 22, FE_W, 10], f"[{ordn}]", style="ord")
     glyph(p, GL_X + 8, y + 14, cov, r=8, ground=("band" if i % 2 == 1 else "bg"))
-    # confidence shown on EVERY non-HAS row (·H / ·M / ·L); gap-type under NONE.
+    # label carries confidence on every non-HAS row, plus the equivalence
+    # dimension (F/W/D) on the PARTIAL & REFRAMED verdicts; gap-type under NONE.
     m = row_meta(fid, cov)
-    lbl = COVLBL[cov] + ("" if cov == "has" else " ·" + m["confidence"])
+    if cov == "has":
+        lbl = COVLBL[cov]
+    elif cov in ("part", "invert"):
+        lbl = f"{COVLBL[cov]} ·{m['confidence']} ·{m['dimension']}"
+    else:  # none
+        lbl = f"{COVLBL[cov]} ·{m['confidence']}"
     p.text([CV_X, y + 28, CV_W + 44, 10], lbl, style="covlbl", color=COVCOL[cov])
     if cov == "none" and m["gap_type"]:
         chip = {"non_goal": "non-goal", "arch": "architectural", "maturity": "maturity"}[m["gap_type"]]
@@ -458,9 +464,9 @@ META = {
     "AI-44": {"conf": "L", "dim": "W", "why": "Deterministic token/gradient_map recolor with NO natural-language prompt interpretation — not generative-AI recolor."},
     "AI-45": {"conf": "H", "dim": "F", "gap": "arch", "why": "list_fonts resolves families; no visual font ID."},
     "AI-46": {"conf": "H", "dim": "F", "gap": "non_goal", "why": "No surface-wrap of art onto an object."},
-    "AI-47": {"conf": "H", "dim": "F", "gap": "arch", "why": "No offset-path geometry operation."},
-    "AI-48": {"conf": "H", "dim": "F", "gap": "arch", "why": "No stroke→outline conversion; stroke stays a stroke."},
-    "AI-49": {"conf": "H", "dim": "F", "gap": "arch", "why": "No brush engine; hatch_fill/pattern are static fills, not path brushes."},
+    "AI-47": {"conf": "H", "dim": "F", "gap": "maturity", "why": "No offset-path op — a deterministic geometry the model could express; unbuilt."},
+    "AI-48": {"conf": "H", "dim": "F", "gap": "maturity", "why": "No stroke→outline conversion — derivable geometry, not paradigm-precluded; unbuilt."},
+    "AI-49": {"conf": "H", "dim": "F", "gap": "maturity", "why": "No brush engine — a brush-along-path is declarable in principle; unbuilt (hatch/pattern are the nearest static fills)."},
     "AI-50": {"conf": "M", "dim": "W", "why": "Coordinates are exact by construction; a grid_pattern draws lines, but there is no interactive guide/snap UI."},
     "AI-51": {"conf": "M", "dim": "W", "why": "Both plot data as charts; FG charts are declarative & data-bound, IL graphs are static objects you restyle."},
 }
@@ -512,18 +518,45 @@ def manifest_identity():
     }
 
 
+def source_identity():
+    """Source-code version: the frameforge git commit that built this document.
+    A dirty flag marks a render from uncommitted code so the stamp cannot lie."""
+    import subprocess
+
+    def g(*args):
+        try:
+            return subprocess.run(["git", "-C", ROOT, *args],
+                                  capture_output=True, text=True).stdout.strip()
+        except OSError:
+            return ""
+    sha = g("rev-parse", "HEAD")
+    return {
+        "repo": "frameforge",
+        "git_commit": sha or "unknown",
+        "git_short": (sha[:10] or "unknown"),
+        "git_branch": g("rev-parse", "--abbrev-ref", "HEAD") or "?",
+        "git_dirty": bool(g("status", "--porcelain")),
+        "builder": "static/examples/illustrator_vs_framegraph.py",
+    }
+
+
+def corpus_identity():
+    """External-corpus version: the exact doc-ray documents the claims cite."""
+    return [{"src": k, "title": v["title"], "document_id": v["doc_id"],
+             "pages": v.get("pages"), "sentences": v.get("sentences")}
+            for k, v in sorted(SOURCES.items())]
+
+
 def gap_split():
-    """Split the NONE tally into declared non-goals vs true (architectural) gaps."""
-    non_goal = real = 0
+    """Three-way split of the NONE tally: non-goal (scope), architectural
+    (paradigm precludes it), maturity (declarable in principle, unbuilt)."""
+    from collections import Counter
+    c = Counter()
     for _, _, rows in GROUPS:
         for r in rows:
-            if r[4] != "none":
-                continue
-            if row_meta(r[0], r[4])["gap_type"] == "non_goal":
-                non_goal += 1
-            else:
-                real += 1
-    return non_goal, real
+            if r[4] == "none":
+                c[row_meta(r[0], r[4])["gap_type"] or "arch"] += 1
+    return c["non_goal"], c["arch"], c["maturity"]
 
 
 def _manifest_names():
@@ -577,11 +610,12 @@ def category_subtotals():
 def score_block():
     t = coverage_tally()
     total = sum(t.values())
-    ng, real = gap_split()
+    ng, arch, mat = gap_split()
     return {
         "total_features": total,
         "counts": {k: t[k] for k in ("has", "part", "invert", "none")},
-        "gap_breakdown": {"declared_non_goal": ng, "true_gap": real},
+        "gap_breakdown": {"declared_non_goal": ng, "architectural": arch,
+                          "maturity_unbuilt": mat, "true_gap": arch + mat},
         "scores": {
             "full_equivalent_pct": round(100 * t["has"] / total, 1),
             "full_or_partial_pct": round(100 * (t["has"] + t["part"]) / total, 1),
@@ -652,15 +686,14 @@ def build():
     # -- 2. METHOD + COVERAGE SUMMARY ------------------------------------ #
     p = page(b, "summary", tab="METHOD · SCORECARD")
     y = head(p, 74, "// how this was measured", "Method & scorecard")
-    p.text([M, y, CW, 82],
-           "Illustrator's surface was enumerated from three manuals — the 2024 User's "
-           f"Guide, the 2025 book, and BMG 106 (257 pp) — and reduced to {total} discrete "
-           "capabilities, each checked against FrameGraph's capability manifest. Evidence "
-           "cites SRC·ORDINAL (24 / 25 / 26 = the source book). This is a feature-surface "
-           "comparison, not a maturity benchmark: FrameGraph is a PROPOSED format with no "
-           "conformant renderer (full rubric on p.03).", style="lead")
+    p.text([M, y, 452, 116],
+           "Illustrator's surface was enumerated from three manuals (2024 User's Guide, "
+           f"2025 book, BMG 106) and reduced to {total} discrete capabilities, each checked "
+           "against FrameGraph's capability manifest. Evidence cites SRC·ORDINAL. This is a "
+           "feature-surface comparison, not a maturity benchmark: FrameGraph is a PROPOSED "
+           "format with no conformant renderer.", style="lead")
     # stacked coverage bar
-    by = y + 96
+    by = y + 128
     p.text([M, by, CW, 10], "COVERAGE ACROSS " + str(total) + " FEATURES", style="colhd")
     bar_y, bar_h = by + 18, 34
     order = [("has", "fg"), ("part", "part"), ("invert", "invert"), ("none", "none")]
@@ -694,13 +727,13 @@ def build():
         p.rect([cx, sy, cwc, 3], fill="fg")
         p.text([cx, sy + 20, cwc, 30], num, style="big")
         p.text([cx, sy + 58, cwc, 10], lbl, style="biglbl")
-    # explicit score math + gap split + pointer to the machine-readable audit
-    ng, real = gap_split()
+    # explicit score math + coverage/reachability + 3-way gap split + audit pointer
+    ng, arch, mat = gap_split()
+    anyroute = round(100 * (tally["has"] + tally["part"] + tally["invert"]) / total)
     p.text([M, sy + 90, CW, 10],
-           f"{has_pct}% = {tally['has']}/{total} full   ·   {somepct}% = "
-           f"({tally['has']}+{tally['part']})/{total} full-or-partial (REFRAMED & NONE "
-           f"excluded)   ·   {tally['none']} NONE = {real} architectural + {ng} declared "
-           f"non-goals   ·   score math & audit identity → p.03",
+           f"coverage {somepct}% = (HAS+PARTIAL)/{total}   ·   reachability {anyroute}% "
+           f"= +REFRAMED   ·   {tally['none']} NONE = {arch} architectural + {mat} maturity "
+           f"+ {ng} non-goal   ·   unweighted (subtotals are descriptive) → p.03",
            style="cite", color="faint", align="start")
     # what the glyphs mean, restated as a table
     gy = sy + 122
@@ -791,26 +824,28 @@ def build():
     p.text([M + colw + 20, by2, colw, 10], "AUDIT IDENTITY", style="colhd")
     p.rect([M, by2 + 14, colw, 1], fill="hair")
     p.rect([M + colw + 20, by2 + 14, colw, 1], fill="hair")
-    p.text([M, by2 + 24, colw, 40],
-           "[24] Adobe Illustrator 2024 User's Guide — 231 pp, 2,283 sentences.",
-           style="legdesc")
-    p.text([M, by2 + 60, colw, 40],
-           "[25] Master Adobe Illustrator 2025 — Dana J. Bailey, 159 pp. [26] BMG 106: "
-           "Computer Graphics II — Adobe Illustrator, Y.C.M.O.U., 257 pp, 3,340 sentences.",
-           style="legdesc")
-    p.text([M, by2 + 96, colw, 12],
-           "Each [SRC·ORDINAL] round-trips via searchSentences().",
-           style="cite", color="faint", align="start")
+    # each source rendered from corpus_identity() with full pp + sentences + doc-id
+    short = {"24": "Adobe Illustrator 2024 User's Guide",
+             "25": "Master Adobe Illustrator 2025",
+             "26": "BMG 106: Computer Graphics II"}
+    for i, s in enumerate(corpus_identity()):
+        p.text([M, by2 + 24 + i * 24, colw, 12],
+               f"[{s['src']}] {short[s['src']]}", style="legdesc")
+        p.text([M + 14, by2 + 38 + i * 24, colw - 14, 12],
+               f"{s['pages']} pp · {s['sentences']:,} sentences · doc {s['document_id'][:8]}…",
+               style="cite", color="faint", align="start")
     ident = manifest_identity()
-    idlines = [("FrameGraph", "v" + ident["framegraph_version"]),
-               ("Manifest", ident["manifest_path"]),
-               ("Capabilities", str(ident["manifest_capabilities"])),
-               ("Manifest sha256", ident["manifest_sha256"][:24] + "…"),
-               ("Full audit", "illustrator_vs_framegraph.audit.json"),
-               ("Gate", "tests/test_capability_manifest.py")]
+    src = source_identity()
+    idlines = [("FrameGraph", f"v{ident['framegraph_version']} · {ident['manifest_capabilities']} caps"),
+               ("Manifest sha256", ident["manifest_sha256"][:20] + "…"),
+               ("Source code", f"frameforge @{src['git_short']}"
+                + (" (dirty)" if src["git_dirty"] else "")),
+               ("Corpus", "[24][25][26] doc-ray · IDs at left"),
+               ("Full audit", "…_vs_framegraph.audit.json"),
+               ("Gate", "test_capability_manifest.py")]
     for i, (k, v) in enumerate(idlines):
-        p.text([M + colw + 20, by2 + 24 + i * 18, 120, 12], k, style="legdesc")
-        p.text([M + colw + 130, by2 + 24 + i * 18, colw - 130, 12], v,
+        p.text([M + colw + 20, by2 + 24 + i * 20, 120, 12], k, style="legdesc")
+        p.text([M + colw + 128, by2 + 24 + i * 20, colw - 128, 12], v,
                style="cite", color="sub", align="start")
     # trademark / independence
     ty2 = by2 + 150
@@ -851,7 +886,7 @@ def build():
     p = page(b, "examples", tab="EVIDENCE · WORKED EXAMPLES")
     y = head(p, 74, "// show, don't assert",
              "Every verdict, in source")
-    p.text([M, y, CW, 40],
+    p.text([M, y, 452, 56],
            "So the verdicts are not just labels: here is the same intent, as an "
            "Illustrator gesture on the left and as the FrameGraph source the SDK emits "
            "on the right.", style="lead")
@@ -877,7 +912,7 @@ def build():
          "# no mesh primitive in the model —\n# nearest: a linear/radial "
          "gradient,\n# which cannot vary in two axes."),
     ]
-    ey = y + 60
+    ey = y + 78
     boxw = CW
     for tag, cov, title, ai_do, fg_code in ex:
         p.rect([M, ey, boxw, 118], fill="band")
@@ -900,7 +935,7 @@ def build():
     p = page(b, "reverse", tab="THE OTHER DIRECTION")
     y = head(p, 74, "// the comparison runs both ways",
              "What FrameGraph has that Illustrator lacks")
-    p.text([M, y, CW, 76],
+    p.text([M, y, 452, 96],
            "A comparison that only lists an editor's features would be rigged. These are "
            "manifest capabilities a vector editor has no NATIVE, declarative answer for — "
            "the price Illustrator pays for being a canvas, not a document engine. "
@@ -929,7 +964,7 @@ def build():
          "25 MCP tools: an AI author→render→verify loop. The document is built and "
          "checked by code, end to end."),
     ]
-    ry = y + 92
+    ry = y + 112
     for i, (name, desc) in enumerate(rev):
         if i % 2 == 1:
             p.rect([M - 6, ry - 6, CW + 12, 58], fill="band")
@@ -943,7 +978,7 @@ def build():
     # -- FINAL. VERDICT + PROVENANCE ------------------------------------- #
     p = page(b, "verdict", tab="VERDICT")
     y = head(p, 74, "// what the tally means", "Two machines, one honest score")
-    p.text([M, y, CW, 120],
+    p.text([M, y, 452, 148],
            f"Across {total} Illustrator capabilities from three manuals, FrameGraph has a "
            f"full equivalent for {tally['has']} and a partial one for {tally['part']}. The "
            f"{tally['none']} genuine gaps cluster where Illustrator is a painting instrument "
@@ -954,7 +989,7 @@ def build():
            f"naming, a tool call, and an author→render loop, not a cursor.",
            style="lead")
     # the split thesis
-    ty = y + 136
+    ty = y + 164
     p.rect([M, ty, CW, 150], fill="ink")
     p.text([M + 26, ty + 26, CW - 52, 34], "Illustrator is a hand.",
            style="h2", color="bg")
@@ -981,14 +1016,26 @@ def build():
     p.rect([M, py + 16, CW, 1], fill="hair")
     p.text([M, py + 26, CW, 90],
            "Illustrator features mined from THREE doc-ray corpus sources over GraphQL: "
-           "[24] “Adobe Illustrator 2024 User's Guide” (231 pp, 2,283 sentences) and "
-           "[25] “Master Adobe Illustrator 2025” (Dana J. Bailey, 159 pp). Each "
-           "SRC·ORDINAL round-trips via searchSentences(documentId, term). FrameGraph "
-           "coverage quotes docs/capability-manifest.json (278 capabilities, tri-state "
-           "core/SDK/MCP), gated by tests/test_capability_manifest.py.", style="legdesc")
-    p.text([M, py + 116, CW, 12],
-           "Composed by Claude (Fable 5), 2026 · a declarative teardown of a "
-           "declarative format.", style="legdesc", color="faint")
+           "[24] Adobe Illustrator 2024 User's Guide (231 pp), [25] Master Adobe "
+           "Illustrator 2025 (Dana J. Bailey, 159 pp), and [26] BMG 106: Computer "
+           "Graphics II (257 pp). Each SRC·ORDINAL round-trips via searchSentences(). "
+           "FrameGraph coverage quotes docs/capability-manifest.json (278 capabilities, "
+           "tri-state core/SDK/MCP), gated by tests/test_capability_manifest.py.",
+           style="legdesc")
+    # version stamp — the artifact is pinned to the code + corpus that built it
+    _src = source_identity()
+    _mid = manifest_identity()
+    p.rect([M, py + 108, CW, 1], fill="hair")
+    p.text([M, py + 120, CW, 12],
+           f"VERSION · code frameforge@{_src['git_short']}"
+           + ("+dirty" if _src["git_dirty"] else "")
+           + f" · manifest {_mid['manifest_sha256'][:12]} (v{_mid['framegraph_version']})"
+           + " · corpus doc-ray [24 586533f6][25 56d6727a][26 649e47a5]"
+           + f" · built {datetime.date.today().isoformat()}",
+           style="cite", color="faint", align="start")
+    p.text([M, py + 138, CW, 12],
+           "Composed by Claude (Fable 5) · a declarative teardown of a declarative format.",
+           style="legdesc", color="faint")
 
     return b.build()
 
@@ -1014,6 +1061,14 @@ def main() -> int:
     audit = {
         "artifact": "illustrator_vs_framegraph capability teardown",
         "generated_at": datetime.date.today().isoformat(),
+        # Version identity — this artifact is pinned to the code that built it and
+        # the exact external corpus documents its claims cite.
+        "version": {
+            "generated_at": datetime.date.today().isoformat(),
+            "source_code": source_identity(),
+            "framegraph_manifest": manifest_identity(),
+            "external_corpus": corpus_identity(),
+        },
         "framegraph": manifest_identity(),
         "sources": SOURCES,
         "rubric": {
@@ -1032,11 +1087,15 @@ def main() -> int:
     with open(audit_path, "w", encoding="utf-8") as fh:
         json.dump(audit, fh, indent=2, ensure_ascii=False)
     sb = audit["score"]
-    print(f"wrote {audit_path}  ({len(audit['features'])} rows, "
-          f"manifest {audit['framegraph']['manifest_sha256'][:12]}…, "
-          f"full={sb['scores']['full_equivalent_pct']}% "
-          f"gaps={sb['gap_breakdown']['true_gap']} true / "
-          f"{sb['gap_breakdown']['declared_non_goal']} non-goal)")
+    vc = audit["version"]["source_code"]
+    print(f"wrote {audit_path}  ({len(audit['features'])} rows · "
+          f"code frameforge@{vc['git_short']}{'+dirty' if vc['git_dirty'] else ''} · "
+          f"manifest {audit['framegraph']['manifest_sha256'][:12]} · "
+          f"corpus {len(audit['version']['external_corpus'])} docs · "
+          f"full={sb['scores']['full_equivalent_pct']}% · "
+          f"gaps {sb['gap_breakdown']['architectural']}arch+"
+          f"{sb['gap_breakdown']['maturity_unbuilt']}mat+"
+          f"{sb['gap_breakdown']['declared_non_goal']}non-goal)")
     return 0
 
 

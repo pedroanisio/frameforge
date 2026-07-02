@@ -527,19 +527,18 @@ pages:
     - box:
       - 56
       - 154
-      - 682
-      - 82
+      - 452
+      - 116
       style: lead
       type: text
-      text: 'Illustrator''s surface was enumerated from three manuals — the 2024 User''s
-        Guide, the 2025 book, and BMG 106 (257 pp) — and reduced to 51 discrete capabilities,
-        each checked against FrameGraph''s capability manifest. Evidence cites SRC·ORDINAL
-        (24 / 25 / 26 = the source book). This is a feature-surface comparison, not
-        a maturity benchmark: FrameGraph is a PROPOSED format with no conformant renderer
-        (full rubric on p.03).'
+      text: 'Illustrator''s surface was enumerated from three manuals (2024 User''s
+        Guide, 2025 book, BMG 106) and reduced to 51 discrete capabilities, each checked
+        against FrameGraph''s capability manifest. Evidence cites SRC·ORDINAL. This
+        is a feature-surface comparison, not a maturity benchmark: FrameGraph is a
+        PROPOSED format with no conformant renderer.'
     - box:
       - 56
-      - 250
+      - 282
       - 682
       - 10
       style: colhd
@@ -547,14 +546,14 @@ pages:
       text: COVERAGE ACROSS 51 FEATURES
     - box:
       - 56
-      - 268
+      - 300
       - 187.2156862745098
       - 34
       type: rect
       fill: fg
     - box:
       - 62
-      - 279
+      - 311
       - 179.2156862745098
       - 12
       style:
@@ -565,14 +564,14 @@ pages:
       text: '14'
     - box:
       - 243.2156862745098
-      - 268
+      - 300
       - 227.33333333333334
       - 34
       type: rect
       fill: part
     - box:
       - 249.2156862745098
-      - 279
+      - 311
       - 219.33333333333334
       - 12
       style:
@@ -583,14 +582,14 @@ pages:
       text: '17'
     - box:
       - 470.54901960784315
-      - 268
+      - 300
       - 53.490196078431374
       - 34
       type: rect
       fill: invert
     - box:
       - 476.54901960784315
-      - 279
+      - 311
       - 45.490196078431374
       - 12
       style:
@@ -601,14 +600,14 @@ pages:
       text: '4'
     - box:
       - 524.0392156862745
-      - 268
+      - 300
       - 213.9607843137255
       - 34
       type: rect
       fill: none
     - box:
       - 530.0392156862745
-      - 279
+      - 311
       - 205.9607843137255
       - 12
       style:
@@ -619,14 +618,14 @@ pages:
       text: '16'
     - box:
       - 56
-      - 316
+      - 348
       - 12
       - 12
       type: rect
       fill: fg
     - box:
       - 74
-      - 316
+      - 348
       - 120
       - 12
       style:
@@ -636,14 +635,14 @@ pages:
       text: HAS · 14
     - box:
       - 206
-      - 316
+      - 348
       - 12
       - 12
       type: rect
       fill: part
     - box:
       - 224
-      - 316
+      - 348
       - 120
       - 12
       style:
@@ -653,14 +652,14 @@ pages:
       text: PARTIAL · 17
     - box:
       - 356
-      - 316
+      - 348
       - 12
       - 12
       type: rect
       fill: invert
     - box:
       - 374
-      - 316
+      - 348
       - 120
       - 12
       style:
@@ -670,14 +669,14 @@ pages:
       text: REFRAMED · 4
     - box:
       - 506
-      - 316
+      - 348
       - 12
       - 12
       type: rect
       fill: none
     - box:
       - 524
-      - 316
+      - 348
       - 120
       - 12
       style:
@@ -687,21 +686,21 @@ pages:
       text: NONE · 16
     - box:
       - 56.0
-      - 362
+      - 394
       - 160.0
       - 78
       type: rect
       fill: band
     - box:
       - 56.0
-      - 362
+      - 394
       - 160.0
       - 3
       type: rect
       fill: fg
     - box:
       - 56.0
-      - 382
+      - 414
       - 160.0
       - 30
       style: big
@@ -709,7 +708,7 @@ pages:
       text: '51'
     - box:
       - 56.0
-      - 420
+      - 452
       - 160.0
       - 10
       style: biglbl
@@ -717,21 +716,21 @@ pages:
       text: FEATURES TORN DOWN
     - box:
       - 230.0
-      - 362
+      - 394
       - 160.0
       - 78
       type: rect
       fill: band
     - box:
       - 230.0
-      - 362
+      - 394
       - 160.0
       - 3
       type: rect
       fill: fg
     - box:
       - 230.0
-      - 382
+      - 414
       - 160.0
       - 30
       style: big
@@ -739,7 +738,7 @@ pages:
       text: 27%
     - box:
       - 230.0
-      - 420
+      - 452
       - 160.0
       - 10
       style: biglbl
@@ -747,21 +746,21 @@ pages:
       text: FULL EQUIVALENT
     - box:
       - 404.0
-      - 362
+      - 394
       - 160.0
       - 78
       type: rect
       fill: band
     - box:
       - 404.0
-      - 362
+      - 394
       - 160.0
       - 3
       type: rect
       fill: fg
     - box:
       - 404.0
-      - 382
+      - 414
       - 160.0
       - 30
       style: big
@@ -769,7 +768,7 @@ pages:
       text: 61%
     - box:
       - 404.0
-      - 420
+      - 452
       - 160.0
       - 10
       style: biglbl
@@ -777,21 +776,21 @@ pages:
       text: FULL OR PARTIAL
     - box:
       - 578.0
-      - 362
+      - 394
       - 160.0
       - 78
       type: rect
       fill: band
     - box:
       - 578.0
-      - 362
+      - 394
       - 160.0
       - 3
       type: rect
       fill: fg
     - box:
       - 578.0
-      - 382
+      - 414
       - 160.0
       - 30
       style: big
@@ -799,7 +798,7 @@ pages:
       text: '16'
     - box:
       - 578.0
-      - 420
+      - 452
       - 160.0
       - 10
       style: biglbl
@@ -807,7 +806,7 @@ pages:
       text: GENUINE GAPS
     - box:
       - 56
-      - 452
+      - 484
       - 682
       - 10
       style:
@@ -815,12 +814,12 @@ pages:
         align: start
         color: faint
       type: text
-      text: 27% = 14/51 full   ·   61% = (14+17)/51 full-or-partial (REFRAMED & NONE
-        excluded)   ·   16 NONE = 10 architectural + 6 declared non-goals   ·   score
-        math & audit identity → p.03
+      text: coverage 61% = (HAS+PARTIAL)/51   ·   reachability 69% = +REFRAMED   ·   16
+        NONE = 7 architectural + 3 maturity + 6 non-goal   ·   unweighted (subtotals
+        are descriptive) → p.03
     - box:
       - 56
-      - 484
+      - 516
       - 682
       - 10
       style: colhd
@@ -828,14 +827,14 @@ pages:
       text: READING A ROW
     - box:
       - 56
-      - 500
+      - 532
       - 682
       - 1
       type: rect
       fill: hair
     - box:
       - 56
-      - 512
+      - 544
       - 90
       - 12
       style: gid
@@ -843,7 +842,7 @@ pages:
       text: AI-nn
     - box:
       - 166
-      - 512
+      - 544
       - 572
       - 12
       style: legdesc
@@ -851,7 +850,7 @@ pages:
       text: monospace feature id (chapter-ordered)
     - box:
       - 56
-      - 534
+      - 566
       - 90
       - 12
       style: feat
@@ -859,7 +858,7 @@ pages:
       text: Feature
     - box:
       - 166
-      - 534
+      - 566
       - 572
       - 12
       style: legdesc
@@ -867,7 +866,7 @@ pages:
       text: the Illustrator capability, named
     - box:
       - 56
-      - 556
+      - 588
       - 90
       - 12
       style: ord
@@ -875,7 +874,7 @@ pages:
       text: '[26·405]'
     - box:
       - 166
-      - 556
+      - 588
       - 572
       - 12
       style: legdesc
@@ -883,7 +882,7 @@ pages:
       text: source book (24 / 25 / 26) · sentence ordinal — round-trips
     - box:
       - 56
-      - 578
+      - 610
       - 90
       - 12
       style: covlbl
@@ -891,7 +890,7 @@ pages:
       text: ● HAS
     - box:
       - 166
-      - 578
+      - 610
       - 572
       - 12
       style: legdesc
@@ -899,7 +898,7 @@ pages:
       text: FrameGraph verdict glyph + label
     - box:
       - 56
-      - 600
+      - 632
       - 90
       - 12
       style: fgev
@@ -907,7 +906,7 @@ pages:
       text: evidence
     - box:
       - 166
-      - 600
+      - 632
       - 572
       - 12
       style: legdesc
@@ -915,7 +914,7 @@ pages:
       text: the FrameGraph capability that backs the verdict
     - box:
       - 56
-      - 644
+      - 676
       - 682
       - 120
       type: rect
@@ -923,18 +922,18 @@ pages:
     - type: polyline
       points:
       - - 78.0
-        - 660.0
+        - 692.0
       - - 86.0
-        - 668.0
+        - 700.0
       - - 78.0
-        - 676.0
+        - 708.0
       - - 70.0
-        - 668.0
+        - 700.0
       closed: true
       fill: invert
     - box:
       - 100
-      - 662
+      - 694
       - 622
       - 12
       style: grouphd
@@ -942,7 +941,7 @@ pages:
       text: WHAT “REFRAMED” MEANS
     - box:
       - 100
-      - 684
+      - 716
       - 594
       - 30
       style: legdesc
@@ -952,7 +951,7 @@ pages:
         it is the same end down the opposite (declarative) road.
     - box:
       - 100
-      - 728
+      - 760
       - 594
       - 12
       style:
@@ -964,7 +963,7 @@ pages:
         NAMES it by id.
     - box:
       - 100
-      - 744
+      - 776
       - 594
       - 12
       style:
@@ -1441,30 +1440,59 @@ pages:
       - 56
       - 550
       - 331.0
-      - 40
+      - 12
       style: legdesc
       type: text
-      text: '[24] Adobe Illustrator 2024 User''s Guide — 231 pp, 2,283 sentences.'
+      text: '[24] Adobe Illustrator 2024 User''s Guide'
     - box:
-      - 56
-      - 586
-      - 331.0
-      - 40
-      style: legdesc
-      type: text
-      text: '[25] Master Adobe Illustrator 2025 — Dana J. Bailey, 159 pp. [26] BMG
-        106: Computer Graphics II — Adobe Illustrator, Y.C.M.O.U., 257 pp, 3,340 sentences.'
-    - box:
-      - 56
-      - 622
-      - 331.0
+      - 70
+      - 564
+      - 317.0
       - 12
       style:
         class: cite
         align: start
         color: faint
       type: text
-      text: Each [SRC·ORDINAL] round-trips via searchSentences().
+      text: 231 pp · 2,283 sentences · doc 586533f6…
+    - box:
+      - 56
+      - 574
+      - 331.0
+      - 12
+      style: legdesc
+      type: text
+      text: '[25] Master Adobe Illustrator 2025'
+    - box:
+      - 70
+      - 588
+      - 317.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: 159 pp · 1,875 sentences · doc 56d6727a…
+    - box:
+      - 56
+      - 598
+      - 331.0
+      - 12
+      style: legdesc
+      type: text
+      text: '[26] BMG 106: Computer Graphics II'
+    - box:
+      - 70
+      - 612
+      - 317.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: 257 pp · 3,340 sentences · doc 649e47a5…
     - box:
       - 407.0
       - 550
@@ -1474,111 +1502,111 @@ pages:
       type: text
       text: FrameGraph
     - box:
-      - 517.0
+      - 515.0
       - 550
-      - 201.0
+      - 203.0
       - 12
       style:
         class: cite
         align: start
         color: sub
       type: text
-      text: v2.3.0
+      text: v2.3.0 · 278 caps
     - box:
       - 407.0
-      - 568
-      - 120
-      - 12
-      style: legdesc
-      type: text
-      text: Manifest
-    - box:
-      - 517.0
-      - 568
-      - 201.0
-      - 12
-      style:
-        class: cite
-        align: start
-        color: sub
-      type: text
-      text: docs/capability-manifest.json
-    - box:
-      - 407.0
-      - 586
-      - 120
-      - 12
-      style: legdesc
-      type: text
-      text: Capabilities
-    - box:
-      - 517.0
-      - 586
-      - 201.0
-      - 12
-      style:
-        class: cite
-        align: start
-        color: sub
-      type: text
-      text: '278'
-    - box:
-      - 407.0
-      - 604
+      - 570
       - 120
       - 12
       style: legdesc
       type: text
       text: Manifest sha256
     - box:
-      - 517.0
-      - 604
-      - 201.0
+      - 515.0
+      - 570
+      - 203.0
       - 12
       style:
         class: cite
         align: start
         color: sub
       type: text
-      text: 51b966f9c609ff1e913885ff…
+      text: 51b966f9c609ff1e9138…
     - box:
       - 407.0
-      - 622
+      - 590
+      - 120
+      - 12
+      style: legdesc
+      type: text
+      text: Source code
+    - box:
+      - 515.0
+      - 590
+      - 203.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: sub
+      type: text
+      text: frameforge @964e3b4a6a (dirty)
+    - box:
+      - 407.0
+      - 610
+      - 120
+      - 12
+      style: legdesc
+      type: text
+      text: Corpus
+    - box:
+      - 515.0
+      - 610
+      - 203.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: sub
+      type: text
+      text: '[24][25][26] doc-ray · IDs at left'
+    - box:
+      - 407.0
+      - 630
       - 120
       - 12
       style: legdesc
       type: text
       text: Full audit
     - box:
-      - 517.0
-      - 622
-      - 201.0
+      - 515.0
+      - 630
+      - 203.0
       - 12
       style:
         class: cite
         align: start
         color: sub
       type: text
-      text: illustrator_vs_framegraph.audit.json
+      text: …_vs_framegraph.audit.json
     - box:
       - 407.0
-      - 640
+      - 650
       - 120
       - 12
       style: legdesc
       type: text
       text: Gate
     - box:
-      - 517.0
-      - 640
-      - 201.0
+      - 515.0
+      - 650
+      - 203.0
       - 12
       style:
         class: cite
         align: start
         color: sub
       type: text
-      text: tests/test_capability_manifest.py
+      text: test_capability_manifest.py
     - box:
       - 56
       - 676
@@ -1787,7 +1815,7 @@ pages:
         class: covlbl
         color: invertlbl
       type: text
-      text: REFRAMED ·H
+      text: REFRAMED ·H ·D
     - box:
       - 504
       - 204
@@ -1875,7 +1903,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·W
     - box:
       - 504
       - 266
@@ -1956,7 +1984,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·D
     - box:
       - 504
       - 328
@@ -2044,7 +2072,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·W
     - box:
       - 504
       - 390
@@ -2285,7 +2313,7 @@ pages:
         align: start
         color: faint
       type: text
-      text: architectural
+      text: maturity
     - box:
       - 504
       - 576
@@ -2370,7 +2398,7 @@ pages:
         align: start
         color: faint
       type: text
-      text: architectural
+      text: maturity
     - box:
       - 504
       - 638
@@ -2658,7 +2686,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·W
     - box:
       - 504
       - 266
@@ -2739,7 +2767,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·W
     - box:
       - 504
       - 328
@@ -3051,7 +3079,7 @@ pages:
         align: start
         color: faint
       type: text
-      text: architectural
+      text: maturity
     - box:
       - 504
       - 576
@@ -3403,7 +3431,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·H
+      text: PARTIAL ·H ·F
     - box:
       - 504
       - 328
@@ -3491,7 +3519,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·W
     - box:
       - 504
       - 390
@@ -3572,7 +3600,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·W
     - box:
       - 504
       - 452
@@ -3660,7 +3688,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·W
     - box:
       - 504
       - 514
@@ -4076,7 +4104,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·F
     - box:
       - 504
       - 328
@@ -4242,7 +4270,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·F
     - box:
       - 504
       - 452
@@ -4856,7 +4884,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·F
     - box:
       - 504
       - 452
@@ -5008,7 +5036,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·F
     - box:
       - 504
       - 576
@@ -5431,7 +5459,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·D
     - box:
       - 504
       - 390
@@ -5597,7 +5625,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·W
     - box:
       - 504
       - 514
@@ -5791,7 +5819,7 @@ pages:
         class: covlbl
         color: invertlbl
       type: text
-      text: REFRAMED ·H
+      text: REFRAMED ·H ·F
     - box:
       - 504
       - 704
@@ -5872,7 +5900,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·D
     - box:
       - 504
       - 766
@@ -5960,7 +5988,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M
+      text: PARTIAL ·M ·F
     - box:
       - 504
       - 828
@@ -6314,7 +6342,7 @@ pages:
         class: covlbl
         color: invertlbl
       type: text
-      text: REFRAMED ·L
+      text: REFRAMED ·L ·W
     - box:
       - 504
       - 204
@@ -6390,7 +6418,7 @@ pages:
         class: covlbl
         color: invertlbl
       type: text
-      text: REFRAMED ·L
+      text: REFRAMED ·L ·W
     - box:
       - 504
       - 266
@@ -6654,29 +6682,29 @@ pages:
     - box:
       - 56
       - 154
-      - 682
-      - 40
+      - 452
+      - 56
       style: lead
       type: text
       text: 'So the verdicts are not just labels: here is the same intent, as an Illustrator
         gesture on the left and as the FrameGraph source the SDK emits on the right.'
     - box:
       - 56
-      - 214
+      - 232
       - 682
       - 118
       type: rect
       fill: band
     - box:
       - 56
-      - 214
+      - 232
       - 4
       - 118
       type: rect
       fill: fg
     - box:
       - 74
-      - 230
+      - 248
       - 200
       - 12
       style:
@@ -6686,7 +6714,7 @@ pages:
       text: AI-07 · HAS
     - box:
       - 74
-      - 248
+      - 266
       - 642
       - 14
       style: feat
@@ -6694,7 +6722,7 @@ pages:
       text: Draw a rectangle
     - box:
       - 74
-      - 272
+      - 290
       - 311.0
       - 12
       style:
@@ -6704,7 +6732,7 @@ pages:
       text: ILLUSTRATOR
     - box:
       - 74
-      - 288
+      - 306
       - 311.0
       - 36
       style: aiev
@@ -6712,7 +6740,7 @@ pages:
       text: Rectangle Tool → drag on the artboard.
     - box:
       - 395.0
-      - 272
+      - 290
       - 321.0
       - 12
       style:
@@ -6722,7 +6750,7 @@ pages:
       text: FRAMEGRAPH SDK
     - box:
       - 395.0
-      - 288
+      - 306
       - 321.0
       - 12
       style:
@@ -6733,7 +6761,7 @@ pages:
       text: page.rect([40, 40, 220, 120],
     - box:
       - 395.0
-      - 301
+      - 319
       - 321.0
       - 12
       style:
@@ -6744,7 +6772,7 @@ pages:
       text: '          fill="#1f9ec4",'
     - box:
       - 395.0
-      - 314
+      - 332
       - 321.0
       - 12
       style:
@@ -6755,21 +6783,21 @@ pages:
       text: '          **stroke(2, color="ink"))'
     - box:
       - 56
-      - 344
+      - 362
       - 682
       - 118
       type: rect
       fill: band
     - box:
       - 56
-      - 344
+      - 362
       - 4
       - 118
       type: rect
       fill: invertlbl
     - box:
       - 74
-      - 360
+      - 378
       - 200
       - 12
       style:
@@ -6779,7 +6807,7 @@ pages:
       text: AI-01 · REFRAMED
     - box:
       - 74
-      - 378
+      - 396
       - 642
       - 14
       style: feat
@@ -6787,7 +6815,7 @@ pages:
       text: Act on one object
     - box:
       - 74
-      - 402
+      - 420
       - 311.0
       - 12
       style:
@@ -6797,7 +6825,7 @@ pages:
       text: ILLUSTRATOR
     - box:
       - 74
-      - 418
+      - 436
       - 311.0
       - 36
       style: aiev
@@ -6805,7 +6833,7 @@ pages:
       text: Selection Tool → click the object → move.
     - box:
       - 395.0
-      - 402
+      - 420
       - 321.0
       - 12
       style:
@@ -6815,7 +6843,7 @@ pages:
       text: FRAMEGRAPH SDK
     - box:
       - 395.0
-      - 418
+      - 436
       - 321.0
       - 12
       style:
@@ -6826,7 +6854,7 @@ pages:
       text: '# no cursor — name it, then act'
     - box:
       - 395.0
-      - 431
+      - 449
       - 321.0
       - 12
       style:
@@ -6837,7 +6865,7 @@ pages:
       text: card = page.rect([...], id="hero")
     - box:
       - 395.0
-      - 444
+      - 462
       - 321.0
       - 12
       style:
@@ -6848,21 +6876,21 @@ pages:
       text: page.move("hero", dx=12, dy=0)
     - box:
       - 56
-      - 474
+      - 492
       - 682
       - 118
       type: rect
       fill: band
     - box:
       - 56
-      - 474
+      - 492
       - 4
       - 118
       type: rect
       fill: fg
     - box:
       - 74
-      - 490
+      - 508
       - 200
       - 12
       style:
@@ -6872,7 +6900,7 @@ pages:
       text: AI-26 · HAS
     - box:
       - 74
-      - 508
+      - 526
       - 642
       - 14
       style: feat
@@ -6880,7 +6908,7 @@ pages:
       text: Linear gradient fill
     - box:
       - 74
-      - 532
+      - 550
       - 311.0
       - 12
       style:
@@ -6890,7 +6918,7 @@ pages:
       text: ILLUSTRATOR
     - box:
       - 74
-      - 548
+      - 566
       - 311.0
       - 36
       style: aiev
@@ -6898,7 +6926,7 @@ pages:
       text: Gradient panel → set stops → drag.
     - box:
       - 395.0
-      - 532
+      - 550
       - 321.0
       - 12
       style:
@@ -6908,7 +6936,7 @@ pages:
       text: FRAMEGRAPH SDK
     - box:
       - 395.0
-      - 548
+      - 566
       - 321.0
       - 12
       style:
@@ -6919,7 +6947,7 @@ pages:
       text: page.rect([40, 40, 300, 80], fill=linear_gradient(
     - box:
       - 395.0
-      - 561
+      - 579
       - 321.0
       - 12
       style:
@@ -6930,21 +6958,21 @@ pages:
       text: '    stops=[(0, "#0f7d88"), (1, "#f5f7f9")], angle=0))'
     - box:
       - 56
-      - 604
+      - 622
       - 682
       - 118
       type: rect
       fill: band
     - box:
       - 56
-      - 604
+      - 622
       - 4
       - 118
       type: rect
       fill: partlbl
     - box:
       - 74
-      - 620
+      - 638
       - 200
       - 12
       style:
@@ -6954,7 +6982,7 @@ pages:
       text: AI-02 · PARTIAL ·M
     - box:
       - 74
-      - 638
+      - 656
       - 642
       - 14
       style: feat
@@ -6962,7 +6990,7 @@ pages:
       text: Edit an anchor point
     - box:
       - 74
-      - 662
+      - 680
       - 311.0
       - 12
       style:
@@ -6972,7 +7000,7 @@ pages:
       text: ILLUSTRATOR
     - box:
       - 74
-      - 678
+      - 696
       - 311.0
       - 36
       style: aiev
@@ -6980,7 +7008,7 @@ pages:
       text: Direct Selection → drag a point by hand.
     - box:
       - 395.0
-      - 662
+      - 680
       - 321.0
       - 12
       style:
@@ -6990,7 +7018,7 @@ pages:
       text: FRAMEGRAPH SDK
     - box:
       - 395.0
-      - 678
+      - 696
       - 321.0
       - 12
       style:
@@ -7001,7 +7029,7 @@ pages:
       text: '# authored by coordinate, not dragged'
     - box:
       - 395.0
-      - 691
+      - 709
       - 321.0
       - 12
       style:
@@ -7012,7 +7040,7 @@ pages:
       text: page.path([[40,40],[120,20],[200,60]])
     - box:
       - 395.0
-      - 704
+      - 722
       - 321.0
       - 12
       style:
@@ -7023,21 +7051,21 @@ pages:
       text: '# to ''edit'' AI-02: change the numbers'
     - box:
       - 56
-      - 734
+      - 752
       - 682
       - 118
       type: rect
       fill: band
     - box:
       - 56
-      - 734
+      - 752
       - 4
       - 118
       type: rect
       fill: sub
     - box:
       - 74
-      - 750
+      - 768
       - 200
       - 12
       style:
@@ -7047,7 +7075,7 @@ pages:
       text: AI-28 · NONE (arch)
     - box:
       - 74
-      - 768
+      - 786
       - 642
       - 14
       style: feat
@@ -7055,7 +7083,7 @@ pages:
       text: Gradient mesh
     - box:
       - 74
-      - 792
+      - 810
       - 311.0
       - 12
       style:
@@ -7065,7 +7093,7 @@ pages:
       text: ILLUSTRATOR
     - box:
       - 74
-      - 808
+      - 826
       - 311.0
       - 36
       style: aiev
@@ -7073,7 +7101,7 @@ pages:
       text: Mesh Tool → add colour points → blend.
     - box:
       - 395.0
-      - 792
+      - 810
       - 321.0
       - 12
       style:
@@ -7083,7 +7111,7 @@ pages:
       text: FRAMEGRAPH SDK
     - box:
       - 395.0
-      - 808
+      - 826
       - 321.0
       - 12
       style:
@@ -7094,7 +7122,7 @@ pages:
       text: '# no mesh primitive in the model —'
     - box:
       - 395.0
-      - 821
+      - 839
       - 321.0
       - 12
       style:
@@ -7105,7 +7133,7 @@ pages:
       text: '# nearest: a linear/radial gradient,'
     - box:
       - 395.0
-      - 834
+      - 852
       - 321.0
       - 12
       style:
@@ -7199,8 +7227,8 @@ pages:
     - box:
       - 56
       - 154
-      - 682
-      - 76
+      - 452
+      - 96
       style: lead
       type: text
       text: A comparison that only lists an editor's features would be rigged. These
@@ -7211,18 +7239,18 @@ pages:
     - type: polyline
       points:
       - - 64.0
-        - 252.0
+        - 272.0
       - - 72.0
-        - 260.0
+        - 280.0
       - - 64.0
-        - 268.0
+        - 288.0
       - - 56.0
-        - 260.0
+        - 280.0
       closed: true
       fill: fg
     - box:
       - 86
-      - 246
+      - 266
       - 642
       - 14
       style: feat
@@ -7230,7 +7258,7 @@ pages:
       text: Long-form documents
     - box:
       - 86
-      - 264
+      - 284
       - 622
       - 32
       style:
@@ -7241,14 +7269,14 @@ pages:
         — a book, not an artboard.'
     - box:
       - 56
-      - 296
+      - 316
       - 682
       - 0.6
       type: rect
       fill: hair
     - box:
       - 50
-      - 298
+      - 318
       - 694
       - 58
       type: rect
@@ -7256,18 +7284,18 @@ pages:
     - type: polyline
       points:
       - - 64.0
-        - 310.0
+        - 330.0
       - - 72.0
-        - 318.0
+        - 338.0
       - - 64.0
-        - 326.0
+        - 346.0
       - - 56.0
-        - 318.0
+        - 338.0
       closed: true
       fill: fg
     - box:
       - 86
-      - 304
+      - 324
       - 642
       - 14
       style: feat
@@ -7275,7 +7303,7 @@ pages:
       text: Structural validation
     - box:
       - 86
-      - 322
+      - 342
       - 622
       - 32
       style:
@@ -7286,7 +7314,7 @@ pages:
         pixel is drawn; Illustrator has no correctness gate.
     - box:
       - 56
-      - 354
+      - 374
       - 682
       - 0.6
       type: rect
@@ -7294,18 +7322,18 @@ pages:
     - type: polyline
       points:
       - - 64.0
-        - 368.0
+        - 388.0
       - - 72.0
-        - 376.0
+        - 396.0
       - - 64.0
-        - 384.0
+        - 404.0
       - - 56.0
-        - 376.0
+        - 396.0
       closed: true
       fill: fg
     - box:
       - 86
-      - 362
+      - 382
       - 642
       - 14
       style: feat
@@ -7313,7 +7341,7 @@ pages:
       text: Reproducible source of truth
     - box:
       - 86
-      - 380
+      - 400
       - 622
       - 32
       style:
@@ -7324,14 +7352,14 @@ pages:
         — not a binary .ai project.
     - box:
       - 56
-      - 412
+      - 432
       - 682
       - 0.6
       type: rect
       fill: hair
     - box:
       - 50
-      - 414
+      - 434
       - 694
       - 58
       type: rect
@@ -7339,18 +7367,18 @@ pages:
     - type: polyline
       points:
       - - 64.0
-        - 426.0
+        - 446.0
       - - 72.0
-        - 434.0
+        - 454.0
       - - 64.0
-        - 442.0
+        - 462.0
       - - 56.0
-        - 434.0
+        - 454.0
       closed: true
       fill: fg
     - box:
       - 86
-      - 420
+      - 440
       - 642
       - 14
       style: feat
@@ -7358,7 +7386,7 @@ pages:
       text: Parametric geometry
     - box:
       - 86
-      - 438
+      - 458
       - 622
       - 32
       style:
@@ -7369,7 +7397,7 @@ pages:
         geometry Illustrator has no tool for. (Charts it does have: AI-51.)'
     - box:
       - 56
-      - 470
+      - 490
       - 682
       - 0.6
       type: rect
@@ -7377,18 +7405,18 @@ pages:
     - type: polyline
       points:
       - - 64.0
-        - 484.0
+        - 504.0
       - - 72.0
-        - 492.0
+        - 512.0
       - - 64.0
-        - 500.0
+        - 520.0
       - - 56.0
-        - 492.0
+        - 512.0
       closed: true
       fill: fg
     - box:
       - 86
-      - 478
+      - 498
       - 642
       - 14
       style: feat
@@ -7396,7 +7424,7 @@ pages:
       text: UI component library
     - box:
       - 86
-      - 496
+      - 516
       - 622
       - 32
       style:
@@ -7407,14 +7435,14 @@ pages:
         interface kit with no Illustrator equivalent.
     - box:
       - 56
-      - 528
+      - 548
       - 682
       - 0.6
       type: rect
       fill: hair
     - box:
       - 50
-      - 530
+      - 550
       - 694
       - 58
       type: rect
@@ -7422,18 +7450,18 @@ pages:
     - type: polyline
       points:
       - - 64.0
-        - 542.0
+        - 562.0
       - - 72.0
-        - 550.0
+        - 570.0
       - - 64.0
-        - 558.0
+        - 578.0
       - - 56.0
-        - 550.0
+        - 570.0
       closed: true
       fill: fg
     - box:
       - 86
-      - 536
+      - 556
       - 642
       - 14
       style: feat
@@ -7441,7 +7469,7 @@ pages:
       text: Colour science
     - box:
       - 86
-      - 554
+      - 574
       - 622
       - 32
       style:
@@ -7452,7 +7480,7 @@ pages:
         not just swatches.
     - box:
       - 56
-      - 586
+      - 606
       - 682
       - 0.6
       type: rect
@@ -7460,18 +7488,18 @@ pages:
     - type: polyline
       points:
       - - 64.0
-        - 600.0
+        - 620.0
       - - 72.0
-        - 608.0
+        - 628.0
       - - 64.0
-        - 616.0
+        - 636.0
       - - 56.0
-        - 608.0
+        - 628.0
       closed: true
       fill: fg
     - box:
       - 86
-      - 594
+      - 614
       - 642
       - 14
       style: feat
@@ -7479,7 +7507,7 @@ pages:
       text: Machine authoring
     - box:
       - 86
-      - 612
+      - 632
       - 622
       - 32
       style:
@@ -7490,7 +7518,7 @@ pages:
         and checked by code, end to end.'
     - box:
       - 56
-      - 644
+      - 664
       - 682
       - 0.6
       type: rect
@@ -7580,8 +7608,8 @@ pages:
     - box:
       - 56
       - 154
-      - 682
-      - 120
+      - 452
+      - 148
       style: lead
       type: text
       text: 'Across 51 Illustrator capabilities from three manuals, FrameGraph has
@@ -7593,14 +7621,14 @@ pages:
         them by naming, a tool call, and an author→render loop, not a cursor.'
     - box:
       - 56
-      - 290
+      - 318
       - 682
       - 150
       type: rect
       fill: ink
     - box:
       - 82
-      - 316
+      - 344
       - 630
       - 34
       style:
@@ -7610,7 +7638,7 @@ pages:
       text: Illustrator is a hand.
     - box:
       - 82
-      - 350
+      - 378
       - 630
       - 34
       style:
@@ -7620,7 +7648,7 @@ pages:
       text: FrameGraph is a grammar.
     - box:
       - 82
-      - 394
+      - 422
       - 630
       - 22
       style:
@@ -7630,7 +7658,7 @@ pages:
       text: The gaps are the price of being declarative and machine-authored;
     - box:
       - 82
-      - 414
+      - 442
       - 630
       - 22
       style:
@@ -7640,14 +7668,14 @@ pages:
       text: the overlaps are where a format can meet an editor.
     - box:
       - 56
-      - 470
+      - 498
       - 682
       - 104
       type: rect
       fill: aitint
     - box:
       - 76
-      - 488
+      - 516
       - 642
       - 12
       style:
@@ -7657,7 +7685,7 @@ pages:
       text: // HONEST SCOPE
     - box:
       - 76
-      - 506
+      - 534
       - 642
       - 60
       style: legdesc
@@ -7668,7 +7696,7 @@ pages:
         not of production maturity.'
     - box:
       - 56
-      - 594
+      - 622
       - 682
       - 10
       style: kick
@@ -7676,34 +7704,53 @@ pages:
       text: // PROVENANCE
     - box:
       - 56
-      - 610
+      - 638
       - 682
       - 1
       type: rect
       fill: hair
     - box:
       - 56
-      - 620
+      - 648
       - 682
       - 90
       style: legdesc
       type: text
       text: 'Illustrator features mined from THREE doc-ray corpus sources over GraphQL:
-        [24] “Adobe Illustrator 2024 User''s Guide” (231 pp, 2,283 sentences) and
-        [25] “Master Adobe Illustrator 2025” (Dana J. Bailey, 159 pp). Each SRC·ORDINAL
-        round-trips via searchSentences(documentId, term). FrameGraph coverage quotes
-        docs/capability-manifest.json (278 capabilities, tri-state core/SDK/MCP),
+        [24] Adobe Illustrator 2024 User''s Guide (231 pp), [25] Master Adobe Illustrator
+        2025 (Dana J. Bailey, 159 pp), and [26] BMG 106: Computer Graphics II (257
+        pp). Each SRC·ORDINAL round-trips via searchSentences(). FrameGraph coverage
+        quotes docs/capability-manifest.json (278 capabilities, tri-state core/SDK/MCP),
         gated by tests/test_capability_manifest.py.'
     - box:
       - 56
-      - 710
+      - 730
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 742
+      - 682
+      - 12
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: VERSION · code frameforge@964e3b4a6a+dirty · manifest 51b966f9c609 (v2.3.0)
+        · corpus doc-ray [24 586533f6][25 56d6727a][26 649e47a5] · built 2026-07-02
+    - box:
+      - 56
+      - 760
       - 682
       - 12
       style:
         class: legdesc
         color: faint
       type: text
-      text: Composed by Claude (Fable 5), 2026 · a declarative teardown of a declarative
+      text: Composed by Claude (Fable 5) · a declarative teardown of a declarative
         format.
 meta:
   provenance: 51 Illustrator features torn down. Illustrator claims cite sentence

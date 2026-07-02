@@ -73,7 +73,7 @@ tracked elsewhere and referenced here rather than duplicated:
 |---|---|---|
 | Product / format (this doc) | the phases below | auto-layout wiring, PDF/UA, BookBuilder, generative objects, the 2.x split + 3.0 single-source direction |
 | Engineering standards | [codebase-standards.md §16](codebase-standards.md) — the `[Target]` ledger | gating ruff, `mypy --strict`, coverage gate, TDD trees, golden drift tolerance, pre-commit, `__version__`/release recipe, CI matrix |
-| Operational (tracked work) | GitHub, pinned umbrellas | [#36 — absorb framegraph v0.1.0](https://github.com/pedroanisio/frameforge/issues/36) (pattern catalog + fill bridge, UML 2.5 + full Sugiyama, `from-markdown`, symbol/token packs, deck corpus); [#43 — rename framegraph → frameforge](https://github.com/pedroanisio/frameforge/issues/43) (ADR-gated, idempotent engine, three slices); [#44 — silent text-clip diagnostics](https://github.com/pedroanisio/frameforge/issues/44) |
+| Operational (tracked work) | GitHub, pinned umbrellas | [#36 — absorb framegraph v0.1.0](https://github.com/pedroanisio/frameforge/issues/36) (pattern catalog + fill bridge, UML 2.5 + full Sugiyama, `from-markdown`, symbol/token packs, deck corpus); [#43 — rename framegraph → frameforge](https://github.com/pedroanisio/frameforge/issues/43) (ADR-gated, idempotent engine, three slices); [#44 — silent text-clip diagnostics](https://github.com/pedroanisio/frameforge/issues/44); [#52 — Adobe-suite parity programme](https://github.com/pedroanisio/frameforge/issues/52) (item 10 made executable: workstreams #45–#51, teardown re-render as the progress metric) |
 | Version trajectory | [CHANGELOG](../CHANGELOG.md) + rename ADR ([#37](https://github.com/pedroanisio/frameforge/issues/37)) | HEAD 2.3.0 → 2.4 (both DSL markers accepted + codemod, additive) → 3.0 (marker hard cut — which can carry this doc's 3.0 single-source milestone) |
 
 Cross-links where the layers touch: item 1's optional "exact crossing
@@ -559,15 +559,18 @@ quoted from the gated `docs/capability-manifest.json` (278 capabilities,
 sha256-pinned in the teardown's audit block +
 `static/examples/illustrator_vs_framegraph.audit.json`).
 
-**Rubric (v2 — stricter than the first cut):** HAS = a direct *functional*
-equivalent (same user outcome, even if authored declaratively); PARTIAL =
-narrower / missing interactivity or output fidelity; REFRAMED = same end by
-naming / tool call / author→render loop; NONE carries a `gap_type` —
-**architectural** (the declarative model precludes it) vs **non-goal**
-(declared scope choice) — and every M/L row carries a confidence tag.
+**Rubric (v3.1):** HAS = a direct *functional* equivalent (same user
+outcome, even if authored declaratively); PARTIAL = narrower / missing
+interactivity or output fidelity; REFRAMED = same end by naming / tool call /
+author→render loop; NONE carries a three-way `gap_type` — **architectural**
+(the declarative model precludes it), **maturity** (plausible in the model,
+simply unbuilt), or **non-goal** (declared scope choice) — and every M/L row
+carries a confidence tag. The audit is git-stamped (`source_identity()`:
+frameforge commit + a dirty flag, "so the stamp cannot lie").
 
 **Scoreboard at 2.3.0:** 51 features → **14 HAS** (27%), **17 PARTIAL**,
-**4 REFRAMED**, **16 NONE** (10 architectural + 6 non-goals). Full-or-partial
+**4 REFRAMED**, **16 NONE** (7 architectural + 3 maturity + 6 non-goals —
+the 3 maturity rows are precisely W1/W2's buildables). Full-or-partial
 **61%**; *reachable by any route* (has+partial+reframed) **35/51 = 69%**.
 Earlier cuts scored higher (v1: 44 features, one manual, 48% full; v2: 46
 features, 63% full-or-partial) because each revision widened the surface and
@@ -1074,8 +1077,8 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-04 | Compound paths / Pathfinder | PARTIAL ·M | path `fill_rule` even-odd + holes; no live Pathfinder ops | **W1**: declarative boolean ops |
 | AI-05 | Shape Builder | NONE ·H arch | no boolean shape merge | **W1** |
 | AI-06 | Scissors & Knife | NONE ·H arch | no path surgery | **W1**: split-at / cut-along, S once the kernel exists |
-| AI-47 | Offset path | NONE ·H arch | no offset-path operation | **W1**: Bézier-offset approximation in the kernel, M |
-| AI-48 | Outline stroke | NONE ·H arch | no stroke→outline conversion | **W2**: the shared filled-outline emitter |
+| AI-47 | Offset path | NONE ·H maturity | no offset-path operation — deterministic geometry the model could express; unbuilt | **W1**: Bézier-offset approximation in the kernel, M |
+| AI-48 | Outline stroke | NONE ·H maturity | no stroke→outline conversion — derivable, not paradigm-precluded | **W2**: the shared filled-outline emitter |
 
 ## B · Draw & primitives
 
@@ -1087,7 +1090,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-10 | Pencil / freehand | NONE ·H non-goal | no freehand pointer input (declarative only) | **non-goal** reaffirmed; nearest declarative route is curve *fitting* (`vectorize_image`, coach) — noted, not claimed |
 | AI-11 | Stroke controls | HAS | `stroke_style` width/dasharray/cap/join + connector markers | settled |
 | AI-12 | Variable-width (Width Tool) | NONE ·H arch | stroke width is uniform — no width profile | **W2**: width profiles lowered to filled outline paths at expansion, M |
-| AI-49 | Brushes (calligraphic / scatter / art / pattern / blob) | NONE ·H arch | no brush engine; nearest is `hatch_fill` / `pattern` | **W2**: calligraphic = width profiles; scatter/art/pattern = repeat-along-path at expansion, M–L |
+| AI-49 | Brushes (calligraphic / scatter / art / pattern / blob) | NONE ·H maturity | no brush engine — brush-along-path is declarable in principle; unbuilt | **W2**: calligraphic = width profiles; scatter/art/pattern = repeat-along-path at expansion, M–L |
 
 ## C · Colour system
 

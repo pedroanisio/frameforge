@@ -1,6 +1,46 @@
 {
   "artifact": "illustrator_vs_framegraph capability teardown",
   "generated_at": "2026-07-02",
+  "version": {
+    "generated_at": "2026-07-02",
+    "source_code": {
+      "repo": "frameforge",
+      "git_commit": "964e3b4a6ab43dedd67ed4baae05ad3168afd53c",
+      "git_short": "964e3b4a6a",
+      "git_branch": "main",
+      "git_dirty": true,
+      "builder": "static/examples/illustrator_vs_framegraph.py"
+    },
+    "framegraph_manifest": {
+      "manifest_path": "docs/capability-manifest.json",
+      "manifest_sha256": "51b966f9c609ff1e913885ffc6c43ecbfbadc15fc74f2baee65f2aea740ab7cc",
+      "framegraph_version": "2.3.0",
+      "manifest_capabilities": 278
+    },
+    "external_corpus": [
+      {
+        "src": "24",
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d",
+        "pages": 231,
+        "sentences": 2283
+      },
+      {
+        "src": "25",
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0",
+        "pages": 159,
+        "sentences": 1875
+      },
+      {
+        "src": "26",
+        "title": "BMG 106: Computer Graphics Part II — Adobe Illustrator",
+        "document_id": "649e47a5-cbf2-4d92-b7ab-f4d710d6351a",
+        "pages": 257,
+        "sentences": 3340
+      }
+    ]
+  },
   "framegraph": {
     "manifest_path": "docs/capability-manifest.json",
     "manifest_sha256": "51b966f9c609ff1e913885ffc6c43ecbfbadc15fc74f2baee65f2aea740ab7cc",
@@ -47,6 +87,8 @@
     },
     "gap_breakdown": {
       "declared_non_goal": 6,
+      "architectural": 7,
+      "maturity_unbuilt": 3,
       "true_gap": 10
     },
     "scores": {
@@ -292,8 +334,8 @@
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
-      "gap_type": "arch",
-      "rationale": "No offset-path geometry operation."
+      "gap_type": "maturity",
+      "rationale": "No offset-path op — a deterministic geometry the model could express; unbuilt."
     },
     {
       "id": "AI-48",
@@ -314,8 +356,8 @@
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
-      "gap_type": "arch",
-      "rationale": "No stroke→outline conversion; stroke stays a stroke."
+      "gap_type": "maturity",
+      "rationale": "No stroke→outline conversion — derivable geometry, not paradigm-precluded; unbuilt."
     },
     {
       "id": "AI-07",
@@ -333,8 +375,8 @@
       "framegraph_coverage": "rect, ellipse, circle, polygon, line, polyline (17 object_types).",
       "framegraph_manifest_refs": [
         "polyline",
-        "polygon",
         "ellipse",
+        "polygon",
         "circle",
         "rect",
         "line"
@@ -475,8 +517,8 @@
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
-      "gap_type": "arch",
-      "rationale": "No brush engine; hatch_fill/pattern are static fills, not path brushes."
+      "gap_type": "maturity",
+      "rationale": "No brush engine — a brush-along-path is declarable in principle; unbuilt (hatch/pattern are the nearest static fills)."
     },
     {
       "id": "AI-13",
@@ -649,8 +691,8 @@
       "framegraph_manifest_refs": [
         "paragraph",
         "heading",
-        "text",
-        "list"
+        "list",
+        "text"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -714,8 +756,8 @@
       "verdict_label": "NONE",
       "framegraph_coverage": "no text-on-path (explicit scope limit).",
       "framegraph_manifest_refs": [
-        "path",
-        "text"
+        "text",
+        "path"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -759,8 +801,8 @@
       "verdict_label": "NONE",
       "framegraph_coverage": "non-goal — text stays on its baseline grid.",
       "framegraph_manifest_refs": [
-        "text",
-        "grid"
+        "grid",
+        "text"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -782,8 +824,8 @@
       "verdict_label": "HAS",
       "framegraph_coverage": "linear_gradient / radial_gradient paint.",
       "framegraph_manifest_refs": [
-        "linear_gradient",
-        "radial_gradient"
+        "radial_gradient",
+        "linear_gradient"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
