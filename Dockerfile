@@ -9,10 +9,19 @@
 # This image maximizes that: the entire google/fonts corpus (thousands of faces)
 # plus a broad Debian font set (full Noto, CJK, Indic, Arabic, Thai, emoji).
 #
+# It is also a complete RENDER runtime — every lane works in-image:
+#   - SVG (cairo) and PNG (Chromium, INSTALL_BROWSER=1) — the raster/vision loop;
+#   - PDF (cairosvg + pypdf) — the vector lane;
+#   - LaTeX/TikZ -> PDF (`--to tex` / `--to pdf-tex`) — a full TeX Live with
+#     lualatex + luaotfload, so `fontspec` loads the OpenType faces above by name.
+#
 # Build:
 #   docker build -t frameforge .
-#   docker build -t frameforge --build-arg FONTS_APT_WILDCARD=1 .   # every fonts-* pkg
-#   docker build -t frameforge --build-arg INSTALL_BROWSER=0 .      # skip chromium (cairo only)
+#   docker build -t frameforge --build-arg FONTS_APT_WILDCARD=1 .        # every fonts-* pkg
+#   docker build -t frameforge --build-arg INSTALL_BROWSER=0 .           # skip chromium (cairo only)
+#   docker build -t frameforge --build-arg INSTALL_GOOGLE_FONTS=0 .      # fast build: skip the ~1GB
+#                                                                        #  google/fonts clone, keep
+#                                                                        #  LaTeX + Chromium + apt fonts
 #
 # Run the MCP server (stdio) — this is what an MCP client spawns:
 #   docker run --rm -i frameforge
@@ -24,7 +33,9 @@
 # ─────────────────────────────────────────────────────────────
 FROM debian:bookworm-slim AS fonts
 ARG GOOGLE_FONTS_REF=main
-ENV DEBIAN_FRONTEND=noninteractive GOOGLE_FONTS_REF=${GOOGLE_FONTS_REF}
+ARG INSTALL_GOOGLE_FONTS=1
+ENV DEBIAN_FRONTEND=noninteractive GOOGLE_FONTS_REF=${GOOGLE_FONTS_REF} \
+    INSTALL_GOOGLE_FONTS=${INSTALL_GOOGLE_FONTS}
 RUN apt-get update \
  && apt-get install -y --no-install-recommends git ca-certificates \
  && rm -rf /var/lib/apt/lists/*
@@ -77,6 +88,21 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       || for p in $FONT_PKGS; do apt-get install -y --no-install-recommends "$p" || echo "skip font pkg: $p"; done ) \
  && if [ "$FONTS_APT_WILDCARD" = "1" ]; then apt-get install -y --no-install-recommends 'fonts-*' || true; fi \
  && rm -rf /var/lib/apt/lists/* /tmp/fonts.apt.txt
+
+# TeX Live for the LaTeX/TikZ render lane (`--to tex` / `--to pdf-tex`). The tex
+# renderer emits a fontspec preamble, so lualatex + luaotfload are required to load
+# the OpenType faces by name; the rest are the packages the preamble pulls (tikz,
+# microtype, booktabs, enumitem, ulem, caption, amsmath/amssymb, slashed, hyperref,
+# geometry, xcolor, ...). lmodern is the pdflatex-fallback face. With this layer,
+# `framegraph-render doc.fg.yaml --to pdf-tex --engine auto` picks lualatex in-image.
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update \
+ && apt-get install -y --no-install-recommends \
+      texlive-luatex texlive-latex-base texlive-latex-recommended \
+      texlive-latex-extra texlive-fonts-recommended texlive-pictures \
+      texlive-science texlive-plain-generic lmodern \
+ && luaotfload-tool --update >/dev/null 2>&1 || true
 
 # The google/fonts corpus from stage 1, then one cache rebuild over everything.
 COPY --from=fonts /out/google-fonts /usr/share/fonts/truetype/google-fonts

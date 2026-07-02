@@ -182,3 +182,35 @@ def test_mirror_slope_fails_for_the_shifted_apex():
     rep = G.mirror_slope_report(left, right, tol_deg=1.0)
     assert rep["symmetric"] is False
     assert rep["delta_deg"] == pytest.approx(2.2, abs=0.4)
+
+
+# ─────────────────────────────────────────────────────────────
+# consistency_report — the bundled metric a luminance diff can't be
+# ─────────────────────────────────────────────────────────────
+def test_consistency_report_bundles_symmetry_and_collinearity():
+    rep = G.consistency_report(
+        symmetry_pairs=GOOD_PAIRS + [APEX_BAD],
+        collinear_groups=[[(283, 438), (242, 508), (216, 597)]],  # the notch kink
+        tol=2.0)
+    assert rep["symmetry"]["n_outliers"] == 1
+    assert len(rep["collinearity"]) == 1
+    # worst_dev is dominated by the 9px apex shift, well over tolerance
+    assert rep["worst_dev_px"] >= 8.0
+    assert rep["within_tol"] is False
+
+
+def test_consistency_report_passes_for_clean_geometry():
+    # symmetric apex (306/357) + a genuinely collinear edge → within tolerance
+    good_apex = ((306.0, 201.0), (357.0, 199.0))
+    rep = G.consistency_report(
+        symmetry_pairs=[FEET_OUTER, COUNTER_BASE, good_apex],
+        collinear_groups=[[(100, 100), (150, 150), (200, 200)]],
+        tol=2.0)
+    assert rep["within_tol"] is True
+    assert rep["worst_dev_px"] <= 2.0
+
+
+def test_consistency_report_empty_is_trivially_within_tol():
+    rep = G.consistency_report(tol=2.0)
+    assert rep["within_tol"] is True
+    assert rep["worst_dev_px"] == 0.0

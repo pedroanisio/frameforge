@@ -689,6 +689,17 @@ class _Transpiler:
             + "\\usepackage{microtype}\n"
             "\\usepackage{amsmath}\n"
             "\\usepackage{amssymb}\n"
+            # Harmonise math with the Charter-class body: XCharter-Math keeps
+            # inline variables on the prose's rhythm instead of dropping into
+            # Latin Modern. \iftutex skips the block under pdflatex (its
+            # preamble is regex-swapped by to_pdflatex, which never sees
+            # this); \IfFontExistsTF skips it on hosts without the font, so
+            # the stock math setup still compiles everywhere.
+            "\\usepackage{iftex}\n"
+            "\\iftutex\n"
+            "\\IfFontExistsTF{XCharter-Math.otf}{%\n"
+            "\\usepackage{unicode-math}\\setmathfont{XCharter-Math.otf}}{}\n"
+            "\\fi\n"
             "\\usepackage{slashed}\n"
             "\\usepackage{xcolor}\n"
             "\\usepackage{booktabs}\n"

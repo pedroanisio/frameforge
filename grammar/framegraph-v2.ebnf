@@ -173,7 +173,12 @@ PagePreset  = "A3" | "A4" | "A5" | "Letter" | "Legal" | "Tabloid"   (* +P2: scre
             | "twitter-post" | "twitter-header" | "linkedin-post" | "linkedin-cover"
             | "youtube-thumbnail" | "youtube-banner" | "tiktok-video" | "pinterest-pin"
             | "snapchat" | "story"
-            | "1x1" | "4x5" | "5x4" | "9x16" | "16x9" | "2x3" | "3x2" | "1.91x1" | "3x1" ;
+            | "1x1" | "4x5" | "5x4" | "9x16" | "16x9" | "2x3" | "3x2" | "1.91x1" | "3x1"
+            (* +2.x: book trim sizes (points @ 72dpi) — see spec §4 *)
+            | "book-pocket" | "book-mass-market" | "book-trade" | "book-novel" | "book-digest"
+            | "book-6x9" | "book-7x10" | "book-8x10" | "book-textbook"
+            | "book-square-8" | "book-picture" | "book-square-10"
+            | "book-coffee-table" | "book-art-10x12" | "book-art-11x14" ;
 Orientation = "portrait" | "landscape" ;
 Units       = "pt" | "px" | "mm" | "in" | "cm" ;
 

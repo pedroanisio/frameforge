@@ -62,6 +62,26 @@ def test_canvas_aspect_ratio_alias_presets():
         assert w > 0 and h > 0
 
 
+def test_canvas_book_trim_presets_resolve():
+    """Book trim sizes resolve to points @ 72 dpi (inches × 72)."""
+    cr = CanvasResolver({})
+    assert cr.resolve({"canvas": "book-6x9"}) == (432, 648)          # 6 × 9 in
+    assert cr.resolve({"canvas": "book-trade"}) == (360, 576)        # 5 × 8 in
+    assert cr.resolve({"canvas": "book-7x10"}) == (504, 720)         # 7 × 10 in
+    assert cr.resolve({"canvas": "book-textbook"}) == (612, 792)     # 8.5 × 11 in (= Letter)
+    assert cr.resolve({"canvas": {"preset": "book-coffee-table"}}) == (648, 864)  # 9 × 12 in
+    assert cr.resolve({"canvas": "book-mass-market"}) == (306, 494.6)  # 4.25 × 6.87 in
+
+
+def test_canvas_presets_match_page_preset_literal():
+    """Guard drift: the resolver's PRESET keys must equal the model's PagePreset."""
+    import typing
+
+    from framegraph.rendering.domain.services.canvas_resolver import PRESETS
+    from models import framegraph as model
+    assert set(PRESETS) == set(typing.get_args(model.PagePreset))
+
+
 def test_canvas_inherited_from_master():
     cr = CanvasResolver({"m": {"canvas": {"preset": "A4"}}})
     assert cr.resolve({"master": "m"}) == (595, 842)

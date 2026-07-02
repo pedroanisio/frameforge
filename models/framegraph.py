@@ -94,6 +94,12 @@ PagePreset = Literal[
     "snapchat", "story",
     # Aspect-ratio aliases (canonical canvas at the named ratio).
     "1x1", "4x5", "5x4", "9x16", "16x9", "2x3", "3x2", "1.91x1", "3x1",
+    # Book trim sizes (final width×height after cutting; points @ 72dpi —
+    # mirror CanvasResolver.PRESETS). Names follow publishing convention.
+    "book-pocket", "book-mass-market", "book-trade", "book-novel", "book-digest",
+    "book-6x9", "book-7x10", "book-8x10", "book-textbook",
+    "book-square-8", "book-picture", "book-square-10",
+    "book-coffee-table", "book-art-10x12", "book-art-11x14",
 ]
 Units = Literal["pt", "px", "mm", "in", "cm"]
 Align = Literal["left", "center", "right"]

@@ -260,6 +260,14 @@ Social-media canvases (px) and aspect-ratio aliases are also presets: `instagram
 `5x4`, `9x16`, `16x9`, `2x3`, `3x2`, `1.91x1`, `3x1`. These are platform creator-guideline
 conventions (subject to change); the renderer's `CanvasResolver.PRESETS` is their pixel source.
 
+Book **trim sizes** (the final page size after cutting) are presets too, given in
+**points @ 72 dpi** (like the print presets, so `--to pdf`/`pdf-tex` come out physically
+correct): `book-pocket` 4×6 in, `book-mass-market` 4.25×6.87 in, `book-trade` 5×8 in,
+`book-novel` 5.25×8 in, `book-digest` 5.5×8.5 in, `book-6x9` 6×9 in (nonfiction / hardcover
+fiction), `book-7x10` 7×10 in (magazine-like), `book-8x10` 8×10 in (illustrated),
+`book-textbook` 8.5×11 in, `book-square-8` 8×8 in, `book-picture` 8.5×8.5 in, `book-square-10`
+10×10 in, `book-coffee-table` 9×12 in, `book-art-10x12` 10×12 in, `book-art-11x14` 11×14 in.
+
 ## 5. Styling, reuse, value types
 
 ### 5.1 Tokens

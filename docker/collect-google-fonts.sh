@@ -16,6 +16,15 @@ set -euo pipefail
 DEST="${DEST:-/usr/share/fonts/truetype/google-fonts}"
 REF="${GOOGLE_FONTS_REF:-main}"
 REPO="${GOOGLE_FONTS_REPO:-https://github.com/google/fonts.git}"
+
+# Opt out of the ~1GB corpus for a fast, still fully-capable image (LaTeX +
+# Chromium + the broad apt font set remain). Set INSTALL_GOOGLE_FONTS=0.
+if [ "${INSTALL_GOOGLE_FONTS:-1}" = "0" ]; then
+  echo ">> INSTALL_GOOGLE_FONTS=0 — skipping the google/fonts corpus."
+  mkdir -p "${DEST}"
+  exit 0
+fi
+
 WORK="$(mktemp -d)"
 
 echo ">> cloning ${REPO} (ref=${REF}, shallow) ..."

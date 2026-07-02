@@ -31,6 +31,24 @@ PRESETS = {
     "1x1": (1080, 1080), "4x5": (1080, 1350), "5x4": (1350, 1080),
     "9x16": (1080, 1920), "16x9": (1920, 1080), "2x3": (1080, 1620),
     "3x2": (1620, 1080), "1.91x1": (1200, 628), "3x1": (1500, 500),
+    # Book trim sizes — the final page size after cutting, in points @ 72 dpi
+    # (like the print presets above), so `--to pdf`/`pdf-tex` come out physically
+    # correct. inches × 72: e.g. 6×9 in → 432×648 pt.
+    "book-pocket": (288, 432),              # 4 × 6 in
+    "book-mass-market": (306, 494.6),       # 4.25 × 6.87 in
+    "book-trade": (360, 576),               # 5 × 8 in
+    "book-novel": (378, 576),               # 5.25 × 8 in
+    "book-digest": (396, 612),              # 5.5 × 8.5 in
+    "book-6x9": (432, 648),                 # 6 × 9 in — nonfiction / hardcover fiction
+    "book-7x10": (504, 720),                # 7 × 10 in — magazine-like illustrated
+    "book-8x10": (576, 720),                # 8 × 10 in — illustrated w/ diagrams
+    "book-textbook": (612, 792),            # 8.5 × 11 in — textbook / workbook (= Letter)
+    "book-square-8": (576, 576),            # 8 × 8 in — square children's book
+    "book-picture": (612, 612),             # 8.5 × 8.5 in — picture book
+    "book-square-10": (720, 720),           # 10 × 10 in
+    "book-coffee-table": (648, 864),        # 9 × 12 in — premium art / coffee-table
+    "book-art-10x12": (720, 864),           # 10 × 12 in
+    "book-art-11x14": (792, 1008),          # 11 × 14 in
 }
 DEFAULT_WH = (1280, 800)
 

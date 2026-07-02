@@ -565,3 +565,19 @@ def test_render_latex_cli_lists_framegraph_docs(tmp_path, capsys):
     listed = capsys.readouterr().out
     assert "flow.fg.yaml" in listed
     assert "page.fg.yaml" in listed
+
+
+def test_preamble_harmonises_math_with_the_body_face():
+    """Math is typeset in XCharter (the Charter-family math face) when the
+    host has it, so inline equations match the body's rhythm instead of
+    dropping into Latin Modern. Guarded twice: \\iftutex skips the block
+    under pdflatex, and \\IfFontExistsTF skips it on hosts without the font
+    (the default math setup still compiles everywhere)."""
+    tex = transpile({
+        "dsl": "FrameGraph", "version": "2.2.0",
+        "pages": [{"mode": "flow", "id": "p", "canvas": {"size": [400, 300]},
+                   "story": [{"type": "math", "tex": "e^{i\\pi}+1=0"}]}],
+    })
+    assert "\\iftutex" in tex
+    assert "\\IfFontExistsTF{XCharter-Math.otf}" in tex
+    assert "\\setmathfont{XCharter-Math.otf}" in tex
