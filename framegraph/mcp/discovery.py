@@ -14,6 +14,7 @@ Three discovery axes live here:
 """
 from __future__ import annotations
 
+import functools
 import hashlib
 import shutil
 import subprocess
@@ -133,12 +134,15 @@ def _field_summary(cls: type) -> dict[str, list[str]]:
     return {"required": sorted(required), "optional": sorted(optional)}
 
 
+@functools.lru_cache(maxsize=1)
 def _model_catalog() -> dict[str, Any]:
     """The live model surface, introspected from ``models/framegraph.py``.
 
     Loaded through :func:`framegraph.sdk.model.model_module` — the same
     mechanism the render pipeline uses — so the catalog can never drift from
-    what validation actually enforces.
+    what validation actually enforces. Cached for the process lifetime: the
+    model module is import-stable, and describe_capabilities sits on the hot
+    MCP tool path (full typing introspection per call otherwise).
     """
     from framegraph.sdk.model import model_module
 
@@ -329,6 +333,32 @@ def _pinned_session_fonts(
     return pinned
 
 
+_FC_FAMILIES_CACHE: dict[str, Any] = {"fn": None, "families": None}
+
+
+def _fc_families() -> list[str]:
+    """Sorted unique fontconfig families, cached per process.
+
+    The installed font set is stable for a server's lifetime, and fc-list over
+    ~5k families is a subprocess spawn on the hot MCP tool path. The cache is
+    keyed on the identity of ``_run_fc`` so tests that monkeypatch the runner
+    (deterministic fixtures) bypass a previously cached real enumeration.
+    """
+    if _FC_FAMILIES_CACHE["fn"] is _run_fc and _FC_FAMILIES_CACHE["families"] is not None:
+        return list(_FC_FAMILIES_CACHE["families"])
+    raw = _run_fc(["fc-list", "--format", "%{family}\n"])
+    names: set[str] = set()
+    for line in raw.splitlines():
+        for part in line.split(","):
+            part = part.strip()
+            if part:
+                names.add(part)
+    families = sorted(names)
+    _FC_FAMILIES_CACHE["fn"] = _run_fc
+    _FC_FAMILIES_CACHE["families"] = families
+    return list(families)
+
+
 def list_fonts(
     family: str | None = None,
     *,
@@ -357,7 +387,7 @@ def list_fonts(
             "pinned_fonts": pinned,
         }
     try:
-        raw = _run_fc(["fc-list", "--format", "%{family}\n"])
+        families = _fc_families()
     except (RuntimeError, OSError, subprocess.SubprocessError) as exc:
         return {
             "ok": False,
@@ -367,13 +397,6 @@ def list_fonts(
             "family_count": 0,
             "pinned_fonts": pinned,
         }
-    names: set[str] = set()
-    for line in raw.splitlines():
-        for part in line.split(","):
-            part = part.strip()
-            if part:
-                names.add(part)
-    families = sorted(names)
     if contains:
         needle = contains.lower()
         families = [name for name in families if needle in name.lower()]

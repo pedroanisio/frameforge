@@ -618,3 +618,21 @@ def test_svg_unresolvable_clip_path_is_dropped_not_fatal():
     o = svg_to_objects('<svg viewBox="0 0 10 10"><rect width="4" height="4" fill="#123" '
                        'clip-path="url(#missing)"/></svg>')[0]
     assert o["type"] == "rect" and "clip_path" not in o.get("style", {})
+
+
+def test_svg_symbol_renders_only_when_instanced():
+    """Per SVG spec a <symbol> paints only via <use>: the sprite convention
+    (symbols as direct <svg> children) must not double-emit geometry."""
+    from framegraph.vision.infrastructure.svg_import import svg_to_objects
+
+    svg = ("<svg xmlns='http://www.w3.org/2000/svg' "
+           "xmlns:xlink='http://www.w3.org/1999/xlink' width='200' height='40'>"
+           "<symbol id='ic'><rect x='0' y='0' width='10' height='10' fill='#111'/></symbol>"
+           "<use xlink:href='#ic' x='100'/></svg>")
+    objects = svg_to_objects(svg)
+    rects = [o for o in objects if o.get("type") == "rect"]
+    assert len(rects) == 1, "symbol must emit exactly once (via its <use>)"
+
+    orphan = ("<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'>"
+              "<symbol id='ic'><rect x='0' y='0' width='10' height='10'/></symbol></svg>")
+    assert [o for o in svg_to_objects(orphan) if o.get("type") == "rect"] == []

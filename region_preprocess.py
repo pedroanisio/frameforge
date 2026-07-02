@@ -10,7 +10,8 @@ and the helpers (``mollify``, ``smooth_loop``, ``green_area``, ``load_image``,
 replaced by the canonical ``DetectedRegion``.
 
 This shim re-exports the promoted API and delegates its CLI (to the robust
-consensus method); it will be removed.
+consensus method) for compatibility; removal is an operator decision
+(CLAUDE.md §8) — prefer the package import above.
 """
 from __future__ import annotations
 

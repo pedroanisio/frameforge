@@ -231,3 +231,36 @@ if __name__ == "__main__":
     print("rendered-empty (silent-ignore):", sorted(empty))
     assert empty == UNRENDERED
     print("OK")
+
+
+def test_angular_dimension_offset_shifts_from_feature_and_zero_is_honored():
+    """`offset` is a shift FROM the measured feature (the shorter ray's reach),
+    not an absolute radius — and offset=0 must not silently fall back."""
+    import re
+
+    def arc_radius(offset):
+        obj = {"type": "dimension", "kind": "angular",
+               "box": [40, 60, 0, 0], "from": [100, 60], "to": [40, 10]}
+        if offset is not None:
+            obj["offset"] = offset
+        body = _render_body(obj)
+        m = re.search(r" A ([0-9.]+) ", body)
+        assert m, body
+        return float(m.group(1))
+
+    base = arc_radius(None)          # shorter ray = 50 px
+    assert abs(base - 50.0) < 1e-6
+    assert abs(arc_radius(0) - base) < 1e-6          # falsy zero honored
+    assert abs(arc_radius(10) - (base + 10)) < 1e-6  # shift, not absolute
+    assert abs(arc_radius(-15) - (base - 15)) < 1e-6
+
+
+def test_group_children_honor_z_index_paint_order():
+    """z_index reorders group children (free placement) the same way it
+    reorders a layer's top level — placement untouched, emission sorted."""
+    body = _render_body({"type": "group", "box": [0, 0, 100, 100], "children": [
+        {"type": "rect", "box": [0, 0, 40, 40], "fill": "#aaaaaa",
+         "style": {"z_index": 5}},
+        {"type": "rect", "box": [20, 20, 40, 40], "fill": "#bbbbbb"},
+    ]})
+    assert body.index('fill="#bbbbbb"') < body.index('fill="#aaaaaa"')

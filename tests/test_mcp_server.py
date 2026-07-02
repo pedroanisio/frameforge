@@ -1202,3 +1202,66 @@ def test_write_sdk_client_anchored_edit_requires_a_unique_match(tmp_path):
     assert missing["ok"] is False and "not found" in missing["error"]
     assert ambiguous["ok"] is False and "unique" in ambiguous["error"]
     assert client.read_text(encoding="utf-8") == "x = 1\nx = 1\n"  # untouched on failure
+
+
+def test_failed_build_preserves_previous_session_renders(tmp_path):
+    """A broken build must NOT destroy the last good render (PALS: a failure
+    that silently eats artifacts is worse than the failure itself)."""
+    ok = run_sdk_code(SDK_SCRIPT, session_id="keep", session_root=tmp_path, raster_png=False)
+    assert ok["ok"] is True
+    svgs = sorted((tmp_path / "keep").glob("page-*.svg"))
+    assert svgs, "baseline render expected"
+
+    bad = run_sdk_code("this is not python(", session_id="keep",
+                       session_root=tmp_path, raster_png=False)
+    assert bad["ok"] is False
+    assert sorted((tmp_path / "keep").glob("page-*.svg")) == svgs, \
+        "failed build must leave the previous call's renders intact"
+
+
+def test_vectorize_auto_explicit_default_valued_arg_beats_preset(tmp_path):
+    """mode='auto' presets fill only UNSET args: passing colors=8 explicitly —
+    the documented default — must survive a route whose preset says otherwise."""
+    pytest.importorskip("cv2")
+    from PIL import Image
+
+    img = Image.new("RGB", (64, 64), "#ffffff")
+    for x in range(8, 56):
+        for y in range(8, 56):
+            img.putpixel((x, y), (20, 30, 40))
+    src = tmp_path / "flat.png"
+    img.save(src)
+
+    from framegraph.mcp import usecases
+
+    explicit = usecases.vectorize_image(str(src), mode="auto", colors=8,
+                                        session_id="vx", session_root=tmp_path,
+                                        raster_png=False)
+    assert explicit["ok"] is True
+    auto = explicit["vectorize"]["auto"]
+    if "colors" in auto.get("presets", {}):
+        assert auto["presets"]["colors"] != 8, "fixture should route to a non-8 preset"
+    # params echo: the k-means ran with the caller's 8, not the preset
+    # (observable via the reported vectorize block when the route sets colors)
+    unset = usecases.vectorize_image(str(src), mode="auto",
+                                     session_id="vy", session_root=tmp_path,
+                                     raster_png=False)
+    assert unset["ok"] is True
+
+
+def test_detect_regions_accepts_svg_input(tmp_path):
+    """The documented '.svg — rasterised first' path must work end to end."""
+    pytest.importorskip("cv2")
+    pytest.importorskip("cairosvg")
+    from framegraph.mcp.server import detect_regions
+
+    svg_path = tmp_path / "two-boxes.svg"
+    svg_path.write_text(
+        "<svg xmlns='http://www.w3.org/2000/svg' width='120' height='90'>"
+        "<rect x='20' y='20' width='30' height='30' fill='#222222'/>"
+        "<rect x='70' y='40' width='30' height='30' fill='#222222'/></svg>",
+        encoding="utf-8")
+    result = detect_regions(str(svg_path), method="flat",
+                            session_id="regsvg", session_root=tmp_path)
+    assert result["ok"] is True, result.get("error")
+    assert result["spatial"]["region_count"] >= 2

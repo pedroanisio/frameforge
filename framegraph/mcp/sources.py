@@ -37,7 +37,7 @@ from framegraph.mcp.security import (
     _repo_relative_path,
     _resolve_client_path,
 )
-from framegraph.mcp.sessions import _prepare_session, _reset_session_outputs, _session_id
+from framegraph.mcp.sessions import _prepare_session, _reset_session_inputs, _session_id
 
 _VISION_GROUP_HINT = (
     "The vision proposal lane needs the optional `vision` dependency group. "
@@ -154,7 +154,7 @@ class SdkCodeSource(DocumentSource):
 
     def produce(self) -> Produced:
         _, sid, session_dir, yaml_path = self._open()
-        _reset_session_outputs(session_dir)
+        _reset_session_inputs(session_dir)
         script_path = session_dir / "script.py"
         harness_path = session_dir / "_run_sdk.py"
         script_path.write_text(self.code, encoding="utf-8")
@@ -220,7 +220,7 @@ class SdkClientSource(DocumentSource):
             self.path, repo_root=root, edit_roots=self.edit_roots, must_exist=True
         )
         _, sid, session_dir, yaml_path = self._open()
-        _reset_session_outputs(session_dir)
+        _reset_session_inputs(session_dir)
         harness_path = session_dir / "_run_sdk_client.py"
         snapshot = _framegraph_yaml_snapshot(root)
 

@@ -43,9 +43,24 @@ def _reset_session_outputs(session_dir: Path) -> None:
     document. Clearing the per-run outputs (the generated YAML and any page SVG/PNG
     renders) makes each invocation hermetic without forcing callers to rotate the id.
     """
+    _reset_session_inputs(session_dir)
+    _reset_session_renders(session_dir)
+
+
+def _reset_session_inputs(session_dir: Path) -> None:
+    """Clear only the hermetic BUILD inputs (generated YAML + build-error sidecar).
+
+    Safe to run before ``produce()``: a failed build then leaves the previous
+    call's rendered pages intact instead of destroying them (PALS: a failure
+    must not silently eat the last good render).
+    """
+    for path in (session_dir / "generated.fg.yaml", session_dir / "build_error.json"):
+        path.unlink(missing_ok=True)
+
+
+def _reset_session_renders(session_dir: Path) -> None:
+    """Clear a prior run's rendered artifacts; call only when a new render is imminent."""
     stale = [
-        session_dir / "generated.fg.yaml",
-        session_dir / "build_error.json",
         session_dir / "document.pdf",
         *session_dir.glob("page-*.svg"),
         *session_dir.glob("p*.png"),

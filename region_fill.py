@@ -10,7 +10,8 @@ classification) now lives in ``framegraph.vision.infrastructure.regions``
     from framegraph.vision.infrastructure.regions import detect_regions
     detect_regions("img.png", method="flat", colors=8, min_area=100)
 
-This shim re-exports the promoted API and delegates its CLI; it will be removed.
+This shim re-exports the promoted API and delegates its CLI for compatibility;
+removal is an operator decision (CLAUDE.md §8) — prefer the package import above.
 """
 from __future__ import annotations
 

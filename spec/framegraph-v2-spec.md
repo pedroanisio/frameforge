@@ -1,10 +1,10 @@
 ---
 title: FrameGraph v2 — Specification (HEAD)
-version: 2.2.0
+version: 2.3.0
 status: PROPOSED / partially-implemented
 source_of_truth: models/framegraph.py (Pydantic) → schema generated; this prose is the normative reference
 supersedes: FrameGraph-2.0.0-Specification.md (reverse-engineered) and the four standalone patch docs (P1–P4); style subsystem defers to framegraph-v2-style.ebnf (authoritative)
-date: 2026-06-22
+date: 2026-07-01
 disclaimer: >
   FrameGraph v2 is a proposed, not-yet-conformantly-implemented format. Normative
   statements below ("MUST"/"SHOULD") describe the design target. Claims inherited

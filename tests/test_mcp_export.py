@@ -168,3 +168,18 @@ def test_real_metrics_true_reaches_the_renderer(tmp_path, monkeypatch):
 
     assert result["ok"] is True
     assert True in seen, "real_metrics=True must reach the Renderer constructor"
+
+
+def test_real_metrics_auto_honors_env_override(monkeypatch):
+    """'auto' must not silently override an operator's FRAMEGRAPH_REAL_METRICS
+    (e.g. forcing the byte-stable estimator for golden reproduction)."""
+    from framegraph.mcp.pipeline import _resolve_real_metrics
+
+    monkeypatch.setenv("FRAMEGRAPH_REAL_METRICS", "0")
+    assert _resolve_real_metrics("auto") is False
+    monkeypatch.setenv("FRAMEGRAPH_REAL_METRICS", "true")
+    assert _resolve_real_metrics("auto") is True
+    # explicit bool still beats the env
+    assert _resolve_real_metrics(False) is False
+    monkeypatch.delenv("FRAMEGRAPH_REAL_METRICS")
+    assert isinstance(_resolve_real_metrics("auto"), bool)

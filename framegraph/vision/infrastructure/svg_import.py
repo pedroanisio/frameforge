@@ -479,8 +479,11 @@ def svg_to_objects(svg: "str | Path", *, box: Optional[Sequence[float]] = None,
         m = _URL_REF.match(ref.strip())
         return clip_specs.get(m.group(1)) if m else None
 
-    def walk(el, inh: dict[str, Any], active_uses: frozenset[str]) -> None:
+    def walk(el, inh: dict[str, Any], active_uses: frozenset[str],
+             as_instance: bool = False) -> None:
         name = _localname(el.tag)
+        if name == "symbol" and not as_instance:
+            return  # per SVG spec, symbols render only when instanced via <use>
         if name in _SKIP_TAGS and name != "symbol":
             return
         props = _effective_props(el, rules)
@@ -503,7 +506,7 @@ def svg_to_objects(svg: "str | Path", *, box: Optional[Sequence[float]] = None,
             if x or y:
                 cur = dict(cur)
                 cur["tr"] = cur["tr"] + [f"translate({x:g} {y:g})"]
-            walk(target, cur, active_uses | {ref})
+            walk(target, cur, active_uses | {ref}, as_instance=True)
             return
         if name == "text":
             obj = _emit_text(el, props, cur["fill"])

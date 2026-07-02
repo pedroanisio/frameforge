@@ -9,7 +9,8 @@ The topological enclosed-face detector now lives in
     from framegraph.vision.infrastructure.regions import detect_regions
     detect_regions("input.png", method="closed", min_area=200)
 
-This shim re-exports the promoted API and delegates its CLI; it will be removed.
+This shim re-exports the promoted API and delegates its CLI for compatibility;
+removal is an operator decision (CLAUDE.md §8) — prefer the package import above.
 """
 from __future__ import annotations
 

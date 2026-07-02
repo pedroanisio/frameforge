@@ -11,7 +11,8 @@ call via the funnel:
                    cluster_tol=0.90)
 
 CLI: ``python unique_regions.py input.png --cluster translation`` (the cluster
-flag is now explicit). This shim re-exports the promoted API; it will be removed.
+flag is now explicit). This shim re-exports the promoted API for compatibility;
+removal is an operator decision (CLAUDE.md §8) — prefer the package import above.
 """
 from __future__ import annotations
 

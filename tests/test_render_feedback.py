@@ -207,3 +207,35 @@ def test_toc_of_non_headings_warns_instead_of_silence():
 if __name__ == "__main__":
     test_dropped_flowables_are_counted_by_type()
     print("OK")
+
+
+def test_render_pages_with_stats_diagnostics_wires_font_report():
+    """The advertised font_fallbacks signal must actually fire: diagnostics=True
+    calls renderer.font_report() before snapshotting (a substitution otherwise
+    stays invisible — the exact silent failure the feature exists to surface)."""
+    from framegraph.rendering.application import renderer as renderer_mod
+    from framegraph.sdk import conform
+
+    calls = []
+    real = renderer_mod.Renderer
+
+    class Recording(real):
+        def font_report(self):
+            calls.append(True)
+            self.diagnostics["font_fallbacks"] = [
+                {"requested": "Ghost Face", "resolved": "DejaVu Sans", "substituted": True}]
+            return self.diagnostics["font_fallbacks"]
+
+    doc = {"dsl": "FrameGraph", "version": "2.3.0",
+           "pages": [{"mode": "page", "id": "p", "canvas": {"size": [100, 60]},
+                      "layers": [{"id": "l", "objects": [
+                          {"type": "text", "box": [4, 4, 90, 20], "text": "hi",
+                           "style": {"font_family": "Ghost Face"}}]}]}]}
+    old = renderer_mod.Renderer
+    renderer_mod.Renderer = Recording
+    try:
+        _, _, diags = conform.render_pages_with_stats(doc, diagnostics=True)
+    finally:
+        renderer_mod.Renderer = old
+    assert calls, "diagnostics=True must invoke font_report()"
+    assert diags["font_fallbacks"] and diags["font_fallbacks"][0]["substituted"] is True

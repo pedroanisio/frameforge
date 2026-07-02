@@ -56,6 +56,12 @@ def render_pages_with_stats(
         if isinstance(page, dict):
             svgs.extend(renderer.render_page(page))
     if diagnostics:
+        # font_fallbacks is only populated by font_report() (fc-match probe);
+        # without this call the advertised substitution signal can never fire.
+        try:
+            renderer.font_report()
+        except Exception as exc:  # fc-match absent/broken must not kill the render
+            renderer.diagnostics["warnings"].append(f"font_report failed: {exc}")
         return svgs, dict(renderer.tstats), copy.deepcopy(renderer.diagnostics)
     return svgs, dict(renderer.tstats)
 

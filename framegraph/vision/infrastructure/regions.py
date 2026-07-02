@@ -87,7 +87,8 @@ class DetectedRegion:
     hole_polygons: list[list[list[float]]] | None = None
     shape_class: int | None = None                  # set by clustering (1-based, largest first)
 
-    def to_dict(self, width: float, height: float) -> dict[str, Any]:
+    def to_dict(self, width: float, height: float, *,
+                include_polygons: bool = True) -> dict[str, Any]:
         x, y, w, h = self.bbox_px
         nx, ny = normalize_point(x, y, width, height)
         nw, nh = normalize_point(w, h, width, height)
@@ -105,9 +106,9 @@ class DetectedRegion:
             "fill_rgb": list(self.fill_rgb) if self.fill_rgb is not None else None,
             "fill_hex": self.fill_hex,
             "holes": int(self.holes),
-            "polygon": self.polygon,
+            "polygon": self.polygon if include_polygons else None,
         }
-        if self.hole_polygons:
+        if self.hole_polygons and include_polygons:
             out["hole_polygons"] = self.hole_polygons
         if self.shape_class is not None:
             out["shape_class"] = int(self.shape_class)
@@ -837,7 +838,8 @@ def detect_regions(
         "region_count": len(analysis.regions),
         "closed_count": len(analysis.closed),
         "open_count": len(analysis.open),
-        "regions": [r.to_dict(analysis.width, analysis.height) for r in kept],
+        "regions": [r.to_dict(analysis.width, analysis.height,
+                              include_polygons=include_polygons) for r in kept],
         "overlay_path": written,
         "classes": classes,
     }

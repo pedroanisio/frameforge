@@ -215,11 +215,15 @@ def _validate_and_render_yaml(
 
 
 def _resolve_real_metrics(value: bool | str | None) -> bool:
-    """Resolve the ``real_metrics`` tri-state: True/False, or 'auto' = fontTools present.
+    """Resolve the ``real_metrics`` tri-state: True/False, or 'auto'.
 
-    Real metrics measure text with real glyph advances (via fontTools + the
-    fontconfig-resolved face) instead of the per-character estimate, so
-    wrap/shrink/ellipsis decisions match the rendered pixels.
+    'auto' first honors the renderer's own ``FRAMEGRAPH_REAL_METRICS`` env
+    override (an operator forcing the byte-stable estimator, e.g. for golden
+    reproduction, must not be silently overridden by MCP), then falls back to
+    "on when fontTools is importable". Real metrics measure text with real
+    glyph advances (fontTools + the fontconfig-resolved face) instead of the
+    per-character estimate, so wrap/shrink/ellipsis decisions match the
+    rendered pixels. An explicit bool from the caller always wins.
     """
     if isinstance(value, bool):
         return value
@@ -228,6 +232,9 @@ def _resolve_real_metrics(value: bool | str | None) -> bool:
         return True
     if text in ("false", "0", "no", "off"):
         return False
+    env = os.environ.get("FRAMEGRAPH_REAL_METRICS", "").strip().lower()
+    if env:  # mirror the Renderer's own parsing: any set value decides
+        return env in ("1", "true", "yes", "on")
     return importlib.util.find_spec("fontTools") is not None
 
 

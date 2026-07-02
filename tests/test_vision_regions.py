@@ -256,3 +256,24 @@ def test_regions_cli_prints_json_summary(tmp_path, capsys):
     assert rc == 0
     out = json.loads(capsys.readouterr().out)
     assert out["method"] == "flat" and out["region_count"] >= 3
+
+
+def test_consensus_include_polygons_false_omits_polygons(tmp_path):
+    """include_polygons must be honored by the DEFAULT (consensus) method too:
+    the payload ships no polygon vertex lists when the caller asked to omit them."""
+    cv2 = pytest.importorskip("cv2")
+    import numpy as np
+
+    from framegraph.vision.infrastructure.regions import detect_regions
+
+    img = np.full((90, 120, 3), 255, dtype=np.uint8)
+    cv2.rectangle(img, (20, 20), (50, 50), (30, 30, 30), thickness=-1)
+    cv2.rectangle(img, (70, 40), (100, 70), (30, 30, 30), thickness=-1)
+
+    result = detect_regions(img, "consensus", include_polygons=False)
+    assert result["region_count"] >= 1
+    for region in result["regions"]:
+        assert region["polygon"] is None
+        assert "hole_polygons" not in region
+    with_poly = detect_regions(img, "consensus", include_polygons=True)
+    assert any(r["polygon"] for r in with_poly["regions"])

@@ -21,7 +21,9 @@ from framegraph.mcp.sessions import (
     _prepare_session,
     _previous_session_tool,
     _prior_render_artifacts,
+    _reset_session_inputs,
     _reset_session_outputs,
+    _reset_session_renders,
     _session_id,
     read_session_resource,
 )
@@ -86,17 +88,19 @@ def _run_source(
     """Drive any document source: produce, then (if produced) validate + render.
 
     Every entry point funnels through here so the produce → validate → render →
-    diagnostics tail has exactly one implementation. The pre-produce reset makes
-    every source hermetic (the SDK sources also reset defensively in ``produce``)
-    and lets the replacement check snapshot what the reset is about to destroy.
+    diagnostics tail has exactly one implementation. Build inputs are reset
+    before ``produce`` (hermetic builds; SDK sources also reset defensively),
+    but rendered artifacts are cleared only once a new render is imminent — a
+    FAILED build leaves the previous call's renders intact.
     """
     session_dir = _session_root(source.session_root) / _session_id(source.session_id)
     replaced = _session_replacement_info(session_dir, tool) if tool else None
     if session_dir.is_dir():
-        _reset_session_outputs(session_dir)
+        _reset_session_inputs(session_dir)
     produced = source.produce()
     result = produced.result
     if produced.proceed:
+        _reset_session_renders(produced.session_dir)
         rendered = _validate_and_render_yaml(
             produced.yaml_path.read_text(encoding="utf-8"),
             session_id=produced.sid,
@@ -1249,7 +1253,12 @@ def detect_regions(
     tmp = Path(tempfile.mkdtemp(prefix="fg-regions-"))
     overlay_final: Path | None = None
     try:
-        src = tmp / "src.png"
+        # Preserve the vector suffix: regions.load_image rasterises only *.svg
+        # paths, so writing SVG bytes to a .png-named file would hand raw XML
+        # to cv2.imread (documented '.svg — rasterised first' support).
+        is_svg = (isinstance(image, str) and image.lower().endswith(".svg")) or (
+            b"<svg" in image_bytes[:512].lower())
+        src = tmp / ("src.svg" if is_svg else "src.png")
         src.write_bytes(image_bytes)
         overlay_tmp = tmp / "overlay.png" if overlay else None
         try:
@@ -1445,10 +1454,10 @@ def vectorize_image(
     *,
     mode: str = "region",
     region_box: list[float] | None = None,
-    colors: int = 8,
-    detail: float = 0.004,
-    min_area: float = 90.0,
-    max_dim: int = 900,
+    colors: int | None = None,
+    detail: float | None = None,
+    min_area: float | None = None,
+    max_dim: int | None = None,
     ink: str = "#1E2440",
     stroke_width: float = 1.0,
     threshold: int | None = None,
@@ -1503,19 +1512,24 @@ def vectorize_image(
             if mode == "auto":
                 from framegraph.vision.infrastructure.vectorize import resolve_auto_mode
                 mode, auto_meta = resolve_auto_mode(src)
-                # Route presets apply ONLY to args the caller left at their
-                # defaults (mirroring this signature / the server tool defaults) —
-                # an explicit argument always wins over the router (PALS: the
-                # router is a heuristic the caller can override).
+                # Route presets apply ONLY to args the caller left unset (None
+                # sentinel) — an explicitly passed value always wins over the
+                # router, even when it equals the documented default (PALS:
+                # the router is a heuristic the caller can override).
                 presets = auto_meta["presets"]
-                if "colors" in presets and colors == 8:
+                if "colors" in presets and colors is None:
                     colors = int(presets["colors"])
-                if "detail" in presets and detail == 0.004:
+                if "detail" in presets and detail is None:
                     detail = float(presets["detail"])
-                if "min_area" in presets and min_area == 90.0:
+                if "min_area" in presets and min_area is None:
                     min_area = float(presets["min_area"])
-                if "max_dim" in presets and max_dim == 900:
+                if "max_dim" in presets and max_dim is None:
                     max_dim = int(presets["max_dim"])
+            # Resolve remaining sentinels to the documented defaults.
+            colors = 8 if colors is None else int(colors)
+            detail = 0.004 if detail is None else float(detail)
+            min_area = 90.0 if min_area is None else float(min_area)
+            max_dim = 900 if max_dim is None else int(max_dim)
             if mode in ("region", "outline"):
                 from framegraph.vision.infrastructure.vectorize import raster_to_objects
                 if region_box:

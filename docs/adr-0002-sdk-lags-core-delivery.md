@@ -4,8 +4,10 @@ disclaimer:
     No information within this document should be taken for granted.
     Any statement or premise not backed by a real logical definition
     or verifiable reference may be invalid, erroneous, or a hallucination.
-  generated_by: "claude-opus-4-8 via Claude Code"
-  date: "2026-06-24"
+  generated_by: >-
+    claude-opus-4-8 via Claude Code; worked example + status notes amended by
+    Claude Fable 5 via Claude Code (2026-07-01)
+  date: "2026-06-24 (amended 2026-07-01)"
 ---
 
 # ADR 0002 — The SDK is a downstream consumer of the committed core; SDK support lags feature delivery

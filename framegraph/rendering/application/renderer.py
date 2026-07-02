@@ -637,11 +637,16 @@ class Renderer:
         box = o.get("box")
         if not (layout.get("kind") in ("row", "column", "grid", "wrap")
                 and isinstance(box, list) and len(box) >= 4):
-            return "".join(self.obj(ch) for ch in children)
+            # Free/authored-box children: same stable z_index paint order as a
+            # layer's top level (z_index affects paint order, never placement).
+            return "".join(self.obj(ch) for ch in self._paint_ordered(children))
         p = self._painter
+        # Arranged children: slots come from DOCUMENT order (z_index must not
+        # move a child to a different row/column cell) — only emission sorts.
         positions = self._layout.arrange(num(box[2], 0), num(box[3], 0), children, layout)
         parts = []
-        for ch, (tx, ty, tw, th) in zip(children, positions):
+        for ch, (tx, ty, tw, th) in sorted(
+                zip(children, positions), key=lambda cp: self._z_of(cp[0])):
             child = self._layout_child(ch, tw, th)
             csvg = self.obj(child)
             if not csvg:
@@ -982,7 +987,12 @@ class Renderer:
             a1, a2 = a2, a1
             sweep = 2 * math.pi - sweep
         degrees = math.degrees(sweep)
-        r = num(o.get("offset"), None) or min(d1, d2)
+        # `offset` is a shift FROM the measured feature (the shorter ray's
+        # reach), matching the model field doc — not an absolute radius; 0 and
+        # negative (inside) offsets are honored.
+        base = min(d1, d2)
+        off = num(o.get("offset"), 0.0) if o.get("offset") is not None else 0.0
+        r = max(base + off, 1.0)
         sx, sy = vx + r * math.cos(a1), vy + r * math.sin(a1)
         ex, ey = vx + r * math.cos(a2), vy + r * math.sin(a2)
         stroke = self._dim.stroke(o, style)
@@ -1313,18 +1323,21 @@ class Renderer:
         return "".join(body)
 
     def _paint_ordered(self, objects):
-        """Objects in paint order: `style.z_index` is a STABLE sort key within a
-        layer (default 0), so siblings without one keep document order and the
+        """Objects in paint order: `style.z_index` is a STABLE sort key among
+        siblings (layer top level and group children alike; default 0), so
+        siblings without one keep document order and the
         emitted bytes are unchanged. SVG paints in document order — CSS z-index
         is inert inside inline SVG — so ordering emission is the only honest
         implementation. The inert `z-index` style attribute is still emitted for
         HTML-embedding consumers."""
-        def zkey(o):
-            if not isinstance(o, dict):
-                return 0.0
-            z = self._style_dict(o.get("style")).get("z_index")
-            return num(z, 0) or 0.0
-        return sorted(objects, key=zkey)
+        return sorted(objects, key=self._z_of)
+
+    def _z_of(self, o):
+        """Stable z_index sort key (default 0) shared by every paint-order site."""
+        if not isinstance(o, dict):
+            return 0.0
+        z = self._style_dict(o.get("style")).get("z_index")
+        return num(z, 0) or 0.0
 
     def _render_page_body_in_reading_order(self, page, reading_order):
         top_level = []
