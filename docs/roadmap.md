@@ -59,7 +59,8 @@ appendix_references:
     book-composition API surface informed by the permissive book corpus inspection;
     item 9 is a generative content object (prompt → image / block) resolved **once
     at build and pinned**, carrying a high determinism / trust risk that the design
-    must contain.
+    must contain; item 10 (added 2026-07-02) is the granular Adobe-suite parity
+    programme over the 44-feature Illustrator teardown (Appendix B).
     (Items keep their original IDs; sections run in priority order, so the IDs
     appear out of sequence.)
 
@@ -171,6 +172,7 @@ different thing from the controls themselves.
 | 7 | Geometry / transformed spaces / 3D authoring SDK | **Low** | SDK ships; G-1 + G-2 landed → **complete** (optional scale extras only) |
 | 8 | Book composition API | **Medium-High** | Additive product/API surface |
 | 9 | Generative content objects (prompt → image / content) | **Medium** | Additive object + generation tier; high determinism / trust risk |
+| 10 | Adobe-suite parity program (granular; Appendix B) | **Medium-High** | Programme of granular closures over the 44-feature Illustrator teardown |
 | 6 | Interaction / animation for presented decks | **Low** | Conditional on goal |
 
 > Net ordering (most defensible first): wire the existing graph-layout engine into
@@ -540,6 +542,47 @@ and illustration authoring without a separate tool), but it pushes directly agai
 the determinism and trust guarantees, so it is additive *only* with the
 resolve-once-pin + verification design. Sequence it **after** item 4 (the golden
 harness it relies on to stay honest) and item 2 (the a11y gate it must satisfy).
+
+### 10. Adobe-suite parity — the granular closure programme
+
+**Goal.** One stated product goal is that FrameGraph can *match the Adobe
+suite* — capability for capability, reached declaratively (by grammar and tool
+call, not cursor). The evidence base is the 44-feature teardown
+**Adobe Illustrator 2025 vs FrameGraph v2.3.0**
+(generator: `static/examples/illustrator_vs_framegraph.py`; Illustrator's
+surface mined from "Master Adobe Illustrator 2025" via the doc-ray corpus,
+each feature round-tripped to a source sentence; FrameGraph coverage quoted
+from `docs/capability-manifest.json`, gated by `tests/test_capability_manifest.py`).
+
+**Scoreboard at 2.3.0:** 44 features → **21 HAS** (full equivalent, 48%),
+**11 PARTIAL**, **2 REFRAMED** (same end, declarative road: selection-by-id,
+image trace = `vectorize_image`), **10 NONE** → **73% full-or-partial**.
+The full granular matrix, one disposition per feature, is **Appendix B**.
+
+**The closure programme** groups the 21 non-HAS rows into workstreams
+(evidence and per-row detail in Appendix B):
+
+| WS | Workstream | Closes | Effort | Notes |
+|----|-----------|--------|--------|-------|
+| P-1 | **Planar geometry kernel** — declarative path booleans (union / subtract / intersect / divide), path surgery (split-at, cut-along), true Live-Paint region fills | AI-05, AI-06, AI-17 | M–L | Expansion-tier per the §A.0 doctrine: the SDK computes, the document receives plain `path` objects. The single highest-leverage build in the programme |
+| P-2 | **Curve & type finesse** — verify/expose `through()` smooth interpolation (Catmull-Rom / Hobby, §A.2); pair-kerning beyond `letter_spacing` (real-metrics kerning via fontTools or explicit kern pairs) | AI-09, AI-24 | S each | |
+| P-3 | **Type on a path** — glyph placement along a path at expansion, emitting positioned glyph groups | AI-23 | M | Reverses a stated scope limit — **operator decision required** |
+| P-4 | **Painterly gradients** — freeform gradient + gradient mesh ("the biggest single gap") emulated by expansion-tier subdivision shading (the Scene3D Gouraud precedent) | AI-28, AI-29 | L | Low priority; decision: emulate vs accept as the price of being a grammar |
+| P-5 | **Style richness** — complete the blend-mode set (S); ordered effect stack (M); appearance stack: multiple fill/stroke passes per object, out of the core profile (M) | AI-30, AI-31, AI-33 | S–M | Schema additions, profile-gated like charts |
+| P-6 | **Output & workflow** — `package` export verb over the §9.3 hermetic expansion (assets + fonts are already content-hashed — collect them); optional raster-export pixel-snap pass; advisory `locked` field consumed by MCP edit tools | AI-44, AI-41, AI-35 | S–M · S · XS | |
+| P-7 | **Verdict corrections by documentation** — three NONE/PARTIAL rows are actually REFRAMED today: anchor editing = MCP `workspace` pin/nudge/snap; freehand = curve *fitting* (`vectorize_image`, coach ingest); eyedropper = vision `measure_image` / `detect_regions` colour sampling | AI-02, AI-10, AI-16 | XS | No build — document and re-verdict |
+
+**Non-goals, reaffirmed** (honest limits — parity of *capability*, not of
+cursor): envelope distort (AI-25 — text stays on its baseline grid), freehand
+*pointer input* as an input mode (the fitting half is P-7), PSD / EPS / DWG
+export (AI-42 residual — proprietary/legacy), CMYK separations now (AI-15
+stays behind item 5's deferred ICC hook).
+
+**Sequencing.** P-7 and P-6's small items are immediate; P-1 is the flagship
+and should follow item 4's tolerance discipline (geometry kernels need golden
+protection); P-3 through P-5 are operator-gated decisions. The teardown is
+re-runnable — re-render the generator after each workstream and watch the
+scoreboard move.
 
 ---
 
@@ -975,3 +1018,100 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 ---
 
 *End of Appendix A. Re-read the disclaimer; verify every formula's sign convention against your renderer before relying on it.*
+
+---
+
+# Appendix B — Adobe Illustrator parity matrix (granular, 44 features)
+
+> **Status:** the granular evidence base of roadmap item 10. Source:
+> `static/examples/illustrator_vs_framegraph.py` (rendered as
+> `illustrator_vs_framegraph.fg.pdf`), Illustrator surface mined from
+> "Master Adobe Illustrator 2025" (Dana J. Bailey; 1,875 sentences, doc-ray
+> corpus, each feature round-tripped to a source sentence ordinal), FrameGraph
+> coverage quoted from the gated `docs/capability-manifest.json`. Verdicts:
+> **HAS** direct equivalent · **PARTIAL** narrower/different form · **NONE**
+> no equivalent (often a non-goal) · **REFRAMED** same end, reached by
+> naming/tool-call instead of cursor. Dispositions reference the item-10
+> workstreams (P-1…P-7).
+
+## A · Select & edit paths
+
+| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+|----|--------------------|---------|------------------|-------------|
+| AI-01 | Object selection | REFRAMED | name an object by id and act on it | settled — declaration replaces point-and-click |
+| AI-02 | Anchor-point editing | PARTIAL | path/bezier/curve points authored as coordinates | **P-7**: MCP `workspace` pin/nudge/snap is the declarative Direct Selection — document, re-verdict |
+| AI-03 | Isolation mode | HAS | nested group + per-page layer scoping | settled |
+| AI-04 | Compound paths | HAS | path `fill_rule` even-odd; polygon holes | settled |
+| AI-05 | Shape Builder | NONE | no boolean shape merge | **P-1**: declarative path booleans (M–L) |
+| AI-06 | Scissors & Knife | NONE | no path surgery | **P-1**: split-at / cut-along, S once the kernel exists |
+
+## B · Draw & primitives
+
+| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+|----|--------------------|---------|------------------|-------------|
+| AI-07 | Shape primitives | HAS | rect, ellipse, circle, polygon, line, polyline (17 object types) | settled |
+| AI-08 | Pen tool (Bézier) | PARTIAL | bezier/curve objects authored by coordinate | settled as design — coordinates are the pen; `construct_vectors` + coach are the assistive pen |
+| AI-09 | Curvature tool | PARTIAL | curve object + smooth polyline; no live rubber-band | **P-2**: verify/expose `through()` smooth interpolation (§A.2), S |
+| AI-10 | Pencil / freehand | NONE | no freehand pointer input | **P-7**: the declarative counterpart is curve *fitting* (`vectorize_image`, coach ingest) — document, re-verdict; pointer input itself stays a non-goal |
+| AI-11 | Stroke controls | HAS | `stroke_style` width/dasharray/cap/join (P3 split) | settled |
+
+## C · Colour system
+
+| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+|----|--------------------|---------|------------------|-------------|
+| AI-12 | Colour picker | HAS | hex/rgb on any paintable field | settled |
+| AI-13 | Swatches | HAS | `defs.tokens.colors` — named, reusable | settled |
+| AI-14 | Global colours | HAS | named tokens are global by construction | settled |
+| AI-15 | CMYK / RGB modes | PARTIAL | RGB/hex only — no CMYK, no separations | stays behind **item 5**'s deferred ICC output-intent hook |
+| AI-16 | Eyedropper sampling | NONE | no interactive sampling | **P-7**: vision `measure_image` / `detect_regions` sample colour declaratively — document, re-verdict |
+| AI-17 | Live Paint | PARTIAL | region toolkit: `select_in` / `place_region` / `region_grade` | **P-1**: planar arrangement gives true fill-any-bounded-region, M after kernel |
+| AI-18 | Patterns | HAS | pattern fills on any object | settled |
+
+## D · Type & text
+
+| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+|----|--------------------|---------|------------------|-------------|
+| AI-19 | Point & area type | HAS | text objects + flow paragraph/heading/list | settled |
+| AI-20 | Character formatting | HAS | font_family/size/weight among 106 style props | settled |
+| AI-21 | Paragraph controls | HAS | align, line_height, spacing, columns | settled |
+| AI-22 | Threaded text | HAS | flow model: column_break / page_break / keep_together | settled |
+| AI-23 | Type on a path | NONE | explicit scope limit today | **P-3**: expansion-tier glyph placement along a path, M — operator decision (reverses a stated limit) |
+| AI-24 | Kerning & leading | PARTIAL | letter_spacing / line_height; no pair-kerning table | **P-2**: real-metrics pair kerning (fontTools) or explicit kern pairs, S |
+| AI-25 | Envelope distort | NONE | text stays on its baseline grid | **non-goal**, reaffirmed |
+
+## E · Gradient · effect · style
+
+| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+|----|--------------------|---------|------------------|-------------|
+| AI-26 | Linear gradient | HAS | `linear_gradient` paint on fill or stroke | settled |
+| AI-27 | Radial gradient | HAS | `radial_gradient` paint | settled |
+| AI-28 | Freeform gradient | NONE | no freeform gradient | **P-4**: subdivision-shading emulation, L, low priority — decision |
+| AI-29 | Gradient mesh | NONE | the biggest single gap | **P-4**: same route (Scene3D Gouraud precedent) or accept as the price of being a grammar — decision |
+| AI-30 | Blending modes | PARTIAL | opacity + a limited blend-mode set | **P-5**: complete the CSS blend-mode set, S |
+| AI-31 | Live effects | PARTIAL | SVG filter effects (shadow/blur), not a live stack | **P-5**: ordered effect stack per object, M |
+| AI-32 | Graphic styles | HAS | named styles / text_styles / stroke_styles tokens | settled |
+| AI-33 | Appearance stack | PARTIAL | one style per object; no multi-fill stack | **P-5**: multiple fill/stroke passes, out of the core profile, M |
+
+## F · Layer · transform · page
+
+| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+|----|--------------------|---------|------------------|-------------|
+| AI-34 | Layers | HAS | ordered layers per page, z-index | settled |
+| AI-35 | Lock / hide | PARTIAL | visibility flag; no lock state | **P-6**: advisory `locked` field consumed by MCP edit tools, XS |
+| AI-36 | Transform tools | HAS | transform: Mat3 rotate / scale / translate / shear | settled |
+| AI-37 | Align & distribute | HAS | layout groups: row / column / grid, align | settled |
+| AI-38 | Artboards | HAS | multi-page flow doc: TOC, tables, bibliography | settled |
+
+## G · Image & output
+
+| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+|----|--------------------|---------|------------------|-------------|
+| AI-39 | Embed / link raster | HAS | image object: embedded or src-referenced | settled |
+| AI-40 | Image trace | REFRAMED | `vectorize_image` MCP tool call, not a canvas menu | settled — same raster→vector end, declarative road |
+| AI-41 | Pixel grid snapping | NONE | pure vector coordinates | **P-6**: optional raster-export pixel-snap pass, S, low priority |
+| AI-42 | Export formats | PARTIAL | SVG / PNG / PDF / LaTeX (6 renderers); no PSD / EPS / DWG | proprietary/legacy targets stay **non-goals** |
+| AI-43 | PDF export | HAS | PDF renderer (solved SVG → vector PDF) | settled |
+| AI-44 | Package | NONE | no asset-collection packaging step | **P-6**: `package` export verb over §9.3 hermetic expansion (assets/fonts already content-hashed), S–M |
+
+*End of Appendix B. Re-run the teardown generator after each workstream lands
+and watch the scoreboard move; the matrix is evidence, not aspiration.*
