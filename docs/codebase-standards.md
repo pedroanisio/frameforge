@@ -265,7 +265,7 @@ else is generated from or checked against them** ([README.md](../README.md), *Th
   Snapshot freshness is gated twice — `docs-check` and the pytest suite (above).
 - **`[Adopted]`** **Hand-written pages are now in nav.** Beyond `docs/index.md`, the
   `mkdocs.yml` nav carries `error-codes.md` and a *Design records* section
-  (`architecture.md`, `output-space.md`, `roadmap-draft.md`, the ADRs,
+  (`architecture.md`, `output-space.md`, `roadmap.md`, the ADRs,
   `illustration-protocol.md`, `framegraph-vector-recreation-improvements.md`, `BRAND.md`) —
   all committed, hand-written pages. Everything else under `docs/` is a `make docs` build
   artifact. (Earlier revisions stated `index.md` was the only hand-written nav page; the

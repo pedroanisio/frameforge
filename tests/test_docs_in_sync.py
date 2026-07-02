@@ -42,7 +42,7 @@ DOCS_GITIGNORE = open(os.path.join(ROOT, "docs", ".gitignore"), encoding="utf-8"
 MKDOCS = open(os.path.join(ROOT, "mkdocs.yml"), encoding="utf-8").read()
 GEN_DOCS = open(os.path.join(ROOT, "tooling", "gen_docs.py"), encoding="utf-8").read()
 ARCHITECTURE = open(os.path.join(ROOT, "docs", "architecture.md"), encoding="utf-8").read()
-ROADMAP = open(os.path.join(ROOT, "docs", "roadmap-draft.md"), encoding="utf-8").read()
+ROADMAP = open(os.path.join(ROOT, "docs", "roadmap.md"), encoding="utf-8").read()
 
 _SKIP_DIRS = {".git", ".venv", "node_modules", "out", "__pycache__", ".pytest_cache", ".ruff_cache"}
 _TRANSIENT_GENERATED_DOCS = {

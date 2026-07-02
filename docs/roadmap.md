@@ -1,8 +1,8 @@
 ---
-title: FrameGraph v2 — Roadmap (draft)
+title: FrameGraph v2 — Roadmap
 version: 2.2.0 (analysis baseline; repo HEAD moved to 2.3.0 on 2026-07-01 — see the Record-era note)
-status: DRAFT / design-target — not commitments
-date: 2026-06-22
+status: CANONICAL roadmap — sequence logic and priorities, still not dated commitments
+date: 2026-06-22 (analysis) · 2026-07-02 (made canonical; federated index added)
 method: >
   Gaps asserted against the EBNF + checked-in fixtures, then verified against the
   authoritative Pydantic models (`models/framegraph.py`, HEAD 2.2.0), and benchmarked
@@ -27,7 +27,14 @@ appendix_references:
   - "three.js: 3D scene graph — the comparator for *true* 3D (out of scope here)"
 ---
 
-# FrameGraph v2 — Roadmap (draft)
+# FrameGraph v2 — Roadmap
+
+!!! note "Canonical since 2026-07-02"
+    Renamed from `roadmap-draft.md` and promoted to the **canonical roadmap**:
+    the single index over every roadmap layer (see *The roadmap, federated*
+    below). Canonical means this is where priorities and sequence live — it
+    does **not** convert the sequence into dated commitments (the front-matter
+    disclaimer stands).
 
 !!! warning "Record era"
     This record pre-dates two 2026-07 events. (1) The src-layout refactor —
@@ -55,6 +62,29 @@ appendix_references:
     must contain.
     (Items keep their original IDs; sections run in priority order, so the IDs
     appear out of sequence.)
+
+## The roadmap, federated (canonical index)
+
+This document owns the **product/format** roadmap. Three sibling layers are
+tracked elsewhere and referenced here rather than duplicated:
+
+| Layer | Source of truth | Content |
+|---|---|---|
+| Product / format (this doc) | the phases below | auto-layout wiring, PDF/UA, BookBuilder, generative objects, the 2.x split + 3.0 single-source direction |
+| Engineering standards | [codebase-standards.md §16](codebase-standards.md) — the `[Target]` ledger | gating ruff, `mypy --strict`, coverage gate, TDD trees, golden drift tolerance, pre-commit, `__version__`/release recipe, CI matrix |
+| Operational (tracked work) | GitHub, pinned umbrellas | [#36 — absorb framegraph v0.1.0](https://github.com/pedroanisio/frameforge/issues/36) (pattern catalog + fill bridge, UML 2.5 + full Sugiyama, `from-markdown`, symbol/token packs, deck corpus); [#43 — rename framegraph → frameforge](https://github.com/pedroanisio/frameforge/issues/43) (ADR-gated, idempotent engine, three slices); [#44 — silent text-clip diagnostics](https://github.com/pedroanisio/frameforge/issues/44) |
+| Version trajectory | [CHANGELOG](../CHANGELOG.md) + rename ADR ([#37](https://github.com/pedroanisio/frameforge/issues/37)) | HEAD 2.3.0 → 2.4 (both DSL markers accepted + codemod, additive) → 3.0 (marker hard cut — which can carry this doc's 3.0 single-source milestone) |
+
+Cross-links where the layers touch: item 1's optional "exact crossing
+minimization beyond the current heuristics" is precisely what the absorption
+plan imports ([#30](https://github.com/pedroanisio/frameforge/issues/30): the
+sibling's 4-stage Sugiyama — cycle removal, median crossing minimization,
+Brandes–Köpf — plus 14 UML composers); item 8's book-composition ambitions gain
+a declarative on-ramp from the 375-pattern catalog + fill contract
+([#28](https://github.com/pedroanisio/frameforge/issues/28)/[#29](https://github.com/pedroanisio/frameforge/issues/29));
+and the text-fitting diagnostics gap ([#44](https://github.com/pedroanisio/frameforge/issues/44))
+is a prerequisite of trustworthy book pagination (item 8) — silent content
+loss and long-form composition cannot coexist.
 
 !!! info "Verification status"
     Every gap below was checked against `models/framegraph.py` and the grammar at
@@ -87,7 +117,7 @@ appendix_references:
 | # | Item | Roadmap said | TRUE state (audited) | Evidence / what remains |
 |---|------|--------------|----------------------|-------------------------|
 | 4 | Conformance + golden render | gap | ✅ **DONE** | `tooling/render_golden.py`, `tests/golden/oracle.lock.json` (SHA-256 lock, CI-gated). **Tolerance band** added: exact hash primary + committed reference renders (`tests/golden/refs/`), numeric ±ε classifies cosmetic vs real drift (`--tolerance`/`--strict`). **Schema URL** versioned + resolvable-shaped (`…/schema/2.2.0/framegraph-v2.schema.json` + `version`). Residual: pixel/font/AA perceptual tolerance (raster-gated). |
-| 2 | Accessibility / tagged export | gap | ✅ **SVG done**, PDF/UA open | `svg.py` a11y_wrap (decorative/role/alt/actual_text), root lang/title/desc, `_render_page_body_in_reading_order`, `tooling/check_accessibility.py`; tests. PDF/UA awaits a PDF backend. |
+| 2 | Accessibility / tagged export | gap | ✅ **SVG done**, PDF/UA open | `svg.py` a11y_wrap (decorative/role/alt/actual_text), root lang/title/desc, `tooling/check_accessibility.py`; tests. **2026-07-02:** reading-order *DOM ordering* was retired — DOM order IS paint order, and reordering emission painted listed content beneath unlisted backgrounds; `reading_order` now rides as `data-reading-order` metadata on the page group (paint order stays layer/z/document). PDF/UA awaits a PDF backend and must consume the metadata, not DOM order. |
 | 7 | Geometry / 3D authoring SDK | additive gap | ✅ **done** | `sdk/geometry.py` (A.1/A.2), `sdk/manifold.py`+Scene3D (A.5); **A.3** curve sampling, **A.4** structured log-base/pow-exp scales, **A.6** orthographic `multiview`, **G-1** typed structured path segments (model `PathSeg`/`PathCommand` + EBNF `PathSegList`, JSON Schema `prefixItems`, enum-gated by `check_grammar_sync`), and **G-2** (`perspective` marked non-conformant in model + EBNF, validator WARN `non-conformant-3d`) all landed — **item 7 complete**. Only optional minor scale extras (categorical/time) remain. |
 | 1 | Diagram auto-layout | gap | ✅ **author-time done** | `sdk/topology.py`: 5 algorithms **plus `auto_layout`/`layout_kind`** — a graph now lays itself out from its declared edges (algorithm inferred: grid/radial/layered/spring), and `Graph.render()` auto-layouts by default. Remaining (optional): a *render-time* pass over `mode: page` diagram groups, or an ELK binding. |
 | 3 | Data layer for charts | out of scope | ✅ decision holds | `sdk/chart.py` is a lowering helper, no data transforms (by design). |
@@ -166,7 +196,7 @@ so it moves ahead of item 1.
    now). Both revisitable. *Effort: S.*
 1. **Item 2 — accessibility export.** Vocabulary exists and the SVG painter
    already emits `role=`/`aria-*`; **complete** SVG a11y (`<title>`/`<desc>`,
-   reading-order DOM ordering, `decorative` → `aria-hidden`) against the existing
+   `data-reading-order` structure metadata, `decorative` → `aria-hidden`) against the existing
    proxy, then add full PDF/UA tagging once a tagging PDF backend exists (today's
    PDF is untagged Chromium print). *Effort: S (finish SVG) → L (PDF/UA).*
 2. **Item 4 — golden-render harness.** Pin the `b1/` fixtures to reference renders
@@ -219,7 +249,7 @@ you must call a layout method explicitly in the SDK and bake the coordinates.
     Two layers exist. **Container** layout: `Group.layout` with
     `kind: row | column | grid | free` plus `gap` / `row_gap` / `column_gap` /
     `padding` / `align`, realized by `LayoutEngine.arrange`
-    ([src/framegraph/rendering/domain/services/layout_engine.py](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/domain/services/layout_engine.py))
+    ([src/framegraph/rendering/domain/services/layout_engine.py](../src/framegraph/rendering/domain/services/layout_engine.py))
     — a box-model packer that repositions a group's children into rows / columns /
     a grid and does **not** resize them; it cannot place nodes from edges.
     **Graph** layout: `sdk.topology.Graph.{layered,spring,circular,radial,grid}_layout`

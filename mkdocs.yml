@@ -65,7 +65,7 @@ nav:
   - Design records:
       - Architecture: architecture.md
       - Output space: output-space.md
-      - Roadmap (draft): roadmap-draft.md
+      - Roadmap: roadmap.md
       - ADR-0001 backend-neutral rendering: adr-0001-backend-neutral-rendering.md
       - ADR-0002 SDK lags core delivery: adr-0002-sdk-lags-core-delivery.md
       - Illustration protocol: illustration-protocol.md
