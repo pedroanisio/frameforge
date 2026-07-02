@@ -122,7 +122,9 @@ def test_hundred_faces_map_to_distinct_latex_font_families():
     tex = _transpile_latex("font-faces-100.fg.yaml")
     # one guarded \newfontfamily per declared face: no cap, no collision.
     assert tex.count(r"\newfontfamily") == 100
-    assert tex.count(r"\IfFontExistsTF") == 100
+    # one guard per FACE declaration; the preamble carries one more fixed
+    # \IfFontExistsTF for the XCharter math face, so count declarations.
+    assert len(re.findall(r"\\IfFontExistsTF\{[^}]*\}\{\\newfontfamily", tex)) == 100
     # each face is actually *selected* by its text, not just declared. Faces
     # appear either at node level (font=\fgffX\fontsize…, single-run texts)
     # or as inline switches ({\fgffX{…}}, multi-run texts render as ONE node
