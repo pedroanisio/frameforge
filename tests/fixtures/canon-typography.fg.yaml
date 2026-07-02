@@ -1,0 +1,451 @@
+# Canonical fixture for framegraph.sdk.canon (Johnston's typographic canon).
+# GENERATED from the module's own output — margins, sizes, the measure band
+# and tracking are computed by johnston_margins / modular_scale / caps_tracking
+# (source: Johnston 1906). Regenerate via the module rather than hand-editing.
+dsl: FrameGraph
+version: 2.3.0
+profile: report
+title: Johnston canon — margins, scale, measure
+defs:
+  tokens:
+    colors:
+      ground: '#fbfaf6'
+      ink: '#1d1e22'
+      accent: '#b5402c'
+      quiet1: '#a5a5a5'
+      quiet2: '#787878'
+      quiet3: '#4b4b4b'
+pages:
+- mode: page
+  id: plate
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - id: bg
+      box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: ground
+    - id: guide-inner
+      box:
+      - 60.0
+      - 0
+      - 1
+      - 1123
+      type: rect
+      fill: quiet1
+    - id: guide-outer
+      box:
+      - 674.0
+      - 0
+      - 1
+      - 1123
+      type: rect
+      fill: quiet1
+    - id: guide-top
+      box:
+      - 0
+      - 80.0
+      - 794
+      - 1
+      type: rect
+      fill: quiet1
+    - id: guide-foot
+      box:
+      - 0
+      - 963.0
+      - 794
+      - 1
+      type: rect
+      fill: quiet1
+    - id: kicker
+      box:
+      - 68.0
+      - 88.0
+      - 598.0
+      - 20
+      style:
+        color: accent
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+        font_weight: 600
+        letter_spacing: 0.69
+      type: text
+      text: SDK.CANON — CANONICAL PLATE
+    - id: title
+      box:
+      - 68.0
+      - 118.0
+      - 598.0
+      - 52
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 35.09521484375
+      type: text
+      text: The typographic canon
+    - id: margin-note
+      box:
+      - 68.0
+      - 176.0
+      - 598.0
+      - 36
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: 'margins from one unit (40px): inner 60 · top 80 · outer 120 · foot 160
+        — the hairlines are the canon'
+    - id: scale-cover
+      box:
+      - 68.0
+      - 220.0
+      - 420
+      - 82.25440979003906
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 54.836273193359375
+      type: text
+      text: Harmony
+    - id: scale-cover-tag
+      box:
+      - 520.0
+      - 254.12720489501953
+      - 138.0
+      - 14
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: COVER · 54.8
+    - id: scale-display
+      box:
+      - 68.0
+      - 312.25440979003906
+      - 420
+      - 65.80352783203125
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 43.8690185546875
+      type: text
+      text: Harmony
+    - id: scale-display-tag
+      box:
+      - 520.0
+      - 338.1561737060547
+      - 138.0
+      - 14
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: DISPLAY · 43.9
+    - id: scale-h1
+      box:
+      - 68.0
+      - 388.0579376220703
+      - 420
+      - 52.642822265625
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 35.09521484375
+      type: text
+      text: Harmony
+    - id: scale-h1-tag
+      box:
+      - 520.0
+      - 407.3793487548828
+      - 138.0
+      - 14
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: H1 · 35.1
+    - id: scale-h2
+      box:
+      - 68.0
+      - 450.7007598876953
+      - 420
+      - 42.1142578125
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 28.076171875
+      type: text
+      text: Harmony
+    - id: scale-h2-tag
+      box:
+      - 520.0
+      - 464.7578887939453
+      - 138.0
+      - 14
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: H2 · 28.1
+    - id: scale-h3
+      box:
+      - 68.0
+      - 502.8150177001953
+      - 420
+      - 33.69140625
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 22.4609375
+      type: text
+      text: Harmony
+    - id: scale-h3-tag
+      box:
+      - 520.0
+      - 512.6607208251953
+      - 138.0
+      - 14
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: H3 · 22.5
+    - id: scale-lead
+      box:
+      - 68.0
+      - 546.5064239501953
+      - 420
+      - 26.953125
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 17.96875
+      type: text
+      text: Harmony
+    - id: scale-lead-tag
+      box:
+      - 520.0
+      - 552.9829864501953
+      - 138.0
+      - 14
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: LEAD · 18.0
+    - id: scale-body
+      box:
+      - 68.0
+      - 583.4595489501953
+      - 420
+      - 21.5625
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 14.375
+      type: text
+      text: Harmony
+    - id: scale-body-tag
+      box:
+      - 520.0
+      - 587.2407989501953
+      - 138.0
+      - 14
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: BODY · 14.4
+    - id: scale-caption
+      box:
+      - 68.0
+      - 615.0220489501953
+      - 420
+      - 17.25
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 11.5
+      type: text
+      text: Harmony
+    - id: scale-caption-tag
+      box:
+      - 520.0
+      - 616.6470489501953
+      - 138.0
+      - 14
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: CAPTION · 11.5
+    - id: measure-label
+      box:
+      - 68.0
+      - 660.2720489501953
+      - 598.0
+      - 16
+      style:
+        color: accent
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: THE MEASURE — 45 TO 75 CHARACTERS
+    - id: measure-bar
+      box:
+      - 68.0
+      - 684.2720489501953
+      - 598.0
+      - 22
+      type: rect
+      fill: quiet1
+    - id: measure-band
+      box:
+      - 337.1
+      - 684.2720489501953
+      - 179.4
+      - 22
+      type: rect
+      fill: accent
+    - id: measure-note
+      box:
+      - 68.0
+      - 714.2720489501953
+      - 598.0
+      - 14
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: characters per line, 0–100 — the tinted band is home
+    - id: caps-plain
+      box:
+      - 68.0
+      - 752.2720489501953
+      - 598.0
+      - 26
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 17.96875
+      type: text
+      text: ROMAN MONUMENT
+    - id: caps-tracked
+      box:
+      - 68.0
+      - 788.2720489501953
+      - 598.0
+      - 26
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 17.96875
+        letter_spacing: 1.078125
+      type: text
+      text: ROMAN MONUMENT
+    - id: caps-note
+      box:
+      - 68.0
+      - 824.2720489501953
+      - 598.0
+      - 14
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: tracked ±0 — crowded · tracked +1.1px (6% of 18.0) — even
+  reading_order:
+  - kicker
+  - title
+  - margin-note
+  - scale-cover
+  - scale-cover-tag
+  - scale-display
+  - scale-display-tag
+  - scale-h1
+  - scale-h1-tag
+  - scale-h2
+  - scale-h2-tag
+  - scale-h3
+  - scale-h3-tag
+  - scale-lead
+  - scale-lead-tag
+  - scale-body
+  - scale-body-tag
+  - scale-caption
+  - scale-caption-tag
+  - measure-label
+  - measure-note
+  - caps-plain
+  - caps-tracked
+  - caps-note

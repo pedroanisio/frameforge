@@ -1,0 +1,621 @@
+# Canonical fixture for framegraph.sdk.chevreul (the colour canon).
+# GENERATED from the module's own output — every colour below is computed by
+# the wheel / six-harmony / closed-palette functions (see the module docstring
+# for sources: Chevreul 1839; WCAG 2.1 for the contrast figure). Regenerate
+# with the recipe in the module docs rather than hand-editing colour values.
+dsl: FrameGraph
+version: 2.3.0
+profile: report
+title: Chevreul canon — the six harmonies
+defs:
+  tokens:
+    colors:
+      ground: '#fbfaf6'
+      ink: '#1d1e22'
+      accent: '#b5402c'
+      quiet1: '#a5a5a5'
+      quiet2: '#787878'
+      quiet3: '#4b4b4b'
+pages:
+- mode: page
+  id: plate
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - id: bg
+      box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: ground
+    - id: kicker
+      box:
+      - 60.0
+      - 80.0
+      - 614.0
+      - 20
+      style:
+        color: accent
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+        font_weight: 600
+        letter_spacing: 0.69
+      type: text
+      text: SDK.CHEVREUL — CANONICAL PLATE
+    - id: title
+      box:
+      - 60.0
+      - 110.0
+      - 614.0
+      - 52
+      style:
+        color: ink
+        font_family:
+        - DejaVu Serif
+        - serif
+        font_size: 35.09521484375
+      type: text
+      text: The six harmonies
+    - id: wheel-label
+      box:
+      - 60.0
+      - 186.0
+      - 614.0
+      - 18
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: The painter's wheel — twelve stations
+    - id: wheel-red
+      box:
+      - 60.0
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#d7332f'
+    - id: wheel-red-orange
+      box:
+      - 111.66666666666666
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#e2612c'
+    - id: wheel-orange
+      box:
+      - 163.33333333333331
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#eb8b2d'
+    - id: wheel-yellow-orange
+      box:
+      - 215.0
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#f0b32e'
+    - id: wheel-yellow
+      box:
+      - 266.66666666666663
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#eecf3a'
+    - id: wheel-yellow-green
+      box:
+      - 318.3333333333333
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#a9c04a'
+    - id: wheel-green
+      box:
+      - 370.0
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#5d9e52'
+    - id: wheel-blue-green
+      box:
+      - 421.66666666666663
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#3d8f7c'
+    - id: wheel-blue
+      box:
+      - 473.3333333333333
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#33689c'
+    - id: wheel-blue-violet
+      box:
+      - 525.0
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#4a4e8f'
+    - id: wheel-violet
+      box:
+      - 576.6666666666666
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#6d4a86'
+    - id: wheel-red-violet
+      box:
+      - 628.3333333333333
+      - 210.0
+      - 45.666666666666664
+      - 44
+      type: rect
+      fill: '#a03d69'
+    - id: h1-label
+      box:
+      - 60.0
+      - 286.0
+      - 614.0
+      - 16
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: 1 · HARMONY OF SCALE — tones of one colour, read in order
+    - id: h1-chip1
+      box:
+      - 60.0
+      - 308.0
+      - 60
+      - 40
+      type: rect
+      fill: '#bbcdde'
+    - id: h1-chip2
+      box:
+      - 128.0
+      - 308.0
+      - 60
+      - 40
+      type: rect
+      fill: '#779abd'
+    - id: h1-chip3
+      box:
+      - 196.0
+      - 308.0
+      - 60
+      - 40
+      type: rect
+      fill: '#33689c'
+    - id: h1-chip4
+      box:
+      - 264.0
+      - 308.0
+      - 60
+      - 40
+      type: rect
+      fill: '#224568'
+    - id: h1-chip5
+      box:
+      - 332.0
+      - 308.0
+      - 60
+      - 40
+      type: rect
+      fill: '#112334'
+    - id: h2-label
+      box:
+      - 60.0
+      - 370.0
+      - 614.0
+      - 16
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: 2 · HARMONY OF HUES — neighbouring scales, one depth
+    - id: h2-chip1
+      box:
+      - 60.0
+      - 392.0
+      - 60
+      - 40
+      type: rect
+      fill: '#eecf3a'
+    - id: h2-chip2
+      box:
+      - 128.0
+      - 392.0
+      - 60
+      - 40
+      type: rect
+      fill: '#a9c04a'
+    - id: h2-chip3
+      box:
+      - 196.0
+      - 392.0
+      - 60
+      - 40
+      type: rect
+      fill: '#5d9e52'
+    - id: h2-chip4
+      box:
+      - 264.0
+      - 392.0
+      - 60
+      - 40
+      type: rect
+      fill: '#3d8f7c'
+    - id: h2-chip5
+      box:
+      - 332.0
+      - 392.0
+      - 60
+      - 40
+      type: rect
+      fill: '#33689c'
+    - id: h3-label
+      box:
+      - 60.0
+      - 454.0
+      - 614.0
+      - 16
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: 3 · DOMINANT LIGHT — many colours through one amber tint
+    - id: h3-chip1
+      box:
+      - 60.0
+      - 476.0
+      - 60
+      - 40
+      type: rect
+      fill: '#e0602f'
+    - id: h3-chip2
+      box:
+      - 128.0
+      - 476.0
+      - 60
+      - 40
+      type: rect
+      fill: '#90a545'
+    - id: h3-chip3
+      box:
+      - 196.0
+      - 476.0
+      - 60
+      - 40
+      type: rect
+      fill: '#758276'
+    - id: h3-chip4
+      box:
+      - 264.0
+      - 476.0
+      - 60
+      - 40
+      type: rect
+      fill: '#9b6f67'
+    - id: h3-chip5
+      box:
+      - 332.0
+      - 476.0
+      - 60
+      - 40
+      type: rect
+      fill: '#ed992d'
+    - id: h4-label
+      box:
+      - 60.0
+      - 538.0
+      - 614.0
+      - 16
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: 4 · CONTRAST OF SCALE — two distant tones, one scale
+    - id: h4-chip1
+      box:
+      - 60.0
+      - 560.0
+      - 60
+      - 40
+      type: rect
+      fill: '#efadac'
+    - id: h4-chip2
+      box:
+      - 128.0
+      - 560.0
+      - 60
+      - 40
+      type: rect
+      fill: '#561413'
+    - id: h5-label
+      box:
+      - 60.0
+      - 622.0
+      - 614.0
+      - 16
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: 5 · CONTRAST OF HUES — neighbours, unequal in depth
+    - id: h5-chip1
+      box:
+      - 60.0
+      - 644.0
+      - 60
+      - 40
+      type: rect
+      fill: '#dde6b7'
+    - id: h5-chip2
+      box:
+      - 128.0
+      - 644.0
+      - 60
+      - 40
+      type: rect
+      fill: '#253f21'
+    - id: h6-label
+      box:
+      - 60.0
+      - 706.0
+      - 614.0
+      - 16
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: 6 · CONTRAST OF COLOURS — the complementary chord
+    - id: h6-chip1
+      box:
+      - 60.0
+      - 728.0
+      - 60
+      - 40
+      type: rect
+      fill: '#d7332f'
+    - id: h6-chip2
+      box:
+      - 128.0
+      - 728.0
+      - 60
+      - 40
+      type: rect
+      fill: '#5d9e52'
+    - id: palette-label
+      box:
+      - 60.0
+      - 806.0
+      - 614.0
+      - 16
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: CLOSED PALETTE — every colour has a duty
+    - id: duty-ground
+      box:
+      - 60.0
+      - 828.0
+      - 90
+      - 40
+      type: rect
+      fill: ground
+      stroke: quiet1
+    - id: duty-ground-tag
+      box:
+      - 60.0
+      - 874.0
+      - 90
+      - 14
+      style:
+        align: center
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 9
+      type: text
+      text: GROUND
+    - id: duty-ink
+      box:
+      - 160.0
+      - 828.0
+      - 90
+      - 40
+      type: rect
+      fill: ink
+      stroke: quiet1
+    - id: duty-ink-tag
+      box:
+      - 160.0
+      - 874.0
+      - 90
+      - 14
+      style:
+        align: center
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 9
+      type: text
+      text: INK
+    - id: duty-accent
+      box:
+      - 260.0
+      - 828.0
+      - 90
+      - 40
+      type: rect
+      fill: accent
+      stroke: quiet1
+    - id: duty-accent-tag
+      box:
+      - 260.0
+      - 874.0
+      - 90
+      - 14
+      style:
+        align: center
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 9
+      type: text
+      text: ACCENT
+    - id: duty-quiet1
+      box:
+      - 360.0
+      - 828.0
+      - 90
+      - 40
+      type: rect
+      fill: quiet1
+      stroke: quiet1
+    - id: duty-quiet1-tag
+      box:
+      - 360.0
+      - 874.0
+      - 90
+      - 14
+      style:
+        align: center
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 9
+      type: text
+      text: QUIET1
+    - id: duty-quiet2
+      box:
+      - 460.0
+      - 828.0
+      - 90
+      - 40
+      type: rect
+      fill: quiet2
+      stroke: quiet1
+    - id: duty-quiet2-tag
+      box:
+      - 460.0
+      - 874.0
+      - 90
+      - 14
+      style:
+        align: center
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 9
+      type: text
+      text: QUIET2
+    - id: duty-quiet3
+      box:
+      - 560.0
+      - 828.0
+      - 90
+      - 40
+      type: rect
+      fill: quiet3
+      stroke: quiet1
+    - id: duty-quiet3-tag
+      box:
+      - 560.0
+      - 874.0
+      - 90
+      - 14
+      style:
+        align: center
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 9
+      type: text
+      text: QUIET3
+    - id: palette-note
+      box:
+      - 60.0
+      - 902.0
+      - 614.0
+      - 36
+      style:
+        color: quiet3
+        font_family:
+        - DejaVu Sans
+        - sans-serif
+        font_size: 11.5
+      type: text
+      text: 'accent on ground: contrast 5.38:1 (WCAG 2.1) — dose per AREA_GUIDE: ground
+        62% · text & structure 30% · accent 8%'
+  reading_order:
+  - kicker
+  - title
+  - wheel-label
+  - h1-label
+  - h2-label
+  - h3-label
+  - h4-label
+  - h5-label
+  - h6-label
+  - duty-ground-tag
+  - duty-ink-tag
+  - duty-accent-tag
+  - duty-quiet1-tag
+  - duty-quiet2-tag
+  - duty-quiet3-tag
+  - palette-note

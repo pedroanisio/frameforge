@@ -448,6 +448,14 @@ class SvgPainter:
                 f'<title>{esc(title)}</title>{body}</svg>')
 
     @staticmethod
+    def metadata_group(inner: str, attrs: dict[str, str]) -> str:
+        """Wrap ``inner`` in a ``<g>`` carrying non-visual metadata attributes
+        (e.g. ``data-reading-order``). Purely structural: no paint effect."""
+        rendered = "".join(f' {name}="{esc(str(value))}"'
+                           for name, value in attrs.items() if value)
+        return f"<g{rendered}>{inner}</g>" if rendered else inner
+
+    @staticmethod
     def style_group(inner: str, attrs: dict[str, str], raw: str = "") -> str:
         # `raw` carries the bounded `css` escape (§8.4) for non-text objects, which
         # have no inline style of their own; text emits its css via font_style().

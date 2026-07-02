@@ -29,7 +29,6 @@ from framegraph.rendering.domain.services.paint_resolver import ColorResolver
 from framegraph.rendering.domain.services.effect_resolver import EffectResolver
 from framegraph.rendering.domain.services.stroke_resolver import Markers, Stroke, StrokeResolver
 from framegraph.rendering.domain.services.layout_engine import LayoutEngine
-from framegraph.rendering.domain.services.table_layout import resolve_column_widths
 from framegraph.rendering.domain.services.math_text import math_text
 from framegraph.rendering.domain.services.style_values import StyleValues
 from framegraph.rendering.domain.services.text_fitter import TextFitter
@@ -1311,16 +1310,23 @@ class Renderer:
                                        desc=self.doc.get("description"))]
 
     def _render_page_body(self, page):
-        ordered = page.get("reading_order")
-        if isinstance(ordered, list):
-            return self._render_page_body_in_reading_order(page, ordered)
-
         body = []
         for layer in sorted(page.get("layers") or [], key=lambda L: L.get("z", 0)):
             lo = layer.get("opacity")
             inner = "".join(self.obj(o) for o in self._paint_ordered(layer.get("objects") or []))
             body.append(self._painter.opacity_group(inner, lo) if lo not in (None, 1) else inner)
-        return "".join(body)
+        rendered = "".join(body)
+
+        # `reading_order` is accessibility STRUCTURE, never z-order. Reordering
+        # emission to match it painted listed objects first — beneath any
+        # unlisted background (2026-07-02 regression). Paint order stays
+        # layer/z/document order; the authored order rides along as metadata
+        # for a future tagged export / assistive-technology mapping.
+        ordered = page.get("reading_order")
+        if isinstance(ordered, list) and ordered:
+            ids = " ".join(str(oid) for oid in ordered)
+            rendered = self._painter.metadata_group(rendered, {"data-reading-order": ids})
+        return rendered
 
     def _paint_ordered(self, objects):
         """Objects in paint order: `style.z_index` is a STABLE sort key among
@@ -1338,40 +1344,6 @@ class Renderer:
             return 0.0
         z = self._style_dict(o.get("style")).get("z_index")
         return num(z, 0) or 0.0
-
-    def _render_page_body_in_reading_order(self, page, reading_order):
-        top_level = []
-        first_by_id = {}
-        for layer in sorted(page.get("layers") or [], key=lambda L: L.get("z", 0)):
-            lo = layer.get("opacity")
-            for index, obj in enumerate(layer.get("objects") or []):
-                if not isinstance(obj, dict):
-                    continue
-                entry = (obj, lo, index)
-                top_level.append(entry)
-                oid = obj.get("id")
-                if oid is not None and oid not in first_by_id:
-                    first_by_id[oid] = entry
-
-        used = set()
-        pieces = []
-        for oid in reading_order:
-            entry = first_by_id.get(oid)
-            if entry is None:
-                continue
-            used.add(id(entry[0]))
-            pieces.append(self._render_page_object_entry(entry))
-        for entry in top_level:
-            if id(entry[0]) not in used:
-                pieces.append(self._render_page_object_entry(entry))
-        return "".join(pieces)
-
-    def _render_page_object_entry(self, entry):
-        obj, layer_opacity, _index = entry
-        rendered = self.obj(obj)
-        if rendered and layer_opacity not in (None, 1):
-            rendered = self._painter.opacity_group(rendered, layer_opacity)
-        return rendered
 
     @classmethod
     def _story_headings(cls, story):

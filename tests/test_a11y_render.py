@@ -37,14 +37,13 @@ def test_image_emits_role_alt_and_actual_text():
     assert "<desc>client to API to database</desc>" in svg  # actual_text -> <desc>
 
 
-def test_reading_order_controls_page_dom_order():
+def test_reading_order_rides_as_metadata_not_dom_order():
+    """reading_order used to control SVG DOM order — but DOM order IS paint
+    order, so listed content was hoisted beneath unlisted backgrounds
+    (2026-07-02 fix). The authored order now rides on the page group as
+    `data-reading-order`; emission stays in layer/z/document (paint) order."""
     svg = _render_fixture()
-    title_pos = svg.index("Accessible by construction")
-    subtitle_pos = svg.index("alt text, actual_text")
-    diagram_pos = svg.index("System architecture diagram")
-    footer_pos = svg.index("FrameGraph v2")
-    backdrop_pos = svg.index('aria-hidden="true"')
-    assert title_pos < subtitle_pos < diagram_pos < footer_pos < backdrop_pos
+    assert 'data-reading-order="' in svg
 
 
 def test_decorative_object_is_aria_hidden():
@@ -75,3 +74,36 @@ def test_document_without_lang_or_title_omits_them():
     svg = Renderer(doc, ".").render_page(doc["pages"][0])[0]
     assert "xml:lang" not in svg
     assert "<title>" not in svg
+
+def test_reading_order_never_changes_paint_order():
+    """Regression (2026-07-02): the reading_order path hoisted listed objects to
+    the FRONT of SVG emission — bottom of the paint stack — so any unlisted
+    background painted over every listed text. reading_order is accessibility
+    structure, not z-order: paint order must stay layer/z/document order."""
+    doc = {"pages": [{"mode": "page", "id": "p", "canvas": {"size": [400, 200], "units": "px"},
+                      "reading_order": ["listed"],
+                      "layers": [{"id": "main", "objects": [
+                          {"id": "bg", "type": "rect", "box": [0, 0, 400, 200], "fill": "#fbfaf6"},
+                          {"id": "listed", "type": "text", "box": [20, 40, 360, 30],
+                           "text": "listed in reading_order", "style": {"font_size": 20}},
+                      ]}]}]}
+    svg = Renderer(doc, ".").render_page(doc["pages"][0])[0]
+    bg_pos = svg.index('fill="#fbfaf6"')
+    text_pos = svg.index("listed in reading_order")
+    assert bg_pos < text_pos, "background must paint BENEATH the listed text"
+
+
+def test_reading_order_is_preserved_as_structure_metadata():
+    """The authored order is not lost: it rides on the page group as
+    data-reading-order for a future tagged export / AT mapping."""
+    doc = {"pages": [{"mode": "page", "id": "p", "canvas": {"size": [400, 200], "units": "px"},
+                      "reading_order": ["b", "a"],
+                      "layers": [{"id": "main", "objects": [
+                          {"id": "a", "type": "text", "box": [20, 40, 360, 30],
+                           "text": "first painted", "style": {"font_size": 20}},
+                          {"id": "b", "type": "text", "box": [20, 120, 360, 30],
+                           "text": "read first", "style": {"font_size": 20}},
+                      ]}]}]}
+    svg = Renderer(doc, ".").render_page(doc["pages"][0])[0]
+    assert 'data-reading-order="b a"' in svg
+    assert svg.index("first painted") < svg.index("read first")  # paint order untouched
