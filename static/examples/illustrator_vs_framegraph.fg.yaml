@@ -1793,8 +1793,7 @@ pages:
       - 44
       style: fgev
       type: text
-      text: 'REFRAMED: you NAME an object by id and act on it — declaration replaces
-        the point-and-click selection.'
+      text: 'REFRAMED: you NAME an object by id — declaration replaces cursor selection.'
     - box:
       - 56
       - 258

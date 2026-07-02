@@ -548,14 +548,16 @@ harness it relies on to stay honest) and item 2 (the a11y gate it must satisfy).
 **Goal.** One stated product goal is that FrameGraph can *match the Adobe
 suite* — capability for capability, reached declaratively (by grammar and tool
 call, not cursor). The evidence base is the 46-feature teardown
-**Adobe Illustrator 2024+2025 vs FrameGraph v2.3.0** (v2, 2026-07-02;
+**Adobe Illustrator 2024+2025 vs FrameGraph v2.3.0** (v3, 2026-07-02;
 generator: `static/examples/illustrator_vs_framegraph.py`). Provenance:
-Illustrator's surface mined from **two manuals** over the doc-ray corpus
-("Adobe Illustrator 2024 User's Guide", 231 pp, 2,283 sentences; "Master
-Adobe Illustrator 2025", 159 pp, 1,875 sentences), every feature
-round-tripped to a source-sentence ordinal; FrameGraph coverage quoted from
-the gated `docs/capability-manifest.json` (278 capabilities, sha256-pinned in
-the teardown's audit block + `illustrator_vs_framegraph.audit.json`).
+Illustrator's surface mined from **three manuals** over the doc-ray corpus
+([24] "Adobe Illustrator 2024 User's Guide", 231 pp, 2,283 sentences;
+[25] "Master Adobe Illustrator 2025", 159 pp, 1,875 sentences;
+[26] "BMG 106: Computer Graphics II — Adobe Illustrator", 257 pp), every
+feature round-tripped to a source-sentence ordinal; FrameGraph coverage
+quoted from the gated `docs/capability-manifest.json` (278 capabilities,
+sha256-pinned in the teardown's audit block +
+`static/examples/illustrator_vs_framegraph.audit.json`).
 
 **Rubric (v2 — stricter than the first cut):** HAS = a direct *functional*
 equivalent (same user outcome, even if authored declaratively); PARTIAL =
@@ -564,32 +566,34 @@ naming / tool call / author→render loop; NONE carries a `gap_type` —
 **architectural** (the declarative model precludes it) vs **non-goal**
 (declared scope choice) — and every M/L row carries a confidence tag.
 
-**Scoreboard at 2.3.0:** 46 features → **13 HAS** (28%), **16 PARTIAL**,
-**4 REFRAMED**, **13 NONE** (7 architectural + 6 non-goals). Full-or-partial
-**63%**; *reachable by any route* (has+partial+reframed) **33/46 = 72%**.
-The v1 cut of this matrix (44 features, one manual) scored higher (48% full)
-because its rubric was looser — the drop is honesty, not regression. The full
+**Scoreboard at 2.3.0:** 51 features → **14 HAS** (27%), **17 PARTIAL**,
+**4 REFRAMED**, **16 NONE** (10 architectural + 6 non-goals). Full-or-partial
+**61%**; *reachable by any route* (has+partial+reframed) **35/51 = 69%**.
+Earlier cuts scored higher (v1: 44 features, one manual, 48% full; v2: 46
+features, 63% full-or-partial) because each revision widened the surface and
+tightened the rubric — the drops are honesty, not regression. The full
 granular matrix, one disposition per feature, is **Appendix B**.
 
 **The teardown runs both ways** — its closing page lists what FrameGraph has
 natively that Illustrator lacks: long-form flow documents (TOC, footnotes,
 bibliography), structural validation + golden locks before a pixel is drawn,
-a diffable plain-text source of truth, data-driven figures, the UI component
-kit, colour *science* (Chevreul harmonies + WCAG contrast, not just
-swatches), and machine authoring (25 MCP tools). Parity work must not trade
-these away.
+a diffable plain-text source of truth, parametric geometry (equation-driven
+curves, lattices, manifolds — charts Illustrator *does* have moved to AI-51,
+a HAS), the UI component kit, colour *science* (Chevreul harmonies + WCAG
+contrast, not just swatches), and machine authoring (25 MCP tools). Parity
+work must not trade these away.
 
 **The closure programme** groups the actionable rows into workstreams
 (per-row detail in Appendix B):
 
 | WS | Workstream | Closes | Effort | Notes |
 |----|-----------|--------|--------|-------|
-| W1 | **Planar geometry kernel** — declarative path booleans (Pathfinder ops), path surgery (split-at / cut-along), true Live-Paint region fills | AI-04, AI-05, AI-06, AI-17 | M–L | Expansion-tier per §A.0: the SDK computes, the document receives plain `path` objects. Highest leverage: one kernel closes four rows |
-| W2 | **Stroke, curve & type finesse** — `through()` smooth interpolation (Hobby/Catmull-Rom, §A.2); **variable-width stroke profiles** lowered to filled outlines at expansion; pair-kerning beyond `letter_spacing` | AI-09 (S), AI-12 (M), AI-24 (S) | S–M | AI-12 is new in v2: uniform-width strokes are an architectural gap today |
+| W1 | **Planar geometry kernel** — declarative path booleans (Pathfinder ops), path surgery (split-at / cut-along), **offset path** (outward/inward, Bézier-offset approximation), true Live-Paint region fills | AI-04, AI-05, AI-06, AI-17, AI-47 | M–L | Expansion-tier per §A.0: the SDK computes, the document receives plain `path` objects. Highest leverage: one kernel closes five rows |
+| W2 | **Stroke, curve & type finesse** — `through()` smooth interpolation (Hobby/Catmull-Rom, §A.2); the **stroke-outline engine**: variable-width profiles, **outline-stroke conversion**, and calligraphic **brush** lowering all share one filled-outline emitter at expansion; scatter/art/pattern brushes = repeat-along-path; pair-kerning beyond `letter_spacing` | AI-09 (S), AI-12, AI-48, AI-49 (M–L shared engine), AI-24 (S) | S–L | AI-12/48/49 are one build in three verdicts: strokes become filled geometry |
 | W3 | **Painterly colour** — freeform gradient + gradient mesh ("the single biggest gap") via expansion-tier subdivision shading (Scene3D Gouraud precedent); **shape/colour blend interpolation** (the Blend tool, declaratively: lerp matched anchors + colour at expansion) | AI-27, AI-28 (L), AI-29 (M) | M–L | Low priority; decision: emulate vs accept as the price of being a grammar |
 | W4 | **Style & colour richness** — ordered effect stack (M); appearance stack: multiple fill/stroke passes per object, out of the core profile (M); a `recolor()` convenience over token swap + `gradient_map` (S); harmony suggestions as the declarative Color Guide over `sdk.chevreul` (XS–S) | AI-30, AI-32, AI-16, AI-18 | S–M | Profile-gated schema additions where schema changes at all |
 | W5 | **Text threading** — named-frame chains (flow region → region) as the declarative threaded text | AI-22 | M | **Operator decision** — today's flow auto-paginates; explicit frame linking is a new contract |
-| W6 | **Verdict corrections by documentation** — anchor editing = MCP `workspace` pin/nudge/snap; isolation mode = edit-by-id scoping; the coordinate pen's assistive half = `construct_vectors` + coach; artboards-vs-pages as a design difference; verify/document Scene3D `extrude`/`revolve` + `Material` against AI-40 | AI-02, AI-03, AI-08, AI-36, AI-40 | XS–S | No schema — document, strengthen evidence, re-verdict where honest |
+| W6 | **Verdict corrections by documentation** — anchor editing = MCP `workspace` pin/nudge/snap; isolation mode = edit-by-id scoping; the coordinate pen's assistive half = `construct_vectors` + coach; artboards-vs-pages as a design difference; verify/document Scene3D `extrude`/`revolve` + `Material` against AI-40; guides/rulers/snap = exact coordinates + `canon.content_box` layout grids (optional SDK guide helpers) | AI-02, AI-03, AI-08, AI-36, AI-40, AI-50 | XS–S | No schema — document, strengthen evidence, re-verdict where honest |
 | W7 | **Visual font identification** (Retype) — a vision-side classifier from rendered glyphs to `list_fonts` families | AI-45 | L | Deferred decision; the only Generative/AI-chapter row with an open build |
 
 **Non-goals, reaffirmed** (6 declared in the matrix, honest limits — parity of
@@ -1045,15 +1049,16 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 
 ---
 
-# Appendix B — Adobe Illustrator parity matrix (granular, 46 features · v2)
+# Appendix B — Adobe Illustrator parity matrix (granular, 51 features · v3)
 
-> **Status:** the granular evidence base of roadmap item 10 (teardown v2,
-> 2026-07-02; supersedes the 44-feature v1). Source:
+> **Status:** the granular evidence base of roadmap item 10 (teardown v3,
+> 2026-07-02; supersedes the 44-feature v1 and 46-feature v2). Source:
 > `static/examples/illustrator_vs_framegraph.py`; Illustrator surface mined
-> from two manuals over doc-ray ("AI 2024 User's Guide" [24], "Master AI 2025"
-> [25]) with sentence-ordinal round-trips; FG coverage quoted from the gated
-> capability manifest (sha256-pinned; full audit in
-> `illustrator_vs_framegraph.audit.json`). Verdicts: **HAS** direct
+> from three manuals over doc-ray ("AI 2024 User's Guide" [24], "Master AI
+> 2025" [25], "BMG 106: Computer Graphics II" [26]) with sentence-ordinal
+> round-trips; FG coverage quoted from the gated capability manifest
+> (sha256-pinned; full audit committed at
+> `static/examples/illustrator_vs_framegraph.audit.json`). Verdicts: **HAS** direct
 > *functional* equivalent · **PARTIAL** narrower/different form · **NONE**
 > (`arch` = the declarative model precludes it · `non-goal` = declared scope
 > choice) · **REFRAMED** same end by naming/tool-call. `·H/M/L` = evidence
@@ -1069,6 +1074,8 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-04 | Compound paths / Pathfinder | PARTIAL ·M | path `fill_rule` even-odd + holes; no live Pathfinder ops | **W1**: declarative boolean ops |
 | AI-05 | Shape Builder | NONE ·H arch | no boolean shape merge | **W1** |
 | AI-06 | Scissors & Knife | NONE ·H arch | no path surgery | **W1**: split-at / cut-along, S once the kernel exists |
+| AI-47 | Offset path | NONE ·H arch | no offset-path operation | **W1**: Bézier-offset approximation in the kernel, M |
+| AI-48 | Outline stroke | NONE ·H arch | no stroke→outline conversion | **W2**: the shared filled-outline emitter |
 
 ## B · Draw & primitives
 
@@ -1080,6 +1087,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-10 | Pencil / freehand | NONE ·H non-goal | no freehand pointer input (declarative only) | **non-goal** reaffirmed; nearest declarative route is curve *fitting* (`vectorize_image`, coach) — noted, not claimed |
 | AI-11 | Stroke controls | HAS | `stroke_style` width/dasharray/cap/join + connector markers | settled |
 | AI-12 | Variable-width (Width Tool) | NONE ·H arch | stroke width is uniform — no width profile | **W2**: width profiles lowered to filled outline paths at expansion, M |
+| AI-49 | Brushes (calligraphic / scatter / art / pattern / blob) | NONE ·H arch | no brush engine; nearest is `hatch_fill` / `pattern` | **W2**: calligraphic = width profiles; scatter/art/pattern = repeat-along-path at expansion, M–L |
 
 ## C · Colour system
 
@@ -1125,6 +1133,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-35 | Align & distribute | HAS | layout groups: row / column / grid, align | settled |
 | AI-36 | Artboards | PARTIAL ·M | multi-page flow doc (TOC, bibliography); no free spatial canvas | **W6**: pages-not-canvas is a design difference — document |
 | AI-37 | Perspective grid | NONE ·H non-goal | flat page space | **non-goal** — coheres with G-2's non-conformant `perspective` |
+| AI-50 | Guides, rulers & snap | PARTIAL ·M | `grid_pattern` + exact coordinates; no interactive guides/snap | **W6**: exact coordinates + `canon.content_box` grids are the declarative guides — document; optional SDK guide helpers, XS–S |
 
 ## G · Image · 3D · output
 
@@ -1135,6 +1144,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-40 | 3D & Materials | PARTIAL ·M | `Scene3D` + `Material` + `Camera` scene — not vector extrusion | **W6**: verify/document `extrude`/`revolve` + materials against this row, XS–S |
 | AI-41 | Export formats | PARTIAL ·M | SVG / PNG / PDF / LaTeX (6 renderers); no PSD / EPS / DWG | proprietary/legacy targets stay **non-goals** |
 | AI-42 | Package | NONE ·H non-goal | no asset-collection packaging step | **non-goal** (v2 change from v1's build proposal): hermetic single-file YAML + content-hashed assets make packaging moot |
+| AI-51 | Graph tool (bar / pie / line charts) | HAS | `Chart` / `sparkline` / `function_plot` / `polar_plot` / `kpi` — data-bound | settled — and note the boundary: item 3's data *transforms* remain out of scope; these are data-bound marks |
 
 ## H · Generative / AI (Illustrator 2024)
 
@@ -1145,7 +1155,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-45 | Retype (font identification) | NONE ·H arch | `list_fonts` resolves families; no visual font ID | **W7**: vision-side font classifier, L — deferred decision |
 | AI-46 | Mockup (3D surface wrap) | NONE ·H non-goal | no surface-wrap of art onto an object | **non-goal**, reaffirmed |
 
-*End of Appendix B (v2). Re-run the teardown generator after each workstream
+*End of Appendix B (v3). Re-run the teardown generator after each workstream
 lands and watch the scoreboard move; the matrix is evidence, not aspiration.
 Adobe and Adobe Illustrator are trademarks of Adobe Inc.; this is an
 independent comparison, not affiliated with or endorsed by Adobe.*
