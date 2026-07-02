@@ -199,6 +199,12 @@ For a run with target width `W` (and height `H` in a fixed box):
 The shrink search MUST be a pure function of `(text, W, H, size, min_font_size,
 step/tolerance)`; each target publishes its step/tolerance.
 
+
+Truncation MUST be diagnosable: a conforming renderer reports every text
+object that materially loses content to containment (identity, lines
+dropped, the head of the dropped text, and whether the clip was explicitly
+authored) — a bare aggregate count is not a diagnostic.
+
 ### 3.8 Pattern fills (P2)
 
 `Fill = Color | Gradient | Pattern`. A `Pattern` tiles a closed shape's interior and

@@ -32,6 +32,28 @@ the MCP guide's module catalog.
   content render differently (correctly) from 2.3.x snapshots; the b1 golden
   corpus is unaffected (no `reading_order` usage).
 
+## Unreleased — per-object truncation diagnostics (2026-07-02, issue #44)
+
+Silent content loss is over: the text-fit containment now NAMES every text
+object that materially loses content (id, page, lines kept/dropped, the head
+of the dropped text, and whether the clip was explicitly authored).
+
+- renderer: `diagnostics["truncations"]` records material loss only (dropped
+  lines; glyph runs cut beyond rounding tolerance; >½ line clipped) — a
+  sub-pixel descender trim keeps the clip-path and the aggregate count but is
+  not content loss
+- `render_fixtures --check-overflow` prints the named listing (capped at 20 in
+  default runs); new `--strict-content` fails on any SILENT loss
+- MCP render results: records ride `diagnostics.truncations` (and
+  `diagnostics.json`); the render warning quotes the first silent ids
+- `validate.py --text-fit` (opt-in): advisory `text-truncated` WARN per object
+- spec §3.7 gains the diagnosability sentence; `docs/error-codes.md` documents
+  the code
+- **known state**: the curated fixture corpus currently carries 211 silent
+  material losses, now visible in every overflow run — remediation
+  (fix boxes vs acknowledge explicitly) is operator-directed follow-up, which
+  is why `--strict-content` is not yet wired into `make check`
+
 ## Unreleased — dockerized MCP for foreign codebases (2026-07-02)
 
 The container contract now lets any codebase fully interact with the SDK and
