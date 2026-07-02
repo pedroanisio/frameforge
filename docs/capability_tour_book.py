@@ -16,7 +16,7 @@ serialized text. Appendix A is generated at build time by introspecting
 
 Run from the repository root::
 
-    uv run python examples/capability_tour_book.py    # writes _tmp/capability-tour/*
+    uv run python docs/capability_tour_book.py    # writes _tmp/capability-tour/*
 
 or through MCP (the run contract is the module-level ``build()``)::
 
@@ -39,11 +39,13 @@ import os
 import sys
 from dataclasses import replace
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.normpath(os.path.join(HERE, ".."))
+HERE = os.path.dirname(os.path.abspath(__file__))       # docs/ (reference sources)
+ROOT = os.path.normpath(os.path.join(HERE, ".."))       # the repository root
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-sys.path.insert(0, HERE)            # sibling example modules resolve even when
-                                    # exec'd from another CWD (the MCP harness)
+sys.path.insert(0, os.path.join(ROOT, "static", "examples"))
+                                    # the cookbook stays importable: the tour reuses
+                                    # the elected book's plate module from there
+                                    # even when exec'd from another CWD (MCP harness)
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
