@@ -103,7 +103,7 @@ fall behind.
   Conflating them produces the exact error this repo's roadmap has hit before:
   claiming "the SDK already ships `X`" when only the core does.
 
-## Worked example (grounded, 2026-06-24): G-1 structured path segments
+## Worked example (grounded, 2026-06-24; resolved by 2026-07-01): G-1 structured path segments
 
 G-1 added a typed, schema-checkable structured form of a path's `d` (a
 `list[PathSeg]` alongside the SVG path-data string). Its **core landing** is
@@ -112,14 +112,20 @@ the grammar carries `PathSegList`/`PathSeg`/`PathCommand`, the JSON Schema
 validates command + arity via `prefixItems`, and the renderer lowers the
 structured form. All gated green.
 
-The **SDK has not yet caught up.** `framegraph/sdk/geometry.py` still authors only
-the string form: `Path.d()` returns `str` (line 352) and `Path.object()` emits
-`{"type": "path", "d": self.d()}` (a string). No SDK builder emits a
-`list[PathSeg]`.
+At the time this ADR was written (2026-06-24), the **SDK had not yet caught
+up**: `framegraph/sdk/geometry.py` authored only the string form, and no SDK
+builder emitted a `list[PathSeg]`. That lag was the invariant in force — a
+known, acceptable state, not a defect.
 
-This is exactly the invariant in force: the capability is delivered in the core
-and committed to `main`; SDK exposure is a separate, later deliverable that is
-expected to trail — and its current absence is not a bug.
+**SDK exposure has since landed (verified 2026-07-01):** `framegraph/sdk/geometry.py`
+now maintains the structured form in parallel (`Path.segments()` returns the
+typed `[cmd, *coords]` list) and `Path.object(structured=True)` emits `d` as a
+`list[PathSeg]`; the default remains the byte-identical string form. G-1 has
+therefore completed the full lifecycle this ADR describes:
+`core_landing(C) < sdk_exposure(C)` — core first, SDK strictly after, exactly
+the ordering the decision mandates. The generated
+[capability manifest](capability-manifest.json) is the machine-readable place
+this core-vs-SDK status is now tracked per capability.
 
 ## Consequences
 

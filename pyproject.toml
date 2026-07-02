@@ -1,6 +1,6 @@
 [project]
 name = "framegraph"
-version = "2.2.0"
+version = "2.3.0"
 description = "FrameGraph v2 — HEAD toolchain: Pydantic models (source of truth), generated JSON schema, validator, codemod, and the dependency-free SVG / matplotlib proxy renderers."
 readme = "README.md"
 requires-python = ">=3.10"

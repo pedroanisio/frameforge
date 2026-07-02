@@ -11,7 +11,7 @@ LIVE_HOST ?= 127.0.0.1
 LIVE_PORT ?= 8789
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check brand-logo-check docker-build docker-mcp docker-shell docker-fonts
+.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check brand-logo-check docker-build docker-mcp docker-shell docker-fonts
 
 DOCKER ?= docker
 IMAGE ?= frameforge
@@ -84,11 +84,11 @@ status:  ## regenerate FIXTURE-STATUS.md from the validator
 status-check:  ## fail if FIXTURE-STATUS.md drifted from the validator
 	$(UV) run python tooling/gen_status.py --check
 
-docs:  ## generate pages + build the static site into site/ (theme fetched ephemerally)
+docs: manifest examples-index  ## generate pages + build the static site into site/ (theme fetched ephemerally)
 	$(UV) run python tooling/gen_docs.py
 	$(UV) run --with mkdocs-material mkdocs build --strict
 
-docs-serve:  ## generate pages + serve with live reload (http://127.0.0.1:8000)
+docs-serve: manifest examples-index  ## generate pages + serve with live reload (http://127.0.0.1:8000)
 	$(UV) run python tooling/gen_docs.py
 	$(UV) run --with mkdocs-material mkdocs serve
 
@@ -97,6 +97,15 @@ docs-check:  ## generate pages + assert every mkdocs.yml nav page exists (no ful
 
 docs-sdk:  ## regenerate ONLY the committed SDK snapshots (sdk.md/sdk-api.md) — fast
 	$(UV) run python tooling/gen_docs.py --sdk
+
+manifest:  ## regenerate docs/capability-manifest.json from the live tree (ADR-0002 tracking)
+	$(UV) run python tooling/gen_capability_manifest.py
+
+manifest-check:  ## fail if the committed capability manifest drifted from the live tree
+	$(UV) run python tooling/gen_capability_manifest.py --check
+
+examples-index:  ## regenerate docs/examples.md from the tracked examples/*.py docstrings
+	$(UV) run python tooling/gen_examples_index.py
 
 docs-linkcheck:  ## fail if a tracked Markdown file has a broken relative link (run after docs)
 	$(UV) run python tooling/check_doc_links.py

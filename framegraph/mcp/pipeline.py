@@ -1,10 +1,13 @@
 """The validate-and-render pipeline shared by every document source.
 
 Validation gates rendering; the pure-Python renderer runs in a bounded daemon
-thread; page selection, provenance signing, and PNG rasterization follow.
+thread; page selection, provenance signing, PNG rasterization (with a raster
+``scale``), and the optional PDF export lane (``to='pdf'``) follow.
 """
 from __future__ import annotations
 
+import importlib.util
+import io
 import os
 import threading
 import time
@@ -44,7 +47,21 @@ def _validate_and_render_yaml(
     sign: bool = False,
     signed_at: str | None = None,
     silhouette: bool = False,
+    to: str = "png",
+    scale: float = 1.0,
+    real_metrics: bool | str = "auto",
 ) -> dict[str, Any]:
+    if to not in ("png", "pdf"):
+        return {
+            "ok": False,
+            "error": f"unknown export target to={to!r}",
+            "hint": "use to='png' (default; the raster feedback loop) or to='pdf' "
+                    "(additionally assemble the rendered pages into document.pdf)",
+            "validation": {"ok": False, "issues": []},
+            "renders": [],
+            "resources": _resource_links(session_id, renders=[]),
+        }
+    metrics_on = _resolve_real_metrics(real_metrics)
     try:
         document = parse(yaml_text, forgiving=False)
         if silhouette:
@@ -66,12 +83,15 @@ def _validate_and_render_yaml(
     renders: list[dict[str, Any]] = []
     render_warning: str | None = None
     text_fit: dict[str, int] | None = None
+    render_diagnostics: dict[str, Any] | None = None
+    pdf_summary: dict[str, Any] | None = None
     if report.ok:
         oversized = _render_size_guard(document)
         if oversized:
             return _render_failure(session_id, report, oversized, warning=oversized)
         try:
-            svgs, text_stats = _render_page_svgs_bounded(document, base_dir)
+            svgs, text_stats, render_diagnostics = _render_page_svgs_bounded(
+                document, base_dir, real_metrics=metrics_on)
         except RenderTimeoutError as exc:
             return _render_failure(session_id, report, str(exc), warning=str(exc))
         except Exception as exc:  # noqa: BLE001 — render is third-party-ish; surface it structured
@@ -110,11 +130,28 @@ def _validate_and_render_yaml(
             )
         if raster_png and renders:
             pngs, raster_warning = _try_rasterize_pngs(
-                [(item["page"], Path(item["path"])) for item in renders], session_dir, session_id
+                [(item["page"], Path(item["path"])) for item in renders],
+                session_dir,
+                session_id,
+                scale=scale,
             )
             renders.extend(pngs)
             if raster_warning:
                 render_warning = raster_warning
+
+        if to == "pdf" and renders:
+            svg_pages = [
+                (item["page"], Path(item["path"]))
+                for item in renders
+                if item["mimeType"] == "image/svg+xml"
+            ]
+            pdf_entry, pdf_summary, pdf_warning = _export_pdf(
+                svg_pages, session_dir, session_id, base_dir
+            )
+            if pdf_entry:
+                renders.append(pdf_entry)
+            if pdf_warning:
+                render_warning = f"{render_warning}; {pdf_warning}" if render_warning else pdf_warning
 
         # Surface the renderer's text-fit telemetry. A non-zero `clipped` means text
         # exceeded its box and was clipped/ellipsized — the render returns ok:true, so
@@ -138,9 +175,18 @@ def _validate_and_render_yaml(
         "validation": _validation_payload(report),
         "renders": renders,
         "resources": _resource_links(session_id, renders=renders),
+        "real_metrics": metrics_on,
     }
     if text_fit is not None:
         result["text_fit"] = text_fit
+    if render_diagnostics is not None:
+        # The renderer's structured feedback (warnings, skipped objects/flowables,
+        # font fallbacks, opt-in layout report): surfaced on the result and — via
+        # `_write_diagnostics` — persisted into the session's diagnostics.json, so
+        # a silent render-side degradation is observable by the caller.
+        result["diagnostics"] = render_diagnostics
+    if pdf_summary is not None:
+        result["pdf"] = pdf_summary
     if sign and renders:
         # Record the provenance stamp applied to every rendered SVG so the caller
         # can confirm the artifacts are signed (and with which timestamp).
@@ -150,24 +196,128 @@ def _validate_and_render_yaml(
         result["silhouette"] = {"applied": True, "rubric": stage_rubric("silhouette")}
     if render_warning:
         result["render_warning"] = render_warning
+    if not result["ok"] and "error" not in result:
+        # ok:false must always carry an actionable `error` — a warning-only failure
+        # (e.g. a pages selector that matched nothing, or static validation issues)
+        # left the caller with nothing machine-readable to act on.
+        if not report.ok:
+            issue_count = len(result["validation"]["issues"])
+            result["error"] = (
+                f"FrameGraph validation failed with {issue_count} issue(s) — see validation.issues"
+            )
+            result["hint"] = (
+                "each entry in validation.issues carries rule_id, path (a JSON pointer into the "
+                "document), and message; describe_capabilities(topic=<type>) shows the expected fields"
+            )
+        else:
+            result["error"] = render_warning or "render produced no pages"
     return result
 
 
-def _render_page_svgs_bounded(document: Any, base_dir: Path) -> tuple[list[str], dict[str, int]]:
-    """Render page SVGs (+ text-fit telemetry) under :data:`DEFAULT_RENDER_TIMEOUT_SECONDS`.
+def _resolve_real_metrics(value: bool | str | None) -> bool:
+    """Resolve the ``real_metrics`` tri-state: True/False, or 'auto' = fontTools present.
+
+    Real metrics measure text with real glyph advances (via fontTools + the
+    fontconfig-resolved face) instead of the per-character estimate, so
+    wrap/shrink/ellipsis decisions match the rendered pixels.
+    """
+    if isinstance(value, bool):
+        return value
+    text = str(value if value is not None else "auto").strip().lower()
+    if text in ("true", "1", "yes", "on"):
+        return True
+    if text in ("false", "0", "no", "off"):
+        return False
+    return importlib.util.find_spec("fontTools") is not None
+
+
+def _export_pdf(
+    pages_and_svgs: list[tuple[int, Path]], session_dir: Path, session_id: str, base_dir: Path
+) -> tuple[dict[str, Any] | None, dict[str, Any], str | None]:
+    """Assemble the rendered page SVGs into one vector ``document.pdf``.
+
+    Reuses the CLI's ``--to pdf`` mechanism (see ``framegraph/cli.py`` ``r_pdf``):
+    CairoSVG lowers each page SVG to PDF bytes and pypdf concatenates them.
+    Returns ``(render_entry, pdf_summary, warning)`` — on missing dependencies or
+    total failure the entry is ``None`` and the summary carries ``ok: false``
+    plus an install hint, so the SVG/PNG render stays usable.
+    """
+    try:
+        import cairosvg
+        from pypdf import PdfWriter
+    except ImportError as exc:
+        summary = {
+            "ok": False,
+            "error": f"PDF export unavailable: {exc}",
+            "hint": "install the `pdfout` dependency group (uv sync --group pdfout) for CairoSVG + pypdf",
+        }
+        return None, summary, str(summary["error"])
+    writer = PdfWriter()
+    appended = 0
+    skipped: list[str] = []
+    url_base = os.path.join(str(base_dir), "")
+    for page_no, svg_path in pages_and_svgs:
+        try:
+            pdf_bytes = cairosvg.svg2pdf(
+                bytestring=svg_path.read_text(encoding="utf-8").encode("utf-8"),
+                url=url_base,
+                unsafe=True,
+            )
+            writer.append(io.BytesIO(pdf_bytes))
+            appended += 1
+        except Exception as exc:  # noqa: BLE001 — one bad page must not kill the document
+            skipped.append(f"page {page_no}: {exc}")
+    if not appended:
+        writer.close()
+        summary = {
+            "ok": False,
+            "error": "PDF export produced no pages: " + "; ".join(skipped),
+            "hint": "check the per-page errors; the SVG renders remain available as resources",
+        }
+        return None, summary, str(summary["error"])
+    out_path = session_dir / "document.pdf"
+    with out_path.open("wb") as fh:
+        writer.write(fh)
+    writer.close()
+    entry = {
+        "kind": "pdf",
+        "path": str(out_path),
+        "uri": f"framegraph://session/{session_id}/document.pdf",
+        "mimeType": "application/pdf",
+        "bytes": out_path.stat().st_size,
+    }
+    summary = {
+        "ok": True,
+        "path": entry["path"],
+        "uri": entry["uri"],
+        "bytes": entry["bytes"],
+        "pages": appended,
+    }
+    warning = None
+    if skipped:
+        summary["skipped_pages"] = skipped
+        warning = f"PDF export skipped {len(skipped)} page(s): " + "; ".join(skipped)
+    return entry, summary, warning
+
+
+def _render_page_svgs_bounded(
+    document: Any, base_dir: Path, *, real_metrics: bool = False
+) -> tuple[list[str], dict[str, int], dict[str, Any]]:
+    """Render page SVGs (+ telemetry) under :data:`DEFAULT_RENDER_TIMEOUT_SECONDS`.
 
     Runs the pure-Python renderer in a daemon thread and joins with a timeout so a
     pathological document bounds the *response* latency. The work itself is not
     force-killed (Python cannot interrupt CPU-bound bytecode); a timed-out render
     keeps running detached until it completes, then is discarded. Returns the page
-    SVGs and the renderer's ``tstats`` so the caller can surface clipped/wrapped text.
+    SVGs, the renderer's ``tstats`` (so the caller can surface clipped/wrapped
+    text), and the renderer's structured ``diagnostics`` feedback.
     """
     timeout = _render_timeout()
     box: dict[str, Any] = {}
 
     def _target() -> None:
         try:
-            box["value"] = render_pages_with_stats(document, base_dir=str(base_dir))
+            box["value"] = _render_pages_with_stats(document, base_dir, real_metrics=real_metrics)
         except BaseException as exc:  # noqa: BLE001 — re-raised on the calling thread
             box["error"] = exc
 
@@ -180,7 +330,24 @@ def _render_page_svgs_bounded(document: Any, base_dir: Path) -> tuple[list[str],
         )
     if "error" in box:
         raise box["error"]
-    return box.get("value", ([], {}))
+    return box.get("value", ([], {}, {}))
+
+
+def _render_pages_with_stats(
+    document: Any, base_dir: Path, *, real_metrics: bool
+) -> tuple[list[str], dict[str, int], dict[str, Any]]:
+    """Render page SVGs + telemetry through the SDK conformance path.
+
+    ``framegraph.sdk.conform.render_pages_with_stats`` now threads the renderer's
+    ``real_metrics`` flag and returns its structured ``diagnostics``, so the MCP
+    pipeline no longer replicates the render loop. ``real_metrics`` arrives here
+    already resolved to a bool by :func:`_resolve_real_metrics` (tool argument >
+    'auto' fontTools probe) and an explicit bool always beats the renderer's
+    ``FRAMEGRAPH_REAL_METRICS`` env fallback, so the env var cannot override the
+    tool argument.
+    """
+    return render_pages_with_stats(
+        document, base_dir=str(base_dir), real_metrics=real_metrics, diagnostics=True)
 
 
 def _render_timeout() -> float:
@@ -317,7 +484,7 @@ class _RasterBackendUnavailable(RuntimeError):
     """No raster backend could produce a PNG (Chromium and CairoSVG both absent)."""
 
 
-def _raster_chromium(svg: str, out_path: Path, base_dir: Path) -> None:
+def _raster_chromium(svg: str, out_path: Path, base_dir: Path, scale: float) -> None:
     """Rasterize via headless Chromium; mark the backend absent if it cannot run."""
     try:
         from framegraph.rendering.infrastructure.browser import (
@@ -327,12 +494,12 @@ def _raster_chromium(svg: str, out_path: Path, base_dir: Path) -> None:
     except ImportError as exc:
         raise _BackendAbsent(f"Headless Chromium: {exc}") from exc
     try:
-        rasterize_svg(svg, out_path, base_dir=str(base_dir))
+        rasterize_svg(svg, out_path, base_dir=str(base_dir), scale=scale)
     except BrowserRendererUnavailable as exc:
         raise _BackendAbsent(f"Headless Chromium: {exc}") from exc
 
 
-def _raster_cairo(svg: str, out_path: Path, base_dir: Path) -> None:
+def _raster_cairo(svg: str, out_path: Path, base_dir: Path, scale: float) -> None:
     """Rasterize via CairoSVG (browser-free fallback); mark absent if unavailable."""
     try:
         from framegraph.rendering.infrastructure.cairo import (
@@ -342,7 +509,7 @@ def _raster_cairo(svg: str, out_path: Path, base_dir: Path) -> None:
     except ImportError as exc:
         raise _BackendAbsent(f"CairoSVG: {exc}") from exc
     try:
-        rasterize_svg_cairo(svg, out_path, base_dir=str(base_dir))
+        rasterize_svg_cairo(svg, out_path, base_dir=str(base_dir), scale=scale)
     except CairoRendererUnavailable as exc:
         raise _BackendAbsent(f"CairoSVG: {exc}") from exc
 
@@ -355,7 +522,9 @@ _RASTER_BACKENDS = {"chromium": _raster_chromium, "cairo": _raster_cairo}
 _RASTER_ORDER = ("chromium", "cairo")
 
 
-def _rasterize_one(svg: str, out_path: Path, base_dir: Path, *, prefer: str | None) -> str:
+def _rasterize_one(
+    svg: str, out_path: Path, base_dir: Path, *, prefer: str | None, scale: float = 1.0
+) -> str:
     """Rasterize one SVG, trying Chromium then CairoSVG. Return the backend used.
 
     ``prefer`` (a backend known to work this run) is tried first so a successful
@@ -368,7 +537,7 @@ def _rasterize_one(svg: str, out_path: Path, base_dir: Path, *, prefer: str | No
     reasons: list[str] = []
     for name in order:
         try:
-            _RASTER_BACKENDS[name](svg, out_path, base_dir)
+            _RASTER_BACKENDS[name](svg, out_path, base_dir, scale)
             return name
         except _BackendAbsent as exc:
             reasons.append(str(exc))
@@ -381,7 +550,11 @@ def _rasterize_one(svg: str, out_path: Path, base_dir: Path, *, prefer: str | No
 
 
 def _try_rasterize_pngs(
-    pages_and_svgs: list[tuple[int, Path]], session_dir: Path, session_id: str
+    pages_and_svgs: list[tuple[int, Path]],
+    session_dir: Path,
+    session_id: str,
+    *,
+    scale: float = 1.0,
 ) -> tuple[list[dict[str, Any]], str | None]:
     """Rasterize selected page SVGs to PNG, bounded by a page cap and a soft time budget.
 
@@ -408,7 +581,11 @@ def _try_rasterize_pngs(
         out_path = session_dir / f"p{page_no:03d}.png"
         try:
             backend = _rasterize_one(
-                svg_path.read_text(encoding="utf-8"), out_path, session_dir, prefer=backend
+                svg_path.read_text(encoding="utf-8"),
+                out_path,
+                session_dir,
+                prefer=backend,
+                scale=scale,
             )
         except _RasterBackendUnavailable as exc:
             if not renders:

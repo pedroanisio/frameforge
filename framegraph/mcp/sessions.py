@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+import json
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
@@ -45,11 +46,42 @@ def _reset_session_outputs(session_dir: Path) -> None:
     stale = [
         session_dir / "generated.fg.yaml",
         session_dir / "build_error.json",
+        session_dir / "document.pdf",
         *session_dir.glob("page-*.svg"),
         *session_dir.glob("p*.png"),
     ]
     for path in stale:
         path.unlink(missing_ok=True)
+
+
+def _prior_render_artifacts(session_dir: Path) -> list[str]:
+    """Names of the rendered artifacts a fresh call in this session would replace.
+
+    The per-call output reset (:func:`_reset_session_outputs`) makes each run
+    hermetic but silently destroys a previous call's renders when a session id is
+    shared across tools; callers snapshot this BEFORE producing so the replacement
+    can be surfaced instead of discovered later (see the guide's clobber warning).
+    """
+    if not session_dir.is_dir():
+        return []
+    names = [path.name for path in session_dir.glob("p*.png")]
+    names += [path.name for path in session_dir.glob("page-*.svg")]
+    if (session_dir / "document.pdf").is_file():
+        names.append("document.pdf")
+    return sorted(names)
+
+
+def _previous_session_tool(session_dir: Path) -> str | None:
+    """The tool that produced this session's last diagnostics, if recorded."""
+    path = session_dir / "diagnostics.json"
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    tool = data.get("tool") if isinstance(data, dict) else None
+    return tool if isinstance(tool, str) and tool else None
 
 
 def read_session_resource(uri: str, *, session_root: str | Path | None = None) -> dict[str, str]:
@@ -70,6 +102,9 @@ def read_session_resource(uri: str, *, session_root: str | Path | None = None) -
     if artifact == ["document.yaml"]:
         path = session_dir / "generated.fg.yaml"
         mime = "application/x-yaml"
+    elif artifact == ["document.pdf"]:
+        path = session_dir / "document.pdf"
+        mime = "application/pdf"
     elif artifact == ["diagnostics.json"]:
         path = session_dir / "diagnostics.json"
         mime = "application/json"
@@ -88,8 +123,18 @@ def read_session_resource(uri: str, *, session_root: str | Path | None = None) -
         raise ValueError(f"unsupported resource artifact: {'/'.join(artifact)!r}")
 
     if not path.exists():
-        raise FileNotFoundError(str(path))
-    if mime == "image/png":
+        available = (
+            sorted(entry.name for entry in session_dir.iterdir() if entry.is_file())
+            if session_dir.is_dir()
+            else []
+        )
+        listing = ", ".join(available) if available else "none — the session has no artifacts yet"
+        raise FileNotFoundError(
+            f"{path} does not exist. Artifacts currently in session {sid!r}: {listing}. "
+            "Every render tool resets its session's page-*.svg/p*.png on each call, so "
+            "page/N.png holds the LAST call's render — re-render, or use a distinct session_id."
+        )
+    if mime in ("image/png", "application/pdf"):
         return {
             "uri": uri,
             "mimeType": mime,

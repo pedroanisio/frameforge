@@ -58,7 +58,10 @@ def _page_svgs(path: str) -> list[str]:
     """Render one fixture and return the emitted SVG string per page, in order."""
     with open(path, encoding="utf-8") as fh:
         doc = yaml.safe_load(fh)            # safe_load parses both JSON and YAML
-    r = Renderer(doc, os.path.dirname(path))
+    # real_metrics=False pins estimate-mode text measurement: an explicit bool
+    # always wins over FRAMEGRAPH_REAL_METRICS, so a user's env var cannot cause
+    # spurious golden drift (the lock is byte-exact estimate-mode output).
+    r = Renderer(doc, os.path.dirname(path), real_metrics=False)
     svgs: list[str] = []
     for page in (doc.get("pages") or []):
         svgs.extend(r.render_page(page))

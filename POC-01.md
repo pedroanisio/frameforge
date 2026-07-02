@@ -1,3 +1,16 @@
+---
+disclaimer:
+  notice: >-
+    No information within this document should be taken for granted.
+    Any statement or premise not backed by a real logical definition
+    or verifiable reference may be invalid, erroneous, or a hallucination.
+  generated_by: >-
+    Claude Opus 4.8 via Claude Code (attribution inferred from the sibling
+    POC series; this frontmatter was added retroactively on 2026-07-01 by
+    Claude Fable 5 via Claude Code)
+  date: "2026-06-25"
+---
+
 ## Proposed solution: **Vector Drawing Coach MCP**
 
 Build **one MCP server** exposing **N drawing capabilities/tools** that guide an AI model through a disciplined, multi-step vector drawing process.

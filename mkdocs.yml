@@ -34,7 +34,18 @@ nav:
   - Python SDK:
       - Guide: sdk.md
       - API reference: sdk-api.md
+  - Error codes: error-codes.md
+  - Examples cookbook: examples.md
   - Fixture gallery: fixtures.md
+  - Design records:
+      - Architecture: architecture.md
+      - Output space: output-space.md
+      - Roadmap (draft): roadmap-draft.md
+      - ADR-0001 backend-neutral rendering: adr-0001-backend-neutral-rendering.md
+      - ADR-0002 SDK lags core delivery: adr-0002-sdk-lags-core-delivery.md
+      - Illustration protocol: illustration-protocol.md
+      - Vector recreation improvements: framegraph-vector-recreation-improvements.md
+      - Brand guideline: BRAND.md
   - Changelog: changelog.md
 
 markdown_extensions:

@@ -56,11 +56,12 @@ import framegraph as fg  # noqa: E402
 CORE_EBNF = os.path.join(ROOT, "grammar", "framegraph-v2.ebnf")
 STYLE_EBNF = os.path.join(ROOT, "grammar", "framegraph-v2-style.ebnf")
 
-# The 16 object types the models type strictly (kept identical to
+# The 17 object types the models type strictly (kept identical to
 # validate.py:CORE_OBJECT_TYPES — the single definition of "core profile").
 CORE_OBJECT_TYPES = {
     "rect", "ellipse", "circle", "line", "polyline", "polygon", "path", "curve",
-    "bezier", "text", "image", "icon", "bullet_list", "dimension", "table", "group",
+    "bezier", "text", "image", "icon", "bullet_list", "dimension", "connector",
+    "table", "group",
 }
 # Deprecated renderer-shortcut aliases the models accept but the grammar's
 # normative shape set deliberately omits (codemod.py normalises them). Present

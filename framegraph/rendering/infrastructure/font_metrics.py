@@ -40,7 +40,14 @@ import os
 import shutil
 import subprocess
 
-__all__ = ["FontMetrics", "measure_text", "get_font_metrics", "clear_cache"]
+__all__ = [
+    "FontMetrics",
+    "clear_cache",
+    "first_concrete_family",
+    "get_font_metrics",
+    "measure_text",
+    "resolve_family_name",
+]
 
 
 class FontMetrics:
@@ -80,8 +87,9 @@ _CACHE: dict[tuple[str, bool], FontMetrics | None] = {}
 
 
 def clear_cache() -> None:
-    """Reset the metrics cache. Test-only helper."""
+    """Reset the metrics + family-name caches. Test-only helper."""
     _CACHE.clear()
+    _FAMILY_CACHE.clear()
 
 
 def _split_family_chain(font_family: str) -> list[str]:
@@ -137,6 +145,51 @@ def _resolve_font_file(font_family: str, bold: bool) -> str | None:
     if path and os.path.isfile(path):
         return path
     return None
+
+
+def first_concrete_family(font_family: str) -> str | None:
+    """The first non-generic name in a CSS font-family chain, or ``None`` when
+    the chain is empty or generic-only (generic families resolve to a system
+    default *by design*, so they are not substitution candidates)."""
+    for candidate in _split_family_chain(font_family or ""):
+        if candidate.lower() not in _GENERIC_FAMILIES:
+            return candidate
+    return None
+
+
+# family-name resolution cache (independent of the metrics cache: it answers
+# "what face will fontconfig actually draw?", not "what are its advances?").
+_FAMILY_CACHE: dict[str, str | None] = {}
+
+
+def resolve_family_name(font_family: str) -> str | None:
+    """The family name fontconfig resolves a CSS chain's first concrete entry to
+    (``fc-match -f %{family}``), or ``None`` when unverifiable (no ``fc-match``,
+    generic-only chain, or fc-match failure).
+
+    This is the missing-font feedback primitive: when the returned name differs
+    from the requested family, the rasterizer will silently substitute another
+    face — surface that to the author instead of letting pixel diffs reveal it."""
+    target = first_concrete_family(font_family or "")
+    if target is None:
+        return None
+    if target in _FAMILY_CACHE:
+        return _FAMILY_CACHE[target]
+    resolved: str | None = None
+    if shutil.which("fc-match") is not None:
+        try:
+            result = subprocess.run(
+                ["fc-match", "-f", "%{family}", target],
+                capture_output=True,
+                text=True,
+                timeout=2.0,
+                check=False,
+            )
+            resolved = result.stdout.strip() or None
+        except (subprocess.SubprocessError, FileNotFoundError, OSError):
+            resolved = None
+    _FAMILY_CACHE[target] = resolved
+    return resolved
 
 
 def _load_font_metrics(font_path: str) -> FontMetrics | None:

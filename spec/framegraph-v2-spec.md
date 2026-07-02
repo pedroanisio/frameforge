@@ -58,14 +58,19 @@ meta: { … }              # optional
 
 | Type | Form |
 |---|---|
-| `Length` | a number (points) or a string `<n>("pt"\|"px"\|"mm"\|"in"\|"cm"\|"%"\|"fr")` |
+| `Length` | a number (points) or a string `<n>("pt"\|"px"\|"pc"\|"mm"\|"cm"\|"in"\|"em"\|"rem"\|"%"\|"fr")` |
 | `Color` | hex `#rgb[a]`/`#rrggbb[aa]`, a CSS colour name, or a `tokens.colors` key |
 | `Point` | `[x, y]` |
 | `Box` | `[x, y, w, h]`, top-left origin, **+y down** (§3.4) |
 | `unit-interval` | a number in `0.0 .. 1.0` |
 | `semver` | `<major>.<minor>.<patch>[-pre][+build]` |
 
-`%` and `fr` are **relative** and resolve only in defined contexts (§3.4, §3.6g).
+`%` and `fr` are **relative** and resolve only in defined contexts (§3.4, §3.6g). The
+unit set is the one the toolchain resolves (renderer `geometry.num` + the relative
+contexts) and is **pattern-enforced** by the models at schema time — a malformed unit
+(`12ptx`) is a validation error, not a silent default. The style module's earlier
+`q/ex/ch/vw/vh/vmin/vmax` extras were never resolved by any render target and are
+dropped from the conformant set (reconciled at HEAD).
 
 ## 3. Geometry, layout, text, and audit
 
@@ -221,6 +226,22 @@ distance; `angular` ⇒ angle at the shared vertex; `radial`/`diameter` ⇒ radi
 `arrows`/`offset`/`stroke_style`/`text_style` control rendering. A renderer that cannot
 draw it MAY decompose to lines+text but MUST keep the computed value attached.
 
+### 3.11 Connectors (typed at HEAD)
+
+A `connector` is an anchored line/polyline between two endpoints. Each endpoint is
+an explicit `[x, y]` point or an object attachment `{ref, port?, side?, offset?}`
+(the legacy `object` key is accepted for `ref` and normalised): `port` picks a named
+port of the target; otherwise `side` (`north|south|east|west`, or a side-named port)
+picks the box-edge midpoint, slid by `offset` along that edge; with neither, the
+endpoint is the target's box centre. An endpoint `point` short-circuits to fixed
+page coordinates and takes precedence over `ref`. Endpoint `ref`s MUST resolve to an
+object id on the same page (§3.1). An optional `route` carries intermediate
+`points`; the drawn geometry is always the chain start → points… → end (`route.kind`
+— legacy key `type` — is an advisory hint: `straight|orthogonal|curved`). An optional
+boxed `label` (`{text, box, style?}`) is drawn at its own box. Paint comes from
+`stroke` and geometry/arrowheads from `stroke_style` (`arrow_start`/`arrow_end`),
+exactly as for other open shapes (§3.5).
+
 ## 4. Canvas & presets
 
 `CanvasSpec` is a preset string or a `CanvasObject` (`preset` **xor** `size`+`units`,
@@ -300,10 +321,10 @@ content (`Inline`) covers plain runs, `Span`, `ref`, `cite`, `footnote`, `math`,
 ## 7. Fixed vocabulary
 
 `VisualObject` core: `rect`, `ellipse`, `line`, `polyline`, `path`, `dimension`,
-`text`, `image`, `icon`, `bullet_list`, `table`, `group`. (`circle`/`polygon`/`curve`
-are **deprecated** renderer shortcuts → `ellipse`/closed `polyline`/`path`.) Charts,
-connectors, components/use/symbols, and the UML family are **extended** (out of the
-core profile; §8.5).
+`connector` (§3.11), `text`, `image`, `icon`, `bullet_list`, `table`, `group`.
+(`circle`/`polygon`/`curve` are **deprecated** renderer shortcuts → `ellipse`/closed
+`polyline`/`path`.) Charts, components/use/symbols, and the UML family are
+**extended** (out of the core profile; §8.5).
 
 ## 8. Conformance
 

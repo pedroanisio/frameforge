@@ -2,7 +2,8 @@
 disclaimer:
   notice: >-
     No information within this document should be taken for granted. This is a
-    hand-written conceptual design record, out of the generated MkDocs nav. Its
+    hand-written conceptual design record, listed in the MkDocs nav under Design
+    records but not gated for prose freshness. Its
     "Generated today" anchor — the concrete entry points — is pinned by
     tests/test_output_space_doc.py and fails the gate on drift. The conceptual
     families and the boundaries are NOT machine-verifiable; verify them against

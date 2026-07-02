@@ -45,9 +45,30 @@ _VISION_GROUP_HINT = (
     "`--group vision`)."
 )
 
+# The install instruction split out of the message, matching the shared envelope
+# shape (`error` = what failed, `hint` = the actionable next step).
+_VISION_INSTALL_HINT = (
+    "install the optional `vision` dependency group: `uv sync --group vision` "
+    "(or launch the MCP server with `--group vision`)"
+)
 
-def _vision_error(message: str) -> dict[str, Any]:
-    return {"ok": False, "error": message, "proposal": None, "renders": [], "resources": []}
+
+def _vision_error(message: str, *, hint: str | None = None) -> dict[str, Any]:
+    """The vision tools' structured failure envelope (`ok:false` + error [+ hint]).
+
+    When the message is the combined :data:`_VISION_GROUP_HINT`, the install
+    instruction is split into the envelope's separate ``hint`` field so the shape
+    matches the server's `_error_envelope` (error = what failed, hint = the fix).
+    """
+    envelope: dict[str, Any] = {
+        "ok": False, "error": message, "proposal": None, "renders": [], "resources": [],
+    }
+    if hint is None and message == _VISION_GROUP_HINT:
+        envelope["error"] = "the optional `vision` dependency group is not installed"
+        hint = _VISION_INSTALL_HINT
+    if hint:
+        envelope["hint"] = hint
+    return envelope
 
 
 def _proposal_summary(proposal: Any) -> dict[str, Any]:

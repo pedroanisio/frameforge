@@ -163,6 +163,59 @@ def test_component_uses_definition_variant_and_slots():
     assert "Slot body" in svg
 
 
+def test_z_index_orders_paint_within_a_layer():
+    """style.z_index is a paint-order sort key (stable) — not inert CSS."""
+    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+           "pages": [{"mode": "page", "id": "p", "canvas": {"size": [120, 80]},
+                      "layers": [{"id": "l", "objects": [
+                          {"type": "rect", "box": [0, 0, 60, 60], "fill": "#aaaaaa",
+                           "style": {"z_index": 5}},
+                          {"type": "rect", "box": [20, 20, 60, 60], "fill": "#bbbbbb"},
+                      ]}]}]}
+    svg = Renderer(doc, ".").render_page(doc["pages"][0])[0]
+    # the z_index:5 rect must paint AFTER (above) the unindexed rect
+    assert svg.index('fill="#bbbbbb"') < svg.index('fill="#aaaaaa"')
+
+
+def test_z_index_absent_keeps_document_order():
+    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+           "pages": [{"mode": "page", "id": "p", "canvas": {"size": [120, 80]},
+                      "layers": [{"id": "l", "objects": [
+                          {"type": "rect", "box": [0, 0, 60, 60], "fill": "#aaaaaa"},
+                          {"type": "rect", "box": [20, 20, 60, 60], "fill": "#bbbbbb"},
+                      ]}]}]}
+    svg = Renderer(doc, ".").render_page(doc["pages"][0])[0]
+    assert svg.index('fill="#aaaaaa"') < svg.index('fill="#bbbbbb"')
+
+
+def test_angular_dimension_renders_arc_and_degree_label():
+    """`kind: angular` is model-legal and must render: an arc between the two
+    anchor rays (vertex = the object's box origin), arrowheads, and a degree
+    label. Convention: `box[0], box[1]` is the vertex; `from`/`to` are points on
+    the two rays."""
+    body = _render_body({"type": "dimension", "kind": "angular",
+                         "box": [40, 60, 0, 0],           # vertex at (40, 60)
+                         "from": [100, 60], "to": [40, 10]})
+    assert "<path" in body and " A " in body              # the measure arc
+    assert "90°" in body                                  # auto-measured right angle
+    assert "marker-" in body                              # arrowheads on the arc
+
+
+def test_angular_dimension_without_vertex_is_reported_not_thrown():
+    body = _render_body({"type": "dimension", "kind": "angular",
+                         "from": [100, 60], "to": [40, 10]})
+    assert not _has_element(body)                          # skipped, but see below
+    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+           "pages": [{"mode": "page", "id": "p", "canvas": {"size": [120, 80]},
+                      "layers": [{"id": "l", "objects": [
+                          {"type": "dimension", "kind": "angular",
+                           "from": [100, 60], "to": [40, 10]}]}]}]}
+    r = Renderer(doc, ".")
+    r.render_page(doc["pages"][0])
+    assert r.skipped == 1
+    assert any(w["kind"] == "dimension_angular_vertex" for w in r.diagnostics["warnings"])
+
+
 @settings(max_examples=60, deadline=None, suppress_health_check=[HealthCheck.too_slow])
 @given(
     box=st.lists(st.floats(min_value=0, max_value=2000, allow_nan=False, allow_infinity=False),

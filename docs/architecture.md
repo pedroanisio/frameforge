@@ -2,8 +2,9 @@
 disclaimer:
   notice: >-
     No information within this document should be taken for granted. This is a
-    hand-written design record, out of the generated MkDocs nav and not gated for
-    prose freshness — verify any claim against the live tree before relying on it.
+    hand-written design record, listed in the MkDocs nav under Design records but
+    not gated for prose freshness — verify any claim against the live tree before
+    relying on it.
   generated_by: "Claude Opus 4.8 via Claude Code"
   date: "2026-06-24"
 ---

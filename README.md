@@ -1,6 +1,6 @@
 # FrameGraph v2 — HEAD release
 
-A single, internally-consistent cut of **FrameGraph v2** (`2.2.0`) in which the
+A single, internally-consistent cut of **FrameGraph v2** (`2.3.0`) in which the
 documents, grammar, schema, prose, and Python code are kept in sync — the Pydantic
 models are the source of truth and everything else is generated from or checked
 against them.
@@ -14,14 +14,20 @@ against them.
 
 ```
 models/framegraph.py          ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
-framegraph/                   ← rendering package (DDD split, in progress): domain + application (the Renderer) + infra.
-framegraph/live/              ← local web UI for live MCP feedback sessions (`make live`).
-examples/                     ← runnable SDK clients.
+framegraph/                   ← the Python package (strictly downstream of the models — ADR-0002):
+  rendering/                  ← renderer (DDD split): domain + application (the Renderer) + infrastructure.
+  sdk/                        ← authoring SDK: builders/geometry/paint/widgets that lower into the models.
+  mcp/                        ← MCP server: author→render loop + the coordinate/measurement tool layer.
+  vision/                     ← raster→vector lane: measure/compare/vectorize/propose (optional deps).
+  coach/                      ← Vector Construction Coach: style-grammar, layer order, silhouette gate.
+  live/                       ← local web UI for live MCP feedback sessions (`make live`).
+examples/                     ← runnable SDK clients — indexed in docs/examples.md (GENERATED).
   framegraph_logo.py          ← the BRAND LOGO source of truth → GENERATES brand/framegraph-*.svg.
   framegraph_seed_deck.py     ← the canonical seed pitch deck (imports the mark + wordmark from above).
 brand/                        ← GENERATED logo masters (mark/wordmark + mono/reversed/favicon) + tokens fragment.
+recipe/                       ← standalone stdlib-only reversible-change recipe parser/reporter (own README).
 schema/
-  framegraph-v2.schema.json   ← GENERATED from the models (78 $defs). Do not hand-edit.
+  framegraph-v2.schema.json   ← GENERATED from the models (82 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
 grammar/
   framegraph-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.
@@ -36,18 +42,25 @@ tooling/
   pdf_to_framegraph_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameGraph YAML extractor.
   gen_status.py               ← GENERATES FIXTURE-STATUS.md from the validator (`--check` gates drift).
   gen_docs.py                 ← GENERATES the docs-site pages (reference/gallery/spec/grammar plus SDK docs).
+  gen_capability_manifest.py  ← GENERATES docs/capability-manifest.json (core/SDK/MCP status per capability).
+  gen_examples_index.py       ← GENERATES docs/examples.md (the examples cookbook index).
   check_grammar_sync.py       ← GATES grammar ⇄ models drift (core profile); `--strict` for full parity.
   check_accessibility.py      ← GATES page reading_order integrity; warns on missing image alt (a11y).
   render_golden.py            ← GATES b1/ oracle SVG output against a pinned hash lock (golden).
 fixtures/                     ← the original fixtures, migrated to 2.2.0.
   b1/                         ← the 8 AUTHORITATIVE fixtures (the oracle the tests assert against).
+conftest.py                   ← shared pytest bootstrap (sys.path + the framegraph shadow-module rule).
 tests/
   test_head.py                ← assertions: authoritative fixtures validate, schema in sync, style surface, P3.
   test_docs_in_sync.py        ← doc drift gate: numbers, Layout paths, generated-doc policy, fixture status.
   test_doc_examples.py        ← validates every complete FrameGraph example shown in the prose.
 docs/ + mkdocs.yml            ← the MkDocs site: `index.md` is hand-written, `sdk*.md` are committed generated snapshots, and transient generated pages are ignored.
+docs/capability-manifest.json ← GENERATED machine-readable capability status {core, sdk, mcp} (ADR-0002).
+docs/error-codes.md           ← every validator finding code + SDK rule_id: meaning and fix (sync-tested).
 docs/output-space.md          ← what FrameGraph can generate: the verified-today backends + the conceptual output space (anchor drift-gated by tests/test_output_space_doc.py).
 docs/BRAND.md                 ← the brand guideline (proposal); §3 governs the logo generated into brand/.
+AGENTS.md                     ← programmatic CLI/tooling reference (make targets, tooling flags, workflows).
+Dockerfile + docker/          ← the font-rich SDK/MCP runtime image (`make docker-build`).
 FIXTURE-STATUS.md             ← GENERATED validator status for the delivered fixtures (gen_status.py).
 CHANGELOG.md                  ← version, the breaking change + migration, conformance classes, rec. resolution.
 codebase-standards.md         ← the elevated engineering bar, status-tagged (Enforced / Adopted / Target).
@@ -106,7 +119,8 @@ uv sync --group pdf
 uv run python tooling/pdf_to_framegraph_yml.py input.pdf output.framegraph.yml
 
 # optional MCP server for AI feedback loops:
-# Python SDK code -> generated FrameGraph YAML -> validation + rendered SVG resources
+# Python SDK code -> generated FrameGraph YAML -> validation + rendered SVG/PNG,
+# plus the coordinate-aware measurement layer (see "Subsystems" below)
 uv sync --group mcp
 uv run --group mcp python -m framegraph.mcp
 # or: make mcp
@@ -128,6 +142,38 @@ The matplotlib proxy renderer (`tooling/render_fg_doc.py`) needs the extra
 ```bash
 uv sync --group render                     # adds matplotlib + pillow
 ```
+
+## Subsystems beyond the core
+
+- **MCP measurement layer** (`framegraph/mcp/` + `framegraph/vision/`). Besides
+  the author→render loop, the MCP server exposes a coordinate-aware
+  raster→vector reconstruction toolset: `measure_image` (grids/rulers/regions/
+  landmarks/zoom crops), `mark_points`, `overlay_images`, a stateful `workspace`
+  pin board, `construct_vectors`, `vectorize_image` (region/outline/potrace/
+  layers tracing), `score_reconstruction` (numeric edge-match convergence), and
+  `map_coordinates` (homography/warp). The live tool registry is enumerated in
+  [docs/capability-manifest.json](docs/capability-manifest.json); it needs the
+  `vision` dependency group.
+- **Vector Construction Coach** (`framegraph/coach/`). A staged construction
+  loop over the SDK — style-grammar checks, layer-order rules, a silhouette
+  gate, SVG ingest/cleaning, and figure-proportion helpers. It coaches
+  *construction* discipline; it is not a curve-drawing engine. Demos:
+  `examples/coach_demo.py` and the other `coach_*` examples.
+- **Recipe** (`recipe/`). A standalone, stdlib-only parser/reporter for
+  reversible-change recipes (as-is → desired state as linked, individually
+  reversible steps). Independent of the FrameGraph models; see
+  [recipe/README.md](recipe/README.md).
+- **Docker runtime** (`Dockerfile` + `docker/`). The font-rich canonical
+  SDK/MCP runtime (thousands of font families baked in) for font-faithful
+  raster verification: `make docker-build` / `docker-mcp` / `docker-shell` /
+  `docker-fonts`; client wiring in `docker/mcp.docker.json`.
+- **Live UI** (`framegraph/live/`). A local web view over the same MCP feedback
+  functions for humans watching/driving a session: `make live`
+  (`http://127.0.0.1:8789`, port via `LIVE_PORT`).
+
+Programmatic entry points for all of the above — every make target and tooling
+CLI with flags — are catalogued in [AGENTS.md](AGENTS.md); the examples
+cookbook is generated at [docs/examples.md](docs/examples.md).
 
 ## What changed vs the pre-HEAD bundle (one-line summary)
 

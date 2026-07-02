@@ -10,6 +10,7 @@ from .image_source import DefaultImageSource
 from .ocr_detector import TextDetector
 from .opencv_detectors import ColorRegionDetector, LineDetector, ShapeDetector
 from .pdf_source import PdfDocumentSource
+from .regions import DetectedRegion, detect_regions
 from .vlm_detector import HttpVlmClient, VlmDetector
 
 __all__ = [
@@ -21,4 +22,6 @@ __all__ = [
     "VlmDetector",
     "HttpVlmClient",
     "PdfDocumentSource",
+    "DetectedRegion",
+    "detect_regions",
 ]

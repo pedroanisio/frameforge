@@ -84,6 +84,78 @@ class DocumentBuilder:
         self._defs("masters")[name] = _coerce_handles(master)
         return Handle("master", name)
 
+    def master(self, name: str, canvas: str | dict[str, Any], **fields: Any) -> "MasterBuilder":
+        """Define a page master and return its fluent :class:`MasterBuilder`.
+
+        ``canvas`` is a preset name or a canvas object; regions, running
+        header/footer content and the footnote area are added with builder
+        calls. The returned builder is accepted directly by
+        :meth:`page`/:meth:`flow`/:meth:`section` ``master=`` arguments.
+        """
+        master: dict[str, Any] = {"canvas": _coerce_handles(canvas)}
+        master.update(_coerce_handles(fields))
+        self._defs("masters")[name] = master
+        return MasterBuilder(name, master)
+
+    def define_counter(self, name: str, *, start: int | None = None,
+                       reset_with: str | None = None, format: str | None = None) -> Handle:
+        """Define a named counter (``defs.counters``) for numbering series."""
+        counter: dict[str, Any] = {}
+        if start is not None:
+            counter["start"] = int(start)
+        if reset_with is not None:
+            counter["reset_with"] = str(reset_with)
+        if format is not None:
+            counter["format"] = format
+        self._defs("counters")[name] = counter
+        return Handle("counter", name)
+
+    def define_target(
+        self,
+        name: str,
+        canvas: str | dict[str, Any],
+        *,
+        adjustments: dict[str, Any] | None = None,
+        font_scale: float | None = None,
+        hide: list[str] | None = None,
+        padding_delta: float | None = None,
+    ) -> Handle:
+        """Add a render target (multi-canvas output) with optional adjustments.
+
+        ``font_scale``/``hide``/``padding_delta`` are sugar for the
+        ``adjustments`` object; pass ``adjustments=`` directly for forward
+        compatibility. Requested targets are checked by
+        :func:`~framegraph.sdk.validate.validate_static_rules`.
+        """
+        adj: dict[str, Any] = dict(adjustments) if adjustments else {}
+        if font_scale is not None:
+            adj["font_scale"] = float(font_scale)
+        if hide is not None:
+            adj["hide"] = [str(object_id) for object_id in hide]
+        if padding_delta is not None:
+            adj["padding_delta"] = float(padding_delta)
+        target: dict[str, Any] = {"name": name, "canvas": _coerce_handles(canvas)}
+        if adj:
+            target["adjustments"] = adj
+        self._doc.setdefault("targets", []).append(target)
+        return Handle("target", name)
+
+    def describe(self, description: str) -> "DocumentBuilder":
+        """Set the document's ``description`` (semantic summary for readers/agents)."""
+        self._doc["description"] = str(description)
+        return self
+
+    def meta(self, **entries: Any) -> "DocumentBuilder":
+        """Merge entries into the document-level ``meta`` mapping."""
+        self._doc.setdefault("meta", {}).update(_coerce_handles(entries))
+        return self
+
+    def text_contract(self, **fields: Any) -> "DocumentBuilder":
+        """Set the document-level text contract (``min_font_size``, ``overflow``,
+        ``line_clamp``, ``text_overflow``)."""
+        self._doc["text_contract"] = _coerce_handles(fields)
+        return self
+
     def define_symbol(self, name: str, *, box: list[Any], objects: list[dict[str, Any]], **fields: Any) -> Handle:
         symbol = {"box": box, "objects": _coerce_handles(objects)}
         symbol.update(_coerce_handles(fields))
@@ -115,13 +187,16 @@ class DocumentBuilder:
         master: Handle | str | None = None,
         reading_order: list[str] | None = None,
         coordinate_mode: str | None = None,
+        **fields: Any,
     ) -> "PageBuilder":
         """Append a page and return its builder.
 
         ``coordinate_mode`` ("absolute" or "flow") sets the page's
         ``rendering.coordinate_mode``; absolute is the natural choice for decks
-        that place objects at explicit page coordinates. The value is validated
-        against the model at :meth:`build` time, not here.
+        that place objects at explicit page coordinates. Extra ``fields``
+        (``links``, ``notes``, ``meta``, ``semantic``, …) pass through to the
+        page model. Everything is validated against the model at :meth:`build`
+        time, not here.
         """
         page: dict[str, Any] = {"mode": "page", "id": id, "layers": []}
         if canvas is not None:
@@ -132,6 +207,7 @@ class DocumentBuilder:
             page["reading_order"] = reading_order
         if coordinate_mode is not None:
             page["rendering"] = {"coordinate_mode": coordinate_mode}
+        page.update(_coerce_handles(fields))
         self._doc["pages"].append(page)
         builder = PageBuilder(page)
         builder._document = self._doc
@@ -146,6 +222,25 @@ class DocumentBuilder:
         }
         section.update(_coerce_handles(fields))
         self._doc["pages"].append(section)
+
+    @contextmanager
+    def section(self, id: str, *, master: Handle | str, **fields: Any):
+        """Author a ``mode: flow`` section's story with typed builder calls.
+
+        The context-manager entry symmetric to :meth:`page`: yields a
+        :class:`~framegraph.sdk.flow.FlowBuilder`, and on block exit lowers its
+        story through :meth:`flow`. Extra ``fields`` (``media``, ``lang``,
+        ``links``, ``meta``, …) pass through to the flow section::
+
+            with builder.section("chapter-1", master=body) as flow:
+                flow.heading(1, "Chapter One")
+                flow.para("Prose with **bold** inline forms.")
+        """
+        from framegraph.sdk.flow import FlowBuilder
+
+        story = FlowBuilder()
+        yield story
+        self.flow(id, master=master, story=story.story(), **fields)
 
     def build_dict(self, *, expand_reuse: bool = True) -> dict[str, Any]:
         if expand_reuse:
@@ -174,16 +269,19 @@ class DocumentBuilder:
 
         Returns the validation report when ``validate`` is true; otherwise returns
         ``None``. Structural model validation always runs via :meth:`build`.
+        With ``fail_on_error=True`` a failing report raises
+        :class:`~framegraph.sdk.validate.StaticValidationError`, whose message
+        lists *every* error with its JSON-pointer path and whose ``report``
+        attribute carries the full :class:`ValidationReport` — so callers fix
+        all issues in one round-trip instead of one per raise.
         """
         from framegraph.sdk.io import serialize
-        from framegraph.sdk.validate import validate_static_rules
+        from framegraph.sdk.validate import StaticValidationError, validate_static_rules
 
         doc = self.build(expand_reuse=expand_reuse)
         report = validate_static_rules(doc) if validate else None
         if report is not None and fail_on_error and not report.ok:
-            errors = [issue for issue in report.issues if issue.severity == "error"]
-            detail = errors[0].message if errors else "static validation failed"
-            raise ValueError(detail)
+            raise StaticValidationError(report)
         out = FsPath(path)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(serialize(doc, format=format), encoding="utf-8")
@@ -197,6 +295,87 @@ class DocumentBuilder:
         defs = self._doc.setdefault("defs", {})
         tokens = defs.setdefault("tokens", {})
         return tokens.setdefault(key, {})
+
+
+class MasterBuilder:
+    """Fluent builder for one ``defs.masters`` entry (a ``PageMaster``).
+
+    Returned by :meth:`DocumentBuilder.master`; every call mutates the
+    installed master in place and returns the builder for chaining. Pass the
+    builder itself (or its :attr:`handle`) wherever a ``master=`` argument is
+    accepted.
+    """
+
+    def __init__(self, name: str, master: dict[str, Any]) -> None:
+        self._name = name
+        self._master = master
+        self.handle = Handle("master", name)
+
+    def __str__(self) -> str:
+        return self._name
+
+    def margin(self, margin: list[Any]) -> "MasterBuilder":
+        """Set the master's content margin (``[top, right, bottom, left]``)."""
+        self._master["margin"] = _coerce_handles(margin)
+        return self
+
+    def fixed(self, objects: list[dict[str, Any]]) -> "MasterBuilder":
+        """Append fixed chrome objects drawn on every page using this master."""
+        self._master.setdefault("fixed", []).extend(
+            _coerce_handles(obj) for obj in objects
+        )
+        return self
+
+    def region(
+        self,
+        id: str,
+        box: list[Any],
+        *,
+        columns: int | None = None,
+        column_gap: Any = None,
+        column_fill: str | None = None,
+        next: str | None = None,
+        **fields: Any,
+    ) -> "MasterBuilder":
+        """Append a flow region. ``next`` chains overflow into another region
+        (cycles are rejected by :func:`validate_static_rules`)."""
+        region: dict[str, Any] = {"id": str(id), "box": _coerce_handles(box)}
+        if columns is not None:
+            region["columns"] = int(columns)
+        if column_gap is not None:
+            region["column_gap"] = column_gap
+        if column_fill is not None:
+            region["column_fill"] = column_fill
+        if next is not None:
+            region["next"] = str(next)
+        region.update(_coerce_handles(fields))
+        self._master.setdefault("regions", []).append(region)
+        return self
+
+    def running_header(self, objects: list[dict[str, Any]]) -> "MasterBuilder":
+        """Set the running header content (a list of visual objects)."""
+        self._running()["header"] = [_coerce_handles(obj) for obj in objects]
+        return self
+
+    def running_footer(self, objects: list[dict[str, Any]]) -> "MasterBuilder":
+        """Set the running footer content (a list of visual objects)."""
+        self._running()["footer"] = [_coerce_handles(obj) for obj in objects]
+        return self
+
+    def page_number(self, value: Any = True) -> "MasterBuilder":
+        """Enable the running page number (``True`` or a style dict)."""
+        self._running()["page_number"] = _coerce_handles(value)
+        return self
+
+    def footnote_area(self, id: str, box: list[Any], **fields: Any) -> "MasterBuilder":
+        """Set the footnote region (where ``footnote`` inlines are placed)."""
+        area: dict[str, Any] = {"id": str(id), "box": _coerce_handles(box)}
+        area.update(_coerce_handles(fields))
+        self._master["footnote_area"] = area
+        return self
+
+    def _running(self) -> dict[str, Any]:
+        return self._master.setdefault("running", {})
 
 
 class StackBuilder:
@@ -288,6 +467,21 @@ class StackBuilder:
         from framegraph.sdk.widgets import divider
 
         return self.add(divider(**fields))
+
+    def checkbox(self, *, checked: bool = True, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import checkbox
+
+        return self.add(checkbox(checked=checked, **fields))
+
+    def radio(self, *, selected: bool = True, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import radio
+
+        return self.add(radio(selected=selected, **fields))
+
+    def slider(self, frac: float, **fields: Any) -> "StackBuilder":
+        from framegraph.sdk.widgets import slider
+
+        return self.add(slider(frac, **fields))
 
     def commit(self) -> PageBuilder:
         self._parent.group(self._children, box=self._box, layout=self._layout, **self._fields)
@@ -433,7 +627,12 @@ class PageBuilder:
     def rect(self, box: list[Any], **fields: Any) -> "PageBuilder":
         return self.add({"type": "rect", "box": box, **fields})
 
-    def text(self, box: list[Any], text: str, **fields: Any) -> "PageBuilder":
+    def text(self, box: list[Any], text: str | list[Any], **fields: Any) -> "PageBuilder":
+        """Add a text object. ``text`` is a plain string, or a list of inlines
+        (strings, :func:`~framegraph.sdk.macros.span` dicts, refs …) lowered to
+        the model's ``spans`` form for per-span styling."""
+        if isinstance(text, (list, tuple)):
+            return self.add({"type": "text", "box": box, "spans": list(text), **fields})
         return self.add({"type": "text", "box": box, "text": text, **fields})
 
     def image(self, box: list[Any], src: Handle | str, **fields: Any) -> "PageBuilder":
@@ -441,6 +640,145 @@ class PageBuilder:
 
     def line(self, start: list[float], end: list[float], **fields: Any) -> "PageBuilder":
         return self.add({"type": "line", "from": start, "to": end, **fields})
+
+    def icon(self, box: list[Any], glyph: str, *, color: Any = None,
+             font: str | None = None, size: float | None = None,
+             **fields: Any) -> "PageBuilder":
+        """Add an icon glyph (a single character/ligature drawn in ``box``)."""
+        obj: dict[str, Any] = {"type": "icon", "box": box, "glyph": str(glyph)}
+        if color is not None:
+            obj["color"] = str(color)
+        if font is not None:
+            obj["font"] = font
+        if size is not None:
+            obj["size"] = float(size)
+        obj.update(fields)
+        return self.add(obj)
+
+    def bullet_list(self, box: list[Any], items: list[Any], *,
+                    marker: str | None = None, marker_color: Any = None,
+                    gap: float | None = None, indent: float | None = None,
+                    **fields: Any) -> "PageBuilder":
+        """Add a positioned bullet list (the absolute-layout list primitive;
+        for flow stories use :meth:`FlowBuilder.bullet`). ``items`` are strings
+        or span dicts."""
+        obj: dict[str, Any] = {"type": "bullet_list", "box": box, "items": list(items)}
+        if marker is not None:
+            obj["marker"] = marker
+        if marker_color is not None:
+            obj["marker_color"] = str(marker_color)
+        if gap is not None:
+            obj["gap"] = float(gap)
+        if indent is not None:
+            obj["indent"] = float(indent)
+        obj.update(fields)
+        return self.add(obj)
+
+    def dimension(self, start: Any, end: Any, *, kind: str = "linear",
+                  value: Any = None, text: str | None = None,
+                  prefix: str | None = None, suffix: str | None = None,
+                  offset: Any = None, arrows: str | None = None,
+                  text_style: str | None = None, **fields: Any) -> "PageBuilder":
+        """Add an anchored dimension annotation (measurement callout).
+
+        ``start``/``end`` accept every model ``Anchor`` form: an object ``id``
+        string, a point (``Vec2`` or ``[x, y]``), or ``{"ref": id, "port": name}``
+        targeting a declared port. ``kind`` is ``linear``/``aligned``/
+        ``angular``/``radial``/``diameter``; ``value="auto"`` lets the renderer
+        measure, ``text`` overrides the label entirely.
+        """
+        obj: dict[str, Any] = {"type": "dimension", "kind": kind,
+                               "from": _anchor(start), "to": _anchor(end)}
+        if value is not None:
+            obj["value"] = value
+        if text is not None:
+            obj["text"] = text
+        if prefix is not None:
+            obj["prefix"] = prefix
+        if suffix is not None:
+            obj["suffix"] = suffix
+        if offset is not None:
+            obj["offset"] = offset
+        if arrows is not None:
+            obj["arrows"] = arrows
+        if text_style is not None:
+            obj["text_style"] = text_style
+        obj.update(fields)
+        return self.add(obj)
+
+    def connector(self, start: Any, end: Any, *,
+                  route: Any = None, route_kind: str | None = None,
+                  label: str | None = None, label_box: list[Any] | None = None,
+                  label_style: Any = None,
+                  arrow_start: Any = None, arrow_end: Any = None,
+                  **fields: Any) -> "PageBuilder":
+        """Add an anchored connector between two endpoints (typed at HEAD, §3.11).
+
+        ``start``/``end`` accept every model ``ConnectorAnchor`` form: an object
+        ``id`` string or :class:`Handle` (lowered to ``{"ref": id}`` — the target's
+        box centre), a point (``Vec2`` or ``[x, y]`` — fixed page coordinates), or
+        an endpoint dict such as ``{"ref": id, "port": name}`` /
+        ``{"ref": id, "side": "east", "offset": 10}`` / ``{"point": [x, y]}``
+        passed through as-is.
+
+        ``route`` is an optional list of intermediate waypoints (page space, in
+        order); ``route_kind`` the advisory hint (``straight`` / ``orthogonal`` /
+        ``curved`` — the drawn geometry is always the point chain). ``label`` +
+        ``label_box`` draw a boxed text label (``label_style`` a tokens key or an
+        inline style). ``arrow_start``/``arrow_end`` markers merge into the inline
+        ``stroke_style`` bundle — paint itself goes in ``stroke`` (e.g. via
+        ``**stroke(...)``), matching the model's paint/geometry split.
+        """
+        obj: dict[str, Any] = {"type": "connector",
+                               "from": _connector_endpoint(start),
+                               "to": _connector_endpoint(end)}
+        if route is not None or route_kind is not None:
+            route_spec: dict[str, Any] = {}
+            if route_kind is not None:
+                route_spec["kind"] = str(route_kind)
+            if route is not None:
+                route_spec["points"] = _points(route)
+            obj["route"] = route_spec
+        if label is not None:
+            if label_box is None:
+                raise ValueError("connector(label=...) needs label_box=[x, y, w, h]")
+            label_spec: dict[str, Any] = {"text": str(label), "box": list(label_box)}
+            if label_style is not None:
+                label_spec["style"] = (
+                    _handle_name(label_style, {"style", "text_style"}, "label_style")
+                    if isinstance(label_style, (str, Handle)) else label_style
+                )
+            obj["label"] = label_spec
+        markers = {key: value for key, value in
+                   (("arrow_start", arrow_start), ("arrow_end", arrow_end))
+                   if value is not None}
+        if markers:
+            bundle = fields.get("stroke_style")
+            if bundle is None:
+                fields = {**fields, "stroke_style": markers}
+            elif isinstance(bundle, dict):
+                fields = {**fields, "stroke_style": {**bundle, **markers}}
+            else:
+                raise TypeError(
+                    "connector(arrow_start/arrow_end=...) needs an inline stroke_style "
+                    "dict; a stroke_style token cannot be extended in place — put the "
+                    "arrow_* flags in the token instead"
+                )
+        obj.update(fields)
+        return self.add(obj)
+
+    def link(self, to: str, *, relation: str | None = None,
+             label: str | None = None, external: bool | None = None) -> "PageBuilder":
+        """Add a page-level navigation link (``page.links``) to another page id."""
+        link: dict[str, Any] = {"to": str(to)}
+        if relation is not None:
+            link["relation"] = relation
+        if label is not None:
+            link["label"] = label
+        if external is not None:
+            link["external"] = external
+        self._page.setdefault("links", []).append(link)
+        return self
 
     def chart(
         self,
@@ -513,6 +851,46 @@ class PageBuilder:
         from framegraph.sdk.widgets import divider
 
         return self.add(divider(box, **fields))
+
+    def checkbox(self, box: Any = None, *, checked: bool = True, **fields: Any) -> "PageBuilder":
+        from framegraph.sdk.widgets import checkbox
+
+        return self.add(checkbox(box, checked=checked, **fields))
+
+    def radio(self, box: Any = None, *, selected: bool = True, **fields: Any) -> "PageBuilder":
+        from framegraph.sdk.widgets import radio
+
+        return self.add(radio(box, selected=selected, **fields))
+
+    def slider(self, box: Any, frac: float | None = None, **fields: Any) -> "PageBuilder":
+        from framegraph.sdk.widgets import slider
+
+        return self.add(slider(box, frac, **fields))
+
+    def breadcrumb(self, box: Any, items: list[str] | None = None, **fields: Any) -> "PageBuilder":
+        from framegraph.sdk.widgets import breadcrumb
+
+        return self.add(breadcrumb(box, items, **fields))
+
+    def navbar(self, box: Any, items: list[str], **fields: Any) -> "PageBuilder":
+        from framegraph.sdk.widgets import navbar
+
+        return self.add(navbar(box, items, **fields))
+
+    def dropdown(self, box: Any, items: list[str], **fields: Any) -> "PageBuilder":
+        from framegraph.sdk.widgets import dropdown
+
+        return self.add(dropdown(box, items, **fields))
+
+    def image_placeholder(self, box: Any, **fields: Any) -> "PageBuilder":
+        from framegraph.sdk.widgets import image_placeholder
+
+        return self.add(image_placeholder(box, **fields))
+
+    def sticky_note(self, box: Any, text: str, **fields: Any) -> "PageBuilder":
+        from framegraph.sdk.widgets import sticky_note
+
+        return self.add(sticky_note(box, text, **fields))
 
     def card(self, box: Any, **fields: Any):
         """Add a card widget and return its :class:`~framegraph.sdk.Panel`."""
@@ -848,6 +1226,30 @@ def _point(value: Any) -> list[float]:
     return [float(value[0]), float(value[1])]
 
 
+def _anchor(value: Any) -> Any:
+    """Coerce a model ``Anchor``: id string, ``{ref, port}`` dict, or a point."""
+    if isinstance(value, Handle):
+        return value.name
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        return dict(value)
+    return _point(value)
+
+
+def _connector_endpoint(value: Any) -> Any:
+    """Coerce a model ``ConnectorAnchor``: unlike a dimension ``Anchor``, a bare id
+    lowers to the endpoint form ``{"ref": id}`` (the connector endpoint model has
+    no plain-string variant); dicts pass through; anything else is a point."""
+    if isinstance(value, Handle):
+        return {"ref": value.name}
+    if isinstance(value, str):
+        return {"ref": value}
+    if isinstance(value, dict):
+        return dict(value)
+    return _point(value)
+
+
 def _polar(cx: float, cy: float, rx: float, ry: float, degrees: float) -> list[float]:
     """Point on the ``(rx, ry)`` ellipse at ``degrees`` (0° = +x, clockwise in Y-down)."""
     rad = math.radians(degrees)
@@ -883,9 +1285,15 @@ def _transform_fields(transform: Any, fields: dict[str, Any]) -> dict[str, Any]:
         existing = style.get("transform")
         base = list(existing) if isinstance(existing, list) else ([existing] if existing else [])
         merged = {**style, "transform": base + lowered}
+    elif isinstance(style, (str, Handle)):
+        # A token-named style composes with inline additions through the model's
+        # Style.class mechanism: the token is referenced by `class`, the inline
+        # properties sit beside it, so themed groups can also be transformed.
+        merged = {"class": _handle_name(style, {"style", "text_style"}, "style"),
+                  "transform": lowered}
     else:
         raise TypeError(
-            "group(transform=...) needs an inline style dict, not a style reference"
+            "group(transform=...) needs an inline style dict or a style token name"
         )
     return {**fields, "style": merged}
 
@@ -894,16 +1302,20 @@ def _style_set(fields: dict[str, Any], key: str, value: Any, what: str) -> dict[
     """Set ``style[key] = value`` on ``fields``, preserving an inline style dict.
 
     Composes after :func:`_transform_fields`, so ``group(transform=..., clip=...)``
-    keeps both. A style *reference* (a token name) cannot carry an inline addition,
-    so that is rejected with the same discipline as ``transform``.
+    keeps both. A style *token* composes through ``Style.class`` (the token is
+    referenced by ``class`` next to the inline addition), mirroring
+    :func:`_transform_fields`.
     """
     style = fields.get("style")
     if style is None:
         merged: dict[str, Any] = {key: value}
     elif isinstance(style, dict):
         merged = {**style, key: value}
+    elif isinstance(style, (str, Handle)):
+        merged = {"class": _handle_name(style, {"style", "text_style"}, "style"),
+                  key: value}
     else:
-        raise TypeError(f"group({what}=...) needs an inline style dict, not a style reference")
+        raise TypeError(f"group({what}=...) needs an inline style dict or a style token name")
     return {**fields, "style": merged}
 
 
@@ -997,4 +1409,4 @@ def _allowed_handle_kinds(field: str | None) -> set[str]:
     return set()
 
 
-__all__ = ["DocumentBuilder", "Handle", "PageBuilder", "StackBuilder"]
+__all__ = ["DocumentBuilder", "Handle", "MasterBuilder", "PageBuilder", "StackBuilder"]

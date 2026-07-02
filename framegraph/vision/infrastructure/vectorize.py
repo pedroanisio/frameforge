@@ -26,6 +26,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from ..domain.coordinates import denorm_box
+
 
 def image_size(path: "str | Path") -> tuple[int, int]:
     """Return the (width, height) of an image without vectorising it."""
@@ -91,12 +93,18 @@ def raster_to_objects(
     """Vectorise ``path``; return ``(objects, width, height)`` in image pixels.
 
     ``mode='region'`` traces filled polygons over ``colors`` quantised colours;
-    ``mode='outline'`` traces edges into polylines. ``detail`` is the
-    Douglas–Peucker epsilon as a fraction of contour length (higher = simpler);
-    ``min_area`` drops noise.
+    ``mode='outline'`` traces edges into polylines; ``mode='auto'`` classifies the
+    raster (see :func:`resolve_auto_mode`) and picks between the two — routes this
+    function cannot draw (``trace``/``layers``) clamp to their nearest equivalent
+    (outline/region). ``detail`` is the Douglas–Peucker epsilon as a fraction of
+    contour length (higher = simpler); ``min_area`` drops noise.
     """
     import cv2
     import numpy as np
+
+    if mode == "auto":
+        resolved, _ = resolve_auto_mode(path)
+        mode = {"trace": "outline", "layers": "region"}.get(resolved, resolved)
 
     img = _load_scaled(path, max_dim)
     h, w = img.shape[:2]
@@ -150,10 +158,6 @@ def potrace_path() -> str | None:
     return shutil.which("potrace")
 
 
-def _clamp01(v: float) -> float:
-    return 0.0 if v < 0.0 else 1.0 if v > 1.0 else v
-
-
 def _potrace_hex(color: str) -> str:
     """potrace's --color needs a 6-digit #rrggbb; expand a 3-digit #rgb shorthand."""
     c = (color or "").strip()
@@ -183,10 +187,11 @@ def trace_to_svg(path: "str | Path", *, region_box: "list[float] | None" = None,
     img = Image.open(str(path)).convert("RGB")
     W, H = img.size
     if region_box:
+        # the clamped norm→px lowering is the domain coordinate authority's —
+        # the same denorm_box the MCP usecase applies to region/layers crops.
         x, y, w, h = region_box
-        ox, oy = _clamp01(x) * W, _clamp01(y) * H
-        cw = max(1.0, (_clamp01(x + w) - _clamp01(x)) * W)
-        ch = max(1.0, (_clamp01(y + h) - _clamp01(y)) * H)
+        ox, oy, cw, ch = denorm_box(x, y, w, h, W, H)
+        cw, ch = max(1.0, cw), max(1.0, ch)
         crop = img.crop((int(ox), int(oy), int(round(ox + cw)), int(round(oy + ch))))
     else:
         ox, oy, cw, ch, crop = 0.0, 0.0, float(W), float(H), img
@@ -228,24 +233,43 @@ def trace_to_svg(path: "str | Path", *, region_box: "list[float] | None" = None,
     return svg_text, meta
 
 
-def ocr_text_objects(path: "str | Path", *, max_dim: int = 1400,
-                     min_conf: float = 60.0, color: str = "#1E2440") -> list[dict[str, Any]]:
-    """Detect text via Tesseract → editable FrameGraph ``text`` objects.
+def ocr_text_objects_status(path: "str | Path", *, max_dim: int = 1400,
+                            min_conf: float = 60.0, color: str = "#1E2440",
+                            ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Detect text via Tesseract → ``(text objects, status)``.
 
-    Returns an empty list when ``pytesseract`` / the Tesseract binary is absent,
-    so callers can treat OCR as a best-effort enrichment layer.
+    The status dict makes the degradation observable (PALS's Law: a silent ``[]``
+    is indistinguishable from a text-free image):
+
+    - ``available`` — could the OCR backend run here at all?
+    - ``status``    — ``ok`` (words found) | ``no_text`` (backend ran, nothing kept)
+      | ``unavailable`` (pytesseract/Tesseract missing) | ``error`` (backend crashed)
+    - ``reason``    — human-readable cause when not ``ok``/``no_text``
+    - ``n_words``   — number of emitted text objects
     """
+    status: dict[str, Any] = {"available": False, "status": "unavailable",
+                              "reason": None, "n_words": 0}
     try:
         import cv2
         import pytesseract
         from pytesseract import Output
-    except Exception:
-        return []
+    except Exception as exc:
+        status["reason"] = (f"OCR dependency missing: {exc} — install the `vision` "
+                            "group's pytesseract (plus OpenCV)")
+        return [], status
+    try:
+        pytesseract.get_tesseract_version()
+    except Exception as exc:
+        status["reason"] = f"the Tesseract binary is missing or broken: {exc}"
+        return [], status
+    status["available"] = True
+
     img = _load_scaled(path, max_dim)
     try:
         data = pytesseract.image_to_data(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), output_type=Output.DICT)
-    except Exception:
-        return []
+    except Exception as exc:
+        status["status"], status["reason"] = "error", f"OCR run failed: {exc}"
+        return [], status
     out: list[dict[str, Any]] = []
     for i, word in enumerate(data.get("text", [])):
         word = (word or "").strip()
@@ -260,7 +284,93 @@ def ocr_text_objects(path: "str | Path", *, max_dim: int = 1400,
                     "style": {"font_family": ["Inter", "Arial", "sans-serif"],
                               "font_size": float(hh), "font_weight": 700, "color": color,
                               "vertical_align": "middle"}})
-    return out
+    status["status"] = "ok" if out else "no_text"
+    status["n_words"] = len(out)
+    return out, status
+
+
+def ocr_text_objects(path: "str | Path", *, max_dim: int = 1400,
+                     min_conf: float = 60.0, color: str = "#1E2440") -> list[dict[str, Any]]:
+    """Detect text via Tesseract → editable FrameGraph ``text`` objects.
+
+    Back-compat wrapper over :func:`ocr_text_objects_status` — an empty list here
+    cannot distinguish 'no text' from 'backend missing'; callers that surface OCR
+    results MUST use the status variant instead.
+    """
+    objects, _ = ocr_text_objects_status(path, max_dim=max_dim, min_conf=min_conf, color=color)
+    return objects
+
+
+# --------------------------------------------------------------------------- #
+#  auto-mode router  --  cheap classification → region / outline / trace / layers
+# --------------------------------------------------------------------------- #
+# Per-route ingest presets, ported from the proven examples/demo_rebuild.py router.
+_AUTO_PRESETS: dict[str, dict[str, Any]] = {
+    "outline": {"detail": 0.0016, "min_area": 22.0, "max_dim": 1500},
+    "region": {"colors": 20, "detail": 0.0032, "min_area": 44.0, "max_dim": 1300},
+    "layers": {"colors": 4, "detail": 0.0012},
+    "trace": {},
+}
+
+
+def classify_raster(path: "str | Path", *, max_dim: int = 700) -> dict[str, Any]:
+    """Cheap raster classification for mode routing.
+
+    ``kind`` is the proven line-art test (high white fraction + few colours + thin
+    ink → ``lineart``, else ``illustration``); the extra metrics (``mid_frac`` for
+    bilevel-ness, ``solid_bg`` from the corner pixels, ``n_colors`` from a 4-bit
+    quantisation) feed :func:`resolve_auto_mode`'s trace/layers routing.
+    """
+    import cv2
+    import numpy as np
+
+    img = _load_scaled(path, max_dim)
+    h, w = img.shape[:2]
+    g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    white = float((g >= 235).mean())
+    dark = float((g <= 90).mean())
+    n_colors = int(len(np.unique((img >> 4).reshape(-1, 3), axis=0)))
+    m = min(3, h - 1, w - 1)
+    corners = img[[m, m, h - 1 - m, h - 1 - m], [m, w - 1 - m, m, w - 1 - m]].astype(float)
+    solid_bg = bool(np.abs(corners - corners.mean(axis=0)).max() <= 12.0)
+    kind = "lineart" if (white >= 0.45 and n_colors < 2200 and dark < 0.22) else "illustration"
+    return {
+        "kind": kind,
+        "white_frac": round(white, 4),
+        "dark_frac": round(dark, 4),
+        "mid_frac": round(max(0.0, 1.0 - white - dark), 4),
+        "n_colors": n_colors,
+        "solid_bg": solid_bg,
+    }
+
+
+def resolve_auto_mode(path: "str | Path") -> tuple[str, dict[str, Any]]:
+    """``mode='auto'`` router: classify ``path`` and pick a vectorize mode.
+
+    Routing, in order: line art → ``outline`` (editable strokes); heavy bilevel ink
+    → ``trace`` when the potrace binary is present (smooth Béziers; never chosen
+    without the binary); flat colour art on a solid ground → ``layers``; everything
+    else → ``region``. Returns ``(mode, meta)`` where ``meta`` carries the
+    classification, the chosen route's parameter presets, and the decision — the
+    caller reports it so an agent can override (PALS: the router is a heuristic).
+    """
+    info = classify_raster(path)
+    if info["kind"] == "lineart":
+        mode = "outline"
+    elif info["mid_frac"] <= 0.05 and info["dark_frac"] >= 0.25 and potrace_path():
+        mode = "trace"
+    elif info["solid_bg"] and info["n_colors"] <= 1500:
+        mode = "layers"
+    else:
+        mode = "region"
+    meta = {
+        "resolved_mode": mode,
+        "classification": info,
+        "presets": dict(_AUTO_PRESETS[mode]),
+        "hint": ("auto routing is a heuristic — pass an explicit mode to override; "
+                 "presets are the route's proven defaults, explicit args win"),
+    }
+    return mode, meta
 
 
 # --------------------------------------------------------------------------- #

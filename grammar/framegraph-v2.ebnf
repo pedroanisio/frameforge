@@ -532,12 +532,16 @@ ColumnSpec = string | "{" , [ "label" , ":" , string ] , [ "," , "width" , ":" ,
 
 (* ── relations / grouping / reuse ── *)
 
+(* Typed at HEAD (§3.11): endpoints are points or object attachments        *)
+(* {ref|object, port|side, offset, point}; the drawn geometry is the chain   *)
+(* start → route.points… → end; the label is a boxed text (a bare-string     *)
+(* label is NOT rendered and is therefore not part of the surface).          *)
 ConnectorObject =
     "{" , "type" , ":" , "connector" ,
-      "from" , ":" , Anchor ,
-      "to"   , ":" , Anchor ,
-      [ "route"  , ":" , Route ] ,
-      [ "label"  , ":" , string ] ,
+      "from" , ":" , ConnectorAnchor ,
+      "to"   , ":" , ConnectorAnchor ,
+      [ "route"  , ":" , ConnectorRoute ] ,
+      [ "label"  , ":" , ConnectorLabel ] ,
       [ "stroke" , ":" , Stroke ] ,
       common-object-fields ,
     "}" ;
@@ -937,10 +941,32 @@ LinkInline =
 Anchor = string | Point | AnchorObject ;
 AnchorObject = "{" , "ref" , ":" , string , [ "," , "port" , ":" , string ] , "}" ;
 
-Route =
+(* Connector endpoints (§3.11): `object` is the accepted legacy key for `ref` *)
+(* (normalised by the models); `point` wins over `ref`; with neither port nor  *)
+(* side the endpoint is the target's box centre.                              *)
+ConnectorAnchor = Point | ConnectorEndpoint ;
+ConnectorEndpoint =
     "{" ,
-      [ "kind"      , ":" , ( "straight" | "orthogonal" | "curved" ) ] ,
-      [ "waypoints" , ":" , "[" , Point , { "," , Point } , "]" ] ,
+      [ ( "ref" | "object" ) , ":" , string ] ,
+      [ "port"   , ":" , string ] ,
+      [ "side"   , ":" , ( "north" | "south" | "east" | "west" ) ] ,
+      [ "offset" , ":" , number ] ,
+      [ "point"  , ":" , Point ] ,
+    "}" ;                       (* at least one of ref/object or point *)
+
+(* `kind` (legacy key `type`) is an advisory routing hint; the renderer draws *)
+(* the polyline start → points… → end regardless.                             *)
+ConnectorRoute =
+    "{" ,
+      [ ( "kind" | "type" ) , ":" , ( "straight" | "orthogonal" | "curved" ) ] ,
+      [ "points" , ":" , "[" , Point , { "," , Point } , "]" ] ,
+    "}" ;
+
+ConnectorLabel =
+    "{" ,
+      "text" , ":" , string ,
+      "box"  , ":" , Box ,
+      [ "style" , ":" , StyleRef ] ,
     "}" ;
 
 (* +P1  Layout box model is specified in spec §3.6 (deterministic placement of *)

@@ -13,6 +13,8 @@ knowledge lives here.
 """
 from __future__ import annotations
 
+import math
+
 from framegraph.rendering.domain.geometry import esc, fnum, num
 from framegraph.rendering.domain.services.stroke_resolver import StrokeResolver
 
@@ -34,18 +36,35 @@ _DEFAULT_MARKER = "filled_triangle"
 
 
 class SvgPainter:
-    def __init__(self, color_resolver):
+    def __init__(self, color_resolver, warn=None):
         self._color = color_resolver
+        # Optional structured-warning sink: `warn(kind, message, **details)`.
+        # The Renderer injects its diagnostics recorder; a bare painter stays
+        # silent (None) so the adapter remains usable standalone.
+        self._warn = warn
         self._gid = 0
         self._defs = []          # per-page <defs> entries (gradients, clip paths, markers, filters)
+        self._ids: set[str] = set()                      # def ids allocated on this page
         self._markers: dict[tuple[str, str], str] = {}   # (kind, colour) -> marker id
         self._filters: dict[tuple, str] = {}             # effect signature -> filter id
 
     # ---- per-page backend state ------------------------------------------- #
     def new_page(self):
         self._defs = []
+        self._ids = set()
         self._markers = {}
         self._filters = {}
+
+    def has_def_id(self, def_id: str) -> bool:
+        """True when this page has already allocated a `<defs>` entry with `def_id`.
+
+        Used by the builder to flag string `mask`/`url(#...)` references that
+        point at nothing (silent no-ops in the rendered SVG)."""
+        return def_id in self._ids
+
+    def _note_warning(self, kind, message, **details):
+        if self._warn is not None:
+            self._warn(kind, message, **details)
 
     # ---- small attribute / style helpers ---------------------------------- #
     @staticmethod
@@ -104,9 +123,99 @@ class SvgPainter:
         return style
 
     # ---- paint registry (gradients + clips share the id counter) ---------- #
+    @staticmethod
+    def _angle_deg(value):
+        """A CSS Angle ("<n>deg|rad|grad|turn" or a bare number = degrees) to
+        degrees, or None when absent/unparseable."""
+        if value is None or isinstance(value, bool):
+            return None
+        if isinstance(value, (int, float)):
+            return float(value)
+        s = str(value).strip().lower()
+        for unit, factor in (("deg", 1.0), ("grad", 0.9), ("rad", 180.0 / math.pi),
+                             ("turn", 360.0)):
+            if s.endswith(unit):
+                try:
+                    return float(s[: -len(unit)].strip()) * factor
+                except ValueError:
+                    return None
+        try:
+            return float(s)
+        except ValueError:
+            return None
+
+    _AT_KEYWORDS = {"left": ("x", 0.0), "right": ("x", 1.0), "top": ("y", 0.0),
+                    "bottom": ("y", 1.0), "center": (None, 0.5)}
+
+    @classmethod
+    def _radial_center(cls, at):
+        """A Gradient `at` (keywords, "x% y%", or a point) to (cx, cy) unit
+        fractions of the bounding box, or None when absent/unparseable."""
+        if at is None:
+            return None
+        if isinstance(at, (list, tuple)) and len(at) >= 2:
+            vals = [num(v, None) for v in at[:2]]
+            if any(v is None for v in vals):
+                return None
+            return tuple(v / 100.0 if v > 1 else float(v) for v in vals)
+        if not isinstance(at, str):
+            return None
+        cx = cy = None
+        for token in at.strip().lower().split():
+            if token in cls._AT_KEYWORDS:
+                axis, frac = cls._AT_KEYWORDS[token]
+                if axis == "x" or (axis is None and cx is None):
+                    cx = frac
+                elif axis == "y" or axis is None:
+                    cy = frac
+            elif token.endswith("%"):
+                v = num(token[:-1], None)
+                if v is None:
+                    return None
+                if cx is None:
+                    cx = v / 100.0
+                elif cy is None:
+                    cy = v / 100.0
+            else:
+                return None
+        if cx is None and cy is None:
+            return None
+        return (0.5 if cx is None else cx, 0.5 if cy is None else cy)
+
+    def _gradient_geometry(self, g, kind):
+        """The geometry attribute string for one gradient spec (possibly "").
+
+        * linear `angle` → x1/y1/x2/y2 (CSS convention: 0 = up, 90 = right,
+          180 = down; the gradient line runs through the box centre). This is a
+          centre-line mapping, not the CSS corner-projection — exact for the
+          axis-aligned angles and a close approximation for diagonals.
+        * radial/conic `at` → cx/cy (+ fx/fy focus at the same point).
+        * `repeating` → spreadMethod="repeat".
+
+        A spec with none of those fields returns "" so its emitted bytes are
+        identical to the pre-geometry renderer (golden protection)."""
+        attrs = ""
+        if kind == "linear":
+            angle = self._angle_deg(g.get("angle"))
+            if angle is not None:
+                rad = math.radians(angle % 360.0)
+                dx, dy = math.sin(rad), -math.cos(rad)
+                pct = lambda v: fnum(round(v, 3))  # noqa: E731 — local formatter
+                attrs += (f' x1="{pct(50 - 50 * dx)}%" y1="{pct(50 - 50 * dy)}%"'
+                          f' x2="{pct(50 + 50 * dx)}%" y2="{pct(50 + 50 * dy)}%"')
+        else:
+            center = self._radial_center(g.get("at"))
+            if center is not None:
+                cx, cy = (fnum(round(v * 100, 3)) for v in center)
+                attrs += f' cx="{cx}%" cy="{cy}%" fx="{cx}%" fy="{cy}%"'
+        if g.get("repeating"):
+            attrs += ' spreadMethod="repeat"'
+        return attrs
+
     def gradient(self, g):
         self._gid += 1
         gid = f"g{self._gid}"
+        self._ids.add(gid)
         kind = g.get("kind")
         stops = []
         n = max(1, len(g.get("stops", [])))
@@ -120,15 +229,78 @@ class SvgPainter:
             col = self._color.resolve(st.get("color")) or "#000"
             stops.append(f'<stop offset="{fnum(o)}%" stop-color="{esc(col)}"/>')
         body = "".join(stops)
+        geo = self._gradient_geometry(g, kind)
         if kind == "radial" or kind == "conic":     # conic ≈ radial fallback
-            self._defs.append(f'<radialGradient id="{gid}">{body}</radialGradient>')
+            if kind == "conic":
+                self._note_warning(
+                    "gradient_conic_fallback",
+                    "conic gradient approximated as a radial gradient in the SVG proxy "
+                    "(no native SVG conic primitive); verify against the raster",
+                )
+            self._defs.append(f'<radialGradient id="{gid}"{geo}>{body}</radialGradient>')
         else:
-            self._defs.append(f'<linearGradient id="{gid}">{body}</linearGradient>')
+            self._defs.append(f'<linearGradient id="{gid}"{geo}>{body}</linearGradient>')
         return f"url(#{gid})"
+
+    # Pattern tile geometry per kind: which primitives one `spacing`-sized tile
+    # draws (lines centred in the tile so tile-edge clipping never halves them),
+    # and the default rotation. The SDK's `hatch()` passes angle=45 explicitly;
+    # these defaults mirror it for raw model dicts.
+    _PATTERN_DEFAULT_ANGLE = {"hatch": 45.0, "cross_hatch": 45.0, "dots": 0.0, "grid": 0.0}
+
+    def pattern(self, spec):
+        """Register a tiled `<pattern>` def for a Pattern paint
+        (`kind: pattern`, `pattern: hatch|cross_hatch|dots|grid`) and return its
+        `url(#...)` fill value. Honours the model fields: `spacing` sizes the
+        tile, `angle` rotates it (patternTransform), `stroke` draws the motif,
+        `background` fills the tile behind it."""
+        self._gid += 1
+        pid = f"pat{self._gid}"
+        self._ids.add(pid)
+        kind = spec.get("pattern")
+        s = num(spec.get("spacing"), None) or 8.0
+        fg = self._color.resolve(spec.get("stroke")) or "#333333"
+        bg = self._color.resolve(spec.get("background"))
+        angle = self._angle_deg(spec.get("angle"))
+        if angle is None:
+            angle = self._PATTERN_DEFAULT_ANGLE.get(kind, 0.0)
+        half, size = fnum(s / 2), fnum(s)
+        body = ""
+        if bg and bg != "none":
+            body += f'<rect width="{size}" height="{size}" fill="{esc(bg)}"/>'
+        line_v = (f'<line x1="{half}" y1="0" x2="{half}" y2="{size}" '
+                  f'stroke="{esc(fg)}" stroke-width="1"/>')
+        line_h = (f'<line x1="0" y1="{half}" x2="{size}" y2="{half}" '
+                  f'stroke="{esc(fg)}" stroke-width="1"/>')
+        if kind == "hatch":
+            body += line_v
+        elif kind in ("cross_hatch", "grid"):
+            body += line_v + line_h
+        elif kind == "dots":
+            r = max(0.75, s * 0.15)
+            body += f'<circle cx="{half}" cy="{half}" r="{fnum(r)}" fill="{esc(fg)}"/>'
+        else:                       # unknown pattern arm: background-only tile
+            self._note_warning("pattern_unknown", f"unknown pattern kind {kind!r}; "
+                               "tile renders background only")
+        transform = f' patternTransform="rotate({fnum(angle)})"' if angle % 360 else ""
+        self._defs.append(
+            f'<pattern id="{pid}" patternUnits="userSpaceOnUse" '
+            f'width="{size}" height="{size}"{transform}>{body}</pattern>'
+        )
+        return f"url(#{pid})"
+
+    def mask_def(self, body):
+        """Register a generated `<mask>` def (luminance mask) and return its id."""
+        self._gid += 1
+        mid = f"mask{self._gid}"
+        self._ids.add(mid)
+        self._defs.append(f'<mask id="{mid}">{body}</mask>')
+        return mid
 
     def image_pattern(self, href, x, y, w, h, preserve_aspect_ratio="xMidYMid slice"):
         self._gid += 1
         pid = f"pat{self._gid}"
+        self._ids.add(pid)
         self._defs.append(
             f'<pattern id="{pid}" patternUnits="userSpaceOnUse" '
             f'x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}">'
@@ -141,6 +313,7 @@ class SvgPainter:
     def clip_rect(self, x, y, w, h):
         self._gid += 1
         cid = f"clip{self._gid}"
+        self._ids.add(cid)
         self._defs.append(f'<clipPath id="{cid}">'
                           f'<rect x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}"/></clipPath>')
         return cid
@@ -148,6 +321,7 @@ class SvgPainter:
     def clip_ellipse(self, cx, cy, rx, ry):
         self._gid += 1
         cid = f"clip{self._gid}"
+        self._ids.add(cid)
         self._defs.append(f'<clipPath id="{cid}">'
                           f'<ellipse cx="{fnum(cx)}" cy="{fnum(cy)}" '
                           f'rx="{fnum(rx)}" ry="{fnum(ry)}"/></clipPath>')
@@ -156,6 +330,7 @@ class SvgPainter:
     def clip_polygon(self, points):
         self._gid += 1
         cid = f"clip{self._gid}"
+        self._ids.add(cid)
         pts = " ".join(f"{fnum(x)},{fnum(y)}" for x, y in points)
         self._defs.append(f'<clipPath id="{cid}"><polygon points="{esc(pts)}"/></clipPath>')
         return cid
@@ -163,6 +338,7 @@ class SvgPainter:
     def clip_path_d(self, d):
         self._gid += 1
         cid = f"clip{self._gid}"
+        self._ids.add(cid)
         self._defs.append(f'<clipPath id="{cid}"><path d="{esc(d)}"/></clipPath>')
         return cid
 
@@ -182,6 +358,7 @@ class SvgPainter:
         if mid is not None:
             return mid
         mid = f"ah{len(self._markers) + 1}"
+        self._ids.add(mid)
         self._markers[key] = mid
         self._defs.append(self._marker_def(mid, color, kind))
         return mid
@@ -210,6 +387,7 @@ class SvgPainter:
             if fid is not None:
                 return fid
             fid = f"fx{len(self._filters) + 1}"
+            self._ids.add(fid)
             self._filters[key] = fid
             self._defs.append(self._filter_def(fid, kind, params))
             return fid
@@ -220,6 +398,7 @@ class SvgPainter:
             if fid is not None:
                 return fid
             fid = f"fx{len(self._filters) + 1}"
+            self._ids.add(fid)
             self._filters[key] = fid
             self._defs.append(self._filter_def(fid, kind, params))
             return fid
@@ -236,6 +415,7 @@ class SvgPainter:
         if fid is not None:
             return fid
         fid = f"fx{len(self._filters) + 1}"
+        self._ids.add(fid)
         self._filters[key] = fid
         self._defs.append(self._filter_def(fid, kind, params))
         return fid
@@ -471,14 +651,53 @@ class SvgPainter:
 
         `runs` is a list of (text, run_style_dict) pairs — the neutral style dicts;
         this backend formats each at `size`. The first run carries the anchor x; the
-        rest flow inline. Each run's style overrides the base."""
+        rest flow inline. Each run's style overrides the base. A run style carrying
+        the reserved `link_href` key (a LinkInline span) gets its tspan wrapped in
+        an SVG `<a href>` so the link is real in every SVG consumer."""
         base_style = self.font_style(base_st, size)
         segs = []
         for i, (text, run_st) in enumerate(runs):
             xa = f' x="{fnum(tx)}"' if i == 0 else ""
-            segs.append(f'<tspan{xa} style="{self.font_style(run_st, size)}">{esc(text)}</tspan>')
+            seg = f'<tspan{xa} style="{self.font_style(run_st, size)}">{esc(text)}</tspan>'
+            href = run_st.get("link_href")
+            if href:
+                seg = f'<a href="{esc(href)}">{seg}</a>'
+            segs.append(seg)
         return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}" '
                 f'style="{base_style}">{"".join(segs)}</text>')
+
+    def text_line_runs(self, x, y, w, h, groups, st):
+        """One flow-text line as href-aware inline runs.
+
+        `groups` is a list of (text, href_or_None) pairs whose texts concatenate
+        to the full line (the caller keeps the separating spaces inside the
+        texts). Linked groups are wrapped in `<a href>`; positioning matches
+        `text_tag`'s non-centred path so unlinked flow lines stay byte-identical
+        through the plain `text_tag` route."""
+        if not groups:
+            return ""
+        a = self.anchor(st["align"])
+        tx = x + (w / 2 if a == "middle" else (w if a == "end" else 0))
+        ty = y + st["size"] * 0.92
+        style = self.font_style(st, st["size"])
+        segs = []
+        for text, href in groups:
+            seg = f"<tspan>{esc(text)}</tspan>"
+            if href:
+                seg = f'<a href="{esc(href)}">{seg}</a>'
+            segs.append(seg)
+        return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}" '
+                f'style="{style}">{"".join(segs)}</text>')
+
+    def link_wrap(self, inner, href, title=None):
+        """Wrap one object's SVG in an `<a href>` (SVG2 `href`; consumed by both
+        the Chromium rasteriser and CairoSVG's PDF link annotations). `title`
+        becomes a child `<title>` (tooltip/AT label) — no xlink namespace, which
+        the emitted document does not declare."""
+        if not inner or not href:
+            return inner
+        t = f"<title>{esc(title)}</title>" if title else ""
+        return f'<a href="{esc(href)}">{t}{inner}</a>'
 
     # ---- grouping / document ---------------------------------------------- #
     def group(self, inner, translate=None):

@@ -1,19 +1,26 @@
 """Conformance helpers for SDK users and tests."""
 from __future__ import annotations
 
+import copy
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
 from framegraph.rendering.application.normalize import normalize_doc
-from framegraph.rendering.application.renderer import Renderer
+from framegraph.rendering.application import renderer as _renderer_module
+from framegraph.rendering.application.renderer import Renderer  # noqa: F401 — re-export compat
 
 from framegraph.sdk.model import validate_document
 
 
 def render_pages_with_stats(
-    model: Any, *, base_dir: str | None = None
-) -> tuple[list[str], dict[str, int]]:
+    model: Any,
+    *,
+    base_dir: str | None = None,
+    real_metrics: bool | None = None,
+    layout_report: bool = False,
+    diagnostics: bool = False,
+):
     """Render a document through the SVG proxy, returning the page SVGs and the
     renderer's text-fit telemetry.
 
@@ -23,15 +30,33 @@ def render_pages_with_stats(
     clipped/ellipsized — some intentional (``text_overflow: ellipsis``,
     ``line_clamp``), some lossy — so callers should surface it for verification, not
     treat it as a hard error.
+
+    ``real_metrics`` threads the renderer's glyph-advance text measurement: ``None``
+    (the default) keeps the renderer's behaviour of consulting the
+    ``FRAMEGRAPH_REAL_METRICS`` environment variable; an explicit bool always wins
+    over the env var. ``layout_report=True`` additionally collects per-object final
+    boxes + fitted font sizes in the diagnostics ``layout`` list.
+
+    With ``diagnostics=True`` a third element is returned — the renderer's
+    structured feedback dict (``warnings``, ``skipped_objects``,
+    ``skipped_flowables``, ``font_fallbacks``, ``layout``) — so callers such as the
+    MCP pipeline can surface render-side signals without replicating the render
+    loop. The default return stays the historical ``(svgs, tstats)`` 2-tuple.
     """
     data = validate_document(model).model_dump(by_alias=True, exclude_none=True)
     doc = normalize_doc(data)
     root = base_dir or "."
-    renderer = Renderer(doc, root)
+    # Resolve the class through the module at call time (not the import-time
+    # binding) so tests/tools that monkeypatch `renderer.Renderer` are honored —
+    # the contract the MCP pipeline's real-metrics wiring is verified against.
+    renderer = _renderer_module.Renderer(
+        doc, root, real_metrics=real_metrics, layout_report=layout_report)
     svgs: list[str] = []
     for page in doc.get("pages", []):
         if isinstance(page, dict):
             svgs.extend(renderer.render_page(page))
+    if diagnostics:
+        return svgs, dict(renderer.tstats), copy.deepcopy(renderer.diagnostics)
     return svgs, dict(renderer.tstats)
 
 

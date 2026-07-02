@@ -17,19 +17,28 @@ class TextDetector:
     def __init__(self, *, min_confidence: float = 40.0) -> None:
         self._min_confidence = float(min_confidence)
 
-    def available(self) -> bool:
+    def availability(self) -> "tuple[bool, str | None]":
+        """``(available, reason)`` — the reason names the missing piece, so the MCP
+        layer can relay *why* OCR degraded ('no text found' is a different signal
+        than a missing dependency; PALS's Law)."""
         try:
             import pytesseract
         except ImportError:
-            return False
+            return False, ("pytesseract is not installed — install the `vision` "
+                           "dependency group")
         try:
             pytesseract.get_tesseract_version()
-        except Exception:
-            return False
-        return True
+        except Exception as exc:
+            return False, f"the Tesseract binary is missing or broken: {exc}"
+        return True, None
+
+    def available(self) -> bool:
+        return self.availability()[0]
 
     def unavailable_reason(self) -> str:
-        return "OCR backend unavailable; install the `vision` group's pytesseract plus the Tesseract binary"
+        reason = self.availability()[1]
+        return reason or ("OCR backend unavailable; install the `vision` group's "
+                          "pytesseract plus the Tesseract binary")
 
     def detect(self, image: RasterImage) -> Sequence[Observation]:
         import pytesseract
