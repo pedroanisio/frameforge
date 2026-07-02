@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`ClosedPalette`, `caps_tracking`, `closed_palette`, `complement`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `dominant_light`, `grey_document`, `harmony_of_hues`, `harmony_of_scale`, `johnston_margins`, `measure_fits`, `modular_scale`, `relative_luminance`, `tone_scale`, `Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -180,6 +180,74 @@ StackBuilder(parent: "'PageBuilder'", box: 'list[Any]', layout: 'dict[str, Any]'
 | `toggle` | `(self, **fields: 'Any') -> "'StackBuilder'"` |  |
 | `widget` | `(self, obj: 'dict[str, Any]') -> "'StackBuilder'"` |  |
 
+## `framegraph.sdk.canon`
+
+### `MARGIN_CANON`
+
+`dict` value: `{'inner': 1.5, 'top': 2.0, 'outer': 3.0, 'foot': 4.0}`
+
+### `MEASURE_MAX`
+
+`int` value: `75`
+
+### `MEASURE_MIN`
+
+`int` value: `45`
+
+### `SCALE_NAMES`
+
+`tuple` value: `('caption', 'body', 'lead', 'h3', 'h2', 'h1', 'display', 'cover')`
+
+### `caps_tracking`
+
+`framegraph.sdk.canon.caps_tracking`
+
+Letter-spacing (px) for an all-caps setting: capitals want air.
+
+```python
+caps_tracking(font_size: 'float', percent: 'float' = 6.0) -> 'float'
+```
+
+### `content_box`
+
+`framegraph.sdk.canon.content_box`
+
+The text block ``(x, y, w, h)`` the margin canon leaves on one page.
+
+```python
+content_box(page_w: 'float', page_h: 'float', unit: 'float', side: 'str' = 'recto') -> 'tuple[float, float, float, float]'
+```
+
+### `johnston_margins`
+
+`framegraph.sdk.canon.johnston_margins`
+
+The margin canon scaled by one unit: inner 1½u, top 2u, outer 3u, foot 4u.
+
+```python
+johnston_margins(unit: 'float') -> 'dict[str, float]'
+```
+
+### `measure_fits`
+
+`framegraph.sdk.canon.measure_fits`
+
+True when a measure sits in the 45–75 characters-per-line comfort band.
+
+```python
+measure_fits(chars_per_line: 'float') -> 'bool'
+```
+
+### `modular_scale`
+
+`framegraph.sdk.canon.modular_scale`
+
+Named sizes as exact powers of one ratio: ``base * ratio**i``.
+
+```python
+modular_scale(base: 'float', ratio: 'float' = 1.25, names: "'list[str] | tuple[str, ...] | None'" = None) -> 'dict[str, float]'
+```
+
 ## `framegraph.sdk.chart`
 
 ### `Chart`
@@ -205,6 +273,180 @@ Chart(frame: 'Frame', _objects: 'list[dict[str, Any]]' = <factory>, _legend: 'li
 | `objects` | `(self) -> 'list[dict[str, Any]]'` | Return the accumulated chart objects (order = draw order). |
 | `pie` | `(self, values: 'Sequence[float]', *, colors: 'Sequence[str]', labels: 'Sequence[str] \| None' = None, center: 'Point \| None' = None, r: 'float \| None' = None, inner_ratio: 'float' = 0.0, start_angle: 'float' = -90.0) -> "'Chart'"` | Draw a pie (or, with ``inner_ratio`` > 0, a donut) inside the plot box. |
 | `scatter` | `(self, points: 'Sequence[Point]', *, r: 'float' = 3.5, fill: 'str' = '#333333', label: 'str \| None' = None) -> "'Chart'"` | Place a dot (radius ``r`` px) at each data point. |
+
+## `framegraph.sdk.chevreul`
+
+### `AREA_GUIDE`
+
+`dict` value: `{'ground': 0.62, 'text_structure': 0.3, 'accent': 0.08}`
+
+### `WHEEL`
+
+`dict` value: `{'red': '#d7332f', 'red-orange': '#e2612c', 'orange': '#eb8b2d', 'yellow-orange': '#f0b32e', 'yellow': '#eecf3a', 'yellow-green': '#a9c04a', 'green': '#5d9e52', 'blue-green': '#3d8f7c', 'blue': '#33689c', 'blue-violet': '#4a4e8f', 'violet': '#6d4a86', 'red-violet': '#a03d69'}`
+
+### `ClosedPalette`
+
+`framegraph.sdk.chevreul.ClosedPalette`
+
+A small palette with assigned duties — 'the impossibility of strangers'.
+
+```python
+ClosedPalette(duties: 'dict[str, Color]', quiet_steps: 'list[Color]' = <factory>) -> None
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `tokens` | `(self) -> 'dict[str, Color]'` | A ``defs.tokens.colors`` fragment: duties plus ``quiet1..N``. |
+
+### `closed_palette`
+
+`framegraph.sdk.chevreul.closed_palette`
+
+Build a closed palette with assigned duties.
+
+```python
+closed_palette(*, ground: 'Color', ink: 'Color', accent: 'Color', quiet_steps: 'int' = 3) -> 'ClosedPalette'
+```
+
+### `complement`
+
+`framegraph.sdk.chevreul.complement`
+
+The complementary colour of a wheel station (its afterimage and its
+
+```python
+complement(station: 'str') -> 'Color'
+```
+
+### `complement_name`
+
+`framegraph.sdk.chevreul.complement_name`
+
+The opposite station's name — six stations away on the wheel.
+
+```python
+complement_name(station: 'str') -> 'str'
+```
+
+### `contrast_of_colours`
+
+`framegraph.sdk.chevreul.contrast_of_colours`
+
+Contrast 3 — very distant scales: the complementary pair, colour's
+
+```python
+contrast_of_colours(station: 'str') -> 'tuple[Color, Color]'
+```
+
+### `contrast_of_hues`
+
+`framegraph.sdk.chevreul.contrast_of_hues`
+
+Contrast 2 — neighbouring scales at unequal depths (kinship in hue,
+
+```python
+contrast_of_hues(station: 'str') -> 'tuple[Color, Color]'
+```
+
+### `contrast_of_scale`
+
+`framegraph.sdk.chevreul.contrast_of_scale`
+
+Contrast 1 — two very distant tones of one scale (the monochrome,
+
+```python
+contrast_of_scale(color: 'Color') -> 'tuple[Color, Color]'
+```
+
+### `contrast_ratio`
+
+`framegraph.sdk.chevreul.contrast_ratio`
+
+WCAG 2.1 contrast ratio between two colours (1.0 – 21.0), symmetric.
+
+```python
+contrast_ratio(a: 'Color', b: 'Color') -> 'float'
+```
+
+### `dominant_light`
+
+`framegraph.sdk.chevreul.dominant_light`
+
+Analogy 3 — many colours seen through one tint ("as would result from
+
+```python
+dominant_light(colors: 'Sequence[Color]', tint: 'Color', strength: 'float' = 0.35) -> 'list[Color]'
+```
+
+### `grey_document`
+
+`framegraph.sdk.chevreul.grey_document`
+
+The grey test (best effort): a deep copy of a document with every
+
+```python
+grey_document(doc: 'Mapping[str, Any]') -> 'dict[str, Any]'
+```
+
+### `harmony_of_hues`
+
+`framegraph.sdk.chevreul.harmony_of_hues`
+
+Analogy 2 — like tones of neighbouring scales (the analogous palette:
+
+```python
+harmony_of_hues(station: 'str', n: 'int' = 3, tone: 'int | None' = None) -> 'list[Color]'
+```
+
+### `harmony_of_scale`
+
+`framegraph.sdk.chevreul.harmony_of_scale`
+
+Analogy 1 — tones of one scale, read in order (the monochrome).
+
+```python
+harmony_of_scale(color: 'Color', n: 'int' = 5) -> 'list[Color]'
+```
+
+### `nearest_station`
+
+`framegraph.sdk.chevreul.nearest_station`
+
+The wheel station nearest to a colour (RGB distance — approximate;
+
+```python
+nearest_station(color: 'Color') -> 'str'
+```
+
+### `relative_luminance`
+
+`framegraph.sdk.chevreul.relative_luminance`
+
+WCAG 2.1 relative luminance of an ``#rrggbb`` colour (0.0 – 1.0).
+
+```python
+relative_luminance(color: 'Color') -> 'float'
+```
+
+### `to_grey`
+
+`framegraph.sdk.chevreul.to_grey`
+
+The luminance-matched grey of a colour (hue stripped, tone kept).
+
+```python
+to_grey(color: 'Color') -> 'Color'
+```
+
+### `tone_scale`
+
+`framegraph.sdk.chevreul.tone_scale`
+
+A Chevreul tone ladder: light tones → the pure colour → deep tones.
+
+```python
+tone_scale(color: 'Color', steps: 'int' = 9) -> 'list[Color]'
+```
 
 ## `framegraph.sdk.clip`
 

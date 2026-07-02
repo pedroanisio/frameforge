@@ -7,7 +7,29 @@ core schema types; builders and helpers lower into the model and validate there.
 from __future__ import annotations
 
 from framegraph.sdk.author import DocumentBuilder, Handle, MasterBuilder, PageBuilder, StackBuilder
+from framegraph.sdk.canon import (
+    caps_tracking,
+    content_box,
+    johnston_margins,
+    measure_fits,
+    modular_scale,
+)
 from framegraph.sdk.chart import Chart
+from framegraph.sdk.chevreul import (
+    ClosedPalette,
+    closed_palette,
+    complement,
+    contrast_of_colours,
+    contrast_of_hues,
+    contrast_of_scale,
+    contrast_ratio,
+    dominant_light,
+    grey_document,
+    harmony_of_hues,
+    harmony_of_scale,
+    relative_luminance,
+    tone_scale,
+)
 from framegraph.sdk.clip import (
     clip_circle,
     clip_ellipse,
@@ -144,6 +166,24 @@ from framegraph.sdk.widgets import (
 )
 
 __all__ = [
+    "ClosedPalette",
+    "caps_tracking",
+    "closed_palette",
+    "complement",
+    "content_box",
+    "contrast_of_colours",
+    "contrast_of_hues",
+    "contrast_of_scale",
+    "contrast_ratio",
+    "dominant_light",
+    "grey_document",
+    "harmony_of_hues",
+    "harmony_of_scale",
+    "johnston_margins",
+    "measure_fits",
+    "modular_scale",
+    "relative_luminance",
+    "tone_scale",
     "Chart",
     "Panel",
     "Theme",

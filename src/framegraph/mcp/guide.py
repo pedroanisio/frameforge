@@ -48,6 +48,19 @@ Fluent builder:
   `FigureRef` import another FrameGraph page's objects as editable children (not a frozen
   image); `FigureAsset` / `place_imported_figure` place an extracted book/PDF figure with
   caption + provenance.
+- Design canon — START HERE for colour and type decisions, instead of ad-hoc picks:
+  - Colour (`framegraph.sdk.chevreul`, after Chevreul 1839): `closed_palette(ground=,
+    ink=, accent=)` assigns every colour a duty and emits a `defs.tokens.colors` fragment
+    (dose per `AREA_GUIDE` ≈ 62/30/8); the six harmonies (`harmony_of_scale`,
+    `harmony_of_hues`, `dominant_light`, `contrast_of_scale`, `contrast_of_hues`,
+    `contrast_of_colours`) + `complement`/`tone_scale` pick colours that agree;
+    `contrast_ratio(a, b)` (WCAG) checks text-on-ground legibility BEFORE rendering;
+    `grey_document(doc)` is the tone audit — render it next to the original to prove
+    hierarchy survives without hue.
+  - Typography (`framegraph.sdk.canon`, after Johnston 1906): `modular_scale(base, ratio)`
+    for sizes that agree; `content_box(page_w, page_h, unit, side="recto"|"verso")` for
+    the book margin canon (inner 1½ · top 2 · outer 3 · foot 4); `measure_fits(chars)`
+    for the 45–75 chars/line band; `caps_tracking(font_size)` for all-caps labels.
 - Validation: `validate_static_rules(doc) -> ValidationReport(ok, issues)`,
   `assert_golden(...)`; `HEAD_VERSION` is the current spec version.
 

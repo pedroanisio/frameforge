@@ -292,6 +292,36 @@ def gen_sdk_guide():
 
     doc = builder.build()
     """
+    canon_example = """\
+    from framegraph.sdk import DocumentBuilder, canon, chevreul
+
+    # one decided colour system + one decided size system, before any drawing
+    palette = chevreul.closed_palette(ground="#fbf8f1", ink="#1d1e22", accent="#b5402c")
+    sizes = canon.modular_scale(base=11.5, ratio=1.25)   # caption ... cover
+
+    builder = DocumentBuilder(title="Canon demo", profile="report")
+    for name, value in palette.tokens().items():
+        builder.define_color(name, value)
+
+    page = builder.page("p1", canvas={"size": [794, 1123], "units": "px"},
+                        coordinate_mode="absolute")
+    x, y, w, h = canon.content_box(794, 1123, unit=40, side="recto")
+    layer = page.layer("main")
+    layer.rect([0, 0, 794, 1123], fill="ground")
+    layer.text([x, y, w, 26], "KICKER IN TRACKED CAPS", style={
+        "color": "accent", "font_size": sizes["caption"],
+        "letter_spacing": canon.caps_tracking(sizes["caption"]),
+    })
+    layer.text([x, y + 40, w, sizes["h1"] * 1.4], "The letter & the hue",
+               style={"color": "ink", "font_size": sizes["h1"]})
+
+    # accents that agree: an analogous walk, or one complementary chord
+    accents = chevreul.harmony_of_hues("blue", n=3)
+    field, event = chevreul.contrast_of_colours("red")
+
+    # the grey test: strip hue, re-render, check the hierarchy still reads
+    grey = chevreul.grey_document(builder.build_dict())
+    """
     topology_example = """\
     import math
 
@@ -447,6 +477,23 @@ def gen_sdk_guide():
         textwrap.dedent(macros_example).rstrip(),
         "```",
         "",
+        "## Design Canon — colour & typography",
+        "",
+        "Two canon modules codify working design rules so authors (human or agent) start from *decided* "
+        "systems instead of ad-hoc picks. `framegraph.sdk.chevreul` (after M. E. Chevreul, 1839): the "
+        "12-station painter's wheel with `complement`, tone scales, the **six harmonies** "
+        "(`harmony_of_scale`/`harmony_of_hues`/`dominant_light` and the three contrasts), WCAG 2.1 "
+        "`relative_luminance`/`contrast_ratio`, the `grey_document` tone audit, and `closed_palette` — "
+        "duties (ground/ink/accent + quiet steps) with the 62/30/8 `AREA_GUIDE`, emitting a ready "
+        "`defs.tokens.colors` fragment. `framegraph.sdk.canon` (after Edward Johnston, 1906): "
+        "`modular_scale`, the inner-1½/top-2/outer-3/foot-4 margin canon (`johnston_margins`/"
+        "`content_box`), the 45–75 characters-per-line measure band, and `caps_tracking`. "
+        "Pure helpers only — nothing new enters the schema.",
+        "",
+        "```python",
+        textwrap.dedent(canon_example).rstrip(),
+        "```",
+        "",
         "## Topology, perspective & math surfaces",
         "",
         "Four solver modules turn data and parametric math into FrameGraph art, each lowering to a single "
@@ -526,7 +573,9 @@ def gen_sdk_api():
 
     modules = [
         "framegraph.sdk.author",
+        "framegraph.sdk.canon",
         "framegraph.sdk.chart",
+        "framegraph.sdk.chevreul",
         "framegraph.sdk.clip",
         "framegraph.sdk.conform",
         "framegraph.sdk.draw",

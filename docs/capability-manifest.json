@@ -116,6 +116,7 @@
       "BoxLike",
       "Camera",
       "Chart",
+      "ClosedPalette",
       "CubicBezier",
       "Document",
       "DocumentBuilder",
@@ -159,6 +160,7 @@
       "badge_width",
       "breadcrumb",
       "button",
+      "caps_tracking",
       "card",
       "checkbox",
       "cite",
@@ -168,9 +170,17 @@
       "clip_path",
       "clip_polygon",
       "clip_rect",
+      "closed_palette",
       "column",
+      "complement",
+      "content_box",
+      "contrast_of_colours",
+      "contrast_of_hues",
+      "contrast_of_scale",
+      "contrast_ratio",
       "default_theme",
       "divider",
+      "dominant_light",
       "dots",
       "dropdown",
       "effects",
@@ -182,13 +192,17 @@
       "glow",
       "gradient_map",
       "greeble",
+      "grey_document",
       "grid",
       "grid_lines",
       "grid_pattern",
+      "harmony_of_hues",
+      "harmony_of_scale",
       "hatch",
       "hatch_fill",
       "image_placeholder",
       "inset",
+      "johnston_margins",
       "klein_bottle",
       "kpi",
       "lattice",
@@ -198,10 +212,12 @@
       "lorem_paragraphs",
       "manifold",
       "md",
+      "measure_fits",
       "measure_text",
       "merge_figure_defs",
       "mobius",
       "model_module",
+      "modular_scale",
       "multiview",
       "navbar",
       "neon",
@@ -225,6 +241,7 @@
       "ref",
       "region_grade",
       "register_theme",
+      "relative_luminance",
       "render_page_svgs",
       "render_pages_with_stats",
       "rgba",
@@ -248,6 +265,7 @@
       "theme",
       "to_plain_dict",
       "toggle",
+      "tone_scale",
       "torus",
       "validate_document",
       "validate_static_rules",
@@ -1037,6 +1055,13 @@
       "mcp": true
     },
     {
+      "name": "ClosedPalette",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "CubicBezier",
       "kind": "sdk_export",
       "core": false,
@@ -1338,6 +1363,13 @@
       "mcp": true
     },
     {
+      "name": "caps_tracking",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "card",
       "kind": "sdk_export",
       "core": false,
@@ -1401,7 +1433,56 @@
       "mcp": true
     },
     {
+      "name": "closed_palette",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "column",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "complement",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "content_box",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "contrast_of_colours",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "contrast_of_hues",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "contrast_of_scale",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "contrast_ratio",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1416,6 +1497,13 @@
     },
     {
       "name": "divider",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "dominant_light",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1499,6 +1587,13 @@
       "mcp": true
     },
     {
+      "name": "grey_document",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "grid",
       "kind": "sdk_export",
       "core": false,
@@ -1514,6 +1609,20 @@
     },
     {
       "name": "grid_pattern",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "harmony_of_hues",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "harmony_of_scale",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1542,6 +1651,13 @@
     },
     {
       "name": "inset",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "johnston_margins",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1611,6 +1727,13 @@
       "mcp": true
     },
     {
+      "name": "measure_fits",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "measure_text",
       "kind": "sdk_export",
       "core": false,
@@ -1633,6 +1756,13 @@
     },
     {
       "name": "model_module",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "modular_scale",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1800,6 +1930,13 @@
       "mcp": true
     },
     {
+      "name": "relative_luminance",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "render_page_svgs",
       "kind": "sdk_export",
       "core": false,
@@ -1955,6 +2092,13 @@
     },
     {
       "name": "toggle",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "tone_scale",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
