@@ -55,17 +55,19 @@ _page_no = 0
 COLORS = {
     "bg":      "#f5f7f9",   # cool near-white ground
     "ink":     "#161a20",   # near-black
-    "sub":     "#5c6672",   # muted slate
-    "faint":   "#8b95a2",   # metadata grey
+    "sub":     "#5c6672",   # muted slate  (5.4:1 on ground)
+    "faint":   "#667079",   # metadata grey (4.7:1 — was #8b95a2 @ 2.8, below floor)
     "hair":    "#dde2e8",   # hairline
     "band":    "#eef1f4",   # zebra band
-    "ai":      "#dd7a1f",   # Adobe amber (Illustrator)
+    "ai":      "#a85510",   # Adobe amber, darkened for text legibility (4.9:1)
     "aitint":  "#f6e7d4",   # amber wash
-    "fg":      "#0f7d88",   # FrameGraph teal-cyan
+    "fg":      "#0f7d88",   # FrameGraph teal-cyan (4.5:1)
     "fgtint":  "#d8eaec",   # cyan wash
-    "part":    "#8fb9be",   # partial glyph (pale cyan)
-    "none":    "#b7bfc9",   # none glyph (grey ring)
-    "invert":  "#8a63c8",   # inverts-the-axis (violet)
+    "part":    "#4f9098",   # partial mid-teal (bar/glyph fill; carries white counts)
+    "partlbl": "#38757c",   # PARTIAL label text (4.9:1)
+    "none":    "#7c8590",   # none glyph ring (3.5:1 non-text floor; was #b7bfc9 @ 1.6)
+    "invert":  "#8a63c8",   # REFRAMED glyph violet
+    "invertlbl":"#6a3fa6",  # REFRAMED label text (6.8:1)
     "night":   "#12161c",   # dark cover ground
     "nightink":"#eef1f4",   # text on night
     "nightsub":"#9aa4b1",
@@ -190,7 +192,9 @@ def glyph(p, cx, cy, cov, r=8, ground="bg"):
 # "reframed" = the capability exists in BOTH tools, but FrameGraph reaches it by
 # naming or a tool call instead of a cursor gesture (its most interesting verdict).
 COVLBL = {"has": "HAS", "part": "PARTIAL", "none": "NONE", "invert": "REFRAMED"}
-COVCOL = {"has": "fg", "part": "part", "none": "none", "invert": "invert"}
+# Label TEXT colours are legibility-first (glyphs keep the lighter tokens): the
+# shape already carries the verdict, so the word must clear the contrast floor.
+COVCOL = {"has": "fg", "part": "partlbl", "none": "sub", "invert": "invertlbl"}
 
 # Row geometry
 ID_X = M
