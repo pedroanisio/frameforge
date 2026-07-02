@@ -9,16 +9,18 @@ defs:
       bg: '#f5f7f9'
       ink: '#161a20'
       sub: '#5c6672'
-      faint: '#8b95a2'
+      faint: '#667079'
       hair: '#dde2e8'
       band: '#eef1f4'
-      ai: '#dd7a1f'
+      ai: '#a85510'
       aitint: '#f6e7d4'
       fg: '#0f7d88'
       fgtint: '#d8eaec'
-      part: '#8fb9be'
-      none: '#b7bfc9'
+      part: '#4f9098'
+      partlbl: '#38757c'
+      none: '#7c8590'
       invert: '#8a63c8'
+      invertlbl: '#6a3fa6'
       night: '#12161c'
       nightink: '#eef1f4'
       nightsub: '#9aa4b1'
@@ -1126,7 +1128,7 @@ pages:
       - 12
       style:
         class: legname
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL
     - box:
@@ -1157,7 +1159,7 @@ pages:
       - 12
       style:
         class: legname
-        color: invert
+        color: invertlbl
       type: text
       text: REFRAMED
     - box:
@@ -1186,7 +1188,7 @@ pages:
       - 12
       style:
         class: legname
-        color: none
+        color: sub
       type: text
       text: NONE
     - box:
@@ -1783,7 +1785,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: invert
+        color: invertlbl
       type: text
       text: REFRAMED ·H
     - box:
@@ -1871,7 +1873,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -1952,7 +1954,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -2040,7 +2042,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -2107,7 +2109,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -2192,7 +2194,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -2270,7 +2272,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -2355,7 +2357,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -2654,7 +2656,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -2735,7 +2737,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -2809,7 +2811,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -2958,7 +2960,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -3036,7 +3038,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -3399,7 +3401,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·H
     - box:
@@ -3487,7 +3489,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -3568,7 +3570,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -3656,7 +3658,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -4072,7 +4074,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -4146,7 +4148,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -4238,7 +4240,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -4312,7 +4314,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -4597,7 +4599,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -4675,7 +4677,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -4760,7 +4762,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -4852,7 +4854,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -5004,7 +5006,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -5427,7 +5429,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -5494,7 +5496,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -5593,7 +5595,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -5787,7 +5789,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: invert
+        color: invertlbl
       type: text
       text: REFRAMED ·H
     - box:
@@ -5868,7 +5870,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -5956,7 +5958,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: part
+        color: partlbl
       type: text
       text: PARTIAL ·M
     - box:
@@ -6023,7 +6025,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -6310,7 +6312,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: invert
+        color: invertlbl
       type: text
       text: REFRAMED ·L
     - box:
@@ -6386,7 +6388,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: invert
+        color: invertlbl
       type: text
       text: REFRAMED ·L
     - box:
@@ -6453,7 +6455,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -6538,7 +6540,7 @@ pages:
       - 10
       style:
         class: covlbl
-        color: none
+        color: sub
       type: text
       text: NONE ·H
     - box:
@@ -6764,7 +6766,7 @@ pages:
       - 4
       - 118
       type: rect
-      fill: invert
+      fill: invertlbl
     - box:
       - 74
       - 360
@@ -6772,7 +6774,7 @@ pages:
       - 12
       style:
         class: gid
-        color: invert
+        color: invertlbl
       type: text
       text: AI-01 · REFRAMED
     - box:
@@ -6939,7 +6941,7 @@ pages:
       - 4
       - 118
       type: rect
-      fill: part
+      fill: partlbl
     - box:
       - 74
       - 620
@@ -6947,7 +6949,7 @@ pages:
       - 12
       style:
         class: gid
-        color: part
+        color: partlbl
       type: text
       text: AI-02 · PARTIAL ·M
     - box:
@@ -7032,7 +7034,7 @@ pages:
       - 4
       - 118
       type: rect
-      fill: none
+      fill: sub
     - box:
       - 74
       - 750
@@ -7040,7 +7042,7 @@ pages:
       - 12
       style:
         class: gid
-        color: none
+        color: sub
       type: text
       text: AI-28 · NONE (arch)
     - box:
