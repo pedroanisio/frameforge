@@ -14,7 +14,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
 
@@ -118,7 +118,7 @@ def test_data_attrs_no_data_leaves_no_meta():
 
 def test_real_corpus_svg_roundtrips_through_framegraph():
     """A real multi-path vector imports and renders through FrameGraph's engine."""
-    objs = svg_to_objects(Path(ROOT) / "fixtures/corpus/vector/wikimedia-nasa-logo.svg",
+    objs = svg_to_objects(Path(ROOT) / "tests/fixtures/corpus/vector/wikimedia-nasa-logo.svg",
                           box=[0, 0, 200, 200])
     assert len(objs) >= 40  # circles (stars) + the 11 paths
     from framegraph.sdk import DocumentBuilder, render_page_svgs

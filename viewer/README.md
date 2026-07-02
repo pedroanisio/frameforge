@@ -3,7 +3,8 @@
 A React app that renders **FrameGraph v2** documents — a coordinate-space scene-graph DSL
 for decks, diagrams, books, and letters. Ships with the *esfera* style-guide deck (14 slides)
 embedded as the live demo. The embedded deck, `demo/esfera.json`/`.yml`, and the prebuilt
-`dev/bundle.js` are all **FrameGraph 2.2.0** (migrated with the HEAD codemod).
+`dev/bundle.js` all target **FrameGraph 2.2.0** documents — still a valid 2.x
+target (repo HEAD is 2.3.0, an additive release; the deck predates it).
 
 The viewer renders at the document's native canvas coordinates and then fit-scales, so the
 whole UI is built to "speak in coordinates": ruler ticks with px labels, registration
@@ -14,20 +15,29 @@ brackets, a canvas-size badge, and a live mouse → canvas-coordinate readout.
 ## Contents
 
 ```
-framegraph-viewer/
+viewer/
 ├── framegraph-viewer.jsx     The app. Single-file React component, default export.
+├── framegraph-normalize.mjs  Shared document-normalization module (used by app + dev checks).
 ├── demo/
 │   ├── esfera.json           The demo deck the app renders (canonical, what ships embedded).
 │   ├── esfera.yml            Same deck as YAML (regenerated from the JSON — see note below).
 │   └── (schema)              See "The schema" section; not redistributed in this bundle.
-├── package.json              Project manifest (deps + build/start/verify scripts).
+├── package.json              Project manifest (deps + build/test/verify scripts).
+├── package-lock.json         Locked dependency set for `npm ci`.
 ├── Dockerfile                Multi-stage: Node builds the bundle, nginx serves it.
 ├── docker-compose.yml        `docker compose up` -> browse everything at :8088.
 ├── docker/                   nginx site config + landing page used by the image.
 ├── dev/                      Local build + headless-verification harness.
 │   ├── entry.jsx             Mounts <App/> into #root (imports ../framegraph-viewer.jsx).
 │   ├── harness.html          Loads Tailwind (CDN) + bundle.js. Open to view without building.
-│   ├── bundle.js             Pre-built IIFE bundle (so harness.html works out of the box).
+│   ├── bundle.js / bundle.css  Pre-built bundle (so harness.html works out of the box).
+│   ├── assets/               Bundled font assets emitted by esbuild.
+│   ├── schema-contract.mjs   Gate: viewer type registry ⇄ model schema reconciliation.
+│   ├── fixture-coverage.mjs  Gate: static coverage over ../tests/fixtures/*.fg.yaml.
+│   ├── fixture-browser-smoke.mjs  Loads every fixture in headless Chromium.
+│   ├── math|style|layout|table-browser-smoke.mjs  Per-subsystem render smokes.
+│   ├── render-ui-corpus.cjs  Renders the corpus UI mockups (tests/fixtures/corpus/ui).
+│   ├── type-registry.json    The viewer's supported/unsupported type registry.
 │   └── shot.cjs              Playwright script that screenshots representative slides.
 └── verification/             Headless-Chromium screenshots used to QA the render output.
     ├── shot_slide01.png            cover
@@ -79,12 +89,16 @@ The landing page links to the app (`/dev/harness.html`) and to the browsable
 ```bash
 npm install
 npx playwright install chromium
-npm test              # static fixture/object/style coverage
-npm run test:browser # loads every fixture in Chromium and walks expanded pages
-npm run test:style   # computed-style smoke assertions
-npm run test:layout  # row/grid layout placement smoke assertions
+npm test               # schema contract + static fixture/object/style coverage
+npm run test:contract  # viewer type registry ⇄ model schema reconciliation only
+npm run test:browser   # loads every fixture in Chromium and walks expanded pages
+npm run test:math      # math (TeX/MathML) render smoke assertions
+npm run test:style     # computed-style smoke assertions
+npm run test:layout    # row/grid layout placement smoke assertions
+npm run test:table     # table render smoke assertions
 npm run verify         # runs dev/shot.cjs; writes shot_*.png into dev/
-npm run test:all     # build + all of the above gates
+npm run render-ui-corpus  # renders tests/fixtures/corpus/ui mockups to PNG
+npm run test:all       # build + test + browser/math/style/layout/table + verify
 ```
 
 ---

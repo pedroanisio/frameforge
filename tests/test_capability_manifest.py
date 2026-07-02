@@ -127,7 +127,7 @@ def test_manifest_validator_section_uses_the_same_extraction():
 # --------------------------------------------------------------------------- #
 def _tracked_examples() -> set[str]:
     out = subprocess.run(
-        ["git", "ls-files", "examples/*.py"], cwd=ROOT, capture_output=True, text=True
+        ["git", "ls-files", "static/examples/*.py"], cwd=ROOT, capture_output=True, text=True
     ).stdout
     return {os.path.basename(p) for p in out.split() if p}
 

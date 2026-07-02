@@ -45,7 +45,7 @@ import yaml  # noqa: E402
 from render_fixtures import Renderer  # noqa: E402
 
 # The authoritative oracle: b1/*.fg.json (the fixtures test_head.py asserts).
-ORACLE_GLOB = os.path.join(ROOT, "fixtures", "b1", "*.fg.json")
+ORACLE_GLOB = os.path.join(ROOT, "tests", "fixtures", "b1", "*.fg.json")
 LOCK = os.path.join(ROOT, "tests", "golden", "oracle.lock.json")
 REFS = os.path.join(ROOT, "tests", "golden", "refs")
 DEFAULT_TOLERANCE = 0.5
@@ -61,11 +61,23 @@ def _page_svgs(path: str) -> list[str]:
     # real_metrics=False pins estimate-mode text measurement: an explicit bool
     # always wins over FRAMEGRAPH_REAL_METRICS, so a user's env var cannot cause
     # spurious golden drift (the lock is byte-exact estimate-mode output).
-    r = Renderer(doc, os.path.dirname(path), real_metrics=False)
-    svgs: list[str] = []
-    for page in (doc.get("pages") or []):
-        svgs.extend(r.render_page(page))
-    return svgs
+    # FRAMEGRAPH_MATH_SVG=fallback pins math the same way: golden hashes must not
+    # depend on whether the optional node + viewer/node_modules MathJax toolchain
+    # resolves on this machine (CI never installs it). Scoped + restored so a
+    # shared pytest process does not inherit the override.
+    previous = os.environ.get("FRAMEGRAPH_MATH_SVG")
+    os.environ["FRAMEGRAPH_MATH_SVG"] = "fallback"
+    try:
+        r = Renderer(doc, os.path.dirname(path), real_metrics=False)
+        svgs: list[str] = []
+        for page in (doc.get("pages") or []):
+            svgs.extend(r.render_page(page))
+        return svgs
+    finally:
+        if previous is None:
+            os.environ.pop("FRAMEGRAPH_MATH_SVG", None)
+        else:
+            os.environ["FRAMEGRAPH_MATH_SVG"] = previous
 
 
 def build_svgs() -> dict[str, list[str]]:

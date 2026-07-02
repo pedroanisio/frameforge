@@ -6,13 +6,13 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-MODELS = os.path.join(ROOT, "models")
+MODELS = os.path.join(ROOT, "docs", "models")
 if MODELS in sys.path:
     sys.path.remove(MODELS)
 shadow = sys.modules.get("framegraph")
 if shadow is not None and not hasattr(shadow, "__path__"):
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling.render_fixtures import Renderer
 

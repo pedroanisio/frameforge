@@ -21,7 +21,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path[:0] = [os.path.join(ROOT, "tooling"), os.path.join(ROOT, "models")]
+sys.path[:0] = [os.path.join(ROOT, "tooling"), os.path.join(ROOT, "docs", "models")]
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]

@@ -19,7 +19,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.mcp.server import create_server, mcp_content_blocks, run_sdk_code  # noqa: E402
 
@@ -110,7 +110,7 @@ def test_successful_build_writes_no_build_error_sidecar(tmp_path):
 def test_read_sdk_client_tool_missing_file_returns_envelope_with_hint(tmp_path):
     server = create_server(session_root=tmp_path, repo_root=tmp_path, fastmcp_cls=FakeFastMCP)
 
-    result = _structured(server.tools["read_sdk_client"]("examples/missing.py"))
+    result = _structured(server.tools["read_sdk_client"]("static/examples/missing.py"))
 
     assert result["ok"] is False
     assert result["error_type"] == "FileNotFoundError"
@@ -134,7 +134,7 @@ def test_write_sdk_client_tool_syntax_error_returns_envelope(tmp_path):
     server = create_server(session_root=tmp_path, repo_root=tmp_path, fastmcp_cls=FakeFastMCP)
 
     result = _structured(
-        server.tools["write_sdk_client"]("examples/broken.py", "def broken(:\n", create=True)
+        server.tools["write_sdk_client"]("static/examples/broken.py", "def broken(:\n", create=True)
     )
 
     assert result["ok"] is False

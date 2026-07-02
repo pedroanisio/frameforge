@@ -8,7 +8,7 @@ import { normalizeFrameGraphDoc } from "../framegraph-normalize.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VIEWER = path.resolve(__dirname, "..");
 const ROOT = path.resolve(VIEWER, "..");
-const FIXTURES = path.join(ROOT, "fixtures");
+const FIXTURES = path.join(ROOT, "tests", "fixtures");
 const HARNESS = `file://${path.join(__dirname, "harness.html")}`;
 
 function files(dir) {

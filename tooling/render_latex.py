@@ -31,8 +31,8 @@ import yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-FIXTURES = os.path.join(ROOT, "fixtures")
-sys.path.insert(0, ROOT)
+FIXTURES = os.path.join(ROOT, "tests", "fixtures")
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.rendering.infrastructure.latex import transpile  # noqa: E402
 

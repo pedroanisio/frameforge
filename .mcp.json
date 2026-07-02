@@ -3,7 +3,21 @@
     "framegraph": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "--group", "mcp", "--group", "vision", "--group", "browser", "python", "-m", "framegraph.mcp"]
+      "args": [
+        "run",
+        "--group",
+        "mcp",
+        "--group",
+        "vision",
+        "--group",
+        "browser",
+        "python",
+        "-m",
+        "framegraph.mcp"
+      ],
+      "env": {
+        "PYTHONPATH": "src:docs"
+      }
     }
   }
 }

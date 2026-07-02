@@ -10,7 +10,7 @@ the model/SDK/MCP surfaces grow:
 
 - model unions (``VisualObject``/``Flowable``/``Inline`` discriminators, canvas
   presets, ``Style`` property count) from the authoritative model module, loaded
-  read-only via the SDK's non-shadowing loader (``models/framegraph.py`` stays
+  read-only via the SDK's non-shadowing loader (``docs/models/framegraph.py`` stays
   the single source of truth, exactly as ``schema/build_schema.py`` treats it);
 - SDK public exports from ``framegraph.sdk.__all__`` and builder-method coverage
   from the classes defined in ``framegraph.sdk.author``;
@@ -56,7 +56,7 @@ _AUTHOR_RENDER_TOOLS = ("run_sdk_code", "run_sdk_client", "render_framegraph_yam
 def _ensure_package_importable() -> None:
     """Make ``import framegraph`` resolve the package (not the models module)."""
     if ROOT not in sys.path:
-        sys.path.insert(0, ROOT)
+        sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
     shadow = sys.modules.get("framegraph")
     if shadow is not None and not hasattr(shadow, "__path__"):
         del sys.modules["framegraph"]
@@ -241,7 +241,7 @@ def tooling_finding_codes() -> set[str]:
 def sdk_rule_ids() -> set[str]:
     """Every SDK ``rule_id`` from ``framegraph/sdk/validate.py`` (its own ids;
     tooling codes it re-surfaces via ``rule_id=f.code`` are covered above)."""
-    path = os.path.join(ROOT, "framegraph", "sdk", "validate.py")
+    path = os.path.join(ROOT, "src", "framegraph", "sdk", "validate.py")
     with open(path, encoding="utf-8") as fh:
         source = fh.read()
     ids = set(re.findall(r'_error\(\s*"([^"]+)"', source))
@@ -287,7 +287,7 @@ def build() -> dict:
         ),
         "version": fg.HEAD_VERSION,
         "semantics": {
-            "core": "the authoritative model (models/framegraph.py) admits the capability",
+            "core": "the authoritative model (docs/models/framegraph.py) admits the capability",
             "sdk": (
                 "a same-named public builder method exists on a framegraph.sdk.author "
                 "class (raw-dict authoring always works and does not count), or the "

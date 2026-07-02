@@ -15,7 +15,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.rendering.infrastructure.browser import (  # noqa: E402
     _chromium_launch_args,
@@ -169,9 +169,9 @@ def test_rasterize_svg_threads_launch_args(tmp_path, monkeypatch):
 
 
 def test_render_chromium_list_mode(capsys):
-    assert render_chromium.main(["fixtures/calendar-3day.fg.yaml", "--list"]) == 0
+    assert render_chromium.main(["tests/fixtures/calendar-3day.fg.yaml", "--list"]) == 0
     out = capsys.readouterr().out
-    assert "fixtures/calendar-3day.fg.yaml" in out
+    assert "tests/fixtures/calendar-3day.fg.yaml" in out
     assert "1 document(s)." in out
 
 

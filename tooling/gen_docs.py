@@ -36,7 +36,7 @@ import textwrap
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 DOCS = os.path.join(ROOT, "docs")
-sys.path[:0] = [os.path.join(ROOT, "models"), os.path.join(ROOT, "schema"), os.path.join(ROOT, "tooling")]
+sys.path[:0] = [os.path.join(ROOT, "docs", "models"), os.path.join(ROOT, "docs", "schema"), os.path.join(ROOT, "tooling")]
 
 import build_schema as B  # noqa: E402
 import gen_status as GS  # noqa: E402
@@ -132,7 +132,7 @@ def gen_grammar():
     ]
     for title, fn in [("Core grammar — `framegraph-v2.ebnf`", "framegraph-v2.ebnf"),
                       ("Style module — `framegraph-v2-style.ebnf`", "framegraph-v2-style.ebnf")]:
-        body = open(os.path.join(ROOT, "grammar", fn), encoding="utf-8").read()
+        body = open(os.path.join(ROOT, "docs", "grammar", fn), encoding="utf-8").read()
         parts += [f"## {title}", "", "```ebnf", body.rstrip(), "```", ""]
     return "\n".join(parts) + "\n"
 
@@ -575,14 +575,14 @@ def _ensure_sdk_importable():
     existing = sys.modules.get("framegraph")
     if existing is not None and not hasattr(existing, "__path__"):
         sys.modules.pop("framegraph", None)
-    models_path = os.path.join(ROOT, "models")
+    models_path = os.path.join(ROOT, "docs", "models")
     sys.path[:] = [
         p for p in sys.path
         if os.path.normpath(p or os.getcwd()) != models_path
     ]
     if ROOT in sys.path:
         sys.path.remove(ROOT)
-    sys.path.insert(0, ROOT)
+    sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 
 def _api_object_block(name, obj):
@@ -652,7 +652,7 @@ def generate():
     written = [
         _write("reference.md", gen_reference()),
         _write("grammar.md", gen_grammar()),
-        _write("spec.md", _verbatim("spec/framegraph-v2-spec.md", "the normative reference")),
+        _write("spec.md", _verbatim("docs/spec/framegraph-v2-spec.md", "the normative reference")),
         _write("sdk.md", gen_sdk_guide()),
         _write("sdk-api.md", gen_sdk_api()),
         _write("changelog.md", _verbatim("CHANGELOG.md", "version history")),

@@ -22,7 +22,7 @@ import sys
 import typing
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, os.path.join(ROOT, "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # a package is shadowing the models
     del sys.modules["framegraph"]

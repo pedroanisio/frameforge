@@ -1,6 +1,6 @@
 ---
 title: FrameGraph v2 — Roadmap (draft)
-version: 2.2.0
+version: 2.2.0 (analysis baseline; repo HEAD moved to 2.3.0 on 2026-07-01 — see the Record-era note)
 status: DRAFT / design-target — not commitments
 date: 2026-06-22
 method: >
@@ -28,6 +28,16 @@ appendix_references:
 ---
 
 # FrameGraph v2 — Roadmap (draft)
+
+!!! warning "Record era"
+    This record pre-dates two 2026-07 events. (1) The src-layout refactor —
+    read its paths through the mapping: `framegraph/` → `src/framegraph/`,
+    `models/`, `schema/`, `grammar/`, `spec/` → `docs/…`, `fixtures/` →
+    `tests/fixtures/`, `examples/` → `static/examples/`. (2) The **2.3.0
+    release** (2026-07-01, an additive improvement pass unrelated to the
+    "next minor" direction sketched at the end of this draft) — the `2.2.0`
+    references below are this draft's analysis baseline, not HEAD. The prose
+    is kept as written.
 
 !!! note "What this is"
     A prioritized map of what FrameGraph cannot yet express, measured against the
@@ -209,7 +219,7 @@ you must call a layout method explicitly in the SDK and bake the coordinates.
     Two layers exist. **Container** layout: `Group.layout` with
     `kind: row | column | grid | free` plus `gap` / `row_gap` / `column_gap` /
     `padding` / `align`, realized by `LayoutEngine.arrange`
-    ([framegraph/rendering/domain/services/layout_engine.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/domain/services/layout_engine.py))
+    ([src/framegraph/rendering/domain/services/layout_engine.py](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/domain/services/layout_engine.py))
     — a box-model packer that repositions a group's children into rows / columns /
     a grid and does **not** resize them; it cannot place nodes from edges.
     **Graph** layout: `sdk.topology.Graph.{layered,spring,circular,radial,grid}_layout`
@@ -386,6 +396,8 @@ not give downstream tooling a stable API for import, restyling, pagination, or
 book-wide numbering.
 
 **Corpus evidence (2026-06-24).** The permissively licensed corpus inspection
+(scope contract: [book-corpus-scope.md](book-corpus-scope.md), fetched by
+`tooling/fetch_book_corpus.py`)
 split the problem cleanly: Project Gutenberg EPUBs provide useful spine, chapter,
 front-matter, and DOM structure pressure, while OpenStax PDFs provide the strong
 figure/table/caption/formula/side-bar pressure. The immediate product need is not
@@ -553,11 +565,13 @@ animation is lowest priority unless live presentation becomes a goal.
 
 ---
 
-## Version 2.3 — split content from presentation + retarget to any surface (design direction)
+## Next minor (drafted as "2.3"; that number shipped as an unrelated pass) — split content from presentation + retarget to any surface (design direction)
 
-> **Status:** DRAFT / design-target for a future **2.3** line — *not* a 2.2.0
-> commitment. Recorded so the architecture moves toward it; the model, schema, and
-> gates still describe 2.2.0 today.
+> **Status:** DRAFT / design-target for a future minor — *not* a commitment.
+> Drafted when HEAD was 2.2.0 and labelled "2.3"; the 2.3.0 that actually
+> shipped (2026-07-01) was an unrelated additive improvement pass, so this
+> direction now targets **2.4 or later**. Recorded so the architecture moves
+> toward it; the split described here remains unbuilt at HEAD.
 
 The 2.x line so far keeps **content and presentation in one closed model**: a
 `VisualObject`/`Flowable` carries its own `Style`, `box`, and canvas placement, so

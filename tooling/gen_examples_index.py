@@ -2,9 +2,9 @@
 """
 gen_examples_index.py — generate docs/examples.md from the tracked example scripts.
 
-The ``examples/`` directory is the SDK cookbook (~80 runnable clients), but there
+The ``static/examples/`` directory is the SDK cookbook (~80 runnable clients), but there
 was no index: agents rediscovered authoring patterns by grepping example source.
-This tool scans every *git-tracked* ``examples/*.py`` (untracked scratch scripts
+This tool scans every *git-tracked* ``static/examples/*.py`` (untracked scratch scripts
 are deliberately excluded), extracts the module docstring's first sentence-line
 (or the leading ``#`` comment when there is no docstring), and emits a generated
 cookbook page.
@@ -35,9 +35,9 @@ _LIST_RE = re.compile(r"^\| \[`([^`]+)`\]", re.M)
 
 
 def tracked_examples() -> list[str]:
-    """Git-tracked ``examples/*.py`` paths (repo-relative, sorted)."""
+    """Git-tracked ``static/examples/*.py`` paths (repo-relative, sorted)."""
     out = subprocess.run(
-        ["git", "ls-files", "examples/*.py"], cwd=ROOT, capture_output=True, text=True
+        ["git", "ls-files", "static/examples/*.py"], cwd=ROOT, capture_output=True, text=True
     ).stdout
     return sorted(p for p in out.split() if p)
 
@@ -96,9 +96,9 @@ def render(*, date: str | None = None) -> str:
         "",
         "# Examples cookbook",
         "",
-        f"The {len(rows)} tracked, runnable SDK clients under `examples/`, indexed by "
+        f"The {len(rows)} tracked, runnable SDK clients under `static/examples/`, indexed by "
         "their stated intent (the module docstring's first line). Run any of them "
-        "with `uv run python examples/<name>.py`; most write their output under "
+        "with `uv run python static/examples/<name>.py`; most write their output under "
         "`out/` or `_tmp/`.",
         "",
         "| Example | Intent |",
@@ -106,7 +106,7 @@ def render(*, date: str | None = None) -> str:
     ]
     for path, summary in rows:
         name = os.path.basename(path)
-        lines.append(f"| [`{name}`](../examples/{name}) | {summary} |")
+        lines.append(f"| [`{name}`](../static/examples/{name}) | {summary} |")
     lines.append("")
     return "\n".join(lines)
 
@@ -127,7 +127,7 @@ def main(argv=None) -> int:
         on_disk = open(OUT, encoding="utf-8").read() if os.path.exists(OUT) else ""
         expected = {os.path.basename(p) for p in tracked_examples()}
         if listed_files(on_disk) != expected:
-            print("STALE: docs/examples.md file set differs from tracked examples/*.py. "
+            print("STALE: docs/examples.md file set differs from tracked static/examples/*.py. "
                   "Run `make examples-index` and commit the result.")
             return 1
         print("OK: examples index covers the tracked example set.")

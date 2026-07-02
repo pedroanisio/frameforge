@@ -15,7 +15,7 @@
 const path = require('path');
 const { chromium } = require('playwright');
 
-const UI_DIR = path.resolve(__dirname, '..', '..', 'fixtures', 'corpus', 'ui');
+const UI_DIR = path.resolve(__dirname, '..', '..', 'tests', 'fixtures', 'corpus', 'ui');
 const SRC_DIR = path.join(UI_DIR, '_src');
 
 // One entry per source page: viewport + deviceScaleFactor (the "high-def" knob).

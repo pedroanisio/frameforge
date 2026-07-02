@@ -47,7 +47,7 @@ def _render_obj(obj):
 
 def _render_fixture(name):
     with tempfile.TemporaryDirectory() as out:
-        subprocess.run([sys.executable, RENDER, os.path.join(ROOT, "fixtures", name),
+        subprocess.run([sys.executable, RENDER, os.path.join(ROOT, "tests", "fixtures", name),
                         "--out", out, "--quiet"], check=True, cwd=ROOT)
         return _read_first_svg(out)
 
@@ -106,7 +106,7 @@ def test_css_string_box_shadow_matches_the_dict_form():
 
 
 def test_effects_fixture_is_the_oracle():
-    """fixtures/effects.fg.yaml is the checked-in oracle — it flows through
+    """tests/fixtures/effects.fg.yaml is the checked-in oracle — it flows through
     validate + overflow in `make check`; here we assert it renders the filters."""
     svg = _render_fixture("effects.fg.yaml")
     assert svg.count("<filter ") == 7                     # 4 shadow + 3 glow, deduped

@@ -41,11 +41,11 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 
 | Target | What it runs |
 |---|---|
-| `check` | every local gate: schema/grammar/spec/a11y/status + tests + validate + overflow + golden + docs nav/links + brand + disclaimers |
+| `check` | every local gate: schema/grammar/spec/a11y/status + tests + validate + overflow + golden + docs nav/links + disclaimers |
 | `test` | `uv run pytest -q` (the HEAD assertion suite) |
 | `validate` | `tooling/validate.py` over the tracked top-level fixtures |
 | `overflow` | `tooling/render_fixtures.py --all --check-overflow` (text-fit gate) |
-| `schema` / `schema-check` | regenerate / drift-gate `schema/framegraph-v2.schema.json` |
+| `schema` / `schema-check` | regenerate / drift-gate `docs/schema/framegraph-v2.schema.json` |
 | `grammar-check` | `tooling/check_grammar_sync.py` (EBNF ⇄ models, core profile) |
 | `spec-check` | `tooling/check_spec_sync.py --quiet` (spec prose ⇄ model discriminators) |
 | `a11y-check` | `tooling/check_accessibility.py <fixtures> --quiet` (reading-order integrity) |
@@ -59,7 +59,7 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 | `docs` / `docs-serve` / `docs-check` | generate site pages (+ manifest + examples index) and build/serve/nav-check |
 | `docs-sdk` | regenerate ONLY the committed `docs/sdk.md` / `docs/sdk-api.md` snapshots (fast) |
 | `docs-linkcheck` | `tooling/check_doc_links.py` — broken relative links in tracked Markdown |
-| `brand-check` / `brand-logo-check` | brand palette sync / logo masters ⇄ `examples/framegraph_logo.py --check` |
+
 | `disclaimer-check` | `tooling/check_disclaimers.py` — rule-5 frontmatter on AI-authored docs |
 | `package-check` | `tooling/check_package_readiness.py` (advisory; NOT in `check`) |
 | `mcp` / `live` | run the MCP server / the local live-session web UI (`make live LIVE_PORT=8790`) |
@@ -86,15 +86,15 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 | `render_golden.py` | `[--update] [--tolerance F] [--strict]` — b1/ oracle golden lock |
 | `pdf_to_framegraph_yml.py` | `input.pdf output.fg.yaml [--text-mode spans]` (`--group pdf`) |
 | `vectorize_image.py` | raster → traced FrameGraph objects (CLI over `framegraph.vision`) |
-| `build_schema.py` (in `schema/`) | `[--check] [doc-to-validate]` — models → JSON schema |
+| `build_schema.py` (in `docs/schema/`) | `[--check] [doc-to-validate]` — models → JSON schema |
 | `gen_status.py` | `[--check]` — validator → `FIXTURE-STATUS.md` |
 | `gen_docs.py` | `[--check] [--sdk]` — docs-site pages + committed SDK snapshots |
 | `gen_capability_manifest.py` | `[--check]` — live-tree introspection → `docs/capability-manifest.json` (core/sdk/mcp status per capability) |
-| `gen_examples_index.py` | `[--check]` — tracked `examples/*.py` docstrings → `docs/examples.md` |
+| `gen_examples_index.py` | `[--check]` — tracked `static/examples/*.py` docstrings → `docs/examples.md` |
 | `check_grammar_sync.py` | `[--strict] [--quiet]` — EBNF ⇄ models drift |
 | `check_spec_sync.py` | `[--quiet]` — spec prose ⇄ model discriminators |
 | `check_accessibility.py` | `<docs…> [--quiet]` — page `reading_order` integrity, alt warnings |
-| `check_brand_sync.py` / `check_doc_links.py` / `check_disclaimers.py` | docs gates (no args) |
+| `check_doc_links.py` / `check_disclaimers.py` | docs gates (no args) |
 | `check_package_readiness.py` | package-emit readiness report (advisory) |
 | `fetch_corpus.py` / `fetch_book_corpus.py` | `[--check]` — corpus download/verify |
 | `install_fonts.py` | font provisioning used by the Docker image |
@@ -106,7 +106,7 @@ uv run pytest -q                       # full suite (testpaths = tests/)
 uv run pytest tests/test_head.py -q    # focused file
 ```
 
-- The root `conftest.py` puts the repo root, `tooling/`, and `schema/` on
+- The root `conftest.py` puts the repo root, `src/`, `docs/`, `tooling/`, and `docs/schema/` on
   `sys.path` — new test files need no bootstrap. `import framegraph` resolves
   the **package**; for the authoritative model module use the `models_fg`
   fixture (see `conftest.py` for the shadow-module rule).
@@ -142,21 +142,21 @@ is needed for in-container Chromium raster.
 
 ## Fixture workflow
 
-1. Author `fixtures/<name>.fg.yaml` (HEAD-conformant; legacy docs go through
+1. Author `tests/fixtures/<name>.fg.yaml` (HEAD-conformant; legacy docs go through
    `codemod.py` first).
-2. Reference it from a test or gate — `fixtures/README.md` rule: if no test
+2. Reference it from a test or gate — `tests/fixtures/README.md` rule: if no test
    references it, it does not belong.
 3. `make validate overflow` (structure + text-fit), then `make status` to
    regenerate `FIXTURE-STATUS.md` and commit both.
-4. `fixtures/b1/` is the frozen pre-codemod oracle — never edit; its renders
+4. `tests/fixtures/b1/` is the frozen pre-codemod oracle — never edit; its renders
    are pinned by `make golden-check` (re-pin intentional changes with
    `make golden`).
 
 ## Generated-artifact rule
 
-Never hand-edit generated outputs (`schema/framegraph-v2.schema.json`,
+Never hand-edit generated outputs (`docs/schema/framegraph-v2.schema.json`,
 `FIXTURE-STATUS.md`, `docs/sdk*.md`, `docs/capability-manifest.json`,
-`docs/examples.md`, `brand/framegraph-*.svg`): edit the source or generator,
+`docs/examples.md`): edit the source or generator,
 rerun the paired make target, and commit the refreshed output. Check any file
 for `__file_meta__` / FLAM frontmatter before editing (see CLAUDE.md).
 

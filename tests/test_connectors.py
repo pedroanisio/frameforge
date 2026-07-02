@@ -19,9 +19,9 @@ import yaml
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 RENDER = os.path.join(ROOT, "tooling", "render_fixtures.py")
-FIXTURE = os.path.join(ROOT, "fixtures", "connectors.fg.yaml")
+FIXTURE = os.path.join(ROOT, "tests", "fixtures", "connectors.fg.yaml")
 
-sys.path[:0] = [os.path.join(ROOT, "models"), os.path.join(ROOT, "tooling")]
+sys.path[:0] = [os.path.join(ROOT, "docs", "models"), os.path.join(ROOT, "tooling")]
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
     del sys.modules["framegraph"]
@@ -32,7 +32,7 @@ import validate as V  # noqa: E402
 
 def _render_fixture(name):
     with tempfile.TemporaryDirectory() as out:
-        subprocess.run([sys.executable, RENDER, os.path.join(ROOT, "fixtures", name),
+        subprocess.run([sys.executable, RENDER, os.path.join(ROOT, "tests", "fixtures", name),
                         "--out", out, "--quiet"], check=True, cwd=ROOT)
         svgs = sorted(glob.glob(os.path.join(out, "**", "p*.svg"), recursive=True))
         assert svgs, "renderer produced no SVG"

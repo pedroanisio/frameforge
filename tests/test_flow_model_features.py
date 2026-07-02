@@ -20,8 +20,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path.insert(0, os.path.join(ROOT, "models"))
-sys.path.insert(0, os.path.join(ROOT, "schema"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "schema"))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and hasattr(_shadow, "__path__"):   # the rendering package
@@ -35,7 +35,7 @@ import framegraph as fg  # noqa: E402
 import build_schema as B  # noqa: E402
 import validate as V  # noqa: E402
 
-FIXTURE = os.path.join(ROOT, "fixtures", "standard-model.fg.yaml")
+FIXTURE = os.path.join(ROOT, "tests", "fixtures", "standard-model.fg.yaml")
 
 
 # --- the models accept the new forms ----------------------------------------- #

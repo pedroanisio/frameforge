@@ -15,7 +15,7 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.sdk import HEAD_VERSION, validate_document  # noqa: E402
 from framegraph.sdk.geometry import Path  # noqa: E402

@@ -12,6 +12,11 @@ disclaimer:
 
 # ADR 0002 — The SDK is a downstream consumer of the committed core; SDK support lags feature delivery
 
+> **Path era.** This ADR pre-dates the 2026-07 src-layout refactor; read its
+> paths through the mapping `framegraph/` → `src/framegraph/`, `models/` →
+> `docs/models/`, `schema|grammar/` → `docs/…`, `fixtures/` → `tests/fixtures/`.
+> The decision itself is unaffected.
+
 ## Status
 
 Accepted. This ADR formalizes an invariant that already holds in the tree (see

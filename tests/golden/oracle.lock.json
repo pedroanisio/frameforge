@@ -1,5 +1,5 @@
 {
-  "fixtures/b1/amazon-proxy-2026.fg.json": [
+  "tests/fixtures/b1/amazon-proxy-2026.fg.json": [
     "245de2d9562d320233d1bf2f815eb3211983335726a5ed2d3388c45f25c731a8",
     "0daed556a4aed421ea992efe559eec631a47de43c26bfd9e6a44adcef3cc4c18",
     "e4d0c03e2efe1633fce206b96a965c93783475eb81c19e810947e3f2449db6a3",
@@ -21,11 +21,11 @@
     "062ab54fab3fe6b3c4be4a8fd2fc8e2a30cbd63d624f65515ccd702875bf2b23",
     "1a7cea014f2882b467e13f3f36995da5afec2e2e10d04dc81ab0835122db20d1"
   ],
-  "fixtures/b1/chroma-styling-showcase.fg.json": [
+  "tests/fixtures/b1/chroma-styling-showcase.fg.json": [
     "fda492d31a038afe98f3292cdc9496d786c353b31b0a04b5c3a213dfa81cc2ff",
     "44a3d81a8547051c76594bfc386ac8b6b4e02b1eadb470b59af717e7becfb265"
   ],
-  "fixtures/b1/docusign-deck-v2.fg.json": [
+  "tests/fixtures/b1/docusign-deck-v2.fg.json": [
     "1eaebf39f06f0cad2a415560088facd0afa37174a0d99c02b59049a8422d222b",
     "74ad7fd13781a8e4a8992b965ae453e42ce39442ac8e4c0786ebacdf2cdf1386",
     "6cb1684de179c8f006483ccb5afda4f6de59e889c8dcf10114cdad8c26e756cf",
@@ -58,7 +58,7 @@
     "23fb8467cbb6c1fdc2cc0f46ff44981f5850b21a3e77f0dde85e33f107f583e0",
     "43038d01a77495b464706648e780d42184cf6c9e0d8806bf2f84579e00c92c19"
   ],
-  "fixtures/b1/ieee-reference-guide.fg.json": [
+  "tests/fixtures/b1/ieee-reference-guide.fg.json": [
     "1f71db05206735634cf8b9e92f159afe7c034ba8f9c8893637c514deebc0f89f",
     "b5e7140668e06aa97d98ba5063202e1072553ae658f262c22f40da4cefa048bb",
     "f8c03f24d0da4daa7f37bc7d4c53ba413f825a9a62b62916c8f67053d48581fa",
@@ -67,20 +67,20 @@
     "1ada992cf4dfd4edbb8af4ce3950f63be6eb5bd366bb012ed4df7d3d3d9965bb",
     "49c193d4db9dc401f33625594caee47149ee1e400aa4fb2f1b43a1265641c33b"
   ],
-  "fixtures/b1/mckinsey-7s.fg.json": [
+  "tests/fixtures/b1/mckinsey-7s.fg.json": [
     "75460e7f228a282379232b7e93129bb535ee4c8f51be574140dd415e758a07b1"
   ],
-  "fixtures/b1/neutron-stars.fg.json": [
+  "tests/fixtures/b1/neutron-stars.fg.json": [
     "3ef8df3b258f6d877d847f1332e47078f0cb915b29431784191af11bb68b5663",
     "89c19be429269d94397de711ef62ab6fff6c1e9ce2f80e8e32774edc832241f3",
     "4cd5b8364247f9e0026b7cff0ccfe53ae3446b0a20d0197e544cbd35b0b242fa",
     "1102be2e9caed7aac079cc4215971b55fdd95676a89236fe0d63ca69f9ca9114"
   ],
-  "fixtures/b1/spectral-methods.fg.json": [
+  "tests/fixtures/b1/spectral-methods.fg.json": [
     "cd61111f8c0d99596f225c2651057ca2f0b41d4de511538ea78c71ac1ee5ee9c",
     "db18aa64c4239287826bfbc6cd57f9ed40344af3c46bda5bfea729c15e7cdb42"
   ],
-  "fixtures/b1/wireframing-guide.fg.json": [
+  "tests/fixtures/b1/wireframing-guide.fg.json": [
     "c49a3227b1402c117c636e6c3b7718b269c2c65109ef92b06659e2b0740a6e19",
     "19301949ca48122365bbcbdb463c00bd33c52b7b5a2900d27e605523d96b4cdc",
     "cd52e5ed82fc04dc56c7b0096e92bdd7aa04f04e1c581f40aaf11549f8fad809",

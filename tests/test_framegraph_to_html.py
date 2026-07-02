@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 _spec = importlib.util.spec_from_file_location(
-    "framegraph_to_html", ROOT / "framegraph_to_html.py"
+    "framegraph_to_html", ROOT / "tooling" / "framegraph_to_html.py"
 )
 fgh = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(fgh)
@@ -224,7 +224,7 @@ def test_canvas_preset_string_resolves_to_pixels():
 def test_preset_table_matches_model_page_presets():
     """Guard against drift: our preset keys must equal the model's PagePreset."""
     import importlib.util as _u
-    spec = _u.spec_from_file_location("fgmodel", ROOT / "models" / "framegraph.py")
+    spec = _u.spec_from_file_location("fgmodel", ROOT / "docs" / "models" / "framegraph.py")
     model = _u.module_from_spec(spec)
     spec.loader.exec_module(model)
     import typing

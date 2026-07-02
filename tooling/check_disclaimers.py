@@ -8,7 +8,7 @@ asserts it for every tracked ``*.md`` except the explicitly exempt set:
 - READMEs — navigation/usage front-doors (any ``README.md``).
 - Governance / human front-door docs — ``CHANGELOG.md``, ``CLAUDE.md``.
 - Generated docs whose frontmatter is the generator's responsibility —
-  ``docs/sdk.md``, ``docs/sdk-api.md``, ``FIXTURE-STATUS.md``,
+  ``docs/sdk.md``, ``docs/sdk-api.md``, ``docs/FIXTURE-STATUS.md``,
   ``fixtures/corpus/PROVENANCE.md``.
 
 To exempt a new file, add it to ``EXEMPT`` (with a reason) rather than weakening
@@ -26,8 +26,8 @@ EXEMPT = {
     "CLAUDE.md",                        # agent operating guide (governance)
     "docs/sdk.md",                      # generated SDK snapshot
     "docs/sdk-api.md",                  # generated SDK snapshot
-    "FIXTURE-STATUS.md",                # generated from the validator
-    "fixtures/corpus/PROVENANCE.md",    # generated (do-not-hand-edit)
+    "docs/FIXTURE-STATUS.md",                # generated from the validator
+    "tests/fixtures/corpus/PROVENANCE.md",    # generated (do-not-hand-edit)
 }
 
 

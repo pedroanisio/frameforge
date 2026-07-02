@@ -12,7 +12,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.mcp.server import (  # noqa: E402
     cleanup_sessions,
@@ -202,21 +202,21 @@ def test_run_sdk_code_rerun_same_session_rerenders_edited_document(tmp_path):
 
 def test_run_sdk_client_rerun_same_session_rerenders_edited_client(tmp_path):
     """The same stale-session fix must hold for the editable-client entry point."""
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     client = examples / "probe.py"
     sessions = tmp_path / "sessions"
 
     client.write_text(_derive_code("alpha-client"), encoding="utf-8")
     first = run_sdk_client(
-        "examples/probe.py", session_id="cl", session_root=sessions, repo_root=tmp_path, raster_png=False
+        "static/examples/probe.py", session_id="cl", session_root=sessions, repo_root=tmp_path, raster_png=False
     )
     assert first["ok"] is True
     assert "alpha-client" in (sessions / "cl" / "generated.fg.yaml").read_text(encoding="utf-8")
 
     client.write_text(_derive_code("beta-client"), encoding="utf-8")
     second = run_sdk_client(
-        "examples/probe.py", session_id="cl", session_root=sessions, repo_root=tmp_path, raster_png=False
+        "static/examples/probe.py", session_id="cl", session_root=sessions, repo_root=tmp_path, raster_png=False
     )
     assert second["ok"] is True
     yaml_text = (sessions / "cl" / "generated.fg.yaml").read_text(encoding="utf-8")
@@ -241,11 +241,11 @@ def test_run_sdk_code_subprocess_timeout_returns_structured_error(tmp_path):
 
 
 def test_run_sdk_client_subprocess_timeout_returns_structured_error(tmp_path):
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     (examples / "slow.py").write_text("import time\ntime.sleep(5)\n", encoding="utf-8")
     result = run_sdk_client(
-        "examples/slow.py",
+        "static/examples/slow.py",
         session_id="slowcl",
         session_root=tmp_path / "sessions",
         repo_root=tmp_path,
@@ -395,8 +395,8 @@ def test_run_sdk_code_rejects_unsafe_session_id(tmp_path):
 
 
 def test_sdk_client_file_tools_edit_and_run_python_example(tmp_path):
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     client_path = examples / "client.py"
     client_path.write_text(
         """
@@ -415,24 +415,24 @@ doc.write(OUTPUT_YAML_PATH, fail_on_error=True)
     listed = list_sdk_clients(repo_root=tmp_path)
     assert listed["clients"] == [
         {
-            "path": "examples/client.py",
+            "path": "static/examples/client.py",
             "bytes": client_path.stat().st_size,
             "sha256": listed["clients"][0]["sha256"],
         }
     ]
 
-    read = read_sdk_client("examples/client.py", repo_root=tmp_path)
-    assert read["path"] == "examples/client.py"
+    read = read_sdk_client("static/examples/client.py", repo_root=tmp_path)
+    assert read["path"] == "static/examples/client.py"
     assert "before edit" in read["code"]
 
     edited = read["code"].replace("before edit", "after edit")
-    write = write_sdk_client("examples/client.py", edited, repo_root=tmp_path)
-    assert write["path"] == "examples/client.py"
+    write = write_sdk_client("static/examples/client.py", edited, repo_root=tmp_path)
+    assert write["path"] == "static/examples/client.py"
     assert write["bytes"] == len(edited.encode("utf-8"))
     assert "after edit" in client_path.read_text(encoding="utf-8")
 
     result = run_sdk_client(
-        "examples/client.py",
+        "static/examples/client.py",
         session_id="edited",
         session_root=tmp_path / "sessions",
         repo_root=tmp_path,
@@ -446,15 +446,15 @@ doc.write(OUTPUT_YAML_PATH, fail_on_error=True)
 
 
 def test_sdk_client_tools_reject_paths_outside_allowed_roots(tmp_path):
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     (tmp_path / "outside.py").write_text("print('outside')\n", encoding="utf-8")
 
     with pytest.raises(ValueError, match="allowed SDK client roots"):
         read_sdk_client("outside.py", repo_root=tmp_path)
 
     with pytest.raises(ValueError, match="Python"):
-        write_sdk_client("examples/client.txt", "print('nope')\n", create=True, repo_root=tmp_path)
+        write_sdk_client("static/examples/client.txt", "print('nope')\n", create=True, repo_root=tmp_path)
 
 
 def test_read_session_resource_returns_yaml_svg_and_diagnostics(tmp_path):
@@ -554,7 +554,7 @@ def test_create_server_writes_structured_log_for_tool_instructions_and_responses
 
     # An expected failure is returned as the structured envelope (never raised),
     # and the log records the envelope the client actually received.
-    missing = server.tools["read_sdk_client"]("examples/missing.py")
+    missing = server.tools["read_sdk_client"]("static/examples/missing.py")
     missing_structured = getattr(missing, "structuredContent", missing)
     assert missing_structured["ok"] is False
 
@@ -566,7 +566,7 @@ def test_create_server_writes_structured_log_for_tool_instructions_and_responses
     assert events[0]["instruction"]["session_id"] == "logged"
     assert events[0]["response"]["ok"] is True
     assert events[0]["response"]["session_id"] == "logged"
-    assert events[1]["instruction"]["path"] == "examples/missing.py"
+    assert events[1]["instruction"]["path"] == "static/examples/missing.py"
     assert events[1]["response"]["ok"] is False
     assert events[1]["response"]["error_type"] == "FileNotFoundError"
 
@@ -592,8 +592,8 @@ def test_subprocess_env_strips_secrets_by_default(tmp_path, monkeypatch):
 def test_new_generated_yaml_uses_content_hash_not_mtime(tmp_path):
     import framegraph.mcp.server as server
 
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     fixture = examples / "demo.fg.yaml"
     fixture.write_text("dsl: FrameGraph\n", encoding="utf-8")
     before = server._framegraph_yaml_snapshot(tmp_path)
@@ -1168,14 +1168,14 @@ def test_tool_signatures_expose_render_and_vectorize_tunables(tmp_path):
 
 
 def test_write_sdk_client_anchored_edit_replaces_unique_snippet(tmp_path):
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     client = examples / "anchored.py"
     client.write_text("title = 'before edit'\nprint(title)\n", encoding="utf-8")
     server = create_server(session_root=tmp_path, repo_root=tmp_path, fastmcp_cls=FakeFastMCP)
 
     result = server.tools["write_sdk_client"](
-        "examples/anchored.py", old_string="'before edit'", new_string="'after edit'"
+        "static/examples/anchored.py", old_string="'before edit'", new_string="'after edit'"
     )
     structured = getattr(result, "structuredContent", result)
 
@@ -1184,18 +1184,18 @@ def test_write_sdk_client_anchored_edit_replaces_unique_snippet(tmp_path):
 
 
 def test_write_sdk_client_anchored_edit_requires_a_unique_match(tmp_path):
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     client = examples / "dupes.py"
     client.write_text("x = 1\nx = 1\n", encoding="utf-8")
     server = create_server(session_root=tmp_path, repo_root=tmp_path, fastmcp_cls=FakeFastMCP)
 
     missing = server.tools["write_sdk_client"](
-        "examples/dupes.py", old_string="never-there", new_string="y"
+        "static/examples/dupes.py", old_string="never-there", new_string="y"
     )
     missing = getattr(missing, "structuredContent", missing)
     ambiguous = server.tools["write_sdk_client"](
-        "examples/dupes.py", old_string="x = 1", new_string="x = 2"
+        "static/examples/dupes.py", old_string="x = 1", new_string="x = 2"
     )
     ambiguous = getattr(ambiguous, "structuredContent", ambiguous)
 

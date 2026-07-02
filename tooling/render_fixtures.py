@@ -41,7 +41,7 @@ import yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-FIXTURES = os.path.join(ROOT, "fixtures")
+FIXTURES = os.path.join(ROOT, "tests", "fixtures")
 _YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 
 
@@ -55,7 +55,7 @@ def _load_yaml_file(path):
             fh.seek(0)
             return yaml.load(fh, Loader=yaml.SafeLoader)
 
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 from framegraph.rendering.application.normalize import normalize_doc  # noqa: E402
 from framegraph.rendering.application.renderer import Renderer  # noqa: E402
 from framegraph.rendering.provenance import sign_svg, utc_now_iso  # noqa: E402

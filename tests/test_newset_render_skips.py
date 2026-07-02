@@ -8,8 +8,8 @@ from tooling.render_fixtures import Renderer
 
 ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = [
-    ROOT / "fixtures" / "newset" / "code-base-mapper.deck.v2.fg.yaml",
-    ROOT / "fixtures" / "newset" / "framegraph_genai_mediated_system.v2.fg.yaml",
+    ROOT / "tests" / "fixtures" / "newset" / "code-base-mapper.deck.v2.fg.yaml",
+    ROOT / "tests" / "fixtures" / "newset" / "framegraph_genai_mediated_system.v2.fg.yaml",
 ]
 
 

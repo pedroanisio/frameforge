@@ -30,10 +30,10 @@ RENDER_LATEX = os.path.join(ROOT, "tooling", "render_latex.py")
 
 
 def _fixture_path(name):
-    root_path = os.path.join(ROOT, "fixtures", name)
+    root_path = os.path.join(ROOT, "tests", "fixtures", name)
     if os.path.exists(root_path):
         return root_path
-    return os.path.join(ROOT, "examples", "fixtures", name)
+    return os.path.join(ROOT, "static", "examples", "fixtures", name)
 
 
 def _render_fixture(name):

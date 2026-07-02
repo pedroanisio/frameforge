@@ -5,13 +5,13 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
+sys.path[:0] = [str(ROOT), str(ROOT / "src"), str(ROOT / "docs")]
 
 from tooling.render_fixtures import Renderer, normalize_doc  # noqa: E402
 
 
 def test_page_based_docs_expand_defs_symbols_before_rendering():
-    path = ROOT / "fixtures" / "newset" / "faz-ai-manifesto-deck.v2.fg.yaml"
+    path = ROOT / "tests" / "fixtures" / "newset" / "faz-ai-manifesto-deck.v2.fg.yaml"
     doc = normalize_doc(yaml.safe_load(path.read_text()))
     use_count = 0
 

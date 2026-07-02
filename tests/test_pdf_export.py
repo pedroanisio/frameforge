@@ -50,7 +50,9 @@ def _export_pdf(doc):
         with open(src, "w", encoding="utf-8") as fh:
             json.dump(doc, fh)
         subprocess.run([sys.executable, "-m", "framegraph.cli", src, "--to", "pdf",
-                        "--out", td, "--single", out], check=True, cwd=ROOT)
+                        "--out", td, "--single", out], check=True, cwd=ROOT,
+                       env={**os.environ, "PYTHONPATH": os.pathsep.join(
+                           [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")])})
         with open(out, "rb") as fh:
             return io.BytesIO(fh.read())
 

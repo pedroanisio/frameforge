@@ -16,7 +16,7 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
@@ -26,7 +26,7 @@ from framegraph.sdk.validate import validate_static_rules  # noqa: E402
 
 
 def _load_demo():
-    path = os.path.join(ROOT, "examples", "naval_engineering_deck.py")
+    path = os.path.join(ROOT, "static", "examples", "naval_engineering_deck.py")
     spec = importlib.util.spec_from_file_location("naval_engineering_deck", path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)

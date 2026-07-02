@@ -14,7 +14,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 # and evict a models-*module* shadow (no __path__) left by a model-only test in the
 # shared pytest process, so `framegraph.rendering` resolves to the package. The
 # opposite direction of the eviction in test_elements.py / test_head.py.
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # models module shadowing the package

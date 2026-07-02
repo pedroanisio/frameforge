@@ -36,12 +36,12 @@ import typing
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-SPEC = os.path.join(ROOT, "spec", "framegraph-v2-spec.md")
+SPEC = os.path.join(ROOT, "docs", "spec", "framegraph-v2-spec.md")
 
 # Introspect the models exactly like check_grammar_sync / validate.py: the in-repo
 # source of truth shadows any installed distribution, and the ./framegraph package
 # (if already imported) must not shadow models/framegraph.py.
-sys.path.insert(0, os.path.join(ROOT, "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]

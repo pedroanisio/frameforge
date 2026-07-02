@@ -33,7 +33,7 @@ import pytest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path.insert(0, os.path.join(ROOT, "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
 
 # Evict any cached `framegraph` (a rendering-package import from another test) so

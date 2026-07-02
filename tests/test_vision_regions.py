@@ -20,7 +20,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import pytest  # noqa: E402
 
@@ -237,16 +237,7 @@ def test_solid_ink_regions_keeps_fills_drops_thin_outlines():
 # ─────────────────────────────────────────────────────────────
 # root-script deprecation shims
 # ─────────────────────────────────────────────────────────────
-@pytest.mark.parametrize("script", [
-    "closed_region_detector", "region_fill", "region_preprocess",
-    "consensus_regions", "unique_regions",
-])
-def test_root_shims_delegate_to_the_package(script):
-    import importlib
 
-    mod = importlib.import_module(script)
-    assert "DEPRECATED" in (mod.__doc__ or "")
-    assert getattr(mod, "detect_regions") is RG.detect_regions
 
 
 def test_regions_cli_prints_json_summary(tmp_path, capsys):

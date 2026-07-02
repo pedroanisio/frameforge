@@ -31,14 +31,14 @@ There are really two layers of "intermediate":
 ```
 *.fg.json / *.fg.yaml
         │
-        │  parse + validate            framegraph/sdk/model.py  (validate_document)
+        │  parse + validate            src/framegraph/sdk/model.py  (validate_document)
         ▼
-   Document IR  ───────────────────────  models/framegraph.py  (class Document)
+   Document IR  ───────────────────────  docs/models/framegraph.py  (class Document)
    (Pydantic model tree)
         │
-        │  resolve + walk in z-order    framegraph/rendering/domain/services/
+        │  resolve + walk in z-order    src/framegraph/rendering/domain/services/
         ▼
-   primitive display-list calls  ──────  framegraph/rendering/domain/ports.py  (ScenePainter)
+   primitive display-list calls  ──────  src/framegraph/rendering/domain/ports.py  (ScenePainter)
         │
    ┌────┴───────────────┐
    ▼                    ▼
@@ -52,9 +52,9 @@ There are really two layers of "intermediate":
 ## The IR: the `Document` model tree
 
 The IR is the Pydantic model hierarchy rooted at `Document`, defined in
-[`models/framegraph.py`](https://github.com/pedroanisio/frameforge/blob/main/models/framegraph.py).
+[`docs/models/framegraph.py`](https://github.com/pedroanisio/frameforge/blob/main/docs/models/framegraph.py).
 It is produced by validating the input file via `validate_document()` in
-[`framegraph/sdk/model.py`](https://github.com/pedroanisio/frameforge/blob/main/framegraph/sdk/model.py).
+[`src/framegraph/sdk/model.py`](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/sdk/model.py).
 
 Because it is a Pydantic tree, the IR is:
 
@@ -83,9 +83,9 @@ across backends.
 
 ### 1. Parse → IR
 
-`validate_document()` ([framegraph/sdk/model.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/sdk/model.py))
+`validate_document()` ([src/framegraph/sdk/model.py](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/sdk/model.py))
 loads JSON/YAML and validates it into a `Document` instance. The SDK
-(`framegraph/sdk/`) also provides authoring, conform, expand, draw, and IO
+(`src/framegraph/sdk/`) also provides authoring, conform, expand, draw, and IO
 helpers around this model.
 
 ### 2. Resolve + walk → display-list calls
@@ -94,7 +94,7 @@ A **builder** walks the IR in z-order and, for each primitive, calls a method on
 a `ScenePainter`. Along the way it uses pure **domain resolvers** to normalize
 the IR's abstract values (tokens, styles, layout) into concrete numbers and
 colors. The resolvers live in
-[framegraph/rendering/domain/services/](https://github.com/pedroanisio/frameforge/tree/main/framegraph/rendering/domain/services):
+[src/framegraph/rendering/domain/services/](https://github.com/pedroanisio/frameforge/tree/main/src/framegraph/rendering/domain/services):
 
 | Resolver | Responsibility |
 |----------|----------------|
@@ -109,7 +109,7 @@ colors. The resolvers live in
 | `geometry` | Shared geometric math |
 
 For the SVG path, the builder is the `Renderer` class in
-[`framegraph/rendering/application/renderer.py`](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/application/renderer.py),
+[`src/framegraph/rendering/application/renderer.py`](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/application/renderer.py),
 the rendering bounded context's **application layer**. It wires up the resolvers
 and an `SvgPainter`, then emits primitives page by page (`render_page`,
 `render_text`, …). [`tooling/render_fixtures.py`](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_fixtures.py)
@@ -120,25 +120,25 @@ re-exports `Renderer` for backward compatibility.
 
 The seam between the builder and a backend is the **`ScenePainter` port**, an
 *immediate-mode display list* defined in
-[`framegraph/rendering/domain/ports.py`](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/domain/ports.py).
+[`src/framegraph/rendering/domain/ports.py`](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/domain/ports.py).
 The builder calls methods like `rect()`, `ellipse()`, `path()`, `text_block()`,
 `group()`, `document()`; each returns the backend's representation of that
 primitive and manages per-page backend resources (gradient/clip id counters, the
 `<defs>` registry).
 
 Backends are infrastructure adapters under
-[framegraph/rendering/infrastructure/](https://github.com/pedroanisio/frameforge/tree/main/framegraph/rendering/infrastructure):
+[src/framegraph/rendering/infrastructure/](https://github.com/pedroanisio/frameforge/tree/main/src/framegraph/rendering/infrastructure):
 
 - **SVG** — `SvgPainter`
-  ([painters/svg.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/infrastructure/painters/svg.py))
+  ([painters/svg.py](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/infrastructure/painters/svg.py))
   implements `ScenePainter`, returning SVG string fragments and assembling a full
   page in `document()`.
 - **LaTeX / TikZ** — driven by `render_latex.py`
   ([tooling/render_latex.py](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_latex.py)), which transpiles the
   IR via `_Transpiler`
-  ([latex/document.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/infrastructure/latex/document.py))
+  ([latex/document.py](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/infrastructure/latex/document.py))
   and renders vector figures through `FigureTikz`
-  ([latex/tikz.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/infrastructure/latex/tikz.py)).
+  ([latex/tikz.py](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/infrastructure/latex/tikz.py)).
   The emitted `.tex` is compiled to PDF with `lualatex`.
 
 ## Design notes
@@ -165,12 +165,12 @@ Backends are infrastructure adapters under
 
 | Concern | Location |
 |---------|----------|
-| IR models | [models/framegraph.py](https://github.com/pedroanisio/frameforge/blob/main/models/framegraph.py) |
-| Parse/validate + SDK | [framegraph/sdk/](https://github.com/pedroanisio/frameforge/tree/main/framegraph/sdk) (`model.py`, `validate.py`, `io.py`, …) |
-| Domain resolvers | [framegraph/rendering/domain/services/](https://github.com/pedroanisio/frameforge/tree/main/framegraph/rendering/domain/services) |
-| Painter port (seam) | [framegraph/rendering/domain/ports.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/domain/ports.py) |
-| Render orchestrator (application) | [framegraph/rendering/application/renderer.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/application/renderer.py) |
-| SVG backend | [framegraph/rendering/infrastructure/painters/svg.py](https://github.com/pedroanisio/frameforge/blob/main/framegraph/rendering/infrastructure/painters/svg.py) |
-| LaTeX/TikZ backend | [framegraph/rendering/infrastructure/latex/](https://github.com/pedroanisio/frameforge/tree/main/framegraph/rendering/infrastructure/latex) |
+| IR models | [docs/models/framegraph.py](https://github.com/pedroanisio/frameforge/blob/main/docs/models/framegraph.py) |
+| Parse/validate + SDK | [src/framegraph/sdk/](https://github.com/pedroanisio/frameforge/tree/main/src/framegraph/sdk) (`model.py`, `validate.py`, `io.py`, …) |
+| Domain resolvers | [src/framegraph/rendering/domain/services/](https://github.com/pedroanisio/frameforge/tree/main/src/framegraph/rendering/domain/services) |
+| Painter port (seam) | [src/framegraph/rendering/domain/ports.py](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/domain/ports.py) |
+| Render orchestrator (application) | [src/framegraph/rendering/application/renderer.py](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/application/renderer.py) |
+| SVG backend | [src/framegraph/rendering/infrastructure/painters/svg.py](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/infrastructure/painters/svg.py) |
+| LaTeX/TikZ backend | [src/framegraph/rendering/infrastructure/latex/](https://github.com/pedroanisio/frameforge/tree/main/src/framegraph/rendering/infrastructure/latex) |
 | SVG render CLI driver | [tooling/render_fixtures.py](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_fixtures.py) |
 | LaTeX render CLI | [tooling/render_latex.py](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_latex.py) |

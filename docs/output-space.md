@@ -41,23 +41,23 @@ These are wired and exercised in the repo. Each names its entry point; the paths
 here are pinned by `tests/test_output_space_doc.py` (drift → gate failure).
 
 The shared core is the port + renderer:
-`framegraph/rendering/domain/ports.py` (the `ScenePainter` port) and
-`framegraph/rendering/application/renderer.py` (the model-walking `Renderer`).
+`src/framegraph/rendering/domain/ports.py` (the `ScenePainter` port) and
+`src/framegraph/rendering/application/renderer.py` (the model-walking `Renderer`).
 
 | Output | Kind | Entry point |
 |---|---|---|
-| **SVG** | vector (primary) | `framegraph/rendering/infrastructure/painters/svg.py`, driven by `tooling/render_fixtures.py` |
+| **SVG** | vector (primary) | `src/framegraph/rendering/infrastructure/painters/svg.py`, driven by `tooling/render_fixtures.py` |
 | **PNG** (headless Chromium) | raster, CSS-fidelity | `tooling/render_chromium.py` |
 | **Raster** (matplotlib proxy) | raster, sanity check | `tooling/render_fg_doc.py` |
-| **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `framegraph/rendering/infrastructure/latex/document.py` |
+| **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `src/framegraph/rendering/infrastructure/latex/document.py` |
 | **PDF** via cairosvg (SVG → PDF) | vector PDF | `tooling/render_pdf.py` |
-| **HTML/CSS** (legacy; documented flow/gradient limits) | web | `framegraph_to_html.py` |
+| **HTML/CSS** (legacy; documented flow/gradient limits) | web | `tooling/framegraph_to_html.py` |
 | **Math** TeX → SVG (MathJax) | embedded glyphs | `tooling/mathjax_tex_to_svg.mjs` |
-| **JSON Schema** | format contract | `schema/build_schema.py` |
+| **JSON Schema** | format contract | `docs/schema/build_schema.py` |
 | **Docs site** (reference/gallery/SDK/spec) | documentation | `tooling/gen_docs.py` |
 | **Golden hashes** (per-page SHA-256 of SVG) | regression lock | `tooling/render_golden.py` |
 
-The second-painter migration (`framegraph/rendering/infrastructure/painters/tikz.py`,
+The second-painter migration (`src/framegraph/rendering/infrastructure/painters/tikz.py`,
 `TikzPainter`) is in progress — when wired it routes the LaTeX/TikZ output through
 the same port, collapsing the `FigureTikz` fork.
 

@@ -20,7 +20,7 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path[:0] = [os.path.join(ROOT, "models"), os.path.join(ROOT, "schema")]
+sys.path[:0] = [os.path.join(ROOT, "docs", "models"), os.path.join(ROOT, "docs", "schema")]
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
     del sys.modules["framegraph"]

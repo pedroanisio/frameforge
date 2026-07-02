@@ -178,12 +178,12 @@ def test_strict_promotes_warnings_to_errors():
 
 
 def test_main_on_clean_fixture(capsys):
-    rc = V.main([os.path.join(ROOT, "fixtures", "calendar-3day.fg.yaml"), "--quiet"])
+    rc = V.main([os.path.join(ROOT, "tests", "fixtures", "calendar-3day.fg.yaml"), "--quiet"])
     assert rc == 0
 
 
 def test_main_strict_on_warned_fixture():
-    rc = V.main([os.path.join(ROOT, "fixtures", "wordle-how-to-play.fg.yaml"), "--strict", "--quiet"])
+    rc = V.main([os.path.join(ROOT, "tests", "fixtures", "wordle-how-to-play.fg.yaml"), "--strict", "--quiet"])
     assert rc == 1  # has advisory warnings -> errors under --strict
 
 
@@ -200,7 +200,7 @@ def test_load_failure_returns_code_2():
 
 def test_main_verbose_prints_findings(capsys):
     # non-quiet path exercises Finding.__str__ and the per-finding print loop
-    rc = V.main([os.path.join(ROOT, "fixtures", "wordle-how-to-play.fg.yaml")])
+    rc = V.main([os.path.join(ROOT, "tests", "fixtures", "wordle-how-to-play.fg.yaml")])
     out = capsys.readouterr().out
     assert rc == 0 and ("WARN" in out or "PASS" in out)
 
@@ -224,7 +224,7 @@ def _renderer_presets():
     """CanvasResolver.PRESETS/DEFAULT_WH read straight from the source file (AST),
     so this gate holds without importing the rendering package."""
     import ast
-    src = os.path.join(ROOT, "framegraph", "rendering", "domain", "services",
+    src = os.path.join(ROOT, "src", "framegraph", "rendering", "domain", "services",
                        "canvas_resolver.py")
     presets = default = None
     for node in ast.parse(open(src, encoding="utf-8").read()).body:
@@ -247,7 +247,7 @@ def test_preset_table_matches_the_renderer():
 
 def test_every_model_preset_resolves():
     import typing
-    sys.path.insert(0, os.path.join(ROOT, "models"))
+    sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
     shadow = sys.modules.get("framegraph")
     if shadow is not None and hasattr(shadow, "__path__"):  # rendering package shadows the models
         del sys.modules["framegraph"]

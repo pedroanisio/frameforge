@@ -41,13 +41,21 @@ generated from or checked against those models and fixtures.
 ├── CLAUDE.md          # This file — project guidelines for AI agents
 ├── DISCLAIMER.md      # Methodological caveats (all READMEs must reference)
 ├── README.md
-├── models/framegraph.py      # authoritative Pydantic model
-├── schema/                   # generated JSON schema + generator
+├── src/framegraph/           # the Python package (rendering, sdk, mcp, vision, coach, live)
+├── docs/                     # MkDocs pages + reference sources:
+│   ├── models/framegraph.py  #   authoritative Pydantic model (SOURCE OF TRUTH)
+│   ├── schema/               #   generated JSON schema + generator
+│   ├── spec/  grammar/       #   normative prose + EBNF views
+│   └── *.md                  #   site pages, design records, generated snapshots
+├── static/examples/          # runnable SDK clients (the cookbook)
 ├── tooling/                  # validation, render, codemod, docs generators
-├── fixtures/                 # gated fixture corpus
-├── docs/                     # MkDocs source/generated pages
-└── tests/                    # regression and sync gates
+├── tests/                    # regression and sync gates
+│   └── fixtures/             # gated fixture corpus (b1/ = the oracle)
+└── viewer/                   # standalone JS viewer (separate bundle)
 ```
+
+Non-core content (brand assets, demo media, scratch experiments) stays **out of
+the codebase tree** by operator direction (2026-07-02 folder refactor).
 
 ---
 

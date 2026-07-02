@@ -12,90 +12,90 @@ disclaimer:
 
 # Examples cookbook
 
-The 83 tracked, runnable SDK clients under `examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 83 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
-| [`a4_diagrammation.py`](../examples/a4_diagrammation.py) | Eight A4 pages, one print identity, eight DIAGRAMMATIONS. |
-| [`ai_mobile_app_wireframe.py`](../examples/ai_mobile_app_wireframe.py) | Compose a COMPLETE low-fidelity wireframe of an advanced AI mobile app with |
-| [`ai_workforce_storyboard.py`](../examples/ai_workforce_storyboard.py) | THE GREAT REWRITE — a complete storyboard for a 20-minute YouTube documentary |
-| [`animate_svg.py`](../examples/animate_svg.py) | Animate an ingested SVG into a video clip (mp4 / gif). |
-| [`architecture_brief.py`](../examples/architecture_brief.py) | FrameGraph — *how this system thinks*: a conceptual architecture map, authored |
-| [`architecture_map.py`](../examples/architecture_map.py) | FrameGraph v2 — Architecture Map (companion to ``conceptual-analysis.md``). |
-| [`asset_recolor_guide.py`](../examples/asset_recolor_guide.py) | Using imported assets — recolour/gradient them, or trace on top of them. |
-| [`atlantis_adventure_game.py`](../examples/atlantis_adventure_game.py) | THE LOST TIDE // 海淵 — a pixel-art point-&-click adventure, drawn as a comic. |
-| [`brand_book.py`](../examples/brand_book.py) | Typeset & publish *Brand, From Products to Source Code* as a native FrameGraph |
-| [`brand_book_figures.py`](../examples/brand_book_figures.py) | House visual system + illustration plates for the book *Brand, From Products |
-| [`capability_tour_book.py`](../examples/capability_tour_book.py) | FrameGraph — The Complete Capability Tour. |
-| [`clip_and_lettering_demo.py`](../examples/clip_and_lettering_demo.py) | Worked example of the SDK's clip + author-intent helpers. |
-| [`coach_demo.py`](../examples/coach_demo.py) | Vector Construction Coach — staged-loop demo (framegraph.coach POC). |
-| [`coach_draw_workspace.py`](../examples/coach_draw_workspace.py) | Coach draws ``demo/images.jpeg`` — a flat workspace illustration. |
-| [`coach_icon_set.py`](../examples/coach_icon_set.py) | Coach challenge — a 6-icon set, one style, A/B vs one-shot drift. |
-| [`coach_pipeline.py`](../examples/coach_pipeline.py) | Everything together — coach (process) + landing kit (vocabulary) + silhouette gate. |
-| [`coopera_refactor_wireframes.py`](../examples/coopera_refactor_wireframes.py) | Twenty distinct refactor proposals for the Coopera (Sicoob) rewards site & |
-| [`cs_suite_wireframe.py`](../examples/cs_suite_wireframe.py) | Compose a COMPLETE low-fidelity wireframe of an advanced web app — "Helm", a |
-| [`demo_rebuild.py`](../examples/demo_rebuild.py) | Rebuild every demo/ raster as a FrameGraph file — auto-routed vector ingest. |
-| [`design_trends_2026.py`](../examples/design_trends_2026.py) | Compose ONE FrameGraph document with the Python SDK that exercises the |
-| [`doc_ray_a4_reference.py`](../examples/doc_ray_a4_reference.py) | FrameGraph v2 — doc-ray Database Reference (A4, ERD + full data dictionary). |
-| [`doc_ray_database.py`](../examples/doc_ray_database.py) | FrameGraph v2 — doc-ray Database Architecture (SDK client). |
-| [`docfield_logo.py`](../examples/docfield_logo.py) | Doc-Field — logo proposal board, recreated as a native FrameGraph document. |
-| [`dune_arrakis_codex.py`](../examples/dune_arrakis_codex.py) | ARRAKIS CODEX — a 30-slide Dune deck built on the FrameGraph Python SDK. |
-| [`esfera_refactor_wireframes.py`](../examples/esfera_refactor_wireframes.py) | Twenty distinct refactor proposals for the Esfera (Santander) rewards website |
-| [`fg_css_optimize.py`](../examples/fg_css_optimize.py) | fg_css_optimize.py |
-| [`fields_lattices_manifolds.py`](../examples/fields_lattices_manifolds.py) | Demo of the SDK field / wave / lattice / manifold helpers. |
-| [`food_tracking_ai_app.py`](../examples/food_tracking_ai_app.py) | High-fidelity vector recreation of the Dribbble shot |
-| [`framegraph_logo.py`](../examples/framegraph_logo.py) | FrameGraph — the logo, as a standalone, reusable FrameGraph document. |
-| [`framegraph_seed_deck.py`](../examples/framegraph_seed_deck.py) | FrameGraph — Seed Pitch, authored *in* FrameGraph (the canonical seed). |
-| [`geometry_topology_deck.py`](../examples/geometry_topology_deck.py) | GEOMETRY & TOPOLOGY — a reusable presentation *template* (FrameGraph SDK). |
-| [`guided_paint.py`](../examples/guided_paint.py) | Painter kit — render-safe atmosphere primitives for guided-draw compositions. |
-| [`imperial_doctrine_deck.py`](../examples/imperial_doctrine_deck.py) | IMPERIAL DOCTRINE — a 20-slide Galactic Empire command briefing. |
-| [`inova_partners_whitepaper.py`](../examples/inova_partners_whitepaper.py) | INOVA PARTNERS — A4 white paper (PT-BR), built with the SDK. |
-| [`landing_headers.py`](../examples/landing_headers.py) | Landing-page hero headers — a cohesive SaaS illustration pack (FrameGraph SDK). |
-| [`layout_mechanisms_deck.py`](../examples/layout_mechanisms_deck.py) | A presentation that answers a critique: "all these layouts are just variations |
-| [`layout_methods_book.py`](../examples/layout_methods_book.py) | Compose *Layout Methods — A Field Guide* as a native FrameGraph book. |
-| [`layout_methods_chapter.py`](../examples/layout_methods_chapter.py) | *Layout Methods — A Field Guide* as a native FrameGraph ``mode: flow`` book. |
-| [`layout_methods_figures.py`](../examples/layout_methods_figures.py) | Illustration plates for the book chapter *Layout Methods — A Field Guide*. |
-| [`marina_whale.py`](../examples/marina_whale.py) | Marina and the Singing Sea — a polished children's picture book via the FrameGraph SDK. |
-| [`meridian_consulting_deck.py`](../examples/meridian_consulting_deck.py) | Project Northwind - a complete 40-slide management-consulting deck, built with the SDK. |
-| [`naval_engineering_deck.py`](../examples/naval_engineering_deck.py) | Demo: author a 30-page naval-engineering deck with the FrameGraph Python SDK. |
-| [`ninja_hacker_manga.py`](../examples/ninja_hacker_manga.py) | NULLSEC // 零 — a 25-page cyber-ninja manga, composed entirely with the SDK. |
-| [`output_space_poster.py`](../examples/output_space_poster.py) | A styled FrameGraph rendition of docs/output-space.md. |
-| [`people_devices_dashboard.py`](../examples/people_devices_dashboard.py) | High-fidelity vector recreation of an HR "People / Devices / Security" mobile |
-| [`poc2_drawing_protocol.py`](../examples/poc2_drawing_protocol.py) | POC-02 — feasibility experiment for the layered drawing protocol. |
-| [`poc3_ingest_compose.py`](../examples/poc3_ingest_compose.py) | POC-03 — ingestion x FrameGraph: a raster becomes a *programmable* asset. |
-| [`poc4_color_and_guide.py`](../examples/poc4_color_and_guide.py) | POC-04 — colour & gradient a trace, or use it as a guide to draw on top. |
-| [`poc5_coach_ingest.py`](../examples/poc5_coach_ingest.py) | POC-05 — the whole loop, together: ingest → coach gate → style → compose. |
-| [`poc5_redraw.py`](../examples/poc5_redraw.py) | POC-05 — redrawing *over* a trace: rough polygons -> clean, intentional lines. |
-| [`poc6_refine_loop.py`](../examples/poc6_refine_loop.py) | POC-06 — the drawing agent's improvement pass: measure, adjust, re-run, stop. |
-| [`poc7_clean_lines.py`](../examples/poc7_clean_lines.py) | POC-07 — image-agnostic line/contour cleanup, measured on any subject. |
-| [`poc9_figure_coach.py`](../examples/poc9_figure_coach.py) | POC-09 — a coach that draws COMPLEX HUMAN FIGURES (honest end-to-end). |
-| [`radix_nova_gallery.py`](../examples/radix_nova_gallery.py) | High-fidelity vector recreation of the shadcn / v0 "radix-nova" component |
-| [`rebel_alliance_field_manual.py`](../examples/rebel_alliance_field_manual.py) | ALLIANCE FIELD MANUAL — a 20-slide Rebel Alliance briefing. |
-| [`roadmap_publication.py`](../examples/roadmap_publication.py) | Publish the FrameGraph v2 roadmap as two brand-true deliverables from one SDK client: |
-| [`saas_hero_headers.py`](../examples/saas_hero_headers.py) | SaaS landing-page hero headers — built from PRIMITIVES only (no widgets). |
-| [`sdk_3d_scene.py`](../examples/sdk_3d_scene.py) | A complex, shaded 3D scene composed with the FrameGraph SDK — *today*. |
-| [`sdk_ergonomics_showcase.py`](../examples/sdk_ergonomics_showcase.py) | Generate the SDK ergonomics showcase fixture. |
-| [`sdk_geometry_patterns.py`](../examples/sdk_geometry_patterns.py) | Worked example for SDK pattern paint and geometry helpers. |
-| [`sdk_layout_stacks.py`](../examples/sdk_layout_stacks.py) | Generate the SDK layout stacks fixture. |
-| [`sdk_symbol_instancing.py`](../examples/sdk_symbol_instancing.py) | Symbol instancing & object-level effects — the SDK affordances for repeated detail. |
-| [`sdk_toolkit_demo.py`](../examples/sdk_toolkit_demo.py) | Minimal worked example of the SDK's Tier-1 authoring toolkit. |
-| [`showcase_guided_draw.py`](../examples/showcase_guided_draw.py) | Showcase — guided draw: a line-art trace becomes the under-drawing, and we |
-| [`ski_rebuilt_composition.py`](../examples/ski_rebuilt_composition.py) | Ingest ``ski_rebuilt.flat.svg`` and compose + transform it as native FrameGraph. |
-| [`slide_diagrammation.py`](../examples/slide_diagrammation.py) | Nine slides, one identity, nine DIAGRAMMATIONS. |
-| [`spacecraft_catalog.py`](../examples/spacecraft_catalog.py) | ORBITAL REGISTRY — a 21-page catalog of spacecraft, every craft a real 3D |
-| [`spendora_landing.py`](../examples/spendora_landing.py) | High-fidelity vector recreation of the "Spendora" SaaS landing page mock-up |
-| [`starlight_fox.py`](../examples/starlight_fox.py) | Starlight Fox — a children's picture book authored entirely with the FrameGraph SDK. |
-| [`stratoscope.py`](../examples/stratoscope.py) | Stratoscope — one scalar field, two projections, one frame. |
-| [`sublime_ttl_screenshot.py`](../examples/sublime_ttl_screenshot.py) | Recreate the Sublime Text (.ttl) desktop screenshot with the FrameGraph SDK. |
-| [`syrus_proposal.py`](../examples/syrus_proposal.py) | SYRUS — client-acquisition proposal, built in the "Modern Sovereign" brand. |
-| [`topology_perspective.py`](../examples/topology_perspective.py) | Demo of the SDK topology + perspective helpers. |
-| [`trebuchet_drawings.py`](../examples/trebuchet_drawings.py) | Author a 30-sheet engineering drawing package for a counterweight trebuchet. |
-| [`tripglide_mobile_mockup.py`](../examples/tripglide_mobile_mockup.py) | Compose a TripGlide-style travel mobile app mockup with the FrameGraph SDK. |
-| [`tron_blue_mainframe.py`](../examples/tron_blue_mainframe.py) | TRACE // THE BLUE MAINFRAME — a 30-slide deck in the *original* 1982 Tron |
-| [`tron_grid_protocol.py`](../examples/tron_grid_protocol.py) | GRID PROTOCOL — a 32-slide deck rendered entirely in flat 2D "Tron" framing. |
-| [`tron_red_sector.py`](../examples/tron_red_sector.py) | INFERNO // RED SECTOR — a 30-slide deck in the antagonist's register of the |
-| [`visual_identities.py`](../examples/visual_identities.py) | Five documents with nothing visually in common. |
-| [`vscode_frameforge_ide.py`](../examples/vscode_frameforge_ide.py) | Recreate the FrameForge VSCode IDE screenshot with the FrameGraph SDK. |
-| [`web_design_proposal.py`](../examples/web_design_proposal.py) | Web Design Proposal — a premium editorial proposal booklet, authored with the SDK. |
-| [`widgets_gallery.py`](../examples/widgets_gallery.py) | Gallery + dashboard for the SDK's UI-widget layer (``framegraph.sdk.widgets``). |
-| [`world_cup_book.py`](../examples/world_cup_book.py) | World Cup — a 20-page illustrated book authored entirely with the FrameGraph SDK. |
+| [`a4_diagrammation.py`](../static/examples/a4_diagrammation.py) | Eight A4 pages, one print identity, eight DIAGRAMMATIONS. |
+| [`ai_mobile_app_wireframe.py`](../static/examples/ai_mobile_app_wireframe.py) | Compose a COMPLETE low-fidelity wireframe of an advanced AI mobile app with |
+| [`ai_workforce_storyboard.py`](../static/examples/ai_workforce_storyboard.py) | THE GREAT REWRITE — a complete storyboard for a 20-minute YouTube documentary |
+| [`animate_svg.py`](../static/examples/animate_svg.py) | Animate an ingested SVG into a video clip (mp4 / gif). |
+| [`architecture_brief.py`](../static/examples/architecture_brief.py) | FrameGraph — *how this system thinks*: a conceptual architecture map, authored |
+| [`architecture_map.py`](../static/examples/architecture_map.py) | FrameGraph v2 — Architecture Map (companion to ``conceptual-analysis.md``). |
+| [`asset_recolor_guide.py`](../static/examples/asset_recolor_guide.py) | Using imported assets — recolour/gradient them, or trace on top of them. |
+| [`atlantis_adventure_game.py`](../static/examples/atlantis_adventure_game.py) | THE LOST TIDE // 海淵 — a pixel-art point-&-click adventure, drawn as a comic. |
+| [`brand_book.py`](../static/examples/brand_book.py) | Typeset & publish *Brand, From Products to Source Code* as a native FrameGraph |
+| [`brand_book_figures.py`](../static/examples/brand_book_figures.py) | House visual system + illustration plates for the book *Brand, From Products |
+| [`capability_tour_book.py`](../static/examples/capability_tour_book.py) | FrameGraph — The Complete Capability Tour. |
+| [`clip_and_lettering_demo.py`](../static/examples/clip_and_lettering_demo.py) | Worked example of the SDK's clip + author-intent helpers. |
+| [`coach_demo.py`](../static/examples/coach_demo.py) | Vector Construction Coach — staged-loop demo (framegraph.coach POC). |
+| [`coach_draw_workspace.py`](../static/examples/coach_draw_workspace.py) | Coach draws ``demo/images.jpeg`` — a flat workspace illustration. |
+| [`coach_icon_set.py`](../static/examples/coach_icon_set.py) | Coach challenge — a 6-icon set, one style, A/B vs one-shot drift. |
+| [`coach_pipeline.py`](../static/examples/coach_pipeline.py) | Everything together — coach (process) + landing kit (vocabulary) + silhouette gate. |
+| [`coopera_refactor_wireframes.py`](../static/examples/coopera_refactor_wireframes.py) | Twenty distinct refactor proposals for the Coopera (Sicoob) rewards site & |
+| [`cs_suite_wireframe.py`](../static/examples/cs_suite_wireframe.py) | Compose a COMPLETE low-fidelity wireframe of an advanced web app — "Helm", a |
+| [`demo_rebuild.py`](../static/examples/demo_rebuild.py) | Rebuild every demo/ raster as a FrameGraph file — auto-routed vector ingest. |
+| [`design_trends_2026.py`](../static/examples/design_trends_2026.py) | Compose ONE FrameGraph document with the Python SDK that exercises the |
+| [`doc_ray_a4_reference.py`](../static/examples/doc_ray_a4_reference.py) | FrameGraph v2 — doc-ray Database Reference (A4, ERD + full data dictionary). |
+| [`doc_ray_database.py`](../static/examples/doc_ray_database.py) | FrameGraph v2 — doc-ray Database Architecture (SDK client). |
+| [`docfield_logo.py`](../static/examples/docfield_logo.py) | Doc-Field — logo proposal board, recreated as a native FrameGraph document. |
+| [`dune_arrakis_codex.py`](../static/examples/dune_arrakis_codex.py) | ARRAKIS CODEX — a 30-slide Dune deck built on the FrameGraph Python SDK. |
+| [`esfera_refactor_wireframes.py`](../static/examples/esfera_refactor_wireframes.py) | Twenty distinct refactor proposals for the Esfera (Santander) rewards website |
+| [`fg_css_optimize.py`](../static/examples/fg_css_optimize.py) | fg_css_optimize.py |
+| [`fields_lattices_manifolds.py`](../static/examples/fields_lattices_manifolds.py) | Demo of the SDK field / wave / lattice / manifold helpers. |
+| [`food_tracking_ai_app.py`](../static/examples/food_tracking_ai_app.py) | High-fidelity vector recreation of the Dribbble shot |
+| [`framegraph_logo.py`](../static/examples/framegraph_logo.py) | FrameGraph — the logo, as a standalone, reusable FrameGraph document. |
+| [`framegraph_seed_deck.py`](../static/examples/framegraph_seed_deck.py) | FrameGraph — Seed Pitch, authored *in* FrameGraph (the canonical seed). |
+| [`geometry_topology_deck.py`](../static/examples/geometry_topology_deck.py) | GEOMETRY & TOPOLOGY — a reusable presentation *template* (FrameGraph SDK). |
+| [`guided_paint.py`](../static/examples/guided_paint.py) | Painter kit — render-safe atmosphere primitives for guided-draw compositions. |
+| [`imperial_doctrine_deck.py`](../static/examples/imperial_doctrine_deck.py) | IMPERIAL DOCTRINE — a 20-slide Galactic Empire command briefing. |
+| [`inova_partners_whitepaper.py`](../static/examples/inova_partners_whitepaper.py) | INOVA PARTNERS — A4 white paper (PT-BR), built with the SDK. |
+| [`landing_headers.py`](../static/examples/landing_headers.py) | Landing-page hero headers — a cohesive SaaS illustration pack (FrameGraph SDK). |
+| [`layout_mechanisms_deck.py`](../static/examples/layout_mechanisms_deck.py) | A presentation that answers a critique: "all these layouts are just variations |
+| [`layout_methods_book.py`](../static/examples/layout_methods_book.py) | Compose *Layout Methods — A Field Guide* as a native FrameGraph book. |
+| [`layout_methods_chapter.py`](../static/examples/layout_methods_chapter.py) | *Layout Methods — A Field Guide* as a native FrameGraph ``mode: flow`` book. |
+| [`layout_methods_figures.py`](../static/examples/layout_methods_figures.py) | Illustration plates for the book chapter *Layout Methods — A Field Guide*. |
+| [`marina_whale.py`](../static/examples/marina_whale.py) | Marina and the Singing Sea — a polished children's picture book via the FrameGraph SDK. |
+| [`meridian_consulting_deck.py`](../static/examples/meridian_consulting_deck.py) | Project Northwind - a complete 40-slide management-consulting deck, built with the SDK. |
+| [`naval_engineering_deck.py`](../static/examples/naval_engineering_deck.py) | Demo: author a 30-page naval-engineering deck with the FrameGraph Python SDK. |
+| [`ninja_hacker_manga.py`](../static/examples/ninja_hacker_manga.py) | NULLSEC // 零 — a 25-page cyber-ninja manga, composed entirely with the SDK. |
+| [`output_space_poster.py`](../static/examples/output_space_poster.py) | A styled FrameGraph rendition of docs/output-space.md. |
+| [`people_devices_dashboard.py`](../static/examples/people_devices_dashboard.py) | High-fidelity vector recreation of an HR "People / Devices / Security" mobile |
+| [`poc2_drawing_protocol.py`](../static/examples/poc2_drawing_protocol.py) | POC-02 — feasibility experiment for the layered drawing protocol. |
+| [`poc3_ingest_compose.py`](../static/examples/poc3_ingest_compose.py) | POC-03 — ingestion x FrameGraph: a raster becomes a *programmable* asset. |
+| [`poc4_color_and_guide.py`](../static/examples/poc4_color_and_guide.py) | POC-04 — colour & gradient a trace, or use it as a guide to draw on top. |
+| [`poc5_coach_ingest.py`](../static/examples/poc5_coach_ingest.py) | POC-05 — the whole loop, together: ingest → coach gate → style → compose. |
+| [`poc5_redraw.py`](../static/examples/poc5_redraw.py) | POC-05 — redrawing *over* a trace: rough polygons -> clean, intentional lines. |
+| [`poc6_refine_loop.py`](../static/examples/poc6_refine_loop.py) | POC-06 — the drawing agent's improvement pass: measure, adjust, re-run, stop. |
+| [`poc7_clean_lines.py`](../static/examples/poc7_clean_lines.py) | POC-07 — image-agnostic line/contour cleanup, measured on any subject. |
+| [`poc9_figure_coach.py`](../static/examples/poc9_figure_coach.py) | POC-09 — a coach that draws COMPLEX HUMAN FIGURES (honest end-to-end). |
+| [`radix_nova_gallery.py`](../static/examples/radix_nova_gallery.py) | High-fidelity vector recreation of the shadcn / v0 "radix-nova" component |
+| [`rebel_alliance_field_manual.py`](../static/examples/rebel_alliance_field_manual.py) | ALLIANCE FIELD MANUAL — a 20-slide Rebel Alliance briefing. |
+| [`roadmap_publication.py`](../static/examples/roadmap_publication.py) | Publish the FrameGraph v2 roadmap as two brand-true deliverables from one SDK client: |
+| [`saas_hero_headers.py`](../static/examples/saas_hero_headers.py) | SaaS landing-page hero headers — built from PRIMITIVES only (no widgets). |
+| [`sdk_3d_scene.py`](../static/examples/sdk_3d_scene.py) | A complex, shaded 3D scene composed with the FrameGraph SDK — *today*. |
+| [`sdk_ergonomics_showcase.py`](../static/examples/sdk_ergonomics_showcase.py) | Generate the SDK ergonomics showcase fixture. |
+| [`sdk_geometry_patterns.py`](../static/examples/sdk_geometry_patterns.py) | Worked example for SDK pattern paint and geometry helpers. |
+| [`sdk_layout_stacks.py`](../static/examples/sdk_layout_stacks.py) | Generate the SDK layout stacks fixture. |
+| [`sdk_symbol_instancing.py`](../static/examples/sdk_symbol_instancing.py) | Symbol instancing & object-level effects — the SDK affordances for repeated detail. |
+| [`sdk_toolkit_demo.py`](../static/examples/sdk_toolkit_demo.py) | Minimal worked example of the SDK's Tier-1 authoring toolkit. |
+| [`showcase_guided_draw.py`](../static/examples/showcase_guided_draw.py) | Showcase — guided draw: a line-art trace becomes the under-drawing, and we |
+| [`ski_rebuilt_composition.py`](../static/examples/ski_rebuilt_composition.py) | Ingest ``ski_rebuilt.flat.svg`` and compose + transform it as native FrameGraph. |
+| [`slide_diagrammation.py`](../static/examples/slide_diagrammation.py) | Nine slides, one identity, nine DIAGRAMMATIONS. |
+| [`spacecraft_catalog.py`](../static/examples/spacecraft_catalog.py) | ORBITAL REGISTRY — a 21-page catalog of spacecraft, every craft a real 3D |
+| [`spendora_landing.py`](../static/examples/spendora_landing.py) | High-fidelity vector recreation of the "Spendora" SaaS landing page mock-up |
+| [`starlight_fox.py`](../static/examples/starlight_fox.py) | Starlight Fox — a children's picture book authored entirely with the FrameGraph SDK. |
+| [`stratoscope.py`](../static/examples/stratoscope.py) | Stratoscope — one scalar field, two projections, one frame. |
+| [`sublime_ttl_screenshot.py`](../static/examples/sublime_ttl_screenshot.py) | Recreate the Sublime Text (.ttl) desktop screenshot with the FrameGraph SDK. |
+| [`syrus_proposal.py`](../static/examples/syrus_proposal.py) | SYRUS — client-acquisition proposal, built in the "Modern Sovereign" brand. |
+| [`topology_perspective.py`](../static/examples/topology_perspective.py) | Demo of the SDK topology + perspective helpers. |
+| [`trebuchet_drawings.py`](../static/examples/trebuchet_drawings.py) | Author a 30-sheet engineering drawing package for a counterweight trebuchet. |
+| [`tripglide_mobile_mockup.py`](../static/examples/tripglide_mobile_mockup.py) | Compose a TripGlide-style travel mobile app mockup with the FrameGraph SDK. |
+| [`tron_blue_mainframe.py`](../static/examples/tron_blue_mainframe.py) | TRACE // THE BLUE MAINFRAME — a 30-slide deck in the *original* 1982 Tron |
+| [`tron_grid_protocol.py`](../static/examples/tron_grid_protocol.py) | GRID PROTOCOL — a 32-slide deck rendered entirely in flat 2D "Tron" framing. |
+| [`tron_red_sector.py`](../static/examples/tron_red_sector.py) | INFERNO // RED SECTOR — a 30-slide deck in the antagonist's register of the |
+| [`visual_identities.py`](../static/examples/visual_identities.py) | Five documents with nothing visually in common. |
+| [`vscode_frameforge_ide.py`](../static/examples/vscode_frameforge_ide.py) | Recreate the FrameForge VSCode IDE screenshot with the FrameGraph SDK. |
+| [`web_design_proposal.py`](../static/examples/web_design_proposal.py) | Web Design Proposal — a premium editorial proposal booklet, authored with the SDK. |
+| [`widgets_gallery.py`](../static/examples/widgets_gallery.py) | Gallery + dashboard for the SDK's UI-widget layer (``framegraph.sdk.widgets``). |
+| [`world_cup_book.py`](../static/examples/world_cup_book.py) | World Cup — a 20-page illustrated book authored entirely with the FrameGraph SDK. |

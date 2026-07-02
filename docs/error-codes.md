@@ -35,7 +35,7 @@ here. The same enumeration ships machine-readably in
 | Code | Meaning | How to fix |
 |---|---|---|
 | `load` | The document file could not be parsed as YAML/JSON at all. | Fix the syntax error reported in the message; the path in the finding is the file itself. |
-| `structure` | The document does not validate against the core Pydantic models (wrong field, wrong type, missing required key). | Follow the Pydantic message at the reported path; the models (`models/framegraph.py`) are the source of truth. |
+| `structure` | The document does not validate against the core Pydantic models (wrong field, wrong type, missing required key). | Follow the Pydantic message at the reported path; the models (`docs/models/framegraph.py`) are the source of truth. |
 | `stroke-single-form` | Inline-geometry `stroke` (a dict carrying `width`/`dash`/`linecap`/`linejoin`) was removed in P3. | Put paint in `stroke` and geometry in `stroke_style`; `tooling/codemod.py` migrates this automatically. |
 | `size-renamed` | Legacy `size` on a non-icon object collides with `IconObject.size`. | Rename the content-sizing key to `sizing` (the codemod does this). |
 | `hug-on-shape` | `sizing: hug` on a pure shape (`rect`, `ellipse`, `line`, …) — shapes have no intrinsic content to hug. | Use a fixed dimension or `fill`. |
@@ -63,7 +63,7 @@ here. The same enumeration ships machine-readably in
 | `unknown-adjustment-target` | A target's `adjustments.hide` names an id no object declares — hiding nothing is inert. | Fix the id or drop the entry. |
 | `unknown-token` (warning variants) | A colour-valued key (`fill`/`stroke`/`color`/…) is neither a colour literal nor a declared `tokens.colors`/`fill_styles` key (it would pass through as an invalid SVG colour), or an `icon.font` is not declared in `tokens.fonts` (§3.5). | Declare the token, use a literal colour, or fix the reference. |
 
-## SDK rule ids (`framegraph/sdk/validate.py`)
+## SDK rule ids (`src/framegraph/sdk/validate.py`)
 
 `validate_static_rules()` re-emits every tooling code above as `Issue.rule_id`
 (severity `error`/`warning`), plus these SDK-only checks (all severity `error`):

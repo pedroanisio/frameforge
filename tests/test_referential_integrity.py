@@ -238,7 +238,7 @@ def test_masters_objects_are_reference_checked_too():
 
 # --- the committed corpus stays referentially clean ------------------------------ #
 def test_connectors_fixture_has_no_referential_findings():
-    path = os.path.join(ROOT, "fixtures", "connectors.fg.yaml")
+    path = os.path.join(ROOT, "tests", "fixtures", "connectors.fg.yaml")
     _, findings, code = V.validate_doc(path)
     assert code == 0
     assert not [f for f in findings

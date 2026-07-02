@@ -22,8 +22,8 @@ def _load(name: str, path: Path):
     return mod
 
 
-opt = _load("fg_css_optimize", ROOT / "examples" / "fg_css_optimize.py")
-fgh = _load("framegraph_to_html", ROOT / "framegraph_to_html.py")
+opt = _load("fg_css_optimize", ROOT / "static" / "examples" / "fg_css_optimize.py")
+fgh = _load("framegraph_to_html", ROOT / "tooling" / "framegraph_to_html.py")
 
 
 def _render(objects: list[dict], *, defs: dict | None = None) -> str:

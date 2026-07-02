@@ -25,9 +25,9 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path.insert(0, os.path.join(ROOT, "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
-sys.path.insert(0, os.path.join(ROOT, "schema"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "schema"))
 shadow = sys.modules.get("framegraph")
 if shadow is not None and hasattr(shadow, "__path__"):
     del sys.modules["framegraph"]
@@ -39,7 +39,7 @@ import validate as V  # noqa: E402
 import codemod as C  # noqa: E402
 import build_schema as B  # noqa: E402
 
-FIX = os.path.join(ROOT, "fixtures")
+FIX = os.path.join(ROOT, "tests", "fixtures")
 B1 = os.path.join(FIX, "b1")
 AUTHORITATIVE = [
     "amazon-proxy-2026", "chroma-styling-showcase", "docusign-deck-v2",
@@ -79,8 +79,8 @@ def test_version_is_2_3_0():
 
 def test_schema_in_sync_with_models():
     built = json.dumps(B.build(), indent=2, ensure_ascii=False) + "\n"
-    on_disk = open(os.path.join(ROOT, "schema", "framegraph-v2.schema.json"), encoding="utf-8").read()
-    assert built == on_disk, "schema/framegraph-v2.schema.json is stale; run build_schema.py"
+    on_disk = open(os.path.join(ROOT, "docs", "schema", "framegraph-v2.schema.json"), encoding="utf-8").read()
+    assert built == on_disk, "docs/schema/framegraph-v2.schema.json is stale; run build_schema.py"
 
 
 def test_style_module_surface_accepted():

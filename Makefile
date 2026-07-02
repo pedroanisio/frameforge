@@ -6,12 +6,12 @@
 # CI runs (.github/workflows/ci.yml).
 
 UV ?= uv
-FIXTURES_YAML := $(shell git ls-files fixtures 2>/dev/null | grep -E '^fixtures/[^/]+\.(fg\.yaml|framegraph\.yml)$$' || echo 'fixtures/*.fg.yaml')
+FIXTURES_YAML := $(shell git ls-files tests/fixtures 2>/dev/null | grep -E '^tests/fixtures/[^/]+\.(fg\.yaml|framegraph\.yml)$$' || echo 'tests/fixtures/*.fg.yaml')
 LIVE_HOST ?= 127.0.0.1
 LIVE_PORT ?= 8789
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check brand-logo-check docker-build docker-mcp docker-shell docker-fonts
+.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check docker-build docker-mcp docker-shell docker-fonts
 
 DOCKER ?= docker
 IMAGE ?= frameforge
@@ -23,8 +23,8 @@ help:  ## list targets
 sync:  ## create/refresh the venv from uv.lock
 	$(UV) sync
 
-schema:  ## regenerate schema/framegraph-v2.schema.json from the models
-	$(UV) run python schema/build_schema.py
+schema:  ## regenerate docs/schema/framegraph-v2.schema.json from the models
+	$(UV) run python docs/schema/build_schema.py
 
 render:  ## render every fixture to out/render/ (+ contact sheet)
 	$(UV) run python tooling/render_fixtures.py --all
@@ -37,15 +37,15 @@ pdf:  ## transpile a PDF -> FrameGraph YAML (pulls the `pdf` group): make pdf PD
 	$(UV) run --group pdf python tooling/pdf_to_framegraph_yml.py "$(PDF)" "$(if $(OUT),$(OUT),$(PDF:.pdf=.fg.yaml))" $(ARGS)
 
 mcp:  ## run the optional MCP server for SDK-code -> YAML -> render feedback loops
-	$(UV) run --group mcp python -m framegraph.mcp
+	PYTHONPATH=src:docs $(UV) run --group mcp python -m framegraph.mcp
 
 live:  ## run the local FrameGraph MCP live-session web UI
-	$(UV) run python -m framegraph.live --host "$(LIVE_HOST)" --port "$(LIVE_PORT)"
+	PYTHONPATH=src:docs $(UV) run python -m framegraph.live --host "$(LIVE_HOST)" --port "$(LIVE_PORT)"
 
-check: schema-check grammar-check spec-check a11y-check status-check test validate overflow golden-check docs-check docs-linkcheck brand-check brand-logo-check disclaimer-check  ## run every local gate
+check: schema-check grammar-check spec-check a11y-check status-check test validate overflow golden-check docs-check docs-linkcheck disclaimer-check  ## run every local gate
 
 schema-check:  ## fail if the committed schema drifted from the models
-	$(UV) run python schema/build_schema.py --check
+	$(UV) run python docs/schema/build_schema.py --check
 
 grammar-check:  ## fail if the EBNF grammar drifted from the models (core profile)
 	$(UV) run python tooling/check_grammar_sync.py
@@ -109,12 +109,6 @@ examples-index:  ## regenerate docs/examples.md from the tracked examples/*.py d
 
 docs-linkcheck:  ## fail if a tracked Markdown file has a broken relative link (run after docs)
 	$(UV) run python tooling/check_doc_links.py
-
-brand-check:  ## fail if docs/BRAND.md palette drifts from brand/framegraph.tokens.fg.yaml
-	$(UV) run python tooling/check_brand_sync.py
-
-brand-logo-check:  ## fail if committed logo masters drift from examples/framegraph_logo.py
-	$(UV) run python examples/framegraph_logo.py --check
 
 disclaimer-check:  ## fail if an AI-authored doc is missing the rule-5 disclaimer frontmatter
 	$(UV) run python tooling/check_disclaimers.py

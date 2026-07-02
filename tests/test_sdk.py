@@ -10,7 +10,7 @@ import sys
 import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
@@ -450,7 +450,7 @@ def test_pagebuilder_geometry_helpers_lower_to_existing_primitives():
 
 def test_sdk_geometry_patterns_fixture_exercises_public_helpers():
     """The checked-in fixture is the oracle for pattern + geometry helper output."""
-    path = os.path.join(ROOT, "fixtures", "sdk-geometry-patterns.fg.yaml")
+    path = os.path.join(ROOT, "tests", "fixtures", "sdk-geometry-patterns.fg.yaml")
     doc = parse(open(path, encoding="utf-8").read(), forgiving=False)
     data = doc.model_dump(by_alias=True, exclude_none=True)
     objects = data["pages"][0]["layers"][0]["objects"]
@@ -469,7 +469,7 @@ def test_sdk_geometry_patterns_fixture_exercises_public_helpers():
 
 def test_sdk_ergonomics_showcase_fixture_exercises_high_level_helpers():
     """The fixture pins symbol context, local panels, paint wrappers and macros."""
-    path = os.path.join(ROOT, "fixtures", "sdk-ergonomics-showcase.fg.yaml")
+    path = os.path.join(ROOT, "tests", "fixtures", "sdk-ergonomics-showcase.fg.yaml")
     doc = parse(open(path, encoding="utf-8").read(), forgiving=False)
     data = doc.model_dump(by_alias=True, exclude_none=True)
 

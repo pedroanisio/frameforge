@@ -44,7 +44,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 # Import the *models* module as ``framegraph`` exactly like validate.py, so the
 # in-repo source of truth shadows any installed distribution of the same name.
-sys.path.insert(0, os.path.join(ROOT, "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 # The rendering package ``framegraph`` (./framegraph) shares the name; if it is
 # already imported (e.g. under pytest) it would shadow models/framegraph.py.
 # Evict the package so we always introspect the source of truth — see test_head.
@@ -53,8 +53,8 @@ if _shadow is not None and hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
 import framegraph as fg  # noqa: E402
 
-CORE_EBNF = os.path.join(ROOT, "grammar", "framegraph-v2.ebnf")
-STYLE_EBNF = os.path.join(ROOT, "grammar", "framegraph-v2-style.ebnf")
+CORE_EBNF = os.path.join(ROOT, "docs", "grammar", "framegraph-v2.ebnf")
+STYLE_EBNF = os.path.join(ROOT, "docs", "grammar", "framegraph-v2-style.ebnf")
 
 # The 17 object types the models type strictly (kept identical to
 # validate.py:CORE_OBJECT_TYPES — the single definition of "core profile").

@@ -42,7 +42,7 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "models")))
+sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "docs", "models")))
 
 import yaml  # noqa: E402
 import framegraph as fg  # noqa: E402

@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.join(ROOT, "tooling"))
 import yaml  # noqa: E402
 from render_fixtures import Renderer  # noqa: E402
 
-FIXTURE = os.path.join(ROOT, "fixtures", "accessibility.fg.yaml")
+FIXTURE = os.path.join(ROOT, "tests", "fixtures", "accessibility.fg.yaml")
 
 
 def _render_fixture():

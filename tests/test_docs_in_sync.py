@@ -26,7 +26,7 @@ import tomllib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path[:0] = [os.path.join(ROOT, "models"), os.path.join(ROOT, "schema")]
+sys.path[:0] = [os.path.join(ROOT, "docs", "models"), os.path.join(ROOT, "docs", "schema")]
 shadow = sys.modules.get("framegraph")
 if shadow is not None and hasattr(shadow, "__path__"):
     del sys.modules["framegraph"]
@@ -37,7 +37,7 @@ import build_schema as B  # noqa: E402
 README = open(os.path.join(ROOT, "README.md"), encoding="utf-8").read()
 CHANGELOG = open(os.path.join(ROOT, "CHANGELOG.md"), encoding="utf-8").read()
 CLAUDE = open(os.path.join(ROOT, "CLAUDE.md"), encoding="utf-8").read()
-FIXTURE_STATUS = open(os.path.join(ROOT, "FIXTURE-STATUS.md"), encoding="utf-8").read()
+FIXTURE_STATUS = open(os.path.join(ROOT, "docs", "FIXTURE-STATUS.md"), encoding="utf-8").read()
 DOCS_GITIGNORE = open(os.path.join(ROOT, "docs", ".gitignore"), encoding="utf-8").read()
 MKDOCS = open(os.path.join(ROOT, "mkdocs.yml"), encoding="utf-8").read()
 GEN_DOCS = open(os.path.join(ROOT, "tooling", "gen_docs.py"), encoding="utf-8").read()

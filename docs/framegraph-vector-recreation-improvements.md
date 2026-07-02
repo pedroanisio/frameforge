@@ -29,7 +29,7 @@ status, verified against the live tree:
 |---|---|---|
 | 1 | Page-space PNG crop/zoom | **Partial** — crop/zoom landed in the *measurement* lane (`measure_image` crops, `compare_images` regions, `vectorize_image` crop, `workspace` viewport) but the MCP *render* tools (`run_sdk_code` / `run_sdk_client` / `render_framegraph_yaml`) still render whole pages only. |
 | 2 | Crop around an object id | **Open** — no render tool accepts an object id. |
-| 3 | Combined inspect report (PNG + structural facts) | **Open** — no `inspect` in `framegraph/sdk` or `framegraph/mcp`. |
+| 3 | Combined inspect report (PNG + structural facts) | **Open** — no `inspect` in `src/framegraph/sdk` or `src/framegraph/mcp`. |
 | 4 | Reference-image analysis helpers | **Delivered** as MCP tools — `measure_image` (regions/landmarks/coordinate system) and `vectorize_image` colour-region clustering cover palette/region/line extraction. |
 | 5 | Texture / dry-brush macros | **Open** — no `concrete`/`spray`/`dry_brush`/`feathered_blob`/`halftone` helpers exist (`greeble`/`hatch_fill`/`sparkline` are the closest SDK macros). |
 | 6 | Stroke ergonomics (`cap`/`join` aliases) | **Delivered** — `framegraph.sdk.paint.stroke(width, color=…, cap=…, join=…)` normalises to the P3 paint/geometry split. |

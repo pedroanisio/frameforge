@@ -67,7 +67,7 @@ def _mediaboxes(pdf_path):
 
 
 def test_impose_letter_makes_every_pdf_page_uniform_without_touching_hashes():
-    sys.path.insert(0, ROOT)
+    sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
     from framegraph.sdk import page_hashes, validate_document
 
     model = validate_document(_DOC)

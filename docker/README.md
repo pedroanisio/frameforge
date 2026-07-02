@@ -13,7 +13,7 @@ Back to the [repo README](../README.md).
 FrameGraph documents name a `font_family` as a string. Every renderer resolves
 that name through the **OS font stack** — fontconfig → freetype, reached via
 cairosvg/Pango and the `fc-match` metrics path in
-[`font_metrics.py`](../framegraph/rendering/infrastructure/font_metrics.py). If a
+[`font_metrics.py`](../src/framegraph/rendering/infrastructure/font_metrics.py). If a
 named family is not installed, fontconfig silently substitutes a generic
 serif/sans, so a deck that asks for `Fraunces` or `IBM Plex Serif` renders in
 DejaVu. Render fidelity is therefore bounded by the host's installed faces. This
@@ -74,7 +74,7 @@ docker run --rm frameforge python -m framegraph.cli --list   # any command in th
 Chromium's setuid sandbox cannot initialize under the container's default
 namespaces, so the image sets `FRAMEGRAPH_CHROMIUM_NO_SANDBOX=1`. The renderer
 reads that (see
-[`browser.py`](../framegraph/rendering/infrastructure/browser.py)) and launches
+[`browser.py`](../src/framegraph/rendering/infrastructure/browser.py)) and launches
 Chromium with `--no-sandbox --disable-dev-shm-usage`. The container boundary is
 the isolation. Override the flags entirely with `FRAMEGRAPH_CHROMIUM_ARGS`
 (space-separated). Locally, with neither variable set, launch behavior is
