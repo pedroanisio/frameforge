@@ -414,7 +414,11 @@ class _Transpiler:
             lines.append(cells(header, bold=True) + "\\midrule\n")
         lines += [cells(r) for r in rows]
         lines.append("\\bottomrule\n\\end{tabular}")
-        inkname = self._book.name(self._color.resolve("ink")) or "black"
+        resolved_ink = self._color.resolve("ink")
+        # No `ink` token in this document: resolve() returns the name unchanged,
+        # which is not an xcolor name — fall back to black instead of dying.
+        inkname = ("black" if resolved_ink == "ink"
+                   else self._book.name(resolved_ink) or "black")
         block = (f"{{\\setlength{{\\tabcolsep}}{{4pt}}\\color{{{inkname}}}"
                  f"\\fontsize{{{size}}}{{{fnum(size * 1.3)}}}\\selectfont {''.join(lines)}}}")
         cap = fl.get("caption")
@@ -592,39 +596,75 @@ class _Transpiler:
                 if isinstance(obj, dict):
                     yield obj
 
-    def _page_picture(self, page):
-        body = "".join(self._figtikz.render(obj) for obj in self._page_objects(page))
+    def _page_picture(self, page, fit=None):
+        objs = list(self._page_objects(page))
+        self._figtikz.begin_page(objs)     # connectors anchor on object ids
+        body = "".join(self._figtikz.render(obj) for obj in objs)
         w, h = self._canvas.resolve(page)
-        return (
-            "\\noindent\\begin{tikzpicture}[x=1pt,y=-1pt]\n"
+        pic = (
+            "\\begin{tikzpicture}[x=1pt,y=-1pt]\n"
             f"\\path[use as bounding box] (0,0) rectangle ({fnum(w)},{fnum(h)});\n"
             + body +
-            "\\end{tikzpicture}\n"
+            "\\end{tikzpicture}"
         )
+        if fit and (w > fit[0] + 0.5 or h > fit[1] + 0.5):
+            # The sheet's canvas exceeds the document trim, and the geometry
+            # package cannot change the paper size per page: contain-scale the
+            # whole picture (vectors and node text alike) onto the shared paper.
+            # Left raw, a box taller than \textheight is deferred past a blank
+            # leaf and then clipped — worse than a uniform scale.
+            scale = min(fit[0] / w, fit[1] / h)
+            pic = f"\\resizebox{{{fnum(w * scale)}pt}}{{!}}{{{pic}}}"
+        return "\\noindent" + pic + "\n"
 
     # -- assembly ---------------------------------------------------------- #
     def build(self):
         pages = [p for p in (self.doc.get("pages") or []) if isinstance(p, dict)]
-        flow = next((p for p in pages if p.get("mode") == "flow"), None)
-        geometry_page = flow or (pages[0] if pages else {})
+        flow_pages = [p for p in pages if p.get("mode") == "flow"]
+        has_flow = bool(flow_pages)
+        # Geometry base: the (first) flow page's margined canvas when the document has
+        # flowing prose; else the first page (a pure page-mode doc is full-bleed).
+        geometry_page = flow_pages[0] if has_flow else (pages[0] if pages else {})
         w, h = self._canvas.resolve(geometry_page)
         self._textwidth = w - 2 * MARGIN_PT
+        # Endnotes may be requested by any flow page's story, not just the first.
+        self._use_endnotes = any(
+            isinstance(fl, dict) and fl.get("type") == "endnotes"
+            for p in flow_pages for fl in (p.get("story") or []))
 
-        if flow:
-            story = flow.get("story") or []
-            self._use_endnotes = any(isinstance(fl, dict) and fl.get("type") == "endnotes" for fl in story)
-            out = []
-            for fl in story:
-                if isinstance(fl, dict):
-                    self._emit(fl, out)
-        else:
-            out = []
-            for idx, page in enumerate(pages):
-                if idx:
+        # Walk EVERY page in document order so a mixed book renders its page-mode
+        # front/back matter (cover, colophon, contents, plates) around the flow
+        # chapters — the old code rendered only the first flow story and silently
+        # dropped every page-mode page.
+        out: list[str] = []
+        started = False
+        for page in pages:
+            if page.get("mode") == "flow":
+                if started:
+                    out.append("\\clearpage\n")
+                for fl in (page.get("story") or []):
+                    if isinstance(fl, dict):
+                        self._emit(fl, out)
+                started = True
+            elif has_flow:
+                # A page-mode sheet inside a margined document: zero the margins for
+                # THIS sheet only (every page shares the trim, so it is a margin
+                # toggle — geometry forbids per-page paper-size changes) and drop the
+                # folio, then restore the body geometry for whatever follows.
+                out.append(("\\clearpage\n" if started else "")
+                           + "\\newgeometry{margin=0pt,headheight=0pt,headsep=0pt,footskip=0pt}\n"
+                           + "\\thispagestyle{empty}\n")
+                out.append(self._page_picture(page, fit=(w, h)))
+                out.append("\\clearpage\\restoregeometry\n")
+                started = True
+            else:
+                # Pure page-mode document: the base geometry is already full-bleed.
+                if started:
                     out.append("\\clearpage\n")
                 out.append(self._page_picture(page))
+                started = True
         body = "".join(out)
-        return (self._preamble(w, h, page_mode=flow is None)
+        return (self._preamble(w, h, page_mode=not has_flow)
                 + "\\begin{document}\n" + body + "\\end{document}\n")
 
     def _preamble(self, w, h, page_mode=False):

@@ -65,3 +65,12 @@ def test_b1_chroma_table_renders_cleanly():
     assert "'content'" not in tex
     assert r"\textbf{Thickness (nm)}" in tex
     assert "peacock barbule" in tex
+
+
+def test_flow_table_without_ink_token_falls_back_to_black():
+    """A document with no `ink` colour token must not emit `\\color{ink}` —
+    xcolor has no such name and the compile dies (found by the capability
+    tour, whose ink token is `tour-ink`)."""
+    tex = transpile(_flow({"type": "table", "header": ["a"], "rows": [["b"]]}))
+    assert "\\color{ink}" not in tex
+    assert "\\color{black}" in tex

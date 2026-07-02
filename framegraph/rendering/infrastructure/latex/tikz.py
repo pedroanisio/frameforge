@@ -41,10 +41,24 @@ def ltx_url_escape(s) -> str:
     return ltx_escape(s)
 
 
+_CSS_RGB_RE = re.compile(
+    r"rgba?\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)"
+    r"(?:\s*,\s*([0-9.]+)(%?)\s*)?\)$", re.IGNORECASE)
+
+
 def _parse_hex(s):
+    """`#RGB[A]` / `#RRGGBB[AA]` / CSS `rgb()` / `rgba()` → (r, g, b, a|None)."""
     if not isinstance(s, str):
         return None
     s = s.strip()
+    m = _CSS_RGB_RE.match(s)
+    if m:
+        r, g, b = (max(0, min(255, round(float(v)))) for v in m.group(1, 2, 3))
+        a = None
+        if m.group(4) is not None:
+            a = float(m.group(4)) / (100.0 if m.group(5) else 1.0)
+            a = max(0.0, min(1.0, a))
+        return r, g, b, a
     if not s.startswith("#"):
         return None
     h = s[1:]
@@ -124,9 +138,26 @@ class FigureTikz:
         self._effect = EffectResolver(color_resolver)
         self._asset_path = asset_path
         self._font_macro = font_macro
+        self._page_ids: dict = {}
         self.skipped = 0
 
     # -- entry ------------------------------------------------------------- #
+    def begin_page(self, objects):
+        """Register a page's objects so connectors can anchor on object ids
+        (``{object, port/side}`` targets). Call before rendering each page."""
+        self._page_ids = {}
+
+        def walk(objs):
+            for ob in objs or []:
+                if not isinstance(ob, dict):
+                    continue
+                oid = ob.get("id")
+                if isinstance(oid, str) and oid not in self._page_ids:
+                    self._page_ids[oid] = ob
+                walk(ob.get("children"))
+
+        walk(list(objects or []))
+
     def render(self, obj) -> str:
         if not isinstance(obj, dict):
             return ""
@@ -615,9 +646,49 @@ class FigureTikz:
         return ox, oy
 
     # -- grouping ---------------------------------------------------------- #
+    @staticmethod
+    def _layout_child(ch, width, height):
+        if not isinstance(ch, dict):
+            return ch
+        box = ch.get("box")
+        if not (isinstance(box, list) and len(box) >= 4):
+            return ch
+        if (num(box[2], 0), num(box[3], 0)) == (width, height):
+            return ch
+        child = dict(ch)
+        child["box"] = [box[0], box[1], width, height]
+        return child
+
     def _draw_group(self, o) -> str:
-        body = "".join(self._draw(ch) for ch in self._children(o.get("children")))
+        children = self._children(o.get("children"))
         box = o.get("box")
+        layout = o.get("layout")
+        if (isinstance(layout, dict) and children
+                and isinstance(box, list) and len(box) >= 4):
+            # Renderer-arranged group: run the shared LayoutEngine exactly as
+            # the SVG proxy does, then translate each child from its authored
+            # origin to the arranged slot. Raw children previously all painted
+            # at the group origin — a 3x2 grid collapsed onto one tile.
+            from framegraph.rendering.domain.services.layout_engine import LayoutEngine
+
+            positions = LayoutEngine().arrange(num(box[2], 0), num(box[3], 0),
+                                               children, layout)
+            parts = []
+            for ch, (tx, ty, tw, th) in zip(children, positions):
+                child_body = self._draw(self._layout_child(ch, tw, th))
+                if not child_body:
+                    continue
+                cb = ch.get("box") if isinstance(ch, dict) else None
+                ox = num(cb[0], 0) if isinstance(cb, list) and len(cb) >= 2 else 0
+                oy = num(cb[1], 0) if isinstance(cb, list) and len(cb) >= 2 else 0
+                dx, dy = tx - ox, ty - oy
+                if dx or dy:
+                    child_body = (f"\\begin{{scope}}[shift={{({fnum(dx)},{fnum(dy)})}}]\n"
+                                  f"{child_body}\\end{{scope}}\n")
+                parts.append(child_body)
+            body = "".join(parts)
+        else:
+            body = "".join(self._draw(ch) for ch in children)
         if is_point(box[:2]) if isinstance(box, list) and len(box) >= 2 else False:
             dx, dy = num(box[0], 0), num(box[1], 0)
             if dx or dy:
@@ -1141,7 +1212,8 @@ class FigureTikz:
             if not isinstance(s, dict):
                 return None
             resolved = self._color.resolve(s.get("color"))
-            if not _parse_hex(resolved):       # transparent / non-hex: bail to solid
+            rgb = _parse_hex(resolved)
+            if not rgb or rgb[3] == 0:         # transparent / non-hex: bail to solid
                 return None
             expr, _op = color_expr(resolved)
             stops.append((_grad_pct(s.get("position"), i / (len(raw) - 1)), expr))
@@ -1772,9 +1844,9 @@ class FigureTikz:
             return " ".join(word[:1].upper() + word[1:] for word in text.split(" "))
         return text
 
-    def _text_node(self, st, anchor, width, align, x, y, content):
+    def _text_node(self, st, anchor, width, align, x, y, content, *, raw=False):
         opts = self._text_opts(st, anchor, width, align)
-        body = self._format_text(st, content)
+        body = content if raw else self._format_text(st, content)
         return f"\\node[{','.join(opts)}] at ({fnum(x)},{fnum(y)}) {{{body}}};\n"
 
     def _format_text(self, st, content):
@@ -1988,34 +2060,78 @@ class FigureTikz:
             return y + max(0, h - size / 2)
         return y + h / 2
 
-    def _draw_text_spans(self, o, x, y, w, h, base_st, anchor, align):
-        spans = [sp for sp in (o.get("spans") or []) if isinstance(sp, (str, dict))]
-        if not spans:
+    def _span_run_tex(self, base_st, sp):
+        """One span run → escaped text wrapped in inline TeX switches for the
+        style DELTA against the base style (weight, italic, family, size,
+        colour). Grouped as {<switches>{<text>}} so no switch leaks and no
+        stray token space is typeset."""
+        text = sp if isinstance(sp, str) else sp.get("text", "")
+        if text is None or text == "":
             return ""
-        start_x = x + w / 2 if anchor == "center" else x + w if anchor == "east" else x
-        cursor = start_x
-        ay = self._text_y(base_st, y, h)
-        out = []
-        for sp in spans:
-            text = sp if isinstance(sp, str) else sp.get("text", "")
+        st = None
+        if isinstance(sp, dict) and sp.get("style"):
+            st = self._css_text_style(self._ts.resolve(sp.get("style")))
+        # Content-level treatment (transform/tabs/white-space/decoration/…)
+        # runs per run with the run's own style; escaping happens inside.
+        seg = self._format_text(st if isinstance(st, dict) else base_st,
+                                str(text))
+        if not isinstance(st, dict):
+            return "{" + seg + "}"
+        cmds = []
+        fam = st.get("family_primary") or st.get("family")
+        base_fam = base_st.get("family_primary") or base_st.get("family")
+        if fam and fam != base_fam and self._font_macro:
+            macro = self._font_macro(fam)
+            if macro:
+                cmds.append(macro)
+        size = st.get("size")
+        base_size = base_st.get("size", 12) or 12
+        if size and abs(num(size, 12) - num(base_size, 12)) > 0.05:
+            cmds.append(f"\\fontsize{{{fnum(size)}}}"
+                        f"{{{fnum(num(size, 12) * 1.12)}}}\\selectfont")
+        if st.get("bold") and not base_st.get("bold"):
+            cmds.append("\\bfseries")
+        if st.get("italic") and not base_st.get("italic"):
+            cmds.append("\\itshape")
+        color = st.get("color")
+        if color and color != base_st.get("color"):
+            cexpr, _op = color_expr(color)
+            if cexpr:
+                # color_expr already wraps xcolor expressions in braces; \color
+                # needs the bare expression (double braces loop the tokenizer).
+                cname = cexpr[1:-1] if cexpr.startswith("{") else cexpr
+                cmds.append(f"\\color{{{cname}}}")
+        if not cmds:
+            return "{" + seg + "}"
+        return "{" + "".join(cmds) + "{" + seg + "}}"
+
+    def _draw_text_spans(self, o, x, y, w, h, base_st, anchor, align):
+        """Styled spans render as ONE TikZ node with inline font switches, so
+        TeX owns every run advance. (The previous per-run cursor placement
+        estimated widths as len(text)·size·0.52 and overprinted bold/mono
+        runs — found on the capability tour's PDF pixels.)"""
+        spans = [sp for sp in (o.get("spans") or []) if isinstance(sp, (str, dict))]
+        if len(spans) == 1 and isinstance(spans[0], dict):
+            # A single styled run: the run's style drives the whole node, so
+            # node-level features (text opacity, writing-mode rotation, text
+            # shadows, decorations) keep full fidelity.
+            sp = spans[0]
+            text = sp.get("text", "")
             if text is None or text == "":
-                continue
-            st = self._ts.resolve(sp.get("style")) if isinstance(sp, dict) and sp.get("style") else base_st
-            st = self._css_text_style(st)
-            run_w = max(len(str(text)) * (st.get("size", 12) or 12) * (st.get("avg", 0.52) or 0.52), 1)
-            if anchor == "center":
-                # Multi-run centered text is placed from the left edge so run order
-                # remains readable; exact centering requires real shaping metrics.
-                node_x = x + (cursor - start_x)
-            elif anchor == "east":
-                node_x = cursor - run_w
-                cursor -= run_w
-            else:
-                node_x = cursor
-                cursor += run_w
-            out.append(self._text_shadow_nodes(st, "west", run_w, "flush left", node_x, ay, text))
-            out.append(self._text_node(st, "west", run_w, "flush left", node_x, ay, text))
-        return "".join(out)
+                return ""
+            st = (self._css_text_style(self._ts.resolve(sp.get("style")))
+                  if sp.get("style") else base_st)
+            ax = x + w / 2 if anchor == "center" else x + w if anchor == "east" else x
+            ay = self._text_y(st, y, h)
+            return (self._text_shadow_nodes(st, anchor, w, align, ax, ay, text)
+                    + self._text_node(st, anchor, w, align, ax, ay, text))
+        content = "".join(self._span_run_tex(base_st, sp) for sp in spans)
+        if not content:
+            return ""
+        ax = x + w / 2 if anchor == "center" else x + w if anchor == "east" else x
+        ay = self._text_y(base_st, y, h)
+        return self._text_node(base_st, anchor, w, align, ax, ay, content,
+                               raw=True)
 
     def _draw_text(self, o) -> str:
         box = o.get("box")
@@ -2065,13 +2181,18 @@ class FigureTikz:
         x, y, w, _h = (num(v, 0) for v in box[:4])
         st = self._ts.resolve(o.get("style"))
         size = st.get("size", 12) or 12
-        gap = num(o.get("gap"), size * 1.35) or size * 1.35
-        indent = num(o.get("indent"), size * 1.2) or size * 1.2
+        # Proxy semantics (application/renderer.py): `gap` is the inter-item
+        # pitch, floored at the line height so a small authored gap can never
+        # collapse items onto one line.
+        line_h = size * 1.2
+        gap = num(o.get("gap"), size * 1.5) or size * 1.5
+        stride = max(gap, line_h)
+        indent = num(o.get("indent"), size * 1.1) or size * 1.1
         marker = o.get("marker") or "*"
         out = []
         for idx, item in enumerate(o.get("items") or []):
             text = item.get("text") if isinstance(item, dict) else item
-            yy = y + size + idx * gap
+            yy = y + size + idx * stride
             out.append(
                 f"\\node[anchor=west,inner sep=0pt,font=\\fontsize{{{fnum(size)}}}{{{fnum(size * 1.2)}}}\\selectfont] "
                 f"at ({fnum(x)},{fnum(yy)}) {{{ltx_escape(marker)}}};\n"
@@ -2212,6 +2333,26 @@ class FigureTikz:
                     return num(value[key][0], 0), num(value[key][1], 0)
             if all(k in value for k in ("x", "y")):
                 return num(value.get("x"), 0), num(value.get("y"), 0)
+            # `ref` is the canonical model key; `object` is the authoring alias.
+            ref = value.get("ref") or value.get("object")
+            if isinstance(ref, str):
+                target = self._page_ids.get(ref)
+                if isinstance(target, dict):
+                    ports = target.get("ports") or {}
+                    port = value.get("port")
+                    if port and is_point(ports.get(port)):
+                        p = ports[port]
+                        return num(p[0], 0), num(p[1], 0)
+                    box = target.get("box")
+                    if isinstance(box, list) and len(box) >= 4:
+                        bx, by, bw, bh = (num(v, 0) for v in box[:4])
+                        side = str(value.get("side") or "").strip().lower()
+                        return {
+                            "west": (bx, by + bh / 2),
+                            "east": (bx + bw, by + bh / 2),
+                            "north": (bx + bw / 2, by),
+                            "south": (bx + bw / 2, by + bh),
+                        }.get(side, (bx + bw / 2, by + bh / 2))
         return None
 
     def _draw_connector(self, o) -> str:
@@ -2221,14 +2362,27 @@ class FigureTikz:
         opts = self._stroke_opts(o, default_color="#000000") or ["draw={rgb,255:red,0;green,0;blue,0}", "line width=1pt"]
         if not any(opt in ("->", "<-", "<->") for opt in opts):
             opts.insert(0, "->")
-        route = o.get("route") if isinstance(o.get("route"), list) else []
+        route = o.get("route")
+        if isinstance(route, dict):                # typed model: {type, points}
+            route = route.get("points") or []
+        elif not isinstance(route, list):
+            route = []
         pts = [fr] + [self._anchor_point(p) for p in route] + [to]
         pts = [p for p in pts if p]
         chain = " -- ".join(f"({fnum(x)},{fnum(y)})" for x, y in pts)
         out = [f"\\draw[{','.join(opts)}] {chain};\n"]
-        if o.get("label"):
-            mid = pts[len(pts) // 2]
-            out.append(f"\\node[fill=white,inner sep=1pt,font=\\scriptsize] at ({fnum(mid[0])},{fnum(mid[1])}) {{{ltx_escape(o.get('label'))}}};\n")
+        label = o.get("label")
+        if label:
+            ltext = label.get("text") if isinstance(label, dict) else label
+            lbox = label.get("box") if isinstance(label, dict) else None
+            if isinstance(lbox, list) and len(lbox) >= 4:
+                lx = num(lbox[0], 0) + num(lbox[2], 0) / 2
+                ly = num(lbox[1], 0) + num(lbox[3], 0) / 2
+            else:
+                lx, ly = pts[len(pts) // 2]
+            if ltext:
+                out.append(f"\\node[fill=white,inner sep=1pt,font=\\scriptsize] "
+                           f"at ({fnum(lx)},{fnum(ly)}) {{{ltx_escape(str(ltext))}}};\n")
         return "".join(out)
 
     def _draw_legend(self, o) -> str:

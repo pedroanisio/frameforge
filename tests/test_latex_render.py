@@ -372,8 +372,12 @@ def test_transpile_page_mode_text_spans_keep_run_styles():
 
     assert r"\IfFontExistsTF{Source Serif 4}{\newfontfamily\fgffa{Source Serif 4}}{\newcommand\fgffa{}}" in tex
     assert r"\IfFontExistsTF{Inter}{\newfontfamily\fgffb{Inter}}{\newcommand\fgffb{}}" in tex
-    assert r"font=\fgffb\fontsize{13}{14.56}\selectfont\bfseries" in tex
-    assert r"font=\fgffa\fontsize{16}{17.92}\selectfont\itshape" in tex
+    # Runs render inside ONE node (the per-run cursor placement overprinted
+    # bold/mono runs): differing run styles become inline switches; run styles
+    # equal to the base collapse to the node-level font.
+    assert r"\fgffb\fontsize{13}{14.56}\selectfont\bfseries" in tex
+    assert r"font=\fgffa\fontsize{16}{17.92}\selectfont" in tex
+    assert r"\itshape" in tex
     assert "{Label }" in tex
     assert "{styled value}" in tex
 

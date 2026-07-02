@@ -123,8 +123,11 @@ def test_hundred_faces_map_to_distinct_latex_font_families():
     # one guarded \newfontfamily per declared face: no cap, no collision.
     assert tex.count(r"\newfontfamily") == 100
     assert tex.count(r"\IfFontExistsTF") == 100
-    # each face is actually *selected* by its paragraph, not just declared.
-    selections = set(re.findall("\\\\fgff[a-z]+\\\\fontsize", tex))
+    # each face is actually *selected* by its text, not just declared. Faces
+    # appear either at node level (font=\fgffX\fontsize…, single-run texts)
+    # or as inline switches ({\fgffX{…}}, multi-run texts render as ONE node
+    # since the per-run cursor placement was fixed — it overprinted runs).
+    selections = set(re.findall(r"(?:font=|\{)\\fgff[a-z]+", tex))
     assert len(selections) >= 100, f"only {len(selections)} faces selected in LaTeX"
     # the declaration degrades gracefully on hosts missing a face (still compiles).
     assert r"{\newcommand\fgffa{}}" in tex
