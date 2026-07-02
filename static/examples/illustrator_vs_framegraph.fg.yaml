@@ -100,6 +100,12 @@ defs:
         - Fira Mono
         - monospace
         font_size: 8.5
+      cite:
+        color: sub
+        font_family:
+        - Fira Mono
+        - monospace
+        font_size: 8.5
       covlbl:
         color: fg
         font_family:
@@ -252,7 +258,7 @@ pages:
       - 12
       style: nmeta
       type: text
-      text: ADOBE ILLUSTRATOR 2025   vs   FRAMEGRAPH v2 · 2.3.0
+      text: ADOBE ILLUSTRATOR 2024 · 2025 · BMG106   vs   FRAMEGRAPH v2.3.0
     - box:
       - 56
       - 250
@@ -291,8 +297,9 @@ pages:
       - 80
       style: nsub
       type: text
-      text: An interactive vector editor, torn down feature by feature against a declarative
-        document format. 44 capabilities, one verdict each.
+      text: An interactive vector editor, mapped feature by feature against a declarative
+        document format. 51 capabilities, one verdict each — a feature-surface comparison,
+        not a maturity benchmark.
     - box:
       - 56
       - 610
@@ -519,186 +526,188 @@ pages:
       - 56
       - 154
       - 682
-      - 68
+      - 82
       style: lead
       type: text
-      text: Illustrator's surface was enumerated from its own manual and reduced to
-        44 discrete capabilities. Each was checked against FrameGraph's generated
-        capability manifest and SDK. The bar below is the raw tally — no weighting,
-        no spin.
+      text: 'Illustrator''s surface was enumerated from three manuals — the 2024 User''s
+        Guide, the 2025 book, and BMG 106 (257 pp) — and reduced to 51 discrete capabilities,
+        each checked against FrameGraph''s capability manifest. Evidence cites SRC·ORDINAL
+        (24 / 25 / 26 = the source book). This is a feature-surface comparison, not
+        a maturity benchmark: FrameGraph is a PROPOSED format with no conformant renderer
+        (full rubric on p.03).'
     - box:
       - 56
-      - 238
+      - 250
       - 682
       - 10
       style: colhd
       type: text
-      text: COVERAGE ACROSS 44 FEATURES
+      text: COVERAGE ACROSS 51 FEATURES
     - box:
       - 56
-      - 256
-      - 325.5
+      - 268
+      - 187.2156862745098
       - 34
       type: rect
       fill: fg
     - box:
       - 62
-      - 267
-      - 317.5
+      - 279
+      - 179.2156862745098
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '21'
+      text: '14'
     - box:
-      - 381.5
-      - 256
-      - 170.5
+      - 243.2156862745098
+      - 268
+      - 227.33333333333334
       - 34
       type: rect
       fill: part
     - box:
-      - 387.5
-      - 267
-      - 162.5
+      - 249.2156862745098
+      - 279
+      - 219.33333333333334
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '11'
+      text: '17'
     - box:
-      - 552.0
-      - 256
-      - 31.0
+      - 470.54901960784315
+      - 268
+      - 53.490196078431374
       - 34
       type: rect
       fill: invert
     - box:
-      - 558.0
-      - 267
-      - 23.0
+      - 476.54901960784315
+      - 279
+      - 45.490196078431374
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '2'
+      text: '4'
     - box:
-      - 583.0
-      - 256
-      - 155.0
+      - 524.0392156862745
+      - 268
+      - 213.9607843137255
       - 34
       type: rect
       fill: none
     - box:
-      - 589.0
-      - 267
-      - 147.0
+      - 530.0392156862745
+      - 279
+      - 205.9607843137255
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '10'
+      text: '16'
     - box:
       - 56
-      - 304
+      - 316
       - 12
       - 12
       type: rect
       fill: fg
     - box:
       - 74
-      - 304
+      - 316
       - 120
       - 12
       style:
         class: folio
         align: start
       type: text
-      text: HAS · 21
+      text: HAS · 14
     - box:
       - 206
-      - 304
+      - 316
       - 12
       - 12
       type: rect
       fill: part
     - box:
       - 224
-      - 304
+      - 316
       - 120
       - 12
       style:
         class: folio
         align: start
       type: text
-      text: PARTIAL · 11
+      text: PARTIAL · 17
     - box:
       - 356
-      - 304
+      - 316
       - 12
       - 12
       type: rect
       fill: invert
     - box:
       - 374
-      - 304
+      - 316
       - 120
       - 12
       style:
         class: folio
         align: start
       type: text
-      text: REFRAMED · 2
+      text: REFRAMED · 4
     - box:
       - 506
-      - 304
+      - 316
       - 12
       - 12
       type: rect
       fill: none
     - box:
       - 524
-      - 304
+      - 316
       - 120
       - 12
       style:
         class: folio
         align: start
       type: text
-      text: NONE · 10
+      text: NONE · 16
     - box:
       - 56.0
-      - 350
+      - 362
       - 160.0
       - 78
       type: rect
       fill: band
     - box:
       - 56.0
-      - 350
+      - 362
       - 160.0
       - 3
       type: rect
       fill: fg
     - box:
       - 56.0
-      - 370
+      - 382
       - 160.0
       - 30
       style: big
       type: text
-      text: '44'
+      text: '51'
     - box:
       - 56.0
-      - 408
+      - 420
       - 160.0
       - 10
       style: biglbl
@@ -706,29 +715,29 @@ pages:
       text: FEATURES TORN DOWN
     - box:
       - 230.0
-      - 350
+      - 362
       - 160.0
       - 78
       type: rect
       fill: band
     - box:
       - 230.0
-      - 350
+      - 362
       - 160.0
       - 3
       type: rect
       fill: fg
     - box:
       - 230.0
-      - 370
+      - 382
       - 160.0
       - 30
       style: big
       type: text
-      text: 48%
+      text: 27%
     - box:
       - 230.0
-      - 408
+      - 420
       - 160.0
       - 10
       style: biglbl
@@ -736,29 +745,29 @@ pages:
       text: FULL EQUIVALENT
     - box:
       - 404.0
-      - 350
+      - 362
       - 160.0
       - 78
       type: rect
       fill: band
     - box:
       - 404.0
-      - 350
+      - 362
       - 160.0
       - 3
       type: rect
       fill: fg
     - box:
       - 404.0
-      - 370
+      - 382
       - 160.0
       - 30
       style: big
       type: text
-      text: 73%
+      text: 61%
     - box:
       - 404.0
-      - 408
+      - 420
       - 160.0
       - 10
       style: biglbl
@@ -766,29 +775,29 @@ pages:
       text: FULL OR PARTIAL
     - box:
       - 578.0
-      - 350
+      - 362
       - 160.0
       - 78
       type: rect
       fill: band
     - box:
       - 578.0
-      - 350
+      - 362
       - 160.0
       - 3
       type: rect
       fill: fg
     - box:
       - 578.0
-      - 370
+      - 382
       - 160.0
       - 30
       style: big
       type: text
-      text: '10'
+      text: '16'
     - box:
       - 578.0
-      - 408
+      - 420
       - 160.0
       - 10
       style: biglbl
@@ -796,7 +805,20 @@ pages:
       text: GENUINE GAPS
     - box:
       - 56
-      - 460
+      - 452
+      - 682
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: 27% = 14/51 full   ·   61% = (14+17)/51 full-or-partial (REFRAMED & NONE
+        excluded)   ·   16 NONE = 10 architectural + 6 declared non-goals   ·   score
+        math & audit identity → p.03
+    - box:
+      - 56
+      - 484
       - 682
       - 10
       style: colhd
@@ -804,14 +826,14 @@ pages:
       text: READING A ROW
     - box:
       - 56
-      - 476
+      - 500
       - 682
       - 1
       type: rect
       fill: hair
     - box:
       - 56
-      - 488
+      - 512
       - 90
       - 12
       style: gid
@@ -819,7 +841,7 @@ pages:
       text: AI-nn
     - box:
       - 166
-      - 488
+      - 512
       - 572
       - 12
       style: legdesc
@@ -827,7 +849,7 @@ pages:
       text: monospace feature id (chapter-ordered)
     - box:
       - 56
-      - 510
+      - 534
       - 90
       - 12
       style: feat
@@ -835,7 +857,7 @@ pages:
       text: Feature
     - box:
       - 166
-      - 510
+      - 534
       - 572
       - 12
       style: legdesc
@@ -843,23 +865,23 @@ pages:
       text: the Illustrator capability, named
     - box:
       - 56
-      - 532
+      - 556
       - 90
       - 12
       style: ord
       type: text
-      text: '[1234]'
+      text: '[26·405]'
     - box:
       - 166
-      - 532
+      - 556
       - 572
       - 12
       style: legdesc
       type: text
-      text: source sentence ordinal — round-trips to the book
+      text: source book (24 / 25 / 26) · sentence ordinal — round-trips
     - box:
       - 56
-      - 554
+      - 578
       - 90
       - 12
       style: covlbl
@@ -867,7 +889,7 @@ pages:
       text: ● HAS
     - box:
       - 166
-      - 554
+      - 578
       - 572
       - 12
       style: legdesc
@@ -875,7 +897,7 @@ pages:
       text: FrameGraph verdict glyph + label
     - box:
       - 56
-      - 576
+      - 600
       - 90
       - 12
       style: fgev
@@ -883,7 +905,7 @@ pages:
       text: evidence
     - box:
       - 166
-      - 576
+      - 600
       - 572
       - 12
       style: legdesc
@@ -891,7 +913,7 @@ pages:
       text: the FrameGraph capability that backs the verdict
     - box:
       - 56
-      - 620
+      - 644
       - 682
       - 120
       type: rect
@@ -899,18 +921,18 @@ pages:
     - type: polyline
       points:
       - - 78.0
-        - 636.0
+        - 660.0
       - - 86.0
-        - 644.0
+        - 668.0
       - - 78.0
-        - 652.0
+        - 676.0
       - - 70.0
-        - 644.0
+        - 668.0
       closed: true
       fill: invert
     - box:
       - 100
-      - 638
+      - 662
       - 622
       - 12
       style: grouphd
@@ -918,7 +940,7 @@ pages:
       text: WHAT “REFRAMED” MEANS
     - box:
       - 100
-      - 660
+      - 684
       - 594
       - 30
       style: legdesc
@@ -928,7 +950,7 @@ pages:
         it is the same end down the opposite (declarative) road.
     - box:
       - 100
-      - 704
+      - 728
       - 594
       - 12
       style:
@@ -940,7 +962,7 @@ pages:
         NAMES it by id.
     - box:
       - 100
-      - 720
+      - 744
       - 594
       - 12
       style:
@@ -950,6 +972,630 @@ pages:
       type: text
       text: AI-40  Illustrator TRACES a raster from a menu   →   FrameGraph calls
         the vectorize_image tool.
+- mode: page
+  id: rubric
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: bg
+  - id: main
+    objects:
+    - box:
+      - 56
+      - 34
+      - 300
+      - 11
+      style: run
+      type: text
+      text: CAPABILITY TEARDOWN
+    - box:
+      - 418
+      - 34
+      - 320
+      - 11
+      style: runR
+      type: text
+      text: RUBRIC · SOURCES · IDENTITY
+    - box:
+      - 56
+      - 50
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 1069
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 0
+      - 1079
+      - 794
+      - 12
+      style: folio
+      type: text
+      text: '03'
+    - box:
+      - 56
+      - 74
+      - 682
+      - 12
+      style: kick
+      type: text
+      text: // how a verdict is decided
+    - box:
+      - 56
+      - 92
+      - 682
+      - 40
+      style: h2
+      type: text
+      text: Rubric, sources & audit identity
+    - box:
+      - 56
+      - 130
+      - 44
+      - 3
+      type: rect
+      fill: fg
+    - box:
+      - 56
+      - 154
+      - 682
+      - 10
+      style: colhd
+      type: text
+      text: VERDICT RUBRIC — THE THRESHOLD FOR EACH LABEL
+    - box:
+      - 56
+      - 170
+      - 682
+      - 1
+      type: rect
+      fill: ink
+    - type: ellipse
+      center:
+      - 66.0
+      - 190.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 86
+      - 180
+      - 90
+      - 12
+      style:
+        class: legname
+        color: fg
+      type: text
+      text: HAS
+    - box:
+      - 186
+      - 179
+      - 552
+      - 30
+      style: legdesc
+      type: text
+      text: 'A direct FUNCTIONAL equivalent: the same user outcome is expressible,
+        even if authored declaratively.'
+    - type: ellipse
+      center:
+      - 66.0
+      - 230.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 66
+      - 222
+      - 9
+      - 16
+      type: rect
+      fill: bg
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 66.0
+      - 230.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
+      - 86
+      - 220
+      - 90
+      - 12
+      style:
+        class: legname
+        color: part
+      type: text
+      text: PARTIAL
+    - box:
+      - 186
+      - 219
+      - 552
+      - 30
+      style: legdesc
+      type: text
+      text: 'Narrower or different: missing interactivity, missing output fidelity,
+        or a workflow-only (not functional) match.'
+    - type: polyline
+      points:
+      - - 66.0
+        - 262.0
+      - - 74.0
+        - 270.0
+      - - 66.0
+        - 278.0
+      - - 58.0
+        - 270.0
+      closed: true
+      fill: invert
+    - box:
+      - 86
+      - 260
+      - 90
+      - 12
+      style:
+        class: legname
+        color: invert
+      type: text
+      text: REFRAMED
+    - box:
+      - 186
+      - 259
+      - 552
+      - 30
+      style: legdesc
+      type: text
+      text: Exists in both, but reached by NAMING / a tool call / an author→render
+        loop — not a cursor. Not a gap; a different road.
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 66.0
+      - 310.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: none
+    - box:
+      - 86
+      - 300
+      - 90
+      - 12
+      style:
+        class: legname
+        color: none
+      type: text
+      text: NONE
+    - box:
+      - 186
+      - 299
+      - 552
+      - 30
+      style: legdesc
+      type: text
+      text: 'No equivalent. Tagged by gap_type: non_goal (scope choice) · arch (declarative
+        model precludes it) · maturity (plausible, unbuilt).'
+    - box:
+      - 56
+      - 344
+      - 331.0
+      - 10
+      style: colhd
+      type: text
+      text: CONFIDENCE (SHOWN ON M / L ROWS)
+    - box:
+      - 407.0
+      - 344
+      - 331.0
+      - 10
+      style: colhd
+      type: text
+      text: EQUIVALENCE DIMENSION
+    - box:
+      - 56
+      - 358
+      - 331.0
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 407.0
+      - 358
+      - 331.0
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 368
+      - 24
+      - 12
+      style:
+        class: gid
+        color: ai
+      type: text
+      text: H
+    - box:
+      - 80
+      - 368
+      - 307.0
+      - 12
+      style: legdesc
+      type: text
+      text: high — direct, well-evidenced
+    - box:
+      - 56
+      - 386
+      - 24
+      - 12
+      style:
+        class: gid
+        color: ai
+      type: text
+      text: M
+    - box:
+      - 80
+      - 386
+      - 307.0
+      - 12
+      style: legdesc
+      type: text
+      text: medium — interpretive mapping
+    - box:
+      - 56
+      - 404
+      - 24
+      - 12
+      style:
+        class: gid
+        color: ai
+      type: text
+      text: L
+    - box:
+      - 80
+      - 404
+      - 307.0
+      - 12
+      style: legdesc
+      type: text
+      text: low — loose equivalence, flagged for review
+    - box:
+      - 407.0
+      - 368
+      - 24
+      - 12
+      style:
+        class: gid
+        color: fg
+      type: text
+      text: F
+    - box:
+      - 431.0
+      - 368
+      - 287.0
+      - 12
+      style: legdesc
+      type: text
+      text: functional — same user outcome
+    - box:
+      - 407.0
+      - 386
+      - 24
+      - 12
+      style:
+        class: gid
+        color: fg
+      type: text
+      text: W
+    - box:
+      - 431.0
+      - 386
+      - 287.0
+      - 12
+      style: legdesc
+      type: text
+      text: workflow — same task, different steps
+    - box:
+      - 407.0
+      - 404
+      - 24
+      - 12
+      style:
+        class: gid
+        color: fg
+      type: text
+      text: D
+    - box:
+      - 431.0
+      - 404
+      - 287.0
+      - 12
+      style: legdesc
+      type: text
+      text: data-model — structural analogue only
+    - box:
+      - 56
+      - 434
+      - 682
+      - 10
+      style: colhd
+      type: text
+      text: SCORE MATH (NO WEIGHTING)
+    - box:
+      - 56
+      - 448
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 458
+      - 180
+      - 12
+      style: legname
+      type: text
+      text: Full equivalent
+    - box:
+      - 246
+      - 458
+      - 492
+      - 12
+      style:
+        class: cite
+        color: sub
+      type: text
+      text: has/total = 14/51
+    - box:
+      - 56
+      - 476
+      - 180
+      - 12
+      style: legname
+      type: text
+      text: Full or partial
+    - box:
+      - 246
+      - 476
+      - 492
+      - 12
+      style:
+        class: cite
+        color: sub
+      type: text
+      text: (has+part)/total = 31/51  (REFRAMED & NONE excluded)
+    - box:
+      - 56
+      - 494
+      - 180
+      - 12
+      style: legname
+      type: text
+      text: Reachable by any route
+    - box:
+      - 246
+      - 494
+      - 492
+      - 12
+      style:
+        class: cite
+        color: sub
+      type: text
+      text: (has+part+reframed)/total = 35/51  (REFRAMED counted as reachable)
+    - box:
+      - 56
+      - 526
+      - 331.0
+      - 10
+      style: colhd
+      type: text
+      text: SOURCES (doc-ray corpus · GraphQL)
+    - box:
+      - 407.0
+      - 526
+      - 331.0
+      - 10
+      style: colhd
+      type: text
+      text: AUDIT IDENTITY
+    - box:
+      - 56
+      - 540
+      - 331.0
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 407.0
+      - 540
+      - 331.0
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 550
+      - 331.0
+      - 40
+      style: legdesc
+      type: text
+      text: '[24] Adobe Illustrator 2024 User''s Guide — 231 pp, 2,283 sentences.'
+    - box:
+      - 56
+      - 586
+      - 331.0
+      - 40
+      style: legdesc
+      type: text
+      text: '[25] Master Adobe Illustrator 2025 — Dana J. Bailey, 159 pp. [26] BMG
+        106: Computer Graphics II — Adobe Illustrator, Y.C.M.O.U., 257 pp, 3,340 sentences.'
+    - box:
+      - 56
+      - 622
+      - 331.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: Each [SRC·ORDINAL] round-trips via searchSentences().
+    - box:
+      - 407.0
+      - 550
+      - 120
+      - 12
+      style: legdesc
+      type: text
+      text: FrameGraph
+    - box:
+      - 517.0
+      - 550
+      - 201.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: sub
+      type: text
+      text: v2.3.0
+    - box:
+      - 407.0
+      - 568
+      - 120
+      - 12
+      style: legdesc
+      type: text
+      text: Manifest
+    - box:
+      - 517.0
+      - 568
+      - 201.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: sub
+      type: text
+      text: docs/capability-manifest.json
+    - box:
+      - 407.0
+      - 586
+      - 120
+      - 12
+      style: legdesc
+      type: text
+      text: Capabilities
+    - box:
+      - 517.0
+      - 586
+      - 201.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: sub
+      type: text
+      text: '278'
+    - box:
+      - 407.0
+      - 604
+      - 120
+      - 12
+      style: legdesc
+      type: text
+      text: Manifest sha256
+    - box:
+      - 517.0
+      - 604
+      - 201.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: sub
+      type: text
+      text: 51b966f9c609ff1e913885ff…
+    - box:
+      - 407.0
+      - 622
+      - 120
+      - 12
+      style: legdesc
+      type: text
+      text: Full audit
+    - box:
+      - 517.0
+      - 622
+      - 201.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: sub
+      type: text
+      text: illustrator_vs_framegraph.audit.json
+    - box:
+      - 407.0
+      - 640
+      - 120
+      - 12
+      style: legdesc
+      type: text
+      text: Gate
+    - box:
+      - 517.0
+      - 640
+      - 201.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: sub
+      type: text
+      text: tests/test_capability_manifest.py
+    - box:
+      - 56
+      - 676
+      - 682
+      - 40
+      type: rect
+      fill: band
+    - box:
+      - 72
+      - 691
+      - 650
+      - 24
+      style:
+        class: cite
+        color: sub
+      type: text
+      text: Adobe and Adobe Illustrator are trademarks of Adobe Inc. This is an independent
+        comparison, not affiliated with or endorsed by Adobe; source manuals are cited
+        for factual feature claims only.
 - mode: page
   id: matrix-1
   canvas:
@@ -1008,7 +1654,7 @@ pages:
       - 12
       style: folio
       type: text
-      text: '03'
+      text: '04'
     - box:
       - 56
       - 74
@@ -1062,7 +1708,7 @@ pages:
       - 10
       style: colhd
       type: text
-      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [ORDINAL]
+      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [SRC·ORDINAL]
     - box:
       - 420
       - 176
@@ -1074,7 +1720,7 @@ pages:
     - box:
       - 504
       - 176
-      - 290
+      - 234
       - 10
       style: colhd
       type: text
@@ -1117,7 +1763,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[64]'
+      text: '[25·64]'
     - type: polyline
       points:
       - - 436.0
@@ -1133,17 +1779,17 @@ pages:
     - box:
       - 448
       - 230
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
         color: invert
       type: text
-      text: REFRAMED
+      text: REFRAMED ·H
     - box:
       - 504
       - 204
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
@@ -1186,7 +1832,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Direct Selection edits specific anchor points & paths in an object.
+      text: Direct Selection edits specific anchor points & paths.
     - box:
       - 104
       - 304
@@ -1194,7 +1840,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[198]'
+      text: '[25·198]'
     - type: ellipse
       center:
       - 436.0
@@ -1222,17 +1868,17 @@ pages:
     - box:
       - 448
       - 292
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
         color: part
       type: text
-      text: PARTIAL
+      text: PARTIAL ·M
     - box:
       - 504
       - 266
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
@@ -1275,7 +1921,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[281]'
+      text: '[25·281]'
     - type: ellipse
       center:
       - 436.0
@@ -1284,23 +1930,40 @@ pages:
       ry: 8.0
       fill: fg
     - box:
+      - 436
+      - 332
+      - 9
+      - 16
+      type: rect
+      fill: bg
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 340.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
       - 448
       - 354
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: part
       type: text
-      text: HAS
+      text: PARTIAL ·M
     - box:
       - 504
       - 328
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: nested group + per-page layer scoping.
+      text: structural nesting (group + layers) — no in-place isolated edit.
     - box:
       - 56
       - 382
@@ -1330,7 +1993,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Compound paths
+      text: Compound paths / Pathfinder
     - box:
       - 104
       - 404
@@ -1338,7 +2001,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Combine paths so one cuts a hole in another.
+      text: Combine paths (Pathfinder) so one cuts a hole in another.
     - box:
       - 104
       - 428
@@ -1346,7 +2009,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[296]'
+      text: '[24·1488]'
     - type: ellipse
       center:
       - 436.0
@@ -1355,23 +2018,40 @@ pages:
       ry: 8.0
       fill: fg
     - box:
+      - 436
+      - 394
+      - 9
+      - 16
+      type: rect
+      fill: band
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 402.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
       - 448
       - 416
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: part
       type: text
-      text: HAS
+      text: PARTIAL ·M
     - box:
       - 504
       - 390
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: path fill_rule even-odd; polygon holes.
+      text: path fill_rule even-odd + holes; no live Pathfinder ops.
     - box:
       - 56
       - 444
@@ -1402,7 +2082,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Drag across shapes to merge/subtract them interactively.
+      text: Drag across shapes to merge / subtract them interactively.
     - box:
       - 104
       - 490
@@ -1410,7 +2090,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[59]'
+      text: '[24·523]'
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -1424,17 +2104,28 @@ pages:
     - box:
       - 448
       - 478
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
         color: none
       type: text
-      text: NONE
+      text: NONE ·H
+    - box:
+      - 448
+      - 490
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: architectural
     - box:
       - 504
       - 452
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
@@ -1484,7 +2175,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[365][381]'
+      text: '[25·365]'
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -1498,17 +2189,28 @@ pages:
     - box:
       - 448
       - 540
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
         color: none
       type: text
-      text: NONE
+      text: NONE ·H
+    - box:
+      - 448
+      - 552
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: architectural
     - box:
       - 504
       - 514
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
@@ -1522,425 +2224,163 @@ pages:
       fill: hair
     - box:
       - 56
-      - 592
-      - 682
-      - 12
-      style: grouphd
-      type: text
-      text: B · DRAW & PRIMITIVES
-    - box:
-      - 56
-      - 608
-      - 682
-      - 1
-      type: rect
-      fill: ink
-    - box:
-      - 56
-      - 614
-      - 44
-      - 10
-      style: colhd
-      type: text
-      text: ID
-    - box:
-      - 104
-      - 614
-      - 300
-      - 10
-      style: colhd
-      type: text
-      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [ORDINAL]
-    - box:
-      - 420
-      - 614
-      - 60
-      - 10
-      style: colhd
-      type: text
-      text: FG
-    - box:
-      - 504
-      - 614
-      - 290
-      - 10
-      style: colhd
-      type: text
-      text: FRAMEGRAPH COVERAGE
-    - box:
-      - 56
-      - 630
-      - 682
-      - 1.4
-      type: rect
-      fill: ink
-    - box:
-      - 56
-      - 640
+      - 574
       - 44
       - 10
       style: gid
       type: text
-      text: AI-07
+      text: AI-47
     - box:
       - 104
-      - 639
+      - 573
       - 300
       - 14
       style: feat
       type: text
-      text: Shape primitives
+      text: Offset path
     - box:
       - 104
-      - 656
+      - 590
       - 300
       - 32
       style: aiev
       type: text
-      text: Rectangle, Ellipse, Polygon, Star, Line, Arc tools.
+      text: Object > Path > Offset expands a path outward / inward.
     - box:
       - 104
-      - 680
+      - 614
       - 300
       - 10
       style: ord
       type: text
-      text: '[47][211]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 654.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 448
-      - 668
-      - 86
-      - 10
-      style:
-        class: covlbl
-        color: fg
-      type: text
-      text: HAS
-    - box:
-      - 504
-      - 642
-      - 290
-      - 44
-      style: fgev
-      type: text
-      text: rect, ellipse, circle, polygon, line, polyline (17 object_types).
-    - box:
-      - 56
-      - 696
-      - 682
-      - 0.6
-      type: rect
-      fill: hair
-    - box:
-      - 50
-      - 696
-      - 694
-      - 62
-      type: rect
-      fill: band
-    - box:
-      - 56
-      - 702
-      - 44
-      - 10
-      style: gid
-      type: text
-      text: AI-08
-    - box:
-      - 104
-      - 701
-      - 300
-      - 14
-      style: feat
-      type: text
-      text: Pen tool (Bézier)
-    - box:
-      - 104
-      - 718
-      - 300
-      - 32
-      style: aiev
-      type: text
-      text: Draw free-form Bézier paths by hand, point by point.
-    - box:
-      - 104
-      - 742
-      - 300
-      - 10
-      style: ord
-      type: text
-      text: '[95]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 716.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 708
-      - 9
-      - 16
-      type: rect
-      fill: band
+      text: '[26·3298]'
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
       center:
       - 436.0
-      - 716.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
-    - box:
-      - 448
-      - 730
-      - 86
-      - 10
-      style:
-        class: covlbl
-        color: part
-      type: text
-      text: PARTIAL
-    - box:
-      - 504
-      - 704
-      - 290
-      - 44
-      style: fgev
-      type: text
-      text: bezier / curve objects, authored by coordinate not by hand.
-    - box:
-      - 56
-      - 758
-      - 682
-      - 0.6
-      type: rect
-      fill: hair
-    - box:
-      - 56
-      - 764
-      - 44
-      - 10
-      style: gid
-      type: text
-      text: AI-09
-    - box:
-      - 104
-      - 763
-      - 300
-      - 14
-      style: feat
-      type: text
-      text: Curvature tool
-    - box:
-      - 104
-      - 780
-      - 300
-      - 32
-      style: aiev
-      type: text
-      text: Rubber-band free-form curves as you click & release.
-    - box:
-      - 104
-      - 804
-      - 300
-      - 10
-      style: ord
-      type: text
-      text: '[696]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 778.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 770
-      - 9
-      - 16
-      type: rect
-      fill: bg
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 778.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
-    - box:
-      - 448
-      - 792
-      - 86
-      - 10
-      style:
-        class: covlbl
-        color: part
-      type: text
-      text: PARTIAL
-    - box:
-      - 504
-      - 766
-      - 290
-      - 44
-      style: fgev
-      type: text
-      text: curve object + smooth polyline; no live rubber-band.
-    - box:
-      - 56
-      - 820
-      - 682
-      - 0.6
-      type: rect
-      fill: hair
-    - box:
-      - 50
-      - 820
-      - 694
-      - 62
-      type: rect
-      fill: band
-    - box:
-      - 56
-      - 826
-      - 44
-      - 10
-      style: gid
-      type: text
-      text: AI-10
-    - box:
-      - 104
-      - 825
-      - 300
-      - 14
-      style: feat
-      type: text
-      text: Pencil / freehand
-    - box:
-      - 104
-      - 842
-      - 300
-      - 32
-      style: aiev
-      type: text
-      text: Sketch a path freehand; Illustrator fits the curve.
-    - box:
-      - 104
-      - 866
-      - 300
-      - 10
-      style: ord
-      type: text
-      text: '[740]'
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 840.0
+      - 588.0
       rx: 8.0
       ry: 8.0
       fill: none
       stroke: none
     - box:
       - 448
-      - 854
-      - 86
+      - 602
+      - 90
       - 10
       style:
         class: covlbl
         color: none
       type: text
-      text: NONE
+      text: NONE ·H
+    - box:
+      - 448
+      - 614
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: architectural
     - box:
       - 504
-      - 828
-      - 290
+      - 576
+      - 234
       - 44
       style: fgev
       type: text
-      text: no freehand pointer input (declarative only).
+      text: no offset-path operation.
     - box:
       - 56
-      - 882
+      - 630
       - 682
       - 0.6
       type: rect
       fill: hair
     - box:
+      - 50
+      - 630
+      - 694
+      - 62
+      type: rect
+      fill: band
+    - box:
       - 56
-      - 888
+      - 636
       - 44
       - 10
       style: gid
       type: text
-      text: AI-11
+      text: AI-48
     - box:
       - 104
-      - 887
+      - 635
       - 300
       - 14
       style: feat
       type: text
-      text: Stroke controls
+      text: Outline stroke
     - box:
       - 104
-      - 904
+      - 652
       - 300
       - 32
       style: aiev
       type: text
-      text: Weight, dashes, caps, joins on the Stroke panel.
+      text: Object > Path > Outline Stroke converts a stroke to a filled path.
     - box:
       - 104
-      - 928
+      - 676
       - 300
       - 10
       style: ord
       type: text
-      text: '[93]'
-    - type: ellipse
+      text: '[26·771]'
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
       center:
       - 436.0
-      - 902.0
+      - 650.0
       rx: 8.0
       ry: 8.0
-      fill: fg
+      fill: none
+      stroke: none
     - box:
       - 448
-      - 916
-      - 86
+      - 664
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: none
       type: text
-      text: HAS
+      text: NONE ·H
+    - box:
+      - 448
+      - 676
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: architectural
     - box:
       - 504
-      - 890
-      - 290
+      - 638
+      - 234
       - 44
       style: fgev
       type: text
-      text: 'stroke_style: width / dasharray / cap / join (P3 split).'
+      text: no stroke→outline conversion.
     - box:
       - 56
-      - 944
+      - 692
       - 682
       - 0.6
       type: rect
@@ -2003,7 +2443,7 @@ pages:
       - 12
       style: folio
       type: text
-      text: '04'
+      text: '05'
     - box:
       - 56
       - 74
@@ -2034,7 +2474,7 @@ pages:
       - 12
       style: grouphd
       type: text
-      text: C · COLOUR SYSTEM
+      text: B · DRAW & PRIMITIVES
     - box:
       - 56
       - 170
@@ -2057,7 +2497,7 @@ pages:
       - 10
       style: colhd
       type: text
-      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [ORDINAL]
+      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [SRC·ORDINAL]
     - box:
       - 420
       - 176
@@ -2069,7 +2509,7 @@ pages:
     - box:
       - 504
       - 176
-      - 290
+      - 234
       - 10
       style: colhd
       type: text
@@ -2088,7 +2528,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-12
+      text: AI-07
     - box:
       - 104
       - 201
@@ -2096,7 +2536,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Colour picker
+      text: Shape primitives
     - box:
       - 104
       - 218
@@ -2104,7 +2544,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Pick colour on the Color panel; many input modes.
+      text: Rectangle, Ellipse, Polygon, Star, Line, Arc tools.
     - box:
       - 104
       - 242
@@ -2112,7 +2552,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[66]'
+      text: '[25·47]'
     - type: ellipse
       center:
       - 436.0
@@ -2123,7 +2563,7 @@ pages:
     - box:
       - 448
       - 230
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
@@ -2133,11 +2573,11 @@ pages:
     - box:
       - 504
       - 204
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: hex / rgb colour values on any paintable field.
+      text: rect, ellipse, circle, polygon, line, polyline (17 object_types).
     - box:
       - 56
       - 258
@@ -2159,7 +2599,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-13
+      text: AI-08
     - box:
       - 104
       - 263
@@ -2167,7 +2607,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Swatches
+      text: Pen tool (Bézier)
     - box:
       - 104
       - 280
@@ -2175,7 +2615,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Save & reuse named colour swatches.
+      text: Set Bézier anchor points and handles by hand.
     - box:
       - 104
       - 304
@@ -2183,7 +2623,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[85]'
+      text: '[24·612]'
     - type: ellipse
       center:
       - 436.0
@@ -2192,23 +2632,40 @@ pages:
       ry: 8.0
       fill: fg
     - box:
+      - 436
+      - 270
+      - 9
+      - 16
+      type: rect
+      fill: band
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 278.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
       - 448
       - 292
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: part
       type: text
-      text: HAS
+      text: PARTIAL ·M
     - box:
       - 504
       - 266
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: defs.tokens.colors — a named, reusable palette.
+      text: bezier / Path / CubicBezier objects, authored by coordinate.
     - box:
       - 56
       - 320
@@ -2223,7 +2680,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-14
+      text: AI-09
     - box:
       - 104
       - 325
@@ -2231,7 +2688,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Global colours
+      text: Curvature tool
     - box:
       - 104
       - 342
@@ -2239,7 +2696,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Edit a global swatch once; every use updates.
+      text: Rubber-band free-form curves as you click & release.
     - box:
       - 104
       - 366
@@ -2247,7 +2704,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[958]'
+      text: '[24·1964]'
     - type: ellipse
       center:
       - 436.0
@@ -2256,23 +2713,40 @@ pages:
       ry: 8.0
       fill: fg
     - box:
+      - 436
+      - 332
+      - 9
+      - 16
+      type: rect
+      fill: bg
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 340.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
       - 448
       - 354
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: part
       type: text
-      text: HAS
+      text: PARTIAL ·M
     - box:
       - 504
       - 328
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: named colour tokens are global by construction.
+      text: curve object + parametric_curve; no live rubber-band.
     - box:
       - 56
       - 382
@@ -2294,7 +2768,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-15
+      text: AI-10
     - box:
       - 104
       - 387
@@ -2302,7 +2776,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: CMYK / RGB modes
+      text: Pencil / freehand
     - box:
       - 104
       - 404
@@ -2310,7 +2784,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Document colour mode selectable CMYK or RGB.
+      text: Sketch a path freehand; Illustrator fits the curve.
     - box:
       - 104
       - 428
@@ -2318,21 +2792,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[326]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 402.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 394
-      - 9
-      - 16
-      type: rect
-      fill: band
+      text: '[24·747]'
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -2342,25 +2802,36 @@ pages:
       rx: 8.0
       ry: 8.0
       fill: none
-      stroke: fg
+      stroke: none
     - box:
       - 448
       - 416
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: part
+        color: none
       type: text
-      text: PARTIAL
+      text: NONE ·H
+    - box:
+      - 448
+      - 428
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: non-goal
     - box:
       - 504
       - 390
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: RGB / hex only — no CMYK, no separations.
+      text: no freehand pointer input (declarative only).
     - box:
       - 56
       - 444
@@ -2375,7 +2846,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-16
+      text: AI-11
     - box:
       - 104
       - 449
@@ -2383,7 +2854,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Eyedropper sampling
+      text: Stroke controls
     - box:
       - 104
       - 466
@@ -2391,7 +2862,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Sample colour from any object or image.
+      text: Weight, dashes, caps, joins, arrowheads on the Stroke panel.
     - box:
       - 104
       - 490
@@ -2399,35 +2870,32 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[989]'
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
+      text: '[25·93]'
+    - type: ellipse
       center:
       - 436.0
       - 464.0
       rx: 8.0
       ry: 8.0
-      fill: none
-      stroke: none
+      fill: fg
     - box:
       - 448
       - 478
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: none
+        color: fg
       type: text
-      text: NONE
+      text: HAS
     - box:
       - 504
       - 452
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: no interactive sampling (vision tools measure, not paint).
+      text: 'stroke_style: width / dasharray / cap / join + connector markers.'
     - box:
       - 56
       - 506
@@ -2449,7 +2917,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-17
+      text: AI-12
     - box:
       - 104
       - 511
@@ -2457,7 +2925,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Live Paint
+      text: Variable-width (Width Tool)
     - box:
       - 104
       - 528
@@ -2465,7 +2933,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Fill regions bounded by overlapping paths interactively.
+      text: Vary stroke width along a path for a calligraphic look.
     - box:
       - 104
       - 552
@@ -2473,21 +2941,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1000]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 526.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 518
-      - 9
-      - 16
-      type: rect
-      fill: band
+      text: '[24·666]'
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -2497,25 +2951,36 @@ pages:
       rx: 8.0
       ry: 8.0
       fill: none
-      stroke: fg
+      stroke: none
     - box:
       - 448
       - 540
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: part
+        color: none
       type: text
-      text: PARTIAL
+      text: NONE ·H
+    - box:
+      - 448
+      - 552
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: architectural
     - box:
       - 504
       - 514
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: 'region toolkit: select_in / place_region / region_grade.'
+      text: stroke width is uniform — no width profile.
     - box:
       - 56
       - 568
@@ -2530,7 +2995,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-18
+      text: AI-49
     - box:
       - 104
       - 573
@@ -2538,7 +3003,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Patterns
+      text: Brushes
     - box:
       - 104
       - 590
@@ -2546,7 +3011,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Tile a swatch as a repeating pattern fill.
+      text: Calligraphic, Scatter, Art, Pattern, Blob brushes paint along a path.
     - box:
       - 104
       - 614
@@ -2554,32 +3019,46 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[22]'
-    - type: ellipse
+      text: '[26·937]'
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
       center:
       - 436.0
       - 588.0
       rx: 8.0
       ry: 8.0
-      fill: fg
+      fill: none
+      stroke: none
     - box:
       - 448
       - 602
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: none
       type: text
-      text: HAS
+      text: NONE ·H
+    - box:
+      - 448
+      - 614
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: architectural
     - box:
       - 504
       - 576
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: pattern fills on any object.
+      text: no brush engine; nearest is hatch_fill / pattern.
     - box:
       - 56
       - 630
@@ -2645,7 +3124,7 @@ pages:
       - 12
       style: folio
       type: text
-      text: '05'
+      text: '06'
     - box:
       - 56
       - 74
@@ -2676,7 +3155,7 @@ pages:
       - 12
       style: grouphd
       type: text
-      text: D · TYPE & TEXT
+      text: C · COLOUR SYSTEM
     - box:
       - 56
       - 170
@@ -2699,7 +3178,7 @@ pages:
       - 10
       style: colhd
       type: text
-      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [ORDINAL]
+      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [SRC·ORDINAL]
     - box:
       - 420
       - 176
@@ -2711,7 +3190,7 @@ pages:
     - box:
       - 504
       - 176
-      - 290
+      - 234
       - 10
       style: colhd
       type: text
@@ -2730,7 +3209,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-19
+      text: AI-13
     - box:
       - 104
       - 201
@@ -2738,7 +3217,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Point & area type
+      text: Colour picker & swatches
     - box:
       - 104
       - 218
@@ -2746,7 +3225,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Type tool sets point text or text inside a shape.
+      text: Pick colour; save reusable named swatches.
     - box:
       - 104
       - 242
@@ -2754,7 +3233,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1015]'
+      text: '[25·85]'
     - type: ellipse
       center:
       - 436.0
@@ -2765,7 +3244,7 @@ pages:
     - box:
       - 448
       - 230
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
@@ -2775,11 +3254,11 @@ pages:
     - box:
       - 504
       - 204
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: text objects + flow paragraph / heading / list.
+      text: hex / rgba values + defs.tokens.colors named palette.
     - box:
       - 56
       - 258
@@ -2801,7 +3280,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-20
+      text: AI-14
     - box:
       - 104
       - 263
@@ -2809,7 +3288,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Character formatting
+      text: Global colours
     - box:
       - 104
       - 280
@@ -2817,7 +3296,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Font, size, weight on the Character panel.
+      text: Edit a global swatch once; every use updates.
     - box:
       - 104
       - 304
@@ -2825,7 +3304,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1015]'
+      text: '[25·958]'
     - type: ellipse
       center:
       - 436.0
@@ -2836,7 +3315,7 @@ pages:
     - box:
       - 448
       - 292
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
@@ -2846,11 +3325,11 @@ pages:
     - box:
       - 504
       - 266
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: font_family / size / weight among 106 style props.
+      text: named colour tokens are global by construction.
     - box:
       - 56
       - 320
@@ -2865,7 +3344,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-21
+      text: AI-15
     - box:
       - 104
       - 325
@@ -2873,7 +3352,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Paragraph controls
+      text: CMYK / RGB modes
     - box:
       - 104
       - 342
@@ -2881,7 +3360,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Alignment, spacing, indents on the Paragraph panel.
+      text: Document colour mode selectable CMYK or RGB.
     - box:
       - 104
       - 366
@@ -2889,7 +3368,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1029]'
+      text: '[25·326]'
     - type: ellipse
       center:
       - 436.0
@@ -2898,23 +3377,40 @@ pages:
       ry: 8.0
       fill: fg
     - box:
+      - 436
+      - 332
+      - 9
+      - 16
+      type: rect
+      fill: bg
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 340.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
       - 448
       - 354
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: part
       type: text
-      text: HAS
+      text: PARTIAL ·H
     - box:
       - 504
       - 328
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: 'paragraph flow: align, line_height, spacing, columns.'
+      text: RGB / hex only — no CMYK, no separations.
     - box:
       - 56
       - 382
@@ -2936,7 +3432,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-22
+      text: AI-16
     - box:
       - 104
       - 387
@@ -2944,7 +3440,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Threaded text
+      text: Recolor Artwork
     - box:
       - 104
       - 404
@@ -2952,7 +3448,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Flow overset text between linked frames.
+      text: Remap a whole palette via the Recolor command / Color Guide.
     - box:
       - 104
       - 428
@@ -2960,7 +3456,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1029]'
+      text: '[24·684]'
     - type: ellipse
       center:
       - 436.0
@@ -2969,23 +3465,40 @@ pages:
       ry: 8.0
       fill: fg
     - box:
+      - 436
+      - 394
+      - 9
+      - 16
+      type: rect
+      fill: band
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 402.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
       - 448
       - 416
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: part
       type: text
-      text: HAS
+      text: PARTIAL ·M
     - box:
       - 504
       - 390
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: 'flow model: column_break / page_break / keep_together.'
+      text: gradient_map + closed_palette + token swap (declarative recolor).
     - box:
       - 56
       - 444
@@ -3000,7 +3513,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-23
+      text: AI-17
     - box:
       - 104
       - 449
@@ -3008,7 +3521,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Type on a path
+      text: Live Paint
     - box:
       - 104
       - 466
@@ -3016,7 +3529,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Set text running along a curved path.
+      text: Fill regions bounded by overlapping paths interactively.
     - box:
       - 104
       - 490
@@ -3024,7 +3537,21 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1099]'
+      text: '[24·319]'
+    - type: ellipse
+      center:
+      - 436.0
+      - 464.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 436
+      - 456
+      - 9
+      - 16
+      type: rect
+      fill: bg
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -3034,25 +3561,25 @@ pages:
       rx: 8.0
       ry: 8.0
       fill: none
-      stroke: none
+      stroke: fg
     - box:
       - 448
       - 478
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: none
+        color: part
       type: text
-      text: NONE
+      text: PARTIAL ·M
     - box:
       - 504
       - 452
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: no text-on-path (explicit scope limit).
+      text: 'region toolkit: select_in / place_region / region_grade.'
     - box:
       - 56
       - 506
@@ -3074,7 +3601,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-24
+      text: AI-18
     - box:
       - 104
       - 511
@@ -3082,7 +3609,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Kerning & leading
+      text: Colour science
     - box:
       - 104
       - 528
@@ -3090,7 +3617,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Fine letter/line spacing per the Character panel.
+      text: Colour groups & harmony via the Color Guide panel.
     - box:
       - 104
       - 552
@@ -3098,7 +3625,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1054]'
+      text: '[24·684]'
     - type: ellipse
       center:
       - 436.0
@@ -3126,21 +3653,21 @@ pages:
     - box:
       - 448
       - 540
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
         color: part
       type: text
-      text: PARTIAL
+      text: PARTIAL ·M
     - box:
       - 504
       - 514
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: letter_spacing / line_height; no pair-kerning table.
+      text: Chevreul harmony + WCAG contrast tools — not a Color-Guide workflow.
     - box:
       - 56
       - 568
@@ -3155,7 +3682,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-25
+      text: AI-19
     - box:
       - 104
       - 573
@@ -3163,7 +3690,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Envelope distort
+      text: Patterns
     - box:
       - 104
       - 590
@@ -3171,7 +3698,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Warp text into an arbitrary envelope shape.
+      text: Tile a swatch as a repeating pattern fill.
     - box:
       - 104
       - 614
@@ -3179,35 +3706,32 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1104]'
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
+      text: '[24·695]'
+    - type: ellipse
       center:
       - 436.0
       - 588.0
       rx: 8.0
       ry: 8.0
-      fill: none
-      stroke: none
+      fill: fg
     - box:
       - 448
       - 602
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: none
+        color: fg
       type: text
-      text: NONE
+      text: HAS
     - box:
       - 504
       - 576
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: non-goal — text stays on its baseline grid.
+      text: pattern, grid_pattern, dots, hatch_fill fills.
     - box:
       - 56
       - 630
@@ -3273,7 +3797,7 @@ pages:
       - 12
       style: folio
       type: text
-      text: '06'
+      text: '07'
     - box:
       - 56
       - 74
@@ -3304,7 +3828,7 @@ pages:
       - 12
       style: grouphd
       type: text
-      text: E · GRADIENT · EFFECT · STYLE
+      text: D · TYPE & TEXT
     - box:
       - 56
       - 170
@@ -3327,7 +3851,7 @@ pages:
       - 10
       style: colhd
       type: text
-      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [ORDINAL]
+      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [SRC·ORDINAL]
     - box:
       - 420
       - 176
@@ -3339,7 +3863,7 @@ pages:
     - box:
       - 504
       - 176
-      - 290
+      - 234
       - 10
       style: colhd
       type: text
@@ -3358,7 +3882,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-26
+      text: AI-20
     - box:
       - 104
       - 201
@@ -3366,7 +3890,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Linear gradient
+      text: Point & area type
     - box:
       - 104
       - 218
@@ -3374,7 +3898,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Two+ colour stops along a linear axis.
+      text: Type tool sets point text or text inside a shape.
     - box:
       - 104
       - 242
@@ -3382,7 +3906,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1180]'
+      text: '[25·1015]'
     - type: ellipse
       center:
       - 436.0
@@ -3393,7 +3917,7 @@ pages:
     - box:
       - 448
       - 230
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
@@ -3403,11 +3927,11 @@ pages:
     - box:
       - 504
       - 204
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: linear_gradient paint on fill or stroke.
+      text: text objects + flow paragraph / heading / list.
     - box:
       - 56
       - 258
@@ -3429,7 +3953,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-27
+      text: AI-21
     - box:
       - 104
       - 263
@@ -3437,7 +3961,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Radial gradient
+      text: Character & paragraph
     - box:
       - 104
       - 280
@@ -3445,7 +3969,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Concentric colour stops with handle control.
+      text: Font, size, weight, alignment, spacing, indents.
     - box:
       - 104
       - 304
@@ -3453,7 +3977,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1214]'
+      text: '[25·1029]'
     - type: ellipse
       center:
       - 436.0
@@ -3464,7 +3988,7 @@ pages:
     - box:
       - 448
       - 292
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
@@ -3474,11 +3998,11 @@ pages:
     - box:
       - 504
       - 266
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: radial_gradient paint.
+      text: font_family / size / weight + paragraph flow (106 style props).
     - box:
       - 56
       - 320
@@ -3493,7 +4017,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-28
+      text: AI-22
     - box:
       - 104
       - 325
@@ -3501,7 +4025,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Freeform gradient
+      text: Threaded text
     - box:
       - 104
       - 342
@@ -3509,7 +4033,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Colour stops placed freely across the object.
+      text: Flow overset text between linked frames.
     - box:
       - 104
       - 366
@@ -3517,7 +4041,21 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1240]'
+      text: '[25·1029]'
+    - type: ellipse
+      center:
+      - 436.0
+      - 340.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 436
+      - 332
+      - 9
+      - 16
+      type: rect
+      fill: bg
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -3527,25 +4065,25 @@ pages:
       rx: 8.0
       ry: 8.0
       fill: none
-      stroke: none
+      stroke: fg
     - box:
       - 448
       - 354
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: none
+        color: part
       type: text
-      text: NONE
+      text: PARTIAL ·M
     - box:
       - 504
       - 328
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: no freeform gradient.
+      text: flow auto-pagination continues overset; no interactive frame linking.
     - box:
       - 56
       - 382
@@ -3567,7 +4105,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-29
+      text: AI-23
     - box:
       - 104
       - 387
@@ -3575,7 +4113,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Gradient mesh
+      text: Type on a path
     - box:
       - 104
       - 404
@@ -3583,7 +4121,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: A mesh of colour points for painterly blends.
+      text: Set text running along a curved path.
     - box:
       - 104
       - 428
@@ -3591,7 +4129,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[653]'
+      text: '[25·1099]'
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -3605,21 +4143,32 @@ pages:
     - box:
       - 448
       - 416
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
         color: none
       type: text
-      text: NONE
+      text: NONE ·H
+    - box:
+      - 448
+      - 428
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: non-goal
     - box:
       - 504
       - 390
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: no mesh — the biggest single gap.
+      text: no text-on-path (explicit scope limit).
     - box:
       - 56
       - 444
@@ -3634,7 +4183,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-30
+      text: AI-24
     - box:
       - 104
       - 449
@@ -3642,7 +4191,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Blending modes
+      text: Kerning & tracking
     - box:
       - 104
       - 466
@@ -3650,7 +4199,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Multiply, screen, etc. per object/layer.
+      text: Fine letter / line spacing on the Character panel.
     - box:
       - 104
       - 490
@@ -3658,7 +4207,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1197]'
+      text: '[25·1054]'
     - type: ellipse
       center:
       - 436.0
@@ -3686,21 +4235,21 @@ pages:
     - box:
       - 448
       - 478
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
         color: part
       type: text
-      text: PARTIAL
+      text: PARTIAL ·M
     - box:
       - 504
       - 452
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: opacity + a limited blend-mode set.
+      text: letter_spacing / line_height; no pair-kerning table.
     - box:
       - 56
       - 506
@@ -3722,7 +4271,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-31
+      text: AI-25
     - box:
       - 104
       - 511
@@ -3730,7 +4279,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Live effects
+      text: Envelope distort
     - box:
       - 104
       - 528
@@ -3738,7 +4287,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Drop shadow, distort — non-destructive effects.
+      text: Warp text into an arbitrary envelope shape.
     - box:
       - 104
       - 552
@@ -3746,21 +4295,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[154][1608]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 526.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 518
-      - 9
-      - 16
-      type: rect
-      fill: band
+      text: '[25·715]'
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -3770,180 +4305,39 @@ pages:
       rx: 8.0
       ry: 8.0
       fill: none
-      stroke: fg
+      stroke: none
     - box:
       - 448
       - 540
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: part
+        color: none
       type: text
-      text: PARTIAL
+      text: NONE ·H
+    - box:
+      - 448
+      - 552
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: non-goal
     - box:
       - 504
       - 514
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: SVG filter effects (shadow / blur), not a live stack.
+      text: non-goal — text stays on its baseline grid.
     - box:
       - 56
       - 568
-      - 682
-      - 0.6
-      type: rect
-      fill: hair
-    - box:
-      - 56
-      - 574
-      - 44
-      - 10
-      style: gid
-      type: text
-      text: AI-32
-    - box:
-      - 104
-      - 573
-      - 300
-      - 14
-      style: feat
-      type: text
-      text: Graphic styles
-    - box:
-      - 104
-      - 590
-      - 300
-      - 32
-      style: aiev
-      type: text
-      text: Save an appearance and reapply it by name.
-    - box:
-      - 104
-      - 614
-      - 300
-      - 10
-      style: ord
-      type: text
-      text: '[270]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 588.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 448
-      - 602
-      - 86
-      - 10
-      style:
-        class: covlbl
-        color: fg
-      type: text
-      text: HAS
-    - box:
-      - 504
-      - 576
-      - 290
-      - 44
-      style: fgev
-      type: text
-      text: named styles / text_styles / stroke_styles tokens.
-    - box:
-      - 56
-      - 630
-      - 682
-      - 0.6
-      type: rect
-      fill: hair
-    - box:
-      - 50
-      - 630
-      - 694
-      - 62
-      type: rect
-      fill: band
-    - box:
-      - 56
-      - 636
-      - 44
-      - 10
-      style: gid
-      type: text
-      text: AI-33
-    - box:
-      - 104
-      - 635
-      - 300
-      - 14
-      style: feat
-      type: text
-      text: Appearance stack
-    - box:
-      - 104
-      - 652
-      - 300
-      - 32
-      style: aiev
-      type: text
-      text: Stack multiple fills/strokes/effects per object.
-    - box:
-      - 104
-      - 676
-      - 300
-      - 10
-      style: ord
-      type: text
-      text: '[1526]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 650.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 642
-      - 9
-      - 16
-      type: rect
-      fill: band
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 650.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
-    - box:
-      - 448
-      - 664
-      - 86
-      - 10
-      style:
-        class: covlbl
-        color: part
-      type: text
-      text: PARTIAL
-    - box:
-      - 504
-      - 638
-      - 290
-      - 44
-      style: fgev
-      type: text
-      text: one style per object; no multi-fill appearance stack.
-    - box:
-      - 56
-      - 692
       - 682
       - 0.6
       type: rect
@@ -4006,7 +4400,688 @@ pages:
       - 12
       style: folio
       type: text
-      text: '07'
+      text: 08
+    - box:
+      - 56
+      - 74
+      - 682
+      - 12
+      style: kick
+      type: text
+      text: // the teardown, cont.
+    - box:
+      - 56
+      - 92
+      - 682
+      - 40
+      style: h2
+      type: text
+      text: Feature-by-feature
+    - box:
+      - 56
+      - 130
+      - 44
+      - 3
+      type: rect
+      fill: fg
+    - box:
+      - 56
+      - 154
+      - 682
+      - 12
+      style: grouphd
+      type: text
+      text: E · GRADIENT · EFFECT · STYLE
+    - box:
+      - 56
+      - 170
+      - 682
+      - 1
+      type: rect
+      fill: ink
+    - box:
+      - 56
+      - 176
+      - 44
+      - 10
+      style: colhd
+      type: text
+      text: ID
+    - box:
+      - 104
+      - 176
+      - 300
+      - 10
+      style: colhd
+      type: text
+      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [SRC·ORDINAL]
+    - box:
+      - 420
+      - 176
+      - 60
+      - 10
+      style: colhd
+      type: text
+      text: FG
+    - box:
+      - 504
+      - 176
+      - 234
+      - 10
+      style: colhd
+      type: text
+      text: FRAMEGRAPH COVERAGE
+    - box:
+      - 56
+      - 192
+      - 682
+      - 1.4
+      type: rect
+      fill: ink
+    - box:
+      - 56
+      - 202
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-26
+    - box:
+      - 104
+      - 201
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Linear / radial gradient
+    - box:
+      - 104
+      - 218
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Colour stops along a linear or radial axis.
+    - box:
+      - 104
+      - 242
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[24·844]'
+    - type: ellipse
+      center:
+      - 436.0
+      - 216.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 448
+      - 230
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: fg
+      type: text
+      text: HAS
+    - box:
+      - 504
+      - 204
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: linear_gradient / radial_gradient paint.
+    - box:
+      - 56
+      - 258
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 50
+      - 258
+      - 694
+      - 62
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 264
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-27
+    - box:
+      - 104
+      - 263
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Freeform gradient
+    - box:
+      - 104
+      - 280
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Colour stops placed freely across the object.
+    - box:
+      - 104
+      - 304
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[24·857]'
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 278.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: none
+    - box:
+      - 448
+      - 292
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: none
+      type: text
+      text: NONE ·H
+    - box:
+      - 448
+      - 304
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: architectural
+    - box:
+      - 504
+      - 266
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: no freeform gradient.
+    - box:
+      - 56
+      - 320
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 326
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-28
+    - box:
+      - 104
+      - 325
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Gradient mesh
+    - box:
+      - 104
+      - 342
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: A mesh of colour points for painterly blends.
+    - box:
+      - 104
+      - 366
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[24·1079]'
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 340.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: none
+    - box:
+      - 448
+      - 354
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: none
+      type: text
+      text: NONE ·H
+    - box:
+      - 448
+      - 366
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: architectural
+    - box:
+      - 504
+      - 328
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: no mesh — the single biggest gap.
+    - box:
+      - 56
+      - 382
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 50
+      - 382
+      - 694
+      - 62
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 388
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-29
+    - box:
+      - 104
+      - 387
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Blend tool
+    - box:
+      - 104
+      - 404
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Interpolate shape & colour between two objects.
+    - box:
+      - 104
+      - 428
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[24·1160]'
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 402.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: none
+    - box:
+      - 448
+      - 416
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: none
+      type: text
+      text: NONE ·H
+    - box:
+      - 448
+      - 428
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: architectural
+    - box:
+      - 504
+      - 390
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: no shape-to-shape blend / interpolation.
+    - box:
+      - 56
+      - 444
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 450
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-30
+    - box:
+      - 104
+      - 449
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Live effects
+    - box:
+      - 104
+      - 466
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Drop shadow, glow, blur — non-destructive effects.
+    - box:
+      - 104
+      - 490
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[25·1496]'
+    - type: ellipse
+      center:
+      - 436.0
+      - 464.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 436
+      - 456
+      - 9
+      - 16
+      type: rect
+      fill: bg
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 464.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
+      - 448
+      - 478
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: part
+      type: text
+      text: PARTIAL ·M
+    - box:
+      - 504
+      - 452
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: 'effects set: glow / neon / shadow / soft_shadow / hatch.'
+    - box:
+      - 56
+      - 506
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 50
+      - 506
+      - 694
+      - 62
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 512
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-31
+    - box:
+      - 104
+      - 511
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Graphic styles
+    - box:
+      - 104
+      - 528
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Save an appearance and reapply it by name.
+    - box:
+      - 104
+      - 552
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[24·1823]'
+    - type: ellipse
+      center:
+      - 436.0
+      - 526.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 448
+      - 540
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: fg
+      type: text
+      text: HAS
+    - box:
+      - 504
+      - 514
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: named styles / text_styles / stroke_styles tokens.
+    - box:
+      - 56
+      - 568
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 574
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-32
+    - box:
+      - 104
+      - 573
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Appearance stack
+    - box:
+      - 104
+      - 590
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Stack multiple fills / strokes / effects per object.
+    - box:
+      - 104
+      - 614
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[24·1092]'
+    - type: ellipse
+      center:
+      - 436.0
+      - 588.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 436
+      - 580
+      - 9
+      - 16
+      type: rect
+      fill: bg
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 588.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
+      - 448
+      - 602
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: part
+      type: text
+      text: PARTIAL ·M
+    - box:
+      - 504
+      - 576
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: one style per object; no multi-fill appearance stack.
+    - box:
+      - 56
+      - 630
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+- mode: page
+  id: matrix-6
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: bg
+  - id: main
+    objects:
+    - box:
+      - 56
+      - 34
+      - 300
+      - 11
+      style: run
+      type: text
+      text: CAPABILITY TEARDOWN
+    - box:
+      - 418
+      - 34
+      - 320
+      - 11
+      style: runR
+      type: text
+      text: TEARDOWN · 6
+    - box:
+      - 56
+      - 50
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 1069
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 0
+      - 1079
+      - 794
+      - 12
+      style: folio
+      type: text
+      text: 09
     - box:
       - 56
       - 74
@@ -4060,7 +5135,7 @@ pages:
       - 10
       style: colhd
       type: text
-      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [ORDINAL]
+      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [SRC·ORDINAL]
     - box:
       - 420
       - 176
@@ -4072,7 +5147,7 @@ pages:
     - box:
       - 504
       - 176
-      - 290
+      - 234
       - 10
       style: colhd
       type: text
@@ -4091,7 +5166,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-34
+      text: AI-33
     - box:
       - 104
       - 201
@@ -4115,7 +5190,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[282]'
+      text: '[24·547]'
     - type: ellipse
       center:
       - 436.0
@@ -4126,7 +5201,7 @@ pages:
     - box:
       - 448
       - 230
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
@@ -4136,7 +5211,7 @@ pages:
     - box:
       - 504
       - 204
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
@@ -4162,7 +5237,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-35
+      text: AI-34
     - box:
       - 104
       - 263
@@ -4170,7 +5245,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Lock / hide
+      text: Transform tools
     - box:
       - 104
       - 280
@@ -4178,7 +5253,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Lock or hide layers and objects on the canvas.
+      text: Rotate, Scale, Reflect, Shear an object.
     - box:
       - 104
       - 304
@@ -4186,7 +5261,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[282]'
+      text: '[24·700]'
     - type: ellipse
       center:
       - 436.0
@@ -4195,40 +5270,23 @@ pages:
       ry: 8.0
       fill: fg
     - box:
-      - 436
-      - 270
-      - 9
-      - 16
-      type: rect
-      fill: band
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 278.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
-    - box:
       - 448
       - 292
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: part
+        color: fg
       type: text
-      text: PARTIAL
+      text: HAS
     - box:
       - 504
       - 266
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: visibility flag; no interactive lock state.
+      text: 'transform: Mat3 rotate / scale / translate / shear.'
     - box:
       - 56
       - 320
@@ -4243,7 +5301,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-36
+      text: AI-35
     - box:
       - 104
       - 325
@@ -4251,7 +5309,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Transform tools
+      text: Align & distribute
     - box:
       - 104
       - 342
@@ -4259,7 +5317,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Rotate, Scale, Reflect, Shear an object.
+      text: Align / distribute objects on the Align panel.
     - box:
       - 104
       - 366
@@ -4267,7 +5325,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[548][369]'
+      text: '[24·542]'
     - type: ellipse
       center:
       - 436.0
@@ -4278,7 +5336,7 @@ pages:
     - box:
       - 448
       - 354
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
@@ -4288,11 +5346,11 @@ pages:
     - box:
       - 504
       - 328
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: 'transform: Mat3 rotate / scale / translate / shear.'
+      text: 'layout groups: row / column / grid, align.'
     - box:
       - 56
       - 382
@@ -4314,7 +5372,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-37
+      text: AI-36
     - box:
       - 104
       - 387
@@ -4322,7 +5380,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Align & distribute
+      text: Artboards
     - box:
       - 104
       - 404
@@ -4330,7 +5388,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Align/distribute selected objects on the Align panel.
+      text: Multiple artboards — “similar to pages in InDesign”.
     - box:
       - 104
       - 428
@@ -4338,7 +5396,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[93]'
+      text: '[25·423]'
     - type: ellipse
       center:
       - 436.0
@@ -4347,23 +5405,40 @@ pages:
       ry: 8.0
       fill: fg
     - box:
+      - 436
+      - 394
+      - 9
+      - 16
+      type: rect
+      fill: band
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 402.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
       - 448
       - 416
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: part
       type: text
-      text: HAS
+      text: PARTIAL ·M
     - box:
       - 504
       - 390
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: 'layout groups: row / column / grid, align.'
+      text: multi-page flow doc (TOC, bibliography); no free spatial canvas.
     - box:
       - 56
       - 444
@@ -4378,7 +5453,7 @@ pages:
       - 10
       style: gid
       type: text
-      text: AI-38
+      text: AI-37
     - box:
       - 104
       - 449
@@ -4386,7 +5461,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Artboards
+      text: Perspective grid
     - box:
       - 104
       - 466
@@ -4394,7 +5469,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Multiple artboards — “similar to pages in InDesign”.
+      text: Draw & place objects on a simulated perspective grid.
     - box:
       - 104
       - 490
@@ -4402,32 +5477,46 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[423]'
-    - type: ellipse
+      text: '[24·762]'
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
       center:
       - 436.0
       - 464.0
       rx: 8.0
       ry: 8.0
-      fill: fg
+      fill: none
+      stroke: none
     - box:
       - 448
       - 478
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: none
       type: text
-      text: HAS
+      text: NONE ·H
+    - box:
+      - 448
+      - 490
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: non-goal
     - box:
       - 504
       - 452
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: 'multi-page flow doc: TOC, tables, bibliography.'
+      text: no perspective grid (flat page space).
     - box:
       - 56
       - 506
@@ -4436,23 +5525,111 @@ pages:
       type: rect
       fill: hair
     - box:
+      - 50
+      - 506
+      - 694
+      - 62
+      type: rect
+      fill: band
+    - box:
       - 56
-      - 530
+      - 512
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-50
+    - box:
+      - 104
+      - 511
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Guides, rulers & snap
+    - box:
+      - 104
+      - 528
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Rulers, guides and Snap-to-Grid align artwork by eye.
+    - box:
+      - 104
+      - 552
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[26·572]'
+    - type: ellipse
+      center:
+      - 436.0
+      - 526.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 436
+      - 518
+      - 9
+      - 16
+      type: rect
+      fill: band
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 526.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
+      - 448
+      - 540
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: part
+      type: text
+      text: PARTIAL ·M
+    - box:
+      - 504
+      - 514
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: grid_pattern + exact coordinates; no interactive guides / snap.
+    - box:
+      - 56
+      - 568
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 592
       - 682
       - 12
       style: grouphd
       type: text
-      text: G · IMAGE & OUTPUT
+      text: G · IMAGE · 3D · OUTPUT
     - box:
       - 56
-      - 546
+      - 608
       - 682
       - 1
       type: rect
       fill: ink
     - box:
       - 56
-      - 552
+      - 614
       - 44
       - 10
       style: colhd
@@ -4460,15 +5637,15 @@ pages:
       text: ID
     - box:
       - 104
-      - 552
+      - 614
       - 300
       - 10
       style: colhd
       type: text
-      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [ORDINAL]
+      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [SRC·ORDINAL]
     - box:
       - 420
-      - 552
+      - 614
       - 60
       - 10
       style: colhd
@@ -4476,30 +5653,30 @@ pages:
       text: FG
     - box:
       - 504
-      - 552
-      - 290
+      - 614
+      - 234
       - 10
       style: colhd
       type: text
       text: FRAMEGRAPH COVERAGE
     - box:
       - 56
-      - 568
+      - 630
       - 682
       - 1.4
       type: rect
       fill: ink
     - box:
       - 56
-      - 578
+      - 640
       - 44
       - 10
       style: gid
       type: text
-      text: AI-39
+      text: AI-38
     - box:
       - 104
-      - 577
+      - 639
       - 300
       - 14
       style: feat
@@ -4507,7 +5684,7 @@ pages:
       text: Embed / link raster
     - box:
       - 104
-      - 594
+      - 656
       - 300
       - 32
       style: aiev
@@ -4515,23 +5692,23 @@ pages:
       text: Embed a raster image, or link it externally.
     - box:
       - 104
-      - 618
+      - 680
       - 300
       - 10
       style: ord
       type: text
-      text: '[1727][1625]'
+      text: '[25·1727]'
     - type: ellipse
       center:
       - 436.0
-      - 592.0
+      - 654.0
       rx: 8.0
       ry: 8.0
       fill: fg
     - box:
       - 448
-      - 606
-      - 86
+      - 668
+      - 90
       - 10
       style:
         class: covlbl
@@ -4540,89 +5717,12 @@ pages:
       text: HAS
     - box:
       - 504
-      - 580
-      - 290
+      - 642
+      - 234
       - 44
       style: fgev
       type: text
       text: 'image object: embedded or src-referenced.'
-    - box:
-      - 56
-      - 634
-      - 682
-      - 0.6
-      type: rect
-      fill: hair
-    - box:
-      - 50
-      - 634
-      - 694
-      - 62
-      type: rect
-      fill: band
-    - box:
-      - 56
-      - 640
-      - 44
-      - 10
-      style: gid
-      type: text
-      text: AI-40
-    - box:
-      - 104
-      - 639
-      - 300
-      - 14
-      style: feat
-      type: text
-      text: Image trace
-    - box:
-      - 104
-      - 656
-      - 300
-      - 32
-      style: aiev
-      type: text
-      text: Convert a raster image into editable vectors.
-    - box:
-      - 104
-      - 680
-      - 300
-      - 10
-      style: ord
-      type: text
-      text: '[1641]'
-    - type: polyline
-      points:
-      - - 436.0
-        - 646.0
-      - - 444.0
-        - 654.0
-      - - 436.0
-        - 662.0
-      - - 428.0
-        - 654.0
-      closed: true
-      fill: invert
-    - box:
-      - 448
-      - 668
-      - 86
-      - 10
-      style:
-        class: covlbl
-        color: invert
-      type: text
-      text: REFRAMED
-    - box:
-      - 504
-      - 642
-      - 290
-      - 44
-      style: fgev
-      type: text
-      text: 'REFRAMED: same raster→vector, but via the vectorize_image MCP tool call,
-        not a canvas menu command.'
     - box:
       - 56
       - 696
@@ -4631,13 +5731,20 @@ pages:
       type: rect
       fill: hair
     - box:
+      - 50
+      - 696
+      - 694
+      - 62
+      type: rect
+      fill: band
+    - box:
       - 56
       - 702
       - 44
       - 10
       style: gid
       type: text
-      text: AI-41
+      text: AI-39
     - box:
       - 104
       - 701
@@ -4645,7 +5752,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Pixel grid
+      text: Image trace
     - box:
       - 104
       - 718
@@ -4653,7 +5760,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Snap vector edges to the pixel grid for crisp export.
+      text: 'Object > Image Trace: raster into editable vectors.'
     - box:
       - 104
       - 742
@@ -4661,35 +5768,37 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1844]'
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 716.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: none
+      text: '[24·1394]'
+    - type: polyline
+      points:
+      - - 436.0
+        - 708.0
+      - - 444.0
+        - 716.0
+      - - 436.0
+        - 724.0
+      - - 428.0
+        - 716.0
+      closed: true
+      fill: invert
     - box:
       - 448
       - 730
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: none
+        color: invert
       type: text
-      text: NONE
+      text: REFRAMED ·H
     - box:
       - 504
       - 704
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: pure vector coordinates; no pixel snapping.
+      text: 'REFRAMED: same raster→vector via the vectorize_image tool call.'
     - box:
       - 56
       - 758
@@ -4698,20 +5807,13 @@ pages:
       type: rect
       fill: hair
     - box:
-      - 50
-      - 758
-      - 694
-      - 62
-      type: rect
-      fill: band
-    - box:
       - 56
       - 764
       - 44
       - 10
       style: gid
       type: text
-      text: AI-42
+      text: AI-40
     - box:
       - 104
       - 763
@@ -4719,7 +5821,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: Export formats
+      text: 3D & Materials
     - box:
       - 104
       - 780
@@ -4727,7 +5829,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: EPS, PSD, TIFF, GIF, JPEG, SWF, SVG, DWG/DXF.
+      text: 'Effect > 3D: extrude, bevel, revolve with materials.'
     - box:
       - 104
       - 804
@@ -4735,7 +5837,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[20]'
+      text: '[24·767]'
     - type: ellipse
       center:
       - 436.0
@@ -4749,7 +5851,7 @@ pages:
       - 9
       - 16
       type: rect
-      fill: band
+      fill: bg
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -4763,21 +5865,21 @@ pages:
     - box:
       - 448
       - 792
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
         color: part
       type: text
-      text: PARTIAL
+      text: PARTIAL ·M
     - box:
       - 504
       - 766
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: SVG / PNG / PDF / LaTeX (6 renderers); no PSD / EPS / DWG.
+      text: Scene3D + Material + Camera scene — not vector extrusion.
     - box:
       - 56
       - 820
@@ -4786,13 +5888,20 @@ pages:
       type: rect
       fill: hair
     - box:
+      - 50
+      - 820
+      - 694
+      - 62
+      type: rect
+      fill: band
+    - box:
       - 56
       - 826
       - 44
       - 10
       style: gid
       type: text
-      text: AI-43
+      text: AI-41
     - box:
       - 104
       - 825
@@ -4800,7 +5909,7 @@ pages:
       - 14
       style: feat
       type: text
-      text: PDF export
+      text: Export formats
     - box:
       - 104
       - 842
@@ -4808,7 +5917,7 @@ pages:
       - 32
       style: aiev
       type: text
-      text: Save the document as a PDF.
+      text: EPS, PSD, TIFF, GIF, JPEG, SWF, SVG, DWG/DXF, PDF.
     - box:
       - 104
       - 866
@@ -4816,7 +5925,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1818]'
+      text: '[25·20]'
     - type: ellipse
       center:
       - 436.0
@@ -4825,23 +5934,40 @@ pages:
       ry: 8.0
       fill: fg
     - box:
+      - 436
+      - 832
+      - 9
+      - 16
+      type: rect
+      fill: band
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 840.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: fg
+    - box:
       - 448
       - 854
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
-        color: fg
+        color: part
       type: text
-      text: HAS
+      text: PARTIAL ·M
     - box:
       - 504
       - 828
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
-      text: PDF renderer (solved SVG → vector PDF).
+      text: SVG / PNG / PDF / LaTeX (6 renderers); no PSD / EPS / DWG.
     - box:
       - 56
       - 882
@@ -4850,20 +5976,13 @@ pages:
       type: rect
       fill: hair
     - box:
-      - 50
-      - 882
-      - 694
-      - 62
-      type: rect
-      fill: band
-    - box:
       - 56
       - 888
       - 44
       - 10
       style: gid
       type: text
-      text: AI-44
+      text: AI-42
     - box:
       - 104
       - 887
@@ -4887,7 +6006,7 @@ pages:
       - 10
       style: ord
       type: text
-      text: '[1808]'
+      text: '[24·2204]'
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -4901,17 +6020,28 @@ pages:
     - box:
       - 448
       - 916
-      - 86
+      - 90
       - 10
       style:
         class: covlbl
         color: none
       type: text
-      text: NONE
+      text: NONE ·H
+    - box:
+      - 448
+      - 928
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: non-goal
     - box:
       - 504
       - 890
-      - 290
+      - 234
       - 44
       style: fgev
       type: text
@@ -4919,6 +6049,1447 @@ pages:
     - box:
       - 56
       - 944
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 50
+      - 944
+      - 694
+      - 62
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 950
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-51
+    - box:
+      - 104
+      - 949
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Graph tool
+    - box:
+      - 104
+      - 966
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Graph tools plot data as bar / pie / line charts.
+    - box:
+      - 104
+      - 990
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[26·405]'
+    - type: ellipse
+      center:
+      - 436.0
+      - 964.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 448
+      - 978
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: fg
+      type: text
+      text: HAS
+    - box:
+      - 504
+      - 952
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: Chart / sparkline / function_plot / polar_plot / kpi (data-bound).
+    - box:
+      - 56
+      - 1006
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+- mode: page
+  id: matrix-7
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: bg
+  - id: main
+    objects:
+    - box:
+      - 56
+      - 34
+      - 300
+      - 11
+      style: run
+      type: text
+      text: CAPABILITY TEARDOWN
+    - box:
+      - 418
+      - 34
+      - 320
+      - 11
+      style: runR
+      type: text
+      text: TEARDOWN · 7
+    - box:
+      - 56
+      - 50
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 1069
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 0
+      - 1079
+      - 794
+      - 12
+      style: folio
+      type: text
+      text: '10'
+    - box:
+      - 56
+      - 74
+      - 682
+      - 12
+      style: kick
+      type: text
+      text: // the teardown, cont.
+    - box:
+      - 56
+      - 92
+      - 682
+      - 40
+      style: h2
+      type: text
+      text: Feature-by-feature
+    - box:
+      - 56
+      - 130
+      - 44
+      - 3
+      type: rect
+      fill: fg
+    - box:
+      - 56
+      - 154
+      - 682
+      - 12
+      style: grouphd
+      type: text
+      text: H · GENERATIVE / AI  (Illustrator 2024)
+    - box:
+      - 56
+      - 170
+      - 682
+      - 1
+      type: rect
+      fill: ink
+    - box:
+      - 56
+      - 176
+      - 44
+      - 10
+      style: colhd
+      type: text
+      text: ID
+    - box:
+      - 104
+      - 176
+      - 300
+      - 10
+      style: colhd
+      type: text
+      text: ILLUSTRATOR FEATURE  ·  EVIDENCE [SRC·ORDINAL]
+    - box:
+      - 420
+      - 176
+      - 60
+      - 10
+      style: colhd
+      type: text
+      text: FG
+    - box:
+      - 504
+      - 176
+      - 234
+      - 10
+      style: colhd
+      type: text
+      text: FRAMEGRAPH COVERAGE
+    - box:
+      - 56
+      - 192
+      - 682
+      - 1.4
+      type: rect
+      fill: ink
+    - box:
+      - 56
+      - 202
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-43
+    - box:
+      - 104
+      - 201
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Text to Vector Graphic
+    - box:
+      - 104
+      - 218
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Describe art in words; generative AI makes the vectors.
+    - box:
+      - 104
+      - 242
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[24·105]'
+    - type: polyline
+      points:
+      - - 436.0
+        - 208.0
+      - - 444.0
+        - 216.0
+      - - 436.0
+        - 224.0
+      - - 428.0
+        - 216.0
+      closed: true
+      fill: invert
+    - box:
+      - 448
+      - 230
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: invert
+      type: text
+      text: REFRAMED ·L
+    - box:
+      - 504
+      - 204
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: 'REFRAMED: propose_from_image / run_sdk_code author→render loop.'
+    - box:
+      - 56
+      - 258
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 50
+      - 258
+      - 694
+      - 62
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 264
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-44
+    - box:
+      - 104
+      - 263
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Generative Recolor
+    - box:
+      - 104
+      - 280
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Recolour artwork with a text prompt via generative AI.
+    - box:
+      - 104
+      - 304
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[24·678]'
+    - type: polyline
+      points:
+      - - 436.0
+        - 270.0
+      - - 444.0
+        - 278.0
+      - - 436.0
+        - 286.0
+      - - 428.0
+        - 278.0
+      closed: true
+      fill: invert
+    - box:
+      - 448
+      - 292
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: invert
+      type: text
+      text: REFRAMED ·L
+    - box:
+      - 504
+      - 266
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: 'REFRAMED: swap a palette token / gradient_map, re-render.'
+    - box:
+      - 56
+      - 320
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 326
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-45
+    - box:
+      - 104
+      - 325
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Retype
+    - box:
+      - 104
+      - 342
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Identify & match fonts found in existing artwork.
+    - box:
+      - 104
+      - 366
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[24·73]'
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 340.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: none
+    - box:
+      - 448
+      - 354
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: none
+      type: text
+      text: NONE ·H
+    - box:
+      - 448
+      - 366
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: architectural
+    - box:
+      - 504
+      - 328
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: list_fonts resolves families, but no visual font ID.
+    - box:
+      - 56
+      - 382
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 50
+      - 382
+      - 694
+      - 62
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 388
+      - 44
+      - 10
+      style: gid
+      type: text
+      text: AI-46
+    - box:
+      - 104
+      - 387
+      - 300
+      - 14
+      style: feat
+      type: text
+      text: Mockup
+    - box:
+      - 104
+      - 404
+      - 300
+      - 32
+      style: aiev
+      type: text
+      text: Wrap flat vector art onto a 3D object mockup.
+    - box:
+      - 104
+      - 428
+      - 300
+      - 10
+      style: ord
+      type: text
+      text: '[24·41]'
+    - stroke_style:
+        stroke_width: 1.4
+      type: ellipse
+      center:
+      - 436.0
+      - 402.0
+      rx: 8.0
+      ry: 8.0
+      fill: none
+      stroke: none
+    - box:
+      - 448
+      - 416
+      - 90
+      - 10
+      style:
+        class: covlbl
+        color: none
+      type: text
+      text: NONE ·H
+    - box:
+      - 448
+      - 428
+      - 90
+      - 10
+      style:
+        class: cite
+        align: start
+        color: faint
+      type: text
+      text: non-goal
+    - box:
+      - 504
+      - 390
+      - 234
+      - 44
+      style: fgev
+      type: text
+      text: no mockup / surface-wrap of art onto an object.
+    - box:
+      - 56
+      - 444
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+- mode: page
+  id: examples
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: bg
+  - id: main
+    objects:
+    - box:
+      - 56
+      - 34
+      - 300
+      - 11
+      style: run
+      type: text
+      text: CAPABILITY TEARDOWN
+    - box:
+      - 418
+      - 34
+      - 320
+      - 11
+      style: runR
+      type: text
+      text: EVIDENCE · WORKED EXAMPLES
+    - box:
+      - 56
+      - 50
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 1069
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 0
+      - 1079
+      - 794
+      - 12
+      style: folio
+      type: text
+      text: '11'
+    - box:
+      - 56
+      - 74
+      - 682
+      - 12
+      style: kick
+      type: text
+      text: // show, don't assert
+    - box:
+      - 56
+      - 92
+      - 682
+      - 40
+      style: h2
+      type: text
+      text: Every verdict, in source
+    - box:
+      - 56
+      - 130
+      - 44
+      - 3
+      type: rect
+      fill: fg
+    - box:
+      - 56
+      - 154
+      - 682
+      - 40
+      style: lead
+      type: text
+      text: 'So the verdicts are not just labels: here is the same intent, as an Illustrator
+        gesture on the left and as the FrameGraph source the SDK emits on the right.'
+    - box:
+      - 56
+      - 214
+      - 682
+      - 118
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 214
+      - 4
+      - 118
+      type: rect
+      fill: fg
+    - box:
+      - 74
+      - 230
+      - 200
+      - 12
+      style:
+        class: gid
+        color: fg
+      type: text
+      text: AI-07 · HAS
+    - box:
+      - 74
+      - 248
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Draw a rectangle
+    - box:
+      - 74
+      - 272
+      - 311.0
+      - 12
+      style:
+        class: colhd
+        color: ai
+      type: text
+      text: ILLUSTRATOR
+    - box:
+      - 74
+      - 288
+      - 311.0
+      - 36
+      style: aiev
+      type: text
+      text: Rectangle Tool → drag on the artboard.
+    - box:
+      - 395.0
+      - 272
+      - 321.0
+      - 12
+      style:
+        class: colhd
+        color: fg
+      type: text
+      text: FRAMEGRAPH SDK
+    - box:
+      - 395.0
+      - 288
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: page.rect([40, 40, 220, 120],
+    - box:
+      - 395.0
+      - 301
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: '          fill="#1f9ec4",'
+    - box:
+      - 395.0
+      - 314
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: '          **stroke(2, color="ink"))'
+    - box:
+      - 56
+      - 344
+      - 682
+      - 118
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 344
+      - 4
+      - 118
+      type: rect
+      fill: invert
+    - box:
+      - 74
+      - 360
+      - 200
+      - 12
+      style:
+        class: gid
+        color: invert
+      type: text
+      text: AI-01 · REFRAMED
+    - box:
+      - 74
+      - 378
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Act on one object
+    - box:
+      - 74
+      - 402
+      - 311.0
+      - 12
+      style:
+        class: colhd
+        color: ai
+      type: text
+      text: ILLUSTRATOR
+    - box:
+      - 74
+      - 418
+      - 311.0
+      - 36
+      style: aiev
+      type: text
+      text: Selection Tool → click the object → move.
+    - box:
+      - 395.0
+      - 402
+      - 321.0
+      - 12
+      style:
+        class: colhd
+        color: fg
+      type: text
+      text: FRAMEGRAPH SDK
+    - box:
+      - 395.0
+      - 418
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: '# no cursor — name it, then act'
+    - box:
+      - 395.0
+      - 431
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: card = page.rect([...], id="hero")
+    - box:
+      - 395.0
+      - 444
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: page.move("hero", dx=12, dy=0)
+    - box:
+      - 56
+      - 474
+      - 682
+      - 118
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 474
+      - 4
+      - 118
+      type: rect
+      fill: fg
+    - box:
+      - 74
+      - 490
+      - 200
+      - 12
+      style:
+        class: gid
+        color: fg
+      type: text
+      text: AI-26 · HAS
+    - box:
+      - 74
+      - 508
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Linear gradient fill
+    - box:
+      - 74
+      - 532
+      - 311.0
+      - 12
+      style:
+        class: colhd
+        color: ai
+      type: text
+      text: ILLUSTRATOR
+    - box:
+      - 74
+      - 548
+      - 311.0
+      - 36
+      style: aiev
+      type: text
+      text: Gradient panel → set stops → drag.
+    - box:
+      - 395.0
+      - 532
+      - 321.0
+      - 12
+      style:
+        class: colhd
+        color: fg
+      type: text
+      text: FRAMEGRAPH SDK
+    - box:
+      - 395.0
+      - 548
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: page.rect([40, 40, 300, 80], fill=linear_gradient(
+    - box:
+      - 395.0
+      - 561
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: '    stops=[(0, "#0f7d88"), (1, "#f5f7f9")], angle=0))'
+    - box:
+      - 56
+      - 604
+      - 682
+      - 118
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 604
+      - 4
+      - 118
+      type: rect
+      fill: part
+    - box:
+      - 74
+      - 620
+      - 200
+      - 12
+      style:
+        class: gid
+        color: part
+      type: text
+      text: AI-02 · PARTIAL ·M
+    - box:
+      - 74
+      - 638
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Edit an anchor point
+    - box:
+      - 74
+      - 662
+      - 311.0
+      - 12
+      style:
+        class: colhd
+        color: ai
+      type: text
+      text: ILLUSTRATOR
+    - box:
+      - 74
+      - 678
+      - 311.0
+      - 36
+      style: aiev
+      type: text
+      text: Direct Selection → drag a point by hand.
+    - box:
+      - 395.0
+      - 662
+      - 321.0
+      - 12
+      style:
+        class: colhd
+        color: fg
+      type: text
+      text: FRAMEGRAPH SDK
+    - box:
+      - 395.0
+      - 678
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: '# authored by coordinate, not dragged'
+    - box:
+      - 395.0
+      - 691
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: page.path([[40,40],[120,20],[200,60]])
+    - box:
+      - 395.0
+      - 704
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: '# to ''edit'' AI-02: change the numbers'
+    - box:
+      - 56
+      - 734
+      - 682
+      - 118
+      type: rect
+      fill: band
+    - box:
+      - 56
+      - 734
+      - 4
+      - 118
+      type: rect
+      fill: none
+    - box:
+      - 74
+      - 750
+      - 200
+      - 12
+      style:
+        class: gid
+        color: none
+      type: text
+      text: AI-28 · NONE (arch)
+    - box:
+      - 74
+      - 768
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Gradient mesh
+    - box:
+      - 74
+      - 792
+      - 311.0
+      - 12
+      style:
+        class: colhd
+        color: ai
+      type: text
+      text: ILLUSTRATOR
+    - box:
+      - 74
+      - 808
+      - 311.0
+      - 36
+      style: aiev
+      type: text
+      text: Mesh Tool → add colour points → blend.
+    - box:
+      - 395.0
+      - 792
+      - 321.0
+      - 12
+      style:
+        class: colhd
+        color: fg
+      type: text
+      text: FRAMEGRAPH SDK
+    - box:
+      - 395.0
+      - 808
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: '# no mesh primitive in the model —'
+    - box:
+      - 395.0
+      - 821
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: '# nearest: a linear/radial gradient,'
+    - box:
+      - 395.0
+      - 834
+      - 321.0
+      - 12
+      style:
+        class: cite
+        align: start
+        color: ink
+      type: text
+      text: '# which cannot vary in two axes.'
+- mode: page
+  id: reverse
+  canvas:
+    size:
+    - 794.0
+    - 1123.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 794
+      - 1123
+      type: rect
+      fill: bg
+  - id: main
+    objects:
+    - box:
+      - 56
+      - 34
+      - 300
+      - 11
+      style: run
+      type: text
+      text: CAPABILITY TEARDOWN
+    - box:
+      - 418
+      - 34
+      - 320
+      - 11
+      style: runR
+      type: text
+      text: THE OTHER DIRECTION
+    - box:
+      - 56
+      - 50
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 56
+      - 1069
+      - 682
+      - 1
+      type: rect
+      fill: hair
+    - box:
+      - 0
+      - 1079
+      - 794
+      - 12
+      style: folio
+      type: text
+      text: '12'
+    - box:
+      - 56
+      - 74
+      - 682
+      - 12
+      style: kick
+      type: text
+      text: // the comparison runs both ways
+    - box:
+      - 56
+      - 92
+      - 682
+      - 40
+      style: h2
+      type: text
+      text: What FrameGraph has that Illustrator lacks
+    - box:
+      - 56
+      - 130
+      - 44
+      - 3
+      type: rect
+      fill: fg
+    - box:
+      - 56
+      - 154
+      - 682
+      - 76
+      style: lead
+      type: text
+      text: A comparison that only lists an editor's features would be rigged. These
+        are manifest capabilities a vector editor has no NATIVE, declarative answer
+        for — the price Illustrator pays for being a canvas, not a document engine.
+        (Illustrator can still embed such artwork by hand, via scripts or plugins;
+        it just is not native.)
+    - type: polyline
+      points:
+      - - 64.0
+        - 252.0
+      - - 72.0
+        - 260.0
+      - - 64.0
+        - 268.0
+      - - 56.0
+        - 260.0
+      closed: true
+      fill: fg
+    - box:
+      - 86
+      - 246
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Long-form documents
+    - box:
+      - 86
+      - 264
+      - 622
+      - 32
+      style:
+        class: fgev
+        color: sub
+      type: text
+      text: 'flow model: TOC, bibliography, footnotes, code & math blocks, keep_together
+        — a book, not an artboard.'
+    - box:
+      - 56
+      - 296
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 50
+      - 298
+      - 694
+      - 58
+      type: rect
+      fill: band
+    - type: polyline
+      points:
+      - - 64.0
+        - 310.0
+      - - 72.0
+        - 318.0
+      - - 64.0
+        - 326.0
+      - - 56.0
+        - 318.0
+      closed: true
+      fill: fg
+    - box:
+      - 86
+      - 304
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Structural validation
+    - box:
+      - 86
+      - 322
+      - 622
+      - 32
+      style:
+        class: fgev
+        color: sub
+      type: text
+      text: a schema + validator + golden-render lock prove the document before a
+        pixel is drawn; Illustrator has no correctness gate.
+    - box:
+      - 56
+      - 354
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - type: polyline
+      points:
+      - - 64.0
+        - 368.0
+      - - 72.0
+        - 376.0
+      - - 64.0
+        - 384.0
+      - - 56.0
+        - 376.0
+      closed: true
+      fill: fg
+    - box:
+      - 86
+      - 362
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Reproducible source of truth
+    - box:
+      - 86
+      - 380
+      - 622
+      - 32
+      style:
+        class: fgev
+        color: sub
+      type: text
+      text: plain-text YAML, diffable & version-controlled, with byte-stable renders
+        — not a binary .ai project.
+    - box:
+      - 56
+      - 412
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 50
+      - 414
+      - 694
+      - 58
+      type: rect
+      fill: band
+    - type: polyline
+      points:
+      - - 64.0
+        - 426.0
+      - - 72.0
+        - 434.0
+      - - 64.0
+        - 442.0
+      - - 56.0
+        - 434.0
+      closed: true
+      fill: fg
+    - box:
+      - 86
+      - 420
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Parametric geometry
+    - box:
+      - 86
+      - 438
+      - 622
+      - 32
+      style:
+        class: fgev
+        color: sub
+      type: text
+      text: 'parametric_curve, Lattice, manifolds (Klein bottle, Möbius) — equation-driven
+        geometry Illustrator has no tool for. (Charts it does have: AI-51.)'
+    - box:
+      - 56
+      - 470
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - type: polyline
+      points:
+      - - 64.0
+        - 484.0
+      - - 72.0
+        - 492.0
+      - - 64.0
+        - 500.0
+      - - 56.0
+        - 492.0
+      closed: true
+      fill: fg
+    - box:
+      - 86
+      - 478
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: UI component library
+    - box:
+      - 86
+      - 496
+      - 622
+      - 32
+      style:
+        class: fgev
+        color: sub
+      type: text
+      text: navbar, button, card, tabs, badge, avatar, breadcrumb, slider — a whole
+        interface kit with no Illustrator equivalent.
+    - box:
+      - 56
+      - 528
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - box:
+      - 50
+      - 530
+      - 694
+      - 58
+      type: rect
+      fill: band
+    - type: polyline
+      points:
+      - - 64.0
+        - 542.0
+      - - 72.0
+        - 550.0
+      - - 64.0
+        - 558.0
+      - - 56.0
+        - 550.0
+      closed: true
+      fill: fg
+    - box:
+      - 86
+      - 536
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Colour science
+    - box:
+      - 86
+      - 554
+      - 622
+      - 32
+      style:
+        class: fgev
+        color: sub
+      type: text
+      text: Chevreul harmony + WCAG contrast_ratio + tone_scale — measured colour,
+        not just swatches.
+    - box:
+      - 56
+      - 586
+      - 682
+      - 0.6
+      type: rect
+      fill: hair
+    - type: polyline
+      points:
+      - - 64.0
+        - 600.0
+      - - 72.0
+        - 608.0
+      - - 64.0
+        - 616.0
+      - - 56.0
+        - 608.0
+      closed: true
+      fill: fg
+    - box:
+      - 86
+      - 594
+      - 642
+      - 14
+      style: feat
+      type: text
+      text: Machine authoring
+    - box:
+      - 86
+      - 612
+      - 622
+      - 32
+      style:
+        class: fgev
+        color: sub
+      type: text
+      text: '25 MCP tools: an AI author→render→verify loop. The document is built
+        and checked by code, end to end.'
+    - box:
+      - 56
+      - 644
       - 682
       - 0.6
       type: rect
@@ -4981,7 +7552,7 @@ pages:
       - 12
       style: folio
       type: text
-      text: 08
+      text: '13'
     - box:
       - 56
       - 74
@@ -5009,25 +7580,26 @@ pages:
       - 56
       - 154
       - 682
-      - 92
+      - 120
       style: lead
       type: text
-      text: 'Of 44 Illustrator capabilities, FrameGraph has a full equivalent for
-        21 and a partial one for 11. The 10 genuine gaps cluster where Illustrator
-        is a painting instrument — gradient mesh, freeform gradient, the Pencil, envelope
-        distort, type on a path, pixel snapping, packaging. The 2 REFRAMED rows are
-        the most telling: object selection and image trace exist in both tools, but
-        FrameGraph reaches them by naming and a tool call — not a cursor.'
+      text: 'Across 51 Illustrator capabilities from three manuals, FrameGraph has
+        a full equivalent for 14 and a partial one for 17. The 16 genuine gaps cluster
+        where Illustrator is a painting instrument — gradient mesh, freeform gradient,
+        blends, the Pencil, variable-width strokes, perspective, envelope distort,
+        mockup. The 4 REFRAMED rows are the most telling: selection, image trace,
+        and the new 2024 generative-AI features exist in both — but FrameGraph reaches
+        them by naming, a tool call, and an author→render loop, not a cursor.'
     - box:
       - 56
-      - 262
+      - 290
       - 682
       - 150
       type: rect
       fill: ink
     - box:
       - 82
-      - 288
+      - 316
       - 630
       - 34
       style:
@@ -5037,7 +7609,7 @@ pages:
       text: Illustrator is a hand.
     - box:
       - 82
-      - 322
+      - 350
       - 630
       - 34
       style:
@@ -5047,7 +7619,7 @@ pages:
       text: FrameGraph is a grammar.
     - box:
       - 82
-      - 366
+      - 394
       - 630
       - 22
       style:
@@ -5057,7 +7629,7 @@ pages:
       text: The gaps are the price of being declarative and machine-authored;
     - box:
       - 82
-      - 386
+      - 414
       - 630
       - 22
       style:
@@ -5067,14 +7639,14 @@ pages:
       text: the overlaps are where a format can meet an editor.
     - box:
       - 56
-      - 442
+      - 470
       - 682
       - 104
       type: rect
       fill: aitint
     - box:
       - 76
-      - 460
+      - 488
       - 642
       - 12
       style:
@@ -5084,7 +7656,7 @@ pages:
       text: // HONEST SCOPE
     - box:
       - 76
-      - 478
+      - 506
       - 642
       - 60
       style: legdesc
@@ -5095,7 +7667,7 @@ pages:
         not of production maturity.'
     - box:
       - 56
-      - 566
+      - 594
       - 682
       - 10
       style: kick
@@ -5103,25 +7675,27 @@ pages:
       text: // PROVENANCE
     - box:
       - 56
-      - 582
+      - 610
       - 682
       - 1
       type: rect
       fill: hair
     - box:
       - 56
-      - 592
+      - 620
       - 682
-      - 64
+      - 90
       style: legdesc
       type: text
-      text: Illustrator features mined from “Master Adobe Illustrator 2025” (Dana
-        J. Bailey, 159 pp, 1,875 sentences), doc-ray corpus, GraphQL. Each [n] is
-        a source sentence ordinal — searchSentences(documentId, term) round-trips
-        it. FrameGraph coverage quotes docs/capability-manifest.json, gated by tests/test_capability_manifest.py.
+      text: 'Illustrator features mined from THREE doc-ray corpus sources over GraphQL:
+        [24] “Adobe Illustrator 2024 User''s Guide” (231 pp, 2,283 sentences) and
+        [25] “Master Adobe Illustrator 2025” (Dana J. Bailey, 159 pp). Each SRC·ORDINAL
+        round-trips via searchSentences(documentId, term). FrameGraph coverage quotes
+        docs/capability-manifest.json (278 capabilities, tri-state core/SDK/MCP),
+        gated by tests/test_capability_manifest.py.'
     - box:
       - 56
-      - 658
+      - 710
       - 682
       - 12
       style:
@@ -5131,7 +7705,7 @@ pages:
       text: Composed by Claude (Fable 5), 2026 · a declarative teardown of a declarative
         format.
 meta:
-  provenance: 44 Illustrator features torn down. Illustrator claims cite sentence
+  provenance: 51 Illustrator features torn down. Illustrator claims cite sentence
     ordinals in 'Master Adobe Illustrator 2025' (doc-ray corpus, GraphQL). FrameGraph
     coverage quotes docs/capability-manifest.json.
   generated_by: Claude Fable 5 via Claude Code
