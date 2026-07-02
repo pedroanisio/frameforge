@@ -15,8 +15,9 @@ dependencies = [
 # The render front-door (framegraph/cli.py): `framegraph-render <doc> --to <target>`
 # lists every render path and dispatches to it (`--list` shows live availability).
 # Declared here so it becomes a console command once the project is installable;
-# today this is a virtual project (`[tool.uv] package = false`), so run it with
-# `uv run python -m framegraph.cli ... --to pdf`.
+# today this is a virtual project (`[tool.uv] package = false`), so use the
+# self-bootstrapping launcher: `uv run python tooling/framegraph_render.py ... --to pdf`
+# (no PYTHONPATH needed; `python -m framegraph.cli` also works once src/docs are on the path).
 [project.scripts]
 framegraph-render = "framegraph.cli:main"
 

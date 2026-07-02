@@ -1,18 +1,34 @@
 """Model access for the Python SDK.
 
 The repository intentionally has both a package named ``framegraph`` and an
-authoritative model module at ``models/framegraph.py``. SDK code imports the
-model through the ``models`` namespace so the package is not shadowed.
+authoritative model module at ``docs/models/framegraph.py``. SDK code imports
+the model through the ``models`` namespace so the package is not shadowed.
+
+Callers inside the gates export ``PYTHONPATH=src:docs`` (the Makefile) or use
+``conftest.py``; the CLI front door and bare ``uv run`` invocations do not —
+so when ``models`` is not already importable, derive ``<repo>/docs`` from this
+file's own location (``src/framegraph/sdk/model.py`` → three parents up) and
+retry. The fallback only ever *appends* a path; a caller-provided ``models``
+always wins (issue #35).
 """
 from __future__ import annotations
 
+import sys
 from importlib import import_module
+from pathlib import Path
 from types import ModuleType
 from typing import Any
 
 from pydantic import ValidationError
 
-_MODEL = import_module("models.framegraph")
+try:
+    _MODEL = import_module("models.framegraph")
+except ModuleNotFoundError:
+    _docs = Path(__file__).resolve().parents[3] / "docs"
+    if not (_docs / "models" / "framegraph.py").is_file():
+        raise
+    sys.path.append(str(_docs))
+    _MODEL = import_module("models.framegraph")
 
 Document = _MODEL.Document
 HEAD_VERSION: str = _MODEL.HEAD_VERSION

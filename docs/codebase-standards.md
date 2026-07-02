@@ -96,7 +96,9 @@ Rules of reading:
   plus poppler's `pdftoppm` for `--png` ([pyproject.toml:30-39](../pyproject.toml#L30-L39)).
 - **`[Enforced]`** A `framegraph-render` console script is declared
   ([pyproject.toml:20-21](../pyproject.toml#L20-L21)) but inert while the project stays
-  virtual — run the render front-door as `uv run python -m framegraph.cli`.
+  virtual — run the render front-door via the self-bootstrapping launcher
+  `uv run python tooling/framegraph_render.py` (PYTHONPATH-free; issue #35), or
+  `python -m framegraph.cli` where `src`/`docs` are already on the path.
 - **`[Enforced]`** This is a **virtual project**: `package = false`
   ([pyproject.toml:75](../pyproject.toml#L75)). The tree runs via `sys.path`-rooted scripts;
   it is deliberately **not** built or installed (an installed `framegraph` distribution

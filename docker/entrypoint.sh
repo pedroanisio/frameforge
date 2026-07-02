@@ -46,7 +46,13 @@ PY
     shift || true
     exec make check
     ;;
-  python|python3|pytest|make|framegraph-render)
+  framegraph-render)
+    # the [project.scripts] entry is inert (virtual project); the image sets
+    # PYTHONPATH, so the module form is the working equivalent (issue #35)
+    shift || true
+    run python -m framegraph.cli "$@"
+    ;;
+  python|python3|pytest|make)
     run "$@"
     ;;
   *)
