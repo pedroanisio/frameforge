@@ -47,12 +47,20 @@ from framegraph.rendering.infrastructure.painters.svg import SvgPainter
 # --------------------------------------------------------------------------- #
 class Renderer:
 
-    def __init__(self, doc, base_dir, *, real_metrics=False, painter_factory=None):
+    def __init__(self, doc, base_dir, *, real_metrics=None, painter_factory=None,
+                 layout_report=False):
         self.doc = doc if isinstance(doc, dict) else {}
         self.base_dir = base_dir
         # Opt-in: when True (and fontTools resolves the family) text width comes
         # from real glyph advances instead of the per-char `avg` estimate. OFF by
         # default so render_page()/golden output stays byte-identical (§8).
+        # `None` (the default) consults FRAMEGRAPH_REAL_METRICS so the flag is
+        # reachable through every public entry point (sdk.render_page_svgs, the
+        # MCP pipeline, the CLI) without a signature change; an explicit bool —
+        # e.g. the golden harness passing False — always wins over the env.
+        if real_metrics is None:
+            real_metrics = os.environ.get("FRAMEGRAPH_REAL_METRICS", "").strip().lower() in (
+                "1", "true", "yes", "on")
         self.real_metrics = bool(real_metrics)
         # Text fitting (measure/wrap/ellipsize) is a domain service; inject the
         # infra font-metrics provider only when real_metrics is on (estimate mode
@@ -76,6 +84,25 @@ class Renderer:
         # text-fit telemetry (asserted by --check-overflow)
         self.tstats = dict(total=0, naive_overflow=0, shrunk=0, wrapped=0,
                            clipped=0, contained=0, visible_overflow=0, uncontained=0)
+        # ---- structured render feedback (additive; never alters SVG bytes) -- #
+        # `warnings`         — structured events (kind/message/details) from the
+        #                      renderer AND the painter (conic fallback, unknown
+        #                      mask refs, unsupported toc kinds, ...).
+        # `skipped_objects`  — every object swallowed by the per-object safety
+        #                      net, with type/id and the exception message.
+        # `skipped_flowables`— per-type counts of flow blocks the SVG proxy
+        #                      drops (no more silent passes).
+        # `font_fallbacks`   — requested->resolved family substitutions, filled
+        #                      by `font_report()` (fc-match; empty until called).
+        # `layout`           — opt-in (`layout_report=True`): per-object final
+        #                      boxes + fitted font sizes, keyed by object id.
+        self.layout_report = bool(layout_report)
+        self.diagnostics = {"warnings": [], "skipped_objects": [],
+                            "skipped_flowables": {}, "font_fallbacks": [], "layout": []}
+        # headings placed by the LAST flow page render: {level, text, id, page}
+        # (page is 1-based within that flow). Read by the PDF outline builder.
+        self.flow_headings = []
+        self._families_seen = set()
         # ---- domain resolvers + SVG painter (DDD steps 3–4) ----------------- #
         # Token/style/canvas resolution are pure domain services. ALL SVG string
         # construction + the per-page <defs>/gradient-id state now lives in the
@@ -87,7 +114,8 @@ class Renderer:
         # The backend is injectable: `painter_factory(color_resolver) -> ScenePainter`
         # lets the same builder drive a non-SVG backend (e.g. TikzPainter). Defaults
         # to the SVG adapter so existing callers and golden output are unchanged.
-        self._painter = painter_factory(self._color) if painter_factory else SvgPainter(self._color)
+        self._painter = (painter_factory(self._color) if painter_factory
+                         else SvgPainter(self._color, warn=self.warn))
         self._text_style = TextStyleResolver(self.text_styles, self.styles, self._color)
         self._canvas = CanvasResolver(self.masters)
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)
@@ -105,13 +133,60 @@ class Renderer:
         return self._color.resolve(c, depth)
 
     def paint(self, p, depth=0):
-        """Return an SVG fill/stroke value: a colour, 'none', or url(#grad).
+        """Return an SVG fill/stroke value: a colour, 'none', or url(#grad/#pat).
 
-        Gradient *emission* (the <defs> entry + id) lives on the painter now;
-        this routes a gradient paint to it and a colour to the resolver."""
+        Gradient/pattern *emission* (the <defs> entry + id) lives on the painter;
+        this routes a gradient or pattern paint to it and a colour to the
+        resolver. Backends without a `pattern()` port (e.g. the TikZ adapter)
+        keep the legacy background-colour flattening via ColorResolver."""
         if isinstance(p, dict) and p.get("stops") and p.get("kind") in ("linear", "radial", "conic"):
             return self._painter.gradient(p)
+        if isinstance(p, dict) and p.get("kind") == "pattern":
+            emit = getattr(self._painter, "pattern", None)
+            if emit is not None:
+                return emit(p)
+            self.warn("pattern_unsupported_backend",
+                      "pattern paint flattened to its background colour "
+                      "(backend has no pattern port)")
         return self.color(p, depth)
+
+    # ---- structured render feedback ----------------------------------------- #
+    def warn(self, kind, message, **details):
+        """Record a structured render warning (never raises, never mutates SVG)."""
+        event = {"kind": kind, "message": message}
+        if details:
+            event.update(details)
+        self.diagnostics["warnings"].append(event)
+
+    def _note_flow_skip(self, flow_type):
+        key = str(flow_type or "unknown")
+        counts = self.diagnostics["skipped_flowables"]
+        counts[key] = counts.get(key, 0) + 1
+
+    def font_report(self):
+        """Resolve every concrete font family seen during render via fc-match and
+        return `[{requested, resolved, substituted}]` (empty when fc-match is
+        unavailable). Substituted families — the raster will draw a different
+        face than the author asked for — are also copied into
+        `diagnostics["font_fallbacks"]` so agents see the requested->resolved
+        pairs without pixel-diffing. Generic-only chains (sans-serif/serif/
+        monospace/...) resolve to a system default by design and are skipped."""
+        from framegraph.rendering.infrastructure.font_metrics import (
+            first_concrete_family, resolve_family_name,
+        )
+        report = []
+        for chain in sorted(f for f in self._families_seen if f):
+            requested = first_concrete_family(chain)
+            if requested is None:
+                continue
+            resolved = resolve_family_name(chain)
+            if resolved is None:
+                continue
+            offered = [p.strip().lower() for p in str(resolved).split(",")]
+            report.append({"requested": requested, "resolved": resolved,
+                           "substituted": requested.lower() not in offered})
+        self.diagnostics["font_fallbacks"] = [e for e in report if e["substituted"]]
+        return report
 
     # ---- stroke (HEAD P3: paint in `stroke`, geometry in `stroke_style`) --- #
     def stroke(self, o):
@@ -164,6 +239,16 @@ class Renderer:
             if isinstance(sp, dict):
                 if sp.get("kind") == "math" and (sp.get("tex") is not None or sp.get("latex") is not None):
                     text = math_text(sp.get("tex") if sp.get("tex") is not None else sp.get("latex"))
+                elif sp.get("kind") == "link":
+                    # LinkInline: flatten the inline content to the run text and
+                    # carry the href on the style dict under the reserved
+                    # `link_href` key — the SVG backend wraps the run in <a>;
+                    # backends that don't know the key ignore it (additive).
+                    text = self._flatten_span_text(sp)
+                    sty = {**(self.text_style(sp["style"]) if sp.get("style") else base_st),
+                           "link_href": sp.get("href")}
+                    runs.append((self._transform_text(str(text), base_st.get("text_transform")), sty))
+                    continue
                 else:
                     text = sp.get("text", "")
                 sty = self.text_style(sp["style"]) if sp.get("style") else base_st
@@ -173,12 +258,28 @@ class Renderer:
             runs.append((text, sty))
         return runs
 
-    def render_text(self, x, y, w, h, content, st, spans=None):
+    @classmethod
+    def _flatten_span_text(cls, sp):
+        """The plain text of one `text.spans` entry (str, Span dict, or an inline
+        like LinkInline whose `content` nests further inlines)."""
+        if isinstance(sp, str):
+            return sp
+        if not isinstance(sp, dict):
+            return str(sp)
+        if sp.get("text") is not None:
+            return str(sp.get("text"))
+        content = sp.get("content")
+        if isinstance(content, list):
+            return "".join(cls._flatten_span_text(item) for item in content)
+        return ""
+
+    def render_text(self, x, y, w, h, content, st, spans=None, oid=None):
         """Render a text object honouring the FrameGraph text-fit contract:
         wrap-to-box (default), `shrink_to_fit` (down to min_font_size), `clip`/
         `hidden`, `text_overflow: ellipsis`, `line_clamp`/`max_lines`, plus a
         hard clip-path safety net so contained text can never spill its box."""
         self.tstats["total"] += 1
+        self._families_seen.add(str(st.get("family") or ""))
         if content is None or content == "":
             return ""
         content = self._transform_text(str(content), st.get("text_transform"))
@@ -270,6 +371,11 @@ class Renderer:
             # explicit overflow:visible long text — permitted to spill, but flagged
             self.tstats["visible_overflow"] += 1
             self.tstats["uncontained"] += 1
+        if self.layout_report:
+            self.diagnostics["layout"].append({
+                "id": oid, "type": "text", "box": [x, y, w, h],
+                "font_size": size, "lines": len(lines), "clipped": clipped,
+            })
         return el
 
     @staticmethod
@@ -297,9 +403,31 @@ class Renderer:
             opacity = o.get("opacity")
             if inner and opacity not in (None, 1):
                 inner = self._painter.opacity_group(inner, num(opacity, 1))
-            return self._painter.a11y_wrap(inner, o)
-        except Exception:                              # never let one object kill a page
+            if inner and self.layout_report and o.get("type") != "text":
+                box = o.get("box")
+                if isinstance(box, list) and len(box) >= 4:
+                    # authored/local frame (pre-transform); text objects record
+                    # their richer entry (fitted size, lines) in render_text.
+                    self.diagnostics["layout"].append({
+                        "id": o.get("id"), "type": o.get("type"),
+                        "box": [num(v, 0) for v in box[:4]],
+                    })
+            svg = self._painter.a11y_wrap(inner, o)
+            # dict-level `href` pass-through: any visual object carrying a link
+            # target is wrapped in <a href> (outermost, so the whole semantic
+            # group is the hit area). The model field is owned by the schema
+            # layer; the renderer honours the normalized dict either way.
+            href = o.get("href")
+            if svg and isinstance(href, str) and href.strip():
+                wrap = getattr(self._painter, "link_wrap", None)
+                svg = wrap(svg, href.strip(), o.get("link_title")) if wrap else svg
+            return svg
+        except Exception as exc:                       # never let one object kill a page
             self.skipped += 1
+            self.diagnostics["skipped_objects"].append({
+                "type": o.get("type"), "id": o.get("id"),
+                "error": f"{type(exc).__name__}: {exc}",
+            })
             return ""
 
     def _with_side_borders(self, o, style, svg):
@@ -392,8 +520,18 @@ class Renderer:
             if val:
                 attrs[css_name] = str(val)
         mask = style.get("mask")
-        if isinstance(mask, str) and mask.strip() and mask.strip() != "none":
+        if isinstance(mask, dict):
+            mid = self._style_mask_id(mask, o.get("box"))
+            if mid:
+                attrs["mask"] = f"url(#{mid})"
+        elif isinstance(mask, str) and mask.strip() and mask.strip() != "none":
             attrs["mask"] = mask.strip()
+            ref = re.fullmatch(r"url\(#([^)]+)\)", mask.strip())
+            if ref and not self._painter_has_def(ref.group(1)):
+                self.warn("mask_unresolved_ref",
+                          f"style.mask references '#{ref.group(1)}' but no def with "
+                          "that id exists on this page — the mask is a no-op",
+                          id=o.get("id"))
         z_index = style.get("z_index")
         if z_index is not None:
             attrs["z-index"] = str(z_index)
@@ -408,6 +546,33 @@ class Renderer:
         css = style.get("css")
         raw = css if (css and o.get("type") != "text") else ""
         return self._painter.style_group(svg, attrs, raw)
+
+    def _painter_has_def(self, def_id):
+        has = getattr(self._painter, "has_def_id", None)
+        return bool(has(def_id)) if has else True    # backends without a registry: trust
+
+    def _style_mask_id(self, mask, box):
+        """Lower a Style.mask *value* (Gradient or UrlImage dict) into a generated
+        `<mask>` def sized to the object's box; returns the mask id or None
+        (with a structured warning) when it cannot be built."""
+        emit = getattr(self._painter, "mask_def", None)
+        if emit is None:
+            self.warn("mask_unsupported_backend", "backend has no mask port; mask dropped")
+            return None
+        if not (isinstance(box, list) and len(box) >= 4):
+            self.warn("mask_needs_box", "an Image/Gradient style.mask needs the "
+                      "object's box to size the mask content; mask dropped")
+            return None
+        x, y, w, h = (num(v, 0) for v in box[:4])
+        if mask.get("stops") and mask.get("kind") in ("linear", "radial", "conic"):
+            fill = self.paint(mask)                  # allocates the gradient def first
+            return emit(self._painter.rect(x, y, w, h, fill, None))
+        href = self._background_image_href(mask)
+        if href:
+            return emit(self._painter.image(x, y, w, h, href, "xMidYMid slice"))
+        self.warn("mask_unresolvable_value",
+                  "style.mask dict is neither a gradient nor a resolvable image; mask dropped")
+        return None
 
     def _with_style_clip(self, o, style, svg):
         clip = style.get("clip_path")
@@ -587,6 +752,8 @@ class Renderer:
                           markers=self._arrow_markers(o))
 
         if t == "dimension":
+            if o.get("kind") == "angular":
+                return self._angular_dimension(o, style)
             return self._dim.draw(o, style)
 
         if t == "connector":
@@ -597,9 +764,9 @@ class Renderer:
             content = o.get("text")
             spans = o.get("spans")
             if content is None and spans:
-                content = "".join(s if isinstance(s, str) else s.get("text", "")
-                                  for s in spans)
-            return self.render_text(x, y, w, h, content, self.text_style(o.get("style")), spans=spans)
+                content = "".join(self._flatten_span_text(s) for s in spans)
+            return self.render_text(x, y, w, h, content, self.text_style(o.get("style")),
+                                    spans=spans, oid=o.get("id"))
 
         if t == "bullet_list" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
@@ -776,6 +943,70 @@ class Renderer:
             body += self.render_text(num(bx[0], 0), num(bx[1], 0), num(bx[2], 0), num(bx[3], 0),
                                      label.get("text", ""), st)
         return body
+
+    def _angular_dimension(self, o, style):
+        """Draw a `kind: angular` dimension — the arc between two anchor rays.
+
+        The model gives two anchors (`from`/`to`) but an angle needs a vertex;
+        the documented convention is: **`box[0], box[1]` is the vertex** and
+        `from`/`to` are points on the two rays. The measure arc is drawn at the
+        nearer ray-point's radius (override with `offset`), always along the
+        minor arc, with arrowheads per `arrows` and an auto label in degrees
+        (`value: auto`/omitted measures; `suffix` defaults to the degree sign).
+        A missing vertex is a structured skip, not a silent drop."""
+        p = self._painter
+        fr = self._dim.point_anchor(o.get("from"))
+        to = self._dim.point_anchor(o.get("to"))
+        box = o.get("box")
+        vertex = (num(box[0], 0), num(box[1], 0)) if (
+            isinstance(box, list) and len(box) >= 2) else None
+        if fr is None or to is None or vertex is None:
+            self.warn("dimension_angular_vertex",
+                      "angular dimension needs point `from`/`to` anchors and a "
+                      "`box` whose origin is the vertex of the measured angle",
+                      id=o.get("id"))
+            self.skipped += 1
+            return ""
+        vx, vy = vertex
+        a1 = math.atan2(fr[1] - vy, fr[0] - vx)
+        a2 = math.atan2(to[1] - vy, to[0] - vx)
+        d1 = math.hypot(fr[0] - vx, fr[1] - vy)
+        d2 = math.hypot(to[0] - vx, to[1] - vy)
+        if d1 <= 0 or d2 <= 0:
+            self.warn("dimension_angular_vertex",
+                      "angular dimension ray coincides with its vertex", id=o.get("id"))
+            self.skipped += 1
+            return ""
+        sweep = (a2 - a1) % (2 * math.pi)
+        if sweep > math.pi:                      # always dimension the minor arc
+            a1, a2 = a2, a1
+            sweep = 2 * math.pi - sweep
+        degrees = math.degrees(sweep)
+        r = num(o.get("offset"), None) or min(d1, d2)
+        sx, sy = vx + r * math.cos(a1), vy + r * math.sin(a1)
+        ex, ey = vx + r * math.cos(a2), vy + r * math.sin(a2)
+        stroke = self._dim.stroke(o, style)
+        arc = (f"M {fnum(sx)} {fnum(sy)} "
+               f"A {fnum(r)} {fnum(r)} 0 0 1 {fnum(ex)} {fnum(ey)}")
+        body = [
+            p.line(vx, vy, fr[0], fr[1], stroke),         # the two rays
+            p.line(vx, vy, to[0], to[1], stroke),
+            p.path(arc, None, stroke, markers=self._dim.arrows(o)),
+        ]
+        if o.get("text") is not None:
+            label = str(o.get("text"))
+        else:
+            value = o.get("value")
+            measured = degrees if value in (None, "auto") else num(value, degrees)
+            suffix = o.get("suffix")
+            label = (f"{o.get('prefix') or ''}{fnum(round(measured, 1))}"
+                     f"{suffix if suffix is not None else '°'}")
+        st = self._dim.text(o)
+        mid = a1 + sweep / 2
+        lx, ly = vx + (r + 12) * math.cos(mid), vy + (r + 12) * math.sin(mid)
+        body.append(p.text_tag(lx - 40, ly - st["size"] * 0.7, 80, st["size"] * 1.4,
+                               label, st, vcenter=True))
+        return p.group("".join(body))
 
     def _style_dict(self, ref, _seen=None):
         _seen = set() if _seen is None else set(_seen)
@@ -1058,6 +1289,7 @@ class Renderer:
     def render_page(self, page):
         """Return a list of SVG strings (1 for page-mode, N for paginated flow)."""
         self._painter.new_page()
+        self.flow_headings = []
         self.contract = {**self.doc_contract, **((page.get("rendering") or {}).get("text") or {})}
         w, h = self.canvas_wh(page)
         if page.get("mode") == "flow":
@@ -1076,9 +1308,23 @@ class Renderer:
         body = []
         for layer in sorted(page.get("layers") or [], key=lambda L: L.get("z", 0)):
             lo = layer.get("opacity")
-            inner = "".join(self.obj(o) for o in (layer.get("objects") or []))
+            inner = "".join(self.obj(o) for o in self._paint_ordered(layer.get("objects") or []))
             body.append(self._painter.opacity_group(inner, lo) if lo not in (None, 1) else inner)
         return "".join(body)
+
+    def _paint_ordered(self, objects):
+        """Objects in paint order: `style.z_index` is a STABLE sort key within a
+        layer (default 0), so siblings without one keep document order and the
+        emitted bytes are unchanged. SVG paints in document order — CSS z-index
+        is inert inside inline SVG — so ordering emission is the only honest
+        implementation. The inert `z-index` style attribute is still emitted for
+        HTML-embedding consumers."""
+        def zkey(o):
+            if not isinstance(o, dict):
+                return 0.0
+            z = self._style_dict(o.get("style")).get("z_index")
+            return num(z, 0) or 0.0
+        return sorted(objects, key=zkey)
 
     def _render_page_body_in_reading_order(self, page, reading_order):
         top_level = []
@@ -1114,7 +1360,52 @@ class Renderer:
             rendered = self._painter.opacity_group(rendered, layer_opacity)
         return rendered
 
+    @classmethod
+    def _story_headings(cls, story):
+        """Static walk of a story's headings in emission order (descending into
+        block/keep_together containers) — the entry list a `toc` renders."""
+        out = []
+        for fl in story or []:
+            if not isinstance(fl, dict):
+                continue
+            if fl.get("type") == "heading":
+                out.append({"level": int(fl.get("level", 1) or 1),
+                            "text": str(fl.get("text") or ""), "id": fl.get("id")})
+            elif fl.get("type") in ("block", "keep_together"):
+                out.extend(cls._story_headings(fl.get("children") or []))
+        return out
+
+    @classmethod
+    def _story_has_toc(cls, story):
+        for fl in story or []:
+            if not isinstance(fl, dict):
+                continue
+            if fl.get("type") == "toc":
+                return True
+            if fl.get("type") in ("block", "keep_together") and cls._story_has_toc(fl.get("children")):
+                return True
+        return False
+
     def _render_flow(self, page, w, h):
+        """Paginate a flow page. A story containing a `toc` renders twice: a dry
+        first pass records which page each heading lands on, then the real pass
+        emits the toc entries with those page numbers. The toc reserves one line
+        per entry in both passes (numbers are separate right-anchored elements),
+        so pagination is identical across passes; the dry pass's telemetry is
+        rolled back so nothing is double-counted."""
+        if self._story_has_toc(page.get("story") or []):
+            saved = (dict(self.tstats), self.skipped, copy.deepcopy(self.diagnostics))
+            try:
+                self._render_flow_pages(page, w, h, toc_pages=None)
+                toc_pages = [hd["page"] for hd in self.flow_headings]
+            finally:
+                self.tstats, self.skipped, self.diagnostics = saved
+            self._painter.new_page()
+            self.flow_headings = []
+            return self._render_flow_pages(page, w, h, toc_pages=toc_pages)
+        return self._render_flow_pages(page, w, h, toc_pages=None)
+
+    def _render_flow_pages(self, page, w, h, toc_pages=None):
         p = self._painter
         margin = 56
         x, top, bottom = margin, margin, h - margin
@@ -1240,16 +1531,142 @@ class Renderer:
                 emit(ln, st, gap_after=1)
             cy += 8
 
+        def emit_linked(spans, st, gap_after=6):
+            """Paragraph spans containing LinkInline runs: wrap at word level with
+            the SAME greedy char-count rule as wrap(), then emit each line as
+            href-aware runs so `<a href>` survives wrapping. Link-free lines go
+            through the plain text_tag path (byte-identical to emit())."""
+            nonlocal cy
+            runs = []
+            for sp in spans:
+                href = sp.get("href") if (isinstance(sp, dict) and sp.get("kind") == "link") else None
+                for word in str(text_of(sp)).split():
+                    runs.append((word, href))
+            cpl = max(8, int(usable / (st["size"] * 0.52)))
+            lines, cur, cur_len = [], [], 0
+            for word, href in runs:
+                if cur and cur_len + 1 + len(word) > cpl:
+                    lines.append(cur)
+                    cur, cur_len = [(word, href)], len(word)
+                else:
+                    cur.append((word, href))
+                    cur_len = (cur_len + 1 + len(word)) if cur_len else len(word)
+            if cur:
+                lines.append(cur)
+            for line in lines or [[]]:
+                if cy + st["size"] > bottom:
+                    newpage()
+                groups = []
+                for word, href in line:                 # consecutive same-href words
+                    if groups and groups[-1][1] == href:
+                        groups[-1][0] += " " + word
+                    else:
+                        if groups:
+                            groups[-1][0] += " "         # separator stays in-text
+                        groups.append([word, href])
+                if any(href for _, href in groups):
+                    body.append(p.text_line_runs(x, cy, usable, st["size"] * st["lh"],
+                                                 [tuple(g) for g in groups], st))
+                else:
+                    body.append(p.text_tag(x, cy, usable, st["size"] * st["lh"],
+                                           " ".join(word for word, _ in line), st, vcenter=False))
+                cy += st["size"] * st["lh"]
+            cy += gap_after
+
+        def emit_image(fl):
+            """ImageFlow: reuse the page-mode image renderer (real file, data URI,
+            or the labelled placeholder) centred in the column. Width defaults to
+            the column; a missing height falls back to a 16:9 frame — the proxy
+            has no raster decoder to read the intrinsic size (honest default,
+            documented here)."""
+            nonlocal cy
+            iw = num(fl.get("width"), None) or usable
+            iw = min(iw, usable)
+            ih = num(fl.get("height"), None) or iw * 9 / 16
+            if cy + ih > bottom and cy > top:            # keep the plate whole
+                newpage()
+            par = fl.get("preserve_aspect_ratio")
+            o = {"type": "image", "src": fl.get("src"), "label": fl.get("alt")}
+            if isinstance(par, str):
+                o["preserve_aspect_ratio"] = par
+            elif par is False:
+                o["preserve_aspect_ratio"] = "none"
+            body.append(self._image(o, [x + (usable - iw) / 2, cy, iw, ih]))
+            cy += ih + 6
+            captxt = text_of(fl.get("caption"))
+            if captxt:
+                emit(captxt, {**base, "size": 10, "italic": True, "color": "#666",
+                              "align": "center"}, gap_after=12)
+            else:
+                cy += 8
+
+        def emit_toc(fl):
+            """TocFlow (v1: single-column `of: headings`): title + one line per
+            heading with leader dots and a right-anchored page number. Page
+            numbers come from the dry pass (`toc_pages`, aligned by heading
+            order); the dry pass itself renders the same line structure without
+            numbers, so pagination is stable across the two passes."""
+            nonlocal cy
+            if fl.get("of") not in (None, "headings"):
+                self.warn("flow_toc_unsupported",
+                          f"toc of={fl.get('of')!r} is not supported by the SVG flow "
+                          "proxy (headings only); use the pdf-tex backend for it")
+                self._note_flow_skip("toc")
+                return
+            headings = self._story_headings(page.get("story") or [])
+            title = fl.get("title")
+            if title:
+                emit(title, {**base, "family": "sans-serif", "size": 18, "weight": "bold"},
+                     gap_after=8)
+            levels = fl.get("levels")
+            leader = (str(fl.get("leader") or ".") or ".")[:1]
+            st = {**base, "size": 11, "lh": 1.5}
+            num_w = 24                                   # right column for page numbers
+            line_h = st["size"] * st["lh"]
+            for i, hd in enumerate(headings):
+                if levels and hd["level"] not in levels:
+                    continue
+                if cy + line_h > bottom:
+                    newpage()
+                indent = 14 * max(0, hd["level"] - 1)
+                body.append(p.text_tag(x + indent, cy, usable - indent - num_w, line_h,
+                                       hd["text"], st, vcenter=False))
+                title_w = self.measure(hd["text"], st["size"], 0.52)
+                dots_x = x + indent + title_w + 6
+                dots_w = x + usable - num_w - dots_x
+                unit = max(0.1, self.measure(" " + leader, st["size"], 0.52))
+                if dots_w > unit:
+                    body.append(p.text_tag(dots_x, cy, dots_w, line_h,
+                                           (" " + leader) * int(dots_w / unit), st,
+                                           vcenter=False))
+                if toc_pages is not None and i < len(toc_pages):
+                    body.append(p.text_tag(x, cy, usable, line_h, str(toc_pages[i]),
+                                           {**st, "align": "right"}, vcenter=False))
+                cy += line_h
+            cy += 10
+
         def emit_flow(fl):
             nonlocal cy
             ft = fl.get("type")
             stref = self.text_style(fl.get("style")) if fl.get("style") else None
             if ft == "heading":
                 sz = max(15, 30 - 3 * (fl.get("level", 1) - 1))
+                # record which flow page this heading lands on (1-based) — read
+                # by the toc pass and the PDF outline builder. Mirrors emit()'s
+                # page-break check for the first line.
+                hp = len(pages) + (2 if cy + sz > bottom else 1)
+                self.flow_headings.append({"level": int(fl.get("level", 1) or 1),
+                                           "text": text_of(fl), "id": fl.get("id"),
+                                           "page": hp})
                 emit(text_of(fl), {**base, "size": sz, "weight": "bold",
                                   **({"color": stref["color"]} if stref else {})}, gap_after=10)
             elif ft == "paragraph":
-                emit(text_of(fl), stref or base)
+                spans = fl.get("spans")
+                if isinstance(spans, list) and any(
+                        isinstance(s, dict) and s.get("kind") == "link" for s in spans):
+                    emit_linked(spans, stref or base)
+                else:
+                    emit(text_of(fl), stref or base)
             elif ft == "list":
                 ordered = bool(fl.get("ordered"))
                 for idx, it in enumerate(fl.get("items", []), start=1):
@@ -1278,10 +1695,18 @@ class Renderer:
                 newpage()
             elif ft == "figure" and isinstance(fl.get("object"), dict):
                 emit_figure(fl)
+            elif ft == "image":
+                emit_image(fl)
+            elif ft == "toc":
+                emit_toc(fl)
             else:
                 text = text_of(fl)
                 if text:
                     emit(text, stref or base)
+                else:
+                    # the proxy dropped this block: COUNT it by type — a document
+                    # that validates but loses content must say so (no silence).
+                    self._note_flow_skip(ft)
 
         def emit_figure(fl):
             nonlocal cy

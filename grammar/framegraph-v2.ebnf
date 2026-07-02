@@ -173,7 +173,12 @@ PagePreset  = "A3" | "A4" | "A5" | "Letter" | "Legal" | "Tabloid"   (* +P2: scre
             | "twitter-post" | "twitter-header" | "linkedin-post" | "linkedin-cover"
             | "youtube-thumbnail" | "youtube-banner" | "tiktok-video" | "pinterest-pin"
             | "snapchat" | "story"
-            | "1x1" | "4x5" | "5x4" | "9x16" | "16x9" | "2x3" | "3x2" | "1.91x1" | "3x1" ;
+            | "1x1" | "4x5" | "5x4" | "9x16" | "16x9" | "2x3" | "3x2" | "1.91x1" | "3x1"
+            (* +2.x: book trim sizes (points @ 72dpi) — see spec §4 *)
+            | "book-pocket" | "book-mass-market" | "book-trade" | "book-novel" | "book-digest"
+            | "book-6x9" | "book-7x10" | "book-8x10" | "book-textbook"
+            | "book-square-8" | "book-picture" | "book-square-10"
+            | "book-coffee-table" | "book-art-10x12" | "book-art-11x14" ;
 Orientation = "portrait" | "landscape" ;
 Units       = "pt" | "px" | "mm" | "in" | "cm" ;
 
@@ -532,12 +537,16 @@ ColumnSpec = string | "{" , [ "label" , ":" , string ] , [ "," , "width" , ":" ,
 
 (* ── relations / grouping / reuse ── *)
 
+(* Typed at HEAD (§3.11): endpoints are points or object attachments        *)
+(* {ref|object, port|side, offset, point}; the drawn geometry is the chain   *)
+(* start → route.points… → end; the label is a boxed text (a bare-string     *)
+(* label is NOT rendered and is therefore not part of the surface).          *)
 ConnectorObject =
     "{" , "type" , ":" , "connector" ,
-      "from" , ":" , Anchor ,
-      "to"   , ":" , Anchor ,
-      [ "route"  , ":" , Route ] ,
-      [ "label"  , ":" , string ] ,
+      "from" , ":" , ConnectorAnchor ,
+      "to"   , ":" , ConnectorAnchor ,
+      [ "route"  , ":" , ConnectorRoute ] ,
+      [ "label"  , ":" , ConnectorLabel ] ,
       [ "stroke" , ":" , Stroke ] ,
       common-object-fields ,
     "}" ;
@@ -937,10 +946,32 @@ LinkInline =
 Anchor = string | Point | AnchorObject ;
 AnchorObject = "{" , "ref" , ":" , string , [ "," , "port" , ":" , string ] , "}" ;
 
-Route =
+(* Connector endpoints (§3.11): `object` is the accepted legacy key for `ref` *)
+(* (normalised by the models); `point` wins over `ref`; with neither port nor  *)
+(* side the endpoint is the target's box centre.                              *)
+ConnectorAnchor = Point | ConnectorEndpoint ;
+ConnectorEndpoint =
     "{" ,
-      [ "kind"      , ":" , ( "straight" | "orthogonal" | "curved" ) ] ,
-      [ "waypoints" , ":" , "[" , Point , { "," , Point } , "]" ] ,
+      [ ( "ref" | "object" ) , ":" , string ] ,
+      [ "port"   , ":" , string ] ,
+      [ "side"   , ":" , ( "north" | "south" | "east" | "west" ) ] ,
+      [ "offset" , ":" , number ] ,
+      [ "point"  , ":" , Point ] ,
+    "}" ;                       (* at least one of ref/object or point *)
+
+(* `kind` (legacy key `type`) is an advisory routing hint; the renderer draws *)
+(* the polyline start → points… → end regardless.                             *)
+ConnectorRoute =
+    "{" ,
+      [ ( "kind" | "type" ) , ":" , ( "straight" | "orthogonal" | "curved" ) ] ,
+      [ "points" , ":" , "[" , Point , { "," , Point } , "]" ] ,
+    "}" ;
+
+ConnectorLabel =
+    "{" ,
+      "text" , ":" , string ,
+      "box"  , ":" , Box ,
+      [ "style" , ":" , StyleRef ] ,
     "}" ;
 
 (* +P1  Layout box model is specified in spec §3.6 (deterministic placement of *)

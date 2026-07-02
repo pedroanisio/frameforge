@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-test_head.py — assertions that pin HEAD 2.2.0 to the authoritative batch.
+test_head.py — assertions that pin HEAD 2.3.0 to the authoritative batch.
 
 Runnable two ways:
     python3 tests/test_head.py        # self-contained runner, prints PASS/FAIL counts
     pytest tests/test_head.py         # standard pytest
 
 What it asserts:
-  * the models are at 2.2.0 and the committed schema is generated-in-sync;
+  * the models are at 2.3.0 and the committed schema is generated-in-sync;
   * the authoritative style module's surface is accepted (box_shadow / filter /
     mix_blend_mode / hyphens / text_wrap enum / vertical_align / Angle strings),
     StrokeStyle-as-Style, Paint = colour|gradient|pattern, gradient `position`,
     `class` composition and the `css` escape, and legacy shorthand sugar;
   * the P3 stroke single-form still rejects inline-geometry `stroke`;
-  * EVERY authoritative bundle-1 fixture validates at 2.2.0 — directly, or, where it
+  * EVERY authoritative bundle-1 fixture validates at HEAD — directly, or, where it
     carries legacy inline strokes, fails ONLY on stroke-single-form and validates
     cleanly after the codemod;
   * the previously-migrated fixtures still validate.
@@ -73,8 +73,8 @@ def _migrate(doc_dict):
 
 
 # --------------------------------------------------------------------------- #
-def test_version_is_2_2_0():
-    assert fg.HEAD_VERSION == "2.2.0"
+def test_version_is_2_3_0():
+    assert fg.HEAD_VERSION == "2.3.0"
 
 
 def test_schema_in_sync_with_models():

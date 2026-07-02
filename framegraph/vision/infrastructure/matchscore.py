@@ -136,7 +136,53 @@ def sample_shape(shape: dict[str, Any], *, spacing: float = 2.0) -> list[tuple[f
             rr = r if i % 2 == 0 else r * inner
             verts.append((cx + rr * math.cos(ang), cy + rr * math.sin(ang)))
         return _seg_samples(verts, closed=True, spacing=spacing)
+    if kind == "arc":
+        # construct.resolve_arc is the single arc authority — the scored arc is
+        # byte-for-byte the drawn arc (same circumcircle, same sweep direction).
+        from .construct import resolve_arc
+
+        spec = resolve_arc(shape, points)
+        (cx, cy), r = spec["center"], spec["r"]
+        a0, sweep = spec["start_rad"], spec["sweep_rad"]
+        n = max(8, int(abs(sweep) * max(r, 1e-6) / max(spacing, 1e-6)) + 1)
+        return [(cx + r * math.cos(a0 + sweep * i / n),
+                 cy + r * math.sin(a0 + sweep * i / n)) for i in range(n + 1)]
+    # 'text' (and any unknown kind) contributes no edge samples: glyph outlines are
+    # font-renderer geometry this pure-math layer cannot reproduce.
     return []
+
+
+# ─────────────────────────────────────────────────────────────
+# geometry-arg resolution (workspace pin ids → image px)
+# ─────────────────────────────────────────────────────────────
+def _geometry_point(p: Any, anchors: dict[str, tuple[float, float]]) -> list[float]:
+    if isinstance(p, str):
+        if p not in anchors:
+            raise ValueError(f"unknown pin/landmark {p!r} in geometry args "
+                             f"(known: {sorted(anchors)[:12]})")
+        x, y = anchors[p]
+        return [float(x), float(y)]
+    return [float(p[0]), float(p[1])]
+
+
+def resolve_geometry_args(symmetry_pairs: "Sequence[Any] | None",
+                          collinear_groups: "Sequence[Any] | None",
+                          anchors: "dict[str, tuple[float, float]] | None" = None,
+                          ) -> tuple["list[list[list[float]]] | None",
+                                     "list[list[list[float]]] | None"]:
+    """Resolve ``score_reconstruction``'s geometry args to raw pixel points.
+
+    Each point may be ``[x, y]`` (passed through) or a workspace pin/landmark id
+    string (``"P3"`` / ``"A9"``), resolved via ``anchors`` — the same
+    ``{id: (x_px, y_px)}`` map the shape ``pins`` resolution uses. ``None`` args
+    pass through; an unknown id raises (a typo must not silently score nothing).
+    """
+    anchors = anchors or {}
+    pairs = ([[_geometry_point(a, anchors), _geometry_point(b, anchors)]
+              for a, b in symmetry_pairs] if symmetry_pairs else None)
+    groups = ([[_geometry_point(p, anchors) for p in g]
+               for g in collinear_groups] if collinear_groups else None)
+    return pairs, groups
 
 
 # ─────────────────────────────────────────────────────────────

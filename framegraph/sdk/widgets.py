@@ -48,11 +48,19 @@ __all__ = [
     "register_theme",
     "badge",
     "badge_width",
+    "breadcrumb",
     "pill",
     "button",
     "avatar",
+    "checkbox",
+    "dropdown",
+    "image_placeholder",
     "kpi",
     "field",
+    "navbar",
+    "radio",
+    "slider",
+    "sticky_note",
     "toggle",
     "tabs",
     "progress",
@@ -457,6 +465,223 @@ def divider(box: Box | None = None, *, theme: Theme | None = None,
         box = [0, 0, w if w is not None else 160, h if h is not None else 1]
     _, _, w, h = _wh(box)
     return _group(box, [_rect([0, h / 2, w, 1], fill=th.line)], "divider")
+
+
+def checkbox(box: Box | None = None, *, checked: bool = True,
+             label: str | None = None, theme: Theme | None = None) -> Obj:
+    """A checkbox with an optional trailing label; the mark is a polyline tick."""
+    th = theme or default_theme()
+    s = 18.0
+    if box is None:
+        lw = measure_text(label, font_family=th.font, font_size=13) + 8 if label else 0
+        box = [0, 0, s + lw, 20]
+    _, _, w, h = _wh(box)
+    top = (h - s) / 2
+    if checked:
+        control = _bg([0, top, s, s], fill=th.accent, radius=4)
+    else:
+        control = _bg([0, top, s, s], fill=th.surface, stroke=th.line,
+                      stroke_style={"stroke_width": 1.0}, radius=4)
+    children: list[Obj] = [control]
+    if checked:
+        children.append({
+            "type": "polyline",
+            "points": [[4, top + s * 0.52], [s * 0.42, top + s - 5], [s - 4, top + 5]],
+            "fill": "none",
+            "stroke": th.surface,
+            "stroke_style": {"stroke_width": 2.0, "stroke_linecap": "round",
+                             "stroke_linejoin": "round"},
+            "decorative": True,
+        })
+    if label:
+        children.append(_text([s + 8, 0, w - s - 8, h], label, _style(th, 13)))
+    return _group(box, children, "checkbox")
+
+
+def radio(box: Box | None = None, *, selected: bool = True,
+          label: str | None = None, theme: Theme | None = None) -> Obj:
+    """A radio button with an optional trailing label; selection is an inner dot."""
+    th = theme or default_theme()
+    d = 18.0
+    if box is None:
+        lw = measure_text(label, font_family=th.font, font_size=13) + 8 if label else 0
+        box = [0, 0, d + lw, 20]
+    _, _, w, h = _wh(box)
+    cy = h / 2
+    children: list[Obj] = [{
+        "type": "ellipse", "center": [d / 2, cy], "rx": d / 2, "ry": d / 2,
+        "fill": th.surface, "stroke": th.accent if selected else th.line,
+        "stroke_style": {"stroke_width": 1.5 if selected else 1.0},
+        "decorative": True,
+    }]
+    if selected:
+        children.append({
+            "type": "ellipse", "center": [d / 2, cy], "rx": d * 0.28, "ry": d * 0.28,
+            "fill": th.accent, "decorative": True,
+        })
+    if label:
+        children.append(_text([d + 8, 0, w - d - 8, h], label, _style(th, 13)))
+    return _group(box, children, "radio")
+
+
+def slider(box: Box | float, frac: float | None = None, *, tone: str = "accent",
+           theme: Theme | None = None, w: float | None = None,
+           h: float | None = None) -> Obj:
+    """A slider: a track filled to ``frac`` (0..1) with a knob at the value."""
+    th = theme or default_theme()
+    if frac is None:
+        frac = float(box)
+        box = [0, 0, w if w is not None else 160, h if h is not None else 20]
+    _, _, w, h = _wh(box)
+    f = max(0.0, min(1.0, float(frac)))
+    fg = th.accent if tone == "accent" else _tone(th, tone)[1]
+    track_h = 6.0
+    top = (h - track_h) / 2
+    knob_r = min(8.0, h / 2)
+    kx = knob_r + f * (w - 2 * knob_r)
+    children = [
+        _bg([0, top, w, track_h], fill=th.fill, radius=track_h / 2),
+        _rect([0, top, max(kx, track_h), track_h], fill=fg, radius=track_h / 2,
+              decorative=True),
+        {"type": "ellipse", "center": [kx, h / 2], "rx": knob_r, "ry": knob_r,
+         "fill": th.surface, "stroke": fg, "stroke_style": {"stroke_width": 2.0}},
+    ]
+    return _group(box, children, "slider")
+
+
+def breadcrumb(box: Box | Sequence[str], items: Sequence[str] | None = None, *,
+               separator: str = "›", theme: Theme | None = None,
+               h: float | None = None) -> Obj:
+    """A breadcrumb trail; earlier crumbs are muted, the current one is ink."""
+    th = theme or default_theme()
+    if items is None:
+        items = [str(item) for item in box]  # type: ignore[union-attr]
+        width = sum(measure_text(str(item), font_family=th.font, font_size=12) + 22
+                    for item in items)
+        box = [0, 0, width, h if h is not None else 20]
+    _, _, w, h = _wh(box)
+    children: list[Obj] = []
+    cx = 0.0
+    last = len(items) - 1
+    for i, label in enumerate(items):
+        tw = measure_text(str(label), font_family=th.font, font_size=12) + 6
+        current = i == last
+        children.append(_text([cx, 0, tw, h], label,
+                              _style(th, 12, weight=700 if current else 500,
+                                     color=th.ink if current else th.muted)))
+        cx += tw
+        if not current:
+            children.append(_text([cx, 0, 12, h], separator,
+                                  _style(th, 12, color=th.muted, align="center")))
+            cx += 16
+    return _group(box, children, "breadcrumb")
+
+
+def navbar(box: Box, items: Sequence[str], *, brand: str | None = None,
+           active: int = 0, theme: Theme | None = None) -> Obj:
+    """A top navigation bar: optional brand, link items, accent-underlined active."""
+    th = theme or default_theme()
+    _, _, w, h = _wh(box)
+    children: list[Obj] = [
+        _bg([0, 0, w, h], fill=th.surface),
+        _bg([0, h - 1, w, 1], fill=th.line),
+    ]
+    cx = th.pad
+    if brand is not None:
+        bw = measure_text(str(brand), font_family=th.font, font_size=15, bold=True) + 8
+        children.append(_text([cx, 0, bw, h], brand,
+                              _style(th, 15, weight=800, color=th.ink)))
+        cx += bw + 24
+    for i, label in enumerate(items):
+        tw = measure_text(str(label), font_family=th.font, font_size=13, bold=True) + 8
+        active_item = i == active
+        children.append(_text([cx, 0, tw, h], label,
+                              _style(th, 13, weight=700 if active_item else 600,
+                                     color=th.ink if active_item else th.sub)))
+        if active_item:
+            children.append(_bg([cx, h - 3, tw - 6, 3], fill=th.accent, radius=1.5))
+        cx += tw + 20
+    return _group(box, children, "navbar")
+
+
+def dropdown(box: Box, items: Sequence[str], *, selected: int = 0,
+             theme: Theme | None = None) -> Obj:
+    """An *open* select: the control on top, the menu panel expanded below it.
+
+    ``box`` spans control **and** menu; the selected option row is highlighted.
+    This is the wireframe companion to ``field(kind="select")`` (the closed
+    control).
+    """
+    th = theme or default_theme()
+    _, _, w, h = _wh(box)
+    ch = min(th.control_h, h / 2)
+    value = str(items[selected]) if items else ""
+    children: list[Obj] = [
+        _bg([0, 0, w, ch], fill=th.surface, stroke=th.accent,
+            stroke_style={"stroke_width": 1.0}, radius=8),
+        _text([12, 0, w - 40, ch], value, _style(th, 13, color=th.ink)),
+        _text([w - 26, 0, 16, ch], "▴", _style(th, 13, color=th.muted, align="center")),
+    ]
+    menu_top = ch + 4
+    menu_h = h - menu_top
+    children.append(_bg([0, menu_top, w, menu_h], fill=th.surface, stroke=th.line,
+                        stroke_style={"stroke_width": 1.0}, radius=8))
+    if items:
+        option_h = menu_h / len(items)
+        for i, label in enumerate(items):
+            oy = menu_top + i * option_h
+            option = i == selected
+            if option:
+                children.append(_rect([2, oy + 1, w - 4, option_h - 2],
+                                      fill=th.accent_soft, radius=6, decorative=True))
+            children.append(_text([12, oy, w - 24, option_h], label,
+                                  _style(th, 13, weight=600 if option else 400,
+                                         color=th.accent if option else th.ink)))
+    return _group(box, children, "dropdown")
+
+
+def image_placeholder(box: Box, *, label: str | None = None,
+                      theme: Theme | None = None) -> Obj:
+    """A wireframe image slot: a bordered box crossed corner-to-corner, with an
+    optional centred label."""
+    th = theme or default_theme()
+    _, _, w, h = _wh(box)
+    line_style = {"stroke": th.line, "stroke_style": {"stroke_width": 1.0},
+                  "decorative": True}
+    children: list[Obj] = [
+        _bg([0, 0, w, h], fill=th.fill, stroke=th.line,
+            stroke_style={"stroke_width": 1.0}, radius=4),
+        {"type": "line", "from": [0, 0], "to": [w, h], **line_style},
+        {"type": "line", "from": [0, h], "to": [w, 0], **line_style},
+    ]
+    if label:
+        children.append(_text([0, 0, w, h], label,
+                              _style(th, 12, weight=600, color=th.muted,
+                                     align="center")))
+    return _group(box, children, "image_placeholder")
+
+
+def sticky_note(box: Box, text: str, *, tone: str = "warn",
+                theme: Theme | None = None, **fields: Any) -> Obj:
+    """An annotation note with a folded corner, marked ``decorative`` so it is
+    excluded from a11y/reading order and the overlap audit (a review artefact,
+    not content). Give it an ``id`` and hide it per render target
+    (``define_target(..., hide=[id])``) to keep notes out of print output.
+    """
+    th = theme or default_theme()
+    _, _, w, h = _wh(box)
+    bg, fg = _tone(th, tone)
+    fold = min(14.0, w / 4, h / 4)
+    children: list[Obj] = [
+        {"type": "polyline", "closed": True, "fill": bg, "decorative": True,
+         "points": [[0, 0], [w, 0], [w, h - fold], [w - fold, h], [0, h]]},
+        {"type": "polyline", "closed": True, "fill": fg, "fill_opacity": 0.3,
+         "decorative": True,
+         "points": [[w - fold, h], [w, h - fold], [w - fold, h - fold]]},
+        _text([10, 8, w - 20, h - fold - 12], text,
+              _style(th, 12, color=th.ink, valign="top", nowrap=False, fit="clip")),
+    ]
+    return _group(box, children, "sticky_note", decorative=True, **fields)
 
 
 # --------------------------------------------------------------------------- #

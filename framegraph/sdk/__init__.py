@@ -6,7 +6,7 @@ core schema types; builders and helpers lower into the model and validate there.
 """
 from __future__ import annotations
 
-from framegraph.sdk.author import DocumentBuilder, Handle, PageBuilder, StackBuilder
+from framegraph.sdk.author import DocumentBuilder, Handle, MasterBuilder, PageBuilder, StackBuilder
 from framegraph.sdk.chart import Chart
 from framegraph.sdk.clip import (
     clip_circle,
@@ -50,7 +50,8 @@ from framegraph.sdk.figure import (
     place_figure,
     place_imported_figure,
 )
-from framegraph.sdk.io import parse, serialize
+from framegraph.sdk.flow import FlowBuilder
+from framegraph.sdk.io import parse, serialize, svg_to_objects
 from framegraph.sdk.layout import Box, BoxLike, column, grid, inset, row
 from framegraph.sdk.macros import (
     cite,
@@ -62,6 +63,7 @@ from framegraph.sdk.macros import (
     md,
     paragraph,
     ref,
+    span,
     sparkline,
     theme,
 )
@@ -112,22 +114,30 @@ from framegraph.sdk.paint import (
     stroke,
     text_style,
 )
-from framegraph.sdk.validate import Issue, ValidationReport, validate_static_rules
+from framegraph.sdk.validate import Issue, StaticValidationError, ValidationReport, validate_static_rules
 from framegraph.sdk.widgets import (
     Panel,
     Theme,
     avatar,
     badge,
     badge_width,
+    breadcrumb,
     button,
     card,
+    checkbox,
     default_theme,
     divider,
+    dropdown,
     field,
+    image_placeholder,
     kpi,
+    navbar,
     pill,
     progress,
+    radio,
     register_theme,
+    slider,
+    sticky_note,
     table,
     tabs,
     toggle,
@@ -141,8 +151,10 @@ __all__ = [
     "avatar",
     "badge",
     "badge_width",
+    "breadcrumb",
     "button",
     "card",
+    "checkbox",
     "clip_circle",
     "clip_ellipse",
     "clip_inset",
@@ -151,11 +163,17 @@ __all__ = [
     "clip_rect",
     "default_theme",
     "divider",
+    "dropdown",
     "field",
+    "image_placeholder",
     "kpi",
+    "navbar",
     "pill",
     "progress",
+    "radio",
     "register_theme",
+    "slider",
+    "sticky_note",
     "table",
     "tabs",
     "toggle",
@@ -166,6 +184,7 @@ __all__ = [
     "Edge",
     "ExpandOptions",
     "ExpandedDocument",
+    "FlowBuilder",
     "Frame",
     "FigureAsset",
     "FigureContent",
@@ -191,12 +210,14 @@ __all__ = [
     "merge_figure_defs",
     "HEAD_VERSION",
     "Issue",
+    "MasterBuilder",
     "Mat3",
     "Mat4",
     "PageBuilder",
     "Path",
     "Scene3D",
     "StackBuilder",
+    "StaticValidationError",
     "ValidationReport",
     "Vec2",
     "Vec3",
@@ -249,9 +270,11 @@ __all__ = [
     "shadow",
     "soft_shadow",
     "saddle",
+    "span",
     "sparkline",
     "sphere",
     "stroke",
+    "svg_to_objects",
     "text_height",
     "text_style",
     "theme",

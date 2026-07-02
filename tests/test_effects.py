@@ -113,3 +113,27 @@ def test_effects_fixture_is_the_oracle():
     assert svg.count("feOffset") == 4                     # only the shadows are offset
     assert svg.count('<g filter="url(#fx') == 7           # one wrap per effect application
     assert "feFlood" in svg and "feComposite" in svg
+
+
+# ---- Style.mask lowering (Image/Gradient values -> generated <mask> defs) ---- #
+def test_gradient_mask_lowers_to_a_mask_def():
+    """A Gradient mask value must generate a real `<mask>` def (luminance mask),
+    not be silently ignored because it isn't a string."""
+    svg = _render_obj({**_RECT, "style": {"mask": {
+        "kind": "linear", "angle": 90,
+        "stops": [{"color": "#ffffff", "position": "0%"},
+                  {"color": "#000000", "position": "100%"}]}}})
+    assert "<mask id=" in svg
+    assert "mask:url(#" in svg                             # the wrapper references it
+    assert "<linearGradient" in svg                        # gradient def backs the mask
+
+
+def test_url_image_mask_lowers_to_a_mask_def():
+    svg = _render_obj({**_RECT, "style": {"mask": {"url": "data:image/png;base64,AAAA"}}})
+    assert "<mask id=" in svg
+    assert "<image" in svg
+
+
+def test_string_mask_keeps_passthrough():
+    svg = _render_obj({**_RECT, "style": {"mask": "url(#hand-authored)"}})
+    assert "mask:url(#hand-authored)" in svg

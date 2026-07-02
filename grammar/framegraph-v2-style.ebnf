@@ -311,9 +311,11 @@ GradientStop =
 (* <color> grammar. *)
 Color = ? a CSS <color> value, or a tokens.colors reference ? ;
 
-(* Length: CSS lengths/percentages/fractions. Units: px pt pc in cm mm q,    *)
-(* em rem ex ch, % , fr, and (for screen targets) vw vh vmin vmax. *)
-Length     = number | ? string "<number><unit>" with unit ∈ {px,pt,pc,in,cm,mm,q,em,rem,ex,ch,%,fr,vw,vh,vmin,vmax} ? ;
+(* Length: CSS lengths/percentages/fractions. RECONCILED at HEAD (spec §2) to *)
+(* the unit set the toolchain actually resolves (renderer geometry.num + the  *)
+(* relative %/fr contexts) and that the models pattern-enforce; the earlier   *)
+(* q/ex/ch/vw/vh/vmin/vmax extras were never resolved by any render target.   *)
+Length     = number | ? string "<number><unit>" with unit ∈ {pt,px,pc,mm,cm,in,em,rem,%,fr} ? ;
 Percentage = ? string of the form "<number>%" ? ;
 Angle      = number | ? string "<number><unit>" with unit ∈ {deg,rad,grad,turn} ? ;
 

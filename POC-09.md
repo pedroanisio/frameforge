@@ -40,8 +40,8 @@ complex human raster (AI-gen / reference)         ← complexity is SOURCED
 ```
 
 This is where vela-nova's **human-specific** machinery legitimately earns its
-place — distinct from [`coach.clean`](./POC-07.md), which is the *image-agnostic*
-lever that lifts any subject.
+place — distinct from `coach.clean` (see `framegraph/coach/`; POC-06/07/08 were
+never written up), which is the *image-agnostic* lever that lifts any subject.
 
 ## What was built — `framegraph/coach/figures.py`
 

@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -16,7 +16,7 @@
 Small fluent builder that lowers directly to the authoritative model.
 
 ```python
-DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.2.0') -> 'None'
+DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.3.0') -> 'None'
 ```
 
 | Method | Signature | Summary |
@@ -26,15 +26,22 @@ DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lan
 | `define_asset` | `(self, name: 'str', src: 'str', *, kind: 'str \| None' = None, hash: 'str \| None' = None, **fields: 'Any') -> 'Handle'` |  |
 | `define_color` | `(self, name: 'str', value: 'str') -> 'Handle'` |  |
 | `define_component` | `(self, name: 'str', spec: 'dict[str, Any]') -> 'Handle'` |  |
+| `define_counter` | `(self, name: 'str', *, start: 'int \| None' = None, reset_with: 'str \| None' = None, format: 'str \| None' = None) -> 'Handle'` | Define a named counter (``defs.counters``) for numbering series. |
 | `define_font` | `(self, name: 'str', *, family: 'str', src: 'str \| None' = None, hash: 'str \| None' = None, **fields: 'Any') -> 'Handle'` |  |
 | `define_master` | `(self, name: 'str', master: 'dict[str, Any]') -> 'Handle'` |  |
 | `define_stroke_style` | `(self, name: 'str', **style: 'Any') -> 'Handle'` |  |
 | `define_style` | `(self, name: 'str', **style: 'Any') -> 'Handle'` |  |
 | `define_symbol` | `(self, name: 'str', *, box: 'list[Any]', objects: 'list[dict[str, Any]]', **fields: 'Any') -> 'Handle'` |  |
+| `define_target` | `(self, name: 'str', canvas: 'str \| dict[str, Any]', *, adjustments: 'dict[str, Any] \| None' = None, font_scale: 'float \| None' = None, hide: 'list[str] \| None' = None, padding_delta: 'float \| None' = None) -> 'Handle'` | Add a render target (multi-canvas output) with optional adjustments. |
 | `define_text_style` | `(self, name: 'str', **style: 'Any') -> 'Handle'` |  |
+| `describe` | `(self, description: 'str') -> "'DocumentBuilder'"` | Set the document's ``description`` (semantic summary for readers/agents). |
 | `flow` | `(self, id: 'str', *, master: 'Handle \| str', story: 'list[dict[str, Any]]', **fields: 'Any') -> 'None'` |  |
-| `page` | `(self, id: 'str', *, canvas: 'str \| dict[str, Any] \| None' = None, master: 'Handle \| str \| None' = None, reading_order: 'list[str] \| None' = None, coordinate_mode: 'str \| None' = None) -> "'PageBuilder'"` | Append a page and return its builder. |
+| `master` | `(self, name: 'str', canvas: 'str \| dict[str, Any]', **fields: 'Any') -> "'MasterBuilder'"` | Define a page master and return its fluent :class:`MasterBuilder`. |
+| `meta` | `(self, **entries: 'Any') -> "'DocumentBuilder'"` | Merge entries into the document-level ``meta`` mapping. |
+| `page` | `(self, id: 'str', *, canvas: 'str \| dict[str, Any] \| None' = None, master: 'Handle \| str \| None' = None, reading_order: 'list[str] \| None' = None, coordinate_mode: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Append a page and return its builder. |
+| `section` | `(self, id: 'str', *, master: 'Handle \| str', **fields: 'Any')` | Author a ``mode: flow`` section's story with typed builder calls. |
 | `symbol` | `(self, name: 'str', box: 'list[Any]', **fields: 'Any') -> "'Iterator[PageBuilder]'"` | Author a reusable symbol with normal ``PageBuilder`` calls. |
+| `text_contract` | `(self, **fields: 'Any') -> "'DocumentBuilder'"` | Set the document-level text contract (``min_font_size``, ``overflow``, |
 | `write` | `(self, path: 'str \| FsPath', *, format: 'str' = 'yaml', validate: 'bool' = True, fail_on_error: 'bool' = False, expand_reuse: 'bool' = True)` | Build, optionally run static rules, and serialize the document to ``path``. |
 
 ### `Handle`
@@ -46,6 +53,26 @@ Nominal reference returned by definition helpers.
 ```python
 Handle(kind: 'str', name: 'str') -> None
 ```
+
+### `MasterBuilder`
+
+`framegraph.sdk.author.MasterBuilder`
+
+Fluent builder for one ``defs.masters`` entry (a ``PageMaster``).
+
+```python
+MasterBuilder(name: 'str', master: 'dict[str, Any]') -> 'None'
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `fixed` | `(self, objects: 'list[dict[str, Any]]') -> "'MasterBuilder'"` | Append fixed chrome objects drawn on every page using this master. |
+| `footnote_area` | `(self, id: 'str', box: 'list[Any]', **fields: 'Any') -> "'MasterBuilder'"` | Set the footnote region (where ``footnote`` inlines are placed). |
+| `margin` | `(self, margin: 'list[Any]') -> "'MasterBuilder'"` | Set the master's content margin (``[top, right, bottom, left]``). |
+| `page_number` | `(self, value: 'Any' = True) -> "'MasterBuilder'"` | Enable the running page number (``True`` or a style dict). |
+| `region` | `(self, id: 'str', box: 'list[Any]', *, columns: 'int \| None' = None, column_gap: 'Any' = None, column_fill: 'str \| None' = None, next: 'str \| None' = None, **fields: 'Any') -> "'MasterBuilder'"` | Append a flow region. ``next`` chains overflow into another region |
+| `running_footer` | `(self, objects: 'list[dict[str, Any]]') -> "'MasterBuilder'"` | Set the running footer content (a list of visual objects). |
+| `running_header` | `(self, objects: 'list[dict[str, Any]]') -> "'MasterBuilder'"` | Set the running header content (a list of visual objects). |
 
 ### `PageBuilder`
 
@@ -65,12 +92,18 @@ PageBuilder(page: 'dict[str, Any]') -> 'None'
 | `avatar` | `(self, box: 'Any', name: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `badge` | `(self, box: 'Any', text: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `bleed` | `(self) -> "'Iterator[PageBuilder]'"` | Mark every object added in this block ``decorative``. |
+| `breadcrumb` | `(self, box: 'Any', items: 'list[str] \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
+| `bullet_list` | `(self, box: 'list[Any]', items: 'list[Any]', *, marker: 'str \| None' = None, marker_color: 'Any' = None, gap: 'float \| None' = None, indent: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add a positioned bullet list (the absolute-layout list primitive; |
 | `button` | `(self, box: 'Any', label: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `card` | `(self, box: 'Any', **fields: 'Any')` | Add a card widget and return its :class:`~framegraph.sdk.Panel`. |
 | `chart` | `(self, box: 'Any', *, domain: 'tuple[float, float, float, float]', x_scale: 'Any' = 'linear', y_scale: 'Any' = 'linear')` | Return a :class:`~framegraph.sdk.Chart` mapped to ``box``. |
+| `checkbox` | `(self, box: 'Any' = None, *, checked: 'bool' = True, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `circle` | `(self, center: 'Any', r: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add a circle. Lowers to the canonical ``ellipse`` (rx == ry == r), so it |
 | `component` | `(self, component: 'Handle \| str', box: 'list[Any]', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `connector` | `(self, start: 'Any', end: 'Any', *, route: 'Any' = None, route_kind: 'str \| None' = None, label: 'str \| None' = None, label_box: 'list[Any] \| None' = None, label_style: 'Any' = None, arrow_start: 'Any' = None, arrow_end: 'Any' = None, **fields: 'Any') -> "'PageBuilder'"` | Add an anchored connector between two endpoints (typed at HEAD, §3.11). |
+| `dimension` | `(self, start: 'Any', end: 'Any', *, kind: 'str' = 'linear', value: 'Any' = None, text: 'str \| None' = None, prefix: 'str \| None' = None, suffix: 'str \| None' = None, offset: 'Any' = None, arrows: 'str \| None' = None, text_style: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add an anchored dimension annotation (measurement callout). |
 | `divider` | `(self, box: 'Any' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
+| `dropdown` | `(self, box: 'Any', items: 'list[str]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `ellipse` | `(self, center: 'Any', rx: 'float', ry: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add an ellipse centred at ``center`` (a ``Vec2`` or ``[x, y]``). |
 | `extend` | `(self, objects: 'list[dict[str, Any]]') -> "'PageBuilder'"` | Add many objects at once (e.g. the output of a Chart or a layout). |
 | `field` | `(self, box: 'Any', label: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
@@ -80,28 +113,35 @@ PageBuilder(page: 'dict[str, Any]') -> 'None'
 | `group` | `(self, children: 'list[dict[str, Any]]', *, transform: "'Mat3 \| list[Any] \| None'" = None, clip: 'Any' = None, **fields: 'Any') -> "'PageBuilder'"` | Add a group of ``children``. |
 | `grouped` | `(self, *, transform: "'Mat3 \| list[Any] \| None'" = None, clip: 'Any' = None, **fields: 'Any') -> "'Iterator[PageBuilder]'"` | Collect objects into one group when the block exits. |
 | `hstack` | `(self, box: 'list[Any]', *, gap: 'float \| int \| str \| None' = None, pad: 'Any' = None, align: 'str \| None' = None, justify: 'str \| None' = None, **fields: 'Any')` | Context manager for a row layout group. |
+| `icon` | `(self, box: 'list[Any]', glyph: 'str', *, color: 'Any' = None, font: 'str \| None' = None, size: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add an icon glyph (a single character/ligature drawn in ``box``). |
 | `image` | `(self, box: 'list[Any]', src: 'Handle \| str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `image_placeholder` | `(self, box: 'Any', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `imported_figure` | `(self, figure: 'Any', box: 'list[Any]', **options: 'Any') -> "'PageBuilder'"` | Place an extracted PDF/EPUB/image figure with provenance metadata. |
 | `kpi` | `(self, box: 'Any', label: 'str', value: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `layer` | `(self, id: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `lettering` | `(self) -> "'Iterator[PageBuilder]'"` | Tag text added in this block as lettering (``meta.role = "lettering"``). |
 | `line` | `(self, start: 'list[float]', end: 'list[float]', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `link` | `(self, to: 'str', *, relation: 'str \| None' = None, label: 'str \| None' = None, external: 'bool \| None' = None) -> "'PageBuilder'"` | Add a page-level navigation link (``page.links``) to another page id. |
 | `local` | `(self, box: 'list[Any]', *, clip: 'Any' = None, **fields: 'Any') -> "'Iterator[PageBuilder]'"` | Collect local-coordinate children into a box-anchored group. |
+| `navbar` | `(self, box: 'Any', items: 'list[str]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `panel` | `(self, box: 'list[Any]', *, clip: 'Any' = None, **fields: 'Any')` | Alias for :meth:`local` when the grouped children form a panel. |
 | `path` | `(self, d: 'Any', **fields: 'Any') -> "'PageBuilder'"` | Add a path. ``d`` may be an SVG path string, a segment list, or a |
 | `pill` | `(self, box: 'Any', text: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `polygon` | `(self, points: 'Any', **fields: 'Any') -> "'PageBuilder'"` | Add a filled polygon. Lowers to a canonical closed ``polyline``, so it |
 | `polyline` | `(self, points: 'Any', *, closed: 'bool' = False, smooth: 'bool' = False, **fields: 'Any') -> "'PageBuilder'"` | Add a polyline through ``points`` (``Vec2`` values or ``[x, y]`` pairs). |
 | `progress` | `(self, box: 'Any', value: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
+| `radio` | `(self, box: 'Any' = None, *, selected: 'bool' = True, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `rect` | `(self, box: 'list[Any]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `regular_polygon` | `(self, center: 'Any', r: 'float', sides: 'int', *, rotation: 'float' = 0.0, **fields: 'Any') -> "'PageBuilder'"` | Add a regular ``sides``-gon of circumradius ``r``, lowered to a closed polyline. |
 | `ring` | `(self, center: 'Any', r_outer: 'float', r_inner: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add a full annulus, lowered to an even-odd ``path``. |
 | `sector` | `(self, center: 'Any', r: 'float', start: 'float', end: 'float', *, ry: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add a filled pie sector (wedge) from ``start`` to ``end`` degrees. |
+| `slider` | `(self, box: 'Any', frac: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `stack` | `(self, box: 'list[Any]', *, kind: 'str', gap: 'float \| int \| str \| None' = None, pad: 'Any' = None, align: 'str \| None' = None, justify: 'str \| None' = None, columns: 'int \| None' = None, row_gap: 'float \| int \| str \| None' = None, column_gap: 'float \| int \| str \| None' = None, **fields: 'Any') -> "'Iterator[StackBuilder]'"` | Collect children into a layout-native group. |
 | `star` | `(self, center: 'Any', r_outer: 'float', r_inner: 'float', points: 'int', *, rotation: 'float' = -90.0, **fields: 'Any') -> "'PageBuilder'"` | Add a ``points``-pointed star, lowered to a closed polyline. |
+| `sticky_note` | `(self, box: 'Any', text: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `table` | `(self, box: 'Any', columns: 'list[dict[str, Any]]', rows: 'list[list[Any]]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `tabs` | `(self, box: 'Any', items: 'list[str] \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
-| `text` | `(self, box: 'list[Any]', text: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `text` | `(self, box: 'list[Any]', text: 'str \| list[Any]', **fields: 'Any') -> "'PageBuilder'"` | Add a text object. ``text`` is a plain string, or a list of inlines |
 | `toggle` | `(self, box: 'Any' = None, *, on: 'bool' = False, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `use` | `(self, symbol: 'Handle \| str', box: 'list[Any]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `use_at` | `(self, symbol: 'Handle \| str', x: 'float', y: 'float', w: 'float', h: 'float', **fields: 'Any') -> "'PageBuilder'"` | Place a symbol instance from scalar coordinates. |
@@ -125,6 +165,7 @@ StackBuilder(parent: "'PageBuilder'", box: 'list[Any]', layout: 'dict[str, Any]'
 | `avatar` | `(self, initials: 'str \| None' = None, **fields: 'Any') -> "'StackBuilder'"` |  |
 | `badge` | `(self, text: 'str', **fields: 'Any') -> "'StackBuilder'"` |  |
 | `button` | `(self, label: 'str', **fields: 'Any') -> "'StackBuilder'"` |  |
+| `checkbox` | `(self, *, checked: 'bool' = True, **fields: 'Any') -> "'StackBuilder'"` |  |
 | `commit` | `(self) -> 'PageBuilder'` |  |
 | `divider` | `(self, **fields: 'Any') -> "'StackBuilder'"` |  |
 | `extend` | `(self, objects: 'list[dict[str, Any]]') -> "'StackBuilder'"` |  |
@@ -132,6 +173,8 @@ StackBuilder(parent: "'PageBuilder'", box: 'list[Any]', layout: 'dict[str, Any]'
 | `kpi` | `(self, label: 'str', value: 'str', **fields: 'Any') -> "'StackBuilder'"` |  |
 | `pill` | `(self, text: 'str \| None' = None, **fields: 'Any') -> "'StackBuilder'"` |  |
 | `progress` | `(self, frac: 'float', **fields: 'Any') -> "'StackBuilder'"` |  |
+| `radio` | `(self, *, selected: 'bool' = True, **fields: 'Any') -> "'StackBuilder'"` |  |
+| `slider` | `(self, frac: 'float', **fields: 'Any') -> "'StackBuilder'"` |  |
 | `spacer` | `(self, *, w: 'float' = 0.0, h: 'float' = 0.0, grow: 'float' = 1.0, axis: 'str' = 'width') -> "'StackBuilder'"` | Add an invisible fill/grow spacer. |
 | `tabs` | `(self, items: 'list[str]', **fields: 'Any') -> "'StackBuilder'"` |  |
 | `toggle` | `(self, **fields: 'Any') -> "'StackBuilder'"` |  |
@@ -152,12 +195,16 @@ Chart(frame: 'Frame', _objects: 'list[dict[str, Any]]' = <factory>, _legend: 'li
 | Method | Signature | Summary |
 |---|---|---|
 | `add_to` | `(self, page: 'Any') -> 'Any'` | Append this chart's objects to a page/layer builder and return it. |
+| `area` | `(self, points: 'Sequence[Point]', *, baseline: 'float' = 0.0, fill: 'str' = '#33333333', stroke: 'str \| None' = None, width: 'float' = 2.0, label: 'str \| None' = None) -> "'Chart'"` | Fill the region between a series and ``baseline`` (a closed polyline). |
 | `axes` | `(self, *, x_ticks: 'Sequence[float]' = (), y_ticks: 'Sequence[float]' = (), x_format: 'Callable[[float], str]' = <class 'str'>, y_format: 'Callable[[float], str]' = <class 'str'>, grid: 'bool' = False, axis_color: 'str' = '#C4D0DD', grid_color: 'str \| None' = None, label_style: 'Style \| None' = None, tick_len: 'float' = 5.0, label_gap: 'float' = 9.0) -> "'Chart'"` | Draw L-shaped axes with ticks, labels, and optional gridlines. |
 | `bars` | `(self, points: 'Sequence[Point]', *, baseline: 'float' = 0.0, width: 'float' = 14.0, fill: 'str' = '#333333', radius: 'float \| None' = None, label: 'str \| None' = None) -> "'Chart'"` | Draw a vertical bar from ``baseline`` to each data point. |
+| `donut` | `(self, values: 'Sequence[float]', *, inner_ratio: 'float' = 0.55, **kwargs: 'Any') -> "'Chart'"` | A pie with a hole: :meth:`pie` with ``inner_ratio`` (default 0.55). |
 | `legend` | `(self, entries: 'Sequence[tuple[str, str]] \| None' = None, *, at: 'str \| Point' = 'tr', swatch: 'float' = 12.0, gap: 'float' = 8.0, pitch: 'float' = 26.0, label_style: 'Style \| None' = None) -> "'Chart'"` | Render a horizontal legend; defaults to the labelled series so far. |
 | `line` | `(self, points: 'Sequence[Point]', *, stroke: 'str' = '#333333', width: 'float' = 2.0, smooth: 'bool' = False, label: 'str \| None' = None, dash: 'Sequence[float] \| None' = None) -> "'Chart'"` | Plot a polyline (or a smooth Catmull-Rom path) through data points. |
 | `marker` | `(self, x: 'float', y: 'float', *, r: 'float' = 4.0, fill: 'str' = '#333333') -> "'Chart'"` | Place a dot at a data point (e.g. to flag a maximum). |
 | `objects` | `(self) -> 'list[dict[str, Any]]'` | Return the accumulated chart objects (order = draw order). |
+| `pie` | `(self, values: 'Sequence[float]', *, colors: 'Sequence[str]', labels: 'Sequence[str] \| None' = None, center: 'Point \| None' = None, r: 'float \| None' = None, inner_ratio: 'float' = 0.0, start_angle: 'float' = -90.0) -> "'Chart'"` | Draw a pie (or, with ``inner_ratio`` > 0, a donut) inside the plot box. |
+| `scatter` | `(self, points: 'Sequence[Point]', *, r: 'float' = 3.5, fill: 'str' = '#333333', label: 'str \| None' = None) -> "'Chart'"` | Place a dot (radius ``r`` px) at each data point. |
 
 ## `framegraph.sdk.clip`
 
@@ -270,7 +317,7 @@ render_page_svgs(model: 'Any', *, base_dir: 'str | None' = None) -> 'list[str]'
 Render a document through the SVG proxy, returning the page SVGs and the
 
 ```python
-render_pages_with_stats(model: 'Any', *, base_dir: 'str | None' = None) -> 'tuple[list[str], dict[str, int]]'
+render_pages_with_stats(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool | None' = None, layout_report: 'bool' = False, diagnostics: 'bool' = False)
 ```
 
 ### `write_golden`
@@ -671,6 +718,16 @@ Serialize a document as canonical JSON or YAML after model validation.
 serialize(model: 'Any', *, format: 'Format' = 'yaml') -> 'str'
 ```
 
+### `svg_to_objects`
+
+`framegraph.sdk.io.svg_to_objects`
+
+Ingest an existing SVG into FrameGraph object dicts (vector import).
+
+```python
+svg_to_objects(svg: 'Any', *, box: 'Any' = None, data_attrs: 'bool' = False) -> 'list[dict[str, Any]]'
+```
+
 ## `framegraph.sdk.lattices`
 
 ### `Lattice`
@@ -858,6 +915,16 @@ A cross-reference ``Inline`` to a labelled object (``id``).
 ref(target: 'str', *, show: 'str | None' = None) -> 'dict[str, Any]'
 ```
 
+### `span`
+
+`framegraph.sdk.macros.span`
+
+A styled ``Span`` inline (or, with ``link=``, a ``LinkInline`` around it).
+
+```python
+span(text: 'str', *, bold: 'bool' = False, italic: 'bool' = False, color: 'Any' = None, font: 'Any' = None, size: 'Any' = None, link: 'str | None' = None, **style: 'Any') -> 'dict[str, Any]'
+```
+
 ### `sparkline`
 
 `framegraph.sdk.macros.sparkline`
@@ -964,7 +1031,7 @@ Document(*, dsl: Literal['FrameGraph'], version: Annotated[str, _PydanticGeneral
 
 ### `HEAD_VERSION`
 
-`str` value: `'2.2.0'`
+`str` value: `'2.3.0'`
 
 ### `ValidationError`
 
@@ -1277,6 +1344,16 @@ One validation issue reported by the SDK.
 Issue(rule_id: 'str', severity: 'str', path: 'str', message: 'str') -> None
 ```
 
+### `StaticValidationError`
+
+`framegraph.sdk.validate.StaticValidationError`
+
+Static validation failed; carries the full :class:`ValidationReport`.
+
+```python
+StaticValidationError(report: 'ValidationReport') -> 'None'
+```
+
 ### `ValidationReport`
 
 `framegraph.sdk.validate.ValidationReport`
@@ -1359,6 +1436,16 @@ Measured pixel width for a :func:`badge`/:func:`pill` snug around ``text``.
 badge_width(text: 'str', *, theme: 'Theme | None' = None, size: 'float' = 11.0, pad: 'float' = 20.0) -> 'float'
 ```
 
+### `breadcrumb`
+
+`framegraph.sdk.widgets.breadcrumb`
+
+A breadcrumb trail; earlier crumbs are muted, the current one is ink.
+
+```python
+breadcrumb(box: 'Box | Sequence[str]', items: 'Sequence[str] | None' = None, *, separator: 'str' = '›', theme: 'Theme | None' = None, h: 'float | None' = None) -> 'Obj'
+```
+
 ### `pill`
 
 `framegraph.sdk.widgets.pill`
@@ -1389,6 +1476,36 @@ A circular avatar placeholder with optional initials (auto-derived if a name).
 avatar(box: 'Box | str | None' = None, initials: 'str | None' = None, *, tone: 'str' = 'muted', theme: 'Theme | None' = None, size: 'float | None' = None) -> 'Obj'
 ```
 
+### `checkbox`
+
+`framegraph.sdk.widgets.checkbox`
+
+A checkbox with an optional trailing label; the mark is a polyline tick.
+
+```python
+checkbox(box: 'Box | None' = None, *, checked: 'bool' = True, label: 'str | None' = None, theme: 'Theme | None' = None) -> 'Obj'
+```
+
+### `dropdown`
+
+`framegraph.sdk.widgets.dropdown`
+
+An *open* select: the control on top, the menu panel expanded below it.
+
+```python
+dropdown(box: 'Box', items: 'Sequence[str]', *, selected: 'int' = 0, theme: 'Theme | None' = None) -> 'Obj'
+```
+
+### `image_placeholder`
+
+`framegraph.sdk.widgets.image_placeholder`
+
+A wireframe image slot: a bordered box crossed corner-to-corner, with an
+
+```python
+image_placeholder(box: 'Box', *, label: 'str | None' = None, theme: 'Theme | None' = None) -> 'Obj'
+```
+
 ### `kpi`
 
 `framegraph.sdk.widgets.kpi`
@@ -1407,6 +1524,46 @@ A form field: uppercase label over an input/select/textarea control.
 
 ```python
 field(box: 'Box | str', label: 'str | None' = None, *, value: 'str' = '', placeholder: 'str' = '', kind: 'str' = 'input', theme: 'Theme | None' = None, w: 'float | None' = None, h: 'float | None' = None) -> 'Obj'
+```
+
+### `navbar`
+
+`framegraph.sdk.widgets.navbar`
+
+A top navigation bar: optional brand, link items, accent-underlined active.
+
+```python
+navbar(box: 'Box', items: 'Sequence[str]', *, brand: 'str | None' = None, active: 'int' = 0, theme: 'Theme | None' = None) -> 'Obj'
+```
+
+### `radio`
+
+`framegraph.sdk.widgets.radio`
+
+A radio button with an optional trailing label; selection is an inner dot.
+
+```python
+radio(box: 'Box | None' = None, *, selected: 'bool' = True, label: 'str | None' = None, theme: 'Theme | None' = None) -> 'Obj'
+```
+
+### `slider`
+
+`framegraph.sdk.widgets.slider`
+
+A slider: a track filled to ``frac`` (0..1) with a knob at the value.
+
+```python
+slider(box: 'Box | float', frac: 'float | None' = None, *, tone: 'str' = 'accent', theme: 'Theme | None' = None, w: 'float | None' = None, h: 'float | None' = None) -> 'Obj'
+```
+
+### `sticky_note`
+
+`framegraph.sdk.widgets.sticky_note`
+
+An annotation note with a folded corner, marked ``decorative`` so it is
+
+```python
+sticky_note(box: 'Box', text: 'str', *, tone: 'str' = 'warn', theme: 'Theme | None' = None, **fields: 'Any') -> 'Obj'
 ```
 
 ### `toggle`

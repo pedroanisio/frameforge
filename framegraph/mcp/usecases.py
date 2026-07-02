@@ -19,6 +19,8 @@ from framegraph.mcp.results import _write_diagnostics
 from framegraph.mcp.security import _assert_input_path_allowed
 from framegraph.mcp.sessions import (
     _prepare_session,
+    _previous_session_tool,
+    _prior_render_artifacts,
     _reset_session_outputs,
     _session_id,
     read_session_resource,
@@ -34,6 +36,39 @@ from framegraph.mcp.sources import (
 )
 
 
+def _session_replacement_info(session_dir: Path, tool: str) -> dict[str, Any] | None:
+    """Pre-reset check: is this call about to replace a DIFFERENT tool's renders?
+
+    Iterating in place with the same tool is the intended loop and stays quiet;
+    a different tool overwriting a prior tool's ``page/N.png`` in a shared
+    session (the default id is ``'session'``) is the silent-clobber case the
+    guide warns about — surface it in the result instead.
+    """
+    prior = _prior_render_artifacts(session_dir)
+    previous = _previous_session_tool(session_dir)
+    if prior and previous and previous != tool:
+        return {
+            "count": len(prior),
+            "previous_tool": previous,
+            "note": (
+                f"replaced {len(prior)} rendered artifact(s) a prior '{previous}' call left in "
+                "this session — pass a distinct session_id to keep both renders"
+            ),
+        }
+    return None
+
+
+def _apply_session_stamp(
+    result: dict[str, Any], *, tool: str, replaced: dict[str, Any] | None
+) -> None:
+    """Record the producing tool (for the next call's replacement check) + any note."""
+    result["tool"] = tool
+    if replaced:
+        result["replaced_renders"] = replaced
+        existing = result.get("render_warning")
+        result["render_warning"] = f"{existing}; {replaced['note']}" if existing else replaced["note"]
+
+
 def _run_source(
     source: DocumentSource,
     *,
@@ -43,12 +78,22 @@ def _run_source(
     sign: bool,
     signed_at: str | None,
     silhouette: bool = False,
+    to: str = "png",
+    scale: float = 1.0,
+    real_metrics: bool | str = "auto",
+    tool: str | None = None,
 ) -> dict[str, Any]:
     """Drive any document source: produce, then (if produced) validate + render.
 
     Every entry point funnels through here so the produce → validate → render →
-    diagnostics tail has exactly one implementation.
+    diagnostics tail has exactly one implementation. The pre-produce reset makes
+    every source hermetic (the SDK sources also reset defensively in ``produce``)
+    and lets the replacement check snapshot what the reset is about to destroy.
     """
+    session_dir = _session_root(source.session_root) / _session_id(source.session_id)
+    replaced = _session_replacement_info(session_dir, tool) if tool else None
+    if session_dir.is_dir():
+        _reset_session_outputs(session_dir)
     produced = source.produce()
     result = produced.result
     if produced.proceed:
@@ -63,8 +108,13 @@ def _run_source(
             sign=sign,
             signed_at=signed_at,
             silhouette=silhouette,
+            to=to,
+            scale=scale,
+            real_metrics=real_metrics,
         )
         result.update(rendered)
+    if tool:
+        _apply_session_stamp(result, tool=tool, replaced=replaced)
     _write_diagnostics(produced.session_dir, result)
     return result
 
@@ -81,6 +131,9 @@ def run_sdk_code(
     sign: bool = False,
     signed_at: str | None = None,
     silhouette: bool = False,
+    to: str = "png",
+    scale: float = 1.0,
+    real_metrics: bool | str = "auto",
 ) -> dict[str, Any]:
     """Execute Python SDK code, then validate and render its generated YAML.
 
@@ -105,6 +158,7 @@ def run_sdk_code(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
         sign=sign, signed_at=signed_at, silhouette=silhouette,
+        to=to, scale=scale, real_metrics=real_metrics, tool="run_sdk_code",
     )
 
 
@@ -121,6 +175,9 @@ def run_sdk_client(
     sign: bool = False,
     signed_at: str | None = None,
     silhouette: bool = False,
+    to: str = "png",
+    scale: float = 1.0,
+    real_metrics: bool | str = "auto",
     repo_root: str | Path | None = None,
     edit_roots: str | list[str] | tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
@@ -137,6 +194,7 @@ def run_sdk_client(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
         sign=sign, signed_at=signed_at, silhouette=silhouette,
+        to=to, scale=scale, real_metrics=real_metrics, tool="run_sdk_client",
     )
 
 
@@ -151,6 +209,9 @@ def render_framegraph_yaml(
     sign: bool = False,
     signed_at: str | None = None,
     silhouette: bool = False,
+    to: str = "png",
+    scale: float = 1.0,
+    real_metrics: bool | str = "auto",
 ) -> dict[str, Any]:
     """Validate and render caller-provided FrameGraph YAML."""
     if not isinstance(yaml_text, str) or not yaml_text.strip():
@@ -159,6 +220,7 @@ def render_framegraph_yaml(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
         sign=sign, signed_at=signed_at, silhouette=silhouette,
+        to=to, scale=scale, real_metrics=real_metrics, tool="render_framegraph_yaml",
     )
 
 
@@ -201,6 +263,7 @@ def propose_from_image(
     source = ProposalSource(proposal=proposal, session_id=session_id, session_root=session_root)
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages, sign=False, signed_at=None,
+        tool="propose_from_image",
     )
 
 
@@ -234,6 +297,7 @@ def propose_from_document(
     source = ProposalSource(proposal=proposal, session_id=session_id, session_root=session_root)
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages, sign=False, signed_at=None,
+        tool="propose_from_document",
     )
 
 
@@ -321,6 +385,7 @@ def propose_from_svg(
                            session_id=session_id, session_root=session_root)
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages, sign=False, signed_at=None,
+        tool="propose_from_svg",
     )
 
 
@@ -434,6 +499,7 @@ def compare_images(
     root = _session_root(session_root)
     sid = _session_id(session_id)
     session_dir = _prepare_session(root, sid)
+    replaced = _session_replacement_info(session_dir, "compare_images")
     _reset_session_outputs(session_dir)
 
     renders: list[dict[str, Any]] = []
@@ -469,6 +535,7 @@ def compare_images(
         "diagnostics_path": str(session_dir / "diagnostics.json"),
         "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
     }
+    _apply_session_stamp(result, tool="compare_images", replaced=replaced)
     _write_diagnostics(session_dir, result)
     return result
 
@@ -594,6 +661,7 @@ def measure_image(
     root = _session_root(session_root)
     sid = _session_id(session_id)
     session_dir = _prepare_session(root, sid)
+    replaced = _session_replacement_info(session_dir, "measure_image")
     _reset_session_outputs(session_dir)
 
     pages: list[tuple[str, Any]] = [("overlay", measurement.overlay)]
@@ -611,6 +679,7 @@ def measure_image(
         "diagnostics_path": str(session_dir / "diagnostics.json"),
         "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
     }
+    _apply_session_stamp(result, tool="measure_image", replaced=replaced)
     _write_diagnostics(session_dir, result)
     return result
 
@@ -661,6 +730,7 @@ def mark_points(
     root = _session_root(session_root)
     sid = _session_id(session_id)
     session_dir = _prepare_session(root, sid)
+    replaced = _session_replacement_info(session_dir, "mark_points")
     _reset_session_outputs(session_dir)
 
     pages: list[tuple[str, Any]] = [("marks", measurement.overlay)]
@@ -678,6 +748,7 @@ def mark_points(
         "diagnostics_path": str(session_dir / "diagnostics.json"),
         "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
     }
+    _apply_session_stamp(result, tool="mark_points", replaced=replaced)
     _write_diagnostics(session_dir, result)
     return result
 
@@ -724,6 +795,7 @@ def overlay_images(
     root = _session_root(session_root)
     sid = _session_id(session_id)
     session_dir = _prepare_session(root, sid)
+    replaced = _session_replacement_info(session_dir, "overlay_images")
     _reset_session_outputs(session_dir)
 
     renders = _write_image_pages(session_dir, sid, [("aligned-overlay", composite)])
@@ -740,6 +812,7 @@ def overlay_images(
         "diagnostics_path": str(session_dir / "diagnostics.json"),
         "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
     }
+    _apply_session_stamp(result, tool="overlay_images", replaced=replaced)
     _write_diagnostics(session_dir, result)
     return result
 
@@ -783,9 +856,15 @@ def workspace(
     """
     from framegraph.vision.infrastructure import workspace as ws
 
-    root = _session_root(session_root)
-    sid = _session_id(session_id)
-    session_dir = _prepare_session(root, sid)
+    try:
+        root = _session_root(session_root)
+        sid = _session_id(session_id)
+        session_dir = _prepare_session(root, sid)
+    except ValueError as exc:
+        # A bad session_id is an expected input error: return the shared envelope
+        # (the sibling tools' contract) instead of raising out of the use case.
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+    replaced = _session_replacement_info(session_dir, "workspace")
     state = ws.load_state(session_dir)
     action = (action or "render").lower()
     action_info: dict[str, Any] = {}
@@ -906,6 +985,7 @@ def workspace(
     }
     if action_info:
         result["action_info"] = action_info
+    _apply_session_stamp(result, tool="workspace", replaced=replaced)
     _write_diagnostics(session_dir, result)
     return result
 
@@ -989,7 +1069,8 @@ def construct_vectors(
 
     source = RawYamlSource(yaml_text=yaml_text, session_id=session_id, session_root=session_root)
     result = _run_source(
-        source, max_pages=1, raster_png=raster_png, pages=None, sign=False, signed_at=None)
+        source, max_pages=1, raster_png=raster_png, pages=None, sign=False, signed_at=None,
+        tool="construct_vectors")
     result["construction"] = summaries
     result["shape_count"] = len(summaries)
     if image:
@@ -1082,14 +1163,21 @@ def score_reconstruction(
     if symmetry_pairs or collinear_groups:
         from framegraph.vision.domain import geometry as _geom
         try:
+            # geometry args accept workspace pin/landmark ids ("P3" / "A9") as well
+            # as raw [x, y] points — resolved against the SAME anchors the shape
+            # `pins` use, so a nudged pin re-scores without re-typing coordinates.
+            resolved_pairs, resolved_groups = matchscore.resolve_geometry_args(
+                symmetry_pairs, collinear_groups, anchors)
             score["geometry"] = _geom.consistency_report(
-                symmetry_pairs=symmetry_pairs, collinear_groups=collinear_groups, tol=float(tol))
+                symmetry_pairs=resolved_pairs, collinear_groups=resolved_groups,
+                tol=float(tol))
         except (ValueError, TypeError, IndexError) as exc:
             score["geometry"] = {"error": f"could not compute consistency: {exc}"}
 
     root = _session_root(session_root)
     sid = _session_id(session_id)
     session_dir = _prepare_session(root, sid)
+    replaced = _session_replacement_info(session_dir, "score_reconstruction")
     _reset_session_outputs(session_dir)
     renders = _write_image_pages(session_dir, sid, [("match-score", overlay)])
 
@@ -1104,6 +1192,120 @@ def score_reconstruction(
         "diagnostics_path": str(session_dir / "diagnostics.json"),
         "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
     }
+    _apply_session_stamp(result, tool="score_reconstruction", replaced=replaced)
+    _write_diagnostics(session_dir, result)
+    return result
+
+
+def detect_regions(
+    image: str,
+    *,
+    method: str = "consensus",
+    cluster: str | None = None,
+    cluster_tol: float = 0.90,
+    overlay: bool = True,
+    max_regions: int = 400,
+    include_polygons: bool = True,
+    tunables: dict[str, Any] | None = None,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Detect an image's closed/filled/stable regions and report exact geometry.
+
+    Wraps the pure :func:`framegraph.vision.infrastructure.regions.detect_regions`
+    in the shared session envelope: the annotated overlay becomes the session's
+    page-1 render artifact and the detection payload rides ``spatial`` (method,
+    params, region list with ``bbox_px`` + ``box_norm`` + centroids + sampled
+    fill + polygon/holes, optional shape-equivalence ``classes``). Regions feed
+    ``workspace`` pins and ``construct_vectors`` points directly: ``bbox_px`` /
+    ``centroid_px`` are image pixels, ``box_norm`` the normalized box the other
+    tools accept.
+
+    ⚠ PALS's LAW: thresholds, k-means palettes, and level-set ensembles are
+    heuristics — verify the overlay + numbers against the source, never trust
+    the region list alone.
+    """
+    try:
+        image_bytes = _resolve_image_arg(image, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    try:
+        from framegraph.vision.infrastructure import regions as _regions
+    except ImportError:
+        return _vision_error(_VISION_GROUP_HINT)
+
+    try:
+        root = _session_root(session_root)
+        sid = _session_id(session_id)
+        session_dir = _prepare_session(root, sid)
+    except ValueError as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+    replaced = _session_replacement_info(session_dir, "detect_regions")
+
+    import shutil
+    import tempfile
+
+    tmp = Path(tempfile.mkdtemp(prefix="fg-regions-"))
+    overlay_final: Path | None = None
+    try:
+        src = tmp / "src.png"
+        src.write_bytes(image_bytes)
+        overlay_tmp = tmp / "overlay.png" if overlay else None
+        try:
+            analysis = _regions.detect_regions(
+                src, method,
+                overlay_path=overlay_tmp,
+                include_polygons=include_polygons,
+                cluster=cluster,
+                cluster_tol=float(cluster_tol),
+                max_regions=int(max_regions),
+                **dict(tunables or {}),
+            )
+        except ImportError as exc:
+            return _vision_error(f"region detection backend unavailable: {exc}",
+                                 hint="install the `vision` group (OpenCV + NumPy)")
+        except (ValueError, TypeError) as exc:
+            return {"ok": False, "error": f"could not detect regions: {exc}",
+                    "hint": "method is 'closed' | 'flat' | 'consensus'; tunables are "
+                            "method-specific (unknown names are rejected, not ignored)",
+                    "renders": [], "resources": []}
+        # Success: only now replace the session's prior render artifacts, so a
+        # failed call never clobbers what the previous tool left behind.
+        _reset_session_outputs(session_dir)
+        if overlay_tmp is not None and overlay_tmp.exists():
+            overlay_final = session_dir / "p001.png"
+            shutil.copyfile(overlay_tmp, overlay_final)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    renders: list[dict[str, Any]] = []
+    if overlay_final is not None:
+        renders.append({
+            "page": 1,
+            "label": f"regions:{method}",
+            "path": str(overlay_final),
+            "uri": f"framegraph://session/{sid}/page/1.png",
+            "mimeType": "image/png",
+            "bytes": overlay_final.stat().st_size,
+        })
+
+    # the pure function's payload IS the spatial numbers; its ok/overlay_path
+    # bookkeeping belongs to the envelope, not the payload.
+    spatial = {k: v for k, v in analysis.items() if k not in ("ok", "overlay_path")}
+    spatial["image"] = dict(spatial.get("image") or {}, path=image)
+    result = {
+        "ok": True,
+        "session_id": sid,
+        "session_dir": str(session_dir),
+        "image": image,
+        "renders": renders,
+        "resources": _compare_resources(sid, renders),
+        "spatial": spatial,
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
+    }
+    _apply_session_stamp(result, tool="detect_regions", replaced=replaced)
     _write_diagnostics(session_dir, result)
     return result
 
@@ -1155,6 +1357,7 @@ def map_coordinates(
         root = _session_root(session_root)
         sid = _session_id(session_id)
         session_dir = _prepare_session(root, sid)
+        replaced = _session_replacement_info(session_dir, "map_coordinates")
         _reset_session_outputs(session_dir)
         renders = _write_image_pages(session_dir, sid, [("rectified", warped)])
         result = {
@@ -1166,6 +1369,7 @@ def map_coordinates(
             "diagnostics_path": str(session_dir / "diagnostics.json"),
             "diagnostics_uri": f"framegraph://session/{sid}/diagnostics.json",
         }
+        _apply_session_stamp(result, tool="map_coordinates", replaced=replaced)
         _write_diagnostics(session_dir, result)
         return result
 
@@ -1264,10 +1468,14 @@ def vectorize_image(
 
     Modes: ``region`` (k-means colour → filled polygons; best for flat/logo art),
     ``outline`` (edge → polylines), ``trace`` (potrace Bézier → SVG ingest; smooth
-    curves — needs the potrace binary). ``region_box`` (normalized) vectorizes just a
+    curves — needs the potrace binary), ``layers`` (solid-bg logo tracer), or
+    ``auto`` (classify the raster and route to the best mode — the decision +
+    presets are reported under ``result.vectorize.auto``; explicit args always
+    win over the route's presets). ``region_box`` (normalized) vectorizes just a
     crop, placed back in full-image coordinates. ``ocr=True`` adds Tesseract text
-    objects. Sizes the page to the source so the reconstruction overlays 1:1; diff it
-    against the source with ``compare_images``.
+    objects and reports the OCR backend status under ``result.vectorize.ocr``
+    (never a silent empty list). Sizes the page to the source so the
+    reconstruction overlays 1:1; diff it against the source with ``compare_images``.
     """
     try:
         image_bytes = _resolve_image_arg(image, session_root=session_root)
@@ -1282,6 +1490,8 @@ def vectorize_image(
         return {"ok": False, "error": "vectorize needs Pillow (the `vision` group)",
                 "renders": [], "resources": []}
 
+    auto_meta: dict[str, Any] | None = None
+    ocr_status: dict[str, Any] | None = None
     tmp = Path(tempfile.mkdtemp(prefix="fg-vec-"))
     try:
         src = tmp / "src.png"
@@ -1290,6 +1500,22 @@ def vectorize_image(
         W, H = img.size
         ox = oy = 0.0
         try:
+            if mode == "auto":
+                from framegraph.vision.infrastructure.vectorize import resolve_auto_mode
+                mode, auto_meta = resolve_auto_mode(src)
+                # Route presets apply ONLY to args the caller left at their
+                # defaults (mirroring this signature / the server tool defaults) —
+                # an explicit argument always wins over the router (PALS: the
+                # router is a heuristic the caller can override).
+                presets = auto_meta["presets"]
+                if "colors" in presets and colors == 8:
+                    colors = int(presets["colors"])
+                if "detail" in presets and detail == 0.004:
+                    detail = float(presets["detail"])
+                if "min_area" in presets and min_area == 90.0:
+                    min_area = float(presets["min_area"])
+                if "max_dim" in presets and max_dim == 900:
+                    max_dim = int(presets["max_dim"])
             if mode in ("region", "outline"):
                 from framegraph.vision.infrastructure.vectorize import raster_to_objects
                 if region_box:
@@ -1336,11 +1562,15 @@ def vectorize_image(
                 backend = "opencv:layers"
             else:
                 return {"ok": False,
-                        "error": f"unknown mode {mode!r}; use 'region', 'outline', 'trace', or 'layers'",
+                        "error": f"unknown mode {mode!r}; use 'auto', 'region', 'outline', "
+                                 "'trace', or 'layers'",
                         "renders": [], "resources": []}
             if ocr:
-                from framegraph.vision.infrastructure.vectorize import ocr_text_objects
-                objects = list(objects) + ocr_text_objects(src)
+                # The status variant makes the degradation observable (PALS's Law):
+                # a silent [] was indistinguishable from a text-free image.
+                from framegraph.vision.infrastructure.vectorize import ocr_text_objects_status
+                ocr_objects, ocr_status = ocr_text_objects_status(src)
+                objects = list(objects) + ocr_objects
         except ImportError as exc:
             return {"ok": False, "error": f"vectorize backend unavailable: {exc}. "
                     "region/outline need the `vision` group (OpenCV); trace needs the potrace binary.",
@@ -1371,11 +1601,43 @@ def vectorize_image(
     source = RawYamlSource(yaml_text=serialize(builder.build(), format="yaml"),
                            session_id=session_id, session_root=session_root)
     result = _run_source(
-        source, max_pages=1, raster_png=raster_png, pages=None, sign=False, signed_at=None)
+        source, max_pages=1, raster_png=raster_png, pages=None, sign=False, signed_at=None,
+        tool="vectorize_image")
     result["vectorize"] = {
         "mode": mode, "backend": backend, "object_count": len(objects),
         "page_px": [int(page_w), int(page_h)],
         "region_px": [round(ox, 2), round(oy, 2)] if region_box else None,
     }
+    if auto_meta is not None:
+        result["vectorize"]["auto"] = auto_meta
+    if ocr_status is not None:
+        result["vectorize"]["ocr"] = ocr_status
     result["source_image"] = image
     return result
+
+
+def apply_anchored_edit(code: str, old_string: str, new_string: str) -> str:
+    """Exact-match, single-occurrence replacement for ``write_sdk_client`` edits.
+
+    The anchored-edit alternative to whole-file replacement: ``old_string`` must
+    match the current file content exactly once (extend it with surrounding lines
+    until unique), mirroring the contract of editor-style replace tools.
+    """
+    if not isinstance(old_string, str) or not old_string:
+        raise ValueError("old_string must be a non-empty string")
+    if not isinstance(new_string, str):
+        raise ValueError("new_string must be a string")
+    if old_string == new_string:
+        raise ValueError("old_string and new_string are identical — nothing to change")
+    count = code.count(old_string)
+    if count == 0:
+        raise ValueError(
+            "old_string was not found in the client file — read_sdk_client the current "
+            "contents and pass the exact text to replace"
+        )
+    if count > 1:
+        raise ValueError(
+            f"old_string matches {count} locations — extend it with surrounding lines "
+            "until it is unique"
+        )
+    return code.replace(old_string, new_string, 1)

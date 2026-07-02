@@ -3,7 +3,7 @@
   "supported": {
     "object_types": [
       "rect", "text", "line", "polyline", "polygon", "path", "ellipse", "circle",
-      "icon", "image", "bullet_list", "table", "group", "dimension",
+      "icon", "image", "bullet_list", "table", "group", "dimension", "connector",
       "container", "component", "legend", "chip_row",
       "uml.marker_glyph", "uml.classifier_box", "uml.component_box", "uml.state_box",
       "uml.action", "uml.artifact_box", "uml.node_box", "uml.lifeline",

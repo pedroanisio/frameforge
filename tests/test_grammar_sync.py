@@ -49,8 +49,11 @@ def test_gate_exit_codes():
 # --------------------------------------------------------------------------- #
 def test_out_of_profile_superset_is_warn():
     blob = "\n".join(f.msg for f in _findings() if f.code == "out-of-profile")
-    for t in ("connector", "uml.actor", "use", "component", "bar_chart"):
+    for t in ("uml.actor", "use", "component", "bar_chart"):
         assert t in blob, f"expected out-of-profile WARN to mention {t!r}"
+    # connector is typed at HEAD (§3.11): it moved from the out-of-profile
+    # superset into the core VisualObject union, so it must NOT be reported.
+    assert "'connector'" not in blob, "typed connector must no longer be out-of-profile"
 
 
 def test_model_only_aliases_are_info_not_error():

@@ -32,14 +32,42 @@ class ValidationReport:
     issues: tuple[Issue, ...]
 
 
+class StaticValidationError(ValueError):
+    """Static validation failed; carries the full :class:`ValidationReport`.
+
+    Raised by :meth:`DocumentBuilder.write(fail_on_error=True)
+    <framegraph.sdk.DocumentBuilder.write>`. The message lists every
+    error-severity issue with its JSON-pointer path so callers (human or agent)
+    can fix all of them in one pass; ``report`` holds the complete report
+    (warnings included) and ``errors`` the error-severity issues.
+    """
+
+    def __init__(self, report: ValidationReport) -> None:
+        self.report = report
+        self.errors = tuple(issue for issue in report.issues if issue.severity == "error")
+        if self.errors:
+            lines = "\n".join(
+                f"  [{issue.rule_id}] {issue.path or '/'}: {issue.message}"
+                for issue in self.errors
+            )
+            message = f"static validation failed with {len(self.errors)} error(s):\n{lines}"
+        else:
+            message = "static validation failed"
+        super().__init__(message)
+
+
 def validate_static_rules(model: Any, targets: list[str] | None = None) -> ValidationReport:
     """Validate model structure plus the repository's static rule catalogue.
 
-    ``targets`` is accepted for API compatibility with the proposal. Targeted
-    adjustment validation is not implemented by the current validator, so the
-    argument is recorded as a future extension and otherwise ignored.
+    ``targets`` names render targets to additionally validate: each requested
+    name must be defined under ``/targets``, and each requested target's
+    ``adjustments`` are applied to the reference graph — an object hidden by
+    the target may not be referenced by a page ``reading_order`` entry or by a
+    ``from``/``to`` anchor (id or ``{ref, port}``), since the reference would
+    dangle in that target's output (rule id ``target-adjustment``). Rendering
+    adjustments that cannot break references (``font_scale``,
+    ``padding_delta``) need no per-target re-check.
     """
-    _ = targets
     issues: list[Issue] = []
     try:
         validated = validate_document(model)
@@ -155,6 +183,7 @@ def _sdk_issues(raw: dict[str, Any], requested_targets: list[str]) -> list[Issue
 
     issues.extend(_master_region_issues(masters))
     issues.extend(_target_adjustment_issues(targets, raw))
+    issues.extend(_requested_target_issues(targets, raw, requested_targets))
     return issues
 
 
@@ -226,6 +255,68 @@ def _target_adjustment_issues(targets: list[Any], raw: dict[str, Any]) -> list[I
                     )
                 )
     return issues
+
+
+def _requested_target_issues(
+    targets: list[Any], raw: dict[str, Any], requested_targets: list[str]
+) -> list[Issue]:
+    """Per-target integrity: applying a requested target's adjustments must
+    leave every reference the document touches resolvable."""
+    by_name = {
+        target.get("name"): target
+        for target in targets
+        if isinstance(target, dict) and isinstance(target.get("name"), str)
+    }
+    issues: list[Issue] = []
+    for name in requested_targets:
+        target = by_name.get(name)
+        if target is None:
+            continue  # undefined targets are already reported above
+        adjustments = target.get("adjustments")
+        if not isinstance(adjustments, dict):
+            continue
+        hidden = {
+            object_id
+            for object_id in (adjustments.get("hide") or [])
+            if isinstance(object_id, str)
+        }
+        if not hidden:
+            continue
+        for page_index, page in enumerate(raw.get("pages") or []):
+            if not isinstance(page, dict):
+                continue
+            base = f"/pages/{page_index}"
+            for order_index, object_id in enumerate(page.get("reading_order") or []):
+                if object_id in hidden:
+                    issues.append(
+                        _error(
+                            "target-adjustment",
+                            f"{base}/reading_order/{order_index}",
+                            f"target {name!r} hides {object_id!r}, which reading_order references",
+                        )
+                    )
+            for path, obj in _walk_objects(page, base):
+                for field in ("from", "to"):
+                    ref = _anchor_ref(obj.get(field))
+                    if ref is not None and ref in hidden:
+                        issues.append(
+                            _error(
+                                "target-adjustment",
+                                f"{path}/{field}",
+                                f"target {name!r} hides {ref!r}, which a "
+                                f"{obj.get('type')} anchor references",
+                            )
+                        )
+    return issues
+
+
+def _anchor_ref(value: Any) -> str | None:
+    """The object id an ``Anchor`` references, if any (point anchors return None)."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict) and isinstance(value.get("ref"), str):
+        return value["ref"]
+    return None
 
 
 def _walk_objects(root: dict[str, Any], base: str):
@@ -353,4 +444,4 @@ def _finding_path_to_pointer(path: str) -> str:
     return _json_pointer(out)
 
 
-__all__ = ["Issue", "ValidationReport", "validate_static_rules"]
+__all__ = ["Issue", "StaticValidationError", "ValidationReport", "validate_static_rules"]

@@ -41,4 +41,30 @@ def serialize(model: Any, *, format: Format = "yaml") -> str:
     raise ValueError(f"unsupported format: {format!r}")
 
 
-__all__ = ["parse", "serialize"]
+def svg_to_objects(svg: Any, *, box: Any = None, data_attrs: bool = False) -> list[dict[str, Any]]:
+    """Ingest an existing SVG into FrameGraph object dicts (vector import).
+
+    ``svg`` is SVG text or a ``.svg`` path; the result is a list of primitive
+    object dicts (``rect``/``ellipse``/``line``/``polyline``/``polygon``/
+    ``path``) for :meth:`~framegraph.sdk.PageBuilder.extend`. ``box``
+    (``[x, y, w, h]``) fits the SVG's viewBox into that box via a
+    ``style.transform`` on every object; ``data_attrs=True`` carries ``data-*``
+    attributes onto ``meta['data']``.
+
+    This is the SDK-visible entry to
+    :func:`framegraph.vision.infrastructure.svg_import.svg_to_objects`
+    (imported lazily so the SDK stays light). Honest limits: solid paints with
+    group inheritance and transform passthrough; no gradients-by-reference,
+    ``<use>``, ``clipPath``/``mask``, CSS ``<style>`` rules, or ``<text>``.
+
+    Gotcha: if you group the ingested objects and clip them, put the clip on a
+    *static* parent group — the renderer nests ``style.clip_path`` INSIDE a
+    group's ``style.transform``, so a clip on the transformed group rides along
+    with the transform instead of masking in page coordinates.
+    """
+    from framegraph.vision.infrastructure.svg_import import svg_to_objects as _ingest
+
+    return _ingest(svg, box=box, data_attrs=data_attrs)
+
+
+__all__ = ["parse", "serialize", "svg_to_objects"]

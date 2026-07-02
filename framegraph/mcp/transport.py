@@ -64,6 +64,19 @@ def mcp_content_blocks(result: dict[str, Any]) -> list[dict[str, str]]:
     }
     if result.get("signed"):
         summary["signed"] = result.get("signed")
+    if result.get("hint"):
+        # structured failures carry an actionable next step; keep it next to the
+        # error in the model-facing summary instead of only in structuredContent.
+        summary["hint"] = result.get("hint")
+    if result.get("pdf"):
+        # the to='pdf' lane reports its outcome (path/uri/pages, or a structured
+        # failure with its own install hint) — surface it so the export result is
+        # visible without a diagnostics round-trip.
+        summary["pdf"] = result.get("pdf")
+    if result.get("replaced_renders"):
+        # cross-tool session reuse just overwrote a prior tool's renders; the
+        # summary names the prior tool so the silent-clobber case stays visible.
+        summary["replaced_renders"] = result.get("replaced_renders")
     if result.get("comparison"):
         # compare_images carries per-region pixel-match hints; surface them in the
         # text summary so the score sits next to the inlined comparison panels.

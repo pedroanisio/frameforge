@@ -10,7 +10,9 @@ from framegraph.sdk.geometry import Path
 from framegraph.sdk.paint import hatch, stroke
 
 _TOKEN_RE = re.compile(
-    r"(`[^`]+`"                                  # `code`
+    r"(\*\*[^*]+\*\*"                            # **bold**
+    r"|\*[^*\s][^*]*\*"                          # *italic*
+    r"|`[^`]+`"                                  # `code`
     r"|\$[^$]+\$"                                # $math$
     r"|\{(?:ref|pageref|nameref|cite):[^}]+\}"   # {ref:id} {pageref:id} {nameref:id} {cite:key}
     r"|\[[^\]]+\]\([^)]+\))"                     # [label](href)
@@ -44,17 +46,25 @@ _REF_SHOW = {"ref": None, "pageref": "page", "nameref": "title"}
 def md(text: str) -> list[Any]:
     """Lower a small Markdown inline subset to FrameGraph ``Inline`` values.
 
-    Handles `` `code` ``, ``$math$`` and ``[label](href)`` links, plus a
-    FrameGraph cross-reference/citation extension: ``{ref:id}`` (the target's
-    number), ``{pageref:id}`` (its page), ``{nameref:id}`` (its title) and
-    ``{cite:key}`` (a bibliography citation). See :func:`ref` / :func:`cite`."""
+    Handles ``**bold**`` and ``*italic*`` emphasis (lowered to ``Span`` values
+    with the canonical ``font_weight``/``font_style`` properties), `` `code` ``,
+    ``$math$`` and ``[label](href)`` links, plus a FrameGraph
+    cross-reference/citation extension: ``{ref:id}`` (the target's number),
+    ``{pageref:id}`` (its page), ``{nameref:id}`` (its title) and ``{cite:key}``
+    (a bibliography citation). Emphasis does not nest — this is deliberately a
+    flat inline subset, not a Markdown parser. See :func:`ref` / :func:`cite` /
+    :func:`span`."""
     out: list[Any] = []
     pos = 0
     for match in _TOKEN_RE.finditer(text):
         if match.start() > pos:
             out.append(text[pos : match.start()])
         token = match.group(0)
-        if token.startswith("`"):
+        if token.startswith("**"):
+            out.append({"text": token[2:-2], "style": {"font_weight": "bold"}})
+        elif token.startswith("*"):
+            out.append({"text": token[1:-1], "style": {"font_style": "italic"}})
+        elif token.startswith("`"):
             out.append({"kind": "code", "text": token[1:-1]})
         elif token.startswith("$"):
             out.append({"kind": "math", "tex": token[1:-1]})
@@ -99,6 +109,47 @@ def cite(key: str | list[str], *, prefix: str | None = None,
         inline["locator"] = locator
     if mode is not None:
         inline["mode"] = mode
+    return inline
+
+
+def span(
+    text: str,
+    *,
+    bold: bool = False,
+    italic: bool = False,
+    color: Any = None,
+    font: Any = None,
+    size: Any = None,
+    link: str | None = None,
+    **style: Any,
+) -> dict[str, Any]:
+    """A styled ``Span`` inline (or, with ``link=``, a ``LinkInline`` around it).
+
+    ``bold``/``italic`` lower to the canonical ``font_weight``/``font_style``
+    properties; ``color``/``font``/``size`` to ``color``/``font_family``/
+    ``font_size`` (``color`` and ``font`` accept token handles). Extra keyword
+    arguments pass through to the span's inline style, so any ``Style`` property
+    (``letter_spacing``, ``text_decoration``, …) is reachable. Compose lists of
+    spans and plain strings for :meth:`~framegraph.sdk.PageBuilder.text` and
+    :meth:`~framegraph.sdk.FlowBuilder.para`.
+    """
+    st: dict[str, Any] = {}
+    if bold:
+        st["font_weight"] = "bold"
+    if italic:
+        st["font_style"] = "italic"
+    if color is not None:
+        st["color"] = str(color)
+    if font is not None:
+        st["font_family"] = str(font) if isinstance(font, Handle) else font
+    if size is not None:
+        st["font_size"] = size
+    st.update(style)
+    inline: dict[str, Any] = {"text": str(text)}
+    if st:
+        inline["style"] = st
+    if link is not None:
+        return {"kind": "link", "href": str(link), "content": [inline]}
     return inline
 
 
@@ -312,6 +363,7 @@ __all__ = [
     "md",
     "paragraph",
     "ref",
+    "span",
     "sparkline",
     "theme",
 ]

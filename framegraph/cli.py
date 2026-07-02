@@ -72,6 +72,37 @@ def _svgs(path, pages):
     return svgs[:pages] if pages else svgs
 
 
+def _render_with_outline(path, pages):
+    """Render like `_svgs` but keep the document dict and the heading map.
+
+    Uses the same validate → normalize → Renderer path as the SDK's
+    `render_page_svgs`, holding on to the Renderer so the flow renderer's
+    per-page heading telemetry (`flow_headings`) can drive the PDF outline.
+    Returns `(doc_dict, svgs, outline)` where each outline entry is
+    `{"title", "level", "page"}` with a 0-based global SVG page index."""
+    from framegraph.sdk import parse
+    from framegraph.rendering.application.normalize import normalize_doc
+    from framegraph.rendering.application.renderer import Renderer
+    base = os.path.dirname(os.path.abspath(path))
+    model = parse(_read(path))
+    data = model if isinstance(model, dict) else model.model_dump(by_alias=True, exclude_none=True)
+    doc = normalize_doc(data)
+    renderer = Renderer(doc, base)
+    svgs, outline = [], []
+    for page in doc.get("pages", []):
+        if not isinstance(page, dict):
+            continue
+        start = len(svgs)
+        svgs.extend(renderer.render_page(page))
+        for hd in renderer.flow_headings:
+            outline.append({"title": hd["text"], "level": hd["level"],
+                            "page": start + hd["page"] - 1})
+    if pages:
+        svgs = svgs[:pages]
+        outline = [e for e in outline if e["page"] < len(svgs)]
+    return doc, svgs, outline
+
+
 def _can_import(*mods):
     for m in mods:
         try:
@@ -95,8 +126,9 @@ def r_pdf(path, out_dir, args):
     cairosvg = importlib.import_module("cairosvg")
     PdfWriter = importlib.import_module("pypdf").PdfWriter
     base = os.path.dirname(os.path.abspath(path))
-    writer, n = PdfWriter(), 0
-    for i, svg in enumerate(_svgs(path, args.pages), 1):
+    doc, svgs, outline = _render_with_outline(path, args.pages)
+    writer, n, page_index = PdfWriter(), 0, {}
+    for i, svg in enumerate(svgs, 1):
         try:
             pdf = cairosvg.svg2pdf(bytestring=svg.encode("utf-8"),
                                    url=os.path.join(base, ""), unsafe=True)
@@ -104,7 +136,11 @@ def r_pdf(path, out_dir, args):
             print(f"  ⚠ page {i}: SVG→PDF failed ({exc}); skipped", file=sys.stderr)
             continue
         writer.append(io.BytesIO(pdf))
+        page_index[i - 1] = n                                      # svg index -> pdf page
         n += 1
+    if n:
+        _pdf_metadata(writer, doc)
+        _pdf_outline(writer, outline, page_index)
     out = args.single or os.path.join(out_dir, f"{args.stem}.pdf")
     if n:
         os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
@@ -112,6 +148,36 @@ def r_pdf(path, out_dir, args):
             writer.write(fh)
     writer.close()
     return [out] if n else []
+
+
+def _pdf_metadata(writer, doc):
+    """Carry the document's identity into the PDF Info dict + catalog /Lang."""
+    from pypdf.generic import NameObject, TextStringObject
+    meta = {"/Producer": "FrameGraph proxy renderer (framegraph-render, CairoSVG+pypdf)"}
+    if doc.get("title"):
+        meta["/Title"] = str(doc["title"])
+    if doc.get("description"):
+        meta["/Subject"] = str(doc["description"])
+    writer.add_metadata(meta)
+    if doc.get("lang"):
+        writer.root_object[NameObject("/Lang")] = TextStringObject(str(doc["lang"]))
+
+
+def _pdf_outline(writer, outline, page_index):
+    """Build PDF bookmarks from the flow headings (level-nested, in order).
+
+    `page_index` maps global SVG page index -> written PDF page (pages whose
+    SVG→PDF conversion failed are absent and their headings are skipped)."""
+    stack = []                                    # [(level, outline item ref)]
+    for entry in outline:
+        target = page_index.get(entry["page"])
+        if target is None:
+            continue
+        while stack and stack[-1][0] >= entry["level"]:
+            stack.pop()
+        parent = stack[-1][1] if stack else None
+        ref = writer.add_outline_item(entry["title"], target, parent=parent)
+        stack.append((entry["level"], ref))
 
 
 def r_png(path, out_dir, args):
@@ -188,6 +254,10 @@ def main(argv=None):
     ap.add_argument("--out", default=None, help="output directory (default: out/render-cli)")
     ap.add_argument("--pages", type=int, default=0, help="render only the first N pages (0 = all)")
     ap.add_argument("--scale", type=float, default=2.0, help="raster scale factor (png)")
+    ap.add_argument("--real-metrics", action="store_true",
+                    help="wrap text with real font metrics (fontTools + fc-match) "
+                         "instead of the per-char estimate; sets FRAMEGRAPH_REAL_METRICS "
+                         "so every backend in this run inherits it")
     ap.add_argument("--engine", choices=["auto", "lualatex", "pdflatex"], default="auto",
                     help="TeX engine for pdf-tex")
     ap.add_argument("--single", metavar="FILE", default=None, help="combined output file path (pdf)")
@@ -207,6 +277,12 @@ def main(argv=None):
     if reason is not None:
         print(f"target '{args.to}' is not available: {reason}", file=sys.stderr)
         return 3
+
+    if args.real_metrics:
+        # The renderer reads this when its real_metrics arg is left at None, so
+        # the flag reaches the sdk render path AND subprocess targets (pdf-tex,
+        # html) without threading a parameter through every signature.
+        os.environ["FRAMEGRAPH_REAL_METRICS"] = "1"
 
     args.stem = os.path.splitext(os.path.basename(args.input))[0]
     out_dir = args.out or os.path.join(ROOT, "out", "render-cli")
