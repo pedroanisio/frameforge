@@ -210,7 +210,10 @@ def test_mcp_propose_from_image_validates_and_renders(tmp_path):
     ran_names = set(summary["detectors_run"])
     skipped_names = {s["name"] for s in summary["detectors_skipped"]}
     assert {"shape", "line", "text", "vlm"} <= (ran_names | skipped_names)
-    assert {"text", "vlm"} <= skipped_names
+    # `text` (pytesseract) runs wherever the vision group + tesseract binary
+    # exist, so it may land on either side. Only the VLM lane is deterministic
+    # here: it needs explicit FRAMEGRAPH_VISION_VLM_* configuration.
+    assert "vlm" in skipped_names
 
 
 def test_mcp_propose_from_image_requires_an_image():
