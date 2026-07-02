@@ -146,7 +146,9 @@ def test_transpile_emits_native_latex_math_and_tikz():
     tex = transpile(DOC)
     assert "\\documentclass" in tex
     assert "paperwidth=320pt,paperheight=240pt" in tex
-    assert "A\\&B\\label{fg:intro}" in tex
+    # the label now carries its title for \nameref (headings are styled
+    # paragraphs, not \section{...}, so nameref captures nothing otherwise)
+    assert "\\gdef\\@currentlabelname{A\\&B}\\makeatother\\label{fg:intro}" in tex
     assert "\\tableofcontents" in tex
     assert r"\(E = mc^2\)" in tex
     assert r"\[" in tex and r"\int_0^1 x^2\,dx = \frac{1}{3}" in tex
@@ -581,3 +583,24 @@ def test_preamble_harmonises_math_with_the_body_face():
     assert "\\iftutex" in tex
     assert "\\IfFontExistsTF{XCharter-Math.otf}" in tex
     assert "\\setmathfont{XCharter-Math.otf}" in tex
+
+
+def test_heading_labels_carry_their_title_for_nameref():
+    """The transpiler's headings are styled paragraphs, not \\section{...}, so
+    \\nameref found no captured title and rendered ref show="title" as a
+    blank (seen on the capability tour's flow page). A labelled heading now
+    sets \\@currentlabelname so title cross-references resolve."""
+    tex = transpile({
+        "dsl": "FrameGraph", "version": "2.2.0",
+        "pages": [{"mode": "flow", "id": "p", "canvas": {"size": [400, 300]},
+                   "story": [
+                       {"type": "heading", "level": 1, "text": "Flow mode",
+                        "id": "flow-top"},
+                       {"type": "paragraph",
+                        "spans": ["see ", {"kind": "ref", "target": "flow-top",
+                                           "show": "title"}]},
+                   ]}],
+    })
+    assert "\\gdef\\@currentlabelname{Flow mode}" in tex
+    assert "\\label{fg:flow-top}" in tex
+    assert "\\nameref{fg:flow-top}" in tex

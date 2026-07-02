@@ -367,6 +367,55 @@ class Tour(Book):
             self.table(headers, rows[i:i + chunk], weights=weights,
                        row_height=row_height, header_height=28)
 
+    def ref_columns(self, entries, *, size=8.5, gap=22):
+        """Two-column reference flow for scannable machine-reference matter:
+        ('head', text) group headings and ('entry', name, summary) items fill
+        the left column to the page bottom, then the right, then a fresh
+        page. Entries hang — first line on the column edge, continuation
+        lines indented — per the design-review guidance."""
+        colw = (CONTENT_W - gap) / 2
+        step = size * 1.35
+        hang = 10
+        col = 0
+        top = self.y
+
+        def advance(needed):
+            nonlocal col, top
+            if self.y + needed > BOTTOM:
+                if col == 0:
+                    col = 1
+                else:
+                    self.new_page()
+                    col = 0
+                    top = self.y
+                self.y = top
+
+        for item in entries:
+            x0 = MX + col * (colw + gap)
+            if item[0] == "head":
+                advance(step + 12 + 2 * step)   # keep the head with two lines
+                x0 = MX + col * (colw + gap)
+                self.page.text([x0, self.y + 6, colw, step + 3], item[1],
+                               style=ts(10, ACCENT, family=SANS, weight=800))
+                self.y += step + 12
+                continue
+            _, name, one = item
+            text = f"`{name}` — {one}" if one else f"`{name}`"
+            lines = wrap_atoms(text, (colw - hang) * SLACK, size)
+            advance(len(lines) * step + 2)
+            x0 = MX + col * (colw + gap)
+            for li, line in enumerate(lines):
+                spans = line_spans(line, size, INK)
+                lx = x0 + (hang if li else 0)
+                if spans:
+                    self.page.add({"type": "text",
+                                   "box": [lx, self.y, colw - (hang if li else 0),
+                                           step],
+                                   "spans": spans, "style": ts(size, INK)})
+                self.y += step
+            self.y += 2
+        self.y = BOTTOM + 1        # nothing flows beside a half-filled column
+
 
 # --------------------------------------------------------------------------- #
 # §2 — the 17 object types, one demo cell each.
@@ -2418,12 +2467,12 @@ def _appendix_a(bk: Tour):
             cut = para0.find(". ")
             one = para0[:cut + 1] if cut != -1 else para0
         groups.setdefault(mod or "sdk", []).append((name, one))
+    entries = []
     for mod in sorted(groups):
-        bk.subsection(mod)
+        entries.append(("head", mod))
         for name, one in sorted(groups[mod], key=lambda t: t[0].lower()):
-            bk.para(f"`{name}` — {one}" if one else f"`{name}`",
-                    size=9.5, lh=1.4, gap=2)
-        bk.space(6)
+            entries.append(("entry", name, one))
+    bk.ref_columns(entries)
 
 
 def _load_error_codes():

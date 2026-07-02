@@ -301,7 +301,14 @@ class _Transpiler:
     def _emit_heading(self, fl, out):
         level = int(fl.get("level", 1) or 1)
         st = self._ts.resolve(fl.get("style") or f"h{level}")
-        label = f"\\label{{{_latex_label(fl.get('id'))}}}" if fl.get("id") else ""
+        label = ""
+        if fl.get("id"):
+            # Headings are styled paragraphs, not \section{...}, so \nameref
+            # has no captured title unless we set it at the label site —
+            # otherwise ref show="title" resolves to an empty run.
+            label = ("\\makeatletter\\gdef\\@currentlabelname{"
+                     + ltx_escape(fl.get("text")) + "}\\makeatother"
+                     + f"\\label{{{_latex_label(fl.get('id'))}}}")
         # Register the heading in the table of contents (so a `toc` flowable is
         # not empty) and give hyperref a stable anchor. Map the heading level to
         # the article sectioning ladder, clamped to its three real depths.
