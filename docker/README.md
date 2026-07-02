@@ -61,6 +61,38 @@ Wire it into a client by replacing the `framegraph` entry in your MCP config wit
 [`.mcp.json`](../.mcp.json) still uses the local `uv` env for development; the
 container is the portable, font-complete alternative.
 
+## Using from another codebase
+
+Host paths do not exist inside the container, so the client wiring in
+[`mcp.docker.json`](mcp.docker.json) mounts two things:
+
+| Mount | Purpose |
+|---|---|
+| `framegraph-work:/work` | Named volume — session artifacts persist across runs; SDK clients written with a bare name land in `/work/clients` and survive restarts |
+| `${PWD}:/workspace:ro` | **Your project**, read-only — reference its files in tool calls as `/workspace/<relative-path>` (`propose_from_image path=/workspace/design/mockup.png`) |
+
+`FRAMEGRAPH_MCP_INPUT_ROOTS=/workspace:/work:/app` confines file-reading tools
+to those roots. Retrieve rendered artifacts MCP-natively with
+`get_session_resource` (`framegraph://session/<id>/page/1.svg`), or bulk-export
+by mounting the volume: `docker run --rm -v framegraph-work:/work -v "$PWD:/out"
+frameforge bash -c 'cp -r /work/sessions/<id> /out/'`. The installable guide for
+consuming agents lives at [`skills/framegraph-mcp-docker/`](../skills/framegraph-mcp-docker/SKILL.md).
+
+## Freshness
+
+The image bakes the repo at build time; **rebuild after updating the repo**
+(`make docker-build`). Detect skew without guessing:
+
+```bash
+docker run --rm frameforge version
+# package 2.3.0 / models HEAD_VERSION 2.3.0 / built 2026-07-02T...
+```
+
+`make docker-build` stamps the OCI `org.opencontainers.image.version` label from
+`pyproject.toml`; once connected over MCP, `describe_capabilities` reports the
+same surface. A stale image's symptom is a shorter tool list or version skew in
+validation errors.
+
 Other entrypoint verbs (see [`entrypoint.sh`](entrypoint.sh)):
 
 ```bash

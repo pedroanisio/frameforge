@@ -34,7 +34,7 @@ from framegraph.mcp.execution import (
 from framegraph.mcp.paths import _repo_root, _session_root, get_default_repo_root
 from framegraph.mcp.results import _base_result
 from framegraph.mcp.security import (
-    _repo_relative_path,
+    _display_path,
     _resolve_client_path,
 )
 from framegraph.mcp.sessions import _prepare_session, _reset_session_inputs, _session_id
@@ -231,7 +231,7 @@ class SdkClientSource(DocumentSource):
         env = _subprocess_env(root)
         client_fields = {
             "client_path": str(client_path),
-            "client_uri": _repo_relative_path(client_path, root),
+            "client_uri": _display_path(client_path, root),
         }
         try:
             proc = subprocess.run(

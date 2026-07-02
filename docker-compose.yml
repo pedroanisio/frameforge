@@ -25,6 +25,10 @@ services:
     tty: false
     volumes:
       - framegraph-work:/work
+      # Foreign-codebase convention (see docker/mcp.docker.json): mount the
+      # consuming project read-only at /workspace and reference its files in
+      # tool calls as /workspace/<relative-path>.
+      # - ${PWD}:/workspace:ro
     command: ["mcp"]
 
 volumes:

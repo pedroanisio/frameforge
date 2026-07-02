@@ -9,7 +9,7 @@ from framegraph.mcp.config import MAX_CLIENT_BYTES
 from framegraph.mcp.paths import _repo_root
 from framegraph.mcp.security import (
     _client_roots,
-    _repo_relative_path,
+    _display_path,
     _resolve_client_path,
 )
 from framegraph.mcp.util import _is_relative_to, _sha256_text
@@ -36,7 +36,7 @@ def list_sdk_clients(
             data = resolved.read_bytes()
             clients.append(
                 {
-                    "path": _repo_relative_path(resolved, root),
+                    "path": _display_path(resolved, root),
                     "bytes": len(data),
                     "sha256": hashlib.sha256(data).hexdigest(),
                 }
@@ -44,7 +44,7 @@ def list_sdk_clients(
     return {
         "ok": True,
         "repo_root": str(root),
-        "allowed_roots": [_repo_relative_path(path, root) for path in roots],
+        "allowed_roots": [_display_path(path, root) for path in roots],
         "clients": clients,
     }
 
@@ -61,7 +61,7 @@ def read_sdk_client(
     code = client_path.read_text(encoding="utf-8")
     return {
         "ok": True,
-        "path": _repo_relative_path(client_path, root),
+        "path": _display_path(client_path, root),
         "absolute_path": str(client_path),
         "bytes": len(code.encode("utf-8")),
         "sha256": _sha256_text(code),
@@ -89,7 +89,7 @@ def write_sdk_client(
         raise ValueError("SDK client path must resolve to a file")
     if not client_path.exists() and not create:
         raise FileNotFoundError(str(client_path))
-    compile(code, _repo_relative_path(client_path, root), "exec")
+    compile(code, _display_path(client_path, root), "exec")
 
     previous_sha = None
     if client_path.exists():
@@ -102,7 +102,7 @@ def write_sdk_client(
     data = client_path.read_bytes()
     return {
         "ok": True,
-        "path": _repo_relative_path(client_path, root),
+        "path": _display_path(client_path, root),
         "absolute_path": str(client_path),
         "created": previous_sha is None,
         "previous_sha256": previous_sha,

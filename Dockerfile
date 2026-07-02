@@ -62,7 +62,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
-    FRAMEGRAPH_CHROMIUM_NO_SANDBOX=1
+    FRAMEGRAPH_CHROMIUM_NO_SANDBOX=1 \
+    PYTHONPATH=/app/src:/app/docs
 
 # System libraries the optional lanes dlopen at runtime:
 #  - cairosvg  -> libcairo2 + pango + gdk-pixbuf (SVG->PNG for the vision loop)
@@ -126,10 +127,23 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # Project source (see .dockerignore for what's excluded).
 COPY . .
-RUN chmod +x docker/*.sh
+RUN chmod +x docker/*.sh \
+ && date -u +%Y-%m-%dT%H:%M:%SZ > /app/.build-stamp
+
+# Freshness is part of the contract: the OCI label plus the `version`
+# entrypoint verb let a consuming codebase detect a stale image.
+# `make docker-build` wires the pyproject version through BUILD_VERSION.
+ARG BUILD_VERSION=dev
+LABEL org.opencontainers.image.title="frameforge" \
+      org.opencontainers.image.version="${BUILD_VERSION}" \
+      org.opencontainers.image.source="https://github.com/pedroanisio/frameforge"
 
 # Untrusted SDK code runs in a subprocess; the container boundary is the sandbox.
-ENV FRAMEGRAPH_MCP_SESSION_ROOT=/work/sessions
+# SDK clients written over MCP resolve to the persistent volume first so they
+# outlive the `--rm` container; the in-repo cookbook stays readable/editable.
+ENV FRAMEGRAPH_MCP_SESSION_ROOT=/work/sessions \
+    FRAMEGRAPH_MCP_EDIT_ROOTS=/work/clients:/app/static/examples
+RUN mkdir -p /work/clients /work/sessions
 VOLUME ["/work"]
 
 HEALTHCHECK --interval=1m --timeout=10s --start-period=10s --retries=3 \

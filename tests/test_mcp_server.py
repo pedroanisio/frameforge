@@ -450,8 +450,16 @@ def test_sdk_client_tools_reject_paths_outside_allowed_roots(tmp_path):
     examples.mkdir(parents=True)
     (tmp_path / "outside.py").write_text("print('outside')\n", encoding="utf-8")
 
-    with pytest.raises(ValueError, match="allowed SDK client roots"):
+    # A bare client name is searched across the allowed roots (persistent-root
+    # support); a miss is "no such editable client", not a confinement error —
+    # the repo-root file stays invisible either way.
+    with pytest.raises(FileNotFoundError):
         read_sdk_client("outside.py", repo_root=tmp_path)
+
+    # A relative path with directories is an explicit repo-relative location
+    # claim and keeps the strict rejection.
+    with pytest.raises(ValueError, match="allowed SDK client roots"):
+        read_sdk_client("secrets/outside.py", repo_root=tmp_path)
 
     with pytest.raises(ValueError, match="Python"):
         write_sdk_client("static/examples/client.txt", "print('nope')\n", create=True, repo_root=tmp_path)

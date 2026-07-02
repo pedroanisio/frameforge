@@ -135,10 +135,20 @@ make docker-build          # ARGS='--build-arg FONTS_APT_WILDCARD=1' for the ful
 make docker-mcp            # MCP server (stdio) from the container
 make docker-shell          # interactive toolchain shell
 make docker-fonts          # list baked-in font families
+docker run --rm frameforge version   # freshness: package + models HEAD_VERSION + build stamp
 ```
 
-`mcp.docker.json` shows the client wiring; `FRAMEGRAPH_CHROMIUM_NO_SANDBOX=1`
-is needed for in-container Chromium raster.
+The image bakes the tree at build time — **rebuild after updating the repo**
+(`make docker-build`), and use the `version` verb to detect skew. A stale image
+silently serves an old toolchain (missing tools, old schema).
+
+`docker/mcp.docker.json` is the client wiring for *any* codebase: the consuming
+project mounts read-only at `/workspace` (reference its files as
+`/workspace/<path>` in tool calls), session artifacts persist on the
+`framegraph-work` volume, and SDK clients written with a bare name land in
+`/work/clients` (persistent). Full guide: `skills/framegraph-mcp-docker/`.
+`FRAMEGRAPH_CHROMIUM_NO_SANDBOX=1` is needed for in-container Chromium raster
+(baked into the image).
 
 ## Fixture workflow
 

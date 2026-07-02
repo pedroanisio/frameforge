@@ -9,6 +9,15 @@ from framegraph.mcp.util import _is_relative_to
 
 
 def _client_roots(repo_root: Path, edit_roots: str | list[str] | tuple[str, ...] | None) -> list[Path]:
+    """Resolve the editable SDK-client roots.
+
+    Relative entries resolve against the repository root (the historical
+    behavior; the defaults are relative). Explicitly configured **absolute**
+    entries are honored literally, including outside the repository — that is
+    how a deployment points writes at persistent storage (e.g. the Docker
+    image sets ``FRAMEGRAPH_MCP_EDIT_ROOTS=/work/clients:/app/static/examples``
+    so clients written over MCP outlive the ``--rm`` container).
+    """
     configured = edit_roots
     if configured is None:
         configured = os.environ.get("FRAMEGRAPH_MCP_EDIT_ROOTS")
@@ -22,15 +31,7 @@ def _client_roots(repo_root: Path, edit_roots: str | list[str] | tuple[str, ...]
     roots: list[Path] = []
     for entry in entries:
         candidate = Path(entry).expanduser()
-        if candidate.is_absolute():
-            resolved = candidate.resolve()
-            if not _is_relative_to(resolved, repo_root):
-                as_repo_relative = (repo_root / str(entry).lstrip("/")).resolve()
-                resolved = as_repo_relative
-        else:
-            resolved = (repo_root / candidate).resolve()
-        if not _is_relative_to(resolved, repo_root):
-            raise ValueError("editable SDK client roots must stay inside the repository")
+        resolved = candidate.resolve() if candidate.is_absolute() else (repo_root / candidate).resolve()
         roots.append(resolved)
     if not roots:
         raise ValueError("at least one editable SDK client root is required")
@@ -47,24 +48,57 @@ def _resolve_client_path(
     if not isinstance(path, str) or not path.strip():
         raise ValueError("path must be a non-empty string")
     raw = Path(path).expanduser()
-    if raw.is_absolute():
-        resolved = raw.resolve()
-        if not _is_relative_to(resolved, repo_root):
-            resolved = (repo_root / str(path).lstrip("/")).resolve()
-    else:
-        resolved = (repo_root / raw).resolve()
-    if resolved.suffix != ".py":
+    if raw.suffix != ".py":
         raise ValueError("SDK client path must be a Python .py file")
     allowed_roots = _client_roots(repo_root, edit_roots)
-    if not any(_is_relative_to(resolved, root) for root in allowed_roots):
+
+    candidates: list[Path] = []
+    if raw.is_absolute():
+        candidates.append(raw.resolve())
+        # Legacy form: an absolute-looking path written repo-relative
+        # ("/static/examples/foo.py") keeps resolving into the repository.
+        candidates.append((repo_root / str(path).lstrip("/")).resolve())
+    else:
+        candidates.append((repo_root / raw).resolve())
+        # A *bare* client name (no directory part) is searched across the
+        # configured roots — that is how `write_sdk_client("poster.py")` lands
+        # in the persistent root of a hardened deployment. A relative path
+        # with directories stays an explicit repo-relative location claim.
+        if len(raw.parts) == 1:
+            for root in allowed_roots:
+                candidates.append((root / raw).resolve())
+
+    seen: set[Path] = set()
+    allowed = [
+        candidate
+        for candidate in candidates
+        if not (candidate in seen or seen.add(candidate))
+        and any(_is_relative_to(candidate, root) for root in allowed_roots)
+    ]
+    if not allowed:
         raise ValueError("SDK client path must stay under the allowed SDK client roots")
-    if must_exist and not resolved.is_file():
-        raise FileNotFoundError(str(resolved))
-    return resolved
+    for candidate in allowed:
+        if candidate.is_file():
+            return candidate
+    if must_exist:
+        raise FileNotFoundError(str(allowed[0]))
+    return allowed[0]
 
 
 def _repo_relative_path(path: Path, repo_root: Path) -> str:
     return path.resolve().relative_to(repo_root).as_posix()
+
+
+def _display_path(path: Path, repo_root: Path) -> str:
+    """Repo-relative when inside the repository, absolute POSIX otherwise.
+
+    Roots outside the repository (persistent volumes) have no repo-relative
+    form by construction; reporting must not raise for them.
+    """
+    resolved = path.resolve()
+    if _is_relative_to(resolved, repo_root):
+        return resolved.relative_to(repo_root).as_posix()
+    return resolved.as_posix()
 
 
 def _assert_input_path_allowed(path: str) -> None:

@@ -134,7 +134,9 @@ golden-check:  ## fail if the b1/ oracle renders drift from the golden lock
 	$(UV) run python tooling/render_golden.py
 
 docker-build:  ## build the font-rich SDK/MCP image (ARGS='--build-arg FONTS_APT_WILDCARD=1')
-	$(DOCKER) build -t $(IMAGE) $(ARGS) .
+	$(DOCKER) build -t $(IMAGE) \
+		--build-arg BUILD_VERSION=$$(grep -m1 '^version' pyproject.toml | cut -d'"' -f2) \
+		$(ARGS) .
 
 docker-mcp:  ## run the MCP server (stdio) from the container
 	$(DOCKER) run --rm -i -v framegraph-work:/work $(IMAGE)

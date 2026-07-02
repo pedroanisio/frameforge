@@ -25,6 +25,20 @@ case "${cmd}" in
   mcp|"")
     run python -m framegraph.mcp
     ;;
+  version)
+    # Freshness handshake: package version, models HEAD_VERSION, build stamp.
+    # A consuming codebase compares these against its checkout and rebuilds on skew.
+    run python -c "$(cat <<'PY'
+import pathlib, tomllib
+from models.framegraph import HEAD_VERSION
+meta = tomllib.loads(pathlib.Path("/app/pyproject.toml").read_text())
+stamp = pathlib.Path("/app/.build-stamp")
+print("package", meta["project"]["version"])
+print("models HEAD_VERSION", HEAD_VERSION)
+print("built", stamp.read_text().strip() if stamp.exists() else "unknown")
+PY
+)"
+    ;;
   fonts)
     exec fc-list : family | sort -u
     ;;
