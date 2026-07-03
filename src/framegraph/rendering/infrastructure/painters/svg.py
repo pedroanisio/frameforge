@@ -630,7 +630,7 @@ class SvgPainter:
         return (f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '
                 f'href="{esc(href)}" preserveAspectRatio="{esc(preserve_aspect_ratio)}"/>')
 
-    def text_tag(self, x, y, w, h, content, st, vcenter=None):
+    def text_tag(self, x, y, w, h, content, st, vcenter=None, text_len=None):
         if content is None or content == "":
             return ""
         a = self.anchor(st["align"])
@@ -643,9 +643,13 @@ class SvgPainter:
         else:
             ty = y + st["size"] * 0.92
             baseline = ""
+        # Justify a left-set line to a target length: a compliant shaper (browser/
+        # PDF) distributes the slack across spaces with its own metrics (ADR-0003).
+        fit = (f' textLength="{fnum(text_len)}" lengthAdjust="spacing"'
+               if text_len is not None and a == "start" else "")
         style = self.font_style(st, st["size"])
-        return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}"{baseline} '
-                f'style="{style}">{esc(content)}</text>')
+        return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}"{baseline}'
+                f'{fit} style="{style}">{esc(content)}</text>')
 
     def text_block(self, base_y, anchor, st, size, lines, tx, line_dy):
         style = self.font_style(st, size)

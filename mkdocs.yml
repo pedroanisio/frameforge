@@ -66,8 +66,10 @@ nav:
       - Architecture: architecture.md
       - Output space: output-space.md
       - Roadmap: roadmap.md
+      - Patterns & fills: patterns-fills.md
       - ADR-0001 backend-neutral rendering: adr-0001-backend-neutral-rendering.md
       - ADR-0002 SDK lags core delivery: adr-0002-sdk-lags-core-delivery.md
+      - ADR-0003 backend-neutral flow layout: adr-0003-backend-neutral-flow-layout.md
       - Illustration protocol: illustration-protocol.md
       - Vector recreation improvements: framegraph-vector-recreation-improvements.md
       - Brand guideline: BRAND.md

@@ -4,6 +4,44 @@
 
 ---
 
+## Unreleased — backend-neutral flow layout · Knuth–Plass + hyphenation (2026-07-02)
+
+Flow-mode prose gets a single backend-neutral layout engine
+(`framegraph.rendering.domain.services.flow_layout`); see
+[ADR-0003](docs/adr-0003-backend-neutral-flow-layout.md). *Own the breaks, delegate
+the spacing.*
+
+- **Line breaking** is Knuth–Plass total-fit (1981); **hyphenation** is Liang
+  patterns via `pyphen` (new runtime dependency) — replacing greedy,
+  estimate-based, left-aligned wrapping that produced rivers and lopsided margins.
+- **Column geometry** resolves from the page master (explicit region → margin →
+  the Johnston canon, **mirrored recto/verso**) instead of a hard-coded symmetric
+  `margin = 56`; the flowed body finally honours authored geometry and mirrors the
+  way the running header already did.
+- Each line is emitted as **one text element**, justified to its column via SVG
+  `textLength` — **flush on browser/PDF, tight hyphenated ragged on the cairosvg
+  proxy** (which ignores it). First-line indent + no inter-paragraph gap.
+- **Render change (golden re-pin)**: the four flow fixtures re-pinned; the
+  page-mode decks are byte-unchanged.
+- *Limit:* tight **flush** justification needs a **pinned body font** (layout
+  metric = render font); unpinned, flush over-stretches (uniformly airy, not
+  rivers) — tight ragged is the safe default. Page-mode `wrap:true` text boxes are
+  unchanged (staged follow-up).
+
+## Unreleased — pattern catalog + fill contract absorbed as data (2026-07-02, issue #28)
+
+New bounded context `framegraph.patterns`: the predecessor's 375-pattern
+slide-template catalog and 17 fill sidecars land as committed data with a
+strict Pydantic contract — controlled vocabularies for zone size / placement /
+content_type, `load_fill` deriving a typed `{role: content}` payload model per
+pattern (sidecar overrides enforced: the BMC's object items reject plain
+strings), and every committed `example_fill` round-tripped by the test gate.
+The catalog count is LOCKED at 375 — truncation is a failing test, not a
+smaller number. Rendering a filled pattern into v2 pages is the #29 bridge,
+deliberately not part of this change. Docs: `docs/patterns-fills.md` (adapted
+from the predecessor's AGENTS.md / AUTHORING-FILLS.md guidance). 11 red-first
+tests.
+
 ## Unreleased — design-canon SDK modules (2026-07-02)
 
 Two pure-helper modules codify working design rules for document authors

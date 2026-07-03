@@ -29,6 +29,7 @@ from framegraph.rendering.domain.services.paint_resolver import ColorResolver
 from framegraph.rendering.domain.services.effect_resolver import EffectResolver
 from framegraph.rendering.domain.services.stroke_resolver import Markers, Stroke, StrokeResolver
 from framegraph.rendering.domain.services.layout_engine import LayoutEngine
+from framegraph.rendering.domain.services import flow_layout
 from framegraph.rendering.domain.services.math_text import math_text
 from framegraph.rendering.domain.services.style_values import StyleValues
 from framegraph.rendering.domain.services.text_fitter import TextFitter
@@ -1392,9 +1393,19 @@ class Renderer:
 
     def _render_flow_pages(self, page, w, h, toc_pages=None):
         p = self._painter
-        margin = 56
-        x, top, bottom = margin, margin, h - margin
-        usable = w - 2 * margin
+        # Content geometry is resolved by the backend-neutral flow layout engine
+        # (ADR-0003) from the page master — explicit region box → master margin →
+        # the Johnston canon (mirrored recto/verso) — instead of a hard-coded
+        # symmetric margin. Recomputed per page so odd/even pages mirror; width is
+        # parity-independent, so a paragraph's line breaks stay valid across a break.
+        master = self.masters.get(page.get("master")) if page.get("master") else None
+
+        def geom(page_index):
+            gx, gy, gw, gh = flow_layout.content_box(master, w, h, page_index)
+            return gx, gy, gw, gy + gh          # x, top, usable(width), bottom
+
+        x, top, usable, bottom = geom(1)
+        prev_kind = None                        # previous flowable, for indent policy
         pages, body, cy = [], [], top
 
         def flush():
@@ -1402,9 +1413,10 @@ class Renderer:
                 pages.append(p.document(w, h, "".join(body)))
 
         def newpage():
-            nonlocal body, cy
+            nonlocal body, cy, x, top, usable, bottom
             flush()
             p.new_page()
+            x, top, usable, bottom = geom(len(pages) + 1)
             body, cy = [], top
 
         def wrap(text, size):
@@ -1451,6 +1463,33 @@ class Renderer:
                                        ln, st, vcenter=False))
                 cy += st["size"] * st["lh"]
             cy += gap_after
+
+        def emit_para(fl, st, first_indent):
+            """A prose paragraph set through the backend-neutral flow engine
+            (ADR-0003): Knuth–Plass line breaks + Liang hyphenation, a first-line
+            indent, no inter-paragraph gap. The engine owns the breaks; each line
+            is emitted as ONE text element, justified to its column width via SVG
+            textLength so a real shaper distributes the slack with its own metrics
+            (flush on browser/PDF; tight, hyphenated rag on the cairosvg proxy) —
+            never hand-placed words fighting the rasterizer's advances."""
+            nonlocal cy
+            size = float(st.get("size", 12))
+            lh = float(st.get("lh", 1.4))
+            align = st.get("align") or "justify"
+            line_st = {**st, "align": "left"}
+            para = flow_layout.layout_paragraph(
+                text_of(fl), size=size, avg=0.52, lh=lh, width=usable,
+                measure=self.measure, align=align,
+                first_line_indent=(size if first_indent else 0.0))
+            for line in para.lines:
+                if cy + size > bottom:
+                    newpage()
+                body.append(p.text_tag(
+                    x + line.indent, cy, line.width, size * lh, line.text,
+                    line_st, vcenter=False,
+                    text_len=(line.width if line.justify else None)))
+                cy += line.advance
+            cy += para.space_after
 
         def emit_table(fl):
             nonlocal cy
@@ -1631,7 +1670,7 @@ class Renderer:
             cy += 10
 
         def emit_flow(fl):
-            nonlocal cy
+            nonlocal cy, prev_kind
             ft = fl.get("type")
             stref = self.text_style(fl.get("style")) if fl.get("style") else None
             if ft == "heading":
@@ -1647,11 +1686,14 @@ class Renderer:
                                   **({"color": stref["color"]} if stref else {})}, gap_after=10)
             elif ft == "paragraph":
                 spans = fl.get("spans")
+                st = stref or base
                 if isinstance(spans, list) and any(
                         isinstance(s, dict) and s.get("kind") == "link" for s in spans):
-                    emit_linked(spans, stref or base)
+                    emit_linked(spans, st)       # linked runs stay left (slice-1 limit)
+                elif (st.get("align") or "justify") in ("center", "right"):
+                    emit(text_of(fl), st)        # painter handles center/right alignment
                 else:
-                    emit(text_of(fl), stref or base)
+                    emit_para(fl, st, first_indent=prev_kind not in (None, "heading"))
             elif ft == "list":
                 ordered = bool(fl.get("ordered"))
                 for idx, it in enumerate(fl.get("items", []), start=1):
@@ -1692,6 +1734,8 @@ class Renderer:
                     # the proxy dropped this block: COUNT it by type — a document
                     # that validates but loses content must say so (no silence).
                     self._note_flow_skip(ft)
+            if ft not in ("block", "keep_together"):
+                prev_kind = ft                   # blocks keep their last child's kind
 
         def emit_figure(fl):
             nonlocal cy
