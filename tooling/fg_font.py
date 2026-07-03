@@ -175,12 +175,47 @@ def cmd_pack(args) -> int:
     return 0
 
 
+def cmd_install(args) -> int:
+    """Extract a ``.fp`` pack into a scoped fontconfig dir (verifying sha256), so a
+    subsequent render resolves the packed faces in BOTH `font_metrics` (fc-match)
+    and the rasterizer (Chromium/cairo/fontconfig) — measure == render on any host.
+    Prints the ``FONTCONFIG_FILE`` to export."""
+    dest = os.path.abspath(args.dir)
+    fonts_dir = os.path.join(dest, "fonts")
+    os.makedirs(fonts_dir, exist_ok=True)
+    with zipfile.ZipFile(args.install) as z:
+        manifest = json.loads(z.read("manifest.json"))
+        for entry in manifest.get("fonts", []):
+            data = z.read(entry["file"])
+            if hashlib.sha256(data).hexdigest() != entry["sha256"]:
+                print(f"FAIL: sha256 mismatch for {entry['file']} — pack is corrupt/tampered",
+                      file=sys.stderr)
+                return 1
+            with open(os.path.join(fonts_dir, os.path.basename(entry["file"])), "wb") as fh:
+                fh.write(data)
+    conf = os.path.join(dest, "fonts.conf")
+    with open(conf, "w") as fh:
+        fh.write('<?xml version="1.0"?>\n<!DOCTYPE fontconfig SYSTEM "fonts.dtd">\n'
+                 f'<fontconfig>\n  <dir>{fonts_dir}</dir>\n'
+                 f'  <cachedir>{os.path.join(dest, "cache")}</cachedir>\n'
+                 '  <include ignore_missing="yes">/etc/fonts/fonts.conf</include>\n</fontconfig>\n')
+    if shutil.which("fc-cache"):
+        subprocess.run(["fc-cache", "-f", fonts_dir],
+                       env={**os.environ, "FONTCONFIG_FILE": conf}, capture_output=True, check=False)
+    n = len(manifest.get("fonts", []))
+    print(f"installed {n} face(s) → {fonts_dir}")
+    print(f"export FONTCONFIG_FILE={conf}   # then measure (font_metrics) == render (rasterizer)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="fg-font", description=__doc__.splitlines()[0])
     sub = ap.add_subparsers(dest="cmd")
     ap.add_argument("--list", action="store_true", help="list resolvable families")
     ap.add_argument("--check", metavar="DOC", help="fail if a content font substitutes")
     ap.add_argument("--pack", metavar="DOC", help="bundle a doc's fonts into a .fp pack")
+    ap.add_argument("--install", metavar="P.fp", help="extract a .fp into a scoped fontconfig")
+    ap.add_argument("--dir", help="target dir (with --install)")
     ap.add_argument("--out", help="output .fp path (with --pack)")
     ap.add_argument("--allow-missing", action="store_true", help="pack what resolves; skip misses")
     args = ap.parse_args(argv)
@@ -192,6 +227,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.pack:
         args.doc = args.pack
         return cmd_pack(args)
+    if args.install:
+        if not args.dir:
+            ap.error("--install requires --dir")
+        return cmd_install(args)
     ap.print_help()
     return 0
 

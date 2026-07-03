@@ -155,3 +155,6 @@ font-check:  ## fg-font: fail if a content font in DOC substitutes (DOC=path.fg.
 
 font-pack:  ## fg-font: bundle DOC's fonts + manifest into a portable .fp (DOC=…, OUT=…)
 	$(UV) run python tooling/fg_font.py --pack $(DOC) $(if $(OUT),--out $(OUT),)
+
+font-install:  ## fg-font: extract a .fp pack into a scoped fontconfig (PACK=P.fp DIR=…)
+	$(UV) run python tooling/fg_font.py --install $(PACK) --dir $(DIR)

@@ -61,3 +61,24 @@ def test_pack_fails_without_allow_missing(tmp_path):
     p = tmp_path / "d.fg.yaml"
     p.write_text(yaml.safe_dump(_doc(["ZzzMissing"])))
     assert main(["--pack", str(p), "--out", str(tmp_path / "x.fp")]) == 1   # refuses to lie
+
+
+def test_install_extracts_pack_and_writes_scoped_fontconfig(tmp_path):
+    p = tmp_path / "d.fg.yaml"
+    p.write_text(yaml.safe_dump(_doc(["ZzzMissing", "serif"])))
+    fp = tmp_path / "d.fp"
+    assert main(["--pack", str(p), "--out", str(fp), "--allow-missing"]) == 0
+    dest = tmp_path / "runtime"
+    assert main(["--install", str(fp), "--dir", str(dest)]) == 0
+    conf = (dest / "fonts.conf").read_text()
+    assert (dest / "fonts").is_dir()
+    assert str(dest / "fonts") in conf and "<include" in conf     # scoped + system fallback
+
+
+def test_install_rejects_a_tampered_pack(tmp_path):
+    fp = tmp_path / "bad.fp"
+    with zipfile.ZipFile(fp, "w") as z:
+        z.writestr("fonts/x.ttf", b"not-a-real-font")
+        z.writestr("manifest.json", json.dumps({"fp_version": 1, "fonts": [
+            {"family": "X", "bold": False, "file": "fonts/x.ttf", "sha256": "0" * 64}]}))
+    assert main(["--install", str(fp), "--dir", str(tmp_path / "r")]) == 1   # sha256 mismatch
