@@ -21,7 +21,8 @@ from typing import Sequence
 
 from framegraph.rendering.infrastructure import font_metrics as _fm
 
-__all__ = ["measure_text", "wrap_text", "text_height"]
+__all__ = ["font_kern_pairs", "kerned_spans", "measure_text", "wrap_text",
+           "text_height"]
 
 FontFamily = str | Sequence[str]
 
@@ -131,3 +132,72 @@ def text_height(
     lines = wrap_text(text, width=width, font_family=font_family,
                       font_size=font_size, bold=bold)
     return len(lines) * float(font_size) * float(line_height)
+
+
+def kerned_spans(text: str, *, pairs: dict[tuple[str, str], float],
+                 style: dict | None = None) -> list[dict]:
+    """``text`` as spans whose ``letter_spacing`` applies explicit kern pairs
+    (AI-24 — pair kerning beyond uniform tracking, without any renderer
+    support: the kern rides in grammar-native span styles).
+
+    ``pairs`` maps ``(left, right)`` character pairs to a px adjustment
+    (negative tightens). Runs without a kern boundary stay merged; ``style``
+    is merged into every span that carries a kern.
+    """
+    if not text:
+        return []
+    spans: list[dict] = []
+    run = ""
+    for left, right in zip(text, text[1:]):
+        kern = pairs.get((left, right))
+        if kern:
+            if run:
+                spans.append({"text": run})
+                run = ""
+            spans.append({"text": left,
+                          "style": {**(style or {}), "letter_spacing": kern}})
+        else:
+            run += left
+    run += text[-1]
+    if run:
+        spans.append({"text": run})
+    return spans
+
+
+def font_kern_pairs(font_family: FontFamily, text: str, *,
+                    font_size: float, bold: bool = False,
+                    ) -> dict[tuple[str, str], float]:
+    """Real kern pairs for ``text``'s adjacent characters, in px at
+    ``font_size``, read from the resolved font's ``kern`` table via
+    fontTools (the ``metrics`` dependency-group). Degrades to ``{}`` when
+    fontTools, the font file, or the table is missing — explicit pairs via
+    :func:`kerned_spans` remain the dependency-free path.
+    """
+    try:
+        from fontTools.ttLib import TTFont
+    except ImportError:
+        return {}
+    path = _fm._resolve_font_file(_chain(font_family), bold)
+    if not path:
+        return {}
+    try:
+        font = TTFont(path, lazy=True)
+        cmap = font.getBestCmap()
+        upem = font["head"].unitsPerEm
+        kern = font["kern"] if "kern" in font else None
+        if kern is None:
+            return {}
+        out: dict[tuple[str, str], float] = {}
+        scale = float(font_size) / float(upem)
+        for left, right in set(zip(text, text[1:])):
+            gl, gr = cmap.get(ord(left)), cmap.get(ord(right))
+            if not gl or not gr:
+                continue
+            for table in kern.kernTables:
+                value = getattr(table, "kernTable", {}).get((gl, gr))
+                if value:
+                    out[(left, right)] = value * scale
+                    break
+        return out
+    except Exception:  # noqa: BLE001 — any malformed font degrades to no kerning
+        return {}

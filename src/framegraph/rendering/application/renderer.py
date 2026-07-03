@@ -842,16 +842,18 @@ class Renderer:
 
         if t == "path":
             d = o.get("d")
-            if isinstance(d, list):
+            if isinstance(d, (list, tuple)):
                 # Lower structured segments `[[cmd, *coords], ...]` (G-1) to a path-data
                 # string. A no-arg segment (Z) must emit just its command — no trailing
                 # space — so the structured form lowers identically to the string form.
+                # Segments arrive as lists from YAML/JSON but as TUPLES from a pydantic
+                # model_dump (the SDK render path) — both are the structured form.
                 parts = []
                 for seg in d:
-                    if isinstance(seg, list) and seg:
+                    if isinstance(seg, (list, tuple)) and seg:
                         parts.append(" ".join([str(seg[0]),
                                                *(fnum(num(n, 0)) for n in seg[1:])]))
-                    elif not isinstance(seg, list):
+                    elif not isinstance(seg, (list, tuple)):
                         parts.append(str(seg))
                 d = " ".join(parts)
             if not isinstance(d, str) or not d.strip():

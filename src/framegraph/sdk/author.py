@@ -156,6 +156,17 @@ class DocumentBuilder:
         self._doc["text_contract"] = _coerce_handles(fields)
         return self
 
+    def humanize(self, **fields: Any) -> "DocumentBuilder":
+        """Set the document-level humanize 'hand' — a seeded, bounded imperfection
+        applied to every object at :func:`~framegraph.sdk.expand.expand` time so a
+        mechanically-perfect layout reads as hand-placed. Fields (all optional):
+        ``seed``, ``roughen`` (geometry wobble), ``drift_deg`` (tilt), ``weight``
+        (stroke), ``opacity`` (ink), ``grain`` (tension), ``enabled``. Deterministic:
+        same doc + seed → identical output. Any object may override with its own
+        ``humanize=`` field. See the ``Humanize`` model."""
+        self._doc["humanize"] = _coerce_handles(fields)
+        return self
+
     def define_symbol(self, name: str, *, box: list[Any], objects: list[dict[str, Any]], **fields: Any) -> Handle:
         symbol = {"box": box, "objects": _coerce_handles(objects)}
         symbol.update(_coerce_handles(fields))

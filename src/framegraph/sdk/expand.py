@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 from typing import Any
 
+from framegraph.sdk.humanize import apply_humanize
 from framegraph.sdk.model import validate_document
 
 
@@ -18,6 +19,10 @@ class ExpandOptions:
 
     base_dir: str | os.PathLike[str] | None = None
     pin_assets: bool = True
+    humanize: bool = True
+    """Honor a document/object ``humanize`` spec. Set False to force the seeded
+    imperfection pass off — required for measurement/fidelity renders (vision,
+    ``score_reconstruction``) so perturbation never poisons a pixel measurement."""
 
 
 @dataclass(frozen=True)
@@ -41,6 +46,8 @@ def expand(model: Any, opts: ExpandOptions | None = None) -> ExpandedDocument:
     options = opts or ExpandOptions()
     data = _plain_input(model)
     data = _expand_reuse(data)
+    if options.humanize:
+        data = apply_humanize(data)
     base = Path(options.base_dir) if options.base_dir is not None else Path.cwd()
     pinned: list[str] = []
     if options.pin_assets:

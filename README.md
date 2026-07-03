@@ -22,7 +22,7 @@ src/framegraph/               ← the Python package (strictly downstream of the
   live/                       ← local web UI for live MCP feedback sessions (`make live`).
 docs/models/framegraph.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 docs/schema/
-  framegraph-v2.schema.json   ← GENERATED from the models (82 $defs). Do not hand-edit.
+  framegraph-v2.schema.json   ← GENERATED from the models (83 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
 docs/grammar/
   framegraph-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.

@@ -132,6 +132,7 @@
       "Frame",
       "Graph",
       "HEAD_VERSION",
+      "Hand",
       "Handle",
       "ImportedFigurePlacement",
       "Issue",
@@ -144,6 +145,7 @@
       "PageBuilder",
       "Panel",
       "Path",
+      "Placement",
       "ScalarField",
       "Scene3D",
       "StackBuilder",
@@ -154,6 +156,7 @@
       "Vec2",
       "Vec3",
       "VectorField",
+      "apply_humanize",
       "assert_golden",
       "avatar",
       "badge",
@@ -188,6 +191,7 @@
       "extract_objects",
       "field",
       "fill_stroke",
+      "font_kern_pairs",
       "from_markdown",
       "function_plot",
       "glow",
@@ -204,6 +208,7 @@
       "image_placeholder",
       "inset",
       "johnston_margins",
+      "kerned_spans",
       "klein_bottle",
       "kpi",
       "lattice",
@@ -245,6 +250,7 @@
       "relative_luminance",
       "render_page_svgs",
       "render_pages_with_stats",
+      "repeat_along_path",
       "rgba",
       "row",
       "saddle",
@@ -258,6 +264,7 @@
       "sphere",
       "sticky_note",
       "stroke",
+      "stroke_outline",
       "svg_to_objects",
       "table",
       "tabs",
@@ -1169,6 +1176,13 @@
       "mcp": true
     },
     {
+      "name": "Hand",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "Handle",
       "kind": "sdk_export",
       "core": false,
@@ -1253,6 +1267,13 @@
       "mcp": true
     },
     {
+      "name": "Placement",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "ScalarField",
       "kind": "sdk_export",
       "core": false,
@@ -1317,6 +1338,13 @@
     },
     {
       "name": "VectorField",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "apply_humanize",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1561,6 +1589,13 @@
       "mcp": true
     },
     {
+      "name": "font_kern_pairs",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "from_markdown",
       "kind": "sdk_export",
       "core": false,
@@ -1667,6 +1702,13 @@
     },
     {
       "name": "johnston_margins",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "kerned_spans",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1960,6 +2002,13 @@
       "mcp": true
     },
     {
+      "name": "repeat_along_path",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "rgba",
       "kind": "sdk_export",
       "core": false,
@@ -2045,6 +2094,13 @@
     },
     {
       "name": "stroke",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "stroke_outline",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

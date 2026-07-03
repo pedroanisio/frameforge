@@ -1539,8 +1539,8 @@ class FigureTikz:
             points.extend(p for p in pts if p is not None)
 
         for seg in segments:
-            rel = isinstance(seg[0], str) and seg[0].islower() if isinstance(seg, list) and seg else False
-            if not isinstance(seg, list) or not seg:
+            rel = isinstance(seg[0], str) and seg[0].islower() if isinstance(seg, (list, tuple)) and seg else False
+            if not isinstance(seg, (list, tuple)) or not seg:
                 continue
             cmd = str(seg[0]).upper()
             vals = [num(v, None) for v in seg[1:]]

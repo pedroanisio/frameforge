@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 85 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 86 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -47,6 +47,7 @@ The 85 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`framegraph_seed_deck.py`](../static/examples/framegraph_seed_deck.py) | FrameGraph — Seed Pitch, authored *in* FrameGraph (the canonical seed). |
 | [`geometry_topology_deck.py`](../static/examples/geometry_topology_deck.py) | GEOMETRY & TOPOLOGY — a reusable presentation *template* (FrameGraph SDK). |
 | [`guided_paint.py`](../static/examples/guided_paint.py) | Painter kit — render-safe atmosphere primitives for guided-draw compositions. |
+| [`humanize_hand.py`](../static/examples/humanize_hand.py) | Hand-drawn diagram via the seeded humanize 'hand' (roughen + drift + weight + ink). |
 | [`illustrator_vs_framegraph.py`](../static/examples/illustrator_vs_framegraph.py) | CAPABILITY TEARDOWN — Adobe Illustrator ⇄ FrameGraph v2. |
 | [`imperial_doctrine_deck.py`](../static/examples/imperial_doctrine_deck.py) | IMPERIAL DOCTRINE — a 20-slide Galactic Empire command briefing. |
 | [`inova_partners_whitepaper.py`](../static/examples/inova_partners_whitepaper.py) | INOVA PARTNERS — A4 white paper (PT-BR), built with the SDK. |

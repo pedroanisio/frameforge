@@ -1004,6 +1004,18 @@
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
         },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
+        },
         "type": {
           "const": "bullet_list",
           "description": "Discriminator: absolutely-placed bullet list (flow lists are `list`).",
@@ -1617,6 +1629,18 @@
           "default": null,
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
+        },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
         },
         "type": {
           "const": "circle",
@@ -2381,6 +2405,18 @@
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
         },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
+        },
         "type": {
           "const": "connector",
           "description": "Discriminator: anchored connector line/polyline between two endpoints.",
@@ -3020,6 +3056,18 @@
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
         },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
+        },
         "type": {
           "description": "Discriminator: DEPRECATED single cubic Bézier (codemod normalises to path).",
           "enum": [
@@ -3564,6 +3612,18 @@
           "default": null,
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
+        },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
         },
         "type": {
           "const": "dimension",
@@ -4119,6 +4179,18 @@
           "default": null,
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
+        },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
         },
         "type": {
           "const": "ellipse",
@@ -6047,6 +6119,18 @@
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
         },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
+        },
         "type": {
           "const": "group",
           "description": "Discriminator: container establishing a local coordinate system (§3.6); child boxes are parent-relative.",
@@ -6307,6 +6391,67 @@
         "text"
       ],
       "title": "HeadingFlow",
+      "type": "object"
+    },
+    "Humanize": {
+      "additionalProperties": false,
+      "description": "A seeded, bounded *hand* that perturbs objects so a mechanically-perfect\nlayout reads as hand-placed — the visual analogue of a sampler's round-robin /\nvelocity / pitch-drift humanization.\n\nIt is **deterministic**: perturbation is drawn from a per-object RNG keyed on\n``seed`` + the object's identity, so the same document and seed render\nbyte-identically (the discipline the ``greeble``/``lorem`` helpers already\nfollow — fixtures and golden renders stay stable). Bump ``seed`` to re-perform\nthe whole page like a fresh take. Attach at the document (global default) or\non any object (scoped override); an object's spec wins for its subtree.\n\nPerturbation is **topology-preserving**: whole-object channels (rotation, opacity,\ninline stroke weight) leave geometry alone, and the ``roughen`` channel — which\n*does* rewrite geometry into hand-drawn wobble — anchors every segment endpoint\n(the displacement tapers to zero at the ends) so lines still meet. An object a\nconnector attaches to is exempt from both rotation and roughen so anchors keep\nmeeting. Scalar deltas are hard-clamped to their amplitude, so those channels are\nprovably bounded (never a wild rotation, never invisible ink).",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Master switch; False leaves the subtree untouched without deleting the spec.",
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "seed": {
+          "default": 0,
+          "description": "The 'take': the base RNG seed. Same seed → identical output; bump it to re-perform the whole page.",
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "weight": {
+          "default": 0.0,
+          "description": "Velocity channel: ± fraction by which an object's inline stroke width varies (0 = off; 0.15 = ±15%). Ignored for token-ref stroke styles.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        },
+        "opacity": {
+          "default": 0.0,
+          "description": "Velocity channel: ± band by which object opacity varies, as ink density (0 = off). Result is clamped to 0..1.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Opacity",
+          "type": "number"
+        },
+        "drift_deg": {
+          "default": 0.0,
+          "description": "Pitch-drift channel: ± maximum rotation (degrees) added per object (0 = off). Small values (0.4–1.5) read as a hand-set tilt.",
+          "maximum": 45.0,
+          "minimum": 0.0,
+          "title": "Drift Deg",
+          "type": "number"
+        },
+        "roughen": {
+          "default": 0.0,
+          "description": "Effect channel: perpendicular wobble amplitude (px) that turns straight primitives (line/rect/ellipse/circle/polyline/polygon) into hand-drawn ones — coherent two-band noise, endpoint-anchored so segment ends stay pinned. 0 = off; 0.5–1.5 reads as a sketched line. Straight primitives convert to a polyline; text/image/group/path are left as-is.",
+          "maximum": 20.0,
+          "minimum": 0.0,
+          "title": "Roughen",
+          "type": "number"
+        },
+        "grain": {
+          "default": 1.0,
+          "description": "Hand tension: 1.0 = tight (excursions concentrate near zero), 0.0 = loose (larger, more frequent excursions). Shapes the noise, not its amplitude cap.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Grain",
+          "type": "number"
+        }
+      },
+      "title": "Humanize",
       "type": "object"
     },
     "Icon": {
@@ -6609,6 +6754,18 @@
           "default": null,
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
+        },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
         },
         "type": {
           "const": "icon",
@@ -6968,6 +7125,18 @@
           "default": null,
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
+        },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
         },
         "type": {
           "const": "image",
@@ -8110,6 +8279,18 @@
           "default": null,
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
+        },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
         },
         "type": {
           "const": "line",
@@ -9857,6 +10038,18 @@
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
         },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
+        },
         "type": {
           "const": "path",
           "description": "Discriminator: SVG path geometry.",
@@ -10566,6 +10759,18 @@
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
         },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
+        },
         "type": {
           "const": "polygon",
           "description": "Discriminator: DEPRECATED alias of a closed polyline (codemod normalises).",
@@ -10939,6 +11144,18 @@
           "default": null,
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
+        },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
         },
         "type": {
           "const": "polyline",
@@ -11326,6 +11543,18 @@
           "default": null,
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
+        },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
         },
         "type": {
           "const": "rect",
@@ -15060,6 +15289,18 @@
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
         },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
+        },
         "type": {
           "const": "table",
           "description": "Discriminator: absolutely-placed table in `box`.",
@@ -15611,6 +15852,18 @@
           "default": null,
           "description": "Free-form annotation bag (e.g. meta.no_overlap, meta.role); never interpreted as geometry.",
           "title": "Meta"
+        },
+        "humanize": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Humanize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scoped humanize override: a seeded imperfection 'hand' applied to this object (and, for containers, its subtree), overriding any document-level default."
         },
         "type": {
           "const": "text",
@@ -16341,6 +16594,18 @@
       "default": null,
       "description": "Free-form document metadata bag.",
       "title": "Meta"
+    },
+    "humanize": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Humanize"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Document-level humanize default: a seeded imperfection 'hand' applied to every object unless an object (or its container) declares its own. Absent = off; renders stay mechanically exact."
     },
     "text_contract": {
       "anyOf": [

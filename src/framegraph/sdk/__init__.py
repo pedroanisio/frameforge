@@ -50,6 +50,7 @@ from framegraph.sdk.draw import (
     Frame, Material, Scene3D, function_plot, multiview, parametric_curve, polar_plot,
 )
 from framegraph.sdk.expand import ExpandOptions, ExpandedDocument, expand
+from framegraph.sdk.humanize import Hand, apply_humanize
 from framegraph.sdk.geometry import (
     Camera,
     CubicBezier,
@@ -90,7 +91,9 @@ from framegraph.sdk.macros import (
     sparkline,
     theme,
 )
-from framegraph.sdk.metrics import measure_text, text_height, wrap_text
+from framegraph.sdk.outline import Placement, repeat_along_path, stroke_outline
+from framegraph.sdk.metrics import (font_kern_pairs, kerned_spans,
+                                    measure_text, text_height, wrap_text)
 from framegraph.sdk.model import (
     HEAD_VERSION,
     Document,
@@ -238,7 +241,9 @@ __all__ = [
     "grid_lines",
     "grid_pattern",
     "Graph",
+    "Hand",
     "Handle",
+    "apply_humanize",
     "hatch",
     "hatch_fill",
     "Lattice",
@@ -283,6 +288,11 @@ __all__ = [
     "ref",
     "md",
     "measure_text",
+    "font_kern_pairs",
+    "kerned_spans",
+    "Placement",
+    "repeat_along_path",
+    "stroke_outline",
     "model_module",
     "klein_bottle",
     "mobius",
