@@ -29,6 +29,7 @@ from framegraph.rendering.domain.services.paint_resolver import ColorResolver
 from framegraph.rendering.domain.services.effect_resolver import EffectResolver
 from framegraph.rendering.domain.services.stroke_resolver import Markers, Stroke, StrokeResolver
 from framegraph.rendering.domain.services.layout_engine import LayoutEngine
+from framegraph.rendering.domain.services import flow_layout
 from framegraph.rendering.domain.services.math_text import math_text
 from framegraph.rendering.domain.services.style_values import StyleValues
 from framegraph.rendering.domain.services.text_fitter import TextFitter
@@ -116,6 +117,7 @@ class Renderer:
         self._painter = (painter_factory(self._color) if painter_factory
                          else SvgPainter(self._color, warn=self.warn))
         self._text_style = TextStyleResolver(self.text_styles, self.styles, self._color)
+        self._global_page = 0                 # document-global leaf page number (flow recto/verso)
         self._canvas = CanvasResolver(self.masters)
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)
         self._effect = EffectResolver(self._color)
@@ -297,8 +299,20 @@ class Renderer:
         if self.measure(content, size, avg, st) > w + 0.5 or size * lh > h + 0.5:
             self.tstats["naive_overflow"] += 1
 
+        # `align: justify` routes wrapping through the backend-neutral flow engine
+        # (Knuth–Plass + hyphenation, ADR-0003) so page-mode prose justifies like
+        # flow-mode prose — the old path silently mapped justify → left.
+        justify = do_wrap and st["align"] == "justify"
+
         def layout(sz):
-            return self.wrap_words(content, w, sz, avg, st) if do_wrap else [content]
+            if not do_wrap:
+                return [content]
+            if justify:
+                para = flow_layout.layout_paragraph(
+                    content, size=sz, avg=avg, lh=lh, width=w,
+                    measure=lambda s, z, a: self.measure(s, z, a, st), align="justify")
+                return [ln.text for ln in para.lines] or [content]
+            return self.wrap_words(content, w, sz, avg, st)
 
         lines = layout(size)
         if len(lines) > 1:
@@ -308,7 +322,12 @@ class Renderer:
             while size > min_fs:
                 lines = layout(size)
                 too_tall = len(lines) * size * lh > h + 0.5
-                too_wide = max((self.measure(ln, size, avg, st) for ln in lines), default=0) > w + 0.5
+                if justify:
+                    # justified lines render to exactly `w` via textLength, so only
+                    # the last (ragged) line can actually overflow the column width.
+                    too_wide = bool(lines) and self.measure(lines[-1], size, avg, st) > w + 0.5
+                else:
+                    too_wide = max((self.measure(ln, size, avg, st) for ln in lines), default=0) > w + 0.5
                 if not too_tall and not too_wide:
                     break
                 size = max(min_fs, size - 1)
@@ -346,11 +365,39 @@ class Renderer:
 
         a = self._painter.anchor(st["align"])
         tx = x + (w / 2 if a == "middle" else (w if a == "end" else 0))
+        single_span_line = spans and len(lines) == 1 and lines[0] == content
         # Pass the neutral style dict + fitted size; the backend formats the font.
         # Rich `text.spans`: when the fitted text is a single, untruncated line,
         # emit per-run styled tspans (the common inline-emphasis case). Wrapped or
         # truncated span text falls back to the flattened single-style line.
-        if spans and len(lines) == 1 and lines[0] == content:
+        if justify and spans and not single_span_line and not clipped:
+            # Span-aware justification: re-lay the flattened run text, slice the
+            # styled runs onto each line by char offset, and flush each line to the
+            # column with textLength — inline emphasis survives justification.
+            runs = self._span_runs(spans, st)
+            flat = "".join(t for t, _ in runs)
+            para = flow_layout.layout_paragraph(
+                flat, size=size, avg=avg, lh=lh, width=w,
+                measure=lambda s, z, a: self.measure(s, z, a, st), align="justify")
+            segs = []
+            for i, ln in enumerate(para.lines):
+                lruns = flow_layout.slice_runs(runs, ln.start, ln.end) or [(ln.text, st)]
+                if ln.text.endswith("-"):            # carry the soft hyphen on the last run
+                    lruns = [*lruns[:-1], (lruns[-1][0] + "-", lruns[-1][1])]
+                segs.append(self._painter.text_runs(
+                    base + i * (size * lh), "start", x, st, size, lruns,
+                    text_len=(w if ln.justify else None)))
+            el = "".join(segs)
+        elif justify and not single_span_line:
+            # Plain justified prose: flush each line via textLength EXCEPT lone or
+            # underfull lines (no interior gap, or < half the column) — those stay
+            # ragged, never stretched into cavernous letterspacing. Last line ragged.
+            justs = [(k < len(lines) - 1 and (" " in ln.strip())
+                      and self.measure(ln, size, avg, st) >= 0.5 * w)
+                     for k, ln in enumerate(lines)]
+            el = self._painter.text_block(base, "start", st, size, lines, x, size * lh,
+                                          justify_width=w, justifies=justs)
+        elif single_span_line:
             el = self._painter.text_runs(base, a, tx, st, size, self._span_runs(spans, st))
         else:
             el = self._painter.text_block(base, a, st, size, lines, tx, size * lh)
@@ -1298,6 +1345,7 @@ class Renderer:
     def render_page(self, page):
         """Return a list of SVG strings (1 for page-mode, N for paginated flow)."""
         self._painter.new_page()
+        self._global_page += 1                # this producer's first leaf page
         self.flow_headings = []
         self.contract = {**self.doc_contract, **((page.get("rendering") or {}).get("text") or {})}
         w, h = self.canvas_wh(page)
@@ -1379,12 +1427,13 @@ class Renderer:
         so pagination is identical across passes; the dry pass's telemetry is
         rolled back so nothing is double-counted."""
         if self._story_has_toc(page.get("story") or []):
-            saved = (dict(self.tstats), self.skipped, copy.deepcopy(self.diagnostics))
+            saved = (dict(self.tstats), self.skipped, copy.deepcopy(self.diagnostics),
+                     self._global_page)
             try:
                 self._render_flow_pages(page, w, h, toc_pages=None)
                 toc_pages = [hd["page"] for hd in self.flow_headings]
             finally:
-                self.tstats, self.skipped, self.diagnostics = saved
+                self.tstats, self.skipped, self.diagnostics, self._global_page = saved
             self._painter.new_page()
             self.flow_headings = []
             return self._render_flow_pages(page, w, h, toc_pages=toc_pages)
@@ -1392,9 +1441,22 @@ class Renderer:
 
     def _render_flow_pages(self, page, w, h, toc_pages=None):
         p = self._painter
-        margin = 56
-        x, top, bottom = margin, margin, h - margin
-        usable = w - 2 * margin
+        # Content geometry is resolved by the backend-neutral flow layout engine
+        # (ADR-0003) from the page master — explicit region box → master margin →
+        # the Johnston canon (mirrored recto/verso) — instead of a hard-coded
+        # symmetric margin. Recomputed per page so odd/even pages mirror; width is
+        # parity-independent, so a paragraph's line breaks stay valid across a break.
+        master = self.masters.get(page.get("master")) if page.get("master") else None
+
+        def geom(page_index):                   # page_index = document-global leaf number
+            gx, gy, gw, gh = flow_layout.content_box(master, w, h, page_index)
+            return gx, gy, gw, gy + gh          # x, top, usable(width), bottom
+
+        # Recto/verso parity follows the document-global page number (not a section
+        # -local counter) so a flow that does not begin on an odd global page still
+        # mirrors correctly. render_page already counted this section's first page.
+        x, top, usable, bottom = geom(self._global_page)
+        prev_kind = None                        # previous flowable, for indent policy
         pages, body, cy = [], [], top
 
         def flush():
@@ -1402,9 +1464,11 @@ class Renderer:
                 pages.append(p.document(w, h, "".join(body)))
 
         def newpage():
-            nonlocal body, cy
+            nonlocal body, cy, x, top, usable, bottom
             flush()
             p.new_page()
+            self._global_page += 1
+            x, top, usable, bottom = geom(self._global_page)
             body, cy = [], top
 
         def wrap(text, size):
@@ -1451,6 +1515,33 @@ class Renderer:
                                        ln, st, vcenter=False))
                 cy += st["size"] * st["lh"]
             cy += gap_after
+
+        def emit_para(fl, st, first_indent):
+            """A prose paragraph set through the backend-neutral flow engine
+            (ADR-0003): Knuth–Plass line breaks + Liang hyphenation, a first-line
+            indent, no inter-paragraph gap. The engine owns the breaks; each line
+            is emitted as ONE text element, justified to its column width via SVG
+            textLength so a real shaper distributes the slack with its own metrics
+            (flush on browser/PDF; tight, hyphenated rag on the cairosvg proxy) —
+            never hand-placed words fighting the rasterizer's advances."""
+            nonlocal cy
+            size = float(st.get("size", 12))
+            lh = float(st.get("lh", 1.4))
+            align = st.get("align") or "justify"
+            line_st = {**st, "align": "left"}
+            para = flow_layout.layout_paragraph(
+                text_of(fl), size=size, avg=0.52, lh=lh, width=usable,
+                measure=self.measure, align=align,
+                first_line_indent=(size if first_indent else 0.0))
+            for line in para.lines:
+                if cy + size > bottom:
+                    newpage()
+                body.append(p.text_tag(
+                    x + line.indent, cy, line.width, size * lh, line.text,
+                    line_st, vcenter=False,
+                    text_len=(line.width if line.justify else None)))
+                cy += line.advance
+            cy += para.space_after
 
         def emit_table(fl):
             nonlocal cy
@@ -1631,7 +1722,7 @@ class Renderer:
             cy += 10
 
         def emit_flow(fl):
-            nonlocal cy
+            nonlocal cy, prev_kind
             ft = fl.get("type")
             stref = self.text_style(fl.get("style")) if fl.get("style") else None
             if ft == "heading":
@@ -1647,11 +1738,14 @@ class Renderer:
                                   **({"color": stref["color"]} if stref else {})}, gap_after=10)
             elif ft == "paragraph":
                 spans = fl.get("spans")
+                st = stref or base
                 if isinstance(spans, list) and any(
                         isinstance(s, dict) and s.get("kind") == "link" for s in spans):
-                    emit_linked(spans, stref or base)
+                    emit_linked(spans, st)       # linked runs stay left (slice-1 limit)
+                elif (st.get("align") or "justify") in ("center", "right"):
+                    emit(text_of(fl), st)        # painter handles center/right alignment
                 else:
-                    emit(text_of(fl), stref or base)
+                    emit_para(fl, st, first_indent=prev_kind not in (None, "heading"))
             elif ft == "list":
                 ordered = bool(fl.get("ordered"))
                 for idx, it in enumerate(fl.get("items", []), start=1):
@@ -1692,6 +1786,8 @@ class Renderer:
                     # the proxy dropped this block: COUNT it by type — a document
                     # that validates but loses content must say so (no silence).
                     self._note_flow_skip(ft)
+            if ft not in ("block", "keep_together"):
+                prev_kind = ft                   # blocks keep their last child's kind
 
         def emit_figure(fl):
             nonlocal cy

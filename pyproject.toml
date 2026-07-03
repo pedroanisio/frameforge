@@ -10,6 +10,9 @@ dependencies = [
     # (PyYAML also parses JSON, so it covers .json / .yaml / .yml fixtures).
     "pydantic>=2",
     "pyyaml>=6",
+    # Justified flow layout hyphenates with Liang patterns (ADR-0003). Pure
+    # Python, bundles its dictionaries, deterministic → reproducible golden.
+    "pyphen>=0.15",
 ]
 
 # The render front-door (framegraph/cli.py): `framegraph-render <doc> --to <target>`

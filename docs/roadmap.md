@@ -82,7 +82,11 @@ plan imports ([#30](https://github.com/pedroanisio/frameforge/issues/30): the
 sibling's 4-stage Sugiyama — cycle removal, median crossing minimization,
 Brandes–Köpf — plus 14 UML composers); item 8's book-composition ambitions gain
 a declarative on-ramp from the 375-pattern catalog + fill contract
-([#28](https://github.com/pedroanisio/frameforge/issues/28)/[#29](https://github.com/pedroanisio/frameforge/issues/29));
+([#28](https://github.com/pedroanisio/frameforge/issues/28)/[#29](https://github.com/pedroanisio/frameforge/issues/29))
+and from the content library — 7 consulting themes, 4 symbol packs, 2
+data-driven generators — delivered as `framegraph.library`
+([#32](https://github.com/pedroanisio/frameforge/issues/32), see
+[library.md](library.md));
 and the text-fitting diagnostics gap ([#44](https://github.com/pedroanisio/frameforge/issues/44))
 is a prerequisite of trustworthy book pagination (item 8) — silent content
 loss and long-form composition cannot coexist.

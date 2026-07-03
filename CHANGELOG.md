@@ -4,6 +4,91 @@
 
 ---
 
+## Unreleased — content library: themes, symbol packs, generators (2026-07-03, issue #32)
+
+`framegraph.library` — the predecessor project's content library absorbed
+as committed v2 data (§13 bounded context). 7 consulting token packs
+(`bain`/`bcg`/`deloitte`/`ey`/`kpmg`/`mckinsey`/`pwc`) translated to
+`defs.tokens` fragments; 4 symbol packs (`covers`, `sections`, `shared`,
+`hex` — 13 symbols) lowered through `sdk.expand`; the two data-driven
+generators (`honeycomb_capability_map`, `module_hub_radial`) ported with
+their geometry and committed example data. Translation notes: v0.1 style
+field renames (`font`→`font_family` lists, `size`/`weight`→`font_*`,
+`v_align`→`vertical_align`), P3 stroke split with Style-bag names
+(`stroke`/`stroke_width`/`stroke_dasharray`), `ellipse` → center/rx/ry;
+generators drop v0.1's `hash()`-derived color tokens (nondeterministic)
+for literal pass-through, auto-grow the honeycomb canvas instead of
+clipping, and paint the hub detail block above the node layer. Gates:
+`tests/test_library.py` (7 theme render probes, symbol expansion, both
+generators reproduce their examples, zero uncontained text everywhere);
+fixture `library-honeycomb.fg.yaml` (corpus 30→31, 0 errors 0 warnings);
+runnable `static/examples/library_showcase.py`. Docs: `docs/library.md`.
+
+## Unreleased — backend-neutral flow layout · Knuth–Plass + hyphenation (2026-07-02)
+
+Flow-mode prose gets a single backend-neutral layout engine
+(`framegraph.rendering.domain.services.flow_layout`); see
+[ADR-0003](docs/adr-0003-backend-neutral-flow-layout.md). *Own the breaks, delegate
+the spacing.*
+
+- **Line breaking** is Knuth–Plass total-fit (1981); **hyphenation** is Liang
+  patterns via `pyphen` (new runtime dependency) — replacing greedy,
+  estimate-based, left-aligned wrapping that produced rivers and lopsided margins.
+- **Column geometry** resolves from the page master (explicit region → margin →
+  the Johnston canon, **mirrored recto/verso**) instead of a hard-coded symmetric
+  `margin = 56`; the flowed body finally honours authored geometry and mirrors the
+  way the running header already did.
+- Each line is emitted as **one text element**, justified to its column via SVG
+  `textLength` — **flush on browser/PDF, tight hyphenated ragged on the cairosvg
+  proxy** (which ignores it). First-line indent + no inter-paragraph gap.
+- **Page mode too.** `render_text` (page-mode `wrap:true` boxes) also routes
+  `align:"justify"` through the engine — it previously mapped justify → the
+  `start` anchor and could not justify at all. Justification now exists
+  document-wide (flow + page mode), including **span-aware** justification:
+  inline bold/italic survive a justified wrapped block (runs are re-sliced onto
+  each line by char offset).
+- **Render change (golden re-pin)**: the four flow fixtures + one page-mode deck
+  (`amazon-proxy-2026`, which uses justified prose) re-pinned; all other decks
+  byte-unchanged.
+- **Adversarial multi-agent review** fixed six confirmed defects in the new code:
+  justify+`shrink_to_fit` over-shrink; the justification params crashing the TikZ
+  backend; `content_box` not coercing `Length` margins, not clamping non-positive
+  area, and not mirroring an asymmetric master margin; recto/verso parity using a
+  section-local instead of document-global page number; and a single unbreakable
+  token (a URL) dropping the whole paragraph to greedy.
+- *Limit:* tight **flush** justification needs a **pinned body font** (layout
+  metric = render font); unpinned, flush over-stretches (uniformly airy, not
+  rivers) — tight ragged is the safe default.
+
+## Unreleased — pattern compose: filled patterns become pages (2026-07-02, issue #29)
+
+`framegraph.patterns.compose(pattern_id, fill)` bridges the #28 catalog to
+rendered output: payload validated through the fill contract first (layout
+never runs on unvalidated content), zone boxes computed deterministically
+from the anchor vocabulary (column bands / quadrant grids / mixed BMC
+columns; regions and relative placements stack in declaration order as a
+documented approximation), enterprise-layout treatments applied (card
+fill/stroke/corner, accent bars, label slots with slot typography), and
+content emitted per content_type as plain core objects — nothing new enters
+the schema, and the returned document is pre-validated. Acceptance gate as a
+test: all 17 sidecared example fills compose, validate, and render with zero
+uncontained text; SWOT/BMC/Diagnostic verified against rendered pixels.
+Sample: `static/examples/pattern_compose_deck.py`. 6 red-first tests.
+
+## Unreleased — pattern catalog + fill contract absorbed as data (2026-07-02, issue #28)
+
+New bounded context `framegraph.patterns`: the predecessor's 375-pattern
+slide-template catalog and 17 fill sidecars land as committed data with a
+strict Pydantic contract — controlled vocabularies for zone size / placement /
+content_type, `load_fill` deriving a typed `{role: content}` payload model per
+pattern (sidecar overrides enforced: the BMC's object items reject plain
+strings), and every committed `example_fill` round-tripped by the test gate.
+The catalog count is LOCKED at 375 — truncation is a failing test, not a
+smaller number. Rendering a filled pattern into v2 pages is the #29 bridge,
+deliberately not part of this change. Docs: `docs/patterns-fills.md` (adapted
+from the predecessor's AGENTS.md / AUTHORING-FILLS.md guidance). 11 red-first
+tests.
+
 ## Unreleased — design-canon SDK modules (2026-07-02)
 
 Two pure-helper modules codify working design rules for document authors

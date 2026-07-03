@@ -630,7 +630,7 @@ class SvgPainter:
         return (f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '
                 f'href="{esc(href)}" preserveAspectRatio="{esc(preserve_aspect_ratio)}"/>')
 
-    def text_tag(self, x, y, w, h, content, st, vcenter=None):
+    def text_tag(self, x, y, w, h, content, st, vcenter=None, text_len=None):
         if content is None or content == "":
             return ""
         a = self.anchor(st["align"])
@@ -643,25 +643,41 @@ class SvgPainter:
         else:
             ty = y + st["size"] * 0.92
             baseline = ""
+        # Justify a left-set line to a target length: a compliant shaper (browser/
+        # PDF) distributes the slack across spaces with its own metrics (ADR-0003).
+        fit = (f' textLength="{fnum(text_len)}" lengthAdjust="spacing"'
+               if text_len is not None and a == "start" else "")
         style = self.font_style(st, st["size"])
-        return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}"{baseline} '
-                f'style="{style}">{esc(content)}</text>')
+        return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}"{baseline}'
+                f'{fit} style="{style}">{esc(content)}</text>')
 
-    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy):
+    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy,
+                   justify_width=None, justifies=None):
         style = self.font_style(st, size)
-        spans = "".join(
-            f'<tspan x="{fnum(tx)}"' + (f' dy="{fnum(line_dy)}"' if i else "") + f'>{esc(ln)}</tspan>'
-            for i, ln in enumerate(lines))
+        n = len(lines)
+        # `justify_width` set → flush the lines `justifies[i]` marks (default: all
+        # but the last) to the column via textLength; None → unchanged.
+        def flush(i, ln):
+            if justify_width is None or not ln.strip():
+                return False
+            return justifies[i] if (justifies is not None and i < len(justifies)) else i < n - 1
+        def span(i, ln):
+            dy = f' dy="{fnum(line_dy)}"' if i else ""
+            fit = (f' textLength="{fnum(justify_width)}" lengthAdjust="spacing"'
+                   if flush(i, ln) else "")
+            return f'<tspan x="{fnum(tx)}"{dy}{fit}>{esc(ln)}</tspan>'
+        spans = "".join(span(i, ln) for i, ln in enumerate(lines))
         return f'<text y="{fnum(base_y)}" text-anchor="{anchor}" style="{style}">{spans}</text>'
 
-    def text_runs(self, base_y, anchor, tx, base_st, size, runs):
+    def text_runs(self, base_y, anchor, tx, base_st, size, runs, text_len=None):
         """A single baseline of inline styled runs (rich `text.spans`).
 
         `runs` is a list of (text, run_style_dict) pairs — the neutral style dicts;
         this backend formats each at `size`. The first run carries the anchor x; the
         rest flow inline. Each run's style overrides the base. A run style carrying
         the reserved `link_href` key (a LinkInline span) gets its tspan wrapped in
-        an SVG `<a href>` so the link is real in every SVG consumer."""
+        an SVG `<a href>` so the link is real in every SVG consumer. `text_len` set
+        (span-aware justification) flushes the whole line to that length."""
         base_style = self.font_style(base_st, size)
         segs = []
         for i, (text, run_st) in enumerate(runs):
@@ -671,7 +687,9 @@ class SvgPainter:
             if href:
                 seg = f'<a href="{esc(href)}">{seg}</a>'
             segs.append(seg)
-        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}" '
+        fit = (f' textLength="{fnum(text_len)}" lengthAdjust="spacing"'
+               if text_len is not None and anchor == "start" else "")
+        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{fit} '
                 f'style="{base_style}">{"".join(segs)}</text>')
 
     def text_line_runs(self, x, y, w, h, groups, st):

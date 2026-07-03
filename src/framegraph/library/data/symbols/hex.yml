@@ -1,0 +1,199 @@
+# Translated 2026-07-03 from the predecessor project's lib/ (issue #32).
+# v0.1 -> v2 transforms: text_styles field renames (font->font_family via the
+# pack's fonts, size->font_size, weight->font_weight, v_align->vertical_align,
+# wrap dropped - v2 wraps by default); stroke dicts split per P3 (paint in
+# `stroke`, geometry as Style props: width->stroke_width, dash->stroke_dasharray,
+# linecap/linejoin->stroke_*); ellipse box -> center/rx/ry.
+# Data is now source of truth HERE.
+symbols:
+  hex_header:
+    box:
+    - 0
+    - 0
+    - 150
+    - 130
+    objects:
+    - type: path
+      id: hex
+      d: M 150 65 L 112.5 130 L 37.5 130 L 0 65 L 37.5 0 L 112.5 0 Z
+      fill: $header_fill
+      stroke: $header_fill
+      stroke_style:
+        stroke_width: 1
+    - type: text
+      id: label_text
+      box:
+      - 22
+      - 28
+      - 106
+      - 76
+      text: $label
+      style: honeycomb_header_text
+  hex_leaf_solid:
+    box:
+    - 0
+    - 0
+    - 150
+    - 130
+    objects:
+    - type: path
+      id: hex
+      d: M 150 65 L 112.5 130 L 37.5 130 L 0 65 L 37.5 0 L 112.5 0 Z
+      fill: $leaf_fill
+      stroke: $outline_color
+      stroke_style:
+        stroke_width: 3
+    - type: text
+      id: label_text
+      box:
+      - 22
+      - 28
+      - 106
+      - 76
+      text: $label
+      style: honeycomb_leaf_text
+  hex_leaf_dashed:
+    box:
+    - 0
+    - 0
+    - 150
+    - 130
+    objects:
+    - type: path
+      id: hex
+      d: M 150 65 L 112.5 130 L 37.5 130 L 0 65 L 37.5 0 L 112.5 0 Z
+      fill: $leaf_fill
+      stroke: $outline_color
+      stroke_style:
+        stroke_width: 3
+        stroke_dasharray:
+        - 6
+        - 4
+    - type: text
+      id: label_text
+      box:
+      - 22
+      - 28
+      - 106
+      - 76
+      text: $label
+      style: honeycomb_leaf_text
+  hex_node_plain:
+    box:
+    - 0
+    - 0
+    - 150
+    - 130
+    objects:
+    - type: path
+      id: hex
+      d: M 150 65 L 112.5 130 L 37.5 130 L 0 65 L 37.5 0 L 112.5 0 Z
+      fill: $fill
+      stroke: $outline_color
+      stroke_style:
+        stroke_width: 4
+  hex_node_warning:
+    box:
+    - 0
+    - 0
+    - 150
+    - 130
+    objects:
+    - type: path
+      id: hex
+      d: M 150 65 L 112.5 130 L 37.5 130 L 0 65 L 37.5 0 L 112.5 0 Z
+      fill: $fill
+      stroke: $outline_color
+      stroke_style:
+        stroke_width: 4
+    - type: rect
+      id: icon_plate
+      box:
+      - 50
+      - 45
+      - 50
+      - 40
+      fill: '#EFEFEF'
+      stroke: '#CCCCCC'
+      radius: 2
+      stroke_style:
+        stroke_width: 0.5
+    - type: text
+      id: icon_glyph
+      box:
+      - 50
+      - 45
+      - 50
+      - 40
+      text: '!'
+      style: module_icon_warning
+  hex_node_excel:
+    box:
+    - 0
+    - 0
+    - 150
+    - 130
+    objects:
+    - type: path
+      id: hex
+      d: M 150 65 L 112.5 130 L 37.5 130 L 0 65 L 37.5 0 L 112.5 0 Z
+      fill: $fill
+      stroke: $outline_color
+      stroke_style:
+        stroke_width: 4
+    - type: rect
+      id: icon_plate
+      box:
+      - 50
+      - 45
+      - 50
+      - 40
+      fill: '#1F6B3D'
+      stroke: '#1F6B3D'
+      radius: 2
+      stroke_style:
+        stroke_width: 0.5
+    - type: text
+      id: icon_glyph
+      box:
+      - 50
+      - 45
+      - 50
+      - 40
+      text: X
+      style: module_icon_excel
+  hex_node_money:
+    box:
+    - 0
+    - 0
+    - 150
+    - 130
+    objects:
+    - type: path
+      id: hex
+      d: M 150 65 L 112.5 130 L 37.5 130 L 0 65 L 37.5 0 L 112.5 0 Z
+      fill: $fill
+      stroke: $outline_color
+      stroke_style:
+        stroke_width: 4
+    - type: rect
+      id: icon_plate
+      box:
+      - 50
+      - 45
+      - 50
+      - 40
+      fill: '#FFFFFF'
+      stroke: $outline_color
+      radius: 2
+      stroke_style:
+        stroke_width: 0.5
+    - type: text
+      id: icon_glyph
+      box:
+      - 50
+      - 45
+      - 50
+      - 40
+      text: €
+      style: module_icon_money
