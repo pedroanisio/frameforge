@@ -47,6 +47,7 @@ __all__ = [
     "get_font_metrics",
     "measure_text",
     "resolve_family_name",
+    "resolve_report",
 ]
 
 
@@ -109,42 +110,73 @@ def _split_family_chain(font_family: str) -> list[str]:
 _GENERIC_FAMILIES = {"sans-serif", "serif", "monospace", "system-ui", "cursive", "fantasy"}
 
 
+def _fc_query(target: str, weight: str) -> tuple[str | None, str | None]:
+    """``(resolved_family, file)`` fontconfig returns for ``target``."""
+    try:
+        r = subprocess.run(
+            ["fc-match", "-f", "%{family}\t%{file}", f"{target}:weight={weight}"],
+            capture_output=True, text=True, timeout=2.0, check=False)
+    except (subprocess.SubprocessError, FileNotFoundError, OSError):
+        return None, None
+    fam, _, path = r.stdout.strip().partition("\t")
+    return (fam.strip() or None), (path.strip() or None)
+
+
+def _family_tokens(name: str) -> set[str]:
+    return set(name.lower().replace("-", " ").split())
+
+
+def _is_real_match(requested: str, resolved: str | None) -> bool:
+    """True when fontconfig actually *has* ``requested`` — its tokens are a subset
+    of the resolved family — versus a fuzzy fallback to an unrelated face
+    (``fc-match 'Charter'`` → ``'Noto Sans'``, which a browser would reject and
+    fall through on)."""
+    return bool(resolved) and _family_tokens(requested) <= _family_tokens(resolved)
+
+
 def _resolve_font_file(font_family: str, bold: bool) -> str | None:
-    """Resolve the first concrete name in a CSS font-family chain to a file path.
-
-    Uses ``fc-match`` (fontconfig) so the resolved file matches what the
-    rasterizer (cairosvg via Pango) will pick. Returns ``None`` when:
-
-    * the system has no ``fc-match`` binary,
-    * the chain contains only generic family names, or
-    * the resolved path does not exist on disk.
-
-    The first concrete (non-generic) name is queried; if all entries are
-    generic, the first one is queried so fontconfig returns its system default
-    for that family class.
+    """Resolve a CSS font-family chain to a file path **the way a browser does**:
+    walk the chain, and for each concrete name accept fontconfig's result only if
+    it is a real match (not a fuzzy fallback); otherwise fall through to the next
+    entry. Generic families take fontconfig's class default (as the browser does).
+    Returns ``None`` (→ average-glyph estimate) when nothing resolves — a caller
+    that measures at that point is measuring a *different* font than the rasterizer
+    will draw, so :func:`resolve_report` flags it.
     """
     if shutil.which("fc-match") is None:
         return None
-    candidates = _split_family_chain(font_family)
-    if not candidates:
-        return None
-    concrete = [c for c in candidates if c.lower() not in _GENERIC_FAMILIES]
-    target = concrete[0] if concrete else candidates[0]
     weight = "bold" if bold else "regular"
-    try:
-        result = subprocess.run(
-            ["fc-match", "-f", "%{file}", f"{target}:weight={weight}"],
-            capture_output=True,
-            text=True,
-            timeout=2.0,
-            check=False,
-        )
-    except (subprocess.SubprocessError, FileNotFoundError, OSError):
-        return None
-    path = result.stdout.strip()
-    if path and os.path.isfile(path):
-        return path
+    for fam in _split_family_chain(font_family):
+        resolved_fam, path = _fc_query(fam, weight)
+        if not path or not os.path.isfile(path):
+            continue
+        if fam.lower() in _GENERIC_FAMILIES or _is_real_match(fam, resolved_fam):
+            return path
+        # fontconfig fuzzy-fell-back for this concrete name → try the next entry
     return None
+
+
+def resolve_report(font_family: str, bold: bool = False) -> tuple[str | None, bool, str | None]:
+    """``(resolved_family, matched, requested_concrete)``.
+
+    ``matched`` is **False** when every concrete family in the chain is missing
+    (fontconfig fuzzy-fell-back or only a generic remains) — i.e. the layout font
+    is NOT what was asked for, so measuring it here will disagree with whatever the
+    rasterizer draws. That is the measure-time≠render-time hazard; the renderer
+    turns a False here into a loud font-substitution warning."""
+    requested = first_concrete_family(font_family or "")
+    if requested is None:
+        return (None, True, None)              # generic-only: system default by design
+    if shutil.which("fc-match") is None:
+        return (None, False, requested)
+    weight = "bold" if bold else "regular"
+    for fam in _split_family_chain(font_family):
+        if fam.lower() in _GENERIC_FAMILIES:
+            break
+        resolved_fam, path = _fc_query(fam, weight)
+        if path and os.path.isfile(path) and _is_real_match(fam, resolved_fam):
+            return (resolved_fam, True, requested)
+    return (resolve_family_name(font_family), False, requested)
 
 
 def first_concrete_family(font_family: str) -> str | None:

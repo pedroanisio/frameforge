@@ -20,6 +20,7 @@ import copy
 import math
 import os
 import re
+import sys
 
 from framegraph.rendering.domain.geometry import (
     fnum, is_point, num,
@@ -118,6 +119,7 @@ class Renderer:
                          else SvgPainter(self._color, warn=self.warn))
         self._text_style = TextStyleResolver(self.text_styles, self.styles, self._color)
         self._global_page = 0                 # document-global leaf page number (flow recto/verso)
+        self._font_warned: set[str] = set()   # families already screamed about (warn-once)
         self._canvas = CanvasResolver(self.masters)
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)
         self._effect = EffectResolver(self._color)
@@ -217,7 +219,33 @@ class Renderer:
     # thin wrappers preserve the call sites and the tested `Renderer.measure`/
     # `wrap_words` surface (tests/test_font_metrics.py).
     def measure(self, s, size, avg, st=None):
+        if self.real_metrics and st:
+            self._check_font_substitution(st)
         return self._fit.measure(s, size, avg, st)
+
+    def _check_font_substitution(self, st):
+        """SCREAM when the layout font ≠ the font the rasterizer will draw.
+
+        With real metrics on, advances come from `font_metrics` (fontTools via
+        fc-match) while the rasterizer (Chromium/cairo) resolves the family
+        independently. If the requested concrete family is not actually installed,
+        the two disagree and justified/wrapped text is wrong — the measure-time ≠
+        render-time hazard. This is not a soft caveat: warn loudly, once per family.
+        (The real fix is single-engine layout; see ADR-0004.)"""
+        family = str(st.get("family") or "")
+        if not family or family in self._font_warned:
+            return
+        self._font_warned.add(family)
+        from framegraph.rendering.infrastructure.font_metrics import resolve_report
+        resolved, matched, requested = resolve_report(family, bool(st.get("bold")))
+        if requested and not matched:
+            msg = (f"FONT SUBSTITUTION: requested '{requested}' is not installed — "
+                   f"layout measured '{resolved or 'average-glyph estimate'}', but the "
+                   f"rasterizer resolves the family itself, so justified/wrapped text "
+                   f"WILL diverge. Render in the frameforge Docker image (baked fonts) "
+                   f"or embed the face; do not trust host fonts.")
+            self.warn("font_substitution", msg, requested=requested, resolved=resolved)
+            print("⚠  " + msg, file=sys.stderr)
 
     def wrap_words(self, text, w, size, avg, st=None):
         return self._fit.wrap_words(text, w, size, avg, st)
