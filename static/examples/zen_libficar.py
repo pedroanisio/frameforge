@@ -139,9 +139,9 @@ def ell(page, cx, cy, rx, ry, *, stroke=INK, w=1.2, fill=PAPER):
 def legend(p, x, y, term, gloss):
     """A key entry: garden term (small caps) · library gloss (Inter grey)."""
     p.text([x + 16, y - 7, 155, 12],
-           [span(term, font=SC, color=INK, letter_spacing=0.3),
-            span("  ·  ", font=INTER, color=RED),
-            span(gloss, font=INTER, color=MUT, letter_spacing=0.1)],
+           [span(term, font=SC, color=INK, letter_spacing=0.3, size=8.5),
+            span("  ·  ", font=INTER, color=RED, size=8.5),
+            span(gloss, font=INTER, color=MUT, letter_spacing=0.1, size=8.5)],
            style=ts(8.5, family=INTER, color=MUT))
 
 
@@ -294,8 +294,8 @@ def p4():
     running_head(p, "I · A definição")
     from framegraph.sdk.macros import span
     p.text([ML, 96 - BODY * 0.8, CW, LEAD * 1.5],
-           [span("Recolher", font=SC, color=RED, letter_spacing=0.3),
-            span(" é a prática de extrair capacidade reutilizável", font=GAR, color=INK)],
+           [span("Recolher", font=SC, color=RED, letter_spacing=0.3, size=BODY),
+            span(" é a prática de extrair capacidade reutilizável", font=GAR, color=INK, size=BODY)],
            style=ts(BODY, family=GAR, color=INK))
     y = para(p, ML, 96 + LEAD, "do trabalho construtivo — concluído ou ainda em curso.", cpl=54)
     y = para(p, ML, y + 12, "Seu fruto é uma biblioteca: um sistema curado e anotado de "
