@@ -4,6 +4,21 @@
 
 ---
 
+## Unreleased — from-markdown: whole documents in, flow documents out (2026-07-02, issue #31)
+
+`sdk.from_markdown(text)` converts a CommonMark/GFM-subset document into a
+validated `mode: flow` page — pagination, text fitting and list/table layout
+come from the flow engine, and inline forms reuse the existing `md()`
+lowering (one inline parser, not two). Hand-rolled line parser, no new
+dependency. Covered: headings, paragraphs, lists (model has no nested list —
+sub-items fold into the parent as marked continuation lines), GFM tables,
+fenced code, blockquotes (`block` with `role: blockquote`), image paragraphs,
+thematic breaks → page breaks, YAML front-matter; the ```framegraph pattern
+directive degrades to a structured warning until the fill/render bridge
+(#29). Output is schema-validated before it is returned (PALS). The CLI
+front door accepts `.md` inputs directly and writes the intermediate
+`.fg.yaml` next to the render output. 11 red-first tests.
+
 ## Unreleased — design-canon SDK modules (2026-07-02)
 
 Two pure-helper modules codify working design rules for document authors

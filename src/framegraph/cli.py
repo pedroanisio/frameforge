@@ -287,6 +287,19 @@ def main(argv=None):
     args.stem = os.path.splitext(os.path.basename(args.input))[0]
     out_dir = args.out or os.path.join(ROOT, "out", "render-cli")
     os.makedirs(out_dir, exist_ok=True)
+    if args.input.lower().endswith((".md", ".markdown")):
+        # Markdown front door (issue #31): convert to a flow document first.
+        # The intermediate .fg.yaml is written next to the render output — it
+        # is the real, editable artifact the conversion produced.
+        from framegraph.sdk import from_markdown, serialize
+        notes: list = []
+        doc = from_markdown(_read(args.input), warnings=notes)
+        for note in notes:
+            print(f"  ⚠ {note}", file=sys.stderr)
+        converted = os.path.join(out_dir, f"{args.stem}.fg.yaml")
+        _write(converted, serialize(doc))
+        print(f"  {converted}   (converted from Markdown)")
+        args.input = converted
     written = TARGETS[args.to].fn(args.input, out_dir, args)
     for p in written:
         print(f"  {p}")

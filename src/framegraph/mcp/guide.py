@@ -61,6 +61,10 @@ Fluent builder:
     for sizes that agree; `content_box(page_w, page_h, unit, side="recto"|"verso")` for
     the book margin canon (inner 1½ · top 2 · outer 3 · foot 4); `measure_fits(chars)`
     for the 45–75 chars/line band; `caps_tracking(font_size)` for all-caps labels.
+- Markdown (`framegraph.sdk.markdown`): `from_markdown(text)` converts a whole
+  CommonMark/GFM-subset document into a validated flow document (headings,
+  lists, tables, code, quotes, images; front-matter; page breaks) — the fast
+  path from prose to a paginated render.
 - Validation: `validate_static_rules(doc) -> ValidationReport(ok, issues)`,
   `assert_golden(...)`; `HEAD_VERSION` is the current spec version.
 

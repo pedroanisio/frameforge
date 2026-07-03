@@ -75,6 +75,7 @@ from framegraph.sdk.figure import (
 from framegraph.sdk.flow import FlowBuilder
 from framegraph.sdk.io import parse, serialize, svg_to_objects
 from framegraph.sdk.layout import Box, BoxLike, column, grid, inset, row
+from framegraph.sdk.markdown import from_markdown
 from framegraph.sdk.macros import (
     cite,
     greeble,
@@ -166,6 +167,7 @@ from framegraph.sdk.widgets import (
 )
 
 __all__ = [
+    "from_markdown",
     "ClosedPalette",
     "caps_tracking",
     "closed_palette",
