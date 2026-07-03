@@ -75,6 +75,7 @@ tracked elsewhere and referenced here rather than duplicated:
 | Engineering standards | [codebase-standards.md §16](codebase-standards.md) — the `[Target]` ledger | gating ruff, `mypy --strict`, coverage gate, TDD trees, golden drift tolerance, pre-commit, `__version__`/release recipe, CI matrix |
 | Operational (tracked work) | GitHub, pinned umbrellas | [#36 — absorb framegraph v0.1.0](https://github.com/pedroanisio/frameforge/issues/36) (pattern catalog + fill bridge, UML 2.5 + full Sugiyama, `from-markdown`, symbol/token packs, deck corpus); [#43 — rename framegraph → frameforge](https://github.com/pedroanisio/frameforge/issues/43) (ADR-gated, idempotent engine, three slices); [#44 — silent text-clip diagnostics](https://github.com/pedroanisio/frameforge/issues/44); [#52 — Adobe-suite parity programme](https://github.com/pedroanisio/frameforge/issues/52) (item 10 made executable: workstreams #45–#51, teardown re-render as the progress metric) |
 | Version trajectory | [CHANGELOG](../CHANGELOG.md) + rename ADR ([#37](https://github.com/pedroanisio/frameforge/issues/37)) | HEAD 2.3.0 → 2.4 (both DSL markers accepted + codemod, additive) → 3.0 (marker hard cut — which can carry this doc's 3.0 single-source milestone) |
+| Font backend / render substrate | the sibling `ff-render-core` repo — `docs/roadmap-frameforge-font-server.md` | the font server's **own** build-out (persistence, Google ingestion, storage/caches, admin upload→validate→version, security, license enforcement, observability, GA). frameforge **consumes** it — the adoption seam and the 3.0 promotion are the *Font backend* section below, not that repo |
 
 Cross-links where the layers touch: item 1's optional "exact crossing
 minimization beyond the current heuristics" is precisely what the absorption
@@ -804,6 +805,74 @@ view distorts the source — that intersection is the 3.0 bet.
 - **It likely needs the temporal axis.** Quarter-over-quarter comparatives are time
   series, and the IR has **no temporal axis** (`output-space.md` boundary) — a read-only
   data / time binding may be a prerequisite, distinct from animation (non-goal, item 6).
+
+---
+
+## Font backend — adopting `frameforge-font-server` (cross-repo infrastructure)
+
+> **Status:** DRAFT / design-direction, cross-repo — not a commitment. The font
+> server is a **sibling codebase** (`ff-render-core`) at its own 0.1.0. Its
+> *internal* build-out — persistence, Google-Fonts ingestion, storage/caches, the
+> admin upload→validate→version pipeline, security hardening, license enforcement,
+> observability, GA — is **out of scope here** and tracked in that repo's
+> `docs/roadmap-frameforge-font-server.md`. This section owns only the
+> **frameforge side**: what *this* repo does to consume that server, and the
+> promotion that aligns with frameforge 3.0.0. The seam between the two repos is
+> the font-pack (`.fp`): the server **produces** it, frameforge **consumes** it.
+
+**Why this exists — it is the durable fix for ADR-0004.** ADR-0004 recorded the
+root defect behind flow fidelity: frameforge *measures* text with `font_metrics`
+while a *different* engine rasterizes, so `fc-match "Charter"` on the host resolves
+to a different face than the renderer draws — `measure ≠ render`, silently.
+Today's mitigation is a font-rich Docker runtime plus a loud must-warn on
+substitution. The **structural** fix is single-engine rendering over a *pinned*
+font set instead of the host's ambient fontconfig. `frameforge-font-server` is that
+pinned set made reproducible: it emits content-hashed font-packs (`.fp`) the render
+pipeline installs, so the same faces are measured and drawn on every host.
+Substitution stops being a silent proxy and becomes a resolved, versioned
+dependency.
+
+### FF-1 — consume server-produced font-packs in the render pipeline
+- `fg-font --install <pack>` already pins a font-pack locally
+  (`src/framegraph/fontpack.py`). Make the **font server** the authoritative
+  *producer* of those packs (its 0.8.0 export milestone), and make pack-pinned
+  rendering the **default** for fidelity targets, not an opt-in.
+- The SVG and `pdf-tex` backends resolve every face **through the pinned pack**, so
+  `measure == render` off-host and reproducibly. A face the pack does not contain
+  **fails loud** (the ADR-0004 "font substitution must scream" gate) — it never
+  silently substitutes.
+- *Effort: M. Depends on the server's 0.8.0 export milestone.*
+
+### FF-2 — render-pipeline integration (aligns with the server's 2.0.0)
+- Make `frameforge-font-server` the **default font backend** for the SDK/render
+  pipeline. The font-rich Docker runtime stops being the *sole* source of faces and
+  becomes one consumer of server-issued packs, so a build is reproducible from the
+  pack alone — without shipping the full ~5k-family image to every host.
+- **Zero silent substitution** across SVG and `pdf-tex`; a missing face is a build
+  error carrying the pack digest, not a fallback.
+- *Effort: M–L. Cross-repo: the server freezes its HTTP + pack contract at its
+  2.0.0; this repo pins to that frozen surface.*
+
+### FF-3 — promotion + naming at frameforge 3.0.0
+- The sibling repo is renamed `ff-render-core` → **`frameforge-font-server`** at its
+  own 3.0.0, timed with **this** framework's 3.0.0 marker hard-cut (the rename
+  trajectory: 2.3.0 → 2.4 → 3.0; rename ADR
+  [#37](https://github.com/pedroanisio/frameforge/issues/37) /
+  umbrella [#43](https://github.com/pedroanisio/frameforge/issues/43)). frameforge's
+  3.0.0 docs reference the font server by its official name.
+- **Contract stability is a hard requirement**, not a nicety: the rename must not
+  break the render pipeline — the server's URL surface (`/css2`, `/files`,
+  `/api/families`) stays stable and its env/metric prefixes carry a one-minor
+  back-compat alias. This repo's integration pins the **stable surface**, never the
+  crate names — so the rename is invisible to frameforge builds.
+- *Effort: S on this side (docs + a pinned contract test). The mechanical rename is
+  server-side work, in that repo's roadmap.*
+
+> **Ownership split, stated plainly.** Everything *internal* to the font server —
+> how it stores, ingests, secures, licenses, and serves fonts — is the sibling
+> repo's roadmap. Everything about **frameforge adopting it** — pack consumption,
+> single-engine `measure == render`, the 3.0 promotion — is here. Neither repo
+> duplicates the other; they meet at the `.fp` font-pack.
 
 ---
 
