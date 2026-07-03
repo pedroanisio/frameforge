@@ -1,21 +1,21 @@
 {
   "artifact": "illustrator_vs_framegraph capability teardown",
-  "generated_at": "2026-07-02",
+  "generated_at": "2026-07-03",
   "version": {
-    "generated_at": "2026-07-02",
+    "generated_at": "2026-07-03",
     "source_code": {
       "repo": "frameforge",
-      "git_commit": "964e3b4a6ab43dedd67ed4baae05ad3168afd53c",
-      "git_short": "964e3b4a6a",
-      "git_branch": "main",
+      "git_commit": "edca70b69defe595e3a670846e98e13025277531",
+      "git_short": "edca70b69d",
+      "git_branch": "docs/50-parity-verdict-docs",
       "git_dirty": true,
       "builder": "static/examples/illustrator_vs_framegraph.py"
     },
     "framegraph_manifest": {
       "manifest_path": "docs/capability-manifest.json",
-      "manifest_sha256": "51b966f9c609ff1e913885ffc6c43ecbfbadc15fc74f2baee65f2aea740ab7cc",
+      "manifest_sha256": "294a67ae4521cc7be339a4e6704157c911a8f29e7081d794af664d501e6102ae",
       "framegraph_version": "2.3.0",
-      "manifest_capabilities": 278
+      "manifest_capabilities": 281
     },
     "external_corpus": [
       {
@@ -43,9 +43,9 @@
   },
   "framegraph": {
     "manifest_path": "docs/capability-manifest.json",
-    "manifest_sha256": "51b966f9c609ff1e913885ffc6c43ecbfbadc15fc74f2baee65f2aea740ab7cc",
+    "manifest_sha256": "294a67ae4521cc7be339a4e6704157c911a8f29e7081d794af664d501e6102ae",
     "framegraph_version": "2.3.0",
-    "manifest_capabilities": 278
+    "manifest_capabilities": 281
   },
   "sources": {
     "24": {
@@ -81,8 +81,8 @@
     "total_features": 51,
     "counts": {
       "has": 14,
-      "part": 17,
-      "invert": 4,
+      "part": 12,
+      "invert": 9,
       "none": 16
     },
     "gap_breakdown": {
@@ -93,12 +93,12 @@
     },
     "scores": {
       "full_equivalent_pct": 27.5,
-      "full_or_partial_pct": 60.8,
+      "full_or_partial_pct": 51.0,
       "any_route_pct": 68.6
     },
     "score_formulas": {
       "full_equivalent": "has/total = 14/51",
-      "full_or_partial": "(has+part)/total = 31/51  (REFRAMED & NONE excluded)",
+      "full_or_partial": "(has+part)/total = 26/51  (REFRAMED & NONE excluded)",
       "any_route": "(has+part+reframed)/total = 35/51  (REFRAMED counted as reachable)"
     }
   },
@@ -108,8 +108,8 @@
       "n": 8,
       "counts": {
         "has": 0,
-        "part": 3,
-        "invert": 1,
+        "part": 1,
+        "invert": 3,
         "none": 4
       }
     },
@@ -118,8 +118,8 @@
       "n": 7,
       "counts": {
         "has": 2,
-        "part": 2,
-        "invert": 0,
+        "part": 1,
+        "invert": 1,
         "none": 3
       }
     },
@@ -158,8 +158,8 @@
       "n": 6,
       "counts": {
         "has": 3,
-        "part": 2,
-        "invert": 0,
+        "part": 0,
+        "invert": 2,
         "none": 1
       }
     },
@@ -216,18 +216,17 @@
         "title": "Master Adobe Illustrator 2025",
         "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "path / bezier / curve points authored as coordinates.",
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: anchors edit by restating coordinates — workspace pin/nudge/snap + construct_vectors.",
       "framegraph_manifest_refs": [
-        "bezier",
-        "curve",
-        "path"
+        "construct_vectors",
+        "workspace"
       ],
-      "confidence": "M",
+      "confidence": "H",
       "equivalence_dimension": "W",
       "gap_type": null,
-      "rationale": "Points are authored as coordinates, not hand-dragged."
+      "rationale": "Dragging a point becomes restating its coordinate — MCP workspace pin/nudge/snap + construct_vectors edit anchors by tool call."
     },
     {
       "id": "AI-03",
@@ -240,16 +239,14 @@
         "title": "Master Adobe Illustrator 2025",
         "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "structural nesting (group + layers) — no in-place isolated edit.",
-      "framegraph_manifest_refs": [
-        "group"
-      ],
-      "confidence": "M",
-      "equivalence_dimension": "D",
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: name the nested id — direct addressing needs no isolation state.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "W",
       "gap_type": null,
-      "rationale": "Structural nesting only; no interactive in-place isolation."
+      "rationale": "Isolation guards against stray cursor edits; naming a nested id edits exactly one node, so the hazard has no declarative analogue."
     },
     {
       "id": "AI-04",
@@ -397,18 +394,19 @@
         "title": "Adobe Illustrator 2024 User's Guide",
         "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "bezier / Path / CubicBezier objects, authored by coordinate.",
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: coordinates are the pen — bezier / Path / CubicBezier; construct_vectors + coach assist.",
       "framegraph_manifest_refs": [
+        "construct_vectors",
         "CubicBezier",
         "bezier",
         "Path"
       ],
-      "confidence": "M",
+      "confidence": "H",
       "equivalence_dimension": "W",
       "gap_type": null,
-      "rationale": "Bézier by coordinate, not by-hand handle dragging."
+      "rationale": "Handle-dragging becomes typed coordinates; the assistive half is the construct_vectors tool + the coach construction loop."
     },
     {
       "id": "AI-09",
@@ -620,8 +618,8 @@
       "verdict_label": "PARTIAL",
       "framegraph_coverage": "region toolkit: select_in / place_region / region_grade.",
       "framegraph_manifest_refs": [
-        "place_region",
         "region_grade",
+        "place_region",
         "select_in"
       ],
       "confidence": "M",
@@ -756,8 +754,8 @@
       "verdict_label": "NONE",
       "framegraph_coverage": "no text-on-path (explicit scope limit).",
       "framegraph_manifest_refs": [
-        "text",
-        "path"
+        "path",
+        "text"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -824,8 +822,8 @@
       "verdict_label": "HAS",
       "framegraph_coverage": "linear_gradient / radial_gradient paint.",
       "framegraph_manifest_refs": [
-        "radial_gradient",
-        "linear_gradient"
+        "linear_gradient",
+        "radial_gradient"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -1036,16 +1034,14 @@
         "title": "Master Adobe Illustrator 2025",
         "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "multi-page flow doc (TOC, bibliography); no free spatial canvas.",
-      "framegraph_manifest_refs": [
-        "bibliography"
-      ],
-      "confidence": "M",
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: pages are the artboards — per-page canvas + render targets replace the free spatial canvas by design.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
       "equivalence_dimension": "D",
       "gap_type": null,
-      "rationale": "Document pages, not Illustrator's free spatial canvas / per-artboard export regions."
+      "rationale": "Paged document model by design; per-page canvas + document render targets replace per-artboard export regions."
     },
     {
       "id": "AI-37",
@@ -1080,16 +1076,17 @@
         "title": "BMG 106: Computer Graphics Part II — Adobe Illustrator",
         "document_id": "649e47a5-cbf2-4d92-b7ab-f4d710d6351a"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "grid_pattern + exact coordinates; no interactive guides / snap.",
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: coordinates are exact by construction — canon.content_box grids + workspace snap.",
       "framegraph_manifest_refs": [
-        "grid_pattern"
+        "content_box",
+        "workspace"
       ],
-      "confidence": "M",
+      "confidence": "H",
       "equivalence_dimension": "W",
       "gap_type": null,
-      "rationale": "Coordinates are exact by construction; a grid_pattern draws lines, but there is no interactive guide/snap UI."
+      "rationale": "Guides exist to make cursor input precise; declarative input is precise by construction — canon.content_box layout grids, grid_pattern, workspace snap."
     },
     {
       "id": "AI-38",
@@ -1148,16 +1145,16 @@
       },
       "verdict": "part",
       "verdict_label": "PARTIAL",
-      "framegraph_coverage": "Scene3D + Material + Camera scene — not vector extrusion.",
+      "framegraph_coverage": "Scene3D extrude / revolve + Material + Camera, projected to 2D vector faces; no bevel.",
       "framegraph_manifest_refs": [
         "Material",
         "Scene3D",
         "Camera"
       ],
-      "confidence": "M",
-      "equivalence_dimension": "D",
+      "confidence": "H",
+      "equivalence_dimension": "F",
       "gap_type": null,
-      "rationale": "Scene3D is a 3D scene, not vector extrude/bevel."
+      "rationale": "Scene3D.extrude / .revolve + Material are real and project to 2D vector faces; bevel is the missing quarter of the Illustrator bundle."
     },
     {
       "id": "AI-41",

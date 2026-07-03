@@ -4,6 +4,25 @@
 
 ---
 
+## Unreleased — parity W6: six teardown verdicts corrected by documentation (2026-07-03, issue #50)
+
+The cheapest scoreboard movement, delivered exactly as scoped: zero schema
+change, every claim verified against live code before any doc moved (PALS).
+Five rows re-verdicted **PARTIAL → REFRAMED ·H** — anchor editing (restate
+the coordinate: MCP `workspace` pin/nudge/snap + `construct_vectors`),
+isolation mode (name the nested id; the cursor hazard has no declarative
+analogue), the Bézier pen (coordinates are the pen; `construct_vectors` +
+coach are the assistive half), artboards (pages + per-page canvas + render
+targets, by design), guides/rulers/snap (exactness by construction +
+`canon.content_box` grids + `workspace` snap). AI-40 verified in code:
+`Scene3D.extrude`/`.revolve`/`Material` are real and project to 2D vector
+faces — evidence corrected, verdict honestly stays **PARTIAL ·H** (no
+bevel). Bonus: the REFRAMED narrative example mislabeled Image Trace as
+AI-40 (it is AI-39) — fixed. Teardown deck + git-stamped audit regenerated:
+**14 HAS / 12 PARTIAL / 9 REFRAMED / 16 NONE**; reachable-by-any-route
+stays 69 % (W6 adds no capability, by design). Roadmap Appendix B + the
+workstream table re-verdicted to match.
+
 ## Unreleased — PALS EN deck migrated; the v0.1 lift learns the deck dialect (2026-07-03, issue #33)
 
 Second corpus deck: the 8-slide PALS GenAI architecture deck (EN) lands as

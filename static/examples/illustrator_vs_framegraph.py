@@ -256,10 +256,12 @@ GROUPS = [
          "replaces cursor selection."),
         ("AI-02", "Anchor-point editing",
          "Direct Selection edits specific anchor points & paths.", "25·198",
-         "part", "path / bezier / curve points authored as coordinates."),
+         "invert", "REFRAMED: anchors edit by restating coordinates — "
+         "workspace pin/nudge/snap + construct_vectors."),
         ("AI-03", "Isolation mode",
          "Double-click into a group to edit its contents in place.", "25·281",
-         "part", "structural nesting (group + layers) — no in-place isolated edit."),
+         "invert", "REFRAMED: name the nested id — direct addressing "
+         "needs no isolation state."),
         ("AI-04", "Compound paths / Pathfinder",
          "Combine paths (Pathfinder) so one cuts a hole in another.", "24·1488",
          "part", "path fill_rule even-odd + holes; no live Pathfinder ops."),
@@ -282,7 +284,8 @@ GROUPS = [
          "has", "rect, ellipse, circle, polygon, line, polyline (17 object_types)."),
         ("AI-08", "Pen tool (Bézier)",
          "Set Bézier anchor points and handles by hand.", "24·612",
-         "part", "bezier / Path / CubicBezier objects, authored by coordinate."),
+         "invert", "REFRAMED: coordinates are the pen — bezier / Path / "
+         "CubicBezier; construct_vectors + coach assist."),
         ("AI-09", "Curvature tool",
          "Rubber-band free-form curves as you click & release.", "24·1964",
          "part", "curve object + parametric_curve; no live rubber-band."),
@@ -377,13 +380,15 @@ GROUPS = [
          "has", "layout groups: row / column / grid, align."),
         ("AI-36", "Artboards",
          "Multiple artboards — “similar to pages in InDesign”.", "25·423",
-         "part", "multi-page flow doc (TOC, bibliography); no free spatial canvas."),
+         "invert", "REFRAMED: pages are the artboards — per-page canvas + "
+         "render targets replace the free spatial canvas by design."),
         ("AI-37", "Perspective grid",
          "Draw & place objects on a simulated perspective grid.", "24·762",
          "none", "no perspective grid (flat page space)."),
         ("AI-50", "Guides, rulers & snap",
          "Rulers, guides and Snap-to-Grid align artwork by eye.", "26·572",
-         "part", "grid_pattern + exact coordinates; no interactive guides / snap."),
+         "invert", "REFRAMED: coordinates are exact by construction — "
+         "canon.content_box grids + workspace snap."),
     ]),
     ("G · IMAGE · 3D · OUTPUT", "output", [
         ("AI-38", "Embed / link raster",
@@ -394,7 +399,8 @@ GROUPS = [
          "invert", "REFRAMED: same raster→vector via the vectorize_image tool call."),
         ("AI-40", "3D & Materials",
          "Effect > 3D: extrude, bevel, revolve with materials.", "24·767",
-         "part", "Scene3D + Material + Camera scene — not vector extrusion."),
+         "part", "Scene3D extrude / revolve + Material + Camera, projected "
+         "to 2D vector faces; no bevel."),
         ("AI-41", "Export formats",
          "EPS, PSD, TIFF, GIF, JPEG, SWF, SVG, DWG/DXF, PDF.", "25·20",
          "part", "SVG / PNG / PDF / LaTeX (6 renderers); no PSD / EPS / DWG."),
@@ -432,19 +438,19 @@ GROUPS = [
 # model precludes it), maturity (plausible, not yet built).
 META = {
     "AI-01": {"conf": "H", "dim": "D", "why": "Naming replaces pointing; no cursor selection exists."},
-    "AI-02": {"conf": "M", "dim": "W", "why": "Points are authored as coordinates, not hand-dragged."},
-    "AI-03": {"conf": "M", "dim": "D", "why": "Structural nesting only; no interactive in-place isolation."},
+    "AI-02": {"conf": "H", "dim": "W", "why": "Dragging a point becomes restating its coordinate — MCP workspace pin/nudge/snap + construct_vectors edit anchors by tool call."},
+    "AI-03": {"conf": "H", "dim": "W", "why": "Isolation guards against stray cursor edits; naming a nested id edits exactly one node, so the hazard has no declarative analogue."},
     "AI-04": {"conf": "M", "dim": "W", "why": "even-odd holes yes; live Pathfinder booleans no."},
     "AI-05": {"conf": "H", "dim": "F", "gap": "arch", "why": "No interactive boolean shape building."},
     "AI-06": {"conf": "H", "dim": "F", "gap": "arch", "why": "No interactive path cutting."},
-    "AI-08": {"conf": "M", "dim": "W", "why": "Bézier by coordinate, not by-hand handle dragging."},
+    "AI-08": {"conf": "H", "dim": "W", "why": "Handle-dragging becomes typed coordinates; the assistive half is the construct_vectors tool + the coach construction loop."},
     "AI-09": {"conf": "M", "dim": "W", "why": "curve/parametric_curve; no live rubber-band."},
     "AI-10": {"conf": "H", "dim": "F", "gap": "non_goal", "why": "Freehand pointer input is out of scope."},
     "AI-12": {"conf": "H", "dim": "F", "gap": "arch", "why": "Stroke width is uniform; no width profile."},
     "AI-15": {"conf": "H", "dim": "F", "why": "RGB/hex only; no CMYK or separations."},
     "AI-16": {"conf": "M", "dim": "W", "why": "Declarative palette/gradient_map remap, not a Recolor dialog."},
     "AI-17": {"conf": "M", "dim": "W", "why": "region toolkit places/grades regions declaratively; no interactive bounded-region painting."},
-    "AI-36": {"conf": "M", "dim": "D", "why": "Document pages, not Illustrator's free spatial canvas / per-artboard export regions."},
+    "AI-36": {"conf": "H", "dim": "D", "why": "Paged document model by design; per-page canvas + document render targets replace per-artboard export regions."},
     "AI-22": {"conf": "M", "dim": "F", "why": "Flow auto-pagination continues overset; no interactive linked-frame semantics."},
     "AI-18": {"conf": "M", "dim": "W", "why": "Harmony/contrast tools overlap Color Guide, not a 1:1 workflow."},
     "AI-23": {"conf": "H", "dim": "F", "gap": "non_goal", "why": "Text-on-path is an explicit scope limit."},
@@ -457,7 +463,7 @@ META = {
     "AI-32": {"conf": "M", "dim": "F", "why": "One style per object; no appearance stack."},
     "AI-37": {"conf": "H", "dim": "F", "gap": "non_goal", "why": "Flat page space; no perspective grid."},
     "AI-39": {"conf": "H", "dim": "F", "why": "Same raster→vector outcome, via a tool call not a menu."},
-    "AI-40": {"conf": "M", "dim": "D", "why": "Scene3D is a 3D scene, not vector extrude/bevel."},
+    "AI-40": {"conf": "H", "dim": "F", "why": "Scene3D.extrude / .revolve + Material are real and project to 2D vector faces; bevel is the missing quarter of the Illustrator bundle."},
     "AI-41": {"conf": "M", "dim": "F", "why": "SVG/PNG/PDF/LaTeX only; no PSD/EPS/DWG; renderers non-conformant."},
     "AI-42": {"conf": "H", "dim": "F", "gap": "non_goal", "why": "No asset-collection packaging step."},
     "AI-43": {"conf": "L", "dim": "W", "why": "No natural-language→vector path; nearest analogue is authoring by SDK code (run_sdk_code) or an image-input propose — a loose reframe, flagged."},
@@ -467,7 +473,7 @@ META = {
     "AI-47": {"conf": "H", "dim": "F", "gap": "maturity", "why": "No offset-path op — a deterministic geometry the model could express; unbuilt."},
     "AI-48": {"conf": "H", "dim": "F", "gap": "maturity", "why": "No stroke→outline conversion — derivable geometry, not paradigm-precluded; unbuilt."},
     "AI-49": {"conf": "H", "dim": "F", "gap": "maturity", "why": "No brush engine — a brush-along-path is declarable in principle; unbuilt (hatch/pattern are the nearest static fills)."},
-    "AI-50": {"conf": "M", "dim": "W", "why": "Coordinates are exact by construction; a grid_pattern draws lines, but there is no interactive guide/snap UI."},
+    "AI-50": {"conf": "H", "dim": "W", "why": "Guides exist to make cursor input precise; declarative input is precise by construction — canon.content_box layout grids, grid_pattern, workspace snap."},
     "AI-51": {"conf": "M", "dim": "W", "why": "Both plot data as charts; FG charts are declarative & data-bound, IL graphs are static objects you restyle."},
 }
 DIM_DEFAULT = {"has": "F", "part": "F", "none": "F", "invert": "W"}
@@ -763,7 +769,7 @@ def build():
            "AI-01  Illustrator SELECTS an object with the pointer   →   "
            "FrameGraph NAMES it by id.", style="folio", color="sub", align="start")
     p.text([M + 44, ry + 100, CW - 88, 12],
-           "AI-40  Illustrator TRACES a raster from a menu   →   "
+           "AI-39  Illustrator TRACES a raster from a menu   →   "
            "FrameGraph calls the vectorize_image tool.", style="folio",
            color="sub", align="start")
 
@@ -903,10 +909,10 @@ def build():
          "Gradient panel → set stops → drag.",
          "page.rect([40, 40, 300, 80], fill=linear_gradient(\n    stops=[(0, "
          "\"#0f7d88\"), (1, \"#f5f7f9\")], angle=0))"),
-        ("AI-02 · PARTIAL ·M", "part", "Edit an anchor point",
+        ("AI-02 · REFRAMED ·H", "invert", "Edit an anchor point",
          "Direct Selection → drag a point by hand.",
-         "# authored by coordinate, not dragged\npage.path([[40,40],[120,20],"
-         "[200,60]])\n# to 'edit' AI-02: change the numbers"),
+         "# no drag — restate the coordinate\npage.path([[40,40],[120,20],"
+         "[200,60]])\n# or nudge a pinned point by tool call"),
         ("AI-28 · NONE (arch)", "none", "Gradient mesh",
          "Mesh Tool → add colour points → blend.",
          "# no mesh primitive in the model —\n# nearest: a linear/radial "

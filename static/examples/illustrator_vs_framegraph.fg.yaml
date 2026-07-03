@@ -565,39 +565,39 @@ pages:
     - box:
       - 243.2156862745098
       - 300
-      - 227.33333333333334
+      - 160.47058823529412
       - 34
       type: rect
       fill: part
     - box:
       - 249.2156862745098
       - 311
-      - 219.33333333333334
+      - 152.47058823529412
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '17'
+      text: '12'
     - box:
-      - 470.54901960784315
+      - 403.6862745098039
       - 300
-      - 53.490196078431374
+      - 120.3529411764706
       - 34
       type: rect
       fill: invert
     - box:
-      - 476.54901960784315
+      - 409.6862745098039
       - 311
-      - 45.490196078431374
+      - 112.3529411764706
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '4'
+      text: '9'
     - box:
       - 524.0392156862745
       - 300
@@ -649,7 +649,7 @@ pages:
         class: folio
         align: start
       type: text
-      text: PARTIAL · 17
+      text: PARTIAL · 12
     - box:
       - 356
       - 348
@@ -666,7 +666,7 @@ pages:
         class: folio
         align: start
       type: text
-      text: REFRAMED · 4
+      text: REFRAMED · 9
     - box:
       - 506
       - 348
@@ -765,7 +765,7 @@ pages:
       - 30
       style: big
       type: text
-      text: 61%
+      text: 51%
     - box:
       - 404.0
       - 452
@@ -814,7 +814,7 @@ pages:
         align: start
         color: faint
       type: text
-      text: coverage 61% = (HAS+PARTIAL)/51   ·   reachability 69% = +REFRAMED   ·   16
+      text: coverage 51% = (HAS+PARTIAL)/51   ·   reachability 69% = +REFRAMED   ·   16
         NONE = 7 architectural + 3 maturity + 6 non-goal   ·   unweighted (subtotals
         are descriptive) → p.03
     - box:
@@ -971,7 +971,7 @@ pages:
         align: start
         color: sub
       type: text
-      text: AI-40  Illustrator TRACES a raster from a menu   →   FrameGraph calls
+      text: AI-39  Illustrator TRACES a raster from a menu   →   FrameGraph calls
         the vectorize_image tool.
 - mode: page
   id: rubric
@@ -1387,7 +1387,7 @@ pages:
         class: cite
         color: sub
       type: text
-      text: (has+part)/total = 31/51  (REFRAMED & NONE excluded)
+      text: (has+part)/total = 26/51  (REFRAMED & NONE excluded)
     - box:
       - 56
       - 494
@@ -1511,7 +1511,7 @@ pages:
         align: start
         color: sub
       type: text
-      text: v2.3.0 · 278 caps
+      text: v2.3.0 · 281 caps
     - box:
       - 407.0
       - 570
@@ -1530,7 +1530,7 @@ pages:
         align: start
         color: sub
       type: text
-      text: 51b966f9c609ff1e9138…
+      text: 294a67ae4521cc7be339…
     - box:
       - 407.0
       - 590
@@ -1549,7 +1549,7 @@ pages:
         align: start
         color: sub
       type: text
-      text: frameforge @964e3b4a6a (dirty)
+      text: frameforge @edca70b69d (dirty)
     - box:
       - 407.0
       - 610
@@ -1870,30 +1870,18 @@ pages:
       style: ord
       type: text
       text: '[25·198]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 278.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 270
-      - 9
-      - 16
-      type: rect
-      fill: band
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 278.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
+    - type: polyline
+      points:
+      - - 436.0
+        - 270.0
+      - - 444.0
+        - 278.0
+      - - 436.0
+        - 286.0
+      - - 428.0
+        - 278.0
+      closed: true
+      fill: invert
     - box:
       - 448
       - 292
@@ -1901,9 +1889,9 @@ pages:
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: invertlbl
       type: text
-      text: PARTIAL ·M ·W
+      text: REFRAMED ·H ·W
     - box:
       - 504
       - 266
@@ -1911,7 +1899,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: path / bezier / curve points authored as coordinates.
+      text: 'REFRAMED: anchors edit by restating coordinates — workspace pin/nudge/snap
+        + construct_vectors.'
     - box:
       - 56
       - 320
@@ -1951,30 +1940,18 @@ pages:
       style: ord
       type: text
       text: '[25·281]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 340.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 332
-      - 9
-      - 16
-      type: rect
-      fill: bg
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 340.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
+    - type: polyline
+      points:
+      - - 436.0
+        - 332.0
+      - - 444.0
+        - 340.0
+      - - 436.0
+        - 348.0
+      - - 428.0
+        - 340.0
+      closed: true
+      fill: invert
     - box:
       - 448
       - 354
@@ -1982,9 +1959,9 @@ pages:
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: invertlbl
       type: text
-      text: PARTIAL ·M ·D
+      text: REFRAMED ·H ·W
     - box:
       - 504
       - 328
@@ -1992,7 +1969,7 @@ pages:
       - 44
       style: fgev
       type: text
-      text: structural nesting (group + layers) — no in-place isolated edit.
+      text: 'REFRAMED: name the nested id — direct addressing needs no isolation state.'
     - box:
       - 56
       - 382
@@ -2653,30 +2630,18 @@ pages:
       style: ord
       type: text
       text: '[24·612]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 278.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 270
-      - 9
-      - 16
-      type: rect
-      fill: band
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 278.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
+    - type: polyline
+      points:
+      - - 436.0
+        - 270.0
+      - - 444.0
+        - 278.0
+      - - 436.0
+        - 286.0
+      - - 428.0
+        - 278.0
+      closed: true
+      fill: invert
     - box:
       - 448
       - 292
@@ -2684,9 +2649,9 @@ pages:
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: invertlbl
       type: text
-      text: PARTIAL ·M ·W
+      text: REFRAMED ·H ·W
     - box:
       - 504
       - 266
@@ -2694,7 +2659,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: bezier / Path / CubicBezier objects, authored by coordinate.
+      text: 'REFRAMED: coordinates are the pen — bezier / Path / CubicBezier; construct_vectors
+        + coach assist.'
     - box:
       - 56
       - 320
@@ -5426,30 +5392,18 @@ pages:
       style: ord
       type: text
       text: '[25·423]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 402.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 394
-      - 9
-      - 16
-      type: rect
-      fill: band
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 402.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
+    - type: polyline
+      points:
+      - - 436.0
+        - 394.0
+      - - 444.0
+        - 402.0
+      - - 436.0
+        - 410.0
+      - - 428.0
+        - 402.0
+      closed: true
+      fill: invert
     - box:
       - 448
       - 416
@@ -5457,9 +5411,9 @@ pages:
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: invertlbl
       type: text
-      text: PARTIAL ·M ·D
+      text: REFRAMED ·H ·D
     - box:
       - 504
       - 390
@@ -5467,7 +5421,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: multi-page flow doc (TOC, bibliography); no free spatial canvas.
+      text: 'REFRAMED: pages are the artboards — per-page canvas + render targets
+        replace the free spatial canvas by design.'
     - box:
       - 56
       - 444
@@ -5592,30 +5547,18 @@ pages:
       style: ord
       type: text
       text: '[26·572]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 526.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 518
-      - 9
-      - 16
-      type: rect
-      fill: band
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 526.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
+    - type: polyline
+      points:
+      - - 436.0
+        - 518.0
+      - - 444.0
+        - 526.0
+      - - 436.0
+        - 534.0
+      - - 428.0
+        - 526.0
+      closed: true
+      fill: invert
     - box:
       - 448
       - 540
@@ -5623,9 +5566,9 @@ pages:
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: invertlbl
       type: text
-      text: PARTIAL ·M ·W
+      text: REFRAMED ·H ·W
     - box:
       - 504
       - 514
@@ -5633,7 +5576,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: grid_pattern + exact coordinates; no interactive guides / snap.
+      text: 'REFRAMED: coordinates are exact by construction — canon.content_box grids
+        + workspace snap.'
     - box:
       - 56
       - 568
@@ -5900,7 +5844,7 @@ pages:
         class: covlbl
         color: partlbl
       type: text
-      text: PARTIAL ·M ·D
+      text: PARTIAL ·H ·F
     - box:
       - 504
       - 766
@@ -5908,7 +5852,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: Scene3D + Material + Camera scene — not vector extrusion.
+      text: Scene3D extrude / revolve + Material + Camera, projected to 2D vector
+        faces; no bevel.
     - box:
       - 56
       - 820
@@ -6969,7 +6914,7 @@ pages:
       - 4
       - 118
       type: rect
-      fill: partlbl
+      fill: invertlbl
     - box:
       - 74
       - 638
@@ -6977,9 +6922,9 @@ pages:
       - 12
       style:
         class: gid
-        color: partlbl
+        color: invertlbl
       type: text
-      text: AI-02 · PARTIAL ·M
+      text: AI-02 · REFRAMED ·H
     - box:
       - 74
       - 656
@@ -7026,7 +6971,7 @@ pages:
         align: start
         color: ink
       type: text
-      text: '# authored by coordinate, not dragged'
+      text: '# no drag — restate the coordinate'
     - box:
       - 395.0
       - 709
@@ -7048,7 +6993,7 @@ pages:
         align: start
         color: ink
       type: text
-      text: '# to ''edit'' AI-02: change the numbers'
+      text: '# or nudge a pinned point by tool call'
     - box:
       - 56
       - 752
@@ -7613,10 +7558,10 @@ pages:
       style: lead
       type: text
       text: 'Across 51 Illustrator capabilities from three manuals, FrameGraph has
-        a full equivalent for 14 and a partial one for 17. The 16 genuine gaps cluster
+        a full equivalent for 14 and a partial one for 12. The 16 genuine gaps cluster
         where Illustrator is a painting instrument — gradient mesh, freeform gradient,
         blends, the Pencil, variable-width strokes, perspective, envelope distort,
-        mockup. The 4 REFRAMED rows are the most telling: selection, image trace,
+        mockup. The 9 REFRAMED rows are the most telling: selection, image trace,
         and the new 2024 generative-AI features exist in both — but FrameGraph reaches
         them by naming, a tool call, and an author→render loop, not a cursor.'
     - box:
@@ -7739,8 +7684,8 @@ pages:
         align: start
         color: faint
       type: text
-      text: VERSION · code frameforge@964e3b4a6a+dirty · manifest 51b966f9c609 (v2.3.0)
-        · corpus doc-ray [24 586533f6][25 56d6727a][26 649e47a5] · built 2026-07-02
+      text: VERSION · code frameforge@edca70b69d+dirty · manifest 294a67ae4521 (v2.3.0)
+        · corpus doc-ray [24 586533f6][25 56d6727a][26 649e47a5] · built 2026-07-03
     - box:
       - 56
       - 760
