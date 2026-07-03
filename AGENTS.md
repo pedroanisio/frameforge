@@ -76,10 +76,10 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 
 | Script | Invocation / notes |
 |---|---|
-| `validate.py` | `validate.py doc.fg.yaml [...] [--strict] [--quiet]` — exit 0 no errors, 1 errors, 2 load failure. Codes: [docs/error-codes.md](docs/error-codes.md) |
+| `validate.py` | `validate.py doc.fg.yaml [...] [--strict] [--text-fit] [--quiet]` — exit 0 no errors, 1 errors, 2 load failure. Codes: [docs/error-codes.md](docs/error-codes.md) |
 | `codemod.py` | `codemod.py doc.fg.json --in-place [--normalize-aliases] [--bump]` — migrate legacy docs to HEAD |
-| `framegraph_render.py` | `framegraph_render.py doc.fg.yaml [--to svg\|png\|pdf\|tex\|...] [--out DIR]` — the render **front door** for the virtual project: self-bootstrapping (no PYTHONPATH), delegates to `framegraph.cli` (`--list` shows live targets) |
-| `render_fixtures.py` | `[paths|--all] [--out DIR] [--max-pages N] [--check-overflow] [--real-metrics] [--list]` — dependency-free SVG proxy |
+| `framegraph_render.py` | `framegraph_render.py doc.fg.yaml [--to svg|png|pdf|tex|...] [--out DIR]` — the render **front door** for the virtual project: self-bootstrapping (no PYTHONPATH), delegates to `framegraph.cli` (`--list` shows live targets) |
+| `render_fixtures.py` | `[paths|--all] [--out DIR] [--max-pages N] [--check-overflow] [--strict-content] [--real-metrics] [--list]` — dependency-free SVG proxy; `--check-overflow` names every content-losing text object, `--strict-content` fails on silent loss |
 | `render_chromium.py` | SVG→PNG raster via Playwright Chromium (`--group browser`) |
 | `render_pdf.py` | `[paths|--all|--single FILE] [--out DIR] [--real-metrics]` — SVG pages → one vector PDF (`--group pdfout`) |
 | `render_latex.py` | `--all` — FrameGraph → LaTeX/TikZ (+ PDF when lualatex exists) |

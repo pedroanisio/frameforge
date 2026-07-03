@@ -163,10 +163,19 @@ def _validate_and_render_yaml(
             for k in ("total", "wrapped", "shrunk", "clipped", "contained")
         }
         if text_fit["clipped"]:
+            # Name the losses (issue #44): the per-object records ride on
+            # result["diagnostics"]["truncations"]; the warning quotes the
+            # first silent ids so an authoring agent cannot miss them.
+            records = (render_diagnostics or {}).get("truncations") or []
+            silent = [r for r in records if not r.get("acknowledged")]
+            named = ", ".join(f"#{r.get('id') or '<anonymous>'} (p[{r.get('page')}])"
+                              for r in silent[:3])
+            more = f" and {len(silent) - 3} more" if len(silent) > 3 else ""
             note = (
-                f"{text_fit['clipped']} text object(s) were clipped to their box — verify "
-                "nothing important was truncated (some clips are intentional "
-                "ellipsis/line-clamp)"
+                f"{text_fit['clipped']} text object(s) were clipped to their box"
+                + (f" — {len(silent)} SILENTLY, losing content: {named}{more}; "
+                   "see diagnostics.truncations" if silent
+                   else " (all explicitly authored via overflow/ellipsis/max_lines)")
             )
             render_warning = f"{render_warning}; {note}" if render_warning else note
 

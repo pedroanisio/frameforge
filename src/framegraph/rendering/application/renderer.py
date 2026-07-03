@@ -97,9 +97,15 @@ class Renderer:
         #                      by `font_report()` (fc-match; empty until called).
         # `layout`           — opt-in (`layout_report=True`): per-object final
         #                      boxes + fitted font sizes, keyed by object id.
+        # `truncations`       — every text object that LOST content to the
+        #                      containment net: id/page/box, lines kept+dropped,
+        #                      the head of the dropped text, and whether the
+        #                      clip was explicitly authored (`acknowledged`) or
+        #                      the silent containment default (issue #44).
         self.layout_report = bool(layout_report)
         self.diagnostics = {"warnings": [], "skipped_objects": [],
-                            "skipped_flowables": {}, "font_fallbacks": [], "layout": []}
+                            "skipped_flowables": {}, "font_fallbacks": [],
+                            "layout": [], "truncations": []}
         # headings placed by the LAST flow page render: {level, text, id, page}
         # (page is 1-based within that flow). Read by the PDF outline builder.
         self.flow_headings = []
@@ -364,10 +370,12 @@ class Renderer:
                 self.tstats["shrunk"] += 1
 
         clipped = False
+        dropped_lines: list[str] = []
         # clamp number of lines to box height (non-visible policies) and/or max_lines
         caps = [n for n in (max_lines, (int(h // (size * lh)) if (h > 0 and contained_policy) else None)) if n]
         cap = min(caps) if caps else None
         if cap is not None and len(lines) > max(1, cap):
+            dropped_lines = lines[max(1, cap):]
             lines = lines[: max(1, cap)]
             clipped = True
             if text_ovf == "ellipsis":
@@ -437,6 +445,28 @@ class Renderer:
             if clipped or not fits:                  # clip only when something exceeds the box
                 self.tstats["clipped"] += 1
                 el = self._painter.clip_wrap(el, self._painter.clip_rect(x, y, w, h))
+                # Name the loss (issue #44): an aggregate count is not a
+                # diagnostic. Records cover MATERIAL loss only — dropped lines,
+                # a glyph run cut beyond rounding tolerance, or more than half a
+                # line clipped vertically. A sub-pixel descender trim keeps the
+                # clip-path (and the aggregate count) but is not content loss.
+                # `acknowledged` = the author explicitly chose a containment
+                # behaviour; the bare default is a silent clip.
+                kind = "lines" if dropped_lines else None
+                if kind is None and widest > w + 2:
+                    kind = "width"
+                elif kind is None and len(lines) * size * lh > h + max(2.0, size * lh * 0.5):
+                    kind = "height"
+                if kind is not None:
+                    acknowledged = bool(st["overflow"] or self.contract.get("overflow")
+                                        or text_ovf or max_lines)
+                    head = " ".join(dropped_lines)[:80]
+                    self.diagnostics["truncations"].append({
+                        "id": oid, "page": getattr(self, "_current_page_id", None),
+                        "kind": kind, "box": [x, y, w, h],
+                        "lines_kept": len(lines), "lines_dropped": len(dropped_lines),
+                        "dropped_text": head, "acknowledged": acknowledged,
+                    })
             else:
                 self.tstats["contained"] += 1
         elif fits:
@@ -1375,6 +1405,7 @@ class Renderer:
         self._painter.new_page()
         self._global_page += 1                # this producer's first leaf page
         self.flow_headings = []
+        self._current_page_id = page.get("id")
         self.contract = {**self.doc_contract, **((page.get("rendering") or {}).get("text") or {})}
         w, h = self.canvas_wh(page)
         if page.get("mode") == "flow":

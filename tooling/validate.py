@@ -688,7 +688,39 @@ def _geometric_audit(doc, findings):
 
 
 # --------------------------------------------------------------------------- #
-def validate_doc(path, strict=False):
+def text_fit_checks(doc, base_dir, findings):
+    """Opt-in (--text-fit): run the SVG proxy's text-fitting pass and surface
+    every content-losing text object as an advisory `text-truncated` WARN —
+    the validate-side face of issue #44. Rendering stays out of the default
+    structural pass; this imports the renderer lazily and discards the SVG.
+    """
+    # validate binds `framegraph` to the MODEL module; the renderer needs the
+    # PACKAGE. Swap for the import, restore after (the sync-gates' shadow dance,
+    # inverted). Lazy so the default structural pass stays render-free.
+    shadow = sys.modules.get("framegraph")
+    if shadow is not None and not hasattr(shadow, "__path__"):
+        del sys.modules["framegraph"]
+    try:
+        from render_fixtures import Renderer
+        r = Renderer(doc, base_dir)
+        for page in doc.get("pages", []):
+            if isinstance(page, dict):
+                r.render_page(page)
+    finally:
+        if shadow is not None:
+            sys.modules["framegraph"] = shadow
+    for rec in (r.diagnostics or {}).get("truncations") or []:
+        tag = "acknowledged clip" if rec.get("acknowledged") else "SILENT content loss"
+        what = (f"dropped {rec.get('lines_dropped', 0)} line(s): "
+                f"\u201c{rec.get('dropped_text', '')}\u2026\u201d"
+                if rec.get("kind") == "lines" else f"clipped ({rec.get('kind')})")
+        findings.append(Finding(
+            "WARN", "text-truncated",
+            f"{tag} on text #{rec.get('id') or '<anonymous>'}: {what} (§3.7)",
+            f"pages[{rec.get('page')}]"))
+
+
+def validate_doc(path, strict=False, text_fit=False):
     try:
         doc = _load(path)
     except Exception as exc:  # noqa: BLE001
@@ -696,6 +728,8 @@ def validate_doc(path, strict=False):
     findings: list[Finding] = []
     structural(doc, findings)
     rule_checks(doc, findings)
+    if text_fit:
+        text_fit_checks(doc, os.path.dirname(os.path.abspath(path)), findings)
     if strict:
         for f in findings:
             if f.severity == "WARN":
@@ -708,12 +742,15 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("documents", nargs="+")
     ap.add_argument("--strict", action="store_true", help="treat warnings as errors")
+    ap.add_argument("--text-fit", action="store_true",
+                    help="also run the text-fitting pass and WARN per content-losing "
+                         "text object (`text-truncated`, issue #44)")
     ap.add_argument("--quiet", action="store_true", help="only print summary lines")
     args = ap.parse_args(argv)
 
     rc = 0
     for path in args.documents:
-        _, findings, code = validate_doc(path, strict=args.strict)
+        _, findings, code = validate_doc(path, strict=args.strict, text_fit=args.text_fit)
         rc = max(rc, code)
         e = sum(1 for f in findings if f.severity == "ERROR")
         w = sum(1 for f in findings if f.severity == "WARN")
