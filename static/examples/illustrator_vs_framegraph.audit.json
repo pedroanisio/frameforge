@@ -5,17 +5,17 @@
     "generated_at": "2026-07-03",
     "source_code": {
       "repo": "frameforge",
-      "git_commit": "26f2bbdcc93cdb6ea0e91f2f057229497d765cba",
-      "git_short": "26f2bbdcc9",
-      "git_branch": "feat/48-style-colour-richness",
+      "git_commit": "74586a6d9b988cca40e86a51a56dcecd25c2fc62",
+      "git_short": "74586a6d9b",
+      "git_branch": "feat/45-planar-geometry-kernel",
       "git_dirty": true,
       "builder": "static/examples/illustrator_vs_framegraph.py"
     },
     "framegraph_manifest": {
       "manifest_path": "docs/capability-manifest.json",
-      "manifest_sha256": "298f8c146a2069287bb1eeb178246f79f9b9d30bff6e3c84a63c49d6c3ccec0b",
-      "framegraph_version": "2.3.0",
-      "manifest_capabilities": 286
+      "manifest_sha256": "b0b12b8c3704e6a9b0eb42f0a1bfd96dc1ceb9e6629bfd42071ebc5d7cf87074",
+      "framegraph_version": "2.4.0",
+      "manifest_capabilities": 287
     },
     "external_corpus": [
       {
@@ -43,9 +43,9 @@
   },
   "framegraph": {
     "manifest_path": "docs/capability-manifest.json",
-    "manifest_sha256": "298f8c146a2069287bb1eeb178246f79f9b9d30bff6e3c84a63c49d6c3ccec0b",
-    "framegraph_version": "2.3.0",
-    "manifest_capabilities": 286
+    "manifest_sha256": "b0b12b8c3704e6a9b0eb42f0a1bfd96dc1ceb9e6629bfd42071ebc5d7cf87074",
+    "framegraph_version": "2.4.0",
+    "manifest_capabilities": 287
   },
   "sources": {
     "24": {
@@ -80,26 +80,26 @@
   "score": {
     "total_features": 51,
     "counts": {
-      "has": 21,
-      "part": 7,
-      "invert": 10,
-      "none": 13
+      "has": 25,
+      "part": 5,
+      "invert": 11,
+      "none": 10
     },
     "gap_breakdown": {
       "declared_non_goal": 6,
-      "architectural": 6,
-      "maturity_unbuilt": 1,
-      "true_gap": 7
+      "architectural": 4,
+      "maturity_unbuilt": 0,
+      "true_gap": 4
     },
     "scores": {
-      "full_equivalent_pct": 41.2,
-      "full_or_partial_pct": 54.9,
-      "any_route_pct": 74.5
+      "full_equivalent_pct": 49.0,
+      "full_or_partial_pct": 58.8,
+      "any_route_pct": 80.4
     },
     "score_formulas": {
-      "full_equivalent": "has/total = 21/51",
-      "full_or_partial": "(has+part)/total = 28/51  (REFRAMED & NONE excluded)",
-      "any_route": "(has+part+reframed)/total = 38/51  (REFRAMED counted as reachable)"
+      "full_equivalent": "has/total = 25/51",
+      "full_or_partial": "(has+part)/total = 30/51  (REFRAMED & NONE excluded)",
+      "any_route": "(has+part+reframed)/total = 41/51  (REFRAMED counted as reachable)"
     }
   },
   "category_subtotals": [
@@ -107,10 +107,10 @@
       "group": "A · SELECT & EDIT PATHS",
       "n": 8,
       "counts": {
-        "has": 1,
-        "part": 1,
-        "invert": 3,
-        "none": 3
+        "has": 4,
+        "part": 0,
+        "invert": 4,
+        "none": 0
       }
     },
     {
@@ -127,8 +127,8 @@
       "group": "C · COLOUR SYSTEM",
       "n": 7,
       "counts": {
-        "has": 5,
-        "part": 2,
+        "has": 6,
+        "part": 1,
         "invert": 0,
         "none": 0
       }
@@ -259,16 +259,14 @@
         "title": "Adobe Illustrator 2024 User's Guide",
         "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "path fill_rule even-odd + holes; no live Pathfinder ops.",
-      "framegraph_manifest_refs": [
-        "path"
-      ],
-      "confidence": "M",
-      "equivalence_dimension": "W",
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "planar.union / intersect / subtract / divide — booleans emitted as even-odd paths (holes native).",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
       "gap_type": null,
-      "rationale": "even-odd holes yes; live Pathfinder booleans no."
+      "rationale": "Pathfinder booleans landed (W1): planar.union/intersect/subtract/divide on flattened rings, Greiner-Hormann with deterministic degeneracy handling."
     },
     {
       "id": "AI-05",
@@ -281,14 +279,14 @@
         "title": "Adobe Illustrator 2024 User's Guide",
         "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
       },
-      "verdict": "none",
-      "verdict_label": "NONE",
-      "framegraph_coverage": "no boolean / interactive shape merge.",
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: the drag-merge gesture is planar.union / subtract by declaration.",
       "framegraph_manifest_refs": [],
       "confidence": "H",
-      "equivalence_dimension": "F",
-      "gap_type": "arch",
-      "rationale": "No interactive boolean shape building."
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "The interactive drag becomes a declared boolean (W1) — same merge outcome, tool call instead of gesture."
     },
     {
       "id": "AI-06",
@@ -301,16 +299,14 @@
         "title": "Master Adobe Illustrator 2025",
         "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
       },
-      "verdict": "none",
-      "verdict_label": "NONE",
-      "framegraph_coverage": "no interactive path surgery.",
-      "framegraph_manifest_refs": [
-        "path"
-      ],
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "planar.split_at(t) (arc-length scissors) + cut_along (knife via half-plane booleans).",
+      "framegraph_manifest_refs": [],
       "confidence": "H",
       "equivalence_dimension": "F",
-      "gap_type": "arch",
-      "rationale": "No interactive path cutting."
+      "gap_type": null,
+      "rationale": "Path surgery landed (W1): split_at by arc length, cut_along as half-plane booleans."
     },
     {
       "id": "AI-47",
@@ -323,16 +319,16 @@
         "title": "BMG 106: Computer Graphics Part II — Adobe Illustrator",
         "document_id": "649e47a5-cbf2-4d92-b7ab-f4d710d6351a"
       },
-      "verdict": "none",
-      "verdict_label": "NONE",
-      "framegraph_coverage": "no offset-path operation.",
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "planar.offset_polygon (closed, miter, collapse-aware) + stroke_outline for open paths.",
       "framegraph_manifest_refs": [
-        "path"
+        "stroke_outline"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
-      "gap_type": "maturity",
-      "rationale": "No offset-path op — a deterministic geometry the model could express; unbuilt."
+      "gap_type": null,
+      "rationale": "Offset landed (W1/W2): offset_polygon closed with miter + collapse detection; stroke_outline covers open paths."
     },
     {
       "id": "AI-48",
@@ -377,8 +373,8 @@
         "polygon",
         "ellipse",
         "circle",
-        "rect",
-        "line"
+        "line",
+        "rect"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -599,7 +595,8 @@
       "verdict_label": "HAS",
       "framegraph_coverage": "recolor() — one-call palette remap: tokens, paint literals, gradient stops; plus gradient_map.",
       "framegraph_manifest_refs": [
-        "gradient_map"
+        "gradient_map",
+        "recolor"
       ],
       "confidence": "H",
       "equivalence_dimension": "W",
@@ -617,18 +614,14 @@
         "title": "Adobe Illustrator 2024 User's Guide",
         "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "region toolkit: select_in / place_region / region_grade.",
-      "framegraph_manifest_refs": [
-        "place_region",
-        "region_grade",
-        "select_in"
-      ],
-      "confidence": "M",
-      "equivalence_dimension": "W",
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "planar.fill_regions — every bounded region of an overlay as its own fillable face (+ the region toolkit).",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
       "gap_type": null,
-      "rationale": "region toolkit places/grades regions declaratively; no interactive bounded-region painting."
+      "rationale": "fill_regions landed (W1): boolean-atom decomposition of a small overlay — every bounded region its own fillable face (authoring scope, ≤8 shapes)."
     },
     {
       "id": "AI-18",
@@ -692,8 +685,8 @@
       "framegraph_manifest_refs": [
         "paragraph",
         "heading",
-        "text",
-        "list"
+        "list",
+        "text"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -757,8 +750,8 @@
       "verdict_label": "NONE",
       "framegraph_coverage": "no text-on-path (explicit scope limit).",
       "framegraph_manifest_refs": [
-        "path",
-        "text"
+        "text",
+        "path"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -804,8 +797,8 @@
       "verdict_label": "NONE",
       "framegraph_coverage": "non-goal — text stays on its baseline grid.",
       "framegraph_manifest_refs": [
-        "grid",
-        "text"
+        "text",
+        "grid"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -827,8 +820,8 @@
       "verdict_label": "HAS",
       "framegraph_coverage": "linear_gradient / radial_gradient paint.",
       "framegraph_manifest_refs": [
-        "radial_gradient",
-        "linear_gradient"
+        "linear_gradient",
+        "radial_gradient"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",

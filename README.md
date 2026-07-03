@@ -95,7 +95,7 @@ uv sync                                    # create/populate .venv
 # schema is generated and in sync
 uv run python docs/schema/build_schema.py --check
 
-# validate the delivered tracked fixtures — 35/35 zero errors in docs/FIXTURE-STATUS.md
+# validate the delivered tracked fixtures — 36/36 zero errors in docs/FIXTURE-STATUS.md
 make validate
 
 # migrate a legacy v2 document to HEAD
@@ -212,7 +212,7 @@ folded into the artifacts above; they are listed only for historical context:
 - Font pinning enables deterministic *layout* only up to a stated rounding **tolerance**
   (a defined shaping model is also required) — not pixel-exact identity (§9.6).
 - The current delivered top-level fixture status is generated in `FIXTURE-STATUS.md`;
-  at this snapshot **35/35** have zero errors. Advisory warnings, when present, are
+  at this snapshot **36/36** have zero errors. Advisory warnings, when present, are
   recorded there instead of summarized by hand here.
 - What FrameGraph can — and deliberately will not — generate is mapped in
   [docs/output-space.md](docs/output-space.md): the backends wired today (whose

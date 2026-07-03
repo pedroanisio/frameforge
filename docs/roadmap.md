@@ -575,15 +575,17 @@ simply unbuilt), or **non-goal** (declared scope choice) — and every M/L row
 carries a confidence tag. The audit is git-stamped (`source_identity()`:
 frameforge commit + a dirty flag, "so the stamp cannot lie").
 
-**Scoreboard at 2.4.0 (post-W6 #50, W2 #46, W4 #48):** 51 features →
-**21 HAS** (41%), **7 PARTIAL**, **10 REFRAMED**, **13 NONE**
-(6 architectural + 1 maturity + 6 non-goals — the remaining maturity row
-is W1's buildable). Full-or-partial **28/51 = 55%**; *reachable by any
-route* (has+partial+reframed) **38/51 = 75%**. W6 corrected the map; W2
-delivered the stroke-outline engine + kerning; W4 delivered the ordered
-`effects` stack and multi-pass `appearance` stack (the 2.4.0 additive
-model fields, outside the deep-core profile) plus `recolor()` and
-`chevreul.color_guide()` — AI-16/18/30/32 all PARTIAL→HAS.
+**Scoreboard at 2.4.0 (post-W6 #50, W2 #46, W4 #48, W1 #45):** 51
+features → **25 HAS** (49%), **5 PARTIAL**, **11 REFRAMED**, **10 NONE**
+(4 architectural + 6 non-goals — the **maturity-gap pool is empty**:
+every plausible-but-unbuilt row in the matrix is now built).
+Full-or-partial **30/51 = 59%**; *reachable by any route*
+(has+partial+reframed) **41/51 = 80%**. W6 corrected the map; W2
+delivered the stroke-outline engine + kerning; W4 the effect/appearance
+stacks (2.4.0) + `recolor()`/`color_guide()`; W1 the planar geometry
+kernel — AI-04/06/17/47 →HAS, AI-05 →REFRAMED. What remains is
+decision-gated (W3 mesh gradients, W5 threading, W7 Retype) or
+architectural/non-goal by design.
 Earlier cuts scored higher (v1: 44 features, one manual, 48% full; v2: 46
 features, 63% full-or-partial) because each revision widened the surface and
 tightened the rubric — the drops are honesty, not regression. The full
@@ -603,7 +605,7 @@ work must not trade these away.
 
 | WS | Workstream | Closes | Effort | Notes |
 |----|-----------|--------|--------|-------|
-| W1 | **Planar geometry kernel** — declarative path booleans (Pathfinder ops), path surgery (split-at / cut-along), **offset path** (outward/inward, Bézier-offset approximation), true Live-Paint region fills | AI-04, AI-05, AI-06, AI-17, AI-47 | M–L | Expansion-tier per §A.0: the SDK computes, the document receives plain `path` objects. Highest leverage: one kernel closes five rows |
+| W1 | **DELIVERED** ([#45](https://github.com/pedroanisio/frameforge/issues/45)) — `sdk.planar`: Greiner–Hormann booleans on flattened rings (deterministic degeneracy perturbation; holes emitted as even-odd multi-ring paths), `offset_polygon` (miter, collapse-aware), `split_at`/`cut_along`, `fill_regions` (boolean-atom Live-Paint decomposition, authoring scope ≤8 shapes). Stdlib-only, pure, deterministic (§A.0). Fixture `planar-kernel.fg.yaml`, runnable `planar_kernel_showcase.py` | AI-04, AI-05, AI-06, AI-17, AI-47 | M–L | AI-04/06/17/47 →HAS, AI-05 →REFRAMED; the maturity-gap pool is now EMPTY |
 | W2 | **DELIVERED** ([#46](https://github.com/pedroanisio/frameforge/issues/46)) — `sdk.outline.stroke_outline` (one filled-outline emitter: constant width, `profile` taper, calligraphic `pen_angle`; caps/joins) + `repeat_along_path` (scatter/pattern stamps) + `kerned_spans`/`font_kern_pairs` + `Path.through()` verified; fixture `stroke-outline.fg.yaml`, runnable `stroke_outline_showcase.py`. Also fixed en route: structured-`d` path segments from a model dump rendered as stringified tuples in all three painters | AI-09, AI-12, AI-24, AI-48, AI-49 | S–L | AI-12/48 NONE→HAS, AI-24 PARTIAL→HAS, AI-49 NONE→PARTIAL, AI-09 PARTIAL→REFRAMED |
 | W3 | **Painterly colour** — freeform gradient + gradient mesh ("the single biggest gap") via expansion-tier subdivision shading (Scene3D Gouraud precedent); **shape/colour blend interpolation** (the Blend tool, declaratively: lerp matched anchors + colour at expansion) | AI-27, AI-28 (L), AI-29 (M) | M–L | Low priority; decision: emulate vs accept as the price of being a grammar |
 | W4 | **DELIVERED** ([#48](https://github.com/pedroanisio/frameforge/issues/48)) — the 2.4.0 additive model fields: ordered `effects` stack (kinds repeat, presets + params, first→last) and multi-pass `appearance` stack (fill/stroke/opacity per pass, bottom→top), both outside the deep-core profile (§8.5); plus `sdk.recolor()` (tokens + literals + gradient stops in one call) and `chevreul.color_guide()` (the six harmonies). Fixture `style-richness.fg.yaml`, runnable `style_richness_showcase.py` | AI-16, AI-18, AI-30, AI-32 | S–M | All four rows PARTIAL→HAS; schema 2.3.0→2.4.0 (additive) |
@@ -1159,10 +1161,10 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-01 | Object selection | REFRAMED | name an object by id and act on it | settled — declaration replaces point-and-click |
 | AI-02 | Anchor-point editing | REFRAMED ·H | anchors edit by restating coordinates — MCP `workspace` pin/nudge/snap + `construct_vectors` | **W6 delivered** (#50): re-verdicted with evidence |
 | AI-03 | Isolation mode | REFRAMED ·H | name the nested id — direct addressing needs no isolation state | **W6 delivered** (#50): re-verdicted with evidence |
-| AI-04 | Compound paths / Pathfinder | PARTIAL ·M | path `fill_rule` even-odd + holes; no live Pathfinder ops | **W1**: declarative boolean ops |
-| AI-05 | Shape Builder | NONE ·H arch | no boolean shape merge | **W1** |
-| AI-06 | Scissors & Knife | NONE ·H arch | no path surgery | **W1**: split-at / cut-along, S once the kernel exists |
-| AI-47 | Offset path | NONE ·H maturity | no offset-path operation — deterministic geometry the model could express; unbuilt | **W1**: Bézier-offset approximation in the kernel, M |
+| AI-04 | Compound paths / Pathfinder | HAS ·H | `planar.union`/`intersect`/`subtract`/`divide` — booleans emitted as even-odd paths, holes native | **W1 delivered** (#45) |
+| AI-05 | Shape Builder | REFRAMED ·H | the drag-merge gesture is `planar.union`/`subtract` by declaration | **W1 delivered** (#45) |
+| AI-06 | Scissors & Knife | HAS ·H | `planar.split_at(t)` (arc-length scissors) + `cut_along` (knife via half-plane booleans) | **W1 delivered** (#45) |
+| AI-47 | Offset path | HAS ·H | `planar.offset_polygon` (closed, miter, collapse-aware) + `stroke_outline` for open paths | **W1 delivered** (#45) |
 | AI-48 | Outline stroke | HAS ·H | `stroke_outline()` — centre-line + width/caps/joins lowers to a closed filled path | **W2 delivered** (#46) |
 
 ## B · Draw & primitives
@@ -1185,7 +1187,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-14 | Global colours | HAS | named tokens are global by construction | settled |
 | AI-15 | CMYK / RGB modes | PARTIAL ·H | RGB/hex only — no CMYK, no separations | stays behind **item 5**'s deferred ICC output-intent hook |
 | AI-16 | Recolor Artwork | HAS ·H | `recolor()` — one-call remap of tokens, paint literals and gradient stops; plus `gradient_map` | **W4 delivered** (#48) |
-| AI-17 | Live Paint | PARTIAL ·M | region toolkit: `select_in` / `place_region` / `region_grade` | **W1**: planar arrangement gives true fill-any-bounded-region |
+| AI-17 | Live Paint | HAS ·H | `planar.fill_regions` — every bounded region of a small overlay as its own fillable face (+ the region toolkit) | **W1 delivered** (#45) |
 | AI-18 | Colour science | HAS ·H | `chevreul.color_guide()` — the six harmonies for any base colour + WCAG contrast tools | **W4 delivered** (#48) |
 | AI-19 | Patterns | HAS | `pattern`, `grid_pattern`, `dots`, `hatch_fill` fills | settled |
 

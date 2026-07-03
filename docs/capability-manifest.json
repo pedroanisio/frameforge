@@ -239,6 +239,7 @@
       "place_figure",
       "place_imported_figure",
       "place_region",
+      "planar",
       "polar_plot",
       "progress",
       "quarter_circle_kappa",
@@ -1920,6 +1921,13 @@
     },
     {
       "name": "place_region",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "planar",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

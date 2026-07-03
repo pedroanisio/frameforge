@@ -4,6 +4,28 @@
 
 ---
 
+## 2.4.0 — parity W1: the planar geometry kernel (2026-07-03, issue #45)
+
+`framegraph.sdk.planar` — one expansion-tier kernel closes five rows, zero
+schema change (§A.0: the SDK computes, documents receive even-odd `path`
+objects): **booleans** `union`/`intersect`/`subtract`/`divide`
+(Greiner–Hormann on flattened rings; degenerate touching/shared-edge inputs
+resolved by a deterministic direction-cycling perturbation that prefers the
+ENGAGED answer; holes emitted natively as multi-ring even-odd paths —
+AI-04 PARTIAL→HAS, AI-05 NONE→REFRAMED), **path surgery** `split_at`
+(arc-length scissors) + `cut_along` (knife via half-plane booleans —
+AI-06 NONE→HAS), **`offset_polygon`** (closed, miter-exact corners,
+collapse detected by edge-direction reversal, not just area sign — a
+double-inverted shrink traces a *positively*-oriented ring — AI-47
+NONE→HAS), and **`fill_regions`** (Live-Paint decomposition as boolean
+atoms, authoring scope ≤8 shapes — AI-17 PARTIAL→HAS). Stdlib-only, pure,
+deterministic. 18 property tests (areas, ring counts, membership, length
+conservation); fixture `planar-kernel.fg.yaml` (corpus 35→36, 0/0)
+pixel-verified — holes punch through, divide partitions, nested offset
+rings, knife halves, region faces each their own colour. Teardown + audit
+regenerated: **25 HAS / 5 PARTIAL / 11 REFRAMED / 10 NONE** (full 49 %,
+reachable 80 %) — **the maturity-gap pool is now empty**.
+
 ## 2.4.0 — parity W4: style & colour richness (2026-07-03, issue #48)
 
 **Schema minor bump 2.3.0 → 2.4.0** — two ADDITIVE model fields on ObjBase,

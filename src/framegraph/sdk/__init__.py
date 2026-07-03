@@ -93,6 +93,7 @@ from framegraph.sdk.macros import (
 )
 from framegraph.sdk.outline import Placement, repeat_along_path, stroke_outline
 from framegraph.sdk.recolor import recolor
+from framegraph.sdk import planar
 from framegraph.sdk.metrics import (font_kern_pairs, kerned_spans,
                                     measure_text, text_height, wrap_text)
 from framegraph.sdk.model import (
@@ -294,6 +295,7 @@ __all__ = [
     "Placement",
     "repeat_along_path",
     "recolor",
+    "planar",
     "stroke_outline",
     "model_module",
     "klein_bottle",

@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 91 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 92 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -66,6 +66,7 @@ The 91 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`output_space_poster.py`](../static/examples/output_space_poster.py) | A styled FrameGraph rendition of docs/output-space.md. |
 | [`pattern_compose_deck.py`](../static/examples/pattern_compose_deck.py) | Pattern compose — filled catalog patterns as rendered deck pages. |
 | [`people_devices_dashboard.py`](../static/examples/people_devices_dashboard.py) | High-fidelity vector recreation of an HR "People / Devices / Security" mobile |
+| [`planar_kernel_showcase.py`](../static/examples/planar_kernel_showcase.py) | Planar geometry kernel — booleans, offset, surgery, regions (issue #45). |
 | [`poc2_drawing_protocol.py`](../static/examples/poc2_drawing_protocol.py) | POC-02 — feasibility experiment for the layered drawing protocol. |
 | [`poc3_ingest_compose.py`](../static/examples/poc3_ingest_compose.py) | POC-03 — ingestion x FrameGraph: a raster becomes a *programmable* asset. |
 | [`poc4_color_and_guide.py`](../static/examples/poc4_color_and_guide.py) | POC-04 — colour & gradient a trace, or use it as a guide to draw on top. |
