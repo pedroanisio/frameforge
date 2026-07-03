@@ -94,7 +94,18 @@ class StyleValues:
         if not value or value == "none":
             return []
         if isinstance(value, str):
-            return [("raw", [value.replace("deg", "")])]
+            raw = ("raw", [value.replace("deg", "")])
+            # A string transform (e.g. humanize's `rotate(...)`) still honours an
+            # explicit transform_origin. Without this the whole string pivots about
+            # the SVG origin (0, 0), so a rotate on centre/point geometry orbits the
+            # object across the page instead of turning it in place.
+            if origin is None:
+                return [raw]
+            ox, oy = self.transform_origin(origin, box)
+            if ox is None:
+                return [raw]
+            return [("raw", [f"translate({fnum(ox)},{fnum(oy)})"]), raw,
+                    ("raw", [f"translate({fnum(-ox)},{fnum(-oy)})"])]
         items = value if isinstance(value, list) else [value]
         ox, oy = self.transform_origin(origin, box)
         ops: list[tuple[str, list[str]]] = []

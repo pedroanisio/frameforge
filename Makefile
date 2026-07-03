@@ -11,7 +11,7 @@ LIVE_HOST ?= 127.0.0.1
 LIVE_PORT ?= 8789
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check docker-build docker-mcp docker-shell docker-fonts
+.PHONY: help sync schema bump bump-check render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check docker-build docker-mcp docker-shell docker-fonts
 
 DOCKER ?= docker
 IMAGE ?= frameforge
@@ -25,6 +25,16 @@ sync:  ## create/refresh the venv from uv.lock
 
 schema:  ## regenerate docs/schema/framegraph-v2.schema.json from the models
 	$(UV) run python docs/schema/build_schema.py
+
+bump:  ## bump the HEAD version at every site + regen derived artifacts (VERSION=X.Y.Z); see RELEASE.md
+	@test -n "$(VERSION)" || { echo "usage: make bump VERSION=X.Y.Z"; exit 2; }
+	$(UV) run python tooling/bump_version.py $(VERSION)
+	$(MAKE) schema manifest examples-index
+	@echo ""
+	@echo "  bumped to $(VERSION). remaining (RELEASE.md): 1) CHANGELOG.md entry  2) make check  3) make docker-build"
+
+bump-check:  ## assert every hand-edited version site agrees (no edit)
+	$(UV) run python tooling/bump_version.py --check
 
 render:  ## render every fixture to out/render/ (+ contact sheet)
 	$(UV) run python tooling/render_fixtures.py --all

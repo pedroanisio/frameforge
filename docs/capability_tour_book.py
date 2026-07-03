@@ -300,46 +300,76 @@ class Tour(Book):
     def cover(self, *, kicker, title, subtitle, author, date, note, epigraph):
         self.new_page(chrome=False, folio=False)
         pg = self.page
-        pg.rect([0, 0, 816, 8], fill=ACCENT)
-        y = 250
-        pg.rect([MX, y, 46, 3.4], fill=ACCENT)
-        pg.text([MX, y + 16, CONTENT_W, 16], kicker,
+        # A composed cover (review FGTOUR-024): masthead identity band, one
+        # focal title, a scope strip drawn from the manifest, and a foot pinned
+        # to the bottom margin — no floating mid-page block, no abstract on the
+        # cover. Light indigos on the dark band; ink on paper below.
+        LAV = "#C7CEE6"          # light indigo, legible on the ACCENT band
+        del note                 # the abstract lives inside §0, not on the cover
+
+        # -- masthead: full-bleed indigo band with the FrameGraph mark -------- #
+        band_h = 150
+        pg.rect([0, 0, 816, band_h], fill=ACCENT)
+        mk = 64
+        mx0 = 816 - MX - mk
+        my0 = (band_h - mk) / 2
+        for inset_px, col in ((0, "#FFFFFF"), (5, ACCENT), (13, "#FFFFFF"),
+                              (18, ACCENT), (25, "#FFFFFF")):
+            s = mk - 2 * inset_px
+            pg.rect([mx0 + inset_px, my0 + inset_px, s, s],
+                    radius=max(1.0, 6 - inset_px * 0.2), fill=col)
+        pg.text([MX, 54, 520, 24], "FRAMEGRAPH",
+                style=ts(18, "#FFFFFF", family=SANS, weight=800, spacing=4.0,
+                         transform="uppercase"))
+        pg.text([MX, 88, 520, 16], "The declarative document format · SDK · MCP",
+                style=ts(9.5, LAV, family=SANS, weight=600, spacing=2.2,
+                         transform="uppercase"))
+
+        # -- title block: one focal statement, controlled two-line break ------ #
+        y = 292
+        pg.rect([MX, y, 46, 3.4], fill=ACCENT_MID)
+        pg.text([MX, y + 14, CONTENT_W, 16], kicker,
                 style=ts(11, ACCENT_MID, family=SANS, weight=800, spacing=3.0,
                          transform="uppercase"))
-        y += 52
-        for ln in sdk.wrap_text(title, width=CONTENT_W, font_family=SANS,
-                                font_size=46, bold=True):
-            pg.text([MX, y, CONTENT_W, 58], ln,
-                    style=ts(46, INK, family=SANS, weight=800, spacing=-1.2))
-            y += 56
-        y += 8
-        for ln in sdk.wrap_text(subtitle, width=(CONTENT_W - 40) * SLACK,
-                                font_family=SERIF, font_size=17):
-            pg.text([MX, y, CONTENT_W - 40, 24], ln,
-                    style=ts(17, MUTE, family=SERIF, style="italic", lh=1.4))
-            y += 25
-        y += 26
-        pg.rect([MX, y, CONTENT_W, 1.0], fill=RULE)
-        y += 16
-        pg.text([MX, y, CONTENT_W, 16], author,
-                style=ts(11.5, INK, family=SANS, weight=700))
-        pg.text([MX, y, CONTENT_W, 16], date,
-                style=ts(11.5, MUTE, family=SANS, align="right"))
-        y += 40
-        for ln in sdk.wrap_text(note, width=CONTENT_W * SLACK,
-                                font_family=SERIF, font_size=11):
-            pg.text([MX, y, CONTENT_W, 16], ln,
-                    style=ts(11, MUTE, family=SERIF, lh=1.5))
-            y += 17
-        # Epigraph, deliberately quieter than the subtitle/provenance above
-        # (review FGTOUR-021): muted ink, smaller size, hairline accent.
-        ey = 896
-        pg.rect([MX, ey, 3, 40], radius=1.5, fill=ACCENT_MID)
-        for ln in sdk.wrap_text(epigraph, width=(CONTENT_W - 30) * SLACK,
-                                font_family=SERIF, font_size=11.5):
-            pg.text([MX + 20, ey, CONTENT_W - 30, 18], ln,
-                    style=ts(11.5, MUTE, family=SERIF, style="italic", lh=1.5))
-            ey += 18
+        y += 48
+        for ln in ("The Complete", "Capability Tour"):
+            pg.text([MX, y, CONTENT_W, 70], ln,
+                    style=ts(56, INK, family=SANS, weight=800, spacing=-1.6))
+            y += 66
+        y += 12
+        for ln in sdk.wrap_text(subtitle, width=(CONTENT_W - 30) * SLACK,
+                                font_family=SERIF, font_size=16):
+            pg.text([MX, y, CONTENT_W - 30, 22], ln,
+                    style=ts(16, MUTE, family=SERIF, style="italic", lh=1.4))
+            y += 24
+
+        # -- scope strip: the format, by the numbers (from the manifest) ------ #
+        stats = [
+            (str(len(MANIFEST["capabilities"])), "capabilities"),
+            (str(len(BY_KIND["sdk_export"])), "SDK exports"),
+            (str(len(BY_KIND["object_type"])), "object types"),
+            (str(len(BY_KIND["flow_type"])), "flowables"),
+            (str(len(BY_KIND["mcp_tool"])), "MCP tools"),
+        ]
+        spy = 792
+        pg.rect([0, spy, 816, 96], fill=PANEL)
+        sw = CONTENT_W / len(stats)
+        for i, (num, lab) in enumerate(stats):
+            sx = MX + i * sw
+            pg.text([sx, spy + 22, sw - 10, 36], num,
+                    style=ts(29, ACCENT, family=SANS, weight=800, spacing=-0.5))
+            pg.text([sx, spy + 60, sw - 10, 14], lab,
+                    style=ts(9, MUTE, family=SANS, weight=700, spacing=0.6,
+                             transform="uppercase"))
+
+        # -- foot: epigraph, hairline, provenance — pinned to the margin ------ #
+        pg.text([MX, 924, CONTENT_W, 16], epigraph,
+                style=ts(11, FAINT, family=SERIF, style="italic"))
+        pg.rect([MX, 948, CONTENT_W, 1.0], fill=RULE)
+        pg.text([MX, 960, CONTENT_W, 16], author,
+                style=ts(11, INK, family=SANS, weight=700))
+        pg.text([MX, 960, CONTENT_W, 16], date,
+                style=ts(11, MUTE, family=SANS, align="right"))
         self.y = BOTTOM + 1
 
     def gallery(self, cells, *, cols=3, cell_h=118, gap=14):
@@ -669,9 +699,8 @@ def _cover(bk: Tour):
     bk.cover(
         kicker="FrameGraph · SDK + MCP",
         title="The Complete Capability Tour",
-        subtitle="Every SDK export, object type, inline kind, flowable, canvas "
-                 "preset and MCP tool — demonstrated live, explained step by step, "
-                 "and machine-checked against docs/capability-manifest.json.",
+        subtitle="Every SDK export, object type, flowable, canvas preset and MCP "
+                 "tool — demonstrated live and machine-checked against the manifest.",
         author="Prepared with Claude · Fable 5",
         date=GEN_DATE,
         note="One FrameGraph document, authored end-to-end through the Python SDK "

@@ -94,13 +94,16 @@ Rules of reading:
 - **`[Enforced]`** The LaTeX/TikZ renderer (`tooling/render_latex.py`) adds **no** Python
   dependency: it shells out to a system TeX engine (lualatex preferred, pdflatex fallback)
   plus poppler's `pdftoppm` for `--png` ([pyproject.toml:30-39](../pyproject.toml#L30-L39)).
-- **`[Enforced]`** A `framegraph-render` console script is declared
-  ([pyproject.toml:20-21](../pyproject.toml#L20-L21)) but inert while the project stays
-  virtual — run the render front-door via the self-bootstrapping launcher
-  `uv run python tooling/framegraph_render.py` (PYTHONPATH-free; issue #35), or
-  `python -m framegraph.cli` where `src`/`docs` are already on the path.
+- **`[Enforced]`** Two console scripts are declared — `framegraph-render` and
+  `fg-font` ([pyproject.toml:25-26](../pyproject.toml#L25-L26)) — but inert while the
+  project stays virtual; they resolve as commands only where the package is
+  installed (e.g. an external consumer or image). In this tree run the
+  self-bootstrapping launchers: `uv run python tooling/framegraph_render.py`
+  (PYTHONPATH-free; issue #35) or `python -m framegraph.cli` where `src`/`docs`
+  are already on the path, and `uv run python tooling/fg_font.py` (thin
+  launcher over `framegraph.fontpack`; also `make font-list` / `font-check`).
 - **`[Enforced]`** This is a **virtual project**: `package = false`
-  ([pyproject.toml:75](../pyproject.toml#L75)). The tree runs via `sys.path`-rooted scripts;
+  ([pyproject.toml:81](../pyproject.toml#L81)). The tree runs via `sys.path`-rooted scripts;
   it is deliberately **not** built or installed (an installed `framegraph` distribution
   would shadow the [docs/models/framegraph.py](./models/framegraph.py) module the tooling imports).
 - **`[Enforced]`** Lock state lives in [uv.lock](../uv.lock). Do not hand-edit it; CI syncs
@@ -316,6 +319,11 @@ else is generated from or checked against them** ([README.md](../README.md), *Th
 
 ## 9. Versioning and backward compatibility
 
+The **bump procedure** — the four hand-edited version sites, the regeneration
+chain, and the gate that proves each invariant — is formalised in
+[RELEASE.md](../RELEASE.md) (run `make bump VERSION=X.Y.Z`; pre-flight with
+`make bump-check`).
+
 - **`[Enforced]`** Single source of truth for the package version: `[project] version`
   in [pyproject.toml:3](../pyproject.toml#L3) (`2.3.0`). [tests/test_head.py](../tests/test_head.py)
   asserts the models report this version and that the schema is generated in sync.
@@ -432,7 +440,11 @@ non-negotiable absent an explicit, documented decision.
   `normalize_doc` under `rendering/application/`, re-exported by `tooling/render_fixtures.py`
   for its CLI), [src/framegraph/sdk](../src/framegraph/sdk/), [src/framegraph/cli.py](../src/framegraph/cli.py),
   [src/framegraph/mcp](../src/framegraph/mcp/), [src/framegraph/live](../src/framegraph/live/),
-  [src/framegraph/vision](../src/framegraph/vision/), and [src/framegraph/coach](../src/framegraph/coach/) —
+  [src/framegraph/vision](../src/framegraph/vision/), [src/framegraph/coach](../src/framegraph/coach/),
+  [src/framegraph/patterns](../src/framegraph/patterns/) (the #28/#29 slide-template catalog),
+  [src/framegraph/library](../src/framegraph/library/) (the #32 themes/symbols/generators content
+  library), and [src/framegraph/fontpack.py](../src/framegraph/fontpack.py) (ADR-0004 font packs;
+  the `fg-font` console script) —
   while the conformance/schema context still lives in [docs/models/](./models/),
   [docs/schema/](./schema/), and [tooling/](../tooling/) and migrates in later steps
   ([src/framegraph/__init__.py](../src/framegraph/__init__.py)). Do not justify a decision by the

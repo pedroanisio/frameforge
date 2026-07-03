@@ -204,21 +204,51 @@ def _perturb(obj: dict[str, Any], hand: "Hand", obj_key: str, exempt: set[str]) 
         _perturb_weight(obj, ch["weight"])
 
 
-def _apply_tilt(obj: dict[str, Any], degrees: float) -> None:
-    """Compose a small ``rotate(...)`` onto the object's CSS transform.
+def _tilt_center(obj: dict[str, Any]) -> list[float] | None:
+    """The object's geometric centre in page space — the pitch-drift pivot.
 
-    Rotation about the box centre (the CSS default) — the pitch-drift "tilt". An
-    object whose ``style`` is a shared token reference, or already carries a
-    structured transform op-list, is left unperturbed rather than clobbered.
+    The renderer derives a rotation's origin from an object's ``box``. Centre-,
+    endpoint- and point-based geometry (ellipse/circle, line, polyline/polygon)
+    carries no ``box``, so without an explicit origin the tilt would pivot about
+    the SVG origin (0, 0) and *orbit* the object across the page instead of
+    tilting it in place. Derive the centre from whatever geometry the object holds
+    (post-roughen, so a converted shape is measured by its points).
+    """
+    box = obj.get("box")
+    if isinstance(box, (list, tuple)) and len(box) == 4 \
+            and all(isinstance(v, (int, float)) for v in box):
+        return [box[0] + box[2] / 2.0, box[1] + box[3] / 2.0]
+    if _is_xy(obj.get("center")):
+        c = obj["center"]
+        return [float(c[0]), float(c[1])]
+    a, b = obj.get("from"), obj.get("to")
+    if _is_xy(a) and _is_xy(b):
+        return [(a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0]
+    pts = obj.get("points")
+    if isinstance(pts, list) and pts:
+        xs = [p[0] for p in pts if _is_xy(p)]
+        ys = [p[1] for p in pts if _is_xy(p)]
+        if xs and ys:
+            return [(min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0]
+    return None
+
+
+def _apply_tilt(obj: dict[str, Any], degrees: float) -> None:
+    """Compose a small ``rotate(...)`` about the object's centre onto its CSS transform.
+
+    The pitch-drift "tilt". The pivot is the object's geometric centre, supplied
+    explicitly as ``transform_origin`` so centre/point geometry tilts in place
+    rather than orbiting the SVG origin. An object whose ``style`` is a shared
+    token reference, or already carries a structured transform op-list, is left
+    unperturbed rather than clobbered.
     """
     if not degrees:
         return
     rot = f"rotate({_round(degrees)}deg)"
     style = obj.get("style")
     if style is None:
-        obj["style"] = {"transform": rot}
-        return
-    if not isinstance(style, dict):
+        style = {}
+    elif not isinstance(style, dict):
         return  # token-ref style: shared, do not clobber
     existing = style.get("transform")
     if isinstance(existing, list):
@@ -228,6 +258,9 @@ def _apply_tilt(obj: dict[str, Any], degrees: float) -> None:
         style["transform"] = f"{existing} {rot}"
     else:
         style["transform"] = rot
+    center = _tilt_center(obj)
+    if center is not None and style.get("transform_origin") is None:
+        style["transform_origin"] = center
     obj["style"] = style
 
 
