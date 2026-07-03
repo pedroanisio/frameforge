@@ -460,7 +460,7 @@ class TikzPainter:
             return y + max(0, h - size / 2)
         return y + h / 2
 
-    def text_tag(self, x, y, w, h, content, st, vcenter=None):
+    def text_tag(self, x, y, w, h, content, st, vcenter=None, text_len=None):
         """A single text box → a TikZ `\\node` (anchor + font + colour), following
         the proven latex/ convention: vertical-centred via `_text_y`, horizontal
         anchor from `align`. Multi-line/spans (`text_block`/`text_runs`) and the
@@ -490,7 +490,7 @@ class TikzPainter:
         # builder-computed y, matching the SVG baseline model).
         return {"middle": "base", "end": "base east"}.get(anchor, "base west")
 
-    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy):
+    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy, justify_width=None):
         """Multi-line text: one `\\node` per line on the baseline grid (base_y +
         i·line_dy). Structurally implemented; visual baseline/leading fidelity is
         pending a LaTeX-engine validation pass (none in this environment)."""
@@ -505,7 +505,7 @@ class TikzPainter:
             f"\\node[{opt_str}] at ({fnum(tx)},{fnum(base_y + i * line_dy)}) {{{ltx_escape(ln)}}};\n"
             for i, ln in enumerate(lines))
 
-    def text_runs(self, base_y, anchor, tx, base_st, size, runs):
+    def text_runs(self, base_y, anchor, tx, base_st, size, runs, text_len=None):
         """A single baseline of inline styled runs (rich `text.spans`) as one node
         whose body concatenates per-run font/colour groups. Structurally
         implemented; inline-flow fidelity pending LaTeX-engine validation."""

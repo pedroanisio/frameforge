@@ -53,6 +53,29 @@ def test_justify_hyphenates_a_narrow_column():
     assert any(t.endswith("-") for t in line_texts), "expected a hyphen break in a tight column"
 
 
+def test_justify_preserves_inline_bold_spans():
+    """A justified, wrapped paragraph with inline bold must justify AND keep the
+    bold run styled (span-aware justification), not flatten to one style."""
+    doc = {"pages": [{
+        "mode": "page", "id": "p",
+        "canvas": {"size": [380, 420], "units": "px"},
+        "layers": [{"id": "l", "objects": [{
+            "type": "text", "box": [40, 40, 300, 340],
+            "spans": [
+                {"text": "A star many times heavier than the Sun does not end its "},
+                {"text": "life", "style": {"weight": "bold"}},
+                {"text": " gently; it fuses hydrogen into helium and onward through "
+                         "ever heavier elements until an inert iron core forms."},
+            ],
+            "style": {"align": "justify", "size": 13},
+        }]}],
+    }]}
+    svg = Renderer(doc, ".").render_page(doc["pages"][0])[0]
+    assert "textLength=" in svg                       # justified
+    assert "font-weight:bold" in svg                  # the bold span survived
+    assert "life" in svg
+
+
 def test_last_line_is_not_justified():
     svg = _svg("justify")
     # the final wrapped tspan must not carry textLength (last line sets ragged)

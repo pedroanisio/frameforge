@@ -82,14 +82,33 @@ differs by backend — the correct boundary.
   over-stretches (uniformly airy, not rivers); the cairosvg tight-rag is the safe
   universal default.
 
-## Staged (not in slice 1)
+## Update — slice 2: page mode + span-aware + review
 
-- **Page-mode text boxes** (`{"type":"text","box":…,"wrap":true}`) still use the
-  renderer's own box wrapping — this is the path hand-paginated books
-  (`build_interior.py`-style) use, so they do **not** yet get KP/hyphenation.
-  Unifying it through this engine is correct but has a large golden blast radius
-  (~1077 wrapped boxes across the corpus re-pin), so it is a dedicated slice.
+- **Page-mode text boxes** (`{"type":"text","box":…,"wrap":true}`) now route
+  `align:"justify"` through the same engine (`render_text`). Before, that path
+  mapped `justify` → the `start` anchor and had no justification primitive, so
+  justified prose rendered ragged-left — the reason hand-paginated books
+  (`build_interior.py`-style) were "unsolved". The re-pin was *not* the feared
+  ~1077 boxes: gating on `align:"justify"` confined it to the one oracle fixture
+  that uses it (`amazon-proxy-2026`). Justification now exists document-wide.
+- **Span-aware justification.** A justified *wrapped* block with inline runs
+  (bold/italic/links) keeps its styling: the engine records each line's
+  `[start,end)` char span, and the renderer re-slices the styled runs onto each
+  line (`flow_layout.slice_runs`) and flushes it with `textLength`. Justification
+  no longer flattens emphasis.
+- **Adversarial multi-agent review** (5 dimensions → verify) confirmed and fixed
+  six defects in the new code: justify+`shrink_to_fit` over-shrink; the
+  justification params crashing `TikzPainter` (a backend-neutrality break);
+  `content_box` not coercing `Length` margins / not clamping non-positive area /
+  not mirroring an asymmetric master margin; recto/verso parity from a
+  section-local instead of document-global page number; and a single unbreakable
+  token dropping the whole paragraph to greedy.
+
+## Staged
+
 - Full KP **fitness classes** and optical-margin refinement.
+- **LaTeX painter** *justification* (`TikzPainter` accepts the params but renders
+  ragged for now; TikZ justifies via `\parbox` — a follow-up).
 - **LaTeX painter** wiring (toolchain-gated, as in ADR-0001 §3b-5).
 
 [↑ Back to root README](../README.md)

@@ -62,6 +62,8 @@ class LaidLine:
     advance: float
     width: float
     justify: bool
+    start: int = 0          # [start,end) char span of this line in the source text
+    end: int = 0            # (lets a caller re-slice styled runs onto the line)
 
 
 @dataclass(frozen=True)
@@ -73,6 +75,17 @@ class LaidParagraph:
 # --------------------------------------------------------------------------- #
 #  Geometry — the single source of the column box                             #
 # --------------------------------------------------------------------------- #
+def _num(v, default: float = 0.0) -> float:
+    """Coerce a Length (number or leading-numeric string like '72px') to float."""
+    if isinstance(v, (int, float)):
+        return float(v)
+    if isinstance(v, str):
+        m = re.match(r"\s*(-?\d+(?:\.\d+)?)", v)
+        if m:
+            return float(m.group(1))
+    return float(default)
+
+
 def content_box(master: Optional[dict], page_w: float, page_h: float,
                 page_index: int, *, unit: Optional[float] = None
                 ) -> tuple[float, float, float, float]:
@@ -83,22 +96,23 @@ def content_box(master: Optional[dict], page_w: float, page_h: float,
     1-based; odd pages are recto (inner margin left), even verso (mirrored) —
     which only affects the canon fallback and any asymmetric margin.
     """
+    recto = (page_index % 2) == 1
     if master:
         regions = master.get("regions")
         if isinstance(regions, list) and regions:
             box = regions[0].get("box") if isinstance(regions[0], dict) else None
             if isinstance(box, (list, tuple)) and len(box) >= 4:
-                return (box[0], box[1], box[2], box[3])
+                return tuple(_num(box[i]) for i in range(4))    # coerce Length → float
         margin = master.get("margin")
         if isinstance(margin, (list, tuple)) and len(margin) == 4:
-            top, right, bottom, left = margin
-            return (left, top, page_w - left - right, page_h - top - bottom)
+            top, right, bottom, left = (_num(m) for m in margin)
+            x = left if recto else right         # mirror an asymmetric margin on verso
+            return (x, top, max(1.0, page_w - left - right), max(1.0, page_h - top - bottom))
 
     u = unit if unit is not None else page_w / 20.0
     inner, top, outer, foot = _INNER * u, _TOP * u, _OUTER * u, _FOOT * u
-    recto = (page_index % 2) == 1
     x = inner if recto else outer
-    return (x, top, page_w - inner - outer, page_h - top - foot)
+    return (x, top, max(1.0, page_w - inner - outer), max(1.0, page_h - top - foot))
 
 
 # --------------------------------------------------------------------------- #
@@ -143,15 +157,19 @@ def _build_items(text: str, mw: Callable[[str], float], space_w: float):
     stretch, shrink, hyph_w = space_w * 0.6, space_w * 0.35, mw("-")
     hyph = _hyphenator()
     items: list[tuple] = []
-    for wi, word in enumerate(text.split()):
-        if wi:
+    first = True
+    for m in re.finditer(r"\S+", text):          # finditer keeps each word's offset
+        word, off = m.group(), m.start()
+        if not first:
             items.append(("glue", space_w, stretch, shrink))
+        first = False
         parts = re.split(rf"(?<=[{_DASH}])", word)   # break after an em/en dash
         for pi, part in enumerate(parts):
             frags = _syllables(part, hyph)
             for fi, frag in enumerate(frags):
-                if frag:
-                    items.append(("box", mw(frag), frag))
+                if frag:                          # box = (kind, width, text, start, end)
+                    items.append(("box", mw(frag), frag, off, off + len(frag)))
+                off += len(frag)
                 if fi < len(frags) - 1:
                     items.append(("pen", hyph_w, _HYPHEN_PENALTY, True))
             if pi < len(parts) - 1:
@@ -202,24 +220,34 @@ def _linebreak(items: list[tuple], target_first: float, target_rest: float,
             target = target_first if line_no_a == 0 else target_rest
             is_last = (b == n)
             if is_last:
-                if L > target:
-                    r = (target - L) / sh_ if sh_ > 0 else -_INF
+                if L > target and sh_ > 0:
+                    r = (target - L) / sh_
                     if r < -1:
                         continue
                     badness = 100.0 * abs(r) ** 3
+                elif L > target:                   # unbreakable, wider than the column
+                    badness = 1e5 + (L - target)   # allowed (overflow), heavily penalised
                 else:
-                    badness = 0.0                       # last line sets ragged (short is free)
+                    badness = 0.0                  # short last line sets ragged (free)
                 pen_cost, flagged_b = 0.0, False
             else:
-                if L > target:
-                    r = (target - L) / sh_ if sh_ > 0 else -_INF
-                elif L < target:
-                    r = (target - L) / st_ if st_ > 0 else _INF
+                if L > target and sh_ > 0:
+                    r = (target - L) / sh_
+                    if r < -1:                     # multi-word line over-compresses: skip
+                        continue
+                    badness = 100.0 * abs(r) ** 3
+                elif L < target and st_ > 0:
+                    r = (target - L) / st_
+                    if r > tolerance:              # too loose: skip (a hyphen may serve)
+                        continue
+                    badness = 100.0 * abs(r) ** 3
+                elif L == target:
+                    badness = 0.0
                 else:
-                    r = 0.0
-                if r < -1 or r > tolerance:
-                    continue
-                badness = 100.0 * abs(r) ** 3
+                    # no glue to adjust (a single unbreakable box): always feasible so
+                    # one long token never forces the whole paragraph back to greedy —
+                    # penalised so KP avoids it unless there is no alternative.
+                    badness = 1e5 + abs(L - target)
                 flagged_b = bool(is_pen_b and items[b][3])
                 pen_cost = items[b][2] if is_pen_b else 0.0
             demerit = (_LINE_PENALTY + badness) ** 2 + (pen_cost if pen_cost > 0 else 0.0)
@@ -241,41 +269,62 @@ def _linebreak(items: list[tuple], target_first: float, target_rest: float,
         spans.append((a, b))
         b = a
     spans.reverse()
-    lines: list[str] = []
+    lines: list[tuple[str, int, int]] = []
     for a, b in spans:
         parts: list[str] = []
+        boxes: list[tuple] = []
         for i in range(a + 1, b):
             it = items[i]
             if it[0] == "box":
                 parts.append(it[2])
+                boxes.append(it)
             elif it[0] == "glue":
                 parts.append(" ")
         text = "".join(parts).strip()
         if b < n and items[b][0] == "pen" and items[b][3]:
             text += "-"
-        lines.append(text)
+        start = boxes[0][3] if boxes else 0
+        end = boxes[-1][4] if boxes else 0
+        lines.append((text, start, end))
     return lines
 
 
 def _greedy_lines(text: str, mw: Callable[[str], float], space_w: float,
-                  width: float, first_indent: float) -> list[str]:
-    """First-fit fallback (used for non-justified alignment and as a safety net)."""
-    words = text.split()
-    lines, cur = [], []
+                  width: float, first_indent: float) -> list[tuple[str, int, int]]:
+    """First-fit fallback (non-justified alignment and KP safety net). Returns
+    ``(line_text, start, end)`` so offsets are available on every path."""
+    lines: list[list] = []
+    cur: list = []
     cur_w = 0.0
-    for word in words:
-        ww = mw(word)
+    for m in re.finditer(r"\S+", text):
+        ww = mw(m.group())
         avail = width - (first_indent if not lines else 0.0)
         add = ww if not cur else cur_w + space_w + ww
         if cur and add > avail:
-            lines.append(" ".join(cur))
-            cur, cur_w = [word], ww
+            lines.append(cur)
+            cur, cur_w = [m], ww
         else:
-            cur.append(word)
+            cur.append(m)
             cur_w = add
     if cur:
-        lines.append(" ".join(cur))
-    return lines or [""]
+        lines.append(cur)
+    return [(" ".join(m.group() for m in g), g[0].start(), g[-1].end())
+            for g in lines] or [("", 0, 0)]
+
+
+def slice_runs(runs, start: int, end: int):
+    """Sub-runs of ``runs`` — ``[(text, style), …]`` concatenating to the source
+    text — covering chars ``[start, end)``, splitting any run that straddles a
+    boundary. Lets a caller re-apply inline styles (bold/italic/links) to one
+    laid-out line for span-aware justification."""
+    out, pos = [], 0
+    for text, style in runs:
+        rstart, rend = pos, pos + len(text)
+        pos = rend
+        lo, hi = max(rstart, start), min(rend, end)
+        if lo < hi:
+            out.append((text[lo - rstart:hi - rstart], style))
+    return out
 
 
 # --------------------------------------------------------------------------- #
@@ -303,7 +352,7 @@ def layout_paragraph(text: str, *, size: float, avg: float, lh: float,
     space_w = mw(" ") or size * avg * 0.5
     tf, tr = width - first_line_indent, width
 
-    line_texts: Optional[list[str]] = None
+    line_texts: Optional[list[tuple[str, int, int]]] = None
     if align == "justify":
         items = _build_items(text, mw, space_w)
         line_texts = (_linebreak(items, tf, tr, tolerance=3.0)
@@ -320,8 +369,9 @@ def layout_paragraph(text: str, *, size: float, avg: float, lh: float,
             advance=advance,
             width=width - (first_line_indent if i == 0 else 0.0),
             justify=(align == "justify" and i != last and bool(txt)),
+            start=start, end=end,
         )
-        for i, txt in enumerate(line_texts)
+        for i, (txt, start, end) in enumerate(line_texts)
     )
     return LaidParagraph(lines, space_after)
 
@@ -332,4 +382,5 @@ __all__ = [
     "Measure",
     "content_box",
     "layout_paragraph",
+    "slice_runs",
 ]

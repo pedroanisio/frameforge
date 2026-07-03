@@ -21,12 +21,24 @@ the spacing.*
 - Each line is emitted as **one text element**, justified to its column via SVG
   `textLength` — **flush on browser/PDF, tight hyphenated ragged on the cairosvg
   proxy** (which ignores it). First-line indent + no inter-paragraph gap.
-- **Render change (golden re-pin)**: the four flow fixtures re-pinned; the
-  page-mode decks are byte-unchanged.
+- **Page mode too.** `render_text` (page-mode `wrap:true` boxes) also routes
+  `align:"justify"` through the engine — it previously mapped justify → the
+  `start` anchor and could not justify at all. Justification now exists
+  document-wide (flow + page mode), including **span-aware** justification:
+  inline bold/italic survive a justified wrapped block (runs are re-sliced onto
+  each line by char offset).
+- **Render change (golden re-pin)**: the four flow fixtures + one page-mode deck
+  (`amazon-proxy-2026`, which uses justified prose) re-pinned; all other decks
+  byte-unchanged.
+- **Adversarial multi-agent review** fixed six confirmed defects in the new code:
+  justify+`shrink_to_fit` over-shrink; the justification params crashing the TikZ
+  backend; `content_box` not coercing `Length` margins, not clamping non-positive
+  area, and not mirroring an asymmetric master margin; recto/verso parity using a
+  section-local instead of document-global page number; and a single unbreakable
+  token (a URL) dropping the whole paragraph to greedy.
 - *Limit:* tight **flush** justification needs a **pinned body font** (layout
   metric = render font); unpinned, flush over-stretches (uniformly airy, not
-  rivers) — tight ragged is the safe default. Page-mode `wrap:true` text boxes are
-  unchanged (staged follow-up).
+  rivers) — tight ragged is the safe default.
 
 ## Unreleased — pattern compose: filled patterns become pages (2026-07-02, issue #29)
 

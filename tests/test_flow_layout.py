@@ -45,6 +45,36 @@ def test_content_box_falls_back_to_canon_and_mirrors_recto_verso():
     assert 900 - (recto[0] + recto[2]) == verso[0]     # wide margin flips sides
 
 
+def test_content_box_mirrors_asymmetric_master_margin():
+    master = {"margin": [50, 40, 50, 80]}       # [top,right,bottom,left]; inner 80, outer 40
+    recto = FL.content_box(master, 800, 1000, page_index=1)
+    verso = FL.content_box(master, 800, 1000, page_index=2)
+    assert recto[0] == 80                        # recto: x = left (inner)
+    assert verso[0] == 40                        # verso: x = right (outer) — mirrored
+    assert recto[2] == verso[2] == 800 - 80 - 40 # width constant across the spread
+
+
+def test_content_box_coerces_length_strings():
+    master = {"regions": [{"box": ["72", "96px", "451", "674"]}]}
+    assert FL.content_box(master, 595, 842, 1) == (72.0, 96.0, 451.0, 674.0)
+
+
+def test_content_box_clamps_non_positive_area():
+    box = FL.content_box(None, 2000, 100, 1)     # extreme aspect → canon height would go < 0
+    assert box[2] >= 1 and box[3] >= 1
+
+
+def test_unbreakable_token_stays_in_kp_not_greedy():
+    text = ("see https://example.com/a/very/long/unbreakable/path/segment now "
+            "here we go again with more ordinary words to justify")
+    para = FL.layout_paragraph(text, size=10, avg=0.5, lh=1.4, width=80,
+                               measure=mono, align="justify")
+    assert para.lines
+    assert any("example.com" in ln.text for ln in para.lines)   # token survives whole
+    # the ordinary words still justify (KP kept the paragraph, did not dump to greedy)
+    assert any(ln.justify for ln in para.lines)
+
+
 def test_canon_fallback_agrees_with_authoring_helper():
     from framegraph.sdk import canon
     for side, page_index in (("recto", 1), ("verso", 2)):
@@ -128,6 +158,29 @@ def test_left_alignment_is_ragged_not_justified():
 # --------------------------------------------------------------------------- #
 #  hyphenation                                                                 #
 # --------------------------------------------------------------------------- #
+def test_lines_carry_char_offsets_that_reslice_the_source():
+    """Each justified line records [start,end) into the source text so a caller
+    can slice styled runs back onto the line (span-aware justification)."""
+    text = "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu"
+    para = FL.layout_paragraph(text, size=10, avg=0.5, lh=1.4, width=100,
+                               measure=mono, align="justify")
+    for ln in para.lines:
+        src = text[ln.start:ln.end]
+        assert src.split() == ln.text.rstrip("-").split()
+    assert para.lines[0].start == 0
+    assert para.lines[-1].end == len(text)
+
+
+def test_slice_runs_splits_runs_at_line_boundaries():
+    runs = [("The quick ", "A"), ("brown", "B"), (" fox jumps", "A")]  # "The quick brown fox jumps"
+    got = FL.slice_runs(runs, 4, 15)            # "quick brown"
+    assert "".join(t for t, _ in got) == "quick brown"
+    assert ("brown", "B") in got               # the styled run is preserved whole
+    # boundary + empty
+    assert FL.slice_runs(runs, 0, 0) == []
+    assert "".join(t for t, _ in FL.slice_runs(runs, 0, 25)) == "The quick brown fox jumps"
+
+
 def test_hyphenation_breaks_long_words_when_available():
     pytest.importorskip("pyphen")
     # a narrow column full of long words: absorbing slack by hyphenation is the

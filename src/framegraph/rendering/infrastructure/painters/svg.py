@@ -664,14 +664,15 @@ class SvgPainter:
         spans = "".join(span(i, ln) for i, ln in enumerate(lines))
         return f'<text y="{fnum(base_y)}" text-anchor="{anchor}" style="{style}">{spans}</text>'
 
-    def text_runs(self, base_y, anchor, tx, base_st, size, runs):
+    def text_runs(self, base_y, anchor, tx, base_st, size, runs, text_len=None):
         """A single baseline of inline styled runs (rich `text.spans`).
 
         `runs` is a list of (text, run_style_dict) pairs — the neutral style dicts;
         this backend formats each at `size`. The first run carries the anchor x; the
         rest flow inline. Each run's style overrides the base. A run style carrying
         the reserved `link_href` key (a LinkInline span) gets its tspan wrapped in
-        an SVG `<a href>` so the link is real in every SVG consumer."""
+        an SVG `<a href>` so the link is real in every SVG consumer. `text_len` set
+        (span-aware justification) flushes the whole line to that length."""
         base_style = self.font_style(base_st, size)
         segs = []
         for i, (text, run_st) in enumerate(runs):
@@ -681,7 +682,9 @@ class SvgPainter:
             if href:
                 seg = f'<a href="{esc(href)}">{seg}</a>'
             segs.append(seg)
-        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}" '
+        fit = (f' textLength="{fnum(text_len)}" lengthAdjust="spacing"'
+               if text_len is not None and anchor == "start" else "")
+        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{fit} '
                 f'style="{base_style}">{"".join(segs)}</text>')
 
     def text_line_runs(self, x, y, w, h, groups, st):

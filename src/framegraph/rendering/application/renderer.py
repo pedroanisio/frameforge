@@ -117,6 +117,7 @@ class Renderer:
         self._painter = (painter_factory(self._color) if painter_factory
                          else SvgPainter(self._color, warn=self.warn))
         self._text_style = TextStyleResolver(self.text_styles, self.styles, self._color)
+        self._global_page = 0                 # document-global leaf page number (flow recto/verso)
         self._canvas = CanvasResolver(self.masters)
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)
         self._effect = EffectResolver(self._color)
@@ -321,7 +322,12 @@ class Renderer:
             while size > min_fs:
                 lines = layout(size)
                 too_tall = len(lines) * size * lh > h + 0.5
-                too_wide = max((self.measure(ln, size, avg, st) for ln in lines), default=0) > w + 0.5
+                if justify:
+                    # justified lines render to exactly `w` via textLength, so only
+                    # the last (ragged) line can actually overflow the column width.
+                    too_wide = bool(lines) and self.measure(lines[-1], size, avg, st) > w + 0.5
+                else:
+                    too_wide = max((self.measure(ln, size, avg, st) for ln in lines), default=0) > w + 0.5
                 if not too_tall and not too_wide:
                     break
                 size = max(min_fs, size - 1)
@@ -364,10 +370,27 @@ class Renderer:
         # Rich `text.spans`: when the fitted text is a single, untruncated line,
         # emit per-run styled tspans (the common inline-emphasis case). Wrapped or
         # truncated span text falls back to the flattened single-style line.
-        if justify and not single_span_line:
-            # Left-set lines flushed to the column via textLength; last line ragged.
-            # (Inline spans in a justified *wrapped* block flatten to the paragraph
-            # style — per-line span justification is a follow-up.)
+        if justify and spans and not single_span_line and not clipped:
+            # Span-aware justification: re-lay the flattened run text, slice the
+            # styled runs onto each line by char offset, and flush each line to the
+            # column with textLength — inline emphasis survives justification.
+            runs = self._span_runs(spans, st)
+            flat = "".join(t for t, _ in runs)
+            para = flow_layout.layout_paragraph(
+                flat, size=size, avg=avg, lh=lh, width=w,
+                measure=lambda s, z, a: self.measure(s, z, a, st), align="justify")
+            segs = []
+            for i, ln in enumerate(para.lines):
+                lruns = flow_layout.slice_runs(runs, ln.start, ln.end) or [(ln.text, st)]
+                if ln.text.endswith("-"):            # carry the soft hyphen on the last run
+                    lruns = [*lruns[:-1], (lruns[-1][0] + "-", lruns[-1][1])]
+                segs.append(self._painter.text_runs(
+                    base + i * (size * lh), "start", x, st, size, lruns,
+                    text_len=(w if ln.justify else None)))
+            el = "".join(segs)
+        elif justify and not single_span_line:
+            # Plain justified prose: one tspan per line, flushed via textLength;
+            # last line ragged.
             el = self._painter.text_block(base, "start", st, size, lines, x, size * lh,
                                           justify_width=w)
         elif single_span_line:
@@ -1318,6 +1341,7 @@ class Renderer:
     def render_page(self, page):
         """Return a list of SVG strings (1 for page-mode, N for paginated flow)."""
         self._painter.new_page()
+        self._global_page += 1                # this producer's first leaf page
         self.flow_headings = []
         self.contract = {**self.doc_contract, **((page.get("rendering") or {}).get("text") or {})}
         w, h = self.canvas_wh(page)
@@ -1399,12 +1423,13 @@ class Renderer:
         so pagination is identical across passes; the dry pass's telemetry is
         rolled back so nothing is double-counted."""
         if self._story_has_toc(page.get("story") or []):
-            saved = (dict(self.tstats), self.skipped, copy.deepcopy(self.diagnostics))
+            saved = (dict(self.tstats), self.skipped, copy.deepcopy(self.diagnostics),
+                     self._global_page)
             try:
                 self._render_flow_pages(page, w, h, toc_pages=None)
                 toc_pages = [hd["page"] for hd in self.flow_headings]
             finally:
-                self.tstats, self.skipped, self.diagnostics = saved
+                self.tstats, self.skipped, self.diagnostics, self._global_page = saved
             self._painter.new_page()
             self.flow_headings = []
             return self._render_flow_pages(page, w, h, toc_pages=toc_pages)
@@ -1419,11 +1444,14 @@ class Renderer:
         # parity-independent, so a paragraph's line breaks stay valid across a break.
         master = self.masters.get(page.get("master")) if page.get("master") else None
 
-        def geom(page_index):
+        def geom(page_index):                   # page_index = document-global leaf number
             gx, gy, gw, gh = flow_layout.content_box(master, w, h, page_index)
             return gx, gy, gw, gy + gh          # x, top, usable(width), bottom
 
-        x, top, usable, bottom = geom(1)
+        # Recto/verso parity follows the document-global page number (not a section
+        # -local counter) so a flow that does not begin on an odd global page still
+        # mirrors correctly. render_page already counted this section's first page.
+        x, top, usable, bottom = geom(self._global_page)
         prev_kind = None                        # previous flowable, for indent policy
         pages, body, cy = [], [], top
 
@@ -1435,7 +1463,8 @@ class Renderer:
             nonlocal body, cy, x, top, usable, bottom
             flush()
             p.new_page()
-            x, top, usable, bottom = geom(len(pages) + 1)
+            self._global_page += 1
+            x, top, usable, bottom = geom(self._global_page)
             body, cy = [], top
 
         def wrap(text, size):
