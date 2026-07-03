@@ -146,3 +146,12 @@ docker-shell:  ## interactive shell inside the container toolchain
 
 docker-fonts:  ## list the font families baked into the image
 	$(DOCKER) run --rm $(IMAGE) fonts
+
+font-list:  ## fg-font: families this runtime resolves (reference these)
+	$(UV) run python tooling/fg_font.py --list
+
+font-check:  ## fg-font: fail if a content font in DOC substitutes (DOC=path.fg.yaml)
+	$(UV) run python tooling/fg_font.py --check $(DOC)
+
+font-pack:  ## fg-font: bundle DOC's fonts + manifest into a portable .fp (DOC=…, OUT=…)
+	$(UV) run python tooling/fg_font.py --pack $(DOC) $(if $(OUT),--out $(OUT),)

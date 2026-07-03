@@ -99,6 +99,7 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 | `check_package_readiness.py` | package-emit readiness report (advisory) |
 | `fetch_corpus.py` / `fetch_book_corpus.py` | `[--check]` — corpus download/verify |
 | `install_fonts.py` | font provisioning used by the Docker image |
+| `fg_font.py` | `--list` resolvable families · `--check DOC` (fail if a content font substitutes) · `--pack DOC --out P.fp` (portable font pack + manifest so measure==render on any host; ADR-0004) |
 
 ## Tests
 
