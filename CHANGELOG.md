@@ -4,6 +4,30 @@
 
 ---
 
+## Unreleased — PALS PT-BR migrated; gradient fill tokens now lift AND paint (2026-07-03, issue #33)
+
+Third corpus deck: the 15-slide PALS PT-BR deck lands as
+`tests/fixtures/pals-genai-arch-ptbr.fg.yaml` (corpus 36→37; 0 errors, two
+honest tabular advisories on the hand-positioned math appendix). One new
+dialect corner, closed in two layers:
+
+- **Lift** (`codemod.py --from-v01`): v0.1 gradient fill tokens
+  (`tokens.fill_styles` `{type: linear_gradient, from/to points, stops
+  with offset+opacity}`) become v2 `Gradient` paints — from/to vector →
+  CSS `angle`, `offset` → `position`, stop `opacity` folded into an
+  8-digit hex against the pack palette (v2 stops carry no opacity field).
+- **Renderer**: `Tokens.fill_styles` was model-declared but NEVER read —
+  a string fill naming a fill-styles key silently emitted invalid SVG
+  paint. `paint()` now dereferences `tokens.fill_styles` first, so named
+  gradient/pattern fills actually paint (regression-tested).
+
+Verified page-by-page against the sibling's own renderer (15/15 pages;
+deltas are the known cross-renderer font face + in-box wrapping, no
+content loss — `clipped == 0`, spill only via the explicit v0.1 policy).
+3 new red-first tests (19 total). Checklist honesty: **faz-ai and
+code-base-mapper are #30-gated** (49/57 `type: uml` objects — the
+unabsorbed UML composers); GTDS awaits the token-pack decision.
+
 ## 2.4.1 — parity W1: the planar geometry kernel + the DocumentRenderer port (2026-07-03, issue #45)
 
 Also in this patch: the **`DocumentRenderer` output port** (hexagonal seam)

@@ -43,6 +43,7 @@ the delta is one label's wrap point plus antialiasing). Regression-gated by
 | `chip_row` (compositional pill row) | lowered to a core `group` of decorative pill rects + centered texts — same cursor/gap layout, chip def's fill/`text_style`/radius baked in; a consumed-and-baked `chip` component def is dropped (lossless), unconsumed defs are kept |
 | flat span styles (`{text, weight, color}`) | v2 `Span` allows `text`/`style`/`lang` — extras become a translated inline style |
 | flat object `stroke_width` | moved into `stroke_style` (P3) |
+| gradient fill tokens (`tokens.fill_styles` `{type: linear_gradient, from/to points, stops+opacity}`) | v2 `Gradient` paints — `kind: linear`, `from`/`to` → `angle`, stop `offset` → `position`, stop `opacity` folded into an 8-digit hex against the pack palette (v2 stops carry no opacity field). The renderer now dereferences `tokens.fill_styles` keys (it never had, so named gradient fills silently emitted invalid paint) |
 | implicit single-line text (v0.1 wrapped only under `wrap: true`) | styles without `wrap` pin `white_space: nowrap`; deck-form pages pin `rendering.text.overflow: visible` — v0.1 painted past the box and never truncated, v2's default is wrap-then-clip, and silent truncation is exactly what #44 bans |
 
 Two **semantic traps** the lift fixes (silently wrong if merely carried,
@@ -58,16 +59,17 @@ because the old keys validate as unrelated CSS properties):
 
 ## Corpus status
 
-Migrated: **genai-ecosystem** (the conversion proof; 98.8 % pixel-identical)
-and **PALS GenAI architecture EN** (8 slides — the first deck/slides-form
+Migrated: **genai-ecosystem** (the conversion proof; 98.8 % pixel-identical),
+**PALS GenAI architecture EN** (8 slides — the first deck/slides-form
 migration; fixture `pals-genai-architecture.fg.yaml`, 0 errors, one honest
 advisory: slide 8's error matrix is authored as 51 absolute texts in the
 source, and re-authoring it as a `TableObject` would be content surgery,
-not migration). Remaining decks are tracked as a checklist on
-[#33](https://github.com/pedroanisio/frameforge/issues/33) and migrate on
-demand through the same command; PALS PT-BR, GTDS, faz-ai and
-code-base-mapper are expected to be mechanical, with per-deck hand-fixes
-only where a deck exercises a dialect corner the corpus has not hit yet.
+not migration), and **PALS PT-BR** (15 slides — fixture
+`pals-genai-arch-ptbr.fg.yaml`; this deck closed the gradient-fill-token
+corner above). Remaining decks are tracked as a checklist on
+[#33](https://github.com/pedroanisio/frameforge/issues/33): **faz-ai and
+code-base-mapper are gated on #30** (49 and 57 `type: uml` objects — the
+unabsorbed UML composers); GTDS awaits the client token-pack decision.
 
 Back to the [roadmap](roadmap.md) (absorption programme) ·
 [patterns & fills](patterns-fills.md) · [library](library.md).

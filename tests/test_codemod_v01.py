@@ -351,6 +351,83 @@ def test_genai_ecosystem_migrates_end_to_end():
     assert rstats.get("uncontained", 0) == 0
 
 
+def test_v01_gradient_fill_styles_translate_to_v2_paints():
+    """PT-BR corner: v0.1 `tokens.fill_styles` gradient defs
+    ({type: linear_gradient, from/to points, stops with offset+opacity})
+    become v2 Gradient paints — kind/angle/position, stop opacity folded
+    into an 8-digit hex against the deck palette (v2 stops carry no
+    opacity field)."""
+    doc = copy.deepcopy(V01_DECK)
+    doc["deck"]["tokens"]["colors"]["white"] = "#ffffff"
+    doc["deck"]["tokens"]["fill_styles"] = {
+        "bg_soft": {"type": "linear_gradient", "from": [0, 0], "to": [0, 1],
+                    "stops": [{"offset": 0, "color": "ink"},
+                              {"offset": 1, "color": "white",
+                               "opacity": 0.85}]}}
+    out, _ = _lift(doc)
+    grad = out["defs"]["tokens"]["fill_styles"]["bg_soft"]
+    assert grad["kind"] == "linear"
+    assert grad["angle"] == 180                     # (0,0)→(0,1) = to bottom
+    assert "from" not in grad and "to" not in grad and "type" not in grad
+    s0, s1 = grad["stops"]
+    assert s0 == {"color": "ink", "position": "0%"}
+    assert s1["position"] == "100%"
+    assert s1["color"].lower() == "#ffffffd9"       # alpha 0.85 folded
+    _sdk().model.validate_document(out)
+
+
+def test_fill_style_tokens_render_as_gradients():
+    """Renderer gap found by this corner: Tokens.fill_styles exists in the
+    model but the renderer never dereferenced it — `fill: bg_soft` silently
+    emitted an invalid SVG paint. A string fill naming a fill_styles key
+    must resolve to its gradient."""
+    sdk = _sdk()
+    doc = {"dsl": "FrameGraph", "version": C.HEAD_VERSION, "title": "g",
+           "profile": "diagram",
+           "defs": {"tokens": {
+               "colors": {"ink": "#1d1e22"},
+               "fill_styles": {"fade": {"kind": "linear", "angle": 180,
+                                        "stops": [
+                                            {"color": "#ffffff",
+                                             "position": "0%"},
+                                            {"color": "#1d1e22",
+                                             "position": "100%"}]}}}},
+           "pages": [{"mode": "page", "id": "p",
+                      "canvas": {"size": [200, 100], "units": "px"},
+                      "rendering": {"coordinate_mode": "absolute"},
+                      "layers": [{"id": "m", "objects": [
+                          {"type": "rect", "box": [10, 10, 180, 80],
+                           "fill": "fade"}]}]}]}
+    svgs, _ = sdk.render_pages_with_stats(doc, base_dir=str(ROOT))
+    assert "linearGradient" in svgs[0]
+    assert 'fill="url(#' in svgs[0]
+
+
+PTBR = HERE / "data" / "v01" / "pals-genai-arch-deck-pt-br.yml"
+
+
+def test_pals_ptbr_deck_migrates_end_to_end():
+    """#33 checklist: the 15-slide PT-BR deck — gradient fill tokens, one
+    chip_row, 383 rects — lifts, validates, and renders with no silent
+    content loss."""
+    sdk = _sdk()
+    doc = yaml.safe_load(PTBR.read_text(encoding="utf-8"))
+    stats = C.Stats()
+    out = C.lift_v01(doc, stats)
+    assert stats.v01 == 1
+    sdk.model.validate_document(out)
+    assert len(out["pages"]) == 15
+    fills = out["defs"]["tokens"]["fill_styles"]
+    assert all(g.get("kind") == "linear" for g in fills.values())
+
+    svgs, rstats = sdk.render_pages_with_stats(out, base_dir=str(ROOT))
+    assert len(svgs) == 15
+    assert rstats.get("clipped", 0) == 0
+    assert rstats.get("uncontained", 0) == rstats.get("visible_overflow", 0)
+    joined = "\n".join(svgs)
+    assert "linearGradient" in joined, "gradient tokens must actually paint"
+
+
 PALS = HERE / "data" / "v01" / "pals-genai-architecture-deck.yml"
 
 

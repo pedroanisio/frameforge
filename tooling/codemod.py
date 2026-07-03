@@ -278,6 +278,34 @@ def _chip_row_group(obj, component_defs):
     return group
 
 
+def _lift_v01_fill_styles(tokens):
+    """v0.1 gradient fill tokens ({type: linear_gradient, from/to points,
+    stops with offset+opacity}) → v2 Gradient paints. Stop opacity folds
+    into an 8-digit hex (v2 stops carry no opacity field), resolving colour
+    tokens against the pack palette at lift time."""
+    import math
+    colors = tokens.get("colors") or {}
+    for name, fs in list((tokens.get("fill_styles") or {}).items()):
+        if not isinstance(fs, dict) or fs.get("type") != "linear_gradient":
+            continue
+        x1, y1 = fs.get("from") or [0, 0]
+        x2, y2 = fs.get("to") or [0, 1]
+        angle = round(math.degrees(math.atan2(x2 - x1, -(y2 - y1)))) % 360
+        stops = []
+        for stop in fs.get("stops") or []:
+            color = stop.get("color")
+            opacity = stop.get("opacity")
+            if opacity is not None and opacity < 1:
+                resolved = colors.get(color, color)
+                if isinstance(resolved, str) and resolved.startswith("#") \
+                        and len(resolved) == 7:
+                    color = f"{resolved}{round(opacity * 255):02x}"
+            offset = stop.get("offset", 0)
+            stops.append({"color": color, "position": f"{offset * 100:g}%"})
+        tokens["fill_styles"][name] = {"kind": "linear", "angle": angle,
+                                       "stops": stops}
+
+
 def _v01_profile(kind):
     if not kind:
         return None
@@ -313,6 +341,7 @@ def lift_v01(doc, stats: Stats):
         tokens = visual.get("tokens") or {}
         if tokens:
             _lift_v01_text_styles(tokens)
+            _lift_v01_fill_styles(tokens)
             out["defs"] = {"tokens": tokens}
         page = {"mode": "page", "id": scene.get("id") or "page-1"}
         if scene.get("canvas"):
@@ -332,6 +361,7 @@ def lift_v01(doc, stats: Stats):
         tokens = deck.get("tokens") or {}
         if tokens:
             _lift_v01_text_styles(tokens)
+            _lift_v01_fill_styles(tokens)
             defs["tokens"] = tokens
         pages = []
         slides = doc.pop("slides", None) or []

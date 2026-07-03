@@ -74,6 +74,7 @@ class Renderer:
         defs = self.doc.get("defs") or {}
         tok = defs.get("tokens") or {}
         self.colors = tok.get("colors") or {}
+        self.fill_styles = tok.get("fill_styles") or {}
         self.text_styles = tok.get("text_styles") or {}
         self.styles = tok.get("styles") or {}
         self.stroke_styles = tok.get("stroke_styles") or {}
@@ -148,6 +149,10 @@ class Renderer:
         this routes a gradient or pattern paint to it and a colour to the
         resolver. Backends without a `pattern()` port (e.g. the TikZ adapter)
         keep the legacy background-colour flattening via ColorResolver."""
+        if isinstance(p, str) and depth <= 8 and p in self.fill_styles:
+            # tokens.fill_styles key (model-declared; previously never read —
+            # a named gradient/pattern fill silently emitted an invalid paint)
+            return self.paint(self.fill_styles[p], depth + 1)
         if isinstance(p, dict) and p.get("stops") and p.get("kind") in ("linear", "radial", "conic"):
             return self._painter.gradient(p)
         if isinstance(p, dict) and p.get("kind") == "pattern":
