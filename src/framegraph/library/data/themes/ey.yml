@@ -1,0 +1,92 @@
+# Translated 2026-07-03 from the predecessor project's lib/ (issue #32).
+# v0.1 -> v2 transforms: text_styles field renames (font->font_family via the
+# pack's fonts, size->font_size, weight->font_weight, v_align->vertical_align,
+# wrap dropped - v2 wraps by default); stroke dicts split per P3 (paint in
+# `stroke`, geometry as Style props: width->stroke_width, dash->stroke_dasharray,
+# linecap/linejoin->stroke_*); ellipse box -> center/rx/ry.
+# Data is now source of truth HERE.
+colors:
+  primary: '#FFE600'
+  primary_dark: '#CCBA00'
+  secondary: '#2E2E38'
+  accent: '#1A1A24'
+  surface: '#FFFFFF'
+  surface_tinted: '#FFFDE0'
+  panel: '#FFF8B0'
+  text: '#2E2E38'
+  text_muted: '#747480'
+  border: '#E8DC80'
+  border_strong: '#CCBA00'
+  white: '#FFFFFF'
+  node_fill: '#2E2E38'
+  data_1: '#FFE600'
+  data_2: '#2E2E38'
+  data_3: '#FFF176'
+  data_4: '#BDBDBD'
+  data_5: '#1565C0'
+fonts:
+  primary:
+    family: Arial, Helvetica, sans-serif
+  heading:
+    family: Arial, Helvetica, sans-serif
+text_styles:
+  node_label:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 13
+    font_weight: 700
+    color: text
+    align: center
+  node_desc:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 9
+    font_weight: 400
+    color: text_muted
+    align: center
+    italic: true
+  center_label:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 13
+    font_weight: 700
+    color: secondary
+    align: center
+    line_height: 16
+  icon_label:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 22
+    font_weight: 700
+    color: primary
+    align: center
+  title:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 20
+    font_weight: 700
+    color: secondary
+    align: left
+stroke_styles:
+  web:
+    stroke: border
+    stroke_width: 0.8
+  circle_outline:
+    stroke: primary_dark
+    stroke_width: 2.0
+  center_outline:
+    stroke: secondary
+    stroke_width: 1.5
+  accent_rule:
+    stroke: primary
+    stroke_width: 4.0

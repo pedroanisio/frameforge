@@ -4,6 +4,26 @@
 
 ---
 
+## Unreleased — content library: themes, symbol packs, generators (2026-07-03, issue #32)
+
+`framegraph.library` — the predecessor project's content library absorbed
+as committed v2 data (§13 bounded context). 7 consulting token packs
+(`bain`/`bcg`/`deloitte`/`ey`/`kpmg`/`mckinsey`/`pwc`) translated to
+`defs.tokens` fragments; 4 symbol packs (`covers`, `sections`, `shared`,
+`hex` — 13 symbols) lowered through `sdk.expand`; the two data-driven
+generators (`honeycomb_capability_map`, `module_hub_radial`) ported with
+their geometry and committed example data. Translation notes: v0.1 style
+field renames (`font`→`font_family` lists, `size`/`weight`→`font_*`,
+`v_align`→`vertical_align`), P3 stroke split with Style-bag names
+(`stroke`/`stroke_width`/`stroke_dasharray`), `ellipse` → center/rx/ry;
+generators drop v0.1's `hash()`-derived color tokens (nondeterministic)
+for literal pass-through, auto-grow the honeycomb canvas instead of
+clipping, and paint the hub detail block above the node layer. Gates:
+`tests/test_library.py` (7 theme render probes, symbol expansion, both
+generators reproduce their examples, zero uncontained text everywhere);
+fixture `library-honeycomb.fg.yaml` (corpus 30→31, 0 errors 0 warnings);
+runnable `static/examples/library_showcase.py`. Docs: `docs/library.md`.
+
 ## Unreleased — backend-neutral flow layout · Knuth–Plass + hyphenation (2026-07-02)
 
 Flow-mode prose gets a single backend-neutral layout engine

@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 84 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 85 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -55,6 +55,7 @@ The 84 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`layout_methods_book.py`](../static/examples/layout_methods_book.py) | Compose *Layout Methods — A Field Guide* as a native FrameGraph book. |
 | [`layout_methods_chapter.py`](../static/examples/layout_methods_chapter.py) | *Layout Methods — A Field Guide* as a native FrameGraph ``mode: flow`` book. |
 | [`layout_methods_figures.py`](../static/examples/layout_methods_figures.py) | Illustration plates for the book chapter *Layout Methods — A Field Guide*. |
+| [`library_showcase.py`](../static/examples/library_showcase.py) | Library showcase — themes, symbol packs, and generators end to end. |
 | [`marina_whale.py`](../static/examples/marina_whale.py) | Marina and the Singing Sea — a polished children's picture book via the FrameGraph SDK. |
 | [`meridian_consulting_deck.py`](../static/examples/meridian_consulting_deck.py) | Project Northwind - a complete 40-slide management-consulting deck, built with the SDK. |
 | [`naval_engineering_deck.py`](../static/examples/naval_engineering_deck.py) | Demo: author a 30-page naval-engineering deck with the FrameGraph Python SDK. |

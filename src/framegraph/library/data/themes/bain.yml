@@ -1,0 +1,102 @@
+# Translated 2026-07-03 from the predecessor project's lib/ (issue #32).
+# v0.1 -> v2 transforms: text_styles field renames (font->font_family via the
+# pack's fonts, size->font_size, weight->font_weight, v_align->vertical_align,
+# wrap dropped - v2 wraps by default); stroke dicts split per P3 (paint in
+# `stroke`, geometry as Style props: width->stroke_width, dash->stroke_dasharray,
+# linecap/linejoin->stroke_*); ellipse box -> center/rx/ry.
+# Data is now source of truth HERE.
+colors:
+  primary: '#CC0000'
+  primary_light: '#FF4444'
+  secondary: '#003366'
+  accent: '#FF6600'
+  surface: '#FFFFFF'
+  surface_tinted: '#FFF5F5'
+  panel: '#F5E6E6'
+  text: '#1A1A1A'
+  text_muted: '#666666'
+  border: '#E0CCCC'
+  border_strong: '#CC0000'
+  white: '#FFFFFF'
+  data_1: '#CC0000'
+  data_2: '#003366'
+  data_3: '#FF6600'
+  data_4: '#F5C6C6'
+  data_5: '#5B9E4D'
+  data_6: '#6AAFE6'
+fonts:
+  primary:
+    family: Arial, Helvetica, sans-serif
+  heading:
+    family: Arial, Helvetica, sans-serif
+text_styles:
+  slide_title:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 22
+    font_weight: 700
+    color: primary
+    align: left
+    line_height: 26
+  node_label:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 13
+    font_weight: 700
+    color: text
+    align: center
+  node_desc:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 9
+    font_weight: 400
+    color: text_muted
+    align: center
+    italic: true
+  center_label:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 13
+    font_weight: 700
+    color: secondary
+    align: center
+    line_height: 16
+  icon_label:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 22
+    font_weight: 700
+    color: white
+    align: center
+  title:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 20
+    font_weight: 700
+    color: primary
+    align: left
+stroke_styles:
+  web:
+    stroke: border
+    stroke_width: 0.8
+  circle_outline:
+    stroke: primary
+    stroke_width: 2.0
+  center_outline:
+    stroke: secondary
+    stroke_width: 1.5
+  accent_rule:
+    stroke: primary
+    stroke_width: 4.0
