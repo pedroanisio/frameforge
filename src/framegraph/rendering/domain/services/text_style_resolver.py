@@ -107,7 +107,7 @@ class TextStyleResolver:
             "min_font_size": num(merged.get("min_font_size")),
             "text_overflow": merged.get("text_overflow"),
             "max_lines": merged.get("line_clamp") or merged.get("max_lines"),
-            "valign": merged.get("vertical_align"),
+            "valign": merged.get("vertical_align") or merged.get("v_align"),
             "nowrap": merged.get("white_space") == "nowrap" or tw == "nowrap" or merged.get("wrap") is False,
         }
 

@@ -490,11 +490,18 @@ class TikzPainter:
         # builder-computed y, matching the SVG baseline model).
         return {"middle": "base", "end": "base east"}.get(anchor, "base west")
 
-    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy, justify_width=None, justifies=None):
+    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy, justify_width=None,
+                   justifies=None, baseline=None):
         """Multi-line text: one `\\node` per line on the baseline grid (base_y +
         i·line_dy). Structurally implemented; visual baseline/leading fidelity is
         pending a LaTeX-engine validation pass (none in this environment)."""
-        opts = [f"anchor={self._base_anchor(anchor)}", "inner sep=0pt", f"font={self._font(st)}"]
+        # `baseline` set (a centred single line seated on the box centre, the SVG
+        # dominant-baseline path) → anchor the node on its vertical `mid` instead
+        # of the baseline so the number centres in TikZ too.
+        va = self._base_anchor(anchor)
+        if baseline:
+            va = va.replace("base", "mid")
+        opts = [f"anchor={va}", "inner sep=0pt", f"font={self._font(st)}"]
         cexpr, op = color_expr(st.get("color"))
         if cexpr:
             opts.append(f"text={cexpr}")
@@ -505,11 +512,12 @@ class TikzPainter:
             f"\\node[{opt_str}] at ({fnum(tx)},{fnum(base_y + i * line_dy)}) {{{ltx_escape(ln)}}};\n"
             for i, ln in enumerate(lines))
 
-    def text_runs(self, base_y, anchor, tx, base_st, size, runs, text_len=None):
+    def text_runs(self, base_y, anchor, tx, base_st, size, runs, text_len=None, baseline=None):
         """A single baseline of inline styled runs (rich `text.spans`) as one node
         whose body concatenates per-run font/colour groups. Structurally
         implemented; inline-flow fidelity pending LaTeX-engine validation."""
-        opts = [f"anchor={self._base_anchor(anchor)}", "inner sep=0pt", f"font={self._font(base_st)}"]
+        va = self._base_anchor(anchor).replace("base", "mid") if baseline else self._base_anchor(anchor)
+        opts = [f"anchor={va}", "inner sep=0pt", f"font={self._font(base_st)}"]
         body = []
         for text, run_st in runs:
             cexpr, _op = color_expr(run_st.get("color"))

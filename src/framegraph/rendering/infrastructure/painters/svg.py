@@ -652,8 +652,9 @@ class SvgPainter:
                 f'{fit} style="{style}">{esc(content)}</text>')
 
     def text_block(self, base_y, anchor, st, size, lines, tx, line_dy,
-                   justify_width=None, justifies=None):
+                   justify_width=None, justifies=None, baseline=None):
         style = self.font_style(st, size)
+        dom = f' dominant-baseline="{baseline}"' if baseline else ""
         n = len(lines)
         # `justify_width` set → flush the lines `justifies[i]` marks (default: all
         # but the last) to the column via textLength; None → unchanged.
@@ -667,9 +668,9 @@ class SvgPainter:
                    if flush(i, ln) else "")
             return f'<tspan x="{fnum(tx)}"{dy}{fit}>{esc(ln)}</tspan>'
         spans = "".join(span(i, ln) for i, ln in enumerate(lines))
-        return f'<text y="{fnum(base_y)}" text-anchor="{anchor}" style="{style}">{spans}</text>'
+        return f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{dom} style="{style}">{spans}</text>'
 
-    def text_runs(self, base_y, anchor, tx, base_st, size, runs, text_len=None):
+    def text_runs(self, base_y, anchor, tx, base_st, size, runs, text_len=None, baseline=None):
         """A single baseline of inline styled runs (rich `text.spans`).
 
         `runs` is a list of (text, run_style_dict) pairs — the neutral style dicts;
@@ -689,7 +690,8 @@ class SvgPainter:
             segs.append(seg)
         fit = (f' textLength="{fnum(text_len)}" lengthAdjust="spacing"'
                if text_len is not None and anchor == "start" else "")
-        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{fit} '
+        dom = f' dominant-baseline="{baseline}"' if baseline else ""
+        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{fit}{dom} '
                 f'style="{base_style}">{"".join(segs)}</text>')
 
     def text_line_runs(self, x, y, w, h, groups, st):

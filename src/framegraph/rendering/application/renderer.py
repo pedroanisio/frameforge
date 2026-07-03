@@ -390,14 +390,28 @@ class Renderer:
         total_h = len(lines) * size * lh
         va = st["valign"]
         if va in ("top", "text-top", "super"):
-            top = y
+            top, centered = y, False
         elif va in ("bottom", "text-bottom", "sub"):
-            top = y + max(0, h - total_h)
+            top, centered = y + max(0, h - total_h), False
         elif va in ("middle", "central", "center", "baseline"):
-            top = y + max(0, (h - total_h) / 2)
+            top, centered = y + max(0, (h - total_h) / 2), True
         else:
-            top = y if (len(lines) > 1 or h > size * 2.4) else y + max(0, (h - total_h) / 2)
+            # No explicit vertical-align: a lone line centres in its box; multi-line
+            # prose top-anchors. (Was: a single line in a box taller than 2.4x the
+            # font top-anchored — which threw a badge number to the top of the shape.)
+            centered = len(lines) == 1
+            top = y + max(0, (h - total_h) / 2) if centered else y
         base = top + size * 0.82
+        # Optical vertical centring: hand a single centred line to the SVG's own
+        # baseline metrics instead of a fixed 0.82 line-box ratio. We emit the box
+        # centre as y and `dominant-baseline: central`, so the renderer seats the
+        # line on the font's real asc/desc midpoint at draw time — symmetric with
+        # how `text-anchor: middle` centres horizontally without a hardcoded width.
+        # The y is deterministic geometry (golden-stable); no per-font metric leaks
+        # into the SVG string.
+        dom_baseline = None
+        if centered and len(lines) == 1 and h > 0:
+            base, dom_baseline = y + h / 2, "central"
 
         a = self._painter.anchor(st["align"])
         tx = x + (w / 2 if a == "middle" else (w if a == "end" else 0))
@@ -434,9 +448,11 @@ class Renderer:
             el = self._painter.text_block(base, "start", st, size, lines, x, size * lh,
                                           justify_width=w, justifies=justs)
         elif single_span_line:
-            el = self._painter.text_runs(base, a, tx, st, size, self._span_runs(spans, st))
+            el = self._painter.text_runs(base, a, tx, st, size, self._span_runs(spans, st),
+                                         baseline=dom_baseline)
         else:
-            el = self._painter.text_block(base, a, st, size, lines, tx, size * lh)
+            el = self._painter.text_block(base, a, st, size, lines, tx, size * lh,
+                                          baseline=dom_baseline)
 
         # telemetry: is it visually contained?
         widest = max((self.measure(ln, size, avg, st) for ln in lines), default=0)
