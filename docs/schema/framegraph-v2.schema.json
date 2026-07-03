@@ -28,6 +28,90 @@
       "title": "AnchorObject",
       "type": "object"
     },
+    "AppearancePass": {
+      "additionalProperties": false,
+      "description": "One paint pass of the appearance stack (2.4.0, W4/#48): the object's\ngeometry re-painted with this pass's fill/stroke, bottom→top in list\norder. Outside the deep-core profile (§8.5).",
+      "properties": {
+        "fill": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Gradient"
+            },
+            {
+              "$ref": "#/$defs/Pattern"
+            },
+            {
+              "$ref": "#/$defs/UrlImage"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pass fill paint (colour/gradient/pattern).",
+          "title": "Fill"
+        },
+        "stroke": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Gradient"
+            },
+            {
+              "$ref": "#/$defs/Pattern"
+            },
+            {
+              "$ref": "#/$defs/UrlImage"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pass stroke PAINT (P3: geometry in stroke_style).",
+          "title": "Stroke"
+        },
+        "stroke_style": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Style"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pass stroke geometry: a tokens.stroke_styles key or an inline Style bundle.",
+          "title": "Stroke Style"
+        },
+        "opacity": {
+          "anyOf": [
+            {
+              "description": "Unit-interval number in 0.0..1.0.",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pass opacity in 0..1.",
+          "title": "Opacity"
+        }
+      },
+      "title": "AppearancePass",
+      "type": "object"
+    },
     "AssetDef": {
       "additionalProperties": false,
       "properties": {
@@ -948,6 +1032,38 @@
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
         },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
+        },
         "outer_ring": {
           "anyOf": [
             {
@@ -1573,6 +1689,38 @@
           "default": null,
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
+        },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
         },
         "outer_ring": {
           "anyOf": [
@@ -2349,6 +2497,38 @@
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
         },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
+        },
         "outer_ring": {
           "anyOf": [
             {
@@ -3000,6 +3180,38 @@
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
         },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
+        },
         "outer_ring": {
           "anyOf": [
             {
@@ -3557,6 +3769,38 @@
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
         },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
+        },
         "outer_ring": {
           "anyOf": [
             {
@@ -3879,6 +4123,107 @@
       "title": "EffectObject",
       "type": "object"
     },
+    "EffectStackEntry": {
+      "additionalProperties": false,
+      "description": "One entry of the ordered per-object effect stack (2.4.0, W4/#48).\n\nUnlike the single `shadow`/`glow` fields, the stack is ORDERED and a\nkind may repeat; entries apply first→last (the last wraps outermost).\nOutside the deep-core profile (§8.5).",
+      "properties": {
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Effect colour.",
+          "title": "Color"
+        },
+        "blur": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Blur radius of the effect.",
+          "title": "Blur"
+        },
+        "dx": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Horizontal effect offset (+x right).",
+          "title": "Dx"
+        },
+        "dy": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Vertical effect offset (+y down).",
+          "title": "Dy"
+        },
+        "opacity": {
+          "anyOf": [
+            {
+              "description": "Unit-interval number in 0.0..1.0.",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Effect opacity in 0..1.",
+          "title": "Opacity"
+        },
+        "kind": {
+          "description": "Effect family the entry's parameters feed.",
+          "enum": [
+            "shadow",
+            "glow"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "preset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Named preset of the kind (e.g. 'neon', 'soft_shadow'); explicit params override it.",
+          "title": "Preset"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "EffectStackEntry",
+      "type": "object"
+    },
     "Ellipse": {
       "additionalProperties": false,
       "properties": {
@@ -4123,6 +4468,38 @@
           "default": null,
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
+        },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
         },
         "outer_ring": {
           "anyOf": [
@@ -6063,6 +6440,38 @@
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
         },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
+        },
         "outer_ring": {
           "anyOf": [
             {
@@ -6699,6 +7108,38 @@
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
         },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
+        },
         "outer_ring": {
           "anyOf": [
             {
@@ -7069,6 +7510,38 @@
           "default": null,
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
+        },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
         },
         "outer_ring": {
           "anyOf": [
@@ -8223,6 +8696,38 @@
           "default": null,
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
+        },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
         },
         "outer_ring": {
           "anyOf": [
@@ -9982,6 +10487,38 @@
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
         },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
+        },
         "outer_ring": {
           "anyOf": [
             {
@@ -10703,6 +11240,38 @@
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
         },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
+        },
         "outer_ring": {
           "anyOf": [
             {
@@ -11088,6 +11657,38 @@
           "default": null,
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
+        },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
         },
         "outer_ring": {
           "anyOf": [
@@ -11487,6 +12088,38 @@
           "default": null,
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
+        },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
         },
         "outer_ring": {
           "anyOf": [
@@ -15233,6 +15866,38 @@
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
         },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
+        },
         "outer_ring": {
           "anyOf": [
             {
@@ -15796,6 +16461,38 @@
           "default": null,
           "description": "Glow effect: preset name, bool, or EffectObject.",
           "title": "Glow"
+        },
+        "effects": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EffectStackEntry"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORDERED effect stack (2.4.0): entries apply first→last and a kind may repeat — the live-effects analogue of the single shadow/glow fields. Out of the deep-core profile (§8.5).",
+          "title": "Effects"
+        },
+        "appearance": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppearancePass"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Appearance stack (2.4.0): the geometry is painted once per pass (fill/stroke/opacity), bottom→top in list order. Out of the deep-core profile (§8.5).",
+          "title": "Appearance"
         },
         "outer_ring": {
           "anyOf": [
@@ -16625,9 +17322,9 @@
     "version",
     "pages"
   ],
-  "title": "FrameGraph v2 (HEAD 2.3.0) — generated from the Pydantic models (core conformance profile)",
+  "title": "FrameGraph v2 (HEAD 2.4.0) — generated from the Pydantic models (core conformance profile)",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://framegraph.dev/schema/2.3.0/framegraph-v2.schema.json",
-  "version": "2.3.0"
+  "$id": "https://framegraph.dev/schema/2.4.0/framegraph-v2.schema.json",
+  "version": "2.4.0"
 }

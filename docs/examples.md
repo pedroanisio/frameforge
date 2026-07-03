@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 87 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 90 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -56,6 +56,7 @@ The 87 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`layout_methods_book.py`](../static/examples/layout_methods_book.py) | Compose *Layout Methods — A Field Guide* as a native FrameGraph book. |
 | [`layout_methods_chapter.py`](../static/examples/layout_methods_chapter.py) | *Layout Methods — A Field Guide* as a native FrameGraph ``mode: flow`` book. |
 | [`layout_methods_figures.py`](../static/examples/layout_methods_figures.py) | Illustration plates for the book chapter *Layout Methods — A Field Guide*. |
+| [`libfy_letter.py`](../static/examples/libfy_letter.py) | libfy_letter.py — "Libfy": a one-page US-Letter broadside. |
 | [`library_showcase.py`](../static/examples/library_showcase.py) | Library showcase — themes, symbol packs, and generators end to end. |
 | [`marina_whale.py`](../static/examples/marina_whale.py) | Marina and the Singing Sea — a polished children's picture book via the FrameGraph SDK. |
 | [`meridian_consulting_deck.py`](../static/examples/meridian_consulting_deck.py) | Project Northwind - a complete 40-slide management-consulting deck, built with the SDK. |
@@ -90,6 +91,7 @@ The 87 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`starlight_fox.py`](../static/examples/starlight_fox.py) | Starlight Fox — a children's picture book authored entirely with the FrameGraph SDK. |
 | [`stratoscope.py`](../static/examples/stratoscope.py) | Stratoscope — one scalar field, two projections, one frame. |
 | [`stroke_outline_showcase.py`](../static/examples/stroke_outline_showcase.py) | Stroke-outline engine — filled outlines, brushes, kerning (issue #46, W2). |
+| [`style_richness_showcase.py`](../static/examples/style_richness_showcase.py) | Style & colour richness — effect stack, appearance stack, recolor, guide. |
 | [`sublime_ttl_screenshot.py`](../static/examples/sublime_ttl_screenshot.py) | Recreate the Sublime Text (.ttl) desktop screenshot with the FrameGraph SDK. |
 | [`syrus_proposal.py`](../static/examples/syrus_proposal.py) | SYRUS — client-acquisition proposal, built in the "Modern Sovereign" brand. |
 | [`topology_perspective.py`](../static/examples/topology_perspective.py) | Demo of the SDK topology + perspective helpers. |
@@ -103,3 +105,4 @@ The 87 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`web_design_proposal.py`](../static/examples/web_design_proposal.py) | Web Design Proposal — a premium editorial proposal booklet, authored with the SDK. |
 | [`widgets_gallery.py`](../static/examples/widgets_gallery.py) | Gallery + dashboard for the SDK's UI-widget layer (``framegraph.sdk.widgets``). |
 | [`world_cup_book.py`](../static/examples/world_cup_book.py) | World Cup — a 20-page illustrated book authored entirely with the FrameGraph SDK. |
+| [`zen_libficar.py`](../static/examples/zen_libficar.py) | zen_libficar.py — "Zen e a arte de reColher" · A6 pocket book (the SDK way). |

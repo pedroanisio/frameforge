@@ -1,8 +1,39 @@
 # FrameGraph v2 — CHANGELOG (HEAD)
 
-**Version:** `2.3.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-02
+**Version:** `2.4.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-03
 
 ---
+
+## 2.4.0 — parity W4: style & colour richness (2026-07-03, issue #48)
+
+**Schema minor bump 2.3.0 → 2.4.0** — two ADDITIVE model fields on ObjBase,
+both outside the deep-core profile (§8.5, charts precedent; grammar core
+untouched, schema regenerated to 85 $defs):
+
+- **`effects`** (AI-30 PARTIAL→HAS): an ORDERED effect stack — entries
+  `{kind: shadow|glow, preset?, color/blur/dx/dy/opacity?}` apply
+  first→last and a kind may repeat (the single `shadow`/`glow` fields
+  cannot); presets seed params, explicit keys override. Absence is
+  identity (effect-free renders are byte-identical; golden gate green).
+- **`appearance`** (AI-32 PARTIAL→HAS): multiple paint passes over one
+  geometry — each pass paints only what it declares (fill / stroke /
+  stroke_style / opacity), bottom→top; clones drop ids/binds so identity
+  appears once; object-level effects and opacity wrap the whole stack.
+- **`sdk.recolor(doc, mapping)`** (AI-16 PARTIAL→HAS): one-call palette
+  remap — `defs.tokens.colors` by name or value, paint literals under
+  paint keys only (a hex inside text content is never rewritten), and
+  gradient stops; case-insensitive, input never mutated.
+- **`chevreul.color_guide(base)`** (AI-18 PARTIAL→HAS): the six Chevreul
+  harmonies for any base colour (snapped to its nearest wheel station),
+  ready to feed `closed_palette` / `recolor`.
+
+13 red-first tests (`tests/test_style_richness.py`); fixture
+`style-richness.fg.yaml` (corpus 34→35, 0/0 — the effect filters are
+structurally verified in the SVG; the cairosvg proxy ignores filter
+primitives, browsers render them); runnable
+`static/examples/style_richness_showcase.py`. Teardown + audit
+regenerated: **21 HAS / 7 PARTIAL / 10 REFRAMED / 13 NONE** (full 41 %,
+reachable 75 %).
 
 ## Unreleased — parity W2: the stroke-outline engine + curve/type finesse (2026-07-03, issue #46)
 

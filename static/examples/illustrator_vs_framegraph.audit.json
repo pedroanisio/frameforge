@@ -5,9 +5,9 @@
     "generated_at": "2026-07-03",
     "source_code": {
       "repo": "frameforge",
-      "git_commit": "2e700e2be874bbc8751176ed50eb4b0fb0e38ad2",
-      "git_short": "2e700e2be8",
-      "git_branch": "feat/46-stroke-outline-engine",
+      "git_commit": "26f2bbdcc93cdb6ea0e91f2f057229497d765cba",
+      "git_short": "26f2bbdcc9",
+      "git_branch": "feat/48-style-colour-richness",
       "git_dirty": true,
       "builder": "static/examples/illustrator_vs_framegraph.py"
     },
@@ -80,8 +80,8 @@
   "score": {
     "total_features": 51,
     "counts": {
-      "has": 17,
-      "part": 11,
+      "has": 21,
+      "part": 7,
       "invert": 10,
       "none": 13
     },
@@ -92,12 +92,12 @@
       "true_gap": 7
     },
     "scores": {
-      "full_equivalent_pct": 33.3,
+      "full_equivalent_pct": 41.2,
       "full_or_partial_pct": 54.9,
       "any_route_pct": 74.5
     },
     "score_formulas": {
-      "full_equivalent": "has/total = 17/51",
+      "full_equivalent": "has/total = 21/51",
       "full_or_partial": "(has+part)/total = 28/51  (REFRAMED & NONE excluded)",
       "any_route": "(has+part+reframed)/total = 38/51  (REFRAMED counted as reachable)"
     }
@@ -127,8 +127,8 @@
       "group": "C · COLOUR SYSTEM",
       "n": 7,
       "counts": {
-        "has": 3,
-        "part": 4,
+        "has": 5,
+        "part": 2,
         "invert": 0,
         "none": 0
       }
@@ -147,8 +147,8 @@
       "group": "E · GRADIENT · EFFECT · STYLE",
       "n": 7,
       "counts": {
-        "has": 2,
-        "part": 2,
+        "has": 4,
+        "part": 0,
         "invert": 0,
         "none": 3
       }
@@ -374,11 +374,11 @@
       "framegraph_coverage": "rect, ellipse, circle, polygon, line, polyline (17 object_types).",
       "framegraph_manifest_refs": [
         "polyline",
-        "ellipse",
         "polygon",
+        "ellipse",
         "circle",
-        "line",
-        "rect"
+        "rect",
+        "line"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -595,17 +595,16 @@
         "title": "Adobe Illustrator 2024 User's Guide",
         "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "gradient_map + closed_palette + token swap (declarative recolor).",
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "recolor() — one-call palette remap: tokens, paint literals, gradient stops; plus gradient_map.",
       "framegraph_manifest_refs": [
-        "closed_palette",
         "gradient_map"
       ],
-      "confidence": "M",
+      "confidence": "H",
       "equivalence_dimension": "W",
       "gap_type": null,
-      "rationale": "Declarative palette/gradient_map remap, not a Recolor dialog."
+      "rationale": "recolor() landed (W4): one call remaps tokens by name/value, paint literals and gradient stops, case-insensitively."
     },
     {
       "id": "AI-17",
@@ -622,8 +621,8 @@
       "verdict_label": "PARTIAL",
       "framegraph_coverage": "region toolkit: select_in / place_region / region_grade.",
       "framegraph_manifest_refs": [
-        "region_grade",
         "place_region",
+        "region_grade",
         "select_in"
       ],
       "confidence": "M",
@@ -642,14 +641,14 @@
         "title": "Adobe Illustrator 2024 User's Guide",
         "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "Chevreul harmony + WCAG contrast tools — not a Color-Guide workflow.",
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "chevreul.color_guide() — the six harmonies for any base colour + WCAG contrast tools.",
       "framegraph_manifest_refs": [],
-      "confidence": "M",
+      "confidence": "H",
       "equivalence_dimension": "W",
       "gap_type": null,
-      "rationale": "Harmony/contrast tools overlap Color Guide, not a 1:1 workflow."
+      "rationale": "color_guide() landed (W4): the six Chevreul harmonies for any base colour, ready to feed closed_palette/recolor."
     },
     {
       "id": "AI-19",
@@ -693,8 +692,8 @@
       "framegraph_manifest_refs": [
         "paragraph",
         "heading",
-        "list",
-        "text"
+        "text",
+        "list"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -758,8 +757,8 @@
       "verdict_label": "NONE",
       "framegraph_coverage": "no text-on-path (explicit scope limit).",
       "framegraph_manifest_refs": [
-        "text",
-        "path"
+        "path",
+        "text"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -805,8 +804,8 @@
       "verdict_label": "NONE",
       "framegraph_coverage": "non-goal — text stays on its baseline grid.",
       "framegraph_manifest_refs": [
-        "text",
-        "grid"
+        "grid",
+        "text"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -828,8 +827,8 @@
       "verdict_label": "HAS",
       "framegraph_coverage": "linear_gradient / radial_gradient paint.",
       "framegraph_manifest_refs": [
-        "linear_gradient",
-        "radial_gradient"
+        "radial_gradient",
+        "linear_gradient"
       ],
       "confidence": "H",
       "equivalence_dimension": "F",
@@ -907,21 +906,16 @@
         "title": "Master Adobe Illustrator 2025",
         "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "effects set: glow / neon / shadow / soft_shadow / hatch.",
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "ordered `effects` stack (2.4.0): kinds repeat, preset + param entries, applied first→last.",
       "framegraph_manifest_refs": [
-        "soft_shadow",
-        "effects",
-        "shadow",
-        "hatch",
-        "glow",
-        "neon"
+        "effects"
       ],
-      "confidence": "M",
+      "confidence": "H",
       "equivalence_dimension": "F",
       "gap_type": null,
-      "rationale": "Static effect set; not a live non-destructive stack."
+      "rationale": "The ordered effects stack landed (W4, 2.4.0 additive): repeatable kinds, presets with param overrides, declarative and non-destructive by construction."
     },
     {
       "id": "AI-31",
@@ -954,14 +948,16 @@
         "title": "Adobe Illustrator 2024 User's Guide",
         "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
       },
-      "verdict": "part",
-      "verdict_label": "PARTIAL",
-      "framegraph_coverage": "one style per object; no multi-fill appearance stack.",
-      "framegraph_manifest_refs": [],
-      "confidence": "M",
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "`appearance` stack (2.4.0): the geometry painted once per pass — fill / stroke / opacity, bottom→top.",
+      "framegraph_manifest_refs": [
+        "stroke"
+      ],
+      "confidence": "H",
       "equivalence_dimension": "F",
       "gap_type": null,
-      "rationale": "One style per object; no appearance stack."
+      "rationale": "The appearance stack landed (W4, 2.4.0 additive): multiple fill/stroke passes over one geometry, bottom→top."
     },
     {
       "id": "AI-33",

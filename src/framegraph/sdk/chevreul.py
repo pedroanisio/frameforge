@@ -328,6 +328,7 @@ __all__ = [
     "contrast_ratio",
     "dominant_light",
     "grey_document",
+    "color_guide",
     "harmony_of_hues",
     "harmony_of_scale",
     "nearest_station",
@@ -335,3 +336,24 @@ __all__ = [
     "to_grey",
     "tone_scale",
 ]
+
+def color_guide(base: "Color", *, n: int = 5) -> dict[str, list["Color"]]:
+    """The six harmonies for one base colour — the declarative Color Guide
+    (AI-18, W4/#48). The base is snapped to its nearest wheel station for
+    the station-keyed harmonies; deterministic for a given input.
+
+    Returns ``{harmony_name: [colors]}`` for ``scale``, ``hues``,
+    ``dominant_light``, ``contrast_of_scale``, ``contrast_of_hues`` and
+    ``contrast_of_colours`` — feed any entry to ``closed_palette`` /
+    ``recolor`` to apply it.
+    """
+    station = nearest_station(base)
+    return {
+        "scale": harmony_of_scale(base, n=n),
+        "hues": harmony_of_hues(station, n=min(n, 3)),
+        "dominant_light": dominant_light(
+            harmony_of_hues(station, n=min(n, 3)), tint=base),
+        "contrast_of_scale": list(contrast_of_scale(base)),
+        "contrast_of_hues": list(contrast_of_hues(station)),
+        "contrast_of_colours": list(contrast_of_colours(station)),
+    }

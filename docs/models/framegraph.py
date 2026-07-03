@@ -38,7 +38,7 @@ from pydantic import (
     model_validator,
 )
 
-HEAD_VERSION = "2.3.0"  # v2 line; 2.3.0 adds typed Connector, per-field schema descriptions, R12 referential integrity, Length/Angle value patterns (additive). 2.2.0 adopted the authoritative style module; P3 stroke collapse remains the one breaking change (codemod provided).
+HEAD_VERSION = "2.4.0"  # v2 line; 2.4.0 adds the ordered per-object effect stack (`effects`) and the multi-pass appearance stack (`appearance`) — additive, outside the deep-core profile (§8.5, W4/#48). 2.3.0 added typed Connector, per-field schema descriptions, R12 referential integrity, Length/Angle value patterns (additive). 2.2.0 adopted the authoritative style module; P3 stroke collapse remains the one breaking change (codemod provided).
 
 
 # --------------------------------------------------------------------------- #
@@ -661,6 +661,36 @@ class EffectObject(FG):
 Effect = Union[str, bool, EffectObject]
 
 
+class EffectStackEntry(EffectObject):
+    """One entry of the ordered per-object effect stack (2.4.0, W4/#48).
+
+    Unlike the single `shadow`/`glow` fields, the stack is ORDERED and a
+    kind may repeat; entries apply first→last (the last wraps outermost).
+    Outside the deep-core profile (§8.5)."""
+
+    kind: Literal["shadow", "glow"] = Field(
+        description="Effect family the entry's parameters feed.")
+    preset: Optional[str] = Field(
+        default=None, description="Named preset of the kind (e.g. 'neon', "
+                                  "'soft_shadow'); explicit params override it.")
+
+
+class AppearancePass(FG):
+    """One paint pass of the appearance stack (2.4.0, W4/#48): the object's
+    geometry re-painted with this pass's fill/stroke, bottom→top in list
+    order. Outside the deep-core profile (§8.5)."""
+
+    fill: Optional[Paint] = Field(
+        default=None, description="Pass fill paint (colour/gradient/pattern).")
+    stroke: Optional[Paint] = Field(
+        default=None, description="Pass stroke PAINT (P3: geometry in stroke_style).")
+    stroke_style: Optional[StrokeStyleRef] = Field(
+        default=None, description="Pass stroke geometry: a tokens.stroke_styles "
+                                  "key or an inline Style bundle.")
+    opacity: Optional[UnitInterval] = Field(
+        default=None, description="Pass opacity in 0..1.")
+
+
 class OuterRing(FG):
     color: Optional[Color] = Field(default=None, description="Ring stroke colour.")
     width: Optional[float] = Field(default=None, description="Ring stroke width.")
@@ -847,6 +877,16 @@ class ObjBase(FG):
         default=None, description="Drop-shadow effect: preset name, bool, or EffectObject.")
     glow: Optional[Effect] = Field(
         default=None, description="Glow effect: preset name, bool, or EffectObject.")
+    effects: Optional[list[EffectStackEntry]] = Field(
+        default=None, description="ORDERED effect stack (2.4.0): entries apply "
+                                  "first→last and a kind may repeat — the live-"
+                                  "effects analogue of the single shadow/glow "
+                                  "fields. Out of the deep-core profile (§8.5).")
+    appearance: Optional[list[AppearancePass]] = Field(
+        default=None, description="Appearance stack (2.4.0): the geometry is "
+                                  "painted once per pass (fill/stroke/opacity), "
+                                  "bottom→top in list order. Out of the deep-"
+                                  "core profile (§8.5).")
     outer_ring: Optional[OuterRing] = Field(
         default=None, description="Decorative ring drawn around the object at a gap/offset.")
     grid_span: Optional[Annotated[list[int], Field(min_length=2, max_length=2)]] = Field(

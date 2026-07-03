@@ -512,7 +512,11 @@ class Renderer:
         if not isinstance(o, dict):
             return ""
         try:
-            inner = self._obj(o)
+            passes = o.get("appearance")
+            if isinstance(passes, (list, tuple)) and passes:
+                inner = self._appearance_stack(o, passes)
+            else:
+                inner = self._obj(o)
             if inner:
                 inner = self._with_side_borders(o, self._style_dict(o.get("style")), inner)
                 inner = self._with_outline(o, self._style_dict(o.get("style")), inner)
@@ -586,6 +590,32 @@ class Renderer:
         )
         return svg + outline_rect
 
+    def _appearance_stack(self, o, passes):
+        """The appearance stack (2.4.0, W4/#48): paint the object's geometry
+        once per pass, bottom→top in list order. Each pass paints ONLY what
+        it declares (a stroke-only pass fills nothing); clones drop identity
+        fields so ids/binds appear once, and effects/opacity stay on the
+        outer chain, wrapping the whole stack."""
+        parts = []
+        for p in passes:
+            if not isinstance(p, dict):
+                continue
+            clone = {k: v for k, v in o.items()
+                     if k not in ("appearance", "id", "bind", "effects",
+                                  "shadow", "glow", "opacity",
+                                  "fill", "stroke", "stroke_style")}
+            clone["fill"] = p.get("fill") if p.get("fill") is not None else "none"
+            if p.get("stroke") is not None:
+                clone["stroke"] = p["stroke"]
+            if p.get("stroke_style") is not None:
+                clone["stroke_style"] = p["stroke_style"]
+            part = self._obj(clone)
+            if part and p.get("opacity") not in (None, 1):
+                part = self._painter.opacity_group(part, num(p["opacity"], 1))
+            if part:
+                parts.append(part)
+        return "".join(parts)
+
     def _with_effects(self, o, style, svg):
         """Wrap an object's SVG in effect filter group(s) if it declares them.
 
@@ -596,6 +626,26 @@ class Renderer:
             params = self._effect.resolve(o.get(kind), kind)
             if params is not None:
                 svg = self._painter.filter_wrap(svg, self._painter.filter_effect(kind, params))
+        # the ORDERED effect stack (2.4.0, W4/#48): entries apply first→last
+        # (each wrap nests the previous, so the last entry sits outermost);
+        # kinds may repeat, presets seed the params and explicit keys override
+        stack = o.get("effects")
+        if isinstance(stack, (list, tuple)):
+            for entry in stack:
+                if not isinstance(entry, dict):
+                    continue
+                kind = entry.get("kind")
+                if kind not in ("shadow", "glow"):
+                    continue
+                base = (self._effect.resolve(entry["preset"], kind) or {}
+                        if entry.get("preset") else {})
+                merged = {k: entry[k] if entry.get(k) is not None else base.get(k)
+                          for k in ("color", "blur", "dx", "dy", "opacity")}
+                merged = {k: v for k, v in merged.items() if v is not None}
+                params = self._effect.resolve(merged or True, kind)
+                if params is not None:
+                    svg = self._painter.filter_wrap(
+                        svg, self._painter.filter_effect(kind, params))
         for kind, params in self._effect.style_effects(style):
             svg = self._painter.filter_wrap(svg, self._painter.filter_effect(kind, params))
         return svg

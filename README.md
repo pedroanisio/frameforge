@@ -1,6 +1,6 @@
 # FrameGraph v2 — HEAD release
 
-A single, internally-consistent cut of **FrameGraph v2** (`2.3.0`) in which the
+A single, internally-consistent cut of **FrameGraph v2** (`2.4.0`) in which the
 documents, grammar, schema, prose, and Python code are kept in sync — the Pydantic
 models are the source of truth and everything else is generated from or checked
 against them.
@@ -22,7 +22,7 @@ src/framegraph/               ← the Python package (strictly downstream of the
   live/                       ← local web UI for live MCP feedback sessions (`make live`).
 docs/models/framegraph.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 docs/schema/
-  framegraph-v2.schema.json   ← GENERATED from the models (83 $defs). Do not hand-edit.
+  framegraph-v2.schema.json   ← GENERATED from the models (85 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
 docs/grammar/
   framegraph-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.
@@ -95,7 +95,7 @@ uv sync                                    # create/populate .venv
 # schema is generated and in sync
 uv run python docs/schema/build_schema.py --check
 
-# validate the delivered tracked fixtures — 34/34 zero errors in docs/FIXTURE-STATUS.md
+# validate the delivered tracked fixtures — 35/35 zero errors in docs/FIXTURE-STATUS.md
 make validate
 
 # migrate a legacy v2 document to HEAD
@@ -212,7 +212,7 @@ folded into the artifacts above; they are listed only for historical context:
 - Font pinning enables deterministic *layout* only up to a stated rounding **tolerance**
   (a defined shaping model is also required) — not pixel-exact identity (§9.6).
 - The current delivered top-level fixture status is generated in `FIXTURE-STATUS.md`;
-  at this snapshot **34/34** have zero errors. Advisory warnings, when present, are
+  at this snapshot **35/35** have zero errors. Advisory warnings, when present, are
   recorded there instead of summarized by hand here.
 - What FrameGraph can — and deliberately will not — generate is mapped in
   [docs/output-space.md](docs/output-space.md): the backends wired today (whose

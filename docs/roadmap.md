@@ -574,14 +574,15 @@ simply unbuilt), or **non-goal** (declared scope choice) — and every M/L row
 carries a confidence tag. The audit is git-stamped (`source_identity()`:
 frameforge commit + a dirty flag, "so the stamp cannot lie").
 
-**Scoreboard at 2.3.0 (post-W6 #50 + W2 #46):** 51 features → **17 HAS**
-(33%), **11 PARTIAL**, **10 REFRAMED**, **13 NONE** (6 architectural +
-1 maturity + 6 non-goals — the remaining maturity row is W1's buildable).
-Full-or-partial **28/51 = 55%**; *reachable by any route*
-(has+partial+reframed) **38/51 = 75%**. W6 corrected the map (five rows
-PARTIAL→REFRAMED, no new capability); W2 moved it (the stroke-outline
-engine + kerning turned AI-12/48 NONE→HAS, AI-24 PARTIAL→HAS, AI-49
-NONE→PARTIAL, AI-09 PARTIAL→REFRAMED).
+**Scoreboard at 2.4.0 (post-W6 #50, W2 #46, W4 #48):** 51 features →
+**21 HAS** (41%), **7 PARTIAL**, **10 REFRAMED**, **13 NONE**
+(6 architectural + 1 maturity + 6 non-goals — the remaining maturity row
+is W1's buildable). Full-or-partial **28/51 = 55%**; *reachable by any
+route* (has+partial+reframed) **38/51 = 75%**. W6 corrected the map; W2
+delivered the stroke-outline engine + kerning; W4 delivered the ordered
+`effects` stack and multi-pass `appearance` stack (the 2.4.0 additive
+model fields, outside the deep-core profile) plus `recolor()` and
+`chevreul.color_guide()` — AI-16/18/30/32 all PARTIAL→HAS.
 Earlier cuts scored higher (v1: 44 features, one manual, 48% full; v2: 46
 features, 63% full-or-partial) because each revision widened the surface and
 tightened the rubric — the drops are honesty, not regression. The full
@@ -604,7 +605,7 @@ work must not trade these away.
 | W1 | **Planar geometry kernel** — declarative path booleans (Pathfinder ops), path surgery (split-at / cut-along), **offset path** (outward/inward, Bézier-offset approximation), true Live-Paint region fills | AI-04, AI-05, AI-06, AI-17, AI-47 | M–L | Expansion-tier per §A.0: the SDK computes, the document receives plain `path` objects. Highest leverage: one kernel closes five rows |
 | W2 | **DELIVERED** ([#46](https://github.com/pedroanisio/frameforge/issues/46)) — `sdk.outline.stroke_outline` (one filled-outline emitter: constant width, `profile` taper, calligraphic `pen_angle`; caps/joins) + `repeat_along_path` (scatter/pattern stamps) + `kerned_spans`/`font_kern_pairs` + `Path.through()` verified; fixture `stroke-outline.fg.yaml`, runnable `stroke_outline_showcase.py`. Also fixed en route: structured-`d` path segments from a model dump rendered as stringified tuples in all three painters | AI-09, AI-12, AI-24, AI-48, AI-49 | S–L | AI-12/48 NONE→HAS, AI-24 PARTIAL→HAS, AI-49 NONE→PARTIAL, AI-09 PARTIAL→REFRAMED |
 | W3 | **Painterly colour** — freeform gradient + gradient mesh ("the single biggest gap") via expansion-tier subdivision shading (Scene3D Gouraud precedent); **shape/colour blend interpolation** (the Blend tool, declaratively: lerp matched anchors + colour at expansion) | AI-27, AI-28 (L), AI-29 (M) | M–L | Low priority; decision: emulate vs accept as the price of being a grammar |
-| W4 | **Style & colour richness** — ordered effect stack (M); appearance stack: multiple fill/stroke passes per object, out of the core profile (M); a `recolor()` convenience over token swap + `gradient_map` (S); harmony suggestions as the declarative Color Guide over `sdk.chevreul` (XS–S) | AI-30, AI-32, AI-16, AI-18 | S–M | Profile-gated schema additions where schema changes at all |
+| W4 | **DELIVERED** ([#48](https://github.com/pedroanisio/frameforge/issues/48)) — the 2.4.0 additive model fields: ordered `effects` stack (kinds repeat, presets + params, first→last) and multi-pass `appearance` stack (fill/stroke/opacity per pass, bottom→top), both outside the deep-core profile (§8.5); plus `sdk.recolor()` (tokens + literals + gradient stops in one call) and `chevreul.color_guide()` (the six harmonies). Fixture `style-richness.fg.yaml`, runnable `style_richness_showcase.py` | AI-16, AI-18, AI-30, AI-32 | S–M | All four rows PARTIAL→HAS; schema 2.3.0→2.4.0 (additive) |
 | W5 | **Text threading** — named-frame chains (flow region → region) as the declarative threaded text | AI-22 | M | **Operator decision** — today's flow auto-paginates; explicit frame linking is a new contract |
 | W6 | **DELIVERED** ([#50](https://github.com/pedroanisio/frameforge/issues/50)) — five rows re-verdicted PARTIAL→REFRAMED ·H with code-verified evidence (AI-02 workspace pin/nudge/snap + `construct_vectors`; AI-03 direct id addressing; AI-08 coordinates-are-the-pen + coach; AI-36 pages-are-the-artboards; AI-50 exactness by construction + `content_box` grids); AI-40 verified in code (`Scene3D.extrude`/`.revolve`/`Material` are real, projected to vectors) — stays PARTIAL ·H, bevel missing. Teardown + audit regenerated | AI-02, AI-03, AI-08, AI-36, AI-40, AI-50 | XS–S | No schema — delivered as documentation + re-verdicted teardown |
 | W7 | **Visual font identification** (Retype) — a vision-side classifier from rendered glyphs to `list_fonts` families | AI-45 | L | Deferred decision; the only Generative/AI-chapter row with an open build |
@@ -1114,9 +1115,9 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-13 | Colour picker & swatches | HAS | hex/rgba values + `defs.tokens.colors` named palette | settled |
 | AI-14 | Global colours | HAS | named tokens are global by construction | settled |
 | AI-15 | CMYK / RGB modes | PARTIAL ·H | RGB/hex only — no CMYK, no separations | stays behind **item 5**'s deferred ICC output-intent hook |
-| AI-16 | Recolor Artwork | PARTIAL ·M | `gradient_map` + `closed_palette` + token swap (declarative recolor) | **W4**: a `recolor()` convenience over the existing pieces, S |
+| AI-16 | Recolor Artwork | HAS ·H | `recolor()` — one-call remap of tokens, paint literals and gradient stops; plus `gradient_map` | **W4 delivered** (#48) |
 | AI-17 | Live Paint | PARTIAL ·M | region toolkit: `select_in` / `place_region` / `region_grade` | **W1**: planar arrangement gives true fill-any-bounded-region |
-| AI-18 | Colour science | PARTIAL ·M | Chevreul harmony + WCAG contrast tools — not a Color-Guide workflow | **W4**: harmony suggestions over `sdk.chevreul` as the declarative Color Guide, XS–S |
+| AI-18 | Colour science | HAS ·H | `chevreul.color_guide()` — the six harmonies for any base colour + WCAG contrast tools | **W4 delivered** (#48) |
 | AI-19 | Patterns | HAS | `pattern`, `grid_pattern`, `dots`, `hatch_fill` fills | settled |
 
 ## D · Type & text
@@ -1138,9 +1139,9 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-27 | Freeform gradient | NONE ·H arch | no freeform gradient | **W3**: subdivision-shading emulation, L, low priority — decision |
 | AI-28 | Gradient mesh | NONE ·H arch | the single biggest gap | **W3**: same route (Scene3D Gouraud precedent) or accept — decision |
 | AI-29 | Blend tool | NONE ·H arch | no shape-to-shape blend / interpolation | **W3**: declarative blend — lerp matched anchors + colour at expansion, M |
-| AI-30 | Live effects | PARTIAL ·M | effects set: glow / neon / shadow / soft_shadow / hatch | **W4**: ordered effect stack per object, M |
+| AI-30 | Live effects | HAS ·H | ordered `effects` stack (2.4.0 additive): kinds repeat, presets + params, first→last | **W4 delivered** (#48) |
 | AI-31 | Graphic styles | HAS | named styles / text_styles / stroke_styles tokens | settled |
-| AI-32 | Appearance stack | PARTIAL ·M | one style per object; no multi-fill stack | **W4**: multiple fill/stroke passes, out of the core profile, M |
+| AI-32 | Appearance stack | HAS ·H | `appearance` stack (2.4.0 additive): the geometry painted once per pass, bottom→top | **W4 delivered** (#48) |
 
 ## F · Layer · transform · page
 

@@ -1,5 +1,5 @@
 dsl: FrameGraph
-version: 2.3.0
+version: 2.4.0
 profile: report
 title: Capability Teardown — Illustrator vs FrameGraph
 lang: en
@@ -547,48 +547,48 @@ pages:
     - box:
       - 56
       - 300
-      - 227.33333333333334
+      - 280.8235294117647
       - 34
       type: rect
       fill: fg
     - box:
       - 62
       - 311
-      - 219.33333333333334
+      - 272.8235294117647
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '17'
+      text: '21'
     - box:
-      - 283.33333333333337
+      - 336.8235294117647
       - 300
-      - 147.09803921568627
+      - 93.6078431372549
       - 34
       type: rect
       fill: part
     - box:
-      - 289.33333333333337
+      - 342.8235294117647
       - 311
-      - 139.09803921568627
+      - 85.6078431372549
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '11'
+      text: '7'
     - box:
-      - 430.43137254901967
+      - 430.4313725490196
       - 300
       - 133.72549019607843
       - 34
       type: rect
       fill: invert
     - box:
-      - 436.43137254901967
+      - 436.4313725490196
       - 311
       - 125.72549019607843
       - 12
@@ -599,14 +599,14 @@ pages:
       type: text
       text: '10'
     - box:
-      - 564.1568627450981
+      - 564.156862745098
       - 300
       - 173.84313725490196
       - 34
       type: rect
       fill: none
     - box:
-      - 570.1568627450981
+      - 570.156862745098
       - 311
       - 165.84313725490196
       - 12
@@ -632,7 +632,7 @@ pages:
         class: folio
         align: start
       type: text
-      text: HAS · 17
+      text: HAS · 21
     - box:
       - 206
       - 348
@@ -649,7 +649,7 @@ pages:
         class: folio
         align: start
       type: text
-      text: PARTIAL · 11
+      text: PARTIAL · 7
     - box:
       - 356
       - 348
@@ -735,7 +735,7 @@ pages:
       - 30
       style: big
       type: text
-      text: 33%
+      text: 41%
     - box:
       - 230.0
       - 452
@@ -1369,7 +1369,7 @@ pages:
         class: cite
         color: sub
       type: text
-      text: has/total = 17/51
+      text: has/total = 21/51
     - box:
       - 56
       - 476
@@ -1549,7 +1549,7 @@ pages:
         align: start
         color: sub
       type: text
-      text: frameforge @2e700e2be8 (dirty)
+      text: frameforge @26f2bbdcc9 (dirty)
     - box:
       - 407.0
       - 610
@@ -3427,32 +3427,15 @@ pages:
       ry: 8.0
       fill: fg
     - box:
-      - 436
-      - 394
-      - 9
-      - 16
-      type: rect
-      fill: band
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 402.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
-    - box:
       - 448
       - 416
       - 90
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: fg
       type: text
-      text: PARTIAL ·M ·W
+      text: HAS
     - box:
       - 504
       - 390
@@ -3460,7 +3443,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: gradient_map + closed_palette + token swap (declarative recolor).
+      text: 'recolor() — one-call palette remap: tokens, paint literals, gradient
+        stops; plus gradient_map.'
     - box:
       - 56
       - 444
@@ -3596,32 +3580,15 @@ pages:
       ry: 8.0
       fill: fg
     - box:
-      - 436
-      - 518
-      - 9
-      - 16
-      type: rect
-      fill: band
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 526.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
-    - box:
       - 448
       - 540
       - 90
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: fg
       type: text
-      text: PARTIAL ·M ·W
+      text: HAS
     - box:
       - 504
       - 514
@@ -3629,7 +3596,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: Chevreul harmony + WCAG contrast tools — not a Color-Guide workflow.
+      text: chevreul.color_guide() — the six harmonies for any base colour + WCAG
+        contrast tools.
     - box:
       - 56
       - 568
@@ -4776,32 +4744,15 @@ pages:
       ry: 8.0
       fill: fg
     - box:
-      - 436
-      - 456
-      - 9
-      - 16
-      type: rect
-      fill: bg
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 464.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
-    - box:
       - 448
       - 478
       - 90
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: fg
       type: text
-      text: PARTIAL ·M ·F
+      text: HAS
     - box:
       - 504
       - 452
@@ -4809,7 +4760,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: 'effects set: glow / neon / shadow / soft_shadow / hatch.'
+      text: 'ordered `effects` stack (2.4.0): kinds repeat, preset + param entries,
+        applied first→last.'
     - box:
       - 56
       - 506
@@ -4928,32 +4880,15 @@ pages:
       ry: 8.0
       fill: fg
     - box:
-      - 436
-      - 580
-      - 9
-      - 16
-      type: rect
-      fill: bg
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 588.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
-    - box:
       - 448
       - 602
       - 90
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: fg
       type: text
-      text: PARTIAL ·M ·F
+      text: HAS
     - box:
       - 504
       - 576
@@ -4961,7 +4896,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: one style per object; no multi-fill appearance stack.
+      text: '`appearance` stack (2.4.0): the geometry painted once per pass — fill
+        / stroke / opacity, bottom→top.'
     - box:
       - 56
       - 630
@@ -7509,7 +7445,7 @@ pages:
       style: lead
       type: text
       text: 'Across 51 Illustrator capabilities from three manuals, FrameGraph has
-        a full equivalent for 17 and a partial one for 11. The 13 genuine gaps cluster
+        a full equivalent for 21 and a partial one for 7. The 13 genuine gaps cluster
         where Illustrator is a painting instrument — gradient mesh, freeform gradient,
         blends, the Pencil, variable-width strokes, perspective, envelope distort,
         mockup. The 10 REFRAMED rows are the most telling: selection, image trace,
@@ -7635,7 +7571,7 @@ pages:
         align: start
         color: faint
       type: text
-      text: VERSION · code frameforge@2e700e2be8+dirty · manifest 298f8c146a20 (v2.3.0)
+      text: VERSION · code frameforge@26f2bbdcc9+dirty · manifest 298f8c146a20 (v2.3.0)
         · corpus doc-ray [24 586533f6][25 56d6727a][26 649e47a5] · built 2026-07-03
     - box:
       - 56

@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`from_markdown`, `ClosedPalette`, `caps_tracking`, `closed_palette`, `complement`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `dominant_light`, `grey_document`, `harmony_of_hues`, `harmony_of_scale`, `johnston_margins`, `measure_fits`, `modular_scale`, `relative_luminance`, `tone_scale`, `Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Hand`, `Handle`, `apply_humanize`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `font_kern_pairs`, `kerned_spans`, `Placement`, `repeat_along_path`, `stroke_outline`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`from_markdown`, `ClosedPalette`, `caps_tracking`, `closed_palette`, `complement`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `dominant_light`, `grey_document`, `harmony_of_hues`, `harmony_of_scale`, `johnston_margins`, `measure_fits`, `modular_scale`, `relative_luminance`, `tone_scale`, `Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Hand`, `Handle`, `apply_humanize`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `font_kern_pairs`, `kerned_spans`, `Placement`, `repeat_along_path`, `recolor`, `stroke_outline`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -16,7 +16,7 @@
 Small fluent builder that lowers directly to the authoritative model.
 
 ```python
-DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.3.0') -> 'None'
+DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.4.0') -> 'None'
 ```
 
 | Method | Signature | Summary |
@@ -387,6 +387,16 @@ The grey test (best effort): a deep copy of a document with every
 
 ```python
 grey_document(doc: 'Mapping[str, Any]') -> 'dict[str, Any]'
+```
+
+### `color_guide`
+
+`framegraph.sdk.chevreul.color_guide`
+
+The six harmonies for one base colour — the declarative Color Guide
+
+```python
+color_guide(base: "'Color'", *, n: 'int' = 5) -> "dict[str, list['Color']]"
 ```
 
 ### `harmony_of_hues`
@@ -1286,7 +1296,7 @@ Document(*, dsl: Literal['FrameGraph'], version: Annotated[str, _PydanticGeneral
 
 ### `HEAD_VERSION`
 
-`str` value: `'2.3.0'`
+`str` value: `'2.4.0'`
 
 ### `ValidationError`
 
