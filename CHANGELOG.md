@@ -4,6 +4,34 @@
 
 ---
 
+## Unreleased — font determinism end to end (ADR-0004, 2026-07-03)
+
+The measure==render loop is closed, host-independently
+([ADR-0004](docs/adr-0004-single-engine-layout.md)):
+
+- **Browser-faithful font resolution** in the layout metric, and a
+  **screaming `font_substitution` warning** (diagnostics + stderr, once per
+  family) whenever a requested content font is not installed — silent
+  substitution is banned (PALS's Law applied to fonts: an unverified
+  measurement is a defect).
+- **`fg-font` is a real console command**: implementation moved in-package
+  (`framegraph.fontpack`), registered under `[project.scripts]` — resolves
+  after install (this tree stays a virtual project, where the
+  `tooling/fg_font.py` launcher and `make font-*` targets keep working).
+  `--list` resolvable families · `--check DOC` determinism gate · `--pack
+  DOC --out P.fp` portable font pack (exact TTFs + sha256 manifest).
+- **`fg-font --pack --fetch` — a Google Fonts proxy**: families the authoring
+  host lacks are provisioned from the open `google/fonts` corpus and stamped
+  `source: "google-fonts:<slug>"` in the manifest, so a reproducible pack can be
+  built from a thin machine (no font-rich image needed) and `--check --fetch`
+  becomes self-healing.
+- **`render_chromium.py --font-pack P.fp`** consumes a pack: fontconfig is
+  scoped to the pack (real metrics forced) before Chromium launches, so the
+  layout metric and the browser resolve the identical faces — produce →
+  consume → render in one flag.
+- Justified flow lines no longer get cavernous letterspacing when a line is
+  lone or underfull (follow-up fix to the Knuth–Plass batch below).
+
 ## Unreleased — v0.1 deck-corpus conversion path (2026-07-03, issue #33)
 
 `tooling/codemod.py --from-v01` lifts both v0.1 envelope forms to v2 —

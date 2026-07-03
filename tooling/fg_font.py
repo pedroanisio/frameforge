@@ -10,7 +10,8 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 sys.path.insert(0, os.path.join(ROOT, "docs"))
 
 from framegraph.fontpack import (  # noqa: E402,F401
-    install_pack, main, pack_families, referenced_families, scope_font_pack,
+    fetch_google_font, google_slug, install_pack, main, pack_families,
+    referenced_families, scope_font_pack,
 )
 
 if __name__ == "__main__":

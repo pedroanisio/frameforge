@@ -153,8 +153,8 @@ font-list:  ## fg-font: families this runtime resolves (reference these)
 font-check:  ## fg-font: fail if a content font in DOC substitutes (DOC=path.fg.yaml)
 	$(UV) run python tooling/fg_font.py --check $(DOC)
 
-font-pack:  ## fg-font: bundle DOC's fonts + manifest into a portable .fp (DOC=…, OUT=…)
-	$(UV) run python tooling/fg_font.py --pack $(DOC) $(if $(OUT),--out $(OUT),)
+font-pack:  ## fg-font: bundle DOC's fonts + manifest into a portable .fp (DOC=…, OUT=…, FETCH=1 pulls misses from Google Fonts)
+	$(UV) run python tooling/fg_font.py --pack $(DOC) $(if $(OUT),--out $(OUT),) $(if $(FETCH),--fetch,)
 
 font-install:  ## fg-font: extract a .fp pack into a scoped fontconfig (PACK=P.fp DIR=…)
 	$(UV) run python tooling/fg_font.py --install $(PACK) --dir $(DIR)

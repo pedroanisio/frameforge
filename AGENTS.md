@@ -77,10 +77,10 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 | Script | Invocation / notes |
 |---|---|
 | `validate.py` | `validate.py doc.fg.yaml [...] [--strict] [--text-fit] [--quiet]` — exit 0 no errors, 1 errors, 2 load failure. Codes: [docs/error-codes.md](docs/error-codes.md) |
-| `codemod.py` | `codemod.py doc.fg.json --in-place [--normalize-aliases] [--bump]` — migrate legacy docs to HEAD |
+| `codemod.py` | `codemod.py doc.fg.json --in-place [--normalize-aliases] [--bump] [--from-v01]` — migrate legacy docs to HEAD; `--from-v01` lifts the v0.1 envelope (scene- and deck/slides-form) first ([docs/migration-v01.md](docs/migration-v01.md)) |
 | `framegraph_render.py` | `framegraph_render.py doc.fg.yaml [--to svg|png|pdf|tex|...] [--out DIR]` — the render **front door** for the virtual project: self-bootstrapping (no PYTHONPATH), delegates to `framegraph.cli` (`--list` shows live targets) |
 | `render_fixtures.py` | `[paths|--all] [--out DIR] [--max-pages N] [--check-overflow] [--strict-content] [--real-metrics] [--list]` — dependency-free SVG proxy; `--check-overflow` names every content-losing text object, `--strict-content` fails on silent loss |
-| `render_chromium.py` | SVG→PNG raster via Playwright Chromium (`--group browser`) |
+| `render_chromium.py` | SVG→PNG raster via Playwright Chromium (`--group browser`); `--font-pack P.fp` scopes fontconfig to an fg-font pack (real metrics forced) so measure == render host-independently (ADR-0004) |
 | `render_pdf.py` | `[paths|--all|--single FILE] [--out DIR] [--real-metrics]` — SVG pages → one vector PDF (`--group pdfout`) |
 | `render_latex.py` | `--all` — FrameGraph → LaTeX/TikZ (+ PDF when lualatex exists) |
 | `render_fg_doc.py` | `render_fg_doc.py <yml> <asset_dir> <outdir> <montage.png>` — matplotlib sanity proxy (`--group render`) |
@@ -99,7 +99,7 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 | `check_package_readiness.py` | package-emit readiness report (advisory) |
 | `fetch_corpus.py` / `fetch_book_corpus.py` | `[--check]` — corpus download/verify |
 | `install_fonts.py` | font provisioning used by the Docker image |
-| `fg_font.py` | `--list` resolvable families · `--check DOC` (fail if a content font substitutes) · `--pack DOC --out P.fp` (portable font pack + manifest so measure==render on any host; ADR-0004) |
+| `fg_font.py` | `--list` resolvable families · `--check DOC` (fail if a content font substitutes) · `--pack DOC --out P.fp` (portable font pack + manifest so measure==render on any host; ADR-0004) · `--pack --fetch` provisions missing families from Google Fonts (`source: google-fonts:<slug>` in the manifest) so packs build from a thin host. Thin launcher over `framegraph.fontpack`; also a `fg-font` console script (`[project.scripts]`) where the package is installed. Consume a pack with `render_chromium.py --font-pack` |
 
 ## Tests
 

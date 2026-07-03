@@ -66,8 +66,11 @@ the correct reading of the reporter's objection.
    `--pack DOC --out P.fp` — a portable font pack (zip of the exact TTFs + a
    `manifest.json` of family→file→sha256) that an *external* renderer points both
    its rasterizer and `font_metrics` at, so measure == render on any host without
-   the 9 GB image. This makes the model's existing pinned-`FontDef` (src+hash,
-   §9.6) enforceable rather than aspirational.
+   the 9 GB image. `--pack --fetch` closes the last gap: a family the *authoring*
+   host lacks is provisioned from the open `google/fonts` corpus and stamped
+   `source: "google-fonts:<slug>"` in the manifest, so a pack is reproducible from
+   a thin machine, not only the font-rich image. This makes the model's existing
+   pinned-`FontDef` (src+hash, §9.6) enforceable rather than aspirational.
 
 ## Consequences
 

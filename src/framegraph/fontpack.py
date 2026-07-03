@@ -8,11 +8,15 @@ operationalising the model's pinned-font concept (`FontDef` src+hash, §9.6):
   fg-font --list                  families THIS runtime resolves (reference these)
   fg-font --check DOC             non-zero exit if any content font substitutes
   fg-font --pack DOC --out P.fp   bundle DOC's fonts + a manifest → render anywhere
+  fg-font --pack DOC --fetch      provision missing families from Google Fonts first
   fg-font --install P.fp --dir D  extract a pack into a scoped fontconfig (consume)
 
 A ``.fp`` pack is a zip: ``manifest.json`` (family → file + sha256) + ``fonts/*``.
 Point fontconfig **and** `font_metrics` at the pack's ``fonts/`` and measure ==
-render on any host — no 9 GB image required.
+render on any host — no 9 GB image required. ``--fetch`` makes the pack
+self-provisioning: a family absent from the host is pulled from the open
+``google/fonts`` corpus and stamped ``source: "google-fonts:<slug>"`` in the
+manifest, so packs are reproducible even off a font-rich image.
 
 Registered as the ``fg-font`` console script; ``tooling/fg_font.py`` and the
 ``make font-*`` targets are thin wrappers. A render CLI's ``--font-pack`` calls
@@ -107,14 +111,89 @@ def _sha256(path: str) -> str:
 
 
 # --------------------------------------------------------------------------- #
+#  Google Fonts proxy: provision a missing family from the open google/fonts   #
+# --------------------------------------------------------------------------- #
+_GF_API = "https://api.github.com/repos/google/fonts/contents"
+
+
+def google_slug(family: str) -> str:
+    """A family name → its google/fonts directory slug (``EB Garamond`` →
+    ``ebgaramond``, ``Fira Sans`` → ``firasans``)."""
+    return "".join(family.lower().split()).replace("-", "")
+
+
+def _gf_listing(slug: str):
+    import urllib.request
+    for lic in ("ofl", "apache", "ufl"):
+        try:
+            with urllib.request.urlopen(f"{_GF_API}/{lic}/{slug}", timeout=10) as r:
+                return json.loads(r.read())
+        except Exception:
+            continue
+    return None
+
+
+def google_available(family: str) -> bool:
+    """True if google/fonts has a downloadable TTF for ``family`` — cheap: lists
+    the directory (one API call) and downloads nothing. Powers ``--check --fetch``."""
+    listing = _gf_listing(google_slug(family))
+    return bool(listing) and any(
+        isinstance(f, dict) and str(f.get("name", "")).lower().endswith(".ttf")
+        for f in listing)
+
+
+def fetch_google_font(family: str, bold: bool, cache_dir: str) -> str | None:
+    """Download a Google Fonts TTF for ``family`` (bold or regular) into
+    ``cache_dir``; return its path, or None if google/fonts has no such family or
+    the network is unavailable. Pure best-effort — never raises."""
+    import urllib.request
+    listing = _gf_listing(google_slug(family))
+    if not listing:
+        return None
+    ttfs = [f for f in listing if isinstance(f, dict)
+            and str(f.get("name", "")).lower().endswith(".ttf")]
+
+    def score(name: str) -> tuple:
+        n = name.lower()
+        italic = "italic" in n
+        is_bold = "bold" in n
+        variable = "[wght]" in n or "-vf" in n
+        want = 0 if (is_bold == bold and not italic) else (1 if variable and not italic else 2)
+        return (want, 0 if variable else 1, len(name))
+
+    ttfs.sort(key=lambda f: score(str(f["name"])))
+    if not ttfs or not ttfs[0].get("download_url"):
+        return None
+    chosen = ttfs[0]
+    os.makedirs(cache_dir, exist_ok=True)
+    path = os.path.join(cache_dir, chosen["name"])
+    try:
+        with urllib.request.urlopen(chosen["download_url"], timeout=30) as r:
+            data = r.read()
+        with open(path, "wb") as fh:
+            fh.write(data)
+        return path
+    except Exception:
+        return None
+
+
+# --------------------------------------------------------------------------- #
 #  Pack (produce) + install/scope (consume)                                    #
 # --------------------------------------------------------------------------- #
-def pack_families(families, allow_missing=False):
-    """``(manifest_entries, {arc: src_path}, missing)`` for a set of families."""
+def pack_families(families, allow_missing=False, fetch=False, cache_dir=None):
+    """``(manifest_entries, {arc: src_path}, missing)`` for a set of families.
+    With ``fetch=True``, a family that does not resolve locally is provisioned
+    from Google Fonts and stamped ``source: "google-fonts:<slug>"``."""
     entries, files, missing = [], {}, []
+    cache = cache_dir or tempfile.mkdtemp(prefix="fg-gf-")
     for fam in sorted(families):
         for bold in (False, True):
             resolved, matched, path = _resolve(fam, bold)
+            source = "local"
+            if not path and fetch:
+                path = fetch_google_font(fam, bold, cache)
+                if path:
+                    resolved, source = fam, f"google-fonts:{google_slug(fam)}"
             if not path or not os.path.isfile(path):
                 if not bold:
                     missing.append(fam)
@@ -122,7 +201,7 @@ def pack_families(families, allow_missing=False):
             arc = "fonts/" + os.path.basename(path)
             files[arc] = path
             entries.append({"family": fam, "bold": bold, "file": arc,
-                            "resolved": resolved, "sha256": _sha256(path)})
+                            "resolved": resolved, "sha256": _sha256(path), "source": source})
     return entries, files, missing
 
 
@@ -188,27 +267,40 @@ def cmd_list(_args) -> int:
 def cmd_check(args) -> int:
     doc = yaml.safe_load(open(args.doc, encoding="utf-8"))
     families = sorted(referenced_families(doc))
-    subs = []
+    fetch = getattr(args, "fetch", False)
+    subs, fetchable = [], []
     for fam in families:
         resolved, matched, _ = _resolve(fam, False)
-        print(f"  [{'ok' if matched else 'SUBSTITUTED':^11}] {fam!r:32} -> {resolved!r}")
-        if not matched:
+        if matched:
+            print(f"  [{'ok':^11}] {fam!r:32} -> {resolved!r}")
+        elif fetch and google_available(fam):
+            fetchable.append(fam)
+            print(f"  [{'FETCHABLE':^11}] {fam!r:32} -> {'google-fonts:' + google_slug(fam)!r}")
+        else:
             subs.append(fam)
+            print(f"  [{'SUBSTITUTED':^11}] {fam!r:32} -> {resolved!r}")
     if subs:
+        tail = "" if fetch else " (or --fetch to accept families provisionable from Google Fonts)"
         print(f"\nFAIL: {len(subs)} content font(s) will be SUBSTITUTED — layout measured a "
               f"different face than the rasterizer draws (justified/wrapped text will diverge). "
-              f"Pin + pack them (`fg-font --pack`) or install them.", file=sys.stderr)
+              f"Pin + pack them (`fg-font --pack`) or install them{tail}.", file=sys.stderr)
         return 1
+    if fetchable:
+        print(f"\nOK: all {len(families)} families resolve — {len(fetchable)} via Google Fonts; run "
+              f"`fg-font --pack --fetch` to pin them so measure == render everywhere.")
+        return 0
     print(f"\nOK: all {len(families)} referenced families resolve to themselves (measure == render).")
     return 0
 
 
 def cmd_pack(args) -> int:
     doc = yaml.safe_load(open(args.doc, encoding="utf-8"))
-    entries, files, missing = pack_families(referenced_families(doc), args.allow_missing)
+    entries, files, missing = pack_families(referenced_families(doc), args.allow_missing,
+                                            fetch=args.fetch)
     if missing and not args.allow_missing:
-        print(f"FAIL: cannot pin {missing} (not installed / substituted). Install them or pass "
-              f"--allow-missing to pack what resolves.", file=sys.stderr)
+        hint = ("" if args.fetch else " (or --fetch to pull them from Google Fonts)")
+        print(f"FAIL: cannot pin {missing} (not installed / substituted / not on Google Fonts). "
+              f"Install them{hint}, or pass --allow-missing to pack what resolves.", file=sys.stderr)
         return 1
     manifest = {"fp_version": 1, "generated_from": os.path.basename(args.doc), "fonts": entries}
     out = args.out or (os.path.splitext(args.doc)[0] + ".fp")
@@ -240,6 +332,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--install", metavar="P.fp", help="extract a .fp into a scoped fontconfig")
     ap.add_argument("--dir", help="target dir (with --install)")
     ap.add_argument("--out", help="output .fp path (with --pack)")
+    ap.add_argument("--fetch", action="store_true",
+                    help="Google Fonts proxy: with --pack, provision missing families; "
+                         "with --check, accept families provisionable from Google Fonts")
     ap.add_argument("--allow-missing", action="store_true", help="pack what resolves; skip misses")
     args = ap.parse_args(argv)
     if args.list:

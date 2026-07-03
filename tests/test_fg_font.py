@@ -87,3 +87,39 @@ def test_install_rejects_a_tampered_pack(tmp_path):
         z.writestr("manifest.json", json.dumps({"fp_version": 1, "fonts": [
             {"family": "X", "bold": False, "file": "fonts/x.ttf", "sha256": "0" * 64}]}))
     assert main(["--install", str(fp), "--dir", str(tmp_path / "r")]) == 1   # sha256 mismatch
+
+
+def test_google_slug_derivation():
+    from framegraph.fontpack import google_slug
+    assert google_slug("EB Garamond") == "ebgaramond"
+    assert google_slug("Fira Sans") == "firasans"
+    assert google_slug("JetBrains Mono") == "jetbrainsmono"
+
+
+def test_check_fetch_passes_when_missing_family_is_on_google_fonts(tmp_path, monkeypatch, capsys):
+    import framegraph.fontpack as fpmod
+    monkeypatch.setattr(fpmod, "google_available", lambda fam: fam == "OnGoogleFonts")
+    p = tmp_path / "d.fg.yaml"
+    p.write_text(yaml.safe_dump(_doc(["OnGoogleFonts", "serif"])))
+    assert main(["--check", str(p), "--fetch"]) == 0          # provisionable → self-healing pass
+    out = capsys.readouterr().out
+    assert "FETCHABLE" in out and "--pack --fetch" in out
+    # ...but without --fetch the same doc is still a hard determinism failure
+    assert main(["--check", str(p)]) == 1
+
+
+def test_pack_fetch_provisions_missing_family_from_google_fonts(tmp_path, monkeypatch):
+    import framegraph.fontpack as fpmod
+    fake = tmp_path / "FetchedFont-Regular.ttf"
+    fake.write_bytes(b"FAKEFONTDATA")                    # stand in for a downloaded TTF
+    monkeypatch.setattr(fpmod, "fetch_google_font",
+                        lambda fam, bold, cache: (str(fake) if not bold else None))
+    p = tmp_path / "d.fg.yaml"
+    p.write_text(yaml.safe_dump(_doc(["FetchedFont", "serif"])))
+    out = tmp_path / "d.fp"
+    assert main(["--pack", str(p), "--out", str(out), "--fetch"]) == 0   # fetched → packs
+    with zipfile.ZipFile(out) as z:
+        m = json.loads(z.read("manifest.json"))
+        entry = next(e for e in m["fonts"] if e["family"] == "FetchedFont")
+        assert entry["source"].startswith("google-fonts:")              # provenance stamped
+        assert entry["file"] in z.namelist()
