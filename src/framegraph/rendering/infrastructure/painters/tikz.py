@@ -490,7 +490,7 @@ class TikzPainter:
         # builder-computed y, matching the SVG baseline model).
         return {"middle": "base", "end": "base east"}.get(anchor, "base west")
 
-    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy, justify_width=None):
+    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy, justify_width=None, justifies=None):
         """Multi-line text: one `\\node` per line on the baseline grid (base_y +
         i·line_dy). Structurally implemented; visual baseline/leading fidelity is
         pending a LaTeX-engine validation pass (none in this environment)."""

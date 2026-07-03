@@ -651,15 +651,20 @@ class SvgPainter:
         return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}"{baseline}'
                 f'{fit} style="{style}">{esc(content)}</text>')
 
-    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy, justify_width=None):
+    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy,
+                   justify_width=None, justifies=None):
         style = self.font_style(st, size)
         n = len(lines)
-        # `justify_width` set → flush every line but the last to the column with
-        # textLength (a compliant shaper distributes the slack); None → unchanged.
+        # `justify_width` set → flush the lines `justifies[i]` marks (default: all
+        # but the last) to the column via textLength; None → unchanged.
+        def flush(i, ln):
+            if justify_width is None or not ln.strip():
+                return False
+            return justifies[i] if (justifies is not None and i < len(justifies)) else i < n - 1
         def span(i, ln):
             dy = f' dy="{fnum(line_dy)}"' if i else ""
             fit = (f' textLength="{fnum(justify_width)}" lengthAdjust="spacing"'
-                   if justify_width is not None and i < n - 1 and ln.strip() else "")
+                   if flush(i, ln) else "")
             return f'<tspan x="{fnum(tx)}"{dy}{fit}>{esc(ln)}</tspan>'
         spans = "".join(span(i, ln) for i, ln in enumerate(lines))
         return f'<text y="{fnum(base_y)}" text-anchor="{anchor}" style="{style}">{spans}</text>'

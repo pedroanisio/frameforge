@@ -243,11 +243,16 @@ def _linebreak(items: list[tuple], target_first: float, target_rest: float,
                     badness = 100.0 * abs(r) ** 3
                 elif L == target:
                     badness = 0.0
+                elif L > target:
+                    # a single unbreakable box WIDER than the column: allow it (overflow)
+                    # so one long token never forces the paragraph back to greedy.
+                    badness = 1e5 + (L - target)
+                elif tolerance >= _INF:
+                    # a lone word NARROWER than the column with nothing to stretch: only
+                    # the last-resort (infinite-tolerance) pass accepts it.
+                    badness = 1e5 + (target - L)
                 else:
-                    # no glue to adjust (a single unbreakable box): always feasible so
-                    # one long token never forces the whole paragraph back to greedy —
-                    # penalised so KP avoids it unless there is no alternative.
-                    badness = 1e5 + abs(L - target)
+                    continue                       # infeasible now → KP combines words
                 flagged_b = bool(is_pen_b and items[b][3])
                 pen_cost = items[b][2] if is_pen_b else 0.0
             demerit = (_LINE_PENALTY + badness) ** 2 + (pen_cost if pen_cost > 0 else 0.0)
@@ -362,18 +367,17 @@ def layout_paragraph(text: str, *, size: float, avg: float, lh: float,
 
     advance = size * lh
     last = len(line_texts) - 1
-    lines = tuple(
-        LaidLine(
-            text=txt,
-            indent=first_line_indent if i == 0 else 0.0,
-            advance=advance,
-            width=width - (first_line_indent if i == 0 else 0.0),
-            justify=(align == "justify" and i != last and bool(txt)),
-            start=start, end=end,
-        )
-        for i, (txt, start, end) in enumerate(line_texts)
-    )
-    return LaidParagraph(lines, space_after)
+    out = []
+    for i, (txt, start, end) in enumerate(line_texts):
+        ind = first_line_indent if i == 0 else 0.0
+        w_i = width - ind
+        # Justify a line only if it has interior word gaps AND already fills a fair
+        # part of the column — never stretch a lone/underfull word to full width
+        # (that is the cavernous "p r o m p t i n g" letterspacing defect).
+        do_justify = (align == "justify" and i != last and bool(txt)
+                      and (" " in txt.strip()) and mw(txt) >= 0.5 * w_i)
+        out.append(LaidLine(txt, ind, advance, w_i, do_justify, start, end))
+    return LaidParagraph(tuple(out), space_after)
 
 
 __all__ = [

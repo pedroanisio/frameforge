@@ -389,10 +389,14 @@ class Renderer:
                     text_len=(w if ln.justify else None)))
             el = "".join(segs)
         elif justify and not single_span_line:
-            # Plain justified prose: one tspan per line, flushed via textLength;
-            # last line ragged.
+            # Plain justified prose: flush each line via textLength EXCEPT lone or
+            # underfull lines (no interior gap, or < half the column) — those stay
+            # ragged, never stretched into cavernous letterspacing. Last line ragged.
+            justs = [(k < len(lines) - 1 and (" " in ln.strip())
+                      and self.measure(ln, size, avg, st) >= 0.5 * w)
+                     for k, ln in enumerate(lines)]
             el = self._painter.text_block(base, "start", st, size, lines, x, size * lh,
-                                          justify_width=w)
+                                          justify_width=w, justifies=justs)
         elif single_span_line:
             el = self._painter.text_runs(base, a, tx, st, size, self._span_runs(spans, st))
         else:

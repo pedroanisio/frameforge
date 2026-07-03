@@ -64,6 +64,37 @@ def test_content_box_clamps_non_positive_area():
     assert box[2] >= 1 and box[3] >= 1
 
 
+def test_lone_word_before_long_token_is_not_justified():
+    """The 'p r o m p t i n g' defect: a short word forced onto its own line
+    before an unbreakable long token must NOT be marked justify (would stretch to
+    the full column as cavernous letterspacing)."""
+    # 'cat' (15px) then a non-alpha, unhyphenatable 15-digit token (75px) in a
+    # 58px column: 'cat' is forced onto its own line before the long token.
+    para = FL.layout_paragraph("cat 123456789012345", size=10, avg=0.5, lh=1.4,
+                               width=58, measure=mono, align="justify")
+    lone = [ln for ln in para.lines if ln.text == "cat"]
+    assert lone and not lone[0].justify        # 'cat' stays ragged, never stretched
+
+
+def test_no_single_word_line_is_justified():
+    para = _lay(width=200)
+    for ln in para.lines:
+        if ln.justify:
+            assert " " in ln.text.strip()      # only multi-word lines justify
+
+
+def test_narrow_uniform_column_does_not_degenerate_to_lone_words():
+    """The tolerance=3 escape-hatch bug: uniform text in a 2–3-word-wide column
+    must combine words (via the tol=inf fallback), not collapse to lone words."""
+    text = "alpha beta gamma delta kappa lambda sigma omega theta iota mu nu xi"
+    para = FL.layout_paragraph(text, size=10, avg=0.5, lh=1.4, width=66,
+                               measure=mono, align="justify")
+    multi = sum(1 for ln in para.lines if " " in ln.text.strip())
+    assert multi >= len(para.lines) - 1        # at most the last line may be lone
+    for ln in para.lines[:-1]:
+        assert mono(ln.text, 10, 0.5) >= 66 * 0.5   # no cavernous non-last line
+
+
 def test_unbreakable_token_stays_in_kp_not_greedy():
     text = ("see https://example.com/a/very/long/unbreakable/path/segment now "
             "here we go again with more ordinary words to justify")
