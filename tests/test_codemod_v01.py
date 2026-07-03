@@ -201,6 +201,9 @@ def test_deck_form_lifts_slides_to_pages():
     assert cover["meta"]["title"] == "Cover" and cover["meta"]["slide"] == 1
     assert cover["notes"] == "n"
     assert "slides" not in out and "deck" not in out
+    # v0.1 deck text was painted past its box, never truncated — the lift
+    # pins that semantics explicitly (v2 defaults to wrap-then-clip)
+    assert cover["rendering"] == {"text": {"overflow": "visible"}}
 
 
 def test_lifted_deck_document_validates():
@@ -222,6 +225,102 @@ def test_v2_document_passes_through_unchanged():
 def test_lift_counts_in_stats():
     _, stats = _lift(V01_SCENE)
     assert stats.v01 == 1
+
+
+# ── chip_row lowering (the PALS dialect corner) ─────────────────────────
+
+
+V01_CHIP_DECK = {
+    "dsl": "FrameGraph",
+    "version": 1.5,
+    "kind": "presentation-deck",
+    "deck": {
+        "canvas": {"size": [1920, 1080], "units": "px"},
+        "component_defs": {
+            "chip": {"fill": "brand_s", "text_style": "tag_bc",
+                     "geometry": {"radius": 6}}},
+        "tokens": {"colors": {"brand_s": "#DBEAFE"}},
+    },
+    "slides": [
+        {"slide": 1, "id": "chips",
+         "visual": {"layers": [{"id": "main", "objects": [
+             {"type": "chip_row", "id": "err_chips",
+              "origin": [80, 208], "gap": 20, "height": 36,
+              "items": [{"text": "ERR_HALLUCINATION", "width": 176},
+                        {"text": "ERR_OMISSION", "width": 176},
+                        "PLAIN"]}]}]}},
+    ],
+}
+
+
+def test_chip_row_lowers_to_a_core_group():
+    """v0.1's compositional `chip_row` has no v2 counterpart — the lift
+    lowers it to a group of pill rects + centered texts using the chip
+    component def (fill, text_style, corner radius), left-to-right with
+    the declared gap; string items auto-size like the v0.1 renderer
+    (max(20, len*6+12))."""
+    out, _ = _lift(V01_CHIP_DECK)
+    objs = out["pages"][0]["layers"][0]["objects"]
+    assert len(objs) == 1
+    row = objs[0]
+    assert row["type"] == "group" and row["id"] == "err_chips"
+    kids = row["children"]
+    assert len(kids) == 6                       # rect+text per item
+    r1, t1, r2, t2, r3, t3 = kids
+    assert r1 == {"type": "rect", "box": [80, 208, 176, 36],
+                  "fill": "brand_s", "radius": 6, "decorative": True}
+    assert t1 == {"type": "text", "box": [80, 208, 176, 36],
+                  "text": "ERR_HALLUCINATION", "style": "tag_bc"}
+    assert r2["box"] == [80 + 176 + 20, 208, 176, 36]      # cursor + gap
+    auto_w = max(20, len("PLAIN") * 6 + 12)
+    assert r3["box"] == [80 + 2 * (176 + 20), 208, auto_w, 36]
+    assert t3["text"] == "PLAIN"
+
+
+def test_chip_row_consumed_component_defs_are_dropped():
+    """chip_row was the only consumer: once lowered, defs.components would
+    be dead weight (and out-of-profile) — the lift drops it unless real
+    `component` objects remain."""
+    out, _ = _lift(V01_CHIP_DECK)
+    assert "components" not in (out.get("defs") or {})
+
+
+def test_chip_row_lowered_deck_validates():
+    out, _ = _lift(V01_CHIP_DECK)
+    _sdk().model.validate_document(out)
+
+
+def test_v01_flat_stroke_width_moves_to_stroke_style():
+    """v0.1 allowed `stroke_width` flat on an object next to `stroke`; in
+    v2 stroke geometry lives in stroke_style (P3)."""
+    doc = copy.deepcopy(V01_SCENE)
+    doc["visual"]["layers"][0]["objects"].append(
+        {"type": "rect", "id": "outline", "box": [5, 5, 50, 50],
+         "fill": "none", "stroke": "ink", "stroke_width": 0.5, "radius": 8})
+    out, _ = _lift(doc)
+    rect = out["pages"][0]["layers"][0]["objects"][-1]
+    assert "stroke_width" not in rect
+    assert rect["stroke"] == "ink"
+    assert rect["stroke_style"] == {"stroke_width": 0.5}
+    _sdk().model.validate_document(out)
+
+
+def test_v01_flat_span_styles_are_nested():
+    """v0.1 spans carry style keys flat on the span ({text, weight, color});
+    v2 Span allows only text/style/lang — the extras become a translated
+    inline style."""
+    doc = copy.deepcopy(V01_SCENE)
+    doc["visual"]["layers"][0]["objects"].append(
+        {"type": "text", "id": "eq", "box": [10, 160, 200, 30],
+         "style": "title",
+         "spans": [{"text": "bold bit", "weight": 700, "color": "ink"},
+                   {"text": "plain bit", "size": 14}]})
+    out, _ = _lift(doc)
+    spans = out["pages"][0]["layers"][0]["objects"][-1]["spans"]
+    assert spans[0] == {"text": "bold bit",
+                        "style": {"font_weight": 700, "color": "ink"}}
+    assert spans[1] == {"text": "plain bit", "style": {"font_size": 14}}
+    _sdk().model.validate_document(out)
 
 
 # ── the committed corpus proof ──────────────────────────────────────────
@@ -250,6 +349,51 @@ def test_genai_ecosystem_migrates_end_to_end():
     svgs, rstats = sdk.render_pages_with_stats(out, base_dir=str(ROOT))
     assert len(svgs) == 1
     assert rstats.get("uncontained", 0) == 0
+
+
+PALS = HERE / "data" / "v01" / "pals-genai-architecture-deck.yml"
+
+
+def test_pals_en_deck_migrates_end_to_end():
+    """#33 checklist: the 8-slide PALS EN production deck lifts through the
+    deck/slides form, validates, and renders every page — chip_row lowered,
+    disclaimer frontmatter preserved in meta."""
+    sdk = _sdk()
+    doc = yaml.safe_load(PALS.read_text(encoding="utf-8"))
+    stats = C.Stats()
+    out = C.lift_v01(doc, stats)
+    assert stats.v01 == 1
+    sdk.model.validate_document(out)
+
+    assert len(out["pages"]) == 8
+    assert out["profile"] == "deck"
+    assert "disclaimer" in out["meta"], "provenance must ride in meta"
+
+    def walk(objs):
+        for o in objs:
+            yield o
+            yield from walk(o.get("children") or [])
+
+    texts = [str(o.get("text", "")) for p in out["pages"]
+             for layer in p["layers"] for o in walk(layer["objects"])
+             if o.get("type") == "text"]
+    joined = "\n".join(texts)
+    assert "ERR_HALLUCINATION" in joined      # the lowered chip_row
+    assert all(o.get("type") != "chip_row"
+               for p in out["pages"] for layer in p["layers"]
+               for o in walk(layer["objects"]))
+
+    svgs, rstats = sdk.render_pages_with_stats(out, base_dir=str(ROOT))
+    assert len(svgs) == 8
+    # v0.1 semantics: content may spill its authoring box (explicit
+    # overflow:visible — permitted by the corpus gate) but must NEVER be
+    # silently truncated: no contained-policy spill, nothing clipped.
+    assert rstats.get("clipped", 0) == 0
+    assert rstats.get("uncontained", 0) == rstats.get("visible_overflow", 0)
+    # the regression that motivated the policy: the slide-3 consequence
+    # sentence was silently truncated mid-word under the v2 clip default —
+    # the RENDERED svg must carry it to the last glyph
+    assert "structural ones." in svgs[2]
 
 
 if __name__ == "__main__":

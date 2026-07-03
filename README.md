@@ -95,7 +95,7 @@ uv sync                                    # create/populate .venv
 # schema is generated and in sync
 uv run python docs/schema/build_schema.py --check
 
-# validate the delivered tracked fixtures — 32/32 zero errors in docs/FIXTURE-STATUS.md
+# validate the delivered tracked fixtures — 33/33 zero errors in docs/FIXTURE-STATUS.md
 make validate
 
 # migrate a legacy v2 document to HEAD
@@ -165,6 +165,18 @@ uv sync --group render                     # adds matplotlib + pillow
 - **Live UI** (`framegraph/live/`). A local web view over the same MCP feedback
   functions for humans watching/driving a session: `make live`
   (`http://127.0.0.1:8789`, port via `LIVE_PORT`).
+- **Font determinism toolchain** (`src/framegraph/fontpack.py` +
+  `tooling/render_chromium.py`; [ADR-0004](docs/adr-0004-single-engine-layout.md)).
+  `fg-font` — `--list` resolvable families, `--check DOC` (non-zero exit if a
+  content font would substitute), `--pack DOC --out P.fp` (portable pack of the
+  exact TTFs + sha256 manifest; `--fetch` provisions missing families from the
+  open Google Fonts corpus so packs build on thin hosts), `--install P.fp`
+  (scoped fontconfig) — and `render_chromium.py --font-pack P.fp`, which scopes
+  fontconfig to the pack before Chromium launches so measure == render on any
+  host. Declared as a console script; in this virtual tree run
+  it via `uv run python tooling/fg_font.py` or the `make font-*` targets.
+  Silent font substitution is banned: layout emits a `font_substitution`
+  warning to diagnostics *and* stderr whenever a requested face is missing.
 
 Programmatic entry points for all of the above — every make target and tooling
 CLI with flags — are catalogued in [AGENTS.md](AGENTS.md); the examples
@@ -200,7 +212,7 @@ folded into the artifacts above; they are listed only for historical context:
 - Font pinning enables deterministic *layout* only up to a stated rounding **tolerance**
   (a defined shaping model is also required) — not pixel-exact identity (§9.6).
 - The current delivered top-level fixture status is generated in `FIXTURE-STATUS.md`;
-  at this snapshot **32/32** have zero errors. Advisory warnings, when present, are
+  at this snapshot **33/33** have zero errors. Advisory warnings, when present, are
   recorded there instead of summarized by hand here.
 - What FrameGraph can — and deliberately will not — generate is mapped in
   [docs/output-space.md](docs/output-space.md): the backends wired today (whose

@@ -39,6 +39,7 @@ defs:
         color: ink
         align: left
         vertical_align: top
+        white_space: nowrap
       panel_head:
         font_family:
         - Helvetica
@@ -49,6 +50,7 @@ defs:
         color: ink_muted
         align: left
         vertical_align: top
+        white_space: nowrap
       card_label:
         font_family:
         - Helvetica
@@ -79,6 +81,7 @@ defs:
         color: hub_text
         align: center
         vertical_align: middle
+        white_space: nowrap
       uc_label:
         font_family:
         - Helvetica

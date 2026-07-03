@@ -4,6 +4,33 @@
 
 ---
 
+## Unreleased — PALS EN deck migrated; the v0.1 lift learns the deck dialect (2026-07-03, issue #33)
+
+Second corpus deck: the 8-slide PALS GenAI architecture deck (EN) lands as
+`tests/fixtures/pals-genai-architecture.fg.yaml` (corpus 32→33; 0 errors,
+one honest tabular-box-model advisory on the hand-positioned slide-8
+matrix). Four dialect corners closed in `codemod.py --from-v01`, red-first:
+
+- **`chip_row`** (v0.1 compositional pill row) lowers to a core `group` of
+  decorative pill rects + centered texts — same cursor/gap layout, the
+  `chip` component def's fill/text_style/radius baked in; a consumed def is
+  dropped (lossless), unconsumed defs are kept.
+- **Flat span styles** (`{text, weight, color}`) nest into a translated
+  inline `style` (v2 `Span` allows text/style/lang only).
+- **Flat object `stroke_width`** moves into `stroke_style` (P3).
+- **v0.1 wrap semantics pinned**: text wrapped only under `wrap: true`, and
+  overflow painted past the box — styles without `wrap` now get
+  `white_space: nowrap` and deck-form pages get
+  `rendering.text.overflow: visible`. Found the hard way: under v2's
+  wrap-then-clip default, slide 3's consequence sentence was silently
+  truncated mid-word — exactly the #44 failure class; the gate now asserts
+  `clipped == 0` and spill only via the explicit policy, and the genai
+  fixture regenerated under the same rules moved *closer* to its v0.1
+  reference (RMSE 14.7 → 13.3). PALS renders verified page-by-page against
+  the sibling's own renderer (mean RMSE 18.4/255, differences are font
+  rasterization and tighter in-card wrapping, no content loss). 6 new
+  red-first tests (16 total in `tests/test_codemod_v01.py`).
+
 ## Unreleased — font determinism end to end (ADR-0004, 2026-07-03)
 
 The measure==render loop is closed, host-independently
