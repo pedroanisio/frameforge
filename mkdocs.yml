@@ -73,6 +73,7 @@ nav:
       - ADR-0001 backend-neutral rendering: adr-0001-backend-neutral-rendering.md
       - ADR-0002 SDK lags core delivery: adr-0002-sdk-lags-core-delivery.md
       - ADR-0003 backend-neutral flow layout: adr-0003-backend-neutral-flow-layout.md
+      - ADR-0004 single-engine layout: adr-0004-single-engine-layout.md
       - Illustration protocol: illustration-protocol.md
       - Vector recreation improvements: framegraph-vector-recreation-improvements.md
       - Brand guideline: BRAND.md

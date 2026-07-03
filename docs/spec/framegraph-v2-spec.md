@@ -372,6 +372,15 @@ exclude hinting from advance computation. Residual cross-engine variance bounded
 rounding is a stated **conformance tolerance** — not exact identity. Claiming
 pixel-exact reproducibility from pinning alone would be false.
 
+**Operational note (non-normative).** The `unpinned-font` error enforces this
+precondition statically; end-to-end determinism across hosts is operationalised by
+the `fg-font` toolchain — `fg-font --check DOC` as a CI determinism gate (non-zero
+exit if a content font substitutes), and `fg-font --pack DOC --out P.fp`, a portable
+font pack (a zip of the exact font files plus a `manifest.json` of
+`family → file → sha256`) that an external renderer points both `font_metrics` and
+its rasterizer at, so measure == render on any host. See
+[ADR-0004](../adr-0004-single-engine-layout.md).
+
 ---
 
 *This HEAD spec consolidates the base grammar and Patches 1–4 with the drafted style

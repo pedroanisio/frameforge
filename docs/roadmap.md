@@ -152,9 +152,11 @@ and internationalization. It is not. FrameGraph already carries:
 - **Color:** modern wide-gamut color (`oklch` / `lab` / `lch`).
 
 So on typographic and i18n **vocabulary** FrameGraph is competitive with mature
-systems, and listing those as gaps would be wrong. The real caveat is the layout
-**engine** that honors them — see the cross-cutting note below — which is a
-different thing from the controls themselves.
+systems, and listing those as gaps would be wrong. The real caveat is the *page-level*
+layout **engine** that honors widows / orphans / keep-together — see the cross-cutting
+note below — which is a different thing from the controls themselves. (The
+intra-paragraph engine — Knuth–Plass line breaking + Liang hyphenation + span-aware
+justification — now ships; ADR-0003.)
 
 > Verified in `models/framegraph.py`: `widows`/`orphans`,
 > `hyphenate_limit_chars`, `font_kerning`, `unicode_bidi`, `writing_mode`, and
@@ -572,10 +574,12 @@ simply unbuilt), or **non-goal** (declared scope choice) — and every M/L row
 carries a confidence tag. The audit is git-stamped (`source_identity()`:
 frameforge commit + a dirty flag, "so the stamp cannot lie").
 
-**Scoreboard at 2.3.0:** 51 features → **14 HAS** (27%), **17 PARTIAL**,
-**4 REFRAMED**, **16 NONE** (7 architectural + 3 maturity + 6 non-goals —
-the 3 maturity rows are precisely W1/W2's buildables). Full-or-partial
-**61%**; *reachable by any route* (has+partial+reframed) **35/51 = 69%**.
+**Scoreboard at 2.3.0 (post-W6, #50):** 51 features → **14 HAS** (27%),
+**12 PARTIAL**, **9 REFRAMED**, **16 NONE** (7 architectural + 3 maturity +
+6 non-goals — the 3 maturity rows are precisely W1/W2's buildables).
+Full-or-partial **51%**; *reachable by any route* (has+partial+reframed)
+**35/51 = 69%** (unchanged — W6 moved five rows from PARTIAL to REFRAMED
+and hardened AI-40's evidence; it added no new capability, by design).
 Earlier cuts scored higher (v1: 44 features, one manual, 48% full; v2: 46
 features, 63% full-or-partial) because each revision widened the surface and
 tightened the rubric — the drops are honesty, not regression. The full
@@ -600,7 +604,7 @@ work must not trade these away.
 | W3 | **Painterly colour** — freeform gradient + gradient mesh ("the single biggest gap") via expansion-tier subdivision shading (Scene3D Gouraud precedent); **shape/colour blend interpolation** (the Blend tool, declaratively: lerp matched anchors + colour at expansion) | AI-27, AI-28 (L), AI-29 (M) | M–L | Low priority; decision: emulate vs accept as the price of being a grammar |
 | W4 | **Style & colour richness** — ordered effect stack (M); appearance stack: multiple fill/stroke passes per object, out of the core profile (M); a `recolor()` convenience over token swap + `gradient_map` (S); harmony suggestions as the declarative Color Guide over `sdk.chevreul` (XS–S) | AI-30, AI-32, AI-16, AI-18 | S–M | Profile-gated schema additions where schema changes at all |
 | W5 | **Text threading** — named-frame chains (flow region → region) as the declarative threaded text | AI-22 | M | **Operator decision** — today's flow auto-paginates; explicit frame linking is a new contract |
-| W6 | **Verdict corrections by documentation** — anchor editing = MCP `workspace` pin/nudge/snap; isolation mode = edit-by-id scoping; the coordinate pen's assistive half = `construct_vectors` + coach; artboards-vs-pages as a design difference; verify/document Scene3D `extrude`/`revolve` + `Material` against AI-40; guides/rulers/snap = exact coordinates + `canon.content_box` layout grids (optional SDK guide helpers) | AI-02, AI-03, AI-08, AI-36, AI-40, AI-50 | XS–S | No schema — document, strengthen evidence, re-verdict where honest |
+| W6 | **DELIVERED** ([#50](https://github.com/pedroanisio/frameforge/issues/50)) — five rows re-verdicted PARTIAL→REFRAMED ·H with code-verified evidence (AI-02 workspace pin/nudge/snap + `construct_vectors`; AI-03 direct id addressing; AI-08 coordinates-are-the-pen + coach; AI-36 pages-are-the-artboards; AI-50 exactness by construction + `content_box` grids); AI-40 verified in code (`Scene3D.extrude`/`.revolve`/`Material` are real, projected to vectors) — stays PARTIAL ·H, bevel missing. Teardown + audit regenerated | AI-02, AI-03, AI-08, AI-36, AI-40, AI-50 | XS–S | No schema — delivered as documentation + re-verdicted teardown |
 | W7 | **Visual font identification** (Retype) — a vision-side classifier from rendered glyphs to `list_fonts` families | AI-45 | L | Deferred decision; the only Generative/AI-chapter row with an open build |
 
 **Non-goals, reaffirmed** (6 declared in the matrix, honest limits — parity of
@@ -637,7 +641,12 @@ PowerPoint.
 ## Cross-cutting note — vocabulary vs. engine
 
 Tying back to the calibration: FrameGraph has the typographic *controls* (widows,
-orphans, keep-together, breaks) but not a specified *engine* that realizes them.
+orphans, keep-together, breaks), and now ships a backend-neutral *intra-paragraph*
+engine that realizes the line-level subset — Knuth–Plass total-fit line breaking +
+Liang hyphenation + span-aware justification
+(`src/framegraph/rendering/domain/services/flow_layout.py`, ADR-0003), wired into the
+renderer for `align: justify`. What it still lacks is the *page-level* engine that
+honors widows / orphans / keep-together — those remain vocabulary only.
 Typst, by contrast, **is** the engine — it runs measurement, then placement, then
 page-breaking, with frames as the positioned units, and resolves cross-document
 dependencies like counters and citations through introspection over multiple
@@ -1076,8 +1085,8 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-01 | Object selection | REFRAMED | name an object by id and act on it | settled — declaration replaces point-and-click |
-| AI-02 | Anchor-point editing | PARTIAL ·M | path/bezier/curve points authored as coordinates | **W6**: MCP `workspace` pin/nudge/snap is the declarative Direct Selection — document |
-| AI-03 | Isolation mode | PARTIAL ·M | structural nesting (group + layers); no in-place isolated edit | **W6**: edit-by-id scoping is the declarative isolation — document |
+| AI-02 | Anchor-point editing | REFRAMED ·H | anchors edit by restating coordinates — MCP `workspace` pin/nudge/snap + `construct_vectors` | **W6 delivered** (#50): re-verdicted with evidence |
+| AI-03 | Isolation mode | REFRAMED ·H | name the nested id — direct addressing needs no isolation state | **W6 delivered** (#50): re-verdicted with evidence |
 | AI-04 | Compound paths / Pathfinder | PARTIAL ·M | path `fill_rule` even-odd + holes; no live Pathfinder ops | **W1**: declarative boolean ops |
 | AI-05 | Shape Builder | NONE ·H arch | no boolean shape merge | **W1** |
 | AI-06 | Scissors & Knife | NONE ·H arch | no path surgery | **W1**: split-at / cut-along, S once the kernel exists |
@@ -1089,7 +1098,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-07 | Shape primitives | HAS | rect, ellipse, circle, polygon, line, polyline (17 object types) | settled |
-| AI-08 | Pen tool (Bézier) | PARTIAL ·M | bezier / `Path` / `CubicBezier`, authored by coordinate | settled as design — coordinates are the pen; **W6** documents `construct_vectors` + coach as the assistive half |
+| AI-08 | Pen tool (Bézier) | REFRAMED ·H | coordinates are the pen — bezier / `Path` / `CubicBezier`; `construct_vectors` + coach are the assistive half | **W6 delivered** (#50): re-verdicted with evidence |
 | AI-09 | Curvature tool | PARTIAL ·M | curve object + `parametric_curve`; no live rubber-band | **W2**: `through()` smooth interpolation (§A.2), S |
 | AI-10 | Pencil / freehand | NONE ·H non-goal | no freehand pointer input (declarative only) | **non-goal** reaffirmed; nearest declarative route is curve *fitting* (`vectorize_image`, coach) — noted, not claimed |
 | AI-11 | Stroke controls | HAS | `stroke_style` width/dasharray/cap/join + connector markers | settled |
@@ -1138,9 +1147,9 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-33 | Layers | HAS | ordered layers per page, z-index | settled |
 | AI-34 | Transform tools | HAS | transform: Mat3 rotate / scale / translate / shear | settled |
 | AI-35 | Align & distribute | HAS | layout groups: row / column / grid, align | settled |
-| AI-36 | Artboards | PARTIAL ·M | multi-page flow doc (TOC, bibliography); no free spatial canvas | **W6**: pages-not-canvas is a design difference — document |
+| AI-36 | Artboards | REFRAMED ·H | pages are the artboards — per-page canvas + render targets replace the free canvas by design | **W6 delivered** (#50): re-verdicted with evidence |
 | AI-37 | Perspective grid | NONE ·H non-goal | flat page space | **non-goal** — coheres with G-2's non-conformant `perspective` |
-| AI-50 | Guides, rulers & snap | PARTIAL ·M | `grid_pattern` + exact coordinates; no interactive guides/snap | **W6**: exact coordinates + `canon.content_box` grids are the declarative guides — document; optional SDK guide helpers, XS–S |
+| AI-50 | Guides, rulers & snap | REFRAMED ·H | coordinates are exact by construction — `canon.content_box` grids, `grid_pattern`, `workspace` snap | **W6 delivered** (#50): re-verdicted with evidence |
 
 ## G · Image · 3D · output
 
@@ -1148,7 +1157,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 |----|--------------------|---------|------------------|-------------|
 | AI-38 | Embed / link raster | HAS | image object: embedded or src-referenced | settled |
 | AI-39 | Image trace | REFRAMED ·H | `vectorize_image` MCP tool call | settled — same raster→vector end, declarative road |
-| AI-40 | 3D & Materials | PARTIAL ·M | `Scene3D` + `Material` + `Camera` scene — not vector extrusion | **W6**: verify/document `extrude`/`revolve` + materials against this row, XS–S |
+| AI-40 | 3D & Materials | PARTIAL ·H | `Scene3D.extrude`/`.revolve` + `Material` + `Camera`, projected to 2D vector faces; no bevel | **W6 delivered** (#50): claim verified in code (`sdk/draw.py`), evidence corrected — stays PARTIAL, bevel missing |
 | AI-41 | Export formats | PARTIAL ·M | SVG / PNG / PDF / LaTeX (6 renderers); no PSD / EPS / DWG | proprietary/legacy targets stay **non-goals** |
 | AI-42 | Package | NONE ·H non-goal | no asset-collection packaging step | **non-goal** (v2 change from v1's build proposal): hermetic single-file YAML + content-hashed assets make packaging moot |
 | AI-51 | Graph tool (bar / pie / line charts) | HAS | `Chart` / `sparkline` / `function_plot` / `polar_plot` / `kpi` — data-bound | settled — and note the boundary: item 3's data *transforms* remain out of scope; these are data-bound marks |

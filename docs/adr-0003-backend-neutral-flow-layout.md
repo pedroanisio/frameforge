@@ -12,8 +12,9 @@ disclaimer:
 
 ## Status
 
-Accepted. Slice 1 (the flow-mode prose column) is implemented and gated. The
-page-mode text-box wrap path and the LaTeX painter wiring are staged (below).
+Accepted. Slice 1 (the flow-mode prose column) and slice 2 (page-mode text-box
+justification + span-aware runs) are implemented and gated — see the slice-2 update
+below. Only the LaTeX painter's justification and wiring remain staged (below).
 
 ## Context
 

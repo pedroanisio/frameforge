@@ -66,6 +66,7 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 | `corpus` / `corpus-check` / `corpus-ui` | fetch / verify / re-render the expressiveness corpus |
 | `viewer-build` / `viewer-test` | JS viewer bundle build / node coverage |
 | `docker-build` / `docker-mcp` / `docker-shell` / `docker-fonts` | font-rich runtime image (below) |
+| `font-list` / `font-check` / `font-pack` / `font-install` | `fg-font` (below): list resolvable families / gate `DOC=` for substituting content fonts / bundle `DOC=`'s fonts into a portable `.fp` (`FETCH=1` pulls misses from Google Fonts) / extract `PACK=`.fp into a scoped fontconfig |
 | `sync` / `lint` / `clean` | uv venv refresh / ruff (non-gating) / remove generated output |
 
 ## Tooling entry points (direct invocation)
@@ -99,7 +100,7 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 | `check_package_readiness.py` | package-emit readiness report (advisory) |
 | `fetch_corpus.py` / `fetch_book_corpus.py` | `[--check]` — corpus download/verify |
 | `install_fonts.py` | font provisioning used by the Docker image |
-| `fg_font.py` | `--list` resolvable families · `--check DOC` (fail if a content font substitutes) · `--pack DOC --out P.fp` (portable font pack + manifest so measure==render on any host; ADR-0004) · `--pack --fetch` provisions missing families from Google Fonts (`source: google-fonts:<slug>` in the manifest) so packs build from a thin host. Thin launcher over `framegraph.fontpack`; also a `fg-font` console script (`[project.scripts]`) where the package is installed. Consume a pack with `render_chromium.py --font-pack` |
+| `fg_font.py` | `--list` resolvable families · `--check DOC` (fail if a content font substitutes; `--check --fetch` reports host-missing but Google-provisionable families as FETCHABLE and still passes) · `--pack DOC --out P.fp` (portable font pack + manifest so measure==render on any host; ADR-0004) · `--pack --fetch` provisions missing families from Google Fonts (`source: google-fonts:<slug>` in the manifest) so packs build from a thin host · `--install P.fp --dir D` extracts a pack into a scoped fontconfig (`make font-install`). Thin launcher over `framegraph.fontpack`; also a `fg-font` console script (`[project.scripts]`) where the package is installed. Consume a pack with `render_chromium.py --font-pack` |
 
 ## Tests
 

@@ -47,11 +47,11 @@ The shared core is the port + renderer:
 | Output | Kind | Entry point |
 |---|---|---|
 | **SVG** | vector (primary) | `src/framegraph/rendering/infrastructure/painters/svg.py`, driven by `tooling/render_fixtures.py` |
-| **PNG** (headless Chromium) | raster, CSS-fidelity | `tooling/render_chromium.py` |
+| **PNG** (headless Chromium) | raster, CSS-fidelity; `--font-pack P.fp` scopes fonts so measure == render (ADR-0004) | `tooling/render_chromium.py` |
 | **Raster** (matplotlib proxy) | raster, sanity check | `tooling/render_fg_doc.py` |
 | **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `src/framegraph/rendering/infrastructure/latex/document.py` |
 | **PDF** via cairosvg (SVG → PDF) | vector PDF | `tooling/render_pdf.py` |
-| **HTML/CSS** (legacy; documented flow/gradient limits) | web | `tooling/framegraph_to_html.py` |
+| **HTML/CSS** (ADR-0004 promotes this to the intended flow-fidelity path; the current implementation still degrades flow — documented flow/gradient limits) | web | `tooling/framegraph_to_html.py` |
 | **Math** TeX → SVG (MathJax) | embedded glyphs | `tooling/mathjax_tex_to_svg.mjs` |
 | **JSON Schema** | format contract | `docs/schema/build_schema.py` |
 | **Docs site** (reference/gallery/SDK/spec) | documentation | `tooling/gen_docs.py` |
@@ -68,6 +68,14 @@ the same port, collapsing the `FigureTikz` fork.
 > Honest scope: no renderer is conformant; the SVG/matplotlib proxies are sanity
 > checks, not fidelity guarantees, and fidelity degrades where a target cannot
 > hold an IR feature (gradients flatten in TikZ; flow degrades in the HTML path).
+>
+> Text determinism is enforced separately by `fg-font` (`src/framegraph/fontpack.py`,
+> a console script): `--check DOC` gates a document (non-zero exit if a content font
+> would substitute), `--pack DOC --out P.fp` bundles the exact faces plus a
+> `family → file → sha256` manifest, and a substituted content font now **screams**
+> (a `font_substitution` warning to diagnostics *and* stderr). A `.fp` pack fed to
+> `render_chromium.py --font-pack` makes measure == render on any host
+> ([ADR-0004](adr-0004-single-engine-layout.md)).
 
 ## What it could generate (conceptual)
 

@@ -60,8 +60,9 @@ the correct reading of the reporter's objection.
 
 3. **Fonts are pinned/baked, never trusted from the host.** Fidelity renders embed
    the face or run in the frameforge Docker image (baked fonts) so measure and
-   render resolve the identical file. This is operationalised by **`fg-font`**
-   (`tooling/fg_font.py`): `--list` the runtime's resolvable families, `--check DOC`
+   render resolve the identical file. This is operationalised by **`fg-font`** (the
+   `fg-font` console script, `framegraph.fontpack:main` in `src/framegraph/fontpack.py`;
+   `tooling/fg_font.py` is a thin launcher): `--list` the runtime's resolvable families, `--check DOC`
    as a determinism gate (non-zero exit if any content font substitutes), and
    `--pack DOC --out P.fp` — a portable font pack (zip of the exact TTFs + a
    `manifest.json` of family→file→sha256) that an *external* renderer points both

@@ -105,6 +105,7 @@ colors. The resolvers live in
 | `CanvasResolver` | Master references → canvas specs |
 | `EffectResolver` | Shadow / glow effects |
 | `LayoutEngine` | Arrange group children (row / column / grid) |
+| `flow_layout` | Backend-neutral prose layout: Knuth–Plass line breaking + Liang hyphenation (`pyphen`) + span-aware justification; emits the `LaidLine`/`LaidParagraph` IR and the recto/verso `content_box` (ADR-0003) |
 | `table_layout` | Table sizing and cell placement |
 | `geometry` | Shared geometric math |
 
@@ -160,6 +161,16 @@ Backends are infrastructure adapters under
   docstring notes a possible future **retained-mode `Scene`** — a materialized
   list of primitive value objects on the same seam — which would turn the
   transient display list into a second, inspectable IR.
+- **Measure-time font must equal render-time font.** Wrapping and justification
+  measure line widths through `font_metrics`
+  ([infrastructure/font_metrics.py](https://github.com/pedroanisio/frameforge/blob/main/src/framegraph/rendering/infrastructure/font_metrics.py)),
+  which resolves the CSS font-family chain the browser's way and rejects fontconfig's
+  fuzzy fallback (e.g. `Charter` → `Noto Sans`). When the layout face is not the
+  requested face, the `Renderer` emits a **screaming** `font_substitution` warning
+  (stderr *and* a diagnostic, once per family), because measuring one face while
+  another rasterizes breaks justified/wrapped fidelity. Making both engines resolve
+  the same file is ADR-0004's single-engine principle; the `fg-font` toolchain and
+  `render_chromium --font-pack` operationalize it.
 
 ## File map
 
