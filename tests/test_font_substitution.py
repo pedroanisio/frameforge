@@ -11,7 +11,12 @@ from __future__ import annotations
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+_shadow = sys.modules.get("framegraph")
+if _shadow is not None and not hasattr(_shadow, "__path__"):   # evict a models-module shadow
+    del sys.modules["framegraph"]
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
+
 from framegraph.rendering.infrastructure import font_metrics as fmmod  # noqa: E402
 from tooling.render_fixtures import Renderer  # noqa: E402
 

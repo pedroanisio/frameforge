@@ -50,7 +50,7 @@ GEOM_TO_CSS = {
 
 class Stats:
     def __init__(self):
-        self.stroke = self.size = self.grad = self.alias = 0
+        self.stroke = self.size = self.grad = self.alias = self.v01 = 0
 
 
 def _pct(v):
@@ -144,6 +144,128 @@ def migrate_stroke_bundles(doc, stats):
             stats.stroke += 1
 
 
+# ── v0.1 dialect lift (issue #33 — the deck-corpus conversion path) ──────
+
+_V01_TS = {"size": "font_size", "weight": "font_weight",
+           "v_align": "vertical_align"}
+
+
+def _lift_v01_text_styles(tokens):
+    """v0.1 text-style keys VALIDATE in v2 as unrelated CSS props (font =
+    shorthand, size = box width…) — rename, don't just carry."""
+    fonts = tokens.get("fonts") or {}
+    for name, style in list((tokens.get("text_styles") or {}).items()):
+        if not isinstance(style, dict):
+            continue
+        out = {}
+        for k, v in style.items():
+            if k == "font":
+                fam = fonts.get(v, v)
+                out["font_family"] = [p.strip().strip("'\"")
+                                      for p in str(fam).split(",")]
+            elif k == "wrap":
+                continue                      # v2 wraps by default
+            else:
+                out[_V01_TS.get(k, k)] = v
+        tokens["text_styles"][name] = out
+    for name, fam in list(fonts.items()):
+        if isinstance(fam, str):              # CSS string -> v2 font def
+            fonts[name] = {"family": fam}
+
+
+def _v01_profile(kind):
+    if not kind:
+        return None
+    if "diagram" in kind:
+        return "diagram"
+    if "deck" in kind or "presentation" in kind:
+        return "deck"
+    return None
+
+
+def lift_v01(doc, stats: Stats):
+    """Lift a v0.1 envelope (scene-form or deck/slides-form) to the v2
+    envelope, then run the standard HEAD migrations. v2 documents pass
+    through unchanged."""
+    if not isinstance(doc, dict) or not ("scene" in doc or "deck" in doc
+                                         or "slides" in doc):
+        return doc
+    stats.v01 += 1
+
+    kind = doc.pop("kind", None)
+    out = {"dsl": doc.get("dsl", "FrameGraph"), "version": HEAD_VERSION}
+    profile = _v01_profile(kind)
+    if profile:
+        out["profile"] = profile
+
+    if "scene" in doc:                                   # scene-form
+        scene = doc.pop("scene") or {}
+        if scene.get("name"):
+            out["title"] = scene["name"]
+        if scene.get("description"):
+            out["description"] = scene["description"]
+        visual = doc.pop("visual", None) or {}
+        tokens = visual.get("tokens") or {}
+        if tokens:
+            _lift_v01_text_styles(tokens)
+            out["defs"] = {"tokens": tokens}
+        page = {"mode": "page", "id": scene.get("id") or "page-1"}
+        if scene.get("canvas"):
+            page["canvas"] = scene["canvas"]
+        if scene.get("rendering_contract"):
+            page["rendering"] = scene["rendering_contract"]
+        semantic = doc.pop("semantic", None)
+        if semantic:
+            page["semantic"] = semantic
+        page["layers"] = visual.get("layers") or []
+        out["pages"] = [page]
+    else:                                                # deck/slides-form
+        deck = doc.pop("deck", None) or {}
+        canvas = deck.get("canvas")
+        defs = {}
+        tokens = deck.get("tokens") or {}
+        if tokens:
+            _lift_v01_text_styles(tokens)
+            defs["tokens"] = tokens
+        if deck.get("component_defs"):
+            defs["components"] = deck["component_defs"]
+        if defs:
+            out["defs"] = defs
+        pages = []
+        for i, slide in enumerate(doc.pop("slides", None) or [], start=1):
+            page = {"mode": "page",
+                    "id": slide.get("id") or f"slide-{i}"}
+            if canvas:
+                page["canvas"] = canvas
+            meta = {k: slide[k] for k in ("slide", "title")
+                    if slide.get(k) is not None}
+            if meta:
+                page["meta"] = meta
+            if slide.get("notes"):
+                page["notes"] = slide["notes"]
+            page["layers"] = (slide.get("visual") or {}).get("layers") or []
+            pages.append(page)
+        out["pages"] = pages
+
+    if kind:
+        out.setdefault("meta", {})["kind"] = kind
+    out.setdefault("meta", {})["migrated_from"] = \
+        f"FrameGraph v0.1 (document version {doc.get('version')})"
+    for key in ("dsl", "version", "scene", "semantic", "visual", "deck",
+                "slides"):
+        doc.pop(key, None)
+    v2_keys = {"profile", "title", "description", "lang", "defs", "targets",
+               "pages", "meta", "text_contract"}
+    for k, v in doc.items():           # remaining top-level keys carry over;
+        if k in v2_keys:               # unknown ones ride in meta (v2 Document
+            out.setdefault(k, v)       # forbids extras)
+        else:
+            out.setdefault("meta", {})[k] = v
+
+    migrate_stroke_bundles(out, stats)
+    return migrate(out, stats, normalize_aliases=False)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("documents", nargs="+")
@@ -151,12 +273,16 @@ def main(argv=None):
     ap.add_argument("--normalize-aliases", action="store_true",
                     help="also rewrite circle/polygon/curve to ellipse/polyline/path")
     ap.add_argument("--bump", action="store_true", help=f"set version to {HEAD_VERSION}")
+    ap.add_argument("--from-v01", action="store_true",
+                    help="lift a v0.1 envelope (scene: or deck:/slides:) to v2 first")
     args = ap.parse_args(argv)
 
     total = Stats()
     for path in args.documents:
         doc = yaml.safe_load(open(path, encoding="utf-8"))
         st = Stats()
+        if args.from_v01:
+            doc = lift_v01(doc, st)
         migrate_stroke_bundles(doc, st)
         doc = migrate(doc, st, args.normalize_aliases)
         if args.bump and isinstance(doc, dict) and doc.get("dsl") == "FrameGraph":
@@ -173,10 +299,10 @@ def main(argv=None):
             else:
                 yaml.safe_dump(doc, fh, sort_keys=False, allow_unicode=True, width=120)
         print(f"{os.path.basename(path)} -> {os.path.basename(out)} "
-              f"(stroke:{st.stroke} size→sizing:{st.size} grad:{st.grad} alias:{st.alias})")
-        for f in ("stroke", "size", "grad", "alias"):
+              f"(v01:{st.v01} stroke:{st.stroke} size→sizing:{st.size} grad:{st.grad} alias:{st.alias})")
+        for f in ("stroke", "size", "grad", "alias", "v01"):
             setattr(total, f, getattr(total, f) + getattr(st, f))
-    print(f"TOTAL  stroke:{total.stroke}  size→sizing:{total.size}  grad:{total.grad}  alias:{total.alias}")
+    print(f"TOTAL  v01:{total.v01}  stroke:{total.stroke}  size→sizing:{total.size}  grad:{total.grad}  alias:{total.alias}")
     return 0
 
 

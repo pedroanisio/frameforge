@@ -9,8 +9,13 @@ import zipfile
 
 import yaml
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from tooling.fg_font import main, referenced_families  # noqa: E402
+ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+_shadow = sys.modules.get("framegraph")
+if _shadow is not None and not hasattr(_shadow, "__path__"):   # evict a models-module shadow
+    del sys.modules["framegraph"]
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
+
+from framegraph.fontpack import main, referenced_families  # noqa: E402
 
 
 def test_referenced_families_expands_tokens_and_filters_generics():
