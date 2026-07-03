@@ -28,6 +28,21 @@ the spacing.*
   rivers) — tight ragged is the safe default. Page-mode `wrap:true` text boxes are
   unchanged (staged follow-up).
 
+## Unreleased — pattern compose: filled patterns become pages (2026-07-02, issue #29)
+
+`framegraph.patterns.compose(pattern_id, fill)` bridges the #28 catalog to
+rendered output: payload validated through the fill contract first (layout
+never runs on unvalidated content), zone boxes computed deterministically
+from the anchor vocabulary (column bands / quadrant grids / mixed BMC
+columns; regions and relative placements stack in declaration order as a
+documented approximation), enterprise-layout treatments applied (card
+fill/stroke/corner, accent bars, label slots with slot typography), and
+content emitted per content_type as plain core objects — nothing new enters
+the schema, and the returned document is pre-validated. Acceptance gate as a
+test: all 17 sidecared example fills compose, validate, and render with zero
+uncontained text; SWOT/BMC/Diagnostic verified against rendered pixels.
+Sample: `static/examples/pattern_compose_deck.py`. 6 red-first tests.
+
 ## Unreleased — pattern catalog + fill contract absorbed as data (2026-07-02, issue #28)
 
 New bounded context `framegraph.patterns`: the predecessor's 375-pattern

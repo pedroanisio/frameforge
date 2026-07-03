@@ -18,8 +18,18 @@ declares *zones* — role, a controlled size vocabulary, placement, and a
 one pattern. Validation is strict at both ends: the loader rejects a
 malformed catalog, `load_fill` rejects a malformed payload.
 
-> Rendering a filled pattern into v2 pages is the #29 bridge and is **not**
-> part of this surface yet — today the contract is data + validation.
+Rendering is live (#29): `compose(pattern_id, fill)` returns a full,
+validated document realizing the pattern on a 1920×1080 deck page — zone
+boxes computed deterministically from the placement vocabulary (column
+bands, quadrant grids, the BMC's mixed columns), enterprise-layout
+treatments applied (cards, accent bars, label slots), content emitted per
+`content_type` as plain core objects. Runnable sample:
+`static/examples/pattern_compose_deck.py`.
+
+```python
+from framegraph.patterns import compose, load_sidecars
+doc = compose(10, load_sidecars()[10].example_fill)   # SWOT, ready to render
+```
 
 ## Loading and inspecting
 

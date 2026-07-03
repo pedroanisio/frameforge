@@ -17,6 +17,7 @@ from framegraph.patterns.catalog import (
     Span,
     load_catalog,
 )
+from framegraph.patterns.compose import CANVAS_H, CANVAS_W, DEFAULT_TOKENS, compose
 from framegraph.patterns.fill import (
     FILLS_DIR,
     PatternFillSidecar,
@@ -29,6 +30,10 @@ from framegraph.patterns.fill import (
 
 __all__ = [
     "Anchor",
+    "CANVAS_H",
+    "CANVAS_W",
+    "DEFAULT_TOKENS",
+    "compose",
     "CATALOG_PATH",
     "Catalog",
     "EnterpriseLayout",
