@@ -12,7 +12,7 @@ scope: what `libfy.md` means for FrameGraph, grounded in the live tree
 
 # Libfy, on FrameGraph
 
-Companion analysis to [`libfy.md`](libfy.md). Every claim below is grounded in a
+Companion analysis to `libfy.md` (the libfy concept document; not yet committed to this repository). Every claim below is grounded in a
 live file; paths are repo-relative.
 
 ## Thesis
