@@ -4,6 +4,23 @@
 
 ---
 
+## Unreleased — v0.1 deck-corpus conversion path (2026-07-03, issue #33)
+
+`tooling/codemod.py --from-v01` lifts both v0.1 envelope forms to v2 —
+scene-form (`scene:`/`semantic:`/`visual:` → one page carrying the semantic
+block and rendering contract) and deck-form (`deck:`/`slides:` → defs +
+one page per slide) — then the standard HEAD rules finish (P3 stroke split,
+`stroke_styles` Style projection). The lift also fixes the two silent
+semantic traps: v0.1 text-style keys (`font`/`size`/`weight`/`v_align`)
+and stroke bundles validate in v2 as unrelated CSS props and must be
+renamed, not carried. Unknown top-level keys ride in `meta`. Conversion
+proof per the issue's own AC: the genai-ecosystem production diagram —
+committed v0.1 source (`tests/data/v01/`) → fixture
+`genai-ecosystem.fg.yaml` (corpus 31→32, 0 errors 0 warnings), rendered
+98.8 % pixel-identical to the v0.1 reference (RMSE 14.7/255; one label
+wrap point). 10 red-first tests (`tests/test_codemod_v01.py`); recipe at
+`docs/migration-v01.md`; remaining decks tracked on #33 as on-demand.
+
 ## Unreleased — content library: themes, symbol packs, generators (2026-07-03, issue #32)
 
 `framegraph.library` — the predecessor project's content library absorbed

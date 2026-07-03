@@ -52,7 +52,9 @@ def _sdk():
         del sys.modules["framegraph"]
     sys.path.insert(0, str(ROOT / "src"))
     import framegraph.sdk  # noqa: F401
-    return sys.modules["framegraph"].sdk
+    # a cached framegraph.sdk is not re-attached to a re-imported parent —
+    # take the submodule from sys.modules, never as a parent attribute
+    return sys.modules["framegraph.sdk"]
 
 V01_SCENE = {
     "dsl": "FrameGraph",

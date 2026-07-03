@@ -12,7 +12,7 @@ disclaimer:
 
 ## Disclaimer
 
-This work is subject to the methodological caveats and commitments described in [@DISCLAIMER.md](../../DISCLAIMER.md).
+This work is subject to the methodological caveats and commitments described in `@DISCLAIMER.md`.
 > No statement or premise not backed by a real logical definition or verifiable reference should be taken for granted.
 
 ---
@@ -31,7 +31,7 @@ hub-and-spoke ecosystem diagrams.
 
 The output:
 
-![rendered slide](genai-ecosystem.svg)
+!`rendered slide`
 
 ---
 
@@ -49,7 +49,7 @@ Use it as a starting point when:
 If a catalog pattern does fit (SWOT, BMC, Communications Plan, etc.),
 **prefer `framegraph patterns build` or a deck with `use:` /
 `fill:`** instead. The catalog handles theming, layout, and
-accessibility metadata for you. See [`AGENTS.md`](../../AGENTS.md)
+accessibility metadata for you. See ``AGENTS.md``
 for the decision tree.
 
 ---
@@ -173,11 +173,11 @@ print('ok' if not r.warnings else 'render warnings present')
 
 ## See also
 
-- [`../../AGENTS.md`](../../AGENTS.md) — agent-oriented entry point.
-- [`../../docs/AUTHORING-FILLS.md`](../../docs/AUTHORING-FILLS.md) —
+- ``../../AGENTS.md`` — agent-oriented entry point.
+- ``../../docs/AUTHORING-FILLS.md`` —
   the fill / sidecar workflow for catalog patterns.
-- [`../../static/fixture/decks/framegraph-overview-deck.yml`](../../static/fixture/decks/framegraph-overview-deck.yml) —
+- ``../../static/fixture/decks/framegraph-overview-deck.yml`` —
   a 12-slide deck composed entirely from bespoke `visual.layers`
   (no patterns), useful as a longer reference.
-- [`../../static/fixture/faz-ai-manifesto-deck.yml`](../../static/fixture/faz-ai-manifesto-deck.yml) —
+- ``../../static/fixture/faz-ai-manifesto-deck.yml`` —
   a deck mixing bespoke and pattern-composed slides.
