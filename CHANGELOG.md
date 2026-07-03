@@ -1,10 +1,16 @@
 # FrameGraph v2 — CHANGELOG (HEAD)
 
-**Version:** `2.4.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-03
+**Version:** `2.4.1` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-03
 
 ---
 
-## 2.4.0 — parity W1: the planar geometry kernel (2026-07-03, issue #45)
+## 2.4.1 — parity W1: the planar geometry kernel + the DocumentRenderer port (2026-07-03, issue #45)
+
+Also in this patch: the **`DocumentRenderer` output port** (hexagonal seam)
+— the CLI's html / pdf-tex targets render through in-process backends
+(`rendering/infrastructure/backends/`) instead of shelling out to our own
+scripts; one registry adapter per `--to` target
+(`tests/test_document_backends.py` locks the contract).
 
 `framegraph.sdk.planar` — one expansion-tier kernel closes five rows, zero
 schema change (§A.0: the SDK computes, documents receive even-odd `path`

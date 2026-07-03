@@ -3,9 +3,10 @@
 fg_css_optimize.py
 ==================
 
-A multi-pass CSS *consolidation* pass over HTML produced by
-``framegraph_to_html.py`` (or any HTML built the same way: per-element inline
-``style`` attributes plus a single ``<style>`` head block).
+A multi-pass CSS *consolidation* pass over HTML produced by the framegraph HTML
+backend (``framegraph-render --to html``, the `DocumentRenderer` port) — or any
+HTML built the same way: per-element inline ``style`` attributes plus a single
+``<style>`` head block.
 
 It compounds repeated *computed* inline styles into shared classes and strips
 declarations / selectors / variables that do nothing, **without changing how
@@ -425,7 +426,7 @@ def optimize(doc: str, threshold=2, passes=1, do_minify=False, quiet=False):
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("input", help="HTML file from framegraph_to_html.py")
+    ap.add_argument("input", help="HTML file from the framegraph html backend (--to html)")
     ap.add_argument("-o", "--output", help="output HTML (default: *.opt.html)")
     ap.add_argument("--threshold", type=int, default=2,
                     help="min repeats before a style-set is hoisted (default 2; "

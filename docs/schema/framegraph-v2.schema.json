@@ -17322,9 +17322,9 @@
     "version",
     "pages"
   ],
-  "title": "FrameGraph v2 (HEAD 2.4.0) — generated from the Pydantic models (core conformance profile)",
+  "title": "FrameGraph v2 (HEAD 2.4.1) — generated from the Pydantic models (core conformance profile)",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://framegraph.dev/schema/2.4.0/framegraph-v2.schema.json",
-  "version": "2.4.0"
+  "$id": "https://framegraph.dev/schema/2.4.1/framegraph-v2.schema.json",
+  "version": "2.4.1"
 }

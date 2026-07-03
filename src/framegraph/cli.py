@@ -16,22 +16,21 @@ Targets (see ``--list``):
   tex      LaTeX/TikZ source (.tex, no compile)
   html     HTML/CSS (legacy; flow + gradient limits)
 
-The core targets (svg, png, pdf, tex) render through the package itself — the
-SVG proxy, the Chromium rasteriser, and the LaTeX transpiler. The two peripheral
-targets (pdf-tex, html) shell out to the repo's tool scripts, so the package
-never *imports* ``tooling`` (it ships self-contained; those targets simply report
-unavailable where the scripts are absent).
+Every target renders *through the package*, in-process. The core targets (svg,
+png, pdf, tex) go through the SVG proxy / Chromium rasteriser / LaTeX transpiler;
+the html and pdf-tex targets go through the `DocumentRenderer` output port
+(``framegraph.rendering.domain.ports``) and its backends
+(``framegraph.rendering.infrastructure.backends``). Nothing here shells out to a
+script in ``tooling/``; a backend that needs an external *binary* (a TeX engine)
+reports unavailable when it is absent.
 """
 from __future__ import annotations
 
 import argparse
-import glob
 import importlib
 import io
 import json
 import os
-import shutil
-import subprocess
 import sys
 from dataclasses import dataclass
 from typing import Callable, Optional
@@ -112,8 +111,41 @@ def _can_import(*mods):
     return True
 
 
-def _script(rel):
-    return os.path.join(ROOT, rel)
+def _write_payload(path, payload):
+    """Write one artifact payload — text (`str`) or binary (`bytes`) — to `path`."""
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    if isinstance(payload, (bytes, bytearray)):
+        with open(path, "wb") as fh:
+            fh.write(payload)
+    else:
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(payload)
+    return path
+
+
+def _render_via_port(target, path, out_dir, args, options=None):
+    """Render `path` through the DocumentRenderer port and write the artifact.
+
+    The CLI is the driving adapter: it parses the document, calls the backend's
+    `render`, and owns all disk I/O — so html/pdf-tex reach a renderer in-process
+    through the port, never via a subprocess to one of our own scripts."""
+    from framegraph.rendering.infrastructure.backends import get_backend
+    backend = get_backend(target)
+    doc = _load_dict(path)
+    art = backend.render(doc, base_dir=os.path.dirname(os.path.abspath(path)),
+                         options=options)
+    if art.one_file_per_page and len(art.pages) > 1:
+        return [_write_payload(os.path.join(out_dir, f"{args.stem}-{i}.{art.extension}"), p)
+                for i, p in enumerate(art.pages, 1)]
+    payload = art.pages[0] if art.pages else ""
+    out = getattr(args, "single", None) or os.path.join(out_dir, f"{args.stem}.{art.extension}")
+    return [_write_payload(out, payload)]
+
+
+def _port_check(target):
+    """Availability probe for a port-backed target: delegate to the backend."""
+    from framegraph.rendering.infrastructure.backends import get_backend
+    return get_backend(target).available()
 
 
 # -- per-target render functions -------------------------------------------- #
@@ -194,17 +226,11 @@ def r_tex(path, out_dir, args):
 
 
 def r_pdf_tex(path, out_dir, args):
-    before = set(glob.glob(os.path.join(out_dir, "*.pdf")))
-    subprocess.run([sys.executable, _script("tooling/render_latex.py"), path,
-                    "--out", out_dir, "--engine", args.engine], check=True)
-    new = sorted(set(glob.glob(os.path.join(out_dir, "*.pdf"))) - before)
-    return new
+    return _render_via_port("pdf-tex", path, out_dir, args, options={"engine": args.engine})
 
 
 def r_html(path, out_dir, args):
-    out = os.path.join(out_dir, f"{args.stem}.html")
-    subprocess.run([sys.executable, _script("framegraph_to_html.py"), path, "-o", out], check=True)
-    return [out]
+    return _render_via_port("html", path, out_dir, args)
 
 
 # -- registry --------------------------------------------------------------- #
@@ -222,13 +248,10 @@ TARGETS: dict[str, Target] = {
                   lambda: None if _can_import("cairosvg", "pypdf") else
                   "needs CairoSVG + pypdf (uv sync --group pdfout)", r_pdf),
     "pdf-tex": Target("typeset", "typeset PDF via LaTeX/TikZ (TeX owns pagination + math)",
-                      lambda: None if (os.path.exists(_script("tooling/render_latex.py"))
-                                       and (shutil.which("lualatex") or shutil.which("pdflatex")))
-                      else "needs tooling/render_latex.py + lualatex/pdflatex on PATH", r_pdf_tex),
+                      lambda: _port_check("pdf-tex"), r_pdf_tex),
     "tex": Target("source", "LaTeX/TikZ source (.tex, no compile)", _ok, r_tex),
-    "html": Target("web", "HTML/CSS (legacy; flow + gradient limits)",
-                   lambda: None if os.path.exists(_script("framegraph_to_html.py"))
-                   else "needs framegraph_to_html.py", r_html),
+    "html": Target("web", "HTML/CSS (semantic; flow + gradient limits)",
+                   lambda: _port_check("html"), r_html),
 }
 
 
@@ -280,7 +303,7 @@ def main(argv=None):
 
     if args.real_metrics:
         # The renderer reads this when its real_metrics arg is left at None, so
-        # the flag reaches the sdk render path AND subprocess targets (pdf-tex,
+        # the flag reaches the sdk render path AND the port backends (pdf-tex,
         # html) without threading a parameter through every signature.
         os.environ["FRAMEGRAPH_REAL_METRICS"] = "1"
 

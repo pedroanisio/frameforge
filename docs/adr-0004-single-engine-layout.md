@@ -90,7 +90,8 @@ the correct reading of the reporter's objection.
 
 ## Not yet done (the real project this ADR names)
 
-- Make `tooling/framegraph_to_html.py` a first-class flow renderer (page masters,
+- Make the HTML backend (`src/framegraph/rendering/infrastructure/backends/html.py`,
+  the `DocumentRenderer` port) a first-class flow renderer (page masters,
   running heads, tables, TOC, CSS paged-media) → Chromium PDF.
 - Route `run`/`--to pdf` for flow documents through the single engine, leaving SVG
   as the explicit `--to svg` proxy.

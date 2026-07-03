@@ -16,7 +16,8 @@ this same seam.
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional, Protocol
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Mapping, Optional, Protocol, Union
 
 if TYPE_CHECKING:
     from framegraph.rendering.domain.services.stroke_resolver import Markers, Stroke
@@ -129,3 +130,70 @@ class ScenePainter(Protocol):
     def document(self, w, h, body: str, lang=None, title=None, desc=None) -> str:
         """Assemble a full page document from accumulated defs + body. `lang`/`title`/
         `desc` are root accessibility attributes a backend may use or ignore."""
+
+
+# --------------------------------------------------------------------------- #
+# Document-level output port (the COARSE seam) — complements ScenePainter      #
+# --------------------------------------------------------------------------- #
+#
+# `ScenePainter` above is the *fine-grained, per-primitive* seam the SVG builder
+# drives in z-order (its primitives are SVG-shaped, returning string fragments).
+# `DocumentRenderer` is the *coarse* seam at the whole-document boundary: one
+# FrameGraph document in, one rendered artifact out. It is the right port for a
+# backend whose output is a document-level transform rather than a display list
+# of geometry — HTML (semantic figure/section/group tree, CSS hoisting, aria) and
+# typeset PDF (TeX owns pagination) both are.
+#
+# A *driving* adapter (`framegraph.cli`) depends on this Protocol and reaches a
+# renderer through it — never by shelling out to one of our own scripts. Each
+# output backend is a *driven* adapter (`…infrastructure.backends.*`) implementing
+# it in-process. An external *binary* a backend needs (a TeX engine) is that
+# adapter's own concern; invoking it is a driven dependency, not a call back into
+# `tooling/`.
+
+
+@dataclass(frozen=True)
+class RenderedArtifact:
+    """The in-memory result of a `DocumentRenderer`.
+
+    `pages` carries one payload per output file — text (`str`) for SVG/HTML,
+    binary (`bytes`) for a compiled PDF — so the driving adapter owns *all* disk
+    I/O and every backend returns through one value object. `media_type` is the
+    RFC 2046 type (`text/html`, `application/pdf`); `extension` the file suffix
+    without a leading dot. When `one_file_per_page` is True the driver writes
+    `stem-<n>.<ext>` per page; when False it writes a single `stem.<ext>` from
+    `pages[0]` (an HTML doc paginates internally; a typeset PDF is one file).
+    """
+
+    pages: list[Union[str, bytes]]
+    media_type: str
+    extension: str
+    one_file_per_page: bool = False
+
+
+class DocumentRenderer(Protocol):
+    """Output port: a whole FrameGraph document → a `RenderedArtifact`.
+
+    Implemented by infrastructure backends (`…infrastructure.backends.*`).
+    `target` is the CLI `--to` name; `kind`/`blurb` describe it for `--list`;
+    `available()` returns None when the backend can run right now, else a short
+    human reason (a missing optional dependency or external binary). `render`
+    takes the document dict, an optional `base_dir` for resolving document-
+    relative assets, and an optional `options` map for per-invocation knobs a
+    backend may read (e.g. the TeX engine); a backend ignores options it does
+    not use.
+    """
+
+    target: str
+    kind: str
+    blurb: str
+
+    def available(self) -> Optional[str]:
+        """None if this backend can render now; else a short reason it cannot."""
+        ...
+
+    def render(self, document: Mapping[str, Any], *,
+               base_dir: Optional[str] = None,
+               options: Optional[Mapping[str, Any]] = None) -> RenderedArtifact:
+        """Render `document` (a FrameGraph document dict) to a `RenderedArtifact`."""
+        ...

@@ -1,10 +1,17 @@
-#!/usr/bin/env python3
 """
-framegraph_to_html.py
-=====================
+HTML DocumentRenderer backend
+=============================
 
 Rebuild an HTML page from a FrameGraph v2 document (the `diagram` profile:
 canvas + layers + absolutely-positioned objects).
+
+This is the HTML adapter of the `DocumentRenderer` output port
+(``framegraph.rendering.domain.ports``): the pure `render_document(doc) -> str`
+transform below, wrapped by `HtmlDocumentRenderer` at the foot of the module.
+It moved here from ``tooling/framegraph_to_html.py`` so the render pipeline
+reaches it *in-process* through the port instead of the CLI subprocessing a
+script. `load_document` / `maybe_validate` remain as convenience loaders; the
+CLI parses the document and calls `render` directly.
 
 The output is *layered* and *semantically named*:
 
@@ -42,22 +49,24 @@ that are gradients/patterns degrade to a flat colour on SVG shapes.
 
 Usage
 -----
-    python framegraph_to_html.py input.yaml [-o output.html]
-    python framegraph_to_html.py input.json --schema framegraph-v2_schema.json --validate
+    python -m framegraph.cli input.fg.yaml --to html      # the front door
+    # or, in process:
+    from framegraph.rendering.infrastructure.backends.html import render_document
+    html_text = render_document(doc_dict)
 
-YAML input needs PyYAML; JSON input needs nothing extra. ``--validate``
-needs ``jsonschema`` (optional; skipped with a notice if absent).
+YAML input needs PyYAML; JSON input needs nothing extra.
 """
 
 from __future__ import annotations
 
-import argparse
 import html
 import json
 import os
 import re
 import sys
 from typing import Any, Iterable
+
+from framegraph.rendering.domain.ports import RenderedArtifact
 
 # --------------------------------------------------------------------------- #
 # Loading                                                                      #
@@ -524,10 +533,22 @@ body{margin:0;background:#15161a;color:#e8eaed;
 # --------------------------------------------------------------------------- #
 
 
+def _is_gradient(fill: Any) -> bool:
+    """True when a ``fill`` dict is a gradient (has stops / a gradient ``kind``)
+    rather than a pattern."""
+    return isinstance(fill, dict) and (
+        bool(fill.get("stops")) or fill.get("kind") in ("linear", "radial", "conic")
+    )
+
+
 class Renderer:
-    def __init__(self, tokens: Tokens):
+    def __init__(self, tokens: Tokens, page_index: int = 0):
         self.tokens = tokens
         self._ids: set[str] = set()
+        # Per-page counter for gradient <defs> ids. The page index prefixes each
+        # id so gradients stay unique across pages sharing one HTML document.
+        self._page_index = page_index
+        self._gid = 0
 
     # -- id handling ------------------------------------------------------- #
     def dom_id(self, raw: Any) -> str | None:
@@ -613,17 +634,25 @@ class Renderer:
             stroke = self.tokens.color_literal(obj.get("stroke"))
         return stroke, width
 
-    def _paint_css(self, obj: dict, *, fillable: bool) -> str:
-        """CSS ``fill``/``stroke`` declarations for an inline SVG shape.
+    def _paint_css(self, obj: dict, *, fillable: bool) -> tuple[str, str]:
+        """CSS ``fill``/``stroke`` for an inline SVG shape, plus any ``<defs>``.
 
-        Solid colours keep the semantic palette (``var(--fg-name)``); a
-        gradient/pattern ``fill`` (a dict) is not expressible as a single SVG
-        paint, so it degrades to a flat colour rather than vanishing.
+        Returns ``(style, defs)``. Solid colours keep the semantic palette
+        (``var(--fg-name)``); a **gradient** ``fill`` is emitted as a real SVG
+        ``<linearGradient>``/``<radialGradient>`` referenced by ``fill:url(#id)``
+        (the ``defs`` string the caller injects into the shape's ``<svg>``). A
+        non-gradient dict (a pattern) still degrades to a flat colour rather than
+        vanishing.
         """
         decls: list[str] = []
+        defs = ""
         fill = obj.get("fill")
         if fillable and isinstance(fill, dict):
-            decls.append("fill:#888888")          # gradient/pattern not supported
+            if _is_gradient(fill):
+                gid, defs = self._gradient_svg(fill)
+                decls.append(f"fill:url(#{gid})")
+            else:
+                decls.append("fill:#888888")      # pattern — not yet supported
         elif fillable and fill is not None:
             decls.append(f"fill:{self.tokens.color(fill)}")
         else:
@@ -643,7 +672,81 @@ class Renderer:
             decls.append(f"stroke-width:{_num(width, 1.0):g}")
             decls.append("stroke-linejoin:round")
             decls.append("stroke-linecap:round")
-        return ";".join(decls)
+        return ";".join(decls), defs
+
+    # -- gradients --------------------------------------------------------- #
+    def _gradient_stops(self, g: dict) -> list[tuple[float, str]]:
+        """`[(offset_percent, color_literal)]` from a gradient dict.
+
+        Mirrors the SVG painter's stop parsing: a ``position`` may be a bare
+        number (already a percentage) or a ``"NN%"`` string; missing positions
+        space evenly."""
+        stops = g.get("stops") or []
+        n = max(1, len(stops))
+        out: list[tuple[float, str]] = []
+        for i, st in enumerate(stops):
+            off = st.get("position")
+            o: float | None = None
+            if isinstance(off, (int, float)):
+                o = float(off)
+            elif isinstance(off, str) and off.strip().endswith("%"):
+                try:
+                    o = float(off.strip()[:-1])
+                except ValueError:
+                    o = None
+            if o is None:
+                o = (i / (n - 1) * 100) if n > 1 else 0.0
+            col = self.tokens.color_literal(st.get("color")) or "#000000"
+            out.append((o, col))
+        return out
+
+    @staticmethod
+    def _gradient_center(g: dict) -> tuple[str, str]:
+        at = g.get("at")
+        if isinstance(at, str) and len(at.split()) == 2:
+            cx, cy = at.split()
+            return cx, cy
+        return "50%", "50%"
+
+    @staticmethod
+    def _gradient_angle(g: dict) -> float | None:
+        a = g.get("angle")
+        try:
+            return float(a) if a is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    def _gradient_svg(self, g: dict) -> tuple[str, str]:
+        """Allocate a page-unique id and build the SVG ``<defs>`` for a gradient.
+
+        Returns ``(gid, defs_markup)``. Conic gradients (no SVG primitive) fall
+        back to radial, as the SVG painter does."""
+        self._gid += 1
+        gid = f"fgg-{self._page_index}-{self._gid}"
+        stops = "".join(
+            f'<stop offset="{o:g}%" stop-color="{html.escape(c)}"/>'
+            for o, c in self._gradient_stops(g)
+        )
+        if g.get("kind") in ("radial", "conic"):
+            cx, cy = self._gradient_center(g)
+            defs = (f'<defs><radialGradient id="{gid}" cx="{html.escape(cx)}" '
+                    f'cy="{html.escape(cy)}" r="50%">{stops}</radialGradient></defs>')
+        else:
+            deg = self._gradient_angle(g)
+            xform = f' gradientTransform="rotate({deg:g} 0.5 0.5)"' if deg is not None else ""
+            defs = f'<defs><linearGradient id="{gid}"{xform}>{stops}</linearGradient></defs>'
+        return gid, defs
+
+    def _gradient_css(self, g: dict) -> str:
+        """A CSS ``linear-gradient()``/``radial-gradient()`` for a div background."""
+        parts = ", ".join(f"{c} {o:g}%" for o, c in self._gradient_stops(g))
+        if g.get("kind") in ("radial", "conic"):
+            cx, cy = self._gradient_center(g)
+            shape = "circle" if g.get("shape") == "circle" else "ellipse"
+            return f"radial-gradient({shape} at {cx} {cy}, {parts})"
+        deg = self._gradient_angle(g)
+        head = f"{deg:g}deg" if deg is not None else "to bottom"
+        return f"linear-gradient({head}, {parts})"
 
     # -- dispatch ---------------------------------------------------------- #
     def render(self, obj: dict, ox: float, oy: float) -> str:
@@ -657,8 +760,10 @@ class Renderer:
     def _render_rect(self, obj, ox, oy):
         x, y, w, h = _box(obj)
         css = {}
-        fill = self.tokens.color(obj.get("fill"))
-        if fill is not None and not isinstance(obj.get("fill"), dict):
+        raw = obj.get("fill")
+        if _is_gradient(raw):
+            css["background"] = self._gradient_css(raw)
+        elif not isinstance(raw, dict) and (fill := self.tokens.color(raw)) is not None:
             css["background"] = fill
         radius = obj.get("radius")
         if radius is not None:
@@ -709,8 +814,10 @@ class Renderer:
         rx, ry = _num(obj.get("rx")), _num(obj.get("ry"))
         x, y, w, h = cx - rx, cy - ry, 2 * rx, 2 * ry
         css = {"border-radius": "50%"}
-        fill = self.tokens.color(obj.get("fill"))
-        if fill is not None and not isinstance(obj.get("fill"), dict):
+        raw = obj.get("fill")
+        if _is_gradient(raw):
+            css["background"] = self._gradient_css(raw)
+        elif not isinstance(raw, dict) and (fill := self.tokens.color(raw)) is not None:
             css["background"] = fill
         border = self._border(obj)
         if border:
@@ -745,13 +852,13 @@ class Renderer:
         bw, bh = (maxx - minx) + 2 * pad, (maxy - miny) + 2 * pad
         local = " ".join(f"{x - minx + pad:.2f},{y - miny + pad:.2f}" for x, y in pts)
         tag = "polygon" if closed else "polyline"
-        paint = self._paint_css(obj, fillable=True)
+        paint, defs = self._paint_css(obj, fillable=True)
         attrs = self._common(obj, ox + minx - pad, oy + miny - pad, bw, bh)
         svg = (
             f'<svg aria-hidden="true" width="{bw:.2f}" height="{bh:.2f}" '
             f'viewBox="0 0 {bw:.2f} {bh:.2f}" '
             f'style="position:absolute;inset:0;overflow:visible">'
-            f'<{tag} points="{local}" style="{html.escape(paint)}"/></svg>'
+            f'{defs}<{tag} points="{local}" style="{html.escape(paint)}"/></svg>'
         )
         return f"<div {attrs}>{svg}</div>"
 
@@ -782,13 +889,13 @@ class Renderer:
 
         (ax, ay), (bx, by), (cx_, cy_), (dx, dy) = loc(p0), loc(c1), loc(c2), loc(p3)
         d = f"M {ax:.2f} {ay:.2f} C {bx:.2f} {by:.2f} {cx_:.2f} {cy_:.2f} {dx:.2f} {dy:.2f}"
-        paint = self._paint_css(obj, fillable=obj.get("fill") is not None)
+        paint, defs = self._paint_css(obj, fillable=obj.get("fill") is not None)
         attrs = self._common(obj, ox + minx - pad, oy + miny - pad, bw, bh)
         svg = (
             f'<svg aria-hidden="true" width="{bw:.2f}" height="{bh:.2f}" '
             f'viewBox="0 0 {bw:.2f} {bh:.2f}" '
             f'style="position:absolute;inset:0;overflow:visible">'
-            f'<path d="{d}" style="{html.escape(paint)}"/></svg>'
+            f'{defs}<path d="{d}" style="{html.escape(paint)}"/></svg>'
         )
         return f"<div {attrs}>{svg}</div>"
 
@@ -804,12 +911,12 @@ class Renderer:
         # A `d` string can carry relative commands and arcs, so a generic tight
         # bbox/translate is unsafe. Anchor an overflow-visible SVG at the
         # positioning origin and paint the path in its authored coordinates.
-        paint = self._paint_css(obj, fillable=obj.get("fill") is not None)
+        paint, defs = self._paint_css(obj, fillable=obj.get("fill") is not None)
         attrs = self._common(obj, ox, oy, 0, 0, extra_css={"overflow": "visible"})
         svg = (
             f'<svg aria-hidden="true" width="1" height="1" overflow="visible" '
             f'style="position:absolute;overflow:visible">'
-            f'<path d="{html.escape(d)}" style="{html.escape(paint)}"/></svg>'
+            f'{defs}<path d="{html.escape(d)}" style="{html.escape(paint)}"/></svg>'
         )
         return f"<div {attrs}>{svg}</div>"
 
@@ -931,7 +1038,7 @@ def canvas_size(page: dict, default=(800, 600)) -> tuple[float, float]:
 
 
 def render_page(page: dict, tokens: Tokens, index: int) -> str:
-    renderer = Renderer(tokens)
+    renderer = Renderer(tokens, page_index=index)
     w, h = canvas_size(page)
     layers = sorted(
         (page.get("layers") or []),
@@ -1021,7 +1128,7 @@ def render_document(doc: dict) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="generator" content="framegraph_to_html.py">
+<meta name="generator" content="framegraph (html backend)">
 <meta name="description" content="{description}">
 <title>{doc_title}</title>
 <style>
@@ -1039,35 +1146,32 @@ def render_document(doc: dict) -> str:
 
 
 # --------------------------------------------------------------------------- #
-# CLI                                                                          #
+# DocumentRenderer port adapter                                                #
 # --------------------------------------------------------------------------- #
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Rebuild an HTML page from a FrameGraph v2 (diagram) document."
-    )
-    parser.add_argument("input", help="FrameGraph .yaml / .yml / .json document")
-    parser.add_argument("-o", "--output", help="output .html (default: alongside input)")
-    parser.add_argument("--schema", help="path to framegraph schema JSON (for --validate)")
-    parser.add_argument("--validate", action="store_true",
-                        help="validate against --schema before rendering")
-    args = parser.parse_args(argv)
+class HtmlDocumentRenderer:
+    """HTML/CSS output backend — the `DocumentRenderer` port, in-process.
 
-    doc = load_document(args.input)
-    if args.validate:
-        maybe_validate(doc, args.schema)
+    A thin adapter over the pure `render_document` transform above. This module
+    used to be `tooling/framegraph_to_html.py`, reached by the CLI through a
+    subprocess; it now lives in the package and is reached through the port, so
+    no caller shells out to our own script to render HTML.
+    """
 
-    html_text = render_document(doc)
+    target = "html"
+    kind = "web"
+    blurb = "HTML/CSS (semantic; flow + gradient limits)"
 
-    out = args.output or os.path.splitext(args.input)[0] + ".html"
-    with open(out, "w", encoding="utf-8") as fh:
-        fh.write(html_text)
+    def available(self) -> "str | None":
+        return None  # pure Python — no optional dependency, no external binary
 
-    n_pages = len(doc.get("pages") or [])
-    print(f"Wrote {out}  ({n_pages} page(s))")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+    def render(self, document, *, base_dir=None, options=None) -> RenderedArtifact:
+        # `base_dir`/`options` are unused: HTML embeds asset hrefs verbatim and
+        # takes no per-invocation knobs. They are accepted to satisfy the port.
+        return RenderedArtifact(
+            pages=[render_document(document)],
+            media_type="text/html",
+            extension="html",
+            one_file_per_page=False,
+        )

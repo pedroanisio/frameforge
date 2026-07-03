@@ -1,6 +1,6 @@
 # FrameGraph v2 — HEAD release
 
-A single, internally-consistent cut of **FrameGraph v2** (`2.4.0`) in which the
+A single, internally-consistent cut of **FrameGraph v2** (`2.4.1`) in which the
 documents, grammar, schema, prose, and Python code are kept in sync — the Pydantic
 models are the source of truth and everything else is generated from or checked
 against them.
@@ -38,7 +38,8 @@ tooling/
   render_chromium.py          ← optional Headless-Chromium SVG→PNG raster renderer (CSS-fidelity path).
   render_fg_doc.py            ← the matplotlib PROXY renderer, patched to HEAD (sanity check only).
   pdf_to_framegraph_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameGraph YAML extractor.
-  framegraph_to_html.py       ← FrameGraph → semantic HTML exporter (contract-tested).
+  (HTML export moved into the package → `framegraph-render --to html`; the DocumentRenderer
+   port at src/framegraph/rendering/infrastructure/backends/html.py — contract-tested.)
   gen_status.py               ← GENERATES docs/FIXTURE-STATUS.md from the validator (`--check` gates drift).
   gen_docs.py                 ← GENERATES the docs-site pages (reference/gallery/spec/grammar plus SDK docs).
   gen_capability_manifest.py  ← GENERATES docs/capability-manifest.json (core/SDK/MCP status per capability).

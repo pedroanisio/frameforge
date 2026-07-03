@@ -38,7 +38,7 @@ from pydantic import (
     model_validator,
 )
 
-HEAD_VERSION = "2.4.0"  # v2 line; 2.4.0 adds the ordered per-object effect stack (`effects`) and the multi-pass appearance stack (`appearance`) — additive, outside the deep-core profile (§8.5, W4/#48). 2.3.0 added typed Connector, per-field schema descriptions, R12 referential integrity, Length/Angle value patterns (additive). 2.2.0 adopted the authoritative style module; P3 stroke collapse remains the one breaking change (codemod provided).
+HEAD_VERSION = "2.4.1"  # v2 line; 2.4.0 adds the ordered per-object effect stack (`effects`) and the multi-pass appearance stack (`appearance`) — additive, outside the deep-core profile (§8.5, W4/#48). 2.3.0 added typed Connector, per-field schema descriptions, R12 referential integrity, Length/Angle value patterns (additive). 2.2.0 adopted the authoritative style module; P3 stroke collapse remains the one breaking change (codemod provided).
 
 
 # --------------------------------------------------------------------------- #

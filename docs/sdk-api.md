@@ -16,7 +16,7 @@
 Small fluent builder that lowers directly to the authoritative model.
 
 ```python
-DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.4.0') -> 'None'
+DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.4.1') -> 'None'
 ```
 
 | Method | Signature | Summary |
@@ -1296,7 +1296,7 @@ Document(*, dsl: Literal['FrameGraph'], version: Annotated[str, _PydanticGeneral
 
 ### `HEAD_VERSION`
 
-`str` value: `'2.4.0'`
+`str` value: `'2.4.1'`
 
 ### `ValidationError`
 

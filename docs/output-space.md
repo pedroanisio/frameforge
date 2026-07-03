@@ -51,7 +51,7 @@ The shared core is the port + renderer:
 | **Raster** (matplotlib proxy) | raster, sanity check | `tooling/render_fg_doc.py` |
 | **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `src/framegraph/rendering/infrastructure/latex/document.py` |
 | **PDF** via cairosvg (SVG → PDF) | vector PDF | `tooling/render_pdf.py` |
-| **HTML/CSS** (ADR-0004 promotes this to the intended flow-fidelity path; the current implementation still degrades flow — documented flow/gradient limits) | web | `tooling/framegraph_to_html.py` |
+| **HTML/CSS** (ADR-0004 promotes this to the intended flow-fidelity path; the current implementation still degrades flow — documented flow/gradient limits) | web | `src/framegraph/rendering/infrastructure/backends/html.py` (the `DocumentRenderer` port; `--to html`) |
 | **Math** TeX → SVG (MathJax) | embedded glyphs | `tooling/mathjax_tex_to_svg.mjs` |
 | **JSON Schema** | format contract | `docs/schema/build_schema.py` |
 | **Docs site** (reference/gallery/SDK/spec) | documentation | `tooling/gen_docs.py` |

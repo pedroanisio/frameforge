@@ -1,22 +1,31 @@
-"""Semantic / accessibility contract for ``framegraph_to_html.py``.
+"""Semantic / accessibility contract for the HTML DocumentRenderer backend.
 
 These tests assert the *structure* of the emitted HTML (figure/figcaption,
 landmark heading, role="group", and the model-driven ``decorative`` →
 ``aria-hidden`` mapping), not pixel output. They are deliberately small and
 deterministic — no network, no headless browser.
+
+The renderer moved from ``tooling/framegraph_to_html.py`` into the package as
+``framegraph.rendering.infrastructure.backends.html`` (the `DocumentRenderer`
+port); the pure `render_document` transform is unchanged, so this contract
+holds across the move.
 """
 
 from __future__ import annotations
 
-import importlib.util
+import sys
 from pathlib import Path
 
+# A codemod/models test earlier in the suite may cache the MODELS module as
+# `framegraph`; evict that non-package shadow so the rendering package imports
+# (see conftest.py's shadow-module rule).
+_shadow = sys.modules.get("framegraph")
+if _shadow is not None and not hasattr(_shadow, "__path__"):
+    del sys.modules["framegraph"]
+
+from framegraph.rendering.infrastructure.backends import html as fgh  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
-_spec = importlib.util.spec_from_file_location(
-    "framegraph_to_html", ROOT / "tooling" / "framegraph_to_html.py"
-)
-fgh = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(fgh)
 
 
 def _doc(objects: list[dict], *, title: str = "Sample") -> dict:

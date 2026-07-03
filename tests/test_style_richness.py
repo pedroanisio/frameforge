@@ -41,7 +41,8 @@ def _doc(objects, colors=None):
 
 
 def test_head_version_bumped_for_the_additive_fields():
-    assert HEAD_VERSION == "2.4.0"
+    # the effects/appearance fields landed at 2.4.0; any later HEAD keeps them
+    assert tuple(int(v) for v in HEAD_VERSION.split(".")) >= (2, 4, 0)
 
 
 # ── AI-30: ordered effect stack ─────────────────────────────────────────

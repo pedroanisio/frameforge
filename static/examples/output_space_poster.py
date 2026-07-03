@@ -437,7 +437,7 @@ def today(b):
         ("Raster", "matplotlib proxy", "render_fg_doc.py", BLUE, ic_grid),
         ("PDF", "LaTeX/TikZ · lua+pdf", "render_latex.py", TEAL, ic_page),
         ("PDF", "cairosvg · SVG→PDF", "render_pdf.py", TEAL, ic_page),
-        ("HTML/CSS", "legacy · limits", "framegraph_to_html.py", TEAL, ic_code),
+        ("HTML/CSS", "semantic · limits", "backends/html.py", TEAL, ic_code),
         ("JSON Schema", "format contract", "build_schema.py", VIOLET, ic_braces),
         ("Docs site", "ref · gallery · SDK", "gen_docs.py", VIOLET, ic_book),
         ("Golden hashes", "per-page SHA-256", "render_golden.py", VIOLET, ic_rings),
