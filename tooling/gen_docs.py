@@ -588,6 +588,7 @@ def gen_sdk_api():
         "framegraph.sdk.layout",
         "framegraph.sdk.macros",
         "framegraph.sdk.manifold",
+        "framegraph.sdk.markdown",
         "framegraph.sdk.model",
         "framegraph.sdk.paint",
         "framegraph.sdk.region",

@@ -188,6 +188,7 @@
       "extract_objects",
       "field",
       "fill_stroke",
+      "from_markdown",
       "function_plot",
       "glow",
       "gradient_map",
@@ -1553,6 +1554,13 @@
     },
     {
       "name": "fill_stroke",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "from_markdown",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
