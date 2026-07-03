@@ -34,7 +34,7 @@ Fluent builder:
   paint-only line/polyline/path is rejected.
 - Widgets (`framegraph.sdk.widgets`): `avatar` `badge` `button` `card` `kpi` `pill`
   `progress` `table` `tabs` `toggle` `divider` `field`, plus `Panel`/`Theme`.
-- Data & geometry: `Chart`+`Frame` (series: `line`, `bars`, `scatter`, `area`, `pie`,
+- Data & geometry (`framegraph.sdk.chart` / `.topology` / `.geometry` / `.draw`): `Chart`+`Frame` (series: `line`, `bars`, `scatter`, `area`, `pie`,
   `donut`, plus `marker`/`axes`/`legend`), `Graph`/`Node`/`Edge`, `Camera`/`Scene3D`/
   `Mat3`/`Mat4`, `CubicBezier`/`Path`, `ScalarField`/`VectorField`, `lattice`/`manifold`,
   `greeble`, `grid_lines`.
@@ -54,7 +54,7 @@ Fluent builder:
     (dose per `AREA_GUIDE` ≈ 62/30/8); the six harmonies (`harmony_of_scale`,
     `harmony_of_hues`, `dominant_light`, `contrast_of_scale`, `contrast_of_hues`,
     `contrast_of_colours`) + `complement`/`tone_scale` pick colours that agree;
-    `contrast_ratio(a, b)` (WCAG) checks text-on-ground legibility BEFORE rendering;
+    `color_guide(base)` returns all six harmonies for any base colour (the declarative Color Guide); `contrast_ratio(a, b)` (WCAG) checks text-on-ground legibility BEFORE rendering;
     `grey_document(doc)` is the tone audit — render it next to the original to prove
     hierarchy survives without hue.
   - Typography (`framegraph.sdk.canon`, after Johnston 1906): `modular_scale(base, ratio)`
@@ -65,6 +65,48 @@ Fluent builder:
   CommonMark/GFM-subset document into a validated flow document (headings,
   lists, tables, code, quotes, images; front-matter; page breaks) — the fast
   path from prose to a paginated render.
+- Geometry engines (compute in the SDK, emit plain paths — never hand-place what
+  these can derive):
+  - Planar kernel (`framegraph.sdk.planar`, Pathfinder-class): `union`/`intersect`/
+    `subtract`/`divide` booleans on flattened rings (holes native — multi-ring
+    even-odd paths), `offset_polygon(ring, d)` (miter, collapse-aware),
+    `split_at(points, t)` / `cut_along(ring, p1, p2)` path surgery,
+    `fill_regions(shapes)` (every bounded region of an overlay as its own fillable
+    face, <=8 shapes), `to_path(rings, fill=...)` to emit.
+  - Stroke outlines & brushes (`framegraph.sdk.outline`): `stroke_outline(points,
+    width, profile=t->scale, pen_angle=, pen_thin=, cap=, join=, smooth=True)` lowers
+    a centre-line to a CLOSED filled path — constant width = outline-stroke, profile
+    = variable width, pen_angle = calligraphic nib; `repeat_along_path(points,
+    spacing=, stamp=obj)` places copies by arc length with tangent rotation.
+- Style richness (2.4.0 object fields + helpers):
+  - `effects: [{kind: "shadow"|"glow", preset?, color/blur/dx/dy/opacity?}, ...]` —
+    an ORDERED effect stack (kinds may repeat, first->last); `appearance:
+    [{fill?/stroke?/stroke_style?/opacity?}, ...]` — the same geometry painted once
+    per pass, bottom->top. Both render only when declared (absence is identity).
+  - `recolor(doc, mapping)` — one-call palette remap: `defs.tokens.colors` by name
+    or value, paint literals and gradient stops; input never mutated.
+  - Named gradient/pattern fills live in `defs.tokens.fill_styles` and resolve from
+    any `fill:`/`stroke:` string.
+- Type finesse (`framegraph.sdk.metrics`): `measure_text`/`wrap_text`/`text_height`
+  size boxes to content BEFORE rendering; `kerned_spans(text, pairs=...)` applies
+  explicit pair kerning as grammar-native spans; `font_kern_pairs(family, text,
+  font_size=...)` reads the resolved font's kern table (fontTools; degrades to {}).
+- Slide patterns (`framegraph.patterns`): `load_catalog()` — 375 typed layout
+  patterns; `compose(pattern_id, fill)` validates a `{role: content}` payload and
+  returns a full deck page (zone boxes from the placement vocabulary, treatments
+  applied). Prefer a catalog pattern over hand-rolling a standard slide.
+- Content library (`framegraph.library`): `load_theme(name)` — 7 consulting themes
+  (bain/bcg/deloitte/ey/kpmg/mckinsey/pwc) as ready `defs.tokens` fragments;
+  `load_symbols(pack)` + `support_text_styles(pack)` — cover/agenda/insight/hex
+  symbol packs instantiated via `use` objects and lowered by `sdk.expand`;
+  `honeycomb_capability_map(data)` / `module_hub_radial(data)` generate whole
+  diagram pages from plain data dicts (render-ready, pre-expanded).
+- Symbols & lowering (`framegraph.sdk.expand`): `expand(doc)` lowers grammar-level
+  `use`/`component` objects into core primitives and pins asset/font hashes — run it
+  before rendering any document that carries `defs.symbols`.
+- Humanize (seeded imperfection): set `humanize: {seed: N, roughen: ..., drift_deg:
+  ...}` on the document or any object — a deterministic hand-drawn wobble applied at
+  expansion; absence is identity, same seed = same page.
 - Validation: `validate_static_rules(doc) -> ValidationReport(ok, issues)`,
   `assert_golden(...)`; `HEAD_VERSION` is the current spec version.
 
@@ -261,6 +303,12 @@ left in the session, the result says so (`replaced_renders` + a `render_warning`
 the prior tool). In a shared-session loop, pass a render's `page/1.png` URI to the next
 tool before the following call overwrites it, or score/compare under a distinct
 `session_id` to keep the reconstruction render viewable alongside.
+
+## Migrating v0.1 documents
+A predecessor-dialect document (`scene:`/`visual:` or `deck:`/`slides:`, float
+version) converts mechanically: `uv run python tooling/codemod.py doc.yml --from-v01`
+(see docs/migration-v01.md for the mapping table) — then validate and render as
+usual. Do not hand-translate the envelope.
 
 ## Workflow
 Author or propose -> read the returned validation issues + the rendered PNG (or the

@@ -152,3 +152,60 @@ def test_new_tools_are_registered_and_exported(tmp_path):
     assert {"describe_capabilities", "list_fonts", "get_guide"} <= set(server.tools)
     # the server.__all__ gotcha (see commit 2e6f6d1): new tools must be re-exported.
     assert {"describe_capabilities", "list_fonts"} <= set(server_mod.__all__)
+
+
+# ── guide coverage drift-gate (MCP round, 2026-07-03) ──────────────────────
+# The guide is the model-facing capability map: a delivered SDK surface that
+# never reaches it is invisible to every MCP client. Two gates:
+#   1. every capability-bearing sdk module is mentioned by name;
+#   2. the headline callables/fields of the recent delivery waves appear.
+# When either fails for NEW work, extend the guide — not this list's spirit.
+
+_CAPABILITY_MODULES = [
+    # capability-bearing sdk modules (internal plumbing like io/conform/model
+    # is deliberately exempt)
+    "canon", "chart", "chevreul", "expand", "figure", "geometry", "humanize",
+    "markdown", "metrics", "outline", "paint", "planar", "recolor",
+    "topology", "widgets",
+]
+
+_HEADLINE_SURFACES = [
+    # W1 planar kernel (#45)
+    "union", "offset_polygon", "split_at", "cut_along", "fill_regions",
+    # W2 stroke outlines + kerning (#46)
+    "stroke_outline", "repeat_along_path", "kerned_spans", "font_kern_pairs",
+    # W4 style richness (#48)
+    "effects:", "appearance:", "recolor(", "color_guide",
+    "fill_styles",
+    # absorption programme (#28/#29/#31/#32/#33)
+    "framegraph.patterns", "load_catalog", "compose(",
+    "framegraph.library", "load_theme", "load_symbols",
+    "honeycomb_capability_map", "module_hub_radial",
+    "from_markdown", "--from-v01",
+    # cross-cutting
+    "expand(", "humanize", "measure_text",
+]
+
+
+def test_guide_mentions_every_capability_bearing_sdk_module():
+    from pathlib import Path
+    sdk_dir = Path(__file__).resolve().parent.parent / "src" / "framegraph" / "sdk"
+    live = {p.stem for p in sdk_dir.glob("*.py") if not p.stem.startswith("_")}
+    missing_from_tree = set(_CAPABILITY_MODULES) - live
+    assert not missing_from_tree, f"gate list names dead modules: {missing_from_tree}"
+    unmentioned = [m for m in _CAPABILITY_MODULES if m not in FRAMEGRAPH_GUIDE]
+    assert not unmentioned, (
+        f"sdk modules invisible to MCP clients (extend the guide): {unmentioned}")
+
+
+def test_guide_covers_the_delivered_headline_surfaces():
+    missing = [s for s in _HEADLINE_SURFACES if s not in FRAMEGRAPH_GUIDE]
+    assert not missing, f"delivered surfaces missing from the guide: {missing}"
+
+
+def test_server_instructions_name_the_authoring_engines(tmp_path):
+    server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
+    text = server.kwargs["instructions"]
+    for surface in ("sdk.planar", "sdk.outline", "framegraph.patterns",
+                    "framegraph.library", "--from-v01"):
+        assert surface in text, f"handshake instructions omit {surface}"
