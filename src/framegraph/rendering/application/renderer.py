@@ -298,8 +298,20 @@ class Renderer:
         if self.measure(content, size, avg, st) > w + 0.5 or size * lh > h + 0.5:
             self.tstats["naive_overflow"] += 1
 
+        # `align: justify` routes wrapping through the backend-neutral flow engine
+        # (Knuth–Plass + hyphenation, ADR-0003) so page-mode prose justifies like
+        # flow-mode prose — the old path silently mapped justify → left.
+        justify = do_wrap and st["align"] == "justify"
+
         def layout(sz):
-            return self.wrap_words(content, w, sz, avg, st) if do_wrap else [content]
+            if not do_wrap:
+                return [content]
+            if justify:
+                para = flow_layout.layout_paragraph(
+                    content, size=sz, avg=avg, lh=lh, width=w,
+                    measure=lambda s, z, a: self.measure(s, z, a, st), align="justify")
+                return [ln.text for ln in para.lines] or [content]
+            return self.wrap_words(content, w, sz, avg, st)
 
         lines = layout(size)
         if len(lines) > 1:
@@ -347,11 +359,18 @@ class Renderer:
 
         a = self._painter.anchor(st["align"])
         tx = x + (w / 2 if a == "middle" else (w if a == "end" else 0))
+        single_span_line = spans and len(lines) == 1 and lines[0] == content
         # Pass the neutral style dict + fitted size; the backend formats the font.
         # Rich `text.spans`: when the fitted text is a single, untruncated line,
         # emit per-run styled tspans (the common inline-emphasis case). Wrapped or
         # truncated span text falls back to the flattened single-style line.
-        if spans and len(lines) == 1 and lines[0] == content:
+        if justify and not single_span_line:
+            # Left-set lines flushed to the column via textLength; last line ragged.
+            # (Inline spans in a justified *wrapped* block flatten to the paragraph
+            # style — per-line span justification is a follow-up.)
+            el = self._painter.text_block(base, "start", st, size, lines, x, size * lh,
+                                          justify_width=w)
+        elif single_span_line:
             el = self._painter.text_runs(base, a, tx, st, size, self._span_runs(spans, st))
         else:
             el = self._painter.text_block(base, a, st, size, lines, tx, size * lh)

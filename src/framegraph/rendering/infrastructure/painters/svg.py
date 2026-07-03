@@ -651,11 +651,17 @@ class SvgPainter:
         return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}"{baseline}'
                 f'{fit} style="{style}">{esc(content)}</text>')
 
-    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy):
+    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy, justify_width=None):
         style = self.font_style(st, size)
-        spans = "".join(
-            f'<tspan x="{fnum(tx)}"' + (f' dy="{fnum(line_dy)}"' if i else "") + f'>{esc(ln)}</tspan>'
-            for i, ln in enumerate(lines))
+        n = len(lines)
+        # `justify_width` set → flush every line but the last to the column with
+        # textLength (a compliant shaper distributes the slack); None → unchanged.
+        def span(i, ln):
+            dy = f' dy="{fnum(line_dy)}"' if i else ""
+            fit = (f' textLength="{fnum(justify_width)}" lengthAdjust="spacing"'
+                   if justify_width is not None and i < n - 1 and ln.strip() else "")
+            return f'<tspan x="{fnum(tx)}"{dy}{fit}>{esc(ln)}</tspan>'
+        spans = "".join(span(i, ln) for i, ln in enumerate(lines))
         return f'<text y="{fnum(base_y)}" text-anchor="{anchor}" style="{style}">{spans}</text>'
 
     def text_runs(self, base_y, anchor, tx, base_st, size, runs):
