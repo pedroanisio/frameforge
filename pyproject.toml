@@ -23,6 +23,7 @@ dependencies = [
 # (no PYTHONPATH needed; `python -m framegraph.cli` also works once src/docs are on the path).
 [project.scripts]
 framegraph-render = "framegraph.cli:main"
+fg-font = "framegraph.fontpack:main"
 
 # Optional/auxiliary sets (PEP 735). uv installs `dev` by default on `uv sync`;
 # install an auxiliary set explicitly, e.g.:
