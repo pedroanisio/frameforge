@@ -276,7 +276,8 @@ GROUPS = [
          "none", "no offset-path operation."),
         ("AI-48", "Outline stroke",
          "Object > Path > Outline Stroke converts a stroke to a filled path.", "26·771",
-         "none", "no stroke→outline conversion."),
+         "has", "stroke_outline() — centre-line + width/caps/joins lowers "
+         "to a closed filled path (grammar-native)."),
     ]),
     ("B · DRAW & PRIMITIVES", "draw", [
         ("AI-07", "Shape primitives",
@@ -288,7 +289,8 @@ GROUPS = [
          "CubicBezier; construct_vectors + coach assist."),
         ("AI-09", "Curvature tool",
          "Rubber-band free-form curves as you click & release.", "24·1964",
-         "part", "curve object + parametric_curve; no live rubber-band."),
+         "invert", "REFRAMED: Path.through() draws the smooth curve "
+         "through your knots — declaration replaces the rubber-band."),
         ("AI-10", "Pencil / freehand",
          "Sketch a path freehand; Illustrator fits the curve.", "24·747",
          "none", "no freehand pointer input (declarative only)."),
@@ -297,10 +299,12 @@ GROUPS = [
          "has", "stroke_style: width / dasharray / cap / join + connector markers."),
         ("AI-12", "Variable-width (Width Tool)",
          "Vary stroke width along a path for a calligraphic look.", "24·666",
-         "none", "stroke width is uniform — no width profile."),
+         "has", "stroke_outline(profile=…) — a width profile lowers to a "
+         "closed filled path at author time."),
         ("AI-49", "Brushes",
          "Calligraphic, Scatter, Art, Pattern, Blob brushes paint along a path.", "26·937",
-         "none", "no brush engine; nearest is hatch_fill / pattern."),
+         "part", "calligraphic pen (stroke_outline pen_angle) + scatter/"
+         "pattern via repeat_along_path; no art-brush stretch or Blob."),
     ]),
     ("C · COLOUR SYSTEM", "colour", [
         ("AI-13", "Colour picker & swatches",
@@ -340,7 +344,8 @@ GROUPS = [
          "none", "no text-on-path (explicit scope limit)."),
         ("AI-24", "Kerning & tracking",
          "Fine letter / line spacing on the Character panel.", "25·1054",
-         "part", "letter_spacing / line_height; no pair-kerning table."),
+         "has", "letter_spacing / line_height + pair kerning: kerned_spans "
+         "(explicit pairs) and font_kern_pairs (the font's kern table)."),
         ("AI-25", "Envelope distort",
          "Warp text into an arbitrary envelope shape.", "25·715",
          "none", "non-goal — text stays on its baseline grid."),
@@ -444,9 +449,9 @@ META = {
     "AI-05": {"conf": "H", "dim": "F", "gap": "arch", "why": "No interactive boolean shape building."},
     "AI-06": {"conf": "H", "dim": "F", "gap": "arch", "why": "No interactive path cutting."},
     "AI-08": {"conf": "H", "dim": "W", "why": "Handle-dragging becomes typed coordinates; the assistive half is the construct_vectors tool + the coach construction loop."},
-    "AI-09": {"conf": "M", "dim": "W", "why": "curve/parametric_curve; no live rubber-band."},
+    "AI-09": {"conf": "H", "dim": "W", "why": "The rubber-band gesture becomes Path.through(knots) — Catmull-Rom through the same points (sdk/geometry.py)."},
     "AI-10": {"conf": "H", "dim": "F", "gap": "non_goal", "why": "Freehand pointer input is out of scope."},
-    "AI-12": {"conf": "H", "dim": "F", "gap": "arch", "why": "Stroke width is uniform; no width profile."},
+    "AI-12": {"conf": "H", "dim": "F", "why": "stroke_outline(profile=t→scale) emits the variable-width body as a filled path (sdk/outline.py, W2)."},
     "AI-15": {"conf": "H", "dim": "F", "why": "RGB/hex only; no CMYK or separations."},
     "AI-16": {"conf": "M", "dim": "W", "why": "Declarative palette/gradient_map remap, not a Recolor dialog."},
     "AI-17": {"conf": "M", "dim": "W", "why": "region toolkit places/grades regions declaratively; no interactive bounded-region painting."},
@@ -454,7 +459,7 @@ META = {
     "AI-22": {"conf": "M", "dim": "F", "why": "Flow auto-pagination continues overset; no interactive linked-frame semantics."},
     "AI-18": {"conf": "M", "dim": "W", "why": "Harmony/contrast tools overlap Color Guide, not a 1:1 workflow."},
     "AI-23": {"conf": "H", "dim": "F", "gap": "non_goal", "why": "Text-on-path is an explicit scope limit."},
-    "AI-24": {"conf": "M", "dim": "F", "why": "letter_spacing/line_height; no pair-kerning table."},
+    "AI-24": {"conf": "H", "dim": "F", "why": "Pair kerning landed (W2): explicit kerned_spans + font_kern_pairs reading the resolved font's kern table via fontTools."},
     "AI-25": {"conf": "H", "dim": "F", "gap": "non_goal", "why": "Envelope warp is a non-goal."},
     "AI-27": {"conf": "H", "dim": "F", "gap": "arch", "why": "No freeform gradient model."},
     "AI-28": {"conf": "H", "dim": "F", "gap": "arch", "why": "No mesh — the single biggest gap."},
@@ -471,8 +476,8 @@ META = {
     "AI-45": {"conf": "H", "dim": "F", "gap": "arch", "why": "list_fonts resolves families; no visual font ID."},
     "AI-46": {"conf": "H", "dim": "F", "gap": "non_goal", "why": "No surface-wrap of art onto an object."},
     "AI-47": {"conf": "H", "dim": "F", "gap": "maturity", "why": "No offset-path op — a deterministic geometry the model could express; unbuilt."},
-    "AI-48": {"conf": "H", "dim": "F", "gap": "maturity", "why": "No stroke→outline conversion — derivable geometry, not paradigm-precluded; unbuilt."},
-    "AI-49": {"conf": "H", "dim": "F", "gap": "maturity", "why": "No brush engine — a brush-along-path is declarable in principle; unbuilt (hatch/pattern are the nearest static fills)."},
+    "AI-48": {"conf": "H", "dim": "F", "why": "Built (W2): stroke_outline() lowers centre-line + caps/joins to a closed filled path at author time."},
+    "AI-49": {"conf": "H", "dim": "F", "why": "Calligraphic + scatter/pattern landed (W2: pen_angle profile, repeat_along_path); art-brush stretch and Blob remain unbuilt."},
     "AI-50": {"conf": "H", "dim": "W", "why": "Guides exist to make cursor input precise; declarative input is precise by construction — canon.content_box layout grids, grid_pattern, workspace snap."},
     "AI-51": {"conf": "M", "dim": "W", "why": "Both plot data as charts; FG charts are declarative & data-bound, IL graphs are static objects you restyle."},
 }

@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 86 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 87 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -89,6 +89,7 @@ The 86 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`spendora_landing.py`](../static/examples/spendora_landing.py) | High-fidelity vector recreation of the "Spendora" SaaS landing page mock-up |
 | [`starlight_fox.py`](../static/examples/starlight_fox.py) | Starlight Fox — a children's picture book authored entirely with the FrameGraph SDK. |
 | [`stratoscope.py`](../static/examples/stratoscope.py) | Stratoscope — one scalar field, two projections, one frame. |
+| [`stroke_outline_showcase.py`](../static/examples/stroke_outline_showcase.py) | Stroke-outline engine — filled outlines, brushes, kerning (issue #46, W2). |
 | [`sublime_ttl_screenshot.py`](../static/examples/sublime_ttl_screenshot.py) | Recreate the Sublime Text (.ttl) desktop screenshot with the FrameGraph SDK. |
 | [`syrus_proposal.py`](../static/examples/syrus_proposal.py) | SYRUS — client-acquisition proposal, built in the "Modern Sovereign" brand. |
 | [`topology_perspective.py`](../static/examples/topology_perspective.py) | Demo of the SDK topology + perspective helpers. |

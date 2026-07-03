@@ -151,13 +151,16 @@ def _side(pts: list[Vec2], halves: list[float], sign: float,
 def _cap(p: Vec2, d: Vec2, h: float, cap: str, from_n: Vec2,
          to_n: Vec2) -> list[Vec2]:
     """End-cap points between offset side ends (from_n → to_n are unit
-    normals of the two sides at this end)."""
+    normals of the two sides at this end; ``d`` points OUT of the stroke)."""
     if h <= _EPS or cap == "butt":
         return []
     if cap == "square":
         e = d * h
         return [p + from_n * h + e, p + to_n * h + e]
-    return _arc_points(p, from_n, to_n, h)           # round
+    # round: from_n → to_n are opposite, so the shorter-sweep arc is
+    # ambiguous at π — route it explicitly through the outward direction
+    return (_arc_points(p, from_n, d, h) + [p + d * h]
+            + _arc_points(p, d, to_n, h))
 
 
 def stroke_outline(points: Sequence[Vec2 | Pt], width: float, *,

@@ -4,6 +4,33 @@
 
 ---
 
+## Unreleased — parity W2: the stroke-outline engine + curve/type finesse (2026-07-03, issue #46)
+
+`framegraph.sdk.outline` — one shared filled-outline emitter closes three
+verdicts and two finesse rows, all at author time (nothing new enters the
+schema): `stroke_outline(points, width, …)` lowers a stroke centre-line to
+a CLOSED filled `path` — constant width is Outline Stroke (AI-48 NONE→HAS),
+a `profile(t)` callable is the Width tool (AI-12 NONE→HAS), a calligraphic
+pen (`pen_angle`/`pen_thin`: width `w·√(cos²Δ+thin²·sin²Δ)` vs the tangent)
+is the calligraphic brush, and `repeat_along_path` (arc-length placements
+with tangent rotation, `stamp=` for direct object copies) is the
+scatter/pattern half (AI-49 NONE→PARTIAL — art-brush stretch and Blob stay
+honest gaps). Caps butt/square/round (round routed explicitly through the
+outward direction — the shorter-sweep arc is ambiguous at π), joins
+miter/bevel/round. `Path.through()` (Catmull-Rom) verified + tested as the
+declarative curvature tool (AI-09 PARTIAL→REFRAMED). Kerning (AI-24
+PARTIAL→HAS): `kerned_spans` (explicit pairs as grammar-native span
+styles) + `font_kern_pairs` (the resolved font's kern table via fontTools;
+degrades to `{}`). **Renderer fix found by pixel-verifying this feature**:
+structured-`d` segments arrive as TUPLES from a pydantic model dump and
+all three painters (SVG + both TikZ sites) only lowered lists — every
+structured path silently rendered as a stringified Python tuple (garbage
+that also hangs cairosvg). 16 red-first tests (`tests/test_sdk_outline.py`)
+incl. the round-trip regression; fixture `stroke-outline.fg.yaml` (0/0),
+runnable `static/examples/stroke_outline_showcase.py`. Teardown + audit
+regenerated: **17 HAS / 11 PARTIAL / 10 REFRAMED / 13 NONE** (full 33 %,
+reachable 75 %).
+
 ## Unreleased — parity W6: six teardown verdicts corrected by documentation (2026-07-03, issue #50)
 
 The cheapest scoreboard movement, delivered exactly as scoped: zero schema

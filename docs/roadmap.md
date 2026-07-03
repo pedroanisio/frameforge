@@ -574,12 +574,14 @@ simply unbuilt), or **non-goal** (declared scope choice) — and every M/L row
 carries a confidence tag. The audit is git-stamped (`source_identity()`:
 frameforge commit + a dirty flag, "so the stamp cannot lie").
 
-**Scoreboard at 2.3.0 (post-W6, #50):** 51 features → **14 HAS** (27%),
-**12 PARTIAL**, **9 REFRAMED**, **16 NONE** (7 architectural + 3 maturity +
-6 non-goals — the 3 maturity rows are precisely W1/W2's buildables).
-Full-or-partial **51%**; *reachable by any route* (has+partial+reframed)
-**35/51 = 69%** (unchanged — W6 moved five rows from PARTIAL to REFRAMED
-and hardened AI-40's evidence; it added no new capability, by design).
+**Scoreboard at 2.3.0 (post-W6 #50 + W2 #46):** 51 features → **17 HAS**
+(33%), **11 PARTIAL**, **10 REFRAMED**, **13 NONE** (6 architectural +
+1 maturity + 6 non-goals — the remaining maturity row is W1's buildable).
+Full-or-partial **28/51 = 55%**; *reachable by any route*
+(has+partial+reframed) **38/51 = 75%**. W6 corrected the map (five rows
+PARTIAL→REFRAMED, no new capability); W2 moved it (the stroke-outline
+engine + kerning turned AI-12/48 NONE→HAS, AI-24 PARTIAL→HAS, AI-49
+NONE→PARTIAL, AI-09 PARTIAL→REFRAMED).
 Earlier cuts scored higher (v1: 44 features, one manual, 48% full; v2: 46
 features, 63% full-or-partial) because each revision widened the surface and
 tightened the rubric — the drops are honesty, not regression. The full
@@ -600,7 +602,7 @@ work must not trade these away.
 | WS | Workstream | Closes | Effort | Notes |
 |----|-----------|--------|--------|-------|
 | W1 | **Planar geometry kernel** — declarative path booleans (Pathfinder ops), path surgery (split-at / cut-along), **offset path** (outward/inward, Bézier-offset approximation), true Live-Paint region fills | AI-04, AI-05, AI-06, AI-17, AI-47 | M–L | Expansion-tier per §A.0: the SDK computes, the document receives plain `path` objects. Highest leverage: one kernel closes five rows |
-| W2 | **Stroke, curve & type finesse** — `through()` smooth interpolation (Hobby/Catmull-Rom, §A.2); the **stroke-outline engine**: variable-width profiles, **outline-stroke conversion**, and calligraphic **brush** lowering all share one filled-outline emitter at expansion; scatter/art/pattern brushes = repeat-along-path; pair-kerning beyond `letter_spacing` | AI-09 (S), AI-12, AI-48, AI-49 (M–L shared engine), AI-24 (S) | S–L | AI-12/48/49 are one build in three verdicts: strokes become filled geometry |
+| W2 | **DELIVERED** ([#46](https://github.com/pedroanisio/frameforge/issues/46)) — `sdk.outline.stroke_outline` (one filled-outline emitter: constant width, `profile` taper, calligraphic `pen_angle`; caps/joins) + `repeat_along_path` (scatter/pattern stamps) + `kerned_spans`/`font_kern_pairs` + `Path.through()` verified; fixture `stroke-outline.fg.yaml`, runnable `stroke_outline_showcase.py`. Also fixed en route: structured-`d` path segments from a model dump rendered as stringified tuples in all three painters | AI-09, AI-12, AI-24, AI-48, AI-49 | S–L | AI-12/48 NONE→HAS, AI-24 PARTIAL→HAS, AI-49 NONE→PARTIAL, AI-09 PARTIAL→REFRAMED |
 | W3 | **Painterly colour** — freeform gradient + gradient mesh ("the single biggest gap") via expansion-tier subdivision shading (Scene3D Gouraud precedent); **shape/colour blend interpolation** (the Blend tool, declaratively: lerp matched anchors + colour at expansion) | AI-27, AI-28 (L), AI-29 (M) | M–L | Low priority; decision: emulate vs accept as the price of being a grammar |
 | W4 | **Style & colour richness** — ordered effect stack (M); appearance stack: multiple fill/stroke passes per object, out of the core profile (M); a `recolor()` convenience over token swap + `gradient_map` (S); harmony suggestions as the declarative Color Guide over `sdk.chevreul` (XS–S) | AI-30, AI-32, AI-16, AI-18 | S–M | Profile-gated schema additions where schema changes at all |
 | W5 | **Text threading** — named-frame chains (flow region → region) as the declarative threaded text | AI-22 | M | **Operator decision** — today's flow auto-paginates; explicit frame linking is a new contract |
@@ -1091,7 +1093,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-05 | Shape Builder | NONE ·H arch | no boolean shape merge | **W1** |
 | AI-06 | Scissors & Knife | NONE ·H arch | no path surgery | **W1**: split-at / cut-along, S once the kernel exists |
 | AI-47 | Offset path | NONE ·H maturity | no offset-path operation — deterministic geometry the model could express; unbuilt | **W1**: Bézier-offset approximation in the kernel, M |
-| AI-48 | Outline stroke | NONE ·H maturity | no stroke→outline conversion — derivable, not paradigm-precluded | **W2**: the shared filled-outline emitter |
+| AI-48 | Outline stroke | HAS ·H | `stroke_outline()` — centre-line + width/caps/joins lowers to a closed filled path | **W2 delivered** (#46) |
 
 ## B · Draw & primitives
 
@@ -1099,11 +1101,11 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 |----|--------------------|---------|------------------|-------------|
 | AI-07 | Shape primitives | HAS | rect, ellipse, circle, polygon, line, polyline (17 object types) | settled |
 | AI-08 | Pen tool (Bézier) | REFRAMED ·H | coordinates are the pen — bezier / `Path` / `CubicBezier`; `construct_vectors` + coach are the assistive half | **W6 delivered** (#50): re-verdicted with evidence |
-| AI-09 | Curvature tool | PARTIAL ·M | curve object + `parametric_curve`; no live rubber-band | **W2**: `through()` smooth interpolation (§A.2), S |
+| AI-09 | Curvature tool | REFRAMED ·H | `Path.through()` draws the smooth curve through your knots — declaration replaces the rubber-band | **W2 delivered** (#46): verified, tested |
 | AI-10 | Pencil / freehand | NONE ·H non-goal | no freehand pointer input (declarative only) | **non-goal** reaffirmed; nearest declarative route is curve *fitting* (`vectorize_image`, coach) — noted, not claimed |
 | AI-11 | Stroke controls | HAS | `stroke_style` width/dasharray/cap/join + connector markers | settled |
-| AI-12 | Variable-width (Width Tool) | NONE ·H arch | stroke width is uniform — no width profile | **W2**: width profiles lowered to filled outline paths at expansion, M |
-| AI-49 | Brushes (calligraphic / scatter / art / pattern / blob) | NONE ·H maturity | no brush engine — brush-along-path is declarable in principle; unbuilt | **W2**: calligraphic = width profiles; scatter/art/pattern = repeat-along-path at expansion, M–L |
+| AI-12 | Variable-width (Width Tool) | HAS ·H | `stroke_outline(profile=…)` — the width profile lowers to a filled path at author time | **W2 delivered** (#46) |
+| AI-49 | Brushes (calligraphic / scatter / art / pattern / blob) | PARTIAL ·H | calligraphic pen (`pen_angle`) + scatter/pattern via `repeat_along_path`; no art-brush stretch or Blob | **W2 delivered** (#46): honest hold at PARTIAL |
 
 ## C · Colour system
 
@@ -1125,7 +1127,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-21 | Character & paragraph | HAS | font_family/size/weight + paragraph flow (106 style props) | settled |
 | AI-22 | Threaded text | PARTIAL ·M | flow auto-pagination continues overset; no interactive frame linking | **W5**: named-frame chains (region→region flow) — operator decision, M |
 | AI-23 | Type on a path | NONE ·H non-goal | explicit scope limit | **non-goal** as declared; reversal is an operator decision (expansion-tier glyph placement, M, remains the lever) |
-| AI-24 | Kerning & tracking | PARTIAL ·M | letter_spacing / line_height; no pair-kerning table | **W2**: real-metrics pair kerning (fontTools) or explicit kern pairs, S |
+| AI-24 | Kerning & tracking | HAS ·H | `letter_spacing`/`line_height` + pair kerning: `kerned_spans` (explicit) and `font_kern_pairs` (the font's kern table) | **W2 delivered** (#46) |
 | AI-25 | Envelope distort | NONE ·H non-goal | text stays on its baseline grid | **non-goal**, reaffirmed |
 
 ## E · Gradient · effect · style

@@ -547,75 +547,75 @@ pages:
     - box:
       - 56
       - 300
-      - 187.2156862745098
+      - 227.33333333333334
       - 34
       type: rect
       fill: fg
     - box:
       - 62
       - 311
-      - 179.2156862745098
+      - 219.33333333333334
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '14'
+      text: '17'
     - box:
-      - 243.2156862745098
+      - 283.33333333333337
       - 300
-      - 160.47058823529412
+      - 147.09803921568627
       - 34
       type: rect
       fill: part
     - box:
-      - 249.2156862745098
+      - 289.33333333333337
       - 311
-      - 152.47058823529412
+      - 139.09803921568627
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '12'
+      text: '11'
     - box:
-      - 403.6862745098039
+      - 430.43137254901967
       - 300
-      - 120.3529411764706
+      - 133.72549019607843
       - 34
       type: rect
       fill: invert
     - box:
-      - 409.6862745098039
+      - 436.43137254901967
       - 311
-      - 112.3529411764706
+      - 125.72549019607843
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '9'
+      text: '10'
     - box:
-      - 524.0392156862745
+      - 564.1568627450981
       - 300
-      - 213.9607843137255
+      - 173.84313725490196
       - 34
       type: rect
       fill: none
     - box:
-      - 530.0392156862745
+      - 570.1568627450981
       - 311
-      - 205.9607843137255
+      - 165.84313725490196
       - 12
       style:
         class: folio
         align: start
         color: bg
       type: text
-      text: '16'
+      text: '13'
     - box:
       - 56
       - 348
@@ -632,7 +632,7 @@ pages:
         class: folio
         align: start
       type: text
-      text: HAS · 14
+      text: HAS · 17
     - box:
       - 206
       - 348
@@ -649,7 +649,7 @@ pages:
         class: folio
         align: start
       type: text
-      text: PARTIAL · 12
+      text: PARTIAL · 11
     - box:
       - 356
       - 348
@@ -666,7 +666,7 @@ pages:
         class: folio
         align: start
       type: text
-      text: REFRAMED · 9
+      text: REFRAMED · 10
     - box:
       - 506
       - 348
@@ -683,7 +683,7 @@ pages:
         class: folio
         align: start
       type: text
-      text: NONE · 16
+      text: NONE · 13
     - box:
       - 56.0
       - 394
@@ -735,7 +735,7 @@ pages:
       - 30
       style: big
       type: text
-      text: 27%
+      text: 33%
     - box:
       - 230.0
       - 452
@@ -765,7 +765,7 @@ pages:
       - 30
       style: big
       type: text
-      text: 51%
+      text: 55%
     - box:
       - 404.0
       - 452
@@ -795,7 +795,7 @@ pages:
       - 30
       style: big
       type: text
-      text: '16'
+      text: '13'
     - box:
       - 578.0
       - 452
@@ -814,8 +814,8 @@ pages:
         align: start
         color: faint
       type: text
-      text: coverage 51% = (HAS+PARTIAL)/51   ·   reachability 69% = +REFRAMED   ·   16
-        NONE = 7 architectural + 3 maturity + 6 non-goal   ·   unweighted (subtotals
+      text: coverage 55% = (HAS+PARTIAL)/51   ·   reachability 75% = +REFRAMED   ·   13
+        NONE = 6 architectural + 1 maturity + 6 non-goal   ·   unweighted (subtotals
         are descriptive) → p.03
     - box:
       - 56
@@ -1369,7 +1369,7 @@ pages:
         class: cite
         color: sub
       type: text
-      text: has/total = 14/51
+      text: has/total = 17/51
     - box:
       - 56
       - 476
@@ -1387,7 +1387,7 @@ pages:
         class: cite
         color: sub
       type: text
-      text: (has+part)/total = 26/51  (REFRAMED & NONE excluded)
+      text: (has+part)/total = 28/51  (REFRAMED & NONE excluded)
     - box:
       - 56
       - 494
@@ -1405,7 +1405,7 @@ pages:
         class: cite
         color: sub
       type: text
-      text: (has+part+reframed)/total = 35/51  (REFRAMED counted as reachable)
+      text: (has+part+reframed)/total = 38/51  (REFRAMED counted as reachable)
     - box:
       - 56
       - 526
@@ -1511,7 +1511,7 @@ pages:
         align: start
         color: sub
       type: text
-      text: v2.3.0 · 281 caps
+      text: v2.3.0 · 286 caps
     - box:
       - 407.0
       - 570
@@ -1530,7 +1530,7 @@ pages:
         align: start
         color: sub
       type: text
-      text: 294a67ae4521cc7be339…
+      text: 298f8c146a2069287bb1…
     - box:
       - 407.0
       - 590
@@ -1549,7 +1549,7 @@ pages:
         align: start
         color: sub
       type: text
-      text: frameforge @edca70b69d (dirty)
+      text: frameforge @2e700e2be8 (dirty)
     - box:
       - 407.0
       - 610
@@ -2345,16 +2345,13 @@ pages:
       style: ord
       type: text
       text: '[26·771]'
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
+    - type: ellipse
       center:
       - 436.0
       - 650.0
       rx: 8.0
       ry: 8.0
-      fill: none
-      stroke: none
+      fill: fg
     - box:
       - 448
       - 664
@@ -2362,20 +2359,9 @@ pages:
       - 10
       style:
         class: covlbl
-        color: sub
+        color: fg
       type: text
-      text: NONE ·H
-    - box:
-      - 448
-      - 676
-      - 90
-      - 10
-      style:
-        class: cite
-        align: start
-        color: faint
-      type: text
-      text: maturity
+      text: HAS
     - box:
       - 504
       - 638
@@ -2383,7 +2369,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: no stroke→outline conversion.
+      text: stroke_outline() — centre-line + width/caps/joins lowers to a closed filled
+        path (grammar-native).
     - box:
       - 56
       - 692
@@ -2700,30 +2687,18 @@ pages:
       style: ord
       type: text
       text: '[24·1964]'
-    - type: ellipse
-      center:
-      - 436.0
-      - 340.0
-      rx: 8.0
-      ry: 8.0
-      fill: fg
-    - box:
-      - 436
-      - 332
-      - 9
-      - 16
-      type: rect
-      fill: bg
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 340.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
+    - type: polyline
+      points:
+      - - 436.0
+        - 332.0
+      - - 444.0
+        - 340.0
+      - - 436.0
+        - 348.0
+      - - 428.0
+        - 340.0
+      closed: true
+      fill: invert
     - box:
       - 448
       - 354
@@ -2731,9 +2706,9 @@ pages:
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: invertlbl
       type: text
-      text: PARTIAL ·M ·W
+      text: REFRAMED ·H ·W
     - box:
       - 504
       - 328
@@ -2741,7 +2716,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: curve object + parametric_curve; no live rubber-band.
+      text: 'REFRAMED: Path.through() draws the smooth curve through your knots —
+        declaration replaces the rubber-band.'
     - box:
       - 56
       - 382
@@ -2937,16 +2913,13 @@ pages:
       style: ord
       type: text
       text: '[24·666]'
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
+    - type: ellipse
       center:
       - 436.0
       - 526.0
       rx: 8.0
       ry: 8.0
-      fill: none
-      stroke: none
+      fill: fg
     - box:
       - 448
       - 540
@@ -2954,20 +2927,9 @@ pages:
       - 10
       style:
         class: covlbl
-        color: sub
+        color: fg
       type: text
-      text: NONE ·H
-    - box:
-      - 448
-      - 552
-      - 90
-      - 10
-      style:
-        class: cite
-        align: start
-        color: faint
-      type: text
-      text: architectural
+      text: HAS
     - box:
       - 504
       - 514
@@ -2975,7 +2937,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: stroke width is uniform — no width profile.
+      text: stroke_outline(profile=…) — a width profile lowers to a closed filled
+        path at author time.
     - box:
       - 56
       - 568
@@ -3015,6 +2978,20 @@ pages:
       style: ord
       type: text
       text: '[26·937]'
+    - type: ellipse
+      center:
+      - 436.0
+      - 588.0
+      rx: 8.0
+      ry: 8.0
+      fill: fg
+    - box:
+      - 436
+      - 580
+      - 9
+      - 16
+      type: rect
+      fill: bg
     - stroke_style:
         stroke_width: 1.4
       type: ellipse
@@ -3024,7 +3001,7 @@ pages:
       rx: 8.0
       ry: 8.0
       fill: none
-      stroke: none
+      stroke: fg
     - box:
       - 448
       - 602
@@ -3032,20 +3009,9 @@ pages:
       - 10
       style:
         class: covlbl
-        color: sub
+        color: partlbl
       type: text
-      text: NONE ·H
-    - box:
-      - 448
-      - 614
-      - 90
-      - 10
-      style:
-        class: cite
-        align: start
-        color: faint
-      type: text
-      text: maturity
+      text: PARTIAL ·H ·F
     - box:
       - 504
       - 576
@@ -3053,7 +3019,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: no brush engine; nearest is hatch_fill / pattern.
+      text: calligraphic pen (stroke_outline pen_angle) + scatter/pattern via repeat_along_path;
+        no art-brush stretch or Blob.
     - box:
       - 56
       - 630
@@ -4211,32 +4178,15 @@ pages:
       ry: 8.0
       fill: fg
     - box:
-      - 436
-      - 456
-      - 9
-      - 16
-      type: rect
-      fill: bg
-    - stroke_style:
-        stroke_width: 1.4
-      type: ellipse
-      center:
-      - 436.0
-      - 464.0
-      rx: 8.0
-      ry: 8.0
-      fill: none
-      stroke: fg
-    - box:
       - 448
       - 478
       - 90
       - 10
       style:
         class: covlbl
-        color: partlbl
+        color: fg
       type: text
-      text: PARTIAL ·M ·F
+      text: HAS
     - box:
       - 504
       - 452
@@ -4244,7 +4194,8 @@ pages:
       - 44
       style: fgev
       type: text
-      text: letter_spacing / line_height; no pair-kerning table.
+      text: 'letter_spacing / line_height + pair kerning: kerned_spans (explicit pairs)
+        and font_kern_pairs (the font''s kern table).'
     - box:
       - 56
       - 506
@@ -7558,10 +7509,10 @@ pages:
       style: lead
       type: text
       text: 'Across 51 Illustrator capabilities from three manuals, FrameGraph has
-        a full equivalent for 14 and a partial one for 12. The 16 genuine gaps cluster
+        a full equivalent for 17 and a partial one for 11. The 13 genuine gaps cluster
         where Illustrator is a painting instrument — gradient mesh, freeform gradient,
         blends, the Pencil, variable-width strokes, perspective, envelope distort,
-        mockup. The 9 REFRAMED rows are the most telling: selection, image trace,
+        mockup. The 10 REFRAMED rows are the most telling: selection, image trace,
         and the new 2024 generative-AI features exist in both — but FrameGraph reaches
         them by naming, a tool call, and an author→render loop, not a cursor.'
     - box:
@@ -7684,7 +7635,7 @@ pages:
         align: start
         color: faint
       type: text
-      text: VERSION · code frameforge@edca70b69d+dirty · manifest 294a67ae4521 (v2.3.0)
+      text: VERSION · code frameforge@2e700e2be8+dirty · manifest 298f8c146a20 (v2.3.0)
         · corpus doc-ray [24 586533f6][25 56d6727a][26 649e47a5] · built 2026-07-03
     - box:
       - 56
