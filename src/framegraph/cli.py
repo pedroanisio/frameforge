@@ -36,8 +36,8 @@ import sys
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-HERE = os.path.dirname(os.path.abspath(__file__))          # framegraph/
-ROOT = os.path.normpath(os.path.join(HERE, ".."))          # repo root (dev tree)
+HERE = os.path.dirname(os.path.abspath(__file__))          # src/framegraph/
+ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))    # repo root (src layout)
 
 
 @dataclass

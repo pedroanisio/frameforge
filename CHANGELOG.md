@@ -102,6 +102,23 @@ directive degrades to a structured warning until the fill/render bridge
 (#29). Output is schema-validated before it is returned (PALS). The CLI
 front door accepts `.md` inputs directly and writes the intermediate
 `.fg.yaml` next to the render output. 11 red-first tests.
+## Unreleased — render front door works PYTHONPATH-free (2026-07-02, issue #35)
+
+Three src-layout refactor casualties in the CLI path, fixed at root:
+
+- `framegraph.sdk.model` falls back to deriving `<repo>/docs` from its own
+  location when `models` is not importable (callers with PYTHONPATH win; the
+  fallback only appends) — the `ModuleNotFoundError: models` crash is gone
+- `framegraph.cli` derives ROOT for the src layout, so default output goes to
+  `<repo>/out/render-cli`, not `src/out/`
+- new `tooling/framegraph_render.py` launcher: the working front door for the
+  virtual project (`uv run python tooling/framegraph_render.py doc --to svg`),
+  self-bootstrapping, any CWD, no PYTHONPATH; delegates to `framegraph.cli`.
+  The `[project.scripts]` entry stays inert by the §2 packaging decision (the
+  session's earlier "working" console script was a stale pre-refactor venv
+  artifact). The docker entrypoint's `framegraph-render` verb now maps to the
+  module form (the image sets PYTHONPATH)
+- pyproject/AGENTS/codebase-standards §2 advice updated; 4 red-first tests
 
 ## Unreleased — design-canon SDK modules (2026-07-02)
 
