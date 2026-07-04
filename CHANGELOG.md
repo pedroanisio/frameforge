@@ -4,6 +4,36 @@
 
 ---
 
+## Unreleased — fix(tooling): repair the package-emit checker for the src layout (2026-07-04)
+
+`tooling/check_package_readiness.py` went stale in the 2026-07-02 folder
+refactor. It still inspected `ROOT/framegraph`, `ROOT/models`, `ROOT/schema`
+— paths that moved to `src/framegraph`, `docs/models`, `docs/schema` — so it
+passed *vacuously* over locations that no longer exist and emitted a **false
+verdict**:
+
+- it **dropped a live blocker** — `docs/models/framegraph.py` still shadows the
+  `framegraph` dist name, but the checker looked in the empty `ROOT/models` and
+  reported "no collision"; and
+- it **reported a closed gap as open** — row 7 landed
+  `framegraph.__version__` in `src/framegraph/__init__.py` (2026-07-04), but the
+  checker read the nonexistent `ROOT/framegraph/__init__.py` and still flagged
+  the `__version__` gap.
+
+A verification tool that inspects a moved path passes vacuously — the PALS's-Law
+failure mode (a broken verification layer is a design defect, not a runtime bug).
+
+Fixed at root: the checker now inspects the live `src/framegraph` package and the
+`docs/models`/`docs/schema` reference sources. Its verdict is true again —
+**3 blockers, 2 gaps** (was mis-reporting 2 blockers, 3 gaps). New regression
+`tests/test_package_readiness.py` pins the corrected verdict and guards the
+inspected paths against going stale a second time (they must exist, or the gate
+fails loudly). `codebase-standards.md` §9/§16 updated to the true counts;
+`test_package_boundary.py`'s claim that the checker "asserts the same thing" is
+accurate again.
+
+- **Not a schema change** (no model/schema touched) — no version bump.
+
 ## Unreleased — docs(grammar): the `graph` authoring object + an expansion-form coverage gate (2026-07-04)
 
 Item 1 shipped the declarative `type: graph` object but left the format

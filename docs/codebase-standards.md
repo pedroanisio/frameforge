@@ -347,7 +347,7 @@ chain, and the gate that proves each invariant — is formalised in
   ([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) asserts
   package-emit readiness, separating hard build/install blockers from advisory `[Target]`
   gaps. It is advisory — deliberately **not** in `make check` — and reports **NOT READY**
-  today (3 blockers, 3 gaps; FrameGraph is a virtual project by design, §2). See §16.
+  today (3 blockers, 2 gaps; FrameGraph is a virtual project by design, §2). See §16.
 
 ## 10. Pre-commit and CI
 
@@ -533,7 +533,9 @@ the §2 `package = false` decision (row 7's runtime `__version__` + release reci
 2026-07-04). That
 composite gap is measurable: `make package-check`
 ([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) asserts it and
-reports **NOT READY** today (3 blockers, 3 gaps). It is advisory — not part of `make check` —
+reports **NOT READY** today (3 blockers, 2 gaps — the two remaining gaps are row 8's
+`classifiers` and the §1 `py.typed` target; the runtime `__version__` gap closed with row 7).
+It is advisory — not part of `make check` —
 and shrinks as these rows close. The remaining blockers are the deliberate virtual-project
 decisions: no `[build-system]` table, `[tool.uv] package = false`, and the `framegraph` dist
 name shadowing `docs/models/framegraph.py` (§2). The former fourth blocker — `framegraph/`
