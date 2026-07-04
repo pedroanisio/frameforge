@@ -11,7 +11,7 @@ LIVE_HOST ?= 127.0.0.1
 LIVE_PORT ?= 8789
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema bump bump-check render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check docker-build docker-mcp docker-shell docker-fonts
+.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check docker-build docker-mcp docker-shell docker-fonts
 
 DOCKER ?= docker
 IMAGE ?= frameforge
@@ -35,6 +35,15 @@ bump:  ## bump the HEAD version at every site + regen derived artifacts (VERSION
 
 bump-check:  ## assert every hand-edited version site agrees (no edit)
 	$(UV) run python tooling/bump_version.py --check
+
+release:  ## full release: bump VERSION, regenerate every derived artifact, run the gate (RELEASE.md §16-7)
+	@test -n "$(VERSION)" || { echo "usage: make release VERSION=X.Y.Z"; exit 2; }
+	$(UV) run python tooling/bump_version.py $(VERSION)
+	$(MAKE) schema manifest docs-sdk status examples-index
+	$(MAKE) check
+	@echo ""
+	@echo "  released $(VERSION): all sites bumped, artifacts regenerated, make check green."
+	@echo "  remaining by hand (RELEASE.md): 1) CHANGELOG.md entry  2) git tag v$(VERSION)  3) make docker-build"
 
 render:  ## render every fixture to out/render/ (+ contact sheet)
 	$(UV) run python tooling/render_fixtures.py --all

@@ -27,3 +27,7 @@ static/examples/saas_hero_headers.pdf
 site/
 # generated render/build output (examples, tours, brand masters)
 _tmp/
+static/examples/*.png
+static/examples/*.svg
+screenshot-primitives-reconstruction*
+Screenshot From 2026-07-03 23-31-49.png

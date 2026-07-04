@@ -11,7 +11,7 @@ disclaimer:
 # RELEASE.md — the FrameGraph HEAD version-bump procedure
 
 The package version is one *logical* source of truth — `[project] version` in
-[pyproject.toml](pyproject.toml) — that, by necessity, lives in four hand-edited
+[pyproject.toml](pyproject.toml) — that, by necessity, lives in five hand-edited
 literals plus one human-authored CHANGELOG entry. The gates cross-check the
 literals so a **half-bump can never ship**: `make check` fails on the smallest
 divergence. This document formalises the invariants, the ordered procedure, and
@@ -31,6 +31,7 @@ machine-checked; the "Gate" column is where a violation surfaces.
 |---|---|---|---|
 | **I1** | declared version == the models' reported version | [pyproject.toml:3](pyproject.toml#L3) == [framegraph.py:41 `HEAD_VERSION`](docs/models/framegraph.py#L41) | `tests/test_docs_in_sync.py` |
 | **I2** | the models' version == the pinned test literal | `HEAD_VERSION` == [test_head.py:77](tests/test_head.py#L77) | `tests/test_head.py::test_version_is_2_3_0` |
+| **I2b** | declared version == the package runtime `__version__` | [pyproject.toml:3](pyproject.toml#L3) == [framegraph/__init__.py `__version__`](src/framegraph/__init__.py) | `tests/test_docs_in_sync.py::test_package_runtime_version_matches_pyproject` |
 | **I3** | the committed schema is generated-in-sync **and** its title carries the version | models → `docs/schema/framegraph-v2.schema.json` | `schema-check` + `test_head.py::test_schema_in_sync_with_models` + `test_docs_in_sync.py` |
 | **I4** | the capability manifest reflects the live tree | `docs/capability-manifest.json` | `manifest-check` |
 | **I5** | README's honest counts + paths match reality | `README.md` (`$defs` count, `N/N green`, Layout paths) | `tests/test_docs_in_sync.py` |
@@ -43,7 +44,7 @@ Because every invariant is inside `make check` (twelve gates: [Makefile:45](Make
 
 ## 2 · Source of truth vs. derived
 
-**Authored on a bump (hand-edited — `make bump` moves the four literals):**
+**Authored on a bump (hand-edited — `make bump` moves the five literals):**
 
 | Artifact | Literal |
 |---|---|
@@ -51,6 +52,7 @@ Because every invariant is inside `make check` (twelve gates: [Makefile:45](Make
 | [docs/models/framegraph.py:41](docs/models/framegraph.py#L41) | `HEAD_VERSION = "X.Y.Z"` — the models' report |
 | [tests/test_head.py:77](tests/test_head.py#L77) | `HEAD_VERSION == "X.Y.Z"` — the version pin |
 | [README.md](README.md) | `**FrameGraph v2** (\`X.Y.Z\`)` — the human headline |
+| [src/framegraph/__init__.py](src/framegraph/__init__.py) | `__version__ = "X.Y.Z"` — the package runtime version |
 | [CHANGELOG.md](CHANGELOG.md) | the `## X.Y.Z` entry (+ migration if breaking) — **human judgement, not automated** |
 
 **Generated (never hand-edit — regenerate):** schema (`make schema`),
@@ -66,7 +68,9 @@ Each step names the gate that verifies it.
 
 0. **Preconditions.** Clean working tree; `CHANGELOG.md` not mid-merge; choose
    the bump type (§4).
-1. **Move the four literals** → `make bump VERSION=X.Y.Z`
+1. **Move the five literals** → `make bump VERSION=X.Y.Z` (or the full
+   `make release VERSION=X.Y.Z`, which also regenerates every artifact and runs
+   the gate)
    (or `python tooling/bump_version.py X.Y.Z`). *Verify:* `make bump-check`.
 2. **Regenerate derived artifacts.** `make bump` already runs
    `schema manifest examples-index`; for the full nav check run `make docs-check`
@@ -117,9 +121,9 @@ Backward compatibility is **delivered, not assumed** (§9): migrate, don't freez
 ## 6 · Automation
 
 - **`make bump VERSION=X.Y.Z`** → [tooling/bump_version.py](tooling/bump_version.py)
-  rewrites the four literals, then regenerates schema + manifest + examples-index,
+  rewrites the five literals, then regenerates schema + manifest + examples-index,
   then prints the remaining human steps.
-- **`make bump-check`** → assert the four sites agree (a fast pre-flight;
+- **`make bump-check`** → assert the five sites agree (a fast pre-flight;
   `test_head` + `test_docs_in_sync` remain the authoritative gates).
 - **`python tooling/bump_version.py X.Y.Z --dry-run`** → show the edits, write
   nothing.

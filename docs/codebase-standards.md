@@ -334,10 +334,15 @@ chain, and the gate that proves each invariant — is formalised in
   documents is delivered by the codemod (`codemod.py --in-place --bump`) and by accepting legacy
   shorthand as sugar — not by freezing the schema. [CHANGELOG.md](../CHANGELOG.md) is updated every
   release.
-- **`[Target]`** Runtime `__version__` resolution and a release recipe (`make release
-  VERSION=X.Y.Z`) that runs the full gate, builds, tags, and lets CI publish. Today
-  [src/framegraph/__init__.py](../src/framegraph/__init__.py) carries **no** version logic and there is no
-  release target; the single literal in `pyproject.toml` is the only version site.
+- **`[Enforced]`** Runtime `framegraph.__version__`
+  ([src/framegraph/__init__.py](../src/framegraph/__init__.py)) is a fifth version literal that `make bump`
+  moves in lockstep and [tests/test_docs_in_sync.py](../tests/test_docs_in_sync.py) gates against
+  `[project] version` — so the package can report its own version and it can never drift.
+  A plain literal, not `importlib.metadata`, because this is a virtual (uninstalled) project (§2).
+- **`[Enforced]`** `make release VERSION=X.Y.Z` runs the full recipe end to end: bump every
+  site → regenerate schema / manifest / SDK snapshots / status / examples-index → `make check`
+  (see RELEASE.md). *Residual* (still `[Target]`): the git tag and CI-publish steps stay by
+  hand — the target prints them as the remaining checklist.
 - **`[Adopted]`** The distance to that target is **measurable**: `make package-check`
   ([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) asserts
   package-emit readiness, separating hard build/install blockers from advisory `[Target]`
@@ -505,14 +510,16 @@ explicit and shrinking, never silently assumed-met. Complexity scale per §12.
 | 4 | TDD loop + `unit`/`integration` trees | flat `tests/` (~130 modules; hypothesis landed) | §6 | M |
 | 5 | Golden-render **drift tolerance** (rasterized) | exact hash lock (`render_golden.py`) | §8 | M |
 | 6 | `.pre-commit-config.yaml` mirroring CI | none | §10 | S |
-| 7 | Runtime `__version__` + `make release` | single literal, no recipe | §9 | S |
 | 8 | Multi-version CI matrix (3.10–3.12) + `classifiers` | 3.10 named, single runner | §1 | S |
 
 **Closed since the 2026-06-24 revision** (per the rule of motion, their rows are removed):
 the governance docs — `AGENTS.md`, `PURPOSE.md`, and `DISCLAIMER.md` all exist (source-of-truth
 table, §12, §13); two gates entered `make check` (`docs-linkcheck`, `disclaimer-check`, §3);
 CI ⇄ make lockstep moved from discipline to a pinned test (§3); and hypothesis property tests
-landed (§6, shrinking row 4).
+landed (§6, shrinking row 4). **2026-07-04:** row 7 (runtime `__version__` + a
+release recipe) closed — `framegraph.__version__` is a fifth gated version literal and
+`make release` runs the full bump→regenerate→check recipe (§9; RELEASE.md); only the
+git-tag/CI-publish steps remain by hand.
 
 **The 2026-07-02 folder refactor** (operator-directed) moved the tree to a src layout —
 package in `src/framegraph/`, reference sources under `docs/` (`models/`, `schema/`, `spec/`,
@@ -521,8 +528,9 @@ and evicted all non-core content (`brand/`, `demo/`, `recipe/`, POC notes, scrat
 from the tree. Two gates (`brand-check`, `brand-logo-check`) were retired with written
 justification (§3, §8): their comparison inputs are no longer tracked.
 
-**Package-emit readiness** spans row 7 (`__version__` + `make release`), row 8
-(`classifiers`), and the §1 `py.typed` target, plus the §2 `package = false` decision. That
+**Package-emit readiness** spans row 8 (`classifiers`) and the §1 `py.typed` target, plus
+the §2 `package = false` decision (row 7's runtime `__version__` + release recipe landed
+2026-07-04). That
 composite gap is measurable: `make package-check`
 ([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) asserts it and
 reports **NOT READY** today (3 blockers, 3 gaps). It is advisory — not part of `make check` —

@@ -4,6 +4,19 @@
 
 ---
 
+## Unreleased — chore: runtime `framegraph.__version__` + `make release` (§16 row 7, 2026-07-04)
+
+Closes the runtime-version half of the package-emit gap. `framegraph.__version__`
+is now a real attribute on the package — a fifth version literal that `make bump`
+moves in lockstep and `tests/test_docs_in_sync.py` gates against `[project]
+version`, so the package can report its own version and it can never drift. A
+plain literal (not `importlib.metadata`) because this is a virtual, uninstalled
+project. New `make release VERSION=X.Y.Z` runs the whole recipe end to end — bump
+every site → regenerate schema/manifest/SDK-snapshots/status/examples-index →
+`make check` — leaving only the git-tag and CI-publish steps by hand (it prints
+them). RELEASE.md updated to five literals + the `I2b` invariant; codebase-standards
+§9/§16 row 7 marked done.
+
 ## Unreleased — item 1: declarative graph auto-layout (the render-time bridge, 2026-07-04)
 
 `sdk.topology.Graph` already computed node placements from declared edges,

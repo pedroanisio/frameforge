@@ -53,6 +53,8 @@ SITES = [
      re.compile(r'(HEAD_VERSION == ")(\d+\.\d+\.\d+)(")')),
     ("README headline", "README.md",
      re.compile(r'(\*\*FrameGraph v2\*\* \(`)(\d+\.\d+\.\d+)(`\))')),
+    ("package __version__", "src/framegraph/__init__.py",
+     re.compile(r'^(__version__ = ")(\d+\.\d+\.\d+)(")', re.M)),
 ]
 
 
