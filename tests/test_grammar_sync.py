@@ -103,3 +103,56 @@ def test_mixin_expansion_resolves_table_and_common_fields():
     tfields = CGS.production_fields(prods, "TableObject")
     assert {"rows", "columns", "zebra", "cell_padding"} <= tfields   # via TableBody
     assert {"id", "box", "style"} <= tfields                          # via common-object-fields
+
+
+# --------------------------------------------------------------------------- #
+#  Expansion-tier authoring forms — the grammar must document them            #
+# --------------------------------------------------------------------------- #
+# `use`/`component`/`graph` are pre-expansion authoring objects: they appear in
+# a .fg.yaml, are lowered to core geometry by sdk.expand, and never reach the
+# validated document — so the model has no production for them and the core
+# gate cannot force their presence. But they ARE part of the document format an
+# author writes, so the grammar (the format's normative view) must document each
+# as a VisualObject alternative with a production. This gate keeps a newly-added
+# expansion form (like `graph`, roadmap item 1) from silently missing the
+# grammar, the way it otherwise would.
+EXPANSION_AUTHORING_TYPES = {
+    "use": "UseObject",
+    "component": "ComponentObject",
+    "graph": "GraphObject",
+}
+
+
+def test_expand_dispatch_matches_the_documented_set():
+    """The authoring types sdk.expand lowers are exactly the set the grammar
+    is expected to document — so adding an expansion form without a grammar
+    entry (or vice versa) trips this gate, not a silent doc drift."""
+    import re
+    expand_src = open(os.path.join(ROOT, "src", "framegraph", "sdk",
+                                   "expand.py"), encoding="utf-8").read()
+    dispatched = set(re.findall(r'kind == "([a-z_]+)"', expand_src))
+    assert dispatched == set(EXPANSION_AUTHORING_TYPES), (
+        f"sdk.expand dispatches {dispatched}, documented set is "
+        f"{set(EXPANSION_AUTHORING_TYPES)} — update the grammar + this list "
+        f"together")
+
+
+def test_grammar_documents_every_expansion_authoring_form():
+    prods = CGS.parse_productions(CGS.CORE_EBNF, CGS.STYLE_EBNF)
+    obj_gram = CGS.grammar_type_map(prods, "VisualObject", "type")
+    for type_tag, production in EXPANSION_AUTHORING_TYPES.items():
+        assert type_tag in obj_gram, (
+            f"expansion authoring type {type_tag!r} is not a VisualObject "
+            f"alternative in the grammar")
+        assert obj_gram[type_tag] == production, (
+            f"{type_tag!r} maps to {obj_gram[type_tag]}, expected {production}")
+        assert production in prods, f"no EBNF production for {production}"
+
+
+def test_spec_lists_graph_among_extended_objects():
+    spec = open(os.path.join(ROOT, "docs", "spec", "framegraph-v2-spec.md"),
+                encoding="utf-8").read()
+    assert "components/use/symbols/graphs" in spec, (
+        "the spec's extended-objects list must include graphs")
+    assert "pre-expansion authoring forms" in spec, (
+        "the spec must explain that use/component/graph lower via sdk.expand")

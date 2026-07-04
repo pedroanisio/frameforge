@@ -337,8 +337,13 @@ content (`Inline`) covers plain runs, `Span`, `ref`, `cite`, `footnote`, `math`,
 `VisualObject` core: `rect`, `ellipse`, `line`, `polyline`, `path`, `dimension`,
 `connector` (§3.11), `text`, `image`, `icon`, `bullet_list`, `table`, `group`.
 (`circle`/`polygon`/`curve` are **deprecated** renderer shortcuts → `ellipse`/closed
-`polyline`/`path`.) Charts, components/use/symbols, and the UML family are
-**extended** (out of the core profile; §8.5).
+`polyline`/`path`.) Charts, components/use/symbols/graphs, and the UML family
+are **extended** (out of the core profile; §8.5). The `component`, `use`, and
+`graph` objects are **pre-expansion authoring forms**: `sdk.expand` lowers them
+into core geometry (a `graph` lays out its declared nodes/edges via
+`sdk.topology` and becomes a positioned `group`), so a validated document never
+carries them — they are part of the *format an author writes*, documented in the
+grammar, not the model.
 
 ## 8. Conformance
 

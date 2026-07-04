@@ -356,7 +356,7 @@ VisualObject =
     | BarChartObject | LineChartObject | LegendObject
     | BulletListObject | ChipRowObject  | TableObject
     | ConnectorObject  | GroupObject
-    | ComponentObject  | UseObject
+    | ComponentObject  | UseObject      | GraphObject
     | UMLActionObject       | UMLActivationBarObject | UMLActivityNodeObject
     | UMLActorObject        | UMLArtifactBoxObject   | UMLClassifierBoxObject
     | UMLComponentBoxObject | UMLFragmentFrameObject | UMLLifelineObject
@@ -596,6 +596,40 @@ UseObject =
       "symbol" , ":" , string ,
       [ "params" , ":" , object-any ] ,
       common-object-fields ,
+    "}" ;
+
+(* GraphObject is a pre-expansion authoring form (like UseObject): the SDK      *)
+(* (sdk.expand + sdk.topology.Graph) lays out the declared nodes/edges and      *)
+(* lowers this to a positioned `group` of ellipse/polyline/text — it never      *)
+(* reaches a validated document, so it has no Pydantic model. `algorithm` picks *)
+(* the layout (`auto` infers from structure); a node's `pos` overrides it. The  *)
+(* render-styling keys (node_fill, edge_color, labels, …) pass through.         *)
+GraphObject =
+    "{" , "type" , ":" , "graph" ,
+      "box" , ":" , Box ,
+      [ "algorithm" , ":" ,
+          ( "auto" | "layered" | "spring" | "radial" | "circular" | "grid" ) ] ,
+      [ "root" , ":" , string ] ,
+      [ "nodes" , ":" , "[" , { GraphNode } , "]" ] ,
+      [ "edges" , ":" , "[" , { GraphEdge } , "]" ] ,
+      [ "node_fill" , ":" , Color ] , [ "node_stroke" , ":" , Color ] ,
+      [ "node_radius" , ":" , number ] , [ "node_stroke_width" , ":" , number ] ,
+      [ "edge_color" , ":" , Color ] , [ "edge_width" , ":" , number ] ,
+      [ "labels" , ":" , boolean ] , [ "label_color" , ":" , Color ] ,
+      [ "label_size" , ":" , number ] ,
+      common-object-fields ,
+    "}" ;
+
+GraphNode =
+    "{" , "id" , ":" , string ,
+      [ "label" , ":" , string ] , [ "weight" , ":" , number ] ,
+      [ "pos" , ":" , Point ] ,
+    "}" ;
+
+GraphEdge =
+    "{" , "from" , ":" , string , "to" , ":" , string ,
+      [ "directed" , ":" , boolean ] , [ "label" , ":" , string ] ,
+      [ "weight" , ":" , number ] ,
     "}" ;
 
 (* ── UML (field sets retained from v0.1.0; cleaned to closed + typed) ── *)

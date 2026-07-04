@@ -4,6 +4,26 @@
 
 ---
 
+## Unreleased — docs(grammar): the `graph` authoring object + an expansion-form coverage gate (2026-07-04)
+
+Item 1 shipped the declarative `type: graph` object but left the format
+grammar stale: the EBNF documented the sibling pre-expansion forms
+(`UseObject`, `ComponentObject`) yet not `GraphObject`. The core
+grammar-check gate could not catch this — these forms have no Pydantic
+model (they lower via `sdk.expand` before validation), so nothing forced
+their presence. Closed at root:
+
+- `GraphObject` (+ `GraphNode`/`GraphEdge`) added to the EBNF as a
+  `VisualObject` alternative, matching how `use`/`component` are
+  documented; the spec's extended-objects list now names graphs and
+  explains that `use`/`component`/`graph` are pre-expansion authoring
+  forms lowered by `sdk.expand`.
+- a new gate (`tests/test_grammar_sync.py`) pins the invariant: the set of
+  authoring types `sdk.expand` dispatches (`use`/`component`/`graph`) is
+  exactly the set the grammar documents — so a future expansion form can't
+  silently miss the grammar again. grammar-check stays green (the new type
+  is one more non-blocking out-of-profile WARN: 29→30, 0 errors).
+
 ## Unreleased — chore: runtime `framegraph.__version__` + `make release` (§16 row 7, 2026-07-04)
 
 Closes the runtime-version half of the package-emit gap. `framegraph.__version__`
