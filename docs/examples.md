@@ -12,19 +12,21 @@ disclaimer:
 
 # Examples cookbook
 
-The 98 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 101 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
 | [`a4_diagrammation.py`](../static/examples/a4_diagrammation.py) | Eight A4 pages, one print identity, eight DIAGRAMMATIONS. |
 | [`ai_mobile_app_wireframe.py`](../static/examples/ai_mobile_app_wireframe.py) | Compose a COMPLETE low-fidelity wireframe of an advanced AI mobile app with |
 | [`ai_workforce_storyboard.py`](../static/examples/ai_workforce_storyboard.py) | THE GREAT REWRITE — a complete storyboard for a 20-minute YouTube documentary |
+| [`android16_material3_guidelines.py`](../static/examples/android16_material3_guidelines.py) | Android 16 · Material 3 Expressive — UI Guidelines. |
 | [`animate_svg.py`](../static/examples/animate_svg.py) | Animate an ingested SVG into a video clip (mp4 / gif). |
 | [`architecture_brief.py`](../static/examples/architecture_brief.py) | FrameGraph — *how this system thinks*: a conceptual architecture map, authored |
 | [`architecture_deck.py`](../static/examples/architecture_deck.py) | FrameGraph v2 — AS-IS Architecture & Evolution Paths. |
 | [`architecture_map.py`](../static/examples/architecture_map.py) | FrameGraph v2 — Architecture Map (companion to ``conceptual-analysis.md``). |
 | [`asset_recolor_guide.py`](../static/examples/asset_recolor_guide.py) | Using imported assets — recolour/gradient them, or trace on top of them. |
 | [`atlantis_adventure_game.py`](../static/examples/atlantis_adventure_game.py) | THE LOST TIDE // 海淵 — a pixel-art point-&-click adventure, drawn as a comic. |
+| [`aura_desktop_app.py`](../static/examples/aura_desktop_app.py) | Aura — a polished DESKTOP web app, authored with the FrameGraph SDK. |
 | [`book_builder_demo.py`](../static/examples/book_builder_demo.py) | BookBuilder — a capability tour as a real book (roadmap item 8). |
 | [`brand_book.py`](../static/examples/brand_book.py) | Typeset & publish *Brand, From Products to Source Code* as a native FrameGraph |
 | [`brand_book_figures.py`](../static/examples/brand_book_figures.py) | House visual system + illustration plates for the book *Brand, From Products |
@@ -108,6 +110,7 @@ The 98 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`tron_blue_mainframe.py`](../static/examples/tron_blue_mainframe.py) | TRACE // THE BLUE MAINFRAME — a 30-slide deck in the *original* 1982 Tron |
 | [`tron_grid_protocol.py`](../static/examples/tron_grid_protocol.py) | GRID PROTOCOL — a 32-slide deck rendered entirely in flat 2D "Tron" framing. |
 | [`tron_red_sector.py`](../static/examples/tron_red_sector.py) | INFERNO // RED SECTOR — a 30-slide deck in the antagonist's register of the |
+| [`vectorization_workflow.py`](../static/examples/vectorization_workflow.py) | AI-Assisted Vectorization Workflow — a product/landing composition. |
 | [`visual_identities.py`](../static/examples/visual_identities.py) | Five documents with nothing visually in common. |
 | [`vscode_frameforge_ide.py`](../static/examples/vscode_frameforge_ide.py) | Recreate the FrameForge VSCode IDE screenshot with the FrameGraph SDK. |
 | [`web_design_proposal.py`](../static/examples/web_design_proposal.py) | Web Design Proposal — a premium editorial proposal booklet, authored with the SDK. |
