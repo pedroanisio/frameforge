@@ -59,6 +59,7 @@ from framegraph.sdk.geometry import (
     Path,
     Vec2,
     Vec3,
+    mirror,
     quarter_circle_kappa,
 )
 from framegraph.sdk.figure import (
@@ -319,6 +320,7 @@ __all__ = [
     "parse",
     "region_grade",
     "select_in",
+    "mirror",
     "quarter_circle_kappa",
     "radial_gradient",
     "render_page_svgs",

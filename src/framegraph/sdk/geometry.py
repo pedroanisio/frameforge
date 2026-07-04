@@ -82,6 +82,37 @@ class Mat3:
         si = math.sin(r)
         return Mat3(co, si, -si, co, 0.0, 0.0)
 
+    @staticmethod
+    def reflect(
+        axis: str | Sequence[Vec2 | Sequence[float]] = "x",
+    ) -> "Mat3":
+        """Reflection matrix (Mortenson §3.6, B7).
+
+        ``axis`` is ``"x"`` (mirror across the x-axis, ``y -> -y``), ``"y"``
+        (across the y-axis, ``x -> -x``), or a **line** given as two distinct
+        points ``(p0, p1)`` — mirror through that line, wherever it sits. The map
+        is orientation-reversing (``det == -1``) and its own inverse.
+        """
+        if axis == "x":
+            return Mat3(a=1.0, d=-1.0)
+        if axis == "y":
+            return Mat3(a=-1.0, d=1.0)
+        if isinstance(axis, str):
+            raise ValueError(f"reflect axis must be 'x', 'y', or a (p0, p1) line; got {axis!r}")
+        p0 = _v2(axis[0])
+        p1 = _v2(axis[1])
+        dx, dy = p1.x - p0.x, p1.y - p0.y
+        if dx * dx + dy * dy < 1e-24:
+            raise ValueError("reflect line needs two distinct points")
+        # Reflection across a line through the origin at angle θ is
+        #   [ cos2θ  sin2θ ]
+        #   [ sin2θ -cos2θ ]  (holds in any 2D frame, Y-up or Y-down).
+        theta2 = 2.0 * math.atan2(dy, dx)
+        co, si = math.cos(theta2), math.sin(theta2)
+        linear = Mat3(a=co, b=si, c=si, d=-co)
+        # Conjugate by translation so the mirror line passes through p0.
+        return Mat3.translate(p0.x, p0.y) @ linear @ Mat3.translate(-p0.x, -p0.y)
+
     def __matmul__(self, other: "Mat3") -> "Mat3":
         return Mat3(
             a=self.a * other.a + self.c * other.b,
@@ -381,6 +412,19 @@ def quarter_circle_kappa() -> float:
     return (4 / 3) * (math.sqrt(2) - 1)
 
 
+def mirror(
+    points: Iterable[Vec2 | Sequence[float]],
+    axis: str | Sequence[Vec2 | Sequence[float]] = "x",
+) -> list[Vec2]:
+    """Reflect a sequence of points across ``axis`` (see :meth:`Mat3.reflect`, B7).
+
+    Returns the mirrored points as ``Vec2`` — the primitive for building a
+    symmetric shape from one half (mirror the half, then join the two).
+    """
+    m = Mat3.reflect(axis)
+    return [m.apply(p) for p in points]
+
+
 def _v2(point: Vec2 | Sequence[float]) -> Vec2:
     if isinstance(point, Vec2):
         return point
@@ -432,5 +476,6 @@ __all__ = [
     "Path",
     "Vec2",
     "Vec3",
+    "mirror",
     "quarter_circle_kappa",
 ]

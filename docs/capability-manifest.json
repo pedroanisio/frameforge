@@ -223,6 +223,7 @@
       "measure_fits",
       "measure_text",
       "merge_figure_defs",
+      "mirror",
       "mobius",
       "model_module",
       "modular_scale",
@@ -1811,6 +1812,13 @@
     },
     {
       "name": "merge_figure_defs",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "mirror",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

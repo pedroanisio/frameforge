@@ -923,7 +923,7 @@ pipeline**.
 | **B4** | Fractal / procedural generator (`sdk/fractal.py`) | T2 | Ch11 (¶39) | S–M | — | approved |
 | **B5** | Curved-surface patches (Bézier/B-spline) | T2 | Ch11 | M | B2 | approved |
 | **B6** | Shading completion (flat default + Phong/specular) | T2 | Ch10 | S | B2 | approved |
-| **B7** | Reflection / mirror transform (`Mat3.reflect`, `mirror()`) | T1 high | Mortenson §3.6 | XS–S | — | approved (2026-07-04) |
+| **B7** | Reflection / mirror transform (`Mat3.reflect`, `mirror()`) | T1 high | Mortenson §3.6 | XS–S | — | **DELIVERED** (2026-07-04) — `sdk.geometry.Mat3.reflect` + `mirror()`; `test_geometry_reflect.py` |
 | **B8** | Geometric intersection API (line/segment/ray/plane/curve) | T1 high | Mortenson (intersections) | M | — | approved — foundational for hit-testing / snapping / clipping |
 | **B9** | Curvature & arc-length API (curves/surfaces) | T2 high | Mortenson §6.7 | S–M | — | approved — upgrades tessellation/outline; aids B5 |
 | **B10** | Convex hull + comp-geometry primitives | T2 | Mortenson (convex hulls) | S–M | aids B8 | approved (2026-07-04) |

@@ -4,6 +4,25 @@
 
 ---
 
+## Unreleased — feat(sdk): B7 — reflection / mirror transform (CG-canon backlog, 2026-07-04)
+
+`framegraph.sdk.geometry` gains the reflection transform the CG-canon backlog
+(Mortenson §3.6) approved:
+
+- `Mat3.reflect(axis)` — the reflection matrix across the x-axis (`"x"`, `y→-y`),
+  the y-axis (`"y"`, `x→-x`), or an arbitrary line given as two points `(p0, p1)`
+  (mirror through that line, wherever it sits — computed by conjugating the
+  through-origin reflection `[[cos2θ, sin2θ],[sin2θ, -cos2θ]]` with a translation).
+- `mirror(points, axis)` — apply it to a sequence of points; the primitive for
+  building a symmetric shape from one half.
+
+Additive SDK, **no schema change** (§A.0 — the SDK computes, the document
+receives plain 2D geometry). 8 red-first tests (`tests/test_geometry_reflect.py`)
+pin the coordinate maps *and* the two structural invariants — reflection is
+orientation-reversing (`det == -1`) and an involution (`reflect ∘ reflect == I`).
+Re-exported from `framegraph.sdk`; `sdk-api.md` + `capability-manifest.json`
+regenerated. Roadmap backlog B7 → **DELIVERED**.
+
 ## Unreleased — feat(dx): `.pre-commit-config.yaml` — the same gate, earlier (§16 row 6, 2026-07-04)
 
 Closes §16 row 6. A committed `.pre-commit-config.yaml` runs the repo's own gates
