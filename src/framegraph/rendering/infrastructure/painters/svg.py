@@ -36,6 +36,12 @@ _DEFAULT_MARKER = "filled_triangle"
 
 
 class SvgPainter:
+    #: This backend composites shadow/glow/blur via SVG `<filter>` chains, so
+    #: an effect is really rendered (the Renderer emits no unsupported-effect
+    #: warning). Backends that cannot (TikZ) set this False so the loss is
+    #: reported, never silent (#44 / #53).
+    supports_filters = True
+
     def __init__(self, color_resolver, warn=None):
         self._color = color_resolver
         # Optional structured-warning sink: `warn(kind, message, **details)`.

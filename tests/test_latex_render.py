@@ -450,12 +450,12 @@ def test_transpile_page_mode_emits_tikz_transform_scopes():
 
     tex = transpile(doc)
 
-    assert r"\begin{scope}[opacity=0.82,shift={(0,22)}]" in tex
-    assert r"\begin{scope}[shift={(201,91)},yscale=1.6,shift={(-201,-91)}]" in tex
-    assert r"\begin{scope}[shift={(325,91)},yslant=0.325,shift={(-325,-91)}]" in tex
-    assert r"\begin{scope}[rotate around={20:(449,91)}]" in tex
-    assert r"\begin{scope}[rotate around={20:(544,64)}]" in tex
-    assert r"\begin{scope}[shift={(0,14)},rotate around={16:(697,91)}]" in tex
+    assert r"\begin{scope}[opacity=0.82,transform shape,shift={(0,22)}]" in tex
+    assert r"\begin{scope}[transform shape,shift={(201,91)},yscale=1.6,shift={(-201,-91)}]" in tex
+    assert r"\begin{scope}[transform shape,shift={(325,91)},yslant=0.325,shift={(-325,-91)}]" in tex
+    assert r"\begin{scope}[transform shape,rotate around={20:(449,91)}]" in tex
+    assert r"\begin{scope}[transform shape,rotate around={20:(544,64)}]" in tex
+    assert r"\begin{scope}[transform shape,shift={(0,14)},rotate around={16:(697,91)}]" in tex
 
 
 def test_transpile_page_mode_emits_raw_css_transform_scopes():
@@ -516,12 +516,12 @@ def test_transpile_page_mode_emits_raw_css_transform_scopes():
 
     tex = transpile(doc)
 
-    assert r"\begin{scope}[opacity=0.82,shift={(22,14)}]" in tex
-    assert r"\begin{scope}[shift={(201,91)},xscale=1.4,yscale=1.4,shift={(-201,-91)}]" in tex
-    assert r"\begin{scope}[rotate around={20:(325,91)}]" in tex
-    assert r"\begin{scope}[shift={(449,91)},xslant=0.287,shift={(-449,-91)}]" in tex
-    assert r"\begin{scope}[cm={1,0,0.36,1,(0,0)}]" in tex
-    assert r"\begin{scope}[rotate around={12:(668,64)},shift={(668,64)},xscale=1.1,yscale=1.1,shift={(-668,-64)}]" in tex
+    assert r"\begin{scope}[opacity=0.82,transform shape,shift={(22,14)}]" in tex
+    assert r"\begin{scope}[transform shape,shift={(201,91)},xscale=1.4,yscale=1.4,shift={(-201,-91)}]" in tex
+    assert r"\begin{scope}[transform shape,rotate around={20:(325,91)}]" in tex
+    assert r"\begin{scope}[transform shape,shift={(449,91)},xslant=0.287,shift={(-449,-91)}]" in tex
+    assert r"\begin{scope}[transform shape,cm={1,0,0.36,1,(0,0)}]" in tex
+    assert r"\begin{scope}[transform shape,rotate around={12:(668,64)},shift={(668,64)},xscale=1.1,yscale=1.1,shift={(-668,-64)}]" in tex
 
 
 def test_raw_css_transform_resolves_custom_property():
@@ -552,7 +552,7 @@ def test_raw_css_transform_resolves_custom_property():
 
     tex = transpile(doc)
 
-    assert r"\begin{scope}[rotate around={6:(30,35)}]" in tex
+    assert r"\begin{scope}[transform shape,rotate around={6:(30,35)}]" in tex
 
 
 def test_render_latex_cli_lists_framegraph_docs(tmp_path, capsys):

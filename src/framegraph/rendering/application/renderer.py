@@ -621,12 +621,36 @@ class Renderer:
                 parts.append(part)
         return "".join(parts)
 
+    def _effect_kinds(self, o, style):
+        """The effect kinds an object declares (object shadow/glow, the ordered
+        `effects` stack, and style box-shadow/filter) — for the unsupported-
+        backend warning."""
+        kinds = [k for k in ("shadow", "glow")
+                 if self._effect.resolve(o.get(k), k) is not None]
+        for entry in (o.get("effects") or []):
+            if isinstance(entry, dict) and entry.get("kind") in ("shadow", "glow"):
+                kinds.append(entry["kind"])
+        kinds.extend(kind for kind, _ in self._effect.style_effects(style))
+        return kinds
+
     def _with_effects(self, o, style, svg):
         """Wrap an object's SVG in effect filter group(s) if it declares them.
 
         Additive: emits nothing unless `shadow`/`glow` is present, so effect-free
         fixtures are byte-identical. Object effects wrap before supported style
-        effects so authored style filters apply to the fully drawn primitive."""
+        effects so authored style filters apply to the fully drawn primitive.
+
+        On a backend that cannot composite filters (e.g. TikZ, `supports_filters`
+        False) a declared effect is DROPPED — so warn once per effect, naming the
+        kind and object, rather than losing it silently (#44 / #53)."""
+        if not getattr(self._painter, "supports_filters", True):
+            kinds = self._effect_kinds(o, style)
+            for kind in kinds:
+                self.warn("unsupported_effect",
+                          f"{kind} effect dropped: this backend cannot "
+                          f"composite filters",
+                          object_id=o.get("id"), effect=kind)
+            return svg
         for kind in ("glow", "shadow"):
             params = self._effect.resolve(o.get(kind), kind)
             if params is not None:

@@ -30,6 +30,7 @@ fork still owns LaTeX output).
 from __future__ import annotations
 
 import math
+import re
 
 from framegraph.rendering.domain.geometry import fnum, is_point, num
 from framegraph.rendering.domain.services.paint_resolver import GradientPaint
@@ -40,6 +41,11 @@ from framegraph.rendering.infrastructure.latex.tikz import (
 
 
 class TikzPainter:
+    #: TikZ has no post-draw filter primitive: shadow/glow/blur cannot be
+    #: composited here, so the Renderer emits an unsupported-effect warning
+    #: per dropped effect instead of losing it silently (#44 / #53).
+    supports_filters = False
+
     def __init__(self, color_resolver=None, font_macro=None):
         # Threaded context for the two methods that need more than geometry:
         # `color_resolver` resolves gradient stop colours; `font_macro` maps a
@@ -359,43 +365,82 @@ class TikzPainter:
 
     def transform_group(self, inner, transform):
         """Wrap content in a TikZ scope formatting the neutral transform op list
-        (StyleValues.transform_ops) into TikZ scope options."""
+        (StyleValues.transform_ops) into TikZ scope options.
+
+        `transform shape` is REQUIRED: a bare TikZ scope transform moves the
+        anchor coordinates of `\\node`s but leaves the glyphs at their original
+        size/orientation, so scaled/rotated text renders untransformed (issue
+        #53). With it the whole shape — text included — obeys the scope."""
         opts = self._transform_opts(transform)
         if not opts:
             return inner
-        return f"\\begin{{scope}}[{','.join(opts)}]\n{inner}\\end{{scope}}\n"
+        return (f"\\begin{{scope}}[transform shape,{','.join(opts)}]\n"
+                f"{inner}\\end{{scope}}\n")
 
-    @staticmethod
-    def _transform_opts(ops):
+    @classmethod
+    def _transform_opts(cls, ops):
         """Neutral transform ops -> TikZ scope options. SVG and TikZ differ here:
         SVG joins `fn(args)`, TikZ uses keyed scope options (shift/rotate/scale/
-        slant/cm) and skew takes a tangent, not an angle."""
+        slant/cm) and skew takes a tangent, not an angle.
+
+        A `raw` op carries an SVG-syntax transform STRING (the neutral layer keeps
+        string transforms raw so the SVG backend stays byte-identical); TikZ cannot
+        consume SVG syntax, so parse it into `fn(args)` and format each the same
+        way as the structured ops (issue #53 — invalid `scale(0.5)` was emitted
+        verbatim and silently ignored by the TeX engine)."""
         opts = []
         for fn, args in ops:
             if fn == "raw":
-                if args and args[0]:
-                    opts.append(args[0])        # SVG-syntax passthrough (not valid TikZ)
-            elif fn == "rotate":
-                if len(args) >= 3:
-                    opts.append(f"rotate around={{{args[0]}:({args[1]},{args[2]})}}")
-                elif args:
-                    opts.append(f"rotate={args[0]}")
-            elif fn == "translate":
+                for pfn, pargs in cls._parse_svg_transform(args[0] if args else ""):
+                    opts.extend(cls._tikz_opt(pfn, pargs))
+            else:
+                opts.extend(cls._tikz_opt(fn, args))
+        return opts
+
+    @staticmethod
+    def _parse_svg_transform(text):
+        """`scale(0.5) rotate(30) translate(8, 6)` -> [(fn, [args...]), ...].
+        Comma/space-separated args; a trailing 'deg' is already stripped upstream."""
+        out = []
+        for m in re.finditer(r"([a-zA-Z]+)\s*\(([^)]*)\)", str(text or "")):
+            fn = m.group(1)
+            args = [a for a in re.split(r"[,\s]+", m.group(2).strip()) if a]
+            out.append((fn, args))
+        return out
+
+    @staticmethod
+    def _tikz_opt(fn, args):
+        """One transform function -> TikZ scope option strings."""
+        if fn == "rotate":
+            if len(args) >= 3:
+                return [f"rotate around={{{args[0]}:({args[1]},{args[2]})}}"]
+            return [f"rotate={args[0]}"] if args else []
+        if fn in ("translate", "translateX", "translateY"):
+            if fn == "translateX":
+                x, y = (args[0] if args else "0"), "0"
+            elif fn == "translateY":
+                x, y = "0", (args[0] if args else "0")
+            else:
                 x = args[0] if args else "0"
                 y = args[1] if len(args) > 1 else "0"
-                opts.append(f"shift={{({x},{y})}}")
-            elif fn == "scale":
+            return [f"shift={{({x},{y})}}"]
+        if fn in ("scale", "scaleX", "scaleY"):
+            if fn == "scaleX":
+                sx, sy = (args[0] if args else "1"), "1"
+            elif fn == "scaleY":
+                sx, sy = "1", (args[0] if args else "1")
+            else:
                 sx = args[0] if args else "1"
                 sy = args[1] if len(args) > 1 else sx
-                opts.append(f"xscale={sx}")
-                opts.append(f"yscale={sy}")
-            elif fn == "skewX" and args:
-                opts.append(f"xslant={fnum(math.tan(math.radians(num(args[0], 0))))}")
-            elif fn == "skewY" and args:
-                opts.append(f"yslant={fnum(math.tan(math.radians(num(args[0], 0))))}")
-            elif fn == "matrix" and len(args) >= 6:
-                opts.append(f"cm={{{args[0]},{args[1]},{args[2]},{args[3]},({args[4]},{args[5]})}}")
-        return opts
+            return [f"xscale={sx}", f"yscale={sy}"]
+        if fn == "skewX" and args:
+            return [f"xslant={fnum(math.tan(math.radians(num(args[0], 0))))}"]
+        if fn == "skewY" and args:
+            return [f"yslant={fnum(math.tan(math.radians(num(args[0], 0))))}"]
+        if fn == "matrix" and len(args) >= 6:
+            return [f"cm={{{args[0]},{args[1]},{args[2]},{args[3]},"
+                    f"({args[4]},{args[5]})}}"]
+        return []
 
     # ---- image ------------------------------------------------------------ #
     def image(self, x, y, w, h, href, preserve_aspect_ratio="xMidYMid meet"):

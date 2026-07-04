@@ -87,7 +87,9 @@ def test_transform_ops_to_tikz_scope():
     # options — proving 3b-3b's value objects work across backends.
     p = TikzPainter()
     out = p.transform_group("BODY", [("translate", ["3", "4"]), ("scale", ["2"])])
-    assert out == "\\begin{scope}[shift={(3,4)},xscale=2,yscale=2]\nBODY\\end{scope}\n"
+    # `transform shape` extends the scope transform to \node text (#53)
+    assert out == ("\\begin{scope}[transform shape,shift={(3,4)},"
+                   "xscale=2,yscale=2]\nBODY\\end{scope}\n")
     rot = p.transform_group("X", [("rotate", ["30", "10", "20"])])
     assert "rotate around={30:(10,20)}" in rot
     mat = p.transform_group("X", [("matrix", ["1", "0", "0", "1", "5", "6"])])

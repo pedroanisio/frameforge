@@ -4,6 +4,36 @@
 
 ---
 
+## Unreleased — fix(pdf-tex): transforms reach text; effect + appearance stacks render (2026-07-04, issue #53)
+
+Three silent-fidelity gaps on the `--to pdf-tex` path (the
+`latex.tikz.FigureTikz` transpiler), all operator-reported from the book
+PDF and verified in rasterized pixels:
+
+- **`style.transform` now reaches text.** A TikZ scope transform moves
+  `\node` ANCHORS but leaves glyphs unscaled/unrotated — a 0.5-scaled
+  group painted full-size text over shrunken geometry. The transform scope
+  now carries `transform shape`, so text obeys it (repro: scaled "SCALED?"
+  text ended at x≈331 of 400 before, x≈175 after). Fixed in both the
+  transpiler and the injectable `TikzPainter`; the painter's `raw`
+  transform branch also now parses SVG-syntax `scale(0.5)` into valid TikZ
+  `xscale/yscale` (it was emitting invalid `scale(0.5)` the TeX engine
+  ignored).
+- **The 2.4.0 `effects` stack renders.** The ordered stack was dropped
+  silently — only the legacy `shadow`/`glow` fields got the flat
+  approximation. Stack entries now get the same shadow/spread-glow
+  approximation (blur is approximated, never silent).
+- **The 2.4.0 `appearance` stack renders.** Multiple paint passes were
+  collapsed to the bare geometry; each pass now paints its own path,
+  bottom→top, mirroring the Renderer's `_appearance_stack`.
+
+The `TikzPainter` ScenePainter port (no filter primitive at all) declares
+`supports_filters = False` and the Renderer warns per dropped effect
+rather than losing it silently (#44). 12 red-first tests
+(`tests/test_tikz_fidelity.py`); the pinned latex-scope assertions that
+encoded the old bug were corrected. SVG output is byte-identical (goldens
+unmoved).
+
 ## Unreleased — item 8: the Book composition API (2026-07-03)
 
 `framegraph.sdk.book` — the semantic authoring layer above pages

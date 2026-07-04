@@ -172,6 +172,9 @@ class FigureTikz:
     def _draw(self, o) -> str:
         if self._is_hidden(o):
             return ""
+        passes = o.get("appearance")
+        if isinstance(passes, (list, tuple)) and passes:
+            return self._draw_appearance(o, passes)
         t = o.get("type")
         fn = getattr(self, f"_draw_{t.replace('.', '_')}", None) if isinstance(t, str) else None
         if fn is None:
@@ -185,6 +188,30 @@ class FigureTikz:
         except Exception:
             self.skipped += 1
             return ""
+
+    def _draw_appearance(self, o, passes):
+        """The appearance stack (2.4.0, W4): paint the geometry once per pass,
+        bottom→top — each pass paints only what it declares. Previously the
+        pdf-tex path drew the bare object and dropped every pass silently
+        (#53). Mirrors the Renderer's `_appearance_stack`."""
+        base = {k: v for k, v in o.items()
+                if k not in ("appearance", "id", "bind", "effects",
+                             "shadow", "glow", "opacity",
+                             "fill", "stroke", "stroke_style")}
+        out = []
+        for p in passes:
+            if not isinstance(p, dict):
+                continue
+            clone = dict(base)
+            clone["fill"] = p["fill"] if p.get("fill") is not None else "none"
+            if p.get("stroke") is not None:
+                clone["stroke"] = p["stroke"]
+            if p.get("stroke_style") is not None:
+                clone["stroke_style"] = p["stroke_style"]
+            if p.get("opacity") is not None:
+                clone["opacity"] = p["opacity"]
+            out.append(self._draw(clone))
+        return self._wrap_object(o, "".join(out))
 
     def _is_hidden(self, o):
         style = self._style_dict(o)
@@ -238,6 +265,10 @@ class FigureTikz:
             opts.append(f"opacity={fnum(num(opacity, 1))}")
         transform = self._tikz_transform(o)
         if transform:
+            # `transform shape` is REQUIRED for the transform to reach `\node`
+            # text: a bare TikZ scope transform moves node ANCHORS but leaves the
+            # glyphs unscaled/unrotated, so transformed text renders wrong (#53).
+            opts.append("transform shape")
             opts += transform
         return f"\\begin{{scope}}[{','.join(opts)}]\n{body}\\end{{scope}}\n" if opts else body
 
@@ -953,6 +984,24 @@ class FigureTikz:
         specs = []
         for kind in ("glow", "shadow"):
             params = self._effect.resolve(o.get(kind), kind)
+            if params is not None:
+                specs.append((kind, params))
+        # the ordered `effects` stack (2.4.0, W4): each entry gets the same flat
+        # shadow / spread-glow approximation as the legacy fields — previously
+        # the stack was dropped silently on the pdf-tex path (#53). Blur is
+        # approximated (TikZ has no true post-draw filter), never silent.
+        for entry in (o.get("effects") or []):
+            if not isinstance(entry, dict):
+                continue
+            kind = entry.get("kind")
+            if kind not in ("shadow", "glow"):
+                continue
+            base = (self._effect.resolve(entry["preset"], kind) or {}
+                    if entry.get("preset") else {})
+            merged = {k: entry[k] if entry.get(k) is not None else base.get(k)
+                      for k in ("color", "blur", "dx", "dy", "opacity")}
+            merged = {k: v for k, v in merged.items() if v is not None}
+            params = self._effect.resolve(merged or True, kind)
             if params is not None:
                 specs.append((kind, params))
         style = self._style_dict(o)

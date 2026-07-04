@@ -89,6 +89,11 @@ class ScenePainter(Protocol):
     def marker(self, color: str, kind: str = "filled_triangle") -> str:
         """Register an arrowhead marker for (kind, colour); return its handle."""
 
+    #: Whether this backend can composite shadow/glow/blur effects. When False
+    #: the Renderer skips the (no-op) filter wrap and emits a structured
+    #: unsupported-effect warning instead of dropping the effect silently.
+    supports_filters: bool
+
     def filter_effect(self, kind: str, params: dict) -> str:
         """Register a shadow/glow filter for params; return its handle."""
 
