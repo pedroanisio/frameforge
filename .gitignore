@@ -31,3 +31,10 @@ static/examples/*.png
 static/examples/*.svg
 screenshot-primitives-reconstruction*
 Screenshot From 2026-07-03 23-31-49.png
+static/trials/
+framegraph-reconstruction-e*
+2030.wav
+tooling/create_reconstruction_evolution_video.py
+tooling/create_reconstruction_evolution_svgpaths_video.py
+tooling/create_geometry_svgdom_video.py
+juliana-backcover.svg
