@@ -271,3 +271,50 @@ def test_flow_section_renders_labelled_placeholder_not_empty():
     assert "flow section" in out
     assert "<code>ch1</code>" in out
     assert "2 flowable(s)" in out
+
+
+# --------------------------------------------------------------------------- #
+# Paint fidelity: gradients, fill_opacity, group transforms                    #
+# (regressions for the gray page-background + missing badge-number bugs)       #
+# --------------------------------------------------------------------------- #
+_RADIAL = {"kind": "radial", "at": "50% 50%", "shape": "circle",
+           "stops": [{"color": "#F8F3EA", "position": "0%"},
+                     {"color": "#F3EEE4", "position": "100%"}]}
+
+
+def test_gradient_rect_emits_real_css_gradient_not_gray():
+    out = fgh.render_document(_doc([
+        {"type": "rect", "id": "bg", "box": [0, 0, 400, 300], "fill": _RADIAL}]))
+    assert "radial-gradient" in out
+    assert "#F3EEE4" in out and "#F8F3EA" in out
+    assert "#888888" not in out           # the old flat-gray fallback is gone
+
+
+def test_gradient_polygon_emits_svg_gradient_def_not_gray():
+    out = fgh.render_document(_doc([
+        {"type": "polygon", "points": [[0, 0], [100, 0], [50, 80]], "fill": _RADIAL}]))
+    assert "<radialGradient" in out
+    assert "fill:url(#fgg-" in out
+    assert "#888888" not in out
+
+
+def test_fill_opacity_tints_a_circle_so_overlaid_text_stays_legible():
+    # a badge: a 20%-opacity coloured disc with the number in the same colour on
+    # top. Without fill_opacity the disc is solid and hides the number.
+    out = fgh.render_document(_doc([
+        {"type": "circle", "id": "b", "center": [40, 40], "r": 9,
+         "fill": "#A6442E", "fill_opacity": 0.2}]))
+    assert "rgba(166,68,46,0.2)" in out
+
+
+def test_group_style_transform_is_applied_to_the_group_div():
+    # the transform rides in the `style` bag (a CSS property), placing the whole
+    # subtree — here a translate onto the page.
+    group = {
+        "type": "group", "style": {"transform": [
+            {"fn": "matrix", "args": [1.0, 0.0, 0.0, 1.0, 76.0, 76.0]}]},
+        "children": [{"type": "rect", "id": "k", "box": [0, 0, 10, 10], "fill": "#000000"}],
+    }
+    out = fgh.render_document(_doc([group]))
+    assert "transform:matrix(1,0,0,1,76,76)" in out
+    assert "transform-origin:0 0" in out

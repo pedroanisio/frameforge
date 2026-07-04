@@ -44,8 +44,9 @@ layouts. Canvas size is resolved from an inline ``size`` or a named preset
 The *document/flow* profile (paragraphs, headings, tables, TOC, ``mode:
 flow`` ...) is out of scope: a ``flow`` page becomes a labelled placeholder
 and the still-unsupported object types (table, bullet_list, dimension) are
-emitted as labelled placeholders — never silently dropped. ``fill`` paints
-that are gradients/patterns degrade to a flat colour on SVG shapes.
+emitted as labelled placeholders — never silently dropped. Gradient ``fill``
+paints render for real (a CSS gradient on div shapes, an SVG gradient ``<defs>``
+on inline shapes); only ``pattern`` paints still degrade to a flat colour.
 
 Usage
 -----
@@ -563,6 +564,65 @@ class Renderer:
         return ident
 
     # -- shared attributes ------------------------------------------------- #
+    @staticmethod
+    def _transform_css(ops: Any) -> str | None:
+        """A CSS ``transform`` string from a model ``transform`` op list.
+
+        CSS ``matrix(a,b,c,d,e,f)`` shares the model's affine convention, so the
+        common ``matrix``/``translate`` ops map 1:1 (translate lets a group place
+        its whole subtree — e.g. ``Mat3.translate`` onto a page)."""
+        if not isinstance(ops, list):
+            return None
+        out: list[str] = []
+        for op in ops:
+            if not isinstance(op, dict):
+                continue
+            fn, args = op.get("fn"), (op.get("args") or [])
+            if fn == "matrix" and len(args) == 6:
+                out.append("matrix(" + ",".join(f"{_num(a):g}" for a in args) + ")")
+            elif fn == "translate" and args:
+                out.append("translate(" + ",".join(f"{_num(a):g}px" for a in args[:2]) + ")")
+            elif fn == "scale" and args:
+                out.append("scale(" + ",".join(f"{_num(a):g}" for a in args[:2]) + ")")
+            elif fn == "rotate" and args:
+                out.append(f"rotate({_num(args[0]):g}deg)")
+            elif fn in ("skewX", "skewY") and args:
+                out.append(f"{fn}({_num(args[0]):g}deg)")
+        return " ".join(out) if out else None
+
+    @staticmethod
+    def _hex_rgb(color: Any) -> tuple[int, int, int] | None:
+        """(r, g, b) from a ``#rgb``/``#rrggbb`` literal, else None (so tokens /
+        named colours that cannot take an inline alpha are left untouched)."""
+        if not isinstance(color, str) or not color.startswith("#"):
+            return None
+        c = color[1:]
+        if len(c) == 3:
+            c = "".join(ch * 2 for ch in c)
+        if len(c) != 6:
+            return None
+        try:
+            return int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
+        except ValueError:
+            return None
+
+    @classmethod
+    def _with_opacity(cls, color: str, op: Any) -> str:
+        """Fold a ``fill_opacity`` into a hex colour as ``rgba(...)`` (so a tinted
+        fill stays tinted rather than rendering solid and hiding overlaid text)."""
+        if op is None:
+            return color
+        try:
+            o = float(op)
+        except (TypeError, ValueError):
+            return color
+        if o >= 1:
+            return color
+        rgb = cls._hex_rgb(color)
+        if rgb is None:
+            return color
+        return f"rgba({rgb[0]},{rgb[1]},{rgb[2]},{o:g})"
+
     def _common(self, obj: dict, x: float, y: float, w: float, h: float,
                 extra_classes: Iterable[str] = (), extra_css: dict | None = None,
                 extra_attrs: dict | None = None):
@@ -574,13 +634,28 @@ class Renderer:
         }
         if obj.get("opacity") is not None:
             css["opacity"] = str(obj["opacity"])
-        rot = obj.get("rotation")
-        if rot is not None:
-            if isinstance(rot, dict):
-                ang = _num(rot.get("angle"))
-                css["transform"] = f"rotate({ang}deg)"
-            else:
-                css["transform"] = f"rotate({_num(rot)}deg)"
+        # A full `transform` op list (matrix/translate/scale/rotate/skew) wins and
+        # is applied from the top-left origin to match the model's page-space
+        # affine math; otherwise the `rotation` convenience field (centre origin).
+        # `transform` is a CSS/Style property, so it rides in the `style` bag
+        # (e.g. a group's `Mat3.translate(...)` placing its whole subtree); accept
+        # a top-level one too for resilience.
+        style = obj.get("style")
+        tf_ops = obj.get("transform")
+        if tf_ops is None and isinstance(style, dict):
+            tf_ops = style.get("transform")
+        tf = self._transform_css(tf_ops)
+        if tf:
+            css["transform"] = tf
+            css["transform-origin"] = "0 0"
+        else:
+            rot = obj.get("rotation")
+            if rot is not None:
+                if isinstance(rot, dict):
+                    ang = _num(rot.get("angle"))
+                    css["transform"] = f"rotate({ang}deg)"
+                else:
+                    css["transform"] = f"rotate({_num(rot)}deg)"
         if extra_css:
             css.update(extra_css)
         classes = ["fg-obj", f"fg-{obj.get('type','obj')}", *extra_classes]
@@ -655,6 +730,9 @@ class Renderer:
                 decls.append("fill:#888888")      # pattern — not yet supported
         elif fillable and fill is not None:
             decls.append(f"fill:{self.tokens.color(fill)}")
+            fo = obj.get("fill_opacity")
+            if fo is not None:
+                decls.append(f"fill-opacity:{_num(fo, 1.0):g}")
         else:
             decls.append("fill:none")
         # stroke: stroke_style (token bundle or inline), overridden by `stroke`
@@ -764,7 +842,7 @@ class Renderer:
         if _is_gradient(raw):
             css["background"] = self._gradient_css(raw)
         elif not isinstance(raw, dict) and (fill := self.tokens.color(raw)) is not None:
-            css["background"] = fill
+            css["background"] = self._with_opacity(fill, obj.get("fill_opacity"))
         radius = obj.get("radius")
         if radius is not None:
             css["border-radius"] = f"{_num(radius)}px"
@@ -818,7 +896,7 @@ class Renderer:
         if _is_gradient(raw):
             css["background"] = self._gradient_css(raw)
         elif not isinstance(raw, dict) and (fill := self.tokens.color(raw)) is not None:
-            css["background"] = fill
+            css["background"] = self._with_opacity(fill, obj.get("fill_opacity"))
         border = self._border(obj)
         if border:
             css["border"] = border
@@ -1161,7 +1239,7 @@ class HtmlDocumentRenderer:
 
     target = "html"
     kind = "web"
-    blurb = "HTML/CSS (semantic; flow + gradient limits)"
+    blurb = "HTML/CSS (semantic; flow-mode limits)"
 
     def available(self) -> "str | None":
         return None  # pure Python — no optional dependency, no external binary
