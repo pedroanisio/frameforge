@@ -128,9 +128,9 @@ Rules of reading:
 
 The gate is the contract for "done." It has **one definition**, run two places.
 
-- **`[Enforced]`** `make check` runs **twelve** gates ([Makefile:45](../Makefile#L45)):
-  `schema-check grammar-check spec-check a11y-check status-check test validate overflow
-  golden-check docs-check docs-linkcheck disclaimer-check`.
+- **`[Enforced]`** `make check` runs **thirteen** gates ([Makefile:64](../Makefile#L64)):
+  `schema-check grammar-check spec-check a11y-check status-check ruff-check test validate
+  overflow golden-check docs-check docs-linkcheck disclaimer-check`.
   A change is not done until it passes.
   - `schema-check` — `uv run python docs/schema/build_schema.py --check`: fails if the committed
     [docs/schema/framegraph-v2.schema.json](./schema/framegraph-v2.schema.json) drifted from the
@@ -191,17 +191,22 @@ The gate is the contract for "done." It has **one definition**, run two places.
 
 ## 4. Code style (ruff)
 
-- **`[Enforced — non-gating]`** `ruff` is the linter, fetched ephemerally via `uvx`. It is
-  deliberately **non-blocking** today: `make lint` runs `-uvx ruff check .` (leading `-`
-  ignores failure, [Makefile:116-117](../Makefile#L116-L117)) and CI runs it with
-  `continue-on-error: true` ([ci.yml:30-32](../.github/workflows/ci.yml#L30-L32)). Lint
-  output is advisory; a lint failure does **not** fail the build.
-- **`[Target]`** A committed, gating ruff configuration. When adopted, the intended shape is:
-  line length **100**; rule families `E, F, W, I, UP, B, C4, SIM, RET, D`; ignore `E501`
-  (the formatter owns line length), `D203`, `D213`; **Google** docstring convention; per-file
-  `D` exemptions for tests and dev/maintenance scripts (docstring rigor reserved for the
-  public surface). **None of this is in [pyproject.toml](../pyproject.toml) today** — there is
-  no `[tool.ruff]` section. Until there is, treat the ruleset above as the target, not a rule.
+- **`[Enforced — non-gating]`** The **full** ruff ruleset is advisory: `make lint` runs
+  `-uvx ruff check .` (leading `-` ignores failure, [Makefile:138-139](../Makefile#L138-L139))
+  and CI runs it with `continue-on-error: true`
+  ([ci.yml:30-32](../.github/workflows/ci.yml#L30-L32)). A broad lint failure does **not**
+  fail the build (the tree still carries F401/F841 findings).
+- **`[Enforced]`** A **gating** subset does block: `make ruff-check` (in `make check`, §3)
+  runs `ruff check --select F811` — redefinition, a real-bug rule with no false positives
+  that protects the source-of-truth model from name collisions (the `Image` alias/class
+  clash, fixed 2026-07-04). A committed `[tool.ruff]` section
+  ([pyproject.toml](../pyproject.toml)) pins `target-version = "py310"` and documents the
+  two tiers.
+- **`[Target]`** Broaden the gated set toward the full intended ruleset: line length **100**;
+  rule families `E, F, W, I, UP, B, C4, SIM, RET, D`; ignore `E501` (the formatter owns line
+  length), `D203`, `D213`; **Google** docstring convention; per-file `D` exemptions for tests
+  and dev/maintenance scripts. The blockers are the current F401/F841 volume; the gated set
+  grows as those are cleaned.
 - **`[Target]`** `ruff format` as the formatter, with no formatter diffs allowed to land,
   and a `make fix` (`ruff check --fix . && ruff format .`) autofix path.
 
@@ -508,7 +513,7 @@ explicit and shrinking, never silently assumed-met. Complexity scale per §12.
 
 | # | Target | Today | Section | Complexity |
 |---|---|---|---|---|
-| 1 | Gating ruff config (`[tool.ruff]`, ruleset, format) | non-gating `uvx ruff check .` | §4 | S |
+| 1 | Gating ruff config — **broaden** the gated set (F401/F841 + families) + `ruff format` | `[tool.ruff]` exists; `make ruff-check` gates **F811** in `make check`; `make lint` still informational | §4 | S |
 | 2 | `mypy --strict` + `pydantic.mypy`, in the gate | absent entirely | §5 | M |
 | 3 | Coverage measured + gated (target 90% branch) | not measured | §7 | M |
 | 4 | TDD loop + `unit`/`integration` trees | flat `tests/` (~130 modules; hypothesis landed) | §6 | M |

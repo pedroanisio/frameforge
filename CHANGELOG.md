@@ -4,6 +4,38 @@
 
 ---
 
+## Unreleased — fix(model): resolve the `Image` alias/class name collision + gate F811 (2026-07-04)
+
+The source-of-truth model bound `Image` to two different meanings: a paint-value
+type alias `Image = Union[Gradient, UrlImage, str]` (line 187) **and** the `Image`
+object class (the `type: "image"` visual object). Under `from __future__ import
+annotations`, field annotations resolve lazily against the module namespace, so
+which `Image` a field binds to is **definition-order dependent** — the three
+fields annotated `Image` (`BackgroundLayer.image`, `Style/StrokeStyle/
+TextStyle.background_image`, `.mask`) resolve to the alias *only* because their
+classes are defined before line 1089 rebinds the name to the class. A field added
+after the class would silently bind to the OBJECT instead. ruff flags it F811.
+
+Fixed at root: the alias is renamed `ImagePaint` (the object class keeps `Image`);
+the three annotations updated. **Schema is byte-identical** — the resolved field
+types are unchanged (`Union[Gradient, UrlImage, str]`), verified by
+`build_schema.py --check` — so this is **not** a schema change and carries no
+version bump. The second F811 in the tree — `tests/test_sdk.py` shadowed the
+imported `hatch()` helper with a local of the same name, so the helper went
+untested — is fixed by actually calling `hatch(...)` (real coverage) under a
+distinct local name.
+
+Guards (PALS's Law — the fix ships with the gate that prevents its return):
+
+- `tests/test_model_no_name_collisions.py` — a dependency-free AST check that no
+  module-level name in the model is bound to **both** a class and a type alias.
+- `make ruff-check` (new, **thirteenth** gate in `make check`) runs
+  `ruff check --select F811`; a committed `[tool.ruff]` section pins
+  `target-version = "py310"` and documents the tiering. This lands the gating
+  half of codebase-standards §16 row 1 (scoped to F811; broadening to F401/F841
+  and `ruff format` is the row's remaining expansion). `make lint` stays the full
+  informational (non-gating) ruff run.
+
 ## Unreleased — feat(packaging): honest 3.10–3.12 support — CI matrix + classifiers (§16 row 8, 2026-07-04)
 
 Closes §16 row 8 and fixes a live correctness gap: the `>=3.10` support claim

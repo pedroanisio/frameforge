@@ -541,8 +541,10 @@ def test_paint_rgba_and_gradient_constructors_lower_to_valid_paint():
         ["0%", "50%", "100%"]
     rg = radial_gradient([("#FFF7D8", 0.0), (rgba("#FFF7D8", 0.0), 1.0)], at="50% 40%")
     assert rg["kind"] == "radial" and rg["at"] == "50% 40%"
-    hatch = pattern("hatch", fg="#334155", bg="#f8fafc", scale=8, angle=45)
-    assert hatch == {
+    # exercise the hatch() helper (previously shadowed by a local of the same
+    # name, so it went untested); it is defined as pattern("hatch", ...).
+    hatch_paint = hatch(fg="#334155", bg="#f8fafc", scale=8, angle=45)
+    assert hatch_paint == {
         "kind": "pattern",
         "pattern": "hatch",
         "angle": 45,
@@ -550,7 +552,7 @@ def test_paint_rgba_and_gradient_constructors_lower_to_valid_paint():
         "stroke": "#334155",
         "background": "#f8fafc",
     }
-    assert hatch == pattern("hatch", fg="#334155", bg="#f8fafc", scale=8, angle=45)
+    assert hatch_paint == pattern("hatch", fg="#334155", bg="#f8fafc", scale=8, angle=45)
     assert dots(fg="#111", scale=6) == {"kind": "pattern", "pattern": "dots",
                                         "spacing": 6, "stroke": "#111"}
     assert grid_pattern(fg="#111", bg="#fff", scale=12)["pattern"] == "grid"
@@ -560,7 +562,7 @@ def test_paint_rgba_and_gradient_constructors_lower_to_valid_paint():
                          coordinate_mode="absolute").layer("a")
     layer.rect([0, 0, 200, 200], fill=lg)
     layer.ellipse([100, 100], 60, 60, fill=rg)
-    layer.rect([20, 20, 40, 40], fill=hatch)
+    layer.rect([20, 20, 40, 40], fill=hatch_paint)
     doc = builder.build()
     assert doc.pages[0].layers[0].objects[0].fill.kind == "linear"
     assert doc.pages[0].layers[0].objects[1].fill.kind == "radial"

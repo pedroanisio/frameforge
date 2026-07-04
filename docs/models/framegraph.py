@@ -184,8 +184,11 @@ class UrlImage(FG):
     url: str = Field(description="Image source: url(...), data: URI, or a defs.assets key.")
 
 
-Image = Union[Gradient, UrlImage, str]            # url("…")/data-uri/token, or a gradient
+ImagePaint = Union[Gradient, UrlImage, str]       # image paint value: url("…")/data-uri/token, or a gradient
 Paint = Union[Gradient, Pattern, UrlImage, str]   # "none"|"currentColor"|<color>|<image>|<pattern>
+# NOTE: this alias was named `Image`, colliding with the `Image` object class
+# below (§visual objects). Under `from __future__ import annotations` that made
+# field-type resolution definition-order dependent; renamed to free the name.
 
 
 # ---- supporting value types ----
@@ -306,7 +309,7 @@ TextDecorationVal = Union[str, TextDecoration]
 
 class BackgroundLayer(FG):
     color: Optional[Color] = Field(default=None, description="Layer background colour.")
-    image: Optional[Image] = Field(
+    image: Optional[ImagePaint] = Field(
         default=None, description="Layer background image: url/data URI/asset token or a gradient.")
     position: Optional[str] = Field(
         default=None, description="CSS background-position string for this layer.")
@@ -474,7 +477,7 @@ class Style(FG):
     background: Optional[Union[str, list[BackgroundLayer]]] = Field(
         default=None, description="Background: CSS shorthand string or explicit layer list.")
     background_color: Optional[Color] = Field(default=None, description="Background colour.")
-    background_image: Optional[Union[Image, list[Image]]] = Field(
+    background_image: Optional[Union[ImagePaint, list[ImagePaint]]] = Field(
         default=None, description="Background image(s): url/data URI/asset token or gradient(s).")
     background_position: Optional[str] = Field(
         default=None, description="CSS background-position string.")
@@ -530,7 +533,7 @@ class Style(FG):
         default=None, description="isolate creates a new stacking/blending context.")
     clip_path: Optional[ClipPathVal] = Field(
         default=None, description="Clip region: CSS basic-shape string or ClipPath object.")
-    mask: Optional[Union[Literal["none"], Image, str]] = Field(
+    mask: Optional[Union[Literal["none"], ImagePaint, str]] = Field(
         default=None, description="Mask source: 'none', an image/gradient, or a reference string.")
     # transforms
     transform: Optional[Union[Literal["none"], str, list[TransformFn]]] = Field(
