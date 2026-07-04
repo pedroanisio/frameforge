@@ -1586,6 +1586,7 @@ Graph() -> 'None'
 | `radial_layout` | `(self, root: 'str', *, ring: 'float' = 1.0) -> 'dict[str, Vec2]'` | Concentric rings by BFS distance from ``root`` (a tree/hub view). |
 | `render` | `(self, positions: 'dict[str, Point] \| None' = None, *, box: 'Sequence[float]', camera: 'Camera \| Mat4 \| None' = None, node_radius: 'float' = 9.0, node_fill: 'str' = '#1d4ed8', node_stroke: 'str' = '#0b1f4d', node_stroke_width: 'float' = 1.5, edge_color: 'str' = '#94a3b8', edge_width: 'float' = 1.5, labels: 'bool' = True, label_color: 'str' = '#0f172a', label_size: 'float' = 11.0, font_family: 'Sequence[str]' = ('DejaVu Sans', 'Arial', 'sans-serif'), id: 'str \| None' = None) -> 'dict[str, object]'` | Render the graph to one FrameGraph ``group`` fitted into ``box``. |
 | `spring_layout` | `(self, *, iterations: 'int' = 220, k: 'float \| None' = None, seed_radius: 'float' = 1.0) -> 'dict[str, Vec2]'` | Deterministic Fruchterman–Reingold force layout. |
+| `to_object` | `(self, *, box: 'Sequence[float]', algorithm: 'str' = 'auto', id: 'str \| None' = None, **render_style: 'object') -> 'dict[str, object]'` | Emit a declarative ``type: graph`` object — the render-time |
 
 ### `Node`
 

@@ -4,6 +4,33 @@
 
 ---
 
+## Unreleased — item 1: declarative graph auto-layout (the render-time bridge, 2026-07-04)
+
+`sdk.topology.Graph` already computed node placements from declared edges,
+but only author-side (call a layout method, bake the coordinates). This
+wires it as a DECLARATIVE, expansion-tier form (roadmap item 1 — the
+missing render-time bridge; the placement math was already done):
+
+- A grammar-level `type: graph` object (`nodes` + `edges` + `algorithm`) is
+  lowered by `sdk.expand` into a positioned core `group` — the SDK computes,
+  the document receives plain `ellipse`/`polyline`/`text` geometry (§A.0).
+  `algorithm: auto` infers grid/radial/layered/spring from structure; a
+  node's `pos` OVERRIDES the computed position. **No schema change**: `graph`
+  is a pre-expansion authoring type, exactly like `use`/`component`, and
+  never reaches the validated document.
+- `Graph.to_object(box=…, algorithm=…)` emits that declarative form fluently
+  (positions NOT baked — the same declaration always lays out the same way).
+- The `expand` early-return now also detects self-contained `graph` objects,
+  so a document with no `defs.symbols`/`components` still lowers them; a
+  document with no expansion form is byte-identical through `expand` (golden
+  stability preserved).
+
+13 red-first tests (`tests/test_sdk_graph_expand.py`); fixture
+`graph-autolayout.fg.yaml` (four graphs: auto→layered/radial/spring + an
+explicit circular override), pixel-verified 0 clipped/0 uncontained;
+runnable `static/examples/graph_autolayout_demo.py`; MCP guide bullet
+(drift-gated). Roadmap item 1 → **DONE** (residual: optional ELK binding).
+
 ## Unreleased — fix(pdf-tex): transforms reach text; effect + appearance stacks render (2026-07-04, issue #53)
 
 Three silent-fidelity gaps on the `--to pdf-tex` path (the

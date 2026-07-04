@@ -294,6 +294,46 @@ class Graph:
             return self.layered_layout(**overrides)
         return self.spring_layout(**overrides)
 
+    # -- declarative form (lowered by sdk.expand, roadmap item 1) ---------- #
+    def to_object(self, *, box: Sequence[float], algorithm: str = "auto",
+                  id: str | None = None, **render_style: object,
+                  ) -> dict[str, object]:
+        """Emit a declarative ``type: graph`` object — the render-time
+        auto-layout form that :func:`framegraph.sdk.expand` lowers into a
+        positioned group. Prefer this over :meth:`render` when you want the
+        placement computed at expansion time (positions are NOT baked here):
+        the same declared nodes/edges always lay out the same way, and a node's
+        ``pos`` overrides the algorithm. ``render_style`` passes through
+        (node_fill, edge_color, labels, …)."""
+        obj: dict[str, object] = {"type": "graph", "box": list(box),
+                                  "algorithm": algorithm}
+        if id is not None:
+            obj["id"] = id
+        nodes: list[dict[str, object]] = []
+        for n in self._nodes.values():
+            entry: dict[str, object] = {"id": n.id}
+            if n.label is not None:
+                entry["label"] = n.label
+            if n.weight != 1.0:
+                entry["weight"] = n.weight
+            if n.pos is not None:
+                entry["pos"] = list(n.pos)
+            nodes.append(entry)
+        obj["nodes"] = nodes
+        edges: list[dict[str, object]] = []
+        for e in self._edges:
+            entry = {"from": e.src, "to": e.dst}
+            if e.directed:
+                entry["directed"] = True
+            if e.label is not None:
+                entry["label"] = e.label
+            if e.weight != 1.0:
+                entry["weight"] = e.weight
+            edges.append(entry)
+        obj["edges"] = edges
+        obj.update(render_style)
+        return obj
+
     # -- rendering ---------------------------------------------------------- #
     def render(
         self,

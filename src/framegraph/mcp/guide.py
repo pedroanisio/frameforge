@@ -44,6 +44,10 @@ Fluent builder:
   - `multiview(scene, box=...)` — orthographic front/top/side/iso panel grid of a `Scene3D`.
   - `Graph.render(box=...)` auto-lays-out from declared edges (`auto_layout`/`layout_kind`);
     omit `positions` and the algorithm is inferred (grid/radial/layered/spring).
+  - `Graph.to_object(box=..., algorithm="auto")` emits a DECLARATIVE `type: graph`
+    object that `sdk.expand` lowers into a positioned group at expansion time —
+    the render-time auto-layout bridge (nodes+edges in, computed geometry out;
+    a node's `pos` overrides the algorithm). Prefer it over baking coordinates.
 - Figures (`framegraph.sdk.figure`): `place_figure(source, box)` / `load_figure` /
   `FigureRef` import another FrameGraph page's objects as editable children (not a frozen
   image); `FigureAsset` / `place_imported_figure` place an extracted book/PDF figure with

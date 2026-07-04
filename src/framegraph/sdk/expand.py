@@ -104,11 +104,23 @@ def _plain_input(model: Any) -> dict[str, Any]:
     return validate_document(model).model_dump(by_alias=True, exclude_none=True)
 
 
+def _has_expandable(node: Any) -> bool:
+    """True if any object in the tree is a self-contained expansion form
+    (`graph`) that needs lowering even without defs.symbols/components."""
+    if isinstance(node, dict):
+        if node.get("type") == "graph":
+            return True
+        return any(_has_expandable(v) for v in node.values())
+    if isinstance(node, list):
+        return any(_has_expandable(v) for v in node)
+    return False
+
+
 def _expand_reuse(data: dict[str, Any]) -> dict[str, Any]:
     defs = data.get("defs") if isinstance(data.get("defs"), dict) else {}
     symbols = defs.get("symbols") if isinstance(defs.get("symbols"), dict) else {}
     components = defs.get("components") if isinstance(defs.get("components"), dict) else {}
-    if not symbols and not components:
+    if not symbols and not components and not _has_expandable(data.get("pages")):
         return data
     out = copy.deepcopy(data)
     for page in out.get("pages") or []:
@@ -142,6 +154,8 @@ def _expand_object(obj: Any, symbols: dict[str, Any], components: dict[str, Any]
         return _expand_use(obj, symbols, components)
     if kind == "component":
         return _expand_component(obj, components)
+    if kind == "graph":
+        return _expand_graph(obj)
     out = copy.deepcopy(obj)
     if isinstance(out.get("children"), list):
         out["children"] = [_expand_object(child, symbols, components) for child in out["children"]]
@@ -238,6 +252,89 @@ def _expand_component(obj: dict[str, Any], components: dict[str, Any]) -> dict[s
         if key in obj:
             group[key] = obj[key]
     return group
+
+
+#: render() styling keys a `graph` object may pass through verbatim.
+_GRAPH_RENDER_KEYS = frozenset({
+    "node_radius", "node_fill", "node_stroke", "node_stroke_width",
+    "edge_color", "edge_width", "labels", "label_color", "label_size",
+    "font_family",
+})
+#: named layout algorithms a `graph` object may request.
+_GRAPH_ALGORITHMS = frozenset({
+    "auto", "layered", "spring", "radial", "circular", "grid",
+})
+
+
+def _expand_graph(obj: dict[str, Any]) -> dict[str, Any]:
+    """Lower a declarative ``type: graph`` object into a positioned core
+    ``group`` (roadmap item 1 — the render-time auto-layout bridge).
+
+    Builds a :class:`~framegraph.sdk.topology.Graph` from the object's
+    ``nodes``/``edges``, computes placements with the requested ``algorithm``
+    (``auto`` infers from structure), lets any node's explicit ``pos`` OVERRIDE
+    its computed position (§A.0), and renders the group fitted to ``box``.
+    Styling keys pass through to ``Graph.render``; a bad algorithm degrades to
+    a placeholder rather than raising."""
+    from framegraph.sdk.topology import Graph
+
+    algorithm = str(obj.get("algorithm") or "auto").strip().lower()
+    if algorithm not in _GRAPH_ALGORITHMS:
+        return _invalid_placeholder(obj, "unknown-graph-algorithm", algorithm)
+
+    g = Graph()
+    overrides: dict[str, Any] = {}
+    for node in obj.get("nodes") or []:
+        if not isinstance(node, dict):
+            continue
+        nid = node.get("id")
+        if nid is None:
+            continue
+        extra = {k: v for k, v in node.items()
+                 if k not in {"id", "label", "weight", "pos"}}
+        g.node(nid, node.get("label"), weight=float(node.get("weight", 1.0)),
+               **extra)
+        if _is_point(node.get("pos")):
+            overrides[str(nid)] = list(node["pos"])
+    for edge in obj.get("edges") or []:
+        if not isinstance(edge, dict):
+            continue
+        src = edge.get("from", edge.get("src"))
+        dst = edge.get("to", edge.get("dst"))
+        if src is None or dst is None:
+            continue
+        g.edge(str(src), str(dst), directed=bool(edge.get("directed")),
+               label=edge.get("label"), weight=float(edge.get("weight", 1.0)))
+
+    positions = _graph_positions(g, algorithm, obj.get("root"))
+    positions.update({k: v for k, v in overrides.items() if k in positions})
+
+    box = obj.get("box") if _is_box(obj.get("box")) else [0, 0, 1, 1]
+    render_kwargs = {k: obj[k] for k in _GRAPH_RENDER_KEYS if k in obj}
+    group = g.render(positions=positions or None, box=list(box),
+                     id=obj.get("id"), **render_kwargs)
+    if obj.get("decorative"):
+        group["decorative"] = True
+    return group
+
+
+def _graph_positions(graph: Any, algorithm: str, root: Any) -> dict[str, Any]:
+    """Node positions for the requested algorithm (``auto`` infers)."""
+    if not graph.nodes:
+        return {}
+    if algorithm == "auto":
+        return {k: [v.x, v.y] for k, v in graph.auto_layout().items()}
+    if algorithm == "radial":
+        r = root if isinstance(root, str) and root else graph._auto_root()
+        vecs = graph.radial_layout(r) if r else graph.grid_layout()
+    else:
+        vecs = getattr(graph, f"{algorithm}_layout")()
+    return {k: [v.x, v.y] for k, v in vecs.items()}
+
+
+def _is_point(value: Any) -> bool:
+    return (isinstance(value, (list, tuple)) and len(value) >= 2
+            and all(isinstance(v, (int, float)) for v in value[:2]))
 
 
 def _invalid_placeholder(obj: dict[str, Any], reason: str, ref: Any) -> dict[str, Any]:
