@@ -11,7 +11,7 @@ LIVE_HOST ?= 127.0.0.1
 LIVE_PORT ?= 8789
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check docker-build docker-mcp docker-shell docker-fonts
+.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check docker-build docker-mcp docker-shell docker-fonts
 
 DOCKER ?= docker
 IMAGE ?= frameforge
@@ -65,6 +65,9 @@ check: schema-check grammar-check spec-check a11y-check status-check ruff-check 
 
 ruff-check:  ## GATE the ruff rules the tree keeps clean (F811 redefinition; §16 row 1)
 	$(UV)x ruff check --select F811 --output-format concise .
+
+hooks:  ## install the git pre-commit / pre-push hooks (.pre-commit-config.yaml)
+	$(UV)x pre-commit install --install-hooks
 
 schema-check:  ## fail if the committed schema drifted from the models
 	$(UV) run python docs/schema/build_schema.py --check

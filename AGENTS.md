@@ -41,10 +41,12 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 
 | Target | What it runs |
 |---|---|
-| `check` | every local gate: schema/grammar/spec/a11y/status + tests + validate + overflow + golden + docs nav/links + disclaimers |
+| `check` | every local gate: schema/grammar/spec/a11y/status + ruff (F811) + tests + validate + overflow + golden + docs nav/links + disclaimers |
 | `test` | `uv run pytest -q` (the HEAD assertion suite) |
 | `validate` | `tooling/validate.py` over the tracked top-level fixtures |
 | `overflow` | `tooling/render_fixtures.py --all --check-overflow` (text-fit gate) |
+| `ruff-check` | gate `ruff check --select F811` (redefinition); part of `make check` (§16 row 1) |
+| `hooks` | install the pre-commit / pre-push git hooks (`.pre-commit-config.yaml`, §10) |
 | `schema` / `schema-check` | regenerate / drift-gate `docs/schema/framegraph-v2.schema.json` |
 | `grammar-check` | `tooling/check_grammar_sync.py` (EBNF ⇄ models, core profile) |
 | `spec-check` | `tooling/check_spec_sync.py --quiet` (spec prose ⇄ model discriminators) |

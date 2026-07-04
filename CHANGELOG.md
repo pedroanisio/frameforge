@@ -4,6 +4,31 @@
 
 ---
 
+## Unreleased — feat(dx): `.pre-commit-config.yaml` — the same gate, earlier (§16 row 6, 2026-07-04)
+
+Closes §16 row 6. A committed `.pre-commit-config.yaml` runs the repo's own gates
+as git hooks:
+
+- **commit time** → `make ruff-check` (the fast F811 redefinition gate), so a name
+  collision is caught the instant it's committed;
+- **push time** → the full `make check`, byte-for-byte the same command CI runs.
+
+Both are `local` / `language: system` hooks that shell out to the Makefile, so
+pre-commit pins **no** tool versions of its own — it cannot drift from
+`pyproject.toml`/`uv.lock`, and the hook surface cannot drift from the gate list
+(it *is* `make check`). Opt-in per clone with `make hooks`
+(`uvx pre-commit install --install-hooks`).
+
+Verified functionally (not just parsed): `pre-commit validate-config` passes and
+`pre-commit run ruff-check --all-files` executes the hook green.
+`tests/test_precommit_config.py` pins that the config exists, parses, and runs
+both `make check` and `make ruff-check` (the anti-drift guard, mirroring
+`test_ci_make_check_sync`). codebase-standards §10 flips the pre-commit `[Target]`
+to `[Adopted]` and corrects the stale "fourteen gates" → **thirteen**; AGENTS.md's
+make-target table gains `ruff-check` + `hooks`; row 6 leaves the §16 ledger.
+
+- **Not a schema change** — no version bump.
+
 ## Unreleased — fix(model): resolve the `Image` alias/class name collision + gate F811 (2026-07-04)
 
 The source-of-truth model bound `Image` to two different meanings: a paint-value

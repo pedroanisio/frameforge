@@ -361,15 +361,19 @@ chain, and the gate that proves each invariant — is formalised in
 ## 10. Pre-commit and CI
 
 - **`[Enforced]`** CI is the gate ([.github/workflows/ci.yml](../.github/workflows/ci.yml)):
-  the `python` job runs `make check` itself — all fourteen gates in one step, drift-proof by
-  test (§3) — plus non-blocking ruff; a `docs` job runs `gen_docs.py --check` + `mkdocs build
-  --strict`, and on pushes to `main` a `docs-deploy` job publishes versioned docs to GitHub
-  Pages via `mike`; the `viewer-contract` job is **blocking** (viewer ⇄ model type surface,
-  §8); the `viewer` smoke build stays **non-blocking** (`continue-on-error: true`).
-- **`[Target]`** A `.pre-commit-config.yaml` that runs the same lint/format/type checks at
-  commit time — "the same gate, earlier." **No pre-commit config exists today;** earlier drafts
-  described hooks and tool pins that are not present. Do not rely on commit-time hooks until this
-  lands.
+  the `python` job runs `make check` itself — all thirteen gates in one step, across the
+  3.10/3.11/3.12 matrix, drift-proof by test (§3) — plus non-blocking ruff; a `docs` job runs
+  `gen_docs.py --check` + `mkdocs build --strict`, and on pushes to `main` a `docs-deploy` job
+  publishes versioned docs to GitHub Pages via `mike`; the `viewer-contract` job is
+  **blocking** (viewer ⇄ model type surface, §8); the `viewer` smoke build stays
+  **non-blocking** (`continue-on-error: true`).
+- **`[Adopted]`** A committed [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) runs
+  "the same gate, earlier": `make ruff-check` (the F811 redefinition gate) at **commit** time
+  and the full `make check` at **push** time — both `local`/`language: system` hooks that shell
+  out to the Makefile, so they pin no tool versions of their own and cannot drift from the gate
+  list. Opt-in per clone: `make hooks` (== `uvx pre-commit install --install-hooks`); pinned by
+  [tests/test_precommit_config.py](../tests/test_precommit_config.py). Remaining `[Target]`:
+  add `ruff format` and `mypy` hooks once those gates land (§4/§5).
 
 ## 11. Commit and workflow conventions
 
@@ -518,7 +522,6 @@ explicit and shrinking, never silently assumed-met. Complexity scale per §12.
 | 3 | Coverage measured + gated (target 90% branch) | not measured | §7 | M |
 | 4 | TDD loop + `unit`/`integration` trees | flat `tests/` (~130 modules; hypothesis landed) | §6 | M |
 | 5 | Golden-render **drift tolerance** (rasterized) | exact hash lock (`render_golden.py`) | §8 | M |
-| 6 | `.pre-commit-config.yaml` mirroring CI | none | §10 | S |
 
 **Closed since the 2026-06-24 revision** (per the rule of motion, their rows are removed):
 the governance docs — `AGENTS.md`, `PURPOSE.md`, and `DISCLAIMER.md` all exist (source-of-truth
@@ -532,6 +535,10 @@ closed — `pyproject` declares `classifiers`/`authors`/`urls`/`keywords`, `ci.y
 python-gates job as a 3.10/3.11/3.12 matrix, and `test_python_version_support.py` +
 `test_ci_make_check_sync.py` pin both plus the `tomli`-backport invariant that keeps the
 `>=3.10` floor runnable (stdlib `tomllib` is 3.11+; the gate/tooling degrade to `tomli`).
+**2026-07-04:** row 6 (`.pre-commit-config.yaml`) closed — a committed config runs
+`make ruff-check` at commit time and `make check` at push time (`local`/system hooks that
+shell out to the Makefile, so zero tool-pin drift), installed with `make hooks` and pinned by
+`test_precommit_config.py` (§10).
 
 **The 2026-07-02 folder refactor** (operator-directed) moved the tree to a src layout —
 package in `src/framegraph/`, reference sources under `docs/` (`models/`, `schema/`, `spec/`,
