@@ -24,7 +24,7 @@ appendix_references:
   - "Asymptote (Hammerlindl, Bowman, Prince): 2D & 3D vector graphics; Hobby-spline → 3D"
   - "Hobby (1986) / Knuth, The METAFONTbook ch.14: control-point selection"
   - "D3.js: curve interpolators and scales (linear/log/pow/time) — design model only"
-  - "three.js: 3D scene graph — the comparator for *true* 3D (out of scope here)"
+  - "three.js: 3D scene graph — the comparator for *true* 3D (scope block LIFTED 2026-07-04 by operator course-correction — now an accepted direction; see Item 7 and A.0)"
 ---
 
 # FrameGraph v2 — Roadmap
@@ -388,6 +388,19 @@ now. The reservation keeps it additive when a print target becomes real.
 
 ### 7. Geometry, transformed spaces, and 3D authoring — the SDK ships; both grammar fixes (G-1, G-2) have landed
 
+> **Course correction (2026-07-04) — the "true 3D" scope block is LIFTED.** The long-standing
+> boundary — *a document-level 3D scene graph (three.js-level) is out of scope; the SDK must
+> project to 2D and the page never carries 3D* — is withdrawn by operator decision. **True 3D is now
+> an accepted direction.** What is unchanged *today*: the shipping SDK still authors 3D via `Scene3D`
+> and projects to 2D at expansion (§A.5), and `perspective` / 3D `TransformFn` remain NON-CONFORMANT
+> in the grammar (G-2) until true-3D work lands — those are code facts, not aspirations. That
+> project-to-2D path is now the **baseline and foundation** the true-3D direction builds on. The
+> approved programme (B1–B6) lives in the **CG-canon alignment backlog** below, grounded in
+> `docs/proposals/cg-canon-strategic-gaps.md` (full assessment vs the Harrington canon) and
+> `docs/proposals/cg-canon-3d-alignment.md` (the B2 correctness spec: near-plane clipping, back-face
+> removal, depth resolution). So Item 7 remains complete *for the 2D-projection authoring layer* but
+> now **carries an open direction** (true 3D), no longer a closed boundary.
+
 **Gap (reframed — the authoring layer already exists; G-1 and G-2 have both
 landed, so item 7 is complete).** The grammar can *represent* arbitrary 2D geometry — `PathObject.d` (SVG
 path data), `PolylineObject.points`, `TransformFn.matrix` (full 2D affine) — and
@@ -424,9 +437,11 @@ the hash contract. **G-1 is done** (a typed `list[PathSeg]` alongside the `d` st
 schema-checkable, landed in both models and EBNF, enum-gated by `check_grammar_sync`)
 and **G-2 is done** (`perspective` marked non-conformant in model + EBNF, validator
 WARN `non-conformant-3d`). The only remaining work is to **document** the SDK
-(Appendix A is effectively its spec). Priority stays **Low** and item 7 carries no
-open gap. Full design, math, and grammar-fix table in **Appendix A** — read as
-documentation of the existing SDK, not a build proposal.
+(Appendix A is effectively its spec). Priority for the 2D-projection SDK stays **Low**
+(it ships); the newly-in-scope **true-3D direction** (opened by the 2026-07-04 course
+correction above) is unscheduled — its correctness prerequisites are in
+`docs/proposals/cg-canon-3d-alignment.md`. Full design, math, and grammar-fix table in
+**Appendix A** — read as documentation of the existing SDK, not a build proposal.
 
 ### 8. Book composition API — semantic layer above pages
 
@@ -882,6 +897,42 @@ dependency.
 
 ---
 
+## CG-canon alignment programme — approved backlog (2026-07-04)
+
+Approved by the operator 2026-07-04. Assessment of FrameGraph against the **classical
+computer-graphics canon** (Harrington, *Computer Graphics: A Programming Approach*, 2nd ed.
+1987 — the reference corpus's one deep computational source), grounded stage-by-stage in the
+book's 11-chapter pipeline. Full evidence + per-item spec:
+`docs/proposals/cg-canon-strategic-gaps.md`; the B2 correctness detail is in
+`docs/proposals/cg-canon-3d-alignment.md`. This programme realizes the **true-3D direction**
+opened by the 2026-07-04 course correction (Item 7 / Appendix A.0).
+
+Calibration (explicitly *not* gaps): FrameGraph already *is* much of the canon — the Document
+IR is Harrington's "display file / metafile", the Layer/Object graph is his "segments", and
+transforms, curves, 2D clipping (delegated), and **colour** (the `chevreul`/`canon` modules)
+are aligned strengths. Scan-conversion/rasterization/antialiasing are delegated to SVG→Chromium/
+Cairo *by design*. The gaps below cluster in the **3D leg** and the **absence of a named viewing
+pipeline**.
+
+| ID | Item | Tier / fit | Canon | Complexity | Depends on | Disposition |
+|---|---|---|---|---|---|---|
+| **B1** | Formal viewing pipeline (world→NDC→viewport + clip stage) | T1 high | ¶43, Ch6/8 | M | — | approved |
+| **B2** | 3D pipeline correctness (clip + back-face + depth) | T1 high | Ch8–9 (¶34/36) | S–M | B1 | approved — spec: `cg-canon-3d-alignment.md` |
+| **B3** | True 3D scene graph (nodes / instancing / hierarchy) | T2 direction | Ch8–11, ¶43–45 | L | B1, B2 | approved — ADR required first |
+| **B4** | Fractal / procedural generator (`sdk/fractal.py`) | T2 | Ch11 (¶39) | S–M | — | approved |
+| **B5** | Curved-surface patches (Bézier/B-spline) | T2 | Ch11 | M | B2 | approved |
+| **B6** | Shading completion (flat default + Phong/specular) | T2 | Ch10 | S | B2 | approved |
+| **F2** | Texture mapping | T3 bridge | 1 corpus citation | — | B3 | **DEFER behind B3** |
+| **F1** | Ray tracing / global illumination | T3 bridge | ray-trace ch. | — | — | **DEFER — OPERATOR-APPROVAL-GATED** (out of fit; never auto-scheduled, never pulled as a dependency) |
+
+**Recommended first pull:** **B1 → B2** (correctness-first, additive, output-preserving defaults;
+unblocks B3–B6). **Sequencing gate:** B1 (viewing pipeline) precedes B2/B3; B3 needs an ADR pinning
+the verifiable-static-IR contract before any code. **Boundary policy (corpus + flagged bridges):**
+every B-item is canon-grounded; F1/F2 are flagged bridges beyond the ~1987 corpus — **F1 may be
+pulled only on explicit operator approval.**
+
+---
+
 # Appendix A — Geometry, Transformed Spaces, and 3D (design proposal, non-normative)
 
 > **Status:** documentation of an existing, complete SDK (both grammar fixes landed)
@@ -917,6 +968,12 @@ The grammar fixes what is representable, and that splits the problem in two:
 - **3D is not.** The style module marks 3D transforms and `perspective` as "declared, may not render." Emitting them is a trap: a structurally valid document that no target draws.
 
 Therefore the geometry layer **solves** geometry and projection itself and **emits 2D**, at expansion time, pinned for reproducibility. This is the inverse of the layout rule ("describe, don't solve"): the page renderer is not a geometry kernel, so the SDK must do the math. This is exactly how a 2D&3D vector language operates — it computes 3D and refines Bézier control points down to a projected 2D result rather than shipping a 3D scene to the page.
+
+> **Course correction (2026-07-04):** the project-to-2D rule above describes the *current baseline*,
+> not a permanent boundary. The block on **true 3D** (carrying a 3D scene graph in the document) is
+> lifted — see Item 7. Everything in this appendix still holds and ships today; the true-3D direction
+> is future work layered on top of it, and its correctness prerequisites are catalogued in
+> `docs/proposals/cg-canon-3d-alignment.md`.
 
 One working-space rule follows immediately: `Point` is unitless 2D numbers in canvas space, and `Length` may be relative (`%`, `fr`). **Computed geometry operates in absolute canvas units only**; relative lengths are resolved to numbers before any geometry math runs. Mixing `fr` into a curve sample is undefined.
 
@@ -1068,7 +1125,7 @@ Data scales follow the model proven by D3 (`scaleLinear/scaleLog/scalePow`): a d
 
 ## A.5. 3D authoring → 2D projection (the honest 3D story)
 
-The document never carries true 3D. A `Scene3D` is authored in 3D, and a `Camera` projects it to 2D primitives the renderer already supports. This mirrors how a 2D&3D vector language ships output: Asymptote generalizes MetaPost path construction to three dimensions but its result is vector graphics (PostScript/PDF/SVG), with 3D PRC as a separate export.
+**Today** the document carries no true 3D: a `Scene3D` is authored in 3D, and a `Camera` projects it to 2D primitives the renderer already supports. This mirrors how a 2D&3D vector language ships output: Asymptote generalizes MetaPost path construction to three dimensions but its result is vector graphics (PostScript/PDF/SVG), with 3D PRC as a separate export. **Course correction (2026-07-04): the block on the document carrying true 3D is lifted** — a document-level 3D scene graph (à la Asymptote's separate 3D PRC export, or three.js) is now an accepted direction. The project-to-2D path described here remains the shipping baseline and the foundation that work builds on.
 
 ```ts
 export type CameraKind =
@@ -1118,7 +1175,7 @@ Output of `render(...)` is a `group` of closed `polyline`/`path` objects with co
 | ID | Gap (grounded) | What the SDK does | Grammar fix |
 |----|----------------|-------------------|-------------|
 | G-1 ✅ **DONE** | `PathObject.d` was an opaque string the schema could not validate | builds correct `d`; the renderer lowers structured segments to the same path-data string | **landed**: `Path.d` is `Union[str, list[PathSeg]]` — a typed `PathSeg` union (M/L/H/V/C/S/Q/T/A/Z, absolute+relative) and a `PathCommand` alias; the JSON Schema validates command + arity via `prefixItems`; the EBNF carries `PathSegList`/`PathSeg`/`PathCommand` and `check_grammar_sync` enum-gates `PathCommand` across models + EBNF. `d` is the compiled view |
-| G-2 ✅ **DONE** | `perspective` was "declared, may not render" — accepted but inert, a trap | refuses to emit 3D; projects to 2D instead (§A.5) | **marked explicitly non-conformant**: `TransformFn` is 2D-only (no 3D functions exist); `perspective` is annotated NON-CONFORMANT in the model + EBNF and the validator now WARNs (`non-conformant-3d`) when it is set, so the trap surfaces at validation instead of silently. Projection-only via the SDK Scene3D is the supported 3D path |
+| G-2 ✅ **DONE** | `perspective` was "declared, may not render" — accepted but inert, a trap | refuses to emit 3D; projects to 2D instead (§A.5) | **marked explicitly non-conformant**: `TransformFn` is 2D-only (no 3D functions exist); `perspective` is annotated NON-CONFORMANT in the model + EBNF and the validator now WARNs (`non-conformant-3d`) when it is set, so the trap surfaces at validation instead of silently. Projection-only via the SDK Scene3D is the supported 3D path. **Note (2026-07-04):** the *scope rationale* ("2D-only is the supported path; true 3D out of scope") is superseded by the course correction lifting the true-3D block — but the grammar state here (`perspective` non-conformant) still stands until true-3D work lands. |
 | G-3 | `Point` is unitless 2D; `Length` may be relative (`%`,`fr`) — geometry over relative units is undefined | resolves all lengths to absolute canvas numbers before any geometry math | document the rule: computed geometry is absolute-units-only |
 | G-4 | curves/projection are not reproducible if recomputed per render | computes them once at **expansion** (Tier 3) and pins the result with the hash set | none — reuse the existing expansion/hashing contract |
 

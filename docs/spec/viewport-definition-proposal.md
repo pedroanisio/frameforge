@@ -11,8 +11,10 @@ status: proposal
 
 # Collision-Free Layout — the overlap model
 
-**Status:** proposal · **Scope:** the 2.5D page/layer model (not `Scene3D`, which
-is true perspective 3D and out of scope here).
+**Status:** proposal · **Scope:** the 2.5D page/layer overlap model — not `Scene3D`'s
+projected 3D, which this collision model does not cover (out of scope *for this proposal*;
+the project-wide true-3D scope block was lifted 2026-07-04, so 3D collision handling is
+future work, not a permanent exclusion).
 
 ## Purpose
 
