@@ -79,7 +79,8 @@ def test_verdict_matches_the_live_tree():
         "distribution name does not shadow a module",
     }, f"blockers drifted from the live tree: {blockers}"
     assert "runtime __version__ exposed" not in gaps, "row 7 closed the __version__ gap"
+    assert "publish metadata polish" not in gaps, (
+        "row 8 landed classifiers/authors/urls/keywords — this gap is closed")
     assert gaps == {
         "py.typed marker shipped",
-        "publish metadata polish",
     }, f"gaps drifted from the live tree: {gaps}"

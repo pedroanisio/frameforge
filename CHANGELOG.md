@@ -4,6 +4,42 @@
 
 ---
 
+## Unreleased — feat(packaging): honest 3.10–3.12 support — CI matrix + classifiers (§16 row 8, 2026-07-04)
+
+Closes §16 row 8 and fixes a live correctness gap: the `>=3.10` support claim
+was **false**. `tests/test_docs_in_sync.py` bare-imported `tomllib` — a stdlib
+module that only exists on **3.11+** — so `make check` (and any 3.10 CI leg)
+crashed at import on the minimum Python the project claims. The `tomli` backport
+its sibling `check_package_readiness.py` falls back to was never declared either;
+it was present only transitively via pytest, an accident rather than a contract.
+
+Made the claim true at root:
+
+- **The floor is runnable.** `test_docs_in_sync.py` now uses the same guarded
+  `import tomllib / except ModuleNotFoundError: import tomli` idiom the tooling
+  uses, and `tomli>=2 ; python_version < "3.11"` is a declared `dev` dependency
+  (a no-op on 3.11+). Behaviourally verified: with `tomllib` masked, the fallback
+  resolves via `tomli` and parses. `uv.lock` refreshed (+1 direct edge).
+- **The versions are exercised, not just asserted.** `ci.yml`'s python-gates job
+  runs a `["3.10","3.11","3.12"]` matrix (`fail-fast: false`,
+  `uv sync --python ${{ matrix.python-version }}`); it still `run: make check`, so
+  the CI ⇄ make lockstep test stays green.
+- **The metadata is declared.** `pyproject` gains `classifiers` (naming 3.10/3.11/
+  3.12, no `Typing :: Typed` — py.typed is still a gap), `authors`, `[project.urls]`,
+  and `keywords`. This closes the `publish metadata polish` gap in
+  `make package-check`, whose verdict drops to **3 blockers, 1 gap** (only the §1
+  `py.typed` target remains).
+
+Regression gates: `tests/test_python_version_support.py` (no gate module
+bare-imports `tomllib` without the `tomli` fallback; the backport is declared with
+its `<3.11` marker; classifiers ⇄ `requires-python`) and a new assertion in
+`tests/test_ci_make_check_sync.py` (the matrix covers all three). `test_package_readiness.py`
+updated to the 1-gap verdict; codebase-standards §1 flips the classifiers/CI-matrix
+`[Target]` to `[Enforced]`, §9/§16 re-count, and row 8 leaves the ledger (rule of
+motion).
+
+- **Not a schema change** (no model/schema touched) — no version bump.
+
 ## Unreleased — fix(tooling): repair the package-emit checker for the src layout (2026-07-04)
 
 `tooling/check_package_readiness.py` went stale in the 2026-07-02 folder

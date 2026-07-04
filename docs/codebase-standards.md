@@ -73,8 +73,12 @@ Rules of reading:
   only to the standalone [viewer/](../viewer/) (a separate JS bundle), not the core.
 - **`[Adopted]`** The core SVG proxy renderer is **dependency-free** at its core
   ([README.md](../README.md), *Run it*) — pure-Python rendering is load-bearing (§13).
-- **`[Target]`** Declared `classifiers` for 3.10/3.11/3.12 and a CI matrix across them.
-  Today only 3.10 is named, and CI runs a single runner ([ci.yml](../.github/workflows/ci.yml)).
+- **`[Enforced]`** Declared `classifiers` for 3.10/3.11/3.12 ([pyproject.toml](../pyproject.toml))
+  and a CI matrix across them ([ci.yml](../.github/workflows/ci.yml) — the python-gates job runs
+  `["3.10","3.11","3.12"]`). Pinned by [tests/test_python_version_support.py](../tests/test_python_version_support.py)
+  (classifiers ⇄ `requires-python`, and no gate module bare-imports the 3.11+ stdlib `tomllib`
+  without the `tomli` backport) and [tests/test_ci_make_check_sync.py](../tests/test_ci_make_check_sync.py)
+  (the matrix covers all three).
 - **`[Target]`** Shipped `py.typed` + fully annotated public surface. **Not applicable
   today** — the project is a *virtual* (non-installed) tree, see §2.
 
@@ -347,7 +351,7 @@ chain, and the gate that proves each invariant — is formalised in
   ([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) asserts
   package-emit readiness, separating hard build/install blockers from advisory `[Target]`
   gaps. It is advisory — deliberately **not** in `make check` — and reports **NOT READY**
-  today (3 blockers, 2 gaps; FrameGraph is a virtual project by design, §2). See §16.
+  today (3 blockers, 1 gap; FrameGraph is a virtual project by design, §2). See §16.
 
 ## 10. Pre-commit and CI
 
@@ -510,7 +514,6 @@ explicit and shrinking, never silently assumed-met. Complexity scale per §12.
 | 4 | TDD loop + `unit`/`integration` trees | flat `tests/` (~130 modules; hypothesis landed) | §6 | M |
 | 5 | Golden-render **drift tolerance** (rasterized) | exact hash lock (`render_golden.py`) | §8 | M |
 | 6 | `.pre-commit-config.yaml` mirroring CI | none | §10 | S |
-| 8 | Multi-version CI matrix (3.10–3.12) + `classifiers` | 3.10 named, single runner | §1 | S |
 
 **Closed since the 2026-06-24 revision** (per the rule of motion, their rows are removed):
 the governance docs — `AGENTS.md`, `PURPOSE.md`, and `DISCLAIMER.md` all exist (source-of-truth
@@ -519,7 +522,11 @@ CI ⇄ make lockstep moved from discipline to a pinned test (§3); and hypothesi
 landed (§6, shrinking row 4). **2026-07-04:** row 7 (runtime `__version__` + a
 release recipe) closed — `framegraph.__version__` is a fifth gated version literal and
 `make release` runs the full bump→regenerate→check recipe (§9; RELEASE.md); only the
-git-tag/CI-publish steps remain by hand.
+git-tag/CI-publish steps remain by hand. **2026-07-04:** row 8 (multi-version support)
+closed — `pyproject` declares `classifiers`/`authors`/`urls`/`keywords`, `ci.yml` runs the
+python-gates job as a 3.10/3.11/3.12 matrix, and `test_python_version_support.py` +
+`test_ci_make_check_sync.py` pin both plus the `tomli`-backport invariant that keeps the
+`>=3.10` floor runnable (stdlib `tomllib` is 3.11+; the gate/tooling degrade to `tomli`).
 
 **The 2026-07-02 folder refactor** (operator-directed) moved the tree to a src layout —
 package in `src/framegraph/`, reference sources under `docs/` (`models/`, `schema/`, `spec/`,
@@ -528,13 +535,13 @@ and evicted all non-core content (`brand/`, `demo/`, `recipe/`, POC notes, scrat
 from the tree. Two gates (`brand-check`, `brand-logo-check`) were retired with written
 justification (§3, §8): their comparison inputs are no longer tracked.
 
-**Package-emit readiness** spans row 8 (`classifiers`) and the §1 `py.typed` target, plus
-the §2 `package = false` decision (row 7's runtime `__version__` + release recipe landed
-2026-07-04). That
+**Package-emit readiness** now spans a single advisory gap — the §1 `py.typed` target — plus
+the deliberate §2 `package = false` decision (row 7's runtime `__version__` + release recipe
+landed 2026-07-04; row 8's `classifiers`/`authors`/`urls`/`keywords` landed 2026-07-04). That
 composite gap is measurable: `make package-check`
 ([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) asserts it and
-reports **NOT READY** today (3 blockers, 2 gaps — the two remaining gaps are row 8's
-`classifiers` and the §1 `py.typed` target; the runtime `__version__` gap closed with row 7).
+reports **NOT READY** today (3 blockers, 1 gap — the one remaining gap is the §1 `py.typed`
+target; the runtime `__version__` and publish-metadata gaps closed with rows 7 and 8).
 It is advisory — not part of `make check` —
 and shrinks as these rows close. The remaining blockers are the deliberate virtual-project
 decisions: no `[build-system]` table, `[tool.uv] package = false`, and the `framegraph` dist

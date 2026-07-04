@@ -528,6 +528,7 @@ browser = [
 dev = [
     { name = "hypothesis" },
     { name = "pytest" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
 mcp = [
     { name = "cairosvg" },
@@ -566,6 +567,7 @@ browser = [{ name = "playwright", specifier = ">=1.44" }]
 dev = [
     { name = "hypothesis", specifier = ">=6" },
     { name = "pytest", specifier = ">=8" },
+    { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2" },
 ]
 mcp = [
     { name = "cairosvg", specifier = ">=2.7" },
