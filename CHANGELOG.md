@@ -4,6 +4,27 @@
 
 ---
 
+## Unreleased — item 8: the Book composition API (2026-07-03)
+
+`framegraph.sdk.book` — the semantic authoring layer above pages
+(roadmap implementation-sequence step 5; zero grammar change):
+`BookBuilder(title=, author=)` composes front matter and
+chapters/sections into ONE validated flow document, lowered through
+`FlowBuilder` and paginated by the ADR-0003 engine. Numbering is computed
+at build time (§A.0 — the renderer has no counter engine): chapters `1`,
+sections `1.1`, per-chapter figure labels folded into captions
+(`Figure 2.1 — …`). Chapters open on fresh pages; `keep_with_caption`
+holds a figure and its caption together (`break_inside: avoid`). Two
+defects caught by pixel verification and fixed in the design: the book no
+longer lists ITSELF in its own Contents (the title is front-matter
+display, not a heading), and a BOXLESS figure object (e.g. a computed
+`stroke_outline` path) gets its size derived from the geometry instead of
+silently reserving zero flow height and painting over the next block.
+10 red-first tests (`tests/test_sdk_book.py`, incl. the render gate:
+clipped == 0, numbered captions reach the pixels); fixture
+`book-composition.fg.yaml` (corpus 37→38, 0/0); runnable
+`static/examples/book_builder_demo.py`; MCP guide bullet (drift-gated).
+
 ## Unreleased — PALS PT-BR migrated; gradient fill tokens now lift AND paint (2026-07-03, issue #33)
 
 Third corpus deck: the 15-slide PALS PT-BR deck lands as

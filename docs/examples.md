@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 93 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 96 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -24,6 +24,7 @@ The 93 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`architecture_map.py`](../static/examples/architecture_map.py) | FrameGraph v2 — Architecture Map (companion to ``conceptual-analysis.md``). |
 | [`asset_recolor_guide.py`](../static/examples/asset_recolor_guide.py) | Using imported assets — recolour/gradient them, or trace on top of them. |
 | [`atlantis_adventure_game.py`](../static/examples/atlantis_adventure_game.py) | THE LOST TIDE // 海淵 — a pixel-art point-&-click adventure, drawn as a comic. |
+| [`book_builder_demo.py`](../static/examples/book_builder_demo.py) | BookBuilder — the semantic book layer end to end (roadmap item 8). |
 | [`brand_book.py`](../static/examples/brand_book.py) | Typeset & publish *Brand, From Products to Source Code* as a native FrameGraph |
 | [`brand_book_figures.py`](../static/examples/brand_book_figures.py) | House visual system + illustration plates for the book *Brand, From Products |
 | [`build_wireframe_annotated.py`](../static/examples/build_wireframe_annotated.py) | FrameGraph authoring-IDE wireframe — on ruler paper. FrameGraph SDK widgets. |
@@ -53,6 +54,8 @@ The 93 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`illustrator_vs_framegraph.py`](../static/examples/illustrator_vs_framegraph.py) | CAPABILITY TEARDOWN — Adobe Illustrator ⇄ FrameGraph v2. |
 | [`imperial_doctrine_deck.py`](../static/examples/imperial_doctrine_deck.py) | IMPERIAL DOCTRINE — a 20-slide Galactic Empire command briefing. |
 | [`inova_partners_whitepaper.py`](../static/examples/inova_partners_whitepaper.py) | INOVA PARTNERS — A4 white paper (PT-BR), built with the SDK. |
+| [`itau_logo.py`](../static/examples/itau_logo.py) | Itaú Unibanco 2023 mark — reconstructed in FrameGraph via the vision/MCP pipeline. |
+| [`itau_rio_terminal.py`](../static/examples/itau_rio_terminal.py) | Itaú · Rio Terminal — a client-facing UI/UX proposal, authored with the |
 | [`landing_headers.py`](../static/examples/landing_headers.py) | Landing-page hero headers — a cohesive SaaS illustration pack (FrameGraph SDK). |
 | [`layout_mechanisms_deck.py`](../static/examples/layout_mechanisms_deck.py) | A presentation that answers a critique: "all these layouts are just variations |
 | [`layout_methods_book.py`](../static/examples/layout_methods_book.py) | Compose *Layout Methods — A Field Guide* as a native FrameGraph book. |

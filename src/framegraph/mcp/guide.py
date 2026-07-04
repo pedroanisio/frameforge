@@ -101,6 +101,12 @@ Fluent builder:
   symbol packs instantiated via `use` objects and lowered by `sdk.expand`;
   `honeycomb_capability_map(data)` / `module_hub_radial(data)` generate whole
   diagram pages from plain data dicts (render-ready, pre-expanded).
+- Books (`framegraph.sdk.book`): `BookBuilder(title=, author=)` -> `.chapter(t)`
+  -> `.section(t)` / `.para` / `.figure(obj, caption=)` composes front matter +
+  chapters into ONE paginated flow document — numbering computed at build time
+  (chapters `1`, sections `1.1`, captions `Figure 2.1 — ...`), chapters open on
+  fresh pages, figures keep their captions (`keep_with_caption`), boxless
+  geometry gets a derived size, and the TOC lists chapters only.
 - Symbols & lowering (`framegraph.sdk.expand`): `expand(doc)` lowers grammar-level
   `use`/`component` objects into core primitives and pins asset/font hashes — run it
   before rendering any document that carries `defs.symbols`.

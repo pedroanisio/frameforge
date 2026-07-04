@@ -112,9 +112,11 @@
   },
   "sdk": {
     "public_exports": [
+      "BookBuilder",
       "Box",
       "BoxLike",
       "Camera",
+      "ChapterBuilder",
       "Chart",
       "ClosedPalette",
       "CubicBezier",
@@ -1038,6 +1040,13 @@
       "mcp": true
     },
     {
+      "name": "BookBuilder",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "Box",
       "kind": "sdk_export",
       "core": false,
@@ -1053,6 +1062,13 @@
     },
     {
       "name": "Camera",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "ChapterBuilder",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

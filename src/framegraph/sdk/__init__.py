@@ -92,6 +92,7 @@ from framegraph.sdk.macros import (
     theme,
 )
 from framegraph.sdk.outline import Placement, repeat_along_path, stroke_outline
+from framegraph.sdk.book import BookBuilder, ChapterBuilder
 from framegraph.sdk.recolor import recolor
 from framegraph.sdk import planar
 from framegraph.sdk.metrics import (font_kern_pairs, kerned_spans,
@@ -295,6 +296,8 @@ __all__ = [
     "Placement",
     "repeat_along_path",
     "recolor",
+    "BookBuilder",
+    "ChapterBuilder",
     "planar",
     "stroke_outline",
     "model_module",

@@ -164,7 +164,7 @@ def test_new_tools_are_registered_and_exported(tmp_path):
 _CAPABILITY_MODULES = [
     # capability-bearing sdk modules (internal plumbing like io/conform/model
     # is deliberately exempt)
-    "canon", "chart", "chevreul", "expand", "figure", "geometry", "humanize",
+    "book", "canon", "chart", "chevreul", "expand", "figure", "geometry", "humanize",
     "markdown", "metrics", "outline", "paint", "planar", "recolor",
     "topology", "widgets",
 ]

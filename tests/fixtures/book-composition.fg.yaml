@@ -1,0 +1,607 @@
+# Canonical fixture for framegraph.sdk.book (roadmap item 8) — GENERATED
+# from static/examples/book_builder_demo.py (build() returns this document
+# verbatim); regenerate from there, never hand-edit. Build-time numbering:
+# chapters/sections in heading text, per-chapter figure labels in captions.
+dsl: FrameGraph
+version: 2.4.1
+profile: book
+title: On Composition
+lang: en
+defs:
+  masters:
+    book:
+      canvas:
+        preset: A5
+        orientation: portrait
+pages:
+- mode: flow
+  id: book
+  master: book
+  story:
+  - type: paragraph
+    text: On Composition
+    style:
+      font_size: 34
+      font_weight: 700
+      line_height: 1.15
+  - type: paragraph
+    text: FrameGraph Press
+    style:
+      color: '#555555'
+      font_size: 14
+  - type: toc
+    levels:
+    - 1
+    - 2
+    title: Contents
+    leader: .
+  - break_before: page
+    type: heading
+    level: 1
+    text: 1 · The Column
+    id: ch-1
+  - type: paragraph
+    text: 'Composition is a settling of accounts between content and page. The column
+      earns its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book.
+      Composition is a settling of accounts between content and page. The column earns
+      its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book.
+      Composition is a settling of accounts between content and page. The column earns
+      its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. '
+  - type: heading
+    level: 2
+    text: 1.1 · Measure and margin
+    id: ch-1-s1
+  - type: paragraph
+    text: 'Composition is a settling of accounts between content and page. The column
+      earns its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book.
+      Composition is a settling of accounts between content and page. The column earns
+      its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book. '
+  - break_inside: avoid
+    type: figure
+    object:
+      box:
+      - 0
+      - 0
+      - 300
+      - 110
+      type: rect
+      fill: '#0f7d88'
+      radius: 6
+    alt: teal column plate
+    caption: Figure 1.1 — The column as a solid
+  - type: heading
+    level: 2
+    text: 1.2 · The grey page
+    id: ch-1-s2
+  - type: paragraph
+    text: 'Composition is a settling of accounts between content and page. The column
+      earns its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book.
+      Composition is a settling of accounts between content and page. The column earns
+      its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. '
+  - break_before: page
+    type: heading
+    level: 1
+    text: 2 · The Line
+    id: ch-2
+  - type: paragraph
+    text: 'Composition is a settling of accounts between content and page. The column
+      earns its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book.
+      Composition is a settling of accounts between content and page. The column earns
+      its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book. '
+  - break_inside: avoid
+    type: figure
+    object:
+      type: path
+      d:
+      - - M
+        - 1.7849870652162791
+        - 63.69298546579019
+      - - L
+        - 3.8332486061589197
+        - 62.566768672723015
+      - - L
+        - 6.16230932510085
+        - 61.07532706338446
+      - - L
+        - 8.731305056873166
+        - 59.43606582502021
+      - - L
+        - 11.535683691389206
+        - 57.64643928383151
+      - - L
+        - 14.563101394515682
+        - 55.7171038017073
+      - - L
+        - 17.798144645977292
+        - 53.66586450027064
+      - - L
+        - 21.22406596055373
+        - 51.51463024903504
+      - - L
+        - 24.823466002488352
+        - 49.28781179747065
+      - - L
+        - 28.57856426069878
+        - 47.01144149284746
+      - - L
+        - 32.47129131438766
+        - 44.71267171268082
+      - - L
+        - 36.483292031357
+        - 42.41948097211034
+      - - L
+        - 40.59587346491979
+        - 40.160497163404614
+      - - L
+        - 44.78990725009205
+        - 37.96488575114003
+      - - L
+        - 49.045684345460025
+        - 35.86226805162842
+      - - L
+        - 53.342712897953895
+        - 33.882639802510965
+      - - L
+        - 57.65944563765499
+        - 32.0562561139932
+      - - L
+        - 61.972922264395386
+        - 30.413435444465318
+      - - L
+        - 66.25831878061442
+        - 28.984210416080664
+      - - L
+        - 70.48841910586005
+        - 27.79771468981257
+      - - L
+        - 74.63308331804996
+        - 26.88114409095361
+      - - L
+        - 78.65891368632842
+        - 26.258082629615338
+      - - L
+        - 82.52955697704625
+        - 25.94599500333904
+      - - L
+        - 86.20744897928758
+        - 25.952892709029513
+      - - L
+        - 89.63829854452408
+        - 26.282992272097363
+      - - L
+        - 92.90820289893556
+        - 26.924796261040463
+      - - L
+        - 96.21585484973166
+        - 27.84936033153013
+      - - L
+        - 99.63797644757094
+        - 29.05336614619978
+      - - L
+        - 103.18209908915209
+        - 30.545092234696043
+      - - L
+        - 106.84118954398375
+        - 32.321456973855774
+      - - L
+        - 110.60218302365779
+        - 34.36775044632975
+      - - L
+        - 114.45111568866703
+        - 36.66008316291412
+      - - L
+        - 118.37559087956511
+        - 39.168219310684634
+      - - L
+        - 122.36566941529983
+        - 41.85788497358348
+      - - L
+        - 126.41399356868305
+        - 44.69238662622751
+      - - L
+        - 130.51561640580056
+        - 47.63364563467424
+      - - L
+        - 134.66777398620593
+        - 50.64280173885662
+      - - L
+        - 138.8697050503427
+        - 53.68050726507368
+      - - L
+        - 143.12255400882458
+        - 56.70698538356187
+      - - L
+        - 147.42935578129982
+        - 59.68187961282955
+      - - L
+        - 151.79507231985667
+        - 62.56388169924638
+      - - L
+        - 156.22661285175832
+        - 65.31009218837833
+      - - L
+        - 160.73270663730682
+        - 67.87504977422488
+      - - L
+        - 165.3233938138136
+        - 70.20938492715675
+      - - L
+        - 170.00875614438036
+        - 72.25816167501712
+      - - L
+        - 174.7963756652819
+        - 73.95925481941262
+      - - L
+        - 179.68705853067564
+        - 75.24265278195915
+      - - L
+        - 184.66895362848572
+        - 76.03230283141833
+      - - L
+        - 189.67225458661258
+        - 76.26746289304792
+      - - L
+        - 194.6806194491956
+        - 76.01273044942063
+      - - L
+        - 199.75392416933423
+        - 75.394023008224
+      - - L
+        - 204.90685546928046
+        - 74.45619092562308
+      - - L
+        - 210.13532774688616
+        - 73.23960031964413
+      - - L
+        - 215.43096409295524
+        - 71.777549630097
+      - - L
+        - 220.78127778343966
+        - 70.09947519578128
+      - - L
+        - 226.17039230704899
+        - 68.23286925809501
+      - - L
+        - 231.57981395809765
+        - 66.2043668424062
+      - - L
+        - 236.98909067106493
+        - 64.04033787689174
+      - - L
+        - 242.37632476409962
+        - 61.76719883710744
+      - - L
+        - 247.7185546907113
+        - 59.41157180753915
+      - - L
+        - 252.99203240316348
+        - 57.00036524704076
+      - - L
+        - 258.172421266479
+        - 54.56081979581867
+      - - L
+        - 263.23493388235505
+        - 52.12054581507702
+      - - L
+        - 268.15442290952393
+        - 49.707571764924666
+      - - L
+        - 272.9054315456716
+        - 47.350421412729965
+      - - L
+        - 277.4622028164278
+        - 45.07824289078549
+      - - L
+        - 281.7986355663885
+        - 42.921026025089546
+      - - L
+        - 285.8881538722351
+        - 40.90997263551216
+      - - L
+        - 289.7034098718227
+        - 39.07814317994141
+      - - L
+        - 293.21562444408994
+        - 37.46162916525236
+      - - L
+        - 296.39305314954976
+        - 36.1017855081043
+      - - L
+        - 299.1970897430063
+        - 35.049731409402845
+      - - L
+        - 301.643992859302
+        - 34.188253019844595
+      - - L
+        - 298.356007140698
+        - 25.811746980155405
+      - - L
+        - 295.8289519236603
+        - 26.90267021096752
+      - - L
+        - 292.9125024060058
+        - 28.336871899303116
+      - - L
+        - 289.67500055591006
+        - 29.940714584747642
+      - - L
+        - 286.12992346151066
+        - 31.70889385709563
+      - - L
+        - 282.29761001665383
+        - 33.62634102189524
+      - - L
+        - 278.2013644336115
+        - 35.672723974910454
+      - - L
+        - 273.8659221835722
+        - 37.824679562918206
+      - - L
+        - 269.31679067655057
+        - 40.056985994677426
+      - - L
+        - 264.57995209047607
+        - 42.343209485075334
+      - - L
+        - 259.6817327843117
+        - 44.656074555293344
+      - - L
+        - 254.6487592890766
+        - 46.967681361588724
+      - - L
+        - 249.50796759683652
+        - 49.24963475295924
+      - - L
+        - 244.28665364262213
+        - 51.47312147949792
+      - - L
+        - 239.01256412478918
+        - 53.60895857029992
+      - - L
+        - 233.71403432893507
+        - 55.62763087310827
+      - - L
+        - 228.4201860419024
+        - 57.49933686129752
+      - - L
+        - 223.1612049151732
+        - 59.19406939931238
+      - - L
+        - 217.96872221656034
+        - 60.68177480421872
+      - - L
+        - 212.8763275737114
+        - 61.93266449027336
+      - - L
+        - 207.92022780866944
+        - 62.91780708776329
+      - - L
+        - 203.14001953071954
+        - 63.61021532437693
+      - - L
+        - 198.5794091639991
+        - 63.98676402881304
+      - - L
+        - 194.2863944396933
+        - 64.03139570798676
+      - - L
+        - 190.32774541338742
+        - 63.73253710695209
+      - - L
+        - 186.59840748262536
+        - 63.09530133524832
+      - - L
+        - 182.88238591376881
+        - 62.15318055137419
+      - - L
+        - 179.1098743347181
+        - 60.923557680587386
+      - - L
+        - 175.26902163339747
+        - 59.40850499164954
+      - - L
+        - 171.36063396396418
+        - 57.61613590617658
+      - - L
+        - 167.39229336269318
+        - 55.56245022577512
+      - - L
+        - 163.37408159268614
+        - 53.27063697828834
+      - - L
+        - 159.3160387912544
+        - 50.769451634086934
+      - - L
+        - 155.22689421870018
+        - 48.09155788717045
+      - - L
+        - 151.11355710228656
+        - 45.2721812831048
+      - - L
+        - 146.9809893941017
+        - 42.348138568259635
+      - - L
+        - 142.83222601379407
+        - 39.35719826114338
+      - - L
+        - 138.66841137197727
+        - 36.33770853199243
+      - - L
+        - 134.48878420909466
+        - 33.328446707105805
+      - - L
+        - 130.29058058470017
+        - 30.368677526416523
+      - - L
+        - 126.06885356487935
+        - 27.498447355982034
+      - - L
+        - 121.81624542244403
+        - 24.759187670419205
+      - - L
+        - 117.52281697634221
+        - 22.194749553670245
+      - - L
+        - 113.17617156712734
+        - 19.853022192810894
+      - - L
+        - 108.76234535529237
+        - 17.788241098637293
+      - - L
+        - 104.26827355242906
+        - 16.06382135380022
+      - - L
+        - 99.68692292804612
+        - 14.754806335136536
+      - - L
+        - 95.02582487884222
+        - 13.947599572292873
+      - - L
+        - 90.36170145547592
+        - 13.717007727902637
+      - - L
+        - 85.76014361330503
+        - 14.002981133563074
+      - - L
+        - 81.19729487480559
+        - 14.673217959623923
+      - - L
+        - 76.65358631367158
+        - 15.67551112038466
+      - - L
+        - 72.12617594120931
+        - 16.961448501638976
+      - - L
+        - 67.6134327459918
+        - 18.492071189817064
+      - - L
+        - 63.116681219385576
+        - 20.234539583919336
+      - - L
+        - 58.64050366153054
+        - 22.159625898127263
+      - - L
+        - 54.19240621419684
+        - 24.240040182303087
+      - - L
+        - 49.782287102046105
+        - 26.449391447489038
+      - - L
+        - 45.421908247132585
+        - 28.761574540964162
+      - - L
+        - 41.1244446017598
+        - 31.15042096182293
+      - - L
+        - 36.90412653508021
+        - 33.589502836595386
+      - - L
+        - 32.775967227902264
+        - 36.05201787048228
+      - - L
+        - 28.755560537464188
+        - 38.51070791694878
+      - - L
+        - 24.85893573930122
+        - 40.93777725715254
+      - - L
+        - 21.10245992343757
+        - 43.30478079512196
+      - - L
+        - 17.502785891298124
+        - 45.582447297261226
+      - - L
+        - 14.076855354022706
+        - 47.74038549972936
+      - - L
+        - 10.84199119807691
+        - 49.74658254088528
+      - - L
+        - 7.816168160462645
+        - 51.566523679131464
+      - - L
+        - 5.0186949431268335
+        - 53.16159042497979
+      - - L
+        - 2.471949934158408
+        - 54.486015529208125
+      - - L
+        - 0.20610324569293126
+        - 55.48082970690662
+      - - L
+        - -1.7849870652162791
+        - 56.30701453420981
+      - - Z
+      fill: '#1d1e22'
+    alt: swash plate
+    size:
+    - 301.643992859302
+    - 76.26746289304792
+    caption: Figure 2.1 — A calligraphic line, computed
+  - type: heading
+    level: 2
+    text: 2.1 · Breaks and keeps
+    id: ch-2-s1
+  - type: paragraph
+    text: 'Composition is a settling of accounts between content and page. The column
+      earns its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book.
+      Composition is a settling of accounts between content and page. The column earns
+      its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book. '
+  - break_before: page
+    type: heading
+    level: 1
+    text: 3 · The Book
+    id: ch-3
+  - type: paragraph
+    text: 'Composition is a settling of accounts between content and page. The column
+      earns its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book.
+      Composition is a settling of accounts between content and page. The column earns
+      its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. '
+  - type: list
+    items:
+    - Front matter carries the identity.
+    - Chapters number themselves.
+    - Figures keep their captions.
+    ordered: true
+  - type: paragraph
+    text: 'Composition is a settling of accounts between content and page. The column
+      earns its measure, the margin its silence; what remains is the text''s own rhythm,
+      carried line by line through the book. Composition is a settling of accounts
+      between content and page. The column earns its measure, the margin its silence;
+      what remains is the text''s own rhythm, carried line by line through the book. '
+  media: paged
+meta:
+  author: FrameGraph Press

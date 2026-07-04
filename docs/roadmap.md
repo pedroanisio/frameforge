@@ -221,12 +221,16 @@ so it moves ahead of item 1.
    `PathSegList`, JSON-Schema `prefixItems`, enum-gated by `grammar-check`) and G-2
    (`perspective` marked non-conformant in model + EBNF, validator WARN
    `non-conformant-3d`). The only residual is documentation (Appendix A). *Effort: XS.*
-5. **Item 8 — Book composition API.** Build the semantic authoring layer above
-   pages: `BookBuilder`, chapter/section builders, block IR, deterministic
-   single-column pagination, figure numbering/captions, `keep_with_caption`, and
-   lowering to today's `DocumentBuilder` / `PageBuilder`. This can use the
-   existing imported-figure asset metadata without changing the core grammar.
-   *Effort: M → L; additive product surface.*
+5. **Item 8 — Book composition API.** ✅ **DELIVERED** (2026-07-03):
+   `framegraph.sdk.book` — `BookBuilder` + `ChapterBuilder` compose front matter
+   (display title, author, chapters-only TOC) and chapters/sections into ONE
+   validated flow document, lowered through `FlowBuilder` and paginated by the
+   ADR-0003 engine. Numbering is computed at build time (§A.0 — no renderer
+   counter engine): chapters `1`, sections `1.1`, per-chapter figure labels
+   folded into captions; chapters open on fresh pages; `keep_with_caption` via
+   `break_inside: avoid`; boxless figure geometry gets a derived size (a
+   computed path must never reserve zero flow height). Zero grammar change.
+   Fixture `book-composition.fg.yaml`; runnable `book_builder_demo.py`.
 6. **Deferred / conditional.** Items 3 / 5 *implementation* only if a later decision
    reverses step 0; item 6 (interaction / animation) only if live presentation
    becomes a goal. *Lowest priority.*
