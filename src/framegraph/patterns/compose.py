@@ -172,6 +172,10 @@ def _emit_zone(objects: list[dict[str, Any]], zone: PatternZone,
                   "font_family": _FONTS.get(ltyp.get("font") or "primary"),
                   "font_size": float(ltyp.get("size", 14)),
                   "font_weight": int(ltyp.get("weight", 700)),
+                  # single-line label in a slot-height box: without an
+                  # explicit unit line-height the ~1.35 default overflows a
+                  # 16px slot by ~3px and every zone label counts clipped
+                  "line_height": 1.0,
                   "letter_spacing": 0.8}})
     cy += lh + float(label_slot.get("gap_below", 10))
 
@@ -230,7 +234,9 @@ def compose(pattern_id: int, fill: dict[str, Any], *,
         {"type": "text", "box": [MARGIN, MARGIN + 22, CANVAS_W - 2 * MARGIN, 48],
          "text": title or pattern.name,
          "style": {"color": "text", "font_family": _FONTS["heading"],
-                   "font_size": 40, "font_weight": 700}},
+                   # single display line in a 48px band: the ~1.35 default
+                   # line-height overshoots the box and counts clipped
+                   "font_size": 40, "font_weight": 700, "line_height": 1.0}},
     ]
     for zone in pattern.zones:
         _emit_zone(objects, zone, boxes[zone.role],

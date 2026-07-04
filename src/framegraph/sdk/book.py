@@ -28,6 +28,7 @@ from __future__ import annotations
 from typing import Any
 
 from framegraph.sdk.flow import FlowBuilder
+from framegraph.sdk.humanize import apply_humanize
 from framegraph.sdk.model import HEAD_VERSION, validate_document
 
 __all__ = ["BookBuilder", "ChapterBuilder"]
@@ -142,6 +143,7 @@ class BookBuilder:
             doc["lang"] = self.lang
         if self.author:
             doc["meta"] = {"author": self.author}
+        doc = apply_humanize(doc)      # seeded hand on figures; identity if off
         if validate:
             validate_document(doc)
         return doc
@@ -149,6 +151,17 @@ class BookBuilder:
 def _object_bounds(obj: dict[str, Any]) -> list[float] | None:
     """[w, h] extent of a boxless object's geometry, when derivable."""
     pts: list[tuple[float, float]] = []
+    for child in obj.get("children") or []:        # groups: recurse
+        if isinstance(child, dict):
+            b = child.get("box")
+            if isinstance(b, (list, tuple)) and len(b) >= 4:
+                pts.extend([(float(b[0]), float(b[1])),
+                            (float(b[0]) + float(b[2]),
+                             float(b[1]) + float(b[3]))])
+                continue
+            sub = _object_bounds(child)
+            if sub:
+                pts.append((sub[0], sub[1]))
     d = obj.get("d")
     if isinstance(d, (list, tuple)):
         for seg in d:

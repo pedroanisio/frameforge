@@ -130,7 +130,8 @@ def apply_humanize(data: dict[str, Any]) -> dict[str, Any]:
     """Return a copy of ``data`` with the humanize hand applied; identity if off.
 
     Pure and deterministic. Walks page-mode layer objects (and their group
-    children), perturbing whole-object rotation / opacity / inline stroke weight.
+    children) AND the visual objects embedded in flow stories (figures),
+    perturbing whole-object rotation / opacity / inline stroke weight.
     When neither the document nor any object opts in, the input is returned
     unchanged (no copy) — so documents without a ``humanize`` spec render exactly
     as before and existing golden fixtures cannot move.
@@ -150,6 +151,11 @@ def apply_humanize(data: dict[str, Any]) -> dict[str, Any]:
                 continue
             for oi, obj in enumerate(layer["objects"]):
                 _walk(obj, doc_hand, f"p{pi}/l{li}/o{oi}", exempt)
+        # flow stories: the visual object embedded in each figure flowable
+        # (user-reported gap — a humanized figure rendered clean)
+        for fi, flow in enumerate(page.get("story") or []):
+            if isinstance(flow, dict) and isinstance(flow.get("object"), dict):
+                _walk(flow["object"], doc_hand, f"p{pi}/s{fi}", exempt)
     return out
 
 

@@ -24,7 +24,7 @@ The 96 tracked, runnable SDK clients under `static/examples/`, indexed by their 
 | [`architecture_map.py`](../static/examples/architecture_map.py) | FrameGraph v2 — Architecture Map (companion to ``conceptual-analysis.md``). |
 | [`asset_recolor_guide.py`](../static/examples/asset_recolor_guide.py) | Using imported assets — recolour/gradient them, or trace on top of them. |
 | [`atlantis_adventure_game.py`](../static/examples/atlantis_adventure_game.py) | THE LOST TIDE // 海淵 — a pixel-art point-&-click adventure, drawn as a comic. |
-| [`book_builder_demo.py`](../static/examples/book_builder_demo.py) | BookBuilder — the semantic book layer end to end (roadmap item 8). |
+| [`book_builder_demo.py`](../static/examples/book_builder_demo.py) | BookBuilder — a capability tour as a real book (roadmap item 8). |
 | [`brand_book.py`](../static/examples/brand_book.py) | Typeset & publish *Brand, From Products to Source Code* as a native FrameGraph |
 | [`brand_book_figures.py`](../static/examples/brand_book_figures.py) | House visual system + illustration plates for the book *Brand, From Products |
 | [`build_wireframe_annotated.py`](../static/examples/build_wireframe_annotated.py) | FrameGraph authoring-IDE wireframe — on ruler paper. FrameGraph SDK widgets. |

@@ -93,5 +93,19 @@ def test_every_sidecared_pattern_renders_with_no_uncontained_text():
             f"pattern {pid}: {stats.get('uncontained')} uncontained text object(s)")
 
 
+def test_composed_pages_render_with_no_clipped_text():
+    """Regression (book round): compose's page title and zone labels sat in
+    boxes shorter than their line box (~1.35 default line-height) — every
+    composed page counted clipped text objects. Single-line display slots
+    pin line_height 1.0."""
+    from framegraph.sdk import render_pages_with_stats
+    doc = compose(10, {"strengths": ["Deterministic"],
+                       "weaknesses": ["Proxy fonts"],
+                       "opportunities": ["Corpus growth"],
+                       "threats": ["Silent loss"]})
+    _, stats = render_pages_with_stats(doc, base_dir=str(ROOT))
+    assert stats.get("clipped", 0) == 0
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))

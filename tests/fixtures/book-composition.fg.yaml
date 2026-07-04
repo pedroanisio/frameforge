@@ -8,6 +8,32 @@ profile: book
 title: On Composition
 lang: en
 defs:
+  tokens:
+    colors:
+      surface: '#f7f5f0'
+      border: '#d9d3c7'
+      text: '#1d1e22'
+      text_muted: '#6c7077'
+      primary: '#233042'
+      accent: '#0f7d88'
+      accent_warm: '#b5642c'
+      data_3: '#3f7d4e'
+      paper: '#fcfbf8'
+      bg: '#FFFFFF'
+      title_color: '#1A2B3E'
+      kicker_color: '#9A9A9A'
+      dot_primary: '#E51A4C'
+      dot_secondary: '#1A2B3E'
+      dot_tertiary: '#C8C8C8'
+      header_fill: '#1A56B0'
+      leaf_fill: '#FFFFFF'
+      outline_core: '#1A56B0'
+      outline_extended: '#7FBA3A'
+      outline_future: '#7FBA3A'
+      header_text_color: '#FFFFFF'
+      leaf_text_color: '#1A2B3E'
+      page_number_color: '#9A9A9A'
+      edge_color: '#C8C8C8'
   masters:
     book:
       canvas:
@@ -41,567 +67,5763 @@ pages:
     text: 1 · The Column
     id: ch-1
   - type: paragraph
-    text: 'Composition is a settling of accounts between content and page. The column
-      earns its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book.
-      Composition is a settling of accounts between content and page. The column earns
-      its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book.
-      Composition is a settling of accounts between content and page. The column earns
-      its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. '
+    text: A page begins as a negotiation between text and silence. The column takes
+      what it needs to carry a comfortable line — forty-five to seventy-five characters
+      — and returns the rest to the margins, where the eye rests between thoughts.
+  - type: paragraph
+    text: FrameGraph settles this negotiation deterministically. A flow section names
+      a master; the master names a canvas; the margins resolve through an explicit
+      region, a declared margin, or the Johnston canon — inner one-and-a-half, top
+      two, outer three, foot four. Nothing is eyeballed, so nothing drifts.
   - type: heading
     level: 2
-    text: 1.1 · Measure and margin
+    text: 1.1 · Measure and rhythm
     id: ch-1-s1
   - type: paragraph
-    text: 'Composition is a settling of accounts between content and page. The column
-      earns its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book.
-      Composition is a settling of accounts between content and page. The column earns
-      its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book. '
+    text: The Knuth–Plass engine breaks each paragraph as a whole, trading tightness
+      across lines instead of committing greedily to the first fit. Hyphenation follows
+      Liang patterns. The result is the even grey a book page owes its reader.
   - break_inside: avoid
     type: figure
     object:
-      box:
-      - 0
-      - 0
-      - 300
-      - 110
-      type: rect
-      fill: '#0f7d88'
-      radius: 6
-    alt: teal column plate
-    caption: Figure 1.1 — The column as a solid
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 66.0
+        - 12
+        decorative: true
+        type: rect
+        fill: '#0f7d88'
+      - box:
+        - 0
+        - 16
+        - 82.80000000000001
+        - 12
+        decorative: true
+        type: rect
+        fill: '#0f7d88'
+      - box:
+        - 0
+        - 32
+        - 103.19999999999999
+        - 12
+        decorative: true
+        type: rect
+        fill: '#0f7d88'
+      - box:
+        - 0
+        - 48
+        - 129.0
+        - 12
+        decorative: true
+        type: rect
+        fill: '#0f7d88'
+      - box:
+        - 0
+        - 64
+        - 161.39999999999998
+        - 12
+        decorative: true
+        type: rect
+        fill: '#0f7d88'
+      - box:
+        - 0
+        - 80
+        - 201.60000000000002
+        - 12
+        decorative: true
+        type: rect
+        fill: '#0f7d88'
+    alt: six bars growing by a constant ratio
+    size:
+    - 201.60000000000002
+    - 92.0
+    caption: 'Figure 1.1 — A modular scale (base 11, ratio 1.25): [11.0, 13.8, 17.2,
+      21.5, 26.9, 33.6]'
+  - type: paragraph
+    text: Sizes drawn from one modular scale agree with each other the way notes of
+      one chord do; the bars above are the scale made visible, each length six times
+      its font size.
+  - type: paragraph
+    text: 'The proof of a paginator is what it refuses to do: it will not orphan a
+      heading at a page foot, will not split a kept figure from its caption, and will
+      not stretch a last line into a river because the paragraph ended inconveniently.
+      Refusals are design; the engine''s cost function makes them cheap enough to
+      be invisible.'
   - type: heading
     level: 2
-    text: 1.2 · The grey page
+    text: 1.2 · Lists and continuation
     id: ch-1-s2
+  - type: list
+    items:
+    - The column carries prose.
+    - Lists interrupt it with rhythm, not with noise.
+    - A continuation line hangs beneath its marker.
   - type: paragraph
-    text: 'Composition is a settling of accounts between content and page. The column
-      earns its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book.
-      Composition is a settling of accounts between content and page. The column earns
-      its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. '
+    text: 'Everything on this page is a flowable: paragraphs, headings, lists, figures.
+      The engine decides where pages end; the author decides only what must not be
+      separated.'
+  - type: heading
+    level: 2
+    text: 1.3 · The canon, briefly
+    id: ch-1-s3
+  - type: paragraph
+    text: 'Edward Johnston taught letterers to divide the page before touching it:
+      the inner margin one and a half units, the head two, the outer three, the foot
+      four. The asymmetry is not decoration — facing pages share their inner silence,
+      and the thumb needs the outer edge. FrameGraph mirrors the canon recto and verso,
+      so a spread reads as one object.'
+  - type: paragraph
+    text: 'A measure that runs too long tires the return sweep of the eye; one that
+      runs too short chops the phrase. The forty-five to seventy-five character band
+      is not taste but physiology, and the validator can be asked to check it the
+      way it checks contrast: before ink, not after complaints.'
+  - type: paragraph
+    text: None of this requires an operator watching a preview. The same YAML paginates
+      identically on every machine, because the breaks are chosen by an algorithm
+      with a cost function, not by a rendering accident. Determinism is what lets
+      a book carry a test suite.
+  - type: paragraph
+    text: 'What follows is a tour: each chapter takes one capability family, states
+      what it is for, and proves it with plates computed by the very functions under
+      discussion. Nothing was drawn by hand; everything can be re-derived.'
+  - type: heading
+    level: 2
+    text: 1.4 · Reading a spread
+    id: ch-1-s4
+  - type: paragraph
+    text: Hold two facing pages and the design either resolves or it does not. The
+      inner margins pool into one channel of quiet; the outer edges hold the thumbs;
+      the running text aligns across the gutter because both pages answer to the same
+      master. A book that only works one page at a time is a stack of leaflets.
+  - type: paragraph
+    text: The verso and recto masters mirror each other, and the engine tracks the
+      document-global page parity — so a chapter that opens mid-book still knows which
+      margin is inner. These are the kinds of facts a template cannot carry and a
+      layout engine must.
   - break_before: page
     type: heading
     level: 1
     text: 2 · The Line
     id: ch-2
   - type: paragraph
-    text: 'Composition is a settling of accounts between content and page. The column
-      earns its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book.
-      Composition is a settling of accounts between content and page. The column earns
-      its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book. '
+    text: 'A stroke is a promise about a pen. The outline engine keeps that promise
+      in geometry: the centre-line and a width become a closed filled path, so every
+      backend paints the same body without knowing anything about pens.'
   - break_inside: avoid
     type: figure
     object:
       type: path
       d:
       - - M
-        - 1.7849870652162791
-        - 63.69298546579019
+        - 2.9849346218877892
+        - 51.3316795009741
       - - L
-        - 3.8332486061589197
-        - 62.566768672723015
+        - 69.9100551926917
+        - 19.781265517595113
       - - L
-        - 6.16230932510085
-        - 61.07532706338446
+        - 146.8695048315003
+        - 58.26099033699941
       - - L
-        - 8.731305056873166
-        - 59.43606582502021
+        - 147.56386273965697
+        - 58.56241078025205
       - - L
-        - 11.535683691389206
-        - 57.64643928383151
+        - 148.2867079016697
+        - 58.787092911239604
       - - L
-        - 14.563101394515682
-        - 55.7171038017073
+        - 149.02958764372406
+        - 58.93240938338086
       - - L
-        - 17.798144645977292
-        - 53.66586450027064
+        - 149.7838150153181
+        - 58.99666092163956
       - - L
-        - 21.22406596055373
-        - 51.51463024903504
+        - 150.5405703711267
+        - 58.97909619319435
       - - L
-        - 24.823466002488352
-        - 49.28781179747065
+        - 151.2910045045477
+        - 58.87992059323635
       - - L
-        - 28.57856426069878
-        - 47.01144149284746
+        - 152.02634212692675
+        - 58.70029384315659
       - - L
-        - 32.47129131438766
-        - 44.71267171268082
+        - 152.73798448241396
+        - 58.44231642920932
       - - L
-        - 36.483292031357
-        - 42.41948097211034
+        - 230.2682267608645
+        - 25.491963460867836
       - - L
-        - 40.59587346491979
-        - 40.160497163404614
+        - 297.72972972972974
+        - 48.62162162162162
       - - L
-        - 44.78990725009205
-        - 37.96488575114003
+        - 299.065166630813
+        - 48.93729677697692
       - - L
-        - 49.045684345460025
-        - 35.86226805162842
+        - 300.4365286540135
+        - 48.986375507673856
       - - L
-        - 53.342712897953895
-        - 33.882639802510965
+        - 301.79111512584836
+        - 48.76697174561541
       - - L
-        - 57.65944563765499
-        - 32.0562561139932
+        - 303.0768700478658
+        - 48.28751705433444
       - - L
-        - 61.972922264395386
-        - 30.413435444465318
+        - 304.24438257947236
+        - 47.56643660873558
       - - L
-        - 66.25831878061442
-        - 28.984210416080664
+        - 305.248785868827
+        - 46.63144112595663
       - - L
-        - 70.48841910586005
-        - 27.79771468981257
+        - 306.0514812607956
+        - 45.518461958049265
       - - L
-        - 74.63308331804996
-        - 26.88114409095361
+        - 306.6216216216216
+        - 44.270270270270274
       - - L
-        - 78.65891368632842
-        - 26.258082629615338
+        - 306.93729677697695
+        - 42.934833369187025
       - - L
-        - 82.52955697704625
-        - 25.94599500333904
+        - 306.98637550767387
+        - 41.563471345986514
       - - L
-        - 86.20744897928758
-        - 25.952892709029513
+        - 306.7669717456154
+        - 40.20888487415166
       - - L
-        - 89.63829854452408
-        - 26.282992272097363
+        - 306.28751705433444
+        - 38.92312995213421
       - - L
-        - 92.90820289893556
-        - 26.924796261040463
+        - 305.56643660873556
+        - 37.75561742052765
       - - L
-        - 96.21585484973166
-        - 27.84936033153013
+        - 304.6314411259566
+        - 36.751214131173036
       - - L
-        - 99.63797644757094
-        - 29.05336614619978
+        - 303.5184619580493
+        - 35.94851873920442
       - - L
-        - 103.18209908915209
-        - 30.545092234696043
+        - 302.27027027027026
+        - 35.37837837837838
       - - L
-        - 106.84118954398375
-        - 32.321456973855774
+        - 232.27027027027026
+        - 11.378378378378379
       - - L
-        - 110.60218302365779
-        - 34.36775044632975
+        - 231.65559712828335
+        - 11.198603220747966
       - - L
-        - 114.45111568866703
-        - 36.66008316291412
+        - 231.02706622683974
+        - 11.07575744462362
       - - L
-        - 118.37559087956511
-        - 39.168219310684634
+        - 230.3899385258037
+        - 11.010869299684398
       - - L
-        - 122.36566941529983
-        - 41.85788497358348
+        - 229.7495469423888
+        - 11.004481915831166
       - - L
-        - 126.41399356868305
-        - 44.69238662622751
+        - 229.11125171331534
+        - 11.056648757054337
       - - L
-        - 130.51561640580056
-        - 47.63364563467424
+        - 228.48039552829678
+        - 11.166933173926981
       - - L
-        - 134.66777398620593
-        - 50.64280173885662
+        - 227.86225881039883
+        - 11.334412058469066
       - - L
-        - 138.8697050503427
-        - 53.68050726507368
+        - 227.26201551758604
+        - 11.557683570790678
       - - L
-        - 143.12255400882458
-        - 56.70698538356187
+        - 150.2381384724476
+        - 44.29283131497452
       - - L
-        - 147.42935578129982
-        - 59.68187961282955
+        - 73.1304951684997
+        - 5.739009663000589
       - - L
-        - 151.79507231985667
-        - 62.56388169924638
+        - 72.40439634024611
+        - 5.425893350499164
       - - L
-        - 156.22661285175832
-        - 65.31009218837833
+        - 71.64761636786854
+        - 5.196665501069958
       - - L
-        - 160.73270663730682
-        - 67.87504977422488
+        - 70.86981209330025
+        - 5.054251161872563
       - - L
-        - 165.3233938138136
-        - 70.20938492715675
+        - 70.08090863772398
+        - 5.000467601879277
       - - L
-        - 170.00875614438036
-        - 72.25816167501712
+        - 69.29097275270448
+        - 5.036001122731816
       - - L
-        - 174.7963756652819
-        - 73.95925481941262
+        - 68.51008436405566
+        - 5.160398301233575
       - - L
-        - 179.68705853067564
-        - 75.24265278195915
+        - 67.74820794759871
+        - 5.372071775227014
       - - L
-        - 184.66895362848572
-        - 76.03230283141833
+        - 67.01506537811221
+        - 5.668320499025902
       - - L
-        - 189.67225458661258
-        - 76.26746289304792
+        - -2.9849346218877892
+        - 38.6683204990259
       - - L
-        - 194.6806194491956
-        - 76.01273044942063
+        - -4.162829332861479
+        - 39.37231380179491
       - - L
-        - 199.75392416933423
-        - 75.394023008224
+        - -5.1807488471148915
+        - 40.292575929118165
       - - L
-        - 204.90685546928046
-        - 74.45619092562308
+        - -5.9995750885711026
+        - 41.39374172353157
       - - L
-        - 210.13532774688616
-        - 73.23960031964413
+        - -6.587841023973999
+        - 42.633494001096714
       - - L
-        - 215.43096409295524
-        - 71.777549630097
+        - -6.922939923329383
+        - 43.964189777047864
       - - L
-        - 220.78127778343966
-        - 70.09947519578128
+        - -6.991994123860658
+        - 45.334691158977996
       - - L
-        - 226.17039230704899
-        - 68.23286925809501
+        - -6.792349911367445
+        - 46.69233054736557
       - - L
-        - 231.57981395809765
-        - 66.2043668424062
+        - -6.331679500974098
+        - 47.98493462188779
       - - L
-        - 236.98909067106493
-        - 64.04033787689174
+        - -5.6276861982050885
+        - 49.16282933286148
       - - L
-        - 242.37632476409962
-        - 61.76719883710744
+        - -4.707424070881837
+        - 50.18074884711489
       - - L
-        - 247.7185546907113
-        - 59.41157180753915
+        - -3.6062582764684277
+        - 50.999575088571106
       - - L
-        - 252.99203240316348
-        - 57.00036524704076
+        - -2.3665059989032806
+        - 51.587841023974
       - - L
-        - 258.172421266479
-        - 54.56081979581867
+        - -1.0358102229521338
+        - 51.92293992332938
       - - L
-        - 263.23493388235505
-        - 52.12054581507702
+        - 0.3346911589779985
+        - 51.99199412386066
       - - L
-        - 268.15442290952393
-        - 49.707571764924666
-      - - L
-        - 272.9054315456716
-        - 47.350421412729965
-      - - L
-        - 277.4622028164278
-        - 45.07824289078549
-      - - L
-        - 281.7986355663885
-        - 42.921026025089546
-      - - L
-        - 285.8881538722351
-        - 40.90997263551216
-      - - L
-        - 289.7034098718227
-        - 39.07814317994141
-      - - L
-        - 293.21562444408994
-        - 37.46162916525236
-      - - L
-        - 296.39305314954976
-        - 36.1017855081043
-      - - L
-        - 299.1970897430063
-        - 35.049731409402845
-      - - L
-        - 301.643992859302
-        - 34.188253019844595
-      - - L
-        - 298.356007140698
-        - 25.811746980155405
-      - - L
-        - 295.8289519236603
-        - 26.90267021096752
-      - - L
-        - 292.9125024060058
-        - 28.336871899303116
-      - - L
-        - 289.67500055591006
-        - 29.940714584747642
-      - - L
-        - 286.12992346151066
-        - 31.70889385709563
-      - - L
-        - 282.29761001665383
-        - 33.62634102189524
-      - - L
-        - 278.2013644336115
-        - 35.672723974910454
-      - - L
-        - 273.8659221835722
-        - 37.824679562918206
-      - - L
-        - 269.31679067655057
-        - 40.056985994677426
-      - - L
-        - 264.57995209047607
-        - 42.343209485075334
-      - - L
-        - 259.6817327843117
-        - 44.656074555293344
-      - - L
-        - 254.6487592890766
-        - 46.967681361588724
-      - - L
-        - 249.50796759683652
-        - 49.24963475295924
-      - - L
-        - 244.28665364262213
-        - 51.47312147949792
-      - - L
-        - 239.01256412478918
-        - 53.60895857029992
-      - - L
-        - 233.71403432893507
-        - 55.62763087310827
-      - - L
-        - 228.4201860419024
-        - 57.49933686129752
-      - - L
-        - 223.1612049151732
-        - 59.19406939931238
-      - - L
-        - 217.96872221656034
-        - 60.68177480421872
-      - - L
-        - 212.8763275737114
-        - 61.93266449027336
-      - - L
-        - 207.92022780866944
-        - 62.91780708776329
-      - - L
-        - 203.14001953071954
-        - 63.61021532437693
-      - - L
-        - 198.5794091639991
-        - 63.98676402881304
-      - - L
-        - 194.2863944396933
-        - 64.03139570798676
-      - - L
-        - 190.32774541338742
-        - 63.73253710695209
-      - - L
-        - 186.59840748262536
-        - 63.09530133524832
-      - - L
-        - 182.88238591376881
-        - 62.15318055137419
-      - - L
-        - 179.1098743347181
-        - 60.923557680587386
-      - - L
-        - 175.26902163339747
-        - 59.40850499164954
-      - - L
-        - 171.36063396396418
-        - 57.61613590617658
-      - - L
-        - 167.39229336269318
-        - 55.56245022577512
-      - - L
-        - 163.37408159268614
-        - 53.27063697828834
-      - - L
-        - 159.3160387912544
-        - 50.769451634086934
-      - - L
-        - 155.22689421870018
-        - 48.09155788717045
-      - - L
-        - 151.11355710228656
-        - 45.2721812831048
-      - - L
-        - 146.9809893941017
-        - 42.348138568259635
-      - - L
-        - 142.83222601379407
-        - 39.35719826114338
-      - - L
-        - 138.66841137197727
-        - 36.33770853199243
-      - - L
-        - 134.48878420909466
-        - 33.328446707105805
-      - - L
-        - 130.29058058470017
-        - 30.368677526416523
-      - - L
-        - 126.06885356487935
-        - 27.498447355982034
-      - - L
-        - 121.81624542244403
-        - 24.759187670419205
-      - - L
-        - 117.52281697634221
-        - 22.194749553670245
-      - - L
-        - 113.17617156712734
-        - 19.853022192810894
-      - - L
-        - 108.76234535529237
-        - 17.788241098637293
-      - - L
-        - 104.26827355242906
-        - 16.06382135380022
-      - - L
-        - 99.68692292804612
-        - 14.754806335136536
-      - - L
-        - 95.02582487884222
-        - 13.947599572292873
-      - - L
-        - 90.36170145547592
-        - 13.717007727902637
-      - - L
-        - 85.76014361330503
-        - 14.002981133563074
-      - - L
-        - 81.19729487480559
-        - 14.673217959623923
-      - - L
-        - 76.65358631367158
-        - 15.67551112038466
-      - - L
-        - 72.12617594120931
-        - 16.961448501638976
-      - - L
-        - 67.6134327459918
-        - 18.492071189817064
-      - - L
-        - 63.116681219385576
-        - 20.234539583919336
-      - - L
-        - 58.64050366153054
-        - 22.159625898127263
-      - - L
-        - 54.19240621419684
-        - 24.240040182303087
-      - - L
-        - 49.782287102046105
-        - 26.449391447489038
-      - - L
-        - 45.421908247132585
-        - 28.761574540964162
-      - - L
-        - 41.1244446017598
-        - 31.15042096182293
-      - - L
-        - 36.90412653508021
-        - 33.589502836595386
-      - - L
-        - 32.775967227902264
-        - 36.05201787048228
-      - - L
-        - 28.755560537464188
-        - 38.51070791694878
-      - - L
-        - 24.85893573930122
-        - 40.93777725715254
-      - - L
-        - 21.10245992343757
-        - 43.30478079512196
-      - - L
-        - 17.502785891298124
-        - 45.582447297261226
-      - - L
-        - 14.076855354022706
-        - 47.74038549972936
-      - - L
-        - 10.84199119807691
-        - 49.74658254088528
-      - - L
-        - 7.816168160462645
-        - 51.566523679131464
-      - - L
-        - 5.0186949431268335
-        - 53.16159042497979
-      - - L
-        - 2.471949934158408
-        - 54.486015529208125
-      - - L
-        - 0.20610324569293126
-        - 55.48082970690662
-      - - L
-        - -1.7849870652162791
-        - 56.30701453420981
+        - 1.6923305473655708
+        - 51.792349911367445
       - - Z
-      fill: '#1d1e22'
-    alt: swash plate
+      fill: '#0f7d88'
+    alt: thick teal zigzag as a filled shape
     size:
-    - 301.643992859302
-    - 76.26746289304792
-    caption: Figure 2.1 — A calligraphic line, computed
+    - 306.98637550767387
+    - 58.99666092163956
+    caption: Figure 2.1 — A constant-width stroke, outlined
   - type: heading
     level: 2
-    text: 2.1 · Breaks and keeps
+    text: 2.1 · Width as a voice
     id: ch-2-s1
   - type: paragraph
-    text: 'Composition is a settling of accounts between content and page. The column
-      earns its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book.
-      Composition is a settling of accounts between content and page. The column earns
-      its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book. '
+    text: 'Give the width a profile and the line starts to speak: full at the attack,
+      tapering to silence. This is the Width tool as a function of arc length, not
+      a gesture.'
+  - break_inside: avoid
+    type: figure
+    object:
+      type: path
+      d:
+      - - M
+        - 0.658815198007414
+        - 40.980253300123564
+      - - L
+        - 300.0527052158406
+        - 12.878420264009884
+      - - L
+        - 299.9472947841594
+        - 11.121579735990116
+      - - L
+        - -0.658815198007414
+        - 19.019746699876436
+      - - Z
+      fill: '#b5642c'
+    alt: rust wedge tapering to a point
+    size:
+    - 300.0527052158406
+    - 40.980253300123564
+    caption: Figure 2.2 — A tapered profile, width 22 falling to nothing
+  - type: paragraph
+    text: Hold a broad nib at thirty degrees and the same machinery yields calligraphy
+      — thick where the tangent crosses the pen, thin where it runs along it.
+  - break_inside: avoid
+    type: figure
+    object:
+      type: path
+      d:
+      - - M
+        - 2.303814153153486
+        - 59.566201448290904
+      - - L
+        - 4.12001355946448
+        - 58.45558697815851
+      - - L
+        - 6.162706796197371
+        - 56.963869694286664
+      - - L
+        - 8.399180498422343
+        - 55.380512098903424
+      - - L
+        - 10.83308699190966
+        - 53.68902360025288
+      - - L
+        - 13.457574672155499
+        - 51.89065872516823
+      - - L
+        - 16.261730366920382
+        - 49.99648386954474
+      - - L
+        - 19.23293708765609
+        - 48.02326393021763
+      - - L
+        - 22.357781761075742
+        - 45.991257926469096
+      - - L
+        - 25.622400076357355
+        - 43.92299130469837
+      - - L
+        - 29.012581114123766
+        - 41.84254727555043
+      - - L
+        - 32.51375497428942
+        - 39.77514373642922
+      - - L
+        - 36.11090996265199
+        - 37.746869816182496
+      - - L
+        - 39.78845376480685
+        - 35.784507955071774
+      - - L
+        - 43.530018279951065
+        - 33.915391004460965
+      - - L
+        - 47.31820081531208
+        - 32.16725107250066
+      - - L
+        - 51.13423261897815
+        - 30.56801254031939
+      - - L
+        - 54.9575707757291
+        - 29.1454671876757
+      - - L
+        - 58.76542681549283
+        - 27.926745029372718
+      - - L
+        - 62.532285792856186
+        - 26.937462634867416
+      - - L
+        - 66.22955049254657
+        - 26.200401707641845
+      - - L
+        - 69.82558850413116
+        - 25.73357429618418
+      - - L
+        - 73.28667605791755
+        - 25.547634201876736
+      - - L
+        - 76.57957618201475
+        - 25.642914928255653
+      - - L
+        - 79.64866925627027
+        - 26.020877394355274
+      - - L
+        - 82.56779828651484
+        - 26.656817006081447
+      - - L
+        - 85.54385894527915
+        - 27.508968443341303
+      - - L
+        - 88.67124642279002
+        - 28.581072123059215
+      - - L
+        - 91.95915679435703
+        - 29.893516245265936
+      - - L
+        - 95.39997408366004
+        - 31.453284461999676
+      - - L
+        - 98.97903571860853
+        - 33.25380937214968
+      - - L
+        - 102.68050750925991
+        - 35.2777811507582
+      - - L
+        - 106.49025228250869
+        - 37.50036034968293
+      - - L
+        - 110.39691191699964
+        - 39.89180094102347
+      - - L
+        - 114.39210251427195
+        - 42.4192970193893
+      - - L
+        - 118.47024984247324
+        - 45.04816275223632
+      - - L
+        - 122.62833206666089
+        - 47.742510367595756
+      - - L
+        - 126.86564549271309
+        - 50.465560287350705
+      - - L
+        - 131.1836267640797
+        - 53.1796681309773
+      - - L
+        - 135.58571691355596
+        - 55.846108618761065
+      - - L
+        - 140.0772151159869
+        - 58.42462354220896
+      - - L
+        - 144.66502739165838
+        - 60.87272497915727
+      - - L
+        - 149.3571590030251
+        - 63.144756535511476
+      - - L
+        - 154.1617303726537
+        - 65.19077603160972
+      - - L
+        - 159.0852393454735
+        - 66.9554652033499
+      - - L
+        - 164.1298166529788
+        - 68.37752450973878
+      - - L
+        - 169.28945882922258
+        - 69.3903495990762
+      - - L
+        - 174.54583434243787
+        - 69.92503518042165
+      - - L
+        - 179.82325230740963
+        - 69.93581112520187
+      - - L
+        - 185.1177566790566
+        - 69.49857898023848
+      - - L
+        - 190.50710519537873
+        - 68.73576855631784
+      - - L
+        - 196.01011407957725
+        - 67.68556406916915
+      - - L
+        - 201.6228855632765
+        - 66.38287195596935
+      - - L
+        - 207.33481109179175
+        - 64.85662614526095
+      - - L
+        - 213.1299943305355
+        - 63.132894968733495
+      - - L
+        - 218.98860696237423
+        - 61.23653396708606
+      - - L
+        - 224.88796717999404
+        - 59.192033827528306
+      - - L
+        - 230.80333827172456
+        - 57.02393903073586
+      - - L
+        - 236.70850123213603
+        - 54.75704415789093
+      - - L
+        - 242.5761592464443
+        - 52.41647962673786
+      - - L
+        - 248.37822099285384
+        - 50.027747184003374
+      - - L
+        - 254.08599697635998
+        - 47.616738611347024
+      - - L
+        - 259.6703321510409
+        - 45.20975794564344
+      - - L
+        - 265.1016891571618
+        - 42.833562452821795
+      - - L
+        - 270.35018862442035
+        - 40.51543824463959
+      - - L
+        - 275.3856044204104
+        - 38.28333277284281
+      - - L
+        - 280.1772993105849
+        - 36.16608105048717
+      - - L
+        - 284.69406357491573
+        - 34.193792297986874
+      - - L
+        - 288.90376942350787
+        - 32.39852526551484
+      - - L
+        - 292.77263324149476
+        - 30.8155134451267
+      - - L
+        - 296.2635514174503
+        - 29.48550667245741
+      - - L
+        - 299.331983610993
+        - 28.45954483629368
+      - - L
+        - 302.00272897844485
+        - 27.610206828490377
+      - - L
+        - 303.058744159443
+        - 27.111695236085215
+      - - L
+        - 303.9972135177572
+        - 26.416744062429014
+      - - L
+        - 304.78207220224715
+        - 25.552059891392272
+      - - L
+        - 305.38315853382176
+        - 24.55087205074746
+      - - L
+        - 305.7773731018517
+        - 23.451655627737953
+      - - L
+        - 305.9495664615656
+        - 22.29665289305233
+      - - L
+        - 305.8931213187169
+        - 21.130249954051564
+      - - L
+        - 305.6102068284904
+        - 19.997271021555154
+      - - L
+        - 305.1116952360852
+        - 18.941255840557027
+      - - L
+        - 304.416744062429
+        - 18.002786482242808
+      - - L
+        - 303.5520598913923
+        - 17.21792779775283
+      - - L
+        - 302.55087205074744
+        - 16.616841466178222
+      - - L
+        - 301.451655627738
+        - 16.222626898148302
+      - - L
+        - 300.29665289305234
+        - 16.05043353843438
+      - - L
+        - 299.1302499540516
+        - 16.10687868128311
+      - - L
+        - 297.99727102155515
+        - 16.389793171509623
+      - - L
+        - 295.22675481493286
+        - 17.482874145187793
+      - - L
+        - 292.01191154551265
+        - 18.914956290505557
+      - - L
+        - 288.43830425850524
+        - 20.5047990548733
+      - - L
+        - 284.522156502418
+        - 22.249622882633304
+      - - L
+        - 280.28712855471395
+        - 24.136358164976084
+      - - L
+        - 275.7602006894151
+        - 26.146418949512828
+      - - L
+        - 270.97000900551546
+        - 28.258044541972
+      - - L
+        - 265.94610767187595
+        - 30.447524718323372
+      - - L
+        - 260.7186233428382
+        - 32.689875047178205
+      - - L
+        - 255.3180937748851
+        - 34.959223535838056
+      - - L
+        - 249.775403486603
+        - 37.22903685161594
+      - - L
+        - 244.12177900714616
+        - 39.472252815996626
+      - - L
+        - 238.3888291794817
+        - 41.661356021410306
+      - - L
+        - 232.60862839749348
+        - 43.768418805072
+      - - L
+        - 226.81384922827544
+        - 45.76512346926414
+      - - L
+        - 221.03795874593195
+        - 47.62278098728652
+      - - L
+        - 215.315501833922
+        - 49.31236649587689
+      - - L
+        - 209.6825056694645
+        - 50.804605031266505
+      - - L
+        - 204.17705233413417
+        - 52.070167836220506
+      - - L
+        - 198.8400773996865
+        - 53.08009100699364
+      - - L
+        - 193.71644842042275
+        - 53.80662343083086
+      - - L
+        - 188.8563207305472
+        - 54.22487959183028
+      - - L
+        - 184.31656045057306
+        - 54.315946482724506
+      - - L
+        - 180.17674769259037
+        - 54.064188874798134
+      - - L
+        - 176.32222121311767
+        - 53.48794225013392
+      - - L
+        - 172.51609672633296
+        - 52.64263651203491
+      - - L
+        - 168.6826833470212
+        - 51.55411611526122
+      - - L
+        - 164.80364954341542
+        - 50.225090352205676
+      - - L
+        - 160.87299184956854
+        - 48.6605694545014
+      - - L
+        - 156.8928409969749
+        - 46.870868464488524
+      - - L
+        - 152.86969483056384
+        - 44.8722837013983
+      - - L
+        - 148.81167377290197
+        - 42.68648756890214
+      - - L
+        - 144.72678308644404
+        - 40.339438256238935
+      - - L
+        - 140.62192879147585
+        - 37.86026242457827
+      - - L
+        - 136.50241006284244
+        - 35.28031644876041
+      - - L
+        - 132.37166793333913
+        - 32.632489632404244
+      - - L
+        - 128.23113904641568
+        - 29.95075217831925
+      - - L
+        - 124.08011970795022
+        - 27.269939091721803
+      - - L
+        - 119.91558808300036
+        - 24.625777183976528
+      - - L
+        - 115.73196993971357
+        - 22.05519520587263
+      - - L
+        - 111.52088137962895
+        - 19.597001835352902
+      - - L
+        - 107.27096428139147
+        - 17.293065627850318
+      - - L
+        - 102.96808147189553
+        - 15.190161718555881
+      - - L
+        - 98.59639876119854
+        - 13.342594865845188
+      - - L
+        - 94.14125357720998
+        - 11.815412251940787
+      - - L
+        - 89.59502994360973
+        - 10.687212112214256
+      - - L
+        - 85.37791608823346
+        - 10.130494922460786
+      - - L
+        - 85.27513062852206
+        - 10.111028614664614
+      - - L
+        - 85.17211015002054
+        - 10.092847061468728
+      - - L
+        - 85.06887071071914
+        - 10.075953096865048
+      - - L
+        - 84.96542840273794
+        - 10.060349354146714
+      - - L
+        - 84.86179934981853
+        - 10.046038265497618
+      - - L
+        - 84.75799970481074
+        - 10.033022061613302
+      - - L
+        - 84.65404564715497
+        - 10.021302771353252
+      - - L
+        - 84.54995338036017
+        - 10.010882221424657
+      - - L
+        - 80.74892055060279
+        - 10.016419552677716
+      - - L
+        - 80.64954976340684
+        - 10.007720984923012
+      - - L
+        - 80.5500784580311
+        - 10.000259226700404
+      - - L
+        - 80.45052202771426
+        - 9.994035432721045
+      - - L
+        - 80.35089587886819
+        - 9.989050566120444
+      - - L
+        - 80.25121542869367
+        - 9.985305398309421
+      - - L
+        - 80.1514961027947
+        - 9.982800508854735
+      - - L
+        - 80.05175333279126
+        - 9.981536285389398
+      - - L
+        - 79.9520025539314
+        - 9.981512923552676
+      - - L
+        - 75.8553196513186
+        - 10.402368636559157
+      - - L
+        - 71.47026838652691
+        - 11.18268987219734
+      - - L
+        - 67.16659899586884
+        - 12.27033195381582
+      - - L
+        - 62.93711617412013
+        - 13.614413107172963
+      - - L
+        - 58.77413781825493
+        - 15.174371855873323
+      - - L
+        - 54.67207318450717
+        - 16.917004970627282
+      - - L
+        - 50.6283667242709
+        - 18.81387887713911
+      - - L
+        - 46.64354515879962
+        - 20.83939486708802
+      - - L
+        - 42.72086168468792
+        - 22.96946767749934
+      - - L
+        - 38.86581505338228
+        - 25.18067381035385
+      - - L
+        - 35.085678179637576
+        - 27.449722369002295
+      - - L
+        - 31.389090037348012
+        - 29.753130183817504
+      - - L
+        - 27.785724192377252
+        - 32.0670148283856
+      - - L
+        - 24.28602999698734
+        - 34.36694346519029
+      - - L
+        - 20.901037423642645
+        - 36.62778994530163
+      - - L
+        - 17.642218238924258
+        - 38.82355688834573
+      - - L
+        - 14.521403190121688
+        - 40.927112227189774
+      - - L
+        - 11.55076963307962
+        - 42.90976613045526
+      - - L
+        - 8.742946161177834
+        - 44.740562339646566
+      - - L
+        - 6.111357452534783
+        - 46.38505047382121
+      - - L
+        - 3.671132001577658
+        - 47.803081651096576
+      - - L
+        - 1.441459870469294
+        - 48.94469512052813
+      - - L
+        - -0.5479649483533693
+        - 49.74218501258224
+      - - L
+        - -2.303814153153486
+        - 50.433798551709096
+      - - L
+        - -3.1503687211351563
+        - 50.9709886771644
+      - - L
+        - -3.875856385910737
+        - 51.66301144826069
+      - - L
+        - -4.45239706338107
+        - 52.483272817995584
+      - - L
+        - -4.857834618638706
+        - 53.40025060193804
+      - - L
+        - -5.076588313807099
+        - 54.37870585809822
+      - - L
+        - -5.100251567059409
+        - 55.38103709970592
+      - - L
+        - -4.927915012843658
+        - 56.36872529925999
+      - - L
+        - -4.5662014482909035
+        - 57.30381415315349
+      - - L
+        - -4.029011322835603
+        - 58.15036872113516
+      - - L
+        - -3.3369885517393127
+        - 58.87585638591074
+      - - L
+        - -2.516727182004418
+        - 59.45239706338107
+      - - L
+        - -1.5997493980619597
+        - 59.857834618638705
+      - - L
+        - -0.6212941419017763
+        - 60.0765883138071
+      - - L
+        - 0.3810370997059222
+        - 60.10025156705941
+      - - L
+        - 1.3687252992599896
+        - 59.927915012843656
+      - - Z
+      fill: '#1d1e22'
+    alt: black calligraphic swash
+    size:
+    - 305.9495664615656
+    - 69.93581112520187
+    caption: 'Figure 2.3 — A calligraphic swash: pen at 30°, thin ratio 0.18'
+  - type: heading
+    level: 2
+    text: 2.2 · The brush that repeats
+    id: ch-2-s2
+  - type: paragraph
+    text: 'Scatter and pattern brushes are placements, not paint: stamps laid down
+      by arc length with the tangent''s rotation. The dots below are one ellipse,
+      repeated by rule.'
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - decorative: true
+        type: ellipse
+        center:
+        - 0.0
+        - 40.0
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 20.40716660201253
+        - 31.804725027756685
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 40.724567390821065
+        - 23.369258029688254
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 61.45712783231015
+        - 16.02664761076313
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 82.83460025552469
+        - 10.91599810189696
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 104.73165778481476
+        - 10.624817078826455
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 125.35964469630434
+        - 18.041109615764917
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 144.32459530942947
+        - 29.17424678291889
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 162.9165802882878
+        - 40.93439273007824
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 182.4908759496682
+        - 50.91738781745775
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 203.94414243687262
+        - 55.04011276776224
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 225.60519283897713
+        - 51.51727491669329
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 246.4209525381263
+        - 44.435995308751814
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 266.570153348811
+        - 35.61179990587503
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+      - decorative: true
+        type: ellipse
+        center:
+        - 286.3833857273793
+        - 26.050121170267044
+        rx: 4.0
+        ry: 4.0
+        fill: '#0f7d88'
+    alt: teal dots along a curve
+    size:
+    - 290.3833857273793
+    - 59.04011276776224
+    caption: 'Figure 2.4 — A scatter brush: one stamp, arc-length spacing'
+  - type: paragraph
+    text: 'Profiles compose with smoothing: run the centre-line through the Catmull-Rom
+      interpolator first and the width function rides the curve, not the polyline.
+      The swash on the previous plate is exactly that — four knots, one pen angle,
+      and no hand-tuning anywhere.'
+  - type: heading
+    level: 2
+    text: 2.3 · Corners, honestly
+    id: ch-2-s3
+  - type: paragraph
+    text: 'A join is a small theory of what a corner means: miter insists the two
+      edges meet where they were headed, bevel concedes the point, round admits a
+      pen was involved. The engine implements all three and caps to match — and routes
+      the round cap explicitly through the outward direction, because at a stroke''s
+      end the shorter arc is ambiguous and the wrong choice bites into the body.'
+  - type: paragraph
+    text: The deeper point is architectural. Because outlining happens at author time,
+      the document that leaves the builder contains only closed filled paths. A PDF
+      engine, a browser, a plotter — none of them is asked to agree about pens, because
+      the pen is already gone.
+  - break_inside: avoid
+    type: figure
+    object:
+      type: path
+      d:
+      - - M
+        - 0.0
+        - 21.0
+      - - L
+        - 64.0
+        - 21.0
+      - - L
+        - 64.0
+        - 68.0
+      - - L
+        - 156.0
+        - 68.0
+      - - L
+        - 156.0
+        - 21.0
+      - - L
+        - 220.0
+        - 21.0
+      - - L
+        - 220.0
+        - 9.0
+      - - L
+        - 144.0
+        - 9.0
+      - - L
+        - 144.0
+        - 56.0
+      - - L
+        - 76.0
+        - 56.0
+      - - L
+        - 76.0
+        - 9.0
+      - - L
+        - 0.0
+        - 9.0
+      - - Z
+      fill: '#7c3aed'
+    alt: violet square-wave stroke with sharp corners
+    size:
+    - 220.0
+    - 68.0
+    caption: Figure 2.5 — Miter joins keep the promise of the corner
   - break_before: page
     type: heading
     level: 1
-    text: 3 · The Book
+    text: 3 · The Plane
     id: ch-3
   - type: paragraph
-    text: 'Composition is a settling of accounts between content and page. The column
-      earns its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book.
-      Composition is a settling of accounts between content and page. The column earns
-      its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. '
+    text: Shapes argue; the planar kernel arbitrates. Union, intersection, difference
+      and division are computed on the flattened rings and returned as plain even-odd
+      paths — holes included, no renderer contract touched.
+  - break_inside: avoid
+    type: figure
+    object:
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 70.0
+        - 35.0
+      - - L
+        - 70.0
+        - 0.0
+      - - L
+        - 0.0
+        - 0.0
+      - - L
+        - 0.0
+        - 70.0
+      - - L
+        - 35.0
+        - 70.0
+      - - L
+        - 35.0
+        - 105.0
+      - - L
+        - 105.0
+        - 105.0
+      - - L
+        - 105.0
+        - 35.0
+      - - Z
+      fill: '#0f7d88'
+    alt: teal union blob
+    size:
+    - 105.0
+    - 105.0
+    caption: 'Figure 3.1 — Union: two squares, one body'
+  - break_inside: avoid
+    type: figure
+    object:
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 0.0
+        - 0.0
+      - - L
+        - 70.0
+        - 0.0
+      - - L
+        - 70.0
+        - 70.0
+      - - L
+        - 0.0
+        - 70.0
+      - - Z
+      - - M
+        - 20.0
+        - 50.0
+      - - L
+        - 50.0
+        - 50.0
+      - - L
+        - 50.0
+        - 20.0
+      - - L
+        - 20.0
+        - 20.0
+      - - Z
+      fill: '#0f7d88'
+    alt: teal square with a square hole
+    size:
+    - 70.0
+    - 70.0
+    caption: Figure 3.2 — Difference with a hole — even-odd, natively
+  - type: heading
+    level: 2
+    text: 3.1 · Divide and conquer
+    id: ch-3-s1
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - 70.0
+          - 35.0
+        - - L
+          - 70.0
+          - 0.0
+        - - L
+          - 0.0
+          - 0.0
+        - - L
+          - 0.0
+          - 70.0
+        - - L
+          - 35.0
+          - 70.0
+        - - L
+          - 35.0
+          - 35.0
+        - - Z
+        fill: '#0f7d88'
+      - style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - 70.0
+          - 35.0
+        - - L
+          - 70.0
+          - 70.0
+        - - L
+          - 35.0
+          - 70.0
+        - - L
+          - 35.0
+          - 35.0
+        - - Z
+        fill: '#b5642c'
+      - style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - 70.0
+          - 35.0
+        - - L
+          - 105.0
+          - 35.0
+        - - L
+          - 105.0
+          - 105.0
+        - - L
+          - 35.0
+          - 105.0
+        - - L
+          - 35.0
+          - 70.0
+        - - L
+          - 70.0
+          - 70.0
+        - - Z
+        fill: '#7c3aed'
+    alt: three coloured boolean pieces
+    size:
+    - 105.0
+    - 105.0
+    caption: 'Figure 3.3 — Pathfinder divide: three pieces, three colours'
+  - type: paragraph
+    text: 'Division is the honest version of visual overlap: rather than stacking
+      translucent shapes and hoping, the kernel hands you the actual pieces — each
+      one addressable, fillable, and countable. The atlas of pieces is what makes
+      Live-Paint style colouring possible downstream.'
+  - type: heading
+    level: 2
+    text: 3.2 · Offsets and regions
+    id: ch-3-s2
+  - type: paragraph
+    text: 'An offset grows or shrinks a polygon with miter-true corners and refuses
+      to lie about collapse. Region filling is the same boolean algebra pointed inward:
+      every bounded region of an overlay becomes its own fillable face.'
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - -1.9999999999999982
+          - -1.9999999999999982
+        - - L
+          - 102.0
+          - -1.9999999999999982
+        - - L
+          - 102.0
+          - 102.0
+        - - L
+          - -1.9999999999999982
+          - 102.0
+        - - Z
+        fill: '#d7e6e8'
+      - style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - 12.0
+          - 12.0
+        - - L
+          - 88.0
+          - 12.0
+        - - L
+          - 88.0
+          - 88.0
+        - - L
+          - 12.0
+          - 88.0
+        - - Z
+        fill: '#0f7d88'
+      - style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - 26.0
+          - 26.0
+        - - L
+          - 74.0
+          - 26.0
+        - - L
+          - 74.0
+          - 74.0
+        - - L
+          - 26.0
+          - 74.0
+        - - Z
+        fill: '#fcfbf8'
+    alt: nested offset squares
+    size:
+    - 102.0
+    - 102.0
+    caption: Figure 3.4 — Offset rings at ±14, miter corners exact
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - stroke_style:
+          stroke_width: 1
+        style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - 70.0
+          - 35.0
+        - - L
+          - 70.0
+          - 0.0
+        - - L
+          - 0.0
+          - 0.0
+        - - L
+          - 0.0
+          - 70.0
+        - - L
+          - 35.0
+          - 70.0
+        - - L
+          - 35.0
+          - 35.0
+        - - Z
+        fill: '#0f7d88'
+        stroke: '#fcfbf8'
+      - stroke_style:
+          stroke_width: 1
+        style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - 70.0
+          - 35.0
+        - - L
+          - 105.0
+          - 35.0
+        - - L
+          - 105.0
+          - 105.0
+        - - L
+          - 35.0
+          - 105.0
+        - - L
+          - 35.0
+          - 70.0
+        - - L
+          - 70.0
+          - 70.0
+        - - Z
+        fill: '#7c3aed'
+        stroke: '#fcfbf8'
+      - stroke_style:
+          stroke_width: 1
+        style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - 70.0
+          - 35.0
+        - - L
+          - 70.0
+          - 70.0
+        - - L
+          - 35.0
+          - 70.0
+        - - L
+          - 35.0
+          - 35.0
+        - - Z
+        fill: '#b5642c'
+        stroke: '#fcfbf8'
+    alt: three region faces
+    size:
+    - 105.0
+    - 105.0
+    caption: 'Figure 3.5 — Live Paint: each bounded region its own colour'
+  - type: heading
+    level: 2
+    text: 3.3 · Scissors and the knife
+    id: ch-3-s3
+  - type: paragraph
+    text: Surgery completes the kit. The scissors split an open path at an arc-length
+      fraction, exact over corners; the knife is a boolean in disguise, intersecting
+      the shape with each half-plane of the cutting line. Both return plain geometry,
+      and both are deterministic to the digit.
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - 90.0
+          - 56.0
+        - - L
+          - 90.0
+          - 66.0
+        - - L
+          - 0.0
+          - 66.0
+        - - L
+          - 0.0
+          - 10.0
+        - - Z
+        fill: '#0f7d88'
+      - style:
+          fill_rule: evenodd
+        type: path
+        d:
+        - - M
+          - 98.0
+          - 62.0
+        - - L
+          - 98.0
+          - 6.0
+        - - L
+          - 8.0
+          - 6.0
+        - - L
+          - 8.0
+          - 16.0
+        - - Z
+        fill: '#b5642c'
+    alt: two knife-cut halves separated
+    size:
+    - 98.0
+    - 66.0
+    caption: 'Figure 3.6 — The knife: one rectangle, two pieces, pulled apart'
+  - type: paragraph
+    text: Degenerate inputs — shared edges, touching corners — are the graveyard of
+      geometry code. The kernel answers them with a deterministic nudge that prefers
+      the engaged result, and the test suite pins the areas it must conserve.
+  - break_before: page
+    type: heading
+    level: 1
+    text: 4 · Colour
+    id: ch-4
+  - type: paragraph
+    text: 'Chevreul''s law of simultaneous contrast is older than any screen and still
+      decides whether a page feels calm. The colour canon encodes it: harmonies computed
+      from the wheel, palettes closed over duties, contrast checked before ink.'
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#afd4d7'
+        radius: 3
+      - box:
+        - 40
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#5fa8b0'
+        radius: 3
+      - box:
+        - 80
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#0f7d88'
+        radius: 3
+      - box:
+        - 120
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#0a535b'
+        radius: 3
+      - box:
+        - 160
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#052a2d'
+        radius: 3
+      - box:
+        - 0
+        - 28
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#3d8f7c'
+        radius: 3
+      - box:
+        - 40
+        - 28
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#33689c'
+        radius: 3
+      - box:
+        - 80
+        - 28
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#4a4e8f'
+        radius: 3
+      - box:
+        - 0
+        - 56
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#33689c'
+        radius: 3
+      - box:
+        - 40
+        - 56
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#eb8b2d'
+        radius: 3
+    alt: three rows of related swatches
+    size:
+    - 194.0
+    - 76.0
+    caption: 'Figure 4.1 — The colour guide for one teal: scale, hues, contrast of
+      colours'
+  - type: heading
+    level: 2
+    text: 4.1 · A palette with duties
+    id: ch-4-s1
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 186
+        - 24
+        decorative: true
+        stroke_style:
+          stroke_width: 1
+        type: rect
+        fill: '#fcfbf8'
+        stroke: '#d9d3c7'
+      - box:
+        - 0
+        - 30
+        - 90
+        - 24
+        decorative: true
+        type: rect
+        fill: '#1d1e22'
+      - box:
+        - 0
+        - 60
+        - 24
+        - 24
+        decorative: true
+        type: rect
+        fill: '#b5642c'
+    alt: three duty swatches at decreasing area
+    size:
+    - 186.0
+    - 84.0
+    caption: Figure 4.2 — Ground, ink, accent — dosed roughly 62 · 30 · 8
+  - type: paragraph
+    text: The guide's six rows are not swatch inspiration; they are functions of one
+      input. Feed the same teal tomorrow and the same six families return — which
+      is what lets a palette decision live in version control instead of in somebody's
+      memory of a Tuesday.
+  - type: heading
+    level: 2
+    text: 4.2 · Recolouring a page
+    id: ch-4-s2
+  - type: paragraph
+    text: 'Recolor is one call over the whole document: token values, paint literals,
+      gradient stops. The pair below is the same plate, remapped from rust to violet
+      without touching text.'
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 86
+        - 44
+        type: rect
+        fill: '#b5642c'
+        radius: 5
+      - box:
+        - 0
+        - 50
+        - 86
+        - 18
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: '#b5642c'
+            position: 0%
+          - color: '#fcfbf8'
+            position: 100%
+      - box:
+        - 110
+        - 0
+        - 86
+        - 44
+        type: rect
+        fill: '#7c3aed'
+        radius: 5
+      - box:
+        - 110
+        - 50
+        - 86
+        - 18
+        type: rect
+        fill:
+          kind: linear
+          stops:
+          - color: '#7c3aed'
+            position: 0%
+          - color: '#fcfbf8'
+            position: 100%
+    alt: before and after swatch pairs
+    size:
+    - 196.0
+    - 68.0
+    caption: 'Figure 4.3 — recolor({rust → violet}): literals and gradient stops'
+  - type: heading
+    level: 2
+    text: 4.3 · Naming the palette
+    id: ch-4-s3
+  - type: paragraph
+    text: 'A colour that reaches the document does so as a token: a name in one table,
+      referenced everywhere it is used. The name is the design decision; the hex is
+      an implementation detail the recolour pass may change wholesale. Plates in this
+      chapter write literals only because they demonstrate the machinery beneath the
+      names.'
+  - type: paragraph
+    text: Tokens also carry the audit trail. When the grey test or the contrast floor
+      rejects a palette, the finding names a token, not a coordinate on some page
+      — and fixing the token fixes every use at once.
+  - type: heading
+    level: 2
+    text: 4.4 · Tone before hue
+    id: ch-4-s4
+  - type: paragraph
+    text: 'Chevreul''s sternest test ignores colour entirely: print the page grey
+      and see whether the hierarchy survives. A palette that only works in hue collapses
+      for a fifth of readers and every photocopier. The tone scale below is one teal
+      walked from paper to ink; any two neighbours are a legible step.'
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#cfe5e7'
+        radius: 3
+      - box:
+        - 40
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#9fcbcf'
+        radius: 3
+      - box:
+        - 80
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#6fb1b8'
+        radius: 3
+      - box:
+        - 120
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#3f97a0'
+        radius: 3
+      - box:
+        - 160
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#0f7d88'
+        radius: 3
+      - box:
+        - 200
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#0b5e66'
+        radius: 3
+      - box:
+        - 240
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#083e44'
+        radius: 3
+      - box:
+        - 280
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#041f22'
+        radius: 3
+    alt: eight swatches from light to dark teal
+    size:
+    - 314.0
+    - 20.0
+    caption: 'Figure 4.4 — A tone scale: one hue, eight measured steps'
+  - type: paragraph
+    text: 'Contrast is arithmetic, not opinion: ink on paper here measures 16.1:1
+      against the WCAG floor of 4.5:1 for body text. The builder can refuse a palette
+      before a single page is set — the cheapest possible accessibility review.'
+  - break_before: page
+    type: heading
+    level: 1
+    text: 5 · Style
+    id: ch-5
+  - type: paragraph
+    text: An object's paint need not be a single decision. The appearance stack paints
+      one geometry several times — fill, outer stroke, inner stroke — bottom to top,
+      each pass declaring only what it owns.
+  - break_inside: avoid
+    type: figure
+    object:
+      box:
+      - 0
+      - 0
+      - 200
+      - 90
+      appearance:
+      - fill: '#dbeafe'
+      - stroke: '#1d4ed8'
+        stroke_style:
+          stroke_width: 8
+      - stroke: '#ffffff'
+        stroke_style:
+          stroke_width: 3
+      type: rect
+      radius: 10
+    alt: card with double stroke
+    caption: Figure 5.1 — Three appearance passes on one rectangle
+  - type: heading
+    level: 2
+    text: 5.1 · Ordered effects
+    id: ch-5-s1
+  - type: paragraph
+    text: 'Effects stack in author order and kinds may repeat: a warm shadow below,
+      a glow around, a violet counter-shadow above. The SVG carries the filter chain;
+      browser targets composite it, the dependency-free proxy declares it faithfully.'
+  - break_inside: avoid
+    type: figure
+    object:
+      box:
+      - 0
+      - 0
+      - 200
+      - 90
+      effects:
+      - blur: 8.0
+        dx: 6.0
+        dy: 6.0
+        opacity: 0.35
+        kind: shadow
+      - color: '#00b8a9'
+        blur: 12.0
+        kind: glow
+      - color: '#7c3aed'
+        blur: 3.0
+        dx: -3.0
+        dy: -3.0
+        opacity: 0.4
+        kind: shadow
+      type: rect
+      fill: '#dbeafe'
+      radius: 10
+    alt: card carrying a filter chain
+    caption: 'Figure 5.2 — An ordered effect stack: shadow, glow, shadow'
+  - type: heading
+    level: 2
+    text: 5.2 · The imperfect hand
+    id: ch-5-s2
+  - type: paragraph
+    text: Perfection reads as machine; a seeded wobble reads as care. Humanize perturbs
+      rotation, opacity and stroke weight from one seed — the same seed always draws
+      the same page.
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 90
+        - 60
+        stroke_style:
+          stroke_width: 2
+        type: rect
+        fill: none
+        stroke: '#1d1e22'
+      - box:
+        - 110
+        - 0
+        - 90
+        - 60
+        opacity: 0.9267
+        stroke_style:
+          stroke_width: 2.1222
+        style:
+          transform: rotate(-1.4758deg)
+          transform_origin:
+          - 155.0
+          - 30.0
+        humanize:
+          enabled: true
+          seed: 7
+          weight: 0.35
+          opacity: 0.15
+          drift_deg: 2.0
+          roughen: 0.0
+          grain: 1.0
+        type: rect
+        fill: none
+        stroke: '#1d1e22'
+    alt: a clean and a wobbled rectangle
+    size:
+    - 200.0
+    - 60.0
+    caption: Figure 5.3 — The same rectangle, clean and humanized (seed 7)
+  - type: paragraph
+    text: 'Because the wobble is seeded, imperfection becomes a reviewable property:
+      change the seed and the hand changes; keep it and every rebuild of this book
+      draws the same tremor. The golden gate treats humanized pages like any other
+      — byte-identical until someone means to change them.'
+  - break_before: page
+    type: heading
+    level: 1
+    text: 6 · Data
+    id: ch-6
+  - type: paragraph
+    text: A chart is a claim drawn to scale. The chart helpers lower series onto a
+      frame — domain to box — and emit the same primitives as everything else, so
+      a figure of data obeys the same book rules as a figure of ink.
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - box:
+        - 43.0
+        - 73.33333333333334
+        - 14.0
+        - 36.66666666666666
+        type: rect
+        fill: '#0f7d88'
+      - box:
+        - 93.0
+        - 45.83333333333333
+        - 14.0
+        - 64.16666666666667
+        type: rect
+        fill: '#0f7d88'
+      - box:
+        - 143.0
+        - 64.16666666666666
+        - 14.0
+        - 45.83333333333334
+        type: rect
+        fill: '#0f7d88'
+      - box:
+        - 193.0
+        - 9.166666666666671
+        - 14.0
+        - 100.83333333333333
+        type: rect
+        fill: '#0f7d88'
+      - box:
+        - 243.0
+        - 36.66666666666667
+        - 14.0
+        - 73.33333333333333
+        type: rect
+        fill: '#0f7d88'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 0.0
+        - 0.0
+        to:
+        - 0.0
+        - 110.0
+        stroke: '#C4D0DD'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 0.0
+        - 110.0
+        to:
+        - 300.0
+        - 110.0
+        stroke: '#C4D0DD'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 0.0
+        - 110.0
+        to:
+        - 0.0
+        - 115.0
+        stroke: '#C4D0DD'
+      - box:
+        - -30.0
+        - 119.0
+        - 60
+        - 16
+        style:
+          align: center
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '0'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 100.0
+        - 110.0
+        to:
+        - 100.0
+        - 115.0
+        stroke: '#C4D0DD'
+      - box:
+        - 70.0
+        - 119.0
+        - 60
+        - 16
+        style:
+          align: center
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '2'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 200.0
+        - 110.0
+        to:
+        - 200.0
+        - 115.0
+        stroke: '#C4D0DD'
+      - box:
+        - 170.0
+        - 119.0
+        - 60
+        - 16
+        style:
+          align: center
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '4'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 300.0
+        - 110.0
+        to:
+        - 300.0
+        - 115.0
+        stroke: '#C4D0DD'
+      - box:
+        - 270.0
+        - 119.0
+        - 60
+        - 16
+        style:
+          align: center
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '6'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - -5.0
+        - 110.0
+        to:
+        - 0.0
+        - 110.0
+        stroke: '#C4D0DD'
+      - box:
+        - -58.0
+        - 102.0
+        - 48
+        - 16
+        style:
+          align: right
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '0'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - -5.0
+        - 55.0
+        to:
+        - 0.0
+        - 55.0
+        stroke: '#C4D0DD'
+      - box:
+        - -58.0
+        - 47.0
+        - 48
+        - 16
+        style:
+          align: right
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '6'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - -5.0
+        - 0.0
+        to:
+        - 0.0
+        - 0.0
+        stroke: '#C4D0DD'
+      - box:
+        - -58.0
+        - -8.0
+        - 48
+        - 16
+        style:
+          align: right
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '12'
+    alt: five teal bars with axes
+    size:
+    - 330.0
+    - 135.0
+    caption: Figure 6.1 — Bars on a framed domain
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - stroke_style:
+          stroke_width: 2
+        type: path
+        d: M 0 91.6667 C 8.33333 87.0833 33.3333 67.2222 50 64.1667 C 66.6667 61.1111
+          83.3333 77.9167 100 73.3333 C 116.667 68.75 133.333 41.25 150 36.6667 C
+          166.667 32.0833 183.333 48.8889 200 45.8333 C 216.667 42.7778 233.333 21.3889
+          250 18.3333 C 266.667 15.2778 291.667 25.9722 300 27.5
+        fill: none
+        stroke: '#b5642c'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 0.0
+        - 0.0
+        to:
+        - 0.0
+        - 110.0
+        stroke: '#C4D0DD'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 0.0
+        - 110.0
+        to:
+        - 300.0
+        - 110.0
+        stroke: '#C4D0DD'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 0.0
+        - 110.0
+        to:
+        - 0.0
+        - 115.0
+        stroke: '#C4D0DD'
+      - box:
+        - -30.0
+        - 119.0
+        - 60
+        - 16
+        style:
+          align: center
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '0'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 150.0
+        - 110.0
+        to:
+        - 150.0
+        - 115.0
+        stroke: '#C4D0DD'
+      - box:
+        - 120.0
+        - 119.0
+        - 60
+        - 16
+        style:
+          align: center
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '3'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 300.0
+        - 110.0
+        to:
+        - 300.0
+        - 115.0
+        stroke: '#C4D0DD'
+      - box:
+        - 270.0
+        - 119.0
+        - 60
+        - 16
+        style:
+          align: center
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '6'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - -5.0
+        - 110.0
+        to:
+        - 0.0
+        - 110.0
+        stroke: '#C4D0DD'
+      - box:
+        - -58.0
+        - 102.0
+        - 48
+        - 16
+        style:
+          align: right
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '0'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - -5.0
+        - 55.0
+        to:
+        - 0.0
+        - 55.0
+        stroke: '#C4D0DD'
+      - box:
+        - -58.0
+        - 47.0
+        - 48
+        - 16
+        style:
+          align: right
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '6'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - -5.0
+        - 0.0
+        to:
+        - 0.0
+        - 0.0
+        stroke: '#C4D0DD'
+      - box:
+        - -58.0
+        - -8.0
+        - 48
+        - 16
+        style:
+          align: right
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '12'
+    alt: rust line chart
+    size:
+    - 330.0
+    - 135.0
+    caption: Figure 6.2 — A line series over the same frame
+  - type: paragraph
+    text: 'Series compose on one frame the way flowables compose in one story: the
+      bars and the line above share axes, domain and box, so their claims can be compared
+      without squinting at two different rulers.'
+  - type: heading
+    level: 2
+    text: 6.1 · Tables in flow
+    id: ch-6-s1
+  - type: paragraph
+    text: 'Tables are flowables: columns, rows, and the engine''s box model. The one
+      below states what each chapter of this book demonstrates.'
+  - type: table
+    rows:
+    - - The Line
+      - stroke_outline · repeat_along_path
+    - - The Plane
+      - planar booleans · offsets · regions
+    - - Colour
+      - color_guide · closed_palette · recolor
+    - - Style
+      - appearance · effects · humanize
+    - - Space
+      - Scene3D extrude · revolve · multiview
+    columns:
+    - Chapter
+    - Capability
+    header:
+    - Chapter
+    - Capability
+  - type: paragraph
+    text: Nothing in the table is an image; resize the master and the columns re-solve
+      like every other line on the page.
+  - type: heading
+    level: 2
+    text: 6.2 · Parts of a whole
+    id: ch-6-s2
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - type: path
+        d: M 75 0 A 75 75 0 0 1 111.132 140.723 L 94.8723 111.148 A 41.25 41.25 0
+          0 0 75 33.75 Z
+        fill: '#0f7d88'
+      - type: path
+        d: M 111.132 140.723 A 75 75 0 0 1 0 75 L 33.75 75 A 41.25 41.25 0 0 0 94.8723
+          111.148 Z
+        fill: '#b5642c'
+      - type: path
+        d: M 0 75 A 75 75 0 0 1 75 0 L 75 33.75 A 41.25 41.25 0 0 0 33.75 75 Z
+        fill: '#7c3aed'
+    alt: three-segment donut chart
+    caption: Figure 6.3 — A donut of this book's own page budget
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - type: polyline
+        points:
+        - - 0.0
+          - 100.83333333333333
+        - - 50.0
+          - 73.33333333333334
+        - - 100.0
+          - 82.5
+        - - 150.0
+          - 45.83333333333333
+        - - 200.0
+          - 55.0
+        - - 250.0
+          - 27.5
+        - - 300.0
+          - 36.66666666666667
+        - - 300.0
+          - 110.0
+        - - 0.0
+          - 110.0
+        closed: true
+        fill: '#d7e6e8'
+      - stroke_style:
+          stroke_width: 2.0
+        type: polyline
+        points:
+        - - 0.0
+          - 100.83333333333333
+        - - 50.0
+          - 73.33333333333334
+        - - 100.0
+          - 82.5
+        - - 150.0
+          - 45.83333333333333
+        - - 200.0
+          - 55.0
+        - - 250.0
+          - 27.5
+        - - 300.0
+          - 36.66666666666667
+        stroke: '#0f7d88'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 0.0
+        - 0.0
+        to:
+        - 0.0
+        - 110.0
+        stroke: '#C4D0DD'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 0.0
+        - 110.0
+        to:
+        - 300.0
+        - 110.0
+        stroke: '#C4D0DD'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 0.0
+        - 110.0
+        to:
+        - 0.0
+        - 115.0
+        stroke: '#C4D0DD'
+      - box:
+        - -30.0
+        - 119.0
+        - 60
+        - 16
+        style:
+          align: center
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '0'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 150.0
+        - 110.0
+        to:
+        - 150.0
+        - 115.0
+        stroke: '#C4D0DD'
+      - box:
+        - 120.0
+        - 119.0
+        - 60
+        - 16
+        style:
+          align: center
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '3'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - 300.0
+        - 110.0
+        to:
+        - 300.0
+        - 115.0
+        stroke: '#C4D0DD'
+      - box:
+        - 270.0
+        - 119.0
+        - 60
+        - 16
+        style:
+          align: center
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '6'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - -5.0
+        - 110.0
+        to:
+        - 0.0
+        - 110.0
+        stroke: '#C4D0DD'
+      - box:
+        - -58.0
+        - 102.0
+        - 48
+        - 16
+        style:
+          align: right
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '0'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - -5.0
+        - 55.0
+        to:
+        - 0.0
+        - 55.0
+        stroke: '#C4D0DD'
+      - box:
+        - -58.0
+        - 47.0
+        - 48
+        - 16
+        style:
+          align: right
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '6'
+      - stroke_style:
+          stroke_width: 1.2
+        type: line
+        from:
+        - -5.0
+        - 0.0
+        to:
+        - 0.0
+        - 0.0
+        stroke: '#C4D0DD'
+      - box:
+        - -58.0
+        - -8.0
+        - 48
+        - 16
+        style:
+          align: right
+          color: '#6B7A90'
+          font_family:
+          - Inter
+          - Helvetica Neue
+          - Arial
+          - sans-serif
+          font_size: 11
+          font_weight: 600
+        type: text
+        text: '12'
+    alt: teal area chart
+    size:
+    - 330.0
+    - 135.0
+    caption: 'Figure 6.4 — An area series: the line, filled'
+  - type: paragraph
+    text: 'Every mark above shares the coordinate discipline of the rest of the book:
+      a domain, a box, a deterministic mapping. A chart that cannot say where its
+      zero sits has no business on a page that can.'
+  - break_before: page
+    type: heading
+    level: 1
+    text: 7 · Space
+    id: ch-7
+  - type: paragraph
+    text: 'Three dimensions enter the book only as honest projection: a scene of faces,
+      a camera, and a painter''s sort. Extrusion pulls a polygon into a prism; revolution
+      spins a profile into a vessel.'
+  - break_inside: avoid
+    type: figure
+    object:
+      box:
+      - 0
+      - 0
+      - 240
+      - 150
+      type: group
+      children:
+      - type: polyline
+        points:
+        - - 91.52211651783739
+          - 22.015770938071757
+        - - 91.52211651783738
+          - 88.890558640967
+        - - 49.35495769340372
+          - 111.2530716020624
+        - - 46.725596750540646
+          - 39.594903626265925
+        closed: true
+        fill: '#7d8586'
+        stroke: '#1d1e22'
+      - type: polyline
+        points:
+        - - 91.52211651783738
+          - 88.890558640967
+        - - 187.0867641914553
+          - 121.32627563859187
+        - - 193.27440324945934
+          - 47.57085543587345
+        - - 140.51831001331817
+          - 0.0
+        - - 91.52211651783739
+          - 22.015770938071757
+        closed: true
+        fill: '#b4c0c2'
+        stroke: '#1d1e22'
+      - type: polyline
+        points:
+        - - 91.52211651783738
+          - 88.890558640967
+        - - 187.0867641914553
+          - 121.32627563859187
+        - - 148.5364989630029
+          - 150.0
+        - - 49.35495769340372
+          - 111.2530716020624
+        closed: true
+        fill: '#a1adae'
+        stroke: '#1d1e22'
+      - type: polyline
+        points:
+        - - 140.51831001331817
+          - 0.0
+        - - 91.52211651783739
+          - 22.015770938071757
+        - - 46.725596750540646
+          - 39.594903626265925
+        - - 96.14923795372465
+          - 17.127566454109935
+        closed: true
+        fill: '#525758'
+        stroke: '#1d1e22'
+      - type: polyline
+        points:
+        - - 46.725596750540646
+          - 39.594903626265925
+        - - 96.14923795372465
+          - 17.127566454109935
+        - - 152.61975712220575
+          - 70.4726268785794
+        - - 148.5364989630029
+          - 150.0
+        - - 49.35495769340372
+          - 111.2530716020624
+        closed: true
+        fill: '#525758'
+        stroke: '#1d1e22'
+      - type: polyline
+        points:
+        - - 187.0867641914553
+          - 121.32627563859187
+        - - 193.27440324945934
+          - 47.57085543587345
+        - - 152.61975712220575
+          - 70.4726268785794
+        - - 148.5364989630029
+          - 150.0
+        closed: true
+        fill: '#525758'
+        stroke: '#1d1e22'
+      - type: polyline
+        points:
+        - - 193.27440324945934
+          - 47.57085543587345
+        - - 140.51831001331817
+          - 0.0
+        - - 96.14923795372465
+          - 17.127566454109935
+        - - 152.61975712220575
+          - 70.4726268785794
+        closed: true
+        fill: '#525758'
+        stroke: '#1d1e22'
+    alt: wireframe prism projection
+    caption: Figure 7.1 — An extruded prism, painter-sorted
+  - break_inside: avoid
+    type: figure
+    object:
+      box:
+      - 0
+      - 0
+      - 240
+      - 170
+      type: group
+      children:
+      - type: polyline
+        points:
+        - - 114.05627105610954
+          - 150.95504167008846
+        - - 120.82230700536314
+          - 150.64323050856478
+        - - 122.53135329179818
+          - 119.12314709805676
+        - - 104.28526758118674
+          - 119.89794078279223
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 120.82230700536314
+          - 150.64323050856478
+        - - 127.49603257297403
+          - 151.21424430065258
+        - - 140.55842429088142
+          - 120.54357207290539
+        - - 122.53135329179818
+          - 119.12314709805676
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 107.81810142573919
+          - 152.12308940009885
+        - - 114.05627105610954
+          - 150.95504167008846
+        - - 104.28526758118674
+          - 119.89794078279223
+        - - 87.29843882378665
+          - 122.8186170789128
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 127.49603257297403
+          - 151.21424430065258
+        - - 133.46396206275517
+          - 152.61929342667824
+        - - 156.89413272878616
+          - 124.06817612159905
+        - - 140.55842429088142
+          - 120.54357207290539
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 102.68928013363855
+          - 154.04661772688405
+        - - 107.81810142573919
+          - 152.12308940009885
+        - - 87.29843882378665
+          - 122.8186170789128
+        - - 73.01254868282706
+          - 127.69220281582922
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 104.28526758118674
+          - 119.89794078279223
+        - - 122.53135329179818
+          - 119.12314709805676
+        - - 121.65039931141624
+          - 64.65994988100088
+        - - 109.32510275798933
+          - 65.10596746230956
+        closed: true
+        fill: '#9f9a93'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 122.53135329179818
+          - 119.12314709805676
+        - - 140.55842429088142
+          - 120.54357207290539
+        - - 133.81732214326243
+          - 65.47716794599333
+        - - 121.65039931141624
+          - 64.65994988100088
+        closed: true
+        fill: '#beb7af'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 133.46396206275517
+          - 152.61929342667824
+        - - 138.1648290735909
+          - 154.73646684846238
+        - - 170.11811628313635
+          - 129.4597242881692
+        - - 156.89413272878616
+          - 124.06817612159905
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 87.29843882378665
+          - 122.8186170789128
+        - - 104.28526758118674
+          - 119.89794078279223
+        - - 109.32510275798933
+          - 65.10596746230956
+        - - 97.90780617320635
+          - 66.78183923227202
+        closed: true
+        fill: '#7d7973'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 140.55842429088142
+          - 120.54357207290539
+        - - 156.89413272878616
+          - 124.06817612159905
+        - - 144.7675569909633
+          - 67.49621389965488
+        - - 133.81732214326243
+          - 65.47716794599333
+        closed: true
+        fill: '#d5cec4'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 99.16655293611552
+          - 156.55570761455252
+        - - 102.68928013363855
+          - 154.04661772688405
+        - - 73.01254868282706
+          - 127.69220281582922
+        - - 62.77019006092679
+          - 134.17172184391643
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 138.1648290735909
+          - 154.73646684846238
+        - - 141.13581259696443
+          - 157.37704475895455
+        - - 178.93441260649774
+          - 136.32352911347544
+        - - 170.11811628313635
+          - 129.4597242881692
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 73.01254868282706
+          - 127.69220281582922
+        - - 87.29843882378665
+          - 122.8186170789128
+        - - 97.90780617320635
+          - 66.78183923227202
+        - - 88.41737957981269
+          - 69.55926515595866
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 156.89413272878616
+          - 124.06817612159905
+        - - 170.11811628313635
+          - 129.4597242881692
+        - - 153.50789160024163
+          - 70.5607369140925
+        - - 144.7675569909633
+          - 67.49621389965488
+        closed: true
+        fill: '#e3dcd1'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 97.61579886257957
+          - 159.42118134336124
+        - - 99.16655293611552
+          - 156.55570761455252
+        - - 62.77019006092679
+          - 134.17172184391643
+        - - 57.713349926779564
+          - 141.7463763793383
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 141.13581259696443
+          - 157.37704475895455
+        - - 142.05822071825168
+          - 160.29712021200567
+        - - 182.28665007322044
+          - 144.10007580369117
+        - - 178.93441260649774
+          - 136.32352911347544
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 62.77019006092679
+          - 134.17172184391643
+        - - 73.01254868282706
+          - 127.69220281582922
+        - - 88.41737957981269
+          - 69.55926515595866
+        - - 81.76149677559026
+          - 73.21553052049553
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 170.11811628313635
+          - 129.4597242881692
+        - - 178.93441260649774
+          - 136.32352911347544
+        - - 159.17774848394492
+          - 74.42067741394871
+        - - 153.50789160024163
+          - 70.5607369140925
+        closed: true
+        fill: '#e7dfd5'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 109.32510275798933
+          - 65.10596746230956
+        - - 121.65039931141624
+          - 64.65994988100088
+        - - 122.2444875840927
+          - 19.04955274756915
+        - - 105.92714652072158
+          - 19.55435758856965
+        closed: true
+        fill: '#6c6964'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 121.65039931141624
+          - 64.65994988100088
+        - - 133.81732214326243
+          - 65.47716794599333
+        - - 138.36146648379054
+          - 19.97483770274555
+        - - 122.2444875840927
+          - 19.04955274756915
+        closed: true
+        fill: '#8b8780'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 98.22901229771136
+          - 162.3707725377698
+        - - 97.61579886257957
+          - 159.42118134336124
+        - - 57.713349926779564
+          - 141.7463763793383
+        - - 58.635768153638914
+          - 149.74528759490735
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 97.90780617320635
+          - 66.78183923227202
+        - - 109.32510275798933
+          - 65.10596746230956
+        - - 105.92714652072158
+          - 19.55435758856965
+        - - 90.76073550145244
+          - 21.455268208450647
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 133.81732214326243
+          - 65.47716794599333
+        - - 144.7675569909633
+          - 67.49621389965488
+        - - 152.93378728205465
+          - 22.267569314246852
+        - - 138.36146648379054
+          - 19.97483770274555
+        closed: true
+        fill: '#a39e96'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 142.05822071825168
+          - 160.29712021200567
+        - - 140.7985150487868
+          - 163.21582304573582
+        - - 179.5177337463828
+          - 152.07582533042674
+        - - 182.28665007322044
+          - 144.10007580369117
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 57.713349926779564
+          - 141.7463763793383
+        - - 62.77019006092679
+          - 134.17172184391643
+        - - 81.76149677559026
+          - 73.21553052049553
+        - - 78.6586822595375
+          - 77.43798285724321
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 88.41737957981269
+          - 69.55926515595866
+        - - 97.90780617320635
+          - 66.78183923227202
+        - - 90.76073550145244
+          - 21.455268208450647
+        - - 78.0542550865931
+          - 24.620162536057414
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 178.93441260649774
+          - 136.32352911347544
+        - - 182.28665007322044
+          - 144.10007580369117
+        - - 161.13151200467937
+          - 78.73883533585136
+        - - 159.17774848394492
+          - 74.42067741394871
+        closed: true
+        fill: '#dfd8ce'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 144.7675569909633
+          - 67.49621389965488
+        - - 153.50789160024163
+          - 70.5607369140925
+        - - 164.67627068673158
+          - 25.7658109335916
+        - - 152.93378728205465
+          - 22.267569314246852
+        closed: true
+        fill: '#b1aca3'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 100.99068434134279
+          - 165.11235158046253
+        - - 98.22901229771136
+          - 162.3707725377698
+        - - 58.635768153638914
+          - 149.74528759490735
+        - - 65.80398525581029
+          - 157.37084328644505
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 140.7985150487868
+          - 163.21582304573582
+        - - 137.43757437326107
+          - 165.84057988280526
+        - - 170.55089702021633
+          - 159.42815897728957
+        - - 179.5177337463828
+          - 152.07582533042674
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 105.92714652072158
+          - 19.55435758856965
+        - - 122.2444875840927
+          - 19.04955274756915
+        - - 121.31144432797896
+          - 0.0
+        - - 111.2623975982998
+          - 0.28880649146531434
+        closed: true
+        fill: '#b5afa7'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 122.2444875840927
+          - 19.04955274756915
+        - - 138.36146648379054
+          - 19.97483770274555
+        - - 131.22809930327716
+          - 0.5290519398878191
+        - - 121.31144432797896
+          - 0.0
+        closed: true
+        fill: '#cdc7bd'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 81.76149677559026
+          - 73.21553052049553
+        - - 88.41737957981269
+          - 69.55926515595866
+        - - 78.0542550865931
+          - 24.620162536057414
+        - - 69.00927593146353
+          - 28.814329942645674
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 90.76073550145244
+          - 21.455268208450647
+        - - 105.92714652072158
+          - 19.55435758856965
+        - - 111.2623975982998
+          - 0.28880649146531434
+        - - 101.97157510082329
+          - 1.372621151939351
+        closed: true
+        fill: '#99948d'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 58.635768153638914
+          - 149.74528759490735
+        - - 57.713349926779564
+          - 141.7463763793383
+        - - 78.6586822595375
+          - 77.43798285724321
+        - - 79.54759307607591
+          - 81.83749112078019
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 138.36146648379054
+          - 19.97483770274555
+        - - 152.93378728205465
+          - 22.267569314246852
+        - - 140.12966575324558
+          - 1.8339720443612684
+        - - 131.22809930327716
+          - 0.5290519398878191
+        closed: true
+        fill: '#e0d9cf'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 153.50789160024163
+          - 70.5607369140925
+        - - 159.17774848394492
+          - 74.42067741394871
+        - - 172.43575769146264
+          - 30.203761893014654
+        - - 164.67627068673158
+          - 25.7658109335916
+        closed: true
+        fill: '#b5afa7'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 105.66208318733635
+          - 167.36346623858
+        - - 100.99068434134279
+          - 165.11235158046253
+        - - 65.80398525581029
+          - 157.37084328644505
+        - - 78.79176257975982
+          - 163.77456848877546
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 182.28665007322044
+          - 144.10007580369117
+        - - 179.5177337463828
+          - 152.07582533042674
+        - - 159.03116573924882
+          - 83.10800641172291
+        - - 161.13151200467937
+          - 78.73883533585136
+        closed: true
+        fill: '#cdc7bd'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 137.43757437326104
+          - 165.84057988280526
+        - - 132.2794424006394
+          - 167.898062000695
+        - - 156.03855766701682
+          - 165.31466876751873
+        - - 170.55089702021633
+          - 159.42815897728957
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 78.0542550865931
+          - 24.620162536057414
+        - - 90.76073550145244
+          - 21.455268208450647
+        - - 101.97157510082329
+          - 1.372621151939351
+        - - 94.2833388637539
+          - 3.164146372921561
+        closed: true
+        fill: '#7d7973'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 152.93378728205465
+          - 22.267569314246852
+        - - 164.67627068673158
+          - 25.7658109335916
+        - - 147.19637368120075
+          - 3.8086981477071964
+        - - 140.12966575324558
+          - 1.8339720443612684
+        closed: true
+        fill: '#ece4d9'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 111.79172239770611
+          - 168.88424199604114
+        - - 105.66208318733635
+          - 167.36346623858
+        - - 78.79176257975982
+          - 163.77456848877546
+        - - 96.39823462735256
+          - 168.17553828471802
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 78.6586822595375
+          - 77.43798285724321
+        - - 81.76149677559026
+          - 73.21553052049553
+        - - 69.00927593146353
+          - 28.814329942645674
+        - - 64.62467740840236
+          - 33.69777615216998
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 132.2794424006394
+          - 167.898062000695
+        - - 125.831981819791
+          - 169.16717830421734
+        - - 137.4049216078453
+          - 169.001108746393
+        - - 156.03855766701682
+          - 165.31466876751873
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 65.80398525581029
+          - 157.37084328644505
+        - - 58.635768153638914
+          - 149.74528759490735
+        - - 79.54759307607591
+          - 81.83749112078019
+        - - 84.49609170997144
+          - 85.97591617804714
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 118.75660638783384
+          - 169.50853433335107
+        - - 111.79172239770611
+          - 168.88424199604114
+        - - 96.39823462735256
+          - 168.17553828471802
+        - - 116.72004569064046
+          - 170.0
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 159.17774848394492
+          - 74.42067741394871
+        - - 161.13151200467937
+          - 78.73883533585136
+        - - 175.2966107166391
+          - 35.210944830015364
+        - - 172.43575769146264
+          - 30.203761893014654
+        closed: true
+        fill: '#ada8a0'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 125.831981819791
+          - 169.16717830421734
+        - - 118.75660638783384
+          - 169.50853433335107
+        - - 116.72004569064046
+          - 170.0
+        - - 137.4049216078453
+          - 169.001108746393
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 69.00927593146353
+          - 28.814329942645674
+        - - 78.0542550865931
+          - 24.620162536057414
+        - - 94.2833388637539
+          - 3.164146372921561
+        - - 88.93712600438964
+          - 5.5136856510787595
+        closed: true
+        fill: '#635f5b'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 179.5177337463828
+          - 152.07582533042674
+        - - 170.55089702021633
+          - 159.42815897728957
+        - - 152.93311067590264
+          - 87.08325266124164
+        - - 159.03116573924882
+          - 83.10800641172291
+        closed: true
+        fill: '#b3ada5'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 164.67627068673158
+          - 25.7658109335916
+        - - 172.43575769146264
+          - 30.203761893014654
+        - - 151.73209067224875
+          - 6.285922743516633
+        - - 147.19637368120075
+          - 3.8086981477071964
+        closed: true
+        fill: '#efe7dc'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 79.54759307607591
+          - 81.83749112078019
+        - - 78.6586822595375
+          - 77.43798285724321
+        - - 64.62467740840236
+          - 33.69777615216998
+        - - 65.56784263783099
+          - 38.8319546231646
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 78.79176257975982
+          - 163.77456848877546
+        - - 65.80398525581029
+          - 157.37084328644505
+        - - 84.49609170997144
+          - 85.97591617804714
+        - - 93.13421763268005
+          - 89.41000672579298
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 64.62467740840236
+          - 33.69777615216998
+        - - 69.00927593146353
+          - 28.814329942645674
+        - - 88.93712600438964
+          - 5.5136856510787595
+        - - 86.50160034412511
+          - 8.214601697497766
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 161.13151200467937
+          - 78.73883533585136
+        - - 159.03116573924882
+          - 83.10800641172291
+        - - 172.71757682878265
+          - 40.323451087680084
+        - - 175.2966107166391
+          - 35.210944830015364
+        closed: true
+        fill: '#9b968f'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 170.55089702021633
+          - 159.42815897728957
+        - - 156.03855766701682
+          - 165.31466876751873
+        - - 143.3423454298127
+          - 90.23036550170234
+        - - 152.93311067590264
+          - 87.08325266124164
+        closed: true
+        fill: '#938e87'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 172.43575769146264
+          - 30.203761893014654
+        - - 175.2966107166391
+          - 35.210944830015364
+        - - 153.23205928291875
+          - 9.044023130071874
+        - - 151.73209067224875
+          - 6.285922743516633
+        closed: true
+        fill: '#e8e1d6'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 96.39823462735256
+          - 168.17553828471802
+        - - 78.79176257975982
+          - 163.77456848877546
+        - - 93.13421763268005
+          - 89.41000672579298
+        - - 104.64136824902238
+          - 91.74860108177585
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 84.49609170997144
+          - 85.97591617804714
+        - - 79.54759307607591
+          - 81.83749112078019
+        - - 65.56784263783099
+          - 38.8319546231646
+        - - 72.0272246508078
+          - 43.70483740237906
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 156.03855766701682
+          - 165.31466876751873
+        - - 137.4049216078453
+          - 169.001108746393
+        - - 131.203934368826
+          - 92.18536312963255
+        - - 143.3423454298127
+          - 90.23036550170234
+        closed: true
+        fill: '#6f6c67'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 65.56784263783099
+          - 38.8319546231646
+        - - 64.62467740840236
+          - 33.69777615216998
+        - - 86.50160034412511
+          - 8.214601697497766
+        - - 87.30445976840603
+          - 11.014668432721127
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 159.03116573924882
+          - 83.10800641172291
+        - - 152.93311067590264
+          - 87.08325266124164
+        - - 164.67849335997488
+          - 45.01590098327936
+        - - 172.71757682878265
+          - 40.323451087680084
+        closed: true
+        fill: '#807c76'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 116.72004569064046
+          - 170.0
+        - - 96.39823462735256
+          - 168.17553828471802
+        - - 104.64136824902238
+          - 91.74860108177585
+        - - 117.81206573630648
+          - 92.71300801477561
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 137.4049216078453
+          - 169.001108746393
+        - - 116.72004569064046
+          - 170.0
+        - - 117.81206573630648
+          - 92.71300801477561
+        - - 131.203934368826
+          - 92.18536312963255
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 175.2966107166391
+          - 35.210944830015364
+        - - 172.71757682878265
+          - 40.323451087680084
+        - - 151.45276741401543
+          - 11.820624632261527
+        - - 153.23205928291875
+          - 9.044023130071874
+        closed: true
+        fill: '#dad3c9'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 93.13421763268005
+          - 89.41000672579298
+        - - 84.49609170997144
+          - 85.97591617804714
+        - - 72.0272246508078
+          - 43.70483740237906
+        - - 83.5841711053822
+          - 47.7807199409433
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 72.0272246508078
+          - 43.70483740237906
+        - - 65.56784263783099
+          - 38.8319546231646
+        - - 87.30445976840603
+          - 11.014668432721127
+        - - 91.36809625771008
+          - 13.635528127802719
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 152.93311067590264
+          - 87.08325266124164
+        - - 143.3423454298127
+          - 90.23036550170234
+        - - 151.79254877634563
+          - 48.75877253539321
+        - - 164.67849335997488
+          - 45.0159009832794
+        closed: true
+        fill: '#605c58'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 172.71757682878265
+          - 40.323451087680084
+        - - 164.67849335997488
+          - 45.01590098327936
+        - - 146.47153360592588
+          - 14.334671121052054
+        - - 151.45276741401543
+          - 11.820624632261527
+        closed: true
+        fill: '#c5beb5'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 104.64136824902238
+          - 91.74860108177585
+        - - 93.13421763268005
+          - 89.41000672579298
+        - - 83.5841711053822
+          - 47.7807199409433
+        - - 99.1594260303903
+          - 50.573332748841565
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 143.3423454298127
+          - 90.23036550170234
+        - - 131.203934368826
+          - 92.18536312963255
+        - - 135.3268244051973
+          - 51.09642153217815
+        - - 151.79254877634563
+          - 48.75877253539321
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 83.5841711053822
+          - 47.7807199409433
+        - - 72.0272246508078
+          - 43.70483740237906
+        - - 91.36809625771008
+          - 13.635528127802719
+        - - 98.3681229711412
+          - 15.800802494244168
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 117.81206573630648
+          - 92.71300801477561
+        - - 104.64136824902238
+          - 91.74860108177585
+        - - 99.1594260303903
+          - 50.573332748841565
+        - - 117.08621201037445
+          - 51.72900211672344
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 131.203934368826
+          - 92.18536312963255
+        - - 117.81206573630648
+          - 92.71300801477561
+        - - 117.08621201037445
+          - 51.72900211672344
+        - - 135.3268244051973
+          - 51.09642153217815
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 164.67849335997488
+          - 45.0159009832794
+        - - 151.79254877634563
+          - 48.75877253539321
+        - - 138.71741714977355
+          - 16.316784888092894
+        - - 146.47153360592588
+          - 14.334671121052054
+        closed: true
+        fill: '#aba59d'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 99.1594260303903
+          - 50.573332748841565
+        - - 83.5841711053822
+          - 47.7807199409433
+        - - 98.3681229711412
+          - 15.800802494244168
+        - - 107.63427784560545
+          - 17.270421303838223
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 151.79254877634563
+          - 48.75877253539321
+        - - 135.3268244051973
+          - 51.09642153217815
+        - - 128.9546185664284
+          - 17.544451038592403
+        - - 138.71741714977355
+          - 16.316784888092894
+        closed: true
+        fill: '#8e8a83'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 117.08621201037445
+          - 51.72900211672344
+        - - 99.1594260303903
+          - 50.573332748841565
+        - - 107.63427784560545
+          - 17.270421303838223
+        - - 118.20772618722282
+          - 17.875317332621226
+        closed: true
+        fill: '#5b5854'
+        stroke: '#7a6f63'
+      - type: polyline
+        points:
+        - - 135.3268244051973
+          - 51.09642153217815
+        - - 117.08621201037445
+          - 51.72900211672344
+        - - 118.20772618722282
+          - 17.875317332621226
+        - - 128.9546185664284
+          - 17.544451038592403
+        closed: true
+        fill: '#736f69'
+        stroke: '#7a6f63'
+    alt: lathe-revolved vase
+    caption: Figure 7.2 — A profile revolved into a vessel (20 segments)
+  - type: paragraph
+    text: 'Materials shade the faces without pretending to ray-trace: a Lambert term
+      against a declared light, ambient floor beneath it, painter-sorted. The vase''s
+      roundness is twenty flat quadrilaterals telling one coordinated lie — which
+      is all drawing has ever been.'
+  - type: heading
+    level: 2
+    text: 7.1 · Every view at once
+    id: ch-7-s1
+  - type: paragraph
+    text: Engineering asks for agreement between views. Multiview renders front, top,
+      side and isometric panels of one scene in a single grid — four claims, one geometry,
+      no chance for the views to drift apart because they are projections of the same
+      faces.
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - box:
+        - 0.0
+        - 0.0
+        - 146.0
+        - 14.0
+        style:
+          size: 10.0
+          align: left
+          color: '#475569'
+        type: text
+        text: front
+      - box:
+        - 0.0
+        - 14.0
+        - 146.0
+        - 92.0
+        type: group
+        children:
+        - type: polyline
+          points:
+          - - 23.46153846153846
+            - -7.105427357601002e-15
+          - - 122.53846153846155
+            - -7.105427357601002e-15
+          - - 122.53846153846155
+            - 63.69230769230769
+          - - 73.0
+            - 92.0
+          - - 23.46153846153846
+            - 63.69230769230769
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 23.46153846153846
+            - -7.105427357601002e-15
+          - - 122.53846153846155
+            - -7.105427357601002e-15
+          - - 122.53846153846155
+            - -7.105427357601002e-15
+          - - 23.46153846153846
+            - -7.105427357601002e-15
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 122.53846153846155
+            - -7.105427357601002e-15
+          - - 122.53846153846155
+            - 63.69230769230769
+          - - 122.53846153846155
+            - 63.69230769230769
+          - - 122.53846153846155
+            - -7.105427357601002e-15
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 122.53846153846155
+            - 63.69230769230769
+          - - 73.0
+            - 92.0
+          - - 73.0
+            - 92.0
+          - - 122.53846153846155
+            - 63.69230769230769
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 73.0
+            - 92.0
+          - - 23.46153846153846
+            - 63.69230769230769
+          - - 23.46153846153846
+            - 63.69230769230769
+          - - 73.0
+            - 92.0
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 23.46153846153846
+            - 63.69230769230769
+          - - 23.46153846153846
+            - -7.105427357601002e-15
+          - - 23.46153846153846
+            - -7.105427357601002e-15
+          - - 23.46153846153846
+            - 63.69230769230769
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 23.46153846153846
+            - 63.69230769230769
+          - - 73.0
+            - 92.0
+          - - 122.53846153846155
+            - 63.69230769230769
+          - - 122.53846153846155
+            - -7.105427357601002e-15
+          - - 23.46153846153846
+            - -7.105427357601002e-15
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+      - box:
+        - 154.0
+        - 0.0
+        - 146.0
+        - 14.0
+        style:
+          size: 10.0
+          align: left
+          color: '#475569'
+        type: text
+        text: top
+      - box:
+        - 154.0
+        - 14.0
+        - 146.0
+        - 92.0
+        type: group
+        children:
+        - type: polyline
+          points:
+          - - 0.0
+            - 87.71428571428572
+          - - 146.0
+            - 87.71428571428572
+          - - 146.0
+            - 4.285714285714278
+          - - 0.0
+            - 4.285714285714278
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 146.0
+            - 87.71428571428572
+          - - 146.0
+            - 87.71428571428572
+          - - 146.0
+            - 4.285714285714278
+          - - 146.0
+            - 4.285714285714278
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 0.0
+            - 87.71428571428572
+          - - 0.0
+            - 87.71428571428572
+          - - 0.0
+            - 4.285714285714278
+          - - 0.0
+            - 4.285714285714278
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 0.0
+            - 87.71428571428572
+          - - 146.0
+            - 87.71428571428572
+          - - 146.0
+            - 87.71428571428572
+          - - 73.0
+            - 87.71428571428572
+          - - 0.0
+            - 87.71428571428572
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 0.0
+            - 4.285714285714278
+          - - 73.0
+            - 4.285714285714289
+          - - 146.0
+            - 4.285714285714278
+          - - 146.0
+            - 4.285714285714278
+          - - 0.0
+            - 4.285714285714278
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 146.0
+            - 87.71428571428572
+          - - 73.0
+            - 87.71428571428572
+          - - 73.0
+            - 4.285714285714289
+          - - 146.0
+            - 4.285714285714278
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 73.0
+            - 87.71428571428572
+          - - 0.0
+            - 87.71428571428572
+          - - 0.0
+            - 4.285714285714278
+          - - 73.0
+            - 4.285714285714289
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+      - box:
+        - 0.0
+        - 114.0
+        - 146.0
+        - 14.0
+        style:
+          size: 10.0
+          align: left
+          color: '#475569'
+        type: text
+        text: side
+      - box:
+        - 0.0
+        - 128.0
+        - 146.0
+        - 92.0
+        type: group
+        children:
+        - type: polyline
+          points:
+          - - 44.69230769230769
+            - -7.105427357601002e-15
+          - - 44.69230769230769
+            - 63.69230769230769
+          - - 101.30769230769232
+            - 63.69230769230769
+          - - 101.30769230769232
+            - -7.105427357601002e-15
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 44.69230769230769
+            - 63.69230769230769
+          - - 44.692307692307686
+            - 92.0
+          - - 101.3076923076923
+            - 92.0
+          - - 101.30769230769232
+            - 63.69230769230769
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 44.692307692307686
+            - -7.105427357601002e-15
+          - - 44.69230769230769
+            - -7.105427357601002e-15
+          - - 44.69230769230769
+            - 63.69230769230769
+          - - 44.692307692307686
+            - 92.0
+          - - 44.692307692307686
+            - 63.69230769230769
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 101.3076923076923
+            - 63.69230769230769
+          - - 101.3076923076923
+            - 92.0
+          - - 101.30769230769232
+            - 63.69230769230769
+          - - 101.30769230769232
+            - -7.105427357601002e-15
+          - - 101.3076923076923
+            - -7.105427357601002e-15
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 44.692307692307686
+            - -7.105427357601002e-15
+          - - 44.69230769230769
+            - -7.105427357601002e-15
+          - - 101.30769230769232
+            - -7.105427357601002e-15
+          - - 101.3076923076923
+            - -7.105427357601002e-15
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 44.692307692307686
+            - 92.0
+          - - 44.692307692307686
+            - 63.69230769230769
+          - - 101.3076923076923
+            - 63.69230769230769
+          - - 101.3076923076923
+            - 92.0
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 44.692307692307686
+            - 63.69230769230769
+          - - 44.692307692307686
+            - -7.105427357601002e-15
+          - - 101.3076923076923
+            - -7.105427357601002e-15
+          - - 101.3076923076923
+            - 63.69230769230769
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+      - box:
+        - 154.0
+        - 114.0
+        - 146.0
+        - 14.0
+        style:
+          size: 10.0
+          align: left
+          color: '#475569'
+        type: text
+        text: iso
+      - box:
+        - 154.0
+        - 128.0
+        - 146.0
+        - 92.0
+        type: group
+        children:
+        - type: polyline
+          points:
+          - - 84.65965909485391
+            - 49.365853658536594
+          - - 84.65965909485391
+            - 89.75609756097563
+          - - 115.75208334779767
+            - 71.8048780487805
+          - - 115.75208334779767
+            - 31.414634146341463
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 30.247916652202335
+            - 17.951219512195127
+          - - 84.65965909485391
+            - 49.365853658536594
+          - - 115.75208334779767
+            - 31.414634146341463
+          - - 61.34034090514609
+            - 0.0
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 30.247916652202335
+            - 17.951219512195127
+          - - 84.65965909485391
+            - 49.365853658536594
+          - - 84.65965909485391
+            - 89.75609756097563
+          - - 57.45378787352813
+            - 92.0
+          - - 30.247916652202335
+            - 58.341463414634156
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 84.65965909485391
+            - 89.75609756097563
+          - - 57.45378787352813
+            - 92.0
+          - - 88.54621212647189
+            - 74.04878048780488
+          - - 115.75208334779767
+            - 71.8048780487805
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 61.34034090514609
+            - 40.39024390243904
+          - - 88.54621212647189
+            - 74.04878048780488
+          - - 115.75208334779767
+            - 71.8048780487805
+          - - 115.75208334779767
+            - 31.414634146341463
+          - - 61.34034090514609
+            - 0.0
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 30.247916652202335
+            - 58.341463414634156
+          - - 30.247916652202335
+            - 17.951219512195127
+          - - 61.34034090514609
+            - 0.0
+          - - 61.34034090514609
+            - 40.39024390243904
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+        - type: polyline
+          points:
+          - - 57.45378787352813
+            - 92.0
+          - - 30.247916652202335
+            - 58.341463414634156
+          - - 61.34034090514609
+            - 40.39024390243904
+          - - 88.54621212647189
+            - 74.04878048780488
+          closed: true
+          fill: '#ddd'
+          stroke: '#333'
+    alt: four orthographic panels of one prism
+    size:
+    - 300.0
+    - 220.0
+    caption: 'Figure 7.3 — Multiview of the prism: front, top, side, isometric'
+  - type: paragraph
+    text: The painter's algorithm sorts faces by depth per view; the projection is
+      honest about being a drawing, not a model. For the cases where a true kernel
+      is needed, the roadmap keeps its non-goals written down.
+  - break_before: page
+    type: heading
+    level: 1
+    text: 8 · The Letter
+    id: ch-8
+  - type: paragraph
+    text: Typography's smallest unit is a pair. The space between A and V is not the
+      space between A and B, and a page set without kerning quietly announces that
+      nobody looked. The metrics module reads the resolved font's kern table when
+      fontTools is present, and accepts explicit pairs when it is not — both paths
+      emit grammar-native spans.
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 300
+        - 34
+        style:
+          color: '#9aa0a8'
+          font_family:
+          - DejaVu Sans
+          font_size: 26
+          font_weight: 700
+          white_space: nowrap
+        type: text
+        text: WAVY TAVERN
+      - box:
+        - 0
+        - 40
+        - 300
+        - 34
+        style:
+          color: '#1d1e22'
+          font_family:
+          - DejaVu Sans
+          font_size: 26
+          font_weight: 700
+          white_space: nowrap
+        type: text
+        spans:
+        - text: W
+          style:
+            letter_spacing: -3.0
+        - text: A
+          style:
+            letter_spacing: -2.6
+        - text: V
+          style:
+            letter_spacing: -2.2
+        - text: Y T
+        - text: A
+          style:
+            letter_spacing: -2.6
+        - text: V
+          style:
+            letter_spacing: -1.4
+        - text: ERN
+    alt: the same words with and without kerning
+    size:
+    - 300.0
+    - 74.0
+    caption: Figure 8.1 — Untouched above, pair-kerned below
+  - type: heading
+    level: 2
+    text: 8.1 · Measure before ink
+    id: ch-8-s1
+  - type: paragraph
+    text: 'The same module answers the question every absolute layout asks eventually:
+      how wide is this string, and how tall will it stand once wrapped? Boxes sized
+      by measurement instead of guesswork are what keep the containment gates green
+      across this entire corpus.'
+  - type: paragraph
+    text: 'Where the measuring engine and the drawing engine disagree — different
+      font, different host — the layout must scream, and it does: silent substitution
+      is banned by decision record, and the font-pack tooling pins the faces so measure
+      equals render on any machine.'
+  - type: paragraph
+    text: The pipeline runs both directions. A portable font pack carries the exact
+      faces with their fingerprints; the renderer installs it before the first glyph
+      is measured; and a face the pack cannot supply is a loud build error carrying
+      the pack digest — never a lookalike substituted in silence.
+  - type: paragraph
+    text: 'Typography at this altitude is bookkeeping, and that is praise: kerning
+      tables, advance widths, wrap points and line boxes are all just numbers, and
+      numbers can be gated. The craft is deciding which numbers matter; the machine
+      holds them steady afterwards.'
+  - break_before: page
+    type: heading
+    level: 1
+    text: 9 · The Pattern
+    id: ch-9
+  - type: paragraph
+    text: 'Most slides are not designed; they are re-derived. The pattern catalog
+      absorbs that truth: three hundred and seventy-five typed layouts, each declaring
+      its zones, its size vocabulary and the shape of content it accepts. A fill is
+      validated before any geometry is computed — layout never runs on unchecked content.'
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - box:
+        - 0.0
+        - 0.0
+        - 288.0
+        - 162.0
+        decorative: true
+        type: rect
+        fill: paper
+      - box:
+        - 9.6
+        - 8.4
+        - 268.8
+        - 3.0
+        decorative: true
+        style:
+          color: accent
+          font_family:
+          - Inter
+          - DejaVu Sans
+          - sans-serif
+          font_size: 2.1
+          font_weight: 600
+          letter_spacing: 0.18
+        type: text
+        text: PATTERN 010 · GENERIC
+      - box:
+        - 9.6
+        - 12.9
+        - 268.8
+        - 7.199999999999999
+        decorative: true
+        style:
+          color: text
+          font_family:
+          - Inter
+          - DejaVu Sans
+          - sans-serif
+          font_size: 6.0
+          font_weight: 700
+          line_height: 1.0
+        type: text
+        text: SWOT Analysis
+      - box:
+        - 9.6
+        - 25.8
+        - 132.6
+        - 61.5
+        decorative: true
+        stroke_style:
+          width: 0.6
+        type: rect
+        fill: surface
+        radius: 0.8999999999999999
+        stroke: border
+      - box:
+        - 9.6
+        - 25.8
+        - 0.6
+        - 61.5
+        decorative: true
+        type: rect
+        fill: data_3
+      - box:
+        - 13.2
+        - 28.799999999999997
+        - 125.39999999999999
+        - 2.4
+        decorative: true
+        style:
+          color: data_3
+          font_family:
+          - Inter
+          - DejaVu Sans
+          - sans-serif
+          font_size: 2.1
+          font_weight: 700
+          line_height: 1.0
+          letter_spacing: 0.12
+        type: text
+        text: STRENGTHS
+      - box:
+        - 13.2
+        - 32.699999999999996
+        - 125.39999999999999
+        - 51.6
+        decorative: true
+        style:
+          color: text
+          font_family:
+          - Inter
+          - DejaVu Sans
+          - sans-serif
+          font_size: 2.25
+          line_height: 1.35
+        type: bullet_list
+        items:
+        - Deterministic
+        - Typed model
+        marker_color: accent
+        gap: 8.0
+      - box:
+        - 145.79999999999998
+        - 25.8
+        - 132.6
+        - 61.5
+        decorative: true
+        stroke_style:
+          width: 0.6
+        type: rect
+        fill: surface
+        radius: 0.8999999999999999
+        stroke: border
+      - box:
+        - 145.79999999999998
+        - 25.8
+        - 0.6
+        - 61.5
+        decorative: true
+        type: rect
+        fill: accent_warm
+      - box:
+        - 149.4
+        - 28.799999999999997
+        - 125.39999999999999
+        - 2.4
+        decorative: true
+        style:
+          color: accent_warm
+          font_family:
+          - Inter
+          - DejaVu Sans
+          - sans-serif
+          font_size: 2.1
+          font_weight: 700
+          line_height: 1.0
+          letter_spacing: 0.12
+        type: text
+        text: WEAKNESSES
+      - box:
+        - 149.4
+        - 32.699999999999996
+        - 125.39999999999999
+        - 51.6
+        decorative: true
+        style:
+          color: text
+          font_family:
+          - Inter
+          - DejaVu Sans
+          - sans-serif
+          font_size: 2.25
+          line_height: 1.35
+        type: bullet_list
+        items:
+        - Proxy fonts
+        marker_color: accent
+        gap: 8.0
+      - box:
+        - 9.6
+        - 90.89999999999999
+        - 132.6
+        - 61.5
+        decorative: true
+        stroke_style:
+          width: 0.6
+        type: rect
+        fill: surface
+        radius: 0.8999999999999999
+        stroke: border
+      - box:
+        - 9.6
+        - 90.89999999999999
+        - 0.6
+        - 61.5
+        decorative: true
+        type: rect
+        fill: accent
+      - box:
+        - 13.2
+        - 93.89999999999999
+        - 125.39999999999999
+        - 2.4
+        decorative: true
+        style:
+          color: accent
+          font_family:
+          - Inter
+          - DejaVu Sans
+          - sans-serif
+          font_size: 2.1
+          font_weight: 700
+          line_height: 1.0
+          letter_spacing: 0.12
+        type: text
+        text: OPPORTUNITIES
+      - box:
+        - 13.2
+        - 97.8
+        - 125.39999999999999
+        - 51.6
+        decorative: true
+        style:
+          color: text
+          font_family:
+          - Inter
+          - DejaVu Sans
+          - sans-serif
+          font_size: 2.25
+          line_height: 1.35
+        type: bullet_list
+        items:
+        - Corpus growth
+        marker_color: accent
+        gap: 8.0
+      - box:
+        - 145.79999999999998
+        - 90.89999999999999
+        - 132.6
+        - 61.5
+        decorative: true
+        stroke_style:
+          width: 0.6
+        type: rect
+        fill: surface
+        radius: 0.8999999999999999
+        stroke: border
+      - box:
+        - 145.79999999999998
+        - 90.89999999999999
+        - 0.6
+        - 61.5
+        decorative: true
+        type: rect
+        fill: text
+      - box:
+        - 149.4
+        - 93.89999999999999
+        - 125.39999999999999
+        - 2.4
+        decorative: true
+        style:
+          color: text
+          font_family:
+          - Inter
+          - DejaVu Sans
+          - sans-serif
+          font_size: 2.1
+          font_weight: 700
+          line_height: 1.0
+          letter_spacing: 0.12
+        type: text
+        text: THREATS
+      - box:
+        - 149.4
+        - 97.8
+        - 125.39999999999999
+        - 51.6
+        decorative: true
+        style:
+          color: text
+          font_family:
+          - Inter
+          - DejaVu Sans
+          - sans-serif
+          font_size: 2.25
+          line_height: 1.35
+        type: bullet_list
+        items:
+        - Silent loss
+        marker_color: accent
+        gap: 8.0
+    alt: miniature SWOT slide
+    size:
+    - 288.0
+    - 162.0
+    caption: Figure 9.1 — Pattern 010, the SWOT quadrant, composed and scaled onto
+      this page
+  - type: heading
+    level: 2
+    text: 9.1 · A library with opinions
+    id: ch-9-s1
+  - type: paragraph
+    text: 'Above the catalog sits the content library: seven consulting house styles
+      as ready token fragments, symbol packs for covers and agendas, and two data-driven
+      generators. The honeycomb below is a generator''s whole output — one data dict
+      in, one page out — reduced to a plate.'
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - id: dot_primary
+        decorative: true
+        type: ellipse
+        center:
+        - 13.02
+        - 9.66
+        rx: 3.78
+        ry: 3.78
+        fill: dot_primary
+      - id: dot_secondary
+        decorative: true
+        type: ellipse
+        center:
+        - 13.02
+        - 22.259999999999998
+        rx: 3.78
+        ry: 3.78
+        fill: dot_secondary
+      - id: dot_tertiary
+        decorative: true
+        type: ellipse
+        center:
+        - 13.02
+        - 42.42
+        rx: 3.78
+        ry: 3.78
+        fill: dot_tertiary
+      - id: title
+        box:
+        - 25.2
+        - 5.04
+        - 504.0
+        - 23.52
+        decorative: true
+        style:
+          align: left
+          color: title_color
+          font_family:
+          - Arial
+          - Helvetica
+          - sans-serif
+          font_size: 13.44
+          font_weight: 400
+          line_height: 15.959999999999999
+          vertical_align: top
+        type: text
+        text: A pocket honeycomb
+      - id: col0_header
+        box:
+        - 25.2
+        - 58.8
+        - 63.0
+        - 54.6
+        meta:
+          source_symbol: hex_header
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 0.42
+          type: path
+          d: M 63 27.3 L 47.25 54.6 L 15.75 54.6 L 0 27.3 L 15.75 0 L 47.25 0 Z
+          fill: header_fill
+          stroke: header_fill
+        - id: label_text
+          box:
+          - 9.24
+          - 11.76
+          - 44.519999999999996
+          - 31.919999999999998
+          decorative: true
+          style:
+            align: center
+            color: '#FFFFFF'
+            font_family:
+            - Arial
+            - Helvetica
+            - sans-serif
+            font_size: 5.46
+            font_weight: 700
+            line_height: 6.72
+            vertical_align: middle
+          type: text
+          text: Flow
+      - id: col0_item0
+        box:
+        - 25.2
+        - 115.5
+        - 63.0
+        - 54.6
+        meta:
+          source_symbol: hex_leaf_solid
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.26
+          type: path
+          d: M 63 27.3 L 47.25 54.6 L 15.75 54.6 L 0 27.3 L 15.75 0 L 47.25 0 Z
+          fill: leaf_fill
+          stroke: outline_core
+        - id: label_text
+          box:
+          - 9.24
+          - 11.76
+          - 44.519999999999996
+          - 31.919999999999998
+          decorative: true
+          style:
+            align: center
+            color: '#1A2B3E'
+            font_family:
+            - Arial
+            - Helvetica
+            - sans-serif
+            font_size: 5.04
+            font_weight: 400
+            line_height: 6.3
+            vertical_align: middle
+          type: text
+          text: Pages
+      - id: col0_item1
+        box:
+        - 25.2
+        - 172.2
+        - 63.0
+        - 54.6
+        meta:
+          source_symbol: hex_leaf_solid
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.26
+          type: path
+          d: M 63 27.3 L 47.25 54.6 L 15.75 54.6 L 0 27.3 L 15.75 0 L 47.25 0 Z
+          fill: leaf_fill
+          stroke: outline_core
+        - id: label_text
+          box:
+          - 9.24
+          - 11.76
+          - 44.519999999999996
+          - 31.919999999999998
+          decorative: true
+          style:
+            align: center
+            color: '#1A2B3E'
+            font_family:
+            - Arial
+            - Helvetica
+            - sans-serif
+            font_size: 5.04
+            font_weight: 400
+            line_height: 6.3
+            vertical_align: middle
+          type: text
+          text: Breaks
+      - id: col1_header
+        box:
+        - 79.8
+        - 87.36
+        - 63.0
+        - 54.6
+        meta:
+          source_symbol: hex_header
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 0.42
+          type: path
+          d: M 63 27.3 L 47.25 54.6 L 15.75 54.6 L 0 27.3 L 15.75 0 L 47.25 0 Z
+          fill: header_fill
+          stroke: header_fill
+        - id: label_text
+          box:
+          - 9.24
+          - 11.76
+          - 44.519999999999996
+          - 31.919999999999998
+          decorative: true
+          style:
+            align: center
+            color: '#FFFFFF'
+            font_family:
+            - Arial
+            - Helvetica
+            - sans-serif
+            font_size: 5.46
+            font_weight: 700
+            line_height: 6.72
+            vertical_align: middle
+          type: text
+          text: Plates
+      - id: col1_item0
+        box:
+        - 79.8
+        - 144.06
+        - 63.0
+        - 54.6
+        meta:
+          source_symbol: hex_leaf_solid
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.26
+          type: path
+          d: M 63 27.3 L 47.25 54.6 L 15.75 54.6 L 0 27.3 L 15.75 0 L 47.25 0 Z
+          fill: leaf_fill
+          stroke: outline_core
+        - id: label_text
+          box:
+          - 9.24
+          - 11.76
+          - 44.519999999999996
+          - 31.919999999999998
+          decorative: true
+          style:
+            align: center
+            color: '#1A2B3E'
+            font_family:
+            - Arial
+            - Helvetica
+            - sans-serif
+            font_size: 5.04
+            font_weight: 400
+            line_height: 6.3
+            vertical_align: middle
+          type: text
+          text: Booleans
+      - id: col1_item1
+        box:
+        - 79.8
+        - 200.76
+        - 63.0
+        - 54.6
+        meta:
+          source_symbol: hex_leaf_solid
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.26
+          type: path
+          d: M 63 27.3 L 47.25 54.6 L 15.75 54.6 L 0 27.3 L 15.75 0 L 47.25 0 Z
+          fill: leaf_fill
+          stroke: outline_extended
+        - id: label_text
+          box:
+          - 9.24
+          - 11.76
+          - 44.519999999999996
+          - 31.919999999999998
+          decorative: true
+          style:
+            align: center
+            color: '#1A2B3E'
+            font_family:
+            - Arial
+            - Helvetica
+            - sans-serif
+            font_size: 5.04
+            font_weight: 400
+            line_height: 6.3
+            vertical_align: middle
+          type: text
+          text: Outlines
+      - id: col2_header
+        box:
+        - 134.4
+        - 58.8
+        - 63.0
+        - 54.6
+        meta:
+          source_symbol: hex_header
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 0.42
+          type: path
+          d: M 63 27.3 L 47.25 54.6 L 15.75 54.6 L 0 27.3 L 15.75 0 L 47.25 0 Z
+          fill: header_fill
+          stroke: header_fill
+        - id: label_text
+          box:
+          - 9.24
+          - 11.76
+          - 44.519999999999996
+          - 31.919999999999998
+          decorative: true
+          style:
+            align: center
+            color: '#FFFFFF'
+            font_family:
+            - Arial
+            - Helvetica
+            - sans-serif
+            font_size: 5.46
+            font_weight: 700
+            line_height: 6.72
+            vertical_align: middle
+          type: text
+          text: Colour
+      - id: col2_item0
+        box:
+        - 134.4
+        - 115.5
+        - 63.0
+        - 54.6
+        meta:
+          source_symbol: hex_leaf_solid
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.26
+          type: path
+          d: M 63 27.3 L 47.25 54.6 L 15.75 54.6 L 0 27.3 L 15.75 0 L 47.25 0 Z
+          fill: leaf_fill
+          stroke: outline_core
+        - id: label_text
+          box:
+          - 9.24
+          - 11.76
+          - 44.519999999999996
+          - 31.919999999999998
+          decorative: true
+          style:
+            align: center
+            color: '#1A2B3E'
+            font_family:
+            - Arial
+            - Helvetica
+            - sans-serif
+            font_size: 5.04
+            font_weight: 400
+            line_height: 6.3
+            vertical_align: middle
+          type: text
+          text: Harmonies
+      - id: col2_item1
+        box:
+        - 134.4
+        - 172.2
+        - 63.0
+        - 54.6
+        meta:
+          source_symbol: hex_leaf_dashed
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.26
+            stroke_dasharray:
+            - 6
+            - 4
+          type: path
+          d: M 63 27.3 L 47.25 54.6 L 15.75 54.6 L 0 27.3 L 15.75 0 L 47.25 0 Z
+          fill: leaf_fill
+          stroke: outline_future
+        - id: label_text
+          box:
+          - 9.24
+          - 11.76
+          - 44.519999999999996
+          - 31.919999999999998
+          decorative: true
+          style:
+            align: center
+            color: '#1A2B3E'
+            font_family:
+            - Arial
+            - Helvetica
+            - sans-serif
+            font_size: 5.04
+            font_weight: 400
+            line_height: 6.3
+            vertical_align: middle
+          type: text
+          text: Recolor
+    alt: miniature honeycomb capability map
+    size:
+    - 529.2
+    - 255.35999999999999
+    caption: Figure 9.2 — The honeycomb generator, fed three columns
+  - type: paragraph
+    text: 'Both plates obey the book''s figure discipline: numbered, captioned, kept
+      with their captions, and sized from their declared geometry. A generator''s
+      page is just another object once it is in the story.'
+  - type: heading
+    level: 2
+    text: 9.2 · A hub and its satellites
+    id: ch-9-s2
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - id: dot_primary
+        decorative: true
+        type: ellipse
+        center:
+        - 8.06
+        - 5.98
+        rx: 2.34
+        ry: 2.34
+        fill: dot_primary
+      - id: dot_secondary
+        decorative: true
+        type: ellipse
+        center:
+        - 8.06
+        - 13.780000000000001
+        rx: 2.34
+        ry: 2.34
+        fill: dot_secondary
+      - id: dot_tertiary
+        decorative: true
+        type: ellipse
+        center:
+        - 8.06
+        - 26.26
+        rx: 2.34
+        ry: 2.34
+        fill: dot_tertiary
+      - id: title
+        box:
+        - 15.600000000000001
+        - 3.12
+        - 312.0
+        - 14.56
+        decorative: true
+        style:
+          align: left
+          color: title_color
+          font_family:
+          - Arial
+          - Helvetica
+          - sans-serif
+          font_size: 8.32
+          font_weight: 400
+          line_height: 9.88
+          vertical_align: top
+        type: text
+        text: A pocket module map
+      - id: edge_0
+        decorative: true
+        stroke_style:
+          stroke_width: 0.39
+        type: line
+        from:
+        - 104.0
+        - 109.2
+        to:
+        - 46.800000000000004
+        - 67.60000000000001
+        stroke: edge_color
+      - id: edge_1
+        decorative: true
+        stroke_style:
+          stroke_width: 0.39
+        type: line
+        from:
+        - 104.0
+        - 109.2
+        to:
+        - 166.4
+        - 65.0
+        stroke: edge_color
+      - id: edge_2
+        decorative: true
+        stroke_style:
+          stroke_width: 0.39
+        type: line
+        from:
+        - 104.0
+        - 109.2
+        to:
+        - 161.20000000000002
+        - 158.6
+        stroke: edge_color
+      - id: edge_3
+        decorative: true
+        stroke_style:
+          stroke_width: 0.39
+        type: line
+        from:
+        - 104.0
+        - 109.2
+        to:
+        - 49.4
+        - 156.0
+        stroke: edge_color
+      - id: hub_label
+        box:
+        - 65.0
+        - 61.031673451765066
+        - 78.0
+        - 20.8
+        decorative: true
+        style:
+          align: center
+          color: '#E58938'
+          font_family:
+          - Arial
+          - Helvetica
+          - sans-serif
+          font_size: 7.800000000000001
+          font_weight: 400
+          line_height: 9.36
+          vertical_align: middle
+        type: text
+        text: Core
+      - id: node_core
+        box:
+        - 75.4
+        - 84.43167345176506
+        - 57.2
+        - 49.53665309646989
+        meta:
+          source_symbol: hex_node_plain
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.04
+          type: path
+          d: M 57.2 24.7683 L 42.9 49.5368 L 14.3 49.5368 L 0 24.7683 L 14.3 0 L 42.9
+            0 Z
+          fill: bg
+          stroke: '#7c3aed'
+      - id: node_a
+        box:
+        - 31.200000000000003
+        - 54.09000370096276
+        - 31.200000000000003
+        - 27.019992598074484
+        meta:
+          source_symbol: hex_node_plain
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.04
+          type: path
+          d: M 31.2 13.51 L 23.4 27.02 L 7.8 27.02 L 0 13.51 L 7.8 0 L 23.4 0 Z
+          fill: bg
+          stroke: '#1A56B0'
+      - id: label_a
+        box:
+        - 20.8
+        - 41.09000370096276
+        - 52.0
+        - 11.440000000000001
+        decorative: true
+        style:
+          align: center
+          color: '#1A2B3E'
+          font_family:
+          - Arial
+          - Helvetica
+          - sans-serif
+          font_size: 3.64
+          font_weight: 400
+          line_height: 4.68
+          vertical_align: middle
+        type: text
+        text: Flow
+      - id: node_b
+        box:
+        - 150.8
+        - 51.49000370096276
+        - 31.200000000000003
+        - 27.019992598074484
+        meta:
+          source_symbol: hex_node_plain
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.04
+          type: path
+          d: M 31.2 13.51 L 23.4 27.02 L 7.8 27.02 L 0 13.51 L 7.8 0 L 23.4 0 Z
+          fill: bg
+          stroke: '#1A56B0'
+      - id: label_b
+        box:
+        - 140.4
+        - 38.49000370096276
+        - 52.0
+        - 11.440000000000001
+        decorative: true
+        style:
+          align: center
+          color: '#1A2B3E'
+          font_family:
+          - Arial
+          - Helvetica
+          - sans-serif
+          font_size: 3.64
+          font_weight: 400
+          line_height: 4.68
+          vertical_align: middle
+        type: text
+        text: Plates
+      - id: node_c
+        box:
+        - 145.6
+        - 145.09000370096277
+        - 31.200000000000003
+        - 27.019992598074484
+        meta:
+          source_symbol: hex_node_plain
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.04
+          type: path
+          d: M 31.2 13.51 L 23.4 27.02 L 7.8 27.02 L 0 13.51 L 7.8 0 L 23.4 0 Z
+          fill: bg
+          stroke: '#1A56B0'
+      - id: label_c
+        box:
+        - 135.20000000000002
+        - 173.66999629903725
+        - 52.0
+        - 11.440000000000001
+        decorative: true
+        style:
+          align: center
+          color: '#1A2B3E'
+          font_family:
+          - Arial
+          - Helvetica
+          - sans-serif
+          font_size: 3.64
+          font_weight: 400
+          line_height: 4.68
+          vertical_align: middle
+        type: text
+        text: Colour
+      - id: node_d
+        box:
+        - 33.800000000000004
+        - 142.49000370096277
+        - 31.200000000000003
+        - 27.019992598074484
+        meta:
+          source_symbol: hex_node_plain
+        type: group
+        children:
+        - id: hex
+          decorative: true
+          stroke_style:
+            stroke_width: 1.04
+          type: path
+          d: M 31.2 13.51 L 23.4 27.02 L 7.8 27.02 L 0 13.51 L 7.8 0 L 23.4 0 Z
+          fill: bg
+          stroke: '#1A56B0'
+      - id: label_d
+        box:
+        - 23.400000000000002
+        - 171.06999629903726
+        - 52.0
+        - 11.440000000000001
+        decorative: true
+        style:
+          align: center
+          color: '#1A2B3E'
+          font_family:
+          - Arial
+          - Helvetica
+          - sans-serif
+          font_size: 3.64
+          font_weight: 400
+          line_height: 4.68
+          vertical_align: middle
+        type: text
+        text: Gates
+    alt: miniature hub-and-spoke module map
+    size:
+    - 327.6
+    - 185.10999629903725
+    caption: 'Figure 9.3 — The radial module generator: one hub, four satellites,
+      edges beneath'
+  - type: paragraph
+    text: Three generators, three grammars of arrangement — grid, tessellation, radial
+      — and none of them asked the author for a single coordinate.
+  - type: paragraph
+    text: Each plate is the generator's own output, rescaled by plain arithmetic —
+      symbol frames, path data and text styles all multiplied by one factor, so what
+      this book embeds is exactly what the generator computed, smaller.
+  - break_before: page
+    type: heading
+    level: 1
+    text: 10 · The Corpus
+    id: ch-10
+  - type: paragraph
+    text: A format earns trust by carrying other people's documents. The migration
+      path lifts the predecessor dialect in one command, and the corners it learned
+      are recorded as a mapping table — each one found by migrating a real production
+      deck, not by speculation.
+  - type: table
+    rows:
+    - - scene / visual envelope
+      - one page + defs.tokens
+    - - deck / slides envelope
+      - defs + one page per slide
+    - - text styles (font, size, wrap)
+      - font_family, font_size, white_space
+    - - chip_row component
+      - a group of pills, baked
+    - - gradient fill tokens
+      - v2 Gradient paints that render
+    columns:
+    - v0.1 dialect
+    - v2 lift
+    header:
+    - v0.1 dialect
+    - v2 lift
+  - type: heading
+    level: 2
+    text: 10.1 · What the oracle taught
+    id: ch-10-s1
+  - type: paragraph
+    text: 'The strongest lesson came from the golden corpus itself: a deck cover had
+      rendered near-black since the day it was pinned, because a declared gradient
+      token was never dereferenced by the renderer. The migration work found the silent
+      failure, the fix lit the cover purple, and the golden lock was re-pinned with
+      open eyes.'
+  - type: paragraph
+    text: 'Every migrated deck is verified page-by-page against the predecessor''s
+      own renderer — content identical, wrap points and font faces honestly different,
+      and a hard rule enforced throughout: nothing is ever silently truncated. Overflow
+      must be explicit policy or it is a build error.'
+  - type: paragraph
+    text: 'The corpus now holds thirty-eight fixtures, every one validating clean,
+      every one rendered by the gate on every commit. A book like this joins them
+      the moment it is committed: the page you are reading is a test asset.'
+  - type: paragraph
+    text: 'Two decks remain outside, waiting on a dependency the checklist names honestly:
+      their diagrams speak the UML dialect, and the composers that understand it have
+      not yet crossed over from the predecessor. When they do, the same one-command
+      lift is already waiting.'
+  - break_before: page
+    type: heading
+    level: 1
+    text: 11 · The Gate
+    id: ch-11
+  - type: paragraph
+    text: 'Everything in this volume is claimed twice: once by the prose, once by
+      a test. The gate runs twelve checks on every commit — schema against model,
+      grammar against schema, fixtures against the validator, renders against a golden
+      lock — and a chapter that breaks any of them does not ship.'
+  - type: paragraph
+    text: 'The discipline has a name in this repository: no output is trusted until
+      it is checked against a real gate. Rendered pixels outrank YAML; a numbered
+      caption is not delivered until it is seen on a page; a silent truncation is
+      a build error, not a style choice.'
+  - type: heading
+    level: 2
+    text: 11.1 · The grey test
+    id: ch-11-s1
+  - type: paragraph
+    text: 'The oldest gate is Chevreul''s: drain the hue and see if the page still
+      speaks. Below, one working palette and its grey shadow — the hierarchy must
+      survive the crossing or the palette is leaning on colour it does not own.'
+  - break_inside: avoid
+    type: figure
+    object:
+      type: group
+      children:
+      - box:
+        - 0
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#0f7d88'
+        radius: 3
+      - box:
+        - 40
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#b5642c'
+        radius: 3
+      - box:
+        - 80
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#7c3aed'
+        radius: 3
+      - box:
+        - 120
+        - 0
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#1d1e22'
+        radius: 3
+      - box:
+        - 0
+        - 28
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#717171'
+        radius: 3
+      - box:
+        - 40
+        - 28
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#797979'
+        radius: 3
+      - box:
+        - 80
+        - 28
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#676767'
+        radius: 3
+      - box:
+        - 120
+        - 28
+        - 34
+        - 20
+        decorative: true
+        type: rect
+        fill: '#1e1e1e'
+        radius: 3
+    alt: colour swatches above their grey equivalents
+    size:
+    - 154.0
+    - 48.0
+    caption: Figure 11.1 — A palette and its grey test, computed
+  - type: paragraph
+    text: 'A book is a promise held over hundreds of decisions. The gates keep the
+      promise cheap: nobody re-reads every page after every change, because the machine
+      already has.'
+  - type: heading
+    level: 2
+    text: 11.2 · What a gate cannot see
+    id: ch-11-s2
+  - type: paragraph
+    text: Honesty requires the inverse list. A gate cannot tell you whether a sentence
+      is worth reading, whether a plate earns its page, or whether the tone of a chapter
+      matches its subject. It can only hold the ground so those judgements are made
+      once, by a person, and never silently unmade by a regression.
+  - type: paragraph
+    text: 'So the division of labour stands: the machine guards measure, contrast,
+      containment, determinism and provenance; the author owns meaning. Neither can
+      do the other''s job, and the book is better because neither tries.'
+  - break_before: page
+    type: heading
+    level: 1
+    text: 12 · The Book
+    id: ch-12
+  - type: paragraph
+    text: This volume assembled itself. Chapters numbered their own headings, figures
+      counted themselves per chapter and folded their labels into captions, and the
+      contents page resolved its numbers from the paginated result.
+  - type: heading
+    level: 2
+    text: 12.1 · The whole surface in one builder
+    id: ch-12-s1
+  - type: code
+    source: "book = BookBuilder(title=\"On Composition\", author=\"…\")\nch = book.chapter(\"\
+      The Line\")\nch.para(\"A stroke is a promise about a pen…\")\nch.figure(stroke_outline(pts,\
+      \ width=18, pen_angle=30),\n          caption=\"A calligraphic swash\")    \
+      \ # -> Figure 2.3\ndoc = book.build()                            # validated\
+      \ flow document"
+    language: python
   - type: list
     items:
-    - Front matter carries the identity.
-    - Chapters number themselves.
-    - Figures keep their captions.
+    - Front matter carries identity, never a chapter number.
+    - A figure without a box still reserves its true height.
+    - The book never lists itself in its own contents.
     ordered: true
+  - type: heading
+    level: 2
+    text: 12.2 · From builder to shelf
+    id: ch-12-s2
   - type: paragraph
-    text: 'Composition is a settling of accounts between content and page. The column
-      earns its measure, the margin its silence; what remains is the text''s own rhythm,
-      carried line by line through the book. Composition is a settling of accounts
-      between content and page. The column earns its measure, the margin its silence;
-      what remains is the text''s own rhythm, carried line by line through the book. '
+    text: The path from these calls to a bound object is short and entirely inspectable.
+      The builder returns a document; the document validates against the model; the
+      flow engine paginates it; the SVG pages assemble into a vector PDF or transpile
+      to LaTeX for a press that prefers TeX. Each stage is a function with a test,
+      not a menu with a mood.
+  - type: paragraph
+    text: Nothing in that chain is exotic. The same builders that made this book make
+      slide decks, diagrams, letters and posters; the book layer is only an opinion
+      about numbering and front matter expressed over the common flowables.
+  - type: list
+    items:
+    - One source, every artifact derived.
+    - One paginator, every backend downstream.
+    - One test suite, every page accounted for.
+  - type: paragraph
+    text: If a page of this volume ever renders differently on your machine, that
+      difference is a bug with a reproduction — the book itself is the test case.
+  - type: heading
+    level: 2
+    text: 12.3 · What the reader never sees
+    id: ch-12-s3
+  - type: paragraph
+    text: 'Under every page: a validated document, a deterministic paginator, margins
+      from a hundred-year-old canon, and a test suite that reads the pixels. The craft
+      is old; the guarantees are new.'
+  - type: paragraph
+    text: 'The same surface is reachable over MCP: an agent connects, reads the capability
+      guide, and authors through the identical builders — with coverage gates that
+      fail the build if a new capability ever ships without appearing in that guide.'
+  - type: paragraph
+    text: 'Colophon: composed by framegraph.sdk.book on an A5 master, set with the
+      ADR-0003 flow engine, every plate computed by the capability it depicts.'
   media: paged
 meta:
   author: FrameGraph Press
