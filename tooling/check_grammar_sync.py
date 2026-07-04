@@ -266,12 +266,20 @@ def check_enums(out: list[Finding], prods: dict[str, str]) -> None:
                            f"in grammar not models: {{{only_g}}}"))
 
 
+# ObjBase carries additive, out-of-deep-core fields that the CORE grammar
+# deliberately does not enumerate: the §8.5 richness stack (`effects`,
+# `appearance`) and the seeded-imperfection pass (`humanize`). They are model-only
+# *by design*, so they are allowlisted here rather than counted as drift. Every
+# OTHER per-object field mismatch IS drift and fails the gate (drift-risk-map #5).
+MODEL_ONLY_OBJ_FIELDS = frozenset({"appearance", "effects", "humanize"})
+
+
 def check_object_fields(out: list[Finding], prods: dict[str, str],
                         model_map: dict[str, str], grammar_map: dict[str, str]) -> None:
     for t in sorted(set(model_map) & set(grammar_map) & CORE_OBJECT_TYPES):
         m_fields = model_field_names(getattr(fg, model_map[t]))
         g_fields = production_fields(prods, grammar_map[t])
-        only_m = sorted(m_fields - g_fields)
+        only_m = sorted((m_fields - g_fields) - MODEL_ONLY_OBJ_FIELDS)
         only_g = sorted(g_fields - m_fields)
         if only_m or only_g:
             parts = []
@@ -279,7 +287,9 @@ def check_object_fields(out: list[Finding], prods: dict[str, str],
                 parts.append(f"model-only: {', '.join(only_m)}")
             if only_g:
                 parts.append(f"grammar-only: {', '.join(only_g)}")
-            out.append(Finding("WARN", "field-drift",
+            # A real field-name divergence in a CORE object production silently makes
+            # the normative grammar lie — that is a hard error, not a printed WARN.
+            out.append(Finding("ERROR", "field-drift",
                                f"object {t!r}: " + "; ".join(parts)))
 
 

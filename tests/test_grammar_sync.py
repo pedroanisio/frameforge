@@ -63,6 +63,25 @@ def test_model_only_aliases_are_info_not_error():
 
 
 # --------------------------------------------------------------------------- #
+#  drift-risk-map #5 — per-object field drift is a hard error                  #
+# --------------------------------------------------------------------------- #
+def test_field_drift_is_a_hard_error_not_a_warn(monkeypatch):
+    """A per-object field-name divergence in a CORE production must FAIL the gate
+    (ERROR), not print a non-blocking WARN — else the normative grammar silently
+    lies. The additive ObjBase fields (effects/appearance/humanize) are allowlisted;
+    clearing the allowlist resurfaces them as drift, which must return as ERROR."""
+    monkeypatch.setattr(CGS, "MODEL_ONLY_OBJ_FIELDS", frozenset())
+    fd = [f for f in CGS.run_checks() if f.code == "field-drift"]
+    assert fd, "expected field-drift once the additive-field allowlist is empty"
+    assert all(f.sev == "ERROR" for f in fd), "field-drift must be ERROR-severity"
+
+
+def test_no_unexpected_field_drift_in_current_tree():
+    errs = [f.msg for f in CGS.run_checks() if f.code == "field-drift" and f.sev == "ERROR"]
+    assert errs == [], "grammar ⇄ model field drift:\n" + "\n".join(errs)
+
+
+# --------------------------------------------------------------------------- #
 #  Extractor / introspection helpers                                          #
 # --------------------------------------------------------------------------- #
 def test_production_extraction():

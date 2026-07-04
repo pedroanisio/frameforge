@@ -224,10 +224,12 @@ def test_curve_renders_cubic_path():
 
 
 def test_canvas_preset_string_resolves_to_pixels():
+    from framegraph.rendering.domain.services.canvas_resolver import DEFAULT_WH
     assert fgh.canvas_size({"canvas": "deck-16x9"}) == (1920, 1080)
     assert fgh.canvas_size({"canvas": {"preset": "A4"}}) == (595, 842)
     assert fgh.canvas_size({"canvas": {"size": [320, 240]}}) == (320, 240)
-    assert fgh.canvas_size({"canvas": "nonexistent"}) == (800, 600)  # default
+    # the canvas-less default is the ONE canonical default — not an HTML-private one
+    assert fgh.canvas_size({"canvas": "nonexistent"}) == DEFAULT_WH == (1280, 800)
 
 
 def test_preset_table_matches_model_page_presets():
@@ -239,6 +241,18 @@ def test_preset_table_matches_model_page_presets():
     import typing
     preset_literal = set(typing.get_args(model.PagePreset))
     assert set(fgh._CANVAS_PRESETS) == preset_literal
+
+
+def test_html_canvas_table_is_the_shared_canonical_not_a_mirror():
+    """drift-risk-map #4: the HTML backend must use the SAME preset table (keys AND
+    size values) as the canonical render path, so a size can never diverge between
+    `--to svg`/`pdf-tex` and `--to html`. Enforced by sharing the object, not copying."""
+    from framegraph.rendering.domain.services import canvas_resolver as CR
+    # identity: the HTML symbol IS the canonical table (a shared import, no copy)
+    assert fgh._CANVAS_PRESETS is CR.PRESETS
+    # value-level guard (would catch a future divergence even if the copy returned)
+    assert dict(fgh._CANVAS_PRESETS) == dict(CR.PRESETS)
+    assert fgh.canvas_size({"canvas": "nonexistent"}) == CR.DEFAULT_WH
 
 
 def test_font_family_may_be_a_list():

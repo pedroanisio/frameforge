@@ -43,10 +43,21 @@ def test_guard_catches_an_undocumented_type():
         "guard failed to flag a type discriminator removed from the spec"
 
 
-def test_field_gaps_are_warnings_not_errors():
-    """Field-name absence is advisory (the spec is prose, not a field reference)."""
-    findings = S.run_checks(SPEC)
-    assert all(f.sev != "ERROR" for f in findings if f.code == "field-undocumented")
+def test_baselined_field_gaps_are_advisory_warnings():
+    """The accepted-baseline field gaps stay non-fatal WARNs (a documented backlog)."""
+    fu = [f for f in S.run_checks(SPEC) if f.code == "field-undocumented"]
+    assert fu, "expected the known field-doc backlog to still be reported"
+    assert all(f.sev == "WARN" for f in fu), "current field gaps must all be baselined WARNs"
+
+
+def test_new_undocumented_field_is_a_hard_error(monkeypatch):
+    """drift-risk-map #6 ratchet: a field NOT on the accepted baseline that is missing
+    from the normative spec must FAIL the gate (ERROR), so a *new* undocumented field
+    can no longer slip in silently. Clearing the baseline turns the current gaps into
+    errors, proving the severity path."""
+    monkeypatch.setattr(S, "SPEC_UNDOCUMENTED_BASELINE", frozenset())
+    errs = [f for f in S.run_checks(SPEC) if f.code == "field-undocumented" and f.sev == "ERROR"]
+    assert errs, "an un-baselined undocumented field must be an ERROR"
 
 
 if __name__ == "__main__":
