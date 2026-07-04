@@ -1,6 +1,6 @@
 ---
 title: "FrameGraph vs the classical CG canon — strategic gap assessment & backlog"
-status: APPROVED 2026-07-04 (operator) — F1 deferred + operator-approval-gated; backlog (§9) merged into docs/roadmap.md
+status: APPROVED 2026-07-04 (operator) — F1 deferred + operator-approval-gated; B7–B10 (Mortenson-grounded, §10) approved; backlog (§9 + §10) merged into docs/roadmap.md
 date: "2026-07-04"
 disclaimer:
   notice: >-
@@ -14,7 +14,9 @@ disclaimer:
     Domain reference = the GraphQL knowledge corpus (kb v1.4.0, 91 docs, re-verified
     2026-07-04). Computational-CG source: Harrington, "Computer Graphics: A Programming
     Approach", 2nd ed. 1987 (doc 5f2e8322), whose 11-chapter pipeline (preface ¶21–39,
-    ¶43–45) is the authoritative model. Codebase = frameforge HEAD 2.4.1.
+    ¶43–45) is the authoritative model; a second source — Mortenson, "Mathematics for
+    Computer Graphics", 2nd ed. (doc a75b8d5e, added on the 2026-07-04 corpus refresh) —
+    grounds the addendum items B7–B10 (§10). Codebase = frameforge HEAD 2.4.1.
 supersedes_scope_of: docs/proposals/cg-canon-3d-alignment.md   # that doc is the detailed spec for backlog item B2
 ---
 
@@ -280,11 +282,87 @@ correctness bug.
 | **B4** | Fractal / procedural generator (`sdk/fractal.py`) | T2 | Ch11 (¶39) | S–M | — | this doc §5 |
 | **B5** | Curved-surface patches (Bézier/B-spline) | T2 | Ch11 | M | B2 | this doc §5 |
 | **B6** | Shading completion (flat default + Phong/specular) | T2 | Ch10 | S | B2 | this doc §5 |
+| **B7** | Reflection / mirror transform (`Mat3.reflect`, `mirror()`) | T1 high | Mortenson §3.6 | XS–S | — | §10 (Mortenson) |
+| **B8** | Geometric intersection API (line/segment/ray/plane/curve) | T1 high | Mortenson (intersections) | M | — | §10 (Mortenson) |
+| **B9** | Curvature & arc-length API (curves/surfaces) | T2 high | Mortenson §6.7 | S–M | — | §10 (Mortenson) |
+| **B10** | Convex hull + comp-geometry primitives | T2 | Mortenson (convex hulls) | S–M | (aids B8) | §10 (Mortenson) |
 | **F1** | Ray tracing / global illumination | T3 bridge | (ray-trace ch.) | — | — | **DEFER — operator-approval-gated** (out of fit) |
 | **F2** | Texture mapping | T3 bridge | 1 citation | — | B3 | **DEFER** behind B3 |
 
 *Recommended first pull:* **B1 → B2** (Phase 1) — small, correctness-first, unblocks B3–B6.
+*Among the Mortenson-grounded items (§10):* **B7 → B8** (trivial → foundational).
 
-*Provenance: domain reference read live from the GraphQL corpus (kb v1.4.0, doc 5f2e8322,
-Harrington 1987) via scoped KWIC + preface enumeration; codebase evidence at frameforge HEAD 2.4.1.
-On approval, §9 is added to `docs/roadmap.md`.*
+---
+
+## 10. Addendum — Mortenson-grounded items (B7–B10, approved 2026-07-04)
+
+**Corpus refresh (2026-07-04, kb still v1.4.0, 91 → 94 docs).** A second deep computational-CG
+source landed and is fully annotated: **Mortenson, *Mathematics for Computer Graphics
+Applications*, 2nd ed.** (rev. of *Computer Graphics: Mathematics*, 1989; LoC "Computer
+graphics—Mathematics") — doc `a75b8d5e`, 4,222 sentences / 135,998 tokens. It **triangulates
+Harrington** (retiring the single-source risk in §8) and **corroborates B1/B5** (deep on
+homogeneous coords, projection, curves). A third math text — **Rogers & Adams, *Mathematical
+Elements for CG*** (`348096aa`) — landed but `status=failed` (0 sentences): a **corpus-side
+source gap**, not a FrameGraph item; flag for re-ingest on the kb service.
+
+Verified Mortenson coverage (scoped KWIC): intersection **50**, curvature **50**, reflection
+**50** (§3.6), convex hull **21**, Bézier/Hermite **44/12**, homogeneous/matrix/vector/surface/
+parametric **≥27–50**. Thin (so **not** proposed): quaternion **2**, B-spline/NURBS **0/4**.
+The four gaps below are grounded in this new source **and** the codebase; all are distinct from
+B1–B6 and from F1/F2.
+
+### B7 — Reflection / mirror transform
+- **Problem.** Mirroring requires hand-building a matrix; there is no reflection primitive.
+- **Evidence.** `Mat3` exposes only `identity/translate/scale/rotate/inverse`
+  ([geometry.py:66–99](../../src/framegraph/sdk/geometry.py#L66)) — **no `reflect`**; roadmap
+  Appendix A *sketched* `Mat3.reflect` but it never shipped.
+- **GraphQL support.** Mortenson §3.6 Reflection (*"develops the algebra and geometry of
+  translations, rotations, reflection"*; 50 hits).
+- **Change.** `Mat3.reflect(axis | through_line)`, a `Mat4` reflection, and an SDK `mirror()` helper.
+- **Benefit.** Completes the 2D affine set; common authoring op made first-class.
+- **Complexity.** **XS–S**, pure-Python, additive. **Risks.** Y-down sign convention — verify.
+- **Validation.** Unit tests: reflect through x/y/arbitrary line; `reflect∘reflect = identity`.
+
+### B8 — First-class geometric intersection API
+- **Problem.** Intersections exist only *inside* the boolean kernel; nothing is exposed for
+  hit-testing, snapping, routing, or clipping.
+- **Evidence.** `planar.py:161` `_insert_intersections` + `planar.py:324` `intersect` are
+  **boolean-internal** (ring/polygon), not geometric primitives; `geometry.py` has none.
+- **GraphQL support.** Mortenson — intersections (50; dedicated treatment) + Boolean-op geometry.
+- **Change.** A geometry intersection module: line–line, segment–segment, line/ray–plane,
+  ray–triangle, and curve–curve (via subdivision), returning points + parameters.
+- **Benefit.** Shared substrate for **hit-testing** (the architecture-deck gap), snapping,
+  connector routing, clipping (**feeds B1/B2**), and reusing the boolean machinery.
+- **Complexity.** **M**. **Risks.** Robustness at near-parallel/degenerate cases (reuse planar's perturbation).
+- **Validation.** Fixtures per pair-type vs closed-form references; degeneracy cases.
+
+### B9 — Curvature & arc-length API for curves/surfaces
+- **Problem.** Adaptive tessellation uses an internal **flatness proxy**; no exposed
+  curvature/arc-length, so dashing, text-on-path, and offsets can't be arc-length-uniform.
+- **Evidence.** [draw.py:249/275](../../src/framegraph/sdk/draw.py#L249) (flatness subdivision,
+  *"samples concentrate where curvature is high"*); `CubicBezier` exposes only `.point(t)`.
+- **GraphQL support.** Mortenson §6.7 Curvature (50 hits).
+- **Change.** `curvature(t)`, arc-length parameterization, arc-length-uniform sampling on
+  `CubicBezier`/`Path`.
+- **Benefit.** Upgrades *shipping* code: curvature-correct tessellation, uniform dashing/text-on-path,
+  better `outline.py` offsets; **B5** needs arc-length for adaptive surface tessellation.
+- **Complexity.** **S–M**. **Risks.** Numerical integration cost — cache per curve.
+- **Validation.** Arc-length vs high-res polyline reference; uniform-sample spacing tolerance.
+
+### B10 — Convex hull + computational-geometry primitives
+- **Problem.** No convex hull / bounding-geometry helpers; useful for broad-phase bounding,
+  layout, and accelerating B8.
+- **Evidence.** No `convex`/`hull` anywhere in `sdk/`.
+- **GraphQL support.** Mortenson — convex hulls (21; polygons/polyhedra/halfspaces).
+- **Change.** `convex_hull(points)` (2D Andrew's monotone chain; optional 3D), + AABB/OBB helpers.
+- **Benefit.** Broad-phase bounding for B8; layout/packing; hit-test acceleration. **Aids B8.**
+- **Complexity.** **S** (2D) – M (3D). **Risks.** Collinear/duplicate-point handling.
+- **Validation.** Hull correctness vs brute force; collinear/degenerate fixtures.
+
+**Phasing.** B7 (Phase 1, trivial), B8 (Phase 1–2, foundational — sequence with B1's clip stage),
+B9 (Phase 3, alongside B5), B10 (Phase 3, supports B8). None depend on the true-3D direction; all
+are 2D/geometry-native and independently useful.
+
+*Provenance: domain reference read live from the GraphQL corpus (kb v1.4.0, 94 docs) — Harrington
+(`5f2e8322`) + Mortenson (`a75b8d5e`) — via scoped KWIC + preface/TOC enumeration; codebase evidence
+at frameforge HEAD 2.4.1. §9 + this addendum are merged into `docs/roadmap.md`.*

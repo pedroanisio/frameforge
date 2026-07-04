@@ -900,12 +900,13 @@ dependency.
 ## CG-canon alignment programme — approved backlog (2026-07-04)
 
 Approved by the operator 2026-07-04. Assessment of FrameGraph against the **classical
-computer-graphics canon** (Harrington, *Computer Graphics: A Programming Approach*, 2nd ed.
-1987 — the reference corpus's one deep computational source), grounded stage-by-stage in the
-book's 11-chapter pipeline. Full evidence + per-item spec:
-`docs/proposals/cg-canon-strategic-gaps.md`; the B2 correctness detail is in
-`docs/proposals/cg-canon-3d-alignment.md`. This programme realizes the **true-3D direction**
-opened by the 2026-07-04 course correction (Item 7 / Appendix A.0).
+computer-graphics canon**, grounded stage-by-stage in two deep computational sources from the
+reference corpus: **Harrington**, *Computer Graphics: A Programming Approach*, 2nd ed. 1987
+(the 11-chapter pipeline → B1–B6) and **Mortenson**, *Mathematics for Computer Graphics*, 2nd
+ed. (the CG math → B7–B10, added on the 2026-07-04 corpus refresh; the two triangulate). Full
+evidence + per-item spec: `docs/proposals/cg-canon-strategic-gaps.md` (B7–B10 in its §10); the
+B2 correctness detail is in `docs/proposals/cg-canon-3d-alignment.md`. This programme realizes
+the **true-3D direction** opened by the 2026-07-04 course correction (Item 7 / Appendix A.0).
 
 Calibration (explicitly *not* gaps): FrameGraph already *is* much of the canon — the Document
 IR is Harrington's "display file / metafile", the Layer/Object graph is his "segments", and
@@ -922,6 +923,10 @@ pipeline**.
 | **B4** | Fractal / procedural generator (`sdk/fractal.py`) | T2 | Ch11 (¶39) | S–M | — | approved |
 | **B5** | Curved-surface patches (Bézier/B-spline) | T2 | Ch11 | M | B2 | approved |
 | **B6** | Shading completion (flat default + Phong/specular) | T2 | Ch10 | S | B2 | approved |
+| **B7** | Reflection / mirror transform (`Mat3.reflect`, `mirror()`) | T1 high | Mortenson §3.6 | XS–S | — | approved (2026-07-04) |
+| **B8** | Geometric intersection API (line/segment/ray/plane/curve) | T1 high | Mortenson (intersections) | M | — | approved — foundational for hit-testing / snapping / clipping |
+| **B9** | Curvature & arc-length API (curves/surfaces) | T2 high | Mortenson §6.7 | S–M | — | approved — upgrades tessellation/outline; aids B5 |
+| **B10** | Convex hull + comp-geometry primitives | T2 | Mortenson (convex hulls) | S–M | aids B8 | approved (2026-07-04) |
 | **F2** | Texture mapping | T3 bridge | 1 corpus citation | — | B3 | **DEFER behind B3** |
 | **F1** | Ray tracing / global illumination | T3 bridge | ray-trace ch. | — | — | **DEFER — OPERATOR-APPROVAL-GATED** (out of fit; never auto-scheduled, never pulled as a dependency) |
 
