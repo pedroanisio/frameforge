@@ -718,7 +718,7 @@ class Book:
         m = mapper([(p.x, p.y) for p in dc], [PW - MX - 250, 96, 250, 300], pad=0.05)
         L.add(POLY([m(p.x, p.y) for p in dc], stroke="#5E86BE", width=0.8))
         facts = [("10", "backlog items"), ("~30", "new APIs"), ("100+", "red-first tests"),
-                 ("0", "schema changes"), ("60", "A4 pages")]
+                 ("0", "schema changes"), ("61", "A4 pages")]
         fw = (CW - 4 * 14) / 5
         for i, (v, lab) in enumerate(facts):
             x = MX + i * (fw + 14)
@@ -1281,6 +1281,34 @@ def build() -> DocumentBuilder:
     bk.scoreboard()
     bk.timeline(_TIMELINE)
     bk.api_index(_API)
+    bk.prose(
+        4,
+        "Illustrator parity, unlocked",
+        "Parity, unlocked",
+        [
+            "This book's geometry is not abstract: each API closes a specific row of the "
+            "Adobe Illustrator parity matrix (roadmap Appendix B, v4). Mat3.reflect and "
+            "mirror() complete the four Illustrator transform tools — Rotate, Reflect, "
+            "Scale, Shear — so AI-34 is now whole. The curvature and arc-length API gives "
+            "the Curvature tool (AI-09) a curvature-correct sampling backbone. And "
+            "Scene3D.render(shading='phong') advances 3D & Materials (AI-40) past flat and "
+            "Gouraud shading — though a true bevel still holds that row at PARTIAL.",
+            "Underneath, the planar booleans and the new intersection primitives — line, "
+            "segment, ray, and ray-triangle — are the machinery behind Pathfinder and the "
+            "Shape Builder (AI-04, AI-05); convex_hull, AABB and OBB give the layout and "
+            "hit-testing work its bounding geometry. None of it is a pointer gesture: the "
+            "parity is functional, reached by naming a coordinate and calling a function, "
+            "not by dragging a handle. Where Illustrator's tool is inherently interactive — "
+            "the freehand Pencil, Envelope distort — FrameGraph keeps its declared non-goal, "
+            "and says so plainly.",
+            "So these twelve hours of geometry are also twelve hours of parity: the same "
+            "commits that draw the figures in this book move the teardown scoreboard. Re-run "
+            "the generator and watch AI-34, AI-09 and AI-40 change verdict — the matrix is "
+            "evidence, not aspiration.",
+        ],
+        stats=[("4 / 4", "transform tools"), ("AI-34·09·40", "rows advanced"),
+               ("v4", "teardown"), ("51", "features tracked")],
+    )
     bk.closing()
     return b
 
