@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
-from typing import Iterable, Sequence
+from typing import Callable, Iterable, Sequence
 
 
 @dataclass(frozen=True)
@@ -727,6 +727,49 @@ def polyline_length(points: Iterable[Vec2 | Sequence[float]]) -> float:
     )
 
 
+def surface_curvature(
+    fn: Callable[[float, float], Sequence[float]], u: float, v: float, *, h: float = 1e-3,
+) -> tuple[float, float]:
+    """Gaussian curvature ``K`` and mean curvature ``H`` of the parametric surface
+    ``r(u, v) = fn(u, v)`` at ``(u, v)`` (B9 residual, Mortenson §8.5 — the first
+    and second fundamental forms).
+
+    ``fn`` maps ``(u, v)`` to a 3-tuple ``(x, y, z)``; the partial derivatives are
+    taken by central finite differences with step ``h``. Returns ``(K, H)``:
+    ``K = 1/R²`` and ``|H| = 1/R`` on a sphere of radius ``R``, ``K = H = 0`` on a
+    plane, and ``K < 0`` on a saddle. The sign of ``H`` follows the induced normal
+    ``r_u × r_v``; ``K`` is intrinsic (orientation-free). Evaluate away from a
+    parametrization singularity (e.g. a sphere pole), where the form degenerates.
+
+    Raises ``ValueError`` if the surface is degenerate at ``(u, v)`` (``r_u`` and
+    ``r_v`` parallel, so there is no well-defined tangent plane)."""
+    def r(uu: float, vv: float) -> Vec3:
+        return _v3(fn(uu, vv))
+
+    inv2h = 1.0 / (2.0 * h)
+    inv_hh = 1.0 / (h * h)
+    r0 = r(u, v)
+    r_u = (r(u + h, v) - r(u - h, v)) * inv2h            # first partials
+    r_v = (r(u, v + h) - r(u, v - h)) * inv2h
+    r_uu = (r(u + h, v) - r0 * 2.0 + r(u - h, v)) * inv_hh   # second partials
+    r_vv = (r(u, v + h) - r0 * 2.0 + r(u, v - h)) * inv_hh
+    r_uv = (r(u + h, v + h) - r(u + h, v - h)
+            - r(u - h, v + h) + r(u - h, v - h)) * (inv2h * inv2h)
+
+    normal = _cross3(r_u, r_v)
+    denom_sq = _dot3(normal, normal)
+    if denom_sq < 1e-20:
+        raise ValueError("degenerate surface point: r_u × r_v ≈ 0 (no tangent plane)")
+    n = normal * (1.0 / math.sqrt(denom_sq))
+
+    E, F, G = _dot3(r_u, r_u), _dot3(r_u, r_v), _dot3(r_v, r_v)   # first form
+    L, M, N = _dot3(r_uu, n), _dot3(r_uv, n), _dot3(r_vv, n)      # second form
+    disc = E * G - F * F
+    K = (L * N - M * M) / disc
+    H = (E * N - 2.0 * F * M + G * L) / (2.0 * disc)
+    return (K, H)
+
+
 # --------------------------------------------------------------------------- #
 #  B10 — convex hull + computational-geometry primitives (Mortenson §21).      #
 #  Broad-phase bounding for B8, layout/packing, hit-test acceleration.         #
@@ -1065,5 +1108,6 @@ __all__ = [
     "segment_intersection",
     "segment_plane_intersection",
     "segment_polygon_intersections",
+    "surface_curvature",
     "window_to_viewport",
 ]

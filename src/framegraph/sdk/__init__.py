@@ -79,6 +79,7 @@ from framegraph.sdk.geometry import (
     segment_intersection,
     segment_plane_intersection,
     segment_polygon_intersections,
+    surface_curvature,
     window_to_viewport,
 )
 from framegraph.sdk.fractal import (
@@ -373,6 +374,7 @@ __all__ = [
     "segment_intersection",
     "segment_plane_intersection",
     "segment_polygon_intersections",
+    "surface_curvature",
     "window_to_viewport",
     "ViewingPipeline",
     "quarter_circle_kappa",

@@ -294,6 +294,7 @@
       "sticky_note",
       "stroke",
       "stroke_outline",
+      "surface_curvature",
       "svg_to_objects",
       "table",
       "tabs",
@@ -2335,6 +2336,13 @@
     },
     {
       "name": "stroke_outline",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "surface_curvature",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

@@ -4,6 +4,25 @@
 
 ---
 
+## Unreleased — feat(sdk): B9 residual — parametric-surface curvature (CG-canon, 2026-07-05)
+
+Closes B9's last documented residual — surface curvature completes the
+curvature/arc-length family (curves already ship `CubicBezier.{curvature,
+arc_length}`). `surface_curvature(fn, u, v)` in `framegraph.sdk.geometry` returns
+the Gaussian curvature `K` and mean curvature `H` of a parametric surface
+`r(u,v)=fn(u,v)` via the first and second fundamental forms (Mortenson §8.5). The
+partial derivatives are central finite differences (step `h`); the induced normal
+is `r_u x r_v`. Closed-form correct: `K=1/R^2`, `|H|=1/R` on a sphere of radius R;
+`K=H=0` on a plane; `K<0` on a saddle. A degenerate point (`r_u`, `r_v` parallel)
+raises `ValueError`.
+
+Additive geometry, **no schema change** (§A.0). 5 red-first tests
+(`tests/test_geometry_surface_curvature.py`) verify the unit sphere, the
+1/R scaling on radius 2, a flat plane, a hyperbolic saddle (K=-4, H=0 at centre),
+and the degenerate-point guard. Re-exported from `framegraph.sdk`; `sdk-api.md` +
+`capability-manifest.json` regenerated. B9 residual closed — with B8 and B10 this
+turn, the CG-canon curvature / intersection / hull backlog is now residual-free.
+
 ## Unreleased — feat(sdk): B8 residual — line/segment × cubic Bézier intersection (CG-canon, 2026-07-05)
 
 Closes B8's last documented residual. `segment_curve_intersections(a0, a1, curve)`
