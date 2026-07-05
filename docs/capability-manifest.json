@@ -158,6 +158,7 @@
       "Vec2",
       "Vec3",
       "VectorField",
+      "ViewingPipeline",
       "aabb",
       "apply_humanize",
       "assert_golden",
@@ -297,6 +298,7 @@
       "validate_document",
       "validate_static_rules",
       "wave",
+      "window_to_viewport",
       "wrap_text",
       "write_golden"
     ]
@@ -1377,6 +1379,13 @@
       "mcp": true
     },
     {
+      "name": "ViewingPipeline",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "aabb",
       "kind": "sdk_export",
       "core": false,
@@ -2344,6 +2353,13 @@
     },
     {
       "name": "wave",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "window_to_viewport",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

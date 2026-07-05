@@ -4,6 +4,29 @@
 
 ---
 
+## Unreleased — feat(sdk): B1 — the formal viewing pipeline (CG-canon backlog, 2026-07-04)
+
+`framegraph.sdk.geometry` gains the named viewing pipeline the CG-canon backlog's
+recommended first pull calls for (Harrington ¶43/Ch6/8) — the abstraction the ad-hoc
+coordinate handling in `Scene3D.render` was missing:
+
+- `window_to_viewport(window, viewport, uniform=…)` — the affine mapping one
+  `[x,y,w,h]` rect onto another; `uniform=True` is the aspect-preserving, centred
+  "fit" (the classic 2D windowing transform, Harrington Ch6);
+- `ViewingPipeline(camera, box)` — world → view → projection → **clip** → NDC →
+  viewport; `.project(points)` fits the in-front projected points into the box,
+  dropping points behind the near plane.
+
+**Output-preserving:** the renderer is untouched (goldens unmoved). 7 red-first
+tests (`tests/test_geometry_viewport.py`) pin the corner/aspect maps, the
+degenerate-window guard, near-plane clipping, and — the key one — that
+`ViewingPipeline` **reproduces the exact projection-fit `Scene3D.render` computes**
+(bounds → uniform scale → centre), proving the equivalence. Robust segment
+near-plane clipping, back-face culling, and depth ordering are B2 (which now has a
+clean coordinate seam to build on). Re-exported from `framegraph.sdk`; `sdk-api.md`
++ `capability-manifest.json` regenerated. Roadmap backlog B1 → **DELIVERED**
+(abstraction; adopting it inside `Scene3D.render` output-preservingly is a follow-on).
+
 ## Unreleased — feat(sdk): B4 — fractal / procedural generator (CG-canon backlog, 2026-07-04)
 
 New module `framegraph.sdk.fractal`: a small, deterministic **L-system + turtle**

@@ -294,6 +294,41 @@ class Camera:
 
 
 @dataclass(frozen=True)
+class ViewingPipeline:
+    """The named viewing pipeline (B1, Harrington ¶43/Ch6/8):
+    world → view → projection → **clip** → NDC → viewport.
+
+    ``camera`` supplies the view+projection; ``box`` is the target viewport
+    ``[x, y, w, h]``. :meth:`project` maps world points to fitted page coordinates
+    — the same aspect-preserving fit :class:`Scene3D` uses — after clipping points
+    behind the near plane. It is **output-preserving**: it reproduces the existing
+    render fit without touching the renderer (goldens are unmoved), giving a clean
+    coordinate seam for downstream work. Robust segment near-plane clipping,
+    back-face culling, and depth ordering are B2's job."""
+
+    camera: Camera
+    box: Sequence[float]
+
+    def project(self, points: Iterable[Vec3 | Sequence[float]]) -> list[Vec2]:
+        """World points → clipped, projected, box-fitted :class:`Vec2` page
+        coordinates. Points at/behind the near plane are dropped."""
+        cam = self.camera.matrix()
+        projected: list[Vec2] = []
+        for p in points:
+            x, y, _z, w = cam.apply(_v3(p))
+            if w <= 1e-9:  # at or behind the near plane — clipped out
+                continue
+            projected.append(Vec2(x / w, y / w))
+        if not projected:
+            return []
+        xs = [q.x for q in projected]
+        ys = [q.y for q in projected]
+        window = [min(xs), min(ys), max(max(xs) - min(xs), 1e-9), max(max(ys) - min(ys), 1e-9)]
+        m = window_to_viewport(window, [float(v) for v in self.box], uniform=True)
+        return [m.apply(q) for q in projected]
+
+
+@dataclass(frozen=True)
 class CubicBezier:
     """Cubic Bézier segment with the formula stated in the SDK proposal."""
 
@@ -652,6 +687,37 @@ def point_in_polygon(
     return inside
 
 
+# --------------------------------------------------------------------------- #
+#  B1 — the window→viewport transform (Harrington Ch6, ¶43). The named 2D      #
+#  stage that Scene3D.render hand-rolled; ViewingPipeline (above) composes it. #
+# --------------------------------------------------------------------------- #
+def window_to_viewport(
+    window: Sequence[float],
+    viewport: Sequence[float],
+    *,
+    uniform: bool = False,
+) -> Mat3:
+    """The affine mapping the ``window`` rect onto the ``viewport`` rect, each an
+    ``[x, y, w, h]`` box (Harrington Ch6, B1). With ``uniform=True`` the scale is
+    isotropic (``min`` of the two axes) and the fitted window is centred in the
+    viewport — the aspect-preserving "fit". Raises ``ValueError`` on a zero-area
+    window."""
+    wx, wy, ww, wh = (float(v) for v in window)
+    vx, vy, vw, vh = (float(v) for v in viewport)
+    if abs(ww) < 1e-12 or abs(wh) < 1e-12:
+        raise ValueError("window_to_viewport needs a non-degenerate window")
+    if uniform:
+        s = min(vw / ww, vh / wh)
+        sx = sy = s
+        ox = vx + (vw - ww * s) / 2
+        oy = vy + (vh - wh * s) / 2
+    else:
+        sx, sy = vw / ww, vh / wh
+        ox, oy = vx, vy
+    # x' = sx·(x − wx) + ox = sx·x + (ox − sx·wx); likewise y.
+    return Mat3(a=sx, d=sy, e=ox - sx * wx, f=oy - sy * wy)
+
+
 def _v2(point: Vec2 | Sequence[float]) -> Vec2:
     if isinstance(point, Vec2):
         return point
@@ -703,6 +769,7 @@ __all__ = [
     "Path",
     "Vec2",
     "Vec3",
+    "ViewingPipeline",
     "aabb",
     "convex_hull",
     "line_intersection",
@@ -714,4 +781,5 @@ __all__ = [
     "ray_segment_intersection",
     "segment_intersection",
     "segment_polygon_intersections",
+    "window_to_viewport",
 ]

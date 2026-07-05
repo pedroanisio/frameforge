@@ -59,6 +59,7 @@ from framegraph.sdk.geometry import (
     Path,
     Vec2,
     Vec3,
+    ViewingPipeline,
     aabb,
     convex_hull,
     line_intersection,
@@ -70,6 +71,7 @@ from framegraph.sdk.geometry import (
     ray_segment_intersection,
     segment_intersection,
     segment_polygon_intersections,
+    window_to_viewport,
 )
 from framegraph.sdk.fractal import (
     dragon_curve,
@@ -351,6 +353,8 @@ __all__ = [
     "ray_segment_intersection",
     "segment_intersection",
     "segment_polygon_intersections",
+    "window_to_viewport",
+    "ViewingPipeline",
     "quarter_circle_kappa",
     "radial_gradient",
     "render_page_svgs",
