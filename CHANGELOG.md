@@ -4,6 +4,24 @@
 
 ---
 
+## Unreleased — fix(sdk): typed errors + dead-code removal (refine pass, 2026-07-05)
+
+Library-polish follow-ups from the wiring audit:
+
+* **Typed edge-case errors** (the SDK convention is `ValueError`, e.g.
+  `layout.grid`). `widgets.dropdown(items, selected=)` raised a bare `IndexError`
+  when `selected` was out of range (plausible when a dropdown re-renders after its
+  item list shrank); `fields.VectorField.render` / `ScalarField.heatmap` / `.contours`
+  raised `ZeroDivisionError` on `steps_x=0` / `steps_y=0`. Both now raise a
+  descriptive `ValueError`. 5 red-first tests (`tests/test_sdk_error_conventions.py`).
+* **Dead-code removal.** `vision…regions.extract_smooth_regions` (a superseded
+  single-run variant of `consensus_smooth_regions`, advertised in `__all__` with
+  zero callers anywhere) and `vision…workspace.region_from_viewport` (module-level,
+  unexported, referenced nowhere) are removed. No public SDK surface affected;
+  `_smooth_regions_from_mask` retains its live caller in `consensus_smooth_regions`.
+
+Additive/subtractive-internal, no schema change (§A.0).
+
 ## Unreleased — fix(mcp): wire the CG-canon + region/clip surfaces into MCP discovery (refine pass, 2026-07-05)
 
 A wiring/polish audit found capabilities that shipped in code + gates but were

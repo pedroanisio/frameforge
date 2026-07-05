@@ -16,6 +16,13 @@ import math
 from typing import Callable, Sequence
 
 
+def _require_steps(steps_x: int, steps_y: int) -> None:
+    """Typed guard for the sampling resolution (the SDK convention is ValueError,
+    e.g. ``layout.grid``). Without it a 0 divides the domain parameterisation."""
+    if steps_x < 1 or steps_y < 1:
+        raise ValueError(f"steps must be >= 1 (got steps_x={steps_x}, steps_y={steps_y})")
+
+
 @dataclass(frozen=True)
 class VectorField:
     """A 2D vector field sampled on a regular grid and drawn as arrows."""
@@ -35,6 +42,7 @@ class VectorField:
         head: float = 5.0,
         id: str | None = None,
     ) -> dict[str, object]:
+        _require_steps(steps_x, steps_y)
         xmin, ymin, xmax, ymax = self.domain
         bw, bh = float(box[2]), float(box[3])
         cell = min(bw / (steps_x + 1), bh / (steps_y + 1))
@@ -77,6 +85,7 @@ class ScalarField:
     domain: tuple[float, float, float, float] = (-1.0, -1.0, 1.0, 1.0)
 
     def _sample(self, steps_x: int, steps_y: int) -> tuple[list[list[float]], float, float]:
+        _require_steps(steps_x, steps_y)
         xmin, ymin, xmax, ymax = self.domain
         grid: list[list[float]] = []
         lo, hi = math.inf, -math.inf

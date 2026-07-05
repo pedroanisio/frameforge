@@ -556,9 +556,3 @@ def revert_state(state: WorkspaceState, index: int = -1) -> dict[str, Any]:
     state.restore(snap)
     del state.checkpoints[i:]
     return {"reverted_to": i, "tag": snap.get("tag")}
-
-
-def region_from_viewport(state: WorkspaceState) -> Region | None:
-    if not state.viewport:
-        return None
-    return Region(state.viewport_name, state.viewport)

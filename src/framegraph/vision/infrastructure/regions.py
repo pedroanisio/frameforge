@@ -47,7 +47,6 @@ __all__ = [
     "detect_closed_regions",
     "segment_fill_regions",
     "consensus_smooth_regions",
-    "extract_smooth_regions",
     "cluster_regions",
     "render_overlay",
     "smooth_regions_svg",
@@ -552,28 +551,6 @@ def _smooth_regions_from_mask(mask, img, harmonics: int, min_area: float):
         nid += 1
     regions.sort(key=lambda r: r.area_px, reverse=True)
     return regions, labels
-
-
-def extract_smooth_regions(image: Any, *, sigma: float = 6.0, level: float = 0.30,
-                           harmonics: int = 24, min_area: float = 200.0) -> RegionAnalysis:
-    """Single-run mollified level set → smooth closed regions (a consensus of one).
-
-    PARAMETER-SENSITIVE by construction (area/topology drift with sigma and level);
-    prefer :func:`consensus_smooth_regions` when robustness matters.
-    """
-    import cv2
-
-    img = _as_image(image)
-    if img.ndim == 2:
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    f = mollify(img, sigma)
-    mask = (f >= level).astype("uint8")
-    regions, labels = _smooth_regions_from_mask(mask, img, harmonics, min_area)
-    h, w = mask.shape
-    return RegionAnalysis("smooth", int(w), int(h), regions, labels, mask,
-                          params={"sigma": sigma, "level": level,
-                                  "harmonics": harmonics, "min_area": min_area},
-                          extras={"field": f})
 
 
 def consensus_smooth_regions(

@@ -612,6 +612,9 @@ def dropdown(box: Box, items: Sequence[str], *, selected: int = 0,
     This is the wireframe companion to ``field(kind="select")`` (the closed
     control).
     """
+    if items and not (0 <= selected < len(items)):
+        raise ValueError(
+            f"dropdown selected={selected} is out of range for {len(items)} item(s)")
     th = theme or default_theme()
     _, _, w, h = _wh(box)
     ch = min(th.control_h, h / 2)
