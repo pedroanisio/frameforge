@@ -4,6 +4,23 @@
 
 ---
 
+## Unreleased — feat(sdk): B5 residual — uniform bicubic B-spline surface patch (CG-canon, 2026-07-05)
+
+Closes B5's last documented residual — the B-spline half of "curved-surface
+patches". `bspline_patch(control, ...)` and `bspline_patch_point(control, u, v)`
+in `framegraph.sdk.manifold` evaluate a uniform (non-clamped) bicubic B-spline
+surface over an m×n control net (m,n ≥ 4) by the tensor product of the uniform
+cubic basis, tessellating `steps_u × steps_v` quads into a `Scene3D`. Unlike a
+Bézier patch the surface does **not** interpolate its corner controls — it lies
+inside the control net's convex hull (the basis is a partition of unity).
+
+Additive geometry, **no schema change** (§A.0). 6 red-first tests
+(`tests/test_manifold_bspline.py`) verify a planar net stays planar, the inward
+corner pull to known values, convex-hull containment, an interior bulge, the
+tessellation face count, and the too-small / ragged-net guards. Re-exported from
+`framegraph.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated. B5
+residual closed (both Bézier and B-spline patches now ship).
+
 ## Unreleased — feat(sdk): B9 residual — parametric-surface curvature (CG-canon, 2026-07-05)
 
 Closes B9's last documented residual — surface curvature completes the

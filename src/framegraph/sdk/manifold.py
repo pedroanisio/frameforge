@@ -78,6 +78,82 @@ def bezier_patch(
                       u=(0.0, 1.0), v=(0.0, 1.0), steps_u=steps_u, steps_v=steps_v, **style)
 
 
+# --------------------------------------------------------------------------- #
+#  B5 residual — uniform bicubic B-spline surface patch (Harrington Ch11). An   #
+#  m×n control net (m,n ≥ 4); the uniform (non-clamped) cubic basis, so the     #
+#  surface lies inside the control hull rather than interpolating the corners.  #
+# --------------------------------------------------------------------------- #
+def _bspline3(t: float) -> tuple[float, float, float, float]:
+    """The four uniform cubic B-spline basis weights at local parameter ``t`` in
+    [0,1]; they sum to 1 (partition of unity)."""
+    t2 = t * t
+    t3 = t2 * t
+    return ((1.0 - 3.0 * t + 3.0 * t2 - t3) / 6.0,
+            (4.0 - 6.0 * t2 + 3.0 * t3) / 6.0,
+            (1.0 + 3.0 * t + 3.0 * t2 - 3.0 * t3) / 6.0,
+            t3 / 6.0)
+
+
+def _bspline_span(g: float, spans: int) -> tuple[int, float]:
+    """Map a global coordinate ``g`` in [0, spans] to ``(span_index, local_t)``,
+    clamping the span into ``[0, spans-1]`` so ``g == spans`` lands at the last
+    span's ``t = 1``."""
+    span = int(math.floor(g))
+    span = max(0, min(span, spans - 1))
+    return span, g - span
+
+
+def _bspline_control(control: Sequence[Sequence[Vec3 | Sequence[float]]]) -> list[list[Vec3]]:
+    rows = [list(r) for r in control]
+    if len(rows) < 4:
+        raise ValueError("bspline_patch needs a control net with ≥4 rows")
+    width = len(rows[0])
+    if width < 4:
+        raise ValueError("bspline_patch needs a control net with ≥4 columns")
+    if any(len(r) != width for r in rows):
+        raise ValueError("bspline_patch needs a rectangular (non-ragged) control net")
+    return [[_v3(p) for p in row] for row in rows]
+
+
+def _eval_bspline(P: list[list[Vec3]], u: float, v: float) -> tuple[float, float, float]:
+    m, n = len(P), len(P[0])
+    su, tu = _bspline_span(u * (m - 3), m - 3)
+    sv, tv = _bspline_span(v * (n - 3), n - 3)
+    bu, bv = _bspline3(tu), _bspline3(tv)
+    x = y = z = 0.0
+    for a in range(4):
+        for b in range(4):
+            w = bu[a] * bv[b]
+            p = P[su + a][sv + b]
+            x += w * p.x
+            y += w * p.y
+            z += w * p.z
+    return (x, y, z)
+
+
+def bspline_patch_point(
+    control: Sequence[Sequence[Vec3 | Sequence[float]]], u: float, v: float,
+) -> Vec3:
+    """Evaluate a uniform bicubic B-spline surface at ``(u, v)`` in [0,1]² (B5
+    residual). ``control`` is an ``m×n`` grid (``m, n ≥ 4``); the surface lies
+    inside the control net's convex hull and, being uniform, does **not**
+    interpolate the corner controls (contrast :func:`bezier_patch_point`)."""
+    return Vec3(*_eval_bspline(_bspline_control(control), u, v))
+
+
+def bspline_patch(
+    control: Sequence[Sequence[Vec3 | Sequence[float]]], *,
+    steps_u: int = 24, steps_v: int = 24, **style: object,
+) -> Scene3D:
+    """A uniform bicubic B-spline surface patch (B5 residual, Harrington Ch11)
+    tessellated into a :class:`Scene3D` — ``steps_u × steps_v`` quads over an
+    ``m×n`` control net (``m, n ≥ 4``). Renders like any other manifold:
+    ``.render(box=…, camera=…, shading="phong")``."""
+    P = _bspline_control(control)
+    return parametric(lambda u, v: _eval_bspline(P, u, v),
+                      u=(0.0, 1.0), v=(0.0, 1.0), steps_u=steps_u, steps_v=steps_v, **style)
+
+
 def sphere(radius: float = 1.0, *, steps_u: int = 28, steps_v: int = 18, **style: object) -> Scene3D:
     def f(u: float, v: float) -> tuple[float, float, float]:
         return (radius * math.sin(v) * math.cos(u),
@@ -155,5 +231,5 @@ def wave(
                       steps_u=steps, steps_v=steps, **style)
 
 
-__all__ = ["bezier_patch", "bezier_patch_point", "klein_bottle", "mobius",
-           "parametric", "saddle", "sphere", "torus", "wave"]
+__all__ = ["bezier_patch", "bezier_patch_point", "bspline_patch", "bspline_patch_point",
+           "klein_bottle", "mobius", "parametric", "saddle", "sphere", "torus", "wave"]

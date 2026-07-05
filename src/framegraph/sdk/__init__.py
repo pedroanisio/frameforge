@@ -140,6 +140,8 @@ from framegraph.sdk import manifold
 from framegraph.sdk.manifold import (
     bezier_patch,
     bezier_patch_point,
+    bspline_patch,
+    bspline_patch_point,
     klein_bottle,
     mobius,
     parametric,
@@ -339,6 +341,8 @@ __all__ = [
     "object_bbox",
     "bezier_patch",
     "bezier_patch_point",
+    "bspline_patch",
+    "bspline_patch_point",
     "page_hashes",
     "paragraph",
     "parametric",

@@ -169,6 +169,8 @@
       "bezier_patch",
       "bezier_patch_point",
       "breadcrumb",
+      "bspline_patch",
+      "bspline_patch_point",
       "button",
       "caps_tracking",
       "card",
@@ -1461,6 +1463,20 @@
     },
     {
       "name": "breadcrumb",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "bspline_patch",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "bspline_patch_point",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
