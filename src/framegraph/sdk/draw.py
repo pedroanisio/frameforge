@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 import math
 from typing import Callable, Iterable, Literal, Sequence
 
-from framegraph.sdk.geometry import Camera, Mat4, Path, Vec2, Vec3
+from framegraph.sdk.geometry import Camera, Mat4, Path, Vec2, Vec3, window_to_viewport
 
 Scale = str | Callable[[float], float] | dict
 
@@ -214,7 +214,16 @@ class Scene3D:
             max_x = max(p.x for p in all_points)
             min_y = min(p.y for p in all_points)
             max_y = max(p.y for p in all_points)
-            scale = min(bw / max(max_x - min_x, 1e-9), bh / max(max_y - min_y, 1e-9))
+            # B1: the isotropic window→viewport fit scale now comes from the named
+            # pipeline primitive (sdk.geometry.window_to_viewport) — a single source
+            # of truth for the fit, not a second hand-rolled copy of the same
+            # min-of-ratios math. Output-preserving: window_to_viewport(uniform=True)
+            # returns Mat3.a == min(bw/ww, bh/wh), bit-identical to the former inline
+            # expression, so the centring (ox/oy) and per-point mapping are unchanged
+            # and existing goldens are byte-for-byte unmoved. The box *origin* stays
+            # local — children are translated by the group box downstream.
+            window = [min_x, min_y, max(max_x - min_x, 1e-9), max(max_y - min_y, 1e-9)]
+            scale = window_to_viewport(window, [0.0, 0.0, bw, bh], uniform=True).a
             ox = (bw - (max_x - min_x) * scale) / 2
             oy = (bh - (max_y - min_y) * scale) / 2
             children = []

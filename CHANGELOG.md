@@ -4,6 +4,23 @@
 
 ---
 
+## Unreleased — refactor(sdk): B1 residual — Scene3D.render adopts the window→viewport primitive (CG-canon, 2026-07-05)
+
+Closes B1's last documented residual — "adopt inside `Scene3D.render`". The
+renderer formerly hand-rolled its isotropic fit as `scale = min(bw/ww, bh/wh)`, a
+second copy of exactly the mapping `sdk.geometry.window_to_viewport` computes.
+`render` now takes that fit scale from the named pipeline primitive, so there is a
+**single source of truth** for the window→viewport fit.
+
+**Output-preserving** — `window_to_viewport(uniform=True).a` is *bit-identical* to
+the former inline expression (verified over a 2 880-point projected scene: raw
+byte-equal), so the centring and per-point mapping are unchanged and every golden
+render is byte-for-byte unmoved (`make golden-check` green). This is a
+consolidation refactor, not a behaviour change; a focused contract test
+(`tests/test_scene3d_viewport_fit.py`) locks that render's fit *is* the primitive's
+fit and pins the exact rendered coordinates so the two can never silently diverge.
+No schema change (§A.0). B1 residual closed; robust clip/cull/depth remain B2.
+
 ## Unreleased — feat(sdk): B5 residual — uniform bicubic B-spline surface patch (CG-canon, 2026-07-05)
 
 Closes B5's last documented residual — the B-spline half of "curved-surface
