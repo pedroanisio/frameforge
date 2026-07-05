@@ -245,6 +245,7 @@
       "place_region",
       "planar",
       "polar_plot",
+      "polyline_length",
       "progress",
       "quarter_circle_kappa",
       "radial_gradient",
@@ -1970,6 +1971,13 @@
     },
     {
       "name": "polar_plot",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "polyline_length",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

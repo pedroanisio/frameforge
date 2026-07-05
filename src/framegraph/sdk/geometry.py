@@ -306,6 +306,36 @@ class CubicBezier:
         u = 1.0 - t
         return (u**3) * self.p0 + (3 * u * u * t) * self.p1 + (3 * u * t * t) * self.p2 + (t**3) * self.p3
 
+    def derivative(self, t: float) -> Vec2:
+        """First derivative ``B'(t)`` (the hodograph / velocity). B9."""
+        u = 1.0 - t
+        return (3 * u * u) * (self.p1 - self.p0) + (6 * u * t) * (self.p2 - self.p1) + (3 * t * t) * (self.p3 - self.p2)
+
+    def second_derivative(self, t: float) -> Vec2:
+        """Second derivative ``B''(t)`` (acceleration). B9."""
+        u = 1.0 - t
+        return (6 * u) * (self.p2 - 2 * self.p1 + self.p0) + (6 * t) * (self.p3 - 2 * self.p2 + self.p1)
+
+    def curvature(self, t: float) -> float:
+        """Signed curvature ``κ(t) = (x'y'' − y'x'') / (x'² + y'²)^{3/2}`` (B9,
+        Mortenson §6.7). ``|κ| = 1/R`` (R the osculating-circle radius); the sign
+        encodes bend direction. Returns 0.0 at a cusp (zero speed)."""
+        d1 = self.derivative(t)
+        d2 = self.second_derivative(t)
+        speed_sq = d1.x * d1.x + d1.y * d1.y
+        if speed_sq < 1e-18:
+            return 0.0
+        return (d1.x * d2.y - d1.y * d2.x) / (speed_sq**1.5)
+
+    def arc_length(self, tolerance: float = 1e-8) -> float:
+        """Total arc length ``∫₀¹ |B'(t)| dt`` via adaptive Simpson on the speed
+        (B9). ``tolerance`` bounds the quadrature error."""
+        def speed(t: float) -> float:
+            d = self.derivative(t)
+            return math.hypot(d.x, d.y)
+
+        return _adaptive_simpson(speed, 0.0, 1.0, tolerance)
+
     @staticmethod
     def catmull_rom(points: Sequence[Vec2 | Sequence[float]]) -> list["CubicBezier"]:
         pts = [_v2(p) for p in points]
@@ -518,6 +548,38 @@ def segment_polygon_intersections(
     return out
 
 
+# --------------------------------------------------------------------------- #
+#  B9 — curvature & arc-length (curves). Curvature is on CubicBezier; arc      #
+#  length integrates |B'(t)| by adaptive Simpson; polyline_length is exact.    #
+# --------------------------------------------------------------------------- #
+def _adaptive_simpson(f, a: float, b: float, tol: float, max_depth: int = 50) -> float:
+    fa, fb, fm = f(a), f(b), f((a + b) / 2)
+    whole = (b - a) / 6 * (fa + 4 * fm + fb)
+    return _simpson_rec(f, a, b, fa, fm, fb, whole, tol, max_depth)
+
+
+def _simpson_rec(f, a: float, b: float, fa: float, fm: float, fb: float,
+                 whole: float, tol: float, depth: int) -> float:
+    m = (a + b) / 2
+    flm, frm = f((a + m) / 2), f((m + b) / 2)
+    left = (m - a) / 6 * (fa + 4 * flm + fm)
+    right = (b - m) / 6 * (fm + 4 * frm + fb)
+    if depth <= 0 or abs(left + right - whole) <= 15 * tol:
+        return left + right + (left + right - whole) / 15  # Richardson refinement
+    return (_simpson_rec(f, a, m, fa, flm, fm, left, tol / 2, depth - 1)
+            + _simpson_rec(f, m, b, fm, frm, fb, right, tol / 2, depth - 1))
+
+
+def polyline_length(points: Iterable[Vec2 | Sequence[float]]) -> float:
+    """Total length of the open polyline through ``points`` (0.0 for < 2 points).
+    The exact discrete analogue of :meth:`CubicBezier.arc_length` (B9)."""
+    pts = [_v2(p) for p in points]
+    return sum(
+        math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y)
+        for i in range(len(pts) - 1)
+    )
+
+
 def _v2(point: Vec2 | Sequence[float]) -> Vec2:
     if isinstance(point, Vec2):
         return point
@@ -571,6 +633,7 @@ __all__ = [
     "Vec3",
     "line_intersection",
     "mirror",
+    "polyline_length",
     "quarter_circle_kappa",
     "ray_segment_intersection",
     "segment_intersection",

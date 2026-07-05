@@ -925,7 +925,7 @@ pipeline**.
 | **B6** | Shading completion (flat default + Phong/specular) | T2 | Ch10 | S | B2 | approved |
 | **B7** | Reflection / mirror transform (`Mat3.reflect`, `mirror()`) | T1 high | Mortenson §3.6 | XS–S | — | **DELIVERED** (2026-07-04) — `sdk.geometry.Mat3.reflect` + `mirror()`; `test_geometry_reflect.py` |
 | **B8** | Geometric intersection API (line/segment/ray/plane/curve) | T1 high | Mortenson (intersections) | M | — | **DELIVERED — 2D core** (2026-07-04): `sdk.geometry.{line,segment,ray_segment,segment_polygon}_intersection(s)`; `test_geometry_intersect.py`. Residual: 3D-plane + curve intersections |
-| **B9** | Curvature & arc-length API (curves/surfaces) | T2 high | Mortenson §6.7 | S–M | — | approved — upgrades tessellation/outline; aids B5 |
+| **B9** | Curvature & arc-length API (curves/surfaces) | T2 high | Mortenson §6.7 | S–M | — | **DELIVERED** (2026-07-04): `CubicBezier.{derivative,curvature,arc_length}` + `polyline_length`; `test_geometry_curvature.py`. Residual: surface curvature |
 | **B10** | Convex hull + comp-geometry primitives | T2 | Mortenson (convex hulls) | S–M | aids B8 | approved (2026-07-04) |
 | **F2** | Texture mapping | T3 bridge | 1 corpus citation | — | B3 | **DEFER behind B3** |
 | **F1** | Ray tracing / global illumination | T3 bridge | ray-trace ch. | — | — | **DEFER — OPERATOR-APPROVAL-GATED** (out of fit; never auto-scheduled, never pulled as a dependency) |

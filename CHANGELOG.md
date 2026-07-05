@@ -4,6 +4,27 @@
 
 ---
 
+## Unreleased — feat(sdk): B9 — curvature & arc-length for curves (CG-canon backlog, 2026-07-04)
+
+`framegraph.sdk.geometry.CubicBezier` gains the differential-geometry surface the
+CG-canon backlog (Mortenson §6.7) approved — it upgrades tessellation/outline and
+aids the B5 patch work:
+
+- `derivative(t)` / `second_derivative(t)` — the hodograph B'(t) and B''(t);
+- `curvature(t)` — signed κ = (x'y'' − y'x'') / (x'² + y'²)^{3/2} (`|κ| = 1/R`,
+  sign = bend direction; 0 at a cusp);
+- `arc_length(tolerance)` — ∫₀¹ |B'(t)| dt by adaptive Simpson on the speed;
+- module `polyline_length(points)` — the exact discrete analogue.
+
+Additive SDK, **no schema change**. 8 red-first tests
+(`tests/test_geometry_curvature.py`) verify against **analytic truths**, not just
+each other: a straight-line cubic has κ ≡ 0 and length == chord; the κ
+quarter-circle Bézier integrates to ≈ π/2 with curvature ≈ 1/R at its midpoint;
+mirror-bent cubics have opposite-signed curvature; and every arc length lies
+strictly between its chord and its control-polygon length. Re-exported from
+`framegraph.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated. Roadmap
+backlog B9 → **DELIVERED**.
+
 ## Unreleased — feat(sdk): B8 — 2D geometric-intersection primitives (CG-canon backlog, 2026-07-04)
 
 `framegraph.sdk.geometry` gains the intersection primitives the CG-canon backlog
