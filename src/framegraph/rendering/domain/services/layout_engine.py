@@ -111,18 +111,46 @@ class LayoutEngine:
         layout,
     ) -> list[tuple[float, float, float, float]]:
         columns = max(1, int(num(layout.get("columns"), 1) or 1))
-        rows = max(1, (len(children) + columns - 1) // columns)
+        # Pass 1 — occupancy placement (§3.6e grid_span). Each child claims a
+        # cs×rs block at the next free row-major slot; neighbours flow around it.
+        # With every span [1, 1] this reproduces the plain (i%columns, i//columns)
+        # fill exactly, so span-free grids — every current fixture — are unmoved.
+        occupied: set[tuple[int, int]] = set()
+        placements: list[tuple[int, int, int, int]] = []
+        cursor = 0
+        max_row = 0
+        for child in children:
+            cs, rs = self._grid_span(child, columns)
+            pos = cursor
+            limit = (max_row + rs + len(children) + 2) * columns
+            while pos <= limit:
+                col, row = pos % columns, pos // columns
+                if col + cs > columns:
+                    pos = (row + 1) * columns  # a wide block cannot straddle the edge
+                    continue
+                if all((col + dc, row + dr) not in occupied
+                       for dc in range(cs) for dr in range(rs)):
+                    break
+                pos += 1
+            col, row = pos % columns, pos // columns
+            for dc in range(cs):
+                for dr in range(rs):
+                    occupied.add((col + dc, row + dr))
+            placements.append((col, row, cs, rs))
+            max_row = max(max_row, row + rs - 1)
+            cursor = pos + 1
+        rows = max(1, max_row + 1)
         cell_w = max(0.0, (avail_w - (columns - 1) * col_gap) / columns)
         cell_h = max(0.0, (avail_h - (rows - 1) * row_gap) / rows)
         out: list[tuple[float, float, float, float]] = []
-        for i, (cw, ch) in enumerate(sizes):
-            col, row = i % columns, i // columns
-            child = children[i]
-            aw = cell_w if self._fill_width(child) else cw
-            ah = cell_h if self._fill_height(child) or align == "stretch" else ch
+        for (col, row, cs, rs), (cw, ch), child in zip(placements, sizes, children):
+            span_w = cs * cell_w + (cs - 1) * col_gap
+            span_h = rs * cell_h + (rs - 1) * row_gap
+            aw = span_w if self._fill_width(child) else cw
+            ah = span_h if self._fill_height(child) or align == "stretch" else ch
             out.append((
                 x0 + col * (cell_w + col_gap),
-                y0 + row * (cell_h + row_gap) + self._cross(0, cell_h, ah, align),
+                y0 + row * (cell_h + row_gap) + self._cross(0, span_h, ah, align),
                 aw,
                 ah,
             ))
@@ -214,6 +242,17 @@ class LayoutEngine:
         if axis == "column" and cls._fill_width(child):
             return extent
         return current
+
+    @staticmethod
+    def _grid_span(child, columns: int) -> tuple[int, int]:
+        """`[column_span, row_span]` for a grid child (§3.6e), defaulting to
+        `(1, 1)`. The column span is clamped to the grid width."""
+        span = child.get("grid_span") if isinstance(child, dict) else None
+        if not (isinstance(span, (list, tuple)) and len(span) == 2):
+            return 1, 1
+        cs = max(1, min(int(span[0]), columns))
+        rs = max(1, int(span[1]))
+        return cs, rs
 
     @staticmethod
     def _sizing(child) -> dict:

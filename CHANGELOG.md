@@ -4,6 +4,24 @@
 
 ---
 
+## Unreleased — fix(render): honor grid_span in the grid layout engine (refine pass, 2026-07-05)
+
+`ObjBase.grid_span: [column_span, row_span]` (§3.6e) was a documented field the
+layout engine silently ignored — every grid child occupied exactly one cell. The
+engine now places children by **sparse occupancy** (skipped cells are not
+back-filled, per the spec): a spanning child claims a `cs×rs` block and neighbours
+flow around it; a filling child is sized to the full span width/height; `cs`
+beyond the grid width clamps gracefully (the validator still flags `grid_span`
+under a non-grid parent).
+
+**Output-preserving** — with every span `[1, 1]` (the default, and every current
+fixture — 0 use `grid_span`) the placement reproduces the former
+`(i%columns, i//columns)` fill exactly, so all goldens are byte-for-byte unmoved
+(`make golden-check` green). Additive, no schema change (§A.0). 5 red-first tests
+(`tests/test_layout_grid_span.py`) cover column-span neighbour flow, span-width
+sizing, row-span reservation, and a no-span regression lock; the existing
+`group-layout` oracle is unchanged.
+
 ## Unreleased — fix(sdk): typed errors + dead-code removal (refine pass, 2026-07-05)
 
 Library-polish follow-ups from the wiring audit:
