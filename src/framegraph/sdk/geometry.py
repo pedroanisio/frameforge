@@ -741,6 +741,59 @@ def aabb3(points: Iterable[Vec3 | Sequence[float]]) -> tuple[Vec3, Vec3]:
     return (Vec3(min(xs), min(ys), min(zs)), Vec3(max(xs), max(ys), max(zs)))
 
 
+def convex_hull_3d(
+    points: Iterable[Vec3 | Sequence[float]],
+) -> list[tuple[Vec3, Vec3, Vec3]]:
+    """The 3D convex hull of ``points`` as **outward-oriented triangular faces**
+    (each a tuple of three Vec3 whose normal points away from the hull centroid).
+
+    Brute-force face enumeration — a triple is a hull face iff every other point
+    lies on one side of its plane (coplanar points allowed). O(n⁴), intended for
+    modest point counts (bounding a mesh, hit-test acceleration). Duplicate points
+    are collapsed; a set with fewer than 4 non-coplanar points yields no faces
+    (coplanar sets have no 3D hull volume — use :func:`convex_hull` in 2D)."""
+    uniq: list[Vec3] = []
+    seen: set[tuple[float, float, float]] = set()
+    for p in points:
+        v = _v3(p)
+        key = (round(v.x, 12), round(v.y, 12), round(v.z, 12))
+        if key not in seen:
+            seen.add(key)
+            uniq.append(v)
+    n = len(uniq)
+    if n < 4:
+        return []
+    center = Vec3(sum(p.x for p in uniq) / n, sum(p.y for p in uniq) / n,
+                  sum(p.z for p in uniq) / n)
+    eps = 1e-9
+    faces: list[tuple[Vec3, Vec3, Vec3]] = []
+    for i in range(n):
+        for j in range(i + 1, n):
+            for k in range(j + 1, n):
+                a, b, c = uniq[i], uniq[j], uniq[k]
+                normal = _cross3(b - a, c - a)
+                if _dot3(normal, normal) < eps * eps:
+                    continue  # collinear triple — no plane
+                pos = neg = 0
+                for m in range(n):
+                    if m in (i, j, k):
+                        continue
+                    d = _dot3(normal, uniq[m] - a)
+                    if d > eps:
+                        pos += 1
+                    elif d < -eps:
+                        neg += 1
+                if (pos and neg) or (pos == 0 and neg == 0):
+                    continue  # interior triple, or a fully coplanar set
+                fc = Vec3((a.x + b.x + c.x) / 3, (a.y + b.y + c.y) / 3, (a.z + b.z + c.z) / 3)
+                # orient the winding so the face normal points away from the centre.
+                if _dot3(normal, fc - center) < 0:
+                    faces.append((a, c, b))
+                else:
+                    faces.append((a, b, c))
+    return faces
+
+
 # --------------------------------------------------------------------------- #
 #  B1 — the window→viewport transform (Harrington Ch6, ¶43). The named 2D      #
 #  stage that Scene3D.render hand-rolled; ViewingPipeline (above) composes it. #
@@ -894,6 +947,7 @@ __all__ = [
     "aabb",
     "aabb3",
     "convex_hull",
+    "convex_hull_3d",
     "obb",
     "line_intersection",
     "mirror",

@@ -189,6 +189,7 @@
       "contrast_of_scale",
       "contrast_ratio",
       "convex_hull",
+      "convex_hull_3d",
       "default_theme",
       "divider",
       "dominant_light",
@@ -1597,6 +1598,13 @@
     },
     {
       "name": "convex_hull",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "convex_hull_3d",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

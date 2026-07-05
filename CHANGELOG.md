@@ -4,6 +4,22 @@
 
 ---
 
+## Unreleased — feat(sdk): B10 residual — the 3D convex hull (CG-canon, 2026-07-05)
+
+Completes B10's last documented residual: `convex_hull_3d(points)` in
+`framegraph.sdk.geometry` returns the 3D hull as **outward-oriented triangular
+faces** (each a tuple of three Vec3 whose normal points away from the centroid).
+Brute-force face enumeration — a triple is a hull face iff every other point lies
+on one side of its plane — O(n^4), intended for modest point counts (bounding a
+mesh, hit-test acceleration); duplicates collapse and a fully-coplanar set yields
+no faces.
+
+Additive geometry, **no schema change**. 5 red-first tests
+(`tests/test_geometry_hull_3d.py`) verify a tetrahedron's four faces, that interior
+points are excluded, that every face is oriented outward, and that a cube keeps all
+eight corners and drops its centre. Re-exported from `framegraph.sdk`; `sdk-api.md`
++ `capability-manifest.json` regenerated. B10 residual closed (3D hull done).
+
 ## Unreleased — feat(sdk): B5 — bicubic Bézier surface patches (CG-canon backlog, 2026-07-05)
 
 `framegraph.sdk.manifold` gains the curved-surface patch the CG-canon backlog
