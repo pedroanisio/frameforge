@@ -166,6 +166,8 @@
       "avatar",
       "badge",
       "badge_width",
+      "bezier_patch",
+      "bezier_patch_point",
       "breadcrumb",
       "button",
       "caps_tracking",
@@ -1434,6 +1436,20 @@
     },
     {
       "name": "badge_width",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "bezier_patch",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "bezier_patch_point",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

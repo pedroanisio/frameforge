@@ -134,6 +134,8 @@ from framegraph.sdk.fields import ScalarField, VectorField
 from framegraph.sdk.lattices import Lattice, lattice
 from framegraph.sdk import manifold
 from framegraph.sdk.manifold import (
+    bezier_patch,
+    bezier_patch_point,
     klein_bottle,
     mobius,
     parametric,
@@ -331,6 +333,8 @@ __all__ = [
     "neon",
     "normalize_clip",
     "object_bbox",
+    "bezier_patch",
+    "bezier_patch_point",
     "page_hashes",
     "paragraph",
     "parametric",

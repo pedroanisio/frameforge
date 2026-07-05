@@ -12,6 +12,7 @@ import math
 from typing import Callable, Sequence
 
 from framegraph.sdk.draw import Scene3D
+from framegraph.sdk.geometry import Vec3, _v3
 
 
 def parametric(
@@ -25,6 +26,56 @@ def parametric(
 ) -> Scene3D:
     """A thin alias for :meth:`Scene3D.parametric_surface` returning a fresh scene."""
     return Scene3D().parametric_surface(fn, u=u, v=v, steps_u=steps_u, steps_v=steps_v, **style)
+
+
+# --------------------------------------------------------------------------- #
+#  B5 — bicubic Bézier surface patch (Harrington Ch11). 16 control points, the  #
+#  Bernstein tensor product; interpolates the four corner controls exactly.     #
+# --------------------------------------------------------------------------- #
+def _bernstein3(t: float) -> tuple[float, float, float, float]:
+    w = 1.0 - t
+    return (w * w * w, 3 * t * w * w, 3 * t * t * w, t * t * t)
+
+
+def _patch_control(control: Sequence[Sequence[Vec3 | Sequence[float]]]) -> list[list[Vec3]]:
+    rows = [list(r) for r in control]
+    if len(rows) != 4 or any(len(r) != 4 for r in rows):
+        raise ValueError("bezier_patch needs a 4×4 grid of control points")
+    return [[_v3(p) for p in row] for row in rows]
+
+
+def _eval_patch(P: list[list[Vec3]], u: float, v: float) -> tuple[float, float, float]:
+    bu, bv = _bernstein3(u), _bernstein3(v)
+    x = y = z = 0.0
+    for i in range(4):
+        for j in range(4):
+            w = bu[i] * bv[j]
+            p = P[i][j]
+            x += w * p.x
+            y += w * p.y
+            z += w * p.z
+    return (x, y, z)
+
+
+def bezier_patch_point(
+    control: Sequence[Sequence[Vec3 | Sequence[float]]], u: float, v: float,
+) -> Vec3:
+    """Evaluate a bicubic Bézier surface patch at ``(u, v)`` in [0,1]² (B5). The
+    ``control`` net is a 4×4 grid; the Bernstein tensor product interpolates the
+    four corners exactly (``(0,0)``→P₀₀, ``(1,1)``→P₃₃)."""
+    return Vec3(*_eval_patch(_patch_control(control), u, v))
+
+
+def bezier_patch(
+    control: Sequence[Sequence[Vec3 | Sequence[float]]], *,
+    steps_u: int = 20, steps_v: int = 20, **style: object,
+) -> Scene3D:
+    """A bicubic Bézier surface patch (B5, Harrington Ch11) tessellated into a
+    :class:`Scene3D` — ``steps_u × steps_v`` quads over a 4×4 control net. Renders
+    like any other manifold: ``.render(box=…, camera=…, shading="phong")``."""
+    P = _patch_control(control)
+    return parametric(lambda u, v: _eval_patch(P, u, v),
+                      u=(0.0, 1.0), v=(0.0, 1.0), steps_u=steps_u, steps_v=steps_v, **style)
 
 
 def sphere(radius: float = 1.0, *, steps_u: int = 28, steps_v: int = 18, **style: object) -> Scene3D:
@@ -104,4 +155,5 @@ def wave(
                       steps_u=steps, steps_v=steps, **style)
 
 
-__all__ = ["klein_bottle", "mobius", "parametric", "saddle", "sphere", "torus", "wave"]
+__all__ = ["bezier_patch", "bezier_patch_point", "klein_bottle", "mobius",
+           "parametric", "saddle", "sphere", "torus", "wave"]

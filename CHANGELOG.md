@@ -4,6 +4,25 @@
 
 ---
 
+## Unreleased — feat(sdk): B5 — bicubic Bézier surface patches (CG-canon backlog, 2026-07-05)
+
+`framegraph.sdk.manifold` gains the curved-surface patch the CG-canon backlog
+(Harrington Ch11) approved — unblocked by B2:
+
+- `bezier_patch_point(control, u, v)` — evaluate a bicubic Bézier surface at
+  `(u, v)` in [0,1]² by the Bernstein tensor product over a 4×4 control net; the
+  four corners are interpolated exactly.
+- `bezier_patch(control, steps_u=, steps_v=)` — the same surface tessellated into a
+  `Scene3D` (steps_u × steps_v quads), rendering like any manifold —
+  `.render(shading="phong", cull_backfaces=True)`.
+
+Additive SDK, **no schema change**. 5 red-first tests (`tests/test_manifold_patch.py`)
+pin corner interpolation, that a coplanar control net gives a planar surface, that a
+raised interior bulges off the corner plane, the tessellation face count, and the
+4×4-net guard. Pixel-verified: a raised patch renders as a real curved, shaded
+solid. Re-exported from `framegraph.sdk`; `sdk-api.md` + `capability-manifest.json`
+regenerated. Roadmap backlog B5 -> DELIVERED (bicubic Bézier; B-spline patch the residual).
+
 ## Unreleased — docs(examples): the CG-canon capability showcase — a 60-page A4 book (2026-07-05)
 
 `static/examples/cg_canon_showcase.py` composes *Twelve Hours of Geometry* — a
