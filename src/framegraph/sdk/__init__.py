@@ -18,6 +18,7 @@ from framegraph.sdk.chart import Chart
 from framegraph.sdk.chevreul import (
     ClosedPalette,
     closed_palette,
+    color_guide,
     complement,
     contrast_of_colours,
     contrast_of_hues,
@@ -209,6 +210,7 @@ __all__ = [
     "ClosedPalette",
     "caps_tracking",
     "closed_palette",
+    "color_guide",
     "complement",
     "content_box",
     "contrast_of_colours",

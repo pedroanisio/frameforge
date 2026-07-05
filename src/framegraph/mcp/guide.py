@@ -36,14 +36,24 @@ Fluent builder:
   `progress` `table` `tabs` `toggle` `divider` `field`, plus `Panel`/`Theme`.
 - Data & geometry (`framegraph.sdk.chart` / `.topology` / `.geometry` / `.draw`): `Chart`+`Frame` (series: `line`, `bars`, `scatter`, `area`, `pie`,
   `donut`, plus `marker`/`axes`/`legend`), `Graph`/`Node`/`Edge`, `Camera`/`Scene3D`/
-  `Mat3`/`Mat4`, `CubicBezier`/`Path`, `ScalarField`/`VectorField`, `lattice`/`manifold`,
-  `greeble`, `grid_lines`.
+  `Mat3`/`Mat4`, `CubicBezier`/`Path`, `ScalarField`/`VectorField`, `lattice`/`Lattice`/`manifold`
+  (`framegraph.sdk.lattices` / `.fields` / `.manifold`), `greeble`, `grid_lines` (`framegraph.sdk.macros`).
   - Curve sampling: `parametric_curve(fn, domain)`, `function_plot(f, frame)`,
     `polar_plot(r, frame)` — adaptive subdivision, emit polyline/path.
-  - Geometry kernel (`framegraph.sdk.geometry`, CG-canon): `Mat3.reflect`/`mirror`,
-    intersections (`segment_intersection`/`ray_segment_intersection`/`line_intersection`/
-    `segment_polygon_intersections`), curve `CubicBezier.curvature`/`arc_length` +
-    `polyline_length`, and comp-geometry `convex_hull`/`aabb`/`polygon_area`/`point_in_polygon`.
+  - Surfaces (`framegraph.sdk.manifold`): `sphere`/`torus`/`mobius`/`klein_bottle`/`saddle`/`wave`
+    plus `parametric(fn, u=, v=)` and the bicubic patches `bezier_patch(net)` /
+    `bspline_patch(net)` (4×4+ control grid → a tessellated `Scene3D`).
+  - Geometry kernel (`framegraph.sdk.geometry`, CG-canon): `Mat3.reflect`/`mirror`; the
+    named viewing pipeline `window_to_viewport(window, viewport)` / `ViewingPipeline`
+    (the fit `Scene3D.render` uses); 2-D intersections (`segment_intersection`/
+    `ray_segment_intersection`/`line_intersection`/`segment_polygon_intersections`),
+    3-D intersections (`ray_plane_intersection`/`segment_plane_intersection`/
+    `ray_triangle_intersection`) and curve×line (`segment_curve_intersections`/
+    `line_curve_intersections`, de Casteljau); curves `CubicBezier.curvature`/`arc_length` +
+    `polyline_length` and surfaces `surface_curvature(fn, u, v)` → `(K, H)`; comp-geometry
+    `convex_hull`/`convex_hull_3d`/`aabb`/`aabb3`/`obb`/`polygon_area`/`point_in_polygon`.
+  - `Scene3D.render(shading=, cull_backfaces=, near_clip=)` — opt-in `near_clip=True`
+    Sutherland–Hodgman-clips faces straddling the near plane instead of dropping them.
   - Fractals (`framegraph.sdk.fractal`): an `lsystem` + `turtle` engine with
     `koch_curve`/`dragon_curve`/`sierpinski_arrowhead` presets — self-similar curves
     lowered to plain polylines.
@@ -89,6 +99,13 @@ Fluent builder:
     a centre-line to a CLOSED filled path — constant width = outline-stroke, profile
     = variable width, pen_angle = calligraphic nib; `repeat_along_path(points,
     spacing=, stamp=obj)` places copies by arc length with tangent rotation.
+  - Clipping & masking (`framegraph.sdk.clip`): `clip_rect`/`clip_circle`/`clip_ellipse`/
+    `clip_inset`/`clip_polygon`/`clip_path` build the `clip` bag for an object or group;
+    `normalize_clip` canonicalises it. Nest a clip on a STATIC parent — a clip on a
+    transformed group rides along inside the transform.
+  - Regions & grading (`framegraph.sdk.region`): `select_in(doc, box)` / `extract_objects`
+    pick objects by area; `region_grade` / `gradient_map(objects, ...)` apply a positional
+    colour grade; `place_region` re-lays a captured region; `object_bbox` measures it.
 - Style richness (2.4.0 object fields + helpers):
   - `effects: [{kind: "shadow"|"glow", preset?, color/blur/dx/dy/opacity?}, ...]` —
     an ORDERED effect stack (kinds may repeat, first->last); `appearance:

@@ -183,6 +183,7 @@
       "clip_polygon",
       "clip_rect",
       "closed_palette",
+      "color_guide",
       "column",
       "complement",
       "content_box",
@@ -1561,6 +1562,13 @@
     },
     {
       "name": "closed_palette",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "color_guide",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

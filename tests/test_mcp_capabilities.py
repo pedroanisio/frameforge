@@ -162,12 +162,16 @@ def test_new_tools_are_registered_and_exported(tmp_path):
 # When either fails for NEW work, extend the guide — not this list's spirit.
 
 _CAPABILITY_MODULES = [
-    # capability-bearing sdk modules (internal plumbing like io/conform/model
-    # is deliberately exempt)
-    "book", "canon", "chart", "chevreul", "expand", "figure", "fractal", "geometry",
-    "humanize", "markdown", "metrics", "outline", "paint", "planar", "recolor",
-    "topology", "widgets",
+    # capability-bearing sdk modules — each MUST be named in the guide.
+    "book", "canon", "chart", "chevreul", "clip", "draw", "expand", "fields",
+    "figure", "flow", "fractal", "geometry", "humanize", "lattices", "layout",
+    "macros", "manifold", "markdown", "metrics", "outline", "paint", "planar",
+    "recolor", "region", "topology", "widgets",
 ]
+
+# Internal plumbing that carries no author-facing capability of its own — the
+# only sdk modules allowed to be absent from both the guide and the list above.
+_PLUMBING_EXEMPT = {"author", "conform", "io", "model", "validate"}
 
 _HEADLINE_SURFACES = [
     # W1 planar kernel (#45)
@@ -177,6 +181,8 @@ _HEADLINE_SURFACES = [
     # W4 style richness (#48)
     "effects:", "appearance:", "recolor(", "color_guide",
     "fill_styles",
+    # CG-canon geometry (B-backlog residuals: patches, curvature, 3D hull, near-clip)
+    "bspline_patch", "surface_curvature", "convex_hull_3d", "near_clip",
     # absorption programme (#28/#29/#31/#32/#33)
     "framegraph.patterns", "load_catalog", "compose(",
     "framegraph.library", "load_theme", "load_symbols",
@@ -193,6 +199,13 @@ def test_guide_mentions_every_capability_bearing_sdk_module():
     live = {p.stem for p in sdk_dir.glob("*.py") if not p.stem.startswith("_")}
     missing_from_tree = set(_CAPABILITY_MODULES) - live
     assert not missing_from_tree, f"gate list names dead modules: {missing_from_tree}"
+    # Bidirectional: every LIVE module is either a declared capability module or
+    # explicitly exempt plumbing — so a NEW module can never slip through
+    # unclassified and silently escape the guide-coverage gate below.
+    unclassified = live - set(_CAPABILITY_MODULES) - _PLUMBING_EXEMPT
+    assert not unclassified, (
+        "new sdk modules are neither declared capabilities nor exempt plumbing "
+        f"(classify them): {sorted(unclassified)}")
     unmentioned = [m for m in _CAPABILITY_MODULES if m not in FRAMEGRAPH_GUIDE]
     assert not unmentioned, (
         f"sdk modules invisible to MCP clients (extend the guide): {unmentioned}")
@@ -201,6 +214,15 @@ def test_guide_mentions_every_capability_bearing_sdk_module():
 def test_guide_covers_the_delivered_headline_surfaces():
     missing = [s for s in _HEADLINE_SURFACES if s not in FRAMEGRAPH_GUIDE]
     assert not missing, f"delivered surfaces missing from the guide: {missing}"
+
+
+def test_color_guide_is_a_top_level_sdk_export():
+    # `chevreul.color_guide` is advertised in the guide, the headline gate above,
+    # and the server handshake — it must be a top-level `framegraph.sdk` export so
+    # the introspected capability manifest (built from sdk.__all__) can see it.
+    import framegraph.sdk as sdk
+    assert "color_guide" in sdk.__all__, "color_guide missing from framegraph.sdk.__all__"
+    assert hasattr(sdk, "color_guide"), "color_guide not re-exported from framegraph.sdk"
 
 
 def test_server_instructions_name_the_authoring_engines(tmp_path):

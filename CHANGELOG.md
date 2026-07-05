@@ -4,6 +4,29 @@
 
 ---
 
+## Unreleased — fix(mcp): wire the CG-canon + region/clip surfaces into MCP discovery (refine pass, 2026-07-05)
+
+A wiring/polish audit found capabilities that shipped in code + gates but were
+invisible to MCP clients through the guide, and one ledger inconsistency:
+
+* **`color_guide` was missing from the capability manifest.** `chevreul.color_guide`
+  is advertised in the guide, the `_HEADLINE_SURFACES` gate, and the server
+  handshake, but was never re-exported from `framegraph.sdk` — so the introspected
+  ledger (built from `sdk.__all__`) could not see it. Now re-exported top-level.
+* **`FRAMEGRAPH_GUIDE` was stale.** It now advertises the CG-canon geometry batch
+  (`bezier_patch`/`bspline_patch`, 3-D + curve intersections, `surface_curvature`,
+  `convex_hull_3d`/`aabb3`/`obb`, `window_to_viewport`/`ViewingPipeline`, the named
+  manifold surfaces, and `Scene3D.render(near_clip=)`), plus the previously
+  guide-invisible `clip` (masking) and `region` (selection/grading) modules and the
+  `lattices`/`Lattice` and `macros` capabilities.
+* **The guide-coverage gate was one-directional.** `test_mcp_capabilities` now
+  checks `live − (_CAPABILITY_MODULES ∪ _PLUMBING_EXEMPT)` is empty, so a NEW sdk
+  module can no longer slip through unclassified and silently escape the guide.
+
+Additive, no schema change (§A.0). `capability-manifest.json` + `sdk-api.md`
+regenerated; `test_mcp_capabilities.py` extended (bidirectional gate, new headline
+surfaces, a `color_guide` top-level-export lock).
+
 ## Unreleased — docs(examples): CG-canon residual-geometry cookbook page (DevX, 2026-07-05)
 
 Closes the surface-completeness gap the roadmap's Definition-of-Done flags: the
