@@ -4,6 +4,22 @@
 
 ---
 
+## Unreleased — feat(sdk): B6 — shading completion: Phong specular (CG-canon, 2026-07-04)
+
+`Scene3D` already had flat (`lambert`) and smooth (`gouraud`) *diffuse* shading;
+B6 completes the canon's shading leg (Harrington Ch10) with a `phong` mode — a
+**Blinn-Phong specular** highlight (`specular·max(0, n·h)^shininess` along the
+halfway vector between light and viewer) layered over the diffuse base. The view
+direction is taken from the camera (`eye − target`; a `+z` headlight for the
+isometric path); `specular`/`shininess` are tunable via `render(...)`.
+
+**Opt-in, output-preserving:** the default stays `shading="none"`, so existing
+renders are untouched — `make golden-check` passes unchanged (8 fixtures / 88
+pages). 5 red-first tests (`tests/test_scene3d_shading.py`) verify the highlight
+brightens a light-and-view-facing face, that `specular=0` collapses to Lambert,
+and that the highlight is **view-dependent** (weakens off-axis). `sdk-api.md` +
+`capability-manifest.json` regenerated. Roadmap backlog B6 → **DELIVERED**.
+
 ## Unreleased — feat(sdk): B10 (residual) — oriented bounding box + 3D AABB (CG-canon, 2026-07-04)
 
 Completes B10's documented residual in `framegraph.sdk.geometry`:

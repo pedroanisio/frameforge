@@ -170,7 +170,9 @@ class Scene3D:
         light: Vec3 | Sequence[float] = Vec3(-0.35, -0.65, 0.8),
         ambient: float = 0.38,
         diffuse: float = 0.62,
-        shading: Literal["none", "lambert", "gouraud"] = "none",
+        shading: Literal["none", "lambert", "gouraud", "phong"] = "none",
+        specular: float = 0.35,
+        shininess: float = 16.0,
         cull_backfaces: bool = False,
         id: str | None = None,
     ) -> dict[str, object]:
@@ -180,7 +182,13 @@ class Scene3D:
             matrix = camera.matrix()
         else:
             matrix = camera
-        lit_faces = _face_lighting(self.faces, light, ambient=ambient, diffuse=diffuse, shading=shading)
+        # View direction toward the camera, for the B6 Phong specular term; the
+        # orthographic/isometric path has no eye, so default to a +z headlight.
+        view_dir = (camera.eye - camera.target) if isinstance(camera, Camera) else Vec3(0.0, 0.0, 1.0)
+        lit_faces = _face_lighting(
+            self.faces, light, ambient=ambient, diffuse=diffuse, shading=shading,
+            view=view_dir, specular=specular, shininess=shininess,
+        )
         # B2: robust projection with a near-plane clip stage (G1/G2). try_project
         # returns None at/behind the near plane, so a straddling face is dropped
         # rather than crashing or mirror-flipping. Fully-in-front faces project
@@ -471,7 +479,10 @@ def _face_lighting(
     *,
     ambient: float,
     diffuse: float,
-    shading: Literal["none", "lambert", "gouraud"],
+    shading: Literal["none", "lambert", "gouraud", "phong"],
+    view: Vec3 | Sequence[float] | None = None,
+    specular: float = 0.35,
+    shininess: float = 16.0,
 ) -> list[float]:
     if shading == "none":
         return [1.0] * len(faces)
@@ -480,6 +491,16 @@ def _face_lighting(
     diffuse = max(0.0, diffuse)
     if shading == "lambert":
         return [_light_intensity(_face_normal(face), light_dir, ambient, diffuse) for face, _style in faces]
+    if shading == "phong":
+        # Blinn-Phong: diffuse base + a specular highlight along the halfway
+        # vector between the light and the viewer (B6). Global light + view, so
+        # the halfway vector is constant across faces.
+        view_dir = _normalize(_v3(view)) if view is not None else Vec3(0.0, 0.0, 1.0)
+        half = _normalize(light_dir + view_dir)
+        return [
+            _light_intensity_phong(_face_normal(face), light_dir, half, ambient, diffuse, specular, shininess)
+            for face, _style in faces
+        ]
     if shading == "gouraud":
         vertex_normals: dict[tuple[float, float, float], Vec3] = {}
         for face, _style in faces:
@@ -501,6 +522,17 @@ def _face_lighting(
 def _light_intensity(normal: Vec3, light_dir: Vec3, ambient: float, diffuse: float) -> float:
     lambert = max(0.0, _dot(normal, light_dir))
     return max(0.0, min(1.0, ambient + diffuse * lambert))
+
+
+def _light_intensity_phong(
+    normal: Vec3, light_dir: Vec3, half: Vec3,
+    ambient: float, diffuse: float, specular: float, shininess: float,
+) -> float:
+    """Blinn-Phong intensity (B6): diffuse Lambert + a specular highlight
+    ``specular·max(0, n·h)^shininess``, applied only where the face is lit."""
+    lambert = max(0.0, _dot(normal, light_dir))
+    spec = specular * (max(0.0, _dot(normal, half)) ** shininess) if lambert > 0.0 else 0.0
+    return max(0.0, min(1.0, ambient + diffuse * lambert + spec))
 
 
 def _face_normal(face: Sequence[Vec3]) -> Vec3:
