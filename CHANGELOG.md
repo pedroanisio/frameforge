@@ -4,6 +4,20 @@
 
 ---
 
+## Unreleased — docs(examples): CG-canon residual-geometry cookbook page (DevX, 2026-07-05)
+
+Closes the surface-completeness gap the roadmap's Definition-of-Done flags: the
+new geometry (B5 patches, B8 curve intersections, B9 surface curvature, B10 3D
+hull) shipped as SDK + ledger but had **zero** runnable examples — "code-complete,
+not surface-complete". `static/examples/cg_canon_residuals_demo.py` is a single
+diagram page whose every figure is live SDK output: `bezier_patch` vs
+`bspline_patch` rendered side by side, a cubic Bézier crossed by a line with
+`segment_curve_intersections` marking the two hits, a `surface_curvature` table
+printing the API's own K/H for a sphere / saddle / plane, and the projected
+`convex_hull_3d` of a 10-point cloud (24 faces). Pixel-verified at authoring;
+renders to a scratch `out/` path (not a locked golden). `docs/examples.md`
+regenerated (`make examples-index`).
+
 ## Unreleased — feat(sdk): B2 residual — near-plane Sutherland–Hodgman clip (CG-canon, 2026-07-05)
 
 Advances B2's G4 residual — near-plane clipping. `Scene3D.render(near_clip=True)`

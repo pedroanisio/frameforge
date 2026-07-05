@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 102 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 103 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -31,6 +31,7 @@ The 102 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`brand_book.py`](../static/examples/brand_book.py) | Typeset & publish *Brand, From Products to Source Code* as a native FrameGraph |
 | [`brand_book_figures.py`](../static/examples/brand_book_figures.py) | House visual system + illustration plates for the book *Brand, From Products |
 | [`build_wireframe_annotated.py`](../static/examples/build_wireframe_annotated.py) | FrameGraph authoring-IDE wireframe — on ruler paper. FrameGraph SDK widgets. |
+| [`cg_canon_residuals_demo.py`](../static/examples/cg_canon_residuals_demo.py) | Cookbook: the CG-canon residual geometry — patches, curve hits, hull, curvature. |
 | [`cg_canon_showcase.py`](../static/examples/cg_canon_showcase.py) | FrameGraph v2 — *Twelve Hours of Geometry* (A4 capability showcase). |
 | [`clip_and_lettering_demo.py`](../static/examples/clip_and_lettering_demo.py) | Worked example of the SDK's clip + author-intent helpers. |
 | [`coach_demo.py`](../static/examples/coach_demo.py) | Vector Construction Coach — staged-loop demo (framegraph.coach POC). |
