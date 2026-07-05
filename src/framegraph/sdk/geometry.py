@@ -241,6 +241,16 @@ class Mat4:
             raise ValueError("projected point has zero homogeneous w")
         return Vec2(x / w, y / w)
 
+    def try_project(self, point: Vec3 | Sequence[float], *, near_eps: float = 1e-9) -> Vec2 | None:
+        """Robust projection (B2/G1): returns ``None`` for a point at or behind the
+        near plane (``w <= near_eps``) instead of raising or mirror-inverting, so a
+        clip stage can drop it. For a point in front the result is identical to
+        :meth:`project`."""
+        x, y, _z, w = self.apply(point)
+        if w <= near_eps:
+            return None
+        return Vec2(x / w, y / w)
+
 
 @dataclass(frozen=True)
 class Camera:

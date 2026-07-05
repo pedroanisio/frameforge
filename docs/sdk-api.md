@@ -631,7 +631,7 @@ Scene3D(faces: 'list[tuple[list[Vec3], dict[str, object]]]' = <factory>) -> None
 | `extrude` | `(self, polygon: 'Sequence[Sequence[float]]', depth: 'float', **style: 'object') -> "'Scene3D'"` |  |
 | `mesh` | `(self, vertices: 'Sequence[Sequence[float] \| Vec3]', faces: 'Sequence[Sequence[int]]', **style: 'object') -> "'Scene3D'"` |  |
 | `parametric_surface` | `(self, fn: 'Callable[[float, float], Sequence[float] \| Vec3]', *, u: 'tuple[float, float]', v: 'tuple[float, float]', steps_u: 'int', steps_v: 'int', **style: 'object') -> "'Scene3D'"` |  |
-| `render` | `(self, *, camera: 'Mat4 \| Camera \| None' = None, box: 'Sequence[float]', fill: 'str' = '#ddd', stroke: 'str' = '#333', material: 'Material \| None' = None, light: 'Vec3 \| Sequence[float]' = Vec3(x=-0.35, y=-0.65, z=0.8), ambient: 'float' = 0.38, diffuse: 'float' = 0.62, shading: "Literal['none', 'lambert', 'gouraud']" = 'none', id: 'str \| None' = None) -> 'dict[str, object]'` |  |
+| `render` | `(self, *, camera: 'Mat4 \| Camera \| None' = None, box: 'Sequence[float]', fill: 'str' = '#ddd', stroke: 'str' = '#333', material: 'Material \| None' = None, light: 'Vec3 \| Sequence[float]' = Vec3(x=-0.35, y=-0.65, z=0.8), ambient: 'float' = 0.38, diffuse: 'float' = 0.62, shading: "Literal['none', 'lambert', 'gouraud']" = 'none', cull_backfaces: 'bool' = False, id: 'str \| None' = None) -> 'dict[str, object]'` |  |
 | `revolve` | `(self, profile: 'Sequence[Sequence[float]]', *, segments: 'int' = 24, **style: 'object') -> "'Scene3D'"` |  |
 
 ## `framegraph.sdk.expand`
@@ -946,6 +946,7 @@ Mat4(values: 'tuple[tuple[float, float, float, float], ...]') -> None
 | `rotate_y` | `(degrees: 'float') -> "'Mat4'"` |  |
 | `rotate_z` | `(degrees: 'float') -> "'Mat4'"` |  |
 | `translate` | `(tx: 'float', ty: 'float', tz: 'float') -> "'Mat4'"` |  |
+| `try_project` | `(self, point: 'Vec3 \| Sequence[float]', *, near_eps: 'float' = 1e-09) -> 'Vec2 \| None'` | Robust projection (B2/G1): returns ``None`` for a point at or behind the |
 
 ### `Path`
 

@@ -4,6 +4,29 @@
 
 ---
 
+## Unreleased — feat(sdk): B2 — 3D pipeline correctness: robust projection + clip + cull (CG-canon, 2026-07-04)
+
+Fixes the highest-severity gaps in `cg-canon-3d-alignment.md` (unblocked by B1):
+
+- **G1 (crash / mirror-flip).** `Mat4.project` raised on `w≈0` and inverted on
+  `w<0`, and `Scene3D.render` projected *every* vertex — so a vertex crossing
+  behind the eye (e.g. an `orbit()` sweep, or a near camera) **crashed** or
+  mirror-flipped the silhouette. New `Mat4.try_project(point)` returns `None`
+  at/behind the near plane instead of raising, and the renderer drops any face
+  with a vertex there (near-plane **culling**, G2).
+- **G3 (back-face removal).** `Scene3D.render(cull_backfaces=True)` removes faces
+  whose projected polygon winds away from the camera (screen-space winding test).
+  **Opt-in, default off.**
+
+**Output-preserving:** a scene fully in front of the camera projects byte-for-byte
+as before — `make golden-check` passes unchanged (8 fixtures / 88 pages), and for
+in-front points `try_project` equals `project`. The existing goldens passing is
+itself proof no fixture straddled the near plane. 4 red-first tests
+(`tests/test_scene3d_pipeline.py`). Residual (B2 continuation): full Sutherland–
+Hodgman near-plane *clipping* (split, don't drop) and a depth-strategy option
+(G4, z-buffer / face split). `sdk-api.md` + `capability-manifest.json` regenerated.
+Roadmap backlog B2 → **DELIVERED** (robust projection + clip + cull; G4 residual).
+
 ## Unreleased — feat(sdk): B1 — the formal viewing pipeline (CG-canon backlog, 2026-07-04)
 
 `framegraph.sdk.geometry` gains the named viewing pipeline the CG-canon backlog's

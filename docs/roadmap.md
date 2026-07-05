@@ -918,7 +918,7 @@ pipeline**.
 | ID | Item | Tier / fit | Canon | Complexity | Depends on | Disposition |
 |---|---|---|---|---|---|---|
 | **B1** | Formal viewing pipeline (world→NDC→viewport + clip stage) | T1 high | ¶43, Ch6/8 | M | — | **DELIVERED — abstraction** (2026-07-04): `sdk.geometry.window_to_viewport` + `ViewingPipeline` (output-preserving, reproduces the Scene3D fit); `test_geometry_viewport.py`. Residual: adopt inside `Scene3D.render`; robust clip/cull/depth are B2 |
-| **B2** | 3D pipeline correctness (clip + back-face + depth) | T1 high | Ch8–9 (¶34/36) | S–M | B1 | approved — spec: `cg-canon-3d-alignment.md` |
+| **B2** | 3D pipeline correctness (clip + back-face + depth) | T1 high | Ch8–9 (¶34/36) | S–M | B1 | **DELIVERED — robust proj + clip + cull** (2026-07-04): `Mat4.try_project` (G1 crash fixed), near-plane culling (G2), `Scene3D.render(cull_backfaces=)` (G3); output-preserving; `test_scene3d_pipeline.py`. Residual: Sutherland–Hodgman clip (split) + depth strategy (G4) |
 | **B3** | True 3D scene graph (nodes / instancing / hierarchy) | T2 direction | Ch8–11, ¶43–45 | L | B1, B2 | approved — ADR required first |
 | **B4** | Fractal / procedural generator (`sdk/fractal.py`) | T2 | Ch11 (¶39) | S–M | — | **DELIVERED** (2026-07-04): `sdk.fractal` L-system + turtle + `koch_curve`/`dragon_curve`/`sierpinski_arrowhead`; `test_sdk_fractal.py` |
 | **B5** | Curved-surface patches (Bézier/B-spline) | T2 | Ch11 | M | B2 | approved |

@@ -171,6 +171,7 @@ class Scene3D:
         ambient: float = 0.38,
         diffuse: float = 0.62,
         shading: Literal["none", "lambert", "gouraud"] = "none",
+        cull_backfaces: bool = False,
         id: str | None = None,
     ) -> dict[str, object]:
         if camera is None:
@@ -180,10 +181,18 @@ class Scene3D:
         else:
             matrix = camera
         lit_faces = _face_lighting(self.faces, light, ambient=ambient, diffuse=diffuse, shading=shading)
-        projected = [
-            ([matrix.project(p) for p in face], _avg_z(matrix, face), style, intensity)
-            for (face, style), intensity in zip(self.faces, lit_faces)
-        ]
+        # B2: robust projection with a near-plane clip stage (G1/G2). try_project
+        # returns None at/behind the near plane, so a straddling face is dropped
+        # rather than crashing or mirror-flipping. Fully-in-front faces project
+        # identically to the old path, so existing goldens are unchanged.
+        projected = []
+        for (face, style), intensity in zip(self.faces, lit_faces):
+            pts = [matrix.try_project(p) for p in face]
+            if any(q is None for q in pts):
+                continue  # near-plane cull
+            if cull_backfaces and _is_back_face(pts):
+                continue  # back-face removal (G3, opt-in)
+            projected.append((pts, _avg_z(matrix, face), style, intensity))
         all_points = [p for face, _z, _style, _intensity in projected for p in face]
         # Children are positioned LOCAL to the returned group's box: a renderer
         # translates a group's children by its box origin, so baking the box origin
@@ -418,6 +427,17 @@ def _v3(value: Sequence[float] | Vec3) -> Vec3:
     if isinstance(value, Vec3):
         return value
     return Vec3(float(value[0]), float(value[1]), float(value[2]))
+
+
+def _is_back_face(pts: Sequence[Vec2]) -> bool:
+    """Screen-space back-face test (B2/G3): a face whose PROJECTED polygon winds
+    clockwise — signed shoelace area < 0 in FrameGraph's Y-down page space — faces
+    away from the camera. Degenerate faces (< 3 points) are never culled."""
+    n = len(pts)
+    if n < 3:
+        return False
+    area = sum(pts[i].x * pts[(i + 1) % n].y - pts[(i + 1) % n].x * pts[i].y for i in range(n)) / 2.0
+    return area < 0.0
 
 
 def _avg_z(matrix: Mat4, face: Sequence[Vec3]) -> float:
