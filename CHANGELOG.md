@@ -4,6 +4,23 @@
 
 ---
 
+## Unreleased — feat(sdk): B8 residual — line/segment × cubic Bézier intersection (CG-canon, 2026-07-05)
+
+Closes B8's last documented residual. `segment_curve_intersections(a0, a1, curve)`
+and `line_curve_intersections(a0, a1, curve)` in `framegraph.sdk.geometry` return
+every point where a query segment / infinite line crosses a cubic Bézier. The
+solver is recursive de Casteljau subdivision (Mortenson §7): a sub-curve is pruned
+when all four control points lie on one side of the query line, otherwise it is
+split at its midpoint until the control polygon is flat, then its chord is
+intersected — so a curve that meets the line up to three times yields all hits.
+`tolerance` bounds the flatten error; adjacent-leaf duplicates are merged.
+
+Additive geometry, **no schema change** (§A.0). 5 red-first tests
+(`tests/test_geometry_intersect_curve.py`) cover a straight cubic's exact crossing,
+a symmetric arch crossed twice, a clean miss, the bounded-segment-vs-infinite-line
+distinction, and a degenerate point query. Re-exported from `framegraph.sdk`;
+`sdk-api.md` + `capability-manifest.json` regenerated. B8 residual closed.
+
 ## Unreleased — feat(sdk): B10 residual — the 3D convex hull (CG-canon, 2026-07-05)
 
 Completes B10's last documented residual: `convex_hull_3d(points)` in

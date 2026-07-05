@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`from_markdown`, `ClosedPalette`, `caps_tracking`, `closed_palette`, `complement`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `dominant_light`, `grey_document`, `harmony_of_hues`, `harmony_of_scale`, `johnston_margins`, `measure_fits`, `modular_scale`, `relative_luminance`, `tone_scale`, `Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Hand`, `Handle`, `apply_humanize`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `font_kern_pairs`, `kerned_spans`, `Placement`, `repeat_along_path`, `recolor`, `BookBuilder`, `ChapterBuilder`, `planar`, `stroke_outline`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `bezier_patch`, `bezier_patch_point`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `dragon_curve`, `koch_curve`, `lsystem`, `sierpinski_arrowhead`, `turtle`, `aabb`, `aabb3`, `convex_hull`, `convex_hull_3d`, `obb`, `line_intersection`, `mirror`, `point_in_polygon`, `polygon_area`, `polyline_length`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `window_to_viewport`, `ViewingPipeline`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`from_markdown`, `ClosedPalette`, `caps_tracking`, `closed_palette`, `complement`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `dominant_light`, `grey_document`, `harmony_of_hues`, `harmony_of_scale`, `johnston_margins`, `measure_fits`, `modular_scale`, `relative_luminance`, `tone_scale`, `Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Hand`, `Handle`, `apply_humanize`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `font_kern_pairs`, `kerned_spans`, `Placement`, `repeat_along_path`, `recolor`, `BookBuilder`, `ChapterBuilder`, `planar`, `stroke_outline`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `bezier_patch`, `bezier_patch_point`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `dragon_curve`, `koch_curve`, `lsystem`, `sierpinski_arrowhead`, `turtle`, `aabb`, `aabb3`, `convex_hull`, `convex_hull_3d`, `obb`, `line_intersection`, `mirror`, `point_in_polygon`, `polygon_area`, `polyline_length`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `line_curve_intersections`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `window_to_viewport`, `ViewingPipeline`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -1149,6 +1149,26 @@ Möller–Trumbore ray/triangle intersection; ``None`` on a parallel ray, a
 
 ```python
 ray_triangle_intersection(origin: 'Vec3 | Sequence[float]', direction: 'Vec3 | Sequence[float]', v0: 'Vec3 | Sequence[float]', v1: 'Vec3 | Sequence[float]', v2: 'Vec3 | Sequence[float]') -> 'Vec3 | None'
+```
+
+### `line_curve_intersections`
+
+`framegraph.sdk.geometry.line_curve_intersections`
+
+Every point where the **infinite line** through ``a0``, ``a1`` crosses cubic
+
+```python
+line_curve_intersections(a0: 'Vec2 | Sequence[float]', a1: 'Vec2 | Sequence[float]', curve: 'CubicBezier', *, tolerance: 'float' = 1e-07) -> 'list[Vec2]'
+```
+
+### `segment_curve_intersections`
+
+`framegraph.sdk.geometry.segment_curve_intersections`
+
+Every point where **segment** ``a0``–``a1`` crosses cubic Bézier ``curve``
+
+```python
+segment_curve_intersections(a0: 'Vec2 | Sequence[float]', a1: 'Vec2 | Sequence[float]', curve: 'CubicBezier', *, tolerance: 'float' = 1e-07) -> 'list[Vec2]'
 ```
 
 ### `segment_intersection`

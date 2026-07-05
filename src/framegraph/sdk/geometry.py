@@ -594,6 +594,108 @@ def segment_polygon_intersections(
 
 
 # --------------------------------------------------------------------------- #
+#  B8 residual — line/segment × cubic Bézier. De Casteljau subdivision: prune  #
+#  a sub-curve when all four controls sit on one side of the query line, else  #
+#  split at the midpoint until the control polygon is flat, then intersect its #
+#  chord. Mortenson §7 (curve/curve & curve/line intersection by subdivision). #
+# --------------------------------------------------------------------------- #
+_CURVE_MAX_DEPTH = 40  # subdivision-recursion guard (2^-40 curve span ≪ any tol)
+
+
+def _bezier_split(cb: CubicBezier, t: float = 0.5) -> tuple[CubicBezier, CubicBezier]:
+    """De Casteljau split of ``cb`` at parameter ``t`` into (left, right) cubics."""
+    ab = cb.p0 + (cb.p1 - cb.p0) * t
+    bc = cb.p1 + (cb.p2 - cb.p1) * t
+    cd = cb.p2 + (cb.p3 - cb.p2) * t
+    abc = ab + (bc - ab) * t
+    bcd = bc + (cd - bc) * t
+    mid = abc + (bcd - abc) * t
+    return CubicBezier(cb.p0, ab, abc, mid), CubicBezier(mid, bcd, cd, cb.p3)
+
+
+def _curve_flat(cb: CubicBezier, tol: float) -> bool:
+    """Is ``cb`` within ``tol`` of its own ``p0``–``p3`` chord? (max perpendicular
+    deviation of the two interior controls; a null chord falls back to spread)."""
+    base = cb.p3 - cb.p0
+    length = math.hypot(base.x, base.y)
+    if length < tol:
+        return max(math.hypot(p.x - cb.p0.x, p.y - cb.p0.y) for p in (cb.p1, cb.p2)) < tol
+    nx, ny = -base.y / length, base.x / length  # unit normal to the chord
+    d1 = abs((cb.p1.x - cb.p0.x) * nx + (cb.p1.y - cb.p0.y) * ny)
+    d2 = abs((cb.p2.x - cb.p0.x) * nx + (cb.p2.y - cb.p0.y) * ny)
+    return max(d1, d2) < tol
+
+
+def _chord_hit(a0: Vec2, d1: Vec2, c0: Vec2, c3: Vec2, bounded: bool) -> Vec2 | None:
+    """Intersect the query (line through ``a0`` along ``d1``) with the chord
+    ``c0``–``c3``; the chord param must stay in [0,1], and the query param too
+    when ``bounded`` (a segment). Returns the point or ``None``."""
+    params = _intersect_params(a0, d1, c0, c3 - c0)
+    if params is None:
+        return None
+    qt, ct = params  # a0 + qt·d1 == c0 + ct·(c3 − c0)
+    if not (-_ON <= ct <= 1 + _ON):
+        return None
+    if bounded and not (-_ON <= qt <= 1 + _ON):
+        return None
+    return c0 + (c3 - c0) * ct
+
+
+def _curve_hits(a0: Vec2, a1: Vec2, curve: CubicBezier, tol: float, bounded: bool) -> list[Vec2]:
+    d1 = a1 - a0
+    if math.hypot(d1.x, d1.y) < 1e-12:
+        return []  # a degenerate (point) query has no well-defined direction
+    length = math.hypot(d1.x, d1.y)
+    nx, ny = -d1.y / length, d1.x / length  # unit normal to the query line
+
+    def side(p: Vec2) -> float:
+        return (p.x - a0.x) * nx + (p.y - a0.y) * ny
+
+    out: list[Vec2] = []
+    stack: list[tuple[CubicBezier, int]] = [(curve, 0)]
+    while stack:
+        cb, depth = stack.pop()
+        s = (side(cb.p0), side(cb.p1), side(cb.p2), side(cb.p3))
+        if min(s) > tol or max(s) < -tol:
+            continue  # convex hull entirely on one side → no crossing here
+        if depth >= _CURVE_MAX_DEPTH or _curve_flat(cb, tol):
+            hit = _chord_hit(a0, d1, cb.p0, cb.p3, bounded)
+            if hit is not None:
+                out.append(hit)
+            continue
+        left, right = _bezier_split(cb, 0.5)
+        stack.append((left, depth + 1))
+        stack.append((right, depth + 1))
+
+    merge = max(tol * 100, 1e-7)  # fold hits reported by two adjacent leaves
+    merged: list[Vec2] = []
+    for p in out:
+        if not any(abs(p.x - q.x) < merge and abs(p.y - q.y) < merge for q in merged):
+            merged.append(p)
+    return merged
+
+
+def segment_curve_intersections(
+    a0: Vec2 | Sequence[float], a1: Vec2 | Sequence[float],
+    curve: CubicBezier, *, tolerance: float = 1e-7,
+) -> list[Vec2]:
+    """Every point where **segment** ``a0``–``a1`` crosses cubic Bézier ``curve``
+    (B8 residual). A curve can meet a line up to three times, so a list is
+    returned; order is not significant. ``tolerance`` bounds the flatten error."""
+    return _curve_hits(_v2(a0), _v2(a1), curve, tolerance, bounded=True)
+
+
+def line_curve_intersections(
+    a0: Vec2 | Sequence[float], a1: Vec2 | Sequence[float],
+    curve: CubicBezier, *, tolerance: float = 1e-7,
+) -> list[Vec2]:
+    """Every point where the **infinite line** through ``a0``, ``a1`` crosses cubic
+    Bézier ``curve`` (B8 residual) — the unbounded companion to
+    :func:`segment_curve_intersections`."""
+    return _curve_hits(_v2(a0), _v2(a1), curve, tolerance, bounded=False)
+
+
+# --------------------------------------------------------------------------- #
 #  B9 — curvature & arc-length (curves). Curvature is on CubicBezier; arc      #
 #  length integrates |B'(t)| by adaptive Simpson; polyline_length is exact.    #
 # --------------------------------------------------------------------------- #
@@ -958,6 +1060,8 @@ __all__ = [
     "ray_plane_intersection",
     "ray_segment_intersection",
     "ray_triangle_intersection",
+    "line_curve_intersections",
+    "segment_curve_intersections",
     "segment_intersection",
     "segment_plane_intersection",
     "segment_polygon_intersections",

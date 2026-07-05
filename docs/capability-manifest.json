@@ -223,6 +223,7 @@
       "koch_curve",
       "kpi",
       "lattice",
+      "line_curve_intersections",
       "line_intersection",
       "linear_gradient",
       "load_figure",
@@ -277,6 +278,7 @@
       "rgba",
       "row",
       "saddle",
+      "segment_curve_intersections",
       "segment_intersection",
       "segment_plane_intersection",
       "segment_polygon_intersections",
@@ -1842,6 +1844,13 @@
       "mcp": true
     },
     {
+      "name": "line_curve_intersections",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "line_intersection",
       "kind": "sdk_export",
       "core": false,
@@ -2214,6 +2223,13 @@
     },
     {
       "name": "saddle",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "segment_curve_intersections",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
