@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 105 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 106 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -86,6 +86,7 @@ The 105 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`poc6_refine_loop.py`](../static/examples/poc6_refine_loop.py) | POC-06 — the drawing agent's improvement pass: measure, adjust, re-run, stop. |
 | [`poc7_clean_lines.py`](../static/examples/poc7_clean_lines.py) | POC-07 — image-agnostic line/contour cleanup, measured on any subject. |
 | [`poc9_figure_coach.py`](../static/examples/poc9_figure_coach.py) | POC-09 — a coach that draws COMPLEX HUMAN FIGURES (honest end-to-end). |
+| [`prehistoric_savanna_silhouettes.py`](../static/examples/prehistoric_savanna_silhouettes.py) | Prehistoric Savanna — 16 silhouette scenes (A4 landscape). |
 | [`radix_nova_gallery.py`](../static/examples/radix_nova_gallery.py) | High-fidelity vector recreation of the shadcn / v0 "radix-nova" component |
 | [`rebel_alliance_field_manual.py`](../static/examples/rebel_alliance_field_manual.py) | ALLIANCE FIELD MANUAL — a 20-slide Rebel Alliance briefing. |
 | [`river_raid_view.py`](../static/examples/river_raid_view.py) | RIVER RAID — a vector homage to the 1982 Activision vertical shooter. |
