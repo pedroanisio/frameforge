@@ -40,6 +40,13 @@ Fluent builder:
   `greeble`, `grid_lines`.
   - Curve sampling: `parametric_curve(fn, domain)`, `function_plot(f, frame)`,
     `polar_plot(r, frame)` — adaptive subdivision, emit polyline/path.
+  - Geometry kernel (`framegraph.sdk.geometry`, CG-canon): `Mat3.reflect`/`mirror`,
+    intersections (`segment_intersection`/`ray_segment_intersection`/`line_intersection`/
+    `segment_polygon_intersections`), curve `CubicBezier.curvature`/`arc_length` +
+    `polyline_length`, and comp-geometry `convex_hull`/`aabb`/`polygon_area`/`point_in_polygon`.
+  - Fractals (`framegraph.sdk.fractal`): an `lsystem` + `turtle` engine with
+    `koch_curve`/`dragon_curve`/`sierpinski_arrowhead` presets — self-similar curves
+    lowered to plain polylines.
   - `Frame` scales accept structured specs: `{"kind":"log","base":b}` / `{"kind":"pow","exp":e}`.
   - `multiview(scene, box=...)` — orthographic front/top/side/iso panel grid of a `Scene3D`.
   - `Graph.render(box=...)` auto-lays-out from declared edges (`auto_layout`/`layout_kind`);

@@ -582,6 +582,7 @@ def gen_sdk_api():
         "framegraph.sdk.expand",
         "framegraph.sdk.fields",
         "framegraph.sdk.figure",
+        "framegraph.sdk.fractal",
         "framegraph.sdk.geometry",
         "framegraph.sdk.io",
         "framegraph.sdk.lattices",

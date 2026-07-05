@@ -4,6 +4,26 @@
 
 ---
 
+## Unreleased — feat(sdk): B4 — fractal / procedural generator (CG-canon backlog, 2026-07-04)
+
+New module `framegraph.sdk.fractal`: a small, deterministic **L-system + turtle**
+engine (Harrington Ch11, ¶39) that lowers self-similar curves to plain FrameGraph
+polylines — nothing here changes the schema (§A.0, the SDK computes and emits 2D):
+
+- `lsystem(axiom, rules, iterations)` — parallel string rewriting;
+- `turtle(commands, angle_deg, step, …)` — interprets `F`/`G` (draw), `+`/`-`
+  (turn), `[`/`]` (branch → separate polyline); returns a list of polylines;
+- presets `koch_curve`, `dragon_curve`, `sierpinski_arrowhead`.
+
+Additive, **no schema change**. 7 red-first tests (`tests/test_sdk_fractal.py`)
+pin the string rewriting, the turtle coordinate maps, the **exact** Koch generator
+(the classic bump `(0,0)→(3,0)→(4.5, 3·sin60°)→(6,0)→(9,0)`), and the growth laws
+(Koch `4ⁿ` segments, Dragon `2ⁿ`). One real bug caught red-first: `[` was
+splitting the trunk polyline; the branch now saves/restores the trunk so it stays
+unbroken. Re-exported from `framegraph.sdk`; registered in the gen-docs module
+list, the MCP capability guide, and `test_mcp_capabilities`; `sdk-api.md` +
+`capability-manifest.json` regenerated. Roadmap backlog B4 → **DELIVERED**.
+
 ## Unreleased — feat(sdk): B10 — convex hull + computational-geometry primitives (CG-canon backlog, 2026-07-04)
 
 `framegraph.sdk.geometry` gains the comp-geometry primitives the CG-canon backlog

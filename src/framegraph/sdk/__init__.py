@@ -71,6 +71,13 @@ from framegraph.sdk.geometry import (
     segment_intersection,
     segment_polygon_intersections,
 )
+from framegraph.sdk.fractal import (
+    dragon_curve,
+    koch_curve,
+    lsystem,
+    sierpinski_arrowhead,
+    turtle,
+)
 from framegraph.sdk.figure import (
     FigureAsset,
     FigureContent,
@@ -329,6 +336,11 @@ __all__ = [
     "parse",
     "region_grade",
     "select_in",
+    "dragon_curve",
+    "koch_curve",
+    "lsystem",
+    "sierpinski_arrowhead",
+    "turtle",
     "aabb",
     "convex_hull",
     "line_intersection",

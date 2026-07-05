@@ -189,6 +189,7 @@
       "divider",
       "dominant_light",
       "dots",
+      "dragon_curve",
       "dropdown",
       "effects",
       "expand",
@@ -214,6 +215,7 @@
       "johnston_margins",
       "kerned_spans",
       "klein_bottle",
+      "koch_curve",
       "kpi",
       "lattice",
       "line_intersection",
@@ -221,6 +223,7 @@
       "load_figure",
       "lorem",
       "lorem_paragraphs",
+      "lsystem",
       "manifold",
       "md",
       "measure_fits",
@@ -271,6 +274,7 @@
       "select_in",
       "serialize",
       "shadow",
+      "sierpinski_arrowhead",
       "slider",
       "soft_shadow",
       "span",
@@ -289,6 +293,7 @@
       "toggle",
       "tone_scale",
       "torus",
+      "turtle",
       "validate_document",
       "validate_static_rules",
       "wave",
@@ -1589,6 +1594,13 @@
       "mcp": true
     },
     {
+      "name": "dragon_curve",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "dropdown",
       "kind": "sdk_export",
       "core": false,
@@ -1764,6 +1776,13 @@
       "mcp": true
     },
     {
+      "name": "koch_curve",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "kpi",
       "kind": "sdk_export",
       "core": false,
@@ -1807,6 +1826,13 @@
     },
     {
       "name": "lorem_paragraphs",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "lsystem",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2163,6 +2189,13 @@
       "mcp": true
     },
     {
+      "name": "sierpinski_arrowhead",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "slider",
       "kind": "sdk_export",
       "core": false,
@@ -2283,6 +2316,13 @@
     },
     {
       "name": "torus",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "turtle",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

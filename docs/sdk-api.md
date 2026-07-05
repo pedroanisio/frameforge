@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`from_markdown`, `ClosedPalette`, `caps_tracking`, `closed_palette`, `complement`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `dominant_light`, `grey_document`, `harmony_of_hues`, `harmony_of_scale`, `johnston_margins`, `measure_fits`, `modular_scale`, `relative_luminance`, `tone_scale`, `Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Hand`, `Handle`, `apply_humanize`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `font_kern_pairs`, `kerned_spans`, `Placement`, `repeat_along_path`, `recolor`, `BookBuilder`, `ChapterBuilder`, `planar`, `stroke_outline`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `aabb`, `convex_hull`, `line_intersection`, `mirror`, `point_in_polygon`, `polygon_area`, `polyline_length`, `ray_segment_intersection`, `segment_intersection`, `segment_polygon_intersections`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`from_markdown`, `ClosedPalette`, `caps_tracking`, `closed_palette`, `complement`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `dominant_light`, `grey_document`, `harmony_of_hues`, `harmony_of_scale`, `johnston_margins`, `measure_fits`, `modular_scale`, `relative_luminance`, `tone_scale`, `Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Hand`, `Handle`, `apply_humanize`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `font_kern_pairs`, `kerned_spans`, `Placement`, `repeat_along_path`, `recolor`, `BookBuilder`, `ChapterBuilder`, `planar`, `stroke_outline`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `dragon_curve`, `koch_curve`, `lsystem`, `sierpinski_arrowhead`, `turtle`, `aabb`, `convex_hull`, `line_intersection`, `mirror`, `point_in_polygon`, `polygon_area`, `polyline_length`, `ray_segment_intersection`, `segment_intersection`, `segment_polygon_intersections`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -809,6 +809,58 @@ Place an extracted figure asset with provenance and optional caption.
 
 ```python
 place_imported_figure(figure: 'FigureAsset', box: 'BoxLike', *, fit: 'FitMode' = 'contain', align: 'str' = 'center', caption_position: 'CaptionPosition' = 'below', caption_height: 'float | None' = None, caption_gap: 'float' = 8.0, caption_style: 'Mapping[str, Any] | None' = None, decorative: 'bool | None' = False, id_prefix: 'str | None' = None, **fields: 'Any') -> 'ImportedFigurePlacement'
+```
+
+## `framegraph.sdk.fractal`
+
+### `dragon_curve`
+
+`framegraph.sdk.fractal.dragon_curve`
+
+The Heighway dragon after ``iterations`` (axiom ``F``, rules
+
+```python
+dragon_curve(iterations: 'int', *, step: 'float' = 1.0) -> 'list[Vec2]'
+```
+
+### `koch_curve`
+
+`framegraph.sdk.fractal.koch_curve`
+
+The Koch curve after ``iterations`` (axiom ``F``, rule ``F→F+F--F+F``,
+
+```python
+koch_curve(iterations: 'int', *, step: 'float' = 1.0) -> 'list[Vec2]'
+```
+
+### `lsystem`
+
+`framegraph.sdk.fractal.lsystem`
+
+Expand ``axiom`` by ``iterations`` parallel rewrites under ``rules`` (a
+
+```python
+lsystem(axiom: 'str', rules: 'Mapping[str, str]', iterations: 'int') -> 'str'
+```
+
+### `sierpinski_arrowhead`
+
+`framegraph.sdk.fractal.sierpinski_arrowhead`
+
+The Sierpiński arrowhead curve (axiom ``F``, rules ``F→G-F-G``,
+
+```python
+sierpinski_arrowhead(iterations: 'int', *, step: 'float' = 1.0) -> 'list[Vec2]'
+```
+
+### `turtle`
+
+`framegraph.sdk.fractal.turtle`
+
+Interpret a turtle ``commands`` string into a list of polylines (one per
+
+```python
+turtle(commands: 'str', *, angle_deg: 'float', step: 'float' = 1.0, start: 'Vec2 | Sequence[float]' = (0.0, 0.0), heading_deg: 'float' = 0.0) -> 'list[list[Vec2]]'
 ```
 
 ## `framegraph.sdk.geometry`
