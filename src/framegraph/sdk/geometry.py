@@ -728,6 +728,73 @@ def window_to_viewport(
     return Mat3(a=sx, d=sy, e=ox - sx * wx, f=oy - sy * wy)
 
 
+# --------------------------------------------------------------------------- #
+#  B8 (residual) — 3D plane / triangle intersections. A plane is (point,       #
+#  normal); the triangle test is Möller–Trumbore.                              #
+# --------------------------------------------------------------------------- #
+def _ray_plane_t(origin: Vec3, direction: Vec3, plane_point: Vec3, plane_normal: Vec3) -> float | None:
+    denom = _dot3(direction, plane_normal)
+    if abs(denom) < 1e-12:
+        return None  # parallel to the plane
+    return _dot3(plane_point - origin, plane_normal) / denom
+
+
+def ray_plane_intersection(
+    origin: Vec3 | Sequence[float], direction: Vec3 | Sequence[float],
+    plane_point: Vec3 | Sequence[float], plane_normal: Vec3 | Sequence[float],
+) -> Vec3 | None:
+    """Where the ray from ``origin`` along ``direction`` meets the plane through
+    ``plane_point`` with ``plane_normal``; ``None`` if parallel or the plane lies
+    behind the ray."""
+    o, d = _v3(origin), _v3(direction)
+    t = _ray_plane_t(o, d, _v3(plane_point), _v3(plane_normal))
+    if t is None or t < -1e-9:
+        return None
+    return o + d * t
+
+
+def segment_plane_intersection(
+    a: Vec3 | Sequence[float], b: Vec3 | Sequence[float],
+    plane_point: Vec3 | Sequence[float], plane_normal: Vec3 | Sequence[float],
+) -> Vec3 | None:
+    """Where segment ``a``–``b`` crosses the plane through ``plane_point`` with
+    ``plane_normal``; ``None`` if parallel or the crossing is outside the segment."""
+    a3, b3 = _v3(a), _v3(b)
+    d = b3 - a3
+    t = _ray_plane_t(a3, d, _v3(plane_point), _v3(plane_normal))
+    if t is None or t < -1e-9 or t > 1 + 1e-9:
+        return None
+    return a3 + d * t
+
+
+def ray_triangle_intersection(
+    origin: Vec3 | Sequence[float], direction: Vec3 | Sequence[float],
+    v0: Vec3 | Sequence[float], v1: Vec3 | Sequence[float], v2: Vec3 | Sequence[float],
+) -> Vec3 | None:
+    """Möller–Trumbore ray/triangle intersection; ``None`` on a parallel ray, a
+    barycentric miss, or a triangle behind the ray origin."""
+    o, d = _v3(origin), _v3(direction)
+    a0, a1, a2 = _v3(v0), _v3(v1), _v3(v2)
+    edge1, edge2 = a1 - a0, a2 - a0
+    h = _cross3(d, edge2)
+    det = _dot3(edge1, h)
+    if abs(det) < 1e-12:
+        return None  # ray parallel to the triangle plane
+    inv = 1.0 / det
+    s = o - a0
+    u = inv * _dot3(s, h)
+    if u < -1e-9 or u > 1 + 1e-9:
+        return None
+    q = _cross3(s, edge1)
+    v = inv * _dot3(d, q)
+    if v < -1e-9 or u + v > 1 + 1e-9:
+        return None
+    t = inv * _dot3(edge2, q)
+    if t < 1e-9:
+        return None  # behind the ray origin (or at it)
+    return o + d * t
+
+
 def _v2(point: Vec2 | Sequence[float]) -> Vec2:
     if isinstance(point, Vec2):
         return point
@@ -788,8 +855,11 @@ __all__ = [
     "polygon_area",
     "polyline_length",
     "quarter_circle_kappa",
+    "ray_plane_intersection",
     "ray_segment_intersection",
+    "ray_triangle_intersection",
     "segment_intersection",
+    "segment_plane_intersection",
     "segment_polygon_intersections",
     "window_to_viewport",
 ]

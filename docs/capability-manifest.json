@@ -258,7 +258,9 @@
       "quarter_circle_kappa",
       "radial_gradient",
       "radio",
+      "ray_plane_intersection",
       "ray_segment_intersection",
+      "ray_triangle_intersection",
       "recolor",
       "ref",
       "region_grade",
@@ -271,6 +273,7 @@
       "row",
       "saddle",
       "segment_intersection",
+      "segment_plane_intersection",
       "segment_polygon_intersections",
       "select_in",
       "serialize",
@@ -2079,7 +2082,21 @@
       "mcp": true
     },
     {
+      "name": "ray_plane_intersection",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "ray_segment_intersection",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "ray_triangle_intersection",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2164,6 +2181,13 @@
     },
     {
       "name": "segment_intersection",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "segment_plane_intersection",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

@@ -4,6 +4,23 @@
 
 ---
 
+## Unreleased — feat(sdk): B8 (residual) — 3D plane / triangle intersections (CG-canon, 2026-07-04)
+
+Completes B8's documented residual (the 3D-plane and triangle intersections) in
+`framegraph.sdk.geometry` — foundational for 3D hit-testing, snapping, and B2's
+clip stage:
+
+- `ray_plane_intersection` / `segment_plane_intersection` — a plane as
+  `(point, normal)`; parallel or one-sided misses return `None`;
+- `ray_triangle_intersection` — Möller–Trumbore ray/triangle test (parallel,
+  barycentric-miss, and behind-origin all return `None`).
+
+Additive geometry, **no schema change**. 7 red-first tests
+(`tests/test_geometry_intersect_3d.py`) pin the hits, the parallel/behind/short
+misses, and the barycentric boundary. Re-exported from `framegraph.sdk`;
+`sdk-api.md` + `capability-manifest.json` regenerated. Roadmap B8 residual: the
+3D-plane/triangle case is now done (curve intersections remain).
+
 ## Unreleased — feat(sdk): B2 — 3D pipeline correctness: robust projection + clip + cull (CG-canon, 2026-07-04)
 
 Fixes the highest-severity gaps in `cg-canon-3d-alignment.md` (unblocked by B1):
