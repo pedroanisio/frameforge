@@ -4,6 +4,22 @@
 
 ---
 
+## Unreleased — feat(sdk): B10 (residual) — oriented bounding box + 3D AABB (CG-canon, 2026-07-04)
+
+Completes B10's documented residual in `framegraph.sdk.geometry`:
+
+- `obb(points)` — the **minimum-area oriented bounding box** as 4 corners
+  (rotating calipers on the convex hull; the min-area rectangle shares an edge
+  with the hull, Mortenson §21);
+- `aabb3(points)` — the 3D axis-aligned box (the 3D analogue of `aabb`).
+
+Additive geometry, **no schema change**. 5 red-first tests
+(`tests/test_geometry_obb.py`) verify the OBB matches an axis-aligned rectangle,
+is **strictly tighter than the AABB for a rotated square** (area 2 vs 4), is never
+looser than the AABB in general, and that `aabb3` bounds 3D points. Re-exported
+from `framegraph.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated.
+Roadmap B10 residual: OBB + 3D AABB done (3D convex hull remains).
+
 ## Unreleased — feat(sdk): B8 (residual) — 3D plane / triangle intersections (CG-canon, 2026-07-04)
 
 Completes B8's documented residual (the 3D-plane and triangle intersections) in

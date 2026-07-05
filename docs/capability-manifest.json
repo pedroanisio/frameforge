@@ -160,6 +160,7 @@
       "VectorField",
       "ViewingPipeline",
       "aabb",
+      "aabb3",
       "apply_humanize",
       "assert_golden",
       "avatar",
@@ -238,6 +239,7 @@
       "navbar",
       "neon",
       "normalize_clip",
+      "obb",
       "object_bbox",
       "page_hashes",
       "paragraph",
@@ -1396,6 +1398,13 @@
       "mcp": true
     },
     {
+      "name": "aabb3",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "apply_humanize",
       "kind": "sdk_export",
       "core": false,
@@ -1936,6 +1945,13 @@
     },
     {
       "name": "normalize_clip",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "obb",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

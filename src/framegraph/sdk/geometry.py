@@ -697,6 +697,50 @@ def point_in_polygon(
     return inside
 
 
+def obb(points: Iterable[Vec2 | Sequence[float]]) -> list[Vec2]:
+    """The minimum-area **oriented** bounding box of ``points`` as 4 corners
+    (rotating calipers on the convex hull — the min-area rectangle shares an edge
+    with the hull, Mortenson §21). Never looser than :func:`aabb`; strictly
+    tighter for a rotated shape. Degenerate (< 3 hull points) → the AABB rect."""
+    hull = convex_hull(points)
+    if len(hull) < 3:
+        lo, hi = aabb(hull if hull else list(points))
+        return [Vec2(lo.x, lo.y), Vec2(hi.x, lo.y), Vec2(hi.x, hi.y), Vec2(lo.x, hi.y)]
+    best_area: float | None = None
+    best_corners: list[Vec2] = []
+    n = len(hull)
+    for i in range(n):
+        edge = hull[(i + 1) % n] - hull[i]
+        theta = math.atan2(edge.y, edge.x)
+        c, s = math.cos(-theta), math.sin(-theta)
+        rot = [(p.x * c - p.y * s, p.x * s + p.y * c) for p in hull]
+        minx = min(q[0] for q in rot)
+        maxx = max(q[0] for q in rot)
+        miny = min(q[1] for q in rot)
+        maxy = max(q[1] for q in rot)
+        area = (maxx - minx) * (maxy - miny)
+        if best_area is None or area < best_area:
+            cc, ss = math.cos(theta), math.sin(theta)
+            best_area = area
+            best_corners = [
+                Vec2(x * cc - y * ss, x * ss + y * cc)
+                for (x, y) in ((minx, miny), (maxx, miny), (maxx, maxy), (minx, maxy))
+            ]
+    return best_corners
+
+
+def aabb3(points: Iterable[Vec3 | Sequence[float]]) -> tuple[Vec3, Vec3]:
+    """3D axis-aligned bounding box of ``points`` as ``(min_corner, max_corner)``.
+    Raises ``ValueError`` on empty input (the 3D analogue of :func:`aabb`)."""
+    pts = [_v3(p) for p in points]
+    if not pts:
+        raise ValueError("aabb3 needs at least one point")
+    xs = [p.x for p in pts]
+    ys = [p.y for p in pts]
+    zs = [p.z for p in pts]
+    return (Vec3(min(xs), min(ys), min(zs)), Vec3(max(xs), max(ys), max(zs)))
+
+
 # --------------------------------------------------------------------------- #
 #  B1 — the window→viewport transform (Harrington Ch6, ¶43). The named 2D      #
 #  stage that Scene3D.render hand-rolled; ViewingPipeline (above) composes it. #
@@ -848,7 +892,9 @@ __all__ = [
     "Vec3",
     "ViewingPipeline",
     "aabb",
+    "aabb3",
     "convex_hull",
+    "obb",
     "line_intersection",
     "mirror",
     "point_in_polygon",
