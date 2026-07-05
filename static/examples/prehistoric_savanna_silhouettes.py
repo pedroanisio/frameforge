@@ -7,10 +7,12 @@ sunset, dusk, twilight, moonrise, night, deep night, autumn, winter, storm and
 an aurora finale.
 
 Everything is built with the FrameGraph Python SDK and lowers to grammar-native
-primitives (rect / ellipse / closed polyline). Atmospheric perspective is a
-single colour lerp from the horizon tint to the foreground dark, so distant
-animals read pale/warm and near ones read almost black — exactly as in the
-reference art. Deterministic pseudo-random placement keeps every render stable.
+primitives (rect / ellipse / closed polyline / Catmull-Rom path). Atmospheric
+perspective is a single colour lerp from the horizon tint to the foreground
+dark, so distant animals read pale/warm and near ones read almost black — as in
+the reference art. Placement is collision-aware (per-field occupancy intervals)
+so silhouettes stay clean and readable rather than merging into blobs, and a
+deterministic LCG keeps every render stable.
 """
 from __future__ import annotations
 
@@ -28,7 +30,7 @@ W, H = 842.0, 595.0  # A4 landscape, points @72dpi
 
 
 # --------------------------------------------------------------------------- #
-# colour helpers
+# colour + rng helpers
 # --------------------------------------------------------------------------- #
 def _rgb(c: str):
     c = c.lstrip("#")
@@ -72,16 +74,20 @@ def poly(points, fill, smooth=False, opacity=None):
             "points": [[float(x), float(y)] for x, y in points], **fields}
 
 
-def disc(cx, cy, r, fill, opacity=None):
+def disc(cx, cy, r, fill, ry=None, opacity=None):
     o = {"type": "ellipse", "center": [float(cx), float(cy)], "rx": float(r),
-         "ry": float(r), "fill": fill, "decorative": True}
+         "ry": float(ry if ry is not None else r), "fill": fill, "decorative": True}
     if opacity is not None:
         o["opacity"] = opacity
     return o
 
 
+def _place(px, py, s, flip):
+    return lambda x, y: (px + flip * s * x, py - s * y)
+
+
 # --------------------------------------------------------------------------- #
-# scenery
+# sky, light, weather
 # --------------------------------------------------------------------------- #
 def sky(stops):
     return {"type": "rect", "box": [0, 0, W, H], "decorative": True,
@@ -89,48 +95,34 @@ def sky(stops):
 
 
 def orb(kind, cx, cy, r, color):
-    glow = radial_gradient([(color, 0.0), (rgba(color, 0.35), 0.4), (rgba(color, 0.0), 1.0)])
-    objs = [{"type": "ellipse", "center": [cx, cy], "rx": r * 4.2, "ry": r * 4.2,
-             "fill": glow, "decorative": True},
-            disc(cx, cy, r, color)]
-    return objs
+    glow = radial_gradient([(color, 0.0), (rgba(color, 0.32), 0.4), (rgba(color, 0.0), 1.0)])
+    return [disc(cx, cy, r * 4.4, glow), disc(cx, cy, r, color)]
 
 
-def stars(rr: R, n, y_max, tint):
-    out = []
-    for _ in range(n):
-        x = rr.rng(0, W)
-        y = rr.rng(6, y_max)
-        s = rr.rng(0.5, 1.6)
-        out.append(disc(x, y, s, tint, opacity=rr.rng(0.35, 1.0)))
-    return out
+def stars(rr, n, y_max, tint):
+    return [disc(rr.rng(0, W), rr.rng(6, y_max), rr.rng(0.5, 1.7), tint,
+                 opacity=rr.rng(0.35, 1.0)) for _ in range(n)]
 
 
-def aurora(rr: R, colors):
+def aurora(rr, colors):
     out = []
     for k in range(len(colors) * 2):
         c = colors[k % len(colors)]
-        x0 = rr.rng(-60, W)
-        w = rr.rng(70, 150)
-        top = rr.rng(-10, 40)
-        bot = rr.rng(180, 300)
-        sway = rr.rng(-40, 40)
-        pts = [(x0, top), (x0 + w, top), (x0 + w + sway, bot), (x0 + sway, bot)]
-        g = linear_gradient([(rgba(c, 0.0), 0.0), (rgba(c, 0.55), 0.5), (rgba(c, 0.0), 1.0)], angle=180)
-        out.append(poly(pts, g, opacity=0.7))
+        x0, w = rr.rng(-60, W), rr.rng(70, 150)
+        top, bot, sway = rr.rng(-10, 40), rr.rng(180, 300), rr.rng(-40, 40)
+        g = linear_gradient([(rgba(c, 0.0), 0.0), (rgba(c, 0.5), 0.5), (rgba(c, 0.0), 1.0)], angle=180)
+        out.append(poly([(x0, top), (x0 + w, top), (x0 + w + sway, bot), (x0 + sway, bot)], g, opacity=0.7))
     return out
 
 
-def clouds(rr: R, color):
+def clouds(rr, color):
     out = []
     for _ in range(rr.pick([2, 3, 3, 4])):
-        cx = rr.rng(60, W - 60)
-        cy = rr.rng(40, 150)
-        w = rr.rng(90, 200)
-        h = rr.rng(10, 22)
-        pts = [(cx - w, cy), (cx - w * 0.4, cy - h), (cx + w * 0.3, cy - h * 0.7),
-               (cx + w, cy), (cx + w * 0.3, cy + h * 0.5), (cx - w * 0.5, cy + h * 0.4)]
-        out.append(poly(pts, color, smooth=True, opacity=rr.rng(0.25, 0.5)))
+        cx, cy = rr.rng(60, W - 60), rr.rng(40, 150)
+        w, h = rr.rng(90, 200), rr.rng(10, 22)
+        out.append(poly([(cx - w, cy), (cx - w * 0.4, cy - h), (cx + w * 0.3, cy - h * 0.7),
+                         (cx + w, cy), (cx + w * 0.3, cy + h * 0.5), (cx - w * 0.5, cy + h * 0.4)],
+                        color, smooth=True, opacity=rr.rng(0.25, 0.5)))
     return out
 
 
@@ -142,179 +134,213 @@ def crest(baseline, amp, seed):
 
 
 def band(baseline, amp, color, seed):
-    pts = crest(baseline, amp, seed) + [(W + 60, H + 90), (-60, H + 90)]
-    return poly(pts, color, smooth=True)
+    return poly(crest(baseline, amp, seed) + [(W + 60, H + 90), (-60, H + 90)], color, smooth=True)
 
 
-def grass(y, x0, x1, color, s, rr: R):
+def grass(y, x0, x1, color, s, rr):
+    """Clumped tufts of 2-4 curved blades — softer than uniform spikes."""
     out = []
     x = x0
     while x < x1:
-        h = rr.rng(s * 0.7, s * 1.7)
-        w = s * 0.28
-        lean = rr.rng(-w, w)
-        out.append(poly([(x - w, y + 2), (x + w, y + 2), (x + lean, y - h)], color))
-        x += rr.rng(s * 0.5, s * 1.1)
+        blades = rr.pick([2, 3, 3, 4])
+        for _ in range(blades):
+            bx = x + rr.rng(-s * 0.4, s * 0.4)
+            h = rr.rng(s * 0.8, s * 2.0)
+            lean = rr.rng(-s * 0.5, s * 0.5)
+            wj = s * 0.16
+            out.append(poly([(bx - wj, y + 2), (bx + wj, y + 2),
+                             (bx + lean * 0.5, y - h * 0.6), (bx + lean, y - h)], color, smooth=True))
+        x += rr.rng(s * 1.1, s * 2.0)
     return out
 
 
 # --------------------------------------------------------------------------- #
 # trees
 # --------------------------------------------------------------------------- #
-def _place(px, py, s, flip):
-    return lambda x, y: (px + flip * s * x, py - s * y)
-
-
 def acacia(px, py, s, color, flip=1):
     P = _place(px, py, s, flip)
-    trunk = poly([P(-0.09, 0), P(0.09, 0), P(0.14, 1.55), P(-0.06, 1.6)], color)
-    canopy = poly([P(-1.35, 1.55), P(-0.7, 1.85), P(0.1, 1.95), P(0.95, 1.88),
-                   P(1.4, 1.68), P(0.7, 1.6), P(-0.2, 1.55), P(-0.9, 1.5)], color, smooth=True)
-    return [trunk, canopy]
+    trunk = poly([P(-0.08, 0), P(0.08, 0), P(0.16, 1.5), P(-0.05, 1.58)], color)
+    branch = poly([P(0.05, 1.2), P(-0.5, 1.55), P(0.02, 1.45), P(0.5, 1.5)], color)
+    canopy = poly([P(-1.4, 1.6), P(-0.7, 1.86), P(0.1, 1.96), P(0.95, 1.9), P(1.42, 1.7),
+                   P(0.7, 1.62), P(-0.2, 1.58), P(-0.95, 1.55)], color, smooth=True)
+    return [trunk, branch, canopy]
 
 
 def roundtree(px, py, s, color, flip=1):
     P = _place(px, py, s, flip)
     trunk = poly([P(-0.08, 0), P(0.08, 0), P(0.1, 1.1), P(-0.1, 1.15)], color)
-    canopy = poly([P(-0.85, 1.15), P(-0.6, 1.85), P(0, 2.15), P(0.6, 1.9),
-                   P(0.9, 1.25), P(0.55, 0.95), P(-0.5, 0.95)], color, smooth=True)
+    canopy = poly([P(-0.86, 1.1), P(-0.72, 1.7), P(-0.3, 2.05), P(0.3, 2.08), P(0.78, 1.78),
+                   P(0.9, 1.2), P(0.5, 0.92), P(-0.5, 0.92)], color, smooth=True)
     return [trunk, canopy]
 
 
 def pine(px, py, s, color, flip=1):
     P = _place(px, py, s, flip)
-    out = [poly([P(-0.07, 0), P(0.07, 0), P(0.07, 0.5), P(-0.07, 0.5)], color)]
-    for i, (yb, yt, w) in enumerate([(0.35, 1.2, 0.75), (0.9, 1.75, 0.55), (1.4, 2.3, 0.36)]):
-        out.append(poly([P(-w, yb), P(w, yb), P(0, yt)], color))
+    out = [poly([P(-0.07, 0), P(0.07, 0), P(0.07, 0.45), P(-0.07, 0.45)], color)]
+    for yb, yt, w in [(0.3, 1.15, 0.78), (0.85, 1.7, 0.56), (1.35, 2.3, 0.34)]:
+        out.append(poly([P(-w, yb), P(0, yt), P(w, yb)], color))
     return out
 
 
 def frame_tree(right, s, color):
-    """Big out-of-frame canopy in a top corner with hanging tendrils."""
     fx = W if right else 0.0
     flip = -1 if right else 1
     P = _place(fx, 0, s, flip)
-    out = []
-    # thick branch arcing in from the corner
-    out.append(poly([P(0.1, -0.3), P(0.2, -0.9), P(1.9, -1.7), P(3.4, -1.3),
-                     P(2.0, -1.9), P(0.55, -1.6), P(0.3, -0.9)], color, smooth=True))
-    # canopy blob overlapping the corner
-    out.append(poly([P(-0.4, 0.4), P(0.6, -0.2), P(2.1, -0.6), P(3.6, -1.1),
-                     P(3.9, -2.1), P(2.4, -2.7), P(0.9, -2.4), P(0.1, -1.6),
-                     P(-0.4, -0.6)], color, smooth=True))
-    # hanging tendrils
+    out = [poly([P(0.1, -0.3), P(0.2, -0.9), P(1.9, -1.7), P(3.4, -1.3),
+                 P(2.0, -1.9), P(0.55, -1.6), P(0.3, -0.9)], color, smooth=True),
+           poly([P(-0.4, 0.4), P(0.6, -0.2), P(2.1, -0.6), P(3.6, -1.1), P(3.9, -2.1),
+                 P(2.4, -2.7), P(0.9, -2.4), P(0.1, -1.6), P(-0.4, -0.6)], color, smooth=True)]
     rr = R(7 if right else 11)
     for _ in range(7):
-        hx = rr.rng(0.5, 3.4)
-        top = rr.rng(-1.6, -0.6)
-        length = rr.rng(0.8, 2.6)
-        a, b = P(hx, top), P(hx + 0.02, top)
-        c, d = P(hx - 0.05, top + length), P(hx + 0.05, top + length)
-        out.append(poly([a, b, d, c], color))
+        hx, top, ln = rr.rng(0.5, 3.4), rr.rng(-1.6, -0.6), rr.rng(0.8, 2.6)
+        out.append(poly([P(hx, top), P(hx + 0.02, top), P(hx + 0.05, top + ln), P(hx - 0.05, top + ln)], color))
     return out
 
 
 # --------------------------------------------------------------------------- #
-# dinosaurs  (stylised silhouettes; y-up local frame, feet on baseline)
+# dinosaurs  (defined silhouettes; y-up local frame, feet on baseline, +x = forward)
 # --------------------------------------------------------------------------- #
-def _legs(P, hips, color, top, w):
-    return [poly([P(h - w, top), P(h + w, top), P(h + w * 0.6, 0), P(h - w * 0.6, 0)], color)
-            for h in hips]
+def _legs(P, hips, color, top, w, foot=0.0):
+    out = []
+    for h in hips:
+        out.append(poly([P(h - w, top), P(h + w, top), P(h + w * 0.6 + foot, 0), P(h - w * 0.6, 0)], color))
+    return out
+
+
+def _biped_leg(P, hx, color, hip):
+    return [poly([P(hx - 0.24, hip), P(hx + 0.17, hip), P(hx + 0.24, hip * 0.5), P(hx - 0.15, hip * 0.5)], color),
+            poly([P(hx + 0.02, hip * 0.55), P(hx + 0.23, hip * 0.5), P(hx + 0.16, 0.05), P(hx - 0.02, 0.05)], color),
+            poly([P(hx - 0.06, 0.12), P(hx + 0.36, 0.0), P(hx - 0.08, 0.0)], color)]
 
 
 def sauropod(px, py, s, color, flip=1, baby=False):
     if baby:
-        s *= 0.42
+        s *= 0.44
     P = _place(px, py, s, flip)
-    out = _legs(P, [0.55, 0.32, -0.2, -0.62], color, 0.66, 0.13)
-    body = [(-1.5, 0.55), (-0.9, 0.8), (-0.2, 0.98), (0.35, 0.95), (0.55, 1.2),
-            (0.72, 1.85), (0.86, 2.2), (1.16, 2.3), (1.36, 2.12), (1.18, 1.98),
-            (0.9, 1.72), (0.74, 1.2), (0.64, 0.72), (-0.1, 0.62), (-0.85, 0.6), (-1.2, 0.5)]
+    out = _legs(P, [0.6, 0.34, -0.2, -0.66], color, 0.74, 0.15)
+    body = [(-1.55, 0.6), (-1.0, 0.84), (-0.35, 1.0), (0.22, 1.02), (0.5, 1.08), (0.66, 1.55),
+            (0.8, 2.02), (0.94, 2.34), (1.08, 2.48), (1.3, 2.52), (1.46, 2.4), (1.52, 2.28),
+            (1.3, 2.22), (1.08, 2.14), (0.96, 1.88), (0.86, 1.4), (0.74, 0.96), (0.5, 0.74),
+            (-0.2, 0.68), (-0.9, 0.66), (-1.24, 0.56)]
     out.append(poly([P(*p) for p in body], color, smooth=True))
-    tail = [(-1.2, 0.5), (-1.95, 0.62), (-2.45, 0.7), (-1.95, 0.48), (-1.2, 0.34)]
-    out.append(poly([P(*p) for p in tail], color, smooth=True))
+    out.append(poly([P(-1.24, 0.56), P(-2.0, 0.68), P(-2.62, 0.74), P(-2.05, 0.5), P(-1.24, 0.4)],
+                    color, smooth=True))
     return out
 
 
 def trex(px, py, s, color, flip=1):
     P = _place(px, py, s, flip)
-    out = _legs(P, [0.28], color, 1.05, 0.2)      # rear leg (far)
-    body = [(-1.55, 0.85), (-0.9, 1.05), (-0.3, 1.12), (0.35, 1.2), (0.7, 1.55),
-            (0.66, 1.92), (0.96, 2.1), (1.34, 2.06), (1.36, 1.82), (1.02, 1.7),
-            (0.92, 1.42), (0.86, 1.0), (0.66, 0.75), (0.2, 0.62), (-0.5, 0.62), (-1.0, 0.68)]
-    out.append(poly([P(*p) for p in body], color, smooth=True))
-    out += _legs(P, [0.42], color, 1.1, 0.22)     # near leg
-    out.append(poly([P(0.55, 1.05), P(0.85, 1.0), P(0.72, 0.78)], color))  # tiny arm
-    tail = [(-1.0, 0.68), (-1.9, 0.9), (-2.65, 0.98), (-1.9, 0.7), (-1.0, 0.55)]
-    out.append(poly([P(*p) for p in tail], color, smooth=True))
+    out = _biped_leg(P, 0.24, color, 1.18)                       # far leg
+    out.append(poly([P(-1.15, 0.72), P(-2.05, 0.94), P(-2.9, 0.96), P(-2.1, 0.68), P(-1.15, 0.52)],
+                    color, smooth=True))                          # tail
+    body = [(-1.15, 0.72), (-0.5, 0.86), (0.2, 0.98), (0.66, 1.2), (0.78, 1.55), (0.72, 1.86),
+            (0.82, 2.08), (1.12, 2.24), (1.5, 2.24), (1.66, 2.06), (1.68, 1.9), (1.4, 1.84),
+            (1.62, 1.72), (1.28, 1.66), (1.06, 1.6), (0.98, 1.3), (0.9, 0.98), (0.64, 0.74),
+            (0.1, 0.66), (-0.6, 0.66)]
+    out.append(poly([P(*p) for p in body], color, smooth=True))  # body + big head + jaw
+    out.append(poly([P(0.6, 1.12), P(0.86, 1.02), P(0.74, 0.82)], color))   # tiny arm
+    out += _biped_leg(P, 0.46, color, 1.22)                      # near leg
     return out
 
 
 def stegosaurus(px, py, s, color, flip=1):
     P = _place(px, py, s, flip)
-    out = _legs(P, [0.6, 0.35, -0.35, -0.6], color, 0.55, 0.12)
-    body = [(-1.55, 0.5), (-0.85, 0.68), (-0.2, 1.15), (0.45, 1.28), (0.95, 1.12),
-            (1.3, 1.0), (1.5, 1.02), (1.42, 0.86), (1.1, 0.82), (0.55, 0.68),
-            (-0.4, 0.58), (-1.0, 0.5)]
+    out = _legs(P, [-0.62, -0.34], color, 0.66, 0.15)            # taller back legs
+    out += _legs(P, [0.32, 0.58], color, 0.5, 0.13)              # shorter front legs
+    out.append(poly([P(-1.15, 0.5), P(-1.9, 0.62), P(-2.35, 0.66), P(-1.85, 0.44), P(-1.15, 0.38)],
+                    color, smooth=True))                          # tail
+    for i in range(4):                                            # thagomizer spikes
+        a = -1.7 - i * 0.02
+        out.append(poly([P(a, 0.6 + i * 0.05), P(a - 0.28, 0.78 + i * 0.08), P(a + 0.06, 0.5 + i * 0.05)], color))
+    body = [(-1.2, 0.52), (-0.55, 0.72), (-0.1, 1.05), (0.45, 1.18), (0.95, 1.02), (1.28, 0.82),
+            (1.5, 0.82), (1.62, 0.92), (1.68, 0.8), (1.5, 0.66), (1.15, 0.64), (0.6, 0.6),
+            (-0.1, 0.56), (-0.7, 0.52)]
     out.append(poly([P(*p) for p in body], color, smooth=True))
-    for i in range(6):                             # back plates
-        bx = -0.6 + i * 0.28
-        by = 1.0 + 0.28 * math.sin((i + 1) * 0.5)
-        out.append(poly([P(bx - 0.11, by), P(bx + 0.11, by), P(bx, by + 0.42)], color))
-    out.append(poly([P(-1.55, 0.5), P(-1.75, 0.72), P(-1.6, 0.42)], color))  # tail spike
-    out.append(poly([P(-1.5, 0.58), P(-1.72, 0.5), P(-1.55, 0.36)], color))
+    for i in range(7):                                            # double-row back plates
+        x = -0.7 + i * 0.28
+        by = 0.98 + 0.24 * math.cos(x * 1.25)
+        h = 0.3 + 0.24 * math.cos(x * 1.35)
+        out.append(poly([P(x - 0.15, by), P(x - 0.08, by + h * 0.72), P(x, by + h),
+                         P(x + 0.08, by + h * 0.72), P(x + 0.15, by)], color, smooth=True))
     return out
 
 
 def triceratops(px, py, s, color, flip=1):
     P = _place(px, py, s, flip)
-    out = _legs(P, [0.7, 0.45, -0.35, -0.62], color, 0.6, 0.13)
-    body = [(-1.5, 0.55), (-0.85, 0.78), (-0.1, 0.86), (0.6, 0.84), (1.0, 0.95),
-            (1.3, 1.15), (1.55, 1.1), (1.72, 0.82), (1.98, 0.86), (1.86, 0.6),
-            (1.6, 0.5), (1.68, 0.32), (1.46, 0.42), (1.15, 0.5), (0.5, 0.56),
-            (-0.4, 0.55), (-1.0, 0.52)]
+    out = _legs(P, [0.58, 0.3, -0.4, -0.68], color, 0.62, 0.15)
+    out.append(poly([P(-1.2, 0.55), P(-1.85, 0.66), P(-2.2, 0.66), P(-1.8, 0.48), P(-1.2, 0.44)],
+                    color, smooth=True))                          # tail
+    body = [(-1.3, 0.55), (-0.7, 0.8), (0.0, 0.92), (0.6, 0.92), (0.95, 0.84), (1.12, 0.66),
+            (0.9, 0.56), (0.2, 0.55), (-0.5, 0.55), (-1.0, 0.5)]
     out.append(poly([P(*p) for p in body], color, smooth=True))
-    out.append(poly([P(1.35, 1.0), P(1.7, 0.95), P(1.55, 0.62)], color))    # frill/horn brow
+    out.append(poly([P(0.92, 1.35), P(1.2, 1.56), P(1.55, 1.6), P(1.78, 1.42), P(1.78, 0.68),
+                     P(1.5, 0.5), P(1.08, 0.56), P(0.95, 0.9)], color, smooth=True))   # frill
+    out.append(poly([P(1.6, 1.15), P(2.06, 0.98), P(2.18, 0.78), P(2.02, 0.6), P(1.62, 0.6),
+                     P(1.5, 0.9)], color, smooth=True))            # beak/face
+    out.append(poly([P(1.66, 1.16), P(2.12, 1.72), P(1.82, 1.12)], color))            # brow horn 1
+    out.append(poly([P(1.5, 1.12), P(1.92, 1.62), P(1.68, 1.08)], color))             # brow horn 2
+    out.append(poly([P(1.9, 0.98), P(2.12, 1.34), P(2.02, 0.94)], color))             # nose horn
     return out
 
 
 def parasaur(px, py, s, color, flip=1):
     P = _place(px, py, s, flip)
-    out = _legs(P, [0.45], color, 1.0, 0.16)
-    body = [(-1.5, 0.75), (-0.85, 0.95), (-0.2, 1.05), (0.4, 1.12), (0.72, 1.4),
-            (0.62, 1.78), (0.4, 1.95), (0.72, 2.02), (1.05, 1.78), (1.28, 1.9),
-            (1.12, 1.6), (0.98, 1.35), (0.9, 1.0), (0.62, 0.75), (0.1, 0.62), (-0.7, 0.66)]
+    out = _biped_leg(P, 0.42, color, 1.02)
+    out.append(poly([P(-0.6, 0.66), P(-1.6, 0.86), P(-2.3, 0.88), P(-1.6, 0.62), P(-0.6, 0.5)],
+                    color, smooth=True))                          # tail
+    body = [(-0.6, 0.66), (0.0, 0.85), (0.4, 1.12), (0.72, 1.45), (0.66, 1.75), (0.56, 1.92),
+            (0.74, 2.0), (1.02, 1.82), (1.28, 1.72), (1.32, 1.56), (1.08, 1.5), (1.0, 1.3),
+            (0.92, 1.02), (0.66, 0.78), (0.15, 0.68)]
     out.append(poly([P(*p) for p in body], color, smooth=True))
-    out += _legs(P, [0.55], color, 1.05, 0.18)
-    tail = [(-0.7, 0.66), (-1.7, 0.88), (-2.4, 0.9), (-1.7, 0.66), (-0.7, 0.52)]
-    out.append(poly([P(*p) for p in tail], color, smooth=True))
+    out.append(poly([P(0.72, 1.92), P(0.42, 2.14), P(0.05, 2.26), P(-0.12, 2.14), P(0.24, 2.0),
+                     P(0.56, 1.86)], color, smooth=True))         # signature backward crest
+    out.append(poly([P(0.6, 1.05), P(0.84, 0.98), P(0.74, 0.8)], color))   # arm
+    out += _biped_leg(P, 0.56, color, 1.06)
+    return out
+
+
+def ankylosaurus(px, py, s, color, flip=1):
+    P = _place(px, py, s, flip)
+    out = _legs(P, [0.7, 0.35, -0.4, -0.72], color, 0.32, 0.14)
+    out.append(poly([P(-1.2, 0.3), P(-1.9, 0.4), P(-2.15, 0.42), P(-1.9, 0.28)], color, smooth=True))
+    out.append(disc(*P(-2.32, 0.44), s * 0.17, color))            # tail club
+    body = [(-1.25, 0.3), (-0.6, 0.5), (0.2, 0.62), (1.0, 0.6), (1.45, 0.5), (1.66, 0.5),
+            (1.72, 0.4), (1.5, 0.3), (0.9, 0.28), (0.0, 0.26), (-0.7, 0.27)]
+    out.append(poly([P(*p) for p in body], color, smooth=True))
+    for i in range(6):                                            # armour ridge
+        x = -0.85 + i * 0.32
+        out.append(poly([P(x - 0.1, 0.58), P(x, 0.74), P(x + 0.1, 0.58)], color))
     return out
 
 
 def pterosaur(cx, cy, s, color, flip=1):
     P = _place(cx, cy, s, flip)
-    pts = [(-1.5, 0.0), (-0.8, 0.42), (-0.2, 0.16), (0.0, 0.28), (0.2, 0.16),
-           (0.8, 0.42), (1.5, 0.0), (0.65, 0.06), (0.12, -0.12), (-0.12, -0.12), (-0.65, 0.06)]
-    return [poly([P(*p) for p in pts], color, smooth=True)]
+    wing = [(-1.5, 0.06), (-0.75, 0.38), (-0.2, 0.15), (0.0, 0.24), (0.2, 0.15),
+            (0.75, 0.38), (1.5, 0.06), (0.6, 0.08), (0.12, -0.06), (-0.12, -0.06), (-0.6, 0.08)]
+    return [poly([P(*p) for p in wing], color, smooth=True),
+            poly([P(0.05, 0.2), P(0.52, 0.14), P(0.08, 0.04)], color),      # beak
+            poly([P(0.03, 0.22), P(-0.24, 0.36), P(0.12, 0.18)], color)]    # head crest
 
 
-QUADS = [sauropod, stegosaurus, triceratops]
+QUADS = [sauropod, stegosaurus, triceratops, ankylosaurus]
 BIPEDS = [trex, parasaur]
 GROUND = QUADS + BIPEDS
+# footprint half-width in local units, for collision spacing
+FOOT = {sauropod: 2.4, stegosaurus: 1.9, triceratops: 2.1, ankylosaurus: 2.3,
+        trex: 2.6, parasaur: 2.3}
 
 
 # --------------------------------------------------------------------------- #
 # palettes (16 moods)
 # --------------------------------------------------------------------------- #
-SUN = "#ffe6b0"
 MOON = "#e9edf4"
 P = []
 
 
 def pal(name, stops, horizon, fg, **k):
-    d = {"name": name, "stops": stops, "horizon": horizon, "fg": fg,
-         "orb": None, "stars": 0, "clouds": False, "snow": False,
-         "leaves": None, "aurora": None, "trees": "acacia", "ptero": True}
+    d = {"name": name, "stops": stops, "horizon": horizon, "fg": fg, "orb": None,
+         "stars": 0, "clouds": False, "snow": False, "leaves": None, "aurora": None,
+         "trees": "acacia", "ptero": True}
     d.update(k)
     P.append(d)
 
@@ -332,7 +358,7 @@ pal("Afternoon Gold", [("#e6ab45", 0), ("#f0c96a", .5), ("#f7e6ac", 1)],
 pal("Golden Hour", [("#d97a2a", 0), ("#eaa03c", .45), ("#f6c85c", 1)],
     "#f6c85c", "#301503", orb=("sun", .70, .58, 40, "#ffdf95"), trees="acacia")
 pal("Sunset", [("#7a1f2b", 0), ("#c23b2e", .4), ("#e8632e", .7), ("#f3a23c", 1)],
-    "#ef7a34", "#1e0308", orb=("sun", .28, .62, 46, "#ff9a4a"), trees="acacia", ptero=True)
+    "#ef7a34", "#1e0308", orb=("sun", .28, .62, 46, "#ff9a4a"), trees="acacia")
 pal("Dusk", [("#3a1140", 0), ("#7b2452", .4), ("#c0466a", .72), ("#e88a5a", 1)],
     "#e88a5a", "#160420", orb=("sun", .74, .72, 30, "#ffb27a"), stars=18, trees="mixed")
 pal("Twilight", [("#141c4a", 0), ("#33306e", .45), ("#6b4f86", .78), ("#b07a86", 1)],
@@ -348,7 +374,7 @@ pal("Autumn", [("#b8461f", 0), ("#d9772b", .4), ("#e7a23f", .72), ("#f2cf6a", 1)
 pal("Winter", [("#8fa9c4", 0), ("#b9cbdc", .5), ("#e8eff6", 1)],
     "#dbe6f0", "#182430", orb=("sun", .66, .3, 22, "#f4f8ff"), snow=True, trees="pine", ptero=False)
 pal("Storm", [("#2b2733", 0), ("#4a4453", .45), ("#7b6f72", .78), ("#b59a86", 1)],
-    "#b59a86", "#0e0c13", clouds=True, orb=None, trees="mixed")
+    "#b59a86", "#0e0c13", clouds=True, trees="mixed")
 pal("Aurora Finale", [("#03060f", 0), ("#071022", .55), ("#0c1a30", 1)],
     "#0c1a30", "#010309", stars=170, orb=("moon", .8, .2, 18, MOON),
     aurora=["#3af0a0", "#7bf0c8", "#4a90f0"], trees="pine", ptero=False)
@@ -360,14 +386,23 @@ pal("Aurora Finale", [("#03060f", 0), ("#071022", .55), ("#0c1a30", 1)],
 TREE_FN = {"acacia": [acacia], "pine": [pine], "mixed": [acacia, roundtree, pine]}
 
 
-def band_color(pl, i, n):
+def band_color(pl, i):
     return lerp(pl["horizon"], pl["fg"], 0.13 + 0.17 * i)
 
 
-def actor_color(pl, i, n):
-    # one depth-step darker than field i — animals/trees carry the tone of the
-    # next, nearer field, which is what gives the reference its readable layers.
+def actor_color(pl, i):
     return lerp(pl["horizon"], pl["fg"], 0.13 + 0.17 * (i + 1))
+
+
+def _fits(spans, cx, half, gap=8.0):
+    for a, b in spans:
+        if cx + half + gap > a and cx - half - gap < b:
+            return False
+    return True
+
+
+def _reserve(spans, cx, half):
+    spans.append((cx - half, cx + half))
 
 
 def scene(pl, idx):
@@ -384,62 +419,66 @@ def scene(pl, idx):
     if pl["clouds"]:
         S += clouds(R(700 + idx), lerp(pl["stops"][-1][0], pl["fg"], 0.12))
 
-    # flying pterosaurs (mid-distance tint)
-    if pl["ptero"]:
+    if pl["ptero"]:                                              # flying flock, mid-distance tint
         pc = lerp(pl["horizon"], pl["fg"], 0.42)
-        fx = rr.rng(0.35, 0.62)
-        fy = rr.rng(0.20, 0.34)
+        fx, fy = rr.rng(0.34, 0.6), rr.rng(0.2, 0.34)
         for k in range(rr.pick([3, 4, 5])):
             S += pterosaur((fx + k * 0.07) * W + rr.rng(-14, 14),
-                           (fy + (k % 2) * 0.03) * H, rr.rng(14, 22), pc)
+                           (fy + (k % 2) * 0.03) * H, rr.rng(15, 23), pc, flip=rr.pick([1, -1]))
 
-    n = 5
     baselines = [0.44, 0.57, 0.70, 0.84, 1.0]
-    for i in range(n):
-        base = baselines[i] * H
-        col = band_color(pl, i, n)
-        acol = actor_color(pl, i, n)
-        amp = 8 + i * 5
-        S.append(band(base, amp, col, seed=idx * 0.7 + i))
+    hero_zone = (0.30 * W, 0.82 * W)
+    for i, bl in enumerate(baselines):
+        base = bl * H
+        col, acol = band_color(pl, i), actor_color(pl, i)
+        S.append(band(base, 8 + i * 5, col, seed=idx * 0.7 + i))
+        spans = []
+        if i == len(baselines) - 1:                             # reserve the hero grouping
+            spans.append(hero_zone)
 
-        tsize = 13 + i * 6
-        tree_pool = TREE_FN[pl["trees"]]
-        for _ in range(4 - i if i < 3 else 2):
-            tx = rr.rng(15, W - 15)
-            S += rr.pick(tree_pool)(tx, base + 2, tsize, acol, flip=rr.pick([1, -1]))
+        for _ in range(4 - i if i < 3 else 2):                  # trees (collision-aware)
+            tsize = 13 + i * 6
+            for _try in range(5):
+                tx = rr.rng(20, W - 20)
+                if _fits(spans, tx, tsize * 1.0):
+                    S += rr.pick(TREE_FN[pl["trees"]])(tx, base + 2, tsize, acol, flip=rr.pick([1, -1]))
+                    _reserve(spans, tx, tsize * 1.0)
+                    break
 
-        # dinosaurs grazing on this field (skip the far haze band)
-        if i >= 1:
+        if i >= 1:                                              # grazing dinosaurs (collision-aware)
             dsize = 9 + i * 7
-            count = rr.pick([2, 3, 3, 4]) if i < n - 1 else 2
-            for _ in range(count):
-                dx = rr.rng(0.06, 0.94) * W
-                if i == n - 1 and 0.28 * W < dx < 0.74 * W:
-                    continue  # keep the hero zone clear
-                S += rr.pick(GROUND)(dx, base + 3, dsize, acol, flip=rr.pick([1, -1]))
+            for _ in range(rr.pick([2, 3, 3, 4]) if i < len(baselines) - 1 else 2):
+                fn = rr.pick(GROUND)
+                half = FOOT[fn] * dsize * 0.5
+                for _try in range(6):
+                    dx = rr.rng(0.06, 0.94) * W
+                    if _fits(spans, dx, half):
+                        S += fn(dx, base + 3, dsize, acol, flip=rr.pick([1, -1]))
+                        _reserve(spans, dx, half)
+                        break
 
         S += grass(base, -10, W + 10, acol, 5 + i * 3, R(idx * 50 + i))
 
-    # hero foreground pair (echoes the elephant + calf) — dramatic biped at night
+    # hero foreground grouping (echoes the elephant + calf) — grounded with a soft shadow
     hero_col = pl["fg"]
     hy = 0.985 * H
+    shade = lerp(pl["fg"], "#000000", 0.35)
     night_like = pl["name"] in ("Sunset", "Storm", "Night", "Deep Night", "Aurora Finale")
     if night_like:
-        S += trex(0.46 * W, hy, 54, hero_col, flip=-1)
+        S.append(disc(0.5 * W, hy + 4, 130, shade, ry=14, opacity=0.28))
+        S += trex(0.5 * W, hy, 56, hero_col, flip=-1)
     else:
-        S += sauropod(0.50 * W, hy, 58, hero_col, flip=1)
-        S += sauropod(0.70 * W, hy, 58, hero_col, flip=1, baby=True)
+        S.append(disc(0.6 * W, hy + 4, 165, shade, ry=15, opacity=0.28))
+        S += sauropod(0.50 * W, hy, 60, hero_col, flip=1)
+        S += sauropod(0.72 * W, hy, 60, hero_col, flip=1, baby=True)
     S += grass(hy, -10, W + 10, hero_col, 10, R(idx * 77))
 
-    # big framing canopy in a top corner
-    S += frame_tree(right=(idx % 2 == 0), s=70, color=pl["fg"])
+    S += frame_tree(right=(idx % 2 == 0), s=70, color=pl["fg"])  # framing canopy
 
-    # weather overlays
     if pl["snow"]:
         sr = R(900 + idx)
         for _ in range(140):
-            S.append(disc(sr.rng(0, W), sr.rng(0, H), sr.rng(0.8, 2.2), "#f4f8ff",
-                          opacity=sr.rng(0.4, 0.95)))
+            S.append(disc(sr.rng(0, W), sr.rng(0, H), sr.rng(0.8, 2.2), "#f4f8ff", opacity=sr.rng(0.4, 0.95)))
     if pl["leaves"]:
         lr = R(950 + idx)
         for _ in range(70):
@@ -469,8 +508,7 @@ def build():
 
 
 if __name__ == "__main__":
-    import os
-    out = os.environ.get("OUTPUT_YAML_PATH", "prehistoric_savanna.fg.yaml")
     from framegraph.sdk import serialize
+    out = os.environ.get("OUTPUT_YAML_PATH", "prehistoric_savanna.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))
     print(f"wrote {out}")
