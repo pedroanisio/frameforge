@@ -4,6 +4,21 @@
 
 ---
 
+## Unreleased — docs(examples): the CG-canon capability showcase — a 60-page A4 book (2026-07-05)
+
+`static/examples/cg_canon_showcase.py` composes *Twelve Hours of Geometry* — a
+polished 60-page A4 document demonstrating every API shipped in the CG-canon
+session (roadmap B1–B10 plus the 2D/3D intersection, hull, OBB, curvature, and
+shading work). Every figure is **live API output**: the reflections from
+`Mat3.reflect`, the crossings from the intersection primitives, the hulls from
+`convex_hull`, the combs from `CubicBezier.curvature`, the fractals from
+`sdk.fractal`, and the shaded solids from `Scene3D.render(shading="phong")`.
+
+The book is itself a FrameGraph document — a multi-page A4 `mode: page` composition
+authored through the SDK, validated against the model + static rules on build, and
+lowered to one vector PDF by `tooling/render_pdf.py`. `docs/examples.md`
+regenerated; the root render artifact is gitignored.
+
 ## Unreleased — feat(sdk): B6 — shading completion: Phong specular (CG-canon, 2026-07-04)
 
 `Scene3D` already had flat (`lambert`) and smooth (`gouraud`) *diffuse* shading;
