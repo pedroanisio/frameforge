@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 103 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 105 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -74,6 +74,7 @@ The 103 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`naval_engineering_deck.py`](../static/examples/naval_engineering_deck.py) | Demo: author a 30-page naval-engineering deck with the FrameGraph Python SDK. |
 | [`ninja_hacker_manga.py`](../static/examples/ninja_hacker_manga.py) | NULLSEC // 零 — a 25-page cyber-ninja manga, composed entirely with the SDK. |
 | [`output_space_poster.py`](../static/examples/output_space_poster.py) | A styled FrameGraph rendition of docs/output-space.md. |
+| [`patent_fighter_jet_mechanisms_3d.py`](../static/examples/patent_fighter_jet_mechanisms_3d.py) | Three real fighter-jet mechanism patents, reconstructed as literal 3D |
 | [`pattern_compose_deck.py`](../static/examples/pattern_compose_deck.py) | Pattern compose — filled catalog patterns as rendered deck pages. |
 | [`people_devices_dashboard.py`](../static/examples/people_devices_dashboard.py) | High-fidelity vector recreation of an HR "People / Devices / Security" mobile |
 | [`planar_kernel_showcase.py`](../static/examples/planar_kernel_showcase.py) | Planar geometry kernel — booleans, offset, surgery, regions (issue #45). |
@@ -87,6 +88,7 @@ The 103 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`poc9_figure_coach.py`](../static/examples/poc9_figure_coach.py) | POC-09 — a coach that draws COMPLEX HUMAN FIGURES (honest end-to-end). |
 | [`radix_nova_gallery.py`](../static/examples/radix_nova_gallery.py) | High-fidelity vector recreation of the shadcn / v0 "radix-nova" component |
 | [`rebel_alliance_field_manual.py`](../static/examples/rebel_alliance_field_manual.py) | ALLIANCE FIELD MANUAL — a 20-slide Rebel Alliance briefing. |
+| [`river_raid_view.py`](../static/examples/river_raid_view.py) | RIVER RAID — a vector homage to the 1982 Activision vertical shooter. |
 | [`roadmap_publication.py`](../static/examples/roadmap_publication.py) | Publish the FrameGraph v2 roadmap as two brand-true deliverables from one SDK client: |
 | [`saas_hero_headers.py`](../static/examples/saas_hero_headers.py) | SaaS landing-page hero headers — built from PRIMITIVES only (no widgets). |
 | [`sdk_3d_scene.py`](../static/examples/sdk_3d_scene.py) | A complex, shaded 3D scene composed with the FrameGraph SDK — *today*. |
