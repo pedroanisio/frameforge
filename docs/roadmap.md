@@ -918,7 +918,7 @@ pipeline**.
 | ID | Item | Tier / fit | Canon | Complexity | Depends on | Disposition |
 |---|---|---|---|---|---|---|
 | **B1** | Formal viewing pipeline (world→NDC→viewport + clip stage) | T1 high | ¶43, Ch6/8 | M | — | **DELIVERED — abstraction** (2026-07-04): `sdk.geometry.window_to_viewport` + `ViewingPipeline` (output-preserving, reproduces the Scene3D fit); `test_geometry_viewport.py`; **adopted inside `Scene3D.render`** — its window→viewport fit scale now comes from `window_to_viewport` (single source of truth, output-preserving; `test_scene3d_viewport_fit.py`). Residual: none (robust clip/cull/depth are B2) |
-| **B2** | 3D pipeline correctness (clip + back-face + depth) | T1 high | Ch8–9 (¶34/36) | S–M | B1 | **DELIVERED — robust proj + clip + cull** (2026-07-04): `Mat4.try_project` (G1 crash fixed), near-plane culling (G2), `Scene3D.render(cull_backfaces=)` (G3); output-preserving; `test_scene3d_pipeline.py`. Residual: Sutherland–Hodgman clip (split) + depth strategy (G4) |
+| **B2** | 3D pipeline correctness (clip + back-face + depth) | T1 high | Ch8–9 (¶34/36) | S–M | B1 | **DELIVERED — robust proj + clip + cull** (2026-07-04): `Mat4.try_project` (G1 crash fixed), near-plane culling (G2), `Scene3D.render(cull_backfaces=)` (G3); output-preserving; `test_scene3d_pipeline.py`; **Sutherland–Hodgman near-plane clip** now lands via opt-in `Scene3D.render(near_clip=True)` — a straddling face is split at the plane and its front kept, not culled (`test_scene3d_near_clip.py`). Residual: depth-buffer strategy (per-face painter's order only) |
 | **B3** | True 3D scene graph (nodes / instancing / hierarchy) | T2 direction | Ch8–11, ¶43–45 | L | B1, B2 | approved — ADR required first |
 | **B4** | Fractal / procedural generator (`sdk/fractal.py`) | T2 | Ch11 (¶39) | S–M | — | **DELIVERED** (2026-07-04): `sdk.fractal` L-system + turtle + `koch_curve`/`dragon_curve`/`sierpinski_arrowhead`; `test_sdk_fractal.py` |
 | **B5** | Curved-surface patches (Bézier/B-spline) | T2 | Ch11 | M | B2 | **DELIVERED — bicubic Bézier** (2026-07-05): `manifold.{bezier_patch,bezier_patch_point}` + `{bspline_patch,bspline_patch_point}` (uniform bicubic B-spline) tessellating to Scene3D; `test_manifold_{patch,bspline}.py`. Residual: none |
@@ -1239,10 +1239,14 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 
 ---
 
-# Appendix B — Adobe Illustrator parity matrix (granular, 51 features · v3)
+# Appendix B — Adobe Illustrator parity matrix (granular, 51 features · v4)
 
-> **Status:** the granular evidence base of roadmap item 10 (teardown v3,
-> 2026-07-02; supersedes the 44-feature v1 and 46-feature v2). Source:
+> **Status:** the granular evidence base of roadmap item 10 (teardown v4,
+> 2026-07-05; supersedes v3 2026-07-02, v2 46-feature, v1 44-feature). **v4 delta
+> (CG-canon geometry programme):** AI-34 Transform tools now complete — **reflect/mirror**
+> landed (B7); AI-09 gains the **`curvature`/`arc_length`** API (B9); AI-40 3D & Materials
+> gains **Phong** shading (B6), with B1/B2 approved to harden the 3D leg. Re-run the teardown
+> generator to refresh the sha256-pinned evidence (FrameGraph now HEAD 2.4.1). Source:
 > `static/examples/illustrator_vs_framegraph.py`; Illustrator surface mined
 > from three manuals over doc-ray ("AI 2024 User's Guide" [24], "Master AI
 > 2025" [25], "BMG 106: Computer Graphics II" [26]) with sentence-ordinal
@@ -1273,7 +1277,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 |----|--------------------|---------|------------------|-------------|
 | AI-07 | Shape primitives | HAS | rect, ellipse, circle, polygon, line, polyline (17 object types) | settled |
 | AI-08 | Pen tool (Bézier) | REFRAMED ·H | coordinates are the pen — bezier / `Path` / `CubicBezier`; `construct_vectors` + coach are the assistive half | **W6 delivered** (#50): re-verdicted with evidence |
-| AI-09 | Curvature tool | REFRAMED ·H | `Path.through()` draws the smooth curve through your knots — declaration replaces the rubber-band | **W2 delivered** (#46): verified, tested |
+| AI-09 | Curvature tool | REFRAMED ·H | `Path.through()` draws the smooth curve through your knots; + `curvature(t)` / `arc_length()` analysis for curvature-correct sampling | **W2** (#46) verified; **CG-canon B9** (2026-07-05) added the curvature/arc-length API |
 | AI-10 | Pencil / freehand | NONE ·H non-goal | no freehand pointer input (declarative only) | **non-goal** reaffirmed; nearest declarative route is curve *fitting* (`vectorize_image`, coach) — noted, not claimed |
 | AI-11 | Stroke controls | HAS | `stroke_style` width/dasharray/cap/join + connector markers | settled |
 | AI-12 | Variable-width (Width Tool) | HAS ·H | `stroke_outline(profile=…)` — the width profile lowers to a filled path at author time | **W2 delivered** (#46) |
@@ -1319,7 +1323,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-33 | Layers | HAS | ordered layers per page, z-index | settled |
-| AI-34 | Transform tools | HAS | transform: Mat3 rotate / scale / translate / shear | settled |
+| AI-34 | Transform tools | HAS | transform: Mat3 rotate / scale / translate / shear + **reflect / mirror** (`Mat3.reflect` / `mirror()`) — the four Illustrator transform tools (Rotate/Reflect/Scale/Shear) now all present | settled — **reflect landed** (CG-canon **B7**, 2026-07-05) |
 | AI-35 | Align & distribute | HAS | layout groups: row / column / grid, align | settled |
 | AI-36 | Artboards | REFRAMED ·H | pages are the artboards — per-page canvas + render targets replace the free canvas by design | **W6 delivered** (#50): re-verdicted with evidence |
 | AI-37 | Perspective grid | NONE ·H non-goal | flat page space | **non-goal** — coheres with G-2's non-conformant `perspective` |
@@ -1331,7 +1335,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 |----|--------------------|---------|------------------|-------------|
 | AI-38 | Embed / link raster | HAS | image object: embedded or src-referenced | settled |
 | AI-39 | Image trace | REFRAMED ·H | `vectorize_image` MCP tool call | settled — same raster→vector end, declarative road |
-| AI-40 | 3D & Materials | PARTIAL ·H | `Scene3D.extrude`/`.revolve` + `Material` + `Camera`, projected to 2D vector faces; no bevel | **W6 delivered** (#50): claim verified in code (`sdk/draw.py`), evidence corrected — stays PARTIAL, bevel missing |
+| AI-40 | 3D & Materials | PARTIAL ·H | `Scene3D.extrude`/`.revolve` + `Material` + `Camera` → 2D vector faces; shading none/lambert/gouraud/**phong**; no bevel | **W6** (#50) verified; **CG-canon B6** added Phong (2026-07-05); B1/B2 (viewing pipeline + 3D correctness) approved to harden it — bevel still missing → PARTIAL |
 | AI-41 | Export formats | PARTIAL ·M | SVG / PNG / PDF / LaTeX (6 renderers); no PSD / EPS / DWG | proprietary/legacy targets stay **non-goals** |
 | AI-42 | Package | NONE ·H non-goal | no asset-collection packaging step | **non-goal** (v2 change from v1's build proposal): hermetic single-file YAML + content-hashed assets make packaging moot |
 | AI-51 | Graph tool (bar / pie / line charts) | HAS | `Chart` / `sparkline` / `function_plot` / `polar_plot` / `kpi` — data-bound | settled — and note the boundary: item 3's data *transforms* remain out of scope; these are data-bound marks |

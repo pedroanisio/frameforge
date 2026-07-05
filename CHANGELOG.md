@@ -4,6 +4,25 @@
 
 ---
 
+## Unreleased — feat(sdk): B2 residual — near-plane Sutherland–Hodgman clip (CG-canon, 2026-07-05)
+
+Advances B2's G4 residual — near-plane clipping. `Scene3D.render(near_clip=True)`
+Sutherland–Hodgman-clips each face against the ``w >= near_eps`` half-space in
+homogeneous clip space (the same boundary `Mat4.try_project` uses) and keeps the
+retained front polygon, instead of the default behaviour of culling any face with
+a vertex at/behind the plane. A triangle straddling the plane becomes the front
+quad; a fully-behind face is dropped; a fully-front face is returned unchanged.
+
+**Opt-in and default-off** — the `near_clip=False` default path is the exact prior
+code, so every existing render (and golden) is byte-for-byte unmoved
+(`make golden-check` green); `_avg_z` was refactored to share one depth-key
+computation with the clip path (`_avg_z_h`) with no change to its arithmetic.
+Additive, no schema change (§A.0). 5 red-first tests
+(`tests/test_scene3d_near_clip.py`) cover the default cull, the retained front
+portion, the fully-behind drop, the fully-front identity, and the default-false
+guard. Residual narrows to a depth-buffer strategy (today: per-face painter's
+order); the clip half of G4 is done.
+
 ## Unreleased — refactor(sdk): B1 residual — Scene3D.render adopts the window→viewport primitive (CG-canon, 2026-07-05)
 
 Closes B1's last documented residual — "adopt inside `Scene3D.render`". The

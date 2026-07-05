@@ -174,6 +174,7 @@ class Scene3D:
         specular: float = 0.35,
         shininess: float = 16.0,
         cull_backfaces: bool = False,
+        near_clip: bool = False,
         id: str | None = None,
     ) -> dict[str, object]:
         if camera is None:
@@ -189,18 +190,27 @@ class Scene3D:
             self.faces, light, ambient=ambient, diffuse=diffuse, shading=shading,
             view=view_dir, specular=specular, shininess=shininess,
         )
-        # B2: robust projection with a near-plane clip stage (G1/G2). try_project
-        # returns None at/behind the near plane, so a straddling face is dropped
-        # rather than crashing or mirror-flipping. Fully-in-front faces project
-        # identically to the old path, so existing goldens are unchanged.
+        # B2: robust projection with a near-plane stage (G1/G2). By default a face
+        # with any vertex at/behind the near plane (w <= near_eps) is dropped whole
+        # (`try_project` returns None) rather than crashing or mirror-flipping.
+        # With `near_clip=True` (G4) the face is instead Sutherland–Hodgman-clipped
+        # at that plane and its front portion kept. Fully-in-front faces project
+        # identically either way, so existing goldens are unchanged.
         projected = []
         for (face, style), intensity in zip(self.faces, lit_faces):
-            pts = [matrix.try_project(p) for p in face]
-            if any(q is None for q in pts):
-                continue  # near-plane cull
+            if near_clip:
+                clipped = _clip_near(matrix, face)
+                if clipped is None:
+                    continue  # nothing survives in front of the near plane
+                pts, zkey = clipped
+            else:
+                pts = [matrix.try_project(p) for p in face]
+                if any(q is None for q in pts):
+                    continue  # near-plane cull (default)
+                zkey = _avg_z(matrix, face)
             if cull_backfaces and _is_back_face(pts):
                 continue  # back-face removal (G3, opt-in)
-            projected.append((pts, _avg_z(matrix, face), style, intensity))
+            projected.append((pts, zkey, style, intensity))
         all_points = [p for face, _z, _style, _intensity in projected for p in face]
         # Children are positioned LOCAL to the returned group's box: a renderer
         # translates a group's children by its box origin, so baking the box origin
@@ -470,16 +480,60 @@ def _avg_z(matrix: Mat4, face: Sequence[Vec3]) -> float:
     painted far faces *over* near ones (harmless on a lone heightfield, which
     barely self-overlaps, but wrong for any solid or separated geometry).
     """
+    return _avg_z_h(matrix, [matrix.apply(p) for p in face])
+
+
+def _avg_z_h(matrix: Mat4, hom: Sequence[Sequence[float]]) -> float:
+    """The painter's depth key of :func:`_avg_z`, computed from already-projected
+    homogeneous vertices ``(x, y, z, w)`` — used by the near-clip path (B2), which
+    has the clipped homogeneous polygon in hand and must not re-apply the matrix."""
     w_row = matrix.values[3]
     perspective = (abs(w_row[0]) > 1e-9 or abs(w_row[1]) > 1e-9
                    or abs(w_row[2]) > 1e-9 or abs(w_row[3] - 1.0) > 1e-9)
     total = 0.0
-    for p in face:
-        x4 = matrix.apply(p)
-        w = x4[3]
-        total += x4[2] / w if abs(w) > 1e-12 else x4[2]
-    key = total / max(1, len(face))
+    for v in hom:
+        w = v[3]
+        total += v[2] / w if abs(w) > 1e-12 else v[2]
+    key = total / max(1, len(hom))
     return -key if perspective else key
+
+
+_NEAR_EPS = 1e-9  # the w >= eps half-space Mat4.try_project keeps in front
+
+
+def _lerp4(a: Sequence[float], b: Sequence[float], t: float) -> tuple[float, float, float, float]:
+    return (a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1]),
+            a[2] + t * (b[2] - a[2]), a[3] + t * (b[3] - a[3]))
+
+
+def _clip_near(
+    matrix: Mat4, face: Sequence[Vec3], near_eps: float = _NEAR_EPS,
+) -> tuple[list[Vec2], float] | None:
+    """Sutherland–Hodgman clip of ``face`` against the ``w >= near_eps`` half-space
+    in homogeneous clip space (B2, G4), then project. Returns ``(points, depth_key)``
+    for the retained front polygon, or ``None`` if nothing survives. A face wholly
+    in front is returned unchanged — same vertex order, same projected coordinates,
+    same depth — as the default (cull) path, so ``near_clip`` is a safe opt-in."""
+    hom = [matrix.apply(p) for p in face]
+    n = len(hom)
+    kept: list[Sequence[float]] = []
+    for i in range(n):
+        s, e = hom[i - 1], hom[i]           # closed polygon: edge (prev → current)
+        s_in, e_in = s[3] >= near_eps, e[3] >= near_eps
+        if s_in != e_in:                    # the edge crosses the plane → split it
+            denom = e[3] - s[3]
+            t = (near_eps - s[3]) / denom if abs(denom) > 1e-30 else 0.0
+            crossing = _lerp4(s, e, t)
+        if e_in:
+            if not s_in:
+                kept.append(crossing)
+            kept.append(e)
+        elif s_in:
+            kept.append(crossing)
+    if len(kept) < 3:
+        return None
+    pts = [Vec2(v[0] / v[3], v[1] / v[3]) for v in kept]
+    return pts, _avg_z_h(matrix, kept)
 
 
 def _face_lighting(
