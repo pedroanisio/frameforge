@@ -926,7 +926,7 @@ pipeline**.
 | **B7** | Reflection / mirror transform (`Mat3.reflect`, `mirror()`) | T1 high | Mortenson §3.6 | XS–S | — | **DELIVERED** (2026-07-04) — `sdk.geometry.Mat3.reflect` + `mirror()`; `test_geometry_reflect.py` |
 | **B8** | Geometric intersection API (line/segment/ray/plane/curve) | T1 high | Mortenson (intersections) | M | — | **DELIVERED — 2D core** (2026-07-04): `sdk.geometry.{line,segment,ray_segment,segment_polygon}_intersection(s)`; `test_geometry_intersect.py`. Residual: 3D-plane + curve intersections |
 | **B9** | Curvature & arc-length API (curves/surfaces) | T2 high | Mortenson §6.7 | S–M | — | **DELIVERED** (2026-07-04): `CubicBezier.{derivative,curvature,arc_length}` + `polyline_length`; `test_geometry_curvature.py`. Residual: surface curvature |
-| **B10** | Convex hull + comp-geometry primitives | T2 | Mortenson (convex hulls) | S–M | aids B8 | approved (2026-07-04) |
+| **B10** | Convex hull + comp-geometry primitives | T2 | Mortenson (convex hulls) | S–M | aids B8 | **DELIVERED — 2D** (2026-07-04): `sdk.geometry.{convex_hull,aabb,polygon_area,point_in_polygon}`; `test_geometry_hull.py`. Residual: 3D hull + OBB |
 | **F2** | Texture mapping | T3 bridge | 1 corpus citation | — | B3 | **DEFER behind B3** |
 | **F1** | Ray tracing / global illumination | T3 bridge | ray-trace ch. | — | — | **DEFER — OPERATOR-APPROVAL-GATED** (out of fit; never auto-scheduled, never pulled as a dependency) |
 
@@ -935,6 +935,40 @@ unblocks B3–B6). **Sequencing gate:** B1 (viewing pipeline) precedes B2/B3; B3
 the verifiable-static-IR contract before any code. **Boundary policy (corpus + flagged bridges):**
 every B-item is canon-grounded; F1/F2 are flagged bridges beyond the ~1987 corpus — **F1 may be
 pulled only on explicit operator approval.**
+
+### Definition of Ready / Definition of Done — surface-complete + tested
+
+Every item here (B1–B10, and any future capability) must reach **all three consumption
+surfaces** — the **SDK**, the **capability ledger + MCP discovery**, and **DevX** — with
+**test coverage**, before it is *Done*. This is the standing rule enforced by the operating
+prompt `.repo/prompts/prompt-refine-mcp-sdk-devx.md`, and it exists because capabilities have
+shipped as code while the ledger drifted and no example landed — e.g. **B7–B9** (reflection,
+intersection, curvature) reached `geometry.py` + `sdk-api.md`, yet `make manifest-check` was
+**stale** and the cookbook had **zero** examples exercising them: *code-complete, not
+surface-complete*.
+
+**Definition of Ready (DoR) — before an item is pulled:**
+- [ ] Grounded: canon/corpus reference **and** codebase evidence (file:line).
+- [ ] Surfaces named: which of {core model · SDK · MCP tool/recipe · DevX docs/example} it touches.
+- [ ] Acceptance tests specified (what proves it correct); render/golden fixture named if visual.
+- [ ] Dependencies satisfied (e.g. B2→B1); an ADR written first if it changes the model / IR contract (B3).
+- [ ] Backward-compat plan: additive, or codemod + semver-major justified.
+
+**Definition of Done (DoD) — an item ships only when every surface is propagated *and* gated:**
+
+| Surface | Step to complete | Gate / test that proves it |
+|---|---|---|
+| **SDK** | typed API + docstring with a runnable snippet; exported in `sdk/__init__.py` | unit test (`make test`); `make docs-sdk` regenerates `docs/sdk-api.md` → `make docs-check` green |
+| **Ledger** | `make manifest` regenerated; correct `core/sdk/mcp` flags | `make manifest-check` green (`tests/test_capability_manifest.py`) |
+| **MCP / agent** | reachable via a tool **or** a documented `run_sdk_code` recipe; returned by `describe_capabilities`; named in `framegraph_guide`/`get_guide` if it is a workflow | recipe renders via `run_sdk_code`; discovery smoke check |
+| **DevX** | runnable example in `static/examples/`; `docs/changelog.md` entry + `make bump`; known limitations + failure modes documented | `make examples-index`; example renders (`make golden-check` if visual) |
+| **Whole** | all gates green | `make check` (schema·grammar·spec·a11y·status·test·validate·overflow·golden·docs·docs-linkcheck·disclaimer) + pre-commit `hooks` |
+
+**Test-coverage floor (per capability):** ≥1 unit test · present in the freshly-built manifest ·
+`sdk-api.md` in sync · a runnable example caught by the example/coverage gate · a golden fixture
+when it renders. Each item's *specific* acceptance tests live in its spec (`Detail` column).
+**An item with green code but a red `manifest-check`, a missing example, or an undocumented
+failure mode is *Ready-for-review, not Done.***
 
 ---
 

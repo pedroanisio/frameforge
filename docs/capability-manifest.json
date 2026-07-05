@@ -158,6 +158,7 @@
       "Vec2",
       "Vec3",
       "VectorField",
+      "aabb",
       "apply_humanize",
       "assert_golden",
       "avatar",
@@ -183,6 +184,7 @@
       "contrast_of_hues",
       "contrast_of_scale",
       "contrast_ratio",
+      "convex_hull",
       "default_theme",
       "divider",
       "dominant_light",
@@ -244,7 +246,9 @@
       "place_imported_figure",
       "place_region",
       "planar",
+      "point_in_polygon",
       "polar_plot",
+      "polygon_area",
       "polyline_length",
       "progress",
       "quarter_circle_kappa",
@@ -1368,6 +1372,13 @@
       "mcp": true
     },
     {
+      "name": "aabb",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "apply_humanize",
       "kind": "sdk_export",
       "core": false,
@@ -1537,6 +1548,13 @@
     },
     {
       "name": "contrast_ratio",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "convex_hull",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1970,7 +1988,21 @@
       "mcp": true
     },
     {
+      "name": "point_in_polygon",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "polar_plot",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "polygon_area",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

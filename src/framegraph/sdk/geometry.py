@@ -580,6 +580,78 @@ def polyline_length(points: Iterable[Vec2 | Sequence[float]]) -> float:
     )
 
 
+# --------------------------------------------------------------------------- #
+#  B10 — convex hull + computational-geometry primitives (Mortenson §21).      #
+#  Broad-phase bounding for B8, layout/packing, hit-test acceleration.         #
+# --------------------------------------------------------------------------- #
+def convex_hull(points: Iterable[Vec2 | Sequence[float]]) -> list[Vec2]:
+    """The 2D convex hull of ``points`` as a convex ring (Andrew's monotone
+    chain, O(n log n)). Duplicate points are collapsed and collinear edge points
+    excluded; 0/1/2 distinct points return themselves."""
+    coords = sorted({_v2(p).tuple() for p in points})
+    pts = [Vec2(x, y) for x, y in coords]
+    if len(pts) <= 2:
+        return pts
+
+    def cross(o: Vec2, a: Vec2, b: Vec2) -> float:
+        return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
+
+    lower: list[Vec2] = []
+    for p in pts:
+        while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:
+            lower.pop()
+        lower.append(p)
+    upper: list[Vec2] = []
+    for p in reversed(pts):
+        while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:
+            upper.pop()
+        upper.append(p)
+    # drop each list's last point (shared with the other list's first).
+    return lower[:-1] + upper[:-1]
+
+
+def aabb(points: Iterable[Vec2 | Sequence[float]]) -> tuple[Vec2, Vec2]:
+    """Axis-aligned bounding box of ``points`` as ``(min_corner, max_corner)``.
+    Raises ``ValueError`` on empty input."""
+    pts = [_v2(p) for p in points]
+    if not pts:
+        raise ValueError("aabb needs at least one point")
+    xs = [p.x for p in pts]
+    ys = [p.y for p in pts]
+    return (Vec2(min(xs), min(ys)), Vec2(max(xs), max(ys)))
+
+
+def polygon_area(ring: Iterable[Vec2 | Sequence[float]]) -> float:
+    """Signed area of the polygon ``ring`` (shoelace). The sign encodes winding;
+    ``abs`` is the orientation-free area. Fewer than 3 points → 0.0."""
+    pts = [_v2(p) for p in ring]
+    n = len(pts)
+    if n < 3:
+        return 0.0
+    s = sum(pts[i].x * pts[(i + 1) % n].y - pts[(i + 1) % n].x * pts[i].y for i in range(n))
+    return s / 2.0
+
+
+def point_in_polygon(
+    point: Vec2 | Sequence[float], ring: Iterable[Vec2 | Sequence[float]]
+) -> bool:
+    """True if ``point`` is inside the polygon ``ring`` (even-odd ray crossing).
+    A point exactly on an edge is a boundary case and may test either way."""
+    p = _v2(point)
+    pts = [_v2(q) for q in ring]
+    n = len(pts)
+    inside = False
+    j = n - 1
+    for i in range(n):
+        pi, pj = pts[i], pts[j]
+        if (pi.y > p.y) != (pj.y > p.y):
+            x_cross = (pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y) + pi.x
+            if p.x < x_cross:
+                inside = not inside
+        j = i
+    return inside
+
+
 def _v2(point: Vec2 | Sequence[float]) -> Vec2:
     if isinstance(point, Vec2):
         return point
@@ -631,8 +703,12 @@ __all__ = [
     "Path",
     "Vec2",
     "Vec3",
+    "aabb",
+    "convex_hull",
     "line_intersection",
     "mirror",
+    "point_in_polygon",
+    "polygon_area",
     "polyline_length",
     "quarter_circle_kappa",
     "ray_segment_intersection",

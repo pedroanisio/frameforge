@@ -4,6 +4,25 @@
 
 ---
 
+## Unreleased — feat(sdk): B10 — convex hull + computational-geometry primitives (CG-canon backlog, 2026-07-04)
+
+`framegraph.sdk.geometry` gains the comp-geometry primitives the CG-canon backlog
+(Mortenson §21) approved — broad-phase bounding for B8, layout/packing, hit-test
+acceleration:
+
+- `convex_hull(points)` — 2D Andrew's monotone chain (O(n log n)); duplicates
+  collapsed, collinear edge points excluded, 0/1/2-point inputs degrade cleanly;
+- `aabb(points)` — axis-aligned bounds as `(min, max)`;
+- `polygon_area(ring)` — signed shoelace (sign = winding, `abs` = area);
+- `point_in_polygon(point, ring)` — even-odd ray crossing.
+
+Additive SDK, **no schema change**. 8 red-first tests
+(`tests/test_geometry_hull.py`) verify the hull against a **brute-force O(n³)
+oracle** on a non-collinear set, pin the collinear/duplicate/degenerate
+conventions, assert the returned ring is convex, and check the signed-area sign
+flip. Re-exported from `framegraph.sdk`; `sdk-api.md` + `capability-manifest.json`
+regenerated. Roadmap backlog B10 → **DELIVERED** (2D; 3D hull + OBB the residual).
+
 ## Unreleased — feat(sdk): B9 — curvature & arc-length for curves (CG-canon backlog, 2026-07-04)
 
 `framegraph.sdk.geometry.CubicBezier` gains the differential-geometry surface the
