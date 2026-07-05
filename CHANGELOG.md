@@ -4,6 +4,29 @@
 
 ---
 
+## Unreleased — feat(sdk): B8 — 2D geometric-intersection primitives (CG-canon backlog, 2026-07-04)
+
+`framegraph.sdk.geometry` gains the intersection primitives the CG-canon backlog
+flags as foundational for hit-testing / snapping / clipping:
+
+- `line_intersection(a0, a1, b0, b1)` — the two infinite lines' crossing;
+- `segment_intersection(a0, a1, b0, b1)` — two segments (bounded on both);
+- `ray_segment_intersection(origin, direction, s0, s1)` — a ray against a segment;
+- `segment_polygon_intersections(a0, a1, polygon)` — every edge crossing,
+  de-duplicated at shared vertices.
+
+Each is one parametric 2D cross-product solve; parallel and collinear inputs
+return no crossing (`None` / `[]`), so a collinear overlap is never mis-reported
+as a single point. **Scoped to the 2D primitive core** — the 3D-plane and
+curve intersections also named in B8 are the item's documented expansion.
+
+Additive SDK, **no schema change**. 12 red-first tests
+(`tests/test_geometry_intersect.py`) cover crossings, T-junctions, shared
+endpoints, the segment-vs-line distinction (a pair whose *lines* cross but whose
+*segments* don't reach), ray direction, and polygon entry/exit. Re-exported from
+`framegraph.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated. Roadmap
+backlog B8 → **DELIVERED** (2D core).
+
 ## Unreleased — feat(sdk): B7 — reflection / mirror transform (CG-canon backlog, 2026-07-04)
 
 `framegraph.sdk.geometry` gains the reflection transform the CG-canon backlog

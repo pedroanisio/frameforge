@@ -425,6 +425,99 @@ def mirror(
     return [m.apply(p) for p in points]
 
 
+# --------------------------------------------------------------------------- #
+#  B8 — 2D geometric-intersection primitives (hit-testing / snapping / clip).  #
+#  Each is a parametric 2D cross-product solve; the 3D-plane and curve          #
+#  intersections named in the backlog are this item's documented expansion.    #
+# --------------------------------------------------------------------------- #
+_ON = 1e-9  # inclusive endpoint tolerance for on-segment / on-ray tests
+
+
+def _cross2(ux: float, uy: float, vx: float, vy: float) -> float:
+    return ux * vy - uy * vx
+
+
+def _intersect_params(a0: Vec2, d1: Vec2, b0: Vec2, d2: Vec2) -> tuple[float, float] | None:
+    """Solve ``a0 + t·d1 == b0 + u·d2`` for ``(t, u)``; ``None`` when the two
+    directions are parallel (cross of directions ≈ 0, which also covers the
+    collinear case)."""
+    denom = _cross2(d1.x, d1.y, d2.x, d2.y)
+    if abs(denom) < 1e-12:
+        return None
+    diff = b0 - a0
+    t = _cross2(diff.x, diff.y, d2.x, d2.y) / denom
+    u = _cross2(diff.x, diff.y, d1.x, d1.y) / denom
+    return (t, u)
+
+
+def line_intersection(
+    a0: Vec2 | Sequence[float], a1: Vec2 | Sequence[float],
+    b0: Vec2 | Sequence[float], b1: Vec2 | Sequence[float],
+) -> Vec2 | None:
+    """Intersection of the two **infinite lines** through ``(a0, a1)`` and
+    ``(b0, b1)``; ``None`` if the lines are parallel (or coincident)."""
+    a0, a1, b0, b1 = _v2(a0), _v2(a1), _v2(b0), _v2(b1)
+    params = _intersect_params(a0, a1 - a0, b0, b1 - b0)
+    if params is None:
+        return None
+    t, _u = params
+    return a0 + (a1 - a0) * t
+
+
+def segment_intersection(
+    a0: Vec2 | Sequence[float], a1: Vec2 | Sequence[float],
+    b0: Vec2 | Sequence[float], b1: Vec2 | Sequence[float],
+) -> Vec2 | None:
+    """Intersection point of two **segments**, or ``None`` if they do not cross.
+    Parallel and collinear inputs return ``None`` (a collinear overlap is a
+    span, not a single point — out of scope for this primitive)."""
+    a0, a1, b0, b1 = _v2(a0), _v2(a1), _v2(b0), _v2(b1)
+    params = _intersect_params(a0, a1 - a0, b0, b1 - b0)
+    if params is None:
+        return None
+    t, u = params
+    if -_ON <= t <= 1 + _ON and -_ON <= u <= 1 + _ON:
+        return a0 + (a1 - a0) * t
+    return None
+
+
+def ray_segment_intersection(
+    origin: Vec2 | Sequence[float], direction: Vec2 | Sequence[float],
+    s0: Vec2 | Sequence[float], s1: Vec2 | Sequence[float],
+) -> Vec2 | None:
+    """Where the ray from ``origin`` along ``direction`` meets segment
+    ``s0``–``s1``; ``None`` if it misses or the segment lies behind the ray."""
+    origin, s0, s1 = _v2(origin), _v2(s0), _v2(s1)
+    d = _v2(direction)
+    params = _intersect_params(origin, d, s0, s1 - s0)
+    if params is None:
+        return None
+    t, u = params
+    if t >= -_ON and -_ON <= u <= 1 + _ON:
+        return origin + d * t
+    return None
+
+
+def segment_polygon_intersections(
+    a0: Vec2 | Sequence[float], a1: Vec2 | Sequence[float],
+    polygon: Iterable[Vec2 | Sequence[float]],
+) -> list[Vec2]:
+    """Every point where segment ``a0``–``a1`` crosses an edge of ``polygon`` (a
+    closed ring of points), de-duplicated (a crossing through a shared vertex is
+    found on both incident edges). Order is not significant."""
+    a0, a1 = _v2(a0), _v2(a1)
+    pts = [_v2(p) for p in polygon]
+    n = len(pts)
+    out: list[Vec2] = []
+    for i in range(n):
+        hit = segment_intersection(a0, a1, pts[i], pts[(i + 1) % n])
+        if hit is not None and not any(
+            abs(hit.x - q.x) < _ON and abs(hit.y - q.y) < _ON for q in out
+        ):
+            out.append(hit)
+    return out
+
+
 def _v2(point: Vec2 | Sequence[float]) -> Vec2:
     if isinstance(point, Vec2):
         return point
@@ -476,6 +569,10 @@ __all__ = [
     "Path",
     "Vec2",
     "Vec3",
+    "line_intersection",
     "mirror",
     "quarter_circle_kappa",
+    "ray_segment_intersection",
+    "segment_intersection",
+    "segment_polygon_intersections",
 ]

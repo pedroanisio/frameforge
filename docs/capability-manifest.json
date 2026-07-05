@@ -214,6 +214,7 @@
       "klein_bottle",
       "kpi",
       "lattice",
+      "line_intersection",
       "linear_gradient",
       "load_figure",
       "lorem",
@@ -248,6 +249,7 @@
       "quarter_circle_kappa",
       "radial_gradient",
       "radio",
+      "ray_segment_intersection",
       "recolor",
       "ref",
       "region_grade",
@@ -259,6 +261,8 @@
       "rgba",
       "row",
       "saddle",
+      "segment_intersection",
+      "segment_polygon_intersections",
       "select_in",
       "serialize",
       "shadow",
@@ -1755,6 +1759,13 @@
       "mcp": true
     },
     {
+      "name": "line_intersection",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "linear_gradient",
       "kind": "sdk_export",
       "core": false,
@@ -1993,6 +2004,13 @@
       "mcp": true
     },
     {
+      "name": "ray_segment_intersection",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "recolor",
       "kind": "sdk_export",
       "core": false,
@@ -2064,6 +2082,20 @@
     },
     {
       "name": "saddle",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "segment_intersection",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "segment_polygon_intersections",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
