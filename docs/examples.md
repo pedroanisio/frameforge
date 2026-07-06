@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 107 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 108 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -71,6 +71,7 @@ The 107 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`library_showcase.py`](../static/examples/library_showcase.py) | Library showcase — themes, symbol packs, and generators end to end. |
 | [`marina_whale.py`](../static/examples/marina_whale.py) | Marina and the Singing Sea — a polished children's picture book via the FrameGraph SDK. |
 | [`meridian_consulting_deck.py`](../static/examples/meridian_consulting_deck.py) | Project Northwind - a complete 40-slide management-consulting deck, built with the SDK. |
+| [`mona_lisa_construction.py`](../static/examples/mona_lisa_construction.py) | Anatomy of the Mona Lisa — a construction plate (FrameGraph SDK). |
 | [`naval_engineering_deck.py`](../static/examples/naval_engineering_deck.py) | Demo: author a 30-page naval-engineering deck with the FrameGraph Python SDK. |
 | [`ninja_hacker_manga.py`](../static/examples/ninja_hacker_manga.py) | NULLSEC // 零 — a 25-page cyber-ninja manga, composed entirely with the SDK. |
 | [`output_space_poster.py`](../static/examples/output_space_poster.py) | A styled FrameGraph rendition of docs/output-space.md. |
