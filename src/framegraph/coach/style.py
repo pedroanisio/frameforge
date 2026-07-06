@@ -96,4 +96,32 @@ def apply_to_layerplan(style: StyleProfile, layers: list[str]) -> dict[str, dict
     return out
 
 
-__all__ = ["StyleProfile", "STYLES", "resolve_style", "apply_to_layerplan"]
+def cleanup_params(style: StyleProfile) -> dict:
+    """Derive ``coach.clean`` kwargs from a style — how aggressively to decimate.
+
+    Detail level sets the RDP tolerance (low detail → simplify hard; high detail →
+    keep nodes). The edge character sets smoothing: ``sketchy`` keeps the hand
+    jitter (no smoothing), ``carved`` a touch, ``clean_closed`` the most. So the
+    same trace is cleaned to match the named style, not a fixed default.
+    """
+    eps = {"low": 3.2, "medium": 1.8, "high": 1.0}.get(style.detail_level, 1.8)
+    smooth = {"sketchy": 0.0, "carved": 0.2, "clean_closed": 0.45}.get(style.edge, 0.3)
+    min_span = 8.0 if style.detail_level == "low" else 6.0
+    return {"min_span": min_span, "eps": eps, "smooth": smooth}
+
+
+def redraw_params(style: StyleProfile) -> dict:
+    """Derive ``coach.redraw`` kwargs from a style — line weight, simplify, snap.
+
+    The stroke ``width`` is the style's own line weight (outer contour, falling
+    back to inner). ``simplify_tol`` tracks detail level. ``snap`` (blob →
+    primitive) is enabled only for ``clean_closed`` edges — a geometric/icon look
+    wants clean primitives; ``sketchy``/``carved`` styles keep organic contours.
+    """
+    simplify_tol = {"low": 3.5, "medium": 2.0, "high": 1.2}.get(style.detail_level, 2.0)
+    width = style.outer or style.inner or 1.4
+    return {"simplify_tol": simplify_tol, "width": width, "snap": style.edge == "clean_closed"}
+
+
+__all__ = ["StyleProfile", "STYLES", "resolve_style", "apply_to_layerplan",
+           "cleanup_params", "redraw_params"]

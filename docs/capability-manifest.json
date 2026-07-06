@@ -320,6 +320,7 @@
   "mcp": {
     "tools": [
       "cleanup_sessions",
+      "coach_vectorize",
       "compare_images",
       "construct_vectors",
       "describe_capabilities",
@@ -2493,6 +2494,13 @@
     },
     {
       "name": "cleanup_sessions",
+      "kind": "mcp_tool",
+      "core": false,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "coach_vectorize",
       "kind": "mcp_tool",
       "core": false,
       "sdk": false,

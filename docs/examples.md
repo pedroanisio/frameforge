@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 111 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 112 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -37,6 +37,7 @@ The 111 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`coach_demo.py`](../static/examples/coach_demo.py) | Vector Construction Coach — staged-loop demo (framegraph.coach POC). |
 | [`coach_draw_workspace.py`](../static/examples/coach_draw_workspace.py) | Coach draws ``demo/images.jpeg`` — a flat workspace illustration. |
 | [`coach_icon_set.py`](../static/examples/coach_icon_set.py) | Coach challenge — a 6-icon set, one style, A/B vs one-shot drift. |
+| [`coach_paint_showcase.py`](../static/examples/coach_paint_showcase.py) | Coach, end-to-end, with the new paint layer — raster → on-brand painted scene. |
 | [`coach_pipeline.py`](../static/examples/coach_pipeline.py) | Everything together — coach (process) + landing kit (vocabulary) + silhouette gate. |
 | [`coopera_refactor_wireframes.py`](../static/examples/coopera_refactor_wireframes.py) | Twenty distinct refactor proposals for the Coopera (Sicoob) rewards site & |
 | [`cs_suite_wireframe.py`](../static/examples/cs_suite_wireframe.py) | Compose a COMPLETE low-fidelity wireframe of an advanced web app — "Helm", a |

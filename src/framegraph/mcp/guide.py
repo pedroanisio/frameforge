@@ -347,6 +347,14 @@ version) converts mechanically: `uv run python tooling/codemod.py doc.yml --from
 (see docs/migration-v01.md for the mapping table) — then validate and render as
 usual. Do not hand-translate the envelope.
 
+## Coach — one call, raster to styled document
+- `coach_vectorize` — the Vector Construction Coach pipeline end to end: ingest a
+  raster -> clean -> redraw (Bezier / snap) -> recolor -> gradientize -> paint
+  atmosphere, all driven by a named `style` grammar (clean_line, flat_icon,
+  blueprint, comic_ink, woodcut, children_book), then validate + render with the
+  silhouette readability gate attached. One call: image -> styled FrameGraph doc.
+  Still UNVERIFIED heuristic geometry — the render + gate is the check.
+
 ## Workflow
 Author or propose -> read the returned validation issues + the rendered PNG (or the
 `render_warning` when raster is unavailable) -> refine the SDK code/YAML -> re-render.

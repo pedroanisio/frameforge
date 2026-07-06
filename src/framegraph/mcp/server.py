@@ -20,6 +20,9 @@ from pydantic import Field
 from framegraph.mcp.config import DEFAULT_TIMEOUT_SECONDS
 from framegraph.mcp.descriptions import (
     _DESC_CLIENT_PATH,
+    _DESC_COACH_MODES,
+    _DESC_COACH_PAINT,
+    _DESC_COACH_STYLE,
     _DESC_DETECTORS,
     _DESC_MAX_PAGES,
     _DESC_PAGES,
@@ -70,6 +73,7 @@ from framegraph.mcp.usecases import (
     score_reconstruction as _uc_score_reconstruction,
     vectorize_image as _uc_vectorize_image,
     workspace as _uc_workspace,
+    coach_vectorize as _uc_coach_vectorize,
     propose_from_document as _uc_propose_from_document,
     propose_from_image as _uc_propose_from_image,
     propose_from_svg as _uc_propose_from_svg,
@@ -110,6 +114,7 @@ from framegraph.mcp.usecases import (
     score_reconstruction as score_reconstruction,
     vectorize_image as vectorize_image,
     workspace as workspace,
+    coach_vectorize as coach_vectorize,
     propose_from_document as propose_from_document,
     propose_from_image as propose_from_image,
     propose_from_svg as propose_from_svg,
@@ -611,6 +616,48 @@ def create_server(
                 pages=pages,
                 title=title,
                 detector_names=detector_names,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def coach_vectorize(
+        image_path: Annotated[str, Field(description="Filesystem path to the source image (line-art or illustration).")],
+        style: Annotated[str, Field(description=_DESC_COACH_STYLE)] = "children_book",
+        modes: Annotated[str, Field(description=_DESC_COACH_MODES)] = "region,outline",
+        paint: Annotated[bool, Field(description=_DESC_COACH_PAINT)] = True,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+        max_pages: Annotated[int, Field(description=_DESC_MAX_PAGES)] = 3,
+        raster_png: Annotated[bool, Field(description=_DESC_RASTER)] = True,
+        pages: Annotated[str | None, Field(description=_DESC_PAGES)] = None,
+        silhouette: Annotated[bool, Field(description=_DESC_SILHOUETTE)] = True,
+    ):
+        """Run the Vector Construction Coach pipeline on an image (ingest → clean → redraw → recolor → paint), styled by the named grammar, then validate, render, and gate it."""
+        result = _logged_call(
+            log_path,
+            "coach_vectorize",
+            {
+                "image_path": image_path,
+                "style": style,
+                "modes": modes,
+                "paint": paint,
+                "session_id": session_id,
+                "max_pages": max_pages,
+                "raster_png": raster_png,
+                "pages": pages,
+                "silhouette": silhouette,
+            },
+            lambda: _uc_coach_vectorize(
+                image_path,
+                style=style,
+                modes=modes,
+                paint=paint,
+                session_id=session_id,
+                session_root=root,
+                max_pages=max_pages,
+                raster_png=raster_png,
+                pages=pages,
+                silhouette=silhouette,
             ),
         )
         return _maybe_call_tool_result(result)

@@ -273,6 +273,51 @@ def propose_from_image(
     )
 
 
+def coach_vectorize(
+    image_path: str,
+    *,
+    style: str = "children_book",
+    paint: bool = True,
+    modes: str | list[str] = "region,outline",
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+    max_pages: int = 3,
+    raster_png: bool = True,
+    pages: str | list[int] | None = None,
+    silhouette: bool = True,
+) -> dict[str, Any]:
+    """Run the full Vector Construction Coach pipeline on an image, then render it.
+
+    ingest → clean → redraw (Bézier/snap) → recolor_to_style → gradientize →
+    paint atmosphere, all parameterised by the named ``style`` grammar, then
+    validated + rendered through the same forward pipeline as every other tool
+    (the verification). With ``silhouette=True`` the readability gate is attached.
+    The output is unverified heuristic geometry until it renders — that render is
+    the check (PALS's Law).
+    """
+    try:
+        _assert_input_path_allowed(image_path)
+    except ValueError as exc:
+        return _vision_error(str(exc))
+    try:
+        from framegraph.coach.compose import compose_from_image
+        from framegraph.sdk.io import serialize
+    except ImportError:
+        return _vision_error(_VISION_GROUP_HINT)
+
+    mode_list = [m.strip() for m in modes.split(",")] if isinstance(modes, str) else list(modes)
+    try:
+        builder = compose_from_image(image_path, style=style, modes=mode_list, paint=paint)
+    except (RuntimeError, ImportError, ValueError) as exc:   # vision group absent / unreadable image
+        return _vision_error(str(exc))
+    yaml_text = serialize(builder.build(), format="yaml")
+    source = RawYamlSource(yaml_text=yaml_text, session_id=session_id, session_root=session_root)
+    return _run_source(
+        source, max_pages=max_pages, raster_png=raster_png, pages=pages,
+        sign=False, signed_at=None, silhouette=silhouette,
+    )
+
+
 def propose_from_document(
     path: str,
     *,

@@ -14,6 +14,7 @@ per the package-boundary gate.
 from __future__ import annotations
 
 from framegraph.coach.clean import clean, denoise_strokes, node_count, simplify_strokes, smooth_strokes
+from framegraph.coach.compose import compose_from_image, compose_objects
 from framegraph.coach.critique import RUBRICS, stage_rubric
 from framegraph.coach.figures import (
     CANONS,
@@ -36,8 +37,16 @@ from framegraph.coach.figures import (
 from framegraph.coach.ingest import gradientize, ingest, recolor_to_style
 from framegraph.coach.intent import DrawingIntent, parse_intent
 from framegraph.coach.layers import STAGES, LayerPlan, create_plan, validate_order
+from framegraph.coach.paint import (
+    atmosphere, darkest, fade, glow, haze, lightest, linear, radial, soft_shadow, stop, vignette, wash,
+)
+from framegraph.coach.redraw import (
+    curve_count, is_circular, is_rectangular, redraw, redraw_smooth, snap_primitives,
+)
 from framegraph.coach.silhouette import to_silhouette
-from framegraph.coach.style import STYLES, StyleProfile, apply_to_layerplan, resolve_style
+from framegraph.coach.style import (
+    STYLES, StyleProfile, apply_to_layerplan, cleanup_params, redraw_params, resolve_style,
+)
 
 __all__ = [
     "DrawingIntent",
@@ -46,6 +55,8 @@ __all__ = [
     "STYLES",
     "resolve_style",
     "apply_to_layerplan",
+    "cleanup_params",
+    "redraw_params",
     "STAGES",
     "LayerPlan",
     "create_plan",
@@ -61,6 +72,29 @@ __all__ = [
     "node_count",
     "RUBRICS",
     "stage_rubric",
+    # end-to-end composition
+    "compose_objects",
+    "compose_from_image",
+    # paint / atmosphere layer
+    "atmosphere",
+    "glow",
+    "vignette",
+    "haze",
+    "wash",
+    "soft_shadow",
+    "fade",
+    "stop",
+    "linear",
+    "radial",
+    "lightest",
+    "darkest",
+    # redraw layer
+    "redraw",
+    "redraw_smooth",
+    "snap_primitives",
+    "is_circular",
+    "is_rectangular",
+    "curve_count",
     # proportion-aware figure layer
     "ProportionSignature",
     "Landmark",
