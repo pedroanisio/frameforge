@@ -160,7 +160,10 @@ Forward (author -> render):
 - `run_sdk_code` / `run_sdk_client` — run Python that builds a doc, then validate + render SVG.
 - `write_sdk_client` / `read_sdk_client` / `list_sdk_clients` — edit whitelisted SDK clients.
   `write_sdk_client` also does anchored edits: pass `old_string`+`new_string` (exact match,
-  must be unique in the file) instead of re-sending the whole `code`.
+  must be unique in the file) instead of re-sending the whole `code`. For a file too large
+  for one `code` argument (some clients cap a single tool argument at ~tens of KB), build it
+  in chunks: `append=true` with `allow_partial=true` on every chunk except the last. The
+  whole file is capped at 2,000,000 bytes.
 - `render_framegraph_yaml` — validate + render caller-supplied YAML directly.
 - `get_session_resource` — read `framegraph://session/...` artifacts (YAML, SVG, PDF, diagnostics).
 - `list_sessions` / `cleanup_sessions` — enumerate and prune per-session scratch dirs.

@@ -49,7 +49,6 @@ from framegraph.mcp.util import _positive_int
 from framegraph.mcp.clients import (
     list_sdk_clients as _uc_list_sdk_clients,
     read_sdk_client as _uc_read_sdk_client,
-    write_sdk_client as _uc_write_sdk_client,
 )
 from framegraph.mcp.sessions import (
     cleanup_sessions as _uc_cleanup_sessions,
@@ -60,7 +59,7 @@ from framegraph.mcp.discovery import (
     list_fonts as _uc_list_fonts,
 )
 from framegraph.mcp.usecases import (
-    apply_anchored_edit as _uc_apply_anchored_edit,
+    write_or_edit_client as _uc_write_or_edit,
     compare_images as _uc_compare_images,
     construct_vectors as _uc_construct_vectors,
     detect_regions as _uc_detect_regions,
@@ -352,10 +351,19 @@ def create_server(
         path: Annotated[str, Field(description=_DESC_CLIENT_PATH)],
         code: Annotated[
             str | None,
-            Field(description="Full new contents of the SDK client file (replaces the file). Omit when using old_string/new_string."),
+            Field(description="Full new contents of the SDK client file (replaces the file). Omit "
+                              "when using old_string/new_string. Capped at 2,000,000 bytes; for a "
+                              "file near/over your client's per-argument transport limit, use an "
+                              "anchored edit or append=true chunking instead of one giant `code`."),
         ] = None,
         create: Annotated[
             bool, Field(description="Allow creating the file when it does not yet exist; false requires an existing file.")
+        ] = False,
+        append: Annotated[
+            bool, Field(description="Append `code` to the existing file (created if absent) — write a large client in chunks under the per-argument transport limit."),
+        ] = False,
+        allow_partial: Annotated[
+            bool, Field(description="Skip the compile check for a not-yet-complete chunk; set it on every append chunk except the last."),
         ] = False,
         old_string: Annotated[
             str | None,
@@ -366,31 +374,26 @@ def create_server(
             Field(description="Anchored edit: the replacement text for old_string."),
         ] = None,
     ):
-        """Replace, create, or anchored-edit an editable Python SDK client file.
+        """Replace, create, anchored-edit, or chunk-append an editable Python SDK client file.
 
-        Two modes: full replace (pass ``code``) or an anchored edit (pass
-        ``old_string`` + ``new_string`` — an exact-match, single-occurrence
-        replacement, so iterating on a large client does not re-transmit it).
+        Modes: full replace (``code``); anchored edit (``old_string`` +
+        ``new_string`` — exact-match single-occurrence, so iterating on a large
+        client does not re-transmit it); or chunked append (``append=True`` with
+        ``allow_partial=True`` on every chunk except the last) for files larger
+        than the client's per-argument transport limit.
         """
-        def _call():
-            if old_string is not None or new_string is not None:
-                if code is not None:
-                    raise ValueError("pass either full `code` or an old_string/new_string edit, not both")
-                if old_string is None or new_string is None:
-                    raise ValueError("an anchored edit needs both old_string and new_string")
-                current = _uc_read_sdk_client(path, repo_root=repo, edit_roots=edit_roots)["code"]
-                edited = _uc_apply_anchored_edit(current, old_string, new_string)
-                return _uc_write_sdk_client(path, edited, create=False, repo_root=repo, edit_roots=edit_roots)
-            if code is None:
-                raise ValueError("provide `code` (full replace) or old_string/new_string (anchored edit)")
-            return _uc_write_sdk_client(path, code, create=create, repo_root=repo, edit_roots=edit_roots)
+        def _meta(s):
+            return None if s is None else f"<{len(s)} chars>"
 
         return _plain_tool_result(_logged_call(
             log_path,
             "write_sdk_client",
-            {"path": path, "code": code, "create": create,
-             "old_string": old_string, "new_string": new_string},
-            lambda: _enveloped("write_sdk_client", _call),
+            {"path": path, "code": _meta(code), "create": create, "append": append,
+             "allow_partial": allow_partial, "old_string": _meta(old_string),
+             "new_string": _meta(new_string)},
+            lambda: _enveloped("write_sdk_client", lambda: _uc_write_or_edit(
+                path, code=code, create=create, append=append, allow_partial=allow_partial,
+                old_string=old_string, new_string=new_string, repo_root=repo, edit_roots=edit_roots)),
         ))
 
     @server.tool()

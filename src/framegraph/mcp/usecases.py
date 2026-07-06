@@ -12,6 +12,8 @@ import base64
 from pathlib import Path
 from typing import Any
 
+from framegraph.mcp.clients import read_sdk_client as _read_client
+from framegraph.mcp.clients import write_sdk_client as _write_client
 from framegraph.mcp.config import DEFAULT_TIMEOUT_SECONDS, MAX_CODE_BYTES
 from framegraph.mcp.paths import _session_root
 from framegraph.mcp.pipeline import _validate_and_render_yaml
@@ -1655,3 +1657,44 @@ def apply_anchored_edit(code: str, old_string: str, new_string: str) -> str:
             "until it is unique"
         )
     return code.replace(old_string, new_string, 1)
+
+
+def write_or_edit_client(
+    path: str,
+    *,
+    code: str | None = None,
+    create: bool = False,
+    append: bool = False,
+    allow_partial: bool = False,
+    old_string: str | None = None,
+    new_string: str | None = None,
+    repo_root: Any = None,
+    edit_roots: Any = None,
+) -> dict[str, Any]:
+    """Dispatch for the ``write_sdk_client`` tool: full replace, anchored edit,
+    or chunked append.
+
+    Extracted from the server tool wrapper so the branch logic — and the
+    anchored-edit / append paths recommended for large files — are unit-testable
+    without a live MCP transport. When ``code`` arrives empty (the symptom of a
+    payload dropped by the client's per-argument transport limit) the error names
+    that cause and the two size-safe alternatives, instead of a bare "provide
+    code" that reads as operator error.
+    """
+    if old_string is not None or new_string is not None:
+        if code is not None:
+            raise ValueError("pass either full `code` or an old_string/new_string edit, not both")
+        if old_string is None or new_string is None:
+            raise ValueError("an anchored edit needs both old_string and new_string")
+        current = _read_client(path, repo_root=repo_root, edit_roots=edit_roots)["code"]
+        edited = apply_anchored_edit(current, old_string, new_string)
+        return _write_client(path, edited, create=False, repo_root=repo_root, edit_roots=edit_roots)
+    if code is None or (isinstance(code, str) and not code.strip()):
+        raise ValueError(
+            "no `code` received. A large file may have exceeded the client's per-argument "
+            "transport limit and arrived empty — instead: (a) make an `old_string`/`new_string` "
+            "anchored edit, or (b) build the file in chunks with append=true (allow_partial=true "
+            "on every chunk except the last). Otherwise pass non-empty `code`."
+        )
+    return _write_client(path, code, create=create, append=append, allow_partial=allow_partial,
+                         repo_root=repo_root, edit_roots=edit_roots)
