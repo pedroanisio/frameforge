@@ -191,8 +191,10 @@ def build_bestiary(builder):
     builder.define_symbol("fern", box=[0, 0, max(xs) - min(xs) + 8, max(ys) - min(ys) + 8], objects=strokes)
     boxes["fern"] = (max(xs) - min(xs) + 8, max(ys) - min(ys) + 8)
     builder.define_symbol("acacia", box=[0, 0, 300, 130],
-                          objects=[poly([(140, 130), (160, 130), (168, 46), (132, 46)], "$fill"),
-                                   poly([(0, 118), (14, 12), (150, 4), (300, 20), (150, 40), (18, 46)], "$fill")])
+                          objects=[poly([(144, 130), (156, 130), (160, 48), (140, 48)], "$fill"),
+                                   poly([(150, 70), (60, 30), (150, 50), (240, 30), (150, 66)], "$fill"),
+                                   poly([(8, 48), (75, 26), (150, 20), (225, 26), (292, 46),
+                                         (225, 40), (150, 36), (75, 40)], "$fill", smooth=True)])
     boxes["acacia"] = (300, 130)
     pine = [poly([(60, 130), (60, 96), (52, 96)], "$fill")]
     pine += [poly([(10, y0), (60, yt), (110, y0)], "$fill") for y0, yt in [(96, 30), (78, 10)]]
@@ -221,7 +223,7 @@ def mood_palette(base, *, night=False):
     sky_bot = scale[3] if night else scale[8]
     horizon = scale[7] if night else scale[8]
     fg = scale[0]
-    bands = [lerp(horizon, fg, 0.14 + 0.19 * i) for i in range(5)]
+    bands = [lerp(horizon, fg, 0.08 + 0.215 * i) for i in range(5)]  # wide ramp for depth
     accent = chevreul.harmony_of_scale(base, 5)[3]
     return {"sky": [(sky_top, 0), (sky_bot, 1)], "horizon": horizon, "fg": fg,
             "bands": bands, "accent": accent, "night": night}
@@ -248,7 +250,7 @@ def _fits(spans, cx, half, gap=6):
 def _grass_brush(y, color, rr, dense=False):
     out = []
     path = [(x, y + 2 + 3 * math.sin(x * .05 + rr.f())) for x in range(-10, int(W) + 10, 14)]
-    for st in outline.repeat_along_path(path, spacing=9 if dense else 16):
+    for st in outline.repeat_along_path(path, spacing=13 if dense else 22):
         px, py = st.point
         h = rr.rng(6, 16) * (1.3 if dense else 1.0)
         out.append(outline.stroke_outline([(px, py + 2), (px + rr.rng(-4, 4), py - h)],
@@ -283,11 +285,11 @@ def art_scene(page, pl, idx, boxes):
         acol = pl["bands"][min(i + 1, 4)]
         ocol2 = lerp(acol, pl["horizon"] if pl["night"] else pl["fg"], 0.35)
         S.append(poly(_crest(base, 8 + i * 4, idx + i), col, smooth=True))
-        spans = [(0.30 * W, 0.82 * W)] if i == 4 else []
+        spans = [(0.24 * W, 0.86 * W)] if i == 4 else []
 
         if 1 <= i <= 2:  # far herd: planar paths graded by region
             herd = []
-            for _ in range(3):
+            for _ in range(2):
                 k = rr.pick(list(SPECIES)); hx = rr.rng(0.08, 0.92) * W
                 if not _fits(spans, hx, 40):
                     continue
@@ -298,7 +300,7 @@ def art_scene(page, pl, idx, boxes):
                 spans.append((hx - 40, hx + 40))
             S += region.gradient_map(herd, [(0.0, pl["fg"]), (1.0, pl["horizon"])])
         elif i >= 3:  # near herd: symbol instances (expand)
-            for _ in range(rr.pick([2, 3])):
+            for _ in range(rr.pick([1, 2])):
                 nm = (rr.pick(QUADS) if rr.f() < .6 else "trex") + rr.pick(["_r", "_l"])
                 hx = rr.rng(0.06, 0.94) * W
                 if not _fits(spans, hx, 60):
@@ -332,7 +334,8 @@ def art_scene(page, pl, idx, boxes):
                   "style": {"clip_path": clip_rect([0, hy, W, H - hy])}})
 
     S.append({"type": "use", "symbol": ("acacia" if not pl["night"] else "pine"),
-              "box": [W - 260 if idx % 2 == 0 else -40, -70, 300, 160], "params": {"fill": pl["fg"]}})
+              "box": [W - 210 if idx % 2 == 0 else -40, -60, 240, 128],
+              "params": {"fill": lerp(pl["fg"], pl["horizon"], 0.14)}})
     page.layer("scene").extend(S)
 
 

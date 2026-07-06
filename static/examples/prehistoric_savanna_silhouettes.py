@@ -142,7 +142,7 @@ def grass(y, x0, x1, color, s, rr):
     out = []
     x = x0
     while x < x1:
-        blades = rr.pick([2, 3, 3, 4])
+        blades = rr.pick([1, 2, 2, 3])
         for _ in range(blades):
             bx = x + rr.rng(-s * 0.4, s * 0.4)
             h = rr.rng(s * 0.8, s * 2.0)
@@ -150,7 +150,7 @@ def grass(y, x0, x1, color, s, rr):
             wj = s * 0.16
             out.append(poly([(bx - wj, y + 2), (bx + wj, y + 2),
                              (bx + lean * 0.5, y - h * 0.6), (bx + lean, y - h)], color, smooth=True))
-        x += rr.rng(s * 1.1, s * 2.0)
+        x += rr.rng(s * 1.8, s * 3.0)
     return out
 
 
@@ -159,10 +159,11 @@ def grass(y, x0, x1, color, s, rr):
 # --------------------------------------------------------------------------- #
 def acacia(px, py, s, color, flip=1):
     P = _place(px, py, s, flip)
-    trunk = poly([P(-0.08, 0), P(0.08, 0), P(0.16, 1.5), P(-0.05, 1.58)], color)
-    branch = poly([P(0.05, 1.2), P(-0.5, 1.55), P(0.02, 1.45), P(0.5, 1.5)], color)
-    canopy = poly([P(-1.4, 1.6), P(-0.7, 1.86), P(0.1, 1.96), P(0.95, 1.9), P(1.42, 1.7),
-                   P(0.7, 1.62), P(-0.2, 1.58), P(-0.95, 1.55)], color, smooth=True)
+    trunk = poly([P(-0.05, 0), P(0.05, 0), P(0.09, 1.7), P(-0.02, 1.74)], color)
+    branch = poly([P(0.02, 1.35), P(-0.85, 1.98), P(-0.02, 1.72), P(0.9, 1.98), P(0.05, 1.5)], color)
+    # flat, wide umbrella crown — much wider than tall so it never reads as a mushroom cap
+    canopy = poly([P(-1.75, 1.98), P(-0.85, 2.12), P(0.2, 2.15), P(1.2, 2.07), P(1.75, 1.9),
+                   P(0.85, 1.86), P(-0.35, 1.86), P(-1.15, 1.9)], color, smooth=True)
     return [trunk, branch, canopy]
 
 
@@ -387,11 +388,13 @@ TREE_FN = {"acacia": [acacia], "pine": [pine], "mixed": [acacia, roundtree, pine
 
 
 def band_color(pl, i):
-    return lerp(pl["horizon"], pl["fg"], 0.13 + 0.17 * i)
+    # wider value ramp: near-horizon bands stay light, foreground goes dark, so
+    # same-value silhouettes stop stacking through the centre (atmospheric perspective)
+    return lerp(pl["horizon"], pl["fg"], 0.08 + 0.205 * i)
 
 
 def actor_color(pl, i):
-    return lerp(pl["horizon"], pl["fg"], 0.13 + 0.17 * (i + 1))
+    return lerp(pl["horizon"], pl["fg"], 0.08 + 0.205 * (i + 1))
 
 
 def _fits(spans, cx, half, gap=8.0):
@@ -422,12 +425,12 @@ def scene(pl, idx):
     if pl["ptero"]:                                              # flying flock, mid-distance tint
         pc = lerp(pl["horizon"], pl["fg"], 0.42)
         fx, fy = rr.rng(0.34, 0.6), rr.rng(0.2, 0.34)
-        for k in range(rr.pick([3, 4, 5])):
+        for k in range(rr.pick([2, 3, 3])):
             S += pterosaur((fx + k * 0.07) * W + rr.rng(-14, 14),
                            (fy + (k % 2) * 0.03) * H, rr.rng(15, 23), pc, flip=rr.pick([1, -1]))
 
     baselines = [0.44, 0.57, 0.70, 0.84, 1.0]
-    hero_zone = (0.30 * W, 0.82 * W)
+    hero_zone = (0.24 * W, 0.86 * W)
     for i, bl in enumerate(baselines):
         base = bl * H
         col, acol = band_color(pl, i), actor_color(pl, i)
@@ -436,7 +439,7 @@ def scene(pl, idx):
         if i == len(baselines) - 1:                             # reserve the hero grouping
             spans.append(hero_zone)
 
-        for _ in range(4 - i if i < 3 else 2):                  # trees (collision-aware)
+        for _ in range(max(1, 3 - i) if i < 3 else 1):         # trees (collision-aware, thinned)
             tsize = 13 + i * 6
             for _try in range(5):
                 tx = rr.rng(20, W - 20)
@@ -447,7 +450,7 @@ def scene(pl, idx):
 
         if i >= 1:                                              # grazing dinosaurs (collision-aware)
             dsize = 9 + i * 7
-            for _ in range(rr.pick([2, 3, 3, 4]) if i < len(baselines) - 1 else 2):
+            for _ in range(rr.pick([1, 1, 2, 2]) if i < len(baselines) - 1 else 1):
                 fn = rr.pick(GROUND)
                 half = FOOT[fn] * dsize * 0.5
                 for _try in range(6):
@@ -465,23 +468,24 @@ def scene(pl, idx):
     shade = lerp(pl["fg"], "#000000", 0.35)
     night_like = pl["name"] in ("Sunset", "Storm", "Night", "Deep Night", "Aurora Finale")
     if night_like:
-        S.append(disc(0.5 * W, hy + 4, 130, shade, ry=14, opacity=0.28))
-        S += trex(0.5 * W, hy, 56, hero_col, flip=-1)
+        S.append(disc(0.48 * W, hy + 4, 150, shade, ry=15, opacity=0.30))
+        S += trex(0.48 * W, hy, 66, hero_col, flip=-1)
     else:
-        S.append(disc(0.6 * W, hy + 4, 165, shade, ry=15, opacity=0.28))
-        S += sauropod(0.50 * W, hy, 60, hero_col, flip=1)
-        S += sauropod(0.72 * W, hy, 60, hero_col, flip=1, baby=True)
+        S.append(disc(0.56 * W, hy + 4, 185, shade, ry=16, opacity=0.30))
+        S += sauropod(0.48 * W, hy, 70, hero_col, flip=1)
+        S += sauropod(0.72 * W, hy, 58, hero_col, flip=1, baby=True)
     S += grass(hy, -10, W + 10, hero_col, 10, R(idx * 77))
 
-    S += frame_tree(right=(idx % 2 == 0), s=70, color=pl["fg"])  # framing canopy
+    # framing canopy — smaller and slightly lighter than the hero so it frames, not dominates
+    S += frame_tree(right=(idx % 2 == 0), s=54, color=lerp(pl["fg"], pl["horizon"], 0.14))
 
     if pl["snow"]:
         sr = R(900 + idx)
-        for _ in range(140):
+        for _ in range(85):
             S.append(disc(sr.rng(0, W), sr.rng(0, H), sr.rng(0.8, 2.2), "#f4f8ff", opacity=sr.rng(0.4, 0.95)))
     if pl["leaves"]:
         lr = R(950 + idx)
-        for _ in range(70):
+        for _ in range(38):
             x, y, s = lr.rng(0, W), lr.rng(0, H * 0.9), lr.rng(1.4, 3.2)
             S.append(poly([(x, y), (x + s, y + s * 0.6), (x, y + s * 1.3), (x - s, y + s * 0.6)],
                           pl["leaves"], opacity=lr.rng(0.5, 0.9)))
