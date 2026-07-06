@@ -59,6 +59,18 @@ _DESC_COACH_PAINT = (
     "Add the style-driven atmosphere pass (soft key-light glow + vignette derived from the "
     "style palette) for depth. Set False for flat, diagrammatic output."
 )
+_DESC_VLM_IMAGE = (
+    "Image to describe: a filesystem path OR a framegraph://session/<id>/page/<n>.png "
+    "URI (assess a page you just rendered without knowing its scratch path)."
+)
+_DESC_VLM_QUESTION = (
+    "Optional free-form question to ask the vision model about the image (e.g. "
+    "'Does the logo read at a glance?'). Omit for a general describe + assess."
+)
+_DESC_VLM_STAGE = (
+    "Optional coach critique stage whose rubric questions are run through the model: "
+    "construction | silhouette | style | detail | final. Combine with question or use alone."
+)
 
 _DESC_TO = (
     "Export target: 'png' (default — the raster feedback loop) or 'pdf' (additionally assemble "

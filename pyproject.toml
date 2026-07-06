@@ -97,6 +97,10 @@ mcp = ["mcp[cli]>=1.27,<2", "cairosvg>=2.7"]
 # (stdlib HTTP). `pytesseract` additionally needs the system Tesseract binary;
 # PDF input reuses the `pdf` group. numpy ships with opencv.
 vision = ["opencv-python-headless>=4.9", "pillow>=10", "pytesseract>=0.3.10"]
+# Optional local vision-language describer (framegraph.vision.vlm + the MCP
+# describe_render tool). CPU-runnable; the default SmolVLM-256M model is ~0.5GB
+# and downloaded on first use. Kept separate from `vision` because torch is heavy.
+vlm = ["torch>=2.2", "transformers>=4.46", "pillow>=10", "accelerate>=0.30", "num2words>=0.5"]
 
 [tool.uv]
 # Virtual project: manage the venv + dependencies, but do NOT build/install this

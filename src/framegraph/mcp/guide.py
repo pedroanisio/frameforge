@@ -345,6 +345,12 @@ version) converts mechanically: `uv run python tooling/codemod.py doc.yml --from
 usual. Do not hand-translate the envelope.
 
 ## Coach — one call, raster to styled document
+- `describe_render` — a local (CPU) vision model describes/assesses a rendered page
+  in words: pass a filesystem path or a `framegraph://session/<id>/page/<n>.png`
+  URI, an optional free-form `question`, and/or a coach `stage`
+  (construction/silhouette/style/detail/final) whose rubric it answers. ADVISORY
+  (PALS's Law) — a steer, not a measurement; verify with compare_images /
+  score_reconstruction / the validator. Needs the optional `vlm` group.
 - `coach_vectorize` — the Vector Construction Coach pipeline end to end: ingest a
   raster -> clean -> redraw (Bezier / snap) -> recolor -> gradientize -> paint
   atmosphere, all driven by a named `style` grammar (clean_line, flat_icon,

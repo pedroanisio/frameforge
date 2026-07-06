@@ -324,6 +324,7 @@
       "compare_images",
       "construct_vectors",
       "describe_capabilities",
+      "describe_render",
       "detect_regions",
       "get_guide",
       "get_session_resource",
@@ -2522,6 +2523,13 @@
     },
     {
       "name": "describe_capabilities",
+      "kind": "mcp_tool",
+      "core": false,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "describe_render",
       "kind": "mcp_tool",
       "core": false,
       "sdk": false,

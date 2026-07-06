@@ -36,6 +36,9 @@ from framegraph.mcp.descriptions import (
     _DESC_SIGNED_AT,
     _DESC_SILHOUETTE,
     _DESC_TIMEOUT,
+    _DESC_VLM_IMAGE,
+    _DESC_VLM_QUESTION,
+    _DESC_VLM_STAGE,
     _DESC_TO,
     _DESC_TOPIC,
 )
@@ -75,6 +78,7 @@ from framegraph.mcp.usecases import (
     vectorize_image as _uc_vectorize_image,
     workspace as _uc_workspace,
     coach_vectorize as _uc_coach_vectorize,
+    describe_render as _uc_describe_render,
     propose_from_document as _uc_propose_from_document,
     propose_from_image as _uc_propose_from_image,
     propose_from_svg as _uc_propose_from_svg,
@@ -116,6 +120,7 @@ from framegraph.mcp.usecases import (
     vectorize_image as vectorize_image,
     workspace as workspace,
     coach_vectorize as coach_vectorize,
+    describe_render as describe_render,
     propose_from_document as propose_from_document,
     propose_from_image as propose_from_image,
     propose_from_svg as propose_from_svg,
@@ -613,6 +618,30 @@ def create_server(
                 pages=pages,
                 title=title,
                 detector_names=detector_names,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def describe_render(
+        image: Annotated[str, Field(description=_DESC_VLM_IMAGE)],
+        question: Annotated[str | None, Field(description=_DESC_VLM_QUESTION)] = None,
+        stage: Annotated[str | None, Field(description=_DESC_VLM_STAGE)] = None,
+        model: Annotated[str | None, Field(description="Override the VLM model id (default SmolVLM-256M).")] = None,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Have a local (CPU) vision model describe/assess a rendered page in words — ADVISORY (PALS's Law), a steer not a measurement; verify with compare_images / score_reconstruction / the validator."""
+        result = _logged_call(
+            log_path,
+            "describe_render",
+            {"image": image, "question": question, "stage": stage, "model": model, "session_id": session_id},
+            lambda: _uc_describe_render(
+                image,
+                question=question,
+                stage=stage,
+                model=model,
+                session_id=session_id,
+                session_root=root,
             ),
         )
         return _maybe_call_tool_result(result)

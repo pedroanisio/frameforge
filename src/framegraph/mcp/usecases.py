@@ -271,6 +271,70 @@ def propose_from_image(
     )
 
 
+_VLM_GROUP_HINT = (
+    "the local vision describer needs the optional 'vlm' group: "
+    "`uv pip install torch transformers pillow accelerate` (CPU is fine — "
+    "the default SmolVLM-256M model is ~0.5GB). Set FG_VLM_MODEL to override."
+)
+
+
+def describe_render(
+    image: str,
+    *,
+    question: str | None = None,
+    stage: str | None = None,
+    model: str | None = None,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Have a local VLM describe/assess a rendered page — ADVISORY, not a measurement.
+
+    ``image`` is a filesystem path or a ``framegraph://session/<id>/page/<n>.png``
+    URI (so a page just rendered can be assessed without knowing its scratch path).
+    Pass ``question`` for a free-form ask, and/or ``stage`` to run the coach's
+    per-stage critique rubric (construction/silhouette/style/detail/final) through
+    the model. The result is an UNVERIFIED VLM opinion about pixels (PALS's Law):
+    steer with it, then verify with compare_images / score_reconstruction / the
+    validator — never treat it as the check.
+    """
+    from framegraph.vision import vlm
+
+    if not vlm.available():
+        return {"ok": False, "advisory": True, "error": _VLM_GROUP_HINT}
+    try:
+        img_bytes = _resolve_image_arg(image, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": str(exc)}
+
+    prompts: list[str] = []
+    if question:
+        prompts.append(str(question))
+    if stage:
+        from framegraph.coach.critique import stage_rubric
+        prompts.extend(stage_rubric(stage))
+    if not prompts:
+        prompts = ["Describe this image, then say whether it reads as a clear, "
+                   "recognizable composition and what (if anything) looks wrong."]
+
+    try:
+        assessment = [{"question": p, "answer": vlm.describe_image(img_bytes, p, model=model)}
+                      for p in prompts]
+    except RuntimeError as exc:
+        return {"ok": False, "advisory": True, "error": str(exc)}
+
+    return {
+        "ok": True,
+        "advisory": True,
+        "model": model or vlm.DEFAULT_MODEL,
+        "note": ("PALS's Law: this is an UNVERIFIED VLM opinion about pixels, not a "
+                 "measurement. Steer with it; verify with compare_images / "
+                 "score_reconstruction / the validator."),
+        "image": image,
+        "stage": stage,
+        "assessment": assessment,
+    }
+
+
 def coach_vectorize(
     image_path: str,
     *,
