@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 110 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 111 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -48,6 +48,7 @@ The 110 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`dune_arrakis_codex.py`](../static/examples/dune_arrakis_codex.py) | ARRAKIS CODEX — a 30-slide Dune deck built on the FrameGraph Python SDK. |
 | [`esfera_refactor_wireframes.py`](../static/examples/esfera_refactor_wireframes.py) | Twenty distinct refactor proposals for the Esfera (Santander) rewards website |
 | [`f1_car.py`](../static/examples/f1_car.py) | Formula 1 car — a 256-layer, vision-checked composition in perspective (FrameGraph SDK). |
+| [`f1_car_3d.py`](../static/examples/f1_car_3d.py) | Formula 1 car — one 3D model, two cameras (512-layer FrameGraph composition). |
 | [`fg_css_optimize.py`](../static/examples/fg_css_optimize.py) | fg_css_optimize.py |
 | [`fields_lattices_manifolds.py`](../static/examples/fields_lattices_manifolds.py) | Demo of the SDK field / wave / lattice / manifold helpers. |
 | [`food_tracking_ai_app.py`](../static/examples/food_tracking_ai_app.py) | High-fidelity vector recreation of the Dribbble shot |
