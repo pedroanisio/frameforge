@@ -341,7 +341,7 @@ P = []
 def pal(name, stops, horizon, fg, **k):
     d = {"name": name, "stops": stops, "horizon": horizon, "fg": fg, "orb": None,
          "stars": 0, "clouds": False, "snow": False, "leaves": None, "aurora": None,
-         "trees": "acacia", "ptero": True}
+         "ink": None, "trees": "acacia", "ptero": True}
     d.update(k)
     P.append(d)
 
@@ -367,9 +367,9 @@ pal("Twilight", [("#141c4a", 0), ("#33306e", .45), ("#6b4f86", .78), ("#b07a86",
 pal("Moonrise", [("#0e1636", 0), ("#22315c", .5), ("#4a5c82", .85), ("#8a97ad", 1)],
     "#8a97ad", "#060a1c", stars=90, orb=("moon", .74, .64, 34, MOON), trees="pine")
 pal("Night", [("#05081c", 0), ("#0c1436", .5), ("#1a2650", 1)],
-    "#1a2650", "#01030c", stars=150, orb=("moon", .68, .24, 30, MOON), trees="mixed")
+    "#1a2650", "#8892ad", ink="#0a0e22", stars=150, orb=("moon", .68, .24, 30, MOON), trees="mixed")
 pal("Deep Night", [("#02030e", 0), ("#050a22", .6), ("#0a1230", 1)],
-    "#0a1230", "#000208", stars=220, orb=("moon", .84, .16, 14, MOON), trees="pine")
+    "#0a1230", "#6c7794", ink="#05070f", stars=220, orb=("moon", .84, .16, 14, MOON), trees="pine")
 pal("Autumn", [("#b8461f", 0), ("#d9772b", .4), ("#e7a23f", .72), ("#f2cf6a", 1)],
     "#f2cf6a", "#2a1206", orb=("sun", .3, .34, 30, "#ffdf8a"), leaves="#e0812b", trees="mixed")
 pal("Winter", [("#8fa9c4", 0), ("#b9cbdc", .5), ("#e8eff6", 1)],
@@ -377,7 +377,7 @@ pal("Winter", [("#8fa9c4", 0), ("#b9cbdc", .5), ("#e8eff6", 1)],
 pal("Storm", [("#2b2733", 0), ("#4a4453", .45), ("#7b6f72", .78), ("#b59a86", 1)],
     "#b59a86", "#0e0c13", clouds=True, trees="mixed")
 pal("Aurora Finale", [("#03060f", 0), ("#071022", .55), ("#0c1a30", 1)],
-    "#0c1a30", "#010309", stars=170, orb=("moon", .8, .2, 18, MOON),
+    "#0c1a30", "#5f6f88", ink="#060b16", stars=170, orb=("moon", .8, .2, 18, MOON),
     aurora=["#3af0a0", "#7bf0c8", "#4a90f0"], trees="pine", ptero=False)
 
 
@@ -394,6 +394,8 @@ def band_color(pl, i):
 
 
 def actor_color(pl, i):
+    if pl.get("ink"):                    # moonlit palettes: constant dark ink so
+        return pl["ink"]                 # silhouettes read against the lighter ground
     return lerp(pl["horizon"], pl["fg"], 0.08 + 0.205 * (i + 1))
 
 
@@ -463,9 +465,9 @@ def scene(pl, idx):
         S += grass(base, -10, W + 10, acol, 5 + i * 3, R(idx * 50 + i))
 
     # hero foreground grouping (echoes the elephant + calf) — grounded with a soft shadow
-    hero_col = pl["fg"]
+    hero_col = pl.get("ink") or pl["fg"]
     hy = 0.985 * H
-    shade = lerp(pl["fg"], "#000000", 0.35)
+    shade = lerp(hero_col, "#000000", 0.35)
     night_like = pl["name"] in ("Sunset", "Storm", "Night", "Deep Night", "Aurora Finale")
     if night_like:
         S.append(disc(0.48 * W, hy + 4, 150, shade, ry=15, opacity=0.30))
@@ -477,7 +479,7 @@ def scene(pl, idx):
     S += grass(hy, -10, W + 10, hero_col, 10, R(idx * 77))
 
     # framing canopy — smaller and slightly lighter than the hero so it frames, not dominates
-    S += frame_tree(right=(idx % 2 == 0), s=54, color=lerp(pl["fg"], pl["horizon"], 0.14))
+    S += frame_tree(right=(idx % 2 == 0), s=54, color=lerp(hero_col, pl["horizon"], 0.14))
 
     if pl["snow"]:
         sr = R(900 + idx)
