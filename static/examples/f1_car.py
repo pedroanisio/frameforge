@@ -1,16 +1,24 @@
-"""Formula 1 car — a 128-layer, vision-checked composition (FrameGraph SDK).
+"""Formula 1 car — a 256-layer, vision-checked composition in perspective (FrameGraph SDK).
 
-A side-profile modern F1 car in a race-day scene, authored as exactly 128
-stacked layers and verified against the rendered pixels with the FrameGraph
-MCP vision tools (detect_regions for silhouette separation, measure_image /
-compare_images for structure). Every drawn object is one layer; parametric
-detail (grandstand crowd, kerb teeth, tyre spokes, speed streaks) is generated
-so the total lands on 128 exactly (asserted at build time).
+A modern F1 car in a race-day scene, authored as exactly 256 stacked layers and
+verified against the rendered pixels with the FrameGraph MCP vision tools
+(detect_regions for region separation, the silhouette gate for readability).
 
-Reading order (back to front): sky -> grandstand + crowd -> track + kerb +
-motion streaks -> car shadow -> rear wing -> engine cover / airbox / halo ->
-cockpit + helmet -> sidepod -> floor -> nose -> front wing -> wheels +
-suspension -> livery + number.
+Perspective is built from a single station point: a vanishing point on the
+horizon that the road's lane seams and far track edge converge to, the offside
+running gear (far wheels + wing tips) offset up-and-toward-the-VP and
+foreshortened so the car reads with volume, atmospheric haze over the distance,
+and a ground-plane cast shadow skewed away from the sun.
+
+Every drawn object is one layer; parametric detail (grandstand crowd, kerb
+teeth, tyre spokes, lane seams) is generated so the total lands on 256 exactly
+(asserted at build time).
+
+Reading order (back to front): sky + floodlights -> grandstand + crowd + haze
+-> tarmac + perspective lane seams + kerb + motion streaks -> cast shadow ->
+offside running gear -> rear wing -> engine cover / airbox / halo -> cockpit +
+helmet -> sidepod -> floor -> nose -> front wing -> near wheels + suspension
+-> livery + number.
 """
 from __future__ import annotations
 
@@ -25,7 +33,13 @@ sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 from framegraph.sdk import DocumentBuilder, Path, linear_gradient, radial_gradient, rgba  # noqa: E402
 
 W, H = 1280.0, 720.0
-TARGET_LAYERS = 128
+TARGET_LAYERS = 256
+
+# ---- perspective: a single station point on the horizon ------------------- #
+HORIZON = 402.0
+VPX, VPY = 1740.0, HORIZON        # vanishing point (car travels toward it)
+DEPTH = (22.0, -44.0)             # near->far offset for the car's offside (up + toward VP)
+FAR_SCALE = 0.82                  # foreshortening of the offside running gear
 
 # ---- palette -------------------------------------------------------------- #
 SKY_T, SKY_B = "#7fb4d8", "#dcecf5"
@@ -116,7 +130,12 @@ def background():
     for r in range(2):                                                                            # tier rails
         y = 318 + r * 30
         S.append(line([(0, y), (W, y)], rgba(STAND_D, 0.6), w=3))
+    for fx in (250, 720, 1180):                                                                   # floodlight rigs
+        S.append(rect([fx - 3, 150, 6, 150], fill=rgba(STAND_D, 0.9)))                            #   pole
+        S.append(rect([fx - 26, 140, 52, 16], fill=rgba(CARBON_HI, 0.9), radius=2))               #   light bank
+        S.append(disc(fx, 148, 7, fill=rgba("#fff6d8", 0.5)))                                     #   glow
     S.append(rect([0, 388, W, 14], fill=CARBON_HI))                                               # pit wall
+    S.append(rect([0, 178, W, HORIZON - 178], fill=rgba(SKY_B, 0.16)))                            # atmospheric haze
     return S
 
 
@@ -135,9 +154,15 @@ def crowd(n):
 
 def track():
     S = []
-    S.append(rect([0, 402, W, H - 402], fill=TARMAC))                                             # tarmac
-    S.append(poly([(0, 402), (W, 402), (W, 470), (0, 520)], TARMAC_HI, opacity=0.5))              # sheen
-    # red/white kerb along the base
+    S.append(rect([0, HORIZON, W, H - HORIZON], fill=TARMAC))                                     # tarmac
+    S.append(poly([(0, HORIZON), (W, HORIZON), (W, 470), (0, 520)], TARMAC_HI, opacity=0.5))      # near-plane sheen
+    # lane seams fanning to the vanishing point (linear perspective of the road)
+    for i in range(11):
+        xb = -160 + i * 170
+        S.append(line([(xb, H), (VPX, VPY)], rgba(WHITE, 0.05 + 0.03 * (i % 2)), w=2))
+    # a receding track edge (far kerb) converging toward the VP
+    S.append(line([(0, 560), (VPX, VPY)], rgba(KERB_W, 0.22), w=3))
+    # red/white foreground kerb along the base (the near track edge)
     n = 8
     for i in range(n):
         S.append(rect([i * (W / n), 706, W / n, 14], fill=KERB_R if i % 2 == 0 else KERB_W))
@@ -162,7 +187,9 @@ WHEEL_Y = GY - WR                # 482
 
 
 def car_shadow():
-    return [ell((RWX + FWX) / 2, GY + 8, 380, 26, fill=rgba("#0b0d10", 0.32))]
+    # cast on the ground plane, skewed away from the sun (upper-right) toward lower-left
+    return [poly([(RWX - 70, GY + 2), (FWX + 130, GY + 2), (FWX + 60, GY + 42),
+                  (RWX - 150, GY + 42)], rgba("#0b0d10", 0.30))]
 
 
 def rear_wing():
@@ -248,24 +275,45 @@ def front_wing():
     return S
 
 
-def wheel(cx, spokes=8, front=False):
+def wheel(cx, cy=WHEEL_Y, r=WR, spokes=8, front=False, op=1.0):
+    sc = r / WR
     S = []
-    S.append(disc(cx, WHEEL_Y, WR, fill=TYRE))                           # tyre
-    S.append(disc(cx, WHEEL_Y, WR, fill="none", stroke=TYRE_HI, sw=6))   # sidewall shoulder
-    S.append(ell(cx - WR * 0.32, WHEEL_Y - WR * 0.34, WR * 0.5, WR * 0.42,
-                 fill=rgba(TYRE_HI, 0.6)))                               # top-left tyre sheen
-    S.append(disc(cx, WHEEL_Y, WR - 6, fill="none", stroke=rgba(WHITE, 0.85), sw=3))  # sidewall band
-    S.append(disc(cx, WHEEL_Y, WR * 0.56, fill=CARBON_HI))              # rim well
-    S.append(disc(cx, WHEEL_Y, WR * 0.5, fill=radial_gradient(
+    S.append(disc(cx, cy, r, fill=TYRE))                                # tyre
+    S.append(disc(cx, cy, r, fill="none", stroke=TYRE_HI, sw=6 * sc))   # sidewall shoulder
+    S.append(ell(cx - r * 0.32, cy - r * 0.34, r * 0.5, r * 0.42,
+                 fill=rgba(TYRE_HI, 0.6)))                              # top-left tyre sheen
+    S.append(disc(cx, cy, r - 6 * sc, fill="none", stroke=rgba(WHITE, 0.85), sw=3 * sc))  # sidewall band
+    S.append(disc(cx, cy, r * 0.56, fill=CARBON_HI))                    # rim well
+    S.append(disc(cx, cy, r * 0.5, fill=radial_gradient(
         [(RIM_HI, 0.0), (RIM, 1.0)], at="35% 35%")))                    # rim face
     for k in range(spokes):                                             # spokes
         a = (2 * math.pi * k / spokes)
-        r0, r1 = WR * 0.16, WR * 0.48
-        S.append(line([(cx + r0 * math.cos(a), WHEEL_Y + r0 * math.sin(a)),
-                       (cx + r1 * math.cos(a), WHEEL_Y + r1 * math.sin(a))],
-                      rgba(CARBON, 0.75), w=3))
-    S.append(disc(cx, WHEEL_Y, WR * 0.16, fill=CARBON))                 # hub
-    S.append(disc(cx, WHEEL_Y, WR * 0.07, fill=CYAN if front else BODY))  # wheel nut
+        r0, r1 = r * 0.16, r * 0.48
+        S.append(line([(cx + r0 * math.cos(a), cy + r0 * math.sin(a)),
+                       (cx + r1 * math.cos(a), cy + r1 * math.sin(a))],
+                      rgba(CARBON, 0.75), w=3 * sc))
+    S.append(disc(cx, cy, r * 0.16, fill=CARBON))                       # hub
+    S.append(disc(cx, cy, r * 0.07, fill=CYAN if front else BODY))      # wheel nut
+    if op < 1.0:
+        for o in S:
+            o["opacity"] = op * o.get("opacity", 1.0)
+    return S
+
+
+def far_side():
+    """The offside running gear + wing tips, offset up-and-toward-the-VP and
+    foreshortened, drawn BEHIND the body so only the volume-giving edges show."""
+    dx, dy = DEPTH
+    fr = WR * FAR_SCALE
+    S = []
+    S += wheel(RWX + dx, WHEEL_Y + dy, r=fr, spokes=7, op=0.78)          # far rear wheel
+    S += wheel(FWX + dx, WHEEL_Y + dy, r=fr, spokes=7, front=True, op=0.78)  # far front wheel
+    S.append(rect([182 + dx, 366 + dy, 14, 96], fill=rgba(CARBON, 0.72), radius=3))  # far RW endplate
+    S.append(poly([(190 + dx, 386 + dy), (300 + dx, 380 + dy),
+                   (300 + dx, 396 + dy), (190 + dx, 402 + dy)], rgba(CARBON, 0.72)))  # far RW plane
+    S.append(poly([(1186 + dx, 506 + dy), (1206 + dx, 508 + dy),
+                   (1206 + dx, 558 + dy), (1184 + dx, 558 + dy)], rgba(CARBON, 0.72)))  # far FW endplate
+    S.append(rect([1052 + dx, 536 + dy, 130, 7], fill=rgba(BODY, 0.7), radius=2))     # far FW element
     return S
 
 
@@ -301,8 +349,8 @@ def livery_and_marks():
 def caption():
     S = []
     S.append(text(40, 40, "FORMULA 1", 34, CARBON, w=400, weight=800))
-    S.append(text(40, 74, "128-layer composition · vision-checked · FrameGraph SDK", 14,
-                  rgba(CARBON, 0.8), w=560, weight=600))
+    S.append(text(40, 74, "256 layers · perspective ground + offside depth · vision-checked · FrameGraph SDK", 14,
+                  rgba(CARBON, 0.8), w=680, weight=600))
     return S
 
 
@@ -312,8 +360,8 @@ def caption():
 def scene():
     bg = background()
     trk = track()
-    streaks = motion_streaks(4)
-    car = (car_shadow() + rear_wing() + body() + halo_and_cockpit() + sidepod()
+    streaks = motion_streaks(6)
+    car = (car_shadow() + far_side() + rear_wing() + body() + halo_and_cockpit() + sidepod()
            + floor_and_nose() + front_wing()
            + wheel(RWX, spokes=8, front=False) + wheel(FWX, spokes=8, front=True)
            + rear_bridge() + suspension() + livery_and_marks())
@@ -328,7 +376,7 @@ def scene():
 
 
 def build_builder():
-    b = DocumentBuilder(title="Formula 1 — 128-layer composition (FrameGraph)")
+    b = DocumentBuilder(title="Formula 1 — 256-layer composition in perspective (FrameGraph)")
     page = b.page("f1", canvas={"size": [W, H], "units": "px"}, coordinate_mode="absolute")
     page.layer("scene").extend(scene())
     return b
