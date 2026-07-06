@@ -41,7 +41,7 @@ import yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-FIXTURES = os.path.join(ROOT, "fixtures")
+FIXTURES = os.path.join(ROOT, "tests", "fixtures")
 _YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 
 
@@ -55,7 +55,7 @@ def _load_yaml_file(path):
             fh.seek(0)
             return yaml.load(fh, Loader=yaml.SafeLoader)
 
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 from framegraph.rendering.application.normalize import normalize_doc  # noqa: E402
 from framegraph.rendering.application.renderer import Renderer  # noqa: E402
 from framegraph.rendering.provenance import sign_svg, utc_now_iso  # noqa: E402
@@ -125,6 +125,34 @@ def write_index(out_dir, entries, title, page_links=False):
         fh.write(doc)
 
 
+
+def truncation_report(per_doc):
+    """Per-object content-loss listing (issue #44): NAME every text object the
+    containment net trimmed, instead of hiding it in an aggregate count.
+
+    ``per_doc`` maps a document label to its renderer ``diagnostics["truncations"]``
+    records. Returns ``(lines, unacknowledged)`` — the printable listing and the
+    count of records whose clip was NOT explicitly authored (no ``overflow`` /
+    ``text_overflow: ellipsis`` / ``max_lines``): the silent losses a strict run
+    must fail on.
+    """
+    lines, unacknowledged = [], 0
+    for label, records in per_doc.items():
+        for rec in records or []:
+            ack = bool(rec.get("acknowledged"))
+            if not ack:
+                unacknowledged += 1
+            where = f"{label} p[{rec.get('page')}] #{rec.get('id') or '<anonymous>'}"
+            if rec.get("kind") == "lines":
+                what = (f"dropped {rec.get('lines_dropped', 0)} line(s) after "
+                        f"{rec.get('lines_kept', 0)}: \u201c{rec.get('dropped_text', '')}\u2026\u201d")
+            else:
+                what = f"clipped ({rec.get('kind')}) inside box {rec.get('box')}"
+            tag = "acknowledged" if ack else "SILENT"
+            lines.append(f"  {tag:12} {where} — {what}")
+    return lines, unacknowledged
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -135,6 +163,9 @@ def main(argv=None):
     ap.add_argument("--list", action="store_true", help="list discoverable docs and exit")
     ap.add_argument("--check-overflow", action="store_true",
                     help="render, then assert no text visually overflows a containing box (exit 1 on failure)")
+    ap.add_argument("--strict-content", action="store_true",
+                    help="with --check-overflow: FAIL when any text object lost content "
+                         "without an explicit overflow/ellipsis/max_lines opt-in (issue #44)")
     ap.add_argument("--real-metrics", action="store_true",
                     help="wrap/fit text using real font advances (needs fontTools) instead of "
                          "the per-character estimate; off by default so golden output is stable")
@@ -165,6 +196,7 @@ def main(argv=None):
     os.makedirs(args.out, exist_ok=True)
     index_entries, total_pages = [], 0
     agg = {}
+    doc_truncations = {}
     for f, doc in docs:
         stem = stem_of(f)
         doc_dir = os.path.join(args.out, stem)
@@ -193,6 +225,8 @@ def main(argv=None):
         total_pages += len(svgs)
         for k, v in r.tstats.items():
             agg[k] = agg.get(k, 0) + v
+        doc_truncations[os.path.basename(f)] = list(
+            (r.diagnostics or {}).get("truncations") or [])
         if not args.quiet:
             note = f" ({r.skipped} skipped)" if r.skipped else ""
             ov = f"  ⚠ {r.tstats['uncontained']} text overflow" if r.tstats["uncontained"] else ""
@@ -213,7 +247,21 @@ def main(argv=None):
         print(f"  overflow:visible (permitted to spill) .. {agg.get('visible_overflow',0)}")
         bad = agg.get("uncontained", 0) - agg.get("visible_overflow", 0)  # contained-policy spill (must be 0)
         print(f"  text spilling a CONTAINING box .......... {bad}   (must be 0)")
+        listing, silent = truncation_report(doc_truncations)
+        if listing:
+            print(f"\n  content loss — {len(listing)} object(s), {silent} silent:")
+            head = listing if (args.strict_content or len(listing) <= 20) else listing[:20]
+            for line in head:
+                print(line)
+            if len(head) < len(listing):
+                print(f"  … and {len(listing) - len(head)} more (run with --strict-content "
+                      "for the full list and a failing gate on silent loss)")
         ok = bad == 0
+        strict_ok = silent == 0
+        if args.strict_content and not strict_ok:
+            print(f"\n  RESULT: FAIL — {silent} text object(s) lost content without an "
+                  "explicit opt-in (--strict-content)")
+            return 1
         print(f"\n  RESULT: {'PASS' if ok else 'FAIL'} — "
               f"{'every box-contained text fits or is clipped to its box' if ok else 'some contained text still overflows'}")
         return 0 if ok else 1

@@ -14,16 +14,16 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.rendering.infrastructure.latex import transpile  # noqa: E402
 
 
 def _fixture_path(*parts):
-    root_path = os.path.join(ROOT, "fixtures", *parts)
+    root_path = os.path.join(ROOT, "tests", "fixtures", *parts)
     if os.path.exists(root_path):
         return root_path
-    return os.path.join(ROOT, "examples", "fixtures", *parts)
+    return os.path.join(ROOT, "static", "examples", "fixtures", *parts)
 
 
 def _flow(*story):
@@ -65,3 +65,12 @@ def test_b1_chroma_table_renders_cleanly():
     assert "'content'" not in tex
     assert r"\textbf{Thickness (nm)}" in tex
     assert "peacock barbule" in tex
+
+
+def test_flow_table_without_ink_token_falls_back_to_black():
+    """A document with no `ink` colour token must not emit `\\color{ink}` —
+    xcolor has no such name and the compile dies (found by the capability
+    tour, whose ink token is `tour-ink`)."""
+    tex = transpile(_flow({"type": "table", "header": ["a"], "rows": [["b"]]}))
+    assert "\\color{ink}" not in tex
+    assert "\\color{black}" in tex

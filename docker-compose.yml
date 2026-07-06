@@ -1,0 +1,35 @@
+# FrameGraph SDK / MCP — font-rich container.
+#
+#   docker compose build                    # build the image (see build args below)
+#   docker compose run --rm framegraph fonts   # list installed families
+#   docker compose run --rm framegraph bash    # interactive shell in the toolchain
+#
+# The MCP server talks stdio, so a real MCP client should spawn `docker run -i`
+# directly (see docker/mcp.docker.json); this file is for build + one-shot use.
+services:
+  framegraph:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Uncomment for the absolute-maximum font set (every fonts-* apt package):
+        # FONTS_APT_WILDCARD: "1"
+        # Pin the google/fonts corpus to a commit/tag for reproducible builds:
+        # GOOGLE_FONTS_REF: main
+        # All tesseract OCR languages (large); default is eng + osd:
+        # TESSERACT_ALL: "1"
+        INSTALL_BROWSER: "1"
+    image: frameforge
+    # stdio MCP: keep stdin open, no TTY (a client drives it programmatically).
+    stdin_open: true
+    tty: false
+    volumes:
+      - framegraph-work:/work
+      # Foreign-codebase convention (see docker/mcp.docker.json): mount the
+      # consuming project read-only at /workspace and reference its files in
+      # tool calls as /workspace/<relative-path>.
+      # - ${PWD}:/workspace:ro
+    command: ["mcp"]
+
+volumes:
+  framegraph-work:

@@ -21,7 +21,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.sdk.conform import render_page_svgs  # noqa: E402
 from framegraph.sdk.io import parse  # noqa: E402
@@ -210,7 +210,10 @@ def test_mcp_propose_from_image_validates_and_renders(tmp_path):
     ran_names = set(summary["detectors_run"])
     skipped_names = {s["name"] for s in summary["detectors_skipped"]}
     assert {"shape", "line", "text", "vlm"} <= (ran_names | skipped_names)
-    assert {"text", "vlm"} <= skipped_names
+    # `text` (pytesseract) runs wherever the vision group + tesseract binary
+    # exist, so it may land on either side. Only the VLM lane is deterministic
+    # here: it needs explicit FRAMEGRAPH_VISION_VLM_* configuration.
+    assert "vlm" in skipped_names
 
 
 def test_mcp_propose_from_image_requires_an_image():

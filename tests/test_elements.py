@@ -22,7 +22,7 @@ import sys
 import typing
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, os.path.join(ROOT, "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # a package is shadowing the models
     del sys.modules["framegraph"]
@@ -49,6 +49,7 @@ OBJECT_SAMPLES = {
     "icon": {"type": "icon", "glyph": "★", "box": [0, 0, 10, 10]},
     "bullet_list": {"type": "bullet_list", "items": ["a", "b"], "box": [0, 0, 100, 40]},
     "dimension": {"type": "dimension", "kind": "linear", "from": [0, 0], "to": [10, 0]},
+    "connector": {"type": "connector", "from": [0, 0], "to": [10, 10]},
     "table": {"type": "table", "rows": [["a", "b"]], "box": [0, 0, 100, 40]},
     "group": {"type": "group", "children": [{"type": "rect", "box": [0, 0, 5, 5]}]},
 }
@@ -174,6 +175,95 @@ def test_page_accepts_logical_reading_order():
 @pytest.mark.parametrize("kind,inline", sorted(INLINE_SAMPLES.items()))
 def test_inline_validates(kind, inline):
     fg.Document.model_validate(_page_doc([{"type": "text", "box": [0, 0, 50, 10], "spans": [inline]}]))
+
+
+# --- Curve control-point hygiene (c1/c2 legacy aliases) ----------------------- #
+def test_curve_c1_c2_normalise_to_control1_control2():
+    doc = fg.Document.model_validate(_page_doc([
+        {"type": "curve", "from": [0, 0], "to": [10, 10], "c1": [2, 2], "c2": [8, 8]}]))
+    cu = doc.pages[0].layers[0].objects[0]
+    assert cu.control1 == [2.0, 2.0] and cu.control2 == [8.0, 8.0]
+    assert "c1" not in type(cu).model_fields  # legacy keys are accepted, not modelled
+
+
+def test_curve_contradictory_control_aliases_rejected():
+    with pytest.raises(Exception, match="aliases and disagree"):
+        fg.Document.model_validate(_page_doc([
+            {"type": "curve", "from": [0, 0], "to": [10, 10],
+             "c1": [2, 2], "control1": [3, 3]}]))
+
+
+def test_curve_equal_control_aliases_accepted():
+    doc = fg.Document.model_validate(_page_doc([
+        {"type": "curve", "from": [0, 0], "to": [10, 10],
+         "c1": [2, 2], "control1": [2, 2]}]))
+    assert doc.pages[0].layers[0].objects[0].control1 == [2.0, 2.0]
+
+
+# --- Connector endpoints / route (typed at HEAD, §3.11) ------------------------ #
+def test_connector_accepts_the_fixture_surface():
+    """The exact shapes fixtures/connectors.fg.yaml uses (which the renderer
+    renders) must validate: object/port, object/side, point target, route with
+    legacy `type` key + points, boxed label."""
+    fg.Document.model_validate(_page_doc([
+        {"type": "connector", "from": {"object": "left", "port": "east"},
+         "to": {"object": "right", "side": "west"}, "route": {"type": "straight"},
+         "label": {"text": "port to side", "box": [130, 60, 100, 18], "style": "label"}},
+        {"type": "connector", "from": {"object": "left", "side": "south"},
+         "to": {"point": [300, 140]},
+         "route": {"type": "orthogonal", "points": [[80, 130], [300, 130]]}},
+    ]))
+
+
+def test_connector_endpoint_object_key_normalises_to_ref():
+    doc = fg.Document.model_validate(_page_doc([
+        {"type": "connector", "from": {"object": "a"}, "to": {"ref": "b", "offset": 4}}]))
+    conn = doc.pages[0].layers[0].objects[0]
+    assert conn.from_.ref == "a" and conn.to.ref == "b" and conn.to.offset == 4
+
+
+def test_connector_route_type_key_normalises_to_kind():
+    doc = fg.Document.model_validate(_page_doc([
+        {"type": "connector", "from": [0, 0], "to": [1, 1],
+         "route": {"type": "curved", "points": [[5, 5]]}}]))
+    route = doc.pages[0].layers[0].objects[0].route
+    assert route.kind == "curved" and route.points == [[5.0, 5.0]]
+
+
+def test_connector_endpoint_needs_ref_or_point():
+    with pytest.raises(Exception, match="`ref`.*or `point`"):
+        fg.Document.model_validate(_page_doc([
+            {"type": "connector", "from": {"side": "north"}, "to": [1, 1]}]))
+
+
+def test_connector_bare_string_label_is_rejected():
+    """The renderer only draws boxed labels; a bare-string label would be a
+    silent drop, so the model rejects it."""
+    with pytest.raises(Exception):
+        fg.Document.model_validate(_page_doc([
+            {"type": "connector", "from": [0, 0], "to": [1, 1], "label": "nope"}]))
+
+
+# --- Length/Angle string patterns (schema-time unit gating) -------------------- #
+@pytest.mark.parametrize("value", ["12pt", "12px", "1.5em", "-4mm", "50%", "1fr", ".5rem"])
+def test_length_string_units_accepted(value):
+    fg.Document.model_validate(_page_doc([{"type": "rect", "box": [0, 0, value, 10]}]))
+
+
+@pytest.mark.parametrize("value", ["12ptx", "12 pt", "vw", "5vw", "px", "vh12"])
+def test_length_string_typos_rejected(value):
+    with pytest.raises(Exception):
+        fg.Document.model_validate(_page_doc([{"type": "rect", "box": [0, 0, value, 10]}]))
+
+
+def test_angle_string_units():
+    fg.Document.model_validate(_page_doc([
+        {"type": "rect", "box": [0, 0, 5, 5],
+         "fill": {"kind": "linear", "angle": "45deg", "stops": [{"color": "#000"}]}}]))
+    with pytest.raises(Exception):
+        fg.Document.model_validate(_page_doc([
+            {"type": "rect", "box": [0, 0, 5, 5],
+             "fill": {"kind": "linear", "angle": "45degg", "stops": [{"color": "#000"}]}}]))
 
 
 # --- Hypothesis: serialisation round-trip is identity ------------------------- #

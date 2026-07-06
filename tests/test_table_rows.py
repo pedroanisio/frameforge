@@ -23,7 +23,7 @@ RENDER = os.path.join(ROOT, "tooling", "render_fixtures.py")
 
 def _render_fixture(name):
     with tempfile.TemporaryDirectory() as out:
-        subprocess.run([sys.executable, RENDER, os.path.join(ROOT, "fixtures", name),
+        subprocess.run([sys.executable, RENDER, os.path.join(ROOT, "tests", "fixtures", name),
                         "--out", out, "--quiet"], check=True, cwd=ROOT)
         svgs = sorted(glob.glob(os.path.join(out, "**", "p*.svg"), recursive=True))
         assert svgs, "renderer produced no SVG"

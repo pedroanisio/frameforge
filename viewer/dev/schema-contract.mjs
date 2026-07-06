@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
-const SCHEMA_PATH = path.join(ROOT, "schema/framegraph-v2.schema.json");
+const SCHEMA_PATH = path.join(ROOT, "docs/schema/framegraph-v2.schema.json");
 const REGISTRY_PATH = path.join(__dirname, "type-registry.json");
 
 const DIMENSIONS = ["object_types", "flow_types", "inline_kinds"];

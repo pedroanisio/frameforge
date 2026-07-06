@@ -15,8 +15,8 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
-sys.path.insert(0, os.path.join(ROOT, "examples"))
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
+sys.path.insert(0, os.path.join(ROOT, "static", "examples"))
 
 from poc5_redraw import (  # noqa: E402
     build_redraw,

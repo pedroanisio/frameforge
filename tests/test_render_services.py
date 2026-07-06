@@ -15,7 +15,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # the models module
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.rendering.domain.services.canvas_resolver import (  # noqa: E402
     CanvasResolver, DEFAULT_WH,
@@ -60,6 +60,26 @@ def test_canvas_aspect_ratio_alias_presets():
     for name in ("9x16", "16x9", "4x5", "instagram-story", "twitter-header"):
         w, h = cr.resolve({"canvas": name})
         assert w > 0 and h > 0
+
+
+def test_canvas_book_trim_presets_resolve():
+    """Book trim sizes resolve to points @ 72 dpi (inches × 72)."""
+    cr = CanvasResolver({})
+    assert cr.resolve({"canvas": "book-6x9"}) == (432, 648)          # 6 × 9 in
+    assert cr.resolve({"canvas": "book-trade"}) == (360, 576)        # 5 × 8 in
+    assert cr.resolve({"canvas": "book-7x10"}) == (504, 720)         # 7 × 10 in
+    assert cr.resolve({"canvas": "book-textbook"}) == (612, 792)     # 8.5 × 11 in (= Letter)
+    assert cr.resolve({"canvas": {"preset": "book-coffee-table"}}) == (648, 864)  # 9 × 12 in
+    assert cr.resolve({"canvas": "book-mass-market"}) == (306, 494.6)  # 4.25 × 6.87 in
+
+
+def test_canvas_presets_match_page_preset_literal():
+    """Guard drift: the resolver's PRESET keys must equal the model's PagePreset."""
+    import typing
+
+    from framegraph.rendering.domain.services.canvas_resolver import PRESETS
+    from models import framegraph as model
+    assert set(PRESETS) == set(typing.get_args(model.PagePreset))
 
 
 def test_canvas_inherited_from_master():

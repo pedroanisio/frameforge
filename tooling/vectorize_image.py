@@ -19,7 +19,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.sdk import DocumentBuilder  # noqa: E402
 from framegraph.vision.infrastructure.vectorize import (  # noqa: E402

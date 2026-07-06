@@ -36,7 +36,7 @@ import textwrap
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 DOCS = os.path.join(ROOT, "docs")
-sys.path[:0] = [os.path.join(ROOT, "models"), os.path.join(ROOT, "schema"), os.path.join(ROOT, "tooling")]
+sys.path[:0] = [os.path.join(ROOT, "docs", "models"), os.path.join(ROOT, "docs", "schema"), os.path.join(ROOT, "tooling")]
 
 import build_schema as B  # noqa: E402
 import gen_status as GS  # noqa: E402
@@ -132,7 +132,7 @@ def gen_grammar():
     ]
     for title, fn in [("Core grammar — `framegraph-v2.ebnf`", "framegraph-v2.ebnf"),
                       ("Style module — `framegraph-v2-style.ebnf`", "framegraph-v2-style.ebnf")]:
-        body = open(os.path.join(ROOT, "grammar", fn), encoding="utf-8").read()
+        body = open(os.path.join(ROOT, "docs", "grammar", fn), encoding="utf-8").read()
         parts += [f"## {title}", "", "```ebnf", body.rstrip(), "```", ""]
     return "\n".join(parts) + "\n"
 
@@ -292,6 +292,36 @@ def gen_sdk_guide():
 
     doc = builder.build()
     """
+    canon_example = """\
+    from framegraph.sdk import DocumentBuilder, canon, chevreul
+
+    # one decided colour system + one decided size system, before any drawing
+    palette = chevreul.closed_palette(ground="#fbf8f1", ink="#1d1e22", accent="#b5402c")
+    sizes = canon.modular_scale(base=11.5, ratio=1.25)   # caption ... cover
+
+    builder = DocumentBuilder(title="Canon demo", profile="report")
+    for name, value in palette.tokens().items():
+        builder.define_color(name, value)
+
+    page = builder.page("p1", canvas={"size": [794, 1123], "units": "px"},
+                        coordinate_mode="absolute")
+    x, y, w, h = canon.content_box(794, 1123, unit=40, side="recto")
+    layer = page.layer("main")
+    layer.rect([0, 0, 794, 1123], fill="ground")
+    layer.text([x, y, w, 26], "KICKER IN TRACKED CAPS", style={
+        "color": "accent", "font_size": sizes["caption"],
+        "letter_spacing": canon.caps_tracking(sizes["caption"]),
+    })
+    layer.text([x, y + 40, w, sizes["h1"] * 1.4], "The letter & the hue",
+               style={"color": "ink", "font_size": sizes["h1"]})
+
+    # accents that agree: an analogous walk, or one complementary chord
+    accents = chevreul.harmony_of_hues("blue", n=3)
+    field, event = chevreul.contrast_of_colours("red")
+
+    # the grey test: strip hue, re-render, check the hierarchy still reads
+    grey = chevreul.grey_document(builder.build_dict())
+    """
     topology_example = """\
     import math
 
@@ -447,6 +477,23 @@ def gen_sdk_guide():
         textwrap.dedent(macros_example).rstrip(),
         "```",
         "",
+        "## Design Canon — colour & typography",
+        "",
+        "Two canon modules codify working design rules so authors (human or agent) start from *decided* "
+        "systems instead of ad-hoc picks. `framegraph.sdk.chevreul` (after M. E. Chevreul, 1839): the "
+        "12-station painter's wheel with `complement`, tone scales, the **six harmonies** "
+        "(`harmony_of_scale`/`harmony_of_hues`/`dominant_light` and the three contrasts), WCAG 2.1 "
+        "`relative_luminance`/`contrast_ratio`, the `grey_document` tone audit, and `closed_palette` — "
+        "duties (ground/ink/accent + quiet steps) with the 62/30/8 `AREA_GUIDE`, emitting a ready "
+        "`defs.tokens.colors` fragment. `framegraph.sdk.canon` (after Edward Johnston, 1906): "
+        "`modular_scale`, the inner-1½/top-2/outer-3/foot-4 margin canon (`johnston_margins`/"
+        "`content_box`), the 45–75 characters-per-line measure band, and `caps_tracking`. "
+        "Pure helpers only — nothing new enters the schema.",
+        "",
+        "```python",
+        textwrap.dedent(canon_example).rstrip(),
+        "```",
+        "",
         "## Topology, perspective & math surfaces",
         "",
         "Four solver modules turn data and parametric math into FrameGraph art, each lowering to a single "
@@ -526,21 +573,26 @@ def gen_sdk_api():
 
     modules = [
         "framegraph.sdk.author",
+        "framegraph.sdk.canon",
         "framegraph.sdk.chart",
+        "framegraph.sdk.chevreul",
         "framegraph.sdk.clip",
         "framegraph.sdk.conform",
         "framegraph.sdk.draw",
         "framegraph.sdk.expand",
         "framegraph.sdk.fields",
         "framegraph.sdk.figure",
+        "framegraph.sdk.fractal",
         "framegraph.sdk.geometry",
         "framegraph.sdk.io",
         "framegraph.sdk.lattices",
         "framegraph.sdk.layout",
         "framegraph.sdk.macros",
         "framegraph.sdk.manifold",
+        "framegraph.sdk.markdown",
         "framegraph.sdk.model",
         "framegraph.sdk.paint",
+        "framegraph.sdk.region",
         "framegraph.sdk.topology",
         "framegraph.sdk.validate",
         "framegraph.sdk.widgets",
@@ -574,14 +626,14 @@ def _ensure_sdk_importable():
     existing = sys.modules.get("framegraph")
     if existing is not None and not hasattr(existing, "__path__"):
         sys.modules.pop("framegraph", None)
-    models_path = os.path.join(ROOT, "models")
+    models_path = os.path.join(ROOT, "docs", "models")
     sys.path[:] = [
         p for p in sys.path
         if os.path.normpath(p or os.getcwd()) != models_path
     ]
     if ROOT in sys.path:
         sys.path.remove(ROOT)
-    sys.path.insert(0, ROOT)
+    sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 
 def _api_object_block(name, obj):
@@ -651,7 +703,7 @@ def generate():
     written = [
         _write("reference.md", gen_reference()),
         _write("grammar.md", gen_grammar()),
-        _write("spec.md", _verbatim("spec/framegraph-v2-spec.md", "the normative reference")),
+        _write("spec.md", _verbatim("docs/spec/framegraph-v2-spec.md", "the normative reference")),
         _write("sdk.md", gen_sdk_guide()),
         _write("sdk-api.md", gen_sdk_api()),
         _write("changelog.md", _verbatim("CHANGELOG.md", "version history")),

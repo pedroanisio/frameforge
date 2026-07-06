@@ -36,12 +36,12 @@ import typing
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-SPEC = os.path.join(ROOT, "spec", "framegraph-v2-spec.md")
+SPEC = os.path.join(ROOT, "docs", "spec", "framegraph-v2-spec.md")
 
 # Introspect the models exactly like check_grammar_sync / validate.py: the in-repo
 # source of truth shadows any installed distribution, and the ./framegraph package
 # (if already imported) must not shadow models/framegraph.py.
-sys.path.insert(0, os.path.join(ROOT, "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
@@ -96,6 +96,20 @@ def _present(spec: str, token: str) -> bool:
     return re.search(rf"(?<![\w-]){re.escape(token)}(?![\w-])", spec) is not None
 
 
+# drift-risk-map #6 — accepted backlog of core field names not yet named in the
+# normative spec prose (additive style/paint props + a few container fields).
+# These stay non-fatal WARNs; a field NOT on this list that is missing from the
+# spec is a hard ERROR (see run_checks). Shrink this set as fields get documented;
+# never grow it without an explicit reason.
+SPEC_UNDOCUMENTED_BASELINE = frozenset({
+    "actual_text", "alt", "appearance", "cell_padding", "control1", "control2",
+    "description", "field", "fill_opacity", "glow", "header_height", "humanize",
+    "indent", "items", "marker_color", "outer_ring", "placeholder", "ports",
+    "preserve_aspect_ratio", "r", "row_height", "rows", "rx", "ry", "shadow",
+    "spans", "stroke_opacity", "text_contract", "z", "zebra",
+})
+
+
 def run_checks(spec: str) -> list[Finding]:
     out: list[Finding] = []
 
@@ -113,8 +127,16 @@ def run_checks(spec: str) -> list[Finding]:
     fields = _field_names(fg.VisualObject) | {(f.alias or n) for n, f in fg.Document.model_fields.items()}
     for name in sorted(fields):
         if not _present(spec, name):
-            out.append(Finding("WARN", "field-undocumented",
-                               f"core field {name!r} is not named in the spec prose"))
+            # Ratchet (drift-risk-map #6): the fields on the accepted BASELINE stay
+            # non-fatal WARNs (a documented backlog); any OTHER field missing from the
+            # normative spec is a hard ERROR, so the gate can no longer silently accept
+            # a *newly* undocumented field.
+            baselined = name in SPEC_UNDOCUMENTED_BASELINE
+            out.append(Finding(
+                "WARN" if baselined else "ERROR", "field-undocumented",
+                f"core field {name!r} is not named in the spec prose"
+                + ("" if baselined else " (NEW — document it in the spec, or add it to "
+                   "SPEC_UNDOCUMENTED_BASELINE with justification)")))
     return out
 
 

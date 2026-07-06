@@ -1,22 +1,31 @@
-"""Semantic / accessibility contract for ``framegraph_to_html.py``.
+"""Semantic / accessibility contract for the HTML DocumentRenderer backend.
 
 These tests assert the *structure* of the emitted HTML (figure/figcaption,
 landmark heading, role="group", and the model-driven ``decorative`` →
 ``aria-hidden`` mapping), not pixel output. They are deliberately small and
 deterministic — no network, no headless browser.
+
+The renderer moved from ``tooling/framegraph_to_html.py`` into the package as
+``framegraph.rendering.infrastructure.backends.html`` (the `DocumentRenderer`
+port); the pure `render_document` transform is unchanged, so this contract
+holds across the move.
 """
 
 from __future__ import annotations
 
-import importlib.util
+import sys
 from pathlib import Path
 
+# A codemod/models test earlier in the suite may cache the MODELS module as
+# `framegraph`; evict that non-package shadow so the rendering package imports
+# (see conftest.py's shadow-module rule).
+_shadow = sys.modules.get("framegraph")
+if _shadow is not None and not hasattr(_shadow, "__path__"):
+    del sys.modules["framegraph"]
+
+from framegraph.rendering.infrastructure.backends import html as fgh  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
-_spec = importlib.util.spec_from_file_location(
-    "framegraph_to_html", ROOT / "framegraph_to_html.py"
-)
-fgh = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(fgh)
 
 
 def _doc(objects: list[dict], *, title: str = "Sample") -> dict:
@@ -215,21 +224,35 @@ def test_curve_renders_cubic_path():
 
 
 def test_canvas_preset_string_resolves_to_pixels():
+    from framegraph.rendering.domain.services.canvas_resolver import DEFAULT_WH
     assert fgh.canvas_size({"canvas": "deck-16x9"}) == (1920, 1080)
     assert fgh.canvas_size({"canvas": {"preset": "A4"}}) == (595, 842)
     assert fgh.canvas_size({"canvas": {"size": [320, 240]}}) == (320, 240)
-    assert fgh.canvas_size({"canvas": "nonexistent"}) == (800, 600)  # default
+    # the canvas-less default is the ONE canonical default — not an HTML-private one
+    assert fgh.canvas_size({"canvas": "nonexistent"}) == DEFAULT_WH == (1280, 800)
 
 
 def test_preset_table_matches_model_page_presets():
     """Guard against drift: our preset keys must equal the model's PagePreset."""
     import importlib.util as _u
-    spec = _u.spec_from_file_location("fgmodel", ROOT / "models" / "framegraph.py")
+    spec = _u.spec_from_file_location("fgmodel", ROOT / "docs" / "models" / "framegraph.py")
     model = _u.module_from_spec(spec)
     spec.loader.exec_module(model)
     import typing
     preset_literal = set(typing.get_args(model.PagePreset))
     assert set(fgh._CANVAS_PRESETS) == preset_literal
+
+
+def test_html_canvas_table_is_the_shared_canonical_not_a_mirror():
+    """drift-risk-map #4: the HTML backend must use the SAME preset table (keys AND
+    size values) as the canonical render path, so a size can never diverge between
+    `--to svg`/`pdf-tex` and `--to html`. Enforced by sharing the object, not copying."""
+    from framegraph.rendering.domain.services import canvas_resolver as CR
+    # identity: the HTML symbol IS the canonical table (a shared import, no copy)
+    assert fgh._CANVAS_PRESETS is CR.PRESETS
+    # value-level guard (would catch a future divergence even if the copy returned)
+    assert dict(fgh._CANVAS_PRESETS) == dict(CR.PRESETS)
+    assert fgh.canvas_size({"canvas": "nonexistent"}) == CR.DEFAULT_WH
 
 
 def test_font_family_may_be_a_list():
@@ -262,3 +285,50 @@ def test_flow_section_renders_labelled_placeholder_not_empty():
     assert "flow section" in out
     assert "<code>ch1</code>" in out
     assert "2 flowable(s)" in out
+
+
+# --------------------------------------------------------------------------- #
+# Paint fidelity: gradients, fill_opacity, group transforms                    #
+# (regressions for the gray page-background + missing badge-number bugs)       #
+# --------------------------------------------------------------------------- #
+_RADIAL = {"kind": "radial", "at": "50% 50%", "shape": "circle",
+           "stops": [{"color": "#F8F3EA", "position": "0%"},
+                     {"color": "#F3EEE4", "position": "100%"}]}
+
+
+def test_gradient_rect_emits_real_css_gradient_not_gray():
+    out = fgh.render_document(_doc([
+        {"type": "rect", "id": "bg", "box": [0, 0, 400, 300], "fill": _RADIAL}]))
+    assert "radial-gradient" in out
+    assert "#F3EEE4" in out and "#F8F3EA" in out
+    assert "#888888" not in out           # the old flat-gray fallback is gone
+
+
+def test_gradient_polygon_emits_svg_gradient_def_not_gray():
+    out = fgh.render_document(_doc([
+        {"type": "polygon", "points": [[0, 0], [100, 0], [50, 80]], "fill": _RADIAL}]))
+    assert "<radialGradient" in out
+    assert "fill:url(#fgg-" in out
+    assert "#888888" not in out
+
+
+def test_fill_opacity_tints_a_circle_so_overlaid_text_stays_legible():
+    # a badge: a 20%-opacity coloured disc with the number in the same colour on
+    # top. Without fill_opacity the disc is solid and hides the number.
+    out = fgh.render_document(_doc([
+        {"type": "circle", "id": "b", "center": [40, 40], "r": 9,
+         "fill": "#A6442E", "fill_opacity": 0.2}]))
+    assert "rgba(166,68,46,0.2)" in out
+
+
+def test_group_style_transform_is_applied_to_the_group_div():
+    # the transform rides in the `style` bag (a CSS property), placing the whole
+    # subtree — here a translate onto the page.
+    group = {
+        "type": "group", "style": {"transform": [
+            {"fn": "matrix", "args": [1.0, 0.0, 0.0, 1.0, 76.0, 76.0]}]},
+        "children": [{"type": "rect", "id": "k", "box": [0, 0, 10, 10], "fill": "#000000"}],
+    }
+    out = fgh.render_document(_doc([group]))
+    assert "transform:matrix(1,0,0,1,76,76)" in out
+    assert "transform-origin:0 0" in out

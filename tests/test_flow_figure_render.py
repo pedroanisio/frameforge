@@ -20,7 +20,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # the models module
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import yaml  # noqa: E402
 
@@ -28,7 +28,7 @@ from tooling import render_fixtures as R  # noqa: E402
 
 STANDARD_MODEL = os.path.join(R.FIXTURES, "standard-model.fg.yaml")
 if not os.path.exists(STANDARD_MODEL):
-    STANDARD_MODEL = os.path.join(ROOT, "examples", "fixtures", "standard-model.fg.yaml")
+    STANDARD_MODEL = os.path.join(ROOT, "static", "examples", "fixtures", "standard-model.fg.yaml")
 
 # A minimal flow doc whose single figure draws a rect + a symbol `use` (which the
 # normaliser must expand to an ellipse) and carries a caption.

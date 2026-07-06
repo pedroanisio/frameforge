@@ -9,7 +9,7 @@ import sys
 import yaml
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.rendering.infrastructure.latex import transpile  # noqa: E402
 from tooling import render_latex as CLI  # noqa: E402
@@ -146,7 +146,9 @@ def test_transpile_emits_native_latex_math_and_tikz():
     tex = transpile(DOC)
     assert "\\documentclass" in tex
     assert "paperwidth=320pt,paperheight=240pt" in tex
-    assert "A\\&B\\label{fg:intro}" in tex
+    # the label now carries its title for \nameref (headings are styled
+    # paragraphs, not \section{...}, so nameref captures nothing otherwise)
+    assert "\\gdef\\@currentlabelname{A\\&B}\\makeatother\\label{fg:intro}" in tex
     assert "\\tableofcontents" in tex
     assert r"\(E = mc^2\)" in tex
     assert r"\[" in tex and r"\int_0^1 x^2\,dx = \frac{1}{3}" in tex
@@ -372,8 +374,12 @@ def test_transpile_page_mode_text_spans_keep_run_styles():
 
     assert r"\IfFontExistsTF{Source Serif 4}{\newfontfamily\fgffa{Source Serif 4}}{\newcommand\fgffa{}}" in tex
     assert r"\IfFontExistsTF{Inter}{\newfontfamily\fgffb{Inter}}{\newcommand\fgffb{}}" in tex
-    assert r"font=\fgffb\fontsize{13}{14.56}\selectfont\bfseries" in tex
-    assert r"font=\fgffa\fontsize{16}{17.92}\selectfont\itshape" in tex
+    # Runs render inside ONE node (the per-run cursor placement overprinted
+    # bold/mono runs): differing run styles become inline switches; run styles
+    # equal to the base collapse to the node-level font.
+    assert r"\fgffb\fontsize{13}{14.56}\selectfont\bfseries" in tex
+    assert r"font=\fgffa\fontsize{16}{17.92}\selectfont" in tex
+    assert r"\itshape" in tex
     assert "{Label }" in tex
     assert "{styled value}" in tex
 
@@ -444,12 +450,12 @@ def test_transpile_page_mode_emits_tikz_transform_scopes():
 
     tex = transpile(doc)
 
-    assert r"\begin{scope}[opacity=0.82,shift={(0,22)}]" in tex
-    assert r"\begin{scope}[shift={(201,91)},yscale=1.6,shift={(-201,-91)}]" in tex
-    assert r"\begin{scope}[shift={(325,91)},yslant=0.325,shift={(-325,-91)}]" in tex
-    assert r"\begin{scope}[rotate around={20:(449,91)}]" in tex
-    assert r"\begin{scope}[rotate around={20:(544,64)}]" in tex
-    assert r"\begin{scope}[shift={(0,14)},rotate around={16:(697,91)}]" in tex
+    assert r"\begin{scope}[opacity=0.82,transform shape,shift={(0,22)}]" in tex
+    assert r"\begin{scope}[transform shape,shift={(201,91)},yscale=1.6,shift={(-201,-91)}]" in tex
+    assert r"\begin{scope}[transform shape,shift={(325,91)},yslant=0.325,shift={(-325,-91)}]" in tex
+    assert r"\begin{scope}[transform shape,rotate around={20:(449,91)}]" in tex
+    assert r"\begin{scope}[transform shape,rotate around={20:(544,64)}]" in tex
+    assert r"\begin{scope}[transform shape,shift={(0,14)},rotate around={16:(697,91)}]" in tex
 
 
 def test_transpile_page_mode_emits_raw_css_transform_scopes():
@@ -510,12 +516,12 @@ def test_transpile_page_mode_emits_raw_css_transform_scopes():
 
     tex = transpile(doc)
 
-    assert r"\begin{scope}[opacity=0.82,shift={(22,14)}]" in tex
-    assert r"\begin{scope}[shift={(201,91)},xscale=1.4,yscale=1.4,shift={(-201,-91)}]" in tex
-    assert r"\begin{scope}[rotate around={20:(325,91)}]" in tex
-    assert r"\begin{scope}[shift={(449,91)},xslant=0.287,shift={(-449,-91)}]" in tex
-    assert r"\begin{scope}[cm={1,0,0.36,1,(0,0)}]" in tex
-    assert r"\begin{scope}[rotate around={12:(668,64)},shift={(668,64)},xscale=1.1,yscale=1.1,shift={(-668,-64)}]" in tex
+    assert r"\begin{scope}[opacity=0.82,transform shape,shift={(22,14)}]" in tex
+    assert r"\begin{scope}[transform shape,shift={(201,91)},xscale=1.4,yscale=1.4,shift={(-201,-91)}]" in tex
+    assert r"\begin{scope}[transform shape,rotate around={20:(325,91)}]" in tex
+    assert r"\begin{scope}[transform shape,shift={(449,91)},xslant=0.287,shift={(-449,-91)}]" in tex
+    assert r"\begin{scope}[transform shape,cm={1,0,0.36,1,(0,0)}]" in tex
+    assert r"\begin{scope}[transform shape,rotate around={12:(668,64)},shift={(668,64)},xscale=1.1,yscale=1.1,shift={(-668,-64)}]" in tex
 
 
 def test_raw_css_transform_resolves_custom_property():
@@ -546,7 +552,7 @@ def test_raw_css_transform_resolves_custom_property():
 
     tex = transpile(doc)
 
-    assert r"\begin{scope}[rotate around={6:(30,35)}]" in tex
+    assert r"\begin{scope}[transform shape,rotate around={6:(30,35)}]" in tex
 
 
 def test_render_latex_cli_lists_framegraph_docs(tmp_path, capsys):
@@ -561,3 +567,40 @@ def test_render_latex_cli_lists_framegraph_docs(tmp_path, capsys):
     listed = capsys.readouterr().out
     assert "flow.fg.yaml" in listed
     assert "page.fg.yaml" in listed
+
+
+def test_preamble_harmonises_math_with_the_body_face():
+    """Math is typeset in XCharter (the Charter-family math face) when the
+    host has it, so inline equations match the body's rhythm instead of
+    dropping into Latin Modern. Guarded twice: \\iftutex skips the block
+    under pdflatex, and \\IfFontExistsTF skips it on hosts without the font
+    (the default math setup still compiles everywhere)."""
+    tex = transpile({
+        "dsl": "FrameGraph", "version": "2.2.0",
+        "pages": [{"mode": "flow", "id": "p", "canvas": {"size": [400, 300]},
+                   "story": [{"type": "math", "tex": "e^{i\\pi}+1=0"}]}],
+    })
+    assert "\\iftutex" in tex
+    assert "\\IfFontExistsTF{XCharter-Math.otf}" in tex
+    assert "\\setmathfont{XCharter-Math.otf}" in tex
+
+
+def test_heading_labels_carry_their_title_for_nameref():
+    """The transpiler's headings are styled paragraphs, not \\section{...}, so
+    \\nameref found no captured title and rendered ref show="title" as a
+    blank (seen on the capability tour's flow page). A labelled heading now
+    sets \\@currentlabelname so title cross-references resolve."""
+    tex = transpile({
+        "dsl": "FrameGraph", "version": "2.2.0",
+        "pages": [{"mode": "flow", "id": "p", "canvas": {"size": [400, 300]},
+                   "story": [
+                       {"type": "heading", "level": 1, "text": "Flow mode",
+                        "id": "flow-top"},
+                       {"type": "paragraph",
+                        "spans": ["see ", {"kind": "ref", "target": "flow-top",
+                                           "show": "title"}]},
+                   ]}],
+    })
+    assert "\\gdef\\@currentlabelname{Flow mode}" in tex
+    assert "\\label{fg:flow-top}" in tex
+    assert "\\nameref{fg:flow-top}" in tex

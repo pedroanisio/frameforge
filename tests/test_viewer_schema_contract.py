@@ -33,7 +33,7 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-SCHEMA_PATH = os.path.join(ROOT, "schema", "framegraph-v2.schema.json")
+SCHEMA_PATH = os.path.join(ROOT, "docs", "schema", "framegraph-v2.schema.json")
 REGISTRY_PATH = os.path.join(ROOT, "viewer", "dev", "type-registry.json")
 
 DIMENSIONS = ("object_types", "flow_types", "inline_kinds")
@@ -127,7 +127,7 @@ def model_discriminators() -> dict[str, set[str]]:
     renderer. Imported lazily so a models-import hiccup cannot break collection."""
     import sys
 
-    sys.path[:0] = [p for p in (os.path.join(ROOT, "tooling"), os.path.join(ROOT, "models"))
+    sys.path[:0] = [p for p in (os.path.join(ROOT, "tooling"), os.path.join(ROOT, "docs", "models"))
                     if p not in sys.path]
     shadow = sys.modules.get("framegraph")
     if shadow is not None and hasattr(shadow, "__path__"):

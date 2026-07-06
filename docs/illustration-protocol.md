@@ -223,5 +223,5 @@ re-wrap L3.
 ---
 
 [↑ Back to the project README](../README.md) ·
-related: [examples/saas_hero_headers.py](../examples/saas_hero_headers.py) ·
-[framegraph/mcp/README.md](../framegraph/mcp/README.md)
+related: [static/examples/saas_hero_headers.py](../static/examples/saas_hero_headers.py) ·
+[src/framegraph/mcp/README.md](../src/framegraph/mcp/README.md)

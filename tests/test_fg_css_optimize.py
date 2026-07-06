@@ -22,8 +22,16 @@ def _load(name: str, path: Path):
     return mod
 
 
-opt = _load("fg_css_optimize", ROOT / "examples" / "fg_css_optimize.py")
-fgh = _load("framegraph_to_html", ROOT / "framegraph_to_html.py")
+opt = _load("fg_css_optimize", ROOT / "static" / "examples" / "fg_css_optimize.py")
+# The HTML renderer moved into the package (the DocumentRenderer port); import it
+# there rather than from the retired tooling/ script. Evict a cached non-package
+# `framegraph` shadow first (conftest.py's shadow-module rule).
+import sys  # noqa: E402
+
+_shadow = sys.modules.get("framegraph")
+if _shadow is not None and not hasattr(_shadow, "__path__"):
+    del sys.modules["framegraph"]
+from framegraph.rendering.infrastructure.backends import html as fgh  # noqa: E402
 
 
 def _render(objects: list[dict], *, defs: dict | None = None) -> str:

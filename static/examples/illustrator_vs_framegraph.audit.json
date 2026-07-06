@@ -1,0 +1,1308 @@
+{
+  "artifact": "illustrator_vs_framegraph capability teardown",
+  "generated_at": "2026-07-03",
+  "version": {
+    "generated_at": "2026-07-03",
+    "source_code": {
+      "repo": "frameforge",
+      "git_commit": "74586a6d9b988cca40e86a51a56dcecd25c2fc62",
+      "git_short": "74586a6d9b",
+      "git_branch": "feat/45-planar-geometry-kernel",
+      "git_dirty": true,
+      "builder": "static/examples/illustrator_vs_framegraph.py"
+    },
+    "framegraph_manifest": {
+      "manifest_path": "docs/capability-manifest.json",
+      "manifest_sha256": "b0b12b8c3704e6a9b0eb42f0a1bfd96dc1ceb9e6629bfd42071ebc5d7cf87074",
+      "framegraph_version": "2.4.0",
+      "manifest_capabilities": 287
+    },
+    "external_corpus": [
+      {
+        "src": "24",
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d",
+        "pages": 231,
+        "sentences": 2283
+      },
+      {
+        "src": "25",
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0",
+        "pages": 159,
+        "sentences": 1875
+      },
+      {
+        "src": "26",
+        "title": "BMG 106: Computer Graphics Part II — Adobe Illustrator",
+        "document_id": "649e47a5-cbf2-4d92-b7ab-f4d710d6351a",
+        "pages": 257,
+        "sentences": 3340
+      }
+    ]
+  },
+  "framegraph": {
+    "manifest_path": "docs/capability-manifest.json",
+    "manifest_sha256": "b0b12b8c3704e6a9b0eb42f0a1bfd96dc1ceb9e6629bfd42071ebc5d7cf87074",
+    "framegraph_version": "2.4.0",
+    "manifest_capabilities": 287
+  },
+  "sources": {
+    "24": {
+      "title": "Adobe Illustrator 2024 User's Guide",
+      "pages": 231,
+      "sentences": 2283,
+      "doc_id": "586533f6-5893-446d-a3e5-55210477f24d"
+    },
+    "25": {
+      "title": "Master Adobe Illustrator 2025",
+      "author": "Dana J. Bailey",
+      "pages": 159,
+      "sentences": 1875,
+      "doc_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+    },
+    "26": {
+      "title": "BMG 106: Computer Graphics Part II — Adobe Illustrator",
+      "publisher": "Y. C. M. Open University",
+      "pages": 257,
+      "sentences": 3340,
+      "doc_id": "649e47a5-cbf2-4d92-b7ab-f4d710d6351a"
+    }
+  },
+  "rubric": {
+    "has": "a direct functional equivalent exists",
+    "part": "narrower / different form, or missing interactivity or fidelity",
+    "invert": "REFRAMED — exists in both, reached by naming/tool/loop not a cursor",
+    "none": "no equivalent (see gap_type: non_goal | arch | maturity)",
+    "confidence": "H high · M interpretive · L loose equivalence, review",
+    "equivalence_dimension": "F functional · W workflow · D data-model only"
+  },
+  "score": {
+    "total_features": 51,
+    "counts": {
+      "has": 25,
+      "part": 5,
+      "invert": 11,
+      "none": 10
+    },
+    "gap_breakdown": {
+      "declared_non_goal": 6,
+      "architectural": 4,
+      "maturity_unbuilt": 0,
+      "true_gap": 4
+    },
+    "scores": {
+      "full_equivalent_pct": 49.0,
+      "full_or_partial_pct": 58.8,
+      "any_route_pct": 80.4
+    },
+    "score_formulas": {
+      "full_equivalent": "has/total = 25/51",
+      "full_or_partial": "(has+part)/total = 30/51  (REFRAMED & NONE excluded)",
+      "any_route": "(has+part+reframed)/total = 41/51  (REFRAMED counted as reachable)"
+    }
+  },
+  "category_subtotals": [
+    {
+      "group": "A · SELECT & EDIT PATHS",
+      "n": 8,
+      "counts": {
+        "has": 4,
+        "part": 0,
+        "invert": 4,
+        "none": 0
+      }
+    },
+    {
+      "group": "B · DRAW & PRIMITIVES",
+      "n": 7,
+      "counts": {
+        "has": 3,
+        "part": 1,
+        "invert": 2,
+        "none": 1
+      }
+    },
+    {
+      "group": "C · COLOUR SYSTEM",
+      "n": 7,
+      "counts": {
+        "has": 6,
+        "part": 1,
+        "invert": 0,
+        "none": 0
+      }
+    },
+    {
+      "group": "D · TYPE & TEXT",
+      "n": 6,
+      "counts": {
+        "has": 3,
+        "part": 1,
+        "invert": 0,
+        "none": 2
+      }
+    },
+    {
+      "group": "E · GRADIENT · EFFECT · STYLE",
+      "n": 7,
+      "counts": {
+        "has": 4,
+        "part": 0,
+        "invert": 0,
+        "none": 3
+      }
+    },
+    {
+      "group": "F · LAYER · TRANSFORM · PAGE",
+      "n": 6,
+      "counts": {
+        "has": 3,
+        "part": 0,
+        "invert": 2,
+        "none": 1
+      }
+    },
+    {
+      "group": "G · IMAGE · 3D · OUTPUT",
+      "n": 6,
+      "counts": {
+        "has": 2,
+        "part": 2,
+        "invert": 1,
+        "none": 1
+      }
+    },
+    {
+      "group": "H · GENERATIVE / AI  (Illustrator 2024)",
+      "n": 4,
+      "counts": {
+        "has": 0,
+        "part": 0,
+        "invert": 2,
+        "none": 2
+      }
+    }
+  ],
+  "features": [
+    {
+      "id": "AI-01",
+      "group": "A · SELECT & EDIT PATHS",
+      "feature": "Object selection",
+      "illustrator_evidence": "Selection Tool picks a whole object to move or transform.",
+      "source": {
+        "book": "25",
+        "ordinal": 64,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: you NAME an object by id — declaration replaces cursor selection.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "D",
+      "gap_type": null,
+      "rationale": "Naming replaces pointing; no cursor selection exists."
+    },
+    {
+      "id": "AI-02",
+      "group": "A · SELECT & EDIT PATHS",
+      "feature": "Anchor-point editing",
+      "illustrator_evidence": "Direct Selection edits specific anchor points & paths.",
+      "source": {
+        "book": "25",
+        "ordinal": 198,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: anchors edit by restating coordinates — workspace pin/nudge/snap + construct_vectors.",
+      "framegraph_manifest_refs": [
+        "construct_vectors",
+        "workspace"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "Dragging a point becomes restating its coordinate — MCP workspace pin/nudge/snap + construct_vectors edit anchors by tool call."
+    },
+    {
+      "id": "AI-03",
+      "group": "A · SELECT & EDIT PATHS",
+      "feature": "Isolation mode",
+      "illustrator_evidence": "Double-click into a group to edit its contents in place.",
+      "source": {
+        "book": "25",
+        "ordinal": 281,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: name the nested id — direct addressing needs no isolation state.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "Isolation guards against stray cursor edits; naming a nested id edits exactly one node, so the hazard has no declarative analogue."
+    },
+    {
+      "id": "AI-04",
+      "group": "A · SELECT & EDIT PATHS",
+      "feature": "Compound paths / Pathfinder",
+      "illustrator_evidence": "Combine paths (Pathfinder) so one cuts a hole in another.",
+      "source": {
+        "book": "24",
+        "ordinal": 1488,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "planar.union / intersect / subtract / divide — booleans emitted as even-odd paths (holes native).",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "Pathfinder booleans landed (W1): planar.union/intersect/subtract/divide on flattened rings, Greiner-Hormann with deterministic degeneracy handling."
+    },
+    {
+      "id": "AI-05",
+      "group": "A · SELECT & EDIT PATHS",
+      "feature": "Shape Builder",
+      "illustrator_evidence": "Drag across shapes to merge / subtract them interactively.",
+      "source": {
+        "book": "24",
+        "ordinal": 523,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: the drag-merge gesture is planar.union / subtract by declaration.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "The interactive drag becomes a declared boolean (W1) — same merge outcome, tool call instead of gesture."
+    },
+    {
+      "id": "AI-06",
+      "group": "A · SELECT & EDIT PATHS",
+      "feature": "Scissors & Knife",
+      "illustrator_evidence": "Cut a path at a point, or slice across objects.",
+      "source": {
+        "book": "25",
+        "ordinal": 365,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "planar.split_at(t) (arc-length scissors) + cut_along (knife via half-plane booleans).",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "Path surgery landed (W1): split_at by arc length, cut_along as half-plane booleans."
+    },
+    {
+      "id": "AI-47",
+      "group": "A · SELECT & EDIT PATHS",
+      "feature": "Offset path",
+      "illustrator_evidence": "Object > Path > Offset expands a path outward / inward.",
+      "source": {
+        "book": "26",
+        "ordinal": 3298,
+        "title": "BMG 106: Computer Graphics Part II — Adobe Illustrator",
+        "document_id": "649e47a5-cbf2-4d92-b7ab-f4d710d6351a"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "planar.offset_polygon (closed, miter, collapse-aware) + stroke_outline for open paths.",
+      "framegraph_manifest_refs": [
+        "stroke_outline"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "Offset landed (W1/W2): offset_polygon closed with miter + collapse detection; stroke_outline covers open paths."
+    },
+    {
+      "id": "AI-48",
+      "group": "A · SELECT & EDIT PATHS",
+      "feature": "Outline stroke",
+      "illustrator_evidence": "Object > Path > Outline Stroke converts a stroke to a filled path.",
+      "source": {
+        "book": "26",
+        "ordinal": 771,
+        "title": "BMG 106: Computer Graphics Part II — Adobe Illustrator",
+        "document_id": "649e47a5-cbf2-4d92-b7ab-f4d710d6351a"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "stroke_outline() — centre-line + width/caps/joins lowers to a closed filled path (grammar-native).",
+      "framegraph_manifest_refs": [
+        "stroke_outline",
+        "line",
+        "path"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "Built (W2): stroke_outline() lowers centre-line + caps/joins to a closed filled path at author time."
+    },
+    {
+      "id": "AI-07",
+      "group": "B · DRAW & PRIMITIVES",
+      "feature": "Shape primitives",
+      "illustrator_evidence": "Rectangle, Ellipse, Polygon, Star, Line, Arc tools.",
+      "source": {
+        "book": "25",
+        "ordinal": 47,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "rect, ellipse, circle, polygon, line, polyline (17 object_types).",
+      "framegraph_manifest_refs": [
+        "polyline",
+        "polygon",
+        "ellipse",
+        "circle",
+        "line",
+        "rect"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-08",
+      "group": "B · DRAW & PRIMITIVES",
+      "feature": "Pen tool (Bézier)",
+      "illustrator_evidence": "Set Bézier anchor points and handles by hand.",
+      "source": {
+        "book": "24",
+        "ordinal": 612,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: coordinates are the pen — bezier / Path / CubicBezier; construct_vectors + coach assist.",
+      "framegraph_manifest_refs": [
+        "construct_vectors",
+        "CubicBezier",
+        "bezier",
+        "Path"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "Handle-dragging becomes typed coordinates; the assistive half is the construct_vectors tool + the coach construction loop."
+    },
+    {
+      "id": "AI-09",
+      "group": "B · DRAW & PRIMITIVES",
+      "feature": "Curvature tool",
+      "illustrator_evidence": "Rubber-band free-form curves as you click & release.",
+      "source": {
+        "book": "24",
+        "ordinal": 1964,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: Path.through() draws the smooth curve through your knots — declaration replaces the rubber-band.",
+      "framegraph_manifest_refs": [
+        "curve",
+        "Path"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "The rubber-band gesture becomes Path.through(knots) — Catmull-Rom through the same points (sdk/geometry.py)."
+    },
+    {
+      "id": "AI-10",
+      "group": "B · DRAW & PRIMITIVES",
+      "feature": "Pencil / freehand",
+      "illustrator_evidence": "Sketch a path freehand; Illustrator fits the curve.",
+      "source": {
+        "book": "24",
+        "ordinal": 747,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "none",
+      "verdict_label": "NONE",
+      "framegraph_coverage": "no freehand pointer input (declarative only).",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": "non_goal",
+      "rationale": "Freehand pointer input is out of scope."
+    },
+    {
+      "id": "AI-11",
+      "group": "B · DRAW & PRIMITIVES",
+      "feature": "Stroke controls",
+      "illustrator_evidence": "Weight, dashes, caps, joins, arrowheads on the Stroke panel.",
+      "source": {
+        "book": "25",
+        "ordinal": 93,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "stroke_style: width / dasharray / cap / join + connector markers.",
+      "framegraph_manifest_refs": [
+        "connector"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-12",
+      "group": "B · DRAW & PRIMITIVES",
+      "feature": "Variable-width (Width Tool)",
+      "illustrator_evidence": "Vary stroke width along a path for a calligraphic look.",
+      "source": {
+        "book": "24",
+        "ordinal": 666,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "stroke_outline(profile=…) — a width profile lowers to a closed filled path at author time.",
+      "framegraph_manifest_refs": [
+        "stroke_outline",
+        "path"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "stroke_outline(profile=t→scale) emits the variable-width body as a filled path (sdk/outline.py, W2)."
+    },
+    {
+      "id": "AI-49",
+      "group": "B · DRAW & PRIMITIVES",
+      "feature": "Brushes",
+      "illustrator_evidence": "Calligraphic, Scatter, Art, Pattern, Blob brushes paint along a path.",
+      "source": {
+        "book": "26",
+        "ordinal": 937,
+        "title": "BMG 106: Computer Graphics Part II — Adobe Illustrator",
+        "document_id": "649e47a5-cbf2-4d92-b7ab-f4d710d6351a"
+      },
+      "verdict": "part",
+      "verdict_label": "PARTIAL",
+      "framegraph_coverage": "calligraphic pen (stroke_outline pen_angle) + scatter/pattern via repeat_along_path; no art-brush stretch or Blob.",
+      "framegraph_manifest_refs": [
+        "repeat_along_path",
+        "stroke_outline",
+        "pattern"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "Calligraphic + scatter/pattern landed (W2: pen_angle profile, repeat_along_path); art-brush stretch and Blob remain unbuilt."
+    },
+    {
+      "id": "AI-13",
+      "group": "C · COLOUR SYSTEM",
+      "feature": "Colour picker & swatches",
+      "illustrator_evidence": "Pick colour; save reusable named swatches.",
+      "source": {
+        "book": "25",
+        "ordinal": 85,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "hex / rgba values + defs.tokens.colors named palette.",
+      "framegraph_manifest_refs": [
+        "rgba"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-14",
+      "group": "C · COLOUR SYSTEM",
+      "feature": "Global colours",
+      "illustrator_evidence": "Edit a global swatch once; every use updates.",
+      "source": {
+        "book": "25",
+        "ordinal": 958,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "named colour tokens are global by construction.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-15",
+      "group": "C · COLOUR SYSTEM",
+      "feature": "CMYK / RGB modes",
+      "illustrator_evidence": "Document colour mode selectable CMYK or RGB.",
+      "source": {
+        "book": "25",
+        "ordinal": 326,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "part",
+      "verdict_label": "PARTIAL",
+      "framegraph_coverage": "RGB / hex only — no CMYK, no separations.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "RGB/hex only; no CMYK or separations."
+    },
+    {
+      "id": "AI-16",
+      "group": "C · COLOUR SYSTEM",
+      "feature": "Recolor Artwork",
+      "illustrator_evidence": "Remap a whole palette via the Recolor command / Color Guide.",
+      "source": {
+        "book": "24",
+        "ordinal": 684,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "recolor() — one-call palette remap: tokens, paint literals, gradient stops; plus gradient_map.",
+      "framegraph_manifest_refs": [
+        "gradient_map",
+        "recolor"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "recolor() landed (W4): one call remaps tokens by name/value, paint literals and gradient stops, case-insensitively."
+    },
+    {
+      "id": "AI-17",
+      "group": "C · COLOUR SYSTEM",
+      "feature": "Live Paint",
+      "illustrator_evidence": "Fill regions bounded by overlapping paths interactively.",
+      "source": {
+        "book": "24",
+        "ordinal": 319,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "planar.fill_regions — every bounded region of an overlay as its own fillable face (+ the region toolkit).",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "fill_regions landed (W1): boolean-atom decomposition of a small overlay — every bounded region its own fillable face (authoring scope, ≤8 shapes)."
+    },
+    {
+      "id": "AI-18",
+      "group": "C · COLOUR SYSTEM",
+      "feature": "Colour science",
+      "illustrator_evidence": "Colour groups & harmony via the Color Guide panel.",
+      "source": {
+        "book": "24",
+        "ordinal": 684,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "chevreul.color_guide() — the six harmonies for any base colour + WCAG contrast tools.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "color_guide() landed (W4): the six Chevreul harmonies for any base colour, ready to feed closed_palette/recolor."
+    },
+    {
+      "id": "AI-19",
+      "group": "C · COLOUR SYSTEM",
+      "feature": "Patterns",
+      "illustrator_evidence": "Tile a swatch as a repeating pattern fill.",
+      "source": {
+        "book": "24",
+        "ordinal": 695,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "pattern, grid_pattern, dots, hatch_fill fills.",
+      "framegraph_manifest_refs": [
+        "grid_pattern",
+        "hatch_fill",
+        "pattern",
+        "dots"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-20",
+      "group": "D · TYPE & TEXT",
+      "feature": "Point & area type",
+      "illustrator_evidence": "Type tool sets point text or text inside a shape.",
+      "source": {
+        "book": "25",
+        "ordinal": 1015,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "text objects + flow paragraph / heading / list.",
+      "framegraph_manifest_refs": [
+        "paragraph",
+        "heading",
+        "list",
+        "text"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-21",
+      "group": "D · TYPE & TEXT",
+      "feature": "Character & paragraph",
+      "illustrator_evidence": "Font, size, weight, alignment, spacing, indents.",
+      "source": {
+        "book": "25",
+        "ordinal": 1029,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "font_family / size / weight + paragraph flow (106 style props).",
+      "framegraph_manifest_refs": [
+        "paragraph"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-22",
+      "group": "D · TYPE & TEXT",
+      "feature": "Threaded text",
+      "illustrator_evidence": "Flow overset text between linked frames.",
+      "source": {
+        "book": "25",
+        "ordinal": 1029,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "part",
+      "verdict_label": "PARTIAL",
+      "framegraph_coverage": "flow auto-pagination continues overset; no interactive frame linking.",
+      "framegraph_manifest_refs": [],
+      "confidence": "M",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "Flow auto-pagination continues overset; no interactive linked-frame semantics."
+    },
+    {
+      "id": "AI-23",
+      "group": "D · TYPE & TEXT",
+      "feature": "Type on a path",
+      "illustrator_evidence": "Set text running along a curved path.",
+      "source": {
+        "book": "25",
+        "ordinal": 1099,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "none",
+      "verdict_label": "NONE",
+      "framegraph_coverage": "no text-on-path (explicit scope limit).",
+      "framegraph_manifest_refs": [
+        "text",
+        "path"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": "non_goal",
+      "rationale": "Text-on-path is an explicit scope limit."
+    },
+    {
+      "id": "AI-24",
+      "group": "D · TYPE & TEXT",
+      "feature": "Kerning & tracking",
+      "illustrator_evidence": "Fine letter / line spacing on the Character panel.",
+      "source": {
+        "book": "25",
+        "ordinal": 1054,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "letter_spacing / line_height + pair kerning: kerned_spans (explicit pairs) and font_kern_pairs (the font's kern table).",
+      "framegraph_manifest_refs": [
+        "font_kern_pairs",
+        "kerned_spans",
+        "table"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "Pair kerning landed (W2): explicit kerned_spans + font_kern_pairs reading the resolved font's kern table via fontTools."
+    },
+    {
+      "id": "AI-25",
+      "group": "D · TYPE & TEXT",
+      "feature": "Envelope distort",
+      "illustrator_evidence": "Warp text into an arbitrary envelope shape.",
+      "source": {
+        "book": "25",
+        "ordinal": 715,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "none",
+      "verdict_label": "NONE",
+      "framegraph_coverage": "non-goal — text stays on its baseline grid.",
+      "framegraph_manifest_refs": [
+        "text",
+        "grid"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": "non_goal",
+      "rationale": "Envelope warp is a non-goal."
+    },
+    {
+      "id": "AI-26",
+      "group": "E · GRADIENT · EFFECT · STYLE",
+      "feature": "Linear / radial gradient",
+      "illustrator_evidence": "Colour stops along a linear or radial axis.",
+      "source": {
+        "book": "24",
+        "ordinal": 844,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "linear_gradient / radial_gradient paint.",
+      "framegraph_manifest_refs": [
+        "linear_gradient",
+        "radial_gradient"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-27",
+      "group": "E · GRADIENT · EFFECT · STYLE",
+      "feature": "Freeform gradient",
+      "illustrator_evidence": "Colour stops placed freely across the object.",
+      "source": {
+        "book": "24",
+        "ordinal": 857,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "none",
+      "verdict_label": "NONE",
+      "framegraph_coverage": "no freeform gradient.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": "arch",
+      "rationale": "No freeform gradient model."
+    },
+    {
+      "id": "AI-28",
+      "group": "E · GRADIENT · EFFECT · STYLE",
+      "feature": "Gradient mesh",
+      "illustrator_evidence": "A mesh of colour points for painterly blends.",
+      "source": {
+        "book": "24",
+        "ordinal": 1079,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "none",
+      "verdict_label": "NONE",
+      "framegraph_coverage": "no mesh — the single biggest gap.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": "arch",
+      "rationale": "No mesh — the single biggest gap."
+    },
+    {
+      "id": "AI-29",
+      "group": "E · GRADIENT · EFFECT · STYLE",
+      "feature": "Blend tool",
+      "illustrator_evidence": "Interpolate shape & colour between two objects.",
+      "source": {
+        "book": "24",
+        "ordinal": 1160,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "none",
+      "verdict_label": "NONE",
+      "framegraph_coverage": "no shape-to-shape blend / interpolation.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": "arch",
+      "rationale": "No shape-to-shape interpolation."
+    },
+    {
+      "id": "AI-30",
+      "group": "E · GRADIENT · EFFECT · STYLE",
+      "feature": "Live effects",
+      "illustrator_evidence": "Drop shadow, glow, blur — non-destructive effects.",
+      "source": {
+        "book": "25",
+        "ordinal": 1496,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "ordered `effects` stack (2.4.0): kinds repeat, preset + param entries, applied first→last.",
+      "framegraph_manifest_refs": [
+        "effects"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "The ordered effects stack landed (W4, 2.4.0 additive): repeatable kinds, presets with param overrides, declarative and non-destructive by construction."
+    },
+    {
+      "id": "AI-31",
+      "group": "E · GRADIENT · EFFECT · STYLE",
+      "feature": "Graphic styles",
+      "illustrator_evidence": "Save an appearance and reapply it by name.",
+      "source": {
+        "book": "24",
+        "ordinal": 1823,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "named styles / text_styles / stroke_styles tokens.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-32",
+      "group": "E · GRADIENT · EFFECT · STYLE",
+      "feature": "Appearance stack",
+      "illustrator_evidence": "Stack multiple fills / strokes / effects per object.",
+      "source": {
+        "book": "24",
+        "ordinal": 1092,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "`appearance` stack (2.4.0): the geometry painted once per pass — fill / stroke / opacity, bottom→top.",
+      "framegraph_manifest_refs": [
+        "stroke"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "The appearance stack landed (W4, 2.4.0 additive): multiple fill/stroke passes over one geometry, bottom→top."
+    },
+    {
+      "id": "AI-33",
+      "group": "F · LAYER · TRANSFORM · PAGE",
+      "feature": "Layers",
+      "illustrator_evidence": "Organise artwork in a Layers-panel hierarchy.",
+      "source": {
+        "book": "24",
+        "ordinal": 547,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "ordered layers per page, z-index.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-34",
+      "group": "F · LAYER · TRANSFORM · PAGE",
+      "feature": "Transform tools",
+      "illustrator_evidence": "Rotate, Scale, Reflect, Shear an object.",
+      "source": {
+        "book": "24",
+        "ordinal": 700,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "transform: Mat3 rotate / scale / translate / shear.",
+      "framegraph_manifest_refs": [
+        "Mat3"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-35",
+      "group": "F · LAYER · TRANSFORM · PAGE",
+      "feature": "Align & distribute",
+      "illustrator_evidence": "Align / distribute objects on the Align panel.",
+      "source": {
+        "book": "24",
+        "ordinal": 542,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "layout groups: row / column / grid, align.",
+      "framegraph_manifest_refs": [
+        "column",
+        "grid",
+        "row"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-36",
+      "group": "F · LAYER · TRANSFORM · PAGE",
+      "feature": "Artboards",
+      "illustrator_evidence": "Multiple artboards — “similar to pages in InDesign”.",
+      "source": {
+        "book": "25",
+        "ordinal": 423,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: pages are the artboards — per-page canvas + render targets replace the free spatial canvas by design.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "D",
+      "gap_type": null,
+      "rationale": "Paged document model by design; per-page canvas + document render targets replace per-artboard export regions."
+    },
+    {
+      "id": "AI-37",
+      "group": "F · LAYER · TRANSFORM · PAGE",
+      "feature": "Perspective grid",
+      "illustrator_evidence": "Draw & place objects on a simulated perspective grid.",
+      "source": {
+        "book": "24",
+        "ordinal": 762,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "none",
+      "verdict_label": "NONE",
+      "framegraph_coverage": "no perspective grid (flat page space).",
+      "framegraph_manifest_refs": [
+        "grid"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": "non_goal",
+      "rationale": "Flat page space; no perspective grid."
+    },
+    {
+      "id": "AI-50",
+      "group": "F · LAYER · TRANSFORM · PAGE",
+      "feature": "Guides, rulers & snap",
+      "illustrator_evidence": "Rulers, guides and Snap-to-Grid align artwork by eye.",
+      "source": {
+        "book": "26",
+        "ordinal": 572,
+        "title": "BMG 106: Computer Graphics Part II — Adobe Illustrator",
+        "document_id": "649e47a5-cbf2-4d92-b7ab-f4d710d6351a"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: coordinates are exact by construction — canon.content_box grids + workspace snap.",
+      "framegraph_manifest_refs": [
+        "content_box",
+        "workspace"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "Guides exist to make cursor input precise; declarative input is precise by construction — canon.content_box layout grids, grid_pattern, workspace snap."
+    },
+    {
+      "id": "AI-38",
+      "group": "G · IMAGE · 3D · OUTPUT",
+      "feature": "Embed / link raster",
+      "illustrator_evidence": "Embed a raster image, or link it externally.",
+      "source": {
+        "book": "25",
+        "ordinal": 1727,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "image object: embedded or src-referenced.",
+      "framegraph_manifest_refs": [
+        "image"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": ""
+    },
+    {
+      "id": "AI-39",
+      "group": "G · IMAGE · 3D · OUTPUT",
+      "feature": "Image trace",
+      "illustrator_evidence": "Object > Image Trace: raster into editable vectors.",
+      "source": {
+        "book": "24",
+        "ordinal": 1394,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: same raster→vector via the vectorize_image tool call.",
+      "framegraph_manifest_refs": [
+        "vectorize_image"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "Same raster→vector outcome, via a tool call not a menu."
+    },
+    {
+      "id": "AI-40",
+      "group": "G · IMAGE · 3D · OUTPUT",
+      "feature": "3D & Materials",
+      "illustrator_evidence": "Effect > 3D: extrude, bevel, revolve with materials.",
+      "source": {
+        "book": "24",
+        "ordinal": 767,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "part",
+      "verdict_label": "PARTIAL",
+      "framegraph_coverage": "Scene3D extrude / revolve + Material + Camera, projected to 2D vector faces; no bevel.",
+      "framegraph_manifest_refs": [
+        "Material",
+        "Scene3D",
+        "Camera"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "Scene3D.extrude / .revolve + Material are real and project to 2D vector faces; bevel is the missing quarter of the Illustrator bundle."
+    },
+    {
+      "id": "AI-41",
+      "group": "G · IMAGE · 3D · OUTPUT",
+      "feature": "Export formats",
+      "illustrator_evidence": "EPS, PSD, TIFF, GIF, JPEG, SWF, SVG, DWG/DXF, PDF.",
+      "source": {
+        "book": "25",
+        "ordinal": 20,
+        "title": "Master Adobe Illustrator 2025",
+        "document_id": "56d6727a-23a3-43d2-b920-df53c8b1f8b0"
+      },
+      "verdict": "part",
+      "verdict_label": "PARTIAL",
+      "framegraph_coverage": "SVG / PNG / PDF / LaTeX (6 renderers); no PSD / EPS / DWG.",
+      "framegraph_manifest_refs": [],
+      "confidence": "M",
+      "equivalence_dimension": "F",
+      "gap_type": null,
+      "rationale": "SVG/PNG/PDF/LaTeX only; no PSD/EPS/DWG; renderers non-conformant."
+    },
+    {
+      "id": "AI-42",
+      "group": "G · IMAGE · 3D · OUTPUT",
+      "feature": "Package",
+      "illustrator_evidence": "Collect linked assets & fonts into one folder.",
+      "source": {
+        "book": "24",
+        "ordinal": 2204,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "none",
+      "verdict_label": "NONE",
+      "framegraph_coverage": "no asset-collection packaging step.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": "non_goal",
+      "rationale": "No asset-collection packaging step."
+    },
+    {
+      "id": "AI-51",
+      "group": "G · IMAGE · 3D · OUTPUT",
+      "feature": "Graph tool",
+      "illustrator_evidence": "Graph tools plot data as bar / pie / line charts.",
+      "source": {
+        "book": "26",
+        "ordinal": 405,
+        "title": "BMG 106: Computer Graphics Part II — Adobe Illustrator",
+        "document_id": "649e47a5-cbf2-4d92-b7ab-f4d710d6351a"
+      },
+      "verdict": "has",
+      "verdict_label": "HAS",
+      "framegraph_coverage": "Chart / sparkline / function_plot / polar_plot / kpi (data-bound).",
+      "framegraph_manifest_refs": [
+        "function_plot",
+        "polar_plot",
+        "sparkline",
+        "Chart",
+        "kpi"
+      ],
+      "confidence": "M",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "Both plot data as charts; FG charts are declarative & data-bound, IL graphs are static objects you restyle."
+    },
+    {
+      "id": "AI-43",
+      "group": "H · GENERATIVE / AI  (Illustrator 2024)",
+      "feature": "Text to Vector Graphic",
+      "illustrator_evidence": "Describe art in words; generative AI makes the vectors.",
+      "source": {
+        "book": "24",
+        "ordinal": 105,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: propose_from_image / run_sdk_code author→render loop.",
+      "framegraph_manifest_refs": [
+        "propose_from_image",
+        "run_sdk_code"
+      ],
+      "confidence": "L",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "No natural-language→vector path; nearest analogue is authoring by SDK code (run_sdk_code) or an image-input propose — a loose reframe, flagged."
+    },
+    {
+      "id": "AI-44",
+      "group": "H · GENERATIVE / AI  (Illustrator 2024)",
+      "feature": "Generative Recolor",
+      "illustrator_evidence": "Recolour artwork with a text prompt via generative AI.",
+      "source": {
+        "book": "24",
+        "ordinal": 678,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "invert",
+      "verdict_label": "REFRAMED",
+      "framegraph_coverage": "REFRAMED: swap a palette token / gradient_map, re-render.",
+      "framegraph_manifest_refs": [
+        "gradient_map"
+      ],
+      "confidence": "L",
+      "equivalence_dimension": "W",
+      "gap_type": null,
+      "rationale": "Deterministic token/gradient_map recolor with NO natural-language prompt interpretation — not generative-AI recolor."
+    },
+    {
+      "id": "AI-45",
+      "group": "H · GENERATIVE / AI  (Illustrator 2024)",
+      "feature": "Retype",
+      "illustrator_evidence": "Identify & match fonts found in existing artwork.",
+      "source": {
+        "book": "24",
+        "ordinal": 73,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "none",
+      "verdict_label": "NONE",
+      "framegraph_coverage": "list_fonts resolves families, but no visual font ID.",
+      "framegraph_manifest_refs": [
+        "list_fonts"
+      ],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": "arch",
+      "rationale": "list_fonts resolves families; no visual font ID."
+    },
+    {
+      "id": "AI-46",
+      "group": "H · GENERATIVE / AI  (Illustrator 2024)",
+      "feature": "Mockup",
+      "illustrator_evidence": "Wrap flat vector art onto a 3D object mockup.",
+      "source": {
+        "book": "24",
+        "ordinal": 41,
+        "title": "Adobe Illustrator 2024 User's Guide",
+        "document_id": "586533f6-5893-446d-a3e5-55210477f24d"
+      },
+      "verdict": "none",
+      "verdict_label": "NONE",
+      "framegraph_coverage": "no mockup / surface-wrap of art onto an object.",
+      "framegraph_manifest_refs": [],
+      "confidence": "H",
+      "equivalence_dimension": "F",
+      "gap_type": "non_goal",
+      "rationale": "No surface-wrap of art onto an object."
+    }
+  ]
+}

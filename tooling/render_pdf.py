@@ -34,11 +34,12 @@ from __future__ import annotations
 import argparse
 import io
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling.render_fixtures import Renderer, discover, stem_of  # noqa: E402
 
@@ -88,6 +89,54 @@ def svg_to_pdf_bytes(cairosvg, svg, *, base_dir):
     return cairosvg.svg2pdf(bytestring=svg.encode("utf-8"), url=url, unsafe=True)
 
 
+# Presentation sheets in SVG user units (96/in); cairosvg emits 72/in points,
+# so "letter" lands as a true 612x792pt page, "a4" as 595.3x842pt.
+IMPOSE_SHEETS = {"letter": (816.0, 1056.0), "a4": (793.7, 1122.52)}
+
+_SVG_ROOT_SIZE = re.compile(
+    r'<svg\b[^>]*?\bwidth="([0-9.]+)(?:px)?"[^>]*?\bheight="([0-9.]+)(?:px)?"',
+    re.S)
+_XML_DECL = re.compile(r"^\s*<\?xml[^>]*\?>\s*", re.S)
+
+
+def impose_svg(svg, sheet_w, sheet_h, *, margin=24.0):
+    """Frame one page SVG onto a uniform presentation sheet.
+
+    Pages that already fit are centred 1:1; oversized pages (a 1920x1080 deck
+    slide inside a Letter book, say) are contain-scaled into the sheet minus
+    ``margin`` and given a hairline frame so the reduction is visible. This is
+    a PRESENTATION transform at PDF-assembly time: the page SVG strings that
+    ``page_hashes`` fingerprints are produced upstream and never change —
+    imposition cannot move a golden hash. Uniformity belongs to this output
+    artifact; per-page canvases stay the document's truth.
+    """
+    m = _SVG_ROOT_SIZE.search(svg)
+    if not m:
+        return svg
+    w, h = float(m.group(1)), float(m.group(2))
+    if w <= 0 or h <= 0:
+        return svg
+    if w <= sheet_w and h <= sheet_h:
+        scale = 1.0
+    else:
+        scale = min((sheet_w - 2 * margin) / w, (sheet_h - 2 * margin) / h)
+    tx = (sheet_w - w * scale) / 2
+    ty = (sheet_h - h * scale) / 2
+    inner = _XML_DECL.sub("", svg)
+    frame = ""
+    if scale < 1.0:
+        frame = (f'<rect x="{tx - 0.5:g}" y="{ty - 0.5:g}" '
+                 f'width="{w * scale + 1:g}" height="{h * scale + 1:g}" '
+                 f'fill="none" stroke="#d7dce4" stroke-width="1"/>')
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{sheet_w:g}" '
+        f'height="{sheet_h:g}" viewBox="0 0 {sheet_w:g} {sheet_h:g}">'
+        f'<rect width="{sheet_w:g}" height="{sheet_h:g}" fill="#ffffff"/>'
+        f'<g transform="translate({tx:g},{ty:g}) scale({scale:g})">{inner}</g>'
+        f"{frame}</svg>"
+    )
+
+
 def write_pdf(cairosvg, PdfWriter, svgs, out_path, *, base_dir, quiet=False):
     """Merge an iterable of SVG strings into one PDF at ``out_path``.
 
@@ -131,6 +180,13 @@ def main(argv=None):
                          "combined PDF at FILE instead of one PDF per document")
     ap.add_argument("--max-pages", type=int, default=0,
                     help="cap pages rendered per doc (0 = all)")
+    ap.add_argument("--impose", choices=sorted(IMPOSE_SHEETS),
+                    default=None,
+                    help="frame every page onto one uniform presentation "
+                         "sheet (fit pages centred 1:1, oversized pages "
+                         "contain-scaled with a hairline frame); a PDF-"
+                         "assembly transform only — page_hashes are taken "
+                         "upstream from the page SVGs and never change")
     ap.add_argument("--real-metrics", action="store_true",
                     help="wrap/fit text using real font advances (needs "
                          "fontTools) instead of the per-character estimate")
@@ -164,6 +220,9 @@ def main(argv=None):
             base_dir = os.path.dirname(os.path.abspath(f))
             svgs = page_svgs(f, doc, max_pages=args.max_pages,
                              real_metrics=args.real_metrics)
+            if args.impose:
+                sw, sh = IMPOSE_SHEETS[args.impose]
+                svgs = (impose_svg(svg, sw, sh) for svg in svgs)
             doc_pages = 0
             for i, svg in enumerate(svgs, 1):
                 try:
@@ -199,6 +258,9 @@ def main(argv=None):
         out_path = os.path.join(args.out, f"{stem}.pdf")
         svgs = page_svgs(f, doc, max_pages=args.max_pages,
                          real_metrics=args.real_metrics)
+        if args.impose:
+            sw, sh = IMPOSE_SHEETS[args.impose]
+            svgs = (impose_svg(svg, sw, sh) for svg in svgs)
         pages = write_pdf(cairosvg, PdfWriter, svgs, out_path,
                           base_dir=base_dir, quiet=args.quiet)
         if pages:

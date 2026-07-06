@@ -1,0 +1,146 @@
+# Translated 2026-07-03 from the predecessor project's lib/ (issue #32).
+# v0.1 -> v2 transforms: text_styles field renames (font->font_family via the
+# pack's fonts, size->font_size, weight->font_weight, v_align->vertical_align,
+# wrap dropped - v2 wraps by default); stroke dicts split per P3 (paint in
+# `stroke`, geometry as Style props: width->stroke_width, dash->stroke_dasharray,
+# linecap/linejoin->stroke_*); ellipse box -> center/rx/ry.
+# Data is now source of truth HERE.
+colors:
+  primary: '#009A44'
+  primary_dark: '#006B2E'
+  secondary: '#0071BC'
+  accent: '#7EC8A0'
+  surface: '#F7F7F5'
+  surface_tinted: '#EBF5EF'
+  panel: '#D6EDDE'
+  text: '#1C1C1A'
+  text_muted: '#5A5A56'
+  border: '#B8D9C4'
+  border_strong: '#009A44'
+  white: '#FFFFFF'
+  data_1: '#009A44'
+  data_2: '#0071BC'
+  data_3: '#7EC8A0'
+  data_4: '#C5E0CF'
+  data_5: '#F5A623'
+  data_6: '#CC3300'
+  data_highlight: '#FFB800'
+fonts:
+  primary:
+    family: Arial, Helvetica, sans-serif
+  heading:
+    family: Arial, Helvetica, sans-serif
+text_styles:
+  slide_title:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 22
+    font_weight: 700
+    color: primary_dark
+    align: left
+    line_height: 26
+  slide_subtitle:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 12
+    font_weight: 400
+    color: text_muted
+    align: left
+  exhibit_header:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 11
+    font_weight: 700
+    color: primary_dark
+    align: left
+  body:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 11
+    font_weight: 400
+    color: text
+    align: left
+    line_height: 15
+  callout:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 14
+    font_weight: 700
+    color: primary
+    align: left
+  node_label:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 13
+    font_weight: 700
+    color: text
+    align: center
+  node_desc:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 9
+    font_weight: 400
+    color: text_muted
+    align: center
+    italic: true
+  center_label:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 13
+    font_weight: 700
+    color: primary_dark
+    align: center
+    line_height: 16
+  icon_label:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 22
+    font_weight: 400
+    color: white
+    align: center
+  title:
+    font_family:
+    - Arial
+    - Helvetica
+    - sans-serif
+    font_size: 20
+    font_weight: 700
+    color: primary_dark
+    align: left
+stroke_styles:
+  web:
+    stroke: border
+    stroke_width: 0.8
+  circle_outline:
+    stroke: primary_dark
+    stroke_width: 1.5
+  center_outline:
+    stroke: primary
+    stroke_width: 1.5
+  divider:
+    stroke: border
+    stroke_width: 0.5
+  accent_rule:
+    stroke: primary
+    stroke_width: 3.0
+  data_connector:
+    stroke: text_muted
+    stroke_width: 1.0

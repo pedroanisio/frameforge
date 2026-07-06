@@ -45,7 +45,7 @@ import yaml  # noqa: E402
 from render_fixtures import Renderer  # noqa: E402
 
 # The authoritative oracle: b1/*.fg.json (the fixtures test_head.py asserts).
-ORACLE_GLOB = os.path.join(ROOT, "fixtures", "b1", "*.fg.json")
+ORACLE_GLOB = os.path.join(ROOT, "tests", "fixtures", "b1", "*.fg.json")
 LOCK = os.path.join(ROOT, "tests", "golden", "oracle.lock.json")
 REFS = os.path.join(ROOT, "tests", "golden", "refs")
 DEFAULT_TOLERANCE = 0.5
@@ -58,11 +58,63 @@ def _page_svgs(path: str) -> list[str]:
     """Render one fixture and return the emitted SVG string per page, in order."""
     with open(path, encoding="utf-8") as fh:
         doc = yaml.safe_load(fh)            # safe_load parses both JSON and YAML
-    r = Renderer(doc, os.path.dirname(path))
-    svgs: list[str] = []
-    for page in (doc.get("pages") or []):
-        svgs.extend(r.render_page(page))
-    return svgs
+    # real_metrics=False pins estimate-mode text measurement: an explicit bool
+    # always wins over FRAMEGRAPH_REAL_METRICS, so a user's env var cannot cause
+    # spurious golden drift (the lock is byte-exact estimate-mode output).
+    # FRAMEGRAPH_MATH_SVG=fallback pins math the same way: golden hashes must not
+    # depend on whether the optional node + viewer/node_modules MathJax toolchain
+    # resolves on this machine (CI never installs it). Scoped + restored so a
+    # shared pytest process does not inherit the override.
+    previous = os.environ.get("FRAMEGRAPH_MATH_SVG")
+    os.environ["FRAMEGRAPH_MATH_SVG"] = "fallback"
+    try:
+        r = Renderer(doc, os.path.dirname(path), real_metrics=False)
+        svgs: list[str] = []
+        for page in (doc.get("pages") or []):
+            svgs.extend(r.render_page(page))
+        return svgs
+    finally:
+        if previous is None:
+            os.environ.pop("FRAMEGRAPH_MATH_SVG", None)
+        else:
+            os.environ["FRAMEGRAPH_MATH_SVG"] = previous
+
+
+def _find_humanize(node, trail: str = "doc"):
+    """Path to the first ``humanize`` key anywhere in ``node`` (else None)."""
+    if isinstance(node, dict):
+        if "humanize" in node:
+            return f"{trail}.humanize"
+        for key, value in node.items():
+            hit = _find_humanize(value, f"{trail}.{key}")
+            if hit:
+                return hit
+    elif isinstance(node, list):
+        for i, value in enumerate(node):
+            hit = _find_humanize(value, f"{trail}[{i}]")
+            if hit:
+                return hit
+    return None
+
+
+def oracle_humanize_violations() -> list[str]:
+    """Oracle fixtures that carry a ``humanize`` spec — forbidden.
+
+    The oracle is the *mechanical* fidelity reference, and the golden render path
+    (:func:`_page_svgs`) renders fixtures directly, bypassing SDK ``expand()`` — so
+    the seeded imperfection pass never runs here. A ``humanize`` spec in an oracle
+    fixture would therefore be silently ignored, freezing the *un-humanized* render
+    under a lock that claims otherwise. Keep the evolving aesthetic layer out of the
+    fidelity oracle; it is covered by ``tests/test_humanize.py`` instead.
+    """
+    violations: list[str] = []
+    for path in sorted(glob.glob(ORACLE_GLOB)):
+        with open(path, encoding="utf-8") as fh:
+            doc = yaml.safe_load(fh)
+        where = _find_humanize(doc)
+        if where is not None:
+            violations.append(f"  {os.path.relpath(path, ROOT)}  ({where})")
+    return violations
 
 
 def build_svgs() -> dict[str, list[str]]:
@@ -198,6 +250,16 @@ def main(argv=None) -> int:
     ap.add_argument("--strict", action="store_true",
                     help="treat cosmetic (within-tolerance) drift as a failure too (pure exact mode)")
     args = ap.parse_args(argv)
+
+    humanized = oracle_humanize_violations()
+    if humanized:
+        print("render_golden: the golden oracle must be mechanical — these fixtures "
+              "carry a `humanize` spec, which the golden path silently ignores:",
+              file=sys.stderr)
+        print("\n".join(humanized), file=sys.stderr)
+        print("Move the humanize spec out of the oracle (test it via "
+              "tests/test_humanize.py).", file=sys.stderr)
+        return 1
 
     try:
         svgs = build_svgs()

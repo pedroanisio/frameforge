@@ -1,0 +1,236 @@
+"""Unit tests for the backend-neutral flow layout engine (ADR-0003).
+
+The engine owns line breaking (Knuth–Plass) and hyphenation (Liang/pyphen); it
+does not place glyphs. `measure` is injected — a fake monospace metric (every
+glyph ``size * 0.5`` px, spaces included) makes the arithmetic checkable — so the
+breaks are deterministic and asserted directly.
+"""
+from __future__ import annotations
+
+import pytest
+
+from framegraph.rendering.domain.services import flow_layout as FL
+
+
+def mono(s, size, avg):
+    """Deterministic metric: every character is ``size * 0.5`` px."""
+    return len(s) * size * 0.5
+
+
+PARA = ("Density is the quality that sets a neutron star apart from anything in "
+        "ordinary experience: compressing the mass of the Sun into the volume of "
+        "a small city pushes matter to roughly the density of an atomic nucleus, "
+        "several hundred trillion times denser than water.")
+
+
+# --------------------------------------------------------------------------- #
+#  content geometry — the single source of the column box                     #
+# --------------------------------------------------------------------------- #
+def test_content_box_honours_explicit_region():
+    master = {"regions": [{"box": [72, 96, 451, 674]}]}
+    assert FL.content_box(master, 595, 842, page_index=1) == (72, 96, 451, 674)
+    assert FL.content_box(master, 595, 842, page_index=2) == (72, 96, 451, 674)
+
+
+def test_content_box_honours_master_margin():
+    master = {"margin": [50, 60, 50, 60]}  # [top, right, bottom, left]
+    assert FL.content_box(master, 800, 1000, page_index=1) == (60, 50, 680, 900)
+
+
+def test_content_box_falls_back_to_canon_and_mirrors_recto_verso():
+    recto = FL.content_box(None, 900, 1200, page_index=1, unit=40)
+    verso = FL.content_box(None, 900, 1200, page_index=2, unit=40)
+    assert recto == (60, 80, 720, 960)     # x = inner = 1.5*40
+    assert verso == (120, 80, 720, 960)    # x = outer = 3*40  (mirrored)
+    assert 900 - (recto[0] + recto[2]) == verso[0]     # wide margin flips sides
+
+
+def test_content_box_mirrors_asymmetric_master_margin():
+    master = {"margin": [50, 40, 50, 80]}       # [top,right,bottom,left]; inner 80, outer 40
+    recto = FL.content_box(master, 800, 1000, page_index=1)
+    verso = FL.content_box(master, 800, 1000, page_index=2)
+    assert recto[0] == 80                        # recto: x = left (inner)
+    assert verso[0] == 40                        # verso: x = right (outer) — mirrored
+    assert recto[2] == verso[2] == 800 - 80 - 40 # width constant across the spread
+
+
+def test_content_box_coerces_length_strings():
+    master = {"regions": [{"box": ["72", "96px", "451", "674"]}]}
+    assert FL.content_box(master, 595, 842, 1) == (72.0, 96.0, 451.0, 674.0)
+
+
+def test_content_box_clamps_non_positive_area():
+    box = FL.content_box(None, 2000, 100, 1)     # extreme aspect → canon height would go < 0
+    assert box[2] >= 1 and box[3] >= 1
+
+
+def test_lone_word_before_long_token_is_not_justified():
+    """The 'p r o m p t i n g' defect: a short word forced onto its own line
+    before an unbreakable long token must NOT be marked justify (would stretch to
+    the full column as cavernous letterspacing)."""
+    # 'cat' (15px) then a non-alpha, unhyphenatable 15-digit token (75px) in a
+    # 58px column: 'cat' is forced onto its own line before the long token.
+    para = FL.layout_paragraph("cat 123456789012345", size=10, avg=0.5, lh=1.4,
+                               width=58, measure=mono, align="justify")
+    lone = [ln for ln in para.lines if ln.text == "cat"]
+    assert lone and not lone[0].justify        # 'cat' stays ragged, never stretched
+
+
+def test_no_single_word_line_is_justified():
+    para = _lay(width=200)
+    for ln in para.lines:
+        if ln.justify:
+            assert " " in ln.text.strip()      # only multi-word lines justify
+
+
+def test_narrow_uniform_column_does_not_degenerate_to_lone_words():
+    """The tolerance=3 escape-hatch bug: uniform text in a 2–3-word-wide column
+    must combine words (via the tol=inf fallback), not collapse to lone words."""
+    text = "alpha beta gamma delta kappa lambda sigma omega theta iota mu nu xi"
+    para = FL.layout_paragraph(text, size=10, avg=0.5, lh=1.4, width=66,
+                               measure=mono, align="justify")
+    multi = sum(1 for ln in para.lines if " " in ln.text.strip())
+    assert multi >= len(para.lines) - 1        # at most the last line may be lone
+    for ln in para.lines[:-1]:
+        assert mono(ln.text, 10, 0.5) >= 66 * 0.5   # no cavernous non-last line
+
+
+def test_unbreakable_token_stays_in_kp_not_greedy():
+    text = ("see https://example.com/a/very/long/unbreakable/path/segment now "
+            "here we go again with more ordinary words to justify")
+    para = FL.layout_paragraph(text, size=10, avg=0.5, lh=1.4, width=80,
+                               measure=mono, align="justify")
+    assert para.lines
+    assert any("example.com" in ln.text for ln in para.lines)   # token survives whole
+    # the ordinary words still justify (KP kept the paragraph, did not dump to greedy)
+    assert any(ln.justify for ln in para.lines)
+
+
+def test_canon_fallback_agrees_with_authoring_helper():
+    from framegraph.sdk import canon
+    for side, page_index in (("recto", 1), ("verso", 2)):
+        got = FL.content_box(None, 794, 1123, page_index=page_index, unit=40)
+        want = canon.content_box(794, 1123, unit=40, side=side)
+        assert got == want
+
+
+# --------------------------------------------------------------------------- #
+#  paragraph layout — structure                                               #
+# --------------------------------------------------------------------------- #
+def _lay(width=200, size=11, align="justify", indent=0.0):
+    return FL.layout_paragraph(PARA, size=size, avg=0.5, lh=1.4, width=width,
+                               measure=mono, align=align, first_line_indent=indent)
+
+
+def test_multiline_last_line_not_justified_others_are():
+    para = _lay()
+    assert len(para.lines) >= 3
+    assert all(ln.justify for ln in para.lines[:-1])   # body lines justify
+    assert not para.lines[-1].justify                  # last line is ragged
+
+
+def test_first_line_indent_narrows_only_first_line():
+    para = _lay(indent=22.0)
+    assert para.lines[0].indent == pytest.approx(22.0)
+    assert para.lines[0].width == pytest.approx(200 - 22.0)
+    assert all(ln.indent == 0.0 for ln in para.lines[1:])
+    assert all(ln.width == pytest.approx(200) for ln in para.lines[1:])
+
+
+def test_lines_fit_the_measure_no_overfill():
+    para = _lay(width=200)
+    for ln in para.lines:
+        assert mono(ln.text, 11, 0.5) <= ln.width * 1.05   # never grossly overfull
+
+
+def test_no_cavernously_short_justified_line():
+    """The Knuth–Plass win: no justified line is left far under the measure (a
+    river). Greedy first-fit routinely does; total-fit does not."""
+    para = _lay(width=200)
+    for ln in para.lines[:-1]:                          # justified body lines
+        assert mono(ln.text, 11, 0.5) >= ln.width * 0.5
+
+
+def test_constant_leading_is_the_baseline_grid():
+    para = FL.layout_paragraph(PARA, size=12, avg=0.5, lh=1.5, width=180, measure=mono)
+    assert all(ln.advance == pytest.approx(18.0) for ln in para.lines)
+
+
+def test_deterministic_and_frozen():
+    a, b = _lay(), _lay()
+    assert a == b
+    with pytest.raises(Exception):
+        a.lines[0].text = "x"
+
+
+def test_empty_and_single_word():
+    assert FL.layout_paragraph("", size=11, avg=0.5, lh=1.4, width=200,
+                               measure=mono).lines == ()
+    solo = FL.layout_paragraph("solo", size=11, avg=0.5, lh=1.4, width=200,
+                               measure=mono)
+    assert len(solo.lines) == 1
+    assert solo.lines[0].text == "solo"
+    assert not solo.lines[0].justify                   # single/last line: ragged
+
+
+def test_measure_none_is_tolerated_via_avg_estimate():
+    def missing(s, size, avg):
+        return None
+    para = FL.layout_paragraph(PARA, size=11, avg=0.5, lh=1.4, width=200,
+                               measure=missing)
+    assert para.lines                                  # laid out via the estimate
+
+
+def test_left_alignment_is_ragged_not_justified():
+    para = _lay(align="left")
+    assert all(not ln.justify for ln in para.lines)
+
+
+# --------------------------------------------------------------------------- #
+#  hyphenation                                                                 #
+# --------------------------------------------------------------------------- #
+def test_lines_carry_char_offsets_that_reslice_the_source():
+    """Each justified line records [start,end) into the source text so a caller
+    can slice styled runs back onto the line (span-aware justification)."""
+    text = "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu"
+    para = FL.layout_paragraph(text, size=10, avg=0.5, lh=1.4, width=100,
+                               measure=mono, align="justify")
+    for ln in para.lines:
+        src = text[ln.start:ln.end]
+        assert src.split() == ln.text.rstrip("-").split()
+    assert para.lines[0].start == 0
+    assert para.lines[-1].end == len(text)
+
+
+def test_slice_runs_splits_runs_at_line_boundaries():
+    runs = [("The quick ", "A"), ("brown", "B"), (" fox jumps", "A")]  # "The quick brown fox jumps"
+    got = FL.slice_runs(runs, 4, 15)            # "quick brown"
+    assert "".join(t for t, _ in got) == "quick brown"
+    assert ("brown", "B") in got               # the styled run is preserved whole
+    # boundary + empty
+    assert FL.slice_runs(runs, 0, 0) == []
+    assert "".join(t for t, _ in FL.slice_runs(runs, 0, 25)) == "The quick brown fox jumps"
+
+
+def test_hyphenation_breaks_long_words_when_available():
+    pytest.importorskip("pyphen")
+    # a narrow column full of long words: absorbing slack by hyphenation is the
+    # only way to stay tight, so at least one line must end on a hyphen.
+    text = ("Precisely because their interiors lie beyond reach neutron stars "
+            "have become indispensable instruments for testing extraordinary "
+            "gravitational relativity and electromagnetism spectacularly")
+    para = FL.layout_paragraph(text, size=11, avg=0.5, lh=1.4, width=150,
+                               measure=mono, align="justify")
+    assert any(ln.text.endswith("-") for ln in para.lines[:-1])
+
+
+def test_dash_is_a_break_opportunity():
+    pytest.importorskip("pyphen")
+    # an em-dash-joined pair should be splittable across lines in a tight column
+    text = "alpha beta gamma delta epsilon—zeta eta theta iota kappa lambda"
+    para = FL.layout_paragraph(text, size=11, avg=0.5, lh=1.4, width=90,
+                               measure=mono, align="justify")
+    joined = " ".join(ln.text for ln in para.lines)
+    # the dash must not force "epsilon—zeta" to live glued on one line only
+    assert any("epsilon—" in ln.text or ln.text.endswith("epsilon—")
+               for ln in para.lines) or "epsilon— zeta" not in joined

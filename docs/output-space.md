@@ -2,7 +2,8 @@
 disclaimer:
   notice: >-
     No information within this document should be taken for granted. This is a
-    hand-written conceptual design record, out of the generated MkDocs nav. Its
+    hand-written conceptual design record, listed in the MkDocs nav under Design
+    records but not gated for prose freshness. Its
     "Generated today" anchor — the concrete entry points — is pinned by
     tests/test_output_space_doc.py and fails the gate on drift. The conceptual
     families and the boundaries are NOT machine-verifiable; verify them against
@@ -40,23 +41,23 @@ These are wired and exercised in the repo. Each names its entry point; the paths
 here are pinned by `tests/test_output_space_doc.py` (drift → gate failure).
 
 The shared core is the port + renderer:
-`framegraph/rendering/domain/ports.py` (the `ScenePainter` port) and
-`framegraph/rendering/application/renderer.py` (the model-walking `Renderer`).
+`src/framegraph/rendering/domain/ports.py` (the `ScenePainter` port) and
+`src/framegraph/rendering/application/renderer.py` (the model-walking `Renderer`).
 
 | Output | Kind | Entry point |
 |---|---|---|
-| **SVG** | vector (primary) | `framegraph/rendering/infrastructure/painters/svg.py`, driven by `tooling/render_fixtures.py` |
-| **PNG** (headless Chromium) | raster, CSS-fidelity | `tooling/render_chromium.py` |
+| **SVG** | vector (primary) | `src/framegraph/rendering/infrastructure/painters/svg.py`, driven by `tooling/render_fixtures.py` |
+| **PNG** (headless Chromium) | raster, CSS-fidelity; `--font-pack P.fp` scopes fonts so measure == render (ADR-0004) | `tooling/render_chromium.py` |
 | **Raster** (matplotlib proxy) | raster, sanity check | `tooling/render_fg_doc.py` |
-| **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `framegraph/rendering/infrastructure/latex/document.py` |
+| **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `src/framegraph/rendering/infrastructure/latex/document.py` |
 | **PDF** via cairosvg (SVG → PDF) | vector PDF | `tooling/render_pdf.py` |
-| **HTML/CSS** (legacy; documented flow/gradient limits) | web | `framegraph_to_html.py` |
+| **HTML/CSS** (ADR-0004 promotes this to the intended flow-fidelity path; the current implementation still degrades flow — documented flow/gradient limits) | web | `src/framegraph/rendering/infrastructure/backends/html.py` (the `DocumentRenderer` port; `--to html`) |
 | **Math** TeX → SVG (MathJax) | embedded glyphs | `tooling/mathjax_tex_to_svg.mjs` |
-| **JSON Schema** | format contract | `schema/build_schema.py` |
+| **JSON Schema** | format contract | `docs/schema/build_schema.py` |
 | **Docs site** (reference/gallery/SDK/spec) | documentation | `tooling/gen_docs.py` |
 | **Golden hashes** (per-page SHA-256 of SVG) | regression lock | `tooling/render_golden.py` |
 
-The second-painter migration (`framegraph/rendering/infrastructure/painters/tikz.py`,
+The second-painter migration (`src/framegraph/rendering/infrastructure/painters/tikz.py`,
 `TikzPainter`) is in progress — when wired it routes the LaTeX/TikZ output through
 the same port, collapsing the `FigureTikz` fork.
 
@@ -67,6 +68,14 @@ the same port, collapsing the `FigureTikz` fork.
 > Honest scope: no renderer is conformant; the SVG/matplotlib proxies are sanity
 > checks, not fidelity guarantees, and fidelity degrades where a target cannot
 > hold an IR feature (gradients flatten in TikZ; flow degrades in the HTML path).
+>
+> Text determinism is enforced separately by `fg-font` (`src/framegraph/fontpack.py`,
+> a console script): `--check DOC` gates a document (non-zero exit if a content font
+> would substitute), `--pack DOC --out P.fp` bundles the exact faces plus a
+> `family → file → sha256` manifest, and a substituted content font now **screams**
+> (a `font_substitution` warning to diagnostics *and* stderr). A `.fp` pack fed to
+> `render_chromium.py --font-pack` makes measure == render on any host
+> ([ADR-0004](adr-0004-single-engine-layout.md)).
 
 ## What it could generate (conceptual)
 

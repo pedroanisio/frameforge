@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `button`, `card`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `field`, `kpi`, `pill`, `progress`, `register_theme`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Handle`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `fill_stroke`, `function_plot`, `glow`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `polar_plot`, `place_imported_figure`, `parse`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `sparkline`, `sphere`, `stroke`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`from_markdown`, `ClosedPalette`, `caps_tracking`, `closed_palette`, `color_guide`, `complement`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `dominant_light`, `grey_document`, `harmony_of_hues`, `harmony_of_scale`, `johnston_margins`, `measure_fits`, `modular_scale`, `relative_luminance`, `tone_scale`, `Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Hand`, `Handle`, `apply_humanize`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `font_kern_pairs`, `kerned_spans`, `Placement`, `repeat_along_path`, `recolor`, `BookBuilder`, `ChapterBuilder`, `planar`, `stroke_outline`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `bezier_patch`, `bezier_patch_point`, `bspline_patch`, `bspline_patch_point`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `dragon_curve`, `koch_curve`, `lsystem`, `sierpinski_arrowhead`, `turtle`, `aabb`, `aabb3`, `convex_hull`, `convex_hull_3d`, `obb`, `line_intersection`, `mirror`, `point_in_polygon`, `polygon_area`, `polyline_length`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `line_curve_intersections`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `surface_curvature`, `window_to_viewport`, `ViewingPipeline`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
 
 ## `framegraph.sdk.author`
 
@@ -16,7 +16,7 @@
 Small fluent builder that lowers directly to the authoritative model.
 
 ```python
-DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.2.0') -> 'None'
+DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.4.1') -> 'None'
 ```
 
 | Method | Signature | Summary |
@@ -26,15 +26,23 @@ DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lan
 | `define_asset` | `(self, name: 'str', src: 'str', *, kind: 'str \| None' = None, hash: 'str \| None' = None, **fields: 'Any') -> 'Handle'` |  |
 | `define_color` | `(self, name: 'str', value: 'str') -> 'Handle'` |  |
 | `define_component` | `(self, name: 'str', spec: 'dict[str, Any]') -> 'Handle'` |  |
+| `define_counter` | `(self, name: 'str', *, start: 'int \| None' = None, reset_with: 'str \| None' = None, format: 'str \| None' = None) -> 'Handle'` | Define a named counter (``defs.counters``) for numbering series. |
 | `define_font` | `(self, name: 'str', *, family: 'str', src: 'str \| None' = None, hash: 'str \| None' = None, **fields: 'Any') -> 'Handle'` |  |
 | `define_master` | `(self, name: 'str', master: 'dict[str, Any]') -> 'Handle'` |  |
 | `define_stroke_style` | `(self, name: 'str', **style: 'Any') -> 'Handle'` |  |
 | `define_style` | `(self, name: 'str', **style: 'Any') -> 'Handle'` |  |
 | `define_symbol` | `(self, name: 'str', *, box: 'list[Any]', objects: 'list[dict[str, Any]]', **fields: 'Any') -> 'Handle'` |  |
+| `define_target` | `(self, name: 'str', canvas: 'str \| dict[str, Any]', *, adjustments: 'dict[str, Any] \| None' = None, font_scale: 'float \| None' = None, hide: 'list[str] \| None' = None, padding_delta: 'float \| None' = None) -> 'Handle'` | Add a render target (multi-canvas output) with optional adjustments. |
 | `define_text_style` | `(self, name: 'str', **style: 'Any') -> 'Handle'` |  |
+| `describe` | `(self, description: 'str') -> "'DocumentBuilder'"` | Set the document's ``description`` (semantic summary for readers/agents). |
 | `flow` | `(self, id: 'str', *, master: 'Handle \| str', story: 'list[dict[str, Any]]', **fields: 'Any') -> 'None'` |  |
-| `page` | `(self, id: 'str', *, canvas: 'str \| dict[str, Any] \| None' = None, master: 'Handle \| str \| None' = None, reading_order: 'list[str] \| None' = None, coordinate_mode: 'str \| None' = None) -> "'PageBuilder'"` | Append a page and return its builder. |
+| `humanize` | `(self, **fields: 'Any') -> "'DocumentBuilder'"` | Set the document-level humanize 'hand' — a seeded, bounded imperfection |
+| `master` | `(self, name: 'str', canvas: 'str \| dict[str, Any]', **fields: 'Any') -> "'MasterBuilder'"` | Define a page master and return its fluent :class:`MasterBuilder`. |
+| `meta` | `(self, **entries: 'Any') -> "'DocumentBuilder'"` | Merge entries into the document-level ``meta`` mapping. |
+| `page` | `(self, id: 'str', *, canvas: 'str \| dict[str, Any] \| None' = None, master: 'Handle \| str \| None' = None, reading_order: 'list[str] \| None' = None, coordinate_mode: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Append a page and return its builder. |
+| `section` | `(self, id: 'str', *, master: 'Handle \| str', **fields: 'Any')` | Author a ``mode: flow`` section's story with typed builder calls. |
 | `symbol` | `(self, name: 'str', box: 'list[Any]', **fields: 'Any') -> "'Iterator[PageBuilder]'"` | Author a reusable symbol with normal ``PageBuilder`` calls. |
+| `text_contract` | `(self, **fields: 'Any') -> "'DocumentBuilder'"` | Set the document-level text contract (``min_font_size``, ``overflow``, |
 | `write` | `(self, path: 'str \| FsPath', *, format: 'str' = 'yaml', validate: 'bool' = True, fail_on_error: 'bool' = False, expand_reuse: 'bool' = True)` | Build, optionally run static rules, and serialize the document to ``path``. |
 
 ### `Handle`
@@ -46,6 +54,26 @@ Nominal reference returned by definition helpers.
 ```python
 Handle(kind: 'str', name: 'str') -> None
 ```
+
+### `MasterBuilder`
+
+`framegraph.sdk.author.MasterBuilder`
+
+Fluent builder for one ``defs.masters`` entry (a ``PageMaster``).
+
+```python
+MasterBuilder(name: 'str', master: 'dict[str, Any]') -> 'None'
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `fixed` | `(self, objects: 'list[dict[str, Any]]') -> "'MasterBuilder'"` | Append fixed chrome objects drawn on every page using this master. |
+| `footnote_area` | `(self, id: 'str', box: 'list[Any]', **fields: 'Any') -> "'MasterBuilder'"` | Set the footnote region (where ``footnote`` inlines are placed). |
+| `margin` | `(self, margin: 'list[Any]') -> "'MasterBuilder'"` | Set the master's content margin (``[top, right, bottom, left]``). |
+| `page_number` | `(self, value: 'Any' = True) -> "'MasterBuilder'"` | Enable the running page number (``True`` or a style dict). |
+| `region` | `(self, id: 'str', box: 'list[Any]', *, columns: 'int \| None' = None, column_gap: 'Any' = None, column_fill: 'str \| None' = None, next: 'str \| None' = None, **fields: 'Any') -> "'MasterBuilder'"` | Append a flow region. ``next`` chains overflow into another region |
+| `running_footer` | `(self, objects: 'list[dict[str, Any]]') -> "'MasterBuilder'"` | Set the running footer content (a list of visual objects). |
+| `running_header` | `(self, objects: 'list[dict[str, Any]]') -> "'MasterBuilder'"` | Set the running header content (a list of visual objects). |
 
 ### `PageBuilder`
 
@@ -65,12 +93,18 @@ PageBuilder(page: 'dict[str, Any]') -> 'None'
 | `avatar` | `(self, box: 'Any', name: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `badge` | `(self, box: 'Any', text: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `bleed` | `(self) -> "'Iterator[PageBuilder]'"` | Mark every object added in this block ``decorative``. |
+| `breadcrumb` | `(self, box: 'Any', items: 'list[str] \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
+| `bullet_list` | `(self, box: 'list[Any]', items: 'list[Any]', *, marker: 'str \| None' = None, marker_color: 'Any' = None, gap: 'float \| None' = None, indent: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add a positioned bullet list (the absolute-layout list primitive; |
 | `button` | `(self, box: 'Any', label: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `card` | `(self, box: 'Any', **fields: 'Any')` | Add a card widget and return its :class:`~framegraph.sdk.Panel`. |
 | `chart` | `(self, box: 'Any', *, domain: 'tuple[float, float, float, float]', x_scale: 'Any' = 'linear', y_scale: 'Any' = 'linear')` | Return a :class:`~framegraph.sdk.Chart` mapped to ``box``. |
+| `checkbox` | `(self, box: 'Any' = None, *, checked: 'bool' = True, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `circle` | `(self, center: 'Any', r: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add a circle. Lowers to the canonical ``ellipse`` (rx == ry == r), so it |
 | `component` | `(self, component: 'Handle \| str', box: 'list[Any]', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `connector` | `(self, start: 'Any', end: 'Any', *, route: 'Any' = None, route_kind: 'str \| None' = None, label: 'str \| None' = None, label_box: 'list[Any] \| None' = None, label_style: 'Any' = None, arrow_start: 'Any' = None, arrow_end: 'Any' = None, **fields: 'Any') -> "'PageBuilder'"` | Add an anchored connector between two endpoints (typed at HEAD, §3.11). |
+| `dimension` | `(self, start: 'Any', end: 'Any', *, kind: 'str' = 'linear', value: 'Any' = None, text: 'str \| None' = None, prefix: 'str \| None' = None, suffix: 'str \| None' = None, offset: 'Any' = None, arrows: 'str \| None' = None, text_style: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add an anchored dimension annotation (measurement callout). |
 | `divider` | `(self, box: 'Any' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
+| `dropdown` | `(self, box: 'Any', items: 'list[str]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `ellipse` | `(self, center: 'Any', rx: 'float', ry: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add an ellipse centred at ``center`` (a ``Vec2`` or ``[x, y]``). |
 | `extend` | `(self, objects: 'list[dict[str, Any]]') -> "'PageBuilder'"` | Add many objects at once (e.g. the output of a Chart or a layout). |
 | `field` | `(self, box: 'Any', label: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
@@ -80,28 +114,35 @@ PageBuilder(page: 'dict[str, Any]') -> 'None'
 | `group` | `(self, children: 'list[dict[str, Any]]', *, transform: "'Mat3 \| list[Any] \| None'" = None, clip: 'Any' = None, **fields: 'Any') -> "'PageBuilder'"` | Add a group of ``children``. |
 | `grouped` | `(self, *, transform: "'Mat3 \| list[Any] \| None'" = None, clip: 'Any' = None, **fields: 'Any') -> "'Iterator[PageBuilder]'"` | Collect objects into one group when the block exits. |
 | `hstack` | `(self, box: 'list[Any]', *, gap: 'float \| int \| str \| None' = None, pad: 'Any' = None, align: 'str \| None' = None, justify: 'str \| None' = None, **fields: 'Any')` | Context manager for a row layout group. |
+| `icon` | `(self, box: 'list[Any]', glyph: 'str', *, color: 'Any' = None, font: 'str \| None' = None, size: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add an icon glyph (a single character/ligature drawn in ``box``). |
 | `image` | `(self, box: 'list[Any]', src: 'Handle \| str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `image_placeholder` | `(self, box: 'Any', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `imported_figure` | `(self, figure: 'Any', box: 'list[Any]', **options: 'Any') -> "'PageBuilder'"` | Place an extracted PDF/EPUB/image figure with provenance metadata. |
 | `kpi` | `(self, box: 'Any', label: 'str', value: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `layer` | `(self, id: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `lettering` | `(self) -> "'Iterator[PageBuilder]'"` | Tag text added in this block as lettering (``meta.role = "lettering"``). |
 | `line` | `(self, start: 'list[float]', end: 'list[float]', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `link` | `(self, to: 'str', *, relation: 'str \| None' = None, label: 'str \| None' = None, external: 'bool \| None' = None) -> "'PageBuilder'"` | Add a page-level navigation link (``page.links``) to another page id. |
 | `local` | `(self, box: 'list[Any]', *, clip: 'Any' = None, **fields: 'Any') -> "'Iterator[PageBuilder]'"` | Collect local-coordinate children into a box-anchored group. |
+| `navbar` | `(self, box: 'Any', items: 'list[str]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `panel` | `(self, box: 'list[Any]', *, clip: 'Any' = None, **fields: 'Any')` | Alias for :meth:`local` when the grouped children form a panel. |
 | `path` | `(self, d: 'Any', **fields: 'Any') -> "'PageBuilder'"` | Add a path. ``d`` may be an SVG path string, a segment list, or a |
 | `pill` | `(self, box: 'Any', text: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `polygon` | `(self, points: 'Any', **fields: 'Any') -> "'PageBuilder'"` | Add a filled polygon. Lowers to a canonical closed ``polyline``, so it |
 | `polyline` | `(self, points: 'Any', *, closed: 'bool' = False, smooth: 'bool' = False, **fields: 'Any') -> "'PageBuilder'"` | Add a polyline through ``points`` (``Vec2`` values or ``[x, y]`` pairs). |
 | `progress` | `(self, box: 'Any', value: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
+| `radio` | `(self, box: 'Any' = None, *, selected: 'bool' = True, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `rect` | `(self, box: 'list[Any]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `regular_polygon` | `(self, center: 'Any', r: 'float', sides: 'int', *, rotation: 'float' = 0.0, **fields: 'Any') -> "'PageBuilder'"` | Add a regular ``sides``-gon of circumradius ``r``, lowered to a closed polyline. |
 | `ring` | `(self, center: 'Any', r_outer: 'float', r_inner: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add a full annulus, lowered to an even-odd ``path``. |
 | `sector` | `(self, center: 'Any', r: 'float', start: 'float', end: 'float', *, ry: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add a filled pie sector (wedge) from ``start`` to ``end`` degrees. |
+| `slider` | `(self, box: 'Any', frac: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `stack` | `(self, box: 'list[Any]', *, kind: 'str', gap: 'float \| int \| str \| None' = None, pad: 'Any' = None, align: 'str \| None' = None, justify: 'str \| None' = None, columns: 'int \| None' = None, row_gap: 'float \| int \| str \| None' = None, column_gap: 'float \| int \| str \| None' = None, **fields: 'Any') -> "'Iterator[StackBuilder]'"` | Collect children into a layout-native group. |
 | `star` | `(self, center: 'Any', r_outer: 'float', r_inner: 'float', points: 'int', *, rotation: 'float' = -90.0, **fields: 'Any') -> "'PageBuilder'"` | Add a ``points``-pointed star, lowered to a closed polyline. |
+| `sticky_note` | `(self, box: 'Any', text: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `table` | `(self, box: 'Any', columns: 'list[dict[str, Any]]', rows: 'list[list[Any]]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `tabs` | `(self, box: 'Any', items: 'list[str] \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
-| `text` | `(self, box: 'list[Any]', text: 'str', **fields: 'Any') -> "'PageBuilder'"` |  |
+| `text` | `(self, box: 'list[Any]', text: 'str \| list[Any]', **fields: 'Any') -> "'PageBuilder'"` | Add a text object. ``text`` is a plain string, or a list of inlines |
 | `toggle` | `(self, box: 'Any' = None, *, on: 'bool' = False, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `use` | `(self, symbol: 'Handle \| str', box: 'list[Any]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `use_at` | `(self, symbol: 'Handle \| str', x: 'float', y: 'float', w: 'float', h: 'float', **fields: 'Any') -> "'PageBuilder'"` | Place a symbol instance from scalar coordinates. |
@@ -125,6 +166,7 @@ StackBuilder(parent: "'PageBuilder'", box: 'list[Any]', layout: 'dict[str, Any]'
 | `avatar` | `(self, initials: 'str \| None' = None, **fields: 'Any') -> "'StackBuilder'"` |  |
 | `badge` | `(self, text: 'str', **fields: 'Any') -> "'StackBuilder'"` |  |
 | `button` | `(self, label: 'str', **fields: 'Any') -> "'StackBuilder'"` |  |
+| `checkbox` | `(self, *, checked: 'bool' = True, **fields: 'Any') -> "'StackBuilder'"` |  |
 | `commit` | `(self) -> 'PageBuilder'` |  |
 | `divider` | `(self, **fields: 'Any') -> "'StackBuilder'"` |  |
 | `extend` | `(self, objects: 'list[dict[str, Any]]') -> "'StackBuilder'"` |  |
@@ -132,10 +174,80 @@ StackBuilder(parent: "'PageBuilder'", box: 'list[Any]', layout: 'dict[str, Any]'
 | `kpi` | `(self, label: 'str', value: 'str', **fields: 'Any') -> "'StackBuilder'"` |  |
 | `pill` | `(self, text: 'str \| None' = None, **fields: 'Any') -> "'StackBuilder'"` |  |
 | `progress` | `(self, frac: 'float', **fields: 'Any') -> "'StackBuilder'"` |  |
+| `radio` | `(self, *, selected: 'bool' = True, **fields: 'Any') -> "'StackBuilder'"` |  |
+| `slider` | `(self, frac: 'float', **fields: 'Any') -> "'StackBuilder'"` |  |
 | `spacer` | `(self, *, w: 'float' = 0.0, h: 'float' = 0.0, grow: 'float' = 1.0, axis: 'str' = 'width') -> "'StackBuilder'"` | Add an invisible fill/grow spacer. |
 | `tabs` | `(self, items: 'list[str]', **fields: 'Any') -> "'StackBuilder'"` |  |
 | `toggle` | `(self, **fields: 'Any') -> "'StackBuilder'"` |  |
 | `widget` | `(self, obj: 'dict[str, Any]') -> "'StackBuilder'"` |  |
+
+## `framegraph.sdk.canon`
+
+### `MARGIN_CANON`
+
+`dict` value: `{'inner': 1.5, 'top': 2.0, 'outer': 3.0, 'foot': 4.0}`
+
+### `MEASURE_MAX`
+
+`int` value: `75`
+
+### `MEASURE_MIN`
+
+`int` value: `45`
+
+### `SCALE_NAMES`
+
+`tuple` value: `('caption', 'body', 'lead', 'h3', 'h2', 'h1', 'display', 'cover')`
+
+### `caps_tracking`
+
+`framegraph.sdk.canon.caps_tracking`
+
+Letter-spacing (px) for an all-caps setting: capitals want air.
+
+```python
+caps_tracking(font_size: 'float', percent: 'float' = 6.0) -> 'float'
+```
+
+### `content_box`
+
+`framegraph.sdk.canon.content_box`
+
+The text block ``(x, y, w, h)`` the margin canon leaves on one page.
+
+```python
+content_box(page_w: 'float', page_h: 'float', unit: 'float', side: 'str' = 'recto') -> 'tuple[float, float, float, float]'
+```
+
+### `johnston_margins`
+
+`framegraph.sdk.canon.johnston_margins`
+
+The margin canon scaled by one unit: inner 1½u, top 2u, outer 3u, foot 4u.
+
+```python
+johnston_margins(unit: 'float') -> 'dict[str, float]'
+```
+
+### `measure_fits`
+
+`framegraph.sdk.canon.measure_fits`
+
+True when a measure sits in the 45–75 characters-per-line comfort band.
+
+```python
+measure_fits(chars_per_line: 'float') -> 'bool'
+```
+
+### `modular_scale`
+
+`framegraph.sdk.canon.modular_scale`
+
+Named sizes as exact powers of one ratio: ``base * ratio**i``.
+
+```python
+modular_scale(base: 'float', ratio: 'float' = 1.25, names: "'list[str] | tuple[str, ...] | None'" = None) -> 'dict[str, float]'
+```
 
 ## `framegraph.sdk.chart`
 
@@ -152,12 +264,200 @@ Chart(frame: 'Frame', _objects: 'list[dict[str, Any]]' = <factory>, _legend: 'li
 | Method | Signature | Summary |
 |---|---|---|
 | `add_to` | `(self, page: 'Any') -> 'Any'` | Append this chart's objects to a page/layer builder and return it. |
+| `area` | `(self, points: 'Sequence[Point]', *, baseline: 'float' = 0.0, fill: 'str' = '#33333333', stroke: 'str \| None' = None, width: 'float' = 2.0, label: 'str \| None' = None) -> "'Chart'"` | Fill the region between a series and ``baseline`` (a closed polyline). |
 | `axes` | `(self, *, x_ticks: 'Sequence[float]' = (), y_ticks: 'Sequence[float]' = (), x_format: 'Callable[[float], str]' = <class 'str'>, y_format: 'Callable[[float], str]' = <class 'str'>, grid: 'bool' = False, axis_color: 'str' = '#C4D0DD', grid_color: 'str \| None' = None, label_style: 'Style \| None' = None, tick_len: 'float' = 5.0, label_gap: 'float' = 9.0) -> "'Chart'"` | Draw L-shaped axes with ticks, labels, and optional gridlines. |
 | `bars` | `(self, points: 'Sequence[Point]', *, baseline: 'float' = 0.0, width: 'float' = 14.0, fill: 'str' = '#333333', radius: 'float \| None' = None, label: 'str \| None' = None) -> "'Chart'"` | Draw a vertical bar from ``baseline`` to each data point. |
+| `donut` | `(self, values: 'Sequence[float]', *, inner_ratio: 'float' = 0.55, **kwargs: 'Any') -> "'Chart'"` | A pie with a hole: :meth:`pie` with ``inner_ratio`` (default 0.55). |
 | `legend` | `(self, entries: 'Sequence[tuple[str, str]] \| None' = None, *, at: 'str \| Point' = 'tr', swatch: 'float' = 12.0, gap: 'float' = 8.0, pitch: 'float' = 26.0, label_style: 'Style \| None' = None) -> "'Chart'"` | Render a horizontal legend; defaults to the labelled series so far. |
 | `line` | `(self, points: 'Sequence[Point]', *, stroke: 'str' = '#333333', width: 'float' = 2.0, smooth: 'bool' = False, label: 'str \| None' = None, dash: 'Sequence[float] \| None' = None) -> "'Chart'"` | Plot a polyline (or a smooth Catmull-Rom path) through data points. |
 | `marker` | `(self, x: 'float', y: 'float', *, r: 'float' = 4.0, fill: 'str' = '#333333') -> "'Chart'"` | Place a dot at a data point (e.g. to flag a maximum). |
 | `objects` | `(self) -> 'list[dict[str, Any]]'` | Return the accumulated chart objects (order = draw order). |
+| `pie` | `(self, values: 'Sequence[float]', *, colors: 'Sequence[str]', labels: 'Sequence[str] \| None' = None, center: 'Point \| None' = None, r: 'float \| None' = None, inner_ratio: 'float' = 0.0, start_angle: 'float' = -90.0) -> "'Chart'"` | Draw a pie (or, with ``inner_ratio`` > 0, a donut) inside the plot box. |
+| `scatter` | `(self, points: 'Sequence[Point]', *, r: 'float' = 3.5, fill: 'str' = '#333333', label: 'str \| None' = None) -> "'Chart'"` | Place a dot (radius ``r`` px) at each data point. |
+
+## `framegraph.sdk.chevreul`
+
+### `AREA_GUIDE`
+
+`dict` value: `{'ground': 0.62, 'text_structure': 0.3, 'accent': 0.08}`
+
+### `WHEEL`
+
+`dict` value: `{'red': '#d7332f', 'red-orange': '#e2612c', 'orange': '#eb8b2d', 'yellow-orange': '#f0b32e', 'yellow': '#eecf3a', 'yellow-green': '#a9c04a', 'green': '#5d9e52', 'blue-green': '#3d8f7c', 'blue': '#33689c', 'blue-violet': '#4a4e8f', 'violet': '#6d4a86', 'red-violet': '#a03d69'}`
+
+### `ClosedPalette`
+
+`framegraph.sdk.chevreul.ClosedPalette`
+
+A small palette with assigned duties — 'the impossibility of strangers'.
+
+```python
+ClosedPalette(duties: 'dict[str, Color]', quiet_steps: 'list[Color]' = <factory>) -> None
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `tokens` | `(self) -> 'dict[str, Color]'` | A ``defs.tokens.colors`` fragment: duties plus ``quiet1..N``. |
+
+### `closed_palette`
+
+`framegraph.sdk.chevreul.closed_palette`
+
+Build a closed palette with assigned duties.
+
+```python
+closed_palette(*, ground: 'Color', ink: 'Color', accent: 'Color', quiet_steps: 'int' = 3) -> 'ClosedPalette'
+```
+
+### `complement`
+
+`framegraph.sdk.chevreul.complement`
+
+The complementary colour of a wheel station (its afterimage and its
+
+```python
+complement(station: 'str') -> 'Color'
+```
+
+### `complement_name`
+
+`framegraph.sdk.chevreul.complement_name`
+
+The opposite station's name — six stations away on the wheel.
+
+```python
+complement_name(station: 'str') -> 'str'
+```
+
+### `contrast_of_colours`
+
+`framegraph.sdk.chevreul.contrast_of_colours`
+
+Contrast 3 — very distant scales: the complementary pair, colour's
+
+```python
+contrast_of_colours(station: 'str') -> 'tuple[Color, Color]'
+```
+
+### `contrast_of_hues`
+
+`framegraph.sdk.chevreul.contrast_of_hues`
+
+Contrast 2 — neighbouring scales at unequal depths (kinship in hue,
+
+```python
+contrast_of_hues(station: 'str') -> 'tuple[Color, Color]'
+```
+
+### `contrast_of_scale`
+
+`framegraph.sdk.chevreul.contrast_of_scale`
+
+Contrast 1 — two very distant tones of one scale (the monochrome,
+
+```python
+contrast_of_scale(color: 'Color') -> 'tuple[Color, Color]'
+```
+
+### `contrast_ratio`
+
+`framegraph.sdk.chevreul.contrast_ratio`
+
+WCAG 2.1 contrast ratio between two colours (1.0 – 21.0), symmetric.
+
+```python
+contrast_ratio(a: 'Color', b: 'Color') -> 'float'
+```
+
+### `dominant_light`
+
+`framegraph.sdk.chevreul.dominant_light`
+
+Analogy 3 — many colours seen through one tint ("as would result from
+
+```python
+dominant_light(colors: 'Sequence[Color]', tint: 'Color', strength: 'float' = 0.35) -> 'list[Color]'
+```
+
+### `grey_document`
+
+`framegraph.sdk.chevreul.grey_document`
+
+The grey test (best effort): a deep copy of a document with every
+
+```python
+grey_document(doc: 'Mapping[str, Any]') -> 'dict[str, Any]'
+```
+
+### `color_guide`
+
+`framegraph.sdk.chevreul.color_guide`
+
+The six harmonies for one base colour — the declarative Color Guide
+
+```python
+color_guide(base: "'Color'", *, n: 'int' = 5) -> "dict[str, list['Color']]"
+```
+
+### `harmony_of_hues`
+
+`framegraph.sdk.chevreul.harmony_of_hues`
+
+Analogy 2 — like tones of neighbouring scales (the analogous palette:
+
+```python
+harmony_of_hues(station: 'str', n: 'int' = 3, tone: 'int | None' = None) -> 'list[Color]'
+```
+
+### `harmony_of_scale`
+
+`framegraph.sdk.chevreul.harmony_of_scale`
+
+Analogy 1 — tones of one scale, read in order (the monochrome).
+
+```python
+harmony_of_scale(color: 'Color', n: 'int' = 5) -> 'list[Color]'
+```
+
+### `nearest_station`
+
+`framegraph.sdk.chevreul.nearest_station`
+
+The wheel station nearest to a colour (RGB distance — approximate;
+
+```python
+nearest_station(color: 'Color') -> 'str'
+```
+
+### `relative_luminance`
+
+`framegraph.sdk.chevreul.relative_luminance`
+
+WCAG 2.1 relative luminance of an ``#rrggbb`` colour (0.0 – 1.0).
+
+```python
+relative_luminance(color: 'Color') -> 'float'
+```
+
+### `to_grey`
+
+`framegraph.sdk.chevreul.to_grey`
+
+The luminance-matched grey of a colour (hue stripped, tone kept).
+
+```python
+to_grey(color: 'Color') -> 'Color'
+```
+
+### `tone_scale`
+
+`framegraph.sdk.chevreul.tone_scale`
+
+A Chevreul tone ladder: light tones → the pure colour → deep tones.
+
+```python
+tone_scale(color: 'Color', steps: 'int' = 9) -> 'list[Color]'
+```
 
 ## `framegraph.sdk.clip`
 
@@ -270,7 +570,7 @@ render_page_svgs(model: 'Any', *, base_dir: 'str | None' = None) -> 'list[str]'
 Render a document through the SVG proxy, returning the page SVGs and the
 
 ```python
-render_pages_with_stats(model: 'Any', *, base_dir: 'str | None' = None) -> 'tuple[list[str], dict[str, int]]'
+render_pages_with_stats(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool | None' = None, layout_report: 'bool' = False, diagnostics: 'bool' = False)
 ```
 
 ### `write_golden`
@@ -331,7 +631,7 @@ Scene3D(faces: 'list[tuple[list[Vec3], dict[str, object]]]' = <factory>) -> None
 | `extrude` | `(self, polygon: 'Sequence[Sequence[float]]', depth: 'float', **style: 'object') -> "'Scene3D'"` |  |
 | `mesh` | `(self, vertices: 'Sequence[Sequence[float] \| Vec3]', faces: 'Sequence[Sequence[int]]', **style: 'object') -> "'Scene3D'"` |  |
 | `parametric_surface` | `(self, fn: 'Callable[[float, float], Sequence[float] \| Vec3]', *, u: 'tuple[float, float]', v: 'tuple[float, float]', steps_u: 'int', steps_v: 'int', **style: 'object') -> "'Scene3D'"` |  |
-| `render` | `(self, *, camera: 'Mat4 \| Camera \| None' = None, box: 'Sequence[float]', fill: 'str' = '#ddd', stroke: 'str' = '#333', material: 'Material \| None' = None, light: 'Vec3 \| Sequence[float]' = Vec3(x=-0.35, y=-0.65, z=0.8), ambient: 'float' = 0.38, diffuse: 'float' = 0.62, shading: "Literal['none', 'lambert', 'gouraud']" = 'none', id: 'str \| None' = None) -> 'dict[str, object]'` |  |
+| `render` | `(self, *, camera: 'Mat4 \| Camera \| None' = None, box: 'Sequence[float]', fill: 'str' = '#ddd', stroke: 'str' = '#333', material: 'Material \| None' = None, light: 'Vec3 \| Sequence[float]' = Vec3(x=-0.35, y=-0.65, z=0.8), ambient: 'float' = 0.38, diffuse: 'float' = 0.62, shading: "Literal['none', 'lambert', 'gouraud', 'phong']" = 'none', specular: 'float' = 0.35, shininess: 'float' = 16.0, cull_backfaces: 'bool' = False, near_clip: 'bool' = False, id: 'str \| None' = None) -> 'dict[str, object]'` |  |
 | `revolve` | `(self, profile: 'Sequence[Sequence[float]]', *, segments: 'int' = 24, **style: 'object') -> "'Scene3D'"` |  |
 
 ## `framegraph.sdk.expand`
@@ -343,7 +643,7 @@ Scene3D(faces: 'list[tuple[list[Vec3], dict[str, object]]]' = <factory>) -> None
 Options for SDK expansion.
 
 ```python
-ExpandOptions(base_dir: 'str | os.PathLike[str] | None' = None, pin_assets: 'bool' = True) -> None
+ExpandOptions(base_dir: 'str | os.PathLike[str] | None' = None, pin_assets: 'bool' = True, humanize: 'bool' = True) -> None
 ```
 
 ### `ExpandedDocument`
@@ -511,6 +811,58 @@ Place an extracted figure asset with provenance and optional caption.
 place_imported_figure(figure: 'FigureAsset', box: 'BoxLike', *, fit: 'FitMode' = 'contain', align: 'str' = 'center', caption_position: 'CaptionPosition' = 'below', caption_height: 'float | None' = None, caption_gap: 'float' = 8.0, caption_style: 'Mapping[str, Any] | None' = None, decorative: 'bool | None' = False, id_prefix: 'str | None' = None, **fields: 'Any') -> 'ImportedFigurePlacement'
 ```
 
+## `framegraph.sdk.fractal`
+
+### `dragon_curve`
+
+`framegraph.sdk.fractal.dragon_curve`
+
+The Heighway dragon after ``iterations`` (axiom ``F``, rules
+
+```python
+dragon_curve(iterations: 'int', *, step: 'float' = 1.0) -> 'list[Vec2]'
+```
+
+### `koch_curve`
+
+`framegraph.sdk.fractal.koch_curve`
+
+The Koch curve after ``iterations`` (axiom ``F``, rule ``F→F+F--F+F``,
+
+```python
+koch_curve(iterations: 'int', *, step: 'float' = 1.0) -> 'list[Vec2]'
+```
+
+### `lsystem`
+
+`framegraph.sdk.fractal.lsystem`
+
+Expand ``axiom`` by ``iterations`` parallel rewrites under ``rules`` (a
+
+```python
+lsystem(axiom: 'str', rules: 'Mapping[str, str]', iterations: 'int') -> 'str'
+```
+
+### `sierpinski_arrowhead`
+
+`framegraph.sdk.fractal.sierpinski_arrowhead`
+
+The Sierpiński arrowhead curve (axiom ``F``, rules ``F→G-F-G``,
+
+```python
+sierpinski_arrowhead(iterations: 'int', *, step: 'float' = 1.0) -> 'list[Vec2]'
+```
+
+### `turtle`
+
+`framegraph.sdk.fractal.turtle`
+
+Interpret a turtle ``commands`` string into a list of polylines (one per
+
+```python
+turtle(commands: 'str', *, angle_deg: 'float', step: 'float' = 1.0, start: 'Vec2 | Sequence[float]' = (0.0, 0.0), heading_deg: 'float' = 0.0) -> 'list[list[Vec2]]'
+```
+
 ## `framegraph.sdk.geometry`
 
 ### `Camera`
@@ -543,8 +895,12 @@ CubicBezier(p0: 'Vec2', p1: 'Vec2', p2: 'Vec2', p3: 'Vec2') -> None
 
 | Method | Signature | Summary |
 |---|---|---|
+| `arc_length` | `(self, tolerance: 'float' = 1e-08) -> 'float'` | Total arc length ``∫₀¹ \|B'(t)\| dt`` via adaptive Simpson on the speed |
 | `catmull_rom` | `(points: 'Sequence[Vec2 \| Sequence[float]]') -> "list['CubicBezier']"` |  |
+| `curvature` | `(self, t: 'float') -> 'float'` | Signed curvature ``κ(t) = (x'y'' − y'x'') / (x'² + y'²)^{3/2}`` (B9, |
+| `derivative` | `(self, t: 'float') -> 'Vec2'` | First derivative ``B'(t)`` (the hodograph / velocity). B9. |
 | `point` | `(self, t: 'float') -> 'Vec2'` |  |
+| `second_derivative` | `(self, t: 'float') -> 'Vec2'` | Second derivative ``B''(t)`` (acceleration). B9. |
 
 ### `Mat3`
 
@@ -561,6 +917,7 @@ Mat3(a: 'float' = 1.0, b: 'float' = 0.0, c: 'float' = 0.0, d: 'float' = 1.0, e: 
 | `apply` | `(self, point: 'Vec2 \| Sequence[float]') -> 'Vec2'` |  |
 | `identity` | `() -> "'Mat3'"` |  |
 | `inverse` | `(self) -> "'Mat3'"` |  |
+| `reflect` | `(axis: 'str \| Sequence[Vec2 \| Sequence[float]]' = 'x') -> "'Mat3'"` | Reflection matrix (Mortenson §3.6, B7). |
 | `rotate` | `(degrees: 'float') -> "'Mat3'"` | Clockwise-positive rotation in FrameGraph's Y-down page space. |
 | `scale` | `(sx: 'float', sy: 'float \| None' = None) -> "'Mat3'"` |  |
 | `transform_fn` | `(self) -> 'dict[str, object]'` |  |
@@ -589,6 +946,7 @@ Mat4(values: 'tuple[tuple[float, float, float, float], ...]') -> None
 | `rotate_y` | `(degrees: 'float') -> "'Mat4'"` |  |
 | `rotate_z` | `(degrees: 'float') -> "'Mat4'"` |  |
 | `translate` | `(tx: 'float', ty: 'float', tz: 'float') -> "'Mat4'"` |  |
+| `try_project` | `(self, point: 'Vec3 \| Sequence[float]', *, near_eps: 'float' = 1e-09) -> 'Vec2 \| None'` | Robust projection (B2/G1): returns ``None`` for a point at or behind the |
 
 ### `Path`
 
@@ -641,12 +999,226 @@ Vec3(x: 'float', y: 'float', z: 'float') -> None
 |---|---|---|
 | `tuple` | `(self) -> 'tuple[float, float, float]'` |  |
 
+### `ViewingPipeline`
+
+`framegraph.sdk.geometry.ViewingPipeline`
+
+The named viewing pipeline (B1, Harrington ¶43/Ch6/8):
+
+```python
+ViewingPipeline(camera: 'Camera', box: 'Sequence[float]') -> None
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `project` | `(self, points: 'Iterable[Vec3 \| Sequence[float]]') -> 'list[Vec2]'` | World points → clipped, projected, box-fitted :class:`Vec2` page |
+
+### `aabb`
+
+`framegraph.sdk.geometry.aabb`
+
+Axis-aligned bounding box of ``points`` as ``(min_corner, max_corner)``.
+
+```python
+aabb(points: 'Iterable[Vec2 | Sequence[float]]') -> 'tuple[Vec2, Vec2]'
+```
+
+### `aabb3`
+
+`framegraph.sdk.geometry.aabb3`
+
+3D axis-aligned bounding box of ``points`` as ``(min_corner, max_corner)``.
+
+```python
+aabb3(points: 'Iterable[Vec3 | Sequence[float]]') -> 'tuple[Vec3, Vec3]'
+```
+
+### `convex_hull`
+
+`framegraph.sdk.geometry.convex_hull`
+
+The 2D convex hull of ``points`` as a convex ring (Andrew's monotone
+
+```python
+convex_hull(points: 'Iterable[Vec2 | Sequence[float]]') -> 'list[Vec2]'
+```
+
+### `convex_hull_3d`
+
+`framegraph.sdk.geometry.convex_hull_3d`
+
+The 3D convex hull of ``points`` as **outward-oriented triangular faces**
+
+```python
+convex_hull_3d(points: 'Iterable[Vec3 | Sequence[float]]') -> 'list[tuple[Vec3, Vec3, Vec3]]'
+```
+
+### `obb`
+
+`framegraph.sdk.geometry.obb`
+
+The minimum-area **oriented** bounding box of ``points`` as 4 corners
+
+```python
+obb(points: 'Iterable[Vec2 | Sequence[float]]') -> 'list[Vec2]'
+```
+
+### `line_intersection`
+
+`framegraph.sdk.geometry.line_intersection`
+
+Intersection of the two **infinite lines** through ``(a0, a1)`` and
+
+```python
+line_intersection(a0: 'Vec2 | Sequence[float]', a1: 'Vec2 | Sequence[float]', b0: 'Vec2 | Sequence[float]', b1: 'Vec2 | Sequence[float]') -> 'Vec2 | None'
+```
+
+### `mirror`
+
+`framegraph.sdk.geometry.mirror`
+
+Reflect a sequence of points across ``axis`` (see :meth:`Mat3.reflect`, B7).
+
+```python
+mirror(points: 'Iterable[Vec2 | Sequence[float]]', axis: 'str | Sequence[Vec2 | Sequence[float]]' = 'x') -> 'list[Vec2]'
+```
+
+### `point_in_polygon`
+
+`framegraph.sdk.geometry.point_in_polygon`
+
+True if ``point`` is inside the polygon ``ring`` (even-odd ray crossing).
+
+```python
+point_in_polygon(point: 'Vec2 | Sequence[float]', ring: 'Iterable[Vec2 | Sequence[float]]') -> 'bool'
+```
+
+### `polygon_area`
+
+`framegraph.sdk.geometry.polygon_area`
+
+Signed area of the polygon ``ring`` (shoelace). The sign encodes winding;
+
+```python
+polygon_area(ring: 'Iterable[Vec2 | Sequence[float]]') -> 'float'
+```
+
+### `polyline_length`
+
+`framegraph.sdk.geometry.polyline_length`
+
+Total length of the open polyline through ``points`` (0.0 for < 2 points).
+
+```python
+polyline_length(points: 'Iterable[Vec2 | Sequence[float]]') -> 'float'
+```
+
 ### `quarter_circle_kappa`
 
 `framegraph.sdk.geometry.quarter_circle_kappa`
 
 ```python
 quarter_circle_kappa() -> 'float'
+```
+
+### `ray_plane_intersection`
+
+`framegraph.sdk.geometry.ray_plane_intersection`
+
+Where the ray from ``origin`` along ``direction`` meets the plane through
+
+```python
+ray_plane_intersection(origin: 'Vec3 | Sequence[float]', direction: 'Vec3 | Sequence[float]', plane_point: 'Vec3 | Sequence[float]', plane_normal: 'Vec3 | Sequence[float]') -> 'Vec3 | None'
+```
+
+### `ray_segment_intersection`
+
+`framegraph.sdk.geometry.ray_segment_intersection`
+
+Where the ray from ``origin`` along ``direction`` meets segment
+
+```python
+ray_segment_intersection(origin: 'Vec2 | Sequence[float]', direction: 'Vec2 | Sequence[float]', s0: 'Vec2 | Sequence[float]', s1: 'Vec2 | Sequence[float]') -> 'Vec2 | None'
+```
+
+### `ray_triangle_intersection`
+
+`framegraph.sdk.geometry.ray_triangle_intersection`
+
+Möller–Trumbore ray/triangle intersection; ``None`` on a parallel ray, a
+
+```python
+ray_triangle_intersection(origin: 'Vec3 | Sequence[float]', direction: 'Vec3 | Sequence[float]', v0: 'Vec3 | Sequence[float]', v1: 'Vec3 | Sequence[float]', v2: 'Vec3 | Sequence[float]') -> 'Vec3 | None'
+```
+
+### `line_curve_intersections`
+
+`framegraph.sdk.geometry.line_curve_intersections`
+
+Every point where the **infinite line** through ``a0``, ``a1`` crosses cubic
+
+```python
+line_curve_intersections(a0: 'Vec2 | Sequence[float]', a1: 'Vec2 | Sequence[float]', curve: 'CubicBezier', *, tolerance: 'float' = 1e-07) -> 'list[Vec2]'
+```
+
+### `segment_curve_intersections`
+
+`framegraph.sdk.geometry.segment_curve_intersections`
+
+Every point where **segment** ``a0``–``a1`` crosses cubic Bézier ``curve``
+
+```python
+segment_curve_intersections(a0: 'Vec2 | Sequence[float]', a1: 'Vec2 | Sequence[float]', curve: 'CubicBezier', *, tolerance: 'float' = 1e-07) -> 'list[Vec2]'
+```
+
+### `segment_intersection`
+
+`framegraph.sdk.geometry.segment_intersection`
+
+Intersection point of two **segments**, or ``None`` if they do not cross.
+
+```python
+segment_intersection(a0: 'Vec2 | Sequence[float]', a1: 'Vec2 | Sequence[float]', b0: 'Vec2 | Sequence[float]', b1: 'Vec2 | Sequence[float]') -> 'Vec2 | None'
+```
+
+### `segment_plane_intersection`
+
+`framegraph.sdk.geometry.segment_plane_intersection`
+
+Where segment ``a``–``b`` crosses the plane through ``plane_point`` with
+
+```python
+segment_plane_intersection(a: 'Vec3 | Sequence[float]', b: 'Vec3 | Sequence[float]', plane_point: 'Vec3 | Sequence[float]', plane_normal: 'Vec3 | Sequence[float]') -> 'Vec3 | None'
+```
+
+### `segment_polygon_intersections`
+
+`framegraph.sdk.geometry.segment_polygon_intersections`
+
+Every point where segment ``a0``–``a1`` crosses an edge of ``polygon`` (a
+
+```python
+segment_polygon_intersections(a0: 'Vec2 | Sequence[float]', a1: 'Vec2 | Sequence[float]', polygon: 'Iterable[Vec2 | Sequence[float]]') -> 'list[Vec2]'
+```
+
+### `surface_curvature`
+
+`framegraph.sdk.geometry.surface_curvature`
+
+Gaussian curvature ``K`` and mean curvature ``H`` of the parametric surface
+
+```python
+surface_curvature(fn: 'Callable[[float, float], Sequence[float]]', u: 'float', v: 'float', *, h: 'float' = 0.001) -> 'tuple[float, float]'
+```
+
+### `window_to_viewport`
+
+`framegraph.sdk.geometry.window_to_viewport`
+
+The affine mapping the ``window`` rect onto the ``viewport`` rect, each an
+
+```python
+window_to_viewport(window: 'Sequence[float]', viewport: 'Sequence[float]', *, uniform: 'bool' = False) -> 'Mat3'
 ```
 
 ## `framegraph.sdk.io`
@@ -669,6 +1241,16 @@ Serialize a document as canonical JSON or YAML after model validation.
 
 ```python
 serialize(model: 'Any', *, format: 'Format' = 'yaml') -> 'str'
+```
+
+### `svg_to_objects`
+
+`framegraph.sdk.io.svg_to_objects`
+
+Ingest an existing SVG into FrameGraph object dicts (vector import).
+
+```python
+svg_to_objects(svg: 'Any', *, box: 'Any' = None, data_attrs: 'bool' = False) -> 'list[dict[str, Any]]'
 ```
 
 ## `framegraph.sdk.lattices`
@@ -858,6 +1440,16 @@ A cross-reference ``Inline`` to a labelled object (``id``).
 ref(target: 'str', *, show: 'str | None' = None) -> 'dict[str, Any]'
 ```
 
+### `span`
+
+`framegraph.sdk.macros.span`
+
+A styled ``Span`` inline (or, with ``link=``, a ``LinkInline`` around it).
+
+```python
+span(text: 'str', *, bold: 'bool' = False, italic: 'bool' = False, color: 'Any' = None, font: 'Any' = None, size: 'Any' = None, link: 'str | None' = None, **style: 'Any') -> 'dict[str, Any]'
+```
+
 ### `sparkline`
 
 `framegraph.sdk.macros.sparkline`
@@ -879,6 +1471,46 @@ theme(builder: 'DocumentBuilder', *, colors: 'dict[str, str] | None' = None, tex
 ```
 
 ## `framegraph.sdk.manifold`
+
+### `bezier_patch`
+
+`framegraph.sdk.manifold.bezier_patch`
+
+A bicubic Bézier surface patch (B5, Harrington Ch11) tessellated into a
+
+```python
+bezier_patch(control: 'Sequence[Sequence[Vec3 | Sequence[float]]]', *, steps_u: 'int' = 20, steps_v: 'int' = 20, **style: 'object') -> 'Scene3D'
+```
+
+### `bezier_patch_point`
+
+`framegraph.sdk.manifold.bezier_patch_point`
+
+Evaluate a bicubic Bézier surface patch at ``(u, v)`` in [0,1]² (B5). The
+
+```python
+bezier_patch_point(control: 'Sequence[Sequence[Vec3 | Sequence[float]]]', u: 'float', v: 'float') -> 'Vec3'
+```
+
+### `bspline_patch`
+
+`framegraph.sdk.manifold.bspline_patch`
+
+A uniform bicubic B-spline surface patch (B5 residual, Harrington Ch11)
+
+```python
+bspline_patch(control: 'Sequence[Sequence[Vec3 | Sequence[float]]]', *, steps_u: 'int' = 24, steps_v: 'int' = 24, **style: 'object') -> 'Scene3D'
+```
+
+### `bspline_patch_point`
+
+`framegraph.sdk.manifold.bspline_patch_point`
+
+Evaluate a uniform bicubic B-spline surface at ``(u, v)`` in [0,1]² (B5
+
+```python
+bspline_patch_point(control: 'Sequence[Sequence[Vec3 | Sequence[float]]]', u: 'float', v: 'float') -> 'Vec3'
+```
 
 ### `klein_bottle`
 
@@ -940,6 +1572,18 @@ A radial-interference wave heightfield ``y = Σ A·sin(2π·r/λ)``.
 wave(*, extent: 'float' = 1.0, amplitude: 'float' = 0.32, wavelength: 'float' = 0.7, sources: 'Sequence[tuple[float, float]]' = ((0.0, 0.0),), steps: 'int' = 40, **style: 'object') -> 'Scene3D'
 ```
 
+## `framegraph.sdk.markdown`
+
+### `from_markdown`
+
+`framegraph.sdk.markdown.from_markdown`
+
+Convert a Markdown document to a validated FrameGraph flow document.
+
+```python
+from_markdown(text: 'str', *, title: 'str | None' = None, lang: 'str | None' = None, profile: 'str | None' = None, master: 'dict[str, Any] | None' = None, page_id: 'str' = 'doc', warnings: 'list[str] | None' = None) -> 'dict[str, Any]'
+```
+
 ## `framegraph.sdk.model`
 
 ### `Document`
@@ -949,7 +1593,7 @@ wave(*, extent: 'float' = 1.0, amplitude: 'float' = 0.32, wavelength: 'float' = 
 Closed base: unknown keys are errors (the closed-model decision).
 
 ```python
-Document(*, dsl: Literal['FrameGraph'], version: Annotated[str, _PydanticGeneralMetadata(pattern='^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$')], profile: Optional[Literal['deck', 'book', 'letter', 'report', 'diagram', 'mixed']] = None, title: Optional[str] = None, description: Optional[str] = None, lang: Optional[str] = None, defs: Optional[models.framegraph.Defs] = None, targets: Optional[list[models.framegraph.RenderTarget]] = None, pages: Annotated[list[Annotated[Union[models.framegraph.Page, models.framegraph.FlowSection], FieldInfo(annotation=NoneType, required=True, discriminator='mode')]], MinLen(min_length=1)], meta: Optional[dict] = None, text_contract: Optional[models.framegraph.TextContract] = None) -> None
+Document(*, dsl: Literal['FrameGraph'], version: Annotated[str, _PydanticGeneralMetadata(pattern='^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$')], profile: Optional[Literal['deck', 'book', 'letter', 'report', 'diagram', 'mixed']] = None, title: Optional[str] = None, description: Optional[str] = None, lang: Optional[str] = None, defs: Optional[models.framegraph.Defs] = None, targets: Optional[list[models.framegraph.RenderTarget]] = None, pages: Annotated[list[Annotated[Union[models.framegraph.Page, models.framegraph.FlowSection], FieldInfo(annotation=NoneType, required=True, discriminator='mode')]], MinLen(min_length=1)], meta: Optional[dict] = None, humanize: Optional[models.framegraph.Humanize] = None, text_contract: Optional[models.framegraph.TextContract] = None) -> None
 ```
 
 | Method | Signature | Summary |
@@ -964,7 +1608,7 @@ Document(*, dsl: Literal['FrameGraph'], version: Annotated[str, _PydanticGeneral
 
 ### `HEAD_VERSION`
 
-`str` value: `'2.2.0'`
+`str` value: `'2.4.1'`
 
 ### `ValidationError`
 
@@ -1156,6 +1800,68 @@ Build a text ``Style`` bundle from the dozen fields that actually shape text.
 text_style(size: 'float | int | str | None' = None, *, family: 'Sequence[str] | str | None' = None, weight: 'int | str | None' = None, color: 'Color | None' = None, align: 'str | None' = None, italic: 'bool | None' = None, line_height: 'float | int | str | None' = None, letter_spacing: 'float | int | str | None' = None, transform: 'str | None' = None, decoration: 'str | None' = None, overflow: 'str | None' = None, max_lines: 'int | None' = None) -> 'dict[str, Any]'
 ```
 
+## `framegraph.sdk.region`
+
+### `extract_objects`
+
+`framegraph.sdk.region.extract_objects`
+
+Copy drawable objects out of a FrameGraph document, for pasting elsewhere.
+
+```python
+extract_objects(source: 'Any', *, page: "'str | int | None'" = None, layer: "'str | Sequence[str] | None'" = None, ids: "'str | Sequence[str] | None'" = None, bake: 'bool' = True) -> 'list[dict[str, Any]]'
+```
+
+### `gradient_map`
+
+`framegraph.sdk.region.gradient_map`
+
+Recolour every object by luminance through ``ramp`` (a global gradient map).
+
+```python
+gradient_map(objects: 'Sequence[dict[str, Any]]', ramp: 'Ramp') -> 'list[dict[str, Any]]'
+```
+
+### `object_bbox`
+
+`framegraph.sdk.region.object_bbox`
+
+Return ``(x0, y0, x1, y1)`` for ``obj``, or ``None`` if it carries no geometry.
+
+```python
+object_bbox(obj: 'dict[str, Any]') -> 'Optional[tuple[float, float, float, float]]'
+```
+
+### `place_region`
+
+`framegraph.sdk.region.place_region`
+
+Map ``source_box`` of ``objects`` into ``target_box`` as one transformed group.
+
+```python
+place_region(objects: 'Sequence[dict[str, Any]]', source_box: 'Box', target_box: 'Box', *, transform: "'Mat3 | None'" = None, clip: 'bool' = True, select: "'str | None'" = None, style: "'dict[str, Any] | None'" = None, **fields: 'Any') -> 'dict[str, Any]'
+```
+
+### `region_grade`
+
+`framegraph.sdk.region.region_grade`
+
+Recolour by region level — each object graded by the region it falls in.
+
+```python
+region_grade(objects: 'Sequence[dict[str, Any]]', regions: 'Sequence[tuple[Box, Paint]]', *, default: "'Paint | None'" = None) -> 'list[dict[str, Any]]'
+```
+
+### `select_in`
+
+`framegraph.sdk.region.select_in`
+
+Return deep copies of the objects that fall in ``box`` ``[x, y, w, h]``.
+
+```python
+select_in(objects: 'Sequence[dict[str, Any]]', box: 'Box', *, mode: 'str' = 'intersect') -> 'list[dict[str, Any]]'
+```
+
 ## `framegraph.sdk.topology`
 
 ### `Edge`
@@ -1192,6 +1898,7 @@ Graph() -> 'None'
 | `radial_layout` | `(self, root: 'str', *, ring: 'float' = 1.0) -> 'dict[str, Vec2]'` | Concentric rings by BFS distance from ``root`` (a tree/hub view). |
 | `render` | `(self, positions: 'dict[str, Point] \| None' = None, *, box: 'Sequence[float]', camera: 'Camera \| Mat4 \| None' = None, node_radius: 'float' = 9.0, node_fill: 'str' = '#1d4ed8', node_stroke: 'str' = '#0b1f4d', node_stroke_width: 'float' = 1.5, edge_color: 'str' = '#94a3b8', edge_width: 'float' = 1.5, labels: 'bool' = True, label_color: 'str' = '#0f172a', label_size: 'float' = 11.0, font_family: 'Sequence[str]' = ('DejaVu Sans', 'Arial', 'sans-serif'), id: 'str \| None' = None) -> 'dict[str, object]'` | Render the graph to one FrameGraph ``group`` fitted into ``box``. |
 | `spring_layout` | `(self, *, iterations: 'int' = 220, k: 'float \| None' = None, seed_radius: 'float' = 1.0) -> 'dict[str, Vec2]'` | Deterministic Fruchterman–Reingold force layout. |
+| `to_object` | `(self, *, box: 'Sequence[float]', algorithm: 'str' = 'auto', id: 'str \| None' = None, **render_style: 'object') -> 'dict[str, object]'` | Emit a declarative ``type: graph`` object — the render-time |
 
 ### `Node`
 
@@ -1213,6 +1920,16 @@ One validation issue reported by the SDK.
 
 ```python
 Issue(rule_id: 'str', severity: 'str', path: 'str', message: 'str') -> None
+```
+
+### `StaticValidationError`
+
+`framegraph.sdk.validate.StaticValidationError`
+
+Static validation failed; carries the full :class:`ValidationReport`.
+
+```python
+StaticValidationError(report: 'ValidationReport') -> 'None'
 ```
 
 ### `ValidationReport`
@@ -1297,6 +2014,16 @@ Measured pixel width for a :func:`badge`/:func:`pill` snug around ``text``.
 badge_width(text: 'str', *, theme: 'Theme | None' = None, size: 'float' = 11.0, pad: 'float' = 20.0) -> 'float'
 ```
 
+### `breadcrumb`
+
+`framegraph.sdk.widgets.breadcrumb`
+
+A breadcrumb trail; earlier crumbs are muted, the current one is ink.
+
+```python
+breadcrumb(box: 'Box | Sequence[str]', items: 'Sequence[str] | None' = None, *, separator: 'str' = '›', theme: 'Theme | None' = None, h: 'float | None' = None) -> 'Obj'
+```
+
 ### `pill`
 
 `framegraph.sdk.widgets.pill`
@@ -1327,6 +2054,36 @@ A circular avatar placeholder with optional initials (auto-derived if a name).
 avatar(box: 'Box | str | None' = None, initials: 'str | None' = None, *, tone: 'str' = 'muted', theme: 'Theme | None' = None, size: 'float | None' = None) -> 'Obj'
 ```
 
+### `checkbox`
+
+`framegraph.sdk.widgets.checkbox`
+
+A checkbox with an optional trailing label; the mark is a polyline tick.
+
+```python
+checkbox(box: 'Box | None' = None, *, checked: 'bool' = True, label: 'str | None' = None, theme: 'Theme | None' = None) -> 'Obj'
+```
+
+### `dropdown`
+
+`framegraph.sdk.widgets.dropdown`
+
+An *open* select: the control on top, the menu panel expanded below it.
+
+```python
+dropdown(box: 'Box', items: 'Sequence[str]', *, selected: 'int' = 0, theme: 'Theme | None' = None) -> 'Obj'
+```
+
+### `image_placeholder`
+
+`framegraph.sdk.widgets.image_placeholder`
+
+A wireframe image slot: a bordered box crossed corner-to-corner, with an
+
+```python
+image_placeholder(box: 'Box', *, label: 'str | None' = None, theme: 'Theme | None' = None) -> 'Obj'
+```
+
 ### `kpi`
 
 `framegraph.sdk.widgets.kpi`
@@ -1345,6 +2102,46 @@ A form field: uppercase label over an input/select/textarea control.
 
 ```python
 field(box: 'Box | str', label: 'str | None' = None, *, value: 'str' = '', placeholder: 'str' = '', kind: 'str' = 'input', theme: 'Theme | None' = None, w: 'float | None' = None, h: 'float | None' = None) -> 'Obj'
+```
+
+### `navbar`
+
+`framegraph.sdk.widgets.navbar`
+
+A top navigation bar: optional brand, link items, accent-underlined active.
+
+```python
+navbar(box: 'Box', items: 'Sequence[str]', *, brand: 'str | None' = None, active: 'int' = 0, theme: 'Theme | None' = None) -> 'Obj'
+```
+
+### `radio`
+
+`framegraph.sdk.widgets.radio`
+
+A radio button with an optional trailing label; selection is an inner dot.
+
+```python
+radio(box: 'Box | None' = None, *, selected: 'bool' = True, label: 'str | None' = None, theme: 'Theme | None' = None) -> 'Obj'
+```
+
+### `slider`
+
+`framegraph.sdk.widgets.slider`
+
+A slider: a track filled to ``frac`` (0..1) with a knob at the value.
+
+```python
+slider(box: 'Box | float', frac: 'float | None' = None, *, tone: 'str' = 'accent', theme: 'Theme | None' = None, w: 'float | None' = None, h: 'float | None' = None) -> 'Obj'
+```
+
+### `sticky_note`
+
+`framegraph.sdk.widgets.sticky_note`
+
+An annotation note with a folded corner, marked ``decorative`` so it is
+
+```python
+sticky_note(box: 'Box', text: 'str', *, tone: 'str' = 'warn', theme: 'Theme | None' = None, **fields: 'Any') -> 'Obj'
 ```
 
 ### `toggle`

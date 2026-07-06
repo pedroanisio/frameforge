@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 540" font-family="ui-monospace,'SF Mono',Menlo,monospace">
+  <defs>
+    <marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#2C7A56"/></marker>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B23A2E"/></marker>
+  </defs>
+  <rect x="0" y="0" width="920" height="540" fill="#F5F7F7"/>
+
+  <!-- title -->
+  <text x="40" y="46" font-size="11" letter-spacing="2.4" fill="#084A50" font-weight="700">DIAGRAM A · OPTION-SPACE MAP</text>
+  <text x="40" y="66" font-size="11" fill="#6B7A82">node size ~ adoption cost · dashed border = harder to reverse</text>
+  <line x1="40" y1="78" x2="880" y2="78" stroke="#CBD5D8"/>
+
+  <!-- routes from today (grey dotted) -->
+  <g stroke="#6B7A82" stroke-dasharray="2 5" stroke-width="1.6" fill="none" opacity=".85">
+    <path d="M158,272 C205,190 210,150 244,136"/>
+    <path d="M158,278 L244,278"/>
+    <path d="M158,284 C205,360 210,400 244,412"/>
+  </g>
+  <!-- compose / enable (green) -->
+  <g stroke="#2C7A56" stroke-width="2" fill="none">
+    <path d="M336,164 L336,246" marker-end="url(#ag)"/>            <!-- O3 -> O1 -->
+    <path d="M336,310 L336,392" marker-end="url(#ag)"/>            <!-- O1 -> O4 -->
+    <path d="M660,358 C600,340 560,250 566,222" marker-end="url(#ag)"/>   <!-- O7 -> O2 -->
+    <path d="M628,392 C520,400 470,380 416,412" marker-end="url(#ag)"/>   <!-- O7 -> O4 -->
+  </g>
+  <!-- tension (red dashed) -->
+  <g stroke="#B23A2E" stroke-width="1.7" stroke-dasharray="6 4" fill="none">
+    <path d="M642,190 L744,136" marker-end="url(#ar)"/>            <!-- O2 -> O6/tension -->
+  </g>
+
+  <!-- today -->
+  <rect x="44" y="252" width="114" height="52" rx="3" fill="#EEF1F2" stroke="#6B7A82" stroke-dasharray="5 4"/>
+  <text x="101" y="274" text-anchor="middle" font-size="12" fill="#3A4852" font-weight="600">today</text>
+  <text x="101" y="290" text-anchor="middle" font-size="9.5" fill="#6B7A82">no gate</text>
+  <!-- O3 -->
+  <rect x="244" y="106" width="156" height="58" rx="3" fill="#DCEBE2" stroke="#2C7A56"/>
+  <text x="322" y="130" text-anchor="middle" font-size="12.5" fill="#14202A" font-weight="700">O3 · Authoring</text>
+  <text x="322" y="147" text-anchor="middle" font-size="9.5" fill="#2C7A56">deterministic · S</text>
+  <!-- O1 -->
+  <rect x="252" y="248" width="168" height="62" rx="3" fill="#E4F0F0" stroke="#0B6C75" stroke-width="2.2"/>
+  <text x="336" y="273" text-anchor="middle" font-size="12.5" fill="#14202A" font-weight="700">O1 · Advisory</text>
+  <text x="336" y="290" text-anchor="middle" font-size="9.5" fill="#084A50">detector · M · REC</text>
+  <!-- O4 -->
+  <rect x="244" y="392" width="172" height="66" rx="3" fill="#F1E6C9" stroke="#9E6D07"/>
+  <text x="330" y="419" text-anchor="middle" font-size="12.5" fill="#14202A" font-weight="700">O4 · Two-mode</text>
+  <text x="330" y="436" text-anchor="middle" font-size="9.5" fill="#9E6D07">tiered · M/L</text>
+  <!-- O2 -->
+  <rect x="486" y="190" width="156" height="60" rx="3" fill="#EEF1F2" stroke="#B23A2E" stroke-dasharray="5 4"/>
+  <text x="564" y="215" text-anchor="middle" font-size="12.5" fill="#14202A" font-weight="700">O2 · Hard-fail</text>
+  <text x="564" y="232" text-anchor="middle" font-size="9.5" fill="#B23A2E">container · M</text>
+  <!-- O7 -->
+  <rect x="560" y="348" width="184" height="76" rx="3" fill="#EEF1F2" stroke="#0B6C75" stroke-width="2.6"/>
+  <text x="652" y="379" text-anchor="middle" font-size="13" fill="#14202A" font-weight="700">O7 · Vendor metrics</text>
+  <text x="652" y="397" text-anchor="middle" font-size="9.5" fill="#084A50">orthogonal · L</text>
+  <text x="652" y="411" text-anchor="middle" font-size="9.5" fill="#084A50">dissolves B3</text>
+  <!-- O6 -->
+  <rect x="744" y="110" width="130" height="52" rx="3" fill="#EEF1F2" stroke="#6B7A82" stroke-dasharray="5 4"/>
+  <text x="809" y="132" text-anchor="middle" font-size="12" fill="#3A4852" font-weight="600">O6 · Defer</text>
+  <text x="809" y="148" text-anchor="middle" font-size="9" fill="#B23A2E">tension</text>
+
+  <!-- legend -->
+  <g font-size="10.5" fill="#3A4852">
+    <line x1="40" y1="500" x2="70" y2="500" stroke="#2C7A56" stroke-width="2.5"/>
+    <text x="78" y="504">composes / enables</text>
+    <line x1="230" y1="500" x2="260" y2="500" stroke="#B23A2E" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="268" y="504">tension w/ constraint</text>
+    <line x1="440" y1="500" x2="470" y2="500" stroke="#6B7A82" stroke-width="2" stroke-dasharray="2 5"/>
+    <text x="478" y="504">route from today</text>
+    <rect x="640" y="493" width="16" height="14" rx="2" fill="none" stroke="#14202A" stroke-dasharray="4 3"/>
+    <text x="664" y="504">harder to reverse</text>
+  </g>
+</svg>

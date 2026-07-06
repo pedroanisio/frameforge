@@ -9,13 +9,13 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.rendering.application.renderer import Renderer  # noqa: E402
 from framegraph.rendering.infrastructure.painters.tikz import TikzPainter  # noqa: E402
 
 # a real page-mode oracle fixture exercising fills, gradients, strokes, and text
-FIXTURE = os.path.join(ROOT, "fixtures", "b1", "chroma-styling-showcase.fg.json")
+FIXTURE = os.path.join(ROOT, "tests", "fixtures", "b1", "chroma-styling-showcase.fg.json")
 
 
 def _doc():

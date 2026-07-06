@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.join(ROOT, "tooling"))
 
 import check_accessibility as A  # noqa: E402
 
-FIXTURE = os.path.join(ROOT, "fixtures", "accessibility.fg.yaml")
+FIXTURE = os.path.join(ROOT, "tests", "fixtures", "accessibility.fg.yaml")
 
 
 def _codes(findings):

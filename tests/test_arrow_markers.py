@@ -97,11 +97,11 @@ def test_named_stroke_style_arrow_on_path():
 
 
 def test_arrows_fixture_is_the_oracle():
-    """fixtures/arrows.fg.yaml is the checked-in oracle for arrowheads — it flows
+    """tests/fixtures/arrows.fg.yaml is the checked-in oracle for arrowheads — it flows
     through validate + overflow in `make check`; here we assert it actually
     renders every marker kind (per codebase-standards §6: assert against the
     authoritative fixture, not only synthetic docs)."""
-    fixture = os.path.join(ROOT, "fixtures", "arrows.fg.yaml")
+    fixture = os.path.join(ROOT, "tests", "fixtures", "arrows.fg.yaml")
     with tempfile.TemporaryDirectory() as td:
         subprocess.run([sys.executable, RENDER, fixture, "--out", td, "--quiet"],
                        check=True, cwd=ROOT)

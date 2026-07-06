@@ -1,0 +1,1005 @@
+# Canonical fixture for declarative graph auto-layout (roadmap item 1) —
+# GENERATED from static/examples/graph_autolayout_demo.py (build() returns
+# this POST-EXPANSION document verbatim); regenerate from there, never
+# hand-edit. Four graphs laid out at expansion time from declared edges:
+# auto→layered, auto→radial, auto→spring, and an explicit circular override.
+dsl: FrameGraph
+version: 2.4.1
+profile: diagram
+title: graph auto-layout showcase
+defs:
+  tokens:
+    colors:
+      paper: '#fcfbf8'
+      ink: '#1d1e22'
+pages:
+- mode: page
+  id: graph-autolayout
+  canvas:
+    size:
+    - 960.0
+    - 540.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 960
+      - 540
+      decorative: true
+      type: rect
+      fill: paper
+    - box:
+      - 40
+      - 24
+      - 880
+      - 20
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+        white_space: nowrap
+      type: text
+      text: Declarative graph auto-layout — computed at expansion, not by hand
+    - box:
+      - 40
+      - 60
+      - 420
+      - 18
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+        white_space: nowrap
+      type: text
+      text: auto → layered (a DAG becomes a hierarchy)
+    - id: g-pipeline
+      box:
+      - 40
+      - 84
+      - 420
+      - 180
+      type: group
+      children:
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 12.0
+          - 82.5
+        - - 111.0
+          - 82.5
+        stroke: '#94a3b8'
+      - type: polyline
+        points:
+        - - 102.0
+          - 82.5
+        - - 93.0
+          - 86.5
+        - - 93.0
+          - 78.5
+        closed: true
+        fill: '#94a3b8'
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 111.0
+          - 82.5
+        - - 210.0
+          - 82.5
+        stroke: '#94a3b8'
+      - type: polyline
+        points:
+        - - 201.0
+          - 82.5
+        - - 192.0
+          - 86.5
+        - - 192.0
+          - 78.5
+        closed: true
+        fill: '#94a3b8'
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 210.0
+          - 82.5
+        - - 309.0
+          - 82.5
+        stroke: '#94a3b8'
+      - type: polyline
+        points:
+        - - 300.0
+          - 82.5
+        - - 291.0
+          - 86.5
+        - - 291.0
+          - 78.5
+        closed: true
+        fill: '#94a3b8'
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 309.0
+          - 82.5
+        - - 408.0
+          - 82.5
+        stroke: '#94a3b8'
+      - type: polyline
+        points:
+        - - 399.0
+          - 82.5
+        - - 390.0
+          - 86.5
+        - - 390.0
+          - 78.5
+        closed: true
+        fill: '#94a3b8'
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 111.0
+          - 82.5
+        - - 408.0
+          - 82.5
+        stroke: '#94a3b8'
+      - type: polyline
+        points:
+        - - 399.0
+          - 82.5
+        - - 390.0
+          - 86.5
+        - - 390.0
+          - 78.5
+        closed: true
+        fill: '#94a3b8'
+        stroke: '#94a3b8'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 12.0
+        - 82.5
+        rx: 9.0
+        ry: 9.0
+        fill: '#0f7d88'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 111.0
+        - 82.5
+        rx: 9.0
+        ry: 9.0
+        fill: '#0f7d88'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 210.0
+        - 82.5
+        rx: 9.0
+        ry: 9.0
+        fill: '#0f7d88'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 309.0
+        - 82.5
+        rx: 9.0
+        ry: 9.0
+        fill: '#0f7d88'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 408.0
+        - 82.5
+        rx: 9.0
+        ry: 9.0
+        fill: '#0f7d88'
+        stroke: '#0b1f4d'
+      - box:
+        - 0.0
+        - 93.5
+        - 38.009765625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Ingest
+      - box:
+        - 86.4091796875
+        - 93.5
+        - 49.181640625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Validate
+      - box:
+        - 187.431396484375
+        - 93.5
+        - 45.13720703125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Expand
+      - box:
+        - 287.172607421875
+        - 93.5
+        - 43.65478515625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Render
+      - box:
+        - 383.74658203125
+        - 93.5
+        - 36.25341796875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Verify
+    - box:
+      - 500
+      - 60
+      - 420
+      - 18
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+        white_space: nowrap
+      type: text
+      text: auto → radial (a tree becomes a hub)
+    - id: g-hub
+      box:
+      - 500
+      - 84
+      - 420
+      - 180
+      type: group
+      children:
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 202.92139759001049
+          - 82.5
+        - - 277.0494843988083
+          - 82.5
+        stroke: '#cbb39a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 202.92139759001049
+          - 82.5
+        - - 225.8282361744304
+          - 153.0
+        stroke: '#cbb39a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 202.92139759001049
+          - 82.5
+        - - 142.9505156011917
+          - 126.0713962068676
+        stroke: '#cbb39a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 202.92139759001049
+          - 82.5
+        - - 142.95051560119168
+          - 38.928603793132424
+        stroke: '#cbb39a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 202.92139759001049
+          - 82.5
+        - - 225.8282361744304
+          - 12.0
+        stroke: '#cbb39a'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 202.92139759001049
+        - 82.5
+        rx: 9.0
+        ry: 9.0
+        fill: '#b5642c'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 277.0494843988083
+        - 82.5
+        rx: 9.0
+        ry: 9.0
+        fill: '#b5642c'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 225.8282361744304
+        - 153.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#b5642c'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 142.9505156011917
+        - 126.0713962068676
+        rx: 9.0
+        ry: 9.0
+        fill: '#b5642c'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 142.95051560119168
+        - 38.928603793132424
+        rx: 9.0
+        ry: 9.0
+        fill: '#b5642c'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 225.8282361744304
+        - 12.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#b5642c'
+        stroke: '#0b1f4d'
+      - box:
+        - 184.40796985563549
+        - 93.5
+        - 37.02685546875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Model
+      - box:
+        - 263.7164765863083
+        - 93.5
+        - 26.666015625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: SDK
+      - box:
+        - 211.9258924244304
+        - 164.0
+        - 27.8046875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: MCP
+      - box:
+        - 132.4239042730667
+        - 137.0713962068676
+        - 21.05322265625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: CLI
+      - box:
+        - 124.41560349181668
+        - 49.928603793132424
+        - 37.06982421875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Vision
+      - box:
+        - 206.7427869556804
+        - 23.0
+        - 38.1708984375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Coach
+    - box:
+      - 40
+      - 300
+      - 420
+      - 18
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+        white_space: nowrap
+      type: text
+      text: auto → spring (a cyclic mesh relaxes)
+    - id: g-mesh
+      box:
+      - 40
+      - 324
+      - 420
+      - 180
+      type: group
+      children:
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 286.1606759264301
+          - 12.0
+        - - 309.1351288901777
+          - 51.79291980931218
+        stroke: '#c3a9ea'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 309.1351288901777
+          - 51.79291980931218
+        - - 246.4177025681152
+          - 61.4742295730274
+        stroke: '#c3a9ea'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 246.4177025681152
+          - 61.4742295730274
+        - - 286.1606759264301
+          - 12.0
+        stroke: '#c3a9ea'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 246.4177025681152
+          - 61.4742295730274
+        - - 173.58229780171834
+          - 103.52577012144202
+        stroke: '#c3a9ea'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 173.58229780171834
+          - 103.52577012144202
+        - - 133.83932423293086
+          - 153.0
+        stroke: '#c3a9ea'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 133.83932423293086
+          - 153.0
+        - - 110.86487110982229
+          - 113.20707991466652
+        stroke: '#c3a9ea'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 110.86487110982229
+          - 113.20707991466652
+        - - 173.58229780171834
+          - 103.52577012144202
+        stroke: '#c3a9ea'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 286.1606759264301
+        - 12.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 309.1351288901777
+        - 51.79291980931218
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 246.4177025681152
+        - 61.4742295730274
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 173.58229780171834
+        - 103.52577012144202
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 133.83932423293086
+        - 153.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 110.86487110982229
+        - 113.20707991466652
+        rx: 9.0
+        ry: 9.0
+        fill: '#7c3aed'
+        stroke: '#0b1f4d'
+      - box:
+        - 280.3982247545551
+        - 23.0
+        - 11.52490234375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: A
+      - box:
+        - 303.3619355308027
+        - 62.79291980931218
+        - 11.54638671875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: B
+      - box:
+        - 240.5773705368652
+        - 72.4742295730274
+        - 11.6806640625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: C
+      - box:
+        - 167.34719037984334
+        - 114.52577012144202
+        - 12.47021484375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: D
+      - box:
+        - 128.36422657668086
+        - 164.0
+        - 10.9501953125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: E
+      - box:
+        - 105.70129689107229
+        - 124.20707991466652
+        - 10.3271484375
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: F
+    - box:
+      - 500
+      - 300
+      - 420
+      - 18
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+        white_space: nowrap
+      type: text
+      text: 'explicit: circular (override the inference)'
+    - id: g-circ
+      box:
+      - 500
+      - 324
+      - 420
+      - 180
+      type: group
+      children:
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 210.0
+          - 12.0
+        - - 284.12808680879783
+          - 65.85720758626482
+        stroke: '#9db4ec'
+      - type: polyline
+        points:
+        - - 276.8469338594233
+          - 60.567140315632564
+        - - 267.21463990087886
+          - 58.51314102250009
+        - - 271.9169219192187
+          - 52.04100506750052
+        closed: true
+        fill: '#9db4ec'
+        stroke: '#9db4ec'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 284.12808680879783
+          - 65.85720758626482
+        - - 255.8136771688398
+          - 153.0
+        stroke: '#9db4ec'
+      - type: polyline
+        points:
+        - - 258.5948301182143
+          - 144.44049135334362
+        - - 257.5717570024082
+          - 134.64491472918743
+        - - 265.18020913276945
+          - 137.11705068418703
+        closed: true
+        fill: '#9db4ec'
+        stroke: '#9db4ec'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 255.8136771688398
+          - 153.0
+        - - 164.18632283116023
+          - 153.0
+        stroke: '#9db4ec'
+      - type: polyline
+        points:
+        - - 173.18632283116023
+          - 153.0
+        - - 182.18632283116023
+          - 149.0
+        - - 182.18632283116023
+          - 157.0
+        closed: true
+        fill: '#9db4ec'
+        stroke: '#9db4ec'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 164.18632283116023
+          - 153.0
+        - - 135.87191319120217
+          - 65.85720758626483
+        stroke: '#9db4ec'
+      - type: polyline
+        points:
+        - - 138.6530661405767
+          - 74.41671623292122
+        - - 145.23844515513184
+          - 81.74015690207781
+        - - 137.6299930247706
+          - 84.21229285707739
+        closed: true
+        fill: '#9db4ec'
+        stroke: '#9db4ec'
+      - stroke_style:
+          stroke_width: 1.5
+        type: polyline
+        points:
+        - - 284.12808680879783
+          - 65.85720758626482
+        - - 135.87191319120217
+          - 65.85720758626483
+        stroke: '#9db4ec'
+      - type: polyline
+        points:
+        - - 144.87191319120217
+          - 65.85720758626483
+        - - 153.87191319120217
+          - 61.857207586264835
+        - - 153.87191319120217
+          - 69.85720758626483
+        closed: true
+        fill: '#9db4ec'
+        stroke: '#9db4ec'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 210.0
+        - 12.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#1d4ed8'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 284.12808680879783
+        - 65.85720758626482
+        rx: 9.0
+        ry: 9.0
+        fill: '#1d4ed8'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 255.8136771688398
+        - 153.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#1d4ed8'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 164.18632283116023
+        - 153.0
+        rx: 9.0
+        ry: 9.0
+        fill: '#1d4ed8'
+        stroke: '#0b1f4d'
+      - stroke_style:
+          stroke_width: 1.5
+        type: ellipse
+        center:
+        - 135.87191319120217
+        - 65.85720758626483
+        rx: 9.0
+        ry: 9.0
+        fill: '#1d4ed8'
+        stroke: '#0b1f4d'
+      - box:
+        - 190.9951171875
+        - 23.0
+        - 38.009765625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Ingest
+      - box:
+        - 259.53726649629783
+        - 76.85720758626482
+        - 49.181640625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Validate
+      - box:
+        - 233.2450736532148
+        - 164.0
+        - 45.13720703125
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Expand
+      - box:
+        - 142.35893025303523
+        - 164.0
+        - 43.65478515625
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Render
+      - box:
+        - 117.74520420682717
+        - 76.85720758626483
+        - 36.25341796875
+        - 15
+        style:
+          color: '#0f172a'
+          font_family:
+          - DejaVu Sans
+          - Arial
+          - sans-serif
+          font_size: 11.0
+          text_align: center
+        type: text
+        text: Verify

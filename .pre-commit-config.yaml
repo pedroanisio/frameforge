@@ -1,0 +1,32 @@
+# .pre-commit-config.yaml — "the same gate, earlier" (codebase-standards §10, §16 row 6).
+#
+# Install once:   make hooks     (== uvx pre-commit install --install-hooks)
+# Thereafter:
+#   * every commit runs the fast redefinition gate  (make ruff-check, F811);
+#   * every push runs the FULL local gate           (make check) — byte-for-byte
+#     the same command CI runs, so the two cannot drift. Bypass a single run with
+#     `git commit --no-verify` / `git push --no-verify` when you must.
+#
+# These are `local` / `language: system` hooks: they shell out to the repo's own
+# Makefile targets (which drive uv), so pre-commit pins NO tool versions of its
+# own that could drift from pyproject.toml / uv.lock.
+minimum_pre_commit_version: "3.5.0"
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff redefinition gate (F811)
+        entry: make ruff-check
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+      - id: make-check
+        name: full local gate (make check) — the same gate CI runs
+        entry: make check
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]

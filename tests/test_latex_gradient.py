@@ -14,7 +14,7 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
 from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
@@ -22,10 +22,10 @@ from framegraph.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E
 
 
 def _fixture_path(*parts):
-    root_path = os.path.join(ROOT, "fixtures", *parts)
+    root_path = os.path.join(ROOT, "tests", "fixtures", *parts)
     if os.path.exists(root_path):
         return root_path
-    return os.path.join(ROOT, "examples", "fixtures", *parts)
+    return os.path.join(ROOT, "static", "examples", "fixtures", *parts)
 
 
 def _fig():

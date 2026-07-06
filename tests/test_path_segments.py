@@ -16,7 +16,7 @@ import sys
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(ROOT, "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 # Models-only test: evict a `framegraph` *package* shadow (it has __path__) left by
 # a renderer test in the shared pytest process, so `framegraph` resolves to the
 # models module. Evict only the top-level name — cached `framegraph.rendering.*`

@@ -1,17 +1,45 @@
 ---
 title: "Improving FrameGraph for Reference Image Recreation"
-status: superseded — observations folded into docs/roadmap-draft.md; retained as design rationale
+status: >-
+  partially delivered — re-triaged 2026-07-01. The earlier claim that these
+  observations were "folded into docs/roadmap-draft.md" was FALSE (the roadmap
+  contains none of them) and is corrected here; see the status re-triage table.
 context: "Written after recreating an abstract mixed-media reference image through framegraph.sdk over the FrameGraph MCP renderer."
 disclaimer:
   notice: >-
     No information within this document should be taken for granted. Any
     statement or premise not backed by a real logical definition or a
     verifiable reference may be invalid, erroneous, or a hallucination.
-  generated_by: "Claude Opus 4.8 via Claude Code"
-  date: "2026-06-24"
+  generated_by: >-
+    Claude Opus 4.8 via Claude Code; status re-triage table + corrected
+    provenance note by Claude Fable 5 via Claude Code (2026-07-01)
+  date: "2026-06-24 (re-triaged 2026-07-01)"
 ---
 
 # Improving FrameGraph for Reference Image Recreation
+
+## Status re-triage (2026-07-01)
+
+Correction (by Claude Fable 5 via Claude Code): this document previously
+claimed its observations were "folded into docs/roadmap-draft.md". That was
+false — the roadmap tracks none of these items. The true per-recommendation
+status, verified against the live tree:
+
+| # | Recommendation | Status (verified 2026-07-01) |
+|---|---|---|
+| 1 | Page-space PNG crop/zoom | **Partial** — crop/zoom landed in the *measurement* lane (`measure_image` crops, `compare_images` regions, `vectorize_image` crop, `workspace` viewport) but the MCP *render* tools (`run_sdk_code` / `run_sdk_client` / `render_framegraph_yaml`) still render whole pages only. |
+| 2 | Crop around an object id | **Open** — no render tool accepts an object id. |
+| 3 | Combined inspect report (PNG + structural facts) | **Open** — no `inspect` in `src/framegraph/sdk` or `src/framegraph/mcp`. |
+| 4 | Reference-image analysis helpers | **Delivered** as MCP tools — `measure_image` (regions/landmarks/coordinate system) and `vectorize_image` colour-region clustering cover palette/region/line extraction. |
+| 5 | Texture / dry-brush macros | **Open** — no `concrete`/`spray`/`dry_brush`/`feathered_blob`/`halftone` helpers exist (`greeble`/`hatch_fill`/`sparkline` are the closest SDK macros). |
+| 6 | Stroke ergonomics (`cap`/`join` aliases) | **Delivered** — `framegraph.sdk.paint.stroke(width, color=…, cap=…, join=…)` normalises to the P3 paint/geometry split. |
+| 7 | Blend/mask ergonomics | **Partial** — `clip_*` helpers ship in the SDK and the model carries `mix_blend_mode`/`mask`; no dedicated blend/mask authoring context managers were found. |
+| 8 | Vectorization pipeline | **Delivered** — `vectorize_image` (region / outline / potrace trace / layers) plus `propose_from_image`/`propose_from_svg`. |
+
+The open items (1-render-lane, 2, 3, 5) are not tracked in the roadmap; they
+remain recorded here as the untracked residue of this note.
+
+---
 
 This note records what would most improve an AI author's ability to recreate a
 reference image closely with FrameGraph. The observations come from a concrete

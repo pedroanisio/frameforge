@@ -22,11 +22,14 @@ import os
 import re
 import subprocess
 import sys
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 has no stdlib tomllib
+    import tomli as tomllib  # type: ignore[no-redefine]
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path[:0] = [os.path.join(ROOT, "models"), os.path.join(ROOT, "schema")]
+sys.path[:0] = [os.path.join(ROOT, "docs", "models"), os.path.join(ROOT, "docs", "schema")]
 shadow = sys.modules.get("framegraph")
 if shadow is not None and hasattr(shadow, "__path__"):
     del sys.modules["framegraph"]
@@ -37,12 +40,12 @@ import build_schema as B  # noqa: E402
 README = open(os.path.join(ROOT, "README.md"), encoding="utf-8").read()
 CHANGELOG = open(os.path.join(ROOT, "CHANGELOG.md"), encoding="utf-8").read()
 CLAUDE = open(os.path.join(ROOT, "CLAUDE.md"), encoding="utf-8").read()
-FIXTURE_STATUS = open(os.path.join(ROOT, "FIXTURE-STATUS.md"), encoding="utf-8").read()
+FIXTURE_STATUS = open(os.path.join(ROOT, "docs", "FIXTURE-STATUS.md"), encoding="utf-8").read()
 DOCS_GITIGNORE = open(os.path.join(ROOT, "docs", ".gitignore"), encoding="utf-8").read()
 MKDOCS = open(os.path.join(ROOT, "mkdocs.yml"), encoding="utf-8").read()
 GEN_DOCS = open(os.path.join(ROOT, "tooling", "gen_docs.py"), encoding="utf-8").read()
 ARCHITECTURE = open(os.path.join(ROOT, "docs", "architecture.md"), encoding="utf-8").read()
-ROADMAP = open(os.path.join(ROOT, "docs", "roadmap-draft.md"), encoding="utf-8").read()
+ROADMAP = open(os.path.join(ROOT, "docs", "roadmap.md"), encoding="utf-8").read()
 
 _SKIP_DIRS = {".git", ".venv", "node_modules", "out", "__pycache__", ".pytest_cache", ".ruff_cache"}
 _TRANSIENT_GENERATED_DOCS = {
@@ -97,6 +100,22 @@ def test_version_alignment():
     assert pyproj["project"]["version"] == fg.HEAD_VERSION, \
         f"pyproject {pyproj['project']['version']} != HEAD_VERSION {fg.HEAD_VERSION}"
     assert fg.HEAD_VERSION in B.build()["title"], "schema title does not carry HEAD_VERSION"
+
+
+def test_package_runtime_version_matches_pyproject():
+    """The package exposes `framegraph.__version__` (§16 row 7), and it agrees
+    with the declared `[project] version`. Read as a literal — importing the
+    package would hit the models-module shadow (`framegraph` resolves to
+    docs/models/framegraph.py in this suite), and the literal is what a real
+    `pip install framegraph; framegraph.__version__` would return."""
+    init = open(os.path.join(ROOT, "src", "framegraph", "__init__.py"),
+                encoding="utf-8").read()
+    m = re.search(r'^__version__ = "(\d+\.\d+\.\d+)"', init, re.M)
+    assert m, "src/framegraph/__init__.py must define __version__"
+    pyproj = tomllib.load(open(os.path.join(ROOT, "pyproject.toml"), "rb"))
+    assert m.group(1) == pyproj["project"]["version"], (
+        f"framegraph.__version__ {m.group(1)} != pyproject "
+        f"{pyproj['project']['version']} — run `make bump`")
 
 
 def test_layout_paths_exist():

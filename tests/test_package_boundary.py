@@ -15,7 +15,7 @@ import ast
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PKG = ROOT / "framegraph"
+PKG = ROOT / "src" / "framegraph"
 
 
 def _imports_tooling(path: Path) -> bool:

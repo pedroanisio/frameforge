@@ -1,0 +1,524 @@
+<title>Text-Collision Gate — Decision Analysis</title>
+<style>
+  :root{
+    --paper:#E9EDEE; --panel:#F5F7F7; --panel-2:#FBFCFC;
+    --ink:#14202A; --ink-2:#3A4852; --muted:#6B7A82;
+    --line:#CBD5D8; --line-2:#DCE3E4;
+    --accent:#0B6C75; --accent-d:#084A50; --accent-t:#0b6c7514;
+    --good:#2C7A56; --good-bg:#DCEBE2; --good-bd:#8FBCA4;
+    --warn:#9E6D07; --warn-bg:#F1E6C9; --warn-bd:#CFAE63;
+    --crit:#B23A2E; --crit-bg:#F1DAD6; --crit-bd:#D69A91;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono","Menlo",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    --maxw:920px; --prose:65ch;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(90deg,transparent 0 calc(100% - 1px),var(--line-2) 0);
+    background-size:22px 100%;background-attachment:fixed;background-position:left top;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px 96px;background:var(--paper);
+    box-shadow:0 0 0 1px var(--line-2);}
+  .prose{max-width:var(--prose)}
+  a{color:var(--accent);text-underline-offset:2px}
+  code,.mono{font-family:var(--mono)}
+  code{font-size:.86em;background:#dbe3e4;padding:.08em .35em;border-radius:3px}
+
+  /* ---- masthead ---- */
+  header{padding:56px 0 0}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent-d);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .eyebrow .dot{width:6px;height:6px;background:var(--accent);border-radius:50%}
+  h1{font-size:clamp(2.05rem,5.2vw,3.15rem);line-height:1.04;letter-spacing:-.02em;
+    margin:.5em 0 .2em;text-wrap:balance;font-weight:680}
+  h1 em{font-style:normal;color:var(--accent-d)}
+  .thesis{max-width:60ch;color:var(--ink-2);font-size:1.12rem;margin:.4em 0 0}
+  /* ruler motif */
+  .ruler{height:26px;margin:26px 0 8px;position:relative;border-top:1.5px solid var(--ink);
+    background:repeating-linear-gradient(90deg,var(--ink) 0 1px,transparent 1px 22px);}
+  .ruler::after{content:"px";position:absolute;right:0;top:6px;font-family:var(--mono);
+    font-size:.66rem;color:var(--muted);background:var(--paper);padding-left:6px}
+  .meta{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--mono);font-size:.72rem;
+    color:var(--muted);padding:4px 0 0}
+  .meta b{color:var(--ink-2);font-weight:600}
+
+  /* ---- sections ---- */
+  section{padding:44px 0 0}
+  .sec-h{display:flex;align-items:baseline;gap:14px;margin:0 0 18px;
+    border-bottom:1px solid var(--line);padding-bottom:10px}
+  .sec-n{font-family:var(--mono);font-size:.8rem;color:var(--accent);font-weight:600;
+    letter-spacing:.04em}
+  h2{font-size:1.42rem;letter-spacing:-.01em;margin:0;font-weight:640}
+  h3{font-size:1.06rem;margin:1.6em 0 .3em;font-weight:640}
+  p{margin:.7em 0}
+  .lead{font-size:1.06rem;color:var(--ink-2)}
+
+  /* ---- spec panels (constraints) ---- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:18px 18px 16px;
+    position:relative}
+  .card::before,.card::after{content:"";position:absolute;width:9px;height:9px;border-color:var(--accent);
+    border-style:solid;opacity:.55}
+  .card::before{top:-1px;left:-1px;border-width:1.5px 0 0 1.5px}
+  .card::after{bottom:-1px;right:-1px;border-width:0 1.5px 1.5px 0}
+  .card h4{margin:0 0 10px;font-family:var(--mono);font-size:.72rem;text-transform:uppercase;
+    letter-spacing:.12em;color:var(--accent-d)}
+  .spec{list-style:none;margin:0;padding:0}
+  .spec li{display:flex;gap:10px;padding:6px 0;border-top:1px dotted var(--line);font-size:.94rem}
+  .spec li:first-child{border-top:0}
+  .spec .k{font-family:var(--mono);font-size:.72rem;color:var(--accent);flex:0 0 30px;padding-top:3px}
+  .spec .v b{color:var(--ink)}
+
+  /* ---- evidence table ---- */
+  .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:2px;background:var(--panel-2)}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:560px}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line-2)}
+  thead th{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--muted);background:var(--panel);border-bottom:1px solid var(--line)}
+  tbody tr:last-child td{border-bottom:0}
+  td .num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+  .flood{color:var(--crit)}
+  .approach{font-weight:600}
+  caption{caption-side:bottom;text-align:left;color:var(--muted);font-size:.78rem;padding:10px 2px;
+    font-family:var(--mono)}
+
+  /* ---- figure frames ---- */
+  figure{margin:22px 0 0}
+  .figframe{border:1px solid var(--line);border-radius:2px;background:var(--panel-2);overflow-x:auto}
+  .figframe svg{display:block;min-width:640px;width:100%;height:auto}
+  figcaption{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:8px;
+    display:flex;gap:8px;align-items:baseline}
+  figcaption b{color:var(--ink-2)}
+
+  /* legend */
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:.7rem;
+    color:var(--ink-2);margin:10px 2px 0}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .swatch{width:22px;height:0;border-top-width:2.5px;border-top-style:solid;display:inline-block}
+
+  /* ---- option cards ---- */
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:680px){.opts{grid-template-columns:1fr}}
+  .opt{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--muted);
+    border-radius:2px;padding:16px 18px}
+  .opt.rec{border-left-color:var(--accent);background:linear-gradient(0deg,var(--accent-t),var(--accent-t)),var(--panel)}
+  .opt .tag{font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:.06em;
+    display:flex;justify-content:space-between;gap:8px}
+  .opt .tag .kind{color:var(--accent-d)}
+  .opt h4{margin:.3em 0 .3em;font-size:1.02rem;font-weight:640}
+  .opt p{margin:.35em 0;font-size:.9rem;color:var(--ink-2)}
+  .opt .cost{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:8px;
+    display:flex;gap:14px;flex-wrap:wrap;border-top:1px dotted var(--line);padding-top:8px}
+  .opt .cost b{color:var(--ink-2)}
+  .pill{display:inline-block;font-family:var(--mono);font-size:.64rem;text-transform:uppercase;
+    letter-spacing:.06em;padding:2px 7px;border-radius:2px;border:1px solid currentColor}
+  .p-rec{color:var(--accent-d)} .p-hy{color:var(--warn)} .p-orth{color:var(--ink-2)}
+
+  /* ---- heatmap ---- */
+  .heat td,.heat th{text-align:center;padding:9px 8px}
+  .heat td:first-child,.heat th:first-child{text-align:left;white-space:nowrap}
+  .heat tbody th{font-weight:600;font-size:.86rem;background:var(--panel)}
+  .cell{font-family:var(--mono);font-size:.68rem;font-weight:600;border-radius:2px;padding:6px 4px;
+    display:block}
+  .c-good{background:var(--good-bg);color:var(--good);box-shadow:inset 0 0 0 1px var(--good-bd)}
+  .c-warn{background:var(--warn-bg);color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn-bd)}
+  .c-crit{background:var(--crit-bg);color:var(--crit);box-shadow:inset 0 0 0 1px var(--crit-bd)}
+  .heat thead th{font-size:.62rem;line-height:1.25;vertical-align:bottom}
+
+  /* ---- consequence / composition rows ---- */
+  .cons{display:grid;gap:10px;margin-top:6px}
+  .cons .row{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:start;
+    background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:12px 14px}
+  @media(max-width:560px){.cons .row{grid-template-columns:1fr}}
+  .cons .who{font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--accent-d)}
+  .conslist{display:flex;flex-direction:column;gap:6px;font-size:.9rem}
+  .conslist .l{display:flex;gap:9px}
+  .conslist .ic{font-family:var(--mono);font-size:.66rem;font-weight:700;padding:1px 5px;border-radius:2px;
+    flex:0 0 auto;height:fit-content;margin-top:2px}
+  .en{background:var(--good-bg);color:var(--good)} .de{background:var(--warn-bg);color:var(--warn)}
+  .bl{background:var(--crit-bg);color:var(--crit)}
+
+  /* ---- recommendation ---- */
+  .rec-band{background:var(--ink);color:#E7EDEE;border-radius:2px;padding:26px 26px 22px;margin-top:8px}
+  .rec-band .eyebrow{color:#5FB6BD}
+  .rec-band h3{color:#fff;margin:.3em 0 .2em;font-size:1.2rem}
+  .rec-band p{color:#B9C4C8}
+  .rec-band .path{border-top:1px solid #2b3a42;padding-top:14px;margin-top:14px}
+  .rec-band .path .lbl{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+  .rec-band .g{color:#7FD0B4} .rec-band .a{color:#E0B65C} .rec-band .r{color:#E59185}
+  .rec-band code{background:#22323a;color:#cfe6e8}
+  .df{display:grid;gap:0;margin-top:8px;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+  .df .r{display:grid;grid-template-columns:1fr 1.1fr;gap:0}
+  @media(max-width:560px){.df .r{grid-template-columns:1fr}}
+  .df .if{background:var(--panel);padding:12px 14px;font-size:.9rem;border-bottom:1px solid var(--line)}
+  .df .then{background:var(--panel-2);padding:12px 14px;font-size:.9rem;border-bottom:1px solid var(--line);
+    border-left:1px solid var(--line)}
+  .df .if b{font-family:var(--mono);font-size:.72rem;color:var(--accent);text-transform:uppercase;
+    letter-spacing:.06em;display:block;margin-bottom:3px}
+  .df .then b{font-weight:640}
+
+  ul.q{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:10px}
+  ul.q li{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:2px;padding:12px 14px;font-size:.94rem}
+  ul.q li b{font-family:var(--mono);font-size:.7rem;color:var(--accent-d);display:block;letter-spacing:.05em;
+    text-transform:uppercase;margin-bottom:3px}
+
+  footer{margin-top:52px;border-top:1.5px solid var(--ink);padding-top:16px;font-family:var(--mono);
+    font-size:.72rem;color:var(--muted);line-height:1.7}
+  footer b{color:var(--ink-2)}
+  .disc{margin-top:10px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);
+    border-radius:2px;color:var(--ink-2);max-width:78ch}
+  .kbd{color:var(--accent-d)}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow"><span class="dot"></span> FrameGraph v2 · Architectural Decision Analysis · ADR-draft</div>
+  <h1>Gating against <em>same-layer text collisions</em></h1>
+  <p class="thesis">The model is now settled: <em>collision = an unintended overlap</em> — overlap itself is a first-class effect, gated by consent, not legibility. What's left to decide is <em>how</em> to enforce it, given that a static box check provably floods and the only reliable ink lives at render time.</p>
+  <div class="ruler"></div>
+  <div class="meta">
+    <span><b>DECISION</b> collision-gate/2026-07</span>
+    <span><b>HORIZON</b> core CI infra · multi-year</span>
+    <span><b>STATUS</b> open · analysis</span>
+    <span><b>TRIGGER</b> amazon-proxy-2026 p1 header overlap</span>
+  </div>
+</header>
+
+<!-- UPDATE BANNER -->
+<div style="margin-top:22px;border:1px solid var(--accent);border-left:3px solid var(--accent);border-radius:2px;background:var(--accent-t);padding:16px 18px">
+  <div style="font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-d);font-weight:700">Rev 2 · the model is settled</div>
+  <p style="margin:.5em 0 0;font-size:.95rem;color:var(--ink-2)">Rev 1 asked <em>where a text-collision gate can live</em> and treated collision as a <b>legibility</b> problem. The design decision settled it as <b>consent</b>: collision is an <em>unintended</em> overlap; overlap is a first-class effect (watermarks, captions over images, double-exposure type). Full model in <code>docs/spec/viewport-definition-proposal.md</code>. Four consequences reprice this analysis:</p>
+  <ul style="margin:.6em 0 .2em;padding-left:1.1em;font-size:.9rem;color:var(--ink-2)">
+    <li><b>Opacity is out</b> — the check is opacity-blind volume geometry plus an authored flag (rev 1's occlusion-aware "Rule B" is superseded).</li>
+    <li><b>Cross-layer overlap is exempt by construction</b> — collision is a 3D-AABB intersection (same <code>x,y</code> <em>and</em> same <code>z</code>-slab); different layers never collide. A principled exemption replaces rev 1's fuzzy opacity/role heuristic.</li>
+    <li><b>New prerequisite P0</b> — the model needs an <code>overlap: allowed</code> attribute (default false, mutual). A schema change, not a validator tweak.</li>
+    <li><b>Rev 1's "O3 authoring gate" is absorbed</b> into P0 — the field <em>is</em> the authoring mechanism.</li>
+  </ul>
+  <p style="margin:.4em 0 0;font-size:.9rem;color:var(--muted)"><b>Unchanged &amp; reconfirmed:</b> box-overlap floods → reliable overlap needs rendered <b>ink</b> → ink needs layout + metrics → the check is <b>render-time</b>.</p>
+</div>
+
+<!-- 01 CONTEXT -->
+<section>
+  <div class="sec-h"><span class="sec-n">01</span><h2>The decision's coordinate system</h2></div>
+  <p class="prose lead">Before options: the constraints that prune the space, the horizon that sets reversibility cost, and the axes success is measured on.</p>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card">
+      <h4>Binding constraints — prune the space</h4>
+      <ul class="spec">
+        <li><span class="k">B1</span><span class="v"><b>The static validator has no fonts and no wrap engine</b>, and must not import the render package (module-shadow). Proven to flood — see §02.</span></li>
+        <li><span class="k">B2</span><span class="v"><b><code>make check</code> must be deterministic</b> across machines. The golden + overflow gates deliberately run estimate mode for this reason.</span></li>
+        <li><span class="k">B3</span><span class="v"><b>Real glyph advances need fontTools + resolvable fonts</b> — reproducible only in the font-rich frameforge image today.</span></li>
+        <li><span class="k">B4</span><span class="v"><b>PALS's Law</b> — estimate/CV output is unverified; the gate must be honest about what it actually verified.</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Soft constraints — rank, don't eliminate</h4>
+      <ul class="spec">
+        <li><span class="k">S1</span><span class="v">A gate that only <b>WARNs is ignored</b>; hard-fail preferred where it can be made deterministic.</span></li>
+        <li><span class="k">S2</span><span class="v">Minimize <b>coupling of <code>make check</code> to Docker</b>.</span></li>
+        <li><span class="k">S3</span><span class="v"><b>Reuse existing machinery</b>: <code>render_text</code>'s real geometry; <code>--check-overflow</code> telemetry.</span></li>
+        <li><span class="k">S4</span><span class="v"><b>Teach the fix</b> (authoring guidance), not just flag pixels.</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h4>Success axes — how each option is scored</h4>
+    <p style="margin:.2em 0 0;font-size:.92rem;color:var(--ink-2)">
+      <b>Detection reliability</b> (low false-negative) · <b>False-positive safety</b> (a gate that floods gets disabled) ·
+      <b>Determinism</b> (identical verdict everywhere) · <b>Enforcement strength</b> (hard-fail &gt; advisory) ·
+      <b>Implementation cost</b> · <b>Decoupling</b> (from Docker / renderer internals) · <b>Authoring guidance</b>.</p>
+  </div>
+</section>
+
+<!-- 02 EVIDENCE -->
+<section>
+  <div class="sec-h"><span class="sec-n">02</span><h2>The finding that reframes the decision</h2></div>
+  <p class="prose">The user's original steer — "add a validator rule" — assumes a static geometric check is feasible. It is not. I ran four variants against the full committed fixture corpus. Every box-based approach floods, because a FrameGraph box is a <em>layout region</em>, routinely larger than the text it holds; box overlap ≠ text collision.</p>
+  <div class="scroll" style="margin-top:16px">
+    <table>
+      <thead><tr><th>Approach</th><th>Metrics</th><th>False positives</th><th>Why it fails</th></tr></thead>
+      <tbody>
+        <tr><td class="approach">Raw box overlap, any two same-layer text</td><td class="mono">none</td><td><span class="num flood">1090</span></td><td>boxes are regions, bigger than their text</td></tr>
+        <tr><td class="approach">Box overlap + ink-separation suppressor</td><td class="mono">estimate</td><td><span class="num flood">775</span></td><td>blind to wrap &amp; real glyph width</td></tr>
+        <tr><td class="approach">Per-line ink-box overlap, both axes</td><td class="mono">estimate</td><td><span class="num flood">617</span></td><td>single-line estimate over-reaches wrapped text</td></tr>
+        <tr><td class="approach">Overlap within a detected table grid</td><td class="mono">none</td><td><span class="num flood">1090+</span></td><td>150-wide cells on 130px centres overlap <em>by design</em></td></tr>
+      </tbody>
+      <caption>corpus scan · 6 fixtures trip the raw check (docusign 464, amazon-proxy 144, edst1 13, wireframing 4, a4 1)</caption>
+    </table>
+  </div>
+  <p class="prose">The residual false positives all trace to three things a static check <b>cannot see</b>: real glyph widths (uppercase advances ≈ 0.60, not the fallback 0.52 — the proxy's actual cause), <b>text wrap</b>, and legitimately loose or stacked author boxes (<code>Age:</code> above <code>62</code>).</p>
+  <div class="card" style="margin-top:14px">
+    <h4>The proxy defect, measured</h4>
+    <p style="margin:.2em 0 0;font-size:.93rem;color:var(--ink-2)">
+      Header boxes <code>[330,232,160,24]</code> "Board's Voting Recommendation" and <code>[462,232,90,24]</code> "More Information" <b>overlap by 28px</b> as authored geometry. Under the renderer's own estimate (0.52×), the ink sits ~7px clear — so estimate-mode <code>make check</code> sees no problem. Under real Ember uppercase advances (~0.62×) the glyphs collide. <b>The overlap you saw is the estimate-layout / real-render gap.</b> Only <code>render_text</code> — which computes <code>widest</code>, <code>top</code>, <code>total_h</code>, anchor with wrap and real metrics — can see it.</p>
+  </div>
+</section>
+
+<!-- 03 OPTIONS -->
+<section>
+  <div class="sec-h"><span class="sec-n">03</span><h2>Option inventory</h2></div>
+  <p class="prose">A prerequisite (P0) plus the enforcement paths. P0 is the <code>overlap: allowed</code> model field — everything else sits on top of it. The enforcement options carry over from rev 1 (the determinism/placement axes are unchanged); the old "authoring gate" is now folded into P0.</p>
+  <div class="opts" style="margin-top:18px">
+    <div class="opt rec">
+      <div class="tag"><span>P0</span><span class="kind"><span class="pill p-rec">prerequisite</span></span></div>
+      <h4>Add <code>overlap: allowed</code> to the model</h4>
+      <p>A new element attribute — default <code>false</code>, mutually required by all parties to a same-layer overlap. This <em>is</em> how intent is declared (it absorbs rev 1's O3). A schema semver bump + grammar/docs regen.</p>
+      <div class="cost"><span>adopt <b>S</b></span><span>abandon <b>M</b></span><span>schema <b>change</b></span></div>
+    </div>
+    <div class="opt rec">
+      <div class="tag"><span>O1</span><span class="kind">canonical · <span class="pill p-rec">first move</span></span></div>
+      <h4>Render-time detector, advisory</h4>
+      <p>In <code>render_text</code>, per layer, flag same-layer <b>ink</b> overlaps where not all parties declare <code>overlap: allowed</code>; surface a <code>collisions</code> count in <code>--check-overflow</code> under <code>--real-metrics</code>. Advisory. Proxy fixed by geometry (it's an accident, not an effect).</p>
+      <div class="cost"><span>adopt <b>M</b></span><span>abandon <b>S</b></span><span>reversible <b>yes</b></span></div>
+    </div>
+    <div class="opt">
+      <div class="tag"><span>O2</span><span class="kind">canonical</span></div>
+      <h4>Render-time detector, hard-fail in container</h4>
+      <p>Same detector, build-failing — but deterministic only inside the font-rich frameforge image; bare-host <code>make check</code> skips the assertion. Most enforcement, at the cost of Docker coupling (S2).</p>
+      <div class="cost"><span>adopt <b>M</b></span><span>abandon <b>S</b></span><span>couples <b>Docker</b></span></div>
+    </div>
+    <div class="opt">
+      <div class="tag"><span>O6</span><span class="kind">deferred</span></div>
+      <h4>Land P0 + fixture fix; defer the gate</h4>
+      <p>Ship the model and correct the proxy now, defer the automated detector until O7 is decided. Weaker now that the model is settled — only the gate is being deferred, so an accidental-overlap class stays undetected unless O1 or O7 is scheduled.</p>
+      <div class="cost"><span>adopt <b>XS</b></span><span>abandon <b>—</b></span><span>tension <b>no-defer rule</b></span></div>
+    </div>
+    <div class="opt">
+      <div class="tag"><span>O4</span><span class="kind"><span class="pill p-hy">hybrid</span></span></div>
+      <h4>Two-mode tiered detector</h4>
+      <p>Run the collision check under <b>both</b> the estimate layout and real metrics. <b>Hard-fail</b> on collisions present under the estimate (the doc self-overlaps under the renderer's own assumptions — deterministic, env-independent). <b>Advise</b> on real-only collisions (the estimate↔real gap). Splits the problem along the determinism seam.</p>
+      <div class="cost"><span>adopt <b>M/L</b></span><span>abandon <b>S</b></span><span>proxy → <b>advisory tier</b></span></div>
+    </div>
+    <div class="opt">
+      <div class="tag"><span>O7</span><span class="kind"><span class="pill p-orth">orthogonal</span></span></div>
+      <h4>Vendor a pinned metrics table</h4>
+      <p>Ship a vetted glyph-advance table for the fixture faces (or one canonical metrics font), so real measurement is reproducible on every host <em>without</em> Docker. This <b>dissolves B3</b> — the determinism blocker — and promotes O1/O4's advisory tier to a deterministic hard-fail everywhere.</p>
+      <div class="cost"><span>adopt <b>L</b></span><span>abandon <b>S</b></span><span>enables <b>O2 / O4-hard</b></span></div>
+    </div>
+  </div>
+  <p class="prose" style="margin-top:14px"><b>O5 — the layered composition</b> (P0 ⊕ O1 ⊕ fixture fix) is not a separate mechanism but the recommended <em>combination</em>: add the vocabulary of intent (P0), enforce it advisorily on rendered ink (O1), and fix the known accident. Analyzed in §05–06.</p>
+</section>
+
+<!-- 04 OPTION-SPACE MAP (Diagram A) -->
+<section>
+  <div class="sec-h"><span class="sec-n">04</span><h2>Option-space map</h2></div>
+  <p class="prose">How the paths relate. Node size ≈ adoption cost; a dashed border marks a path that is harder to unwind. Green = composes / enables; red = a tension with a stated constraint; grey = an alternative route from today.</p>
+  <p class="prose" style="font-size:.85rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px"><b>Diagrams A–C show the rev‑1 topology.</b> In rev 2, node <b>O3</b> folds into the <b>P0</b> prerequisite (the <code>overlap: allowed</code> field) — read the O3 node/row as P0. The enforcement options (O1 / O2 / O4 / O7) and their scoring are unchanged.</p>
+  <figure>
+    <div class="figframe">
+    <svg viewBox="0 0 920 470" role="img" aria-label="Node graph of the seven options and their relationships">
+      <defs>
+        <marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#2C7A56"/></marker>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B23A2E"/></marker>
+      </defs>
+      <!-- alternative routes from today (grey dotted) -->
+      <g stroke="#6B7A82" stroke-dasharray="2 5" stroke-width="1.6" fill="none" opacity=".8">
+        <path d="M158,232 C205,150 210,110 244,96"/>
+        <path d="M158,238 L244,238"/>
+        <path d="M158,244 C205,320 210,360 244,372"/>
+      </g>
+      <!-- compose / enable (green solid, arrows) -->
+      <g stroke="#2C7A56" stroke-width="2" fill="none">
+        <path d="M400,96 C450,110 452,200 462,214" marker-end="url(#ag)"/>            <!-- O3 -> O2? no; O3-O1 compose -->
+        <path d="M400,238 L462,238" marker-end="url(#ag)" opacity="0"/>
+        <path d="M336,124 L336,206" marker-end="url(#ag)"/>                             <!-- O3 -> O1 compose -->
+        <path d="M336,270 L336,352" marker-end="url(#ag)"/>                             <!-- O1 -> O4 compose -->
+        <path d="M660,318 C600,300 560,210 566,182" marker-end="url(#ag)"/>            <!-- O7 -> O2 enable -->
+        <path d="M628,352 C520,360 470,340 416,372" marker-end="url(#ag)"/>            <!-- O7 -> O4 enable -->
+        <path d="M492,166 C520,210 530,300 566,318" marker-end="url(#ag)" opacity="0"/>
+      </g>
+      <!-- tension (red dashed) -->
+      <g stroke="#B23A2E" stroke-width="1.7" stroke-dasharray="6 4" fill="none">
+        <path d="M642,150 L744,96" marker-end="url(#ar)"/>
+        <path d="M642,182 L744,300" marker-end="url(#ar)" opacity="0"/>
+      </g>
+
+      <!-- today -->
+      <g>
+        <rect x="44" y="212" width="114" height="52" rx="3" fill="#F5F7F7" stroke="#6B7A82" stroke-dasharray="5 4"/>
+        <text x="101" y="234" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12" fill="#3A4852" font-weight="600">today</text>
+        <text x="101" y="250" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9.5" fill="#6B7A82">no gate</text>
+      </g>
+      <!-- O3 -->
+      <g>
+        <rect x="244" y="66" width="156" height="58" rx="3" fill="#DCEBE2" stroke="#2C7A56"/>
+        <text x="322" y="90" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12.5" fill="#14202A" font-weight="700">O3 · Authoring</text>
+        <text x="322" y="107" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9.5" fill="#2C7A56">deterministic · S</text>
+      </g>
+      <!-- O1 -->
+      <g>
+        <rect x="252" y="208" width="168" height="62" rx="3" fill="#0b6c7514" stroke="#0B6C75" stroke-width="2"/>
+        <text x="336" y="233" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12.5" fill="#14202A" font-weight="700">O1 · Advisory</text>
+        <text x="336" y="250" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9.5" fill="#084A50">detector · M · rec</text>
+      </g>
+      <!-- O4 -->
+      <g>
+        <rect x="244" y="352" width="172" height="66" rx="3" fill="#F1E6C9" stroke="#9E6D07"/>
+        <text x="330" y="379" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12.5" fill="#14202A" font-weight="700">O4 · Two-mode</text>
+        <text x="330" y="396" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9.5" fill="#9E6D07">tiered · M/L</text>
+      </g>
+      <!-- O2 -->
+      <g>
+        <rect x="486" y="150" width="156" height="60" rx="3" fill="#F5F7F7" stroke="#B23A2E" stroke-dasharray="5 4"/>
+        <text x="564" y="175" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12.5" fill="#14202A" font-weight="700">O2 · Hard-fail</text>
+        <text x="564" y="192" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9.5" fill="#B23A2E">container · M</text>
+      </g>
+      <!-- O7 -->
+      <g>
+        <rect x="560" y="308" width="184" height="74" rx="3" fill="#F5F7F7" stroke="#0B6C75" stroke-width="2.4"/>
+        <text x="652" y="338" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" fill="#14202A" font-weight="700">O7 · Vendor metrics</text>
+        <text x="652" y="356" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9.5" fill="#084A50">orthogonal · L · dissolves B3</text>
+      </g>
+      <!-- O6 -->
+      <g>
+        <rect x="744" y="70" width="130" height="52" rx="3" fill="#F5F7F7" stroke="#6B7A82" stroke-dasharray="5 4"/>
+        <text x="809" y="92" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12" fill="#3A4852" font-weight="600">O6 · Defer</text>
+        <text x="809" y="108" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#B23A2E">tension</text>
+      </g>
+    </svg>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="border-color:#2C7A56"></i>composes / enables</span>
+      <span><i class="swatch" style="border-color:#B23A2E;border-top-style:dashed"></i>tension w/ constraint</span>
+      <span><i class="swatch" style="border-color:#6B7A82;border-top-style:dotted"></i>route from today</span>
+      <span><i class="swatch" style="border-color:#14202A;border-top-style:dashed"></i>node border = harder to reverse</span>
+    </div>
+    <figcaption><b>Diagram A</b> — the recommended path threads today → O3 + O1, with O7 as the funded upgrade that turns advisory into deterministic hard-fail.</figcaption>
+  </figure>
+</section>
+
+<!-- 05 ENABLES / BLOCKS (Diagram B) -->
+<section>
+  <div class="sec-h"><span class="sec-n">05</span><h2>Downstream consequences</h2></div>
+  <p class="prose">What each path opens, degrades, or forecloses — the part a pros/cons list flattens.</p>
+  <div class="cons">
+    <div class="row"><div class="who">O1<br><span style="font-weight:400;color:var(--muted);font-size:.72rem">advisory</span></div>
+      <div class="conslist">
+        <div class="l"><span class="ic en">ENABLES</span><span>immediate visibility of the class; a clean migration path to O7-hard later; the golden becomes correct.</span></div>
+        <div class="l"><span class="ic de">DEGRADES</span><span>enforcement — an ignored advisory count is advisory-fatigue (S1).</span></div>
+        <div class="l"><span class="ic bl">BLOCKS</span><span>nothing. Fully reversible.</span></div>
+      </div></div>
+    <div class="row"><div class="who">O2<br><span style="font-weight:400;color:var(--muted);font-size:.72rem">hard, container</span></div>
+      <div class="conslist">
+        <div class="l"><span class="ic en">ENABLES</span><span>real enforcement now, no new metrics work.</span></div>
+        <div class="l"><span class="ic de">DEGRADES</span><span>local↔CI parity — bare-host devs get a green build the container would fail.</span></div>
+        <div class="l"><span class="ic bl">BLOCKS</span><span>a Docker-free contributor loop; couples the test suite to the image.</span></div>
+      </div></div>
+    <div class="row"><div class="who">O3<br><span style="font-weight:400;color:var(--muted);font-size:.72rem">authoring</span></div>
+      <div class="conslist">
+        <div class="l"><span class="ic en">ENABLES</span><span>structural prevention; nudges TableObject adoption; deterministic hard-fail with zero metrics.</span></div>
+        <div class="l"><span class="ic de">DEGRADES</span><span>abs-positioned layouts that legitimately want manual control get flagged.</span></div>
+        <div class="l"><span class="ic bl">BLOCKS</span><span>nothing — but doesn't see non-table collisions (captions over art, badge overlaps).</span></div>
+      </div></div>
+    <div class="row"><div class="who">O7<br><span style="font-weight:400;color:var(--muted);font-size:.72rem">vendor metrics</span></div>
+      <div class="conslist">
+        <div class="l"><span class="ic en">ENABLES</span><span>deterministic hard-fail collision <em>and</em> overflow gates everywhere; removes the estimate↔real blind spot from all gates.</span></div>
+        <div class="l"><span class="ic de">DEGRADES</span><span>adds a vetted-metrics maintenance surface — must update when fixture faces change.</span></div>
+        <div class="l"><span class="ic bl">BLOCKS</span><span>nothing. Highest payoff, highest unknown-risk surface (see §07).</span></div>
+      </div></div>
+  </div>
+</section>
+
+<!-- 06 DECISION MATRIX (Diagram C) + composition + risk -->
+<section>
+  <div class="sec-h"><span class="sec-n">06</span><h2>Decision matrix</h2></div>
+  <p class="prose">Scored on the §01 axes. The asymmetry is the signal — no option wins everywhere, and the shape of each row is the trade-off.</p>
+  <div class="scroll" style="margin-top:16px">
+    <table class="heat">
+      <thead><tr>
+        <th>Option</th><th>Detection<br>reliability</th><th>False-pos<br>safety</th><th>Deter-<br>minism</th><th>Enforce-<br>ment</th><th>Low impl<br>cost</th><th>De-<br>coupling</th><th>Authoring<br>guidance</th>
+      </tr></thead>
+      <tbody>
+        <tr><th>O1 · advisory + fix</th>
+          <td><span class="cell c-good">strong</span></td><td><span class="cell c-good">safe</span></td>
+          <td><span class="cell c-warn">n/a·adv</span></td><td><span class="cell c-crit">advisory</span></td>
+          <td><span class="cell c-warn">M</span></td><td><span class="cell c-good">clean</span></td><td><span class="cell c-warn">partial</span></td></tr>
+        <tr><th>O2 · hard, container</th>
+          <td><span class="cell c-good">strong</span></td><td><span class="cell c-warn">font drift</span></td>
+          <td><span class="cell c-warn">image only</span></td><td><span class="cell c-good">hard</span></td>
+          <td><span class="cell c-warn">M</span></td><td><span class="cell c-crit">Docker</span></td><td><span class="cell c-warn">partial</span></td></tr>
+        <tr><th>O3 · authoring gate</th>
+          <td><span class="cell c-warn">table only</span></td><td><span class="cell c-warn">over-nudge</span></td>
+          <td><span class="cell c-good">exact</span></td><td><span class="cell c-good">hard</span></td>
+          <td><span class="cell c-good">S</span></td><td><span class="cell c-good">clean</span></td><td><span class="cell c-good">teaches</span></td></tr>
+        <tr><th>O4 · two-mode tiered</th>
+          <td><span class="cell c-good">strong</span></td><td><span class="cell c-good">safe</span></td>
+          <td><span class="cell c-good">hard tier</span></td><td><span class="cell c-warn">split tier</span></td>
+          <td><span class="cell c-crit">L</span></td><td><span class="cell c-good">clean</span></td><td><span class="cell c-warn">partial</span></td></tr>
+        <tr><th>O7 · vendor metrics</th>
+          <td><span class="cell c-good">strong</span></td><td><span class="cell c-warn">stale table</span></td>
+          <td><span class="cell c-good">once vetted</span></td><td><span class="cell c-good">hard</span></td>
+          <td><span class="cell c-crit">L</span></td><td><span class="cell c-good">clean</span></td><td><span class="cell c-warn">partial</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Composition</h3>
+  <p class="prose">O1, O3, and O7 are <b>orthogonal in mechanism</b> (pixel-detect vs. structural vs. metrics-plumbing) yet <b>compose</b>: layers of defense, not rivals. O7 is the enabling substrate — it upgrades O1's advisory count and O4's advisory tier into deterministic hard-fails <em>without</em> O2's Docker coupling. The only real conflict is <b>O2-alone</b> (hard-fail without O7 ⇒ local/CI divergence) and <b>O6</b> (defer ⇒ tension with the fix-root-causes rule unless O7 is scheduled).</p>
+
+  <h3>Risk landscape</h3>
+  <div class="cons">
+    <div class="row"><div class="who">O7 risk</div><div class="conslist">
+      <div class="l"><span class="ic bl">SEVERITY</span><span>a wrong table re-introduces the very estimate↔real gap it aims to close. <b>Highest unknown-risk surface</b>: does a pinned advance table match Chromium's actual shaping — kerning, ligatures, fallback chains? Must be vetted against real renders, not assumed.</span></div>
+    </div></div>
+    <div class="row"><div class="who">O2 risk</div><div class="conslist">
+      <div class="l"><span class="ic bl">SEVERITY</span><span>brick wall for bare-host contributors; unknown = font-resolution drift across base-image updates silently changing verdicts.</span></div>
+    </div></div>
+    <div class="row"><div class="who">O1 / O3</div><div class="conslist">
+      <div class="l"><span class="ic de">SEVERITY</span><span>speed bumps only. O1 misses stay misses (never false-fails); O3's worst case is an over-eager <code>--strict</code> ERROR on a deliberate abs layout.</span></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 07 RECOMMENDATION -->
+<section>
+  <div class="sec-h"><span class="sec-n">07</span><h2>Recommendation — the decision function</h2></div>
+  <div class="rec-band">
+    <div class="eyebrow" style="color:#5FB6BD"><span class="dot" style="background:#5FB6BD"></span> Recommended path</div>
+    <h3>P0 + O1 now · O7 as the funded follow-up</h3>
+    <p><b style="color:#fff">Ship P0 + O1 + the fixture fix</b> as one move, and schedule O7 as the upgrade that later promotes the advisory count to a deterministic hard-fail everywhere.</p>
+    <div class="path">
+      <div class="lbl g">▸ NOW — model + advisory detector, zero false-fail risk</div>
+      <p><span class="g">P0</span> adds <code>overlap: allowed</code> to the model (default false, mutual) · <span class="g">O1</span> flags same-layer <b>ink</b> overlaps lacking unanimous consent as an advisory <code>--check-overflow</code> count under real metrics · the proxy is fixed by geometry (an accident, not an effect) and the golden re-pinned. Nothing here can false-fail the build.</p>
+    </div>
+    <div class="path">
+      <div class="lbl a">▸ NEXT — dissolve the determinism blocker</div>
+      <p><span class="a">O7</span> vendors a vetted metrics table (gated on the §below question). Once real measurement is reproducible off-Docker, flip O1's advisory count to a hard-fail — full enforcement, no container coupling. This is the path <b style="color:#fff">O2 wishes it were</b>.</p>
+    </div>
+    <div class="path">
+      <div class="lbl r">▸ AVOID</div>
+      <p><span class="r">O2 alone</span> (Docker-coupled hard-fail ⇒ local/CI split) and <span class="r">any gate before P0</span> (with no <code>overlap: allowed</code>, every intentional same-layer overlap is a false positive).</p>
+    </div>
+  </div>
+
+  <h3>If your priorities differ</h3>
+  <div class="df">
+    <div class="r"><div class="if"><b>If you value</b>shipping now with no risk of blocking a build on font-dependent output</div><div class="then"><b>→ P0 + O1 + fix</b> (the recommendation). Declare intent, enforce advisorily on rendered ink.</div></div>
+    <div class="r"><div class="if"><b>If you value</b>one deterministic hard-fail everywhere and will fund the metrics work</div><div class="then"><b>→ P0 + O7, then O1-hard / O4-hard.</b> Highest rigor; the metrics table must be vetted against real renders first.</div></div>
+    <div class="r"><div class="if"><b>If you value</b>landing the model but not the gate yet</div><div class="then"><b>→ P0 + fixture fix (O6).</b> Acceptable only if O7 or O1 is actually scheduled — else the accident class stays undetected.</div></div>
+    <div class="r"><div class="if"><b>If <code>make check</code></b>already runs in-container for other gates</div><div class="then"><b>→ O2 becomes cheap.</b> Its coupling cost is already paid; go straight to hard-fail.</div></div>
+  </div>
+</section>
+
+<!-- 08 FOLLOW-UP -->
+<section>
+  <div class="sec-h"><span class="sec-n">08</span><h2>What to resolve next</h2></div>
+  <ul class="q">
+    <li><b>Fixes the model's crux</b>Is <code>z</code>-slab = the <code>page.layers[]</code> container (vs. a continuous per-object <code>z</code>)? This decides what counts as a same-layer intersection — the one open question in the definition doc.</li>
+    <li><b>Gates O7</b>Can the fixture faces' advances be vendored faithfully? Render one fixture in-container (real metrics) vs. a candidate pinned table and diff the collision verdicts. If they disagree, O7 is not yet safe.</li>
+    <li><b>Sizes the P0 retrofit</b>How many <em>same-layer ink</em> overlaps survive in the corpus once the ink refinement and cross-layer exemption are applied? That is the true count of docs needing <code>overlap: allowed</code> (rev 1's 617 is an estimate-mode upper bound).</li>
+    <li><b>Scopes the detector</b>Confirm detection is limited to top-level layer objects (excluding Table/flow cells, which their own engines lay out without overlap). A one-line guard in <code>render_text</code>'s caller.</li>
+  </ul>
+  <p class="prose" style="margin-top:18px;color:var(--muted);font-size:.9rem">Deep-dives available on request: <b>spec the <code>overlap: allowed</code> field</b> (schema shape, mutual-declaration semantics) · <b>stress-test O7</b> against Chromium fallback-chain shaping · <b>map the O1→O1-hard migration</b> once O7 lands · <b>triage the corpus</b> same-layer ink overlaps into accident-vs-effect.</p>
+</section>
+
+<footer>
+  <div><b>Architectural Decision Analysis · rev 2</b> · FrameGraph v2 · collision-gate/2026-07 · analysis, not a committed ADR</div>
+  <div>Model: <b>docs/spec/viewport-definition-proposal.md</b> · evidence: 4-variant corpus scan (tests/fixtures + b1) · render path <b>src/framegraph/rendering/application/renderer.py:276</b> · estimate <b>src/framegraph/rendering/domain/services/text_fitter.py:36</b></div>
+  <div class="disc">
+    <span class="kbd">DISCLAIMER —</span> No statement here should be taken for granted. Corpus false-positive counts are reproducible scans against the committed fixtures at analysis time; the "≈0.62 uppercase advance" is an estimate, not a measured Ember value — the §07 gating question exists precisely because that must be verified, not assumed. <b>generated_by</b> Claude Opus 4.8 via Claude Code · <b>date</b> 2026-07-03.
+  </div>
+</footer>
+</div>

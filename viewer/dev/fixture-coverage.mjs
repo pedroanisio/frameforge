@@ -6,8 +6,8 @@ import { normalizeFrameGraphDoc } from "../framegraph-normalize.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
-const FIXTURES = path.join(ROOT, "fixtures");
-const SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, "schema/framegraph-v2.schema.json"), "utf8"));
+const FIXTURES = path.join(ROOT, "tests", "fixtures");
+const SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, "docs/schema/framegraph-v2.schema.json"), "utf8"));
 
 // The viewer's known type sets come from the single registry that
 // schema-contract.mjs gates against the model (drift-risk-map C7). Sourcing them

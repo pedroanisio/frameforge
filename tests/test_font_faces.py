@@ -30,10 +30,10 @@ RENDER_LATEX = os.path.join(ROOT, "tooling", "render_latex.py")
 
 
 def _fixture_path(name):
-    root_path = os.path.join(ROOT, "fixtures", name)
+    root_path = os.path.join(ROOT, "tests", "fixtures", name)
     if os.path.exists(root_path):
         return root_path
-    return os.path.join(ROOT, "examples", "fixtures", name)
+    return os.path.join(ROOT, "static", "examples", "fixtures", name)
 
 
 def _render_fixture(name):
@@ -122,9 +122,14 @@ def test_hundred_faces_map_to_distinct_latex_font_families():
     tex = _transpile_latex("font-faces-100.fg.yaml")
     # one guarded \newfontfamily per declared face: no cap, no collision.
     assert tex.count(r"\newfontfamily") == 100
-    assert tex.count(r"\IfFontExistsTF") == 100
-    # each face is actually *selected* by its paragraph, not just declared.
-    selections = set(re.findall("\\\\fgff[a-z]+\\\\fontsize", tex))
+    # one guard per FACE declaration; the preamble carries one more fixed
+    # \IfFontExistsTF for the XCharter math face, so count declarations.
+    assert len(re.findall(r"\\IfFontExistsTF\{[^}]*\}\{\\newfontfamily", tex)) == 100
+    # each face is actually *selected* by its text, not just declared. Faces
+    # appear either at node level (font=\fgffX\fontsize…, single-run texts)
+    # or as inline switches ({\fgffX{…}}, multi-run texts render as ONE node
+    # since the per-run cursor placement was fixed — it overprinted runs).
+    selections = set(re.findall(r"(?:font=|\{)\\fgff[a-z]+", tex))
     assert len(selections) >= 100, f"only {len(selections)} faces selected in LaTeX"
     # the declaration degrades gracefully on hosts missing a face (still compiles).
     assert r"{\newcommand\fgffa{}}" in tex

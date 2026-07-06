@@ -16,7 +16,7 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, os.path.join(ROOT, "schema"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "schema"))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
@@ -47,7 +47,7 @@ def test_build_schema_write_then_validate(tmp_path, monkeypatch):
     assert B.main([]) == 0
     assert os.path.exists(tmp_path / "schema.json")
     # a known-good fixture validates against the freshly written schema/models
-    assert B.main([os.path.join(ROOT, "fixtures", "calendar-3day.fg.yaml")]) == 0
+    assert B.main([os.path.join(ROOT, "tests", "fixtures", "calendar-3day.fg.yaml")]) == 0
 
 
 # --------------------------------------------------------------------------- #

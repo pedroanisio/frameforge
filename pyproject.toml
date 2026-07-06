@@ -1,24 +1,50 @@
 [project]
 name = "framegraph"
-version = "2.2.0"
+version = "2.4.1"
 description = "FrameGraph v2 — HEAD toolchain: Pydantic models (source of truth), generated JSON schema, validator, codemod, and the dependency-free SVG / matplotlib proxy renderers."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
+authors = [{ name = "Pedro Anisio Silva", email = "pedroanisio@gmail.com" }]
+keywords = ["document", "graphics", "dsl", "svg", "diagram", "pydantic", "schema", "vector"]
+# requires-python is >=3.10; the CI matrix (ci.yml) exercises 3.10/3.11/3.12, and
+# tests/test_python_version_support.py keeps these classifiers in lockstep with it.
+# No `Typing :: Typed` — py.typed is not shipped yet (§16 / package-check gap).
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Text Processing :: Markup",
+]
 dependencies = [
     # Runtime core: the models are Pydantic v2; documents load via PyYAML
     # (PyYAML also parses JSON, so it covers .json / .yaml / .yml fixtures).
     "pydantic>=2",
     "pyyaml>=6",
+    # Justified flow layout hyphenates with Liang patterns (ADR-0003). Pure
+    # Python, bundles its dictionaries, deterministic → reproducible golden.
+    "pyphen>=0.15",
 ]
 
 # The render front-door (framegraph/cli.py): `framegraph-render <doc> --to <target>`
 # lists every render path and dispatches to it (`--list` shows live availability).
 # Declared here so it becomes a console command once the project is installable;
-# today this is a virtual project (`[tool.uv] package = false`), so run it with
-# `uv run python -m framegraph.cli ... --to pdf`.
+# today this is a virtual project (`[tool.uv] package = false`), so use the
+# self-bootstrapping launcher: `uv run python tooling/framegraph_render.py ... --to pdf`
+# (no PYTHONPATH needed; `python -m framegraph.cli` also works once src/docs are on the path).
 [project.scripts]
 framegraph-render = "framegraph.cli:main"
+fg-font = "framegraph.fontpack:main"
+
+[project.urls]
+Homepage = "https://github.com/pedroanisio/frameforge"
+Repository = "https://github.com/pedroanisio/frameforge"
+Issues = "https://github.com/pedroanisio/frameforge/issues"
 
 # Optional/auxiliary sets (PEP 735). uv installs `dev` by default on `uv sync`;
 # install an auxiliary set explicitly, e.g.:
@@ -41,6 +67,11 @@ framegraph-render = "framegraph.cli:main"
 dev = [
     "hypothesis>=6",
     "pytest>=8",
+    # TOML backport for the gate/tooling that read pyproject.toml. stdlib `tomllib`
+    # only exists on 3.11+, and requires-python is >=3.10; without this the guarded
+    # `import tomllib / except: import tomli` fallback has nothing to resolve on the
+    # 3.10 CI leg. Marked so it is a no-op on 3.11+ (tests/test_python_version_support.py).
+    "tomli>=2 ; python_version < '3.11'",
 ]
 render = ["matplotlib>=3.7", "pillow>=10"]
 browser = ["playwright>=1.44"]
@@ -69,10 +100,33 @@ vision = ["opencv-python-headless>=4.9", "pillow>=10", "pytesseract>=0.3.10"]
 
 [tool.uv]
 # Virtual project: manage the venv + dependencies, but do NOT build/install this
-# tree as a package. The repo runs via `sys.path`-rooted scripts, and an
-# installed `framegraph` distribution would shadow the `models/framegraph.py`
-# module that validate.py / tests import as `framegraph`.
+# tree as a package. The repo runs via `sys.path`-rooted scripts (src layout:
+# the package lives in src/framegraph), and an installed `framegraph`
+# distribution would shadow the `docs/models/framegraph.py` module that
+# validate.py / tests import as `framegraph`.
 package = false
+
+# This environment's package index serves a CORRUPT starlette==1.3.1 (a
+# SyntaxError in starlette/datastructures.py) which uv resolves for the `mcp`
+# group and which breaks the FastMCP import chain. `mcp` only needs
+# starlette>=0.27, so force a clean build. Remove once the index stops serving
+# the broken 1.3.1.
+override-dependencies = ["starlette<1"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+# ruff config (codebase-standards §16 row 1). `target-version` pins the minimum
+# interpreter so version-specific lints match `requires-python = ">=3.10"` (§1).
+target-version = "py310"
+
+[tool.ruff.lint]
+# Two tiers:
+#   * `make lint` runs ruff's full default ruleset (E4/E7/E9/F) informationally
+#     (non-gating; the tree still carries F401/F841 findings).
+#   * `make ruff-check` (in `make check`) GATES `--select F811` (redefinition) —
+#     a real-bug rule with no false positives that protects the source-of-truth
+#     model from name collisions (the `Image` alias/class clash, fixed 2026-07-04).
+# The gated set is deliberately narrow to start; broadening it to F401/F841 and
+# adding `ruff format --check` is this row's documented remaining expansion.

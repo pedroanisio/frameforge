@@ -1,0 +1,480 @@
+# Canonical fixture for sdk.planar (issue #45, parity W1) — GENERATED from
+# static/examples/planar_kernel_showcase.py (build() returns this document
+# verbatim); regenerate from there, never hand-edit. Every shape on this
+# page is computed by the kernel: booleans, offset rings, a knife cut, and
+# the Live-Paint region decomposition, all emitted as even-odd paths.
+dsl: FrameGraph
+version: 2.4.0
+profile: diagram
+title: planar kernel showcase
+defs:
+  tokens:
+    colors:
+      paper: '#fcfbf8'
+      ink: '#1d1e22'
+      teal: '#0f7d88'
+pages:
+- mode: page
+  id: planar-kernel
+  canvas:
+    size:
+    - 960.0
+    - 540.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 960
+      - 540
+      decorative: true
+      type: rect
+      fill: paper
+    - box:
+      - 40
+      - 24
+      - 413.6
+      - 17
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        white_space: nowrap
+      type: text
+      text: sdk.planar — one kernel, five Pathfinder-class capabilities (#45)
+    - box:
+      - 40
+      - 60
+      - 39.2
+      - 17
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        white_space: nowrap
+      type: text
+      text: union
+    - id: bool-union
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 100.0
+        - 110.0
+      - - L
+        - 100.0
+        - 80.0
+      - - L
+        - 40.0
+        - 80.0
+      - - L
+        - 40.0
+        - 140.0
+      - - L
+        - 70.0
+        - 140.0
+      - - L
+        - 70.0
+        - 170.0
+      - - L
+        - 130.0
+        - 170.0
+      - - L
+        - 130.0
+        - 110.0
+      - - Z
+      fill: teal
+    - box:
+      - 240
+      - 60
+      - 64.16
+      - 17
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        white_space: nowrap
+      type: text
+      text: intersect
+    - id: bool-intersect
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 300.0
+        - 110.0
+      - - L
+        - 300.0
+        - 140.0
+      - - L
+        - 270.0
+        - 140.0
+      - - L
+        - 270.0
+        - 110.0
+      - - Z
+      fill: teal
+    - box:
+      - 440
+      - 60
+      - 101.60000000000001
+      - 17
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        white_space: nowrap
+      type: text
+      text: subtract (hole)
+    - id: bool-subtract
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 440.0
+        - 80.0
+      - - L
+        - 500.0
+        - 80.0
+      - - L
+        - 500.0
+        - 140.0
+      - - L
+        - 440.0
+        - 140.0
+      - - Z
+      - - M
+        - 458.0
+        - 122.0
+      - - L
+        - 482.0
+        - 122.0
+      - - L
+        - 482.0
+        - 98.0
+      - - L
+        - 458.0
+        - 98.0
+      - - Z
+      fill: teal
+    - box:
+      - 640
+      - 60
+      - 114.08
+      - 17
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        white_space: nowrap
+      type: text
+      text: divide (3 pieces)
+    - id: divide-0
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 700.0
+        - 110.0
+      - - L
+        - 700.0
+        - 80.0
+      - - L
+        - 640.0
+        - 80.0
+      - - L
+        - 640.0
+        - 140.0
+      - - L
+        - 670.0
+        - 140.0
+      - - L
+        - 670.0
+        - 110.0
+      - - Z
+      fill: '#0f7d88'
+    - id: divide-1
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 700.0
+        - 110.0
+      - - L
+        - 700.0
+        - 140.0
+      - - L
+        - 670.0
+        - 140.0
+      - - L
+        - 670.0
+        - 110.0
+      - - Z
+      fill: '#b5642c'
+    - id: divide-2
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 700.0
+        - 110.0
+      - - L
+        - 730.0
+        - 110.0
+      - - L
+        - 730.0
+        - 170.0
+      - - L
+        - 670.0
+        - 170.0
+      - - L
+        - 670.0
+        - 140.0
+      - - L
+        - 700.0
+        - 140.0
+      - - Z
+      fill: '#7c3aed'
+    - box:
+      - 40
+      - 260
+      - 120.32
+      - 17
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        white_space: nowrap
+      type: text
+      text: offset ±12 (miter)
+    - id: offset-12
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 38.0
+        - 278.0
+      - - L
+        - 122.0
+        - 278.0
+      - - L
+        - 122.0
+        - 362.0
+      - - L
+        - 38.0
+        - 362.0
+      - - Z
+      fill: '#d7e6e8'
+    - id: offset-0
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 50.0
+        - 290.0
+      - - L
+        - 110.0
+        - 290.0
+      - - L
+        - 110.0
+        - 350.0
+      - - L
+        - 50.0
+        - 350.0
+      - - Z
+      fill: teal
+    - id: offset--12
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 62.0
+        - 302.0
+      - - L
+        - 98.0
+        - 302.0
+      - - L
+        - 98.0
+        - 338.0
+      - - L
+        - 62.0
+        - 338.0
+      - - Z
+      fill: paper
+    - box:
+      - 240
+      - 260
+      - 114.08
+      - 17
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        white_space: nowrap
+      type: text
+      text: cut_along (knife)
+    - id: cut-0
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 300.0
+        - 330.0
+      - - L
+        - 300.0
+        - 340.0
+      - - L
+        - 240.0
+        - 340.0
+      - - L
+        - 240.0
+        - 290.0
+      - - Z
+      fill: '#0f7d88'
+    - id: cut-1
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 308.0
+        - 330.0
+      - - L
+        - 308.0
+        - 280.0
+      - - L
+        - 248.0
+        - 280.0
+      - - L
+        - 248.0
+        - 290.0
+      - - Z
+      fill: '#b5642c'
+    - box:
+      - 440
+      - 260
+      - 164.0
+      - 17
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 12
+        white_space: nowrap
+      type: text
+      text: fill_regions (Live Paint)
+    - id: face-0
+      stroke_style:
+        stroke_width: 1
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 500.0
+        - 310.0
+      - - L
+        - 500.0
+        - 280.0
+      - - L
+        - 440.0
+        - 280.0
+      - - L
+        - 440.0
+        - 340.0
+      - - L
+        - 470.0
+        - 340.0
+      - - L
+        - 470.0
+        - 310.0
+      - - Z
+      fill: '#0f7d88'
+      stroke: paper
+    - id: face-1
+      stroke_style:
+        stroke_width: 1
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 500.0
+        - 310.0
+      - - L
+        - 530.0
+        - 310.0
+      - - L
+        - 530.0
+        - 370.0
+      - - L
+        - 470.0
+        - 370.0
+      - - L
+        - 470.0
+        - 340.0
+      - - L
+        - 500.0
+        - 340.0
+      - - Z
+      fill: '#b5642c'
+      stroke: paper
+    - id: face-2
+      stroke_style:
+        stroke_width: 1
+      style:
+        fill_rule: evenodd
+      type: path
+      d:
+      - - M
+        - 500.0
+        - 310.0
+      - - L
+        - 500.0
+        - 340.0
+      - - L
+        - 470.0
+        - 340.0
+      - - L
+        - 470.0
+        - 310.0
+      - - Z
+      fill: '#7c3aed'
+      stroke: paper

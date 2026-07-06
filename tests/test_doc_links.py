@@ -7,8 +7,8 @@ docs (``docs/architecture.md``, ``README.md``, …) link to source files via Git
 ``blob``/``tree`` URLs. Those links are a *manual mirror* of the repo's file
 layout with no automated guard, so two silent rot modes exist:
 
-  * **path rot** — a rename/move/delete leaves ``[models/framegraph.py](…/blob/
-    main/models/framegraph.py)`` pointing at a 404, with nothing to flag it;
+  * **path rot** — a rename/move/delete leaves ``[docs/models/framegraph.py](…/blob/
+    main/docs/models/framegraph.py)`` pointing at a 404, with nothing to flag it;
   * **line rot** — a ``#Lnnn`` anchor silently lies the moment code shifts above
     it (the map found ``class Document`` linked to ``#L1033`` while it lived at
     ``#L1059``).
@@ -57,7 +57,7 @@ def _docs_to_check():
     ls-files`` so the *generated* pages (gitignored, untracked) are excluded by
     construction — only source-of-truth prose is checked."""
     out = subprocess.check_output(
-        ["git", "ls-files", "docs/*.md", "README.md", "CHANGELOG.md", "spec/*.md"],
+        ["git", "ls-files", "docs/*.md", "README.md", "CHANGELOG.md", "docs/spec/*.md"],
         cwd=ROOT, text=True,
     )
     return [p for p in out.splitlines() if os.path.isfile(os.path.join(ROOT, p))]
@@ -118,9 +118,9 @@ def test_guard_actually_catches_drift():
     mismatch — on synthetic input."""
     base = "https://github.com/pedroanisio/frameforge/blob/main"
     synthetic = (
-        f"[models/framegraph.py:99999]({base}/models/framegraph.py#L99999)\n"
-        f"[gone]({base}/models/does_not_exist.py)\n"
-        f"[models/framegraph.py:1]({base}/models/framegraph.py#L41)\n"
+        f"[docs/models/framegraph.py:99999]({base}/docs/models/framegraph.py#L99999)\n"
+        f"[gone]({base}/docs/models/does_not_exist.py)\n"
+        f"[docs/models/framegraph.py:1]({base}/docs/models/framegraph.py#L41)\n"
     )
     v = link_violations(synthetic)
     assert any("out of range" in x for x in v), v

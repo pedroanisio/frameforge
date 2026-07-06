@@ -10,7 +10,7 @@ import sys
 import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
@@ -96,6 +96,7 @@ def test_top_level_sdk_reexports_module_public_surface():
         "expand",
         "fields",
         "figure",
+        "flow",
         "geometry",
         "io",
         "lattices",
@@ -339,6 +340,15 @@ def test_builder_symbols_components_and_handle_kind_checks():
     )
     doc = builder.build()
     assert [obj.type for obj in doc.pages[0].layers[0].objects] == ["group", "group"]
+    # Component children are LOCAL to the group box (origin 0,0), like symbol
+    # expansion: a group carrying a box is translated to that box origin by the
+    # renderer, so absolute children here would be offset twice.
+    comp = doc.pages[0].layers[0].objects[1]
+    assert comp.box == [0, 24, 80, 40]
+    assert comp.children[0].type == "rect"
+    assert comp.children[0].box == [0, 0, 80, 40]
+    assert comp.children[1].type == "text"
+    assert comp.children[1].box[:2] == [4, 4]
 
     color = builder.define_color("brand", "#c00")
     with pytest.raises(TypeError):
@@ -440,7 +450,7 @@ def test_pagebuilder_geometry_helpers_lower_to_existing_primitives():
 
 def test_sdk_geometry_patterns_fixture_exercises_public_helpers():
     """The checked-in fixture is the oracle for pattern + geometry helper output."""
-    path = os.path.join(ROOT, "fixtures", "sdk-geometry-patterns.fg.yaml")
+    path = os.path.join(ROOT, "tests", "fixtures", "sdk-geometry-patterns.fg.yaml")
     doc = parse(open(path, encoding="utf-8").read(), forgiving=False)
     data = doc.model_dump(by_alias=True, exclude_none=True)
     objects = data["pages"][0]["layers"][0]["objects"]
@@ -459,7 +469,7 @@ def test_sdk_geometry_patterns_fixture_exercises_public_helpers():
 
 def test_sdk_ergonomics_showcase_fixture_exercises_high_level_helpers():
     """The fixture pins symbol context, local panels, paint wrappers and macros."""
-    path = os.path.join(ROOT, "fixtures", "sdk-ergonomics-showcase.fg.yaml")
+    path = os.path.join(ROOT, "tests", "fixtures", "sdk-ergonomics-showcase.fg.yaml")
     doc = parse(open(path, encoding="utf-8").read(), forgiving=False)
     data = doc.model_dump(by_alias=True, exclude_none=True)
 
@@ -531,8 +541,10 @@ def test_paint_rgba_and_gradient_constructors_lower_to_valid_paint():
         ["0%", "50%", "100%"]
     rg = radial_gradient([("#FFF7D8", 0.0), (rgba("#FFF7D8", 0.0), 1.0)], at="50% 40%")
     assert rg["kind"] == "radial" and rg["at"] == "50% 40%"
-    hatch = pattern("hatch", fg="#334155", bg="#f8fafc", scale=8, angle=45)
-    assert hatch == {
+    # exercise the hatch() helper (previously shadowed by a local of the same
+    # name, so it went untested); it is defined as pattern("hatch", ...).
+    hatch_paint = hatch(fg="#334155", bg="#f8fafc", scale=8, angle=45)
+    assert hatch_paint == {
         "kind": "pattern",
         "pattern": "hatch",
         "angle": 45,
@@ -540,7 +552,7 @@ def test_paint_rgba_and_gradient_constructors_lower_to_valid_paint():
         "stroke": "#334155",
         "background": "#f8fafc",
     }
-    assert hatch == pattern("hatch", fg="#334155", bg="#f8fafc", scale=8, angle=45)
+    assert hatch_paint == pattern("hatch", fg="#334155", bg="#f8fafc", scale=8, angle=45)
     assert dots(fg="#111", scale=6) == {"kind": "pattern", "pattern": "dots",
                                         "spacing": 6, "stroke": "#111"}
     assert grid_pattern(fg="#111", bg="#fff", scale=12)["pattern"] == "grid"
@@ -550,7 +562,7 @@ def test_paint_rgba_and_gradient_constructors_lower_to_valid_paint():
                          coordinate_mode="absolute").layer("a")
     layer.rect([0, 0, 200, 200], fill=lg)
     layer.ellipse([100, 100], 60, 60, fill=rg)
-    layer.rect([20, 20, 40, 40], fill=hatch)
+    layer.rect([20, 20, 40, 40], fill=hatch_paint)
     doc = builder.build()
     assert doc.pages[0].layers[0].objects[0].fill.kind == "linear"
     assert doc.pages[0].layers[0].objects[1].fill.kind == "radial"
@@ -1237,3 +1249,336 @@ def test_widgets_reach_the_svg_proxy():
     assert "248" in svg          # a KPI value
     assert "Urgent" in svg       # a badge label
     assert "Tickets" in svg      # a card title
+
+
+# --------------------------------------------------------------------------- #
+#  core-rendered object types now reachable from PageBuilder
+# --------------------------------------------------------------------------- #
+def test_pagebuilder_icon_bullet_list_dimension_lower_and_render():
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [320, 240], "units": "px"},
+                         coordinate_mode="absolute").layer("main")
+    layer.icon([10, 10, 24, 24], "★", color="#c00", size=20)
+    layer.bullet_list([10, 44, 200, 60], ["alpha", "beta"], marker="•",
+                      marker_color="#c00", gap=6)
+    layer.dimension([10, 140], [210, 140], kind="linear", text="200 px",
+                    offset=10, arrows="both")
+
+    doc = builder.build()
+    icon, bullets, dim = doc.pages[0].layers[0].objects
+    assert icon.type == "icon" and icon.glyph == "★" and icon.color == "#c00"
+    assert bullets.type == "bullet_list" and bullets.items == ["alpha", "beta"]
+    assert bullets.marker == "•" and bullets.marker_color == "#c00"
+    assert dim.type == "dimension" and dim.kind == "linear"
+    assert dim.from_ == [10.0, 140.0] and dim.to == [210.0, 140.0]
+    assert dim.text == "200 px"
+
+    svg = render_page_svgs(doc)[0]
+    assert "★" in svg and "alpha" in svg and "200 px" in svg
+
+
+def test_dimension_accepts_id_and_ref_port_anchors():
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [320, 240], "units": "px"}).layer("main")
+    layer.rect([10, 10, 60, 40], id="a", ports={"e": [70, 30]})
+    layer.rect([200, 10, 60, 40], id="b")
+    layer.dimension({"ref": "a", "port": "e"}, "b", kind="aligned", value="auto")
+    doc = builder.build()
+    dim = doc.pages[0].layers[0].objects[2]
+    assert dim.from_.ref == "a" and dim.from_.port == "e"
+    assert dim.to == "b" and dim.value == "auto"
+
+
+# --------------------------------------------------------------------------- #
+#  document-level exposure: targets, counters, description/meta/text_contract
+# --------------------------------------------------------------------------- #
+def test_document_targets_counters_description_meta_text_contract():
+    builder = DocumentBuilder(title="doc surface")
+    builder.describe("A test document.").meta(author="suite").text_contract(
+        min_font_size=6, overflow="shrink_to_fit"
+    )
+    builder.define_counter("figure", start=1, format="decimal")
+    builder.define_target("screen", {"size": [1280, 720], "units": "px"},
+                          font_scale=1.2, hide=["hero"], padding_delta=-2)
+    layer = builder.page("p", canvas={"size": [320, 240], "units": "px"}).layer("main")
+    layer.rect([10, 10, 60, 40], id="hero", fill="#eee")
+
+    doc = builder.build()
+    assert doc.description == "A test document."
+    assert doc.meta == {"author": "suite"}
+    assert doc.text_contract.min_font_size == 6
+    assert doc.defs.counters["figure"].start == 1
+    target = doc.targets[0]
+    assert target.name == "screen"
+    assert target.adjustments.font_scale == 1.2
+    assert target.adjustments.hide == ["hero"]
+    assert target.adjustments.padding_delta == -2
+    assert validate_static_rules(doc).ok
+
+
+def test_page_level_links_notes_meta_and_link_helper():
+    builder = DocumentBuilder()
+    builder.page("p1", canvas={"size": [100, 100], "units": "px"},
+                 links=[{"to": "p2", "relation": "next"}], notes="speaker notes",
+                 meta={"kind": "cover"}).layer("main").rect([0, 0, 10, 10])
+    p2 = builder.page("p2", canvas={"size": [100, 100], "units": "px"})
+    p2.layer("main").rect([0, 0, 10, 10])
+    p2.link("p1", relation="prev", label="Back")
+
+    doc = builder.build()
+    assert doc.pages[0].links[0].to == "p2" and doc.pages[0].links[0].relation == "next"
+    assert doc.pages[0].notes == "speaker notes"
+    assert doc.pages[0].meta == {"kind": "cover"}
+    assert doc.pages[1].links[0].to == "p1" and doc.pages[1].links[0].label == "Back"
+
+
+# --------------------------------------------------------------------------- #
+#  write(fail_on_error=True) surfaces the whole report
+# --------------------------------------------------------------------------- #
+def test_write_fail_on_error_raises_typed_error_with_all_errors(tmp_path):
+    from framegraph.sdk import StaticValidationError, ValidationReport
+
+    builder = DocumentBuilder()
+    layer = builder.page("p", canvas={"size": [100, 100], "units": "px"}).layer("main")
+    layer.add({"type": "path", "d": "M 0", "stroke": "#000"})
+    layer.add({"type": "path", "d": "Q 1", "stroke": "#000"})
+
+    with pytest.raises(StaticValidationError) as excinfo:
+        builder.write(tmp_path / "bad.fg.yaml", fail_on_error=True)
+
+    err = excinfo.value
+    assert isinstance(err, ValueError)                     # backwards compatible
+    assert isinstance(err.report, ValidationReport)
+    assert len(err.errors) >= 2                            # not just the first error
+    message = str(err)
+    assert "/objects/0/d" in message and "/objects/1/d" in message
+    assert not (tmp_path / "bad.fg.yaml").exists()
+
+
+# --------------------------------------------------------------------------- #
+#  validate_static_rules(targets=...) applies per-target adjustments
+# --------------------------------------------------------------------------- #
+def _doc_with_hiding_target() -> dict:
+    return {
+        "dsl": "FrameGraph",
+        "version": "2.2.0",
+        "targets": [
+            {
+                "name": "screen",
+                "canvas": {"size": [100, 100], "units": "px"},
+                "adjustments": {"hide": ["hero"]},
+            }
+        ],
+        "pages": [
+            {
+                "mode": "page",
+                "id": "p",
+                "reading_order": ["hero"],
+                "layers": [
+                    {
+                        "id": "l",
+                        "objects": [
+                            {"type": "rect", "id": "hero", "box": [0, 0, 10, 10]},
+                            {"type": "line", "from": "hero", "to": [50, 50],
+                             "stroke": "#000"},
+                        ],
+                    }
+                ],
+            }
+        ],
+    }
+
+
+def test_validate_static_rules_checks_post_adjustment_references_per_target():
+    report = validate_static_rules(_doc_with_hiding_target(), targets=["screen"])
+    assert not report.ok
+    adjustment_issues = [i for i in report.issues if i.rule_id == "target-adjustment"]
+    paths = {i.path for i in adjustment_issues}
+    assert "/pages/0/reading_order/0" in paths             # hidden id in reading_order
+    assert any(path.endswith("/from") for path in paths)   # hidden id as line anchor
+    assert all("screen" in i.message and "hero" in i.message for i in adjustment_issues)
+
+
+def test_validate_static_rules_without_targets_stays_clean():
+    report = validate_static_rules(_doc_with_hiding_target())
+    assert not any(i.rule_id == "target-adjustment" for i in report.issues)
+
+
+# --------------------------------------------------------------------------- #
+#  wireframe widget atoms
+# --------------------------------------------------------------------------- #
+def test_new_wireframe_atoms_lower_and_validate():
+    from framegraph.sdk import (
+        breadcrumb, checkbox, dropdown, image_placeholder, navbar, radio,
+        slider, sticky_note,
+    )
+
+    builder = DocumentBuilder(profile="deck")
+    layer = builder.page("p", canvas={"size": [640, 640], "units": "px"},
+                         coordinate_mode="absolute").layer("main")
+    layer.navbar([0, 0, 640, 56], ["Home", "Docs", "Pricing"], brand="Acme", active=1)
+    layer.breadcrumb([24, 72, 300, 24], ["Home", "Docs", "SDK"])
+    layer.checkbox([24, 112, 160, 20], checked=True, label="Remember me")
+    layer.radio([24, 144, 160, 20], selected=True, label="Option A")
+    layer.slider([24, 180, 200, 20], 0.4)
+    layer.dropdown([24, 216, 200, 140], ["One", "Two", "Three"], selected=1)
+    layer.image_placeholder([260, 112, 200, 140], label="Hero image")
+    layer.sticky_note([480, 112, 140, 100], "Swap for final art", id="note-1")
+
+    doc = builder.build()
+    objects = doc.pages[0].layers[0].objects
+    widgets = [obj.meta["widget"] for obj in objects]
+    assert widgets == ["navbar", "breadcrumb", "checkbox", "radio", "slider",
+                       "dropdown", "image_placeholder", "sticky_note"]
+    report = validate_static_rules(doc)
+    assert not [i for i in report.issues if i.severity == "error"]
+
+    # atom-specific lowering contracts
+    check = checkbox([0, 0, 18, 18], checked=True)
+    assert any(c["type"] == "polyline" for c in check["children"])   # the check mark
+    unchecked = checkbox([0, 0, 18, 18], checked=False)
+    assert not any(c["type"] == "polyline" for c in unchecked["children"])
+    dot = radio([0, 0, 18, 18], selected=True)
+    assert sum(1 for c in dot["children"] if c["type"] == "ellipse") == 2
+    placeholder = image_placeholder([0, 0, 100, 80])
+    diagonals = [c for c in placeholder["children"] if c["type"] == "line"]
+    assert len(diagonals) == 2                                        # the X cross
+    note = sticky_note([0, 0, 120, 90], "hi", id="n")
+    assert note["decorative"] is True and note["id"] == "n"           # non-print flag
+    crumb = breadcrumb(["Home", "Docs"])
+    assert crumb["box"][2] > 0                                        # auto-sized
+    menu = dropdown([0, 0, 160, 120], ["a", "b"], selected=0)
+    assert any(c.get("fill") for c in menu["children"] if c["type"] == "rect")
+    track = slider(0.5)
+    assert track["meta"]["widget"] == "slider"                        # auto-size form
+
+
+# --------------------------------------------------------------------------- #
+#  group(style=<token>) composes via Style.class
+# --------------------------------------------------------------------------- #
+def test_group_composes_token_style_with_transform_and_clip():
+    builder = DocumentBuilder()
+    panel = builder.define_style("panel", fill="#eef2f7")
+    layer = builder.page("p", canvas={"size": [200, 200], "units": "px"}).layer("main")
+    layer.group([{"type": "rect", "box": [0, 0, 40, 40]}], style=panel,
+                transform=Mat3.translate(20, 30), clip=[0, 0, 40, 40])
+
+    doc = builder.build()
+    group = doc.pages[0].layers[0].objects[0]
+    assert group.style.class_ == "panel"
+    assert group.style.transform[0].fn == "matrix"
+    assert group.style.clip_path is not None
+    assert render_page_svgs(doc)[0]                       # renders without crashing
+
+
+# --------------------------------------------------------------------------- #
+#  SVG ingest is visible on the SDK surface
+# --------------------------------------------------------------------------- #
+def test_svg_to_objects_is_reexported_through_the_sdk():
+    from framegraph.sdk import svg_to_objects
+
+    objects = svg_to_objects(
+        '<svg viewBox="0 0 10 10">'
+        '<rect x="1" y="1" width="4" height="4" fill="#f00"/>'
+        '<circle cx="7" cy="7" r="2" fill="#00f"/>'
+        "</svg>"
+    )
+    assert [obj["type"] for obj in objects] == ["rect", "ellipse"]
+    assert objects[0]["fill"] == "#f00"
+
+    builder = DocumentBuilder()
+    builder.page("p", canvas={"size": [10, 10], "units": "px"}).layer("main").extend(objects)
+    assert builder.build().pages[0].layers[0].objects[0].type == "rect"
+
+
+# --------------------------------------------------------------------------- #
+#  conform: renderer diagnostics threaded through render_pages_with_stats
+# --------------------------------------------------------------------------- #
+def test_render_pages_with_stats_optionally_returns_renderer_diagnostics():
+    """diagnostics=True adds the renderer's structured feedback as a third
+    element; the default stays the frozen (svgs, tstats) 2-tuple contract."""
+    from framegraph.sdk.conform import render_pages_with_stats
+
+    builder = DocumentBuilder(title="diag", profile="diagram")
+    layer = builder.page("p", canvas={"size": [100, 80], "units": "px"},
+                         coordinate_mode="absolute").layer("m")
+    layer.rect([0, 0, 100, 80], fill="#ffffff")
+    doc = builder.build()
+
+    default = render_pages_with_stats(doc, real_metrics=False)
+    assert len(default) == 2                                  # frozen 2-tuple contract
+
+    svgs, stats, diags = render_pages_with_stats(doc, real_metrics=False, diagnostics=True)
+    assert svgs == default[0] and stats == default[1]
+    assert {"warnings", "skipped_objects", "skipped_flowables",
+            "font_fallbacks", "layout"} <= set(diags)
+    assert diags["layout"] == []                              # layout_report defaults off
+
+    _, _, with_layout = render_pages_with_stats(
+        doc, real_metrics=False, diagnostics=True, layout_report=True)
+    assert with_layout["layout"], "layout_report=True must emit per-object layout entries"
+
+
+# --------------------------------------------------------------------------- #
+#  Chart: pie / donut / scatter / area series
+# --------------------------------------------------------------------------- #
+def test_chart_scatter_and_area_lower_to_valid_objects():
+    frame = Frame(domain=(0, 0, 10, 100), box=(0, 0, 200, 100))
+    chart = (
+        Chart(frame)
+        .scatter([(1, 10), (5, 50)], r=3, fill="#112233", label="pts")
+        .area([(0, 0), (5, 50), (10, 100)], fill="#EEF4FF", stroke="#3B6EA5", label="fill")
+        .legend()
+    )
+    objs = chart.objects()
+    dots = [o for o in objs if o["type"] == "ellipse"]
+    assert len(dots) == 2 and dots[0]["rx"] == 3 and dots[0]["fill"] == "#112233"
+    closed = [o for o in objs if o["type"] == "polyline" and o.get("closed")]
+    assert len(closed) == 1 and closed[0]["fill"] == "#EEF4FF"
+    # the area polygon returns to the baseline under the series' last/first x
+    assert closed[0]["points"][-2:] == [[200.0, 100.0], [0.0, 100.0]]
+    outline = [o for o in objs if o["type"] == "polyline" and not o.get("closed")]
+    assert outline and outline[0]["stroke"] == "#3B6EA5"
+
+    builder = DocumentBuilder()
+    builder.page("p", canvas={"size": [400, 300], "units": "px"}).layer("m").extend(objs)
+    builder.build()                                           # validates green
+
+
+def test_chart_pie_and_donut_lower_to_sector_paths():
+    frame = Frame(domain=(0, 0, 1, 1), box=(0, 0, 200, 200))
+    pie = Chart(frame).pie([1, 1, 2], colors=["#111111", "#222222", "#333333"],
+                           labels=["a", "b", "c"])
+    sectors = [o for o in pie.objects() if o["type"] == "path"]
+    assert len(sectors) == 3
+    assert [o["fill"] for o in sectors] == ["#111111", "#222222", "#333333"]
+    assert all(o["d"].startswith("M ") and " A " in o["d"] and o["d"].rstrip().endswith("Z")
+               for o in sectors)
+    assert pie._legend == [("a", "#111111"), ("b", "#222222"), ("c", "#333333")]
+
+    donut = Chart(frame).donut([3, 1], colors=["#445566", "#778899"])
+    rings = [o for o in donut.objects() if o["type"] == "path"]
+    assert len(rings) == 2
+    # a donut slice traces the outer arc AND the inner return arc
+    assert all(o["d"].count("A ") >= 2 for o in rings)
+
+    # a single 100% value degenerates to a full disc, not a zero-sweep arc
+    solo = Chart(frame).pie([5], colors=["#111111"])
+    assert [o["type"] for o in solo.objects()] == ["ellipse"]
+
+    builder = DocumentBuilder()
+    builder.page("p", canvas={"size": [400, 400], "units": "px"}).layer("m").extend(
+        sectors + rings)
+    builder.build()                                           # validates green
+
+
+def test_chart_pie_rejects_bad_input():
+    frame = Frame(domain=(0, 0, 1, 1), box=(0, 0, 100, 100))
+    with pytest.raises(ValueError):
+        Chart(frame).pie([], colors=["#111111"])
+    with pytest.raises(ValueError):
+        Chart(frame).pie([1, -2], colors=["#111111"])
+    with pytest.raises(ValueError):
+        Chart(frame).pie([1], colors=["#111111"], inner_ratio=1.0)
+    with pytest.raises(ValueError):
+        Chart(frame).area([(0, 0)], fill="#eee")

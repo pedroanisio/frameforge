@@ -41,8 +41,22 @@ ROOT = Path(__file__).resolve().parent.parent
 BLOCKER = "blocker"
 GAP = "gap"
 
+# The 2026-07-02 folder refactor moved the tree to a src layout: the importable
+# package lives under src/, and the model/schema reference sources moved under
+# docs/. This checker inspects those *live* locations. tests/test_package_readiness.py
+# guards these paths against going stale again — a checker that inspects a path
+# that has moved passes vacuously, the PALS's-Law failure mode.
+SRC = ROOT / "src"                       # importable-package parent (src/framegraph)
+
+# Reference-source dirs the tooling puts on sys.path (docs/models, docs/schema). A
+# `<dist-name>.py` sitting in one of these is shadowed by an installed wheel of the
+# same distribution — the documented docs/models/framegraph.py hazard (§2).
+SHADOW_DIRS = ("docs/models", "docs/schema")
+
 # Sibling top-level import roots that are NOT inside the distribution package and
-# therefore would not ship in a `framegraph` wheel.
+# therefore would not ship in a `framegraph` wheel. Post-refactor `tooling` is the
+# live risk (still a top-level package); `models`/`schema` are kept as defensive
+# guards even though the reference sources moved under docs/.
 SIBLING_ROOTS = ("models", "tooling", "schema")
 _SIBLING_IMPORT = re.compile(
     r"^\s*(?:from|import)\s+(" + "|".join(SIBLING_ROOTS) + r")(?:[.\s,]|$)"
@@ -91,12 +105,13 @@ def _check_uv_package_flag(pp: dict) -> Finding:
 def _check_name_collision(pp: dict) -> Finding:
     name = pp.get("project", {}).get("name", "")
     shadows = []
-    # A top-level module of the same name as the distribution would be shadowed by
-    # the installed package (the documented models/framegraph.py hazard, §2).
-    for root in SIBLING_ROOTS:
-        candidate = ROOT / root / f"{name}.py"
+    # A module of the same name as the distribution, sitting on a sys.path root the
+    # tooling uses, would be shadowed by the installed package (the documented
+    # docs/models/framegraph.py hazard, §2).
+    for rel in SHADOW_DIRS:
+        candidate = ROOT / rel / f"{name}.py"
         if candidate.exists():
-            shadows.append(f"{root}/{name}.py")
+            shadows.append(f"{rel}/{name}.py")
     if (ROOT / f"{name}.py").exists():
         shadows.append(f"{name}.py")
     return Finding(
@@ -111,7 +126,7 @@ def _check_name_collision(pp: dict) -> Finding:
 
 def _check_package_self_contained(pp: dict) -> Finding:
     name = pp.get("project", {}).get("name", "")
-    pkg = ROOT / name
+    pkg = SRC / name
     leaks: list[str] = []
     if pkg.is_dir():
         for path in sorted(pkg.rglob("*.py")):
@@ -150,7 +165,7 @@ def _check_core_metadata(pp: dict) -> Finding:
 
 def _check_runtime_version(pp: dict) -> Finding:
     name = pp.get("project", {}).get("name", "")
-    init = ROOT / name / "__init__.py"
+    init = SRC / name / "__init__.py"
     text = init.read_text(encoding="utf-8") if init.exists() else ""
     has = bool(re.search(r"^__version__\s*=", text, re.MULTILINE))
     return Finding(
@@ -164,7 +179,7 @@ def _check_runtime_version(pp: dict) -> Finding:
 
 def _check_py_typed(pp: dict) -> Finding:
     name = pp.get("project", {}).get("name", "")
-    marker = ROOT / name / "py.typed"
+    marker = SRC / name / "py.typed"
     return Finding(
         "py.typed marker shipped",
         ok=marker.exists(),

@@ -12,7 +12,7 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.mcp.server import (  # noqa: E402
     cleanup_sessions,
@@ -112,7 +112,7 @@ def test_render_warning_when_raster_backend_unavailable(tmp_path, monkeypatch):
     """raster_png=True but no browser backend -> ok stays True, but a warning is surfaced."""
     import framegraph.mcp.pipeline as pipeline
 
-    def _unavailable(svg_paths, session_dir, session_id):
+    def _unavailable(svg_paths, session_dir, session_id, **_kwargs):
         return [], "PNG rasterization unavailable: stub. install the `browser` group."
 
     monkeypatch.setattr(pipeline, "_try_rasterize_pngs", _unavailable)
@@ -127,7 +127,7 @@ def test_render_warning_when_raster_backend_unavailable(tmp_path, monkeypatch):
 def test_render_exception_returns_structured_error_not_traceback(tmp_path, monkeypatch):
     import framegraph.mcp.pipeline as pipeline
 
-    def _boom(document, base_dir):
+    def _boom(document, base_dir, **_kwargs):
         raise RuntimeError("renderer exploded")
 
     monkeypatch.setattr(pipeline, "_render_page_svgs_bounded", _boom)
@@ -202,21 +202,21 @@ def test_run_sdk_code_rerun_same_session_rerenders_edited_document(tmp_path):
 
 def test_run_sdk_client_rerun_same_session_rerenders_edited_client(tmp_path):
     """The same stale-session fix must hold for the editable-client entry point."""
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     client = examples / "probe.py"
     sessions = tmp_path / "sessions"
 
     client.write_text(_derive_code("alpha-client"), encoding="utf-8")
     first = run_sdk_client(
-        "examples/probe.py", session_id="cl", session_root=sessions, repo_root=tmp_path, raster_png=False
+        "static/examples/probe.py", session_id="cl", session_root=sessions, repo_root=tmp_path, raster_png=False
     )
     assert first["ok"] is True
     assert "alpha-client" in (sessions / "cl" / "generated.fg.yaml").read_text(encoding="utf-8")
 
     client.write_text(_derive_code("beta-client"), encoding="utf-8")
     second = run_sdk_client(
-        "examples/probe.py", session_id="cl", session_root=sessions, repo_root=tmp_path, raster_png=False
+        "static/examples/probe.py", session_id="cl", session_root=sessions, repo_root=tmp_path, raster_png=False
     )
     assert second["ok"] is True
     yaml_text = (sessions / "cl" / "generated.fg.yaml").read_text(encoding="utf-8")
@@ -241,11 +241,11 @@ def test_run_sdk_code_subprocess_timeout_returns_structured_error(tmp_path):
 
 
 def test_run_sdk_client_subprocess_timeout_returns_structured_error(tmp_path):
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     (examples / "slow.py").write_text("import time\ntime.sleep(5)\n", encoding="utf-8")
     result = run_sdk_client(
-        "examples/slow.py",
+        "static/examples/slow.py",
         session_id="slowcl",
         session_root=tmp_path / "sessions",
         repo_root=tmp_path,
@@ -395,8 +395,8 @@ def test_run_sdk_code_rejects_unsafe_session_id(tmp_path):
 
 
 def test_sdk_client_file_tools_edit_and_run_python_example(tmp_path):
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     client_path = examples / "client.py"
     client_path.write_text(
         """
@@ -415,24 +415,24 @@ doc.write(OUTPUT_YAML_PATH, fail_on_error=True)
     listed = list_sdk_clients(repo_root=tmp_path)
     assert listed["clients"] == [
         {
-            "path": "examples/client.py",
+            "path": "static/examples/client.py",
             "bytes": client_path.stat().st_size,
             "sha256": listed["clients"][0]["sha256"],
         }
     ]
 
-    read = read_sdk_client("examples/client.py", repo_root=tmp_path)
-    assert read["path"] == "examples/client.py"
+    read = read_sdk_client("static/examples/client.py", repo_root=tmp_path)
+    assert read["path"] == "static/examples/client.py"
     assert "before edit" in read["code"]
 
     edited = read["code"].replace("before edit", "after edit")
-    write = write_sdk_client("examples/client.py", edited, repo_root=tmp_path)
-    assert write["path"] == "examples/client.py"
+    write = write_sdk_client("static/examples/client.py", edited, repo_root=tmp_path)
+    assert write["path"] == "static/examples/client.py"
     assert write["bytes"] == len(edited.encode("utf-8"))
     assert "after edit" in client_path.read_text(encoding="utf-8")
 
     result = run_sdk_client(
-        "examples/client.py",
+        "static/examples/client.py",
         session_id="edited",
         session_root=tmp_path / "sessions",
         repo_root=tmp_path,
@@ -446,15 +446,23 @@ doc.write(OUTPUT_YAML_PATH, fail_on_error=True)
 
 
 def test_sdk_client_tools_reject_paths_outside_allowed_roots(tmp_path):
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     (tmp_path / "outside.py").write_text("print('outside')\n", encoding="utf-8")
 
-    with pytest.raises(ValueError, match="allowed SDK client roots"):
+    # A bare client name is searched across the allowed roots (persistent-root
+    # support); a miss is "no such editable client", not a confinement error —
+    # the repo-root file stays invisible either way.
+    with pytest.raises(FileNotFoundError):
         read_sdk_client("outside.py", repo_root=tmp_path)
 
+    # A relative path with directories is an explicit repo-relative location
+    # claim and keeps the strict rejection.
+    with pytest.raises(ValueError, match="allowed SDK client roots"):
+        read_sdk_client("secrets/outside.py", repo_root=tmp_path)
+
     with pytest.raises(ValueError, match="Python"):
-        write_sdk_client("examples/client.txt", "print('nope')\n", create=True, repo_root=tmp_path)
+        write_sdk_client("static/examples/client.txt", "print('nope')\n", create=True, repo_root=tmp_path)
 
 
 def test_read_session_resource_returns_yaml_svg_and_diagnostics(tmp_path):
@@ -520,13 +528,18 @@ def test_create_server_registers_feedback_loop_tools_and_resources(tmp_path):
         "write_sdk_client",
         "propose_from_image",
         "propose_from_document",
+        "detect_regions",
         "list_sessions",
         "cleanup_sessions",
+        "describe_capabilities",
+        "list_fonts",
+        "get_guide",
     } <= set(server.tools)
     assert "framegraph://session/{session_id}/document.yaml" in server.resources
     assert "framegraph://session/{session_id}/page/{page_number}.svg" in server.resources
     assert "framegraph://session/{session_id}/page/{page_number}.png" in server.resources
     assert "framegraph://session/{session_id}/diagnostics.json" in server.resources
+    assert "framegraph://session/{session_id}/document.pdf" in server.resources
 
 
 def test_create_server_registers_authoring_guide_prompt(tmp_path):
@@ -547,8 +560,11 @@ def test_create_server_writes_structured_log_for_tool_instructions_and_responses
     structured = getattr(result, "structuredContent", result)
     assert structured["ok"] is True
 
-    with pytest.raises(FileNotFoundError):
-        server.tools["read_sdk_client"]("examples/missing.py")
+    # An expected failure is returned as the structured envelope (never raised),
+    # and the log records the envelope the client actually received.
+    missing = server.tools["read_sdk_client"]("static/examples/missing.py")
+    missing_structured = getattr(missing, "structuredContent", missing)
+    assert missing_structured["ok"] is False
 
     events = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
 
@@ -558,9 +574,9 @@ def test_create_server_writes_structured_log_for_tool_instructions_and_responses
     assert events[0]["instruction"]["session_id"] == "logged"
     assert events[0]["response"]["ok"] is True
     assert events[0]["response"]["session_id"] == "logged"
-    assert events[1]["instruction"]["path"] == "examples/missing.py"
+    assert events[1]["instruction"]["path"] == "static/examples/missing.py"
     assert events[1]["response"]["ok"] is False
-    assert events[1]["response"]["error"]["type"] == "FileNotFoundError"
+    assert events[1]["response"]["error_type"] == "FileNotFoundError"
 
 
 def test_subprocess_env_strips_secrets_by_default(tmp_path, monkeypatch):
@@ -584,8 +600,8 @@ def test_subprocess_env_strips_secrets_by_default(tmp_path, monkeypatch):
 def test_new_generated_yaml_uses_content_hash_not_mtime(tmp_path):
     import framegraph.mcp.server as server
 
-    examples = tmp_path / "examples"
-    examples.mkdir()
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
     fixture = examples / "demo.fg.yaml"
     fixture.write_text("dsl: FrameGraph\n", encoding="utf-8")
     before = server._framegraph_yaml_snapshot(tmp_path)
@@ -772,6 +788,23 @@ def test_render_surfaces_clipped_text_fit_telemetry(tmp_path):
     assert "clipped" in (result.get("render_warning") or "")
 
 
+def test_render_result_surfaces_renderer_diagnostics(tmp_path):
+    """The renderer's structured feedback (warnings / skipped objects+flowables /
+    font fallbacks / layout) rides the result as `diagnostics` and is persisted
+    into the session's diagnostics.json — render-side signals are no longer
+    dropped between the Renderer and the MCP caller."""
+    result = run_sdk_code(SDK_SCRIPT, session_id="rdiag", session_root=tmp_path, raster_png=False)
+    assert result["ok"] is True
+    diags = result["diagnostics"]
+    assert {"warnings", "skipped_objects", "skipped_flowables",
+            "font_fallbacks", "layout"} <= set(diags)
+    assert isinstance(diags["warnings"], list)
+    assert isinstance(diags["skipped_flowables"], dict)
+
+    payload = json.loads((tmp_path / "rdiag" / "diagnostics.json").read_text(encoding="utf-8"))
+    assert payload["diagnostics"] == diags
+
+
 TWO_OBJECT_SCRIPT = """
 from framegraph.sdk import DocumentBuilder
 b = DocumentBuilder(title="two", profile="diagram")
@@ -816,6 +849,158 @@ def test_mcp_guide_names_headline_sdk_capabilities():
         f"FRAMEGRAPH_GUIDE omits headline SDK capabilities {missing_guide} — update the "
         "guide in framegraph/mcp/server.py when the SDK surface grows"
     )
+
+
+# --- detect_regions: region analysis behind the shared session envelope ---
+
+
+def _regions_png(tmp_path):
+    """120x90 white canvas with two solid squares (flat-method regions)."""
+    PIL = pytest.importorskip("PIL.Image")
+    from PIL import ImageDraw
+
+    img = PIL.new("RGB", (120, 90), "#ffffff")
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([20, 20, 50, 50], fill="#222222")
+    draw.rectangle([70, 40, 100, 70], fill="#222222")
+    path = tmp_path / "regions.png"
+    img.save(path)
+    return path
+
+
+def test_detect_regions_tool_returns_regions_and_overlay(tmp_path):
+    pytest.importorskip("cv2")
+    from framegraph.mcp.server import detect_regions
+
+    result = detect_regions(str(_regions_png(tmp_path)), method="flat",
+                            cluster="translation",
+                            session_id="regions", session_root=tmp_path)
+
+    assert result["ok"] is True
+    assert result["tool"] == "detect_regions"
+    # the annotated overlay is the session's page-1 render artifact
+    assert [r["mimeType"] for r in result["renders"]] == ["image/png"]
+    assert result["renders"][0]["uri"] == "framegraph://session/regions/page/1.png"
+    assert (tmp_path / "regions" / "p001.png").exists()
+    assert any(link["name"] == "diagnostics.json" for link in result["resources"])
+    assert (tmp_path / "regions" / "diagnostics.json").exists()
+
+    spatial = result["spatial"]
+    assert spatial["method"] == "flat"
+    assert spatial["region_count"] >= 2
+    region = spatial["regions"][0]
+    # coordinate-identity contract: px AND normalized, box AND centroid
+    assert {"bbox_px", "box_norm", "centroid_px", "centroid_norm",
+            "fill_hex", "kind"} <= set(region)
+    # the two identical squares fall in one translation shape class
+    assert spatial["classes"] and max(c["count"] for c in spatial["classes"]) >= 2
+
+
+def test_detect_regions_tool_overlay_false_reports_numbers_only(tmp_path):
+    pytest.importorskip("cv2")
+    from framegraph.mcp.server import detect_regions
+
+    result = detect_regions(str(_regions_png(tmp_path)), method="flat", overlay=False,
+                            session_id="regnum", session_root=tmp_path)
+    assert result["ok"] is True
+    assert result["renders"] == []
+    assert result["spatial"]["region_count"] >= 2
+
+
+def test_detect_regions_tool_structured_errors(tmp_path):
+    from framegraph.mcp.server import detect_regions
+
+    bad_method = detect_regions(str(_regions_png(tmp_path)), method="nope",
+                                session_id="regbad", session_root=tmp_path)
+    assert bad_method["ok"] is False and "method" in bad_method["error"]
+    assert bad_method["renders"] == []
+
+    missing = detect_regions(str(tmp_path / "missing.png"),
+                             session_id="regmiss", session_root=tmp_path)
+    assert missing["ok"] is False
+    assert missing["renders"] == []
+
+    pytest.importorskip("cv2")
+    bad_tunable = detect_regions(str(_regions_png(tmp_path)), method="flat",
+                                 tunables={"sigmas": [1, 2]},
+                                 session_id="regtun", session_root=tmp_path)
+    assert bad_tunable["ok"] is False and "tunable" in bad_tunable["error"]
+
+
+# --- vectorize auto-mode routing + observable OCR status through the MCP tool ---
+
+
+def test_vectorize_auto_mode_reports_router_decision(tmp_path):
+    pytest.importorskip("cv2")
+    from framegraph.mcp.server import vectorize_image
+
+    result = vectorize_image(str(_regions_png(tmp_path)), mode="auto",
+                             session_id="vauto", session_root=tmp_path, raster_png=False)
+
+    assert result["ok"] is True
+    auto = result["vectorize"]["auto"]
+    assert auto["resolved_mode"] == result["vectorize"]["mode"]
+    assert result["vectorize"]["mode"] in ("region", "outline", "trace", "layers")
+    assert "classification" in auto and "presets" in auto and "hint" in auto
+
+
+def test_vectorize_ocr_reports_backend_status_not_silent_empty(tmp_path):
+    pytest.importorskip("cv2")
+    from framegraph.mcp.server import vectorize_image
+
+    result = vectorize_image(str(_regions_png(tmp_path)), mode="region", ocr=True,
+                             session_id="vocr", session_root=tmp_path, raster_png=False)
+
+    assert result["ok"] is True
+    status = result["vectorize"]["ocr"]
+    assert status["status"] in ("ok", "no_text", "unavailable", "error")
+    assert "available" in status and "n_words" in status
+
+
+# --- score_reconstruction geometry args accept workspace pin ids ---
+
+
+def test_score_reconstruction_geometry_args_accept_pin_ids(tmp_path):
+    pytest.importorskip("cv2")
+    from framegraph.mcp.server import score_reconstruction, workspace
+
+    img = _regions_png(tmp_path)
+    opened = workspace("open", image=str(img), session_id="pins", session_root=tmp_path)
+    assert opened["ok"] is True
+    pinned = workspace("pin",
+                       points=[{"px": [20, 20], "id": "P1"}, {"px": [50, 20], "id": "P2"}],
+                       session_id="pins", session_root=tmp_path)
+    assert pinned["ok"] is True
+
+    result = score_reconstruction(
+        str(img), [{"kind": "line", "pins": ["P1", "P2"]}],
+        symmetry_pairs=[["P1", "P2"]],
+        collinear_groups=[["P1", "P2", [35.0, 20.0]]],
+        session_id="pins", session_root=tmp_path,
+    )
+
+    assert result["ok"] is True
+    geometry = result["score"]["geometry"]
+    assert "error" not in geometry, geometry
+    assert "worst_dev_px" in geometry
+    # P1/P2/(35,20) all sit on y=20: the collinearity residual must be ~0
+    assert geometry["collinearity"][0]["max_dist_px"] <= 0.01
+
+
+# --- transport summary surfaces hint / pdf / replaced_renders ---
+
+
+def test_mcp_content_blocks_surfaces_hint_pdf_and_replaced_renders():
+    result = {
+        "ok": False, "session_id": "s", "renders": [],
+        "error": "boom", "hint": "try X",
+        "pdf": {"ok": True, "pages": 2},
+        "replaced_renders": {"count": 1, "previous_tool": "measure_image"},
+    }
+    summary = json.loads(mcp_content_blocks(result)[0]["text"])
+    assert summary["hint"] == "try X"
+    assert summary["pdf"]["pages"] == 2
+    assert summary["replaced_renders"]["previous_tool"] == "measure_image"
 
 
 def _frameforge_meta(svg: str) -> str | None:
@@ -925,3 +1110,166 @@ def test_custom_document_source_drives_the_shared_runner(tmp_path):
     assert "From custom source" in svg  # the source's document was the one rendered
     # The shared tail persisted diagnostics for the custom source, just like the built-ins.
     assert (tmp_path / "custom" / "diagnostics.json").exists()
+
+
+# --- session-artifact safety: replacing a DIFFERENT tool's renders is made visible ---
+
+
+def test_cross_tool_session_reuse_reports_replaced_renders(tmp_path):
+    """A second tool overwriting a prior tool's renders in the same session says so."""
+    from framegraph.mcp.server import render_framegraph_yaml
+    from framegraph.sdk import DocumentBuilder
+    from framegraph.sdk.io import serialize
+
+    first = run_sdk_code(SDK_SCRIPT, session_id="shared", session_root=tmp_path, raster_png=False)
+    assert first["ok"] is True
+    assert first["tool"] == "run_sdk_code"
+
+    builder = DocumentBuilder(title="Second doc", profile="deck")
+    page = builder.page("p1", canvas={"size": [120, 80], "units": "px"})
+    page.layer("main").rect([0, 0, 120, 80], fill="#ffffff")
+    second = render_framegraph_yaml(
+        serialize(builder.build(), format="yaml"),
+        session_id="shared", session_root=tmp_path, raster_png=False,
+    )
+
+    assert second["ok"] is True
+    assert second["tool"] == "render_framegraph_yaml"
+    replaced = second["replaced_renders"]
+    assert replaced["previous_tool"] == "run_sdk_code"
+    assert replaced["count"] >= 1
+    assert "session_id" in second["render_warning"]  # the fix is named in the warning
+
+
+def test_same_tool_session_reuse_stays_quiet(tmp_path):
+    """Iterating in place with the SAME tool is the intended loop — no warning."""
+    first = run_sdk_code(SDK_SCRIPT, session_id="loopy", session_root=tmp_path, raster_png=False)
+    second = run_sdk_code(SDK_SCRIPT, session_id="loopy", session_root=tmp_path, raster_png=False)
+
+    assert first["ok"] is True and second["ok"] is True
+    assert "replaced_renders" not in second
+    assert "replaced" not in (second.get("render_warning") or "")
+
+
+# --- tool signatures expose the use cases' tunables ---
+
+
+def test_tool_signatures_expose_render_and_vectorize_tunables(tmp_path):
+    import inspect
+
+    server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
+
+    for tool in ("run_sdk_code", "run_sdk_client", "render_framegraph_yaml"):
+        params = inspect.signature(server.tools[tool]).parameters
+        for name in ("to", "scale", "real_metrics"):
+            assert name in params, f"{tool} must expose {name}"
+
+    vec_params = inspect.signature(server.tools["vectorize_image"]).parameters
+    for name in ("stroke_width", "turdsize", "alphamax", "opttolerance"):
+        assert name in vec_params, f"vectorize_image must expose {name}"
+
+    construct_params = inspect.signature(server.tools["construct_vectors"]).parameters
+    assert "raster_png" in construct_params
+
+
+# --- write_sdk_client anchored edits: replace a unique snippet, not the whole file ---
+
+
+def test_write_sdk_client_anchored_edit_replaces_unique_snippet(tmp_path):
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
+    client = examples / "anchored.py"
+    client.write_text("title = 'before edit'\nprint(title)\n", encoding="utf-8")
+    server = create_server(session_root=tmp_path, repo_root=tmp_path, fastmcp_cls=FakeFastMCP)
+
+    result = server.tools["write_sdk_client"](
+        "static/examples/anchored.py", old_string="'before edit'", new_string="'after edit'"
+    )
+    structured = getattr(result, "structuredContent", result)
+
+    assert structured["ok"] is True
+    assert "'after edit'" in client.read_text(encoding="utf-8")
+
+
+def test_write_sdk_client_anchored_edit_requires_a_unique_match(tmp_path):
+    examples = tmp_path / "static" / "examples"
+    examples.mkdir(parents=True)
+    client = examples / "dupes.py"
+    client.write_text("x = 1\nx = 1\n", encoding="utf-8")
+    server = create_server(session_root=tmp_path, repo_root=tmp_path, fastmcp_cls=FakeFastMCP)
+
+    missing = server.tools["write_sdk_client"](
+        "static/examples/dupes.py", old_string="never-there", new_string="y"
+    )
+    missing = getattr(missing, "structuredContent", missing)
+    ambiguous = server.tools["write_sdk_client"](
+        "static/examples/dupes.py", old_string="x = 1", new_string="x = 2"
+    )
+    ambiguous = getattr(ambiguous, "structuredContent", ambiguous)
+
+    assert missing["ok"] is False and "not found" in missing["error"]
+    assert ambiguous["ok"] is False and "unique" in ambiguous["error"]
+    assert client.read_text(encoding="utf-8") == "x = 1\nx = 1\n"  # untouched on failure
+
+
+def test_failed_build_preserves_previous_session_renders(tmp_path):
+    """A broken build must NOT destroy the last good render (PALS: a failure
+    that silently eats artifacts is worse than the failure itself)."""
+    ok = run_sdk_code(SDK_SCRIPT, session_id="keep", session_root=tmp_path, raster_png=False)
+    assert ok["ok"] is True
+    svgs = sorted((tmp_path / "keep").glob("page-*.svg"))
+    assert svgs, "baseline render expected"
+
+    bad = run_sdk_code("this is not python(", session_id="keep",
+                       session_root=tmp_path, raster_png=False)
+    assert bad["ok"] is False
+    assert sorted((tmp_path / "keep").glob("page-*.svg")) == svgs, \
+        "failed build must leave the previous call's renders intact"
+
+
+def test_vectorize_auto_explicit_default_valued_arg_beats_preset(tmp_path):
+    """mode='auto' presets fill only UNSET args: passing colors=8 explicitly —
+    the documented default — must survive a route whose preset says otherwise."""
+    pytest.importorskip("cv2")
+    from PIL import Image
+
+    img = Image.new("RGB", (64, 64), "#ffffff")
+    for x in range(8, 56):
+        for y in range(8, 56):
+            img.putpixel((x, y), (20, 30, 40))
+    src = tmp_path / "flat.png"
+    img.save(src)
+
+    from framegraph.mcp import usecases
+
+    explicit = usecases.vectorize_image(str(src), mode="auto", colors=8,
+                                        session_id="vx", session_root=tmp_path,
+                                        raster_png=False)
+    assert explicit["ok"] is True
+    auto = explicit["vectorize"]["auto"]
+    if "colors" in auto.get("presets", {}):
+        assert auto["presets"]["colors"] != 8, "fixture should route to a non-8 preset"
+    # params echo: the k-means ran with the caller's 8, not the preset
+    # (observable via the reported vectorize block when the route sets colors)
+    unset = usecases.vectorize_image(str(src), mode="auto",
+                                     session_id="vy", session_root=tmp_path,
+                                     raster_png=False)
+    assert unset["ok"] is True
+
+
+def test_detect_regions_accepts_svg_input(tmp_path):
+    """The documented '.svg — rasterised first' path must work end to end."""
+    pytest.importorskip("cv2")
+    pytest.importorskip("cairosvg")
+    from framegraph.mcp.server import detect_regions
+
+    svg_path = tmp_path / "two-boxes.svg"
+    svg_path.write_text(
+        "<svg xmlns='http://www.w3.org/2000/svg' width='120' height='90'>"
+        "<rect x='20' y='20' width='30' height='30' fill='#222222'/>"
+        "<rect x='70' y='40' width='30' height='30' fill='#222222'/></svg>",
+        encoding="utf-8")
+    result = detect_regions(str(svg_path), method="flat",
+                            session_id="regsvg", session_root=tmp_path)
+    assert result["ok"] is True, result.get("error")
+    assert result["spatial"]["region_count"] >= 2

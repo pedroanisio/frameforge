@@ -22,7 +22,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.rendering.infrastructure.browser import (  # noqa: E402
     BrowserRendererUnavailable,
@@ -65,9 +65,20 @@ def main(argv=None) -> int:
     ap.add_argument("--out", default=os.path.join(ROOT, "out", "chromium"), help="output dir")
     ap.add_argument("--max-pages", type=int, default=0, help="cap pages rendered per doc (0 = all)")
     ap.add_argument("--scale", type=float, default=1.0, help="Chromium device scale factor")
+    ap.add_argument("--font-pack", metavar="P.fp",
+                    help="install a .fp font pack into a scoped fontconfig so BOTH the layout "
+                         "metric (font_metrics) and Chromium resolve the packed faces — "
+                         "measure == render, host-independent (ADR-0004)")
     ap.add_argument("--list", action="store_true", help="list discoverable docs and exit")
     ap.add_argument("-q", "--quiet", action="store_true")
     args = ap.parse_args(argv)
+
+    if args.font_pack:
+        # Scope fontconfig to the pack BEFORE launching Chromium, and force real
+        # metrics so the layout is measured with the packed faces too.
+        from framegraph.fontpack import scope_font_pack
+        scope_font_pack(args.font_pack)
+        os.environ.setdefault("FRAMEGRAPH_REAL_METRICS", "1")
 
     docs = discover([] if args.all else args.paths)
     if args.list:

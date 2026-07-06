@@ -21,7 +21,7 @@ import yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path[:0] = [os.path.join(ROOT, "models")]
+sys.path[:0] = [os.path.join(ROOT, "docs", "models")]
 # the top-level framegraph/ package would shadow models/framegraph.py
 _shadow = sys.modules.get("framegraph")
 if _shadow is not None and hasattr(_shadow, "__path__"):
@@ -29,7 +29,7 @@ if _shadow is not None and hasattr(_shadow, "__path__"):
 
 import framegraph as fg  # noqa: E402
 
-SOURCES = ["spec/framegraph-v2-spec.md", "docs/index.md", "README.md"]
+SOURCES = ["docs/spec/framegraph-v2-spec.md", "docs/index.md", "README.md"]
 _FENCE = re.compile(r"```(?:yaml|yml|json)\s*\n(.*?)\n```", re.S)
 _DSL = re.compile(r'^\s*(?:dsl\s*:\s*["\']?FrameGraph\b|"dsl"\s*:\s*"FrameGraph")', re.M)
 

@@ -44,7 +44,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 # Import the *models* module as ``framegraph`` exactly like validate.py, so the
 # in-repo source of truth shadows any installed distribution of the same name.
-sys.path.insert(0, os.path.join(ROOT, "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 # The rendering package ``framegraph`` (./framegraph) shares the name; if it is
 # already imported (e.g. under pytest) it would shadow models/framegraph.py.
 # Evict the package so we always introspect the source of truth — see test_head.
@@ -53,14 +53,15 @@ if _shadow is not None and hasattr(_shadow, "__path__"):
     del sys.modules["framegraph"]
 import framegraph as fg  # noqa: E402
 
-CORE_EBNF = os.path.join(ROOT, "grammar", "framegraph-v2.ebnf")
-STYLE_EBNF = os.path.join(ROOT, "grammar", "framegraph-v2-style.ebnf")
+CORE_EBNF = os.path.join(ROOT, "docs", "grammar", "framegraph-v2.ebnf")
+STYLE_EBNF = os.path.join(ROOT, "docs", "grammar", "framegraph-v2-style.ebnf")
 
-# The 16 object types the models type strictly (kept identical to
+# The 17 object types the models type strictly (kept identical to
 # validate.py:CORE_OBJECT_TYPES — the single definition of "core profile").
 CORE_OBJECT_TYPES = {
     "rect", "ellipse", "circle", "line", "polyline", "polygon", "path", "curve",
-    "bezier", "text", "image", "icon", "bullet_list", "dimension", "table", "group",
+    "bezier", "text", "image", "icon", "bullet_list", "dimension", "connector",
+    "table", "group",
 }
 # Deprecated renderer-shortcut aliases the models accept but the grammar's
 # normative shape set deliberately omits (codemod.py normalises them). Present
@@ -265,12 +266,20 @@ def check_enums(out: list[Finding], prods: dict[str, str]) -> None:
                            f"in grammar not models: {{{only_g}}}"))
 
 
+# ObjBase carries additive, out-of-deep-core fields that the CORE grammar
+# deliberately does not enumerate: the §8.5 richness stack (`effects`,
+# `appearance`) and the seeded-imperfection pass (`humanize`). They are model-only
+# *by design*, so they are allowlisted here rather than counted as drift. Every
+# OTHER per-object field mismatch IS drift and fails the gate (drift-risk-map #5).
+MODEL_ONLY_OBJ_FIELDS = frozenset({"appearance", "effects", "humanize"})
+
+
 def check_object_fields(out: list[Finding], prods: dict[str, str],
                         model_map: dict[str, str], grammar_map: dict[str, str]) -> None:
     for t in sorted(set(model_map) & set(grammar_map) & CORE_OBJECT_TYPES):
         m_fields = model_field_names(getattr(fg, model_map[t]))
         g_fields = production_fields(prods, grammar_map[t])
-        only_m = sorted(m_fields - g_fields)
+        only_m = sorted((m_fields - g_fields) - MODEL_ONLY_OBJ_FIELDS)
         only_g = sorted(g_fields - m_fields)
         if only_m or only_g:
             parts = []
@@ -278,7 +287,9 @@ def check_object_fields(out: list[Finding], prods: dict[str, str],
                 parts.append(f"model-only: {', '.join(only_m)}")
             if only_g:
                 parts.append(f"grammar-only: {', '.join(only_g)}")
-            out.append(Finding("WARN", "field-drift",
+            # A real field-name divergence in a CORE object production silently makes
+            # the normative grammar lie — that is a hard error, not a printed WARN.
+            out.append(Finding("ERROR", "field-drift",
                                f"object {t!r}: " + "; ".join(parts)))
 
 

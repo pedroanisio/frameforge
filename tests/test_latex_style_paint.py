@@ -6,7 +6,7 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-sys.path.insert(0, ROOT)
+sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from framegraph.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
 from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
@@ -109,3 +109,19 @@ def test_default_paint_order_uses_single_fill_and_stroke_path():
     )
     assert combined in tex
     assert tex.count("\\path[") == 1
+
+
+def test_css_rgb_and_rgba_paints_lower_to_xcolor_with_opacity():
+    """CSS functional paints (the SDK's rgba() helper emits them) must lower
+    like their hex equivalents: inline xcolor expr + decoded fill opacity."""
+    from framegraph.rendering.infrastructure.latex.tikz import color_expr
+
+    assert color_expr("rgba(63, 65, 104, 0.45)") == (
+        "{rgb,255:red,63;green,65;blue,104}", 0.45)
+    assert color_expr("rgb(12, 34, 56)") == (
+        "{rgb,255:red,12;green,34;blue,56}", None)
+
+    tex = _fig({}).render({"type": "rect", "box": [0, 0, 10, 10],
+                           "fill": "rgba(63,65,104,0.45)"})
+    assert "fill={rgb,255:red,63;green,65;blue,104}" in tex
+    assert "fill opacity=0.45" in tex

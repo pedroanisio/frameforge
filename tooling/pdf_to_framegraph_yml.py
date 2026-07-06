@@ -80,9 +80,9 @@ from pathlib import Path
 from typing import Any
 
 # Reuse the model layer (the project's source of truth) for the HEAD version and
-# the structural self-check. Same models/ sys.path shim as tooling/validate.py.
+# the structural self-check. Same docs/models/ sys.path shim as tooling/validate.py.
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "models"))
+sys.path.insert(0, str(HERE.parent / "docs" / "models"))
 
 try:
     import yaml

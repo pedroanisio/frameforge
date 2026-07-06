@@ -1,0 +1,463 @@
+# Canonical fixture for W4 style & colour richness (issue #48) — GENERATED
+# from static/examples/style_richness_showcase.py (build() returns this
+# document verbatim); regenerate from there, never hand-edit. Exercises the
+# 2.4.0 additive fields: the ordered `effects` stack and the multi-pass
+# `appearance` stack, plus recolor() output and the colour-guide harmonies.
+dsl: FrameGraph
+version: 2.4.0
+profile: diagram
+title: style & colour richness showcase
+defs:
+  tokens:
+    colors:
+      paper: '#fcfbf8'
+      ink: '#1d1e22'
+      rust: '#b5642c'
+pages:
+- mode: page
+  id: style-richness
+  canvas:
+    size:
+    - 960.0
+    - 540.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: main
+    objects:
+    - box:
+      - 0
+      - 0
+      - 960
+      - 540
+      decorative: true
+      type: rect
+      fill: paper
+    - box:
+      - 40
+      - 24
+      - 626.134765625
+      - 25.2
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 18
+        font_weight: 700
+        white_space: nowrap
+      type: text
+      text: W4 — effect stack · appearance stack · recolor · colour guide
+    - box:
+      - 40
+      - 70
+      - 251.35999999999999
+      - 18.2
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 400
+        white_space: nowrap
+      type: text
+      text: 'effects: ordered stack, kinds repeat'
+    - id: fx
+      box:
+      - 40
+      - 96
+      - 180
+      - 90
+      effects:
+      - blur: 8.0
+        dx: 6.0
+        dy: 6.0
+        opacity: 0.35
+        kind: shadow
+      - color: '#00b8a9'
+        blur: 12.0
+        kind: glow
+      - color: '#7c3aed'
+        blur: 3.0
+        dx: -3.0
+        dy: -3.0
+        opacity: 0.4
+        kind: shadow
+      type: rect
+      fill: '#dbeafe'
+      radius: 10
+    - box:
+      - 300
+      - 70
+      - 214.2861328125
+      - 18.2
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 400
+        white_space: nowrap
+      type: text
+      text: 'appearance: three paint passes'
+    - id: passes
+      box:
+      - 300
+      - 96
+      - 180
+      - 90
+      appearance:
+      - fill: '#dbeafe'
+      - stroke: '#1d4ed8'
+        stroke_style:
+          stroke_width: 8
+      - stroke: '#ffffff'
+        stroke_style:
+          stroke_width: 3
+      type: rect
+      radius: 10
+    - box:
+      - 560
+      - 70
+      - 271.64
+      - 18.2
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 400
+        white_space: nowrap
+      type: text
+      text: 'recolor: rust → violet (tokens + stops)'
+    - box:
+      - 40
+      - 240
+      - 395.232421875
+      - 18.2
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 13
+        font_weight: 700
+        white_space: nowrap
+      type: text
+      text: chevreul.color_guide('#0f7d88') — the six harmonies
+    - box:
+      - 40
+      - 266
+      - 116.68
+      - 15.399999999999999
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 400
+        white_space: nowrap
+      type: text
+      text: contrast_of_colours
+    - box:
+      - 190
+      - 263
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#33689c'
+      radius: 4
+    - box:
+      - 234
+      - 263
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#eb8b2d'
+      radius: 4
+    - box:
+      - 40
+      - 300
+      - 101.4140625
+      - 15.399999999999999
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 400
+        white_space: nowrap
+      type: text
+      text: contrast_of_hues
+    - box:
+      - 190
+      - 297
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#adc3d7'
+      radius: 4
+    - box:
+      - 234
+      - 297
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#1e1f39'
+      radius: 4
+    - box:
+      - 40
+      - 334
+      - 105.24
+      - 15.399999999999999
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 400
+        white_space: nowrap
+      type: text
+      text: contrast_of_scale
+    - box:
+      - 190
+      - 331
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#9fcbcf'
+      radius: 4
+    - box:
+      - 234
+      - 331
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#063236'
+      radius: 4
+    - box:
+      - 40
+      - 368
+      - 90.3603515625
+      - 15.399999999999999
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 400
+        white_space: nowrap
+      type: text
+      text: dominant_light
+    - box:
+      - 190
+      - 365
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#2d8980'
+      radius: 4
+    - box:
+      - 234
+      - 365
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#266f95'
+      radius: 4
+    - box:
+      - 278
+      - 365
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#355e8d'
+      radius: 4
+    - box:
+      - 40
+      - 402
+      - 34.44189453125
+      - 15.399999999999999
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 400
+        white_space: nowrap
+      type: text
+      text: hues
+    - box:
+      - 190
+      - 399
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#3d8f7c'
+      radius: 4
+    - box:
+      - 234
+      - 399
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#33689c'
+      radius: 4
+    - box:
+      - 278
+      - 399
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#4a4e8f'
+      radius: 4
+    - box:
+      - 40
+      - 436
+      - 36.6
+      - 15.399999999999999
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 400
+        white_space: nowrap
+      type: text
+      text: scale
+    - box:
+      - 190
+      - 433
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#afd4d7'
+      radius: 4
+    - box:
+      - 234
+      - 433
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#5fa8b0'
+      radius: 4
+    - box:
+      - 278
+      - 433
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#0f7d88'
+      radius: 4
+    - box:
+      - 322
+      - 433
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#0a535b'
+      radius: 4
+    - box:
+      - 366
+      - 433
+      - 38
+      - 22
+      decorative: true
+      type: rect
+      fill: '#052a2d'
+      radius: 4
+    - box:
+      - 560
+      - 96
+      - 86
+      - 56
+      type: rect
+      fill: '#b5642c'
+      radius: 6
+    - box:
+      - 560
+      - 158
+      - 86
+      - 24
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: '#b5642c'
+          position: 0%
+        - color: '#fcfbf8'
+          position: 100%
+    - box:
+      - 670
+      - 96
+      - 86
+      - 56
+      type: rect
+      fill: '#7c3aed'
+      radius: 6
+    - box:
+      - 670
+      - 158
+      - 86
+      - 24
+      type: rect
+      fill:
+        kind: linear
+        stops:
+        - color: '#7c3aed'
+          position: 0%
+        - color: '#fcfbf8'
+          position: 100%
+    - box:
+      - 560
+      - 196
+      - 185.32000000000002
+      - 15.399999999999999
+      style:
+        color: ink
+        font_family:
+        - DejaVu Sans
+        - Arial
+        - sans-serif
+        font_size: 11
+        font_weight: 400
+        white_space: nowrap
+      type: text
+      text: before                    after

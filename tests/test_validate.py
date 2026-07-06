@@ -178,12 +178,12 @@ def test_strict_promotes_warnings_to_errors():
 
 
 def test_main_on_clean_fixture(capsys):
-    rc = V.main([os.path.join(ROOT, "fixtures", "calendar-3day.fg.yaml"), "--quiet"])
+    rc = V.main([os.path.join(ROOT, "tests", "fixtures", "calendar-3day.fg.yaml"), "--quiet"])
     assert rc == 0
 
 
 def test_main_strict_on_warned_fixture():
-    rc = V.main([os.path.join(ROOT, "fixtures", "wordle-how-to-play.fg.yaml"), "--strict", "--quiet"])
+    rc = V.main([os.path.join(ROOT, "tests", "fixtures", "wordle-how-to-play.fg.yaml"), "--strict", "--quiet"])
     assert rc == 1  # has advisory warnings -> errors under --strict
 
 
@@ -200,7 +200,7 @@ def test_load_failure_returns_code_2():
 
 def test_main_verbose_prints_findings(capsys):
     # non-quiet path exercises Finding.__str__ and the per-finding print loop
-    rc = V.main([os.path.join(ROOT, "fixtures", "wordle-how-to-play.fg.yaml")])
+    rc = V.main([os.path.join(ROOT, "tests", "fixtures", "wordle-how-to-play.fg.yaml")])
     out = capsys.readouterr().out
     assert rc == 0 and ("WARN" in out or "PASS" in out)
 
@@ -217,6 +217,84 @@ def test_flow_section_figure_object_is_walked():
         {"type": "figure", "object": {"type": "circle", "center": [5, 5], "r": 4}}]}
     doc = {"dsl": "FrameGraph", "version": "2.2.0", "pages": [flow]}
     assert "deprecated-alias" in _codes(doc)
+
+
+# --- canvas presets: sourced from the renderer, covering every model preset --- #
+def _renderer_presets():
+    """CanvasResolver.PRESETS/DEFAULT_WH read straight from the source file (AST),
+    so this gate holds without importing the rendering package."""
+    import ast
+    src = os.path.join(ROOT, "src", "framegraph", "rendering", "domain", "services",
+                       "canvas_resolver.py")
+    presets = default = None
+    for node in ast.parse(open(src, encoding="utf-8").read()).body:
+        if isinstance(node, ast.Assign):
+            for t in node.targets:
+                if getattr(t, "id", None) == "PRESETS":
+                    presets = ast.literal_eval(node.value)
+                elif getattr(t, "id", None) == "DEFAULT_WH":
+                    default = tuple(ast.literal_eval(node.value))
+    return presets, default
+
+
+def test_preset_table_matches_the_renderer():
+    presets, default = _renderer_presets()
+    assert V.PRESETS == presets, "validate.py preset table drifted from CanvasResolver.PRESETS"
+    assert V.DEFAULT_WH == default
+    assert V._FALLBACK_PRESETS == presets, "the standalone fallback copy drifted"
+    assert V._FALLBACK_DEFAULT_WH == default
+
+
+def test_every_model_preset_resolves():
+    import typing
+    sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
+    shadow = sys.modules.get("framegraph")
+    if shadow is not None and hasattr(shadow, "__path__"):  # rendering package shadows the models
+        del sys.modules["framegraph"]
+    import framegraph as fg
+    for preset in typing.get_args(fg.PagePreset):
+        assert V._canvas_wh(preset), f"PagePreset {preset!r} has no size in the validator table"
+
+
+def test_social_preset_containment_is_not_spurious():
+    # regression: instagram-story used to fall back to A4 and warn on everything
+    doc = _doc([{"type": "rect", "box": [0, 0, 1080, 1900]}], canvas="instagram-story")
+    assert "containment" not in _codes(doc)
+    doc = _doc([{"type": "rect", "box": [0, 0, 1080, 2500]}], canvas="instagram-story")
+    assert "containment" in _codes(doc)
+
+
+def test_canvasless_page_resolves_master_then_renderer_default():
+    # master canvas wins …
+    doc = _doc([{"type": "rect", "box": [0, 0, 900, 500]}])
+    doc["defs"] = {"masters": {"m": {"canvas": {"size": [400, 400], "units": "px"}}}}
+    doc["pages"][0]["master"] = "m"
+    assert "containment" in _codes(doc)
+    # … else the renderer default (1280×800), not A4
+    doc = _doc([{"type": "rect", "box": [700, 0, 400, 100]}])  # inside 1280, outside A4's 595
+    assert "containment" not in _codes(doc)
+    doc = _doc([{"type": "rect", "box": [0, 0, 2000, 100]}])
+    assert "containment" in _codes(doc)
+
+
+# --- masters' fixed/running objects go through the same static rules ----------- #
+def test_master_fixed_objects_are_rule_checked():
+    doc = _doc([{"type": "rect", "box": [0, 0, 5, 5]}])
+    doc["defs"] = {"masters": {"body": {"canvas": "A4", "fixed": [
+        {"type": "circle", "center": [5, 5], "r": 4}]}}}
+    findings, _ = _findings(doc)
+    hits = [f for f in findings if f.code == "deprecated-alias"]
+    assert hits and hits[0].path.startswith("defs.masters.body.fixed[0]")
+
+
+def test_master_running_objects_are_rule_checked():
+    doc = _doc([{"type": "rect", "box": [0, 0, 5, 5]}])
+    doc["defs"] = {"masters": {"body": {"canvas": "A4", "running": {"footer": [
+        {"type": "line", "from": [0, 800], "to": [500, 800],
+         "stroke": {"color": "#000", "width": 2}}]}}}}
+    findings, _ = _findings(doc)
+    hits = [f for f in findings if f.code == "stroke-single-form"]
+    assert hits and hits[0].path.startswith("defs.masters.body.running.footer[0]")
 
 
 # --- R11 non-conformant 3D (G-2): perspective is declared but never rendered --- #
