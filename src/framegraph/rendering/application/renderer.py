@@ -110,6 +110,13 @@ class Renderer:
         # headings placed by the LAST flow page render: {level, text, id, page}
         # (page is 1-based within that flow). Read by the PDF outline builder.
         self.flow_headings = []
+        # running-string log from the LAST flow page render: (page, name, value)
+        # tuples in page order, one per heading `set_string` entry — the dry
+        # pass populates this so the real pass can resolve a running
+        # header/footer Text whose `field` is {string: <name>} to whatever was
+        # most recently set as of each page (PageMaster.running / StringSet /
+        # Text.field — schema-declared but unread by the renderer until now).
+        self.running_log = []
         self._families_seen = set()
         # ---- domain resolvers + SVG painter (DDD steps 3–4) ----------------- #
         # Token/style/canvas resolution are pure domain services. ALL SVG string
@@ -1502,6 +1509,7 @@ class Renderer:
         self._painter.new_page()
         self._global_page += 1                # this producer's first leaf page
         self.flow_headings = []
+        self.running_log = []
         self._current_page_id = page.get("id")
         self.contract = {**self.doc_contract, **((page.get("rendering") or {}).get("text") or {})}
         w, h = self.canvas_wh(page)
@@ -1576,26 +1584,35 @@ class Renderer:
         return False
 
     def _render_flow(self, page, w, h):
-        """Paginate a flow page. A story containing a `toc` renders twice: a dry
-        first pass records which page each heading lands on, then the real pass
-        emits the toc entries with those page numbers. The toc reserves one line
-        per entry in both passes (numbers are separate right-anchored elements),
-        so pagination is identical across passes; the dry pass's telemetry is
-        rolled back so nothing is double-counted."""
-        if self._story_has_toc(page.get("story") or []):
+        """Paginate a flow page. A story containing a `toc`, or a master with
+        `fixed`/`running` furniture, renders twice: a dry first pass records
+        which page each heading lands on (and, for running furniture, the
+        section's total page count + the `set_string` log), then the real
+        pass emits the toc entries / running header-footer-page-number with
+        that telemetry. Both features reserve identical space in both passes
+        (the toc's page-number column; running furniture paints outside the
+        content box entirely), so pagination is identical across passes; the
+        dry pass's telemetry is rolled back so nothing is double-counted."""
+        master = self.masters.get(page.get("master")) if page.get("master") else None
+        needs_running = bool(master and (master.get("fixed") or master.get("running")))
+        if self._story_has_toc(page.get("story") or []) or needs_running:
             saved = (dict(self.tstats), self.skipped, copy.deepcopy(self.diagnostics),
                      self._global_page)
             try:
-                self._render_flow_pages(page, w, h, toc_pages=None)
+                dry_pages = self._render_flow_pages(page, w, h, toc_pages=None)
                 toc_pages = [hd["page"] for hd in self.flow_headings]
+                running_log = list(self.running_log)
+                total_pages = len(dry_pages)
             finally:
                 self.tstats, self.skipped, self.diagnostics, self._global_page = saved
             self._painter.new_page()
             self.flow_headings = []
-            return self._render_flow_pages(page, w, h, toc_pages=toc_pages)
+            self.running_log = []
+            return self._render_flow_pages(page, w, h, toc_pages=toc_pages,
+                                           running_log=running_log, total_pages=total_pages)
         return self._render_flow_pages(page, w, h, toc_pages=None)
 
-    def _render_flow_pages(self, page, w, h, toc_pages=None):
+    def _render_flow_pages(self, page, w, h, toc_pages=None, running_log=None, total_pages=None):
         p = self._painter
         # Content geometry is resolved by the backend-neutral flow layout engine
         # (ADR-0003) from the page master — explicit region box → master margin →
@@ -1615,8 +1632,83 @@ class Renderer:
         prev_kind = None                        # previous flowable, for indent policy
         pages, body, cy = [], [], top
 
+        def _resolve_field(field):
+            """Resolve a Text object's `field` (docs/models/framegraph.py
+            Text.field — 'the grammar's {string: <name>} form for named
+            strings', or the literal 'page'/'pages' counters). This is the
+            REAL, already-declared mechanism (and already authored into
+            committed b1/ oracle fixtures: chroma-styling-showcase.fg.json,
+            ieee-reference-guide.fg.json use {string: name}/'page'), not a
+            template-string convention invented for this change. `page_no`
+            is this section's own (1-based, matching `hp`'s convention)
+            current count; `name` resolves against `running_log`'s
+            (page, name, value) entries set by a heading's `set_string` —
+            the LAST one at or before this page, so a running header shows
+            whichever chapter/section title most recently "fired" as of the
+            page being painted. Returns None (leave `text` alone) when
+            `field` is absent or unrecognized."""
+            page_no = len(pages) + 1
+            if field == "page":
+                return str(page_no)
+            if field == "pages":
+                return str(total_pages if total_pages is not None else page_no)
+            if isinstance(field, dict) and "string" in field:
+                name = field["string"]
+                value = None
+                for pg, slot, val in (running_log or ()):
+                    if slot != name:
+                        continue
+                    if pg <= page_no:
+                        value = val
+                    else:
+                        break
+                return value or ""
+            return None
+
+        def _with_fields_resolved(o):
+            """Deep-clone a VisualObject tree, overriding any Text object's
+            `text` with its resolved `field` value (leaves the authored
+            placeholder alone when `field` is absent, e.g. static fixed
+            chrome like a logo)."""
+            if isinstance(o, dict):
+                out = {k: _with_fields_resolved(v) for k, v in o.items()}
+                if out.get("type") == "text" and out.get("field") is not None:
+                    resolved = _resolve_field(out["field"])
+                    if resolved is not None:
+                        out["text"] = resolved
+                return out
+            if isinstance(o, list):
+                return [_with_fields_resolved(v) for v in o]
+            return o
+
+        def paint_furniture():
+            """Paint master.fixed + running.header/footer/page_number onto the
+            CURRENT page's body. Only in the real pass (`running_log` is a
+            list, not None — the dry pass never paints, only measures) and
+            only when a master actually configures any of them — so a
+            document with neither is byte-identical to before this feature
+            existed (PageMaster.running / StringSet were schema-only until
+            this change; grep across src/framegraph/rendering found zero
+            reads of "running" or "fixed" prior to it)."""
+            if not master or running_log is None:
+                return
+            for obj in (master.get("fixed") or []):
+                body.append(self.obj(_with_fields_resolved(obj)))
+            running = master.get("running") or {}
+            for obj in (running.get("header") or []):
+                body.append(self.obj(_with_fields_resolved(obj)))
+            for obj in (running.get("footer") or []):
+                body.append(self.obj(_with_fields_resolved(obj)))
+            pn = running.get("page_number")
+            if pn:
+                style = pn if isinstance(pn, dict) else {
+                    "font_size": 9, "color": "#666666", "align": "center"}
+                body.append(self.obj({"type": "text", "box": [x, bottom + 12, usable, 16],
+                                      "text": str(len(pages) + 1), "style": style}))
+
         def flush():
             if body:
+                paint_furniture()
                 pages.append(p.document(w, h, "".join(body)))
 
         def newpage():
@@ -1890,6 +1982,17 @@ class Renderer:
                 self.flow_headings.append({"level": int(fl.get("level", 1) or 1),
                                            "text": text_of(fl), "id": fl.get("id"),
                                            "page": hp})
+                # `{{page}}`/running-header resolution use the SAME section-local
+                # numbering as `hp` (a "page N of TOTAL" reads as this flow
+                # section's own pagination, matching author expectation — not a
+                # document-global leaf index that would be confusing if this
+                # section doesn't start the document).
+                for ss in (fl.get("set_string") or []):
+                    if isinstance(ss, dict) and ss.get("name"):
+                        value = ss.get("value")
+                        if value is None:
+                            value = text_of(fl)
+                        self.running_log.append((hp, str(ss["name"]), str(value)))
                 emit(text_of(fl), {**base, "size": sz, "weight": "bold",
                                   **({"color": stref["color"]} if stref else {})}, gap_after=10)
             elif ft == "paragraph":

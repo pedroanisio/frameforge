@@ -243,5 +243,102 @@ def test_flow_document_renders_and_paginates():
     assert any("Second page body copy" in svg for svg in svgs)
 
 
+# --------------------------------------------------------------------------- #
+#  Running page furniture: master.fixed / running header+footer / page_number
+#  (PageMaster.running + StringSet were schema-only — docs/models/framegraph.py
+#  declared them, MasterBuilder already had .fixed/.running_header/
+#  .running_footer/.page_number, but src/framegraph/rendering had ZERO
+#  handling of them; grep across the whole rendering package turned up no
+#  "running"/"fixed" reads at all. This is the renderer-side implementation.)
+# --------------------------------------------------------------------------- #
+def _running_builder_with_master() -> tuple[DocumentBuilder, MasterBuilder]:
+    """A master carrying every furniture kind, authored through the SCHEMA's own
+    substitution mechanism: `Text.field` (docs/models/framegraph.py:1081 —
+    "Running field substitution: 'page'/'pages' counters, or the grammar's
+    {string: <name>} form for named strings"). `field` REPLACES the object's
+    `text`, so the authored `text` is only a placeholder and "page N of M" is
+    composed from separate objects — the same shape the committed b1 oracles use
+    (`{"text": "0", "field": "page"}` in ieee-reference-guide.fg.json). There is
+    no `{{token}}` template convention: it appears nowhere in the model, the
+    EBNF, or the spec.
+    """
+    builder = DocumentBuilder(title="running suite", profile="report")
+    small = {"font_size": 9}
+    master = (
+        builder.master("body", {"size": [400, 600], "units": "px"})
+        .margin([60, 40, 60, 40])
+        .region("main", [40, 60, 320, 480])
+        .fixed([{"type": "text", "box": [40, 10, 320, 16], "text": "FIXED LOGO",
+                "style": {"font_size": 8}}])
+        # running header: the named running string a heading's `set_string` sets.
+        .running_header([{"type": "text", "box": [40, 30, 320, 16], "text": "CHAPTER",
+                          "field": {"string": "chapter"}, "style": small}])
+        # running footer: "page <n> of <total>" composed from the two counters.
+        .running_footer([
+            {"type": "text", "box": [40, 565, 34, 16], "text": "page", "style": small},
+            {"type": "text", "box": [76, 565, 22, 16], "text": "0",
+             "field": "page", "style": small},
+            {"type": "text", "box": [100, 565, 20, 16], "text": "of", "style": small},
+            {"type": "text", "box": [122, 565, 22, 16], "text": "0",
+             "field": "pages", "style": small},
+        ])
+        .page_number(True)
+    )
+    return builder, master
+
+
+def test_master_fixed_objects_appear_on_every_flow_page():
+    builder, master = _running_builder_with_master()
+    with builder.section("chapter", master=master.handle) as flow:
+        flow.heading(1, "One", set_string=[{"name": "chapter"}])
+        for i in range(30):
+            flow.para(f"Body paragraph number {i} of chapter one, padded out to force a break.")
+    svgs = render_page_svgs(builder.build())
+    assert len(svgs) >= 2, "test needs >=2 pages to prove per-page furniture, not luck on page 1"
+    for svg in svgs:
+        assert "FIXED LOGO" in svg
+
+
+def test_running_header_tracks_the_most_recent_set_string_heading():
+    builder, master = _running_builder_with_master()
+    with builder.section("chapter", master=master.handle) as flow:
+        flow.heading(1, "Chapter One", set_string=[{"name": "chapter"}])
+        for i in range(25):
+            flow.para(f"Chapter one filler paragraph {i} to push the next heading onto a later page.")
+        flow.heading(1, "Chapter Two", set_string=[{"name": "chapter"}])
+        for i in range(25):
+            flow.para(f"Chapter two filler paragraph {i}.")
+    svgs = render_page_svgs(builder.build())
+    assert len(svgs) >= 3, "test needs >=3 pages to prove the running header actually changes"
+    # the placeholder must be substituted, not painted literally
+    assert "CHAPTER" not in svgs[0]
+    assert "Chapter One" in svgs[0]
+    # the LAST page must show chapter two's running header — proves per-page
+    # resolution against the dry-pass log, not a single static value baked
+    # in once for the whole flow section
+    assert "Chapter Two" in svgs[-1]
+
+
+def test_page_number_and_total_are_correct_and_change_per_page():
+    builder, master = _running_builder_with_master()
+    with builder.section("chapter", master=master.handle) as flow:
+        flow.heading(1, "One", set_string=[{"name": "chapter"}])
+        # Digit-free body copy: every numeral in the rendered text is therefore a
+        # counter that `field` substitution produced, never body content — which
+        # is what makes the numeric assertions below unambiguous.
+        for _ in range(40):
+            flow.para("Padding paragraph to force several pages of flow content.")
+    svgs = render_page_svgs(builder.build())
+    n = len(svgs)
+    assert n >= 3
+    # the authored "0" placeholders must be substituted, never painted literally
+    assert ">0<" not in svgs[0]
+    for i, svg in enumerate(svgs):
+        # `field: "page"` — each page shows its OWN number, not page 1's …
+        assert f">{i + 1}<" in svg, f"page {i + 1} does not render its own page number"
+        # … and `field: "pages"` shows the section total on every page.
+        assert f">{n}<" in svg, f"page {i + 1} does not render the section total {n}"
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
