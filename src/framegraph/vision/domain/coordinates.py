@@ -3,9 +3,11 @@
 This is the single home for how the measurement/reconstruction tools express and
 convert coordinates: the `CoordinateSystem` (origin top-left / bottom-left /
 center), the `CropTransform` (a zoomed crop's offset+scale, both directions), the
-value objects (`MeasuredRegion`, `Landmark`), and the two multi-frame funnels
-`resolve_point_spec` (any frame → image px) and `point_frames` (image px → every
-frame). It is deliberately **PIL-free and OpenCV-free** so it imports cheaply and
+value objects (`MeasuredRegion`, `Landmark`), and the multi-frame funnels
+`resolve_point_spec` (any frame → image px), its session-free subset
+`resolve_plain_point` (px/norm/landmark dicts, no CS or viewport), and
+`point_frames` (image px → every frame). It is deliberately **PIL-free and
+OpenCV-free** so it imports cheaply and
 is exhaustively unit-testable; the rendering that draws these frames lives in
 `framegraph.vision.infrastructure.measure`, which re-exports this module's names.
 
@@ -305,6 +307,40 @@ def resolve_point_spec(spec: Any, cs: CoordinateSystem,
         vx, vy = spec["viewport_px"]
         return viewport.to_source_px(float(vx), float(vy))
     raise ValueError("point needs one of: px, norm, cs, landmark, viewport_px")
+
+
+def resolve_plain_point(spec: Any, *, width: float | None = None,
+                        height: float | None = None,
+                        anchors: dict[str, tuple[float, float]] | None = None,
+                        ) -> tuple[float, float]:
+    """Resolve a self-describing point dict to image pixels — the session-free grammar.
+
+    The subset of :func:`resolve_point_spec` that needs no ``CoordinateSystem`` or
+    viewport: ``{"px": [x, y]}``, ``{"norm": [nx, ny]}`` (resolved against
+    ``width``/``height``, which must then be given), and — only when an ``anchors``
+    map ``{id: (x_px, y_px)}`` is supplied — ``{"landmark": id, "dx"?, "dy"?}``.
+    Session-scoped frames (``cs`` / ``viewport_px``) are deliberately NOT accepted;
+    every error names exactly the forms the call site accepts.
+    """
+    forms = "px, norm" + (", landmark" if anchors is not None else "")
+    if not isinstance(spec, dict):
+        raise ValueError(f"point {spec!r} must be an object with one of: {forms}")
+    if "px" in spec:
+        x, y = spec["px"]
+        return float(x), float(y)
+    if "norm" in spec:
+        if not (width and height):
+            raise ValueError(f"norm point {spec['norm']!r} needs image dims to "
+                             "resolve — pass width/height")
+        nx, ny = spec["norm"]
+        return denorm_point(nx, ny, width, height)
+    if anchors is not None and "landmark" in spec:
+        key = str(spec["landmark"])
+        if key not in anchors:
+            raise ValueError(f"unknown pin/landmark {key!r}")
+        ax, ay = anchors[key]
+        return ax + float(spec.get("dx", 0.0)), ay + float(spec.get("dy", 0.0))
+    raise ValueError(f"point {spec!r} needs one of: {forms}")
 
 
 def point_frames(px: float, py: float, cs: CoordinateSystem,

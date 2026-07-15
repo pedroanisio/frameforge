@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Any
 
-from framegraph.mcp.config import DEFAULT_CLIENT_ROOTS
+from framegraph.mcp.config import DEFAULT_CLIENT_ROOTS, DEFAULT_TIMEOUT_SECONDS, _truthy_env
+from framegraph.mcp.paths import _repo_root
 from framegraph.mcp.util import _is_relative_to
 
 
@@ -118,3 +120,53 @@ def _assert_input_path_allowed(path: str) -> None:
     resolved = Path(path).expanduser().resolve()
     if not any(_is_relative_to(resolved, root) for root in roots):
         raise ValueError("input path is outside the allowed FRAMEGRAPH_MCP_INPUT_ROOTS")
+
+
+def security_posture() -> dict[str, Any]:
+    """The server's effective confinement, derived LIVE from the environment.
+
+    Pure reporting — no side effects, no caching: every call re-reads the env
+    vars, so flipping ``FRAMEGRAPH_MCP_INPUT_ROOTS`` / ``FRAMEGRAPH_MCP_KEEP_ENV``
+    is reflected by the next call in the same process. The derivations mirror
+    the enforcing code paths (:func:`_assert_input_path_allowed`,
+    :func:`_client_roots`, the code-execution subprocess) so the report can
+    never drift from what is actually enforced.
+    """
+    configured = os.environ.get("FRAMEGRAPH_MCP_INPUT_ROOTS")
+    input_roots = (
+        [Path(entry).expanduser().resolve() for entry in configured.split(os.pathsep) if entry]
+        if configured
+        else []
+    )
+    # Empty-after-split matches _assert_input_path_allowed: no roots = open.
+    input_mode = "restricted" if input_roots else "open"
+
+    warnings: list[str] = []
+    if input_mode == "open":
+        warnings.append(
+            "propose-input confinement is OFF (localhost-dev default): the propose_* "
+            "tools accept any readable path; set FRAMEGRAPH_MCP_INPUT_ROOTS to a "
+            f"{os.pathsep!r}-joined list of roots to restrict them"
+        )
+    keep_env = _truthy_env("FRAMEGRAPH_MCP_KEEP_ENV")
+    if keep_env:
+        warnings.append(
+            "FRAMEGRAPH_MCP_KEEP_ENV is set: secret-looking env vars are passed "
+            "through to the code-execution subprocess"
+        )
+
+    return {
+        "input_roots": {
+            "mode": input_mode,
+            "roots": [str(root) for root in input_roots],
+            "env_var": "FRAMEGRAPH_MCP_INPUT_ROOTS",
+        },
+        "edit_roots": [str(root) for root in _client_roots(_repo_root(None), None)],
+        "code_execution": {
+            "isolation": "subprocess",
+            "sandboxed": False,
+            "timeout_seconds_default": DEFAULT_TIMEOUT_SECONDS,
+            "env_secret_stripping": not keep_env,
+        },
+        "warnings": warnings,
+    }

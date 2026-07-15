@@ -8,7 +8,8 @@ from __future__ import annotations
 
 _DESC_SESSION_ID = (
     "Reuse a prior session id to overwrite its artifacts in place; omit for the default "
-    "'session'. Must match [A-Za-z0-9][A-Za-z0-9_.-]{0,79}."
+    "'session'. Must match [A-Za-z0-9][A-Za-z0-9_.-]{0,79}. Sessions are single-writer: "
+    "do not issue concurrent tool calls sharing a session_id."
 )
 _DESC_TIMEOUT = (
     "Wall-clock budget in seconds for the build subprocess; an overrun returns ok:false "

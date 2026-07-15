@@ -9,6 +9,11 @@ FrameGraph v2 is a document/graphics DSL. The Pydantic model is the source of
 truth; the SDK lowers Python to validated YAML and this server renders it. Always
 verify rendered output — CV/LLM output is unverified by default (PALS's Law).
 
+This guide is hand-maintained prose and can drift behind the code. The
+`describe_capabilities` tool is the authoritative, live-introspected source of
+the model surface and the server's security posture — when this text and its
+output disagree, `describe_capabilities` wins.
+
 ## Author with the SDK (`framegraph.sdk`)
 Fluent builder:
     from framegraph.sdk import DocumentBuilder
@@ -167,6 +172,8 @@ Forward (author -> render):
 - `render_framegraph_yaml` — validate + render caller-supplied YAML directly.
 - `get_session_resource` — read `framegraph://session/...` artifacts (YAML, SVG, PDF, diagnostics).
 - `list_sessions` / `cleanup_sessions` — enumerate and prune per-session scratch dirs.
+  Cleanup respects an age floor: sessions younger than `FRAMEGRAPH_MCP_MIN_CLEANUP_AGE`
+  seconds are never pruned, so a concurrent loop's live session survives a sweep.
 
 Render options (the three render tools): `to='pdf'` additionally assembles the rendered
 pages into a vector `document.pdf` (needs the `pdfout` group; reported under `result.pdf`
@@ -185,6 +192,13 @@ or a swallowed object is reported there, not silently passed (PALS's Law).
 Failures are structured: every tool returns `{ok: false, error, error_type?, hint?}` on an
 expected failure (bad path, bad session id, missing dependency) — read the `hint`, it names
 the fix (e.g. which tool lists valid inputs). `ok: false` always carries an `error`.
+
+Security posture: `describe_capabilities(topic="security")` reports the live confinement.
+Propose inputs are open by default — any readable path, the localhost-dev posture; set
+`FRAMEGRAPH_MCP_INPUT_ROOTS` (pathsep-joined roots) to confine the `propose_*` tools in a
+hardened deployment. Client writes stay under the editable roots
+(`FRAMEGRAPH_MCP_EDIT_ROOTS`, default `static/examples`). SDK code runs in a subprocess
+with secret-looking env vars stripped (`FRAMEGRAPH_MCP_KEEP_ENV=1` keeps them).
 
 Provenance (opt-in): the three render tools (`run_sdk_code` / `run_sdk_client` /
 `render_framegraph_yaml`) accept `sign=True` to embed a FrameForge provenance
@@ -334,6 +348,9 @@ Every tool writes artifacts under `framegraph://session/<id>/`: `document.yaml`,
 `diagnostics.json` (the full result incl. the complete `spatial` payload), and
 `workspace.json` (persisted pins). Read `diagnostics.json` for the exact numbers behind
 any measurement; the tool response only summarizes them.
+Sessions are single-writer: run ONE agent (or loop) per `session_id` at a time —
+concurrent writers race on `page/*.png` and `workspace.json`; give parallel work
+distinct `session_id`s.
 Only `workspace.json` (pins) persists: every image tool resets `page/*.png`, so
 `page/1.png` holds the LAST tool's render. When a call replaces renders a DIFFERENT tool
 left in the session, the result says so (`replaced_renders` + a `render_warning` naming

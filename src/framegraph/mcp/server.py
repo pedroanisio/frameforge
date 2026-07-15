@@ -1526,7 +1526,12 @@ def create_server(
             bool, Field(description="Report the selection without deleting anything.")
         ] = False,
     ):
-        """Remove session scratch dirs by id or age (no selector removes nothing)."""
+        """Remove session scratch dirs by id or age (no selector removes nothing).
+
+        Hard age-based deletes below the minimum-age floor (60s by default, per-call
+        override via FRAMEGRAPH_MCP_MIN_CLEANUP_AGE) are refused with ok:false —
+        preview with dry_run or target explicit session_ids instead.
+        """
         return _plain_tool_result(_logged_enveloped_call(
             log_path,
             "cleanup_sessions",

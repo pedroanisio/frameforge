@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any
 
 from framegraph.mcp.config import FRAMEGRAPH_YAML_PATTERNS
+from framegraph.mcp.security import security_posture
 
 
 def _framegraph_yaml_snapshot(repo_root: Path) -> dict[Path, str]:
@@ -69,7 +70,7 @@ def _framegraph_yaml_candidates(repo_root: Path) -> list[Path]:
 # --------------------------------------------------------------------------- #
 
 _CAPABILITY_TOPICS = (
-    "flowables", "inlines", "style", "presets", "tools",
+    "flowables", "inlines", "style", "presets", "tools", "security",
     "or a type/model name like 'rect', 'paragraph', 'document', 'page', 'canvas'",
 )
 
@@ -186,10 +187,12 @@ def describe_capabilities(
     """Runtime discovery of the FrameGraph document model (read-only introspection).
 
     No ``topic`` returns a compact capability index (object types, flowable
-    types, inline kinds, canvas presets, profiles, tool names). A ``topic`` of
-    ``flowables``/``inlines``/``style``/``presets``/``tools`` returns that
-    catalog; any object/flowable type name (``rect``, ``paragraph``, ...) or
-    model name (``document``, ``page``, ``canvas``) returns its JSON schema.
+    types, inline kinds, canvas presets, profiles, tool names, the live
+    security posture). A ``topic`` of
+    ``flowables``/``inlines``/``style``/``presets``/``tools``/``security``
+    returns that catalog; any object/flowable type name (``rect``,
+    ``paragraph``, ...) or model name (``document``, ``page``, ``canvas``)
+    returns its JSON schema.
     """
     from framegraph.sdk.model import HEAD_VERSION
 
@@ -206,10 +209,18 @@ def describe_capabilities(
             "profiles": list(catalog["profiles"]),
             "tools": sorted(tool_names or []),
             "topics": list(_CAPABILITY_TOPICS),
+            "security_posture": security_posture(),
             "source": "models/framegraph.py (live introspection via framegraph.sdk.model)",
         }
     if key == "tools":
         return {"ok": True, "topic": "tools", "tools": sorted(tool_names or [])}
+    if key == "security":
+        return {
+            "ok": True,
+            "topic": "security",
+            "security_posture": security_posture(),
+            "note": "derived live from the environment on every call — never cached",
+        }
     if key == "flowables":
         return {
             "ok": True,

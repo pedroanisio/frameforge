@@ -9,7 +9,11 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import unquote, urlparse
 
-from framegraph.mcp.config import SESSION_ID_RE
+from framegraph.mcp.config import (
+    DEFAULT_MIN_CLEANUP_AGE_SECONDS,
+    SESSION_ID_RE,
+    _positive_env,
+)
 from framegraph.mcp.paths import _session_root
 from framegraph.mcp.util import (
     _is_relative_to,
@@ -196,10 +200,30 @@ def cleanup_sessions(
 
     Exactly one selector applies: ``session_ids`` removes those ids; otherwise
     ``older_than_seconds`` removes sessions whose directory mtime is older than the
-    cutoff. ``dry_run`` reports the selection without deleting. The structured log
+    cutoff. A hard delete (``dry_run=False``) with ``older_than_seconds`` below the
+    minimum-age floor (``DEFAULT_MIN_CLEANUP_AGE_SECONDS``, per-call override via
+    ``FRAMEGRAPH_MCP_MIN_CLEANUP_AGE``) is refused with ``{"ok": False, "error",
+    "hint"}`` and deletes nothing — ``older_than_seconds=0`` would otherwise wipe
+    every session. ``dry_run`` reports the selection without deleting and is exempt
+    from the floor, as is the explicit ``session_ids`` selector. The structured log
     lives as a file at the root and is never a deletion target.
     """
     root = _session_root(session_root)
+    if session_ids is None and older_than_seconds is not None and not dry_run:
+        floor = _positive_env("FRAMEGRAPH_MCP_MIN_CLEANUP_AGE", DEFAULT_MIN_CLEANUP_AGE_SECONDS)
+        if float(older_than_seconds) < floor:
+            return {
+                "ok": False,
+                "session_root": str(root),
+                "error": (
+                    f"older_than_seconds={older_than_seconds} is below the minimum cleanup age "
+                    f"of {floor}s — a hard delete this broad would wipe recent sessions."
+                ),
+                "hint": (
+                    "Preview the selection with dry_run=true, remove specific sessions with "
+                    "session_ids, or adjust the floor via FRAMEGRAPH_MCP_MIN_CLEANUP_AGE."
+                ),
+            }
     cutoff = None
     if session_ids is None and older_than_seconds is not None:
         cutoff = datetime.now(timezone.utc).timestamp() - float(older_than_seconds)

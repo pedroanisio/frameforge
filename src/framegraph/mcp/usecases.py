@@ -816,7 +816,9 @@ def overlay_images(
     """Align an overlay image onto a base by matched landmarks and extract the offsets.
 
     ``landmarks`` is a list of ``{"base": [x, y], "overlay": [x, y]}`` pairs (source
-    pixels, or 0..1 fractions with ``"norm": true``). Fits the scale+translation that
+    pixels, or 0..1 fractions with ``"norm": true``); each side also accepts a
+    self-describing ``{"px": [x, y]}`` / ``{"norm": [nx, ny]}`` dict resolved
+    against that side's own image size. Fits the scale+translation that
     best maps overlay→base, reports each pair's raw offset and post-fit residual, and
     emits an aligned composite. Rotation/shear are not modelled (large residuals flag
     them). ``base``/``overlay`` are filesystem paths or framegraph://session PNG URIs.
@@ -1041,8 +1043,19 @@ def workspace(
     return result
 
 
-def _resolve_shape_points(shapes: list[dict[str, Any]], anchors: dict[str, tuple[float, float]]):
-    """Turn each shape's ``pins`` (workspace ids/landmarks) into image-pixel ``points``."""
+def _resolve_shape_points(shapes: list[dict[str, Any]], anchors: dict[str, tuple[float, float]],
+                          *, width: float | None = None, height: float | None = None):
+    """Turn each shape's ``pins``/point specs into image-pixel ``points``.
+
+    ``pins`` reference workspace pin ids or structural landmarks (A1..A9) via
+    ``anchors``. ``points`` entries are legacy ``[x, y]`` image pixels (passed
+    through untouched) or the self-describing point-spec dicts —
+    ``{"px": [x, y]}``, ``{"norm": [nx, ny]}`` resolved against the source
+    ``width``/``height``, or ``{"landmark": id, "dx"?, "dy"?}`` resolved via the
+    same ``anchors`` as ``pins``.
+    """
+    from framegraph.vision.domain.coordinates import resolve_plain_point
+
     out = []
     for i, sh in enumerate(shapes):
         sh = dict(sh)
@@ -1054,6 +1067,15 @@ def _resolve_shape_points(shapes: list[dict[str, Any]], anchors: dict[str, tuple
                     raise ValueError(f"shape {i}: unknown pin/landmark {key!r}")
                 pts.append(list(anchors[key]))
             sh["points"] = pts
+        elif isinstance(sh.get("points"), list) and any(isinstance(p, dict) for p in sh["points"]):
+            try:
+                sh["points"] = [
+                    list(resolve_plain_point(p, width=width, height=height, anchors=anchors))
+                    if isinstance(p, dict) else p
+                    for p in sh["points"]
+                ]
+            except ValueError as exc:
+                raise ValueError(f"shape {i}: {exc}") from None
         out.append(sh)
     return out
 
@@ -1074,8 +1096,11 @@ def construct_vectors(
     """Draw FrameGraph vector geometry from anchor points, then validate + render it.
 
     ``shapes`` is a list of ``{"kind": ..., "points"|"pins": [...], "style"?: {...}}``.
-    ``points`` are image pixels; ``pins`` reference a workspace's pin ids (or structural
-    landmarks A1..A9) — resolved from the ``from_workspace`` (or ``session_id``) workspace.
+    ``points`` are image pixels — bare ``[x, y]``, or the point-spec dicts
+    ``{"px": [x, y]}`` / ``{"norm": [nx, ny]}`` (resolved against the canvas size) /
+    ``{"landmark": id, "dx"?, "dy"?}``; ``pins`` reference a workspace's pin ids (or
+    structural landmarks A1..A9). Both landmark forms resolve from the
+    ``from_workspace`` (or ``session_id``) workspace.
     The page is sized to the source (workspace/image dims, or explicit width/height), so
     the drawing overlays the raster 1:1. Compare the render against the source with
     ``compare_images`` to iterate toward pixel accuracy.
@@ -1110,7 +1135,7 @@ def construct_vectors(
     anchors = _workspace_anchors(ws_ref, session_root)
 
     try:
-        resolved = _resolve_shape_points(shapes, anchors)
+        resolved = _resolve_shape_points(shapes, anchors, width=W, height=H)
         from framegraph.vision.infrastructure.construct import build_document
         yaml_text, summaries = build_document(
             resolved, width=W, height=H, background=background, title=title)
@@ -1170,9 +1195,11 @@ def score_reconstruction(
     ``compare_images`` (which shows *where* a reconstruction is off) by reporting *how
     far* — ``on_edge_frac`` (fraction of shape samples within ``tol`` px of a detected
     edge) plus mean/median/p90 distances. Drive ``on_edge_frac`` up and the distances
-    down across refinement passes. ``shapes`` use the same schema as
-    ``construct_vectors`` (``points`` image px, or ``pins`` referencing a
-    ``from_workspace``); ``roi`` is an optional ``[x0, y0, x1, y1]`` pixel window.
+    down across refinement passes. ``shapes`` use the same schema — and the same
+    point grammar — as ``construct_vectors``: ``points`` are bare ``[x, y]`` image
+    px or ``{"px": ..}`` / ``{"norm": ..}`` (against the image dims) /
+    ``{"landmark": id, "dx"?, "dy"?}`` dicts, or ``pins`` referencing a
+    ``from_workspace``; ``roi`` is an optional ``[x0, y0, x1, y1]`` pixel window.
 
     ``symmetry_pairs`` (``[[[lx,ly],[rx,ry]], ...]``) and ``collinear_groups``
     (``[[[x,y],...], ...]``) add a **geometry-consistency** report under
@@ -1196,8 +1223,10 @@ def score_reconstruction(
         return _vision_error(_VISION_GROUP_HINT)
 
     try:
+        from framegraph.vision.infrastructure.image_compare import load_rgb
+        src_w, src_h = load_rgb(img_bytes).size
         anchors = _workspace_anchors(from_workspace or session_id, session_root)
-        resolved = _resolve_shape_points(shapes, anchors)
+        resolved = _resolve_shape_points(shapes, anchors, width=src_w, height=src_h)
         overlay, score = matchscore.build_score_overlay(img_bytes, resolved,
                                                         roi=roi, tol=float(tol))
     except (ValueError, KeyError, TypeError, RuntimeError, OSError) as exc:
@@ -1366,6 +1395,15 @@ def detect_regions(
     return result
 
 
+def _resolve_map_point(pt: Any, width: float | None, height: float | None):
+    """Resolve one 2D map_coordinates point: dicts (``{"px": ..}`` / ``{"norm": ..}``)
+    via the shared point-spec grammar, bare ``[x, y]`` lists passed through untouched."""
+    if isinstance(pt, dict):
+        from framegraph.vision.domain.coordinates import resolve_plain_point
+        return list(resolve_plain_point(pt, width=width, height=height))
+    return pt
+
+
 def map_coordinates(
     mode: str,
     *,
@@ -1389,6 +1427,12 @@ def map_coordinates(
       fov, ...}); returns NDC and, with ``width``/``height``, pixels.
     - ``mode='warp'``: fit the homography from ``pairs`` and rectify ``image`` into an
       ``out_size`` [w, h] canvas (perspective correction); emits the dewarped PNG.
+
+    Every 2D point — a pair's ``src``/``dst``, or a ``points`` entry in
+    ``homography``/``to_3d`` mode — is a bare ``[x, y]`` or a point-spec dict:
+    ``{"px": [x, y]}`` anywhere, ``{"norm": [nx, ny]}`` only when dims are
+    resolvable (``width``/``height``, or in ``warp`` mode the image's size for
+    ``src`` and ``out_size`` for ``dst`` — each side's own frame).
     """
     try:
         from framegraph.vision.infrastructure import mapping3d
@@ -1406,7 +1450,12 @@ def map_coordinates(
             from framegraph.vision.infrastructure.image_compare import load_rgb
             iw, ih = load_rgb(image_bytes).size
             osz = out_size or [iw, ih]
-            H = mapping3d.fit_homography([(p["src"], p["dst"]) for p in pairs])
+            # src lives in the source image; dst lives in the OUTPUT canvas, so a
+            # norm dst resolves against out_size, not the image dims.
+            H = mapping3d.fit_homography(
+                [(_resolve_map_point(p["src"], width or iw, height or ih),
+                  _resolve_map_point(p["dst"], float(osz[0]), float(osz[1])))
+                 for p in pairs])
             warped = mapping3d.warp_image(image_bytes, H, osz)
         except (ValueError, FileNotFoundError, KeyError, TypeError, RuntimeError, OSError) as exc:
             return {"ok": False, "error": f"could not warp: {exc}", "renders": [], "resources": []}
@@ -1433,12 +1482,14 @@ def map_coordinates(
         if mode == "homography":
             if not pairs or len(pairs) < 4:
                 raise ValueError("homography needs >= 4 pairs of {src, dst}")
-            pair_list = [(p["src"], p["dst"]) for p in pairs]
-            spatial = mapping3d.homography_map(pair_list, points or [])
+            pair_list = [(_resolve_map_point(p["src"], width, height),
+                          _resolve_map_point(p["dst"], width, height)) for p in pairs]
+            spatial = mapping3d.homography_map(
+                pair_list, [_resolve_map_point(pt, width, height) for pt in (points or [])])
         elif mode == "to_3d":
             pl = plane or {}
             spatial = mapping3d.lift_to_plane(
-                points or [],
+                [_resolve_map_point(pt, width, height) for pt in (points or [])],
                 origin=pl.get("origin", (0.0, 0.0, 0.0)),
                 u=pl.get("u", (1.0, 0.0, 0.0)),
                 v=pl.get("v", (0.0, 1.0, 0.0)),

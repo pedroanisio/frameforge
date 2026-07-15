@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from framegraph.mcp.config import (
+    SECRET_LITERAL_RE,
     STRUCTURED_LOG_MAX_BYTES,
     STRUCTURED_LOG_MAX_FIELD_CHARS,
     STRUCTURED_LOG_SCHEMA,
@@ -58,7 +59,11 @@ def _logged_call(log_path: Path, tool: str, instruction: dict[str, Any], call):
 
 
 def _append_structured_log(path: Path, event: dict[str, Any]) -> None:
-    line = json.dumps(_truncate_log_strings(event), ensure_ascii=False, sort_keys=True) + "\n"
+    # Redact BEFORE truncating: both the success and exception paths funnel here,
+    # and both operate on rebuilt copies so the caller's response is never mutated.
+    line = json.dumps(
+        _truncate_log_strings(_redact_secrets(event)), ensure_ascii=False, sort_keys=True
+    ) + "\n"
     try:
         if path.exists() and path.stat().st_size + len(line.encode("utf-8")) > STRUCTURED_LOG_MAX_BYTES:
             path.replace(path.with_name(path.name + ".1"))
@@ -66,6 +71,24 @@ def _append_structured_log(path: Path, event: dict[str, Any]) -> None:
         pass
     with path.open("a", encoding="utf-8") as fh:
         fh.write(line)
+
+
+def _redact_secrets(value: Any) -> Any:
+    """Mask secret-looking key-value literals in a COPY destined for the log.
+
+    The value becomes ``[REDACTED]`` while the key name stays visible for
+    debugging (see ``SECRET_LITERAL_RE``). Containers are rebuilt, never
+    mutated, so the response object returned to the caller keeps the raw text.
+    """
+    if isinstance(value, dict):
+        return {key: _redact_secrets(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_redact_secrets(item) for item in value]
+    if isinstance(value, str):
+        return SECRET_LITERAL_RE.sub(
+            lambda match: f"{match.group('key')}{match.group('sep')}[REDACTED]", value
+        )
+    return value
 
 
 def _truncate_log_strings(value: Any) -> Any:

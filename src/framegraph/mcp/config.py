@@ -68,6 +68,27 @@ TRANSPORT_STREAM_MAX_CHARS = 10_000
 # subprocess runs untrusted SDK code, so these are stripped from its environment
 # unless ``FRAMEGRAPH_MCP_KEEP_ENV`` is truthy. Matching is case-insensitive.
 SECRET_ENV_RE = re.compile(r"KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|PRIVATE", re.IGNORECASE)
+# Key-value secret literals inside logged text (``API_KEY = "..."``, ``token: '...'``,
+# ``Authorization: Bearer ...``). The structured log records every instruction and
+# response verbatim, so a secret pasted into submitted SDK code would land on disk in
+# cleartext; ``logging._redact_secrets`` masks the VALUE with ``[REDACTED]`` before the
+# event is written, keeping the key name visible for debugging. Key-name fragments
+# mirror ``SECRET_ENV_RE``; the value capture is deliberately conservative — only a
+# quoted literal or a bearer-style token qualifies — so ordinary code
+# (``token = get_token()``, ``fill = "red"``, ``max_tokens: 4096``) is never mangled.
+SECRET_LITERAL_RE = re.compile(
+    r"(?P<key>[A-Za-z0-9_-]*(?:api[_-]?key|access[_-]?key|secret|token|password|passwd"
+    r"|credential|private[_-]?key|authorization|bearer)[A-Za-z0-9_-]*)"
+    r"(?P<sep>[\"']?\s*[:=]\s*)"
+    r"(?P<value>\"[^\"\n]+\"|'[^'\n]+'|Bearer[ \t]+[A-Za-z0-9._~+/-]+=*)",
+    re.IGNORECASE,
+)
+# A hard delete driven by ``older_than_seconds`` below this floor is almost always a
+# mistake: ``older_than_seconds=0`` matches EVERY session and wipes the whole scratch
+# root in one call. ``cleanup_sessions`` refuses below-floor hard deletes with a
+# structured error (``dry_run`` previews and the explicit ``session_ids`` selector are
+# exempt); override per call via ``FRAMEGRAPH_MCP_MIN_CLEANUP_AGE``.
+DEFAULT_MIN_CLEANUP_AGE_SECONDS = 60
 
 
 def _positive_env(name: str, default: int) -> int:

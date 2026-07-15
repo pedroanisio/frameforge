@@ -26,7 +26,7 @@ from .image_compare import _font, _pil, load_rgb
 # The fit maths (Similarity + fit_similarity + landmark_offsets + rms_residual) is pure
 # and lives in the domain layer; this infra module keeps the PIL compositing and
 # re-exports those names so existing callers/tests keep working.
-from ..domain.coordinates import denorm_point
+from ..domain.coordinates import denorm_point, resolve_plain_point
 from ..domain.fitting import (  # noqa: F401  (re-exported for back-compat)
     Similarity,
     fit_similarity,
@@ -39,22 +39,36 @@ _OVER_LM = (24, 176, 220)     # cyan — mapped overlay landmarks
 
 
 def _to_pairs(landmarks: Sequence[dict[str, Any]], base_size, overlay_size):
-    """Normalize the landmark-pair payload into pixel ((base),(overlay)) tuples."""
+    """Normalize the landmark-pair payload into pixel ((base),(overlay)) tuples.
+
+    Each side is a legacy ``[x, y]`` list — source pixels, or 0..1 fractions when
+    the pair-level ``"norm"`` flag is set — or a self-describing point dict
+    (``{"px": [x, y]}`` / ``{"norm": [nx, ny]}``) resolved against THAT side's
+    image size; dict entries ignore the pair-level flag. Session-scoped specs
+    (``cs`` / ``landmark`` / ``viewport_px``) have no meaning here and raise.
+    """
     bw, bh = base_size
     ow, oh = overlay_size
+
+    def _side(pt: Any, w: float, h: float, norm_flag: bool, i: int) -> tuple[float, float]:
+        if isinstance(pt, dict):
+            try:
+                return resolve_plain_point(pt, width=w, height=h)
+            except ValueError as exc:
+                raise ValueError(f"landmark {i}: {exc}") from None
+        if len(pt) != 2:
+            raise ValueError(f"landmark {i} points must be [x, y]")
+        if norm_flag:
+            return denorm_point(pt[0], pt[1], w, h)
+        return (float(pt[0]), float(pt[1]))
+
     pairs = []
     for i, lm in enumerate(landmarks or []):
         if not isinstance(lm, dict) or "base" not in lm or "overlay" not in lm:
             raise ValueError(f"landmark {i} needs both 'base' and 'overlay' points")
-        b = lm["base"]
-        o = lm["overlay"]
-        if len(b) != 2 or len(o) != 2:
-            raise ValueError(f"landmark {i} points must be [x, y]")
-        if lm.get("norm"):
-            pairs.append((denorm_point(b[0], b[1], bw, bh),
-                          denorm_point(o[0], o[1], ow, oh)))
-        else:
-            pairs.append(((float(b[0]), float(b[1])), (float(o[0]), float(o[1]))))
+        norm_flag = bool(lm.get("norm"))
+        pairs.append((_side(lm["base"], bw, bh, norm_flag, i),
+                      _side(lm["overlay"], ow, oh, norm_flag, i)))
     if not pairs:
         raise ValueError("need at least one landmark pair")
     return pairs
