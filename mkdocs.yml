@@ -54,6 +54,12 @@ theme:
 
 nav:
   - Home: index.md
+  - Tutorial:
+      - Overview: tutorial/index.md
+      - 01 · Reconstruct a book cover: tutorial/lesson-01/index.md
+      - 02 · Reconstruct a geometric cover: tutorial/lesson-02/index.md
+      - 03 · Reconstruct a typeset page: tutorial/lesson-03/index.md
+      - 04 · When not to reconstruct: tutorial/lesson-04/index.md
   - Specification: spec.md
   - Schema reference: reference.md
   - Grammar: grammar.md

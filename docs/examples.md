@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 114 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 117 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -72,6 +72,9 @@ The 114 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`layout_methods_book.py`](../static/examples/layout_methods_book.py) | Compose *Layout Methods — A Field Guide* as a native FrameGraph book. |
 | [`layout_methods_chapter.py`](../static/examples/layout_methods_chapter.py) | *Layout Methods — A Field Guide* as a native FrameGraph ``mode: flow`` book. |
 | [`layout_methods_figures.py`](../static/examples/layout_methods_figures.py) | Illustration plates for the book chapter *Layout Methods — A Field Guide*. |
+| [`lesson_01_book_cover.py`](../static/examples/lesson_01_book_cover.py) | Tutorial lesson 01 — reconstruct a photographed book cover as FrameGraph vectors. |
+| [`lesson_02_book_cover.py`](../static/examples/lesson_02_book_cover.py) | Lesson 02 — reconstruct the cover of *The Understory* as a FrameGraph document. |
+| [`lesson_03_chapter_page.py`](../static/examples/lesson_03_chapter_page.py) | Tutorial lesson 03 — reconstruct a typeset chapter-opening page. |
 | [`libfy_letter.py`](../static/examples/libfy_letter.py) | libfy_letter.py — "Libfy": a one-page US-Letter broadside. |
 | [`library_showcase.py`](../static/examples/library_showcase.py) | Library showcase — themes, symbol packs, and generators end to end. |
 | [`marina_whale.py`](../static/examples/marina_whale.py) | Marina and the Singing Sea — a polished children's picture book via the FrameGraph SDK. |
