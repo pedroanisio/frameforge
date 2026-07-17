@@ -1947,7 +1947,7 @@ class Renderer:
         def emit(text, st, indent=0, gap_after=6):
             nonlocal cy
             for ln in wrap(text, st["size"]):
-                if cy + st["size"] > bottom:
+                if cy + st["size"] * (st.get("lh") or 1.4) > bottom:
                     newpage()
                 body.append(p.text_tag(x + indent, cy, usable - indent, st["size"] * st["lh"],
                                        ln, st, vcenter=False))
@@ -1991,7 +1991,7 @@ class Renderer:
                     measure=lambda s, z, a: self.measure(s, z, a, st), align=align,
                     first_line_indent=indent)
                 for line in para.lines:
-                    if cy + size > bottom:
+                    if cy + size * lh > bottom:
                         newpage()
                     lruns = flow_layout.slice_runs(runs, line.start, line.end) \
                         or [(line.text, line_st)]
@@ -2008,7 +2008,7 @@ class Renderer:
                 measure=self.measure, align=align,
                 first_line_indent=indent)
             for line in para.lines:
-                if cy + size > bottom:
+                if cy + size * lh > bottom:
                     newpage()
                 body.append(p.text_tag(
                     x + line.indent, cy, line.width, size * lh, line.text,
@@ -2030,20 +2030,11 @@ class Renderer:
             def _spec(i):
                 return specs[i] if i < len(specs) and isinstance(specs[i], dict) else {}
 
-            # Per-column widths: honour explicit `width` specs, split the remainder
-            # equally among unsized columns, then scale to fill the column exactly.
-            widths, unsized, fixed = [], [], 0.0
-            for i in range(col_count):
-                wv = num(_spec(i).get("width"), None) if _spec(i).get("width") is not None else None
-                widths.append(wv)
-                (unsized.append(i) if wv is None else None)
-                fixed += wv or 0.0
-            if unsized:
-                share = max(1.0, (usable - fixed) / len(unsized))
-                for i in unsized:
-                    widths[i] = share
-            span = sum(widths) or 1.0
-            widths = [w * usable / span for w in widths]
+            # Per-column widths through the ONE resolver (LAY-2/LAY-3): fixed px
+            # stays fixed, '%' resolves against the text column, 'fr'/unsized
+            # columns share the free space — no unconditional rescale.
+            from frameforge.rendering.domain.services.table_layout import resolve_column_widths
+            widths = resolve_column_widths(specs, col_count, usable)
             xs = [x + sum(widths[:i]) for i in range(col_count)]
 
             # Honor the table's authored `style` (header_fill/header_text/
@@ -2182,7 +2173,7 @@ class Renderer:
             if cur:
                 lines.append(cur)
             for line in lines or [[]]:
-                if cy + st["size"] > bottom:
+                if cy + st["size"] * (st.get("lh") or 1.4) > bottom:
                     newpage()
                 groups = []
                 for word, href in line:                 # consecutive same-href words
@@ -2347,9 +2338,14 @@ class Renderer:
             elif ft == "list":
                 ordered = bool(fl.get("ordered"))
                 list_st = stref or base                  # honor the list's face, not serif base
+                # ListFlow.marker and .indent are authorable (GH #66); the
+                # bullet glyph and 16px indent are documented fallbacks only.
+                mk = fl.get("marker")
+                ind = num(fl.get("indent"))
+                ind = 16 if ind is None else ind
                 for idx, it in enumerate(fl.get("items", []), start=1):
-                    bullet = f"{idx}. " if ordered else "• "
-                    emit(bullet + text_of(it), list_st, indent=16, gap_after=2)
+                    bullet = f"{idx}. " if ordered else f"{mk} " if mk else "• "
+                    emit(bullet + text_of(it), list_st, indent=ind, gap_after=2)
                 cy += 6
             elif ft in ("block", "keep_together"):
                 children = fl.get("children") if isinstance(fl.get("children"), list) else []
@@ -2437,19 +2433,17 @@ class Renderer:
                 cy += 8
 
         # `base` is the flow renderer's SINGLE default text style, and it is
-        # DOCUMENT-DEFINED: it is the document's reserved `body` style when
-        # present (resolved through the same style resolver as everything else).
-        # Only when the document defines no `body` style does a lone documented
-        # engine fallback apply. Every flow element inherits `base` and overrides
-        # it per-object (`style`) or via reserved style tokens resolved by
-        # `named()`. The flow renderer holds NO other font/size/colour literal —
-        # so it cannot inject a style the document did not define (the `--to
-        # audit` target proves it).
-        if "body" in (self.styles or {}) or "body" in (self.text_styles or {}):
-            base = self.text_style("body")
-        else:
-            base = {"family": "serif", "size": 12, "weight": "normal", "italic": False,
-                    "color": "#1c1c1c", "align": "left", "lh": 1.4}
+        # DOCUMENT-DEFINED: the default text style for ALL surfaces lives in
+        # ONE place — TextStyleResolver, whose per-key defaults are the
+        # document's reserved `body` style, backed by the single sanctioned
+        # engine constant (ADR-0006, GH #74). `text_style({})` IS that default.
+        # Every flow element inherits `base` and overrides it per-object
+        # (`style`) or via reserved style tokens (`named()`/`styled()`); the
+        # remaining engine literals are the DOCUMENTED FALLBACKS of reserved
+        # styles and chrome keys, each of which fires only when the document
+        # leaves that name/key undefined (the `--to audit` target proves the
+        # authored case injects nothing).
+        base = self.text_style({})
 
         def named(name):
             """Resolve a reserved style the DOCUMENT may define (e.g. 'caption');

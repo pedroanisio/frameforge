@@ -49,7 +49,8 @@ OBJECT_SAMPLES = {
     "icon": {"type": "icon", "glyph": "★", "box": [0, 0, 10, 10]},
     "bullet_list": {"type": "bullet_list", "items": ["a", "b"], "box": [0, 0, 100, 40]},
     "dimension": {"type": "dimension", "kind": "linear", "from": [0, 0], "to": [10, 0]},
-    "table": {"type": "table", "rows": [["a", "b"]], "box": [0, 0, 100, 40]},
+    "table": {"type": "table", "rows": [["a", "b"]], "box": [0, 0, 100, 40],
+              "style": {"grid_color": "#888888"}},   # chrome is opt-in (ADR-0006/#69)
     "group": {"type": "group", "children": [{"type": "rect", "box": [0, 0, 5, 5], "fill": "#111"}]},
     "container": {"type": "container", "box": [0, 0, 100, 40],
                   "children": [{"type": "rect", "box": [0, 0, 20, 20], "fill": "#111"}]},

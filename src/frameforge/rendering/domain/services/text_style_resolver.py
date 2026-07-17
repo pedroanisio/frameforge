@@ -18,11 +18,26 @@ FONT_MAP = {"sans": "sans-serif", "serif": "serif", "mono": "monospace",
             "monospace": "monospace", "sans-serif": "sans-serif"}
 
 
+# The ONE sanctioned engine text fallback (ADR-0006, GH #74). Every text
+# surface — flow AND absolute objects — defaults to the document's reserved
+# `body` style; only a document without one gets this constant.
+_SANCTIONED = {"family": "serif", "family_primary": "serif", "size": 12.0,
+               "lh": 1.4, "color": "#1c1c1c", "align": "left"}
+
+
 class TextStyleResolver:
     def __init__(self, text_styles, styles, color_resolver):
         self.text_styles = text_styles or {}
         self.styles = styles or {}
         self._color = color_resolver
+        # Two-phase: resolve `body` against the sanctioned constant, then use
+        # the result as the per-key default for every later resolve — so the
+        # document's body style cascades to all text (GH #74; was a second,
+        # divergent sans/14/1.25 trio private to this resolver).
+        self._default = dict(_SANCTIONED)
+        if "body" in self.text_styles or "body" in self.styles:
+            body = self.resolve("body")
+            self._default = {k: body[k] for k in _SANCTIONED}
 
     def resolve(self, ref):
         st = {}
@@ -35,18 +50,23 @@ class TextStyleResolver:
         for name in ([cls] if isinstance(cls, str) else (cls or [])):
             merged.update(self.text_styles.get(name) or self.styles.get(name) or {})
         merged.update(st)
-        fam = merged.get("font_family") or merged.get("font") or "sans"
-        # Preserve the WHOLE fallback stack so the SVG stays portable when the
-        # primary face isn't installed in the viewer (else a bare "font-family:Inter"
-        # falls back to the UA default serif). Role strings ("sans"/"serif"/"mono")
-        # already map to a terminating generic, so single-role styles are unchanged.
-        fam_list = [str(x) for x in (fam if isinstance(fam, list) else [fam]) if x] or ["sans"]
-        families = [FONT_MAP.get(x, x) for x in fam_list]
-        if families[-1] not in ("sans-serif", "serif", "monospace"):
-            families.append("sans-serif")
-        family = ", ".join(families)
-        family_primary = families[0]
-        size = num(merged.get("font_size") or merged.get("size"), 14) or 14
+        fam = merged.get("font_family") or merged.get("font")
+        if fam is None:
+            family = self._default["family"]
+            family_primary = self._default["family_primary"]
+        else:
+            # Preserve the WHOLE fallback stack so the SVG stays portable when the
+            # primary face isn't installed in the viewer (else a bare "font-family:Inter"
+            # falls back to the UA default serif). Role strings ("sans"/"serif"/"mono")
+            # already map to a terminating generic, so single-role styles are unchanged.
+            fam_list = [str(x) for x in (fam if isinstance(fam, list) else [fam]) if x]
+            families = [FONT_MAP.get(x, x) for x in fam_list] or [self._default["family"]]
+            if families[-1] not in ("sans-serif", "serif", "monospace"):
+                families.append("sans-serif")
+            family = ", ".join(families)
+            family_primary = families[0]
+        size = (num(merged.get("font_size") or merged.get("size"), self._default["size"])
+                or self._default["size"])
         weight = merged.get("font_weight") or merged.get("weight")
         if weight is None and merged.get("bold"):
             weight = 700
@@ -57,11 +77,11 @@ class TextStyleResolver:
         lhv = merged.get("line_height")
         if isinstance(lhv, str):
             n = num(lhv)
-            lh = (n / size) if (n and size) else 1.25
+            lh = (n / size) if (n and size) else self._default["lh"]
         elif isinstance(lhv, (int, float)) and not isinstance(lhv, bool):
             lh = lhv if lhv <= 4 else lhv / size
         else:
-            lh = 1.25
+            lh = self._default["lh"]
         # per-char advance estimate (no real shaping available) — used for fit + the check
         avg = 0.60 if "mono" in family else 0.52
         if bold:
@@ -71,8 +91,8 @@ class TextStyleResolver:
             "family": family, "family_primary": family_primary,
             "size": size, "weight": weight, "bold": bold,
             "italic": bool(merged.get("italic")) or merged.get("font_style") == "italic",
-            "color": self._color.resolve(merged.get("color")) or "#1c1c1c",
-            "align": merged.get("text_align") or merged.get("align") or "left",
+            "color": self._color.resolve(merged.get("color")) or self._default["color"],
+            "align": merged.get("text_align") or merged.get("align") or self._default["align"],
             "lh": lh, "avg": avg,
             # ---- directly renderable CSS text surface ----
             "letter_spacing": self._css_length(merged.get("letter_spacing")),

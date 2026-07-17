@@ -262,6 +262,120 @@ def test_math_ink_unstyled_uses_the_sanctioned_base(tmp_path):
 
 
 # --------------------------------------------------------------------------- #
+#  #66 — flow lists: marker and indent are authorable                         #
+# --------------------------------------------------------------------------- #
+LIST_STORY = [{"type": "list", "items": ["alpha item", "beta item"]}]
+
+
+def test_list_marker_field_is_honored(tmp_path):
+    story = [dict(LIST_STORY[0], marker="→")]
+    svg = _render_doc(tmp_path, _flow_doc(story))
+    assert "→ alpha item" in svg, "ListFlow.marker ignored by the flow path"
+    assert "• " not in svg
+
+
+def test_list_marker_fallback_is_bullet(tmp_path):
+    svg = _render_doc(tmp_path, _flow_doc(LIST_STORY))
+    assert "• alpha item" in svg
+
+
+def test_list_indent_is_authorable(tmp_path):
+    def item_x(svg):
+        return float(re.search(r'<text x="([\d.]+)"[^>]*>(?:<tspan[^>]*>)?• alpha',
+                               svg).group(1))
+    para_x = float(re.search(
+        r'<text x="([\d.]+)"',
+        _render_doc(tmp_path, _flow_doc([{"type": "paragraph", "text": "ref"}]),
+                    name="ref")).group(1))
+    plain = item_x(_render_doc(tmp_path, _flow_doc(LIST_STORY), name="plainlist"))
+    wide = item_x(_render_doc(
+        tmp_path, _flow_doc([dict(LIST_STORY[0], indent=40)]), name="widelist"))
+    assert abs((plain - para_x) - 16.0) < 0.01, "default list indent changed"
+    assert abs((wide - para_x) - 40.0) < 0.01, "authored list indent ignored"
+
+
+# --------------------------------------------------------------------------- #
+#  #74 — ONE engine fallback: resolver default = body style, else sanctioned  #
+# --------------------------------------------------------------------------- #
+def _page_text_doc(defs=None, style=None):
+    obj = {"type": "text", "id": "t1", "box": [10, 10, 300, 40], "text": "loose text"}
+    if style:
+        obj["style"] = style
+    doc = {"dsl": "FrameForge", "version": "2.2.0", "profile": "report", "title": "t",
+           "pages": [{"mode": "page", "id": "p", "canvas": {"size": [400, 200]},
+                      "layers": [{"id": "l", "objects": [obj]}]}]}
+    if defs:
+        doc["defs"] = defs
+    return doc
+
+
+def test_unstyled_text_object_uses_the_sanctioned_base(tmp_path):
+    # The resolver's private sans/14/1.25 trio is gone: unstyled text objects
+    # get the ONE sanctioned constant (serif/12/lh 1.4), same as flow.
+    svg = _render_doc(tmp_path, _page_text_doc())
+    tag = re.search(r'<text[^>]*>(?:<tspan[^>]*>)?loose text', svg).group(0)
+    assert "font-size:12px" in tag, "resolver still defaults to its own 14px"
+    assert "font-family:serif" in tag, "resolver still defaults to its own sans"
+
+
+def test_unstyled_text_object_follows_body_style(tmp_path):
+    # The document's reserved `body` style is the default for ALL text — page
+    # objects included, not just flow.
+    svg = _render_doc(tmp_path, _page_text_doc(
+        defs={"tokens": {"text_styles": {"body": {
+            "font_family": "Inter", "font_size": 15, "color": "#345678"}}}}))
+    tag = re.search(r'<text[^>]*>(?:<tspan[^>]*>)?loose text', svg).group(0)
+    assert "Inter" in tag, "body style face did not cascade to page text objects"
+    assert "font-size:15px" in tag
+    assert "fill:#345678" in tag
+
+
+# --------------------------------------------------------------------------- #
+#  #69 — standalone TableObject: no injected chrome (ADR-0006 parity)         #
+# --------------------------------------------------------------------------- #
+def _page_table_doc(style=None, **fields):
+    t = {"type": "table", "id": "tb", "box": [10, 10, 360, 120],
+         "header": ["Alpha", "Beta"], "rows": [["one", "two"], ["three", "four"]]}
+    t.update(fields)
+    if style is not None:
+        t["style"] = style
+    return {"dsl": "FrameForge", "version": "2.2.0", "profile": "report", "title": "t",
+            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [400, 200]},
+                       "layers": [{"id": "l", "objects": [t]}]}]}
+
+
+def test_table_object_injects_no_chrome_by_default(tmp_path):
+    svg = _render_doc(tmp_path, _page_table_doc())
+    assert "#3b6ea5" not in svg, "header blue still injected"
+    assert 'fill="white"' not in svg.replace(
+        '<rect width="100%" height="100%" fill="white"/>', ""), \
+        "table background still painted white"
+    assert "#bbb" not in svg, "grid #bbb still injected"
+    assert "fill:#fff" not in svg, "header text #fff still injected"
+    assert "fill:#222" not in svg, "cell text #222 still injected"
+
+
+def test_table_object_zebra_needs_authored_fill(tmp_path):
+    svg = _render_doc(tmp_path, _page_table_doc(zebra=True))
+    assert "#f4f6f9" not in svg, "zebra stripe colour still injected"
+    svg = _render_doc(tmp_path, _page_table_doc(
+        style={"zebra_fill": "#eeeecc"}, zebra=True), name="zeb")
+    assert 'fill="#eeeecc"' in svg or "#eeeecc" in svg, "authored zebra_fill ignored"
+
+
+def test_table_object_header_fill_is_opt_in(tmp_path):
+    svg = _render_doc(tmp_path, _page_table_doc(style={"header_fill": "#224466"}))
+    assert "#224466" in svg, "authored header_fill not painted"
+
+
+def test_table_object_text_follows_document_base(tmp_path):
+    svg = _render_doc(tmp_path, _page_table_doc())
+    cell = re.search(r'<text[^>]*>(?:<tspan[^>]*>)?one', svg).group(0)
+    assert "font-family:serif" in cell, "table cells still forced sans-serif"
+    assert "fill:#1c1c1c" in cell, "table cells still forced #222"
+
+
+# --------------------------------------------------------------------------- #
 #  #65 — TOC: reserved styles + authorable number_width / level_indent        #
 # --------------------------------------------------------------------------- #
 TOC_STORY = [{"type": "toc", "title": "Contents"},

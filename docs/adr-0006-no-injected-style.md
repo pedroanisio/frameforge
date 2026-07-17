@@ -62,7 +62,10 @@ size, or colour literal beyond a single documented fallback.**
    `text_indent` (including `0`) overrides the positional first-line-indent
    default, so a document can select the modern space-between paragraph style.
 
-No other text/colour/size literal exists in the flow renderer.
+No other text/colour/size literal exists in the flow renderer, **except the
+documented per-name fallbacks of reserved styles and chrome keys** (see the
+2026-07-17 amendment below) — each fires only when the document leaves that
+name or key undefined.
 
 ## Consequences
 
@@ -94,3 +97,35 @@ No other text/colour/size literal exists in the flow renderer.
 - **Put the default in `text_contract`.** Rejected: the `TextContract` model is a
   fitting/overflow contract (`min_font_size`, `overflow`, …) and forbids extra
   fields; the reserved `body` style is the natural, already-cascading home.
+
+## Amendment (2026-07-17) — one resolver-level fallback; documented reserved-style fallbacks
+
+The GH #60–#66/#69/#74 remediation rounds tightened and generalised the
+decision:
+
+1. **The single engine fallback moved down into `TextStyleResolver`** (GH #74).
+   The resolver's per-key defaults ARE the document's reserved `body` style,
+   backed by one sanctioned constant (`serif / 12 / normal / #1c1c1c / left /
+   lh 1.4`). Consequence: the `body` cascade now reaches **every** text surface
+   — flow, absolute `text` objects, and table cells — and the resolver's former
+   private trio (`sans / 14 / lh 1.25`) is gone. The flow `base` is simply
+   `text_style({})`.
+2. **Reserved styles carry documented fallbacks** resolved via one mechanism
+   (`styled(name, fallback)`): `caption` (figure/image: italic + centered;
+   table: weight 700), `code` (monospace / 10 / #333), `toc` (sans-serif / 11 /
+   lh 1.5), `toc_title` (entry size × 1.5, bold). An authored reserved style
+   wins wholesale; nothing is stamped over it.
+3. **Chrome geometry is authorable** alongside chrome colour, in BOTH table
+   renderers (flow and `TableObject`): `grid_width`, `cell_padding`,
+   `header_weight`, `cell_line_height` (documented fallbacks 0.5 / 4.0 / 700 /
+   1.25), plus `table_fill`/`zebra_fill`/`header_fill` as opt-in paints — the
+   standalone `TableObject` no longer injects its `#3b6ea5`/white/zebra kit.
+   Element fields (`TableFlow.cell_padding`, `ListFlow.marker`/`indent`,
+   `TocFlow.number_width`/`level_indent`, `CanvasObject.background`) win over
+   style keys, which win over the documented fallback.
+4. **The page background is document-defined** (`CanvasObject.background`,
+   page > master); the painter's `white` rect is the documented fallback.
+
+Regression gate: `tests/test_no_injected_style_regressions.py` pins both
+directions — authored values win everywhere, and every documented fallback is
+byte-identical to the pre-amendment output for style-silent documents.

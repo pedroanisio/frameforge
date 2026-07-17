@@ -4509,6 +4509,7 @@ pages:
           - DejaVu Sans
           font_size: 26
           font_weight: 700
+          line_height: 1.25
           white_space: nowrap
         type: text
         text: WAVY TAVERN
@@ -4523,6 +4524,7 @@ pages:
           - DejaVu Sans
           font_size: 26
           font_weight: 700
+          line_height: 1.25
           white_space: nowrap
         type: text
         spans:

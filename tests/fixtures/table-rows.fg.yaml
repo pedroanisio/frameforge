@@ -34,7 +34,7 @@ pages:
       box: [30, 30, 360, 150]
       header_height: 30
       row_height: 44
-      style: {header_fill: head_bg, header_text: th, cell_text: td}
+      style: {header_fill: head_bg, header_text: th, cell_text: td, grid_color: '#bbbbbb'}
       columns:
       - {label: Item, width: 70, align: left}
       - {label: Notes, width: 1fr, align: left}

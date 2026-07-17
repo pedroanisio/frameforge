@@ -1382,6 +1382,9 @@ class ListFlow(BreakFields):
     marker: Optional[str] = Field(default=None, description="Custom bullet marker character.")
     style: Optional[StyleRef] = Field(
         default=None, description="List style: a tokens key or an inline Style.")
+    indent: Optional[Length] = Field(
+        default=None, description="Item indent from the column edge "
+                                  "(documented fallback 16).")
 
 
 class SpacerFlow(FG):

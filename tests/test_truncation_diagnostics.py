@@ -53,7 +53,7 @@ def _render(text_obj):
 
 def test_silent_line_clip_is_recorded_with_dropped_text():
     r = _render({"id": "lede", "type": "text", "box": [20, 20, 200, 18],
-                 "text": LONG, "style": {"font_size": 14}})
+                 "text": LONG, "style": {"font_size": 14, "line_height": 1.25}})
     recs = r.diagnostics["truncations"]
     assert len(recs) == 1
     rec = recs[0]
@@ -68,7 +68,7 @@ def test_silent_line_clip_is_recorded_with_dropped_text():
 def test_explicit_optin_is_acknowledged():
     r = _render({"id": "teaser", "type": "text", "box": [20, 20, 200, 40],
                  "text": LONG,
-                 "style": {"font_size": 14, "max_lines": 2,
+                 "style": {"font_size": 14, "line_height": 1.25, "max_lines": 2,
                            "text_overflow": "ellipsis"}})
     recs = r.diagnostics["truncations"]
     assert len(recs) == 1 and recs[0]["acknowledged"] is True
@@ -76,7 +76,7 @@ def test_explicit_optin_is_acknowledged():
 
 def test_fitting_text_produces_no_record():
     r = _render({"id": "ok", "type": "text", "box": [20, 20, 360, 260],
-                 "text": "short and safe", "style": {"font_size": 14}})
+                 "text": "short and safe", "style": {"font_size": 14, "line_height": 1.25}})
     assert r.diagnostics["truncations"] == []
     assert r.tstats["clipped"] == 0
 
@@ -85,7 +85,7 @@ def test_cosmetic_descender_trim_is_not_content_loss():
     """A box a hair shorter than the line leaves the clip-path (aggregate
     still counts it) but names nothing: no line was dropped, no glyph cut."""
     r = _render({"id": "snug", "type": "text", "box": [20, 20, 360, 18],
-                 "text": "one comfortable line", "style": {"font_size": 14}})
+                 "text": "one comfortable line", "style": {"font_size": 14, "line_height": 1.25}})
     assert r.diagnostics["truncations"] == []
 
 
@@ -103,7 +103,7 @@ def test_single_line_width_clip_is_recorded():
 def test_overflow_report_names_objects_and_strict_fails():
     from render_fixtures import truncation_report
     r = _render({"id": "lede", "type": "text", "box": [20, 20, 200, 18],
-                 "text": LONG, "style": {"font_size": 14}})
+                 "text": LONG, "style": {"font_size": 14, "line_height": 1.25}})
     lines, unacknowledged = truncation_report({"doc.fg.yaml": r.diagnostics["truncations"]})
     joined = "\n".join(lines)
     assert "lede" in joined and "doc.fg.yaml" in joined
@@ -117,7 +117,7 @@ def test_mcp_render_result_carries_truncations(tmp_path):
     import yaml as _yaml
     from frameforge.mcp.usecases import render_frameforge_yaml
     doc = _doc({"id": "lede", "type": "text", "box": [20, 20, 200, 18],
-                "text": LONG, "style": {"font_size": 14}})
+                "text": LONG, "style": {"font_size": 14, "line_height": 1.25}})
     result = render_frameforge_yaml(_yaml.safe_dump(doc, sort_keys=False),
                                     session_id="trunc", session_root=tmp_path,
                                     raster_png=False)
@@ -136,7 +136,7 @@ def test_validate_text_fit_warns_per_object(tmp_path):
     import subprocess
     import yaml as _yaml
     doc = _doc({"id": "lede", "type": "text", "box": [20, 20, 200, 18],
-                "text": LONG, "style": {"font_size": 14}})
+                "text": LONG, "style": {"font_size": 14, "line_height": 1.25}})
     path = tmp_path / "trunc.fg.yaml"
     path.write_text(_yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
     proc = subprocess.run(

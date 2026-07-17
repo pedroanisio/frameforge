@@ -9092,6 +9092,27 @@
           "default": null,
           "description": "List style: a tokens key or an inline Style.",
           "title": "Style"
+        },
+        "indent": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "description": "Length string: '<n><unit>' with unit pt|px|pc|mm|cm|in|em|rem (absolute; bare numbers are pt/px, treated 1:1) or %|fr (relative — % resolves against the container content-box, fr only inside a layout container; spec §3.4/§3.6g).",
+              "pattern": "^-?(?:\\d+\\.?\\d*|\\.\\d+)(?:pt|px|pc|mm|cm|in|em|rem|%|fr)$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Item indent from the column edge (documented fallback 16).",
+          "title": "Indent"
         }
       },
       "required": [
