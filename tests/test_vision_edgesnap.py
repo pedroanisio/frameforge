@@ -29,13 +29,19 @@ EDGE_Y = 120.6    # sub-pixel horizontal-edge position (bright above)
 
 
 def _corner_image(w=200, h=200):
-    """Bright in the quadrant x>EDGE_X ∧ y<EDGE_Y — a vertical + horizontal edge."""
+    """Bright in the quadrant x>EDGE_X ∧ y<EDGE_Y — a vertical + horizontal edge.
+
+    Ground truth is authored in CONTINUOUS coordinates (the pixel-centre
+    convention edgesnap reads in): pixel index ``i`` carries the field value at
+    its centre ``i + 0.5``, so the logistic midpoint — the edge — sits at
+    continuous EDGE_X/EDGE_Y exactly.
+    """
     from io import BytesIO
 
     from PIL import Image
 
-    xs = np.arange(w)[None, :]
-    ys = np.arange(h)[:, None]
+    xs = np.arange(w)[None, :] + 0.5                  # pixel centres, continuous
+    ys = np.arange(h)[:, None] + 0.5
     sx = 1.0 / (1.0 + np.exp(-(xs - EDGE_X) / 0.8))   # →1 right of EDGE_X
     sy = 1.0 / (1.0 + np.exp((ys - EDGE_Y) / 0.8))    # →1 above EDGE_Y
     img = (255.0 * sx * sy).astype(np.uint8)

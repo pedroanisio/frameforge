@@ -482,7 +482,10 @@ def _render_crop(img, cs: CoordinateSystem, xform: CropTransform, step: int,
     Image, *_ = _pil()
     ox, oy = xform.origin_px
     sw, sh = xform.size_px
-    crop = img.crop((int(ox), int(oy), int(round(ox + sw)), int(round(oy + sh))))
+    # crop_transform snaps origin/size to whole pixels and render_px to an exact
+    # integer multiple, so this crop+resize IS the transform — every viewport_px
+    # reading inverts exactly (no truncated-fraction bias, no resize scale skew).
+    crop = img.crop((int(ox), int(oy), int(ox + sw), int(oy + sh)))
     rw, rh = xform.render_px
     enlarged = crop.resize((rw, rh), Image.LANCZOS)
     vp = _Viewport(ox, oy, xform.scale)

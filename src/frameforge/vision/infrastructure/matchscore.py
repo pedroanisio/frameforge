@@ -13,6 +13,17 @@ across refinement passes (did this nudge move the vectors closer to the edges?),
 as an absolute correctness proof. The rendered overlay is a drawing aid; the numbers
 are the signal, and the signal is advisory.
 
+Coordinate convention (shared with ``edgesnap`` and the SDK/SVG doc space): all
+coordinates are CONTINUOUS — pixel index ``i`` covers ``[i, i + 1)`` and its centre
+is ``i + 0.5``. Detected edge pixels are therefore emitted at their centres
+(``index + 0.5``), so authored geometry and measured edges live in one frame.
+
+The score floor: ``mean_dist`` never reaches 0 even for geometrically exact shapes —
+edge pixels are quantized to centres (±0.5 px against a continuous edge) and the
+Sobel response peaks on a stroke's *flank* pixels (~1.0 px from a 1 px stroke's
+centreline). The floor is named in the result payload (``floor``); gates on absolute
+distances must calibrate it away with a known-exact probe, never assume 0.
+
 numpy + Pillow are imported lazily so ``import frameforge.vision`` stays cheap; only
 scoring/overlay touch them. Shape *sampling* is pure ``math`` and always available.
 """
@@ -198,8 +209,8 @@ def _gray(image_bytes: bytes):
     return g
 
 
-def _edge_points(gray, roi):
-    """Adaptive-Sobel edge pixels (image coords) inside ``roi``; ``None`` if none."""
+def _edge_mask(gray, roi):
+    """Adaptive-Sobel edge mask over ``roi`` (bool, roi-shaped); ``None`` if degenerate."""
     import numpy as np
 
     x0, y0, x1, y1 = roi
@@ -212,25 +223,133 @@ def _edge_points(gray, roi):
     gy[1:-1, :] = sub[2:, :] - sub[:-2, :]
     mag = np.hypot(gx, gy)
     thr = max(float(mag.mean() + mag.std()), 1e-6)      # 1e-6 floor: a flat image has no edges
-    ys, xs = np.where(mag >= thr)
+    return mag >= thr
+
+
+def _edge_points(gray, roi):
+    """Adaptive-Sobel edge-pixel CENTRES (continuous image coords) inside ``roi``.
+
+    Pixel index ``(ix, iy)`` is emitted as ``(ix + 0.5, iy + 0.5)`` — the pixel-centre
+    convention (module doc) — so detected edges share the continuous frame authored
+    shapes use. ``None`` if none.
+    """
+    import numpy as np
+
+    mask = _edge_mask(gray, roi)
+    if mask is None:
+        return None
+    ys, xs = np.where(mask)
     if xs.size == 0:
         return None
-    return np.stack([xs + x0, ys + y0], 1).astype(float)
+    return np.stack([xs + roi[0] + 0.5, ys + roi[1] + 0.5], 1).astype(float)
+
+
+# Chebyshev search radii for the exact nearest-edge lookup; samples farther than the
+# last ring from any edge fall back to a subsampled brute force (see below).
+_RINGS = (0, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64)
+
+
+def _nearest_edge_dist(mask, roi, S, *, max_edges=None):
+    """Distance from each continuous sample in ``S`` to the nearest edge-pixel centre.
+
+    EXACT for every sample within ``_RINGS[-1]`` px (Chebyshev) of an edge: an
+    integral image answers "any edge within radius r?" in O(1), and the true
+    nearest neighbour is then taken over a window guaranteed to contain it — no
+    resolution-dependent caps, so a perfect 4K reconstruction measures its true
+    floor instead of a subsampling artifact. Samples beyond the last ring (>64 px
+    off every edge) use a brute force against at most ``max_edges`` subsampled
+    edge pixels, whose relative error is negligible at that range.
+    """
+    import numpy as np
+
+    x0, y0 = roi[0], roi[1]
+    Hm, Wm = mask.shape
+    integ = np.zeros((Hm + 1, Wm + 1), dtype=np.int64)
+    integ[1:, 1:] = mask.cumsum(0, dtype=np.int64).cumsum(1)
+
+    # containing pixel of each sample, in mask indices (pixel i covers [i, i+1))
+    ix = np.clip(np.floor(S[:, 0]).astype(np.int64) - x0, 0, Wm - 1)
+    iy = np.clip(np.floor(S[:, 1]).astype(np.int64) - y0, 0, Hm - 1)
+
+    def counts(r):
+        cx0 = np.clip(ix - r, 0, Wm)
+        cx1 = np.clip(ix + r + 1, 0, Wm)
+        cy0 = np.clip(iy - r, 0, Hm)
+        cy1 = np.clip(iy + r + 1, 0, Hm)
+        return integ[cy1, cx1] - integ[cy0, cx1] - integ[cy1, cx0] + integ[cy0, cx0]
+
+    found = np.full(len(S), -1, dtype=np.int64)
+    for r in _RINGS:
+        undecided = found < 0
+        if not undecided.any():
+            break
+        found[undecided & (counts(r) > 0)] = r
+
+    d = np.full(len(S), np.inf)
+    for r in _RINGS:
+        group = np.where(found == r)[0]
+        if group.size == 0:
+            continue
+        # a hit at Chebyshev r bounds the nearest centre's Euclidean distance by
+        # sqrt(2)*(r+1); every pixel that could beat it lies within this window
+        R = int(math.ceil((r + 1) * math.sqrt(2.0))) + 1
+        offs = np.arange(-R, R + 1)
+        oy, ox = np.meshgrid(offs, offs, indexing="ij")
+        oy, ox = oy.ravel(), ox.ravel()
+        chunk = max(1, 4_000_000 // len(oy))            # bound the gather's memory
+        for i in range(0, group.size, chunk):
+            g = group[i:i + chunk]
+            cy = iy[g][:, None] + oy[None, :]
+            cx = ix[g][:, None] + ox[None, :]
+            valid = (cy >= 0) & (cy < Hm) & (cx >= 0) & (cx < Wm)
+            cy = np.clip(cy, 0, Hm - 1)
+            cx = np.clip(cx, 0, Wm - 1)
+            dx = S[g, 0][:, None] - (cx + x0 + 0.5)
+            dy = S[g, 1][:, None] - (cy + y0 + 0.5)
+            dist2 = dx * dx + dy * dy
+            dist2[~(mask[cy, cx] & valid)] = np.inf
+            d[g] = np.sqrt(dist2.min(1))
+
+    far = np.where(found < 0)[0]
+    if far.size:
+        ys, xs = np.where(mask)
+        E = np.stack([xs + x0 + 0.5, ys + y0 + 0.5], 1).astype(float)
+        cap = max_edges or 6000
+        if len(E) > cap:
+            E = E[np.linspace(0, len(E) - 1, cap).astype(int)]
+        for i in range(0, far.size, 256):               # chunked to bound memory
+            f = far[i:i + 256]
+            d[f] = np.sqrt(((S[f][:, None, :] - E[None, :, :]) ** 2).sum(-1)).min(1)
+    return d
 
 
 _HINT = ("Higher on_edge_frac + lower distances = the vectors sit closer to the "
          "source's edges. Heuristic (adaptive Sobel) — a RELATIVE guide across "
          "refinement passes, not ground truth (PALS's Law).")
 
+_FLOOR = {
+    "mean_dist_floor_px": 0.5,
+    "note": ("mean_dist never reaches 0 for exact geometry: detected edges are "
+             "pixel centres (±0.5 px quantization against a continuous edge) and "
+             "the Sobel response peaks on a stroke's flank pixels (~1.0 px from a "
+             "1 px stroke's centreline). Gates on absolute distances must be "
+             "calibrated against a known-exact probe rendered through the same "
+             "pipeline, and subtract that measured floor."),
+}
+
 
 def _score_core(image_bytes: bytes, shapes: Sequence[dict[str, Any]], *,
                 roi=None, tol: float = 2.0, spacing: float = 2.0,
-                max_edges: int = 6000, max_samples: int = 1500):
+                max_edges: "int | None" = None, max_samples: "int | None" = None):
     """Shared math for :func:`score` and :func:`build_score_overlay`.
 
     Returns ``(result, S, d)`` where ``result`` is the score dict (or an ``error``
     dict), ``S`` the kept shape-sample array, and ``d`` the per-sample nearest-edge
-    distance (both ``None`` on error).
+    distance (both ``None`` on error). ``max_edges``/``max_samples`` default to
+    ``None`` — every edge pixel and every shape sample participates, so the score
+    is resolution-independent (fixed caps made rich 4K content score *worse* than
+    the same content at 960 px). Pass ints only to bound runtime explicitly;
+    thinning trades exactness for speed.
     """
     import numpy as np
 
@@ -238,46 +357,71 @@ def _score_core(image_bytes: bytes, shapes: Sequence[dict[str, Any]], *,
         return {"error": "no shapes to score"}, None, None
     gray = _gray(image_bytes)
     H, W = gray.shape
-    roi = tuple(int(v) for v in roi) if roi else (0, 0, W, H)
+    if roi:
+        roi = (max(0, int(math.floor(roi[0]))), max(0, int(math.floor(roi[1]))),
+               min(W, int(math.ceil(roi[2]))), min(H, int(math.ceil(roi[3]))))
+    else:
+        roi = (0, 0, W, H)
     x0, y0, x1, y1 = roi
-    edges = _edge_points(gray, roi)
-    if edges is None:
+    mask = _edge_mask(gray, roi)
+    if mask is None or not mask.any():
         return {"error": "no edges detected in roi", "roi": list(roi)}, None, None
 
     samples: list[tuple[float, float]] = []
-    for sh in shapes:
-        samples.extend(sample_shape(sh, spacing=spacing))
-    S = np.array([p for p in samples if x0 <= p[0] < x1 and y0 <= p[1] < y1], dtype=float)
-    if S.size == 0:
+    shape_of: list[int] = []
+    for si, sh in enumerate(shapes):
+        pts = sample_shape(sh, spacing=spacing)
+        samples.extend(pts)
+        shape_of.extend([si] * len(pts))
+    keep = [i for i, p in enumerate(samples) if x0 <= p[0] < x1 and y0 <= p[1] < y1]
+    if not keep:
         return {"error": "no shape samples inside roi", "roi": list(roi)}, None, None
-    if len(S) > max_samples:
-        S = S[np.linspace(0, len(S) - 1, max_samples).astype(int)]
-    E = edges
-    if len(E) > max_edges:
-        E = E[np.linspace(0, len(E) - 1, max_edges).astype(int)]
+    S = np.array([samples[i] for i in keep], dtype=float)
+    SI = np.array([shape_of[i] for i in keep], dtype=np.int64)
+    if max_samples and len(S) > max_samples:
+        thin = np.linspace(0, len(S) - 1, max_samples).astype(int)
+        S, SI = S[thin], SI[thin]
 
-    d = np.empty(len(S))
-    for i in range(0, len(S), 256):                     # chunked to bound memory
-        c = S[i:i + 256]
-        d[i:i + 256] = np.sqrt(((c[:, None, :] - E[None, :, :]) ** 2).sum(-1)).min(1)
+    d = _nearest_edge_dist(mask, roi, S, max_edges=max_edges)
+
+    per_shape: list[dict[str, Any]] = []
+    worst = None
+    for si, sh in enumerate(shapes):
+        member = SI == si
+        entry: dict[str, Any] = {"index": si, "kind": str(sh.get("kind", "")).lower(),
+                                 "n_samples": int(member.sum())}
+        if sh.get("id") is not None:
+            entry["id"] = sh["id"]
+        if entry["n_samples"]:
+            ds = d[member]
+            entry["on_edge_frac"] = round(float((ds <= tol).mean()), 4)
+            entry["mean_dist"] = round(float(ds.mean()), 3)
+            entry["p90_dist"] = round(float(np.percentile(ds, 90)), 3)
+            if worst is None or entry["mean_dist"] > worst["mean_dist"]:
+                worst = {"index": si, "mean_dist": entry["mean_dist"]}
+        per_shape.append(entry)
 
     result = {
         "roi": list(roi),
         "n_samples": int(len(S)),
-        "n_edges": int(len(edges)),
+        "n_edges": int(mask.sum()),
         "on_edge_frac": round(float((d <= tol).mean()), 4),
         "mean_dist": round(float(d.mean()), 3),
         "median_dist": round(float(np.median(d)), 3),
         "p90_dist": round(float(np.percentile(d, 90)), 3),
         "tol": tol,
+        "per_shape": per_shape,
+        "floor": dict(_FLOOR),
         "hint": _HINT,
     }
+    if worst is not None:
+        result["worst_shape"] = worst
     return result, S, d
 
 
 def score(image_bytes: bytes, shapes: Sequence[dict[str, Any]], *,
           roi=None, tol: float = 2.0, spacing: float = 2.0,
-          max_edges: int = 6000, max_samples: int = 1500) -> dict[str, Any]:
+          max_edges: "int | None" = None, max_samples: "int | None" = None) -> dict[str, Any]:
     """Score how well ``shapes`` sit on the source image's edges (see module doc)."""
     result, _, _ = _score_core(image_bytes, shapes, roi=roi, tol=tol, spacing=spacing,
                                max_edges=max_edges, max_samples=max_samples)
@@ -294,7 +438,7 @@ _OFF_C = (232, 40, 40)            # red — sample off the edges
 
 def build_score_overlay(image_bytes: bytes, shapes: Sequence[dict[str, Any]], *,
                         roi=None, tol: float = 2.0, spacing: float = 2.0,
-                        max_edges: int = 6000, max_samples: int = 1500):
+                        max_edges: "int | None" = None, max_samples: "int | None" = None):
     """Return ``(overlay_rgb, score)`` — the source (dimmed) with detected edges and
     the shape samples coloured green (on-edge) / red (off-edge), plus a score header.
     ``overlay`` keeps the source pixel size (coordinate identity). On a scoring error

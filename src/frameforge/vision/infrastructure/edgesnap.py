@@ -16,6 +16,15 @@ shadow can pull it. Each crossing carries a ``strength``; weak steps are dropped
 and the *number* of surviving crossings + the fit residual are the honest signal
 that a refinement is trustworthy — not a guarantee. numpy + Pillow are imported
 lazily so ``import frameforge.vision`` stays cheap (mirrors ``matchscore.py``).
+
+Coordinate convention — CONTINUOUS pixel-centre, matching the SDK/SVG doc space
+and ``matchscore``/``coordinates``: pixel index ``i`` covers ``[i, i + 1)`` and is
+sampled at its centre ``i + 0.5``. Every point this module accepts or returns
+(segment anchors, crossings, snapped points, corners) lives in that frame, so a
+crisp edge authored at x = 100.0 measures as 100.0 — not the 99.5 an index-space
+reading would report (a systematic −0.5 px bias that alone consumes a sub-pixel
+error budget). The conversion happens exactly once, at the raster boundary
+(:func:`_bilinear`).
 """
 from __future__ import annotations
 
@@ -32,12 +41,18 @@ Point = tuple[float, float]
 # sampling helpers (numpy)
 # ─────────────────────────────────────────────────────────────
 def _bilinear(gray, xs, ys):
-    """Bilinearly sample ``gray`` (H×W) at float coords ``xs, ys`` (numpy arrays)."""
+    """Bilinearly sample ``gray`` (H×W) at CONTINUOUS coords ``xs, ys`` (numpy arrays).
+
+    The raster boundary of the pixel-centre convention (module doc): array index
+    ``i`` holds the intensity at continuous coordinate ``i + 0.5``, so continuous
+    inputs are shifted by −0.5 into index space before interpolation. Every peak
+    position derived from these profiles is thereby continuous already.
+    """
     import numpy as np
 
     H, W = gray.shape
-    xs = np.clip(xs, 0, W - 1.001)
-    ys = np.clip(ys, 0, H - 1.001)
+    xs = np.clip(np.asarray(xs, dtype=float) - 0.5, 0, W - 1.001)
+    ys = np.clip(np.asarray(ys, dtype=float) - 0.5, 0, H - 1.001)
     x0 = np.floor(xs).astype(int)
     y0 = np.floor(ys).astype(int)
     x1 = x0 + 1

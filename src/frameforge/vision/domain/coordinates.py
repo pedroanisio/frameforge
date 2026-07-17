@@ -18,12 +18,20 @@ are UNVERIFIED guesses; this module never produces those.
 
 Invariants any caller relies on:
   * `to_cs`/`from_cs` are exact inverses for every origin.
-  * `CropTransform.to_source_px` and `to_render_px` are exact inverses.
+  * `CropTransform.to_source_px` and `to_render_px` are exact inverses, and the
+    transform describes the raster crop *actually taken* (`crop_transform` snaps
+    origin/extent to whole pixels and the zoom to an integer — no fractional-origin
+    bias, no rounded-resize scale skew).
   * points live canonically in IMAGE PIXELS (top-left, +y down); frames are only a
     boundary concern (`resolve_point_spec` in, `point_frames` out).
+  * coordinates are CONTINUOUS (pixel-centre convention, shared with the SDK/SVG
+    doc space and `edgesnap`/`matchscore`): pixel index `i` covers `[i, i + 1)` and
+    its centre is `i + 0.5`. Structural landmarks are continuous — corner-br of a
+    W×H image is `(W, H)`, never `(W-1, H-1)`.
 """
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Any, Sequence
 
@@ -263,15 +271,28 @@ def structural_landmarks(cs: CoordinateSystem) -> list[Landmark]:
 
 def crop_transform(name: str, box: Sequence[float], cs: CoordinateSystem, *,
                    render_long_edge: int = 1024) -> CropTransform:
-    """Compute the offset+scale for a zoomed crop of ``box`` (normalized)."""
+    """Compute the offset+scale for a zoomed crop of ``box`` (normalized).
+
+    The transform is snapped to the raster crop that will actually be taken: the
+    origin is floored to the pixel the crop starts at, the extent widened to whole
+    pixels covering the requested box, and the zoom factor snapped to an integer,
+    so ``render_px`` is an EXACT multiple of ``size_px``. Without the snap, a
+    fractional origin (e.g. 0.333·3840 = 1278.72) biased every ``to_source_px``
+    reading by the truncated fraction (up to ~1 px), and rounding the render size
+    of a fractional extent skewed the effective scale — both fatal to a sub-pixel
+    reading instrument. ``render_long_edge`` is a target, not a contract: the
+    integer zoom lands the long edge as close to it as exactness allows.
+    """
     W, H = cs.width, cs.height
     x, y, w, h = box
-    ox, oy, sw0, sh0 = denorm_box(x, y, w, h, W, H)
-    sw, sh = max(1.0, sw0), max(1.0, sh0)
-    scale = max(1.0, render_long_edge / max(sw, sh))
-    rw = max(1, int(round(sw * scale)))
-    rh = max(1, int(round(sh * scale)))
-    return CropTransform(name, (x, y, w, h), (ox, oy), (sw, sh), scale, (rw, rh))
+    ox0, oy0, sw0, sh0 = denorm_box(x, y, w, h, W, H)
+    ox = float(min(math.floor(ox0), max(0, W - 1)))
+    oy = float(min(math.floor(oy0), max(0, H - 1)))
+    sw = max(1.0, float(min(W, math.ceil(ox0 + max(1.0, sw0)))) - ox)
+    sh = max(1.0, float(min(H, math.ceil(oy0 + max(1.0, sh0)))) - oy)
+    scale = float(max(1, int(round(render_long_edge / max(sw, sh)))))
+    return CropTransform(name, (x, y, w, h), (ox, oy), (sw, sh), scale,
+                         (int(sw * scale), int(sh * scale)))
 
 
 # ─────────────────────────────────────────────────────────────

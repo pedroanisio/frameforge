@@ -107,15 +107,20 @@ def _clamp01(v: float) -> float:
 def _crop_norm(img, box: Sequence[float]):
     x, y, w, h = box
     W, H = img.size
-    left = _clamp01(x) * W
-    top = _clamp01(y) * H
-    right = _clamp01(x + w) * W
-    bottom = _clamp01(y + h) * H
+    # one rounding rule (round-half-up) for all four edges: flooring the origin but
+    # rounding the far edge shifted the window by up to 1 px, and reference vs
+    # candidate crops of the same normalized box disagreed at different pixel sizes
+    left = int(math.floor(_clamp01(x) * W + 0.5))
+    top = int(math.floor(_clamp01(y) * H + 0.5))
+    right = int(math.floor(_clamp01(x + w) * W + 0.5))
+    bottom = int(math.floor(_clamp01(y + h) * H + 0.5))
     if right - left < 1:
         right = min(W, left + 1)
+        left = right - 1
     if bottom - top < 1:
         bottom = min(H, top + 1)
-    return img.crop((int(left), int(top), int(round(right)), int(round(bottom))))
+        top = bottom - 1
+    return img.crop((left, top, right, bottom))
 
 
 def _np():
@@ -167,7 +172,7 @@ def _valid_mask(shape, dx: int, dy: int):
     return m
 
 
-def image_metrics(a, b, *, size: int = 256, align: bool = False) -> dict:
+def image_metrics(a, b, *, size: int | None = 256, align: bool = False) -> dict:
     """MAE / RMSE / NCC / pct_diff between two crops.
 
     NCC is 1.0 for identical, ~0 for uncorrelated (0.0 when a crop is flat — no
@@ -177,6 +182,16 @@ def image_metrics(a, b, *, size: int = 256, align: bool = False) -> dict:
     (the shifted-in border is masked out), so a pure offset does not read as error;
     the applied shift is returned under ``shift_px``. Deterministic geometry over
     pixels — a RELATIVE fidelity signal, not a perceptual verdict (PALS's Law).
+
+    The resolution regime is surfaced on EVERY result — numbers from different
+    regimes are not comparable: ``metric_px`` is the pixel size the metrics were
+    actually computed at and ``metric_regime`` names it. ``"downsampled"`` (the
+    default) resizes both crops to ``size``×``size`` (aspect-distorting; at 4K a
+    1 px feature is ~0.07 px at 256 and invisible — never gate sub-pixel claims on
+    it). ``size=None`` computes at the reference's native resolution
+    (``"full-res"``; a differing candidate is LANCZOS-resized to match).
+    ``align=True`` is always full-res (``"full-res-aligned"``) and FFT-heavy: at
+    3840×2160 one call peaks well over 1 GB, so budget accordingly.
     """
     Image, *_ = _pil()
     np = _np()
@@ -189,12 +204,20 @@ def image_metrics(a, b, *, size: int = 256, align: bool = False) -> dict:
         av = ga[mask]
         bv = gb[mask]
         shift = [dx, dy]
+        metric_px, regime = [ref.width, ref.height], "full-res-aligned"
     else:
-        ra = a.convert("RGB").resize((size, size), Image.LANCZOS)
-        rb = b.convert("RGB").resize((size, size), Image.LANCZOS)
+        ra = a.convert("RGB")
+        rb = b.convert("RGB")
+        if size is not None:
+            ra = ra.resize((size, size), Image.LANCZOS)
+            rb = rb.resize((size, size), Image.LANCZOS)
+        elif rb.size != ra.size:
+            rb = rb.resize(ra.size, Image.LANCZOS)
         av = np.asarray(ra, float).reshape(-1, 3)
         bv = np.asarray(rb, float).reshape(-1, 3)
         shift = None
+        metric_px = [ra.width, ra.height]
+        regime = "downsampled" if size is not None else "full-res"
     d = av - bv
     af = av.ravel() - av.mean()
     bf = bv.ravel() - bv.mean()
@@ -205,6 +228,8 @@ def image_metrics(a, b, *, size: int = 256, align: bool = False) -> dict:
         "rmse": round(float(np.sqrt((d ** 2).mean())), 2),
         "ncc": round(ncc, 4),
         "pct_diff": round(float((np.abs(d).max(-1) > 25).mean()), 4),
+        "metric_px": metric_px,
+        "metric_regime": regime,
     }
     if shift is not None:
         out["shift_px"] = shift
