@@ -66,6 +66,7 @@ from frameforge.mcp.usecases import (
     compare_images as _uc_compare_images,
     construct_vectors as _uc_construct_vectors,
     detect_regions as _uc_detect_regions,
+    diff_renders as _uc_diff_renders,
     fit_primitives as _uc_fit_primitives,
     map_coordinates as _uc_map_coordinates,
     mark_points as _uc_mark_points,
@@ -109,6 +110,7 @@ from frameforge.mcp.usecases import (
     compare_images as compare_images,
     construct_vectors as construct_vectors,
     detect_regions as detect_regions,
+    diff_renders as diff_renders,
     fit_primitives as fit_primitives,
     map_coordinates as map_coordinates,
     mark_points as mark_points,
@@ -1480,6 +1482,51 @@ def create_server(
             {"shapes": f"<{len(shapes)} shape(s)>", "session_id": session_id},
             lambda: _uc_fit_primitives(
                 shapes=shapes, session_id=session_id, session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def diff_renders(
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+        reference_rev: Annotated[
+            int | None,
+            Field(description="History revision to diff against (rev number from a render result's `history.revisions`). Omit for the revision just before the candidate."),
+        ] = None,
+        candidate_rev: Annotated[
+            int | None,
+            Field(description="History revision under test. Omit for the latest archived revision."),
+        ] = None,
+        page: Annotated[int, Field(description="1-based page whose raster is diffed.")] = 1,
+        regions: Annotated[
+            list[dict] | None,
+            Field(description="Named crops to zoom into, as [{\"name\": str, \"box\": [x, y, w, h]}] normalized 0..1. Omit to auto-split."),
+        ] = None,
+        grid: Annotated[
+            list[int] | None,
+            Field(description="Auto-split into a [cols, rows] grid of regions when `regions` is omitted."),
+        ] = None,
+    ):
+        """Diff two archived render revisions of a session — latest vs previous by default.
+
+        Every successful render archives its page artifacts into a history ring
+        (last five revisions, reported as `revision` + `history` on the render
+        result), so an iteration loop can measure whether a change helped
+        instead of remembering. Reuses the compare_images panels + metrics;
+        rasters are required (render with raster_png on).
+        """
+        result = _logged_enveloped_call(
+            log_path,
+            "diff_renders",
+            {
+                "session_id": session_id, "reference_rev": reference_rev,
+                "candidate_rev": candidate_rev, "page": page,
+                "regions": regions, "grid": grid,
+            },
+            lambda: _uc_diff_renders(
+                session_id=session_id, session_root=root,
+                reference_rev=reference_rev, candidate_rev=candidate_rev,
+                page=page, regions=regions, grid=grid,
             ),
         )
         return _maybe_call_tool_result(result)

@@ -20,6 +20,7 @@ from frameforge.mcp.pipeline import _validate_and_render_yaml
 from frameforge.mcp.results import _write_diagnostics
 from frameforge.mcp.security import _assert_input_path_allowed
 from frameforge.mcp.sessions import (
+    _archive_renders,
     _prepare_session,
     _previous_session_tool,
     _prior_render_artifacts,
@@ -119,6 +120,8 @@ def _run_source(
             real_metrics=real_metrics,
         )
         result.update(rendered)
+        if rendered.get("renders"):
+            result.update(_archive_renders(produced.session_dir, rendered["renders"]))
     if tool:
         _apply_session_stamp(result, tool=tool, replaced=replaced)
     _write_diagnostics(produced.session_dir, result)
@@ -1912,4 +1915,62 @@ def fit_primitives(
         "tool": "fit_primitives",
     }
     _write_diagnostics(session_dir, result)
+    return result
+
+
+def diff_renders(
+    *,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+    reference_rev: int | None = None,
+    candidate_rev: int | None = None,
+    page: int = 1,
+    regions: list[dict[str, Any]] | None = None,
+    grid: list[int] | None = None,
+) -> dict[str, Any]:
+    """Diff two archived render revisions of a session (recon gap F4).
+
+    Defaults to the latest revision against the one before it — the "did that
+    nudge help?" question — reusing the ``compare_images`` panel + metrics
+    machinery. Revisions come from the ``history/rev-NNN`` ring that every
+    successful render archives into.
+    """
+    root = _session_root(session_root)
+    sid = _session_id(session_id)
+    hist = root / sid / "history"
+    revs = sorted(
+        int(p.name.split("-", 1)[1]) for p in hist.glob("rev-*")
+        if p.is_dir() and p.name.split("-", 1)[1].isdigit()) if hist.is_dir() else []
+
+    cand = candidate_rev if candidate_rev is not None else (revs[-1] if revs else None)
+    prior = [r for r in revs if cand is None or r < cand]
+    ref = reference_rev if reference_rev is not None else (prior[-1] if prior else None)
+    if cand is None or ref is None:
+        return {"ok": False,
+                "error": (f"need two archived render revisions to diff; session '{sid}' has "
+                          f"{revs or 'none'} — render at least twice (rasters archive when "
+                          "raster_png is on)"),
+                "renders": [], "resources": []}
+
+    def _page_png(rev: int) -> Path | None:
+        rev_dir = hist / f"rev-{rev:03d}"
+        for name in (f"p{page:03d}.png", f"page-{page:03d}.png"):
+            if (rev_dir / name).is_file():
+                return rev_dir / name
+        return None
+
+    ref_png, cand_png = _page_png(ref), _page_png(cand)
+    if ref_png is None or cand_png is None:
+        missing = ref if ref_png is None else cand
+        return {"ok": False,
+                "error": (f"revision {missing} has no page-{page} PNG in its archive — "
+                          "re-render with raster_png=true so revisions carry rasters"),
+                "renders": [], "resources": []}
+
+    result = compare_images(
+        str(ref_png), str(cand_png), regions=regions, grid=grid,
+        label_reference=f"rev-{ref:03d}", label_candidate=f"rev-{cand:03d}",
+        session_id=sid, session_root=session_root)
+    result["diffed"] = {"reference_rev": ref, "candidate_rev": cand}
+    result["tool"] = "diff_renders"
     return result
