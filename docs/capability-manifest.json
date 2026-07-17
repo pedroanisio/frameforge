@@ -266,11 +266,14 @@
       "normalize_mask",
       "obb",
       "object_bbox",
+      "offset_path",
       "page_hashes",
       "paragraph",
       "parametric",
       "parametric_curve",
       "parse",
+      "path_length",
+      "path_walker",
       "pattern",
       "pill",
       "place_figure",
@@ -322,6 +325,7 @@
       "table",
       "tabs",
       "text_height",
+      "text_on_path",
       "text_style",
       "theme",
       "to_plain_dict",
@@ -347,6 +351,8 @@
       "describe_capabilities",
       "design_audit",
       "detect_regions",
+      "diff_renders",
+      "fit_primitives",
       "get_guide",
       "get_session_resource",
       "list_fonts",
@@ -354,6 +360,7 @@
       "list_sessions",
       "map_coordinates",
       "mark_points",
+      "match_font",
       "measure_image",
       "overlay_images",
       "propose_from_document",
@@ -2172,6 +2179,13 @@
       "mcp": true
     },
     {
+      "name": "offset_path",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "page_hashes",
       "kind": "sdk_export",
       "core": false,
@@ -2201,6 +2215,20 @@
     },
     {
       "name": "parse",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "path_length",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "path_walker",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2564,6 +2592,13 @@
       "mcp": true
     },
     {
+      "name": "text_on_path",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "text_style",
       "kind": "sdk_export",
       "core": false,
@@ -2711,6 +2746,20 @@
       "mcp": true
     },
     {
+      "name": "diff_renders",
+      "kind": "mcp_tool",
+      "core": false,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "fit_primitives",
+      "kind": "mcp_tool",
+      "core": false,
+      "sdk": false,
+      "mcp": true
+    },
+    {
       "name": "get_guide",
       "kind": "mcp_tool",
       "core": false,
@@ -2754,6 +2803,13 @@
     },
     {
       "name": "mark_points",
+      "kind": "mcp_tool",
+      "core": false,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "match_font",
       "kind": "mcp_tool",
       "core": false,
       "sdk": false,

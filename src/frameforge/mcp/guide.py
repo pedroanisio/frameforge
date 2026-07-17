@@ -356,6 +356,33 @@ Tools:
   SDK camera), or `warp` (apply the fitted homography to actually rectify/dewarp an
   image — perspective correction, emits the corrected PNG).
 
+Primitives-first reconstruction (numeric loop closure):
+- `fit_primitives` — measured point sets (e.g. detect_regions polygons) ->
+  {line | circular arc | axis-aligned ellipse arc} PARAMETERS: centre/radius/
+  radii, angular span, stroke thickness, angle, endpoints — typed straight into
+  SDK primitives instead of traced paths. Best fit + all candidates ranked by a
+  like-for-like radial rms; an ellipse must show a consistent axis gap above the
+  band's noise floor to beat the circle.
+- render tools accept `reference=<image>`: the result gains `reference_diff`
+  with per-object GHOST VECTORS — each authored object's displacement toward its
+  best match in the reference (page 1) — so corrections are typed from numbers,
+  not eyeballed off an overlay's double image.
+- every successful render archives page artifacts into a history ring (last 5;
+  `revision` + `history` on the result); `diff_renders` compares any two —
+  default latest vs previous ("did that nudge help?").
+- `match_font` — rank resolvable families by shape similarity to a reference
+  crop (ink-cropped NCC + aspect penalty); verify the winner in a real render.
+- every image input also accepts a `data:image/<type>;base64,` URI — a pasted
+  reference reaches the tools without touching the filesystem.
+- `overlay_images(rotation=true)` opts into the full-similarity fit (2D
+  Procrustes, >=2 pairs) and a rotated composite; the default stays
+  rotation-free so tilt keeps surfacing honestly as residuals.
+- SDK type-on-path (`frameforge.sdk.pathtext`): `text_on_path(points, text,
+  size=, family=, offset=, ...)` sets type glyph-by-glyph along a polyline —
+  real-metric advances measured on the offset path (concave side at +offset),
+  tangent-following rotation; `offset_path`/`path_walker`/`path_length` are the
+  underlying walkers. Wrap the extend in `page.lettering()`.
+
 Reconstruction loop:
   measure_image (see the coordinate field) -> detect_regions (inventory the shapes:
   exact boxes/centroids/fills to seed pins from) -> workspace open + pin the key

@@ -8,7 +8,6 @@ the displacement comes back as data, so the correction is typed from numbers.
 """
 from __future__ import annotations
 
-import io
 import os
 import sys
 
@@ -74,7 +73,7 @@ def _yaml(square_x):
     from frameforge.sdk import DocumentBuilder, serialize
     b = DocumentBuilder(title="ghost", profile="diagram")
     pg = b.page("p1", canvas={"size": [160, 120], "units": "px"})
-    layer = pg.layer("main")
+    pg.layer("main")
     pg.rect([0, 0, 160, 120], fill="#F2F2F2")
     pg.rect([square_x, 40, 22, 22], fill="#101010", id="probe")
     return serialize(b.build(), format="yaml")
