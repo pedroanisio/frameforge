@@ -68,6 +68,7 @@ from frameforge.mcp.usecases import (
     detect_regions as _uc_detect_regions,
     diff_renders as _uc_diff_renders,
     fit_primitives as _uc_fit_primitives,
+    match_font as _uc_match_font,
     map_coordinates as _uc_map_coordinates,
     mark_points as _uc_mark_points,
     measure_image as _uc_measure_image,
@@ -112,6 +113,7 @@ from frameforge.mcp.usecases import (
     detect_regions as detect_regions,
     diff_renders as diff_renders,
     fit_primitives as fit_primitives,
+    match_font as match_font,
     map_coordinates as map_coordinates,
     mark_points as mark_points,
     measure_image as measure_image,
@@ -1545,6 +1547,50 @@ def create_server(
                 session_id=session_id, session_root=root,
                 reference_rev=reference_rev, candidate_rev=candidate_rev,
                 page=page, regions=regions, grid=grid,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def match_font(
+        reference: Annotated[
+            str,
+            Field(description="Reference image showing the type to match: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
+        ],
+        text: Annotated[str, Field(description="The text visible in the reference — each candidate family renders exactly this string for comparison.")],
+        candidates: Annotated[
+            list[str] | None,
+            Field(description="Font families to rank (as list_fonts reports them). Omit to rank the enumerable families, capped at max_candidates."),
+        ] = None,
+        box: Annotated[
+            list[float] | None,
+            Field(description="Optional normalized [x, y, w, h] crop of the reference isolating the type sample."),
+        ] = None,
+        max_candidates: Annotated[
+            int, Field(description="Cap when candidates is omitted."),
+        ] = 60,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Rank resolvable font families by shape similarity to a reference crop.
+
+        Each candidate renders `text` through its fontconfig-resolved file and is
+        scored against the ink-cropped reference: height-normalized NCC minus an
+        aspect-ratio penalty (condensed vs wide). Returns the ranking plus `best`.
+        Heuristic — verify the winner in a real render before committing
+        (PALS's Law); unresolvable families are reported, never silently dropped.
+        """
+        result = _logged_enveloped_call(
+            log_path,
+            "match_font",
+            {
+                "reference": reference if len(reference) < 200 else "<inline data URI>",
+                "text": text, "candidates": candidates, "box": box,
+                "max_candidates": max_candidates, "session_id": session_id,
+            },
+            lambda: _uc_match_font(
+                reference=reference, text=text, candidates=candidates, box=box,
+                max_candidates=max_candidates, session_id=session_id,
+                session_root=root,
             ),
         )
         return _maybe_call_tool_result(result)

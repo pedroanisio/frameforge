@@ -2085,3 +2085,63 @@ def _reference_diff(result: dict[str, Any], reference: str, *,
         }
     except Exception as exc:  # keep the render result usable no matter what
         return {"ok": False, "error": f"reference diff failed: {exc}"}
+
+
+def match_font(
+    *,
+    reference: str,
+    text: str,
+    candidates: list[str] | None = None,
+    box: list[float] | None = None,
+    max_candidates: int = 60,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Rank resolvable font families by shape similarity to a reference (F6a).
+
+    ``reference`` is any image input (path, session URI, or data: URI) showing
+    the type to match; ``text`` is what it shows. ``candidates`` defaults to
+    the fontconfig-enumerable families (capped at ``max_candidates``).
+    Heuristic ranking — verify the winner in a real render (PALS's Law).
+    """
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("text must be the non-empty string shown in the reference")
+    try:
+        ref_bytes = _resolve_image_arg(reference, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": f"could not resolve reference: {exc}",
+                "renders": [], "resources": []}
+    if candidates is None:
+        from frameforge.mcp.discovery import list_fonts as _list_fonts
+        listed = _list_fonts(limit=max_candidates)
+        candidates = list(listed.get("families") or [])[:max_candidates]
+    if not candidates:
+        return {"ok": False, "error": "no candidate families to rank",
+                "renders": [], "resources": []}
+    try:
+        from frameforge.vision.infrastructure.fontmatch import match_font_ranking
+        ranking = match_font_ranking(ref_bytes, text, candidates, box=box)
+    except (RuntimeError, ValueError) as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+    resolved = [r for r in ranking if r.get("resolved")]
+    if not resolved:
+        return {"ok": False,
+                "error": "none of the candidate families are resolvable here — "
+                         "check names against list_fonts",
+                "ranking": ranking, "renders": [], "resources": []}
+    sid = _session_id(session_id)
+    session_dir = _session_root(session_root) / sid
+    session_dir.mkdir(parents=True, exist_ok=True)
+    result: dict[str, Any] = {
+        "ok": True,
+        "session_id": sid,
+        "ranking": ranking,
+        "best": resolved[0]["family"],
+        "note": ("shape-similarity heuristic (ink-cropped NCC with an aspect penalty); "
+                 "verify the winner in a real render before committing (PALS's Law)"),
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"frameforge://session/{sid}/diagnostics.json",
+        "tool": "match_font",
+    }
+    _write_diagnostics(session_dir, result)
+    return result
