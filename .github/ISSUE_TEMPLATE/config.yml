@@ -3,6 +3,3 @@ contact_links:
   - name: Security vulnerability
     url: https://github.com/pedroanisio/frameforge/security/advisories/new
     about: Please report suspected vulnerabilities privately. See SECURITY.md.
-  - name: Questions and usage help
-    url: https://github.com/pedroanisio/frameforge/discussions
-    about: Use discussions for questions that are not actionable bugs or feature requests.

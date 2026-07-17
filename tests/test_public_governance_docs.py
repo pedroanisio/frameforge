@@ -45,4 +45,5 @@ def test_public_github_intake_templates_route_security_privately() -> None:
 
     assert "SECURITY.md" in bug_template
     assert "security/advisories/new" in config
+    assert "/discussions" not in config
     assert "No secrets" in pr_template
