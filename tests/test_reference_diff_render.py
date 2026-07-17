@@ -113,3 +113,24 @@ def test_reference_without_raster_is_a_structured_note(tmp_path):
     assert out["reference_diff"]["ok"] is False
     assert "raster" in out["reference_diff"]["error"] or \
         "resolve" in out["reference_diff"]["error"]
+
+
+def test_object_boxes_survive_exotic_objects(tmp_path):
+    """A stroke_outline path carries `d` as a list — one exotic object must
+    neither raise nor evict the measurable objects from the diff (field bug
+    found reconstructing a real poster)."""
+    from frameforge.mcp.usecases import _doc_object_boxes
+    from frameforge.sdk import DocumentBuilder, serialize
+    from frameforge.sdk.outline import stroke_outline
+    b = DocumentBuilder(title="exotic", profile="diagram")
+    pg = b.page("p1", canvas={"size": [160, 120], "units": "px"})
+    pg.layer("main")
+    band = stroke_outline([(10, 100), (60, 40), (140, 30)], 8.0, smooth=True)
+    band["fill"] = "#333333"
+    pg.add(band)
+    pg.rect([50, 40, 22, 22], fill="#101010", id="probe")
+    yml = tmp_path / "doc.yaml"
+    yml.write_text(serialize(b.build(), format="yaml"), encoding="utf-8")
+    boxes = _doc_object_boxes(yml, img_w=160, img_h=120)
+    ids = [bx["id"] for bx in boxes]
+    assert "probe" in ids

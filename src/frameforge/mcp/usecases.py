@@ -2015,7 +2015,12 @@ def _doc_object_boxes(yaml_path: str | Path, *, img_w: int, img_h: int,
         for k, obj in enumerate(objects):
             if not isinstance(obj, dict):
                 continue
-            bb = object_bbox(obj)
+            if isinstance(obj.get("d"), list) and all(isinstance(seg, str) for seg in obj["d"]):
+                obj = {**obj, "d": " ".join(obj["d"])}   # stroke_outline emits list-form d
+            try:
+                bb = object_bbox(obj)
+            except Exception:
+                continue                                 # one exotic object must not kill the diff
             if not bb:
                 continue
             x0, y0, x1, y1 = bb
