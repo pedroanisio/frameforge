@@ -1,0 +1,657 @@
+{
+ "campaign": "pixel-perfect-4k (docs/bhag-pixel-perfect-4k.md)",
+ "pass": 1,
+ "date": "2026-07-17",
+ "generated_by": "Claude Fable 5 via Claude Code — 46-agent census workflow, every major finding adversarially verified",
+ "method": "6 dimension finders + per-finding adversarial refutation + live 4K baseline probe (81 objects, 3840x2160)",
+ "baseline": {
+  "summary": "4K precision baseline measured on a live 81-object probe (12x6 abutting checker grid, three half-pixel red hairlines, four corner squares, shared-edge pair at x=2000). Result: TODAY the pipeline is numerically exact on this probe at every measured stage. (1) Authored->SVG quantization: max |delta| = 0.0 over all 324 rect attributes (81 rects x x/y/w/h), including fractional coords (authored x=0.5/1919.5/3838.5 emitted verbatim as '0.5'/'1919.5'/'3838.5'); the fnum formatter (src/frameforge/rendering/domain/geometry.py:33-36, f'{f:.3f}') has a theoretical worst-case of 5e-4 px for non-3-decimal-representable values, unexercised by this probe. (2) SVG render is byte-deterministic; PNG render at scale 1 is also byte-deterministic. (3) Raster: zero grey seam columns/rows on all 11 vertical + 5 horizontal internal grid seams at both 1x and 2x; whole-image purity census found 0 non-{black,white,red,blue} pixels outside hairline columns (8,268,480 pixels checked at 1x). Hairline centroids match authored centers to +0.0000 px at both scales. Corners are pure blue at all four extreme pixels; the shared edge x=2000 is a hard 0->255 luminance step between pixel 1999 and 2000 (no AA, integer edge). (4) One operational surprise, not a geometry defect: default PNG output is 7680x4320, not 3840x2160 — the CLI defaults --scale to 2.0 (src/frameforge/cli.py:300) even though browser.py/render_chromium.py default 1.0; a 4K verification pipeline must pass --scale 1 or divide by exactly 2.0. (5) One verifiability trap measured concretely: at native 1x, the 1px half-pixel-offset hairlines produce NO pixel passing a strict red gate (r>200,g<80,b<80) — Chromium AA renders exactly 50% coverage per adjacent column ((128,0,0) over black, (255,127,127) over white), so strict color-matching instruments report the object as absent while a coverage-weighted centroid recovers its center to 0.0000 px. Any pixel-perfect proof harness must use coverage-weighted measurement, not exact-color masks, for sub-pixel geometry.",
+  "quantization": {
+   "stage_authored_to_svg": {
+    "attributes_compared": 324,
+    "rects_compared": 81,
+    "max_abs_delta_px": 0,
+    "nonzero_deltas": 0,
+    "fractional_coords_roundtrip": {
+     "authored": [
+      0.5,
+      1919.5,
+      3838.5
+     ],
+     "emitted": [
+      "0.5",
+      "1919.5",
+      "3838.5"
+     ]
+    },
+    "fnum_theoretical_bound_px": 0.0005,
+    "fnum_location": "src/frameforge/rendering/domain/geometry.py:33-36 (str(int(f)) if integral else f'{f:.3f}'.rstrip)"
+   },
+   "stage_svg_to_raster_1x": {
+    "hairline_centroid_delta_px": {
+     "x0.5": 0,
+     "x1919.5": 0,
+     "x3838.5": 0,
+     "method": "redness-weighted column centroid, pixel-centre convention (+0.5); e.g. x=0.5: equal weight 250880 in cols 0 and 1 -> centroid 0.5 -> doc center (0.5+0.5)=1.0 = authored center 1.0"
+    },
+    "shared_edge_x2000_delta_px": 0,
+    "shared_edge_evidence": "row y=1000 luminance: x1999=0, x2000=255 (hard step, no AA)",
+    "corner_squares_delta_px": 0,
+    "corner_evidence": "all 4 extreme pixels pure #0000FF; TL square right edge exact: (99,50)=blue, (100,50)=black",
+    "grid_seam_delta_px": 0
+   },
+   "stage_svg_to_raster_2x_default": {
+    "scale_factor_exact": 2,
+    "hairline_centroid_delta_px": {
+     "x0.5": 0,
+     "x1919.5": 0,
+     "x3838.5": 0
+    },
+    "note": "at dsf=2 all authored half-pixel coordinates become integer device pixels: hairlines render as 2 pure-red columns with zero AA"
+   }
+  },
+  "determinism": "SVG: two independent renders byte-identical (sha256 98b0219f8da27c47cd3b1a0c32caf99937ad17f09d649f6e95859cf794af6de2 both). PNG at --scale 1: two independent Chromium renders byte-identical (sha256 2ac45b67da215d0139914bf1eb845b0bde0c15259a2a2bc82bbbdea5c4d1162a both). No nondeterminism observed at either stage.",
+  "seam_scan": "Checked 11 internal vertical seams (x=320..3520 step 320) and 5 internal horizontal seams (y=360..1800 step 360), both pixel columns/rows adjacent to each seam, at 1x (3840x2160) and 2x (7680x4320). Grey (non-pure-black/white) seam columns: 0. Grey seam rows: 0. Whole-image purity census (all pixels outside the 3 hairline column bands): 0 non-{black,white,red,blue} pixels of 8,268,480 checked at 1x and 33,117,120 at 2x. Abutting integer-coordinate rects produce zero AA bleed. Red hairline at x=1919.5 deliberately overlaps the x=1920 seam; its pixels were classified as red, not grey, and excluded columns are reported explicitly in the scan script. Caveat: this probe's seams all fall on integer coordinates; fractional seams (e.g. thirds of the canvas) would exercise the AA path the hairlines exposed and are the natural next probe.",
+  "probe_paths": [
+   "/tmp/claude-1000/pp-probe/probe4k.fg.yaml",
+   "/tmp/claude-1000/pp-probe/gen_probe.py",
+   "/tmp/claude-1000/pp-probe/measure_quant.py",
+   "/tmp/claude-1000/pp-probe/seam_scan.py",
+   "/tmp/claude-1000/pp-probe/seam_scan_1x.py",
+   "/tmp/claude-1000/pp-probe/svg/probe4k.fg-1.svg",
+   "/tmp/claude-1000/pp-probe/svg2/probe4k.fg-1.svg",
+   "/tmp/claude-1000/pp-probe/png/probe4k.fg001.png",
+   "/tmp/claude-1000/pp-probe/png1x/probe4k.fg001.png",
+   "/tmp/claude-1000/pp-probe/png1x-b/probe4k.fg001.png"
+  ],
+  "blockers": "None fatal. Two operational notes: (1) `uv run python -c \"from frameforge.sdk.io import parse; ...\"` as given in the task fails with ModuleNotFoundError — the repo is a virtual project ([tool.uv] package=false, pyproject.toml:101-105); validation requires PYTHONPATH=src:docs or the self-bootstrapping tooling/frameforge_render.py launcher (which inserts src+docs at tooling/frameforge_render.py:21). (2) PNG dimensions at default flags are 7680x4320 not 3840x2160, because src/frameforge/cli.py:300 defaults --scale to 2.0; --scale 1 yields exactly 3840x2160. Neither moved geometry; both would break a naive verification harness that assumes importability or 1:1 pixel dimensions."
+ },
+ "totals": {
+  "confirmed": 42,
+  "by_severity": {
+   "critical": 5,
+   "major": 27,
+   "minor": 10
+  },
+  "rejected": 1
+ },
+ "dimensions": [
+  {
+   "dim": "numeric-format",
+   "confirmed": [
+    {
+     "id": "NUMFMT-1",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 2295,
+     "claim": "emit_figure quantizes the figure fit scale through fnum (3 decimals), so painted geometry drifts from the authored/layout geometry by localX * quantization error — up to several px at 4K.",
+     "mechanism": "scale = min(1.0, usable/fw) (line 2284) is emitted as ('scale', [fnum(scale)]) at line 2295. fnum rounds to 3 decimals (epsilon <= 5e-4). A point at figure-local x renders at tx + s_q*x instead of tx + s*x, error = x*|s - s_q|. Meanwhile cy advances by draw_h = fh*scale UNQUANTIZED (line 2285), so subsequent flow content (captions, next blocks) is positioned against the unrounded height while the drawing uses the rounded one.",
+     "impact_at_4k": "Verified by execution: usable=3600, fw=6100 gives s=0.5901639..., fnum -> 0.590, right-edge error = 6100 * 1.639e-4 = 1.000 px. General bound: figure local extent L drifts L*5e-4 px (L=8000 -> 4.0 px). Vertical layout/paint mismatch <= fh*5e-4 (fh=4000 local -> 2 px between drawn figure bottom and caption placement).",
+     "repro": "python: s=3600/6100; sq=float(f'{s:.3f}'); print(abs(s-sq)*6100)  # 1.0000",
+     "severity": "major",
+     "fix_sketch": "Emit the scale at full precision (repr/17-sig-digit format) or a dedicated fnum_scale with >= 9 decimals; use the same quantized value for draw_h so layout and paint agree.",
+     "verify_confidence": "high",
+     "verify_note": "Minor only: fnum emits \"0.59\" (trailing zero stripped), numerically identical to the claimed 0.590; the \"2 px\" vertical figure is the worst-case bound (fh=4000, eps=5e-4) — the worked example (s=3600/6100, fh=4000) yields 0.656 px. Line citation for the emission spans 2294-2295 (fnum(scale) is on 2295 as claimed)."
+    },
+    {
+     "id": "NUMFMT-2",
+     "file": "src/frameforge/rendering/domain/services/style_values.py",
+     "line": 161,
+     "claim": "transform_arg applies fnum (3-decimal) uniformly to ALL transform function arguments, including scale/scale_x/scale_y (lines 129-134) and matrix a,b,c,d terms (143-144), whose quantization error is multiplied by coordinate extent.",
+     "mechanism": "For style.transform = scale(s) about origin ox, a point at x renders at ox + s_q*(x-ox); error = |x-ox| * |s-s_q|, |s-s_q| <= 5e-4. Matrix b/c (shear) and a/d terms identically: each quantized by <= 5e-4 and multiplied by x or y up to 3840/2160. Translate/rotate args are fine (<= 5e-4 px and <= 0.0005 deg = 0.02 px over the 4K diagonal), but the multiplicative args are not.",
+     "impact_at_4k": "A full-canvas group scaled about its center: |x-ox| up to 1920 -> 1920*5e-4 = 0.96 px; scaled about a corner or matrix applied to raw coords: 3840*5e-4 = 1.92 px horizontal, 2160*5e-4 = 1.08 px vertical. Authored s=0.9995 collapses to 1 exactly (fnum fast path), i.e. the transform silently disappears: error 3840*0.0005 = 1.92 px.",
+     "repro": "fnum(0.99949) -> '0.999'; fnum(0.99950...) -> '1'; error at x=3840 is 3840*|s-s_q|",
+     "severity": "major",
+     "fix_sketch": "In transform_ops, format scale/skew/matrix args with high precision (e.g. f'{v:.9g}') instead of fnum; keep fnum for translate components only.",
+     "verify_confidence": "high",
+     "verify_note": "Minor mechanism attribution: fnum(0.9995) -> '1' comes from f\"{f:.3f}\" rounding to \"1.000\" then stripping zeros, not from the f == int(f) integer fast path (which only fires when the float is already exactly integral). Outcome is identical to the claim. All other details (file, lines, arithmetic, magnitudes) verified as stated."
+    },
+    {
+     "id": "NUMFMT-3",
+     "file": "src/frameforge/rendering/infrastructure/browser.py",
+     "line": 50,
+     "claim": "svg_size rounds fractional canvas width/height to an integer Chromium viewport while the root <svg> keeps its fractional CSS size; with overflow:hidden in _html (line 206) the raster crops up to 0.5 css px of authored content or pads spurious background, breaking the png_size == doc_size*scale invariant the measurement layer relies on.",
+     "mechanism": "round(found['width']) / round(vb w) at lines 50/53 -> integer viewport (line 106). The SVG element renders at its fractional attribute size (fnum emits e.g. width='1920.4'). Verified: svg_size on width=1920.4/height=1080.6 returns (1920, 1081): the right 0.4 css px of canvas is cropped (content loss), the bottom gains 0.4 css px of white. Any instrument computing scale = png_w/doc_w gets 1920/1920.4 = 0.999792 instead of 1.0, a systematic coordinate-mapping bias of up to 0.4 px at the right edge.",
+     "impact_at_4k": "Up to 0.5 css px * device_scale_factor: at dsf=2 targeting ~3840, up to 1 full device pixel column of authored geometry deleted (or added as background). Zero for integer canvases (3840x2160 exact), so it manifests only for fractional doc sizes (pt/mm-derived).",
+     "repro": "svg_size('<svg width=\"1920.4\" height=\"1080.6\" viewBox=\"0 0 1920.4 1080.6\">') == (1920, 1081)",
+     "severity": "major",
+     "fix_sketch": "Use ceil for the viewport and clip the screenshot to round(w*dsf) x round(h*dsf), or reject/warn on non-integer canvas sizes on the proven-pixel path; have measure/score derive scale from the SVG viewBox, not the PNG extent.",
+     "verify_confidence": "high",
+     "verify_note": "Two refinements: (1) The \"png_size == doc_size*scale invariant\" is a workflow contract, not a specific in-tree computation — I found no literal `scale = png_w/doc_w` line; the measurement layer (vision/domain/coordinates.py CoordinateSystem, built from the PNG's own extent) inherits the bias when normalized coordinates are mapped back to doc space, but the primary confirmed harm is the direct crop/pad of the proof raster itself. (2) Content is deleted only when the fractional part rounds down (crop case); when it rounds up the raster gains spurious white padding instead — both break authored==rendered extent, but only one loses geometry. Impact is zero on the exact integer 3840x2160 canvas, as the finder already stated; it manifests on pt/mm-derived canvases (in-tree presets A5=419.5x595.3, book-mass-market=306x494.6) rendered at high device_scale_factor."
+    },
+    {
+     "id": "NUMFMT-4",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 941,
+     "claim": "Structured path segments with RELATIVE commands (lowercase l/c/m etc.) have each delta independently quantized by fnum, so quantization error accumulates along the subpath instead of staying bounded per point.",
+     "mechanism": "Line 941 applies fnum(num(n,0)) per segment argument with no distinction between absolute and relative commands. For relative commands the rendered pen position is the sum of quantized deltas; worst-case drift after N segments = N * 5e-4 (all errors same sign). Absolute commands stay bounded at 5e-4. Ingested SVGs (svg_to_objects) and hand-authored d lists can carry relative commands.",
+     "impact_at_4k": "100-segment relative subpath: up to 0.05 px deterministic drift at the tail; 1000 segments (dense traced/humanized paths): up to 0.5 px, visible at dsf>=2 (1 device px). Absolute-command paths: 5e-4 px, negligible.",
+     "repro": "sum of 1000 deltas each rounded up by 5e-4 -> tail point off by 0.5 units",
+     "severity": "minor",
+     "fix_sketch": "Convert relative segments to absolute before formatting, or format relative deltas with higher precision (>= 6 decimals).",
+     "verify_confidence": "batch"
+    },
+    {
+     "id": "NUMFMT-5",
+     "file": "src/frameforge/rendering/infrastructure/painters/svg.py",
+     "line": 273,
+     "claim": "Pattern tile size is quantized by fnum before becoming the <pattern> width/height, and the error is multiplied by the tile repeat count across the canvas — the pattern phase drifts from the authored period toward the far edge.",
+     "mechanism": "half, size = fnum(s/2), fnum(s) (line 273), used as pattern width/height (line 294). The k-th tile boundary lands at k*s_q instead of k*s; drift at x = (x/s)*|s-s_q|, |s-s_q| <= 5e-4.",
+     "impact_at_4k": "Tile s=6.0004 px across 3840 px: 640 repeats * 4e-4 = 0.26 px phase drift at the right edge; s with a worst-case 5e-4 error and 4 px period: 960 * 5e-4 = 0.48 px. Only pattern-internal geometry moves (fills), not object outlines.",
+     "severity": "minor",
+     "fix_sketch": "Format pattern tile dimensions at full precision (they are defs, not per-element noise) or snap authored tile sizes to 3 decimals at validation time so authored == rendered.",
+     "verify_confidence": "batch"
+    },
+    {
+     "id": "NUMFMT-6",
+     "file": "src/frameforge/rendering/infrastructure/painters/svg.py",
+     "line": 672,
+     "claim": "Multi-line text advances lines with a RELATIVE tspan dy quantized per line by fnum, so line-position error accumulates linearly with line count instead of staying bounded.",
+     "mechanism": "dy = fnum(line_dy) is emitted on every tspan after the first (line 672); each line's baseline is the running sum of quantized dy values. line_dy = size*lh is frequently non-representable in 3 decimals (e.g. 12.7*1.35 = 17.145 -> ok, but 13.1*1.32 = 17.292000000000002-class values round). Worst-case drift after N lines = N*5e-4.",
+     "impact_at_4k": "100-line column: up to 0.05 px baseline drift at the last line; 400-line 4K page-mode column: 0.2 px. Below one device px at dsf<=2 but it is the only text-position error that grows with content length, and it makes baseline verification against authored y = y0 + i*lh fail at the 0.01 px reporting precision of the measure layer.",
+     "severity": "minor",
+     "fix_sketch": "Emit absolute y per tspan (y = base_y + i*line_dy computed in float) instead of relative dy, or format dy with >= 6 decimals.",
+     "verify_confidence": "batch"
+    }
+   ],
+   "rejected": []
+  },
+  {
+   "dim": "transforms",
+   "confirmed": [
+    {
+     "id": "TX-1",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 689,
+     "claim": "ObjBase.rotation is silently ignored by the SVG renderer (the entire SVG/PNG pipeline never reads the field), while the model contract (docs/models/frameforge.py:855-857, spec §3.6b) says it 'composes onto the subtree for containers' and the HTML backend (rendering/infrastructure/backends/html.py:656) DOES apply it.",
+     "mechanism": "_with_transform (renderer.py:689-691) builds transforms only from style.transform/style.transform_origin; grep over src/frameforge/rendering/ shows the only consumer of obj['rotation'] is the HTML backend. No validator warning and no lowering in sdk/expand.py either — the field passes validation and then vanishes in SVG output.",
+     "impact_at_4k": "Total loss of authored rotation: rotation:30 on a 400x300 box leaves every corner up to 2*sin(15deg)*250 = 129 px from its authored position at 3840x2160 (259 device px at device_scale_factor 2). Also a determinism/verifiability break: the same document renders rotated in HTML and unrotated in SVG/PNG. Repro: {'type':'rect','box':[1600,900,400,300],'rotation':30} → emitted SVG contains no rotate(), rect at x=1600 unrotated.",
+     "severity": "critical",
+     "repro": "PYTHONPATH=src uv run python /tmp/claude-1000/-home-admin-github-mirror--framework-frameforge/3f61cd88-4413-44b0-9da6-107918164611/scratchpad/repro_transforms.py (F1 lines): 'F1 rotation=30 emitted rotate? False'",
+     "fix_sketch": "In Renderer.obj()/_with_transform, lower o.get('rotation') (number or {angle,center}) to a rotate op about the box centre (or given center) and compose it with style.transform; or lower it in normalize.py so all backends share one path. Add a golden fixture with rotation on rect/group.",
+     "verify_confidence": "high",
+     "verify_note": "Renderer requires base_dir (Renderer(doc, base_dir)) and render_page returns a list of SVG fragments, not a string — cosmetic corrections to the repro only. Otherwise the claim's file/line citations, mechanism, and 4K impact arithmetic are accurate as stated."
+    },
+    {
+     "id": "TX-2",
+     "file": "src/frameforge/rendering/domain/services/style_values.py",
+     "line": 102,
+     "claim": "A string-form transform (e.g. \"rotate(2deg)\") with no explicit transform_origin is emitted raw and pivots about the SVG origin (0,0), while the identical dict-form op defaults to the box centre — violating spec §3.6b ('transform_origin defaults to the box centre (CSS 50% 50%)') and making two encodings of the same authored transform produce different geometry.",
+     "mechanism": "transform_ops(): the string branch returns [raw] when origin is None (style_values.py:102-103) with no box-centre fallback, whereas the dict branch calls transform_origin(origin, box) which falls back to box centre (lines 110, 154-155). Verified: string form emits transform=\"rotate(2)\", dict form emits transform=\"rotate(2 1800 1050)\" for the same box.",
+     "impact_at_4k": "For rotate(2deg) on a box centred at (1800,1050): displacement of the box centre = 2*sin(1deg)*sqrt(1800^2+1050^2) = 0.0349*2083.9 = 72.7 px. Grows linearly with distance from page origin — worst corner of a 4K canvas (r≈4406) displaces ~154 px for the same 2 degrees.",
+     "severity": "major",
+     "repro": "repro_transforms.py F2: string form → 'rotate(2)'; dict form → 'rotate(2 1800 1050)'",
+     "fix_sketch": "In the string branch, when origin is None fall back to transform_origin(None, box) (box centre) before deciding to emit the bare raw op, mirroring the dict path; keep the explicit-origin sandwich as-is.",
+     "verify_confidence": "high",
+     "verify_note": "Minor precision fix: the string form pivots about the current user-space origin at the point the transform group is applied — the page origin for page-root objects, but the parent-local top-left for objects nested in groups. So the displacement magnitude scales with distance from the enclosing container's origin, not always the page origin. Also note the main internal producer of string transforms (sdk/humanize.py) already sets transform_origin explicitly, so the affected population is user-authored string transforms (a legal model input). Fix sketch is correct: in the string branch, fall through to transform_origin(None, box) when origin is None, mirroring the dict path."
+    },
+    {
+     "id": "TX-3",
+     "file": "src/frameforge/rendering/domain/services/style_values.py",
+     "line": 161,
+     "claim": "Transform numeric arguments (matrix a/b/c/d entries, scale factors) are quantized to 3 decimals via fnum before emission; unlike fnum on plain coordinates (max 0.0005 units, harmless), a quantized multiplier is amplified by the coordinates it multiplies — up to ~1.9 px at x=3840.",
+     "mechanism": "transform_arg (style_values.py:158-161) and the matrix arm (143-144) format every arg with fnum (geometry.py:33-36, {:.3f}). SVG matrix applies x' = a*x + c*y + e to page-space coordinates, so an entry error of up to 5e-4 scales with the coordinate. Verified: Mat3.rotate(1).transform_fn() emits matrix(1 0.017 -0.017 1 0 0) — sin(1deg)=0.0174524 truncated to 0.017 (Δ=4.524e-4), cos(1deg)=0.9998477 rounded to 1 (Δ=1.523e-4). Same class applies to ('scale',[fnum(s)]) ops: Δs ≤ 5e-4 times distance from the origin sandwich (box half-extent).",
+     "impact_at_4k": "Mat3.rotate(1) on a full-canvas object: y-error at x=3840 = (0.0174524-0.017)*3840 = 1.737 px; x-error = (0.9998477-1)*3840 = -0.585 px (arithmetic verified in repro). scale via dict op: worst Δ=5e-4 * 1920 px half-extent = 0.96 px. Doubles in device px at device_scale_factor 2.",
+     "severity": "major",
+     "repro": "repro_transforms.py F3: emitted 'matrix(1 0.017 -0.017 1 0 0)', y-error 1.737 px at x=3840",
+     "fix_sketch": "Use a higher-precision formatter for transform multipliers (matrix a/b/c/d, scale, skew) — e.g. repr-shortest or {:.9g} — while keeping fnum for translate components and raw coordinates where 3 decimals genuinely suffice.",
+     "verify_confidence": "high",
+     "verify_note": "Minor sign detail only: at x=3840 the cos-entry quantization (1 vs 0.9998477) makes rendered x' larger than authored, so rendered-minus-authored x-error is +0.585 px, not -0.585 px; magnitude unchanged. Also worth noting the plain rotate op form ({\"fn\":\"rotate\",\"args\":[deg]}) only quantizes the angle (≤0.034 px at 3840) — the >1 px error specifically arises via matrix/scale/skew args, which is nonetheless the default SDK path because Mat3 lowers to the matrix form."
+    },
+    {
+     "id": "TX-4",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 2295,
+     "claim": "emit_figure (flow pages) computes the placement translate tx,ty with the full-precision scale factor but emits scale(fnum(scale)) quantized to 3 decimals — the translate and scale disagree, so error grows linearly across the figure instead of staying at the fnum floor.",
+     "mechanism": "renderer.py:2292 computes tx = x - ox*scale and ty = cy - oy*scale with the exact scale = min(1, usable/fw); line 2295 emits [('translate',[fnum(tx),fnum(ty)]),('scale',[fnum(scale)])]. Rendered position of authored content point p = fnum(tx) + fnum(scale)*p; intended = x + scale*(p-ox); difference ≈ (fnum(scale)-scale)*p, up to 5e-4 * p.",
+     "impact_at_4k": "A 3000-unit-wide figure shrunk to a column (e.g. usable=2975 → scale=0.9916667 emitted as 0.992): right-edge error = 3.33e-4*3000 = 1.0 px; general worst case 5e-4*3840 = 1.92 px on a full-width figure (3.8 device px at dsf 2). Also cy advances by draw_h computed from the exact scale, so the caption/next-block baseline drifts from the drawn figure bottom by the same amount.",
+     "severity": "major",
+     "repro": "Mechanism confirmed by code inspection + rendered flow figure emitting 'translate(288 384) scale(0.992)' (repro_figure.py); worst-case arithmetic above.",
+     "fix_sketch": "Quantize once: s_q = float(fnum(scale)) (or a higher-precision format), then compute tx,ty and draw_h from s_q so translate, scale, and flow-cursor advance are mutually consistent.",
+     "verify_confidence": "high",
+     "verify_note": "One refinement: the error bound is 5e-4 * authored figure width (fw), not the page width — for figures authored wider than ~3840 units the error exceeds the finder's 1.92 px estimate (e.g. fw=10000 shrunk into a 2976 column: scale 0.2976 -> '0.298', 4e-4 * 10000 = 4 px). The finder's magnitude is therefore conservative, not overstated. Also note with the default master on a 3840x2160 page, usable is 2976 (Johnston-canon margins), so the exact 1.92 px case requires a low-margin master; typical defaults give up to ~1.5 px for 3000-unit figures."
+    },
+    {
+     "id": "TX-5",
+     "file": "src/frameforge/rendering/domain/services/style_values.py",
+     "line": 154,
+     "claim": "Dict-form rotate/scale/skew on box-less geometry (circle/ellipse by center, line by from/to, polyline/polygon/path) gets no origin at all — transform_origin returns (None,None) so the op pivots about the page origin (0,0), orbiting the object across the canvas instead of transforming it in place.",
+     "mechanism": "transform_origin (style_values.py:147-156) only falls back to a centre when the object has a 4-element box; these object types carry no box, so rotate emits bare rotate(a) (line 122) and scale skips the origin sandwich (_origin_ops line 167-168). sdk/humanize.py:_tilt_center (lines 213-231) exists solely to work around this by computing a centre from center/from/to/points and passing it as explicit transform_origin — proof the geometry types are affected in practice.",
+     "impact_at_4k": "rotate(5) on a circle centred at (1900,1000): displacement = 2*sin(2.5deg)*sqrt(1900^2+1000^2) = 0.0436*2147 = 187.3 px (verified: emitted transform is bare 'rotate(5)'). Any rotation intended in-place relocates the object by ~r*theta.",
+     "severity": "major",
+     "repro": "repro_transforms.py F5: circle transform emitted as 'rotate(5)' (no pivot); computed orbit 187.3 px",
+     "fix_sketch": "Extend transform_origin with the same geometric-centre derivation humanize._tilt_center already implements (center field; from/to midpoint; points bbox centre) so all geometry types honour the spec's centre-default.",
+     "verify_confidence": "high",
+     "verify_note": "Two minor refinements, neither weakening the finding: (1) the pivot is the parent-local origin, not always page (0,0) — identical for top-level objects, but an object nested in a translated frame orbits the frame origin instead; magnitude is then ~|centre_local|·theta. (2) The defect also hits dict-form scale/skew via _origin_ops (verified: bare scale(1.1) displaces a (500,500) ellipse by 70.7 px), so the impact surface is slightly broader than rotate alone. Claim's cited lines and 187.3 px arithmetic are exact."
+    },
+    {
+     "id": "TX-6",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 1089,
+     "claim": "Anchor/connector resolution (_index_objects) composes only authored group box offsets — it ignores (a) row/column/grid layout arrangement (which repositions children at render time) and (b) all transforms (style.transform / rotation) on the target or its ancestors — so connectors attach to where the object would have been, not where it is painted.",
+     "mechanism": "_index_objects.visit (renderer.py:1083-1097) shifts each child's box by the parent group origin only; the arranged positions computed in _group_children (self._layout.arrange, renderer.py:852-864, applied as per-child translate groups) and any _with_transform group never enter the index, and _anchor_ref (1104-1133) reads the stale box. Spec contradiction: box docstring (frameforge.py:851-854) says 'under row/column/grid layout the authored x/y are replaced by computed positions (§3.6)'; §3.6a says page-space position composes transforms from the root down.",
+     "impact_at_4k": "Verified repro: group [100,100,2000,400] with layout row, gap 50; connector from child 'b' side west emits <line x1=\"100\" y1=\"200\"> while 'b' actually paints inside translate(350,0) — a 350 px miss; the miss equals the full slot offset (unbounded, routinely hundreds of px). Transformed targets miss by exactly the transform (e.g. translate(120,0) → 120 px).",
+     "severity": "major",
+     "repro": "PYTHONPATH=src uv run python .../scratchpad/repro_anchor_layout.py → line x1=100 vs child translate 350,0",
+     "fix_sketch": "Have _group_children record the computed per-child (tx,ty) into a render-pass position map (or run arrange during _index_objects for layout groups), and compose ancestor transforms (at least translate; document rotation behaviour) when building the object index.",
+     "verify_confidence": "high",
+     "verify_note": "Minor detail only: _anchor_ref accepts both \"object\" and \"ref\" keys for the target id (renderer.py:1112); the claim's cited repro used \"object\" but \"ref\" behaves identically. Also note the transform-case SVG emits the raw CSS value (translate(120px, 0px)) as a presentation attribute — applied by the Chromium raster path, so the 120 px visual shift is real in the canonical PNG pipeline; the layout case (350 px) is backend-independent regardless."
+    },
+    {
+     "id": "TX-7",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 1121,
+     "claim": "Port anchors are returned verbatim with no coordinate-frame composition: the model declares ports 'in the object's local space' (docs/models/frameforge.py:858-860) but the renderer (and the committed fixtures) treat them as absolute page coordinates, and even under the page-space reading a port on an object nested in a group is never offset by the group origin.",
+     "mechanism": "_anchor_ref (renderer.py:1117-1121) returns ports[port] raw — it neither adds the object's box origin (model-contract local space) nor the accumulated parent offset that _index_objects applied to the box on lines 1089-1090. Fixture tests/fixtures/connectors.fg.yaml authors port east:[120,79] for box [40,54,80,50] — page-space — confirming fixtures and model doc disagree; nesting breaks both readings.",
+     "impact_at_4k": "Verified repro: object with box [40,54,80,50] and port east:[120,79] nested in a group at (1200,600) → connector emits <line x1=\"120\" y1=\"79\"> while the child paints at (1240,654): miss = exactly the group origin (1200,600), 1341 px Euclidean. An author following the model doc (local-space port) at top level misses by the object's page position.",
+     "severity": "major",
+     "repro": "repro_transforms.py F4: connector line starts at (120,79) for a target painted at (1240,654)",
+     "fix_sketch": "Decide the frame (model doc says local): in _index_objects also store the accumulated offset per object, and in _anchor_ref return offset + (box origin if local-space) + port. Migrate connectors.fg.yaml ports via codemod, or amend the model docstring to page-space AND add the nesting offset — either way one frame, enforced by a fixture with a nested ported target.",
+     "verify_confidence": "high",
+     "verify_note": "None needed; claim details, cited lines, and the 1341 px magnitude all reproduce exactly. Minor addition: even at top level, an author following the documented local-space contract (e.g. east:[80,25] for the fixture box) would miss by the object's page position — (40,54) → ~66.8 px — so both readings are broken, nesting merely maximizes the error."
+    },
+    {
+     "id": "TX-8",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 537,
+     "claim": "style.clip_path is applied inside the object's transform (obj() wraps clip at line 535 before _with_transform at 537), so clip coordinates that are authored as absolute page-space values are dragged along by the object's transform 1:1 — the known clip-inside-transform gotcha, now unquantified nowhere in the spec.",
+     "mechanism": "obj() order: inner = clip_wrap(inner) then transform_group(inner) → emitted nesting <g transform=...><g clip-path=...>. Verified: rect with translate(200,0) + inset clip emits '<g transform=\"translate(200 0)\"><g clip-path=\"url(#clip1)\">'. The clipPath def (svg.py:319-349) carries the raw authored numbers, so the effective clip window in page space = transform(authored window). Matches CSS local-clip composition, but ClipPath args in this DSL are absolute page coordinates and spec §3.6c does not state the frame — authored-window vs effective-window diverge whenever clip_path and transform coexist.",
+     "impact_at_4k": "Clip window displaced by exactly the object transform: translate(200,0) moves the crop 200 px; scale(0.992) about a figure origin shifts a clip edge at x=3000 by 24 px. Silent — no warning is emitted for the combination.",
+     "severity": "minor",
+     "repro": "repro_transforms.py F6: nesting '<g transform=\"translate(200 0)\"><g clip-path=...>' confirmed",
+     "fix_sketch": "Spec the frame explicitly in §3.6c. If page-space is intended, emit the clip wrapper OUTSIDE the transform group (swap lines 535/537 order for style clips); otherwise keep order and add a validator INFO when an object carries both clip_path and transform.",
+     "verify_confidence": "batch"
+    },
+    {
+     "id": "TX-9",
+     "file": "src/frameforge/rendering/infrastructure/browser.py",
+     "line": 50,
+     "claim": "svg_size rounds a non-integer SVG canvas to the nearest integer for the Chromium viewport, so pages with fractional sizes (e.g. A4 at 96dpi = 793.7x1122.5) rasterize with up to 0.5 CSS px of truncated or padded canvas at the right/bottom edge, multiplied by device_scale_factor.",
+     "mechanism": "svg_size returns max(1, round(w)), max(1, round(h)); _rasterize_svg_sync uses that as the integer viewport while the <svg> element keeps its fractional CSS size — screenshot(full_page=False) captures the viewport, so the last fractional column/row is either cut (round down) or filled with page background (round up).",
+     "impact_at_4k": "0.5 CSS px edge error → 1 device px at scale 2; zero for the integer 3840x2160 BHAG canvas but breaks canvas-exactness for pt/mm-derived page sizes, and shifts compare_images/score_reconstruction canvas registration by up to 1 device px for such documents.",
+     "severity": "minor",
+     "repro": "Code inspection: browser.py:50 round(), :105-108 viewport=int size vs fractional <svg> width/height.",
+     "fix_sketch": "Use math.ceil for the viewport and (for exactness) clip=(0,0,w*scale,h*scale) on screenshot, or scale the SVG width/height attributes to the integer viewport before loading.",
+     "verify_confidence": "batch"
+    }
+   ],
+   "rejected": []
+  },
+  {
+   "dim": "canvas-raster",
+   "confirmed": [
+    {
+     "id": "DIM-1",
+     "file": "src/frameforge/rendering/domain/services/canvas_resolver.py",
+     "line": 65,
+     "claim": "There is no 4K/UHD preset (PRESETS lines 11-52 top out at deck-16x9 = 1920x1080 and youtube-banner = 2560x1440), and an unknown preset string silently falls back to DEFAULT_WH 1280x800 via `PRESETS.get(c, DEFAULT_WH)` (also line 70 for the dict form, mirrored in tooling/validate.py:189 and backends/html.py:1094).",
+     "mechanism": "An author targeting the BHAG canvas who writes `canvas: \"4k\"` or `{preset: \"uhd-16x9\"}` gets no error on the tooling lanes (render_fixtures.py / render_chromium.py render raw YAML dicts; CanvasResolver never validates the name) — verified live: both forms rendered width=1280 height=800. The MCP lane is partially protected because parse() uses the PagePreset Literal (docs/models/frameforge.py:86-103, which also has no 4K entry), so it errors instead of rendering — but any dict-path renderer silently produces the wrong canvas.",
+     "impact_at_4k": "Document intended for 3840x2160 renders at 1280x800 — a 3x linear / 4.86x area error, 100% of geometry on the wrong canvas, with zero warning. Fully silent on tooling render paths.",
+     "severity": "major",
+     "repro": "uv run python -c 'import sys; sys.path[:0]=[\"src\",\"docs\",\".\"]; from tooling.render_fixtures import Renderer; d={\"frameforge\":\"2.4.0\",\"pages\":[{\"id\":\"p\",\"canvas\":\"4k\",\"layers\":[]}]}; print(Renderer(d, \".\").render_page(d[\"pages\"][0])[0][:120])' -> width=\"1280\" height=\"800\"",
+     "fix_sketch": "Add `\"4k\": (3840, 2160)` (plus e.g. \"uhd\", \"4k-portrait\") to PRESETS and the PagePreset Literal + regenerate schema; make CanvasResolver.resolve raise or warn on an unknown preset name instead of silently returning DEFAULT_WH.",
+     "verify_confidence": "high",
+     "verify_note": "Two corrections: (1) Area-error arithmetic: 3840*2160=8,294,400 vs 1280*800=1,024,000 → 8.1x area error (3.0x width, 2.7x height), not 4.86x — the claim understates the magnitude. (2) \"Zero warning\" is over-broad: tooling/validate.py structural() emits an ERROR (fg.Document.model_validate rejects the out-of-Literal preset, validate.py:217-233) and _geometric_audit emits a WARN canvas-unresolved (validate.py:642-646, page-mode pages only). The silence is specific to the render lanes (render_fixtures.py, render_chromium.py, html.py canvas_size), which never invoke validation — those are the BHAG raster-pipeline lanes, so the practical impact stands."
+    },
+    {
+     "id": "DIM-2",
+     "file": "src/frameforge/rendering/domain/services/canvas_resolver.py",
+     "line": 60,
+     "claim": "CanvasObject.orientation is schema-valid and documented as \"Swap preset width/height for landscape\" (docs/models/frameforge.py:1554-1555) but CanvasResolver.resolve() (the only canvas source for the renderer, renderer.py:1504-1505) never reads it — landscape is silently ignored.",
+     "mechanism": "resolve() only inspects c[\"size\"] and c[\"preset\"] (lines 66-70). Verified live: `{preset: \"A4\", orientation: \"landscape\"}` renders width=595 height=842 (portrait) instead of 842x595. grep confirms no other consumer of `orientation` anywhere in src/frameforge/rendering; tooling/validate.py:_canvas_wh (187-196) ignores it identically, so validation cannot catch the drop.",
+     "impact_at_4k": "The whole canvas is transposed relative to authored intent: e.g. `{preset:\"9x16\", orientation:\"landscape\"}` at scale 2 yields a 2160x3840 portrait raster instead of 3840x2160 — every object is displaced by up to a full canvas dimension and everything past x = 1080 SVG units (2160 px) is clipped at raster. Magnitude: 100% of the page.",
+     "severity": "major",
+     "repro": "uv run python -c 'import sys; sys.path[:0]=[\"src\",\"docs\",\".\"]; from tooling.render_fixtures import Renderer; d={\"frameforge\":\"2.4.0\",\"pages\":[{\"id\":\"p\",\"canvas\":{\"preset\":\"A4\",\"orientation\":\"landscape\"},\"layers\":[]}]}; print(Renderer(d,\".\").render_page(d[\"pages\"][0])[0][:120])' -> width=\"595\" height=\"842\"",
+     "fix_sketch": "In resolve(): after preset lookup, `if c.get(\"orientation\") == \"landscape\" and h > w: w, h = h, w` (and the portrait mirror); apply the same in tooling/validate.py:_canvas_wh and backends/html.py so all three stay in lockstep.",
+     "verify_confidence": "high",
+     "verify_note": "Repro path in the claim is slightly off: use frameforge.rendering.application.renderer.Renderer (not tooling.render_fixtures.Renderer), and the schema-valid document form requires dsl:\"FrameForge\", version, and pages[].mode:\"page\" (the top-level key \"frameforge\":\"2.4.0\" is not the model's shape — the model uses dsl+version). Mechanism, reachability, and magnitude are unchanged; verified with both a loose dict and a fully Document.model_validate-checked document. Fix sketch should also normalize the portrait direction (if orientation==\"portrait\" and w>h: swap) and be mirrored in tooling/validate.py:_canvas_wh; note PRESETS include already-landscape entries (e.g. 16x9, deck-16x9), so the swap must be conditional on current aspect, as the claim's sketch correctly does."
+    },
+    {
+     "id": "DIM-3",
+     "file": "src/frameforge/rendering/domain/services/canvas_resolver.py",
+     "line": 68,
+     "claim": "CanvasObject.units accepts mm/in/cm (Units Literal, docs/models/frameforge.py:104 via field at 1552-1553) but resolve() returns `tuple(c[\"size\"][:2])` raw — physical units are silently treated as px 1:1.",
+     "mechanism": "The field doc says \"default px; pt/px treated 1:1 by the renderer\" — pt=px 1:1 is documented policy, but mm/in/cm pass schema validation and are then dropped. Verified live: `{size:[297,210], units:\"mm\"}` renders a 297x210 canvas. Correct conversion at CSS 96 dpi would be 1122.5x793.7 (297 * 96/25.4 = 1122.52).",
+     "impact_at_4k": "3.78x linear collapse for mm (2.83x if pt-space intended): a physically-specified 4K-class poster canvas comes out at ~8% of the intended pixel area; every object authored in the same units is likewise mis-scaled only if mixed — the canvas itself is provably wrong by 297 vs 1122 px (825 px error).",
+     "severity": "major",
+     "repro": "uv run python -c 'import sys; sys.path[:0]=[\"src\",\"docs\",\".\"]; from tooling.render_fixtures import Renderer; d={\"frameforge\":\"2.4.0\",\"pages\":[{\"id\":\"p\",\"canvas\":{\"size\":[297,210],\"units\":\"mm\"},\"layers\":[]}]}; print(Renderer(d,\".\").render_page(d[\"pages\"][0])[0][:120])' -> width=\"297\" height=\"210\"",
+     "fix_sketch": "Either convert in resolve() (mm: *96/25.4 or *72/25.4 per the project's pt=px policy; in: *96; cm: *96/2.54) or reject mm/in/cm at validation until conversion exists — silent 1:1 is the worst of both.",
+     "verify_confidence": "high",
+     "verify_note": "Severity nuance: intra-page relative geometry is unaffected (all objects share the canvas unit space); the provable error is the canvas's absolute pixel/physical size (297 rendered vs 1122.52 intended at 96 dpi, or 841.89 at 72 dpi pt-space). The claim's \"every object ... mis-scaled only if mixed\" already acknowledges this. Note the same dropped-units pattern also exists on the figure object (docs/models/frameforge.py:1450), beyond the scope of this claim."
+    },
+    {
+     "id": "DIM-5",
+     "file": "src/frameforge/rendering/infrastructure/browser.py",
+     "line": 50,
+     "claim": "svg_size() rounds fractional SVG root dimensions to an int viewport BEFORE device_scale_factor is applied (lines 50, 106-107), so the rounding error is multiplied by scale: fractional-canvas documents get authored page area clipped at the bottom and white padding added at the right of the Chromium raster.",
+     "mechanism": "A5 preset is 419.5x595.3 (canvas_resolver.py:13). svg_size -> viewport (round(419.5), round(595.3)) = (420, 595). Chromium screenshots the viewport, not the SVG: at scale 6.5 the PNG is 420*6.5 = 2730 wide (authored content is 419.5*6.5 = 2726.75 -> 3.25 px white pad) and ceil(595*6.5 = 3867.5) = 3868 tall, while the authored page is 595.3*6.5 = 3869.45 -> the bottom 0.3 SVG units = 1.95 physical px of the page are cut off. Measured: red border rect drawn to the page edge ends at row 3866 in the Chromium PNG vs row 3868 in the CairoSVG PNG of the same SVG+scale.",
+     "impact_at_4k": "Zero for integer canvases at integer scale (verified: 3840x2160@1 and 1920x1080@2 are exact). For any fractional canvas (A5, book-mass-market 494.6) or fractional w*scale product, dimension/clip error grows linearly with scale — ~2 px of authored geometry lost and ~3 px phantom margin at 4K-class scale factors, which is fatal to a pixel-perfect proof and shifts every edge-relative measurement.",
+     "severity": "major",
+     "repro": "scratchpad dimtest.py case a5_s65: rasterize_svg(A5 svg, scale=6.5) -> PNG 2730x3868; rasterize_svg_cairo same input -> 2727x3869; authored 2726.75x3869.45.",
+     "fix_sketch": "Compute the physical target first: phys_w = w*scale, phys_h = h*scale; pick an integer viewport = ceil(w), ceil(h) (never round down a page) and clip the screenshot to the SVG element's bounding box (page.locator(\"svg\").screenshot() or screenshot(clip={...})) instead of the whole viewport, so the PNG is exactly the page and both backends can be pinned to round(phys) dims.",
+     "verify_confidence": "high",
+     "verify_note": "Minor: in my repro the Chromium red content ends at row 3867 (image height 3868), not row 3866 as the finder's repro states; Cairo ends at row 3868 in a 3869-tall PNG. Bottom clip magnitude is ~1.6-1.95 physical px, consistent with the claimed 0.3 SVG units x 6.5. All other numbers (2730x3868 vs 2727x3869 vs authored 2726.75x3869.45, 3.25 px right pad) reproduce exactly."
+    },
+    {
+     "id": "DIM-7",
+     "file": "src/frameforge/mcp/pipeline.py",
+     "line": 288,
+     "claim": "The PDF lane calls cairosvg.svg2pdf without dpi (also src/frameforge/cli.py:165), so unitless SVG px are converted at 96 dpi to PDF points (x0.75): every print/book preset PDF page is 75% of its intended physical size, directly contradicting canvas_resolver.py:34-36 (\"points; 72 dpi ... so `--to pdf`/`pdf-tex` come out physically correct\").",
+     "mechanism": "PRESETS defines A4 = (595, 842) intended as points; the SVG root is emitted unitless (svg.py:776-777), CairoSVG reads that as px and sizes the PDF surface at px * 72/96. Verified: svg2pdf on a 595x842 SVG yields mediabox 446.25 x 631.5 pt (595*0.75 = 446.25; 842*0.75 = 631.5). Physical A4 210 mm prints as 157.5 mm.",
+     "impact_at_4k": "Off the 4K PNG lane (raster path unaffected), but it breaks physical-dimension verifiability of the parallel PDF export of the same document: all geometry uniformly shrunk 25% linear vs the documented physical contract; a 4K-proofed layout exported to PDF measures wrong on paper.",
+     "severity": "major",
+     "repro": "uv run python -c 'import io, cairosvg; from pypdf import PdfReader; pdf = cairosvg.svg2pdf(bytestring=b\"<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"595\\\" height=\\\"842\\\"/>\"); b = PdfReader(io.BytesIO(pdf)).pages[0].mediabox; print(float(b.width), float(b.height))' -> 446.25 631.5",
+     "fix_sketch": "Pass dpi=72 to cairosvg.svg2pdf in both call sites (mcp/pipeline.py:288 and cli.py:165) so 1 SVG unit = 1 pt, matching the presets' documented point semantics; add a mediabox regression test against PRESETS[\"A4\"].",
+     "verify_confidence": "high",
+     "verify_note": "No corrections to the mechanism, magnitude, or fix sketch. Minor precision: the mcp/pipeline.py call also passes url/unsafe (line 288-292 spans the call), and the same unitless-root cause would also affect any future svg2pdf caller; the only other cairosvg use in src (rendering/infrastructure/cairo.py:50 svg2png) is a raster fallback and is out of scope for this claim."
+    },
+    {
+     "id": "DIM-4",
+     "file": "docs/models/frameforge.py",
+     "line": 1556,
+     "claim": "CanvasObject.bleed (\"Bleed extended beyond the canvas on all sides (print)\") has no consumer anywhere in the render/raster path — the SVG page is never extended and bleed-area content is clipped at raster.",
+     "mechanism": "grep over src/frameforge/rendering finds zero reads of canvas bleed (the only `bleed` hits are sdk/author.py:584 layer.bleed(), an unrelated overlap-rule scope, and latex/document.py comments). Verified live: `{preset:\"A4\", bleed:9}` renders width=595 height=842, not the 613x860 a 9-unit bleed implies.",
+     "impact_at_4k": "For a 4K print-proof raster with bleed b, b*scale px of authored bleed content per side is silently absent (e.g. bleed 9 @ scale 2 = 18 px per side, 36 px total width shortfall); any object drawn into the bleed zone is cropped by the SVG viewport with no warning.",
+     "severity": "minor",
+     "repro": "uv run python -c 'import sys; sys.path[:0]=[\"src\",\"docs\",\".\"]; from tooling.render_fixtures import Renderer; d={\"frameforge\":\"2.4.0\",\"pages\":[{\"id\":\"p\",\"canvas\":{\"preset\":\"A4\",\"bleed\":9},\"layers\":[]}]}; print(Renderer(d,\".\").render_page(d[\"pages\"][0])[0][:120])' -> width=\"595\" height=\"842\"",
+     "fix_sketch": "Either implement (document(w+2b, h+2b, ...) with a translate(b,b) body group and viewBox \"-b -b w+2b h+2b\") or reject/warn on bleed at validation until it is implemented.",
+     "verify_confidence": "batch"
+    }
+   ],
+   "rejected": [
+    {
+     "id": "DIM-6",
+     "claim": "For the same document + scale, Chromium and the CairoSVG fallback produce different PNG dimensions whenever w*scale or h*scale is non-integer, and _rasterize_one silently picks whichever backend works — the raster's size (and hence every absolute pixel coordinate frame) depends on the environment.",
+     "why_rejected": "The underlying phenomenon exists and I reproduced one case (A4@1.5: Chromium 893x1263 vs CairoSVG 892x1263, from browser.py:106-107 integer-viewport + fractional device_scale_factor vs cairo.py:50-53 scale). But the claim fails verification on its stated terms: (1) the trigger 'whenever w*scale or h*scale is non-integer' is false — both backends round to nearest and diverge only on exact half-pixel products with even floor (banker's vs half-up), a much rarer condition; four non-integer test cases produced identical dims. (2) One of the two cited repro cases (A5@6.5, claimed +3/-1 px) did not reproduce — identical dims from both backends. (3) The backend is not silent: pipeline.py:642 records \"backend\" in each render entry, so raster provenance already exists. (4) By the task's gate — measurable geometry/determinism impact at 3840x2160 — the magnitude is 0: interior geometry is bit-identically placed (finder's own measurement), and both backends produce identical 3840x2160 output (verified); the 4K canvas dims are so composite that no realistic fractional scale can produce an exact-half physical size. What remains is a 1 px canvas-frame nondeterminism on off-BHAG page sizes at exactly-half fractional physical sizes, which does not meet the 'major' severity or the 4K impact criterion."
+    }
+   ]
+  },
+  {
+   "dim": "layout-math",
+   "confirmed": [
+    {
+     "id": "LAY-1",
+     "file": "src/frameforge/rendering/domain/services/layout_engine.py",
+     "line": 201,
+     "claim": "Percent and fr child-box dimensions inside row/column/grid/wrap layout containers silently collapse to 0, zeroing the child and shifting every following sibling.",
+     "mechanism": "LayoutEngine._size does `num(box[2], 0) or 0`; geometry.num (geometry.py:20) returns the default for any string ending in '%' or 'fr', so an authored box=[0,0,\"50%\",100] measures as width 0. Spec section 3.4 is normative: '% on a child box dimension resolves against the container content-box on the same axis (Pass 2, 3.6g)' and '1fr = fill grow:1'; tooling/validate.py only errors on fr under `free`, i.e. fr inside a container is expected to work. Verified live: eng.arrange(3840, 2160, [{box:[0,0,\"50%\",100]}, {box:[0,0,400,100]}], {kind:\"row\", gap:20}) returns [(0,0,0,100),(20,0,400,100)] — same for \"1fr\". The child then renders zero-width (renderer._obj coerces \"50%\" via num→0) and is invisible.",
+     "impact_at_4k": "On a 3840-wide row container, a \"50%\" child should be 1920 px wide; it renders at 0 px (error = 1920 px, full disappearance) and its sibling sits at x=20 instead of x=1940 (1920 px misplacement). Error scales with the authored percentage: N% of container width, deterministically, every render.",
+     "severity": "critical",
+     "repro": "uv run python -c \"import sys; sys.path.insert(0,'src'); from frameforge.rendering.domain.services.layout_engine import LayoutEngine; print(LayoutEngine().arrange(3840,2160,[{'type':'rect','box':[0,0,'50%',100]},{'type':'rect','box':[0,0,400,100]}],{'kind':'row','gap':20}))\"",
+     "fix_sketch": "Resolve relative lengths in arrange(): pass the container content extent into _size (or pre-resolve child boxes before measuring); map '<n>%' to extent*n/100 on that axis and '<n>fr' to sizing {width:'fill', grow:n} before the fixed/fill partition. Mirror the fix in latex/tikz.py:705 which calls the same engine.",
+     "verify_confidence": "high",
+     "verify_note": "Minor sharpening only: the repro command as written in the claim fails without cwd=repo-root (uv run resolves the env there), and the model file is docs/models/frameforge.py (not framegraph.py) in this tree. The claim says \"renderer._obj coerces '50%' via num→0\" — also true, but note _layout_child (renderer.py:868-878) additionally short-circuits (num('50%',0)==arranged 0) so the zero-width arranged extent is never even written back; both paths independently yield width 0."
+    },
+    {
+     "id": "LAY-2",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 1947,
+     "claim": "Flow tables (TableFlow) collapse percent/fr column widths to an equal split — the exact defect table_layout.resolve_column_widths was written to fix, but emit_table was never migrated to it.",
+     "mechanism": "emit_table computes `wv = num(_spec(i).get('width'), None)`; num('70%') and num('2fr') return None (geometry.py:20), so every %/fr column is classed 'unsized' and given an equal share (renderer.py:1951-1954). TableFlow.columns is ColumnSpec whose width is Length permitting %/fr (docs/models/frameforge.py:1263, LENGTH_STR_RE line 57). The domain service table_layout.resolve_column_widths handles %/fr correctly and its own docstring (table_layout.py:5-8) names this exact silent collapse as the bug it fixes — but only TableRenderer (absolute TableObject, table_renderer.py:30) uses it; the flow path at renderer.py:1943-1957 kept the old proxy math. Verified end-to-end: a flow table with columns 70%/30% on a 992-unit column renders cell rects at x=96 w=496 and x=592 w=496 (equal split) instead of 694.4/297.6.",
+     "impact_at_4k": "On a 4K flow page with the canon margins (unit=3840/20=192, usable = 3840-288-576 = 2976), a [70%, 30%] table renders 1488/1488 instead of 2083.2/892.8: the interior column edge is off by 2083.2-1488 = 595.2 px. Every cell text x, cell rect, and grid line in the second column moves by the same amount.",
+     "severity": "major",
+     "repro": "Render a flow doc with story [{type:'table', columns:[{width:'70%'},{width:'30%'}], header:['A','B'], rows:[['a','b']]}] via tooling/render_fixtures.py and grep the page SVG rect x/width — both columns come out equal.",
+     "fix_sketch": "Replace renderer.py:1945-1956 with `widths = resolve_column_widths(specs, col_count, usable)` from frameforge.rendering.domain.services.table_layout (already imported by the sibling TableRenderer), keeping xs = prefix sums.",
+     "verify_confidence": "high",
+     "verify_note": "Minor: the claim's cited repro numbers (x=96 w=496 / x=592 w=496 on a 992-unit usable column) reproduce exactly, but its \"70% would be 694.4/297.6\" is the correct-target width pair, and the exact 4K magnitude (595.2 px) depends on the master's margins producing usable=2976; with other margins the error is |0.70-0.50|*usable px, still O(400-700 px) at 3840 wide. Fix sketch is sound: table_layout.resolve_column_widths accepts the same dict-or-scalar spec shape (table_layout.py:32) so it can consume emit_table's specs directly."
+    },
+    {
+     "id": "LAY-3",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 1956,
+     "claim": "Flow tables rescale ALL authored fixed pixel column widths to fill the text column (`widths = [w * usable / span]`), so a fixed 100 px column renders ~15x wider at 4K, and flow-table semantics diverge from TableObject for the identical ColumnSpec.",
+     "mechanism": "After filling unsized columns, emit_table normalizes every width by usable/span unconditionally. If authored fixed widths sum to less than `usable` (the normal case), fixed columns are stretched proportionally; resolve_column_widths (the TableObject path) instead honours fixed px exactly and gives only the remainder to flexible columns. Verified end-to-end: columns [{width:100},{width:100}] on a 992-unit column render as two 496-unit cells (4.96x).",
+     "impact_at_4k": "On a 4K flow page (usable = 2976), authored [100, 100] renders [1488, 1488]: the interior column edge sits at x+1488 instead of x+100 — a 1388 px deviation from the authored width. The same document's TableObject renders the columns at exactly 100, so the two table paths disagree by 1388 px on identical input.",
+     "severity": "major",
+     "repro": "Same render as LAY-2 with columns [{width:100},{width:100}]; observed rects: x=96 w=496, x=592 w=496 on a 992-wide column.",
+     "fix_sketch": "Adopting resolve_column_widths (LAY-2 fix) removes the unconditional rescale; if fill-to-width overflow protection is wanted, scale only when sum(fixed) > usable.",
+     "verify_confidence": "high",
+     "verify_note": "Scope narrower than claimed: the stretch applies only when EVERY column has a fixed width (or when fixed widths overflow usable in a mixed spec). With a mix of fixed and unsized columns and usable > sum(fixed), line 1952 makes span == usable, the line-1956 rescale is a no-op, and fixed px widths are honoured. The all-fixed case is a normal document, so the finding stands with this qualification."
+    },
+    {
+     "id": "LAY-4",
+     "file": "src/frameforge/rendering/domain/services/layout_engine.py",
+     "line": 143,
+     "claim": "Grid track sizing contradicts the normative spec: the engine splits the container into uniform tracks (`cell_w = (avail_w-(columns-1)*gap)/columns`), while spec section 3.6e mandates 'column width = max child width per column, row height = max child height per row'.",
+     "mechanism": "_grid derives cell_w/cell_h purely from the container extent and column/row counts (lines 143-144) and places children at x0+col*(cell_w+col_gap) (line 152). Content-derived track sizing is absent. Verified: a 2-column grid of children widths [100,300,100,300] in a 3840-wide box places column 1 at x=1920; per spec (col 0 track = max(100,100) = 100) it belongs at x=100.",
+     "impact_at_4k": "For that grid, every column-1 child is misplaced by 1820 px, and row-1 children sit at y=1080 instead of y=50 (1030 px). Adjacent-cell shared edges are internally consistent (both sides derive from the single expression x0+col*(cell_w+gap)), so no seam — the defect is placement vs the spec/author model, and it grows linearly with container size.",
+     "severity": "major",
+     "repro": "uv run python -c \"import sys; sys.path.insert(0,'src'); from frameforge.rendering.domain.services.layout_engine import LayoutEngine; print(LayoutEngine().arrange(3840,2160,[{'type':'rect','box':[0,0,100,50]},{'type':'rect','box':[0,0,300,50]},{'type':'rect','box':[0,0,100,50]},{'type':'rect','box':[0,0,300,50]}],{'kind':'grid','columns':2,'gap':0}))\"",
+     "fix_sketch": "Implement per-track sizing: track width = max child (span-1) width in that column (distribute spans), track x = prefix sum of track widths + gaps; or, if uniform tracks are the intended product decision, amend spec section 3.6e so there is one source of truth. Either way keep a single prefix-sum derivation per edge.",
+     "verify_confidence": "high",
+     "verify_note": "No corrections needed. Claim's file:line citations, mechanism, repro output, and both error magnitudes (1820 px horizontal, 1030 px vertical for the given example) reproduced exactly. One addition: the TikZ backend (src/frameforge/rendering/infrastructure/latex/tikz.py:705) uses the same LayoutEngine, so the spec deviation affects both backends consistently (no cross-backend seam, but both diverge from §3.6e)."
+    },
+    {
+     "id": "LAY-5",
+     "file": "src/frameforge/rendering/domain/services/layout_engine.py",
+     "line": 83,
+     "claim": "Sizing.min/max clamps and the 'hug' size mode (spec section 3.6g P4, model Sizing fields at docs/models/frameforge.py:622-636) are never read: fill children ignore max/min and hug children keep their authored box.",
+     "mechanism": "The only sizing keys the engine reads are width/height=='fill' and 'grow' (lines 66-70, 82-83); 'min', 'max', and 'hug' appear nowhere in layout_engine.py. Spec: 'free_main split across fill children by grow (clamped to min/max)'. Verified: a fill child with sizing {width:'fill', max:[200,100]} next to a 400-wide fixed child in a 3840 row receives width 3420 (should clamp to 200 and re-distribute); a hug group with a 900-wide child keeps its authored 50-wide box.",
+     "impact_at_4k": "max clamp ignored: 3420 vs 200 = 3220 px oversize on a 3840 canvas (and any sibling after it in a multi-fill row is displaced by the unredistributed remainder). hug ignored: arranged extent off by |content - authored| — 850 px in the probe.",
+     "severity": "major",
+     "repro": "uv run python -c \"import sys; sys.path.insert(0,'src'); from frameforge.rendering.domain.services.layout_engine import LayoutEngine; e=LayoutEngine(); print(e.arrange(3840,2160,[{'type':'rect','box':[0,0,400,100]},{'type':'rect','box':[0,0,0,100],'sizing':{'width':'fill','max':[200,100]}}],{'kind':'row','gap':20}))\"",
+     "fix_sketch": "After the grow split (line 79-83), clamp each fill size to [min, max] and iterate (freeze clamped children, re-split the freed space over the rest — the standard flexbox resolution loop). hug needs the measure pass: accept an injected measure callback or compute group hug from children bbox as spec Pass 1 describes.",
+     "verify_confidence": "high",
+     "verify_note": "None needed. Minor note only: the tikz backend (src/frameforge/rendering/infrastructure/latex/tikz.py:699-705) shares the same LayoutEngine, so the defect applies to the pdf-tex path as well as SVG."
+    },
+    {
+     "id": "LAY-6",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 2255,
+     "claim": "FlowRegion.columns / column_gap / column_fill / next are never read by the SVG flow path, and `column_break` is aliased to a page break — multi-column region geometry is silently rendered as one full-width column.",
+     "mechanism": "flow_layout.content_box (flow_layout.py:101-105) reads only regions[0].box and ignores the region's `columns`, `column_gap`, and `next` chain; grep over renderer.py shows the only 'column_break' handling is `elif ft in ('page_break','column_break'): newpage()` (line 2255). The model (docs/models/frameforge.py:1571-1582) and capability-manifest.json (column_break: core=true) declare these authored geometry inputs. Unlike dropped flow blocks (which hit _note_flow_skip telemetry, renderer.py:2270), this loss is silent.",
+     "impact_at_4k": "A region with columns=2, column_gap=40 on a 2976-unit content box should set two 1468 px columns; instead every line is laid to 2976 px (lines up to 1508 px wider than the authored column measure), all line-break positions differ, and content authored for column 2 lands on later pages entirely. A `column_break` moves content a full page (2160 px vertical + page change) instead of +1508 px horizontal.",
+     "severity": "major",
+     "repro": "Author a flow page whose master has regions:[{id:'r', box:[..], columns:2, column_gap:40}] plus a column_break in the story; render via tooling/render_fixtures.py and observe single-column full-width lines and a page break.",
+     "fix_sketch": "In _render_flow_pages, derive per-column boxes from the region (col_w = (w - (n-1)*gap)/n, col_x = x + i*(col_w+gap) — one derivation for both edges), make newpage() advance column-first then page, and route column_break to the column advance. Until implemented, at minimum count the dropped attributes via _note_flow_skip so the loss is not silent.",
+     "verify_confidence": "high",
+     "verify_note": "Primary geometry citation is flow_layout.py:100-105 (claim said 101-105; trivial). Context caveat: the flow renderer self-describes as a proxy engine, but per the project's own contract (manifest declares column_break core=true; proxy drops must be counted via _note_flow_skip) the silent geometry loss is a defect, not a documented limitation."
+    },
+    {
+     "id": "LAY-7",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 1921,
+     "claim": "The flow page-break test `if cy + size > bottom` (also lines 1860 and 1904) checks bare font size, not the line box (size*lh), so the last line on a page can paint its line box up to size*(lh-1) below the authored region bottom.",
+     "mechanism": "A line is admitted when cy + size <= bottom, but it is drawn as a box of height size*lh at top cy (text_tag at renderer.py:1923-1926), with the baseline at cy + 0.92*size (svg.py:650) and descender ink to roughly cy + 1.12*size. At the admission boundary cy = bottom - size, the line box bottom is bottom + size*(lh-1) and descender ink reaches about bottom + 0.12*size. The table path does this correctly (`cy + rh > bottom`, line 1999), so the inconsistency is specific to text lines.",
+     "impact_at_4k": "For body text size=12, lh=1.4 on a 4K page (units = px at 1x): line box exceeds the authored region bottom by 12*0.4 = 4.8 px; descender ink by ~0.12*12 = 1.4 px. At size=16 the box overrun is 6.4 px. Both exceed the BHAG B2 seam threshold (0.5 px) and B4 per-stage budget (0.1 px) wherever furniture or a following element abuts the region bottom.",
+     "severity": "minor",
+     "repro": "Render a flow page filled with paragraphs sized so the last admitted line starts at cy = bottom - size; measure the last text's ink/box bottom in the SVG vs the master margin bottom.",
+     "fix_sketch": "Use the actual advance in the test: `if cy + size*lh > bottom: newpage()` at renderer.py:1860, 1904, 1921 (decide once whether the descender-only ink overhang past the box is acceptable and encode it as an explicit tolerance, not an accident of the check).",
+     "verify_confidence": "batch"
+    }
+   ],
+   "rejected": []
+  },
+  {
+   "dim": "stroke-aa",
+   "confirmed": [
+    {
+     "id": "STROKE-AA-01",
+     "file": "src/frameforge/rendering/infrastructure/painters/svg.py",
+     "line": 620,
+     "claim": "No pixel-centre alignment exists anywhere in the emit path: 1px strokes at integer coordinates rasterize as a 2px 50%-grey smear, and the measured edge sits at authored coord - 0.5.",
+     "mechanism": "SvgPainter.line/rect emit authored coordinates verbatim (svg.py:607-623); fnum (domain/geometry.py:33-36) only formats, never snaps; StrokeResolver defaults width to 1.0 when a stroke colour is present without width (stroke_resolver.py:97-98); no shape-rendering attribute is ever emitted in production SVG (only vision/infrastructure/regions.py:600 debug output uses one). An SVG stroke is centred on the path, so a 1px stroke at x=100 covers [99.5, 100.5] and Chromium AA splits it across two pixel columns.",
+     "impact_at_4k": "Verified in the real pipeline (rasterize_svg, dsf=1, 3840-wide canvas): line at x=100 -> pixels 99 and 100 both (128,128,128) i.e. two 50% columns instead of one black column; line at x=200.5 -> single crisp (0,0,0) column. Every integer-coordinate hairline (table grid #bbb lines at table_renderer.py:71-73, side borders, connectors) doubles in apparent width and halves in contrast, and any edge-measuring instrument reads the edge 0.5px off authored (matches the prior calibration finding 'measured edge = SDK coord - 0.5'). Fractional coordinates are worse: the table column divider at x=2100.571 rendered as (191) + (251) — a 93%/7% asymmetric pair — so equal-split columns (resolve_column_widths, table_layout.py:53-58 produces w/ncol fractional widths; colx at table_renderer.py:31) get phase-dependent, visibly non-uniform divider weights across one table.",
+     "repro": "uv run python /tmp/claude-1000/-home-admin-github-mirror--framework-frameforge/3f61cd88-4413-44b0-9da6-107918164611/scratchpad/aa_probe.py (probes P1, P2, P7)",
+     "fix_sketch": "Add an opt-in snap pass for axis-aligned strokes: translate odd-width hairlines to k+0.5 pixel centres (and even widths to integer edges) at emit time, or emit shape-rendering=\"crispEdges\" on grid/divider hairlines; document the -0.5 edge convention as a renderer contract for the measurement layer.",
+     "severity": "major",
+     "verify_confidence": "high",
+     "verify_note": "Two clarifications, neither refuting: (1) the rasterization is SVG-spec-conformant — the stroke geometry is exactly where authored, and the defect is precisely what the claim titles it: the absence of any pixel-centre alignment/snap/crispEdges layer for hairlines, not an incorrect coordinate emission; (2) the effect is specific to device_scale_factor=1 — at --scale 2, integer authored coords land on even device pixels and 1px strokes become crisp 2-device-px lines. scale=1.0 is the default in rasterize_svg and render_chromium.py, so the default 4K path exhibits the defect as claimed. Also, 'measured edge at authored − 0.5' refers to the leading ink edge (stroke centre stays at the authored coordinate)."
+    },
+    {
+     "id": "STROKE-AA-02",
+     "file": "src/frameforge/rendering/application/table_renderer.py",
+     "line": 59,
+     "claim": "The table's outer border is painted first and then half-erased by the header/zebra fill rects painted on top, producing a visible border-weight discontinuity along the frame.",
+     "mechanism": "draw() emits the outer frame as one rect with fill+stroke (line 48), then paints header_fill / zebra rects spanning the full [x0, x0+w] on top (lines 59, 61). The frame's centre-aligned stroke of width W occupies [edge-W/2, edge+W/2]; the later fill overpaints the inner half, leaving only W/2 of border visible wherever a filled row band exists, and full W elsewhere.",
+     "impact_at_4k": "Verified: 2px frame stroke at y0=10 with header fill -> top border reduced to a single black row (y=9) with header blue at y=10-11 (1px instead of 2px). Left border: header band (y=25) shows 1 black column (x=1199), body band (y=70) shows 2 (x=1199-1200). At 4K a styled table shows its outer border jump from W px to W/2 px exactly at the header/body boundary — a 1px weight step for the default stroke, W/2 generally.",
+     "repro": "aa_probe.py probe P5",
+     "fix_sketch": "Emit the fills first and the stroked frame last (fill-only rect, row fills, then a stroke-only frame rect), or inset row fills by stroke_width/2.",
+     "severity": "major",
+     "verify_confidence": "high",
+     "verify_note": "The finder's top-border observation is wrong: table_renderer.py:71 repaints a horizontal grid line at each row top AFTER that row's fill rect, so the TOP border stays full width (measured rows 9-10 both dark, full 2px, no blue at y=10). The real defect surfaces are the LEFT and RIGHT vertical borders (halved to W/2 wherever a header/zebra band exists, full W elsewhere — the claimed weight step) and the BOTTOM border (halved when the last row carries a fill, since no closing line is drawn at y0+total_h — a surface the finder missed). Severity 'major' stands; the mechanism and W/2 magnitude are correct as claimed."
+    },
+    {
+     "id": "STROKE-AA-03",
+     "file": "src/frameforge/rendering/infrastructure/painters/svg.py",
+     "line": 607,
+     "claim": "Abutting fill-only shapes that share a fractional edge leak an anti-aliasing seam of up to 25% background intensity along the full shared edge; nothing in the renderer snaps, overlaps, or covers shared edges.",
+     "mechanism": "Two independently AA-rasterized fills sharing edge at x = n + a each get partial coverage of the boundary pixel; over-compositing leaves background weight a*(1-a) (max 0.25 at a=0.5). rect()/path() emit exact authored geometry with no seam mitigation, and the layout side freely produces fractional shared edges (resolve_column_widths equal split = w/ncol, table row pitch h/nrow at table_renderer.py:32,44, SDK/planar region fills).",
+     "impact_at_4k": "Verified: red rect ending and blue rect starting at x=548.571 -> boundary pixel (128,62,150); the green channel of 62 on a red|blue boundary is pure white bleed = 0.571*0.429 = 24.5% background showing through, forming a full-height hairline seam. Integer shared edge (x=900) shows zero seam. On a 2160px-tall 4K panel boundary that is a 2160px-long visible light hairline between supposedly-abutting fills.",
+     "repro": "aa_probe.py probes P3 vs P4; arithmetic: final = 0.429*blue + 0.571*(0.571*red + 0.429*white), g-channel = 0.571*0.429*255 = 62.5 (observed 62)",
+     "fix_sketch": "Snap shared layout edges to integer device pixels at layout time when dsf is known, or overlap the earlier fill by ~0.5px under a shared edge, or paint a covering divider stroke.",
+     "severity": "major",
+     "verify_confidence": "high",
+     "verify_note": "Two detail corrections: (1) observed boundary pixel is (145,62,172), not the finder's (128,62,150) — the green/bleed value 62 is confirmed exactly, and the actual RGB matches linear over-compositing arithmetic precisely; (2) the table_renderer.py:32,44 example is weak evidence — TableRenderer paints grid strokes on every row boundary (line 73) and column boundary (lines 74-75), incidentally covering those seams. The unmitigated reachable paths are authored abutting fills, sdk.planar fill_regions, and stroke-free region/layout splits."
+    },
+    {
+     "id": "STROKE-AA-04",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 575,
+     "claim": "_with_side_borders draws CSS-style borders as centre-aligned butt-capped lines: half the border width spills outside the authored box, each corner has an unpainted W/2 x W/2 notch, and adjacent boxes sharing an edge double-paint the border.",
+     "mechanism": "Each border_* side becomes painter.line() exactly on the box edge (lines 574-586); SVG centres the stroke on the line, so a width-W border occupies [edge-W/2, edge+W/2] instead of CSS border-box's inside placement. Default butt caps mean the top line spans x0..x0+w while the left line spans y0..y0+h, leaving the outer corner square [x0-W/2,x0]x[y0-W/2,y0] unpainted. Two stacked boxes with border_bottom/border_top at the same y produce two coincident strokes.",
+     "impact_at_4k": "Verified: 4px butt-capped top+left lines meeting at (2400,200) leave a 2x2px white notch at (2398-2399, 198-199) while (2401,198) is black. A 4px border paints 2px outside the authored box (geometry moved 2px vs CSS-semantics authoring). Coincident 50%-opacity strokes composite to 63/255 vs 127/255 for a single stroke — translucent shared borders render ~2x darker.",
+     "repro": "aa_probe.py probes P8 (notch) and P6 (double-paint)",
+     "fix_sketch": "Inset each border line by width/2 (CSS border-box placement) and extend endpoints by width/2 (or use square linecap / per-side inset rects) so corners close; optionally dedupe coincident borders at layout level.",
+     "severity": "major",
+     "verify_confidence": "high",
+     "verify_note": "Claim holds as stated for dict-form border_* values, verified pixel-exact. One scope correction: the buggy line-drawing path is only reached when border_* is a dict (renderer.py:583 `isinstance(border, dict)` gate). The CSS string shorthand form (\"4px solid #000\"), which the model explicitly permits (Border = Union[str, BorderSide], docs/models/frameforge.py:203) and which _border_dict can parse, is silently skipped by _with_side_borders — the border does not render at all. That is an adjacent defect with even larger geometry impact (entire authored border absent) and should be folded into the same finding/fix."
+    },
+    {
+     "id": "STROKE-AA-07",
+     "file": "src/frameforge/rendering/application/table_renderer.py",
+     "line": 71,
+     "claim": "The first row separator line is emitted coincident with the outer frame's top stroke (both at y0), double-painting that edge; with translucent grid strokes the top edge renders darker than the other three.",
+     "mechanism": "The row loop unconditionally appends p.line(x0, ry, x0+w, ry, grid_stroke) for every row including ri=0 where ry == y0, exactly where the frame rect (line 48) already stroked. Two coincident strokes composite additively when stroke-opacity < 1.",
+     "impact_at_4k": "Verified compositing magnitude: two coincident 50%-opacity strokes -> 63/255 vs 127/255 single (effective alpha 0.75 vs 0.5) — the top border of any table with a translucent grid stroke is ~1.5x darker than its left/right/bottom borders. With opaque strokes the defect is latent (byte-level overdraw only).",
+     "repro": "aa_probe.py probe P6 quantifies the coincident-stroke compositing; code path table_renderer.py:48 + :71 at ri=0.",
+     "fix_sketch": "Skip the separator for ri == 0 (the frame already strokes it).",
+     "severity": "minor",
+     "verify_confidence": "batch"
+    },
+    {
+     "id": "STROKE-AA-08",
+     "file": "src/frameforge/rendering/application/renderer.py",
+     "line": 600,
+     "claim": "_with_outline places the CSS outline centre-aligned on the offset edge instead of entirely outside it: half the outline width overlaps the region CSS reserves for the object/offset gap.",
+     "mechanism": "The outline is emitted as a rect at (x-offset, y-offset, w+2*offset, h+2*offset) with a centre-aligned stroke (lines 597-602). CSS draws the outline band entirely outside the outline-offset edge ([edge+offset, edge+offset+W]); centre alignment shifts the band inward by W/2.",
+     "impact_at_4k": "A 4px outline with offset 0 paints 2px over the object's own border/fill instead of 0 — the rendered outline inner edge is W/2 px away from the CSS-semantics authored position. Deterministic, but geometry sits W/2 (2px at typical 4px outlines) from where a CSS-faithful consumer would place it.",
+     "repro": "Code inspection; same centre-alignment arithmetic verified by probes P1/P5.",
+     "fix_sketch": "Grow the outline rect by an extra W/2 on each side (offset_effective = offset + W/2) so the stroke band sits fully outside the offset edge.",
+     "severity": "minor",
+     "verify_confidence": "batch"
+    }
+   ],
+   "rejected": []
+  },
+  {
+   "dim": "mcp-instruments",
+   "confirmed": [
+    {
+     "id": "INSTR-1",
+     "file": "src/frameforge/vision/infrastructure/matchscore.py",
+     "line": 257,
+     "claim": "score_reconstruction's max_edges=6000 cap subsamples the detected edge set, which collapses the score at 4K: geometrically PERFECT shapes read as off-edge, and the metric degrades as image size grows.",
+     "mechanism": "_edge_points returns every adaptive-Sobel edge pixel; _score_core then keeps only 6000 via E[np.linspace(0,len(E)-1,6000).astype(int)] over the row-major-flattened edge list (matchscore.py:256-257). At 3840x2160 a modest 8-rectangle probe yields 33,488 edge pixels (1px stroke) so only 1 in 5.6 is kept; nearest-retained-edge distance for a sample sitting exactly ON the true edge is then the gap to the next retained pixel along the edge, not zero.",
+     "repro": "uv run python (scratchpad/instr4k_b.py): synthetic 3840x2160, 8 rects, shapes = exact authoring coords. max_edges=6000 -> on_edge_frac=0.8167, mean_dist=1.47, p90=2.236. Same call with max_edges=70000 (all edges) -> on_edge_frac=1.0, mean_dist=1.011, p90=1.075. With 3px strokes (scratchpad/instr4k.py) it is worse: on_edge_frac=0.655, mean_dist=1.719 for exact geometry. 960x540 baseline of the same relative content: on_edge_frac=1.0, mean_dist=1.013.",
+     "impact_at_4k": "For exact geometry, mean_dist inflates from the ~1.01px floor to 1.47-1.72px and on_edge_frac drops 1.0 -> 0.66-0.82 purely from subsampling (arithmetic: 33,488/6000 = keep 1/5.6; retained-edge gaps ~5-6px along an edge -> expected extra distance ~1-3px, matching p90 jump 1.075->2.236). BHAG B1's gate metric (mean_dist <= 0.5px) is therefore unpassable at 4K even for a perfect render, and the signal is anti-monotonic: richer 4K content scores WORSE. At 7680x4320 (scale 2) edge count roughly doubles again (keep ~1/11+).",
+     "fix_sketch": "Replace nearest-subsampled-edge search with an exact distance transform over the full-resolution edge mask (scipy.ndimage.distance_transform_edt on ~binary mask: 3840x2160 float64 = 66MB, O(HW), no cap needed), or a KD-tree over all edge pixels. Keeping all 33k edges today already runs in 2.1s/332MB (measured), so at minimum scale max_edges with image area and document the error bound.",
+     "severity": "critical",
+     "verify_confidence": "high",
+     "verify_note": "Two refinements, neither weakening the finding: (1) even uncapped, the metric floor for a 1px stroke is ~1.0px (Sobel gradient peaks on the pixels adjacent to the stroke), which itself exceeds the 0.5px B1 gate — but that component is a fixed offset the BHAG's 'AA-corrected' clause can calibrate away, whereas the subsampling error varies with edge count and cannot; the claim's 'unpassable' holds for that reason. (2) The 960x540 baseline also slightly exceeds the cap (8,328 > 6,000) yet shows negligible degradation, which actually strengthens the size-dependence argument. Cited line numbers, edge counts, and all repro figures are accurate as stated."
+    },
+    {
+     "id": "INSTR-2",
+     "file": "src/frameforge/vision/infrastructure/edgesnap.py",
+     "line": 112,
+     "claim": "The pixel-centre +0.5 convention is applied NOWHERE in the instrument chain: edgesnap/snap/fit_edge/intersect and score_reconstruction all report/compare in pixel-index coordinates, giving a systematic -0.5px bias against authored (continuous SDK/SVG) coordinates.",
+     "mechanism": "edgesnap._bilinear treats integer array indices as sample locations, so a crisp authored edge at continuous x=100.0 (boundary between pixel index 99 and 100) produces a gradient peak at index 99.5, and s = -band + idx*0.5 (line 112) emits 99.5 as the measured coordinate. matchscore._edge_points (matchscore.py:218) likewise emits integer pixel indices as float coordinates, which _score_core compares directly against shape samples authored in continuous coordinates. structural_landmarks (vision/domain/coordinates.py:255-261) meanwhile uses the CONTINUOUS convention (corner-br = (W,H), not (W-1,H-1)) — the two conventions coexist uncompensated. grep across src/frameforge, docs, tooling finds no pixel-centre/+0.5 compensation or documentation anywhere in the toolchain; the convention exists only in operator memory.",
+     "repro": "uv run python (scratchpad/halfpix.py): 200x120 raster with hard step, columns <100 dark, >=100 bright (authored edge x=100.0). refine_edge_line over it -> mean measured x = 99.5, rms_residual = 0.0 (51 crossings, i.e. a confident, precise, WRONG answer). Second probe with a 50%-covered AA column (authored edge x=100.5): measured 100.25 index-space = 100.75 continuous, i.e. the parabolic refiner adds a further +/-0.25px profile-shape-dependent error.",
+     "impact_at_4k": "A uniform -0.5px bias on every edge-derived measurement consumes the ENTIRE B1 budget (mean_dist <= 0.5px 'AA-corrected') and makes the corner-recovery target (<=0.1px) unreachable: fit_edge+intersect can recover a corner to 0.02px relative precision (memory-verified) yet still be 0.5px absolutely wrong. Prior calibration (memory: measure-pixel-centre) showed skipping the +0.5 makes 2633 pixels differ on a re-render. score_reconstruction is blind to it at tol=2.0 but it fully explains part of the nonzero floor.",
+     "fix_sketch": "Declare ONE convention in vision/domain/coordinates.py (continuous edge coordinates, matching SDK/SVG), convert at every raster boundary: edge pixel index i -> coordinate i+0.5 in _edge_points, and add +0.5-equivalent offset when edgesnap converts profile indices to coordinates. Add a calibration test: rasterize a known SVG line at x=100.0, assert refine_edge_line returns 100.0 +/- 0.1.",
+     "severity": "critical",
+     "verify_confidence": "high",
+     "verify_note": "Two detail fixes, neither changing the verdict: (1) AA probe arithmetic — an edge authored at continuous x=100.5 (50%-covered column) measures 99.75 in index space = 100.25 continuous, an error of -0.25px (the finder stated 100.25 index = 100.75 continuous, +0.25); the sub-claim's substance (parabolic refiner adds a further ±0.25px profile-shape-dependent error) stands with corrected sign/values. (2) matchscore._edge_points bias is band-quantized rather than a uniform -0.5: the 2px-wide Sobel band marks both flanking pixel indices, so a shape at the correct continuous coordinate can score mean_dist 0.0 on a crisp edge; the clean, systematic -0.5px bias lives in the edgesnap chain (refine_edge_line/snap_point_to_edge/fit_edge/intersect), which is the precision instrument for the <=0.1px corner target. Crossing count in repro was 56, not 51 (immaterial)."
+    },
+    {
+     "id": "INSTR-3",
+     "file": "src/frameforge/vision/infrastructure/matchscore.py",
+     "line": 221,
+     "claim": "score_reconstruction's known nonzero floor is neither documented as a number nor compensated: perfect geometry scores mean_dist ~1.01px on a 1px-stroke probe (floor is probe-dependent; 0.157 on the earlier calibration), yet BHAG B1 gates on an absolute 'mean_dist <= 0.5 px (AA-corrected)' and no AA correction exists in code.",
+     "mechanism": "The only caveat is the _HINT string ('a RELATIVE guide across refinement passes, not ground truth') — no floor constant, no calibration hook, no floor-subtracted output. The floor arises from (a) the -0.5 index-vs-continuous bias (INSTR-2), (b) stroke width placing Sobel maxima on both flanks of a stroke, and (c) edge-pixel quantization; all three are systematic, none is modelled.",
+     "repro": "scratchpad/instr4k_b.py: exact-coordinate shapes over their own raster score mean_dist=1.011 (960x540) and 1.011 (4K with max_edges lifted) — never 0. Consistent with memory: floor mean 0.157 on the thin-AA calibration probe, median useless, p90 sharp.",
+     "impact_at_4k": "Any absolute pass/fail gate built on mean_dist (which B1 explicitly is) either can never pass or silently bakes in an unstated calibration constant that varies with stroke width and AA. Magnitude: floor 0.16-1.0px depending on probe = 0.3x-2x the whole B1 budget.",
+     "fix_sketch": "Ship a calibration probe (known authored geometry rendered through the real pipeline) that measures the floor per stroke-width/raster combination, report floor-subtracted distances (or signed distance to sub-pixel-refined edge centrelines instead of nearest binary edge pixel), and document the residual bound in the score payload rather than only 'relative guide' prose.",
+     "severity": "major",
+     "verify_confidence": "high",
+     "verify_note": "Impact framing refinement: the defect breaks gate verifiability, not rendered geometry — no authored pixel moves. Also note the doc itself pre-acknowledges the need for correction via the '(AA-corrected)' parenthetical, but no such correction exists anywhere in code, which is exactly the gap claimed. Measured floor on the 1px-stroke probe is 1.011-1.013 px across resolutions; the claimed 0.16-1.0 px range should read 0.16-1.01 px depending on probe (thin-AA vs 1px binary stroke)."
+    },
+    {
+     "id": "INSTR-4",
+     "file": "src/frameforge/vision/infrastructure/image_compare.py",
+     "line": 193,
+     "claim": "compare_images metrics silently change resolution regime with the align flag, and both regimes are unfit for 4K quantification: align=False computes MAE/RMSE/NCC/pct_diff on 256x256 downsamples (15x linear destruction at 3840px), while align=True computes at full resolution but peaks at 1.67GB RAM at 4K and 6.67GB at 7680x4320.",
+     "mechanism": "image_metrics: the non-align branch resizes both crops to a hardcoded (size=256, size=256) with aspect distortion (lines 193-196); the align branch runs phase_align — three full-size complex128 FFT arrays (3840*2160*16B = 133MB each) plus intermediates — and computes metrics over full-res pixels (lines 183-191). Numbers from the two modes are not comparable and nothing in the output flags which regime produced them. phase_align additionally returns integer-only shifts (line 147-148) and LANCZOS-resizes a differently-sized candidate to the reference size (line 138), so a scale-2 candidate is silently downsampled before measurement.",
+     "repro": "scratchpad/instr4k.py + alignmem.py (measured): 4K candidate with one rectangle displaced 12px -> pixel_match 99.9%, mae 0.34, pct_diff 0.006 (indistinguishable from the 2px-shift case at this rounding); align=True on two 4K images: t=3.6s, peak 1.67GB; at 7680x4320: t=13.9s, peak 6.67GB per image_metrics call — and compare_images with the default 2x3 grid + overview makes 7 such calls.",
+     "impact_at_4k": "As a B2 seam instrument compare_images cannot see a 12px error (99.9% match), let alone a 0.5px seam: at 256x256 a 1px 4K feature is 0.067px. With align=True the tool risks OOM in the Docker/MCP runtime at the scale-2 ladder (est. >13GB for a 7-panel compare at 8K if panels were full-frame). Determinism gate B3 (NCC >= 0.9999 on identical rasters) still works since identical images give exactly 1.0.",
+     "repro_note": "",
+     "fix_sketch": "Tag the output with the metric resolution regime; scale `size` with input (or compute tiled full-res metrics); for align=True either downscale before FFT (alignment does not need full res for integer shifts) or use float32 rFFT (4x memory cut); never use these metrics for B1/B2 — use score_reconstruction/edgesnap (after INSTR-1/2 fixes) for geometry.",
+     "severity": "major",
+     "verify_confidence": "high",
+     "verify_note": "Two corrections: (1) 'nothing in the output flags which regime' is overstated — the shift_px key appears only in align mode (lines 209-210), so the regime is inferable, though metric resolution is never stated and the numbers remain cross-regime incomparable. (2) Impact framing: the BHAG doc assigns compare_images only to B3 (NCC on repeated rasters), not B2 — B2's instrument is 'seam-probe fixture + pixel scan at 4K'. The real exposure is (a) B5-loop agents steered to compare_images by the MCP docs ('iterate toward pixel accuracy', 'real NCC/RMSE/MAE metrics') are misled at 4K (100% match on a 12px error), and (b) B3's fail direction is weakened: a 2px raster nondeterminism gives NCC=1.0000 at 256², passing the 0.9999 gate. Severity 'major' holds for instrument fitness, not as a broken B2 gate."
+    },
+    {
+     "id": "INSTR-5",
+     "file": "src/frameforge/vision/infrastructure/measure.py",
+     "line": 485,
+     "claim": "Zoom-crop / workspace-viewport measurements carry a systematic bias up to ~1 source px: _render_crop truncates the crop origin to int, while the CropTransform inverse ('source_px = origin_px + read_px / scale') and the ruler annotation use the untruncated float origin.",
+     "mechanism": "crop_transform (vision/domain/coordinates.py:264-274) computes origin_px as floats from the normalized box (e.g. 0.333*3840 = 1278.72). _render_crop (measure.py:485) crops at img.crop((int(ox), int(oy), int(round(ox+sw)), int(round(oy+sh)))) — actual pixels start at 1278 — but annotates with _Viewport(ox, oy, scale) (measure.py:488) and reports to_source_px against origin 1278.72. Every viewport_px reading is therefore off by frac(ox) in [0,1) source px; additionally the integer crop width (can be sw+1) resized to rw=round(sw*scale) skews the effective scale by ~1/sw, adding up to ~1px at the crop's far edge. The same path serves workspace.render viewports.",
+     "repro": "Code arithmetic: box x=0.333 at 3840 -> ox=1278.72, crop starts at 1278, bias = 0.72 source px on every point read through that crop; ox=10.7, sw=100 -> crop width int(round(110.7))-int(10.7) = 101 px resized to 100*scale -> effective scale error 1%, ~1px at right edge.",
+     "impact_at_4k": "The zoom crop is the primary sub-pixel reading instrument (zoom scale clamps to >=1.0 so no downsampling, good) — but its coordinate identity is broken by up to ~1px, 2x the whole B1 budget, whenever the normalized zoom box does not land on integer pixels (the common case at 3840x2160 where norm values are typed to 3-4 decimals).",
+     "fix_sketch": "Snap the transform to the crop actually taken: set origin_px=(floor(ox),floor(oy)) and size_px to the integer crop extent inside crop_transform (or in _render_crop rebuild the CropTransform from the int crop box) so drawn pixels and the reported inverse agree exactly.",
+     "severity": "major",
+     "verify_confidence": "high",
+     "verify_note": "Two refinements, neither weakening the finding: (1) the origin-truncation bias and the integer-crop-width scale skew can partially cancel, so the typical combined error is several tenths of a px with ~1 px as the bound (repro: 0.72 origin frac yielded 0.604 net bias mid-crop), rather than the two terms adding everywhere; (2) int() truncation equals floor only because denorm_box clamps crop origins to non-negative — always true on this path, so no behavioral difference."
+    },
+    {
+     "id": "INSTR-6",
+     "file": "src/frameforge/vision/infrastructure/matchscore.py",
+     "line": 254,
+     "claim": "max_samples=1500 destroys the locality of the convergence signal at 4K: a real, localized multi-pixel defect moves the reported aggregates by less than their own floor noise.",
+     "mechanism": "All shape samples (spacing=2px) are thinned to 1500 via linspace (line 253-254). The measured 8-rect 4K probe has ~16,760px of perimeter -> one retained sample per 11.2px; a full 4K document easily has 10x that perimeter (one sample per ~100px). A 9px corner shift perturbing ~40px of perimeter contributes <=1-4 of 1500 samples: on_edge_frac moves by <=0.003 and mean_dist by ~0.02px — below the 1.47px subsampled floor's run-to-run structure (INSTR-1) and invisible next to it.",
+     "repro": "Arithmetic from measured perimeter (scratchpad/instr4k.py printed: 'one sample per 11.2px of perimeter' on the small probe); scales linearly with content.",
+     "impact_at_4k": "The single number B5 wants an agent to 'drive down' stops responding to exactly the class of defect (local seams, single-corner offsets) B1/B2 target; only the symmetry_pairs/collinear_groups side-channel sees them, and only if the agent names the right points.",
+     "fix_sketch": "Scale max_samples with total perimeter (or report per-shape scores: max over shapes of mean/p90 — a per-object worst-case is what 'failures name the offending object ids' in B5 needs anyway). Cost is linear and small once INSTR-1 replaces the O(samples x edges) distance loop with a distance transform (each sample lookup becomes O(1)).",
+     "severity": "major",
+     "verify_confidence": "high",
+     "verify_note": "Two corrections to the finder's arithmetic model. (1) The '9px corner shift perturbing ~40px of perimeter' example is wrong for a polygon corner: moving a vertex tilts both whole adjacent edges (~1200px affected), and on the small 8-rect 4K probe the instrument clearly responds (measured delta mean_dist +0.235px, on_edge_frac -0.059, vs 0.004 floor jitter — 50x above noise). The claim's '<=1-4 samples, delta ~0.02px' model only describes a truly localized defect (seam/kink confined to ~40px). So the finding is FALSE at the 8-rect probe scale and TRUE at full-document scale (~100k+ px perimeter, 1 sample per ~71-110px), where I measured local-defect deltas (mean -0.043, frac -0.008) fully inside the legitimate-refinement jitter band; a corner shift there is marginal (frac delta -0.025 vs 0.015 jitter spread). (2) The insensitivity is jointly caused by global-mean dilution plus max_samples quantization (a 40px region retains 0-1 of 1500 samples at 71px/sample, sometimes zero), riding on the max_edges=6000 floor noise (INSTR-1) — max_samples alone is not the whole mechanism, but scaling samples with perimeter without also fixing the edge floor would not restore detectability. Also note roi/per-shape scoring exist as manual mitigations but require already knowing the defect location, so they do not satisfy B5's 'failures name the offending object ids'."
+    },
+    {
+     "id": "INSTR-7",
+     "file": "tests/test_golden_render.py",
+     "line": 31,
+     "claim": "No automated gate asserts geometric fidelity today — only determinism: the golden gate compares SVG page hashes, and every instrument test runs on <=240px synthetic images with loose thresholds.",
+     "mechanism": "tests/test_golden_render.py asserts hash equality against tests/golden lock (proves same-input-same-output, not that output matches authored geometry — a renderer that systematically shifted everything 0.5px would pass 100% of these gates and would simply re-lock as the new golden). tests/test_vision_matchscore.py and tests/test_mcp_vision_regression.py assert instrument behavior on ~240px images with on_edge_frac>0.9 at tol=2.0px (i.e. a 2px tolerance, 4x the B1 budget). grep over tests/ finds zero occurrences of 3840/2160/4K and zero tests that render an authored document and compare measured vs authored coordinates at any resolution.",
+     "repro": "grep -rn '3840|2160|4K' tests/ -> no .py hits; grep assertions listed in test_golden_render.py:23-55 (hash tamper/page-count only) and test_vision_matchscore.py:78-107 (240px canvases, tol 2-8px).",
+     "impact_at_4k": "Quantified: 0 of the repo's gates can detect a geometry error of any magnitude at 4K provided it is deterministic. The BHAG's own Status marks the pixel gate (Pass 3) as unbuilt — this finding confirms the gap is total, and that the gate cannot be built on the instruments as-is (INSTR-1/2/3 make the B1 numeric targets unmeasurable/unpassable today).",
+     "fix_sketch": "Build the Pass-3 probe: an authored 3840x2160 fixture with known coordinates, rendered via the real Chromium path, then (post INSTR-1/2 fixes) assert mean_dist and per-corner recovery numerically; keep goldens for determinism only and say so in the gate's name.",
+     "severity": "critical",
+     "verify_confidence": "high",
+     "verify_note": "The claim \"a renderer that systematically shifted everything 0.5px would pass 100% of these gates\" is fully true only for shifts introduced downstream of the SVG (Chromium raster path: device_scale_factor, viewport rounding), since the golden gate hashes SVG text. A shift in the SVG painter would fail the golden gate once (as an unattributed change) and would break exact-string unit assertions (e.g. tests/test_element_render.py:161 asserts 'rx=\"7\"'). Corrected statement: no gate can distinguish a geometry error from an intentional render change; raster-stage errors are invisible to all gates; after one re-lock any deterministic error is permanently green. Golden-gate line reference is 27-31 (the tamper-detection tests are at 42-55, not 23-55 as stated in the repro)."
+    },
+    {
+     "id": "INSTR-8",
+     "file": "src/frameforge/vision/infrastructure/image_compare.py",
+     "line": 118,
+     "claim": "Two minor int-cast asymmetries: _crop_norm floors left/top but rounds right/bottom, and _score_core truncates fractional roi values — each can inject up to ~1px of phantom offset into a measurement window.",
+     "mechanism": "_crop_norm (image_compare.py:118): img.crop((int(left), int(top), int(round(right)), int(round(bottom)))) — when reference and candidate differ in pixel size (the 1x/2x scale ladder), the same normalized box lands at different fractional offsets and the floor/round mix shifts the two crops relative to each other by up to 1 reference px before any metric runs. matchscore.py:241: roi = tuple(int(v) for v in roi) floors a fractional ROI silently.",
+     "repro": "Arithmetic: ref 3840 wide, box x=0.3331 -> left=1279.1 -> crop at 1279; cand 7680 wide -> left=2558.2 -> crop at 2558 = 1279.1 ref-px — crops differ by 0.1-1.0px depending on the fraction; diff panel then shows a phantom edge-fringe mismatch.",
+     "impact_at_4k": "Sub-1px phantom misalignment in cross-scale compares — small, but it is the same order as the B1/B2 budgets (0.5px) the tool is supposed to referee.",
+     "fix_sketch": "Use a single rounding rule (floor both edges, or round both) applied to the box in the reference frame, then scale that integer box to the candidate; accept fractional roi by flooring x0,y0 and ceiling x1,y1.",
+     "severity": "minor",
+     "verify_confidence": "batch"
+    }
+   ],
+   "rejected": []
+  }
+ ]
+}
