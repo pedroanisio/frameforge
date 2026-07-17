@@ -484,6 +484,10 @@ class Path:
 
 
 def quarter_circle_kappa() -> float:
+    """The cubic-Bezier circle constant kappa = (4/3)*(sqrt(2)-1) ~ 0.5523:
+    the control-point offset (as a fraction of radius) that makes one cubic
+    segment pass through the quarter-arc midpoint (the standard choice; the
+    minimax-error offset is marginally smaller)."""
     return (4 / 3) * (math.sqrt(2) - 1)
 
 

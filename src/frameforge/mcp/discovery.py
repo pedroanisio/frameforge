@@ -70,9 +70,66 @@ def _frameforge_yaml_candidates(repo_root: Path) -> list[Path]:
 # --------------------------------------------------------------------------- #
 
 _CAPABILITY_TOPICS = (
-    "flowables", "inlines", "style", "presets", "tools", "security",
+    "flowables", "inlines", "style", "presets", "tools", "sdk", "security",
     "or a type/model name like 'rect', 'paragraph', 'document', 'page', 'canvas'",
 )
+
+
+@functools.lru_cache(maxsize=1)
+def _sdk_surface() -> tuple[dict[str, Any], ...]:
+    """The public SDK surface, introspected LIVE from ``frameforge.sdk.__all__``.
+
+    One entry per export — name, kind, signature (callables), and a one-line
+    explanation from the object's own docstring — so the whole SDK is
+    enumerable and explained from inside the MCP with nothing hand-maintained.
+    Typing aliases and third-party re-exports (which cannot carry our
+    docstrings) get generated explanations instead; the companion CI gate
+    (tests/test_sdk_surface_mcp.py) fails on any frameforge-defined export
+    without a docstring, so this listing cannot silently go blank.
+    """
+    import inspect
+
+    import frameforge.sdk as sdk
+
+    entries: list[dict[str, Any]] = []
+    for name in sdk.__all__:
+        obj = getattr(sdk, name)
+        module = getattr(obj, "__module__", "") or ""
+        doc = (inspect.getdoc(obj) or "").strip()
+        first = doc.splitlines()[0].strip() if doc else ""
+        ours = module.startswith("frameforge") or module == "models.frameforge"
+        if module == "typing" or type(obj).__name__.endswith("GenericAlias"):
+            kind, first = "type_alias", f"type alias: {obj}"
+        elif inspect.ismodule(obj):
+            kind = "module"
+            first = first or f"submodule {obj.__name__}"
+        elif inspect.isclass(obj):
+            if ours:
+                kind = "class"
+            else:
+                kind = "re-export"
+                first = f"re-export of {module}.{name}" + (f" — {first}" if first else "")
+        elif callable(obj):
+            if ours:
+                kind = "function"
+            else:
+                kind = "re-export"
+                first = f"re-export of {module}.{name}" + (f" — {first}" if first else "")
+        else:
+            # instances inherit their TYPE's docstring via getdoc (str constructor
+            # prose for a str constant) — always generate the explanation instead
+            kind = "constant"
+            first = f"constant {type(obj).__name__}: {obj!r:.60}"
+        entry: dict[str, Any] = {"name": name, "kind": kind, "module": module or None,
+                                 "doc": first}
+        if kind in ("function", "re-export") and callable(obj):
+            try:
+                sig = str(inspect.signature(obj))
+                entry["signature"] = sig if len(sig) <= 160 else sig[:157] + "..."
+            except (TypeError, ValueError):
+                entry["signature"] = "(...)"
+        entries.append(entry)
+    return tuple(entries)
 
 
 def _union_members(alias: Any) -> tuple[type, ...]:
@@ -208,12 +265,21 @@ def describe_capabilities(
             "canvas_presets": list(catalog["presets"]),
             "profiles": list(catalog["profiles"]),
             "tools": sorted(tool_names or []),
+            "sdk_exports": len(_sdk_surface()),
             "topics": list(_CAPABILITY_TOPICS),
             "security_posture": security_posture(),
             "source": "models/frameforge.py (live introspection via frameforge.sdk.model)",
         }
     if key == "tools":
         return {"ok": True, "topic": "tools", "tools": sorted(tool_names or [])}
+    if key == "sdk":
+        return {
+            "ok": True,
+            "topic": "sdk",
+            "exports": [dict(e) for e in _sdk_surface()],
+            "note": "introspected live from frameforge.sdk.__all__ — every export is "
+                    "importable inside run_sdk_code; full reference: docs/sdk-api.md",
+        }
     if key == "security":
         return {
             "ok": True,

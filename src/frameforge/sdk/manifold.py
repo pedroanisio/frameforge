@@ -155,6 +155,9 @@ def bspline_patch(
 
 
 def sphere(radius: float = 1.0, *, steps_u: int = 28, steps_v: int = 18, **style: object) -> Scene3D:
+    """A sphere of ``radius``, parametrised by longitude x colatitude
+    (``steps_u`` x ``steps_v`` facets). Renders like any manifold:
+    ``.render(box=..., camera=..., shading="phong")``."""
     def f(u: float, v: float) -> tuple[float, float, float]:
         return (radius * math.sin(v) * math.cos(u),
                 radius * math.cos(v),
@@ -165,6 +168,8 @@ def sphere(radius: float = 1.0, *, steps_u: int = 28, steps_v: int = 18, **style
 
 def torus(major: float = 1.0, minor: float = 0.38, *,
           steps_u: int = 36, steps_v: int = 20, **style: object) -> Scene3D:
+    """A torus with ring radius ``major`` and tube radius ``minor``
+    (``steps_u`` around the ring x ``steps_v`` around the tube)."""
     def f(u: float, v: float) -> tuple[float, float, float]:
         return ((major + minor * math.cos(v)) * math.cos(u),
                 minor * math.sin(v),
@@ -175,6 +180,8 @@ def torus(major: float = 1.0, minor: float = 0.38, *,
 
 def mobius(radius: float = 1.0, width: float = 0.4, *,
            steps_u: int = 48, steps_v: int = 6, **style: object) -> Scene3D:
+    """A Mobius band of centreline ``radius`` and half-``width`` — one half-twist
+    per revolution, so the surface is single-sided."""
     def f(u: float, v: float) -> tuple[float, float, float]:
         w = width * v
         return ((radius + w * math.cos(u / 2)) * math.cos(u),
@@ -185,6 +192,9 @@ def mobius(radius: float = 1.0, width: float = 0.4, *,
 
 
 def klein_bottle(scale: float = 0.25, *, steps_u: int = 40, steps_v: int = 24, **style: object) -> Scene3D:
+    """The classic immersed Klein bottle (the standard trigonometric
+    "bottle shape" immersion), uniformly scaled by ``scale``. Non-orientable;
+    the "neck" self-intersection is inherent to any R^3 immersion."""
     def f(u: float, v: float) -> tuple[float, float, float]:
         cu, su = math.cos(u), math.sin(u)
         cv, sv = math.cos(v), math.sin(v)
@@ -199,6 +209,8 @@ def klein_bottle(scale: float = 0.25, *, steps_u: int = 40, steps_v: int = 24, *
 
 
 def saddle(extent: float = 1.0, *, steps: int = 26, **style: object) -> Scene3D:
+    """A hyperbolic-paraboloid saddle ``y = 0.6*(u^2 - v^2)`` over the square
+    ``[-extent, extent]^2`` (``steps`` x ``steps`` facets)."""
     def f(u: float, v: float) -> tuple[float, float, float]:
         return (u, (u * u - v * v) * 0.6, v)
     return parametric(f, u=(-extent, extent), v=(-extent, extent),

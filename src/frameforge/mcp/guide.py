@@ -166,7 +166,9 @@ chrome it does not define is not drawn. Every render result reports a compact
 Discovery (look up, don't guess):
 - `describe_capabilities` — LIVE introspection of the document model: no topic = the
   capability index (object types, flowable types, inline kinds, canvas presets, profiles,
-  tool names); topic = `flowables`/`inlines`/`style`/`presets`/`tools`, or a type name
+  tool names, SDK export count); topic = `flowables`/`inlines`/`style`/`presets`/`tools`/
+  `sdk` (the ENTIRE public SDK surface — every export with kind, signature and a one-line
+  explanation, introspected live from `frameforge.sdk.__all__`), or a type name
   (`rect`, `paragraph`, `document`, `page`, `canvas`) for its fields + JSON schema.
   Check the schema BEFORE authoring instead of iterating on validation errors.
 - `list_fonts` — the font families fontconfig can resolve; pass `family` to see what a

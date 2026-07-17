@@ -1117,6 +1117,8 @@ polyline_length(points: 'Iterable[Vec2 | Sequence[float]]') -> 'float'
 
 `frameforge.sdk.geometry.quarter_circle_kappa`
 
+The cubic-Bezier circle constant kappa = (4/3)*(sqrt(2)-1) ~ 0.5523:
+
 ```python
 quarter_circle_kappa() -> 'float'
 ```
@@ -1516,6 +1518,8 @@ bspline_patch_point(control: 'Sequence[Sequence[Vec3 | Sequence[float]]]', u: 'f
 
 `frameforge.sdk.manifold.klein_bottle`
 
+The classic immersed Klein bottle (the standard trigonometric
+
 ```python
 klein_bottle(scale: 'float' = 0.25, *, steps_u: 'int' = 40, steps_v: 'int' = 24, **style: 'object') -> 'Scene3D'
 ```
@@ -1523,6 +1527,8 @@ klein_bottle(scale: 'float' = 0.25, *, steps_u: 'int' = 40, steps_v: 'int' = 24,
 ### `mobius`
 
 `frameforge.sdk.manifold.mobius`
+
+A Mobius band of centreline ``radius`` and half-``width`` — one half-twist
 
 ```python
 mobius(radius: 'float' = 1.0, width: 'float' = 0.4, *, steps_u: 'int' = 48, steps_v: 'int' = 6, **style: 'object') -> 'Scene3D'
@@ -1542,6 +1548,8 @@ parametric(fn: 'Callable[[float, float], Sequence[float]]', *, u: 'tuple[float, 
 
 `frameforge.sdk.manifold.saddle`
 
+A hyperbolic-paraboloid saddle ``y = 0.6*(u^2 - v^2)`` over the square
+
 ```python
 saddle(extent: 'float' = 1.0, *, steps: 'int' = 26, **style: 'object') -> 'Scene3D'
 ```
@@ -1550,6 +1558,8 @@ saddle(extent: 'float' = 1.0, *, steps: 'int' = 26, **style: 'object') -> 'Scene
 
 `frameforge.sdk.manifold.sphere`
 
+A sphere of ``radius``, parametrised by longitude x colatitude
+
 ```python
 sphere(radius: 'float' = 1.0, *, steps_u: 'int' = 28, steps_v: 'int' = 18, **style: 'object') -> 'Scene3D'
 ```
@@ -1557,6 +1567,8 @@ sphere(radius: 'float' = 1.0, *, steps_u: 'int' = 28, steps_v: 'int' = 18, **sty
 ### `torus`
 
 `frameforge.sdk.manifold.torus`
+
+A torus with ring radius ``major`` and tube radius ``minor``
 
 ```python
 torus(major: 'float' = 1.0, minor: 'float' = 0.38, *, steps_u: 'int' = 36, steps_v: 'int' = 20, **style: 'object') -> 'Scene3D'
