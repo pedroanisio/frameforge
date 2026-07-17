@@ -21,13 +21,10 @@ import yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path[:0] = [os.path.join(ROOT, "docs", "models")]
+sys.path[:0] = []
 # the top-level frameforge/ package would shadow models/frameforge.py
-_shadow = sys.modules.get("frameforge")
-if _shadow is not None and hasattr(_shadow, "__path__"):
-    del sys.modules["frameforge"]
 
-import frameforge as fg  # noqa: E402
+import frameforge.model as fg  # noqa: E402
 
 SOURCES = ["docs/spec/frameforge-v2-spec.md", "docs/index.md", "README.md"]
 _FENCE = re.compile(r"```(?:yaml|yml|json)\s*\n(.*?)\n```", re.S)

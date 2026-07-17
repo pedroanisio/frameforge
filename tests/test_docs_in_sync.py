@@ -29,12 +29,9 @@ except ModuleNotFoundError:  # Python 3.10 has no stdlib tomllib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path[:0] = [os.path.join(ROOT, "docs", "models"), os.path.join(ROOT, "docs", "schema")]
-shadow = sys.modules.get("frameforge")
-if shadow is not None and hasattr(shadow, "__path__"):
-    del sys.modules["frameforge"]
+sys.path[:0] = [os.path.join(ROOT, "docs", "schema")]
 
-import frameforge as fg  # noqa: E402
+import frameforge.model as fg  # noqa: E402
 import build_schema as B  # noqa: E402
 
 README = open(os.path.join(ROOT, "README.md"), encoding="utf-8").read()
@@ -106,7 +103,7 @@ def test_package_runtime_version_matches_pyproject():
     """The package exposes `frameforge.__version__` (§16 row 7), and it agrees
     with the declared `[project] version`. Read as a literal — importing the
     package would hit the models-module shadow (`frameforge` resolves to
-    docs/models/frameforge.py in this suite), and the literal is what a real
+    src/frameforge/model.py in this suite), and the literal is what a real
     `pip install frameforge; frameforge.__version__` would return."""
     init = open(os.path.join(ROOT, "src", "frameforge", "__init__.py"),
                 encoding="utf-8").read()

@@ -765,14 +765,18 @@ class SvgPainter:
             return f'<g role="{esc(semantic_role)}"{label}>{title}{desc}{svg}</g>'
         return svg
 
-    def document(self, w, h, body, lang=None, title=None, desc=None):
+    def document(self, w, h, body, lang=None, title=None, desc=None,
+                 background=None):
         """Assemble the page `<svg>`. `lang`/`title`/`desc` are the document-level
         accessibility surface; each is omitted when absent, so a document without
-        them renders byte-for-byte as before."""
+        them renders byte-for-byte as before. `background` is the resolved
+        CanvasObject.background; absent, the documented `white` fallback holds
+        (ADR-0006's one sanctioned page-paint constant — kept byte-identical)."""
         defs = f"<defs>{''.join(self._defs)}</defs>" if self._defs else ""
         lang_attr = f' xml:lang="{esc(lang)}"' if lang else ""
         meta = ((f"<title>{esc(title)}</title>" if title else "")
                 + (f"<desc>{esc(desc)}</desc>" if desc else ""))
         return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{fnum(w)}" height="{fnum(h)}" '
                 f'viewBox="0 0 {fnum(w)} {fnum(h)}"{lang_attr}>'
-                f'{meta}<rect width="100%" height="100%" fill="white"/>{defs}{body}</svg>\n')
+                f'{meta}<rect width="100%" height="100%" fill="{esc(background) if background else "white"}"/>'
+                f'{defs}{body}</svg>\n')

@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Assert whether this tree is ready to emit (build/publish) a Python package.
 
-FrameForge is deliberately a *virtual project* today (``[tool.uv] package = false``,
-codebase-standards §2): the tree runs via ``sys.path``-rooted scripts and is not
-built or installed, because an installed ``frameforge`` distribution would shadow
-the ``models/frameforge.py`` module the tooling imports as ``frameforge``. This
-check makes that stance *measurable* — it reports the distance to the §9/§16
-``make release`` target and exits non-zero while any hard blocker stands.
+FrameForge became a *real package* in 2.5.0: the authoritative model moved into
+the package (``src/frameforge/model.py``), the hatchling build backend landed,
+and ``[tool.uv] package = true``. Until then the tree was deliberately a virtual
+project (``package = false``, codebase-standards §2) because an installed
+``frameforge`` distribution would have shadowed the model module at
+``docs/models/frameforge.py``. This check keeps that end-state *measurable* —
+every criterion that once blocked the build is now a regression gate, and it
+exits non-zero if any of them reopens.
 
 It changes nothing: it only inspects ``pyproject.toml``, the package tree, and the
 import graph, then prints a verdict. Findings are split into **blockers** (a wheel
@@ -246,8 +248,8 @@ def main(argv: list[str] | None = None) -> int:
         print("  Gaps are the §16 [Target] ledger — they don't break a build.")
     else:
         print(f"NOT READY: {len(blockers)} blocker(s), {len(gaps)} gap(s).")
-        print("  FrameForge is a virtual project by design (codebase-standards §2);")
-        print("  emitting a package is a §9/§16 [Target], not a current capability.")
+        print("  FrameForge has shipped as a real package since 2.5.0; a blocker")
+        print("  here is a packaging REGRESSION, not the historical virtual stance.")
     return 0 if ready else 1
 
 

@@ -38,7 +38,7 @@ from pydantic import (
     model_validator,
 )
 
-HEAD_VERSION = "2.4.1"  # v2 line; 2.4.0 adds the ordered per-object effect stack (`effects`) and the multi-pass appearance stack (`appearance`) — additive, outside the deep-core profile (§8.5, W4/#48). 2.3.0 added typed Connector, per-field schema descriptions, R12 referential integrity, Length/Angle value patterns (additive). 2.2.0 adopted the authoritative style module; P3 stroke collapse remains the one breaking change (codemod provided).
+HEAD_VERSION = "2.5.0"  # v2 line; 2.4.0 adds the ordered per-object effect stack (`effects`) and the multi-pass appearance stack (`appearance`) — additive, outside the deep-core profile (§8.5, W4/#48). 2.3.0 added typed Connector, per-field schema descriptions, R12 referential integrity, Length/Angle value patterns (additive). 2.2.0 adopted the authoritative style module; P3 stroke collapse remains the one breaking change (codemod provided).
 
 
 # --------------------------------------------------------------------------- #
@@ -86,6 +86,8 @@ NumberFormat = Literal["decimal", "lower-roman", "upper-roman", "lower-alpha", "
 PagePreset = Literal[
     "A3", "A4", "A5", "Letter", "Legal", "Tabloid",
     "deck-16x9", "deck-4x3", "square", "phone", "tablet", "web",
+    # Screen resolution ladder (device px; mirror CanvasResolver.PRESETS).
+    "qhd", "4k", "uhd", "8k",
     # Social-media canvases — pixel sizes mirror CanvasResolver.PRESETS.
     "instagram-square", "instagram-portrait", "instagram-landscape", "instagram-story",
     "facebook-post", "facebook-cover", "facebook-story",
@@ -1283,8 +1285,11 @@ class TableObject(ObjBase):
     style: Optional[Union[str, dict]] = Field(
         default=None, description="Table theme: a tokens key or a loose dict of "
                                   "renderer keys: header_fill, header_text, cell_text, "
-                                  "zebra_fill, grid_color, cell_size (chrome the table does "
-                                  "not define is not drawn; ADR-0006); grammar: object-any.")
+                                  "zebra_fill, grid_color, cell_size, and the chrome geometry "
+                                  "keys grid_width, cell_padding, header_weight, "
+                                  "cell_line_height (documented fallbacks 0.5/4.0/700/1.25; "
+                                  "chrome the table does not define is not drawn; ADR-0006); "
+                                  "grammar: object-any.")
 
 
 class Group(ObjBase):
@@ -1408,8 +1413,11 @@ class TableFlow(BreakFields):
     style: Optional[Union[str, dict]] = Field(
         default=None, description="Table theme: a tokens key or a loose dict of "
                                   "renderer keys: header_fill, header_text, cell_text, "
-                                  "zebra_fill, grid_color, cell_size (chrome the table does "
-                                  "not define is not drawn; ADR-0006); grammar: object-any.")
+                                  "zebra_fill, grid_color, cell_size, and the chrome geometry "
+                                  "keys grid_width, cell_padding, header_weight, "
+                                  "cell_line_height (documented fallbacks 0.5/4.0/700/1.25; "
+                                  "chrome the table does not define is not drawn; ADR-0006); "
+                                  "grammar: object-any.")
     caption: Optional[Caption] = Field(
         default=None, description="Caption: a string or inline runs (P2).")
     credit: Optional[Caption] = Field(
@@ -1557,6 +1565,10 @@ class CanvasObject(FG):
         default=None, description="Bleed extended beyond the canvas on all sides (print).")
     margin: Optional[Box] = Field(
         default=None, description="Default content margin [top, right, bottom, left].")
+    background: Optional[Color] = Field(
+        default=None, description="Page background colour (token or literal), painted behind "
+                                  "all layers/flow content. Absent = the renderer's documented "
+                                  "white default (ADR-0006 sanctioned fallback).")
 
     @model_validator(mode="after")
     def _preset_or_size(self):

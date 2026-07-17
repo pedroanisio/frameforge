@@ -1,7 +1,7 @@
 """Clip-path constructors for the FrameForge SDK.
 
 These assemble the plain ``{shape, args}`` dicts the authoritative ``ClipPath``
-model already accepts (``models.frameforge.ClipPath``) and the SVG proxy already
+model already accepts (``frameforge.model.ClipPath``) and the SVG proxy already
 honours (``render_fixtures`` ``_style_clip_id``). They add no schema of their own;
 they only spare callers hand-building the style bag and getting the argument
 names right.

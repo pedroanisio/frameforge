@@ -1232,6 +1232,10 @@
                 "phone",
                 "tablet",
                 "web",
+                "qhd",
+                "4k",
+                "uhd",
+                "8k",
                 "instagram-square",
                 "instagram-portrait",
                 "instagram-landscape",
@@ -1390,6 +1394,19 @@
           "default": null,
           "description": "Default content margin [top, right, bottom, left].",
           "title": "Margin"
+        },
+        "background": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Page background colour (token or literal), painted behind all layers/flow content. Absent = the renderer's documented white default (ADR-0006 sanctioned fallback).",
+          "title": "Background"
         }
       },
       "title": "CanvasObject",
@@ -9566,6 +9583,10 @@
                 "phone",
                 "tablet",
                 "web",
+                "qhd",
+                "4k",
+                "uhd",
+                "8k",
                 "instagram-square",
                 "instagram-portrait",
                 "instagram-landscape",
@@ -9829,6 +9850,10 @@
                 "phone",
                 "tablet",
                 "web",
+                "qhd",
+                "4k",
+                "uhd",
+                "8k",
                 "instagram-square",
                 "instagram-portrait",
                 "instagram-landscape",
@@ -12333,6 +12358,10 @@
                 "phone",
                 "tablet",
                 "web",
+                "qhd",
+                "4k",
+                "uhd",
+                "8k",
                 "instagram-square",
                 "instagram-portrait",
                 "instagram-landscape",
@@ -15496,7 +15525,7 @@
             }
           ],
           "default": null,
-          "description": "Table theme: a tokens key or a loose dict of renderer keys: header_fill, header_text, cell_text, zebra_fill, grid_color, cell_size (chrome the table does not define is not drawn; ADR-0006); grammar: object-any.",
+          "description": "Table theme: a tokens key or a loose dict of renderer keys: header_fill, header_text, cell_text, zebra_fill, grid_color, cell_size, and the chrome geometry keys grid_width, cell_padding, header_weight, cell_line_height (documented fallbacks 0.5/4.0/700/1.25; chrome the table does not define is not drawn; ADR-0006); grammar: object-any.",
           "title": "Style"
         },
         "caption": {
@@ -15825,7 +15854,7 @@
             }
           ],
           "default": null,
-          "description": "Table theme: a tokens key or a loose dict of renderer keys: header_fill, header_text, cell_text, zebra_fill, grid_color, cell_size (chrome the table does not define is not drawn; ADR-0006); grammar: object-any.",
+          "description": "Table theme: a tokens key or a loose dict of renderer keys: header_fill, header_text, cell_text, zebra_fill, grid_color, cell_size, and the chrome geometry keys grid_width, cell_padding, header_weight, cell_line_height (documented fallbacks 0.5/4.0/700/1.25; chrome the table does not define is not drawn; ADR-0006); grammar: object-any.",
           "title": "Style"
         },
         "shadow": {
@@ -17322,9 +17351,9 @@
     "version",
     "pages"
   ],
-  "title": "FrameForge v2 (HEAD 2.4.1) — generated from the Pydantic models (core conformance profile)",
+  "title": "FrameForge v2 (HEAD 2.5.0) — generated from the Pydantic models (core conformance profile)",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://frameforge.dev/schema/2.4.1/frameforge-v2.schema.json",
-  "version": "2.4.1"
+  "$id": "https://frameforge.dev/schema/2.5.0/frameforge-v2.schema.json",
+  "version": "2.5.0"
 }

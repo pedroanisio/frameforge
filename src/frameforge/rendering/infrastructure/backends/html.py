@@ -69,8 +69,8 @@ from typing import Any, Iterable
 
 from frameforge.rendering.domain.ports import RenderedArtifact
 from frameforge.rendering.domain.services.canvas_resolver import (
+    CanvasResolver as _CanvasResolver,
     DEFAULT_WH as _HTML_DEFAULT_WH,
-    PRESETS as _CANVAS_PRESETS,
 )
 
 # --------------------------------------------------------------------------- #
@@ -137,7 +137,7 @@ class Tokens:
         self.colors: dict[str, str] = tok.get("colors") or {}
         self.fonts: dict[str, Any] = tok.get("fonts") or {}
         # `styles` is the live bucket; `text_styles` is the superseded alias
-        # (models/frameforge.py Tokens). Merge both so a `style:` name reference
+        # (frameforge.model Tokens). Merge both so a `style:` name reference
         # always resolves to a generated `.fg-ts-<name>` class, with `styles`
         # winning on a name collision.
         self.text_styles: dict[str, dict] = {
@@ -1082,22 +1082,22 @@ class Renderer:
 # --------------------------------------------------------------------------- #
 
 
-# Canvas presets are shared with the canonical render path — the HTML backend
-# imports the ONE table (`_CANVAS_PRESETS` = `canvas_resolver.PRESETS`, aliased at
-# the top of this module) rather than mirroring it, so a preset size can never
-# diverge between `--to svg`/`pdf-tex` and `--to html`; the default likewise comes
-# from the canonical `DEFAULT_WH` (drift-risk-map #4).
+# Canvas resolution is shared with the canonical render path — the HTML backend
+# delegates to the ONE implementation (`CanvasResolver`, aliased at the top of
+# this module) rather than mirroring it, so preset sizes, `orientation`, and
+# physical `units` can never diverge between `--to svg`/`pdf-tex` and
+# `--to html`; the default likewise comes from the canonical `DEFAULT_WH`
+# (drift-risk-map #4, Track B handoff). This lane renders pages standalone
+# (no master canvas inheritance, as before), hence the empty masters map.
+_PAGE_CANVAS = _CanvasResolver({})
+
+
 def canvas_size(page: dict, default=_HTML_DEFAULT_WH) -> tuple[float, float]:
-    """Resolve a page's canvas to (w, h): inline size, named preset, or default."""
-    canvas = page.get("canvas")
-    if isinstance(canvas, str):                       # bare preset, e.g. "deck-16x9"
-        return _CANVAS_PRESETS.get(canvas, default)
-    if isinstance(canvas, dict):
-        if canvas.get("size"):
-            return _num(canvas["size"][0]), _num(canvas["size"][1])
-        if canvas.get("preset"):                      # {preset: "A4"}
-            return _CANVAS_PRESETS.get(canvas["preset"], default)
-    return default
+    """Resolve a page's canvas to (w, h): inline size (units-aware), named
+    preset (orientation-aware), or default — via the canonical CanvasResolver."""
+    if page.get("canvas") is None:
+        return default
+    return _PAGE_CANVAS.resolve(page)
 
 
 def render_page(page: dict, tokens: Tokens, index: int) -> str:

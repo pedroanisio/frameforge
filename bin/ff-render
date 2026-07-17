@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+"""ff-render — the FrameForge render command (uninstalled-checkout launcher).
+
+Since 2.5.0 FrameForge is a real package: installing it (``pip install .`` /
+``uv sync``) puts a genuine ``ff-render`` console script on PATH, and that is
+the primary way to run the CLI. This launcher is the fallback for running a
+checkout *without* installing — it puts ``src`` on ``sys.path`` and delegates
+to :func:`frameforge.cli.main`. One surface, zero duplicated logic (issue #35).
+
+Run it directly, or put it on your PATH — e.g.::
+
+    ln -s "$PWD/bin/ff-render" ~/.local/bin/ff-render   # once, uninstalled use
+    ff-render --list                                    # list render targets
+    ff-render doc.fg.yaml --to pdf                      # render a document
+
+Equivalent, without PATH setup: ``uv run ff-render`` (the installed script).
+"""
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.normpath(os.path.join(HERE, ".."))
+sys.path.insert(0, os.path.join(ROOT, "src"))
+
+from frameforge.cli import main  # noqa: E402
+
+if __name__ == "__main__":
+    sys.exit(main())

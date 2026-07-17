@@ -407,7 +407,7 @@ def gen_sdk_guide():
         "Do not hand-edit.",
         "",
         "The Python SDK lives under `frameforge.sdk`. It is a hand-written binding over the repository's "
-        "authoritative Pydantic model, so document-producing APIs validate through `models.frameforge.Document` "
+        "authoritative Pydantic model, so document-producing APIs validate through `frameforge.model.Document` "
         "instead of redeclaring core schema types.",
         "",
         "## Install and import",
@@ -623,17 +623,12 @@ def gen_sdk_api():
 
 
 def _ensure_sdk_importable():
-    existing = sys.modules.get("frameforge")
-    if existing is not None and not hasattr(existing, "__path__"):
-        sys.modules.pop("frameforge", None)
-    models_path = os.path.join(ROOT, "docs", "models")
-    sys.path[:] = [
-        p for p in sys.path
-        if os.path.normpath(p or os.getcwd()) != models_path
-    ]
+    # Put the repo roots first so reflection sees THIS tree's package. (The
+    # historical eviction of a model-module shadow is gone: since 2.5.0 the
+    # model lives inside the package and nothing else can own the name.)
     if ROOT in sys.path:
         sys.path.remove(ROOT)
-    sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
+    sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
 
 def _api_object_block(name, obj):

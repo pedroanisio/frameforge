@@ -51,12 +51,14 @@ def test_checker_inspects_paths_that_actually_exist():
 # --------------------------------------------------------------------------- #
 #  The verdict must be TRUE against the src-layout tree                        #
 # --------------------------------------------------------------------------- #
-def test_name_collision_detects_the_live_model_shadow():
+def test_name_collision_is_resolved_by_the_model_move():
+    """2.5.0 moved the authoritative model into the package
+    (src/frameforge/model.py); no module on a tooling sys.path root shares the
+    distribution name any more, so an installed wheel shadows nothing."""
     f = _by_name()["distribution name does not shadow a module"]
-    assert not f.ok, (
-        "docs/models/frameforge.py still shadows the `frameforge` dist name — a "
-        "live blocker the checker must report, not drop")
-    assert "docs/models/frameforge.py" in f.detail
+    assert f.ok, (
+        "a module named `frameforge` reappeared on a tooling sys.path root — "
+        f"that reintroduces the shadow hazard 2.5.0 removed: {f.detail}")
 
 
 def test_runtime_version_gap_is_closed_by_row_7():
@@ -68,19 +70,11 @@ def test_runtime_version_gap_is_closed_by_row_7():
 
 def test_verdict_matches_the_live_tree():
     """The standards §16 package-emit accounting quotes this verdict verbatim, so
-    pin the exact live truth: three deliberate virtual-project blockers and two
-    advisory gaps (the __version__ gap is closed by row 7)."""
+    pin the exact live truth: as of 2.5.0 the tree is a real package — build
+    backend declared, not virtual, no name shadow, py.typed shipped. Zero
+    blockers, zero gaps: the checker must print READY."""
     findings = CPR.evaluate()
     blockers = {f.name for f in findings if f.severity == CPR.BLOCKER and not f.ok}
     gaps = {f.name for f in findings if f.severity == CPR.GAP and not f.ok}
-    assert blockers == {
-        "build backend declared",
-        "not a virtual project",
-        "distribution name does not shadow a module",
-    }, f"blockers drifted from the live tree: {blockers}"
-    assert "runtime __version__ exposed" not in gaps, "row 7 closed the __version__ gap"
-    assert "publish metadata polish" not in gaps, (
-        "row 8 landed classifiers/authors/urls/keywords — this gap is closed")
-    assert gaps == {
-        "py.typed marker shipped",
-    }, f"gaps drifted from the live tree: {gaps}"
+    assert blockers == set(), f"packaging regressed — blockers reappeared: {blockers}"
+    assert gaps == set(), f"packaging regressed — gaps reopened: {gaps}"

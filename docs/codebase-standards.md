@@ -52,7 +52,7 @@ Rules of reading:
 |---|---|---|
 | Toolchain, deps, version, packaging | [pyproject.toml](../pyproject.toml) | exists |
 | The quality gate (what must pass) | [Makefile](../Makefile) (`make check`), mirrored by [ci.yml](../.github/workflows/ci.yml) | exists |
-| Format / conformance (the data model) | [docs/models/frameforge.py](./models/frameforge.py) (Pydantic v2, **source of truth**) | exists |
+| Format / conformance (the data model) | [src/frameforge/model.py](../src/frameforge/model.py) (Pydantic v2, **source of truth**) | exists |
 | Generated JSON schema | [docs/schema/build_schema.py](./schema/build_schema.py) (`--check` fails on drift) | exists |
 | Normative prose & grammar | [docs/spec/](./spec/), [docs/grammar/](./grammar/) (grammar ⇄ models gated by [check_grammar_sync.py](../tooling/check_grammar_sync.py)) | exists |
 | Status, scope, honest limits | [README.md](../README.md), [CHANGELOG.md](../CHANGELOG.md) | exists |
@@ -98,18 +98,23 @@ Rules of reading:
 - **`[Enforced]`** The LaTeX/TikZ renderer (`tooling/render_latex.py`) adds **no** Python
   dependency: it shells out to a system TeX engine (lualatex preferred, pdflatex fallback)
   plus poppler's `pdftoppm` for `--png` ([pyproject.toml:30-39](../pyproject.toml#L30-L39)).
-- **`[Enforced]`** Two console scripts are declared — `frameforge-render` and
+- **`[Enforced]`** Two console scripts are declared — `ff-render` and
   `fg-font` ([pyproject.toml:25-26](../pyproject.toml#L25-L26)) — but inert while the
   project stays virtual; they resolve as commands only where the package is
   installed (e.g. an external consumer or image). In this tree run the
-  self-bootstrapping launchers: `uv run python tooling/frameforge_render.py`
+  self-bootstrapping launcher `bin/ff-render` (symlink it onto your PATH), or
+  `uv run python tooling/frameforge_render.py`
   (PYTHONPATH-free; issue #35) or `python -m frameforge.cli` where `src`/`docs`
   are already on the path, and `uv run python tooling/fg_font.py` (thin
   launcher over `frameforge.fontpack`; also `make font-list` / `font-check`).
-- **`[Enforced]`** This is a **virtual project**: `package = false`
-  ([pyproject.toml:81](../pyproject.toml#L81)). The tree runs via `sys.path`-rooted scripts;
-  it is deliberately **not** built or installed (an installed `frameforge` distribution
-  would shadow the [docs/models/frameforge.py](./models/frameforge.py) module the tooling imports).
+- **`[Enforced]`** This is a **real package** (2.5.0): `[build-system]` = hatchling and
+  `[tool.uv] package = true` ([pyproject.toml](../pyproject.toml)). The historical
+  virtual-project stance (`package = false`) existed because an installed `frameforge`
+  distribution would have shadowed the model module at `docs/models/frameforge.py`;
+  2.5.0 moved the model into the package ([src/frameforge/model.py](../src/frameforge/model.py)),
+  which removed the hazard and the stance with it. `uv sync` installs the project editable
+  with real `ff-render` / `fg-font` console scripts; the launchers remain for
+  uninstalled checkouts.
 - **`[Enforced]`** Lock state lives in [uv.lock](../uv.lock). Do not hand-edit it; CI syncs
   from the lock with `uv sync --locked --group pdf` — the `pdf` group only lets the PDF
   transpiler's `importorskip`-gated e2e test run ([ci.yml:25](../.github/workflows/ci.yml#L25)).
@@ -212,7 +217,7 @@ The gate is the contract for "done." It has **one definition**, run two places.
 
 ## 5. Type checking (mypy)
 
-- **`[Target]`** `mypy --strict` over [docs/models/](./models/) and [src/frameforge/](../src/frameforge/),
+- **`[Target]`** `mypy --strict` over [src/frameforge/](../src/frameforge/) (the model included),
   with the `pydantic.mypy` plugin, wired into the gate as `make typecheck`. **Nothing exists
   today** — there is no `[tool.mypy]` config, no `typecheck` target, and CI does not type-check.
   This is one of the larger gaps (§16); new code should be written annotated and strict-clean
@@ -436,7 +441,7 @@ non-negotiable absent an explicit, documented decision.
 - **Output surface.** SVG stays primary; the matplotlib proxy, headless-Chromium raster,
   LaTeX/TikZ (system TeX, no Python deps, §2), and PDF-out (`pdfout` group) paths are optional
   render backends behind the [src/frameforge/cli.py](../src/frameforge/cli.py) front door
-  (`frameforge-render`; `--list` shows live availability). None of them is conformant
+  (`ff-render`; `--list` shows live availability). None of them is conformant
   (honest scope, below).
 - **MCP boundary.** [src/frameforge/mcp/](../src/frameforge/mcp/) is an optional adapter for AI coding
   feedback loops: Python SDK code runs in a per-session subprocess, emits FrameForge YAML, and
@@ -463,8 +468,10 @@ non-negotiable absent an explicit, documented decision.
   [src/frameforge/library](../src/frameforge/library/) (the #32 themes/symbols/generators content
   library), and [src/frameforge/fontpack.py](../src/frameforge/fontpack.py) (ADR-0004 font packs;
   the `fg-font` console script) —
-  while the conformance/schema context still lives in [docs/models/](./models/),
-  [docs/schema/](./schema/), and [tooling/](../tooling/) and migrates in later steps
+  while the authoritative model now lives in the package
+  ([src/frameforge/model.py](../src/frameforge/model.py), moved in 2.5.0) and the remaining
+  conformance/schema tooling still lives in [docs/schema/](./schema/) and
+  [tooling/](../tooling/) and migrates in later steps
   ([src/frameforge/__init__.py](../src/frameforge/__init__.py)). Do not justify a decision by the
   *current* mid-migration shape; move toward the target structure. **The package no longer
   imports up into `tooling/`** — [tests/test_package_boundary.py](../tests/test_package_boundary.py)
@@ -552,12 +559,11 @@ the deliberate §2 `package = false` decision (row 7's runtime `__version__` + r
 landed 2026-07-04; row 8's `classifiers`/`authors`/`urls`/`keywords` landed 2026-07-04). That
 composite gap is measurable: `make package-check`
 ([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) asserts it and
-reports **NOT READY** today (3 blockers, 1 gap — the one remaining gap is the §1 `py.typed`
-target; the runtime `__version__` and publish-metadata gaps closed with rows 7 and 8).
-It is advisory — not part of `make check` —
-and shrinks as these rows close. The remaining blockers are the deliberate virtual-project
-decisions: no `[build-system]` table, `[tool.uv] package = false`, and the `frameforge` dist
-name shadowing `docs/models/frameforge.py` (§2). The former fourth blocker — `frameforge/`
+reports **READY** (0 blockers, 0 gaps) since 2.5.0: the hatchling `[build-system]` landed,
+`[tool.uv] package = true`, the model moved into the package (no dist-name shadow), and
+`py.typed` ships. Every criterion is now a regression gate
+([tests/test_package_readiness.py](../tests/test_package_readiness.py) pins the READY
+verdict). The former fourth blocker — `frameforge/`
 importing the top-level `tooling` package (the inverted dependency, tension #1 in
 `conceptual-analysis.md`) — has been **cleared**: the orchestrator + `normalize_doc` moved into
 the package (§13), and [tests/test_package_boundary.py](../tests/test_package_boundary.py) keeps

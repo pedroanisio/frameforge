@@ -52,7 +52,7 @@ Read, in this order, only what you need to choose and build correctly:
    `status: frozen` (do not edit), honour `rules` and `forbidden_patterns`, and run
    any referenced `test_ref`.
 
-The source of truth is the **live tree** — `docs/models/frameforge.py`, the
+The source of truth is the **live tree** — `src/frameforge/model.py`, the
 generated schema, the validator/tooling gates, committed fixtures, and the docs
 generated from those. Ground every claim in a live file, test, or generated
 output; never in memory of how the code "probably" works.
@@ -85,7 +85,7 @@ incompatible, ask a single targeted question; otherwise choose and proceed.
 - Restate the item as a crisp outcome: *what will be true when this is done*, in
   terms of behaviour and the gates that will prove it.
 - Name the blast radius: which models/tooling/tests/docs/fixtures/examples the
-  change touches. If it touches `docs/models/frameforge.py` or the schema, it is a
+  change touches. If it touches `src/frameforge/model.py` or the schema, it is a
   **schema change** — plan a semantic-version bump and regeneration.
 - For **M/L/XL**: write a brief plan (bullet steps, each independently verifiable)
   before writing code. For **XS/S**: proceed directly.

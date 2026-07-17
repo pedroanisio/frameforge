@@ -16,7 +16,7 @@
 Small fluent builder that lowers directly to the authoritative model.
 
 ```python
-DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.4.1') -> 'None'
+DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.5.0') -> 'None'
 ```
 
 | Method | Signature | Summary |
@@ -1600,12 +1600,12 @@ from_markdown(text: 'str', *, title: 'str | None' = None, lang: 'str | None' = N
 
 ### `Document`
 
-`models.frameforge.Document`
+`frameforge.model.Document`
 
 Closed base: unknown keys are errors (the closed-model decision).
 
 ```python
-Document(*, dsl: Literal['FrameForge'], version: Annotated[str, _PydanticGeneralMetadata(pattern='^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$')], profile: Optional[Literal['deck', 'book', 'letter', 'report', 'diagram', 'mixed']] = None, title: Optional[str] = None, description: Optional[str] = None, lang: Optional[str] = None, defs: Optional[models.frameforge.Defs] = None, targets: Optional[list[models.frameforge.RenderTarget]] = None, pages: Annotated[list[Annotated[Union[models.frameforge.Page, models.frameforge.FlowSection], FieldInfo(annotation=NoneType, required=True, discriminator='mode')]], MinLen(min_length=1)], meta: Optional[dict] = None, humanize: Optional[models.frameforge.Humanize] = None, text_contract: Optional[models.frameforge.TextContract] = None) -> None
+Document(*, dsl: Literal['FrameForge'], version: Annotated[str, _PydanticGeneralMetadata(pattern='^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$')], profile: Optional[Literal['deck', 'book', 'letter', 'report', 'diagram', 'mixed']] = None, title: Optional[str] = None, description: Optional[str] = None, lang: Optional[str] = None, defs: Optional[frameforge.model.Defs] = None, targets: Optional[list[frameforge.model.RenderTarget]] = None, pages: Annotated[list[Annotated[Union[frameforge.model.Page, frameforge.model.FlowSection], FieldInfo(annotation=NoneType, required=True, discriminator='mode')]], MinLen(min_length=1)], meta: Optional[dict] = None, humanize: Optional[frameforge.model.Humanize] = None, text_contract: Optional[frameforge.model.TextContract] = None) -> None
 ```
 
 | Method | Signature | Summary |
@@ -1620,7 +1620,7 @@ Document(*, dsl: Literal['FrameForge'], version: Annotated[str, _PydanticGeneral
 
 ### `HEAD_VERSION`
 
-`str` value: `'2.4.1'`
+`str` value: `'2.5.0'`
 
 ### `ValidationError`
 

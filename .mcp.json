@@ -14,10 +14,7 @@
         "python",
         "-m",
         "frameforge.mcp"
-      ],
-      "env": {
-        "PYTHONPATH": "src:docs"
-      }
+      ]
     }
   }
 }

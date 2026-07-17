@@ -2,7 +2,7 @@
 
 Closes issue #35. Two root causes, both src-layout refactor casualties:
 
-- ``frameforge.sdk.model`` hard-imports ``models.frameforge`` and relied on the
+- ``frameforge.sdk.model`` hard-imports ``frameforge.model`` and relied on the
   caller exporting ``PYTHONPATH=docs`` — the Makefile compensates, the CLI
   front door did not, so ``uv run frameforge-render … --to svg`` crashed with
   ``ModuleNotFoundError: models``.

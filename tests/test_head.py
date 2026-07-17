@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.join(ROOT, "docs"))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
 sys.path.insert(0, os.path.join(ROOT, "docs", "schema"))
 import yaml  # noqa: E402
-import models.frameforge as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)
+import frameforge.model as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)
 from pydantic import ValidationError  # noqa: E402
 import validate as V  # noqa: E402
 import codemod as C  # noqa: E402
@@ -70,7 +70,7 @@ def _migrate(doc_dict):
 
 # --------------------------------------------------------------------------- #
 def test_version_is_2_4_0():
-    assert fg.HEAD_VERSION == "2.4.1"
+    assert fg.HEAD_VERSION == "2.5.0"
 
 
 def test_schema_in_sync_with_models():

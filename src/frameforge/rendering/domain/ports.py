@@ -132,9 +132,12 @@ class ScenePainter(Protocol):
     # ---- grouping / document ----
     def group(self, inner: str, translate=None) -> str: ...
     def opacity_group(self, inner: str, opacity) -> str: ...
-    def document(self, w, h, body: str, lang=None, title=None, desc=None) -> str:
+    def document(self, w, h, body: str, lang=None, title=None, desc=None,
+                 background=None) -> str:
         """Assemble a full page document from accumulated defs + body. `lang`/`title`/
-        `desc` are root accessibility attributes a backend may use or ignore."""
+        `desc` are root accessibility attributes a backend may use or ignore.
+        `background` is the resolved page background colour; None means the
+        backend's documented default (white, per ADR-0006)."""
 
 
 # --------------------------------------------------------------------------- #

@@ -7,11 +7,11 @@ site_description: >-
 docs_dir: docs
 
 # The src-layout refactor hosts non-site reference material under docs/ too
-# (the authoritative models, the schema generator, spec/grammar sources, seed
-# assets, repo-facing docs). Exclude them from the built site: they are repo
-# content, not pages, and their repo-root-relative links would fail --strict.
+# (the schema generator, spec/grammar sources, seed assets, repo-facing docs;
+# the authoritative model itself lives in the package, src/frameforge/model.py).
+# Exclude them from the built site: they are repo content, not pages, and their
+# repo-root-relative links would fail --strict.
 exclude_docs: |
-  models/
   schema/
   spec/
   grammar/
@@ -52,6 +52,22 @@ theme:
     - scheme: slate
       primary: indigo
       toggle: { icon: material/weather-sunny, name: Light }
+
+# Declaring `plugins` disables the implicit default, so `search` is re-added
+# explicitly. print-site must stay LAST: it concatenates every page after all
+# other plugins have run, adding a single combined page (site root /print_page/)
+# for save-as-HTML plus a print/save-as-PDF flow via the browser print dialog.
+# The extra dependency rides in via `--with mkdocs-print-site-plugin`
+# (Makefile docs / docs-serve, ci.yml docs jobs).
+plugins:
+  - search
+  - print-site:
+      add_to_navigation: true
+      print_page_title: "Save as HTML / PDF"
+      add_table_of_contents: true
+      toc_depth: 2
+      add_full_urls: false
+      add_print_site_banner: false
 
 nav:
   - Home: index.md

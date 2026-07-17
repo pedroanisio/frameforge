@@ -1466,7 +1466,7 @@ def create_server(
     ):
         """Runtime discovery of the FrameForge document model (live, read-only introspection).
 
-        Sourced from the authoritative Pydantic model (``models/frameforge.py``)
+        Sourced from the authoritative Pydantic model (``frameforge.model``)
         at call time — the same module validation runs against — so it cannot
         drift. Omit ``topic`` for the compact capability index; pass a catalog
         topic (``flowables``/``inlines``/``style``/``presets``/``tools``) or a

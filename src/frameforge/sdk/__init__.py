@@ -1,7 +1,7 @@
 """Python SDK for authoring, validating, expanding, and serializing FrameForge.
 
 The SDK is a hand-written Python binding over the repository's authoritative
-Pydantic model in :mod:`models.frameforge`. It deliberately does not duplicate
+Pydantic model in :mod:`frameforge.model`. It deliberately does not duplicate
 core schema types; builders and helpers lower into the model and validate there.
 """
 from __future__ import annotations

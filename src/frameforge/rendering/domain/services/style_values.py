@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional
 
-from frameforge.rendering.domain.geometry import fnum, num
+from frameforge.rendering.domain.geometry import fnum, fnum_precise, is_point, num
 
 
 class StyleValues:
@@ -82,7 +82,19 @@ class StyleValues:
         return f"{fnum(n)}px" if n is not None else str(value)
 
     # ---- transform ----
-    def transform_ops(self, value, origin, box):
+
+    # Multiplicative transform functions: a 3-decimal quantized arg (error
+    # ≤ 5e-4) is amplified by the coordinate extent it multiplies — up to
+    # ~1.9 px at x = 3840 — so their args are formatted with `fnum_precise`.
+    # translate args are additive (error ≤ 5e-4 px flat) and a rotate ANGLE
+    # quantized by ≤ 5e-4° displaces at most r·δθ ≈ 0.04 px at the 4K
+    # diagonal (r ≈ 4406), so both deliberately stay on the byte-stable
+    # `fnum`. matrix e/f are additive too but ride the matrix formatting —
+    # extra precision on an additive term is harmless.
+    _PRECISE_FNS = {"scale", "scale_x", "scale_y", "skew", "skew_x", "skew_y",
+                    "matrix"}
+
+    def transform_ops(self, value, origin, box, obj=None):
         """Resolve a CSS `transform` to a backend-neutral op list.
 
         Returns an ordered list of `(fn, [arg_str, ...])` ops, where `fn` is a
@@ -90,24 +102,27 @@ class StyleValues:
         `matrix`) or `'raw'` for a pre-formatted passthrough string. Origin
         bookkeeping is expanded into explicit `translate` ops here, so the backend
         only formats `fn(args)` in its own syntax (the SVG backend via
-        `SvgPainter.format_transform`). Empty list = no transform."""
+        `SvgPainter.format_transform`). Empty list = no transform.
+
+        `obj` (optional) supplies the geometry-centre default origin for
+        box-less objects (see `transform_origin`)."""
         if not value or value == "none":
             return []
         if isinstance(value, str):
             raw = ("raw", [value.replace("deg", "")])
-            # A string transform (e.g. humanize's `rotate(...)`) still honours an
-            # explicit transform_origin. Without this the whole string pivots about
-            # the SVG origin (0, 0), so a rotate on centre/point geometry orbits the
-            # object across the page instead of turning it in place.
-            if origin is None:
-                return [raw]
-            ox, oy = self.transform_origin(origin, box)
+            # A string transform (e.g. "rotate(2deg)") honours transform_origin
+            # exactly like the dict form — including the spec §3.6b default to
+            # the box/geometry centre when no origin is given. Without the
+            # sandwich the whole string pivots about the local origin (0, 0),
+            # so a rotate orbits the object across the page instead of turning
+            # it in place.
+            ox, oy = self.transform_origin(origin, box, obj)
             if ox is None:
                 return [raw]
             return [("raw", [f"translate({fnum(ox)},{fnum(oy)})"]), raw,
                     ("raw", [f"translate({fnum(-ox)},{fnum(-oy)})"])]
         items = value if isinstance(value, list) else [value]
-        ox, oy = self.transform_origin(origin, box)
+        ox, oy = self.transform_origin(origin, box, obj)
         ops: list[tuple[str, list[str]]] = []
         for item in items:
             if isinstance(item, str):
@@ -117,7 +132,8 @@ class StyleValues:
                 continue
             fn = item.get("fn") or item.get("kind") or item.get("name")
             args = item.get("args") or []
-            vals = [self.transform_arg(v) for v in args]
+            vals = [self.transform_arg(v, precise=fn in self._PRECISE_FNS)
+                    for v in args]
             if fn == "rotate" and vals:
                 ops.append(("rotate", [vals[0], fnum(ox), fnum(oy)] if ox is not None else [vals[0]]))
             elif fn == "translate":
@@ -144,7 +160,9 @@ class StyleValues:
                 ops.append(("matrix", vals))
         return ops
 
-    def transform_origin(self, origin, box):
+    def transform_origin(self, origin, box, obj=None):
+        """Resolve the transform pivot: explicit origin → box centre →
+        geometry centre (§3.6b default: the object's centre)."""
         if isinstance(origin, (list, tuple)) and len(origin) >= 2:
             return num(origin[0], 0), num(origin[1], 0)
         if isinstance(origin, str):
@@ -153,12 +171,41 @@ class StyleValues:
                 return num(vals[0], 0), num(vals[1], 0)
         if isinstance(box, list) and len(box) >= 4:
             return num(box[0], 0) + num(box[2], 0) / 2, num(box[1], 0) + num(box[3], 0) / 2
+        return self.geometry_center(obj)
+
+    @staticmethod
+    def geometry_center(obj):
+        """Geometric centre of a box-less object — the §3.6b default pivot.
+
+        Centre-, endpoint- and point-based geometry (circle/ellipse, line/
+        curve/bezier, polyline/polygon) carries no `box`; derive the centre
+        from whatever the object holds so rotate/scale/skew transform it in
+        place instead of orbiting the local origin (mirrors the derivation
+        sdk.humanize._tilt_center had to carry as a workaround). Path `d`
+        geometry stays origin-less (no cheap exact bbox). `(None, None)`
+        when nothing is derivable."""
+        if not isinstance(obj, dict):
+            return None, None
+        c = obj.get("center")
+        if is_point(c):
+            return float(c[0]), float(c[1])
+        a, b = obj.get("from"), obj.get("to")
+        if is_point(a) and is_point(b):
+            return (a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0
+        pts = obj.get("points")
+        if isinstance(pts, list) and pts:
+            xs = [p[0] for p in pts if is_point(p)]
+            ys = [p[1] for p in pts if is_point(p)]
+            if xs and ys:
+                return (min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0
         return None, None
 
     @staticmethod
-    def transform_arg(value):
+    def transform_arg(value, precise=False):
         n = num(value, None)
-        return fnum(n) if n is not None else str(value).replace("deg", "")
+        if n is None:
+            return str(value).replace("deg", "")
+        return fnum_precise(n) if precise else fnum(n)
 
     @staticmethod
     def _origin_ops(fn, args, ox, oy):

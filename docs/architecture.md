@@ -33,7 +33,7 @@ There are really two layers of "intermediate":
         │
         │  parse + validate            src/frameforge/sdk/model.py  (validate_document)
         ▼
-   Document IR  ───────────────────────  docs/models/frameforge.py  (class Document)
+   Document IR  ───────────────────────  src/frameforge/model.py  (class Document)
    (Pydantic model tree)
         │
         │  resolve + walk in z-order    src/frameforge/rendering/domain/services/
@@ -52,7 +52,7 @@ There are really two layers of "intermediate":
 ## The IR: the `Document` model tree
 
 The IR is the Pydantic model hierarchy rooted at `Document`, defined in
-[`docs/models/frameforge.py`](https://github.com/pedroanisio/frameforge/blob/main/docs/models/frameforge.py).
+[`src/frameforge/model.py`](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/model.py).
 It is produced by validating the input file via `validate_document()` in
 [`src/frameforge/sdk/model.py`](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/sdk/model.py).
 
@@ -176,7 +176,7 @@ Backends are infrastructure adapters under
 
 | Concern | Location |
 |---------|----------|
-| IR models | [docs/models/frameforge.py](https://github.com/pedroanisio/frameforge/blob/main/docs/models/frameforge.py) |
+| IR models | [src/frameforge/model.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/model.py) |
 | Parse/validate + SDK | [src/frameforge/sdk/](https://github.com/pedroanisio/frameforge/tree/main/src/frameforge/sdk) (`model.py`, `validate.py`, `io.py`, …) |
 | Domain resolvers | [src/frameforge/rendering/domain/services/](https://github.com/pedroanisio/frameforge/tree/main/src/frameforge/rendering/domain/services) |
 | Painter port (seam) | [src/frameforge/rendering/domain/ports.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/domain/ports.py) |

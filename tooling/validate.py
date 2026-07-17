@@ -42,10 +42,10 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "docs")))
+sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "src")))
 
 import yaml  # noqa: E402
-import models.frameforge as fg  # noqa: E402  (package-qualified: never shadow the real package)
+import frameforge.model as fg  # noqa: E402  (package-qualified: never shadow the real package)
 from pydantic import ValidationError  # noqa: E402
 
 _YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
@@ -67,9 +67,8 @@ DEPRECATED_ALIASES = {"circle", "polygon", "curve", "bezier"}
 #  Canvas presets — sourced from the renderer (single pixel source, spec §4)  #
 # --------------------------------------------------------------------------- #
 _CANVAS_RESOLVER_SRC = os.path.normpath(os.path.join(
-    HERE, "..", "frameforge", "rendering", "domain", "services", "canvas_resolver.py"))
-# Standalone fallback (validate.py must not import the `frameforge` rendering
-# package — it would shadow the models module). Kept an exact copy of
+    HERE, "..", "src", "frameforge", "rendering", "domain", "services", "canvas_resolver.py"))
+# Standalone fallback for when the source is unreadable. Kept an exact copy of
 # CanvasResolver.PRESETS/DEFAULT_WH; tests/test_validate.py gates the equality.
 _FALLBACK_PRESETS = {
     "A3": (842, 1191), "A4": (595, 842), "A5": (419.5, 595.3), "Letter": (612, 792),
@@ -186,15 +185,39 @@ def _num(v):
     return isinstance(v, (int, float)) and not isinstance(v, bool)
 
 
+# CSS absolute-unit → px factors — mirrors CanvasResolver._UNIT_TO_PX
+# (CSS Values 4 §6.2: 1in = 96px = 2.54cm; pt/px stay 1:1 by convention).
+_UNIT_TO_PX = {"mm": 96 / 25.4, "cm": 96 / 2.54, "in": 96.0}
+
+
+def _oriented(wh, orientation):
+    """Mirror CanvasResolver._preset's orientation swap (identity when the
+    preset already points the requested way, or when wh is unresolved)."""
+    if wh is None:
+        return None
+    w, h = wh
+    if orientation == "landscape" and h > w:
+        return (h, w)
+    if orientation == "portrait" and w > h:
+        return (h, w)
+    return (w, h)
+
+
 def _canvas_wh(canvas):
+    """Mirror CanvasResolver.resolve for one declared canvas value, keeping the
+    None-on-unknown contract (feeds the canvas-unresolved audit — never a
+    silent default here)."""
     if isinstance(canvas, str):
         return PRESETS.get(canvas)
     if isinstance(canvas, dict):
         if canvas.get("size"):
             s = canvas["size"]
+            factor = _UNIT_TO_PX.get(canvas.get("units"))
+            if factor is not None and _num(s[0]) and _num(s[1]):
+                return (s[0] * factor, s[1] * factor)
             return (s[0], s[1])
         if canvas.get("preset"):
-            return PRESETS.get(canvas["preset"])
+            return _oriented(PRESETS.get(canvas["preset"]), canvas.get("orientation"))
     return None
 
 
@@ -696,21 +719,14 @@ def text_fit_checks(doc, base_dir, findings):
     the validate-side face of issue #44. Rendering stays out of the default
     structural pass; this imports the renderer lazily and discards the SVG.
     """
-    # validate binds `frameforge` to the MODEL module; the renderer needs the
-    # PACKAGE. Swap for the import, restore after (the sync-gates' shadow dance,
-    # inverted). Lazy so the default structural pass stays render-free.
-    shadow = sys.modules.get("frameforge")
-    if shadow is not None and not hasattr(shadow, "__path__"):
-        del sys.modules["frameforge"]
-    try:
-        from render_fixtures import Renderer
-        r = Renderer(doc, base_dir)
-        for page in doc.get("pages", []):
-            if isinstance(page, dict):
-                r.render_page(page)
-    finally:
-        if shadow is not None:
-            sys.modules["frameforge"] = shadow
+    # Lazy import so the default structural pass stays render-free. (The model
+    # lives inside the package since 2.5.0, so `frameforge` in sys.modules is
+    # always the package — the historical model/package swap dance is gone.)
+    from render_fixtures import Renderer
+    r = Renderer(doc, base_dir)
+    for page in doc.get("pages", []):
+        if isinstance(page, dict):
+            r.render_page(page)
     for rec in (r.diagnostics or {}).get("truncations") or []:
         tag = "acknowledged clip" if rec.get("acknowledged") else "SILENT content loss"
         what = (f"dropped {rec.get('lines_dropped', 0)} line(s): "

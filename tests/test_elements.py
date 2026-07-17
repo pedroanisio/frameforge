@@ -23,7 +23,7 @@ import typing
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(ROOT, "docs"))
-import models.frameforge as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)
+import frameforge.model as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)
 import pytest  # noqa: E402
 from hypothesis import given, settings  # noqa: E402
 from hypothesis import strategies as st  # noqa: E402

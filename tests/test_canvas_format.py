@@ -49,7 +49,7 @@ def test_screen_resolution_ladder_resolves():
 
 def test_ladder_present_in_model_literal():
     """The additive PagePreset entries keep the two drift gates true."""
-    from models import frameforge as model
+    from frameforge import model as model
     literal = set(typing.get_args(model.PagePreset))
     assert set(LADDER) <= literal
     assert set(PRESETS) == literal

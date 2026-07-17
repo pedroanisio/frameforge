@@ -1,6 +1,6 @@
 # FrameForge v2 — HEAD release
 
-A single, internally-consistent cut of **FrameForge v2** (`2.4.1`) in which the
+A single, internally-consistent cut of **FrameForge v2** (`2.5.0`) in which the
 documents, grammar, schema, prose, and Python code are kept in sync — the Pydantic
 models are the source of truth and everything else is generated from or checked
 against them.
@@ -26,7 +26,7 @@ src/frameforge/               ← the Python package (strictly downstream of the
   vision/                     ← raster→vector lane: measure/compare/vectorize/propose (optional deps).
   coach/                      ← Vector Construction Coach: style-grammar, layer order, silhouette gate.
   live/                       ← local web UI for live MCP feedback sessions (`make live`).
-docs/models/frameforge.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
+src/frameforge/model.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 docs/schema/
   frameforge-v2.schema.json   ← GENERATED from the models (85 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
@@ -44,7 +44,7 @@ tooling/
   render_chromium.py          ← optional Headless-Chromium SVG→PNG raster renderer (CSS-fidelity path).
   render_fg_doc.py            ← the matplotlib PROXY renderer, patched to HEAD (sanity check only).
   pdf_to_frameforge_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameForge YAML extractor.
-  (HTML export moved into the package → `frameforge-render --to html`; the DocumentRenderer
+  (HTML export moved into the package → `ff-render --to html`; the DocumentRenderer
    port at src/frameforge/rendering/infrastructure/backends/html.py — contract-tested.)
   gen_status.py               ← GENERATES docs/FIXTURE-STATUS.md from the validator (`--check` gates drift).
   gen_docs.py                 ← GENERATES the docs-site pages (reference/gallery/spec/grammar plus SDK docs).

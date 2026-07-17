@@ -19,7 +19,7 @@ reverse compiler. It maps a PDF page into fixed-layout FrameForge pages:
 
 Codebase reuse
 --------------
-The output is built to validate against ``models/frameforge.py`` (the project's
+The output is built to validate against ``frameforge.model`` (src/frameforge/model.py) (the project's
 source of truth). The document ``version`` is ``frameforge.HEAD_VERSION`` and the
 generated tokens are HEAD-canonical ``Style`` projections — text styles use the
 CSS-named keys (``font_family``/``font_size``/``font_weight``/``font_style``/
@@ -80,9 +80,9 @@ from pathlib import Path
 from typing import Any
 
 # Reuse the model layer (the project's source of truth) for the HEAD version and
-# the structural self-check. Same docs/models/ sys.path shim as tooling/validate.py.
+# the structural self-check. Same src/ sys.path shim as tooling/validate.py.
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "docs"))
+sys.path.insert(0, str(HERE.parent / "src"))
 
 try:
     import yaml
@@ -91,7 +91,7 @@ except Exception as exc:  # pragma: no cover
         "Missing dependency: PyYAML. Install with: pip install pyyaml"
     ) from exc
 
-import models.frameforge as fg  # noqa: E402  (package-qualified via the docs/ path above)
+import frameforge.model as fg  # noqa: E402  (package-qualified via the docs/ path above)
 
 
 def _import_fitz() -> Any:
@@ -242,7 +242,7 @@ def yaml_dump(data: dict[str, Any], path: Path) -> None:
 @dataclass
 class TokenStore:
     """Deduping token tables. Text/stroke styles are emitted as HEAD-canonical
-    ``Style`` projections so the document validates against models/frameforge.py
+    ``Style`` projections so the document validates against src/frameforge/model.py
     and renders through the existing resolvers without a codemod pass."""
 
     colors: dict[str, str] = field(default_factory=dict)
@@ -1085,7 +1085,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument(
         "--no-validate",
         action="store_true",
-        help="Skip the structural self-check against models/frameforge.py.",
+        help="Skip the structural self-check against src/frameforge/model.py.",
     )
     return p.parse_args(argv)
 
@@ -1094,7 +1094,7 @@ def _validate(doc: dict[str, Any]) -> None:
     """Structural self-check against the model layer (non-fatal, advisory)."""
     try:
         fg.Document.model_validate(doc)
-        print("Validation: PASS (conforms to models/frameforge.py)")
+        print("Validation: PASS (conforms to src/frameforge/model.py)")
     except Exception as exc:  # pragma: no cover - depends on PDF content
         print(f"Validation: WARN — output did not fully validate against the model:\n{exc}",
               file=sys.stderr)

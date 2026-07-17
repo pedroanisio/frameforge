@@ -2,7 +2,7 @@
 """test_model_no_name_collisions.py — the source-of-truth model must not bind one
 name to two different meanings.
 
-`docs/models/frameforge.py` once defined ``Image = Union[Gradient, UrlImage, str]``
+`src/frameforge/model.py` once defined ``Image = Union[Gradient, UrlImage, str]``
 (a paint-value type alias) and later ``class Image(ObjBase)`` (the image *object*).
 With ``from __future__ import annotations`` field annotations resolve lazily against
 the module namespace, so which ``Image`` a field binds to depends on *definition
@@ -18,7 +18,7 @@ import ast
 import os
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-MODEL = os.path.join(ROOT, "docs", "models", "frameforge.py")
+MODEL = os.path.join(ROOT, "src", "frameforge", "model.py")
 
 
 def _module_level_bindings(path):
@@ -42,7 +42,7 @@ def test_no_module_level_class_shadows_a_type_alias():
     collisions = classes & aliases
     assert collisions == set(), (
         "these names are bound to BOTH a module-level class and a top-level "
-        f"assignment in docs/models/frameforge.py: {sorted(collisions)}. A model "
+        f"assignment in src/frameforge/model.py: {sorted(collisions)}. A model "
         "class must not share its name with a type alias — under lazy annotations "
         "the meaning a field binds to becomes definition-order dependent (the "
         "`Image` alias/class hazard).")

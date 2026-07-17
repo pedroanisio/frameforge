@@ -33,16 +33,13 @@ import pytest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
 
 # Evict any cached `frameforge` (a rendering-package import from another test) so
 # this module — and the tool's internal `import frameforge as fg` — both bind the
 # models module that lives on the models/ path inserted above.
-if "frameforge" in sys.modules:
-    del sys.modules["frameforge"]
 
-import frameforge as fg  # noqa: E402  (models module)
+import frameforge.model as fg  # noqa: E402
 import pdf_to_frameforge_yml as tool  # noqa: E402
 
 from pathlib import Path  # noqa: E402

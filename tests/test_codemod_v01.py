@@ -33,9 +33,6 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs"), str(ROOT / "tooling")]
 
-_shadow = sys.modules.get("frameforge")
-if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
-    del sys.modules["frameforge"]
 
 import codemod as C  # noqa: E402
 import yaml  # noqa: E402
@@ -47,9 +44,6 @@ def _sdk():
     Importing codemod puts docs/models first on sys.path and caches the
     MODEL module as `frameforge`; the SDK needs the package from src/.
     """
-    mod = sys.modules.get("frameforge")
-    if mod is not None and not hasattr(mod, "__path__"):
-        del sys.modules["frameforge"]
     sys.path.insert(0, str(ROOT / "src"))
     import frameforge.sdk  # noqa: F401
     # a cached frameforge.sdk is not re-attached to a re-imported parent —

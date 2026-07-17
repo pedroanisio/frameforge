@@ -1,34 +1,22 @@
 """Model access for the Python SDK.
 
-The repository intentionally has both a package named ``frameforge`` and an
-authoritative model module at ``docs/models/frameforge.py``. SDK code imports
-the model through the ``models`` namespace so the package is not shadowed.
-
-Callers inside the gates export ``PYTHONPATH=src:docs`` (the Makefile) or use
-``conftest.py``; the CLI front door and bare ``uv run`` invocations do not —
-so when ``models`` is not already importable, derive ``<repo>/docs`` from this
-file's own location (``src/frameforge/sdk/model.py`` → three parents up) and
-retry. The fallback only ever *appends* a path; a caller-provided ``models``
-always wins (issue #35).
+The authoritative Pydantic model lives inside the package at
+``frameforge.model`` (moved from ``docs/models/frameforge.py`` in 2.5.0, when
+the project became a real installable package). This module remains the SDK's
+single accessor for it: callers that need the model programmatically use
+``model_module()`` / ``validate_document()`` instead of importing the module
+ad hoc, so the access pattern stays greppable and the model keeps one identity
+in ``sys.modules``.
 """
 from __future__ import annotations
 
-import sys
 from importlib import import_module
-from pathlib import Path
 from types import ModuleType
 from typing import Any
 
 from pydantic import ValidationError
 
-try:
-    _MODEL = import_module("models.frameforge")
-except ModuleNotFoundError:
-    _docs = Path(__file__).resolve().parents[3] / "docs"
-    if not (_docs / "models" / "frameforge.py").is_file():
-        raise
-    sys.path.append(str(_docs))
-    _MODEL = import_module("models.frameforge")
+_MODEL = import_module("frameforge.model")
 
 Document = _MODEL.Document
 HEAD_VERSION: str = _MODEL.HEAD_VERSION

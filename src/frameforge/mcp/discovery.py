@@ -5,7 +5,7 @@ Three discovery axes live here:
 - :func:`_new_generated_yaml` — content-hash diffing of the FrameForge YAML a
   client run produced (the run tools' fixture-discovery fallback).
 - :func:`describe_capabilities` — LIVE introspection of the authoritative
-  document model (``models/frameforge.py``, loaded through the same
+  document model (``frameforge.model`` (src/frameforge/model.py), loaded through the same
   ``frameforge.sdk.model`` mechanism the pipeline uses), so an agent can look
   up object types, flowables, inlines, style fields, and canvas presets
   instead of guessing and iterating on validation errors.
@@ -97,7 +97,7 @@ def _sdk_surface() -> tuple[dict[str, Any], ...]:
         module = getattr(obj, "__module__", "") or ""
         doc = (inspect.getdoc(obj) or "").strip()
         first = doc.splitlines()[0].strip() if doc else ""
-        ours = module.startswith("frameforge") or module == "models.frameforge"
+        ours = module.startswith("frameforge") or module == "frameforge.model"
         if module == "typing" or type(obj).__name__.endswith("GenericAlias"):
             kind, first = "type_alias", f"type alias: {obj}"
         elif inspect.ismodule(obj):
@@ -194,7 +194,7 @@ def _field_summary(cls: type) -> dict[str, list[str]]:
 
 @functools.lru_cache(maxsize=1)
 def _model_catalog() -> dict[str, Any]:
-    """The live model surface, introspected from ``models/frameforge.py``.
+    """The live model surface, introspected from ``frameforge.model`` (src/frameforge/model.py).
 
     Loaded through :func:`frameforge.sdk.model.model_module` — the same
     mechanism the render pipeline uses — so the catalog can never drift from
@@ -268,7 +268,7 @@ def describe_capabilities(
             "sdk_exports": len(_sdk_surface()),
             "topics": list(_CAPABILITY_TOPICS),
             "security_posture": security_posture(),
-            "source": "models/frameforge.py (live introspection via frameforge.sdk.model)",
+            "source": "src/frameforge/model.py (live introspection via frameforge.sdk.model)",
         }
     if key == "tools":
         return {"ok": True, "topic": "tools", "tools": sorted(tool_names or [])}

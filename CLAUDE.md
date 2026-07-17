@@ -5,7 +5,7 @@
 ## Scope
 
 This file is the AI-agent operating guide for FrameForge v2 in this repository.
-The technical source of truth is the live tree: `models/frameforge.py`, the
+The technical source of truth is the live tree: `src/frameforge/model.py`, the
 generated schema, the validator/tooling gates, committed fixtures, and the docs
 that are generated from those sources.
 
@@ -45,9 +45,9 @@ models and fixtures.
 ├── CLAUDE.md          # This file — project guidelines for AI agents
 ├── DISCLAIMER.md      # Methodological caveats (all READMEs must reference)
 ├── README.md
-├── src/frameforge/           # the Python package (rendering, sdk, mcp, vision, coach, live)
+├── src/frameforge/           # the Python package (model, rendering, sdk, mcp, vision, coach, live)
+│   └── model.py              #   authoritative Pydantic model (SOURCE OF TRUTH; in-package since 2.5.0)
 ├── docs/                     # MkDocs pages + reference sources:
-│   ├── models/frameforge.py  #   authoritative Pydantic model (SOURCE OF TRUTH)
 │   ├── schema/               #   generated JSON schema + generator
 │   ├── spec/  grammar/       #   normative prose + EBNF views
 │   └── *.md                  #   site pages, design records, generated snapshots

@@ -6,7 +6,7 @@ version`) but lives, by necessity, in four hand-edited literals that the gates
 cross-check so a divergence can never ship:
 
   1. pyproject.toml            `version = "X.Y.Z"`          (the declared version)
-  2. docs/models/frameforge.py `HEAD_VERSION = "X.Y.Z"`     (the models' report)
+  2. src/frameforge/model.py   `HEAD_VERSION = "X.Y.Z"`     (the models' report)
   3. tests/test_head.py        `HEAD_VERSION == "X.Y.Z"`    (the version pin)
   4. README.md                 `**FrameForge v2** (`X.Y.Z`)`(the human headline)
 
@@ -47,7 +47,7 @@ COSMETIC_GLOBS = ("static/examples/*.py", "skills/**/*.md", "skills/**/*.py")
 SITES = [
     ("pyproject.toml", "pyproject.toml",
      re.compile(r'^(version = ")(\d+\.\d+\.\d+)(")', re.M)),
-    ("models HEAD_VERSION", "docs/models/frameforge.py",
+    ("models HEAD_VERSION", "src/frameforge/model.py",
      re.compile(r'^(HEAD_VERSION = ")(\d+\.\d+\.\d+)(")', re.M)),
     ("test_head pin", "tests/test_head.py",
      re.compile(r'(HEAD_VERSION == ")(\d+\.\d+\.\d+)(")')),

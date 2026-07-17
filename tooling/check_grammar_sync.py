@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """check_grammar_sync.py — automated EBNF ⇄ Pydantic consistency gate.
 
-The Pydantic models in ``models/frameforge.py`` are the source of truth; the two
+The Pydantic models in ``frameforge.model`` (src/frameforge/model.py) are the source of truth; the two
 ``grammar/*.ebnf`` files are a hand-maintained *view* (README §"Grammar ⇄
 models"). Nothing previously enforced that the view stays faithful — this script
 does, so drift fails CI instead of silently rotting.
@@ -44,11 +44,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 # Import the *models* module as ``frameforge`` exactly like validate.py, so the
 # in-repo source of truth shadows any installed distribution of the same name.
-sys.path.insert(0, os.path.join(ROOT, "docs"))
+sys.path.insert(0, os.path.join(ROOT, "src"))
 # The rendering package ``frameforge`` (./frameforge) shares the name; if it is
-# already imported (e.g. under pytest) it would shadow models/frameforge.py.
+# already imported (e.g. under pytest) it would shadow src/frameforge/model.py.
 # Evict the package so we always introspect the source of truth — see test_head.
-import models.frameforge as fg  # noqa: E402  (package-qualified: never shadow or evict the real package)
+import frameforge.model as fg  # noqa: E402  (package-qualified: never shadow or evict the real package)
 
 CORE_EBNF = os.path.join(ROOT, "docs", "grammar", "frameforge-v2.ebnf")
 STYLE_EBNF = os.path.join(ROOT, "docs", "grammar", "frameforge-v2-style.ebnf")

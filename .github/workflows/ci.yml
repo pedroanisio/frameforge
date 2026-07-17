@@ -50,7 +50,7 @@ jobs:
       - name: Generate doc pages (nav must resolve)
         run: uv run python tooling/gen_docs.py --check
       - name: Build the site (strict)
-        run: uv run --with mkdocs-material mkdocs build --strict
+        run: uv run --with mkdocs-material --with mkdocs-print-site-plugin mkdocs build --strict
 
   # Publish versioned docs to GitHub Pages on pushes to main (mike -> gh-pages).
   # Requires Pages enabled for the repo, serving from the gh-pages branch.
@@ -77,9 +77,9 @@ jobs:
       - name: Generate pages + deploy versioned docs
         run: |
           uv run python tooling/gen_docs.py
-          VERSION=$(uv run python -c "import sys; sys.path.insert(0,'docs/models'); import frameforge as fg; print(fg.HEAD_VERSION)")
-          uv run --with mkdocs-material --with mike mike deploy --push --update-aliases "$VERSION" latest
-          uv run --with mkdocs-material --with mike mike set-default --push latest
+          VERSION=$(uv run python -c "import frameforge.model as fg; print(fg.HEAD_VERSION)")
+          uv run --with mkdocs-material --with mkdocs-print-site-plugin --with mike mike deploy --push --update-aliases "$VERSION" latest
+          uv run --with mkdocs-material --with mkdocs-print-site-plugin --with mike mike set-default --push latest
 
   # BLOCKING: the viewer hand-mirrors the document model, so its declared type
   # surface (viewer/dev/type-registry.json) must stay reconciled with the model's

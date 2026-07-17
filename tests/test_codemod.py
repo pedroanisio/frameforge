@@ -20,9 +20,6 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
-_shadow = sys.modules.get("frameforge")
-if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
-    del sys.modules["frameforge"]
 
 import codemod as C  # noqa: E402
 import yaml  # noqa: E402

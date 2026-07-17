@@ -1,8 +1,50 @@
 # FrameForge v2 — CHANGELOG (HEAD)
 
-**Version:** `2.4.1` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-03
+**Version:** `2.5.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-17
 
 ---
+
+## 2.5.0 — feat(packaging): real package + real CLI; the model moves into the package (2026-07-17)
+
+FrameForge is now a **real installable package** — the virtual-project stance
+(`[tool.uv] package = false`, codebase-standards §2) is retired. The root cause
+that forced it is gone: the authoritative Pydantic model moved from
+`docs/models/frameforge.py` into the package as **`src/frameforge/model.py`**
+(imported as `frameforge.model`; content unchanged, `HEAD_VERSION` still line
+41), so the `frameforge` name has exactly one owner and an installed
+distribution shadows nothing.
+
+- **Build backend:** hatchling (`[build-system]` + `[tool.hatch.build.targets.wheel]
+  packages = ["src/frameforge"]`); `[tool.uv] package = true`. `uv sync` installs
+  the project editable; `uv build` emits wheel + sdist. `py.typed` ships (§1 gap
+  closed).
+- **Console scripts are live:** `ff-render` (render front door) and `fg-font`
+  install onto PATH. `bin/ff-render` and `tooling/frameforge_render.py` remain as
+  self-bootstrapping launchers for uninstalled checkouts (now `src`-only paths).
+- **Every shadow dance is deleted:** the `models.frameforge` namespace import,
+  the `sys.modules["frameforge"]` swap in `frameforge.sdk.validate`
+  (`_load_tooling_validate`), the evict/restore dance in `tooling/validate.py`'s
+  render pass, the reflection evictions in `gen_docs.py` / `gen_capability_manifest.py`
+  (the intermittent `sdk-api.md STALE` docs-check flake dies with them), and the
+  evict/re-import bootstraps in ~15 test files. Canonical import:
+  `frameforge.model`; SDK accessor: `frameforge.sdk.model.model_module()`.
+  `tests/test_module_shadow_regression.py` pins that no tooling script ever
+  hijacks the package name again.
+- **Package-readiness is now a regression gate:** `check_package_readiness.py`
+  reports **READY (0 blockers, 0 gaps)** and `tests/test_package_readiness.py`
+  pins that verdict (any reappearing blocker fails the suite).
+- **Path/config fallout:** CI's docs-deploy version probe imports
+  `frameforge.model` (was a `sys.path.insert('docs/models')` dance);
+  `.mcp.json` / Makefile `mcp`+`live` targets drop `PYTHONPATH=src:docs`;
+  `mkdocs.yml` no longer excludes `models/`; `tooling/validate.py`'s canvas-preset
+  AST parse points at the live `src/frameforge/rendering/.../canvas_resolver.py`
+  (it had silently degraded to the fallback table since the src-layout refactor);
+  docs, spec front-matter, standards §2/§16, RELEASE.md, and CLAUDE.md reference
+  `src/frameforge/model.py`.
+
+Additive only — no document-model change; the generated schema is byte-identical
+apart from the version pins ($id/title). Migration for embedders that imported
+`models.frameforge`: import `frameforge.model` instead.
 
 ## Unreleased — feat(render): `--to audit` design-token + feature census (2026-07-17)
 

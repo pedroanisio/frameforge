@@ -234,11 +234,9 @@ def test_canvas_preset_string_resolves_to_pixels():
 
 def test_preset_table_matches_model_page_presets():
     """Guard against drift: our preset keys must equal the model's PagePreset."""
-    import importlib.util as _u
-    spec = _u.spec_from_file_location("fgmodel", ROOT / "docs" / "models" / "frameforge.py")
-    model = _u.module_from_spec(spec)
-    spec.loader.exec_module(model)
     import typing
+
+    import frameforge.model as model
     preset_literal = set(typing.get_args(model.PagePreset))
     assert set(fgh._CANVAS_PRESETS) == preset_literal
 

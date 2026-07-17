@@ -135,7 +135,7 @@ The masters are regenerated on demand (no longer tracked; retired in the
 a fixed page / bounding box) enclose a small derivation graph (the *Graph*): one
 filled **source node** fanning out to three outlined **derived nodes** placed on a
 common arc (equal radius, equal angle — *constructed, not eyeballed*). That is
-literally the project's architecture — `models/frameforge.py` → `{schema, grammar,
+literally the project's architecture — `src/frameforge/model.py` → `{schema, grammar,
 spec, renders}` — turned into a glyph. The source node is the only filled, coloured
 element; everything generated from it is outline-only. The hierarchy of the picture
 *is* the hierarchy of the system.
@@ -269,7 +269,7 @@ Reusable motifs, all drawn from the toolchain's real vocabulary:
 ## 8. Design tokens (in FrameForge's own model)
 
 The palette and type system map 1:1 onto the native `Defs.tokens` surface
-([`models/frameforge.py`](models/frameforge.py) `class Tokens`). The brand is
+([`frameforge.model`](../src/frameforge/model.py) `class Tokens`). The brand is
 therefore *consumable from FrameForge itself* — see
 `frameforge.tokens.fg.yaml` (retired with the masters; no generator emits it
 today — regenerate the masters via `static/examples/frameforge_logo.py` and

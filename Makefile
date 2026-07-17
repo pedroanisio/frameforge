@@ -9,6 +9,8 @@ UV ?= uv
 FIXTURES_YAML := $(shell git ls-files tests/fixtures 2>/dev/null | grep -E '^tests/fixtures/[^/]+\.(fg\.yaml|frameforge\.yml)$$' || echo 'tests/fixtures/*.fg.yaml')
 LIVE_HOST ?= 127.0.0.1
 LIVE_PORT ?= 8789
+DOCS_HOST ?= 127.0.0.1
+DOCS_PORT ?= 8001
 
 .DEFAULT_GOAL := help
 .PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check docker-build docker-mcp docker-shell docker-fonts
@@ -56,10 +58,10 @@ pdf:  ## transpile a PDF -> FrameForge YAML (pulls the `pdf` group): make pdf PD
 	$(UV) run --group pdf python tooling/pdf_to_frameforge_yml.py "$(PDF)" "$(if $(OUT),$(OUT),$(PDF:.pdf=.fg.yaml))" $(ARGS)
 
 mcp:  ## run the optional MCP server for SDK-code -> YAML -> render feedback loops
-	PYTHONPATH=src:docs $(UV) run --group mcp python -m frameforge.mcp
+	$(UV) run --group mcp python -m frameforge.mcp
 
 live:  ## run the local FrameForge MCP live-session web UI
-	PYTHONPATH=src:docs $(UV) run python -m frameforge.live --host "$(LIVE_HOST)" --port "$(LIVE_PORT)"
+	$(UV) run python -m frameforge.live --host "$(LIVE_HOST)" --port "$(LIVE_PORT)"
 
 check: schema-check grammar-check spec-check a11y-check status-check ruff-check test validate overflow golden-check docs-check docs-linkcheck disclaimer-check  ## run every local gate
 
@@ -111,11 +113,11 @@ status-check:  ## fail if FIXTURE-STATUS.md drifted from the validator
 
 docs: manifest examples-index  ## generate pages + build the static site into site/ (theme fetched ephemerally)
 	$(UV) run python tooling/gen_docs.py
-	$(UV) run --with mkdocs-material mkdocs build --strict
+	$(UV) run --with mkdocs-material --with mkdocs-print-site-plugin mkdocs build --strict
 
-docs-serve: manifest examples-index  ## generate pages + serve with live reload (http://127.0.0.1:8000)
+docs-serve: manifest examples-index  ## generate pages + serve with live reload (http://127.0.0.1:8001; override DOCS_HOST/DOCS_PORT)
 	$(UV) run python tooling/gen_docs.py
-	$(UV) run --with mkdocs-material mkdocs serve
+	$(UV) run --with mkdocs-material --with mkdocs-print-site-plugin mkdocs serve -a $(DOCS_HOST):$(DOCS_PORT)
 
 docs-check:  ## generate pages + assert every mkdocs.yml nav page exists (no full build)
 	$(UV) run python tooling/gen_docs.py --check

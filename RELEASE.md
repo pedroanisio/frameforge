@@ -29,7 +29,7 @@ machine-checked; the "Gate" column is where a violation surfaces.
 
 | # | Invariant | Sites | Gate |
 |---|---|---|---|
-| **I1** | declared version == the models' reported version | [pyproject.toml:3](pyproject.toml#L3) == [frameforge.py:41 `HEAD_VERSION`](docs/models/frameforge.py#L41) | `tests/test_docs_in_sync.py` |
+| **I1** | declared version == the models' reported version | [pyproject.toml:3](pyproject.toml#L3) == [model.py:41 `HEAD_VERSION`](src/frameforge/model.py#L41) | `tests/test_docs_in_sync.py` |
 | **I2** | the models' version == the pinned test literal | `HEAD_VERSION` == [test_head.py:77](tests/test_head.py#L77) | `tests/test_head.py::test_version_is_2_3_0` |
 | **I2b** | declared version == the package runtime `__version__` | [pyproject.toml:3](pyproject.toml#L3) == [frameforge/__init__.py `__version__`](src/frameforge/__init__.py) | `tests/test_docs_in_sync.py::test_package_runtime_version_matches_pyproject` |
 | **I3** | the committed schema is generated-in-sync **and** its title carries the version | models → `docs/schema/frameforge-v2.schema.json` | `schema-check` + `test_head.py::test_schema_in_sync_with_models` + `test_docs_in_sync.py` |
@@ -49,7 +49,7 @@ Because every invariant is inside `make check` (twelve gates: [Makefile:45](Make
 | Artifact | Literal |
 |---|---|
 | [pyproject.toml:3](pyproject.toml#L3) | `version = "X.Y.Z"` — the declared package version |
-| [docs/models/frameforge.py:41](docs/models/frameforge.py#L41) | `HEAD_VERSION = "X.Y.Z"` — the models' report |
+| [src/frameforge/model.py:41](src/frameforge/model.py#L41) | `HEAD_VERSION = "X.Y.Z"` — the models' report |
 | [tests/test_head.py:77](tests/test_head.py#L77) | `HEAD_VERSION == "X.Y.Z"` — the version pin |
 | [README.md](README.md) | `**FrameForge v2** (\`X.Y.Z\`)` — the human headline |
 | [src/frameforge/__init__.py](src/frameforge/__init__.py) | `__version__ = "X.Y.Z"` — the package runtime version |

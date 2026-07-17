@@ -571,11 +571,20 @@ class TikzPainter:
         return f"\\node[{','.join(opts)}] at ({fnum(tx)},{fnum(base_y)}) {{{''.join(body)}}};\n"
 
     # ---- document --------------------------------------------------------- #
-    def document(self, w, h, body, lang=None, title=None, desc=None):
+    def document(self, w, h, body, lang=None, title=None, desc=None,
+                 background=None):
         """Assemble a page's TikZ picture (the LaTeX preamble/scaffold is the
         `latex/` transpiler's job, not the painter's). `lang`/`title`/`desc` are
-        SVG-root a11y attributes with no TikZ equivalent — ignored."""
+        SVG-root a11y attributes with no TikZ equivalent — ignored. `background`
+        paints an authored page fill behind the content; absent, the page keeps
+        the surrounding LaTeX paper (this painter never injected white)."""
+        bg = ""
+        if background:
+            opts = self._fill_opts(background)
+            if opts:
+                bg = (f"\\path[{','.join(opts)}] "
+                      f"(0,0) rectangle ({fnum(w)},{fnum(h)});\n")
         return ("\\noindent\\begin{tikzpicture}[x=1pt,y=-1pt]\n"
                 f"\\path[use as bounding box] (0,0) rectangle ({fnum(w)},{fnum(h)});\n"
-                f"{body}"
+                f"{bg}{body}"
                 "\\end{tikzpicture}\n")

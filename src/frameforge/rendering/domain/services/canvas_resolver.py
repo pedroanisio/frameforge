@@ -91,6 +91,17 @@ class CanvasResolver:
                 return self._preset(c["preset"], c.get("orientation"))
         return DEFAULT_WH
 
+    def background(self, page):
+        """The page's authored canvas `background` (raw token/colour value, or
+        None). Mirrors resolve()'s precedence exactly: the page's own `canvas`
+        wins wholesale; only a page without one inherits the master's."""
+        c = page.get("canvas")
+        if c is None and page.get("master"):
+            c = (self.masters.get(page["master"]) or {}).get("canvas")
+        if isinstance(c, dict):
+            return c.get("background")
+        return None
+
     def _preset(self, name, orientation):
         wh = PRESETS.get(name)
         if wh is None:

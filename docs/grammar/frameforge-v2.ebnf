@@ -167,6 +167,8 @@ CanvasObject =
 PagePreset  = "A3" | "A4" | "A5" | "Letter" | "Legal" | "Tabloid"   (* +P2: screen presets *)
             | "deck-16x9" | "deck-4x3" | "square"
             | "phone" | "tablet" | "web"   (* +P2: px screen presets — see spec §4 *)
+            (* +2.x: screen resolution ladder (device px) *)
+            | "qhd" | "4k" | "uhd" | "8k"
             (* +2.x: social-media canvases + aspect-ratio aliases *)
             | "instagram-square" | "instagram-portrait" | "instagram-landscape" | "instagram-story"
             | "facebook-post" | "facebook-cover" | "facebook-story"

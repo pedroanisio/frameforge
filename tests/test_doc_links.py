@@ -118,9 +118,9 @@ def test_guard_actually_catches_drift():
     mismatch — on synthetic input."""
     base = "https://github.com/pedroanisio/frameforge/blob/main"
     synthetic = (
-        f"[docs/models/frameforge.py:99999]({base}/docs/models/frameforge.py#L99999)\n"
-        f"[gone]({base}/docs/models/does_not_exist.py)\n"
-        f"[docs/models/frameforge.py:1]({base}/docs/models/frameforge.py#L41)\n"
+        f"[src/frameforge/model.py:99999]({base}/src/frameforge/model.py#L99999)\n"
+        f"[gone]({base}/src/frameforge/does_not_exist.py)\n"
+        f"[src/frameforge/model.py:1]({base}/src/frameforge/model.py#L41)\n"
     )
     v = link_violations(synthetic)
     assert any("out of range" in x for x in v), v

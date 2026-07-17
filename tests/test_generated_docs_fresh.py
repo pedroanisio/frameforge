@@ -20,7 +20,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path[:0] = [os.path.join(ROOT, "docs", "models"), os.path.join(ROOT, "docs", "schema"), os.path.join(ROOT, "tooling")]
+sys.path[:0] = [os.path.join(ROOT, "docs", "schema"), os.path.join(ROOT, "tooling")]
 # gen_docs imports the rendering package as `frameforge`; evict a models-module
 # shadow first so its sdk import resolves the package (mirror of test_head.py).
 _shadow = sys.modules.get("frameforge")

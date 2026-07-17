@@ -78,7 +78,7 @@ def test_canvas_presets_match_page_preset_literal():
     import typing
 
     from frameforge.rendering.domain.services.canvas_resolver import PRESETS
-    from models import frameforge as model
+    from frameforge import model as model
     assert set(PRESETS) == set(typing.get_args(model.PagePreset))
 
 

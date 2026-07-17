@@ -23,7 +23,7 @@ import re
 import sys
 
 from frameforge.rendering.domain.geometry import (
-    fnum, is_point, num,
+    fnum, fnum_precise, is_point, num,
 )
 from frameforge.rendering.domain.services.canvas_resolver import CanvasResolver
 from frameforge.rendering.domain.services.paint_resolver import ColorResolver
@@ -110,6 +110,9 @@ class Renderer:
         # headings placed by the LAST flow page render: {level, text, id, page}
         # (page is 1-based within that flow). Read by the PDF outline builder.
         self.flow_headings = []
+        # clickable link regions from the LAST flow render (TOC entries → target
+        # page): {page, rect [x,y,w,h] in svg px, target}. Read by the PDF linker.
+        self.flow_links = []
         # running-string log from the LAST flow page render: (page, name, value)
         # tuples in page order, one per heading `set_string` entry — the dry
         # pass populates this so the real pass can resolve a running
@@ -134,7 +137,7 @@ class Renderer:
         self._text_style = TextStyleResolver(self.text_styles, self.styles, self._color)
         self._global_page = 0                 # document-global leaf page number (flow recto/verso)
         self._font_warned: set[str] = set()   # families already screamed about (warn-once)
-        self._canvas = CanvasResolver(self.masters)
+        self._canvas = CanvasResolver(self.masters, warn=self.warn)
         self._stroke = StrokeResolver(self.stroke_styles, self._color, self.paint)
         self._effect = EffectResolver(self._color)
         self._css = StyleValues(self.color)   # CSS/SVG value builder (filter/shadow/transform)
@@ -535,6 +538,7 @@ class Renderer:
                 inner = self._with_style_clip(o, self._style_dict(o.get("style")), inner)
                 inner = self._with_effects(o, self._style_dict(o.get("style")), inner)
                 inner = self._with_transform(o, self._style_dict(o.get("style")), inner)
+                inner = self._with_rotation(o, inner)
                 inner = self._with_style_compositing(o, self._style_dict(o.get("style")), inner)
             opacity = o.get("opacity")
             if inner and opacity not in (None, 1):
@@ -687,8 +691,38 @@ class Renderer:
         return svg
 
     def _with_transform(self, o, style, svg):
-        ops = self._css.transform_ops(style.get("transform"), style.get("transform_origin"), o.get("box"))
+        # `o` rides along so a box-less object (circle/line/points geometry)
+        # still gets the §3.6b centre-default pivot (StyleValues.geometry_center).
+        ops = self._css.transform_ops(style.get("transform"), style.get("transform_origin"),
+                                      o.get("box"), o)
         return self._painter.transform_group(svg, ops) if ops else svg
+
+    def _with_rotation(self, o, svg):
+        """ObjBase.rotation (§3.6b): degrees clockwise (+y down), or an
+        explicit `{angle, center}`. The pivot defaults to the box centre —
+        the geometry centre for box-less objects. Composes onto the subtree
+        AFTER `style.transform` (this wrapper nests outside the transform
+        group), so the already-transformed object turns as one unit."""
+        rot = o.get("rotation")
+        if rot is None:
+            return svg
+        if isinstance(rot, dict):
+            angle = num(rot.get("angle"), 0) or 0
+            center = rot.get("center")
+        else:
+            angle = num(rot, 0) or 0
+            center = None
+        if not angle:
+            return svg
+        if isinstance(center, (list, tuple)) and len(center) >= 2:
+            cx, cy = num(center[0], 0), num(center[1], 0)
+        else:
+            cx, cy = self._css.transform_origin(None, o.get("box"), o)
+        # angle stays on fnum: δθ ≤ 5e-4° displaces ≤ ~0.04 px at the 4K
+        # diagonal (see StyleValues._PRECISE_FNS rationale)
+        ops = ([("rotate", [fnum(angle), fnum(cx), fnum(cy)])]
+               if cx is not None else [("rotate", [fnum(angle)])])
+        return self._painter.transform_group(svg, ops)
 
     def _with_style_compositing(self, o, style, svg):
         attrs = {}
@@ -781,6 +815,14 @@ class Renderer:
         return None
 
     def _with_style_clip(self, o, style, svg):
+        """LOAD-BEARING composition order (TX-8): the clip wraps INSIDE the
+        object's transform/rotation groups (`obj()` applies this before
+        `_with_transform`), so a `style.clip_path` authored in absolute
+        coordinates rides along with the object's transform 1:1 — CSS
+        local-clip composition. Committed examples rely on it
+        (static/examples/ski_rebuilt_composition.py: a page-space mask is
+        built by nesting the clip on a static parent group instead). Do not
+        swap this order; document, don't "fix"."""
         clip = style.get("clip_path")
         if not isinstance(clip, dict):
             return svg
@@ -1078,23 +1120,56 @@ class Renderer:
         return ""
 
     def _index_objects(self, page):
+        """id → object copy with `box` composed into PAGE space.
+
+        Anchors must hit the RENDERED position, so the composition mirrors the
+        paint path exactly: ancestor group box origins AND row/column/grid/wrap
+        arrangement — `self._layout.arrange` is the single source of truth for
+        slot placement, the same call `_group_children` paints with (TX-6).
+        Each boxed entry also carries `_anchor_dxy`, the total authored→rendered
+        shift, so port anchors (authored in the box's frame) ride along (TX-7).
+        """
         index = {}
 
-        def visit(o, offset=(0, 0)):
+        def visit(o, offset=(0, 0), arranged=None):
             if not isinstance(o, dict):
                 return
             local = dict(o)
             box = local.get("box")
-            if isinstance(box, list) and len(box) >= 4:
-                local["box"] = [num(box[0], 0) + offset[0], num(box[1], 0) + offset[1],
-                                num(box[2], 0), num(box[3], 0)]
+            boxed = isinstance(box, list) and len(box) >= 4
+            if boxed:
+                if arranged is not None:
+                    # arranged slot replaces the authored x/y; _layout_child
+                    # overrides the extents for the paint pass identically
+                    ax, ay, aw, ah = arranged
+                    local["box"] = [offset[0] + ax, offset[1] + ay, aw, ah]
+                else:
+                    local["box"] = [num(box[0], 0) + offset[0], num(box[1], 0) + offset[1],
+                                    num(box[2], 0), num(box[3], 0)]
+                local["_anchor_dxy"] = (local["box"][0] - num(box[0], 0),
+                                        local["box"][1] - num(box[1], 0))
             if local.get("id") and local.get("id") not in index:
                 index[local["id"]] = local
+            children = o.get("children") or []
+            if not children:
+                return
             child_offset = offset
             if o.get("type") == "group" and isinstance(box, list) and len(box) >= 2:
-                child_offset = (offset[0] + num(box[0], 0), offset[1] + num(box[1], 0))
-            for child in o.get("children") or []:
-                visit(child, child_offset)
+                # children live in the group-local frame anchored at the group's
+                # RENDERED origin (the arranged slot when the group was laid out)
+                if arranged is not None:
+                    child_offset = (offset[0] + arranged[0], offset[1] + arranged[1])
+                else:
+                    child_offset = (offset[0] + num(box[0], 0), offset[1] + num(box[1], 0))
+            layout = o.get("layout") or {}
+            if layout.get("kind") in ("row", "column", "grid", "wrap") and boxed:
+                w, h = (arranged[2], arranged[3]) if arranged is not None \
+                    else (num(box[2], 0), num(box[3], 0))
+                for child, pos in zip(children, self._layout.arrange(w, h, children, layout)):
+                    visit(child, child_offset, arranged=pos)
+            else:
+                for child in children:
+                    visit(child, child_offset)
 
         for layer in page.get("layers") or []:
             for obj in layer.get("objects") or []:
@@ -1117,8 +1192,13 @@ class Renderer:
         ports = obj.get("ports") or {}
         port = ref.get("port")
         if port in ports and is_point(ports[port]):
+            # Ports are authored in the same frame as the object's box (the
+            # committed connectors fixture pins page space at top level), so
+            # they ride the object's full authored→rendered shift — ancestor
+            # group origins + layout arrangement (TX-7).
             p = ports[port]
-            return num(p[0], 0), num(p[1], 0)
+            dx, dy = obj.get("_anchor_dxy") or (0, 0)
+            return num(p[0], 0) + dx, num(p[1], 0) + dy
         x, y, w, h = (num(v, 0) for v in box[:4])
         side = ref.get("side") or port
         offset = num(ref.get("offset"), 0) or 0
@@ -1504,11 +1584,18 @@ class Renderer:
     def canvas_wh(self, page):
         return self._canvas.resolve(page)
 
+    def canvas_background(self, page):
+        """The page's authored canvas background, colour-token resolved; None
+        when unauthored (the painter then applies its documented default)."""
+        bg = self._canvas.background(page)
+        return (self._color.resolve(bg) or bg) if bg else None
+
     def render_page(self, page):
         """Return a list of SVG strings (1 for page-mode, N for paginated flow)."""
         self._painter.new_page()
         self._global_page += 1                # this producer's first leaf page
         self.flow_headings = []
+        self.flow_links = []
         self.running_log = []
         self._current_page_id = page.get("id")
         self.contract = {**self.doc_contract, **((page.get("rendering") or {}).get("text") or {})}
@@ -1519,7 +1606,8 @@ class Renderer:
         body = self._render_page_body(page)
         return [self._painter.document(w, h, body,
                                        lang=self.doc.get("lang"), title=self.doc.get("title"),
-                                       desc=self.doc.get("description"))]
+                                       desc=self.doc.get("description"),
+                                       background=self.canvas_background(page))]
 
     def _render_page_body(self, page):
         body = []
@@ -1607,6 +1695,7 @@ class Renderer:
                 self.tstats, self.skipped, self.diagnostics, self._global_page = saved
             self._painter.new_page()
             self.flow_headings = []
+            self.flow_links = []
             self.running_log = []
             return self._render_flow_pages(page, w, h, toc_pages=toc_pages,
                                            running_log=running_log, total_pages=total_pages)
@@ -1620,6 +1709,7 @@ class Renderer:
         # symmetric margin. Recomputed per page so odd/even pages mirror; width is
         # parity-independent, so a paragraph's line breaks stay valid across a break.
         master = self.masters.get(page.get("master")) if page.get("master") else None
+        page_bg = self.canvas_background(page)  # authored canvas background (ADR-0006)
 
         def geom(page_index):                   # page_index = document-global leaf number
             gx, gy, gw, gh = flow_layout.content_box(master, w, h, page_index)
@@ -1631,9 +1721,11 @@ class Renderer:
         x, top, usable, bottom = geom(self._global_page)
         prev_kind = None                        # previous flowable, for indent policy
         pages, body, cy = [], [], top
+        open_blocks = []          # decorated block/keep_together containers being filled
+        measuring = False         # true during a trial layout pass (keep_together fit)
 
         def _resolve_field(field):
-            """Resolve a Text object's `field` (docs/models/frameforge.py
+            """Resolve a Text object's `field` (src/frameforge/model.py
             Text.field — 'the grammar's {string: <name>} form for named
             strings', or the literal 'page'/'pages' counters). This is the
             REAL, already-declared mechanism (and already authored into
@@ -1709,15 +1801,113 @@ class Renderer:
         def flush():
             if body:
                 paint_furniture()
-                pages.append(p.document(w, h, "".join(body)))
+                pages.append(p.document(w, h, "".join(body), background=page_bg))
 
         def newpage():
             nonlocal body, cy, x, top, usable, bottom
+            # A decorated container that straddles the break paints its fragment on
+            # the page being flushed (inner-first so z-order/insert indices hold),
+            # then re-opens on the fresh page from the top with its padding re-inset.
+            for blk in reversed(open_blocks):
+                _insert_block_rect(blk, bottom)
             flush()
             p.new_page()
             self._global_page += 1
             x, top, usable, bottom = geom(self._global_page)
             body, cy = [], top
+            for blk in open_blocks:
+                blk["idx"], blk["top"] = len(body), top
+                blk["rect_x"], blk["rect_w"] = x, usable
+                _pt, _pr, _pb, _pl = blk["pad"]
+                x += _pl
+                usable -= _pl + _pr
+
+        def _pad4(pad):
+            """Normalize a padding value to (top, right, bottom, left)."""
+            if pad is None:
+                return (0.0, 0.0, 0.0, 0.0)
+            if isinstance(pad, (int, float, str)):
+                v = num(pad, 0.0)
+                return (v, v, v, v)
+            vals = [num(v, 0.0) for v in pad]
+            if len(vals) == 2:
+                return (vals[0], vals[1], vals[0], vals[1])
+            if len(vals) == 4:
+                return tuple(vals)
+            v = vals[0] if vals else 0.0
+            return (v, v, v, v)
+
+        def _container_decor(fl, style):
+            """Resolve a block/keep_together's fill, border stroke, radius and
+            padding — reusing the shape fill/stroke resolvers so gradients and
+            border dicts behave exactly as they do for an absolute rect. Returns
+            (fill, stroke, radius, pad4); fill/stroke are None when unset so an
+            undecorated container stays byte-identical to before."""
+            fill = self._shape_fill(fl, style)
+            stroke = self._shape_stroke(fl, style)
+            radius = num(fl.get("radius", style.get("radius",
+                         style.get("border_radius", 0))), 0.0)
+            pad = fl.get("padding")
+            if pad is None:
+                pad = style.get("padding")
+            return fill, stroke, radius, _pad4(pad)
+
+        def _insert_block_rect(blk, frag_bottom):
+            """Insert a container's background/border rect behind its children (at
+            the index captured when the container opened), spanning this page's
+            fragment. No-op when the container carries neither fill nor border."""
+            if not (blk["fill"] or blk["stroke"]):
+                return
+            rh = frag_bottom - blk["top"]
+            if rh <= 0:
+                return
+            body.insert(blk["idx"], p.rect(blk["rect_x"], blk["top"], blk["rect_w"],
+                                           rh, blk["fill"], blk["stroke"],
+                                           radius=blk["radius"]))
+
+        def emit_container(fl, children):
+            """A `block`/`keep_together` container: paint its own fill/border/padding
+            (the proxy used to drop these), then emit its children inset by the
+            padding. Backgrounds split correctly across page breaks via
+            `open_blocks` (see newpage)."""
+            nonlocal cy, x, usable
+            style = self._style_dict(fl.get("style")) if fl.get("style") else {}
+            fill, stroke, radius, pad = _container_decor(fl, style)
+            pt, pr, pb, pl = pad
+            decorated = bool(fill or stroke or pt or pr or pb or pl)
+            blk = {"idx": len(body), "top": cy, "rect_x": x, "rect_w": usable,
+                   "fill": fill, "stroke": stroke, "radius": radius, "pad": pad}
+            if decorated:
+                open_blocks.append(blk)
+                cy += pt
+                x += pl
+                usable -= pl + pr
+            for child in children:
+                if isinstance(child, dict):
+                    emit_flow(child)
+            if decorated:
+                cy += pb
+                _insert_block_rect(blk, cy)
+                if open_blocks and open_blocks[-1] is blk:
+                    open_blocks.pop()
+                x -= pl
+                usable += pl + pr
+            cy += 4
+
+        def measure_flow(children):
+            """Trial-lay children into a throwaway buffer with no page bottom, to
+            learn their height — used to decide whether a `keep_together` block fits
+            in the remaining space before committing to it. Side effects (paint,
+            page breaks, toc/skip telemetry) are suppressed via `measuring`."""
+            nonlocal body, cy, bottom, measuring
+            save = (body, cy, bottom, measuring)
+            body, cy, bottom, measuring = [], 0.0, float("inf"), True
+            for child in children:
+                if isinstance(child, dict):
+                    emit_flow(child)
+            height = cy
+            body, cy, bottom, measuring = save
+            return height
 
         def wrap(text, size):
             cpl = max(8, int(usable / (size * 0.52)))
@@ -1783,6 +1973,36 @@ class Renderer:
             # not a forced book indent the author never asked for.
             ti = st.get("text_indent")
             indent = num(ti) if ti is not None else (size if first_indent else 0.0)
+            # Per-span inline styles (bold/colour/italic runs) survive flow layout:
+            # lay out the flattened run text, then re-slice the styled runs onto each
+            # line by char offset (LaidLine.start/end) and emit per-run tspans — the
+            # SAME machinery the absolute text renderer uses (render_text). Only taken
+            # when a span actually carries its own style, so plain paragraphs stay on
+            # the single-`text_tag` fast path (byte-identical, no golden churn).
+            spans = fl.get("spans") if isinstance(fl.get("spans"), list) else None
+            styled = spans and any(
+                isinstance(s, dict) and (s.get("style") or s.get("kind") == "math")
+                for s in spans)
+            if styled:
+                runs = self._span_runs(spans, line_st)
+                flat = "".join(t for t, _ in runs)
+                para = flow_layout.layout_paragraph(
+                    flat, size=size, avg=0.52, lh=lh, width=usable,
+                    measure=lambda s, z, a: self.measure(s, z, a, st), align=align,
+                    first_line_indent=indent)
+                for line in para.lines:
+                    if cy + size > bottom:
+                        newpage()
+                    lruns = flow_layout.slice_runs(runs, line.start, line.end) \
+                        or [(line.text, line_st)]
+                    if line.text.endswith("-"):     # carry the soft hyphen onto the last run
+                        lruns = [*lruns[:-1], (lruns[-1][0] + "-", lruns[-1][1])]
+                    body.append(p.text_runs(
+                        cy + size * 0.92, "start", x + line.indent, line_st, size, lruns,
+                        text_len=(line.width if line.justify else None)))
+                    cy += line.advance
+                cy += para.space_after
+                return
             para = flow_layout.layout_paragraph(
                 text_of(fl), size=size, avg=0.52, lh=lh, width=usable,
                 measure=self.measure, align=align,
@@ -1803,9 +2023,29 @@ class Renderer:
             rows = fl.get("rows") if isinstance(fl.get("rows"), list) else []
             if not header and not rows:
                 return
-            col_count = max(len(header), *(len(r) for r in rows if isinstance(r, list)), 1)
-            col_w = usable / col_count
-            row_h = 18
+            specs = fl.get("columns") if isinstance(fl.get("columns"), list) else []
+            col_count = max(len(header), len(specs),
+                            *(len(r) for r in rows if isinstance(r, list)), 1)
+
+            def _spec(i):
+                return specs[i] if i < len(specs) and isinstance(specs[i], dict) else {}
+
+            # Per-column widths: honour explicit `width` specs, split the remainder
+            # equally among unsized columns, then scale to fill the column exactly.
+            widths, unsized, fixed = [], [], 0.0
+            for i in range(col_count):
+                wv = num(_spec(i).get("width"), None) if _spec(i).get("width") is not None else None
+                widths.append(wv)
+                (unsized.append(i) if wv is None else None)
+                fixed += wv or 0.0
+            if unsized:
+                share = max(1.0, (usable - fixed) / len(unsized))
+                for i in unsized:
+                    widths[i] = share
+            span = sum(widths) or 1.0
+            widths = [w * usable / span for w in widths]
+            xs = [x + sum(widths[:i]) for i in range(col_count)]
+
             # Honor the table's authored `style` (header_fill/header_text/
             # cell_text/zebra_fill/cell_size) instead of hardcoded greys — else the
             # table ignores the brand and leaks off-scale sizes/colours.
@@ -1816,26 +2056,65 @@ class Renderer:
 
             # Sizes/colours come only from the table's `style` (falling back to
             # the document-defined `base`); no fill/grid/size literal is injected.
+            # Geometry follows the same contract (GH #61): grid_width /
+            # cell_padding / header_weight / cell_line_height are style keys
+            # whose documented fallbacks (0.5 / 4.0 / 700 / 1.25) keep
+            # style-silent tables byte-identical. 0 is authorable — None-check,
+            # never truthiness.
             font_size = num(sty.get("cell_size")) or base["size"]
             head_fill = _c(sty.get("header_fill"), None)
             zebra_fill = _c(sty.get("zebra_fill"), None)
             grid = _c(sty.get("grid_color"), None)
-            grid_stroke = Stroke(color=grid, width=0.5) if grid else None
-            cell_st = {**base, "size": font_size, "lh": 1.1,
+            grid_w = num(sty.get("grid_width"))
+            grid_stroke = Stroke(color=grid, width=0.5 if grid_w is None else grid_w) if grid else None
+            cell_lh = num(sty.get("cell_line_height"))
+            cell_lh = 1.25 if cell_lh is None else cell_lh
+            cell_st = {**base, "size": font_size, "lh": cell_lh,
                        "color": _c(sty.get("cell_text"), base["color"])}
-            head_st = {**cell_st, "weight": 700, "color": _c(sty.get("header_text"), base["color"])}
+            head_w = sty.get("header_weight")
+            head_st = {**cell_st, "weight": 700 if head_w is None else head_w,
+                       "color": _c(sty.get("header_text"), base["color"])}
+            pad = num(fl.get("cell_padding"))            # the element's own field wins
+            if pad is None:
+                pad = num(sty.get("cell_padding"))       # then the style/theme key
+            pad = 4.0 if pad is None else pad
+            line_h = font_size * cell_lh
+
+            def _wrap_cell(value, w):
+                cpl = max(3, int((w - 2 * pad) / (font_size * 0.52)))
+                out = []
+                for seg in str(text_of(value)).split("\n"):
+                    cur = ""
+                    for wd in seg.split():
+                        if cur and len(cur) + 1 + len(wd) > cpl:
+                            out.append(cur); cur = wd
+                        else:
+                            cur = (cur + " " + wd).strip()
+                    out.append(cur)
+                return out or [""]
 
             def emit_row(values, st, fill):
+                # Wrapping cells: row height follows the tallest cell (no more
+                # single-line clipping); the cell background/grid box spans it.
                 nonlocal cy
-                if cy + row_h > bottom:
+                cells = [_wrap_cell(values[i] if i < len(values) else "", widths[i])
+                         for i in range(col_count)]
+                rh = max((len(c) for c in cells), default=1) * line_h + 2 * pad
+                if cy + rh > bottom and cy > top:
                     newpage()
-                for idx in range(col_count):
-                    tx = x + idx * col_w
-                    value = values[idx] if idx < len(values) else ""
-                    body.append(p.rect(tx, cy, col_w, row_h, fill, grid_stroke))
-                    body.append(p.text_tag(tx + 3, cy + 3, col_w - 6, row_h - 6, text_of(value), st, vcenter=False))
-                cy += row_h
+                    if header and st is not head_st and repeat_header:
+                        emit_row(header, head_st, head_fill)     # repeatRows
+                for i in range(col_count):
+                    body.append(p.rect(xs[i], cy, widths[i], rh, fill, grid_stroke))
+                    cst = {**st, "align": _spec(i).get("align") or st.get("align") or "left"}
+                    ty = cy + pad
+                    for ln in cells[i]:
+                        body.append(p.text_tag(xs[i] + pad, ty, widths[i] - 2 * pad,
+                                               line_h, ln, cst, vcenter=False))
+                        ty += line_h
+                cy += rh
 
+            repeat_header = header and bool(fl.get("repeat_header", True))
             caption = text_of(fl.get("caption"))
             if caption:
                 emit(caption, {**named("caption"), "weight": 700}, gap_after=4)
@@ -1993,6 +2272,11 @@ class Renderer:
                                            (" " + leader) * int(dots_w / unit), st,
                                            vcenter=False))
                 if toc_pages is not None and i < len(toc_pages):
+                    # a clickable region over the whole entry line → its target page,
+                    # so the TOC navigates in the PDF (was a dead list of numbers).
+                    self.flow_links.append({"page": len(pages) + 1,
+                                            "rect": [x + indent, cy, usable - indent, line_h],
+                                            "target": toc_pages[i]})
                     body.append(p.text_tag(x, cy, usable, line_h, str(toc_pages[i]),
                                            {**st, "align": "right"}, vcenter=False))
                 cy += line_h
@@ -2008,9 +2292,10 @@ class Renderer:
                 # by the toc pass and the PDF outline builder. Mirrors emit()'s
                 # page-break check for the first line.
                 hp = len(pages) + (2 if cy + sz > bottom else 1)
-                self.flow_headings.append({"level": int(fl.get("level", 1) or 1),
-                                           "text": text_of(fl), "id": fl.get("id"),
-                                           "page": hp})
+                if not measuring:       # a trial (keep_together fit) records nothing
+                    self.flow_headings.append({"level": int(fl.get("level", 1) or 1),
+                                               "text": text_of(fl), "id": fl.get("id"),
+                                               "page": hp})
                 # `{{page}}`/running-header resolution use the SAME section-local
                 # numbering as `hp` (a "page N of TOTAL" reads as this flow
                 # section's own pagination, matching author expectation — not a
@@ -2056,17 +2341,27 @@ class Renderer:
                 cy += 6
             elif ft in ("block", "keep_together"):
                 children = fl.get("children") if isinstance(fl.get("children"), list) else []
-                for child in children:
-                    if isinstance(child, dict):
-                        emit_flow(child)
-                cy += 4
+                # keep_together: if the whole block fits in the remaining space, keep
+                # it atomic by starting it on the next page; if it is taller than a
+                # full page it necessarily splits (its fill/border then paints per
+                # page fragment). A trial measure decides — suppressed telemetry.
+                if ft == "keep_together" and not measuring and cy > top:
+                    if cy + measure_flow(children) > bottom:
+                        newpage()
+                emit_container(fl, children)
             elif ft == "table":
                 emit_table(fl)
             elif ft == "math":
                 emit_math(fl)
             elif ft == "code":
                 text = fl.get("code") or fl.get("source") or text_of(fl)
-                mono = {**base, "family": "monospace", "size": 10, "color": "#333"}
+                # Reserved `code` style, resolved like `caption` (ADR-0006 /
+                # GH #62); only a document without one gets the documented
+                # monospace/10/#333 fallback.
+                if "code" in (self.text_styles or {}) or "code" in (self.styles or {}):
+                    mono = named("code")
+                else:
+                    mono = {**base, "family": "monospace", "size": 10, "color": "#333"}
                 for ln in str(text).splitlines() or [""]:
                     emit(ln, mono, gap_after=1)
                 cy += 8
@@ -2084,7 +2379,7 @@ class Renderer:
                 text = text_of(fl)
                 if text:
                     emit(text, stref or base)
-                else:
+                elif not measuring:
                     # the proxy dropped this block: COUNT it by type — a document
                     # that validates but loses content must say so (no silence).
                     self._note_flow_skip(ft)
@@ -2102,6 +2397,14 @@ class Renderer:
             fh = (num(size[1], 0) if size and len(size) >= 2
                   else num(obox[3], 0) if obox and len(obox) >= 4 else 0)
             scale = min(1.0, usable / fw) if fw else 1.0
+            # Quantize the fit scale ONCE at emitted precision, then derive
+            # draw_h / tx / ty from that same value, so paint (the scale()
+            # attr) and layout (the flow-cursor advance) agree exactly. fnum's
+            # 3 decimals cost up to fw·5e-4 px at the figure's far edge
+            # (1.0 px at usable=3600, fw=6100); fnum_precise keeps the
+            # residual below 1e-5 px.
+            if scale != 1.0:
+                scale = float(fnum_precise(scale))
             draw_h = (fh or 0) * scale
             if cy + draw_h > bottom and cy > top:        # keep a figure whole
                 newpage()
@@ -2112,7 +2415,8 @@ class Renderer:
                 tx, ty = x - ox * scale, cy - oy * scale
                 if scale != 1.0:
                     body.append(p.transform_group(
-                        inner, [("translate", [fnum(tx), fnum(ty)]), ("scale", [fnum(scale)])]))
+                        inner, [("translate", [fnum(tx), fnum(ty)]),
+                                ("scale", [fnum_precise(scale)])]))
                 else:
                     body.append(p.group(inner, translate=(tx, ty)) if (tx or ty) else inner)
                 cy += draw_h + 6
@@ -2151,7 +2455,7 @@ class Renderer:
                 continue
             emit_flow(fl)
         flush()
-        return pages or [p.document(w, h, "")]
+        return pages or [p.document(w, h, "", background=page_bg)]
 
 
 # --------------------------------------------------------------------------- #

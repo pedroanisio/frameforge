@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """check_spec_sync.py — assert the normative spec prose still names what the models define.
 
-The Pydantic models in ``models/frameforge.py`` are the source of truth; the schema
+The Pydantic models in ``frameforge.model`` (src/frameforge/model.py) are the source of truth; the schema
 and the EBNF grammar are guarded against them (``build_schema.py --check``,
 ``check_grammar_sync.py``). The prose spec ``spec/frameforge-v2-spec.md`` declares
 itself "the normative reference" but had NO guard — its example documents are
@@ -40,9 +40,9 @@ SPEC = os.path.join(ROOT, "docs", "spec", "frameforge-v2-spec.md")
 
 # Introspect the models exactly like check_grammar_sync / validate.py: the in-repo
 # source of truth shadows any installed distribution, and the ./frameforge package
-# (if already imported) must not shadow models/frameforge.py.
-sys.path.insert(0, os.path.join(ROOT, "docs"))
-import models.frameforge as fg  # noqa: E402  (package-qualified: never shadow or evict the real package)
+# (if already imported) must not shadow src/frameforge/model.py.
+sys.path.insert(0, os.path.join(ROOT, "src"))
+import frameforge.model as fg  # noqa: E402  (package-qualified: never shadow or evict the real package)
 
 # Deprecated renderer-shortcut aliases the models accept but the normative surface
 # omits (codemod normalises them); kept identical to check_grammar_sync.py.

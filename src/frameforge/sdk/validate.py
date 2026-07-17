@@ -115,26 +115,20 @@ def _tooling_issues(raw: dict[str, Any]) -> list[Issue]:
 
 
 def _load_tooling_validate():
+    # tooling/validate.py imports the model package-qualified (frameforge.model,
+    # inside the package since 2.5.0), so it loads without any sys.modules
+    # manipulation — the historical model/package swap dance is gone for good.
     import importlib.util
-    import sys
 
     root = Path(__file__).resolve().parents[3]
     path = root / "tooling" / "validate.py"
     name = "_frameforge_sdk_tooling_validate"
-    previous = sys.modules.get("frameforge")
-    sys.modules["frameforge"] = model_module()
-    try:
-        spec = importlib.util.spec_from_file_location(name, path)
-        if spec is None or spec.loader is None:
-            raise RuntimeError("could not load tooling validator")
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        return module
-    finally:
-        if previous is None:
-            sys.modules.pop("frameforge", None)
-        else:
-            sys.modules["frameforge"] = previous
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("could not load tooling validator")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def _sdk_issues(raw: dict[str, Any], requested_targets: list[str]) -> list[Issue]:

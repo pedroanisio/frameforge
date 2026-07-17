@@ -222,7 +222,7 @@ def s_components():
         T(x+14,yy+12,w-24,t,size=SML,weight=800,color=INK)
         T(x+14,yy+34,w-24,items,size=CAP,color=MUTE,mono=True,lh=1.42)
     g=24; cw=(W-2*MX-3*g)/4
-    box(MX,y,cw,118,"model  (source of truth)","docs/models/frameforge.py\n1,804 LOC · Pydantic\nDocument·Page·Layer·Obj\nStyle·Paint·Layout·Defs",c=INK,tint=ACC_SOFT)
+    box(MX,y,cw,118,"model  (source of truth)","src/frameforge/model.py\n1,804 LOC · Pydantic\nDocument·Page·Layer·Obj\nStyle·Paint·Layout·Defs",c=INK,tint=ACC_SOFT)
     box(MX+(cw+g),y,cw,118,"sdk  (33 modules)","author·expand·geometry\nplanar·manifold·topology\nflow·book·chart·widgets\ncanon·chevreul·humanize")
     box(MX+2*(cw+g),y,cw,118,"rendering  (hexagonal)","domain/ports · services\napplication/renderer walk\ninfrastructure/painters\n…/backends · cairo · latex")
     box(MX+3*(cw+g),y,cw,118,"mcp  (24 tools)","author→render · ingest\nvision reconstruction\nvisual QA · discovery\nsessions/resources")
@@ -657,7 +657,7 @@ def s_appendix():
     slide("Appendix","Evidence inventory — grounded in the live tree")
     y=body_top()
     cols=[("Inspected (file : what it grounds)",[
-              "docs/models/frameforge.py — model, 1,804 LOC, HEAD 2.4.1",
+              "src/frameforge/model.py — model, 1,804 LOC, HEAD 2.4.1",
               "…Document/Page/Layer/ObjBase/Style/Paint/Layout/Defs",
               "src/frameforge/sdk/*.py — 33 modules (author…planar)",
               "…author.py — page/layer/shapes/use/component",

@@ -35,7 +35,7 @@ here. The same enumeration ships machine-readably in
 | Code | Meaning | How to fix |
 |---|---|---|
 | `load` | The document file could not be parsed as YAML/JSON at all. | Fix the syntax error reported in the message; the path in the finding is the file itself. |
-| `structure` | The document does not validate against the core Pydantic models (wrong field, wrong type, missing required key). | Follow the Pydantic message at the reported path; the models (`docs/models/frameforge.py`) are the source of truth. |
+| `structure` | The document does not validate against the core Pydantic models (wrong field, wrong type, missing required key). | Follow the Pydantic message at the reported path; the models (`src/frameforge/model.py`) are the source of truth. |
 | `stroke-single-form` | Inline-geometry `stroke` (a dict carrying `width`/`dash`/`linecap`/`linejoin`) was removed in P3. | Put paint in `stroke` and geometry in `stroke_style`; `tooling/codemod.py` migrates this automatically. |
 | `size-renamed` | Legacy `size` on a non-icon object collides with `IconObject.size`. | Rename the content-sizing key to `sizing` (the codemod does this). |
 | `hug-on-shape` | `sizing: hug` on a pure shape (`rect`, `ellipse`, `line`, …) — shapes have no intrinsic content to hug. | Use a fixed dimension or `fill`. |

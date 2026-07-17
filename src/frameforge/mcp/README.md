@@ -24,7 +24,7 @@ make live                                 # local web UI over the same session f
 
 Discovery (look up, don't guess):
 
-- `describe_capabilities` — LIVE introspection of the document model (`docs/models/frameforge.py`
+- `describe_capabilities` — LIVE introspection of the document model (`src/frameforge/model.py`
   via `frameforge.sdk.model`): no topic returns the capability index (object types, flowable
   types, inline kinds, canvas presets, profiles, tool names); a topic of
   `flowables`/`inlines`/`style`/`presets`/`tools` returns that catalog; a type/model name

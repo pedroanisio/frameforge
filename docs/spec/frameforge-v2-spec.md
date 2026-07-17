@@ -2,7 +2,7 @@
 title: FrameForge v2 — Specification (HEAD)
 version: 2.3.0
 status: PROPOSED / partially-implemented
-source_of_truth: docs/models/frameforge.py (Pydantic) → schema generated; this prose is the normative reference
+source_of_truth: src/frameforge/model.py (Pydantic) → schema generated; this prose is the normative reference
 supersedes: FrameForge-2.0.0-Specification.md (reverse-engineered) and the four standalone patch docs (P1–P4); style subsystem defers to frameforge-v2-style.ebnf (authoritative)
 date: 2026-07-01
 disclaimer: >
@@ -19,7 +19,7 @@ FrameForge is a declarative JSON/YAML language describing a paginated or continu
 document — decks, books, reports, diagrams — rendered to vector output. This is the
 **HEAD** specification: the consolidation of the base grammar with Patches 1–4 and
 the (now drafted) CSS style module. It is the normative companion to
-`docs/grammar/frameforge-v2.ebnf` and `docs/models/frameforge.py`.
+`docs/grammar/frameforge-v2.ebnf` and `src/frameforge/model.py`.
 
 This document records only the **rules**; for the descriptive walk-through of the
 format see the reverse-engineered spec (provenance). Section numbers match the

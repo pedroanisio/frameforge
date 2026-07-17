@@ -71,8 +71,8 @@ def test_every_frameforge_export_has_a_docstring():
         if inspect.ismodule(obj):
             ours = obj.__name__.startswith("frameforge")
         else:
-            # models.frameforge (docs/models) is the repo's own source of truth
-            ours = module.startswith("frameforge") or module == "models.frameforge"
+            # frameforge.model (docs/models) is the repo's own source of truth
+            ours = module.startswith("frameforge") or module == "frameforge.model"
         if not ours:
             continue                      # third-party re-exports: explained as such
         doc = inspect.getdoc(obj)

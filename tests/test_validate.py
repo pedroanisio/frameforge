@@ -12,9 +12,6 @@ import tempfile
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
-_shadow = sys.modules.get("frameforge")
-if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
-    del sys.modules["frameforge"]
 
 import validate as V  # noqa: E402
 
@@ -247,11 +244,7 @@ def test_preset_table_matches_the_renderer():
 
 def test_every_model_preset_resolves():
     import typing
-    sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
-    shadow = sys.modules.get("frameforge")
-    if shadow is not None and hasattr(shadow, "__path__"):  # rendering package shadows the models
-        del sys.modules["frameforge"]
-    import frameforge as fg
+    import frameforge.model as fg  # noqa: E402
     for preset in typing.get_args(fg.PagePreset):
         assert V._canvas_wh(preset), f"PagePreset {preset!r} has no size in the validator table"
 
