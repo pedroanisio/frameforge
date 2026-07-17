@@ -171,7 +171,7 @@ def titles(pg):
 
 def cyclist(pg):
     """Rider on the shoulder of the sweep — wheels at the measured centres."""
-    rear, front, r = (281, 181), (315, 197), 14.0
+    rear, front, r = (269, 173), (303, 189), 14.0
     ang = math.atan2(front[1] - rear[1], front[0] - rear[0])
     cr, sr = math.cos(ang), math.sin(ang)
     mid = ((rear[0] + front[0]) / 2, (rear[1] + front[1]) / 2)

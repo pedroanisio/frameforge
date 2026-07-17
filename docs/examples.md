@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 119 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 120 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -122,6 +122,7 @@ The 119 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`style_richness_showcase.py`](../static/examples/style_richness_showcase.py) | Style & colour richness — effect stack, appearance stack, recolor, guide. |
 | [`sublime_ttl_screenshot.py`](../static/examples/sublime_ttl_screenshot.py) | Recreate the Sublime Text (.ttl) desktop screenshot with the FrameForge SDK. |
 | [`syrus_proposal.py`](../static/examples/syrus_proposal.py) | SYRUS — client-acquisition proposal, built in the "Modern Sovereign" brand. |
+| [`tdf_stage3_poster.py`](../static/examples/tdf_stage3_poster.py) | Stage-poster reconstruction study, v2 — geometry measured from the reference. |
 | [`topology_perspective.py`](../static/examples/topology_perspective.py) | Demo of the SDK topology + perspective helpers. |
 | [`trebuchet_drawings.py`](../static/examples/trebuchet_drawings.py) | Author a 30-sheet engineering drawing package for a counterweight trebuchet. |
 | [`tripglide_mobile_mockup.py`](../static/examples/tripglide_mobile_mockup.py) | Compose a TripGlide-style travel mobile app mockup with the FrameForge SDK. |
