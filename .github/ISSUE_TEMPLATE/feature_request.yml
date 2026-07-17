@@ -1,0 +1,38 @@
+name: Feature request
+description: Propose a new capability or public API improvement.
+title: "feat: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        FrameForge changes should preserve the model -> SDK -> MCP contract and
+        keep low-level primitives available to agents.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What authoring, rendering, validation, or agent workflow does this unblock?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed shape
+      description: Describe the model, SDK, MCP, renderer, or documentation surface you expect to change.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Existing workarounds, lower-level primitives, or external tools you considered.
+    validations:
+      required: false
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation expectations
+      description: What regression tests, fixtures, generated docs, or render checks should prove the change?
+    validations:
+      required: true
