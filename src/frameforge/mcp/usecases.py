@@ -9,6 +9,7 @@ runner removes the duplication so a new entry point is a new source, not a new c
 from __future__ import annotations
 
 import base64
+import math
 from pathlib import Path
 from typing import Any
 
@@ -86,6 +87,7 @@ def _run_source(
     to: str = "png",
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
+    reference: str | None = None,
     tool: str | None = None,
 ) -> dict[str, Any]:
     """Drive any document source: produce, then (if produced) validate + render.
@@ -122,6 +124,9 @@ def _run_source(
         result.update(rendered)
         if rendered.get("renders"):
             result.update(_archive_renders(produced.session_dir, rendered["renders"]))
+        if reference is not None:
+            result["reference_diff"] = _reference_diff(
+                result, reference, session_root=source.session_root, scale=scale)
     if tool:
         _apply_session_stamp(result, tool=tool, replaced=replaced)
     _write_diagnostics(produced.session_dir, result)
@@ -143,6 +148,7 @@ def run_sdk_code(
     to: str = "png",
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
+    reference: str | None = None,
 ) -> dict[str, Any]:
     """Execute Python SDK code, then validate and render its generated YAML.
 
@@ -167,7 +173,8 @@ def run_sdk_code(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
         sign=sign, signed_at=signed_at, silhouette=silhouette,
-        to=to, scale=scale, real_metrics=real_metrics, tool="run_sdk_code",
+        to=to, scale=scale, real_metrics=real_metrics, reference=reference,
+        tool="run_sdk_code",
     )
 
 
@@ -187,6 +194,7 @@ def run_sdk_client(
     to: str = "png",
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
+    reference: str | None = None,
     repo_root: str | Path | None = None,
     edit_roots: str | list[str] | tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
@@ -203,7 +211,8 @@ def run_sdk_client(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
         sign=sign, signed_at=signed_at, silhouette=silhouette,
-        to=to, scale=scale, real_metrics=real_metrics, tool="run_sdk_client",
+        to=to, scale=scale, real_metrics=real_metrics, reference=reference,
+        tool="run_sdk_client",
     )
 
 
@@ -221,6 +230,7 @@ def render_frameforge_yaml(
     to: str = "png",
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
+    reference: str | None = None,
 ) -> dict[str, Any]:
     """Validate and render caller-provided FrameForge YAML."""
     if not isinstance(yaml_text, str) or not yaml_text.strip():
@@ -229,7 +239,8 @@ def render_frameforge_yaml(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
         sign=sign, signed_at=signed_at, silhouette=silhouette,
-        to=to, scale=scale, real_metrics=real_metrics, tool="render_frameforge_yaml",
+        to=to, scale=scale, real_metrics=real_metrics, reference=reference,
+        tool="render_frameforge_yaml",
     )
 
 
@@ -1974,3 +1985,103 @@ def diff_renders(
     result["diffed"] = {"reference_rev": ref, "candidate_rev": cand}
     result["tool"] = "diff_renders"
     return result
+
+
+def _doc_object_boxes(yaml_path: str | Path, *, img_w: int, img_h: int,
+                      min_dim: float = 6.0, max_area_frac: float = 0.6) -> list[dict[str, Any]]:
+    """Object boxes of page 1 of a rendered document, scaled to raster pixels.
+
+    Backgrounds (area above ``max_area_frac`` of the canvas) and sub-``min_dim``
+    slivers are excluded — a ghost search needs patches that are both local and
+    measurable.
+    """
+    from frameforge.sdk.io import parse
+    from frameforge.sdk.region import object_bbox
+
+    doc = parse(Path(yaml_path).read_text(encoding="utf-8"), validate=False)
+    pages = doc.get("pages") or []
+    if not pages:
+        return []
+    page = pages[0].get("page") or pages[0]
+    canvas = page.get("canvas") or {}
+    size = canvas.get("size") if isinstance(canvas, dict) else None
+    cw, ch = (float(size[0]), float(size[1])) if isinstance(size, (list, tuple)) and len(size) == 2 \
+        else (float(img_w), float(img_h))
+    sx, sy = img_w / cw, img_h / ch
+    boxes: list[dict[str, Any]] = []
+    for j, layer in enumerate(page.get("layers") or []):
+        objects = layer.get("objects") or [] if isinstance(layer, dict) else []
+        lid = (layer.get("id") if isinstance(layer, dict) else None) or f"layer{j}"
+        for k, obj in enumerate(objects):
+            if not isinstance(obj, dict):
+                continue
+            bb = object_bbox(obj)
+            if not bb:
+                continue
+            x0, y0, x1, y1 = bb
+            w, h = (x1 - x0) * sx, (y1 - y0) * sy
+            if w < min_dim or h < min_dim:
+                continue
+            if (w * h) > max_area_frac * img_w * img_h:
+                continue
+            boxes.append({
+                "id": obj.get("id") or f"{lid}/{k}:{obj.get('type', '?')}",
+                "box": [x0 * sx, y0 * sy, w, h],
+            })
+    return boxes
+
+
+def _reference_diff(result: dict[str, Any], reference: str, *,
+                    session_root: str | Path | None, scale: float) -> dict[str, Any]:
+    """Ghost vectors of page 1 against a reference image (recon gap F2).
+
+    Never raises — a reference that cannot be diffed comes back as a
+    structured ``{"ok": false, "error": ...}`` alongside the successful
+    render, so the render itself is never failed by its comparison.
+    """
+    png = next((r for r in result.get("renders") or []
+                if str(r.get("path", "")).endswith(".png") and "page" in r), None)
+    if png is None:
+        return {"ok": False,
+                "error": "no rasterized page to diff — render with raster_png=true"}
+    try:
+        ref_bytes = _resolve_image_arg(reference, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": f"could not resolve reference: {exc}"}
+    try:
+        import io as _io
+
+        import numpy as np
+        from PIL import Image
+    except ImportError as exc:
+        return {"ok": False, "error": f"reference diff needs numpy+Pillow: {exc}"}
+    try:
+        from frameforge.vision.domain.ghosting import ghost_vectors
+
+        render_img = Image.open(png["path"]).convert("L")
+        ref_img = Image.open(_io.BytesIO(ref_bytes)).convert("L")
+        resized = ref_img.size != render_img.size
+        if resized:
+            ref_img = ref_img.resize(render_img.size, Image.LANCZOS)
+        boxes = _doc_object_boxes(result.get("yaml_path", ""),
+                                  img_w=render_img.width, img_h=render_img.height)
+        vectors = ghost_vectors(np.asarray(render_img, dtype=float),
+                                np.asarray(ref_img, dtype=float), boxes)
+        mags = [math.hypot(*v["offset_px"]) for v in vectors]
+        return {
+            "ok": True,
+            "reference": reference if len(str(reference)) < 200 else "<inline data URI>",
+            "resized_reference": resized,
+            "ghost_vectors": vectors,
+            "summary": {
+                "objects_measured": len(vectors),
+                "objects_candidate": len(boxes),
+                "max_offset_px": round(max(mags), 2) if mags else 0.0,
+                "mean_offset_px": round(sum(mags) / len(mags), 2) if mags else 0.0,
+            },
+            "note": ("offset_px is where the reference's matching patch sits relative "
+                     "to the rendered object — add it to the object's position to land "
+                     "on the reference; page 1 only; heuristic NCC matches (PALS's Law)"),
+        }
+    except Exception as exc:  # keep the render result usable no matter what
+        return {"ok": False, "error": f"reference diff failed: {exc}"}

@@ -425,6 +425,10 @@ def create_server(
         to: Annotated[str, Field(description=_DESC_TO)] = "png",
         scale: Annotated[float, Field(description=_DESC_SCALE)] = 1.0,
         real_metrics: Annotated[bool | str, Field(description=_DESC_REAL_METRICS)] = "auto",
+        reference: Annotated[
+            str | None,
+            Field(description="Optional reference image (path, frameforge:// URI, or data:image URI) to diff the rendered page 1 against: the result gains reference_diff with per-object ghost vectors — each authored object's displacement toward its best match in the reference — so corrections are typed from numbers instead of eyeballed off an overlay."),
+        ] = None,
     ):
         """Run an editable Python SDK client, validate its YAML, and return render feedback.
 
@@ -448,6 +452,7 @@ def create_server(
                 "to": to,
                 "scale": scale,
                 "real_metrics": real_metrics,
+                "reference": reference,
             },
             lambda: _enveloped("run_sdk_client", lambda: _uc_run_sdk_client(
                 path,
@@ -464,6 +469,7 @@ def create_server(
                 to=to,
                 scale=scale,
                 real_metrics=real_metrics,
+                reference=reference,
                 repo_root=repo,
                 edit_roots=edit_roots,
             )),
@@ -487,6 +493,10 @@ def create_server(
         to: Annotated[str, Field(description=_DESC_TO)] = "png",
         scale: Annotated[float, Field(description=_DESC_SCALE)] = 1.0,
         real_metrics: Annotated[bool | str, Field(description=_DESC_REAL_METRICS)] = "auto",
+        reference: Annotated[
+            str | None,
+            Field(description="Optional reference image (path, frameforge:// URI, or data:image URI) to diff the rendered page 1 against: the result gains reference_diff with per-object ghost vectors — each authored object's displacement toward its best match in the reference — so corrections are typed from numbers instead of eyeballed off an overlay."),
+        ] = None,
     ):
         """Run Python SDK code, validate its YAML, and return render feedback.
 
@@ -509,6 +519,7 @@ def create_server(
                 "to": to,
                 "scale": scale,
                 "real_metrics": real_metrics,
+                "reference": reference,
             },
             lambda: _enveloped("run_sdk_code", lambda: _uc_run_sdk_code(
                 code,
@@ -524,6 +535,7 @@ def create_server(
                 to=to,
                 scale=scale,
                 real_metrics=real_metrics,
+                reference=reference,
             )),
         )
         return _maybe_call_tool_result(result)
@@ -544,6 +556,10 @@ def create_server(
         to: Annotated[str, Field(description=_DESC_TO)] = "png",
         scale: Annotated[float, Field(description=_DESC_SCALE)] = 1.0,
         real_metrics: Annotated[bool | str, Field(description=_DESC_REAL_METRICS)] = "auto",
+        reference: Annotated[
+            str | None,
+            Field(description="Optional reference image (path, frameforge:// URI, or data:image URI) to diff the rendered page 1 against: the result gains reference_diff with per-object ghost vectors — each authored object's displacement toward its best match in the reference — so corrections are typed from numbers instead of eyeballed off an overlay."),
+        ] = None,
     ):
         """Validate and render FrameForge YAML without executing Python code.
 
@@ -565,6 +581,7 @@ def create_server(
                 "to": to,
                 "scale": scale,
                 "real_metrics": real_metrics,
+                "reference": reference,
             },
             lambda: _enveloped("render_frameforge_yaml", lambda: _uc_render_frameforge_yaml(
                 yaml_text,
@@ -579,6 +596,7 @@ def create_server(
                 to=to,
                 scale=scale,
                 real_metrics=real_metrics,
+                reference=reference,
             )),
         )
         return _maybe_call_tool_result(result)

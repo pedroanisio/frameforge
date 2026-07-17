@@ -139,6 +139,6 @@ def test_server_registers_and_dispatches_fit_primitives(tmp_path):
     assert "fit_primitives" in server.tools
     pts = band_arc((100, 90), 60, -90, 90, thickness=10).tolist()
     out = server.tools["fit_primitives"](shapes=[{"points": pts}])
-    payload = out if isinstance(out, dict) else out[-1]
+    payload = getattr(out, "structuredContent", out)
     assert payload["ok"] is True
     assert payload["fits"][0]["best"]["kind"] == "arc"
