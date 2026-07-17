@@ -2117,7 +2117,7 @@ class Renderer:
             repeat_header = header and bool(fl.get("repeat_header", True))
             caption = text_of(fl.get("caption"))
             if caption:
-                emit(caption, {**named("caption"), "weight": 700}, gap_after=4)
+                emit(caption, styled("caption", {"weight": 700}), gap_after=4)
             if header:
                 emit_row(header, head_st, head_fill)
             for idx, row in enumerate(rows):
@@ -2130,8 +2130,11 @@ class Renderer:
             input_kind = "tex" if fl.get("tex") is not None else "mathml" if fl.get("mathml") is not None else "tex"
             source = fl.get("tex") if fl.get("tex") is not None else fl.get("mathml") if fl.get("mathml") is not None else text_of(fl)
             rendered = self._math.render(source, input_kind)
+            # Math ink is the block's own style colour, else the document base —
+            # never an engine literal (GH #64; was a hardcoded #111).
+            mst = self.text_style(fl.get("style")) if fl.get("style") else None
             if rendered:
-                math_color = "#111"
+                math_color = (mst or base)["color"]
                 math_body = str(rendered.get("body")).replace("currentColor", math_color)
                 natural_w = max(1.0, num(rendered.get("width"), 120))
                 natural_h = max(1.0, num(rendered.get("height"), 24))
@@ -2151,7 +2154,7 @@ class Renderer:
                 return
 
             text = math_text(source)
-            st = {**base, "family": "serif", "size": 13, "color": "#111", "align": "center", "lh": 1.25}
+            st = {**(mst or base), "align": "center"}
             for ln in str(text).splitlines() or [""]:
                 emit(ln, st, gap_after=1)
             cy += 8
@@ -2220,7 +2223,7 @@ class Renderer:
             cy += ih + 6
             captxt = text_of(fl.get("caption"))
             if captxt:
-                emit(captxt, {**named("caption"), "italic": True, "align": "center"},
+                emit(captxt, styled("caption", {"italic": True, "align": "center"}),
                      gap_after=12)
             else:
                 cy += 8
@@ -2239,28 +2242,37 @@ class Renderer:
                 self._note_flow_skip("toc")
                 return
             headings = self._story_headings(page.get("story") or [])
-            tocst = self.text_style(fl.get("style")) if fl.get("style") else None
+            # Entry style: the toc's own `style` ref, else the reserved `toc`
+            # style, else the documented fallbacks (GH #65).
+            tocst = (self.text_style(fl.get("style")) if fl.get("style")
+                     else self.text_style("toc") if defined("toc") else None)
             fam = (tocst or {}).get("family") or "sans-serif"
             col = (tocst or {}).get("color") or base["color"]
             esz = (tocst or {}).get("size") or 11
             title = fl.get("title")
             if title:
-                # TOC title follows the toc's own style face/colour (a step up in
-                # size), not a hardcoded serif/size/colour that escapes the scale.
-                emit(title, {**base, "family": fam, "color": col,
-                             "size": esz * 1.5, "weight": "bold"}, gap_after=8)
+                # TOC title: the reserved `toc_title` style when the document
+                # defines one; else the documented fallback — the entry
+                # face/colour at 1.5x, bold (GH #65).
+                tst = (self.text_style("toc_title") if defined("toc_title")
+                       else {**base, "family": fam, "color": col,
+                             "size": esz * 1.5, "weight": "bold"})
+                emit(title, tst, gap_after=8)
             levels = fl.get("levels")
             leader = (str(fl.get("leader") or ".") or ".")[:1]
             st = {**base, "family": fam, "color": col, "size": esz,
                   "lh": (tocst or {}).get("lh") or 1.5}
-            num_w = 24                                   # right column for page numbers
+            num_w = num(fl.get("number_width"))          # right column for page numbers
+            num_w = 24 if num_w is None else num_w
+            ind_u = num(fl.get("level_indent"))          # indent per level below 1
+            ind_u = 14 if ind_u is None else ind_u
             line_h = st["size"] * st["lh"]
             for i, hd in enumerate(headings):
                 if levels and hd["level"] not in levels:
                     continue
                 if cy + line_h > bottom:
                     newpage()
-                indent = 14 * max(0, hd["level"] - 1)
+                indent = ind_u * max(0, hd["level"] - 1)
                 body.append(p.text_tag(x + indent, cy, usable - indent - num_w, line_h,
                                        hd["text"], st, vcenter=False))
                 title_w = self.measure(hd["text"], st["size"], 0.52)
@@ -2355,13 +2367,9 @@ class Renderer:
                 emit_math(fl)
             elif ft == "code":
                 text = fl.get("code") or fl.get("source") or text_of(fl)
-                # Reserved `code` style, resolved like `caption` (ADR-0006 /
-                # GH #62); only a document without one gets the documented
-                # monospace/10/#333 fallback.
-                if "code" in (self.text_styles or {}) or "code" in (self.styles or {}):
-                    mono = named("code")
-                else:
-                    mono = {**base, "family": "monospace", "size": 10, "color": "#333"}
+                # Reserved `code` style with its documented fallback (ADR-0006 /
+                # GH #62), via the same mechanism as captions.
+                mono = styled("code", {"family": "monospace", "size": 10, "color": "#333"})
                 for ln in str(text).splitlines() or [""]:
                     emit(ln, mono, gap_after=1)
                 cy += 8
@@ -2423,7 +2431,7 @@ class Renderer:
             cap = fl.get("caption")
             captxt = cap if isinstance(cap, str) else (cap.get("text", "") if isinstance(cap, dict) else "")
             if captxt:
-                emit(captxt, {**named("caption"), "italic": True, "align": "center"},
+                emit(captxt, styled("caption", {"italic": True, "align": "center"}),
                      gap_after=12)
             else:
                 cy += 8
@@ -2450,6 +2458,17 @@ class Renderer:
             if name in (self.text_styles or {}) or name in (self.styles or {}):
                 return self.text_style(name)
             return base
+
+        def defined(name):
+            return name in (self.text_styles or {}) or name in (self.styles or {})
+
+        def styled(name, fallback):
+            """A reserved style with a documented fallback (ADR-0006, GH #63):
+            when the DOCUMENT defines `name`, it wins wholesale — no key is
+            stamped over it; only an undefined reserved style gets `base` plus
+            the documented fallback keys, keeping style-silent documents
+            byte-identical."""
+            return self.text_style(name) if defined(name) else {**base, **fallback}
         for fl in page.get("story") or []:
             if not isinstance(fl, dict):
                 continue

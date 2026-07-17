@@ -194,6 +194,140 @@ def test_cell_line_height_reads_from_table_style(tmp_path):
 CODE_STORY = [{"type": "code", "code": "print('hi')"}]
 
 
+# --------------------------------------------------------------------------- #
+#  #63 — captions: authored `caption` style wins over italic/center/bold      #
+# --------------------------------------------------------------------------- #
+CAPTION_DEFS = {"tokens": {"text_styles": {"caption": {
+    "font_family": "Inter", "color": "#ff00ff", "text_align": "left"}}}}
+
+
+def _caption_tag(svg, token="the caption text"):
+    m = re.search(r'<text[^>]*>(?:<tspan[^>]*>)?' + token, svg)
+    assert m, "caption text not rendered"
+    return m.group(0)
+
+
+def test_image_caption_honors_authored_caption_style(tmp_path):
+    svg = _render_doc(tmp_path, _flow_doc(
+        [{"type": "image", "src": "missing.png", "height": 40, "caption": "the caption text"}],
+        defs=CAPTION_DEFS))
+    tag = _caption_tag(svg)
+    assert "fill:#ff00ff" in tag, "authored caption color ignored"
+    assert "font-style:italic" not in tag, "italic still stamped over authored caption style"
+
+
+def test_image_caption_fallback_is_italic_centered(tmp_path):
+    # Pin: without a `caption` style the documented italic+center fallback holds.
+    svg = _render_doc(tmp_path, _flow_doc(
+        [{"type": "image", "src": "missing.png", "height": 40, "caption": "the caption text"}]))
+    tag = _caption_tag(svg)
+    assert "font-style:italic" in tag
+
+
+def test_table_caption_honors_authored_caption_style(tmp_path):
+    t = {"type": "table", "rows": [["a", "b"]], "caption": "the caption text"}
+    svg = _render_doc(tmp_path, _flow_doc([t], defs=CAPTION_DEFS))
+    tag = _caption_tag(svg)
+    assert "fill:#ff00ff" in tag
+    assert "font-weight:700" not in tag, "bold still stamped over authored caption style"
+
+
+def test_table_caption_fallback_is_bold(tmp_path):
+    t = {"type": "table", "rows": [["a", "b"]], "caption": "the caption text"}
+    svg = _render_doc(tmp_path, _flow_doc([t]))
+    assert "font-weight:700" in _caption_tag(svg)
+
+
+# --------------------------------------------------------------------------- #
+#  #64 — math ink derives from the document, never a #111 literal             #
+# --------------------------------------------------------------------------- #
+MATH_STORY = [{"type": "math", "tex": "E = mc^2"}]
+
+
+def test_math_ink_follows_body_style(tmp_path):
+    svg = _render_doc(tmp_path, _flow_doc(
+        MATH_STORY,
+        defs={"tokens": {"text_styles": {"body": {
+            "font_family": "Inter", "font_size": 12, "color": "#224466"}}}}))
+    assert "#111" not in svg, "math ink still hardcoded #111"
+    assert "#224466" in svg, "math ink did not follow the body style"
+
+
+def test_math_ink_unstyled_uses_the_sanctioned_base(tmp_path):
+    # Unstyled documents unify on the ONE sanctioned base colour (#1c1c1c);
+    # the second engine literal (#111) is gone.
+    svg = _render_doc(tmp_path, _flow_doc(MATH_STORY))
+    assert "#111" not in svg
+    assert "#1c1c1c" in svg
+
+
+# --------------------------------------------------------------------------- #
+#  #65 — TOC: reserved styles + authorable number_width / level_indent        #
+# --------------------------------------------------------------------------- #
+TOC_STORY = [{"type": "toc", "title": "Contents"},
+             {"type": "heading", "level": 1, "text": "One"},
+             {"type": "paragraph", "text": "alpha"},
+             {"type": "heading", "level": 2, "text": "Two"},
+             {"type": "paragraph", "text": "beta"}]
+
+
+def test_toc_entries_resolve_reserved_toc_style(tmp_path):
+    svg = _render_doc(tmp_path, _flow_doc(
+        TOC_STORY,
+        defs={"tokens": {"text_styles": {"toc": {
+            "font_family": "IBM Plex Mono", "font_size": 8}}}}))
+    entry = re.search(r'<text[^>]*>(?:<tspan[^>]*>)?One', svg).group(0)
+    assert "IBM Plex Mono" in entry, "reserved toc style face ignored for entries"
+    assert "font-size:8px" in entry, "reserved toc style size ignored for entries"
+
+
+def test_toc_title_resolves_reserved_toc_title_style(tmp_path):
+    svg = _render_doc(tmp_path, _flow_doc(
+        TOC_STORY,
+        defs={"tokens": {"text_styles": {"toc_title": {
+            "font_family": "Inter", "font_size": 9, "font_weight": 300}}}}))
+    title = re.search(r'<text[^>]*>(?:<tspan[^>]*>)?Contents', svg).group(0)
+    assert "font-size:9px" in title, "toc_title size ignored (1.5x heuristic still applied)"
+    assert "bold" not in title, "toc_title weight ignored (bold still stamped)"
+
+
+def test_toc_title_fallback_is_unchanged(tmp_path):
+    # Pin: no reserved styles -> title = 1.5 x entry size (16.5px), bold.
+    svg = _render_doc(tmp_path, _flow_doc(TOC_STORY))
+    title = re.search(r'<text[^>]*>(?:<tspan[^>]*>)?Contents', svg).group(0)
+    assert "font-size:16.5px" in title and "font-weight:bold" in title
+
+
+def test_toc_level_indent_is_authorable(tmp_path):
+    def entry_x(svg, token):
+        return float(re.search(r'<text x="([\d.]+)"[^>]*>(?:<tspan[^>]*>)?' + token,
+                               svg).group(1))
+    plain = _render_doc(tmp_path, _flow_doc(TOC_STORY), name="plain")
+    t = [dict(TOC_STORY[0], level_indent=30)] + TOC_STORY[1:]
+    wide = _render_doc(tmp_path, _flow_doc(t), name="wide")
+    d_plain = entry_x(plain, "Two") - entry_x(plain, "One")
+    d_wide = entry_x(wide, "Two") - entry_x(wide, "One")
+    assert abs(d_plain - 14.0) < 0.01, f"default level indent changed ({d_plain})"
+    assert abs(d_wide - 30.0) < 0.01, f"authored level_indent ignored ({d_wide})"
+
+
+def test_toc_number_width_is_authorable(tmp_path):
+    # A wider number column shortens the leader run; assert the entry text box
+    # width shrinks by the difference (usable - indent - num_w).
+    def entry_w(svg, token="One"):
+        m = re.search(r'<text x="[\d.]+"[^>]*>(?:<tspan[^>]*>)?' + token, svg)
+        tag = m.group(0)
+        return float(re.search(r'width="([\d.]+)"', tag).group(1)) if 'width="' in tag else None
+    plain = _render_doc(tmp_path, _flow_doc(TOC_STORY), name="p2")
+    t = [dict(TOC_STORY[0], number_width=60)] + TOC_STORY[1:]
+    wide = _render_doc(tmp_path, _flow_doc(t), name="w2")
+    # fall back to comparing the page-number x when text_tag emits no width attr
+    n_plain = re.findall(r'<text[^>]*text-anchor="end"[^>]*>(?:<tspan[^>]*>)?\d+', plain)
+    n_wide = re.findall(r'<text[^>]*text-anchor="end"[^>]*>(?:<tspan[^>]*>)?\d+', wide)
+    assert n_plain and n_wide, "toc page numbers not rendered"
+    assert plain != wide, "authored number_width had no effect"
+
+
 def test_code_block_honors_reserved_code_style(tmp_path):
     svg = _render_doc(tmp_path, _flow_doc(
         CODE_STORY,

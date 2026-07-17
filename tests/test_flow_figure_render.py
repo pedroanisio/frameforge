@@ -146,8 +146,11 @@ def test_flow_mathml_renders_as_mathjax_svg_not_raw_xml(tmp_path):
     assert 'data-frameforge-math="true"' in svg
     assert 'data-mml-node="math"' in svg
     assert "<path" in svg
-    assert 'fill="#111"' in svg
-    assert 'stroke="#111"' in svg
+    # Math ink derives from the document (GH #64): no body style here, so the
+    # sanctioned base colour applies — never the old engine literal #111.
+    assert 'fill="#1c1c1c"' in svg
+    assert 'stroke="#1c1c1c"' in svg
+    assert 'fill="#111"' not in svg
     assert "currentColor" not in svg
     assert "<math><mi>x</mi>" not in svg
     assert "&lt;math&gt;" not in svg

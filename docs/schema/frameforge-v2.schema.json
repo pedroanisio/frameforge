@@ -16957,7 +16957,7 @@
             }
           ],
           "default": null,
-          "description": "TOC entry style: a tokens key or an inline Style.",
+          "description": "TOC entry style: a tokens key or an inline Style. Absent, entries resolve the reserved `toc` style; the title resolves the reserved `toc_title` style (spec §5.2.2, ADR-0006).",
           "title": "Style"
         },
         "leader": {
@@ -16972,6 +16972,48 @@
           "default": null,
           "description": "Leader between entry and page number (e.g. '.').",
           "title": "Leader"
+        },
+        "number_width": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "description": "Length string: '<n><unit>' with unit pt|px|pc|mm|cm|in|em|rem (absolute; bare numbers are pt/px, treated 1:1) or %|fr (relative — % resolves against the container content-box, fr only inside a layout container; spec §3.4/§3.6g).",
+              "pattern": "^-?(?:\\d+\\.?\\d*|\\.\\d+)(?:pt|px|pc|mm|cm|in|em|rem|%|fr)$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Width of the right-anchored page-number column (documented fallback 24).",
+          "title": "Number Width"
+        },
+        "level_indent": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "description": "Length string: '<n><unit>' with unit pt|px|pc|mm|cm|in|em|rem (absolute; bare numbers are pt/px, treated 1:1) or %|fr (relative — % resolves against the container content-box, fr only inside a layout container; spec §3.4/§3.6g).",
+              "pattern": "^-?(?:\\d+\\.?\\d*|\\.\\d+)(?:pt|px|pc|mm|cm|in|em|rem|%|fr)$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Indent per heading level below the first (documented fallback 14).",
+          "title": "Level Indent"
         }
       },
       "required": [

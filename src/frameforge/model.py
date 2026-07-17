@@ -1521,9 +1521,17 @@ class TocFlow(BreakFields):
         default=None, description="Heading levels to include (default all).")
     title: Optional[str] = Field(default=None, description="TOC title text.")
     style: Optional[StyleRef] = Field(
-        default=None, description="TOC entry style: a tokens key or an inline Style.")
+        default=None, description="TOC entry style: a tokens key or an inline Style. Absent, "
+                                  "entries resolve the reserved `toc` style; the title resolves "
+                                  "the reserved `toc_title` style (spec §5.2.2, ADR-0006).")
     leader: Optional[str] = Field(
         default=None, description="Leader between entry and page number (e.g. '.').")
+    number_width: Optional[Length] = Field(
+        default=None, description="Width of the right-anchored page-number column "
+                                  "(documented fallback 24).")
+    level_indent: Optional[Length] = Field(
+        default=None, description="Indent per heading level below the first "
+                                  "(documented fallback 14).")
 
 
 class BibliographyFlow(BreakFields):
