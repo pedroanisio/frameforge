@@ -13,6 +13,8 @@ shadow (mirror of test_render_cli.py / test_head.py).
 import os
 import sys
 
+import pytest
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):   # the models module
@@ -20,6 +22,34 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):   # the models modu
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from frameforge import cli  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _ensure_frameforge_package():
+    """A models-module test collected *after* this file can leave the models
+    module (``docs/models/frameforge.py``) owning ``sys.modules["frameforge"]``
+    AND ``docs/models`` first on ``sys.path``. These tests call ``cli.main``
+    which lazily imports ``frameforge.sdk`` / ``frameforge.rendering`` at RUN
+    time, so re-assert the package here — a collection-time preamble alone is
+    order-dependent (audit finding #11). Everything is saved and restored, so
+    this isolation never leaks to the next test."""
+    models_path = os.path.normpath(os.path.join(ROOT, "docs", "models"))
+    saved_path, saved_mod = list(sys.path), sys.modules.get("frameforge")
+    # drop docs/models from the path and evict a non-package shadow so a fresh
+    # `import frameforge` resolves the package (src is on the path); submodules
+    # are left intact (other modules hold live references to them).
+    sys.path[:] = [p for p in sys.path
+                   if os.path.normpath(p or os.getcwd()) != models_path]
+    if saved_mod is not None and not hasattr(saved_mod, "__path__"):
+        del sys.modules["frameforge"]
+    try:
+        yield
+    finally:
+        sys.path[:] = saved_path
+        if saved_mod is not None:
+            sys.modules["frameforge"] = saved_mod
+        elif not hasattr(sys.modules.get("frameforge"), "__path__"):
+            sys.modules.pop("frameforge", None)
 
 DOC = """\
 dsl: FrameForge
@@ -75,3 +105,46 @@ def test_render_tex_is_always_available(tmp_path):
     assert tex.exists()
     body = tex.read_text(encoding="utf-8")
     assert "\\documentclass" in body and "tikzpicture" in body
+
+
+# A flow doc with a TOC: its entries must become clickable PDF link annotations
+# (the "dead TOC" regression — 0 hyperlinks in the stitched PDF).
+FLOW_TOC = """\
+dsl: FrameForge
+version: 2.2.0
+profile: book
+title: toc links
+pages:
+  - mode: flow
+    id: s
+    story:
+      - {type: toc, levels: [1]}
+      - {type: heading, level: 1, text: Alpha, id: a}
+      - {type: page_break}
+      - {type: heading, level: 1, text: Beta, id: b}
+"""
+
+
+def test_pdf_toc_entries_become_clickable_links(tmp_path):
+    import pytest
+    if not cli._can_import("cairosvg", "pypdf"):
+        pytest.skip("pdf target unavailable (needs cairosvg + pypdf)")
+    src = tmp_path / "toc.fg.yaml"
+    src.write_text(FLOW_TOC, encoding="utf-8")
+    out = tmp_path / "out"
+    assert cli.main([str(src), "--to", "pdf", "--out", str(out)]) == 0
+    from pypdf import PdfReader
+    pdfs = list(out.glob("*.pdf"))
+    assert pdfs, "no PDF written"
+    reader = PdfReader(str(pdfs[0]))
+    links = []
+    for pg in reader.pages:
+        for a in (pg.get("/Annots") or []):
+            obj = a.get_object()
+            if obj.get("/Subtype") == "/Link":
+                links.append(obj)
+    assert len(links) >= 2, "TOC entries did not become PDF link annotations"
+    # each link targets a real page in the document (internal GoTo)
+    for lk in links:
+        dest = lk.get("/Dest") or (lk.get("/A") or {}).get("/D")
+        assert dest is not None and int(dest[0]) < len(reader.pages)

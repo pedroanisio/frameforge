@@ -289,6 +289,9 @@ def _export_pdf(
                 bytestring=svg_path.read_text(encoding="utf-8").encode("utf-8"),
                 url=url_base,
                 unsafe=True,
+                # Pin the CSS px→pt conversion (1 px unit = 0.75 pt) instead
+                # of trusting the library default to stay at 96 (DIM-7).
+                dpi=96,
             )
             writer.append(io.BytesIO(pdf_bytes))
             appended += 1

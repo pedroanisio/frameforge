@@ -1,10 +1,16 @@
 """CanvasResolver — page/master → (width, height) (pure).
 
 Extracted from Renderer.canvas_wh + the module-level PRESETS/DEFAULT_WH
-(tooling/render_fixtures.py). Resolves a page's canvas from an explicit `size`,
-a named `preset`, or inheritance from its `master`, falling back to DEFAULT_WH.
+(tooling/render_fixtures.py). Resolves a page's canvas from an explicit `size`
+(honouring `units`: physical units convert to px at CSS 96 dpi, pt/px stay
+1:1), a named `preset` (honouring `orientation`), or inheritance from its
+`master`, falling back to DEFAULT_WH. An UNKNOWN preset name still falls back
+but is loud about it: through the injected `warn` sink when one is wired,
+otherwise via a stdlib UserWarning — never a silent canvas substitution.
 """
 from __future__ import annotations
+
+import warnings
 
 from frameforge.rendering.domain.geometry import is_point
 
@@ -15,6 +21,11 @@ PRESETS = {
     # Screen / deck / device
     "deck-16x9": (1920, 1080), "deck-4x3": (1024, 768), "square": (1080, 1080),
     "phone": (390, 844), "tablet": (834, 1112), "web": (1280, 800),
+    # Screen resolution ladder — device-pixel canvases for raster-exact work
+    # (the pixel-perfect campaign proves geometry at these sizes; "uhd" is the
+    # consumer-display alias for the same 3840×2160 canvas as "4k").
+    "qhd": (2560, 1440), "4k": (3840, 2160), "uhd": (3840, 2160),
+    "8k": (7680, 4320),
     # Social-media canvases — platform creator-guideline sizes in px. These are
     # conventions that shift with each platform; the normative model does not
     # enumerate them, so they live here as a render-time author convenience.
@@ -52,20 +63,61 @@ PRESETS = {
 }
 DEFAULT_WH = (1280, 800)
 
+# CSS absolute-unit → px factors (CSS Values 4 §6.2: 1in = 96px = 2.54cm).
+# pt/px are 1:1 by renderer convention (CanvasObject.units docstring), so
+# only the physical units appear here.
+_UNIT_TO_PX = {"mm": 96 / 25.4, "cm": 96 / 2.54, "in": 96.0}
+
 
 class CanvasResolver:
-    def __init__(self, masters):
+    def __init__(self, masters, warn=None):
         self.masters = masters or {}
+        # Optional structured-warning sink with the renderer's
+        # `warn(kind, message, **details)` shape; without one, unknown-preset
+        # events fall back to a stdlib UserWarning so pure/tooling callers
+        # still hear about the canvas substitution.
+        self._warn = warn
 
     def resolve(self, page):
         c = page.get("canvas")
         if c is None and page.get("master"):
             c = (self.masters.get(page["master"]) or {}).get("canvas")
         if isinstance(c, str):
-            return PRESETS.get(c, DEFAULT_WH)
+            return self._preset(c, None)
         if isinstance(c, dict):
             if is_point(c.get("size")):
-                return tuple(c["size"][:2])
+                return self._sized(c["size"], c.get("units"))
             if c.get("preset"):
-                return PRESETS.get(c["preset"], DEFAULT_WH)
+                return self._preset(c["preset"], c.get("orientation"))
         return DEFAULT_WH
+
+    def _preset(self, name, orientation):
+        wh = PRESETS.get(name)
+        if wh is None:
+            # A typo'd preset must never silently ship the default canvas —
+            # the whole page would render at the wrong size (DIM-1).
+            message = (f"unknown canvas preset {name!r}; falling back to the "
+                       f"{DEFAULT_WH[0]}x{DEFAULT_WH[1]} default canvas")
+            if self._warn is not None:
+                self._warn("canvas_preset_unknown", message, preset=name)
+            else:
+                warnings.warn(message, UserWarning, stacklevel=3)
+            return DEFAULT_WH
+        w, h = wh
+        # CanvasObject.orientation: swap the preset width/height so the canvas
+        # matches the requested direction (identity when it already does).
+        if orientation == "landscape" and h > w:
+            w, h = h, w
+        elif orientation == "portrait" and w > h:
+            w, h = h, w
+        return (w, h)
+
+    @staticmethod
+    def _sized(size, units):
+        w, h = size[:2]
+        # CanvasObject.units: physical units convert at CSS 96 dpi; pt/px
+        # (and absent) stay 1:1 per the documented renderer convention.
+        factor = _UNIT_TO_PX.get(units)
+        if factor is not None:
+            return (w * factor, h * factor)
+        return (w, h)

@@ -7,7 +7,10 @@ compile-to-PDF assertion is gated on a real TeX engine being present.
 """
 from __future__ import annotations
 
+import functools
+import os
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -29,7 +32,11 @@ from frameforge.rendering.infrastructure.backends import (
     all_backends,
     get_backend,
 )
-from frameforge.rendering.infrastructure.latex.compile import engine_available
+from frameforge.rendering.infrastructure.latex.compile import (
+    compile_tex,
+    engine_available,
+    pick_engine,
+)
 
 
 def _doc(objects: list[dict] | None = None) -> dict:
@@ -114,7 +121,44 @@ def test_cli_render_html_writes_in_process(tmp_path):
 # --------------------------------------------------------------------------- #
 # pdf-tex adapter — compiles via an external TeX engine (gated)               #
 # --------------------------------------------------------------------------- #
-@pytest.mark.skipif(not engine_available("auto"), reason="no TeX engine on PATH")
+@functools.cache
+def _tex_env_can_compile_stack() -> bool:
+    """True only when the local TeX engine can compile the package stack the
+    transpiler emits (fontspec + microtype + tikz), not merely that an engine is
+    on PATH.
+
+    ``engine_available`` checks PATH only; a host can have lualatex present yet a
+    broken luaotfload/lualibs font cache that fails on the first featured OpenType
+    font (e.g. microtype loading ``lmr:+tlig``). This probes a HAND-WRITTEN
+    reference doc — never the transpiler's output — so a genuine backend defect on
+    a healthy TeX host still fails the test, while a broken TeX install skips it
+    (as an absent engine already does)."""
+    if not engine_available("auto"):
+        return False
+    eng = pick_engine("auto")
+    ref = (
+        r"\documentclass{article}"
+        r"\usepackage{fontspec}\setmainfont{DejaVu Sans}"
+        r"\usepackage{microtype}\usepackage{tikz}"
+        r"\begin{document}hi"
+        r"\begin{tikzpicture}\path (0,0) rectangle (1,1);\end{tikzpicture}"
+        r"\end{document}"
+    )
+    with tempfile.TemporaryDirectory(prefix="fg-texprobe-") as work:
+        tex_path = os.path.join(work, "probe.tex")
+        with open(tex_path, "w", encoding="utf-8") as fh:
+            fh.write(ref)
+        try:
+            return bool(compile_tex(tex_path, engine=eng, quiet=True))
+        except Exception:  # noqa: BLE001 — any failure here means "cannot compile"
+            return False
+
+
+@pytest.mark.skipif(
+    not _tex_env_can_compile_stack(),
+    reason="TeX engine cannot compile the transpiler's package stack "
+    "(no engine on PATH, or a broken luaotfload/lualibs font cache)",
+)
 def test_pdf_tex_backend_compiles_to_pdf_bytes():
     art = get_backend("pdf-tex").render(_doc(), options={"engine": "auto"})
     assert art.media_type == "application/pdf"

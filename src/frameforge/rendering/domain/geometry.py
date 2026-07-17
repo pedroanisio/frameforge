@@ -36,6 +36,19 @@ def fnum(x):
     return str(int(f)) if f == int(f) else f"{f:.3f}".rstrip("0").rstrip(".")
 
 
+def fnum_precise(x):
+    """High-precision float formatting for MULTIPLICATIVE SVG values.
+
+    `fnum`'s 3-decimal quantization (error ≤ 5e-4) is harmless on plain
+    coordinates but is amplified by coordinate extent when the value is a
+    multiplier (transform scale/matrix terms, figure fit scales): 5e-4 × a
+    3840 px extent ≈ 2 px at 4K. Nine significant digits keep that worst
+    case below 1e-5 px. Additive companion — `fnum` call sites keep their
+    existing (byte-stable) output."""
+    f = float(x)
+    return str(int(f)) if f == int(f) else f"{f:.9g}"
+
+
 def esc(s):
     return html.escape("" if s is None else str(s), quote=True)
 

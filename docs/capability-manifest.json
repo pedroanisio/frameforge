@@ -66,6 +66,10 @@
       "phone",
       "tablet",
       "web",
+      "qhd",
+      "4k",
+      "uhd",
+      "8k",
       "instagram-square",
       "instagram-portrait",
       "instagram-landscape",
@@ -780,6 +784,34 @@
     },
     {
       "name": "web",
+      "kind": "canvas_preset",
+      "core": true,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "qhd",
+      "kind": "canvas_preset",
+      "core": true,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "4k",
+      "kind": "canvas_preset",
+      "core": true,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "uhd",
+      "kind": "canvas_preset",
+      "core": true,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "8k",
       "kind": "canvas_preset",
       "core": true,
       "sdk": true,

@@ -77,8 +77,9 @@ def _render_with_outline(path, pages):
     Uses the same validate → normalize → Renderer path as the SDK's
     `render_page_svgs`, holding on to the Renderer so the flow renderer's
     per-page heading telemetry (`flow_headings`) can drive the PDF outline.
-    Returns `(doc_dict, svgs, outline)` where each outline entry is
-    `{"title", "level", "page"}` with a 0-based global SVG page index."""
+    Returns `(doc_dict, svgs, outline, links)` where each outline entry is
+    `{"title", "level", "page"}` and each link is `{"page", "rect", "target_page"}`,
+    all with 0-based global SVG page indices."""
     from frameforge.sdk import parse
     from frameforge.rendering.application.normalize import normalize_doc
     from frameforge.rendering.application.renderer import Renderer
@@ -87,7 +88,7 @@ def _render_with_outline(path, pages):
     data = model if isinstance(model, dict) else model.model_dump(by_alias=True, exclude_none=True)
     doc = normalize_doc(data)
     renderer = Renderer(doc, base)
-    svgs, outline = [], []
+    svgs, outline, links = [], [], []
     for page in doc.get("pages", []):
         if not isinstance(page, dict):
             continue
@@ -96,10 +97,15 @@ def _render_with_outline(path, pages):
         for hd in renderer.flow_headings:
             outline.append({"title": hd["text"], "level": hd["level"],
                             "page": start + hd["page"] - 1})
+        for lk in renderer.flow_links:
+            links.append({"page": start + lk["page"] - 1, "rect": lk["rect"],
+                          "target_page": start + lk["target"] - 1})
     if pages:
         svgs = svgs[:pages]
         outline = [e for e in outline if e["page"] < len(svgs)]
-    return doc, svgs, outline
+        links = [lk for lk in links
+                 if lk["page"] < len(svgs) and lk["target_page"] < len(svgs)]
+    return doc, svgs, outline, links
 
 
 def _can_import(*mods):
@@ -158,12 +164,13 @@ def r_pdf(path, out_dir, args):
     cairosvg = importlib.import_module("cairosvg")
     PdfWriter = importlib.import_module("pypdf").PdfWriter
     base = os.path.dirname(os.path.abspath(path))
-    doc, svgs, outline = _render_with_outline(path, args.pages)
+    doc, svgs, outline, links = _render_with_outline(path, args.pages)
     writer, n, page_index = PdfWriter(), 0, {}
     for i, svg in enumerate(svgs, 1):
         try:
             pdf = cairosvg.svg2pdf(bytestring=svg.encode("utf-8"),
-                                   url=os.path.join(base, ""), unsafe=True)
+                                   url=os.path.join(base, ""), unsafe=True,
+                                   dpi=96)   # pin CSS px→pt: 1 px unit = 0.75 pt (DIM-7)
         except Exception as exc:                                   # one bad page ≠ dead doc
             print(f"  ⚠ page {i}: SVG→PDF failed ({exc}); skipped", file=sys.stderr)
             continue
@@ -173,6 +180,7 @@ def r_pdf(path, out_dir, args):
     if n:
         _pdf_metadata(writer, doc)
         _pdf_outline(writer, outline, page_index)
+        _pdf_links(writer, links, page_index)
     out = args.single or os.path.join(out_dir, f"{args.stem}.pdf")
     if n:
         os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
@@ -210,6 +218,29 @@ def _pdf_outline(writer, outline, page_index):
         parent = stack[-1][1] if stack else None
         ref = writer.add_outline_item(entry["title"], target, parent=parent)
         stack.append((entry["level"], ref))
+
+
+def _pdf_links(writer, links, page_index):
+    """Add internal GoTo link annotations so the TOC is navigable (was a dead
+    list). `links` carry svg-space rects `[x,y,w,h]` (top-left origin, px);
+    CairoSVG rasterises at 96 dpi so 1 px = 0.75 pt, and svg-y flips against the
+    page's own height. `page_index` maps global SVG index → written PDF page."""
+    try:
+        from pypdf.annotations import Link
+        from pypdf.generic import ArrayObject, NumberObject
+    except Exception:                                        # older pypdf: skip silently
+        return
+    scale = 0.75                                             # 96 dpi: svg px → pt
+    no_border = ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
+    for lk in links:
+        src, tgt = page_index.get(lk["page"]), page_index.get(lk["target_page"])
+        if src is None or tgt is None:
+            continue
+        ph = float(writer.pages[src].mediabox.height)
+        x, y, w, h = (float(v) for v in lk["rect"])
+        rect = (x * scale, ph - (y + h) * scale, (x + w) * scale, ph - y * scale)
+        annotation = Link(rect=rect, target_page_index=tgt, border=no_border)
+        writer.add_annotation(page_number=src, annotation=annotation)
 
 
 def r_png(path, out_dir, args):
@@ -297,7 +328,8 @@ def main(argv=None):
                     help="list targets + live availability and exit")
     ap.add_argument("--out", default=None, help="output directory (default: out/render-cli)")
     ap.add_argument("--pages", type=int, default=0, help="render only the first N pages (0 = all)")
-    ap.add_argument("--scale", type=float, default=2.0, help="raster scale factor (png)")
+    ap.add_argument("--scale", type=float, default=2.0,
+                    help="raster device-pixel scale (png): PNG size = round(canvas px × scale)")
     ap.add_argument("--real-metrics", action="store_true",
                     help="wrap text with real font metrics (fontTools + fc-match) "
                          "instead of the per-char estimate; sets FRAMEFORGE_REAL_METRICS "
