@@ -93,3 +93,38 @@ def test_validate_canvas_wh_keeps_none_on_unknown():
     # silent DEFAULT_WH fallback here.
     assert V._canvas_wh({"preset": "no-such-preset"}) is None
     assert V._canvas_wh("no-such-preset") is None
+
+
+# --------------------------------------------------------------------------- #
+#  Lockstep pins — the validator's mirrors may never drift from the resolver   #
+# --------------------------------------------------------------------------- #
+def test_validate_unit_table_is_lockstep_with_the_resolver():
+    """tooling/validate.py mirrors CanvasResolver._UNIT_TO_PX by copy (it cannot
+    delegate: resolve() returns DEFAULT_WH on unknowns, the validator needs
+    None). A copy without a pin is silent-drift waiting to happen — this gate
+    makes divergence loud."""
+    import importlib
+
+    from frameforge.rendering.domain.services.canvas_resolver import _UNIT_TO_PX as _CR_UNITS
+
+    validate = importlib.import_module("validate")
+    assert validate._UNIT_TO_PX == _CR_UNITS
+
+
+def test_validate_orientation_matches_resolver_for_samples():
+    """Same document → same geometry in both lanes, for the orientation and
+    physical-unit paths the C2 handoffs added."""
+    import importlib
+
+    from frameforge.rendering.domain.services.canvas_resolver import CanvasResolver
+
+    validate = importlib.import_module("validate")
+    samples = [
+        {"preset": "A4", "orientation": "landscape"},
+        {"preset": "4k", "orientation": "portrait"},
+        {"size": [297, 210], "units": "mm"},
+        {"size": [10, 5], "units": "in", "orientation": "landscape"},
+    ]
+    resolver = CanvasResolver({})
+    for canvas in samples:
+        assert validate._canvas_wh(canvas) == resolver.resolve({"canvas": canvas}), canvas
