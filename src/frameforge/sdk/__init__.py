@@ -126,6 +126,7 @@ from frameforge.sdk.macros import (
     theme,
 )
 from frameforge.sdk.outline import Placement, repeat_along_path, stroke_outline
+from frameforge.sdk.pathtext import offset_path, path_length, path_walker, text_on_path
 from frameforge.sdk.book import BookBuilder, ChapterBuilder
 from frameforge.sdk.recolor import recolor
 from frameforge.sdk import planar
@@ -349,7 +350,11 @@ __all__ = [
     "font_kern_pairs",
     "kerned_spans",
     "Placement",
+    "offset_path",
+    "path_length",
+    "path_walker",
     "repeat_along_path",
+    "text_on_path",
     "recolor",
     "BookBuilder",
     "ChapterBuilder",
