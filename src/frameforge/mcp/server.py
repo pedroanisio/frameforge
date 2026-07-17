@@ -66,6 +66,9 @@ from frameforge.mcp.usecases import (
     compare_images as _uc_compare_images,
     construct_vectors as _uc_construct_vectors,
     detect_regions as _uc_detect_regions,
+    diff_renders as _uc_diff_renders,
+    fit_primitives as _uc_fit_primitives,
+    match_font as _uc_match_font,
     map_coordinates as _uc_map_coordinates,
     mark_points as _uc_mark_points,
     measure_image as _uc_measure_image,
@@ -108,6 +111,9 @@ from frameforge.mcp.usecases import (
     compare_images as compare_images,
     construct_vectors as construct_vectors,
     detect_regions as detect_regions,
+    diff_renders as diff_renders,
+    fit_primitives as fit_primitives,
+    match_font as match_font,
     map_coordinates as map_coordinates,
     mark_points as mark_points,
     measure_image as measure_image,
@@ -422,6 +428,10 @@ def create_server(
         to: Annotated[str, Field(description=_DESC_TO)] = "png",
         scale: Annotated[float, Field(description=_DESC_SCALE)] = 1.0,
         real_metrics: Annotated[bool | str, Field(description=_DESC_REAL_METRICS)] = "auto",
+        reference: Annotated[
+            str | None,
+            Field(description="Optional reference image (path, frameforge:// URI, or data:image URI) to diff the rendered page 1 against: the result gains reference_diff with per-object ghost vectors — each authored object's displacement toward its best match in the reference — so corrections are typed from numbers instead of eyeballed off an overlay."),
+        ] = None,
     ):
         """Run an editable Python SDK client, validate its YAML, and return render feedback.
 
@@ -445,6 +455,7 @@ def create_server(
                 "to": to,
                 "scale": scale,
                 "real_metrics": real_metrics,
+                "reference": reference,
             },
             lambda: _enveloped("run_sdk_client", lambda: _uc_run_sdk_client(
                 path,
@@ -461,6 +472,7 @@ def create_server(
                 to=to,
                 scale=scale,
                 real_metrics=real_metrics,
+                reference=reference,
                 repo_root=repo,
                 edit_roots=edit_roots,
             )),
@@ -484,6 +496,10 @@ def create_server(
         to: Annotated[str, Field(description=_DESC_TO)] = "png",
         scale: Annotated[float, Field(description=_DESC_SCALE)] = 1.0,
         real_metrics: Annotated[bool | str, Field(description=_DESC_REAL_METRICS)] = "auto",
+        reference: Annotated[
+            str | None,
+            Field(description="Optional reference image (path, frameforge:// URI, or data:image URI) to diff the rendered page 1 against: the result gains reference_diff with per-object ghost vectors — each authored object's displacement toward its best match in the reference — so corrections are typed from numbers instead of eyeballed off an overlay."),
+        ] = None,
     ):
         """Run Python SDK code, validate its YAML, and return render feedback.
 
@@ -506,6 +522,7 @@ def create_server(
                 "to": to,
                 "scale": scale,
                 "real_metrics": real_metrics,
+                "reference": reference,
             },
             lambda: _enveloped("run_sdk_code", lambda: _uc_run_sdk_code(
                 code,
@@ -521,6 +538,7 @@ def create_server(
                 to=to,
                 scale=scale,
                 real_metrics=real_metrics,
+                reference=reference,
             )),
         )
         return _maybe_call_tool_result(result)
@@ -541,6 +559,10 @@ def create_server(
         to: Annotated[str, Field(description=_DESC_TO)] = "png",
         scale: Annotated[float, Field(description=_DESC_SCALE)] = 1.0,
         real_metrics: Annotated[bool | str, Field(description=_DESC_REAL_METRICS)] = "auto",
+        reference: Annotated[
+            str | None,
+            Field(description="Optional reference image (path, frameforge:// URI, or data:image URI) to diff the rendered page 1 against: the result gains reference_diff with per-object ghost vectors — each authored object's displacement toward its best match in the reference — so corrections are typed from numbers instead of eyeballed off an overlay."),
+        ] = None,
     ):
         """Validate and render FrameForge YAML without executing Python code.
 
@@ -562,6 +584,7 @@ def create_server(
                 "to": to,
                 "scale": scale,
                 "real_metrics": real_metrics,
+                "reference": reference,
             },
             lambda: _enveloped("render_frameforge_yaml", lambda: _uc_render_frameforge_yaml(
                 yaml_text,
@@ -576,6 +599,7 @@ def create_server(
                 to=to,
                 scale=scale,
                 real_metrics=real_metrics,
+                reference=reference,
             )),
         )
         return _maybe_call_tool_result(result)
@@ -801,11 +825,11 @@ def create_server(
     def compare_images(
         reference: Annotated[
             str,
-            Field(description="Reference/source image: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Reference/source image: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         candidate: Annotated[
             str,
-            Field(description="Candidate/recreation image to compare against the reference: a filesystem path or a frameforge://session/<id>/page/<n>.png URI (e.g. a page just rendered by run_sdk_client)."),
+            Field(description="Candidate/recreation image to compare against the reference: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI (e.g. a page just rendered by run_sdk_client)."),
         ],
         regions: Annotated[
             list[dict] | None,
@@ -866,7 +890,7 @@ def create_server(
     def measure_image(
         image: Annotated[
             str,
-            Field(description="Image to measure: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Image to measure: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         regions: Annotated[
             list[dict] | None,
@@ -947,7 +971,7 @@ def create_server(
     def mark_points(
         image: Annotated[
             str,
-            Field(description="Image to mark on: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Image to mark on: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         points: Annotated[
             list[dict],
@@ -1010,11 +1034,11 @@ def create_server(
     def overlay_images(
         base: Annotated[
             str,
-            Field(description="Base/source image: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Base/source image: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         overlay: Annotated[
             str,
-            Field(description="Overlay image to align onto the base: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Overlay image to align onto the base: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         landmarks: Annotated[
             list[dict],
@@ -1027,12 +1051,16 @@ def create_server(
         opacity: Annotated[
             float, Field(description="Overlay opacity in the aligned composite, 0..1.")
         ] = 0.5,
+        rotation: Annotated[
+            bool,
+            Field(description="Opt into the full-similarity model (scale + rotation + translation, 2D Procrustes; needs >= 2 pairs). Default false keeps the rotation-free contract, where a tilted overlay shows up honestly as residuals."),
+        ] = False,
         session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
     ):
         """Align an overlay image onto a base by matched landmarks and extract the coordinate offsets.
 
         Computes the offset between each landmark pair, fits a scale+translation that
-        best maps overlay→base (rotation is not modelled), reports per-pair residuals,
+        best maps overlay→base (rotation modelled only when `rotation=true`), reports per-pair residuals,
         and emits an aligned composite so the fit is visible. Use it to compare, align,
         and reconstruct visual structures across a source and a reference.
         """
@@ -1044,6 +1072,7 @@ def create_server(
                 "overlay": overlay,
                 "landmarks": landmarks,
                 "opacity": opacity,
+                "rotation": rotation,
                 "session_id": session_id,
             },
             lambda: _uc_overlay_images(
@@ -1051,6 +1080,7 @@ def create_server(
                 overlay,
                 landmarks=landmarks,
                 opacity=opacity,
+                rotation=rotation,
                 session_id=session_id,
                 session_root=root,
             ),
@@ -1329,7 +1359,7 @@ def create_server(
     def vectorize_image(
         image: Annotated[
             str,
-            Field(description="Image to vectorize: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Image to vectorize: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         mode: Annotated[
             str,
@@ -1442,6 +1472,126 @@ def create_server(
                 overlay=overlay, max_regions=max_regions,
                 include_polygons=include_polygons, tunables=tunables,
                 session_id=session_id, session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def fit_primitives(
+        shapes: Annotated[
+            list[dict],
+            Field(description="Shapes to fit, as [{\"name\"?: str, \"points\": [[x, y], ...]}] — region boundary polygons or pixel samples (e.g. straight from detect_regions polygons). Each needs >= 3 points."),
+        ],
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Fit parametric primitives to measured point sets — the bridge from
+        detected regions to primitives-first authoring.
+
+        For each shape the tool fits a line (PCA: endpoints/angle/length/band
+        width), a circle arc (geometrically refined centre/radius/angular
+        span/stroke thickness), and an axis-aligned ellipse arc (centre +
+        radii), then classifies the best family by like-for-like radial rms —
+        an ellipse must show a consistent axis difference above the band's
+        noise floor to beat the circle. Returns per-shape `best` plus all
+        `candidates` ranked by rms: parameters you type straight into SDK
+        primitives instead of tracing paths. ⚠ Heuristic fits (PALS's Law):
+        render and compare against the source before trusting them.
+        """
+        result = _logged_enveloped_call(
+            log_path,
+            "fit_primitives",
+            {"shapes": f"<{len(shapes)} shape(s)>", "session_id": session_id},
+            lambda: _uc_fit_primitives(
+                shapes=shapes, session_id=session_id, session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def diff_renders(
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+        reference_rev: Annotated[
+            int | None,
+            Field(description="History revision to diff against (rev number from a render result's `history.revisions`). Omit for the revision just before the candidate."),
+        ] = None,
+        candidate_rev: Annotated[
+            int | None,
+            Field(description="History revision under test. Omit for the latest archived revision."),
+        ] = None,
+        page: Annotated[int, Field(description="1-based page whose raster is diffed.")] = 1,
+        regions: Annotated[
+            list[dict] | None,
+            Field(description="Named crops to zoom into, as [{\"name\": str, \"box\": [x, y, w, h]}] normalized 0..1. Omit to auto-split."),
+        ] = None,
+        grid: Annotated[
+            list[int] | None,
+            Field(description="Auto-split into a [cols, rows] grid of regions when `regions` is omitted."),
+        ] = None,
+    ):
+        """Diff two archived render revisions of a session — latest vs previous by default.
+
+        Every successful render archives its page artifacts into a history ring
+        (last five revisions, reported as `revision` + `history` on the render
+        result), so an iteration loop can measure whether a change helped
+        instead of remembering. Reuses the compare_images panels + metrics;
+        rasters are required (render with raster_png on).
+        """
+        result = _logged_enveloped_call(
+            log_path,
+            "diff_renders",
+            {
+                "session_id": session_id, "reference_rev": reference_rev,
+                "candidate_rev": candidate_rev, "page": page,
+                "regions": regions, "grid": grid,
+            },
+            lambda: _uc_diff_renders(
+                session_id=session_id, session_root=root,
+                reference_rev=reference_rev, candidate_rev=candidate_rev,
+                page=page, regions=regions, grid=grid,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def match_font(
+        reference: Annotated[
+            str,
+            Field(description="Reference image showing the type to match: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
+        ],
+        text: Annotated[str, Field(description="The text visible in the reference — each candidate family renders exactly this string for comparison.")],
+        candidates: Annotated[
+            list[str] | None,
+            Field(description="Font families to rank (as list_fonts reports them). Omit to rank the enumerable families, capped at max_candidates."),
+        ] = None,
+        box: Annotated[
+            list[float] | None,
+            Field(description="Optional normalized [x, y, w, h] crop of the reference isolating the type sample."),
+        ] = None,
+        max_candidates: Annotated[
+            int, Field(description="Cap when candidates is omitted."),
+        ] = 60,
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Rank resolvable font families by shape similarity to a reference crop.
+
+        Each candidate renders `text` through its fontconfig-resolved file and is
+        scored against the ink-cropped reference: height-normalized NCC minus an
+        aspect-ratio penalty (condensed vs wide). Returns the ranking plus `best`.
+        Heuristic — verify the winner in a real render before committing
+        (PALS's Law); unresolvable families are reported, never silently dropped.
+        """
+        result = _logged_enveloped_call(
+            log_path,
+            "match_font",
+            {
+                "reference": reference if len(reference) < 200 else "<inline data URI>",
+                "text": text, "candidates": candidates, "box": box,
+                "max_candidates": max_candidates, "session_id": session_id,
+            },
+            lambda: _uc_match_font(
+                reference=reference, text=text, candidates=candidates, box=box,
+                max_candidates=max_candidates, session_id=session_id,
+                session_root=root,
             ),
         )
         return _maybe_call_tool_result(result)

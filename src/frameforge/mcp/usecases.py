@@ -9,6 +9,7 @@ runner removes the duplication so a new entry point is a new source, not a new c
 from __future__ import annotations
 
 import base64
+import math
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,7 @@ from frameforge.mcp.pipeline import _validate_and_render_yaml
 from frameforge.mcp.results import _write_diagnostics
 from frameforge.mcp.security import _assert_input_path_allowed
 from frameforge.mcp.sessions import (
+    _archive_renders,
     _prepare_session,
     _previous_session_tool,
     _prior_render_artifacts,
@@ -85,6 +87,7 @@ def _run_source(
     to: str = "png",
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
+    reference: str | None = None,
     tool: str | None = None,
 ) -> dict[str, Any]:
     """Drive any document source: produce, then (if produced) validate + render.
@@ -119,6 +122,11 @@ def _run_source(
             real_metrics=real_metrics,
         )
         result.update(rendered)
+        if rendered.get("renders"):
+            result.update(_archive_renders(produced.session_dir, rendered["renders"]))
+        if reference is not None:
+            result["reference_diff"] = _reference_diff(
+                result, reference, session_root=source.session_root, scale=scale)
     if tool:
         _apply_session_stamp(result, tool=tool, replaced=replaced)
     _write_diagnostics(produced.session_dir, result)
@@ -140,6 +148,7 @@ def run_sdk_code(
     to: str = "png",
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
+    reference: str | None = None,
 ) -> dict[str, Any]:
     """Execute Python SDK code, then validate and render its generated YAML.
 
@@ -164,7 +173,8 @@ def run_sdk_code(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
         sign=sign, signed_at=signed_at, silhouette=silhouette,
-        to=to, scale=scale, real_metrics=real_metrics, tool="run_sdk_code",
+        to=to, scale=scale, real_metrics=real_metrics, reference=reference,
+        tool="run_sdk_code",
     )
 
 
@@ -184,6 +194,7 @@ def run_sdk_client(
     to: str = "png",
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
+    reference: str | None = None,
     repo_root: str | Path | None = None,
     edit_roots: str | list[str] | tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
@@ -200,7 +211,8 @@ def run_sdk_client(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
         sign=sign, signed_at=signed_at, silhouette=silhouette,
-        to=to, scale=scale, real_metrics=real_metrics, tool="run_sdk_client",
+        to=to, scale=scale, real_metrics=real_metrics, reference=reference,
+        tool="run_sdk_client",
     )
 
 
@@ -218,6 +230,7 @@ def render_frameforge_yaml(
     to: str = "png",
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
+    reference: str | None = None,
 ) -> dict[str, Any]:
     """Validate and render caller-provided FrameForge YAML."""
     if not isinstance(yaml_text, str) or not yaml_text.strip():
@@ -226,7 +239,8 @@ def render_frameforge_yaml(
     return _run_source(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
         sign=sign, signed_at=signed_at, silhouette=silhouette,
-        to=to, scale=scale, real_metrics=real_metrics, tool="render_frameforge_yaml",
+        to=to, scale=scale, real_metrics=real_metrics, reference=reference,
+        tool="render_frameforge_yaml",
     )
 
 
@@ -491,15 +505,28 @@ def propose_from_svg(
 
 
 def _resolve_image_arg(arg: str, *, session_root: str | Path | None) -> bytes:
-    """Read image bytes from a filesystem path or a ``frameforge://session`` PNG URI.
+    """Read image bytes from a path, ``frameforge://session`` URI, or ``data:`` URI.
 
     Accepting a session URI closes the render→compare loop: a page just rendered by
     ``run_sdk_client`` can be compared against a reference without the caller having
-    to know its scratch-file path. Filesystem paths are confined by
-    ``_assert_input_path_allowed`` (the same guard the propose tools use).
+    to know its scratch-file path. A ``data:image/<type>;base64,`` URI closes the
+    chat loop: a pasted reference reaches the vision tools without ever touching the
+    filesystem (and without the path confinement, which cannot apply to inline
+    bytes). Filesystem paths are confined by ``_assert_input_path_allowed`` (the
+    same guard the propose tools use).
     """
     if not isinstance(arg, str) or not arg.strip():
-        raise ValueError("image argument must be a non-empty path or frameforge:// URI")
+        raise ValueError(
+            "image argument must be a non-empty path, frameforge:// URI, or data: URI")
+    if arg.startswith("data:"):
+        header, sep, payload = arg.partition(",")
+        if not sep or not header.startswith("data:image/") or not header.endswith(";base64"):
+            raise ValueError(
+                "data: URIs must have the form data:image/<type>;base64,<payload>")
+        try:
+            return base64.b64decode(payload, validate=True)
+        except Exception as exc:
+            raise ValueError("data: URI payload is not valid base64") from exc
     if arg.startswith("frameforge://"):
         payload = read_session_resource(arg, session_root=session_root)
         blob = payload.get("blob")
@@ -860,6 +887,7 @@ def overlay_images(
     *,
     landmarks: list[dict[str, Any]],
     opacity: float = 0.5,
+    rotation: bool = False,
     session_id: str | None = None,
     session_root: str | Path | None = None,
 ) -> dict[str, Any]:
@@ -890,6 +918,7 @@ def overlay_images(
     try:
         composite, spatial = build_overlay(
             base_bytes, overlay_bytes, landmarks=landmarks, opacity=opacity,
+            rotation=rotation,
         )
     except (ValueError, OSError) as exc:
         return {"ok": False, "error": f"could not build overlay: {exc}",
@@ -1844,3 +1873,280 @@ def write_or_edit_client(
         )
     return _write_client(path, code, create=create, append=append, allow_partial=allow_partial,
                          repo_root=repo_root, edit_roots=edit_roots)
+
+
+def fit_primitives(
+    *,
+    shapes: list[dict[str, Any]],
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Fit parametric primitives to measured point sets (recon gap F1).
+
+    Each shape is ``{"name"?: str, "points": [[x, y], ...]}`` — typically a
+    region polygon or pixel sample from ``detect_regions``. Returns, per
+    shape, the best fit ({line | arc | ellipse-arc} with centre/radii/span/
+    thickness/angle) plus every candidate ranked by rms, so authors can type
+    the parameters straight into SDK primitives instead of tracing paths.
+    """
+    try:
+        from frameforge.vision.domain.primitives_fit import fit_primitive
+    except ImportError as exc:  # numpy missing — vision maths unavailable
+        raise RuntimeError(
+            "fit_primitives needs numpy (install the 'vision' or 'mcp' extras group)"
+        ) from exc
+    if not shapes:
+        raise ValueError("fit_primitives needs at least one shape with points")
+    fits: list[dict[str, Any]] = []
+    for i, shape in enumerate(shapes):
+        pts = shape.get("points")
+        if not pts or len(pts) < 3:
+            raise ValueError(f"shape {i} needs at least 3 points")
+        best = fit_primitive(pts)
+        candidates = best.pop("candidates")
+        fits.append({
+            "name": shape.get("name") or f"shape-{i + 1}",
+            "point_count": len(pts),
+            "best": best,
+            "candidates": candidates,
+        })
+    sid = _session_id(session_id)
+    session_dir = _session_root(session_root) / sid
+    session_dir.mkdir(parents=True, exist_ok=True)
+    result: dict[str, Any] = {
+        "ok": True,
+        "session_id": sid,
+        "session_dir": str(session_dir),
+        "fits": fits,
+        "note": ("parameters are page-space px/deg; feed them to SDK primitives "
+                 "(line/polyline arc samples) — heuristic fits, verify the render "
+                 "against the source (PALS's Law)"),
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"frameforge://session/{sid}/diagnostics.json",
+        "tool": "fit_primitives",
+    }
+    _write_diagnostics(session_dir, result)
+    return result
+
+
+def diff_renders(
+    *,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+    reference_rev: int | None = None,
+    candidate_rev: int | None = None,
+    page: int = 1,
+    regions: list[dict[str, Any]] | None = None,
+    grid: list[int] | None = None,
+) -> dict[str, Any]:
+    """Diff two archived render revisions of a session (recon gap F4).
+
+    Defaults to the latest revision against the one before it — the "did that
+    nudge help?" question — reusing the ``compare_images`` panel + metrics
+    machinery. Revisions come from the ``history/rev-NNN`` ring that every
+    successful render archives into.
+    """
+    root = _session_root(session_root)
+    sid = _session_id(session_id)
+    hist = root / sid / "history"
+    revs = sorted(
+        int(p.name.split("-", 1)[1]) for p in hist.glob("rev-*")
+        if p.is_dir() and p.name.split("-", 1)[1].isdigit()) if hist.is_dir() else []
+
+    cand = candidate_rev if candidate_rev is not None else (revs[-1] if revs else None)
+    prior = [r for r in revs if cand is None or r < cand]
+    ref = reference_rev if reference_rev is not None else (prior[-1] if prior else None)
+    if cand is None or ref is None:
+        return {"ok": False,
+                "error": (f"need two archived render revisions to diff; session '{sid}' has "
+                          f"{revs or 'none'} — render at least twice (rasters archive when "
+                          "raster_png is on)"),
+                "renders": [], "resources": []}
+
+    def _page_png(rev: int) -> Path | None:
+        rev_dir = hist / f"rev-{rev:03d}"
+        for name in (f"p{page:03d}.png", f"page-{page:03d}.png"):
+            if (rev_dir / name).is_file():
+                return rev_dir / name
+        return None
+
+    ref_png, cand_png = _page_png(ref), _page_png(cand)
+    if ref_png is None or cand_png is None:
+        missing = ref if ref_png is None else cand
+        return {"ok": False,
+                "error": (f"revision {missing} has no page-{page} PNG in its archive — "
+                          "re-render with raster_png=true so revisions carry rasters"),
+                "renders": [], "resources": []}
+
+    result = compare_images(
+        str(ref_png), str(cand_png), regions=regions, grid=grid,
+        label_reference=f"rev-{ref:03d}", label_candidate=f"rev-{cand:03d}",
+        session_id=sid, session_root=session_root)
+    result["diffed"] = {"reference_rev": ref, "candidate_rev": cand}
+    result["tool"] = "diff_renders"
+    return result
+
+
+def _doc_object_boxes(yaml_path: str | Path, *, img_w: int, img_h: int,
+                      min_dim: float = 6.0, max_area_frac: float = 0.6) -> list[dict[str, Any]]:
+    """Object boxes of page 1 of a rendered document, scaled to raster pixels.
+
+    Backgrounds (area above ``max_area_frac`` of the canvas) and sub-``min_dim``
+    slivers are excluded — a ghost search needs patches that are both local and
+    measurable.
+    """
+    from frameforge.sdk.io import parse
+    from frameforge.sdk.region import object_bbox
+
+    doc = parse(Path(yaml_path).read_text(encoding="utf-8"), validate=False)
+    pages = doc.get("pages") or []
+    if not pages:
+        return []
+    page = pages[0].get("page") or pages[0]
+    canvas = page.get("canvas") or {}
+    size = canvas.get("size") if isinstance(canvas, dict) else None
+    cw, ch = (float(size[0]), float(size[1])) if isinstance(size, (list, tuple)) and len(size) == 2 \
+        else (float(img_w), float(img_h))
+    sx, sy = img_w / cw, img_h / ch
+    boxes: list[dict[str, Any]] = []
+    for j, layer in enumerate(page.get("layers") or []):
+        objects = layer.get("objects") or [] if isinstance(layer, dict) else []
+        lid = (layer.get("id") if isinstance(layer, dict) else None) or f"layer{j}"
+        for k, obj in enumerate(objects):
+            if not isinstance(obj, dict):
+                continue
+            if isinstance(obj.get("d"), list) and all(isinstance(seg, str) for seg in obj["d"]):
+                obj = {**obj, "d": " ".join(obj["d"])}   # stroke_outline emits list-form d
+            try:
+                bb = object_bbox(obj)
+            except Exception:
+                continue                                 # one exotic object must not kill the diff
+            if not bb:
+                continue
+            x0, y0, x1, y1 = bb
+            w, h = (x1 - x0) * sx, (y1 - y0) * sy
+            if w < min_dim or h < min_dim:
+                continue
+            if (w * h) > max_area_frac * img_w * img_h:
+                continue
+            boxes.append({
+                "id": obj.get("id") or f"{lid}/{k}:{obj.get('type', '?')}",
+                "box": [x0 * sx, y0 * sy, w, h],
+            })
+    return boxes
+
+
+def _reference_diff(result: dict[str, Any], reference: str, *,
+                    session_root: str | Path | None, scale: float) -> dict[str, Any]:
+    """Ghost vectors of page 1 against a reference image (recon gap F2).
+
+    Never raises — a reference that cannot be diffed comes back as a
+    structured ``{"ok": false, "error": ...}`` alongside the successful
+    render, so the render itself is never failed by its comparison.
+    """
+    png = next((r for r in result.get("renders") or []
+                if str(r.get("path", "")).endswith(".png") and "page" in r), None)
+    if png is None:
+        return {"ok": False,
+                "error": "no rasterized page to diff — render with raster_png=true"}
+    try:
+        ref_bytes = _resolve_image_arg(reference, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": f"could not resolve reference: {exc}"}
+    try:
+        import io as _io
+
+        import numpy as np
+        from PIL import Image
+    except ImportError as exc:
+        return {"ok": False, "error": f"reference diff needs numpy+Pillow: {exc}"}
+    try:
+        from frameforge.vision.domain.ghosting import ghost_vectors
+
+        render_img = Image.open(png["path"]).convert("L")
+        ref_img = Image.open(_io.BytesIO(ref_bytes)).convert("L")
+        resized = ref_img.size != render_img.size
+        if resized:
+            ref_img = ref_img.resize(render_img.size, Image.LANCZOS)
+        boxes = _doc_object_boxes(result.get("yaml_path", ""),
+                                  img_w=render_img.width, img_h=render_img.height)
+        vectors = ghost_vectors(np.asarray(render_img, dtype=float),
+                                np.asarray(ref_img, dtype=float), boxes)
+        mags = [math.hypot(*v["offset_px"]) for v in vectors]
+        return {
+            "ok": True,
+            "reference": reference if len(str(reference)) < 200 else "<inline data URI>",
+            "resized_reference": resized,
+            "ghost_vectors": vectors,
+            "summary": {
+                "objects_measured": len(vectors),
+                "objects_candidate": len(boxes),
+                "max_offset_px": round(max(mags), 2) if mags else 0.0,
+                "mean_offset_px": round(sum(mags) / len(mags), 2) if mags else 0.0,
+            },
+            "note": ("offset_px is where the reference's matching patch sits relative "
+                     "to the rendered object — add it to the object's position to land "
+                     "on the reference; page 1 only; heuristic NCC matches (PALS's Law)"),
+        }
+    except Exception as exc:  # keep the render result usable no matter what
+        return {"ok": False, "error": f"reference diff failed: {exc}"}
+
+
+def match_font(
+    *,
+    reference: str,
+    text: str,
+    candidates: list[str] | None = None,
+    box: list[float] | None = None,
+    max_candidates: int = 60,
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Rank resolvable font families by shape similarity to a reference (F6a).
+
+    ``reference`` is any image input (path, session URI, or data: URI) showing
+    the type to match; ``text`` is what it shows. ``candidates`` defaults to
+    the fontconfig-enumerable families (capped at ``max_candidates``).
+    Heuristic ranking — verify the winner in a real render (PALS's Law).
+    """
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("text must be the non-empty string shown in the reference")
+    try:
+        ref_bytes = _resolve_image_arg(reference, session_root=session_root)
+    except (ValueError, FileNotFoundError) as exc:
+        return {"ok": False, "error": f"could not resolve reference: {exc}",
+                "renders": [], "resources": []}
+    if candidates is None:
+        from frameforge.mcp.discovery import list_fonts as _list_fonts
+        listed = _list_fonts(limit=max_candidates)
+        candidates = list(listed.get("families") or [])[:max_candidates]
+    if not candidates:
+        return {"ok": False, "error": "no candidate families to rank",
+                "renders": [], "resources": []}
+    try:
+        from frameforge.vision.infrastructure.fontmatch import match_font_ranking
+        ranking = match_font_ranking(ref_bytes, text, candidates, box=box)
+    except (RuntimeError, ValueError) as exc:
+        return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+    resolved = [r for r in ranking if r.get("resolved")]
+    if not resolved:
+        return {"ok": False,
+                "error": "none of the candidate families are resolvable here — "
+                         "check names against list_fonts",
+                "ranking": ranking, "renders": [], "resources": []}
+    sid = _session_id(session_id)
+    session_dir = _session_root(session_root) / sid
+    session_dir.mkdir(parents=True, exist_ok=True)
+    result: dict[str, Any] = {
+        "ok": True,
+        "session_id": sid,
+        "ranking": ranking,
+        "best": resolved[0]["family"],
+        "note": ("shape-similarity heuristic (ink-cropped NCC with an aspect penalty); "
+                 "verify the winner in a real render before committing (PALS's Law)"),
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"frameforge://session/{sid}/diagnostics.json",
+        "tool": "match_font",
+    }
+    _write_diagnostics(session_dir, result)
+    return result

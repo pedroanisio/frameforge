@@ -259,3 +259,39 @@ def cleanup_sessions(
         "removed_count": len(removed),
         "removed": removed,
     }
+
+
+def _archive_renders(session_dir: Path, renders: list[dict[str, Any]], *,
+                     keep: int = 5) -> dict[str, Any]:
+    """Archive this render's page artifacts into ``history/rev-NNN``.
+
+    A ring of the last ``keep`` revisions: enough to answer "did that nudge
+    help?" across an iteration loop without growing a session unboundedly.
+    Only page artifacts are archived (SVG always; PNG when rasterized) — the
+    ``diff_renders`` usecase diffs the rasters of any two revisions.
+    """
+    hist = session_dir / "history"
+    hist.mkdir(parents=True, exist_ok=True)
+    existing = sorted(
+        int(p.name.split("-", 1)[1]) for p in hist.glob("rev-*")
+        if p.is_dir() and p.name.split("-", 1)[1].isdigit())
+    rev = (existing[-1] + 1) if existing else 1
+    rev_dir = hist / f"rev-{rev:03d}"
+    rev_dir.mkdir(parents=True, exist_ok=True)
+    for entry in renders:
+        if "page" not in entry or not entry.get("path"):
+            continue
+        src = Path(str(entry["path"]))
+        if src.is_file():
+            shutil.copy2(src, rev_dir / src.name)
+    existing.append(rev)
+    for old in existing[:-keep]:
+        shutil.rmtree(hist / f"rev-{old:03d}", ignore_errors=True)
+    return {
+        "revision": rev,
+        "history": {
+            "dir": str(hist),
+            "revisions": existing[-keep:],
+            "note": f"last {keep} render revisions kept; diff any two with diff_renders",
+        },
+    }
