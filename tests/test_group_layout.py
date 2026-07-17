@@ -6,7 +6,7 @@ children authored at (0,0) overlapped. fixtures/group-layout.fg.yaml is the
 oracle: the layout engine repositions each child via a `translate(...)` group
 (it does not resize), so the gap-spaced offsets below are deterministic.
 
-Subprocess render (not an in-process import) to avoid the framegraph-package vs
+Subprocess render (not an in-process import) to avoid the frameforge-package vs
 models-module name clash in the shared pytest process.
 """
 import glob

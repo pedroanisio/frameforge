@@ -19,11 +19,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder  # noqa: E402
+from frameforge.sdk import DocumentBuilder  # noqa: E402
 
 # The recolher palette (honouring build_a6.py).
 BG, INK, MUT, RED, FILL = "#F3EEE4", "#211C16", "#6E6656", "#A6442E", "#E7DFCF"
@@ -86,7 +86,7 @@ def build() -> DocumentBuilder:
 
 
 def main() -> int:
-    from framegraph.sdk import render_page_svgs
+    from frameforge.sdk import render_page_svgs
 
     doc = build().build()
     svgs = render_page_svgs(doc)

@@ -3,7 +3,7 @@
 # verbatim); regenerate from there, never hand-edit. Every shape on this
 # page is computed by the kernel: booleans, offset rings, a knife cut, and
 # the Live-Paint region decomposition, all emitted as even-odd paths.
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.4.0
 profile: diagram
 title: planar kernel showcase

@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Typeset & publish *Brand, From Products to Source Code* as a native FrameGraph
+"""Typeset & publish *Brand, From Products to Source Code* as a native FrameForge
 book.
 
 This is the publishing pipeline for ``demo/brand-book.md``: a thin composer
 *lowers author intent* (a cover, a heading, a paragraph, an evidence tag, a
-figure) to the absolute coordinates the FrameGraph renderer consumes, and emits
+figure) to the absolute coordinates the FrameForge renderer consumes, and emits
 one multi-page ``mode: page`` document — cover, front matter, two chapters, the
 four redrawn plates, back matter and colophon. Nothing here is rendered by an
 outside Markdown/HTML pipeline: the cover, the running heads, the measured text
 wrapping, the pagination, the colour-coded evidence tags and the figures are all
-FrameGraph objects.
+FrameForge objects.
 
 The book shares one *imprint identity* with its plates — the seal mark and the
 ripple texture come from :mod:`brand_book_figures`, so cover, running heads and
 figures read as a single published object. It is its own proof: every figure and
-page is real FrameGraph output.
+page is real FrameForge output.
 
 Run from the repository root::
 
@@ -38,18 +38,18 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, HERE)            # so the sibling figures module resolves even
                                     # when exec'd from another CWD (the MCP harness)
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     FigureRef,
     render_page_svgs,
     serialize,
 )
-from framegraph.sdk.metrics import measure_text, wrap_text  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.metrics import measure_text, wrap_text  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 import brand_book_figures as plates  # noqa: E402
 from brand_book_figures import (  # noqa: E402
@@ -391,7 +391,7 @@ class Book:
         widget bakes no colours (the renderer otherwise defaults to a saturated
         blue header), so we inject a ``style`` dict directly: an ink header with
         cream labels and warm hairline rules."""
-        from framegraph.sdk.widgets import table as _wtable
+        from frameforge.sdk.widgets import table as _wtable
         n = len(headers)
         weights = weights or [1.0] * n
         tot = sum(weights)
@@ -701,7 +701,7 @@ class Book:
 
 # --------------------------------------------------------------------------- #
 # The book — every section, table, callout, list and plate, composed as one
-# paginated FrameGraph document. Prose reconciled from demo/brand-book.md.
+# paginated FrameForge document. Prose reconciled from demo/brand-book.md.
 # --------------------------------------------------------------------------- #
 def build() -> DocumentBuilder:
     bk = Book("Brand, From Products to Source Code",
@@ -709,7 +709,7 @@ def build() -> DocumentBuilder:
 
     # ===================== COVER ====================== #
     bk.cover(
-        imprint="FRAMEGRAPH PRESS",
+        imprint="FRAMEFORGE PRESS",
         kicker="Branding · Framework — Method — Field Studies",
         title_lines=["Brand,", "from Products", "to Source Code"],
         subtitle="A Framework, a Method, and Field Studies — reconciling five "
@@ -717,7 +717,7 @@ def build() -> DocumentBuilder:
         thesis="Define the thing, build a method to study it, then use the method "
                "in the open.",
         meta_line="VERSION 1.0 (CONSOLIDATED)   ·   2026-06-24   ·   DRAFT FOR REVIEW",
-        footer="Every figure and page in this book is real FrameGraph output: the "
+        footer="Every figure and page in this book is real FrameForge output: the "
                "prose, the running heads, the evidence tags and the four plates are "
                "all lowered to absolute coordinates by a composer that measures, "
                "wraps and paginates. The imprint typesets itself.",
@@ -1255,7 +1255,7 @@ def build() -> DocumentBuilder:
         blurb="The figures realized as vector plates, the consolidated sources, and "
               "an honest register of what remains unverified.",
         contents=[
-            "Appendix A — Figures (realized as FrameGraph plates)",
+            "Appendix A — Figures (realized as FrameForge plates)",
             "Sources & Provenance",
             "Epistemic flags (unverified / synthesized / research-required)",
         ],
@@ -1265,7 +1265,7 @@ def build() -> DocumentBuilder:
     bk.para("These illustrate the method (1.6) and the concept (1.1). The source "
             "book shipped them as Mermaid starting points; this edition realizes "
             "the four core figures as vector plates, authored through the "
-            "FrameGraph SDK and kept grayscale-safe (shape + label, not colour "
+            "FrameForge SDK and kept grayscale-safe (shape + label, not colour "
             "alone), using the shape grammar: rounded rectangle = step, diamond = "
             "gate, pill = terminal, dashed = loop-back.")
     bk.bullets([
@@ -1355,12 +1355,12 @@ def build() -> DocumentBuilder:
         ("Generated by",
          "Claude Opus 4.8 via Claude Code — prose reconciled from five LLM-authored "
          "working documents; the four plates and the book itself authored through "
-         "the FrameGraph SDK and rendered by the project's own SVG proxy. Date: "
+         "the FrameForge SDK and rendered by the project's own SVG proxy. Date: "
          "2026-06-24."),
         ("Provenance & method",
          "This book is its own proof: a thin composer measures, wraps and "
          "paginates the prose, colour-codes the evidence tags, and embeds the "
-         "plates — all lowered to absolute coordinates the FrameGraph renderer "
+         "plates — all lowered to absolute coordinates the FrameForge renderer "
          "consumes. The imprint typesets itself."),
     ])
     return bk.b

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""`render_latex.py --engine pdflatex` must compile real FrameGraph documents.
+"""`render_latex.py --engine pdflatex` must compile real FrameForge documents.
 
 `to_pdflatex` swaps the fontspec/lualatex preamble for a pdflatex one. On its own
 that is not enough: the SDK's plate labels and formulas emit non-ASCII maths/box
@@ -7,16 +7,16 @@ glyphs (Σ, →, ‖, √, •, ■, subscripts) that inputenc+textcomp do not d
 pdflatex aborts with "Unicode character … not set up". The rewrite now injects a
 newunicodechar map for them.
 
-Renderer-only import (the `framegraph` package must win) — evict a models-module
+Renderer-only import (the `frameforge` package must win) — evict a models-module
 shadow first, per test_render_cli.py.
 """
 import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling import render_latex as CLI  # noqa: E402

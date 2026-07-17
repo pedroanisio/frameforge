@@ -1,4 +1,4 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 profile: report
 title: Mideast Live Updates — fixture
@@ -547,11 +547,11 @@ meta:
     only as layout payload; no truth claim is made about it.
   source: 'User-supplied screenshot: Screenshot_20260621_225012_NYTimes.png'
   provenance:
-    GRAMMAR: verified against uploaded framegraph-v2.ebnf
+    GRAMMAR: verified against uploaded frameforge-v2.ebnf
     SCREENSHOT: transcribed from the supplied image
     APPROX: author estimate; not authoritative
     GAP: fidelity compromise forced by the uploaded grammar (see header)
   open_questions:
   - Group-relative vs page-absolute coordinates were sidestepped by using a flat, page-absolute object list (no GroupObject).
-  - text_decoration:underline for links needs framegraph-v2-style.ebnf, which was not uploaded.
+  - text_decoration:underline for links needs frameforge-v2-style.ebnf, which was not uploaded.
   - An idiomatic article would use a FlowSection; this fixture uses a fixed Page for screenshot fidelity.

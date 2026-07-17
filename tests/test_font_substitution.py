@@ -12,12 +12,12 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):   # evict a models-module shadow
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.infrastructure import font_metrics as fmmod  # noqa: E402
+from frameforge.rendering.infrastructure import font_metrics as fmmod  # noqa: E402
 from tooling.render_fixtures import Renderer  # noqa: E402
 
 

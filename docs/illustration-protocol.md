@@ -21,7 +21,7 @@ final shapes blind and hoping a vision loop rescues them.
 > ("looks blobby") instead of *measurable deltas* ("head is 1.3 units, spec says
 > 1.0 → scale 0.77 about the neck"). This protocol fixes those four omissions.
 
-The renderer is not the bottleneck — FrameGraph draws arbitrary bezier/gradient
+The renderer is not the bottleneck — FrameForge draws arbitrary bezier/gradient
 vector faithfully. Fidelity is an **authoring discipline** problem, and discipline
 is teachable as a process.
 
@@ -109,7 +109,7 @@ or removed. **Do not start a layer until the one below it has passed its gate.**
 | L7 | **Effects & polish** | gradients, glow, ambient occlusion, accents | effects are subtle, intentional |
 | L8 | **Integration** | place into the page composition; balance vs siblings; consistency | cohesive with the rest of the set |
 
-Each row is a literal FrameGraph layer: `page.layer("L2-construction")`, etc. Guide
+Each row is a literal FrameForge layer: `page.layer("L2-construction")`, etc. Guide
 layers (L1, and the construction lines of L2) are deleted or hidden before export.
 
 ---
@@ -150,7 +150,7 @@ time you render finishes, the geometry is already right.
 ## Reuse — the library that makes style consistent and fast
 
 - The moment a part (an eye, a hand, a wheel, a leaf) passes its gate, **save it as
-  a parameterised component** (FrameGraph `define_symbol` / a figure) with its
+  a parameterised component** (FrameForge `define_symbol` / a figure) with its
   construction intact.
 - Compose scenes from the growing library. Cohesion across an entire pack comes
   from a **shared StyleSpec + shared library**, not from redrawing.
@@ -171,15 +171,15 @@ time you render finishes, the geometry is already right.
 
 ---
 
-## How this maps onto FrameGraph today
+## How this maps onto FrameForge today
 
-| Protocol need | FrameGraph mechanism |
+| Protocol need | FrameForge mechanism |
 |---|---|
 | Ordered, toggleable layers | `page.layer(...)` per stage; delete guide layers before export |
 | Construction solids, contours | `ellipse` / `rect` / `polygon` / `path` primitives |
 | Perspective placement | per-object `style.transform` (`translate/scale/rotate/matrix`); a computed `P()` in the client |
 | Reusable parts | `define_symbol` / `symbol` / figures (`place_figure`, `FigureRef`) |
-| Sourcing construction refs / real assets | SVG → FrameGraph import (paths render 1:1) |
+| Sourcing construction refs / real assets | SVG → FrameForge import (paths render 1:1) |
 | The verification gate | MCP `run_sdk_code` → render → **raster (browser/CairoSVG) → vision** delta list |
 | Style/Camera specs | plain dicts the client consumes; echo them in the doc title/meta |
 
@@ -224,4 +224,4 @@ re-wrap L3.
 
 [↑ Back to the project README](../README.md) ·
 related: [static/examples/saas_hero_headers.py](../static/examples/saas_hero_headers.py) ·
-[src/framegraph/mcp/README.md](../src/framegraph/mcp/README.md)
+[src/frameforge/mcp/README.md](../src/frameforge/mcp/README.md)

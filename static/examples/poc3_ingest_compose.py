@@ -1,14 +1,14 @@
-"""POC-03 — ingestion x FrameGraph: a raster becomes a *programmable* asset.
+"""POC-03 — ingestion x FrameForge: a raster becomes a *programmable* asset.
 
 Thesis under test (with REAL execution, not prose):
 
     A raw trace only *copies* a picture. The power multiplier is what happens
-    AFTER ingestion, because the trace is now FrameGraph objects:
+    AFTER ingestion, because the trace is now FrameForge objects:
 
       1. RESTYLE   — one ingestion, N looks. Re-ink / re-palette the geometry
                      with pure functions. Impossible on a flat raster without
                      redrawing; here it is `o["stroke"] = ...`.
-      2. COMPOSE   — the trace is a first-class document element: FrameGraph
+      2. COMPOSE   — the trace is a first-class document element: FrameForge
                      lays it out beside native text, a chart, a palette legend.
       3. VERIFY    — every claim is a numeric gate (PALS's Law): geometry is
                      invariant under restyle, each style renders *distinctly*,
@@ -33,12 +33,12 @@ from typing import Any, Callable, Iterable, Sequence
 
 sys.path.insert(0, os.environ.get("FG_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
 
 Obj = dict[str, Any]
 
 # --------------------------------------------------------------------------- #
-# Pure transforms over FrameGraph object dicts (no OpenCV, fully testable).
+# Pure transforms over FrameForge object dicts (no OpenCV, fully testable).
 # Every function returns a NEW list/objects; inputs are never mutated.
 # --------------------------------------------------------------------------- #
 _STROKE_TYPES = {"polyline", "line", "path"}
@@ -216,8 +216,8 @@ STYLES: list[dict[str, Any]] = [
 
 def trace(image: str, *, colors: int = 8, detail: float = 0.0015,
           min_area: float = 16.0, max_dim: int = 1500) -> tuple[list[Obj], int, int]:
-    """Ingest a raster to outline FrameGraph objects (lazy OpenCV import)."""
-    from framegraph.vision.infrastructure.vectorize import raster_to_objects
+    """Ingest a raster to outline FrameForge objects (lazy OpenCV import)."""
+    from frameforge.vision.infrastructure.vectorize import raster_to_objects
     return raster_to_objects(image, mode="outline", colors=colors, detail=detail,
                              min_area=min_area, max_dim=max_dim)
 
@@ -347,7 +347,7 @@ def build_composition(base: list[Obj], src: tuple[int, int], *, n_objs: int,
     for o in place(inked, [56, 132, 688, 528], src):
         art.add(o)
 
-    # right: native FrameGraph content annotating the asset
+    # right: native FrameForge content annotating the asset
     side = page.layer("annotation")
     side.add({"type": "text", "box": [800, 120, 440, 60], "text": "Ingested vector base",
               "style": {"font_family": ["Inter", "sans-serif"], "font_size": 20,
@@ -481,7 +481,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(f"[write] {args.out}/style_matrix.svg, composition.svg, parts.svg (+ .fg.yaml)")
 
     verdict = ok_inv and ok_distinct and ok_parts and ok_native
-    print(f"\nVERDICT: {'FEASIBLE - ingestion x FrameGraph compounds' if verdict else 'NEEDS WORK'}")
+    print(f"\nVERDICT: {'FEASIBLE - ingestion x FrameForge compounds' if verdict else 'NEEDS WORK'}")
     return 0 if verdict else 1
 
 

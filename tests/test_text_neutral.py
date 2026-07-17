@@ -8,8 +8,8 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-from framegraph.rendering.infrastructure.painters.svg import SvgPainter  # noqa: E402
+from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from frameforge.rendering.infrastructure.painters.svg import SvgPainter  # noqa: E402
 
 ST = {"family": "serif", "size": 12, "weight": "bold", "italic": False,
       "color": "#222222", "align": "start"}

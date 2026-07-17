@@ -25,8 +25,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.environ.get("FG_ROOT", ROOT))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
-from framegraph.coach import (  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge.coach import (  # noqa: E402
     create_plan, gradientize, ingest, recolor_to_style, resolve_style, stage_rubric,
     to_silhouette, validate_order,
 )

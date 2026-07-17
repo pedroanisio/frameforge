@@ -11,12 +11,12 @@ import yaml
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
 from tooling import render_latex as CLI  # noqa: E402
 
 
 DOC = {
-    "dsl": "FrameGraph",
+    "dsl": "FrameForge",
     "version": "2.2.0",
     "profile": "report",
     "title": "LaTeX parity smoke",
@@ -299,7 +299,7 @@ def test_render_latex_cli_tex_only_writes_tex(tmp_path):
 
 def test_transpile_page_mode_emits_full_page_tikz():
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "pages": [
             {
@@ -330,7 +330,7 @@ def test_transpile_page_mode_emits_full_page_tikz():
 
 def test_transpile_page_mode_text_spans_keep_run_styles():
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "defs": {
             "tokens": {
@@ -386,7 +386,7 @@ def test_transpile_page_mode_text_spans_keep_run_styles():
 
 def test_transpile_page_mode_emits_tikz_transform_scopes():
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "pages": [
             {
@@ -460,7 +460,7 @@ def test_transpile_page_mode_emits_tikz_transform_scopes():
 
 def test_transpile_page_mode_emits_raw_css_transform_scopes():
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "pages": [
             {
@@ -526,7 +526,7 @@ def test_transpile_page_mode_emits_raw_css_transform_scopes():
 
 def test_raw_css_transform_resolves_custom_property():
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "pages": [
             {
@@ -555,7 +555,7 @@ def test_raw_css_transform_resolves_custom_property():
     assert r"\begin{scope}[transform shape,rotate around={6:(30,35)}]" in tex
 
 
-def test_render_latex_cli_lists_framegraph_docs(tmp_path, capsys):
+def test_render_latex_cli_lists_frameforge_docs(tmp_path, capsys):
     flow = tmp_path / "flow.fg.yaml"
     page = tmp_path / "page.fg.yaml"
     flow.write_text(yaml.safe_dump(DOC), encoding="utf-8")
@@ -576,7 +576,7 @@ def test_preamble_harmonises_math_with_the_body_face():
     under pdflatex, and \\IfFontExistsTF skips it on hosts without the font
     (the default math setup still compiles everywhere)."""
     tex = transpile({
-        "dsl": "FrameGraph", "version": "2.2.0",
+        "dsl": "FrameForge", "version": "2.2.0",
         "pages": [{"mode": "flow", "id": "p", "canvas": {"size": [400, 300]},
                    "story": [{"type": "math", "tex": "e^{i\\pi}+1=0"}]}],
     })
@@ -591,7 +591,7 @@ def test_heading_labels_carry_their_title_for_nameref():
     blank (seen on the capability tour's flow page). A labelled heading now
     sets \\@currentlabelname so title cross-references resolve."""
     tex = transpile({
-        "dsl": "FrameGraph", "version": "2.2.0",
+        "dsl": "FrameForge", "version": "2.2.0",
         "pages": [{"mode": "flow", "id": "p", "canvas": {"size": [400, 300]},
                    "story": [
                        {"type": "heading", "level": 1, "text": "Flow mode",

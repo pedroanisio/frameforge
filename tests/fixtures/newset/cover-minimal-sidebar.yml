@@ -2,8 +2,8 @@
 # Sample deck — exercises the `cover_minimal_sidebar` template.
 #
 # The template's canonical definition lives at:
-#   framegraph/lib/symbols/covers/cover_minimal_sidebar.sym.yml
-#   framegraph/lib/symbols/covers/cover_minimal_sidebar.schema.json
+#   frameforge/lib/symbols/covers/cover_minimal_sidebar.sym.yml
+#   frameforge/lib/symbols/covers/cover_minimal_sidebar.schema.json
 #
 # The symbol body is inlined into deck.symbols below so the deck renderer
 # can pick it up directly (the deck pipeline does not yet auto-resolve the
@@ -11,11 +11,11 @@
 # `$symbols: [covers/cover_minimal_sidebar]`).
 #
 # Render:
-#   framegraph deck examples/cover-minimal-sidebar/deck.yml \
+#   frameforge deck examples/cover-minimal-sidebar/deck.yml \
 #     -o output/cover-minimal-sidebar
 # ─────────────────────────────────────────────────────────────────────────
 
-dsl: FrameGraph
+dsl: FrameForge
 version: 1.2
 kind: presentation-deck
 

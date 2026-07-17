@@ -5,7 +5,7 @@
 # (writes genai-ecosystem.head.yml; this file is that output) rather than
 # hand-editing. Provenance: predecessor repo examples/genai-ecosystem/,
 # README preserved at tests/data/v01/genai-ecosystem-README.md.
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.3.0
 profile: diagram
 title: The Generative AI Ecosystem
@@ -636,4 +636,4 @@ pages:
       style: uc_label_w
 meta:
   kind: hybrid-semantic-visual-diagram
-  migrated_from: FrameGraph v0.1 (document version 1.5)
+  migrated_from: FrameForge v0.1 (document version 1.5)

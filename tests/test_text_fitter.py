@@ -11,7 +11,7 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.domain.services.text_fitter import TextFitter  # noqa: E402
+from frameforge.rendering.domain.services.text_fitter import TextFitter  # noqa: E402
 
 
 class _FakeMetrics:

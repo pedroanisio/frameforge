@@ -1,5 +1,5 @@
 ---
-title: "FrameGraph vs the classical CG canon — strategic gap assessment & backlog"
+title: "FrameForge vs the classical CG canon — strategic gap assessment & backlog"
 status: APPROVED 2026-07-04 (operator) — F1 deferred + operator-approval-gated; B7–B10 (Mortenson-grounded, §10) approved; backlog (§9 + §10) merged into docs/roadmap.md
 date: "2026-07-04"
 disclaimer:
@@ -20,15 +20,15 @@ disclaimer:
 supersedes_scope_of: docs/proposals/cg-canon-3d-alignment.md   # that doc is the detailed spec for backlog item B2
 ---
 
-# FrameGraph vs the classical CG canon — strategic gap assessment
+# FrameForge vs the classical CG canon — strategic gap assessment
 
 ## 1. Executive summary
 
 Measured against the classical computer-graphics pipeline (Harrington 1987, the corpus's
-one deep computational source), **FrameGraph already implements most of the canon** — and,
+one deep computational source), **FrameForge already implements most of the canon** — and,
 in several places, its architecture *is* the canon: the Document IR is Harrington's
 **"display file / metafile"** (¶23), the Layer/Object graph is his **"segments"** (¶44),
-and the object-modelled-in-world-space heritage (¶43, GKS/PHIGS ¶45) is exactly FrameGraph's
+and the object-modelled-in-world-space heritage (¶43, GKS/PHIGS ¶45) is exactly FrameForge's
 retained model. Transforms, curves, 2D clipping (delegated), and — notably — **colour**
 (the `chevreul`/`canon` modules implement the same Chevreul sources the corpus holds) are
 strong and aligned.
@@ -37,11 +37,11 @@ The **strategic gaps cluster in two places**:
 
 1. **The 3D leg of the pipeline is incomplete and partly incorrect.** Harrington pairs
    projection with **3-D clipping** (¶34) and hidden-surface removal with **back-face
-   removal + a priority sort** (¶36); FrameGraph's `Scene3D` projects without clipping
+   removal + a priority sort** (¶36); FrameForge's `Scene3D` projects without clipping
    (crashes on `w≈0`, inverts on `w<0`) and sorts by average-z with no back-face cull and
    no z-buffer. *(Detailed spec: `cg-canon-3d-alignment.md` = backlog item **B2**.)*
 2. **There is no formal viewing-pipeline abstraction.** The canon prescribes a named
-   **world → normalized-device → viewport** coordinate pipeline (¶43); FrameGraph handles
+   **world → normalized-device → viewport** coordinate pipeline (¶43); FrameForge handles
    coordinates ad-hoc via `canvas`/`box`/`coordinate_mode`. A first-class viewing pipeline
    (**B1**) is the abstraction that makes B2 *correct by construction* and unifies 2D and 3D.
 
@@ -86,7 +86,7 @@ mapping = 1 citation; "GPU" only in ML books; the canon says "scan conversion", 
 
 ---
 
-## 3. Codebase assessment (FrameGraph as a CG system)
+## 3. Codebase assessment (FrameForge as a CG system)
 
 - **Architecture.** Geometry kernel (`sdk/geometry.py`: `Vec2/3`, `Mat3`, `Mat4`, `Camera`,
   `CubicBezier`, `Path`), modelling/scene (`sdk/draw.py::Scene3D`), booleans/topology
@@ -100,14 +100,14 @@ mapping = 1 citation; "GPU" only in ML books; the canon says "scan conversion", 
   corpus sources); windowing/clipping (Ch6, 2D → SVG `clipPath` + `planar` booleans); the
   display-file/metafile heritage (¶23) and standards lineage (¶45).
 - **Delegations (design choices, not gaps).** Vector generation / rasterization / antialiasing
-  (Ch1/3) → SVG → Chromium/Cairo. FrameGraph is vector-first; the raster chapters live downstream.
+  (Ch1/3) → SVG → Chromium/Cairo. FrameForge is vector-first; the raster chapters live downstream.
 - **Weaknesses (→ §4).** The 3D leg (Ch8–9) and the absence of a formal viewing pipeline (¶43).
 
 ---
 
-## 4. Gap analysis — canon stage → FrameGraph status
+## 4. Gap analysis — canon stage → FrameForge status
 
-| Canon stage | FrameGraph status | Verdict |
+| Canon stage | FrameForge status | Verdict |
 |---|---|---|
 | Ch1 vector generation | delegated (SVG) | ✅ by design |
 | Ch2 display file / metafile | **the Document IR** | ✅ strong alignment |
@@ -122,7 +122,7 @@ mapping = 1 citation; "GPU" only in ML books; the canon says "scan conversion", 
 | Ch11 curves + surfaces + **fractals** | curves ✓, tessellated surfaces ✓; **no Bézier/B-spline patch, no fractal generator** | ◐ (**B4/B5**) |
 | ¶43 world → NDC → viewport | ad-hoc canvas/box | ○ **gap (B1)** — no named pipeline |
 
-**Strategic gaps, fit-ranked** (fit = alignment with FrameGraph's vector-first, verifiable,
+**Strategic gaps, fit-ranked** (fit = alignment with FrameForge's vector-first, verifiable,
 document-IR nature):
 
 - **Tier 1 (high fit / high value / unblocked):** **B1** viewing pipeline (¶43, Ch6/8); **B2**
@@ -131,7 +131,7 @@ document-IR nature):
   **B4** fractal/procedural generator (¶39); **B5** curved-surface patches (Ch11); **B6** shading
   completion (Ch10).
 - **Tier 3 (flagged bridges — deferred):** **F1** ray tracing / global illumination (canon has it,
-  but FrameGraph is not a physically-based renderer — *out of fit*; **deferred and gated to explicit
+  but FrameForge is not a physically-based renderer — *out of fit*; **deferred and gated to explicit
   operator approval**); **F2** texture mapping (1 corpus citation; **deferred behind B3**).
 - **Calibration (NOT gaps):** own scan-conversion/rasterization (delegated by design); interactive
   techniques Ch7 (a different axis — the static-IR/event question, tracked separately).
@@ -143,7 +143,7 @@ document-IR nature):
 ### B1 — Formal viewing pipeline: world → NDC → viewport
 - **Problem.** Coordinate handling is ad-hoc; 3D projection and 2D placement don't share a
   rigorous, named pipeline, so correctness (clipping, aspect, fit) is re-derived per call site.
-- **Evidence.** `Scene3D.render` hand-rolls fit/scale/offset ([draw.py:192–207](../../src/framegraph/sdk/draw.py#L192)); no window→viewport transform in `geometry.py`.
+- **Evidence.** `Scene3D.render` hand-rolls fit/scale/offset ([draw.py:192–207](../../src/frameforge/sdk/draw.py#L192)); no window→viewport transform in `geometry.py`.
 - **GraphQL support.** ¶43 "world-coordinate space… normalized device coordinates"; ¶28 windowing/clipping.
 - **Change.** A small `ViewingPipeline` (world → view → projection → **clip** → NDC → viewport)
   in `sdk/geometry.py`, consumed by `Scene3D` and available to 2D. Names the stages B2 needs.
@@ -161,7 +161,7 @@ document-IR nature):
 ### B3 — True 3D scene graph (the direction the lifted block permits)
 - **Problem.** `Scene3D` is a flat face list projected once; no nodes/instancing/hierarchy — so
   no reusable 3D assets, no per-node transforms, no scene composition.
-- **Evidence.** `Scene3D.faces: list[...]` ([draw.py:95](../../src/framegraph/sdk/draw.py#L95)); `Scene3D` docstring "Minimal 3D scene."
+- **Evidence.** `Scene3D.faces: list[...]` ([draw.py:95](../../src/frameforge/sdk/draw.py#L95)); `Scene3D` docstring "Minimal 3D scene."
 - **GraphQL support.** Ch8–11 (the full 3D pipeline) + ¶43–45 (world-space objects, segments, PHIGS
   hierarchy). **Bridge note:** modern comparator is three.js; the *math* is all in-corpus.
 - **Change.** A node hierarchy (transform per node, instancing, grouping) lowering through B1+B2;
@@ -183,7 +183,7 @@ document-IR nature):
 
 ### B5 — Curved-surface patches (canon Ch11)
 - **Problem.** 3D surfaces are tessellated quads (`parametric_surface`); no Bézier/B-spline patch.
-- **Evidence.** [draw.py:108–130](../../src/framegraph/sdk/draw.py#L108).
+- **Evidence.** [draw.py:108–130](../../src/frameforge/sdk/draw.py#L108).
 - **GraphQL support.** Ch11 curved surfaces.
 - **Change.** Bézier/B-spline patch primitive with adaptive tessellation, lowering through B1/B2.
 - **Complexity.** **M**. Gated on B2. **Priority Low** until B3.
@@ -191,7 +191,7 @@ document-IR nature):
 
 ### B6 — Shading model completion (canon Ch10)
 - **Problem.** Shading is Lambert/Gouraud, default **off**; no flat default, no specular/Phong.
-- **Evidence.** [draw.py:170–182](../../src/framegraph/sdk/draw.py#L170).
+- **Evidence.** [draw.py:170–182](../../src/frameforge/sdk/draw.py#L170).
 - **GraphQL support.** Ch10 shading & colour.
 - **Change.** Add `flat` (sane default for closed meshes) + optional Phong/specular term.
 - **Complexity.** **S**. **Bridge note:** texture-modulated shading is F2 (deferred).
@@ -199,7 +199,7 @@ document-IR nature):
 
 ### F1 — Ray tracing / global illumination — **DEFER, operator-approval-gated (flagged bridge / out of fit)**
 - The canon covers it (ray tracing + shadows), but it is inherently **per-fragment raster**, against
-  FrameGraph's vector-first, verifiable-IR design — building it would fork the renderer's identity for
+  FrameForge's vector-first, verifiable-IR design — building it would fork the renderer's identity for
   little document-graphics value. **Operator decision (2026-07-04): deferred, not declined — kept in the
   backlog but gated so it can only ever be pulled on explicit operator approval** (never auto-scheduled,
   never pulled as a dependency of another item).
@@ -212,7 +212,7 @@ document-IR nature):
 ## 6. Implementation order
 
 **Phase 0 — safety, tests, baseline docs.** Land the B2 failure-case goldens (near-plane crash,
-behind-camera inversion, interpenetration) RED against `main`; add the "canon stage → FrameGraph
+behind-camera inversion, interpenetration) RED against `main`; add the "canon stage → FrameForge
 status" map (this §4) to Appendix A. *Exit:* fixtures reproduce every §4 defect; doc-sync passes.
 
 **Phase 1 — foundational correctness (B1 + B2).** Viewing pipeline abstraction, then robust
@@ -239,7 +239,7 @@ correctness bug.
 
 ## 7. Benefits
 
-- **Domain alignment.** FrameGraph comes to implement the canonical pipeline *as named stages*
+- **Domain alignment.** FrameForge comes to implement the canonical pipeline *as named stages*
   (world→NDC→viewport→clip→project→cull→depth→shade), matching Harrington and the GKS/PHIGS
   lineage the roadmap already gestures at — with a truthful stage map in Appendix A.
 - **Correctness.** Eliminates the `w≈0` crash and behind-camera inversion; makes `Camera.orbit()`
@@ -303,7 +303,7 @@ graphics—Mathematics") — doc `a75b8d5e`, 4,222 sentences / 135,998 tokens. I
 Harrington** (retiring the single-source risk in §8) and **corroborates B1/B5** (deep on
 homogeneous coords, projection, curves). A third math text — **Rogers & Adams, *Mathematical
 Elements for CG*** (`348096aa`) — landed but `status=failed` (0 sentences): a **corpus-side
-source gap**, not a FrameGraph item; flag for re-ingest on the kb service.
+source gap**, not a FrameForge item; flag for re-ingest on the kb service.
 
 Verified Mortenson coverage (scoped KWIC): intersection **50**, curvature **50**, reflection
 **50** (§3.6), convex hull **21**, Bézier/Hermite **44/12**, homogeneous/matrix/vector/surface/
@@ -314,7 +314,7 @@ B1–B6 and from F1/F2.
 ### B7 — Reflection / mirror transform
 - **Problem.** Mirroring requires hand-building a matrix; there is no reflection primitive.
 - **Evidence.** `Mat3` exposes only `identity/translate/scale/rotate/inverse`
-  ([geometry.py:66–99](../../src/framegraph/sdk/geometry.py#L66)) — **no `reflect`**; roadmap
+  ([geometry.py:66–99](../../src/frameforge/sdk/geometry.py#L66)) — **no `reflect`**; roadmap
   Appendix A *sketched* `Mat3.reflect` but it never shipped.
 - **GraphQL support.** Mortenson §3.6 Reflection (*"develops the algebra and geometry of
   translations, rotations, reflection"*; 50 hits).
@@ -339,7 +339,7 @@ B1–B6 and from F1/F2.
 ### B9 — Curvature & arc-length API for curves/surfaces
 - **Problem.** Adaptive tessellation uses an internal **flatness proxy**; no exposed
   curvature/arc-length, so dashing, text-on-path, and offsets can't be arc-length-uniform.
-- **Evidence.** [draw.py:249/275](../../src/framegraph/sdk/draw.py#L249) (flatness subdivision,
+- **Evidence.** [draw.py:249/275](../../src/frameforge/sdk/draw.py#L249) (flatness subdivision,
   *"samples concentrate where curvature is high"*); `CubicBezier` exposes only `.point(t)`.
 - **GraphQL support.** Mortenson §6.7 Curvature (50 hits).
 - **Change.** `curvature(t)`, arc-length parameterization, arc-length-uniform sampling on

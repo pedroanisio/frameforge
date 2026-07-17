@@ -1,0 +1,338 @@
+(* ═══════════════════════════════════════════════════════════════════ *)
+(* FrameForge v2 — STYLE MODULE (EBNF)  —  CSS-parity styling           *)
+(*                                                                      *)
+(* DESIGN PROPOSAL, NON-NORMATIVE. Supersedes the style/value types in  *)
+(* frameforge-v2.ebnf §8 (TextStyle, StrokeStyle, Fill, Gradient,       *)
+(* Effect, Color, StyleRef). Integration contract:                     *)
+(*   - Every object's style slot resolves to `Style` (StyleRef).        *)
+(*   - `tokens.text_styles` / `stroke_styles` / `fill_styles` hold the  *)
+(*     corresponding sub-objects; `tokens.styles` holds named `Style`.  *)
+(*   - Per-object convenience fields (fill, stroke, radius, color) are  *)
+(*     SUGAR for the matching Style property; on conflict the explicit  *)
+(*     convenience field wins (see spec §8, Cascade).                   *)
+(*                                                                      *)
+(* GOAL: no gap against CSS for the STATIC PRESENTATIONAL surface.      *)
+(*   - In scope : Text, Fonts, Color, Backgrounds & Borders, Filter     *)
+(*     Effects, Transforms (2D only; `perspective` non-conformant, G-2),*)
+(*     Overflow, paint/SVG stroke.                                      *)
+(*   - Out of scope (by design): layout (flex/grid/float/position — FG  *)
+(*     owns this), and cascade/selectors/interaction/animation.         *)
+(*   - No HARD gap: the `css` escape accepts raw CSS declarations for   *)
+(*     anything the typed core omits or any future CSS.                 *)
+(*                                                                      *)
+(* Property keys are snake_case and map 1:1 onto CSS kebab-case         *)
+(* properties (e.g. letter_spacing ↔ letter-spacing). The bijection is  *)
+(* the contract; see spec §8 for the table.                            *)
+(* ═══════════════════════════════════════════════════════════════════ *)
+
+
+(* ═══ Style: the umbrella (a closed bag of CSS-mapped properties) ═════ *)
+(* Every member optional; unordered. `class` composes named token styles;*)
+(* `css` is the bounded raw-CSS escape. All groups below are inlined.    *)
+
+Style =
+    "{" ,
+      [ "class" , ":" , ( string | "[" , string , { "," , string } , "]" ) ] ,   (* ref → tokens.styles *)
+      style-text-group ,
+      style-box-group ,
+      style-background-group ,
+      style-paint-group ,
+      style-effect-group ,
+      style-transform-group ,
+      [ "css" , ":" , string ] ,        (* raw CSS declarations: unvalidated passthrough, no hard gap *)
+    "}" ;
+
+StyleRef = string | Style ;             (* a token style name, or an inline Style *)
+
+(* For backward reference by the main grammar, TextStyle/StrokeStyle/Fill *)
+(* remain usable names: they are projections of Style. *)
+TextStyle   = Style ;
+StrokeStyle = Style ;
+
+
+(* ═══ Text & font properties (CSS Text L3 + Fonts L3/L4) ══════════════ *)
+
+style-text-group =
+      [ "color"            , ":" , Color ] ,
+      [ "font_family"      , ":" , ( string | "[" , string , { "," , string } , "]" ) ] ,
+      [ "font_size"        , ":" , Length ] ,
+      [ "font_weight"      , ":" , ( integer | "normal" | "bold" | "lighter" | "bolder" ) ] ,
+      [ "font_style"       , ":" , FontStyle ] ,
+      [ "font_stretch"     , ":" , FontStretch ] ,
+      [ "font_variant"           , ":" , string ] ,
+      [ "font_variant_caps"      , ":" , ( "normal" | "small-caps" | "all-small-caps" | "petite-caps" | "all-petite-caps" | "unicase" | "titling-caps" ) ] ,
+      [ "font_variant_numeric"   , ":" , string ] ,
+      [ "font_variant_ligatures" , ":" , string ] ,
+      [ "font_feature_settings"  , ":" , string ] ,
+      [ "font_variation_settings", ":" , string ] ,   (* variable-font axes *)
+      [ "font_kerning"     , ":" , ( "auto" | "normal" | "none" ) ] ,
+      [ "line_height"      , ":" , ( number | Length | "normal" ) ] ,
+      [ "letter_spacing"   , ":" , Length ] ,
+      [ "word_spacing"     , ":" , Length ] ,
+      [ "text_align"       , ":" , ( "left" | "right" | "center" | "justify" | "start" | "end" ) ] ,
+      [ "text_align_last"  , ":" , ( "auto" | "left" | "right" | "center" | "justify" | "start" | "end" ) ] ,
+      [ "vertical_align"   , ":" , ( "baseline" | "top" | "middle" | "bottom" | "sub" | "super" | Length ) ] ,
+      [ "text_decoration"  , ":" , TextDecoration ] ,
+      [ "text_transform"   , ":" , ( "none" | "uppercase" | "lowercase" | "capitalize" ) ] ,
+      [ "text_indent"      , ":" , Length ] ,
+      [ "text_shadow"      , ":" , "[" , Shadow , { "," , Shadow } , "]" ] ,
+      [ "white_space"      , ":" , ( "normal" | "nowrap" | "pre" | "pre-wrap" | "pre-line" | "break-spaces" ) ] ,
+      [ "word_break"       , ":" , ( "normal" | "break-all" | "keep-all" | "break-word" ) ] ,
+      [ "overflow_wrap"    , ":" , ( "normal" | "break-word" | "anywhere" ) ] ,
+      [ "hyphens"          , ":" , ( "none" | "manual" | "auto" ) ] ,
+      [ "text_wrap"        , ":" , ( "wrap" | "nowrap" | "balance" | "pretty" | "stable" ) ] ,
+      [ "hanging_punctuation" , ":" , ( "none" | "first" | "last" | "allow-end" | "force-end" ) ] ,
+      [ "hyphenate_character" , ":" , string ] ,
+      [ "hyphenate_limit_chars" , ":" , "[" , integer , "," , integer , "," , integer , "]" ] ,  (* total, before, after *)
+      [ "tab_size"         , ":" , ( integer | Length ) ] ,
+      [ "text_overflow"    , ":" , ( "clip" | "ellipsis" | string ) ] ,
+      [ "line_clamp"       , ":" , integer ] ,
+      [ "max_lines"        , ":" , integer ] ,
+      [ "writing_mode"     , ":" , ( "horizontal-tb" | "vertical-rl" | "vertical-lr" ) ] ,
+      [ "direction"        , ":" , ( "ltr" | "rtl" ) ] ,
+      [ "unicode_bidi"     , ":" , ( "normal" | "embed" | "isolate" | "bidi-override" | "isolate-override" | "plaintext" ) ] ;
+
+FontStyle    = "normal" | "italic" | "oblique"
+             | "{" , "oblique" , ":" , Angle , "}" ;       (* oblique with slant angle *)
+FontStretch  = "normal" | "ultra-condensed" | "extra-condensed" | "condensed" | "semi-condensed"
+             | "semi-expanded" | "expanded" | "extra-expanded" | "ultra-expanded" | Percentage ;
+
+TextDecoration =
+      string                                              (* shorthand, e.g. "underline wavy red" *)
+    | "{" ,
+        [ "line"      , ":" , ( "none" | "underline" | "overline" | "line-through" | "[" , string , { "," , string } , "]" ) ] ,
+        [ "style"     , ":" , ( "solid" | "double" | "dotted" | "dashed" | "wavy" ) ] ,
+        [ "color"     , ":" , Color ] ,
+        [ "thickness" , ":" , Length ] ,
+      "}" ;
+
+
+(* ═══ Box, border, overflow (CSS 2.1 box + Backgrounds & Borders L3) ══ *)
+
+style-box-group =
+      [ "width"      , ":" , SizeValue ] ,
+      [ "height"     , ":" , SizeValue ] ,
+      [ "min_width"  , ":" , SizeValue ] , [ "max_width"  , ":" , SizeValue ] ,
+      [ "min_height" , ":" , SizeValue ] , [ "max_height" , ":" , SizeValue ] ,
+      [ "box_sizing" , ":" , ( "content-box" | "border-box" ) ] ,
+      [ "padding"    , ":" , Edges ] ,
+      [ "margin"     , ":" , Edges ] ,
+      [ "border"        , ":" , Border ] ,
+      [ "border_top"    , ":" , BorderSide ] ,
+      [ "border_right"  , ":" , BorderSide ] ,
+      [ "border_bottom" , ":" , BorderSide ] ,
+      [ "border_left"   , ":" , BorderSide ] ,
+      [ "border_radius" , ":" , Radius ] ,
+      [ "outline"        , ":" , BorderSide ] ,
+      [ "outline_offset" , ":" , Length ] ,
+      [ "overflow"   , ":" , Overflow ] ,
+      [ "overflow_x" , ":" , Overflow ] ,
+      [ "overflow_y" , ":" , Overflow ] ,
+      [ "opacity"    , ":" , unit-interval ] ,
+      [ "visibility" , ":" , ( "visible" | "hidden" | "collapse" ) ] ,
+      [ "z_index"    , ":" , integer ] ;
+
+SizeValue = Length | "auto" | "min-content" | "max-content"
+          | "{" , "fit_content" , ":" , Length , "}" ;
+Overflow  = "visible" | "hidden" | "clip" | "scroll" | "auto" ;
+Edges     = Length | "[" , Length , { "," , Length } , "]" ;   (* 1..4 values, CSS shorthand order *)
+
+Border     = string | BorderSide ;                              (* "1px solid #333" or object *)
+BorderSide =
+    "{" ,
+      [ "width" , ":" , Length ] ,
+      [ "style" , ":" , BorderStyle ] ,
+      [ "color" , ":" , Color ] ,
+    "}" ;
+BorderStyle = "none" | "hidden" | "solid" | "dashed" | "dotted" | "double"
+            | "groove" | "ridge" | "inset" | "outset" ;
+Radius      = Length | "[" , Length , { "," , Length } , "]" ;  (* 1..4 corners *)
+
+
+(* ═══ Background (CSS Backgrounds & Borders L3, multi-layer) ══════════ *)
+
+style-background-group =
+      [ "background"            , ":" , ( string | "[" , BackgroundLayer , { "," , BackgroundLayer } , "]" ) ] ,
+      [ "background_color"      , ":" , Color ] ,
+      [ "background_image"      , ":" , ( Image | "[" , Image , { "," , Image } , "]" ) ] ,
+      [ "background_position"   , ":" , string ] ,
+      [ "background_size"       , ":" , ( "auto" | "cover" | "contain" | string ) ] ,
+      [ "background_repeat"     , ":" , ( "repeat" | "repeat-x" | "repeat-y" | "no-repeat" | "space" | "round" ) ] ,
+      [ "background_clip"       , ":" , ( "border-box" | "padding-box" | "content-box" | "text" ) ] ,
+      [ "background_origin"     , ":" , ( "border-box" | "padding-box" | "content-box" ) ] ,
+      [ "background_blend_mode" , ":" , BlendMode ] ;
+
+BackgroundLayer =
+    "{" ,
+      [ "color"    , ":" , Color ] ,
+      [ "image"    , ":" , Image ] ,
+      [ "position" , ":" , string ] ,
+      [ "size"     , ":" , ( "auto" | "cover" | "contain" | string ) ] ,
+      [ "repeat"   , ":" , ( "repeat" | "repeat-x" | "repeat-y" | "no-repeat" | "space" | "round" ) ] ,
+      [ "clip"     , ":" , ( "border-box" | "padding-box" | "content-box" | "text" ) ] ,
+    "}" ;
+
+
+(* ═══ Paint & SVG stroke (fill/stroke for shapes and text) ════════════ *)
+
+style-paint-group =
+      [ "fill"             , ":" , Paint ] ,
+      [ "fill_rule"        , ":" , ( "nonzero" | "evenodd" ) ] ,
+      [ "stroke"           , ":" , Paint ] ,
+      [ "stroke_width"     , ":" , Length ] ,
+      [ "stroke_dasharray" , ":" , ( "none" | "[" , Length , { "," , Length } , "]" ) ] ,
+      [ "stroke_dashoffset", ":" , Length ] ,
+      [ "stroke_linecap"   , ":" , ( "butt" | "round" | "square" ) ] ,
+      [ "stroke_linejoin"  , ":" , ( "miter" | "round" | "bevel" | "arcs" | "miter-clip" ) ] ,
+      [ "stroke_miterlimit", ":" , number ] ,
+      [ "paint_order"      , ":" , string ] ,
+      [ "vector_effect"    , ":" , ( "none" | "non-scaling-stroke" ) ] ,
+      [ "arrow_start"      , ":" , ( boolean | string ) ] ,   (* FG extension: marker refs *)
+      [ "arrow_end"        , ":" , ( boolean | string ) ] ;
+
+Paint = "none" | "currentColor" | Color | Image ;   (* Image covers gradient/pattern paints *)
+
+
+(* ═══ Effects: shadow, filter, blend, clip, mask (Filter Effects L1) ══ *)
+
+style-effect-group =
+      [ "box_shadow"      , ":" , ( "none" | "[" , Shadow , { "," , Shadow } , "]" ) ] ,
+      [ "filter"          , ":" , Filter ] ,
+      [ "backdrop_filter" , ":" , Filter ] ,
+      [ "mix_blend_mode"  , ":" , BlendMode ] ,
+      [ "isolation"       , ":" , ( "auto" | "isolate" ) ] ,
+      [ "clip_path"       , ":" , ClipPath ] ,
+      [ "mask"            , ":" , ( "none" | Image | string ) ] ;
+
+Shadow =
+      string                                       (* CSS shorthand, e.g. "0 2px 6px rgba(0,0,0,.3)" *)
+    | "{" ,
+        "offset_x" , ":" , Length , "," , "offset_y" , ":" , Length ,
+        [ "," , "blur"   , ":" , Length ] ,
+        [ "," , "spread" , ":" , Length ] ,
+        [ "," , "color"  , ":" , Color ] ,
+        [ "," , "inset"  , ":" , boolean ] ,
+      "}" ;
+
+Filter   = string | "[" , FilterFn , { "," , FilterFn } , "]" ;   (* string = CSS filter list *)
+FilterFn =
+    "{" ,
+      "fn" , ":" , ( "blur" | "brightness" | "contrast" | "drop_shadow" | "grayscale"
+                   | "hue_rotate" | "invert" | "opacity" | "saturate" | "sepia"
+                   | "turbulence" | "displacement_map"
+                   | "diffuse_lighting" | "specular_lighting" ) ,
+      [ "value"  , ":" , ( number | Length | Percentage | Angle ) ] ,
+      [ "shadow" , ":" , Shadow ] ,        (* for fn = drop_shadow *)
+      [ "base_frequency" , ":" , ( number | string | "[" , ( number | string ) , "," , ( number | string ) , "]" ) ] ,
+      [ "num_octaves" , ":" , integer ] ,
+      [ "seed" , ":" , integer ] ,
+      [ "type" , ":" , ( "fractalNoise" | "turbulence" ) ] ,
+      [ "mode" , ":" , string ] ,
+      [ "opacity" , ":" , number ] ,
+      [ "scale" , ":" , ( number | Length ) ] ,
+      [ "x_channel" , ":" , ( "R" | "G" | "B" | "A" ) ] ,
+      [ "y_channel" , ":" , ( "R" | "G" | "B" | "A" ) ] ,
+      [ "surface_scale" , ":" , ( number | Length ) ] ,
+      [ "lighting_color" , ":" , Color ] ,
+      [ "azimuth" , ":" , Angle ] ,
+      [ "elevation" , ":" , Angle ] ,
+      [ "x" , ":" , ( number | Length ) ] ,
+      [ "y" , ":" , ( number | Length ) ] ,
+      [ "z" , ":" , ( number | Length ) ] ,
+      [ "points_at_x" , ":" , ( number | Length ) ] ,
+      [ "points_at_y" , ":" , ( number | Length ) ] ,
+      [ "points_at_z" , ":" , ( number | Length ) ] ,
+      [ "diffuse_constant" , ":" , number ] ,
+      [ "specular_constant" , ":" , number ] ,
+      [ "specular_exponent" , ":" , number ] ,
+    "}" ;
+
+BlendMode = "normal" | "multiply" | "screen" | "overlay" | "darken" | "lighten"
+          | "color-dodge" | "color-burn" | "hard-light" | "soft-light" | "difference"
+          | "exclusion" | "hue" | "saturation" | "color" | "luminosity" ;
+
+ClipPath =
+      string                                       (* CSS clip-path shorthand or url() *)
+    | "{" ,
+        "shape" , ":" , ( "inset" | "circle" | "ellipse" | "polygon" | "path" ) ,
+        [ "args" , ":" , object-any ] ,
+      "}" ;
+
+
+(* ═══ Transforms (CSS Transforms L1/L2 — 2D only is conformant) ═══════ *)
+(* TransformFn is 2D-only. `perspective` is the sole 3D-declared surface and is   *)
+(* NON-CONFORMANT (G-2): accepted for round-trip but no render target applies a   *)
+(* 3D perspective — it passes through inert, and the validator WARNs              *)
+(* (`non-conformant-3d`). Author 3D via the SDK Scene3D 2D-projection (Appendix   *)
+(* A.5), never via this property.                                                 *)
+
+style-transform-group =
+      [ "transform"        , ":" , ( "none" | string | "[" , TransformFn , { "," , TransformFn } , "]" ) ] ,
+      [ "transform_origin" , ":" , ( string | Point ) ] ,
+      [ "transform_box"    , ":" , ( "border-box" | "fill-box" | "view-box" | "content-box" ) ] ,
+      [ "perspective"      , ":" , ( "none" | Length ) ] ;     (* NON-CONFORMANT (G-2): inert, validator WARNs *)
+
+TransformFn =
+    "{" ,
+      "fn" , ":" , ( "translate" | "translate_x" | "translate_y"
+                   | "scale" | "scale_x" | "scale_y"
+                   | "rotate" | "skew" | "skew_x" | "skew_y" | "matrix" ) ,
+      "args" , ":" , "[" , ( number | Length | Angle ) , { "," , ( number | Length | Angle ) } , "]" ,
+    "}" ;
+
+
+(* ═══ Paint sources: images, gradients, patterns ═════════════════════ *)
+
+Image =
+      string                                       (* url("…"), data-uri, or token ref *)
+    | Gradient
+    | "{" , "url" , ":" , string , "}" ;
+
+Gradient =
+    "{" ,
+      "kind" , ":" , ( "linear" | "radial" | "conic" ) ,
+      "stops" , ":" , "[" , GradientStop , { "," , GradientStop } , "]" ,
+      [ "repeating" , ":" , boolean ] ,
+      [ "angle"     , ":" , Angle ] ,               (* linear *)
+      [ "from"      , ":" , Angle ] ,               (* conic start angle *)
+      [ "at"        , ":" , ( string | Point ) ] ,  (* radial/conic centre *)
+      [ "shape"     , ":" , ( "circle" | "ellipse" ) ] ,  (* radial *)
+    "}" ;
+GradientStop =
+    "{" , "color" , ":" , Color , [ "," , "position" , ":" , ( Length | Percentage ) ] , "}" ;
+
+
+(* ═══ Color & dimension value types (CSS Color L4 + Values & Units) ═══ *)
+
+(* Color parses as a CSS <color>: hex (#RGB / #RGBA / #RRGGBB / #RRGGBBAA), *)
+(* rgb()/rgba(), hsl()/hsla(), hwb(), lab(), lch(), oklab(), oklch(),       *)
+(* color(<space> …), a CSS named color, currentColor, transparent, or a     *)
+(* token reference. EBNF treats it as a scalar; the validator enforces the  *)
+(* <color> grammar. *)
+Color = ? a CSS <color> value, or a tokens.colors reference ? ;
+
+(* Length: CSS lengths/percentages/fractions. RECONCILED at HEAD (spec §2) to *)
+(* the unit set the toolchain actually resolves (renderer geometry.num + the  *)
+(* relative %/fr contexts) and that the models pattern-enforce; the earlier   *)
+(* q/ex/ch/vw/vh/vmin/vmax extras were never resolved by any render target.   *)
+Length     = number | ? string "<number><unit>" with unit ∈ {pt,px,pc,mm,cm,in,em,rem,%,fr} ? ;
+Percentage = ? string of the form "<number>%" ? ;
+Angle      = number | ? string "<number><unit>" with unit ∈ {deg,rad,grad,turn} ? ;
+
+(* ─────────────────────────────────────────────────────────────────────── *)
+(* +HEAD 2.2.0 RECONCILIATION  Patch 2 Part C requires this module to MIRROR  *)
+(* the Patch 1 text-fit fields. As delivered it carries line_clamp /          *)
+(* text_overflow / max_lines but OMITS the two non-CSS FrameForge autofit      *)
+(* extensions the fixtures depend on. HEAD therefore adds, in style-text-group:*)
+(*   overflow      : ALSO accepts "shrink_to_fit" (FG autofit) beyond the CSS  *)
+(*                   box values visible|hidden|clip|scroll|auto;              *)
+(*   min_font_size : number — the floor for shrink_to_fit (not a CSS property).*)
+(* These two are the ONLY value-shape additions to the authoritative module.   *)
+(* One more relationship (not a change to this file): FrameForge's EFFECTIVE    *)
+(* `Paint` is this module's Paint EXTENDED with the typed `Pattern` source      *)
+(* (hatch/cross_hatch/dots/grid), defined in frameforge-v2.ebnf — the concrete  *)
+(* realization of this module's note that "Image covers gradient/pattern        *)
+(* paints". Color/Length are defined here (CSS-rich) and also kept as lexical   *)
+(* baselines in the core grammar's §9; the two are compatible (core is the      *)
+(* projection). The Pydantic models encode the effective (extended) forms.      *)
+(* ─────────────────────────────────────────────────────────────────────── *)

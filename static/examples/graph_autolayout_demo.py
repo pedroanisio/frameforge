@@ -20,9 +20,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import expand, render_page_svgs, serialize  # noqa: E402
-from framegraph.sdk.model import HEAD_VERSION  # noqa: E402
-from framegraph.sdk.topology import Graph  # noqa: E402
+from frameforge.sdk import expand, render_page_svgs, serialize  # noqa: E402
+from frameforge.sdk.model import HEAD_VERSION  # noqa: E402
+from frameforge.sdk.topology import Graph  # noqa: E402
 
 _SANS = ["DejaVu Sans", "Arial", "sans-serif"]
 
@@ -98,7 +98,7 @@ def build():
                               id="g-circ", node_fill="#1d4ed8",
                               edge_color="#9db4ec"),
     ]
-    doc = {"dsl": "FrameGraph", "version": HEAD_VERSION,
+    doc = {"dsl": "FrameForge", "version": HEAD_VERSION,
            "title": "graph auto-layout showcase", "profile": "diagram",
            "defs": {"tokens": {"colors": {"paper": "#fcfbf8",
                                           "ink": "#1d1e22"}}},

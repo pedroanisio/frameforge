@@ -16,12 +16,12 @@ import sys
 from types import SimpleNamespace
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.mcp.server import create_server, mcp_content_blocks, run_sdk_code  # noqa: E402
+from frameforge.mcp.server import create_server, mcp_content_blocks, run_sdk_code  # noqa: E402
 
 
 class FakeFastMCP:
@@ -73,7 +73,7 @@ def test_runtime_error_surfaces_stderr_tail_in_the_summary(tmp_path):
 def test_invalid_document_returns_structured_validation_issues(tmp_path):
     """A schema-invalid build lowers Pydantic errors into validation.issues."""
     code = (
-        "from framegraph.sdk import DocumentBuilder\n"
+        "from frameforge.sdk import DocumentBuilder\n"
         "doc = DocumentBuilder(title='Bad')\n"
         # coordinate_mode only accepts absolute|flow; this fails model validation
         "doc.page('p', canvas={'size': [100, 100], 'units': 'px'}, coordinate_mode='diagonal')\n"
@@ -92,7 +92,7 @@ def test_invalid_document_returns_structured_validation_issues(tmp_path):
 def test_successful_build_writes_no_build_error_sidecar(tmp_path):
     """The structured-error path is additive: a clean build leaves no sidecar."""
     code = (
-        "from framegraph.sdk import DocumentBuilder\n"
+        "from frameforge.sdk import DocumentBuilder\n"
         "doc = DocumentBuilder(title='Good')\n"
         "page = doc.page('p', canvas={'size': [120, 80], 'units': 'px'})\n"
         "page.layer('main').rect([0, 0, 120, 80], fill='#ffffff')\n"
@@ -146,7 +146,7 @@ def test_get_session_resource_tool_missing_artifact_returns_envelope(tmp_path):
     server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
     ok = _structured(
         server.tools["run_sdk_code"](
-            "from framegraph.sdk import DocumentBuilder\n"
+            "from frameforge.sdk import DocumentBuilder\n"
             "doc = DocumentBuilder(title='R')\n"
             "page = doc.page('p', canvas={'size': [100, 80], 'units': 'px'})\n"
             "page.layer('m').rect([0, 0, 100, 80], fill='#fff')\n",
@@ -157,7 +157,7 @@ def test_get_session_resource_tool_missing_artifact_returns_envelope(tmp_path):
     assert ok["ok"] is True
 
     result = _structured(
-        server.tools["get_session_resource"]("framegraph://session/arts/page/9.png")
+        server.tools["get_session_resource"]("frameforge://session/arts/page/9.png")
     )
 
     assert result["ok"] is False
@@ -182,7 +182,7 @@ def test_run_sdk_code_tool_bad_session_id_returns_envelope(tmp_path):
 
 def test_pages_selector_matching_nothing_populates_error(tmp_path):
     code = (
-        "from framegraph.sdk import DocumentBuilder\n"
+        "from frameforge.sdk import DocumentBuilder\n"
         "doc = DocumentBuilder(title='One')\n"
         "page = doc.page('p', canvas={'size': [100, 80], 'units': 'px'})\n"
         "page.layer('m').rect([0, 0, 100, 80], fill='#fff')\n"
@@ -195,7 +195,7 @@ def test_pages_selector_matching_nothing_populates_error(tmp_path):
 
 
 def test_static_validation_failure_populates_error_and_hint(tmp_path, monkeypatch):
-    import framegraph.mcp.pipeline as pipeline
+    import frameforge.mcp.pipeline as pipeline
 
     failing_report = SimpleNamespace(
         ok=False,
@@ -205,7 +205,7 @@ def test_static_validation_failure_populates_error_and_hint(tmp_path, monkeypatc
     monkeypatch.setattr(pipeline, "validate_static_rules", lambda _doc: failing_report)
 
     code = (
-        "from framegraph.sdk import DocumentBuilder\n"
+        "from frameforge.sdk import DocumentBuilder\n"
         "doc = DocumentBuilder(title='V')\n"
         "page = doc.page('p', canvas={'size': [100, 80], 'units': 'px'})\n"
         "page.layer('m').rect([0, 0, 100, 80], fill='#fff')\n"

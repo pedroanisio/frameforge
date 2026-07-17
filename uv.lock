@@ -512,7 +512,7 @@ wheels = [
 ]
 
 [[package]]
-name = "framegraph"
+name = "frameforge"
 version = "2.4.1"
 source = { virtual = "." }
 dependencies = [

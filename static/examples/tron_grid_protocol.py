@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """GRID PROTOCOL — a 32-slide deck rendered entirely in flat 2D "Tron" framing.
 
-Every slide is built from the FrameGraph Python SDK using *only* 2D vector
+Every slide is built from the FrameForge Python SDK using *only* 2D vector
 primitives — neon strokes on a black field, square light-grids, HUD corner
 brackets, circuit traces, concentric discs and chevrons. There is deliberately
 no 3D projection, no raster art and no photographic depth: the whole look is
@@ -27,11 +27,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Chart,
     DocumentBuilder,
     Frame,
@@ -44,7 +44,7 @@ from framegraph.sdk import (  # noqa: E402
     row,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas, palette, type                                                        #
@@ -337,7 +337,7 @@ def cover(b):
     disc(layer, 1060, 250, 96, color=CYAN, core=ORANGE)
     corner_frame(layer, [40, 40, W - 80, H - 80], color="cyand", ln=34, w=1.6)
     layer.text([MX, 600, 900, 20],
-               "32 PLATES · AUTHORED THROUGH THE FRAMEGRAPH PYTHON SDK · FLAT 2D VECTOR",
+               "32 PLATES · AUTHORED THROUGH THE FRAMEFORGE PYTHON SDK · FLAT 2D VECTOR",
                style="tag")
     layer.text([W - MX - 160, 600, 160, 18], "01 / 32", style="pnum")
 
@@ -1177,7 +1177,7 @@ def closing(b):
     disc(layer, 1060, 250, 96, color=CYAN, core=ORANGE)
     corner_frame(layer, [40, 40, W - 80, H - 80], color="cyand", ln=34, w=1.6)
     layer.text([MX, 600, 900, 20],
-               "FRAMEGRAPH PYTHON SDK · 32 PLATES · FLAT 2D VECTOR · NO RASTER ART",
+               "FRAMEFORGE PYTHON SDK · 32 PLATES · FLAT 2D VECTOR · NO RASTER ART",
                style="tag")
     layer.text([W - MX - 160, 600, 160, 18], "32 / 32", style="pnum")
 

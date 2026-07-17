@@ -1,4 +1,4 @@
-"""Anatomy of the Mona Lisa — a construction plate (FrameGraph SDK).
+"""Anatomy of the Mona Lisa — a construction plate (FrameForge SDK).
 
 Renders the essay's thesis: the portrait is *constructed* before it is painted.
 A stylized sfumato figure (earth palette, gradient modelling, atmospheric-
@@ -21,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import DocumentBuilder, Path, linear_gradient, radial_gradient, rgba  # noqa: E402
+from frameforge.sdk import DocumentBuilder, Path, linear_gradient, radial_gradient, rgba  # noqa: E402
 
 W, H = 980.0, 1400.0     # ~0.70 — close to the Mona Lisa's 0.66 trim
 SAN = "#a83f28"          # sanguine construction ink
@@ -271,13 +271,13 @@ def annotations():
     S.append(label(44, 58, "ANATOMY OF THE MONA LISA", size=30, color="#2c2318", weight=700, w=760))
     S.append(label(44, 94, "geometry becoming presence — proportions measured from the painting",
                    size=16, color="#5e4a30", italic=True, w=820))
-    S.append(label(44, H - 46, "Constructed with the FrameGraph SDK · landmarks via measure_image · after Leonardo",
+    S.append(label(44, H - 46, "Constructed with the FrameForge SDK · landmarks via measure_image · after Leonardo",
                    size=13, color="#cabb97", italic=True, w=860))
     return S
 
 
 def build_builder():
-    b = DocumentBuilder(title="Anatomy of the Mona Lisa — construction plate (FrameGraph)")
+    b = DocumentBuilder(title="Anatomy of the Mona Lisa — construction plate (FrameForge)")
     page = b.page("mona-lisa", canvas={"size": [W, H], "units": "px"}, coordinate_mode="absolute")
     layer = page.layer("plate")
     for group in (landscape(), figure(), construction(), annotations()):
@@ -293,7 +293,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from framegraph.sdk import serialize
+    from frameforge.sdk import serialize
     out = os.environ.get("OUTPUT_YAML_PATH", "mona_lisa_construction.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))
     print(f"wrote {out}")

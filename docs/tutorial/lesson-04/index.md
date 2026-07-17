@@ -4,7 +4,7 @@ disclaimer:
     No information within this document should be taken for granted.
     Any statement or premise not backed by a real logical definition
     or verifiable reference may be invalid, erroneous, or a hallucination.
-  generated_by: "Claude Opus 4.8 via Claude Code (FrameGraph MCP server)"
+  generated_by: "Claude Opus 4.8 via Claude Code (FrameForge MCP server)"
   date: "2026-07-15"
 title: "Lesson 04 — When not to reconstruct"
 ---
@@ -27,8 +27,8 @@ material."*
     <figcaption><em>Source screenshot</em></figcaption>
   </figure>
   <figure style="margin:0;flex:1">
-    <img src="render/reconstruction.png" alt="The FrameGraph chrome reconstruction: pillarbox, panel blocks, three gradient bands, message bar and text" style="width:100%">
-    <figcaption><em>FrameGraph — chrome only</em></figcaption>
+    <img src="render/reconstruction.png" alt="The FrameForge chrome reconstruction: pillarbox, panel blocks, three gradient bands, message bar and text" style="width:100%">
+    <figcaption><em>FrameForge — chrome only</em></figcaption>
   </figure>
 </div>
 
@@ -190,7 +190,7 @@ stand-in and is labelled as one.
 ```jsonc
 compare_images({
   reference: "docs/tutorial/lesson-04/target/lesson04.jpg",
-  candidate: "framegraph://session/lesson-04-chrome/page/1.png",
+  candidate: "frameforge://session/lesson-04-chrome/page/1.png",
   regions: [ { name: "pillarbox-L", box: [0, 0, 0.05, 1] },
              { name: "message-bar", box: [0.19, 0.86, 0.76, 0.14] },
              { name: "left-panel",  box: [0.05, 0, 0.10, 0.60] },
@@ -238,14 +238,14 @@ because NCC correlates *variation* and this reconstruction has none to correlate
 
 ## The honest verdict
 
-**This raster should not be reconstructed as a FrameGraph document, and no amount
+**This raster should not be reconstructed as a FrameForge document, and no amount
 of further work changes that.** The measurements say so before any craft
 judgement does:
 
 - **~10% of the image is flat colour** (the pillarbox, `dev 0.0`). Everything
   else has `dev` between 5.4 and 32.4.
 - **The 3D viewport is a rendered scene.** It carries no pixel grid (+0.17) and
-  no vector structure. It is the output of a renderer, and the FrameGraph
+  no vector structure. It is the output of a renderer, and the FrameForge
   document that would reproduce it is the game.
 - **The panels are hand-drawn pixel art** at 2× (`dev` 23–32). Six icons, a
   paper-doll, potions — each is an illustration, not a shape.

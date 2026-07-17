@@ -81,7 +81,7 @@ CATALOG: dict[str, list[tuple[str, str]]] = {
 
 
 def _request(url: str) -> bytes:
-    headers = {"User-Agent": "framegraph-install-fonts", "Accept": "application/vnd.github+json"}
+    headers = {"User-Agent": "frameforge-install-fonts", "Accept": "application/vnd.github+json"}
     token = os.environ.get("GITHUB_TOKEN")
     if token:
         headers["Authorization"] = f"Bearer {token}"
@@ -151,7 +151,7 @@ def _font_dir(dest: str | None) -> str:
     if dest:
         return os.path.expanduser(dest)
     if platform.system() == "Darwin":
-        return os.path.expanduser("~/Library/Fonts/framegraph")
+        return os.path.expanduser("~/Library/Fonts/frameforge")
     return os.path.expanduser("~/.local/share/fonts/fg")
 
 

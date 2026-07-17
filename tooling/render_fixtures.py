@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-render_fixtures.py — a dependency-free SVG proxy renderer for FrameGraph v2 docs.
+render_fixtures.py — a dependency-free SVG proxy renderer for FrameForge v2 docs.
 
 Renders ALL or ANY document under fixtures/ (or any path you pass) to SVG, one
 file per page, plus a browsable index.html contact sheet. Unlike the matplotlib
@@ -56,19 +56,19 @@ def _load_yaml_file(path):
             return yaml.load(fh, Loader=yaml.SafeLoader)
 
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-from framegraph.rendering.application.normalize import normalize_doc  # noqa: E402
-from framegraph.rendering.application.renderer import Renderer  # noqa: E402
-from framegraph.rendering.provenance import sign_svg, utc_now_iso  # noqa: E402
-from framegraph.rendering.domain.geometry import esc  # noqa: E402
+from frameforge.rendering.application.normalize import normalize_doc  # noqa: E402
+from frameforge.rendering.application.renderer import Renderer  # noqa: E402
+from frameforge.rendering.provenance import sign_svg, utc_now_iso  # noqa: E402
+from frameforge.rendering.domain.geometry import esc  # noqa: E402
 
-# ``normalize_doc`` was relocated into framegraph/rendering/application/normalize.py
+# ``normalize_doc`` was relocated into frameforge/rendering/application/normalize.py
 # so the package no longer imports up into tooling/. It is re-exported here for the
 # CLI and any callers that still import it from this module.
 __all__ = ["Renderer", "normalize_doc", "discover", "stem_of", "write_index", "main"]
 
 
 def discover(paths):
-    """Expand args (files / dirs / globs) into a sorted list of FrameGraph docs."""
+    """Expand args (files / dirs / globs) into a sorted list of FrameForge docs."""
     exts = (".json", ".yaml", ".yml")
     out = []
     if not paths:
@@ -88,7 +88,7 @@ def discover(paths):
         except Exception:
             continue
         d = normalize_doc(d)
-        if isinstance(d, dict) and d.get("dsl") == "FrameGraph" and d.get("pages"):
+        if isinstance(d, dict) and d.get("dsl") == "FrameForge" and d.get("pages"):
             rp = os.path.relpath(f, ROOT)
             if rp not in seen:
                 seen.add(rp); docs.append((f, d))
@@ -190,7 +190,7 @@ def main(argv=None):
         print(f"\n{len(docs)} document(s).")
         return 0
     if not docs:
-        print("No FrameGraph documents found. Try: render_fixtures.py --all", file=sys.stderr)
+        print("No FrameForge documents found. Try: render_fixtures.py --all", file=sys.stderr)
         return 1
 
     os.makedirs(args.out, exist_ok=True)
@@ -220,7 +220,7 @@ def main(argv=None):
                 fh.write(s)
             thumbs.append(f"{stem}/{fn}")
         write_index(doc_dir, [(stem, "", [f"p{i:03d}.svg" for i in range(1, len(svgs) + 1)])],
-                    f"FrameGraph proxy — {stem}", page_links=True)
+                    f"FrameForge proxy — {stem}", page_links=True)
         index_entries.append((stem, f"{stem}/index.html", thumbs))
         total_pages += len(svgs)
         for k, v in r.tstats.items():
@@ -232,7 +232,7 @@ def main(argv=None):
             ov = f"  ⚠ {r.tstats['uncontained']} text overflow" if r.tstats["uncontained"] else ""
             print(f"  {stem}: {len(svgs)} page(s){note}{ov}")
 
-    write_index(args.out, index_entries, "FrameGraph fixtures — SVG proxy contact sheet")
+    write_index(args.out, index_entries, "FrameForge fixtures — SVG proxy contact sheet")
     print(f"\nRendered {len(docs)} document(s), {total_pages} page(s) -> {args.out}")
     print(f"Open {os.path.join(args.out, 'index.html')}")
 

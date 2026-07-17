@@ -21,11 +21,11 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [os.path.join(ROOT, "docs", "models"), os.path.join(ROOT, "docs", "schema"), os.path.join(ROOT, "tooling")]
-# gen_docs imports the rendering package as `framegraph`; evict a models-module
+# gen_docs imports the rendering package as `frameforge`; evict a models-module
 # shadow first so its sdk import resolves the package (mirror of test_head.py).
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    sys.modules.pop("framegraph", None)
+    sys.modules.pop("frameforge", None)
 
 import gen_docs as G  # noqa: E402
 

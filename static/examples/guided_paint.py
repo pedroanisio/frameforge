@@ -1,6 +1,6 @@
 """Painter kit — render-safe atmosphere primitives for guided-draw compositions.
 
-This module is now a thin re-export of :mod:`framegraph.coach.paint`, which is the
+This module is now a thin re-export of :mod:`frameforge.coach.paint`, which is the
 canonical home for the painting layer (promoted into the coach so the colour
 stages — flat colours / shadows / highlights — share one implementation). Kept
 here so existing examples/tests that import ``guided_paint`` keep working.
@@ -12,7 +12,7 @@ Everything here survives rasterisation.
 """
 from __future__ import annotations
 
-from framegraph.coach.paint import (  # noqa: F401
+from frameforge.coach.paint import (  # noqa: F401
     darkest,
     fade,
     glow,

@@ -1,10 +1,10 @@
 {
-  "name": "framegraph-viewer",
+  "name": "frameforge-viewer",
   "version": "2.2.0",
   "private": true,
-  "description": "A React app that renders FrameGraph v2 documents — a coordinate-space scene-graph DSL for decks, diagrams, books, and letters. Ships with the esfera style-guide deck embedded as the live demo.",
+  "description": "A React app that renders FrameForge v2 documents — a coordinate-space scene-graph DSL for decks, diagrams, books, and letters. Ships with the esfera style-guide deck embedded as the live demo.",
   "license": "ISC",
-  "main": "framegraph-viewer.jsx",
+  "main": "frameforge-viewer.jsx",
   "scripts": {
     "build": "esbuild dev/entry.jsx --bundle --format=iife --jsx=automatic --loader:.jsx=jsx --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --asset-names=assets/[name]-[hash] --outfile=dev/bundle.js",
     "test": "node dev/schema-contract.mjs && node dev/fixture-coverage.mjs",

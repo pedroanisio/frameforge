@@ -1,20 +1,20 @@
-"""Itaú Unibanco 2023 mark — reconstructed in FrameGraph via the vision/MCP pipeline.
+"""Itaú Unibanco 2023 mark — reconstructed in FrameForge via the vision/MCP pipeline.
 
 Geometry recovered from static/refs/Itaú_Unibanco_logo_2023.svg.webp: the orange
 "pillow" squircle + the transparent-hole "itaú" wordmark were traced from the
-alpha channel (OpenCV RETR_TREE) and lowered to FrameGraph path objects; the
+alpha channel (OpenCV RETR_TREE) and lowered to FrameForge path objects; the
 i-dot is a true circle. Verified at 99.9% pixel-match (compare_images, NCC 0.998).
 Brand colour: #FF6200. This reproduces a registered trademark for reconstruction
 / tooling-demo purposes only.
 """
 import os
-from framegraph.sdk import DocumentBuilder, serialize
+from frameforge.sdk import DocumentBuilder, serialize
 
 ORANGE = "#FF6200"
 C = 1024
 
 def build():
-    b = DocumentBuilder(title="Itau Unibanco 2023 - FrameGraph reconstruction",
+    b = DocumentBuilder(title="Itau Unibanco 2023 - FrameForge reconstruction",
                         profile="deck", lang="en")
     pg = b.page("itau", canvas={"size": [C, C], "units": "px"},
                 coordinate_mode="absolute")

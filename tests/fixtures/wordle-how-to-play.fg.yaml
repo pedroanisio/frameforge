@@ -1,4 +1,4 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 profile: report
 title: Wordle — How To Play (fixture)
@@ -783,7 +783,7 @@ meta:
     text is transcribed from the supplied screenshot; the footer sentence is reproduced only to the visible clip point and
     is not completed by guess.
   source: 'User-supplied screenshot: 1782096105744.png'
-  requires_patch: framegraph-v2-patch-nesting-textfit.md — spec §3.6 (nested coords + layout box model) and §3.7 (text fit);
+  requires_patch: frameforge-v2-patch-nesting-textfit.md — spec §3.6 (nested coords + layout box model) and §3.7 (text fit);
     decisions 13–14
   patched_constructs_used:
   - 'GroupObject layout {kind: row} for the three tile rows (§3.6e)'

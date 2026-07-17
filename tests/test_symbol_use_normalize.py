@@ -39,7 +39,7 @@ def test_page_based_docs_expand_defs_symbols_before_rendering():
 
 def test_flow_object_symbol_uses_expand_before_rendering():
     doc = normalize_doc({
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "defs": {"symbols": {"badge": {"box": [0, 0, 80, 24], "objects": [
             {"type": "rect", "box": [0, 0, 80, 24], "fill": "#fff"},

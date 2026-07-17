@@ -1,4 +1,4 @@
-"""framegraph.patterns — the 375-pattern catalog + fill contract (issue #28).
+"""frameforge.patterns — the 375-pattern catalog + fill contract (issue #28).
 
 Absorbed from the sibling project's declarative slide-template system: the
 catalog and its 17 fill sidecars land as DATA, validated by strict Pydantic
@@ -24,7 +24,7 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
 from pydantic import ValidationError  # noqa: E402
 
-from framegraph.patterns import (  # noqa: E402
+from frameforge.patterns import (  # noqa: E402
     load_catalog,
     load_fill,
     load_sidecars,

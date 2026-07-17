@@ -123,9 +123,9 @@ cannot see. The residual noise traces to three render-only facts:
 (0.52×) the ink sits ~7px clear — so estimate-mode `make check` sees nothing.
 Under real Ember uppercase advances (~0.62×) the glyphs collide. **The overlap is
 the estimate-layout / real-render gap.** Only `render_text`
-(`src/framegraph/rendering/application/renderer.py:276`) — which computes
+(`src/frameforge/rendering/application/renderer.py:276`) — which computes
 `widest`, `top`, `total_h`, anchor with wrap and real metrics — can see it. The
-estimate constant is `src/framegraph/rendering/domain/services/text_fitter.py:36`.
+estimate constant is `src/frameforge/rendering/domain/services/text_fitter.py:36`.
 
 ---
 

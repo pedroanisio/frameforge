@@ -13,16 +13,16 @@ import sys
 import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 pytest.importorskip("PIL")
 
 from PIL import Image  # noqa: E402
 
-from framegraph.mcp.server import (  # noqa: E402
+from frameforge.mcp.server import (  # noqa: E402
     construct_vectors,
     map_coordinates,
     workspace,
@@ -58,15 +58,15 @@ def test_workspace_open_requires_image(tmp_path):
 
 
 def test_workspace_state_is_readable_as_a_resource(tmp_path):
-    """The persisted pins are exposed at framegraph://session/<id>/workspace.json."""
+    """The persisted pins are exposed at frameforge://session/<id>/workspace.json."""
     import json
 
-    from framegraph.mcp.sessions import read_session_resource
+    from frameforge.mcp.sessions import read_session_resource
 
     img = _png(tmp_path / "src.png")
     workspace("open", image=img, session_id="w", session_root=tmp_path)
     workspace("pin", points=[{"px": [12, 34], "id": "a"}], session_id="w", session_root=tmp_path)
-    payload = read_session_resource("framegraph://session/w/workspace.json", session_root=tmp_path)
+    payload = read_session_resource("frameforge://session/w/workspace.json", session_root=tmp_path)
     assert payload["mimeType"] == "application/json"
     state = json.loads(payload["text"])
     assert state["image_ref"] == img

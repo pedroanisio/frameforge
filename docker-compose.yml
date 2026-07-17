@@ -1,13 +1,13 @@
-# FrameGraph SDK / MCP — font-rich container.
+# FrameForge SDK / MCP — font-rich container.
 #
 #   docker compose build                    # build the image (see build args below)
-#   docker compose run --rm framegraph fonts   # list installed families
-#   docker compose run --rm framegraph bash    # interactive shell in the toolchain
+#   docker compose run --rm frameforge fonts   # list installed families
+#   docker compose run --rm frameforge bash    # interactive shell in the toolchain
 #
 # The MCP server talks stdio, so a real MCP client should spawn `docker run -i`
 # directly (see docker/mcp.docker.json); this file is for build + one-shot use.
 services:
-  framegraph:
+  frameforge:
     build:
       context: .
       dockerfile: Dockerfile
@@ -24,7 +24,7 @@ services:
     stdin_open: true
     tty: false
     volumes:
-      - framegraph-work:/work
+      - frameforge-work:/work
       # Foreign-codebase convention (see docker/mcp.docker.json): mount the
       # consuming project read-only at /workspace and reference its files in
       # tool calls as /workspace/<relative-path>.
@@ -32,4 +32,4 @@ services:
     command: ["mcp"]
 
 volumes:
-  framegraph-work:
+  frameforge-work:

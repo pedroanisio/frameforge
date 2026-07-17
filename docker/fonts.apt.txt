@@ -1,4 +1,4 @@
-# docker/fonts.apt.txt — Debian font packages installed into the FrameGraph image.
+# docker/fonts.apt.txt — Debian font packages installed into the FrameForge image.
 #
 # This is the script/CJK/emoji/symbol coverage that the google/fonts corpus
 # (installed separately, see docker/collect-google-fonts.sh) does NOT ship well:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for live FrameGraph figure imports."""
+"""Tests for live FrameForge figure imports."""
 from __future__ import annotations
 
 import os
@@ -9,11 +9,11 @@ import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (
+from frameforge.sdk import (
     DocumentBuilder,
     FigureAsset,
     FigureProvenance,
@@ -23,7 +23,7 @@ from framegraph.sdk import (
     place_imported_figure,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules
+from frameforge.sdk.validate import validate_static_rules
 
 
 def _plate(builder: DocumentBuilder) -> int:
@@ -116,7 +116,7 @@ def test_place_imported_figure_preserves_provenance_caption_and_geometry():
     )
 
     group = placement.group
-    figure_meta = group["meta"]["framegraph.figure"]
+    figure_meta = group["meta"]["frameforge.figure"]
     image, caption = group["children"]
     assert group["id"] == "import-bio-fig-1-1"
     assert image["type"] == "image"
@@ -154,6 +154,6 @@ def test_page_builder_imported_figure_lowers_to_valid_group():
     doc = builder.build()
     obj = doc.pages[0].layers[0].objects[0]
     assert obj.type == "group"
-    assert obj.meta["framegraph.figure"]["provenance"]["format"] == "epub"
+    assert obj.meta["frameforge.figure"]["provenance"]["format"] == "epub"
     report = validate_static_rules(doc)
     assert report.ok, report.issues

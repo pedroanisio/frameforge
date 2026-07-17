@@ -5,24 +5,24 @@ Previously ``_inline_text`` escaped a ``Span``'s text and dropped its ``style``,
 so emphasis silently vanished from flow documents. The backend now resolves the
 span style (token name or inline dict) and emits ``\\textbf`` / ``\\textit``.
 
-Renderer-only import (the ``framegraph`` package must win) — evict a
+Renderer-only import (the ``frameforge`` package must win) — evict a
 models-module shadow first, per test_render_cli.py.
 """
 import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
 
 
 def _doc(spans, text_styles=None):
     return {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "profile": "book",
         "title": "emphasis",

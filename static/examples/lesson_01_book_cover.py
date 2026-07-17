@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Tutorial lesson 01 — reconstruct a photographed book cover as FrameGraph vectors.
+"""Tutorial lesson 01 — reconstruct a photographed book cover as FrameForge vectors.
 
 The target is a photograph of the cloth binding of *Typesetting: A Primer of
 Information About Working at the Case* (A. A. Stewart, 1918), 444x669 px, at
 ``docs/tutorial/lesson-01/target/lesson-01.png``. This client rebuilds it as pure
-FrameGraph objects: no pixels from the source are pasted, every mark is a rect, a
+FrameForge objects: no pixels from the source are pasted, every mark is a rect, a
 gradient, a pattern or a text run that the validator can inspect.
 
 Every number below was *measured*, not eyeballed — the lesson at
@@ -37,17 +37,17 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     grid_pattern,
     hatch,
     linear_gradient,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # ---- measured constants ----------------------------------------------------
 W, H = 444, 669           # source raster size
@@ -140,7 +140,7 @@ def main():
             print(f"  {issue}")
         raise SystemExit("validation failed")
 
-    from framegraph.sdk import render_page_svgs, serialize
+    from frameforge.sdk import render_page_svgs, serialize
 
     out = os.path.join(ROOT, "_tmp", "lesson-01")
     os.makedirs(out, exist_ok=True)

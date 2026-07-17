@@ -1,4 +1,4 @@
-# FrameGraph v2 — CHANGELOG (HEAD)
+# FrameForge v2 — CHANGELOG (HEAD)
 
 **Version:** `2.4.1` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-03
 
@@ -47,9 +47,9 @@ invisible to MCP clients through the guide, and one ledger inconsistency:
 
 * **`color_guide` was missing from the capability manifest.** `chevreul.color_guide`
   is advertised in the guide, the `_HEADLINE_SURFACES` gate, and the server
-  handshake, but was never re-exported from `framegraph.sdk` — so the introspected
+  handshake, but was never re-exported from `frameforge.sdk` — so the introspected
   ledger (built from `sdk.__all__`) could not see it. Now re-exported top-level.
-* **`FRAMEGRAPH_GUIDE` was stale.** It now advertises the CG-canon geometry batch
+* **`FRAMEFORGE_GUIDE` was stale.** It now advertises the CG-canon geometry batch
   (`bezier_patch`/`bspline_patch`, 3-D + curve intersections, `surface_curvature`,
   `convex_hull_3d`/`aabb3`/`obb`, `window_to_viewport`/`ViewingPipeline`, the named
   manifold surfaces, and `Scene3D.render(near_clip=)`), plus the previously
@@ -117,7 +117,7 @@ No schema change (§A.0). B1 residual closed; robust clip/cull/depth remain B2.
 
 Closes B5's last documented residual — the B-spline half of "curved-surface
 patches". `bspline_patch(control, ...)` and `bspline_patch_point(control, u, v)`
-in `framegraph.sdk.manifold` evaluate a uniform (non-clamped) bicubic B-spline
+in `frameforge.sdk.manifold` evaluate a uniform (non-clamped) bicubic B-spline
 surface over an m×n control net (m,n ≥ 4) by the tensor product of the uniform
 cubic basis, tessellating `steps_u × steps_v` quads into a `Scene3D`. Unlike a
 Bézier patch the surface does **not** interpolate its corner controls — it lies
@@ -127,14 +127,14 @@ Additive geometry, **no schema change** (§A.0). 6 red-first tests
 (`tests/test_manifold_bspline.py`) verify a planar net stays planar, the inward
 corner pull to known values, convex-hull containment, an interior bulge, the
 tessellation face count, and the too-small / ragged-net guards. Re-exported from
-`framegraph.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated. B5
+`frameforge.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated. B5
 residual closed (both Bézier and B-spline patches now ship).
 
 ## Unreleased — feat(sdk): B9 residual — parametric-surface curvature (CG-canon, 2026-07-05)
 
 Closes B9's last documented residual — surface curvature completes the
 curvature/arc-length family (curves already ship `CubicBezier.{curvature,
-arc_length}`). `surface_curvature(fn, u, v)` in `framegraph.sdk.geometry` returns
+arc_length}`). `surface_curvature(fn, u, v)` in `frameforge.sdk.geometry` returns
 the Gaussian curvature `K` and mean curvature `H` of a parametric surface
 `r(u,v)=fn(u,v)` via the first and second fundamental forms (Mortenson §8.5). The
 partial derivatives are central finite differences (step `h`); the induced normal
@@ -145,14 +145,14 @@ raises `ValueError`.
 Additive geometry, **no schema change** (§A.0). 5 red-first tests
 (`tests/test_geometry_surface_curvature.py`) verify the unit sphere, the
 1/R scaling on radius 2, a flat plane, a hyperbolic saddle (K=-4, H=0 at centre),
-and the degenerate-point guard. Re-exported from `framegraph.sdk`; `sdk-api.md` +
+and the degenerate-point guard. Re-exported from `frameforge.sdk`; `sdk-api.md` +
 `capability-manifest.json` regenerated. B9 residual closed — with B8 and B10 this
 turn, the CG-canon curvature / intersection / hull backlog is now residual-free.
 
 ## Unreleased — feat(sdk): B8 residual — line/segment × cubic Bézier intersection (CG-canon, 2026-07-05)
 
 Closes B8's last documented residual. `segment_curve_intersections(a0, a1, curve)`
-and `line_curve_intersections(a0, a1, curve)` in `framegraph.sdk.geometry` return
+and `line_curve_intersections(a0, a1, curve)` in `frameforge.sdk.geometry` return
 every point where a query segment / infinite line crosses a cubic Bézier. The
 solver is recursive de Casteljau subdivision (Mortenson §7): a sub-curve is pruned
 when all four control points lie on one side of the query line, otherwise it is
@@ -163,13 +163,13 @@ intersected — so a curve that meets the line up to three times yields all hits
 Additive geometry, **no schema change** (§A.0). 5 red-first tests
 (`tests/test_geometry_intersect_curve.py`) cover a straight cubic's exact crossing,
 a symmetric arch crossed twice, a clean miss, the bounded-segment-vs-infinite-line
-distinction, and a degenerate point query. Re-exported from `framegraph.sdk`;
+distinction, and a degenerate point query. Re-exported from `frameforge.sdk`;
 `sdk-api.md` + `capability-manifest.json` regenerated. B8 residual closed.
 
 ## Unreleased — feat(sdk): B10 residual — the 3D convex hull (CG-canon, 2026-07-05)
 
 Completes B10's last documented residual: `convex_hull_3d(points)` in
-`framegraph.sdk.geometry` returns the 3D hull as **outward-oriented triangular
+`frameforge.sdk.geometry` returns the 3D hull as **outward-oriented triangular
 faces** (each a tuple of three Vec3 whose normal points away from the centroid).
 Brute-force face enumeration — a triple is a hull face iff every other point lies
 on one side of its plane — O(n^4), intended for modest point counts (bounding a
@@ -179,12 +179,12 @@ no faces.
 Additive geometry, **no schema change**. 5 red-first tests
 (`tests/test_geometry_hull_3d.py`) verify a tetrahedron's four faces, that interior
 points are excluded, that every face is oriented outward, and that a cube keeps all
-eight corners and drops its centre. Re-exported from `framegraph.sdk`; `sdk-api.md`
+eight corners and drops its centre. Re-exported from `frameforge.sdk`; `sdk-api.md`
 + `capability-manifest.json` regenerated. B10 residual closed (3D hull done).
 
 ## Unreleased — feat(sdk): B5 — bicubic Bézier surface patches (CG-canon backlog, 2026-07-05)
 
-`framegraph.sdk.manifold` gains the curved-surface patch the CG-canon backlog
+`frameforge.sdk.manifold` gains the curved-surface patch the CG-canon backlog
 (Harrington Ch11) approved — unblocked by B2:
 
 - `bezier_patch_point(control, u, v)` — evaluate a bicubic Bézier surface at
@@ -198,7 +198,7 @@ Additive SDK, **no schema change**. 5 red-first tests (`tests/test_manifold_patc
 pin corner interpolation, that a coplanar control net gives a planar surface, that a
 raised interior bulges off the corner plane, the tessellation face count, and the
 4×4-net guard. Pixel-verified: a raised patch renders as a real curved, shaded
-solid. Re-exported from `framegraph.sdk`; `sdk-api.md` + `capability-manifest.json`
+solid. Re-exported from `frameforge.sdk`; `sdk-api.md` + `capability-manifest.json`
 regenerated. Roadmap backlog B5 -> DELIVERED (bicubic Bézier; B-spline patch the residual).
 
 ## Unreleased — docs(examples): the CG-canon capability showcase — a 60-page A4 book (2026-07-05)
@@ -211,7 +211,7 @@ shading work). Every figure is **live API output**: the reflections from
 `convex_hull`, the combs from `CubicBezier.curvature`, the fractals from
 `sdk.fractal`, and the shaded solids from `Scene3D.render(shading="phong")`.
 
-The book is itself a FrameGraph document — a multi-page A4 `mode: page` composition
+The book is itself a FrameForge document — a multi-page A4 `mode: page` composition
 authored through the SDK, validated against the model + static rules on build, and
 lowered to one vector PDF by `tooling/render_pdf.py`. `docs/examples.md`
 regenerated; the root render artifact is gitignored.
@@ -234,7 +234,7 @@ and that the highlight is **view-dependent** (weakens off-axis). `sdk-api.md` +
 
 ## Unreleased — feat(sdk): B10 (residual) — oriented bounding box + 3D AABB (CG-canon, 2026-07-04)
 
-Completes B10's documented residual in `framegraph.sdk.geometry`:
+Completes B10's documented residual in `frameforge.sdk.geometry`:
 
 - `obb(points)` — the **minimum-area oriented bounding box** as 4 corners
   (rotating calipers on the convex hull; the min-area rectangle shares an edge
@@ -245,13 +245,13 @@ Additive geometry, **no schema change**. 5 red-first tests
 (`tests/test_geometry_obb.py`) verify the OBB matches an axis-aligned rectangle,
 is **strictly tighter than the AABB for a rotated square** (area 2 vs 4), is never
 looser than the AABB in general, and that `aabb3` bounds 3D points. Re-exported
-from `framegraph.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated.
+from `frameforge.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated.
 Roadmap B10 residual: OBB + 3D AABB done (3D convex hull remains).
 
 ## Unreleased — feat(sdk): B8 (residual) — 3D plane / triangle intersections (CG-canon, 2026-07-04)
 
 Completes B8's documented residual (the 3D-plane and triangle intersections) in
-`framegraph.sdk.geometry` — foundational for 3D hit-testing, snapping, and B2's
+`frameforge.sdk.geometry` — foundational for 3D hit-testing, snapping, and B2's
 clip stage:
 
 - `ray_plane_intersection` / `segment_plane_intersection` — a plane as
@@ -261,7 +261,7 @@ clip stage:
 
 Additive geometry, **no schema change**. 7 red-first tests
 (`tests/test_geometry_intersect_3d.py`) pin the hits, the parallel/behind/short
-misses, and the barycentric boundary. Re-exported from `framegraph.sdk`;
+misses, and the barycentric boundary. Re-exported from `frameforge.sdk`;
 `sdk-api.md` + `capability-manifest.json` regenerated. Roadmap B8 residual: the
 3D-plane/triangle case is now done (curve intersections remain).
 
@@ -290,7 +290,7 @@ Roadmap backlog B2 → **DELIVERED** (robust projection + clip + cull; G4 residu
 
 ## Unreleased — feat(sdk): B1 — the formal viewing pipeline (CG-canon backlog, 2026-07-04)
 
-`framegraph.sdk.geometry` gains the named viewing pipeline the CG-canon backlog's
+`frameforge.sdk.geometry` gains the named viewing pipeline the CG-canon backlog's
 recommended first pull calls for (Harrington ¶43/Ch6/8) — the abstraction the ad-hoc
 coordinate handling in `Scene3D.render` was missing:
 
@@ -307,14 +307,14 @@ degenerate-window guard, near-plane clipping, and — the key one — that
 `ViewingPipeline` **reproduces the exact projection-fit `Scene3D.render` computes**
 (bounds → uniform scale → centre), proving the equivalence. Robust segment
 near-plane clipping, back-face culling, and depth ordering are B2 (which now has a
-clean coordinate seam to build on). Re-exported from `framegraph.sdk`; `sdk-api.md`
+clean coordinate seam to build on). Re-exported from `frameforge.sdk`; `sdk-api.md`
 + `capability-manifest.json` regenerated. Roadmap backlog B1 → **DELIVERED**
 (abstraction; adopting it inside `Scene3D.render` output-preservingly is a follow-on).
 
 ## Unreleased — feat(sdk): B4 — fractal / procedural generator (CG-canon backlog, 2026-07-04)
 
-New module `framegraph.sdk.fractal`: a small, deterministic **L-system + turtle**
-engine (Harrington Ch11, ¶39) that lowers self-similar curves to plain FrameGraph
+New module `frameforge.sdk.fractal`: a small, deterministic **L-system + turtle**
+engine (Harrington Ch11, ¶39) that lowers self-similar curves to plain FrameForge
 polylines — nothing here changes the schema (§A.0, the SDK computes and emits 2D):
 
 - `lsystem(axiom, rules, iterations)` — parallel string rewriting;
@@ -327,13 +327,13 @@ pin the string rewriting, the turtle coordinate maps, the **exact** Koch generat
 (the classic bump `(0,0)→(3,0)→(4.5, 3·sin60°)→(6,0)→(9,0)`), and the growth laws
 (Koch `4ⁿ` segments, Dragon `2ⁿ`). One real bug caught red-first: `[` was
 splitting the trunk polyline; the branch now saves/restores the trunk so it stays
-unbroken. Re-exported from `framegraph.sdk`; registered in the gen-docs module
+unbroken. Re-exported from `frameforge.sdk`; registered in the gen-docs module
 list, the MCP capability guide, and `test_mcp_capabilities`; `sdk-api.md` +
 `capability-manifest.json` regenerated. Roadmap backlog B4 → **DELIVERED**.
 
 ## Unreleased — feat(sdk): B10 — convex hull + computational-geometry primitives (CG-canon backlog, 2026-07-04)
 
-`framegraph.sdk.geometry` gains the comp-geometry primitives the CG-canon backlog
+`frameforge.sdk.geometry` gains the comp-geometry primitives the CG-canon backlog
 (Mortenson §21) approved — broad-phase bounding for B8, layout/packing, hit-test
 acceleration:
 
@@ -347,12 +347,12 @@ Additive SDK, **no schema change**. 8 red-first tests
 (`tests/test_geometry_hull.py`) verify the hull against a **brute-force O(n³)
 oracle** on a non-collinear set, pin the collinear/duplicate/degenerate
 conventions, assert the returned ring is convex, and check the signed-area sign
-flip. Re-exported from `framegraph.sdk`; `sdk-api.md` + `capability-manifest.json`
+flip. Re-exported from `frameforge.sdk`; `sdk-api.md` + `capability-manifest.json`
 regenerated. Roadmap backlog B10 → **DELIVERED** (2D; 3D hull + OBB the residual).
 
 ## Unreleased — feat(sdk): B9 — curvature & arc-length for curves (CG-canon backlog, 2026-07-04)
 
-`framegraph.sdk.geometry.CubicBezier` gains the differential-geometry surface the
+`frameforge.sdk.geometry.CubicBezier` gains the differential-geometry surface the
 CG-canon backlog (Mortenson §6.7) approved — it upgrades tessellation/outline and
 aids the B5 patch work:
 
@@ -368,12 +368,12 @@ each other: a straight-line cubic has κ ≡ 0 and length == chord; the κ
 quarter-circle Bézier integrates to ≈ π/2 with curvature ≈ 1/R at its midpoint;
 mirror-bent cubics have opposite-signed curvature; and every arc length lies
 strictly between its chord and its control-polygon length. Re-exported from
-`framegraph.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated. Roadmap
+`frameforge.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated. Roadmap
 backlog B9 → **DELIVERED**.
 
 ## Unreleased — feat(sdk): B8 — 2D geometric-intersection primitives (CG-canon backlog, 2026-07-04)
 
-`framegraph.sdk.geometry` gains the intersection primitives the CG-canon backlog
+`frameforge.sdk.geometry` gains the intersection primitives the CG-canon backlog
 flags as foundational for hit-testing / snapping / clipping:
 
 - `line_intersection(a0, a1, b0, b1)` — the two infinite lines' crossing;
@@ -391,12 +391,12 @@ Additive SDK, **no schema change**. 12 red-first tests
 (`tests/test_geometry_intersect.py`) cover crossings, T-junctions, shared
 endpoints, the segment-vs-line distinction (a pair whose *lines* cross but whose
 *segments* don't reach), ray direction, and polygon entry/exit. Re-exported from
-`framegraph.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated. Roadmap
+`frameforge.sdk`; `sdk-api.md` + `capability-manifest.json` regenerated. Roadmap
 backlog B8 → **DELIVERED** (2D core).
 
 ## Unreleased — feat(sdk): B7 — reflection / mirror transform (CG-canon backlog, 2026-07-04)
 
-`framegraph.sdk.geometry` gains the reflection transform the CG-canon backlog
+`frameforge.sdk.geometry` gains the reflection transform the CG-canon backlog
 (Mortenson §3.6) approved:
 
 - `Mat3.reflect(axis)` — the reflection matrix across the x-axis (`"x"`, `y→-y`),
@@ -410,7 +410,7 @@ Additive SDK, **no schema change** (§A.0 — the SDK computes, the document
 receives plain 2D geometry). 8 red-first tests (`tests/test_geometry_reflect.py`)
 pin the coordinate maps *and* the two structural invariants — reflection is
 orientation-reversing (`det == -1`) and an involution (`reflect ∘ reflect == I`).
-Re-exported from `framegraph.sdk`; `sdk-api.md` + `capability-manifest.json`
+Re-exported from `frameforge.sdk`; `sdk-api.md` + `capability-manifest.json`
 regenerated. Roadmap backlog B7 → **DELIVERED**.
 
 ## Unreleased — feat(dx): `.pre-commit-config.yaml` — the same gate, earlier (§16 row 6, 2026-07-04)
@@ -509,23 +509,23 @@ motion).
 ## Unreleased — fix(tooling): repair the package-emit checker for the src layout (2026-07-04)
 
 `tooling/check_package_readiness.py` went stale in the 2026-07-02 folder
-refactor. It still inspected `ROOT/framegraph`, `ROOT/models`, `ROOT/schema`
-— paths that moved to `src/framegraph`, `docs/models`, `docs/schema` — so it
+refactor. It still inspected `ROOT/frameforge`, `ROOT/models`, `ROOT/schema`
+— paths that moved to `src/frameforge`, `docs/models`, `docs/schema` — so it
 passed *vacuously* over locations that no longer exist and emitted a **false
 verdict**:
 
-- it **dropped a live blocker** — `docs/models/framegraph.py` still shadows the
-  `framegraph` dist name, but the checker looked in the empty `ROOT/models` and
+- it **dropped a live blocker** — `docs/models/frameforge.py` still shadows the
+  `frameforge` dist name, but the checker looked in the empty `ROOT/models` and
   reported "no collision"; and
 - it **reported a closed gap as open** — row 7 landed
-  `framegraph.__version__` in `src/framegraph/__init__.py` (2026-07-04), but the
-  checker read the nonexistent `ROOT/framegraph/__init__.py` and still flagged
+  `frameforge.__version__` in `src/frameforge/__init__.py` (2026-07-04), but the
+  checker read the nonexistent `ROOT/frameforge/__init__.py` and still flagged
   the `__version__` gap.
 
 A verification tool that inspects a moved path passes vacuously — the PALS's-Law
 failure mode (a broken verification layer is a design defect, not a runtime bug).
 
-Fixed at root: the checker now inspects the live `src/framegraph` package and the
+Fixed at root: the checker now inspects the live `src/frameforge` package and the
 `docs/models`/`docs/schema` reference sources. Its verdict is true again —
 **3 blockers, 2 gaps** (was mis-reporting 2 blockers, 3 gaps). New regression
 `tests/test_package_readiness.py` pins the corrected verdict and guards the
@@ -556,9 +556,9 @@ their presence. Closed at root:
   silently miss the grammar again. grammar-check stays green (the new type
   is one more non-blocking out-of-profile WARN: 29→30, 0 errors).
 
-## Unreleased — chore: runtime `framegraph.__version__` + `make release` (§16 row 7, 2026-07-04)
+## Unreleased — chore: runtime `frameforge.__version__` + `make release` (§16 row 7, 2026-07-04)
 
-Closes the runtime-version half of the package-emit gap. `framegraph.__version__`
+Closes the runtime-version half of the package-emit gap. `frameforge.__version__`
 is now a real attribute on the package — a fifth version literal that `make bump`
 moves in lockstep and `tests/test_docs_in_sync.py` gates against `[project]
 version`, so the package can report its own version and it can never drift. A
@@ -628,7 +628,7 @@ unmoved).
 
 ## Unreleased — item 8: the Book composition API (2026-07-03)
 
-`framegraph.sdk.book` — the semantic authoring layer above pages
+`frameforge.sdk.book` — the semantic authoring layer above pages
 (roadmap implementation-sequence step 5; zero grammar change):
 `BookBuilder(title=, author=)` composes front matter and
 chapters/sections into ONE validated flow document, lowered through
@@ -679,7 +679,7 @@ Also in this patch: the **`DocumentRenderer` output port** (hexagonal seam)
 scripts; one registry adapter per `--to` target
 (`tests/test_document_backends.py` locks the contract).
 
-`framegraph.sdk.planar` — one expansion-tier kernel closes five rows, zero
+`frameforge.sdk.planar` — one expansion-tier kernel closes five rows, zero
 schema change (§A.0: the SDK computes, documents receive even-odd `path`
 objects): **booleans** `union`/`intersect`/`subtract`/`divide`
 (Greiner–Hormann on flattened rings; degenerate touching/shared-edge inputs
@@ -732,7 +732,7 @@ reachable 75 %).
 
 ## Unreleased — parity W2: the stroke-outline engine + curve/type finesse (2026-07-03, issue #46)
 
-`framegraph.sdk.outline` — one shared filled-outline emitter closes three
+`frameforge.sdk.outline` — one shared filled-outline emitter closes three
 verdicts and two finesse rows, all at author time (nothing new enters the
 schema): `stroke_outline(points, width, …)` lowers a stroke centre-line to
 a CLOSED filled `path` — constant width is Outline Stroke (AI-48 NONE→HAS),
@@ -814,7 +814,7 @@ The measure==render loop is closed, host-independently
   substitution is banned (PALS's Law applied to fonts: an unverified
   measurement is a defect).
 - **`fg-font` is a real console command**: implementation moved in-package
-  (`framegraph.fontpack`), registered under `[project.scripts]` — resolves
+  (`frameforge.fontpack`), registered under `[project.scripts]` — resolves
   after install (this tree stays a virtual project, where the
   `tooling/fg_font.py` launcher and `make font-*` targets keep working).
   `--list` resolvable families · `--check DOC` determinism gate · `--pack
@@ -850,7 +850,7 @@ wrap point). 10 red-first tests (`tests/test_codemod_v01.py`); recipe at
 
 ## Unreleased — content library: themes, symbol packs, generators (2026-07-03, issue #32)
 
-`framegraph.library` — the predecessor project's content library absorbed
+`frameforge.library` — the predecessor project's content library absorbed
 as committed v2 data (§13 bounded context). 7 consulting token packs
 (`bain`/`bcg`/`deloitte`/`ey`/`kpmg`/`mckinsey`/`pwc`) translated to
 `defs.tokens` fragments; 4 symbol packs (`covers`, `sections`, `shared`,
@@ -871,7 +871,7 @@ runnable `static/examples/library_showcase.py`. Docs: `docs/library.md`.
 ## Unreleased — backend-neutral flow layout · Knuth–Plass + hyphenation (2026-07-02)
 
 Flow-mode prose gets a single backend-neutral layout engine
-(`framegraph.rendering.domain.services.flow_layout`); see
+(`frameforge.rendering.domain.services.flow_layout`); see
 [ADR-0003](docs/adr-0003-backend-neutral-flow-layout.md). *Own the breaks, delegate
 the spacing.*
 
@@ -906,7 +906,7 @@ the spacing.*
 
 ## Unreleased — pattern compose: filled patterns become pages (2026-07-02, issue #29)
 
-`framegraph.patterns.compose(pattern_id, fill)` bridges the #28 catalog to
+`frameforge.patterns.compose(pattern_id, fill)` bridges the #28 catalog to
 rendered output: payload validated through the fill contract first (layout
 never runs on unvalidated content), zone boxes computed deterministically
 from the anchor vocabulary (column bands / quadrant grids / mixed BMC
@@ -921,7 +921,7 @@ Sample: `static/examples/pattern_compose_deck.py`. 6 red-first tests.
 
 ## Unreleased — pattern catalog + fill contract absorbed as data (2026-07-02, issue #28)
 
-New bounded context `framegraph.patterns`: the predecessor's 375-pattern
+New bounded context `frameforge.patterns`: the predecessor's 375-pattern
 slide-template catalog and 17 fill sidecars land as committed data with a
 strict Pydantic contract — controlled vocabularies for zone size / placement /
 content_type, `load_fill` deriving a typed `{role: content}` payload model per
@@ -941,7 +941,7 @@ lowering (one inline parser, not two). Hand-rolled line parser, no new
 dependency. Covered: headings, paragraphs, lists (model has no nested list —
 sub-items fold into the parent as marked continuation lines), GFM tables,
 fenced code, blockquotes (`block` with `role: blockquote`), image paragraphs,
-thematic breaks → page breaks, YAML front-matter; the ```framegraph pattern
+thematic breaks → page breaks, YAML front-matter; the ```frameforge pattern
 directive degrades to a structured warning until the fill/render bridge
 (#29). Output is schema-validated before it is returned (PALS). The CLI
 front door accepts `.md` inputs directly and writes the intermediate
@@ -950,17 +950,17 @@ front door accepts `.md` inputs directly and writes the intermediate
 
 Three src-layout refactor casualties in the CLI path, fixed at root:
 
-- `framegraph.sdk.model` falls back to deriving `<repo>/docs` from its own
+- `frameforge.sdk.model` falls back to deriving `<repo>/docs` from its own
   location when `models` is not importable (callers with PYTHONPATH win; the
   fallback only appends) — the `ModuleNotFoundError: models` crash is gone
-- `framegraph.cli` derives ROOT for the src layout, so default output goes to
+- `frameforge.cli` derives ROOT for the src layout, so default output goes to
   `<repo>/out/render-cli`, not `src/out/`
-- new `tooling/framegraph_render.py` launcher: the working front door for the
-  virtual project (`uv run python tooling/framegraph_render.py doc --to svg`),
-  self-bootstrapping, any CWD, no PYTHONPATH; delegates to `framegraph.cli`.
+- new `tooling/frameforge_render.py` launcher: the working front door for the
+  virtual project (`uv run python tooling/frameforge_render.py doc --to svg`),
+  self-bootstrapping, any CWD, no PYTHONPATH; delegates to `frameforge.cli`.
   The `[project.scripts]` entry stays inert by the §2 packaging decision (the
   session's earlier "working" console script was a stale pre-refactor venv
-  artifact). The docker entrypoint's `framegraph-render` verb now maps to the
+  artifact). The docker entrypoint's `frameforge-render` verb now maps to the
   module form (the image sets PYTHONPATH)
 - pyproject/AGENTS/codebase-standards §2 advice updated; 4 red-first tests
 
@@ -971,13 +971,13 @@ Two pure-helper modules codify working design rules for document authors
 change. Surfaced in the SDK guide/API snapshots, the capability manifest, and
 the MCP guide's module catalog.
 
-- `framegraph.sdk.chevreul` — the 12-station painter's wheel + `complement`,
+- `frameforge.sdk.chevreul` — the 12-station painter's wheel + `complement`,
   Chevreul tone scales, the six harmonies, WCAG 2.1 `relative_luminance` /
   `contrast_ratio` (the numeric primitives for text-on-ground legibility and
   the #44 diagnostics work), `grey_document` (the tone audit), and
   `closed_palette` with duties + the 62/30/8 area guide emitting a
   `defs.tokens.colors` fragment.
-- `framegraph.sdk.canon` — `modular_scale`, Johnston's margin canon
+- `frameforge.sdk.canon` — `modular_scale`, Johnston's margin canon
   (`johnston_margins` / recto-verso `content_box`), the 45–75 measure band,
   `caps_tracking`.
 - **Canonical fixtures** `tests/fixtures/chevreul-harmonies.fg.yaml` and
@@ -1022,7 +1022,7 @@ ephemeral SDK clients). Gated by `tests/test_docker_contract.py` and
 `tests/test_mcp_edit_roots.py`.
 
 - **Edit roots may leave the repo** (behavior change): explicitly configured
-  absolute `FRAMEGRAPH_MCP_EDIT_ROOTS` entries are honored literally — the
+  absolute `FRAMEFORGE_MCP_EDIT_ROOTS` entries are honored literally — the
   image sets `/work/clients:/app/static/examples`, so `write_sdk_client` with
   a **bare filename** creates on the persistent volume and survives `--rm`.
   Bare names are searched across roots (a miss is now `FileNotFoundError`,
@@ -1030,13 +1030,13 @@ ephemeral SDK clients). Gated by `tests/test_docker_contract.py` and
   repo-relative rejection. Out-of-repo paths are reported absolute.
 - **Foreign-codebase wiring** (`docker/mcp.docker.json`): the consuming
   project mounts read-only at `/workspace` (tool calls reference
-  `/workspace/<path>`), with `FRAMEGRAPH_MCP_INPUT_ROOTS=/workspace:/work:/app`
+  `/workspace/<path>`), with `FRAMEFORGE_MCP_INPUT_ROOTS=/workspace:/work:/app`
   confining propose inputs.
 - **Freshness is detectable**: a `version` entrypoint verb (package +
   `HEAD_VERSION` + build stamp), an OCI version label wired by
   `make docker-build`, and `PYTHONPATH=/app/src:/app/docs` fixing the
   post-refactor in-image imports.
-- **Installable consumption skill**: `skills/framegraph-mcp-docker/SKILL.md`.
+- **Installable consumption skill**: `skills/frameforge-mcp-docker/SKILL.md`.
 
 ## Unreleased — src-layout folder refactor (2026-07-02, complete)
 
@@ -1047,12 +1047,12 @@ them through this table):
 
 | Old | New |
 |---|---|
-| `framegraph/` | `src/framegraph/` |
+| `frameforge/` | `src/frameforge/` |
 | `models/`, `schema/`, `grammar/`, `spec/` | `docs/models/`, `docs/schema/`, `docs/grammar/`, `docs/spec/` |
 | `fixtures/` | `tests/fixtures/` |
 | `examples/` | `static/examples/` |
-| `framegraph_to_html.py`, root reports (`FIXTURE-STATUS.md`, `codebase-standards.md`, `request.md`, `architecture-map.*`) | `tooling/`, `docs/` |
-| `brand/`, `demo/`, `recipe/`, `POC-*.md` | retired from the tracked tree (regenerate brand assets via `static/examples/framegraph_logo.py`) |
+| `frameforge_to_html.py`, root reports (`FIXTURE-STATUS.md`, `codebase-standards.md`, `request.md`, `architecture-map.*`) | `tooling/`, `docs/` |
+| `brand/`, `demo/`, `recipe/`, `POC-*.md` | retired from the tracked tree (regenerate brand assets via `static/examples/frameforge_logo.py`) |
 
 Completion notes (refactor finished 2026-07-02):
 
@@ -1068,9 +1068,9 @@ Completion notes (refactor finished 2026-07-02):
   (`docs/codebase-standards.md` §3): brand assets are non-core and stay out
   of the tree by operator direction, so their comparison inputs are no
   longer tracked. The logo generator remains
-  (`static/examples/framegraph_logo.py`, now writing to `_tmp/brand/`).
+  (`static/examples/frameforge_logo.py`, now writing to `_tmp/brand/`).
 - **Golden determinism fix:** golden renders now pin
-  `FRAMEGRAPH_MATH_SVG=fallback` (scoped, restored) so lock hashes no longer
+  `FRAMEFORGE_MATH_SVG=fallback` (scoped, restored) so lock hashes no longer
   depend on whether the optional node + `viewer/node_modules` MathJax
   toolchain resolves on the machine running the gate.
 - mkdocs strict build made meaningful again: repo-file deep links from site
@@ -1100,7 +1100,7 @@ One coordinated pass over the whole tree, executed as six parallel batches.
 
 ## 2.2.0 — MCP measurement layer, coach, region toolkit, Docker runtime (2026-06-25 → 2026-07-01)
 
-Additive `framegraph/mcp/`, `framegraph/vision/`, `framegraph/coach/`, SDK, and
+Additive `frameforge/mcp/`, `frameforge/vision/`, `frameforge/coach/`, SDK, and
 runtime changes; no model or schema change. Retro-documents the feature commits
 between 2026-06-25 and 2026-07-01 that previously had no CHANGELOG entry.
 (Entry generated by Claude Fable 5 via Claude Code.)
@@ -1127,7 +1127,7 @@ between 2026-06-25 and 2026-07-01 that previously had no CHANGELOG entry.
 - Region toolkit: `select_in` / `place_region` / `region_grade` /
   `extract_objects` / `object_bbox` / `gradient_map` (`29f8f71`).
 
-**Coach (`framegraph.coach`):**
+**Coach (`frameforge.coach`):**
 - Vector Construction Coach package: style-grammar, layer-order rules,
   silhouette gate (+ MCP flag), SVG ingest/clean, figure-proportion helpers
   (`bc8c3b8`, `a5a39d1`, `991da7e`, `24bde8b`).
@@ -1143,11 +1143,11 @@ Additive refactor + MCP changes; no model, schema, or core-renderer behaviour ch
 
 **Rendering boundary (the inverted dependency, tension #1):**
 - `normalize_doc` + its legacy-`use`/deck helpers moved verbatim from
-  `tooling/render_fixtures.py` to `framegraph/rendering/application/normalize.py`;
+  `tooling/render_fixtures.py` to `frameforge/rendering/application/normalize.py`;
   `tooling` re-exports `normalize_doc` for its CLI. With the `Renderer` already relocated
-  to `framegraph/rendering/application/renderer.py`, `framegraph/sdk/conform.py` and
+  to `frameforge/rendering/application/renderer.py`, `frameforge/sdk/conform.py` and
   `rendering/infrastructure/latex/document.py` now import from the package, so
-  **`framegraph/` no longer imports up into `tooling/`.** `tests/test_package_boundary.py`
+  **`frameforge/` no longer imports up into `tooling/`.** `tests/test_package_boundary.py`
   pins it; `make package-check` drops from 4 blockers to 3 (the rest are the deliberate
   virtual-project decisions, §2).
 
@@ -1159,7 +1159,7 @@ Additive refactor + MCP changes; no model, schema, or core-renderer behaviour ch
 - `_render_size_guard` refuses an obviously-oversized document before the in-process
   render thread starts (generous, env-overridable page/object caps), bounding the work
   the un-killable daemon thread can do.
-- `FRAMEGRAPH_GUIDE` now names the `figure` import lane and `text_style()`; a new test
+- `FRAMEFORGE_GUIDE` now names the `figure` import lane and `text_style()`; a new test
   pins that the guide names the SDK's headline capabilities so it can't silently drift.
 
 ## 2.2.0 — SDK `text_style()` + package-readiness check (2026-06-24)
@@ -1168,24 +1168,24 @@ Additive SDK and tooling changes; no model, schema, or core-renderer change.
 (Generated by Claude Opus 4.8 via Claude Code.)
 
 **SDK ergonomics:**
-- New `framegraph.sdk.text_style()` constructor — names the ~12 text-relevant fields
+- New `frameforge.sdk.text_style()` constructor — names the ~12 text-relevant fields
   of the ~100-field `Style` bag under ergonomic kwargs and emits the *canonical* CSS
   field for each (`size`→`font_size`, `align`→`text_align`, `italic`→`font_style`),
   mirroring `stroke()`. Splats onto a text primitive or feeds `define_text_style()` /
-  `theme()`. Re-exported from `framegraph.sdk` and documented in `docs/sdk-api.md`.
+  `theme()`. Re-exported from `frameforge.sdk` and documented in `docs/sdk-api.md`.
 
 **Tooling:**
 - New `tooling/check_package_readiness.py` + `make package-check` — asserts whether the
   tree is ready to emit (build/publish) a package, split into hard *blockers* (a wheel
   would fail to build or import-break) and advisory *gaps* (the §16 `[Target]` ledger).
   Advisory only — deliberately **not** part of `make check`. Verdict today: **NOT READY**
-  (FrameGraph is a virtual project by design, `[tool.uv] package = false`) — 4 blockers,
-  including `framegraph/` importing the top-level `tooling` package, which would not ship
-  in a `framegraph` wheel.
+  (FrameForge is a virtual project by design, `[tool.uv] package = false`) — 4 blockers,
+  including `frameforge/` importing the top-level `tooling` package, which would not ship
+  in a `frameforge` wheel.
 
 **Analysis assets:**
 - `architecture-map.svg` (companion to `conceptual-analysis.md`) is now *authored through
-  the FrameGraph SDK* and rendered by the project's own SVG proxy, replacing the
+  the FrameForge SDK* and rendered by the project's own SVG proxy, replacing the
   hand-written SVG; `examples/architecture_map.py` is the reproducible source.
 
 ## 2.2.0 — MCP feedback loop: close the visual-verification gap + hardening
@@ -1195,7 +1195,7 @@ model never actually received a viewable image: SVG was emitted as an `image/svg
 content block (not a vision-decodable media type), PNG rasterization defaulted **off**,
 and when it was on but the browser backend was absent it failed **silently**. The loop
 was effectively blind. This release closes that gap and hardens the adapter. No model,
-schema, or core-renderer change — `framegraph/mcp/` and `framegraph/live/` only.
+schema, or core-renderer change — `frameforge/mcp/` and `frameforge/live/` only.
 (Generated by Claude Opus 4.8 via Claude Code.)
 
 **Visual verification (the headline):**
@@ -1210,14 +1210,14 @@ schema, or core-renderer change — `framegraph/mcp/` and `framegraph/live/` onl
 **Correctness & robustness:**
 - Rendering is wrapped in a structured guard: a renderer crash returns
   `ok:false` + `error` (validation still reported) rather than a raw traceback, and a
-  soft **render timeout** (`FRAMEGRAPH_MCP_RENDER_TIMEOUT`, default 30s) bounds response
+  soft **render timeout** (`FRAMEFORGE_MCP_RENDER_TIMEOUT`, default 30s) bounds response
   latency on pathological documents.
 - `propose_from_image` / `propose_from_document` degrade gracefully when the `vision`
   group is absent (friendly `ok:false`, not `ImportError`), and honor an **opt-in**
-  `FRAMEGRAPH_MCP_INPUT_ROOTS` confinement for hardened deployments.
+  `FRAMEFORGE_MCP_INPUT_ROOTS` confinement for hardened deployments.
 - `max_pages=0` now explicitly means **all pages** (documented), not "none".
 - The code-execution subprocess **strips likely-secret env vars** (`*KEY*`, `*TOKEN*`,
-  `*SECRET*`, …) unless `FRAMEGRAPH_MCP_KEEP_ENV` is set.
+  `*SECRET*`, …) unless `FRAMEFORGE_MCP_KEEP_ENV` is set.
 - The `run_sdk_client` fallback that locates a client's output YAML now diffs by
   **content hash**, not mtime, so a fixture merely `touch`-ed by another process is no
   longer mistaken for this run's output.
@@ -1237,8 +1237,8 @@ missing-vision-group degradation, and session list/cleanup.
 ## 2.2.0 — adopt the authoritative style module (gap #1, for real)
 
 A later batch supplied the two artifacts that were missing when 2.1.0 was cut: the
-**authoritative CSS style module** (`framegraph-v2-style.ebnf`) and the **base spec**
-(`framegraph-v2-spec.md`). 2.1.0 had *drafted* the style module by harvesting the
+**authoritative CSS style module** (`frameforge-v2-style.ebnf`) and the **base spec**
+(`frameforge-v2-spec.md`). 2.1.0 had *drafted* the style module by harvesting the
 renderer; this release **replaces that draft with the real module**, which is richer
 and differs in specifics. The architecture did not move — only the styling subsystem.
 
@@ -1262,7 +1262,7 @@ and differs in specifics. The architecture did not move — only the styling sub
 - Legacy shorthand (`font`/`size`/`weight`/`italic`/`align`/`v_align`/`radius`/`wrap`) is
   **accepted as sugar** for the canonical CSS names, so existing styles keep validating.
 - **Text-fit reconciliation (P2 Part C):** the delivered CSS module mirrored
-  `line_clamp`/`text_overflow`/`max_lines` but dropped the two non-CSS FrameGraph
+  `line_clamp`/`text_overflow`/`max_lines` but dropped the two non-CSS FrameForge
   autofit extensions. HEAD restores them on `Style`: `overflow` also accepts
   **`shrink_to_fit`** (beyond the CSS box values), and **`min_font_size`** (the autofit
   floor) is added back. These are the only HEAD additions to the authoritative module;
@@ -1305,24 +1305,24 @@ Five solver modules join the Python SDK, each lowering to a single core-model `g
 (so the geometric audit, which does not recurse into groups, stays silent) and each
 fully deterministic:
 
-- **`framegraph.sdk.topology`** — `Graph` node-link networks with `circular_layout`,
+- **`frameforge.sdk.topology`** — `Graph` node-link networks with `circular_layout`,
   `radial_layout`, `layered_layout` (DAG), `grid_layout`, and a seeded
   `spring_layout` (Fruchterman–Reingold). `render()` emits fitted edges, arrowheads
   and labels.
-- **`framegraph.sdk.geometry.Camera`** — a `look_at` + field-of-view perspective camera
+- **`frameforge.sdk.geometry.Camera`** — a `look_at` + field-of-view perspective camera
   composing a view/projection `Mat4` (plus `Mat4.look_at`/`perspective_fov`/`rotate_*`
   and `Camera.orbit`). `Scene3D.render()` now accepts a `Camera` and sorts faces by
   perspective-divided depth.
-- **`framegraph.sdk.draw.Material` + Scene3D lighting** — translucent material/style
+- **`frameforge.sdk.draw.Material` + Scene3D lighting** — translucent material/style
   fields (`opacity`, blend mode, filters) stay model-native, while optional
   `shading="lambert"` or `"gouraud"` bakes pure-Python light intensity into each
   face's emitted 2D fill.
-- **`framegraph.sdk.fields`** — `VectorField` (arrow grids) and `ScalarField`
+- **`frameforge.sdk.fields`** — `VectorField` (arrow grids) and `ScalarField`
   (`heatmap` + marching-squares `contours`).
-- **`framegraph.sdk.lattices`** — `lattice(kind, …)` for 2D (square/triangular/
+- **`frameforge.sdk.lattices`** — `lattice(kind, …)` for 2D (square/triangular/
   honeycomb) and 3D (cubic/bcc/fcc) crystals with nearest-neighbour bonds, rendered
   through the topology engine.
-- **`framegraph.sdk.manifold`** — perspective-ready parametric `Scene3D` surfaces:
+- **`frameforge.sdk.manifold`** — perspective-ready parametric `Scene3D` surfaces:
   `sphere`, `torus`, `mobius`, `klein_bottle`, `saddle`, and the `wave` interference
   heightfield.
 - **`tooling/render_chromium.py`** — optional Headless-Chromium raster path: reuse the
@@ -1347,7 +1347,7 @@ guide docs (`tooling/gen_docs.py`) now cover all five modules.
 > 2.1.0 record stands.
 
 
-> Honesty note (unchanged from the bundle's own stance): FrameGraph v2 is a
+> Honesty note (unchanged from the bundle's own stance): FrameForge v2 is a
 > **proposed, not-yet-conformantly-implemented** format. Everything here is a
 > design target to verify, not a shipped standard. What *is* verifiable in this
 > release: the schema is generated from the Pydantic models, and the validator +
@@ -1357,14 +1357,14 @@ guide docs (`tooling/gen_docs.py`) now cover all five modules.
 
 ## What HEAD is
 
-A single, internally-consistent cut of FrameGraph v2 that folds the whole patch
+A single, internally-consistent cut of FrameForge v2 that folds the whole patch
 series (P1–P4) and resolves the open gaps the complement identified:
 
-- **Models are the source of truth** (`models/framegraph.py`). The **JSON Schema is
+- **Models are the source of truth** (`models/frameforge.py`). The **JSON Schema is
   generated** from them (`schema/build_schema.py`), so the two cannot drift.
-- The **grammar** (`grammar/framegraph-v2.ebnf`) is one consolidated file =
+- The **grammar** (`grammar/frameforge-v2.ebnf`) is one consolidated file =
   base + P1 + P2 + P3 + P4 + the inlined CSS style module. The earlier
-  `framegraph-v2-revised.ebnf` (base+P1+P2) and the stray "v2.1" `framegraph-v2.ebnf`
+  `frameforge-v2-revised.ebnf` (base+P1+P2) and the stray "v2.1" `frameforge-v2.ebnf`
   are **superseded**.
 - The **validator** (`tooling/validate.py`) enforces the rules a schema can't
   express; the **codemod** (`tooling/codemod.py`) migrates documents to HEAD.
@@ -1489,9 +1489,9 @@ python3 tooling/codemod.py legacy.fg.yaml --in-place
 
 ## How the three prior documents relate
 
-- `FrameGraph-2.0.0-Specification.md` — the reverse-engineered spec (from the
-  renderer). **Provenance**; superseded by `spec/framegraph-v2-spec.md` at HEAD.
-- `FrameGraph-2.0.0-Specification-Complement.md` — the reconciliation that produced
+- `FrameForge-2.0.0-Specification.md` — the reverse-engineered spec (from the
+  renderer). **Provenance**; superseded by `spec/frameforge-v2-spec.md` at HEAD.
+- `FrameForge-2.0.0-Specification-Complement.md` — the reconciliation that produced
   these recommendations. **Provenance**; its §8 actions are resolved below.
 - This release implements those recommendations.
 
@@ -1500,7 +1500,7 @@ python3 tooling/codemod.py legacy.fg.yaml --in-place
 | # | Recommendation | Resolution at HEAD |
 |---|---|---|
 | 1 | Draft/promote the CSS style module (gap #1) | **Done.** `Style` + `BorderSide` drafted (harvested from the renderer) and inlined into the grammar + modelled in Pydantic. |
-| 2 | One canonical grammar; discard the stray | **Done.** `grammar/framegraph-v2.ebnf` is the single consolidated grammar; revised + stray superseded. |
+| 2 | One canonical grammar; discard the stray | **Done.** `grammar/frameforge-v2.ebnf` is the single consolidated grammar; revised + stray superseded. |
 | 3 | Generate the schema from Pydantic; extend to P3/P4 types | **Done.** Schema generated from the models (`Dimension`, `AssetDef`, `Caption`, `Sizing`, `Style` all present); `build_schema.py --check` enforces sync. |
 | 4 | Fold P3 + P4 into the grammar; run the stroke codemod | **Done.** Grammar carries P3/P4; codemod run on fixtures (17 strokes split). |
 | 5 | Rename `size` → `sizing` everywhere | **Done.** Models/schema/grammar use `sizing`; codemod renames legacy `size` objects. |

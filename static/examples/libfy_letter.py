@@ -20,8 +20,8 @@ from __future__ import annotations
 
 import math
 
-from framegraph.sdk import DocumentBuilder, paint
-from framegraph.sdk.macros import span
+from frameforge.sdk import DocumentBuilder, paint
+from frameforge.sdk.macros import span
 
 # ---------------------------------------------------------------- palette ----
 # One paper, one ink, one quiet grey, one rubric accent. Every hue has a duty;
@@ -175,7 +175,7 @@ page.text([COL_X, 900, COL_W, 30], "So capability compounds.",
 
 # --- colophon ----------------------------------------------------------------
 page.line([ML, 986], [MR, 986], **paint.stroke(1.0, color=HAIR))
-page.text([ML, 994, 320, 14], "FrameGraph v2  ·  docs/spec/libfy.md",
+page.text([ML, 994, 320, 14], "FrameForge v2  ·  docs/spec/libfy.md",
           style=ts(MICRO, family=INTER, color=GREY, letter_spacing=0.3))
 page.text([MR - 380, 994, 380, 14],
           "EB Garamond & Inter  ·  primitives only  ·  drawn by Claude Opus 4.8",

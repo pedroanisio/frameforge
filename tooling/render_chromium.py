@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Rasterize FrameGraph documents through headless Chromium.
+"""Rasterize FrameForge documents through headless Chromium.
 
 This renderer reuses the repository SVG proxy to produce one full-page SVG per
-FrameGraph page, then asks Chromium (via Playwright) to rasterize that SVG to
+FrameForge page, then asks Chromium (via Playwright) to rasterize that SVG to
 PNG. It is the fidelity path for browser-native paint semantics: CSS filters,
 blend modes, backdrop filters, masks and SVG filters.
 
@@ -24,7 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.infrastructure.browser import (  # noqa: E402
+from frameforge.rendering.infrastructure.browser import (  # noqa: E402
     BrowserRendererUnavailable,
     rasterize_svgs,
 )
@@ -54,7 +54,7 @@ def render_doc(path: str, doc: dict, out_dir: str, *, max_pages: int = 0, scale:
         scale=scale,
     )
     rels = [f"{stem}/{p.name}" for p in paths]
-    write_index(doc_dir, [(stem, "", [p.name for p in paths])], f"FrameGraph Chromium — {stem}", page_links=True)
+    write_index(doc_dir, [(stem, "", [p.name for p in paths])], f"FrameForge Chromium — {stem}", page_links=True)
     return rels
 
 
@@ -76,9 +76,9 @@ def main(argv=None) -> int:
     if args.font_pack:
         # Scope fontconfig to the pack BEFORE launching Chromium, and force real
         # metrics so the layout is measured with the packed faces too.
-        from framegraph.fontpack import scope_font_pack
+        from frameforge.fontpack import scope_font_pack
         scope_font_pack(args.font_pack)
-        os.environ.setdefault("FRAMEGRAPH_REAL_METRICS", "1")
+        os.environ.setdefault("FRAMEFORGE_REAL_METRICS", "1")
 
     docs = discover([] if args.all else args.paths)
     if args.list:
@@ -87,7 +87,7 @@ def main(argv=None) -> int:
         print(f"\n{len(docs)} document(s).")
         return 0
     if not docs:
-        print("No FrameGraph documents found. Try: render_chromium.py --all", file=sys.stderr)
+        print("No FrameForge documents found. Try: render_chromium.py --all", file=sys.stderr)
         return 1
 
     os.makedirs(args.out, exist_ok=True)
@@ -105,7 +105,7 @@ def main(argv=None) -> int:
         print(str(exc), file=sys.stderr)
         return 2
 
-    write_index(args.out, index_entries, "FrameGraph fixtures — Chromium raster contact sheet")
+    write_index(args.out, index_entries, "FrameForge fixtures — Chromium raster contact sheet")
     print(f"\nRendered {len(docs)} document(s), {total_pages} page(s) -> {args.out}")
     print(f"Open {os.path.join(args.out, 'index.html')}")
     return 0

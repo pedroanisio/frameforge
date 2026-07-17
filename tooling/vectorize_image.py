@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""CLI: a raster image → a layered FrameGraph vector base.
+"""CLI: a raster image → a layered FrameForge vector base.
 
-Wraps the ingestion front-end (``framegraph.vision.infrastructure.vectorize``)
-into a one-shot "drop a raster, get an editable FrameGraph document" command. The
+Wraps the ingestion front-end (``frameforge.vision.infrastructure.vectorize``)
+into a one-shot "drop a raster, get an editable FrameForge document" command. The
 result is layered — a ``region`` fill base, an ``outline`` line layer, and an OCR
 ``text`` layer — so each can be edited or restyled independently.
 
@@ -21,8 +21,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import DocumentBuilder  # noqa: E402
-from framegraph.vision.infrastructure.vectorize import (  # noqa: E402
+from frameforge.sdk import DocumentBuilder  # noqa: E402
+from frameforge.vision.infrastructure.vectorize import (  # noqa: E402
     ocr_text_objects,
     raster_to_objects,
 )
@@ -30,7 +30,7 @@ from framegraph.vision.infrastructure.vectorize import (  # noqa: E402
 
 def build_document(image, *, modes=("region",), colors=12, detail=0.004,
                    min_area=60.0, max_dim=1100, ocr=True, title=None):
-    """Build a layered FrameGraph DocumentBuilder from a raster image."""
+    """Build a layered FrameForge DocumentBuilder from a raster image."""
     builder = DocumentBuilder(title=title or os.path.basename(str(image)))
     layers: list[tuple[str, list]] = []
     w = h = None
@@ -40,7 +40,7 @@ def build_document(image, *, modes=("region",), colors=12, detail=0.004,
         layers.append((mode, objs))
     text = ocr_text_objects(image, max_dim=max_dim) if ocr else []
     if w is None:
-        from framegraph.vision.infrastructure.vectorize import image_size
+        from frameforge.vision.infrastructure.vectorize import image_size
         w, h = image_size(image)
     page = builder.page("traced", canvas={"size": [w, h], "units": "px"},
                         coordinate_mode="absolute")
@@ -60,7 +60,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("image", help="source raster (png/jpg/...)")
-    ap.add_argument("--out", default=None, help="write FrameGraph YAML here")
+    ap.add_argument("--out", default=None, help="write FrameForge YAML here")
     ap.add_argument("--svg-out", default=None, help="also render the first page to this SVG")
     ap.add_argument("--modes", default="region", help="comma list: region,outline")
     ap.add_argument("--colors", type=int, default=12, help="region: quantised colour count")
@@ -81,7 +81,7 @@ def main(argv=None) -> int:
         builder.write(args.out)
         print(f"  wrote {args.out}")
     if args.svg_out:
-        from framegraph.sdk import render_page_svgs
+        from frameforge.sdk import render_page_svgs
         os.makedirs(os.path.dirname(os.path.abspath(args.svg_out)), exist_ok=True)
         with open(args.svg_out, "w", encoding="utf-8") as fh:
             fh.write(render_page_svgs(builder.build())[0])

@@ -5,7 +5,7 @@ PDF: Info-dictionary metadata (title/subject/producer), the catalog /Lang, and
 an outline (bookmarks) built from the flow headings.
 
 Subprocess (not an in-process import): the rendering package is named
-`framegraph`, which would shadow the `framegraph` models module other tests
+`frameforge`, which would shadow the `frameforge` models module other tests
 import in a shared pytest process. The PDF read-back (pypdf) is in-process.
 """
 import json
@@ -23,7 +23,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 
 _DOC = {
-    "dsl": "FrameGraph", "version": "2.2.0",
+    "dsl": "FrameForge", "version": "2.2.0",
     "title": "Spectral Notes",
     "description": "A tiny flow document for PDF metadata tests",
     "lang": "en",
@@ -49,7 +49,7 @@ def _export_pdf(doc):
         out = os.path.join(td, "doc.pdf")
         with open(src, "w", encoding="utf-8") as fh:
             json.dump(doc, fh)
-        subprocess.run([sys.executable, "-m", "framegraph.cli", src, "--to", "pdf",
+        subprocess.run([sys.executable, "-m", "frameforge.cli", src, "--to", "pdf",
                         "--out", td, "--single", out], check=True, cwd=ROOT,
                        env={**os.environ, "PYTHONPATH": os.pathsep.join(
                            [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")])})
@@ -72,7 +72,7 @@ def test_pdf_carries_document_metadata():
     meta = reader.metadata
     assert meta.title == "Spectral Notes"
     assert meta.subject == "A tiny flow document for PDF metadata tests"
-    assert "FrameGraph" in (meta.producer or "")
+    assert "FrameForge" in (meta.producer or "")
     assert reader.trailer["/Root"].get("/Lang") == "en"
 
 
@@ -88,7 +88,7 @@ def test_pdf_outline_built_from_headings():
 
 
 def test_pdf_without_headings_has_no_outline():
-    doc = {"dsl": "FrameGraph", "version": "2.2.0", "title": "Plain",
+    doc = {"dsl": "FrameForge", "version": "2.2.0", "title": "Plain",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [200, 100]},
                       "layers": [{"id": "l", "objects": [
                           {"type": "rect", "box": [0, 0, 50, 50], "fill": "#123456"}]}]}]}

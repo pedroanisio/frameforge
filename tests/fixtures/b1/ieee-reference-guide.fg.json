@@ -1,11 +1,11 @@
 {
-  "dsl": "FrameGraph",
+  "dsl": "FrameForge",
   "version": "2.0.0",
   "profile": "report",
   "meta": {
     "title": "IEEE Reference Guide",
     "source": "IEEE Publishing Operations, Updated 12 August 2022, © 2020 IEEE",
-    "note": "Representative FrameGraph v2 replication: title page + generated contents + §I–§II.B + §III + §IV.A. List data (publishers, periodicals, full word list) sampled."
+    "note": "Representative FrameForge v2 replication: title page + generated contents + §I–§II.B + §III + §IV.A. List data (publishers, periodicals, full word list) sampled."
   },
   "lang": "en-US",
   "defs": {

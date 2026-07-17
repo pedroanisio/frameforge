@@ -3,7 +3,7 @@
 
 Exposes the SVG ingestion lane (until now reachable only by writing a Python
 client) as a first-class MCP verb, with optional region-level recolouring via the
-SDK :func:`framegraph.sdk.region.region_grade`.
+SDK :func:`frameforge.sdk.region.region_grade`.
 """
 from __future__ import annotations
 
@@ -11,12 +11,12 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.mcp.server import propose_from_svg  # noqa: E402
+from frameforge.mcp.server import propose_from_svg  # noqa: E402
 
 SVG = (
     '<svg viewBox="0 0 100 100">'

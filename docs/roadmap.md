@@ -1,22 +1,22 @@
 ---
-title: FrameGraph v2 — Roadmap
+title: FrameForge v2 — Roadmap
 version: 2.2.0 (analysis baseline; repo HEAD moved to 2.3.0 on 2026-07-01 — see the Record-era note)
 status: CANONICAL roadmap — sequence logic and priorities, still not dated commitments
 date: 2026-06-22 (analysis) · 2026-07-02 (made canonical; federated index added)
 method: >
   Gaps asserted against the EBNF + checked-in fixtures, then verified against the
-  authoritative Pydantic models (`models/framegraph.py`, HEAD 2.2.0), and benchmarked
+  authoritative Pydantic models (`models/frameforge.py`, HEAD 2.2.0), and benchmarked
   against real specs of analogous systems (Typst, Vega-Lite, D2/dagre/ELK, Mermaid,
   PlantUML, PDF/UA, PDF/X). Item 7 and Appendix A are additionally derived from
-  framegraph-v2.ebnf (PathObject, PolylineObject, ConnectorObject.Route, Point) and
-  framegraph-v2-style.ebnf (TransformFn, perspective, transform_origin).
+  frameforge-v2.ebnf (PathObject, PolylineObject, ConnectorObject.Route, Point) and
+  frameforge-v2-style.ebnf (TransformFn, perspective, transform_origin).
 disclaimer: >
   This is a forward-looking gap analysis, not a delivery plan. "Missing" means
   "not expressible in the grammar/fixtures as inspected"; the models are the
   source of truth and could narrow a gap. Priorities reflect how defensible and
   consequential each gap is, not committed scheduling. Appendix A **documents the
-  existing geometry/3D SDK** (`framegraph.sdk.{geometry,draw,manifold,fields}`) plus
-  the grammar fixes G-1 and G-2 (both landed); the TypeScript `@framegraph/*` names in it are
+  existing geometry/3D SDK** (`frameforge.sdk.{geometry,draw,manifold,fields}`) plus
+  the grammar fixes G-1 and G-2 (both landed); the TypeScript `@frameforge/*` names in it are
   illustrative sketches of the shipping Python API, and every formula's sign
   convention must be verified against your renderer before use (canvas space is
   Y-DOWN, origin top-left). NOTHING IN THE APPENDIX SHOULD BE TAKEN FOR GRANTED.
@@ -27,7 +27,7 @@ appendix_references:
   - "three.js: 3D scene graph — the comparator for *true* 3D (scope block LIFTED 2026-07-04 by operator course-correction — now an accepted direction; see Item 7 and A.0)"
 ---
 
-# FrameGraph v2 — Roadmap
+# FrameForge v2 — Roadmap
 
 !!! note "Canonical since 2026-07-02"
     Renamed from `roadmap-draft.md` and promoted to the **canonical roadmap**:
@@ -38,7 +38,7 @@ appendix_references:
 
 !!! warning "Record era"
     This record pre-dates two 2026-07 events. (1) The src-layout refactor —
-    read its paths through the mapping: `framegraph/` → `src/framegraph/`,
+    read its paths through the mapping: `frameforge/` → `src/frameforge/`,
     `models/`, `schema/`, `grammar/`, `spec/` → `docs/…`, `fixtures/` →
     `tests/fixtures/`, `examples/` → `static/examples/`. (2) The **2.3.0
     release** (2026-07-01, an additive improvement pass unrelated to the
@@ -47,7 +47,7 @@ appendix_references:
     is kept as written.
 
 !!! note "What this is"
-    A prioritized map of what FrameGraph cannot yet express, measured against the
+    A prioritized map of what FrameForge cannot yet express, measured against the
     EBNF and the checked-in fixtures and benchmarked against the published specs
     of comparable systems. Each item states the gap, the evidence, the comparator
     that closes it, and a proposed fix. Items 1, 2, and 4 are **partly built
@@ -73,7 +73,7 @@ tracked elsewhere and referenced here rather than duplicated:
 |---|---|---|
 | Product / format (this doc) | the phases below | auto-layout wiring, PDF/UA, BookBuilder, generative objects, the 2.x split + 3.0 single-source direction |
 | Engineering standards | [codebase-standards.md §16](codebase-standards.md) — the `[Target]` ledger | gating ruff (broaden past F811), `mypy --strict`, coverage gate, TDD trees, golden drift tolerance (rows 6 pre-commit, 7 `__version__`/release, 8 multi-version CI matrix + `classifiers` closed 2026-07-04) |
-| Operational (tracked work) | GitHub, pinned umbrellas | [#36 — absorb framegraph v0.1.0](https://github.com/pedroanisio/frameforge/issues/36) (pattern catalog + fill bridge, UML 2.5 + full Sugiyama, `from-markdown`, symbol/token packs, deck corpus); [#43 — rename framegraph → frameforge](https://github.com/pedroanisio/frameforge/issues/43) (ADR-gated, idempotent engine, three slices); [#44 — silent text-clip diagnostics](https://github.com/pedroanisio/frameforge/issues/44); [#52 — Adobe-suite parity programme](https://github.com/pedroanisio/frameforge/issues/52) (item 10 made executable: workstreams #45–#51, teardown re-render as the progress metric) |
+| Operational (tracked work) | GitHub, pinned umbrellas | [#36 — absorb frameforge v0.1.0](https://github.com/pedroanisio/frameforge/issues/36) (pattern catalog + fill bridge, UML 2.5 + full Sugiyama, `from-markdown`, symbol/token packs, deck corpus); [#43 — rename frameforge → frameforge](https://github.com/pedroanisio/frameforge/issues/43) (ADR-gated, idempotent engine, three slices); [#44 — silent text-clip diagnostics](https://github.com/pedroanisio/frameforge/issues/44); [#52 — Adobe-suite parity programme](https://github.com/pedroanisio/frameforge/issues/52) (item 10 made executable: workstreams #45–#51, teardown re-render as the progress metric) |
 | Core-wiring refine-pass findings (2026-07-05) | GitHub, refine audit | [#54 — SVG/PNG drops `ObjBase.rotation`](https://github.com/pedroanisio/frameforge/issues/54) (honored only by HTML; golden-gated); [#55 — `ObjBase.outer_ring` unimplemented](https://github.com/pedroanisio/frameforge/issues/55) (dropped on every backend); [#56 — pdf-tex effects only on rect/ellipse/circle](https://github.com/pedroanisio/frameforge/issues/56) (residual of #53); [#57 — guide under-advertises `FlowBuilder`/`svg_to_objects`/layout helpers](https://github.com/pedroanisio/frameforge/issues/57); [#58 — `regions.py __all__` over-export](https://github.com/pedroanisio/frameforge/issues/58). Wired-and-fixed in the same pass (no issue): MCP discoverability, typed edge-case errors + dead-code removal, `grid_span` layout. |
 | Version trajectory | [CHANGELOG](../CHANGELOG.md) + rename ADR ([#37](https://github.com/pedroanisio/frameforge/issues/37)) | HEAD 2.3.0 → 2.4 (both DSL markers accepted + codemod, additive) → 3.0 (marker hard cut — which can carry this doc's 3.0 single-source milestone) |
 | Font backend / render substrate | the sibling `ff-render-core` repo — `docs/roadmap-frameforge-font-server.md` | the font server's **own** build-out (persistence, Google ingestion, storage/caches, admin upload→validate→version, security, license enforcement, observability, GA). frameforge **consumes** it — the adoption seam and the 3.0 promotion are the *Font backend* section below, not that repo |
@@ -86,7 +86,7 @@ Brandes–Köpf — plus 14 UML composers); item 8's book-composition ambitions 
 a declarative on-ramp from the 375-pattern catalog + fill contract
 ([#28](https://github.com/pedroanisio/frameforge/issues/28)/[#29](https://github.com/pedroanisio/frameforge/issues/29))
 and from the content library — 7 consulting themes, 4 symbol packs, 2
-data-driven generators — delivered as `framegraph.library`
+data-driven generators — delivered as `frameforge.library`
 ([#32](https://github.com/pedroanisio/frameforge/issues/32), see
 [library.md](library.md));
 and the text-fitting diagnostics gap ([#44](https://github.com/pedroanisio/frameforge/issues/44))
@@ -94,7 +94,7 @@ is a prerequisite of trustworthy book pagination (item 8) — silent content
 loss and long-form composition cannot coexist.
 
 !!! info "Verification status"
-    Every gap below was checked against `models/framegraph.py` and the grammar at
+    Every gap below was checked against `models/frameforge.py` and the grammar at
     HEAD 2.2.0, not asserted from memory. Where the source contradicted the draft
     it was corrected (see item 1's container-layout note, the `uml.*` count, the
     refreshed model references for `widows`/`orphans` and `footnote_area`, and item 2,
@@ -103,7 +103,7 @@ loss and long-form composition cannot coexist.
 !!! warning "Re-grounded against the implementation (2026-06-24)"
     An earlier pass checked the **format** (model + EBNF + fixtures) but not the
     **implementation**, and so overstated four gaps that the SDK/renderer/tests
-    already fill. Capability questions live in `framegraph/sdk/*` and the renderer,
+    already fill. Capability questions live in `frameforge/sdk/*` and the renderer,
     not the wire format. Corrected here: **item 1** (graph layout already exists
     author-side in `sdk.topology`), **item 2** (SVG a11y is partly emitted by the
     SVG painter), **item 4** (`tests/test_golden_render.py` is a working
@@ -113,7 +113,7 @@ loss and long-form composition cannot coexist.
     in the core (model/grammar/schema/renderer) yet not yet exposed in the SDK** —
     these are distinct milestones, and SDK support trails core delivery by design
     (see `adr-0002-sdk-lags-core-delivery.md`). "The SDK ships X" is therefore
-    verified against `framegraph/sdk/`, never inferred from the model.
+    verified against `frameforge/sdk/`, never inferred from the model.
 
 ## Ground-truth status (audited 2026-06-24)
 
@@ -123,14 +123,14 @@ loss and long-form composition cannot coexist.
 
 | # | Item | Roadmap said | TRUE state (audited) | Evidence / what remains |
 |---|------|--------------|----------------------|-------------------------|
-| 4 | Conformance + golden render | gap | ✅ **DONE** | `tooling/render_golden.py`, `tests/golden/oracle.lock.json` (SHA-256 lock, CI-gated). **Tolerance band** added: exact hash primary + committed reference renders (`tests/golden/refs/`), numeric ±ε classifies cosmetic vs real drift (`--tolerance`/`--strict`). **Schema URL** versioned + resolvable-shaped (`…/schema/2.2.0/framegraph-v2.schema.json` + `version`). Residual: pixel/font/AA perceptual tolerance (raster-gated). |
+| 4 | Conformance + golden render | gap | ✅ **DONE** | `tooling/render_golden.py`, `tests/golden/oracle.lock.json` (SHA-256 lock, CI-gated). **Tolerance band** added: exact hash primary + committed reference renders (`tests/golden/refs/`), numeric ±ε classifies cosmetic vs real drift (`--tolerance`/`--strict`). **Schema URL** versioned + resolvable-shaped (`…/schema/2.2.0/frameforge-v2.schema.json` + `version`). Residual: pixel/font/AA perceptual tolerance (raster-gated). |
 | 2 | Accessibility / tagged export | gap | ✅ **SVG done**, PDF/UA open | `svg.py` a11y_wrap (decorative/role/alt/actual_text), root lang/title/desc, `tooling/check_accessibility.py`; tests. **2026-07-02:** reading-order *DOM ordering* was retired — DOM order IS paint order, and reordering emission painted listed content beneath unlisted backgrounds; `reading_order` now rides as `data-reading-order` metadata on the page group (paint order stays layer/z/document). PDF/UA awaits a PDF backend and must consume the metadata, not DOM order. |
 | 7 | Geometry / 3D authoring SDK | additive gap | ✅ **done** | `sdk/geometry.py` (A.1/A.2), `sdk/manifold.py`+Scene3D (A.5); **A.3** curve sampling, **A.4** structured log-base/pow-exp scales, **A.6** orthographic `multiview`, **G-1** typed structured path segments (model `PathSeg`/`PathCommand` + EBNF `PathSegList`, JSON Schema `prefixItems`, enum-gated by `check_grammar_sync`), and **G-2** (`perspective` marked non-conformant in model + EBNF, validator WARN `non-conformant-3d`) all landed — **item 7 complete**. Only optional minor scale extras (categorical/time) remain. |
 | 1 | Diagram auto-layout | gap | ✅ **DONE** | `sdk/topology.py`: 5 algorithms **plus `auto_layout`/`layout_kind`** — a graph lays itself out from its declared edges (algorithm inferred: grid/radial/layered/spring). **2026-07-04:** the render-time bridge landed — a declarative `type: graph` object (nodes + edges + algorithm) is lowered by `sdk.expand` into a positioned core `group` at expansion time (§A.0, no schema/renderer change; a node's `pos` overrides the algorithm), authored fluently via `Graph.to_object(box=…)`. Fixture `graph-autolayout.fg.yaml`; example `graph_autolayout_demo.py`. Residual (optional): an ELK binding for obstacle-aware routing / exact crossing minimization. |
 | 3 | Data layer for charts | out of scope | ✅ decision holds | `sdk/chart.py` is a lowering helper, no data transforms (by design). |
 | 5 | Print colour (ICC/CMYK) | deferred | ✅ decision holds | no ICC/CMYK code; hook not yet reserved. |
 | 6 | Interaction / animation | low | ✅ decision holds | no animation primitives. |
-| — | Provenance / document signing *(unplanned — not an original item)* | not in roadmap | ✅ **shipped (opt-in)** | `framegraph/rendering/provenance.py` (`sign_svg`/`FrameForgeStamp`): a deterministic sha256 **content fingerprint** + tool/version + optional UTC timestamp, injected as an SVG `<metadata><frameforge …>` in a private namespace (`https://framegraph.dev/ns/provenance`). Opt-in via `render_fixtures.py --sign/--signed-at` and the MCP render tools (`sign=`/`signed_at=`); byte-identity (item 4 golden lock) preserved when off, and deterministic when no timestamp. A parallel recipe fingerprint ships in `recipe/sign.py`. Tests: `tests/test_provenance.py`. **Residual:** SDK exposure (none yet, per ADR 0002) and a **keyed/authenticated** signature (HMAC) if non-repudiation is ever needed — today it is tamper-*evident*, not authenticated. |
+| — | Provenance / document signing *(unplanned — not an original item)* | not in roadmap | ✅ **shipped (opt-in)** | `frameforge/rendering/provenance.py` (`sign_svg`/`FrameForgeStamp`): a deterministic sha256 **content fingerprint** + tool/version + optional UTC timestamp, injected as an SVG `<metadata><frameforge …>` in a private namespace (`https://frameforge.dev/ns/provenance`). Opt-in via `render_fixtures.py --sign/--signed-at` and the MCP render tools (`sign=`/`signed_at=`); byte-identity (item 4 golden lock) preserved when off, and deterministic when no timestamp. A parallel recipe fingerprint ships in `recipe/sign.py`. Tests: `tests/test_provenance.py`. **Residual:** SDK exposure (none yet, per ADR 0002) and a **keyed/authenticated** signature (HMAC) if non-repudiation is ever needed — today it is tamper-*evident*, not authenticated. |
 
 > **Net (updated 2026-06-25):** item #7 (geometry SDK) is now **complete** (A.1–A.6
 > + G-1 + G-2), and #1 has author-time automatic layout. **No item (1–7) has an open
@@ -144,7 +144,7 @@ loss and long-form composition cannot coexist.
 
 Before the gaps, a correction, because inspecting the grammar overturns the
 obvious guess. One would expect a YAML document format to be thin on typography
-and internationalization. It is not. FrameGraph already carries:
+and internationalization. It is not. FrameForge already carries:
 
 - **Typography:** `widows`, `orphans`, `hyphens` with `hyphenate_limit_chars`
   (total / before / after), `font_kerning`, ligature and variable-font axis controls.
@@ -153,16 +153,16 @@ and internationalization. It is not. FrameGraph already carries:
 - **Document furniture:** `footnote_area`, footnote / endnote placement.
 - **Color:** modern wide-gamut color (`oklch` / `lab` / `lch`).
 
-So on typographic and i18n **vocabulary** FrameGraph is competitive with mature
+So on typographic and i18n **vocabulary** FrameForge is competitive with mature
 systems, and listing those as gaps would be wrong. The real caveat is the *page-level*
 layout **engine** that honors widows / orphans / keep-together — see the cross-cutting
 note below — which is a different thing from the controls themselves. (The
 intra-paragraph engine — Knuth–Plass line breaking + Liang hyphenation + span-aware
 justification — now ships; ADR-0003.)
 
-> Verified in `models/framegraph.py`: `widows`/`orphans`,
+> Verified in `models/frameforge.py`: `widows`/`orphans`,
 > `hyphenate_limit_chars`, `font_kerning`, `unicode_bidi`, `writing_mode`, and
-> `footnote_area`; `oklch`/`lab`/`lch` in `grammar/framegraph-v2-style.ebnf`.
+> `footnote_area`; `oklch`/`lab`/`lch` in `grammar/frameforge-v2-style.ebnf`.
 > `decorative`/`role`/`lang` exist, as do `alt`/`actual_text` on image/figure
 > objects and per-page `reading_order`. The
 > accessibility *vocabulary* is therefore present; only the tagged-export that
@@ -223,7 +223,7 @@ so it moves ahead of item 1.
    (`perspective` marked non-conformant in model + EBNF, validator WARN
    `non-conformant-3d`). The only residual is documentation (Appendix A). *Effort: XS.*
 5. **Item 8 — Book composition API.** ✅ **DELIVERED** (2026-07-03):
-   `framegraph.sdk.book` — `BookBuilder` + `ChapterBuilder` compose front matter
+   `frameforge.sdk.book` — `BookBuilder` + `ChapterBuilder` compose front matter
    (display title, author, chapters-only TOC) and chapters/sections into ONE
    validated flow document, lowered through `FlowBuilder` and paginated by the
    ADR-0003 engine. Numbering is computed at build time (§A.0 — no renderer
@@ -248,14 +248,14 @@ so it moves ahead of item 1.
 ### 1. Automatic *graph* layout for diagrams — the clearest gap
 
 **Gap (reframed — placement algorithms exist in the SDK; the render-time pass
-does not).** FrameGraph ships 17 `uml.*` object types plus connectors with
+does not).** FrameForge ships 17 `uml.*` object types plus connectors with
 `route` kinds (straight / orthogonal / curved), and the **SDK already computes
-graph layouts**: `framegraph/sdk/topology.py` (`Graph`) exposes `circular_layout`,
+graph layouts**: `frameforge/sdk/topology.py` (`Graph`) exposes `circular_layout`,
 `grid_layout`, `radial_layout`, `layered_layout` (hierarchical / Sugiyama) and
 `spring_layout` (force-directed) — each returning `dict[str, Vec2]` node positions
 from declared nodes and edges — plus a `render()`. So "node placement is manual"
 is too strong: the algorithms exist. What is missing is the **wiring** — nothing
-in `framegraph/rendering/` invokes them, so there is no *declarative, render-time*
+in `frameforge/rendering/` invokes them, so there is no *declarative, render-time*
 graph-placement pass keyed off the semantic graph for `mode: page` diagram groups;
 you must call a layout method explicitly in the SDK and bake the coordinates.
 
@@ -263,7 +263,7 @@ you must call a layout method explicitly in the SDK and bake the coordinates.
     Two layers exist. **Container** layout: `Group.layout` with
     `kind: row | column | grid | free` plus `gap` / `row_gap` / `column_gap` /
     `padding` / `align`, realized by `LayoutEngine.arrange`
-    ([src/framegraph/rendering/domain/services/layout_engine.py](../src/framegraph/rendering/domain/services/layout_engine.py))
+    ([src/frameforge/rendering/domain/services/layout_engine.py](../src/frameforge/rendering/domain/services/layout_engine.py))
     — a box-model packer that repositions a group's children into rows / columns /
     a grid and does **not** resize them; it cannot place nodes from edges.
     **Graph** layout: `sdk.topology.Graph.{layered,spring,circular,radial,grid}_layout`
@@ -279,7 +279,7 @@ engine), Mermaid uses dagre, PlantUML uses Graphviz's DOT. Dagre produces
 layered / hierarchical layouts based on Graphviz's DOT algorithm; ELK suits
 node-link diagrams with ports and direction. The category's whole appeal is that
 the same input always produces the same output — no manual positioning, and
-therefore no style drift across a team. FrameGraph's diagram side gives that up.
+therefore no style drift across a team. FrameForge's diagram side gives that up.
 
 **Fix (narrower than first stated — the placement math is done).** Expose a
 declarative auto-layout on `mode: page` diagram groups that calls the existing
@@ -295,7 +295,7 @@ current heuristics. Effort is **M–L (wiring + a render pass), not XL.**
 In the current model the *vocabulary* exists: `decorative`, `role`, `lang`,
 **`alt`/`actual_text` on image and figure objects**, and a **per-page
 `reading_order`** over object ids. The SVG proxy already *consumes* part of it —
-`framegraph/rendering/infrastructure/painters/svg.py` emits `role=` (line 266) and
+`frameforge/rendering/infrastructure/painters/svg.py` emits `role=` (line 266) and
 `aria-*` (lines 495, 501). What is still missing is the **PDF consumer**: no
 exporter maps these into a tagged PDF **logical structure tree** — roles, alt
 text, and a reading order independent of visual position — because there is no
@@ -322,14 +322,14 @@ some page's `reading_order`.
 **Gap (reframed — golden lock, tolerance band, and schema URL all landed; only
 raster-perceptual tolerance remains).** The format's stance — treat each construct
 as a proposal to verify against the renderer — leaves "valid" underdetermined.
-FrameGraph has the schema, the models, the `b1/` authoritative fixtures as an oracle,
+FrameForge has the schema, the models, the `b1/` authoritative fixtures as an oracle,
 the `--check-overflow` text-fit gate, and a working golden-render lock
 (`tooling/render_golden.py` + `tests/golden/oracle.lock.json`). The two former
 residuals are now closed: a **numeric tolerance band** (exact hash stays primary;
 on a mismatch the fresh render is compared against a committed reference under
 `tests/golden/refs/` within a coordinate ±ε, classifying cosmetic vs real drift —
 `--tolerance`/`--strict`), and a **resolvable, versioned schema URL**
-(`…/schema/2.2.0/framegraph-v2.schema.json` + a `version` field) documents can
+(`…/schema/2.2.0/frameforge-v2.schema.json` + a `version` field) documents can
 self-declare against. The only remaining piece is a **pixel/font/AA perceptual**
 tolerance, which needs a raster backend (out of scope in this environment).
 
@@ -353,9 +353,9 @@ way Vega-Lite does, so documents can self-declare conformance. A perceptual
 ### 3. Data layer for charts
 
 **Gap.** Charts take literal `ChartData`; the `transform` keyword is CSS visual
-transforms (`TransformFn`), not data transforms. FrameGraph requires every chart
+transforms (`TransformFn`), not data transforms. FrameForge requires every chart
 to be pre-aggregated upstream and every axis specified. Note that charts already
-sit **outside the core conformance profile** (`models/framegraph.py`),
+sit **outside the core conformance profile** (`models/frameforge.py`),
 so treating the data layer as out-of-scope would be consistent with the existing
 profile boundary, not a new exclusion.
 
@@ -363,7 +363,7 @@ profile boundary, not a new exclusion.
 to visual channels and includes common data transforms (binning, aggregation,
 sorting, filtering), auto-produces axes / legends / scales from a minimal spec,
 and composes views through a layer / concat / facet / repeat algebra that aligns
-scales and axes. The cost of FrameGraph's choice is real: no single source of
+scales and axes. The cost of FrameForge's choice is real: no single source of
 truth from data to multiple views.
 
 **Decision (provisional, 2026-06-22): out of scope.** A document format need not be
@@ -405,13 +405,13 @@ now. The reservation keeps it additive when a print target becomes real.
 **Gap (reframed — the authoring layer already exists; G-1 and G-2 have both
 landed, so item 7 is complete).** The grammar can *represent* arbitrary 2D geometry — `PathObject.d` (SVG
 path data), `PolylineObject.points`, `TransformFn.matrix` (full 2D affine) — and
-**the SDK already computes it.** `framegraph/sdk/geometry.py` exports `Mat3`,
+**the SDK already computes it.** `frameforge/sdk/geometry.py` exports `Mat3`,
 `Mat4`, `Path`, `Vec2`, `Vec3`, `CubicBezier`, `Camera`, and `quarter_circle_kappa`
-(the exact arc constant Appendix A derives); `framegraph/sdk/draw.py` has
+(the exact arc constant Appendix A derives); `frameforge/sdk/draw.py` has
 `Scene3D`, `Camera`, `Frame`, and `.render()` with orthographic / perspective /
 isometric projection (including painter's-algorithm depth sort);
-`framegraph/sdk/manifold.py` has `parametric` / `sphere` / `torus` / `saddle` /
-`wave`; `framegraph/sdk/fields.py` has `VectorField` (a quiver). Five examples
+`frameforge/sdk/manifold.py` has `parametric` / `sphere` / `torus` / `saddle` /
+`wave`; `frameforge/sdk/fields.py` has `VectorField` (a quiver). Five examples
 already exercise it (`sdk_3d_scene.py`, `sdk_geometry_patterns.py`,
 `topology_perspective.py`, `fields_lattices_manifolds.py`,
 `geometry_topology_deck.py`). So this is **not** a missing authoring layer. **G-1
@@ -431,7 +431,7 @@ scales (`linear` / `log` / `pow`) model the data→page frame mapping. The lesso
 that the geometry kernel belongs in the authoring tool, not the page renderer.
 
 **Fix (now just documentation — both grammar fixes are done).** The author-time
-math already ships in `framegraph.sdk.{geometry,draw,manifold,fields}` and **emits
+math already ships in `frameforge.sdk.{geometry,draw,manifold,fields}` and **emits
 only primitives the grammar has** — `path`, `polyline`, `group`, `matrix` —
 resolving curves and 3D→2D projection at expansion time and pinning the result with
 the hash contract. **G-1 is done** (a typed `list[PathSeg]` alongside the `d` string,
@@ -461,7 +461,7 @@ split the problem cleanly: Project Gutenberg EPUBs provide useful spine, chapter
 front-matter, and DOM structure pressure, while OpenStax PDFs provide the strong
 figure/table/caption/formula/side-bar pressure. The immediate product need is not
 another drawing primitive; it is a semantic composition layer that can accept
-imported blocks and lower them to normal FrameGraph pages.
+imported blocks and lower them to normal FrameForge pages.
 
 **Fix.** Add a `BookBuilder` layer above `DocumentBuilder`, with
 `chapter()`, `section()`, `para()`, `figure()`, `table()`, `callout()`, `code()`,
@@ -514,25 +514,25 @@ generated image lands in the document; or a prompt that yields a generated block
 style), box, alt }`, which a generation pass resolves into a concrete `image` /
 `figure` / flow block.
 
-**The constraint that defines the whole design — determinism.** FrameGraph's
+**The constraint that defines the whole design — determinism.** FrameForge's
 conformance rests on deterministic golden-render SHA-256 locks (item 4) and the
-expansion + hash-pinning contract (`framegraph/sdk/expand.py`,
-`framegraph/sdk/conform.py`). A model call is non-deterministic and
+expansion + hash-pinning contract (`frameforge/sdk/expand.py`,
+`frameforge/sdk/conform.py`). A model call is non-deterministic and
 network-dependent; resolving it **live on every render** would break golden locks,
 hermetic CI, offline builds, and reproducibility — the format's core promise. So
 the object MUST NOT be a paint-time call. It resolves **once**, at a dedicated
 generation tier — the same "compute at expansion, pin the result" move item 7 uses
 for geometry: the pass calls the endpoint, embeds the returned bytes / block, and
 **pins** them plus a content hash into the document. After resolution the document
-is an ordinary deterministic FrameGraph doc with no live calls, and golden locks
+is an ordinary deterministic FrameForge doc with no live calls, and golden locks
 apply to the *resolved* doc. The authored `prompt` is the **source**; the resolved
 asset is the **compiled view** — the same source→compiled pattern as `segments`→`d`
 and builders→model. A cache key over `(prompt, model, params)` makes re-runs
 reproducible; an explicit `regenerate` forces a fresh draw.
 
 **PALS's Law — verification is mandatory, not optional (see `CLAUDE.md`).** Model
-output is untrusted, incomplete, and may be wrong by default. FrameGraph already
-embodies this at *authoring* time: `framegraph/vision`
+output is untrusted, incomplete, and may be wrong by default. FrameForge already
+embodies this at *authoring* time: `frameforge/vision`
 (`propose_from_document` / `propose_from_image`) emits explicitly **UNVERIFIED
 drafts**. Item 9 promotes that pattern to a document object, so the same gate is
 non-negotiable before a generated asset enters the deterministic doc:
@@ -540,7 +540,7 @@ non-negotiable before a generated asset enters the deterministic doc:
 **containment / overflow** checks against `box`, **mandatory a11y** (a generated
 image with no `alt` / `actual_text` fails the gate — ties to item 2), and
 **provenance** (model id, prompt, seed, timestamp, license, confidence). Reuse the
-existing `FigureAsset` (`framegraph/sdk/figure.py`) so source / license /
+existing `FigureAsset` (`frameforge/sdk/figure.py`) so source / license /
 attribution / confidence survive into the rendered group metadata. An unverified
 generation is a draft, never a conformant artifact.
 
@@ -572,19 +572,19 @@ harness it relies on to stay honest) and item 2 (the a11y gate it must satisfy).
 
 ### 10. Adobe-suite parity — the granular closure programme
 
-**Goal.** One stated product goal is that FrameGraph can *match the Adobe
+**Goal.** One stated product goal is that FrameForge can *match the Adobe
 suite* — capability for capability, reached declaratively (by grammar and tool
 call, not cursor). The evidence base is the 46-feature teardown
-**Adobe Illustrator 2024+2025 vs FrameGraph v2.3.0** (v3, 2026-07-02;
-generator: `static/examples/illustrator_vs_framegraph.py`). Provenance:
+**Adobe Illustrator 2024+2025 vs FrameForge v2.3.0** (v3, 2026-07-02;
+generator: `static/examples/illustrator_vs_frameforge.py`). Provenance:
 Illustrator's surface mined from **three manuals** over the doc-ray corpus
 ([24] "Adobe Illustrator 2024 User's Guide", 231 pp, 2,283 sentences;
 [25] "Master Adobe Illustrator 2025", 159 pp, 1,875 sentences;
 [26] "BMG 106: Computer Graphics II — Adobe Illustrator", 257 pp), every
-feature round-tripped to a source-sentence ordinal; FrameGraph coverage
+feature round-tripped to a source-sentence ordinal; FrameForge coverage
 quoted from the gated `docs/capability-manifest.json` (278 capabilities,
 sha256-pinned in the teardown's audit block +
-`static/examples/illustrator_vs_framegraph.audit.json`).
+`static/examples/illustrator_vs_frameforge.audit.json`).
 
 **Rubric (v3.1):** HAS = a direct *functional* equivalent (same user
 outcome, even if authored declaratively); PARTIAL = narrower / missing
@@ -611,7 +611,7 @@ features, 63% full-or-partial) because each revision widened the surface and
 tightened the rubric — the drops are honesty, not regression. The full
 granular matrix, one disposition per feature, is **Appendix B**.
 
-**The teardown runs both ways** — its closing page lists what FrameGraph has
+**The teardown runs both ways** — its closing page lists what FrameForge has
 natively that Illustrator lacks: long-form flow documents (TOC, footnotes,
 bibliography), structural validation + golden locks before a pixel is drawn,
 a diffable plain-text source of truth, parametric geometry (equation-driven
@@ -666,17 +666,17 @@ PowerPoint.
 
 ## Cross-cutting note — vocabulary vs. engine
 
-Tying back to the calibration: FrameGraph has the typographic *controls* (widows,
+Tying back to the calibration: FrameForge has the typographic *controls* (widows,
 orphans, keep-together, breaks), and now ships a backend-neutral *intra-paragraph*
 engine that realizes the line-level subset — Knuth–Plass total-fit line breaking +
 Liang hyphenation + span-aware justification
-(`src/framegraph/rendering/domain/services/flow_layout.py`, ADR-0003), wired into the
+(`src/frameforge/rendering/domain/services/flow_layout.py`, ADR-0003), wired into the
 renderer for `align: justify`. What it still lacks is the *page-level* engine that
 honors widows / orphans / keep-together — those remain vocabulary only.
 Typst, by contrast, **is** the engine — it runs measurement, then placement, then
 page-breaking, with frames as the positioned units, and resolves cross-document
 dependencies like counters and citations through introspection over multiple
-layout iterations, which its pure language makes safe to re-run. FrameGraph defers
+layout iterations, which its pure language makes safe to re-run. FrameForge defers
 that algorithm to "the renderer" and only asserts a determinism precondition. So
 the gap is not the vocabulary; it is that the contract for *how*
 widows / orphans / keep-together are honored lives outside the format — which loops
@@ -684,7 +684,7 @@ straight back to item 4 (no reference semantics).
 
 ## Net assessment
 
-FrameGraph's distinctive bet — one substrate spanning decks and books with a
+FrameForge's distinctive bet — one substrate spanning decks and books with a
 semantic graph attached — is real and uncommon; most tools pick one lane. It is
 strong on typographic, i18n, and color **vocabulary**. The defensible residual
 work, in order, is **wiring the existing graph-layout algorithms (`sdk.topology`)
@@ -806,7 +806,7 @@ verifiable IR spanning *compliance-grade print and social surfaces* plus a gate 
 view distorts the source — that intersection is the 3.0 bet.
 
 > **Relation to today's document signing (distinct axes — do not conflate).** The
-> shipped provenance metatag (`framegraph/rendering/provenance.py`, status table above)
+> shipped provenance metatag (`frameforge/rendering/provenance.py`, status table above)
 > proves the **rendered artifact's bytes** were not altered after render — a sha256
 > fingerprint over the *output*. 3.0's verifiable projection proves the **content** is
 > faithful to its *source* — a value shown traces to a source cell. The first is
@@ -856,7 +856,7 @@ dependency.
 
 ### FF-1 — consume server-produced font-packs in the render pipeline
 - `fg-font --install <pack>` already pins a font-pack locally
-  (`src/framegraph/fontpack.py`). Make the **font server** the authoritative
+  (`src/frameforge/fontpack.py`). Make the **font server** the authoritative
   *producer* of those packs (its 0.8.0 export milestone), and make pack-pinned
   rendering the **default** for fidelity targets, not an opt-in.
 - The SVG and `pdf-tex` backends resolve every face **through the pinned pack**, so
@@ -900,7 +900,7 @@ dependency.
 
 ## CG-canon alignment programme — approved backlog (2026-07-04)
 
-Approved by the operator 2026-07-04. Assessment of FrameGraph against the **classical
+Approved by the operator 2026-07-04. Assessment of FrameForge against the **classical
 computer-graphics canon**, grounded stage-by-stage in two deep computational sources from the
 reference corpus: **Harrington**, *Computer Graphics: A Programming Approach*, 2nd ed. 1987
 (the 11-chapter pipeline → B1–B6) and **Mortenson**, *Mathematics for Computer Graphics*, 2nd
@@ -909,7 +909,7 @@ evidence + per-item spec: `docs/proposals/cg-canon-strategic-gaps.md` (B7–B10 
 B2 correctness detail is in `docs/proposals/cg-canon-3d-alignment.md`. This programme realizes
 the **true-3D direction** opened by the 2026-07-04 course correction (Item 7 / Appendix A.0).
 
-Calibration (explicitly *not* gaps): FrameGraph already *is* much of the canon — the Document
+Calibration (explicitly *not* gaps): FrameForge already *is* much of the canon — the Document
 IR is Harrington's "display file / metafile", the Layer/Object graph is his "segments", and
 transforms, curves, 2D clipping (delegated), and **colour** (the `chevreul`/`canon` modules)
 are aligned strengths. Scan-conversion/rasterization/antialiasing are delegated to SVG→Chromium/
@@ -961,7 +961,7 @@ surface-complete*.
 |---|---|---|
 | **SDK** | typed API + docstring with a runnable snippet; exported in `sdk/__init__.py` | unit test (`make test`); `make docs-sdk` regenerates `docs/sdk-api.md` → `make docs-check` green |
 | **Ledger** | `make manifest` regenerated; correct `core/sdk/mcp` flags | `make manifest-check` green (`tests/test_capability_manifest.py`) |
-| **MCP / agent** | reachable via a tool **or** a documented `run_sdk_code` recipe; returned by `describe_capabilities`; named in `framegraph_guide`/`get_guide` if it is a workflow | recipe renders via `run_sdk_code`; discovery smoke check |
+| **MCP / agent** | reachable via a tool **or** a documented `run_sdk_code` recipe; returned by `describe_capabilities`; named in `frameforge_guide`/`get_guide` if it is a workflow | recipe renders via `run_sdk_code`; discovery smoke check |
 | **DevX** | runnable example in `static/examples/`; `docs/changelog.md` entry + `make bump`; known limitations + failure modes documented | `make examples-index`; example renders (`make golden-check` if visual) |
 | **Whole** | all gates green | `make check` (schema·grammar·spec·a11y·status·test·validate·overflow·golden·docs·docs-linkcheck·disclaimer) + pre-commit `hooks` |
 
@@ -977,9 +977,9 @@ failure mode is *Ready-for-review, not Done.***
 
 > **Status:** documentation of an existing, complete SDK (both grammar fixes landed)
 > (non-normative). This appendix is the design behind roadmap item 7 — and most of
-> it **already exists** in `framegraph.sdk.{geometry,draw,manifold,fields}`. The
-> TypeScript `@framegraph/*` names below are *illustrative interface sketches*; the
-> real, shipping implementation is Python (`framegraph/sdk/geometry.py`, `draw.py`,
+> it **already exists** in `frameforge.sdk.{geometry,draw,manifold,fields}`. The
+> TypeScript `@frameforge/*` names below are *illustrative interface sketches*; the
+> real, shipping implementation is Python (`frameforge/sdk/geometry.py`, `draw.py`,
 > `manifold.py`, `fields.py`) — e.g. `Mat3`/`Mat4`/`Path`/`Vec2`/`Vec3`/`Camera`/
 > `quarter_circle_kappa` and `Scene3D.render`. Read this as a spec of what ships,
 > not a build proposal; **both grammar fixes have landed** — G-1 (typed structured
@@ -990,8 +990,8 @@ failure mode is *Ready-for-review, not Done.***
 > renderer's coordinate system before relying on it. Coordinate convention assumed
 > throughout: page / canvas space is Y-DOWN, origin top-left (so a mathematically
 > positive rotation appears clockwise on the page) — flagged again where it bites.
-> Derived from `framegraph-v2.ebnf` (PathObject, PolylineObject,
-> ConnectorObject.Route, Point) and `framegraph-v2-style.ebnf` (TransformFn,
+> Derived from `frameforge-v2.ebnf` (PathObject, PolylineObject,
+> ConnectorObject.Route, Point) and `frameforge-v2-style.ebnf` (TransformFn,
 > perspective, transform_origin); references in the front-matter `appendix_references`.
 >
 > **Language note:** the interfaces below are shown in TypeScript for concision, but
@@ -1019,7 +1019,7 @@ One working-space rule follows immediately: `Point` is unitless 2D numbers in ca
 
 ---
 
-## A.1. The algebra: vectors and matrices (`@framegraph/geometry`)
+## A.1. The algebra: vectors and matrices (`@frameforge/geometry`)
 
 A pure-math package with no document dependency. Everything else lowers through it.
 
@@ -1224,12 +1224,12 @@ Output of `render(...)` is a `group` of closed `polyline`/`path` objects with co
 ## A.8. How it slots into the existing SDK
 
 ```
-@framegraph/geometry      # NEW. Pure math: Vec2/Vec3, Mat3/Mat4, Path, parametric, projection.
+@frameforge/geometry      # NEW. Pure math: Vec2/Vec3, Mat3/Mat4, Path, parametric, projection.
                           # No document dependency; independently testable against the formulas above.
-@framegraph/author/draw   # NEW. Builders that consume geometry and emit VisualObjects
+@frameforge/author/draw   # NEW. Builders that consume geometry and emit VisualObjects
                           # (path / polyline / group). Frames, Scene3D.render live here.
-@framegraph/expand        # 3D→2D projection and curve flattening are realized HERE, then pinned.
-@framegraph/model         # unchanged — receives only 2D primitives it already defines.
+@frameforge/expand        # 3D→2D projection and curve flattening are realized HERE, then pinned.
+@frameforge/model         # unchanged — receives only 2D primitives it already defines.
 ```
 
 The render boundary is unchanged: after expansion the renderer sees `path`, `polyline`, `group`, and `matrix` — primitives in the grammar today. All the new power lives in math the SDK owns, not in format the renderer must learn. The single decision that makes this safe is keeping 3D as author-time projection (§A.5, G-2); the moment the SDK emits a 3D transform it can't guarantee, the guarantee is gone.
@@ -1247,13 +1247,13 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 > (CG-canon geometry programme):** AI-34 Transform tools now complete — **reflect/mirror**
 > landed (B7); AI-09 gains the **`curvature`/`arc_length`** API (B9); AI-40 3D & Materials
 > gains **Phong** shading (B6), with B1/B2 approved to harden the 3D leg. Re-run the teardown
-> generator to refresh the sha256-pinned evidence (FrameGraph now HEAD 2.4.1). Source:
-> `static/examples/illustrator_vs_framegraph.py`; Illustrator surface mined
+> generator to refresh the sha256-pinned evidence (FrameForge now HEAD 2.4.1). Source:
+> `static/examples/illustrator_vs_frameforge.py`; Illustrator surface mined
 > from three manuals over doc-ray ("AI 2024 User's Guide" [24], "Master AI
 > 2025" [25], "BMG 106: Computer Graphics II" [26]) with sentence-ordinal
 > round-trips; FG coverage quoted from the gated capability manifest
 > (sha256-pinned; full audit committed at
-> `static/examples/illustrator_vs_framegraph.audit.json`). Verdicts: **HAS** direct
+> `static/examples/illustrator_vs_frameforge.audit.json`). Verdicts: **HAS** direct
 > *functional* equivalent · **PARTIAL** narrower/different form · **NONE**
 > (`arch` = the declarative model precludes it · `non-goal` = declared scope
 > choice) · **REFRAMED** same end by naming/tool-call. `·H/M/L` = evidence
@@ -1261,7 +1261,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 
 ## A · Select & edit paths
 
-| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+| ID | Illustrator feature | Verdict | FrameForge today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-01 | Object selection | REFRAMED | name an object by id and act on it | settled — declaration replaces point-and-click |
 | AI-02 | Anchor-point editing | REFRAMED ·H | anchors edit by restating coordinates — MCP `workspace` pin/nudge/snap + `construct_vectors` | **W6 delivered** (#50): re-verdicted with evidence |
@@ -1274,7 +1274,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 
 ## B · Draw & primitives
 
-| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+| ID | Illustrator feature | Verdict | FrameForge today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-07 | Shape primitives | HAS | rect, ellipse, circle, polygon, line, polyline (17 object types) | settled |
 | AI-08 | Pen tool (Bézier) | REFRAMED ·H | coordinates are the pen — bezier / `Path` / `CubicBezier`; `construct_vectors` + coach are the assistive half | **W6 delivered** (#50): re-verdicted with evidence |
@@ -1286,7 +1286,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 
 ## C · Colour system
 
-| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+| ID | Illustrator feature | Verdict | FrameForge today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-13 | Colour picker & swatches | HAS | hex/rgba values + `defs.tokens.colors` named palette | settled |
 | AI-14 | Global colours | HAS | named tokens are global by construction | settled |
@@ -1298,7 +1298,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 
 ## D · Type & text
 
-| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+| ID | Illustrator feature | Verdict | FrameForge today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-20 | Point & area type | HAS | text objects + flow paragraph/heading/list | settled |
 | AI-21 | Character & paragraph | HAS | font_family/size/weight + paragraph flow (106 style props) | settled |
@@ -1309,7 +1309,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 
 ## E · Gradient · effect · style
 
-| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+| ID | Illustrator feature | Verdict | FrameForge today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-26 | Linear / radial gradient | HAS | `linear_gradient` / `radial_gradient` paint | settled |
 | AI-27 | Freeform gradient | NONE ·H arch | no freeform gradient | **W3**: subdivision-shading emulation, L, low priority — decision |
@@ -1321,7 +1321,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 
 ## F · Layer · transform · page
 
-| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+| ID | Illustrator feature | Verdict | FrameForge today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-33 | Layers | HAS | ordered layers per page, z-index | settled |
 | AI-34 | Transform tools | HAS | transform: Mat3 rotate / scale / translate / shear + **reflect / mirror** (`Mat3.reflect` / `mirror()`) — the four Illustrator transform tools (Rotate/Reflect/Scale/Shear) now all present | settled — **reflect landed** (CG-canon **B7**, 2026-07-05) |
@@ -1332,7 +1332,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 
 ## G · Image · 3D · output
 
-| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+| ID | Illustrator feature | Verdict | FrameForge today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-38 | Embed / link raster | HAS | image object: embedded or src-referenced | settled |
 | AI-39 | Image trace | REFRAMED ·H | `vectorize_image` MCP tool call | settled — same raster→vector end, declarative road |
@@ -1343,7 +1343,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 
 ## H · Generative / AI (Illustrator 2024)
 
-| ID | Illustrator feature | Verdict | FrameGraph today | Disposition |
+| ID | Illustrator feature | Verdict | FrameForge today | Disposition |
 |----|--------------------|---------|------------------|-------------|
 | AI-43 | Text to Vector Graphic | REFRAMED ·L | `propose_from_image` / `run_sdk_code` author→render loop | settled — the loop is the generative surface; item 9 is the pinned-object evolution |
 | AI-44 | Generative Recolor | REFRAMED ·L | swap a palette token / `gradient_map`, re-render | settled; W4's `recolor()` makes it one call |

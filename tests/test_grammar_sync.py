@@ -11,16 +11,16 @@ It asserts three things:
      at the right severities (WARN / INFO), not as ERRORs.
 
 Models-side import: check_grammar_sync puts models/ on sys.path and evicts the
-rendering `framegraph` package shadow — see test_head.py for the same dance.
+rendering `frameforge` package shadow — see test_head.py for the same dance.
 """
 import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 import check_grammar_sync as CGS  # noqa: E402
 
@@ -128,7 +128,7 @@ def test_expand_dispatch_matches_the_documented_set():
     is expected to document — so adding an expansion form without a grammar
     entry (or vice versa) trips this gate, not a silent doc drift."""
     import re
-    expand_src = open(os.path.join(ROOT, "src", "framegraph", "sdk",
+    expand_src = open(os.path.join(ROOT, "src", "frameforge", "sdk",
                                    "expand.py"), encoding="utf-8").read()
     dispatched = set(re.findall(r'kind == "([a-z_]+)"', expand_src))
     assert dispatched == set(EXPANSION_AUTHORING_TYPES), (
@@ -150,7 +150,7 @@ def test_grammar_documents_every_expansion_authoring_form():
 
 
 def test_spec_lists_graph_among_extended_objects():
-    spec = open(os.path.join(ROOT, "docs", "spec", "framegraph-v2-spec.md"),
+    spec = open(os.path.join(ROOT, "docs", "spec", "frameforge-v2-spec.md"),
                 encoding="utf-8").read()
     assert "components/use/symbols/graphs" in spec, (
         "the spec's extended-objects list must include graphs")

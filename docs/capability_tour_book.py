@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""FrameGraph — The Complete Capability Tour.
+"""FrameForge — The Complete Capability Tour.
 
 The most evolved of the layout examples — ``layout_methods_book.py`` and its
 ``Book`` composer — elected as the base and EXTENDED into a full sample of the
@@ -12,7 +12,7 @@ Coverage is not claimed, it is gated: ``main()`` loads
 ``docs/capability-manifest.json`` (the generated, test-gated capability
 inventory) and fails unless every capability name appears in this document's
 serialized text. Appendix A is generated at build time by introspecting
-``framegraph.sdk`` itself, so the reference cannot drift from the code.
+``frameforge.sdk`` itself, so the reference cannot drift from the code.
 
 Run from the repository root::
 
@@ -46,12 +46,12 @@ sys.path.insert(0, os.path.join(ROOT, "static", "examples"))
                                     # the cookbook stays importable: the tour reuses
                                     # the elected book's plate module from there
                                     # even when exec'd from another CWD (MCP harness)
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-import framegraph.sdk as sdk  # noqa: E402  — Appendix A introspects the full surface
-from framegraph.sdk import (  # noqa: E402
+import frameforge.sdk as sdk  # noqa: E402  — Appendix A introspects the full surface
+from frameforge.sdk import (  # noqa: E402
     Camera,
     CubicBezier,
     DocumentBuilder,
@@ -130,8 +130,8 @@ from framegraph.sdk import (  # noqa: E402
     wrap_text,
     write_golden,
 )
-from framegraph.sdk.metrics import text_height  # noqa: E402
-from framegraph.rendering.domain.services.canvas_resolver import PRESETS  # noqa: E402
+from frameforge.sdk.metrics import text_height  # noqa: E402
+from frameforge.rendering.domain.services.canvas_resolver import PRESETS  # noqa: E402
 
 from layout_methods_book import (  # noqa: E402  — the ELECTED, extended composer
     ACCENT,
@@ -307,7 +307,7 @@ class Tour(Book):
         LAV = "#C7CEE6"          # light indigo, legible on the ACCENT band
         del note                 # the abstract lives inside §0, not on the cover
 
-        # -- masthead: full-bleed indigo band with the FrameGraph mark -------- #
+        # -- masthead: full-bleed indigo band with the FrameForge mark -------- #
         band_h = 150
         pg.rect([0, 0, 816, band_h], fill=ACCENT)
         mk = 64
@@ -318,7 +318,7 @@ class Tour(Book):
             s = mk - 2 * inset_px
             pg.rect([mx0 + inset_px, my0 + inset_px, s, s],
                     radius=max(1.0, 6 - inset_px * 0.2), fill=col)
-        pg.text([MX, 54, 520, 24], "FRAMEGRAPH",
+        pg.text([MX, 54, 520, 24], "FRAMEFORGE",
                 style=ts(18, "#FFFFFF", family=SANS, weight=800, spacing=4.0,
                          transform="uppercase"))
         pg.text([MX, 88, 520, 16], "The declarative document format · SDK · MCP",
@@ -697,13 +697,13 @@ def _clip_cell(clip_of):
 # --------------------------------------------------------------------------- #
 def _cover(bk: Tour):
     bk.cover(
-        kicker="FrameGraph · SDK + MCP",
+        kicker="FrameForge · SDK + MCP",
         title="The Complete Capability Tour",
         subtitle="Every SDK export, object type, flowable, canvas preset and MCP "
                  "tool — demonstrated live and machine-checked against the manifest.",
         author="Prepared with Claude · Fable 5",
         date=GEN_DATE,
-        note="One FrameGraph document, authored end-to-end through the Python SDK "
+        note="One FrameForge document, authored end-to-end through the Python SDK "
              "by extending the composer of examples/layout_methods_book.py — the "
              "most evolved of the layout examples. Audience: AI agents driving the "
              "SDK/MCP loop, and the human operators who verify them. Every page is "
@@ -717,7 +717,7 @@ def _cover(bk: Tour):
 def _s0(bk: Tour):
     bk.section("§ 0", "The contract: author → validate → render → verify",
                "§0 · Contract")
-    bk.para("This tour is a runnable FrameGraph document, not a description of "
+    bk.para("This tour is a runnable FrameForge document, not a description of "
             "one. The module exposes `build() -> DocumentBuilder` — the MCP run "
             "contract — so one file serves three readers:")
     bk.bullets([
@@ -740,13 +740,13 @@ def _s0(bk: Tour):
                "way: render, look, measure. A document that validates is "
                "necessary; a document whose pixels were checked is sufficient.")
     bk.para("The loop every page of this book was built with — the same loop an "
-            "agent should run for any FrameGraph work:")
+            "agent should run for any FrameForge work:")
     bk.bullets([
         "**Author** through the SDK (this file). Prefer typed helpers over raw "
         "dicts; raw dicts over hand-written YAML; never bypass the model.",
         "**Build.** `builder.build()` expands symbols and components and "
         "validates against the authoritative Pydantic model "
-        "(`models/framegraph.py`, closed: unknown keys are errors).",
+        "(`models/frameforge.py`, closed: unknown keys are errors).",
         "**Validate.** `validate_static_rules(doc)` layers the repository's "
         "static rule catalogue (§15) on top of model validity.",
         "**Render.** `render_page_svgs(doc)` — the dependency-free SVG proxy — "
@@ -755,10 +755,10 @@ def _s0(bk: Tour):
         "`score_reconstruction` for reconstruction work (§17). Then, and only "
         "then, report done.",
     ], ordered=True)
-    bk.para("One naming note, once: **FrameGraph** is the document/graphics "
+    bk.para("One naming note, once: **FrameForge** is the document/graphics "
             "DSL — the model, SDK, and MCP surface this book tours. "
             "**frameforge** is the repository and docker runtime that host "
-            "it. Language and library are FrameGraph; paths and images say "
+            "it. Language and library are FrameForge; paths and images say "
             "frameforge.", size=10.5, color=MUTE, gap=8)
 
 
@@ -1440,7 +1440,7 @@ def _s10(bk: Tour):
     bk.para("`Scene3D` is a minimal deterministic 3D pipeline: build faces "
             "(`mesh`, `extrude`, `revolve`, `parametric_surface`), then "
             "`render(camera=…, box=…, shading=…)` projects them to one "
-            "FrameGraph group of 2D polygons — painter-sorted, optionally "
+            "FrameForge group of 2D polygons — painter-sorted, optionally "
             "Lambert- or Gouraud-shaded, lit by a directional light. "
             "`Camera` composes view + perspective (`orbit` walks the eye); "
             "`Mat4` gives raw matrices, including `isometric()`. `Material` "
@@ -1686,7 +1686,7 @@ def _s12(bk: Tour):
 
     def d_nav(pg, bx):
         x, y, w, h = bx
-        pg.navbar([x, y, w, 30], ["Docs", "SDK", "MCP"], brand="FrameGraph",
+        pg.navbar([x, y, w, 30], ["Docs", "SDK", "MCP"], brand="FrameForge",
                   active=1, theme=WTH)
         pg.breadcrumb([x, y + 38, w, 18], ["frameforge", "examples", "tour"],
                       theme=WTH)
@@ -1780,7 +1780,7 @@ def _s12(bk: Tour):
 def _s13(bk: Tour):
     bk.section("§ 13", "Figures — live import, provenance, SVG ingest",
                "§13 · Figures")
-    bk.para("Three ways to put existing artwork on a page. **Live FrameGraph "
+    bk.para("Three ways to put existing artwork on a page. **Live FrameForge "
             "figures**: `FigureRef` points at another document (or a callable "
             "returning a builder), `load_figure` resolves selected layers "
             "into a `FigureContent`, and `place_figure` lowers it into a "
@@ -1809,7 +1809,7 @@ def _s13(bk: Tour):
             "`page.imported_figure`) places it with an auto-sized caption — "
             "an `ImportedFigurePlacement` returns the image and caption "
             "boxes. **SVG ingest**: `svg_to_objects` parses existing SVG "
-            "markup into FrameGraph objects you can restyle like any other.")
+            "markup into FrameForge objects you can restyle like any other.")
     bk.code(
         'asset = FigureAsset(src=data_uri, title="Swatch", number="I.1",\n'
         '                    caption="An imported asset with provenance.",\n'
@@ -2105,11 +2105,11 @@ def _s16(bk: Tour):
             style=ts(96, "#FFFFFF", family=SANS, weight=800, spacing=-2,
                      lh=1.02))
     pg.text([120, 480, 1100, 200],
-            "This slide lives in the same FrameGraph document as the "
+            "This slide lives in the same FrameForge document as the "
             "US-Letter book pages around it and the portrait story page "
             "after it. canvas=\"deck-16x9\" resolves to 1920 × 1080 px.",
             style=ts(30, "#9AA3C7", family=SANS, lh=1.5))
-    pg.text([120, 980, 1200, 30], "FrameGraph — The Complete Capability Tour",
+    pg.text([120, 980, 1200, 30], "FrameForge — The Complete Capability Tour",
             style=ts(20, "#5B6573", family=SANS))
 
     pg = b.page("preset-story", canvas="instagram-story",
@@ -2142,7 +2142,7 @@ def _s17(bk: Tour):
             "**raster images** — the raster-first contract exists precisely "
             "so the agent must look at pixels, not YAML (PALS's Law, "
             "operationalised). Artifacts persist per session at "
-            "`framegraph://session/<id>/…` and the `framegraph_guide` prompt "
+            "`frameforge://session/<id>/…` and the `frameforge_guide` prompt "
             "carries the full workflow reference. The registry, tool by "
             "tool:")
     tool_notes = {
@@ -2151,8 +2151,8 @@ def _s17(bk: Tour):
         "write_sdk_client": "create/overwrite a whitelisted client file",
         "read_sdk_client": "read a client file back",
         "list_sdk_clients": "enumerate the whitelisted clients",
-        "render_framegraph_yaml": "validate + render a raw YAML document",
-        "propose_from_image": "raster -> UNVERIFIED FrameGraph draft, round-tripped",
+        "render_frameforge_yaml": "validate + render a raw YAML document",
+        "propose_from_image": "raster -> UNVERIFIED FrameForge draft, round-tripped",
         "propose_from_document": "PDF/document -> UNVERIFIED draft",
         "propose_from_svg": "existing SVG -> UNVERIFIED draft",
         "compare_images": "reference|candidate|diff panels + NCC/RMSE/MAE metrics",
@@ -2177,7 +2177,7 @@ def _s17(bk: Tour):
     tool_groups = [
         ("Author → render", ["run_sdk_code", "run_sdk_client",
                              "write_sdk_client", "read_sdk_client",
-                             "list_sdk_clients", "render_framegraph_yaml"]),
+                             "list_sdk_clients", "render_frameforge_yaml"]),
         ("Image → draft (ingest)", ["propose_from_image",
                                     "propose_from_document",
                                     "propose_from_svg"]),
@@ -2222,13 +2222,13 @@ def _s17(bk: Tour):
         "when tracing, aligning, or rectifying.",
     ], ordered=True)
     bk.code(
-        "framegraph://session/<id>/document.yaml     # the canonical source\n"
-        "framegraph://session/<id>/document.pdf      # combined PDF\n"
-        "framegraph://session/<id>/page/<n>.svg      # vector page\n"
-        "framegraph://session/<id>/page/<n>.png      # raster page (verify this)\n"
-        "framegraph://session/<id>/diagnostics.json  # validation + render report\n"
-        "framegraph://session/<id>/workspace.json    # measurement-layer state",
-        caption="Session resources. The MCP prompt `framegraph_guide` returns "
+        "frameforge://session/<id>/document.yaml     # the canonical source\n"
+        "frameforge://session/<id>/document.pdf      # combined PDF\n"
+        "frameforge://session/<id>/page/<n>.svg      # vector page\n"
+        "frameforge://session/<id>/page/<n>.png      # raster page (verify this)\n"
+        "frameforge://session/<id>/diagnostics.json  # validation + render report\n"
+        "frameforge://session/<id>/workspace.json    # measurement-layer state",
+        caption="Session resources. The MCP prompt `frameforge_guide` returns "
                 "the complete workflow reference.")
 
     bk.subsection("The measurement loop, visually — and one recorded run")
@@ -2460,7 +2460,7 @@ def _appendix_a(bk: Tour):
     bk.section("Appendix A", f"All {len(BY_KIND['sdk_export'])} SDK "
                "exports, introspected", "Appendix A")
     bk.callout("GENERATED MACHINE REFERENCE — built by importing "
-               "framegraph.sdk and reading each export's docstring at build "
+               "frameforge.sdk and reading each export's docstring at build "
                "time, so it cannot drift from the code; the coverage gate "
                "fails if this surface and the manifest disagree. Not meant "
                "to be read linearly: scan by module, or arrive from "
@@ -2478,7 +2478,7 @@ def _appendix_a(bk: Tour):
             one = ((obj.__doc__ or "").strip().splitlines() or [""])[0]
         else:
             mod = (getattr(obj, "__module__", "") or "").replace(
-                "framegraph.sdk.", "sdk.").replace("framegraph.", "")
+                "frameforge.sdk.", "sdk.").replace("frameforge.", "")
             if mod.startswith("pydantic_core"):
                 mod = "sdk.model (re-exported)"
             if mod in ("typing",):
@@ -2607,19 +2607,19 @@ def _colophon(bk: Tour):
          "statement or demonstration not backed by the live repository "
          "tree, the generated capability manifest, or the rendered pages "
          "may be invalid, erroneous, or a hallucination. The prose is "
-         "didactic; the authoritative sources are models/framegraph.py, "
+         "didactic; the authoritative sources are models/frameforge.py, "
          "docs/capability-manifest.json (v" + MANIFEST["version"] + "), and "
          "the render this document produces of itself."),
         ("Generated by",
          GEN_BY + " — elected examples/layout_methods_book.py as the most "
          "evolved base, extended its Book composer, and authored this "
-         "document through the FrameGraph SDK. Date: " + GEN_DATE + "."),
+         "document through the FrameForge SDK. Date: " + GEN_DATE + "."),
         ("Coverage gate",
          "main() serializes this document and refuses success unless every "
          "one of the " + str(gate_n) + " capability names in the manifest "
          "(" + ", ".join(f"{len(v)} {k.replace('_', ' ')}s"
                          for k, v in BY_KIND.items()) + ") appears in the "
-         "serialized text. Appendix A is introspected from framegraph.sdk "
+         "serialized text. Appendix A is introspected from frameforge.sdk "
          "at build time. Completeness here is a checked property, not a "
          "claim."),
         ("Revision",
@@ -2643,10 +2643,10 @@ def _colophon(bk: Tour):
 # The MCP run contract: build() -> DocumentBuilder.
 # --------------------------------------------------------------------------- #
 def build() -> DocumentBuilder:
-    bk = Tour("FrameGraph — The Complete Capability Tour",
+    bk = Tour("FrameForge — The Complete Capability Tour",
               "Every SDK and MCP capability, demonstrated and explained")
     b = bk.b
-    b.describe("Every SDK/MCP capability of FrameGraph v2, demonstrated live "
+    b.describe("Every SDK/MCP capability of FrameForge v2, demonstrated live "
                "and explained step by step for AI agents and human operators; "
                "coverage machine-gated against docs/capability-manifest.json.")
     b.meta(generated_by=GEN_BY, date=GEN_DATE,

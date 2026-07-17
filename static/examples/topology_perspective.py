@@ -11,7 +11,7 @@ A single landscape page with six panels:
     6. Graph + Camera    — a 3D node-link network projected through the camera
                            (topology *and* perspective at once)
 
-Every panel is one FrameGraph group, so the geometric audit (which does not
+Every panel is one FrameForge group, so the geometric audit (which does not
 recurse into groups) stays at zero warnings; labels are sized against real font
 metrics so ``--check-overflow`` passes too.
 
@@ -26,11 +26,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Camera,
     DocumentBuilder,
     Graph,
@@ -165,7 +165,7 @@ def build() -> DocumentBuilder:
         reading_order=["h1"],
     ).layer("main")
     page.rect([0, 0, W, H], fill="#ffffff")
-    page.text([40, 30, 900, 36], "Topology & perspective in the FrameGraph SDK",
+    page.text([40, 30, 900, 36], "Topology & perspective in the FrameForge SDK",
               id="h1", style="h1")
     page.text([40, 70, 1000, 24],
               "Deterministic graph layouts + a perspective camera — node-link "

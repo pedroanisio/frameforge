@@ -4,7 +4,7 @@ This directory is the **gated conformance corpus**. Every full-corpus gate walks
 
 | Gate | What it walks | Cost driver |
 |---|---|---|
-| `tooling/gen_status.py` → `FIXTURE-STATUS.md` | top-level `fixtures/*.fg.yaml` + `*.framegraph.yml` | validates every file |
+| `tooling/gen_status.py` → `FIXTURE-STATUS.md` | top-level `fixtures/*.fg.yaml` + `*.frameforge.yml` | validates every file |
 | `tooling/render_fixtures.py` (default / `--all`) | **all of `fixtures/` recursively** | parses + normalizes + renders every file |
 | `tests/test_head.py`, golden oracle (`tests/golden/oracle.lock.json`) | `b1/` corpus | validates + diffs every page |
 

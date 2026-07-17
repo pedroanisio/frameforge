@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""*Layout Methods — A Field Guide* as a native FrameGraph ``mode: flow`` book.
+"""*Layout Methods — A Field Guide* as a native FrameForge ``mode: flow`` book.
 
 This is the typesetting-parity probe: instead of hand-rolling LaTeX, the whole
-chapter is authored as ONE FrameGraph flow document — headings, rich paragraphs,
+chapter is authored as ONE FrameForge flow document — headings, rich paragraphs,
 lists, real display **math**, code, tables, a bibliography, and the fourteen
 plates as ``figure`` flowables — then lowered to LaTeX by the project's own
-backend (``framegraph.rendering.infrastructure.latex``), where **TeX owns
+backend (``frameforge.rendering.infrastructure.latex``), where **TeX owns
 pagination, hyphenation, microtype, float placement and math**. The plates are
-not external images: each is a FrameGraph object graph that the backend emits as
+not external images: each is a FrameForge object graph that the backend emits as
 native vector **TikZ**.
 
     uv run python _tmp/render_chapter_native.py     # transpile + compile
@@ -25,11 +25,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, HERE)
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, cite, ref  # noqa: E402
+from frameforge.sdk import DocumentBuilder, cite, ref  # noqa: E402
 import layout_methods_figures as plates     # noqa: E402
 
 INK = "#1F2530"
@@ -147,10 +147,10 @@ def story():
 
     s += [
         H(1, "Layout Methods — A Field Guide"),
-        P("A field guide written to one reader — the author of FrameGraph's "
+        P("A field guide written to one reader — the author of FrameForge's "
           "architecture map. Fourteen plates illustrate it; each is a single "
-          "FrameGraph page, and so is the book around them. This edition is itself "
-          "a FrameGraph flow document, lowered to LaTeX so that TeX owns the "
+          "FrameForge page, and so is the book around them. This edition is itself "
+          "a FrameForge flow document, lowered to LaTeX so that TeX owns the "
           "pagination, line-breaking, float placement and math."),
         {"type": "toc", "leader": "."},
         SP(10),
@@ -413,7 +413,7 @@ def story():
 
     # §10
     s += [
-        H(2, "10. One concrete rung up for FrameGraph", id="sec-rung"),
+        H(2, "10. One concrete rung up for FrameForge", id="sec-rung"),
         P("You do not need a constraint solver or a Sugiyama engine. The "
           "highest-value, lowest-risk improvement is a thin layout-primitive layer "
           "that lowers to the absolute coordinates you already emit — mirroring "

@@ -14,8 +14,8 @@ Plus a Hypothesis property: a fuzzed rect+text document round-trips through
 model_dump -> model_validate unchanged (catches alias/serialisation asymmetries,
 e.g. `from`/`class`).
 
-Models-only (no renderer import) so the `framegraph` *package* never shadows the
-`framegraph` *models* module in the shared pytest process — see test_head.py.
+Models-only (no renderer import) so the `frameforge` *package* never shadows the
+`frameforge` *models* module in the shared pytest process — see test_head.py.
 """
 import os
 import sys
@@ -23,11 +23,11 @@ import typing
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # a package is shadowing the models
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-import framegraph as fg  # noqa: E402
+import frameforge as fg  # noqa: E402
 import pytest  # noqa: E402
 from hypothesis import given, settings  # noqa: E402
 from hypothesis import strategies as st  # noqa: E402
@@ -84,12 +84,12 @@ INLINE_SAMPLES = {
 
 # --- helpers ------------------------------------------------------------------ #
 def _page_doc(objects):
-    return {"dsl": "FrameGraph", "version": "2.2.0",
+    return {"dsl": "FrameForge", "version": "2.2.0",
             "pages": [{"mode": "page", "id": "p", "layers": [{"id": "l", "objects": objects}]}]}
 
 
 def _flow_doc(flow):
-    return {"dsl": "FrameGraph", "version": "2.2.0",
+    return {"dsl": "FrameForge", "version": "2.2.0",
             "pages": [{"mode": "flow", "id": "f", "master": "m", "story": [flow]}]}
 
 
@@ -158,7 +158,7 @@ def test_images_and_figures_accept_accessibility_text():
 
 def test_page_accepts_logical_reading_order():
     fg.Document.model_validate({
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "pages": [{
             "mode": "page",

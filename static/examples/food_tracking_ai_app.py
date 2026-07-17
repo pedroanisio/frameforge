@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """High-fidelity vector recreation of the Dribbble shot
-"Food Tracking Mobile App UI with AI Scan" (by Nixtio) using the FrameGraph SDK.
+"Food Tracking Mobile App UI with AI Scan" (by Nixtio) using the FrameForge SDK.
 
 Three phone mock-ups sit on a warm taupe stage:
 
@@ -26,18 +26,18 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     linear_gradient,
     radial_gradient,
     rgba,
     stroke,
 )
-from framegraph.sdk.paint import effects, shadow  # noqa: E402
+from frameforge.sdk.paint import effects, shadow  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas + palette

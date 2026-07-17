@@ -1,7 +1,7 @@
-"""framegraph.patterns.compose — filled patterns become v2 pages (issue #29).
+"""frameforge.patterns.compose — filled patterns become v2 pages (issue #29).
 
 The bridge over the #28 catalog: `compose(pattern_id, fill)` returns a full,
-validated FrameGraph document whose single page realizes the pattern — zone
+validated FrameForge document whose single page realizes the pattern — zone
 boxes computed deterministically from the anchor vocabulary, treatments
 (card fill/stroke/corner/accent-bar/label slot) applied from the pattern's
 `enterprise_layout`, and content emitted per `content_type` as plain core
@@ -24,8 +24,8 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
 from pydantic import ValidationError  # noqa: E402
 
-from framegraph.patterns import compose, load_sidecars  # noqa: E402
-from framegraph.sdk.model import validate_document  # noqa: E402
+from frameforge.patterns import compose, load_sidecars  # noqa: E402
+from frameforge.sdk.model import validate_document  # noqa: E402
 
 SIDECARS = load_sidecars()
 
@@ -83,7 +83,7 @@ def test_every_sidecared_pattern_renders_with_no_uncontained_text():
     """The issue's acceptance gate, as a test: all 17 example fills compose,
     validate, and render through the real SVG proxy with zero text spilling a
     containing box."""
-    from framegraph.sdk import render_pages_with_stats
+    from frameforge.sdk import render_pages_with_stats
     for pid, sidecar in sorted(SIDECARS.items()):
         doc = compose(pid, sidecar.example_fill)
         validate_document(doc)
@@ -98,7 +98,7 @@ def test_composed_pages_render_with_no_clipped_text():
     boxes shorter than their line box (~1.35 default line-height) — every
     composed page counted clipped text objects. Single-line display slots
     pin line_height 1.0."""
-    from framegraph.sdk import render_pages_with_stats
+    from frameforge.sdk import render_pages_with_stats
     doc = compose(10, {"strengths": ["Deterministic"],
                        "weaknesses": ["Proxy fonts"],
                        "opportunities": ["Corpus growth"],

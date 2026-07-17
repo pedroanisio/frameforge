@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Recreate the Sublime Text (.ttl) desktop screenshot with the FrameGraph SDK.
+"""Recreate the Sublime Text (.ttl) desktop screenshot with the FrameForge SDK.
 
 Authors the whole frame out of core primitives (rect / text / line / ellipse /
 polygon): the XFCE-style top panel, the Sublime window (title bar, menu bar, tab
@@ -19,13 +19,13 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder  # noqa: E402
-from framegraph.sdk.io import serialize  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk import DocumentBuilder  # noqa: E402
+from frameforge.sdk.io import serialize  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 OUT = ROOT / "static" / "examples" / "fixtures" / "sublime-ttl-screenshot.fg.yaml"
 W, H = 2000, 1250

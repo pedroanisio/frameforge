@@ -1,4 +1,4 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: "2.2.0"
 title: Accessibility demo
 description: >
@@ -41,5 +41,5 @@ pages:
           - type: text
             id: footer
             box: [120, 980, 1680, 60]
-            text: FrameGraph v2
+            text: FrameForge v2
             style: { font_size: 22 }

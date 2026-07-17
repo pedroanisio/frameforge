@@ -23,12 +23,12 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.sdk import chevreul, recolor, render_pages_with_stats  # noqa: E402
-from framegraph.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge.sdk import chevreul, recolor, render_pages_with_stats  # noqa: E402
+from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 
 def _doc(objects, colors=None):
-    return {"dsl": "FrameGraph", "version": HEAD_VERSION, "title": "w4",
+    return {"dsl": "FrameForge", "version": HEAD_VERSION, "title": "w4",
             "profile": "diagram",
             "defs": {"tokens": {"colors": colors or {"ink": "#1d1e22"}}},
             "pages": [{"mode": "page", "id": "p",

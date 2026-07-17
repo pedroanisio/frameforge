@@ -21,10 +21,10 @@ import statistics
 
 import pytest
 
-from framegraph.sdk.conform import page_hashes
-from framegraph.sdk.expand import ExpandOptions, expand
-from framegraph.sdk.humanize import Hand, apply_humanize
-from framegraph.sdk.model import validate_document
+from frameforge.sdk.conform import page_hashes
+from frameforge.sdk.expand import ExpandOptions, expand
+from frameforge.sdk.humanize import Hand, apply_humanize
+from frameforge.sdk.model import validate_document
 
 
 # --------------------------------------------------------------------------- #
@@ -32,7 +32,7 @@ from framegraph.sdk.model import validate_document
 # --------------------------------------------------------------------------- #
 def _doc(objects, humanize=None):
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.3.0",
         "pages": [{
             "mode": "page", "id": "pg",
@@ -349,7 +349,7 @@ def test_oracle_is_free_of_humanize_specs():
 
 def test_find_humanize_detects_doc_and_nested_specs():
     import render_golden
-    assert render_golden._find_humanize({"dsl": "FrameGraph"}) is None
+    assert render_golden._find_humanize({"dsl": "FrameForge"}) is None
     assert render_golden._find_humanize({"humanize": {"seed": 1}}) == "doc.humanize"
     nested = _doc([_rect("a", 10, humanize={"enabled": False})])
     assert render_golden._find_humanize(nested) is not None

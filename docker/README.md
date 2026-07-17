@@ -1,6 +1,6 @@
-# FrameGraph SDK / MCP — font-rich container
+# FrameForge SDK / MCP — font-rich container
 
-A Docker base image that runs the FrameGraph toolchain (SDK, renderers, and the
+A Docker base image that runs the FrameForge toolchain (SDK, renderers, and the
 MCP server) with **as many fonts as we can build in**: the entire
 [`google/fonts`](https://github.com/google/fonts) corpus (thousands of faces)
 plus a broad Debian font set covering full Noto, CJK, Indic, Arabic, Thai,
@@ -10,10 +10,10 @@ Back to the [repo README](../README.md).
 
 ## Why fonts are the whole point
 
-FrameGraph documents name a `font_family` as a string. Every renderer resolves
+FrameForge documents name a `font_family` as a string. Every renderer resolves
 that name through the **OS font stack** — fontconfig → freetype, reached via
 cairosvg/Pango and the `fc-match` metrics path in
-[`font_metrics.py`](../src/framegraph/rendering/infrastructure/font_metrics.py). If a
+[`font_metrics.py`](../src/frameforge/rendering/infrastructure/font_metrics.py). If a
 named family is not installed, fontconfig silently substitutes a generic
 serif/sans, so a deck that asks for `Fraunces` or `IBM Plex Serif` renders in
 DejaVu. Render fidelity is therefore bounded by the host's installed faces. This
@@ -53,10 +53,10 @@ The MCP server speaks **stdio**, so an MCP client spawns the container per
 session:
 
 ```bash
-docker run --rm -i -v framegraph-work:/work frameforge
+docker run --rm -i -v frameforge-work:/work frameforge
 ```
 
-Wire it into a client by replacing the `framegraph` entry in your MCP config with
+Wire it into a client by replacing the `frameforge` entry in your MCP config with
 [`mcp.docker.json`](mcp.docker.json). The repo's default
 [`.mcp.json`](../.mcp.json) still uses the local `uv` env for development; the
 container is the portable, font-complete alternative.
@@ -68,15 +68,15 @@ Host paths do not exist inside the container, so the client wiring in
 
 | Mount | Purpose |
 |---|---|
-| `framegraph-work:/work` | Named volume — session artifacts persist across runs; SDK clients written with a bare name land in `/work/clients` and survive restarts |
+| `frameforge-work:/work` | Named volume — session artifacts persist across runs; SDK clients written with a bare name land in `/work/clients` and survive restarts |
 | `${PWD}:/workspace:ro` | **Your project**, read-only — reference its files in tool calls as `/workspace/<relative-path>` (`propose_from_image path=/workspace/design/mockup.png`) |
 
-`FRAMEGRAPH_MCP_INPUT_ROOTS=/workspace:/work:/app` confines file-reading tools
+`FRAMEFORGE_MCP_INPUT_ROOTS=/workspace:/work:/app` confines file-reading tools
 to those roots. Retrieve rendered artifacts MCP-natively with
-`get_session_resource` (`framegraph://session/<id>/page/1.svg`), or bulk-export
-by mounting the volume: `docker run --rm -v framegraph-work:/work -v "$PWD:/out"
+`get_session_resource` (`frameforge://session/<id>/page/1.svg`), or bulk-export
+by mounting the volume: `docker run --rm -v frameforge-work:/work -v "$PWD:/out"
 frameforge bash -c 'cp -r /work/sessions/<id> /out/'`. The installable guide for
-consuming agents lives at [`skills/framegraph-mcp-docker/`](../skills/framegraph-mcp-docker/SKILL.md).
+consuming agents lives at [`skills/frameforge-mcp-docker/`](../skills/frameforge-mcp-docker/SKILL.md).
 
 ## Freshness
 
@@ -98,17 +98,17 @@ Other entrypoint verbs (see [`entrypoint.sh`](entrypoint.sh)):
 ```bash
 docker run --rm frameforge fonts          # list installed families
 docker run --rm -it frameforge bash       # shell inside the toolchain
-docker run --rm frameforge python -m framegraph.cli --list   # any command in the venv
+docker run --rm frameforge python -m frameforge.cli --list   # any command in the venv
 ```
 
 ## Chromium in a container
 
 Chromium's setuid sandbox cannot initialize under the container's default
-namespaces, so the image sets `FRAMEGRAPH_CHROMIUM_NO_SANDBOX=1`. The renderer
+namespaces, so the image sets `FRAMEFORGE_CHROMIUM_NO_SANDBOX=1`. The renderer
 reads that (see
-[`browser.py`](../src/framegraph/rendering/infrastructure/browser.py)) and launches
+[`browser.py`](../src/frameforge/rendering/infrastructure/browser.py)) and launches
 Chromium with `--no-sandbox --disable-dev-shm-usage`. The container boundary is
-the isolation. Override the flags entirely with `FRAMEGRAPH_CHROMIUM_ARGS`
+the isolation. Override the flags entirely with `FRAMEFORGE_CHROMIUM_ARGS`
 (space-separated). Locally, with neither variable set, launch behavior is
 unchanged.
 
@@ -118,9 +118,9 @@ Bind-mount a directory of extra faces and rebuild the cache on start:
 
 ```bash
 docker run --rm -i \
-  -e FRAMEGRAPH_REFRESH_FONTS=1 \
+  -e FRAMEFORGE_REFRESH_FONTS=1 \
   -v "$PWD/my-fonts:/usr/share/fonts/custom:ro" \
-  -v framegraph-work:/work \
+  -v frameforge-work:/work \
   frameforge
 ```
 

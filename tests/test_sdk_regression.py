@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression tests for the FrameGraph SDK.
+"""Regression tests for the FrameForge SDK.
 
 These complement the public-surface assertions in ``test_sdk.py`` with two
 regression guards the existing suite does not cover:
@@ -29,11 +29,11 @@ import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Camera,
     Scene3D,
     Vec3,
@@ -43,7 +43,7 @@ from framegraph.sdk import (  # noqa: E402
     rgba,
     row,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 
 # --------------------------------------------------------------------------- #

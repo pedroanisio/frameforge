@@ -4,7 +4,7 @@
 Pipeline, per frame: ingest the SVG once → recolour every fill by a hue that
 advances with time and a value keyed to the path's luminance → wrap the drawing
 in a ``place_region`` group transformed (a gentle rotate-pendulum + zoom breathing)
-→ render to FrameGraph SVG → rasterise to PNG with CairoSVG → ffmpeg stitches the
+→ render to FrameForge SVG → rasterise to PNG with CairoSVG → ffmpeg stitches the
 PNGs into a clip. The loop is seamless (every animated quantity is periodic over
 the frame count).
 
@@ -32,13 +32,13 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, Mat3, place_region, render_page_svgs  # noqa: E402
-from framegraph.rendering.infrastructure.cairo import rasterize_svg_cairo  # noqa: E402
-from framegraph.vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
+from frameforge.sdk import DocumentBuilder, Mat3, place_region, render_page_svgs  # noqa: E402
+from frameforge.rendering.infrastructure.cairo import rasterize_svg_cairo  # noqa: E402
+from frameforge.vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
 
 _NUM = re.compile(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?")
 

@@ -40,17 +40,17 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     rgba,
     serialize,
 )
-from framegraph.sdk.layout import column, row  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.layout import column, row  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Page + palette  (320x400 logical px, scaled x4 -> a tall "two-screen" comic)
@@ -728,7 +728,7 @@ def p02_title(b):
     T(p, [mx, y + h - 150, w, 34], "▶ NEW GAME", style="menu")
     T(p, [mx, y + h - 110, w, 34], "  CONTINUE", style="menu")
     T(p, [mx, y + h - 70, w, 34], "  QUIT", style="menu")
-    T(p, [x + 30, y + h - 44, w, 22], "© MCMXXXIX • a framegraph one-shot",
+    T(p, [x + 30, y + h - 44, w, 22], "© MCMXXXIX • a frameforge one-shot",
       style="tiny")
     folio(p, _PAGE_NO)
 
@@ -1295,7 +1295,7 @@ def p20_dawn(b):
     title(p, lx, cy + 30, "THE END", CO["gold"], cell=PX * 5, sh=CO["leather_d"])
     T(p, [cx + 40, cy + 120, cw - 80, chh - 140],
       "THE LOST TIDE  —  an Atlantean adventure\n"
-      "designed, drawn & scored entirely by the FrameGraph SDK\n"
+      "designed, drawn & scored entirely by the FrameForge SDK\n"
       "no image assets: a bitmap font, RLE sprites & dither, every pixel composed.\n\n"
       "          ▶  THANK YOU FOR PLAYING.", style="credit")
     folio(p, _PAGE_NO)

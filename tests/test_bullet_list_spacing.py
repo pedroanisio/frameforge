@@ -13,16 +13,16 @@ too-small gap can never cause overlap, while a deliberately large gap is still
 honoured (the floor is a minimum, not a clamp).
 
 Renderer-only import guard mirrors test_element_render.py (evict any models
-module shadowing the `framegraph` rendering package).
+module shadowing the `frameforge` rendering package).
 """
 import os
 import re
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # a non-package (the models module)
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling.render_fixtures import Renderer  # noqa: E402
@@ -32,7 +32,7 @@ def _item_baselines(items, *, gap, size):
     """Render a bullet_list and return the baseline y of each item's text run."""
     obj = {"type": "bullet_list", "items": list(items), "gap": gap,
            "box": [0, 0, 400, 400], "style": {"font_size": size}}
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [400, 400]},
                       "layers": [{"id": "l", "objects": [obj]}]}]}
     out = Renderer(doc, ".").render_page(doc["pages"][0])
@@ -47,7 +47,7 @@ def _item_baselines(items, *, gap, size):
 
 def _text_runs(obj, canvas=(400, 400)):
     """Render one object and return every emitted text run as (x, y, size, content)."""
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": list(canvas)},
                       "layers": [{"id": "l", "objects": [obj]}]}]}
     out = Renderer(doc, ".").render_page(doc["pages"][0])

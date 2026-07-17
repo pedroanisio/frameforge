@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
-"""The package render front-door (`framegraph.cli`).
+"""The package render front-door (`frameforge.cli`).
 
-`framegraph.cli` is the single CLI over every render path; it is referenced from
-pyproject's `[project.scripts]` as `framegraph-render`. This pins its target
+`frameforge.cli` is the single CLI over every render path; it is referenced from
+pyproject's `[project.scripts]` as `frameforge-render`. This pins its target
 registry, the `--list` path, and the two always-available, dependency-free
 targets (svg, tex) end to end — the optional ones (png/pdf/pdf-tex/html) are
 guarded by availability checks and not exercised here.
 
-Package-side import — the `framegraph` PACKAGE must win over a models-module
+Package-side import — the `frameforge` PACKAGE must win over a models-module
 shadow (mirror of test_render_cli.py / test_head.py).
 """
 import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):   # the models module
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph import cli  # noqa: E402
+from frameforge import cli  # noqa: E402
 
 DOC = """\
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 pages:
   - mode: page

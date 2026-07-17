@@ -7,7 +7,7 @@ fixtures/table-rows.fg.yaml is the oracle: header_height 30 + row_height 44 (so
 the frame is 30+44+44 = 118, not the box's 150), and a long note that wraps to
 multiple lines clipped to its cell.
 
-Subprocess render (not an in-process import) to avoid the framegraph-package vs
+Subprocess render (not an in-process import) to avoid the frameforge-package vs
 models-module name clash in the shared pytest process.
 """
 import glob

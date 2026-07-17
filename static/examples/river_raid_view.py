@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RIVER RAID — a vector homage to the 1982 Activision vertical shooter.
 
-A single game-view composition, built with FrameGraph primitives only: a player
+A single game-view composition, built with FrameForge primitives only: a player
 jet flying up a winding blue river between green banks, a bridge level-marker, a
 fleet of enemies (tanker, helicopters, enemy jet, fuel depot), and the black
 Atari HUD — pixel-digit score, remaining lives, and a fuel gauge — all inside a
@@ -28,11 +28,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     linear_gradient,
     radial_gradient,
@@ -42,7 +42,7 @@ from framegraph.sdk import (  # noqa: E402
     serialize,
     validate_static_rules,
 )
-from framegraph.sdk.paint import effects, shadow  # noqa: E402
+from frameforge.sdk.paint import effects, shadow  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas / cabinet / screen geometry
@@ -454,7 +454,7 @@ def build() -> DocumentBuilder:
     mq.text([CAB[0], my + 14, CAB[2], 44], "RIVER  RAID",
             style=txt(40, color="#EAF0FF", weight=800, align="center", ls=7.0))
     mq.text([CAB[0], my + 58, CAB[2], 18],
-            "vector homage · FrameGraph SDK · not affiliated with Activision",
+            "vector homage · FrameForge SDK · not affiliated with Activision",
             style=txt(12, color="#8A93B0", weight=500, align="center", ls=1.0))
 
     return doc

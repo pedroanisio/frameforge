@@ -11,9 +11,9 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.application.dimension_renderer import DimensionRenderer  # noqa: E402
-from framegraph.rendering.application.table_renderer import TableRenderer  # noqa: E402
-from framegraph.rendering.application.uml_renderer import UmlRenderer  # noqa: E402
+from frameforge.rendering.application.dimension_renderer import DimensionRenderer  # noqa: E402
+from frameforge.rendering.application.table_renderer import TableRenderer  # noqa: E402
+from frameforge.rendering.application.uml_renderer import UmlRenderer  # noqa: E402
 
 
 class FakePainter:

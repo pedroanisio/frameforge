@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compose ONE FrameGraph document with the Python SDK that exercises the
+"""Compose ONE FrameForge document with the Python SDK that exercises the
 document-styling concepts surfaced from current design research:
 
   type-collage hero (overlapping oversized ghost numerals + a layered display
@@ -23,11 +23,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     column,
     grid,
@@ -35,7 +35,7 @@ from framegraph.sdk import (  # noqa: E402
     row,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 900, 1100
 CANVAS = {"size": [W, H], "units": "px"}
@@ -119,7 +119,7 @@ def build() -> DocumentBuilder:
     # ---- hero: type-collage + layered display headline ------------------- #
     page.layer("hero")
     page.text([470, 56, 720, 260], "2026", style="ghost")               # bleeds off right edge
-    page.text([M, 60, 760, 22], "FrameGraph · Document Design Trends · 2026",
+    page.text([M, 60, 760, 22], "FrameForge · Document Design Trends · 2026",
               style="kicker")
     page.text([M, 150, 800, 120], "Type is the", style="hero")
     page.text([M, 238, 800, 120], "hero.", style="heroPink")
@@ -193,7 +193,7 @@ def build() -> DocumentBuilder:
     page.layer("footer")
     page.rect([M, 1046, W - 2 * M, 2], fill="line")
     page.text([M, 1060, 760, 18],
-              "Built with the FrameGraph SDK · one composed document · rendered to SVG",
+              "Built with the FrameForge SDK · one composed document · rendered to SVG",
               style="foot")
     return b
 

@@ -10,7 +10,7 @@ disclaimer:
     derivations, not empirical measurements.
   generated_by: "Claude Sonnet 4.6"
 
-dsl: FrameGraph
+dsl: FrameForge
 version: 1.5
 kind: presentation-deck
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Assert whether this tree is ready to emit (build/publish) a Python package.
 
-FrameGraph is deliberately a *virtual project* today (``[tool.uv] package = false``,
+FrameForge is deliberately a *virtual project* today (``[tool.uv] package = false``,
 codebase-standards §2): the tree runs via ``sys.path``-rooted scripts and is not
-built or installed, because an installed ``framegraph`` distribution would shadow
-the ``models/framegraph.py`` module the tooling imports as ``framegraph``. This
+built or installed, because an installed ``frameforge`` distribution would shadow
+the ``models/frameforge.py`` module the tooling imports as ``frameforge``. This
 check makes that stance *measurable* — it reports the distance to the §9/§16
 ``make release`` target and exits non-zero while any hard blocker stands.
 
@@ -46,15 +46,15 @@ GAP = "gap"
 # docs/. This checker inspects those *live* locations. tests/test_package_readiness.py
 # guards these paths against going stale again — a checker that inspects a path
 # that has moved passes vacuously, the PALS's-Law failure mode.
-SRC = ROOT / "src"                       # importable-package parent (src/framegraph)
+SRC = ROOT / "src"                       # importable-package parent (src/frameforge)
 
 # Reference-source dirs the tooling puts on sys.path (docs/models, docs/schema). A
 # `<dist-name>.py` sitting in one of these is shadowed by an installed wheel of the
-# same distribution — the documented docs/models/framegraph.py hazard (§2).
+# same distribution — the documented docs/models/frameforge.py hazard (§2).
 SHADOW_DIRS = ("docs/models", "docs/schema")
 
 # Sibling top-level import roots that are NOT inside the distribution package and
-# therefore would not ship in a `framegraph` wheel. Post-refactor `tooling` is the
+# therefore would not ship in a `frameforge` wheel. Post-refactor `tooling` is the
 # live risk (still a top-level package); `models`/`schema` are kept as defensive
 # guards even though the reference sources moved under docs/.
 SIBLING_ROOTS = ("models", "tooling", "schema")
@@ -107,7 +107,7 @@ def _check_name_collision(pp: dict) -> Finding:
     shadows = []
     # A module of the same name as the distribution, sitting on a sys.path root the
     # tooling uses, would be shadowed by the installed package (the documented
-    # docs/models/framegraph.py hazard, §2).
+    # docs/models/frameforge.py hazard, §2).
     for rel in SHADOW_DIRS:
         candidate = ROOT / rel / f"{name}.py"
         if candidate.exists():
@@ -229,7 +229,7 @@ def main(argv: list[str] | None = None) -> int:
     blockers = [f for f in findings if f.severity == BLOCKER and not f.ok]
     gaps = [f for f in findings if f.severity == GAP and not f.ok]
 
-    print("FrameGraph — package-emit readiness\n")
+    print("FrameForge — package-emit readiness\n")
     for f in findings:
         mark = "✓" if f.ok else ("✗" if f.severity == BLOCKER else "•")
         tag = "" if f.ok else f"  [{f.severity}]"
@@ -246,7 +246,7 @@ def main(argv: list[str] | None = None) -> int:
         print("  Gaps are the §16 [Target] ledger — they don't break a build.")
     else:
         print(f"NOT READY: {len(blockers)} blocker(s), {len(gaps)} gap(s).")
-        print("  FrameGraph is a virtual project by design (codebase-standards §2);")
+        print("  FrameForge is a virtual project by design (codebase-standards §2);")
         print("  emitting a package is a §9/§16 [Target], not a current capability.")
     return 0 if ready else 1
 

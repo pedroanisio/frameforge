@@ -21,9 +21,9 @@ import re
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # a non-package (the models module)
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling.render_fixtures import Renderer  # noqa: E402
@@ -32,7 +32,7 @@ _STOPS = [{"color": "#000000", "position": "0%"}, {"color": "#ffffff", "position
 
 
 def _render(fill):
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [200, 120]},
                       "layers": [{"id": "l", "objects": [
                           {"type": "rect", "box": [0, 0, 100, 60], "fill": fill}]}]}]}

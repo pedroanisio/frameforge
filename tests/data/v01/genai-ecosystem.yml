@@ -1,4 +1,4 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: 1.5
 kind: hybrid-semantic-visual-diagram
 
@@ -6,7 +6,7 @@ kind: hybrid-semantic-visual-diagram
 # The Generative AI Ecosystem
 # A bespoke single-slide hub-and-spoke diagram. Demonstrates the lower-level
 # visual surface (`visual.layers.objects`) — for slides composed from a
-# catalog pattern, see `framegraph deck` with `use:` + `fill:` instead.
+# catalog pattern, see `frameforge deck` with `use:` + `fill:` instead.
 # ─────────────────────────────────────────────────────────────────────────
 
 scene:

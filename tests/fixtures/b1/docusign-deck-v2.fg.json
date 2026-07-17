@@ -1,9 +1,9 @@
 {
-  "dsl": "FrameGraph",
+  "dsl": "FrameForge",
   "version": "2.0.0",
   "profile": "deck",
   "title": "France Entity Migration to Oracle Project Kickoff",
-  "description": "Migrated from FrameGraph v1.5 (kind: presentation-deck) to v2.0. Slides became fixed Pages through a shared `deck` master; ellipses converted box->center/rx/ry; image href->src; v1 gradients and style keys mapped to v2.",
+  "description": "Migrated from FrameForge v1.5 (kind: presentation-deck) to v2.0. Slides became fixed Pages through a shared `deck` master; ellipses converted box->center/rx/ry; image href->src; v1 gradients and style keys mapped to v2.",
   "lang": "en-US",
   "defs": {
     "tokens": {
@@ -14039,7 +14039,7 @@
           ]
         }
       ],
-      "notes": "Grant Thornton project-team slide rebuilt with extracted individual headshot assets clipped to circles via FrameGraph image clipping primitives.",
+      "notes": "Grant Thornton project-team slide rebuilt with extracted individual headshot assets clipped to circles via FrameForge image clipping primitives.",
       "meta": {
         "slide": 16,
         "title": "Grant Thornton Project Team"

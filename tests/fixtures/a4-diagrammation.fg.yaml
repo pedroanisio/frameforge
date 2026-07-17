@@ -1,4 +1,4 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.3.0
 profile: report
 title: Composition on A4

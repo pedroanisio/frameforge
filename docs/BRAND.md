@@ -9,7 +9,7 @@ disclaimer:
 status: proposal
 ---
 
-# FrameGraph — Brand Guideline (proposal)
+# FrameForge — Brand Guideline (proposal)
 
 > **Status.** This is a *proposed* brand identity, in the same spirit as the
 > format itself: a design target to verify, not a ratified standard. It is
@@ -17,10 +17,10 @@ status: proposal
 > pillar below cites the source it was extracted from. Treat it as a pull
 > request against the project's identity, open to revision.
 
-This guideline governs how FrameGraph presents itself: its product definition,
+This guideline governs how FrameForge presents itself: its product definition,
 name, voice, color, type, and mark. The essence and positioning in §1 are
-anchored to the FrameGraph seed pitch
-([`FrameGraph-Seed-Canonical.pdf`](FrameGraph-Seed-Canonical.pdf)) — the outcome-first,
+anchored to the FrameForge seed pitch
+([`FrameForge-Seed-Canonical.pdf`](FrameForge-Seed-Canonical.pdf)) — the outcome-first,
 agent-era framing — with the system's rigor recast as the *proof* of that
 promise rather than the pitch. It inherits the project's epistemic stance from
 [`DISCLAIMER.md`](../DISCLAIMER.md) and its operating constraints from
@@ -28,33 +28,33 @@ promise rather than the pitch. It inherits the project's epistemic stance from
 separate marketing layer. For what the project *is*, see the root
 [`README.md`](../README.md); the logo asset masters were retired from the
 tracked tree in the 2026-07 src-layout refactor — regenerate them on demand
-with [`static/examples/framegraph_logo.py`](../static/examples/framegraph_logo.py) (§3).
+with [`static/examples/frameforge_logo.py`](../static/examples/frameforge_logo.py) (§3).
 
 ---
 
 ## 1. Essence
 
-**FrameGraph is the output layer for the agent era.**
+**FrameForge is the output layer for the agent era.**
 
 AI learned to *read* the world — screens, documents, images. The unclaimed half
 is *output*: turning what a machine intends into a real, finished, trustworthy
-artifact a business can actually send. FrameGraph is that layer. You — or your
-AI — describe what you want, or point it at your data; FrameGraph assembles the
+artifact a business can actually send. FrameForge is that layer. You — or your
+AI — describe what you want, or point it at your data; FrameForge assembles the
 artifact, **checks it the way a meticulous proofreader would**, and renders a
 real file — a slide, report, web page, chart, or image — at any quality from a
 quick sketch to print-ready. The output is **correct, on-brand, and yours**: an
 open file you own and can edit by hand, not a dead-end image you can only
 re-prompt. *(Definition sharpened from the seed pitch —
-[`FrameGraph-Seed-Canonical.pdf`](FrameGraph-Seed-Canonical.pdf).)*
+[`FrameForge-Seed-Canonical.pdf`](FrameForge-Seed-Canonical.pdf).)*
 
 > *Spell-check and a printing press — for everything AI makes that you can see.*
 
 **Positioning (Moore template, with a namable "unlike").** *For* businesses and
 the AI agents acting for them *who* need a finished visual artifact they can
-trust without a human checking it, **FrameGraph is** an output layer *that* turns
+trust without a human checking it, **FrameForge is** an output layer *that* turns
 intent — or data — into a correct, on-brand, editable file. *Unlike* image
 generators (a dead-end you can only re-prompt) or code-it-yourself AI (output
-that *looks* right but breaks — text overflows, layouts collapse), FrameGraph
+that *looks* right but breaks — text overflows, layouts collapse), FrameForge
 hands you an open file you own and proofreads every render, so it ships
 unattended, at volume.
 
@@ -87,7 +87,7 @@ The name is two halves, and the brand keeps them visible:
 
 A **precision instrument that ships finished work.** The brand *chrome* stays
 quiet — drafting table, not billboard — but the *output* is the showroom: a
-rendered FrameGraph artifact should look as finished as it is correct. Confident
+rendered FrameForge artifact should look as finished as it is correct. Confident
 because it is grounded in a working system ("not a concept — a working system"),
 and honest about what is still proposed in the *format* — never hedged about the
 *result* it produces.
@@ -96,14 +96,14 @@ and honest about what is still proposed in the *format* — never hedged about t
 
 ## 2. Name & wordmark rules
 
-- The product is **FrameGraph** — one word, capital `F` and capital `G`, camel-joined.
-- Versioned as **FrameGraph v2** or **FrameGraph 2.3.0** (semver, per the repo).
-- The file/format extensions are `.fg.yaml` and `.framegraph.yml`.
+- The product is **FrameForge** — one word, capital `F` and capital `G`, camel-joined.
+- Versioned as **FrameForge v2** or **FrameForge 2.3.0** (semver, per the repo).
+- The file/format extensions are `.fg.yaml` and `.frameforge.yml`.
 - `FG` is the internal Pydantic base class and an acceptable square-logo monogram —
   it is **not** a public short name for the product in prose.
 
-**Never:** `Frame Graph` (two words) · `Framegraph` (lowercase g) · `frameGraph` ·
-`FRAMEGRAPH` (except inside a fixed-width ASCII/CLI banner) · "the FrameGraph framework"
+**Never:** `Frame Graph` (two words) · `Frameforge` (lowercase g) · `frameForge` ·
+`FRAMEFORGE` (except inside a fixed-width ASCII/CLI banner) · "the FrameForge framework"
 (it is a format + toolchain, not a framework).
 
 ---
@@ -111,12 +111,12 @@ and honest about what is still proposed in the *format* — never hedged about t
 ## 3. Logo
 
 The logo is **generated, not hand-drawn**. The single source of truth is
-[`examples/framegraph_logo.py`](../static/examples/framegraph_logo.py) — the same `mark()`
+[`examples/frameforge_logo.py`](../static/examples/frameforge_logo.py) — the same `mark()`
 and `wordmark()` the seed deck imports, so the asset and every place that stamps it
 can never diverge. Regenerate the masters with:
 
 ```sh
-uv run python static/examples/framegraph_logo.py   # regenerates framegraph-*.svg + the .fg.yaml
+uv run python static/examples/frameforge_logo.py   # regenerates frameforge-*.svg + the .fg.yaml
 ```
 
 The masters are regenerated on demand (no longer tracked; retired in the
@@ -124,18 +124,18 @@ The masters are regenerated on demand (no longer tracked; retired in the
 
 | File | What |
 |---|---|
-| `framegraph-mark.svg` | the icon — primary, two-tone, transparent |
-| `framegraph-mark-mono.svg` | one-colour ink |
-| `framegraph-mark-reversed.svg` | reversed, on an ink ground |
-| `framegraph-mark-favicon.svg` | tight-crop favicon master |
-| `framegraph-wordmark.svg` | the horizontal lockup (mark + wordmark) |
-| `framegraph-logo.fg.yaml` | the FrameGraph source document (every variant as a page) |
+| `frameforge-mark.svg` | the icon — primary, two-tone, transparent |
+| `frameforge-mark-mono.svg` | one-colour ink |
+| `frameforge-mark-reversed.svg` | reversed, on an ink ground |
+| `frameforge-mark-favicon.svg` | tight-crop favicon master |
+| `frameforge-wordmark.svg` | the horizontal lockup (mark + wordmark) |
+| `frameforge-logo.fg.yaml` | the FrameForge source document (every variant as a page) |
 
 **The mark is the thesis, drawn.** Technical-drawing corner brackets (the *Frame*:
 a fixed page / bounding box) enclose a small derivation graph (the *Graph*): one
 filled **source node** fanning out to three outlined **derived nodes** placed on a
 common arc (equal radius, equal angle — *constructed, not eyeballed*). That is
-literally the project's architecture — `models/framegraph.py` → `{schema, grammar,
+literally the project's architecture — `models/frameforge.py` → `{schema, grammar,
 spec, renders}` — turned into a glyph. The source node is the only filled, coloured
 element; everything generated from it is outline-only. The hierarchy of the picture
 *is* the hierarchy of the system.
@@ -143,7 +143,7 @@ element; everything generated from it is outline-only. The hierarchy of the pict
 - **Clear space:** one corner-bracket arm on all sides — the masters already bake
   in a quarter-mark clear-space. Nothing intrudes.
 - **Minimum size:** ~24 px for the full mark. Stroke weights are floored so it
-  stays crisp down to favicon size (use `framegraph-mark-favicon.svg`); below that,
+  stays crisp down to favicon size (use `frameforge-mark-favicon.svg`); below that,
   fall back to the `FG` monogram.
 - **Colour:** the mark mirrors the wordmark — **Frame = ink, Graph = frame-blue**.
   It collapses to all-ink (mono) and inverts (reversed) without losing meaning. In a
@@ -156,7 +156,7 @@ element; everything generated from it is outline-only. The hierarchy of the pict
 
 **Misuse (do not):** stretch or skew · rotate · add gradients, bevels, or drop
 shadows · recolour the brackets · fill the derived nodes · re-space or re-letter the
-wordmark · **hand-edit the SVGs** (they are generated — change `framegraph_logo.py`
+wordmark · **hand-edit the SVGs** (they are generated — change `frameforge_logo.py`
 and regenerate).
 
 ---
@@ -198,14 +198,14 @@ not decorative; it is the project's core feedback loop, promoted to brand color.
 
 ## 5. Typography
 
-One coherent superfamily across the three registers FrameGraph actually spans —
+One coherent superfamily across the three registers FrameForge actually spans —
 data, UI, and long-form documents — plus the deterministic proxy face already in
 the repo.
 
 - **IBM Plex Mono** — wordmark, code, YAML, schema, CLI, data labels. *Mono =
   machine-true; it signals "this is a typed artifact, not prose."*
 - **IBM Plex Sans** — UI, docs body, captions, this guideline.
-- **IBM Plex Serif** — long-form rendering (the books and letters FrameGraph
+- **IBM Plex Serif** — long-form rendering (the books and letters FrameForge
   targets).
 - **DejaVu Sans / Mono / Serif** — the **proxy faces**. The dependency-free
   renderer ships DejaVu stand-ins (`tooling/render_fixtures.py`); the brand names
@@ -242,7 +242,7 @@ it is the same operating discipline pointed at the reader.
 **Tagline (primary):** *"The output layer for the agent era."*
 **Alternates:** *"Turn intent into a finished, checked file."* · *"Spell-check
 and a printing press — for everything AI makes that you can see."* · *"Anyone can
-make a picture; FrameGraph makes a result you can trust."*
+make a picture; FrameForge makes a result you can trust."*
 **Internal / architecture line** (for a maintainer audience, not the public
 lead): *"The models are the source of truth · documents that can't silently
 drift."*
@@ -266,17 +266,17 @@ Reusable motifs, all drawn from the toolchain's real vocabulary:
 
 ---
 
-## 8. Design tokens (in FrameGraph's own model)
+## 8. Design tokens (in FrameForge's own model)
 
 The palette and type system map 1:1 onto the native `Defs.tokens` surface
-([`models/framegraph.py`](models/framegraph.py) `class Tokens`). The brand is
-therefore *consumable from FrameGraph itself* — see
-`framegraph.tokens.fg.yaml` (retired with the masters; no generator emits it
-today — regenerate the masters via `static/examples/framegraph_logo.py` and
+([`models/frameforge.py`](models/frameforge.py) `class Tokens`). The brand is
+therefore *consumable from FrameForge itself* — see
+`frameforge.tokens.fg.yaml` (retired with the masters; no generator emits it
+today — regenerate the masters via `static/examples/frameforge_logo.py` and
 treat this guideline's §4 palette as the token source until one does). Drop that
 `defs:` block into a document and reference the tokens by name. This is the
 intended dogfood: **the brand guideline should ultimately be authored as a
-FrameGraph document**, rendered by the project's own renderer, gated by the
+FrameForge document**, rendered by the project's own renderer, gated by the
 project's own checks.
 
 ---
@@ -284,7 +284,7 @@ project's own checks.
 ## 9. Applications
 
 - **README badge / CLI banner:** wordmark or `FG` monogram + a state chip
-  (`✓ in sync`). ASCII-art banner may use `FRAMEGRAPH` in a fixed-width box.
+  (`✓ in sync`). ASCII-art banner may use `FRAMEFORGE` in a fixed-width box.
 - **Docs site (MkDocs Material):** ink on paper; `frame-blue` as the theme primary;
   IBM Plex Sans body, IBM Plex Mono code.
 - **Fixture contact sheets / galleries:** hairline `grid` backdrop, corner-bracket
@@ -298,7 +298,7 @@ project's own checks.
 
 | Do | Don't |
 |---|---|
-| Write "FrameGraph" (camel, one word) | "Frame Graph", "Framegraph", "the framework" |
+| Write "FrameForge" (camel, one word) | "Frame Graph", "Frameforge", "the framework" |
 | Lead with limits, then capability | Use superlatives or claim conformance/fidelity |
 | Reserve green/red for real state | Use gate colors as decoration |
 | Keep brand chrome flat | Add gradients, bevels, shadows to the mark |
@@ -312,7 +312,7 @@ project's own checks.
 This guideline is a proposal and lives where the rest of the source of truth
 lives — in the repo, under the same rules. If adopted, the right end-state is to
 bind it to the sync system rather than maintain it by hand: the tokens become a
-checked `defs` fragment, the guideline renders as a FrameGraph document, and a
+checked `defs` fragment, the guideline renders as a FrameForge document, and a
 gate fails when the brand drifts from its tokens — the same guarantee the
 project already makes about its schema, grammar, and prose.
 

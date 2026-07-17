@@ -28,14 +28,14 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Chart, DocumentBuilder, Frame, column, grid, inset, rgba, row, serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1280, 720
 CANVAS = {"size": [W, H], "units": "px"}
@@ -304,7 +304,7 @@ def cover(b):
                style="lead")
     corner_frame(layer, [40, 40, W - 80, H - 80], color="blued", ln=30, w=1.6)
     layer.text([MX, 600, 760, 18],
-               "30 SHEETS · FRAMEGRAPH PYTHON SDK · FLAT 2D VECTOR · NO GLOW", style="tag")
+               "30 SHEETS · FRAMEFORGE PYTHON SDK · FLAT 2D VECTOR · NO GLOW", style="tag")
     layer.text([W - MX - 160, 600, 160, 18], "01 / 30", style="pnum")
 
 
@@ -1048,7 +1048,7 @@ def closing(b):
                style="chip")
     corner_frame(layer, [40, 40, W - 80, H - 80], color="blued", ln=30, w=1.6)
     layer.text([MX, 600, 760, 18],
-               "FRAMEGRAPH PYTHON SDK · 30 SHEETS · FLAT 2D VECTOR · ORIGINAL 1982 REGISTER",
+               "FRAMEFORGE PYTHON SDK · 30 SHEETS · FLAT 2D VECTOR · ORIGINAL 1982 REGISTER",
                style="tag")
     layer.text([W - MX - 160, 600, 160, 18], "30 / 30", style="pnum")
 

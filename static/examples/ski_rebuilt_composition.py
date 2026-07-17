@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Ingest ``ski_rebuilt.flat.svg`` and compose + transform it as native FrameGraph.
+"""Ingest ``ski_rebuilt.flat.svg`` and compose + transform it as native FrameForge.
 
 This client takes one flattened vector drawing (the coach-rebuilt ``ski`` figure —
 1 white ground + 1,332 paths) and shows the full round trip that makes an external
-SVG a *first-class FrameGraph asset*:
+SVG a *first-class FrameForge asset*:
 
-  * **Ingest** — :func:`svg_to_objects` lowers every SVG element into FrameGraph
+  * **Ingest** — :func:`svg_to_objects` lowers every SVG element into FrameForge
     primitive dicts (``rect`` / ``path``) the renderer draws 1:1. No raster step.
   * **Compose** — the lowered objects are assembled into a real ``DocumentBuilder``
     document (validatable, restyle-able, re-renderable).
@@ -28,7 +28,7 @@ Run::
     uv run python examples/ski_rebuilt_composition.py            # build + validate + YAML
     uv run python examples/ski_rebuilt_composition.py --render   # also write page SVGs
 
-Through the FrameGraph MCP, ``run_sdk_client`` imports this module's ``build()``.
+Through the FrameForge MCP, ``run_sdk_client`` imports this module's ``build()``.
 """
 from __future__ import annotations
 
@@ -41,16 +41,16 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-# Drop a namespace-package shadow of ``framegraph`` if another working dir injected one.
-_shadow = sys.modules.get("framegraph")
+# Drop a namespace-package shadow of ``frameforge`` if another working dir injected one.
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder, Mat3, clip_rect, radial_gradient, render_page_svgs, rgba, serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
-from framegraph.vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
 
 SVG_PATH = os.path.join(ROOT, "ski_rebuilt.flat.svg")
 
@@ -317,7 +317,7 @@ def _page_atlas(b: DocumentBuilder, clean, w, h) -> None:
                   style={"font_family": FONT, "font_size": 38, "font_weight": 800,
                          "color": LIGHT, "letter_spacing": -0.5})
         page.text([pad, 104, W - 2 * pad, 30],
-                  "one ingested SVG (1,332 paths) instanced as FrameGraph groups "
+                  "one ingested SVG (1,332 paths) instanced as FrameForge groups "
                   "— one affine transform per cell",
                   style={"font_family": FONT, "font_size": 19, "font_weight": 500,
                          "color": MUTE})
@@ -362,14 +362,14 @@ def _page_poster(b: DocumentBuilder, paths, clean, w, h) -> None:
     rx = hero_w + 28
     rw = W - rx - m
     with page.lettering():
-        page.text([rx, m + 14, rw, 26], "FRAMEGRAPH · VECTOR INGEST",
+        page.text([rx, m + 14, rw, 26], "FRAMEFORGE · VECTOR INGEST",
                   style={"font_family": MONO, "font_size": 17, "font_weight": 700,
                          "color": ACCENT, "letter_spacing": 2.0})
         page.text([rx, m + 50, rw, 118], "ski_rebuilt",
                   style={"font_family": FONT, "font_size": 88, "font_weight": 800,
                          "color": LIGHT, "letter_spacing": -2.0})
         page.text([rx, m + 180, rw, 156],
-                  "A flattened SVG, lowered into FrameGraph primitives and recomposed "
+                  "A flattened SVG, lowered into FrameForge primitives and recomposed "
                   "— then re-instanced under affine transforms. The geometry is "
                   "authored once; each frame is a matrix.",
                   style={"font_family": FONT, "font_size": 23, "font_weight": 400,

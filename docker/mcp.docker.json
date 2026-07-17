@@ -1,11 +1,11 @@
 {
   "_comment": [
-    "MCP client config that spawns the FrameGraph MCP inside the font-rich container.",
+    "MCP client config that spawns the FrameForge MCP inside the font-rich container.",
     "Build the image first: `docker build -t frameforge .` (or `make docker-build`).",
-    "Copy this into your client's MCP config (e.g. replace .mcp.json's `framegraph` entry).",
+    "Copy this into your client's MCP config (e.g. replace .mcp.json's `frameforge` entry).",
     "",
     "Mounts — both matter for a foreign codebase:",
-    "  framegraph-work:/work    named volume; MCP session artifacts and SDK clients",
+    "  frameforge-work:/work    named volume; MCP session artifacts and SDK clients",
     "                           written via write_sdk_client (/work/clients) persist",
     "                           across runs. Retrieve artifacts MCP-natively with",
     "                           get_session_resource, or `docker cp` from the volume.",
@@ -14,19 +14,19 @@
     "                           exist inside the container). Claude Code expands",
     "                           ${PWD}; other clients: replace with the absolute path.",
     "",
-    "FRAMEGRAPH_MCP_INPUT_ROOTS confines propose/vision inputs to the mounted roots",
+    "FRAMEFORGE_MCP_INPUT_ROOTS confines propose/vision inputs to the mounted roots",
     "(plus the in-image repo) so the server cannot read arbitrary container paths.",
     "Freshness: `docker run --rm frameforge version` — rebuild after updating the repo."
   ],
   "mcpServers": {
-    "framegraph": {
+    "frameforge": {
       "type": "stdio",
       "command": "docker",
       "args": [
         "run", "--rm", "-i",
-        "-v", "framegraph-work:/work",
+        "-v", "frameforge-work:/work",
         "-v", "${PWD}:/workspace:ro",
-        "-e", "FRAMEGRAPH_MCP_INPUT_ROOTS=/workspace:/work:/app",
+        "-e", "FRAMEFORGE_MCP_INPUT_ROOTS=/workspace:/work:/app",
         "frameforge"
       ]
     }

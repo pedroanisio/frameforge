@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AI-Assisted Vectorization Workflow — a product/landing composition.
 
-A single 1440x1000 vector document, built with FrameGraph primitives only,
+A single 1440x1000 vector document, built with FrameForge primitives only,
 that sells an AI-assisted raster->vector service ("from messy bitmap to
 editable production vector"). Everything below is drawn with rect / rounded
 rect / text / line / ellipse / circle / polygon / path / group primitives plus
@@ -33,11 +33,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     linear_gradient,
     measure_text,
@@ -48,8 +48,8 @@ from framegraph.sdk import (  # noqa: E402
     serialize,
     validate_static_rules,
 )
-from framegraph.sdk.clip import clip_rect  # noqa: E402
-from framegraph.sdk.paint import effects, shadow, soft_shadow  # noqa: E402
+from frameforge.sdk.clip import clip_rect  # noqa: E402
+from frameforge.sdk.paint import effects, shadow, soft_shadow  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas + palette
@@ -686,7 +686,7 @@ def build() -> DocumentBuilder:
 
     # footer note
     ann.text([M, H - 24, 900, 14],
-             "Built with FrameGraph primitives — the bitmap on the left is vector-simulated, not an imported raster.",
+             "Built with FrameForge primitives — the bitmap on the left is vector-simulated, not an imported raster.",
              style="foot")
     ann.text([W - M - 400, H - 24, 400, 14],
              "AI-assisted · human-reviewed · not fully automatic",

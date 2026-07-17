@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Doc-Field — logo proposal board, recreated as a native FrameGraph document.
+"""Doc-Field — logo proposal board, recreated as a native FrameForge document.
 
 A faithful vector reconstruction of the "Doc-Field / LOGO PROPOSAL" board: two
 mirrored panels (ink-on-dark, ink-on-light) each carrying the same mark, wordmark,
@@ -11,7 +11,7 @@ tagline and chrome. The mark reads left-to-right as the product story —
 
 — which is exactly ``REVEAL. MAP. STRUCTURE. KNOW.`` The reference art is a raster
 (an AI image), so this is a *clean-room vector interpretation*: every element is
-constructed from FrameGraph primitives (lines, ellipses, polylines) on a normalized,
+constructed from FrameForge primitives (lines, ellipses, polylines) on a normalized,
 scale-parametric grid, so the mark stays crisp at any size and re-colours for the
 dark/light grounds from one code path.
 
@@ -29,11 +29,11 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 OUT_DIR = os.path.join(ROOT, "_tmp", "docfield")
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     linear_gradient,
     measure_text,

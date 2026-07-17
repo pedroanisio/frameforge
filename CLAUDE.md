@@ -1,11 +1,11 @@
-# CLAUDE.md — FrameGraph Project Guidelines
+# CLAUDE.md — FrameForge Project Guidelines
 
 ---
 
 ## Scope
 
-This file is the AI-agent operating guide for FrameGraph v2 in this repository.
-The technical source of truth is the live tree: `models/framegraph.py`, the
+This file is the AI-agent operating guide for FrameForge v2 in this repository.
+The technical source of truth is the live tree: `models/frameforge.py`, the
 generated schema, the validator/tooling gates, committed fixtures, and the docs
 that are generated from those sources.
 
@@ -31,7 +31,7 @@ repeat the disclaimer block.
 
 ## Project Overview
 
-FrameGraph v2 is a proposed document/graphics DSL for decks, diagrams, books,
+FrameForge v2 is a proposed document/graphics DSL for decks, diagrams, books,
 letters, and fixed/reflowable visual documents. The Python Pydantic models are
 the source of truth; schema, validation, fixture status, and most site pages are
 generated from or checked against those models and fixtures.
@@ -41,9 +41,9 @@ generated from or checked against those models and fixtures.
 ├── CLAUDE.md          # This file — project guidelines for AI agents
 ├── DISCLAIMER.md      # Methodological caveats (all READMEs must reference)
 ├── README.md
-├── src/framegraph/           # the Python package (rendering, sdk, mcp, vision, coach, live)
+├── src/frameforge/           # the Python package (rendering, sdk, mcp, vision, coach, live)
 ├── docs/                     # MkDocs pages + reference sources:
-│   ├── models/framegraph.py  #   authoritative Pydantic model (SOURCE OF TRUTH)
+│   ├── models/frameforge.py  #   authoritative Pydantic model (SOURCE OF TRUTH)
 │   ├── schema/               #   generated JSON schema + generator
 │   ├── spec/  grammar/       #   normative prose + EBNF views
 │   └── *.md                  #   site pages, design records, generated snapshots

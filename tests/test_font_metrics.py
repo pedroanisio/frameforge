@@ -23,17 +23,17 @@ import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.rendering.infrastructure import font_metrics as fmmod
-from framegraph.rendering.infrastructure.font_metrics import (
+from frameforge.rendering.infrastructure import font_metrics as fmmod
+from frameforge.rendering.infrastructure.font_metrics import (
     FontMetrics,
     get_font_metrics,
     measure_text as fm_measure,
 )
-from framegraph.sdk import measure_text, text_height, wrap_text
+from frameforge.sdk import measure_text, text_height, wrap_text
 from tooling.render_fixtures import Renderer
 
 

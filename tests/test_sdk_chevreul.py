@@ -19,8 +19,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.sdk import chevreul as ch  # noqa: E402
-from framegraph.sdk.model import validate_document  # noqa: E402
+from frameforge.sdk import chevreul as ch  # noqa: E402
+from frameforge.sdk.model import validate_document  # noqa: E402
 
 
 # ── the wheel ─────────────────────────────────────────────────────────────
@@ -139,7 +139,7 @@ def test_closed_palette_duties_and_area_guide() -> None:
 def test_closed_palette_tokens_fragment_validates_in_a_document() -> None:
     palette = ch.closed_palette(ground="#fbf8f1", ink="#1d1e22", accent="#b5402c")
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.3.0",
         "title": "palette smoke",
         "defs": {"tokens": {"colors": palette.tokens()}},
@@ -159,7 +159,7 @@ def test_closed_palette_tokens_fragment_validates_in_a_document() -> None:
 
 def test_grey_document_strips_hue_everywhere_and_still_validates() -> None:
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.3.0",
         "title": "grey test",
         "defs": {"tokens": {"colors": {"accent": "#b5402c"}}},

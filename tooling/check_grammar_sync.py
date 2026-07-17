@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """check_grammar_sync.py — automated EBNF ⇄ Pydantic consistency gate.
 
-The Pydantic models in ``models/framegraph.py`` are the source of truth; the two
+The Pydantic models in ``models/frameforge.py`` are the source of truth; the two
 ``grammar/*.ebnf`` files are a hand-maintained *view* (README §"Grammar ⇄
 models"). Nothing previously enforced that the view stays faithful — this script
 does, so drift fails CI instead of silently rotting.
@@ -42,19 +42,19 @@ import typing
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-# Import the *models* module as ``framegraph`` exactly like validate.py, so the
+# Import the *models* module as ``frameforge`` exactly like validate.py, so the
 # in-repo source of truth shadows any installed distribution of the same name.
 sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
-# The rendering package ``framegraph`` (./framegraph) shares the name; if it is
-# already imported (e.g. under pytest) it would shadow models/framegraph.py.
+# The rendering package ``frameforge`` (./frameforge) shares the name; if it is
+# already imported (e.g. under pytest) it would shadow models/frameforge.py.
 # Evict the package so we always introspect the source of truth — see test_head.
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
-import framegraph as fg  # noqa: E402
+    del sys.modules["frameforge"]
+import frameforge as fg  # noqa: E402
 
-CORE_EBNF = os.path.join(ROOT, "docs", "grammar", "framegraph-v2.ebnf")
-STYLE_EBNF = os.path.join(ROOT, "docs", "grammar", "framegraph-v2-style.ebnf")
+CORE_EBNF = os.path.join(ROOT, "docs", "grammar", "frameforge-v2.ebnf")
+STYLE_EBNF = os.path.join(ROOT, "docs", "grammar", "frameforge-v2-style.ebnf")
 
 # The 17 object types the models type strictly (kept identical to
 # validate.py:CORE_OBJECT_TYPES — the single definition of "core profile").

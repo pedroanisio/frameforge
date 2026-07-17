@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as yaml from "js-yaml";
 import { chromium } from "playwright";
-import { normalizeFrameGraphDoc } from "../framegraph-normalize.mjs";
+import { normalizeFrameForgeDoc } from "../frameforge-normalize.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VIEWER = path.resolve(__dirname, "..");
@@ -24,7 +24,7 @@ function files(dir) {
 function loadDoc(file) {
   const raw = fs.readFileSync(file, "utf8");
   const doc = /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
-  return normalizeFrameGraphDoc(doc);
+  return normalizeFrameForgeDoc(doc);
 }
 
 function hasLayerContent(pageRecord) {
@@ -53,7 +53,7 @@ function countFlowMath(pageRecord) {
 
 const docs = files(FIXTURES)
   .map((file) => ({ file, rel: path.relative(ROOT, file), doc: loadDoc(file) }))
-  .filter(({ doc }) => doc && doc.dsl === "FrameGraph" && Array.isArray(doc.pages));
+  .filter(({ doc }) => doc && doc.dsl === "FrameForge" && Array.isArray(doc.pages));
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1366, height: 820 }, deviceScaleFactor: 1 });
@@ -67,15 +67,15 @@ page.on("console", (msg) => {
 page.on("pageerror", (err) => failures.push(`page error: ${err.message}`));
 
 await page.goto(HARNESS, { waitUntil: "networkidle" });
-await page.waitForFunction(() => window.__FRAMEGRAPH_VIEWER__);
+await page.waitForFunction(() => window.__FRAMEFORGE_VIEWER__);
 
 for (const { rel, doc } of docs) {
-  await page.evaluate((nextDoc) => window.__FRAMEGRAPH_VIEWER__.loadDoc(nextDoc), doc);
+  await page.evaluate((nextDoc) => window.__FRAMEFORGE_VIEWER__.loadDoc(nextDoc), doc);
   await page.waitForFunction(
-    (title) => window.__FRAMEGRAPH_VIEWER__?.state().title === title,
+    (title) => window.__FRAMEFORGE_VIEWER__?.state().title === title,
     doc.title,
   );
-  const state = await page.evaluate(() => window.__FRAMEGRAPH_VIEWER__.state());
+  const state = await page.evaluate(() => window.__FRAMEFORGE_VIEWER__.state());
   const sourcePages = doc.pages || [];
   const sourceRenderablePages = sourcePages.map(hasRenderableContent);
   const sourceMathBlocks = sourcePages.reduce((sum, pageRecord) => sum + countFlowMath(pageRecord), 0);
@@ -91,13 +91,13 @@ for (const { rel, doc } of docs) {
   expandedPages += Math.max(0, state.pageCount - sourcePages.length);
   const mathAudit = { katexCount: 0, rawTex: false };
   for (let i = 0; i < state.pageCount; i += 1) {
-    await page.evaluate((idx) => window.__FRAMEGRAPH_VIEWER__.setPage(idx), i);
+    await page.evaluate((idx) => window.__FRAMEFORGE_VIEWER__.setPage(idx), i);
     await page.waitForFunction(
-      (idx) => window.__FRAMEGRAPH_VIEWER__?.state().pageIndex === idx,
+      (idx) => window.__FRAMEFORGE_VIEWER__?.state().pageIndex === idx,
       i,
     );
     await page.waitForTimeout(20);
-    const result = await page.locator('[data-framegraph-page="active"]').evaluate((el) => {
+    const result = await page.locator('[data-frameforge-page="active"]').evaluate((el) => {
       const box = el.getBoundingClientRect();
       const flowRegion = el.querySelector('[data-flow-region="active"]');
       return {

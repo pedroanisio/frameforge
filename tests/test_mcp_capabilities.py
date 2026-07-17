@@ -4,8 +4,8 @@
 An agent authoring YAML/SDK code through the server must be able to look up the
 live model surface (object types, flowables, inlines, style fields, canvas
 presets, tool names) instead of guessing and iterating on validation errors.
-The catalog is introspected LIVE from ``models/framegraph.py`` via the same
-``framegraph.sdk.model`` mechanism the pipeline uses — never hand-maintained.
+The catalog is introspected LIVE from ``models/frameforge.py`` via the same
+``frameforge.sdk.model`` mechanism the pipeline uses — never hand-maintained.
 """
 from __future__ import annotations
 
@@ -13,13 +13,13 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-import framegraph.mcp.server as server_mod  # noqa: E402
-from framegraph.mcp.server import FRAMEGRAPH_GUIDE, create_server, describe_capabilities  # noqa: E402
+import frameforge.mcp.server as server_mod  # noqa: E402
+from frameforge.mcp.server import FRAMEFORGE_GUIDE, create_server, describe_capabilities  # noqa: E402
 
 
 class FakeFastMCP:
@@ -57,7 +57,7 @@ def _structured(result):
 
 
 def test_capability_index_reflects_the_live_model():
-    from framegraph.sdk.model import HEAD_VERSION
+    from frameforge.sdk.model import HEAD_VERSION
 
     result = describe_capabilities()
 
@@ -143,7 +143,7 @@ def test_get_guide_tool_returns_the_prompt_text(tmp_path):
     server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
 
     assert "get_guide" in server.tools
-    assert server.tools["get_guide"]() == FRAMEGRAPH_GUIDE
+    assert server.tools["get_guide"]() == FRAMEFORGE_GUIDE
 
 
 def test_new_tools_are_registered_and_exported(tmp_path):
@@ -184,8 +184,8 @@ _HEADLINE_SURFACES = [
     # CG-canon geometry (B-backlog residuals: patches, curvature, 3D hull, near-clip)
     "bspline_patch", "surface_curvature", "convex_hull_3d", "near_clip",
     # absorption programme (#28/#29/#31/#32/#33)
-    "framegraph.patterns", "load_catalog", "compose(",
-    "framegraph.library", "load_theme", "load_symbols",
+    "frameforge.patterns", "load_catalog", "compose(",
+    "frameforge.library", "load_theme", "load_symbols",
     "honeycomb_capability_map", "module_hub_radial",
     "from_markdown", "--from-v01",
     # cross-cutting
@@ -195,7 +195,7 @@ _HEADLINE_SURFACES = [
 
 def test_guide_mentions_every_capability_bearing_sdk_module():
     from pathlib import Path
-    sdk_dir = Path(__file__).resolve().parent.parent / "src" / "framegraph" / "sdk"
+    sdk_dir = Path(__file__).resolve().parent.parent / "src" / "frameforge" / "sdk"
     live = {p.stem for p in sdk_dir.glob("*.py") if not p.stem.startswith("_")}
     missing_from_tree = set(_CAPABILITY_MODULES) - live
     assert not missing_from_tree, f"gate list names dead modules: {missing_from_tree}"
@@ -206,28 +206,28 @@ def test_guide_mentions_every_capability_bearing_sdk_module():
     assert not unclassified, (
         "new sdk modules are neither declared capabilities nor exempt plumbing "
         f"(classify them): {sorted(unclassified)}")
-    unmentioned = [m for m in _CAPABILITY_MODULES if m not in FRAMEGRAPH_GUIDE]
+    unmentioned = [m for m in _CAPABILITY_MODULES if m not in FRAMEFORGE_GUIDE]
     assert not unmentioned, (
         f"sdk modules invisible to MCP clients (extend the guide): {unmentioned}")
 
 
 def test_guide_covers_the_delivered_headline_surfaces():
-    missing = [s for s in _HEADLINE_SURFACES if s not in FRAMEGRAPH_GUIDE]
+    missing = [s for s in _HEADLINE_SURFACES if s not in FRAMEFORGE_GUIDE]
     assert not missing, f"delivered surfaces missing from the guide: {missing}"
 
 
 def test_color_guide_is_a_top_level_sdk_export():
     # `chevreul.color_guide` is advertised in the guide, the headline gate above,
-    # and the server handshake — it must be a top-level `framegraph.sdk` export so
+    # and the server handshake — it must be a top-level `frameforge.sdk` export so
     # the introspected capability manifest (built from sdk.__all__) can see it.
-    import framegraph.sdk as sdk
-    assert "color_guide" in sdk.__all__, "color_guide missing from framegraph.sdk.__all__"
-    assert hasattr(sdk, "color_guide"), "color_guide not re-exported from framegraph.sdk"
+    import frameforge.sdk as sdk
+    assert "color_guide" in sdk.__all__, "color_guide missing from frameforge.sdk.__all__"
+    assert hasattr(sdk, "color_guide"), "color_guide not re-exported from frameforge.sdk"
 
 
 def test_server_instructions_name_the_authoring_engines(tmp_path):
     server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
     text = server.kwargs["instructions"]
-    for surface in ("sdk.planar", "sdk.outline", "framegraph.patterns",
-                    "framegraph.library", "--from-v01"):
+    for surface in ("sdk.planar", "sdk.outline", "frameforge.patterns",
+                    "frameforge.library", "--from-v01"):
         assert surface in text, f"handshake instructions omit {surface}"

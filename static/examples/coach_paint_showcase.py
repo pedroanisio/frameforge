@@ -27,16 +27,16 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, ROOT)
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.coach import (  # noqa: E402
+from frameforge.coach import (  # noqa: E402
     atmosphere, clean, cleanup_params, create_plan, curve_count, gradientize, ingest, node_count,
     parse_intent, recolor_to_style, redraw, redraw_params, resolve_style, stage_rubric,
     to_silhouette, validate_order,
 )
-from framegraph.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
 
 
 def _place(objs, box, src):

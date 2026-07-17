@@ -10,8 +10,8 @@ silently dropped or mis-rendered it.
 This puts the viewer↔model contract in the *blocking* pytest suite, independent
 of the non-blocking viewer job. It reconciles the viewer's declared surface
 (``viewer/dev/type-registry.json``) against the model's discriminators read from
-``schema/framegraph-v2.schema.json`` — which ``schema-check`` already keeps
-byte-exact to ``models/framegraph.py``. So a model change that is not reflected
+``schema/frameforge-v2.schema.json`` — which ``schema-check`` already keeps
+byte-exact to ``models/frameforge.py``. So a model change that is not reflected
 in the registry becomes a ``test-failure`` here. The Node gate
 ``viewer/dev/schema-contract.mjs`` enforces the identical contract for viewer
 developers; this is its language-neutral mirror, requiring no Node in CI.
@@ -33,7 +33,7 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-SCHEMA_PATH = os.path.join(ROOT, "docs", "schema", "framegraph-v2.schema.json")
+SCHEMA_PATH = os.path.join(ROOT, "docs", "schema", "frameforge-v2.schema.json")
 REGISTRY_PATH = os.path.join(ROOT, "viewer", "dev", "type-registry.json")
 
 DIMENSIONS = ("object_types", "flow_types", "inline_kinds")
@@ -129,10 +129,10 @@ def model_discriminators() -> dict[str, set[str]]:
 
     sys.path[:0] = [p for p in (os.path.join(ROOT, "tooling"), os.path.join(ROOT, "docs", "models"))
                     if p not in sys.path]
-    shadow = sys.modules.get("framegraph")
+    shadow = sys.modules.get("frameforge")
     if shadow is not None and hasattr(shadow, "__path__"):
-        del sys.modules["framegraph"]
-    import framegraph as fg
+        del sys.modules["frameforge"]
+    import frameforge as fg
     import check_grammar_sync as C
 
     alias = set(C.MODEL_ONLY_ALIAS_TYPES)

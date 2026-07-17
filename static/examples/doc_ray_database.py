@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""FrameGraph v2 — doc-ray Database Architecture (SDK client).
+"""FrameForge v2 — doc-ray Database Architecture (SDK client).
 
-A framegraph-v2 rendering of the doc-ray ERD / data dictionary (docs/DATABASE.md):
+A frameforge-v2 rendering of the doc-ray ERD / data dictionary (docs/DATABASE.md):
 object store -> first-class 4NF document entity + append-only provenance ->
 shared span/annotation backbone -> the 20-layer NLP annotation band ->
 document-level RBAC enforced by row-level security as the cross-cutting gate.
 
-Authored through the FrameGraph v2 SDK (models are the source of truth), then
+Authored through the FrameForge v2 SDK (models are the source of truth), then
 rendered by the repo's SVG proxy and stitched to PDF by tooling/render_pdf.py.
 
 Run from the repository root::
@@ -22,12 +22,12 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs, serialize  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs, serialize  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1600, 960
 CANVAS = {"size": [W, H], "units": "px"}

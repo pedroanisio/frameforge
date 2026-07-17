@@ -1,8 +1,8 @@
-# Canonical fixture for framegraph.sdk.book (roadmap item 8) — GENERATED
+# Canonical fixture for frameforge.sdk.book (roadmap item 8) — GENERATED
 # from static/examples/book_builder_demo.py (build() returns this document
 # verbatim); regenerate from there, never hand-edit. Build-time numbering:
 # chapters/sections in heading text, per-chapter figure labels in captions.
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.4.1
 profile: book
 title: On Composition
@@ -51,7 +51,7 @@ pages:
       font_weight: 700
       line_height: 1.15
   - type: paragraph
-    text: FrameGraph Press
+    text: FrameForge Press
     style:
       color: '#555555'
       font_size: 14
@@ -71,7 +71,7 @@ pages:
       what it needs to carry a comfortable line — forty-five to seventy-five characters
       — and returns the rest to the margins, where the eye rests between thoughts.
   - type: paragraph
-    text: FrameGraph settles this negotiation deterministically. A flow section names
+    text: FrameForge settles this negotiation deterministically. A flow section names
       a master; the master names a canvas; the margins resolve through an explicit
       region, a declared margin, or the Johnston canon — inner one-and-a-half, top
       two, outer three, foot four. Nothing is eyeballed, so nothing drifts.
@@ -173,7 +173,7 @@ pages:
     text: 'Edward Johnston taught letterers to divide the page before touching it:
       the inner margin one and a half units, the head two, the outer three, the foot
       four. The asymmetry is not decoration — facing pages share their inner silence,
-      and the thumb needs the outer edge. FrameGraph mirrors the canon recto and verso,
+      and the thumb needs the outer edge. FrameForge mirrors the canon recto and verso,
       so a spread reads as one object.'
   - type: paragraph
     text: 'A measure that runs too long tires the return sweep of the eye; one that
@@ -5822,8 +5822,8 @@ pages:
       guide, and authors through the identical builders — with coverage gates that
       fail the build if a new capability ever ships without appearing in that guide.'
   - type: paragraph
-    text: 'Colophon: composed by framegraph.sdk.book on an A5 master, set with the
+    text: 'Colophon: composed by frameforge.sdk.book on an A5 master, set with the
       ADR-0003 flow engine, every plate computed by the capability it depicts.'
   media: paged
 meta:
-  author: FrameGraph Press
+  author: FrameForge Press

@@ -4,7 +4,7 @@ disclaimer:
     No information within this document should be taken for granted.
     Any statement or premise not backed by a real logical definition
     or verifiable reference may be invalid, erroneous, or a hallucination.
-  generated_by: "Claude Opus 4.8 via Claude Code (FrameGraph MCP server)"
+  generated_by: "Claude Opus 4.8 via Claude Code (FrameForge MCP server)"
   date: "2026-07-15"
 title: "Lesson 02 — Reconstruct a geometric cover"
 ---
@@ -12,7 +12,7 @@ title: "Lesson 02 — Reconstruct a geometric cover"
 # Lesson 02 — Reconstruct a geometric cover
 
 **Goal:** rebuild a modern book cover — a mosaic of flat colour over a
-photographic collage — as a FrameGraph document, deriving the lattice from the
+photographic collage — as a FrameForge document, deriving the lattice from the
 pixels rather than guessing it, and reporting where a vector reconstruction
 *cannot* follow the source.
 
@@ -29,8 +29,8 @@ pixels rather than guessing it, and reporting where a vector reconstruction
     <figcaption><em>Source cover</em></figcaption>
   </figure>
   <figure style="margin:0;flex:1">
-    <img src="render/reconstruction.png" alt="The FrameGraph reconstruction: the same triangular mosaic in flat measured colour, with the same typography" style="width:100%">
-    <figcaption><em>FrameGraph reconstruction</em></figcaption>
+    <img src="render/reconstruction.png" alt="The FrameForge reconstruction: the same triangular mosaic in flat measured colour, with the same typography" style="width:100%">
+    <figcaption><em>FrameForge reconstruction</em></figcaption>
   </figure>
 </div>
 
@@ -275,7 +275,7 @@ moved no glyph.
 ```jsonc
 compare_images({
   reference: "docs/tutorial/lesson-02/target/lesson-02.jpg",
-  candidate: "framegraph://session/lesson-02-v4/page/1.png",
+  candidate: "frameforge://session/lesson-02-v4/page/1.png",
   session_id: "lesson-02-compare",
   regions: [ { name: "translator",  box: [0.05, 0.39, 0.42, 0.09] },
              { name: "title",       box: [0.08, 0.69, 0.84, 0.10] },

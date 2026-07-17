@@ -1,13 +1,13 @@
 """Itaú · Rio Terminal — a client-facing UI/UX proposal, authored with the
-FrameGraph SDK. Concept using Itaú-inspired colours (orange + blue); not an
+FrameForge SDK. Concept using Itaú-inspired colours (orange + blue); not an
 official Itaú asset. Every symbol (chevrons, checks, dots, bars, charts, the
 brand mark) is drawn as vector geometry so the render is crisp and tofu-free."""
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from framegraph.sdk import DocumentBuilder, Mat3, PageBuilder, render_pages_with_stats
-from framegraph.sdk.paint import linear_gradient, radial_gradient, rgba
-from framegraph.sdk.macros import span
+from frameforge.sdk import DocumentBuilder, Mat3, PageBuilder, render_pages_with_stats
+from frameforge.sdk.paint import linear_gradient, radial_gradient, rgba
+from frameforge.sdk.macros import span
 from itau_logo import GLYPHS as _GLYPHS, SQUIRCLE as _SQUIRCLE   # authentic reconstructed mark
 
 OUT = os.environ.get("ITAU_OUT", ".")
@@ -332,7 +332,7 @@ def cover():
         T(p, cxp + 18, cy + 38, v, size=18, color="#FFFFFF", font=DISP, weight=600)
     # peeking terminal on the right
     terminal(p, W - 640, 300, DARK)
-    T(p, W - 360, H - 46, "Rendered by FrameGraph · SDK", size=12.5, color="#5E7396",
+    T(p, W - 360, H - 46, "Rendered by FrameForge · SDK", size=12.5, color="#5E7396",
       font=MONO, align="right", w=264)
 
 
@@ -554,7 +554,7 @@ def perform():
            radius=16, stroke="#20345C", stroke_style={"stroke_width": 1})
     itau_logo(p, 148, 758, 52)
     T(p, 218, 758, "Vamos construir o terminal do Itaú.", size=24, color="#FFFFFF", font=DISP, weight=700)
-    T(p, 210, 792, "Protótipo navegável em 2 sprints · rendered by FrameGraph.", size=14.5, color="#9BB0CE", font=UI)
+    T(p, 210, 792, "Protótipo navegável em 2 sprints · rendered by FrameForge.", size=14.5, color="#9BB0CE", font=UI)
     p.rect([1230, 764, 218, 44], fill=ORANGE, radius=10)
     T(p, 1230, 776, "Aprovar piloto  →", size=15.5, color="#FFFFFF", font=UI, weight=700, w=218, align="center")
 
@@ -752,7 +752,7 @@ for fn in (cover, hero, core_legacy, core_modern, anatomy, light, system, perfor
 if __name__ == "__main__":
     import sys
     # Emit the document as a .fg.yaml (like the other cookbook clients), so it can
-    # be rendered with the FrameGraph CLI: `python -m framegraph.cli <out> --to png`.
+    # be rendered with the FrameForge CLI: `python -m frameforge.cli <out> --to png`.
     out = os.environ.get("OUTPUT_YAML_PATH", "itau-rio-terminal.fg.yaml")
     b.write(out, fail_on_error=True)
     print("wrote", out)

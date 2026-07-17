@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""FrameGraph v2 — Architecture Map (companion to ``conceptual-analysis.md``).
+"""FrameForge v2 — Architecture Map (companion to ``conceptual-analysis.md``).
 
-This map is *authored through the FrameGraph SDK* and rendered by the project's
+This map is *authored through the FrameForge SDK* and rendered by the project's
 own SVG proxy — the system drawing a portrait of itself. It is the visual
 synthesis artifact (Output Section 9) of the conceptual-codebase-analysis: a
 single absolute-mode page whose nodes are the core concepts (color-coded by
@@ -20,12 +20,12 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs, serialize  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs, serialize  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1340, 984
 CANVAS = {"size": [W, H], "units": "px"}
@@ -86,14 +86,14 @@ def node(page, box, palette, title, title_color, subs, sub_color, *,
 
 
 def build() -> DocumentBuilder:
-    b = DocumentBuilder(title="FrameGraph v2 — Architecture Map",
+    b = DocumentBuilder(title="FrameForge v2 — Architecture Map",
                         profile="diagram", lang="en")
     page = b.page("architecture-map", canvas=CANVAS, coordinate_mode="absolute")
 
     # ---- background ----------------------------------------------------- #
     page.layer("bg")
     page.rect([0, 0, W, H], fill="#FFFFFF")
-    page.text([40, 26, 1000, 30], "FrameGraph v2 — Architecture Map",
+    page.text([40, 26, 1000, 30], "FrameForge v2 — Architecture Map",
               style=ts(24, INK, weight=800, spacing=-0.3))
     page.text([40, 58, 1260, 18],
               "A DSL + code-generation system: one closed Pydantic model is the "
@@ -138,7 +138,7 @@ def build() -> DocumentBuilder:
     # Source of truth (centered).
     page.rect([510, 92, 320, 94], radius=12, fill=SOT[0], stroke=SOT[1],
               stroke_style={"stroke_width": 2.5})
-    page.text([510, 108, 320, 18], "docs/models/framegraph.py",
+    page.text([510, 108, 320, 18], "docs/models/frameforge.py",
               style=ts(14, "#5B21B6", weight=700, align="center", family=MONO))
     page.text([510, 130, 320, 13], "SINGLE SOURCE OF TRUTH · Document (Pydantic v2)",
               style=ts(10.5, "#6D28D9", align="center"))
@@ -149,19 +149,19 @@ def build() -> DocumentBuilder:
 
     # Authoring region nodes.
     node(page, [60, 250, 320, 62], DOM,
-         "framegraph.sdk — DocumentBuilder", "#1E40AF",
+         "frameforge.sdk — DocumentBuilder", "#1E40AF",
          ["PageBuilder · layout · paint · widgets · macros ·",
           "charts · geometry · 3D scenes · topology · fields"], "#1E40AF")
     node(page, [60, 320, 320, 46], DOM,
          "sdk.expand · sdk.validate", "#1E40AF",
          ["lowers builders → model; validates THERE"], "#1E40AF")
     node(page, [60, 374, 320, 60], INTEG,
-         "framegraph.mcp — FastMCP server", "#0F766E",
+         "frameforge.mcp — FastMCP server", "#0F766E",
          ["run_sdk_code · render SVG/PNG · propose_from_*",
           "the AI authoring feedback loop"], "#0F766E")
     node(page, [60, 442, 320, 58], INTEG,
-         "framegraph.vision — propose_from_*", "#0F766E",
-         ["OpenCV/VLM + pdf_to_framegraph_yml → proposed doc",
+         "frameforge.vision — propose_from_*", "#0F766E",
+         ["OpenCV/VLM + pdf_to_frameforge_yml → proposed doc",
           "UNVERIFIED draft (PALS's Law)"], "#0F766E")
 
     # Generated / checked views.

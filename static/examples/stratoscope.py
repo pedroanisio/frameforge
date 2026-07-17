@@ -24,7 +24,7 @@ Run from the repository root::
 
 NOTE ON FIDELITY
 ----------------
-This script is written against the public ``framegraph.sdk`` surface as used by
+This script is written against the public ``frameforge.sdk`` surface as used by
 the other examples. Almost everything is stock. The ONE author-side flourish is
 ``floor_flow()`` — it projects gradient streamlines onto the floor plane through
 the same Camera, exactly the way ``sdk_3d_scene.py`` adds Lambert shading via the
@@ -43,11 +43,11 @@ from dataclasses import replace
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Camera,
     DocumentBuilder,
     Scene3D,
@@ -63,7 +63,7 @@ from framegraph.sdk import (  # noqa: E402
     row,
     sparkline,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 W, H = 1440, 900
@@ -305,7 +305,7 @@ def shadow_blob(to_local):
 # ======================================================================= #
 def hud(page) -> None:
     rx = 72
-    page.text([rx, 78, 320, 18], "FRAMEGRAPH · FIELD STUDY", id="kicker", style="kick")
+    page.text([rx, 78, 320, 18], "FRAMEFORGE · FIELD STUDY", id="kicker", style="kick")
     page.text([rx, 150, 600, 56], "STRATOSCOPE", id="title", style="h1")
     page.text([rx, 184, 320, 22], "one scalar field — two projections, one frame.",
               id="sub", style="sub")
@@ -403,7 +403,7 @@ def main() -> int:
     for i in report.issues[:20]:
         print(f"  [{i.severity}] [{i.rule_id}] {i.path}: {i.message}")
 
-    from framegraph.sdk import serialize  # noqa: E402
+    from frameforge.sdk import serialize  # noqa: E402
     out = os.path.join(ROOT, "tests", "fixtures", "stratoscope.fg.yaml")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as fh:
@@ -411,7 +411,7 @@ def main() -> int:
     print(f"Wrote {out}")
 
     if "--svg" in args:
-        from framegraph.sdk.conform import render_page_svgs
+        from frameforge.sdk.conform import render_page_svgs
         dst = args[args.index("--svg") + 1]
         os.makedirs(dst, exist_ok=True)
         for idx, svg in enumerate(render_page_svgs(doc, base_dir=ROOT), 1):

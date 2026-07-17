@@ -6,7 +6,7 @@ in `stroke_style` (paint stays in `stroke`); `arrow_*` is `bool | str` where Tru
 is the default filled triangle and a string is a marker-kind ref (grammar L631).
 
 Why subprocess instead of importing the Renderer: the rendering package is named
-`framegraph`, which in a shared pytest process would shadow the `framegraph`
+`frameforge`, which in a shared pytest process would shadow the `frameforge`
 *models module* that tests/test_head.py imports (one name, two targets — resolved
 later by the DDD migration folding the models into the package). Rendering in a
 subprocess isolates that and tests the real end-to-end SVG.
@@ -30,7 +30,7 @@ RENDER = os.path.join(ROOT, "tooling", "render_fixtures.py")
 def _svg(obj, defs=None):
     """Render a one-object page via the renderer subprocess; return the SVG text."""
     doc = {
-        "dsl": "FrameGraph", "version": "2.2.0",
+        "dsl": "FrameForge", "version": "2.2.0",
         "defs": defs or {},
         "pages": [{"mode": "page", "id": "p", "canvas": {"size": [100, 100]},
                    "layers": [{"id": "l", "objects": [obj]}]}],

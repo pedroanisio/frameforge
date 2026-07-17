@@ -12,15 +12,15 @@ disclaimer:
   date: "2026-06-24"
 ---
 
-# FrameGraph output space
+# FrameForge output space
 
-*What FrameGraph can generate — both concretely (what is wired today) and
+*What FrameForge can generate — both concretely (what is wired today) and
 conceptually (what the architecture admits).* Cross-referenced from
 [the README](../README.md); see also [architecture.md](architecture.md).
 
 ## The generating principle
 
-FrameGraph is not a renderer; it is a **verifiable intermediate representation
+FrameForge is not a renderer; it is a **verifiable intermediate representation
 (IR) for visual documents**. One pipeline defines the entire output space:
 
 ```
@@ -41,35 +41,35 @@ These are wired and exercised in the repo. Each names its entry point; the paths
 here are pinned by `tests/test_output_space_doc.py` (drift → gate failure).
 
 The shared core is the port + renderer:
-`src/framegraph/rendering/domain/ports.py` (the `ScenePainter` port) and
-`src/framegraph/rendering/application/renderer.py` (the model-walking `Renderer`).
+`src/frameforge/rendering/domain/ports.py` (the `ScenePainter` port) and
+`src/frameforge/rendering/application/renderer.py` (the model-walking `Renderer`).
 
 | Output | Kind | Entry point |
 |---|---|---|
-| **SVG** | vector (primary) | `src/framegraph/rendering/infrastructure/painters/svg.py`, driven by `tooling/render_fixtures.py` |
+| **SVG** | vector (primary) | `src/frameforge/rendering/infrastructure/painters/svg.py`, driven by `tooling/render_fixtures.py` |
 | **PNG** (headless Chromium) | raster, CSS-fidelity; `--font-pack P.fp` scopes fonts so measure == render (ADR-0004) | `tooling/render_chromium.py` |
 | **Raster** (matplotlib proxy) | raster, sanity check | `tooling/render_fg_doc.py` |
-| **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `src/framegraph/rendering/infrastructure/latex/document.py` |
+| **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `src/frameforge/rendering/infrastructure/latex/document.py` |
 | **PDF** via cairosvg (SVG → PDF) | vector PDF | `tooling/render_pdf.py` |
-| **HTML/CSS** (ADR-0004 promotes this to the intended flow-fidelity path; the current implementation still degrades flow — documented flow/gradient limits) | web | `src/framegraph/rendering/infrastructure/backends/html.py` (the `DocumentRenderer` port; `--to html`) |
+| **HTML/CSS** (ADR-0004 promotes this to the intended flow-fidelity path; the current implementation still degrades flow — documented flow/gradient limits) | web | `src/frameforge/rendering/infrastructure/backends/html.py` (the `DocumentRenderer` port; `--to html`) |
 | **Math** TeX → SVG (MathJax) | embedded glyphs | `tooling/mathjax_tex_to_svg.mjs` |
 | **JSON Schema** | format contract | `docs/schema/build_schema.py` |
 | **Docs site** (reference/gallery/SDK/spec) | documentation | `tooling/gen_docs.py` |
 | **Golden hashes** (per-page SHA-256 of SVG) | regression lock | `tooling/render_golden.py` |
 
-The second-painter migration (`src/framegraph/rendering/infrastructure/painters/tikz.py`,
+The second-painter migration (`src/frameforge/rendering/infrastructure/painters/tikz.py`,
 `TikzPainter`) is in progress — when wired it routes the LaTeX/TikZ output through
 the same port, collapsing the `FigureTikz` fork.
 
-**Import — the hub's other half** (any-format → FrameGraph):
-`tooling/pdf_to_framegraph_yml.py` (PDF → fixed-layout FrameGraph), plus vision
+**Import — the hub's other half** (any-format → FrameForge):
+`tooling/pdf_to_frameforge_yml.py` (PDF → fixed-layout FrameForge), plus vision
 `propose_from_image` / `propose_from_document` in the MCP server.
 
 > Honest scope: no renderer is conformant; the SVG/matplotlib proxies are sanity
 > checks, not fidelity guarantees, and fidelity degrades where a target cannot
 > hold an IR feature (gradients flatten in TikZ; flow degrades in the HTML path).
 >
-> Text determinism is enforced separately by `fg-font` (`src/framegraph/fontpack.py`,
+> Text determinism is enforced separately by `fg-font` (`src/frameforge/fontpack.py`,
 > a console script): `--check DOC` gates a document (non-zero exit if a content font
 > would substitute), `--pack DOC --out P.fp` bundles the exact faces plus a
 > `family → file → sha256` manifest, and a substituted content font now **screams**
@@ -108,8 +108,8 @@ This is the part most renderers cannot do, and where the "verifiable IR" thesis 
 - **Geometry / 3D interchange**: Graphviz DOT, Mermaid, draw.io XML, DXF,
   pen-plotter G-code/HPGL; and from `Scene3D` / manifolds / lattices, glTF/OBJ/STL/USD.
 
-### The hub — any → FrameGraph → any
-Because the import side exists (PDF/image → FG), FrameGraph can be a
+### The hub — any → FrameForge → any
+Because the import side exists (PDF/image → FG), FrameForge can be a
 *Pandoc/Babel for visual documents*: every (importer × exporter) pair. This is
 arguably the largest latent output.
 
@@ -124,7 +124,7 @@ until the model grows a temporal axis.
 
 ## The one-line answer
 
-FrameGraph can generate *any artifact that is a pure function of a laid-out,
+FrameForge can generate *any artifact that is a pure function of a laid-out,
 accessibility-annotated visual-document model* — every rendition a painter can
 draw, every format another engine can typeset from, and every semantic
 derivative the structured tree affords — bounded only by IR expressiveness and

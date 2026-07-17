@@ -13,18 +13,18 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
 
 RECT = {"type": "rect", "box": [0, 0, 100, 50], "fill": "#cccccc"}
 
 
 def _doc(*story):
-    return {"dsl": "FrameGraph", "version": "2.2.0", "profile": "book", "title": "f",
+    return {"dsl": "FrameForge", "version": "2.2.0", "profile": "book", "title": "f",
             "pages": [{"mode": "flow", "id": "p", "story": list(story)}]}
 
 
@@ -50,7 +50,7 @@ def test_captioned_table_float_puts_caption_above():
 
 def test_captioned_image_is_a_figure_float():
     tex = transpile({
-        "dsl": "FrameGraph", "version": "2.2.0", "profile": "book", "title": "i",
+        "dsl": "FrameForge", "version": "2.2.0", "profile": "book", "title": "i",
         "defs": {"assets": {"logo": {"src": "logo.png"}}},
         "pages": [{"mode": "flow", "id": "p", "story": [
             {"type": "image", "src": "logo", "caption": "shot", "credit": "me"}]}]})

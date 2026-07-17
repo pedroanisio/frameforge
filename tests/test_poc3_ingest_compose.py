@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""POC-03 — ingestion x FrameGraph compounding power (the editable-base claim).
+"""POC-03 — ingestion x FrameForge compounding power (the editable-base claim).
 
 The pure transforms over traced object dicts (restyle/recolor/place) and the
 soundness gates (geometry invariant under restyle, distinct renders, native
@@ -11,9 +11,9 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, os.path.join(ROOT, "static", "examples"))
 
@@ -99,7 +99,7 @@ def test_bbox_over_mixed_geometry():
 
 
 def test_style_matrix_builds_and_renders_distinct_styles():
-    from framegraph.sdk import render_page_svgs
+    from frameforge.sdk import render_page_svgs
     base = _trace_objs()
     b, ids = build_style_matrix(base, (20, 20))
     svg = render_page_svgs(b.build())[0]
@@ -153,7 +153,7 @@ def test_translate_objs_shifts_coordinates_and_preserves_count():
 
 
 def test_build_parts_recompose_is_a_real_edit():
-    from framegraph.sdk import render_page_svgs
+    from frameforge.sdk import render_page_svgs
     # objects landing in build_parts' board ([2,6,30,58]) and figure ([28,18,20,66])
     # fractional regions for a 100x100 source, plus some elsewhere.
     def pl(p):
@@ -172,7 +172,7 @@ def test_build_parts_recompose_is_a_real_edit():
 
 
 def test_composition_carries_native_text_and_chart():
-    from framegraph.sdk import render_page_svgs
+    from frameforge.sdk import render_page_svgs
     base = _trace_objs()
     b = build_composition(base, (20, 20), n_objs=len(base), fidelity=0.42)
     svg = render_page_svgs(b.build())[0]

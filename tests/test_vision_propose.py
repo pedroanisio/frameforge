@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for the vision context: image/document -> draft FrameGraph proposals.
+"""Tests for the vision context: image/document -> draft FrameForge proposals.
 
 The OpenCV/OCR adapters cannot run without their backends, so the orchestration
 is exercised with injected fakes (the Dependency-Inversion payoff) and the one
@@ -18,24 +18,24 @@ import pytest
 import yaml
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk.conform import render_page_svgs  # noqa: E402
-from framegraph.sdk.io import parse  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
-from framegraph.vision import (  # noqa: E402
+from frameforge.sdk.conform import render_page_svgs  # noqa: E402
+from frameforge.sdk.io import parse  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.vision import (  # noqa: E402
     Detector,
     Observation,
     Proposer,
     RasterImage,
 )
-from framegraph.vision.application.mapper import DefaultObservationMapper  # noqa: E402
-from framegraph.vision.infrastructure.image_source import DefaultImageSource  # noqa: E402
-from framegraph.vision.infrastructure.opencv_detectors import ColorRegionDetector  # noqa: E402
-from framegraph.vision.infrastructure.vlm_detector import VlmDetector  # noqa: E402
+from frameforge.vision.application.mapper import DefaultObservationMapper  # noqa: E402
+from frameforge.vision.infrastructure.image_source import DefaultImageSource  # noqa: E402
+from frameforge.vision.infrastructure.opencv_detectors import ColorRegionDetector  # noqa: E402
+from frameforge.vision.infrastructure.vlm_detector import VlmDetector  # noqa: E402
 
 
 class FakeDetector:
@@ -192,7 +192,7 @@ def test_concrete_detectors_satisfy_the_detector_port():
 # MCP tool surface (forward verification of the inverse proposal)
 # --------------------------------------------------------------------------- #
 def test_mcp_propose_from_image_validates_and_renders(tmp_path):
-    from framegraph.mcp.server import propose_from_image
+    from frameforge.mcp.server import propose_from_image
 
     image_b64 = base64.b64encode(_png_bytes()).decode("ascii")
     result = propose_from_image(
@@ -212,20 +212,20 @@ def test_mcp_propose_from_image_validates_and_renders(tmp_path):
     assert {"shape", "line", "text", "vlm"} <= (ran_names | skipped_names)
     # `text` (pytesseract) runs wherever the vision group + tesseract binary
     # exist, so it may land on either side. Only the VLM lane is deterministic
-    # here: it needs explicit FRAMEGRAPH_VISION_VLM_* configuration.
+    # here: it needs explicit FRAMEFORGE_VISION_VLM_* configuration.
     assert "vlm" in skipped_names
 
 
 def test_mcp_propose_from_image_requires_an_image():
-    from framegraph.mcp.server import propose_from_image
+    from frameforge.mcp.server import propose_from_image
 
     with pytest.raises(ValueError, match="image_path or image_base64"):
         propose_from_image()
 
 
 def test_mcp_propose_from_document_reports_missing_backend_gracefully(tmp_path, monkeypatch):
-    from framegraph.vision.infrastructure.pdf_source import PdfDocumentSource
-    from framegraph.mcp.server import propose_from_document
+    from frameforge.vision.infrastructure.pdf_source import PdfDocumentSource
+    from frameforge.mcp.server import propose_from_document
 
     monkeypatch.setattr(PdfDocumentSource, "available", lambda self: False)
     result = propose_from_document("/nonexistent.pdf", session_id="vision-doc", session_root=tmp_path)

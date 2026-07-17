@@ -40,14 +40,14 @@ The output:
 Use it as a starting point when:
 
 - The slide does **not** match a catalog pattern (run
-  `framegraph patterns list --has-sidecar --json` to confirm).
+  `frameforge patterns list --has-sidecar --json` to confirm).
 - You need precise pixel control over a hub-and-spoke /
   ecosystem / matrix layout.
 - You want to keep the document self-contained — no `$theme:`,
   no library, no deck wrapper.
 
 If a catalog pattern does fit (SWOT, BMC, Communications Plan, etc.),
-**prefer `framegraph patterns build` or a deck with `use:` /
+**prefer `frameforge patterns build` or a deck with `use:` /
 `fill:`** instead. The catalog handles theming, layout, and
 accessibility metadata for you. See ``AGENTS.md``
 for the decision tree.
@@ -58,16 +58,16 @@ for the decision tree.
 
 ```sh
 # 1. Render to SVG (always works)
-framegraph render examples/genai-ecosystem/genai-ecosystem.yml \
+frameforge render examples/genai-ecosystem/genai-ecosystem.yml \
     -o examples/genai-ecosystem/genai-ecosystem.svg
 
 # 2. Render to SVG + PDF (requires the [pdf] extra: cairosvg + Pillow)
-framegraph render examples/genai-ecosystem/genai-ecosystem.yml \
+frameforge render examples/genai-ecosystem/genai-ecosystem.yml \
     -o examples/genai-ecosystem/genai-ecosystem.svg \
     --pdf
 
 # 3. Render to SVG + 4K-wide PNG (also requires cairosvg)
-framegraph render examples/genai-ecosystem/genai-ecosystem.yml \
+frameforge render examples/genai-ecosystem/genai-ecosystem.yml \
     -o examples/genai-ecosystem/genai-ecosystem.svg \
     --4k
 ```
@@ -82,14 +82,14 @@ wrote examples/genai-ecosystem/genai-ecosystem.pdf  (249 KB, raster 300 DPI)
 To install the optional PDF and 4K dependencies once:
 
 ```sh
-pip install "framegraph[pdf]"           # cairosvg + Pillow → raster PDF, 4K PNG
-pip install "framegraph[pdf-vector]"    # weasyprint + pypdf → vector PDF (selectable text)
+pip install "frameforge[pdf]"           # cairosvg + Pillow → raster PDF, 4K PNG
+pip install "frameforge[pdf-vector]"    # weasyprint + pypdf → vector PDF (selectable text)
 ```
 
 For a vector PDF (selectable / searchable text):
 
 ```sh
-framegraph render examples/genai-ecosystem/genai-ecosystem.yml \
+frameforge render examples/genai-ecosystem/genai-ecosystem.yml \
     -o examples/genai-ecosystem/genai-ecosystem.svg \
     --pdf --vector
 ```
@@ -98,10 +98,10 @@ framegraph render examples/genai-ecosystem/genai-ecosystem.yml \
 
 ## How the YAML is structured
 
-`genai-ecosystem.yml` is a standard FrameGraph document:
+`genai-ecosystem.yml` is a standard FrameForge document:
 
 ```yaml
-dsl: FrameGraph
+dsl: FrameForge
 version: 1.5
 kind: hybrid-semantic-visual-diagram
 
@@ -144,7 +144,7 @@ Common edits and where to make them:
 | Resize the canvas | `scene.canvas.size` (then re-flow the boxes — there is no auto-layout for this bespoke geometry) |
 | Highlight a different bottom card | Move the `brand_soft` fill / `uc_label_b` style from `uc3_*` (Media Creation) to another card |
 
-After any edit, re-run the `framegraph render` command above.
+After any edit, re-run the `frameforge render` command above.
 
 ---
 
@@ -160,9 +160,9 @@ To verify the YAML alone (no render):
 
 ```sh
 python -c "
-import yaml; from framegraph import FrameGraphRenderer
+import yaml; from frameforge import FrameForgeRenderer
 doc = yaml.safe_load(open('examples/genai-ecosystem/genai-ecosystem.yml'))
-r = FrameGraphRenderer(doc)
+r = FrameForgeRenderer(doc)
 for w in r.validate():
     print('warning:', w)
 print('ok' if not r.warnings else 'render warnings present')
@@ -176,7 +176,7 @@ print('ok' if not r.warnings else 'render warnings present')
 - ``../../AGENTS.md`` — agent-oriented entry point.
 - ``../../docs/AUTHORING-FILLS.md`` —
   the fill / sidecar workflow for catalog patterns.
-- ``../../static/fixture/decks/framegraph-overview-deck.yml`` —
+- ``../../static/fixture/decks/frameforge-overview-deck.yml`` —
   a 12-slide deck composed entirely from bespoke `visual.layers`
   (no patterns), useful as a longer reference.
 - ``../../static/fixture/faz-ai-manifesto-deck.yml`` —

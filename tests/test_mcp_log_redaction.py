@@ -21,9 +21,9 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import json  # noqa: E402
@@ -31,8 +31,8 @@ from pathlib import Path  # noqa: E402
 
 import pytest  # noqa: E402
 
-from framegraph.mcp.config import STRUCTURED_LOG_MAX_FIELD_CHARS  # noqa: E402
-from framegraph.mcp.logging import _logged_call  # noqa: E402
+from frameforge.mcp.config import STRUCTURED_LOG_MAX_FIELD_CHARS  # noqa: E402
+from frameforge.mcp.logging import _logged_call  # noqa: E402
 
 
 def _last_log_line(log_path: Path) -> str:

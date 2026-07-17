@@ -7,7 +7,7 @@ free-split. fixtures/tables.fg.yaml is the oracle: a 560px-wide table with colum
 40% / 120px / 1fr / auto, so the column separators land at x = 264 / 384 / 492
 (an equal split would have put the first near 187).
 
-Subprocess render (not an in-process import) to avoid the framegraph-package vs
+Subprocess render (not an in-process import) to avoid the frameforge-package vs
 models-module name clash in the shared pytest process.
 """
 import glob

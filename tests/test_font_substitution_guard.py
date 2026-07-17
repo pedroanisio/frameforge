@@ -19,13 +19,13 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 import pytest  # noqa: E402
-from framegraph import fontpack  # noqa: E402
+from frameforge import fontpack  # noqa: E402
 
 
 def _fontconfig_ready() -> bool:

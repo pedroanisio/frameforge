@@ -1,14 +1,14 @@
-# Canonical fixture for framegraph.library (issue #32) — the honeycomb
+# Canonical fixture for frameforge.library (issue #32) — the honeycomb
 # capability map generated from the committed example data. GENERATED from
 # the module's own output: regenerate with
 #   uv run python - <<'PY'
 #   import sys; sys.path[:0] = ["src", "docs"]
-#   from framegraph.library import honeycomb_capability_map, load_example
-#   from framegraph.sdk import serialize
+#   from frameforge.library import honeycomb_capability_map, load_example
+#   from frameforge.sdk import serialize
 #   print(serialize(honeycomb_capability_map(load_example("honeycomb"))))
 #   PY
 # rather than hand-editing geometry or labels.
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.3.0
 profile: deck
 title: Expected Functional and Technical Coverage of the Solution

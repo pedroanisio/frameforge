@@ -16,14 +16,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     chevreul,
     measure_text,
     recolor,
     render_page_svgs,
     serialize,
 )
-from framegraph.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 _SANS = ["DejaVu Sans", "Arial", "sans-serif"]
 
@@ -86,7 +86,7 @@ def build():
                             "box": [190 + i * 44, y - 3, 38, 22],
                             "fill": color, "radius": 4})
         y += 34
-    doc = {"dsl": "FrameGraph", "version": HEAD_VERSION,
+    doc = {"dsl": "FrameForge", "version": HEAD_VERSION,
            "title": "style & colour richness showcase", "profile": "diagram",
            "defs": {"tokens": {"colors": {"paper": "#fcfbf8",
                                           "ink": "#1d1e22",

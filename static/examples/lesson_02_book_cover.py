@@ -1,4 +1,4 @@
-"""Lesson 02 — reconstruct the cover of *The Understory* as a FrameGraph document.
+"""Lesson 02 — reconstruct the cover of *The Understory* as a FrameForge document.
 
 Every number here was measured from `docs/tutorial/lesson-02/target/lesson-02.jpg`;
 none was eyeballed. See `docs/tutorial/lesson-02/index.md` for the derivation and
@@ -37,13 +37,13 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 from pathlib import Path  # noqa: E402
 
-from framegraph.sdk import DocumentBuilder  # noqa: E402
+from frameforge.sdk import DocumentBuilder  # noqa: E402
 
 W, H = 452, 678
 MX, MY = W / 4, H / 4  # 113, 169.5 -- the lattice module
@@ -130,7 +130,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from framegraph.sdk.validate import validate_static_rules
+    from frameforge.sdk.validate import validate_static_rules
 
     out = Path(ROOT) / "_tmp" / "lesson-02"
     out.mkdir(parents=True, exist_ok=True)

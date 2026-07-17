@@ -10,12 +10,12 @@ import zipfile
 import yaml
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):   # evict a models-module shadow
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.fontpack import main, referenced_families  # noqa: E402
+from frameforge.fontpack import main, referenced_families  # noqa: E402
 
 
 def test_referenced_families_expands_tokens_and_filters_generics():
@@ -90,14 +90,14 @@ def test_install_rejects_a_tampered_pack(tmp_path):
 
 
 def test_google_slug_derivation():
-    from framegraph.fontpack import google_slug
+    from frameforge.fontpack import google_slug
     assert google_slug("EB Garamond") == "ebgaramond"
     assert google_slug("Fira Sans") == "firasans"
     assert google_slug("JetBrains Mono") == "jetbrainsmono"
 
 
 def test_check_fetch_passes_when_missing_family_is_on_google_fonts(tmp_path, monkeypatch, capsys):
-    import framegraph.fontpack as fpmod
+    import frameforge.fontpack as fpmod
     monkeypatch.setattr(fpmod, "google_available", lambda fam: fam == "OnGoogleFonts")
     p = tmp_path / "d.fg.yaml"
     p.write_text(yaml.safe_dump(_doc(["OnGoogleFonts", "serif"])))
@@ -109,7 +109,7 @@ def test_check_fetch_passes_when_missing_family_is_on_google_fonts(tmp_path, mon
 
 
 def test_pack_fetch_provisions_missing_family_from_google_fonts(tmp_path, monkeypatch):
-    import framegraph.fontpack as fpmod
+    import frameforge.fontpack as fpmod
     fake = tmp_path / "FetchedFont-Regular.ttf"
     fake.write_bytes(b"FAKEFONTDATA")                    # stand in for a downloaded TTF
     monkeypatch.setattr(fpmod, "fetch_google_font",

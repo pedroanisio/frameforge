@@ -3,8 +3,8 @@
 fg_css_optimize.py
 ==================
 
-A multi-pass CSS *consolidation* pass over HTML produced by the framegraph HTML
-backend (``framegraph-render --to html``, the `DocumentRenderer` port) — or any
+A multi-pass CSS *consolidation* pass over HTML produced by the frameforge HTML
+backend (``frameforge-render --to html``, the `DocumentRenderer` port) — or any
 HTML built the same way: per-element inline ``style`` attributes plus a single
 ``<style>`` head block.
 
@@ -230,7 +230,7 @@ def risky_properties(items) -> "set[str]":
     appended class (0,0,1,0). A head rule that out-specifies a single class and
     can match the element by a *class* key selector would then win the cascade,
     changing the render — so those properties must stay inline. For
-    framegraph_to_html output this set is empty (its only multi-token selectors
+    frameforge_to_html output this set is empty (its only multi-token selectors
     end in a *type*, e.g. ``.fg-text>span`` / ``code``, never a class).
     """
     risky: set[str] = set()
@@ -426,7 +426,7 @@ def optimize(doc: str, threshold=2, passes=1, do_minify=False, quiet=False):
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("input", help="HTML file from the framegraph html backend (--to html)")
+    ap.add_argument("input", help="HTML file from the frameforge html backend (--to html)")
     ap.add_argument("-o", "--output", help="output HTML (default: *.opt.html)")
     ap.add_argument("--threshold", type=int, default=2,
                     help="min repeats before a style-set is hoisted (default 2; "

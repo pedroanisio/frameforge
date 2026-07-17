@@ -20,8 +20,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.environ.get("FG_ROOT", ROOT))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
-from framegraph.coach import clean, ingest, node_count  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge.coach import clean, ingest, node_count  # noqa: E402
 from poc3_ingest_compose import ink_iou, place, restyle_strokes  # noqa: E402
 
 DEFAULT_IMG = os.path.join(ROOT, "demo", "Gemini_Generated_Image_lkcai8lkcai8lkca.jpeg")

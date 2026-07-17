@@ -1,8 +1,8 @@
-# Canonical fixture for framegraph.sdk.outline (issue #46, parity W2) —
+# Canonical fixture for frameforge.sdk.outline (issue #46, parity W2) —
 # GENERATED from the emitter's own output. Regenerate from the runnable
 # client static/examples/stroke_outline_showcase.py (build() returns this
 # document verbatim) rather than hand-editing points.
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.3.0
 profile: diagram
 title: stroke-outline engine showcase

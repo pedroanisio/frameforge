@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Marina and the Singing Sea — a polished children's picture book via the FrameGraph SDK.
+"""Marina and the Singing Sea — a polished children's picture book via the FrameForge SDK.
 
 A second, deliberately more *crafted* book than ``starlight_fox.py``. Every page is
 an original illustration assembled from geometry primitives — there are no image
@@ -30,18 +30,18 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     Path,
     Vec2,
     serialize,
     theme,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas & palette                                                            #
@@ -530,7 +530,7 @@ def page_cover(builder):
     layer.text([0, 170, W, 110], "Marina", style={"class": "title_sh"})
     layer.text([0, 164, W, 110], "Marina", style={"class": "title"})
     layer.text([0, 286, W, 50], "and the Singing Sea", style={"class": "subtitle"})
-    layer.text([0, 836, W, 28], "an original picture book drawn with the FrameGraph SDK",
+    layer.text([0, 836, W, 28], "an original picture book drawn with the FrameForge SDK",
                style={"class": "byline"})
 
 
@@ -856,7 +856,7 @@ def main() -> int:
     print(f"Wrote {args.yaml}")
 
     if args.render:
-        from framegraph.sdk.conform import render_page_svgs
+        from frameforge.sdk.conform import render_page_svgs
         svgs = render_page_svgs(doc, base_dir=ROOT)
         os.makedirs(args.out, exist_ok=True)
         for idx, svg in enumerate(svgs, 1):

@@ -12,7 +12,7 @@ Feature/variation settings carry literal double quotes; the painter escapes them
 to `&quot;` so the SVG `style="…"` attribute stays well-formed — the assertions
 match that escaped form.
 
-Subprocess render (not an in-process import) to dodge the framegraph-package vs
+Subprocess render (not an in-process import) to dodge the frameforge-package vs
 models-module name clash in the shared pytest process — same shape as
 tests/test_text_spans.py.
 """

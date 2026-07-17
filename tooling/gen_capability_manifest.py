@@ -10,10 +10,10 @@ the model/SDK/MCP surfaces grow:
 
 - model unions (``VisualObject``/``Flowable``/``Inline`` discriminators, canvas
   presets, ``Style`` property count) from the authoritative model module, loaded
-  read-only via the SDK's non-shadowing loader (``docs/models/framegraph.py`` stays
+  read-only via the SDK's non-shadowing loader (``docs/models/frameforge.py`` stays
   the single source of truth, exactly as ``schema/build_schema.py`` treats it);
-- SDK public exports from ``framegraph.sdk.__all__`` and builder-method coverage
-  from the classes defined in ``framegraph.sdk.author``;
+- SDK public exports from ``frameforge.sdk.__all__`` and builder-method coverage
+  from the classes defined in ``frameforge.sdk.author``;
 - MCP tool/prompt/resource names from the live registry (``create_server`` is
   instantiated against a recording stub, so the enumeration is the real
   ``@server.tool()`` surface, not a parallel list);
@@ -24,7 +24,7 @@ Status semantics per capability (documented in the emitted ``semantics`` block):
 
 - ``core``  — the model admits it (enumerated from the discriminated unions).
 - ``sdk``   — a same-named public builder method exists on a class defined in
-  ``framegraph.sdk.author`` (direct authoring ergonomics; raw-dict authoring is
+  ``frameforge.sdk.author`` (direct authoring ergonomics; raw-dict authoring is
   always possible and deliberately does not count), or the capability *is* an
   SDK export.
 - ``mcp``   — reachable through the MCP surface: model capabilities are MCP-
@@ -50,21 +50,21 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 OUT = os.path.join(ROOT, "docs", "capability-manifest.json")
 
-_AUTHOR_RENDER_TOOLS = ("run_sdk_code", "run_sdk_client", "render_framegraph_yaml")
+_AUTHOR_RENDER_TOOLS = ("run_sdk_code", "run_sdk_client", "render_frameforge_yaml")
 
 
 def _ensure_package_importable() -> None:
-    """Make ``import framegraph`` resolve the package (not the models module)."""
+    """Make ``import frameforge`` resolve the package (not the models module)."""
     if ROOT not in sys.path:
         sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-    shadow = sys.modules.get("framegraph")
+    shadow = sys.modules.get("frameforge")
     if shadow is not None and not hasattr(shadow, "__path__"):
-        del sys.modules["framegraph"]
+        del sys.modules["frameforge"]
 
 
 def _models():
     _ensure_package_importable()
-    from framegraph.sdk.model import model_module
+    from frameforge.sdk.model import model_module
 
     return model_module()
 
@@ -136,15 +136,15 @@ def style_property_count() -> int:
 # --------------------------------------------------------------------------- #
 def sdk_public_exports() -> list[str]:
     _ensure_package_importable()
-    import framegraph.sdk as sdk
+    import frameforge.sdk as sdk
 
     return list(sdk.__all__)
 
 
 def sdk_builder_methods() -> set[str]:
-    """Public callables on every class *defined in* ``framegraph.sdk.author``."""
+    """Public callables on every class *defined in* ``frameforge.sdk.author``."""
     _ensure_package_importable()
-    import framegraph.sdk.author as author
+    import frameforge.sdk.author as author
 
     methods: set[str] = set()
     for _name, cls in inspect.getmembers(author, inspect.isclass):
@@ -192,7 +192,7 @@ class _RecordingMCP:
 
 def _mcp_registry() -> _RecordingMCP:
     _ensure_package_importable()
-    from framegraph.mcp.server import create_server
+    from frameforge.mcp.server import create_server
 
     with tempfile.TemporaryDirectory(prefix="fg-manifest-") as tmp:
         return create_server(
@@ -239,9 +239,9 @@ def tooling_finding_codes() -> set[str]:
 
 
 def sdk_rule_ids() -> set[str]:
-    """Every SDK ``rule_id`` from ``framegraph/sdk/validate.py`` (its own ids;
+    """Every SDK ``rule_id`` from ``frameforge/sdk/validate.py`` (its own ids;
     tooling codes it re-surfaces via ``rule_id=f.code`` are covered above)."""
-    path = os.path.join(ROOT, "src", "framegraph", "sdk", "validate.py")
+    path = os.path.join(ROOT, "src", "frameforge", "sdk", "validate.py")
     with open(path, encoding="utf-8") as fh:
         source = fh.read()
     ids = set(re.findall(r'_error\(\s*"([^"]+)"', source))
@@ -287,11 +287,11 @@ def build() -> dict:
         ),
         "version": fg.HEAD_VERSION,
         "semantics": {
-            "core": "the authoritative model (docs/models/framegraph.py) admits the capability",
+            "core": "the authoritative model (docs/models/frameforge.py) admits the capability",
             "sdk": (
-                "a same-named public builder method exists on a framegraph.sdk.author "
+                "a same-named public builder method exists on a frameforge.sdk.author "
                 "class (raw-dict authoring always works and does not count), or the "
-                "capability is itself a framegraph.sdk export"
+                "capability is itself a frameforge.sdk export"
             ),
             "mcp": (
                 "reachable through the live MCP registry: model capabilities via an "

@@ -11,7 +11,7 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.domain.services.style_values import StyleValues  # noqa: E402
+from frameforge.rendering.domain.services.style_values import StyleValues  # noqa: E402
 
 SV = StyleValues(lambda c: {"ink": "#111"}.get(c, c))
 
@@ -61,7 +61,7 @@ def test_transform_ops_translate_and_string():
 
 def test_format_transform_svg_syntax():
     # the SVG backend formats the neutral ops; raw passes through, fns space-join
-    from framegraph.rendering.infrastructure.painters.svg import SvgPainter
+    from frameforge.rendering.infrastructure.painters.svg import SvgPainter
     assert SvgPainter.format_transform(
         [("translate", ["10", "20"]), ("scale", ["2"])]) == "translate(10 20) scale(2)"
     assert SvgPainter.format_transform([("raw", ["rotate(30)"])]) == "rotate(30)"

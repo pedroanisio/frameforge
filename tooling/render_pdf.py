@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-render_pdf.py — combine a FrameGraph document's SVG pages into one PDF.
+render_pdf.py — combine a FrameForge document's SVG pages into one PDF.
 
 This reuses the repository SVG proxy (``tooling/render_fixtures.py``) to solve
-each FrameGraph page to a standalone SVG, converts every page to a *vector* PDF
+each FrameForge page to a standalone SVG, converts every page to a *vector* PDF
 page with CairoSVG, and stitches them together with pypdf — one multi-page PDF
 per document. PDF page size follows each SVG's canvas (width/height), so mixed
 page sizes within a document are preserved.
@@ -202,7 +202,7 @@ def main(argv=None):
         print(f"\n{len(docs)} document(s).")
         return 0
     if not docs:
-        print("No FrameGraph documents found. Try: render_pdf.py --all",
+        print("No FrameForge documents found. Try: render_pdf.py --all",
               file=sys.stderr)
         return 1
 

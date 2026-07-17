@@ -25,8 +25,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.sdk import planar  # noqa: E402
-from framegraph.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge.sdk import planar  # noqa: E402
+from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 SQ = [(0, 0), (10, 0), (10, 10), (0, 10)]                 # 10×10 at origin
 SQ_OFF = [(5, 5), (15, 5), (15, 15), (5, 15)]             # overlapping 10×10
@@ -166,7 +166,7 @@ def test_rings_emit_a_validating_path_object():
     assert obj["type"] == "path"
     assert obj["style"]["fill_rule"] == "evenodd"
     assert sum(1 for seg in obj["d"] if seg[0] == "M") == 2
-    doc = {"dsl": "FrameGraph", "version": HEAD_VERSION, "title": "planar",
+    doc = {"dsl": "FrameForge", "version": HEAD_VERSION, "title": "planar",
            "profile": "diagram",
            "defs": {"tokens": {"colors": {"ink": "#1d1e22"}}},
            "pages": [{"mode": "page", "id": "p",

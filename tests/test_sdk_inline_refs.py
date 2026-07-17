@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 """SDK cross-reference + citation inline authoring.
 
-`md()` gained a FrameGraph extension — ``{ref:id}`` / ``{pageref:id}`` /
+`md()` gained a FrameForge extension — ``{ref:id}`` / ``{pageref:id}`` /
 ``{nameref:id}`` / ``{cite:key}`` — and explicit ``ref()`` / ``cite()`` builders,
 so a flow author can reference figures/sections/pages and cite a bibliography
 inline. The LaTeX backend already lowers these to ``\\ref`` / ``\\pageref`` /
 ``\\nameref`` / ``\\cite``; this pins the authoring surface and the round trip.
 
-Renderer-only import (the `framegraph` package must win) — evict a models-module
+Renderer-only import (the `frameforge` package must win) — evict a models-module
 shadow first, per test_render_cli.py.
 """
 import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import cite, md, ref  # noqa: E402
-from framegraph.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge.sdk import cite, md, ref  # noqa: E402
+from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
 
 
 # -- the builders --------------------------------------------------------- #
@@ -56,7 +56,7 @@ def test_md_still_handles_code_math_link_and_plain():
 
 # -- the LaTeX round trip ------------------------------------------------- #
 def test_backend_lowers_refs_and_cite():
-    doc = {"dsl": "FrameGraph", "version": "2.2.0", "profile": "book", "title": "r",
+    doc = {"dsl": "FrameForge", "version": "2.2.0", "profile": "book", "title": "r",
            "pages": [{"mode": "flow", "id": "p", "story": [
                {"type": "paragraph", "spans": md(
                    "Fig {ref:fig-x} p {pageref:fig-x}, {nameref:sec-y} {cite:k1}")}]}]}

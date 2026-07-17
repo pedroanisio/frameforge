@@ -7,8 +7,8 @@ SDK validator accepts a path authored from them, `object(structured=True)` emits
 them, and the default `object()` stays the byte-identical `d` string (so golden
 output is unaffected).
 
-Package-only (imports `framegraph.sdk`, never the models module) so the
-`framegraph` package is not shadowed — validation goes through the SDK's own
+Package-only (imports `frameforge.sdk`, never the models module) so the
+`frameforge` package is not shadowed — validation goes through the SDK's own
 `validate_document`, which reaches the models internally.
 """
 import os
@@ -17,8 +17,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import HEAD_VERSION, validate_document  # noqa: E402
-from framegraph.sdk.geometry import Path  # noqa: E402
+from frameforge.sdk import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge.sdk.geometry import Path  # noqa: E402
 
 
 def _built_path():
@@ -62,7 +62,7 @@ def test_structured_object_validates_through_the_sdk():
     """A path authored with structured segments validates as a real Document."""
     obj = _built_path().object(structured=True)
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": HEAD_VERSION,
         "pages": [{
             "mode": "page", "id": "p1", "canvas": {"size": [100, 100]},

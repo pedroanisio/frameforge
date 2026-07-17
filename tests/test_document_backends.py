@@ -14,27 +14,27 @@ import pytest
 import yaml
 
 # earlier collected modules (the codemod tests) cache the MODELS module as
-# `framegraph` AND leave docs/models first on sys.path; evict the non-package
+# `frameforge` AND leave docs/models first on sys.path; evict the non-package
 # shadow and put src back in front so the rendering package imports
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-import framegraph.cli as cli
-from framegraph.rendering.domain.ports import RenderedArtifact
-from framegraph.rendering.infrastructure.backends import (
+import frameforge.cli as cli
+from frameforge.rendering.domain.ports import RenderedArtifact
+from frameforge.rendering.infrastructure.backends import (
     HtmlDocumentRenderer,
     PdfTexDocumentRenderer,
     all_backends,
     get_backend,
 )
-from framegraph.rendering.infrastructure.latex.compile import engine_available
+from frameforge.rendering.infrastructure.latex.compile import engine_available
 
 
 def _doc(objects: list[dict] | None = None) -> dict:
     return {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.0.0",
         "title": "Port",
         "pages": [{

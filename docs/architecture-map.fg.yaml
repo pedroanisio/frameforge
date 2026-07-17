@@ -1,7 +1,7 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 profile: diagram
-title: FrameGraph v2 — Architecture Map
+title: FrameForge v2 — Architecture Map
 lang: en
 pages:
 - mode: page
@@ -39,7 +39,7 @@ pages:
         font_weight: 800
         letter_spacing: -0.3
       type: text
-      text: FrameGraph v2 — Architecture Map
+      text: FrameForge v2 — Architecture Map
     - box:
       - 40
       - 58
@@ -405,7 +405,7 @@ pages:
         font_size: 14
         font_weight: 700
       type: text
-      text: models/framegraph.py
+      text: models/frameforge.py
     - box:
       - 510
       - 130
@@ -480,7 +480,7 @@ pages:
         font_size: 13
         font_weight: 700
       type: text
-      text: framegraph.sdk — DocumentBuilder
+      text: frameforge.sdk — DocumentBuilder
     - box:
       - 74
       - 280
@@ -579,7 +579,7 @@ pages:
         font_size: 13
         font_weight: 700
       type: text
-      text: framegraph.mcp — FastMCP server
+      text: frameforge.mcp — FastMCP server
     - box:
       - 74
       - 404
@@ -636,7 +636,7 @@ pages:
         font_size: 13
         font_weight: 700
       type: text
-      text: framegraph.vision — propose_from_*
+      text: frameforge.vision — propose_from_*
     - box:
       - 74
       - 472
@@ -651,7 +651,7 @@ pages:
         - sans-serif
         font_size: 10.5
       type: text
-      text: OpenCV/VLM + pdf_to_framegraph_yml → proposed doc
+      text: OpenCV/VLM + pdf_to_frameforge_yml → proposed doc
     - box:
       - 74
       - 486

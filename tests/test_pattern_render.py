@@ -4,8 +4,8 @@ test_pattern_render.py — Pattern paints (hatch/cross_hatch/dots/grid) must emi
 real SVG <pattern> defs, not silently degrade to a flat colour.
 
 The SDK builds ``{"kind": "pattern", "pattern": ..., "angle"/"spacing"/
-"stroke"/"background"}`` paints (framegraph/sdk/paint.py) and the model declares
-them (models/framegraph.py Pattern). The renderer routes them to
+"stroke"/"background"}`` paints (frameforge/sdk/paint.py) and the model declares
+them (models/frameforge.py Pattern). The renderer routes them to
 ``SvgPainter.pattern`` which registers a ``<pattern>`` tile in <defs> and
 returns a ``url(#...)`` fill reference.
 
@@ -17,16 +17,16 @@ import re
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # a non-package (the models module)
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling.render_fixtures import Renderer  # noqa: E402
 
 
 def _render_rect_with_fill(fill):
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [200, 120]},
                       "layers": [{"id": "l", "objects": [
                           {"type": "rect", "box": [10, 10, 100, 60], "fill": fill}]}]}]}
@@ -90,7 +90,7 @@ def test_pattern_defaults_are_renderable():
 
 
 def test_pattern_colour_tokens_resolve():
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "defs": {"tokens": {"colors": {"ink": "#101820", "paper": "#fffff0"}}},
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [200, 120]},
                       "layers": [{"id": "l", "objects": [

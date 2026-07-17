@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""GEOMETRY & TOPOLOGY — a reusable presentation *template* (FrameGraph SDK).
+"""GEOMETRY & TOPOLOGY — a reusable presentation *template* (FrameForge SDK).
 
 Ten 16:9 slides, each one a reusable layout archetype (cover, contents,
 section divider, content-with-figure, full-bleed diagram, two-column
@@ -20,7 +20,7 @@ Euler's polyhedron formula ``V - E + F = 2``; the genus relation
 lemma ``sum(deg) = 2|E|``; coordination numbers of the cubic lattices.
 
 Provenance: AI-generated (Claude Opus 4.8) original illustration, authored
-through ``framegraph.sdk`` and validated against the authoritative model
+through ``frameforge.sdk`` and validated against the authoritative model
 before serialisation. Geometry is grounded (icosahedron from the canonical
 ``cyclic-perm(0, +/-1, +/-phi)`` vertices; surfaces from their standard
 parametrisations); layout coordinates are hand-composed.
@@ -39,11 +39,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Camera,
     DocumentBuilder,
     Graph,
@@ -61,7 +61,7 @@ from framegraph.sdk import (  # noqa: E402
     sphere,
     torus,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas, palette, type                                                        #
@@ -310,7 +310,7 @@ def s01_cover(b):
 
     page.layer("type")
     with page.lettering():
-        T(page, [MX, 150, 560, 22], "FrameGraph SDK  ·  Deck Template  ·  v1.0", "cover_kick")
+        T(page, [MX, 150, 560, 22], "FrameForge SDK  ·  Deck Template  ·  v1.0", "cover_kick")
         T(page, [MX, 224, 640, 230], "GEOMETRY\n& TOPOLOGY", "big")
         page.rect([MX + 4, 452, 92, 4], fill=GOLD)
         T(page, [MX, 478, 540, 120],
@@ -498,7 +498,7 @@ def s05_networks(b):
           "Nodes repel; edges pull like springs. The deterministic equilibrium "
           "reveals clusters and bridges.", "body")
         T(page, [560, 600, 664, 18],
-          "Graph.spring_layout() · one deterministic FrameGraph group", "cap_c")
+          "Graph.spring_layout() · one deterministic FrameForge group", "cap_c")
 
 
 # --------------------------------------------------------------------------- #
@@ -679,7 +679,7 @@ def s10_closing(b):
           "Swap the heroes, keep the scaffold. Every figure here is regenerated "
           "from code — edit a parameter, re-render the slide.", "sub")
         T(page, [MX, 560, 840, 18],
-          "FrameGraph SDK · AI-generated (Claude Opus 4.8) · all geometry computed, not drawn",
+          "FrameForge SDK · AI-generated (Claude Opus 4.8) · all geometry computed, not drawn",
           "mono")
         T(page, [MX, H - 40, 760, 16], "GEOMETRY & TOPOLOGY  ·  DECK TEMPLATE", "foot")
         T(page, [W - MX - 220, H - 40, 220, 16], f"{TOTAL:02d} / {TOTAL:02d}", "foot_r")
@@ -733,7 +733,7 @@ def main() -> int:
     print(f"Wrote {args.yaml}")
 
     if args.render:
-        from framegraph.sdk.conform import render_page_svgs
+        from frameforge.sdk.conform import render_page_svgs
         svgs = render_page_svgs(doc, base_dir=ROOT)
         os.makedirs(args.out, exist_ok=True)
         for idx, svg in enumerate(svgs, 1):

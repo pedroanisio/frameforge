@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Compose *Layout Methods — A Field Guide* as a native FrameGraph book.
+"""Compose *Layout Methods — A Field Guide* as a native FrameForge book.
 
 This is the chapter itself — prose, code, tables, callouts and all fourteen
-plates — authored end-to-end through the FrameGraph SDK and lowered to a single
+plates — authored end-to-end through the FrameForge SDK and lowered to a single
 multi-page ``mode: page`` document. Nothing here is rendered by an outside
 Markdown/HTML pipeline: the running heads, the measured text wrapping, the
-pagination, the inline monospace code, and the plates are all FrameGraph
+pagination, the inline monospace code, and the plates are all FrameForge
 objects.
 
 It is, deliberately, the thesis of §10 applied to itself. The book is laid out
@@ -36,18 +36,18 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, HERE)            # so the sibling plate module resolves even
                                     # when exec'd from another CWD (the MCP harness)
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     FigureRef,
     render_page_svgs,
     serialize,
 )
-from framegraph.sdk.metrics import measure_text, wrap_text  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.metrics import measure_text, wrap_text  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 import layout_methods_figures as plates  # noqa: E402
 
@@ -411,7 +411,7 @@ class Book:
     def table(self, headers, rows, *, weights=None, row_height=30, header_height=34):
         """A real TableObject via the widgets table helper, themed to the book."""
         from dataclasses import replace
-        from framegraph.sdk.widgets import default_theme
+        from frameforge.sdk.widgets import default_theme
         n = len(headers)
         weights = weights or [1.0] * n
         tot = sum(weights)
@@ -573,25 +573,25 @@ class Book:
 
 # --------------------------------------------------------------------------- #
 # The chapter — every section, code block, table, formula, callout and plate,
-# composed as one paginated FrameGraph book.
+# composed as one paginated FrameForge book.
 # --------------------------------------------------------------------------- #
 def build() -> DocumentBuilder:
     bk = Book("Layout Methods — A Field Guide",
-              "A book chapter, grounded in the FrameGraph architecture map")
+              "A book chapter, grounded in the FrameForge architecture map")
 
     # ---- Title page ------------------------------------------------------- #
     bk.cover(
-        kicker="FrameGraph · A Field Guide",
+        kicker="FrameForge · A Field Guide",
         title="Layout Methods",
-        subtitle="A field guide, grounded in the FrameGraph architecture map — "
+        subtitle="A field guide, grounded in the FrameForge architecture map — "
                  "from one hand-placed node up to the solvers, and back down.",
         author="Prepared with Claude · Opus 4.8",
         date="2026-06-24",
-        note="A field guide written to one reader — the author of FrameGraph's "
+        note="A field guide written to one reader — the author of FrameForge's "
              "architecture map. Fourteen plates illustrate it, each a single "
-             "absolute-mode page authored through the FrameGraph SDK: the system "
+             "absolute-mode page authored through the FrameForge SDK: the system "
              "drawing the very layout methods it is built on. This entire chapter "
-             "is, in turn, one FrameGraph document — its prose, code, tables and "
+             "is, in turn, one FrameForge document — its prose, code, tables and "
              "plates lowered to absolute coordinates by a thin composer.",
         epigraph="Author intent high; lower it to a single canonical "
                  "representation; render that. The same move sdk.expand already "
@@ -1009,7 +1009,7 @@ def build() -> DocumentBuilder:
             "magic numbers.")
 
     # ---- §10 -------------------------------------------------------------- #
-    bk.section("§ 10", "One concrete rung up for FrameGraph", "§10 · The rung up")
+    bk.section("§ 10", "One concrete rung up for FrameForge", "§10 · The rung up")
     bk.para("You do not need a constraint solver or a Sugiyama engine. The "
             "highest-value, lowest-risk improvement is a thin layout-primitive "
             "layer that *lowers to the absolute coordinates you already emit* — "
@@ -1038,7 +1038,7 @@ def build() -> DocumentBuilder:
             "codebase already trusts: author high, lower to a single canonical "
             "representation, render that.")
     bk.callout("This very book is that principle, dogfooded twice: the fourteen "
-               "plates are absolute-mode FrameGraph pages, and the chapter around "
+               "plates are absolute-mode FrameForge pages, and the chapter around "
                "them is one more — its headings, paragraphs, code slabs and tables "
                "all lowered to absolute coordinates by a composer that measures, "
                "wraps, and paginates. Author high; lower to absolute; render.",
@@ -1097,7 +1097,7 @@ def build() -> DocumentBuilder:
     # ---- Appendix B ------------------------------------------------------- #
     bk.section("Appendix B", "The plates", "Appendix B")
     bk.para("All fourteen plates are authored by `layout_methods_figures.py` and "
-            "reused verbatim here. Each is a single absolute-mode FrameGraph page; "
+            "reused verbatim here. Each is a single absolute-mode FrameForge page; "
             "the script reuses the SDK's own `inset` / `row` / `column` / `grid` "
             "helpers, so the illustrations are produced by the same box-geometry "
             "primitives §10 recommends — and this book embeds each plate by a single "
@@ -1121,7 +1121,7 @@ def build() -> DocumentBuilder:
          "not a faithful run of its algorithm."),
         ("Generated by",
          "Claude Opus 4.8 via Claude Code — prose by the model; plates and the book "
-         "itself authored through the FrameGraph SDK and rendered by the project's "
+         "itself authored through the FrameForge SDK and rendered by the project's "
          "own SVG proxy. Date: 2026-06-24."),
         ("Provenance",
          "The connections drawn to the source file (coordinate arithmetic, helper "

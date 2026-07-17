@@ -16,8 +16,8 @@ from __future__ import annotations
 import math
 import os
 
-from framegraph.sdk import DocumentBuilder, paint
-from framegraph.sdk.macros import span
+from frameforge.sdk import DocumentBuilder, paint
+from frameforge.sdk.macros import span
 
 # ------------------------------------------------------------------ palette ---
 PAPER = "#F3EEE4"   # warm ground
@@ -239,7 +239,7 @@ def p1():
     cap(p, CX, 424, "A capacidade se compõe", 9, color=RED, anchor="middle", ls=1.8)
     T(p, CX, 470, "conceito · Pedro Anisio Silva", 10.5, color=MUT, italic=True, anchor="middle")
     T(p, CX, 488, "*Libfiy - en_US", 10.5, color=MUT, italic=True, anchor="middle")
-    cap(p, CX, 512, "FrameGraph · EB Garamond & Inter", MICRO, color=MUT, anchor="middle", ls=1.2)
+    cap(p, CX, 512, "FrameForge · EB Garamond & Inter", MICRO, color=MUT, anchor="middle", ls=1.2)
 
 
 # =============================================================== 2 · epígrafe
@@ -292,7 +292,7 @@ def p4():
     p = new_page("def-texto")
     ink(p)
     running_head(p, "I · A definição")
-    from framegraph.sdk.macros import span
+    from frameforge.sdk.macros import span
     p.text([ML, 96 - BODY * 0.8, CW, LEAD * 1.5],
            [span("Recolher", font=SC, color=RED, letter_spacing=0.3, size=BODY),
             span(" é a prática de extrair capacidade reutilizável", font=GAR, color=INK, size=BODY)],
@@ -498,7 +498,7 @@ def p11():
     rule(p, CX - 60, 402, CX + 60, color=HAIR, w=0.8)
     cap(p, CX, 424, "Zen e a arte de reColher", 9, color=INK, anchor="middle", ls=1.2)
     T(p, CX, 446, "um conceito de Pedro Anisio Silva, a partir de Libfy", 9.5, color=MUT, italic=True, anchor="middle")
-    T(p, CX, 466, "composto em FrameGraph v2.3.0", 9.5, color=MUT, italic=True, anchor="middle")
+    T(p, CX, 466, "composto em FrameForge v2.3.0", 9.5, color=MUT, italic=True, anchor="middle")
     cap(p, CX, 490, "EB Garamond & Inter · SDK primitives · humanize", MICRO, color=MUT, anchor="middle", ls=1.0)
 
 

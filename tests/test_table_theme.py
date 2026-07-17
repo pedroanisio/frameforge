@@ -13,13 +13,13 @@ import sys
 from dataclasses import replace
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import table  # noqa: E402
-from framegraph.sdk.widgets import default_theme  # noqa: E402
+from frameforge.sdk import table  # noqa: E402
+from frameforge.sdk.widgets import default_theme  # noqa: E402
 
 
 def test_table_header_fill_follows_the_theme():
@@ -39,7 +39,7 @@ def test_table_default_theme_is_not_the_hardcoded_blue():
 
 def test_table_header_renders_in_the_theme_colour():
     """End-to-end: the themed header fill reaches the rendered SVG."""
-    from framegraph.sdk import DocumentBuilder, render_page_svgs
+    from frameforge.sdk import DocumentBuilder, render_page_svgs
 
     th = replace(default_theme(), ink="#0A7E33")
     builder = DocumentBuilder(title="Themed table", profile="deck")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""A complex, shaded 3D scene composed with the FrameGraph SDK — *today*.
+"""A complex, shaded 3D scene composed with the FrameForge SDK — *today*.
 
-The SDK already ships a software 3D pipeline: :class:`framegraph.sdk.Scene3D`
+The SDK already ships a software 3D pipeline: :class:`frameforge.sdk.Scene3D`
 projects meshes / parametric surfaces / revolved solids / extrusions through a
 :class:`Camera` (perspective ``look_at`` + ``perspective_fov``) into depth-sorted
 2D polylines. Its only gap is shading — faces are emitted flat.
@@ -31,11 +31,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Camera,
     DocumentBuilder,
     Scene3D,
@@ -45,7 +45,7 @@ from framegraph.sdk import (  # noqa: E402
     rgba,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1440, 900
 SCENE_BOX = [70, 96, 1300, 740]
@@ -254,7 +254,7 @@ def T(page, box, s, **kw):
 
 
 def build() -> DocumentBuilder:
-    b = DocumentBuilder(title="FrameGraph SDK — composed 3D scene",
+    b = DocumentBuilder(title="FrameForge SDK — composed 3D scene",
                         profile="deck", lang="en")
     page = b.page("scene", canvas={"size": [W, H], "units": "px"},
                   coordinate_mode="absolute").layer("sky")

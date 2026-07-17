@@ -1,5 +1,5 @@
 ---
-title: "Aligning FrameGraph's graphics pipeline with the classical CG canon"
+title: "Aligning FrameForge's graphics pipeline with the classical CG canon"
 status: PROPOSAL — awaiting operator approval; on approval, merge into docs/roadmap.md (extends Item 7 + Appendix A)
 date: "2026-07-04"
 disclaimer:
@@ -18,11 +18,11 @@ domain_reference:
   - "Corpus boundary: pre-1987. No GPU/shaders/PBR; texture mapping = 1 bibliography citation only."
 ---
 
-# Aligning FrameGraph's graphics pipeline with the classical CG canon
+# Aligning FrameForge's graphics pipeline with the classical CG canon
 
 ## 1. Executive summary
 
-**Current state.** FrameGraph's **2D** vector-graphics core is mature and, measured
+**Current state.** FrameForge's **2D** vector-graphics core is mature and, measured
 against the classical CG canon, *well aligned*: it uses homogeneous coordinates
 throughout (`Mat3`), models a retained scene of addressable objects (the canon's
 "segments"/display-file model), and ships curves, arcs, planar booleans, clipping
@@ -37,10 +37,10 @@ with documented failure cases and no mitigation.
 **Main problems found (all in the 3D path; the 2D path is calibrated as *not* broken).**
 
 1. **Projection is not robust and is not preceded by clipping.** `Mat4.project`
-   ([geometry.py:207](../../src/framegraph/sdk/geometry.py#L207)) divides by the
+   ([geometry.py:207](../../src/frameforge/sdk/geometry.py#L207)) divides by the
    homogeneous `w` but **raises `ValueError` when `|w|<1e-12`** and has **no `w>0`
    guard**, and `Scene3D.render` projects *every* vertex directly
-   ([draw.py:183](../../src/framegraph/sdk/draw.py#L183)). Geometry on or behind the
+   ([draw.py:183](../../src/frameforge/sdk/draw.py#L183)). Geometry on or behind the
    camera plane therefore **crashes the render** (w≈0) or **projects inverted** (w<0).
    The canon treats "three-dimensional clipping" as a first-class stage *between*
    projection and rasterization (¶34) precisely to prevent this.
@@ -50,8 +50,8 @@ with documented failure cases and no mitigation.
    *with* the painter's algorithm as the two hidden-surface methods (¶36).
 3. **Painter's-algorithm depth heuristic with no fallback.** Hidden surfaces are
    resolved by an **average-z priority sort** (`sorted(..., key=_avg_z)`,
-   [draw.py:205](../../src/framegraph/sdk/draw.py#L205) / `_avg_z`
-   [draw.py:423](../../src/framegraph/sdk/draw.py#L423)). Average-z is a known-incorrect
+   [draw.py:205](../../src/frameforge/sdk/draw.py#L205) / `_avg_z`
+   [draw.py:423](../../src/frameforge/sdk/draw.py#L423)). Average-z is a known-incorrect
    ordering for interpenetrating or cyclically-overlapping faces; there is no polygon
    splitting and no z-buffer. The canon documents the **Z-buffer** as the robust
    per-fragment alternative (¶3713/3717).
@@ -86,7 +86,7 @@ The domain reference is the corpus's one deep computational-CG source, Harringto
 
 For **2D**, the canon adds windowing & clipping (¶28), scan conversion / Bresenham,
 and the raster / frame-buffer model — and a **retained "segments"** model (a scene as
-addressable, attributed subpictures), which is structurally FrameGraph's Layer/Object graph.
+addressable, attributed subpictures), which is structurally FrameForge's Layer/Object graph.
 
 **Corpus boundary (flagged bridges).** The reference is pre-1987: **zero** OpenGL/shader
 hits corpus-wide, texture mapping appears **only as a 1984 citation**, and "GPU" occurs
@@ -96,7 +96,7 @@ and is marked as such below.
 
 ---
 
-## 3. Codebase assessment (FrameGraph as a CG system)
+## 3. Codebase assessment (FrameForge as a CG system)
 
 - **Architecture.** A geometry kernel in `sdk/` (`Vec2/Vec3`, `Mat3` 2D-affine,
   `Mat4`+`Camera` 3D, `CubicBezier`/`catmull_rom`, `Path`), a modelling/scene layer
@@ -106,9 +106,9 @@ and is marked as such below.
 - **Data model.** A retained scene (`Document → Page → Layer → Object`) — a direct
   analogue of the canon's "segments." 3D is *lowered* to this: `Scene3D.render`
   projects faces to 2D closed polylines and returns a group
-  ([draw.py:162–211](../../src/framegraph/sdk/draw.py#L162)).
+  ([draw.py:162–211](../../src/frameforge/sdk/draw.py#L162)).
 - **2D pipeline (mature, aligned).** Homogeneous `Mat3` (`translate/scale/rotate/@/inverse`,
-  [geometry.py:55](../../src/framegraph/sdk/geometry.py#L55)); curves + `arc_to`; planar
+  [geometry.py:55](../../src/frameforge/sdk/geometry.py#L55)); curves + `arc_to`; planar
   booleans; clipping via SVG `clipPath`; gradients/patterns; Chevreul colour.
 - **3D pipeline (minimal).** `Scene3D` offers `mesh/parametric_surface/extrude/revolve`;
   `render()` builds a projection matrix (isometric default, or `Camera`), runs an optional

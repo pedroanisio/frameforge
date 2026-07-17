@@ -8,9 +8,9 @@ disclaimer:
   date: "2026-06-24"
 ---
 
-# FrameGraph v2 — HEAD
+# FrameForge v2 — HEAD
 
-A single, internally-consistent cut of **FrameGraph v2**: a *proposed,
+A single, internally-consistent cut of **FrameForge v2**: a *proposed,
 not-yet-conformantly-implemented* document/graphics DSL for decks, diagrams,
 books, and letters.
 
@@ -22,12 +22,12 @@ books, and letters.
 
 ## A minimal document
 
-A complete FrameGraph document is `dsl` + `version` + at least one page. This
+A complete FrameForge document is `dsl` + `version` + at least one page. This
 example is **validated in CI** (`tests/test_doc_examples.py` parses every complete
 example in these docs and checks it against the models) — so it can't drift:
 
 ```yaml
-dsl: FrameGraph
+dsl: FrameForge
 version: "2.2.0"
 title: Minimal document
 pages:
@@ -42,7 +42,7 @@ pages:
             fill: "#0d9648"
           - type: text
             box: [24, 84, 272, 40]
-            text: "Hello, FrameGraph"
+            text: "Hello, FrameForge"
             style: { color: "#ffffff", font_size: 24, text_align: center }
 ```
 
@@ -50,8 +50,8 @@ pages:
 
 | Page | What it is | Source |
 |---|---|---|
-| [Specification](spec.md) | the normative reference prose | `spec/framegraph-v2-spec.md` |
-| [Schema reference](reference.md) | every model & property | **generated** from `schema/framegraph-v2.schema.json` |
+| [Specification](spec.md) | the normative reference prose | `spec/frameforge-v2-spec.md` |
+| [Schema reference](reference.md) | every model & property | **generated** from `schema/frameforge-v2.schema.json` |
 | [Grammar](grammar.md) | the consolidated EBNF (a hand-kept *view*) | `grammar/*.ebnf` |
 | [Fixture gallery](fixtures.md) | every fixture rendered to SVG + validator status | **generated** by `tooling/render_fixtures.py` + `tooling/gen_status.py` |
 | [Changelog](changelog.md) | version history & rationale | `CHANGELOG.md` |
@@ -62,7 +62,7 @@ site with `make docs` (it runs the generator first).
 ## The guarantee
 
 ```
-models/framegraph.py  ──model_json_schema()──►  schema/framegraph-v2.schema.json
+models/frameforge.py  ──model_json_schema()──►  schema/frameforge-v2.schema.json
         │                                                │
         │ validate.py / pytest                           │ build_schema.py --check
         ▼                                                ▼

@@ -12,7 +12,7 @@ title: "Tutorial"
 # Tutorial
 
 Learning-oriented walkthroughs: each lesson takes one concrete artifact from
-nothing to a verified FrameGraph document, and shows the **actual tool calls**
+nothing to a verified FrameForge document, and shows the **actual tool calls**
 that got it there — including the ones that went wrong.
 
 These are distinct from the neighbouring pages:

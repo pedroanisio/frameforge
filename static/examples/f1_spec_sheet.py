@@ -2,7 +2,7 @@
 
 "Use all the power": this sheet reuses the single lofted F1 model from
 ``f1_car_3d`` and renders it as an engineering dossier that exercises a broad
-slice of the FrameGraph SDK, each subsystem doing real work (not decoration):
+slice of the FrameForge SDK, each subsystem doing real work (not decoration):
 
   * geometry  — Camera + ViewingPipeline project the 3D model (perspective),
                 and convex_hull builds the car's screen silhouette;
@@ -31,9 +31,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs"), HERE]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder, canon, chart, chevreul, fields, macros, outline, planar, rgba, topology)
-from framegraph.sdk.geometry import Camera, ViewingPipeline, Vec3, convex_hull  # noqa: E402
+from frameforge.sdk.geometry import Camera, ViewingPipeline, Vec3, convex_hull  # noqa: E402
 
 import f1_car_3d as base  # noqa: E402  (the shared organic 3D model + helpers)
 
@@ -313,7 +313,7 @@ def scene():
 
     header = [
         text(m, 32, "FORMULA 1 · TECHNICAL DOSSIER", scale["xl"], INK, w=1400, weight=800),
-        text(m, 66, "one organic 3D model, projected + analysed across the FrameGraph SDK",
+        text(m, 66, "one organic 3D model, projected + analysed across the FrameForge SDK",
              scale["s"], rgba(INK, 0.7), w=1400, weight=600),
     ]
 
@@ -356,7 +356,7 @@ def base_gnomon(panel):
 
 
 def build_builder():
-    b = DocumentBuilder(title="Formula 1 — technical dossier (FrameGraph, full SDK)")
+    b = DocumentBuilder(title="Formula 1 — technical dossier (FrameForge, full SDK)")
     page = b.page("dossier", canvas={"size": [PAGE_W, PAGE_H], "units": "px"}, coordinate_mode="absolute")
     page.layer("scene").extend(scene())
     return b
@@ -370,7 +370,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from framegraph.sdk import serialize
+    from frameforge.sdk import serialize
     out = os.environ.get("OUTPUT_YAML_PATH", "f1_spec_sheet.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))
     print(f"wrote {out}  ({len(scene())} layers, subsystems={sorted(USED)})")

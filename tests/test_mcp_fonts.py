@@ -15,13 +15,13 @@ import sys
 import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-import framegraph.mcp.discovery as discovery  # noqa: E402
-from framegraph.mcp.server import list_fonts  # noqa: E402
+import frameforge.mcp.discovery as discovery  # noqa: E402
+from frameforge.mcp.server import list_fonts  # noqa: E402
 
 
 def _fake_fc(outputs: dict[str, str]):
@@ -110,7 +110,7 @@ def test_list_fonts_reports_pinned_session_fonts(monkeypatch, tmp_path):
     session_dir = tmp_path / "pinned"
     session_dir.mkdir()
     (session_dir / "generated.fg.yaml").write_text(
-        "dsl: FrameGraph\n"
+        "dsl: FrameForge\n"
         "version: 2.2.0\n"
         "defs:\n"
         "  tokens:\n"

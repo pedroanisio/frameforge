@@ -5,8 +5,8 @@ A hard delete driven by ``older_than_seconds`` below a minimum-age floor is
 almost always a mistake (``older_than_seconds=0`` wipes every session). The
 contract under test:
 
-* ``DEFAULT_MIN_CLEANUP_AGE_SECONDS = 60`` lives in ``framegraph.mcp.config``,
-  overridable via ``FRAMEGRAPH_MCP_MIN_CLEANUP_AGE`` (the ``_positive_env``
+* ``DEFAULT_MIN_CLEANUP_AGE_SECONDS = 60`` lives in ``frameforge.mcp.config``,
+  overridable via ``FRAMEFORGE_MCP_MIN_CLEANUP_AGE`` (the ``_positive_env``
   pattern) and read PER CALL, not at import time.
 * A hard delete (``dry_run=False``) with ``older_than_seconds`` below the
   floor is refused structurally — ``{"ok": False, ...}`` with an ``error``
@@ -22,22 +22,22 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import time  # noqa: E402
 from pathlib import Path  # noqa: E402
 
-from framegraph.mcp.sessions import cleanup_sessions  # noqa: E402
+from frameforge.mcp.sessions import cleanup_sessions  # noqa: E402
 
 
 def _make_session(root: Path, name: str, *, age_seconds: float = 0.0) -> Path:
     """Create a session scratch dir; backdate its mtime AFTER writing contents."""
     session_dir = root / name
     session_dir.mkdir()
-    (session_dir / "generated.fg.yaml").write_text("framegraph: '2.0'\n", encoding="utf-8")
+    (session_dir / "generated.fg.yaml").write_text("frameforge: '2.0'\n", encoding="utf-8")
     if age_seconds:
         stamp = time.time() - age_seconds
         os.utime(session_dir, (stamp, stamp))
@@ -46,13 +46,13 @@ def _make_session(root: Path, name: str, *, age_seconds: float = 0.0) -> Path:
 
 def test_min_cleanup_age_floor_constant_declared():
     # New symbol — imported lazily so only this test fails on the missing constant.
-    from framegraph.mcp.config import DEFAULT_MIN_CLEANUP_AGE_SECONDS
+    from frameforge.mcp.config import DEFAULT_MIN_CLEANUP_AGE_SECONDS
 
     assert DEFAULT_MIN_CLEANUP_AGE_SECONDS == 60
 
 
 def test_below_floor_hard_delete_is_refused_and_deletes_nothing(tmp_path, monkeypatch):
-    monkeypatch.delenv("FRAMEGRAPH_MCP_MIN_CLEANUP_AGE", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_MCP_MIN_CLEANUP_AGE", raising=False)
     _make_session(tmp_path, "session-a", age_seconds=3600)
     _make_session(tmp_path, "session-b", age_seconds=3600)
 
@@ -68,7 +68,7 @@ def test_below_floor_hard_delete_is_refused_and_deletes_nothing(tmp_path, monkey
 
 
 def test_dry_run_is_exempt_from_the_floor(tmp_path, monkeypatch):
-    monkeypatch.delenv("FRAMEGRAPH_MCP_MIN_CLEANUP_AGE", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_MCP_MIN_CLEANUP_AGE", raising=False)
     _make_session(tmp_path, "session-a", age_seconds=10)
     _make_session(tmp_path, "session-b", age_seconds=10)
 
@@ -82,7 +82,7 @@ def test_dry_run_is_exempt_from_the_floor(tmp_path, monkeypatch):
 
 
 def test_explicit_session_ids_selector_is_unaffected_by_the_floor(tmp_path, monkeypatch):
-    monkeypatch.delenv("FRAMEGRAPH_MCP_MIN_CLEANUP_AGE", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_MCP_MIN_CLEANUP_AGE", raising=False)
     _make_session(tmp_path, "drop-me")
     _make_session(tmp_path, "keep-me")
 
@@ -95,7 +95,7 @@ def test_explicit_session_ids_selector_is_unaffected_by_the_floor(tmp_path, monk
 
 
 def test_at_or_above_floor_deletes_old_sessions_as_today(tmp_path, monkeypatch):
-    monkeypatch.delenv("FRAMEGRAPH_MCP_MIN_CLEANUP_AGE", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_MCP_MIN_CLEANUP_AGE", raising=False)
     _make_session(tmp_path, "old-one", age_seconds=3600)
     _make_session(tmp_path, "fresh-one")
 
@@ -109,7 +109,7 @@ def test_at_or_above_floor_deletes_old_sessions_as_today(tmp_path, monkeypatch):
 
 
 def test_no_selector_still_removes_nothing(tmp_path, monkeypatch):
-    monkeypatch.delenv("FRAMEGRAPH_MCP_MIN_CLEANUP_AGE", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_MCP_MIN_CLEANUP_AGE", raising=False)
     _make_session(tmp_path, "session-a", age_seconds=3600)
 
     result = cleanup_sessions(session_root=tmp_path)
@@ -122,7 +122,7 @@ def test_no_selector_still_removes_nothing(tmp_path, monkeypatch):
 def test_env_override_lowers_the_floor_per_call_without_reimport(tmp_path, monkeypatch):
     """The floor must be read on every call: flipping the env var mid-process
     (no module reimport) changes the outcome of the very next call."""
-    monkeypatch.delenv("FRAMEGRAPH_MCP_MIN_CLEANUP_AGE", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_MCP_MIN_CLEANUP_AGE", raising=False)
     _make_session(tmp_path, "old-a", age_seconds=600)
     _make_session(tmp_path, "old-b", age_seconds=600)
 
@@ -131,7 +131,7 @@ def test_env_override_lowers_the_floor_per_call_without_reimport(tmp_path, monke
     assert (tmp_path / "old-a").is_dir()
     assert (tmp_path / "old-b").is_dir()
 
-    monkeypatch.setenv("FRAMEGRAPH_MCP_MIN_CLEANUP_AGE", "1")
+    monkeypatch.setenv("FRAMEFORGE_MCP_MIN_CLEANUP_AGE", "1")
     done = cleanup_sessions(session_root=tmp_path, older_than_seconds=2)
     assert done["ok"] is True
     assert sorted(done["removed"]) == ["old-a", "old-b"]

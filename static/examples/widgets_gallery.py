@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gallery + dashboard for the SDK's UI-widget layer (``framegraph.sdk.widgets``).
+"""Gallery + dashboard for the SDK's UI-widget layer (``frameforge.sdk.widgets``).
 
 Page 1 is a component gallery — every widget (kpi, badge, pill, button, avatar,
 toggle, progress, tabs, field, divider, card, table) on one screen. Page 2
@@ -21,11 +21,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     avatar,
     badge,
@@ -45,7 +45,7 @@ from framegraph.sdk import (  # noqa: E402
     tabs,
     toggle,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1440, 900
 M = 48
@@ -90,7 +90,7 @@ def gallery(b: DocumentBuilder) -> None:
     page = b.page("widgets_gallery", canvas=CANVAS, coordinate_mode="absolute").layer("main")
     page.rect([0, 0, W, H], fill=TH.surface_alt)
     n = Notes(page)
-    n.text([M, 40, 900, 30], "FrameGraph SDK — widget gallery", "h1")
+    n.text([M, 40, 900, 30], "FrameForge SDK — widget gallery", "h1")
     n.text([M, 74, 900, 18],
            "Every widget lowers to one group; the page validates with zero warnings.", "sub")
 

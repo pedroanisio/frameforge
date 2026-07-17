@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression tests for the FrameGraph live-session web UI."""
+"""Regression tests for the FrameForge live-session web UI."""
 from __future__ import annotations
 
 import json
@@ -7,12 +7,12 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.live.server import LiveSessionStore, html_index  # noqa: E402
+from frameforge.live.server import LiveSessionStore, html_index  # noqa: E402
 
 
 def test_live_session_prompt_runs_through_mcp_feedback_loop(tmp_path):
@@ -31,7 +31,7 @@ def test_live_session_prompt_runs_through_mcp_feedback_loop(tmp_path):
     assert result["renders"][0]["web_url"] == "/api/sessions/live-test/resources/page/1.svg"
     assert "generated_sdk_code" in result
     assert "Show a renderer status card" in (tmp_path / "live-test" / "generated.fg.yaml").read_text(encoding="utf-8")
-    assert "FrameGraph live session" in (tmp_path / "live-test" / "page-001.svg").read_text(encoding="utf-8")
+    assert "FrameForge live session" in (tmp_path / "live-test" / "page-001.svg").read_text(encoding="utf-8")
     assert [event["type"] for event in updated["events"]] == ["session_created", "run_started", "run_completed"]
 
 
@@ -57,8 +57,8 @@ def test_live_resource_urls_resolve_to_served_artifacts(tmp_path):
 
     mime, data = store.read_resource("resource-live", "page/1.svg")
     assert mime == "image/svg+xml"
-    assert "FrameGraph live session" in data.decode("utf-8")
+    assert "FrameForge live session" in data.decode("utf-8")
 
     html = html_index()
     assert "/api/sessions" in html
-    assert "FrameGraph Live Session" in html
+    assert "FrameForge Live Session" in html

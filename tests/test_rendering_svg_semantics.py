@@ -9,9 +9,9 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 MODELS = os.path.join(ROOT, "docs", "models")
 if MODELS in sys.path:
     sys.path.remove(MODELS)
-shadow = sys.modules.get("framegraph")
+shadow = sys.modules.get("frameforge")
 if shadow is not None and not hasattr(shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling.render_fixtures import Renderer
@@ -19,7 +19,7 @@ from tooling.render_fixtures import Renderer
 
 def _svg_for(objects: list[dict], defs: dict | None = None) -> str:
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "defs": defs or {"tokens": {"colors": {"panel": "#ffeecc", "hairline": "#123456"}}},
         "pages": [{

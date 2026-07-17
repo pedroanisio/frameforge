@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """SYRUS — client-acquisition proposal, built in the "Modern Sovereign" brand.
 
-Implements the SYRUS Brand Refactor & Proposal Build Brief as one FrameGraph
+Implements the SYRUS Brand Refactor & Proposal Build Brief as one FrameForge
 deck (16:9, 1920x1080, 14 sections). The strategy/voice (brief §2-3) drives the
 copy; the visual system (brief §4, Register A) drives the look; the section list
 (brief §5) drives the build. The §6 acceptance gates are designed-in:
@@ -31,13 +31,13 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, serialize  # noqa: E402
-from framegraph.sdk.paint import rgba  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge.sdk.paint import rgba  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 #  Personalization — the master-template fields (brief §5). Edit per send.     #

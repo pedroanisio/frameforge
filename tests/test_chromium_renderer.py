@@ -12,12 +12,12 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.infrastructure.browser import (  # noqa: E402
+from frameforge.rendering.infrastructure.browser import (  # noqa: E402
     _chromium_launch_args,
     rasterize_svg,
     svg_size,
@@ -137,26 +137,26 @@ def test_rasterize_svg_runs_sync_playwright_outside_active_asyncio_loop(tmp_path
 
 
 def test_chromium_launch_args_default_empty(monkeypatch):
-    monkeypatch.delenv("FRAMEGRAPH_CHROMIUM_NO_SANDBOX", raising=False)
-    monkeypatch.delenv("FRAMEGRAPH_CHROMIUM_ARGS", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_CHROMIUM_NO_SANDBOX", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_CHROMIUM_ARGS", raising=False)
     assert _chromium_launch_args() == []
 
 
 def test_chromium_launch_args_no_sandbox_flag(monkeypatch):
-    monkeypatch.delenv("FRAMEGRAPH_CHROMIUM_ARGS", raising=False)
-    monkeypatch.setenv("FRAMEGRAPH_CHROMIUM_NO_SANDBOX", "1")
+    monkeypatch.delenv("FRAMEFORGE_CHROMIUM_ARGS", raising=False)
+    monkeypatch.setenv("FRAMEFORGE_CHROMIUM_NO_SANDBOX", "1")
     assert _chromium_launch_args() == ["--no-sandbox", "--disable-dev-shm-usage"]
 
 
 def test_chromium_launch_args_explicit_override(monkeypatch):
-    monkeypatch.setenv("FRAMEGRAPH_CHROMIUM_NO_SANDBOX", "1")
-    monkeypatch.setenv("FRAMEGRAPH_CHROMIUM_ARGS", "--no-sandbox --font-render-hinting=none")
+    monkeypatch.setenv("FRAMEFORGE_CHROMIUM_NO_SANDBOX", "1")
+    monkeypatch.setenv("FRAMEFORGE_CHROMIUM_ARGS", "--no-sandbox --font-render-hinting=none")
     assert _chromium_launch_args() == ["--no-sandbox", "--font-render-hinting=none"]
 
 
 def test_rasterize_svg_threads_launch_args(tmp_path, monkeypatch):
-    monkeypatch.delenv("FRAMEGRAPH_CHROMIUM_ARGS", raising=False)
-    monkeypatch.setenv("FRAMEGRAPH_CHROMIUM_NO_SANDBOX", "1")
+    monkeypatch.delenv("FRAMEFORGE_CHROMIUM_ARGS", raising=False)
+    monkeypatch.setenv("FRAMEFORGE_CHROMIUM_NO_SANDBOX", "1")
     fake = FakePlaywrightModule()
     rasterize_svg(
         '<svg width="10" height="10"><rect width="10" height="10"/></svg>',

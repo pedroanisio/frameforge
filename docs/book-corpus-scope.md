@@ -39,6 +39,6 @@ This is enough for the first book-import surface if we want to inspect:
 
 - EPUB spine/chapter structure, front matter, paragraph flow, image assets, and inline semantic text.
 - PDF page geometry, headings, tables, figures, captions, formulas, sidebars, references, and dense textbook typography.
-- Whether imported books can become live FrameGraph pages/objects rather than opaque rasters.
+- Whether imported books can become live FrameForge pages/objects rather than opaque rasters.
 
 It is not enough for OCR-only scans, right-to-left scripts, math-heavy EPUB, magazines, DRM/proprietary formats, or multilingual typography. Those should be added only after the EPUB/PDF import contract is explicit.

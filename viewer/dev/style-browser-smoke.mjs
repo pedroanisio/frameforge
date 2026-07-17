@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HARNESS = `file://${path.join(__dirname, "harness.html")}`;
 
 const doc = {
-  dsl: "FrameGraph",
+  dsl: "FrameForge",
   version: "2.2.0",
   profile: "deck",
   title: "Style smoke",
@@ -118,24 +118,24 @@ page.on("console", (msg) => { if (msg.type() === "error") failures.push(`console
 page.on("pageerror", (err) => failures.push(`page error: ${err.message}`));
 
 await page.goto(HARNESS, { waitUntil: "networkidle" });
-await page.waitForFunction(() => window.__FRAMEGRAPH_VIEWER__);
-await page.evaluate((nextDoc) => window.__FRAMEGRAPH_VIEWER__.loadDoc(nextDoc), doc);
-await page.waitForSelector('[data-framegraph-object="styled_rect"]');
+await page.waitForFunction(() => window.__FRAMEFORGE_VIEWER__);
+await page.evaluate((nextDoc) => window.__FRAMEFORGE_VIEWER__.loadDoc(nextDoc), doc);
+await page.waitForSelector('[data-frameforge-object="styled_rect"]');
 
 const styles = await page.evaluate(() => {
-  const rect = getComputedStyle(document.querySelector('[data-framegraph-object="styled_rect"]'));
-  const image = getComputedStyle(document.querySelector('[data-framegraph-object="styled_image"]'));
-  const imageNode = document.querySelector('[data-framegraph-object="styled_image"] img');
-  const textWrap = getComputedStyle(document.querySelector('[data-framegraph-object="styled_text"]'));
-  const textInner = getComputedStyle(document.querySelector('[data-framegraph-object="styled_text"] > div'));
-  const aliasWrap = getComputedStyle(document.querySelector('[data-framegraph-object="alias_text"]'));
-  const aliasInner = getComputedStyle(document.querySelector('[data-framegraph-object="alias_text"] > div'));
-  const spanWrap = document.querySelector('[data-framegraph-object="styled_spans"]');
-  const span = spanWrap.querySelector('[data-framegraph-span="1"]');
+  const rect = getComputedStyle(document.querySelector('[data-frameforge-object="styled_rect"]'));
+  const image = getComputedStyle(document.querySelector('[data-frameforge-object="styled_image"]'));
+  const imageNode = document.querySelector('[data-frameforge-object="styled_image"] img');
+  const textWrap = getComputedStyle(document.querySelector('[data-frameforge-object="styled_text"]'));
+  const textInner = getComputedStyle(document.querySelector('[data-frameforge-object="styled_text"] > div'));
+  const aliasWrap = getComputedStyle(document.querySelector('[data-frameforge-object="alias_text"]'));
+  const aliasInner = getComputedStyle(document.querySelector('[data-frameforge-object="alias_text"] > div'));
+  const spanWrap = document.querySelector('[data-frameforge-object="styled_spans"]');
+  const span = spanWrap.querySelector('[data-frameforge-span="1"]');
   const spanStyle = getComputedStyle(span);
-  const filledPath = document.querySelector('[data-framegraph-vector="filled_path"]');
-  const fadedLine = document.querySelector('[data-framegraph-vector="faded_line"]');
-  const readingItems = Array.from(document.querySelectorAll('[data-framegraph-reading-order="p1"] [data-reading-object]'))
+  const filledPath = document.querySelector('[data-frameforge-vector="filled_path"]');
+  const fadedLine = document.querySelector('[data-frameforge-vector="faded_line"]');
+  const readingItems = Array.from(document.querySelectorAll('[data-frameforge-reading-order="p1"] [data-reading-object]'))
     .map((node) => `${node.getAttribute("data-reading-object")}:${node.textContent.trim()}`);
   return {
     rectBg: rect.backgroundColor,

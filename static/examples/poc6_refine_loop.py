@@ -29,8 +29,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.environ.get("FG_ROOT", ROOT))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
-from framegraph.coach import ingest  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge.coach import ingest  # noqa: E402
 from poc3_ingest_compose import ink_iou, restyle_strokes, place  # noqa: E402
 
 Obj = dict[str, Any]

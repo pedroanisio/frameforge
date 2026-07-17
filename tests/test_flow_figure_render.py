@@ -9,7 +9,7 @@ structured flow content of a `mode: flow` document (e.g.
 fixtures/standard-model.fg.yaml) never rendered. The fix draws figures, tables,
 math/code, and nested blocks as real SVG/text content.
 
-Renderer-only import (the `framegraph` package must win) — evict a models-module
+Renderer-only import (the `frameforge` package must win) — evict a models-module
 shadow first, per test_render_cli.py.
 """
 import os
@@ -17,9 +17,9 @@ import subprocess
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # the models module
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import yaml  # noqa: E402
@@ -33,7 +33,7 @@ if not os.path.exists(STANDARD_MODEL):
 # A minimal flow doc whose single figure draws a rect + a symbol `use` (which the
 # normaliser must expand to an ellipse) and carries a caption.
 SYNTH = {
-    "dsl": "FrameGraph",
+    "dsl": "FrameForge",
     "version": "2.2.0",
     "profile": "report",
     "title": "flow figure regression",
@@ -73,7 +73,7 @@ SYNTH = {
 }
 
 MATHML_DOC = {
-    "dsl": "FrameGraph",
+    "dsl": "FrameForge",
     "version": "2.2.0",
     "profile": "report",
     "title": "mathml render",
@@ -94,7 +94,7 @@ MATHML_DOC = {
 }
 
 INLINE_MATH_DOC = {
-    "dsl": "FrameGraph",
+    "dsl": "FrameForge",
     "version": "2.2.0",
     "profile": "report",
     "title": "inline math render",
@@ -143,7 +143,7 @@ def test_flow_figure_draws_geometry_not_placeholder(tmp_path):
 
 def test_flow_mathml_renders_as_mathjax_svg_not_raw_xml(tmp_path):
     svg = _render_to_svg(tmp_path, MATHML_DOC, "mathml.fg.yaml")
-    assert 'data-framegraph-math="true"' in svg
+    assert 'data-frameforge-math="true"' in svg
     assert 'data-mml-node="math"' in svg
     assert "<path" in svg
     assert 'fill="#111"' in svg
@@ -156,8 +156,8 @@ def test_flow_mathml_renders_as_mathjax_svg_not_raw_xml(tmp_path):
 
 def test_math_svg_conversion_failure_does_not_disable_later_math(monkeypatch):
     # The math->SVG path is now the MathSvgRenderer infrastructure adapter.
-    from framegraph.rendering.domain.services.math_text import math_text
-    from framegraph.rendering.infrastructure.math_svg import MathSvgRenderer
+    from frameforge.rendering.domain.services.math_text import math_text
+    from frameforge.rendering.infrastructure.math_svg import MathSvgRenderer
 
     m = MathSvgRenderer(math_text)
     calls = []
@@ -206,8 +206,8 @@ def test_standard_model_figures_all_render(tmp_path):
         assert placeholder not in combined
     assert combined.count("<ellipse") > 50     # the SM-grid quark/colour dots drew
     assert "standard model particles" in combined
-    assert combined.count('data-framegraph-math="true"') == 10
-    assert 'data-framegraph-math="true"' in combined
+    assert combined.count('data-frameforge-math="true"') == 10
+    assert 'data-frameforge-math="true"' in combined
     assert 'data-mml-node="math"' in combined
     assert "<path" in combined
     assert "S = [ s(s + 1) ]¹/² ℏ" not in combined

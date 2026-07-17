@@ -1,4 +1,4 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 profile: book
 title: NULLSEC // Ghost in the Kurogane Net
@@ -5185,7 +5185,7 @@ pages:
       meta:
         role: lettering
       type: text
-      text: a framegraph one-shot · story 01
+      text: a frameforge one-shot · story 01
     - box:
       - 920.0
       - 1610.0
@@ -51644,7 +51644,7 @@ pages:
         story 01 — “Ghost in the Kurogane Net”
 
 
-        written, drawn & lettered by the FrameGraph SDK
+        written, drawn & lettered by the FrameForge SDK
 
         no image assets — every panel composed from geometry'
     - box:

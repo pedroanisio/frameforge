@@ -26,14 +26,14 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.rendering.application.normalize import normalize_doc  # noqa: E402
-from framegraph.rendering.application.renderer import Renderer  # noqa: E402
-from framegraph.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-from framegraph.rendering.domain.services.text_style_resolver import (  # noqa: E402
+from frameforge.rendering.application.normalize import normalize_doc  # noqa: E402
+from frameforge.rendering.application.renderer import Renderer  # noqa: E402
+from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from frameforge.rendering.domain.services.text_style_resolver import (  # noqa: E402
     TextStyleResolver,
 )
-from framegraph.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
-from framegraph.rendering.infrastructure.painters.tikz import TikzPainter  # noqa: E402
+from frameforge.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
+from frameforge.rendering.infrastructure.painters.tikz import TikzPainter  # noqa: E402
 
 
 def _figtikz():
@@ -131,7 +131,7 @@ def test_transpiler_appearance_absence_is_stable():
 
 
 def _painter_tex(objects):
-    doc = {"dsl": "FrameGraph", "version": "2.4.1", "title": "t",
+    doc = {"dsl": "FrameForge", "version": "2.4.1", "title": "t",
            "profile": "diagram",
            "pages": [{"mode": "page", "id": "p",
                       "canvas": {"size": [400, 200], "units": "px"},
@@ -173,8 +173,8 @@ def test_painter_warns_per_dropped_effect():
 def test_svg_backend_composites_effects_without_warning():
     """The warning is backend-specific: SVG really renders the filters, so it
     must NOT emit the unsupported-effect warning."""
-    from framegraph.sdk import render_pages_with_stats
-    doc = {"dsl": "FrameGraph", "version": "2.4.1", "title": "t",
+    from frameforge.sdk import render_pages_with_stats
+    doc = {"dsl": "FrameForge", "version": "2.4.1", "title": "t",
            "profile": "diagram",
            "pages": [{"mode": "page", "id": "p",
                       "canvas": {"size": [400, 200], "units": "px"},

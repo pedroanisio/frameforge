@@ -19,7 +19,7 @@ future work, not a permanent exclusion).
 ## Purpose
 
 Define when a layout is **collision-free**, on the premise that **overlap is a
-first-class effect, not a defect**. FrameGraph is a design tool: overlapping
+first-class effect, not a defect**. FrameForge is a design tool: overlapping
 type, watermarks bleeding through text, captions over images, and deliberately
 illegible stacks are all things it MUST allow. The model therefore never judges
 legibility or aesthetics. It distinguishes exactly one thing: an overlap the

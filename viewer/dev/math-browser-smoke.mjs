@@ -1,13 +1,13 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
-import { normalizeFrameGraphDoc } from "../framegraph-normalize.mjs";
+import { normalizeFrameForgeDoc } from "../frameforge-normalize.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HARNESS = `file://${path.join(__dirname, "harness.html")}`;
 
-const doc = normalizeFrameGraphDoc({
-  dsl: "FrameGraph",
+const doc = normalizeFrameForgeDoc({
+  dsl: "FrameForge",
   version: "2.2.0",
   profile: "report",
   title: "viewer math smoke",
@@ -52,11 +52,11 @@ page.on("console", (msg) => { if (msg.type() === "error") failures.push(`console
 page.on("pageerror", (err) => failures.push(`page error: ${err.message}`));
 
 await page.goto(HARNESS, { waitUntil: "networkidle" });
-await page.waitForFunction(() => window.__FRAMEGRAPH_VIEWER__);
-await page.evaluate((nextDoc) => window.__FRAMEGRAPH_VIEWER__.loadDoc(nextDoc), doc);
-await page.waitForFunction(() => window.__FRAMEGRAPH_VIEWER__?.state().title === "viewer math smoke");
+await page.waitForFunction(() => window.__FRAMEFORGE_VIEWER__);
+await page.evaluate((nextDoc) => window.__FRAMEFORGE_VIEWER__.loadDoc(nextDoc), doc);
+await page.waitForFunction(() => window.__FRAMEFORGE_VIEWER__?.state().title === "viewer math smoke");
 
-const result = await page.locator('[data-framegraph-page="active"]').evaluate((el) => {
+const result = await page.locator('[data-frameforge-page="active"]').evaluate((el) => {
   const mathNodes = Array.from(el.querySelectorAll(".fg-mathml math"));
   const katexNodes = Array.from(el.querySelectorAll(".fg-math .katex"));
   const katexStyle = katexNodes[0] ? getComputedStyle(katexNodes[0]) : null;

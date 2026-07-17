@@ -19,8 +19,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.patterns import compose, load_sidecars  # noqa: E402
-from framegraph.sdk import render_page_svgs, serialize  # noqa: E402
+from frameforge.patterns import compose, load_sidecars  # noqa: E402
+from frameforge.sdk import render_page_svgs, serialize  # noqa: E402
 
 SHOWN = (10, 44, 111)
 

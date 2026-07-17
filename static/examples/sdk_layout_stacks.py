@@ -8,7 +8,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from framegraph.sdk import DocumentBuilder, badge, button, kpi, soft_shadow  # noqa: E402
+from frameforge.sdk import DocumentBuilder, badge, button, kpi, soft_shadow  # noqa: E402
 
 OUT = ROOT / "tests" / "fixtures" / "sdk-layout-stacks.fg.yaml"
 

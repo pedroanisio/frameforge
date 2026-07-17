@@ -15,11 +15,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import Camera, Scene3D, Vec3  # noqa: E402
+from frameforge.sdk import Camera, Scene3D, Vec3  # noqa: E402
 
 CAM = Camera(eye=Vec3(0, 0, 5), target=Vec3(0, 0, 0), up=Vec3(0, 1, 0),
              fov=60, aspect=1.0, near=0.1, far=100.0)

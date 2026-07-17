@@ -20,9 +20,9 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 import codemod as C  # noqa: E402
 import yaml  # noqa: E402
@@ -143,7 +143,7 @@ def test_pct():
 
 # --- main() CLI -------------------------------------------------------------- #
 def _legacy_stroke_doc():
-    return {"dsl": "FrameGraph", "version": "2.0.0", "pages": [{"mode": "page", "id": "p", "layers": [
+    return {"dsl": "FrameForge", "version": "2.0.0", "pages": [{"mode": "page", "id": "p", "layers": [
         {"id": "l", "objects": [{"type": "line", "from": [0, 0], "to": [1, 0],
                                  "stroke": {"color": "#000", "width": 2}}]}]}]}
 
@@ -168,7 +168,7 @@ def test_main_in_place_bump_json(tmp_path):
 
 
 def test_main_normalize_aliases(tmp_path):
-    doc = {"dsl": "FrameGraph", "version": "2.2.0", "pages": [{"mode": "page", "id": "p", "layers": [
+    doc = {"dsl": "FrameForge", "version": "2.2.0", "pages": [{"mode": "page", "id": "p", "layers": [
         {"id": "l", "objects": [{"type": "circle", "center": [5, 5], "r": 4}]}]}]}
     src = tmp_path / "doc.fg.yaml"
     src.write_text(yaml.safe_dump(doc), encoding="utf-8")

@@ -1,8 +1,8 @@
-# Canonical fixture for framegraph.sdk.canon (Johnston's typographic canon).
+# Canonical fixture for frameforge.sdk.canon (Johnston's typographic canon).
 # GENERATED from the module's own output — margins, sizes, the measure band
 # and tracking are computed by johnston_margins / modular_scale / caps_tracking
 # (source: Johnston 1906). Regenerate via the module rather than hand-editing.
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.3.0
 profile: report
 title: Johnston canon — margins, scale, measure

@@ -3,7 +3,7 @@ name: typeface-and-colour
 description: >-
   Apply the classical craft of the page — typography, colour, and arrangement —
   when designing or reviewing any visual document: decks, posters, books,
-  letters, diagrams, brand palettes, or a FrameGraph SDK client. Use when
+  letters, diagrams, brand palettes, or a FrameForge SDK client. Use when
   choosing or pairing typefaces, building a colour palette, setting body text
   (measure, leading, scale), laying out or balancing a page/spread, or judging a
   design for legibility, hierarchy, and repose. Also use to critique an existing
@@ -26,7 +26,7 @@ disclaimer:
 A working grammar for designing and auditing visual documents. It is the
 operational distillation of the book **_The Letter & the Hue_** (this repo,
 `out/typeface-and-colour/` — 93 pages, 55 drawn plates, composed with the
-FrameGraph SDK), which itself reduces three primary sources to a short table of
+FrameForge SDK), which itself reduces three primary sources to a short table of
 laws:
 
 | Craft | Source | Governs |
@@ -174,11 +174,11 @@ Report failures plainly with the number that failed (e.g. "caption/ground is
 
 ---
 
-## Enacting it in FrameGraph
+## Enacting it in FrameForge
 
-This repo renders with the FrameGraph SDK/MCP; the book itself is a worked
+This repo renders with the FrameForge SDK/MCP; the book itself is a worked
 example — read `out/typeface-and-colour/` (PDF + per-page SVG/PNG) as the
-reference build, and see [`framegraph-mcp-docker`](../framegraph-mcp-docker/SKILL.md)
+reference build, and see [`frameforge-mcp-docker`](../frameforge-mcp-docker/SKILL.md)
 for the runtime.
 
 | Move | SDK enactment |

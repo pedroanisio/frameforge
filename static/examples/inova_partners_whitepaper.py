@@ -38,16 +38,16 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Chart,
     DocumentBuilder,
     Frame,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --- geometry --------------------------------------------------------------- #
 W, H = 794, 1123                 # A4 portrait @ 96 dpi
@@ -918,7 +918,7 @@ def main() -> int:
           f"errors={len(errors)} warnings={len(report.issues) - len(errors)}")
     for i in report.issues[:40]:
         print(f"  [{i.severity}] [{i.rule_id}] {i.path}: {i.message}")
-    from framegraph.sdk import serialize
+    from frameforge.sdk import serialize
     out = os.path.join(ROOT, "tests", "fixtures", "inova-partners-whitepaper.fg.yaml")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as fh:

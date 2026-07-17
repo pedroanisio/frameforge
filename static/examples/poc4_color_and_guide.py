@@ -4,7 +4,7 @@ Answers two questions directly, with executable proof (not prose):
 
     1. CAN WE FILL / GRADIENT A TRACE?
        Yes. A `region` trace is closed polygons whose `fill` may be a flat colour
-       OR a FrameGraph `Gradient`. `recolor_fills` re-palettes them; `gradient_fills`
+       OR a FrameForge `Gradient`. `recolor_fills` re-palettes them; `gradient_fills`
        lifts each flat fill into a 2-stop gradient. Lay the recoloured regions
        UNDER the `outline` strokes -> a coloured illustration. (Outline polylines
        are open paths: they are the *lines*, not fillable areas.)
@@ -31,7 +31,7 @@ from typing import Any, Iterable, Sequence
 sys.path.insert(0, os.environ.get("FG_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
 from poc3_ingest_compose import place, restyle_strokes  # noqa: E402
 
 Obj = dict[str, Any]
@@ -55,7 +55,7 @@ def hexshift(hex_color: str, amt: float) -> str:
 
 def gradient_fills(objs: Iterable[Obj], *, kind: str = "linear", angle: str = "120deg",
                    light: float = 0.22, dark: float = -0.18) -> list[Obj]:
-    """Lift every flat fill into a 2-stop FrameGraph gradient. Geometry untouched."""
+    """Lift every flat fill into a 2-stop FrameForge gradient. Geometry untouched."""
     out: list[Obj] = []
     for o in objs:
         o = copy.deepcopy(o)
@@ -109,7 +109,7 @@ def as_guide(objs: Iterable[Obj], *, opacity: float = 0.18, ink: str = "#3A4A7A"
 # --------------------------------------------------------------------------- #
 def trace(image: str, *, mode: str, colors: int = 12, detail: float = 0.0018,
           min_area: float = 30.0, max_dim: int = 1400) -> tuple[list[Obj], int, int]:
-    from framegraph.vision.infrastructure.vectorize import raster_to_objects
+    from frameforge.vision.infrastructure.vectorize import raster_to_objects
     return raster_to_objects(image, mode=mode, colors=colors, detail=detail,
                              min_area=min_area, max_dim=max_dim)
 

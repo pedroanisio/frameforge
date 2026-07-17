@@ -13,14 +13,14 @@ from __future__ import annotations
 import os
 import sys
 
-# The framegraph PACKAGE must own sys.modules, not the docs/models shadow module
+# The frameforge PACKAGE must own sys.modules, not the docs/models shadow module
 # a prior test may have cached; evict the non-package binding and put src/ back in
 # front, then lock the package in.
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
-import framegraph.sdk.model  # noqa: F401,E402  — lock the package
+import frameforge.sdk.model  # noqa: F401,E402  — lock the package
 
 import gen_capability_manifest as G  # noqa: E402  (tooling/, via conftest)
 import validate as V  # noqa: E402

@@ -13,7 +13,7 @@ disclaimer:
 # ADR 0002 — The SDK is a downstream consumer of the committed core; SDK support lags feature delivery
 
 > **Path era.** This ADR pre-dates the 2026-07 src-layout refactor; read its
-> paths through the mapping `framegraph/` → `src/framegraph/`, `models/` →
+> paths through the mapping `frameforge/` → `src/frameforge/`, `models/` →
 > `docs/models/`, `schema|grammar/` → `docs/…`, `fixtures/` → `tests/fixtures/`.
 > The decision itself is unaffected.
 
@@ -25,25 +25,25 @@ code.
 
 ## Context
 
-FrameGraph is built in two layers with a one-way dependency between them.
+FrameForge is built in two layers with a one-way dependency between them.
 
 - **The core** is the capability contract: the Pydantic models
-  (`models/framegraph.py`, the declared source of truth — see `CLAUDE.md`,
-  "Project Overview"), the two grammars (`grammar/framegraph-v2*.ebnf`), the
-  generated JSON Schema (`schema/framegraph-v2.schema.json`), the static-rule
-  validator (`tooling/validate.py`), and the renderer (`framegraph/rendering/`).
-  Together these *define and check* what a FrameGraph document may say and how it
+  (`models/frameforge.py`, the declared source of truth — see `CLAUDE.md`,
+  "Project Overview"), the two grammars (`grammar/frameforge-v2*.ebnf`), the
+  generated JSON Schema (`schema/frameforge-v2.schema.json`), the static-rule
+  validator (`tooling/validate.py`), and the renderer (`frameforge/rendering/`).
+  Together these *define and check* what a FrameForge document may say and how it
   is drawn. A capability **exists** when, and only when, the core admits it.
-- **The SDK** (`framegraph/sdk/`) is an *authoring layer*: Python builders that
+- **The SDK** (`frameforge/sdk/`) is an *authoring layer*: Python builders that
   lower convenient calls to a document, then validate and (optionally) render it
   through the core. The SDK produces documents; it does not define the contract.
 
 The dependency direction is strict and verifiable in the tree:
 
-- The SDK depends on the core. `framegraph/sdk/model.py` reaches the models via
+- The SDK depends on the core. `frameforge/sdk/model.py` reaches the models via
   `model_module()`, and SDK validation/expansion checks its output against them.
-- The core does not depend on the SDK. `models/framegraph.py` imports nothing
-  from `framegraph.sdk` (grep confirms zero `sdk` imports). The grammar, schema,
+- The core does not depend on the SDK. `models/frameforge.py` imports nothing
+  from `frameforge.sdk` (grep confirms zero `sdk` imports). The grammar, schema,
   and validator likewise have no SDK dependency.
 
 So the SDK is **strictly downstream**: it can only author what the committed core
@@ -114,17 +114,17 @@ fall behind.
 
 G-1 added a typed, schema-checkable structured form of a path's `d` (a
 `list[PathSeg]` alongside the SVG path-data string). Its **core landing** is
-committed: `models/framegraph.py` types `Path.d` as `Union[str, list[PathSeg]]`,
+committed: `models/frameforge.py` types `Path.d` as `Union[str, list[PathSeg]]`,
 the grammar carries `PathSegList`/`PathSeg`/`PathCommand`, the JSON Schema
 validates command + arity via `prefixItems`, and the renderer lowers the
 structured form. All gated green.
 
 At the time this ADR was written (2026-06-24), the **SDK had not yet caught
-up**: `framegraph/sdk/geometry.py` authored only the string form, and no SDK
+up**: `frameforge/sdk/geometry.py` authored only the string form, and no SDK
 builder emitted a `list[PathSeg]`. That lag was the invariant in force — a
 known, acceptable state, not a defect.
 
-**SDK exposure has since landed (verified 2026-07-01):** `framegraph/sdk/geometry.py`
+**SDK exposure has since landed (verified 2026-07-01):** `frameforge/sdk/geometry.py`
 now maintains the structured form in parallel (`Path.segments()` returns the
 typed `[cmd, *coords]` list) and `Path.object(structured=True)` emits `d` as a
 `list[PathSeg]`; the default remains the byte-identical string form. G-1 has
@@ -139,7 +139,7 @@ this core-vs-SDK status is now tracked per capability.
 - **Status tracking must separate the two states.** Any roadmap, status table, or
   review note must distinguish "in core" from "in SDK" as distinct milestones for
   the same capability. A claim that "the SDK ships `X`" must be verified against
-  `framegraph/sdk/`, not against the model or grammar.
+  `frameforge/sdk/`, not against the model or grammar.
 - **An SDK lag does not block a core merge.** Reviewers and agents must not gate a
   core capability on SDK parity, nor treat a not-yet-exposed capability as a
   regression. The follow-on SDK work is tracked as its own item.

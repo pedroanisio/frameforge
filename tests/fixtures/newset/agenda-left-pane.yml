@@ -2,8 +2,8 @@
 # Sample deck — exercises the `agenda_left_pane` template.
 #
 # The template's canonical definition lives at:
-#   framegraph/lib/symbols/sections/agenda_left_pane.sym.yml
-#   framegraph/lib/symbols/sections/agenda_left_pane.schema.json
+#   frameforge/lib/symbols/sections/agenda_left_pane.sym.yml
+#   frameforge/lib/symbols/sections/agenda_left_pane.schema.json
 #
 # The symbol body is inlined into deck.symbols below so the deck renderer
 # can pick it up directly (the deck pipeline does not yet auto-resolve
@@ -11,11 +11,11 @@
 # with `$symbols: [sections/agenda_left_pane]`).
 #
 # Render:
-#   framegraph deck examples/agenda-left-pane/deck.yml \
+#   frameforge deck examples/agenda-left-pane/deck.yml \
 #     -o output/agenda-left-pane
 # ─────────────────────────────────────────────────────────────────────────
 
-dsl: FrameGraph
+dsl: FrameForge
 version: 1.2
 kind: presentation-deck
 

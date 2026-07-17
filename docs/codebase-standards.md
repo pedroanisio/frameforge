@@ -24,7 +24,7 @@ marked as not-yet-enforced.
 
 ## What this document is
 
-This is the **elevated standard** for the **framegraph** repository — the bar we hold
+This is the **elevated standard** for the **frameforge** repository — the bar we hold
 ourselves to and are deliberately moving toward. It is **not** a cold snapshot of the
 current config. Some standards here are gated by tooling today; others are commitments
 we have not yet wired into the gate. To keep the aspiration honest, **every rule carries
@@ -52,7 +52,7 @@ Rules of reading:
 |---|---|---|
 | Toolchain, deps, version, packaging | [pyproject.toml](../pyproject.toml) | exists |
 | The quality gate (what must pass) | [Makefile](../Makefile) (`make check`), mirrored by [ci.yml](../.github/workflows/ci.yml) | exists |
-| Format / conformance (the data model) | [docs/models/framegraph.py](./models/framegraph.py) (Pydantic v2, **source of truth**) | exists |
+| Format / conformance (the data model) | [docs/models/frameforge.py](./models/frameforge.py) (Pydantic v2, **source of truth**) | exists |
 | Generated JSON schema | [docs/schema/build_schema.py](./schema/build_schema.py) (`--check` fails on drift) | exists |
 | Normative prose & grammar | [docs/spec/](./spec/), [docs/grammar/](./grammar/) (grammar ⇄ models gated by [check_grammar_sync.py](../tooling/check_grammar_sync.py)) | exists |
 | Status, scope, honest limits | [README.md](../README.md), [CHANGELOG.md](../CHANGELOG.md) | exists |
@@ -98,18 +98,18 @@ Rules of reading:
 - **`[Enforced]`** The LaTeX/TikZ renderer (`tooling/render_latex.py`) adds **no** Python
   dependency: it shells out to a system TeX engine (lualatex preferred, pdflatex fallback)
   plus poppler's `pdftoppm` for `--png` ([pyproject.toml:30-39](../pyproject.toml#L30-L39)).
-- **`[Enforced]`** Two console scripts are declared — `framegraph-render` and
+- **`[Enforced]`** Two console scripts are declared — `frameforge-render` and
   `fg-font` ([pyproject.toml:25-26](../pyproject.toml#L25-L26)) — but inert while the
   project stays virtual; they resolve as commands only where the package is
   installed (e.g. an external consumer or image). In this tree run the
-  self-bootstrapping launchers: `uv run python tooling/framegraph_render.py`
-  (PYTHONPATH-free; issue #35) or `python -m framegraph.cli` where `src`/`docs`
+  self-bootstrapping launchers: `uv run python tooling/frameforge_render.py`
+  (PYTHONPATH-free; issue #35) or `python -m frameforge.cli` where `src`/`docs`
   are already on the path, and `uv run python tooling/fg_font.py` (thin
-  launcher over `framegraph.fontpack`; also `make font-list` / `font-check`).
+  launcher over `frameforge.fontpack`; also `make font-list` / `font-check`).
 - **`[Enforced]`** This is a **virtual project**: `package = false`
   ([pyproject.toml:81](../pyproject.toml#L81)). The tree runs via `sys.path`-rooted scripts;
-  it is deliberately **not** built or installed (an installed `framegraph` distribution
-  would shadow the [docs/models/framegraph.py](./models/framegraph.py) module the tooling imports).
+  it is deliberately **not** built or installed (an installed `frameforge` distribution
+  would shadow the [docs/models/frameforge.py](./models/frameforge.py) module the tooling imports).
 - **`[Enforced]`** Lock state lives in [uv.lock](../uv.lock). Do not hand-edit it; CI syncs
   from the lock with `uv sync --locked --group pdf` — the `pdf` group only lets the PDF
   transpiler's `importorskip`-gated e2e test run ([ci.yml:25](../.github/workflows/ci.yml#L25)).
@@ -133,7 +133,7 @@ The gate is the contract for "done." It has **one definition**, run two places.
   overflow golden-check docs-check docs-linkcheck disclaimer-check`.
   A change is not done until it passes.
   - `schema-check` — `uv run python docs/schema/build_schema.py --check`: fails if the committed
-    [docs/schema/framegraph-v2.schema.json](./schema/framegraph-v2.schema.json) drifted from the
+    [docs/schema/frameforge-v2.schema.json](./schema/frameforge-v2.schema.json) drifted from the
     models ([Makefile:47-48](../Makefile#L47-L48)).
   - `grammar-check` — `uv run python tooling/check_grammar_sync.py`: fails if the EBNF grammar
     drifted from the models on the **core profile** (a mismatched object/flow `type` or a
@@ -171,7 +171,7 @@ The gate is the contract for "done." It has **one definition**, run two places.
   `brand/` asset directory (tokens + generated logo masters) among it — stays **out of the
   codebase tree**. With their comparison inputs untracked, both gates had nothing to gate.
   The logo *generator* remains in-tree
-  ([static/examples/framegraph_logo.py](../static/examples/framegraph_logo.py)); it now
+  ([static/examples/frameforge_logo.py](../static/examples/frameforge_logo.py)); it now
   writes masters out of tree (`_tmp/brand/`).
 - **`[Enforced]`** **CI runs `make check` verbatim.** The `python` job syncs from the lock
   (`uv sync --locked --group pdf`) and executes the Makefile target as a single step
@@ -212,7 +212,7 @@ The gate is the contract for "done." It has **one definition**, run two places.
 
 ## 5. Type checking (mypy)
 
-- **`[Target]`** `mypy --strict` over [docs/models/](./models/) and [src/framegraph/](../src/framegraph/),
+- **`[Target]`** `mypy --strict` over [docs/models/](./models/) and [src/frameforge/](../src/frameforge/),
   with the `pydantic.mypy` plugin, wired into the gate as `make typecheck`. **Nothing exists
   today** — there is no `[tool.mypy]` config, no `typecheck` target, and CI does not type-check.
   This is one of the larger gaps (§16); new code should be written annotated and strict-clean
@@ -263,7 +263,7 @@ else is generated from or checked against them** ([README.md](../README.md), *Th
   asserts the README's `$defs` count, every `N/N green` test count, `pyproject` version ==
   `HEAD_VERSION`, and that every path in the README Layout map exists; `gen_status.py --check`
   keeps [docs/FIXTURE-STATUS.md](./FIXTURE-STATUS.md) in sync with the validator;
-  [tests/test_doc_examples.py](../tests/test_doc_examples.py) validates every complete FrameGraph
+  [tests/test_doc_examples.py](../tests/test_doc_examples.py) validates every complete FrameForge
   example shown in the prose; [tests/test_generated_docs_fresh.py](../tests/test_generated_docs_fresh.py)
   asserts the committed `docs/sdk.md`/`docs/sdk-api.md` snapshots equal a fresh build; and
   [tests/test_capability_manifest.py](../tests/test_capability_manifest.py) asserts
@@ -280,7 +280,7 @@ else is generated from or checked against them** ([README.md](../README.md), *Th
 - **`[Adopted]`** **Hand-written pages are now in nav.** Beyond `docs/index.md`, the
   `mkdocs.yml` nav carries `error-codes.md` and a *Design records* section
   (`architecture.md`, `output-space.md`, `roadmap.md`, the ADRs,
-  `illustration-protocol.md`, `framegraph-vector-recreation-improvements.md`, `BRAND.md`) —
+  `illustration-protocol.md`, `frameforge-vector-recreation-improvements.md`, `BRAND.md`) —
   all committed, hand-written pages. Everything else under `docs/` is a `make docs` build
   artifact. (Earlier revisions stated `index.md` was the only hand-written nav page; the
   nav has since grown.)
@@ -319,7 +319,7 @@ else is generated from or checked against them** ([README.md](../README.md), *Th
   asserts the workflow delegates to `make check` (§3), so a Makefile-only gate cannot silently
   stop blocking pull requests.
 - **`[Adopted]`** **Curated fixture gate.** `FIXTURES_YAML` is resolved from tracked
-  **top-level** `tests/fixtures/*.fg.yaml` / `*.framegraph.yml` paths via `git ls-files`
+  **top-level** `tests/fixtures/*.fg.yaml` / `*.frameforge.yml` paths via `git ls-files`
   ([Makefile:9](../Makefile#L9)), so scratch/untracked fixture experiments do not silently
   change `make check`. Add a fixture to git before expecting the gate to validate it.
 - **`[Target]`** An explicit **drift tolerance** (rasterized pixel diff) so a cosmetically-trivial
@@ -343,8 +343,8 @@ chain, and the gate that proves each invariant — is formalised in
   documents is delivered by the codemod (`codemod.py --in-place --bump`) and by accepting legacy
   shorthand as sugar — not by freezing the schema. [CHANGELOG.md](../CHANGELOG.md) is updated every
   release.
-- **`[Enforced]`** Runtime `framegraph.__version__`
-  ([src/framegraph/__init__.py](../src/framegraph/__init__.py)) is a fifth version literal that `make bump`
+- **`[Enforced]`** Runtime `frameforge.__version__`
+  ([src/frameforge/__init__.py](../src/frameforge/__init__.py)) is a fifth version literal that `make bump`
   moves in lockstep and [tests/test_docs_in_sync.py](../tests/test_docs_in_sync.py) gates against
   `[project] version` — so the package can report its own version and it can never drift.
   A plain literal, not `importlib.metadata`, because this is a virtual (uninstalled) project (§2).
@@ -356,7 +356,7 @@ chain, and the gate that proves each invariant — is formalised in
   ([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) asserts
   package-emit readiness, separating hard build/install blockers from advisory `[Target]`
   gaps. It is advisory — deliberately **not** in `make check` — and reports **NOT READY**
-  today (3 blockers, 1 gap; FrameGraph is a virtual project by design, §2). See §16.
+  today (3 blockers, 1 gap; FrameForge is a virtual project by design, §2). See §16.
 
 ## 10. Pre-commit and CI
 
@@ -435,37 +435,37 @@ non-negotiable absent an explicit, documented decision.
   first-class; the schema/validator/codemod/grammar stay **in sync** with the models (§8).
 - **Output surface.** SVG stays primary; the matplotlib proxy, headless-Chromium raster,
   LaTeX/TikZ (system TeX, no Python deps, §2), and PDF-out (`pdfout` group) paths are optional
-  render backends behind the [src/framegraph/cli.py](../src/framegraph/cli.py) front door
-  (`framegraph-render`; `--list` shows live availability). None of them is conformant
+  render backends behind the [src/frameforge/cli.py](../src/frameforge/cli.py) front door
+  (`frameforge-render`; `--list` shows live availability). None of them is conformant
   (honest scope, below).
-- **MCP boundary.** [src/framegraph/mcp/](../src/framegraph/mcp/) is an optional adapter for AI coding
-  feedback loops: Python SDK code runs in a per-session subprocess, emits FrameGraph YAML, and
+- **MCP boundary.** [src/frameforge/mcp/](../src/frameforge/mcp/) is an optional adapter for AI coding
+  feedback loops: Python SDK code runs in a per-session subprocess, emits FrameForge YAML, and
   the existing validator/SVG proxy renderer produce artifacts for inspection. MCP dependencies
   stay in the optional `mcp` group; do not import them from the core SDK or renderer path.
-- **Live-session boundary.** [src/framegraph/live/](../src/framegraph/live/) is a local HTTP UI over the
+- **Live-session boundary.** [src/frameforge/live/](../src/frameforge/live/) is a local HTTP UI over the
   same MCP/session functions. It may serve browser chrome, session metadata, diagnostics, and
   rendered artifacts, but it must not become a separate renderer or introduce core web deps.
-- **Vision boundary.** [src/framegraph/vision/](../src/framegraph/vision/) (image→draft proposers and
+- **Vision boundary.** [src/frameforge/vision/](../src/frameforge/vision/) (image→draft proposers and
   the coordinate measurement layer) sits behind the optional `vision` dependency group and is
   lazily imported — the classical detectors and OCR load only when a propose tool runs. All
   CV/LLM proposals are UNVERIFIED drafts (§14) and must round-trip through the
   validator/renderer.
-- **Honest scope.** FrameGraph v2 is a **proposed** format. No renderer is conformant; the
+- **Honest scope.** FrameForge v2 is a **proposed** format. No renderer is conformant; the
   matplotlib and SVG proxies are sanity checks, not fidelity guarantees. Font pinning gives
   deterministic *layout* only up to a stated tolerance, not pixel-exact identity (§9.6).
 - **In-progress restructuring.** A DDD split is underway. The package now hosts several
-  bounded contexts — [src/framegraph/rendering](../src/framegraph/rendering/) (render orchestrator +
+  bounded contexts — [src/frameforge/rendering](../src/frameforge/rendering/) (render orchestrator +
   `normalize_doc` under `rendering/application/`, re-exported by `tooling/render_fixtures.py`
-  for its CLI), [src/framegraph/sdk](../src/framegraph/sdk/), [src/framegraph/cli.py](../src/framegraph/cli.py),
-  [src/framegraph/mcp](../src/framegraph/mcp/), [src/framegraph/live](../src/framegraph/live/),
-  [src/framegraph/vision](../src/framegraph/vision/), [src/framegraph/coach](../src/framegraph/coach/),
-  [src/framegraph/patterns](../src/framegraph/patterns/) (the #28/#29 slide-template catalog),
-  [src/framegraph/library](../src/framegraph/library/) (the #32 themes/symbols/generators content
-  library), and [src/framegraph/fontpack.py](../src/framegraph/fontpack.py) (ADR-0004 font packs;
+  for its CLI), [src/frameforge/sdk](../src/frameforge/sdk/), [src/frameforge/cli.py](../src/frameforge/cli.py),
+  [src/frameforge/mcp](../src/frameforge/mcp/), [src/frameforge/live](../src/frameforge/live/),
+  [src/frameforge/vision](../src/frameforge/vision/), [src/frameforge/coach](../src/frameforge/coach/),
+  [src/frameforge/patterns](../src/frameforge/patterns/) (the #28/#29 slide-template catalog),
+  [src/frameforge/library](../src/frameforge/library/) (the #32 themes/symbols/generators content
+  library), and [src/frameforge/fontpack.py](../src/frameforge/fontpack.py) (ADR-0004 font packs;
   the `fg-font` console script) —
   while the conformance/schema context still lives in [docs/models/](./models/),
   [docs/schema/](./schema/), and [tooling/](../tooling/) and migrates in later steps
-  ([src/framegraph/__init__.py](../src/framegraph/__init__.py)). Do not justify a decision by the
+  ([src/frameforge/__init__.py](../src/frameforge/__init__.py)). Do not justify a decision by the
   *current* mid-migration shape; move toward the target structure. **The package no longer
   imports up into `tooling/`** — [tests/test_package_boundary.py](../tests/test_package_boundary.py)
   pins this in the gate, and `make package-check` re-asserts it.
@@ -528,7 +528,7 @@ the governance docs — `AGENTS.md`, `PURPOSE.md`, and `DISCLAIMER.md` all exist
 table, §12, §13); two gates entered `make check` (`docs-linkcheck`, `disclaimer-check`, §3);
 CI ⇄ make lockstep moved from discipline to a pinned test (§3); and hypothesis property tests
 landed (§6, shrinking row 4). **2026-07-04:** row 7 (runtime `__version__` + a
-release recipe) closed — `framegraph.__version__` is a fifth gated version literal and
+release recipe) closed — `frameforge.__version__` is a fifth gated version literal and
 `make release` runs the full bump→regenerate→check recipe (§9; RELEASE.md); only the
 git-tag/CI-publish steps remain by hand. **2026-07-04:** row 8 (multi-version support)
 closed — `pyproject` declares `classifiers`/`authors`/`urls`/`keywords`, `ci.yml` runs the
@@ -541,7 +541,7 @@ shell out to the Makefile, so zero tool-pin drift), installed with `make hooks` 
 `test_precommit_config.py` (§10).
 
 **The 2026-07-02 folder refactor** (operator-directed) moved the tree to a src layout —
-package in `src/framegraph/`, reference sources under `docs/` (`models/`, `schema/`, `spec/`,
+package in `src/frameforge/`, reference sources under `docs/` (`models/`, `schema/`, `spec/`,
 `grammar/`), the fixture corpus in `tests/fixtures/`, runnable clients in `static/examples/` —
 and evicted all non-core content (`brand/`, `demo/`, `recipe/`, POC notes, scratch scripts)
 from the tree. Two gates (`brand-check`, `brand-logo-check`) were retired with written
@@ -556,8 +556,8 @@ reports **NOT READY** today (3 blockers, 1 gap — the one remaining gap is the 
 target; the runtime `__version__` and publish-metadata gaps closed with rows 7 and 8).
 It is advisory — not part of `make check` —
 and shrinks as these rows close. The remaining blockers are the deliberate virtual-project
-decisions: no `[build-system]` table, `[tool.uv] package = false`, and the `framegraph` dist
-name shadowing `docs/models/framegraph.py` (§2). The former fourth blocker — `framegraph/`
+decisions: no `[build-system]` table, `[tool.uv] package = false`, and the `frameforge` dist
+name shadowing `docs/models/frameforge.py` (§2). The former fourth blocker — `frameforge/`
 importing the top-level `tooling` package (the inverted dependency, tension #1 in
 `conceptual-analysis.md`) — has been **cleared**: the orchestrator + `normalize_doc` moved into
 the package (§13), and [tests/test_package_boundary.py](../tests/test_package_boundary.py) keeps

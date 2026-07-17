@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Illustration plates for the book chapter *Layout Methods — A Field Guide*.
 
-Each figure is one absolute-mode page, authored through the FrameGraph SDK and
+Each figure is one absolute-mode page, authored through the FrameForge SDK and
 rendered by the project's own SVG proxy — the system drawing the very layout
 methods it is built on. The figures are deliberately *didactic schematics*, not
 spec-complete implementations of the algorithms they depict (see the chapter's
@@ -27,19 +27,19 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Chart,
     DocumentBuilder,
     Frame,
     render_page_svgs,
     serialize,
 )
-from framegraph.sdk.layout import column, grid, inset, row  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.layout import column, grid, inset, row  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Shared visual system — a sober, low-chroma print palette.

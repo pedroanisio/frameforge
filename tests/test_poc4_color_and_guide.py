@@ -11,9 +11,9 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, os.path.join(ROOT, "static", "examples"))
 
@@ -91,7 +91,7 @@ def test_author_overlay_contributes_real_colour_including_a_gradient():
 
 
 def test_build_color_and_guide_renders_with_gradients():
-    from framegraph.sdk import render_page_svgs
+    from frameforge.sdk import render_page_svgs
     b = build_color_and_guide(_regions(), _lines(), (10, 10))
     svg = render_page_svgs(b.build())[0]
     assert svg.startswith("<svg")

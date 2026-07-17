@@ -4,11 +4,11 @@ Backs the reused transform renderer (`_with_transform` / `_svg_transform` in
 tooling/render_fixtures.py) under the standing fixture rule: the feature is
 demonstrated by a checked-in oracle, not only synthetic in-process dicts.
 fixtures/transforms.fg.yaml is that oracle — a Y-axis-leaning gallery
-(translate_y / scale_y / skew_y / rotate) that also pins the FrameGraph default
+(translate_y / scale_y / skew_y / rotate) that also pins the FrameForge default
 `transform_origin` (box centre) against an explicit corner origin and a
 two-function composition.
 
-Subprocess render (not an in-process import) to avoid the framegraph-package vs
+Subprocess render (not an in-process import) to avoid the frameforge-package vs
 models-module name clash in the shared pytest process — same shape as
 tests/test_text_spans.py.
 """

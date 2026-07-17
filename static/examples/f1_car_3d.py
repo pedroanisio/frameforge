@@ -1,4 +1,4 @@
-"""Formula 1 car — one organic 3D model, two cameras (FrameGraph composition).
+"""Formula 1 car — one organic 3D model, two cameras (FrameForge composition).
 
 A single geometric F1 model is assembled from >256 primitive COMPONENTS — mostly
 LOFTED surfaces (elliptical cross-sections swept along the car, giving smooth,
@@ -33,7 +33,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import DocumentBuilder, rgba  # noqa: E402
+from frameforge.sdk import DocumentBuilder, rgba  # noqa: E402
 
 PI = math.pi
 PAGE_W, PAGE_H = 1460.0, 940.0
@@ -456,7 +456,7 @@ def scene():
         line([(922, 100), (922, PAGE_H - 24)], rgba(GRID, 0.28), w=1.5),
         text(40, 40, "FORMULA 1 — ONE ORGANIC 3D MODEL, TWO CAMERAS", 25, INK, w=1200, weight=800),
         text(40, 70, f"{ncomp} components · {L + 5} layers · {total_fx} effects · "
-                     "lofted geometry · perspective + orthographic-top · FrameGraph SDK",
+                     "lofted geometry · perspective + orthographic-top · FrameForge SDK",
              13, rgba(INK, 0.78), w=1320, weight=600),
         text(persp_panel[0] + 12, persp_panel[1] + 16, "① 3/4 PERSPECTIVE", 15, CYAN, w=360, weight=800),
         text(top_panel[0] + 12, top_panel[1] + 16, "② TOP · ORTHOGRAPHIC PLAN", 15, CYAN, w=400, weight=800),
@@ -470,7 +470,7 @@ def scene():
 
 
 def build_builder():
-    b = DocumentBuilder(title="Formula 1 — one organic 3D model, two cameras (FrameGraph)")
+    b = DocumentBuilder(title="Formula 1 — one organic 3D model, two cameras (FrameForge)")
     page = b.page("f1_3d", canvas={"size": [PAGE_W, PAGE_H], "units": "px"}, coordinate_mode="absolute")
     page.layer("scene").extend(scene())
     return b
@@ -484,7 +484,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from framegraph.sdk import serialize
+    from frameforge.sdk import serialize
     _, nc = build_model()
     out = os.environ.get("OUTPUT_YAML_PATH", "f1_car_3d.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))

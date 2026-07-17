@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-codemod.py — migrate a FrameGraph v2 document to HEAD conventions.
+codemod.py — migrate a FrameForge v2 document to HEAD conventions.
 
 Applies the mechanical migrations the patch series requires:
 
@@ -34,7 +34,7 @@ sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "docs", "models")))
 import yaml  # noqa: E402
 
 try:
-    import framegraph as fg  # noqa: E402
+    import frameforge as fg  # noqa: E402
     HEAD_VERSION = fg.HEAD_VERSION
 except Exception:  # noqa: BLE001
     HEAD_VERSION = "2.2.0"
@@ -326,7 +326,7 @@ def lift_v01(doc, stats: Stats):
     stats.v01 += 1
 
     kind = doc.pop("kind", None)
-    out = {"dsl": doc.get("dsl", "FrameGraph"), "version": HEAD_VERSION}
+    out = {"dsl": doc.get("dsl", "FrameForge"), "version": HEAD_VERSION}
     profile = _v01_profile(kind)
     if profile:
         out["profile"] = profile
@@ -402,7 +402,7 @@ def lift_v01(doc, stats: Stats):
     if kind:
         out.setdefault("meta", {})["kind"] = kind
     out.setdefault("meta", {})["migrated_from"] = \
-        f"FrameGraph v0.1 (document version {doc.get('version')})"
+        f"FrameForge v0.1 (document version {doc.get('version')})"
     for key in ("dsl", "version", "scene", "semantic", "visual", "deck",
                 "slides"):
         doc.pop(key, None)
@@ -437,7 +437,7 @@ def main(argv=None):
             doc = lift_v01(doc, st)
         migrate_stroke_bundles(doc, st)
         doc = migrate(doc, st, args.normalize_aliases)
-        if args.bump and isinstance(doc, dict) and doc.get("dsl") == "FrameGraph":
+        if args.bump and isinstance(doc, dict) and doc.get("dsl") == "FrameForge":
             doc["version"] = HEAD_VERSION
         if args.in_place:
             out = path

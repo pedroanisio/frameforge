@@ -16,7 +16,7 @@ Two plates:
 Run from the repository root::
 
     uv run python static/examples/humanize_variations.py
-    uv run framegraph-render <(python static/examples/humanize_variations.py --stdout) --to png   # optional
+    uv run frameforge-render <(python static/examples/humanize_variations.py --stdout) --to png   # optional
 """
 from __future__ import annotations
 
@@ -25,11 +25,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder  # noqa: E402
+from frameforge.sdk import DocumentBuilder  # noqa: E402
 
 # A hand's world: warm paper, one ink, one earth-red accent (the build_a6 lineage).
 BG, INK, MUT, HAIR, ACCENT, FILL = "#F4EFE6", "#23201A", "#8A7F6B", "#DAD1BF", "#B04A2F", "#EAE2D1"
@@ -95,7 +95,7 @@ def _plate(b, pid, title, lede, plate_no):
               humanize={"enabled": False})
     page.text([W - M - 120, 44, 120, 14], plate_no, style="plate")
     page.text([M, H - 34, W - 2 * M, 14],
-              "FrameGraph · humanize hand (roughen · drift · weight · opacity · grain) — "
+              "FrameForge · humanize hand (roughen · drift · weight · opacity · grain) — "
               "deterministic, seeded; text is exempt.", style="foot")
     return page
 
@@ -161,7 +161,7 @@ def build() -> DocumentBuilder:
 
 
 def main() -> int:
-    from framegraph.sdk import render_page_svgs
+    from frameforge.sdk import render_page_svgs
 
     args = sys.argv[1:]
     doc = build().build()

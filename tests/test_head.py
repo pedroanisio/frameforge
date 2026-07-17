@@ -28,12 +28,12 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
 sys.path.insert(0, os.path.join(ROOT, "docs", "schema"))
-shadow = sys.modules.get("framegraph")
+shadow = sys.modules.get("frameforge")
 if shadow is not None and hasattr(shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 import yaml  # noqa: E402
-import framegraph as fg  # noqa: E402
+import frameforge as fg  # noqa: E402
 from pydantic import ValidationError  # noqa: E402
 import validate as V  # noqa: E402
 import codemod as C  # noqa: E402
@@ -79,8 +79,8 @@ def test_version_is_2_4_0():
 
 def test_schema_in_sync_with_models():
     built = json.dumps(B.build(), indent=2, ensure_ascii=False) + "\n"
-    on_disk = open(os.path.join(ROOT, "docs", "schema", "framegraph-v2.schema.json"), encoding="utf-8").read()
-    assert built == on_disk, "docs/schema/framegraph-v2.schema.json is stale; run build_schema.py"
+    on_disk = open(os.path.join(ROOT, "docs", "schema", "frameforge-v2.schema.json"), encoding="utf-8").read()
+    assert built == on_disk, "docs/schema/frameforge-v2.schema.json is stale; run build_schema.py"
 
 
 def test_style_module_surface_accepted():
@@ -103,7 +103,7 @@ def test_style_module_surface_accepted():
 
 def test_strokestyle_is_a_style():
     # tokens.stroke_styles entries are Style projections with CSS-named geometry
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "defs": {"tokens": {"stroke_styles": {
                "rule_thin": {"stroke": "#888", "stroke_width": "0.5pt", "stroke_dasharray": [2, 2]}}}},
            "pages": [{"mode": "page", "id": "s", "layers": []}]}
@@ -147,7 +147,7 @@ def test_legacy_shorthand_sugar_accepted():
 
 
 def test_p3_inline_geometry_stroke_rejected():
-    bad = {"dsl": "FrameGraph", "version": "2.2.0", "pages": [{"mode": "page", "id": "s",
+    bad = {"dsl": "FrameForge", "version": "2.2.0", "pages": [{"mode": "page", "id": "s",
            "layers": [{"id": "l", "objects": [
                {"type": "line", "from": [0, 0], "to": [1, 0],
                 "stroke": {"color": "#000", "width": 2, "dash": [3, 2]}}]}]}]}
@@ -160,7 +160,7 @@ def test_p3_inline_geometry_stroke_rejected():
 
 def test_paint_gradient_stroke_is_allowed():
     # a gradient/url *paint* on stroke is fine; only geometry dicts are rejected
-    fg.Document.model_validate({"dsl": "FrameGraph", "version": "2.2.0", "pages": [
+    fg.Document.model_validate({"dsl": "FrameForge", "version": "2.2.0", "pages": [
         {"mode": "page", "id": "s", "layers": [{"id": "l", "objects": [
             {"type": "rect", "box": [0, 0, 10, 10],
              "stroke": {"kind": "linear", "stops": [{"color": "#111", "position": "0%"}]}}]}]}]})

@@ -10,7 +10,7 @@ disclaimer:
 
 # Patterns & fills — the declarative slide-template catalog
 
-`framegraph.patterns` ships **375 typed layout patterns** and **17 fill
+`frameforge.patterns` ships **375 typed layout patterns** and **17 fill
 sidecars** as committed data (absorbed from the predecessor project, issue
 #28; guidance adapted from its `AGENTS.md` / `AUTHORING-FILLS.md`). A pattern
 declares *zones* — role, a controlled size vocabulary, placement, and a
@@ -27,14 +27,14 @@ treatments applied (cards, accent bars, label slots), content emitted per
 `static/examples/pattern_compose_deck.py`.
 
 ```python
-from framegraph.patterns import compose, load_sidecars
+from frameforge.patterns import compose, load_sidecars
 doc = compose(10, load_sidecars()[10].example_fill)   # SWOT, ready to render
 ```
 
 ## Loading and inspecting
 
 ```python
-from framegraph.patterns import load_catalog, load_sidecars, load_fill
+from frameforge.patterns import load_catalog, load_sidecars, load_fill
 
 catalog = load_catalog()          # strict; the test gate locks the count at 375
 swot = catalog.get(10)            # SlidePattern: name, category, zones
@@ -68,7 +68,7 @@ The error is a plain `pydantic.ValidationError` naming the zone.
 
 ## Sidecars — richer item shapes per pattern
 
-A sidecar (`src/framegraph/patterns/data/fills/<id>-<slug>.yml`) overrides
+A sidecar (`src/frameforge/patterns/data/fills/<id>-<slug>.yml`) overrides
 zones with typed item shapes and carries a committed `example_fill` that the
 test gate round-trips. The Business Model Canvas (44) is the proof:
 
@@ -90,7 +90,7 @@ from the predecessor:
 
 - do not hand-roll slide templates that a catalog pattern already covers;
 - a fill is content, a sidecar is contract — never mix the two files;
-- reach patterns through `framegraph.patterns` (the public surface), not by
+- reach patterns through `frameforge.patterns` (the public surface), not by
   parsing the YAML yourself;
 - when a zone lacks `content_type`, the fill accepts anything — prefer
   adding a sidecar override to silently freeform content.

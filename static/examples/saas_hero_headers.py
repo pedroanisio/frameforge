@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import math
 
-from framegraph.sdk import DocumentBuilder, linear_gradient, radial_gradient, rgba
+from frameforge.sdk import DocumentBuilder, linear_gradient, radial_gradient, rgba
 
 # ---- palette --------------------------------------------------------------- #
 INK = "#1E2440"

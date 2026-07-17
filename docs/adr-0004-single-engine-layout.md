@@ -61,7 +61,7 @@ the correct reading of the reporter's objection.
 3. **Fonts are pinned/baked, never trusted from the host.** Fidelity renders embed
    the face or run in the frameforge Docker image (baked fonts) so measure and
    render resolve the identical file. This is operationalised by **`fg-font`** (the
-   `fg-font` console script, `framegraph.fontpack:main` in `src/framegraph/fontpack.py`;
+   `fg-font` console script, `frameforge.fontpack:main` in `src/frameforge/fontpack.py`;
    `tooling/fg_font.py` is a thin launcher): `--list` the runtime's resolvable families, `--check DOC`
    as a determinism gate (non-zero exit if any content font substitutes), and
    `--pack DOC --out P.fp` — a portable font pack (zip of the exact TTFs + a
@@ -90,7 +90,7 @@ the correct reading of the reporter's objection.
 
 ## Not yet done (the real project this ADR names)
 
-- Make the HTML backend (`src/framegraph/rendering/infrastructure/backends/html.py`,
+- Make the HTML backend (`src/frameforge/rendering/infrastructure/backends/html.py`,
   the `DocumentRenderer` port) a first-class flow renderer (page masters,
   running heads, tables, TOC, CSS paged-media) → Chromium PDF.
 - Route `run`/`--to pdf` for flow documents through the single engine, leaving SVG

@@ -10,7 +10,7 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.provenance import (  # noqa: E402
+from frameforge.rendering.provenance import (  # noqa: E402
     FrameForgeStamp, content_fingerprint, sign_svg, stamp,
 )
 
@@ -24,7 +24,7 @@ def test_fingerprint_is_deterministic():
 
 
 def test_stamp_fields_and_optional_timestamp():
-    s = stamp("body", tool="framegraph", tool_version="2.2.0")
+    s = stamp("body", tool="frameforge", tool_version="2.2.0")
     assert s.fingerprint.startswith("sha256:") and s.timestamp is None
     assert "timestamp" not in s.fields()                       # deterministic: no time
     s2 = stamp("body", timestamp="2026-06-24T00:00:00Z")
@@ -34,8 +34,8 @@ def test_stamp_fields_and_optional_timestamp():
 def test_sign_svg_injects_metadata_after_root():
     out = sign_svg(SVG, timestamp="2026-06-24T12:00:00Z")
     assert out.startswith('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="50"><metadata>')
-    assert '<frameforge xmlns="https://framegraph.dev/ns/provenance"' in out
-    assert 'fingerprint="sha256:' in out and 'tool="framegraph"' in out
+    assert '<frameforge xmlns="https://frameforge.dev/ns/provenance"' in out
+    assert 'fingerprint="sha256:' in out and 'tool="frameforge"' in out
     assert 'timestamp="2026-06-24T12:00:00Z"' in out
     assert out.endswith("<rect/></svg>")                        # body preserved, order intact
 

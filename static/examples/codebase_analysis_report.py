@@ -4,7 +4,7 @@
 Consumes the ``.tar`` bundle a codebase-mapper run emits (``run_manifest.json``,
 ``concepts.json``, ``enrichments.jsonl``, plus an ``inventory.ttl`` RDF graph and
 raw content blobs this script never touches) and renders it as a numbered,
-multi-chapter FrameGraph book: repository overview, AST coverage, dependency
+multi-chapter FrameForge book: repository overview, AST coverage, dependency
 graph, concept landscape, a sampled file digest, and a provenance/integrity
 appendix.
 
@@ -68,7 +68,7 @@ sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from dataclasses import replace as _dc_replace
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     BookBuilder,
     Frame,
     badge,
@@ -80,8 +80,8 @@ from framegraph.sdk import (  # noqa: E402
     serialize,
     tone_scale,
 )
-from framegraph.sdk.metrics import text_height  # noqa: E402
-from framegraph.sdk.model import validate_document  # noqa: E402
+from frameforge.sdk.metrics import text_height  # noqa: E402
+from frameforge.sdk.model import validate_document  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Palette & type scale — see the typeface-and-colour skill. One closed
@@ -148,8 +148,8 @@ SUPPORTED_LOCALES = ("en_US", "pt_BR")
 STRINGS: dict[str, dict[str, str]] = {
     "book_title": {"en_US": "Codebase Analysis Report — {repo}",
                    "pt_BR": "Relatório de Análise de Código — {repo}"},
-    "book_author": {"en_US": "FrameGraph Codebase Reporter",
-                    "pt_BR": "Repórter de Código FrameGraph"},
+    "book_author": {"en_US": "FrameForge Codebase Reporter",
+                    "pt_BR": "Repórter de Código FrameForge"},
     "masthead_eyebrow": {"en_US": "STRUCTURAL ANALYSIS", "pt_BR": "ANÁLISE ESTRUTURAL"},
     "masthead_meta": {
         "en_US": "commit {commit} · {date} · codebase-mapper report generator {tool}",
@@ -640,7 +640,7 @@ def load_bundle(tar_path: str, *, top_concepts: int = 150, file_sample: int = 50
 
 
 # ---------------------------------------------------------------------------
-# Visual builders — every figure is a plain FrameGraph group sized to fit
+# Visual builders — every figure is a plain FrameForge group sized to fit
 # the report's A4 content width (see REPORT_CONTENT_W below).
 # ---------------------------------------------------------------------------
 
@@ -663,7 +663,7 @@ _STAT_GAP_V = 8.0
 
 
 def _stat_card_height(label: str, value: str, *, value_size: float, content_w: float) -> tuple[float, float, float]:
-    """Real SDK-measured height (framegraph.sdk.metrics.text_height), not a
+    """Real SDK-measured height (frameforge.sdk.metrics.text_height), not a
     guessed constant — a fixed 16px single-line label box is exactly what
     silently dropped "PHASES"/"ASSUMPTIONS"/"RESOLUTIONS" off real stat
     cards before this fix: multi-word tracked-caps labels wrap to 2 lines
@@ -881,7 +881,7 @@ def _verbatim_receipt(sample: dict[str, str], model: str | None, locale: str, *,
     provenance line — the standard every other AI-generated line in this
     report is held to (PALS's Law), made visible once instead of asserted
     once in a disclaimer and then forgotten. Box height is the SDK's own
-    measured wrap height (framegraph.sdk.metrics — real glyph advances when
+    measured wrap height (frameforge.sdk.metrics — real glyph advances when
     fontTools is installed, the same proxy the renderer itself falls back to
     otherwise), not a hand-rolled chars-per-line guess: an early version of
     this function estimated wrapping itself and silently dropped a line on
@@ -912,10 +912,10 @@ def _verbatim_receipt(sample: dict[str, str], model: str | None, locale: str, *,
 def _progress_marker(text: str, *, w: float = REPORT_CONTENT_W) -> dict:
     """A quiet 'N–M of TOTAL' orientation line ahead of one table chunk.
 
-    FrameGraph's flow renderer has no running-header/footer/page-number
+    FrameForge's flow renderer has no running-header/footer/page-number
     implementation (``PageMaster.running`` and ``master.fixed`` are declared
-    in the schema — docs/models/framegraph.py — but grep across
-    src/framegraph/rendering/ turns up zero handling of them; only ``margin``
+    in the schema — docs/models/frameforge.py — but grep across
+    src/frameforge/rendering/ turns up zero handling of them; only ``margin``
     is honored). A true running header updating per physical page isn't
     available from the SDK client, so this per-CHUNK marker is the closest
     honest substitute: since a chunk is sized to usually land on one page,
@@ -953,7 +953,7 @@ def _risk_callout(kind: str, description: str, index: int, total: int, *,
     rule, a kind tag, the full description — sourced verbatim from the
     recomposer's ``known_violations_to_not_replicate_blindly`` (real,
     evidence-backed structural analysis, not a raw frequency count). Height
-    comes from the SDK's own measured wrap (framegraph.sdk.metrics.text_height),
+    comes from the SDK's own measured wrap (frameforge.sdk.metrics.text_height),
     not an estimate — see _verbatim_receipt's docstring for why that matters."""
     ink, warn = PALETTE["ink"], PALETTE["warn"]
     kind_label = kind.replace("_", " ").upper()

@@ -77,7 +77,7 @@ jobs:
       - name: Generate pages + deploy versioned docs
         run: |
           uv run python tooling/gen_docs.py
-          VERSION=$(uv run python -c "import sys; sys.path.insert(0,'docs/models'); import framegraph as fg; print(fg.HEAD_VERSION)")
+          VERSION=$(uv run python -c "import sys; sys.path.insert(0,'docs/models'); import frameforge as fg; print(fg.HEAD_VERSION)")
           uv run --with mkdocs-material --with mike mike deploy --push --update-aliases "$VERSION" latest
           uv run --with mkdocs-material --with mike mike set-default --push latest
 

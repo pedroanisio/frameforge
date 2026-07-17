@@ -20,14 +20,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     kerned_spans,
     render_page_svgs,
     repeat_along_path,
     serialize,
     stroke_outline,
 )
-from framegraph.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 _SANS = ["DejaVu Sans", "Arial", "sans-serif"]
 
@@ -68,7 +68,7 @@ def build():
                                pairs={("W", "A"): -3.2, ("A", "V"): -3.0,
                                       ("V", "Y"): -2.4, ("V", "E"): -1.6})},
     ]
-    doc = {"dsl": "FrameGraph", "version": HEAD_VERSION,
+    doc = {"dsl": "FrameForge", "version": HEAD_VERSION,
            "title": "stroke-outline engine showcase", "profile": "diagram",
            "defs": {"tokens": {"colors": {"paper": "#fcfbf8",
                                           "ink": "#1d1e22",

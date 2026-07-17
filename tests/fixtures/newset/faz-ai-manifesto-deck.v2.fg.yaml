@@ -1,4 +1,4 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 profile: deck
 defs:
@@ -5064,5 +5064,5 @@ meta:
   migrated_from_version: 1.2
   source_kind: presentation-deck
   theme: mckinsey
-description: 'Migrated from FrameGraph v1.2 (kind: presentation-deck) to v2.2.0. Slides became fixed pages through the `deck`
+description: 'Migrated from FrameForge v1.2 (kind: presentation-deck) to v2.2.0. Slides became fixed pages through the `deck`
   master.'

@@ -8,9 +8,9 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
-from framegraph.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
+from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
+from frameforge.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
 
 
 def _fig(styles):
@@ -114,7 +114,7 @@ def test_default_paint_order_uses_single_fill_and_stroke_path():
 def test_css_rgb_and_rgba_paints_lower_to_xcolor_with_opacity():
     """CSS functional paints (the SDK's rgba() helper emits them) must lower
     like their hex equivalents: inline xcolor expr + decoded fill opacity."""
-    from framegraph.rendering.infrastructure.latex.tikz import color_expr
+    from frameforge.rendering.infrastructure.latex.tikz import color_expr
 
     assert color_expr("rgba(63, 65, 104, 0.45)") == (
         "{rgb,255:red,63;green,65;blue,104}", 0.45)

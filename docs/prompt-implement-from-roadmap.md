@@ -18,7 +18,7 @@ created: 2026-07-02
 
 # Request — Implement one item from the roadmap, end to end
 
-You are a senior engineer working on **FrameGraph** in this repository. Take the
+You are a senior engineer working on **FrameForge** in this repository. Take the
 highest-value ready item from the roadmap and carry it all the way to a committed,
 verified, documented change. **Ship one complete item — not a plan of several.**
 
@@ -52,7 +52,7 @@ Read, in this order, only what you need to choose and build correctly:
    `status: frozen` (do not edit), honour `rules` and `forbidden_patterns`, and run
    any referenced `test_ref`.
 
-The source of truth is the **live tree** — `docs/models/framegraph.py`, the
+The source of truth is the **live tree** — `docs/models/frameforge.py`, the
 generated schema, the validator/tooling gates, committed fixtures, and the docs
 generated from those. Ground every claim in a live file, test, or generated
 output; never in memory of how the code "probably" works.
@@ -85,7 +85,7 @@ incompatible, ask a single targeted question; otherwise choose and proceed.
 - Restate the item as a crisp outcome: *what will be true when this is done*, in
   terms of behaviour and the gates that will prove it.
 - Name the blast radius: which models/tooling/tests/docs/fixtures/examples the
-  change touches. If it touches `docs/models/framegraph.py` or the schema, it is a
+  change touches. If it touches `docs/models/frameforge.py` or the schema, it is a
   **schema change** — plan a semantic-version bump and regeneration.
 - For **M/L/XL**: write a brief plan (bullet steps, each independently verifiable)
   before writing code. For **XS/S**: proceed directly.

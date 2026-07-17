@@ -11,12 +11,12 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-import framegraph.mcp.pipeline as pipeline  # noqa: E402
+import frameforge.mcp.pipeline as pipeline  # noqa: E402
 
 _PNG_1X1 = bytes.fromhex(
     "89504e470d0a1a0a0000000d4948445200000001000000010806000000"
@@ -34,14 +34,14 @@ def _pairs(session_dir, pages=(1, 2)):
 
 
 def _browser_unavailable(*_a, **_k):
-    from framegraph.rendering.infrastructure.browser import BrowserRendererUnavailable
+    from frameforge.rendering.infrastructure.browser import BrowserRendererUnavailable
     raise BrowserRendererUnavailable("no chromium in this environment")
 
 
 def test_raster_falls_back_to_cairo_when_browser_unavailable(tmp_path, monkeypatch):
     """Chromium unavailable + CairoSVG present -> PNGs are still produced via Cairo."""
     monkeypatch.setattr(
-        "framegraph.rendering.infrastructure.browser.rasterize_svg", _browser_unavailable
+        "frameforge.rendering.infrastructure.browser.rasterize_svg", _browser_unavailable
     )
 
     def _fake_cairo(svg, out_path, *, base_dir=None, scale=1.0):
@@ -50,7 +50,7 @@ def test_raster_falls_back_to_cairo_when_browser_unavailable(tmp_path, monkeypat
         return Path(out_path)
 
     monkeypatch.setattr(
-        "framegraph.rendering.infrastructure.cairo.rasterize_svg_cairo", _fake_cairo
+        "frameforge.rendering.infrastructure.cairo.rasterize_svg_cairo", _fake_cairo
     )
 
     renders, warning = pipeline._try_rasterize_pngs(_pairs(tmp_path), tmp_path, "fb")
@@ -73,10 +73,10 @@ def test_raster_prefers_chromium_when_available(tmp_path, monkeypatch):
         raise AssertionError("Cairo must not be used when Chromium is available")
 
     monkeypatch.setattr(
-        "framegraph.rendering.infrastructure.browser.rasterize_svg", _fake_browser
+        "frameforge.rendering.infrastructure.browser.rasterize_svg", _fake_browser
     )
     monkeypatch.setattr(
-        "framegraph.rendering.infrastructure.cairo.rasterize_svg_cairo", _explode_cairo
+        "frameforge.rendering.infrastructure.cairo.rasterize_svg_cairo", _explode_cairo
     )
 
     renders, warning = pipeline._try_rasterize_pngs(_pairs(tmp_path), tmp_path, "ch")
@@ -87,16 +87,16 @@ def test_raster_prefers_chromium_when_available(tmp_path, monkeypatch):
 
 def test_raster_reports_when_no_backend_available(tmp_path, monkeypatch):
     """Neither backend -> no renders and a warning naming both, so the gap is loud."""
-    from framegraph.rendering.infrastructure.cairo import CairoRendererUnavailable
+    from frameforge.rendering.infrastructure.cairo import CairoRendererUnavailable
 
     def _cairo_unavailable(*_a, **_k):
         raise CairoRendererUnavailable("CairoSVG is not installed")
 
     monkeypatch.setattr(
-        "framegraph.rendering.infrastructure.browser.rasterize_svg", _browser_unavailable
+        "frameforge.rendering.infrastructure.browser.rasterize_svg", _browser_unavailable
     )
     monkeypatch.setattr(
-        "framegraph.rendering.infrastructure.cairo.rasterize_svg_cairo", _cairo_unavailable
+        "frameforge.rendering.infrastructure.cairo.rasterize_svg_cairo", _cairo_unavailable
     )
 
     renders, warning = pipeline._try_rasterize_pngs(_pairs(tmp_path), tmp_path, "none")
@@ -110,7 +110,7 @@ def test_cairo_rasterizer_writes_a_real_png(tmp_path):
     """The CairoSVG backend itself produces a PNG (skipped if CairoSVG absent)."""
     import pytest
 
-    cairo = pytest.importorskip("framegraph.rendering.infrastructure.cairo")
+    cairo = pytest.importorskip("frameforge.rendering.infrastructure.cairo")
     if not cairo.available():
         pytest.skip("cairosvg not installed")
     svg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="#f2a81c"/></svg>'

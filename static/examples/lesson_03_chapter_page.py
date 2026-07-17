@@ -4,7 +4,7 @@
 The target is a 602x678 book page — chapter label, an origami-heart ornament, a
 display title, a two-line drop cap and nine lines of *justified* body text —
 at ``docs/tutorial/lesson-03/target/lesson-03.png``. This client rebuilds it as
-FrameGraph objects: polygons for the ornament, text runs for everything else.
+FrameForge objects: polygons for the ornament, text runs for everything else.
 
 Where lesson 01 reconstructed a *photograph*, this page is *typesetting*, so the
 numbers come from type metrics rather than colour profiles. The lesson at
@@ -39,12 +39,12 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk import DocumentBuilder  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # ---- measured constants ----------------------------------------------------
 W, H = 602, 932
@@ -146,7 +146,7 @@ def main():
             print(f"  {issue}")
         raise SystemExit("validation failed")
 
-    from framegraph.sdk import render_page_svgs, serialize
+    from frameforge.sdk import render_page_svgs, serialize
 
     out = os.path.join(ROOT, "_tmp", "lesson-03")
     os.makedirs(out, exist_ok=True)

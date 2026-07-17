@@ -18,7 +18,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.sdk import canon  # noqa: E402
+from frameforge.sdk import canon  # noqa: E402
 
 
 def test_modular_scale_is_exact_ratio_powers() -> None:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Public-surface tests for the Python FrameGraph SDK."""
+"""Public-surface tests for the Python FrameForge SDK."""
 from __future__ import annotations
 
 import importlib
@@ -11,11 +11,11 @@ import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (
+from frameforge.sdk import (
     Chart,
     Box,
     DocumentBuilder,
@@ -44,7 +44,7 @@ from framegraph.sdk import (
     sparkline,
     theme,
 )
-from framegraph.sdk import (
+from frameforge.sdk import (
     dots,
     effects,
     fill_stroke,
@@ -61,7 +61,7 @@ from framegraph.sdk import (
     stroke,
     text_style,
 )
-from framegraph.sdk import (
+from frameforge.sdk import (
     Panel,
     avatar,
     badge,
@@ -79,13 +79,13 @@ from framegraph.sdk import (
     tabs,
     toggle,
 )
-from framegraph.sdk.conform import page_hashes, render_page_svgs
-from framegraph.sdk.geometry import CubicBezier, Mat4, quarter_circle_kappa
-from framegraph.sdk.validate import validate_static_rules
+from frameforge.sdk.conform import page_hashes, render_page_svgs
+from frameforge.sdk.geometry import CubicBezier, Mat4, quarter_circle_kappa
+from frameforge.sdk.validate import validate_static_rules
 
 
 def test_top_level_sdk_reexports_module_public_surface():
-    import framegraph.sdk as sdk
+    import frameforge.sdk as sdk
 
     modules = [
         "author",
@@ -112,7 +112,7 @@ def test_top_level_sdk_reexports_module_public_surface():
     ]
     missing: list[str] = []
     for module_name in modules:
-        module = importlib.import_module(f"framegraph.sdk.{module_name}")
+        module = importlib.import_module(f"frameforge.sdk.{module_name}")
         for name in getattr(module, "__all__", ()):
             if name not in sdk.__all__ or not hasattr(sdk, name):
                 missing.append(f"{module_name}.{name}")
@@ -136,7 +136,7 @@ def _minimal_doc():
 
 def test_builder_lowers_to_authoritative_model():
     doc = _minimal_doc()
-    assert doc.dsl == "FrameGraph"
+    assert doc.dsl == "FrameForge"
     assert doc.pages[0].layers[0].objects[1].text == "Hello SDK"
 
 
@@ -182,7 +182,7 @@ def test_builder_write_can_fail_on_static_errors(tmp_path):
 
 def test_parse_is_forgiving_by_default_for_future_documents():
     text = """
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 pages:
   - mode: page
@@ -211,7 +211,7 @@ def test_validate_static_rules_reports_tooling_warnings():
 def test_validate_static_rules_reports_structure_errors():
     report = validate_static_rules(
         {
-            "dsl": "FrameGraph",
+            "dsl": "FrameForge",
             "version": "2.2.0",
             "pages": [
                 {
@@ -229,7 +229,7 @@ def test_validate_static_rules_reports_structure_errors():
 def test_validate_static_rules_reports_sdk_reference_and_path_errors():
     report = validate_static_rules(
         {
-            "dsl": "FrameGraph",
+            "dsl": "FrameForge",
             "version": "2.2.0",
             "targets": [
                 {
@@ -280,7 +280,7 @@ def test_expand_pins_local_assets(tmp_path):
 
 def test_expand_lowers_symbol_use_to_valid_group():
     doc = {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "defs": {
             "symbols": {
@@ -807,7 +807,7 @@ def test_scene3d_perspective_paints_near_over_far():
     but wrong for any solid or separated geometry. The last child is drawn on top
     and must be the NEAR (green) face.
     """
-    from framegraph.sdk import Camera
+    from frameforge.sdk import Camera
 
     cam = Camera(eye=Vec3(0, 0, 3), target=Vec3(0, 0, 0), fov=45, aspect=1.0)
     group = _near_far_scene().render(box=[0, 0, 100, 100], camera=cam)
@@ -825,7 +825,7 @@ def test_scene3d_isometric_paints_near_over_far_unchanged():
     assert group["children"][-1]["fill"] == "#00ff00", "near face must be on top"
 
 
-def test_material_helper_expands_to_plain_framegraph_fields():
+def test_material_helper_expands_to_plain_frameforge_fields():
     material = Material(
         fill="#88ccff",
         stroke="#123456",
@@ -1111,7 +1111,7 @@ def test_conformance_page_hashes_are_stable():
 
 
 # --------------------------------------------------------------------------- #
-#  widgets (framegraph.sdk.widgets)
+#  widgets (frameforge.sdk.widgets)
 # --------------------------------------------------------------------------- #
 def _widgets_doc():
     """A page exercising every widget, for validation + render assertions."""
@@ -1336,7 +1336,7 @@ def test_page_level_links_notes_meta_and_link_helper():
 #  write(fail_on_error=True) surfaces the whole report
 # --------------------------------------------------------------------------- #
 def test_write_fail_on_error_raises_typed_error_with_all_errors(tmp_path):
-    from framegraph.sdk import StaticValidationError, ValidationReport
+    from frameforge.sdk import StaticValidationError, ValidationReport
 
     builder = DocumentBuilder()
     layer = builder.page("p", canvas={"size": [100, 100], "units": "px"}).layer("main")
@@ -1360,7 +1360,7 @@ def test_write_fail_on_error_raises_typed_error_with_all_errors(tmp_path):
 # --------------------------------------------------------------------------- #
 def _doc_with_hiding_target() -> dict:
     return {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "targets": [
             {
@@ -1408,7 +1408,7 @@ def test_validate_static_rules_without_targets_stays_clean():
 #  wireframe widget atoms
 # --------------------------------------------------------------------------- #
 def test_new_wireframe_atoms_lower_and_validate():
-    from framegraph.sdk import (
+    from frameforge.sdk import (
         breadcrumb, checkbox, dropdown, image_placeholder, navbar, radio,
         slider, sticky_note,
     )
@@ -1475,7 +1475,7 @@ def test_group_composes_token_style_with_transform_and_clip():
 #  SVG ingest is visible on the SDK surface
 # --------------------------------------------------------------------------- #
 def test_svg_to_objects_is_reexported_through_the_sdk():
-    from framegraph.sdk import svg_to_objects
+    from frameforge.sdk import svg_to_objects
 
     objects = svg_to_objects(
         '<svg viewBox="0 0 10 10">'
@@ -1497,7 +1497,7 @@ def test_svg_to_objects_is_reexported_through_the_sdk():
 def test_render_pages_with_stats_optionally_returns_renderer_diagnostics():
     """diagnostics=True adds the renderer's structured feedback as a third
     element; the default stays the frozen (svgs, tstats) 2-tuple contract."""
-    from framegraph.sdk.conform import render_pages_with_stats
+    from frameforge.sdk.conform import render_pages_with_stats
 
     builder = DocumentBuilder(title="diag", profile="diagram")
     layer = builder.page("p", canvas={"size": [100, 80], "units": "px"},

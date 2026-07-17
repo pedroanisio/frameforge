@@ -33,9 +33,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs"), str(ROOT / "tooling")]
 
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 import codemod as C  # noqa: E402
 import yaml  # noqa: E402
@@ -45,19 +45,19 @@ def _sdk():
     """Swap the models-module shadow back for the rendering package.
 
     Importing codemod puts docs/models first on sys.path and caches the
-    MODEL module as `framegraph`; the SDK needs the package from src/.
+    MODEL module as `frameforge`; the SDK needs the package from src/.
     """
-    mod = sys.modules.get("framegraph")
+    mod = sys.modules.get("frameforge")
     if mod is not None and not hasattr(mod, "__path__"):
-        del sys.modules["framegraph"]
+        del sys.modules["frameforge"]
     sys.path.insert(0, str(ROOT / "src"))
-    import framegraph.sdk  # noqa: F401
-    # a cached framegraph.sdk is not re-attached to a re-imported parent —
+    import frameforge.sdk  # noqa: F401
+    # a cached frameforge.sdk is not re-attached to a re-imported parent —
     # take the submodule from sys.modules, never as a parent attribute
-    return sys.modules["framegraph.sdk"]
+    return sys.modules["frameforge.sdk"]
 
 V01_SCENE = {
-    "dsl": "FrameGraph",
+    "dsl": "FrameForge",
     "version": 1.5,
     "kind": "hybrid-semantic-visual-diagram",
     "scene": {
@@ -106,7 +106,7 @@ V01_SCENE = {
 }
 
 V01_DECK = {
-    "dsl": "FrameGraph",
+    "dsl": "FrameForge",
     "version": 1.5,
     "kind": "presentation-deck",
     "deck": {
@@ -215,7 +215,7 @@ def test_lifted_deck_document_validates():
 
 
 def test_v2_document_passes_through_unchanged():
-    v2 = {"dsl": "FrameGraph", "version": "2.3.0", "title": "already v2",
+    v2 = {"dsl": "FrameForge", "version": "2.3.0", "title": "already v2",
           "pages": [{"mode": "page", "id": "p",
                      "layers": [{"id": "m", "objects": []}]}]}
     out, stats = _lift(v2)
@@ -231,7 +231,7 @@ def test_lift_counts_in_stats():
 
 
 V01_CHIP_DECK = {
-    "dsl": "FrameGraph",
+    "dsl": "FrameForge",
     "version": 1.5,
     "kind": "presentation-deck",
     "deck": {
@@ -382,7 +382,7 @@ def test_fill_style_tokens_render_as_gradients():
     emitted an invalid SVG paint. A string fill naming a fill_styles key
     must resolve to its gradient."""
     sdk = _sdk()
-    doc = {"dsl": "FrameGraph", "version": C.HEAD_VERSION, "title": "g",
+    doc = {"dsl": "FrameForge", "version": C.HEAD_VERSION, "title": "g",
            "profile": "diagram",
            "defs": {"tokens": {
                "colors": {"ink": "#1d1e22"},

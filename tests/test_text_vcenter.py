@@ -27,12 +27,12 @@ for p in (os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from framegraph.sdk.conform import render_page_svgs  # noqa: E402
+from frameforge.sdk.conform import render_page_svgs  # noqa: E402
 
 
 def _doc(style, box, text="8"):
     return {
-        "dsl": "FrameGraph", "version": "2.3.0",
+        "dsl": "FrameForge", "version": "2.3.0",
         "pages": [{
             "id": "p", "mode": "page", "canvas": {"size": [80, 96]},
             "layers": [{"id": "l", "objects": [

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Compose a COMPLETE low-fidelity wireframe of an advanced web app — "Helm", a
-customer-service suite — with the FrameGraph Python SDK.
+customer-service suite — with the FrameForge Python SDK.
 
 One composed deck, 36 pages — 34 desktop (1440×900) + 2 mobile (390×844):
 
@@ -34,11 +34,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Chart,
     DocumentBuilder,
     Frame,
@@ -49,7 +49,7 @@ from framegraph.sdk import (  # noqa: E402
     row,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # ---- frame + palette ------------------------------------------------------ #
 W, H = 1440, 900
@@ -439,7 +439,7 @@ def sitemap(b):
     page.text([56, 44, 900, 40], "Helm — Customer Service Suite", style="deckH")
     page.text([56, 90, 1040, 44],
               "Complete web-app wireframe · 36 screens · low-fidelity sitemap. "
-              "Authored end-to-end with the FrameGraph SDK and rendered to SVG.",
+              "Authored end-to-end with the FrameForge SDK and rendered to SVG.",
               style="deckSub")
     pill(page, [56, 146, 160, 26], "v0.2 · WIREFRAME", fill="accSft", style="chipA")
     pill(page, [224, 146, 130, 26], "1440 × 900", fill="fill", style="chip")
@@ -484,7 +484,7 @@ def sitemap(b):
                 iy += 36
             gy += gh + 16
     page.text([56, SH - 34, 1100, 16],
-              "FrameGraph SDK · shared sidebar/topbar shell · public + mobile shells · "
+              "FrameForge SDK · shared sidebar/topbar shell · public + mobile shells · "
               "tables · Chart helper · one composed document", style="flow")
 
 

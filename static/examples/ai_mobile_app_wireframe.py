@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Compose a COMPLETE low-fidelity wireframe of an advanced AI mobile app with
-the FrameGraph Python SDK.
+the FrameForge Python SDK.
 
 The document is one multi-page deck. Page 1 is a flow-map overview (six device
 thumbnails wired together by the primary user journey); pages 2-7 are full
@@ -31,11 +31,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     PageBuilder,
     column,
@@ -44,7 +44,7 @@ from framegraph.sdk import (  # noqa: E402
     row,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # ---- device + palette ----------------------------------------------------- #
 W, H = 390, 844                       # iPhone-class logical points
@@ -219,7 +219,7 @@ def overview(b: DocumentBuilder) -> None:
     page.text([64, 56, 1000, 44], "Aura AI — Advanced Assistant", style="deckTitle")
     page.text([64, 104, 1040, 48],
               "Complete mobile wireframe · 6 screens · low-fidelity flow map. "
-              "Built end-to-end with the FrameGraph SDK and rendered to SVG.",
+              "Built end-to-end with the FrameForge SDK and rendered to SVG.",
               style="deckSub")
     pill(page, [64, 162, 150, 26], "v0.1 · WIREFRAME", fill="accsft", style="chipA")
     pill(page, [222, 162, 120, 26], "390 × 844", fill="fill", style="chip")
@@ -269,7 +269,7 @@ def overview(b: DocumentBuilder) -> None:
     arrow((c[1][0] - 40, c[1][1] + c[1][5] / 2), (c[5][0], c[5][1] - c[5][5] / 2), "profile")
 
     page.text([64, OH - 40, 1200, 18],
-              "FrameGraph SDK · DocumentBuilder + layout helpers · one composed document",
+              "FrameForge SDK · DocumentBuilder + layout helpers · one composed document",
               style="flowNote")
 
 

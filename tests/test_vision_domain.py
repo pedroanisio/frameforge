@@ -14,15 +14,15 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import pytest  # noqa: E402
 
-from framegraph.vision.domain import coordinates as C  # noqa: E402
-from framegraph.vision.domain import fitting as F  # noqa: E402
+from frameforge.vision.domain import coordinates as C  # noqa: E402
+from frameforge.vision.domain import fitting as F  # noqa: E402
 
 
 class _Region:
@@ -244,7 +244,7 @@ def test_offset_vs_residual_semantics():
 # extraction integrity — infra re-exports the exact domain objects
 # ─────────────────────────────────────────────────────────────
 def test_measure_reexports_the_domain_authority():
-    from framegraph.vision.infrastructure import measure as M
+    from frameforge.vision.infrastructure import measure as M
     for name in ["CoordinateSystem", "CropTransform", "MeasuredRegion", "Landmark",
                  "measured_regions", "structural_landmarks", "crop_transform",
                  "resolve_point_spec", "point_frames", "nice_step"]:
@@ -252,6 +252,6 @@ def test_measure_reexports_the_domain_authority():
 
 
 def test_overlay_align_reexports_the_domain_fitting():
-    from framegraph.vision.infrastructure import overlay_align as O
+    from frameforge.vision.infrastructure import overlay_align as O
     for name in ["Similarity", "fit_similarity", "landmark_offsets", "rms_residual"]:
         assert getattr(O, name) is getattr(F, name), f"overlay_align.{name} is not the domain object"

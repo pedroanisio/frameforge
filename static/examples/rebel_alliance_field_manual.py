@@ -2,7 +2,7 @@
 """ALLIANCE FIELD MANUAL — a 20-slide Rebel Alliance briefing.
 
 The companion piece to the cold "Imperial Doctrine" deck, authored from the same
-FrameGraph Python SDK but built on the opposite visual identity. Where the Empire
+FrameForge Python SDK but built on the opposite visual identity. Where the Empire
 is gunmetal, condensed, hard-cornered and symmetric, the Rebellion is warm and
 hand-built: a brown-black field, rebel-orange and Alliance-blue accents, a humanist
 serif for headings, rounded corners, soft glows and an asymmetric, annotation-heavy
@@ -25,11 +25,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Chart,
     DocumentBuilder,
     Frame,
@@ -40,7 +40,7 @@ from framegraph.sdk import (  # noqa: E402
     row,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas, palette, type                                                        #
@@ -304,7 +304,7 @@ def cover(b):
                "Rebellions are built on hope — this is how we keep ours alive.",
                style="lead")
     layer.text([MX, 600, 820, 20],
-               "20 PLATES · AUTHORED THROUGH THE FRAMEGRAPH PYTHON SDK · FLAT VECTOR",
+               "20 PLATES · AUTHORED THROUGH THE FRAMEFORGE PYTHON SDK · FLAT VECTOR",
                style="tag")
     layer.text([W - MX - 220, 600, 220, 18], "REC 01 / 20", style="pnum")
 
@@ -861,7 +861,7 @@ def closing(b):
     layer.text([chip[0], chip[1] + 18, chip[2], 22], "uv run · alliance_field_manual",
                style="chip")
     layer.text([MX, 600, 900, 20],
-               "FRAMEGRAPH PYTHON SDK · 20 PLATES · FLAT VECTOR · EYES ONLY",
+               "FRAMEFORGE PYTHON SDK · 20 PLATES · FLAT VECTOR · EYES ONLY",
                style="tag")
     layer.text([W - MX - 220, 600, 220, 18], "REC 20 / 20", style="pnum")
 

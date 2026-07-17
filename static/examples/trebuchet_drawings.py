@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Author a 30-sheet engineering drawing package for a counterweight trebuchet.
 
-This is a *demonstration* of the public FrameGraph Python SDK (:mod:`framegraph.sdk`)
+This is a *demonstration* of the public FrameForge Python SDK (:mod:`frameforge.sdk`)
 that deliberately picks a different output genre from the slide decks in this
 folder: it is a **drafting package**, not a deck. Every sheet wears the furniture
 of a real engineering drawing —
@@ -43,11 +43,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Chart,
     DocumentBuilder,
     Frame,
@@ -60,7 +60,7 @@ from framegraph.sdk import (  # noqa: E402
     serialize,
     theme,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Sheet, identity and type                                                     #
@@ -154,7 +154,7 @@ STYLES = {
 }
 STYLES["hsub"]["color"] = "#B9D0DC"
 
-PROJECT = "FRAMEGRAPH WORKS · SIEGE-ENGINE DIVISION"
+PROJECT = "FRAMEFORGE WORKS · SIEGE-ENGINE DIVISION"
 
 
 # --------------------------------------------------------------------------- #
@@ -647,7 +647,7 @@ def page_cover(builder):
     hline(layer, FX0 + 6, FX0 + 132, 360, BPL, 3)
     layer.text([FX0 + 6, 384, 640, 60],
                "General arrangement, structural, mechanism and detail schematics —\n"
-               "a 30-sheet drawing set authored entirely with the FrameGraph Python SDK.",
+               "a 30-sheet drawing set authored entirely with the FrameForge Python SDK.",
                style={"class": "hsub"})
     # a small blueprint title block
     bx, by = FX0 + 6, 470
@@ -663,7 +663,7 @@ def page_cover(builder):
         layer.text([bx + ox, by + oy + 14, 200, 18], val,
                    style={"class": "tbv", "color": BPW, "font_family": MONO})
     layer.text([FX0 + 6, H - 70, 700, 16],
-               "framegraph.sdk · DocumentBuilder · MScale · Path · Chart · Mat4.isometric",
+               "frameforge.sdk · DocumentBuilder · MScale · Path · Chart · Mat4.isometric",
                style={"class": "small", "color": BPL})
 
 
@@ -1905,8 +1905,8 @@ def page_bom(builder):
                style={"class": "small"})
     notes_panel(layer, [FX0 + 676, FY0 + 360, 624, 110], "END OF SET", [
         "Sheets 01–30 complete. Every view, dimension, section and chart on this set "
-        "was generated programmatically through the FrameGraph Python SDK and validated "
-        "against the authoritative model. — framegraph.sdk",
+        "was generated programmatically through the FrameForge Python SDK and validated "
+        "against the authoritative model. — frameforge.sdk",
     ], numbered=False)
 
 
@@ -1996,7 +1996,7 @@ def main() -> int:
     print(f"Wrote {args.yaml}")
 
     if args.render:
-        from framegraph.sdk.conform import render_page_svgs
+        from frameforge.sdk.conform import render_page_svgs
         svgs = render_page_svgs(doc, base_dir=ROOT)
         os.makedirs(args.out, exist_ok=True)
         for idx, svg in enumerate(svgs, 1):

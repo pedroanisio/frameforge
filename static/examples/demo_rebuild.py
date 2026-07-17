@@ -1,14 +1,14 @@
-"""Rebuild every demo/ raster as a FrameGraph file — auto-routed vector ingest.
+"""Rebuild every demo/ raster as a FrameForge file — auto-routed vector ingest.
 
 Each raster is classified (line-art vs colour illustration) and ingested with the
-mode that suits it, then emitted as a native-size FrameGraph document:
+mode that suits it, then emitted as a native-size FrameForge document:
 
   * line-art  → ``outline`` strokes on a white ground  (the drawing as editable lines)
   * colour    → ``region`` posterised colour fills      (the picture as editable shapes)
 
 The result is a real ``*.fg.yaml`` per image (validatable, restyle-able, composable)
-plus a contact-sheet gallery. The same files render through the FrameGraph MCP
-(``run_sdk_client`` imports this module's ``doc``; ``render_framegraph_yaml`` takes any
+plus a contact-sheet gallery. The same files render through the FrameForge MCP
+(``run_sdk_client`` imports this module's ``doc``; ``render_frameforge_yaml`` takes any
 emitted YAML; ``propose_from_image`` is the MCP-native vision lane over the same images).
 
 Run (needs the vision group):
@@ -26,8 +26,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.environ.get("FG_ROOT", ROOT))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs, validate_static_rules  # noqa: E402
-from framegraph.vision.infrastructure.vectorize import raster_to_objects  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs, validate_static_rules  # noqa: E402
+from frameforge.vision.infrastructure.vectorize import raster_to_objects  # noqa: E402
 from poc3_ingest_compose import place, restyle_strokes  # noqa: E402
 
 FONT = ["Inter", "Helvetica", "Arial", "sans-serif"]
@@ -77,7 +77,7 @@ SCRATCH = os.path.join(ROOT, "out", "demo_rebuild", "_conv")
 
 
 def build_one(path: str):
-    """Ingest one raster into a native-size FrameGraph rebuild."""
+    """Ingest one raster into a native-size FrameForge rebuild."""
     route = classify(path)
     p = _PARAMS[route]
     by_mode, w, h = {}, None, None
@@ -116,7 +116,7 @@ def build_gallery(paths: Sequence[str], *, cols: int = 4, cell=(360, 300), gmax_
     page = b.page("gallery", canvas={"size": [W, H], "units": "px"}, coordinate_mode="absolute")
     page.rect([0, 0, W, H], fill="#0E1116")
     page.add({"type": "text", "box": [pad, 16, W - 2 * pad, 28],
-              "text": f"demo/ rebuilt as FrameGraph — {n} rasters, auto-routed (line-art→outline · colour→region)",
+              "text": f"demo/ rebuilt as FrameForge — {n} rasters, auto-routed (line-art→outline · colour→region)",
               "style": {"font_family": FONT, "font_size": 18, "font_weight": 800, "color": "#F2F5FA"}})
     for i, path in enumerate(paths):
         r, c = divmod(i, cols)

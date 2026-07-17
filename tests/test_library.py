@@ -1,4 +1,4 @@
-"""framegraph.library — consulting themes, symbol packs, generators (issue #32).
+"""frameforge.library — consulting themes, symbol packs, generators (issue #32).
 
 The absorbed content library: 7 consulting token packs translated to v2
 `defs.tokens` fragments, the general-purpose symbol packs (cover, agenda
@@ -21,7 +21,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.library import (  # noqa: E402
+from frameforge.library import (  # noqa: E402
     EXAMPLES_DIR,
     honeycomb_capability_map,
     list_symbols,
@@ -32,8 +32,8 @@ from framegraph.library import (  # noqa: E402
     module_hub_radial,
     support_text_styles,
 )
-from framegraph.sdk import render_pages_with_stats  # noqa: E402
-from framegraph.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge.sdk import render_pages_with_stats  # noqa: E402
+from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 THEMES = ("bain", "bcg", "deloitte", "ey", "kpmg", "mckinsey", "pwc")
 V01_STYLE_KEYS = {"font", "size", "weight", "v_align", "wrap"}
@@ -102,7 +102,7 @@ def test_every_theme_validates_and_renders_a_probe_page():
             objects.append({"type": "line", "from": [40, y], "to": [400, y],
                             "stroke": "text", "stroke_style": sname})
             y += 16
-        doc = {"dsl": "FrameGraph", "version": HEAD_VERSION,
+        doc = {"dsl": "FrameForge", "version": HEAD_VERSION,
                "title": f"theme probe · {name}", "profile": "deck",
                "defs": {"tokens": theme},
                "pages": [{"mode": "page", "id": f"probe-{name}",
@@ -144,8 +144,8 @@ def test_load_symbols_merges_packs_for_defs():
 
 
 def test_cover_symbol_expands_and_renders_contained():
-    from framegraph.sdk import expand
-    doc = {"dsl": "FrameGraph", "version": HEAD_VERSION,
+    from frameforge.sdk import expand
+    doc = {"dsl": "FrameForge", "version": HEAD_VERSION,
            "title": "cover probe", "profile": "deck",
            "defs": {"tokens": {**load_theme("mckinsey"),
                                "text_styles": {**load_theme("mckinsey")["text_styles"],
@@ -157,7 +157,7 @@ def test_cover_symbol_expands_and_renders_contained():
                       "layers": [{"id": "main", "objects": [
                           {"type": "use", "symbol": "cover_minimal_sidebar",
                            "box": [0, 0, 960, 540],
-                           "params": {"title": "FrameGraph Library",
+                           "params": {"title": "FrameForge Library",
                                       "subtitle": "Issue #32 absorption probe",
                                       "page_number": "01",
                                       "bg_color": "#FFFFFF",
@@ -165,7 +165,7 @@ def test_cover_symbol_expands_and_renders_contained():
                                       "right_pane_color": "primary"}}]}]}]}
     expanded = expand(doc).document.model_dump(by_alias=True, exclude_none=True)
     assert all(o.get("type") != "use" for o in _objects(expanded))
-    assert "FrameGraph Library" in _texts(expanded)
+    assert "FrameForge Library" in _texts(expanded)
     _assert_contained(expanded)
 
 

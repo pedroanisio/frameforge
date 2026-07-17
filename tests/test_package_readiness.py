@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """test_package_readiness.py — the package-emit checker must inspect the LIVE tree.
 
-The 2026-07-02 folder refactor moved the importable package to ``src/framegraph``
+The 2026-07-02 folder refactor moved the importable package to ``src/frameforge``
 and the model/schema reference sources under ``docs/``. ``check_package_readiness``
-kept inspecting ``ROOT/framegraph``, ``ROOT/models``, ``ROOT/schema`` — paths that
+kept inspecting ``ROOT/frameforge``, ``ROOT/models``, ``ROOT/schema`` — paths that
 no longer exist — so it silently:
 
-  * dropped the real name-shadow blocker (``docs/models/framegraph.py`` still
-    shadows the ``framegraph`` dist name, §2), and
+  * dropped the real name-shadow blocker (``docs/models/frameforge.py`` still
+    shadows the ``frameforge`` dist name, §2), and
   * reported the runtime ``__version__`` gap as still-open, although row 7 landed
-    ``framegraph.__version__`` in ``src/framegraph/__init__.py`` (2026-07-04).
+    ``frameforge.__version__`` in ``src/frameforge/__init__.py`` (2026-07-04).
 
 A verification tool that inspects a path that has moved passes *vacuously* — the
 PALS's-Law failure mode (a broken verification layer is a design defect, not a
@@ -17,7 +17,7 @@ runtime bug). These tests pin the checker to the real layout and guard the paths
 it inspects against going stale again.
 
 Import note: the checker lives under ``tooling/`` and reads ``pyproject.toml``; it
-does not touch the ``framegraph`` model shadow, so a plain ``tooling`` sys.path
+does not touch the ``frameforge`` model shadow, so a plain ``tooling`` sys.path
 insert is enough (no shadow-eviction dance — cf. test_grammar_sync.py).
 """
 import sys
@@ -40,8 +40,8 @@ def test_checker_inspects_paths_that_actually_exist():
     """If the tree moves again, the checker must fail loudly rather than pass
     vacuously over a path that no longer exists. Every location it inspects is
     asserted present in the live tree."""
-    assert (CPR.SRC / "framegraph").is_dir(), (
-        "checker must inspect the src-layout package src/framegraph")
+    assert (CPR.SRC / "frameforge").is_dir(), (
+        "checker must inspect the src-layout package src/frameforge")
     shadow_dirs = [ROOT / rel for rel in CPR.SHADOW_DIRS]
     assert any(d.is_dir() for d in shadow_dirs), (
         "at least one reference-source dir the checker scans for a name shadow "
@@ -54,15 +54,15 @@ def test_checker_inspects_paths_that_actually_exist():
 def test_name_collision_detects_the_live_model_shadow():
     f = _by_name()["distribution name does not shadow a module"]
     assert not f.ok, (
-        "docs/models/framegraph.py still shadows the `framegraph` dist name — a "
+        "docs/models/frameforge.py still shadows the `frameforge` dist name — a "
         "live blocker the checker must report, not drop")
-    assert "docs/models/framegraph.py" in f.detail
+    assert "docs/models/frameforge.py" in f.detail
 
 
 def test_runtime_version_gap_is_closed_by_row_7():
     f = _by_name()["runtime __version__ exposed"]
     assert f.ok, (
-        "row 7 landed framegraph.__version__ in src/framegraph/__init__.py; the "
+        "row 7 landed frameforge.__version__ in src/frameforge/__init__.py; the "
         "checker must find it there and not report the gap as still open")
 
 

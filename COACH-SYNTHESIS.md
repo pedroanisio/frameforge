@@ -18,13 +18,13 @@ it does not fake quality or measurement.
 
 | Artifact | Proves |
 |---|---|
-| `tooling/vectorize_image.py` + `framegraph/vision/…/vectorize.py`, `svg_import.py` | raster → editable FrameGraph objects (region fills / outline line-art / OCR) |
+| `tooling/vectorize_image.py` + `frameforge/vision/…/vectorize.py`, `svg_import.py` | raster → editable FrameForge objects (region fills / outline line-art / OCR) |
 | **POC-03** ingest×compose | the trace is *programmable*: restyle, **select a region / edit one element / recompose**, place beside native text+chart; gated (geometry-invariant, distinct renders, strict-subset) |
 | **POC-04** colour/guide | fill + **gradient** region traces; use line-art as a low-opacity **guide** to draw on top |
 | **POC-05** redraw | **redraw over** a trace: RDP-simplify, **smooth to Catmull-Rom cubic paths**, **snap blobs to clean primitives** |
 | `guided_paint` + guided-draw showcase | render-safe **atmosphere** (glow/haze/vignette/wash) → finished painted illustration over a guide |
 
-## 2. How the maintainer's `framegraph/coach/` distilled it
+## 2. How the maintainer's `frameforge/coach/` distilled it
 
 The coach is the **honest, buildable subset** — it reuses the SDK, keeps creativity
 with the model, and ships rubrics (advisory), not fake scores. It independently
@@ -50,7 +50,7 @@ The coach could ingest, clean, and *recolour*, but its colour stages
 toolset**. The one piece of the exploration lane the coach was missing was the
 painting layer, and it lived only in `examples/`.
 
-**Contribution — `framegraph/coach/paint.py`** (boundary-clean: sdk + stdlib):
+**Contribution — `frameforge/coach/paint.py`** (boundary-clean: sdk + stdlib):
 
 - Promotes the render-safe primitives (`glow`, `haze`, `vignette`, `wash`,
   `soft_shadow`, `fade`/`stop`/`linear`/`radial`) into the coach.

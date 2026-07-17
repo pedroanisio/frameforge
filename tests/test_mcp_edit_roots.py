@@ -27,19 +27,19 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.mcp.clients import (  # noqa: E402
+from frameforge.mcp.clients import (  # noqa: E402
     list_sdk_clients,
     read_sdk_client,
     write_sdk_client,
 )
-from framegraph.mcp.security import _client_roots, _resolve_client_path  # noqa: E402
+from frameforge.mcp.security import _client_roots, _resolve_client_path  # noqa: E402
 
-CODE = "def build():\n    return {'dsl': 'FrameGraph'}\n"
+CODE = "def build():\n    return {'dsl': 'FrameForge'}\n"
 
 
 @pytest.fixture()
 def tmp_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    monkeypatch.delenv("FRAMEGRAPH_MCP_EDIT_ROOTS", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_MCP_EDIT_ROOTS", raising=False)
     repo = tmp_path / "repo"
     (repo / "static" / "examples").mkdir(parents=True)
     return repo
@@ -66,7 +66,7 @@ def test_env_var_mixes_repo_and_outside_roots(
     tmp_repo: Path, work_root: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv(
-        "FRAMEGRAPH_MCP_EDIT_ROOTS", os.pathsep.join([str(work_root), "static/examples"])
+        "FRAMEFORGE_MCP_EDIT_ROOTS", os.pathsep.join([str(work_root), "static/examples"])
     )
     roots = _client_roots(tmp_repo, None)
     assert roots == [work_root.resolve(), (tmp_repo / "static" / "examples").resolve()]

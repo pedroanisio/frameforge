@@ -2,7 +2,7 @@
 """
 test_spec_sync.py — P1 guard: the normative spec names every model type.
 
-Closes drift-risk-map Finding #4. `spec/framegraph-v2-spec.md` calls itself the
+Closes drift-risk-map Finding #4. `spec/frameforge-v2-spec.md` calls itself the
 normative reference but had no model-sync gate (only its example documents were
 validated). `tooling/check_spec_sync.py` asserts every core object `type`, flow
 `type`, and inline `kind` the models define is named somewhere in the spec prose
@@ -17,9 +17,9 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [os.path.join(ROOT, "tooling")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 import check_spec_sync as S  # noqa: E402
 

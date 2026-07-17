@@ -15,18 +15,18 @@ import sys
 import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 pytest.importorskip("PIL")
 
 from PIL import Image  # noqa: E402
 
-from framegraph.mcp.server import compare_images, mcp_content_blocks  # noqa: E402
-from framegraph.mcp.sessions import _prepare_session  # noqa: E402
-from framegraph.vision.infrastructure.image_compare import (  # noqa: E402
+from frameforge.mcp.server import compare_images, mcp_content_blocks  # noqa: E402
+from frameforge.mcp.sessions import _prepare_session  # noqa: E402
+from frameforge.vision.infrastructure.image_compare import (  # noqa: E402
     Region,
     auto_regions,
     build_panels,
@@ -167,28 +167,28 @@ def test_compare_images_missing_file_is_structured_error(tmp_path):
 
 
 def test_compare_images_respects_input_root_confinement(tmp_path, monkeypatch):
-    """With FRAMEGRAPH_MCP_INPUT_ROOTS set, a path outside it is refused."""
+    """With FRAMEFORGE_MCP_INPUT_ROOTS set, a path outside it is refused."""
     allowed = tmp_path / "allowed"
     allowed.mkdir()
     outside = tmp_path / "outside.png"
     _png(outside, (0, 0, 0))
     ref = _png(allowed / "ref.png", (0, 0, 0))
-    monkeypatch.setenv("FRAMEGRAPH_MCP_INPUT_ROOTS", str(allowed))
+    monkeypatch.setenv("FRAMEFORGE_MCP_INPUT_ROOTS", str(allowed))
 
     result = compare_images(ref, str(outside), session_id="confine", session_root=tmp_path)
     assert result["ok"] is False
-    assert "FRAMEGRAPH_MCP_INPUT_ROOTS" in result["error"]
+    assert "FRAMEFORGE_MCP_INPUT_ROOTS" in result["error"]
 
 
 def test_compare_images_accepts_session_png_uri(tmp_path):
-    """A candidate given as a framegraph://session/<id>/page/<n>.png URI resolves."""
+    """A candidate given as a frameforge://session/<id>/page/<n>.png URI resolves."""
     ref = _png(tmp_path / "ref.png", (200, 200, 200))
     # stage a page render as if a prior run_sdk_client had produced it
     session_dir = _prepare_session(tmp_path.resolve(), "prior")
     Image.new("RGB", (240, 180), (30, 30, 30)).save(session_dir / "p001.png", format="PNG")
 
     result = compare_images(
-        ref, "framegraph://session/prior/page/1.png",
+        ref, "frameforge://session/prior/page/1.png",
         regions=[{"name": "whole", "box": [0.0, 0.0, 1.0, 1.0]}],
         session_id="fromuri", session_root=tmp_path,
     )

@@ -13,10 +13,10 @@ disclaimer:
 ## Summary
 
 A `write_sdk_client` call carrying a ~21 KB `code` argument failed with
-`ValueError: provide \`code\` … `. Investigation shows the FrameGraph MCP server
+`ValueError: provide \`code\` … `. Investigation shows the FrameForge MCP server
 received `code = None` — the argument was **dropped before it reached the
 server**, in the client↔server tool-call transport (the Claude Code ↔ MCP
-bridge), **not** by any FrameGraph size limit. The FrameGraph server and the
+bridge), **not** by any FrameForge size limit. The FrameForge server and the
 FastMCP layer both handle far larger arguments.
 
 This report records the evidence, the root-cause localization, the fixes shipped
@@ -29,7 +29,7 @@ must be filed **upstream** because it is outside this repo.
 |---|---|---|
 | Failing payload | 21,662 bytes | this session |
 | A prior write that succeeded | 19,268 bytes | this session |
-| FrameGraph client-file cap (`MAX_CLIENT_BYTES`) | 2,000,000 bytes | `src/framegraph/mcp/config.py` |
+| FrameForge client-file cap (`MAX_CLIENT_BYTES`) | 2,000,000 bytes | `src/frameforge/mcp/config.py` |
 | Server-side direct write, 300 KB | `ok: True` | `clients.write_sdk_client(...)` called in-process |
 | FastMCP in-memory `call_tool`, 250 KB | file written, exact bytes | `create_server().call_tool("write_sdk_client", …)` |
 | Error string origin | only reachable when `code is None` | `server.py` write dispatch |
@@ -48,7 +48,7 @@ The Claude Code ↔ MCP tool-call bridge appears to **silently drop (or truncate
 empty) a single tool argument above ~20 KB**. The receiving server then sees a
 missing argument and cannot distinguish it from a genuine omission.
 
-**Not verifiable from this repo:** the bridge source is not part of FrameGraph,
+**Not verifiable from this repo:** the bridge source is not part of FrameForge,
 so the exact mechanism and threshold cannot be confirmed here; the localization
 above is inferred from server-side and FastMCP-side behaviour, which are
 verifiable. This is a single failure data point plus a determinism argument, not
@@ -91,7 +91,7 @@ File against the Claude Code ↔ MCP client bridge:
 > args) or return an explicit client-side error naming the size limit — never a
 > silent drop.
 > **Server-side proof it is not the server:** FastMCP `call_tool` accepts 250 KB
-> in-process; the FrameGraph cap is 2 MB.
+> in-process; the FrameForge cap is 2 MB.
 
 Until fixed, the in-repo mitigations (anchored edit, chunked append) are the
 recommended path for large clients over MCP.

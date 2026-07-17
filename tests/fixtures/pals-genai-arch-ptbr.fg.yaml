@@ -6,7 +6,7 @@
 # Provenance: predecessor repo examples/pals-pt-br/. New dialect corner
 # closed by this deck: v0.1 gradient fill tokens (tokens.fill_styles
 # {type: linear_gradient, from/to, stops+opacity}) → v2 Gradient paints.
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.4.1
 profile: deck
 defs:
@@ -8263,7 +8263,7 @@ pages:
       style: bodyc
 meta:
   kind: presentation-deck
-  migrated_from: FrameGraph v0.1 (document version 1.5)
+  migrated_from: FrameForge v0.1 (document version 1.5)
   disclaimer:
     notice: 'Nenhuma informação neste documento deve ser tomada como verdade absoluta. Qualquer afirmação ou premissa que
       não tenha respaldo em uma definição lógica clara ou em uma referência verificável pode estar incorreta, ser equivocada

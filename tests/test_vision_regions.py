@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Region analysis — the promoted R&D region-detection capability.
 
-``framegraph.vision.infrastructure.regions`` consolidates the root R&D scripts
+``frameforge.vision.infrastructure.regions`` consolidates the root R&D scripts
 (closed_region_detector / region_fill / region_preprocess / consensus_regions /
 unique_regions and out/region_fill/flat_regions) into one module with a single
 canonical ``DetectedRegion`` type and a JSON-serializable ``detect_regions``
@@ -17,9 +17,9 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import pytest  # noqa: E402
@@ -27,7 +27,7 @@ import pytest  # noqa: E402
 cv2 = pytest.importorskip("cv2")
 np = pytest.importorskip("numpy")
 
-from framegraph.vision.infrastructure import regions as RG  # noqa: E402
+from frameforge.vision.infrastructure import regions as RG  # noqa: E402
 
 
 # ─────────────────────────────────────────────────────────────
@@ -255,7 +255,7 @@ def test_consensus_include_polygons_false_omits_polygons(tmp_path):
     cv2 = pytest.importorskip("cv2")
     import numpy as np
 
-    from framegraph.vision.infrastructure.regions import detect_regions
+    from frameforge.vision.infrastructure.regions import detect_regions
 
     img = np.full((90, 120, 3), 255, dtype=np.uint8)
     cv2.rectangle(img, (20, 20), (50, 50), (30, 30, 30), thickness=-1)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """render_latex.py — the LaTeX/TikZ render engine CLI (a peer to render_fixtures.py).
 
-Transpiles FrameGraph v2 documents to native LaTeX (TeX owns pagination,
+Transpiles FrameForge v2 documents to native LaTeX (TeX owns pagination,
 justification, hyphenation, microtype, and real math for flow docs) with figures
 and page-mode documents emitted as vector TikZ, then compiles to PDF. The TeX
 engine is auto-selected (``--engine auto``): `lualatex` when its OpenType font
@@ -31,12 +31,12 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 FIXTURES = os.path.join(ROOT, "tests", "fixtures")
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
 # The TeX orchestration now lives in the package (a driven infrastructure
 # adapter); this CLI re-exports it so `pick_engine`/`to_pdflatex`/`compile_tex`/
 # `rasterize` (and the `_PDFLATEX_GLYPHS` map the pdflatex tests assert on) stay
 # importable as attributes of this module.
-from framegraph.rendering.infrastructure.latex.compile import (  # noqa: E402,F401
+from frameforge.rendering.infrastructure.latex.compile import (  # noqa: E402,F401
     _PDFLATEX_GLYPHS,
     compile_tex,
     pick_engine,
@@ -63,13 +63,13 @@ def discover(paths):
             d = yaml.safe_load(open(f, encoding="utf-8"))
         except Exception:
             continue
-        if isinstance(d, dict) and d.get("dsl") == "FrameGraph" and d.get("pages"):
+        if isinstance(d, dict) and d.get("dsl") == "FrameForge" and d.get("pages"):
             docs.append((f, d))
     return docs
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Render FrameGraph docs to LaTeX/TikZ + PDF.")
+    ap = argparse.ArgumentParser(description="Render FrameForge docs to LaTeX/TikZ + PDF.")
     ap.add_argument("paths", nargs="*", help="files / dirs / globs (default: all fixtures/)")
     ap.add_argument("--all", action="store_true", help="render every fixture under fixtures/")
     ap.add_argument("--out", default=os.path.join(ROOT, "out", "latex"), help="output dir")
@@ -78,7 +78,7 @@ def main(argv=None):
     ap.add_argument("--engine", choices=["auto", "lualatex", "pdflatex"], default="auto",
                     help="TeX engine (default: auto — lualatex if luaotfload is present, "
                          "else pdflatex)")
-    ap.add_argument("--list", action="store_true", help="list discoverable FrameGraph docs and exit")
+    ap.add_argument("--list", action="store_true", help="list discoverable FrameForge docs and exit")
     ap.add_argument("-q", "--quiet", action="store_true")
     args = ap.parse_args(argv)
 
@@ -89,7 +89,7 @@ def main(argv=None):
             print(os.path.relpath(f, ROOT))
         return 0
     if not docs:
-        print("no FrameGraph documents found", file=sys.stderr)
+        print("no FrameForge documents found", file=sys.stderr)
         return 1
     engine = pick_engine(args.engine)
     if not args.tex_only and engine is None:

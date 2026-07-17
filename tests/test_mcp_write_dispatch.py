@@ -30,17 +30,17 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.mcp.clients import read_sdk_client, write_sdk_client  # noqa: E402
-from framegraph.mcp.config import MAX_CLIENT_BYTES  # noqa: E402
-from framegraph.mcp.server import create_server  # noqa: E402
-from framegraph.mcp.usecases import write_or_edit_client  # noqa: E402
+from frameforge.mcp.clients import read_sdk_client, write_sdk_client  # noqa: E402
+from frameforge.mcp.config import MAX_CLIENT_BYTES  # noqa: E402
+from frameforge.mcp.server import create_server  # noqa: E402
+from frameforge.mcp.usecases import write_or_edit_client  # noqa: E402
 
-CODE = "def build():\n    return {'dsl': 'FrameGraph'}\n"
+CODE = "def build():\n    return {'dsl': 'FrameForge'}\n"
 
 
 @pytest.fixture()
 def repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    monkeypatch.delenv("FRAMEGRAPH_MCP_EDIT_ROOTS", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_MCP_EDIT_ROOTS", raising=False)
     r = tmp_path / "repo"
     (r / "static" / "examples").mkdir(parents=True)
     return r
@@ -76,9 +76,9 @@ def test_blank_code_is_treated_as_missing(repo: Path) -> None:
 # --- anchored edit (was entirely untested) -------------------------------- #
 def test_anchored_edit_happy_path(repo: Path) -> None:
     _w(repo, path="a.py", code=CODE, create=True)
-    res = _w(repo, path="a.py", old_string="'FrameGraph'", new_string="'FrameGraph2'")
+    res = _w(repo, path="a.py", old_string="'FrameForge'", new_string="'FrameForge2'")
     assert res["ok"]
-    assert "'FrameGraph2'" in (repo / "static" / "examples" / "a.py").read_text()
+    assert "'FrameForge2'" in (repo / "static" / "examples" / "a.py").read_text()
 
 
 def test_anchored_edit_not_found(repo: Path) -> None:
@@ -117,10 +117,10 @@ def test_append_builds_file_in_partial_chunks(repo: Path) -> None:
     r1 = _w(repo, path="big.py", code="def build():\n", create=True, allow_partial=True)
     assert r1["created"] is True and r1["partial"] is True
     # final chunk completes the file and is compiled (allow_partial defaults False)
-    r2 = _w(repo, path="big.py", code="    return {'dsl': 'FrameGraph'}\n", append=True)
+    r2 = _w(repo, path="big.py", code="    return {'dsl': 'FrameForge'}\n", append=True)
     assert r2["appended"] is True and r2["partial"] is False
     text = (repo / "static" / "examples" / "big.py").read_text()
-    assert text == "def build():\n    return {'dsl': 'FrameGraph'}\n"
+    assert text == "def build():\n    return {'dsl': 'FrameForge'}\n"
     compile(text, "big.py", "exec")  # the assembled file is valid
 
 

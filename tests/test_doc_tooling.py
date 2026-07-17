@@ -18,9 +18,9 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(ROOT, "docs", "schema"))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 import build_schema as B  # noqa: E402
 import gen_status as GS  # noqa: E402
@@ -33,7 +33,7 @@ import gen_docs as GD  # noqa: E402
 def test_build_schema_build_shape():
     schema = B.build()
     assert schema["$schema"].endswith("/schema")
-    assert schema["title"].startswith("FrameGraph v2")
+    assert schema["title"].startswith("FrameForge v2")
     assert "pages" in schema["properties"]
     assert "Style" in schema["$defs"] and len(schema["$defs"]) >= 70
 

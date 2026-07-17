@@ -12,13 +12,13 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path.insert(0, ROOT)
 
-from framegraph.coach import resolve_style  # noqa: E402
-from framegraph.coach.paint import (  # noqa: E402
+from frameforge.coach import resolve_style  # noqa: E402
+from frameforge.coach.paint import (  # noqa: E402
     atmosphere,
     darkest,
     fade,
@@ -80,8 +80,8 @@ def test_atmosphere_is_style_driven_and_layered():
     assert f"{ir}, {ig}, {ib}" in atm["front"][0]["fill"]["stops"][-1]["color"]
 
 
-def test_atmosphere_renders_through_framegraph():
-    from framegraph.sdk import DocumentBuilder, render_page_svgs
+def test_atmosphere_renders_through_frameforge():
+    from frameforge.sdk import DocumentBuilder, render_page_svgs
     style = resolve_style("children_book")
     atm = atmosphere(style, 200, 120)
     b = DocumentBuilder(title="atm")

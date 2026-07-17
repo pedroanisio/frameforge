@@ -18,23 +18,23 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # a non-package (the models module)
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling.render_fixtures import Renderer  # noqa: E402
 
 
 def _page_svg(objects):
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [400, 200]},
                       "layers": [{"id": "l", "objects": objects}]}]}
     return Renderer(doc, ".").render_page(doc["pages"][0])[0]
 
 
 def _flow_svgs(story):
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "flow", "id": "p", "canvas": {"size": [400, 300]},
                       "story": story}]}
     return Renderer(doc, ".").render_page(doc["pages"][0])

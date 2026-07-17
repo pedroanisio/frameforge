@@ -1,6 +1,6 @@
 """Correctness + render-preservation contract for ``examples/fg_css_optimize.py``.
 
-The optimizer promises to shrink HTML from ``framegraph_to_html.py`` *without
+The optimizer promises to shrink HTML from ``frameforge_to_html.py`` *without
 changing how it renders*. These tests pin that promise on real generator output
 (viewBox/paint survive), and lock down the two bugs the review found: the crash
 on a missing ``<style>`` block and the corruption of ``@media`` at-rules.
@@ -25,18 +25,18 @@ def _load(name: str, path: Path):
 opt = _load("fg_css_optimize", ROOT / "static" / "examples" / "fg_css_optimize.py")
 # The HTML renderer moved into the package (the DocumentRenderer port); import it
 # there rather than from the retired tooling/ script. Evict a cached non-package
-# `framegraph` shadow first (conftest.py's shadow-module rule).
+# `frameforge` shadow first (conftest.py's shadow-module rule).
 import sys  # noqa: E402
 
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
-from framegraph.rendering.infrastructure.backends import html as fgh  # noqa: E402
+    del sys.modules["frameforge"]
+from frameforge.rendering.infrastructure.backends import html as fgh  # noqa: E402
 
 
 def _render(objects: list[dict], *, defs: dict | None = None) -> str:
     doc = {
-        "dsl": "FrameGraph", "version": "2.0.0", "title": "Opt",
+        "dsl": "FrameForge", "version": "2.0.0", "title": "Opt",
         "pages": [{"mode": "page", "id": "p1",
                    "canvas": {"size": [600, 400], "units": "px"},
                    "layers": [{"id": "main", "z": 0, "objects": objects}]}],
@@ -77,7 +77,7 @@ def test_keyframes_block_survives():
 
 
 # --------------------------------------------------------------------------- #
-# Render preservation on real framegraph_to_html output                       #
+# Render preservation on real frameforge_to_html output                       #
 # --------------------------------------------------------------------------- #
 
 
@@ -140,11 +140,11 @@ def test_minify_keeps_at_rules_valid():
 # --------------------------------------------------------------------------- #
 
 
-def test_risky_properties_empty_for_framegraph_output():
+def test_risky_properties_empty_for_frameforge_output():
     html = _render([{"type": "rect", "id": "r", "box": [0, 0, 10, 10], "fill": "#111"}])
     css = re.search(r"<style[^>]*>(.*?)</style>", html, re.S).group(1)
     items = opt.split_stylesheet(css)
-    # framegraph_to_html's only multi-token selectors end in a *type* (span/code),
+    # frameforge_to_html's only multi-token selectors end in a *type* (span/code),
     # so nothing a pooled class could collide with:
     assert opt.risky_properties(items) == set()
 

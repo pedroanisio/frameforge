@@ -1,4 +1,4 @@
-# Keep the FrameGraph image lean: exclude VCS, the host venv, generated render
+# Keep the FrameForge image lean: exclude VCS, the host venv, generated render
 # output, caches, and the multi-MB SVG artifacts sitting at the repo root.
 .git
 .gitignore

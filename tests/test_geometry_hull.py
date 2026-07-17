@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """test_geometry_hull.py — B10: convex hull + computational-geometry primitives.
 
-`framegraph.sdk.geometry` gains `convex_hull` (2D Andrew's monotone chain — the
+`frameforge.sdk.geometry` gains `convex_hull` (2D Andrew's monotone chain — the
 Mortenson §21 primitive), `aabb` (axis-aligned bounds), `polygon_area` (signed
 shoelace), and `point_in_polygon` (ray-crossing). The hull is verified against a
 brute-force oracle; collinear and duplicate points are handled explicitly.
@@ -15,11 +15,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Vec2,
     aabb,
     convex_hull,

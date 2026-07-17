@@ -11,9 +11,9 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, os.path.join(ROOT, "static", "examples"))
 
@@ -78,8 +78,8 @@ def test_soft_shadow_fades_out():
     assert s["fill"]["stops"][-1]["color"].endswith(", 0)")
 
 
-def test_atmosphere_renders_through_framegraph():
-    from framegraph.sdk import DocumentBuilder, render_page_svgs
+def test_atmosphere_renders_through_frameforge():
+    from frameforge.sdk import DocumentBuilder, render_page_svgs
     b = DocumentBuilder(title="paint")
     p = b.page("p", canvas={"size": [200, 120], "units": "px"}, coordinate_mode="absolute")
     layer = p.layer("m")

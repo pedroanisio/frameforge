@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Twenty distinct refactor proposals for the Esfera (Santander) rewards website
-— composed as low-fidelity wireframes with the FrameGraph Python SDK, plus an
+— composed as low-fidelity wireframes with the FrameForge Python SDK, plus an
 "AI na jornada" capstone mapping AI capabilities across the funnel.
 
 Grounded in the *live* site (esfera.com.vc, probed June 2026 via Playwright): a
@@ -29,18 +29,18 @@ import textwrap
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     grid,
     inset,
     row,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # ---- frame + palette (wireframe: grayscale + one Esfera-red accent) -------- #
 W, H = 1440, 980

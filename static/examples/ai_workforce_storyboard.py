@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """THE GREAT REWRITE — a complete storyboard for a 20-minute YouTube documentary
-about AI and Workforce Transformation, composed entirely with the FrameGraph SDK.
+about AI and Workforce Transformation, composed entirely with the FrameForge SDK.
 
 This is a *production document*, not a comic: a cover / brief, a shot-type legend,
 and six storyboard sheets carrying 36 numbered shots that run a tight 20:00. Each
@@ -33,11 +33,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     Path,
     column,
@@ -47,7 +47,7 @@ from framegraph.sdk import (  # noqa: E402
     row,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Page + palette
@@ -1027,7 +1027,7 @@ def cover_page(b, total_pages):
            dict(STYLES["ftiny"], color=None, align="start"), color=SCENE_C[i])
 
     TT(p, [M, H - 44, 1200, 16],
-       "Composed entirely with the FrameGraph SDK — every styleframe is geometry, "
+       "Composed entirely with the FrameForge SDK — every styleframe is geometry, "
        "no image assets.", dict(STYLES["folio"], color="muted"), align="start")
 
 

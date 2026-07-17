@@ -1,4 +1,4 @@
-# FrameGraph v2 — developer entrypoints (uv-based). Run `make` (or `make help`).
+# FrameForge v2 — developer entrypoints (uv-based). Run `make` (or `make help`).
 #
 # Dependency + venv management is owned by pyproject.toml + uv.lock (uv is the
 # source of truth). These targets only wrap the project's build/check commands so
@@ -6,7 +6,7 @@
 # CI runs (.github/workflows/ci.yml).
 
 UV ?= uv
-FIXTURES_YAML := $(shell git ls-files tests/fixtures 2>/dev/null | grep -E '^tests/fixtures/[^/]+\.(fg\.yaml|framegraph\.yml)$$' || echo 'tests/fixtures/*.fg.yaml')
+FIXTURES_YAML := $(shell git ls-files tests/fixtures 2>/dev/null | grep -E '^tests/fixtures/[^/]+\.(fg\.yaml|frameforge\.yml)$$' || echo 'tests/fixtures/*.fg.yaml')
 LIVE_HOST ?= 127.0.0.1
 LIVE_PORT ?= 8789
 
@@ -23,7 +23,7 @@ help:  ## list targets
 sync:  ## create/refresh the venv from uv.lock
 	$(UV) sync
 
-schema:  ## regenerate docs/schema/framegraph-v2.schema.json from the models
+schema:  ## regenerate docs/schema/frameforge-v2.schema.json from the models
 	$(UV) run python docs/schema/build_schema.py
 
 bump:  ## bump the HEAD version at every site + regen derived artifacts (VERSION=X.Y.Z); see RELEASE.md
@@ -51,15 +51,15 @@ render:  ## render every fixture to out/render/ (+ contact sheet)
 render-latex:  ## render flow fixtures to LaTeX/TikZ + PDF via lualatex (out/latex/)
 	$(UV) run python tooling/render_latex.py --all
 
-pdf:  ## transpile a PDF -> FrameGraph YAML (pulls the `pdf` group): make pdf PDF=paper.pdf [OUT=...] [ARGS='--text-mode spans']
+pdf:  ## transpile a PDF -> FrameForge YAML (pulls the `pdf` group): make pdf PDF=paper.pdf [OUT=...] [ARGS='--text-mode spans']
 	@test -n "$(PDF)" || { echo "usage: make pdf PDF=<input.pdf> [OUT=<out.fg.yaml>] [ARGS='--text-mode spans']"; exit 2; }
-	$(UV) run --group pdf python tooling/pdf_to_framegraph_yml.py "$(PDF)" "$(if $(OUT),$(OUT),$(PDF:.pdf=.fg.yaml))" $(ARGS)
+	$(UV) run --group pdf python tooling/pdf_to_frameforge_yml.py "$(PDF)" "$(if $(OUT),$(OUT),$(PDF:.pdf=.fg.yaml))" $(ARGS)
 
 mcp:  ## run the optional MCP server for SDK-code -> YAML -> render feedback loops
-	PYTHONPATH=src:docs $(UV) run --group mcp python -m framegraph.mcp
+	PYTHONPATH=src:docs $(UV) run --group mcp python -m frameforge.mcp
 
-live:  ## run the local FrameGraph MCP live-session web UI
-	PYTHONPATH=src:docs $(UV) run python -m framegraph.live --host "$(LIVE_HOST)" --port "$(LIVE_PORT)"
+live:  ## run the local FrameForge MCP live-session web UI
+	PYTHONPATH=src:docs $(UV) run python -m frameforge.live --host "$(LIVE_HOST)" --port "$(LIVE_PORT)"
 
 check: schema-check grammar-check spec-check a11y-check status-check ruff-check test validate overflow golden-check docs-check docs-linkcheck disclaimer-check  ## run every local gate
 
@@ -164,10 +164,10 @@ docker-build:  ## build the font-rich SDK/MCP image (ARGS='--build-arg FONTS_APT
 		$(ARGS) .
 
 docker-mcp:  ## run the MCP server (stdio) from the container
-	$(DOCKER) run --rm -i -v framegraph-work:/work $(IMAGE)
+	$(DOCKER) run --rm -i -v frameforge-work:/work $(IMAGE)
 
 docker-shell:  ## interactive shell inside the container toolchain
-	$(DOCKER) run --rm -it -v framegraph-work:/work $(IMAGE) bash
+	$(DOCKER) run --rm -it -v frameforge-work:/work $(IMAGE) bash
 
 docker-fonts:  ## list the font families baked into the image
 	$(DOCKER) run --rm $(IMAGE) fonts

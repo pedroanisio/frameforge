@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """High-fidelity vector recreation of an HR "People / Devices / Security" mobile
-dashboard (3 phone screens) using the FrameGraph SDK.
+dashboard (3 phone screens) using the FrameForge SDK.
 
   1. People    — metric pills (Interviews/Hired/Project time/Output) + scrolling
                  people cards (avatar, role, status, dept/country/salary). The
@@ -26,17 +26,17 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     clip_path,
     linear_gradient,
     rgba,
 )
-from framegraph.sdk.paint import effects, shadow  # noqa: E402
+from frameforge.sdk.paint import effects, shadow  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas + palette

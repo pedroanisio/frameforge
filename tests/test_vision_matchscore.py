@@ -14,16 +14,16 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import pytest  # noqa: E402
 
 pytest.importorskip("PIL")
 
-from framegraph.vision.infrastructure import matchscore as MS  # noqa: E402
+from frameforge.vision.infrastructure import matchscore as MS  # noqa: E402
 
 
 def _png_bytes(draw_fn, size=(240, 180), bg=(255, 255, 255)) -> bytes:

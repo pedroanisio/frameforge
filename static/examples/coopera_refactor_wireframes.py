@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Twenty distinct refactor proposals for the Coopera (Sicoob) rewards site &
-marketplace — composed as low-fidelity wireframes with the FrameGraph Python SDK,
+marketplace — composed as low-fidelity wireframes with the FrameForge Python SDK,
 plus an "IA na jornada" capstone mapping AI capabilities across the funnel.
 
 Grounded in the *live* site (shopcoopera.com.br + sicoob.com.br/coopera, probed
@@ -30,18 +30,18 @@ import textwrap
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     grid,
     inset,
     row,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # ---- frame + palette (wireframe: grayscale + one Coopera-teal accent) ------ #
 # NOTE: the accent token is named "red" so the proven Esfera component helpers

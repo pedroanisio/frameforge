@@ -1,4 +1,4 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 profile: diagram
 title: Samsung My Files — internal storage (fixture)
@@ -795,7 +795,7 @@ meta:
   disclaimer: Nothing here is authoritative. Folder names/dates/counts are transcribed from the screenshot; coordinates, the
     Samsung dark palette, the two-rect folder icon, and icon glyph stand-ins are [APPROX].
   source: 'User-supplied screenshot: 27143.png (Samsung My Files)'
-  requires_patch: framegraph-v2-patch-nesting-textfit.md — §3.6 column layout + nesting
+  requires_patch: frameforge-v2-patch-nesting-textfit.md — §3.6 column layout + nesting
   generated_by: gen_files.py (spec §9.7 external generator)
   open_questions:
   - Entry internals use free layout (so the item-count can sit at the right edge); the patched row/column layouts pack from

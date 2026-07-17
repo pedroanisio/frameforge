@@ -5,7 +5,7 @@ SVG hyperlink: the visible content text is wrapped in an ``<a href="...">``
 anchor, so the link is clickable in the emitted SVG while the href never leaks
 into the visible body text.
 
-Renderer-only import (the `framegraph` package must win) — evict a models-module
+Renderer-only import (the `frameforge` package must win) — evict a models-module
 shadow first, per test_render_cli.py.
 """
 import os
@@ -13,9 +13,9 @@ import re
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # the models module
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import yaml  # noqa: E402
@@ -23,7 +23,7 @@ import yaml  # noqa: E402
 from tooling import render_fixtures as R  # noqa: E402
 
 DOC = {
-    "dsl": "FrameGraph",
+    "dsl": "FrameForge",
     "version": "2.2.0",
     "profile": "report",
     "title": "inline link render",

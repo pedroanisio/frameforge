@@ -1,7 +1,7 @@
-"""PDF table extraction → native FrameGraph table object.
+"""PDF table extraction → native FrameForge table object.
 
 Backs the reused table-detection front-end ported into
-`tooling/pdf_to_framegraph_yml.py` (the standing fixture rule: a reused component
+`tooling/pdf_to_frameforge_yml.py` (the standing fixture rule: a reused component
 ships with a checked-in fixture, not just synthetic unit tests).
 
 `fixtures/pdf_table_extraction.fg.yaml` is the transpiler's output for the small
@@ -10,7 +10,7 @@ widths 150 / 140 / 90). It exercises the whole path: detect → emit a native
 `type: table` with per-column widths recovered from the detected cell geometry →
 render. The column separators are the oracle: x0(40) + 150 = 190, + 140 = 330.
 
-Subprocess render (not an in-process import) to avoid the framegraph-package vs
+Subprocess render (not an in-process import) to avoid the frameforge-package vs
 models-module name clash in the shared pytest process — same pattern as
 tests/test_table_widths.py.
 """

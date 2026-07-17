@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Story/flow authoring tests for the Python FrameGraph SDK.
+"""Story/flow authoring tests for the Python FrameForge SDK.
 
-Covers the ``framegraph.sdk.flow`` builders (FlowBuilder + DocumentBuilder
+Covers the ``frameforge.sdk.flow`` builders (FlowBuilder + DocumentBuilder
 ``section``/``master`` wiring), the rich-inline additions to ``macros.md`` /
 ``macros.span``, and the span-list form of ``PageBuilder.text``. Every builder
 must round-trip through the authoritative model (``DocumentBuilder.build``)
@@ -16,11 +16,11 @@ import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     FlowBuilder,
     MasterBuilder,
@@ -28,7 +28,7 @@ from framegraph.sdk import (  # noqa: E402
     render_page_svgs,
     span,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 
 def _builder_with_master() -> tuple[DocumentBuilder, MasterBuilder]:
@@ -188,7 +188,7 @@ def test_master_builder_lowers_full_page_master():
         .margin([40, 40, 40, 40])
         .region("main", [40, 60, 320, 460], columns=2, column_gap=16, next="side")
         .region("side", [40, 530, 320, 30])
-        .running_header([{"type": "text", "box": [40, 20, 320, 16], "text": "FrameGraph"}])
+        .running_header([{"type": "text", "box": [40, 20, 320, 16], "text": "FrameForge"}])
         .running_footer([{"type": "rect", "box": [40, 570, 320, 1], "fill": "#ddd"}])
         .page_number(True)
         .footnote_area("notes", [40, 540, 320, 40])
@@ -245,15 +245,15 @@ def test_flow_document_renders_and_paginates():
 
 # --------------------------------------------------------------------------- #
 #  Running page furniture: master.fixed / running header+footer / page_number
-#  (PageMaster.running + StringSet were schema-only — docs/models/framegraph.py
+#  (PageMaster.running + StringSet were schema-only — docs/models/frameforge.py
 #  declared them, MasterBuilder already had .fixed/.running_header/
-#  .running_footer/.page_number, but src/framegraph/rendering had ZERO
+#  .running_footer/.page_number, but src/frameforge/rendering had ZERO
 #  handling of them; grep across the whole rendering package turned up no
 #  "running"/"fixed" reads at all. This is the renderer-side implementation.)
 # --------------------------------------------------------------------------- #
 def _running_builder_with_master() -> tuple[DocumentBuilder, MasterBuilder]:
     """A master carrying every furniture kind, authored through the SCHEMA's own
-    substitution mechanism: `Text.field` (docs/models/framegraph.py:1081 —
+    substitution mechanism: `Text.field` (docs/models/frameforge.py:1081 —
     "Running field substitution: 'page'/'pages' counters, or the grammar's
     {string: <name>} form for named strings"). `field` REPLACES the object's
     `text`, so the authored `text` is only a placeholder and "page N of M" is

@@ -2,7 +2,7 @@
 paint a finished colour illustration ON TOP of it (POC-04's guide workflow).
 
 Pipeline: ingest the skier line-art -> drop it to a low-opacity guide
-(`as_guide`) -> author native FrameGraph colour (gradient sky, a glowing sun,
+(`as_guide`) -> author native FrameForge colour (gradient sky, a glowing sun,
 the snow slope, mountains, spray, the skier's jacket) positioned against the
 guide -> re-lay the guide as the final "ink". The output is a deliberate
 illustration, not a recoloured trace.
@@ -20,7 +20,7 @@ from typing import Any, Sequence
 sys.path.insert(0, os.environ.get("FG_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
 from guided_paint import fade, glow, haze, linear, radial, soft_shadow, stop, vignette, wash  # noqa: E402
 from poc3_ingest_compose import place  # noqa: E402
 from poc4_color_and_guide import as_guide  # noqa: E402
@@ -133,7 +133,7 @@ def build_hero(guide_objs: list[Obj], src: tuple[int, int]):
 
 
 def trace(image: str):
-    from framegraph.vision.infrastructure.vectorize import raster_to_objects
+    from frameforge.vision.infrastructure.vectorize import raster_to_objects
     return raster_to_objects(image, mode="outline", detail=0.0015, min_area=16.0, max_dim=1500)
 
 

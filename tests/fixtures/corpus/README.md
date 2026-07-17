@@ -1,6 +1,6 @@
 # Expressiveness corpus (public domain)
 
-Real-world documents that FrameGraph aims to represent and render faithfully —
+Real-world documents that FrameForge aims to represent and render faithfully —
 the **expressiveness / completeness target**. If a `.fg` document can reproduce
 each of these, the format and renderer cover the range of professional
 vector/layered media they exercise.
@@ -65,7 +65,7 @@ permissive per the two-class policy above — record its `license` and
 
 ## Why these documents
 
-| Tier | Stresses (FrameGraph surface) |
+| Tier | Stresses (FrameForge surface) |
 |---|---|
 | `vector` | `path` / gradients / nested layer groups / transforms / clip — the modeled-but-unrendered effect surface |
 | `reference` | one isolated effect per SVG (filter, mask, clipPath, gradient, pattern, stroke, shape, text) — the fidelity-coverage gate |

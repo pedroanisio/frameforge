@@ -3,7 +3,7 @@
 # this POST-EXPANSION document verbatim); regenerate from there, never
 # hand-edit. Four graphs laid out at expansion time from declared edges:
 # auto→layered, auto→radial, auto→spring, and an explicit circular override.
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.4.1
 profile: diagram
 title: graph auto-layout showcase

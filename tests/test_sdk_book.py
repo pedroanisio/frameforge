@@ -22,8 +22,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.sdk import BookBuilder, render_pages_with_stats  # noqa: E402
-from framegraph.sdk.model import validate_document  # noqa: E402
+from frameforge.sdk import BookBuilder, render_pages_with_stats  # noqa: E402
+from frameforge.sdk.model import validate_document  # noqa: E402
 
 LOREM = ("The quick brown fox jumps over the lazy dog and keeps running "
          "through the meadow toward the river, where the story continues "

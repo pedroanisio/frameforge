@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""FrameGraph v2 — doc-ray Database Reference (A4, ERD + full data dictionary).
+"""FrameForge v2 — doc-ray Database Reference (A4, ERD + full data dictionary).
 
 A multi-page A4 print reference for the doc-ray PostgreSQL schema, authored
-through the FrameGraph v2 SDK: a cover, a one-page ERD (the layered
+through the FrameForge v2 SDK: a cover, a one-page ERD (the layered
 architecture), then the complete data dictionary — every table's columns
 (type · null · key · notes), keys/constraints/index counts, and RLS path —
 grouped by NLP layer and paginated across A4 pages.
@@ -25,12 +25,12 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, serialize  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 DBDICT = os.environ.get("DBDICT") or (sys.argv[1] if len(sys.argv) > 1 else "dbdict.json")
 

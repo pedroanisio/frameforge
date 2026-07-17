@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""The ``framegraph`` package must not import *up* into the ``tooling`` scripts.
+"""The ``frameforge`` package must not import *up* into the ``tooling`` scripts.
 
 This pins the rendering bounded-context boundary (codebase-standards §2/§13): an
-installed ``framegraph`` wheel would not ship ``tooling/``, so any
-``from tooling ...`` / ``import tooling`` inside ``framegraph/`` is an import-break
+installed ``frameforge`` wheel would not ship ``tooling/``, so any
+``from tooling ...`` / ``import tooling`` inside ``frameforge/`` is an import-break
 after install and the inverted dependency flagged as tension #1 in
 ``conceptual-analysis.md``. ``tooling/check_package_readiness.py`` asserts the same
 thing as a hard *blocker*; this test pins it inside ``make check`` so it cannot
@@ -15,7 +15,7 @@ import ast
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PKG = ROOT / "src" / "framegraph"
+PKG = ROOT / "src" / "frameforge"
 
 
 def _imports_tooling(path: Path) -> bool:
@@ -31,13 +31,13 @@ def _imports_tooling(path: Path) -> bool:
     return False
 
 
-def test_framegraph_package_does_not_import_tooling():
+def test_frameforge_package_does_not_import_tooling():
     offenders = [
         str(path.relative_to(ROOT))
         for path in sorted(PKG.rglob("*.py"))
         if "__pycache__" not in path.parts and _imports_tooling(path)
     ]
     assert offenders == [], (
-        "framegraph/ must not import the top-level 'tooling' package — it would not "
+        "frameforge/ must not import the top-level 'tooling' package — it would not "
         f"ship in a wheel (codebase-standards §2/§13). Offenders: {offenders}"
     )

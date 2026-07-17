@@ -13,7 +13,7 @@ SVG strings — must be byte-for-byte identical whether or not the PDF is
 imposed. Uniformity lives in the PDF; the canonical document never changes.
 
 Subprocess (not in-process import) for the CLI, mirroring test_pdf_export.py:
-the rendering package is named `framegraph` and would shadow the models
+the rendering package is named `frameforge` and would shadow the models
 module in a shared pytest process.
 """
 import os
@@ -32,7 +32,7 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 RENDER_PDF = os.path.join(ROOT, "tooling", "render_pdf.py")
 
 _DOC = {
-    "dsl": "FrameGraph", "version": "2.2.0", "profile": "mixed",
+    "dsl": "FrameForge", "version": "2.2.0", "profile": "mixed",
     "title": "impose fixture", "lang": "en",
     "pages": [
         {"mode": "page", "id": "book", "canvas": {"size": [816, 1056], "units": "px"},
@@ -68,7 +68,7 @@ def _mediaboxes(pdf_path):
 
 def test_impose_letter_makes_every_pdf_page_uniform_without_touching_hashes():
     sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-    from framegraph.sdk import page_hashes, validate_document
+    from frameforge.sdk import page_hashes, validate_document
 
     model = validate_document(_DOC)
     before = page_hashes(model)

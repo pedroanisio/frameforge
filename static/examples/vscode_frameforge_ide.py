@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Recreate the FrameForge VSCode IDE screenshot with the FrameGraph SDK.
+"""Recreate the FrameForge VSCode IDE screenshot with the FrameForge SDK.
 
 This authors the whole window — title/menu bar, activity bar, Explorer side
 bar, a two-up editor split (an AI chat panel on the left, the rendered
@@ -17,8 +17,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from framegraph.sdk import DocumentBuilder, stroke  # noqa: E402
-from framegraph.sdk.metrics import measure_text, wrap_text  # noqa: E402
+from frameforge.sdk import DocumentBuilder, stroke  # noqa: E402
+from frameforge.sdk.metrics import measure_text, wrap_text  # noqa: E402
 
 OUT = ROOT / "static" / "examples" / "fixtures" / "vscode-frameforge-ide.fg.yaml"
 
@@ -263,7 +263,7 @@ def explorer(page, C, sw, txt, MONO):
         weight=700)
 
     folders = [".agent-tasks", ".github", ".repo", ".venv", "docs", "examples",
-               "fixtures", "framegraph", "grammar", "models", "schema", "spec",
+               "fixtures", "frameforge", "grammar", "models", "schema", "spec",
                "tests", "tooling", "viewer"]
     files = [("CHANGELOG.md", None, C["md_blue"]),
              ("CLAUDE.md", None, C["md_blue"]),

@@ -16,9 +16,9 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-from framegraph.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
-from framegraph.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
+from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
+from frameforge.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
 
 
 def _fixture_path(*parts):
@@ -348,7 +348,7 @@ def test_diagonal_gradient_stroke_line_falls_back_to_solid_stroke():
 
 
 def test_b1_chroma_spectrum_renders_as_gradient():
-    from framegraph.rendering.infrastructure.latex import transpile
+    from frameforge.rendering.infrastructure.latex import transpile
     doc = json.load(open(_fixture_path("b1", "chroma-styling-showcase.fg.json"), encoding="utf-8"))
     tex = transpile(doc)
     # the 7-stop spectrum -> 6 horizontal segments (plus the other gradients)

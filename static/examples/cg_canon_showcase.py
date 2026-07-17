@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""FrameGraph v2 — *Twelve Hours of Geometry* (A4 capability showcase).
+"""FrameForge v2 — *Twelve Hours of Geometry* (A4 capability showcase).
 
 A polished, multi-page A4 reference for the CG-canon geometry/fractal/3D APIs
-shipped to `framegraph.sdk` in one 12-hour session (roadmap backlog B1–B10 + the
+shipped to `frameforge.sdk` in one 12-hour session (roadmap backlog B1–B10 + the
 2D/3D intersection, hull, OBB, curvature, and shading work). Every figure in this
 book is drawn by CALLING the very API it documents — the reflections come from
 `Mat3.reflect`, the hulls from `convex_hull`, the fractals from `sdk.fractal`, the
@@ -30,11 +30,11 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Camera,
     CubicBezier,
     DocumentBuilder,
@@ -60,9 +60,9 @@ from framegraph.sdk import (  # noqa: E402
     turtle,
     window_to_viewport,
 )
-from framegraph.sdk.geometry import Mat3  # noqa: E402
-from framegraph.sdk.manifold import sphere, torus  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.geometry import Mat3  # noqa: E402
+from frameforge.sdk.manifold import sphere, torus  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Page geometry — A4 @ 96 dpi (794 × 1123), portrait.
@@ -596,7 +596,7 @@ def fig_orbit(box, part):
 
 def fig_ray_triangle(box, part):
     """B8 residual — ray × triangle (Möller–Trumbore), the hit projected to 2D."""
-    from framegraph.sdk import ray_triangle_intersection
+    from frameforge.sdk import ray_triangle_intersection
     inner = _F(box)
     fx, fy, fw, fh = inner
     tri = [Vec3(-1, -0.6, 0), Vec3(1.2, -0.4, 0.3), Vec3(0.1, 1.1, -0.2)]
@@ -632,7 +632,7 @@ def _chrome(L, part, running):
 
 def _footer(L, pageno):
     L.add(LN(MX, PH - 52, PW - MX, PH - 52, color=HAIR, width=1.0))
-    L.add(T(MX, PH - 44, 400, 14, "framegraph.sdk · CG-canon release", size=8.5, color=FAINT))
+    L.add(T(MX, PH - 44, 400, 14, "frameforge.sdk · CG-canon release", size=8.5, color=FAINT))
     L.add(T(PW - MX - 60, PH - 44, 60, 14, str(pageno), size=10, color=MUTE, weight=600,
             align="right"))
 
@@ -707,7 +707,7 @@ class Book:
         L = self._page("cover")
         L.add(R(0, 0, PW, 430, fill=INK))
         L.add(R(MX, 430 - 6, 84, 6, fill=INDIGO))
-        L.add(T(MX, 116, CW, 18, "FRAMEGRAPH v2 · SDK CAPABILITY SHOWCASE", size=12,
+        L.add(T(MX, 116, CW, 18, "FRAMEFORGE v2 · SDK CAPABILITY SHOWCASE", size=12,
                 color="#9BB6DA", weight=700, upper=True, track=2.2))
         L.add(T(MX, 150, CW, 66, "Twelve Hours", size=56, color="#FFFFFF", weight=800))
         L.add(T(MX, 212, CW, 66, "of Geometry", size=56, color="#FFFFFF", weight=800))
@@ -734,7 +734,7 @@ class Book:
             L.add(T(MX, yy + 6, 30, 20, f"{pi:02d}", size=13, color=col, weight=800))
             L.add(T(MX + 44, yy + 7, CW - 44, 20, title, size=14, color=INK, weight=600))
             yy += 36
-        L.add(T(MX, PH - 74, CW, 16, "framegraph.sdk · geometry · fractal · draw — "
+        L.add(T(MX, PH - 74, CW, 16, "frameforge.sdk · geometry · fractal · draw — "
                 "authored end-to-end through the SDK; every figure is live API output.",
                 size=10, color=FAINT, font=SERIF))
         return self
@@ -749,7 +749,7 @@ class Book:
             "The reflections come from `Mat3.reflect`, the hulls from `convex_hull`, the "
             "combs from `CubicBezier.curvature`, the fractals from `sdk.fractal`, and the "
             "shaded solids from `Scene3D.render`. Nothing is illustrated by hand.",
-            "The book is itself a FrameGraph document — a multi-page A4 `mode: page` "
+            "The book is itself a FrameForge document — a multi-page A4 `mode: page` "
             "composition authored through the same SDK, validated against the Pydantic "
             "model and the static rules on build, and lowered to one vector PDF by "
             "`tooling/render_pdf.py`. The page size is A4 at 96 dpi (794 × 1123).",
@@ -1148,7 +1148,7 @@ _INTROS = {
          "walks it into a polyline. From four rules and a turn angle come the Koch curve, "
          "the Heighway dragon, the Sierpiński arrowhead, and a plant that branches."]),
     3: ("Three dimensions, projected honestly.",
-        ["FrameGraph is a 2D page, so the third dimension has to be solved and flattened — "
+        ["FrameForge is a 2D page, so the third dimension has to be solved and flattened — "
          "correctly. This part names the viewing pipeline (world to viewport), fixes the "
          "projection so a vertex crossing behind the camera no longer crashes or "
          "mirror-flips, culls the faces that point away, and adds a specular highlight.",
@@ -1262,7 +1262,7 @@ _API = [
 
 
 def build() -> DocumentBuilder:
-    b = DocumentBuilder(title="Twelve Hours of Geometry — FrameGraph CG-canon showcase")
+    b = DocumentBuilder(title="Twelve Hours of Geometry — FrameForge CG-canon showcase")
     bk = Book(b)
     feats = _features()
     bk.cover()
@@ -1299,7 +1299,7 @@ def build() -> DocumentBuilder:
             "hit-testing work its bounding geometry. None of it is a pointer gesture: the "
             "parity is functional, reached by naming a coordinate and calling a function, "
             "not by dragging a handle. Where Illustrator's tool is inherently interactive — "
-            "the freehand Pencil, Envelope distort — FrameGraph keeps its declared non-goal, "
+            "the freehand Pencil, Envelope distort — FrameForge keeps its declared non-goal, "
             "and says so plainly.",
             "So these twelve hours of geometry are also twelve hours of parity: the same "
             "commits that draw the figures in this book move the teardown scoreboard. Re-run "

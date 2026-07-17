@@ -7,14 +7,14 @@ generalizable lane to structure it into a clean, editable, validated vector:
     ingest(region)  → flat colour fills as polygons   (the look)
     ingest(outline) → crisp black edges as polylines   (the linework)
             → clean (denoise + RDP-simplify)            → fewer nodes, bounded shape change
-            → compose on the SDK + validate_static_rules (a real FrameGraph doc)
+            → compose on the SDK + validate_static_rules (a real FrameForge doc)
 
 The figure/proportion machinery (analyze/retarget/mirror) is human-specific and
 deliberately NOT used here — this asset is a scene, not a posable figure.
 
 Run:
     uv run --group vision python examples/coach_draw_workspace.py
-or via the framegraph MCP (run_sdk_client → build()).
+or via the frameforge MCP (run_sdk_client → build()).
 """
 from __future__ import annotations
 
@@ -25,8 +25,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.environ.get("FG_ROOT", ROOT))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs, serialize, validate_static_rules  # noqa: E402
-from framegraph.coach import clean, ingest, node_count  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs, serialize, validate_static_rules  # noqa: E402
+from frameforge.coach import clean, ingest, node_count  # noqa: E402
 from poc3_ingest_compose import ink_iou, restyle_strokes  # noqa: E402
 
 IMG = os.path.join(ROOT, "demo", "images.jpeg")

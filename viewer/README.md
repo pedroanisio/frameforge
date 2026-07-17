@@ -1,9 +1,9 @@
-# FrameGraph v2 Viewer
+# FrameForge v2 Viewer
 
-A React app that renders **FrameGraph v2** documents — a coordinate-space scene-graph DSL
+A React app that renders **FrameForge v2** documents — a coordinate-space scene-graph DSL
 for decks, diagrams, books, and letters. Ships with the *esfera* style-guide deck (14 slides)
 embedded as the live demo. The embedded deck, `demo/esfera.json`/`.yml`, and the prebuilt
-`dev/bundle.js` all target **FrameGraph 2.2.0** documents — still a valid 2.x
+`dev/bundle.js` all target **FrameForge 2.2.0** documents — still a valid 2.x
 target (repo HEAD is 2.3.0, an additive release; the deck predates it).
 
 The viewer renders at the document's native canvas coordinates and then fit-scales, so the
@@ -16,8 +16,8 @@ brackets, a canvas-size badge, and a live mouse → canvas-coordinate readout.
 
 ```
 viewer/
-├── framegraph-viewer.jsx     The app. Single-file React component, default export.
-├── framegraph-normalize.mjs  Shared document-normalization module (used by app + dev checks).
+├── frameforge-viewer.jsx     The app. Single-file React component, default export.
+├── frameforge-normalize.mjs  Shared document-normalization module (used by app + dev checks).
 ├── demo/
 │   ├── esfera.json           The demo deck the app renders (canonical, what ships embedded).
 │   ├── esfera.yml            Same deck as YAML (regenerated from the JSON — see note below).
@@ -28,7 +28,7 @@ viewer/
 ├── docker-compose.yml        `docker compose up` -> browse everything at :8088.
 ├── docker/                   nginx site config + landing page used by the image.
 ├── dev/                      Local build + headless-verification harness.
-│   ├── entry.jsx             Mounts <App/> into #root (imports ../framegraph-viewer.jsx).
+│   ├── entry.jsx             Mounts <App/> into #root (imports ../frameforge-viewer.jsx).
 │   ├── harness.html          Loads Tailwind (CDN) + bundle.js. Open to view without building.
 │   ├── bundle.js / bundle.css  Pre-built bundle (so harness.html works out of the box).
 │   ├── assets/               Bundled font assets emitted by esbuild.
@@ -57,7 +57,7 @@ pre-built `dev/bundle.js`. (Loading from `file://` works; some browsers are happ
 serve the folder, e.g. `npx serve dev`.)
 
 ### Option B — use it as a Claude Artifact
-`framegraph-viewer.jsx` is written to the Artifact runtime's constraints: default export,
+`frameforge-viewer.jsx` is written to the Artifact runtime's constraints: default export,
 Tailwind **core utilities only** (custom colors via inline styles), no browser storage,
 `lucide-react` for icons. Drop it into an Artifact and it renders immediately.
 
@@ -104,7 +104,7 @@ npm run test:all       # build + test + browser/math/style/layout/table + verify
 ---
 
 ## Using your own documents
-The app's **Open** button loads FrameGraph v2 documents in JSON, YAML, or YML form.
+The app's **Open** button loads FrameForge v2 documents in JSON, YAML, or YML form.
 The fixture coverage tests parse every checked-in fixture, verify page/object/style policy
 coverage, and load every document in Chromium:
 ```bash
@@ -125,7 +125,7 @@ objects. Flow blocks: `heading`, `paragraph`, `list`, `bullet_list`, `table`, `c
 `math`, `toc`, `figure`, `block`, `bibliography`, `page_break`, and `spacer`.
 Fills: solid, `linear`/`radial`
 gradients (stops use `position`), and `hatch`/`cross_hatch`/`dots`/`grid` patterns.
-**Strokes (FrameGraph 2.2.0): paint comes from `stroke` (a colour/gradient) and geometry from
+**Strokes (FrameForge 2.2.0): paint comes from `stroke` (a colour/gradient) and geometry from
 `stroke_style` — a named `Style` with CSS-named `stroke_width`/`stroke_dasharray`/`stroke_linecap`/
 `stroke_linejoin` (legacy `{color,width,dash}` bundles are still accepted). Arrowheads via
 `arrow_start`/`arrow_end`. Plus rotation, opacity (object/fill/stroke), z-ordering across layers and
@@ -152,8 +152,8 @@ positions and match what the app renders.
 file's comments or key ordering.
 
 ## The schema
-The deliverable was built against a `framegraph-v2_schema.json` contract (top level:
-`dsl` (const `"FrameGraph"`), `version`, `profile`, `title`, `defs`, `targets`, `pages`,
+The deliverable was built against a `frameforge-v2_schema.json` contract (top level:
+`dsl` (const `"FrameForge"`), `version`, `profile`, `title`, `defs`, `targets`, `pages`,
 `meta`; objects discriminated by `type`). That input schema isn't redistributed in this
 bundle. The viewer performs structural resolution at runtime rather than hard JSON-Schema
 validation, so it isn't required to run.

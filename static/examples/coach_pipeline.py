@@ -23,13 +23,13 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, os.path.join(ROOT, "static", "examples"))     # to reuse the landing kit
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, serialize  # noqa: E402
-from framegraph.sdk.paint import linear_gradient, rgba  # noqa: E402
-from framegraph.coach import (  # noqa: E402  — the PROCESS layer
+from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge.sdk.paint import linear_gradient, rgba  # noqa: E402
+from frameforge.coach import (  # noqa: E402  — the PROCESS layer
     create_plan, parse_intent, resolve_style, stage_rubric, to_silhouette, validate_order,
 )
 import landing_headers as kit  # noqa: E402  — the VOCABULARY layer (reused)
@@ -157,7 +157,7 @@ doc = build_document()
 
 
 def main() -> int:
-    from framegraph.sdk.validate import validate_static_rules
+    from frameforge.sdk.validate import validate_static_rules
     built = doc.build()
     rep = validate_static_rules(built)
     errs = [i for i in rep.issues if i.severity == "error"]

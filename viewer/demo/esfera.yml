@@ -1,8 +1,8 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 profile: deck
 title: 'Esfera reimagined style guide proposal deck — refined pass (improved: fit-safe label styles)'
-description: 'Refined FrameGraph v2 deck proposing a new Esfera style guide: clearer brand rules, improved
+description: 'Refined FrameForge v2 deck proposing a new Esfera style guide: clearer brand rules, improved
   visual hierarchy, Santander relationship guidance, UI cards, palette, voice, rollout and governance.'
 lang: pt-BR
 defs:
@@ -408,7 +408,7 @@ pages:
       style: title_xl
     - type: text
       id: s01_sub
-      text: Proposal deck in FrameGraph v2. Repositions Esfera as a premium, confident and commerce-led
+      text: Proposal deck in FrameForge v2. Repositions Esfera as a premium, confident and commerce-led
         ecosystem while preserving the Santander relationship.
       box:
       - 84

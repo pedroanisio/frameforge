@@ -1,4 +1,4 @@
-"""How to Draw the Mona Lisa — step by step (FrameGraph SDK).
+"""How to Draw the Mona Lisa — step by step (FrameForge SDK).
 
 Follows the beginner method from the "Warehouse of Ideas / drawingtutorials101"
 guide, panel by panel: (1) baseline + head oval + facial guideline cross,
@@ -18,7 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import DocumentBuilder, Path, rgba  # noqa: E402
+from frameforge.sdk import DocumentBuilder, Path, rgba  # noqa: E402
 
 W, H = 1440.0, 1040.0
 GC = "#a7bccd"          # pencil guideline (light blue)
@@ -185,7 +185,7 @@ CAPS = [
 def sheet():
     S = [rect([0, 0, W, H], fill="#f0ece2")]
     S.append(text(40, 40, "HOW TO DRAW THE MONA LISA", 30, INK, w=900, weight=700, fam=SERIF))
-    S.append(text(40, 74, "step by step, following the guide · built with the FrameGraph SDK",
+    S.append(text(40, 74, "step by step, following the guide · built with the FrameForge SDK",
                   15, "#6a5f4e", w=900, italic=True, fam=SERIF))
     mx, top_band, gap = 30.0, 104.0, 28.0
     pw = (W - mx * 2 - gap * 2) / 3
@@ -204,7 +204,7 @@ def sheet():
 
 
 def build_builder():
-    b = DocumentBuilder(title="How to Draw the Mona Lisa — step by step (FrameGraph)")
+    b = DocumentBuilder(title="How to Draw the Mona Lisa — step by step (FrameForge)")
     page = b.page("steps", canvas={"size": [W, H], "units": "px"}, coordinate_mode="absolute")
     page.layer("sheet").extend(sheet())
     return b
@@ -218,7 +218,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from framegraph.sdk import serialize
+    from frameforge.sdk import serialize
     out = os.environ.get("OUTPUT_YAML_PATH", "mona_lisa_steps.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))
     print(f"wrote {out}")

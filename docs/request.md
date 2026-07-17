@@ -8,22 +8,22 @@ disclaimer:
   date: "2026-07-01"
 ---
 
-# Requesting work from the FrameGraph agent
+# Requesting work from the FrameForge agent
 
-How to phrase tasks so the AI agent drives the FrameGraph **SDK** (authoring) and
+How to phrase tasks so the AI agent drives the FrameForge **SDK** (authoring) and
 **MCP tools** (render, verify, measure, reconstruct) effectively. You write in plain
 language; the agent picks the tools. This guide shows what to say to get there fast,
 with example requests and the tool each one triggers.
 
 Back to the [README](../README.md). Deep tool reference: ask the agent to *"show the
-`framegraph_guide`"* (the model-facing capability prompt) or read
-[src/framegraph/mcp/README.md](../src/framegraph/mcp/README.md).
+`frameforge_guide`"* (the model-facing capability prompt) or read
+[src/frameforge/mcp/README.md](../src/frameforge/mcp/README.md).
 
 ---
 
 ## The mental model (say what you want in these terms)
 
-FrameGraph has one spine: **author → render → verify.**
+FrameForge has one spine: **author → render → verify.**
 
 1. **Author** a document with the Python SDK (or let the agent propose one from an image).
 2. **Render** it — the server validates the model and rasterizes to PNG.
@@ -55,7 +55,7 @@ A strong request names five things (skip any the agent can infer):
 | **Bar** | When is it done? | "verify it renders with no overflow", "≤2px off the reference" |
 
 **Weak:** "make a diagram of the pipeline."
-**Strong:** "Author a FrameGraph deck slide (1280×720) diagramming the auth pipeline as
+**Strong:** "Author a FrameForge deck slide (1280×720) diagramming the auth pipeline as
 three boxes + arrows, render it, and show me the PNG. Confirm no text overflows."
 
 ---
@@ -73,14 +73,14 @@ Each recipe is a request template you can copy, an example, and the tool it driv
   `run_sdk_client`.
 
 ### 2. Render & see an existing doc
-> *"Render `<file>` and show me the pages."* → `render_framegraph_yaml` (YAML) or
+> *"Render `<file>` and show me the pages."* → `render_frameforge_yaml` (YAML) or
   `run_sdk_client` (a `.py` client). PNG is attached by default; ask for `--to pdf` to export.
 
 ### 3. Draft from an image / PDF / SVG
-> *"Propose a FrameGraph draft from `<image|pdf|svg>`, then render it so I can see how close it is."*
+> *"Propose a FrameForge draft from `<image|pdf|svg>`, then render it so I can see how close it is."*
 
 - "Draft a document from `mock/screen.png` and show the render." → `propose_from_image`.
-- "Ingest `art/icon.svg` as editable FrameGraph objects." → `propose_from_svg`.
+- "Ingest `art/icon.svg` as editable FrameForge objects." → `propose_from_svg`.
 - Drafts are **unverified starting points** — say "then refine the largest errors with the SDK."
 
 ### 4. Visual QA (reference vs recreation)
@@ -175,7 +175,7 @@ Always name the session so the agent reuses it.
 Paste something like this and let the agent run the loop:
 
 ```txt
-I want to reconstruct `ref/logo.png` as clean FrameGraph vectors.
+I want to reconstruct `ref/logo.png` as clean FrameForge vectors.
 1. Measure it (grid + rulers, top-left origin) and show me the coordinate overlay.
 2. Open a workspace (session `logo`) and pin the key corners and curve endpoints.
 3. Zoom into each corner and nudge the pins until they sit exactly on the artwork.

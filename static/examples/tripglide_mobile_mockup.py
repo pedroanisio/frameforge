@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compose a TripGlide-style travel mobile app mockup with the FrameGraph SDK.
+"""Compose a TripGlide-style travel mobile app mockup with the FrameForge SDK.
 
 The reference is a two-phone product shot: a home/search travel discovery screen
 and a destination detail screen, both on a pale studio background. This example
@@ -17,14 +17,14 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, Mat3, serialize  # noqa: E402
-from framegraph.sdk.clip import clip_rect  # noqa: E402
-from framegraph.sdk.paint import effects, linear_gradient, radial_gradient, shadow, stroke  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk import DocumentBuilder, Mat3, serialize  # noqa: E402
+from frameforge.sdk.clip import clip_rect  # noqa: E402
+from frameforge.sdk.paint import effects, linear_gradient, radial_gradient, shadow, stroke  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 OUT = os.path.join(ROOT, "tests", "fixtures", "tripglide-mobile-mockup.fg.yaml")
 W, H = 1600, 1000

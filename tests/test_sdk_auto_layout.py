@@ -8,7 +8,7 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk.topology import Graph  # noqa: E402
+from frameforge.sdk.topology import Graph  # noqa: E402
 
 
 def test_layout_kind_inferred_from_structure():
@@ -46,7 +46,7 @@ def test_render_without_positions_auto_layouts():
 
 
 def test_explicit_positions_still_honoured():
-    from framegraph.sdk.geometry import Vec2
+    from frameforge.sdk.geometry import Vec2
     g = Graph().edge("a", "b", directed=True)
     group = g.render({"a": Vec2(0, 0), "b": Vec2(1, 1)}, box=[0, 0, 100, 100])
     assert group["type"] == "group"

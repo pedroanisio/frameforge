@@ -14,11 +14,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.rendering.domain.services.layout_engine import LayoutEngine  # noqa: E402
+from frameforge.rendering.domain.services.layout_engine import LayoutEngine  # noqa: E402
 
 
 def _child(w, h, **extra):

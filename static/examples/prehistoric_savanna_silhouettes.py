@@ -6,7 +6,7 @@ through 16 moods: dawn, sunrise, morning, midday, afternoon, golden hour,
 sunset, dusk, twilight, moonrise, night, deep night, autumn, winter, storm and
 an aurora finale.
 
-Everything is built with the FrameGraph Python SDK and lowers to grammar-native
+Everything is built with the FrameForge Python SDK and lowers to grammar-native
 primitives (rect / ellipse / closed polyline / Catmull-Rom path). Atmospheric
 perspective is a single colour lerp from the horizon tint to the foreground
 dark, so distant animals read pale/warm and near ones read almost black — as in
@@ -24,7 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import DocumentBuilder, Path, linear_gradient, radial_gradient, rgba  # noqa: E402
+from frameforge.sdk import DocumentBuilder, Path, linear_gradient, radial_gradient, rgba  # noqa: E402
 
 W, H = 842.0, 595.0  # A4 landscape, points @72dpi
 
@@ -498,7 +498,7 @@ def scene(pl, idx):
 # build the document
 # --------------------------------------------------------------------------- #
 def build_builder() -> DocumentBuilder:
-    b = DocumentBuilder(title="Prehistoric Savanna — 16 Silhouette Scenes (FrameGraph v2.4.1)")
+    b = DocumentBuilder(title="Prehistoric Savanna — 16 Silhouette Scenes (FrameForge v2.4.1)")
     for idx, pl in enumerate(P):
         page = b.page(f"scene-{idx + 1:02d}-{pl['name'].lower().replace(' ', '-')}",
                       canvas={"size": [W, H], "units": "pt"}, coordinate_mode="absolute")
@@ -514,7 +514,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from framegraph.sdk import serialize
+    from frameforge.sdk import serialize
     out = os.environ.get("OUTPUT_YAML_PATH", "prehistoric_savanna.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))
     print(f"wrote {out}")

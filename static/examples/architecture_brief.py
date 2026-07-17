@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""FrameGraph — *how this system thinks*: a conceptual architecture map, authored
-and rendered **by FrameGraph itself** (the dogfood).
+"""FrameForge — *how this system thinks*: a conceptual architecture map, authored
+and rendered **by FrameForge itself** (the dogfood).
 
-This is the visual output of a conceptual-codebase-analysis of FrameGraph v2:
+This is the visual output of a conceptual-codebase-analysis of FrameForge v2:
 the System Thesis, the author→validate→render→verify pipeline (Lens 2), the
 "model is the single source of truth" spine (Lens 3 invariants), the core
 concepts colour-coded by classification (Lens 1), and the design tensions
@@ -20,13 +20,13 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, os.path.join(ROOT, "static", "examples"))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, serialize  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
-from framegraph_logo import mark, wordmark  # noqa: E402  — the canonical FrameGraph logo
+from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_logo import mark, wordmark  # noqa: E402  — the canonical FrameForge logo
 
 # --- brand tokens (docs/BRAND.md §4) ---------------------------------------- #
 INK, PAPER, CANVAS = "#15181E", "#FBFAF6", "#FFFFFF"
@@ -87,7 +87,7 @@ def _topbar(page, kicker, title):
 def _foot(page, n):
     page.line([MX, SH - 30], [SW - MX, SH - 30], stroke=GRID, stroke_style={"stroke_width": 1})
     page.text([MX, SH - 24, 560, 12],
-              "authored & rendered by FrameGraph — this map is a .fg document; `make check` gates its claims",
+              "authored & rendered by FrameForge — this map is a .fg document; `make check` gates its claims",
               style=ts(8, MUTE, family=MONO, spacing=0.5))
     page.text([SW - MX - 60, SH - 24, 60, 12], f"{n:02d} / 02",
               style=ts(8, MUTE, family=MONO, align="right"))
@@ -129,7 +129,7 @@ def _legend_chip(page, x, y, color, label):
 # --------------------------------------------------------------------------- #
 def build_map(b):
     p = _page(b, "arch-map")
-    _topbar(p, "conceptual codebase analysis", "FrameGraph — how this system thinks")
+    _topbar(p, "conceptual codebase analysis", "FrameForge — how this system thinks")
 
     # thesis strip
     p.rect([MX, 66, SW - 2 * MX, 40], radius=5, fill=INK)
@@ -246,7 +246,7 @@ def build_atlas(b):
 
 
 def build() -> DocumentBuilder:
-    b = DocumentBuilder(title="FrameGraph — Architecture Brief", profile="report", lang="en")
+    b = DocumentBuilder(title="FrameForge — Architecture Brief", profile="report", lang="en")
     build_map(b)
     build_atlas(b)
     return b

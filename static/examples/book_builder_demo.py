@@ -22,7 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     BookBuilder,
     Camera,
     Chart,
@@ -38,7 +38,7 @@ from framegraph.sdk import (  # noqa: E402
     serialize,
     stroke_outline,
 )
-from framegraph.sdk.draw import Scene3D  # noqa: E402
+from frameforge.sdk.draw import Scene3D  # noqa: E402
 
 TEAL, RUST, VIOLET, INK, PAPER = ("#0f7d88", "#b5642c", "#7c3aed",
                                   "#1d1e22", "#fcfbf8")
@@ -127,7 +127,7 @@ def _ch_column(book):
             "column takes what it needs to carry a comfortable line — "
             "forty-five to seventy-five characters — and returns the rest "
             "to the margins, where the eye rests between thoughts.")
-    ch.para("FrameGraph settles this negotiation deterministically. A flow "
+    ch.para("FrameForge settles this negotiation deterministically. A flow "
             "section names a master; the master names a canvas; the margins "
             "resolve through an explicit region, a declared margin, or the "
             "Johnston canon — inner one-and-a-half, top two, outer three, "
@@ -166,7 +166,7 @@ def _ch_column(book):
             "touching it: the inner margin one and a half units, the head "
             "two, the outer three, the foot four. The asymmetry is not "
             "decoration — facing pages share their inner silence, and the "
-            "thumb needs the outer edge. FrameGraph mirrors the canon "
+            "thumb needs the outer edge. FrameForge mirrors the canon "
             "recto and verso, so a spread reads as one object.")
     ch.para("A measure that runs too long tires the return sweep of the "
             "eye; one that runs too short chops the phrase. The forty-five "
@@ -367,7 +367,7 @@ def _ch_colour(book):
                "fill": {"kind": "linear", "stops": [
                    {"color": RUST, "position": "0%"},
                    {"color": PAPER, "position": "100%"}]}}]
-    probe = {"dsl": "FrameGraph", "version": "2.4.1", "title": "p",
+    probe = {"dsl": "FrameForge", "version": "2.4.1", "title": "p",
              "pages": [{"mode": "page", "id": "p",
                         "layers": [{"id": "m", "objects": before}]}]}
     after = recolor(probe, {RUST: VIOLET})["pages"][0]["layers"][0]["objects"]
@@ -603,7 +603,7 @@ def _ch_pattern(book):
             "size vocabulary and the shape of content it accepts. A fill "
             "is validated before any geometry is computed — layout never "
             "runs on unchecked content.")
-    from framegraph.patterns import compose
+    from frameforge.patterns import compose
     swot = compose(10, {
         "strengths": ["Deterministic", "Typed model"],
         "weaknesses": ["Proxy fonts"],
@@ -622,7 +622,7 @@ def _ch_pattern(book):
             "covers and agendas, and two data-driven generators. The "
             "honeycomb below is a generator's whole output — one data "
             "dict in, one page out — reduced to a plate.")
-    from framegraph.library import honeycomb_capability_map
+    from frameforge.library import honeycomb_capability_map
     honey = honeycomb_capability_map({
         "title": "A pocket honeycomb", "columns": [
             {"header": "Flow", "items": [
@@ -646,7 +646,7 @@ def _ch_pattern(book):
             "declared geometry. A generator's page is just another "
             "object once it is in the story.")
     ch.section("A hub and its satellites")
-    from framegraph.library import module_hub_radial
+    from frameforge.library import module_hub_radial
     hub = module_hub_radial({
         "title": "A pocket module map",
         "hub": {"id": "core", "label": "Core", "position": [400, 420],
@@ -801,7 +801,7 @@ doc = book.build()                            # validated flow document""",
             "reads the capability guide, and authors through the identical "
             "builders — with coverage gates that fail the build if a new "
             "capability ever ships without appearing in that guide.")
-    ch.para("Colophon: composed by framegraph.sdk.book on an A5 master, "
+    ch.para("Colophon: composed by frameforge.sdk.book on an A5 master, "
             "set with the ADR-0003 flow engine, every plate computed by "
             "the capability it depicts.")
     return ch
@@ -810,7 +810,7 @@ doc = book.build()                            # validated flow document""",
 def build():
     """MCP contract: the eight-chapter capability-tour book."""
     book = BookBuilder(title="On Composition",
-                       author="FrameGraph Press", lang="en")
+                       author="FrameForge Press", lang="en")
     _PLATE_TOKENS.clear()
     for builder in (_ch_column, _ch_line, _ch_plane, _ch_colour,
                     _ch_style, _ch_data, _ch_space, _ch_letter,
@@ -823,7 +823,7 @@ def build():
             tokens.setdefault(section, {}).update(
                 {k: v for k, v in entries.items()
                  if k not in tokens.get(section, {})})
-    from framegraph.sdk.model import validate_document
+    from frameforge.sdk.model import validate_document
     validate_document(doc)
     return doc
 

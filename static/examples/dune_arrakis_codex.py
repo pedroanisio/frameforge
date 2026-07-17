@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ARRAKIS CODEX — a 30-slide Dune deck built on the FrameGraph Python SDK.
+"""ARRAKIS CODEX — a 30-slide Dune deck built on the FrameForge Python SDK.
 
 A field-codex for the desert planet, rendered in flat vector. The deck leans on
 the SDK's newer geometry affordances so the detail is authored, not hand-rolled:
@@ -30,11 +30,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Chart,
     DocumentBuilder,
     Frame,
@@ -50,7 +50,7 @@ from framegraph.sdk import (  # noqa: E402
     serialize,
     shadow,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas, palette, type                                                        #
@@ -449,7 +449,7 @@ def cover(b, eye):
     layer.text([MX, 308, 620, 40], "DUNE · known to the Fremen as the place of the worm",
                style="lead")
     layer.text([MX, 600, 860, 20],
-               "30 PLATES · FRAMEGRAPH PYTHON SDK · RING / ARC / SECTOR / STAR / SMOOTH / SYMBOLS",
+               "30 PLATES · FRAMEFORGE PYTHON SDK · RING / ARC / SECTOR / STAR / SMOOTH / SYMBOLS",
                style="tag")
     layer.text([W - MX - 220, 600, 220, 18], "PLATE 01 / 30", style="pnum")
 
@@ -1217,7 +1217,7 @@ def closing(b, eye):
     layer.rect(chip, fill="spice", radius=6, **EF(blur=16, color="spice", opacity=0.6))
     layer.text([chip[0], chip[1] + 18, chip[2], 22], "uv run · dune_arrakis_codex", style="chip")
     layer.text([MX, 600, 900, 20],
-               "FRAMEGRAPH PYTHON SDK · 30 PLATES · RING / ARC / SECTOR / STAR / SMOOTH / SYMBOLS",
+               "FRAMEFORGE PYTHON SDK · 30 PLATES · RING / ARC / SECTOR / STAR / SMOOTH / SYMBOLS",
                style="tag")
     layer.text([W - MX - 220, 600, 220, 18], "PLATE 30 / 30", style="pnum")
 

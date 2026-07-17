@@ -13,12 +13,12 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path.insert(0, ROOT)
 
-from framegraph.coach import (  # noqa: E402
+from frameforge.coach import (  # noqa: E402
     curve_count,
     is_circular,
     is_rectangular,
@@ -106,8 +106,8 @@ def test_redraw_one_call_snaps_then_smooths():
     assert curve_count(out) == 1                               # the polyline was curved
 
 
-def test_redraw_output_renders_through_framegraph():
-    from framegraph.sdk import DocumentBuilder, render_page_svgs
+def test_redraw_output_renders_through_frameforge():
+    from frameforge.sdk import DocumentBuilder, render_page_svgs
     objs = [{"type": "polyline", "points": _circle(n=24, r=8, cx=12, cy=12), "stroke": "#111"}] * 4
     out = redraw_smooth(objs, simplify_tol=1.0)
     b = DocumentBuilder(title="redraw")

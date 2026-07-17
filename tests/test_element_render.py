@@ -14,7 +14,7 @@ So:
 Plus a Hypothesis property: the renderer never raises on fuzzed box coordinates
 and arbitrary text.
 
-Renderer-only (no models import): the `framegraph` package must resolve to the
+Renderer-only (no models import): the `frameforge` package must resolve to the
 rendering package here, so we evict a models-module shadow first — mirror of the
 guard in test_head.py / test_rendering_svg_semantics.py.
 """
@@ -23,9 +23,9 @@ import re
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # a non-package (the models module)
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling.render_fixtures import Renderer  # noqa: E402
@@ -101,7 +101,7 @@ UNRENDERED = set()
 
 
 def _render_body(obj):
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [120, 80]},
                       "layers": [{"id": "l", "objects": [obj]}]}]}
     out = Renderer(doc, ".").render_page(doc["pages"][0])
@@ -134,7 +134,7 @@ def test_no_unexpected_silent_ignores():
 
 
 def test_component_uses_definition_variant_and_slots():
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "defs": {"tokens": {"colors": {"panel": "#eef6ff", "border": "#335577"},
                                "text_styles": {
                                    "heading": {"size": 12, "weight": 700, "align": "center", "color": "#111"},
@@ -165,7 +165,7 @@ def test_component_uses_definition_variant_and_slots():
 
 def test_z_index_orders_paint_within_a_layer():
     """style.z_index is a paint-order sort key (stable) — not inert CSS."""
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [120, 80]},
                       "layers": [{"id": "l", "objects": [
                           {"type": "rect", "box": [0, 0, 60, 60], "fill": "#aaaaaa",
@@ -178,7 +178,7 @@ def test_z_index_orders_paint_within_a_layer():
 
 
 def test_z_index_absent_keeps_document_order():
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [120, 80]},
                       "layers": [{"id": "l", "objects": [
                           {"type": "rect", "box": [0, 0, 60, 60], "fill": "#aaaaaa"},
@@ -205,7 +205,7 @@ def test_angular_dimension_without_vertex_is_reported_not_thrown():
     body = _render_body({"type": "dimension", "kind": "angular",
                          "from": [100, 60], "to": [40, 10]})
     assert not _has_element(body)                          # skipped, but see below
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [120, 80]},
                       "layers": [{"id": "l", "objects": [
                           {"type": "dimension", "kind": "angular",

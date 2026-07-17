@@ -7,7 +7,7 @@ now emits one `<text>` with a styled `<tspan>` per run. fixtures/text-spans.fg.y
 is the oracle: a "Shipping FREE on orders over $35." label whose `FREE` run is
 bold + accent-coloured.
 
-Subprocess render (not an in-process import) to avoid the framegraph-package vs
+Subprocess render (not an in-process import) to avoid the frameforge-package vs
 models-module name clash in the shared pytest process.
 """
 import glob

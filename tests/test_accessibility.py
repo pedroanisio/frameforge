@@ -6,7 +6,7 @@ the accessibility/tagged-export conformance lint (roadmap item 2).
 Asserts (1) the checked-in reference fixture is fully clean, (2) each rule fires
 at the right severity on a minimal synthetic doc, and (3) the CLI exit codes.
 check_accessibility reads documents as data (no model import), so there is no
-`framegraph` package shadow to evict here.
+`frameforge` package shadow to evict here.
 """
 import os
 import sys
@@ -108,7 +108,7 @@ def test_flow_pages_skip_reading_order_rules():
 def test_cli_exit_one_on_dangling(tmp_path):
     bad = tmp_path / "bad.fg.yaml"
     bad.write_text(
-        "dsl: FrameGraph\nversion: \"2.2.0\"\npages:\n"
+        "dsl: FrameForge\nversion: \"2.2.0\"\npages:\n"
         "  - mode: page\n    id: p\n    reading_order: [ghost]\n"
         "    layers:\n      - id: l\n        objects:\n"
         "          - { type: text, id: real, box: [0,0,10,10], text: hi }\n",

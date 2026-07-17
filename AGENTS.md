@@ -29,7 +29,7 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 |---|---|
 | `render` | matplotlib proxy renderer (`tooling/render_fg_doc.py`) |
 | `browser` | headless-Chromium SVG→PNG raster (`tooling/render_chromium.py`) |
-| `pdf` | PDF **input** transpiler (`tooling/pdf_to_framegraph_yml.py`, PyMuPDF) |
+| `pdf` | PDF **input** transpiler (`tooling/pdf_to_frameforge_yml.py`, PyMuPDF) |
 | `pdfout` | PDF **output** (`tooling/render_pdf.py`, cairosvg + pypdf) |
 | `metrics` | real font-advance metrics (`--real-metrics`, `sdk.measure_text`) |
 | `mcp` | the MCP server + cairosvg raster fallback |
@@ -47,7 +47,7 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 | `overflow` | `tooling/render_fixtures.py --all --check-overflow` (text-fit gate) |
 | `ruff-check` | gate `ruff check --select F811` (redefinition); part of `make check` (§16 row 1) |
 | `hooks` | install the pre-commit / pre-push git hooks (`.pre-commit-config.yaml`, §10) |
-| `schema` / `schema-check` | regenerate / drift-gate `docs/schema/framegraph-v2.schema.json` |
+| `schema` / `schema-check` | regenerate / drift-gate `docs/schema/frameforge-v2.schema.json` |
 | `grammar-check` | `tooling/check_grammar_sync.py` (EBNF ⇄ models, core profile) |
 | `spec-check` | `tooling/check_spec_sync.py --quiet` (spec prose ⇄ model discriminators) |
 | `a11y-check` | `tooling/check_accessibility.py <fixtures> --quiet` (reading-order integrity) |
@@ -57,7 +57,7 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 | `examples-index` | regenerate `docs/examples.md` (`tooling/gen_examples_index.py`) |
 | `render` | render every fixture to `out/render/` + contact sheet |
 | `render-latex` | flow fixtures → LaTeX/TikZ + PDF via lualatex (`out/latex/`) |
-| `pdf PDF=in.pdf [OUT=…]` | PDF → FrameGraph YAML transpile (pulls the `pdf` group) |
+| `pdf PDF=in.pdf [OUT=…]` | PDF → FrameForge YAML transpile (pulls the `pdf` group) |
 | `docs` / `docs-serve` / `docs-check` | generate site pages (+ manifest + examples index) and build/serve/nav-check |
 | `docs-sdk` | regenerate ONLY the committed `docs/sdk.md` / `docs/sdk-api.md` snapshots (fast) |
 | `docs-linkcheck` | `tooling/check_doc_links.py` — broken relative links in tracked Markdown |
@@ -81,15 +81,15 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 |---|---|
 | `validate.py` | `validate.py doc.fg.yaml [...] [--strict] [--text-fit] [--quiet]` — exit 0 no errors, 1 errors, 2 load failure. Codes: [docs/error-codes.md](docs/error-codes.md) |
 | `codemod.py` | `codemod.py doc.fg.json --in-place [--normalize-aliases] [--bump] [--from-v01]` — migrate legacy docs to HEAD; `--from-v01` lifts the v0.1 envelope (scene- and deck/slides-form) first ([docs/migration-v01.md](docs/migration-v01.md)) |
-| `framegraph_render.py` | `framegraph_render.py doc.fg.yaml [--to svg|png|pdf|tex|...] [--out DIR]` — the render **front door** for the virtual project: self-bootstrapping (no PYTHONPATH), delegates to `framegraph.cli` (`--list` shows live targets) |
+| `frameforge_render.py` | `frameforge_render.py doc.fg.yaml [--to svg|png|pdf|tex|...] [--out DIR]` — the render **front door** for the virtual project: self-bootstrapping (no PYTHONPATH), delegates to `frameforge.cli` (`--list` shows live targets) |
 | `render_fixtures.py` | `[paths|--all] [--out DIR] [--max-pages N] [--check-overflow] [--strict-content] [--real-metrics] [--list]` — dependency-free SVG proxy; `--check-overflow` names every content-losing text object, `--strict-content` fails on silent loss |
 | `render_chromium.py` | SVG→PNG raster via Playwright Chromium (`--group browser`); `--font-pack P.fp` scopes fontconfig to an fg-font pack (real metrics forced) so measure == render host-independently (ADR-0004) |
 | `render_pdf.py` | `[paths|--all|--single FILE] [--out DIR] [--real-metrics]` — SVG pages → one vector PDF (`--group pdfout`) |
-| `render_latex.py` | `--all` — FrameGraph → LaTeX/TikZ (+ PDF when lualatex exists) |
+| `render_latex.py` | `--all` — FrameForge → LaTeX/TikZ (+ PDF when lualatex exists) |
 | `render_fg_doc.py` | `render_fg_doc.py <yml> <asset_dir> <outdir> <montage.png>` — matplotlib sanity proxy (`--group render`) |
 | `render_golden.py` | `[--update] [--tolerance F] [--strict]` — b1/ oracle golden lock |
-| `pdf_to_framegraph_yml.py` | `input.pdf output.fg.yaml [--text-mode spans]` (`--group pdf`) |
-| `vectorize_image.py` | raster → traced FrameGraph objects (CLI over `framegraph.vision`) |
+| `pdf_to_frameforge_yml.py` | `input.pdf output.fg.yaml [--text-mode spans]` (`--group pdf`) |
+| `vectorize_image.py` | raster → traced FrameForge objects (CLI over `frameforge.vision`) |
 | `build_schema.py` (in `docs/schema/`) | `[--check] [doc-to-validate]` — models → JSON schema |
 | `gen_status.py` | `[--check]` — validator → `FIXTURE-STATUS.md` |
 | `gen_docs.py` | `[--check] [--sdk]` — docs-site pages + committed SDK snapshots |
@@ -102,7 +102,7 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 | `check_package_readiness.py` | package-emit readiness report (advisory) |
 | `fetch_corpus.py` / `fetch_book_corpus.py` | `[--check]` — corpus download/verify |
 | `install_fonts.py` | font provisioning used by the Docker image |
-| `fg_font.py` | `--list` resolvable families · `--check DOC` (fail if a content font substitutes; `--check --fetch` reports host-missing but Google-provisionable families as FETCHABLE and still passes) · `--pack DOC --out P.fp` (portable font pack + manifest so measure==render on any host; ADR-0004) · `--pack --fetch` provisions missing families from Google Fonts (`source: google-fonts:<slug>` in the manifest) so packs build from a thin host · `--install P.fp --dir D` extracts a pack into a scoped fontconfig (`make font-install`). Thin launcher over `framegraph.fontpack`; also a `fg-font` console script (`[project.scripts]`) where the package is installed. Consume a pack with `render_chromium.py --font-pack` |
+| `fg_font.py` | `--list` resolvable families · `--check DOC` (fail if a content font substitutes; `--check --fetch` reports host-missing but Google-provisionable families as FETCHABLE and still passes) · `--pack DOC --out P.fp` (portable font pack + manifest so measure==render on any host; ADR-0004) · `--pack --fetch` provisions missing families from Google Fonts (`source: google-fonts:<slug>` in the manifest) so packs build from a thin host · `--install P.fp --dir D` extracts a pack into a scoped fontconfig (`make font-install`). Thin launcher over `frameforge.fontpack`; also a `fg-font` console script (`[project.scripts]`) where the package is installed. Consume a pack with `render_chromium.py --font-pack` |
 
 ## Tests
 
@@ -112,7 +112,7 @@ uv run pytest tests/test_head.py -q    # focused file
 ```
 
 - The root `conftest.py` puts the repo root, `src/`, `docs/`, `tooling/`, and `docs/schema/` on
-  `sys.path` — new test files need no bootstrap. `import framegraph` resolves
+  `sys.path` — new test files need no bootstrap. `import frameforge` resolves
   the **package**; for the authoritative model module use the `models_fg`
   fixture (see `conftest.py` for the shadow-module rule).
 - Vision/raster tests `importorskip` their optional deps and skip cleanly in a
@@ -122,14 +122,14 @@ uv run pytest tests/test_head.py -q    # focused file
 
 ```bash
 uv sync --group mcp
-uv run --group mcp python -m framegraph.mcp     # or: make mcp   (stdio transport)
+uv run --group mcp python -m frameforge.mcp     # or: make mcp   (stdio transport)
 make live                                       # web UI over the same functions
 ```
 
 Tool surface, prompts, and session resources are enumerated live in
 [docs/capability-manifest.json](docs/capability-manifest.json) (`mcp` section);
-usage guidance is the `framegraph_guide` prompt. Session artifacts:
-`framegraph://session/<id>/{document.yaml,page/<n>.svg,page/<n>.png,diagnostics.json,workspace.json}`.
+usage guidance is the `frameforge_guide` prompt. Session artifacts:
+`frameforge://session/<id>/{document.yaml,page/<n>.svg,page/<n>.png,diagnostics.json,workspace.json}`.
 
 ## Docker runtime (fonts + full toolchain)
 
@@ -150,9 +150,9 @@ silently serves an old toolchain (missing tools, old schema).
 `docker/mcp.docker.json` is the client wiring for *any* codebase: the consuming
 project mounts read-only at `/workspace` (reference its files as
 `/workspace/<path>` in tool calls), session artifacts persist on the
-`framegraph-work` volume, and SDK clients written with a bare name land in
-`/work/clients` (persistent). Full guide: `skills/framegraph-mcp-docker/`.
-`FRAMEGRAPH_CHROMIUM_NO_SANDBOX=1` is needed for in-container Chromium raster
+`frameforge-work` volume, and SDK clients written with a bare name land in
+`/work/clients` (persistent). Full guide: `skills/frameforge-mcp-docker/`.
+`FRAMEFORGE_CHROMIUM_NO_SANDBOX=1` is needed for in-container Chromium raster
 (baked into the image).
 
 ## Fixture workflow
@@ -169,7 +169,7 @@ project mounts read-only at `/workspace` (reference its files as
 
 ## Generated-artifact rule
 
-Never hand-edit generated outputs (`docs/schema/framegraph-v2.schema.json`,
+Never hand-edit generated outputs (`docs/schema/frameforge-v2.schema.json`,
 `FIXTURE-STATUS.md`, `docs/sdk*.md`, `docs/capability-manifest.json`,
 `docs/examples.md`): edit the source or generator,
 rerun the paired make target, and commit the refreshed output. Check any file

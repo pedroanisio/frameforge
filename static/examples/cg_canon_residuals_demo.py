@@ -23,11 +23,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Camera, CubicBezier, DocumentBuilder, Material, Vec2, Vec3,
     bezier_patch, bspline_patch, convex_hull_3d, segment_curve_intersections,
     surface_curvature,
@@ -187,13 +187,13 @@ def build() -> DocumentBuilder:
 
 def main() -> int:
     doc = build().build()
-    from framegraph.sdk import validate_static_rules
+    from frameforge.sdk import validate_static_rules
     report = validate_static_rules(doc)
     errors = [i for i in report.issues if i.severity == "error"]
     out_dir = os.path.join(ROOT, "out")
     os.makedirs(out_dir, exist_ok=True)
     out = os.path.join(out_dir, "cg-canon-residuals.fg.yaml")
-    from framegraph.sdk import serialize
+    from frameforge.sdk import serialize
     with open(out, "w", encoding="utf-8") as fh:
         fh.write(serialize(doc))
     print(f"ok={not errors} errors={len(errors)} pages={len(doc.pages)} -> {out}")

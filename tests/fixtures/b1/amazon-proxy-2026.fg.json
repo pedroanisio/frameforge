@@ -1,8 +1,8 @@
 {
-  "dsl": "FrameGraph",
+  "dsl": "FrameForge",
   "version": "2.0.0",
   "profile": "report",
-  "title": "Amazon 2026 Proxy Statement — first 20 pages (FrameGraph replica)",
+  "title": "Amazon 2026 Proxy Statement — first 20 pages (FrameForge replica)",
   "description": "Structural replica of pp. 1–20 of the Amazon.com, Inc. 2026 Notice & Proxy Statement. Director photos and the amazon wordmark/arrow are trademarks, shown as labelled placeholders. Dense overview-page bullet lists are representative samples; bios pp. 14–20 use one data-driven template.",
   "lang": "en-US",
   "defs": {

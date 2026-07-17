@@ -1,0 +1,10096 @@
+dsl: FrameForge
+version: 2.2.0
+profile: deck
+title: FrameForge — Seed Pitch (canonical)
+lang: en
+pages:
+- mode: page
+  id: s01-cover
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#0A0E1A'
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      decorative: true
+      type: rect
+      fill:
+        kind: radial
+        stops:
+        - color: rgba(58,99,255,0.55)
+          position: 0%
+        - color: rgba(58,99,255,0)
+          position: 58%
+        at: 58% 14%
+        shape: ellipse
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      decorative: true
+      type: rect
+      fill:
+        kind: radial
+        stops:
+        - color: rgba(124,58,237,0.42)
+          position: 0%
+        - color: rgba(124,58,237,0)
+          position: 55%
+        at: 84% 62%
+        shape: ellipse
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#FBFAF6'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.01 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#2A2E3A'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 63.25
+      - 3
+      decorative: true
+      type: rect
+      fill: '#12B0C3'
+      radius: 1.5
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 150
+      - 700
+      - 14
+      style:
+        color: '#7FA0FF'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.6
+      meta:
+        role: lettering
+      type: text
+      text: SEED ROUND · 2026 · CONFIDENTIAL
+    - box:
+      - 68
+      - 196
+      - 900
+      - 135
+      style:
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 104
+        font_weight: 700
+        letter_spacing: -1.5
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: Frame
+        style:
+          color: '#F4F6FA'
+      - text: Graph
+        style:
+          color: '#3A63FF'
+    - box:
+      - 72
+      - 344
+      - 470
+      - 145
+      style:
+        color: '#F4F6FA'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 44
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: The output layer for the agent era.
+    - box:
+      - 72
+      - 470
+      - 600
+      - 110
+      style:
+        color: '#AEB6C2'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        line_height: 1.5
+      meta:
+        role: lettering
+      type: text
+      text: AI can read the world. FrameForge lets it produce the finished result
+        — documents and images that are correct, on-brand, and ready to use.
+    - box:
+      - 72
+      - 636
+      - 700
+      - 14
+      style:
+        color: '#7A8395'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11.5
+        letter_spacing: 0.6
+      meta:
+        role: lettering
+      type: text
+      text: '[ Founder name ]  ·  [ email ]  ·  [ website ]'
+- mode: page
+  id: s02-shift
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.02 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 126.5
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: The shift
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 110
+      - 1136
+      - 151
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 46
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: 'AI learned to read.
+
+        Now it has to produce.'
+    - box:
+      - 72
+      - 246
+      - 1040
+      - 200
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: 'For two years the race was comprehension — models that read screens,
+        documents, and images. That half is largely solved. The unclaimed half is
+        output: turning what a machine intends into a real, finished, trustworthy
+        artifact a business can actually send.'
+    - box:
+      - 72.0
+      - 384
+      - 360.0
+      - 152
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 72.0
+      - 384
+      - 4
+      - 152
+      type: rect
+      fill: '#6B7280'
+      radius: 2
+    - box:
+      - 94.0
+      - 404
+      - 316.0
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: 01 — Solved
+    - box:
+      - 94.0
+      - 424
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Read
+    - box:
+      - 94.0
+      - 447
+      - 316.0
+      - 73
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Machines now understand screens, files, and images. This is the part everyone
+        built.
+    - box:
+      - 460.0
+      - 384
+      - 360.0
+      - 152
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 460.0
+      - 384
+      - 4
+      - 152
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 482.0
+      - 404
+      - 316.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: 02 — Open
+    - box:
+      - 482.0
+      - 424
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Produce
+    - box:
+      - 482.0
+      - 447
+      - 316.0
+      - 73
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Machines making finished, correct visual artifacts on their own. Still
+        largely missing.
+    - box:
+      - 848.0
+      - 384
+      - 360.0
+      - 152
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 848.0
+      - 384
+      - 4
+      - 152
+      type: rect
+      fill: '#12B0C3'
+      radius: 2
+    - box:
+      - 870.0
+      - 404
+      - 316.0
+      - 12
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: 03 — The prize
+    - box:
+      - 870.0
+      - 424
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: The layer
+    - box:
+      - 870.0
+      - 447
+      - 316.0
+      - 73
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Whoever builds the infrastructure for that output owns a foundational
+        position.
+    - box:
+      - 72
+      - 580
+      - 1136
+      - 24
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+      meta:
+        role: lettering
+      type: text
+      text: FrameForge is building that layer.
+- mode: page
+  id: s03-problem
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.03 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 189.75
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: The problem
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 108
+      - 1136
+      - 139
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 42
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: 'A machine-made document today
+
+        is either fake-looking or
+
+        quietly broken.'
+    - box:
+      - 72.0
+      - 318
+      - 554.0
+      - 168
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 72.0
+      - 318
+      - 4
+      - 168
+      type: rect
+      fill: '#D23B2B'
+      radius: 2
+    - box:
+      - 94.0
+      - 338
+      - 510.0
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Image generators
+    - box:
+      - 94.0
+      - 358
+      - 510.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: It produces a picture
+    - box:
+      - 94.0
+      - 381
+      - 510.0
+      - 89
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: You can't edit it, the text comes out garbled, the numbers are invented,
+        and you can't trust it for anything that matters.
+    - box:
+      - 654.0
+      - 318
+      - 554.0
+      - 168
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 654.0
+      - 318
+      - 4
+      - 168
+      type: rect
+      fill: '#D23B2B'
+      radius: 2
+    - box:
+      - 676.0
+      - 338
+      - 510.0
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Code-it-yourself AI
+    - box:
+      - 676.0
+      - 358
+      - 510.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: It looks right, then breaks
+    - box:
+      - 676.0
+      - 381
+      - 510.0
+      - 89
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: 'Output that looks right but breaks: text overflows, things overlap, the
+        layout collapses. Plausible — not shippable.'
+    - box:
+      - 72
+      - 560
+      - 1136
+      - 60
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 17
+        font_weight: 600
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Generating something is easy. Turning it into a finished artifact you
+        can trust enough to ship without a human checking it is the bottleneck — and
+        today that's still a person's job.
+- mode: page
+  id: s04-objection
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.04 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 253.0
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: The obvious objection
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 110
+      - 1136
+      - 139
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 42
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: '“But AI can already write
+
+        code and make a UI.”'
+    - box:
+      - 72
+      - 244
+      - 1080
+      - 60
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 17.5
+        font_weight: 600
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: True. The difference isn't who draws it first — it's what you're left
+        holding. A generated image is a dead-end you can only change by re-prompting.
+        We hand you an open file you own.
+    - box:
+      - 72.0
+      - 338
+      - 360.0
+      - 192
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 72.0
+      - 338
+      - 4
+      - 192
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 94.0
+      - 358
+      - 316.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Yours, not the tool's
+    - box:
+      - 94.0
+      - 378
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Open & editable
+    - box:
+      - 94.0
+      - 401
+      - 316.0
+      - 113
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: A structured file a person or an agent can open, change, and extend —
+        change one number or color by hand; don't regenerate the whole thing.
+    - box:
+      - 460.0
+      - 338
+      - 360.0
+      - 192
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 460.0
+      - 338
+      - 4
+      - 192
+      type: rect
+      fill: '#12B0C3'
+      radius: 2
+    - box:
+      - 482.0
+      - 358
+      - 316.0
+      - 12
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: No lock-in
+    - box:
+      - 482.0
+      - 378
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Walk away with it
+    - box:
+      - 482.0
+      - 401
+      - 316.0
+      - 113
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: For UI it's one framework-free HTML file — the moment a developer has
+        it, they can use it however they like, with or without us.
+    - box:
+      - 848.0
+      - 338
+      - 360.0
+      - 192
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 848.0
+      - 338
+      - 4
+      - 192
+      type: rect
+      fill: '#1E9E5A'
+      radius: 2
+    - box:
+      - 870.0
+      - 358
+      - 316.0
+      - 12
+      style:
+        color: '#1E9E5A'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Ship unattended
+    - box:
+      - 870.0
+      - 378
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Checked, every time
+    - box:
+      - 870.0
+      - 401
+      - 316.0
+      - 113
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Because it's structured, we proofread every output automatically — a machine
+        can produce it at scale without a human checking each one.
+    - box:
+      - 72
+      - 568
+      - 1136
+      - 86
+      type: rect
+      fill: '#1F4FD8'
+      radius: 12
+    - box:
+      - 100
+      - 584
+      - 1080
+      - 58
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 18
+        font_weight: 700
+        line_height: 1.35
+      meta:
+        role: lettering
+      type: text
+      text: The labs' output traps you; ours sets you free. The lock-in isn't the
+        file — it's the flow that produces a perfect one on every change, at volume.
+        A better model just feeds that flow.
+- mode: page
+  id: s05-solution
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.05 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 316.25
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: The solution
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 112
+      - 980
+      - 145
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 44
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: FrameForge turns intent into a finished, checked file.
+    - box:
+      - 72
+      - 252
+      - 1040
+      - 200
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 18
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: 'You — or your AI — describe what you want, or point it at your data.
+        FrameForge assembles the artifact, checks it the way a meticulous proofreader
+        would, and renders a real file: a slide, a report, a web page, a chart, an
+        image. At any quality, from a quick sketch to print-ready.'
+    - box:
+      - 72
+      - 396
+      - 1136
+      - 72
+      type: rect
+      fill: '#1F4FD8'
+      radius: 12
+    - box:
+      - 100
+      - 412
+      - 1080
+      - 44
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 20
+        font_weight: 700
+        line_height: 1.35
+      meta:
+        role: lettering
+      type: text
+      text: Spell-check and a printing press — for everything AI makes that you can
+        see.
+- mode: page
+  id: s06-how
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.06 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 379.5
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: How it works
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 112
+      - 980
+      - 145
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 44
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: Three steps. No design software. No guesswork.
+    - box:
+      - 72.0
+      - 330
+      - 360.0
+      - 168
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 72.0
+      - 330
+      - 4
+      - 168
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 94.0
+      - 350
+      - 316.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Step 1
+    - box:
+      - 94.0
+      - 370
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Describe
+    - box:
+      - 94.0
+      - 393
+      - 316.0
+      - 89
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: A person or an AI says what's needed — or simply hands over the data.
+    - box:
+      - 460.0
+      - 330
+      - 360.0
+      - 168
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 460.0
+      - 330
+      - 4
+      - 168
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 482.0
+      - 350
+      - 316.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Step 2
+    - box:
+      - 482.0
+      - 370
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Build
+    - box:
+      - 482.0
+      - 393
+      - 316.0
+      - 89
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: FrameForge lays it out correctly — spacing, alignment, brand, structure
+        — automatically.
+    - box:
+      - 848.0
+      - 330
+      - 360.0
+      - 168
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 848.0
+      - 330
+      - 4
+      - 168
+      type: rect
+      fill: '#1E9E5A'
+      radius: 2
+    - box:
+      - 870.0
+      - 350
+      - 316.0
+      - 12
+      style:
+        color: '#1E9E5A'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Step 3
+    - box:
+      - 870.0
+      - 370
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Check & render
+    - box:
+      - 870.0
+      - 393
+      - 316.0
+      - 89
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: It proofreads the result against the rules, then outputs a finished file.
+        Anything wrong is caught before it ships.
+    - box:
+      - 72
+      - 544
+      - 1136
+      - 16
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 13
+      meta:
+        role: lettering
+      type: text
+      text: The same step that makes it work for one document makes it work for a
+        million.
+- mode: page
+  id: s07-moat
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.07 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 442.75
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: Why it's different · the moat
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 108
+      - 900
+      - 139
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 42
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: Anyone can make a picture. We make a result you can trust.
+    - box:
+      - 72.0
+      - 288
+      - 554.0
+      - 116
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 72.0
+      - 288
+      - 4
+      - 116
+      type: rect
+      fill: '#1E9E5A'
+      radius: 2
+    - box:
+      - 94.0
+      - 308
+      - 510.0
+      - 12
+      style:
+        color: '#1E9E5A'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Checked
+    - box:
+      - 94.0
+      - 332
+      - 510.0
+      - 56
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Every output is automatically proofread for layout and brand. It won't
+        ship broken.
+    - box:
+      - 654.0
+      - 288
+      - 554.0
+      - 116
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 654.0
+      - 288
+      - 4
+      - 116
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 676.0
+      - 308
+      - 510.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Consistent
+    - box:
+      - 676.0
+      - 332
+      - 510.0
+      - 56
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Same input, same file, every time — which is what lets it plug into real
+        business systems.
+    - box:
+      - 72.0
+      - 418
+      - 554.0
+      - 116
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 72.0
+      - 418
+      - 4
+      - 116
+      type: rect
+      fill: '#12B0C3'
+      radius: 2
+    - box:
+      - 94.0
+      - 438
+      - 510.0
+      - 12
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Built for machines
+    - box:
+      - 94.0
+      - 462
+      - 510.0
+      - 56
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Designed for AI to operate directly, at scale, without a human babysitting
+        each one.
+    - box:
+      - 654.0
+      - 418
+      - 554.0
+      - 116
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 654.0
+      - 418
+      - 4
+      - 116
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 676.0
+      - 438
+      - 510.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Flexible
+    - box:
+      - 676.0
+      - 462
+      - 510.0
+      - 56
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: One tool from rough sketch to polished, final asset. No switching between
+        apps.
+    - box:
+      - 72
+      - 566
+      - 1136
+      - 16
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 13
+      meta:
+        role: lettering
+      type: text
+      text: 'Image generators: can''t edit, can''t trust.    ·    Design tools: slow,
+        human-only, one at a time.'
+- mode: page
+  id: s08-proof
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.08 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 506.0
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: Proof — it already works
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 108
+      - 900
+      - 145
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 44
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: Not a concept. A working system.
+    - box:
+      - 72
+      - 268
+      - 266
+      - 150
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 8
+      stroke: '#D4D8DE'
+    - box:
+      - 72
+      - 268
+      - 266
+      - 18
+      type: rect
+      fill: '#EEF0F3'
+      radius: 8
+    - type: ellipse
+      center:
+      - 86.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - type: ellipse
+      center:
+      - 97.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - type: ellipse
+      center:
+      - 108.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - box:
+      - 88
+      - 300
+      - 234
+      - 36
+      type: rect
+      fill: '#EAF0FB'
+      radius: 6
+    - box:
+      - 88
+      - 346
+      - 117.0
+      - 9
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 88
+      - 364
+      - 234
+      - 6
+      type: rect
+      fill: '#EDEFF2'
+      radius: 2
+    - box:
+      - 88
+      - 377
+      - 234
+      - 6
+      type: rect
+      fill: '#EDEFF2'
+      radius: 2
+    - box:
+      - 88
+      - 390
+      - 234
+      - 6
+      type: rect
+      fill: '#EDEFF2'
+      radius: 2
+    - box:
+      - 362
+      - 268
+      - 266
+      - 150
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 8
+      stroke: '#D4D8DE'
+    - box:
+      - 362
+      - 268
+      - 266
+      - 18
+      type: rect
+      fill: '#EEF0F3'
+      radius: 8
+    - type: ellipse
+      center:
+      - 376.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - type: ellipse
+      center:
+      - 387.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - type: ellipse
+      center:
+      - 398.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - box:
+      - 378
+      - 300
+      - 140.4
+      - 7
+      type: rect
+      fill: '#E9EBEF'
+      radius: 2
+    - box:
+      - 378
+      - 315
+      - 222.29999999999998
+      - 7
+      type: rect
+      fill: '#E9EBEF'
+      radius: 2
+    - box:
+      - 378
+      - 330
+      - 222.29999999999998
+      - 7
+      type: rect
+      fill: '#E9EBEF'
+      radius: 2
+    - box:
+      - 378
+      - 345
+      - 140.4
+      - 7
+      type: rect
+      fill: '#E9EBEF'
+      radius: 2
+    - box:
+      - 378
+      - 360
+      - 222.29999999999998
+      - 7
+      type: rect
+      fill: '#E9EBEF'
+      radius: 2
+    - box:
+      - 378
+      - 375
+      - 222.29999999999998
+      - 7
+      type: rect
+      fill: '#E9EBEF'
+      radius: 2
+    - box:
+      - 652
+      - 268
+      - 266
+      - 150
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 8
+      stroke: '#D4D8DE'
+    - box:
+      - 652
+      - 268
+      - 266
+      - 18
+      type: rect
+      fill: '#EEF0F3'
+      radius: 8
+    - type: ellipse
+      center:
+      - 666.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - type: ellipse
+      center:
+      - 677.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - type: ellipse
+      center:
+      - 688.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - box:
+      - 668.0
+      - 300
+      - 50.5
+      - 24
+      stroke_style:
+        stroke_width: 1
+      type: rect
+      fill: '#EAF0FB'
+      radius: 4
+      stroke: '#12B0C3'
+    - box:
+      - 726.5
+      - 300
+      - 50.5
+      - 24
+      stroke_style:
+        stroke_width: 1
+      type: rect
+      fill: '#EAF0FB'
+      radius: 4
+      stroke: '#12B0C3'
+    - box:
+      - 785.0
+      - 300
+      - 50.5
+      - 24
+      stroke_style:
+        stroke_width: 1
+      type: rect
+      fill: '#EAF0FB'
+      radius: 4
+      stroke: '#12B0C3'
+    - box:
+      - 843.5
+      - 300
+      - 50.5
+      - 24
+      stroke_style:
+        stroke_width: 1
+      type: rect
+      fill: '#EAF0FB'
+      radius: 4
+      stroke: '#12B0C3'
+    - box:
+      - 668
+      - 338
+      - 234
+      - 8
+      type: rect
+      fill: '#EDEFF2'
+      radius: 2
+    - box:
+      - 668
+      - 353
+      - 234
+      - 8
+      type: rect
+      fill: '#EDEFF2'
+      radius: 2
+    - box:
+      - 668
+      - 368
+      - 234
+      - 8
+      type: rect
+      fill: '#EDEFF2'
+      radius: 2
+    - box:
+      - 942
+      - 268
+      - 266
+      - 150
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 8
+      stroke: '#D4D8DE'
+    - box:
+      - 942
+      - 268
+      - 266
+      - 18
+      type: rect
+      fill: '#EEF0F3'
+      radius: 8
+    - type: ellipse
+      center:
+      - 956.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - type: ellipse
+      center:
+      - 967.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - type: ellipse
+      center:
+      - 978.0
+      - 277.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#D4D8DE'
+    - box:
+      - 943
+      - 286
+      - 264
+      - 131
+      type: rect
+      fill: '#161A22'
+    - type: ellipse
+      center:
+      - 1075.0
+      - 347.0
+      rx: 15.0
+      ry: 15.0
+      fill: '#F5A623'
+    - box:
+      - 958
+      - 394
+      - 234
+      - 7
+      type: rect
+      fill: '#2A2F3A'
+      radius: 2
+    - box:
+      - 72.0
+      - 448
+      - 360.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+      meta:
+        role: lettering
+      type: text
+      text: RANGE
+    - box:
+      - 72.0
+      - 468
+      - 360.0
+      - 80
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Real software screens, full marketing pages, dashboards, and a 30-page
+        designed book — all from the same engine.
+    - box:
+      - 460.0
+      - 448
+      - 360.0
+      - 12
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+      meta:
+        role: lettering
+      type: text
+      text: SELF-CHECKING
+    - box:
+      - 460.0
+      - 468
+      - 360.0
+      - 80
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: It proofreads its own output automatically and flags anything off-spec.
+    - box:
+      - 848.0
+      - 448
+      - 360.0
+      - 12
+      style:
+        color: '#1E9E5A'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+      meta:
+        role: lettering
+      type: text
+      text: DOGFOODED
+    - box:
+      - 848.0
+      - 468
+      - 360.0
+      - 80
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: It even renders its own workspace, end to end.
+- mode: page
+  id: s09-reframe
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.09 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 569.25
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: Market · the reframe
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 104
+      - 760
+      - 126
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 38
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: These stopped being separate markets the moment the maker became a machine.
+    - box:
+      - 72
+      - 318
+      - 1090
+      - 200
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 16.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: 'Design tools, slide software, document systems, dashboards, image generators
+        — each exists because a person operated it. Take the person out and they''re
+        one thing: producing a visual artifact. FrameForge is the layer underneath
+        all of them.'
+    - box:
+      - 72
+      - 446
+      - 196
+      - 34
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: '#FFFFFF'
+      radius: 8
+      stroke: '#D4D8DE'
+    - box:
+      - 72
+      - 456
+      - 196
+      - 14
+      style:
+        align: center
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12.5
+      meta:
+        role: lettering
+      type: text
+      text: Design tools
+    - box:
+      - 282
+      - 446
+      - 196
+      - 34
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: '#FFFFFF'
+      radius: 8
+      stroke: '#D4D8DE'
+    - box:
+      - 282
+      - 456
+      - 196
+      - 14
+      style:
+        align: center
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12.5
+      meta:
+        role: lettering
+      type: text
+      text: Slide software
+    - box:
+      - 72
+      - 490
+      - 196
+      - 34
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: '#FFFFFF'
+      radius: 8
+      stroke: '#D4D8DE'
+    - box:
+      - 72
+      - 500
+      - 196
+      - 14
+      style:
+        align: center
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12.5
+      meta:
+        role: lettering
+      type: text
+      text: Document systems
+    - box:
+      - 282
+      - 490
+      - 196
+      - 34
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: '#FFFFFF'
+      radius: 8
+      stroke: '#D4D8DE'
+    - box:
+      - 282
+      - 500
+      - 196
+      - 14
+      style:
+        align: center
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12.5
+      meta:
+        role: lettering
+      type: text
+      text: Dashboards / BI
+    - box:
+      - 72
+      - 534
+      - 196
+      - 34
+      stroke_style:
+        stroke_width: 1.2
+      type: rect
+      fill: '#FFFFFF'
+      radius: 8
+      stroke: '#D4D8DE'
+    - box:
+      - 72
+      - 544
+      - 196
+      - 14
+      style:
+        align: center
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12.5
+      meta:
+        role: lettering
+      type: text
+      text: Image generators
+    - stroke_style:
+        stroke_width: 2.6
+      type: line
+      from:
+      - 498.0
+      - 500.0
+      to:
+      - 552.0
+      - 500.0
+      stroke: '#1F4FD8'
+    - type: polyline
+      points:
+      - - 564.0
+        - 500.0
+      - - 552.0
+        - 507.2
+      - - 552.0
+        - 492.8
+      closed: true
+      fill: '#1F4FD8'
+    - box:
+      - 586
+      - 452
+      - 622
+      - 96
+      type: rect
+      fill: '#15181E'
+      radius: 12
+    - box:
+      - 614
+      - 468
+      - 566
+      - 68
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 18
+        font_weight: 700
+        line_height: 1.35
+      meta:
+        role: lettering
+      type: text
+      text: 'One layer: produce any visual artifact — correct, on-brand, and yours.'
+    - box:
+      - 72
+      - 626
+      - 1136
+      - 16
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12.5
+      meta:
+        role: lettering
+      type: text
+      text: We don't boil that ocean. We start at automated branded documents + a
+        verified-output API — then expand outward.
+- mode: page
+  id: s10-size
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.10 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 632.5
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: Market · the size
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 108
+      - 820
+      - 132
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 40
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: A tens-of-billions shift, riding the fastest-growing category in software.
+    - box:
+      - 72.0
+      - 300
+      - 360.0
+      - 196
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 72.0
+      - 300
+      - 4
+      - 196
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 94.0
+      - 320
+      - 316.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: TAM · the category
+    - box:
+      - 94.0
+      - 340
+      - 316.0
+      - 38
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 30
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: $50B+ / yr
+    - box:
+      - 94.0
+      - 374
+      - 316.0
+      - 106
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Producing every business visual artifact — design, presentation & customer-document
+        software — inside a generative-AI market compounding 30–40%+ a year.
+    - box:
+      - 460.0
+      - 300
+      - 360.0
+      - 196
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 460.0
+      - 300
+      - 4
+      - 196
+      type: rect
+      fill: '#12B0C3'
+      radius: 2
+    - box:
+      - 482.0
+      - 320
+      - 316.0
+      - 12
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: SAM · what we serve
+    - box:
+      - 482.0
+      - 340
+      - 316.0
+      - 38
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 30
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: ~$12B / yr
+    - box:
+      - 482.0
+      - 374
+      - 316.0
+      - 106
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: 'The slice that''s machine-produced at volume: automated documents, images,
+        dashboards & UI for business, plus verified-output infrastructure for AI products.'
+    - box:
+      - 848.0
+      - 300
+      - 360.0
+      - 196
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 848.0
+      - 300
+      - 4
+      - 196
+      type: rect
+      fill: '#1E9E5A'
+      radius: 2
+    - box:
+      - 870.0
+      - 320
+      - 316.0
+      - 12
+      style:
+        color: '#1E9E5A'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: SOM · beachhead
+    - box:
+      - 870.0
+      - 340
+      - 316.0
+      - 38
+      style:
+        color: '#1E9E5A'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 30
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: $50–150M
+    - box:
+      - 870.0
+      - 374
+      - 316.0
+      - 106
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: 'Reachable now: branded documents & dynamic images at scale, plus a verified-output
+        API for AI builders — on usage-based pricing.'
+    - box:
+      - 72
+      - 524
+      - 1136
+      - 14
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+      meta:
+        role: lettering
+      type: text
+      text: 'Anchors (2025 analyst estimates): design ~$10–18B · presentation ~$9B
+        · customer-document / CCM ~$2.5B · generative AI ~$25–70B at +30–40%/yr.'
+    - box:
+      - 72
+      - 546
+      - 1136
+      - 14
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+      meta:
+        role: lettering
+      type: text
+      text: Third-party estimates (Mordor, Grand View, Precedence, Coherent et al.,
+        2025–26), ranges for scale — not a forecast of company revenue.
+- mode: page
+  id: s11-model
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.11 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 695.75
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: Business model
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 112
+      - 900
+      - 145
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 44
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: We get paid every time something is produced.
+    - box:
+      - 72.0
+      - 300
+      - 360.0
+      - 178
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 72.0
+      - 300
+      - 4
+      - 178
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 94.0
+      - 320
+      - 316.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Usage
+    - box:
+      - 94.0
+      - 340
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Pay per use
+    - box:
+      - 94.0
+      - 363
+      - 316.0
+      - 99
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: A small fee each time a document or image is rendered. Grows automatically
+        with a customer's usage.
+    - box:
+      - 460.0
+      - 300
+      - 360.0
+      - 178
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 460.0
+      - 300
+      - 4
+      - 178
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 482.0
+      - 320
+      - 316.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Teams
+    - box:
+      - 482.0
+      - 340
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Team plans
+    - box:
+      - 482.0
+      - 363
+      - 316.0
+      - 99
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Subscriptions for companies that produce regularly and want seats and
+        shared brand rules.
+    - box:
+      - 848.0
+      - 300
+      - 360.0
+      - 178
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 848.0
+      - 300
+      - 4
+      - 178
+      type: rect
+      fill: '#12B0C3'
+      radius: 2
+    - box:
+      - 870.0
+      - 320
+      - 316.0
+      - 12
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Enterprise
+    - box:
+      - 870.0
+      - 340
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: Enterprise
+    - box:
+      - 870.0
+      - 363
+      - 316.0
+      - 99
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: Brand & compliance controls plus private deployment for large customers
+        — the high-value tier.
+    - box:
+      - 72
+      - 514
+      - 1136
+      - 16
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 13
+      meta:
+        role: lettering
+      type: text
+      text: Software margins. Revenue that scales with our customers' success — not
+        our headcount.
+- mode: page
+  id: s12-ask
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#FBFAF6'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.12 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#2A2E3A'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 759.0
+      - 3
+      decorative: true
+      type: rect
+      fill: '#12B0C3'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: The ask
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 132
+      - 900
+      - 151
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 46
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: Raising $2.0M to turn a working system into a paid product.
+    - box:
+      - 72
+      - 386
+      - 290
+      - 14
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11.5
+        font_weight: 700
+        letter_spacing: 1.3
+      meta:
+        role: lettering
+      type: text
+      text: BUILD THE TEAM
+    - box:
+      - 382
+      - 380
+      - 620
+      - 44
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 17
+        line_height: 1.4
+      meta:
+        role: lettering
+      type: text
+      text: A small, senior engineering and go-to-market team.
+    - box:
+      - 72
+      - 458
+      - 290
+      - 14
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11.5
+        font_weight: 700
+        letter_spacing: 1.3
+      meta:
+        role: lettering
+      type: text
+      text: SHIP THE FIRST PAID PRODUCT
+    - box:
+      - 382
+      - 452
+      - 620
+      - 44
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 17
+        line_height: 1.4
+      meta:
+        role: lettering
+      type: text
+      text: And land our first paying customers.
+    - box:
+      - 72
+      - 530
+      - 290
+      - 14
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11.5
+        font_weight: 700
+        letter_spacing: 1.3
+      meta:
+        role: lettering
+      type: text
+      text: EARN THE NEXT ROUND
+    - box:
+      - 382
+      - 524
+      - 620
+      - 44
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 17
+        line_height: 1.4
+      meta:
+        role: lettering
+      type: text
+      text: Hit the milestones that make a Series A the obvious next step.
+    - box:
+      - 72
+      - 636
+      - 700
+      - 14
+      style:
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+      meta:
+        role: lettering
+      type: text
+      text: ~18–24 months of runway · standard post-money SAFE
+- mode: page
+  id: s13-team
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 96.0
+      - 0.0
+      to:
+      - 96.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 192.0
+      - 0.0
+      to:
+      - 192.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 288.0
+      - 0.0
+      to:
+      - 288.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 384.0
+      - 0.0
+      to:
+      - 384.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 480.0
+      - 0.0
+      to:
+      - 480.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 576.0
+      - 0.0
+      to:
+      - 576.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 672.0
+      - 0.0
+      to:
+      - 672.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 768.0
+      - 0.0
+      to:
+      - 768.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 864.0
+      - 0.0
+      to:
+      - 864.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 960.0
+      - 0.0
+      to:
+      - 960.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1056.0
+      - 0.0
+      to:
+      - 1056.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1152.0
+      - 0.0
+      to:
+      - 1152.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 1248.0
+      - 0.0
+      to:
+      - 1248.0
+      - 720.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 96.0
+      to:
+      - 1280.0
+      - 96.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 192.0
+      to:
+      - 1280.0
+      - 192.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 288.0
+      to:
+      - 1280.0
+      - 288.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 384.0
+      to:
+      - 1280.0
+      - 384.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 480.0
+      to:
+      - 1280.0
+      - 480.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 576.0
+      to:
+      - 1280.0
+      - 576.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 0.5
+      type: line
+      from:
+      - 0.0
+      - 672.0
+      to:
+      - 1280.0
+      - 672.0
+      stroke: '#D4D8DE'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.13 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 822.25
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: Team
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 112
+      - 600
+      - 157
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 48
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: Why us.
+    - box:
+      - 72.0
+      - 252
+      - 360.0
+      - 152
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 72.0
+      - 252
+      - 4
+      - 152
+      type: rect
+      fill: '#1F4FD8'
+      radius: 2
+    - box:
+      - 94.0
+      - 272
+      - 316.0
+      - 12
+      style:
+        color: '#1F4FD8'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Founder
+    - box:
+      - 94.0
+      - 292
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: '[ Your name ]'
+    - box:
+      - 94.0
+      - 315
+      - 316.0
+      - 73
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: 'One line: the most relevant thing you''ve built or shipped — and why
+        it makes you the right person to build this.'
+    - box:
+      - 460.0
+      - 252
+      - 360.0
+      - 152
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 460.0
+      - 252
+      - 4
+      - 152
+      type: rect
+      fill: '#12B0C3'
+      radius: 2
+    - box:
+      - 482.0
+      - 272
+      - 316.0
+      - 12
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: Unfair advantage
+    - box:
+      - 482.0
+      - 292
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: '[ Why you, why now ]'
+    - box:
+      - 482.0
+      - 315
+      - 316.0
+      - 73
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: The insight, head start, or access you have that others don't — e.g.,
+        a working system already producing this range.
+    - box:
+      - 848.0
+      - 252
+      - 360.0
+      - 152
+      stroke_style:
+        stroke_width: 1.3
+      type: rect
+      fill: '#FFFFFF'
+      radius: 10
+      stroke: '#D4D8DE'
+    - box:
+      - 848.0
+      - 252
+      - 4
+      - 152
+      type: rect
+      fill: '#6B7280'
+      radius: 2
+    - box:
+      - 870.0
+      - 272
+      - 316.0
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 11
+        font_weight: 700
+        letter_spacing: 1.4
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: First hires
+    - box:
+      - 870.0
+      - 292
+      - 316.0
+      - 27
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        font_weight: 700
+        letter_spacing: -0.3
+      meta:
+        role: lettering
+      type: text
+      text: '[ Who you''ll add ]'
+    - box:
+      - 870.0
+      - 315
+      - 316.0
+      - 73
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 13.5
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: The 2–3 roles this round funds, and any advisors or early believers already
+        on board.
+    - box:
+      - 72
+      - 452
+      - 1136
+      - 16
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12.5
+      meta:
+        role: lettering
+      type: text
+      text: 'Note for you, not the investor: at seed, this is the slide they weigh
+        most. Make it concrete and specific.'
+- mode: page
+  id: s14-outputs
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#FBFAF6'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.14 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#2A2E3A'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 885.5
+      - 3
+      decorative: true
+      type: rect
+      fill: '#12B0C3'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: The platform · 2.3 → 3.0
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 100
+      - 1136
+      - 114
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 34
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: One source of truth. Every audience, every surface.
+    - box:
+      - 72
+      - 158
+      - 1136
+      - 20
+      style:
+        color: '#9AA3B5'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 15
+        line_height: 1.4
+      meta:
+        role: lettering
+      type: text
+      text: Split the data from the look — one source derives every audience's artifact,
+        on every surface.
+    - stroke_style:
+        stroke_width: 2.0
+      type: line
+      from:
+      - 300.0
+      - 360.0
+      to:
+      - 812.0
+      - 210.0
+      stroke: '#12B0C3'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 812.0
+      - 210.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - box:
+      - 835
+      - 194.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: SEC filing
+        style:
+          color: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 2.0
+      type: line
+      from:
+      - 300.0
+      - 360.0
+      to:
+      - 812.0
+      - 285.0
+      stroke: '#12B0C3'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 812.0
+      - 285.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - box:
+      - 835
+      - 269.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: investor deck
+        style:
+          color: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 2.0
+      type: line
+      from:
+      - 300.0
+      - 360.0
+      to:
+      - 812.0
+      - 360.0
+      stroke: '#12B0C3'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 812.0
+      - 360.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - box:
+      - 835
+      - 344.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: IG story
+        style:
+          color: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 2.0
+      type: line
+      from:
+      - 300.0
+      - 360.0
+      to:
+      - 812.0
+      - 435.0
+      stroke: '#12B0C3'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 812.0
+      - 435.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - box:
+      - 835
+      - 419.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: LinkedIn
+        style:
+          color: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 2.0
+      type: line
+      from:
+      - 300.0
+      - 360.0
+      to:
+      - 812.0
+      - 510.0
+      stroke: '#12B0C3'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 812.0
+      - 510.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - box:
+      - 835
+      - 494.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: A4 print
+        style:
+          color: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 2.0
+      type: ellipse
+      center:
+      - 300.0
+      - 360.0
+      rx: 15.0
+      ry: 15.0
+      fill: '#1F4FD8'
+      stroke: '#1F4FD8'
+    - box:
+      - 50
+      - 344
+      - 232
+      - 35.2
+      style:
+        align: right
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 700
+      meta:
+        role: lettering
+      type: text
+      spans:
+      - text: Q3 results
+        style:
+          color: '#FBFAF6'
+    - box:
+      - 72
+      - 556
+      - 1136
+      - 86
+      type: rect
+      fill: '#1F4FD8'
+      radius: 12
+    - box:
+      - 100
+      - 572
+      - 1080
+      - 58
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 15
+        font_weight: 700
+        line_height: 1.35
+      meta:
+        role: lettering
+      type: text
+      text: 'We already dogfood this: our own v2 roadmap → an A4 print PDF and Instagram
+        stories, one .fg source rendered by the SDK. No Figma, no InDesign — and the
+        figures can''t disagree, by construction.'
+- mode: page
+  id: s15-vision
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#FBFAF6'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#8A93A0'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.15 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#2A2E3A'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 948.75
+      - 3
+      decorative: true
+      type: rect
+      fill: '#12B0C3'
+      radius: 1.5
+    - box:
+      - 72
+      - 64
+      - 1136
+      - 14
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12
+        font_weight: 700
+        letter_spacing: 2.4
+        text_transform: uppercase
+      type: text
+      text: The vision
+  - id: body
+    objects:
+    - box:
+      - 72
+      - 168
+      - 820
+      - 145
+      style:
+        color: '#FBFAF6'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 44
+        font_weight: 700
+        line_height: 1.04
+        letter_spacing: -0.6
+      meta:
+        role: lettering
+      type: text
+      text: Soon, every page a business shows the world will be produced and checked
+        by a machine.
+    - box:
+      - 72
+      - 472
+      - 820
+      - 200
+      style:
+        color: '#C2C9D2'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 19
+        line_height: 1.45
+      meta:
+        role: lettering
+      type: text
+      text: FrameForge is the layer that makes that output real, correct, and yours.
+    - box:
+      - 72
+      - 544
+      - 760
+      - 14
+      style:
+        color: '#12B0C3'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 12.5
+        letter_spacing: 0.6
+      meta:
+        role: lettering
+      type: text
+      text: Let's talk.    [ email ]    ·    [ calendar link ]
+- mode: page
+  id: s16-logo
+  canvas:
+    size:
+    - 1280.0
+    - 720.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: bg
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1280
+      - 720
+      type: rect
+      fill: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 52.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 30.0
+      to:
+      - 30.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1228.0
+      - 30.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 30.0
+      to:
+      - 1250.0
+      - 52.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 52.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 30.0
+      - 690.0
+      to:
+      - 30.0
+      - 668.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1228.0
+      - 690.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1250.0
+      - 690.0
+      to:
+      - 1250.0
+      - 668.0
+      stroke: '#15181E'
+  - id: chrome
+    objects:
+    - box:
+      - 978
+      - 30
+      - 110
+      - 12
+      style:
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 600
+        letter_spacing: 0.8
+      type: text
+      text: FRAMEFORGE
+    - stroke_style:
+        stroke_width: 2.0
+      type: polyline
+      points:
+      - - 1092.0
+        - 35.95
+      - - 1095.42
+        - 40.0
+      - - 1101.0
+        - 31.0
+      fill: none
+      stroke: '#1E9E5A'
+    - box:
+      - 1108
+      - 30
+      - 100
+      - 12
+      style:
+        color: '#15181E'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        font_weight: 700
+        letter_spacing: 0.8
+      type: text
+      text: ON-PROFILE
+    - box:
+      - 1108
+      - 680
+      - 100
+      - 12
+      style:
+        align: right
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 10.5
+        letter_spacing: 0.5
+      type: text
+      text: p.16 / 16
+    - box:
+      - 72
+      - 687
+      - 1012
+      - 3
+      decorative: true
+      type: rect
+      fill: '#D4D8DE'
+      radius: 1.5
+    - box:
+      - 72
+      - 687
+      - 1012.0
+      - 3
+      decorative: true
+      type: rect
+      fill: '#1F4FD8'
+      radius: 1.5
+  - id: body
+    objects:
+    - stroke_style:
+        stroke_width: 3.718
+      type: line
+      from:
+      - 497.0
+      - 149.0
+      to:
+      - 571.36
+      - 149.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.718
+      type: line
+      from:
+      - 497.0
+      - 149.0
+      to:
+      - 497.0
+      - 223.36
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.718
+      type: line
+      from:
+      - 497.0
+      - 435.0
+      to:
+      - 571.36
+      - 435.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.718
+      type: line
+      from:
+      - 497.0
+      - 435.0
+      to:
+      - 497.0
+      - 360.64
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.718
+      type: line
+      from:
+      - 783.0
+      - 149.0
+      to:
+      - 708.64
+      - 149.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.718
+      type: line
+      from:
+      - 783.0
+      - 149.0
+      to:
+      - 783.0
+      - 223.36
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.718
+      type: line
+      from:
+      - 783.0
+      - 435.0
+      to:
+      - 708.64
+      - 435.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 3.718
+      type: line
+      from:
+      - 783.0
+      - 435.0
+      to:
+      - 783.0
+      - 360.64
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 2.86
+      type: line
+      from:
+      - 577.08
+      - 292.0
+      to:
+      - 691.0143021218807
+      - 226.22000000000003
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 2.86
+      type: line
+      from:
+      - 577.08
+      - 292.0
+      to:
+      - 708.6400000000001
+      - 292.0
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 2.86
+      type: line
+      from:
+      - 577.08
+      - 292.0
+      to:
+      - 691.0143021218807
+      - 357.78
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 3.718
+      type: ellipse
+      center:
+      - 691.0143021218807
+      - 226.22000000000003
+      rx: 14.872
+      ry: 14.872
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 3.718
+      type: ellipse
+      center:
+      - 708.6400000000001
+      - 292.0
+      rx: 14.872
+      ry: 14.872
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 3.718
+      type: ellipse
+      center:
+      - 691.0143021218807
+      - 357.78
+      rx: 14.872
+      ry: 14.872
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 3.718
+      type: ellipse
+      center:
+      - 577.08
+      - 292.0
+      rx: 21.45
+      ry: 21.45
+      fill: '#1F4FD8'
+      stroke: '#1F4FD8'
+    - box:
+      - 0
+      - 448
+      - 1280
+      - 22
+      style:
+        align: center
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 15
+        letter_spacing: 0.4
+      meta:
+        role: lettering
+      type: text
+      text: The mark — a framed derivation
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 389.0
+      - 524.0
+      to:
+      - 409.8
+      - 524.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 389.0
+      - 524.0
+      to:
+      - 389.0
+      - 544.8
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 389.0
+      - 604.0
+      to:
+      - 409.8
+      - 604.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 389.0
+      - 604.0
+      to:
+      - 389.0
+      - 583.2
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 469.0
+      - 524.0
+      to:
+      - 448.2
+      - 524.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 469.0
+      - 524.0
+      to:
+      - 469.0
+      - 544.8
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 469.0
+      - 604.0
+      to:
+      - 448.2
+      - 604.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 469.0
+      - 604.0
+      to:
+      - 469.0
+      - 583.2
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 411.4
+      - 564.0
+      to:
+      - 443.2697348592673
+      - 545.6
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 411.4
+      - 564.0
+      to:
+      - 448.2
+      - 564.0
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 411.4
+      - 564.0
+      to:
+      - 443.2697348592673
+      - 582.4
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 1.04
+      type: ellipse
+      center:
+      - 443.2697348592673
+      - 545.6
+      rx: 4.16
+      ry: 4.16
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 1.04
+      type: ellipse
+      center:
+      - 448.2
+      - 564.0
+      rx: 4.16
+      ry: 4.16
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 1.04
+      type: ellipse
+      center:
+      - 443.2697348592673
+      - 582.4
+      rx: 4.16
+      ry: 4.16
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - stroke_style:
+        stroke_width: 1.04
+      type: ellipse
+      center:
+      - 411.4
+      - 564.0
+      rx: 6.0
+      ry: 6.0
+      fill: '#1F4FD8'
+      stroke: '#1F4FD8'
+    - box:
+      - 369.0
+      - 622
+      - 120
+      - 16
+      style:
+        align: center
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10
+        letter_spacing: 1.2
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: two-tone
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 527.0
+      - 550.0
+      to:
+      - 541.04
+      - 550.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 527.0
+      - 550.0
+      to:
+      - 527.0
+      - 564.04
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 527.0
+      - 604.0
+      to:
+      - 541.04
+      - 604.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 527.0
+      - 604.0
+      to:
+      - 527.0
+      - 589.96
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 581.0
+      - 550.0
+      to:
+      - 566.96
+      - 550.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 581.0
+      - 550.0
+      to:
+      - 581.0
+      - 564.04
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 581.0
+      - 604.0
+      to:
+      - 566.96
+      - 604.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 581.0
+      - 604.0
+      to:
+      - 581.0
+      - 589.96
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 542.12
+      - 577.0
+      to:
+      - 563.6320710300055
+      - 564.58
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 542.12
+      - 577.0
+      to:
+      - 566.96
+      - 577.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 542.12
+      - 577.0
+      to:
+      - 563.6320710300055
+      - 589.42
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 563.6320710300055
+      - 564.58
+      rx: 2.808
+      ry: 2.808
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 566.96
+      - 577.0
+      rx: 2.808
+      ry: 2.808
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 563.6320710300055
+      - 589.42
+      rx: 2.808
+      ry: 2.808
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 542.12
+      - 577.0
+      rx: 4.05
+      ry: 4.05
+      fill: '#15181E'
+      stroke: '#15181E'
+    - box:
+      - 494.0
+      - 622
+      - 120
+      - 16
+      style:
+        align: center
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10
+        letter_spacing: 1.2
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: one-colour
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 639.0
+      - 570.0
+      to:
+      - 647.84
+      - 570.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 639.0
+      - 570.0
+      to:
+      - 639.0
+      - 578.84
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 639.0
+      - 604.0
+      to:
+      - 647.84
+      - 604.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 639.0
+      - 604.0
+      to:
+      - 639.0
+      - 595.16
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 673.0
+      - 570.0
+      to:
+      - 664.16
+      - 570.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 673.0
+      - 570.0
+      to:
+      - 673.0
+      - 578.84
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 673.0
+      - 604.0
+      to:
+      - 664.16
+      - 604.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 673.0
+      - 604.0
+      to:
+      - 673.0
+      - 595.16
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 648.52
+      - 587.0
+      to:
+      - 662.0646373151886
+      - 579.18
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 648.52
+      - 587.0
+      to:
+      - 664.16
+      - 587.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 648.52
+      - 587.0
+      to:
+      - 662.0646373151886
+      - 594.82
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 662.0646373151886
+      - 579.18
+      rx: 1.768
+      ry: 1.768
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 664.16
+      - 587.0
+      rx: 1.768
+      ry: 1.768
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 662.0646373151886
+      - 594.82
+      rx: 1.768
+      ry: 1.768
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 648.52
+      - 587.0
+      rx: 2.55
+      ry: 2.55
+      fill: '#15181E'
+      stroke: '#15181E'
+    - box:
+      - 596.0
+      - 622
+      - 120
+      - 16
+      style:
+        align: center
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10
+        letter_spacing: 1.2
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: small
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 731.0
+      - 582.0
+      to:
+      - 736.72
+      - 582.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 731.0
+      - 582.0
+      to:
+      - 731.0
+      - 587.72
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 731.0
+      - 604.0
+      to:
+      - 736.72
+      - 604.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 731.0
+      - 604.0
+      to:
+      - 731.0
+      - 598.28
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 753.0
+      - 582.0
+      to:
+      - 747.28
+      - 582.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 753.0
+      - 582.0
+      to:
+      - 753.0
+      - 587.72
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 753.0
+      - 604.0
+      to:
+      - 747.28
+      - 604.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 753.0
+      - 604.0
+      to:
+      - 753.0
+      - 598.28
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 737.16
+      - 593.0
+      to:
+      - 745.9241770862985
+      - 587.94
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 737.16
+      - 593.0
+      to:
+      - 747.28
+      - 593.0
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 737.16
+      - 593.0
+      to:
+      - 745.9241770862985
+      - 598.06
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 745.9241770862985
+      - 587.94
+      rx: 1.144
+      ry: 1.144
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 747.28
+      - 593.0
+      rx: 1.144
+      ry: 1.144
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 745.9241770862985
+      - 598.06
+      rx: 1.144
+      ry: 1.144
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 737.16
+      - 593.0
+      rx: 1.65
+      ry: 1.65
+      fill: '#15181E'
+      stroke: '#15181E'
+    - box:
+      - 682.0
+      - 622
+      - 120
+      - 16
+      style:
+        align: center
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10
+        letter_spacing: 1.2
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: favicon
+    - box:
+      - 811.0
+      - 524
+      - 80
+      - 80
+      type: rect
+      fill: '#15181E'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 824.0
+      - 537.0
+      to:
+      - 838.04
+      - 537.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 824.0
+      - 537.0
+      to:
+      - 824.0
+      - 551.04
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 824.0
+      - 591.0
+      to:
+      - 838.04
+      - 591.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 824.0
+      - 591.0
+      to:
+      - 824.0
+      - 576.96
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 878.0
+      - 537.0
+      to:
+      - 863.96
+      - 537.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 878.0
+      - 537.0
+      to:
+      - 878.0
+      - 551.04
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 878.0
+      - 591.0
+      to:
+      - 863.96
+      - 591.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 878.0
+      - 591.0
+      to:
+      - 878.0
+      - 576.96
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 839.12
+      - 564.0
+      to:
+      - 860.6320710300055
+      - 551.58
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 839.12
+      - 564.0
+      to:
+      - 863.96
+      - 564.0
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 839.12
+      - 564.0
+      to:
+      - 860.6320710300055
+      - 576.42
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 860.6320710300055
+      - 551.58
+      rx: 2.808
+      ry: 2.808
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 863.96
+      - 564.0
+      rx: 2.808
+      ry: 2.808
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 860.6320710300055
+      - 576.42
+      rx: 2.808
+      ry: 2.808
+      fill: '#15181E'
+      stroke: '#FBFAF6'
+    - stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 839.12
+      - 564.0
+      rx: 4.05
+      ry: 4.05
+      fill: '#FBFAF6'
+      stroke: '#FBFAF6'
+    - box:
+      - 791.0
+      - 622
+      - 120
+      - 16
+      style:
+        align: center
+        color: '#6B7280'
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 10
+        letter_spacing: 1.2
+        text_transform: uppercase
+      meta:
+        role: lettering
+      type: text
+      text: reversed

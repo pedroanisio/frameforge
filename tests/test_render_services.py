@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 """
 test_render_services.py — unit coverage for the pure rendering domain services
-(framegraph/rendering/domain/services) that the integration render-tests only
+(frameforge/rendering/domain/services) that the integration render-tests only
 exercised partially: CanvasResolver (62%) and ColorResolver (70%), plus an
 import-cover of the ScenePainter port.
 
-Package-side import (these live in the `framegraph` package) — evict a
+Package-side import (these live in the `frameforge` package) — evict a
 models-module shadow first, per test_rendering_svg_semantics.py.
 """
 import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # the models module
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.domain.services.canvas_resolver import (  # noqa: E402
+from frameforge.rendering.domain.services.canvas_resolver import (  # noqa: E402
     CanvasResolver, DEFAULT_WH,
 )
-from framegraph.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-import framegraph.rendering.domain.ports as ports  # noqa: E402
+from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
+import frameforge.rendering.domain.ports as ports  # noqa: E402
 
 
 # --- CanvasResolver ----------------------------------------------------------- #
@@ -77,8 +77,8 @@ def test_canvas_presets_match_page_preset_literal():
     """Guard drift: the resolver's PRESET keys must equal the model's PagePreset."""
     import typing
 
-    from framegraph.rendering.domain.services.canvas_resolver import PRESETS
-    from models import framegraph as model
+    from frameforge.rendering.domain.services.canvas_resolver import PRESETS
+    from models import frameforge as model
     assert set(PRESETS) == set(typing.get_args(model.PagePreset))
 
 

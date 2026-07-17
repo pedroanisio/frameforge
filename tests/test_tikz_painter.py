@@ -12,8 +12,8 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.infrastructure.painters.tikz import TikzPainter  # noqa: E402
-from framegraph.rendering.domain.services.stroke_resolver import Markers, Stroke  # noqa: E402
+from frameforge.rendering.infrastructure.painters.tikz import TikzPainter  # noqa: E402
+from frameforge.rendering.domain.services.stroke_resolver import Markers, Stroke  # noqa: E402
 
 
 def test_rect_fill_and_stroke_value_objects():
@@ -127,12 +127,12 @@ def test_clip_registry_and_wrap():
 
 
 def _grad_painter():
-    from framegraph.rendering.domain.services.paint_resolver import ColorResolver
+    from frameforge.rendering.domain.services.paint_resolver import ColorResolver
     return TikzPainter(ColorResolver({}))
 
 
 def test_gradient_handle_is_value_object():
-    from framegraph.rendering.domain.services.paint_resolver import GradientPaint
+    from frameforge.rendering.domain.services.paint_resolver import GradientPaint
     p = _grad_painter()
     g = p.gradient({"kind": "linear", "stops": [{"position": 0, "color": "#000"}]})
     assert isinstance(g, GradientPaint) and g.spec["kind"] == "linear"
@@ -267,7 +267,7 @@ def test_embedded_svg_falls_back_to_title_text():
 def test_tikz_painter_covers_full_scenepainter_surface():
     # TikzPainter now implements the entire ScenePainter port surface, plus the
     # anchor/style_group helpers the builder calls.
-    from framegraph.rendering.domain.ports import ScenePainter
+    from frameforge.rendering.domain.ports import ScenePainter
     port_methods = {m for m in vars(ScenePainter) if not m.startswith("_")}
     missing = {m for m in port_methods if not hasattr(TikzPainter, m)}
     assert missing == set(), f"unexpected gaps: {missing}"

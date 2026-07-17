@@ -22,12 +22,12 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.sdk import expand, render_pages_with_stats  # noqa: E402
-from framegraph.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge.sdk import expand, render_pages_with_stats  # noqa: E402
+from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 
 def _doc(graph_obj):
-    return {"dsl": "FrameGraph", "version": HEAD_VERSION, "title": "g",
+    return {"dsl": "FrameForge", "version": HEAD_VERSION, "title": "g",
             "profile": "diagram",
             "pages": [{"mode": "page", "id": "p",
                        "canvas": {"size": [400, 300], "units": "px"},
@@ -133,7 +133,7 @@ def test_empty_graph_is_an_empty_group_not_a_crash():
 def test_graph_absence_leaves_the_document_untouched():
     """A document with no graph/use/component must pass through expand
     byte-identical (the golden-stability guard)."""
-    plain = {"dsl": "FrameGraph", "version": HEAD_VERSION, "title": "plain",
+    plain = {"dsl": "FrameForge", "version": HEAD_VERSION, "title": "plain",
              "profile": "diagram",
              "pages": [{"mode": "page", "id": "p",
                         "canvas": {"size": [100, 100], "units": "px"},
@@ -167,7 +167,7 @@ def test_committed_showcase_fixture_renders_clean():
 
 
 def test_graph_to_object_round_trips_through_expand():
-    from framegraph.sdk.topology import Graph
+    from frameforge.sdk.topology import Graph
     g = Graph().node("a", "A").node("b", "B").edge("a", "b", directed=True)
     obj = g.to_object(box=[0, 0, 200, 120], algorithm="layered", id="rt")
     assert obj["type"] == "graph" and obj["id"] == "rt"

@@ -29,12 +29,12 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, serialize  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1000, 720
 CANVAS = {"size": [W, H], "units": "px"}
@@ -186,7 +186,7 @@ def render_identity(b: DocumentBuilder, idn: dict) -> None:
 
     # footer
     page.text([72, H - 70, W - 144, 18],
-              "Same skeleton · different identity · FrameGraph SDK", style=sc("foot"))
+              "Same skeleton · different identity · FrameForge SDK", style=sc("foot"))
 
 
 def build() -> DocumentBuilder:

@@ -12,8 +12,8 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.domain.services.math_text import math_text  # noqa: E402
-from framegraph.rendering.infrastructure.math_svg import MathSvgRenderer, _strip_mathml  # noqa: E402
+from frameforge.rendering.domain.services.math_text import math_text  # noqa: E402
+from frameforge.rendering.infrastructure.math_svg import MathSvgRenderer, _strip_mathml  # noqa: E402
 
 
 def test_math_text_transliterations():

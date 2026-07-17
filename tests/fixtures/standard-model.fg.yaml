@@ -1,11 +1,11 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# DISCLAIMER (required frontmatter / not part of the FrameGraph data model)
+# DISCLAIMER (required frontmatter / not part of the FrameForge data model)
 
-# v2 CHANGE: every drawing is now DEFINED as FrameGraph objects (symbols + groups +
+# v2 CHANGE: every drawing is now DEFINED as FrameForge objects (symbols + groups +
 # rects/ellipses/text/lines), not referenced as an external image. See meta.drawings.
 # ---------------------------------------------------------------------------------
 
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 profile: report
 title: The Standard Model
@@ -2889,7 +2889,7 @@ pages:
         was judged not worth the verbosity for fidelity of content.
       - Inline hyperlinks flattened to plain text because the grammar has no inline-link construct; targets preserved
         in meta.links.
-      - 'v2: opaque image `src` figures replaced by composed FrameGraph object graphs; defs.assets removed (URLs
+      - 'v2: opaque image `src` figures replaced by composed FrameForge object graphs; defs.assets removed (URLs
         retained in meta.source_images).'
       known_inconsistencies:
       - Source states up/down quark masses as 2.3 / 4.8 MeV/c² in the 'mass' section (proton mass-defect table)
@@ -2968,7 +2968,7 @@ pages:
       quantity-mass: https://physics.info/standard/quantity-mass.svg
       force-higgs: https://physics.info/standard/force-higgs.svg
     drawings:
-      approach: All figures are composed from FrameGraph VisualObjects (no image src). The shared particle grid
+      approach: All figures are composed from FrameForge VisualObjects (no image src). The shared particle grid
         is defined once as defs.symbols.sm_grid_symbols (symbols) / sm_grid_names (full names), built from a reusable
         defs.symbols.card. Each overlay figure is a GroupObject = translucent region rects (low z) + use(sm_grid_symbols)
         (z=5) + region labels (z=10), embedded in the article via FigureFlow.object.

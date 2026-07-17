@@ -4,7 +4,7 @@ disclaimer:
     No information within this document should be taken for granted.
     Any statement or premise not backed by a real logical definition
     or verifiable reference may be invalid, erroneous, or a hallucination.
-  generated_by: "Claude Opus 4.8 via Claude Code (FrameGraph MCP server)"
+  generated_by: "Claude Opus 4.8 via Claude Code (FrameForge MCP server)"
   date: "2026-07-15"
 title: "Lesson 03 — Reconstruct a typeset page"
 ---
@@ -13,7 +13,7 @@ title: "Lesson 03 — Reconstruct a typeset page"
 
 **Goal:** rebuild a chapter-opening book page — tracked label, origami ornament,
 display title, two-line drop cap, and nine lines of **justified** body text — as
-a FrameGraph document, and prove it matches by measurement.
+a FrameForge document, and prove it matches by measurement.
 
 | | |
 |---|---|
@@ -28,8 +28,8 @@ a FrameGraph document, and prove it matches by measurement.
     <figcaption><em>Source page</em></figcaption>
   </figure>
   <figure style="margin:0;flex:1">
-    <img src="render/reconstruction.png" alt="The FrameGraph reconstruction of the same page" style="width:100%">
-    <figcaption><em>FrameGraph reconstruction</em></figcaption>
+    <img src="render/reconstruction.png" alt="The FrameForge reconstruction of the same page" style="width:100%">
+    <figcaption><em>FrameForge reconstruction</em></figcaption>
   </figure>
 </div>
 
@@ -39,7 +39,7 @@ is a colour; it is a face, a size, a baseline, a measure, and a justifier. So th
 instruments change — and one of them turns out to be broken.
 
 !!! warning "The finding, up front"
-    `text_align: justify` is a **silent no-op** on FrameGraph's SVG text. The
+    `text_align: justify` is a **silent no-op** on FrameForge's SVG text. The
     model accepts it, the validator returns `ok: true`, the renderer emits it into
     the SVG, and nothing justifies. The first draft of this page rendered
     ragged-right while reporting a clean bill of health. See [step 5](#5-the-no-op).
@@ -262,7 +262,7 @@ One pass took every line's right edge from −4…−2 px to **exactly 0**.
 ```jsonc
 compare_images({
   reference: "docs/tutorial/lesson-03/target/lesson-03.png",
-  candidate: "framegraph://session/lesson-03-final/page/1.png",
+  candidate: "frameforge://session/lesson-03-final/page/1.png",
   session_id: "lesson-03-compare",
   regions: [ { name: "chapter-label", box: [0.30, 0.10, 0.40, 0.03] },
              { name: "ornament",      box: [0.40, 0.21, 0.20, 0.09] },

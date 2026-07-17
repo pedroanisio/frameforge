@@ -12,9 +12,9 @@ import tempfile
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 import validate as V  # noqa: E402
 
@@ -23,7 +23,7 @@ def _doc(objects, canvas=None):
     page = {"mode": "page", "id": "p", "layers": [{"id": "l", "objects": objects}]}
     if canvas:
         page["canvas"] = canvas
-    return {"dsl": "FrameGraph", "version": "2.2.0", "pages": [page]}
+    return {"dsl": "FrameForge", "version": "2.2.0", "pages": [page]}
 
 
 def _findings(doc, strict=False):
@@ -215,7 +215,7 @@ def test_flow_section_figure_object_is_walked():
     # a figure in a flow story carries a visual object -> _walk_flow recursion
     flow = {"mode": "flow", "id": "f", "master": "m", "story": [
         {"type": "figure", "object": {"type": "circle", "center": [5, 5], "r": 4}}]}
-    doc = {"dsl": "FrameGraph", "version": "2.2.0", "pages": [flow]}
+    doc = {"dsl": "FrameForge", "version": "2.2.0", "pages": [flow]}
     assert "deprecated-alias" in _codes(doc)
 
 
@@ -224,7 +224,7 @@ def _renderer_presets():
     """CanvasResolver.PRESETS/DEFAULT_WH read straight from the source file (AST),
     so this gate holds without importing the rendering package."""
     import ast
-    src = os.path.join(ROOT, "src", "framegraph", "rendering", "domain", "services",
+    src = os.path.join(ROOT, "src", "frameforge", "rendering", "domain", "services",
                        "canvas_resolver.py")
     presets = default = None
     for node in ast.parse(open(src, encoding="utf-8").read()).body:
@@ -248,10 +248,10 @@ def test_preset_table_matches_the_renderer():
 def test_every_model_preset_resolves():
     import typing
     sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
-    shadow = sys.modules.get("framegraph")
+    shadow = sys.modules.get("frameforge")
     if shadow is not None and hasattr(shadow, "__path__"):  # rendering package shadows the models
-        del sys.modules["framegraph"]
-    import framegraph as fg
+        del sys.modules["frameforge"]
+    import frameforge as fg
     for preset in typing.get_args(fg.PagePreset):
         assert V._canvas_wh(preset), f"PagePreset {preset!r} has no size in the validator table"
 

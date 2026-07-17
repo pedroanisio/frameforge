@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Using imported assets — recolour/gradient them, or trace on top of them.
 
-`place_figure` imports another FrameGraph page's objects as EDITABLE children
+`place_figure` imports another FrameForge page's objects as EDITABLE children
 (deepcopied, not a frozen image), so an ingested asset can be:
 
   01 reused as-is        p.figure(src, box, page=...)
@@ -21,12 +21,12 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, os.path.join(ROOT, "static", "examples"))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, merge_figure_defs, place_figure, serialize  # noqa: E402
-from framegraph.sdk.paint import linear_gradient, rgba  # noqa: E402
+from frameforge.sdk import DocumentBuilder, merge_figure_defs, place_figure, serialize  # noqa: E402
+from frameforge.sdk.paint import linear_gradient, rgba  # noqa: E402
 from landing_headers import ring, cross, _dot  # noqa: E402  — reuse the kit to draw on top
 
 SRC = os.path.join(ROOT, "out", "coach", "coach-demo.fg.yaml")   # the styled owl asset
@@ -127,7 +127,7 @@ doc = build_document()
 
 
 def main() -> int:
-    from framegraph.sdk.validate import validate_static_rules
+    from frameforge.sdk.validate import validate_static_rules
     built = doc.build()
     rep = validate_static_rules(built)
     errs = [i for i in rep.issues if i.severity == "error"]

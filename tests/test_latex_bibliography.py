@@ -11,16 +11,16 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
 
 
 def _doc(bib):
-    return {"dsl": "FrameGraph", "version": "2.2.0", "profile": "book", "title": "b",
+    return {"dsl": "FrameForge", "version": "2.2.0", "profile": "book", "title": "b",
             "pages": [{"mode": "flow", "id": "p", "story": [bib]}]}
 
 

@@ -174,7 +174,7 @@
 
 <div class="wrap">
 <header>
-  <div class="eyebrow"><span class="dot"></span> FrameGraph v2 · Architectural Decision Analysis · ADR-draft</div>
+  <div class="eyebrow"><span class="dot"></span> FrameForge v2 · Architectural Decision Analysis · ADR-draft</div>
   <h1>Gating against <em>same-layer text collisions</em></h1>
   <p class="thesis">The model is now settled: <em>collision = an unintended overlap</em> — overlap itself is a first-class effect, gated by consent, not legibility. What's left to decide is <em>how</em> to enforce it, given that a static box check provably floods and the only reliable ink lives at render time.</p>
   <div class="ruler"></div>
@@ -235,7 +235,7 @@
 <!-- 02 EVIDENCE -->
 <section>
   <div class="sec-h"><span class="sec-n">02</span><h2>The finding that reframes the decision</h2></div>
-  <p class="prose">The user's original steer — "add a validator rule" — assumes a static geometric check is feasible. It is not. I ran four variants against the full committed fixture corpus. Every box-based approach floods, because a FrameGraph box is a <em>layout region</em>, routinely larger than the text it holds; box overlap ≠ text collision.</p>
+  <p class="prose">The user's original steer — "add a validator rule" — assumes a static geometric check is feasible. It is not. I ran four variants against the full committed fixture corpus. Every box-based approach floods, because a FrameForge box is a <em>layout region</em>, routinely larger than the text it holds; box overlap ≠ text collision.</p>
   <div class="scroll" style="margin-top:16px">
     <table>
       <thead><tr><th>Approach</th><th>Metrics</th><th>False positives</th><th>Why it fails</th></tr></thead>
@@ -515,8 +515,8 @@
 </section>
 
 <footer>
-  <div><b>Architectural Decision Analysis · rev 2</b> · FrameGraph v2 · collision-gate/2026-07 · analysis, not a committed ADR</div>
-  <div>Model: <b>docs/spec/viewport-definition-proposal.md</b> · evidence: 4-variant corpus scan (tests/fixtures + b1) · render path <b>src/framegraph/rendering/application/renderer.py:276</b> · estimate <b>src/framegraph/rendering/domain/services/text_fitter.py:36</b></div>
+  <div><b>Architectural Decision Analysis · rev 2</b> · FrameForge v2 · collision-gate/2026-07 · analysis, not a committed ADR</div>
+  <div>Model: <b>docs/spec/viewport-definition-proposal.md</b> · evidence: 4-variant corpus scan (tests/fixtures + b1) · render path <b>src/frameforge/rendering/application/renderer.py:276</b> · estimate <b>src/frameforge/rendering/domain/services/text_fitter.py:36</b></div>
   <div class="disc">
     <span class="kbd">DISCLAIMER —</span> No statement here should be taken for granted. Corpus false-positive counts are reproducible scans against the committed fixtures at analysis time; the "≈0.62 uppercase advance" is an estimate, not a measured Ember value — the §07 gating question exists precisely because that must be verified, not assumed. <b>generated_by</b> Claude Opus 4.8 via Claude Code · <b>date</b> 2026-07-03.
   </div>

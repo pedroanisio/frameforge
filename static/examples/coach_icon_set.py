@@ -23,12 +23,12 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, serialize  # noqa: E402
-from framegraph.coach import resolve_style, stage_rubric, to_silhouette  # noqa: E402
+from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge.coach import resolve_style, stage_rubric, to_silhouette  # noqa: E402
 
 W, H, M = 1240, 640, 70
 INK_UI, SUB, BG, PAPER = "#1E2030", "#8A90A6", "#F2F3F8", "#FFFFFF"
@@ -196,7 +196,7 @@ def _signatures(kits):
 
 
 def main() -> int:
-    from framegraph.sdk.validate import validate_static_rules
+    from frameforge.sdk.validate import validate_static_rules
     built = doc.build()
     rep = validate_static_rules(built)
     errs = [i for i in rep.issues if i.severity == "error"]

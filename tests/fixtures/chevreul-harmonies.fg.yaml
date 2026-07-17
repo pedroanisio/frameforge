@@ -1,9 +1,9 @@
-# Canonical fixture for framegraph.sdk.chevreul (the colour canon).
+# Canonical fixture for frameforge.sdk.chevreul (the colour canon).
 # GENERATED from the module's own output — every colour below is computed by
 # the wheel / six-harmony / closed-palette functions (see the module docstring
 # for sources: Chevreul 1839; WCAG 2.1 for the contrast figure). Regenerate
 # with the recipe in the module docs rather than hand-editing colour values.
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.3.0
 profile: report
 title: Chevreul canon — the six harmonies

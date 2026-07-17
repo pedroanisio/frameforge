@@ -1,5 +1,5 @@
 {
-  "dsl": "FrameGraph",
+  "dsl": "FrameForge",
   "version": "2.0.0",
   "profile": "report",
   "title": "Spectral Methods for the Heat Equation",
@@ -205,7 +205,7 @@
     }
   ],
   "meta": {
-    "encoding": "FrameGraph v2 (JSON projection)",
+    "encoding": "FrameForge v2 (JSON projection)",
     "exercises": ["numbering", "cross-references", "toc", "footnotes", "citations", "bibliography", "block-math", "inline-math", "block-code", "inline-code"]
   }
 }

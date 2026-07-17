@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""SVG -> FrameGraph object importer (the ingestion back-end).
+"""SVG -> FrameForge object importer (the ingestion back-end).
 
 Any tool that emits SVG (a vectorizer, Inkscape, Illustrator) lowers into
-FrameGraph primitives through svg_to_objects, which the renderer then draws 1:1.
+FrameForge primitives through svg_to_objects, which the renderer then draws 1:1.
 """
 from __future__ import annotations
 
@@ -11,12 +11,12 @@ import sys
 from pathlib import Path
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
+from frameforge.vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
 
 
 def test_circle_lowers_to_ellipse_with_fill():
@@ -93,7 +93,7 @@ def test_undefined_gradient_still_falls_back_to_grey():
 
 def test_resolved_gradient_renders_a_gradient():
     objs = svg_to_objects(_GRAD_SVG)
-    from framegraph.sdk import DocumentBuilder, render_page_svgs
+    from frameforge.sdk import DocumentBuilder, render_page_svgs
     b = DocumentBuilder(title="grad")
     pg = b.page("p", canvas={"size": [10, 10], "units": "px"}, coordinate_mode="absolute")
     layer = pg.layer("m")
@@ -116,12 +116,12 @@ def test_data_attrs_no_data_leaves_no_meta():
     assert "meta" not in svg_to_objects(svg, data_attrs=True)[0]
 
 
-def test_real_corpus_svg_roundtrips_through_framegraph():
-    """A real multi-path vector imports and renders through FrameGraph's engine."""
+def test_real_corpus_svg_roundtrips_through_frameforge():
+    """A real multi-path vector imports and renders through FrameForge's engine."""
     objs = svg_to_objects(Path(ROOT) / "tests/fixtures/corpus/vector/wikimedia-nasa-logo.svg",
                           box=[0, 0, 200, 200])
     assert len(objs) >= 40  # circles (stars) + the 11 paths
-    from framegraph.sdk import DocumentBuilder, render_page_svgs
+    from frameforge.sdk import DocumentBuilder, render_page_svgs
     b = DocumentBuilder(title="import")
     pg = b.page("p", canvas={"size": [200, 200], "units": "px"}, coordinate_mode="absolute")
     layer = pg.layer("m")

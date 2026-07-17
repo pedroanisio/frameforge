@@ -1,4 +1,4 @@
-# FrameGraph expressiveness corpus — source manifest.
+# FrameForge expressiveness corpus — source manifest.
 #
 # The corpus is split into two licensing classes, both freely vendorable here:
 #   * PUBLIC DOMAIN  — CC0, expired copyright, or U.S. federal works (no strings)
@@ -139,7 +139,7 @@ entries:
     format: png
     license: CC0-1.0
     license_url: https://creativecommons.org/publicdomain/zero/1.0/
-    source: FrameGraph (original mockup)
+    source: FrameForge (original mockup)
     generated: true
     generator: viewer/dev/render-ui-corpus.cjs
     title: "Mobile app screen @3x (1170×2532) — cards, gradients, chart, nav"
@@ -150,14 +150,14 @@ entries:
     format: png
     license: CC0-1.0
     license_url: https://creativecommons.org/publicdomain/zero/1.0/
-    source: FrameGraph (original mockup)
+    source: FrameForge (original mockup)
     generated: true
     generator: viewer/dev/render-ui-corpus.cjs
     title: "Analytics dashboard @2x (2880×1800) — sidebar, KPIs, charts, table"
 
   # ---- Reference suite: per-feature SVG (resvg test suite, MIT — permissive) ----
   # The isolated-feature reference fixtures that fill the per-effect coverage gap:
-  # one SVG construct per file, each exercising a Style/effect surface FrameGraph
+  # one SVG construct per file, each exercising a Style/effect surface FrameForge
   # models. MIT-licensed, so vendored WITH attribution (below).
   - id: resvg-filter-simple
     url: https://raw.githubusercontent.com/linebender/resvg-test-suite/master/tests/filters/filter/simple-case.svg

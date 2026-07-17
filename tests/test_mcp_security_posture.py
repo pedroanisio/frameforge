@@ -3,7 +3,7 @@
 
 An agent (or operator) connecting to the server must be able to ask, at
 runtime, what the effective confinement is: which propose-input roots apply
-(``FRAMEGRAPH_MCP_INPUT_ROOTS``), which client roots are editable, and how SDK
+(``FRAMEFORGE_MCP_INPUT_ROOTS``), which client roots are editable, and how SDK
 code is executed (subprocess isolation, timeout, secret-env stripping). The
 posture is computed PER CALL — flipping an env var must be reflected by the
 next call in the same process — and is surfaced through
@@ -15,17 +15,17 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.mcp.server import describe_capabilities  # noqa: E402
+from frameforge.mcp.server import describe_capabilities  # noqa: E402
 
 _POSTURE_ENV_VARS = (
-    "FRAMEGRAPH_MCP_INPUT_ROOTS",
-    "FRAMEGRAPH_MCP_KEEP_ENV",
-    "FRAMEGRAPH_MCP_EDIT_ROOTS",
+    "FRAMEFORGE_MCP_INPUT_ROOTS",
+    "FRAMEFORGE_MCP_KEEP_ENV",
+    "FRAMEFORGE_MCP_EDIT_ROOTS",
 )
 
 
@@ -35,7 +35,7 @@ def _clear_posture_env(monkeypatch) -> None:
 
 
 def _posture() -> dict:
-    from framegraph.mcp.security import security_posture
+    from frameforge.mcp.security import security_posture
 
     return security_posture()
 
@@ -50,11 +50,11 @@ def test_default_env_reports_open_mode_with_warnings(monkeypatch):
     warnings = posture["warnings"]
     assert isinstance(warnings, list) and warnings, "open mode must warn"
     assert any("any readable path" in warning for warning in warnings)
-    assert any("FRAMEGRAPH_MCP_INPUT_ROOTS" in warning for warning in warnings)
+    assert any("FRAMEFORGE_MCP_INPUT_ROOTS" in warning for warning in warnings)
 
 
 def test_default_edit_roots_cover_the_repo_client_root(monkeypatch):
-    from framegraph.mcp.paths import get_default_repo_root
+    from frameforge.mcp.paths import get_default_repo_root
 
     _clear_posture_env(monkeypatch)
 
@@ -82,7 +82,7 @@ def test_code_execution_posture_defaults(monkeypatch):
 
 def test_input_roots_env_switches_to_restricted_mode(tmp_path, monkeypatch):
     _clear_posture_env(monkeypatch)
-    monkeypatch.setenv("FRAMEGRAPH_MCP_INPUT_ROOTS", str(tmp_path))
+    monkeypatch.setenv("FRAMEFORGE_MCP_INPUT_ROOTS", str(tmp_path))
 
     posture = _posture()
 
@@ -94,7 +94,7 @@ def test_input_roots_env_switches_to_restricted_mode(tmp_path, monkeypatch):
 
 def test_keep_env_disables_secret_stripping(monkeypatch):
     _clear_posture_env(monkeypatch)
-    monkeypatch.setenv("FRAMEGRAPH_MCP_KEEP_ENV", "1")
+    monkeypatch.setenv("FRAMEFORGE_MCP_KEEP_ENV", "1")
 
     assert _posture()["code_execution"]["env_secret_stripping"] is False
 
@@ -106,14 +106,14 @@ def test_posture_is_computed_per_call(tmp_path, monkeypatch):
     assert first["input_roots"]["mode"] == "open"
     assert first["code_execution"]["env_secret_stripping"] is True
 
-    monkeypatch.setenv("FRAMEGRAPH_MCP_INPUT_ROOTS", str(tmp_path))
-    monkeypatch.setenv("FRAMEGRAPH_MCP_KEEP_ENV", "1")
+    monkeypatch.setenv("FRAMEFORGE_MCP_INPUT_ROOTS", str(tmp_path))
+    monkeypatch.setenv("FRAMEFORGE_MCP_KEEP_ENV", "1")
     second = _posture()
     assert second["input_roots"]["mode"] == "restricted"
     assert second["code_execution"]["env_secret_stripping"] is False
 
-    monkeypatch.delenv("FRAMEGRAPH_MCP_INPUT_ROOTS")
-    monkeypatch.delenv("FRAMEGRAPH_MCP_KEEP_ENV")
+    monkeypatch.delenv("FRAMEFORGE_MCP_INPUT_ROOTS")
+    monkeypatch.delenv("FRAMEFORGE_MCP_KEEP_ENV")
     third = _posture()
     assert third["input_roots"]["mode"] == "open"
     assert third["code_execution"]["env_secret_stripping"] is True

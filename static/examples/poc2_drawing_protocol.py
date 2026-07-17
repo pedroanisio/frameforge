@@ -6,7 +6,7 @@ Tests the three load-bearing claims with REAL execution, not prose:
   3. measurable gate     : detect + auto-correct a proportion defect numerically
 
 A tiny 3D vector engine (pinhole projection + painter's sort + lambert shading)
-drives a blocky mascot built in head-units. Rendered through FrameGraph's own
+drives a blocky mascot built in head-units. Rendered through FrameForge's own
 engine. Output: a cameras x styles matrix + a gate before/after panel.
 """
 import copy
@@ -14,7 +14,7 @@ import math
 import sys
 import os
 sys.path.insert(0, os.environ.get("FG_ROOT", "."))
-from framegraph.sdk import DocumentBuilder, render_page_svgs
+from frameforge.sdk import DocumentBuilder, render_page_svgs
 
 # ---------- tiny 3D ---------------------------------------------------------- #
 def roty(p, a):

@@ -32,11 +32,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Camera,
     DocumentBuilder,
     Scene3D,
@@ -51,7 +51,7 @@ from framegraph.sdk import (  # noqa: E402
     serialize,
     table,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1440, 900
 M = 56
@@ -536,7 +536,7 @@ def cover(b):
         _t([M + 24, 88, 900, 20], "PATENT OFFICES · WORLDWIDE PRIOR ART", "reg"),
         _t([M + 24, 116, 1150, 130], "Fighter-Jet Mechanisms, Reconstructed in 3D", "cover"),
         _t([M + 24, 250, 1000, 30], "Three patented articulated assemblies, rebuilt as real "
-           "FrameGraph Scene3D geometry", "cover", font_size=22, color="#A9B6CE",
+           "FrameForge Scene3D geometry", "cover", font_size=22, color="#A9B6CE",
            letter_spacing=-0.3),
         _t([M + 24, 296, 980, 120],
            "Sourced from the USPTO and the European Patent Office (Espacenet/Google Patents "
@@ -554,7 +554,7 @@ def cover(b):
                         f"{meta['patent']} · {meta['assignee_short']} · {meta['office']}",
                         "idxk"))
     notes.append(_t([M + 24, H - 56, 1000, 16],
-                    "Built with framegraph.sdk · Scene3D (mesh/tube/oriented-box primitives) "
+                    "Built with frameforge.sdk · Scene3D (mesh/tube/oriented-box primitives) "
                     "· one composed document", "foot"))
     page.add({"type": "group", "children": notes, "meta": {"role": "labels"}})
 

@@ -35,7 +35,7 @@ LONG = ("A page works on the reader twice; once through its letters and once "
 
 
 def _doc(text_obj):
-    return {"dsl": "FrameGraph", "version": "2.3.0", "title": "t",
+    return {"dsl": "FrameForge", "version": "2.3.0", "title": "t",
             "pages": [{"mode": "page", "id": "p1",
                        "canvas": {"size": [400, 300], "units": "px"},
                        "layers": [{"id": "l1", "objects": [text_obj]}]}]}
@@ -115,10 +115,10 @@ def test_overflow_report_names_objects_and_strict_fails():
 
 def test_mcp_render_result_carries_truncations(tmp_path):
     import yaml as _yaml
-    from framegraph.mcp.usecases import render_framegraph_yaml
+    from frameforge.mcp.usecases import render_frameforge_yaml
     doc = _doc({"id": "lede", "type": "text", "box": [20, 20, 200, 18],
                 "text": LONG, "style": {"font_size": 14}})
-    result = render_framegraph_yaml(_yaml.safe_dump(doc, sort_keys=False),
+    result = render_frameforge_yaml(_yaml.safe_dump(doc, sort_keys=False),
                                     session_id="trunc", session_root=tmp_path,
                                     raster_png=False)
     assert result["ok"] is True

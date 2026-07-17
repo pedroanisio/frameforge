@@ -15,15 +15,15 @@ import tempfile
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):  # the rendering package
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 import validate as V  # noqa: E402
 
 
 def _doc(objects, defs=None, targets=None, pages_extra=None):
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "pages": [{"mode": "page", "id": "p",
                       "layers": [{"id": "l", "objects": objects}]}]}
     if defs:
@@ -67,7 +67,7 @@ def test_connector_object_key_and_resolvable_ref_pass():
 
 
 def test_anchor_resolves_across_layers_and_group_children():
-    doc = {"dsl": "FrameGraph", "version": "2.2.0", "pages": [{
+    doc = {"dsl": "FrameForge", "version": "2.2.0", "pages": [{
         "mode": "page", "id": "p", "layers": [
             {"id": "nodes", "objects": [{"type": "group", "children": [
                 {"type": "rect", "id": "nested", "box": [0, 0, 5, 5]}]}]},
@@ -112,7 +112,7 @@ def test_use_with_known_symbol_passes():
 
 # --- master names + region chains ---------------------------------------------- #
 def test_flow_section_with_unknown_master_is_an_error():
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "defs": {"masters": {"body": {"canvas": "A4"}}},
            "pages": [{"mode": "flow", "id": "f", "master": "ghost",
                       "story": [{"type": "paragraph", "text": "x"}]}]}
@@ -130,7 +130,7 @@ def test_page_master_and_master_next_are_checked():
 
 
 def test_region_next_must_name_a_region_of_the_same_master():
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "defs": {"masters": {"body": {"canvas": "A4", "regions": [
                {"id": "main", "box": [0, 0, 500, 700], "next": "ghost"}]}}},
            "pages": [{"mode": "flow", "id": "f", "master": "body",
@@ -177,7 +177,7 @@ def test_span_and_cell_style_tokens_are_checked():
 
 
 def test_flowable_style_tokens_are_checked():
-    doc = {"dsl": "FrameGraph", "version": "2.2.0",
+    doc = {"dsl": "FrameForge", "version": "2.2.0",
            "defs": {"masters": {"body": {"canvas": "A4"}}},
            "pages": [{"mode": "flow", "id": "f", "master": "body",
                       "story": [{"type": "paragraph", "text": "x", "style": "ghost"}]}]}

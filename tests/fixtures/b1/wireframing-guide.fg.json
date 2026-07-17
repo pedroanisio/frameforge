@@ -1,8 +1,8 @@
 {
-  "dsl": "FrameGraph",
+  "dsl": "FrameForge",
   "version": "2.0.0",
   "profile": "book",
-  "title": "The Guide to Wireframing — first 20 pages (FrameGraph replica)",
+  "title": "The Guide to Wireframing — first 20 pages (FrameForge replica)",
   "description": "Structural replica of pp. 1–20 of UXPin's “The Guide to Wireframing” (Chris Bank). Body text is the real extracted copy; the book's photographic/sketch figures are the authors' copyrighted illustrations, shown as labelled image-placeholders. The cover's wireframe mock is rebuilt from primitives. Layout is representative, not pixel-exact.",
   "lang": "en-US",
   "defs": {
@@ -1108,7 +1108,7 @@
             },
             {
               "type": "text",
-              "text": "(cover — wireframe mock rebuilt from FrameGraph primitives; UXPin logo is a placeholder)",
+              "text": "(cover — wireframe mock rebuilt from FrameForge primitives; UXPin logo is a placeholder)",
               "style": "phnote",
               "box": [
                 50,

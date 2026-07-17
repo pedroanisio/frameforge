@@ -3,7 +3,7 @@
 Closes absorption issue #31. Frameforge lowered *inline* Markdown only
 (`sdk.macros.md`); this converts whole CommonMark/GFM-subset documents into a
 validated `mode: flow` page, reusing the existing inline lowering — one inline
-parser, not two. The ```` ```framegraph ```` pattern-directive degrades to a
+parser, not two. The ```` ```frameforge ```` pattern-directive degrades to a
 structured warning until #29 lands.
 
 Every conversion in this file round-trips through the authoritative model
@@ -23,8 +23,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from framegraph.sdk import from_markdown  # noqa: E402
-from framegraph.sdk.model import validate_document  # noqa: E402
+from frameforge.sdk import from_markdown  # noqa: E402
+from frameforge.sdk.model import validate_document  # noqa: E402
 
 
 def _story(doc):
@@ -117,12 +117,12 @@ def test_front_matter_sets_document_identity():
     assert doc["title"] == "My Doc" and doc["lang"] == "en"
 
 
-def test_framegraph_directive_degrades_to_a_warning():
+def test_frameforge_directive_degrades_to_a_warning():
     sink: list = []
-    doc = from_markdown("# T\n\n```framegraph\nuse: 44\nfill: {}\n```\n\nAfter.\n",
+    doc = from_markdown("# T\n\n```frameforge\nuse: 44\nfill: {}\n```\n\nAfter.\n",
                         warnings=sink)
     validate_document(doc)
-    assert sink and "framegraph" in sink[0] and "#29" in sink[0]
+    assert sink and "frameforge" in sink[0] and "#29" in sink[0]
     # the directive itself emits nothing; surrounding content survives
     assert _kinds(_story(doc)) == ["heading", "paragraph"]
 
@@ -144,7 +144,7 @@ def test_cli_renders_markdown_input(tmp_path):
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join([str(ROOT / "src"), str(ROOT / "docs")])
     proc = subprocess.run(
-        [sys.executable, "-m", "framegraph.cli", str(md), "--to", "svg",
+        [sys.executable, "-m", "frameforge.cli", str(md), "--to", "svg",
          "--out", str(out)],
         capture_output=True, text=True, env=env, cwd=ROOT)
     assert proc.returncode == 0, proc.stdout + proc.stderr

@@ -1,6 +1,6 @@
-site_name: FrameGraph v2 (HEAD)
+site_name: FrameForge v2 (HEAD)
 site_description: >-
-  FrameGraph v2 — a proposed document/graphics DSL. Pydantic models are the
+  FrameForge v2 — a proposed document/graphics DSL. Pydantic models are the
   source of truth; the schema, validator, codemod, and this site are generated
   from or checked against them.
 docs_dir: docs
@@ -81,7 +81,7 @@ nav:
       - ADR-0003 backend-neutral flow layout: adr-0003-backend-neutral-flow-layout.md
       - ADR-0004 single-engine layout: adr-0004-single-engine-layout.md
       - Illustration protocol: illustration-protocol.md
-      - Vector recreation improvements: framegraph-vector-recreation-improvements.md
+      - Vector recreation improvements: frameforge-vector-recreation-improvements.md
       - Brand guideline: BRAND.md
   - Changelog: changelog.md
 

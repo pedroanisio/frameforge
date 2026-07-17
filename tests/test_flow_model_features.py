@@ -23,15 +23,15 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
 sys.path.insert(0, os.path.join(ROOT, "docs", "schema"))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):   # the rendering package
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 import pytest  # noqa: E402
 import yaml  # noqa: E402
 from pydantic import ValidationError  # noqa: E402
 
-import framegraph as fg  # noqa: E402
+import frameforge as fg  # noqa: E402
 import build_schema as B  # noqa: E402
 import validate as V  # noqa: E402
 

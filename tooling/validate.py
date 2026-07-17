@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-validate.py — the FrameGraph v2 HEAD validator.
+validate.py — the FrameForge v2 HEAD validator.
 
 Two layers, in this order:
 
-  1. STRUCTURE — validate the document against models/framegraph.py (the closed
+  1. STRUCTURE — validate the document against models/frameforge.py (the closed
      core profile). Out-of-profile object/flow types (the UML zoo, charts,
      components, ontology) are reported as WARNINGS, not errors — the §8.5
      conformance mechanism — so an extended document still passes with a notice.
@@ -45,7 +45,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "docs", "models")))
 
 import yaml  # noqa: E402
-import framegraph as fg  # noqa: E402
+import frameforge as fg  # noqa: E402
 from pydantic import ValidationError  # noqa: E402
 
 _YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
@@ -67,8 +67,8 @@ DEPRECATED_ALIASES = {"circle", "polygon", "curve", "bezier"}
 #  Canvas presets — sourced from the renderer (single pixel source, spec §4)  #
 # --------------------------------------------------------------------------- #
 _CANVAS_RESOLVER_SRC = os.path.normpath(os.path.join(
-    HERE, "..", "framegraph", "rendering", "domain", "services", "canvas_resolver.py"))
-# Standalone fallback (validate.py must not import the `framegraph` rendering
+    HERE, "..", "frameforge", "rendering", "domain", "services", "canvas_resolver.py"))
+# Standalone fallback (validate.py must not import the `frameforge` rendering
 # package — it would shadow the models module). Kept an exact copy of
 # CanvasResolver.PRESETS/DEFAULT_WH; tests/test_validate.py gates the equality.
 _FALLBACK_PRESETS = {
@@ -694,12 +694,12 @@ def text_fit_checks(doc, base_dir, findings):
     the validate-side face of issue #44. Rendering stays out of the default
     structural pass; this imports the renderer lazily and discards the SVG.
     """
-    # validate binds `framegraph` to the MODEL module; the renderer needs the
+    # validate binds `frameforge` to the MODEL module; the renderer needs the
     # PACKAGE. Swap for the import, restore after (the sync-gates' shadow dance,
     # inverted). Lazy so the default structural pass stays render-free.
-    shadow = sys.modules.get("framegraph")
+    shadow = sys.modules.get("frameforge")
     if shadow is not None and not hasattr(shadow, "__path__"):
-        del sys.modules["framegraph"]
+        del sys.modules["frameforge"]
     try:
         from render_fixtures import Renderer
         r = Renderer(doc, base_dir)
@@ -708,7 +708,7 @@ def text_fit_checks(doc, base_dir, findings):
                 r.render_page(page)
     finally:
         if shadow is not None:
-            sys.modules["framegraph"] = shadow
+            sys.modules["frameforge"] = shadow
     for rec in (r.diagnostics or {}).get("truncations") or []:
         tag = "acknowledged clip" if rec.get("acknowledged") else "SILENT content loss"
         what = (f"dropped {rec.get('lines_dropped', 0)} line(s): "

@@ -2,7 +2,7 @@
 """test_geometry_intersect_3d.py — B8 residual: 3D intersection primitives.
 
 Completes B8's documented residual (the 3D-plane and curve intersections) with the
-foundational 3D-plane/triangle cases in `framegraph.sdk.geometry`:
+foundational 3D-plane/triangle cases in `frameforge.sdk.geometry`:
 
 * `ray_plane_intersection` / `segment_plane_intersection` — a plane as
   ``(point, normal)``; parallel or one-sided misses return ``None``;
@@ -15,11 +15,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Vec3,
     ray_plane_intersection,
     ray_triangle_intersection,

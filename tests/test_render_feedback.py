@@ -11,7 +11,7 @@ Covers the renderer's diagnostics surface:
   filling ``diagnostics["font_fallbacks"]`` with substituted families,
 * the opt-in ``layout_report`` flag records per-object final boxes and fitted
   font sizes,
-* ``FRAMEGRAPH_REAL_METRICS`` reaches the Renderer through every public entry
+* ``FRAMEFORGE_REAL_METRICS`` reaches the Renderer through every public entry
   point (default unchanged: estimate metrics),
 * ``image`` and ``toc`` flowables now RENDER (with leader dots + computed page
   numbers for the toc) instead of dropping.
@@ -23,22 +23,22 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # a non-package (the models module)
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling.render_fixtures import Renderer  # noqa: E402
 
 
 def _flow_doc(story):
-    return {"dsl": "FrameGraph", "version": "2.2.0",
+    return {"dsl": "FrameForge", "version": "2.2.0",
             "pages": [{"mode": "flow", "id": "p", "canvas": {"size": [400, 300]},
                        "story": story}]}
 
 
 def _page_doc(objects):
-    return {"dsl": "FrameGraph", "version": "2.2.0",
+    return {"dsl": "FrameForge", "version": "2.2.0",
             "pages": [{"mode": "page", "id": "p", "canvas": {"size": [300, 200]},
                        "layers": [{"id": "l", "objects": objects}]}]}
 
@@ -78,7 +78,7 @@ def test_swallowed_object_exception_is_recorded():
 
 # ---- font resolution feedback ----------------------------------------------- #
 def test_font_report_surfaces_substituted_families(monkeypatch):
-    import framegraph.rendering.infrastructure.font_metrics as fm
+    import frameforge.rendering.infrastructure.font_metrics as fm
     monkeypatch.setattr(fm, "resolve_family_name", lambda family: "DejaVu Sans")
     doc = _page_doc([{"type": "text", "box": [0, 0, 200, 20], "text": "hello",
                       "style": {"font_family": "Inter"}}])
@@ -91,7 +91,7 @@ def test_font_report_surfaces_substituted_families(monkeypatch):
 
 
 def test_font_report_ignores_generic_only_chains(monkeypatch):
-    import framegraph.rendering.infrastructure.font_metrics as fm
+    import frameforge.rendering.infrastructure.font_metrics as fm
     monkeypatch.setattr(fm, "resolve_family_name", lambda family: "DejaVu Sans")
     doc = _page_doc([{"type": "text", "box": [0, 0, 200, 20], "text": "hello"}])  # default "sans"
     r = Renderer(doc, ".")
@@ -123,12 +123,12 @@ def test_layout_report_is_off_by_default():
 
 # ---- real_metrics reachability ----------------------------------------------- #
 def test_real_metrics_defaults_off(monkeypatch):
-    monkeypatch.delenv("FRAMEGRAPH_REAL_METRICS", raising=False)
+    monkeypatch.delenv("FRAMEFORGE_REAL_METRICS", raising=False)
     assert Renderer({}, ".").real_metrics is False
 
 
 def test_real_metrics_env_opt_in(monkeypatch):
-    monkeypatch.setenv("FRAMEGRAPH_REAL_METRICS", "1")
+    monkeypatch.setenv("FRAMEFORGE_REAL_METRICS", "1")
     assert Renderer({}, ".").real_metrics is True
     # an explicit False (e.g. the golden harness) always wins over the env
     assert Renderer({}, ".", real_metrics=False).real_metrics is False
@@ -213,8 +213,8 @@ def test_render_pages_with_stats_diagnostics_wires_font_report():
     """The advertised font_fallbacks signal must actually fire: diagnostics=True
     calls renderer.font_report() before snapshotting (a substitution otherwise
     stays invisible — the exact silent failure the feature exists to surface)."""
-    from framegraph.rendering.application import renderer as renderer_mod
-    from framegraph.sdk import conform
+    from frameforge.rendering.application import renderer as renderer_mod
+    from frameforge.sdk import conform
 
     calls = []
     real = renderer_mod.Renderer
@@ -226,7 +226,7 @@ def test_render_pages_with_stats_diagnostics_wires_font_report():
                 {"requested": "Ghost Face", "resolved": "DejaVu Sans", "substituted": True}]
             return self.diagnostics["font_fallbacks"]
 
-    doc = {"dsl": "FrameGraph", "version": "2.3.0",
+    doc = {"dsl": "FrameForge", "version": "2.3.0",
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [100, 60]},
                       "layers": [{"id": "l", "objects": [
                           {"type": "text", "box": [4, 4, 90, 20], "text": "hi",

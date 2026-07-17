@@ -2,12 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as yaml from "js-yaml";
-import { normalizeFrameGraphDoc } from "../framegraph-normalize.mjs";
+import { normalizeFrameForgeDoc } from "../frameforge-normalize.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
 const FIXTURES = path.join(ROOT, "tests", "fixtures");
-const SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, "docs/schema/framegraph-v2.schema.json"), "utf8"));
+const SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, "docs/schema/frameforge-v2.schema.json"), "utf8"));
 
 // The viewer's known type sets come from the single registry that
 // schema-contract.mjs gates against the model (drift-risk-map C7). Sourcing them
@@ -36,7 +36,7 @@ function files(dir) {
 function loadDoc(file) {
   const raw = fs.readFileSync(file, "utf8");
   const doc = /\.json$/i.test(file) ? JSON.parse(raw) : yaml.load(raw);
-  return normalizeFrameGraphDoc(doc);
+  return normalizeFrameForgeDoc(doc);
 }
 
 function walkLayerObject(obj, visit) {
@@ -59,7 +59,7 @@ function walkFlowBlock(block, visit) {
 }
 
 const docs = files(FIXTURES).map((file) => ({ file, doc: loadDoc(file) }))
-  .filter(({ doc }) => doc && doc.dsl === "FrameGraph" && Array.isArray(doc.pages));
+  .filter(({ doc }) => doc && doc.dsl === "FrameForge" && Array.isArray(doc.pages));
 
 const failures = [];
 const objectTypes = new Set();
@@ -126,7 +126,7 @@ for (const { file, doc } of docs) {
   }
 }
 
-if (docs.length === 0) failures.push("expected at least one FrameGraph fixture doc, found 0");
+if (docs.length === 0) failures.push("expected at least one FrameForge fixture doc, found 0");
 
 if (failures.length) {
   console.error(failures.join("\n"));

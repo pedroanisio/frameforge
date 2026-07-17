@@ -6,7 +6,7 @@ docs). v2 `shadow`/`glow` are Effect = bool | preset-string | EffectObject; each
 renders as an SVG `<filter>` and the object is wrapped in `<g filter="url(#fx…)">`.
 
 Subprocess (not an in-process import): the rendering package is named
-`framegraph`, which would shadow the `framegraph` models module that
+`frameforge`, which would shadow the `frameforge` models module that
 tests/test_head.py imports in a shared pytest process.
 """
 import glob
@@ -32,7 +32,7 @@ def _read_first_svg(out):
 
 
 def _render_obj(obj):
-    doc = {"dsl": "FrameGraph", "version": "2.2.0", "defs": {},
+    doc = {"dsl": "FrameForge", "version": "2.2.0", "defs": {},
            "pages": [{"mode": "page", "id": "p", "canvas": {"size": [200, 200]},
                       "layers": [{"id": "l", "objects": [obj]}]}]}
     with tempfile.TemporaryDirectory() as td:

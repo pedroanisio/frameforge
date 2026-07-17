@@ -1,11 +1,11 @@
-# FrameGraph v2 — HEAD release
+# FrameForge v2 — HEAD release
 
-A single, internally-consistent cut of **FrameGraph v2** (`2.4.1`) in which the
+A single, internally-consistent cut of **FrameForge v2** (`2.4.1`) in which the
 documents, grammar, schema, prose, and Python code are kept in sync — the Pydantic
 models are the source of truth and everything else is generated from or checked
 against them.
 
-> **Status (unchanged from the project's own stance):** FrameGraph v2 is a **proposed,
+> **Status (unchanged from the project's own stance):** FrameForge v2 is a **proposed,
 > not-yet-conformantly-implemented** format. The prose and grammar are design targets to
 > verify. The parts you can actually *run* — the models, the generated schema, the
 > validator, and the codemod — are the parts to trust.
@@ -13,33 +13,33 @@ against them.
 ## Layout
 
 ```
-src/framegraph/               ← the Python package (strictly downstream of the models — ADR-0002):
+src/frameforge/               ← the Python package (strictly downstream of the models — ADR-0002):
   rendering/                  ← renderer (DDD split): domain + application (the Renderer) + infrastructure.
   sdk/                        ← authoring SDK: builders/geometry/paint/widgets that lower into the models.
   mcp/                        ← MCP server: author→render loop + the coordinate/measurement tool layer.
   vision/                     ← raster→vector lane: measure/compare/vectorize/propose (optional deps).
   coach/                      ← Vector Construction Coach: style-grammar, layer order, silhouette gate.
   live/                       ← local web UI for live MCP feedback sessions (`make live`).
-docs/models/framegraph.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
+docs/models/frameforge.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 docs/schema/
-  framegraph-v2.schema.json   ← GENERATED from the models (85 $defs). Do not hand-edit.
+  frameforge-v2.schema.json   ← GENERATED from the models (85 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
 docs/grammar/
-  framegraph-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.
-  framegraph-v2-style.ebnf    ← the AUTHORITATIVE CSS style module (adopted verbatim at 2.2.0).
-docs/spec/framegraph-v2-spec.md ← the normative prose (folds P1–P4 + the style module + cascade + corrections).
+  frameforge-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.
+  frameforge-v2-style.ebnf    ← the AUTHORITATIVE CSS style module (adopted verbatim at 2.2.0).
+docs/spec/frameforge-v2-spec.md ← the normative prose (folds P1–P4 + the style module + cascade + corrections).
 static/examples/              ← runnable SDK clients — indexed in docs/examples.md (GENERATED).
-  framegraph_logo.py          ← the BRAND LOGO source of truth → generates the (out-of-tree) logo masters.
-  framegraph_seed_deck.py     ← the canonical seed pitch deck (imports the mark + wordmark from above).
+  frameforge_logo.py          ← the BRAND LOGO source of truth → generates the (out-of-tree) logo masters.
+  frameforge_seed_deck.py     ← the canonical seed pitch deck (imports the mark + wordmark from above).
 tooling/
   validate.py                 ← structural (models) + static/geometric rules the schema can't express.
   codemod.py                  ← migrates a document to HEAD (stroke split, size→sizing, gradient, aliases).
   render_fixtures.py          ← SVG render CLI driver (re-exports the Renderer; `--check-overflow` text-fit gate).
   render_chromium.py          ← optional Headless-Chromium SVG→PNG raster renderer (CSS-fidelity path).
   render_fg_doc.py            ← the matplotlib PROXY renderer, patched to HEAD (sanity check only).
-  pdf_to_framegraph_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameGraph YAML extractor.
-  (HTML export moved into the package → `framegraph-render --to html`; the DocumentRenderer
-   port at src/framegraph/rendering/infrastructure/backends/html.py — contract-tested.)
+  pdf_to_frameforge_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameForge YAML extractor.
+  (HTML export moved into the package → `frameforge-render --to html`; the DocumentRenderer
+   port at src/frameforge/rendering/infrastructure/backends/html.py — contract-tested.)
   gen_status.py               ← GENERATES docs/FIXTURE-STATUS.md from the validator (`--check` gates drift).
   gen_docs.py                 ← GENERATES the docs-site pages (reference/gallery/spec/grammar plus SDK docs).
   gen_capability_manifest.py  ← GENERATES docs/capability-manifest.json (core/SDK/MCP status per capability).
@@ -49,15 +49,15 @@ tooling/
   render_golden.py            ← GATES b1/ oracle SVG output against a pinned hash lock (golden).
 tests/fixtures/               ← the original fixtures, migrated to 2.2.0.
   b1/                         ← the 8 AUTHORITATIVE fixtures (the oracle the tests assert against).
-conftest.py                   ← shared pytest bootstrap (sys.path + the framegraph shadow-module rule).
+conftest.py                   ← shared pytest bootstrap (sys.path + the frameforge shadow-module rule).
 tests/
   test_head.py                ← assertions: authoritative fixtures validate, schema in sync, style surface, P3.
   test_docs_in_sync.py        ← doc drift gate: numbers, Layout paths, generated-doc policy, fixture status.
-  test_doc_examples.py        ← validates every complete FrameGraph example shown in the prose.
+  test_doc_examples.py        ← validates every complete FrameForge example shown in the prose.
 docs/ + mkdocs.yml            ← the MkDocs site: `index.md` is hand-written, `sdk*.md` are committed generated snapshots, transient generated pages are ignored, and non-site sources (models/schema/spec/grammar) are `exclude_docs`.
 docs/capability-manifest.json ← GENERATED machine-readable capability status {core, sdk, mcp} (ADR-0002).
 docs/error-codes.md           ← every validator finding code + SDK rule_id: meaning and fix (sync-tested).
-docs/output-space.md          ← what FrameGraph can generate: the verified-today backends + the conceptual output space (anchor drift-gated by tests/test_output_space_doc.py).
+docs/output-space.md          ← what FrameForge can generate: the verified-today backends + the conceptual output space (anchor drift-gated by tests/test_output_space_doc.py).
 docs/BRAND.md                 ← the brand guideline (proposal); §3 governs the generated logo.
 docs/FIXTURE-STATUS.md        ← GENERATED validator status for the delivered fixtures (gen_status.py).
 docs/codebase-standards.md    ← the elevated engineering bar, status-tagged (Enforced / Adopted / Target).
@@ -70,7 +70,7 @@ Makefile + .github/workflows/ ← `make check` = the local gate; CI mirrors it (
 
 ## The sync guarantee (what "in sync" means here, concretely)
 
-1. **Schema ⇄ models.** `docs/schema/framegraph-v2.schema.json` is produced by
+1. **Schema ⇄ models.** `docs/schema/frameforge-v2.schema.json` is produced by
    `Document.model_json_schema()`. `build_schema.py --check` returns non-zero if the
    committed file differs from a fresh build — so they cannot silently drift.
 2. **Validator ⇄ models.** `validate.py` validates against the same `Document` model,
@@ -116,13 +116,13 @@ uv run python tooling/render_chromium.py tests/fixtures/filters.fg.yaml --out ou
 
 # optional PDF text/layout extractor (install PyMuPDF first)
 uv sync --group pdf
-uv run python tooling/pdf_to_framegraph_yml.py input.pdf output.framegraph.yml
+uv run python tooling/pdf_to_frameforge_yml.py input.pdf output.frameforge.yml
 
 # optional MCP server for AI feedback loops:
-# Python SDK code -> generated FrameGraph YAML -> validation + rendered SVG/PNG,
+# Python SDK code -> generated FrameForge YAML -> validation + rendered SVG/PNG,
 # plus the coordinate-aware measurement layer (see "Subsystems" below)
 uv sync --group mcp
-uv run --group mcp python -m framegraph.mcp
+uv run --group mcp python -m frameforge.mcp
 # or: make mcp
 
 # optional local web UI over the same MCP feedback functions
@@ -145,7 +145,7 @@ uv sync --group render                     # adds matplotlib + pillow
 
 ## Subsystems beyond the core
 
-- **MCP measurement layer** (`framegraph/mcp/` + `framegraph/vision/`). Besides
+- **MCP measurement layer** (`frameforge/mcp/` + `frameforge/vision/`). Besides
   the author→render loop, the MCP server exposes a coordinate-aware
   raster→vector reconstruction toolset: `measure_image` (grids/rulers/regions/
   landmarks/zoom crops), `mark_points`, `overlay_images`, a stateful `workspace`
@@ -154,7 +154,7 @@ uv sync --group render                     # adds matplotlib + pillow
   `map_coordinates` (homography/warp). The live tool registry is enumerated in
   [docs/capability-manifest.json](docs/capability-manifest.json); it needs the
   `vision` dependency group.
-- **Vector Construction Coach** (`src/framegraph/coach/`). A staged construction
+- **Vector Construction Coach** (`src/frameforge/coach/`). A staged construction
   loop over the SDK — style-grammar checks, layer-order rules, a silhouette
   gate, SVG ingest/cleaning, and figure-proportion helpers. It coaches
   *construction* discipline; it is not a curve-drawing engine. Demos:
@@ -163,10 +163,10 @@ uv sync --group render                     # adds matplotlib + pillow
   SDK/MCP runtime (thousands of font families baked in) for font-faithful
   raster verification: `make docker-build` / `docker-mcp` / `docker-shell` /
   `docker-fonts`; client wiring in `docker/mcp.docker.json`.
-- **Live UI** (`framegraph/live/`). A local web view over the same MCP feedback
+- **Live UI** (`frameforge/live/`). A local web view over the same MCP feedback
   functions for humans watching/driving a session: `make live`
   (`http://127.0.0.1:8789`, port via `LIVE_PORT`).
-- **Font determinism toolchain** (`src/framegraph/fontpack.py` +
+- **Font determinism toolchain** (`src/frameforge/fontpack.py` +
   `tooling/render_chromium.py`; [ADR-0004](docs/adr-0004-single-engine-layout.md)).
   `fg-font` — `--list` resolvable families, `--check DOC` (non-zero exit if a
   content font would substitute), `--pack DOC --out P.fp` (portable pack of the
@@ -196,9 +196,9 @@ schema from Pydantic, and added the validator + codemod. Full detail in `CHANGEL
 These predecessor documents are **not included in this HEAD bundle** — their content is
 folded into the artifacts above; they are listed only for historical context:
 
-- `FrameGraph-2.0.0-Specification.md` — the spec reverse-engineered from the renderer,
-  superseded by `docs/spec/framegraph-v2-spec.md`.
-- `FrameGraph-2.0.0-Specification-Complement.md` — the reconciliation that produced the
+- `FrameForge-2.0.0-Specification.md` — the spec reverse-engineered from the renderer,
+  superseded by `docs/spec/frameforge-v2-spec.md`.
+- `FrameForge-2.0.0-Specification-Complement.md` — the reconciliation that produced the
   recommendations this release implements; its §8 actions are resolved in `CHANGELOG.md`.
 - The four standalone patch documents (P1–P4) are folded into the grammar, the spec, and
   the models here; they remain useful as rationale.
@@ -215,12 +215,12 @@ folded into the artifacts above; they are listed only for historical context:
 - The current delivered top-level fixture status is generated in `FIXTURE-STATUS.md`;
   at this snapshot **39/39** have zero errors. Advisory warnings, when present, are
   recorded there instead of summarized by hand here.
-- What FrameGraph can — and deliberately will not — generate is mapped in
+- What FrameForge can — and deliberately will not — generate is mapped in
   [docs/output-space.md](docs/output-space.md): the backends wired today (whose
   entry points are drift-gated) plus the conceptual output space the IR admits.
-- How FrameGraph presents itself — name, voice, colour, type, and the logo — is the
+- How FrameForge presents itself — name, voice, colour, type, and the logo — is the
   [docs/BRAND.md](docs/BRAND.md) guideline (a proposal). The logo is *generated*: the
   mark/wordmark source of truth is
-  [static/examples/framegraph_logo.py](static/examples/framegraph_logo.py), which writes
+  [static/examples/frameforge_logo.py](static/examples/frameforge_logo.py), which writes
   the masters out of tree (`_tmp/brand/`) — brand assets are non-core and are not
   tracked in this repository.

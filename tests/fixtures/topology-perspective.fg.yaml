@@ -1,4 +1,4 @@
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.2.0
 profile: diagram
 title: Topology & perspective
@@ -49,7 +49,7 @@ pages:
       - 36
       style: h1
       type: text
-      text: Topology & perspective in the FrameGraph SDK
+      text: Topology & perspective in the FrameForge SDK
     - box:
       - 40
       - 70

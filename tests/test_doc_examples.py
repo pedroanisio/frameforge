@@ -2,8 +2,8 @@
 """
 test_doc_examples.py — P3 executable documentation examples.
 
-Every fenced ```yaml / ```json block in the prose that is a *complete* FrameGraph
-document (carries the `dsl: FrameGraph` marker and has no `…` placeholders) is
+Every fenced ```yaml / ```json block in the prose that is a *complete* FrameForge
+document (carries the `dsl: FrameForge` marker and has no `…` placeholders) is
 parsed and validated against the models. A documentation example that drifts from
 the schema fails CI — the prose can never show an invalid document.
 
@@ -22,16 +22,16 @@ import yaml
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [os.path.join(ROOT, "docs", "models")]
-# the top-level framegraph/ package would shadow models/framegraph.py
-_shadow = sys.modules.get("framegraph")
+# the top-level frameforge/ package would shadow models/frameforge.py
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-import framegraph as fg  # noqa: E402
+import frameforge as fg  # noqa: E402
 
-SOURCES = ["docs/spec/framegraph-v2-spec.md", "docs/index.md", "README.md"]
+SOURCES = ["docs/spec/frameforge-v2-spec.md", "docs/index.md", "README.md"]
 _FENCE = re.compile(r"```(?:yaml|yml|json)\s*\n(.*?)\n```", re.S)
-_DSL = re.compile(r'^\s*(?:dsl\s*:\s*["\']?FrameGraph\b|"dsl"\s*:\s*"FrameGraph")', re.M)
+_DSL = re.compile(r'^\s*(?:dsl\s*:\s*["\']?FrameForge\b|"dsl"\s*:\s*"FrameForge")', re.M)
 
 
 def _has_placeholder(block):
@@ -56,7 +56,7 @@ EXAMPLES = collect_examples()
 
 
 def test_runnable_examples_present():
-    assert EXAMPLES, "no complete FrameGraph examples found in the prose to validate"
+    assert EXAMPLES, "no complete FrameForge examples found in the prose to validate"
 
 
 try:
@@ -71,7 +71,7 @@ except ImportError:  # pragma: no cover - pytest always present in the dev env
 
 if __name__ == "__main__":
     if not EXAMPLES:
-        print("FAIL: no runnable FrameGraph examples found in the prose")
+        print("FAIL: no runnable FrameForge examples found in the prose")
         sys.exit(1)
     failed = 0
     for _name, _block in EXAMPLES:

@@ -59,14 +59,14 @@ def _page_svgs(path: str) -> list[str]:
     with open(path, encoding="utf-8") as fh:
         doc = yaml.safe_load(fh)            # safe_load parses both JSON and YAML
     # real_metrics=False pins estimate-mode text measurement: an explicit bool
-    # always wins over FRAMEGRAPH_REAL_METRICS, so a user's env var cannot cause
+    # always wins over FRAMEFORGE_REAL_METRICS, so a user's env var cannot cause
     # spurious golden drift (the lock is byte-exact estimate-mode output).
-    # FRAMEGRAPH_MATH_SVG=fallback pins math the same way: golden hashes must not
+    # FRAMEFORGE_MATH_SVG=fallback pins math the same way: golden hashes must not
     # depend on whether the optional node + viewer/node_modules MathJax toolchain
     # resolves on this machine (CI never installs it). Scoped + restored so a
     # shared pytest process does not inherit the override.
-    previous = os.environ.get("FRAMEGRAPH_MATH_SVG")
-    os.environ["FRAMEGRAPH_MATH_SVG"] = "fallback"
+    previous = os.environ.get("FRAMEFORGE_MATH_SVG")
+    os.environ["FRAMEFORGE_MATH_SVG"] = "fallback"
     try:
         r = Renderer(doc, os.path.dirname(path), real_metrics=False)
         svgs: list[str] = []
@@ -75,9 +75,9 @@ def _page_svgs(path: str) -> list[str]:
         return svgs
     finally:
         if previous is None:
-            os.environ.pop("FRAMEGRAPH_MATH_SVG", None)
+            os.environ.pop("FRAMEFORGE_MATH_SVG", None)
         else:
-            os.environ["FRAMEGRAPH_MATH_SVG"] = previous
+            os.environ["FRAMEFORGE_MATH_SVG"] = previous
 
 
 def _find_humanize(node, trail: str = "doc"):

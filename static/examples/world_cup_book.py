@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""World Cup — a 20-page illustrated book authored entirely with the FrameGraph SDK.
+"""World Cup — a 20-page illustrated book authored entirely with the FrameForge SDK.
 
 Every page is a hand-composed *vector illustration*: there are no external image
 assets and no runtime CV.  The aim is realism within a flat-vector medium —
@@ -16,7 +16,7 @@ volume from multi-stop gradients, light from a single consistent direction
   deterministic pointillist crowd.
 
 Provenance: AI-generated (Claude Opus 4.8) original illustration, authored
-through ``framegraph.sdk`` and validated against the authoritative model before
+through ``frameforge.sdk`` and validated against the authoritative model before
 serialisation.  Football geometry is grounded in the truncated-icosahedron
 (Goldberg GP(1,1)) construction; coordinates for figures/landscape are [APPROX].
 
@@ -35,12 +35,12 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, Path, serialize, theme  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk import DocumentBuilder, Path, serialize, theme  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas & palette                                                            #
@@ -1196,7 +1196,7 @@ def main() -> int:
     print(f"Wrote {args.yaml}")
 
     if args.render:
-        from framegraph.sdk.conform import render_page_svgs
+        from frameforge.sdk.conform import render_page_svgs
         svgs = render_page_svgs(doc, base_dir=ROOT)
         os.makedirs(args.out, exist_ok=True)
         for idx, svg in enumerate(svgs, 1):

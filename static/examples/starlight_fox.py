@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Starlight Fox — a children's picture book authored entirely with the FrameGraph SDK.
+"""Starlight Fox — a children's picture book authored entirely with the FrameForge SDK.
 
 Every page is a hand-composed *illustration*: there are no external image assets.
 The fox, the little star, the moon, the rolling hills, the silver pond, the owl
 and the tall trees are all drawn from geometry primitives exposed by
-:mod:`framegraph.sdk` — ``Path`` (Bézier / Catmull-Rom curves), polylines,
+:mod:`frameforge.sdk` — ``Path`` (Bézier / Catmull-Rom curves), polylines,
 ellipses, gradient fills and the ``Frame`` mapping helper. The story text is set
 through the same builder, and the whole book is validated against the
 authoritative model before it is serialised.
@@ -28,18 +28,18 @@ import sys
 # package/module name clash the SDK tests document.
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     Path,
     Vec2,
     serialize,
     theme,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas & palette                                                            #
@@ -476,7 +476,7 @@ def page_cover(builder):
     # title
     layer.text([0, 250, W, 100], "Starlight Fox", style={"class": "title"})
     layer.text([0, 372, W, 40], "A BEDTIME STORY", style={"class": "subtitle"})
-    layer.text([0, 832, W, 30], "drawn entirely with the FrameGraph SDK",
+    layer.text([0, 832, W, 30], "drawn entirely with the FrameForge SDK",
                style={"class": "byline"})
 
 
@@ -781,7 +781,7 @@ def main() -> int:
     print(f"Wrote {args.yaml}")
 
     if args.render:
-        from framegraph.sdk.conform import render_page_svgs
+        from frameforge.sdk.conform import render_page_svgs
         svgs = render_page_svgs(doc, base_dir=ROOT)
         os.makedirs(args.out, exist_ok=True)
         for idx, svg in enumerate(svgs, 1):

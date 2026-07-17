@@ -9,7 +9,7 @@ hand-drift (same contract as ``build_schema.py --check`` / ``gen_status.py``):
   MCP tool registry, renderer entry points, validator codes).
 - ``docs/error-codes.md`` — must document every validator finding code in
   ``tooling/validate.py`` and every SDK ``rule_id`` in
-  ``framegraph/sdk/validate.py`` (codes are extracted from the sources, so a
+  ``frameforge/sdk/validate.py`` (codes are extracted from the sources, so a
   new code cannot land undocumented).
 - ``docs/examples.md`` — must list exactly the tracked ``examples/*.py``
   scripts (``tooling/gen_examples_index.py``).
@@ -151,8 +151,8 @@ def test_examples_index_lists_exactly_the_tracked_examples():
 #  conftest contract                                                          #
 # --------------------------------------------------------------------------- #
 def test_root_conftest_provides_package_and_models_fixture(models_fg):
-    import framegraph as pkg
+    import frameforge as pkg
 
-    assert hasattr(pkg, "__path__"), "`import framegraph` must resolve the package"
+    assert hasattr(pkg, "__path__"), "`import frameforge` must resolve the package"
     assert isinstance(models_fg.HEAD_VERSION, str)
     assert hasattr(models_fg, "Document")

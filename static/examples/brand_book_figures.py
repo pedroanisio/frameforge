@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """House visual system + illustration plates for the book *Brand, From Products
-to Source Code* — authored end-to-end through the FrameGraph SDK.
+to Source Code* — authored end-to-end through the FrameForge SDK.
 
 This module is the book's **drawing style**: a single low-chroma editorial
 palette, a reusable imprint mark (the "stamp"), a hairline *ripple* field used as
@@ -37,16 +37,16 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     render_page_svgs,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # The house palette — a sober, print-weight editorial system. One restrained
@@ -210,7 +210,7 @@ def header(page, H, kicker, title, *, sub=None):
 
 def caption(page, H, text, *, width=None):
     """A muted takeaway pinned to the plate's bottom edge; wraps to ≤2 lines."""
-    from framegraph.sdk.metrics import wrap_text
+    from frameforge.sdk.metrics import wrap_text
     cw = width or (W - 2 * MARGIN)
     lines = wrap_text(text, width=cw, font_family=SANS, font_size=12)[:2]
     y0 = H - 30 - (len(lines) - 1) * 15

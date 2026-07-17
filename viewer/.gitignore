@@ -1,6 +1,6 @@
 node_modules/
 
-# Legacy build artifact from the old `cp ../framegraph-viewer.jsx App.jsx` step.
+# Legacy build artifact from the old `cp ../frameforge-viewer.jsx App.jsx` step.
 # entry.jsx now imports the source directly, so this is no longer produced.
 dev/App.jsx
 

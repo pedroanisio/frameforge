@@ -15,7 +15,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.library import (  # noqa: E402
+from frameforge.library import (  # noqa: E402
     honeycomb_capability_map,
     load_example,
     load_symbols,
@@ -23,8 +23,8 @@ from framegraph.library import (  # noqa: E402
     module_hub_radial,
     support_text_styles,
 )
-from framegraph.sdk import expand, render_page_svgs, serialize  # noqa: E402
-from framegraph.sdk.model import HEAD_VERSION  # noqa: E402
+from frameforge.sdk import expand, render_page_svgs, serialize  # noqa: E402
+from frameforge.sdk.model import HEAD_VERSION  # noqa: E402
 
 
 def build():
@@ -38,8 +38,8 @@ def build_symbol_pages():
     theme["text_styles"] = {**theme["text_styles"],
                             **support_text_styles("covers", "sections")}
     authored = {
-        "dsl": "FrameGraph", "version": HEAD_VERSION,
-        "title": "FrameGraph library — symbol packs", "profile": "deck",
+        "dsl": "FrameForge", "version": HEAD_VERSION,
+        "title": "FrameForge library — symbol packs", "profile": "deck",
         "defs": {"tokens": theme,
                  "symbols": load_symbols("covers", "sections")},
         "pages": [
@@ -49,7 +49,7 @@ def build_symbol_pages():
              "layers": [{"id": "main", "objects": [
                  {"type": "use", "symbol": "cover_minimal_sidebar",
                   "box": [0, 0, 960, 540],
-                  "params": {"title": "FrameGraph Library",
+                  "params": {"title": "FrameForge Library",
                              "subtitle": "Themes · symbol packs · generators",
                              "page_number": "01",
                              "bg_color": "#FFFFFF",

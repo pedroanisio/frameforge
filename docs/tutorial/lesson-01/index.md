@@ -4,14 +4,14 @@ disclaimer:
     No information within this document should be taken for granted.
     Any statement or premise not backed by a real logical definition
     or verifiable reference may be invalid, erroneous, or a hallucination.
-  generated_by: "Claude Opus 4.8 via Claude Code (FrameGraph MCP server)"
+  generated_by: "Claude Opus 4.8 via Claude Code (FrameForge MCP server)"
   date: "2026-07-15"
 title: "Lesson 01 — Reconstruct a book cover"
 ---
 
 # Lesson 01 — Reconstruct a book cover
 
-**Goal:** rebuild a photograph of a cloth book binding as a FrameGraph document —
+**Goal:** rebuild a photograph of a cloth book binding as a FrameForge document —
 no pasted pixels, every mark a `rect`, a gradient, a pattern or a text run — and
 prove the result matches by measurement rather than by eye.
 
@@ -28,8 +28,8 @@ prove the result matches by measurement rather than by eye.
     <figcaption><em>Source photograph</em></figcaption>
   </figure>
   <figure style="margin:0;flex:1">
-    <img src="render/reconstruction.png" alt="The FrameGraph reconstruction of the same cover" style="width:100%">
-    <figcaption><em>FrameGraph reconstruction</em></figcaption>
+    <img src="render/reconstruction.png" alt="The FrameForge reconstruction of the same cover" style="width:100%">
+    <figcaption><em>FrameForge reconstruction</em></figcaption>
   </figure>
 </div>
 
@@ -213,7 +213,7 @@ old artifact — use a fresh `session_id` when you expect a rebuild.)
 ```jsonc
 compare_images({
   reference: "docs/tutorial/lesson-01/target/lesson-01.png",
-  candidate: "framegraph://session/lesson-01-final/page/1.png",
+  candidate: "frameforge://session/lesson-01-final/page/1.png",
   session_id: "lesson-01-compare",
   regions: [ { name: "title",    box: [0.12, 0.16, 0.78, 0.09] },
              { name: "subtitle", box: [0.12, 0.26, 0.78, 0.16] },

@@ -36,11 +36,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     Path,
     column,
@@ -52,7 +52,7 @@ from framegraph.sdk import (  # noqa: E402
     row,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Page + palette
@@ -529,7 +529,7 @@ def p01_cover(b):
     T(p, [70, 400, 1100, 170], "SEC", style="title_cy")
     p.rect([78, 588, 360, 8], fill=CO["magenta"])
     T(p, [84, 612, 900, 30], "GHOST  IN  THE  KUROGANE  NET", style="subt")
-    T(p, [84, 1610, 700, 22], "a framegraph one-shot · story 01", style="byline")
+    T(p, [84, 1610, 700, 22], "a frameforge one-shot · story 01", style="byline")
     T(p, [W - 280, 1610, 230, 22], "CODENAME : KAGE", style="byline")
 
 
@@ -1141,7 +1141,7 @@ def p25_end(b):
     p.rect([cx - 130, 800, 260, 6], fill=CO["magenta"])
     T(p, [cx - 460, 980, 920, 200],
            "NULLSEC // ZERO\nstory 01 — “Ghost in the Kurogane Net”\n\n"
-           "written, drawn & lettered by the FrameGraph SDK\n"
+           "written, drawn & lettered by the FrameForge SDK\n"
            "no image assets — every panel composed from geometry",
            style="credit")
     T(p, [cx - 460, 1300, 920, 120],

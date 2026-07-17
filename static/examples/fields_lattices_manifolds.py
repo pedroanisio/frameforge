@@ -12,7 +12,7 @@ A single landscape page, eight panels (4×2):
     7. manifold.mobius       — a Möbius band in perspective
     8. manifold.klein_bottle — an immersed Klein bottle in perspective
 
-Each panel is one FrameGraph group, so the geometric audit stays at zero
+Each panel is one FrameForge group, so the geometric audit stays at zero
 warnings; the only text is the panel titles (sized to fit, so --check-overflow
 passes) and the page header.
 
@@ -28,11 +28,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Camera,
     DocumentBuilder,
     ScalarField,

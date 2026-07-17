@@ -1,14 +1,14 @@
 """Docker/MCP consumption contract — regression gate.
 
 Pins the container contract that lets a *foreign* codebase fully interact with
-FrameGraph over MCP (2026-07-02 audit findings):
+FrameForge over MCP (2026-07-02 audit findings):
 
 1. freshness is detectable — a ``version`` entrypoint verb, an OCI version
    label wired through ``make docker-build``, and a build stamp;
 2. the client wiring mounts the consuming project read-only at ``/workspace``
    and confines propose inputs to the mounted roots;
 3. SDK clients written over MCP persist on the ``/work`` volume
-   (``FRAMEGRAPH_MCP_EDIT_ROOTS`` puts ``/work/clients`` first);
+   (``FRAMEFORGE_MCP_EDIT_ROOTS`` puts ``/work/clients`` first);
 4. the installable skill documenting all of this exists and is complete.
 
 Pure text/JSON/YAML assertions — no docker daemon required, so the gate runs
@@ -29,7 +29,7 @@ ENTRYPOINT = (ROOT / "docker" / "entrypoint.sh").read_text(encoding="utf-8")
 MCP_JSON = json.loads((ROOT / "docker" / "mcp.docker.json").read_text(encoding="utf-8"))
 COMPOSE_TEXT = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
 MAKEFILE = (ROOT / "Makefile").read_text(encoding="utf-8")
-SKILL_PATH = ROOT / "skills" / "framegraph-mcp-docker" / "SKILL.md"
+SKILL_PATH = ROOT / "skills" / "frameforge-mcp-docker" / "SKILL.md"
 
 
 # ── 1. freshness ──────────────────────────────────────────────────────────
@@ -54,17 +54,17 @@ def test_entrypoint_has_version_verb() -> None:
 
 
 def _mcp_args() -> list[str]:
-    return MCP_JSON["mcpServers"]["framegraph"]["args"]
+    return MCP_JSON["mcpServers"]["frameforge"]["args"]
 
 
 def test_mcp_config_mounts_workspace_read_only() -> None:
     args = _mcp_args()
     assert any(a.endswith(":/workspace:ro") for a in args), "consuming project must mount at /workspace (ro)"
-    assert "framegraph-work:/work" in args, "session volume must persist across runs"
+    assert "frameforge-work:/work" in args, "session volume must persist across runs"
 
 
 def test_mcp_config_confines_input_roots() -> None:
-    env_args = [a for a in _mcp_args() if a.startswith("FRAMEGRAPH_MCP_INPUT_ROOTS=")]
+    env_args = [a for a in _mcp_args() if a.startswith("FRAMEFORGE_MCP_INPUT_ROOTS=")]
     assert env_args, "propose inputs must be confined in the hardened docker wiring"
     roots = env_args[0].split("=", 1)[1].split(":")
     assert "/workspace" in roots and "/work" in roots and "/app" in roots
@@ -72,7 +72,7 @@ def test_mcp_config_confines_input_roots() -> None:
 
 def test_compose_documents_the_workspace_convention() -> None:
     compose = yaml.safe_load(COMPOSE_TEXT)
-    assert compose["services"]["framegraph"]["image"] == "frameforge"
+    assert compose["services"]["frameforge"]["image"] == "frameforge"
     assert "/workspace" in COMPOSE_TEXT
 
 
@@ -80,7 +80,7 @@ def test_compose_documents_the_workspace_convention() -> None:
 
 
 def test_dockerfile_persists_sdk_clients_on_the_work_volume() -> None:
-    assert "FRAMEGRAPH_MCP_EDIT_ROOTS=/work/clients:/app/static/examples" in DOCKERFILE
+    assert "FRAMEFORGE_MCP_EDIT_ROOTS=/work/clients:/app/static/examples" in DOCKERFILE
     assert "mkdir -p /work/clients" in DOCKERFILE
 
 
@@ -95,9 +95,9 @@ def _skill_parts() -> tuple[dict, str]:
 
 
 def test_skill_exists_with_complete_frontmatter() -> None:
-    assert SKILL_PATH.is_file(), "skills/framegraph-mcp-docker/SKILL.md must exist"
+    assert SKILL_PATH.is_file(), "skills/frameforge-mcp-docker/SKILL.md must exist"
     front, _ = _skill_parts()
-    assert front["name"] == "framegraph-mcp-docker"
+    assert front["name"] == "frameforge-mcp-docker"
     assert "MCP" in front["description"]
     disclaimer = front["disclaimer"]
     assert disclaimer["notice"] and disclaimer["generated_by"] and disclaimer["date"]

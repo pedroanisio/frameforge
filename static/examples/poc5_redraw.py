@@ -3,7 +3,7 @@
 Tracing, colouring, and guide-layers all keep the trace's mechanical geometry.
 "Redrawing over" replaces it: the polygonal trace (straight segments, contour
 noise) is re-emitted as smooth curves, simplified, and — where a blob is really a
-circle or a box — snapped to a clean primitive. The output is *new* FrameGraph
+circle or a box — snapped to a clean primitive. The output is *new* FrameForge
 art that follows the trace, not the trace itself.
 
     1. SIMPLIFY     — Douglas-Peucker drops contour noise (fewer, meaningful pts).
@@ -31,7 +31,7 @@ from typing import Any, Iterable, Sequence
 sys.path.insert(0, os.environ.get("FG_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from framegraph.sdk import DocumentBuilder, Path, render_page_svgs  # noqa: E402
+from frameforge.sdk import DocumentBuilder, Path, render_page_svgs  # noqa: E402
 from poc3_ingest_compose import place, restyle_strokes  # noqa: E402
 
 Obj = dict[str, Any]
@@ -195,7 +195,7 @@ def curve_count(objs: Iterable[Obj]) -> int:
 # Ingest + page.
 # --------------------------------------------------------------------------- #
 def trace(image: str, *, mode: str, **kw) -> tuple[list[Obj], int, int]:
-    from framegraph.vision.infrastructure.vectorize import raster_to_objects
+    from frameforge.vision.infrastructure.vectorize import raster_to_objects
     return raster_to_objects(image, mode=mode, **kw)
 
 

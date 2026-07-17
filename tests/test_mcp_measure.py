@@ -16,23 +16,23 @@ import sys
 import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 pytest.importorskip("PIL")
 
 from PIL import Image  # noqa: E402
 
-from framegraph.mcp.server import (  # noqa: E402
+from frameforge.mcp.server import (  # noqa: E402
     mark_points,
     mcp_content_blocks,
     measure_image,
     overlay_images,
 )
-from framegraph.vision.infrastructure.image_compare import Region  # noqa: E402
-from framegraph.vision.infrastructure.measure import (  # noqa: E402
+from frameforge.vision.infrastructure.image_compare import Region  # noqa: E402
+from frameforge.vision.infrastructure.measure import (  # noqa: E402
     CoordinateSystem,
     build_marks,
     build_measurement,
@@ -44,7 +44,7 @@ from framegraph.vision.infrastructure.measure import (  # noqa: E402
     structural_landmarks,
     resolve_point_spec,
 )
-from framegraph.vision.infrastructure.overlay_align import (  # noqa: E402
+from frameforge.vision.infrastructure.overlay_align import (  # noqa: E402
     build_overlay,
     fit_similarity,
 )
@@ -61,7 +61,7 @@ def test_draw_points_overlay_is_the_shared_marks_builder():
     adds exactly one enlarged crop rendered at the crop's render_px."""
     from io import BytesIO
 
-    from framegraph.vision.infrastructure.image_compare import load_rgb
+    from frameforge.vision.infrastructure.image_compare import load_rgb
 
     buf = BytesIO()
     Image.new("RGB", (240, 180), (20, 20, 20)).save(buf, "PNG")
@@ -337,7 +337,7 @@ def test_measure_image_respects_input_root_confinement(tmp_path, monkeypatch):
     allowed = tmp_path / "allowed"
     allowed.mkdir()
     outside = _png(tmp_path / "outside.png", (0, 0, 0))
-    monkeypatch.setenv("FRAMEGRAPH_MCP_INPUT_ROOTS", str(allowed))
+    monkeypatch.setenv("FRAMEFORGE_MCP_INPUT_ROOTS", str(allowed))
     result = measure_image(outside, session_id="confine", session_root=tmp_path)
     assert result["ok"] is False
-    assert "FRAMEGRAPH_MCP_INPUT_ROOTS" in result["error"]
+    assert "FRAMEFORGE_MCP_INPUT_ROOTS" in result["error"]

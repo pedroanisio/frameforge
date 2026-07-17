@@ -16,16 +16,16 @@ import sys
 import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 pytest.importorskip("PIL")
 
 from PIL import Image, ImageDraw  # noqa: E402
 
-from framegraph.mcp.server import (  # noqa: E402
+from frameforge.mcp.server import (  # noqa: E402
     construct_vectors,
     create_server,
     map_coordinates,
@@ -36,12 +36,12 @@ from framegraph.mcp.server import (  # noqa: E402
     score_reconstruction,
     workspace,
 )
-from framegraph.vision.infrastructure.mapping3d import apply_homography  # noqa: E402
-from framegraph.vision.infrastructure.measure import (  # noqa: E402
+from frameforge.vision.infrastructure.mapping3d import apply_homography  # noqa: E402
+from frameforge.vision.infrastructure.measure import (  # noqa: E402
     CoordinateSystem,
     detected_landmarks,
 )
-from framegraph.vision.infrastructure.overlay_align import (  # noqa: E402
+from frameforge.vision.infrastructure.overlay_align import (  # noqa: E402
     fit_similarity,
     landmark_offsets,
     rms_residual,

@@ -10,7 +10,7 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import Frame, function_plot, parametric_curve, polar_plot  # noqa: E402
+from frameforge.sdk import Frame, function_plot, parametric_curve, polar_plot  # noqa: E402
 
 
 def test_adaptive_refines_on_curvature_and_stays_on_curve():

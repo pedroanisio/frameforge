@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """IMPERIAL DOCTRINE — a 20-slide Galactic Empire command briefing.
 
-A Star Wars deck authored entirely from the FrameGraph Python SDK. The Empire's
+A Star Wars deck authored entirely from the FrameForge Python SDK. The Empire's
 visual identity is cold and authoritarian: a near-black gunmetal field, Imperial
 red as the single accent, condensed bureaucratic type, hard right-angled corners
 (no rounding), thin precise rules and a symmetric, hierarchical layout language.
@@ -25,11 +25,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     Chart,
     DocumentBuilder,
     Frame,
@@ -40,7 +40,7 @@ from framegraph.sdk import (  # noqa: E402
     row,
     serialize,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas, palette, type                                                        #
@@ -307,7 +307,7 @@ def cover(b):
                style="lead")
     corner_ticks(layer, [40, 40, W - 80, H - 80], color="steel", ln=34, w=1.4)
     layer.text([MX, 600, 820, 20],
-               "20 PLATES · AUTHORED THROUGH THE FRAMEGRAPH PYTHON SDK · FLAT VECTOR",
+               "20 PLATES · AUTHORED THROUGH THE FRAMEFORGE PYTHON SDK · FLAT VECTOR",
                style="tag")
     layer.text([W - MX - 200, 600, 200, 18], "PLATE 01 / 20", style="pnum")
 
@@ -835,7 +835,7 @@ def closing(b):
     layer.text([chip[0], chip[1] + 18, chip[2], 22], "uv run · imperial_doctrine", style="chip")
     corner_ticks(layer, [40, 40, W - 80, H - 80], color="steel", ln=34, w=1.4)
     layer.text([MX, 600, 900, 20],
-               "FRAMEGRAPH PYTHON SDK · 20 PLATES · FLAT VECTOR · CLASSIFIED ISB",
+               "FRAMEFORGE PYTHON SDK · 20 PLATES · FLAT VECTOR · CLASSIFIED ISB",
                style="tag")
     layer.text([W - MX - 200, 600, 200, 18], "PLATE 20 / 20", style="pnum")
 

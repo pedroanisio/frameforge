@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #
-# FrameGraph SDK / MCP base image — a font-rich runtime for the toolchain.
+# FrameForge SDK / MCP base image — a font-rich runtime for the toolchain.
 #
 # The renderers resolve a document's `font_family` *by name* through the OS font
 # stack (fontconfig -> freetype, via cairosvg/Pango and the fc-match metrics
@@ -26,7 +26,7 @@
 # Run the MCP server (stdio) — this is what an MCP client spawns:
 #   docker run --rm -i frameforge
 #
-# See docker/README.md for wiring the container as the `framegraph` MCP command.
+# See docker/README.md for wiring the container as the `frameforge` MCP command.
 
 # ─────────────────────────────────────────────────────────────
 # Stage 1 — assemble the full google/fonts corpus (discarded after copy)
@@ -62,7 +62,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
-    FRAMEGRAPH_CHROMIUM_NO_SANDBOX=1 \
+    FRAMEFORGE_CHROMIUM_NO_SANDBOX=1 \
     PYTHONPATH=/app/src:/app/docs
 
 # System libraries the optional lanes dlopen at runtime:
@@ -95,7 +95,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # the OpenType faces by name; the rest are the packages the preamble pulls (tikz,
 # microtype, booktabs, enumitem, ulem, caption, amsmath/amssymb, slashed, hyperref,
 # geometry, xcolor, ...). lmodern is the pdflatex-fallback face. With this layer,
-# `framegraph-render doc.fg.yaml --to pdf-tex --engine auto` picks lualatex in-image.
+# `frameforge-render doc.fg.yaml --to pdf-tex --engine auto` picks lualatex in-image.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update \
@@ -141,13 +141,13 @@ LABEL org.opencontainers.image.title="frameforge" \
 # Untrusted SDK code runs in a subprocess; the container boundary is the sandbox.
 # SDK clients written over MCP resolve to the persistent volume first so they
 # outlive the `--rm` container; the in-repo cookbook stays readable/editable.
-ENV FRAMEGRAPH_MCP_SESSION_ROOT=/work/sessions \
-    FRAMEGRAPH_MCP_EDIT_ROOTS=/work/clients:/app/static/examples
+ENV FRAMEFORGE_MCP_SESSION_ROOT=/work/sessions \
+    FRAMEFORGE_MCP_EDIT_ROOTS=/work/clients:/app/static/examples
 RUN mkdir -p /work/clients /work/sessions
 VOLUME ["/work"]
 
 HEALTHCHECK --interval=1m --timeout=10s --start-period=10s --retries=3 \
-  CMD uv run --frozen --no-sync python -c "import framegraph.mcp" || exit 1
+  CMD uv run --frozen --no-sync python -c "import frameforge.mcp" || exit 1
 
 ENTRYPOINT ["/app/docker/entrypoint.sh"]
 CMD ["mcp"]

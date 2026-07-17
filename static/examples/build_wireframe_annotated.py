@@ -1,9 +1,9 @@
-"""FrameGraph authoring-IDE wireframe — on ruler paper. FrameGraph SDK widgets."""
+"""FrameForge authoring-IDE wireframe — on ruler paper. FrameForge SDK widgets."""
 import math as m, os
-from framegraph.sdk import (DocumentBuilder, PageBuilder, Mat3, serialize, default_theme,
+from frameforge.sdk import (DocumentBuilder, PageBuilder, Mat3, serialize, default_theme,
                             register_theme, card, tabs, checkbox, avatar, image_placeholder,
                             field, badge, button, pill, measure_text)
-from framegraph.sdk.validate import validate_static_rules
+from frameforge.sdk.validate import validate_static_rules
 
 OUT="/home/admin/github-mirror/_apis/api-pdf2text/research/fg"
 TH=default_theme(); gt=lambda n,d: getattr(TH,n,d)
@@ -23,7 +23,7 @@ PW,PH=RM+W+PADR, RM+H+PADB       # ruler-paper block
 OX,OY=BX+RM,BY+RM                # app origin, on the paper
 W2,H2=BX*2+PW, BY*2+PH           # full canvas incl. desk
 
-b=DocumentBuilder(title="FrameGraph IDE — annotated wireframe + spec", profile="deck", lang="en")
+b=DocumentBuilder(title="FrameForge IDE — annotated wireframe + spec", profile="deck", lang="en")
 register_theme(b)
 pg=b.page("ide", canvas={"size":[W2,H2],"units":"px"}, coordinate_mode="absolute")
 p=pg.layer("paper")
@@ -74,16 +74,16 @@ def mtabs(x,y,items,active,*,lock_idx=None,warn_idx=None):
 # ================= TOP APP BAR =================
 ui.rect([0,0,W,46], fill=SURF); ui.rect([0,46,W,1], fill=LN)
 ui.rect([16,11,24,24], fill=INK, radius=6); txt(22,15,16,"F", size=15, color=SURF, weight=800)
-txt(50,14,160,"FrameGraph", size=15, weight=700); txt(210,16,60,"Studio", size=12, color=MUTE, weight=600)
-ui.add(pill([500,10,452,26], "FrameGraph  ›  docs  ›  illustrator_vs_framegraph.fg.yaml", stroke=LN, theme=TH))
+txt(50,14,160,"FrameForge", size=15, weight=700); txt(210,16,60,"Studio", size=12, color=MUTE, weight=600)
+ui.add(pill([500,10,452,26], "FrameForge  ›  docs  ›  illustrator_vs_frameforge.fg.yaml", stroke=LN, theme=TH))
 ui.circle([936,23],3,fill=WARN)
 ui.add(pill([1048,11,84,24], "History", stroke=LN, theme=TH)); ui.add(pill([1144,11,62,24], "Share", stroke=LN, theme=TH))
 ui.add(button([1250,9,110,28], "Render", kind="primary", theme=TH))
 ui.rect([1372,9,1,28], fill=LN); ui.add(avatar([1388,9,28,28], "R", tone="accent", theme=TH))
 TB=58
 
-# ================= LEFT: FrameGraph outline =================
-cx,cy,cw,ch=panel([12,TB,352,442], title="FrameGraph", action="+ add")
+# ================= LEFT: FrameForge outline =================
+cx,cy,cw,ch=panel([12,TB,352,442], title="FrameForge", action="+ add")
 rows=[("g","Metadata","+"),("g","Snippets","+"),("g","Imports","+"),("g","Canvas","–"),
       ("s","Page 1 — cover","sel"),("s","Page 2 — teardown",None),("s","Page 3 — verdict",None),
       ("g","SDK","+"),("g","Fonts","+")]
@@ -276,7 +276,7 @@ ptext(OX+selx0+1,BY+4,40,str(selx0),7,ACC); ptext(OX+selx1-32,BY+4,30,str(selx1)
 ptext(BX+1,OY+sely0+2,RM-4,str(sely0),6.5,ACC,align='right'); ptext(BX+1,OY+sely1-9,RM-4,str(sely1),6.5,ACC,align='right')
 # colophon caption on the dark desk, below the paper (rust + cream = book-cover palette)
 capy=BY+PH+16
-ptext(BX+2,capy,150,"FRAMEGRAPH STUDIO",7.5,RUST); ptext(BX+120,capy,220,f"·  wireframe  {W} × {H} px",8,CREAM)
+ptext(BX+2,capy,150,"FRAMEFORGE STUDIO",7.5,RUST); ptext(BX+120,capy,220,f"·  wireframe  {W} × {H} px",8,CREAM)
 lx=BX+300; ptext(lx,capy,90,"INTERACTION",7,CREAM); lx+=88
 for _cat in ["click","select","type","toggle","hover","guarded","static"]:
     _lab,_col=CATSTY[_cat]
@@ -296,7 +296,7 @@ def dt(x,y,w,ss,size=11,color=BINK,weight=None,align=None,mono=False,serif=False
     if spacing is not None: st["letter_spacing"]=spacing
     if caps: st["text_transform"]="uppercase"
     L.text([x,y,w,size*1.6], ss, style=st)
-dt(MX,40,600,"FrameGraph Studio",8.5,MUTE,spacing=2.6,caps=True)
+dt(MX,40,600,"FrameForge Studio",8.5,MUTE,spacing=2.6,caps=True)
 dt(MX,40,CWD,"Sitemap & Journey",8.5,MUTE,spacing=2.6,caps=True,align="right")
 sM.rect([MX,57,CWD,0.8], fill=RULE)
 dt(MX,70,600,"§ Information Architecture",sz(-1),RUST,weight=800,spacing=2.6,caps=True)
@@ -308,14 +308,14 @@ py=178
 sM.rect([MX,py,CWD,64], fill=SURF, stroke=RULE, stroke_style={"stroke_width":1}, radius=10)
 sM.circle([MX+34,py+32],18, fill=RUST); dt(MX+26,py+23,22,"R",14,PAPER,weight=800,align="center")
 dt(MX+64,py+13,420,"R · design engineer / technical author",sz(0.5),BINK,weight=700,serif=True)
-dt(MX+64,py+34,520,"“decks-as-code”  ·  signed in · workspace FrameGraph · project docs",sz(-1),MUTE,serif=True,italic=True)
+dt(MX+64,py+34,520,"“decks-as-code”  ·  signed in · workspace FrameForge · project docs",sz(-1),MUTE,serif=True,italic=True)
 gw=460; dt(MX+CWD-gw-16,py+13,gw,"OVERALL GOAL",7,FAINT,caps=True,spacing=1.2,align="right")
 dt(MX+CWD-gw-16,py+30,gw,"fix lint → gates → render → export / share · undo safely",sz(0),RUST,weight=700,serif=True,align="right")
 # the journey: sign-in → home → STUDIO → render-run
 fy,fh=300,150; xs=[MX,MX+297,MX+594,MX+1022]; ws=[210,210,340,210]
 VIEWS=[("Sign in","Sign in","reach the workspace, zero friction","p3 · auth · SSO",False),
-       ("Home","FrameGraph","resume the last open file in one click","p4 · projects · recent · switch",False),
-       ("Studio","FrameGraph › docs › …fg.yaml","fix error → gates green → render → export","p1 · editor · MCP · gates · render",True),
+       ("Home","FrameForge","resume the last open file in one click","p4 · projects · recent · switch",False),
+       ("Studio","FrameForge › docs › …fg.yaml","fix error → gates green → render → export","p1 · editor · MCP · gates · render",True),
        ("Render run","… › Render","a shippable artifact, or the failure","p5 · pipeline · gates · SVG/PDF",False)]
 midy=fy+fh/2
 for i in range(3):
@@ -341,7 +341,7 @@ scx,sby=MX+594+170,fy+fh; ly,lh,lw=fy+fh+56,104,230
 for name,bc,g,detail,x,col,dash,acct in [
     ("History","… › History","recover a bad AI edit / sync-break","p6 · snapshots · diff · restore",MX+238,J_REC,[9,5],False),
     ("Viewer","Shared › …","stakeholder review + sign-off, no account","p7 · pages · comments · share",MX+580,J_REV,[2,5],False),
-    ("Settings","FrameGraph › Settings","rare admin — in and out fast","p8 · fonts/SDK · golden PIN · sharing",MX+922,J_ACC,[3,4],True)]:
+    ("Settings","FrameForge › Settings","rare admin — in and out fast","p8 · fonts/SDK · golden PIN · sharing",MX+922,J_ACC,[3,4],True)]:
     nx=x+lw/2
     sM.line([scx,sby],[nx,ly], stroke=col, stroke_style={"stroke_width":(1.2 if acct else 1.9),"stroke_dasharray":dash,"stroke_linecap":"round"})
     bs={"stroke_width":1.2}
@@ -400,8 +400,8 @@ def endview(folio, kicker, sub):
 def vbar(breadcrumb, *, render=True, app="Studio", ws_pill=False):
     ui.rect([0,0,W,46], fill=SURF); ui.rect([0,46,W,1], fill=LN)
     ui.rect([16,11,24,24], fill=INK, radius=6); txt(22,15,16,"F", size=15, color=SURF, weight=800)
-    txt(50,14,160,"FrameGraph", size=15, weight=700)
-    if ws_pill: ui.add(pill([200,11,150,24], "FrameGraph  ▾", stroke=LN, theme=TH))
+    txt(50,14,160,"FrameForge", size=15, weight=700)
+    if ws_pill: ui.add(pill([200,11,150,24], "FrameForge  ▾", stroke=LN, theme=TH))
     elif app: txt(210,16,60,app, size=12, color=MUTE, weight=600)
     if breadcrumb: ui.add(pill([500,10,452,26], breadcrumb, stroke=LN, theme=TH))
     if render: ui.add(button([1250,9,110,28], "Render", kind="primary", theme=TH))
@@ -415,7 +415,7 @@ def goal(g): txt(40,H-38,700,"Goal — "+g, size=12, color=MUTE)
 newview("signin"); ui.rect([0,0,W,H], fill=ALT)
 cwd,chd=380,404; cX=(W-cwd)/2; cY=(H-chd)/2-24; sh([cX,cY,cwd,chd],16)
 ui.rect([cX+cwd/2-24,cY+40,48,48], fill=INK, radius=12); txt(cX+cwd/2-24,cY+50,48,"F",size=28,color=SURF,weight=800,align="center")
-txt(cX,cY+104,cwd,"Sign in to FrameGraph", size=19, weight=700, align="center")
+txt(cX,cY+104,cwd,"Sign in to FrameForge", size=19, weight=700, align="center")
 txt(cX,cY+134,cwd,"Author decks as code.", size=13, color=MUTE, align="center")
 ui.add(button([cX+40,cY+174,cwd-80,42],"Continue with SSO", kind="primary", theme=TH))
 half=(cwd-80)/2-18; ui.rect([cX+40,cY+240,half,1], fill=LN); ui.rect([cX+cwd-40-half,cY+240,half,1], fill=LN)
@@ -429,7 +429,7 @@ goal("reach the workspace with zero friction."); endview("3","SIGN IN","·  reac
 newview("home"); ui.rect([0,46,W,H-46], fill=ALT); vbar(None, render=False, ws_pill=True)
 ui.rect([0,46,220,H-46], fill=SURF); ui.rect([220,46,1,H-46], fill=LN)
 txt(20,68,180,"WORKSPACES", size=10, color=MUTE, weight=700)
-for i,(nm,act) in enumerate([("FrameGraph",True),("Personal",False)]):
+for i,(nm,act) in enumerate([("FrameForge",True),("Personal",False)]):
     yy=90+i*40
     if act: ui.rect([12,yy-6,196,34], fill=SEL, radius=8)
     ui.rect([20,yy,18,18], fill=(ACC if act else LINE2), radius=5)
@@ -438,7 +438,7 @@ txt(20,182,180,"+ New workspace", size=12, color=ACC, weight=600)
 mxx=252; txt(mxx,72,400,"docs", size=22, weight=700); txt(mxx,106,500,"3 files · last opened just now", size=12, color=MUTE)
 secbtn([W-320,74,132,34],"Import"); ui.add(button([W-176,74,136,34],"New project", kind="primary", theme=TH))
 cw3=(W-mxx-40-40)/3
-for i,(nm,st,uns) in enumerate([("illustrator_vs_framegraph","unsaved",True),("brand_book","saved",False),("syrus_proposal","saved",False)]):
+for i,(nm,st,uns) in enumerate([("illustrator_vs_frameforge","unsaved",True),("brand_book","saved",False),("syrus_proposal","saved",False)]):
     x0=mxx+i*(cw3+20); y0=152; sh([x0,y0,cw3,224],12)
     ui.add(image_placeholder([x0+14,y0+14,cw3-28,120], label="", theme=TH))
     txt(x0+16,y0+148,cw3-46,nm+".fg.yaml", size=13, weight=600, mono=True)
@@ -448,7 +448,7 @@ for i,(nm,st,uns) in enumerate([("illustrator_vs_framegraph","unsaved",True),("b
 goal("resume the last open file in one click."); endview("4","HOME","·  workspace dashboard")
 
 # ---- PAGE 5 — RENDER RUN ----
-newview("render"); ui.rect([0,46,W,H-46], fill=ALT); vbar("FrameGraph  ›  docs  ›  …fg.yaml  ›  Render", render=False)
+newview("render"); ui.rect([0,46,W,H-46], fill=ALT); vbar("FrameForge  ›  docs  ›  …fg.yaml  ›  Render", render=False)
 pX,pY,pWi,pHi=(W-760)/2,86,760,H-150; sh([pX,pY,pWi,pHi],14)
 txt(pX+28,pY+22,400,"Render run", size=18, weight=700)
 ui.add(badge([pX+pWi-180,pY+20,168,26],"COMPLETE · 8.4s", tone="good", theme=TH))
@@ -469,7 +469,7 @@ txt(pX+28,pY+pHi-32,200,"↻  Re-run", size=13, color=ACC, weight=600)
 goal("a shippable artifact, or the exact failure location."); endview("5","RENDER RUN","·  pipeline · gates · artifacts")
 
 # ---- PAGE 6 — HISTORY (git-backed snapshots · diff · restore) ----
-newview("history"); ui.rect([0,46,W,H-46], fill=ALT); vbar("FrameGraph  ›  docs  ›  …fg.yaml  ›  History", render=False, app=None)
+newview("history"); ui.rect([0,46,W,H-46], fill=ALT); vbar("FrameForge  ›  docs  ›  …fg.yaml  ›  History", render=False, app=None)
 ui.rect([0,46,304,H-46], fill=SURF); ui.rect([304,46,1,H-46], fill=LN)
 txt(24,68,200,"SNAPSHOTS", size=10, color=MUTE, weight=700); txt(120,66,164,"auto + manual", size=10, color=GOOD, weight=700, align="right")
 snaps=[("now","working copy","current",False),("2m","render · 13 pages","auto · golden",True),
@@ -502,7 +502,7 @@ goal("undo a bad AI edit or sync-break without losing later work."); endview("6"
 newview("viewer"); ui.rect([0,0,W,H], fill="#F1EFEA")
 ui.rect([0,0,W,46], fill=SURF); ui.rect([0,46,W,1], fill=LN)
 ui.rect([16,11,24,24], fill=INK, radius=6); txt(16,15,24,"F", size=15, color=SURF, weight=800, align="center")
-txt(52,14,320,"illustrator_vs_framegraph", size=14, weight=700)
+txt(52,14,320,"illustrator_vs_frameforge", size=14, weight=700)
 ui.add(pill([322,12,130,24], "Shared · read-only", stroke=LN, theme=TH))
 secbtn([W-306,9,120,28],"Download"); ui.add(button([W-174,9,134,28],"Open in Studio", kind="primary", theme=TH))
 vpx,vpy,vpw,vph=104,88,560,H-150; sh([vpx,vpy,vpw,vph],6)
@@ -525,7 +525,7 @@ ui.add(field([cpx,H-96,cpw-74,38],"", placeholder="Add a comment…", theme=TH))
 goal("(stakeholder) review + sign off — no account, no install."); endview("7","VIEWER","·  public read-only · comments · sign-off")
 
 # ---- PAGE 8 — SETTINGS ----
-newview("settings"); ui.rect([0,46,W,H-46], fill=ALT); vbar("FrameGraph  ›  Settings", render=False, app=None)
+newview("settings"); ui.rect([0,46,W,H-46], fill=ALT); vbar("FrameForge  ›  Settings", render=False, app=None)
 ui.rect([0,46,240,H-46], fill=SURF); ui.rect([240,46,1,H-46], fill=LN)
 txt(20,68,200,"SETTINGS", size=10, color=MUTE, weight=700)
 for i,(nm,act) in enumerate([("Profile",True),("Workspace members",False),("SDK & fonts",False),("Golden lock",False),("Sharing & git",False),("Billing",False)]):
@@ -536,7 +536,7 @@ txt(24,H-72,200,"Sign out", size=13, color=RED, weight=600)
 mxx=280; txt(mxx,74,400,"Profile", size=20, weight=700); ui.rect([mxx,110,W-mxx-40,1], fill=LN)
 ui.circle([mxx+34,164],32, fill=ACC); txt(mxx+2,152,64,"R",size=24,color=SURF,weight=800,align="center")
 txt(mxx+82,152,200,"Change photo", size=12, color=ACC, weight=600)
-for i,(lbl,val) in enumerate([("Name","R. Author"),("Email","r@framegraph.dev"),("Role","Design engineer")]):
+for i,(lbl,val) in enumerate([("Name","R. Author"),("Email","r@frameforge.dev"),("Role","Design engineer")]):
     yy=212+i*58; txt(mxx,yy,200,lbl, size=11, color=MUTE, weight=700)
     ui.rect([mxx,yy+18,360,34], fill=SURF, stroke=LN, stroke_style={"stroke_width":1}, radius=8)
     txt(mxx+13,yy+27,340,val, size=13, color=INK)  # value in real case, not the field-label caps
@@ -553,7 +553,7 @@ sh([rxx,502,rw,158],12); txt(rxx+16,518,300,"Sharing & git remote", size=14, wei
 txt(rxx+16,552,180,"Default share link", size=12, color=MUTE)
 ui.add(pill([rxx+196,548,rw-212,24], "anyone with link · comment", stroke=LN, theme=TH))
 txt(rxx+16,588,180,"Git remote", size=12, color=MUTE)
-txt(rxx+196,588,rw-212,"github.com/framegraph/docs", size=12, color=INK, mono=True)
+txt(rxx+196,588,rw-212,"github.com/frameforge/docs", size=12, color=INK, mono=True)
 secbtn([rxx+16,620,150,32],"Configure")
 goal("rare admin task; in and out fast."); endview("8","SETTINGS","·  profile · members · SDK/fonts · golden PIN · sharing")
 
@@ -576,7 +576,7 @@ s2t(MX,40,CWD,"Feature Reference",8.5,MUTE,spacing=2.6,caps=True,align="right")
 s2.rect([MX,57,CWD,0.8], fill=RULE)
 # masthead: rust kicker · serif title · italic deck · the red rule
 s2t(MX,70,600,"§ Annotation Key",sz(-1),RUST,weight=800,spacing=2.6,caps=True)
-s2t(MX,86,CWD,"FrameGraph Studio, annotated",sz(4),BINK,weight=600,serif=True)
+s2t(MX,86,CWD,"FrameForge Studio, annotated",sz(4),BINK,weight=600,serif=True)
 s2t(MX,126,CWD,"Twenty-four features of the authoring surface — placement, purpose, mechanics, and how each answers the hand.",sz(1),MUTE,serif=True,italic=True)
 s2.rect([MX,150,60,3], fill=RUST)
 # column heads
@@ -614,6 +614,6 @@ rep=validate_static_rules(doc); errs=[x for x in rep.issues if x.severity=="erro
 print(f"ok={rep.ok} errors={len(errs)} warns={len(rep.issues)-len(errs)} canvas={W2}x{H2}")
 for x in errs[:12]: print("  ERR:",x.rule_id,x.path,x.message)
 if __name__ == "__main__":
-    out = os.environ.get("OUTPUT_YAML_PATH", "framegraph-ide-annotated.fg.yaml")
+    out = os.environ.get("OUTPUT_YAML_PATH", "frameforge-ide-annotated.fg.yaml")
     b.write(out, fail_on_error=True)
     print("wrote", out)

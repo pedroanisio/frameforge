@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HARNESS = `file://${path.join(__dirname, "harness.html")}`;
 
 const doc = {
-  dsl: "FrameGraph",
+  dsl: "FrameForge",
   version: "2.2.0",
   profile: "deck",
   title: "Layout smoke",
@@ -42,13 +42,13 @@ page.on("console", (msg) => { if (msg.type() === "error") failures.push(`console
 page.on("pageerror", (err) => failures.push(`page error: ${err.message}`));
 
 await page.goto(HARNESS, { waitUntil: "networkidle" });
-await page.waitForFunction(() => window.__FRAMEGRAPH_VIEWER__);
-await page.evaluate((nextDoc) => window.__FRAMEGRAPH_VIEWER__.loadDoc(nextDoc), doc);
-await page.waitForSelector('[data-framegraph-object="grid_d"]');
+await page.waitForFunction(() => window.__FRAMEFORGE_VIEWER__);
+await page.evaluate((nextDoc) => window.__FRAMEFORGE_VIEWER__.loadDoc(nextDoc), doc);
+await page.waitForSelector('[data-frameforge-object="grid_d"]');
 
 const boxes = await page.evaluate(() => {
   const box = (id) => {
-    const r = document.querySelector(`[data-framegraph-object="${id}"]`).getBoundingClientRect();
+    const r = document.querySelector(`[data-frameforge-object="${id}"]`).getBoundingClientRect();
     return { left: Math.round(r.left), top: Math.round(r.top), width: Math.round(r.width), height: Math.round(r.height) };
   };
   return {
@@ -58,9 +58,9 @@ const boxes = await page.evaluate(() => {
     gridB: box("grid_b"),
     gridC: box("grid_c"),
     gridD: box("grid_d"),
-    connLine: document.querySelector('[data-framegraph-vector="conn_line"]')?.outerHTML || "",
-    connRoute: document.querySelector('[data-framegraph-vector="conn_route"]')?.outerHTML || "",
-    dimWidth: document.querySelector('[data-framegraph-vector="dim_width"]')?.closest("svg")?.outerHTML || "",
+    connLine: document.querySelector('[data-frameforge-vector="conn_line"]')?.outerHTML || "",
+    connRoute: document.querySelector('[data-frameforge-vector="conn_route"]')?.outerHTML || "",
+    dimWidth: document.querySelector('[data-frameforge-vector="dim_width"]')?.closest("svg")?.outerHTML || "",
   };
 });
 

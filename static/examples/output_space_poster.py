@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""A styled FrameGraph rendition of docs/output-space.md.
+"""A styled FrameForge rendition of docs/output-space.md.
 
-The output-space record, composed AS a FrameGraph document — a five-page dark
+The output-space record, composed AS a FrameForge document — a five-page dark
 concept deck authored entirely through the SDK, with custom line-art icons, a
 hero "one IR → many outputs" starburst, and a low-discrepancy starfield for
 depth. It dogfoods the very primitives (paths, polylines, arcs, regular polygons,
@@ -21,18 +21,18 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, HERE)
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, render_page_svgs, serialize  # noqa: E402
-from framegraph.sdk.layout import grid, row  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk import DocumentBuilder, render_page_svgs, serialize  # noqa: E402
+from frameforge.sdk.layout import grid, row  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1280, 760
 MX = 72
 
-# ---- seed canonical · LIGHT palette (examples/framegraph_seed_deck.py) ------ #
+# ---- seed canonical · LIGHT palette (examples/frameforge_seed_deck.py) ------ #
 BG = "#FBFAF6"              # PAPER — warm technical paper, the default surface
 PANEL = "#FFFFFF"          # CANVAS — pure card surface
 PANEL2 = "#F3F5F9"         # faint tint surface (secondary cards)
@@ -258,7 +258,7 @@ def page(b, pid, kicker, title):
     pg.text([MX, 44, W - 2 * MX, 16], kicker,
             style=ts(11.5, ACCENT, family=MONO, weight=700, spacing=2.4, transform="uppercase"))
     pg.text([MX, 62, W - 2 * MX, 40], title, style=ts(33, INK, weight=800, spacing=-0.6))
-    pg.text([MX, H - 42, W - 2 * MX, 16], "FrameGraph · the output space",
+    pg.text([MX, H - 42, W - 2 * MX, 16], "FrameForge · the output space",
             style=ts(10.5, MUTE, family=MONO, weight=600, spacing=0.8))
     pg.text([W - MX - 120, H - 42, 120, 16], "p." + pid.replace("p", "0") + " / 05",
             style=ts(10.5, MUTE, family=MONO, align="right", spacing=0.5))
@@ -360,17 +360,17 @@ def cover(b):
     pg.layer("art")
     hero(pg, 968, 392, 168)
     pg.layer("body")
-    pg.text([MX, 96, 720, 18], "FRAMEGRAPH · CONCEPT RECORD",
+    pg.text([MX, 96, 720, 18], "FRAMEFORGE · CONCEPT RECORD",
             style=ts(12.5, ACCENT, family=MONO, weight=700, spacing=3.0, transform="uppercase"))
     pg.text([MX, 128, 760, 90], "The output space", style=ts(72, INK, weight=800, spacing=-2))
     pg.text([MX, 230, 560, 60],
-            "Everything FrameGraph can generate — concretely (wired today) and "
+            "Everything FrameForge can generate — concretely (wired today) and "
             "conceptually (what the architecture admits).", style=ts(17, MUTE, lh=1.45))
 
     bx, bw, by = callout(pg, [MX, 380, 560, 144],
                          label="THE GENERATING PRINCIPLE", icon=ic_port)
     pg.text([bx, by, bw, 96],
-            "FrameGraph is not a renderer — it is a verifiable IR for visual "
+            "FrameForge is not a renderer — it is a verifiable IR for visual "
             "documents. An output is possible iff (a) the model can express the "
             "semantics, and (b) an adapter maps the display-list to the target. "
             "The limit is IR expressiveness and adapters — never the architecture.",
@@ -442,7 +442,7 @@ def today(b):
         ("Docs site", "ref · gallery · SDK", "gen_docs.py", VIOLET, ic_book),
         ("Golden hashes", "per-page SHA-256", "render_golden.py", VIOLET, ic_rings),
         ("Math", "TeX→SVG · MathJax", "mathjax_tex_to_svg.mjs", AMBER, ic_sqrt),
-        ("Import: PDF→FG", "fixed-layout extract", "pdf_to_framegraph_yml.py", LIVE, ic_import),
+        ("Import: PDF→FG", "fixed-layout extract", "pdf_to_frameforge_yml.py", LIVE, ic_import),
         ("Import: image→FG", "vision proposal", "propose_from_image", LIVE, ic_import),
     ]
     cells = grid([MX, 196, W - 2 * MX, 384], cols=4, rows=3, gap=20)
@@ -488,7 +488,7 @@ def could(b):
         bullets(pg, x + 22, y + 88, rows_, accent=c, gap=44, size=12, w=w - 38)
 
     bx, bw, by = callout(pg, [MX, 606, W - 2 * MX, 88],
-                         label="THE HUB  ·  ANY → FRAMEGRAPH → ANY", icon=ic_model)
+                         label="THE HUB  ·  ANY → FRAMEFORGE → ANY", icon=ic_model)
     pg.text([bx, by, bw, 44],
             "Because the import side exists (PDF/image → FG), every importer × "
             "exporter pair is reachable — a Pandoc for visual documents. The "
@@ -536,7 +536,7 @@ def boundaries(b):
     bx, bw, by = callout(pg, [MX, 566, W - 2 * MX, 138],
                          label="THE ONE-LINE ANSWER", icon=ic_spark)
     pg.text([bx, by, bw, 86],
-            "FrameGraph can generate any artifact that is a pure function of a "
+            "FrameForge can generate any artifact that is a pure function of a "
             "laid-out, accessibility-annotated visual-document model — every "
             "rendition a painter can draw, every format another engine can typeset "
             "from, and every semantic derivative the structured tree affords.",
@@ -548,7 +548,7 @@ PAGES = [cover, pipeline, today, could, boundaries]
 
 
 def build() -> DocumentBuilder:
-    b = DocumentBuilder(title="FrameGraph — The Output Space", profile="deck", lang="en")
+    b = DocumentBuilder(title="FrameForge — The Output Space", profile="deck", lang="en")
     for fn in PAGES:
         fn(b)
     return b

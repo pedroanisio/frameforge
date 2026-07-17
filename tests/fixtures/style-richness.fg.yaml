@@ -3,7 +3,7 @@
 # document verbatim); regenerate from there, never hand-edit. Exercises the
 # 2.4.0 additive fields: the ordered `effects` stack and the multi-pass
 # `appearance` stack, plus recolor() output and the colour-guide harmonies.
-dsl: FrameGraph
+dsl: FrameForge
 version: 2.4.0
 profile: diagram
 title: style & colour richness showcase

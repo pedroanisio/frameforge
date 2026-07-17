@@ -8,7 +8,7 @@ disclaimer:
   date: "2026-07-03"
 ---
 
-# RELEASE.md — the FrameGraph HEAD version-bump procedure
+# RELEASE.md — the FrameForge HEAD version-bump procedure
 
 The package version is one *logical* source of truth — `[project] version` in
 [pyproject.toml](pyproject.toml) — that, by necessity, lives in five hand-edited
@@ -29,10 +29,10 @@ machine-checked; the "Gate" column is where a violation surfaces.
 
 | # | Invariant | Sites | Gate |
 |---|---|---|---|
-| **I1** | declared version == the models' reported version | [pyproject.toml:3](pyproject.toml#L3) == [framegraph.py:41 `HEAD_VERSION`](docs/models/framegraph.py#L41) | `tests/test_docs_in_sync.py` |
+| **I1** | declared version == the models' reported version | [pyproject.toml:3](pyproject.toml#L3) == [frameforge.py:41 `HEAD_VERSION`](docs/models/frameforge.py#L41) | `tests/test_docs_in_sync.py` |
 | **I2** | the models' version == the pinned test literal | `HEAD_VERSION` == [test_head.py:77](tests/test_head.py#L77) | `tests/test_head.py::test_version_is_2_3_0` |
-| **I2b** | declared version == the package runtime `__version__` | [pyproject.toml:3](pyproject.toml#L3) == [framegraph/__init__.py `__version__`](src/framegraph/__init__.py) | `tests/test_docs_in_sync.py::test_package_runtime_version_matches_pyproject` |
-| **I3** | the committed schema is generated-in-sync **and** its title carries the version | models → `docs/schema/framegraph-v2.schema.json` | `schema-check` + `test_head.py::test_schema_in_sync_with_models` + `test_docs_in_sync.py` |
+| **I2b** | declared version == the package runtime `__version__` | [pyproject.toml:3](pyproject.toml#L3) == [frameforge/__init__.py `__version__`](src/frameforge/__init__.py) | `tests/test_docs_in_sync.py::test_package_runtime_version_matches_pyproject` |
+| **I3** | the committed schema is generated-in-sync **and** its title carries the version | models → `docs/schema/frameforge-v2.schema.json` | `schema-check` + `test_head.py::test_schema_in_sync_with_models` + `test_docs_in_sync.py` |
 | **I4** | the capability manifest reflects the live tree | `docs/capability-manifest.json` | `manifest-check` |
 | **I5** | README's honest counts + paths match reality | `README.md` (`$defs` count, `N/N green`, Layout paths) | `tests/test_docs_in_sync.py` |
 | **I6** | every generated nav page exists and is fresh | `docs/*.md` (reference/spec/grammar/…) | `docs-check` |
@@ -49,10 +49,10 @@ Because every invariant is inside `make check` (twelve gates: [Makefile:45](Make
 | Artifact | Literal |
 |---|---|
 | [pyproject.toml:3](pyproject.toml#L3) | `version = "X.Y.Z"` — the declared package version |
-| [docs/models/framegraph.py:41](docs/models/framegraph.py#L41) | `HEAD_VERSION = "X.Y.Z"` — the models' report |
+| [docs/models/frameforge.py:41](docs/models/frameforge.py#L41) | `HEAD_VERSION = "X.Y.Z"` — the models' report |
 | [tests/test_head.py:77](tests/test_head.py#L77) | `HEAD_VERSION == "X.Y.Z"` — the version pin |
-| [README.md](README.md) | `**FrameGraph v2** (\`X.Y.Z\`)` — the human headline |
-| [src/framegraph/__init__.py](src/framegraph/__init__.py) | `__version__ = "X.Y.Z"` — the package runtime version |
+| [README.md](README.md) | `**FrameForge v2** (\`X.Y.Z\`)` — the human headline |
+| [src/frameforge/__init__.py](src/frameforge/__init__.py) | `__version__ = "X.Y.Z"` — the package runtime version |
 | [CHANGELOG.md](CHANGELOG.md) | the `## X.Y.Z` entry (+ migration if breaking) — **human judgement, not automated** |
 
 **Generated (never hand-edit — regenerate):** schema (`make schema`),
@@ -135,8 +135,8 @@ Backward compatibility is **delivered, not assumed** (§9): migrate, don't freez
 - **Four hand-edited version sites.** Cross-checked by the gates (a divergence
   can't ship) and moved together by `make bump` — but not DRY. A single generated
   source would remove the footgun; that is the `[Target]` `make release` §9 names.
-- **Ungated cosmetic staleness.** `static/examples/illustrator_vs_framegraph.py`,
-  `static/examples/zen_libficar.py`, and `skills/framegraph-mcp-docker/SKILL.md`
+- **Ungated cosmetic staleness.** `static/examples/illustrator_vs_frameforge.py`,
+  `static/examples/zen_libficar.py`, and `skills/frameforge-mcp-docker/SKILL.md`
   hardcode `v2.3.0` in prose/comments — **not gated**; grep-sweep on a bump.
 - **CI docs-deploy probe.** The `docs-deploy` job hardcodes a `docs/models` path
   with no pre-merge gate (`drift-risk-map.md` #18, MODERATE) — it fails only in

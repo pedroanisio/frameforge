@@ -8,8 +8,8 @@
 // classic silent drift.
 //
 // This reconciles the viewer's declared surface (viewer/dev/type-registry.json)
-// against the model's discriminators, read from schema/framegraph-v2.schema.json
-// (itself byte-gated to models/framegraph.py by `schema-check`). Every model
+// against the model's discriminators, read from schema/frameforge-v2.schema.json
+// (itself byte-gated to models/frameforge.py by `schema-check`). Every model
 // discriminator must be either rendered (supported) or explicitly listed
 // (unsupported, with a reason); every claimed type must be real or a declared
 // out-of-profile extension. Drift becomes a loud, non-zero exit.
@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
-const SCHEMA_PATH = path.join(ROOT, "docs/schema/framegraph-v2.schema.json");
+const SCHEMA_PATH = path.join(ROOT, "docs/schema/frameforge-v2.schema.json");
 const REGISTRY_PATH = path.join(__dirname, "type-registry.json");
 
 const DIMENSIONS = ["object_types", "flow_types", "inline_kinds"];

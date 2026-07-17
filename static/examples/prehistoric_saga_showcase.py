@@ -1,7 +1,7 @@
 """Prehistoric Saga — an SDK capabilities showcase (A4 landscape).
 
 A silhouette dinosaur book that deliberately exercises a large fraction of the
-FrameGraph SDK rather than just the primitive layer. Each subsystem does real
+FrameForge SDK rather than just the primitive layer. Each subsystem does real
 work in the output.
 
 Drawings: dinosaurs/trees are defined ONCE as parametric symbols whose bodies
@@ -23,17 +23,17 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder, Path, apply_humanize, chevreul, fractal, from_markdown,
     linear_gradient, macros, outline, planar, radial_gradient, region, rgba, widgets,
 )
-from framegraph.sdk.canon import content_box, modular_scale  # noqa: E402
-from framegraph.sdk.chart import Chart  # noqa: E402
-from framegraph.sdk.clip import clip_rect  # noqa: E402
-from framegraph.sdk.draw import Frame, Scene3D  # noqa: E402
-from framegraph.sdk.fields import ScalarField  # noqa: E402
-from framegraph.sdk.layout import grid  # noqa: E402
-from framegraph.sdk.topology import Graph  # noqa: E402
+from frameforge.sdk.canon import content_box, modular_scale  # noqa: E402
+from frameforge.sdk.chart import Chart  # noqa: E402
+from frameforge.sdk.clip import clip_rect  # noqa: E402
+from frameforge.sdk.draw import Frame, Scene3D  # noqa: E402
+from frameforge.sdk.fields import ScalarField  # noqa: E402
+from frameforge.sdk.layout import grid  # noqa: E402
+from frameforge.sdk.topology import Graph  # noqa: E402
 
 W, H = 842.0, 595.0
 
@@ -350,7 +350,7 @@ def cover_page(page, boxes):
     S += macros.greeble([left, top - 6, cw, 26], fill=rgba("#ffe6b0", .5), seed=5)
     S.append(text([left, 0.33 * H, cw, 96], "PREHISTORIC SAGA", title_size, "#ffe9c8", 800, 2))
     S.append(text([left, 0.33 * H + title_size + 8, cw, 30],
-                  "silhouette worlds - built with the FrameGraph SDK", 15, "#f0c98a"))
+                  "silhouette worlds - built with the FrameForge SDK", 15, "#f0c98a"))
     S.append(outline.stroke_outline([(left, 0.33 * H + title_size + 44), (left + cw * .5, 0.33 * H + title_size + 44)],
                                     3.0, pen_angle=20, fill="#e08a3c"))
     th = widgets.default_theme()
@@ -411,7 +411,7 @@ def map_page(page):
 # build document
 # --------------------------------------------------------------------------- #
 def _build_builder():
-    b = DocumentBuilder(title="Prehistoric Saga - FrameGraph SDK showcase (v2.4.1)")
+    b = DocumentBuilder(title="Prehistoric Saga - FrameForge SDK showcase (v2.4.1)")
     boxes = build_bestiary(b)
     cover_page(b.page("cover", canvas={"size": [W, H], "units": "pt"}, coordinate_mode="absolute"), boxes)
     for idx, (name, base, night) in enumerate(MOODS):
@@ -427,11 +427,11 @@ _BUILDER = _build_builder()
 
 COLOPHON_MD = """# Colophon
 
-**Prehistoric Saga** is generated entirely by the FrameGraph Python SDK and
+**Prehistoric Saga** is generated entirely by the FrameForge Python SDK and
 rendered through the MCP proxy. The drawings are boolean-unioned symbol
 instances; palettes are derived by colour science; ferns are an L-system.
 
-- Source of truth: `docs/models/framegraph.py`
+- Source of truth: `docs/models/frameforge.py`
 - Generator: `static/examples/prehistoric_saga_showcase.py`
 """
 
@@ -456,7 +456,7 @@ def build():
 doc = build()
 
 if __name__ == "__main__":
-    from framegraph.sdk import serialize
+    from frameforge.sdk import serialize
     out = os.environ.get("OUTPUT_YAML_PATH", "prehistoric_saga.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(doc))
     print(f"wrote {out}")

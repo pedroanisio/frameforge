@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""bump_version.py — move the FrameGraph HEAD version across every hand-edited site.
+"""bump_version.py — move the FrameForge HEAD version across every hand-edited site.
 
 The package version is a single *logical* source of truth (`pyproject [project]
 version`) but lives, by necessity, in four hand-edited literals that the gates
 cross-check so a divergence can never ship:
 
   1. pyproject.toml            `version = "X.Y.Z"`          (the declared version)
-  2. docs/models/framegraph.py `HEAD_VERSION = "X.Y.Z"`     (the models' report)
+  2. docs/models/frameforge.py `HEAD_VERSION = "X.Y.Z"`     (the models' report)
   3. tests/test_head.py        `HEAD_VERSION == "X.Y.Z"`    (the version pin)
-  4. README.md                 `**FrameGraph v2** (`X.Y.Z`)`(the human headline)
+  4. README.md                 `**FrameForge v2** (`X.Y.Z`)`(the human headline)
 
 `tests/test_head.py` pins (2)==(3) and generated-in-sync schema; `tests/
 test_docs_in_sync.py` pins (1)==(2) and the schema title. So `make check` FAILS
@@ -47,13 +47,13 @@ COSMETIC_GLOBS = ("static/examples/*.py", "skills/**/*.md", "skills/**/*.py")
 SITES = [
     ("pyproject.toml", "pyproject.toml",
      re.compile(r'^(version = ")(\d+\.\d+\.\d+)(")', re.M)),
-    ("models HEAD_VERSION", "docs/models/framegraph.py",
+    ("models HEAD_VERSION", "docs/models/frameforge.py",
      re.compile(r'^(HEAD_VERSION = ")(\d+\.\d+\.\d+)(")', re.M)),
     ("test_head pin", "tests/test_head.py",
      re.compile(r'(HEAD_VERSION == ")(\d+\.\d+\.\d+)(")')),
     ("README headline", "README.md",
-     re.compile(r'(\*\*FrameGraph v2\*\* \(`)(\d+\.\d+\.\d+)(`\))')),
-    ("package __version__", "src/framegraph/__init__.py",
+     re.compile(r'(\*\*FrameForge v2\*\* \(`)(\d+\.\d+\.\d+)(`\))')),
+    ("package __version__", "src/frameforge/__init__.py",
      re.compile(r'^(__version__ = ")(\d+\.\d+\.\d+)(")', re.M)),
 ]
 
@@ -141,7 +141,7 @@ def bump(new: str, dry_run: bool) -> int:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description="Move the FrameGraph HEAD version across every hand-edited site.")
+    ap = argparse.ArgumentParser(description="Move the FrameForge HEAD version across every hand-edited site.")
     ap.add_argument("version", nargs="?", help="new MAJOR.MINOR.PATCH version")
     ap.add_argument("--check", action="store_true", help="assert the sites agree; do not edit")
     ap.add_argument("--dry-run", action="store_true", help="show edits, write nothing")

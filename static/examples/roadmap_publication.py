@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish the FrameGraph v2 roadmap as two brand-true deliverables from one SDK client:
+"""Publish the FrameForge v2 roadmap as two brand-true deliverables from one SDK client:
 
   * a print **PDF** (A4 pages, editorial) — render with tooling/render_pdf.py
   * an **Instagram Stories** set (1080x1920, 9:16) — render with tooling/render_chromium.py
@@ -9,7 +9,7 @@ ink cover, IBM Plex type, frame-blue / graph-cyan accents (flat — no gradients
 chrome), and the brand graphic language drawn with the SDK: corner crop-marks, a
 hairline drafting grid, left-accent-bar cards, state chips, and the derivation fan.
 The **logo is the original brand mark** — ``mark()``/``wordmark()`` are imported from
-examples/framegraph_logo.py (the canonical source of truth) so it can never diverge.
+examples/frameforge_logo.py (the canonical source of truth) so it can never diverge.
 
 Run from the repo root::
 
@@ -25,15 +25,15 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, os.path.join(ROOT, "static", "examples"))   # for the canonical logo
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, serialize  # noqa: E402
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
-from framegraph_logo import mark, wordmark  # noqa: E402  — the canonical FrameGraph logo
+from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_logo import mark, wordmark  # noqa: E402  — the canonical FrameForge logo
 
-# --- brand tokens (docs/BRAND.md §4, brand/framegraph.tokens.fg.yaml) -------- #
+# --- brand tokens (docs/BRAND.md §4, brand/frameforge.tokens.fg.yaml) -------- #
 INK, PAPER, CANVAS = "#15181E", "#FBFAF6", "#FFFFFF"
 FRAME, CYAN = "#1F4FD8", "#12B0C3"          # frame-blue (primary) · graph-cyan (flow)
 GREEN, RED = "#1E9E5A", "#D23B2B"           # gate states: pass · drift
@@ -133,15 +133,15 @@ def _handle(page):
     """The story header: the mark as a profile avatar + the @handle — reads as a real
     Instagram account, not a slide footer."""
     mark(page, MX + 20, 124, 40, frame=PAPER, graph=CYAN, node_fill=INK)
-    page.text([MX + 54, 102, 600, 36], "@framegraph", style=ts(31, PAPER, weight=700))
-    page.text([MX + 54, 142, 600, 26], "FrameGraph v2 · roadmap",
+    page.text([MX + 54, 102, 600, 36], "@frameforge", style=ts(31, PAPER, weight=700))
+    page.text([MX + 54, 142, 600, 26], "FrameForge v2 · roadmap",
               style=ts(22, MUTE_DK, family=MONO, spacing=1))
 
 
 def _dogfoot(page):
-    """A quiet watermark on every card: this artifact *is* FrameGraph output."""
+    """A quiet watermark on every card: this artifact *is* FrameForge output."""
     page.text([MX, SH - 96, SW - 2 * MX, 28],
-              "made with FrameGraph — this story is a .fg document",
+              "made with FrameForge — this story is a .fg document",
               style=ts(21, MUTE_DK, family=MONO, align="center", spacing=1))
 
 
@@ -200,7 +200,7 @@ def _runs(page, y, runs, *, size):
 
 
 def build_stories() -> DocumentBuilder:
-    b = DocumentBuilder(title="FrameGraph v2 — Roadmap (Stories)", profile="deck", lang="en")
+    b = DocumentBuilder(title="FrameForge v2 — Roadmap (Stories)", profile="deck", lang="en")
     HEAD, BODY = 64, 40        # card headline / body sizes (big + punchy)
     CW = SW - 2 * MX
 
@@ -220,7 +220,7 @@ def build_stories() -> DocumentBuilder:
     _runs(p, 412, [("Decks", CYAN), (" and ", PAPER), ("books", FRAME), (".", PAPER)], size=80)
     _head(p, 504, "One semantic graph.", size=80)
     p.text([MX, 780, CW, 360],
-           "Most tools pick one lane. FrameGraph spans both — and the models are the "
+           "Most tools pick one lane. FrameForge spans both — and the models are the "
            "source of truth, so every artifact is generated from or checked against "
            "them. A document can't silently drift.",
            style=ts(BODY, MUTE_DK, lh=1.5))
@@ -285,14 +285,14 @@ def build_stories() -> DocumentBuilder:
            "retargeted to its surface. The filing and the IG story can't disagree.",
            style=ts(BODY, MUTE_DK, lh=1.5))
 
-    # 7 — dogfooding: this whole thing is FrameGraph output
+    # 7 — dogfooding: this whole thing is FrameForge output
     p = _ig(b, "s7-proof")
-    _kicker(p, 6, "made with framegraph")
+    _kicker(p, 6, "made with frameforge")
     _head(p, 320, "You're reading", size=78)
-    _runs(p, 410, [("FrameGraph", FRAME), (" output.", PAPER)], size=78)
+    _runs(p, 410, [("FrameForge", FRAME), (" output.", PAPER)], size=78)
     _fan(p, MX + 90, 940, "one .fg", ["this story", "the A4 PDF"], span=300)
     p.text([MX, 1260, CW, 320],
-           "This Instagram story and the 4-page print PDF are one FrameGraph "
+           "This Instagram story and the 4-page print PDF are one FrameForge "
            "document, rendered by the SDK — no Figma, no InDesign. Decks, books, "
            "social: one substrate, generated and verified.",
            style=ts(BODY, MUTE_DK, lh=1.5))
@@ -325,7 +325,7 @@ def _a4_top(page, *, dark):
 
 
 def _a4_foot(page, n, *, dark):
-    page.text([PM, AH - 34, 360, 12], "framegraph v2 · roadmap · draft",
+    page.text([PM, AH - 34, 360, 12], "frameforge v2 · roadmap · draft",
               style=ts(8.5, MUTE_DK if dark else MUTE, family=MONO, spacing=0.5))
     page.text([AW - PM - 60, AH - 34, 60, 12], f"{n:02d} / 04",
               style=ts(8.5, MUTE_DK if dark else MUTE, family=MONO, align="right"))
@@ -341,7 +341,7 @@ def _a4_card(page, box, accent, kicker, body):
 
 
 def build_pdf() -> DocumentBuilder:
-    b = DocumentBuilder(title="FrameGraph v2 — Roadmap (Print)", profile="report", lang="en")
+    b = DocumentBuilder(title="FrameForge v2 — Roadmap (Print)", profile="report", lang="en")
 
     # 1 — cover (ink)
     p = _a4(b, "p1-cover", dark=True)
@@ -358,7 +358,7 @@ def build_pdf() -> DocumentBuilder:
            style=ts(11, MUTE_DK, lh=1.55))
     p.text([PM, 690, AW - 2 * PM, 40],
            "Dogfooded — every page of this PDF, and the companion Instagram story, is one "
-           "FrameGraph document rendered by the SDK. No Figma, no InDesign.",
+           "FrameForge document rendered by the SDK. No Figma, no InDesign.",
            style=ts(10, CYAN, lh=1.6, family=MONO))
     _a4_foot(p, 1, dark=True)
 
@@ -467,7 +467,7 @@ def _write(b, name):
 
 
 def main() -> int:
-    print("FrameGraph v2 — Roadmap publication")
+    print("FrameForge v2 — Roadmap publication")
     e = _write(build_pdf(), "roadmap-print.fg.yaml")
     e += _write(build_stories(), "roadmap-stories.fg.yaml")
     print("Render: tooling/render_pdf.py (PDF) + tooling/render_chromium.py (Story PNGs).")

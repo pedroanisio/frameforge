@@ -2,7 +2,7 @@
 """MCP render export options: `to='pdf'`, raster `scale`, and `real_metrics`.
 
 The render tools must reach the same export surface the CLI has — a vector PDF
-assembled from the rendered pages (reusing the `framegraph/cli.py r_pdf`
+assembled from the rendered pages (reusing the `frameforge/cli.py r_pdf`
 mechanism), a raster zoom/DPI control for the PNG lane, and the renderer's
 real-glyph-metrics opt-in — all reported structured and degrading with hints.
 """
@@ -15,19 +15,19 @@ import sys
 import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.mcp.server import (  # noqa: E402
+from frameforge.mcp.server import (  # noqa: E402
     read_session_resource,
-    render_framegraph_yaml,
+    render_frameforge_yaml,
     run_sdk_code,
 )
 
 SDK_SCRIPT = """
-from framegraph.sdk import DocumentBuilder
+from frameforge.sdk import DocumentBuilder
 
 doc = DocumentBuilder(title="Export Probe", profile="deck")
 page = doc.page("p1", canvas={"size": [320, 180], "units": "px"})
@@ -54,7 +54,7 @@ def test_run_sdk_code_to_pdf_assembles_document_pdf(tmp_path):
     pdf = result["pdf"]
     assert pdf["ok"] is True
     assert pdf["pages"] == 1
-    assert pdf["uri"] == "framegraph://session/pdf1/document.pdf"
+    assert pdf["uri"] == "frameforge://session/pdf1/document.pdf"
     pdf_path = tmp_path / "pdf1" / "document.pdf"
     assert pdf_path.exists()
     assert pdf_path.read_bytes()[:5] == b"%PDF-"
@@ -65,21 +65,21 @@ def test_run_sdk_code_to_pdf_assembles_document_pdf(tmp_path):
 
 @pytest.mark.skipif(not _PDF_DEPS, reason="cairosvg/pypdf (pdfout group) not installed")
 def test_document_pdf_is_readable_as_a_session_resource(tmp_path):
-    from framegraph.sdk import DocumentBuilder
-    from framegraph.sdk.io import serialize
+    from frameforge.sdk import DocumentBuilder
+    from frameforge.sdk.io import serialize
 
     builder = DocumentBuilder(title="PDF YAML", profile="deck")
     page = builder.page("p1", canvas={"size": [120, 80], "units": "px"})
     page.layer("main").rect([0, 0, 120, 80], fill="#ffffff")
     yaml_text = serialize(builder.build(), format="yaml")
 
-    result = render_framegraph_yaml(
+    result = render_frameforge_yaml(
         yaml_text, session_id="pdfres", session_root=tmp_path, raster_png=False, to="pdf"
     )
     assert result["ok"] is True and result["pdf"]["ok"] is True
 
     payload = read_session_resource(
-        "framegraph://session/pdfres/document.pdf", session_root=tmp_path
+        "frameforge://session/pdfres/document.pdf", session_root=tmp_path
     )
     assert payload["mimeType"] == "application/pdf"
     assert payload["blob"], "the PDF must ship as a base64 blob resource"
@@ -120,7 +120,7 @@ def test_scale_threads_to_the_raster_backend(tmp_path, monkeypatch):
         return Path(out_path)
 
     monkeypatch.setattr(
-        "framegraph.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
+        "frameforge.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
     )
 
     result = run_sdk_code(
@@ -150,7 +150,7 @@ def test_real_metrics_resolution_is_reported(tmp_path):
 
 
 def test_real_metrics_true_reaches_the_renderer(tmp_path, monkeypatch):
-    import framegraph.rendering.application.renderer as renderer_mod
+    import frameforge.rendering.application.renderer as renderer_mod
 
     seen: list[bool] = []
     real_renderer = renderer_mod.Renderer
@@ -171,15 +171,15 @@ def test_real_metrics_true_reaches_the_renderer(tmp_path, monkeypatch):
 
 
 def test_real_metrics_auto_honors_env_override(monkeypatch):
-    """'auto' must not silently override an operator's FRAMEGRAPH_REAL_METRICS
+    """'auto' must not silently override an operator's FRAMEFORGE_REAL_METRICS
     (e.g. forcing the byte-stable estimator for golden reproduction)."""
-    from framegraph.mcp.pipeline import _resolve_real_metrics
+    from frameforge.mcp.pipeline import _resolve_real_metrics
 
-    monkeypatch.setenv("FRAMEGRAPH_REAL_METRICS", "0")
+    monkeypatch.setenv("FRAMEFORGE_REAL_METRICS", "0")
     assert _resolve_real_metrics("auto") is False
-    monkeypatch.setenv("FRAMEGRAPH_REAL_METRICS", "true")
+    monkeypatch.setenv("FRAMEFORGE_REAL_METRICS", "true")
     assert _resolve_real_metrics("auto") is True
     # explicit bool still beats the env
     assert _resolve_real_metrics(False) is False
-    monkeypatch.delenv("FRAMEGRAPH_REAL_METRICS")
+    monkeypatch.delenv("FRAMEFORGE_REAL_METRICS")
     assert isinstance(_resolve_real_metrics("auto"), bool)

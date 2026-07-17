@@ -2,7 +2,7 @@
 """RED — unified point-spec grammar across overlay/construct/score/map tools.
 
 The discriminated point dict already accepted by ``mark_points``/``workspace``
-(``resolve_point_spec`` in ``framegraph.vision.domain.coordinates``) must become
+(``resolve_point_spec`` in ``frameforge.vision.domain.coordinates``) must become
 accepted — ADDITIVELY, with every legacy shape byte-identical — in:
 
 1. ``overlay_images`` landmark pairs (``_to_pairs``): ``{"px": ..}`` / ``{"norm": ..}``
@@ -24,9 +24,9 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import pytest  # noqa: E402
@@ -51,7 +51,7 @@ def _write_test_png(tmp_path, name="source.png", size=(60, 40)):
 # 1. overlay_images pair parsing (_to_pairs)
 # ─────────────────────────────────────────────────────────────
 def test_overlay_px_dict_equals_legacy_list():
-    from framegraph.vision.infrastructure.overlay_align import _to_pairs
+    from frameforge.vision.infrastructure.overlay_align import _to_pairs
 
     legacy = _to_pairs([{"base": [10, 20], "overlay": [3, 4]}], BASE_SIZE, OVERLAY_SIZE)
     dicts = _to_pairs([{"base": {"px": [10, 20]}, "overlay": {"px": [3, 4]}}],
@@ -60,7 +60,7 @@ def test_overlay_px_dict_equals_legacy_list():
 
 
 def test_overlay_norm_dict_resolves_against_own_sides_dims():
-    from framegraph.vision.infrastructure.overlay_align import _to_pairs
+    from frameforge.vision.infrastructure.overlay_align import _to_pairs
 
     pairs = _to_pairs(
         [{"base": {"norm": [0.5, 0.5]}, "overlay": {"norm": [0.5, 0.5]}}],
@@ -71,7 +71,7 @@ def test_overlay_norm_dict_resolves_against_own_sides_dims():
 
 
 def test_overlay_mixed_dict_and_legacy_with_pair_level_norm_flag():
-    from framegraph.vision.infrastructure.overlay_align import _to_pairs
+    from frameforge.vision.infrastructure.overlay_align import _to_pairs
 
     # dict entries are self-describing: the pair-level "norm" flag must apply
     # to the legacy list side only and be ignored for the dict side.
@@ -84,7 +84,7 @@ def test_overlay_mixed_dict_and_legacy_with_pair_level_norm_flag():
 
 
 def test_overlay_session_scoped_dict_forms_raise_naming_supported_forms():
-    from framegraph.vision.infrastructure.overlay_align import _to_pairs
+    from frameforge.vision.infrastructure.overlay_align import _to_pairs
 
     for bad in ({"cs": [1, 2]}, {"landmark": "A1"}, {"viewport_px": [5, 5]}):
         with pytest.raises(ValueError) as exc_info:
@@ -98,7 +98,7 @@ def test_overlay_session_scoped_dict_forms_raise_naming_supported_forms():
 # 2. construct_vectors / score_reconstruction shape points
 # ─────────────────────────────────────────────────────────────
 def _construct_yaml(tmp_path, session_id, points):
-    from framegraph.mcp import usecases
+    from frameforge.mcp import usecases
 
     res = usecases.construct_vectors(
         shapes=[{"kind": "line", "points": points}],
@@ -119,7 +119,7 @@ def test_construct_vectors_px_and_norm_dicts_match_legacy_yaml(tmp_path):
 
 
 def test_construct_vectors_landmark_dict_resolves_via_pin_anchors(tmp_path):
-    from framegraph.vision.infrastructure import workspace as ws
+    from frameforge.vision.infrastructure import workspace as ws
 
     ws_dir = tmp_path / "anchors"
     ws_dir.mkdir()
@@ -127,7 +127,7 @@ def test_construct_vectors_landmark_dict_resolves_via_pin_anchors(tmp_path):
                               pins=[ws.Pin("P1", 10.0, 20.0)])
     ws.save_state(ws_dir, state)
 
-    from framegraph.mcp import usecases
+    from frameforge.mcp import usecases
 
     def build(session_id, points):
         res = usecases.construct_vectors(
@@ -145,7 +145,7 @@ def test_construct_vectors_landmark_dict_resolves_via_pin_anchors(tmp_path):
 
 
 def test_construct_vectors_unknown_dict_key_names_accepted_forms(tmp_path):
-    from framegraph.mcp import usecases
+    from frameforge.mcp import usecases
 
     res = usecases.construct_vectors(
         shapes=[{"kind": "line", "points": [{"bogus": [1, 2]}, [3, 4]]}],
@@ -158,7 +158,7 @@ def test_construct_vectors_unknown_dict_key_names_accepted_forms(tmp_path):
 
 
 def test_score_reconstruction_accepts_dict_point_grammar(tmp_path):
-    from framegraph.mcp import usecases
+    from frameforge.mcp import usecases
 
     image = _write_test_png(tmp_path, size=(60, 40))
     legacy = usecases.score_reconstruction(
@@ -188,7 +188,7 @@ _HOMOGRAPHY_PAIRS = [
 
 
 def test_map_homography_px_dicts_equal_bare_lists(tmp_path):
-    from framegraph.mcp import usecases
+    from frameforge.mcp import usecases
 
     legacy = usecases.map_coordinates(
         "homography",
@@ -208,7 +208,7 @@ def test_map_homography_px_dicts_equal_bare_lists(tmp_path):
 
 
 def test_map_homography_norm_dicts_resolve_with_width_height(tmp_path):
-    from framegraph.mcp import usecases
+    from frameforge.mcp import usecases
 
     legacy = usecases.map_coordinates(
         "homography",
@@ -235,7 +235,7 @@ def test_map_homography_norm_dicts_resolve_with_width_height(tmp_path):
 
 
 def test_map_homography_norm_without_dims_is_structured_error(tmp_path):
-    from framegraph.mcp import usecases
+    from frameforge.mcp import usecases
 
     res = usecases.map_coordinates(
         "homography",
@@ -254,7 +254,7 @@ def test_map_homography_norm_without_dims_is_structured_error(tmp_path):
 def test_map_warp_norm_dst_resolves_against_out_size(tmp_path):
     """A warp pair's ``dst`` lives in the OUTPUT canvas: ``{"norm": ..}`` on the dst
     side must resolve against ``out_size``, not the source image dims."""
-    from framegraph.mcp import usecases
+    from frameforge.mcp import usecases
 
     image = _write_test_png(tmp_path, size=(100, 50))
     res = usecases.map_coordinates(

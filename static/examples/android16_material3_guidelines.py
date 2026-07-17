@@ -1,12 +1,12 @@
 """Android 16 · Material 3 Expressive — UI Guidelines.
 
-A 64-page A4 reference, built with the FrameGraph SDK from PRIMITIVES ONLY
+A 64-page A4 reference, built with the FrameForge SDK from PRIMITIVES ONLY
 (rect · text · line · circle · path · group). Every Android component below is
 drawn from those primitives — no widget helpers. Specs grounded in public
 Material 3 / M3 Expressive guidance (see the closing colophon for sources).
 """
 import os, math
-from framegraph.sdk import DocumentBuilder, serialize
+from frameforge.sdk import DocumentBuilder, serialize
 
 # ============================================================ A4 + type
 W, H = 1000, 1414                      # A4 portrait ratio (1 : 1.414)
@@ -260,7 +260,7 @@ def p_cover():
     LN((MX,H-210),(W-MX,H-210),stroke="#FFFFFF55",sw=1)
     for i,(v,k) in enumerate([("64","A4 pages"),("15","type styles"),("26","colour roles"),("35","M3E shapes")]):
         xx=MX+i*200; T(xx,H-190,180,v,size=34,color=ON_PRIMARY,weight=600); T(xx,H-146,180,k.upper(),size=11,color=PRIMARY_C,weight=600,spacing=1.2)
-    T(MX,H-90,W-2*MX,"Grounded in public Material 3 / M3 Expressive guidance · Generated with the FrameGraph SDK, primitives only · 2026-07",
+    T(MX,H-90,W-2*MX,"Grounded in public Material 3 / M3 Expressive guidance · Generated with the FrameForge SDK, primitives only · 2026-07",
       size=11,color="#D6C8F5",mono=True)
 
 def p_contents():
@@ -301,7 +301,7 @@ def p_overview():
     T(MX+24,ry+52,W-2*MX-48,"46 studies · 18,000+ participants informed the expressive system.",size=14,color=MUTE)
     for i,(v,k) in enumerate([("15","new / refreshed components"),("35","decorative shapes"),("2","motion spring types"),("15","type styles + 15 emphasized")]):
         xx=MX+24+i*((W-2*MX-48)/4); T(xx,ry+90,220,v,size=30,color=PRIMARY,weight=600); T(xx,ry+128,220,k,size=11.5,color=MUTE)
-    T(MX,ry+180,W-2*MX,"This reference depicts every foundation and component below using FrameGraph primitives only — "
+    T(MX,ry+180,W-2*MX,"This reference depicts every foundation and component below using FrameForge primitives only — "
       "rectangles, text, lines, circles and paths — so each specimen is exact, inspectable geometry.",size=13,color=MUTE,lh=1.5)
 
 def p_principles():
@@ -1533,7 +1533,7 @@ def p_colophon():
     global L
     L.rect([0,0,W,H],fill=PRIMARY)
     T(MX,120,W-2*MX,"Colophon",size=44,color=ON_PRIMARY,weight=600)
-    T(MX,190,W-2*MX-40,"This 64-page reference was composed with the FrameGraph SDK using primitives only — rectangles, text, "
+    T(MX,190,W-2*MX-40,"This 64-page reference was composed with the FrameForge SDK using primitives only — rectangles, text, "
       "lines, circles and paths. No pre-built widgets: every Android component here is exact, inspectable geometry.",size=17,color="#EFE7FF",lh=1.55)
     LN((MX,300),(W-MX,300),stroke="#FFFFFF44",sw=1)
     T(MX,320,W-2*MX,"Grounded in",size=13,color=PRIMARY_C,weight=600,spacing=1)
@@ -1548,7 +1548,7 @@ def p_colophon():
     T(MX+24,740,W-2*MX-48,"No statement here should be taken for granted. Specs reflect public Material 3 / M3 Expressive guidance "
       "at the time of writing; platform behaviours (Android 16 edge-to-edge, predictive back, Live Updates) are summarised "
       "and should be verified against current developer documentation. Dynamic colour values vary per device.",size=14,color="#EDE7FF",lh=1.6)
-    T(MX,H-70,W-2*MX,"Android 16 · Material 3 Expressive — UI Guidelines   ·   Generated with the FrameGraph SDK, primitives only   ·   Claude Opus 4.8   ·   2026-07",
+    T(MX,H-70,W-2*MX,"Android 16 · Material 3 Expressive — UI Guidelines   ·   Generated with the FrameForge SDK, primitives only   ·   Claude Opus 4.8   ·   2026-07",
       size=11,color="#C9BAF0",mono=True)
 
 def p_states():

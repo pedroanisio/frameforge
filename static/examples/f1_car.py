@@ -1,7 +1,7 @@
-"""Formula 1 car — a 256-layer, vision-checked composition in perspective (FrameGraph SDK).
+"""Formula 1 car — a 256-layer, vision-checked composition in perspective (FrameForge SDK).
 
 A modern F1 car in a race-day scene, authored as exactly 256 stacked layers and
-verified against the rendered pixels with the FrameGraph MCP vision tools
+verified against the rendered pixels with the FrameForge MCP vision tools
 (detect_regions for region separation, the silhouette gate for readability).
 
 Perspective is built from a single station point: a vanishing point on the
@@ -30,7 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from framegraph.sdk import DocumentBuilder, Path, linear_gradient, radial_gradient, rgba  # noqa: E402
+from frameforge.sdk import DocumentBuilder, Path, linear_gradient, radial_gradient, rgba  # noqa: E402
 
 W, H = 1280.0, 720.0
 TARGET_LAYERS = 256
@@ -336,7 +336,7 @@ def livery_and_marks():
     S.append(poly([(700, 478), (882, 486), (882, 494), (700, 486)], CYAN, opacity=0.9))     # chassis flash
     S.append(poly([(1052, 516), (1130, 532), (1128, 538), (1050, 522)], CYAN, opacity=0.9))  # nose-tip flash
     S.append(poly([(452, 468), (520, 456), (536, 462), (472, 480)], WHITE, opacity=0.9))  # engine-cover flash
-    S.append(text(452, 501, "FRAMEGRAPH", 14, WHITE, w=170, weight=700, italic=True))     # sidepod title sponsor
+    S.append(text(452, 501, "FRAMEFORGE", 14, WHITE, w=170, weight=700, italic=True))     # sidepod title sponsor
     S.append(disc(712, 486, 20, fill=WHITE))                          # number roundel (on the orange nose)
     S.append(disc(712, 486, 20, fill="none", stroke=CARBON, sw=2))
     S.append(text(700, 486, "16", 22, CARBON, w=26, align="center"))  # car number
@@ -349,7 +349,7 @@ def livery_and_marks():
 def caption():
     S = []
     S.append(text(40, 40, "FORMULA 1", 34, CARBON, w=400, weight=800))
-    S.append(text(40, 74, "256 layers · perspective ground + offside depth · vision-checked · FrameGraph SDK", 14,
+    S.append(text(40, 74, "256 layers · perspective ground + offside depth · vision-checked · FrameForge SDK", 14,
                   rgba(CARBON, 0.8), w=680, weight=600))
     return S
 
@@ -376,7 +376,7 @@ def scene():
 
 
 def build_builder():
-    b = DocumentBuilder(title="Formula 1 — 256-layer composition in perspective (FrameGraph)")
+    b = DocumentBuilder(title="Formula 1 — 256-layer composition in perspective (FrameForge)")
     page = b.page("f1", canvas={"size": [W, H], "units": "px"}, coordinate_mode="absolute")
     page.layer("scene").extend(scene())
     return b
@@ -390,7 +390,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from framegraph.sdk import serialize
+    from frameforge.sdk import serialize
     out = os.environ.get("OUTPUT_YAML_PATH", "f1_car_128_layers.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))
     print(f"wrote {out}  ({len(scene())} layers)")

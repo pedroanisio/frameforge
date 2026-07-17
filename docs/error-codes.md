@@ -10,7 +10,7 @@ disclaimer:
 
 # Validation error codes
 
-Every finding code the FrameGraph validators can emit, with meaning and fix.
+Every finding code the FrameForge validators can emit, with meaning and fix.
 There are two validation surfaces:
 
 1. **The tooling validator** — `tooling/validate.py` (the `make validate` gate):
@@ -18,7 +18,7 @@ There are two validation surfaces:
    Schema cannot express. Severity is `ERROR` or `WARN`; `--strict` upgrades
    every `WARN` to `ERROR`. Exit codes: `0` no errors (warnings allowed), `1`
    any error, `2` load failure.
-2. **The SDK validator** — `framegraph.sdk.validate.validate_static_rules()`:
+2. **The SDK validator** — `frameforge.sdk.validate.validate_static_rules()`:
    runs the tooling validator on the lowered document (re-surfacing every code
    below under `Issue.rule_id`, severities lower-cased) and layers SDK-only
    referential checks on top.
@@ -35,7 +35,7 @@ here. The same enumeration ships machine-readably in
 | Code | Meaning | How to fix |
 |---|---|---|
 | `load` | The document file could not be parsed as YAML/JSON at all. | Fix the syntax error reported in the message; the path in the finding is the file itself. |
-| `structure` | The document does not validate against the core Pydantic models (wrong field, wrong type, missing required key). | Follow the Pydantic message at the reported path; the models (`docs/models/framegraph.py`) are the source of truth. |
+| `structure` | The document does not validate against the core Pydantic models (wrong field, wrong type, missing required key). | Follow the Pydantic message at the reported path; the models (`docs/models/frameforge.py`) are the source of truth. |
 | `stroke-single-form` | Inline-geometry `stroke` (a dict carrying `width`/`dash`/`linecap`/`linejoin`) was removed in P3. | Put paint in `stroke` and geometry in `stroke_style`; `tooling/codemod.py` migrates this automatically. |
 | `size-renamed` | Legacy `size` on a non-icon object collides with `IconObject.size`. | Rename the content-sizing key to `sizing` (the codemod does this). |
 | `hug-on-shape` | `sizing: hug` on a pure shape (`rect`, `ellipse`, `line`, …) — shapes have no intrinsic content to hug. | Use a fixed dimension or `fill`. |
@@ -64,7 +64,7 @@ here. The same enumeration ships machine-readably in
 | `unknown-adjustment-target` | A target's `adjustments.hide` names an id no object declares — hiding nothing is inert. | Fix the id or drop the entry. |
 | `unknown-token` (warning variants) | A colour-valued key (`fill`/`stroke`/`color`/…) is neither a colour literal nor a declared `tokens.colors`/`fill_styles` key (it would pass through as an invalid SVG colour), or an `icon.font` is not declared in `tokens.fonts` (§3.5). | Declare the token, use a literal colour, or fix the reference. |
 
-## SDK rule ids (`src/framegraph/sdk/validate.py`)
+## SDK rule ids (`src/frameforge/sdk/validate.py`)
 
 `validate_static_rules()` re-emits every tooling code above as `Issue.rule_id`
 (severity `error`/`warning`), plus these SDK-only checks (all severity `error`):
@@ -74,7 +74,7 @@ here. The same enumeration ships machine-readably in
 | `structure` | The built document failed model validation before any rule ran (same meaning as the tooling code; the SDK reports it per Pydantic error with a JSON-pointer path). | Fix the field named by the pointer. |
 | `reference` | A dangling reference: a page `master`, `reading_order` id, image asset ref, master-region `next`, or a target-adjustment `hide` id that resolves to nothing. | Define the referenced master/asset/object id, or fix the typo. |
 | `reference-cycle` | A master's region `next` chain loops back on itself, so flow content would never terminate. | Break the cycle; region chains must be linear. |
-| `path-data` | A `path` object's `d` string is not parseable SVG path data (unknown command or wrong arity). | Fix the path data, or author it via `framegraph.sdk.Path` (use `object(structured=True)` for the typed G-1 segment form). |
+| `path-data` | A `path` object's `d` string is not parseable SVG path data (unknown command or wrong arity). | Fix the path data, or author it via `frameforge.sdk.Path` (use `object(structured=True)` for the typed G-1 segment form). |
 | `target` | A target name passed to `validate_static_rules(targets=[...])` is not defined in the document's `targets`. | Add the target to the document or drop it from the call. |
 | `target-adjustment` | A requested target's `adjustments.hide` hides an object that a page `reading_order` entry or a `from`/`to` anchor still references — the reference would dangle in that target's output. | Un-hide the object for that target, or remove the reading-order entry / re-anchor the connector. |
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Web Design Proposal — a premium editorial proposal booklet, authored with the SDK.
 
-A faithful FrameGraph port of the crafted reference (_tmp/web-design-proposal.html):
+A faithful FrameForge port of the crafted reference (_tmp/web-design-proposal.html):
 ultra-light display headings with a single bold word, gold eyebrows on wide
 tracking, angular photo frames (silhouette + gold slash + tag), hand-drawn
 thin-line icons, a real Gantt, a rotated "Draft" stamp, charcoal contrast pages,
@@ -24,13 +24,13 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import DocumentBuilder, serialize  # noqa: E402
-from framegraph.sdk.paint import linear_gradient, radial_gradient, rgba  # noqa: E402
-from framegraph.sdk.geometry import Mat3  # noqa: E402
+from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge.sdk.paint import linear_gradient, radial_gradient, rgba  # noqa: E402
+from frameforge.sdk.geometry import Mat3  # noqa: E402
 
 # --- tokens (mirrors the reference :root) ----------------------------------- #
 GOLD, GOLD2, GOLD_SOFT = "#F2B705", "#FFC72C", "#FCEBB3"
@@ -695,7 +695,7 @@ def p_showcase(doc):
                      {"text": " Design Proposal", "style": {"font_family": DISPLAY, "font_size": 46, "font_weight": EXLIGHT, "color": CHAR}}],
            "style": {"font_family": DISPLAY, "font_size": 46, "font_weight": EXLIGHT, "color": CHAR, "align": "center"}})
     L.text([PW / 2 - 280, 156, 560, 50], "A complete editorial proposal booklet — cover, about, board, team, "
-           "process, timeline, pricing and terms. Every page is one FrameGraph document.",
+           "process, timeline, pricing and terms. Every page is one FrameForge document.",
            style=t(12, "#5B4A08", lh=1.6, align="center"))
     # three perspective minis (shadow + body + glare)
     def placed(cx, cy, scale, rot, drawer):
@@ -744,7 +744,7 @@ doc = build_document()
 
 
 def main() -> int:
-    from framegraph.sdk.validate import validate_static_rules
+    from frameforge.sdk.validate import validate_static_rules
     built = doc.build()
     rep = validate_static_rules(built)
     errs = [i for i in rep.issues if i.severity == "error"]

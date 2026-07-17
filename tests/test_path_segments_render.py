@@ -10,22 +10,22 @@ import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-# Prefer the repo root so the `framegraph` *package* outranks `models/` on sys.path,
+# Prefer the repo root so the `frameforge` *package* outranks `models/` on sys.path,
 # and evict a models-*module* shadow (no __path__) left by a model-only test in the
-# shared pytest process, so `framegraph.rendering` resolves to the package. The
+# shared pytest process, so `frameforge.rendering` resolves to the package. The
 # opposite direction of the eviction in test_elements.py / test_head.py.
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # models module shadowing the package
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
 from render_fixtures import Renderer  # noqa: E402
 
 
 def _doc(d):
     return {
-        "dsl": "FrameGraph",
+        "dsl": "FrameForge",
         "version": "2.2.0",
         "pages": [{
             "mode": "page",

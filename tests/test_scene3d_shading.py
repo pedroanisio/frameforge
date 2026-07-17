@@ -13,12 +13,12 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import Camera, Scene3D, Vec3  # noqa: E402
-from framegraph.sdk.draw import _face_lighting  # noqa: E402
+from frameforge.sdk import Camera, Scene3D, Vec3  # noqa: E402
+from frameforge.sdk.draw import _face_lighting  # noqa: E402
 
 # a single face in the plane z=1, wound so its normal is +z (toward light & view).
 _FACE = [([Vec3(0, 0, 1), Vec3(1, 0, 1), Vec3(1, 1, 1)], {})]

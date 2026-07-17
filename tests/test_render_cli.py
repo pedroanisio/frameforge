@@ -4,16 +4,16 @@ test_render_cli.py — coverage for the render_fixtures.py *driver* (discover /
 stem_of / write_index / main), which the suite never exercised (the renderer
 internals are covered by test_rendering_svg_semantics / test_element_render).
 
-Renderer-only import (the `framegraph` package must win) — evict a models-module
+Renderer-only import (the `frameforge` package must win) — evict a models-module
 shadow first, per test_rendering_svg_semantics.py.
 """
 import os
 import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):  # the models module
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling import render_fixtures as R  # noqa: E402
@@ -32,7 +32,7 @@ def test_stem_of_keeps_extension_and_relpath():
 def test_discover_file_glob_dir_default_and_missing():
     assert [d[0] for d in R.discover([CAL])] == [CAL]
     glob_docs = R.discover([os.path.join(R.FIXTURES, "*.fg.yaml")])
-    assert len(glob_docs) >= 3 and all(d[1]["dsl"] == "FrameGraph" for d in glob_docs)
+    assert len(glob_docs) >= 3 and all(d[1]["dsl"] == "FrameForge" for d in glob_docs)
     assert len(R.discover([os.path.join(R.FIXTURES, "b1")])) >= 1   # directory walk
     assert len(R.discover([])) >= 8                                  # defaults to fixtures/
     assert R.discover(["/no/such/path.fg.yaml"]) == []              # nothing matches

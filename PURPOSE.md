@@ -8,7 +8,7 @@ disclaimer:
   date: "2026-06-23"
 ---
 
-# FrameGraph
+# FrameForge
 
 ## Why We Built This
 
@@ -39,10 +39,10 @@ as the only source of truth.
 
 ### Core Capabilities
 
-- Defines FrameGraph v2, a structured document and graphics format for decks, diagrams, books, letters, fixtures, and generated visual artifacts.
+- Defines FrameForge v2, a structured document and graphics format for decks, diagrams, books, letters, fixtures, and generated visual artifacts.
 - Maintains Pydantic models as the source of truth for schema, validation, migration, generated docs, and renderer checks.
 - Provides tools to validate documents, migrate older documents, render proxy outputs, build documentation pages, and keep fixture status honest.
-- Supplies a Python SDK and viewer experiments for authoring and inspecting FrameGraph documents.
+- Supplies a Python SDK and viewer experiments for authoring and inspecting FrameForge documents.
 
 ### What This Is Not
 

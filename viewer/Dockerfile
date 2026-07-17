@@ -29,7 +29,7 @@ COPY docker/index.html /usr/share/nginx/html/index.html
 COPY --from=build /app/dev            /usr/share/nginx/html/dev
 COPY --from=build /app/demo           /usr/share/nginx/html/demo
 COPY --from=build /app/verification   /usr/share/nginx/html/verification
-COPY --from=build /app/framegraph-viewer.jsx /usr/share/nginx/html/framegraph-viewer.jsx
+COPY --from=build /app/frameforge-viewer.jsx /usr/share/nginx/html/frameforge-viewer.jsx
 COPY --from=build /app/README.md      /usr/share/nginx/html/README.md
 
 EXPOSE 80

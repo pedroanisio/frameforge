@@ -20,11 +20,11 @@ import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-_shadow = sys.modules.get("framegraph")
+_shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
-    del sys.modules["framegraph"]
+    del sys.modules["frameforge"]
 
-from framegraph.sdk import (  # noqa: E402
+from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     Mat4,
     Scene3D,
@@ -39,7 +39,7 @@ from framegraph.sdk import (  # noqa: E402
     serialize,
     table,
 )
-from framegraph.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1440, 900
 M = 56
@@ -618,7 +618,7 @@ def entry_page(b, i, builder, meta):
     # header
     notes.append(_t([M, 40, 400, 18], f"ORBITAL REGISTRY · NO. {i:02d}/20", "reg"))
     notes.append(_t([M, 62, 500, 18], meta["role"].upper(), "klass"))
-    notes.append(_t([W - M - 220, 44, 220, 18], "FRAMEGRAPH · SCENE3D", "foot",
+    notes.append(_t([W - M - 220, 44, 220, 18], "FRAMEFORGE · SCENE3D", "foot",
                     align="right"))
 
     # 3D viewport
@@ -707,13 +707,13 @@ def cover(b):
     c_station(scene)
     page.add(scene.render(camera=CAMERA, box=[60, 150, 560, 560], fill=HULL, stroke=DARK))
 
-    notes.append(_t([640, 150, 760, 20], "FRAMEGRAPH · SCENE3D CATALOG", "reg"))
+    notes.append(_t([640, 150, 760, 20], "FRAMEFORGE · SCENE3D CATALOG", "reg"))
     notes.append(_t([640, 184, 760, 60], "Orbital Registry", "cover"))
     notes.append(_t([640, 252, 760, 30], "A Catalog of Spacecraft", "cover",
                     font_size=26, color="#A9B6CE", letter_spacing=-0.4))
     notes.append(_t([640, 332, 720, 70],
                     "Twenty craft, every one a procedural 3D model built and projected "
-                    "with the FrameGraph SDK — capsules to interplanetary ships.",
+                    "with the FrameForge SDK — capsules to interplanetary ships.",
                     "coversub"))
 
     # index — two columns of 10
@@ -730,7 +730,7 @@ def cover(b):
                             "idxk", align="right"))
 
     notes.append(_t([60, H - 40, 900, 16],
-                    "Built with framegraph.sdk · Scene3D + widgets · one composed document",
+                    "Built with frameforge.sdk · Scene3D + widgets · one composed document",
                     "foot"))
     page.add({"type": "group", "children": notes, "meta": {"role": "labels"}})
 
