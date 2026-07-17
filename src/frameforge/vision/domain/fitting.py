@@ -5,12 +5,13 @@ per-pair offsets + post-fit residuals. Extracted from
 ``frameforge.vision.infrastructure.overlay_align`` (which re-exports these names and
 keeps the PIL compositing) so the fit maths is import-cheap and unit-testable.
 
-Scope (honest): the model is a **similarity WITHOUT rotation** — uniform scale + 2D
-translation only (``base = scale · overlay + t``). Rotation and shear are NOT
-modelled, so a rotated overlay surfaces as large residuals rather than being
-silently "corrected". One pair yields a pure translation. This is a deliberate
-scope choice, not an approximation to fix — do not swap in a rotation-bearing fit
-without changing the tool contract.
+Scope (honest): the **default** model is a similarity WITHOUT rotation — uniform
+scale + 2D translation only (``base = scale · overlay + t``); a rotated overlay
+surfaces as large residuals rather than being silently "corrected". One pair
+yields a pure translation. Rotation exists as a second, explicitly **opt-in**
+model (:func:`fit_similarity_rotation`, 2D Procrustes, >= 2 pairs) — the tool
+contract names it (``rotation=true``), so the default's behaviour and its
+residual semantics never change under a caller's feet.
 """
 from __future__ import annotations
 
@@ -62,8 +63,66 @@ def fit_similarity(pairs: Sequence[tuple[tuple[float, float], tuple[float, float
     return Similarity(scale, bmx - scale * omx, bmy - scale * omy)
 
 
+@dataclass(frozen=True)
+class SimilarityRot:
+    """A full 2D similarity: ``base = scale · R(rotation_deg) · overlay + t``."""
+
+    scale: float
+    rotation_deg: float
+    tx: float
+    ty: float
+
+    def apply(self, x: float, y: float) -> tuple[float, float]:
+        th = math.radians(self.rotation_deg)
+        c, s = math.cos(th), math.sin(th)
+        return (self.scale * (c * x - s * y) + self.tx,
+                self.scale * (s * x + c * y) + self.ty)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "scale": round(self.scale, 6),
+            "rotation_deg": round(self.rotation_deg, 4),
+            "translation_px": [round(self.tx, 3), round(self.ty, 3)],
+            "model": "similarity with rotation (uniform scale + rotation + translation; opt-in)",
+            "forward": "base_px = scale * R(rotation_deg) * overlay_px + translation_px",
+        }
+
+
+def fit_similarity_rotation(
+    pairs: Sequence[tuple[tuple[float, float], tuple[float, float]]],
+) -> SimilarityRot:
+    """Least-squares full similarity (2D Procrustes) mapping overlay→base.
+
+    Needs at least two pairs — a single landmark cannot witness a rotation.
+    """
+    n = len(pairs)
+    if n < 2:
+        raise ValueError("the rotation fit needs at least two landmark pairs")
+    bxs = [p[0][0] for p in pairs]
+    bys = [p[0][1] for p in pairs]
+    oxs = [p[1][0] for p in pairs]
+    oys = [p[1][1] for p in pairs]
+    bmx, bmy = sum(bxs) / n, sum(bys) / n
+    omx, omy = sum(oxs) / n, sum(oys) / n
+    num_cos = num_sin = den = 0.0
+    for i in range(n):
+        ox, oy = oxs[i] - omx, oys[i] - omy
+        bx, by = bxs[i] - bmx, bys[i] - bmy
+        num_cos += ox * bx + oy * by
+        num_sin += ox * by - oy * bx
+        den += ox * ox + oy * oy
+    if den <= 1e-12:
+        raise ValueError("degenerate landmark set: overlay points are coincident")
+    theta = math.atan2(num_sin, num_cos)
+    scale = math.hypot(num_cos, num_sin) / den
+    c, s = math.cos(theta), math.sin(theta)
+    tx = bmx - scale * (c * omx - s * omy)
+    ty = bmy - scale * (s * omx + c * omy)
+    return SimilarityRot(scale, math.degrees(theta), tx, ty)
+
+
 def landmark_offsets(pairs: Sequence[tuple[tuple[float, float], tuple[float, float]]],
-                     transform: Similarity) -> list[dict[str, Any]]:
+                     transform: "Similarity | SimilarityRot") -> list[dict[str, Any]]:
     """Per-pair raw offset (base − overlay) and post-fit residual."""
     out: list[dict[str, Any]] = []
     for i, ((bx, by), (ox, oy)) in enumerate(pairs, start=1):

@@ -76,22 +76,43 @@ def _to_pairs(landmarks: Sequence[dict[str, Any]], base_size, overlay_size):
 
 def build_overlay(base_bytes: bytes, overlay_bytes: bytes, *,
                   landmarks: Sequence[dict[str, Any]],
-                  opacity: float = 0.5):
-    """Align overlay→base by landmarks; return (composite_image, spatial_dict)."""
+                  opacity: float = 0.5,
+                  rotation: bool = False):
+    """Align overlay→base by landmarks; return (composite_image, spatial_dict).
+
+    ``rotation=True`` opts into the full-similarity model (2D Procrustes) and a
+    rotated composite; the default stays the rotation-free contract.
+    """
     Image, _, ImageDraw, _, _ = _pil()
     base = load_rgb(base_bytes)
     overlay = load_rgb(overlay_bytes)
     pairs = _to_pairs(landmarks, base.size, overlay.size)
-    transform = fit_similarity(pairs)
+    if rotation:
+        from frameforge.vision.domain.fitting import fit_similarity_rotation
+        transform = fit_similarity_rotation(pairs)
+    else:
+        transform = fit_similarity(pairs)
     offsets = landmark_offsets(pairs, transform)
 
-    # place the scaled overlay so overlay(0,0) lands at the transform's translation
-    s = max(1e-3, transform.scale)
-    scaled = overlay.resize((max(1, round(overlay.width * s)),
-                             max(1, round(overlay.height * s))), Image.LANCZOS).convert("RGBA")
     canvas = base.convert("RGBA")
-    layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
-    layer.paste(scaled, (int(round(transform.tx)), int(round(transform.ty))))
+    if rotation:
+        # PIL's AFFINE takes the INVERSE map (output→input): o = (1/s)·R⁻¹·(b − t)
+        import math as _math
+        th = _math.radians(transform.rotation_deg)
+        c, sn = _math.cos(th), _math.sin(th)
+        s = max(1e-3, transform.scale)
+        coeffs = (c / s, sn / s, (-c * transform.tx - sn * transform.ty) / s,
+                  -sn / s, c / s, (sn * transform.tx - c * transform.ty) / s)
+        layer = overlay.convert("RGBA").transform(
+            canvas.size, Image.AFFINE, coeffs, resample=Image.BICUBIC,
+            fillcolor=(0, 0, 0, 0))
+    else:
+        # place the scaled overlay so overlay(0,0) lands at the transform's translation
+        s = max(1e-3, transform.scale)
+        scaled = overlay.resize((max(1, round(overlay.width * s)),
+                                 max(1, round(overlay.height * s))), Image.LANCZOS).convert("RGBA")
+        layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+        layer.paste(scaled, (int(round(transform.tx)), int(round(transform.ty))))
     op = 0.0 if opacity < 0 else 1.0 if opacity > 1 else float(opacity)
     if op < 1.0:
         alpha = layer.getchannel("A").point(lambda v: int(v * op))

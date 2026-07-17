@@ -1028,12 +1028,16 @@ def create_server(
         opacity: Annotated[
             float, Field(description="Overlay opacity in the aligned composite, 0..1.")
         ] = 0.5,
+        rotation: Annotated[
+            bool,
+            Field(description="Opt into the full-similarity model (scale + rotation + translation, 2D Procrustes; needs >= 2 pairs). Default false keeps the rotation-free contract, where a tilted overlay shows up honestly as residuals."),
+        ] = False,
         session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
     ):
         """Align an overlay image onto a base by matched landmarks and extract the coordinate offsets.
 
         Computes the offset between each landmark pair, fits a scale+translation that
-        best maps overlay→base (rotation is not modelled), reports per-pair residuals,
+        best maps overlay→base (rotation modelled only when `rotation=true`), reports per-pair residuals,
         and emits an aligned composite so the fit is visible. Use it to compare, align,
         and reconstruct visual structures across a source and a reference.
         """
@@ -1045,6 +1049,7 @@ def create_server(
                 "overlay": overlay,
                 "landmarks": landmarks,
                 "opacity": opacity,
+                "rotation": rotation,
                 "session_id": session_id,
             },
             lambda: _uc_overlay_images(
@@ -1052,6 +1057,7 @@ def create_server(
                 overlay,
                 landmarks=landmarks,
                 opacity=opacity,
+                rotation=rotation,
                 session_id=session_id,
                 session_root=root,
             ),

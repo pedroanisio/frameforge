@@ -873,6 +873,7 @@ def overlay_images(
     *,
     landmarks: list[dict[str, Any]],
     opacity: float = 0.5,
+    rotation: bool = False,
     session_id: str | None = None,
     session_root: str | Path | None = None,
 ) -> dict[str, Any]:
@@ -903,6 +904,7 @@ def overlay_images(
     try:
         composite, spatial = build_overlay(
             base_bytes, overlay_bytes, landmarks=landmarks, opacity=opacity,
+            rotation=rotation,
         )
     except (ValueError, OSError) as exc:
         return {"ok": False, "error": f"could not build overlay: {exc}",
