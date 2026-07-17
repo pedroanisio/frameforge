@@ -398,7 +398,9 @@ class Style(FG):
     text_transform: Optional[Literal["none", "uppercase", "lowercase", "capitalize"]] = Field(
         default=None, description="Case transform applied at render.")
     text_indent: Optional[Length] = Field(
-        default=None, description="First-line indent of a paragraph.")
+        default=None, description="First-line indent of a paragraph. In flow, an "
+                                  "explicit value (including 0) overrides the engine's "
+                                  "positional first-line-indent default (ADR-0006).")
     text_shadow: Optional[list[ShadowVal]] = Field(
         default=None, description="Text shadow list (strings or Shadow objects).")
     white_space: Optional[Literal["normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"]] = Field(
@@ -1279,9 +1281,10 @@ class TableObject(ObjBase):
     cell_padding: Optional[Union[Length, list[Length]]] = Field(
         default=None, description="Cell inner padding (one length or CSS shorthand list).")
     style: Optional[Union[str, dict]] = Field(
-        default=None, description="Table theme: a tokens key or a loose dict "
-                                  "(renderer keys incl. header_fill/header_text/cell_text); "
-                                  "grammar: object-any.")
+        default=None, description="Table theme: a tokens key or a loose dict of "
+                                  "renderer keys: header_fill, header_text, cell_text, "
+                                  "zebra_fill, grid_color, cell_size (chrome the table does "
+                                  "not define is not drawn; ADR-0006); grammar: object-any.")
 
 
 class Group(ObjBase):
@@ -1403,9 +1406,10 @@ class TableFlow(BreakFields):
     cell_padding: Optional[Union[Length, list[Length]]] = Field(
         default=None, description="Cell inner padding (one length or CSS shorthand list).")
     style: Optional[Union[str, dict]] = Field(
-        default=None, description="Table theme: a tokens key or a loose dict "
-                                  "(renderer keys incl. header_fill/header_text/cell_text); "
-                                  "grammar: object-any.")
+        default=None, description="Table theme: a tokens key or a loose dict of "
+                                  "renderer keys: header_fill, header_text, cell_text, "
+                                  "zebra_fill, grid_color, cell_size (chrome the table does "
+                                  "not define is not drawn; ADR-0006); grammar: object-any.")
     caption: Optional[Caption] = Field(
         default=None, description="Caption: a string or inline runs (P2).")
     credit: Optional[Caption] = Field(

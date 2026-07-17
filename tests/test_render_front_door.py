@@ -43,7 +43,7 @@ def _doc(tmp_path):
 
 
 def test_registry_covers_every_advertised_target():
-    assert set(cli.TARGETS) == {"svg", "png", "pdf", "pdf-tex", "tex", "html"}
+    assert set(cli.TARGETS) == {"svg", "png", "pdf", "pdf-tex", "tex", "html", "audit"}
     # every target carries a kind, a blurb, an availability check and a render fn
     for t in cli.TARGETS.values():
         assert t.kind and t.blurb and callable(t.check) and callable(t.fn)

@@ -83,6 +83,7 @@ def _validate_and_render_yaml(
     renders: list[dict[str, Any]] = []
     render_warning: str | None = None
     text_fit: dict[str, int] | None = None
+    design_census: dict[str, Any] | None = None
     render_diagnostics: dict[str, Any] | None = None
     pdf_summary: dict[str, Any] | None = None
     if report.ok:
@@ -162,6 +163,14 @@ def _validate_and_render_yaml(
             k: int(text_stats.get(k, 0))
             for k in ("total", "wrapped", "shrunk", "clipped", "contained")
         }
+        # Surface the design-token census (fonts/sizes/weights/colours + sprawl
+        # health) the same way — an authoring agent must see it created 15 sizes
+        # or off-palette colours, exactly as it sees clipped text (PALS's Law).
+        design_census = _design_census(document, svgs)
+        if design_census and any(f["level"] == "warn" for f in design_census["health"]):
+            msgs = [f["message"] for f in design_census["health"] if f["level"] == "warn"]
+            note = "design: " + "; ".join(msgs[:2])
+            render_warning = f"{render_warning}; {note}" if render_warning else note
         if text_fit["clipped"]:
             # Name the losses (issue #44): the per-object records ride on
             # result["diagnostics"]["truncations"]; the warning quotes the
@@ -188,6 +197,8 @@ def _validate_and_render_yaml(
     }
     if text_fit is not None:
         result["text_fit"] = text_fit
+    if design_census is not None:
+        result["design"] = design_census
     if render_diagnostics is not None:
         # The renderer's structured feedback (warnings, skipped objects/flowables,
         # font fallbacks, opt-in layout report): surfaced on the result and — via
@@ -314,6 +325,19 @@ def _export_pdf(
         summary["skipped_pages"] = skipped
         warning = f"PDF export skipped {len(skipped)} page(s): " + "; ".join(skipped)
     return entry, summary, warning
+
+
+def _design_census(document: Any, svgs: list[str]) -> dict[str, Any] | None:
+    """Compact design-token census for the render result (fonts/sizes/weights/
+    colours + sprawl health). Advisory: a census failure must never break a
+    render, so it degrades to ``None``."""
+    try:
+        from frameforge.rendering.application.audit import audit_document, compact_census
+        doc_dict = (document.model_dump(by_alias=True, exclude_none=True)
+                    if hasattr(document, "model_dump") else document)
+        return compact_census(audit_document(doc_dict, list(svgs)))
+    except Exception:  # noqa: BLE001 — advisory telemetry, never break a render
+        return None
 
 
 def _render_page_svgs_bounded(

@@ -80,6 +80,8 @@ nav:
       - ADR-0002 SDK lags core delivery: adr-0002-sdk-lags-core-delivery.md
       - ADR-0003 backend-neutral flow layout: adr-0003-backend-neutral-flow-layout.md
       - ADR-0004 single-engine layout: adr-0004-single-engine-layout.md
+      - ADR-0005 3D scene graph: adr-0005-3d-scene-graph.md
+      - ADR-0006 no injected style: adr-0006-no-injected-style.md
       - Illustration protocol: illustration-protocol.md
       - Vector recreation improvements: frameforge-vector-recreation-improvements.md
       - Brand guideline: BRAND.md

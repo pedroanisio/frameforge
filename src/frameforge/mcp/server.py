@@ -78,6 +78,7 @@ from frameforge.mcp.usecases import (
     propose_from_image as _uc_propose_from_image,
     propose_from_svg as _uc_propose_from_svg,
     render_frameforge_yaml as _uc_render_frameforge_yaml,
+    design_audit as _uc_design_audit,
     run_sdk_client as _uc_run_sdk_client,
     run_sdk_code as _uc_run_sdk_code,
 )
@@ -119,6 +120,7 @@ from frameforge.mcp.usecases import (
     propose_from_image as propose_from_image,
     propose_from_svg as propose_from_svg,
     render_frameforge_yaml as render_frameforge_yaml,
+    design_audit as design_audit,
     run_sdk_client as run_sdk_client,
     run_sdk_code as run_sdk_code,
 )
@@ -573,6 +575,31 @@ def create_server(
                 to=to,
                 scale=scale,
                 real_metrics=real_metrics,
+            )),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def design_audit(
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Full design-token + feature-usage audit of a session's most recent render.
+
+        Reads the session's rendered SVG pages + document and returns the census —
+        fonts, sizes, weights, colours, and features (drift-proof: read off the
+        emitted SVG plus a generic model walk) — with design-system health flags
+        (type-scale-sprawl, palette-sprawl, mixed-weight-encoding, near-duplicate
+        sizes). Run a render tool first; the compact census also rides on every
+        render result's ``design`` key. Persists ``audit.json``/``audit.md`` as
+        session resources.
+        """
+        result = _logged_call(
+            log_path,
+            "design_audit",
+            {"session_id": session_id},
+            lambda: _enveloped("design_audit", lambda: _uc_design_audit(
+                session_id=session_id,
+                session_root=root,
             )),
         )
         return _maybe_call_tool_result(result)
@@ -1650,6 +1677,7 @@ __all__ = [
     "run_sdk_code",
     "run_sdk_client",
     "render_frameforge_yaml",
+    "design_audit",
     "propose_from_image",
     "propose_from_document",
     "propose_from_svg",

@@ -313,6 +313,26 @@ escape; **(5)** per-object convenience fields (`fill`/`stroke`/`radius`/`color`)
 desugar and **win on conflict**. No specificity, no selectors. Inheritance is limited to
 inheritable text properties and flows only along `group`/flow nesting.
 
+### 5.2.2 Reserved style names & the no-injection rule (flow; ADR-0006)
+
+The flow renderer resolves its defaults from the document — it injects **no**
+font, size, or colour literal of its own ([ADR-0006](../adr-0006-no-injected-style.md)).
+Two reserved token-style names carry the flow defaults:
+
+- **`body`** — the flow **default text style**. Every flow element inherits it
+  and overrides it per-object via `style`. When a document defines no `body`
+  style, a single documented engine fallback applies.
+- **`caption`** — the style used for generated **figure and table captions**.
+
+Sub-renderers read only authored values: headings, lists, and the generated
+`toc` resolve their own `style`; a `table` reads its chrome
+(`header_fill`/`header_text`/`cell_text`/`zebra_fill`/`grid_color`/`cell_size`)
+from its `style`, and chrome it does not define is not drawn. An explicit
+`text_indent` (including `0`) on a paragraph style overrides the positional
+first-line-indent default. Consequence: a document that defines its styles fully
+determines its rendered design tokens — which is what makes the `--to audit`
+token census faithful.
+
 ### 5.3 Fonts & pinning
 
 `FontDef` = a family name or `{family, src?, hash?, fallback?, weight?, style?}`. A font

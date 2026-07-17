@@ -1806,9 +1806,24 @@ class Renderer:
             col_count = max(len(header), *(len(r) for r in rows if isinstance(r, list)), 1)
             col_w = usable / col_count
             row_h = 18
-            font_size = 6.5 if col_count > 6 else 8
-            cell_st = {**base, "family": "sans-serif", "size": font_size, "lh": 1.1}
-            head_st = {**cell_st, "weight": "bold", "color": "#222"}
+            # Honor the table's authored `style` (header_fill/header_text/
+            # cell_text/zebra_fill/cell_size) instead of hardcoded greys — else the
+            # table ignores the brand and leaks off-scale sizes/colours.
+            sty = fl.get("style") if isinstance(fl.get("style"), dict) else {}
+
+            def _c(v, d):
+                return (self._color.resolve(v) or v) if v else d
+
+            # Sizes/colours come only from the table's `style` (falling back to
+            # the document-defined `base`); no fill/grid/size literal is injected.
+            font_size = num(sty.get("cell_size")) or base["size"]
+            head_fill = _c(sty.get("header_fill"), None)
+            zebra_fill = _c(sty.get("zebra_fill"), None)
+            grid = _c(sty.get("grid_color"), None)
+            grid_stroke = Stroke(color=grid, width=0.5) if grid else None
+            cell_st = {**base, "size": font_size, "lh": 1.1,
+                       "color": _c(sty.get("cell_text"), base["color"])}
+            head_st = {**cell_st, "weight": 700, "color": _c(sty.get("header_text"), base["color"])}
 
             def emit_row(values, st, fill):
                 nonlocal cy
@@ -1817,17 +1832,18 @@ class Renderer:
                 for idx in range(col_count):
                     tx = x + idx * col_w
                     value = values[idx] if idx < len(values) else ""
-                    body.append(p.rect(tx, cy, col_w, row_h, fill, Stroke(color="#d8d8d8", width=0.5)))
+                    body.append(p.rect(tx, cy, col_w, row_h, fill, grid_stroke))
                     body.append(p.text_tag(tx + 3, cy + 3, col_w - 6, row_h - 6, text_of(value), st, vcenter=False))
                 cy += row_h
 
             caption = text_of(fl.get("caption"))
             if caption:
-                emit(caption, {**base, "family": "sans-serif", "size": 9, "weight": "bold"}, gap_after=4)
+                emit(caption, {**named("caption"), "weight": 700}, gap_after=4)
             if header:
-                emit_row(header, head_st, "#f1f3f5")
+                emit_row(header, head_st, head_fill)
             for idx, row in enumerate(rows):
-                emit_row(row if isinstance(row, list) else [row], cell_st, "#ffffff" if idx % 2 == 0 else "#fafafa")
+                emit_row(row if isinstance(row, list) else [row], cell_st,
+                         None if idx % 2 == 0 else zebra_fill)
             cy += 10
 
         def emit_math(fl):
@@ -1925,8 +1941,8 @@ class Renderer:
             cy += ih + 6
             captxt = text_of(fl.get("caption"))
             if captxt:
-                emit(captxt, {**base, "family": "sans-serif", "size": 10, "italic": True,
-                              "color": "#666", "align": "center"}, gap_after=12)
+                emit(captxt, {**named("caption"), "italic": True, "align": "center"},
+                     gap_after=12)
             else:
                 cy += 8
 
@@ -1944,15 +1960,20 @@ class Renderer:
                 self._note_flow_skip("toc")
                 return
             headings = self._story_headings(page.get("story") or [])
+            tocst = self.text_style(fl.get("style")) if fl.get("style") else None
+            fam = (tocst or {}).get("family") or "sans-serif"
+            col = (tocst or {}).get("color") or base["color"]
+            esz = (tocst or {}).get("size") or 11
             title = fl.get("title")
             if title:
-                emit(title, {**base, "family": "sans-serif", "size": 18, "weight": "bold"},
-                     gap_after=8)
+                # TOC title follows the toc's own style face/colour (a step up in
+                # size), not a hardcoded serif/size/colour that escapes the scale.
+                emit(title, {**base, "family": fam, "color": col,
+                             "size": esz * 1.5, "weight": "bold"}, gap_after=8)
             levels = fl.get("levels")
             leader = (str(fl.get("leader") or ".") or ".")[:1]
-            tocst = self.text_style(fl.get("style")) if fl.get("style") else None
-            st = {**base, "family": (tocst or {}).get("family") or "sans-serif",
-                  "size": 11, "lh": 1.5}
+            st = {**base, "family": fam, "color": col, "size": esz,
+                  "lh": (tocst or {}).get("lh") or 1.5}
             num_w = 24                                   # right column for page numbers
             line_h = st["size"] * st["lh"]
             for i, hd in enumerate(headings):
@@ -2098,13 +2119,33 @@ class Renderer:
             cap = fl.get("caption")
             captxt = cap if isinstance(cap, str) else (cap.get("text", "") if isinstance(cap, dict) else "")
             if captxt:
-                emit(captxt, {**base, "family": "sans-serif", "size": 10, "italic": True,
-                              "color": "#666", "align": "center"}, gap_after=12)
+                emit(captxt, {**named("caption"), "italic": True, "align": "center"},
+                     gap_after=12)
             else:
                 cy += 8
 
-        base = {"family": "serif", "size": 12, "weight": "normal", "italic": False,
-                "color": "#1c1c1c", "align": "left", "lh": 1.4}
+        # `base` is the flow renderer's SINGLE default text style, and it is
+        # DOCUMENT-DEFINED: it is the document's reserved `body` style when
+        # present (resolved through the same style resolver as everything else).
+        # Only when the document defines no `body` style does a lone documented
+        # engine fallback apply. Every flow element inherits `base` and overrides
+        # it per-object (`style`) or via reserved style tokens resolved by
+        # `named()`. The flow renderer holds NO other font/size/colour literal —
+        # so it cannot inject a style the document did not define (the `--to
+        # audit` target proves it).
+        if "body" in (self.styles or {}) or "body" in (self.text_styles or {}):
+            base = self.text_style("body")
+        else:
+            base = {"family": "serif", "size": 12, "weight": "normal", "italic": False,
+                    "color": "#1c1c1c", "align": "left", "lh": 1.4}
+
+        def named(name):
+            """Resolve a reserved style the DOCUMENT may define (e.g. 'caption');
+            falls back to the single `base` default so nothing undefined is
+            injected."""
+            if name in (self.text_styles or {}) or name in (self.styles or {}):
+                return self.text_style(name)
+            return base
         for fl in page.get("story") or []:
             if not isinstance(fl, dict):
                 continue

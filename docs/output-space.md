@@ -56,6 +56,7 @@ The shared core is the port + renderer:
 | **JSON Schema** | format contract | `docs/schema/build_schema.py` |
 | **Docs site** (reference/gallery/SDK/spec) | documentation | `tooling/gen_docs.py` |
 | **Golden hashes** (per-page SHA-256 of SVG) | regression lock | `tooling/render_golden.py` |
+| **Audit** report (design-token + feature census) | report / QA | `src/frameforge/rendering/application/audit.py` (`--to audit`; tokens read off the emitted SVG + a generic model walk — drift-proof; sprawl health flags; [ADR-0006](adr-0006-no-injected-style.md)) |
 
 The second-painter migration (`src/frameforge/rendering/infrastructure/painters/tikz.py`,
 `TikzPainter`) is in progress — when wired it routes the LaTeX/TikZ output through

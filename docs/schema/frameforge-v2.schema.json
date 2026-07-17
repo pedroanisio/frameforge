@@ -13694,7 +13694,7 @@
             }
           ],
           "default": null,
-          "description": "First-line indent of a paragraph.",
+          "description": "First-line indent of a paragraph. In flow, an explicit value (including 0) overrides the engine's positional first-line-indent default (ADR-0006).",
           "title": "Text Indent"
         },
         "text_shadow": {
@@ -15496,7 +15496,7 @@
             }
           ],
           "default": null,
-          "description": "Table theme: a tokens key or a loose dict (renderer keys incl. header_fill/header_text/cell_text); grammar: object-any.",
+          "description": "Table theme: a tokens key or a loose dict of renderer keys: header_fill, header_text, cell_text, zebra_fill, grid_color, cell_size (chrome the table does not define is not drawn; ADR-0006); grammar: object-any.",
           "title": "Style"
         },
         "caption": {
@@ -15825,7 +15825,7 @@
             }
           ],
           "default": null,
-          "description": "Table theme: a tokens key or a loose dict (renderer keys incl. header_fill/header_text/cell_text); grammar: object-any.",
+          "description": "Table theme: a tokens key or a loose dict of renderer keys: header_fill, header_text, cell_text, zebra_fill, grid_color, cell_size (chrome the table does not define is not drawn; ADR-0006); grammar: object-any.",
           "title": "Style"
         },
         "shadow": {

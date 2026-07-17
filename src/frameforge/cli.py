@@ -233,6 +233,25 @@ def r_html(path, out_dir, args):
     return _render_via_port("html", path, out_dir, args)
 
 
+def r_audit(path, out_dir, args):
+    """Design-token + feature-usage audit: renders the doc to SVG, then reads
+    every visual token off the emitted SVG and every feature off a generic model
+    walk (drift-proof — see frameforge.rendering.application.audit). Writes a
+    JSON report + a human Markdown summary and prints a one-line verdict."""
+    from frameforge.rendering.application.audit import (
+        audit_document, render_markdown, summary_line)
+    report = audit_document(_load_dict(path), list(_svgs(path, args.pages)))
+    md = render_markdown(report, title=os.path.basename(path))
+    print(summary_line(report))
+    for flag in report["health"]:
+        print(f"  [{flag['level']}] {flag['code']}: {flag['message']}")
+    return [
+        _write(os.path.join(out_dir, f"{args.stem}.audit.json"),
+               json.dumps(report, indent=2, ensure_ascii=False)),
+        _write(os.path.join(out_dir, f"{args.stem}.audit.md"), md),
+    ]
+
+
 # -- registry --------------------------------------------------------------- #
 def _ok():
     return None
@@ -252,6 +271,8 @@ TARGETS: dict[str, Target] = {
     "tex": Target("source", "LaTeX/TikZ source (.tex, no compile)", _ok, r_tex),
     "html": Target("web", "HTML/CSS (semantic; flow + gradient limits)",
                    lambda: _port_check("html"), r_html),
+    "audit": Target("report", "design-token + feature-usage audit (JSON + Markdown; "
+                    "drift-proof — read off the emitted SVG + model)", _ok, r_audit),
 }
 
 

@@ -23,7 +23,7 @@
   ],
   "tests/fixtures/b1/chroma-styling-showcase.fg.json": [
     "d92e79226236866874c150a6e459ef7b51b86e17b12efdfacc643b63c82d3e62",
-    "63fb6fe4e52e7bf0455eee61d0e33361f72074e999105f43643b40aa67598409"
+    "9e692805af8c9edfb9ca2ba6120a79c750d030fbb44765a21b42f67b41b5515c"
   ],
   "tests/fixtures/b1/docusign-deck-v2.fg.json": [
     "0c19c9f83983747aa350f0ab63791c07dab8b14ed5763dc60a7e997c17e0c60f",
@@ -60,23 +60,23 @@
   ],
   "tests/fixtures/b1/ieee-reference-guide.fg.json": [
     "7e62f877b9cb22f615b573fdbd0f4f6021b05bad8795a5edde795c6e3014a541",
-    "de3de10b84940e908d21ec2a561b29b2e15614f09ee344492cdfabccac0e5ef7",
+    "e44ef8341e108cba2bb1a28f6287b2c3222ddd57e318eafc5b21255a3aee0115",
     "59f02071dffd473400ae0de70bef210dce2dab3441ab33f4a53f4bacf51779e7",
-    "2144cfdf5d5f80fa2063e143aa49af3330bf0864c14a332a7281b010670d4e1f",
+    "39b3d01f2e044f32aa12d03e08105b0917aa4a272cfaf992e87400c76134b3ac",
     "1f4660500c4a578cb06d5813a205dbb9641f64ebd3b6ff490098384821c5de0b",
-    "a5efaf87f9f0a8e27311c6caf482fc42a5f36c4b5f0a0ef4625afe6f902024b6"
+    "67b9b5fc60e48964c6acc216b1b2e6899af9c1bf3d773a7c71e058a3376cf2fd"
   ],
   "tests/fixtures/b1/mckinsey-7s.fg.json": [
     "482d99c7b98ea2833184ac6e0cf2923b69fa38ba6c869260300811a6801276ad"
   ],
   "tests/fixtures/b1/neutron-stars.fg.json": [
     "4b44964069512be91a29cb8a2b897a7b6f9bdf3ca475d8137212fe7bf66e8ad3",
-    "45818e3172a9a11cc2deecae18849b0973c2cab6a7c01350447a91a4897968b1",
-    "0c38dfa7c4acc72c4f3e00473f4594b50684c33e4592abb0d46e79ffe8491672",
+    "5e940b98d36889b68ca1e3b402cfca9b3eee2a35ff8a187718f81995d4def364",
+    "3e6aea93d51fef28ea913bbe68492cc2783d6d25e0e98c5ca42cf5b7a9a1ccfc",
     "ed57e838761a5086455c3dc2519a2cdda8a170fcdb3369037f62859acfaa6954"
   ],
   "tests/fixtures/b1/spectral-methods.fg.json": [
-    "99888a2788fbbdd269bb08081cb0a69320d5d23e8bc46e985b60bf638b7c85b5"
+    "c4937934ad73376ada31aa34b853dc3eafa443895706a39b458924910eb59e04"
   ],
   "tests/fixtures/b1/wireframing-guide.fg.json": [
     "fa729c54adb9096e6ef6791039a20ea2f161222fe7535be04cac05a431f1f17a",

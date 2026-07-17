@@ -4,6 +4,40 @@
 
 ---
 
+## Unreleased — feat(render): `--to audit` design-token + feature census (2026-07-17)
+
+New render target `audit` (`frameforge_render.py <doc> --to audit`, wired in
+`cli.py` `TARGETS`; core `src/frameforge/rendering/application/audit.py`) writes a
+`<stem>.audit.json` + `.audit.md` report and prints a one-line verdict. It is
+**drift-proof by construction**: visual tokens (font family/size/weight/style,
+letter-spacing, fill/stroke colour, width/dash, opacity, gradients, plus an
+`other_properties` catch-all) are read off the **emitted SVG** — the sink every
+visual feature must pass through — and structural features come from a **generic
+model walk** (every `type`/`kind`/key), so a feature added later is captured with
+no new code. Health flags: `type-scale-sprawl` (>6 sizes), `near-duplicate-sizes`
+(≤1px), `palette-sprawl` (>14 colours), `mixed-weight-encoding`. Tests:
+`tests/test_audit.py`; front-door registry test updated. Not surfaced in the
+capability manifest (it introspects `render_*.py`, and `audit` is a `cli.py`
+target). Prose home: `docs/output-space.md`.
+
+## Unreleased — fix(render): the flow renderer injects no undefined style ([ADR-0006](docs/adr-0006-no-injected-style.md), 2026-07-17)
+
+The `mode: flow` renderer discarded resolved styles for headings, lists, TOC
+entries, captions, and paragraph indent, falling back to scattered hardcoded
+literals (`serif`/`#1c1c1c` base, TOC-title `18`, table `#f1f3f5`/`#fafafa`/
+`#d8d8d8`/`#222`, caption `#666`, cell size `8`) — so an Inter document rendered
+serif headings and grey table chrome, and the output did not trace to the
+document. Now (spec §5.2.2): the flow default text style `base` is the document's
+reserved **`body`** style (single documented fallback otherwise); `caption` is
+resolved for figure/table captions; headings/lists/`toc` resolve their own
+`style`; tables read `header_fill`/`header_text`/`cell_text`/`zebra_fill`/
+`grid_color`/`cell_size` from their `style` (undefined chrome not drawn); an
+explicit `text_indent` (incl. `0`) overrides the positional indent default. No
+font/size/colour literal remains in the flow renderer beyond the one fallback.
+Fixtures relying on a `body` style / injected table chrome re-rendered; golden
+oracle re-pinned (`make golden`, 8 fixtures / 85 pages). Fixtures without a
+`body` style are unaffected. 2009 tests green.
+
 ## Unreleased — fix(render): honor grid_span in the grid layout engine (refine pass, 2026-07-05)
 
 `ObjBase.grid_span: [column_span, row_span]` (§3.6e) was a documented field the

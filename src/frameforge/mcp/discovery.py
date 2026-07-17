@@ -256,8 +256,23 @@ def describe_capabilities(
                 "fields": _field_summary(cls), "schema": _class_schema(cls)}
     if key in catalog["named"]:
         cls = catalog["named"][key]
-        return {"ok": True, "topic": key, "kind": "model",
-                "fields": _field_summary(cls), "schema": _class_schema(cls)}
+        result = {"ok": True, "topic": key, "kind": "model",
+                  "fields": _field_summary(cls), "schema": _class_schema(cls)}
+        if key == "style":
+            # The flow renderer resolves its defaults from the document and injects
+            # no undefined style (ADR-0006); two reserved token-style names carry
+            # those defaults, so an author must know to define them.
+            result["reserved_styles"] = {
+                "body": "the flow renderer's DEFAULT text style — define it (in "
+                        "tokens.styles) to set the document face/size/colour. Absent "
+                        "→ a single documented engine fallback (ADR-0006).",
+                "caption": "styles generated figure and table captions.",
+                "note": "headings/lists/toc resolve their own `style`; a table carries "
+                        "its chrome via `style` (header_fill/header_text/cell_text/"
+                        "zebra_fill/grid_color/cell_size); chrome it does not define is "
+                        "not drawn. See ADR-0006.",
+            }
+        return result
     return {
         "ok": False,
         "error": f"unknown topic {topic!r}",

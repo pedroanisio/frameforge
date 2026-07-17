@@ -230,6 +230,56 @@ def render_frameforge_yaml(
     )
 
 
+def design_audit(
+    session_id: str | None = None,
+    *,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Full design-token + feature-usage audit of a session's most recent render.
+
+    Reads the session's rendered ``page-*.svg`` and generated document, runs the
+    drift-proof audit (tokens read off the emitted SVG + a generic model walk),
+    persists ``audit.json``/``audit.md`` as session resources, and returns the
+    full report plus the compact census. Run a render tool first — this audits
+    what was last rendered, it does not render.
+    """
+    import json as _json
+
+    import yaml as _yaml
+
+    from frameforge.rendering.application.audit import (
+        audit_document, compact_census, render_markdown, summary_line)
+
+    sid = _session_id(session_id)
+    session_dir = _session_root(session_root) / sid
+    doc_path = session_dir / "generated.fg.yaml"
+    svg_paths = sorted(session_dir.glob("page-*.svg"))
+    if not doc_path.is_file() or not svg_paths:
+        return {
+            "ok": False,
+            "session_id": sid,
+            "error": f"session {sid!r} has no rendered pages to audit; run a render "
+                     "tool (run_sdk_code / run_sdk_client / render_frameforge_yaml) first",
+        }
+    doc_dict = _yaml.safe_load(doc_path.read_text(encoding="utf-8"))
+    svgs = [path.read_text(encoding="utf-8") for path in svg_paths]
+    report = audit_document(doc_dict, svgs)
+    (session_dir / "audit.json").write_text(
+        _json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    (session_dir / "audit.md").write_text(render_markdown(report, title=sid), encoding="utf-8")
+    return {
+        "ok": True,
+        "session_id": sid,
+        "verdict": summary_line(report),
+        "design": compact_census(report),
+        "audit": report,
+        "resources": [
+            {"uri": f"frameforge://session/{sid}/audit.json", "mimeType": "application/json"},
+            {"uri": f"frameforge://session/{sid}/audit.md", "mimeType": "text/markdown"},
+        ],
+    }
+
+
 def propose_from_image(
     image_path: str | None = None,
     *,

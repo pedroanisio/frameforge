@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 117 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 118 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -58,6 +58,7 @@ The 117 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`frameforge_logo.py`](../static/examples/frameforge_logo.py) | FrameForge — the logo, as a standalone, reusable FrameForge document. |
 | [`frameforge_seed_deck.py`](../static/examples/frameforge_seed_deck.py) | FrameForge — Seed Pitch, authored *in* FrameForge (the canonical seed). |
 | [`geometry_topology_deck.py`](../static/examples/geometry_topology_deck.py) | GEOMETRY & TOPOLOGY — a reusable presentation *template* (FrameForge SDK). |
+| [`gingaone_house_style.py`](../static/examples/gingaone_house_style.py) | GINGA ONE — house-style template for whitepaper / fine-print material. |
 | [`graph_autolayout_demo.py`](../static/examples/graph_autolayout_demo.py) | Declarative graph auto-layout — the render-time bridge (roadmap item 1). |
 | [`guided_paint.py`](../static/examples/guided_paint.py) | Painter kit — render-safe atmosphere primitives for guided-draw compositions. |
 | [`humanize_hand.py`](../static/examples/humanize_hand.py) | Hand-drawn diagram via the seeded humanize 'hand' (roughen + drift + weight + ink). |
