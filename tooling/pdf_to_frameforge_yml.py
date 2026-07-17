@@ -82,7 +82,7 @@ from typing import Any
 # Reuse the model layer (the project's source of truth) for the HEAD version and
 # the structural self-check. Same docs/models/ sys.path shim as tooling/validate.py.
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "docs" / "models"))
+sys.path.insert(0, str(HERE.parent / "docs"))
 
 try:
     import yaml
@@ -91,7 +91,7 @@ except Exception as exc:  # pragma: no cover
         "Missing dependency: PyYAML. Install with: pip install pyyaml"
     ) from exc
 
-import frameforge as fg  # noqa: E402  (resolved via the models/ path inserted above)
+import models.frameforge as fg  # noqa: E402  (package-qualified via the docs/ path above)
 
 
 def _import_fitz() -> Any:

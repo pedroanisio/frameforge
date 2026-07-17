@@ -42,10 +42,10 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "docs", "models")))
+sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "docs")))
 
 import yaml  # noqa: E402
-import frameforge as fg  # noqa: E402
+import models.frameforge as fg  # noqa: E402  (package-qualified: never shadow the real package)
 from pydantic import ValidationError  # noqa: E402
 
 _YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
@@ -76,6 +76,8 @@ _FALLBACK_PRESETS = {
     "Legal": (612, 1008), "Tabloid": (792, 1224),
     "deck-16x9": (1920, 1080), "deck-4x3": (1024, 768), "square": (1080, 1080),
     "phone": (390, 844), "tablet": (834, 1112), "web": (1280, 800),
+    "qhd": (2560, 1440), "4k": (3840, 2160), "uhd": (3840, 2160),
+    "8k": (7680, 4320),
     "instagram-square": (1080, 1080), "instagram-portrait": (1080, 1350),
     "instagram-landscape": (1080, 566), "instagram-story": (1080, 1920),
     "facebook-post": (1200, 630), "facebook-cover": (820, 312),

@@ -30,11 +30,11 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "docs", "models")))
+sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "docs")))
 import yaml  # noqa: E402
 
 try:
-    import frameforge as fg  # noqa: E402
+    import models.frameforge as fg  # noqa: E402  (package-qualified: never shadow the real package)
     HEAD_VERSION = fg.HEAD_VERSION
 except Exception:  # noqa: BLE001
     HEAD_VERSION = "2.2.0"

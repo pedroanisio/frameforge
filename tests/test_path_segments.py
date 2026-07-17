@@ -16,16 +16,13 @@ import sys
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs"))
 # Models-only test: evict a `frameforge` *package* shadow (it has __path__) left by
 # a renderer test in the shared pytest process, so `frameforge` resolves to the
 # models module. Evict only the top-level name — cached `frameforge.rendering.*`
 # submodules must survive so later renderer tests still resolve them — see
 # test_elements.py / test_head.py.
-_shadow = sys.modules.get("frameforge")
-if _shadow is not None and hasattr(_shadow, "__path__"):  # a package is shadowing the models
-    del sys.modules["frameforge"]
-import frameforge as fg  # noqa: E402
+import models.frameforge as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)
 
 
 def _doc_with_path(d):

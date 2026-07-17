@@ -18,11 +18,16 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MODELS_DIR = os.path.normpath(os.path.join(HERE, "..", "models"))
+DOCS_DIR = os.path.normpath(os.path.join(HERE, ".."))
 SCHEMA_PATH = os.path.normpath(os.path.join(HERE, "..", "schema", "frameforge-v2.schema.json"))
-sys.path.insert(0, MODELS_DIR)
+sys.path.insert(0, DOCS_DIR)
 
-import frameforge as fg  # noqa: E402
+# Package-qualified import of the model source (the same identity the root
+# conftest uses). NEVER `import frameforge` from docs/models — that registers
+# the model FILE as the `frameforge` package in sys.modules and poisons every
+# later import of the real package in the process (order-dependent failures;
+# see tests/test_module_shadow_regression.py).
+import models.frameforge as fg  # noqa: E402
 
 
 def build() -> dict:

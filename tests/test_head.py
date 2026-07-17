@@ -25,15 +25,11 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
-sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs"))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
 sys.path.insert(0, os.path.join(ROOT, "docs", "schema"))
-shadow = sys.modules.get("frameforge")
-if shadow is not None and hasattr(shadow, "__path__"):
-    del sys.modules["frameforge"]
-
 import yaml  # noqa: E402
-import frameforge as fg  # noqa: E402
+import models.frameforge as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)
 from pydantic import ValidationError  # noqa: E402
 import validate as V  # noqa: E402
 import codemod as C  # noqa: E402

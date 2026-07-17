@@ -41,11 +41,8 @@ SPEC = os.path.join(ROOT, "docs", "spec", "frameforge-v2-spec.md")
 # Introspect the models exactly like check_grammar_sync / validate.py: the in-repo
 # source of truth shadows any installed distribution, and the ./frameforge package
 # (if already imported) must not shadow models/frameforge.py.
-sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
-_shadow = sys.modules.get("frameforge")
-if _shadow is not None and hasattr(_shadow, "__path__"):
-    del sys.modules["frameforge"]
-import frameforge as fg  # noqa: E402
+sys.path.insert(0, os.path.join(ROOT, "docs"))
+import models.frameforge as fg  # noqa: E402  (package-qualified: never shadow or evict the real package)
 
 # Deprecated renderer-shortcut aliases the models accept but the normative surface
 # omits (codemod normalises them); kept identical to check_grammar_sync.py.

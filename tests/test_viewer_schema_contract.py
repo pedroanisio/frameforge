@@ -129,10 +129,7 @@ def model_discriminators() -> dict[str, set[str]]:
 
     sys.path[:0] = [p for p in (os.path.join(ROOT, "tooling"), os.path.join(ROOT, "docs", "models"))
                     if p not in sys.path]
-    shadow = sys.modules.get("frameforge")
-    if shadow is not None and hasattr(shadow, "__path__"):
-        del sys.modules["frameforge"]
-    import frameforge as fg
+    import models.frameforge as fg
     import check_grammar_sync as C
 
     alias = set(C.MODEL_ONLY_ALIAS_TYPES)

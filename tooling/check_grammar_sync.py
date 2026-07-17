@@ -44,14 +44,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 # Import the *models* module as ``frameforge`` exactly like validate.py, so the
 # in-repo source of truth shadows any installed distribution of the same name.
-sys.path.insert(0, os.path.join(ROOT, "docs", "models"))
+sys.path.insert(0, os.path.join(ROOT, "docs"))
 # The rendering package ``frameforge`` (./frameforge) shares the name; if it is
 # already imported (e.g. under pytest) it would shadow models/frameforge.py.
 # Evict the package so we always introspect the source of truth — see test_head.
-_shadow = sys.modules.get("frameforge")
-if _shadow is not None and hasattr(_shadow, "__path__"):
-    del sys.modules["frameforge"]
-import frameforge as fg  # noqa: E402
+import models.frameforge as fg  # noqa: E402  (package-qualified: never shadow or evict the real package)
 
 CORE_EBNF = os.path.join(ROOT, "docs", "grammar", "frameforge-v2.ebnf")
 STYLE_EBNF = os.path.join(ROOT, "docs", "grammar", "frameforge-v2-style.ebnf")

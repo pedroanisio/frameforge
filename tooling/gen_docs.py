@@ -36,7 +36,7 @@ import textwrap
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 DOCS = os.path.join(ROOT, "docs")
-sys.path[:0] = [os.path.join(ROOT, "docs", "models"), os.path.join(ROOT, "docs", "schema"), os.path.join(ROOT, "tooling")]
+sys.path[:0] = [DOCS, os.path.join(ROOT, "docs", "schema"), os.path.join(ROOT, "tooling")]
 
 import build_schema as B  # noqa: E402
 import gen_status as GS  # noqa: E402
