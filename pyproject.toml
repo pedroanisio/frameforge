@@ -109,6 +109,18 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/frameforge"]
 
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.agent-tasks",
+    "/.claude",
+    "/.codex",
+    "/.venv",
+    "/dist",
+    "/out",
+    "/site",
+    "/viewer/node_modules",
+]
+
 [tool.uv]
 # Real package since 2.5.0: the authoritative model moved INTO the package
 # (src/frameforge/model.py), removing the name-shadow hazard that had kept this

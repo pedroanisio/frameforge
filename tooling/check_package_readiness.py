@@ -64,6 +64,17 @@ _SIBLING_IMPORT = re.compile(
     r"^\s*(?:from|import)\s+(" + "|".join(SIBLING_ROOTS) + r")(?:[.\s,]|$)"
 )
 
+REQUIRED_SDIST_EXCLUDES = (
+    "/.agent-tasks",
+    "/.claude",
+    "/.codex",
+    "/.venv",
+    "/dist",
+    "/out",
+    "/site",
+    "/viewer/node_modules",
+)
+
 
 @dataclass
 class Finding:
@@ -204,12 +215,28 @@ def _check_publish_metadata(pp: dict) -> Finding:
     )
 
 
+def _check_sdist_excludes_local_artifacts(pp: dict) -> Finding:
+    targets = pp.get("tool", {}).get("hatch", {}).get("build", {}).get("targets", {})
+    excludes = set((targets.get("sdist") or {}).get("exclude") or [])
+    missing = [path for path in REQUIRED_SDIST_EXCLUDES if path not in excludes]
+    return Finding(
+        "source distribution excludes local artifacts",
+        ok=not missing,
+        severity=BLOCKER,
+        detail=("sdist excludes local runtime/build artifacts: "
+                + ", ".join(REQUIRED_SDIST_EXCLUDES) if not missing
+                else "missing [tool.hatch.build.targets.sdist].exclude entries: "
+                + ", ".join(missing)),
+    )
+
+
 CHECKS = (
     _check_build_system,
     _check_uv_package_flag,
     _check_name_collision,
     _check_package_self_contained,
     _check_core_metadata,
+    _check_sdist_excludes_local_artifacts,
     _check_runtime_version,
     _check_py_typed,
     _check_publish_metadata,

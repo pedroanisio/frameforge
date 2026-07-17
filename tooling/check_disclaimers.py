@@ -6,7 +6,8 @@ Markdown document to carry a ``disclaimer:`` YAML frontmatter block. This gate
 asserts it for every tracked ``*.md`` except the explicitly exempt set:
 
 - READMEs — navigation/usage front-doors (any ``README.md``).
-- Governance / human front-door docs — ``CHANGELOG.md``, ``CLAUDE.md``.
+- Governance / human front-door docs — ``CHANGELOG.md``, ``CLAUDE.md``,
+  ``CONTRIBUTING.md``, ``SECURITY.md``, ``CODE_OF_CONDUCT.md``.
 - Generated docs whose frontmatter is the generator's responsibility —
   ``docs/sdk.md``, ``docs/sdk-api.md``, ``docs/FIXTURE-STATUS.md``,
   ``fixtures/corpus/PROVENANCE.md``.
@@ -24,6 +25,9 @@ ROOT = Path(__file__).resolve().parent.parent
 EXEMPT = {
     "CHANGELOG.md",                     # release log (governance)
     "CLAUDE.md",                        # agent operating guide (governance)
+    "CODE_OF_CONDUCT.md",               # public governance front-door
+    "CONTRIBUTING.md",                  # public governance front-door
+    "SECURITY.md",                      # public vulnerability-reporting policy
     "docs/sdk.md",                      # generated SDK snapshot
     "docs/sdk-api.md",                  # generated SDK snapshot
     "docs/FIXTURE-STATUS.md",                # generated from the validator

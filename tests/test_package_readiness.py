@@ -78,3 +78,12 @@ def test_verdict_matches_the_live_tree():
     gaps = {f.name for f in findings if f.severity == CPR.GAP and not f.ok}
     assert blockers == set(), f"packaging regressed — blockers reappeared: {blockers}"
     assert gaps == set(), f"packaging regressed — gaps reopened: {gaps}"
+
+
+def test_sdist_excludes_local_runtime_artifacts():
+    """The public source distribution must not publish local agent state,
+    virtualenvs, build output, or vendored viewer dependencies."""
+    f = _by_name()["source distribution excludes local artifacts"]
+
+    assert f.ok, f.detail
+    assert "/viewer/node_modules" in CPR.REQUIRED_SDIST_EXCLUDES
