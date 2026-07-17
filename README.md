@@ -1,9 +1,8 @@
-# FrameForge v2 — HEAD release
+# FrameForge v2
 
-A single, internally-consistent cut of **FrameForge v2** (`2.5.0`) in which the
-documents, grammar, schema, prose, and Python code are kept in sync — the Pydantic
-models are the source of truth and everything else is generated from or checked
-against them.
+**FrameForge v2** (`2.5.0`) keeps its documents, grammar, schema, prose, and
+Python code in sync — the Pydantic models are the source of truth and everything
+else is generated from or checked against them.
 
 FrameForge aims to be an **agent-native visual-authoring substrate** — one
 structured, programmable foundation (SDK + MCP) for producing professional visual
@@ -11,7 +10,7 @@ assets across documents, decks, diagrams, books, and letters today, extending
 toward UIs, vector graphics, logos, and design systems. See [`PURPOSE.md`](PURPOSE.md)
 for the full why and scope.
 
-> **Status (unchanged from the project's own stance):** FrameForge v2 is a **proposed,
+> **Status:** FrameForge v2 is a **proposed,
 > not-yet-conformantly-implemented** system. The prose and grammar are design targets to
 > verify. The parts you can actually *run* — the models, the generated schema, the
 > validator, and the codemod — are the parts to trust.
@@ -53,14 +52,14 @@ tooling/
   check_grammar_sync.py       ← GATES grammar ⇄ models drift (core profile); `--strict` for full parity.
   check_accessibility.py      ← GATES page reading_order integrity; warns on missing image alt (a11y).
   render_golden.py            ← GATES b1/ oracle SVG output against a pinned hash lock (golden).
-tests/fixtures/               ← the original fixtures, migrated to 2.2.0.
+tests/fixtures/               ← the fixture corpus (declared versions span 2.0.0–2.4.x; top-level YAML gated by `make validate`, the b1/ oracle by test_head.py).
   b1/                         ← the 8 AUTHORITATIVE fixtures (the oracle the tests assert against).
 conftest.py                   ← shared pytest bootstrap (sys.path + the frameforge shadow-module rule).
 tests/
   test_head.py                ← assertions: authoritative fixtures validate, schema in sync, style surface, P3.
   test_docs_in_sync.py        ← doc drift gate: numbers, Layout paths, generated-doc policy, fixture status.
   test_doc_examples.py        ← validates every complete FrameForge example shown in the prose.
-docs/ + mkdocs.yml            ← the MkDocs site: `index.md` is hand-written, `sdk*.md` are committed generated snapshots, transient generated pages are ignored, and non-site sources (models/schema/spec/grammar) are `exclude_docs`.
+docs/ + mkdocs.yml            ← the MkDocs site: `index.md` is hand-written, `sdk*.md` are committed generated snapshots, transient generated pages are ignored, and non-site sources (schema/spec/grammar, plus seed/ and decisions/) are `exclude_docs`.
 docs/capability-manifest.json ← GENERATED machine-readable capability status {core, sdk, mcp} (ADR-0002).
 docs/error-codes.md           ← every validator finding code + SDK rule_id: meaning and fix (sync-tested).
 docs/output-space.md          ← what FrameForge can generate: the verified-today backends + the conceptual output space (anchor drift-gated by tests/test_output_space_doc.py).
@@ -70,7 +69,7 @@ docs/codebase-standards.md    ← the elevated engineering bar, status-tagged (E
 AGENTS.md                     ← programmatic CLI/tooling reference (make targets, tooling flags, workflows).
 Dockerfile + docker/          ← the font-rich SDK/MCP runtime image (`make docker-build`).
 CHANGELOG.md                  ← version, the breaking change + migration, conformance classes, rec. resolution.
-pyproject.toml + uv.lock      ← the uv virtual project (deps; dev/render/browser/pdf groups; `package = false`).
+pyproject.toml + uv.lock      ← the real hatchling package since 2.5.0 (`[tool.uv] package = true`): `uv sync` installs it editable with the `ff-render`/`fg-font` console scripts; dep groups dev/render/browser/pdf/pdfout/metrics/mcp/vision.
 Makefile + .github/workflows/ ← `make check` = the local gate; CI mirrors it (+ a docs build/deploy job).
 ```
 
@@ -92,9 +91,10 @@ Makefile + .github/workflows/ ← `make check` = the local gate; CI mirrors it (
 
 ## Run it
 
-The project is managed with [uv](https://docs.astral.sh/uv/). `uv sync` once to
-create `.venv` with the runtime deps (`pydantic>=2`, `pyyaml`) plus the `dev`
-group (`pytest`); prefix commands with `uv run`.
+The project is managed with [uv](https://docs.astral.sh/uv/). `uv sync` once
+creates `.venv` with the runtime deps and the `dev` group (see
+`pyproject.toml`), and installs the `frameforge` package itself — putting the
+`ff-render` and `fg-font` console scripts on PATH; prefix commands with `uv run`.
 
 ```bash
 uv sync                                    # create/populate .venv
@@ -108,8 +108,9 @@ make validate
 # migrate a legacy v2 document to HEAD
 uv run python tooling/codemod.py path/to/legacy.fg.json --in-place --bump
 
-# run the assertions (13/13 green), either runner
+# the HEAD assertions (13/13 green)
 uv run python tests/test_head.py
+# or the full pytest suite (also run by `make check`)
 uv run pytest
 
 # SVG proxy renderer (dependency-free core) -> out/render/index.html
@@ -118,7 +119,7 @@ uv run python tooling/render_fixtures.py --all
 # optional browser-fidelity raster renderer (install Playwright + Chromium first)
 uv sync --group browser
 uv run playwright install chromium
-uv run python tooling/render_chromium.py tests/fixtures/filters.fg.yaml --out out/chromium
+uv run python tooling/render_chromium.py tests/fixtures/effects.fg.yaml --out out/chromium
 
 # optional PDF text/layout extractor (install PyMuPDF first)
 uv sync --group pdf
@@ -135,7 +136,7 @@ uv run --group mcp python -m frameforge.mcp
 make live                                  # http://127.0.0.1:8789
 # choose a port when needed: make live LIVE_PORT=8790
 
-# the whole local gate (schema · grammar · a11y · tests · validate · overflow · golden · fixture-status · docs nav)
+# the whole local gate — every gate on the Makefile `check` target
 make check
 
 # build & browse the generated documentation site (Material theme, live reload)
@@ -180,8 +181,8 @@ uv sync --group render                     # adds matplotlib + pillow
   open Google Fonts corpus so packs build on thin hosts), `--install P.fp`
   (scoped fontconfig) — and `render_chromium.py --font-pack P.fp`, which scopes
   fontconfig to the pack before Chromium launches so measure == render on any
-  host. Declared as a console script; in this virtual tree run
-  it via `uv run python tooling/fg_font.py` or the `make font-*` targets.
+  host. Installed as a console script since 2.5.0: `uv run fg-font …` (or the
+  `make font-*` targets; `tooling/fg_font.py` remains as a direct-run shim).
   Silent font substitution is banned: layout emits a `font_substitution`
   warning to diagnostics *and* stderr whenever a requested face is missing.
 
@@ -189,7 +190,7 @@ Programmatic entry points for all of the above — every make target and tooling
 CLI with flags — are catalogued in [AGENTS.md](AGENTS.md); the examples
 cookbook is generated at [docs/examples.md](docs/examples.md).
 
-## What changed vs the pre-HEAD bundle (one-line summary)
+## How the pre-HEAD (2.0.x) bundle was folded in (2.1.0–2.2.0)
 
 At 2.2.0 the **authoritative CSS style module** is adopted verbatim (`Style` is the
 ~80-property bag; `TextStyle`/`StrokeStyle` are projections of it; `fill`/`stroke` are

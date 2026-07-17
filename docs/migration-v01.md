@@ -30,7 +30,7 @@ the delta is one label's wrap point plus antialiasing). Regression-gated by
 
 | v0.1 | v2 |
 |---|---|
-| `version: 1.5` (float) | `version: "2.3.0"` (HEAD semver) |
+| `version: 1.5` (float) | `version: "<HEAD semver>"` (the codemod writes `fg.HEAD_VERSION`, so the emitted value always tracks the current model version) |
 | `kind:` | `meta.kind` (+ `profile:` inferred: `*diagram*` → `diagram`, `*deck*`/`*presentation*` → `deck`) |
 | `scene.name` / `scene.description` | `title` / `description` |
 | `scene.id`, `scene.canvas` | the single page's `id`, `canvas` |
@@ -43,7 +43,7 @@ the delta is one label's wrap point plus antialiasing). Regression-gated by
 | `chip_row` (compositional pill row) | lowered to a core `group` of decorative pill rects + centered texts — same cursor/gap layout, chip def's fill/`text_style`/radius baked in; a consumed-and-baked `chip` component def is dropped (lossless), unconsumed defs are kept |
 | flat span styles (`{text, weight, color}`) | v2 `Span` allows `text`/`style`/`lang` — extras become a translated inline style |
 | flat object `stroke_width` | moved into `stroke_style` (P3) |
-| gradient fill tokens (`tokens.fill_styles` `{type: linear_gradient, from/to points, stops+opacity}`) | v2 `Gradient` paints — `kind: linear`, `from`/`to` → `angle`, stop `offset` → `position`, stop `opacity` folded into an 8-digit hex against the pack palette (v2 stops carry no opacity field). The renderer now dereferences `tokens.fill_styles` keys (it never had, so named gradient fills silently emitted invalid paint) |
+| gradient fill tokens (`tokens.fill_styles` `{type: linear_gradient, from/to points, stops+opacity}`) | v2 `Gradient` paints — `kind: linear`, `from`/`to` → `angle`, stop `offset` → `position`, stop `opacity` folded into an 8-digit hex against the pack palette (v2 stops carry no opacity field). The renderer dereferences `tokens.fill_styles` keys (fixed alongside this lift — before it, named gradient fills silently emitted invalid paint) |
 | implicit single-line text (v0.1 wrapped only under `wrap: true`) | styles without `wrap` pin `white_space: nowrap`; deck-form pages pin `rendering.text.overflow: visible` — v0.1 painted past the box and never truncated, v2's default is wrap-then-clip, and silent truncation is exactly what #44 bans |
 
 Two **semantic traps** the lift fixes (silently wrong if merely carried,
@@ -61,10 +61,10 @@ because the old keys validate as unrelated CSS properties):
 
 Migrated: **genai-ecosystem** (the conversion proof; 98.8 % pixel-identical),
 **PALS GenAI architecture EN** (8 slides — the first deck/slides-form
-migration; fixture `pals-genai-architecture.fg.yaml`, 0 errors, one honest
-advisory: slide 8's error matrix is authored as 51 absolute texts in the
-source, and re-authoring it as a `TableObject` would be content surgery,
-not migration), and **PALS PT-BR** (15 slides — fixture
+migration; fixture `pals-genai-architecture.fg.yaml`, 0 errors; a handful of
+`tabular-box-model` advisories — largest: slide 8's error matrix, 51 absolute
+texts in the source; re-authoring them as `TableObject`s would be content
+surgery, not migration), and **PALS PT-BR** (15 slides — fixture
 `pals-genai-arch-ptbr.fg.yaml`; this deck closed the gradient-fill-token
 corner above). Remaining decks are tracked as a checklist on
 [#33](https://github.com/pedroanisio/frameforge/issues/33): **faz-ai and

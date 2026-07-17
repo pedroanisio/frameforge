@@ -5,7 +5,7 @@ disclaimer:
     Any statement or premise not backed by a real logical definition
     or verifiable reference may be invalid, erroneous, or a hallucination.
   generated_by: "Claude Fable 5 via Claude Code"
-  date: "2026-07-02"
+  date: "2026-07-17"
 ---
 
 # codebase-standards
@@ -79,15 +79,20 @@ Rules of reading:
   (classifiers ⇄ `requires-python`, and no gate module bare-imports the 3.11+ stdlib `tomllib`
   without the `tomli` backport) and [tests/test_ci_make_check_sync.py](../tests/test_ci_make_check_sync.py)
   (the matrix covers all three).
-- **`[Target]`** Shipped `py.typed` + fully annotated public surface. **Not applicable
-  today** — the project is a *virtual* (non-installed) tree, see §2.
+- **`[Enforced]`** `py.typed` ships in the wheel ([src/frameforge/py.typed](../src/frameforge/py.typed));
+  gated by [tests/test_package_readiness.py](../tests/test_package_readiness.py) (the READY
+  verdict fails if the marker disappears).
+- **`[Target]`** Fully annotated public surface — applicable now that the package
+  installs (§2).
 
 ## 2. Dependencies and packaging
 
-- **`[Enforced]`** Runtime deps are minimal, pinned by floor: `pydantic>=2`, `pyyaml>=6`
-  ([pyproject.toml:11-12](../pyproject.toml#L11-L12)).
+- **`[Enforced]`** Runtime deps are minimal, pinned by floor: `pydantic>=2`, `pyyaml>=6`,
+  `pyphen>=0.15` (Liang-pattern hyphenation for justified flow layout,
+  [ADR-0003](./adr-0003-backend-neutral-flow-layout.md) — pure Python, bundled
+  dictionaries, deterministic) ([pyproject.toml:24-32](../pyproject.toml#L24-L32)).
 - **`[Enforced]`** Optional capability sets are **PEP 735 dependency-groups**, not PEP
-  621 extras ([pyproject.toml:40-68](../pyproject.toml#L40-L68)): `dev` (`hypothesis>=6` +
+  621 extras (pyproject `[dependency-groups]`): `dev` (`hypothesis>=6` +
   `pytest>=8`, installed by default on `uv sync`), `render` (matplotlib proxy renderer),
   `browser` (Headless-Chromium raster), `pdf` (PyMuPDF — PDF **input** transpiler),
   `pdfout` (cairosvg + pypdf — PDF **output** from solved SVG pages), `metrics`
@@ -97,29 +102,25 @@ Rules of reading:
   with `uv sync --group <name>` or one-off with `uv run --group <name>`.
 - **`[Enforced]`** The LaTeX/TikZ renderer (`tooling/render_latex.py`) adds **no** Python
   dependency: it shells out to a system TeX engine (lualatex preferred, pdflatex fallback)
-  plus poppler's `pdftoppm` for `--png` ([pyproject.toml:30-39](../pyproject.toml#L30-L39)).
-- **`[Enforced]`** Two console scripts are declared — `ff-render` and
-  `fg-font` ([pyproject.toml:25-26](../pyproject.toml#L25-L26)) — but inert while the
-  project stays virtual; they resolve as commands only where the package is
-  installed (e.g. an external consumer or image). In this tree run the
-  self-bootstrapping launcher `bin/ff-render` (symlink it onto your PATH), or
-  `uv run python tooling/frameforge_render.py`
-  (PYTHONPATH-free; issue #35) or `python -m frameforge.cli` where `src`/`docs`
-  are already on the path, and `uv run python tooling/fg_font.py` (thin
-  launcher over `frameforge.fontpack`; also `make font-list` / `font-check`).
-- **`[Enforced]`** This is a **real package** (2.5.0): `[build-system]` = hatchling and
-  `[tool.uv] package = true` ([pyproject.toml](../pyproject.toml)). The historical
-  virtual-project stance (`package = false`) existed because an installed `frameforge`
-  distribution would have shadowed the model module at `docs/models/frameforge.py`;
-  2.5.0 moved the model into the package ([src/frameforge/model.py](../src/frameforge/model.py)),
-  which removed the hazard and the stance with it. `uv sync` installs the project editable
-  with real `ff-render` / `fg-font` console scripts; the launchers remain for
-  uninstalled checkouts.
+  plus poppler's `pdftoppm` for `--png` (documented in [pyproject.toml](../pyproject.toml)).
+- **`[Enforced]`** `ff-render` and `fg-font` are **real console scripts** since 2.5.0
+  (`[project.scripts]`, [pyproject.toml:40-42](../pyproject.toml#L40-L42)): the
+  `[build-system]` is hatchling and `[tool.uv] package = true`, so `uv sync` installs
+  the project editable and puts both on PATH. The historical virtual-project stance
+  (`package = false`) existed because an installed `frameforge` distribution would have
+  shadowed the model module at `docs/models/frameforge.py`; 2.5.0 moved the model into
+  the package ([src/frameforge/model.py](../src/frameforge/model.py)), which removed the
+  hazard and the stance with it. For uninstalled checkouts the launchers remain: the
+  self-bootstrapping `bin/ff-render` (symlink it onto your PATH),
+  `uv run python tooling/frameforge_render.py` (PYTHONPATH-free; issue #35),
+  `python -m frameforge.cli` where `src` is already on the path, and
+  `uv run python tooling/fg_font.py` (thin launcher over `frameforge.fontpack`;
+  also `make font-list` / `font-check`).
 - **`[Enforced]`** Lock state lives in [uv.lock](../uv.lock). Do not hand-edit it; CI syncs
   from the lock with `uv sync --locked --group pdf` — the `pdf` group only lets the PDF
-  transpiler's `importorskip`-gated e2e test run ([ci.yml:25](../.github/workflows/ci.yml#L25)).
+  transpiler's `importorskip`-gated e2e test run (ci.yml `python` job).
 - **`[Enforced — workaround]`** `[tool.uv] override-dependencies = ["starlette<1"]`
-  ([pyproject.toml:82](../pyproject.toml#L82)) pins around a corrupt `starlette==1.3.1` on
+  ([pyproject.toml](../pyproject.toml), `[tool.uv]`) pins around a corrupt `starlette==1.3.1` on
   this environment's package index (it breaks the FastMCP import chain). The rationale is
   documented in-file; remove once the index stops serving the broken build.
 - **`[Adopted]`** No new runtime dependency without justification. Do not pull a
@@ -133,43 +134,45 @@ Rules of reading:
 
 The gate is the contract for "done." It has **one definition**, run two places.
 
-- **`[Enforced]`** `make check` runs **thirteen** gates ([Makefile:64](../Makefile#L64)):
+- **`[Enforced]`** `make check` runs **fourteen** gates ([Makefile](../Makefile), `check` target):
   `schema-check grammar-check spec-check a11y-check status-check ruff-check test validate
-  overflow golden-check docs-check docs-linkcheck disclaimer-check`.
+  overflow golden-check docs-check docs-linkcheck disclaimer-check public-check`.
   A change is not done until it passes.
   - `schema-check` — `uv run python docs/schema/build_schema.py --check`: fails if the committed
     [docs/schema/frameforge-v2.schema.json](./schema/frameforge-v2.schema.json) drifted from the
-    models ([Makefile:47-48](../Makefile#L47-L48)).
+    models (Makefile `schema-check` target).
   - `grammar-check` — `uv run python tooling/check_grammar_sync.py`: fails if the EBNF grammar
     drifted from the models on the **core profile** (a mismatched object/flow `type` or a
     divergent enum). Out-of-profile grammar (charts, the UML zoo, connectors) is a non-blocking
-    warning; `--strict` demands full parity ([Makefile:50-51](../Makefile#L50-L51)).
+    warning; `--strict` demands full parity (Makefile `grammar-check` target).
   - `spec-check` — `uv run python tooling/check_spec_sync.py --quiet`: fails if the spec prose
-    drops a model type, flow discriminator, or inline discriminator ([Makefile:53-54](../Makefile#L53-L54)).
+    drops a model type, flow discriminator, or inline discriminator (Makefile `spec-check` target).
   - `a11y-check` — `uv run python tooling/check_accessibility.py $(FIXTURES_YAML) --quiet`:
     fails if a page's `reading_order` references a missing or duplicate id (a broken/ambiguous
     structure tree); missing image `alt` and pages without a `reading_order` are advisory
-    warnings that `--strict` promotes ([Makefile:56-57](../Makefile#L56-L57)).
-  - `test` — `uv run pytest -q` ([Makefile:59-60](../Makefile#L59-L60)). The suite is itself a
+    warnings that `--strict` promotes (Makefile `a11y-check` target).
+  - `test` — `uv run pytest -q` (Makefile `test` target). The suite is itself a
     battery of sync gates — docs drift, executable examples, generated-snapshot freshness,
     capability manifest, viewer contract, CI ⇄ make wiring, package boundary — see §6 and §8.
   - `validate` — `uv run python tooling/validate.py $(FIXTURES_YAML)`: structural +
-    geometric rules ([Makefile:62-63](../Makefile#L62-L63)).
+    geometric rules (Makefile `validate` target).
   - `overflow` — `uv run python tooling/render_fixtures.py --all --check-overflow`: asserts
-    no text spills its box ([Makefile:65-66](../Makefile#L65-L66)).
+    no text spills its box (Makefile `overflow` target).
   - `status-check` — `uv run python tooling/gen_status.py --check`: fails if
-    [docs/FIXTURE-STATUS.md](./FIXTURE-STATUS.md) drifted from the validator ([Makefile:84-85](../Makefile#L84-L85)).
+    [docs/FIXTURE-STATUS.md](./FIXTURE-STATUS.md) drifted from the validator (Makefile `status-check` target).
   - `golden-check` — `uv run python tooling/render_golden.py`: fails if the b1/ oracle's per-page
     SVG renders drift from the committed hash lock (`tests/golden/oracle.lock.json`); re-pin an
-    intentional render change with `make golden` ([Makefile:133-134](../Makefile#L133-L134)).
+    intentional render change with `make golden` (Makefile `golden-check` target).
   - `docs-check` — `uv run python tooling/gen_docs.py --check`: regenerates the docs pages,
     asserts every `mkdocs.yml` nav entry resolves **and** that the committed generated
-    snapshots are fresh ([Makefile:95-96](../Makefile#L95-L96)).
+    snapshots are fresh (Makefile `docs-check` target).
   - `docs-linkcheck` — `uv run python tooling/check_doc_links.py`: fails if a tracked Markdown
-    file has a broken relative link ([Makefile:110-111](../Makefile#L110-L111)).
+    file has a broken relative link (Makefile `docs-linkcheck` target).
   - `disclaimer-check` — `uv run python tooling/check_disclaimers.py`: fails if a tracked
     agent-authored Markdown doc is missing the rule-5 disclaimer frontmatter
-    ([Makefile:113-114](../Makefile#L113-L114)).
+    (Makefile `disclaimer-check` target).
+  - `public-check` — `uv run python tooling/check_public_readiness.py`: asserts the
+    public/open-source readiness guardrails (Makefile `public-check` target).
 - **`[Removed — justified]`** `brand-check` and `brand-logo-check` (added in the 2.3.0 pass)
   were **removed with the 2026-07-02 folder refactor**, per the rule of motion's
   written-justification requirement: the operator directed that non-core content — the
@@ -180,15 +183,15 @@ The gate is the contract for "done." It has **one definition**, run two places.
   writes masters out of tree (`_tmp/brand/`).
 - **`[Enforced]`** **CI runs `make check` verbatim.** The `python` job syncs from the lock
   (`uv sync --locked --group pdf`) and executes the Makefile target as a single step
-  ([ci.yml:28](../.github/workflows/ci.yml#L28)), so the workflow *cannot* hand-mirror-and-drift.
+  (ci.yml `python` job), so the workflow *cannot* hand-mirror-and-drift.
   The wiring itself is pinned: [tests/test_ci_make_check_sync.py](../tests/test_ci_make_check_sync.py)
   fails if the literal `run: make check` leaves the workflow. (Earlier revisions of this
   document asked for make/CI lockstep by discipline; it is now enforced by test.)
 - **`[Enforced]`** Two further **blocking** CI jobs sit outside `make check`: `docs` re-runs
   `gen_docs.py --check` and builds the site with `mkdocs build --strict`
-  ([ci.yml:34-47](../.github/workflows/ci.yml#L34-L47)); `viewer-contract` runs the Node twin of
-  the viewer ⇄ model type contract ([ci.yml:83-94](../.github/workflows/ci.yml#L83-L94), §8).
-- **`[Adopted]`** `manifest-check` (capability-manifest drift, [Makefile:104-105](../Makefile#L104-L105))
+  (ci.yml `docs` job); `viewer-contract` runs the Node twin of
+  the viewer ⇄ model type contract (ci.yml `viewer-contract` job, §8).
+- **`[Adopted]`** `manifest-check` (capability-manifest drift, Makefile `manifest-check` target)
   is a make target but not a `make check` dependency; the same freshness is blocking anyway via
   [tests/test_capability_manifest.py](../tests/test_capability_manifest.py) in the `test` gate.
 - **`[Target]`** Fold `lint` and `typecheck` (§4, §5) into the gate once they are green
@@ -197,9 +200,9 @@ The gate is the contract for "done." It has **one definition**, run two places.
 ## 4. Code style (ruff)
 
 - **`[Enforced — non-gating]`** The **full** ruff ruleset is advisory: `make lint` runs
-  `-uvx ruff check .` (leading `-` ignores failure, [Makefile:138-139](../Makefile#L138-L139))
+  `-uvx ruff check .` (leading `-` ignores failure, Makefile `lint` target)
   and CI runs it with `continue-on-error: true`
-  ([ci.yml:30-32](../.github/workflows/ci.yml#L30-L32)). A broad lint failure does **not**
+  (ci.yml `python` job, non-blocking lint step). A broad lint failure does **not**
   fail the build (the tree still carries F401/F841 findings).
 - **`[Enforced]`** A **gating** subset does block: `make ruff-check` (in `make check`, §3)
   runs `ruff check --select F811` — redefinition, a real-bug rule with no false positives
@@ -226,15 +229,16 @@ The gate is the contract for "done." It has **one definition**, run two places.
 ## 6. Testing
 
 - **`[Enforced]`** `pytest>=8` + `hypothesis>=6` are the framework, in the default `dev`
-  group ([pyproject.toml:40-44](../pyproject.toml#L40-L44)); test discovery is
-  `testpaths = ["tests"]` ([pyproject.toml:84-85](../pyproject.toml#L84-L85)); the suite runs
+  group (pyproject `[dependency-groups]`); test discovery is
+  `testpaths = ["tests"]` (pyproject `[tool.pytest.ini_options]`); the suite runs
   in the gate (§3).
 - **`[Adopted]`** [tests/test_head.py](../tests/test_head.py) is the **HEAD oracle**: it pins
-  the models to **2.3.0**, asserts schema-in-sync, the style-module surface, the P3 stroke
+  the models to the current HEAD version (kept in lockstep by `make bump-check`),
+  asserts schema-in-sync, the style-module surface, the P3 stroke
   single-form rejection, and that every authoritative fixture validates (directly, or after
   the codemod). It is runnable two ways — standalone (`python tests/test_head.py`) and under
   pytest — and both must stay green.
-- **`[Adopted]`** The suite is no longer a single module: ~130 test files cover the models,
+- **`[Adopted]`** The suite is no longer a single module: 200-odd test files cover the models,
   SDK, the SVG/LaTeX/PDF/Chromium render paths, MCP tools, the vision layer, and the
   doc/CI sync gates (§8). Property-based tests exist
   ([tests/test_elements.py](../tests/test_elements.py),
@@ -273,7 +277,11 @@ else is generated from or checked against them** ([README.md](../README.md), *Th
   asserts the committed `docs/sdk.md`/`docs/sdk-api.md` snapshots equal a fresh build; and
   [tests/test_capability_manifest.py](../tests/test_capability_manifest.py) asserts
   `docs/capability-manifest.json` matches a fresh build and `docs/examples.md` lists exactly
-  the tracked `examples/*.py`. Documentation cannot silently drift from the code (the
+  the tracked `examples/*.py`; and [tests/test_doc_drift_guards.py](../tests/test_doc_drift_guards.py)
+  couples three formerly-ungated hand-written surfaces to their sources of truth
+  (the docs/index.md example `version:` ⇄ `HEAD_VERSION`, the AGENTS.md
+  make-target table ⇄ the Makefile `check` prerequisites, the BRAND §4 palette
+  ⇄ the logo generator's colour constants). Documentation cannot silently drift from the code (the
   `status-check` and `docs-check` gates plus the pytest suite, §3).
 - **`[Enforced]`** **Site ⇄ source.** [tooling/gen_docs.py](../tooling/gen_docs.py) generates
   the site's content pages — schema reference from the schema, fixture gallery from the
@@ -282,13 +290,11 @@ else is generated from or checked against them** ([README.md](../README.md), *Th
   `docs/examples.md` ([tooling/gen_examples_index.py](../tooling/gen_examples_index.py)), and
   `docs/capability-manifest.json` ([tooling/gen_capability_manifest.py](../tooling/gen_capability_manifest.py)).
   Snapshot freshness is gated twice — `docs-check` and the pytest suite (above).
-- **`[Adopted]`** **Hand-written pages are now in nav.** Beyond `docs/index.md`, the
-  `mkdocs.yml` nav carries `error-codes.md` and a *Design records* section
-  (`architecture.md`, `output-space.md`, `roadmap.md`, the ADRs,
-  `illustration-protocol.md`, `frameforge-vector-recreation-improvements.md`, `BRAND.md`) —
-  all committed, hand-written pages. Everything else under `docs/` is a `make docs` build
-  artifact. (Earlier revisions stated `index.md` was the only hand-written nav page; the
-  nav has since grown.)
+- **`[Adopted]`** **Hand-written pages are in nav alongside generated ones.** The
+  `mkdocs.yml` nav mixes generated pages with committed hand-written pages;
+  `mkdocs.yml` is the authority on which is which, and `docs-check` gates that every
+  nav entry resolves. (Earlier revisions enumerated the hand-written set here; the
+  list rotted twice — state the rule, not the inventory.)
 - **`[Adopted]`** **Codemod ⇄ validator.** [tooling/codemod.py](../tooling/codemod.py)'s
   migrations are exactly the breaking/renamed forms the validator rejects — running it makes a
   legacy document pass.
@@ -339,7 +345,8 @@ chain, and the gate that proves each invariant — is formalised in
 `make bump-check`).
 
 - **`[Enforced]`** Single source of truth for the package version: `[project] version`
-  in [pyproject.toml:3](../pyproject.toml#L3) (`2.3.0`). [tests/test_head.py](../tests/test_head.py)
+  in [pyproject.toml:3](../pyproject.toml#L3) (the HEAD literal, gated by `make bump-check`).
+  [tests/test_head.py](../tests/test_head.py)
   asserts the models report this version and that the schema is generated in sync.
 - **`[Adopted]`** Semantic versioning. The format is **PROPOSED / partially-implemented**
   ([CHANGELOG.md](../CHANGELOG.md)); breaking changes (e.g. the 2.1.0 stroke single-form, the
@@ -352,7 +359,10 @@ chain, and the gate that proves each invariant — is formalised in
   ([src/frameforge/__init__.py](../src/frameforge/__init__.py)) is a fifth version literal that `make bump`
   moves in lockstep and [tests/test_docs_in_sync.py](../tests/test_docs_in_sync.py) gates against
   `[project] version` — so the package can report its own version and it can never drift.
-  A plain literal, not `importlib.metadata`, because this is a virtual (uninstalled) project (§2).
+  Kept a plain literal, not `importlib.metadata.version`, so it stays correct when the
+  package runs uninstalled from a checkout (`bin/ff-render`, `PYTHONPATH=src`) — a
+  deliberate survivor of the pre-2.5.0 virtual era (§2), codified in
+  [src/frameforge/__init__.py](../src/frameforge/__init__.py).
 - **`[Enforced]`** `make release VERSION=X.Y.Z` runs the full recipe end to end: bump every
   site → regenerate schema / manifest / SDK snapshots / status / examples-index → `make check`
   (see RELEASE.md). *Residual* (still `[Target]`): the git tag and CI-publish steps stay by
@@ -360,13 +370,14 @@ chain, and the gate that proves each invariant — is formalised in
 - **`[Adopted]`** The distance to that target is **measurable**: `make package-check`
   ([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) asserts
   package-emit readiness, separating hard build/install blockers from advisory `[Target]`
-  gaps. It is advisory — deliberately **not** in `make check` — and reports **NOT READY**
-  today (3 blockers, 1 gap; FrameForge is a virtual project by design, §2). See §16.
+  gaps. It is advisory — deliberately **not** in `make check` — and reports **READY**
+  (0 blockers, 0 gaps) since 2.5.0, pinned by
+  [tests/test_package_readiness.py](../tests/test_package_readiness.py). See §16.
 
 ## 10. Pre-commit and CI
 
 - **`[Enforced]`** CI is the gate ([.github/workflows/ci.yml](../.github/workflows/ci.yml)):
-  the `python` job runs `make check` itself — all thirteen gates in one step, across the
+  the `python` job runs `make check` itself — all fourteen gates in one step, across the
   3.10/3.11/3.12 matrix, drift-proof by test (§3) — plus non-blocking ruff; a `docs` job runs
   `gen_docs.py --check` + `mkdocs build --strict`, and on pushes to `main` a `docs-deploy` job
   publishes versioned docs to GitHub Pages via `mike`; the `viewer-contract` job is
@@ -527,45 +538,27 @@ explicit and shrinking, never silently assumed-met. Complexity scale per §12.
 | 1 | Gating ruff config — **broaden** the gated set (F401/F841 + families) + `ruff format` | `[tool.ruff]` exists; `make ruff-check` gates **F811** in `make check`; `make lint` still informational | §4 | S |
 | 2 | `mypy --strict` + `pydantic.mypy`, in the gate | absent entirely | §5 | M |
 | 3 | Coverage measured + gated (target 90% branch) | not measured | §7 | M |
-| 4 | TDD loop + `unit`/`integration` trees | flat `tests/` (~130 modules; hypothesis landed) | §6 | M |
+| 4 | TDD loop + `unit`/`integration` trees | flat `tests/` (200-odd modules; hypothesis landed) | §6 | M |
 | 5 | Golden-render **drift tolerance** (rasterized) | exact hash lock (`render_golden.py`) | §8 | M |
 
-**Closed since the 2026-06-24 revision** (per the rule of motion, their rows are removed):
-the governance docs — `AGENTS.md`, `PURPOSE.md`, and `DISCLAIMER.md` all exist (source-of-truth
-table, §12, §13); two gates entered `make check` (`docs-linkcheck`, `disclaimer-check`, §3);
-CI ⇄ make lockstep moved from discipline to a pinned test (§3); and hypothesis property tests
-landed (§6, shrinking row 4). **2026-07-04:** row 7 (runtime `__version__` + a
-release recipe) closed — `frameforge.__version__` is a fifth gated version literal and
-`make release` runs the full bump→regenerate→check recipe (§9; RELEASE.md); only the
-git-tag/CI-publish steps remain by hand. **2026-07-04:** row 8 (multi-version support)
-closed — `pyproject` declares `classifiers`/`authors`/`urls`/`keywords`, `ci.yml` runs the
-python-gates job as a 3.10/3.11/3.12 matrix, and `test_python_version_support.py` +
-`test_ci_make_check_sync.py` pin both plus the `tomli`-backport invariant that keeps the
-`>=3.10` floor runnable (stdlib `tomllib` is 3.11+; the gate/tooling degrade to `tomli`).
-**2026-07-04:** row 6 (`.pre-commit-config.yaml`) closed — a committed config runs
-`make ruff-check` at commit time and `make check` at push time (`local`/system hooks that
-shell out to the Makefile, so zero tool-pin drift), installed with `make hooks` and pinned by
-`test_precommit_config.py` (§10).
+**Closed rows** (per the rule of motion, removed from the table; dated entries live in
+[CHANGELOG.md](../CHANGELOG.md)): the governance docs (`AGENTS.md`, `PURPOSE.md`,
+`DISCLAIMER.md`) landed and the `docs-linkcheck` / `disclaimer-check` gates entered
+`make check` by 2026-06-24; CI ⇄ make lockstep moved from discipline to a pinned test (§3);
+rows 6 (`.pre-commit-config.yaml`, §10), 7 (runtime `__version__` + `make release`, §9), and
+8 (3.10–3.12 multi-version support, §1) closed 2026-07-04; the operator-directed 2026-07-02
+folder refactor moved the tree to the src layout and retired the `brand-check` /
+`brand-logo-check` gates with written justification (§3, §8).
 
-**The 2026-07-02 folder refactor** (operator-directed) moved the tree to a src layout —
-package in `src/frameforge/`, reference sources under `docs/` (`models/`, `schema/`, `spec/`,
-`grammar/`), the fixture corpus in `tests/fixtures/`, runnable clients in `static/examples/` —
-and evicted all non-core content (`brand/`, `demo/`, `recipe/`, POC notes, scratch scripts)
-from the tree. Two gates (`brand-check`, `brand-logo-check`) were retired with written
-justification (§3, §8): their comparison inputs are no longer tracked.
-
-**Package-emit readiness** now spans a single advisory gap — the §1 `py.typed` target — plus
-the deliberate §2 `package = false` decision (row 7's runtime `__version__` + release recipe
-landed 2026-07-04; row 8's `classifiers`/`authors`/`urls`/`keywords` landed 2026-07-04). That
-composite gap is measurable: `make package-check`
-([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) asserts it and
-reports **READY** (0 blockers, 0 gaps) since 2.5.0: the hatchling `[build-system]` landed,
+**Package-emit readiness** is achieved and gated: `make package-check`
+([tooling/check_package_readiness.py](../tooling/check_package_readiness.py)) reports
+**READY** (0 blockers, 0 gaps) since 2.5.0 — the hatchling `[build-system]` landed,
 `[tool.uv] package = true`, the model moved into the package (no dist-name shadow), and
-`py.typed` ships. Every criterion is now a regression gate
+`py.typed` ships. Every criterion is a regression gate
 ([tests/test_package_readiness.py](../tests/test_package_readiness.py) pins the READY
-verdict). The former fourth blocker — `frameforge/`
-importing the top-level `tooling` package (the inverted dependency, tension #1 in
-`conceptual-analysis.md`) — has been **cleared**: the orchestrator + `normalize_doc` moved into
+verdict). The former fourth blocker — `frameforge/` importing the top-level `tooling`
+package (the inverted dependency, identified in the pre-refactor conceptual analysis,
+evicted 2026-07-02) — has been **cleared**: the orchestrator + `normalize_doc` moved into
 the package (§13), and [tests/test_package_boundary.py](../tests/test_package_boundary.py) keeps
 it from regressing.
 

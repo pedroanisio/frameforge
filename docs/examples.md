@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 118 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 119 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -115,6 +115,7 @@ The 118 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`slide_diagrammation.py`](../static/examples/slide_diagrammation.py) | Nine slides, one identity, nine DIAGRAMMATIONS. |
 | [`spacecraft_catalog.py`](../static/examples/spacecraft_catalog.py) | ORBITAL REGISTRY — a 21-page catalog of spacecraft, every craft a real 3D |
 | [`spendora_landing.py`](../static/examples/spendora_landing.py) | High-fidelity vector recreation of the "Spendora" SaaS landing page mock-up |
+| [`srs_document.py`](../static/examples/srs_document.py) | SRS → FrameForge — render an FDPM Software-Requirements export as a full, |
 | [`starlight_fox.py`](../static/examples/starlight_fox.py) | Starlight Fox — a children's picture book authored entirely with the FrameForge SDK. |
 | [`stratoscope.py`](../static/examples/stratoscope.py) | Stratoscope — one scalar field, two projections, one frame. |
 | [`stroke_outline_showcase.py`](../static/examples/stroke_outline_showcase.py) | Stroke-outline engine — filled outlines, brushes, kerning (issue #46, W2). |

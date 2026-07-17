@@ -28,6 +28,7 @@ EXEMPT = {
     "CODE_OF_CONDUCT.md",               # public governance front-door
     "CONTRIBUTING.md",                  # public governance front-door
     "SECURITY.md",                      # public vulnerability-reporting policy
+    ".github/pull_request_template.md", # PR scaffolding, not an authored doc
     "docs/sdk.md",                      # generated SDK snapshot
     "docs/sdk-api.md",                  # generated SDK snapshot
     "docs/FIXTURE-STATUS.md",                # generated from the validator

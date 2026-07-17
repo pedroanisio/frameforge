@@ -5,7 +5,7 @@ disclaimer:
     Any statement or premise not backed by a real logical definition
     or verifiable reference may be invalid, erroneous, or a hallucination.
   generated_by: "Claude Fable 5 via Claude Code"
-  date: "2026-07-01"
+  date: "2026-07-17"
 ---
 
 # Validation error codes
@@ -41,7 +41,6 @@ here. The same enumeration ships machine-readably in
 | `hug-on-shape` | `sizing: hug` on a pure shape (`rect`, `ellipse`, `line`, …) — shapes have no intrinsic content to hug. | Use a fixed dimension or `fill`. |
 | `fill-under-free` | `sizing: fill` under a `free` (or absent) layout — there is no main axis to fill. | Give the parent group a `row`/`column`/`grid`/`wrap` layout, or use a fixed size. |
 | `fr-under-free` | An `fr` box dimension outside a layout container. | `fr` units are only valid inside `row`/`column`/`grid` layouts; use absolute units under `free`. |
-| `text-truncated` | *(WARN, opt-in via `--text-fit`)* A text object materially lost content to the containment net — lines dropped, or glyphs cut beyond rounding tolerance. `SILENT` means the clip was the default, not an authored `overflow`/`text_overflow: ellipsis`/`max_lines`. | Enlarge the box, shorten the text, or opt in explicitly so the clip is acknowledged; the finding names the object, page, and the head of the dropped text (issue #44). |
 | `boxless-under-layout` | A box-less primitive (`line`, `ellipse`, `polyline`, `path`, …) is a direct child of a `row`/`column`/`grid`/`wrap` layout, so the layout has no extent to advance by. | Wrap it in a group with a `box`, or give the primitive a `box`. |
 | `unpinned-font` | Content-sized text (`hug`/`fill`) references no pinned font, so its metrics are not deterministic (§9.6/P4). | Reference a `tokens.fonts` entry that has both `src` and `hash`. |
 | `dangling-ref` | A reference points at nothing on its page/master scope: a connector/line/dimension `from`/`to` anchor id, a `use` symbol not in `defs.symbols`, or a master region `next` naming no region (§3.1/§3.3 referential integrity). | Declare the referenced id/symbol/region, or fix the typo — the finding message lists nearby declared candidates. |
@@ -55,9 +54,10 @@ here. The same enumeration ships machine-readably in
 | `out-of-profile` | An object/flow `type` (or a `defs.symbols`/`components`/`ontology` block) is outside the HEAD core profile; it is accepted but only loosely validated (§8.5 conformance). | Nothing, if the extension is intentional; `--strict` rejects it. |
 | `grid_span-parent` | `grid_span` on an object whose parent layout is not `grid`. | Move the object under a `grid` layout or drop `grid_span`. |
 | `deprecated-alias` | `circle`/`polygon`/`curve`/`bezier` are renderer-shortcut aliases. | Keep authoring them if convenient; the codemod normalises to `ellipse`/closed `polyline`/`path`. |
-| `non-conformant-3d` | `style.perspective` is declared but no render target applies 3D perspective — it passes through inert. | Author 3D via the SDK `Scene3D` 2D projection (spec Appendix A.5). |
+| `non-conformant-3d` | `style.perspective` is declared but no render target applies 3D perspective — it passes through inert. | Author 3D via the SDK `Scene3D` 2D projection (roadmap Appendix A.5). |
 | `containment` | An object's box extends outside the page canvas (beyond a 1-unit tolerance) and is not marked `decorative`. | Move/resize the object, or set `decorative: true` for intentional bleed. |
 | `overlap` | Two boxed, non-decorative siblings overlap significantly inside a no-overlap scope (a `free`-layout group or a `meta.no_overlap: true` cluster). Global/layer overlap stays legal (z-order). | Separate the boxes, or drop the `no_overlap` marker if stacking is intentional. |
+| `text-truncated` | *(opt-in via `--text-fit`)* A text object materially lost content to the containment net — lines dropped, or glyphs cut beyond rounding tolerance. `SILENT` means the clip was the default, not an authored `overflow`/`text_overflow: ellipsis`/`max_lines`. | Enlarge the box, shorten the text, or opt in explicitly so the clip is acknowledged; the finding names the object, page, and the head of the dropped text (issue #44). |
 | `tabular-box-model` | ≥6 absolutely-positioned text objects form a regular grid — a hand-built table. | Author it as a `row`/`column`/`grid` group or a `table` object (§3.3). |
 | `text_contract-placement` | Top-level `text_contract` is a renderer convenience; the normative home is a master/page `RenderingContract.text`. | Move the contract into the master or page. |
 | `canvas-unresolved` | A page's `canvas` does not resolve to a known preset or explicit size, so the containment audit is skipped for that page. | Use a `PagePreset` name or a `{size: [w, h]}` canvas object. |

@@ -287,8 +287,9 @@ def create_server(
     server = fastmcp_cls(
         "FrameForge",
         instructions=(
-            "FrameForge is a document/graphics DSL: author with the Python SDK, this "
-            "server validates + renders it, and you verify against the rendered pixels. "
+            "FrameForge is an agent-native visual-authoring substrate: author "
+            "documents with the Python SDK, this "
+            "server validates + renders them, and you verify against the rendered pixels. "
             "Capabilities, by group:\n"
             "• Author → render: run_sdk_code / run_sdk_client / render_frameforge_yaml "
             "(build a doc, get validation issues + a PNG); write_sdk_client / "

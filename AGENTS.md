@@ -5,21 +5,24 @@ disclaimer:
     Any statement or premise not backed by a real logical definition
     or verifiable reference may be invalid, erroneous, or a hallucination.
   generated_by: "Claude Fable 5 via Claude Code"
-  date: "2026-07-01"
+  date: "2026-07-17"
 ---
 
 # AGENTS.md — programmatic CLI / tooling reference
 
-The reference CLAUDE.md's priority-reading order points at: every `make`
-target and `tooling/` entry point, with exact invocations. Facts here are
+This is the tooling reference that CLAUDE.md's priority-reading order points
+at. It covers every `make` target and `tooling/` entry point, with exact
+invocations. Facts here are
 derived from the live `Makefile`, `pyproject.toml`, and script argparse
 surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 
 ## Runtime
 
-- Managed by [uv](https://docs.astral.sh/uv/); the tree is a **virtual project**
-  (`[tool.uv] package = false`) — never `pip install` it; prefix everything with
-  `uv run`.
+- Managed by [uv](https://docs.astral.sh/uv/); a **real hatchling package**
+  since 2.5.0 (`[tool.uv] package = true`): `uv sync` installs the project
+  editable and puts the `ff-render` / `fg-font` console scripts on PATH
+  (`pip install .` also works for a built install). Prefix ad-hoc commands
+  with `uv run`.
 - `uv sync` creates `.venv` with runtime deps + the `dev` group (pytest,
   hypothesis).
 - Optional dependency groups (`uv sync --group <name>`, or one-off
@@ -41,12 +44,13 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 
 | Target | What it runs |
 |---|---|
-| `check` | every local gate: schema/grammar/spec/a11y/status + ruff (F811) + tests + validate + overflow + golden + docs nav/links + disclaimers |
+| `check` | every local gate: schema/grammar/spec/a11y/status + ruff (F811) + tests + validate + overflow + golden + docs nav/links + disclaimers + public readiness |
+| `bump / bump-check / release` | `bump VERSION=X.Y.Z` moves all 5 version sites + regenerates schema/manifest/examples-index; `bump-check` asserts the sites agree; `release VERSION=X.Y.Z` = bump + full artifact regen + `make check` (RELEASE.md) |
 | `test` | `uv run pytest -q` (the HEAD assertion suite) |
 | `validate` | `tooling/validate.py` over the tracked top-level fixtures |
 | `overflow` | `tooling/render_fixtures.py --all --check-overflow` (text-fit gate) |
-| `ruff-check` | gate `ruff check --select F811` (redefinition); part of `make check` (§16 row 1) |
-| `hooks` | install the pre-commit / pre-push git hooks (`.pre-commit-config.yaml`, §10) |
+| `ruff-check` | gate `ruff check --select F811` (redefinition); part of `make check` ([docs/codebase-standards.md](docs/codebase-standards.md) §16 row 1) |
+| `hooks` | install the pre-commit / pre-push git hooks (`.pre-commit-config.yaml`; [docs/codebase-standards.md](docs/codebase-standards.md) §10) |
 | `schema` / `schema-check` | regenerate / drift-gate `docs/schema/frameforge-v2.schema.json` |
 | `grammar-check` | `tooling/check_grammar_sync.py` (EBNF ⇄ models, core profile) |
 | `spec-check` | `tooling/check_spec_sync.py --quiet` (spec prose ⇄ model discriminators) |
@@ -61,8 +65,8 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 | `docs` / `docs-serve` / `docs-check` | generate site pages (+ manifest + examples index) and build/serve/nav-check |
 | `docs-sdk` | regenerate ONLY the committed `docs/sdk.md` / `docs/sdk-api.md` snapshots (fast) |
 | `docs-linkcheck` | `tooling/check_doc_links.py` — broken relative links in tracked Markdown |
-
 | `disclaimer-check` | `tooling/check_disclaimers.py` — rule-5 frontmatter on AI-authored docs |
+| `public-check` | `tooling/check_public_readiness.py` — public/open-source readiness guardrails |
 | `package-check` | `tooling/check_package_readiness.py` (advisory; NOT in `check`) |
 | `mcp` / `live` | run the MCP server / the local live-session web UI (`make live LIVE_PORT=8790`) |
 | `corpus` / `corpus-check` / `corpus-ui` | fetch / verify / re-render the expressiveness corpus |
@@ -81,7 +85,7 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 |---|---|
 | `validate.py` | `validate.py doc.fg.yaml [...] [--strict] [--text-fit] [--quiet]` — exit 0 no errors, 1 errors, 2 load failure. Codes: [docs/error-codes.md](docs/error-codes.md) |
 | `codemod.py` | `codemod.py doc.fg.json --in-place [--normalize-aliases] [--bump] [--from-v01]` — migrate legacy docs to HEAD; `--from-v01` lifts the v0.1 envelope (scene- and deck/slides-form) first ([docs/migration-v01.md](docs/migration-v01.md)) |
-| `frameforge_render.py` | `frameforge_render.py doc.fg.yaml [--to svg|png|pdf|pdf-tex|tex|html|audit] [--out DIR]` — the render **front door** for the virtual project: self-bootstrapping (no PYTHONPATH), delegates to `frameforge.cli` (`--list` shows live targets). `--to audit` emits a drift-proof design-token + feature census (JSON + Markdown; `rendering/application/audit.py`, [ADR-0006](docs/adr-0006-no-injected-style.md)) |
+| `frameforge_render.py` | `frameforge_render.py doc.fg.yaml [--to svg|png|pdf|pdf-tex|tex|html|audit] [--out DIR]` — the render **front door** for uninstalled checkouts: self-bootstrapping (no PYTHONPATH), delegates to `frameforge.cli` (installed trees can call `ff-render` directly) (`--list` shows live targets). `--to audit` emits a drift-proof design-token + feature census (JSON + Markdown; `rendering/application/audit.py`, [ADR-0006](docs/adr-0006-no-injected-style.md)) |
 | `render_fixtures.py` | `[paths|--all] [--out DIR] [--max-pages N] [--check-overflow] [--strict-content] [--real-metrics] [--list]` — dependency-free SVG proxy; `--check-overflow` names every content-losing text object, `--strict-content` fails on silent loss |
 | `render_chromium.py` | SVG→PNG raster via Playwright Chromium (`--group browser`); `--font-pack P.fp` scopes fontconfig to an fg-font pack (real metrics forced) so measure == render host-independently (ADR-0004) |
 | `render_pdf.py` | `[paths|--all|--single FILE] [--out DIR] [--real-metrics]` — SVG pages → one vector PDF (`--group pdfout`) |
@@ -111,10 +115,10 @@ uv run pytest -q                       # full suite (testpaths = tests/)
 uv run pytest tests/test_head.py -q    # focused file
 ```
 
-- The root `conftest.py` puts the repo root, `src/`, `docs/`, `tooling/`, and `docs/schema/` on
+- The root `conftest.py` puts the repo root, `src/`, `tooling/`, and `docs/schema/` on
   `sys.path` — new test files need no bootstrap. `import frameforge` resolves
   the **package**; for the authoritative model module use the `models_fg`
-  fixture (see `conftest.py` for the shadow-module rule).
+  fixture (see `conftest.py` for the single-owner shadow-module invariant).
 - Vision/raster tests `importorskip` their optional deps and skip cleanly in a
   base venv.
 

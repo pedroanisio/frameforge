@@ -7,16 +7,17 @@ disclaimer:
     relying on it.
   generated_by: "Claude Opus 4.8 via Claude Code"
   date: "2026-06-24"
+  last_revised: "2026-07-17"
 ---
 
-# Frameforge Architecture
+# FrameForge Architecture
 
 > How an input document becomes rendered output (SVG, LaTeX/PDF), and the
 > intermediate representation that sits between the two.
 
 ## TL;DR
 
-Frameforge **does** generate an intermediate representation. Input files
+FrameForge **does** generate an intermediate representation. Input files
 (`*.fg.json` / `*.fg.yaml`) are parsed and validated into a structured,
 backend-neutral **Pydantic `Document` tree** — the IR. Every backend renders
 from that same IR, so SVG and LaTeX never re-parse the source format.
@@ -71,7 +72,7 @@ Because it is a Pydantic tree, the IR is:
 | Defs | `Defs`, `Tokens`, `Style` | Design tokens, masters, assets, CSS-like style module |
 | Container | `Page` / `FlowSection` (`PageProducer`) | A page (page-mode) or a flow section (flow-mode) |
 | Stack | `Layer` | Z-ordered band of objects on a page |
-| Content | `VisualObject` | Union: `Rect`, `Ellipse`, `Circle`, `Line`, `Polyline`, `Polygon`, `Path`, `Curve`, `Text`, `Image`, `Icon`, `BulletList`, `Dimension`, `TableObject`, `Group` |
+| Content | `VisualObject` | Union: `Rect`, `Ellipse`, `Circle`, `Line`, `Polyline`, `Polygon`, `Path`, `Curve`, `Text`, `Image`, `Icon`, `BulletList`, `Dimension`, `Connector`, `TableObject`, `Group` |
 | Grouping | `Group` | Nestable container with an optional `Layout` |
 
 Styling is centralized in a CSS-like **style module** (`Tokens` → `Style`,
@@ -98,16 +99,22 @@ colors. The resolvers live in
 
 | Resolver | Responsibility |
 |----------|----------------|
-| `ColorResolver` | Color token refs → resolved hex/paint values |
-| `PaintResolver` | Paint (solid color / gradient) resolution |
+| `ColorResolver` (`paint_resolver.py`) | Color/paint token dereference — gradients proxy to the first stop's color; gradient emission stays in the painter |
 | `TextStyleResolver` | Text style tokens → normalized style dicts |
 | `StrokeResolver` | Stroke properties |
 | `CanvasResolver` | Master references → canvas specs |
 | `EffectResolver` | Shadow / glow effects |
 | `LayoutEngine` | Arrange group children (row / column / grid) |
-| `flow_layout` | Backend-neutral prose layout: Knuth–Plass line breaking + Liang hyphenation (`pyphen`) + span-aware justification; emits the `LaidLine`/`LaidParagraph` IR and the recto/verso `content_box` (ADR-0003) |
+| `flow_layout` | Backend-neutral prose layout: Knuth–Plass line breaking, hyphenation, span-aware justification (ADR-0003) |
 | `table_layout` | Table sizing and cell placement |
-| `geometry` | Shared geometric math |
+| `TextFitter` (`text_fitter.py`) | Measure / wrap / ellipsize text to a pixel width (injected font-metrics provider) |
+| `StyleValues` (`style_values.py`) | CSS/SVG value builders: filter / shadow / transform / length |
+| `math_text` | Dependency-free TeX→Unicode display fallback |
+
+Shared geometric math lives one level up, in
+`src/frameforge/rendering/domain/geometry.py` (not a service). The
+`flow_layout` engine emits the `LaidLine`/`LaidParagraph` IR and the
+recto/verso `content_box`.
 
 For the SVG path, the builder is the `Renderer` class in
 [`src/frameforge/rendering/application/renderer.py`](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/application/renderer.py),
@@ -140,7 +147,14 @@ Backends are infrastructure adapters under
   ([latex/document.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/infrastructure/latex/document.py))
   and renders vector figures through `FigureTikz`
   ([latex/tikz.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/infrastructure/latex/tikz.py)).
-  The emitted `.tex` is compiled to PDF with `lualatex`.
+  The emitted `.tex` is compiled to PDF with `lualatex` when `luaotfload` is
+  available, else `pdflatex` (`--engine auto`).
+- **TikZ painter (in progress)** — `TikzPainter`
+  ([painters/tikz.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/infrastructure/painters/tikz.py))
+  is a second `ScenePainter` adapter, test-gated (`test_tikz_painter.py` /
+  `test_tikz_wiring.py` / `test_tikz_fidelity.py`) and covering the port
+  except `text_block`/`text_runs` — intentionally not yet wired into the
+  render path (the `latex/` fork above still owns LaTeX output).
 
 ## Design notes
 
@@ -149,9 +163,11 @@ Backends are infrastructure adapters under
   orchestration use-case; the `infrastructure/` layer holds the format-specific
   adapters. The domain depends on the `ScenePainter` *abstraction*, not on any
   concrete backend. *In progress* (codebase-standards.md §13): the application
-  `Renderer` still constructs `SvgPainter` directly and the 83-method class is
-  being decomposed — the port is not yet backend-neutral, so LaTeX/Chromium
-  remain separate drivers rather than adapters behind the one port.
+  `Renderer` still constructs `SvgPainter` directly and the large class is
+  being decomposed; `TikzPainter` exists as a second port adapter but is
+  intentionally not yet wired into the render path (the `latex/` fork still
+  owns LaTeX output), so the shipping LaTeX and Chromium paths remain separate
+  drivers rather than adapters behind the one port.
 - **One IR, many backends.** Both SVG and LaTeX consume the same `Document` IR
   and the same resolver normalization. Adding a backend means implementing the
   `ScenePainter` surface (the port docstring names a future `MatplotlibPainter`

@@ -24,9 +24,10 @@ fixture: `tests/fixtures/library-honeycomb.fg.yaml`.
 House-style *homages* (per the packs' own metadata): `bain`, `bcg`,
 `deloitte`, `ey`, `kpmg`, `mckinsey`, `pwc`. Each carries `colors`,
 `fonts`, `text_styles` (`font_family` lists, `font_size`/`font_weight`,
-`vertical_align`), `stroke_styles` (Style-bag props: `stroke`,
-`stroke_width`, `stroke_dasharray`), plus `fill_styles`/`glyph_map` where
-the pack ships them.
+`vertical_align`), and `stroke_styles` (Style-bag props: `stroke`,
+`stroke_width`, `stroke_dasharray`). The committed packs ship colors, fonts,
+text_styles, and stroke_styles only (`fill_styles`/`glyph_map` remain valid
+`Tokens` fields a pack may add).
 
 ```python
 from frameforge.library import list_themes, load_theme

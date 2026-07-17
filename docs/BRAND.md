@@ -4,8 +4,8 @@ disclaimer:
     No information within this document should be taken for granted.
     Any statement or premise not backed by a real logical definition
     or verifiable reference may be invalid, erroneous, or a hallucination.
-  generated_by: "Claude Opus 4.8 (1M context) via Claude Code"
-  date: "2026-06-24"
+  generated_by: "Claude Opus 4.8 (1M context) via Claude Code; revised through 2026-07-17 by later Claude Code sessions (src-layout refactor, frameforge rename)"
+  date: "2026-07-17"
 status: proposal
 ---
 
@@ -26,9 +26,7 @@ promise rather than the pitch. It inherits the project's epistemic stance from
 [`DISCLAIMER.md`](../DISCLAIMER.md) and its operating constraints from
 [`CLAUDE.md`](../CLAUDE.md) — the brand is the outward face of those rules, not a
 separate marketing layer. For what the project *is*, see the root
-[`README.md`](../README.md); the logo asset masters were retired from the
-tracked tree in the 2026-07 src-layout refactor — regenerate them on demand
-with [`static/examples/frameforge_logo.py`](../static/examples/frameforge_logo.py) (§3).
+[`README.md`](../README.md); for the logo and how to regenerate it, see §3.
 
 ---
 
@@ -69,7 +67,7 @@ The name is two halves, and the brand keeps them visible:
 | Half | Meaning in the model | Brand register |
 |---|---|---|
 | **Frame** | the fixed page / canvas / bounding box | structure, ink, the drafting grid |
-| **Graph** | the typed object & flow tree (the directed document) | signal, flow, derivation |
+| **Forge** | where validated artifacts are produced — models → schema, renders, derived outputs | heat, production, derivation |
 
 ### Brand pillars (each grounded in a live artifact)
 
@@ -96,13 +94,15 @@ and honest about what is still proposed in the *format* — never hedged about t
 
 ## 2. Name & wordmark rules
 
-- The product is **FrameForge** — one word, capital `F` and capital `G`, camel-joined.
-- Versioned as **FrameForge v2** or **FrameForge 2.3.0** (semver, per the repo).
+- The product is **FrameForge** — one word, capital `F` in `Frame` and capital `F` in
+  `Forge`, camel-joined.
+- Versioned as **FrameForge v2** or **FrameForge `<major.minor.patch>`** (semver; the
+  current release is pinned in `pyproject.toml` and swept by `tooling/bump_version.py`).
 - The file/format extensions are `.fg.yaml` and `.frameforge.yml`.
 - `FG` is the internal Pydantic base class and an acceptable square-logo monogram —
   it is **not** a public short name for the product in prose.
 
-**Never:** `Frame Graph` (two words) · `Frameforge` (lowercase g) · `frameForge` ·
+**Never:** `Frame Forge` (two words) · `Frameforge` (lowercase second `f`) · `frameForge` ·
 `FRAMEFORGE` (except inside a fixed-width ASCII/CLI banner) · "the FrameForge framework"
 (it is a format + toolchain, not a framework).
 
@@ -111,7 +111,7 @@ and honest about what is still proposed in the *format* — never hedged about t
 ## 3. Logo
 
 The logo is **generated, not hand-drawn**. The single source of truth is
-[`examples/frameforge_logo.py`](../static/examples/frameforge_logo.py) — the same `mark()`
+[`static/examples/frameforge_logo.py`](../static/examples/frameforge_logo.py) — the same `mark()`
 and `wordmark()` the seed deck imports, so the asset and every place that stamps it
 can never diverge. Regenerate the masters with:
 
@@ -132,7 +132,8 @@ The masters are regenerated on demand (no longer tracked; retired in the
 | `frameforge-logo.fg.yaml` | the FrameForge source document (every variant as a page) |
 
 **The mark is the thesis, drawn.** Technical-drawing corner brackets (the *Frame*:
-a fixed page / bounding box) enclose a small derivation graph (the *Graph*): one
+a fixed page / bounding box) enclose a small derivation graph — the source→derived
+architecture glyph, the *Forge* at work: one
 filled **source node** fanning out to three outlined **derived nodes** placed on a
 common arc (equal radius, equal angle — *constructed, not eyeballed*). That is
 literally the project's architecture — `src/frameforge/model.py` → `{schema, grammar,
@@ -145,10 +146,10 @@ element; everything generated from it is outline-only. The hierarchy of the pict
 - **Minimum size:** ~24 px for the full mark. Stroke weights are floored so it
   stays crisp down to favicon size (use `frameforge-mark-favicon.svg`); below that,
   fall back to the `FG` monogram.
-- **Colour:** the mark mirrors the wordmark — **Frame = ink, Graph = frame-blue**.
+- **Colour:** the mark mirrors the wordmark — **Frame = ink, Forge = frame-blue**.
   It collapses to all-ink (mono) and inverts (reversed) without losing meaning. In a
   passing-state context the source node may take `gate-green`.
-- **Wordmark:** the lockup sets "Frame" (ink) + "Graph" (frame-blue) as a single
+- **Wordmark:** the lockup sets "Frame" (ink) + "Forge" (frame-blue) as a single
   two-span **bold sans** flow (IBM Plex Sans; DejaVu Sans is the honest in-repo
   proxy). Emitting it as one text flow — not two hand-placed runs at a guessed width
   — is why the SVG and the PDF agree. For third-party distribution, **outline the
@@ -173,8 +174,8 @@ not decorative; it is the project's core feedback loop, promoted to brand color.
 | `ink` | `#15181E` | Primary text, lines, crop marks. Graphite, never pure black. |
 | `paper` | `#FBFAF6` | Default surface. Warm technical paper. |
 | `canvas` | `#FFFFFF` | Pure render surface (inside a document frame). |
-| `frame-blue` | `#1F4FD8` | **Primary accent** — the *Frame* half. Links, key marks, the source node. |
-| `graph-cyan` | `#12B0C3` | Secondary accent — the *Graph* half. Flow, edges, live signal. |
+| `frame-blue` | `#1F4FD8` | **Primary accent** — paints the *Forge* half: the source node, the second wordmark span, links, key marks. |
+| `graph-cyan` | `#12B0C3` | Secondary accent — flow, edges, live signal. (Token name predates the rename.) |
 | `gate-green` | `#1E9E5A` | **Semantic:** passing gate · valid · in-sync. |
 | `drift-red` | `#D23B2B` | **Semantic:** failed gate · drift · invalid. |
 | `grid` | `#D4D8DE` | Hairlines, rules, secondary strokes. |
@@ -202,14 +203,17 @@ One coherent superfamily across the three registers FrameForge actually spans �
 data, UI, and long-form documents — plus the deterministic proxy face already in
 the repo.
 
-- **IBM Plex Mono** — wordmark, code, YAML, schema, CLI, data labels. *Mono =
+- **IBM Plex Mono** — code, YAML, schema, CLI, data labels. *Mono =
   machine-true; it signals "this is a typed artifact, not prose."*
-- **IBM Plex Sans** — UI, docs body, captions, this guideline.
+- **IBM Plex Sans** — the wordmark (bold, per §3 and the generator), UI, docs body,
+  captions, this guideline.
 - **IBM Plex Serif** — long-form rendering (the books and letters FrameForge
   targets).
-- **DejaVu Sans / Mono / Serif** — the **proxy faces**. The dependency-free
-  renderer ships DejaVu stand-ins (`tooling/render_fixtures.py`); the brand names
-  them honestly as fallbacks rather than pretending the proxy is the brand face.
+- **DejaVu Sans / Mono / Serif** — the **proxy faces**. The matplotlib proxy
+  (`tooling/render_fg_doc.py`) ships DejaVu stand-ins; the dependency-free SVG proxy
+  (`tooling/render_fixtures.py`) emits generic families that fontconfig typically
+  resolves to DejaVu on Linux. The brand names them honestly as fallbacks rather
+  than pretending the proxy is the brand face.
 
 IBM Plex is chosen because it is one open superfamily (SIL OFL) covering mono +
 sans + serif coherently — matching a system that spans code, UI, and books — and
@@ -269,15 +273,14 @@ Reusable motifs, all drawn from the toolchain's real vocabulary:
 ## 8. Design tokens (in FrameForge's own model)
 
 The palette and type system map 1:1 onto the native `Defs.tokens` surface
-([`frameforge.model`](../src/frameforge/model.py) `class Tokens`). The brand is
-therefore *consumable from FrameForge itself* — see
-`frameforge.tokens.fg.yaml` (retired with the masters; no generator emits it
-today — regenerate the masters via `static/examples/frameforge_logo.py` and
-treat this guideline's §4 palette as the token source until one does). Drop that
-`defs:` block into a document and reference the tokens by name. This is the
-intended dogfood: **the brand guideline should ultimately be authored as a
-FrameForge document**, rendered by the project's own renderer, gated by the
-project's own checks.
+([`frameforge.model`](../src/frameforge/model.py), `class Tokens`), so the brand is
+*consumable from FrameForge itself*: drop a `defs:` block with these values into a
+document and reference the tokens by name. The standalone `frameforge.tokens.fg.yaml`
+was retired with the masters and no generator emits it today — treat this guideline's
+§4 palette as the token source until one does (the masters regenerate via
+`static/examples/frameforge_logo.py`). This is the intended dogfood: **the brand
+guideline should ultimately be authored as a FrameForge document**, rendered by the
+project's own renderer, gated by the project's own checks.
 
 ---
 
@@ -298,11 +301,11 @@ project's own checks.
 
 | Do | Don't |
 |---|---|
-| Write "FrameForge" (camel, one word) | "Frame Graph", "Frameforge", "the framework" |
+| Write "FrameForge" (camel, one word) | "Frame Forge", "Frameforge", "the framework" |
 | Lead with limits, then capability | Use superlatives or claim conformance/fidelity |
 | Reserve green/red for real state | Use gate colors as decoration |
 | Keep brand chrome flat | Add gradients, bevels, shadows to the mark |
-| Outline the wordmark for distribution | Re-letter the wordmark in a non-mono face |
+| Outline the wordmark for distribution | Re-space or re-letter the wordmark (it is generated — change `frameforge_logo.py` and regenerate) |
 | Carry the disclaimer frontmatter on docs | Drop provenance to look more polished |
 
 ---

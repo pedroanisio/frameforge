@@ -19,7 +19,7 @@ repeat the disclaimer block.
 
 ---
 
-### MANDATORY
+## MANDATORY
 
 - Treat generated artifacts as generated: edit source inputs or generators, then
   rerun the corresponding check.
@@ -43,7 +43,7 @@ models and fixtures.
 ```
 .
 ├── CLAUDE.md          # This file — project guidelines for AI agents
-├── DISCLAIMER.md      # Methodological caveats (all READMEs must reference)
+├── DISCLAIMER.md      # Methodological caveats (see Disclaimer Reference above)
 ├── README.md
 ├── src/frameforge/           # the Python package (model, rendering, sdk, mcp, vision, coach, live)
 │   └── model.py              #   authoritative Pydantic model (SOURCE OF TRUTH; in-package since 2.5.0)
@@ -150,8 +150,9 @@ when two conflict.
 - Default output format for prose documents is Markdown (`.md`).
   Use DOCX only when the user explicitly requests it or when the deliverable
   requires it (e.g., a client-facing report with Word-specific formatting).
-- Default language for all new code is TypeScript (`.ts` / `.tsx`).
-  Use JavaScript only when: (a) the user explicitly requests it,
+- The project core is Python (the Pydantic model is the source of truth). For
+  web/viewer code, the default language is TypeScript (`.ts` / `.tsx`);
+  use JavaScript only when: (a) the user explicitly requests it,
   (b) the existing codebase is JavaScript and migration is out of scope, or
   (c) the target runtime does not support TypeScript (e.g., inline browser scripts).
 - When editing existing JavaScript files, do not convert to TypeScript
@@ -177,9 +178,11 @@ disclaimer:
 - The `generated_by` field must identify the model and tool that produced
   the document (e.g., `Claude Opus 4.6 via claude.ai`).
 - The `date` field must reflect the generation date.
-- This applies to all `.md` files: READMEs, reports, specs, ADRs, session
-  logs, concept documents. The only exemption is when the user explicitly
-  opts out for a specific file.
+- This applies to agent-authored `.md` documents: reports, specs, ADRs,
+  session logs, concept documents. The enforced gate
+  (`tooling/check_disclaimers.py`, the `disclaimer-check` target) exempts an
+  explicit named set (READMEs, `CHANGELOG.md`, `CLAUDE.md`, generated
+  snapshots); a user opt-out for a specific file is also honored.
 
 ### 6. Feedback is not a source of truth
 
@@ -292,13 +295,14 @@ These principles have zero exceptions:
 ### Version Control
 
 - Conventional commits: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`.
-- Semantic versioning for schemas (`major.minor.patch`).
-- AI-generated artifacts must be labeled with their source model/tool.
+- Versioning and AI-artifact labeling rules: see General Conventions.
 
 ### Architecture Decisions
 
 - Document significant decisions with rationale.
-- When multiple approaches exist, state the trade-offs and ask before proceeding.
+- When approaches genuinely diverge (Behavioral Constraint 8: the
+  interpretations produce incompatible outputs), state the trade-offs and ask
+  one targeted question; otherwise pick the correct approach and proceed.
 - When scope is ambiguous ("finish everything", "complete this"), stop and clarify before starting.
 
 ---
@@ -308,7 +312,7 @@ These principles have zero exceptions:
 ### Context Management
 
 - Priority reading order: `CLAUDE.md` → `AGENTS.md` → `__file_meta__` / FLAM → Tests → Code.
-- Read `AGENTS.md` (when present) for any programmatic CLI reference before running project tooling.
+- Read `AGENTS.md` for any programmatic CLI reference before running project tooling.
 - Read existing code before suggesting modifications.
 - Check metadata constraints before editing any file.
 
@@ -330,7 +334,8 @@ These principles have zero exceptions:
 ## General Conventions
 
 - All schema files use semantic versioning (`major.minor.patch`).
-- Bilingual content (PT-BR + EN-US) is standard for project-level documentation.
+- `DISCLAIMER.md` is bilingual (PT-BR + EN-US); all other documentation follows
+  Behavioral Constraint 3 (English default).
 - AI-generated artifacts must be labeled with their source model/tool in metadata or frontmatter.
 - Every README linking to sub-directories should also link back up to root `README.md`.
 
@@ -342,5 +347,5 @@ These principles have zero exceptions:
 |---|---|---|
 | `DISCLAIMER.md` | Everyone | Epistemic integrity commitments |
 | `CLAUDE.md` | AI agents + devs | HOW to build (process, standards, enforcement) |
-| `AGENTS.md` | AI agents | Programmatic CLI/tooling reference (when present) |
+| `AGENTS.md` | AI agents | Programmatic CLI/tooling reference |
 | `README.md` | Humans | WHAT the project does (usage, overview) |

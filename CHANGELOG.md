@@ -2,6 +2,11 @@
 
 **Version:** `2.5.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-17
 
+*Convention: version headings mark schema/`HEAD_VERSION` bumps; an entry titled
+"Unreleased" landed between bumps and is contained in the nearest version
+heading above it. One version number may span multiple dated entry blocks —
+cite entries by their full "version — subtitle" heading, not version alone.*
+
 ---
 
 ## 2.5.0 — feat(packaging): real package + real CLI; the model moves into the package (2026-07-17)
@@ -46,6 +51,23 @@ Additive only — no document-model change; the generated schema is byte-identic
 apart from the version pins ($id/title). Migration for embedders that imported
 `models.frameforge`: import `frameforge.model` instead.
 
+## Unreleased — feat(render): 4K canvas ladder + canvas/raster fidelity fixes (2026-07-17)
+
+Commit `384cd1c`. Canvas resolution ladder up to 4K plus canvas/raster fidelity
+fixes across the render path. (Entry retro-documented by Claude Fable 5 via
+Claude Code.)
+
+## Unreleased — fix(vision): verification instruments are sub-pixel-trustworthy at 4K/8K (2026-07-17)
+
+Commit `920e79e`. The measurement/verification instruments (measure, mark,
+overlay, score) hold sub-pixel accuracy at 4K/8K rasters. (Entry
+retro-documented by Claude Fable 5 via Claude Code.)
+
+## Unreleased — feat(mcp): the full SDK surface is enumerable and explained on the MCP (2026-07-17)
+
+Commit `bd1caee`. MCP discovery now enumerates and explains the full SDK
+surface. (Entry retro-documented by Claude Fable 5 via Claude Code.)
+
 ## Unreleased — feat(render): `--to audit` design-token + feature census (2026-07-17)
 
 New render target `audit` (`frameforge_render.py <doc> --to audit`, wired in
@@ -79,6 +101,15 @@ font/size/colour literal remains in the flow renderer beyond the one fallback.
 Fixtures relying on a `body` style / injected table chrome re-rendered; golden
 oracle re-pinned (`make golden`, 8 fixtures / 85 pages). Fixtures without a
 `body` style are unaffected. 2009 tests green.
+
+## Unreleased — chore: framegraph → frameforge project rename (2026-07-17)
+
+Mechanical ~759-file rename in commit `4914083` (rename tool added in
+`4d62c2b`): import path `framegraph.*` → `frameforge.*`; env vars
+`FRAMEGRAPH_*` → `FRAMEFORGE_*`; entry-point and tooling paths renamed
+accordingly. Note: all older entries in this file were mechanically rewritten
+to the new name in `4914083` — pre-rename artifacts in git history carry the
+FrameGraph name. (Entry retro-documented by Claude Fable 5 via Claude Code.)
 
 ## Unreleased — fix(render): honor grid_span in the grid layout engine (refine pass, 2026-07-05)
 
@@ -1129,6 +1160,9 @@ them through this table):
 | `examples/` | `static/examples/` |
 | `frameforge_to_html.py`, root reports (`FIXTURE-STATUS.md`, `codebase-standards.md`, `request.md`, `architecture-map.*`) | `tooling/`, `docs/` |
 | `brand/`, `demo/`, `recipe/`, `POC-*.md` | retired from the tracked tree (regenerate brand assets via `static/examples/frameforge_logo.py`) |
+
+*[2026-07-17: `docs/models/` was subsequently retired — the model now lives at
+`src/frameforge/model.py`; see the 2.5.0 entry.]*
 
 Completion notes (refactor finished 2026-07-02):
 

@@ -18,7 +18,8 @@ divergence. This document formalises the invariants, the ordered procedure, and
 the one-command automation (`make bump`).
 
 Companion policy: [`docs/codebase-standards.md` §9](docs/codebase-standards.md).
-Coupling inventory: `drift-risk-map.md` (repo root).
+Coupling inventory: `docs/drift-risk-map.md` (generated skill report; regenerate
+via the drift-risk-map skill when stale).
 
 ---
 
@@ -30,14 +31,15 @@ machine-checked; the "Gate" column is where a violation surfaces.
 | # | Invariant | Sites | Gate |
 |---|---|---|---|
 | **I1** | declared version == the models' reported version | [pyproject.toml:3](pyproject.toml#L3) == [model.py:41 `HEAD_VERSION`](src/frameforge/model.py#L41) | `tests/test_docs_in_sync.py` |
-| **I2** | the models' version == the pinned test literal | `HEAD_VERSION` == [test_head.py:77](tests/test_head.py#L77) | `tests/test_head.py::test_version_is_2_3_0` |
+| **I2** | the models' version == the pinned test literal | `HEAD_VERSION` == [test_head.py:73](tests/test_head.py#L73) | `tests/test_head.py::test_version_is_head` |
 | **I2b** | declared version == the package runtime `__version__` | [pyproject.toml:3](pyproject.toml#L3) == [frameforge/__init__.py `__version__`](src/frameforge/__init__.py) | `tests/test_docs_in_sync.py::test_package_runtime_version_matches_pyproject` |
 | **I3** | the committed schema is generated-in-sync **and** its title carries the version | models → `docs/schema/frameforge-v2.schema.json` | `schema-check` + `test_head.py::test_schema_in_sync_with_models` + `test_docs_in_sync.py` |
 | **I4** | the capability manifest reflects the live tree | `docs/capability-manifest.json` | `manifest-check` |
 | **I5** | README's honest counts + paths match reality | `README.md` (`$defs` count, `N/N green`, Layout paths) | `tests/test_docs_in_sync.py` |
 | **I6** | every generated nav page exists and is fresh | `docs/*.md` (reference/spec/grammar/…) | `docs-check` |
 
-Because every invariant is inside `make check` (twelve gates: [Makefile:45](Makefile#L45)),
+Because every invariant is inside `make check` (every gate listed on the `check:`
+target in [Makefile](Makefile)),
 **"`make check` is green" is a proof that the bump is complete.**
 
 ---
@@ -50,7 +52,7 @@ Because every invariant is inside `make check` (twelve gates: [Makefile:45](Make
 |---|---|
 | [pyproject.toml:3](pyproject.toml#L3) | `version = "X.Y.Z"` — the declared package version |
 | [src/frameforge/model.py:41](src/frameforge/model.py#L41) | `HEAD_VERSION = "X.Y.Z"` — the models' report |
-| [tests/test_head.py:77](tests/test_head.py#L77) | `HEAD_VERSION == "X.Y.Z"` — the version pin |
+| [tests/test_head.py:73](tests/test_head.py#L73) | `HEAD_VERSION == "X.Y.Z"` — the version pin |
 | [README.md](README.md) | `**FrameForge v2** (\`X.Y.Z\`)` — the human headline |
 | [src/frameforge/__init__.py](src/frameforge/__init__.py) | `__version__ = "X.Y.Z"` — the package runtime version |
 | [CHANGELOG.md](CHANGELOG.md) | the `## X.Y.Z` entry (+ migration if breaking) — **human judgement, not automated** |
@@ -68,19 +70,20 @@ Each step names the gate that verifies it.
 
 0. **Preconditions.** Clean working tree; `CHANGELOG.md` not mid-merge; choose
    the bump type (§4).
-1. **Move the five literals** → `make bump VERSION=X.Y.Z` (or the full
-   `make release VERSION=X.Y.Z`, which also regenerates every artifact and runs
-   the gate)
-   (or `python tooling/bump_version.py X.Y.Z`). *Verify:* `make bump-check`.
+1. **Move the five literals** → `make bump VERSION=X.Y.Z` (the raw mover,
+   `python tooling/bump_version.py X.Y.Z`, moves the literals only — no regen
+   chain; see §6); or collapse steps 1, 2, and 4 in one shot with
+   `make release VERSION=X.Y.Z`, which also regenerates every derived artifact
+   and runs the gate. *Verify:* `make bump-check`.
 2. **Regenerate derived artifacts.** `make bump` already runs
    `schema manifest examples-index`; for the full nav check run `make docs-check`
    (or `make docs` for the site). *Verify:* `schema-check`, `manifest-check`,
    `docs-check`.
 3. **CHANGELOG.md.** Add the `## X.Y.Z` entry; for a breaking change document the
    migration and confirm `codemod.py --bump` covers it (§5).
-4. **Gate.** `make check` — all twelve gates green **proves** §1.
+4. **Gate.** `make check` — all gates green **proves** §1.
 5. **Runtime.** `make docker-build` — rebakes `BUILD_VERSION`
-   ([Makefile:138](Makefile#L138)); the image `version` verb detects skew
+   ([Makefile](Makefile), `docker-build` target); the image `version` verb detects skew
    ([AGENTS.md](AGENTS.md)).
 6. **Ship.** Commit `release: X.Y.Z` on a `<type>/<issue#>-<slug>` branch; open a
    PR (CI reruns `make check`); squash-merge (§11 of codebase-standards).
@@ -132,23 +135,32 @@ Backward compatibility is **delivered, not assumed** (§9): migrate, don't freez
 
 ## 7 · Known gaps (honest)
 
-- **Four hand-edited version sites.** Cross-checked by the gates (a divergence
+- **Five hand-edited version sites.** Cross-checked by the gates (a divergence
   can't ship) and moved together by `make bump` — but not DRY. A single generated
-  source would remove the footgun; that is the `[Target]` `make release` §9 names.
+  source would remove the footgun entirely; it remains unbuilt — `make release`
+  (§9 `[Enforced]`) wraps bump → regenerate → gate, but the version literals stay
+  hand-maintained.
 - **Ungated cosmetic staleness.** `static/examples/illustrator_vs_frameforge.py`,
   `static/examples/zen_libficar.py`, and `skills/frameforge-mcp-docker/SKILL.md`
-  hardcode `v2.3.0` in prose/comments — **not gated**; grep-sweep on a bump.
-- **CI docs-deploy probe.** The `docs-deploy` job hardcodes a `docs/models` path
-  with no pre-merge gate (`drift-risk-map.md` #18, MODERATE) — it fails only in
-  the post-merge deploy job if that path moves.
-- **No `make release`.** Tag + publish is manual today (§9 `[Target]`).
+  hardcode `v2.3.0` in prose/comments, and the `docs/index.md` minimal-document
+  example carries a `version:` literal (`test_doc_examples.py` checks it
+  *validates*, not that it is current) — **not gated**; grep-sweep on a bump.
+- **CI docs-deploy probe — RESOLVED (2.5.0).** The `docs-deploy` job no longer
+  hardcodes a `docs/models` path; it derives the version from
+  `frameforge.model.HEAD_VERSION` (ci.yml), which the pre-merge gates already
+  exercise.
+- **Tag + publish remain manual.** `make release VERSION=X.Y.Z`
+  ([Makefile](Makefile), `release` target) bumps every site, regenerates every
+  derived artifact, and runs the full gate; the by-hand tail is what it prints
+  as its remaining checklist — the CHANGELOG entry, `git tag vX.Y.Z`,
+  `make docker-build` (§9 `[Enforced]`, residual `[Target]`).
 
 ---
 
 ## Quick reference
 
 ```sh
-make bump VERSION=X.Y.Z    # 1. rewrite the 4 version sites + regenerate
+make bump VERSION=X.Y.Z    # 1. rewrite the 5 version sites + regenerate
 #                            2. edit CHANGELOG.md (+ migration if breaking)
 make check                 # 3. all gates green == every §1 invariant holds
 make docker-build          # 4. rebake the runtime version stamp

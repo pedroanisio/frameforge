@@ -94,7 +94,7 @@ parameters; the whole scene then snaps to the same space.
 
 ## The layer pipeline — multiple steps, one layer each, each gated
 
-Build top-down. Every stage is a **separate render layer** so guides can be toggled
+Build in order, L0 → L8. Every stage is a **separate render layer** so guides can be toggled
 or removed. **Do not start a layer until the one below it has passed its gate.**
 
 | # | Layer | What it contains | Gate (must pass before next) |
@@ -180,7 +180,7 @@ time you render finishes, the geometry is already right.
 | Perspective placement | per-object `style.transform` (`translate/scale/rotate/matrix`); a computed `P()` in the client |
 | Reusable parts | `define_symbol` / `symbol` / figures (`place_figure`, `FigureRef`) |
 | Sourcing construction refs / real assets | SVG → FrameForge import (paths render 1:1) |
-| The verification gate | MCP `run_sdk_code` → render → **raster (browser/CairoSVG) → vision** delta list |
+| The verification gate | MCP `run_sdk_code` → render → `measure_image` / `mark_points` / `overlay_images` to localise, `compare_images` for NCC/RMSE region diffs, `score_reconstruction` for numeric geometry convergence |
 | Style/Camera specs | plain dicts the client consumes; echo them in the doc title/meta |
 
 ---

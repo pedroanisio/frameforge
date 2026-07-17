@@ -1,10 +1,10 @@
 ---
 disclaimer:
   version: "1.0"
-  last_updated: "2026-03-26"
+  last_updated: "2026-07-17"
   languages:
-    - "pt-BR"
     - "en-US"
+    - "pt-BR"
 
   notice:
     en-US: >-
@@ -73,7 +73,7 @@ disclaimer:
         adequado para ampliar seu impacto e abrangência.
 
     - id: 6
-      key: "natural-artificial-intelligence-partnership"
+      key: "non-triviality-and-natural-artificial-intelligence-partnership"
       en-US: >-
         The scope of this work is intentionally non-trivial and comprehensive.
         Exponential collaboration between natural and artificial intelligence
@@ -101,57 +101,17 @@ disclaimer:
 
 <!--
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                        RESSALVAS METODOLÓGICAS                             ║
-║                        METHODOLOGICAL CAVEATS                              ║
+║                        METHODOLOGICAL CAVEATS                                ║
+║                        RESSALVAS METODOLÓGICAS                               ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║  Versão / Version: 1.0                                                     ║
-║  Última atualização / Last updated: 2026-03-26                             ║
+║  Version / Versão: 1.0                                                       ║
+║  Last updated / Última atualização: 2026-07-17                               ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-  PORTUGUÊS (PT-BR)
-  ═════════════════
-
-  RESSALVAS
-
-  1. NÃO DEFINITIVIDADE.
-     Este trabalho, como qualquer produto do método científico, não se
-     apresenta como definitivo. Seus resultados são provisórios por
-     natureza e permanecem sujeitos a revisão mediante evidência superior.
-
-  2. OMISSÕES NÃO INTENCIONAIS.
-     Omissões podem existir, mas não são deliberadas. Onde identificadas,
-     devem ser tratadas como lacunas a preencher.
-
-  3. INTERDISCIPLINARIDADE COMO MÉTODO.
-     Analogias e polinização cruzada entre disciplinas são ferramentas
-     metodológicas empregadas intencionalmente, não desvios retóricos.
-     A transposição de conceitos entre domínios é explícita e rastreável.
-
-  4. ABERTURA A CONTRIBUIÇÕES FUTURAS.
-     O trabalho pressupõe que contribuições subsequentes podem — e devem —
-     refinar, estender ou corrigir seus resultados. Nenhuma seção é
-     declarada fechada a revisão.
-
-  COMPROMISSOS METODOLÓGICOS
-
-  5. APLICABILIDADE IMEDIATA.
-     Os autores consideram que este trabalho oferece utilidade imediata a
-     problemas latentes que ainda carecem de ferramental computacional
-     adequado para ampliar seu impacto e abrangência.
-
-  6. NÃO TRIVIALIDADE E PARCERIA ENTRE INTELIGÊNCIA NATURAL E ARTIFICIAL.
-     O escopo deste trabalho é intencionalmente não trivial e abrangente.
-     Adota-se como princípio operacional a colaboração exponencial entre
-     inteligência natural e artificial — tratando-a não como recurso
-     auxiliar, mas como método constitutivo da investigação.
-
-  7. RASTREABILIDADE E PROVENIÊNCIA.
-     Todas as referências utilizadas serão disponibilizadas em repositórios
-     de código aberto devidamente documentados. Arquivos de mídia, quando
-     pertinentes, farão referência explícita às suas fontes; detalhes
-     adicionais de proveniência estarão presentes em seus metadados.
-
-  ──────────────────────────────────────────────────────────────────────────
+  This banner mirrors the YAML frontmatter above; the frontmatter is
+  canonical — edit it first, then update this mirror.
+  Este banner espelha o frontmatter YAML acima; o frontmatter é canônico —
+  edite-o primeiro e depois atualize este espelho.
 
   ENGLISH (EN-US)
   ═══════════════
@@ -195,6 +155,51 @@ disclaimer:
      open-source repositories. Media files, where pertinent, will
      explicitly reference their sources; additional provenance details
      will be present in their metadata.
+
+  ──────────────────────────────────────────────────────────────────────────
+
+  PORTUGUÊS (PT-BR)
+  ═════════════════
+
+  RESSALVAS
+
+  1. NÃO DEFINITIVIDADE.
+     Este trabalho, como qualquer produto do método científico, não se
+     apresenta como definitivo. Seus resultados são provisórios por
+     natureza e permanecem sujeitos a revisão mediante evidência superior.
+
+  2. OMISSÕES NÃO INTENCIONAIS.
+     Omissões podem existir, mas não são deliberadas. Onde identificadas,
+     devem ser tratadas como lacunas a preencher.
+
+  3. INTERDISCIPLINARIDADE COMO MÉTODO.
+     Analogias e polinização cruzada entre disciplinas são ferramentas
+     metodológicas empregadas intencionalmente, não desvios retóricos.
+     A transposição de conceitos entre domínios é explícita e rastreável.
+
+  4. ABERTURA A CONTRIBUIÇÕES FUTURAS.
+     O trabalho pressupõe que contribuições subsequentes podem — e devem —
+     refinar, estender ou corrigir seus resultados. Nenhuma seção é
+     declarada fechada a revisão.
+
+  COMPROMISSOS METODOLÓGICOS
+
+  5. APLICABILIDADE IMEDIATA.
+     Os autores consideram que este trabalho oferece utilidade imediata a
+     problemas latentes que ainda carecem de ferramental computacional
+     adequado para ampliar seu impacto e abrangência.
+
+  6. NÃO TRIVIALIDADE E PARCERIA ENTRE INTELIGÊNCIA NATURAL E ARTIFICIAL.
+     O escopo deste trabalho é intencionalmente não trivial e abrangente.
+     Adota-se como princípio operacional a colaboração exponencial entre
+     inteligência natural e artificial — tratando-a não como recurso
+     auxiliar, mas como método constitutivo da investigação.
+
+  7. RASTREABILIDADE E PROVENIÊNCIA.
+     Todas as referências utilizadas serão disponibilizadas em repositórios
+     de código aberto devidamente documentados. Arquivos de mídia, quando
+     pertinentes, farão referência explícita às suas fontes; detalhes
+     adicionais de proveniência estarão presentes em seus metadados.
 
   ──────────────────────────────────────────────────────────────────────────
 

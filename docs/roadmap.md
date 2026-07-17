@@ -1,6 +1,6 @@
 ---
 title: FrameForge v2 — Roadmap
-version: 2.2.0 (analysis baseline; repo HEAD moved to 2.3.0 on 2026-07-01 — see the Record-era note)
+version: 2.2.0 (analysis baseline; repo HEAD is 2.5.0 as of 2026-07-17 — see CHANGELOG and the Record-era note)
 status: CANONICAL roadmap — sequence logic and priorities, still not dated commitments
 date: 2026-06-22 (analysis) · 2026-07-02 (made canonical; federated index added)
 method: >
@@ -40,7 +40,10 @@ appendix_references:
     This record pre-dates two 2026-07 events. (1) The src-layout refactor —
     read its paths through the mapping: `frameforge/` → `src/frameforge/`,
     `models/`, `schema/`, `grammar/`, `spec/` → `docs/…`, `fixtures/` →
-    `tests/fixtures/`, `examples/` → `static/examples/`. (2) The **2.3.0
+    `tests/fixtures/`, `examples/` → `static/examples/`. (Second hop — 2.5.0,
+    2026-07-17: `docs/models/frameforge.py` moved again, into the package;
+    the authoritative model is now `src/frameforge/model.py`, imported as
+    `frameforge.model`.) (2) The **2.3.0
     release** (2026-07-01, an additive improvement pass unrelated to the
     "next minor" direction sketched at the end of this draft) — the `2.2.0`
     references below are this draft's analysis baseline, not HEAD. The prose
@@ -60,7 +63,7 @@ appendix_references:
     item 9 is a generative content object (prompt → image / block) resolved **once
     at build and pinned**, carrying a high determinism / trust risk that the design
     must contain; item 10 (added 2026-07-02) is the granular Adobe-suite parity
-    programme over the 46-feature Illustrator teardown (Appendix B).
+    programme over the 51-feature Illustrator teardown (Appendix B).
     (Items keep their original IDs; sections run in priority order, so the IDs
     appear out of sequence.)
 
@@ -73,9 +76,9 @@ tracked elsewhere and referenced here rather than duplicated:
 |---|---|---|
 | Product / format (this doc) | the phases below | auto-layout wiring, PDF/UA, BookBuilder, generative objects, the 2.x split + 3.0 single-source direction |
 | Engineering standards | [codebase-standards.md §16](codebase-standards.md) — the `[Target]` ledger | gating ruff (broaden past F811), `mypy --strict`, coverage gate, TDD trees, golden drift tolerance (rows 6 pre-commit, 7 `__version__`/release, 8 multi-version CI matrix + `classifiers` closed 2026-07-04) |
-| Operational (tracked work) | GitHub, pinned umbrellas | [#36 — absorb frameforge v0.1.0](https://github.com/pedroanisio/frameforge/issues/36) (pattern catalog + fill bridge, UML 2.5 + full Sugiyama, `from-markdown`, symbol/token packs, deck corpus); [#43 — rename frameforge → frameforge](https://github.com/pedroanisio/frameforge/issues/43) (ADR-gated, idempotent engine, three slices); [#44 — silent text-clip diagnostics](https://github.com/pedroanisio/frameforge/issues/44); [#52 — Adobe-suite parity programme](https://github.com/pedroanisio/frameforge/issues/52) (item 10 made executable: workstreams #45–#51, teardown re-render as the progress metric) |
+| Operational (tracked work) | GitHub, pinned umbrellas | [#36 — absorb framegraph v0.1.0](https://github.com/pedroanisio/frameforge/issues/36) (pattern catalog + fill bridge, UML 2.5 + full Sugiyama, `from-markdown`, symbol/token packs, deck corpus); [#43 — rename framegraph → frameforge](https://github.com/pedroanisio/frameforge/issues/43) (ADR-gated, idempotent engine, three slices); [#44 — silent text-clip diagnostics](https://github.com/pedroanisio/frameforge/issues/44); [#52 — Adobe-suite parity programme](https://github.com/pedroanisio/frameforge/issues/52) (item 10 made executable: workstreams #45–#51, teardown re-render as the progress metric) |
 | Core-wiring refine-pass findings (2026-07-05) | GitHub, refine audit | [#54 — SVG/PNG drops `ObjBase.rotation`](https://github.com/pedroanisio/frameforge/issues/54) (honored only by HTML; golden-gated); [#55 — `ObjBase.outer_ring` unimplemented](https://github.com/pedroanisio/frameforge/issues/55) (dropped on every backend); [#56 — pdf-tex effects only on rect/ellipse/circle](https://github.com/pedroanisio/frameforge/issues/56) (residual of #53); [#57 — guide under-advertises `FlowBuilder`/`svg_to_objects`/layout helpers](https://github.com/pedroanisio/frameforge/issues/57); [#58 — `regions.py __all__` over-export](https://github.com/pedroanisio/frameforge/issues/58). Wired-and-fixed in the same pass (no issue): MCP discoverability, typed edge-case errors + dead-code removal, `grid_span` layout. |
-| Version trajectory | [CHANGELOG](../CHANGELOG.md) + rename ADR ([#37](https://github.com/pedroanisio/frameforge/issues/37)) | HEAD 2.3.0 → 2.4 (both DSL markers accepted + codemod, additive) → 3.0 (marker hard cut — which can carry this doc's 3.0 single-source milestone) |
+| Version trajectory | [CHANGELOG](../CHANGELOG.md) + rename ADR ([#37](https://github.com/pedroanisio/frameforge/issues/37)) | trajectory as sketched 2026-07-02: HEAD 2.3.0 → 2.4 (both DSL markers accepted + codemod, additive) → 3.0 (marker hard cut — which can carry this doc's 3.0 single-source milestone); 2.4.x and 2.5.0 have since shipped — the CHANGELOG is current |
 | Font backend / render substrate | the sibling `ff-render-core` repo — `docs/roadmap-frameforge-font-server.md` | the font server's **own** build-out (persistence, Google ingestion, storage/caches, admin upload→validate→version, security, license enforcement, observability, GA). frameforge **consumes** it — the adoption seam and the 3.0 promotion are the *Font backend* section below, not that repo |
 
 Cross-links where the layers touch: item 1's optional "exact crossing
@@ -130,11 +133,12 @@ loss and long-form composition cannot coexist.
 | 3 | Data layer for charts | out of scope | ✅ decision holds | `sdk/chart.py` is a lowering helper, no data transforms (by design). |
 | 5 | Print colour (ICC/CMYK) | deferred | ✅ decision holds | no ICC/CMYK code; hook not yet reserved. |
 | 6 | Interaction / animation | low | ✅ decision holds | no animation primitives. |
-| — | Provenance / document signing *(unplanned — not an original item)* | not in roadmap | ✅ **shipped (opt-in)** | `frameforge/rendering/provenance.py` (`sign_svg`/`FrameForgeStamp`): a deterministic sha256 **content fingerprint** + tool/version + optional UTC timestamp, injected as an SVG `<metadata><frameforge …>` in a private namespace (`https://frameforge.dev/ns/provenance`). Opt-in via `render_fixtures.py --sign/--signed-at` and the MCP render tools (`sign=`/`signed_at=`); byte-identity (item 4 golden lock) preserved when off, and deterministic when no timestamp. A parallel recipe fingerprint ships in `recipe/sign.py`. Tests: `tests/test_provenance.py`. **Residual:** SDK exposure (none yet, per ADR 0002) and a **keyed/authenticated** signature (HMAC) if non-repudiation is ever needed — today it is tamper-*evident*, not authenticated. |
+| — | Provenance / document signing *(unplanned — not an original item)* | not in roadmap | ✅ **shipped (opt-in)** | `frameforge/rendering/provenance.py` (`sign_svg`/`FrameForgeStamp`): a deterministic sha256 **content fingerprint** + tool/version + optional UTC timestamp, injected as an SVG `<metadata><frameforge …>` in a private namespace (`https://frameforge.dev/ns/provenance`). Opt-in via `render_fixtures.py --sign/--signed-at` and the MCP render tools (`sign=`/`signed_at=`); byte-identity (item 4 golden lock) preserved when off, and deterministic when no timestamp. A parallel recipe fingerprint shipped in `recipe/sign.py` until the 2026-07-02 non-core eviction removed `recipe/` from the tree. Tests: `tests/test_provenance.py`. **Residual:** SDK exposure (none yet, per ADR 0002) and a **keyed/authenticated** signature (HMAC) if non-repudiation is ever needed — today it is tamper-*evident*, not authenticated. |
 
 > **Net (updated 2026-06-25):** item #7 (geometry SDK) is now **complete** (A.1–A.6
 > + G-1 + G-2), and #1 has author-time automatic layout. **No item (1–7) has an open
-> author-facing gap** (items 8–9 remain unbuilt additive proposals). What remains is all deeper integration or externally gated:
+> author-facing gap** (item 9 remains an unbuilt additive proposal; item 8 has since
+> shipped, 2026-07-03). What remains is all deeper integration or externally gated:
 > #1's optional *render-time* auto-layout pass (a model/renderer integration); #2's
 > PDF/UA half (gated on a PDF backend that does not yet exist); and the ADR 0001
 > LaTeX-fork deletion (gated on a `lualatex` toolchain). Scope decisions (#3/#5/#6)
@@ -178,18 +182,18 @@ justification — now ships; ADR-0003.)
 | 3 | Data layer for charts | **Medium** | Scope decision → out of scope (provisional) |
 | 5 | Print color management (ICC / CMYK) | **Medium** | Scope decision → deferred (provisional) |
 | 7 | Geometry / transformed spaces / 3D authoring SDK | **Low** | SDK ships; G-1 + G-2 landed → **complete** (optional scale extras only) |
-| 8 | Book composition API | **Medium-High** | Additive product/API surface |
+| 8 | Book composition API | **Medium-High** | ✅ **done** (2026-07-03, `sdk/book.py`) — additive product/API surface |
 | 9 | Generative content objects (prompt → image / content) | **Medium** | Additive object + generation tier; high determinism / trust risk |
-| 10 | Adobe-suite parity program (granular; Appendix B) | **Medium-High** | Programme of granular closures over the 46-feature Illustrator teardown |
+| 10 | Adobe-suite parity program (granular; Appendix B) | **Medium-High** | Programme of granular closures over the 51-feature Illustrator teardown |
 | 6 | Interaction / animation for presented decks | **Low** | Conditional on goal |
 
-> Net ordering (most defensible first): wire the existing graph-layout engine into
-> a render pass → finish accessible export (PDF/UA) → add a tolerance band over the
-> existing golden lock. The data layer and print color are scope choices worth
+> Net ordering: the data layer and print color are scope choices worth
 > stating outright rather than leaving implied. The geometry / 3D SDK (item 7)
 > **already ships** (`sdk.{geometry,draw,manifold,fields}`) — so it is lowest-risk
 > and now **Low** priority: with G-1 and G-2 both landed, item 7 is complete and the
-> only residual is documentation, not a build.
+> only residual is documentation, not a build. (The ordering originally sketched
+> here — graph wiring → PDF/UA → tolerance band — is superseded by the
+> Ground-truth status table above: the first and third of those have shipped.)
 
 ## Implementation sequence (recommended)
 
@@ -204,18 +208,15 @@ so it moves ahead of item 1.
    compiled Vega-Lite as a figure object); item 5 (print color) → **deferred**
    behind an optional target-level ICC / output-intent hook (no CMYK separation
    now). Both revisitable. *Effort: S.*
-1. **Item 2 — accessibility export.** Vocabulary exists and the SVG painter
-   already emits `role=`/`aria-*`; **complete** SVG a11y (`<title>`/`<desc>`,
-   `data-reading-order` structure metadata, `decorative` → `aria-hidden`) against the existing
-   proxy, then add full PDF/UA tagging once a tagging PDF backend exists (today's
-   PDF is untagged Chromium print). *Effort: S (finish SVG) → L (PDF/UA).*
-2. **Item 4 — golden-render harness.** Pin the `b1/` fixtures to reference renders
-   with an explicit tolerance before the big feature, so item 1 is regression-safe.
-   *Effort: M. Enabler.*
-3. **Item 1 — diagram auto-layout.** The flagship capability, now under golden-test
-   protection: an ELK-backed layout tier for `mode: page` diagram groups keyed off
-   the semantic graph, with absolute positioning as the override. *Effort: XL;
-   depends on step 2.*
+1. **Item 2 — accessibility export.** SVG half ✅ **delivered** (`a11y_wrap` +
+   `check_accessibility.py`); PDF/UA remains: add full PDF/UA tagging once a
+   tagging PDF backend exists (today's PDF is untagged Chromium print).
+   *Effort: L (PDF/UA).*
+2. **Item 4 — golden-render harness.** ✅ **delivered** (tolerance band,
+   `tests/golden/refs/`, `--tolerance`/`--strict`).
+3. **Item 1 — diagram auto-layout.** ✅ **expansion-time bridge landed 2026-07-04**
+   (`sdk.expand` lowers declarative `type: graph`); an ELK binding for
+   obstacle-aware routing / exact crossing minimization remains optional.
 4. **Item 7 — geometry / 3D: complete; document the existing SDK.** The authoring
    math ships in `sdk.{geometry,draw,manifold,fields}`, and **both grammar fixes have
    landed** — G-1 (typed structured path segments: model `PathSeg`/`PathCommand`, EBNF
@@ -281,7 +282,9 @@ node-link diagrams with ports and direction. The category's whole appeal is that
 the same input always produces the same output — no manual positioning, and
 therefore no style drift across a team. FrameForge's diagram side gives that up.
 
-**Fix (narrower than first stated — the placement math is done).** Expose a
+**Fix (narrower than first stated — the placement math is done).**
+✅ *Landed 2026-07-04 as the `sdk.expand` bridge (§A.0); residual: optional ELK
+binding.* Expose a
 declarative auto-layout on `mode: page` diagram groups that calls the existing
 `sdk.topology` engines from the semantic graph (it already has `bind`, ontology,
 and edge directionality) and emits computed boxes at expansion time, with absolute
@@ -295,8 +298,8 @@ current heuristics. Effort is **M–L (wiring + a render pass), not XL.**
 In the current model the *vocabulary* exists: `decorative`, `role`, `lang`,
 **`alt`/`actual_text` on image and figure objects**, and a **per-page
 `reading_order`** over object ids. The SVG proxy already *consumes* part of it —
-`frameforge/rendering/infrastructure/painters/svg.py` emits `role=` (line 266) and
-`aria-*` (lines 495, 501). What is still missing is the **PDF consumer**: no
+`frameforge/rendering/infrastructure/painters/svg.py` emits `role="img"` on the
+root `<svg>` element and per-object `role=`/`aria-*` via its `a11y_wrap` path. What is still missing is the **PDF consumer**: no
 exporter maps these into a tagged PDF **logical structure tree** — roles, alt
 text, and a reading order independent of visual position — because there is no
 tagging PDF backend (today's PDF is untagged Chromium print). So SVG a11y is
@@ -446,6 +449,9 @@ correction above) is unscheduled — its correctness prerequisites are in
 
 ### 8. Book composition API — semantic layer above pages
 
+> ✅ **DELIVERED 2026-07-03** — `sdk/book.py` (`BookBuilder`/`ChapterBuilder`; see
+> implementation-sequence step 5). The gap analysis below is kept as design context.
+
 **Gap.** The SDK can author pages and can now place controlled imported figures,
 but there is no first-class surface for expressing a book as chapters, sections,
 paragraphs, figures, tables, callouts, examples, formulas, and references before
@@ -574,8 +580,8 @@ harness it relies on to stay honest) and item 2 (the a11y gate it must satisfy).
 
 **Goal.** One stated product goal is that FrameForge can *match the Adobe
 suite* — capability for capability, reached declaratively (by grammar and tool
-call, not cursor). The evidence base is the 46-feature teardown
-**Adobe Illustrator 2024+2025 vs FrameForge v2.3.0** (v3, 2026-07-02;
+call, not cursor). The evidence base is the 51-feature teardown
+**Adobe Illustrator 2024+2025 vs FrameForge** (v4, 2026-07-05;
 generator: `static/examples/illustrator_vs_frameforge.py`). Provenance:
 Illustrator's surface mined from **three manuals** over the doc-ray corpus
 ([24] "Adobe Illustrator 2024 User's Guide", 231 pp, 2,283 sentences;
@@ -712,8 +718,9 @@ animation is lowest priority unless live presentation becomes a goal.
 
 > **Status:** DRAFT / design-target for a future minor — *not* a commitment.
 > Drafted when HEAD was 2.2.0 and labelled "2.3"; the 2.3.0 that actually
-> shipped (2026-07-01) was an unrelated additive improvement pass, so this
-> direction now targets **2.4 or later**. Recorded so the architecture moves
+> shipped (2026-07-01) was an unrelated additive improvement pass, and 2.4.x /
+> 2.5.0 have likewise shipped without it, so this direction now targets a
+> future, as-yet-unclaimed minor. Recorded so the architecture moves
 > toward it; the split described here remains unbuilt at HEAD.
 
 The 2.x line so far keeps **content and presentation in one closed model**: a
@@ -762,7 +769,8 @@ many audience-specific artifacts from one source — is a 3.0 milestone, below.)
 ## Version 3.0 — derive every artifact from one source (select + filter) (design direction)
 
 > **Status:** DRAFT / design-target for a future **3.0** line, built on the 2.3 split —
-> not a commitment; the model, schema, and gates describe 2.2.0 today.
+> not a commitment; the model, schema, and gates describe the current 2.x HEAD
+> (see CHANGELOG), not this 3.0 direction.
 
 The 2.3 split makes the deeper payoff possible: **one data source derives many
 audience-specific artifacts.** The same quarterly results render as the formal
@@ -963,7 +971,7 @@ surface-complete*.
 | **Ledger** | `make manifest` regenerated; correct `core/sdk/mcp` flags | `make manifest-check` green (`tests/test_capability_manifest.py`) |
 | **MCP / agent** | reachable via a tool **or** a documented `run_sdk_code` recipe; returned by `describe_capabilities`; named in `frameforge_guide`/`get_guide` if it is a workflow | recipe renders via `run_sdk_code`; discovery smoke check |
 | **DevX** | runnable example in `static/examples/`; `docs/changelog.md` entry + `make bump`; known limitations + failure modes documented | `make examples-index`; example renders (`make golden-check` if visual) |
-| **Whole** | all gates green | `make check` (schema·grammar·spec·a11y·status·test·validate·overflow·golden·docs·docs-linkcheck·disclaimer) + pre-commit `hooks` |
+| **Whole** | all gates green | `make check` (every gate in the Makefile `check` target) + pre-commit `hooks` |
 
 **Test-coverage floor (per capability):** ≥1 unit test · present in the freshly-built manifest ·
 `sdk-api.md` in sync · a runnable example caught by the example/coverage gate · a golden fixture
@@ -1247,7 +1255,8 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 > (CG-canon geometry programme):** AI-34 Transform tools now complete — **reflect/mirror**
 > landed (B7); AI-09 gains the **`curvature`/`arc_length`** API (B9); AI-40 3D & Materials
 > gains **Phong** shading (B6), with B1/B2 approved to harden the 3D leg. Re-run the teardown
-> generator to refresh the sha256-pinned evidence (FrameForge now HEAD 2.4.1). Source:
+> generator to refresh the sha256-pinned evidence (HEAD was 2.4.1 at the v4 audit,
+> 2026-07-05; re-running the generator re-stamps against current HEAD). Source:
 > `static/examples/illustrator_vs_frameforge.py`; Illustrator surface mined
 > from three manuals over doc-ray ("AI 2024 User's Guide" [24], "Master AI
 > 2025" [25], "BMG 106: Computer Graphics II" [26]) with sentence-ordinal
@@ -1350,8 +1359,7 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 | AI-45 | Retype (font identification) | NONE ·H arch | `list_fonts` resolves families; no visual font ID | **W7**: vision-side font classifier, L — deferred decision |
 | AI-46 | Mockup (3D surface wrap) | NONE ·H non-goal | no surface-wrap of art onto an object | **non-goal**, reaffirmed |
 
-*End of Appendix B (v3). Re-run the teardown generator after each workstream
+*End of Appendix B (v4). Re-run the teardown generator after each workstream
 lands and watch the scoreboard move; the matrix is evidence, not aspiration.
 Adobe and Adobe Illustrator are trademarks of Adobe Inc.; this is an
 independent comparison, not affiliated with or endorsed by Adobe.*
-\n

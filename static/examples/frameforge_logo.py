@@ -9,7 +9,7 @@ the places that stamp it.
 The logo is *the framed derivation*: a square **Frame** (four corner brackets — the
 bounded, finished artifact) holding a minimal **Graph** (one source node deriving a
 three-node fan whose nodes lie on a common arc — equal radius, equal angle).
-Colour mirrors the wordmark: Frame = ink, Graph = blue; it collapses to one ink for
+Colour mirrors the wordmark: Frame = ink, Forge = blue; it collapses to one ink for
 mono and inverts for reversed, and stays crisp to favicon size.
 
 ``build()`` emits one clean master per variant — primary (two-tone), mono
@@ -49,7 +49,7 @@ from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 INK    = "#15181E"   # graphite — the "Frame" half
 PAPER  = "#FBFAF6"   # warm technical paper (for reversed strokes)
 CANVAS = "#FFFFFF"   # open-node fill on a light ground
-FRAME  = "#1F4FD8"   # frame-blue — the "Graph" half
+FRAME  = "#1F4FD8"   # frame-blue — the "Forge" half
 
 GRAPH = "#12B0C3"   # graph-cyan — the derivation edges (the "Graph" flow)
 SANS = ["IBM Plex Sans", "DejaVu Sans", "Helvetica", "Arial", "sans-serif"]
@@ -106,17 +106,17 @@ def mark(page, cx, cy, size, *, frame=INK, graph=FRAME, node_fill=CANVAS):
 
 
 def wordmark(page, x, y, size, *, frame_color=INK, graph_color=FRAME, box_w=900):
-    """'Frame' (ink) + 'Graph' (frame-blue) as ONE text with two coloured spans.
+    """'Frame' (ink) + 'Forge' (frame-blue) as ONE text with two coloured spans.
 
     Emitting the lockup as a single text *flow* — not two objects, one
-    hand-positioned at a guessed width — means 'Graph' always follows 'Frame' in
+    hand-positioned at a guessed width — means 'Forge' always follows 'Frame' in
     whatever font a renderer resolves. The second run carries no x, so it can't
     overlap or drift across viewers; the SVG and the PDF agree. ``box_w`` bounds the
     text box (default leaves slack for headline use; the logo lockup passes a
     measured width so the box fits its tight canvas)."""
     page.add({"type": "text", "box": [x, y, box_w, int(size * 1.3)],
               "spans": [{"text": "Frame", "style": {"color": frame_color}},
-                        {"text": "Graph", "style": {"color": graph_color}}],
+                        {"text": "Forge", "style": {"color": graph_color}}],
               "style": {"font_family": SANS, "font_size": size,
                         "font_weight": 700, "letter_spacing": -1.5}})
 

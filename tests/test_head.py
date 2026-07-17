@@ -69,7 +69,7 @@ def _migrate(doc_dict):
 
 
 # --------------------------------------------------------------------------- #
-def test_version_is_2_4_0():
+def test_version_is_head():
     assert fg.HEAD_VERSION == "2.5.0"
 
 

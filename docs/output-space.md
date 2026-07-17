@@ -9,7 +9,7 @@ disclaimer:
     families and the boundaries are NOT machine-verifiable; verify them against
     the live tree before relying on them.
   generated_by: "Claude Opus 4.8 via Claude Code"
-  date: "2026-06-24"
+  date: "2026-07-17"
 ---
 
 # FrameForge output space
@@ -20,8 +20,10 @@ conceptually (what the architecture admits).* Cross-referenced from
 
 ## The generating principle
 
-FrameForge is not a renderer; it is a **verifiable intermediate representation
-(IR) for visual documents**. One pipeline defines the entire output space:
+FrameForge is a rendering and visual-authoring library (see
+[PURPOSE.md](../PURPOSE.md)), but its output space is defined by more than any
+renderer: at the core is a **verifiable intermediate representation (IR) for
+visual documents**. One pipeline defines the entire output space:
 
 ```
 authoring (YAML / SDK)  →  Document model (the source of truth)
@@ -43,6 +45,8 @@ here are pinned by `tests/test_output_space_doc.py` (drift → gate failure).
 The shared core is the port + renderer:
 `src/frameforge/rendering/domain/ports.py` (the `ScenePainter` port) and
 `src/frameforge/rendering/application/renderer.py` (the model-walking `Renderer`).
+Since 2.5.0 these backends share one front door: `ff-render <doc> --to <target>`
+(`src/frameforge/cli.py`; `--list` shows live availability).
 
 | Output | Kind | Entry point |
 |---|---|---|
@@ -64,7 +68,8 @@ the same port, collapsing the `FigureTikz` fork.
 
 **Import — the hub's other half** (any-format → FrameForge):
 `tooling/pdf_to_frameforge_yml.py` (PDF → fixed-layout FrameForge), plus vision
-`propose_from_image` / `propose_from_document` in the MCP server.
+`propose_from_image` / `propose_from_document` / `propose_from_svg`
+(SVG-element ingest) in the MCP server.
 
 > Honest scope: no renderer is conformant; the SVG/matplotlib proxies are sanity
 > checks, not fidelity guarantees, and fidelity degrades where a target cannot
@@ -97,9 +102,10 @@ Three families fall out of the generating principle, plus a hub.
 ### C. Derivatives — computed *from the structured model, not the pixels*
 This is the part most renderers cannot do, and where the "verifiable IR" thesis pays off.
 - **Accessibility**: tagged **PDF/UA**, an accessibility/ARIA tree, reading-order
-  plain-text linearization, SSML/audio narration, Braille/BRF — the model already
-  carries `reading_order` / `alt` / `actual_text` / `decorative` *for a future
-  tagged export* (a gated roadmap item, not yet emitted).
+  plain-text linearization, SSML/audio narration, Braille/BRF — the model's
+  `reading_order` / `alt` / `actual_text` / `decorative` vocabulary is consumed
+  by the SVG painter today (`role=`/`aria-*`/`data-reading-order`); the tagged
+  PDF/UA export remains gated on a tagging PDF backend (roadmap item 2).
 - **Structure**: TOC, list-of-figures, index, bibliography (model-level,
   backend-agnostic).
 - **Knowledge**: a search index / embeddings of the semantic content; a
@@ -110,7 +116,7 @@ This is the part most renderers cannot do, and where the "verifiable IR" thesis 
   pen-plotter G-code/HPGL; and from `Scene3D` / manifolds / lattices, glTF/OBJ/STL/USD.
 
 ### The hub — any → FrameForge → any
-Because the import side exists (PDF/image → FG), FrameForge can be a
+Because the import side exists (PDF/image/SVG → FG), FrameForge can be a
 *Pandoc/Babel for visual documents*: every (importer × exporter) pair. This is
 arguably the largest latent output.
 
