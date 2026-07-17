@@ -5,8 +5,14 @@ documents, grammar, schema, prose, and Python code are kept in sync — the Pyda
 models are the source of truth and everything else is generated from or checked
 against them.
 
+FrameForge aims to be an **agent-native visual-authoring substrate** — one
+structured, programmable foundation (SDK + MCP) for producing professional visual
+assets across documents, decks, diagrams, books, and letters today, extending
+toward UIs, vector graphics, logos, and design systems. See [`PURPOSE.md`](PURPOSE.md)
+for the full why and scope.
+
 > **Status (unchanged from the project's own stance):** FrameForge v2 is a **proposed,
-> not-yet-conformantly-implemented** format. The prose and grammar are design targets to
+> not-yet-conformantly-implemented** system. The prose and grammar are design targets to
 > verify. The parts you can actually *run* — the models, the generated schema, the
 > validator, and the codemod — are the parts to trust.
 

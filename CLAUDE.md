@@ -31,10 +31,14 @@ repeat the disclaimer block.
 
 ## Project Overview
 
-FrameForge v2 is a proposed document/graphics DSL for decks, diagrams, books,
-letters, and fixed/reflowable visual documents. The Python Pydantic models are
-the source of truth; schema, validation, fixture status, and most site pages are
-generated from or checked against those models and fixtures.
+FrameForge v2 is a proposed **agent-native visual-authoring substrate**: a
+structured, programmable foundation for producing professional visual assets —
+documents, decks, diagrams, books, and letters today, extending toward UIs,
+wireframes, vector graphics, logos, and design systems — for people,
+applications, and AI agents. See [`PURPOSE.md`](PURPOSE.md) for the full why and
+scope. The Python Pydantic models are the source of truth; schema, validation,
+fixture status, and most site pages are generated from or checked against those
+models and fixtures.
 
 ```
 .

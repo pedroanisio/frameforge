@@ -1,8 +1,9 @@
 site_name: FrameForge v2 (HEAD)
 site_description: >-
-  FrameForge v2 — a proposed document/graphics DSL. Pydantic models are the
-  source of truth; the schema, validator, codemod, and this site are generated
-  from or checked against them.
+  FrameForge v2 — a proposed agent-native visual-authoring substrate (documents,
+  decks, diagrams, books, letters today; UIs, vector graphics, logos, and design
+  systems as the direction). Pydantic models are the source of truth; the schema,
+  validator, codemod, and this site are generated from or checked against them.
 docs_dir: docs
 
 # The src-layout refactor hosts non-site reference material under docs/ too

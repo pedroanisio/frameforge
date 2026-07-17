@@ -1,16 +1,12 @@
-**Improve.** The document is strong, but the final positioning introduces a much broader ambition than the earlier sections establish. The revised version integrates agentic creation, UI, vector graphics, logos, publishing, SDK, and MCP capabilities throughout the document rather than presenting them as an isolated closing claim.
-
 ---
-
 disclaimer:
-notice: >-
-No information within this document should be accepted without scrutiny.
-Any statement or premise that is not supported by a formal definition,
-implementation evidence, or verifiable reference may be incomplete,
-inaccurate, or hallucinatory.
-generated_by: "OpenAI Codex via purpose-md"
-date: "2026-06-23"
-------------------
+  notice: >-
+    No information within this document should be taken for granted.
+    Any statement or premise not backed by a real logical definition
+    or verifiable reference may be invalid, erroneous, or a hallucination.
+  generated_by: "OpenAI Codex via purpose-md"
+  date: "2026-07-17"
+---
 
 # FrameForge
 

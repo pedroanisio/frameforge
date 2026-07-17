@@ -11,8 +11,9 @@ disclaimer:
 # FrameForge v2 — HEAD
 
 A single, internally-consistent cut of **FrameForge v2**: a *proposed,
-not-yet-conformantly-implemented* document/graphics DSL for decks, diagrams,
-books, and letters.
+not-yet-conformantly-implemented* agent-native visual-authoring substrate — for
+documents, decks, diagrams, books, and letters today, extending toward UIs,
+vector graphics, logos, and design systems.
 
 !!! note "What to trust"
     The Pydantic **models are the source of truth**. The JSON Schema, the
