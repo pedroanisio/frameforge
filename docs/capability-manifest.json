@@ -165,6 +165,7 @@
       "ViewingPipeline",
       "aabb",
       "aabb3",
+      "appearance",
       "apply_humanize",
       "assert_golden",
       "avatar",
@@ -172,6 +173,7 @@
       "badge_width",
       "bezier_patch",
       "bezier_patch_point",
+      "blur_filter",
       "breadcrumb",
       "bspline_patch",
       "bspline_patch_point",
@@ -190,6 +192,7 @@
       "color_guide",
       "column",
       "complement",
+      "conic_gradient",
       "content_box",
       "contrast_of_colours",
       "contrast_of_hues",
@@ -198,16 +201,22 @@
       "convex_hull",
       "convex_hull_3d",
       "default_theme",
+      "diffuse_lighting",
+      "displacement_map",
       "divider",
       "dominant_light",
       "dots",
       "dragon_curve",
       "dropdown",
+      "effect",
+      "effect_stack",
       "effects",
       "expand",
       "extract_objects",
       "field",
       "fill_stroke",
+      "filter_chain",
+      "filter_fn",
       "font_kern_pairs",
       "from_markdown",
       "function_plot",
@@ -238,6 +247,10 @@
       "lorem_paragraphs",
       "lsystem",
       "manifold",
+      "mask_gradient",
+      "mask_none",
+      "mask_style",
+      "mask_url",
       "md",
       "measure_fits",
       "measure_text",
@@ -250,6 +263,7 @@
       "navbar",
       "neon",
       "normalize_clip",
+      "normalize_mask",
       "obb",
       "object_bbox",
       "page_hashes",
@@ -297,10 +311,12 @@
       "soft_shadow",
       "span",
       "sparkline",
+      "specular_lighting",
       "sphere",
       "sticky_note",
       "stroke",
       "stroke_outline",
+      "style_effects",
       "surface_curvature",
       "svg_to_objects",
       "table",
@@ -312,6 +328,7 @@
       "toggle",
       "tone_scale",
       "torus",
+      "turbulence",
       "turtle",
       "validate_document",
       "validate_static_rules",
@@ -478,7 +495,7 @@
       "name": "curve",
       "kind": "object_type",
       "core": true,
-      "sdk": false,
+      "sdk": true,
       "mcp": true
     },
     {
@@ -1448,6 +1465,13 @@
       "mcp": true
     },
     {
+      "name": "appearance",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "apply_humanize",
       "kind": "sdk_export",
       "core": false,
@@ -1491,6 +1515,13 @@
     },
     {
       "name": "bezier_patch_point",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "blur_filter",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1623,6 +1654,13 @@
       "mcp": true
     },
     {
+      "name": "conic_gradient",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "content_box",
       "kind": "sdk_export",
       "core": false,
@@ -1679,6 +1717,20 @@
       "mcp": true
     },
     {
+      "name": "diffuse_lighting",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "displacement_map",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "divider",
       "kind": "sdk_export",
       "core": false,
@@ -1714,6 +1766,20 @@
       "mcp": true
     },
     {
+      "name": "effect",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "effect_stack",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "effects",
       "kind": "sdk_export",
       "core": false,
@@ -1743,6 +1809,20 @@
     },
     {
       "name": "fill_stroke",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "filter_chain",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "filter_fn",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1959,6 +2039,34 @@
       "mcp": true
     },
     {
+      "name": "mask_gradient",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "mask_none",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "mask_style",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "mask_url",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "md",
       "kind": "sdk_export",
       "core": false,
@@ -2037,6 +2145,13 @@
     },
     {
       "name": "normalize_clip",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "normalize_mask",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2372,6 +2487,13 @@
       "mcp": true
     },
     {
+      "name": "specular_lighting",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "sphere",
       "kind": "sdk_export",
       "core": false,
@@ -2394,6 +2516,13 @@
     },
     {
       "name": "stroke_outline",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "style_effects",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2471,6 +2600,13 @@
     },
     {
       "name": "torus",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "turbulence",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

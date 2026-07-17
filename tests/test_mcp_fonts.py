@@ -93,6 +93,27 @@ def test_list_fonts_exact_resolution_has_no_substitution_note(monkeypatch):
     assert "note" not in result["resolves"]
 
 
+def test_list_fonts_reports_variable_font_axes(monkeypatch):
+    monkeypatch.setattr(discovery, "_fc_available", lambda: True)
+    monkeypatch.setattr(
+        discovery,
+        "_run_fc",
+        _fake_fc({"fc-list": "Inter\n", "fc-match": "Inter\t/tmp/Inter-Variable.ttf"}),
+    )
+    monkeypatch.setattr(
+        discovery,
+        "_font_axes_from_file",
+        lambda _path: [{"tag": "wght", "min": 100.0, "default": 400.0, "max": 900.0}],
+    )
+
+    result = list_fonts(family="Inter")
+
+    assert result["resolves"]["file"] == "/tmp/Inter-Variable.ttf"
+    assert result["resolves"]["axes"] == [
+        {"tag": "wght", "min": 100.0, "default": 400.0, "max": 900.0}
+    ]
+
+
 def test_list_fonts_degrades_structured_when_fontconfig_absent(monkeypatch):
     monkeypatch.setattr(discovery, "_fc_available", lambda: False)
 

@@ -61,6 +61,37 @@ def test_guide_mentions_input_roots_in_a_security_context():
     )
 
 
+def test_guide_names_group_a_sdk_exposure_helpers():
+    for needle in (
+        "conic_gradient",
+        "turbulence",
+        "displacement_map",
+        "diffuse_lighting",
+        "specular_lighting",
+        "mask_url",
+        "mask_style",
+        "PageBuilder`: `.rect` `.text` `.line` `.image` `.ellipse` `.circle`",
+        ".curve",
+        ".icon",
+        ".dimension",
+        ".arc",
+        ".sector",
+        ".ring",
+        ".star",
+        "running_header",
+        "footnote_area",
+        "define_counter",
+    ):
+        assert needle in FRAMEFORGE_GUIDE
+
+
+def test_guide_states_backend_support_limits_for_style_effects():
+    lowered = FRAMEFORGE_GUIDE.lower()
+    for needle in ("cairosvg", "chromium", "filter", "blend", "mask", "backdrop_filter"):
+        assert needle in lowered
+    assert "may not honor" in lowered or "limited" in lowered
+
+
 # --------------------------------------------------------------------------- #
 #  G3 — guide tool claims are checked against the live registry, both ways     #
 # --------------------------------------------------------------------------- #

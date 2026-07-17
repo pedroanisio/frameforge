@@ -17,6 +17,7 @@ shapes the builders accept — and the whole chain is handed to ``fc-match``.
 """
 from __future__ import annotations
 
+import re
 from typing import Sequence
 
 from frameforge.rendering.infrastructure import font_metrics as _fm
@@ -54,17 +55,23 @@ def measure_text(
     font_family: FontFamily,
     font_size: float,
     bold: bool = False,
+    feature_settings: str | None = None,
+    variation_settings: str | None = None,
 ) -> float:
     """Return the rendered width of ``text`` in pixels.
 
     Uses real font metrics when available, else the ``avg`` estimate. Always
-    returns a number (0.0 for empty text).
+    returns a number (0.0 for empty text). ``feature_settings`` is accepted so
+    author-time measurement has the same call surface as ``text_style``; current
+    fontTools advance measurement only uses variation ``wght`` to choose the
+    bold face when present.
     """
     s = str(text)
-    real = _fm.measure_text(s, _chain(font_family), float(font_size), bool(bold))
+    effective_bold = bool(bold) or _variation_weight_is_bold(variation_settings)
+    real = _fm.measure_text(s, _chain(font_family), float(font_size), effective_bold)
     if real is not None:
         return real
-    return len(s) * float(font_size) * _avg(font_family, bold)
+    return len(s) * float(font_size) * _avg(font_family, effective_bold)
 
 
 def wrap_text(
@@ -74,6 +81,8 @@ def wrap_text(
     font_family: FontFamily,
     font_size: float,
     bold: bool = False,
+    feature_settings: str | None = None,
+    variation_settings: str | None = None,
 ) -> list[str]:
     """Greedily word-wrap ``text`` to ``width`` pixels, returning the lines.
 
@@ -86,7 +95,14 @@ def wrap_text(
         return [s]
 
     def w(part: str) -> float:
-        return measure_text(part, font_family=font_family, font_size=font_size, bold=bold)
+        return measure_text(
+            part,
+            font_family=font_family,
+            font_size=font_size,
+            bold=bold,
+            feature_settings=feature_settings,
+            variation_settings=variation_settings,
+        )
 
     out: list[str] = []
     cur = ""
@@ -123,15 +139,31 @@ def text_height(
     font_size: float,
     line_height: float = 1.25,
     bold: bool = False,
+    feature_settings: str | None = None,
+    variation_settings: str | None = None,
 ) -> float:
     """Return the total height (px) of ``text`` wrapped to ``width``.
 
     Equals ``len(wrap_text(...)) * font_size * line_height`` — the number an
     author needs to size a text box's height to its content.
     """
-    lines = wrap_text(text, width=width, font_family=font_family,
-                      font_size=font_size, bold=bold)
+    lines = wrap_text(
+        text,
+        width=width,
+        font_family=font_family,
+        font_size=font_size,
+        bold=bold,
+        feature_settings=feature_settings,
+        variation_settings=variation_settings,
+    )
     return len(lines) * float(font_size) * float(line_height)
+
+
+def _variation_weight_is_bold(variation_settings: str | None) -> bool:
+    if not variation_settings:
+        return False
+    match = re.search(r'["\']?wght["\']?\s+(-?\d+(?:\.\d+)?)', variation_settings)
+    return bool(match and float(match.group(1)) >= 600.0)
 
 
 def kerned_spans(text: str, *, pairs: dict[tuple[str, str], float],

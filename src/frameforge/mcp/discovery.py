@@ -372,19 +372,50 @@ _FONTCONFIG_HINT = (
 def _resolve_family(family: str) -> dict[str, Any]:
     """What fontconfig actually resolves ``family`` to (the silent-substitution check)."""
     try:
-        out = _run_fc(["fc-match", "--format", "%{family}", family]).strip()
+        out = _run_fc(["fc-match", "--format", "%{family}\t%{file}", family]).strip()
     except (RuntimeError, OSError, subprocess.SubprocessError) as exc:
         return {"requested": family, "error": f"fc-match failed: {exc}"}
-    resolved = out.split(",")[0].strip()
+    resolved_part, sep, file_part = out.partition("\t")
+    resolved = resolved_part.split(",")[0].strip()
     requested = family.split(":")[0].strip()
     exact = resolved.lower() == requested.lower()
     result: dict[str, Any] = {"requested": family, "resolved_family": resolved, "exact": exact}
+    font_file = file_part.strip() if sep else ""
+    if font_file:
+        result["file"] = font_file
+        axes = _font_axes_from_file(font_file)
+        if axes:
+            result["axes"] = axes
     if not exact:
         result["note"] = (
             f"fontconfig substitutes {resolved!r} for {family!r} — a render requesting this "
             "family will not use the requested face"
         )
     return result
+
+
+def _font_axes_from_file(font_file: str) -> list[dict[str, Any]]:
+    """Return variable-font axis metadata for ``font_file`` if fontTools can read it."""
+    try:
+        from fontTools.ttLib import TTFont
+    except ImportError:
+        return []
+    try:
+        font = TTFont(font_file, fontNumber=0, lazy=True)
+        fvar = font["fvar"] if "fvar" in font else None
+        if fvar is None:
+            return []
+        axes = []
+        for axis in fvar.axes:
+            axes.append({
+                "tag": axis.axisTag,
+                "min": float(axis.minValue),
+                "default": float(axis.defaultValue),
+                "max": float(axis.maxValue),
+            })
+        return axes
+    except Exception:  # noqa: BLE001 — corrupt/unreadable font metadata degrades to no axes
+        return []
 
 
 def _pinned_session_fonts(

@@ -965,6 +965,30 @@ class PageBuilder:
             return self.add(d.object(**fields))
         return self.add({"type": "path", "d": d, **fields})
 
+    def curve(
+        self,
+        start: Any,
+        end: Any,
+        *,
+        control1: Any = None,
+        control2: Any = None,
+        type: str = "curve",
+        **fields: Any,
+    ) -> "PageBuilder":
+        """Add a single cubic Bézier curve without hand-building a ``Path``.
+
+        The authoritative model accepts the legacy ``curve``/``bezier`` object;
+        this method exposes that surface directly for authors that need the
+        object form. For new multi-segment geometry, prefer :meth:`path`.
+        """
+        obj: dict[str, Any] = {"type": type, "from": _point(start), "to": _point(end)}
+        if control1 is not None:
+            obj["control1"] = _point(control1)
+        if control2 is not None:
+            obj["control2"] = _point(control2)
+        obj.update(fields)
+        return self.add(obj)
+
     def arc(self, center: Any, r: float, start: float, end: float, *,
             ry: float | None = None, **fields: Any) -> "PageBuilder":
         """Add an open circular (or elliptical) arc, lowered to a canonical ``path``.

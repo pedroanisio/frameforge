@@ -45,9 +45,17 @@ from frameforge.sdk import (
     theme,
 )
 from frameforge.sdk import (
+    appearance,
+    blur_filter,
+    conic_gradient,
+    diffuse_lighting,
+    displacement_map,
     dots,
+    effect,
+    effect_stack,
     effects,
     fill_stroke,
+    filter_chain,
     grid_pattern,
     glow,
     hatch,
@@ -59,7 +67,10 @@ from frameforge.sdk import (
     shadow,
     soft_shadow,
     stroke,
+    style_effects,
+    specular_lighting,
     text_style,
+    turbulence,
 )
 from frameforge.sdk import (
     Panel,
@@ -118,6 +129,89 @@ def test_top_level_sdk_reexports_module_public_surface():
                 missing.append(f"{module_name}.{name}")
 
     assert missing == []
+
+
+def test_group_a_paint_helpers_expose_model_native_filters_and_appearance():
+    conic = conic_gradient([("#111111", 0), ("#eeeeee", "75%")], at=[50, 50], from_angle=45)
+    assert conic == {
+        "kind": "conic",
+        "stops": [{"color": "#111111", "position": "0%"}, {"color": "#eeeeee", "position": "75%"}],
+        "at": [50, 50],
+        "from": 45,
+    }
+
+    filters = filter_chain(
+        blur_filter("3px"),
+        turbulence(base_frequency=[0.03, 0.08], num_octaves=3, seed=7, type="fractalNoise"),
+        displacement_map(scale=12, x_channel="R", y_channel="G"),
+        diffuse_lighting(surface_scale=2, lighting_color="#ffeeaa", azimuth=45, elevation=60),
+        specular_lighting(surface_scale=3, specular_constant=0.8, specular_exponent=12),
+    )
+    assert filters[0] == {"fn": "blur", "value": "3px"}
+    assert filters[1]["fn"] == "turbulence"
+    assert filters[1]["seed"] == 7
+    assert filters[2]["fn"] == "displacement_map"
+    assert filters[3]["fn"] == "diffuse_lighting"
+    assert filters[4]["fn"] == "specular_lighting"
+
+    assert style_effects(
+        filter=filters,
+        backdrop_filter=filter_chain(blur_filter(8)),
+        mix_blend_mode="multiply",
+        isolation="isolate",
+    ) == {
+        "style": {
+            "filter": filters,
+            "backdrop_filter": [{"fn": "blur", "value": 8}],
+            "mix_blend_mode": "multiply",
+            "isolation": "isolate",
+        }
+    }
+
+    assert effect_stack(effect("shadow", dx=2, dy=4), effect("glow", blur=9)) == {
+        "effects": [{"kind": "shadow", "dx": 2, "dy": 4}, {"kind": "glow", "blur": 9}]
+    }
+    assert appearance({"fill": "#111111"}, {"stroke": "#eeeeee", "opacity": 0.5}) == {
+        "appearance": [{"fill": "#111111"}, {"stroke": "#eeeeee", "opacity": 0.5}]
+    }
+
+
+def test_text_style_exposes_variable_font_and_opentype_fields():
+    assert text_style(
+        16,
+        family="Inter Variable",
+        feature_settings='"liga" 1, "kern" 1',
+        variation_settings='"wght" 650, "opsz" 18',
+        variant_caps="small-caps",
+        variant_numeric="tabular-nums",
+        variant_ligatures="common-ligatures",
+        font_variant="small-caps tabular-nums",
+    ) == {
+        "font_size": 16,
+        "font_family": "Inter Variable",
+        "font_feature_settings": '"liga" 1, "kern" 1',
+        "font_variation_settings": '"wght" 650, "opsz" 18',
+        "font_variant_caps": "small-caps",
+        "font_variant_numeric": "tabular-nums",
+        "font_variant_ligatures": "common-ligatures",
+        "font_variant": "small-caps tabular-nums",
+    }
+
+
+def test_page_builder_curve_exposes_cubic_bezier_without_path_detour():
+    builder = DocumentBuilder(title="curve", profile="diagram")
+    page = builder.page("p", canvas={"size": [160, 120], "units": "px"}).layer("main")
+    page.curve([10, 20], [120, 80], control1=[40, 0], control2=[90, 110], stroke="#111111")
+    doc = builder.build_dict(expand_reuse=False)
+    obj = doc["pages"][0]["layers"][0]["objects"][0]
+    assert obj == {
+        "type": "curve",
+        "from": [10.0, 20.0],
+        "to": [120.0, 80.0],
+        "control1": [40.0, 0.0],
+        "control2": [90.0, 110.0],
+        "stroke": "#111111",
+    }
 
 
 def _minimal_doc():

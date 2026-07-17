@@ -111,6 +111,37 @@ def test_measure_text_fallback_estimate(monkeypatch):
         pytest.approx(4 * 10 * 0.60 * 1.04)
 
 
+def test_measure_text_accepts_opentype_and_variable_font_settings(monkeypatch):
+    monkeypatch.setattr(fmmod, "measure_text", lambda *a, **k: None)
+
+    regular = measure_text("abcd", font_family=["Helvetica"], font_size=10)
+    variable_bold = measure_text(
+        "abcd",
+        font_family=["Helvetica"],
+        font_size=10,
+        feature_settings='"liga" 1',
+        variation_settings='"wght" 700',
+    )
+
+    assert variable_bold == pytest.approx(regular * 1.04)
+    assert wrap_text(
+        "alpha beta",
+        width=90,
+        font_family=["Helvetica"],
+        font_size=10,
+        feature_settings='"kern" 1',
+        variation_settings='"wght" 400',
+    ) == ["alpha beta"]
+    assert text_height(
+        "alpha beta",
+        width=90,
+        font_family=["Helvetica"],
+        font_size=10,
+        feature_settings='"kern" 1',
+        variation_settings='"wght" 400',
+    ) == 12.5
+
+
 # --------------------------------------------------------------------------- #
 # Renderer wiring — default is byte-identical; opt-in routes to real metrics   #
 # --------------------------------------------------------------------------- #

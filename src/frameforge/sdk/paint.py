@@ -23,6 +23,22 @@ Color = str
 Position = Union[float, int, str]
 Stop = Union[Color, "tuple[Color, Position]"]
 PatternKind = Literal["hatch", "cross_hatch", "dots", "grid"]
+FilterFnName = Literal[
+    "blur",
+    "brightness",
+    "contrast",
+    "drop_shadow",
+    "grayscale",
+    "hue_rotate",
+    "invert",
+    "opacity",
+    "saturate",
+    "sepia",
+    "turbulence",
+    "displacement_map",
+    "diffuse_lighting",
+    "specular_lighting",
+]
 
 
 def rgba(color: Color, alpha: float) -> str:
@@ -77,6 +93,28 @@ def radial_gradient(
         grad["at"] = at
     if shape is not None:
         grad["shape"] = shape
+    if repeating is not None:
+        grad["repeating"] = repeating
+    return grad
+
+
+def conic_gradient(
+    stops: Sequence[Stop],
+    *,
+    at: str | Sequence[float] | None = None,
+    from_angle: float | int | str | None = None,
+    repeating: bool | None = None,
+) -> dict[str, Any]:
+    """Build a conic-gradient ``Paint`` from ``stops``.
+
+    ``from_angle`` maps to the model's ``from`` field because ``from`` is a
+    Python keyword. ``at`` is the centre (CSS position string or ``[x, y]``).
+    """
+    grad: dict[str, Any] = {"kind": "conic", "stops": _stops(stops)}
+    if at is not None:
+        grad["at"] = at
+    if from_angle is not None:
+        grad["from"] = from_angle
     if repeating is not None:
         grad["repeating"] = repeating
     return grad
@@ -187,6 +225,12 @@ def text_style(
     decoration: str | None = None,
     overflow: str | None = None,
     max_lines: int | None = None,
+    font_variant: str | None = None,
+    variant_caps: str | None = None,
+    variant_numeric: str | None = None,
+    variant_ligatures: str | None = None,
+    feature_settings: str | None = None,
+    variation_settings: str | None = None,
 ) -> dict[str, Any]:
     """Build a text ``Style`` bundle from the dozen fields that actually shape text.
 
@@ -231,7 +275,172 @@ def text_style(
         fields["text_overflow"] = overflow
     if max_lines is not None:
         fields["max_lines"] = max_lines
+    if font_variant is not None:
+        fields["font_variant"] = font_variant
+    if variant_caps is not None:
+        fields["font_variant_caps"] = variant_caps
+    if variant_numeric is not None:
+        fields["font_variant_numeric"] = variant_numeric
+    if variant_ligatures is not None:
+        fields["font_variant_ligatures"] = variant_ligatures
+    if feature_settings is not None:
+        fields["font_feature_settings"] = feature_settings
+    if variation_settings is not None:
+        fields["font_variation_settings"] = variation_settings
     return fields
+
+
+def filter_fn(fn: FilterFnName, **fields: Any) -> dict[str, Any]:
+    """Build one model-native ``FilterFn`` object for a style ``filter`` chain."""
+    return {"fn": fn, **{k: v for k, v in fields.items() if v is not None}}
+
+
+def blur_filter(value: float | int | str) -> dict[str, Any]:
+    """Build a ``blur(...)`` filter function."""
+    return filter_fn("blur", value=value)
+
+
+def turbulence(
+    *,
+    base_frequency: float | int | str | Sequence[float | int | str],
+    num_octaves: int | None = None,
+    seed: int | None = None,
+    stitch_tiles: str | None = None,
+    type: str | None = None,
+) -> dict[str, Any]:
+    """Build an SVG ``feTurbulence`` filter primitive."""
+    return filter_fn(
+        "turbulence",
+        base_frequency=list(base_frequency) if isinstance(base_frequency, tuple) else base_frequency,
+        num_octaves=num_octaves,
+        seed=seed,
+        stitch_tiles=stitch_tiles,
+        type=type,
+    )
+
+
+def displacement_map(
+    *,
+    scale: float | int | str,
+    x_channel: str | None = None,
+    y_channel: str | None = None,
+    mode: str | None = None,
+    opacity: float | int | str | None = None,
+) -> dict[str, Any]:
+    """Build an SVG ``feDisplacementMap`` filter primitive."""
+    return filter_fn(
+        "displacement_map",
+        scale=scale,
+        x_channel=x_channel,
+        y_channel=y_channel,
+        mode=mode,
+        opacity=opacity,
+    )
+
+
+def diffuse_lighting(
+    *,
+    surface_scale: float | int | str | None = None,
+    lighting_color: Color | None = None,
+    azimuth: float | int | str | None = None,
+    elevation: float | int | str | None = None,
+    x: float | int | str | None = None,
+    y: float | int | str | None = None,
+    z: float | int | str | None = None,
+    diffuse_constant: float | int | str | None = None,
+    mode: str | None = None,
+    opacity: float | int | str | None = None,
+) -> dict[str, Any]:
+    """Build an SVG ``feDiffuseLighting`` filter primitive."""
+    return filter_fn(
+        "diffuse_lighting",
+        surface_scale=surface_scale,
+        lighting_color=lighting_color,
+        azimuth=azimuth,
+        elevation=elevation,
+        x=x,
+        y=y,
+        z=z,
+        diffuse_constant=diffuse_constant,
+        mode=mode,
+        opacity=opacity,
+    )
+
+
+def specular_lighting(
+    *,
+    surface_scale: float | int | str | None = None,
+    lighting_color: Color | None = None,
+    azimuth: float | int | str | None = None,
+    elevation: float | int | str | None = None,
+    x: float | int | str | None = None,
+    y: float | int | str | None = None,
+    z: float | int | str | None = None,
+    specular_constant: float | int | str | None = None,
+    specular_exponent: float | int | str | None = None,
+    mode: str | None = None,
+    opacity: float | int | str | None = None,
+) -> dict[str, Any]:
+    """Build an SVG ``feSpecularLighting`` filter primitive."""
+    return filter_fn(
+        "specular_lighting",
+        surface_scale=surface_scale,
+        lighting_color=lighting_color,
+        azimuth=azimuth,
+        elevation=elevation,
+        x=x,
+        y=y,
+        z=z,
+        specular_constant=specular_constant,
+        specular_exponent=specular_exponent,
+        mode=mode,
+        opacity=opacity,
+    )
+
+
+def filter_chain(*items: dict[str, Any] | str) -> list[dict[str, Any] | str]:
+    """Return a model-native ordered style ``filter`` chain."""
+    return list(items)
+
+
+def style_effects(
+    *,
+    filter: str | Sequence[dict[str, Any] | str] | None = None,
+    backdrop_filter: str | Sequence[dict[str, Any] | str] | None = None,
+    mix_blend_mode: str | None = None,
+    isolation: str | None = None,
+    mask: Any = None,
+) -> dict[str, Any]:
+    """Bundle CSS/SVG style effects under the object's inline ``style`` field."""
+    style: dict[str, Any] = {}
+    if filter is not None:
+        style["filter"] = list(filter) if isinstance(filter, tuple) else filter
+    if backdrop_filter is not None:
+        style["backdrop_filter"] = (
+            list(backdrop_filter) if isinstance(backdrop_filter, tuple) else backdrop_filter
+        )
+    if mix_blend_mode is not None:
+        style["mix_blend_mode"] = mix_blend_mode
+    if isolation is not None:
+        style["isolation"] = isolation
+    if mask is not None:
+        style["mask"] = mask
+    return {"style": style}
+
+
+def effect(kind: str, **fields: Any) -> dict[str, Any]:
+    """Build one ordered object-level ``effects`` stack entry."""
+    return {"kind": kind, **{k: v for k, v in fields.items() if v is not None}}
+
+
+def effect_stack(*items: dict[str, Any]) -> dict[str, Any]:
+    """Bundle ordered model ``effects`` entries for splatting onto an object."""
+    return {"effects": list(items)}
+
+
+def appearance(*passes: dict[str, Any]) -> dict[str, Any]:
+    """Bundle multi-pass model ``appearance`` entries for splatting onto an object."""
+    return {"appearance": list(passes)}
 
 
 def shadow(
@@ -350,9 +559,18 @@ def _position(position: Position) -> str:
 
 
 __all__ = [
+    "appearance",
+    "blur_filter",
+    "conic_gradient",
+    "diffuse_lighting",
+    "displacement_map",
     "dots",
+    "effect",
+    "effect_stack",
     "effects",
     "fill_stroke",
+    "filter_chain",
+    "filter_fn",
     "grid_pattern",
     "glow",
     "hatch",
@@ -364,5 +582,8 @@ __all__ = [
     "shadow",
     "soft_shadow",
     "stroke",
+    "style_effects",
+    "specular_lighting",
     "text_style",
+    "turbulence",
 ]

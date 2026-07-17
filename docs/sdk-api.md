@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`from_markdown`, `ClosedPalette`, `caps_tracking`, `closed_palette`, `color_guide`, `complement`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `dominant_light`, `grey_document`, `harmony_of_hues`, `harmony_of_scale`, `johnston_margins`, `measure_fits`, `modular_scale`, `relative_luminance`, `tone_scale`, `Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Hand`, `Handle`, `apply_humanize`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `font_kern_pairs`, `kerned_spans`, `Placement`, `repeat_along_path`, `recolor`, `BookBuilder`, `ChapterBuilder`, `planar`, `stroke_outline`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `bezier_patch`, `bezier_patch_point`, `bspline_patch`, `bspline_patch_point`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `dragon_curve`, `koch_curve`, `lsystem`, `sierpinski_arrowhead`, `turtle`, `aabb`, `aabb3`, `convex_hull`, `convex_hull_3d`, `obb`, `line_intersection`, `mirror`, `point_in_polygon`, `polygon_area`, `polyline_length`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `line_curve_intersections`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `surface_curvature`, `window_to_viewport`, `ViewingPipeline`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `wave`, `write_golden`
+`from_markdown`, `ClosedPalette`, `caps_tracking`, `closed_palette`, `color_guide`, `complement`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `dominant_light`, `grey_document`, `harmony_of_hues`, `harmony_of_scale`, `johnston_margins`, `measure_fits`, `modular_scale`, `relative_luminance`, `tone_scale`, `Chart`, `Panel`, `Theme`, `assert_golden`, `avatar`, `badge`, `badge_width`, `breadcrumb`, `button`, `card`, `checkbox`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `default_theme`, `divider`, `dropdown`, `field`, `image_placeholder`, `kpi`, `navbar`, `pill`, `progress`, `radio`, `register_theme`, `slider`, `sticky_note`, `table`, `tabs`, `toggle`, `Camera`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FlowBuilder`, `Frame`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `ImportedFigurePlacement`, `greeble`, `grid_lines`, `grid_pattern`, `Graph`, `Hand`, `Handle`, `apply_humanize`, `hatch`, `hatch_fill`, `Lattice`, `Material`, `Node`, `ScalarField`, `VectorField`, `lattice`, `load_figure`, `manifold`, `merge_figure_defs`, `HEAD_VERSION`, `Issue`, `MasterBuilder`, `Mat3`, `Mat4`, `PageBuilder`, `Path`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `Box`, `BoxLike`, `column`, `dots`, `effects`, `expand`, `extract_objects`, `fill_stroke`, `function_plot`, `glow`, `gradient_map`, `grid`, `inset`, `linear_gradient`, `lorem`, `lorem_paragraphs`, `cite`, `ref`, `md`, `measure_text`, `font_kern_pairs`, `kerned_spans`, `Placement`, `repeat_along_path`, `recolor`, `BookBuilder`, `ChapterBuilder`, `planar`, `stroke_outline`, `model_module`, `klein_bottle`, `mobius`, `multiview`, `neon`, `normalize_clip`, `object_bbox`, `bezier_patch`, `bezier_patch_point`, `bspline_patch`, `bspline_patch_point`, `appearance`, `blur_filter`, `conic_gradient`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `pattern`, `place_figure`, `place_region`, `polar_plot`, `place_imported_figure`, `parse`, `region_grade`, `select_in`, `dragon_curve`, `koch_curve`, `lsystem`, `sierpinski_arrowhead`, `turtle`, `aabb`, `aabb3`, `convex_hull`, `convex_hull_3d`, `obb`, `line_intersection`, `mirror`, `point_in_polygon`, `polygon_area`, `polyline_length`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `line_curve_intersections`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `surface_curvature`, `window_to_viewport`, `ViewingPipeline`, `quarter_circle_kappa`, `radial_gradient`, `render_page_svgs`, `render_pages_with_stats`, `rgba`, `row`, `serialize`, `shadow`, `soft_shadow`, `saddle`, `span`, `sparkline`, `sphere`, `stroke`, `diffuse_lighting`, `displacement_map`, `effect`, `effect_stack`, `filter_chain`, `filter_fn`, `svg_to_objects`, `text_height`, `text_style`, `theme`, `to_plain_dict`, `torus`, `validate_document`, `validate_static_rules`, `ValidationError`, `wrap_text`, `style_effects`, `specular_lighting`, `turbulence`, `normalize_mask`, `wave`, `write_golden`
 
 ## `frameforge.sdk.author`
 
@@ -102,6 +102,7 @@ PageBuilder(page: 'dict[str, Any]') -> 'None'
 | `circle` | `(self, center: 'Any', r: 'float', **fields: 'Any') -> "'PageBuilder'"` | Add a circle. Lowers to the canonical ``ellipse`` (rx == ry == r), so it |
 | `component` | `(self, component: 'Handle \| str', box: 'list[Any]', **fields: 'Any') -> "'PageBuilder'"` |  |
 | `connector` | `(self, start: 'Any', end: 'Any', *, route: 'Any' = None, route_kind: 'str \| None' = None, label: 'str \| None' = None, label_box: 'list[Any] \| None' = None, label_style: 'Any' = None, arrow_start: 'Any' = None, arrow_end: 'Any' = None, **fields: 'Any') -> "'PageBuilder'"` | Add an anchored connector between two endpoints (typed at HEAD, §3.11). |
+| `curve` | `(self, start: 'Any', end: 'Any', *, control1: 'Any' = None, control2: 'Any' = None, type: 'str' = 'curve', **fields: 'Any') -> "'PageBuilder'"` | Add a single cubic Bézier curve without hand-building a ``Path``. |
 | `dimension` | `(self, start: 'Any', end: 'Any', *, kind: 'str' = 'linear', value: 'Any' = None, text: 'str \| None' = None, prefix: 'str \| None' = None, suffix: 'str \| None' = None, offset: 'Any' = None, arrows: 'str \| None' = None, text_style: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add an anchored dimension annotation (measurement callout). |
 | `divider` | `(self, box: 'Any' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `dropdown` | `(self, box: 'Any', items: 'list[str]', **fields: 'Any') -> "'PageBuilder'"` |  |
@@ -519,6 +520,56 @@ Clip to an absolute rectangle ``[x, y, w, h]``.
 
 ```python
 clip_rect(box: 'Sequence[float]') -> 'dict[str, Any]'
+```
+
+### `mask_gradient`
+
+`frameforge.sdk.clip.mask_gradient`
+
+Return a gradient mask source.
+
+```python
+mask_gradient(gradient: 'dict[str, Any]') -> 'dict[str, Any]'
+```
+
+### `mask_none`
+
+`frameforge.sdk.clip.mask_none`
+
+Return the model's explicit no-mask sentinel.
+
+```python
+mask_none() -> 'str'
+```
+
+### `mask_style`
+
+`frameforge.sdk.clip.mask_style`
+
+Bundle a mask source under an object's inline ``style`` field.
+
+```python
+mask_style(mask: 'Any') -> 'dict[str, Any]'
+```
+
+### `mask_url`
+
+`frameforge.sdk.clip.mask_url`
+
+Build an image mask source from a URL, data URI, or ``defs.assets`` key.
+
+```python
+mask_url(src: 'str') -> 'dict[str, str]'
+```
+
+### `normalize_mask`
+
+`frameforge.sdk.clip.normalize_mask`
+
+Coerce a mask source to a model ``style.mask`` value.
+
+```python
+normalize_mask(mask: 'Any') -> 'dict[str, Any] | str'
 ```
 
 ### `normalize_clip`
@@ -1662,6 +1713,56 @@ validate_document(value: 'Any')
 
 ## `frameforge.sdk.paint`
 
+### `appearance`
+
+`frameforge.sdk.paint.appearance`
+
+Bundle multi-pass model ``appearance`` entries for splatting onto an object.
+
+```python
+appearance(*passes: 'dict[str, Any]') -> 'dict[str, Any]'
+```
+
+### `blur_filter`
+
+`frameforge.sdk.paint.blur_filter`
+
+Build a ``blur(...)`` filter function.
+
+```python
+blur_filter(value: 'float | int | str') -> 'dict[str, Any]'
+```
+
+### `conic_gradient`
+
+`frameforge.sdk.paint.conic_gradient`
+
+Build a conic-gradient ``Paint`` from ``stops``.
+
+```python
+conic_gradient(stops: 'Sequence[Stop]', *, at: 'str | Sequence[float] | None' = None, from_angle: 'float | int | str | None' = None, repeating: 'bool | None' = None) -> 'dict[str, Any]'
+```
+
+### `diffuse_lighting`
+
+`frameforge.sdk.paint.diffuse_lighting`
+
+Build an SVG ``feDiffuseLighting`` filter primitive.
+
+```python
+diffuse_lighting(*, surface_scale: 'float | int | str | None' = None, lighting_color: 'Color | None' = None, azimuth: 'float | int | str | None' = None, elevation: 'float | int | str | None' = None, x: 'float | int | str | None' = None, y: 'float | int | str | None' = None, z: 'float | int | str | None' = None, diffuse_constant: 'float | int | str | None' = None, mode: 'str | None' = None, opacity: 'float | int | str | None' = None) -> 'dict[str, Any]'
+```
+
+### `displacement_map`
+
+`frameforge.sdk.paint.displacement_map`
+
+Build an SVG ``feDisplacementMap`` filter primitive.
+
+```python
+displacement_map(*, scale: 'float | int | str', x_channel: 'str | None' = None, y_channel: 'str | None' = None, mode: 'str | None' = None, opacity: 'float | int | str | None' = None) -> 'dict[str, Any]'
+```
+
 ### `dots`
 
 `frameforge.sdk.paint.dots`
@@ -1670,6 +1771,26 @@ Build a dots pattern paint.
 
 ```python
 dots(*, fg: 'Color | None' = None, bg: 'Color | None' = None, scale: 'float | int | str | None' = None) -> 'dict[str, Any]'
+```
+
+### `effect`
+
+`frameforge.sdk.paint.effect`
+
+Build one ordered object-level ``effects`` stack entry.
+
+```python
+effect(kind: 'str', **fields: 'Any') -> 'dict[str, Any]'
+```
+
+### `effect_stack`
+
+`frameforge.sdk.paint.effect_stack`
+
+Bundle ordered model ``effects`` entries for splatting onto an object.
+
+```python
+effect_stack(*items: 'dict[str, Any]') -> 'dict[str, Any]'
 ```
 
 ### `effects`
@@ -1690,6 +1811,26 @@ Bundle common ``fill`` + stroked-outline fields for a primitive.
 
 ```python
 fill_stroke(fill: 'Any', stroke_color: 'Color', width: 'float' = 1.0, *, dash: 'Sequence[float] | None' = None, cap: 'str | None' = None, join: 'str | None' = None) -> 'dict[str, Any]'
+```
+
+### `filter_chain`
+
+`frameforge.sdk.paint.filter_chain`
+
+Return a model-native ordered style ``filter`` chain.
+
+```python
+filter_chain(*items: 'dict[str, Any] | str') -> 'list[dict[str, Any] | str]'
+```
+
+### `filter_fn`
+
+`frameforge.sdk.paint.filter_fn`
+
+Build one model-native ``FilterFn`` object for a style ``filter`` chain.
+
+```python
+filter_fn(fn: 'FilterFnName', **fields: 'Any') -> 'dict[str, Any]'
 ```
 
 ### `grid_pattern`
@@ -1802,6 +1943,26 @@ Build a primitive's stroke fields, honouring the P3 paint/geometry split.
 stroke(width: 'float', *, color: 'Color | None' = None, dash: 'Sequence[float] | None' = None, cap: 'str | None' = None, join: 'str | None' = None, miterlimit: 'float | None' = None) -> 'dict[str, Any]'
 ```
 
+### `style_effects`
+
+`frameforge.sdk.paint.style_effects`
+
+Bundle CSS/SVG style effects under the object's inline ``style`` field.
+
+```python
+style_effects(*, filter: 'str | Sequence[dict[str, Any] | str] | None' = None, backdrop_filter: 'str | Sequence[dict[str, Any] | str] | None' = None, mix_blend_mode: 'str | None' = None, isolation: 'str | None' = None, mask: 'Any' = None) -> 'dict[str, Any]'
+```
+
+### `specular_lighting`
+
+`frameforge.sdk.paint.specular_lighting`
+
+Build an SVG ``feSpecularLighting`` filter primitive.
+
+```python
+specular_lighting(*, surface_scale: 'float | int | str | None' = None, lighting_color: 'Color | None' = None, azimuth: 'float | int | str | None' = None, elevation: 'float | int | str | None' = None, x: 'float | int | str | None' = None, y: 'float | int | str | None' = None, z: 'float | int | str | None' = None, specular_constant: 'float | int | str | None' = None, specular_exponent: 'float | int | str | None' = None, mode: 'str | None' = None, opacity: 'float | int | str | None' = None) -> 'dict[str, Any]'
+```
+
 ### `text_style`
 
 `frameforge.sdk.paint.text_style`
@@ -1809,7 +1970,17 @@ stroke(width: 'float', *, color: 'Color | None' = None, dash: 'Sequence[float] |
 Build a text ``Style`` bundle from the dozen fields that actually shape text.
 
 ```python
-text_style(size: 'float | int | str | None' = None, *, family: 'Sequence[str] | str | None' = None, weight: 'int | str | None' = None, color: 'Color | None' = None, align: 'str | None' = None, italic: 'bool | None' = None, line_height: 'float | int | str | None' = None, letter_spacing: 'float | int | str | None' = None, transform: 'str | None' = None, decoration: 'str | None' = None, overflow: 'str | None' = None, max_lines: 'int | None' = None) -> 'dict[str, Any]'
+text_style(size: 'float | int | str | None' = None, *, family: 'Sequence[str] | str | None' = None, weight: 'int | str | None' = None, color: 'Color | None' = None, align: 'str | None' = None, italic: 'bool | None' = None, line_height: 'float | int | str | None' = None, letter_spacing: 'float | int | str | None' = None, transform: 'str | None' = None, decoration: 'str | None' = None, overflow: 'str | None' = None, max_lines: 'int | None' = None, font_variant: 'str | None' = None, variant_caps: 'str | None' = None, variant_numeric: 'str | None' = None, variant_ligatures: 'str | None' = None, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None) -> 'dict[str, Any]'
+```
+
+### `turbulence`
+
+`frameforge.sdk.paint.turbulence`
+
+Build an SVG ``feTurbulence`` filter primitive.
+
+```python
+turbulence(*, base_frequency: 'float | int | str | Sequence[float | int | str]', num_octaves: 'int | None' = None, seed: 'int | None' = None, stitch_tiles: 'str | None' = None, type: 'str | None' = None) -> 'dict[str, Any]'
 ```
 
 ## `frameforge.sdk.region`

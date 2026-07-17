@@ -29,6 +29,10 @@ from frameforge.sdk import (  # noqa: E402
     clip_path,
     clip_polygon,
     clip_rect,
+    mask_gradient,
+    mask_none,
+    mask_style,
+    mask_url,
 )
 from frameforge.sdk.conform import render_page_svgs  # noqa: E402
 
@@ -93,6 +97,14 @@ def test_clip_path_from_builder_emits_d():
     cp = clip_path(Path().move_to(0, 0).line_to(10, 0).close())
     assert cp["shape"] == "path"
     assert isinstance(cp["args"]["d"], str) and cp["args"]["d"].startswith("M")
+
+
+def test_mask_helpers_lower_to_style_mask_values():
+    assert mask_none() == "none"
+    assert mask_url("assets/noise.png") == {"url": "assets/noise.png"}
+    grad = {"kind": "linear", "stops": [{"color": "#000", "position": "0%"}]}
+    assert mask_gradient(grad) is grad
+    assert mask_style(mask_url("assets/alpha.png")) == {"style": {"mask": {"url": "assets/alpha.png"}}}
 
 
 # ---- group / frame lowering ----------------------------------------------- #

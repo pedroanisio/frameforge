@@ -25,16 +25,24 @@ Fluent builder:
     doc.write(OUTPUT_YAML_PATH, fail_on_error=True)
 
 - Primitives via `PageBuilder`: `.rect` `.text` `.line` `.image` `.ellipse` `.circle`
-  `.polyline` `.polygon` `.path`, plus `.add(obj)` / `.extend(objs)` and
-  `.stack(box, kind="row|column|grid|wrap")` layout groups.
+  `.polyline` `.polygon` `.path` `.curve`, plus `.icon`, `.dimension`, `.arc`,
+  `.sector`, `.ring`, `.star`, `.add(obj)` / `.extend(objs)`, and
+  `.stack(box, kind="row|column|grid|wrap")` layout groups. `DocumentBuilder.master()`
+  exposes `running_header`, `running_footer`, and `footnote_area`; `define_counter`
+  declares numbering series for generated labels.
   - `.connector(start, end, ...)` — anchored connector between objects (typed at
     HEAD): endpoints are an object id, a point, or `{"ref", "port"|"side", "offset"}`;
     optional `route=[...waypoints]` + `route_kind`, boxed `label`/`label_box`, and
     `arrow_start`/`arrow_end` markers (merged into the inline `stroke_style`).
 - Paint (`frameforge.sdk.paint`): `stroke(width, color=...)`, `fill_stroke(...)`,
-  `linear_gradient`/`radial_gradient`, `hatch`/`dots`/`grid_pattern`/`pattern`,
-  `glow`/`neon`/`shadow`/`soft_shadow`, `rgba`, and `text_style(size, color=...)` for the
-  text subset of `Style`. Stroke geometry MUST go through `stroke()` (paint in `stroke`,
+  `linear_gradient`/`radial_gradient`/`conic_gradient`,
+  `hatch`/`dots`/`grid_pattern`/`pattern`, `glow`/`neon`/`shadow`/`soft_shadow`,
+  `rgba`, and `text_style(size, color=...)` for the text subset of `Style`,
+  including OpenType/variable-font fields (`feature_settings`, `variation_settings`,
+  `variant_caps`, `variant_numeric`, `variant_ligatures`). Filter/style helpers:
+  `blur_filter`, `turbulence`, `displacement_map`, `diffuse_lighting`,
+  `specular_lighting`, `filter_chain`, `style_effects`, `effect`, `effect_stack`,
+  and `appearance`. Stroke geometry MUST go through `stroke()` (paint in `stroke`,
   geometry in the inline `stroke_style` bundle); an inline `stroke_width` on a
   paint-only line/polyline/path is rejected.
 - Widgets (`frameforge.sdk.widgets`): `avatar` `badge` `button` `card` `kpi` `pill`
@@ -106,8 +114,10 @@ Fluent builder:
     spacing=, stamp=obj)` places copies by arc length with tangent rotation.
   - Clipping & masking (`frameforge.sdk.clip`): `clip_rect`/`clip_circle`/`clip_ellipse`/
     `clip_inset`/`clip_polygon`/`clip_path` build the `clip` bag for an object or group;
-    `normalize_clip` canonicalises it. Nest a clip on a STATIC parent — a clip on a
-    transformed group rides along inside the transform.
+    `normalize_clip` canonicalises it. `mask_url`, `mask_gradient`, `mask_none`,
+    `normalize_mask`, and `mask_style` build the model-native `style.mask` values.
+    Nest a clip on a STATIC parent — a clip on a transformed group rides along inside
+    the transform.
   - Regions & grading (`frameforge.sdk.region`): `select_in(doc, box)` / `extract_objects`
     pick objects by area; `region_grade` / `gradient_map(objects, ...)` apply a positional
     colour grade; `place_region` re-lays a captured region; `object_bbox` measures it.
@@ -115,7 +125,14 @@ Fluent builder:
   - `effects: [{kind: "shadow"|"glow", preset?, color/blur/dx/dy/opacity?}, ...]` —
     an ORDERED effect stack (kinds may repeat, first->last); `appearance:
     [{fill?/stroke?/stroke_style?/opacity?}, ...]` — the same geometry painted once
-    per pass, bottom->top. Both render only when declared (absence is identity).
+    per pass, bottom->top. Use `effect_stack(effect(...), ...)` and
+    `appearance({...}, ...)` instead of hand-writing those bags. Both render only
+    when declared (absence is identity).
+  - Backend support statement: Chromium has the highest CSS/SVG fidelity for
+    filters, blend modes, masks, and `backdrop_filter`. The CairoSVG fallback can
+    produce PNGs without a browser but is limited and may not honor those style
+    effects fully; inspect render diagnostics and rerender with Chromium when
+    those effects are material to the output.
   - `recolor(doc, mapping)` — one-call palette remap: `defs.tokens.colors` by name
     or value, paint literals and gradient stops; input never mutated.
   - Named gradient/pattern fills live in `defs.tokens.fill_styles` and resolve from

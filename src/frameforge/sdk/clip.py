@@ -116,6 +116,44 @@ def normalize_clip(clip: Any) -> dict[str, Any] | str:
     )
 
 
+def mask_none() -> str:
+    """Return the model's explicit no-mask sentinel."""
+    return "none"
+
+
+def mask_url(src: str) -> dict[str, str]:
+    """Build an image mask source from a URL, data URI, or ``defs.assets`` key."""
+    return {"url": src}
+
+
+def mask_gradient(gradient: dict[str, Any]) -> dict[str, Any]:
+    """Return a gradient mask source.
+
+    The model accepts gradients anywhere an ``ImagePaint`` mask is valid; this
+    helper names that route so authors do not have to infer it from the schema.
+    """
+    return gradient
+
+
+def normalize_mask(mask: Any) -> dict[str, Any] | str:
+    """Coerce a mask source to a model ``style.mask`` value."""
+    if mask is None:
+        return mask_none()
+    if isinstance(mask, str):
+        return mask
+    if isinstance(mask, dict):
+        return mask
+    raise TypeError(
+        "mask must be None, a string, or an ImagePaint dict such as "
+        f"mask_url(...); got {type(mask).__name__}"
+    )
+
+
+def mask_style(mask: Any) -> dict[str, Any]:
+    """Bundle a mask source under an object's inline ``style`` field."""
+    return {"style": {"mask": normalize_mask(mask)}}
+
+
 # ---- internals ------------------------------------------------------------ #
 def _shape(shape: str, args: dict[str, Any]) -> dict[str, Any]:
     return {"shape": shape, "args": args} if args else {"shape": shape}
@@ -134,5 +172,10 @@ __all__ = [
     "clip_path",
     "clip_polygon",
     "clip_rect",
+    "mask_gradient",
+    "mask_none",
+    "mask_style",
+    "mask_url",
+    "normalize_mask",
     "normalize_clip",
 ]
