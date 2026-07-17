@@ -66,6 +66,7 @@ from frameforge.mcp.usecases import (
     compare_images as _uc_compare_images,
     construct_vectors as _uc_construct_vectors,
     detect_regions as _uc_detect_regions,
+    fit_primitives as _uc_fit_primitives,
     map_coordinates as _uc_map_coordinates,
     mark_points as _uc_mark_points,
     measure_image as _uc_measure_image,
@@ -108,6 +109,7 @@ from frameforge.mcp.usecases import (
     compare_images as compare_images,
     construct_vectors as construct_vectors,
     detect_regions as detect_regions,
+    fit_primitives as fit_primitives,
     map_coordinates as map_coordinates,
     mark_points as mark_points,
     measure_image as measure_image,
@@ -1441,6 +1443,37 @@ def create_server(
                 overlay=overlay, max_regions=max_regions,
                 include_polygons=include_polygons, tunables=tunables,
                 session_id=session_id, session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def fit_primitives(
+        shapes: Annotated[
+            list[dict],
+            Field(description="Shapes to fit, as [{\"name\"?: str, \"points\": [[x, y], ...]}] — region boundary polygons or pixel samples (e.g. straight from detect_regions polygons). Each needs >= 3 points."),
+        ],
+        session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
+    ):
+        """Fit parametric primitives to measured point sets — the bridge from
+        detected regions to primitives-first authoring.
+
+        For each shape the tool fits a line (PCA: endpoints/angle/length/band
+        width), a circle arc (geometrically refined centre/radius/angular
+        span/stroke thickness), and an axis-aligned ellipse arc (centre +
+        radii), then classifies the best family by like-for-like radial rms —
+        an ellipse must show a consistent axis difference above the band's
+        noise floor to beat the circle. Returns per-shape `best` plus all
+        `candidates` ranked by rms: parameters you type straight into SDK
+        primitives instead of tracing paths. ⚠ Heuristic fits (PALS's Law):
+        render and compare against the source before trusting them.
+        """
+        result = _logged_enveloped_call(
+            log_path,
+            "fit_primitives",
+            {"shapes": f"<{len(shapes)} shape(s)>", "session_id": session_id},
+            lambda: _uc_fit_primitives(
+                shapes=shapes, session_id=session_id, session_root=root,
             ),
         )
         return _maybe_call_tool_result(result)

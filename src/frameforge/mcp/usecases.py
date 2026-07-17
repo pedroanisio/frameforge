@@ -1844,3 +1844,57 @@ def write_or_edit_client(
         )
     return _write_client(path, code, create=create, append=append, allow_partial=allow_partial,
                          repo_root=repo_root, edit_roots=edit_roots)
+
+
+def fit_primitives(
+    *,
+    shapes: list[dict[str, Any]],
+    session_id: str | None = None,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Fit parametric primitives to measured point sets (recon gap F1).
+
+    Each shape is ``{"name"?: str, "points": [[x, y], ...]}`` — typically a
+    region polygon or pixel sample from ``detect_regions``. Returns, per
+    shape, the best fit ({line | arc | ellipse-arc} with centre/radii/span/
+    thickness/angle) plus every candidate ranked by rms, so authors can type
+    the parameters straight into SDK primitives instead of tracing paths.
+    """
+    try:
+        from frameforge.vision.domain.primitives_fit import fit_primitive
+    except ImportError as exc:  # numpy missing — vision maths unavailable
+        raise RuntimeError(
+            "fit_primitives needs numpy (install the 'vision' or 'mcp' extras group)"
+        ) from exc
+    if not shapes:
+        raise ValueError("fit_primitives needs at least one shape with points")
+    fits: list[dict[str, Any]] = []
+    for i, shape in enumerate(shapes):
+        pts = shape.get("points")
+        if not pts or len(pts) < 3:
+            raise ValueError(f"shape {i} needs at least 3 points")
+        best = fit_primitive(pts)
+        candidates = best.pop("candidates")
+        fits.append({
+            "name": shape.get("name") or f"shape-{i + 1}",
+            "point_count": len(pts),
+            "best": best,
+            "candidates": candidates,
+        })
+    sid = _session_id(session_id)
+    session_dir = _session_root(session_root) / sid
+    session_dir.mkdir(parents=True, exist_ok=True)
+    result: dict[str, Any] = {
+        "ok": True,
+        "session_id": sid,
+        "session_dir": str(session_dir),
+        "fits": fits,
+        "note": ("parameters are page-space px/deg; feed them to SDK primitives "
+                 "(line/polyline arc samples) — heuristic fits, verify the render "
+                 "against the source (PALS's Law)"),
+        "diagnostics_path": str(session_dir / "diagnostics.json"),
+        "diagnostics_uri": f"frameforge://session/{sid}/diagnostics.json",
+        "tool": "fit_primitives",
+    }
+    _write_diagnostics(session_dir, result)
+    return result
