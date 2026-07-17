@@ -491,15 +491,28 @@ def propose_from_svg(
 
 
 def _resolve_image_arg(arg: str, *, session_root: str | Path | None) -> bytes:
-    """Read image bytes from a filesystem path or a ``frameforge://session`` PNG URI.
+    """Read image bytes from a path, ``frameforge://session`` URI, or ``data:`` URI.
 
     Accepting a session URI closes the render→compare loop: a page just rendered by
     ``run_sdk_client`` can be compared against a reference without the caller having
-    to know its scratch-file path. Filesystem paths are confined by
-    ``_assert_input_path_allowed`` (the same guard the propose tools use).
+    to know its scratch-file path. A ``data:image/<type>;base64,`` URI closes the
+    chat loop: a pasted reference reaches the vision tools without ever touching the
+    filesystem (and without the path confinement, which cannot apply to inline
+    bytes). Filesystem paths are confined by ``_assert_input_path_allowed`` (the
+    same guard the propose tools use).
     """
     if not isinstance(arg, str) or not arg.strip():
-        raise ValueError("image argument must be a non-empty path or frameforge:// URI")
+        raise ValueError(
+            "image argument must be a non-empty path, frameforge:// URI, or data: URI")
+    if arg.startswith("data:"):
+        header, sep, payload = arg.partition(",")
+        if not sep or not header.startswith("data:image/") or not header.endswith(";base64"):
+            raise ValueError(
+                "data: URIs must have the form data:image/<type>;base64,<payload>")
+        try:
+            return base64.b64decode(payload, validate=True)
+        except Exception as exc:
+            raise ValueError("data: URI payload is not valid base64") from exc
     if arg.startswith("frameforge://"):
         payload = read_session_resource(arg, session_root=session_root)
         blob = payload.get("blob")

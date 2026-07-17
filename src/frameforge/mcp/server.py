@@ -802,11 +802,11 @@ def create_server(
     def compare_images(
         reference: Annotated[
             str,
-            Field(description="Reference/source image: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Reference/source image: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         candidate: Annotated[
             str,
-            Field(description="Candidate/recreation image to compare against the reference: a filesystem path or a frameforge://session/<id>/page/<n>.png URI (e.g. a page just rendered by run_sdk_client)."),
+            Field(description="Candidate/recreation image to compare against the reference: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI (e.g. a page just rendered by run_sdk_client)."),
         ],
         regions: Annotated[
             list[dict] | None,
@@ -867,7 +867,7 @@ def create_server(
     def measure_image(
         image: Annotated[
             str,
-            Field(description="Image to measure: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Image to measure: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         regions: Annotated[
             list[dict] | None,
@@ -948,7 +948,7 @@ def create_server(
     def mark_points(
         image: Annotated[
             str,
-            Field(description="Image to mark on: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Image to mark on: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         points: Annotated[
             list[dict],
@@ -1011,11 +1011,11 @@ def create_server(
     def overlay_images(
         base: Annotated[
             str,
-            Field(description="Base/source image: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Base/source image: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         overlay: Annotated[
             str,
-            Field(description="Overlay image to align onto the base: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Overlay image to align onto the base: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         landmarks: Annotated[
             list[dict],
@@ -1330,7 +1330,7 @@ def create_server(
     def vectorize_image(
         image: Annotated[
             str,
-            Field(description="Image to vectorize: a filesystem path or a frameforge://session/<id>/page/<n>.png URI."),
+            Field(description="Image to vectorize: a filesystem path, a frameforge://session/<id>/page/<n>.png URI, or a data:image/<type>;base64,<payload> URI."),
         ],
         mode: Annotated[
             str,
