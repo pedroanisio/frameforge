@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 120 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 121 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -49,6 +49,7 @@ The 120 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`docfield_logo.py`](../static/examples/docfield_logo.py) | Doc-Field — logo proposal board, recreated as a native FrameForge document. |
 | [`dune_arrakis_codex.py`](../static/examples/dune_arrakis_codex.py) | ARRAKIS CODEX — a 30-slide Dune deck built on the FrameForge Python SDK. |
 | [`esfera_refactor_wireframes.py`](../static/examples/esfera_refactor_wireframes.py) | Twenty distinct refactor proposals for the Esfera (Santander) rewards website |
+| [`estuary_works_plate04.py`](../static/examples/estuary_works_plate04.py) | THE ESTUARY WORKS — Plate 04 · 3840x2160 single-canvas technical plate. |
 | [`f1_car.py`](../static/examples/f1_car.py) | Formula 1 car — a 256-layer, vision-checked composition in perspective (FrameForge SDK). |
 | [`f1_car_3d.py`](../static/examples/f1_car_3d.py) | Formula 1 car — one organic 3D model, two cameras (FrameForge composition). |
 | [`f1_spec_sheet.py`](../static/examples/f1_spec_sheet.py) | F1 technical dossier — the organic 3D model driven through the whole SDK. |
