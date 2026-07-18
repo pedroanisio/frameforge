@@ -901,6 +901,19 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
+        },
         "z": {
           "anyOf": [
             {
@@ -1575,6 +1588,19 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
         },
         "z": {
           "anyOf": [
@@ -2383,6 +2409,19 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
+        },
         "z": {
           "anyOf": [
             {
@@ -3066,6 +3105,19 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
+        },
         "z": {
           "anyOf": [
             {
@@ -3654,6 +3706,19 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
         },
         "z": {
           "anyOf": [
@@ -4354,6 +4419,19 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
         },
         "z": {
           "anyOf": [
@@ -6326,6 +6404,19 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
+        },
         "z": {
           "anyOf": [
             {
@@ -6994,6 +7085,19 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
+        },
         "z": {
           "anyOf": [
             {
@@ -7396,6 +7500,19 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
         },
         "z": {
           "anyOf": [
@@ -8166,6 +8283,25 @@
           "title": "Id",
           "type": "string"
         },
+        "role": {
+          "anyOf": [
+            {
+              "enum": [
+                "geometry",
+                "construction",
+                "annotation",
+                "dimension"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Semantic role of the layer. 'construction' layers are non-printing (their objects render only under meta.show_construction); other roles declare intent for tooling without changing paint behaviour.",
+          "title": "Role"
+        },
         "z": {
           "anyOf": [
             {
@@ -8582,6 +8718,19 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
         },
         "z": {
           "anyOf": [
@@ -10402,6 +10551,19 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
+        },
         "z": {
           "anyOf": [
             {
@@ -11155,6 +11317,19 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
+        },
         "z": {
           "anyOf": [
             {
@@ -11572,6 +11747,19 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
         },
         "z": {
           "anyOf": [
@@ -12003,6 +12191,19 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
         },
         "z": {
           "anyOf": [
@@ -15784,6 +15985,19 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
+        },
         "z": {
           "anyOf": [
             {
@@ -16380,6 +16594,19 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "construction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Marks non-printing construction geometry (datums, guides, snap targets): excluded from rendering unless the document opts in via meta.show_construction.",
+          "title": "Construction"
         },
         "z": {
           "anyOf": [

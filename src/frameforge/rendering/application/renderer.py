@@ -1611,9 +1611,14 @@ class Renderer:
 
     def _render_page_body(self, page):
         body = []
+        show_construction = bool((self.doc.get("meta") or {}).get("show_construction"))
         for layer in sorted(page.get("layers") or [], key=lambda L: L.get("z", 0)):
+            if layer.get("role") == "construction" and not show_construction:
+                continue                       # non-printing datum layer (CAD semantics)
             lo = layer.get("opacity")
-            inner = "".join(self.obj(o) for o in self._paint_ordered(layer.get("objects") or []))
+            objects = [o for o in layer.get("objects") or []
+                       if show_construction or not (isinstance(o, dict) and o.get("construction"))]
+            inner = "".join(self.obj(o) for o in self._paint_ordered(objects))
             body.append(self._painter.opacity_group(inner, lo) if lo not in (None, 1) else inner)
         rendered = "".join(body)
 

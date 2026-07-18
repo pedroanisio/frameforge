@@ -865,6 +865,10 @@ class ObjBase(FG):
     decorative: Optional[bool] = Field(
         default=None, description="Marks a purely decorative object: exempt from containment/"
                                   "overlap audits and from accessibility alt requirements.")
+    construction: Optional[bool] = Field(
+        default=None, description="Marks non-printing construction geometry (datums, guides, "
+                                  "snap targets): excluded from rendering unless the document "
+                                  "opts in via meta.show_construction.")
     z: Optional[float] = Field(
         default=None, description="Stacking order within the layer (higher paints later).")
     opacity: Optional[UnitInterval] = Field(
@@ -1631,6 +1635,11 @@ class PageMaster(FG):
 
 class Layer(FG):
     id: str = Field(description="Layer id (unique within the page).")
+    role: Optional[Literal["geometry", "construction", "annotation", "dimension"]] = Field(
+        default=None, description="Semantic role of the layer. 'construction' layers are "
+                                  "non-printing (their objects render only under "
+                                  "meta.show_construction); other roles declare intent for "
+                                  "tooling without changing paint behaviour.")
     z: Optional[float] = Field(
         default=None, description="Layer stacking order (higher paints later).")
     opacity: Optional[UnitInterval] = Field(
