@@ -14,7 +14,7 @@ Delivered top-level fixtures validated against the HEAD core profile (`tooling/v
 | `canon-typography.fg.yaml` | 0 | 0 | clean |
 | `chevreul-harmonies.fg.yaml` | 0 | 0 | clean |
 | `connectors.fg.yaml` | 0 | 0 | clean |
-| `edst1-flange.fg.yaml` | 0 | 5 | advisory warnings only (containment, tabular-box-model) |
+| `edst1-flange.fg.yaml` | 0 | 2 | advisory warnings only (tabular-box-model) |
 | `effects.fg.yaml` | 0 | 0 | clean |
 | `font-faces-100.fg.yaml` | 0 | 0 | clean |
 | `font-faces.fg.yaml` | 0 | 0 | clean |

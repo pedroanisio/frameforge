@@ -53,7 +53,7 @@ def test_anchor_hits_arranged_child_in_row_layout_group():
     _, svg = _render(doc)
     # b's arranged slot is x=350 group-local (300 + gap 50); group origin adds
     # (100,100): west anchor = (100+350, 100+200) = (450, 300).
-    assert 'translate(350 0)' in svg  # the paint-side arrangement this must match
+    assert 'translate(350,0)' in svg  # the paint-side arrangement this must match
     x1, y1, _, _ = _line_coords(svg)
     assert (x1, y1) == (450.0, 300.0)
 
@@ -93,6 +93,32 @@ def test_anchor_hits_arranged_child_in_column_layout():
     # north anchor = (200 + 200, 50 + 120) = (400, 170).
     x1, y1, _, _ = _line_coords(svg)
     assert (x1, y1) == (400.0, 170.0)
+
+
+def test_anchor_inside_laid_out_group_that_is_itself_arranged():
+    """The recursion must arrange the inner group's children within its
+    ARRANGED extents/origin, exactly as `_layout_child` + `_group_children`
+    paint them."""
+    doc = _doc([
+        {"type": "group", "id": "outer", "box": [0, 0, 900, 300],
+         "layout": {"kind": "row", "gap": 0},
+         "children": [
+             {"type": "rect", "id": "pad", "box": [0, 0, 300, 300]},
+             {"type": "group", "id": "inner", "box": [0, 0, 300, 300],
+              "layout": {"kind": "column", "gap": 10},
+              "children": [
+                  {"type": "rect", "id": "r1", "box": [0, 0, 300, 100]},
+                  {"type": "rect", "id": "r2", "box": [0, 0, 300, 100]},
+              ]},
+         ]},
+        {"type": "connector", "id": "c",
+         "from": {"object": "r2", "side": "west"}, "to": {"point": [900, 700]}},
+    ])
+    _, svg = _render(doc)
+    # inner arranged at x=300; r2 arranged at y=110 inside inner:
+    # west anchor = (300 + 0, 0 + 110 + 50) = (300, 160).
+    x1, y1, _, _ = _line_coords(svg)
+    assert (x1, y1) == (300.0, 160.0)
 
 
 def test_anchor_to_authored_box_child_is_unchanged():

@@ -71,6 +71,9 @@ from frameforge.rendering.domain.ports import RenderedArtifact
 from frameforge.rendering.domain.services.canvas_resolver import (
     CanvasResolver as _CanvasResolver,
     DEFAULT_WH as _HTML_DEFAULT_WH,
+    # Shared-identity gate symbol (drift-risk-map #4, tests/test_frameforge_to_html.py):
+    # `canvas_size` resolves through _CanvasResolver, which reads this SAME table.
+    PRESETS as _CANVAS_PRESETS,  # noqa: F401
 )
 
 # --------------------------------------------------------------------------- #

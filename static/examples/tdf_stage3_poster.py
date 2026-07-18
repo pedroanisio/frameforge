@@ -121,11 +121,11 @@ def numeral(pg):
     # flag + stem — the measured 6-corner polygon, verbatim geometry
     pg.polygon([[220, 96], [59, 184], [77, 214], [173, 162], [150, 303], [195, 242]],
                fill=YELLOW)
-    # lower bowl — elliptical arc stroke, centreline fit C=(253,393) a=112 b=124
-    a, b, cx, cy = 112.0, 124.0, 253.0, 393.0
+    # lower bowl — elliptical arc stroke, fit_primitives band fit C=(245,387) a=119 b=131
+    a, b, cx, cy = 119.0, 131.0, 245.0, 387.0
     pts = [[cx + a * math.cos(math.radians(t)), cy + b * math.sin(math.radians(t))]
            for t in range(-139, 104, 4)]
-    pg.polyline(pts, fill="none", **st(34, YELLOW))
+    pg.polyline(pts, fill="none", **st(36, YELLOW))
 
 
 def sweep(pg):

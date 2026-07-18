@@ -500,11 +500,17 @@ _EDGE_X, _EDGE_Y = 80.4, 120.6
 
 
 def _corner_png(path, size=(200, 200)):
-    """Bright quadrant x>_EDGE_X ∧ y<_EDGE_Y — one vertical + one horizontal sub-pixel edge."""
+    """Bright quadrant x>_EDGE_X ∧ y<_EDGE_Y — one vertical + one horizontal sub-pixel edge.
+
+    Authored at PIXEL CENTRES (+0.5): pixel i samples the profile at continuous
+    coordinate i+0.5, so the true edges sit exactly at _EDGE_X/_EDGE_Y in the
+    continuous pixel-centre convention the measurement layer reports in.
+    (Index-space authoring put them at 80.9/121.1 while the suite asserted
+    80.4/120.6 — passing only by straddling the tolerance.)"""
     import numpy as np
 
-    xs = np.arange(size[0])[None, :]
-    ys = np.arange(size[1])[:, None]
+    xs = np.arange(size[0])[None, :] + 0.5
+    ys = np.arange(size[1])[:, None] + 0.5
     sx = 1.0 / (1.0 + np.exp(-(xs - _EDGE_X) / 0.8))
     sy = 1.0 / (1.0 + np.exp((ys - _EDGE_Y) / 0.8))
     img = (255.0 * sx * sy).astype("uint8")
