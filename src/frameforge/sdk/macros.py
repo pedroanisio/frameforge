@@ -367,3 +367,80 @@ __all__ = [
     "sparkline",
     "theme",
 ]
+
+
+def array(obj: dict[str, Any], *, linear: "Sequence[float] | None" = None,
+          polar: "Sequence[float] | None" = None,
+          along: "Sequence[Sequence[float]] | None" = None,
+          spacing: float | None = None, sweep: float = 360.0,
+          rotate_items: bool = True) -> list[dict[str, Any]]:
+    """The CAD pattern operator: instance ``obj`` on a linear, polar, or
+    along-path array.
+
+    Exactly one mode: ``linear=(dx, dy, count)`` translates geometry directly;
+    ``polar=(cx, cy, count)`` revolves instances about a pivot over ``sweep``
+    degrees (``rotate_items=False`` orbits positions while keeping each
+    instance upright); ``along=points`` with ``spacing`` places origin-authored
+    stamps by arc length, rotated to the local tangent. Returns real object
+    dicts, ready for ``PageBuilder.extend``.
+    """
+    import copy as _copy
+    import math as _math
+
+    from frameforge.sdk.outline import Placement, place_stamp, repeat_along_path
+    from frameforge.sdk.region import object_bbox
+
+    modes = [m is not None for m in (linear, polar, along)]
+    if sum(modes) != 1:
+        raise ValueError("array needs exactly one of linear=, polar=, along=")
+
+    if linear is not None:
+        dx, dy, count = float(linear[0]), float(linear[1]), int(linear[2])
+        if count < 1:
+            raise ValueError("linear array count must be >= 1")
+        return [place_stamp(obj, Placement((i * dx, i * dy), 0.0, 0.0))
+                for i in range(count)]
+
+    if polar is not None:
+        cx, cy, count = float(polar[0]), float(polar[1]), int(polar[2])
+        if count < 1:
+            raise ValueError("polar array count must be >= 1")
+        full = abs(sweep - 360.0) < 1e-9
+        step = sweep / count if full else (sweep / max(count - 1, 1))
+        out: list[dict[str, Any]] = []
+        for i in range(count):
+            a = step * i
+            if rotate_items:
+                inst = {
+                    "type": "group",
+                    "children": [_copy.deepcopy(obj)],
+                    "style": {"transform": [
+                        {"fn": "translate", "args": [cx, cy]},
+                        {"fn": "rotate", "args": [a]},
+                        {"fn": "translate", "args": [-cx, -cy]},
+                    ]},
+                }
+                out.append(inst)
+            else:
+                bb = object_bbox(obj)
+                if bb is None:
+                    raise ValueError("rotate_items=False needs an object with geometry")
+                ox = (bb[0] + bb[2]) / 2.0
+                oy = (bb[1] + bb[3]) / 2.0
+                ar = _math.radians(a)
+                nx = cx + (ox - cx) * _math.cos(ar) - (oy - cy) * _math.sin(ar)
+                ny = cy + (ox - cx) * _math.sin(ar) + (oy - cy) * _math.cos(ar)
+                out.append(place_stamp(obj, Placement((nx - ox, ny - oy), 0.0, 0.0)))
+        return out
+
+    if spacing is None:
+        raise ValueError("along= arrays need spacing=")
+    stops = repeat_along_path(along, spacing=float(spacing))
+    out = []
+    for hit in stops:
+        tf: list[dict[str, Any]] = [{"fn": "translate", "args": [hit.point[0], hit.point[1]]}]
+        if rotate_items and abs(hit.angle) > 1e-9:
+            tf.append({"fn": "rotate", "args": [hit.angle]})
+        out.append({"type": "group", "children": [_copy.deepcopy(obj)],
+                    "style": {"transform": tf}})
+    return out

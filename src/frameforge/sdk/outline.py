@@ -30,7 +30,7 @@ from typing import Any, Callable, Sequence
 
 from frameforge.sdk.geometry import CubicBezier, Vec2
 
-__all__ = ["Placement", "repeat_along_path", "stroke_outline"]
+__all__ = ["Placement", "place_stamp", "repeat_along_path", "stroke_outline"]
 
 Pt = Sequence[float]
 _EPS = 1e-9
@@ -238,10 +238,12 @@ def repeat_along_path(points: Sequence[Vec2 | Pt], *, spacing: float,
         s += spacing
     if stamp is None:
         return stops
-    return [_place(stamp, hit) for hit in stops]
+    return [place_stamp(stamp, hit) for hit in stops]
 
 
-def _place(stamp: dict[str, Any], hit: Placement) -> dict[str, Any]:
+def place_stamp(stamp: dict[str, Any], hit: Placement) -> dict[str, Any]:
+    """Copy ``stamp`` to a :class:`Placement` — geometry-translated where the
+    object carries ``center``/``box``/``from``+``to``, group-wrapped otherwise."""
     obj = copy.deepcopy(stamp)
     x, y = hit.point
     if "center" in obj:
