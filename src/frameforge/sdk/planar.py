@@ -28,8 +28,9 @@ from __future__ import annotations
 import math
 from typing import Any, Sequence
 
-__all__ = ["contains", "cut_along", "divide", "fill_regions", "intersect",
-           "offset_polygon", "ring_area", "split_at", "subtract", "to_path",
+__all__ = ["chamfer_ring", "contains", "cut_along", "divide", "extend_segment",
+           "fill_regions", "fillet_ring", "intersect", "offset_polygon",
+           "ring_area", "split_at", "subtract", "to_path", "trim_segment",
            "union"]
 
 Pt = tuple[float, float]
@@ -492,3 +493,99 @@ def to_path(rings: Sequence[Ring], **fields: Any) -> dict[str, Any]:
     style = dict(fields.pop("style", None) or {})
     style.setdefault("fill_rule", "evenodd")
     return {"type": "path", "d": d, "style": style, **fields}
+
+
+def chamfer_ring(ring: Ring, dist: float, *, corners: "list[int] | None" = None) -> Ring:
+    """Cut selected corners (default: all) with a straight chamfer.
+
+    Each chamfered vertex is replaced by two points ``dist`` along its two
+    edges; corners whose edges are too short are left untouched.
+    """
+    n = len(ring)
+    pick = set(range(n)) if corners is None else {c % n for c in corners}
+    out: Ring = []
+    for i, p in enumerate(ring):
+        prev_p = ring[(i - 1) % n]
+        next_p = ring[(i + 1) % n]
+        e_in = (p[0] - prev_p[0], p[1] - prev_p[1])
+        e_out = (next_p[0] - p[0], next_p[1] - p[1])
+        l_in = math.hypot(*e_in)
+        l_out = math.hypot(*e_out)
+        if i not in pick or l_in / 2 < dist or l_out / 2 < dist or l_in < _EPS or l_out < _EPS:
+            out.append(p)
+            continue
+        out.append((p[0] - e_in[0] / l_in * dist, p[1] - e_in[1] / l_in * dist))
+        out.append((p[0] + e_out[0] / l_out * dist, p[1] + e_out[1] / l_out * dist))
+    return out
+
+
+def fillet_ring(ring: Ring, radius: float, *, corners: "list[int] | None" = None,
+                samples: int = 8) -> Ring:
+    """Round selected corners (default: all) with tangent arcs of ``radius``.
+
+    The arc is tangent to both edges at ``radius / tan(θ/2)`` from the corner;
+    corners whose edges cannot host that setback keep their sharp vertex.
+    """
+    n = len(ring)
+    pick = set(range(n)) if corners is None else {c % n for c in corners}
+    out: Ring = []
+    for i, p in enumerate(ring):
+        prev_p = ring[(i - 1) % n]
+        next_p = ring[(i + 1) % n]
+        v_in = (p[0] - prev_p[0], p[1] - prev_p[1])
+        v_out = (next_p[0] - p[0], next_p[1] - p[1])
+        l_in = math.hypot(*v_in)
+        l_out = math.hypot(*v_out)
+        if i not in pick or l_in < _EPS or l_out < _EPS:
+            out.append(p)
+            continue
+        u_in = (v_in[0] / l_in, v_in[1] / l_in)
+        u_out = (v_out[0] / l_out, v_out[1] / l_out)
+        cross = u_in[0] * u_out[1] - u_in[1] * u_out[0]
+        dot = u_in[0] * u_out[0] + u_in[1] * u_out[1]
+        turn = math.atan2(cross, dot)
+        if abs(turn) < 1e-6:                      # straight through — nothing to round
+            out.append(p)
+            continue
+        setback = radius / math.tan((math.pi - abs(turn)) / 2.0) if abs(
+            math.tan((math.pi - abs(turn)) / 2.0)) > _EPS else float("inf")
+        if setback > l_in / 2 or setback > l_out / 2:
+            out.append(p)                          # oversized radius: leave sharp
+            continue
+        t_in = (p[0] - u_in[0] * setback, p[1] - u_in[1] * setback)
+        t_out = (p[0] + u_out[0] * setback, p[1] + u_out[1] * setback)
+        side = 1.0 if cross > 0 else -1.0
+        n_in = (-u_in[1] * side, u_in[0] * side)
+        centre = (t_in[0] + n_in[0] * radius, t_in[1] + n_in[1] * radius)
+        a0 = math.atan2(t_in[1] - centre[1], t_in[0] - centre[0])
+        a1 = math.atan2(t_out[1] - centre[1], t_out[0] - centre[0])
+        if side > 0 and a1 < a0:
+            a1 += 2 * math.pi
+        if side < 0 and a1 > a0:
+            a1 -= 2 * math.pi
+        for k in range(samples + 1):
+            a = a0 + (a1 - a0) * k / samples
+            out.append((centre[0] + radius * math.cos(a), centre[1] + radius * math.sin(a)))
+    return out
+
+
+def trim_segment(a0: Pt, a1: Pt, b0: Pt, b1: Pt) -> "tuple[Pt, Pt]":
+    """Trim segment ``a0→a1`` at the infinite line through ``b0``, ``b1``.
+
+    Returns ``(a0, hit)``; raises ``ValueError`` on parallel geometry.
+    """
+    from frameforge.sdk.geometry import line_intersection
+
+    hit = line_intersection(a0, a1, b0, b1)
+    if hit is None:
+        raise ValueError("cannot trim: segment and cutter are parallel")
+    return (a0, (float(hit.x), float(hit.y)))
+
+
+def extend_segment(a0: Pt, a1: Pt, b0: Pt, b1: Pt) -> "tuple[Pt, Pt]":
+    """Extend segment ``a0→a1`` to the infinite line through ``b0``, ``b1``.
+
+    The same intersection as :func:`trim_segment` — named separately because
+    the intent (prolong vs cut) is what a reader needs to know.
+    """
+    return trim_segment(a0, a1, b0, b1)
