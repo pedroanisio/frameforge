@@ -27,7 +27,9 @@ def _child(w, h, **extra):
     return d
 
 
-# 3 columns, avail 320 wide, gap 10 → cell_w = (320 - 2·10)/3 = 100, pitch 110.
+# 3 columns, avail 320 wide, gap 10. Tracks are CONTENT-DERIVED (spec §3.6,
+# test_layout_math_4k): a 50-wide span-1 child sizes its track to 50; tracks
+# with no sized contributor share the remaining extent equally.
 _LAYOUT = {"kind": "grid", "columns": 3, "gap": 10}
 
 
@@ -36,7 +38,8 @@ def test_no_span_grid_is_unchanged():
     boxes = eng.arrange(320, 220, [_child(50, 50) for _ in range(3)], _LAYOUT)
     xs = [round(b[0], 6) for b in boxes]
     ys = [round(b[1], 6) for b in boxes]
-    assert xs == [0.0, 110.0, 220.0]   # one row, three columns
+    # content tracks 50/50/50 + gap 10 → prefix sums 0 / 60 / 120
+    assert xs == [0.0, 60.0, 120.0]    # one row, three columns
     assert ys == [0.0, 0.0, 0.0]
 
 
@@ -44,10 +47,13 @@ def test_column_span_pushes_the_next_child_past_the_spanned_cells():
     eng = LayoutEngine()
     children = [_child(50, 50, grid_span=[2, 1]), _child(50, 50), _child(50, 50)]
     boxes = eng.arrange(320, 220, children, _LAYOUT)
-    # child0 spans cols 0–1 → starts at x=0; child1 lands in col 2 (x=220), not col 1;
-    # child2 wraps to row 1 (y>0).
+    # child0 spans cols 0–1 → starts at x=0; child1 lands in col 2, not col 1;
+    # child2 wraps to row 1 (y>0). Track math: col0=50 (child2, row 1),
+    # col2=50 (child1); child0's 50 fits within col0+gap so col1 has no sized
+    # contributor → col1 takes the remainder (320 − 50 − 50 − 2·10 = 200) →
+    # col_x = 0 / 60 / 270.
     assert round(boxes[0][0], 6) == 0.0
-    assert round(boxes[1][0], 6) == 220.0
+    assert round(boxes[1][0], 6) == 270.0
     assert boxes[2][1] > 0.0
 
 
@@ -56,8 +62,8 @@ def test_a_filling_spanned_child_gets_the_full_span_width():
     children = [_child(50, 50, grid_span=[2, 1], sizing={"width": "fill"}),
                 _child(50, 50), _child(50, 50)]
     boxes = eng.arrange(320, 220, children, _LAYOUT)
-    # 2 cells + the gap between them: 2·100 + 10 = 210.
-    assert abs(boxes[0][2] - 210.0) < 1e-6
+    # spanned tracks 50 + 200 (see above) + the gap between them = 260.
+    assert abs(boxes[0][2] - 260.0) < 1e-6
 
 
 def test_row_span_reserves_cells_below():

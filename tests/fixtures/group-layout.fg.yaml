@@ -7,8 +7,8 @@ description: >-
   at (0,0) with a size and positioned by the layout engine (gap-spaced); the proxy
   previously ignored Layout, so such children overlapped. Backs the reused layout
   engine. Row tiles 60 wide + gap 10 -> x offsets 0/70/140; column 60 tall + gap 10
-  -> y offsets 0/70/140; 2-col grid in 200x200 (gap 10) -> cell 95 -> offsets
-  (0,0)/(105,0)/(0,105)/(105,105).
+  -> y offsets 0/70/140; 2-col grid of 90-wide tiles (gap 10), content-derived
+  tracks (spec §3.6) -> pitch 100 -> offsets (0,0)/(100,0)/(0,100)/(100,100).
 lang: en
 defs:
   tokens:

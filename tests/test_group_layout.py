@@ -36,7 +36,8 @@ def test_row_column_grid_children_are_arranged():
     assert 'translate(70,0)' in svg and 'translate(140,0)' in svg
     # COLUMN: 60-tall tiles + gap 10 -> child offsets 0 / 70 / 140
     assert 'translate(0,70)' in svg and 'translate(0,140)' in svg
-    # GRID: 2 cols, cell 95 in 200 (gap 10) -> (105,0) / (0,105) / (105,105)
-    assert 'translate(105,0)' in svg
-    assert 'translate(0,105)' in svg
-    assert 'translate(105,105)' in svg
+    # GRID: 2 cols, 90-wide tiles, gap 10 — content-derived tracks (spec §3.6)
+    # -> pitch 100: (100,0) / (0,100) / (100,100)
+    assert 'translate(100,0)' in svg
+    assert 'translate(0,100)' in svg
+    assert 'translate(100,100)' in svg

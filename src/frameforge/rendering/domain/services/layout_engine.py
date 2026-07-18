@@ -13,14 +13,20 @@ class LayoutEngine:
     def arrange(self, width: float, height: float, children, layout) -> list[tuple[float, float, float, float]]:
         """Return one arranged ``(x, y, w, h)`` per direct child."""
         kind = layout.get("kind")
-        sizes = [self._size(c) for c in children]
         if kind not in ("row", "column", "grid", "wrap"):
+            # free / no layout: %-dimensions resolve against the parent extent
+            # (spec §3.4 "under `free` or at page root, against the parent/canvas")
+            sizes = [self._size(c, width, height) for c in children]
             return [(*self._origin(c), *size) for c, size in zip(children, sizes)]
 
         pad_t, pad_r, pad_b, pad_l = self._padding(layout.get("padding"))
         x0, y0 = pad_l, pad_t
         avail_w = max(0.0, width - pad_l - pad_r)
         avail_h = max(0.0, height - pad_t - pad_b)
+        # %-dimensions resolve against the container CONTENT box on the same
+        # axis (spec §3.4); fr contributes no fixed size — it becomes a fill
+        # weight on the container's main axis (1fr ≡ fill grow:1).
+        sizes = [self._size(c, avail_w, avail_h) for c in children]
         gap = num(layout.get("gap"), 0) or 0
         col_gap = num(layout.get("column_gap"), gap)
         row_gap = num(layout.get("row_gap"), gap)
@@ -61,15 +67,21 @@ class LayoutEngine:
         cross_sizes: list[float] = []
         fill_main: list[bool] = []
         main_key = "width" if axis == "row" else "height"
+        weights: list[float] = []
         for child, (cw, ch) in zip(children, sizes):
             sizing = self._sizing(child)
-            is_fill = sizing.get(main_key) == "fill"
+            # an fr main dimension IS a fill weight (spec §3.4: 1fr ≡ fill grow:1)
+            fr = self._fr(child, 2 if axis == "row" else 3)
+            is_fill = sizing.get(main_key) == "fill" or fr is not None
             main = cw if axis == "row" else ch
             cross = ch if axis == "row" else cw
             if is_fill:
-                grow_total += max(0.0, num(sizing.get("grow"), 1) or 1)
+                weight = fr if fr is not None else max(0.0, num(sizing.get("grow"), 1) or 1)
+                weights.append(weight)
+                grow_total += weight
             else:
                 fixed += main
+                weights.append(0.0)
             main_sizes.append(main)
             cross_sizes.append(cross)
             fill_main.append(is_fill)
@@ -77,10 +89,36 @@ class LayoutEngine:
         gaps = gap * max(0, len(children) - 1)
         free = max(0.0, main_extent - fixed - gaps)
         if grow_total:
-            for i, child in enumerate(children):
-                if fill_main[i]:
-                    weight = max(0.0, num(self._sizing(child).get("grow"), 1) or 1)
-                    main_sizes[i] = free * weight / grow_total
+            # §3.6g: split free_main by grow, CLAMPED to sizing.min/max — the
+            # standard resolution loop: freeze any child whose share violates a
+            # clamp, remove it from the pool, re-split until stable.
+            pool = free
+            active = [i for i in range(len(children)) if fill_main[i]]
+            shares: dict[int, float] = {}
+            while active:
+                total_w = sum(weights[i] for i in active) or 1.0
+                frozen = []
+                for i in active:
+                    share = pool * weights[i] / total_w
+                    lo = num(self._sizing(children[i]).get("min"), None)
+                    hi = num(self._sizing(children[i]).get("max"), None)
+                    clamped = share
+                    if hi is not None and clamped > hi:
+                        clamped = hi
+                    if lo is not None and clamped < lo:
+                        clamped = lo
+                    if clamped != share:
+                        shares[i] = clamped
+                        frozen.append(i)
+                if not frozen:
+                    for i in active:
+                        shares[i] = pool * weights[i] / total_w
+                    break
+                for i in frozen:
+                    active.remove(i)
+                    pool = max(0.0, pool - shares[i])
+            for i, share in shares.items():
+                main_sizes[i] = share
 
         used = sum(main_sizes) + gaps
         offset, actual_gap = self._justify(main_extent, used, gap, len(children), justify)
@@ -140,21 +178,65 @@ class LayoutEngine:
             max_row = max(max_row, row + rs - 1)
             cursor = pos + 1
         rows = max(1, max_row + 1)
-        cell_w = max(0.0, (avail_w - (columns - 1) * col_gap) / columns)
-        cell_h = max(0.0, (avail_h - (rows - 1) * row_gap) / rows)
+        # Pass 2 — content-derived track sizing (spec §3.6: "column width = max
+        # child width per column, row height = max child height per row").
+        # Single-span children set their track; spanning children then widen the
+        # spanned tracks evenly if their extent does not fit; columns/rows with
+        # no sized contributor (only fill children) share the remaining
+        # available extent equally — an all-fill grid keeps the uniform split.
+        col_w = self._tracks(columns, placements, sizes, children, avail_w,
+                             col_gap, axis=0)
+        row_h = self._tracks(rows, placements, sizes, children, avail_h,
+                             row_gap, axis=1)
+        col_x = [x0]
+        for c in range(1, columns):
+            col_x.append(col_x[-1] + col_w[c - 1] + col_gap)
+        row_y = [y0]
+        for r in range(1, rows):
+            row_y.append(row_y[-1] + row_h[r - 1] + row_gap)
         out: list[tuple[float, float, float, float]] = []
         for (col, row, cs, rs), (cw, ch), child in zip(placements, sizes, children):
-            span_w = cs * cell_w + (cs - 1) * col_gap
-            span_h = rs * cell_h + (rs - 1) * row_gap
+            span_w = sum(col_w[col:col + cs]) + (cs - 1) * col_gap
+            span_h = sum(row_h[row:row + rs]) + (rs - 1) * row_gap
             aw = span_w if self._fill_width(child) else cw
             ah = span_h if self._fill_height(child) or align == "stretch" else ch
             out.append((
-                x0 + col * (cell_w + col_gap),
-                y0 + row * (cell_h + row_gap) + self._cross(0, span_h, ah, align),
+                col_x[col],
+                row_y[row] + self._cross(0, span_h, ah, align),
                 aw,
                 ah,
             ))
         return out
+
+    @staticmethod
+    def _tracks(count, placements, sizes, children, avail, gap, *, axis):
+        """Content-derived track extents for one grid axis (spec §3.6)."""
+        tracks: list[float | None] = [None] * count
+        fill = LayoutEngine._fill_width if axis == 0 else LayoutEngine._fill_height
+        for (col, row, cs, rs), size, child in zip(placements, sizes, children):
+            start, span = (col, cs) if axis == 0 else (row, rs)
+            if span != 1 or fill(child):
+                continue
+            extent = size[axis]
+            if tracks[start] is None or extent > tracks[start]:
+                tracks[start] = extent
+        for (col, row, cs, rs), size, child in zip(placements, sizes, children):
+            start, span = (col, cs) if axis == 0 else (row, rs)
+            if span == 1 or fill(child):
+                continue
+            known = sum(t or 0.0 for t in tracks[start:start + span])
+            deficit = size[axis] - (known + (span - 1) * gap)
+            if deficit > 0:
+                each = deficit / span
+                for t in range(start, start + span):
+                    tracks[t] = (tracks[t] or 0.0) + each
+        unknown = [i for i, t in enumerate(tracks) if t is None]
+        if unknown:
+            used = sum(t or 0.0 for t in tracks) + (count - 1) * gap
+            share = max(0.0, (avail - used) / len(unknown))
+            for i in unknown:
+                tracks[i] = share
+        return [t or 0.0 for t in tracks]
 
     def _wrap(
         self,
@@ -194,12 +276,50 @@ class LayoutEngine:
         return [box or (0.0, 0.0, 0.0, 0.0) for box in out]
 
     # ---- helpers ---------------------------------------------------------- #
-    @staticmethod
-    def _size(child) -> tuple[float, float]:
+    @classmethod
+    def _size(cls, child, avail_w: float | None = None,
+              avail_h: float | None = None) -> tuple[float, float]:
         box = child.get("box") if isinstance(child, dict) else None
         if isinstance(box, list) and len(box) >= 4:
-            return (num(box[2], 0) or 0, num(box[3], 0) or 0)
+            return (cls._len(box[2], avail_w), cls._len(box[3], avail_h))
         return (0.0, 0.0)
+
+    @classmethod
+    def _len(cls, value, extent: float | None) -> float:
+        """One box dimension: absolute number, '<n>%' of `extent` (spec §3.4),
+        or '<n>fr' (no fixed size — it becomes a fill weight)."""
+        rel = cls._rel(value)
+        if rel is None:
+            return num(value, 0) or 0
+        kind, n = rel
+        if kind == "%":
+            return (extent or 0.0) * n / 100.0
+        return 0.0
+
+    @staticmethod
+    def _rel(value):
+        """('%'|'fr', n) for a relative-length string, else None."""
+        if not isinstance(value, str):
+            return None
+        v = value.strip()
+        try:
+            if v.endswith("%"):
+                return ("%", float(v[:-1]))
+            if v.endswith("fr"):
+                return ("fr", float(v[:-2]))
+        except ValueError:
+            return None
+        return None
+
+    @classmethod
+    def _fr(cls, child, box_index: int) -> float | None:
+        """The fr weight of a child's box dimension (2 = width, 3 = height)."""
+        box = child.get("box") if isinstance(child, dict) else None
+        if isinstance(box, list) and len(box) > box_index:
+            rel = cls._rel(box[box_index])
+            if rel is not None and rel[0] == "fr":
+                return max(0.0, rel[1]) or 1.0
+        return None
 
     @staticmethod
     def _origin(child) -> tuple[float, float]:
