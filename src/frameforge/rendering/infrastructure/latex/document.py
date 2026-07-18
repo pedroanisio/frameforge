@@ -15,7 +15,7 @@ from frameforge.rendering.domain.services.canvas_resolver import CanvasResolver
 from frameforge.rendering.domain.services.paint_resolver import ColorResolver
 from frameforge.rendering.domain.services.text_style_resolver import FONT_MAP, TextStyleResolver
 
-from .tikz import FigureTikz, _parse_hex, color_expr, ltx_escape, ltx_url_escape
+from .tikz import FigureTikz, _parse_hex, ltx_escape, ltx_url_escape
 
 # Symbol (`use`) expansion is shared with the SVG engine so a figure's object
 # graph is already groups by the time we walk it.

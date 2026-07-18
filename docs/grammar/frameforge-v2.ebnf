@@ -70,6 +70,7 @@ frameforge-document =
 
 Defs =                                                          (* +P2: assets *)
     "{" ,
+      [ "params"     , ":" , "{" , { string , ":" , ( number | string ) } , "}" ] ,  (* document parameters; '=expr' strings resolve pre-validation *)
       [ "tokens"     , ":" , Tokens ] ,
       [ "counters"   , ":" , "{" , { string , ":" , CounterDef } , "}" ] ,  (* \newcounter/\setcounter + resets *)
       [ "symbols"    , ":" , "{" , { string , ":" , SymbolDef } , "}" ] ,
@@ -346,6 +347,7 @@ Number =
 Layer =
     "{" ,
       "id" , ":" , string ,
+      [ "role"    , ":" , ( "geometry" | "construction" | "annotation" | "dimension" ) ] ,  (* construction layers are non-printing *)
       [ "z"       , ":" , number ] ,
       [ "opacity" , ":" , unit-interval ] ,
       [ "objects" , ":" , "[" , VisualObject , { "," , VisualObject } , "]" ] ,
@@ -373,6 +375,7 @@ common-object-fields =                                          (* +P2: grid_spa
       [ "ports"      , ":" , Ports ] ,
       [ "bind"       , ":" , string ] ,
       [ "decorative" , ":" , boolean ] ,
+      [ "construction" , ":" , boolean ] ,  (* non-printing datum geometry; renders only under meta.show_construction *)
       [ "z"          , ":" , number ] ,
       [ "opacity"        , ":" , unit-interval ] ,
       [ "fill_opacity"   , ":" , unit-interval ] ,

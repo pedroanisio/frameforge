@@ -29,9 +29,9 @@ error budget). The conversion happens exactly once, at the raster boundary
 from __future__ import annotations
 
 import math
-from typing import Any, Sequence
+from typing import Any
 
-from ..domain.geometry import Line, fit_line, intersect
+from ..domain.geometry import fit_line, intersect
 from .matchscore import _gray  # single source of truth for bytes → grayscale array
 
 Point = tuple[float, float]

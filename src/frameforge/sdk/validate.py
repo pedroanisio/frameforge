@@ -11,7 +11,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from frameforge.sdk.model import model_module, validate_document
+from frameforge.sdk.model import validate_document
 
 
 @dataclass(frozen=True)

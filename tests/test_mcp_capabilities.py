@@ -165,8 +165,8 @@ _CAPABILITY_MODULES = [
     # capability-bearing sdk modules — each MUST be named in the guide.
     "book", "canon", "chart", "chevreul", "clip", "draw", "expand", "fields",
     "figure", "flow", "fractal", "geometry", "humanize", "lattices", "layout",
-    "macros", "manifold", "markdown", "metrics", "outline", "paint", "pathtext",
-    "planar", "recolor", "region", "topology", "widgets",
+    "macros", "manifold", "markdown", "metrics", "outline", "paint", "params",
+    "pathtext", "planar", "recolor", "region", "solids", "topology", "widgets",
 ]
 
 # Internal plumbing that carries no author-facing capability of its own — the

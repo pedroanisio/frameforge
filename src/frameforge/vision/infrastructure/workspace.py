@@ -28,7 +28,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Sequence
 
-from .image_compare import Region, load_rgb
+from .image_compare import load_rgb
 from .measure import (
     CoordinateSystem,
     CropTransform,

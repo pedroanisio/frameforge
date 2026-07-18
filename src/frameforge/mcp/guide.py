@@ -356,6 +356,30 @@ Tools:
   SDK camera), or `warp` (apply the fitted homography to actually rectify/dewarp an
   image — perspective correction, emits the corrected PNG).
 
+The CAD operator layer (parametric, computed, verified):
+- Solids (`frameforge.sdk.solids`): `extrude(profile, depth)`, `revolve(profile,
+  segments=, angle=)` (partial angles grow end caps), `sweep(profile, path3d)`
+  (tangent-oriented rings, mitred corners), `loft(profiles, heights=)` — all
+  emit `Scene3D` meshes for `render`/`multiview`. `section_loops(scene,
+  plane_point=, plane_normal=)` cuts a scene into closed 2D loops;
+  `section_object(...)` fits them into a frame as one even-odd hatched path —
+  the engineering section view.
+- Sketch surgery (`frameforge.sdk.planar`): `fillet_ring(ring, r)` /
+  `chamfer_ring(ring, d)` round or cut corners (per-corner selection, oversized
+  radii left sharp); `trim_segment` / `extend_segment` cut or prolong to a line.
+- Patterns: `array(obj, linear=(dx, dy, n) | polar=(cx, cy, n) | along=pts,
+  spacing=)` — geometry-translated linear instances, pivot-rotated polar groups
+  (`rotate_items=False` orbits upright), tangent-rotated along-path stamps.
+- Construction geometry: `construction: true` objects and `role: construction`
+  layers are non-printing datums — excluded from renders unless the document
+  sets `meta.show_construction`. Layer `role` also declares
+  geometry/annotation/dimension intent.
+- Document parameters (`frameforge.sdk.params`, `defs.params`): named numbers
+  (or '=expr' strings over earlier ones); ANY '=expr' string field resolves
+  before validation — geometry positions become numbers, `text` fields become
+  formatted strings (driven dimension labels). Whitelisted arithmetic AST, never
+  eval; resolved values are recorded under `meta.resolved_params`.
+
 Primitives-first reconstruction (numeric loop closure):
 - `fit_primitives` — measured point sets (e.g. detect_regions polygons) ->
   {line | circular arc | axis-aligned ellipse arc} PARAMETERS: centre/radius/

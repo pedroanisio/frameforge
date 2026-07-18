@@ -8,7 +8,6 @@ PNG is needed.
 from __future__ import annotations
 
 import asyncio
-import base64
 from concurrent.futures import ThreadPoolExecutor
 import math
 import os

@@ -11,7 +11,6 @@ from __future__ import annotations
 import os
 import sys
 
-import pytest
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 _shadow = sys.modules.get("frameforge")

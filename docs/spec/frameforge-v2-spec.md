@@ -89,6 +89,16 @@ pass includes the **geometric audit** (P3):
 - **Containment (SHOULD).** Every object's resolved page-space box SHOULD lie within
   its canvas (plus declared `bleed`). Outside ⇒ warning, unless `decorative` or under
   `overflow: clip`/bleed.
+- **Construction geometry (MAY).** An object MAY carry `construction: true` (and a
+  layer MAY declare `role: construction`): non-printing datum geometry — guides, snap
+  targets, work axes — excluded from rendering unless the document sets
+  `meta.show_construction: true`. Layer `role` values `geometry` | `construction` |
+  `annotation` | `dimension` declare intent for tooling; only `construction` changes
+  paint behaviour. Document parameters (`defs.params`) are named numbers (or `=expr`
+  strings over earlier parameters); any `=expr` string field resolves against them
+  **before** validation — numeric positions become numbers, `text`/`content` fields
+  become formatted strings (driven dimension labels), and the resolved values are
+  recorded under `meta.resolved_params`.
 - **Scoped non-overlap (SHOULD).** Sibling boxes within a `free`-layout `GroupObject`,
   or any cluster marked `meta.no_overlap: true`, SHOULD NOT overlap. Global/layer
   overlap stays **legal** (z-order is intentional) — the check is scoped, not blanket.

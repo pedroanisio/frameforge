@@ -167,6 +167,7 @@
       "aabb3",
       "appearance",
       "apply_humanize",
+      "array",
       "assert_golden",
       "avatar",
       "badge",
@@ -180,6 +181,7 @@
       "button",
       "caps_tracking",
       "card",
+      "chamfer_ring",
       "checkbox",
       "cite",
       "clip_circle",
@@ -211,10 +213,15 @@
       "effect",
       "effect_stack",
       "effects",
+      "eval_expr",
       "expand",
+      "extend_segment",
       "extract_objects",
+      "extrude",
       "field",
+      "fill_regions",
       "fill_stroke",
+      "fillet_ring",
       "filter_chain",
       "filter_fn",
       "font_kern_pairs",
@@ -243,6 +250,7 @@
       "line_intersection",
       "linear_gradient",
       "load_figure",
+      "loft",
       "lorem",
       "lorem_paragraphs",
       "lsystem",
@@ -279,6 +287,7 @@
       "place_figure",
       "place_imported_figure",
       "place_region",
+      "place_stamp",
       "planar",
       "point_in_polygon",
       "polar_plot",
@@ -299,9 +308,13 @@
       "render_page_svgs",
       "render_pages_with_stats",
       "repeat_along_path",
+      "resolve_params",
+      "revolve",
       "rgba",
       "row",
       "saddle",
+      "section_loops",
+      "section_object",
       "segment_curve_intersections",
       "segment_intersection",
       "segment_plane_intersection",
@@ -322,6 +335,7 @@
       "style_effects",
       "surface_curvature",
       "svg_to_objects",
+      "sweep",
       "table",
       "tabs",
       "text_height",
@@ -332,6 +346,7 @@
       "toggle",
       "tone_scale",
       "torus",
+      "trim_segment",
       "turbulence",
       "turtle",
       "validate_document",
@@ -1486,6 +1501,13 @@
       "mcp": true
     },
     {
+      "name": "array",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "assert_golden",
       "kind": "sdk_export",
       "core": false,
@@ -1571,6 +1593,13 @@
     },
     {
       "name": "card",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "chamfer_ring",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1794,7 +1823,21 @@
       "mcp": true
     },
     {
+      "name": "eval_expr",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "expand",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "extend_segment",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1808,6 +1851,13 @@
       "mcp": true
     },
     {
+      "name": "extrude",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "field",
       "kind": "sdk_export",
       "core": false,
@@ -1815,7 +1865,21 @@
       "mcp": true
     },
     {
+      "name": "fill_regions",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "fill_stroke",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "fillet_ring",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2012,6 +2076,13 @@
     },
     {
       "name": "load_figure",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "loft",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2270,6 +2341,13 @@
       "mcp": true
     },
     {
+      "name": "place_stamp",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "planar",
       "kind": "sdk_export",
       "core": false,
@@ -2410,6 +2488,20 @@
       "mcp": true
     },
     {
+      "name": "resolve_params",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "revolve",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "rgba",
       "kind": "sdk_export",
       "core": false,
@@ -2425,6 +2517,20 @@
     },
     {
       "name": "saddle",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "section_loops",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "section_object",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2571,6 +2677,13 @@
       "mcp": true
     },
     {
+      "name": "sweep",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "table",
       "kind": "sdk_export",
       "core": false,
@@ -2635,6 +2748,13 @@
     },
     {
       "name": "torus",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "trim_segment",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

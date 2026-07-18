@@ -8,7 +8,6 @@ whitelisted arithmetic AST — never Python eval.
 """
 from __future__ import annotations
 
-import math
 import os
 import sys
 
@@ -103,5 +102,6 @@ def test_pipeline_resolves_params_end_to_end(tmp_path):
     assert 'width="120' in svg and ">120<" in svg.replace("\n", "")
     r2 = render_frameforge_yaml(_yaml(200), session_id="par2", session_root=tmp_path,
                                 raster_png=False)
+    assert r2["ok"] is True
     svg2 = (tmp_path / "par2" / "page-001.svg").read_text(encoding="utf-8")
     assert 'width="200' in svg2

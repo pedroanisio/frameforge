@@ -334,6 +334,7 @@ __all__ = [
     "extrude",
     "field",
     "fill_regions",
+    "fill_stroke",
     "fillet_ring",
     "filter_chain",
     "filter_fn",
