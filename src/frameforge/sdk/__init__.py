@@ -129,6 +129,7 @@ from frameforge.sdk.macros import (
 from frameforge.sdk.outline import Placement, place_stamp, repeat_along_path, stroke_outline
 from frameforge.sdk.pathtext import offset_path, path_length, path_walker, text_on_path
 from frameforge.sdk.book import BookBuilder, ChapterBuilder
+from frameforge.sdk.params import eval_expr, resolve_params
 from frameforge.sdk.recolor import recolor
 from frameforge.sdk.solids import (extrude, loft, revolve, section_loops,
                                    section_object, sweep)
@@ -326,6 +327,7 @@ __all__ = [
     "effect",
     "effect_stack",
     "effects",
+    "eval_expr",
     "expand",
     "extend_segment",
     "extract_objects",
@@ -419,6 +421,7 @@ __all__ = [
     "render_page_svgs",
     "render_pages_with_stats",
     "repeat_along_path",
+    "resolve_params",
     "revolve",
     "rgba",
     "row",

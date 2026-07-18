@@ -1761,6 +1761,11 @@ class Tokens(FG):
 
 
 class Defs(FG):
+    params: Optional[dict[str, Union[float, int, str]]] = Field(
+        default=None, description="Named document parameters (numbers, or '=expr' strings over "
+                                  "earlier parameters). Any '=expr' string field in the document "
+                                  "resolves against them before validation — geometry and labels "
+                                  "driven by the same numbers.")
     tokens: Optional[Tokens] = Field(
         default=None, description="Design tokens: colours, fonts, styles, stroke styles, glyphs.")
     counters: Optional[dict[str, CounterDef]] = Field(

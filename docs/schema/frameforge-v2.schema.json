@@ -3472,6 +3472,32 @@
     "Defs": {
       "additionalProperties": false,
       "properties": {
+        "params": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Named document parameters (numbers, or '=expr' strings over earlier parameters). Any '=expr' string field in the document resolves against them before validation — geometry and labels driven by the same numbers.",
+          "title": "Params"
+        },
         "tokens": {
           "anyOf": [
             {

@@ -63,7 +63,12 @@ def _validate_and_render_yaml(
         }
     metrics_on = _resolve_real_metrics(real_metrics)
     try:
-        document = parse(yaml_text, forgiving=False)
+        document = parse(yaml_text, validate=False, forgiving=False)
+        if isinstance(document, dict) and ((document.get("defs") or {}).get("params")):
+            # defs.params: resolve "=expr" strings BEFORE model validation —
+            # the expression form is a pre-document authoring surface.
+            from frameforge.sdk.params import resolve_params
+            document = resolve_params(document)
         if silhouette:
             # The silhouette gate (frameforge.coach): flatten to black-on-white so
             # construction readability is judged BEFORE detail. Reuses this whole
