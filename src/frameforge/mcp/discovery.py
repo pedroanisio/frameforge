@@ -192,6 +192,32 @@ def _field_summary(cls: type) -> dict[str, list[str]]:
     return {"required": sorted(required), "optional": sorted(optional)}
 
 
+def _schema_topic(key: str, cls: type, kind: str) -> dict[str, Any]:
+    """A schema topic as PROGRESSIVE DISCLOSURE, not a full dump.
+
+    Returning ``cls.model_json_schema()`` inlines the entire recursive ``$defs``
+    graph — 70KB for a leaf ``rect``, 250KB+ for a container — which blows the
+    MCP result token ceiling (the whole reason a caller cannot read it). Instead
+    return the type's OWN ``properties`` plus a ``references`` list of the nested
+    type names; the caller drills into any of them with another call (pass the
+    lower-cased name as the topic). Full machine schema lives in the committed
+    ``docs/schema/frameforge-v2.schema.json``.
+    """
+    schema = _class_schema(cls)
+    references = sorted((schema.get("$defs") or {}).keys())
+    return {
+        "ok": True,
+        "topic": key,
+        "kind": kind,
+        "fields": _field_summary(cls),
+        "properties": schema.get("properties", {}),
+        "references": references,
+        "note": "compact view: `properties` are this type's own fields; "
+                "`references` lists nested types — pass one (lower-cased) as the "
+                "topic to drill in. Full JSON schema: docs/schema/frameforge-v2.schema.json.",
+    }
+
+
 @functools.lru_cache(maxsize=1)
 def _model_catalog() -> dict[str, Any]:
     """The live model surface, introspected from ``frameforge.model`` (src/frameforge/model.py).
@@ -273,12 +299,23 @@ def describe_capabilities(
     if key == "tools":
         return {"ok": True, "topic": "tools", "tools": sorted(tool_names or [])}
     if key == "sdk":
+        # Compact: name + module + the first sentence of the docstring. The full
+        # signatures (239 exports) are 60KB — over the result ceiling; they live
+        # in docs/sdk-api.md and every name is importable inside run_sdk_code.
+        exports = [
+            {
+                "name": e.get("name"),
+                "kind": e.get("kind"),
+                "summary": (str(e.get("doc") or "").strip().split(". ")[0])[:100],
+            }
+            for e in _sdk_surface()
+        ]
         return {
             "ok": True,
             "topic": "sdk",
-            "exports": [dict(e) for e in _sdk_surface()],
+            "exports": exports,
             "note": "introspected live from frameforge.sdk.__all__ — every export is "
-                    "importable inside run_sdk_code; full reference: docs/sdk-api.md",
+                    "importable inside run_sdk_code; full signatures: docs/sdk-api.md",
         }
     if key == "security":
         return {
@@ -309,21 +346,14 @@ def describe_capabilities(
             "note": "a canvas object needs exactly one of `preset` or `size`",
         }
     if key in catalog["objects"]:
-        cls = catalog["objects"][key]
-        return {"ok": True, "topic": key, "kind": "object",
-                "fields": _field_summary(cls), "schema": _class_schema(cls)}
+        return _schema_topic(key, catalog["objects"][key], "object")
     if key in catalog["flowables"]:
-        cls = catalog["flowables"][key]
-        return {"ok": True, "topic": key, "kind": "flowable",
-                "fields": _field_summary(cls), "schema": _class_schema(cls)}
+        return _schema_topic(key, catalog["flowables"][key], "flowable")
     if key in catalog["inlines"]:
-        cls = catalog["inlines"][key]
-        return {"ok": True, "topic": key, "kind": "inline",
-                "fields": _field_summary(cls), "schema": _class_schema(cls)}
+        return _schema_topic(key, catalog["inlines"][key], "inline")
     if key in catalog["named"]:
         cls = catalog["named"][key]
-        result = {"ok": True, "topic": key, "kind": "model",
-                  "fields": _field_summary(cls), "schema": _class_schema(cls)}
+        result = _schema_topic(key, cls, "model")
         if key == "style":
             # The flow renderer resolves its defaults from the document and injects
             # no undefined style (ADR-0006); two reserved token-style names carry

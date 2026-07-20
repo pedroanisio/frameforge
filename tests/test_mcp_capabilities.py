@@ -76,8 +76,9 @@ def test_object_topic_returns_the_json_schema_subset():
 
     assert result["ok"] is True
     assert result["kind"] == "object"
-    props = result["schema"]["properties"]
+    props = result["properties"]          # own fields, promoted out of the $defs dump
     assert "box" in props and "type" in props
+    assert "schema" not in result         # no full recursive $defs graph inline
     assert "box" in result["fields"]["required"] + result["fields"]["optional"]
 
 
@@ -86,14 +87,15 @@ def test_flowable_topic_returns_schema_and_fields():
 
     assert result["ok"] is True
     assert result["kind"] == "flowable"
-    assert "text" in result["schema"]["properties"]
+    assert "text" in result["properties"]
+    assert "references" in result         # nested types are listed for drill-down
 
 
 def test_style_topic_exposes_the_style_bag():
     result = describe_capabilities(topic="style")
 
     assert result["ok"] is True
-    props = result["schema"]["properties"]
+    props = result["properties"]
     assert "font_family" in props and "font_size" in props and "color" in props
 
 
@@ -231,3 +233,83 @@ def test_server_instructions_name_the_authoring_engines(tmp_path):
     for surface in ("sdk.planar", "sdk.outline", "frameforge.patterns",
                     "frameforge.library", "--from-v01"):
         assert surface in text, f"handshake instructions omit {surface}"
+
+
+# --- output-size resilience: no topic may blow the MCP result ceiling --------
+#     Regression for describe_capabilities returning 70KB-280KB schema dumps
+#     (the whole recursive $defs graph inline). Progressive disclosure: a schema
+#     topic returns its OWN properties + a `references` list of nested types to
+#     drill into, never the full graph.
+
+import json  # noqa: E402
+
+from frameforge.mcp.discovery import _CAPABILITY_TOPICS, _model_catalog  # noqa: E402
+
+CAP_BUDGET = 40_000  # chars; well under the observed ~65KB per-result ceiling
+
+
+def _all_topics():
+    cat = _model_catalog()
+    schema_topics = sorted(
+        set(cat["objects"]) | set(cat["flowables"]) | set(cat["inlines"]) | set(cat["named"])
+    )
+    return [None] + list(_CAPABILITY_TOPICS) + schema_topics
+
+
+def test_no_capability_topic_exceeds_the_result_budget():
+    """Every describe_capabilities response stays under the MCP result ceiling.
+
+    This is the drift guard: the model grows, and without this a new type or a
+    deeper nesting silently pushes a topic past the token limit again.
+    """
+    over = []
+    for topic in _all_topics():
+        result = describe_capabilities(topic, tool_names=["a", "b"])
+        size = len(json.dumps(result, default=str))
+        if size > CAP_BUDGET:
+            over.append((topic or "<index>", size))
+    assert not over, f"topics over {CAP_BUDGET} chars (progressive disclosure regressed): {over}"
+
+
+def test_object_schema_topic_is_compact_with_references():
+    """A container schema returns own properties + references, not the $defs graph."""
+    result = describe_capabilities("group")
+    assert result["ok"] and result["kind"] == "object"
+    assert result["properties"], "own properties missing"
+    assert result["references"], "nested-type references missing"
+    assert "schema" not in result, "full recursive schema must not be inlined"
+    assert len(json.dumps(result, default=str)) < 20_000, "container topic still too large"
+
+
+def test_referenced_type_is_itself_drillable():
+    """Progressive disclosure: a referenced nested type resolves to its own topic."""
+    result = describe_capabilities("group")
+    cat = _model_catalog()
+    valid = set(cat["objects"]) | set(cat["flowables"]) | set(cat["inlines"]) | set(cat["named"])
+    drillable = [r for r in result["references"] if r.lower() in valid]
+    assert drillable, f"no reference drills down: {result['references'][:10]}"
+    child = describe_capabilities(drillable[0].lower())
+    assert child["ok"] and child["properties"], f"drilling {drillable[0]} failed"
+
+
+def test_leaf_topic_keeps_its_own_fields():
+    """Compaction must not lose the type's own information."""
+    result = describe_capabilities("rect")
+    assert "box" in result["properties"] or "fill" in result["properties"]
+    fields = result["fields"]
+    assert fields["required"] or fields["optional"]
+
+
+def test_sdk_topic_is_bounded_and_still_lists_exports():
+    result = describe_capabilities("sdk")
+    assert result["ok"]
+    assert len(json.dumps(result, default=str)) < CAP_BUDGET, "sdk export list too large"
+    names = [e["name"] for e in result["exports"]]
+    assert "DocumentBuilder" in names
+
+
+def test_style_topic_still_carries_reserved_styles():
+    """The style special-case (ADR-0006 reserved styles) survives compaction."""
+    result = describe_capabilities("style")
+    assert result["ok"]
+    assert "body" in result["reserved_styles"] and "caption" in result["reserved_styles"]

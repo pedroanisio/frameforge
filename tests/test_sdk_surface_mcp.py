@@ -42,14 +42,18 @@ def test_sdk_topic_matches_package_all_exactly():
 
 
 def test_sdk_topic_entries_are_explained():
+    # The sdk topic is a COMPACT index (progressive disclosure): name + kind +
+    # a one-line summary. Full signatures are in docs/sdk-api.md (its own gate),
+    # and every export's source docstring is guaranteed by
+    # test_every_frameforge_export_has_a_docstring below. The full-signature dump
+    # was 60KB — over the MCP result ceiling.
     cap = describe_capabilities(topic="sdk")
     for e in cap["exports"]:
         assert e["kind"] in {"function", "class", "module", "type_alias", "constant", "re-export"}, e
-        assert isinstance(e.get("doc"), str) and e["doc"].strip(), (
-            f"export {e['name']!r} has no explanation on the MCP surface"
+        assert isinstance(e.get("summary"), str) and e["summary"].strip(), (
+            f"export {e['name']!r} has no one-line explanation on the MCP surface"
         )
-        if e["kind"] == "function":
-            assert e.get("signature"), f"callable {e['name']!r} lacks a signature"
+    assert "docs/sdk-api.md" in cap["note"], "sdk topic must point at the full signature reference"
 
 
 def test_capability_index_advertises_the_sdk_topic():
