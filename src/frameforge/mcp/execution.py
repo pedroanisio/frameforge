@@ -66,8 +66,41 @@ from frameforge.sdk.io import serialize
 
 SESSION_DIR = {str(session_dir)!r}
 OUTPUT_YAML_PATH = {str(yaml_path)!r}
+SCRIPT_PATH = {str(script_path)!r}
 BUILD_ERROR_PATH = str(Path(SESSION_DIR) / {BUILD_ERROR_FILE!r})
 BUILD_FUNCTION_NAMES = {BUILD_FUNCTION_NAMES!r}
+DOC_CONTRACT_HINT = (
+    "expose a document: write OUTPUT_YAML_PATH, set doc/document/builder, "
+    "or define build() returning a DocumentBuilder"
+)
+RUNTIME_HINT = (
+    "the sdk code raised; see stderr_tail for the full traceback and fix the "
+    "named line, then re-run"
+)
+
+
+def _emit_structured_error(message, hint):
+    # Write the sidecar the parent lowers into `error`/`hint`, so ANY failure is
+    # actionable in one round-trip, not just schema-validation failures.
+    Path(BUILD_ERROR_PATH).write_text(
+        json.dumps({{"error": message, "hint": hint, "issues": []}}),
+        encoding="utf-8",
+    )
+
+
+def _emit_runtime_error(exc):
+    import traceback as _tb
+
+    tbe = _tb.TracebackException.from_exception(exc)
+    frame = None
+    for entry in tbe.stack:              # deepest frame inside the caller's code
+        if entry.filename == SCRIPT_PATH:
+            frame = entry
+    where = (" (line " + str(frame.lineno) + ")") if frame is not None else ""
+    _emit_structured_error(type(exc).__name__ + ": " + str(exc) + where, RUNTIME_HINT)
+    # the FULL traceback still goes to stderr — structuring is additive
+    print("".join(tbe.format()), file=sys.stderr)
+    raise SystemExit(1)
 
 
 def _pointer(loc):
@@ -125,6 +158,18 @@ try:
         out.write_text(serialize(candidate, format="yaml"), encoding="utf-8")
 except ValidationError as exc:
     _emit_validation_error(exc)
+except SystemExit as exc:
+    # The document-discovery contract (and any explicit non-zero exit): carry the
+    # message itself, never the opaque "exited with a non-zero status".
+    _code = exc.code
+    if _code in (0, None):
+        raise
+    _msg = _code if isinstance(_code, str) else "sdk code exited with status " + str(_code)
+    _emit_structured_error(_msg, DOC_CONTRACT_HINT)
+    print(_msg, file=sys.stderr)
+    raise SystemExit(1)
+except BaseException as exc:
+    _emit_runtime_error(exc)
 """
 
 
@@ -154,6 +199,8 @@ def _apply_build_error(result: dict[str, Any], session_dir: Path) -> None:
     result["validation"] = {"ok": False, "issues": issues}
     if data.get("error"):
         result["error"] = data["error"]
+    if data.get("hint"):
+        result["hint"] = data["hint"]
 
 
 def _decode_stream(value: Any) -> str:

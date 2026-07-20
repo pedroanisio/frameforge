@@ -70,6 +70,65 @@ def test_runtime_error_surfaces_stderr_tail_in_the_summary(tmp_path):
     assert "RuntimeError" in summary["stderr_tail"]
 
 
+def test_runtime_error_names_the_exception_in_the_error_headline(tmp_path):
+    """`error` must name the actual failure, not the generic exit status.
+
+    The traceback already reaches `stderr_tail`, but a model reads `error`
+    first; a generic "exited with a non-zero status" makes every distinct bug
+    (TypeError, KeyError, NameError) look identical and forces a second pass
+    over the payload. Regression for the opaque-headline defect.
+    """
+    code = (
+        "from frameforge.sdk.canon import modular_scale\n"
+        "scale = modular_scale(11)\n"
+        "big = scale[0]   # it is a mapping, not a list\n"
+    )
+    result = run_sdk_code(code, session_id="keyerr", session_root=tmp_path, raster_png=False)
+
+    assert result["ok"] is False
+    assert "KeyError" in result["error"], result["error"]
+    assert "exited with a non-zero status" not in result["error"]
+    # the offending line of the CALLER's code, so no second round-trip is needed
+    assert "line 3" in result["error"], result["error"]
+
+
+def test_runtime_error_carries_an_actionable_hint(tmp_path):
+    """`ok:false` must come with a hint, per this module's envelope contract."""
+    code = "raise RuntimeError('boom-marker-xyz')\n"
+    result = run_sdk_code(code, session_id="hinted", session_root=tmp_path, raster_png=False)
+
+    assert result["ok"] is False
+    assert result.get("hint"), "runtime failure returned no hint"
+    assert "stderr_tail" in result["hint"] or "traceback" in result["hint"]
+
+
+def test_runtime_error_still_preserves_the_full_traceback_in_stderr(tmp_path):
+    """Structuring the headline must not cost the full traceback (additive)."""
+    code = "def inner():\n    raise ValueError('deep-marker')\ninner()\n"
+    result = run_sdk_code(code, session_id="tb", session_root=tmp_path, raster_png=False)
+
+    assert result["ok"] is False
+    assert "Traceback" in result["stderr"]
+    assert "deep-marker" in result["stderr"]
+    assert "inner" in result["stderr"], "the failing frame must survive"
+
+
+def test_missing_document_explains_the_build_contract(tmp_path):
+    """Code that runs but exposes no document names the contract + how to fix.
+
+    This is the most common first-try failure and it previously rendered as the
+    same opaque "non-zero status" as a syntax bug.
+    """
+    code = "x = 1 + 1\n"   # runs fine, produces no FrameForge document
+    result = run_sdk_code(code, session_id="nodoc", session_root=tmp_path, raster_png=False)
+
+    assert result["ok"] is False
+    assert "no FrameForge document found" in result["error"], result["error"]
+    assert "exited with a non-zero status" not in result["error"]
+    assert result.get("hint"), "doc-contract failure returned no hint"
+    assert "build()" in result["hint"]
+
+
 def test_invalid_document_returns_structured_validation_issues(tmp_path):
     """A schema-invalid build lowers Pydantic errors into validation.issues."""
     code = (
