@@ -134,6 +134,7 @@ The 133 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`style_richness_showcase.py`](../static/examples/style_richness_showcase.py) | Style & colour richness — effect stack, appearance stack, recolor, guide. |
 | [`sublime_ttl_screenshot.py`](../static/examples/sublime_ttl_screenshot.py) | Recreate the Sublime Text (.ttl) desktop screenshot with the FrameForge SDK. |
 | [`syrus_proposal.py`](../static/examples/syrus_proposal.py) | SYRUS — client-acquisition proposal, built in the "Modern Sovereign" brand. |
+| [`taskello_card.py`](../static/examples/taskello_card.py) | Taskello card — a pure-primitive recreation of a blurred-photo UI card. |
 | [`tdf_stage3_poster.py`](../static/examples/tdf_stage3_poster.py) | Stage-poster reconstruction study, v2 — geometry measured from the reference. |
 | [`topology_perspective.py`](../static/examples/topology_perspective.py) | Demo of the SDK topology + perspective helpers. |
 | [`trebuchet_drawings.py`](../static/examples/trebuchet_drawings.py) | Author a 30-sheet engineering drawing package for a counterweight trebuchet. |
@@ -144,7 +145,6 @@ The 133 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`vectorization_workflow.py`](../static/examples/vectorization_workflow.py) | AI-Assisted Vectorization Workflow — a product/landing composition. |
 | [`visual_identities.py`](../static/examples/visual_identities.py) | Five documents with nothing visually in common. |
 | [`vscode_frameforge_ide.py`](../static/examples/vscode_frameforge_ide.py) | Recreate the FrameForge VSCode IDE screenshot with the FrameForge SDK. |
-| [`warrant_design_system.py`](../static/examples/warrant_design_system.py) | Warrant — the design-system proposal, typeset in its own system. |
 | [`web_design_proposal.py`](../static/examples/web_design_proposal.py) | Web Design Proposal — a premium editorial proposal booklet, authored with the SDK. |
 | [`widgets_gallery.py`](../static/examples/widgets_gallery.py) | Gallery + dashboard for the SDK's UI-widget layer (``frameforge.sdk.widgets``). |
 | [`world_cup_book.py`](../static/examples/world_cup_book.py) | World Cup — a 20-page illustrated book authored entirely with the FrameForge SDK. |
