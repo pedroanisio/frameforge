@@ -30,7 +30,7 @@ case "${cmd}" in
     # A consuming codebase compares these against its checkout and rebuilds on skew.
     run python -c "$(cat <<'PY'
 import pathlib, tomllib
-from models.frameforge import HEAD_VERSION
+from frameforge.model import HEAD_VERSION
 meta = tomllib.loads(pathlib.Path("/app/pyproject.toml").read_text())
 stamp = pathlib.Path("/app/.build-stamp")
 print("package", meta["project"]["version"])
