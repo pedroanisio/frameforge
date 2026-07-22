@@ -253,6 +253,7 @@
       "loft",
       "lorem",
       "lorem_paragraphs",
+      "lower_embedded_svg",
       "lsystem",
       "manifold",
       "mask_gradient",
@@ -2097,6 +2098,13 @@
     },
     {
       "name": "lorem_paragraphs",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "lower_embedded_svg",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

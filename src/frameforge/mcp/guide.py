@@ -121,6 +121,13 @@ Fluent builder:
   - Regions & grading (`frameforge.sdk.region`): `select_in(doc, box)` / `extract_objects`
     pick objects by area; `region_grade` / `gradient_map(objects, ...)` apply a positional
     colour grade; `place_region` re-lays a captured region; `object_bbox` measures it.
+  - SVG ingest & embedded lowering (`frameforge.sdk.io`): `svg_to_objects(svg, box=...)`
+    ingests SVG text, a `.svg` path, or a `data:image/svg+xml` URI (plain/URL-encoded/
+    base64) as native objects; `lower_embedded_svg(doc)` walks a document and replaces
+    every embedded-SVG `image` (literal src or a `defs.assets` key) with a `group` of
+    native objects fitted into its box — stable `<id>.<i>` child ids + `meta.region`
+    provenance — so recolor/design_audit/planar/effects can reach detail that was
+    trapped inside opaque image blobs.
 - Style richness (2.4.0 object fields + helpers):
   - `effects: [{kind: "shadow"|"glow", preset?, color/blur/dx/dy/opacity?}, ...]` —
     an ORDERED effect stack (kinds may repeat, first->last); `appearance:

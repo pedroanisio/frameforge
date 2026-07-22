@@ -27,8 +27,10 @@ collapsed into the parent ``<text>`` run.
 """
 from __future__ import annotations
 
+import base64
 import math
 import re
+import urllib.parse
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any, Optional, Sequence
@@ -52,10 +54,29 @@ def _localname(tag: str) -> str:
     return tag.rsplit("}", 1)[-1]
 
 
+def _decode_svg_data_uri(uri: str) -> str:
+    """Decode a ``data:image/svg+xml`` URI (plain, URL-encoded, or base64)."""
+    header, sep, payload = uri.partition(",")
+    if not sep:
+        raise ValueError("data:image/svg+xml URI has no ',' payload separator")
+    if ";base64" in header:
+        try:
+            return base64.b64decode(payload, validate=True).decode("utf-8")
+        except Exception as exc:
+            raise ValueError(
+                "data:image/svg+xml URI payload is not valid base64") from exc
+    return urllib.parse.unquote(payload)
+
+
 def _load(svg: "str | Path") -> str:
     if isinstance(svg, Path):
         return svg.read_text(encoding="utf-8")
     s = str(svg)
+    if s.startswith("data:"):
+        if not s.startswith("data:image/svg+xml"):
+            raise ValueError(
+                f"unsupported data URI (expected image/svg+xml): {s[:48]!r}")
+        return _decode_svg_data_uri(s)
     if s.lstrip().startswith("<"):
         return s
     return Path(s).read_text(encoding="utf-8")
@@ -427,7 +448,8 @@ def svg_to_objects(svg: "str | Path", *, box: Optional[Sequence[float]] = None,
                    data_attrs: bool = False) -> list[dict[str, Any]]:
     """Return FrameForge object dicts for every drawable element in ``svg``.
 
-    ``svg`` is SVG text or a path to a ``.svg`` file. ``box`` (``[x, y, w, h]``),
+    ``svg`` is SVG text, a path to a ``.svg`` file, or a ``data:image/svg+xml``
+    URI (plain, URL-encoded, or base64 payload). ``box`` (``[x, y, w, h]``),
     when given, fits the document's viewBox into that box (centered, aspect
     preserved) via a ``style.transform`` applied to every object; element/group
     ``transform`` attributes are composed on top.

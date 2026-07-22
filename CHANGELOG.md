@@ -9,6 +9,32 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — feat(sdk): embedded-SVG ingest + document-level lowering (2026-07-22)
+
+Detail trapped inside `data:image/svg+xml` image objects was invisible to every
+object-level tool (recolor, `--to audit`, planar, effects). Both halves of the
+hand-rolled workaround in `tooling/hyperrealistic_canvas.py` are now engine
+surface (the tool now consumes them):
+
+- **`svg_to_objects` accepts `data:image/svg+xml` URIs** — plain, URL-encoded,
+  or base64 payloads — alongside SVG text and `.svg` paths; non-SVG data URIs
+  and bad payloads raise actionable `ValueError`s
+  (`vision.infrastructure.svg_import._load`).
+- **New SDK export `lower_embedded_svg(doc, *, data_attrs=False)`**
+  (`frameforge.sdk.io`): walks `pages → layers → objects` (recursing through
+  groups) and replaces each embedded-SVG `image` — literal src or one
+  `defs.assets` indirection — with a `group` of native primitives fitted
+  parent-relative into the image's box. The group keeps the image's `id` (or
+  gets a stable `region.<n>`), box, and shared ObjBase fields; children get
+  `<id>.<i>` ids; provenance rides on `meta.region`. Untouched: non-SVG
+  images, `placeholder` images, file paths, undrawable SVGs. Pure — the input
+  document is not mutated.
+- **Compatibility / migration:** none needed; both changes are additive.
+  Reachable end to end via MCP `run_sdk_code` (pinned by test).
+- Tests: `tests/test_svg_embedded_lowering.py` (data-URI ingest forms, lowering
+  contract, purity, defs.assets indirection, nested groups, Document validation,
+  proxy render, MCP round-trip).
+
 ## 2.5.0 — feat(packaging): real package + real CLI; the model moves into the package (2026-07-17)
 
 FrameForge is now a **real installable package** — the virtual-project stance

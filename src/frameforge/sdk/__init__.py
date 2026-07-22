@@ -108,7 +108,7 @@ from frameforge.sdk.figure import (
     place_imported_figure,
 )
 from frameforge.sdk.flow import FlowBuilder
-from frameforge.sdk.io import parse, serialize, svg_to_objects
+from frameforge.sdk.io import lower_embedded_svg, parse, serialize, svg_to_objects
 from frameforge.sdk.layout import Box, BoxLike, column, grid, inset, row
 from frameforge.sdk.markdown import from_markdown
 from frameforge.sdk.macros import (
@@ -367,6 +367,7 @@ __all__ = [
     "loft",
     "lorem",
     "lorem_paragraphs",
+    "lower_embedded_svg",
     "lsystem",
     "manifold",
     "mask_gradient",
