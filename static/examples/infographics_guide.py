@@ -126,7 +126,7 @@ def step_head(m, num, title, dek, y=150):
     m.line([MX, y + 238], [W - MX, y + 238], **_stroke(3, color=INK))
     return y + 272
 
-def card(m, box, title, body, face=PAPER, bar=ACCENT2, title_style=None):
+def card(m, box, title, body, face=PAPER, bar=MUTED, title_style=None):
     x, y, w, h = box
     m.rect([x, y, w, h], fill=face)
     m.rect([x, y, 8, h], fill=bar)
@@ -144,11 +144,19 @@ def action_strip(m, items, y=None, title="NOW IT'S YOUR TURN"):
         m.circle([x + 12, y + 84], 12, fill=ACCENT)
         m.text([x + 34, y + 66, step_w - 44, 94], item, style=ST_INV)
 
+def mark_no(m, x, y, s=26):
+    m.line([x, y], [x + s, y + s], **_stroke(5, color=ACCENT))
+    m.line([x + s, y], [x, y + s], **_stroke(5, color=ACCENT))
+
+def mark_yes(m, x, y, s=28):
+    m.polyline([[x, y + s * 0.5], [x + s * 0.36, y + s * 0.92], [x + s, y + s * 0.08]],
+               **_stroke(5, color=ACCENT2))
+
 def challenge(m, y, q):
     """Design-challenge callout: one accent-ruled question."""
-    m.line([MX, y], [MX, y + 106], **_stroke(5, color=ACCENT))
+    m.line([MX, y], [MX, y + 134], **_stroke(5, color=ACCENT))
     m.text([MX + 26, y, 250, 24], "DESIGN CHALLENGE", style=ST_KICK)
-    m.text([MX + 26, y + 30, CW - 52, 78], q, style=ST_BODYM)
+    m.text([MX + 26, y + 30, 700, 104], q, style=ST_BODYM)
 
 
 # ================================================================ page 1 ----
@@ -170,6 +178,7 @@ cx, cw = 880, 250
 m.rect([cx - 30, 200, cw + 60, 1240], fill=PANEL)
 m.ring([cx + cw / 2, 330], 78, 46, fill=ACCENT2)
 m.sector([cx + cw / 2, 330], 78, -90, 30, fill=ACCENT)
+m.circle([cx + cw / 2, 330], 46, fill=PANEL)
 bars = [(0.55, ACCENT2), (0.8, ACCENT2), (1.0, ACCENT), (0.42, ACCENT2)]
 for i, (f, c) in enumerate(bars):
     bh = int(220 * f)
@@ -207,7 +216,7 @@ part_data = [
     ("PART II — DESIGN A VISUAL STORY", ACCENT2,
      [("4", "Identify data & visuals", "evidence"),
       ("5", "Select a layout", "the stage"),
-      ("6", "Choose design elements", "colour · type · flow"),
+      ("6", "Choose design elements", "style & flow"),
       ("7", "Sketch your ideas", "cheap drafts")]),
     ("PART III — BRING IT TO LIFE", INK,
      [("8", "Draft the infographic", "build"),
@@ -231,7 +240,7 @@ for label, tint, steps in part_data:
             ax = x + sw + 3
             m.line([ax, y + 150], [ax + 18, y + 150], **_stroke(3, color=MUTED))
     y += 300
-m.text([MX, y + 6, CW, 66],
+m.text([MX, y + 6, 720, 66],
        "Checkpoint rule: at the end of each part, re-read your purpose "
        "statement. If a page element no longer serves it, the element goes.",
        style=ST_BODYM)
@@ -305,16 +314,16 @@ for i, (who, want) in enumerate([
         ("General public", "a story that needs no prior context")]):
     cy = y + 52 + i * 96
     m.rect([x2, cy, W - MX - x2, 84], fill=PAPER)
-    m.rect([x2, cy, 8, 84], fill=ACCENT2)
+    m.rect([x2, cy, 8, 84], fill=MUTED)
     m.text([x2 + 24, cy + 14, 220, 30], who, style=ST_CARDT)
     m.text([x2 + 24, cy + 48, W - MX - x2 - 40, 30], want, style=ST_BODYM)
-challenge(m, 1330,
+challenge(m, y + 500,
           "Serving multiple audiences at once? Design for the primary one, "
           "then check nothing actively confuses the others.")
 action_strip(m, [
     "Write one sentence naming your primary audience.",
     "List the three things they already know.",
-    "Decide the device or surface they will meet it on."])
+    "Decide the device or surface they will meet it on."], y=y + 640)
 
 # ================================================================ page 5 ----
 m = scaffold("p05", "PART I — CRAFT A POWERFUL MESSAGE", 5)
@@ -328,22 +337,33 @@ for ang, label in [(-150, "Story"), (-90, "Data"), (-30, "Layout"),
     import math
     ex = hub_x + math.cos(math.radians(ang)) * 300
     ey = hub_y + math.sin(math.radians(ang)) * 210
-    m.line([hub_x, hub_y], [ex, ey], **_stroke(2, color=FAINT))
+    m.line([hub_x, hub_y], [ex, ey], **_stroke(2, color=MUTED))
     m.circle([ex, ey], 56, fill=PAPER)
+    m.circle([ex, ey], 56, fill="none", **_stroke(2.5, color=INK))
     m.text([ex - 52, ey - 14, 104, 28], label, style=ST_CARDT_C)
 m.circle([hub_x, hub_y], hub_r, fill=ACCENT)
 m.text([hub_x - 90, hub_y - 30, 180, 60], "PURPOSE", style=ST_WHITET_C)
-m.text([MX, y + 560, CW, 92],
+m.text([MX, y + 560, 700, 92],
        "Every spoke answers to the hub: when a chart, colour, or channel "
        "cannot say which part of the purpose it serves, it is decoration.",
        style=ST_BODYM)
-challenge(m, 1330,
+for i, (tag, txt, tint) in enumerate([
+        ("A PURPOSE THAT WORKS", "“This infographic exists so that district "
+         "administrators will adopt the new reporting checklist.”", ACCENT2),
+        ("TOO VAGUE TO DESIGN FROM", "“This infographic exists so that "
+         "people will know about our study.”", ACCENT)]):
+    ex_x = MX + i * (CW / 2 + 11)
+    m.rect([ex_x, y + 680, CW / 2 - 11, 170], fill=PAPER)
+    m.rect([ex_x, y + 680, 8, 170], fill=tint)
+    m.text([ex_x + 24, y + 698, CW / 2 - 60, 24], tag, style=ST_KICK2)
+    m.text([ex_x + 24, y + 730, CW / 2 - 60, 104], txt, style=ST_BODY)
+challenge(m, y + 880,
           "Part of a larger study? The infographic's purpose is narrower "
           "than the study's — one finding, sharply told, not all of them.")
 action_strip(m, [
     "Complete: “This infographic exists so that ___ will ___.”",
     "Pin the sentence beside your screen.",
-    "Test each later decision against it."])
+    "Test each later decision against it."], y=y + 1020)
 
 # ================================================================ page 6 ----
 m = scaffold("p06", "PART I — CRAFT A POWERFUL MESSAGE", 6)
@@ -378,18 +398,18 @@ m.text([x2, y + 314, W - MX - x2, 150],
        "Develop a single compelling central message and conclude with "
        "purpose. Cite your sources on the graphic itself — credibility is "
        "part of the design.", style=ST_BODY)
-challenge(m, 1330,
+challenge(m, y + 510,
           "Can't compress the story? You are holding two messages — split "
           "them into two infographics rather than blur one.")
 action_strip(m, [
     "Draft the title and central message as plain sentences.",
     "Write the intro a stranger would need.",
-    "Choose the action the conclusion asks for."])
+    "Choose the action the conclusion asks for."], y=y + 650)
 
 
 # ================================================================ page 7 ----
 m = scaffold("p07", "PART II — DESIGN A VISUAL STORY", 7)
-y = step_head(m, "4", "Identify data & visuals",
+y = step_head(m, "4a", "Identify data & visuals",
               "Working from the central message, decide which data are most "
               "relevant and how each will be shown. Visuals are evidence, "
               "not decoration.")
@@ -406,9 +426,9 @@ for i, (t, b) in enumerate(fams):
     x = MX + i * (sw + 22)
     card(m, [x, y + 10, sw, 248], t, b)
 m.text([MX, y + 290, 470, 34], "The icon-array effect", style=ST_H3)
-m.text([MX, y + 334, 460, 150],
-       "Readers process and recall people-like icons better than circles or "
-       "abstract shapes. When the data is about people, let the marks be "
+m.text([MX, y + 334, 460, 190],
+       "Readers tend to process and recall people-like icons more readily than "
+       "circles or abstract shapes. When the data is about people, let the marks be "
        "people — one glyph per unit, filled to the count.", style=ST_BODY)
 ax0 = MX + 530
 m.rect([ax0 - 20, y + 290, W - MX - ax0 + 20, 190], fill=PAPER)
@@ -420,48 +440,51 @@ for r in range(2):
         m.circle([px + 16, py + 10], 11, fill=c)
         m.rect([px + 6, py + 26, 20, 34], fill=c)
 m.text([ax0, y + 492, 400, 26], "e.g. “7 in 10 completed the program”",
-       style=ST_MONO)
-m.text([MX, y + 540, CW, 92],
+       style=ST_SMALL)
+m.text([MX, y + 540, 700, 110],
        "Two duties before anything ships: visuals must be culturally "
        "sensitive to the audience reading them, and every image, icon, and "
        "photo must clear its licence.", style=ST_BODYM)
 action_strip(m, [
     "List each claim the message makes.",
     "Attach one visual family to each claim.",
-    "Check licences and cultural fit now, not at the end."])
+    "Check licences and cultural fit now, not at the end."], y=y + 700)
 
 # ================================================================ page 8 ----
 m = scaffold("p08", "PART II — DESIGN A VISUAL STORY", 8)
-m.text([MX, 150, CW, 60], "Choose the data display", style=ST_H1)
-m.text([MX, 224, 900, 96],
-       "One chart, one claim. Pick the form that shows the claim's shape — "
-       "then strip everything the claim does not need.", style=ST_LEAD)
+y = step_head(m, "4b", "Choose the data display",
+              "One chart, one claim. Pick the form that shows the claim's "
+              "shape — then strip everything the claim does not need.")
 qw = (CW - 22) / 2
 def chart_panel(x, y2, title, note):
     m.rect([x, y2, qw, 300], fill=PAPER)
     m.text([x + 24, y2 + 20, qw - 48, 30], title, style=ST_CARDT)
     m.text([x + 24, y2 + 250, qw - 48, 40], note, style=ST_SMALL)
     return x + 40, y2 + 80
-bx, by = chart_panel(MX, 350, "Comparison — bars",
+bx, by = chart_panel(MX, y + 20, "Comparison — bars",
                      "Order the bars by value; label directly on the mark.")
-for i, f in enumerate([0.45, 0.7, 1.0, 0.55]):
+for i, f in enumerate([1.0, 0.7, 0.55, 0.45]):
     bh = int(130 * f)
     m.rect([bx + i * 100, by + 140 - bh, 64, bh],
            fill=(ACCENT if f == 1.0 else ACCENT2))
+    m.text([bx + i * 100, by + 116 - bh, 64, 22], str(int(f * 48)),
+           style=ST_SMALL)
 m.line([bx - 6, by + 140], [bx + 380, by + 140], **_stroke(2.5, color=INK))
-lx, ly = chart_panel(MX + qw + 22, 350, "Trend — line",
+lx, ly = chart_panel(MX + qw + 22, y + 20, "Trend — line",
                      "Time runs left to right; mark the point that matters.")
 pts = [[lx + i * 72, ly + 130 - v] for i, v in
        enumerate([8, 46, 30, 78, 60, 122])]
 m.polyline(pts, **_stroke(5, color=ACCENT2))
 m.circle([pts[-1][0], pts[-1][1]], 9, fill=ACCENT)
 m.line([lx - 6, ly + 140], [lx + 380, ly + 140], **_stroke(2.5, color=INK))
-px_, py_ = chart_panel(MX, 690, "Part of a whole — donut",
+px_, py_ = chart_panel(MX, y + 360, "Part of a whole — donut",
                        "Few slices, one highlighted; percentages, labelled.")
-m.ring([px_ + 160, py_ + 70, ], 92, 54, fill=ACCENT2)
+m.ring([px_ + 160, py_ + 70], 92, 54, fill=ACCENT2)
 m.sector([px_ + 160, py_ + 70], 92, -90, 20, fill=ACCENT)
 m.circle([px_ + 160, py_ + 70], 54, fill=PAPER)
-sx, sy = chart_panel(MX + qw + 22, 690, "Relationship — scatter",
+m.text([px_ + 268, py_ - 10, 80, 24], "31 %", style=ST_SMALL)
+m.text([px_ + 10, py_ + 120, 80, 24], "69 %", style=ST_SMALL)
+sx, sy = chart_panel(MX + qw + 22, y + 360, "Relationship — scatter",
                      "Two measures per mark; let the cluster tell the story.")
 import random
 random.seed(7)
@@ -471,21 +494,21 @@ for _ in range(26):
     m.circle([rx, ry], 6, fill=ACCENT2)
 m.circle([sx + 320, sy + 34], 8, fill=ACCENT)
 m.line([sx - 6, sy + 150], [sx + 374, sy + 150], **_stroke(2.5, color=INK))
-m.text([MX, 1030, CW, 34], "Then remove the clutter", style=ST_H3)
+m.text([MX, y + 700, CW, 34], "Then remove the clutter", style=ST_H3)
 for i, tip in enumerate([
         "Cut gridlines, borders, and legends the labels already replace.",
         "Multiple font treatments on one chart add noise, not order.",
         "If a cue adds no visual value — like an arrow nobody needs — "
         "delete it."]):
-    m.circle([MX + 14, 1092 + i * 54], 5, fill=ACCENT)
-    m.text([MX + 38, 1076 + i * 54, CW - 60, 48], tip, style=ST_BODY)
-challenge(m, 1258,
+    m.circle([MX + 14, y + 762 + i * 68], 5, fill=ACCENT)
+    m.text([MX + 38, y + 746 + i * 68, 640, 64], tip, style=ST_BODY)
+challenge(m, y + 950,
           "Unsure between two chart forms? Sketch both and show a colleague "
-          "for five seconds each — keep the one whose claim they can repeat.")
+          "for three seconds each — keep the one whose claim they can repeat.")
 
 # ================================================================ page 9 ----
 m = scaffold("p09", "PART II — DESIGN A VISUAL STORY", 9)
-y = step_head(m, "5", "Select a layout",
+y = step_head(m, "5a", "Select a layout",
               "Layout is the audience interface: where they meet the "
               "graphic decides its shape, size, and level of interaction.")
 m.text([MX, y, 470, 34], "Format follows the surface", style=ST_H3)
@@ -509,25 +532,24 @@ for i, (t, b) in enumerate([
         ("Interactive", "the reader explores their own path")]):
     cy = y + 50 + i * 88
     m.rect([x2, cy, W - MX - x2, 76], fill=PAPER)
-    m.rect([x2, cy, 8, 76], fill=(ACCENT if i == 4 else ACCENT2))
+    m.rect([x2, cy, 8, 76], fill=(ACCENT if i == 0 else MUTED))
     m.text([x2 + 24, cy + 12, 220, 28], t, style=ST_CARDT)
     m.text([x2 + 24, cy + 44, W - MX - x2 - 40, 26], b, style=ST_SMALL)
-challenge(m, 1330,
+challenge(m, y + 540,
           "Scaling to a poster? Low-resolution visuals pixelate when "
           "enlarged, and white space that felt right on screen can gape at "
           "wall size — re-check both at true scale.")
 action_strip(m, [
     "Name the primary surface: print, page, feed, or wall.",
     "Pick orientation from the surface, not from habit.",
-    "Choose the lowest interaction level that serves the purpose."])
+    "Choose the lowest interaction level that serves the purpose."], y=y + 680)
 
 # =============================================================== page 10 ----
 m = scaffold("p10", "PART II — DESIGN A VISUAL STORY", 10)
-m.text([MX, 150, CW, 60], "The grid does the hand-holding", style=ST_H1)
-m.text([MX, 224, 900, 132],
-       "Hierarchy is visual hand-holding: putting information in groups, "
-       "columns, and levels tells the reader where to begin and what to "
-       "read next. A grid makes that order repeatable.", style=ST_LEAD)
+y = step_head(m, "5b", "Grids do the hand-holding",
+              "Hierarchy is visual hand-holding: groups, columns, and levels "
+              "tell the reader where to begin and what to read next. A grid "
+              "makes that order repeatable.")
 grids = [("Manuscript", "one column of continuous story"),
          ("Multicolumn", "parallel threads and comparisons"),
          ("Modular", "cards of equal-weight chunks"),
@@ -535,8 +557,8 @@ grids = [("Manuscript", "one column of continuous story"),
 sw = (CW - 3 * 22) / 4
 for i, (t, b) in enumerate(grids):
     x = MX + i * (sw + 22)
-    m.rect([x, 380, sw, 292], fill=PAPER)
-    gx, gy, gw2 = x + 20, 400, sw - 40
+    m.rect([x, y + 20, sw, 292], fill=PAPER)
+    gx, gy, gw2 = x + 20, y + 40, sw - 40
     if i == 0:
         m.rect([gx, gy, gw2, 180], fill=PANEL)
     elif i == 1:
@@ -552,36 +574,36 @@ for i, (t, b) in enumerate(grids):
         m.rect([gx, gy, gw2, 108], fill=ACCENT2)
         m.rect([gx, gy + 120, gw2 / 2 - 3, 60], fill=PANEL)
         m.rect([gx + gw2 / 2 + 3, gy + 120, gw2 / 2 - 3, 60], fill=PANEL)
-    m.text([x + 20, 596, sw - 40, 30], t, style=ST_CARDT)
-    m.text([x + 20, 630, sw - 40, 50], b, style=ST_SMALL)
-m.text([MX, 712, 470, 34], "Balance the attractions", style=ST_H3)
-m.text([MX, 758, 460, 210],
+    m.text([x + 20, y + 236, sw - 40, 30], t, style=ST_CARDT)
+    m.text([x + 20, y + 270, sw - 40, 50], b, style=ST_SMALL)
+m.text([MX, y + 352, 470, 34], "Balance the attractions", style=ST_H3)
+m.text([MX, y + 398, 460, 210],
        "Everything on the page pulls at the eye — darker, larger, more "
        "eccentric pulls harder. Balance like a steelyard: a heavy element "
        "near the axis, answered by a small one far from it. Sections and "
        "white space then steer the eye toward the central message.",
        style=ST_BODY)
 bx0 = MX + 530
-m.rect([bx0, 712, W - MX - bx0, 230], fill=PAPER)
+m.rect([bx0, y + 352, W - MX - bx0, 230], fill=PAPER)
 fx = bx0 + (W - MX - bx0) / 2
-m.line([fx, 742], [fx, 892], **_stroke(2, color=FAINT))
-m.line([bx0 + 40, 892], [W - MX - 40, 892], **_stroke(3, color=INK))
-m.rect([fx - 150, 802, 120, 90], fill=ACCENT)
-m.rect([fx + 170, 856, 44, 36], fill=ACCENT2)
-m.text([bx0 + 24, 952, W - MX - bx0 - 48, 50],
+m.line([fx, y + 382], [fx, y + 532], **_stroke(2, color=FAINT))
+m.line([bx0 + 40, y + 532], [W - MX - 40, y + 532], **_stroke(3, color=INK))
+m.rect([fx - 150, y + 442, 120, 90], fill=ACCENT)
+m.rect([fx + 170, y + 496, 44, 36], fill=ACCENT2)
+m.text([bx0 + 24, y + 592, W - MX - bx0 - 48, 50],
        "heavy near the axis · light far out — repose without symmetry",
        style=ST_SMALL)
-challenge(m, 1330,
+challenge(m, y + 690,
           "A section nobody reads? It is either off-grid, off-message, or "
           "both — move it onto the grid or move it out of the graphic.")
 action_strip(m, [
     "Choose a grid family before placing anything.",
     "Assign each story section a zone sized by importance.",
-    "Squint: one focal mass, answered — not five shouting."])
+    "Squint: one focal mass, answered — not five shouting."], y=y + 830)
 
 # =============================================================== page 11 ----
 m = scaffold("p11", "PART II — DESIGN A VISUAL STORY", 11)
-y = step_head(m, "6", "Colour with intention",
+y = step_head(m, "6a", "Colour with intention",
               "Select one scheme that serves the audience and message, "
               "assign each colour a duty, and apply it consistently to "
               "every element — colour is information, not paint.")
@@ -599,13 +621,13 @@ for i, (c, t, b) in enumerate(duties):
     m.text([x, y + 122, sw, 24], t, style=ST_KICK2)
     m.text([x, y + 150, sw, 72], b, style=ST_SMALL)
 m.text([MX, y + 250, 500, 34], "Dose it like a page", style=ST_H3)
-m.rect([MX, y + 300, int(CW * 0.62), 44], fill=GROUND)
-m.rect([MX, y + 300, int(CW * 0.62), 44], fill="none", **_stroke(2, color=FAINT))
-m.rect([MX + int(CW * 0.62), y + 300, int(CW * 0.30), 44], fill=INK)
-m.rect([MX + int(CW * 0.92), y + 300, CW - int(CW * 0.92), 44], fill=ACCENT)
+m.rect([MX, y + 300, int(CW * 0.60), 44], fill=GROUND)
+m.rect([MX, y + 300, int(CW * 0.60), 44], fill="none", **_stroke(2, color=FAINT))
+m.rect([MX + int(CW * 0.60), y + 300, int(CW * 0.30), 44], fill=INK)
+m.rect([MX + int(CW * 0.90), y + 300, CW - int(CW * 0.90), 44], fill=ACCENT)
 m.text([MX, y + 354, CW, 26],
-       "ground ~62 %   ·   text & structure ~30 %   ·   accent ~8 %",
-       style=ST_MONO)
+       "ground ~60 %   ·   text & structure ~30 %   ·   accent ~10 %",
+       style=ST_SMALL)
 m.text([MX, y + 420, 470, 34], "The grey test", style=ST_H3)
 m.text([MX, y + 464, 460, 156],
        "Drain the design of hue. If the hierarchy still reads in greyscale, "
@@ -622,23 +644,23 @@ for k, (c1, c2, c3) in enumerate([(ACCENT, ACCENT2, PANEL),
     m.text([ox + 18, y + 552, 174, 24],
            "in colour" if k == 0 else "in grey — still reads",
            style=ST_SMALL)
-challenge(m, 1330,
+challenge(m, y + 660,
           "Need a second accent? Take the first accent's complement, "
           "subdued — never both at full strength and equal area.")
 action_strip(m, [
     "Pick the scheme; write each colour's duty beside its swatch.",
     "Apply colours to elements consistently, page-wide.",
-    "Print it grey once before anyone sees it in colour."])
+    "Print it grey once before anyone sees it in colour."], y=y + 800)
 
 # =============================================================== page 12 ----
 m = scaffold("p12", "PART II — DESIGN A VISUAL STORY", 12)
-y = step_head(m, "6", "Type that stays harmonious",
+y = step_head(m, "6b", "Type that stays harmonious",
               "Fonts carry the reading. Choose few, size them from one "
               "scale, and let size — not decoration — express hierarchy.",)
 m.text([MX, y, 470, 34], "A working size ladder", style=ST_H3)
 ladder = [("Display 51", S_H1, 700), ("Heading 41", S_H2, 700),
-          ("Subhead 33", S_H3, 650), ("Body 21", S_BODY, 400),
-          ("Caption 17", S_SMALL, 400)]
+          ("Subhead 33", S_H3, 650), ("Lead 26", S_LEAD, 400),
+          ("Body 21", S_BODY, 400), ("Caption 17", S_SMALL, 400)]
 ly2 = y + 50
 for label, size, wgt in ladder:
     stl = doc.define_text_style(f"lad{size}", font_family=DISPLAY if wgt >= 650
@@ -652,13 +674,14 @@ m.text([MX, ly2 + 8, 460, 116],
 x2 = MX + 530
 m.text([x2, y, 490, 34], "Decoration isn't hierarchy", style=ST_H3)
 m.rect([x2, y + 50, W - MX - x2, 150], fill=PAPER)
-m.text([x2 + 24, y + 66, 60, 40], "✕", style=ST_H2)
+m.rect([x2, y + 50, 8, 150], fill=ACCENT)
+mark_no(m, x2 + 28, y + 74)
 m.text([x2 + 90, y + 74, W - MX - x2 - 110, 112],
        "Bolding, italicising, AND underlining the same line is visual "
        "clutter — three signals fighting for one job.", style=ST_BODY)
 m.rect([x2, y + 220, W - MX - x2, 150], fill=PAPER)
 m.rect([x2, y + 220, 8, 150], fill=ACCENT2)
-m.text([x2 + 24, y + 236, 60, 40], "✓", style=ST_H2)
+mark_yes(m, x2 + 26, y + 240)
 m.text([x2 + 90, y + 244, W - MX - x2 - 110, 112],
        "Use font size (and a single weight step) to rank information — "
        "one change, one meaning.", style=ST_BODY)
@@ -667,17 +690,17 @@ m.text([x2, y + 454, W - MX - x2, 120],
        "One display face for structure, one text face for reading, and a "
        "mono for figures if the data needs it. Every face you add must "
        "earn its seat.", style=ST_BODY)
-challenge(m, 1330,
+challenge(m, y + 640,
           "Tempted by a decorative font? Set the title in it, squint, and "
           "ask whether the audience — not the designer — gains anything.")
 action_strip(m, [
     "Choose the text face first, display second.",
     "Build the ladder from one ratio; delete odd sizes.",
-    "Strip double treatments wherever two signals do one job."])
+    "Strip double treatments wherever two signals do one job."], y=y + 780)
 
 # =============================================================== page 13 ----
 m = scaffold("p13", "PART II — DESIGN A VISUAL STORY", 13)
-y = step_head(m, "6", "Flow and the focal point",
+y = step_head(m, "6c", "Flow and the focal point",
               "Decide where the eye lands first and the route it takes "
               "after — then make every cue on the page serve that route.")
 m.text([MX, y, 460, 34], "Give the eye a route", style=ST_H3)
@@ -691,6 +714,13 @@ for k, (label, path_pts) in enumerate([
     pts = [[ox + 30 + px * 0.53, oy + 24 + py * 0.9] for px, py in path_pts]
     m.polyline(pts, **_stroke(4, color=ACCENT2))
     m.circle([pts[0][0], pts[0][1]], 9, fill=ACCENT)
+    ex_, ey_ = pts[-1]
+    dx_, dy_ = ex_ - pts[-2][0], ey_ - pts[-2][1]
+    ln_ = (dx_ * dx_ + dy_ * dy_) ** 0.5 or 1.0
+    ux_, uy_ = dx_ / ln_, dy_ / ln_
+    m.polygon([[ex_ + ux_ * 16, ey_ + uy_ * 16],
+               [ex_ - uy_ * 8, ey_ + ux_ * 8],
+               [ex_ + uy_ * 8, ey_ - ux_ * 8]], fill=ACCENT2)
     m.text([ox + 12, oy + 240, 210, 68], label, style=ST_SMALL)
 x2 = MX + 560
 m.text([x2, y, 440, 34], "One focal point", style=ST_H3)
@@ -703,17 +733,17 @@ m.text([x2, y + 300, 440, 116],
        "The largest, darkest, most eccentric element wins the first "
        "glance — award that win to the central message, deliberately.",
        style=ST_BODY)
-m.text([MX, y + 420, CW, 96],
+m.text([MX, y + 420, 700, 130],
        "Cues must earn their keep: an arrow that guides nobody is clutter "
        "wearing a uniform. Add a cue only when the route fails without it — "
        "and cut it the moment it stops adding visual value.", style=ST_BODYM)
-challenge(m, 1330,
+challenge(m, y + 560,
           "Where does the eye go first? Show the draft for three seconds; "
           "if the answer is not the central message, re-weight the page.")
 action_strip(m, [
     "Mark the intended first glance and route on your sketch.",
     "Size and tone the focal point to win — once.",
-    "Audit every arrow, rule, and box: keep only working cues."])
+    "Audit every arrow, rule, and box: keep only working cues."], y=y + 700)
 
 
 # =============================================================== page 14 ----
@@ -732,7 +762,7 @@ m.rect([sk_x + 230, sk_y + 250, 180, 130], fill="none", **_stroke(3, color=MUTED
 m.rect([sk_x + 30, sk_y + 400, sk_w - 60, 80], fill="none", **_stroke(3, color=MUTED), humanize=wob)
 m.line([sk_x + 40, sk_y + 60], [sk_x + sk_w - 70, sk_y + 66],
        **_stroke(2.5, color=MUTED), humanize=wob)
-m.text([sk_x + 46, sk_y + 150, 200, 30], "message", style=ST_MONO)
+m.text([sk_x + 46, sk_y + 150, 200, 30], "message", style=ST_SMALL)
 x2 = MX + 530
 m.text([x2, y, 490, 34], "Then add detail", style=ST_H3)
 m.text([x2, y + 50, W - MX - x2, 200],
@@ -742,7 +772,7 @@ m.text([x2, y + 50, W - MX - x2, 200],
        "to a basic sketch, then to a detailed one, before opening any "
        "design platform.", style=ST_BODY)
 m.rect([x2, y + 290, W - MX - x2, 254], fill=PAPER)
-m.rect([x2, y + 290, 8, 254], fill=ACCENT2)
+m.rect([x2, y + 290, 8, 254], fill=MUTED)
 m.text([x2 + 26, y + 310, W - MX - x2 - 52, 30], "Why it works",
        style=ST_CARDT)
 m.text([x2 + 26, y + 352, W - MX - x2 - 52, 176],
@@ -750,17 +780,17 @@ m.text([x2 + 26, y + 352, W - MX - x2 - 52, 176],
        "a polished draft defends itself. Iterate where iteration is "
        "cheapest — adjust the process to your own creative flow.",
        style=ST_BODY)
-challenge(m, 1330,
+challenge(m, y + 590,
           "Software pulling you toward its templates? Sketch the story "
           "first — then make the tool serve the sketch, not the reverse.")
 action_strip(m, [
     "Sketch the layout zones from Step 5 in five minutes.",
     "Redraw once with title, visuals, and flow marked.",
-    "Show it to one reader before you open the software."])
+    "Show it to one reader before you open the software."], y=y + 730)
 
 # =============================================================== page 15 ----
 m = scaffold("p15", "PART III — BRING IT TO LIFE", 15)
-y = step_head(m, "8", "Draft: platform & foundation",
+y = step_head(m, "8a", "Draft: platform & foundation",
               "Pick the platform that fits your skills and format, set the "
               "canvas, and lay the foundation before any content lands.")
 m.text([MX, y, 470, 34], "Files that survive scaling", style=ST_H3)
@@ -768,19 +798,20 @@ vx, vy = MX, y + 54
 m.rect([vx, vy, 220, 190], fill=PAPER)
 m.polygon([[vx + 40, vy + 150], [vx + 110, vy + 30], [vx + 180, vy + 150]],
           fill="none", **_stroke(4, color=ACCENT2))
-m.text([vx + 20, vy + 152, 190, 48], "vector — crisp at any size",
+m.text([vx, vy + 198, 220, 48], "vector — crisp at any size",
        style=ST_SMALL)
 rx0, ry0 = MX + 240, y + 54
 m.rect([rx0, ry0, 220, 190], fill=PAPER)
 steps = [(60, 128), (80, 108), (100, 88), (120, 68), (140, 48), (160, 28)]
 for sxx, syy in steps:
     m.rect([rx0 + sxx, ry0 + syy, 22, 22], fill=MUTED)
-m.text([rx0 + 20, ry0 + 152, 200, 48], "raster — pixelates enlarged",
+m.text([rx0, ry0 + 198, 220, 48], "raster — pixelates enlarged",
        style=ST_SMALL)
-m.text([MX, y + 270, 460, 170],
+m.text([MX, y + 310, 460, 230],
        "Vector art (like SVG) scales cleanly and can carry interactivity; "
-       "raster images suit photographs. Match the file type to the job "
-       "and the final surface — especially before poster-scale output.",
+       "raster images suit photographs. For print, supply raster art at "
+       "roughly 300 dpi at final size — below about 150 dpi, expect "
+       "visible pixelation.",
        style=ST_BODY)
 x2 = MX + 530
 m.text([x2, y, 490, 34], "Foundation, in order", style=ST_H3)
@@ -794,18 +825,18 @@ for i, (t, b) in enumerate([
     m.text([x2 + 20, cy + 12, 44, 44], str(i + 1), style=ST_H3)
     m.text([x2 + 76, cy + 14, 300, 28], t, style=ST_CARDT)
     m.text([x2 + 76, cy + 46, W - MX - x2 - 96, 26], b, style=ST_SMALL)
-challenge(m, 1330,
-          "Choosing a platform? The best one is the one whose output "
-          "format, licence terms, and learning curve fit this project — "
-          "not the one with the most features.")
+challenge(m, y + 580,
+          "Choosing a platform? Canva and PowerPoint favour speed and "
+          "familiarity; Illustrator favours control. Judge by output "
+          "format, licence, and learning curve — not feature count.")
 action_strip(m, [
     "Set canvas size from the chosen surface.",
     "Paint ground, then sections, then cues — in that order.",
-    "Collect every visual as the right file type before building."])
+    "Collect every visual as the right file type before building."], y=y + 720)
 
 # =============================================================== page 16 ----
 m = scaffold("p16", "PART III — BRING IT TO LIFE", 16)
-y = step_head(m, "8", "Draft: build the page",
+y = step_head(m, "8b", "Draft: build the page",
               "Bring visuals and text in deliberately: build linearly "
               "through the storyline, or build outward around the focal "
               "point — never all at once, everywhere.")
@@ -816,7 +847,7 @@ for i in range(4):
     zy = by1 + 64 + i * 54
     m.rect([bx1 + 24, zy, 330, 40], fill=PANEL)
     m.text([bx1 + 366, zy + 6, 40, 30], str(i + 1), style=ST_H3)
-m.text([bx1 + 24, by1 + 64 + 4 * 54 + 6, 430, 50],
+m.text([bx1, by1 + 306, 470, 50],
        "top to bottom, section by section — the scroll's natural order",
        style=ST_SMALL)
 bx2 = MX + 530
@@ -829,10 +860,10 @@ for lbl, px2, py2 in [("2", bx2 + 60, by1 + 70), ("3", bx2 + 350, by1 + 84),
                       ("4", bx2 + 66, by1 + 196), ("5", bx2 + 356, by1 + 210)]:
     m.rect([px2, py2, 64, 48], fill=PANEL)
     m.text([px2 + 22, py2 + 8, 30, 30], lbl, style=ST_H3)
-m.text([bx2 + 24, by1 + 250, 400, 26],
+m.text([bx2, by1 + 306, W - MX - bx2, 50],
        "the message first; everything else placed in its orbit",
        style=ST_SMALL)
-m.text([MX, y + 390, 470, 34], "Craft the parts", style=ST_H3)
+m.text([MX, y + 430, 470, 34], "Craft the parts", style=ST_H3)
 for i, tip in enumerate([
         "Icons: colourize to the palette, then layer and group so they "
         "move as one object.",
@@ -840,26 +871,24 @@ for i, tip in enumerate([
         "reaching for stock art.",
         "Data displays: format them in the page's colours and type — a "
         "chart is not a screenshot."]):
-    m.circle([MX + 14, y + 456 + i * 62], 5, fill=ACCENT)
-    m.text([MX + 38, y + 438 + i * 62, CW - 60, 56], tip, style=ST_BODY)
-challenge(m, 1330,
+    m.circle([MX + 14, y + 496 + i * 68], 5, fill=ACCENT)
+    m.text([MX + 38, y + 478 + i * 68, 640, 64], tip, style=ST_BODY)
+challenge(m, y + 700,
           "Placed everything and it still looks busy? Rebuild linearly: "
           "add one section at a time and stop when the story is told.")
 action_strip(m, [
     "Choose your build order: linear or focal-first.",
     "Group each finished section before starting the next.",
-    "Stop building the moment the story reads complete."])
+    "Stop building the moment the story reads complete."], y=y + 840)
 
 # =============================================================== page 17 ----
 m = scaffold("p17", "PART III — BRING IT TO LIFE", 17)
-m.text([MX, 150, CW, 60], "Accessible is the baseline", style=ST_H1)
-m.text([MX, 224, 900, 132],
-       "Accessibility compliance is part of drafting, not a retrofit: if a "
-       "reader cannot perceive the story, the story was not told.",
-       style=ST_LEAD)
+y = step_head(m, "8c", "Accessible is the baseline",
+              "Accessibility compliance is part of drafting, not a retrofit: "
+              "if a reader cannot perceive the story, the story was not told.")
 for i, (t, b) in enumerate([
-        ("Contrast", "Text must stand on its ground in tone — check the "
-         "ratio, not the vibe. Body text needs more than display."),
+        ("Contrast", "Text must stand on its ground in tone — check the ratio, "
+         "not the vibe. Floors: body text 4.5:1, large display 3:1."),
         ("Alt text", "Every meaningful image carries a text alternative "
          "that tells the same story to a screen reader."),
         ("Reading order", "The structure a sighted reader sees is the "
@@ -867,22 +896,23 @@ for i, (t, b) in enumerate([
         ("Never hue alone", "Colour-blind readers lose rank encoded only "
          "in hue — carry it on tone, position, or label too.")]):
     x = MX + (i % 2) * (CW / 2 + 11)
-    cy = 360 + (i // 2) * 200
+    cy = y + 20 + (i // 2) * 200
     card(m, [x, cy, CW / 2 - 11, 180], t, b)
-m.text([MX, 790, 470, 34], "The legend, twice", style=ST_H3)
-lx0, ly0 = MX, 840
+m.text([MX, y + 450, 470, 34], "The legend, twice", style=ST_H3)
+lx0, ly0 = MX, y + 500
 m.rect([lx0, ly0, 470, 150], fill=PAPER)
-m.text([lx0 + 24, ly0 + 14, 60, 40], "✕", style=ST_H2)
+m.rect([lx0, ly0, 8, 150], fill=ACCENT)
+mark_no(m, lx0 + 26, ly0 + 24)
 for j, c in enumerate(["#C24D2C", "#27584F", "#C2A22C"]):
     m.circle([lx0 + 110 + j * 110, ly0 + 46], 14, fill=c)
     m.text([lx0 + 132 + j * 110, ly0 + 34, 80, 24], "series", style=ST_SMALL)
 m.text([lx0 + 24, ly0 + 92, 420, 52],
-       "hue is the only difference — rank lost to 1 in 12 male readers",
+       "hue is the only difference — rank lost to as many as 1 in 12 readers",
        style=ST_SMALL)
 lx1 = MX + 530
 m.rect([lx1, ly0, W - MX - lx1, 150], fill=PAPER)
 m.rect([lx1, ly0, 8, 150], fill=ACCENT2)
-m.text([lx1 + 24, ly0 + 14, 60, 40], "✓", style=ST_H2)
+mark_yes(m, lx1 + 26, ly0 + 22)
 labels2 = [("A · dark", INK), ("B · mid", MUTED), ("C · light", FAINT)]
 for j, (lb, c) in enumerate(labels2):
     m.circle([lx1 + 110 + j * 120, ly0 + 46], 14, fill=c)
@@ -890,17 +920,17 @@ for j, (lb, c) in enumerate(labels2):
 m.text([lx1 + 24, ly0 + 96, W - MX - lx1 - 48, 40],
        "tone + label carry the rank; hue is free to add character",
        style=ST_SMALL)
-m.text([MX, 1030, CW, 90],
+m.text([MX, y + 690, 680, 110],
        "Then remove clutter one last time: decoration that carries no "
        "information taxes every reader, and the readers using assistive "
        "technology pay it twice.", style=ST_BODYM)
-challenge(m, 1330,
+challenge(m, y + 810,
           "Print the draft in greyscale and read it at arm's length: "
           "whatever disappears was carried by hue alone — fix it in tone.")
 action_strip(m, [
     "Check every text/ground pair as a tone ratio.",
     "Write alt text that tells the story, not the pixels.",
-    "Re-read the page in greyscale before sign-off."])
+    "Re-read the page in greyscale before sign-off."], y=y + 950)
 
 # =============================================================== page 18 ----
 m = scaffold("p18", "PART III — BRING IT TO LIFE", 18)
@@ -935,13 +965,13 @@ m.text([x2, y + 578, W - MX - x2, 150],
        "Include members of the actual audience, a content expert, and a "
        "reviewer who can judge cultural appropriateness — the review "
        "process is where that question gets answered.", style=ST_BODY)
-challenge(m, 1330,
+challenge(m, y + 780,
           "Reviewers disagreeing? Weigh feedback against purpose and "
           "audience — not against who argued longest.")
 action_strip(m, [
     "Run the three-second test with a fresh reader.",
     "Work the four-lens checklist top to bottom.",
-    "Log every finding before fixing any of them."])
+    "Log every finding before fixing any of them."], y=y + 920)
 
 # =============================================================== page 19 ----
 m = scaffold("p19", "PART III — BRING IT TO LIFE", 19)
@@ -955,9 +985,16 @@ for k in range(4):
     a0 = -90 + k * 90
     m.sector([cx0, cy0], cr, a0 + 6, a0 + 78,
              fill=(ACCENT2 if k % 2 else PANEL))
+arc = [[cx0 + _math.cos(_math.radians(a)) * (cr + 16),
+        cy0 + _math.sin(_math.radians(a)) * (cr + 16)]
+       for a in range(-176, -105, 7)]
+m.polyline(arc, **_stroke(3, color=MUTED))
+ae = arc[-1]
+m.polygon([[ae[0] + 16, ae[1] + 5], [ae[0] - 8, ae[1] + 9], [ae[0] - 2, ae[1] - 13]],
+          fill=MUTED)
 lblc = [("revise", 0), ("align", 1), ("edit", 2), ("finalize", 3)]
 for t, k in lblc:
-    ang = _math.radians(-45 + k * 90)
+    ang = _math.radians(-48 + k * 90)
     lx2 = cx0 + _math.cos(ang) * (cr + 44) - 40
     ly2 = cy0 + _math.sin(ang) * (cr + 44) - 12
     m.text([lx2, ly2, 96, 24], t, style=ST_SMALL_C)
@@ -972,21 +1009,21 @@ x2 = MX + 530
 m.text([x2, y, 490, 34], "Go where the audience is", style=ST_H3)
 for i, (t, b) in enumerate([
         ("Landing page", "one home URL that everything else points to"),
-        ("Social media", "sized and cropped for the feed it rides in"),
+        ("Social media", "sized for the feed — 1080×1080 square, 1080×1920 story"),
         ("Embedded in a report", "the graphic where the decision happens"),
         ("Newsletter", "the story delivered, not merely available")]):
     cy2 = y + 50 + i * 96
     m.rect([x2, cy2, W - MX - x2, 84], fill=PAPER)
-    m.rect([x2, cy2, 8, 84], fill=ACCENT2)
+    m.rect([x2, cy2, 8, 84], fill=MUTED)
     m.text([x2 + 24, cy2 + 12, 340, 30], t, style=ST_CARDT)
     m.text([x2 + 24, cy2 + 48, W - MX - x2 - 44, 28], b, style=ST_SMALL)
-challenge(m, 1330,
+challenge(m, y + 620,
           "Working with a team? Pair the data storyteller with the "
           "technical skill set — the blend, not either alone, ships it.")
 action_strip(m, [
     "Freeze the message; edit only how it is told.",
     "Export for each channel's size and format.",
-    "Publish, then listen — the audience finishes the review."])
+    "Publish, then listen — the audience finishes the review."], y=y + 760)
 
 # =============================================================== page 20 ----
 m = scaffold("p20", None, 20, footer_note="BUILDING STUNNING INFOGRAPHICS")
@@ -1012,9 +1049,12 @@ for n, t, b in steps20:
     m.text([MX + 480, ty + 2, CW - 480, 44], b, style=ST_BODYM)
     ty += 96
 m.rect([MX, ty + 20, CW, 170], fill=INK)
-m.text([MX + 40, ty + 62, CW - 80, 90],
+m.text([MX + 40, ty + 44, CW - 80, 64],
        "Structure in tone before hue. One message before many charts. "
        "The reader before everything.", style=ST_INV)
+m.circle([MX + 52, ty + 140], 10, fill=ACCENT)
+m.text([MX + 76, ty + 126, CW - 130, 30],
+       "Now pick a dataset and run Part I — today.", style=ST_INVT)
 m.rect([MX, ty + 20, 10, 170], fill=ACCENT)
 
 # ------------------------------------------------------------------ write ---
