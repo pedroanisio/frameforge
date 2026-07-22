@@ -8,12 +8,15 @@ PNG is needed.
 from __future__ import annotations
 
 import asyncio
+import base64
 from concurrent.futures import ThreadPoolExecutor
+import html as _htmllib
 import math
 import os
 from pathlib import Path
 import re
 import struct
+import subprocess
 from typing import Iterable, Sequence
 import zlib
 
@@ -220,14 +223,88 @@ def _in_running_event_loop() -> bool:
     return True
 
 
+# --- variable-font embedding ----------------------------------------------- #
+# Chromium ignores `font-variation-settings` (and `font-stretch`) for fonts it
+# resolves through fontconfig — the variable axis dies silently between the
+# SVG and the raster (probed on Archivo[wdth,wght], 2026-07-22). Web fonts do
+# apply variations, and a document-defined @font-face outranks the system
+# lookup for the same family name — so the fix is to embed each
+# variation-bearing family's variable file as a data: URI face. Documents that
+# never use font-variation-settings take none of this path (no fontconfig
+# calls, byte-identical wrapper HTML).
+_STYLE_ATTR_RE = re.compile(r'style="([^"]*)"')
+_VARIATION_PROP = "font-variation-settings"
+_FAMILY_IN_STYLE_RE = re.compile(r"font-family\s*:\s*(?:&#x27;|&quot;|['\"])?([^;,'\"&]+)")
+
+
+def _resolve_family_file(family: str) -> Path | None:
+    """fontconfig's file for ``family`` — None when unresolvable or inexact."""
+    try:
+        proc = subprocess.run(
+            ["fc-match", "--format", "%{file}\x1f%{family}", family],
+            capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    out = proc.stdout.strip()
+    if not out or "\x1f" not in out:
+        return None
+    file_part, resolved_family = out.split("\x1f", 1)
+    # Refuse a substituted family: embedding the wrong face would cement the
+    # very silent-substitution failure this lane screams about elsewhere.
+    if family.lower() not in resolved_family.lower():
+        return None
+    path = Path(file_part)
+    return path if path.is_file() else None
+
+
+def _variable_font_faces(svg: str) -> list[tuple[str, Path]]:
+    """(family, file) pairs to embed: families the SVG uses WITH
+    font-variation-settings whose fontconfig file carries an ``fvar`` table."""
+    families: list[str] = []
+    for style in _STYLE_ATTR_RE.findall(svg):
+        if _VARIATION_PROP not in style:
+            continue
+        m = _FAMILY_IN_STYLE_RE.search(_htmllib.unescape(style))
+        if m:
+            fam = m.group(1).strip().strip("'\"")
+            if fam and fam not in families:
+                families.append(fam)
+    faces: list[tuple[str, Path]] = []
+    for fam in families:
+        path = _resolve_family_file(fam)
+        if path is None:
+            continue
+        try:
+            data = path.read_bytes()
+        except OSError:
+            continue
+        if b"fvar" in data:                     # variable font table present
+            faces.append((fam, path))
+    return faces
+
+
+def _font_face_css(faces: list[tuple[str, Path]]) -> str:
+    rules = []
+    for family, path in faces:
+        payload = base64.b64encode(path.read_bytes()).decode("ascii")
+        rules.append(
+            f"@font-face{{font-family:'{family}';"
+            f"src:url(data:font/ttf;base64,{payload})}}")
+    return "".join(rules)
+
+
 def _html(svg: str, *, base_dir: str | Path | None) -> str:
     base = ""
     if base_dir is not None:
         uri = Path(base_dir).resolve().as_uri().rstrip("/") + "/"
         base = f'<base href="{_esc(uri)}">'
+    fontfaces = ""
+    if _VARIATION_PROP in svg:                  # cheap gate: plain docs skip all of it
+        fontfaces = _font_face_css(_variable_font_faces(svg))
     return (
         "<!doctype html><meta charset=\"utf-8\">"
-        f"{base}<style>html,body{{margin:0;width:100%;height:100%;overflow:hidden;background:white}}"
+        f"{base}<style>{fontfaces}"
+        "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:white}"
         "svg{display:block}</style>"
         f"{svg}"
     )

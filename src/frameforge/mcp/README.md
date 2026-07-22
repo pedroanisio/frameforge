@@ -207,7 +207,7 @@ the running server.
 | Variable | Effect |
 |---|---|
 | `FRAMEFORGE_MCP_SESSION_ROOT` | Where per-session scratch dirs/artifacts live (default: temp dir). |
-| `FRAMEFORGE_MCP_EDIT_ROOTS` | `os.pathsep`-joined roots the client-file tools may read/write (default: `examples`). |
+| `FRAMEFORGE_MCP_EDIT_ROOTS` | `os.pathsep`-joined roots the client-file tools may read/write (default: `static/examples`). |
 | `FRAMEFORGE_MCP_INPUT_ROOTS` | Confine `propose_*` inputs to these roots (unset = any readable path). |
 | `FRAMEFORGE_MCP_KEEP_ENV` | Truthy keeps secret-looking env vars in the code subprocess (default: stripped). |
 | `FRAMEFORGE_MCP_STRUCT_LOG_PATH` | Path for the JSONL structured tool log (default: under the session root). |
@@ -216,7 +216,18 @@ the running server.
 | `FRAMEFORGE_MCP_RENDER_MAX_OBJECTS` | Hard object ceiling refused before rendering. |
 | `FRAMEFORGE_MCP_RASTER_MAX_PAGES` | Max pages rasterized to PNG per call. |
 | `FRAMEFORGE_MCP_RASTER_TIMEOUT` | Soft wall-clock budget for the rasterization loop, seconds. |
-| `FRAMEFORGE_MCP_MAX_INLINE_IMAGES` | Max PNGs inlined as image blocks (rest stay resource links). |
+| `FRAMEFORGE_MCP_MAX_INLINE_IMAGES` | Max PNGs inlined as image blocks (rest stay resource links; default: 4). |
+| `FRAMEFORGE_MCP_MAX_RESULT_CHARS` | Per-tool-result transport budget; no result ever exceeds it (default: 60000). |
+| `FRAMEFORGE_MCP_MAX_TEXT_CHARS` | Page size for paginated text artifacts, capped by the result budget (default: 40000). |
+| `FRAMEFORGE_MCP_MAX_RESOURCE_BYTES` | Byte cap for binary resource endpoints (default: the inline-blob cap). |
+| `FRAMEFORGE_MCP_MIN_CLEANUP_AGE` | `cleanup_sessions` age floor, seconds — younger sessions are never pruned (default: 60). |
+| `FRAMEFORGE_REAL_METRICS` | Truthy = measure text with real glyph advances (fontTools); an explicit per-call flag always wins. |
+| `FRAMEFORGE_MATH_SVG` | `fallback` forces the deterministic math-glyph fallback instead of node MathJax. |
+| `FRAMEFORGE_CHROMIUM_NO_SANDBOX` | Truthy launches the raster Chromium with `--no-sandbox` (rootless Docker). |
+| `FRAMEFORGE_CHROMIUM_ARGS` | Replace the raster Chromium launch flags entirely (space-separated). |
+| `FRAMEFORGE_VISION_VLM_URL` | Optional VLM lane for `propose_from_image`: chat/completions endpoint (unset = lane off). |
+| `FRAMEFORGE_VISION_VLM_MODEL` | VLM lane model id (required with the URL). |
+| `FRAMEFORGE_VISION_VLM_KEY` | VLM lane bearer token (optional). |
 
 ## Security posture — trusted-operator only
 

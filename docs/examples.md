@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 132 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 133 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -144,6 +144,7 @@ The 132 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`vectorization_workflow.py`](../static/examples/vectorization_workflow.py) | AI-Assisted Vectorization Workflow — a product/landing composition. |
 | [`visual_identities.py`](../static/examples/visual_identities.py) | Five documents with nothing visually in common. |
 | [`vscode_frameforge_ide.py`](../static/examples/vscode_frameforge_ide.py) | Recreate the FrameForge VSCode IDE screenshot with the FrameForge SDK. |
+| [`warrant_design_system.py`](../static/examples/warrant_design_system.py) | Warrant — the design-system proposal, typeset in its own system. |
 | [`web_design_proposal.py`](../static/examples/web_design_proposal.py) | Web Design Proposal — a premium editorial proposal booklet, authored with the SDK. |
 | [`widgets_gallery.py`](../static/examples/widgets_gallery.py) | Gallery + dashboard for the SDK's UI-widget layer (``frameforge.sdk.widgets``). |
 | [`world_cup_book.py`](../static/examples/world_cup_book.py) | World Cup — a 20-page illustrated book authored entirely with the FrameForge SDK. |

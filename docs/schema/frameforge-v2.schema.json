@@ -17705,7 +17705,7 @@
       "type": "string"
     },
     "version": {
-      "description": "Spec version the document targets (semver; HEAD is 2.3.0; older targets like 2.2.0 remain valid).",
+      "description": "Spec version the document targets (semver; HEAD is 2.5.0; older targets like 2.2.0 remain valid).",
       "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$",
       "title": "Version",
       "type": "string"

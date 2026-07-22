@@ -9,6 +9,62 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — fix(raster): variable-font axes reach the pixels (2026-07-22)
+
+Found typesetting the Warrant design-system proposal: the renderer emits
+`font-variation-settings` into its SVG correctly, but headless Chromium
+ignores the property (and `font-stretch`) for fonts it resolves through
+fontconfig — a `wdth`/`wght` axis died silently between the vector and the
+raster (probed: three `wdth` 62/100/125 lines rendered byte-identical).
+
+- **The chromium lane now embeds variable faces**: `_html()` detects families
+  the SVG uses with `font-variation-settings`, resolves each through
+  `fc-match` (refusing substituted families — embedding the wrong face would
+  cement the silent-substitution failure this lane screams about), verifies
+  the file carries an `fvar` table, and injects it as an `@font-face` data:
+  URI. A document-defined face outranks the fontconfig lookup, and Chromium
+  applies variations to web fonts — so the axis reaches the pixels.
+- **Zero-cost for plain documents**: no `font-variation-settings` in the SVG →
+  no fontconfig calls, byte-identical wrapper HTML (pinned by test).
+- **Known remaining gap**: real-metrics measurement (fontTools) still reads
+  the variable file's DEFAULT instance — non-default axis values render
+  correctly but measure at the default. Exact measure==render at a specific
+  instance still needs a static cut (see `warrant_design_system.py`).
+- Tests: `tests/test_raster_variable_fonts.py` — detection/fvar-gating/
+  no-injection units (stdlib PNG walk, no Pillow), plus a real-Chromium pixel
+  probe asserting `wdth` 62 vs 125 produce measurably different ink widths
+  (skips loudly without a browser or a variable font).
+
+## Unreleased — fix(drift): the drift-map P2 closures — prose surfaces get readers (2026-07-22)
+
+The 2026-07-22 drift-risk audit's MODERATE findings, closed with regression
+gates (all ride `make test`):
+
+- **Every consumed env knob is documented** (#8): the `mcp/README.md`
+  configuration table grows from 11 to 22 rows (transport budgets, cleanup
+  age floor, real metrics, math fallback, Chromium flags, the VLM lane), and
+  the `EDIT_ROOTS` row states the real default (`static/examples`, was
+  `examples`). Gate: `tests/test_env_var_docs.py` — consumed ⊆ documented ⊆
+  consumed (env-read call sites only, not Python constants), plus the
+  EDIT_ROOTS default pinned to `config.DEFAULT_CLIENT_ROOTS`.
+- **Version prose cannot rot** (#9): `Document.version`'s description now
+  interpolates `HEAD_VERSION` (it said "HEAD is 2.3.0" two minors after
+  2.5.0; schema regenerated), and the spec front-matter is bumped to 2.5.0.
+  Gate: `tests/test_version_prose_sync.py` — the interpolation is asserted
+  in source, and the CHANGELOG top block + spec front-matter are compared to
+  `HEAD_VERSION`.
+- **Model → spec citations resolve** (#11): `tests/test_spec_section_citations.py`
+  parses every `§x.y[z]` cited in `model.py` docstrings and asserts a
+  matching numbered heading (or lettered sub-item) exists in the spec source
+  — renumbering a section can no longer strand citations silently.
+- **CHANGELOG evidence exists** (#12): `tests/test_changelog_citations.py`
+  resolves every `tests/…`/`docs/…`/`src/…`/`tooling/…` path this file cites;
+  legitimate removals go in the test's explicit `HISTORICAL` map (seeded with
+  `docs/models/frameforge.py`, moved by the 2.5.0 packaging entry).
+- **Viewer contract** (#10) was closed in parallel by the registry-based
+  blocking gate `tests/test_viewer_schema_contract.py` (C7) — no additional
+  gate added here; verified green.
+
 ## Unreleased — feat(model,vision,mcp): shape-conforming shading, raster post effects, visibility-aware refinement (2026-07-22)
 
 The deep tier of the lotus-emblem surface-gap assessment (A2 + A3 + B6) — the

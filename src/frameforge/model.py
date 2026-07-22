@@ -1919,7 +1919,7 @@ SEMVER_RE = r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$"
 class Document(FG):
     dsl: Literal["FrameForge"] = Field(description="Format marker; always 'FrameForge'.")
     version: Annotated[str, Field(pattern=SEMVER_RE)] = Field(
-        description="Spec version the document targets (semver; HEAD is 2.3.0; older targets like 2.2.0 remain valid).")
+        description=f"Spec version the document targets (semver; HEAD is {HEAD_VERSION}; older targets like 2.2.0 remain valid).")
     profile: Optional[Literal["deck", "book", "letter", "report", "diagram", "mixed"]] = Field(
         default=None, description="Document genre hint (does not change validation).")
     title: Optional[str] = Field(default=None, description="Document title (metadata).")
