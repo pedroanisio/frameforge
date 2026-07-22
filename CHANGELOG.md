@@ -9,6 +9,48 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — feat(sdk,vision,mcp): geometry refinement — descent on stroke_outline parameters (2026-07-22)
+
+Gap G3 from the authored-lane assessment: `refine_reconstruction` (B6)
+descends over PAINTS on frozen geometry; nothing descended the GEOMETRY, so
+fitting-lane errors (erosion-narrowed widths, placement drift) were
+uncorrectable after emission. Two pieces close it:
+
+- **Provenance (`sdk.outline.stroke_outline`):** every emitted outline now
+  carries its generative parameters as `meta.stroke_outline` — the flattened
+  spine polyline, width, 16 sampled profile values, caps/joins, pen fields —
+  so a petal stays a PARAMETRIC object, not a frozen path. Default on
+  (`emit_params=False` opts out); a user `meta` bag is merged, never
+  clobbered; the meta bag is never interpreted by the renderer.
+- **Descent (`vision.infrastructure.refine.refine_geometry`):** walks page
+  1's provenance-carrying fill objects and coordinate-descends a 9-parameter
+  displacement family — global Δ, tip-weighted Δ, base-weighted Δ, bow
+  (sin πt) Δ, width scale — minimising the analytic claim-vs-background
+  error inside a fixed window (claimed pixels cost |own paint − reference|²,
+  unclaimed free pixels |background − reference|²; later objects occlude).
+  Bounded steps, accepted only on strict improvement: descent-only,
+  deterministic, and a no-op at the truth (pinned). Geometry is rebuilt
+  THROUGH stroke_outline itself, so refined objects stay byte-consistent
+  with their own provenance; dependent overlays (same-`d` rim strokes and
+  `style.clip_path` self-clips — the A2/craft idiom) are re-pointed at the
+  refined outline.
+- **MCP: `refine_reconstruction(geometry=True)`** runs the geometry pass
+  BEFORE the paint pass (summary under `result.refine.geometry`); default
+  off, byte-compatible.
+- **Acceptance (pinned):** a petal authored at −22% width and +10 px spine
+  shift against a reference rendered from the true parameters recovers to
+  IoU ≥ 0.93 with width within 8%. E2E on the clone-v3 lotus: fitted spines
+  0.9398 / 95.2% → **geometry+paint refined NCC 0.94 / 95.7% / MAE 14.58**
+  (23 outlines descended, 21 improved — the erosion-narrowed widths the G1
+  report named as residual are now recovered automatically).
+- **Compatibility / migration:** none needed — provenance is additive
+  metadata (schema-neutral: `meta` is the free-form bag), `geometry`
+  defaults off, `emit_params=False` restores byte-identical emission.
+- Tests: `tests/test_geometry_refine.py` (provenance embedding + opt-out +
+  user-meta merge, wrong-width/shift recovery, descent-only at the truth,
+  provenance-less skip, determinism, size guard, MCP round trip + tool
+  surface).
+
 ## Unreleased — feat(vision,mcp): inverse primitive fitting — region masks become stroke_outline parameters (2026-07-22)
 
 Gap G1 from the authored-lane assessment: nothing on the surface fitted a

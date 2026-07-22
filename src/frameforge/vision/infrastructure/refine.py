@@ -228,4 +228,245 @@ def refine_document(
     }
 
 
-__all__ = ["refine_document"]
+# --------------------------------------------------------------------------- #
+#  Geometry refinement (Gap G3): descent on stroke_outline parameters          #
+# --------------------------------------------------------------------------- #
+
+#: Displacement family over a provenance spine: global Δ, tip-weighted Δ
+#: (weight t), base-weighted Δ (weight 1−t), bow Δ (weight sin πt), and a
+#: multiplicative width scale — 9 parameters that cover the fitting lane's
+#: real error modes (placement, tip/base landing, bow, erosion-narrowed width)
+#: while PRESERVING the spine's fine detail (no re-parameterisation).
+_GEO_STEPS_PX = (8.0, 3.0)
+_GEO_WIDTH_FACTORS = (1.10, 1.04)
+
+
+def _apply_geo_params(prov, v):
+    """The displacement family applied to a provenance dict → (spine, width)."""
+    import math
+
+    spine = prov["spine"]
+    n = len(spine)
+    gdx, gdy, tdx, tdy, bdx, bdy, mdx, mdy, ws = v
+    out = []
+    for i, (x, y) in enumerate(spine):
+        t = i / (n - 1) if n > 1 else 0.0
+        bow = math.sin(math.pi * t)
+        out.append((x + gdx + t * tdx + (1.0 - t) * bdx + bow * mdx,
+                    y + gdy + t * tdy + (1.0 - t) * bdy + bow * mdy))
+    return out, prov["width"] * ws
+
+
+def _rebuild_outline(obj, prov, spine, width):
+    """Re-emit the object through stroke_outline with new geometry, in place.
+
+    Non-geometric fields (fill, id, decorative, stroke, style, …) carry over;
+    the provenance meta is refreshed by stroke_outline itself, so the refined
+    object stays byte-consistent with its own parameters."""
+    from frameforge.sdk.outline import stroke_outline
+
+    from ..domain.spine_fit import spine_profile
+
+    passthrough = {k: v for k, v in obj.items()
+                   if k not in ("type", "d", "meta")}
+    user_meta = {k: v for k, v in (obj.get("meta") or {}).items()
+                 if k != "stroke_outline"}
+    if user_meta:
+        passthrough["meta"] = user_meta
+    profile = (spine_profile(prov["profile"])
+               if prov.get("profile") else None)
+    kwargs = {"cap": prov.get("cap", "butt"), "join": prov.get("join", "miter")}
+    if prov.get("pen_angle") is not None:
+        kwargs["pen_angle"] = prov["pen_angle"]
+        kwargs["pen_thin"] = prov.get("pen_thin", 0.25)
+    new_obj = stroke_outline(spine, width, profile=profile, **kwargs,
+                             **passthrough)
+    old_d = obj.get("d")
+    obj.clear()
+    obj.update(new_obj)
+    return old_d
+
+
+def refine_geometry(
+    document: "dict[str, Any]",
+    image,
+    *,
+    max_iters: int = 2,
+    min_pixels: int = 64,
+    margin: int = 60,
+) -> dict[str, Any]:
+    """Descend stroke_outline GEOMETRY against ``image``, in place (G3).
+
+    Walks page 1's objects carrying ``meta.stroke_outline`` provenance (fill-
+    bearing bodies; overlays are synchronised, not descended), and coordinate-
+    descends the 9-parameter displacement family per object, minimising the
+    analytic claim-vs-background error inside a fixed window: claimed pixels
+    cost ``|own paint − reference|²``, unclaimed free pixels cost
+    ``|background paint − reference|²``. Later objects in paint order occlude
+    (their initial regions are excluded). Steps are bounded and accepted only
+    on strict improvement — the pass can only descend and is deterministic.
+
+    After a body moves, its dependent overlays (the A2/craft idiom: rim
+    strokes sharing the body's ``d``, and any ``style.clip_path`` referencing
+    it) are re-pointed at the new outline so the document stays coherent.
+
+    Returns ``{"refined", "improved", "skipped", "unevaluable", "sq_before",
+    "sq_after"}``; raises ``ValueError`` on a canvas/reference size mismatch.
+    """
+    import numpy as np
+
+    pages = document.get("pages") or []
+    page = pages[0] if pages else {}
+    W, H = image.size
+    size = ((page.get("canvas") or {}).get("size") or [])
+    if len(size) >= 2 and (int(size[0]), int(size[1])) != (W, H):
+        raise ValueError(
+            f"reference size {W}x{H} does not match the page canvas size "
+            f"{int(size[0])}x{int(size[1])} — refinement compares pixel-for-pixel")
+    src = np.asarray(image.convert("RGB"), dtype=np.float64)
+
+    objects: list[dict] = []
+    for layer in (page.get("layers") or []):
+        for obj in (layer.get("objects") or []):
+            if isinstance(obj, dict):
+                objects.append(obj)
+
+    # the background predictor: the first fill-bearing object (the page ground)
+    bg_paint = None
+    bg_tf = (0.0, 0.0, 1.0, 1.0)
+    for obj in objects:
+        if obj.get("fill") is not None:
+            bg_paint = obj.get("fill")
+            bg_tf = _object_transform(obj) or bg_tf
+            break
+
+    refinable: list[tuple[int, dict]] = []
+    skipped = unevaluable = 0
+    for idx, obj in enumerate(objects):
+        prov = (obj.get("meta") or {}).get("stroke_outline")
+        if not isinstance(prov, dict) or not prov.get("spine"):
+            if obj.get("type") == "path":
+                skipped += 1
+            continue
+        if obj.get("fill") is None:
+            skipped += 1
+            continue
+        refinable.append((idx, obj))
+
+    # occlusion: masks of every LATER paint-bearing entry, from the initial state
+    entry_masks: dict[int, Any] = {}
+    for idx, obj in enumerate(objects):
+        got = _entry_mask(obj, image.size, np)
+        if got is not None:
+            entry_masks[idx] = got[1]
+
+    refined = improved = 0
+    sq_before_total = sq_after_total = 0.0
+    for idx, obj in refinable:
+        prov = obj["meta"]["stroke_outline"]
+        tf = _object_transform(obj) or (0.0, 0.0, 1.0, 1.0)
+        base_mask = entry_masks.get(idx)
+        if base_mask is None or int(base_mask.sum()) < min_pixels:
+            skipped += 1
+            continue
+        ys, xs = np.nonzero(base_mask)
+        y0 = max(0, int(ys.min()) - margin)
+        y1 = min(H, int(ys.max()) + margin + 1)
+        x0 = max(0, int(xs.min()) - margin)
+        x1 = min(W, int(xs.max()) + margin + 1)
+        win_ys, win_xs = np.mgrid[y0:y1, x0:x1]
+        fy = win_ys.ravel().astype(np.float64)
+        fx = win_xs.ravel().astype(np.float64)
+        target = src[y0:y1, x0:x1].reshape(-1, 3)
+
+        own_pred = _paint_eval(obj.get("fill"), fx, fy, tf, np)
+        bg_pred = _paint_eval(bg_paint, fx, fy, bg_tf, np)
+        if own_pred is None or bg_pred is None:
+            unevaluable += 1
+            continue
+        own_err = ((own_pred - target) ** 2).sum(axis=1)
+        bg_err = ((bg_pred - target) ** 2).sum(axis=1)
+
+        occluded = np.zeros((H, W), dtype=bool)
+        for j, m in entry_masks.items():
+            if j > idx:
+                occluded |= m
+        free = ~occluded[y0:y1, x0:x1].ravel()
+
+        def cost(v):
+            spine, width = _apply_geo_params(prov, v)
+            if width <= 1.0:
+                return float("inf"), None
+            from frameforge.sdk.outline import stroke_outline
+
+            from ..domain.spine_fit import spine_profile
+
+            probe = stroke_outline(
+                spine, width,
+                profile=(spine_profile(prov["profile"])
+                         if prov.get("profile") else None),
+                cap=prov.get("cap", "butt"), join=prov.get("join", "miter"),
+                emit_params=False, fill="#000")
+            shaped = _shape_mask(probe, image.size)
+            if shaped is None:
+                return float("inf"), None
+            m = (np.asarray(shaped[0]) > 0)[y0:y1, x0:x1].ravel()
+            claimed = m & free
+            err = float(own_err[claimed].sum() + bg_err[free & ~m].sum())
+            return err, None
+
+        v = [0.0] * 8 + [1.0]
+        best, _ = cost(v)
+        start = best
+        for _sweep in range(max(1, int(max_iters))):
+            moved = False
+            for k in range(9):
+                if k == 8:
+                    trials = ([f for f in _GEO_WIDTH_FACTORS]
+                              + [1.0 / f for f in _GEO_WIDTH_FACTORS])
+                    for f in trials:
+                        cand = list(v)
+                        cand[8] = v[8] * f
+                        c, _ = cost(cand)
+                        if c < best - 1e-9:
+                            best, v, moved = c, cand, True
+                else:
+                    for step in _GEO_STEPS_PX:
+                        for sign in (1.0, -1.0):
+                            cand = list(v)
+                            cand[k] = v[k] + sign * step
+                            c, _ = cost(cand)
+                            if c < best - 1e-9:
+                                best, v, moved = c, cand, True
+            if not moved:
+                break
+
+        refined += 1
+        sq_before_total += start
+        sq_after_total += best
+        if best < start - 1e-9:
+            improved += 1
+            spine, width = _apply_geo_params(prov, v)
+            old_d = _rebuild_outline(obj, prov, spine, round(width, 2))
+            new_d = obj.get("d")
+            # synchronise dependent overlays: same-d rims and self-clips
+            for other in objects:
+                if other is obj or not isinstance(other, dict):
+                    continue
+                if other.get("d") == old_d:
+                    other["d"] = new_d
+                clip = ((other.get("style") or {}).get("clip_path") or {})
+                if isinstance(clip, dict) and (clip.get("args") or {}).get("d") == old_d:
+                    clip["args"]["d"] = new_d
+
+    return {
+        "refined": refined,
+        "improved": improved,
+        "skipped": skipped,
+        "unevaluable": unevaluable,
+        "sq_before": round(sq_before_total, 1),
+        "sq_after": round(sq_after_total, 1),
+    }
+
+
+__all__ = ["refine_document", "refine_geometry"]

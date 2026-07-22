@@ -1506,6 +1506,7 @@ def create_server(
         image: Annotated[str, Field(description="The reference/source image the reconstruction targets: a filesystem path, frameforge:// URI, or data: URI. Must match the page canvas pixel-for-pixel.")],
         raster_png: Annotated[bool, Field(description="Re-render the refined document to PNG so the improvement is visible.")] = True,
         min_pixels: Annotated[int, Field(description="Smallest visible-pixel count an entry needs before its paint is refitted (below it the existing paint is kept).")] = 24,
+        geometry: Annotated[bool, Field(description="G3: also descend stroke_outline GEOMETRY before refitting paints — objects carrying meta.stroke_outline provenance get a bounded coordinate descent over a 9-parameter displacement family (global/tip/base/bow shifts + width scale) against the reference; dependent rim/clip overlays are re-pointed at the refined outline. Summary under result.refine.geometry.")] = False,
     ):
         """Refine a reconstruction against its source image (the B6 descent pass).
 
@@ -1522,10 +1523,11 @@ def create_server(
             log_path,
             "refine_reconstruction",
             {"session_id": session_id, "image": image,
-             "raster_png": raster_png, "min_pixels": min_pixels},
+             "raster_png": raster_png, "min_pixels": min_pixels,
+             "geometry": geometry},
             lambda: _uc_refine_reconstruction(
                 session_id, image, raster_png=raster_png,
-                min_pixels=min_pixels, session_root=root,
+                min_pixels=min_pixels, geometry=geometry, session_root=root,
             ),
         )
         return _maybe_call_tool_result(result)

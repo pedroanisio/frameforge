@@ -350,9 +350,14 @@ Tools:
   consumes — a measured shape becomes ONE authored parametric object, not a
   traced outline. `elongation < ~2` flags non-spine-like regions (disks/blobs).
   The authored-clone recipe: detect_regions(fit_spines=True) → stroke_outline
-  per region (+ your rims/gloss) → `refine_reconstruction` fits the paints —
-  measured on the lotus reference: hand-guessed spines NCC 0.49 → fitted +
-  refined NCC 0.90, with the document staying a ~40-object semantic source.
+  per region (+ your rims/gloss) → `refine_reconstruction(geometry=True)` —
+  the G3 pass first coordinate-descends each provenance-carrying outline's
+  GEOMETRY (stroke_outline embeds its spine/width/profile as
+  meta.stroke_outline by default; global/tip/base/bow shifts + width scale,
+  descent-only, dependent rim/clip overlays re-pointed), then refits the
+  paints on the corrected silhouettes. Measured on the lotus reference:
+  hand-guessed spines NCC 0.49 → fitted 0.90 → fitted + geometry-refined
+  0.94 / 95.7% match, with the document staying a ~40-object semantic source.
 - `construct_vectors` — draw FrameForge geometry from anchor points (workspace `pins`
   or explicit `points`): line, path/trace, curve, spline, arc (3 points = start /
   on-arc / end through their circumcircle, or 1 centre point + `r` + `start_deg`/

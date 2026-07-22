@@ -168,7 +168,8 @@ def stroke_outline(points: Sequence[Vec2 | Pt], width: float, *,
                    pen_angle: float | None = None, pen_thin: float = 0.25,
                    cap: str = "butt", join: str = "miter",
                    miterlimit: float = 4.0, smooth: bool = False,
-                   samples: int = 24, **fields: Any) -> dict[str, Any]:
+                   samples: int = 24, emit_params: bool = True,
+                   **fields: Any) -> dict[str, Any]:
     """A stroke centre-line as a closed, filled ``path`` object.
 
     ``width`` is the full stroke width. ``profile(t)`` (t = arc-length
@@ -196,6 +197,27 @@ def stroke_outline(points: Sequence[Vec2 | Pt], width: float, *,
     d.extend(["L", p.x, p.y] for p in ring[1:])
     d.append(["Z"])
     fields.setdefault("fill", "currentColor")
+    if emit_params:
+        # G3 provenance: the generative parameters ride on the object's meta
+        # bag (never interpreted by the renderer), so an emitted stroke stays
+        # a PARAMETRIC object — geometry refinement (vision refine_geometry)
+        # and future edits can re-derive the outline instead of freezing it.
+        prov: dict[str, Any] = {
+            "spine": [[round(p.x, 2), round(p.y, 2)] for p in pts],
+            "width": float(width),
+            "profile": [round(float(profile(i / 15.0)), 4) for i in range(16)]
+                       if profile is not None else None,
+            "cap": cap,
+            "join": join,
+        }
+        if prov["profile"] is None:
+            del prov["profile"]
+        if pen_angle is not None:
+            prov["pen_angle"] = float(pen_angle)
+            prov["pen_thin"] = float(pen_thin)
+        meta = dict(fields.pop("meta", None) or {})
+        meta.setdefault("stroke_outline", prov)
+        fields["meta"] = meta
     return {"type": "path", "d": d, **fields}
 
 
