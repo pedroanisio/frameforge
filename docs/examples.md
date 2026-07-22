@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 133 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 136 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -87,6 +87,7 @@ The 133 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`lesson_03_chapter_page.py`](../static/examples/lesson_03_chapter_page.py) | Tutorial lesson 03 — reconstruct a typeset chapter-opening page. |
 | [`libfy_letter.py`](../static/examples/libfy_letter.py) | libfy_letter.py — "Libfy": a one-page US-Letter broadside. |
 | [`library_showcase.py`](../static/examples/library_showcase.py) | Library showcase — themes, symbol packs, and generators end to end. |
+| [`lotus_flame_emblem.py`](../static/examples/lotus_flame_emblem.py) | Lotus flame emblem — authored from FrameForge primitives (clone-task v2). |
 | [`marina_whale.py`](../static/examples/marina_whale.py) | Marina and the Singing Sea — a polished children's picture book via the FrameForge SDK. |
 | [`meridian_consulting_deck.py`](../static/examples/meridian_consulting_deck.py) | Project Northwind - a complete 40-slide management-consulting deck, built with the SDK. |
 | [`mona_lisa_construction.py`](../static/examples/mona_lisa_construction.py) | Anatomy of the Mona Lisa — a construction plate (FrameForge SDK). |
@@ -127,6 +128,7 @@ The 133 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`social_wireframe.py`](../static/examples/social_wireframe.py) | Social-network mobile UI kit — FrameForge wireframe sheet. |
 | [`spacecraft_catalog.py`](../static/examples/spacecraft_catalog.py) | ORBITAL REGISTRY — a 21-page catalog of spacecraft, every craft a real 3D |
 | [`spendora_landing.py`](../static/examples/spendora_landing.py) | High-fidelity vector recreation of the "Spendora" SaaS landing page mock-up |
+| [`spine_fit_demo.py`](../static/examples/spine_fit_demo.py) | Inverse primitive fitting — region mask → stroke_outline parameters (G1). |
 | [`srs_document.py`](../static/examples/srs_document.py) | SRS → FrameForge — render an FDPM Software-Requirements export as a full, |
 | [`starlight_fox.py`](../static/examples/starlight_fox.py) | Starlight Fox — a children's picture book authored entirely with the FrameForge SDK. |
 | [`stratoscope.py`](../static/examples/stratoscope.py) | Stratoscope — one scalar field, two projections, one frame. |
@@ -145,6 +147,7 @@ The 133 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`vectorization_workflow.py`](../static/examples/vectorization_workflow.py) | AI-Assisted Vectorization Workflow — a product/landing composition. |
 | [`visual_identities.py`](../static/examples/visual_identities.py) | Five documents with nothing visually in common. |
 | [`vscode_frameforge_ide.py`](../static/examples/vscode_frameforge_ide.py) | Recreate the FrameForge VSCode IDE screenshot with the FrameForge SDK. |
+| [`warrant_design_system.py`](../static/examples/warrant_design_system.py) | Warrant — the design-system proposal, typeset in its own system. |
 | [`web_design_proposal.py`](../static/examples/web_design_proposal.py) | Web Design Proposal — a premium editorial proposal booklet, authored with the SDK. |
 | [`widgets_gallery.py`](../static/examples/widgets_gallery.py) | Gallery + dashboard for the SDK's UI-widget layer (``frameforge.sdk.widgets``). |
 | [`world_cup_book.py`](../static/examples/world_cup_book.py) | World Cup — a 20-page illustrated book authored entirely with the FrameForge SDK. |

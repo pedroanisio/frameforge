@@ -1557,6 +1557,10 @@ def create_server(
             bool,
             Field(description="Include each region's simplified boundary polygon (+ hole polygons) in image pixels."),
         ] = True,
+        fit_spines: Annotated[
+            bool,
+            Field(description="G1 inverse primitive fitting: attach a `spine` fit to every big-enough region — spine polyline + anchored least-squares cubic (+rms) + width_max + normalized width profile + peak + elongation, the exact parameters sdk.outline.stroke_outline speaks. Feed spine/width_max/profile straight into stroke_outline (spine_profile(profile) makes the callable) to AUTHOR the region as one parametric object instead of tracing it; elongation < ~2 says the region is not spine-like."),
+        ] = False,
         tunables: Annotated[dict | None, Field(description=_DESC_REGION_TUNABLES)] = None,
         session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
     ):
@@ -1579,12 +1583,14 @@ def create_server(
                 "image": image, "method": method, "cluster": cluster,
                 "cluster_tol": cluster_tol, "overlay": overlay,
                 "max_regions": max_regions, "include_polygons": include_polygons,
+                "fit_spines": fit_spines,
                 "tunables": tunables, "session_id": session_id,
             },
             lambda: _uc_detect_regions(
                 image, method=method, cluster=cluster, cluster_tol=cluster_tol,
                 overlay=overlay, max_regions=max_regions,
-                include_polygons=include_polygons, tunables=tunables,
+                include_polygons=include_polygons, fit_spines=fit_spines,
+                tunables=tunables,
                 session_id=session_id, session_root=root,
             ),
         )

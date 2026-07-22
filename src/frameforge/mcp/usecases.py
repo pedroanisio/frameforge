@@ -1355,6 +1355,44 @@ def score_reconstruction(
     return result
 
 
+def _attach_spines(spatial: dict[str, Any], *, min_area: float = 300.0) -> None:
+    """G1: attach a spine fit to every big-enough region, in place.
+
+    Rasterises each region's polygon (+holes) at image size and runs
+    :func:`frameforge.vision.domain.spine_fit.fit_spine` — the inverse of
+    ``sdk.outline.stroke_outline``: spine polyline + anchored cubic + width
+    profile + peak, the exact vocabulary an authored petal spec-table holds.
+    Regions that are too small, polygon-less, or unfit-table simply carry no
+    ``spine`` key (the payload stays byte-compatible when nothing fits).
+    """
+    import numpy as np
+    from PIL import Image as _Image, ImageDraw as _ImageDraw
+
+    from frameforge.vision.domain.spine_fit import fit_spine
+
+    info = spatial.get("image") or {}
+    w = int(info.get("width_px") or info.get("width") or 0)
+    h = int(info.get("height_px") or info.get("height") or 0)
+    if w <= 0 or h <= 0:
+        return
+    for region in spatial.get("regions") or []:
+        poly = region.get("polygon")
+        if not poly or len(poly) < 3:
+            continue
+        if float(region.get("area_px") or 0.0) < min_area:
+            continue
+        mask_img = _Image.new("L", (w, h), 0)
+        draw = _ImageDraw.Draw(mask_img)
+        draw.polygon([(float(p[0]), float(p[1])) for p in poly], fill=255)
+        for hole in region.get("hole_polygons") or []:
+            if len(hole) >= 3:
+                draw.polygon([(float(p[0]), float(p[1])) for p in hole], fill=0)
+        try:
+            region["spine"] = fit_spine(np.asarray(mask_img) > 0)
+        except ValueError:
+            continue
+
+
 def detect_regions(
     image: str,
     *,
@@ -1364,6 +1402,7 @@ def detect_regions(
     overlay: bool = True,
     max_regions: int = 400,
     include_polygons: bool = True,
+    fit_spines: bool = False,
     tunables: dict[str, Any] | None = None,
     session_id: str | None = None,
     session_root: str | Path | None = None,
@@ -1457,6 +1496,8 @@ def detect_regions(
     # bookkeeping belongs to the envelope, not the payload.
     spatial = {k: v for k, v in analysis.items() if k not in ("ok", "overlay_path")}
     spatial["image"] = dict(spatial.get("image") or {}, path=image)
+    if fit_spines:
+        _attach_spines(spatial)
     result = {
         "ok": True,
         "session_id": sid,

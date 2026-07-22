@@ -9,6 +9,55 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — feat(vision,mcp): inverse primitive fitting — region masks become stroke_outline parameters (2026-07-22)
+
+Gap G1 from the authored-lane assessment: nothing on the surface fitted a
+STRUCTURED primitive to an observed region, so authored petal spines had to be
+guessed by hand (the primitives clone plateaued at NCC 0.49 —
+silhouette-bounded). The surface now owns the inverse of
+`sdk.outline.stroke_outline`:
+
+- **New pure-domain module `frameforge.vision.domain.spine_fit`:**
+  `fit_spine(mask)` → `{spine, cubic, cubic_rms, width_max, profile, peak,
+  length, elongation}` — Zhang–Suen thinning, the longest skeleton path over
+  the largest connected component (double BFS; spurs ignored, stray pixels
+  immune) extended along its tangents to the region tips, arc-length-uniform
+  resampling, EXACT perpendicular-chord widths (no metric approximation), and
+  a least-squares cubic with anchored endpoints (+rms, so callers know when
+  one cubic is honest). `spine_profile(samples)` turns the fitted profile
+  into the `stroke_outline` callable; `elongation` (length/width_max) flags
+  non-spine-like regions. Deterministic, JSON-ready, PCA-chord fallback for
+  degenerate skeletons; masks under `min_pixels` raise.
+- **Contract: the ROUND TRIP.** Re-authoring
+  `stroke_outline(spine, width_max, spine_profile(profile))` from a fit
+  reproduces the source region at IoU ≥ 0.90 (pinned; the demo measures 0.95
+  on the flame oracle with width 109.5/110 and peak recovered exactly).
+- **`chamfer_distance` moved to the domain** (vectorize keeps the alias) and
+  upgraded from chessboard to the OCTAGONAL metric (alternating 4-/8-connected
+  shells): pure 8-connected peeling under-measured diagonal widths by up to
+  29%; axis-aligned distances are unchanged, so A2 band semantics hold.
+- **`flatten_path_d` accepts structured segment lists** (`[["M",x,y],...]`) —
+  the form every SDK emitter produces — so fitting, banding, and
+  `refine_reconstruction` now see AUTHORED primitives, not only traced ones.
+- **MCP: `detect_regions(fit_spines=True)`** attaches the fit to every
+  big-enough region (polygon+holes rasterised at image size; small or
+  unfit-table regions simply carry no `spine` key — the default payload is
+  byte-compatible). One call from reference image to authorable spec table.
+- **Measured on the original failure (the lotus authored clone):**
+  hand-guessed spines NCC 0.494 / 84.4% → fitted spines NCC 0.770 → fitted
+  spines + `refine_reconstruction` paints **NCC 0.899 / 93.3%** — 80% of the
+  authored-lane error eliminated while the document stays a ~40-object
+  semantic source. The residual to ~0.95 is recipe depth (centre-blob
+  decomposition, rim/gloss layering on fitted petals), not missing surface.
+- **Compatibility / migration:** none needed — all additive
+  (`fit_spines` defaults off; the chamfer metric change is an internal
+  accuracy fix within existing tolerances).
+- Tests: `tests/test_spine_fit.py` (bar/petal/disk/degenerate contracts,
+  round-trip recovery + IoU acceptance, determinism, structured-d parsing,
+  domain-owned chamfer alias, MCP payload + tool surface). Examples:
+  `static/examples/spine_fit_demo.py` (the round trip, self-contained) and
+  `static/examples/lotus_flame_emblem.py` (the authored clone-v2 client).
+
 ## Unreleased — fix(raster): variable-font axes reach the pixels (2026-07-22)
 
 Found typesetting the Warrant design-system proposal: the renderer emits

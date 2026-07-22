@@ -341,6 +341,18 @@ Tools:
   (`cluster='translation'|'congruent'`), and the annotated overlay as page 1. Regions
   feed `workspace` pins and `construct_vectors` points directly. Heuristic output —
   verify the overlay (PALS's Law).
+  `fit_spines=True` (G1 — the stroke_outline INVERSE) additionally fits each
+  big-enough region's SPINE: skeleton thinning + longest path extended to the
+  tips, exact perpendicular-chord widths, an anchored least-squares cubic. The
+  per-region `spine` payload (`spine` polyline / `cubic`+`cubic_rms` /
+  `width_max` / `profile` / `peak` / `elongation`) is EXACTLY what
+  `sdk.outline.stroke_outline(spine, width_max, profile=spine_profile(profile))`
+  consumes — a measured shape becomes ONE authored parametric object, not a
+  traced outline. `elongation < ~2` flags non-spine-like regions (disks/blobs).
+  The authored-clone recipe: detect_regions(fit_spines=True) → stroke_outline
+  per region (+ your rims/gloss) → `refine_reconstruction` fits the paints —
+  measured on the lotus reference: hand-guessed spines NCC 0.49 → fitted +
+  refined NCC 0.90, with the document staying a ~40-object semantic source.
 - `construct_vectors` — draw FrameForge geometry from anchor points (workspace `pins`
   or explicit `points`): line, path/trace, curve, spline, arc (3 points = start /
   on-arc / end through their circumcircle, or 1 centre point + `r` + `start_deg`/

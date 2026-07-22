@@ -631,32 +631,9 @@ def _paint_to_local(fill: "dict[str, Any]", obj: "dict[str, Any]") -> "dict[str,
     return fill
 
 
-def _chamfer_distance(mask, *, max_rounds: int = 64):
-    """Distance-to-boundary in EROSION rounds (8-connected shells), 0 outside.
-
-    A vectorised shell-peeling transform: round r labels the r-th 1-px shell,
-    which for the in-tree shapes matches the intuitive 'how deep inside am I'
-    band coordinate exactly (a rect centre sits at half its short side).
-    Interiors deeper than ``max_rounds`` are clipped to it — band thresholds
-    below the cap stay exact, only the core's top quantile flattens.
-    """
-    import numpy as np
-
-    cur = np.asarray(mask) > 0
-    dist = np.zeros(cur.shape, dtype=np.float32)
-    r = 0
-    while cur.any():
-        r += 1
-        dist[cur] = float(r)
-        if r >= max_rounds:
-            break
-        padded = np.pad(cur, 1, mode="constant")
-        nxt = cur.copy()
-        for dy in (0, 1, 2):
-            for dx in (0, 1, 2):
-                nxt &= padded[dy:dy + cur.shape[0], dx:dx + cur.shape[1]]
-        cur = nxt
-    return dist
+# The distance transform moved to the domain with G1 (spine fitting needs it
+# too); this alias keeps every existing infrastructure caller and test working.
+from ..domain.spine_fit import chamfer_distance as _chamfer_distance  # noqa: E402
 
 
 _MIN_BAND_DEPTH = 4.0        # interiors shallower than this have no room for rims

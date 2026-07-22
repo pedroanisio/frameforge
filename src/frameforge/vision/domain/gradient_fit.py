@@ -52,7 +52,16 @@ def flatten_path_d(d: str) -> list[list[Point]]:
     Supports the command set the in-tree tracers emit (M/m, L/l, H/h, V/v,
     C/c, Q/q, Z/z, and implicit linetos after a moveto); an unknown command
     raises ``ValueError`` rather than silently mis-shaping the mask.
+
+    Accepts BOTH forms of ``d``: an SVG string, or the structured segment list
+    the SDK emitters produce (``[["M", x, y], ["L", x, y], ..., ["Z"]]`` —
+    e.g. ``sdk.outline.stroke_outline``), so fitting and refinement see
+    authored primitives, not only traced ones (G1).
     """
+    if isinstance(d, (list, tuple)):
+        d = " ".join(
+            str(seg[0]) + " " + " ".join(f"{float(v):.6f}" for v in seg[1:])
+            for seg in d if seg)
     tokens = _TOKEN_RE.findall(d or "")
     i = 0
     cmd: str | None = None
