@@ -206,20 +206,20 @@ the running server.
 
 | Variable | Effect |
 |---|---|
-| `FRAMEFORGE_MCP_SESSION_ROOT` | Where per-session scratch dirs/artifacts live (default: temp dir). |
+| `FRAMEFORGE_MCP_SESSION_ROOT` | Where per-session scratch dirs/artifacts live (default: `frameforge-mcp-sessions` under the system temp dir). |
 | `FRAMEFORGE_MCP_EDIT_ROOTS` | `os.pathsep`-joined roots the client-file tools may read/write (default: `static/examples`). |
 | `FRAMEFORGE_MCP_INPUT_ROOTS` | Confine `propose_*` inputs to these roots (unset = any readable path). |
 | `FRAMEFORGE_MCP_KEEP_ENV` | Truthy keeps secret-looking env vars in the code subprocess (default: stripped). |
 | `FRAMEFORGE_MCP_STRUCT_LOG_PATH` | Path for the JSONL structured tool log (default: under the session root). |
-| `FRAMEFORGE_MCP_RENDER_TIMEOUT` | Soft per-render wall-clock budget, seconds. |
-| `FRAMEFORGE_MCP_RENDER_MAX_PAGES` | Hard page ceiling refused before the in-process render starts. |
-| `FRAMEFORGE_MCP_RENDER_MAX_OBJECTS` | Hard object ceiling refused before rendering. |
-| `FRAMEFORGE_MCP_RASTER_MAX_PAGES` | Max pages rasterized to PNG per call. |
-| `FRAMEFORGE_MCP_RASTER_TIMEOUT` | Soft wall-clock budget for the rasterization loop, seconds. |
+| `FRAMEFORGE_MCP_RENDER_TIMEOUT` | Soft per-render wall-clock budget, seconds (default: 30). |
+| `FRAMEFORGE_MCP_RENDER_MAX_PAGES` | Hard page ceiling refused before the in-process render starts (default: 200). |
+| `FRAMEFORGE_MCP_RENDER_MAX_OBJECTS` | Hard object ceiling refused before rendering (default: 50000). |
+| `FRAMEFORGE_MCP_RASTER_MAX_PAGES` | Max pages rasterized to PNG per call (default: 8). |
+| `FRAMEFORGE_MCP_RASTER_TIMEOUT` | Soft wall-clock budget for the rasterization loop, seconds (default: 60). |
 | `FRAMEFORGE_MCP_MAX_INLINE_IMAGES` | Max PNGs inlined as image blocks (rest stay resource links; default: 4). |
 | `FRAMEFORGE_MCP_MAX_RESULT_CHARS` | Per-tool-result transport budget; no result ever exceeds it (default: 60000). |
 | `FRAMEFORGE_MCP_MAX_TEXT_CHARS` | Page size for paginated text artifacts, capped by the result budget (default: 40000). |
-| `FRAMEFORGE_MCP_MAX_RESOURCE_BYTES` | Byte cap for binary resource endpoints (default: the inline-blob cap). |
+| `FRAMEFORGE_MCP_MAX_RESOURCE_BYTES` | Byte cap for binary resource endpoints (default: the inline-blob cap derived from the result budget — 43500 at the stock 60000). |
 | `FRAMEFORGE_MCP_MIN_CLEANUP_AGE` | `cleanup_sessions` age floor, seconds — younger sessions are never pruned (default: 60). |
 | `FRAMEFORGE_MCP_PUBLISH_ROOT` | Durable root for published session deliverables; render tools accept `publish=true` and copy `document.fg.yaml`, pages, PDF, `diagnostics.json` + a sha256 manifest to `<root>/<session_id>/` (unset = publishing disabled; `publish=true` then fails fast). Must sit outside the session root; `cleanup_sessions` never touches it. |
 | `FRAMEFORGE_REAL_METRICS` | Truthy = measure text with real glyph advances (fontTools); an explicit per-call flag always wins. |
@@ -229,6 +229,17 @@ the running server.
 | `FRAMEFORGE_VISION_VLM_URL` | Optional VLM lane for `propose_from_image`: chat/completions endpoint (unset = lane off). |
 | `FRAMEFORGE_VISION_VLM_MODEL` | VLM lane model id (required with the URL). |
 | `FRAMEFORGE_VISION_VLM_KEY` | VLM lane bearer token (optional). |
+
+Numeric knobs share one fallback rule: a non-numeric or non-positive value is
+IGNORED and the stated default applies (`_positive_env` / the pipeline's raw
+readers) — misconfiguration degrades to the documented behaviour, never to a
+crash or an unbounded limit. The table above is gated: every consumed
+`FRAMEFORGE_*` variable must appear here with its real default
+(`tests/test_env_var_docs.py` compares the stated numbers against the code's
+defaults, so a changed default with a stale row fails the suite).
+Container-only knobs (`FRAMEFORGE_REFRESH_FONTS` — rebuild the fontconfig
+cache at container start) are read by `docker/entrypoint.sh`, not by this
+package, and are documented in [docker/README.md](../../../docker/README.md).
 
 ## Security posture — trusted-operator only
 

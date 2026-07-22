@@ -160,7 +160,11 @@ uv sync --group render                     # adds matplotlib + pillow
   layers tracing), `score_reconstruction` (numeric edge-match convergence), and
   `map_coordinates` (homography/warp). The live tool registry is enumerated in
   [docs/capability-manifest.json](docs/capability-manifest.json); it needs the
-  `vision` dependency group.
+  `vision` dependency group. Every runtime knob (`FRAMEFORGE_*` env vars —
+  session/publish roots, transport budgets, render ceilings, Chromium flags,
+  the VLM lane) is documented with its real default in the gated table at
+  [src/frameforge/mcp/README.md](src/frameforge/mcp/README.md#configuration-environment-variables);
+  container-only knobs live in [docker/README.md](docker/README.md).
 - **Vector Construction Coach** (`src/frameforge/coach/`). A staged construction
   loop over the SDK — style-grammar checks, layer-order rules, a silhouette
   gate, SVG ingest/cleaning, and figure-proportion helpers. It coaches

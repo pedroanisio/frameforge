@@ -37,6 +37,15 @@ def _consumed():
             if fn.endswith(".py"):
                 with open(os.path.join(base, fn), encoding="utf-8") as fh:
                     out |= set(_READ.findall(fh.read()))
+    # container-only knobs are consumed by the docker entry scripts (shell
+    # ${FRAMEFORGE_X:-...} expansions), not by the Python package — count them
+    # so the table may cross-reference them without becoming a ghost row.
+    docker_dir = os.path.join(ROOT, "docker")
+    if os.path.isdir(docker_dir):
+        for fn in os.listdir(docker_dir):
+            if fn.endswith(".sh"):
+                with open(os.path.join(docker_dir, fn), encoding="utf-8") as fh:
+                    out |= set(re.findall(r"\$\{(FRAMEFORGE_[A-Z_]+)", fh.read()))
     return out
 
 
@@ -78,3 +87,37 @@ def test_edit_roots_row_states_the_real_default():
         assert root in row, (
             f"EDIT_ROOTS row does not state the real default {root!r} "
             f"(config.DEFAULT_CLIENT_ROOTS) — row: {row.strip()}")
+
+
+def test_stated_numeric_defaults_equal_the_code_defaults():
+    """The documented default for every numeric knob is the CODE's default —
+    change a constant without updating its row and this fails. Sourced from
+    the config constants, never restated here."""
+    from frameforge.mcp import config as cfg
+
+    expected = {
+        "FRAMEFORGE_MCP_RENDER_TIMEOUT": cfg.DEFAULT_RENDER_TIMEOUT_SECONDS,
+        "FRAMEFORGE_MCP_RENDER_MAX_PAGES": cfg.DEFAULT_RENDER_MAX_PAGES_HARD,
+        "FRAMEFORGE_MCP_RENDER_MAX_OBJECTS": cfg.DEFAULT_RENDER_MAX_OBJECTS,
+        "FRAMEFORGE_MCP_RASTER_MAX_PAGES": cfg.DEFAULT_RASTER_MAX_PAGES,
+        "FRAMEFORGE_MCP_RASTER_TIMEOUT": cfg.DEFAULT_RASTER_TIMEOUT_SECONDS,
+        "FRAMEFORGE_MCP_MAX_INLINE_IMAGES": cfg.DEFAULT_MAX_INLINE_IMAGES,
+        "FRAMEFORGE_MCP_MAX_RESULT_CHARS": cfg.DEFAULT_MAX_RESULT_CHARS,
+        "FRAMEFORGE_MCP_MAX_TEXT_CHARS": cfg.DEFAULT_MAX_TEXT_CHARS,
+        "FRAMEFORGE_MCP_MIN_CLEANUP_AGE": cfg.DEFAULT_MIN_CLEANUP_AGE_SECONDS,
+    }
+    _, section = _documented()
+    rows = {ln.split("`")[1]: ln for ln in section.splitlines()
+            if ln.startswith("| `FRAMEFORGE_")}
+    wrong = []
+    for var, default in expected.items():
+        row = rows.get(var, "")
+        if not row:
+            wrong.append(f"{var}: no table row")
+            continue
+        # numbers may be typeset with separators — normalize before comparing
+        normalized = row.replace(",", "").replace("_", "")
+        if f"default: {default}" not in normalized:
+            wrong.append(f"{var}: row does not state 'default: {default}' "
+                         f"(code default) — row: {row.strip()}")
+    assert not wrong, "stated defaults drifted from code defaults:\n  " + "\n  ".join(wrong)
