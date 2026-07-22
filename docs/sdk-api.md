@@ -1880,7 +1880,7 @@ hatch(*, fg: 'Color | None' = None, bg: 'Color | None' = None, scale: 'float | i
 Build a linear-gradient ``Paint`` from ``stops``.
 
 ```python
-linear_gradient(stops: 'Sequence[Stop]', *, angle: 'float | int | str | None' = None, repeating: 'bool | None' = None) -> 'dict[str, Any]'
+linear_gradient(stops: 'Sequence[Stop]', *, angle: 'float | int | str | None' = None, line: "'Sequence[Sequence[float]] | None'" = None, repeating: 'bool | None' = None) -> 'dict[str, Any]'
 ```
 
 ### `neon`
@@ -1910,7 +1910,7 @@ pattern(kind: 'PatternKind', *, fg: 'Color | None' = None, bg: 'Color | None' = 
 Build a radial-gradient ``Paint`` from ``stops`` (see :func:`linear_gradient`).
 
 ```python
-radial_gradient(stops: 'Sequence[Stop]', *, at: 'str | Sequence[float] | None' = None, shape: 'str | None' = None, repeating: 'bool | None' = None) -> 'dict[str, Any]'
+radial_gradient(stops: 'Sequence[Stop]', *, at: 'str | Sequence[float] | None' = None, shape: 'str | None' = None, radius: 'float | int | None' = None, focal: 'Sequence[float] | None' = None, repeating: 'bool | None' = None) -> 'dict[str, Any]'
 ```
 
 ### `rgba`

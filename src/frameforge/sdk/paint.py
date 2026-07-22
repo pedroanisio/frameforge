@@ -21,7 +21,7 @@ from typing import Any, Literal, Sequence, Union
 
 Color = str
 Position = Union[float, int, str]
-Stop = Union[Color, "tuple[Color, Position]"]
+Stop = Union[Color, "tuple[Color, Position]", "tuple[Color, Position, float]"]
 PatternKind = Literal["hatch", "cross_hatch", "dots", "grid"]
 FilterFnName = Literal[
     "blur",
@@ -58,18 +58,24 @@ def linear_gradient(
     stops: Sequence[Stop],
     *,
     angle: float | int | str | None = None,
+    line: "Sequence[Sequence[float]] | None" = None,
     repeating: bool | None = None,
 ) -> dict[str, Any]:
     """Build a linear-gradient ``Paint`` from ``stops``.
 
     Each stop is ``(color, position)`` — where ``position`` is a CSS string
     (``"50%"``) or a unit-interval float — or a bare colour, in which case stops
-    are spread evenly from 0% to 100%. ``angle`` orients the gradient (e.g.
-    ``180`` for top-to-bottom).
+    are spread evenly from 0% to 100%; a ``(color, position, opacity)`` triple
+    adds a per-stop alpha (0..1 → SVG ``stop-opacity``). ``angle`` orients the
+    gradient (e.g. ``180`` for top-to-bottom); ``line=[[x1,y1],[x2,y2]]`` places
+    the EXACT gradient line in the object's local coordinate space instead
+    (A1 user-space geometry; mutually exclusive with ``angle``).
     """
     grad: dict[str, Any] = {"kind": "linear", "stops": _stops(stops)}
     if angle is not None:
         grad["angle"] = angle
+    if line is not None:
+        grad["line"] = [list(p) for p in line]
     if repeating is not None:
         grad["repeating"] = repeating
     return grad
@@ -80,19 +86,29 @@ def radial_gradient(
     *,
     at: str | Sequence[float] | None = None,
     shape: str | None = None,
+    radius: float | int | None = None,
+    focal: Sequence[float] | None = None,
     repeating: bool | None = None,
 ) -> dict[str, Any]:
     """Build a radial-gradient ``Paint`` from ``stops`` (see :func:`linear_gradient`).
 
     ``at`` is the centre (``"50% 40%"`` or a point); ``shape`` is ``"circle"`` or
-    ``"ellipse"``. A glow halo is a radial gradient from an opaque colour to the
-    same colour at zero alpha (see :func:`rgba`).
+    ``"ellipse"``. ``radius`` (px) switches to A1 user-space geometry — the
+    gradient is placed exactly in the object's local coordinates and ``at`` must
+    then be a numeric ``[x, y]`` point; ``focal=[fx, fy]`` sets an off-centre
+    focus (the gloss-highlight primitive; requires ``radius``). A glow halo is a
+    radial gradient from an opaque colour to the same colour at zero alpha (see
+    :func:`rgba`, or per-stop opacity triples).
     """
     grad: dict[str, Any] = {"kind": "radial", "stops": _stops(stops)}
     if at is not None:
-        grad["at"] = at
+        grad["at"] = at if isinstance(at, str) else list(at)
     if shape is not None:
         grad["shape"] = shape
+    if radius is not None:
+        grad["radius"] = radius
+    if focal is not None:
+        grad["focal"] = list(focal)
     if repeating is not None:
         grad["repeating"] = repeating
     return grad
@@ -544,11 +560,18 @@ def _stops(stops: Sequence[Stop]) -> list[dict[str, Any]]:
         raise ValueError("a gradient needs at least one stop")
     out: list[dict[str, Any]] = []
     for i, stop in enumerate(items):
+        opacity = None
         if isinstance(stop, (tuple, list)):
-            color, position = stop
+            if len(stop) == 3:                     # (color, position, opacity)
+                color, position, opacity = stop
+            else:
+                color, position = stop
         else:
             color, position = stop, (i / (n - 1) if n > 1 else 0.0)
-        out.append({"color": color, "position": _position(position)})
+        entry: dict[str, Any] = {"color": color, "position": _position(position)}
+        if opacity is not None:
+            entry["opacity"] = opacity             # 0..1 → SVG stop-opacity (A1)
+        out.append(entry)
     return out
 
 

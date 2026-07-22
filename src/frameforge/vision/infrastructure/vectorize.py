@@ -13,10 +13,12 @@ directly and the package boundary stays clean. OpenCV/NumPy are imported lazily,
 so importing this module costs nothing until a function runs.
 
 Honest limits: output is *polygonal* (straight segments), not Bézier-smooth — for
-smooth curves route a Potrace/VTracer SVG through ``svg_import``. Soft gradients
-posterise into colour bands (control with ``colors``). This is a faithful,
-editable base, not a semantic one; per-object *named* layers need the
-segmentation/OCR tiers layered on top.
+smooth curves route a Potrace/VTracer SVG through ``svg_import``. With the default
+flat paint, soft gradients posterise into colour bands (control with ``colors``);
+:func:`apply_gradient_fills` closes that gap by re-painting traced shapes with
+linear/radial gradients fitted from the source (the pure fit lives in
+``vision.domain.gradient_fit``). This is a faithful, editable base, not a semantic
+one; per-object *named* layers need the segmentation/OCR tiers layered on top.
 """
 from __future__ import annotations
 
@@ -169,19 +171,36 @@ def _potrace_hex(color: str) -> str:
 def trace_to_svg(path: "str | Path", *, region_box: "list[float] | None" = None,
                  threshold: int | None = None, invert: Any = "auto",
                  turdsize: int = 2, alphamax: float = 1.0, opttolerance: float = 0.2,
-                 fill: str = "#000000") -> tuple[str, dict[str, Any]]:
+                 fill: str = "#000000", supersample: int = 1) -> tuple[str, dict[str, Any]]:
     """Threshold + potrace-trace an image (or a normalized region) into SVG text.
 
     The smooth-curve complement to :func:`raster_to_objects`: potrace fits Bézier
     outlines to the thresholded ink, which the caller lowers to FrameForge objects
     via :func:`frameforge.vision.infrastructure.svg_import.svg_to_objects`
     (``box=region_px`` fits the traced crop back to its place in the full image).
+
+    ``supersample`` (B5, 1..4) is the AA-aware subpixel stage: the grayscale is
+    LANCZOS-upscaled BEFORE thresholding, so the binarisation locates the
+    threshold crossing on a 1/s px grid instead of quantising the anti-aliased
+    boundary to whole pixels; the caller's box-fit divides the s×-larger potrace
+    viewport back down, landing the geometry subpixel-accurately in the same
+    output coordinates. ``turdsize`` keeps SOURCE-pixel semantics (potrace sees
+    s²-scaled areas, so ``turdsize * s²`` is passed through — reported as
+    ``turdsize_effective``). Cost grows ~s².
+
     Returns ``(svg_text, meta)``; ``meta`` carries the pixel region, threshold,
-    invert decision, and traced path count.
+    invert decision, supersample factors, and traced path count. ``image`` /
+    ``region_px`` stay in SOURCE coordinates; ``traced_px`` is the (upscaled)
+    bitmap potrace actually saw.
     """
     exe = potrace_path()
     if not exe:
         raise RuntimeError(_POTRACE_HINT)
+    ss = int(supersample)
+    if not 1 <= ss <= 4:
+        raise ValueError(
+            f"supersample must be 1..4 (got {supersample!r}); cost grows with s² — "
+            "2..3 recovers the anti-aliased edge, 4 is diminishing returns")
     from PIL import Image, ImageStat
 
     img = Image.open(str(path)).convert("RGB")
@@ -198,6 +217,8 @@ def trace_to_svg(path: "str | Path", *, region_box: "list[float] | None" = None,
 
     gray = crop.convert("L")
     mean = ImageStat.Stat(gray).mean[0]
+    if ss > 1:
+        gray = gray.resize((gray.width * ss, gray.height * ss), Image.LANCZOS)
     # potrace traces BLACK (0) as foreground; `invert=auto` makes the bright pixels
     # the foreground when the ground is dark (a light mark on a dark panel).
     do_invert = (mean < 127.0) if invert == "auto" else bool(invert)
@@ -206,12 +227,13 @@ def trace_to_svg(path: "str | Path", *, region_box: "list[float] | None" = None,
     if do_invert:
         bw = bw.point(lambda v: 0 if v else 255, mode="1")
 
+    turd_eff = int(turdsize) * ss * ss
     tmp = Path(tempfile.mkdtemp(prefix="fg-trace-"))
     try:
         src, out = tmp / "in.bmp", tmp / "out.svg"
         bw.save(src)  # 1-bit BMP; potrace reads BMP + PNM
         cmd = [exe, str(src), "--svg", "-o", str(out),
-               "--turdsize", str(int(turdsize)), "--alphamax", str(float(alphamax)),
+               "--turdsize", str(turd_eff), "--alphamax", str(float(alphamax)),
                "--opttolerance", str(float(opttolerance))]
         if fill:
             cmd += ["--color", _potrace_hex(fill)]
@@ -228,6 +250,9 @@ def trace_to_svg(path: "str | Path", *, region_box: "list[float] | None" = None,
         "region_px": [round(ox, 2), round(oy, 2), round(cw, 2), round(ch, 2)],
         "threshold": thr,
         "inverted": do_invert,
+        "supersample": ss,
+        "turdsize_effective": turd_eff,
+        "traced_px": [bw.width, bw.height],
         "path_count": svg_text.count("<path"),
     }
     return svg_text, meta
@@ -486,3 +511,185 @@ def raster_to_layers(
         objs.append({"type": "path", "d": d, "fill": _solid_fill(img, masks[k]),
                      "style": {"fill_rule": "evenodd"}})
     return objs, W, H
+
+
+# --------------------------------------------------------------------------- #
+#  Gradient paint extraction (Gap-1 closure): fit per-shape fills from source  #
+# --------------------------------------------------------------------------- #
+
+_TRANSFORM_RE = None  # compiled lazily in _object_transform
+
+
+def _object_transform(obj) -> "tuple[float, float, float, float] | None":
+    """Compose a chain of ``translate(..)``/``scale(..)`` transform ops.
+
+    Returns the composed ``(tx, ty, sx, sy)`` such that a local point maps to
+    ``(sx·x + tx, sy·y + ty)``. Handles any left-to-right chain of translate +
+    scale (a box-fitted supersampled trace carries FOUR ops:
+    ``translate scale translate scale`` — svg_import's fit composed onto
+    potrace's y-flip). ``None`` marks an op this sampler does not model
+    (rotate/matrix/skew) — the caller must skip fitting that object rather
+    than sample the wrong pixels.
+    """
+    import re
+    global _TRANSFORM_RE
+    if _TRANSFORM_RE is None:
+        _TRANSFORM_RE = re.compile(
+            r"([a-zA-Z]+)\(([^)]*)\)")
+    transform = (obj.get("style") or {}).get("transform")
+    if not transform:
+        return (0.0, 0.0, 1.0, 1.0)
+    s = str(transform).strip()
+    ops = _TRANSFORM_RE.findall(s)
+    if not ops or "".join(f"{n}({a})" for n, a in ops).replace(" ", "") != s.replace(" ", ""):
+        return None                                   # junk between/around ops
+    tx, ty, sx, sy = 0.0, 0.0, 1.0, 1.0              # outer accumulated affine
+    for name, args in ops:                            # document order: outermost first
+        try:
+            vals = [float(v) for v in re.split(r"[\s,]+", args.strip()) if v]
+        except ValueError:
+            return None
+        if name == "translate" and 1 <= len(vals) <= 2:
+            ax, ay = vals[0], (vals[1] if len(vals) == 2 else 0.0)
+            tx, ty = sx * ax + tx, sy * ay + ty
+        elif name == "scale" and 1 <= len(vals) <= 2:
+            ax, ay = vals[0], (vals[1] if len(vals) == 2 else vals[0])
+            sx, sy = sx * ax, sy * ay
+        else:
+            return None                               # rotate/matrix/skew: unmodelled
+    return (tx, ty, sx, sy)
+
+
+def _shape_mask(obj, size) -> "tuple[Any, bool] | None":
+    """Rasterise one polygon/path object into a winding-aware PIL mask.
+
+    Returns ``(mask_image, y_flipped)`` or ``None`` when the object carries no
+    fittable geometry. Subpaths are painted largest-first; a subpath whose
+    signed area opposes the dominant one erases (a hole) — exact for the
+    opposite-orientation holes both in-tree tracers emit.
+    """
+    from PIL import Image, ImageDraw
+
+    from ..domain.gradient_fit import flatten_path_d, shoelace
+
+    if obj.get("type") == "polygon" and obj.get("points"):
+        subs = [[(float(x), float(y)) for x, y in obj["points"]]]
+        flipped = False
+    elif obj.get("type") == "path" and obj.get("d"):
+        tf = _object_transform(obj)
+        if tf is None:
+            return None
+        tx, ty, sx, sy = tf
+        subs = [[(sx * x + tx, sy * y + ty) for x, y in sub]
+                for sub in flatten_path_d(obj["d"])]
+        flipped = sy < 0
+    else:
+        return None
+
+    mask = Image.new("L", size, 0)
+    draw = ImageDraw.Draw(mask)
+    order = sorted(range(len(subs)), key=lambda k: -abs(shoelace(subs[k])))
+    if not order:
+        return None
+    base_sign = 1.0 if shoelace(subs[order[0]]) >= 0 else -1.0
+    for k in order:
+        sub = subs[k]
+        if len(sub) < 3:
+            continue
+        sign = 1.0 if shoelace(sub) >= 0 else -1.0
+        draw.polygon(sub, fill=255 if sign == base_sign else 0)
+    return mask, flipped
+
+
+def _paint_to_local(fill: "dict[str, Any]", obj: "dict[str, Any]") -> "dict[str, Any]":
+    """Convert a user-geometry fill fitted in IMAGE space into the object's
+    LOCAL coordinate space (the space its `d`/`points` numbers live in — where
+    the renderer resolves userSpaceOnUse gradients).
+
+    Inverse of the ``translate(tx,ty) scale(sx,sy)`` chain: local = (img − t)/s.
+    In-tree tracers only produce uniform-magnitude scales (|sx| == |sy|: potrace
+    0.1/−0.1, aspect-preserving box fits, identity polygons), so a circular px
+    radius stays circular; the mean |s| is used defensively should that ever
+    drift.
+    """
+    tf = _object_transform(obj)
+    if tf is None:
+        return fill                       # unreachable: _shape_mask skips these
+    tx, ty, sx, sy = tf
+    if not sx or not sy:
+        return fill
+
+    def loc(p):
+        return [round((float(p[0]) - tx) / sx, 2), round((float(p[1]) - ty) / sy, 2)]
+
+    if fill.get("kind") == "linear" and fill.get("line") is not None:
+        fill["line"] = [loc(fill["line"][0]), loc(fill["line"][1])]
+    elif fill.get("kind") == "radial" and fill.get("radius") is not None:
+        fill["at"] = loc(fill["at"])
+        mag = (abs(sx) + abs(sy)) / 2.0
+        fill["radius"] = round(float(fill["radius"]) / mag, 2)
+    return fill
+
+
+def apply_gradient_fills(
+    objects: "list[dict[str, Any]]",
+    image,
+    *,
+    min_pixels: int | None = None,
+    erode_px: int = 2,
+    geometry: str = "user",
+) -> dict[str, Any]:
+    """Replace flat fills with gradients fitted from ``image`` (in place).
+
+    ``image`` is a PIL RGB image in the SAME coordinate space as the objects'
+    geometry (the vectorize page space). Every polygon/path object is
+    re-painted from the source: a linear/radial gradient when the fit beats
+    flat (``frameforge.vision.domain.gradient_fit.fit_paint``), else the
+    shape's sampled mean colour. Returns the paint summary
+    ``{"fill_mode", "fitted", "flat", "skipped"}``.
+
+    ``geometry="user"`` (default) emits the EXACT A1 form — linear ``line`` /
+    radial px ``at``+``radius`` — converted into each object's local space via
+    :func:`_paint_to_local`, so the ramp lands back on the sampled pixels
+    precisely. ``"bbox"`` keeps the legacy angle/fraction approximation.
+    """
+    import numpy as np
+    from PIL import ImageFilter
+
+    from ..domain.gradient_fit import DEFAULT_MIN_PIXELS, fit_paint
+
+    floor = DEFAULT_MIN_PIXELS if min_pixels is None else int(min_pixels)
+    src = np.asarray(image.convert("RGB"), dtype=np.float64)
+    fitted = flat = skipped = 0
+    for obj in objects:
+        if "fill" not in obj:
+            skipped += 1
+            continue
+        shaped = _shape_mask(obj, image.size)
+        if shaped is None:
+            skipped += 1
+            continue
+        mask, flipped = shaped
+        eroded = mask
+        for _ in range(max(0, int(erode_px))):
+            eroded = eroded.filter(ImageFilter.MinFilter(3))
+        m = np.asarray(eroded)
+        if int((m > 0).sum()) < max(3, floor // 2):
+            m = np.asarray(mask)  # slivers: keep the un-eroded mask
+        ys, xs = np.nonzero(m > 0)
+        if len(ys) == 0:
+            skipped += 1
+            continue
+        pts = np.stack([xs, ys], axis=1).astype(np.float64)
+        bbox = (float(xs.min()), float(ys.min()), float(xs.max()), float(ys.max()))
+        out = fit_paint(pts, src[ys, xs], bbox=bbox, y_flipped=flipped,
+                        min_pixels=floor, geometry=geometry)
+        fill_val = out["fill"]
+        if geometry == "user" and isinstance(fill_val, dict):
+            fill_val = _paint_to_local(fill_val, obj)
+        obj["fill"] = fill_val
+        if out["family"] == "flat":
+            flat += 1
+        else:
+            fitted += 1
+    return {"fill_mode": "gradient", "fitted": fitted, "flat": flat, "skipped": skipped}

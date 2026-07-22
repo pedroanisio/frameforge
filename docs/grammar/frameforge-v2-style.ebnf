@@ -293,13 +293,25 @@ Gradient =
       "kind" , ":" , ( "linear" | "radial" | "conic" ) ,
       "stops" , ":" , "[" , GradientStop , { "," , GradientStop } , "]" ,
       [ "repeating" , ":" , boolean ] ,
-      [ "angle"     , ":" , Angle ] ,               (* linear *)
+      [ "angle"     , ":" , Angle ] ,               (* linear; excluded by `line` *)
       [ "from"      , ":" , Angle ] ,               (* conic start angle *)
-      [ "at"        , ":" , ( string | Point ) ] ,  (* radial/conic centre *)
+      [ "at"        , ":" , ( string | Point ) ] ,  (* radial/conic centre; a NUMERIC
+                                                       point when `radius` is given *)
       [ "shape"     , ":" , ( "circle" | "ellipse" ) ] ,  (* radial *)
+      (* A1 user-space geometry (HEAD): EXACT placement in the object's local  *)
+      (* coordinate space — lowered as SVG gradientUnits="userSpaceOnUse".     *)
+      [ "line"      , ":" , "[" , Point , "," , Point , "]" ] ,  (* linear only;
+                                                       mutually exclusive with angle *)
+      [ "radius"    , ":" , number ] ,              (* radial only, > 0; requires a
+                                                       numeric [x, y] `at` *)
+      [ "focal"     , ":" , Point ] ,               (* radial only; requires radius —
+                                                       the off-centre gloss focus *)
     "}" ;
 GradientStop =
-    "{" , "color" , ":" , Color , [ "," , "position" , ":" , ( Length | Percentage ) ] , "}" ;
+    "{" , "color" , ":" , Color ,
+      [ "," , "position" , ":" , ( Length | Percentage ) ] ,
+      [ "," , "opacity"  , ":" , number ] ,         (* 0..1 → SVG stop-opacity *)
+    "}" ;
 
 
 (* ═══ Color & dimension value types (CSS Color L4 + Values & Units) ═══ *)

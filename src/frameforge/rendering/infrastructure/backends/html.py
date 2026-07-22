@@ -62,6 +62,7 @@ from __future__ import annotations
 
 import html
 import json
+import math
 import os
 import re
 import sys
@@ -716,22 +717,25 @@ class Renderer:
             stroke = self.tokens.color_literal(obj.get("stroke"))
         return stroke, width
 
-    def _paint_css(self, obj: dict, *, fillable: bool) -> tuple[str, str]:
+    def _paint_css(self, obj: dict, *, fillable: bool,
+                   origin: tuple[float, float] = (0.0, 0.0)) -> tuple[str, str]:
         """CSS ``fill``/``stroke`` for an inline SVG shape, plus any ``<defs>``.
 
         Returns ``(style, defs)``. Solid colours keep the semantic palette
         (``var(--fg-name)``); a **gradient** ``fill`` is emitted as a real SVG
         ``<linearGradient>``/``<radialGradient>`` referenced by ``fill:url(#id)``
-        (the ``defs`` string the caller injects into the shape's ``<svg>``). A
-        non-gradient dict (a pattern) still degrades to a flat colour rather than
-        vanishing.
+        (the ``defs`` string the caller injects into the shape's ``<svg>``).
+        ``origin`` is the shape's svg-local origin in object coordinates —
+        A1 user-space gradient geometry shifts by ``-origin`` into the rebased
+        viewBox. A non-gradient dict (a pattern) still degrades to a flat colour
+        rather than vanishing.
         """
         decls: list[str] = []
         defs = ""
         fill = obj.get("fill")
         if fillable and isinstance(fill, dict):
             if _is_gradient(fill):
-                gid, defs = self._gradient_svg(fill)
+                gid, defs = self._gradient_svg(fill, origin)
                 decls.append(f"fill:url(#{gid})")
             else:
                 decls.append("fill:#888888")      # pattern — not yet supported
@@ -760,15 +764,44 @@ class Renderer:
         return ";".join(decls), defs
 
     # -- gradients --------------------------------------------------------- #
-    def _gradient_stops(self, g: dict) -> list[tuple[float, str]]:
-        """`[(offset_percent, color_literal)]` from a gradient dict.
+    @staticmethod
+    def _user_point(value: Any) -> "tuple[float, float] | None":
+        """A numeric [x, y] pair to (x, y) floats, else None (A1 guard)."""
+        if (isinstance(value, (list, tuple)) and len(value) == 2
+                and all(isinstance(v, (int, float)) and not isinstance(v, bool)
+                        for v in value)):
+            return float(value[0]), float(value[1])
+        return None
+
+    @classmethod
+    def _user_line(cls, g: dict) -> "tuple[tuple[float, float], tuple[float, float]] | None":
+        """The A1 `line` [[x1,y1],[x2,y2]] as two float points, else None."""
+        line = g.get("line")
+        if isinstance(line, (list, tuple)) and len(line) == 2:
+            p0, p1 = cls._user_point(line[0]), cls._user_point(line[1])
+            if p0 is not None and p1 is not None:
+                return p0, p1
+        return None
+
+    @classmethod
+    def _user_radial(cls, g: dict) -> "tuple[float, float, float] | None":
+        """The A1 user-space radial (cx, cy, r), else None."""
+        r = g.get("radius")
+        centre = cls._user_point(g.get("at"))
+        if (centre is not None and isinstance(r, (int, float))
+                and not isinstance(r, bool) and r > 0 and g.get("kind") == "radial"):
+            return centre[0], centre[1], float(r)
+        return None
+
+    def _gradient_stops(self, g: dict) -> list[tuple[float, str, "float | None"]]:
+        """`[(offset_percent, color_literal, opacity|None)]` from a gradient dict.
 
         Mirrors the SVG painter's stop parsing: a ``position`` may be a bare
         number (already a percentage) or a ``"NN%"`` string; missing positions
-        space evenly."""
+        space evenly. ``opacity`` is the A1 per-stop alpha (0..1) or None."""
         stops = g.get("stops") or []
         n = max(1, len(stops))
-        out: list[tuple[float, str]] = []
+        out: list[tuple[float, str, float | None]] = []
         for i, st in enumerate(stops):
             off = st.get("position")
             o: float | None = None
@@ -782,7 +815,10 @@ class Renderer:
             if o is None:
                 o = (i / (n - 1) * 100) if n > 1 else 0.0
             col = self.tokens.color_literal(st.get("color")) or "#000000"
-            out.append((o, col))
+            op = st.get("opacity")
+            alpha = (float(op) if isinstance(op, (int, float))
+                     and not isinstance(op, bool) else None)
+            out.append((o, col, alpha))
         return out
 
     @staticmethod
@@ -801,34 +837,79 @@ class Renderer:
         except (TypeError, ValueError):
             return None
 
-    def _gradient_svg(self, g: dict) -> tuple[str, str]:
+    def _gradient_svg(self, g: dict, origin: tuple[float, float] = (0.0, 0.0)) -> tuple[str, str]:
         """Allocate a page-unique id and build the SVG ``<defs>`` for a gradient.
 
-        Returns ``(gid, defs_markup)``. Conic gradients (no SVG primitive) fall
-        back to radial, as the SVG painter does."""
+        Returns ``(gid, defs_markup)``. ``origin`` is the emitting shape's
+        svg-local origin in object coordinates: A1 user-space geometry (`line`,
+        `at`+`radius`+`focal`) is authored in the object's coordinate space and
+        shifted by ``-origin`` into the shape's rebased viewBox. Conic gradients
+        (no SVG primitive) fall back to radial, as the SVG painter does."""
         self._gid += 1
         gid = f"fgg-{self._page_index}-{self._gid}"
         stops = "".join(
-            f'<stop offset="{o:g}%" stop-color="{html.escape(c)}"/>'
-            for o, c in self._gradient_stops(g)
+            f'<stop offset="{o:g}%" stop-color="{html.escape(c)}"'
+            + (f' stop-opacity="{a:g}"' if a is not None else "") + "/>"
+            for o, c, a in self._gradient_stops(g)
         )
+        gx, gy = origin
         if g.get("kind") in ("radial", "conic"):
-            cx, cy = self._gradient_center(g)
-            defs = (f'<defs><radialGradient id="{gid}" cx="{html.escape(cx)}" '
-                    f'cy="{html.escape(cy)}" r="50%">{stops}</radialGradient></defs>')
+            user = self._user_radial(g)
+            if user is not None:
+                ucx, ucy, r = user
+                focal = self._user_point(g.get("focal"))
+                fx, fy = focal if focal is not None else (ucx, ucy)
+                defs = (f'<defs><radialGradient id="{gid}" gradientUnits="userSpaceOnUse" '
+                        f'cx="{ucx - gx:g}" cy="{ucy - gy:g}" r="{r:g}" '
+                        f'fx="{fx - gx:g}" fy="{fy - gy:g}">{stops}</radialGradient></defs>')
+            else:
+                cx, cy = self._gradient_center(g)
+                defs = (f'<defs><radialGradient id="{gid}" cx="{html.escape(cx)}" '
+                        f'cy="{html.escape(cy)}" r="50%">{stops}</radialGradient></defs>')
         else:
-            deg = self._gradient_angle(g)
-            xform = f' gradientTransform="rotate({deg:g} 0.5 0.5)"' if deg is not None else ""
-            defs = f'<defs><linearGradient id="{gid}"{xform}>{stops}</linearGradient></defs>'
+            line = self._user_line(g)
+            if line is not None:
+                (x1, y1), (x2, y2) = line
+                defs = (f'<defs><linearGradient id="{gid}" gradientUnits="userSpaceOnUse" '
+                        f'x1="{x1 - gx:g}" y1="{y1 - gy:g}" '
+                        f'x2="{x2 - gx:g}" y2="{y2 - gy:g}">{stops}</linearGradient></defs>')
+            else:
+                deg = self._gradient_angle(g)
+                xform = f' gradientTransform="rotate({deg:g} 0.5 0.5)"' if deg is not None else ""
+                defs = f'<defs><linearGradient id="{gid}"{xform}>{stops}</linearGradient></defs>'
         return gid, defs
 
-    def _gradient_css(self, g: dict) -> str:
-        """A CSS ``linear-gradient()``/``radial-gradient()`` for a div background."""
-        parts = ", ".join(f"{c} {o:g}%" for o, c in self._gradient_stops(g))
+    def _css_stop(self, color: str, alpha: "float | None") -> str:
+        """One CSS gradient stop colour, folding an A1 stop opacity to rgba()."""
+        return self._with_opacity(color, alpha) if alpha is not None else color
+
+    def _gradient_css(self, g: dict, origin: tuple[float, float] = (0.0, 0.0)) -> str:
+        """A CSS ``linear-gradient()``/``radial-gradient()`` for a div background.
+
+        A1 user-space geometry degrades honestly in this lane: a radial
+        ``at``+``radius`` IS expressible (CSS radial-gradient speaks px —
+        shifted by ``-origin`` from object into div coordinates); a linear
+        ``line`` keeps its DIRECTION as the equivalent CSS angle (the extent
+        would need a per-box stop projection CSS cannot state)."""
+        parts = ", ".join(
+            f"{self._css_stop(c, a)} {o:g}%" for o, c, a in self._gradient_stops(g))
         if g.get("kind") in ("radial", "conic"):
+            user = self._user_radial(g)
+            if user is not None:
+                ucx, ucy, r = user
+                gx, gy = origin
+                return (f"radial-gradient(circle {r:g}px at "
+                        f"{ucx - gx:g}px {ucy - gy:g}px, {parts})")
             cx, cy = self._gradient_center(g)
             shape = "circle" if g.get("shape") == "circle" else "ellipse"
             return f"radial-gradient({shape} at {cx} {cy}, {parts})"
+        line = self._user_line(g)
+        if line is not None:
+            (x1, y1), (x2, y2) = line
+            dx, dy = x2 - x1, y2 - y1
+            if dx or dy:
+                deg = math.degrees(math.atan2(dx, -dy)) % 360.0
+                return f"linear-gradient({deg:g}deg, {parts})"
         deg = self._gradient_angle(g)
         head = f"{deg:g}deg" if deg is not None else "to bottom"
         return f"linear-gradient({head}, {parts})"
@@ -847,7 +928,7 @@ class Renderer:
         css = {}
         raw = obj.get("fill")
         if _is_gradient(raw):
-            css["background"] = self._gradient_css(raw)
+            css["background"] = self._gradient_css(raw, origin=(x, y))
         elif not isinstance(raw, dict) and (fill := self.tokens.color(raw)) is not None:
             css["background"] = self._with_opacity(fill, obj.get("fill_opacity"))
         radius = obj.get("radius")
@@ -901,7 +982,7 @@ class Renderer:
         css = {"border-radius": "50%"}
         raw = obj.get("fill")
         if _is_gradient(raw):
-            css["background"] = self._gradient_css(raw)
+            css["background"] = self._gradient_css(raw, origin=(x, y))
         elif not isinstance(raw, dict) and (fill := self.tokens.color(raw)) is not None:
             css["background"] = self._with_opacity(fill, obj.get("fill_opacity"))
         border = self._border(obj)
@@ -937,7 +1018,7 @@ class Renderer:
         bw, bh = (maxx - minx) + 2 * pad, (maxy - miny) + 2 * pad
         local = " ".join(f"{x - minx + pad:.2f},{y - miny + pad:.2f}" for x, y in pts)
         tag = "polygon" if closed else "polyline"
-        paint, defs = self._paint_css(obj, fillable=True)
+        paint, defs = self._paint_css(obj, fillable=True, origin=(minx - pad, miny - pad))
         attrs = self._common(obj, ox + minx - pad, oy + miny - pad, bw, bh)
         svg = (
             f'<svg aria-hidden="true" width="{bw:.2f}" height="{bh:.2f}" '
@@ -974,7 +1055,8 @@ class Renderer:
 
         (ax, ay), (bx, by), (cx_, cy_), (dx, dy) = loc(p0), loc(c1), loc(c2), loc(p3)
         d = f"M {ax:.2f} {ay:.2f} C {bx:.2f} {by:.2f} {cx_:.2f} {cy_:.2f} {dx:.2f} {dy:.2f}"
-        paint, defs = self._paint_css(obj, fillable=obj.get("fill") is not None)
+        paint, defs = self._paint_css(obj, fillable=obj.get("fill") is not None,
+                                      origin=(minx - pad, miny - pad))
         attrs = self._common(obj, ox + minx - pad, oy + miny - pad, bw, bh)
         svg = (
             f'<svg aria-hidden="true" width="{bw:.2f}" height="{bh:.2f}" '

@@ -36,7 +36,8 @@ from frameforge.rendering.domain.geometry import fnum, is_point, num
 from frameforge.rendering.domain.services.paint_resolver import GradientPaint
 from frameforge.rendering.infrastructure.painters.tikz_path import path_data
 from frameforge.rendering.infrastructure.latex.tikz import (
-    _grad_angle, _grad_orientation, _grad_pct, _parse_hex, color_expr, ltx_escape,
+    _grad_direction, _grad_orientation, _grad_pct, _parse_hex,
+    _user_grad_point, color_expr, ltx_escape,
 )
 
 
@@ -216,11 +217,19 @@ class TikzPainter:
         if stops is None:
             return None
         if kind in ("radial", "radial-gradient", "conic"):
-            cx, cy = self._radial_center(spec.get("at"), x, y, w, h)
-            rx = max(abs(cx - x), abs(x + w - cx))
-            ry = max(abs(cy - y), abs(y + h - cy))
-            if str(spec.get("shape") or "ellipse").strip().lower() == "circle":
-                rx = ry = max(rx, ry)
+            radius = spec.get("radius")
+            user_at = _user_grad_point(spec.get("at")) if kind != "conic" else None
+            if (user_at is not None and isinstance(radius, (int, float))
+                    and not isinstance(radius, bool) and radius > 0):
+                # A1 user-space radial: page coordinates map 1:1 (exact, circular).
+                cx, cy = user_at
+                rx = ry = float(radius)
+            else:
+                cx, cy = self._radial_center(spec.get("at"), x, y, w, h)
+                rx = max(abs(cx - x), abs(x + w - cx))
+                ry = max(abs(cy - y), abs(y + h - cy))
+                if str(spec.get("shape") or "ellipse").strip().lower() == "circle":
+                    rx = ry = max(rx, ry)
             clip = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
             out = []
             for (p0, c0), (p1, c1) in zip(stops, stops[1:]):
@@ -232,7 +241,7 @@ class TikzPainter:
                     if out else None)
         if kind not in ("linear", "linear-gradient"):
             return None
-        axis, reverse = _grad_orientation(_grad_angle(spec.get("angle")))
+        axis, reverse = _grad_orientation(_grad_direction(spec))
         if reverse:
             stops = [(1.0 - p, c) for p, c in reversed(stops)]
         out = []

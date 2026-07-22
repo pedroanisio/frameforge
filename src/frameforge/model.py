@@ -133,6 +133,11 @@ class GradientStop(FG):
         description="Stop position along the gradient line (length or '<n>%'); "
                     "authoritative key — the legacy `offset` (incl. 0..1 unit-interval "
                     "numbers) is accepted and normalised to `position`.")
+    opacity: Optional[UnitInterval] = Field(
+        default=None,
+        description="Stop alpha 0..1 (SVG stop-opacity); omitted = fully opaque. "
+                    "Prefer this over 8-digit hex when the alpha ramp is the point "
+                    "(soft glows, feathered highlights).")
 
     @model_validator(mode="before")
     @classmethod
@@ -161,9 +166,62 @@ class Gradient(FG):
         default=None, description="Radial/conic centre: a CSS position string or an [x, y] point.")
     shape: Optional[Literal["circle", "ellipse"]] = Field(
         default=None, description="Radial gradients: end shape (default ellipse).")
+    line: Optional[list[Point]] = Field(
+        default=None,
+        description="Linear gradients: EXACT gradient line [[x1,y1],[x2,y2]] in the "
+                    "object's local (user) coordinate space — page px unless the "
+                    "object carries a transform. Mutually exclusive with `angle`; "
+                    "lowered as SVG gradientUnits=userSpaceOnUse. The fitted-"
+                    "reconstruction emitter (vision.gradient_fit) targets this form: "
+                    "bbox-relative `angle` cannot place a sampled ramp exactly on "
+                    "shapes whose bbox is mostly empty.")
+    radius: Optional[float] = Field(
+        default=None, gt=0,
+        description="Radial gradients: user-space radius in local px; switches the "
+                    "gradient to userSpaceOnUse and therefore requires `at` as a "
+                    "numeric [x, y] point (position keywords are bbox-language and "
+                    "have no meaning without a bbox).")
+    focal: Optional[Point] = Field(
+        default=None,
+        description="Radial gradients: user-space focus [fx, fy] in local px — the "
+                    "gloss-highlight primitive (off-centre sheen). Requires `radius`; "
+                    "omitted = focus at the centre `at`.")
     meta: Optional[dict] = Field(
         default=None, description="Free-form annotation bag; never interpreted by the renderer.")
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    @model_validator(mode="after")
+    def _check_user_space_geometry(self):
+        # A1 (user-space geometry): incoherent combinations are ERRORS, never a
+        # silent reinterpretation — the agent-native surface has one meaning.
+        if self.line is not None:
+            if self.kind != "linear":
+                raise ValueError(
+                    f"`line` is linear-only geometry (kind={self.kind!r}); radial "
+                    "gradients place themselves with `at` + `radius`")
+            if self.angle is not None:
+                raise ValueError(
+                    "`line` and `angle` are mutually exclusive — `line` already "
+                    "fixes the gradient direction exactly")
+            if len(self.line) != 2:
+                raise ValueError(
+                    "`line` must be exactly two points [[x1,y1],[x2,y2]]")
+        if self.radius is not None:
+            if self.kind != "radial":
+                raise ValueError(
+                    f"`radius` is radial-only geometry (kind={self.kind!r})")
+            at = self.at
+            if not (isinstance(at, list) and len(at) == 2):
+                raise ValueError(
+                    "a user-space radial (`radius`) requires `at` as a numeric "
+                    "[x, y] point — keywords/percentages are bbox-relative and "
+                    "cannot anchor a px radius")
+        if self.focal is not None:
+            if self.kind != "radial" or self.radius is None:
+                raise ValueError(
+                    "`focal` requires a user-space radial: kind='radial' with "
+                    "`radius` (and a numeric [x, y] `at`)")
+        return self
 
 
 class Pattern(FG):

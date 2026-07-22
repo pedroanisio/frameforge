@@ -384,7 +384,9 @@ def create_server(
             "closed/filled/stable regions does an image contain — exact bbox/centroid/"
             "fill/polygon per region, three methods + shape clustering), construct_vectors "
             "(draw SDK geometry from anchor points), vectorize_image (AUTO trace: auto / "
-            "region / outline / trace(potrace) / layers), score_reconstruction (NUMERIC convergence: "
+            "region / outline / trace(potrace) / layers; fill_mode='gradient' fits exact "
+            "user-space gradient fills from the source, thresholds=[...] stacks luminance "
+            "levels, supersample=2..3 traces AA edges subpixel), score_reconstruction (NUMERIC convergence: "
             "how far the drawn vectors sit from the source's edges — on_edge_frac / "
             "mean_dist, complements compare_images), map_coordinates (homography / 2D↔3D / "
             "warp image rectification).\n"
@@ -1446,6 +1448,9 @@ def create_server(
         alphamax: Annotated[float, Field(description="trace mode: potrace corner threshold (0 = sharp polygons only, 1.0 = default smoothing, up to 4/3 = smoothest).")] = 1.0,
         opttolerance: Annotated[float, Field(description="trace mode: potrace curve-optimization tolerance (higher = fewer, looser Bézier segments).")] = 0.2,
         fill: Annotated[str, Field(description="trace mode: fill colour for the traced paths.")] = "#000000",
+        supersample: Annotated[int, Field(description="trace mode: AA-aware subpixel stage (1..4; default 1 = off). Upscales the grayscale BEFORE thresholding so the anti-aliased boundary is located on a 1/s px grid instead of quantising to whole pixels — kills the traced-edge halo on soft-edged sources. turdsize keeps source-pixel semantics; cost grows ~s²; 2..3 is the sweet spot.")] = 1,
+        fill_mode: Annotated[str, Field(description="'flat' (default — quantised solid fills, unchanged behaviour) or 'gradient' (re-paint every traced shape from the SOURCE pixels: per-shape linear/radial gradient fills ranked by colour rms, flat mean colour when a gradient does not beat it — emitted as EXACT user-space geometry: linear `line` endpoints / radial px `at`+`radius` in each object's local space; region/trace/layers only, summary under result.vectorize.paint).")] = "flat",
+        thresholds: Annotated[list[int] | None, Field(description="trace mode: run one potrace pass per 0..255 luminance level and stack the layers darkest-first — the multi-level technique for shaded/gradient logo art (e.g. [30, 110, 190]). Overrides 'threshold'; combine with fill_mode='gradient'.")] = None,
         ocr: Annotated[bool, Field(description="Also add Tesseract-detected text objects (needs the tesseract binary).")] = False,
         title: Annotated[str, Field(description="Title for the reconstruction document.")] = "Vectorized reconstruction",
         session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
@@ -1456,7 +1461,9 @@ def create_server(
         flat colour into filled polygons (ideal for logos/flat art), `outline` traces edges
         into polylines, and `trace` runs potrace for smooth Bézier outlines lowered through
         the SVG-ingest path. `region_box` vectorizes just a crop, placed 1:1 in the full
-        image; `ocr` adds text objects. Diff the render against the source with `compare_images`.
+        image; `ocr` adds text objects. For gradient/shaded art, `fill_mode='gradient'`
+        fits per-shape gradient fills from the source and `thresholds=[...]` stacks
+        multi-level trace layers. Diff the render against the source with `compare_images`.
         """
         result = _logged_enveloped_call(
             log_path,
@@ -1467,7 +1474,9 @@ def create_server(
                 "stroke_width": stroke_width, "background": background,
                 "threshold": threshold, "invert": invert, "turdsize": turdsize,
                 "alphamax": alphamax, "opttolerance": opttolerance,
-                "fill": fill, "ocr": ocr, "title": title, "session_id": session_id,
+                "fill": fill, "supersample": supersample,
+                "fill_mode": fill_mode, "thresholds": thresholds,
+                "ocr": ocr, "title": title, "session_id": session_id,
             },
             lambda: _uc_vectorize_image(
                 image, mode=mode, region_box=region_box, colors=colors, detail=detail,
@@ -1475,7 +1484,9 @@ def create_server(
                 background=background,
                 threshold=threshold, invert="auto" if invert is None else invert,
                 turdsize=turdsize, alphamax=alphamax, opttolerance=opttolerance,
-                fill=fill, ocr=ocr, title=title, session_id=session_id, session_root=root,
+                fill=fill, supersample=supersample,
+                fill_mode=fill_mode, thresholds=thresholds,
+                ocr=ocr, title=title, session_id=session_id, session_root=root,
             ),
         )
         return _maybe_call_tool_result(result)

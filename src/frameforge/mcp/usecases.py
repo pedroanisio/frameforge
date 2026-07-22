@@ -29,7 +29,6 @@ from frameforge.mcp.sessions import (
     _reset_session_outputs,
     _reset_session_renders,
     _session_id,
-    read_session_resource,
     session_resource_bytes,
 )
 from frameforge.mcp.sources import (
@@ -1643,6 +1642,9 @@ def vectorize_image(
     alphamax: float = 1.0,
     opttolerance: float = 0.2,
     fill: str = "#000000",
+    supersample: int = 1,
+    fill_mode: str = "flat",
+    thresholds: list[int] | None = None,
     background: str | None = None,
     ocr: bool = False,
     title: str = "Vectorized reconstruction",
@@ -1662,7 +1664,26 @@ def vectorize_image(
     objects and reports the OCR backend status under ``result.vectorize.ocr``
     (never a silent empty list). Sizes the page to the source so the
     reconstruction overlays 1:1; diff it against the source with ``compare_images``.
+
+    ``fill_mode='gradient'`` re-paints every traced shape from the SOURCE pixels:
+    linear/radial gradient fills fitted per shape (flat/linear/radial candidates
+    ranked by colour rms — ``vision.domain.gradient_fit``), the gradient-art
+    complement to the default flat quantisation. Applies to ``region``/``trace``/
+    ``layers``; the summary lands under ``result.vectorize.paint``. ``thresholds``
+    (trace mode only) runs one potrace pass per luminance level and stacks the
+    layers darkest-first — the multi-level technique for shaded logo art.
     """
+    if fill_mode not in ("flat", "gradient"):
+        return {"ok": False,
+                "error": f"unknown fill_mode {fill_mode!r}; use 'flat' (quantised "
+                         "colours, the default) or 'gradient' (fit per-shape "
+                         "gradient fills from the source)",
+                "renders": [], "resources": []}
+    if thresholds is not None and mode != "trace":
+        return {"ok": False,
+                "error": "thresholds is a trace-mode option (one potrace pass per "
+                         f"luminance level); mode {mode!r} does not accept it",
+                "renders": [], "resources": []}
     try:
         image_bytes = _resolve_image_arg(image, session_root=session_root)
     except (ValueError, FileNotFoundError) as exc:
@@ -1728,13 +1749,27 @@ def vectorize_image(
             elif mode == "trace":
                 from frameforge.vision.infrastructure.svg_import import svg_to_objects
                 from frameforge.vision.infrastructure.vectorize import trace_to_svg
-                svg, tmeta = trace_to_svg(
-                    src, region_box=region_box, threshold=threshold, invert=invert,
-                    turdsize=turdsize, alphamax=alphamax, opttolerance=opttolerance, fill=fill)
-                box = tmeta["region_px"] if region_box else None
-                if region_box:
-                    ox, oy = tmeta["region_px"][0], tmeta["region_px"][1]
-                objects = svg_to_objects(svg, box=box)
+                # thresholds: one potrace pass per luminance level, stacked
+                # darkest-first (the lowest threshold covers the most ink, so
+                # brighter levels paint on top of it).
+                levels: list[int | None] = (
+                    sorted(int(t) for t in thresholds) if thresholds else [threshold])
+                objects = []
+                for level in levels:
+                    svg, tmeta = trace_to_svg(
+                        src, region_box=region_box, threshold=level, invert=invert,
+                        turdsize=turdsize, alphamax=alphamax,
+                        opttolerance=opttolerance, fill=fill,
+                        supersample=supersample)
+                    box = tmeta["region_px"] if region_box else None
+                    if region_box:
+                        ox, oy = tmeta["region_px"][0], tmeta["region_px"][1]
+                    elif int(supersample) != 1:
+                        # B5: the potrace viewport is s×-larger than the page —
+                        # fit it back explicitly (the 'viewport == page'
+                        # invariant only holds unsupersampled).
+                        box = [0.0, 0.0, float(W), float(H)]
+                    objects.extend(svg_to_objects(svg, box=box))
                 page_w, page_h = W, H
                 backend = "potrace"
             elif mode == "layers":
@@ -1756,6 +1791,21 @@ def vectorize_image(
                         "error": f"unknown mode {mode!r}; use 'auto', 'region', 'outline', "
                                  "'trace', or 'layers'",
                         "renders": [], "resources": []}
+            paint_summary: dict[str, Any] | None = None
+            if fill_mode == "gradient":
+                if mode == "outline":
+                    return {"ok": False,
+                            "error": "fill_mode='gradient' fits FILL paint — the "
+                                     "outline mode emits stroked polylines with no "
+                                     "fills; use region, trace, or layers",
+                            "renders": [], "resources": []}
+                from frameforge.vision.infrastructure.vectorize import apply_gradient_fills
+                # The fit samples the source in the objects' own coordinate
+                # space: region/layers geometry lives at the (possibly
+                # downscaled) page size, trace geometry at full image size.
+                sample_img = img if (int(page_w), int(page_h)) == (W, H) else \
+                    img.resize((int(page_w), int(page_h)))
+                paint_summary = apply_gradient_fills(objects, sample_img)
             if ocr:
                 # The status variant makes the degradation observable (PALS's Law):
                 # a silent [] was indistinguishable from a text-free image.
@@ -1799,6 +1849,12 @@ def vectorize_image(
         "page_px": [int(page_w), int(page_h)],
         "region_px": [round(ox, 2), round(oy, 2)] if region_box else None,
     }
+    if thresholds is not None:
+        result["vectorize"]["thresholds"] = sorted(int(t) for t in thresholds)
+    if mode == "trace" and int(supersample) != 1:
+        result["vectorize"]["supersample"] = int(supersample)
+    if paint_summary is not None:
+        result["vectorize"]["paint"] = paint_summary
     if auto_meta is not None:
         result["vectorize"]["auto"] = auto_meta
     if ocr_status is not None:

@@ -9,6 +9,74 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — feat(model,render,vision): user-space gradient geometry + AA-aware subpixel tracing (2026-07-22)
+
+The two remaining engine gaps from the lotus-emblem reconstruction assessment
+(A1 + B5), plus the A1×B4 coupling the sibling entry below anticipated ("the
+emitter can upgrade to exact gradient lines without an API change" — it now
+does, by default).
+
+- **A1 — `Gradient` user-space geometry (model + every backend):**
+  - `line: [[x1,y1],[x2,y2]]` (linear) — the EXACT gradient line in the
+    object's local coordinate space; mutually exclusive with `angle`.
+  - `radius: <px>` (radial) — user-space radius; requires `at` as a numeric
+    `[x, y]` point. `focal: [fx, fy]` — off-centre focus (the gloss-highlight
+    primitive); requires `radius`.
+  - `GradientStop.opacity` (0..1) → SVG `stop-opacity` — first-class alpha
+    ramps for glows/feathered highlights.
+  - Incoherent combinations are strict validation ERRORS (`line` on a radial,
+    `radius` without numeric `at`, `focal` without `radius`, `line`+`angle`) —
+    one meaning per document, never a silent reinterpretation.
+  - Lowering: SVG painter emits `gradientUnits="userSpaceOnUse"` geometry
+    (raster truth path); the html backend mirrors it exactly in its SVG-defs
+    lane (shifted into each shape's rebased viewBox) and honestly in its CSS
+    lane (px-exact radial, direction-preserving linear); both TikZ paths
+    (`FigureTikz`, `TikzPainter`) draw user-space radials exactly (page-space
+    shades) and preserve a `line`'s direction via the derived CSS angle.
+    Legacy specs emit byte-identical output (golden lock re-verified).
+- **A1×B4 — the fitter now emits the exact form:** `fit_paint` gains
+  `geometry="user"` (image-space `line` endpoints at the projection span,
+  px `at`+`radius` radials); `apply_gradient_fills` defaults to it and
+  inverse-transforms the fitted geometry into each object's LOCAL space
+  (through the potrace y-flip and box-fit chains — `_object_transform` now
+  composes arbitrary translate/scale chains), so the rendered ramp lands back
+  on the sampled pixels px-exactly. The bbox `angle`/fraction-`at` form
+  remains available as `geometry="bbox"` for angle-only consumers.
+- **B5 — AA-aware subpixel tracing:** `trace_to_svg(..., supersample=1..4)`
+  LANCZOS-upscales the grayscale BEFORE thresholding, locating the threshold
+  crossing on a 1/s px grid instead of quantising the anti-aliased boundary to
+  whole pixels; the caller's `svg_to_objects(box=...)` fit divides the
+  s×-larger potrace viewport back down. `turdsize` keeps source-pixel
+  semantics (`turdsize·s²` passed through, reported as `turdsize_effective`);
+  meta stays in source coordinates and adds `supersample`/`traced_px`.
+  Measured on a synthetic AA disk: mean boundary error 0.174 px (s=1) →
+  0.117 px (s=2). Exposed through `vectorize_image(supersample=...)` on the
+  MCP surface (trace mode; composes with `thresholds` — every pass is
+  supersampled). The MCP lane box-fits a full-image supersampled trace back to
+  the page (the pre-B5 'potrace viewport == page' invariant only holds
+  unsupersampled — a real bug the end-to-end run caught; pinned by
+  `test_usecase_lane_fits_supersampled_trace_back_to_page`).
+- **End-to-end (the lotus-emblem reference that motivated all three gaps):**
+  ONE call — `vectorize_image(mode='trace', thresholds=[40,100,160,220],
+  fill_mode='gradient', background='#000000')` — reconstructs the source at
+  **NCC 0.976 / 97.8% pixel-match / MAE 6.4**, beating the original hand-built
+  session (2070-line YAML + an out-of-tree cv2 fitter: NCC 0.9716 / 97.2% /
+  MAE 7.5). Denser threshold ladders plateau at ~0.976: the residual is the
+  2D shading field + JPEG bloom/grain — the still-open A2 (shape-conforming
+  shading) / A3 (page-level post effects) / B6 (error-driven refinement) gaps,
+  per the surface-gap assessment.
+- **Compatibility / migration:** none needed — every field and parameter is
+  additive with an identity default (`supersample=1`, absent gradient keys);
+  schema/manifest regenerated; the one behaviour change is INTENTIONAL and
+  unreleased-to-unreleased: `fill_mode='gradient'` now emits user-space
+  geometry instead of bbox `angle`/fraction-`at` (both landed in this
+  Unreleased window; no released consumer exists).
+- Tests: `tests/test_gradient_userspace.py` (model strictness + SVG/html/TikZ
+  lowering), `tests/test_trace_supersample.py` (accuracy, turdsize semantics,
+  meta, bounds), user-geometry lanes appended to
+  `tests/test_gradient_fit_domain.py` and `tests/test_vectorize_gradient.py`
+  (integration asserts upgraded from `angle` to the `line` contract).
+
 ## Unreleased — feat(sdk): embedded-SVG ingest + document-level lowering (2026-07-22)
 
 Detail trapped inside `data:image/svg+xml` image objects was invisible to every
@@ -34,6 +102,45 @@ surface (the tool now consumes them):
 - Tests: `tests/test_svg_embedded_lowering.py` (data-URI ingest forms, lowering
   contract, purity, defs.assets indirection, nested groups, Document validation,
   proxy render, MCP round-trip).
+
+## Unreleased — feat(vision): raster→gradient paint extraction in the vectorize lane (2026-07-22)
+
+`vectorize_image` can now recover GRADIENT paint from the source raster instead of
+posterising it into flat bands — the Gap-1 closure from the lotus-emblem
+reconstruction assessment (a hand-rolled fitter outside the tree was the signal;
+the engine now owns it).
+
+- **`fill_mode='gradient'`** (region/trace/layers): every traced shape is
+  re-painted from the source pixels. Per shape, three candidates — flat mean
+  colour, linear gradient along the pixel cloud's principal axis, radial gradient
+  from its centroid — are fitted and ranked by like-for-like colour rms under the
+  `fit_primitives` doctrine (a richer family must *beat* the simpler one above the
+  noise floor, never win by default). Winning gradients emit model-ready
+  multi-stop `Gradient` fills; the per-shape flat fallback uses the sampled mean.
+  Summary under `result.vectorize.paint` (`fitted`/`flat`/`skipped`).
+- **`thresholds=[...]`** (trace mode): one potrace pass per luminance level,
+  stacked darkest-first — base shapes, mid-tone planes, highlights. The
+  multi-level recipe for shaded logo art, now one call instead of three + a merge.
+- **New pure-domain module `frameforge.vision.domain.gradient_fit`:**
+  `fit_paint` (the candidate fit + ranking), `flatten_path_d` / `shoelace`
+  (winding-correct mask geometry without an SVG engine), and `css_angle` — the
+  renderer's CSS-angle mapping *composed through the potrace-ingest y-flip*
+  (`θ = atan2(dx, dy)` for flipped local spaces vs `atan2(dx, −dy)` in plain
+  image space), so fitted directions land correctly in both geometries.
+  Infrastructure sampler: `vectorize.apply_gradient_fills` (winding-aware masks,
+  2 px erode against edge-AA contamination, sliver fallback).
+- **Compatibility / migration:** none needed. `fill_mode` defaults to `'flat'`
+  and the default result is byte-identical to 2.5.0 (pinned by
+  `test_default_fill_mode_flat_is_unchanged`); both options are additive.
+  `fill_mode='gradient'` on `outline` and `thresholds` outside trace mode return
+  structured errors. Radial `at` centres are emitted as unit-fraction `[fx, fy]`
+  bbox positions; linear angles are bbox-relative `angle` degrees — when the
+  user-space `Gradient.line` form lands (in flight on this tree), the emitter can
+  upgrade to exact gradient lines without an API change.
+- Tests: `tests/test_gradient_fit_domain.py` (pure fit contract),
+  `tests/test_vectorize_gradient.py` (trace/region lanes, threshold layering,
+  structured errors, flat-default regression pin, MCP registration surface).
+  Example: `static/examples/gradient_vectorize_demo.py`.
 
 ## 2.5.0 — feat(packaging): real package + real CLI; the model moves into the package (2026-07-17)
 

@@ -362,6 +362,24 @@ Tools:
   intricate mark can't converge — `trace` on a thresholded logomark reproduces its
   strokes far better than manual anchors; `layers` for a solid-background multi-colour
   logo.
+  For GRADIENT/shaded art (glossy emblems, soft-shaded marks), add
+  `fill_mode='gradient'`: every traced shape is re-painted from the SOURCE pixels —
+  flat/linear/radial candidates fitted per shape and ranked by colour rms (the
+  `fit_primitives` doctrine: a richer family must beat the simpler one, never win by
+  default), so ramps become real multi-stop Gradient fills instead of posterised
+  bands. Fitted gradients are emitted as EXACT user-space geometry — linear
+  `line: [[x1,y1],[x2,y2]]` / radial px `at`+`radius` in each object's local
+  space (SVG userSpaceOnUse) — so the ramp lands back on the sampled pixels
+  precisely; the same fields are authorable by hand (plus `focal` for off-centre
+  gloss and per-stop `opacity`). Works with `region`/`trace`/`layers`; the paint
+  summary lands under `result.vectorize.paint`. In trace mode,
+  `thresholds=[30, 110, 190]` runs one potrace pass per luminance level and
+  stacks the layers darkest-first — base shapes, mid-tone planes, highlights —
+  the multi-level recipe for shaded logo art. `supersample=2..3` (trace mode)
+  upscales before thresholding so anti-aliased edges are located subpixel
+  instead of quantised to whole pixels — kills the traced-edge halo on
+  soft-edged sources (turdsize keeps source-pixel semantics; cost ~s²).
+  Flat default is unchanged; all options are additive.
 - `map_coordinates` — transpose coordinates: `homography` (fit + apply a projective map
   to points, from >=4 pairs), `to_3d` (lift 2D onto a plane), `project` (3D→2D via the
   SDK camera), or `warp` (apply the fitted homography to actually rectify/dewarp an

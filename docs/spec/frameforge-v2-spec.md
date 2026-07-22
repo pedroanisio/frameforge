@@ -305,8 +305,24 @@ named token styles) and a bounded **`css`** raw-CSS escape (so there is no hard 
   corresponding values; `stroke_styles` entries use CSS-named `stroke_width`/
   `stroke_dasharray`/… .
 - `fill`/`stroke` are **`Paint`** (`none | currentColor | Color | Image`, where `Image`
-  covers gradients/patterns/url). Gradient stops use **`position`**; gradients add
+  covers gradients/patterns/url). Gradient stops use **`position`** (plus an optional
+  **`opacity`** 0..1 → SVG `stop-opacity`); gradients add
   `conic`/`repeating`/`from`/`at`/`shape` and an `Angle` type.
+- **User-space gradient geometry** (A1, HEAD): a linear gradient may carry
+  **`line: [[x1,y1],[x2,y2]]`** — the exact gradient line in the object's local
+  coordinate space (page px unless the object carries a transform), mutually
+  exclusive with `angle`; a radial gradient may carry a px **`radius`** (which
+  requires `at` as a numeric `[x, y]` point) and an optional **`focal: [fx, fy]`**
+  off-centre focus (requires `radius`). All three lower to SVG
+  `gradientUnits="userSpaceOnUse"`; incoherent combinations (e.g. `line` on a
+  radial, `radius` without a numeric `at`) are validation errors, never a silent
+  reinterpretation. Backends without user-space shading (TikZ, the html CSS lane
+  for linear) preserve the gradient's *direction* via the derived CSS angle; the
+  html CSS lane places user-space radials exactly (px `radial-gradient`).
+  Fitted-reconstruction emitters (`vision.domain.gradient_fit`,
+  `vectorize_image fill_mode='gradient'`) target this form — a bbox-relative
+  `angle` cannot place a sampled ramp exactly on shapes whose bbox is mostly
+  empty.
 - **Out of scope by design:** layout (FG owns it via `box`/`Layout`/`FlowRegion`) and
   CSS cascade/selectors/interaction/animation. The `css` escape covers the long tail.
 - Legacy shorthand (`font`/`size`/`weight`/`italic`/`align`/`v_align`/`radius`/`wrap`) is

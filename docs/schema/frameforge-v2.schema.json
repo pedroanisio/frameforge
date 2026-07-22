@@ -6253,6 +6253,61 @@
           "description": "Radial gradients: end shape (default ellipse).",
           "title": "Shape"
         },
+        "line": {
+          "anyOf": [
+            {
+              "items": {
+                "description": "[x, y] coordinate pair in the parent-local space (top-left origin, +y down).",
+                "items": {
+                  "type": "number"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Linear gradients: EXACT gradient line [[x1,y1],[x2,y2]] in the object's local (user) coordinate space — page px unless the object carries a transform. Mutually exclusive with `angle`; lowered as SVG gradientUnits=userSpaceOnUse. The fitted-reconstruction emitter (vision.gradient_fit) targets this form: bbox-relative `angle` cannot place a sampled ramp exactly on shapes whose bbox is mostly empty.",
+          "title": "Line"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Radial gradients: user-space radius in local px; switches the gradient to userSpaceOnUse and therefore requires `at` as a numeric [x, y] point (position keywords are bbox-language and have no meaning without a bbox).",
+          "title": "Radius"
+        },
+        "focal": {
+          "anyOf": [
+            {
+              "description": "[x, y] coordinate pair in the parent-local space (top-left origin, +y down).",
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Radial gradients: user-space focus [fx, fy] in local px — the gloss-highlight primitive (off-centre sheen). Requires `radius`; omitted = focus at the centre `at`.",
+          "title": "Focal"
+        },
         "meta": {
           "anyOf": [
             {
@@ -6308,6 +6363,22 @@
           "default": null,
           "description": "Stop position along the gradient line (length or '<n>%'); authoritative key — the legacy `offset` (incl. 0..1 unit-interval numbers) is accepted and normalised to `position`.",
           "title": "Position"
+        },
+        "opacity": {
+          "anyOf": [
+            {
+              "description": "Unit-interval number in 0.0..1.0.",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Stop alpha 0..1 (SVG stop-opacity); omitted = fully opaque. Prefer this over 8-digit hex when the alpha ramp is the point (soft glows, feathered highlights).",
+          "title": "Opacity"
         }
       },
       "required": [

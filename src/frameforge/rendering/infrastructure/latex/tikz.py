@@ -118,6 +118,30 @@ def _grad_angle(v, default=180.0):
         return default
 
 
+def _user_grad_point(v):
+    """A numeric [x, y] pair to (x, y) floats, else None (A1 user-space guard)."""
+    if (isinstance(v, (list, tuple)) and len(v) == 2
+            and all(isinstance(c, (int, float)) and not isinstance(c, bool) for c in v)):
+        return float(v[0]), float(v[1])
+    return None
+
+
+def _grad_direction(spec, default=180.0):
+    """The effective CSS direction of a linear gradient spec, in degrees.
+
+    An exact user-space `line` wins: direction = p1 − p0 in y-down page
+    coordinates, so deg = atan2(dx, −dy) (A1 — TikZ shades cannot place the
+    line's extent, but they MUST keep its direction). Falls back to `angle`."""
+    line = spec.get("line") if isinstance(spec, dict) else None
+    if isinstance(line, (list, tuple)) and len(line) == 2:
+        p0, p1 = _user_grad_point(line[0]), _user_grad_point(line[1])
+        if p0 is not None and p1 is not None:
+            dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+            if dx or dy:
+                return math.degrees(math.atan2(dx, -dy)) % 360.0
+    return _grad_angle(spec.get("angle"), default)
+
+
 def _grad_orientation(angle):
     """CSS angle to (axis, reversed): which way the stops run across the box."""
     a = angle % 360
@@ -1235,7 +1259,7 @@ class FigureTikz:
         stops = self._gradient_stops(fill)
         if stops is None or w <= 0 or h <= 0:
             return None
-        axis, reverse = _grad_orientation(_grad_angle(fill.get("angle")))
+        axis, reverse = _grad_orientation(_grad_direction(fill))
         if reverse:
             stops = [(1.0 - p, c) for p, c in reversed(stops)]
         out = []
@@ -1273,12 +1297,21 @@ class FigureTikz:
         stops = self._gradient_stops(fill)
         if stops is None or w <= 0 or h <= 0:
             return None
-        cx, cy = self._radial_gradient_center(fill.get("at"), x, y, w, h)
-        rx = max(abs(cx - x), abs(x + w - cx))
-        ry = max(abs(cy - y), abs(y + h - cy))
-        shape = str(fill.get("shape") or "ellipse").strip().lower()
-        if shape == "circle":
-            rx = ry = max(rx, ry)
+        radius = fill.get("radius")
+        user_at = _user_grad_point(fill.get("at"))
+        if (user_at is not None and isinstance(radius, (int, float))
+                and not isinstance(radius, bool) and radius > 0):
+            # A1 user-space radial: TikZ shades already draw in page
+            # coordinates, so numeric at + radius map 1:1 (exact, circular).
+            cx, cy = user_at
+            rx = ry = float(radius)
+        else:
+            cx, cy = self._radial_gradient_center(fill.get("at"), x, y, w, h)
+            rx = max(abs(cx - x), abs(x + w - cx))
+            ry = max(abs(cy - y), abs(y + h - cy))
+            shape = str(fill.get("shape") or "ellipse").strip().lower()
+            if shape == "circle":
+                rx = ry = max(rx, ry)
         clip = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
         out = []
         for (p0, c0), (p1, c1) in zip(stops, stops[1:]):

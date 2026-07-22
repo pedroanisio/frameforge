@@ -188,13 +188,28 @@ class SvgPainter:
             return None
         return (0.5 if cx is None else cx, 0.5 if cy is None else cy)
 
+    @staticmethod
+    def _user_point(value):
+        """A numeric [x, y] pair to (x, y) floats, or None (defensive: the
+        painter draws raw dicts, so model validation may not have run)."""
+        if (isinstance(value, (list, tuple)) and len(value) == 2
+                and all(isinstance(v, (int, float)) and not isinstance(v, bool)
+                        for v in value)):
+            return float(value[0]), float(value[1])
+        return None
+
     def _gradient_geometry(self, g, kind):
         """The geometry attribute string for one gradient spec (possibly "").
 
+        * linear `line` → gradientUnits="userSpaceOnUse" + x1/y1/x2/y2 in the
+          object's LOCAL coordinate space (A1 exact geometry: the fitted-ramp
+          form — bbox-relative angles cannot place a sampled ramp exactly).
         * linear `angle` → x1/y1/x2/y2 (CSS convention: 0 = up, 90 = right,
           180 = down; the gradient line runs through the box centre). This is a
           centre-line mapping, not the CSS corner-projection — exact for the
           axis-aligned angles and a close approximation for diagonals.
+        * radial `at`+`radius` (+`focal`) → gradientUnits="userSpaceOnUse" +
+          cx/cy/r (+ fx/fy — the off-centre gloss focus; default = centre).
         * radial/conic `at` → cx/cy (+ fx/fy focus at the same point).
         * `repeating` → spreadMethod="repeat".
 
@@ -202,18 +217,36 @@ class SvgPainter:
         identical to the pre-geometry renderer (golden protection)."""
         attrs = ""
         if kind == "linear":
-            angle = self._angle_deg(g.get("angle"))
-            if angle is not None:
-                rad = math.radians(angle % 360.0)
-                dx, dy = math.sin(rad), -math.cos(rad)
-                pct = lambda v: fnum(round(v, 3))  # noqa: E731 — local formatter
-                attrs += (f' x1="{pct(50 - 50 * dx)}%" y1="{pct(50 - 50 * dy)}%"'
-                          f' x2="{pct(50 + 50 * dx)}%" y2="{pct(50 + 50 * dy)}%"')
+            line = g.get("line")
+            p0 = self._user_point(line[0]) if isinstance(line, (list, tuple)) and len(line) == 2 else None
+            p1 = self._user_point(line[1]) if p0 is not None else None
+            if p1 is not None:
+                attrs += (f' gradientUnits="userSpaceOnUse"'
+                          f' x1="{fnum(p0[0])}" y1="{fnum(p0[1])}"'
+                          f' x2="{fnum(p1[0])}" y2="{fnum(p1[1])}"')
+            else:
+                angle = self._angle_deg(g.get("angle"))
+                if angle is not None:
+                    rad = math.radians(angle % 360.0)
+                    dx, dy = math.sin(rad), -math.cos(rad)
+                    pct = lambda v: fnum(round(v, 3))  # noqa: E731 — local formatter
+                    attrs += (f' x1="{pct(50 - 50 * dx)}%" y1="{pct(50 - 50 * dy)}%"'
+                              f' x2="{pct(50 + 50 * dx)}%" y2="{pct(50 + 50 * dy)}%"')
         else:
-            center = self._radial_center(g.get("at"))
-            if center is not None:
-                cx, cy = (fnum(round(v * 100, 3)) for v in center)
-                attrs += f' cx="{cx}%" cy="{cy}%" fx="{cx}%" fy="{cy}%"'
+            radius = g.get("radius")
+            centre = self._user_point(g.get("at")) if kind == "radial" else None
+            if (kind == "radial" and centre is not None
+                    and isinstance(radius, (int, float)) and not isinstance(radius, bool)
+                    and radius > 0):
+                fx, fy = self._user_point(g.get("focal")) or centre
+                attrs += (f' gradientUnits="userSpaceOnUse"'
+                          f' cx="{fnum(centre[0])}" cy="{fnum(centre[1])}" r="{fnum(radius)}"'
+                          f' fx="{fnum(fx)}" fy="{fnum(fy)}"')
+            else:
+                center = self._radial_center(g.get("at"))
+                if center is not None:
+                    cx, cy = (fnum(round(v * 100, 3)) for v in center)
+                    attrs += f' cx="{cx}%" cy="{cy}%" fx="{cx}%" fy="{cy}%"'
         if g.get("repeating"):
             attrs += ' spreadMethod="repeat"'
         return attrs
@@ -233,7 +266,10 @@ class SvgPainter:
             if o is None:
                 o = i / (n - 1) * 100 if n > 1 else 0
             col = self._color.resolve(st.get("color")) or "#000"
-            stops.append(f'<stop offset="{fnum(o)}%" stop-color="{esc(col)}"/>')
+            op = st.get("opacity")
+            o_attr = (f' stop-opacity="{fnum(op)}"'
+                      if isinstance(op, (int, float)) and not isinstance(op, bool) else "")
+            stops.append(f'<stop offset="{fnum(o)}%" stop-color="{esc(col)}"{o_attr}/>')
         body = "".join(stops)
         geo = self._gradient_geometry(g, kind)
         if kind == "radial" or kind == "conic":     # conic ≈ radial fallback
