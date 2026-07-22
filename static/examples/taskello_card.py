@@ -14,10 +14,16 @@ Geometry and palette were measured from the reference raster (370×377):
 card [44, 47, 287, 273] r≈26 on #fefdf7; banner bottom y≈153; tab top
 y≈131 with its S-curve joining at x≈205; fiery palette sampled on a grid.
 
+Two editions build from one parametric card: page 1 is the pt-BR edition
+(copy written as Brazilian product language — "Nota do dia", "Notas e
+diário" — not word-by-word translation), page 2 keeps the reference's
+English copy verbatim, since the recreation is scored against the source
+pixels (NCC).
+
 Run from the repository root::
 
     uv run python static/examples/taskello_card.py
-    # writes _tmp/taskello/taskello-card.svg + YAML
+    # writes _tmp/taskello/taskello-card{,-ptbr}.svg + YAML
 """
 from __future__ import annotations
 
@@ -75,8 +81,11 @@ def _glow(gid, cx, cy, r, color, alpha=0.95, mid=0.55):
                      ]}}
 
 
-def _banner_children() -> list[dict]:
-    """The fiery blurred-photo band, darkest-to-brightest blob stack."""
+def _banner_children(prefix: str = "") -> list[dict]:
+    """The fiery blurred-photo band, darkest-to-brightest blob stack.
+
+    ``prefix`` namespaces the object ids so the same band can appear on
+    more than one page (ids are document-global)."""
     kids = [
         # matte base
         {"type": "rect", "id": "fire-base", "box": [CX, CY, CW, BANNER_BOTTOM - CY],
@@ -111,59 +120,87 @@ def _banner_children() -> list[dict]:
         _glow("fire-dark-mr", 300, 116, 55, "#8f0f04", 0.75),
         _glow("fire-dark-title", 245, 78, 40, "#4a0b05", 0.55),
     ]
+    if prefix:
+        for kid in kids:
+            kid["id"] = f"{prefix}{kid['id']}"
     return kids
+
+
+# The two copy decks. ``en`` is the reference art verbatim (the recreation
+# must stay faithful to the source pixels); ``ptbr`` is the pt-BR edition —
+# written as Brazilian product copy, not translated word by word ("Nota do
+# dia" is what a notes app here would actually say; "card" and "app" stay,
+# they are everyday market vocabulary).
+COPY = {
+    "en": {"app": "Taskello App", "design": "Card Design",
+           "memo": "Daily memo", "sub": "Notes & Journaling",
+           "num": "05", "doc": "Doc", "notes": "1270 Notes"},
+    "ptbr": {"app": "App Taskello", "design": "Design de cards",
+             "memo": "Nota do dia", "sub": "Notas e diário",
+             "num": "05", "doc": "Doc", "notes": "1270 notas"},
+}
 
 
 def build() -> DocumentBuilder:
     b = DocumentBuilder(title="Taskello card — pure-primitive recreation",
                         profile="deck")
-    pg = b.page("card", canvas={"size": [370, 377], "units": "px"})
-    pg.rect([0, 0, 370, 377], id="bg", fill=BG, decorative=True)
+    # page 1: the pt-BR edition (the default the example showcases);
+    # page 2: the reference-faithful English card (the NCC comparison target).
+    _card_page(b, "card-ptbr", COPY["ptbr"])
+    _card_page(b, "card", COPY["en"])
+    return b
+
+
+def _card_page(b: DocumentBuilder, page_id: str, copy: dict) -> None:
+    pid = f"{page_id}-"
+    pg = b.page(page_id, canvas={"size": [370, 377], "units": "px"})
+    pg.rect([0, 0, 370, 377], id=f"{pid}bg", fill=BG, decorative=True)
     # soft card shadow (no raster filters: one low-alpha offset plate)
-    pg.add({"type": "rect", "id": "card-shadow",
+    pg.add({"type": "rect", "id": f"{pid}card-shadow",
             "box": [CX + 10, CY + 10, CW - 20, CH], "radius": R,
             "fill": "rgba(96, 78, 60, 0.09)", "decorative": True})
-    pg.add({"type": "rect", "id": "card", "box": [CX, CY, CW, CH],
+    pg.add({"type": "rect", "id": f"{pid}card", "box": [CX, CY, CW, CH],
             "radius": R, "fill": CARD, "decorative": True})
     # the blurred-photo band: gradient blobs clipped to the banner silhouette
-    pg.group(_banner_children(), id="banner",
+    pg.group(_banner_children(pid), id=f"{pid}banner",
              clip={"shape": "path", "args": {"d": BANNER_D}},
              decorative=True)
     # the folder tab riding over the banner's lower-left
-    pg.add({"type": "path", "id": "tab", "d": TAB_D, "fill": CARD,
+    pg.add({"type": "path", "id": f"{pid}tab", "d": TAB_D, "fill": CARD,
             "decorative": True})
     # ---- type layer (measured boxes) ---------------------------------- #
-    pg.text([180, 60, 123, 16], "Taskello App", id="t-app",
+    pg.text([180, 60, 123, 16], copy["app"], id=f"{pid}t-app",
             style={"font_family": "Inter", "font_size": 13, "font_weight": 700,
                    "color": "#ffffff", "align": "right"})
-    pg.text([180, 76, 123, 16], "Card Design", id="t-design",
+    pg.text([180, 76, 123, 16], copy["design"], id=f"{pid}t-design",
             style={"font_family": "Inter", "font_size": 13, "font_weight": 700,
                    "color": "#ffffff", "align": "right"})
-    pg.text([64, 137, 150, 17], "Daily memo", id="t-memo",
+    pg.text([64, 137, 150, 17], copy["memo"], id=f"{pid}t-memo",
             style={"font_family": "Inter", "font_size": 14.5, "font_weight": 700,
                    "color": INK})
-    pg.text([64, 156, 170, 16], "Notes & Journaling", id="t-sub",
+    pg.text([64, 156, 170, 16], copy["sub"], id=f"{pid}t-sub",
             style={"font_family": "Inter", "font_size": 13, "color": MUTED})
-    pg.text([62, 273, 58, 32], "05", id="t-num",
+    pg.text([62, 273, 58, 32], copy["num"], id=f"{pid}t-num",
             style={"font_family": "Inter", "font_size": 30, "font_weight": 800,
                    "color": INK})
-    pg.text([110, 288, 40, 14], "Doc", id="t-doc",
+    pg.text([110, 288, 40, 14], copy["doc"], id=f"{pid}t-doc",
             style={"font_family": "Inter", "font_size": 12, "color": MUTED})
-    pg.text([196, 283, 114, 16], "1270 Notes", id="t-notes",
+    pg.text([196, 283, 114, 16], copy["notes"], id=f"{pid}t-notes",
             style={"font_family": "Inter", "font_size": 13.5, "font_weight": 700,
                    "color": INK, "align": "right"})
-    return b
 
 
 def main() -> int:
     doc = build().build()
     os.makedirs(OUT_DIR, exist_ok=True)
-    svg = render_page_svgs(doc)[0]
-    with open(os.path.join(OUT_DIR, "taskello-card.svg"), "w", encoding="utf-8") as fh:
-        fh.write(svg)
+    svgs = render_page_svgs(doc)
+    names = ["taskello-card-ptbr.svg", "taskello-card.svg"]
+    for name, svg in zip(names, svgs):
+        with open(os.path.join(OUT_DIR, name), "w", encoding="utf-8") as fh:
+            fh.write(svg)
     with open(os.path.join(OUT_DIR, "taskello-card.fg.yaml"), "w", encoding="utf-8") as fh:
         fh.write(serialize(doc, format="yaml"))
-    print(f"Wrote taskello-card.svg + YAML to {OUT_DIR}")
+    print(f"Wrote {', '.join(names)} + YAML to {OUT_DIR}")
     return 0
 
 
