@@ -82,7 +82,14 @@ def test_document_pdf_is_readable_as_a_session_resource(tmp_path):
         "frameforge://session/pdfres/document.pdf", session_root=tmp_path
     )
     assert payload["mimeType"] == "application/pdf"
-    assert payload["blob"], "the PDF must ship as a base64 blob resource"
+    assert "blob" not in payload, "binary resources ship by reference by default"
+    assert payload["kind"] == "binary" and payload["bytes"] > 0
+    assert payload["path"].endswith("document.pdf")
+
+    blob_payload = read_session_resource(
+        "frameforge://session/pdfres/document.pdf", session_root=tmp_path, mode="blob"
+    )
+    assert blob_payload["blob"], "small PDFs may still ship inline on explicit request"
 
 
 def test_to_pdf_degrades_structured_when_pdfout_group_missing(tmp_path, monkeypatch):

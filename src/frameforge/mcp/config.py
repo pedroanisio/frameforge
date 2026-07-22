@@ -89,6 +89,51 @@ SECRET_LITERAL_RE = re.compile(
 # structured error (``dry_run`` previews and the explicit ``session_ids`` selector are
 # exempt); override per call via ``FRAMEFORGE_MCP_MIN_CLEANUP_AGE``.
 DEFAULT_MIN_CLEANUP_AGE_SECONDS = 60
+# The whole transported tool result — the JSON text block AND the mirrored
+# structuredContent — lands in the client's model context, and clients enforce
+# their own token caps by REJECTING the entire result (a ~124KB PDF blob once
+# became a 165K-char response the client threw away after paying for the
+# transfer). The server therefore refuses to emit any single result larger than
+# this budget: the shared envelope replaces an oversized payload with a small
+# structured summary (sizes, salvaged scalars, remediation), so the same
+# failure costs a few hundred chars and is actionable in one round-trip.
+DEFAULT_MAX_RESULT_CHARS = 60_000
+# Default page size for a text-artifact slice served by ``get_session_resource``
+# (offset/max_chars pagination). Kept below the result budget so a full slice
+# plus its envelope always fits.
+DEFAULT_MAX_TEXT_CHARS = 40_000
+# Serializing a payload into the result envelope costs keys, quotes, and
+# indentation around it; the blob/text caps subtract this allowance from the
+# result budget so the *enveloped* result stays under budget too.
+RESULT_BUDGET_OVERHEAD_CHARS = 2_000
+
+
+def max_result_chars() -> int:
+    """The per-result transport budget (``FRAMEFORGE_MCP_MAX_RESULT_CHARS``)."""
+    return _positive_env("FRAMEFORGE_MCP_MAX_RESULT_CHARS", DEFAULT_MAX_RESULT_CHARS)
+
+
+def max_text_chars() -> int:
+    """The text-slice page size, clamped under the result budget."""
+    requested = _positive_env("FRAMEFORGE_MCP_MAX_TEXT_CHARS", DEFAULT_MAX_TEXT_CHARS)
+    ceiling = max(max_result_chars() - RESULT_BUDGET_OVERHEAD_CHARS, 256)
+    return min(requested, ceiling)
+
+
+def max_blob_bytes() -> int:
+    """The largest binary an opt-in ``mode="blob"`` may inline.
+
+    Derived from the result budget: base64 inflates bytes by 4/3, so the byte
+    cap is whatever encodes to a payload that still fits under the budget with
+    envelope overhead."""
+    b64_budget = max(max_result_chars() - RESULT_BUDGET_OVERHEAD_CHARS, 256)
+    return (b64_budget // 4) * 3
+
+
+def max_resource_bytes() -> int:
+    """Byte cap for the registered binary resource endpoints
+    (``FRAMEFORGE_MCP_MAX_RESOURCE_BYTES``; defaults to the blob cap)."""
+    return _positive_env("FRAMEFORGE_MCP_MAX_RESOURCE_BYTES", max_blob_bytes())
 
 
 def _positive_env(name: str, default: int) -> int:

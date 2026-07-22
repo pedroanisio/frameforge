@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import shutil
 from datetime import datetime, timezone
@@ -13,6 +14,10 @@ from frameforge.mcp.config import (
     DEFAULT_MIN_CLEANUP_AGE_SECONDS,
     SESSION_ID_RE,
     _positive_env,
+    max_blob_bytes,
+    max_resource_bytes,
+    max_result_chars,
+    max_text_chars,
 )
 from frameforge.mcp.paths import _session_root
 from frameforge.mcp.util import (
@@ -103,8 +108,15 @@ def _previous_session_tool(session_dir: Path) -> str | None:
     return tool if isinstance(tool, str) and tool else None
 
 
-def read_session_resource(uri: str, *, session_root: str | Path | None = None) -> dict[str, str]:
-    """Read a ``frameforge://session/...`` artifact as an MCP resource payload."""
+_BINARY_MIMES = ("image/png", "application/pdf")
+
+
+def _resolve_session_artifact(
+    uri: str, *, session_root: str | Path | None = None
+) -> tuple[Path, str, str]:
+    """Resolve a ``frameforge://session/...`` URI to ``(path, mime, session_id)``.
+
+    Raises the shared actionable errors for malformed URIs and missing files."""
     root = _session_root(session_root)
     parsed = urlparse(uri)
     if parsed.scheme != "frameforge" or parsed.netloc != "session":
@@ -159,13 +171,202 @@ def read_session_resource(uri: str, *, session_root: str | Path | None = None) -
             "Every render tool resets its session's page-*.svg/p*.png on each call, so "
             "page/N.png holds the LAST call's render — re-render, or use a distinct session_id."
         )
-    if mime in ("image/png", "application/pdf"):
+    return path, mime, sid
+
+
+def _json_pointer(document: Any, pointer: str) -> Any:
+    """Evaluate an RFC 6901 JSON pointer; errors list the keys actually available."""
+    if pointer in ("", "/"):
+        return document
+    if not pointer.startswith("/"):
+        raise ValueError(
+            f"query must be an RFC 6901 JSON pointer starting with '/': {pointer!r}"
+        )
+    node = document
+    for raw in pointer[1:].split("/"):
+        token = raw.replace("~1", "/").replace("~0", "~")
+        if isinstance(node, dict):
+            if token not in node:
+                raise ValueError(
+                    f"query token {token!r} not found; available keys: "
+                    f"{', '.join(sorted(map(str, node.keys()))) or 'none'}"
+                )
+            node = node[token]
+        elif isinstance(node, list):
+            try:
+                index = int(token)
+            except ValueError:
+                raise ValueError(
+                    f"query token {token!r} must be an index into a {len(node)}-item array"
+                ) from None
+            if not 0 <= index < len(node):
+                raise ValueError(
+                    f"query index {index} out of range for a {len(node)}-item array"
+                )
+            node = node[index]
+        else:
+            raise ValueError(
+                f"query token {token!r} descends into a {type(node).__name__}, "
+                "which has no children"
+            )
+    return node
+
+
+def session_resource_bytes(uri: str, *, session_root: str | Path | None = None) -> bytes:
+    """Raw artifact bytes for INTERNAL consumers (image loaders, pipelines).
+
+    Never crosses the MCP transport, so it is deliberately uncapped — transport
+    budgets live in :func:`read_session_resource` and the endpoint readers."""
+    path, _mime, _sid = _resolve_session_artifact(uri, session_root=session_root)
+    return path.read_bytes()
+
+
+def session_resource_endpoint_text(
+    uri: str, *, session_root: str | Path | None = None
+) -> str:
+    """Full text for a registered resource endpoint, capped by the result budget.
+
+    Resources carry whole artifacts by contract, so an over-budget artifact is
+    refused with the pagination remediation instead of silently truncated."""
+    path, _mime, _sid = _resolve_session_artifact(uri, session_root=session_root)
+    text = path.read_text(encoding="utf-8")
+    budget = max_result_chars()
+    if len(text) > budget:
+        raise ValueError(
+            f"{path} is {len(text)} chars — over the {budget}-char resource budget "
+            "(FRAMEFORGE_MCP_MAX_RESULT_CHARS). Page through it with "
+            "get_session_resource(uri, offset=..., max_chars=...), query JSON artifacts "
+            f"with query='/pointer', or read the file directly at {path}."
+        )
+    return text
+
+
+def session_resource_endpoint_bytes(
+    uri: str, *, session_root: str | Path | None = None
+) -> bytes:
+    """Raw bytes for a registered binary resource endpoint, capped by byte budget."""
+    path, _mime, _sid = _resolve_session_artifact(uri, session_root=session_root)
+    size = path.stat().st_size
+    cap = max_resource_bytes()
+    if size > cap:
+        raise ValueError(
+            f"{path} is {size} bytes — over the {cap}-byte resource cap "
+            "(FRAMEFORGE_MCP_MAX_RESOURCE_BYTES). Render tools already inline raster "
+            "pages as vision content (raster_png=true); read the file directly at "
+            f"{path}, or raise the cap for this deployment."
+        )
+    return path.read_bytes()
+
+
+def read_session_resource(
+    uri: str,
+    *,
+    session_root: str | Path | None = None,
+    mode: str = "auto",
+    offset: int = 0,
+    max_chars: int | None = None,
+    query: str | None = None,
+) -> dict[str, Any]:
+    """Read a ``frameforge://session/...`` artifact as a transport-budgeted payload.
+
+    Binary artifacts (PNG/PDF) return by REFERENCE — ``{kind, bytes, sha256,
+    path, hint}`` — because a base64 blob inside a JSON text result is never
+    decodable as an image by the model and routinely blows the client's token
+    cap. ``mode="blob"`` opts back in for small files (capped by the result
+    budget). Text artifacts paginate via ``offset``/``max_chars`` and report
+    ``total_chars``/``truncated``/``next_offset``; JSON artifacts additionally
+    answer targeted RFC 6901 ``query`` pointers with just the fragment."""
+    if mode not in ("auto", "meta", "blob"):
+        raise ValueError(f"mode must be 'auto', 'meta', or 'blob', not {mode!r}")
+    if offset < 0:
+        raise ValueError("offset must be >= 0")
+    if max_chars is not None and max_chars <= 0:
+        raise ValueError("max_chars must be a positive integer")
+
+    path, mime, _sid = _resolve_session_artifact(uri, session_root=session_root)
+
+    if mime in _BINARY_MIMES:
+        if query is not None or offset or max_chars is not None:
+            raise ValueError(
+                "offset/max_chars/query apply to text artifacts; "
+                f"{mime} is binary — use the default reference metadata, "
+                "mode='blob' for a small inline copy, or read the file at its path"
+            )
+        payload = path.read_bytes()
+        result: dict[str, Any] = {
+            "uri": uri,
+            "mimeType": mime,
+            "kind": "binary",
+            "bytes": len(payload),
+            "sha256": hashlib.sha256(payload).hexdigest(),
+            "path": str(path),
+        }
+        if mode == "blob":
+            cap = max_blob_bytes()
+            if len(payload) > cap:
+                raise ValueError(
+                    f"{path} is {len(payload)} bytes — too large to inline as a blob "
+                    f"(cap {cap} bytes, derived from FRAMEFORGE_MCP_MAX_RESULT_CHARS). "
+                    "Read the file at its path instead; raster pages are inlined as "
+                    "vision content by the render tools (raster_png=true)."
+                )
+            result["blob"] = base64.b64encode(payload).decode("ascii")
+            return result
+        result["hint"] = (
+            "binary artifacts ship by reference; pass mode='blob' for a small inline "
+            "base64 copy, or read the file at `path`. Raster pages are inlined as "
+            "vision content by the render tools (raster_png=true)."
+        )
+        return result
+
+    if mode == "blob":
+        raise ValueError(
+            f"mode='blob' applies to binary artifacts; {mime} is a text artifact — "
+            "use offset/max_chars pagination (or query for JSON)"
+        )
+
+    text = path.read_text(encoding="utf-8")
+
+    if query is not None:
+        if mime != "application/json":
+            raise ValueError(
+                f"query applies to JSON artifacts only; {mime} is not JSON — "
+                "page through it with offset/max_chars instead"
+            )
+        value = _json_pointer(json.loads(text), query)
+        serialized = json.dumps(value, ensure_ascii=False)
+        cap = max_text_chars()
+        if len(serialized) > cap:
+            raise ValueError(
+                f"query {query!r} selects a {len(serialized)}-char fragment — over the "
+                f"{cap}-char slice budget; narrow the pointer (list keys by querying "
+                "the parent object) or page the full file with offset/max_chars"
+            )
         return {
             "uri": uri,
             "mimeType": mime,
-            "blob": base64.b64encode(path.read_bytes()).decode("ascii"),
+            "path": str(path),
+            "query": query,
+            "value": value,
         }
-    return {"uri": uri, "mimeType": mime, "text": path.read_text(encoding="utf-8")}
+
+    slice_cap = max_text_chars()
+    effective = min(max_chars, slice_cap) if max_chars is not None else slice_cap
+    chunk = text[offset:offset + effective]
+    truncated = offset + len(chunk) < len(text)
+    result = {
+        "uri": uri,
+        "mimeType": mime,
+        "path": str(path),
+        "text": chunk,
+        "total_chars": len(text),
+        "offset": offset,
+        "returned_chars": len(chunk),
+        "truncated": truncated,
+    }
+    if truncated:
+        result["next_offset"] = offset + len(chunk)
+    return result
 
 
 def list_sessions(*, session_root: str | Path | None = None) -> dict[str, Any]:

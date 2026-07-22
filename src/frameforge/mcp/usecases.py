@@ -30,6 +30,7 @@ from frameforge.mcp.sessions import (
     _reset_session_renders,
     _session_id,
     read_session_resource,
+    session_resource_bytes,
 )
 from frameforge.mcp.sources import (
     DocumentSource,
@@ -528,11 +529,10 @@ def _resolve_image_arg(arg: str, *, session_root: str | Path | None) -> bytes:
         except Exception as exc:
             raise ValueError("data: URI payload is not valid base64") from exc
     if arg.startswith("frameforge://"):
-        payload = read_session_resource(arg, session_root=session_root)
-        blob = payload.get("blob")
-        if not blob:
+        if not arg.endswith(".png"):
             raise ValueError(f"resource {arg} is not a raster image (expected a .png)")
-        return base64.b64decode(blob)
+        # Internal read: never crosses the MCP transport, so it stays uncapped.
+        return session_resource_bytes(arg, session_root=session_root)
     _assert_input_path_allowed(arg)
     path = Path(arg).expanduser()
     if not path.is_file():

@@ -202,7 +202,11 @@ Forward (author -> render):
   in chunks: `append=true` with `allow_partial=true` on every chunk except the last. The
   whole file is capped at 2,000,000 bytes.
 - `render_frameforge_yaml` — validate + render caller-supplied YAML directly.
-- `get_session_resource` — read `frameforge://session/...` artifacts (YAML, SVG, PDF, diagnostics).
+- `get_session_resource` — read `frameforge://session/...` artifacts, transport-budgeted:
+  text artifacts paginate (`offset`/`max_chars`, with `total_chars`/`next_offset`), JSON
+  artifacts answer targeted `query='/rfc6901/pointer'` requests, and binary artifacts
+  (PNG/PDF) return reference metadata — bytes, sha256, on-disk path — with `mode='blob'`
+  as a small-file opt-in. No result ever exceeds `FRAMEFORGE_MCP_MAX_RESULT_CHARS`.
 - `list_sessions` / `cleanup_sessions` — enumerate and prune per-session scratch dirs.
   Cleanup respects an age floor: sessions younger than `FRAMEFORGE_MCP_MIN_CLEANUP_AGE`
   seconds are never pruned, so a concurrent loop's live session survives a sweep.

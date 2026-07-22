@@ -9,7 +9,6 @@ live server, the package ``__init__``, and the test suite.
 """
 from __future__ import annotations
 
-import base64
 import json
 from pathlib import Path
 from typing import Annotated, Any
@@ -17,7 +16,7 @@ from typing import Annotated, Any
 from pydantic import Field
 
 # -- names create_server uses directly ------------------------------------------
-from frameforge.mcp.config import DEFAULT_TIMEOUT_SECONDS
+from frameforge.mcp.config import DEFAULT_TIMEOUT_SECONDS, max_result_chars
 from frameforge.mcp.descriptions import (
     _DESC_CLIENT_PATH,
     _DESC_COACH_MODES,
@@ -41,7 +40,11 @@ from frameforge.mcp.descriptions import (
 )
 from frameforge.mcp.guide import FRAMEFORGE_GUIDE
 from frameforge.mcp.paths import _repo_root, _session_root
-from frameforge.mcp.sessions import read_session_resource
+from frameforge.mcp.sessions import (
+    read_session_resource,
+    session_resource_endpoint_bytes,
+    session_resource_endpoint_text,
+)
 from frameforge.mcp.logging import _logged_call, _structured_log_path
 from frameforge.mcp.transport import _maybe_call_tool_result
 from frameforge.mcp.util import _positive_int
@@ -208,16 +211,74 @@ def _error_envelope(tool: str, exc: BaseException) -> dict[str, Any]:
     return envelope
 
 
+def _budget_result(tool: str, result: dict[str, Any]) -> dict[str, Any]:
+    """Refuse to transport a result larger than the per-result budget.
+
+    Clients enforce token caps by REJECTING an oversized tool result wholesale
+    (the transfer is paid, the payload is lost). The server pre-empts that:
+    an over-budget result is replaced by a small structured summary — sizes of
+    the offending keys, every small scalar salvaged, and the remediation —
+    so the failure stays actionable in one round-trip.
+    """
+    budget = max_result_chars()
+    serialized = json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True)
+    if len(serialized) <= budget:
+        return result
+
+    sizes = sorted(
+        (
+            (key, len(json.dumps(value, ensure_ascii=False, default=str)))
+            for key, value in result.items()
+        ),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+    kept: dict[str, Any] = {}
+    for key, value in result.items():
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            if not isinstance(value, str) or len(value) <= 400:
+                kept[key] = value
+        if len(kept) >= 12:
+            break
+    return {
+        "ok": False,
+        "error": (
+            f"{tool} result is {len(serialized)} chars — over the {budget}-char "
+            "transport budget (FRAMEFORGE_MCP_MAX_RESULT_CHARS); refusing to ship a "
+            "payload the client would reject"
+        ),
+        "error_type": "ResultBudgetExceeded",
+        "chars": len(serialized),
+        "budget": budget,
+        "oversized_keys": [
+            {"key": key, "chars": chars} for key, chars in sizes[:5]
+        ],
+        "kept": kept,
+        "hint": (
+            "narrow the request — get_session_resource supports offset/max_chars "
+            "pagination and query='/json/pointer'; render tools accept pages=...; "
+            "artifacts are always readable on disk at their reported path — or raise "
+            "FRAMEFORGE_MCP_MAX_RESULT_CHARS for this deployment"
+        ),
+        "renders": [],
+        "resources": [],
+    }
+
+
 def _enveloped(tool: str, call):
     """Run a use case, lowering expected input/filesystem failures into the envelope.
 
     Unexpected exceptions still raise (and are logged) — masking a genuine bug as
     an input error would hide it from the operator (fix root causes, PALS's Law).
+    Successful dict results pass through the transport budget (`_budget_result`).
     """
     try:
-        return call()
+        result = call()
     except (ValueError, OSError, SyntaxError) as exc:
         return _error_envelope(tool, exc)
+    if isinstance(result, dict):
+        return _budget_result(tool, result)
+    return result
 
 
 def _logged_enveloped_call(log_path: Path, tool: str, instruction: dict[str, Any], call):
@@ -1669,15 +1730,42 @@ def create_server(
     def get_session_resource(
         uri: Annotated[
             str,
-            Field(description="A frameforge://session/<id>/<artifact> URI: document.yaml, document.pdf, diagnostics.json, page/N.svg, or page/N.png. Prefer the registered resources; this tool exists for clients that do not surface resources."),
+            Field(description="A frameforge://session/<id>/<artifact> URI: document.yaml, document.pdf, diagnostics.json, workspace.json, audit.json, audit.md, page/N.svg, or page/N.png."),
         ],
+        mode: Annotated[
+            str,
+            Field(description="Binary artifacts (png/pdf): 'auto'/'meta' (default) returns reference metadata — bytes, sha256, path — never a blob; 'blob' inlines a base64 copy for SMALL files only (capped by the result budget). Raster pages are already inlined as vision content by the render tools."),
+        ] = "auto",
+        offset: Annotated[
+            int,
+            Field(description="Text artifacts: start the returned slice at this character offset (pagination). The result reports total_chars, truncated, and next_offset."),
+        ] = 0,
+        max_chars: Annotated[
+            int | None,
+            Field(description="Text artifacts: return at most this many characters (clamped to the slice budget, FRAMEFORGE_MCP_MAX_TEXT_CHARS). Omit for a full budget-sized slice."),
+        ] = None,
+        query: Annotated[
+            str | None,
+            Field(description="JSON artifacts only: an RFC 6901 JSON pointer (e.g. '/warnings/0/kind') — returns just that fragment as `value`, the cheapest way to answer a targeted question about diagnostics.json/workspace.json/audit.json."),
+        ] = None,
     ):
-        """Read a FrameForge MCP session resource by URI."""
+        """Read a FrameForge MCP session resource by URI, transport-budgeted.
+
+        Text artifacts paginate (``offset``/``max_chars``) and answer targeted
+        JSON-pointer ``query`` requests; binary artifacts return reference
+        metadata (path + bytes + sha256) unless a small blob is explicitly
+        requested. No call ever ships a payload larger than the result budget —
+        oversized data stays on disk at the reported ``path``.
+        """
         return _plain_tool_result(_logged_enveloped_call(
             log_path,
             "get_session_resource",
-            {"uri": uri},
-            lambda: read_session_resource(uri, session_root=root),
+            {"uri": uri, "mode": mode, "offset": offset,
+             "max_chars": max_chars, "query": query},
+            lambda: read_session_resource(
+                uri, session_root=root, mode=mode,
+                offset=offset, max_chars=max_chars, query=query,
+            ),
         ))
 
     @server.tool()
@@ -1729,10 +1817,10 @@ def create_server(
             log_path,
             "resource.session_document",
             {"session_id": session_id},
-            lambda: read_session_resource(
+            lambda: session_resource_endpoint_text(
                 f"frameforge://session/{session_id}/document.yaml",
                 session_root=root,
-            )["text"],
+            ),
         )
 
     @server.resource("frameforge://session/{session_id}/page/{page_number}.svg")
@@ -1743,10 +1831,10 @@ def create_server(
             log_path,
             "resource.session_page",
             {"session_id": session_id, "page_number": page_number},
-            lambda: read_session_resource(
+            lambda: session_resource_endpoint_text(
                 f"frameforge://session/{session_id}/page/{page}.svg",
                 session_root=root,
-            )["text"],
+            ),
         )
 
     @server.resource(
@@ -1755,32 +1843,30 @@ def create_server(
     def session_page_png(session_id: str, page_number: str) -> bytes:
         """The rasterized PNG for page N (1-based) — the vision-decodable render to verify against."""
         page = _positive_int(page_number, "page_number")
-        payload = _logged_call(
+        return _logged_call(
             log_path,
             "resource.session_page_png",
             {"session_id": session_id, "page_number": page_number},
-            lambda: read_session_resource(
+            lambda: session_resource_endpoint_bytes(
                 f"frameforge://session/{session_id}/page/{page}.png",
                 session_root=root,
             ),
         )
-        return base64.b64decode(payload["blob"])
 
     @server.resource(
         "frameforge://session/{session_id}/document.pdf", mime_type="application/pdf"
     )
     def session_document_pdf(session_id: str) -> bytes:
         """The assembled vector PDF — present after a render tool ran with to='pdf'."""
-        payload = _logged_call(
+        return _logged_call(
             log_path,
             "resource.session_document_pdf",
             {"session_id": session_id},
-            lambda: read_session_resource(
+            lambda: session_resource_endpoint_bytes(
                 f"frameforge://session/{session_id}/document.pdf",
                 session_root=root,
             ),
         )
-        return base64.b64decode(payload["blob"])
 
     @server.resource("frameforge://session/{session_id}/diagnostics.json")
     def session_diagnostics(session_id: str) -> str:
@@ -1792,10 +1878,10 @@ def create_server(
             log_path,
             "resource.session_diagnostics",
             {"session_id": session_id},
-            lambda: read_session_resource(
+            lambda: session_resource_endpoint_text(
                 f"frameforge://session/{session_id}/diagnostics.json",
                 session_root=root,
-            )["text"],
+            ),
         )
 
     @server.resource("frameforge://session/{session_id}/workspace.json")
@@ -1808,10 +1894,10 @@ def create_server(
             log_path,
             "resource.session_workspace",
             {"session_id": session_id},
-            lambda: read_session_resource(
+            lambda: session_resource_endpoint_text(
                 f"frameforge://session/{session_id}/workspace.json",
                 session_root=root,
-            )["text"],
+            ),
         )
 
     return server
