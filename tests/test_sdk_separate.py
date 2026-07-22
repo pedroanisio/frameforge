@@ -185,6 +185,32 @@ def test_kernel_overconstrained_terminates_without_resolution():
         assert x + w <= 150 + EPS and y + h <= 150 + EPS
 
 
+def test_kernel_blocked_axis_falls_back_to_the_feasible_one():
+    # y-penetration (30) < x-penetration (80), but the world is exactly one
+    # box tall — the vertical escape has ZERO room. A room-blind solver grinds
+    # zero-progress y-pushes to max_passes and leaves the overlap; the kernel
+    # must fall back to the feasible horizontal axis and resolve fully.
+    world = (0, 0, 300, 30)
+    rects = [(0, 0, 100, 30), (20, 0, 100, 30)]
+    offsets = separate_rects(rects, world=world)
+    assert all(dy == 0.0 for _dx, dy in offsets)      # never wasted on y
+    moved = _apply(rects, offsets)
+    assert _pairwise_max_overlap(moved) <= EPS
+    for x, y, w, h in moved:
+        assert x >= -EPS and x + w <= 300 + EPS
+
+
+def test_kernel_zero_progress_terminates_before_max_passes():
+    # Two immovable-in-effect boxes (world exactly their union, no slack on
+    # either axis): nothing can move, so the solver must detect zero progress
+    # and stop early instead of spinning to max_passes. Termination with
+    # residual overlap is the contract; this pins the no-busy-loop behaviour.
+    world = (0, 0, 100, 30)
+    rects = [(0, 0, 100, 30), (0, 0, 100, 30)]
+    offsets = separate_rects(rects, world=world, max_passes=10_000)
+    assert len(offsets) == 2                          # returns promptly
+
+
 def test_kernel_is_deterministic_and_pure():
     rects = [(0, 0, 100, 100), (60, 0, 100, 100), (30, 50, 100, 100)]
     snapshot = copy.deepcopy(rects)

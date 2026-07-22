@@ -46,8 +46,12 @@ engine's design review (2026-07-22), which surfaced both gaps.
   deterministic AABB kernel: iterative pairwise relaxation along the axis of
   minimum penetration; wall-aware push redistribution (a partner flush against
   the world wall hands its share to the other mover, so chains resolve exactly
-  rather than converging geometrically); world clamping; bounded passes so
-  over-constrained input terminates with residual overlap instead of hanging.
+  rather than converging geometrically); **feasibility-aware axis choice** (a
+  wall-blocked cheaper axis falls back to the axis that can actually resolve
+  the pair — a room-blind rule burns passes on zero-progress pushes); world
+  clamping; passes terminate on zero measured progress, and bounded
+  `max_passes` means over-constrained input returns with residual overlap
+  instead of hanging.
 - `apply_separation(data, *, gap, max_passes)` — moves ONLY what the audit
   flags: box-bearing, non-decorative children of free-layout groups /
   `meta.no_overlap` clusters containing at least one audit-level overlap.

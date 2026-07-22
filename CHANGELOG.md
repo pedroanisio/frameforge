@@ -135,8 +135,11 @@ does-not-fit were invisible per object.
   - `separate_rects(rects, *, world, gap, movable, max_passes)` — pure,
     deterministic AABB kernel: minimum-penetration-axis relaxation, wall-aware
     push redistribution (chains pressed against the world wall resolve exactly),
-    world clamping, bounded passes (over-constrained input terminates with
-    residual instead of hanging).
+    feasibility-aware axis fallback (a wall-blocked cheaper axis yields to the
+    axis that can actually resolve the pair — so a one-row-tall cluster spreads
+    as a row, not a staircase), world clamping, zero-progress early termination,
+    bounded passes (over-constrained input terminates with residual instead of
+    hanging).
   - `apply_separation(data, *, gap, max_passes)` — solves ONLY what the audit
     flags (free-group / `meta.no_overlap` clusters at audit thresholds,
     skipping `decorative`), clamps children to the group box, preserves w/h and

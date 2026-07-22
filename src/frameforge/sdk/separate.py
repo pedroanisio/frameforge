@@ -103,14 +103,23 @@ def separate_rects(
             return max(0.0, b[axis] - lo)
         return max(0.0, (lo + span) - (b[axis] + b[axis + 2]))
 
-    def push_pair(i: int, j: int, axis: int, pen: float, si: float, sj: float) -> None:
+    def directions(i: int, j: int, axis: int) -> tuple[float, float]:
+        """Escape directions for the pair along ``axis``: centre order
+        decides who goes low/high; index breaks exact ties."""
+        a, b = boxes[i], boxes[j]
+        low_first = (a[axis] + a[axis + 2] / 2) <= (b[axis] + b[axis + 2] / 2)
+        return ((-1.0, 1.0) if low_first else (1.0, -1.0))
+
+    def push_pair(i: int, j: int, axis: int, pen: float) -> float:
         """Split ``pen`` between the pair, wall-aware: whatever one side
         cannot absorb (immovable, or flush against the world wall in its
         escape direction) is redistributed to the other, so a chain pressed
         against a wall resolves exactly instead of converging geometrically.
         The nanoscopic over-push lands pairs strictly separated, killing the
-        floating-point asymptotic tail of chain relaxation."""
+        floating-point asymptotic tail of chain relaxation. Returns the total
+        distance actually moved (0.0 when both sides are wall/immovable-stuck)."""
         pen += 1e-7
+        si, sj = directions(i, j, axis)
         want_i = pen / 2 if (mov[i] and mov[j]) else (pen if mov[i] else 0.0)
         move_i = min(want_i, room(i, axis, si))
         move_j = min(pen - move_i, room(j, axis, sj))
@@ -118,9 +127,14 @@ def separate_rects(
         move_i = min(pen - move_j, room(i, axis, si))
         boxes[i][axis] += si * move_i
         boxes[j][axis] += sj * move_j
+        return move_i + move_j
+
+    def pair_room(i: int, j: int, axis: int) -> float:
+        si, sj = directions(i, j, axis)
+        return room(i, axis, si) + room(j, axis, sj)
 
     for _ in range(max(1, max_passes)):
-        moved = False
+        progressed = 0.0
         for i in range(n):
             for j in range(i + 1, n):
                 if not (mov[i] or mov[j]):
@@ -132,18 +146,18 @@ def separate_rects(
                 py = min(ay + ah, by + bh) - max(ay, by) + gap
                 if px <= 0 or py <= 0:
                     continue
-                if px <= py:                      # x is the cheaper escape
-                    # centre order decides direction; index breaks exact ties
-                    left_first = (ax + aw / 2) <= (bx + bw / 2)
-                    si, sj = (-1.0, 1.0) if left_first else (1.0, -1.0)
-                    push_pair(i, j, 0, px, si, sj)
-                else:                             # y is the cheaper escape
-                    up_first = (ay + ah / 2) <= (by + bh / 2)
-                    si, sj = (-1.0, 1.0) if up_first else (1.0, -1.0)
-                    push_pair(i, j, 1, py, si, sj)
-                moved = True
+                # Feasibility-aware axis choice: prefer the cheaper (smaller-
+                # penetration) axis, but never grind a wall-blocked axis while
+                # the other can actually resolve the pair — a room-blind
+                # min-penetration rule burns passes on zero-progress pushes.
+                order = [(0, px), (1, py)] if px <= py else [(1, py), (0, px)]
+                axis, pen = order[0]
+                if pair_room(i, j, axis) < pen <= pair_room(i, j, order[1][0]) \
+                        or (pair_room(i, j, axis) <= 0.0 < pair_room(i, j, order[1][0])):
+                    axis, pen = order[1]
+                progressed += push_pair(i, j, axis, pen)
         clamp()
-        if not moved:
+        if progressed <= 1e-12:
             break
     return [(b[0] - ox, b[1] - oy) for b, (ox, oy) in zip(boxes, origin)]
 
