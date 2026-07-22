@@ -115,7 +115,9 @@ WORKDIR /app
 # Dependency layer first (cache-friendly): a virtual project (package=false)
 # resolves its venv from just pyproject.toml + uv.lock. --all-groups pulls the
 # full toolchain: mcp, vision, browser, render, pdf, pdfout, metrics, dev.
-COPY pyproject.toml uv.lock ./
+# README.md is required at sync time: hatchling (real packaging since 2.5.0)
+# resolves the `readme` field while building the editable install.
+COPY pyproject.toml uv.lock README.md ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --all-groups --frozen
 
