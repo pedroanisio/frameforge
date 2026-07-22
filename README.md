@@ -1,6 +1,6 @@
 # FrameForge v2
 
-**FrameForge v2** (`2.5.0`) keeps its documents, grammar, schema, prose, and
+**FrameForge v2** (`2.6.0`) keeps its documents, grammar, schema, prose, and
 Python code in sync — the Pydantic models are the source of truth and everything
 else is generated from or checked against them.
 

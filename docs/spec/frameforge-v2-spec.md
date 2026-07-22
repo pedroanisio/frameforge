@@ -1,6 +1,6 @@
 ---
 title: FrameForge v2 — Specification (HEAD)
-version: 2.5.0
+version: 2.6.0
 status: PROPOSED / partially-implemented
 source_of_truth: src/frameforge/model.py (Pydantic) → schema generated; this prose is the normative reference
 supersedes: FrameForge-2.0.0-Specification.md (reverse-engineered) and the four standalone patch docs (P1–P4); style subsystem defers to frameforge-v2-style.ebnf (authoritative)

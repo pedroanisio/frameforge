@@ -12,6 +12,7 @@ there is a single source of truth for the TeX orchestration.
 """
 from __future__ import annotations
 
+import functools
 import glob
 import os
 import re
@@ -38,17 +39,36 @@ def _has_luaotfload() -> bool:
         return False
 
 
+@functools.lru_cache(maxsize=None)
+def _engine_runs(engine: str) -> bool:
+    """True only when ``<engine> --version`` actually EXECUTES (rc 0).
+
+    Presence on PATH is not enough: a TeX binary can be installed yet crash on
+    launch (a mismatched shared lib / broken ``ld.so`` returns rc 127 before it
+    reads any input). Auto-selection consults this so it falls back to a working
+    engine instead of picking a corpse. Cached — the probe is per-process cheap
+    but not free."""
+    try:
+        proc = subprocess.run([engine, "--version"], capture_output=True,
+                              text=True, timeout=20)
+        return proc.returncode == 0
+    except Exception:
+        return False
+
+
 def pick_engine(preferred: str = "auto") -> Optional[str]:
     """Resolve the TeX engine. ``auto`` prefers lualatex (full Unicode fonts via
-    fontspec) when luaotfload is present, else falls back to the more widely
-    available pdflatex. Returns the engine name, or ``None`` if none is usable."""
+    fontspec) when luaotfload is present AND the binary actually runs, else
+    falls back to the more widely available pdflatex. An EXPLICIT choice is
+    respected (returned when on PATH) — the caller owns that decision and its
+    failure. Returns the engine name, or ``None`` if none is usable."""
     if preferred in ("lualatex", "pdflatex"):
         return preferred if shutil.which(preferred) else None
-    if shutil.which("lualatex") and _has_luaotfload():
+    if shutil.which("lualatex") and _has_luaotfload() and _engine_runs("lualatex"):
         return "lualatex"
-    if shutil.which("pdflatex"):
+    if shutil.which("pdflatex") and _engine_runs("pdflatex"):
         return "pdflatex"
-    return "lualatex" if shutil.which("lualatex") else None
+    return None
 
 
 def engine_available(preferred: str = "auto") -> bool:
@@ -122,10 +142,14 @@ def to_pdflatex(tex: str) -> str:
 # Compilation (invokes the external TeX binary)                               #
 # --------------------------------------------------------------------------- #
 def compile_tex(tex_path: str, engine: str = "lualatex",
-                quiet: bool = True, passes: int = 2) -> Optional[str]:
+                quiet: bool = True, passes: int = 2,
+                log_sink: Optional[list] = None) -> Optional[str]:
     """Run the TeX ``engine`` (N passes) in the tex file's directory.
 
-    Returns the PDF path or None on failure."""
+    Returns the PDF path or None on failure. On failure the last ~25 log lines
+    are appended to ``log_sink`` (when given) so a caller can surface the real
+    cause — an engine that crashes on launch (``ld.so`` assertion) or a genuine
+    TeX error — instead of a blank 'failed'."""
     out_dir = os.path.dirname(tex_path)
     name = os.path.basename(tex_path)
     cmd = [engine, "-interaction=nonstopmode", "-halt-on-error", name]
@@ -134,8 +158,10 @@ def compile_tex(tex_path: str, engine: str = "lualatex",
         proc = subprocess.run(cmd, cwd=out_dir, capture_output=True, text=True)
         log = proc.stdout + proc.stderr
         if proc.returncode != 0:
+            tail = "\n".join(log.splitlines()[-25:]).strip()
+            if log_sink is not None:
+                log_sink.append(tail)
             if not quiet:
-                tail = "\n".join(log.splitlines()[-25:])
                 print(f"  ! {engine} failed for {name}:\n{tail}", file=sys.stderr)
             return None
     pdf = os.path.splitext(tex_path)[0] + ".pdf"
@@ -171,8 +197,10 @@ def compile_document(document: Mapping[str, Any], *, engine: str = "auto",
         tex_path = os.path.join(work, "doc.tex")
         with open(tex_path, "w", encoding="utf-8") as fh:
             fh.write(tex)
-        pdf_path = compile_tex(tex_path, engine=eng, quiet=quiet)
+        sink: list = []
+        pdf_path = compile_tex(tex_path, engine=eng, quiet=quiet, log_sink=sink)
         if not pdf_path:
-            raise RuntimeError(f"{eng} failed to compile the document")
+            detail = ("\n" + sink[0]) if sink else ""
+            raise RuntimeError(f"{eng} failed to compile the document{detail}")
         with open(pdf_path, "rb") as fh:
             return fh.read()

@@ -15,6 +15,6 @@ from . import rendering as rendering
 #: `importlib.metadata.version`, so it is correct even when the package runs
 #: uninstalled from a checkout (bin/ff-render, PYTHONPATH=src).
 #: `tests/test_docs_in_sync.py` gates it against `[project] version`.
-__version__ = "2.5.0"
+__version__ = "2.6.0"
 
 __all__ = ["__version__", "rendering"]

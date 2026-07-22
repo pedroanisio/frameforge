@@ -32,7 +32,7 @@ example in the spec, this page, and the README and checks it against the models)
 
 ```yaml
 dsl: FrameForge
-version: "2.5.0"
+version: "2.6.0"
 title: Minimal document
 pages:
   - mode: page

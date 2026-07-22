@@ -17705,7 +17705,7 @@
       "type": "string"
     },
     "version": {
-      "description": "Spec version the document targets (semver; HEAD is 2.5.0; older targets like 2.2.0 remain valid).",
+      "description": "Spec version the document targets (semver; HEAD is 2.6.0; older targets like 2.2.0 remain valid).",
       "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$",
       "title": "Version",
       "type": "string"
@@ -17865,9 +17865,9 @@
     "version",
     "pages"
   ],
-  "title": "FrameForge v2 (HEAD 2.5.0) — generated from the Pydantic models (core conformance profile)",
+  "title": "FrameForge v2 (HEAD 2.6.0) — generated from the Pydantic models (core conformance profile)",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://frameforge.dev/schema/2.5.0/frameforge-v2.schema.json",
-  "version": "2.5.0"
+  "$id": "https://frameforge.dev/schema/2.6.0/frameforge-v2.schema.json",
+  "version": "2.6.0"
 }

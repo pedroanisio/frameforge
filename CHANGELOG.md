@@ -1,6 +1,6 @@
 # FrameForge v2 — CHANGELOG (HEAD)
 
-**Version:** `2.5.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-17
+**Version:** `2.6.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-22
 
 *Convention: version headings mark schema/`HEAD_VERSION` bumps; an entry titled
 "Unreleased" landed between bumps and is contained in the nearest version
@@ -8,6 +8,56 @@ heading above it. One version number may span multiple dated entry blocks —
 cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
+
+## 2.6.0 — feat: the reconstruction surface — user-space paint, primitive fitting, and the refine stack (2026-07-22)
+
+MINOR, additive (no breaking change; no codemod needed — every prior document
+validates unchanged). One day's arc, driven end to end by a single measured
+reference (the lotus-flame emblem): the surface gaps that separated FrameForge
+from professional raster→vector reconstruction were closed test-first, each
+with its e2e verdict recorded — including the negative ones. The 13 entries
+below are contained in this release; headline capabilities:
+
+- **User-space gradient geometry** (`Gradient.line`/`radius`/`focal`,
+  stop `opacity`) lowered exactly across SVG/html/TikZ.
+- **Fitted paint + shading in the vectorize lane** (`fill_mode='gradient'`/
+  `'shading'`, `thresholds`, `supersample`) — trace-lane e2e NCC 0.9938 /
+  99.1% pixel-match against the reference (from 0.9716 hand-built).
+- **`Page.post`** raster effects (blur/bloom/grain, deterministic).
+- **Inverse primitive fitting** (`fit_spine`, `detect_regions(fit_spines)`)
+  and **stroke provenance** (`meta.stroke_outline`) — authored-lane clone
+  from measured parameters: NCC 0.494 (hand-guessed) → 0.9425.
+- **The refine stack** (`refine_reconstruction`): visibility-aware paint
+  refit, edge-aware geometry descent (`geometry=True`), visibility-aware
+  band shading (`bands=N`) — descent-only, deterministic, idempotent.
+- **sdk.separate + typed overflow signals**, embedded-SVG ingest and
+  document lowering, MCP transport budgets/publish root/env-knob truth
+  gates, and the pdf-tex engine smoke-test fix.
+
+---
+
+## Unreleased — fix(pdf-tex): auto engine selection verifies the engine RUNS (2026-07-22)
+
+`--to pdf-tex` died with a bare "lualatex failed to compile the document" on a
+host where `lualatex` is present (with luaotfload) but the binary crashes on
+launch — a broken `ld.so` returns rc 127 before it reads any `.tex`. A working
+`pdflatex` sat right there, unused, because auto-selection checked for
+luaotfload FILES but never that the engine actually executes.
+
+- **`pick_engine("auto")` now runs a cached `--version` smoke test**
+  (`_engine_runs`) — lualatex is chosen only when it's on PATH, has luaotfload,
+  AND launches; otherwise it falls back to pdflatex when that runs; else
+  `None`. An EXPLICIT `--engine lualatex`/`pdflatex` is still respected (the
+  caller owns that choice and its failure).
+- **The failure now surfaces its cause**: `compile_tex` appends the last ~25
+  log lines to an optional `log_sink`, and `compile_document` includes that
+  tail in the `RuntimeError` — so an `ld.so` crash or a real TeX error is
+  visible instead of swallowed.
+- Not a transpiler defect: the emitted TeX was valid; this is engine-health
+  triage. On the reporting host, `--to pdf-tex` now produces the 9-page PDF
+  via the pdflatex path.
+- Gate: `tests/test_latex_engine_health.py` — the present-but-crashing repro,
+  run-verified preference, explicit-choice pass-through, and log-tail surfacing.
 
 ## Unreleased — feat(vision,mcp): edge-aware geometry descent + visibility-aware band shading (2026-07-22)
 

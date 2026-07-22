@@ -1,6 +1,6 @@
 [project]
 name = "frameforge"
-version = "2.5.0"
+version = "2.6.0"
 description = "FrameForge v2 — HEAD toolchain: Pydantic models (source of truth), generated JSON schema, validator, codemod, and the dependency-free SVG / matplotlib proxy renderers."
 readme = "README.md"
 requires-python = ">=3.10"
