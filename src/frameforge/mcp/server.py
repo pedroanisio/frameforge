@@ -1525,6 +1525,7 @@ def create_server(
         raster_png: Annotated[bool, Field(description="Re-render the refined document to PNG so the improvement is visible.")] = True,
         min_pixels: Annotated[int, Field(description="Smallest visible-pixel count an entry needs before its paint is refitted (below it the existing paint is kept).")] = 24,
         geometry: Annotated[bool, Field(description="G3: also descend stroke_outline GEOMETRY before refitting paints — objects carrying meta.stroke_outline provenance get a bounded coordinate descent over a 9-parameter displacement family (global/tip/base/bow shifts + width scale) against the reference; dependent rim/clip overlays are re-pointed at the refined outline. Summary under result.refine.geometry.")] = False,
+        bands: Annotated[int, Field(description="H1: rim-band shading fitted on VISIBLE pixels only — for every deep-enough fill body, band thresholds come from the distance quantiles of its visible interior and each ring's paint is fitted on visible-band pixels (the A2 idiom on the B6 ownership discipline; full-mask banding measurably degrades misaligned documents). Rings are meta.band-tagged self-clipped strokes, replaced idempotently on re-runs; 1 = off. Summary under result.refine.shading.")] = 1,
     ):
         """Refine a reconstruction against its source image (the B6 descent pass).
 
@@ -1542,10 +1543,11 @@ def create_server(
             "refine_reconstruction",
             {"session_id": session_id, "image": image,
              "raster_png": raster_png, "min_pixels": min_pixels,
-             "geometry": geometry},
+             "geometry": geometry, "bands": bands},
             lambda: _uc_refine_reconstruction(
                 session_id, image, raster_png=raster_png,
-                min_pixels=min_pixels, geometry=geometry, session_root=root,
+                min_pixels=min_pixels, geometry=geometry, bands=bands,
+                session_root=root,
             ),
         )
         return _maybe_call_tool_result(result)

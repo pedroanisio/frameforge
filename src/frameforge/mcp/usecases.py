@@ -1935,6 +1935,7 @@ def refine_reconstruction(
     raster_png: bool = True,
     min_pixels: int = 24,
     geometry: bool = False,
+    bands: int = 1,
     session_root: str | Path | None = None,
 ) -> dict[str, Any]:
     """Refine a vectorize session's reconstruction against its source (B6).
@@ -1968,19 +1969,27 @@ def refine_reconstruction(
                 "renders": [], "resources": []}
     from PIL import Image as _Image
 
-    from frameforge.vision.infrastructure.refine import refine_document, refine_geometry
+    from frameforge.vision.infrastructure.refine import (
+        refine_band_shading, refine_document, refine_geometry,
+    )
 
     document = _yaml.safe_load(doc_path.read_text(encoding="utf-8"))
     with _Image.open(_io.BytesIO(image_bytes)) as ref_img:
         try:
-            geo_summary = None
+            geo_summary = band_summary = None
             if geometry:
                 # G3: descend stroke_outline GEOMETRY first (provenance-carrying
                 # objects only), then refit paints on the corrected silhouettes.
                 geo_summary = refine_geometry(document, ref_img)
+            if int(bands) > 1:
+                # H1: rim-band shading fitted on VISIBLE pixels only (the A2
+                # idiom rebuilt on the B6 ownership discipline; idempotent).
+                band_summary = refine_band_shading(document, ref_img, bands=int(bands))
             summary = refine_document(document, ref_img, min_pixels=min_pixels)
             if geo_summary is not None:
                 summary["geometry"] = geo_summary
+            if band_summary is not None:
+                summary["shading"] = band_summary
         except ValueError as exc:
             return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 

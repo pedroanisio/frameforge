@@ -365,7 +365,16 @@ Tools:
   descent-only, dependent rim/clip overlays re-pointed), then refits the
   paints on the corrected silhouettes. Measured on the lotus reference:
   hand-guessed spines NCC 0.49 → fitted 0.90 → fitted + geometry-refined
-  0.94 / 95.7% match, with the document staying a ~40-object semantic source.
+  0.94 / 95.4% match, with the document staying a ~40-object semantic source.
+  The geometry cost carries an EDGE term by default (H2): candidate
+  boundaries are pulled onto the reference's contour field, so recovery works
+  even when the document paint carries no colour signal (edge_weight=0
+  restores the pure-colour cost). `bands=N` (H1) adds rim-band shading fitted
+  on VISIBLE pixels only — decorative craft overlays neither occlude nor get
+  banded; rings are meta.band-tagged and replaced idempotently. MEASURED
+  CAVEAT: banding pays only when silhouettes verify near-exact (trace-lane
+  regime); at authored-petal IoU ~0.93 it degrades the render (clone-v3:
+  0.94 → ~0.77) — refine geometry first, add bands only on tight contours.
 - `construct_vectors` — draw FrameForge geometry from anchor points (workspace `pins`
   or explicit `points`): line, path/trace, curve, spline, arc (3 points = start /
   on-arc / end through their circumcircle, or 1 centre point + `r` + `start_deg`/

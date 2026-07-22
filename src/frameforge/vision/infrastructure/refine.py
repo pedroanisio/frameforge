@@ -287,6 +287,27 @@ def _rebuild_outline(obj, prov, spine, width):
     return old_d
 
 
+#: Edge-term balance: squared edge distances (px²) per candidate-boundary
+#: pixel, scaled into the colour-cost regime (squared 0..255 RGB error per
+#: claimed pixel). Calibrated by the recovery contracts in the test suite.
+_EDGE_SCALE = 3000.0
+
+
+def _edge_distance_window(src, y0, y1, x0, x1, np):
+    """Distance-to-reference-edge field for a window (octagonal, capped).
+
+    Edges are luminance-gradient maxima of the REFERENCE; the returned field
+    is 0 on an edge and grows away from it — the H2 pull that aligns a
+    candidate outline's boundary onto the reference contour even when the
+    document's paint carries no colour signal."""
+    from ..domain.spine_fit import chamfer_distance
+
+    lum = src[y0:y1, x0:x1] @ np.asarray((0.2126, 0.7152, 0.0722))
+    gy, gx = np.gradient(lum)
+    edges = np.hypot(gx, gy) > 24.0
+    return chamfer_distance(~edges, max_rounds=48)
+
+
 def refine_geometry(
     document: "dict[str, Any]",
     image,
@@ -294,6 +315,7 @@ def refine_geometry(
     max_iters: int = 2,
     min_pixels: int = 64,
     margin: int = 60,
+    edge_weight: float = 1.0,
 ) -> dict[str, Any]:
     """Descend stroke_outline GEOMETRY against ``image``, in place (G3).
 
@@ -393,6 +415,14 @@ def refine_geometry(
                 occluded |= m
         free = ~occluded[y0:y1, x0:x1].ravel()
 
+        # H2: the reference's edge-distance field for this window — the
+        # candidate boundary is pulled onto reference contours even when the
+        # document paint carries no colour signal. edge_weight=0 skips the
+        # precompute and restores the pure-colour cost exactly.
+        edge_dist = None
+        if edge_weight > 0.0:
+            edge_dist = _edge_distance_window(src, y0, y1, x0, x1, np)
+
         def cost(v):
             spine, width = _apply_geo_params(prov, v)
             if width <= 1.0:
@@ -410,9 +440,20 @@ def refine_geometry(
             shaped = _shape_mask(probe, image.size)
             if shaped is None:
                 return float("inf"), None
-            m = (np.asarray(shaped[0]) > 0)[y0:y1, x0:x1].ravel()
+            win = (np.asarray(shaped[0]) > 0)[y0:y1, x0:x1]
+            m = win.ravel()
             claimed = m & free
             err = float(own_err[claimed].sum() + bg_err[free & ~m].sum())
+            if edge_dist is not None:
+                inner = win.copy()
+                inner[1:, :] &= win[:-1, :]
+                inner[:-1, :] &= win[1:, :]
+                inner[:, 1:] &= win[:, :-1]
+                inner[:, :-1] &= win[:, 1:]
+                boundary = win & ~inner
+                if boundary.any():
+                    err += float((edge_dist[boundary] ** 2).sum()) \
+                        * _EDGE_SCALE * float(edge_weight)
             return err, None
 
         v = [0.0] * 8 + [1.0]
@@ -469,4 +510,158 @@ def refine_geometry(
     }
 
 
-__all__ = ["refine_document", "refine_geometry"]
+# --------------------------------------------------------------------------- #
+#  Visibility-aware band shading (Gap H1)                                      #
+# --------------------------------------------------------------------------- #
+
+_BAND_MIN_DEPTH = 4.0
+_BAND_MIN_RING_PIXELS = 12
+
+
+def refine_band_shading(
+    document: "dict[str, Any]",
+    image,
+    *,
+    bands: int = 3,
+    min_pixels: int = 200,
+) -> dict[str, Any]:
+    """Rim-band shading fitted on VISIBLE pixels only, in place (H1).
+
+    The fitting-lane banding (``apply_gradient_fills(bands=N)``) samples a
+    shape's FULL mask; on session documents that ingests occluded and
+    misaligned pixels — measured to DEGRADE reconstructions (clone-v3 lotus:
+    NCC 0.94 → 0.77). This pass rebuilds the A2 idiom on the B6 ownership
+    discipline: for every deep-enough fill body on page 1, band thresholds
+    come from the distance quantiles of its VISIBLE interior, the core refit
+    and every rim ring's paint are fitted on ``visible ∩ band`` pixels only,
+    and rings are emitted as self-clipped inner strokes TAGGED with
+    ``meta.band`` — re-runs REPLACE tagged overlays (idempotent) and never
+    touch authored rim/gloss overlays (which carry no tag). ``bands=1`` is a
+    no-op. Returns ``{"banded", "rings", "skipped", "removed"}``.
+    """
+    import numpy as np
+
+    n_bands = max(1, int(bands))
+    summary = {"banded": 0, "rings": 0, "skipped": 0, "removed": 0}
+    if n_bands < 2:
+        return summary
+
+    pages = document.get("pages") or []
+    page = pages[0] if pages else {}
+    W, H = image.size
+    size = ((page.get("canvas") or {}).get("size") or [])
+    if len(size) >= 2 and (int(size[0]), int(size[1])) != (W, H):
+        raise ValueError(
+            f"reference size {W}x{H} does not match the page canvas size "
+            f"{int(size[0])}x{int(size[1])} — refinement compares pixel-for-pixel")
+    src = np.asarray(image.convert("RGB"), dtype=np.float64)
+
+    from ..domain.gradient_fit import fit_paint
+    from ..domain.spine_fit import chamfer_distance
+    from .vectorize import _band_overlay, _paint_to_local
+
+    # step 0: drop OUR previous band overlays (meta.band tags), everywhere
+    layers = page.get("layers") or []
+    for layer in layers:
+        objs = layer.get("objects") or []
+        kept = [o for o in objs
+                if not (isinstance(o, dict)
+                        and isinstance(o.get("meta"), dict)
+                        and "band" in o["meta"])]
+        summary["removed"] += len(objs) - len(kept)
+        layer["objects"] = kept
+
+    objects: list[dict] = []
+    for layer in layers:
+        for obj in (layer.get("objects") or []):
+            if isinstance(obj, dict):
+                objects.append(obj)
+
+    # ownership for BAND STATISTICS: decorative overlays (rims/gloss riding a
+    # body) neither occlude their parent nor get banded — letting them steal
+    # visibility inverts ring fits into halos (measured on the clone-v3 lotus).
+    entries: list[tuple[int, dict, Any]] = []
+    for idx, obj in enumerate(objects):
+        if obj.get("decorative"):
+            continue
+        got = _entry_mask(obj, image.size, np)
+        if got is not None:
+            entries.append((idx, obj, got[1]))
+
+    owner = np.full((H, W), -1, dtype=np.int32)
+    for idx, _obj, mask in entries:
+        owner[mask] = idx
+
+    def _has_alpha_stops(paint):
+        return (isinstance(paint, dict)
+                and any(isinstance(s, dict) and s.get("opacity") is not None
+                        for s in (paint.get("stops") or [])))
+
+    def _fit_local(sel, obj):
+        ys, xs = np.nonzero(sel)
+        if len(ys) < _BAND_MIN_RING_PIXELS:
+            return None
+        out = fit_paint(np.stack([xs, ys], axis=1).astype(np.float64),
+                        src[ys, xs], geometry="user")
+        paint = out["fill"]
+        if isinstance(paint, dict):
+            paint = _paint_to_local(dict(paint), obj)
+        return paint
+
+    for idx, obj, mask in entries:
+        if obj.get("type") not in ("path", "polygon") or obj.get("fill") is None:
+            continue
+        if _has_alpha_stops(obj.get("fill")):
+            summary["skipped"] += 1          # feathered glows are not band targets
+            continue
+        visible = owner == idx
+        if int(visible.sum()) < min_pixels:
+            summary["skipped"] += 1
+            continue
+        dist = chamfer_distance(mask.astype(np.uint8), max_rounds=256)
+        vis_depth = dist[visible]
+        if not vis_depth.size or float(vis_depth.max()) < _BAND_MIN_DEPTH:
+            summary["skipped"] += 1
+            continue
+        qs = [k / n_bands for k in range(1, n_bands)]
+        ts = sorted({float(t) for t in np.quantile(vis_depth[vis_depth > 0], qs)
+                     if t >= 1.0})
+        if not ts:
+            summary["skipped"] += 1
+            continue
+
+        core_paint = _fit_local(visible & (dist >= ts[-1]), obj)
+        if core_paint is None:
+            summary["skipped"] += 1
+            continue
+        obj["fill"] = core_paint
+
+        overlays: list[dict] = []
+        lo = 0.0
+        ring_paints: list[tuple[float, Any]] = []
+        for t in ts:
+            ring_paint = _fit_local(visible & (dist > lo) & (dist <= t), obj)
+            if ring_paint is not None:
+                ring_paints.append((t, ring_paint))
+            lo = t
+        for band_index, (t, paint) in enumerate(
+                sorted(ring_paints, key=lambda p: -p[0])):
+            overlay = _band_overlay(obj, paint, 2.0 * t)
+            if overlay is not None:
+                overlay.setdefault("meta", {})["band"] = band_index
+                overlays.append(overlay)
+        if not overlays:
+            continue
+        for layer in layers:
+            objs = layer.get("objects") or []
+            if obj in objs:
+                pos = objs.index(obj)
+                objs[pos + 1:pos + 1] = overlays
+                break
+        summary["banded"] += 1
+        summary["rings"] += len(overlays)
+
+    return summary
+
+
+__all__ = ["refine_band_shading", "refine_document", "refine_geometry"]

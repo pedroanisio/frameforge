@@ -9,6 +9,45 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — feat(vision,mcp): edge-aware geometry descent + visibility-aware band shading (2026-07-22)
+
+Gaps H2 + H1 from the authored-lane ≥97% assessment — with the e2e verdicts
+reported as measured, including the negative one:
+
+- **H2 — edge term in `refine_geometry` (default on):** the G3 cost was flat
+  claim-vs-background colour, so an outline whose paint matches the ground
+  had NO signal. The cost now adds the reference's edge-distance field
+  (luminance-gradient edges → octagonal distance transform): the candidate
+  boundary is pulled onto reference contours. Contract pinned: a
+  ground-coloured outline shifted +14 px recovers to IoU ≥ 0.90 with the
+  edge term and provably cannot without it (`edge_weight=0` restores the
+  pure-colour behaviour; descent-only at the truth holds). Clone-v3 lotus:
+  NCC 0.940 → 0.9425.
+- **H1 — `refine_band_shading` (+ `refine_reconstruction(bands=N)`):** the
+  A2 rim-band idiom rebuilt on the B6 ownership discipline — band thresholds
+  from the VISIBLE interior's distance quantiles, core + ring paints fitted
+  on `visible ∩ band` pixels only, rings emitted as `meta.band`-tagged
+  self-clipped strokes (idempotent re-runs REPLACE, authored rim/gloss
+  overlays are never touched: decorative objects neither occlude their
+  parent body nor get banded; alpha-stop glows are skipped). Contracts
+  pinned: occluder non-contamination, decorative neutrality, idempotence,
+  bands=1 no-op, and banded-beats-flat (rms < 0.75×) on an aligned body.
+- **Measured caveat (kept honest):** on the clone-v3 lotus at petal
+  IoU ~0.93, banding degrades the render (0.94 → 0.77 for full-mask banding,
+  ≈0.77 even visibility-aware): rim rings are thinner than the residual
+  contour error. Banding pays only once silhouettes verify near-exact —
+  refine geometry first; the remaining lever for ≥97% is a
+  higher-degree descent parameterisation (per-point regularised), named as
+  the next gap rather than papered over.
+- **MCP:** `refine_reconstruction` gains `bands` (default 1, off); chain is
+  geometry → bands → paints; summary under `result.refine.shading`.
+- **Compatibility / migration:** none needed — `edge_weight` defaults
+  preserve all pinned behaviours, `bands=1` is byte-neutral, and every prior
+  test (2522) passes.
+- Tests: `tests/test_refine_shading.py` (edge recovery + zero-weight pin +
+  truth no-op; band visibility/decorative/idempotence/no-op contracts; MCP
+  round trip + tool surface).
+
 ## Unreleased — feat(mcp): FRAMEFORGE_MCP_PUBLISH_ROOT — durable published output (2026-07-22)
 
 The session scratchpad is ephemeral by design (tempdir, 5-revision history
