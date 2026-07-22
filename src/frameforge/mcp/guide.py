@@ -170,6 +170,10 @@ Fluent builder:
 - Humanize (seeded imperfection): set `humanize: {seed: N, roughen: ..., drift_deg:
   ...}` on the document or any object — a deterministic hand-drawn wobble applied at
   expansion; absence is identity, same seed = same page.
+- Overlap separation (`frameforge.sdk.separate`): `separate_rects(boxes, world=...)`
+  is a deterministic AABB separation kernel (pairwise relaxation, world-clamped);
+  `apply_separation(doc)` nudges ONLY the boxes the static audit's `overlap` rule
+  flags — the solver for detect-without-solve overlap findings.
 - Validation: `validate_static_rules(doc) -> ValidationReport(ok, issues)`,
   `assert_golden(...)`; `HEAD_VERSION` is the current spec version.
 
@@ -386,7 +390,28 @@ Tools:
   upscales before thresholding so anti-aliased edges are located subpixel
   instead of quantised to whole pixels — kills the traced-edge halo on
   soft-edged sources (turdsize keeps source-pixel semantics; cost ~s²).
+  `fill_mode='shading'` goes further (A2): each deep-enough shape is decomposed
+  by distance-to-boundary into 3 bands — the core re-fit plus contour-following
+  rim bands emitted as self-clipped inner strokes with their own fitted paints —
+  the shape-conforming shading a single gradient cannot express (dark rims,
+  bright spines). After any reconstruction, run `refine_reconstruction`
+  (session_id + the source image): it recomputes per-pixel paint OWNERSHIP in
+  z-order and refits every paint on its VISIBLE pixels only (overlapped shapes
+  otherwise inherit fits contaminated by occluded pixels), keeps only refits
+  whose analytic rms improves, and re-renders — deterministic, descent-only.
+  The proven glossy-emblem recipe: trace + thresholds ladder + supersample=2 +
+  fill_mode='shading', then refine_reconstruction — measured NCC 0.976 → 0.994
+  on the lotus reference. For soft-media targets, `Page.post`
+  ({blur, bloom, grain}) adds raster-stage finishing (deterministic seeded
+  grain; vector output unaffected, warned).
   Flat default is unchanged; all options are additive.
+- `refine_reconstruction` — the descent pass over a session's reconstruction
+  (e.g. a prior `vectorize_image`): recomputes per-pixel paint OWNERSHIP in
+  z-order and refits every evaluable paint on its VISIBLE pixels only, so
+  overlapped shapes shed the contaminated fits full-mask sampling gave them.
+  A refit is kept only when its analytic rms improves (deterministic,
+  idempotent, can only descend); `min_pixels` floors the refit; summary under
+  `result.refine`.
 - `map_coordinates` — transpose coordinates: `homography` (fit + apply a projective map
   to points, from >=4 pairs), `to_3d` (lift 2D onto a plane), `project` (3D→2D via the
   SDK camera), or `warp` (apply the fitted homography to actually rectify/dewarp an

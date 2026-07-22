@@ -148,6 +148,7 @@
       "Mat4",
       "Material",
       "Node",
+      "OverflowSignal",
       "PageBuilder",
       "Panel",
       "Path",
@@ -167,6 +168,7 @@
       "aabb3",
       "appearance",
       "apply_humanize",
+      "apply_separation",
       "array",
       "assert_golden",
       "avatar",
@@ -276,6 +278,7 @@
       "obb",
       "object_bbox",
       "offset_path",
+      "overflow_report",
       "page_hashes",
       "paragraph",
       "parametric",
@@ -321,6 +324,7 @@
       "segment_plane_intersection",
       "segment_polygon_intersections",
       "select_in",
+      "separate_rects",
       "serialize",
       "shadow",
       "sierpinski_arrowhead",
@@ -383,6 +387,7 @@
       "propose_from_image",
       "propose_from_svg",
       "read_sdk_client",
+      "refine_reconstruction",
       "render_frameforge_yaml",
       "run_sdk_client",
       "run_sdk_code",
@@ -440,6 +445,7 @@
       "fr-under-free",
       "grid_span-parent",
       "hug-on-shape",
+      "layout-overflow",
       "load",
       "non-conformant-3d",
       "out-of-profile",
@@ -1369,6 +1375,13 @@
       "mcp": true
     },
     {
+      "name": "OverflowSignal",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "PageBuilder",
       "kind": "sdk_export",
       "core": false,
@@ -1496,6 +1509,13 @@
     },
     {
       "name": "apply_humanize",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "apply_separation",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2265,6 +2285,13 @@
       "mcp": true
     },
     {
+      "name": "overflow_report",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "page_hashes",
       "kind": "sdk_export",
       "core": false,
@@ -2574,6 +2601,13 @@
     },
     {
       "name": "select_in",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "separate_rects",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2980,6 +3014,13 @@
     },
     {
       "name": "read_sdk_client",
+      "kind": "mcp_tool",
+      "core": false,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "refine_reconstruction",
       "kind": "mcp_tool",
       "core": false,
       "sdk": false,

@@ -9,6 +9,13 @@ one argument over MCP: ``vectorize_image(fill_mode='gradient')``, plus
 ``thresholds=[30, 110, 190]`` in trace mode to stack darkest-first luminance
 layers for glossy multi-level art.
 
+Going further (the proven glossy-emblem recipe, NCC 0.976 → 0.994 on the
+lotus reference): ``fill_mode='shading'`` decomposes deep shapes into
+contour-following rim bands (``apply_gradient_fills(bands=3)`` at the engine
+level), then the ``refine_reconstruction`` tool refits every paint on its
+VISIBLE pixels against the source (``vision.infrastructure.refine``), and
+``Page.post`` ({blur, bloom, grain}) adds raster-stage media finishing.
+
 Run: ``uv run python static/examples/gradient_vectorize_demo.py``
 (needs the ``vision`` group; writes to ``_tmp/gradient-vectorize-demo/``).
 """

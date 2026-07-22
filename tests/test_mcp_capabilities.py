@@ -168,7 +168,8 @@ _CAPABILITY_MODULES = [
     "book", "canon", "chart", "chevreul", "clip", "draw", "expand", "fields",
     "figure", "flow", "fractal", "geometry", "humanize", "lattices", "layout",
     "macros", "manifold", "markdown", "metrics", "outline", "paint", "params",
-    "pathtext", "planar", "recolor", "region", "solids", "topology", "widgets",
+    "pathtext", "planar", "recolor", "region", "separate", "solids", "topology",
+    "widgets",
 ]
 
 # Internal plumbing that carries no author-facing capability of its own — the

@@ -1673,7 +1673,7 @@ def vectorize_image(
     (trace mode only) runs one potrace pass per luminance level and stacks the
     layers darkest-first — the multi-level technique for shaded logo art.
     """
-    if fill_mode not in ("flat", "gradient"):
+    if fill_mode not in ("flat", "gradient", "shading"):
         return {"ok": False,
                 "error": f"unknown fill_mode {fill_mode!r}; use 'flat' (quantised "
                          "colours, the default) or 'gradient' (fit per-shape "
@@ -1792,10 +1792,10 @@ def vectorize_image(
                                  "'trace', or 'layers'",
                         "renders": [], "resources": []}
             paint_summary: dict[str, Any] | None = None
-            if fill_mode == "gradient":
+            if fill_mode in ("gradient", "shading"):
                 if mode == "outline":
                     return {"ok": False,
-                            "error": "fill_mode='gradient' fits FILL paint — the "
+                            "error": f"fill_mode={fill_mode!r} fits FILL paint — the "
                                      "outline mode emits stroked polylines with no "
                                      "fills; use region, trace, or layers",
                             "renders": [], "resources": []}
@@ -1805,7 +1805,10 @@ def vectorize_image(
                 # downscaled) page size, trace geometry at full image size.
                 sample_img = img if (int(page_w), int(page_h)) == (W, H) else \
                     img.resize((int(page_w), int(page_h)))
-                paint_summary = apply_gradient_fills(objects, sample_img)
+                # 'shading' = A2 shape-conforming banding: distance-quantile
+                # rim bands as self-clipped inner strokes over the core fit.
+                paint_summary = apply_gradient_fills(
+                    objects, sample_img, bands=(3 if fill_mode == "shading" else 1))
             if ocr:
                 # The status variant makes the degradation observable (PALS's Law):
                 # a silent [] was indistinguishable from a text-free image.
@@ -1859,6 +1862,65 @@ def vectorize_image(
         result["vectorize"]["auto"] = auto_meta
     if ocr_status is not None:
         result["vectorize"]["ocr"] = ocr_status
+    result["source_image"] = image
+    return result
+
+
+def refine_reconstruction(
+    session_id: str,
+    image: str,
+    *,
+    raster_png: bool = True,
+    min_pixels: int = 24,
+    session_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Refine a vectorize session's reconstruction against its source (B6).
+
+    Loads the session's ``generated.fg.yaml``, recomputes per-pixel paint
+    OWNERSHIP in z-order, refits every evaluable paint on its VISIBLE pixels
+    only (the fitting lane samples full masks, so overlapped shapes inherit
+    contaminated fits), keeps only refits whose analytic rms improves, writes
+    the refined document back, and re-renders it. The summary lands under
+    ``result.refine`` (``refit`` / ``improved`` / ``skipped`` / ``unevaluable``
+    / ``rms_before`` / ``rms_after``); the pass is deterministic and can only
+    descend.
+    """
+    import io as _io
+
+    import yaml as _yaml
+
+    sid = _session_id(session_id)
+    session_dir = _session_root(session_root) / sid
+    doc_path = session_dir / "generated.fg.yaml"
+    if not doc_path.is_file():
+        return {"ok": False,
+                "error": f"session {sid!r} has no generated.fg.yaml — run "
+                         "vectorize_image (or another generator that writes a "
+                         "reconstruction document) first",
+                "renders": [], "resources": []}
+    try:
+        image_bytes = _resolve_image_arg(image, session_root=session_root)
+    except (OSError, ValueError) as exc:
+        return {"ok": False, "error": f"could not read reference image: {exc}",
+                "renders": [], "resources": []}
+    from PIL import Image as _Image
+
+    from frameforge.vision.infrastructure.refine import refine_document
+
+    document = _yaml.safe_load(doc_path.read_text(encoding="utf-8"))
+    with _Image.open(_io.BytesIO(image_bytes)) as ref_img:
+        try:
+            summary = refine_document(document, ref_img, min_pixels=min_pixels)
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc), "renders": [], "resources": []}
+
+    refined_yaml = _yaml.safe_dump(document, sort_keys=False, allow_unicode=True)
+    source = RawYamlSource(yaml_text=refined_yaml, session_id=session_id,
+                           session_root=session_root)
+    result = _run_source(
+        source, max_pages=1, raster_png=raster_png, pages=None, sign=False,
+        signed_at=None, tool="refine_reconstruction")
+    result["refine"] = summary
     result["source_image"] = image
     return result
 

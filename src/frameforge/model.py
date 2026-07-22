@@ -1749,6 +1749,43 @@ class PageLink(FG):
         default=None, description="Marks `to` as an external URL rather than a page id.")
 
 
+class BloomEffect(FG):
+    """A3 raster post: screen-composite glow around above-threshold luminance."""
+    radius: float = Field(
+        default=8.0, gt=0,
+        description="Halo spread in canvas px (scaled by the raster zoom).")
+    strength: UnitInterval = Field(
+        default=0.5, description="Halo intensity 0..1 (screen-composited).")
+    threshold: UnitInterval = Field(
+        default=0.75, description="Luminance floor 0..1: pixels at or above it bloom.")
+
+
+class GrainEffect(FG):
+    """A3 raster post: deterministic seeded sensor/film grain."""
+    amount: UnitInterval = Field(
+        description="Noise sigma as a fraction of full scale (0..1; ~0.02-0.06 is film-like).")
+    seed: int = Field(
+        default=0, ge=0,
+        description="Deterministic noise seed — same seed, same bytes; never wall-clock.")
+    monochrome: Optional[bool] = Field(
+        default=None, description="Luminance-only noise (default) vs per-channel colour noise.")
+
+
+class PostEffects(FG):
+    """Page-level raster post effects (A3): applied to the rasterized PNG in the
+    fixed order blur → bloom → grain. Vector targets (SVG/PDF/TeX) are
+    byte-unaffected — the renderer notes a structured `post_raster_only` warning
+    so the degradation is observable (PALS). Radii are canvas px, multiplied by
+    the raster zoom."""
+    blur: Optional[float] = Field(
+        default=None, ge=0,
+        description="Gaussian soft-focus radius in canvas px over the final raster.")
+    bloom: Optional[BloomEffect] = Field(
+        default=None, description="Glow around bright regions (JPEG/photographic bloom).")
+    grain: Optional[GrainEffect] = Field(
+        default=None, description="Seeded noise floor (matches soft-media references).")
+
+
 class Page(FG):
     mode: Literal["page"] = Field(
         description="Discriminator: a fixed page of absolutely-placed layers.")
@@ -1769,6 +1806,11 @@ class Page(FG):
     links: Optional[list[PageLink]] = Field(
         default=None, description="Page-level navigation links.")
     notes: Optional[str] = Field(default=None, description="Author/presenter notes (not rendered).")
+    post: Optional[PostEffects] = Field(
+        default=None,
+        description="Raster-stage post effects (blur → bloom → grain), applied to the "
+                    "rasterized PNG only; vector targets are unaffected and carry a "
+                    "structured warning. (A3, HEAD)")
     meta: Optional[dict] = Field(
         default=None, description="Free-form annotation bag; never interpreted by the renderer.")
 

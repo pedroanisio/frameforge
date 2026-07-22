@@ -46,7 +46,9 @@ from frameforge.sdk.clip import (
     normalize_mask,
 )
 from frameforge.sdk.conform import (
+    OverflowSignal,
     assert_golden,
+    overflow_report,
     page_hashes,
     render_page_svgs,
     render_pages_with_stats,
@@ -57,6 +59,7 @@ from frameforge.sdk.draw import (
 )
 from frameforge.sdk.expand import ExpandOptions, ExpandedDocument, expand
 from frameforge.sdk.humanize import Hand, apply_humanize
+from frameforge.sdk.separate import apply_separation, separate_rects
 from frameforge.sdk.geometry import (
     Camera,
     CubicBezier,
@@ -262,6 +265,7 @@ __all__ = [
     "Mat4",
     "Material",
     "Node",
+    "OverflowSignal",
     "PageBuilder",
     "Panel",
     "Path",
@@ -281,6 +285,7 @@ __all__ = [
     "aabb3",
     "appearance",
     "apply_humanize",
+    "apply_separation",
     "array",
     "assert_golden",
     "avatar",
@@ -390,6 +395,7 @@ __all__ = [
     "obb",
     "object_bbox",
     "offset_path",
+    "overflow_report",
     "page_hashes",
     "paragraph",
     "parametric",
@@ -435,6 +441,7 @@ __all__ = [
     "segment_plane_intersection",
     "segment_polygon_intersections",
     "select_in",
+    "separate_rects",
     "serialize",
     "shadow",
     "sierpinski_arrowhead",

@@ -108,7 +108,25 @@ Page =
       [ "semantic"  , ":" , Semantic ] ,
       [ "links"     , ":" , "[" , PageLink , { "," , PageLink } , "]" ] ,
       [ "notes"     , ":" , string ] ,
+      (* A3 (HEAD): raster-stage post effects — blur → bloom → grain over the  *)
+      (* rasterized PNG; vector targets are unaffected (structured warning).   *)
+      [ "post"      , ":" , PostEffects ] ,
       [ "meta"      , ":" , object-any ] ,
+    "}" ;
+
+PostEffects =
+    "{" ,
+      [ "blur"  , ":" , number ] ,                  (* gaussian radius, canvas px *)
+      [ "bloom" , ":" , "{" ,
+          [ "radius"    , ":" , number ] ,          (* > 0; default 8 *)
+          [ "strength"  , ":" , number ] ,          (* 0..1; default 0.5 *)
+          [ "threshold" , ":" , number ] ,          (* 0..1 luminance; default 0.75 *)
+        "}" ] ,
+      [ "grain" , ":" , "{" ,
+          "amount" , ":" , number ,                 (* 0..1 noise sigma fraction *)
+          [ "seed"       , ":" , integer ] ,        (* deterministic; default 0 *)
+          [ "monochrome" , ":" , boolean ] ,
+        "}" ] ,
     "}" ;
 
 FlowSection =                                                   (* +P2: media *)

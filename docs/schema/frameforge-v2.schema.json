@@ -721,6 +721,37 @@
       "title": "BlockFlow",
       "type": "object"
     },
+    "BloomEffect": {
+      "additionalProperties": false,
+      "description": "A3 raster post: screen-composite glow around above-threshold luminance.",
+      "properties": {
+        "radius": {
+          "default": 8.0,
+          "description": "Halo spread in canvas px (scaled by the raster zoom).",
+          "exclusiveMinimum": 0,
+          "title": "Radius",
+          "type": "number"
+        },
+        "strength": {
+          "default": 0.5,
+          "description": "Halo intensity 0..1 (screen-composited).",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Strength",
+          "type": "number"
+        },
+        "threshold": {
+          "default": 0.75,
+          "description": "Luminance floor 0..1: pixels at or above it bloom.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "title": "BloomEffect",
+      "type": "object"
+    },
     "BorderSide": {
       "additionalProperties": false,
       "properties": {
@@ -6387,6 +6418,44 @@
       "title": "GradientStop",
       "type": "object"
     },
+    "GrainEffect": {
+      "additionalProperties": false,
+      "description": "A3 raster post: deterministic seeded sensor/film grain.",
+      "properties": {
+        "amount": {
+          "description": "Noise sigma as a fraction of full scale (0..1; ~0.02-0.06 is film-like).",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Amount",
+          "type": "number"
+        },
+        "seed": {
+          "default": 0,
+          "description": "Deterministic noise seed — same seed, same bytes; never wall-clock.",
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "monochrome": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Luminance-only noise (default) vs per-channel colour noise.",
+          "title": "Monochrome"
+        }
+      },
+      "required": [
+        "amount"
+      ],
+      "title": "GrainEffect",
+      "type": "object"
+    },
     "Group": {
       "additionalProperties": false,
       "properties": {
@@ -9996,6 +10065,18 @@
           "description": "Author/presenter notes (not rendered).",
           "title": "Notes"
         },
+        "post": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PostEffects"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Raster-stage post effects (blur → bloom → grain), applied to the rasterized PNG only; vector targets are unaffected and carry a structured warning. (A3, HEAD)"
+        },
         "meta": {
           "anyOf": [
             {
@@ -12173,6 +12254,52 @@
         "points"
       ],
       "title": "Polyline",
+      "type": "object"
+    },
+    "PostEffects": {
+      "additionalProperties": false,
+      "description": "Page-level raster post effects (A3): applied to the rasterized PNG in the\nfixed order blur → bloom → grain. Vector targets (SVG/PDF/TeX) are\nbyte-unaffected — the renderer notes a structured `post_raster_only` warning\nso the degradation is observable (PALS). Radii are canvas px, multiplied by\nthe raster zoom.",
+      "properties": {
+        "blur": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Gaussian soft-focus radius in canvas px over the final raster.",
+          "title": "Blur"
+        },
+        "bloom": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BloomEffect"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Glow around bright regions (JPEG/photographic bloom)."
+        },
+        "grain": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GrainEffect"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Seeded noise floor (matches soft-media references)."
+        }
+      },
+      "title": "PostEffects",
       "type": "object"
     },
     "Rect": {

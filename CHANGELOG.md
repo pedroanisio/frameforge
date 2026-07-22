@@ -9,48 +9,106 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
-## Unreleased — fix(drift): the drift-map P0/P1 closures — one rule per surface, gated (2026-07-22)
+## Unreleased — feat(model,vision,mcp): shape-conforming shading, raster post effects, visibility-aware refinement (2026-07-22)
 
-The 2026-07-22 drift-risk audit's CRITICAL and HIGH findings, closed with
-regression gates (all ride `make test`):
+The deep tier of the lotus-emblem surface-gap assessment (A2 + A3 + B6) — the
+residual the A1/B4/B5 arc measured but could not close. End to end on the
+reference: ONE call + one refine — `vectorize_image(mode='trace',
+thresholds=[30..230×6], fill_mode='shading', supersample=2,
+background='#000000')` then `refine_reconstruction` — lands **NCC 0.9938 /
+99.1% pixel-match / MAE 4.15** (from 0.9761 / 97.8% at the previous surface;
+the original hand-built session sat at 0.9716 / 97.2%).
 
-- **Reserved styles get one source of truth** (CRITICAL #2): new
-  `RESERVED_STYLES` constant (`rendering/domain/services/text_style_resolver`)
-  names all five (`body`/`caption`/`code`/`toc`/`toc_title`) with roles;
-  `describe_capabilities("style")` exports it live instead of a two-name
-  literal; spec §5.2.2 + the MCP guide now name all five. Gate:
-  `tests/test_reserved_styles_sync.py` — renderer literals ⊆ constant (and
-  back), discovery == constant, spec/guide name every key.
-- **`header_text`/`cell_text` mean ONE thing** (CRITICAL #3): the unified
-  colour-or-style-ref rule (`Renderer.table_text_override`) — dict = inline
-  fragment, defined tokens-style name = style ref (wins wholesale), any other
-  string = colour — now drives BOTH table renderers (flow and `TableObject`;
-  previously the same document language meant colour in one and a silent
-  token-lookup miss in the other). Both model docstrings state the rule.
-  Gate: `tests/test_table_style_key_parity.py` (cross-path parity + preserved
-  richer usages).
-- **The TeX backend honours the flow-furniture contracts** (HIGH #6):
-  `_emit_table` reads `header_fill` (`\rowcolor` + colortbl) /
-  `header_text` / `cell_text` (the same unified rule) / `cell_size`;
-  `_emit_code` applies an authored reserved `code` style (undefined stays
-  bare verbatim, byte-identical); `_emit_list` honours `marker`; an authored
-  `caption` colour reaches `\captionsetup`. Gate:
-  `tests/test_latex_flow_furniture.py` — the same authored tokens must reach
-  both the SVG and TeX outputs; style-silent output pinned unchanged.
-- **The MCP guide + server instructions are contract-tested** (HIGH #4):
-  `tests/test_guide_surface_sync.py` — tool-shaped names in the prose resolve
-  against the live registry, every registered tool appears in the guide,
-  named `FRAMEFORGE_*` vars are consumed, named modules import. (Its first
-  red run caught a real gap: a freshly-registered tool missing from the
-  guide.)
-- **Spec preset dimensions are read by a gate** (HIGH #5):
-  `tests/test_spec_preset_dims.py` parses every `name W×H` the spec §4 prose
-  states and compares against `CanvasResolver.PRESETS` (book trims accepted
-  in exact ×72 inch form).
-- **Enforcement**: `make hooks` installed in the working clone (pre-commit =
-  ruff gate; pre-push = full `make check`) — the drift-map CRITICAL #1
-  stopgap while Actions billing is down. The stale public pre-rename mirror
-  repo was archived with a pointer description (HIGH #7).
+- **A2 — shape-conforming banded shading (`fill_mode='shading'`).** A single
+  gradient per shape cannot express a dark contour-following rim plus a bright
+  interior, and SVG has no mesh gradient. The fitting lane now decomposes each
+  deep-enough shape by DISTANCE-TO-BOUNDARY (`_chamfer_distance`, a vectorised
+  shell-peeling transform): band thresholds at interior-distance quantiles, the
+  CORE band re-fitting the object's own fill, each RIM band emitted as an
+  overlay of the SAME geometry — fill-less, painted by a self-clipped inner
+  stroke (`style.clip_path` on its own outline; width = 2·threshold, scaled
+  through the object transform) carrying that band's fitted user-space paint.
+  Strokes follow the contour by construction: shape-conforming shading with
+  zero new geometry, rendered by every backend. `bands=1` stays byte-identical;
+  `apply_gradient_fills(bands=N)` is the engine surface.
+- **A3 — `Page.post` raster post effects.** `post: {blur, bloom:{radius,
+  strength, threshold}, grain:{amount, seed, monochrome}}` — applied to the
+  rasterized PNG in the FIXED order blur → bloom → grain
+  (`rendering/infrastructure/raster_post.py`; radii in canvas px × raster
+  zoom; screen-composited bloom; grain strictly seed-deterministic, default
+  seed 0, never wall-clock). Vector targets are byte-unaffected and the
+  renderer notes a structured `post_raster_only` warning; the MCP raster lane
+  annotates processed entries with `post_effects` and SKIPS (with a structured
+  warning) documents that mix flow sections with `post` rather than misapply
+  the producer→page mapping. Strict model: unknown effects, negative radii,
+  out-of-range strengths are validation errors.
+- **B6 — `refine_reconstruction` (visibility-aware descent).** The fitting
+  lane samples each shape's FULL mask — including pixels occluded by later
+  objects — so overlapped shapes inherit contaminated fits, and nothing on the
+  surface descended the residual after emission. The new pass
+  (`vision/infrastructure/refine.py`) recomputes per-pixel paint OWNERSHIP in
+  z-order (fill shapes by winding mask; A2 band overlays by their
+  reconstructed inner-stroke ring), refits every evaluable paint (flat hex,
+  user-space linear `line`, user-space radial `at`+`radius`) on its VISIBLE
+  pixels only, and keeps a refit only when that entry's analytic rms improves
+  — deterministic, idempotent, descent-only. Summary: `refit` / `improved` /
+  `skipped` / `unevaluable` / `rms_before` / `rms_after`. On the lotus:
+  rms 22.1 → 15.6, 93 of 187 refits improved. MCP: the `refine_reconstruction`
+  tool refines a session's `generated.fg.yaml` in place and re-renders it.
+- **Compatibility / migration:** none needed — everything is additive
+  (`fill_mode` gains `'shading'`; `Page.post` and the refine tool are new;
+  `bands=1` and post-less pages are byte-identical to before). Schema,
+  capability manifest, grammar (core `Page`/`PostEffects` rules), and spec
+  updated; measured caveat: sub-pixel post effects are largely invisible to
+  the downsampled comparison metric — their value is authoring capability.
+- Tests: `tests/test_post_effects.py` (model strictness, effect semantics,
+  determinism, svg-unaffected + warning, MCP raster lane, flow-mix skip),
+  `tests/test_band_shading.py` (chamfer field, band emission contract,
+  identity at bands=1, thin-shape skip, banded-beats-single acceptance, MCP
+  lanes), `tests/test_refine.py` (occlusion acceptance, descent-only +
+  determinism + idempotence, band-overlay handling, size guard, MCP round
+  trip, tool surface).
+
+## Unreleased — feat(sdk,render,mcp): collision/label separation + typed layout-overflow signals (2026-07-22)
+
+Closes the two detect-without-act gaps surfaced by the boxwood design review
+(ADR-0007): the `overlap` audit had no solver, and two classes of provable
+does-not-fit were invisible per object.
+
+- **`sdk.separate` — audit-scoped separation solver:**
+  - `separate_rects(rects, *, world, gap, movable, max_passes)` — pure,
+    deterministic AABB kernel: minimum-penetration-axis relaxation, wall-aware
+    push redistribution (chains pressed against the world wall resolve exactly),
+    world clamping, bounded passes (over-constrained input terminates with
+    residual instead of hanging).
+  - `apply_separation(data, *, gap, max_passes)` — solves ONLY what the audit
+    flags (free-group / `meta.no_overlap` clusters at audit thresholds,
+    skipping `decorative`), clamps children to the group box, preserves w/h and
+    every other field; absence is identity (same object back). After solving,
+    the `overlap` finding is gone from `validate_static_rules`.
+- **Typed layout-overflow signals — `diagnostics["overflow"]`:**
+  - Frozen dataclass `OverflowSignal` (`rendering/domain/services/overflow.py`):
+    id/page/source/kind/policy/box/needed/acknowledged/detail; `to_dict`/
+    `from_dict` wire forms.
+  - Renderer emits at measure time: contained clips (alongside their unchanged
+    truncation records), `overflow: visible` spill (previously counter-only),
+    flow-mode KP lines wider than their column (previously priced at badness
+    1e5+ internally, never reported; natural width re-measured since
+    `LaidLine.width` is the justify target). keep_together trials skipped;
+    flow dry-pass rollback already dedupes.
+  - Propagation: `render_pages_with_stats(diagnostics=True)` carries the
+    channel (always present, empty when clean); new `sdk.overflow_report()`
+    returns typed signals; MCP `render_warning` names *unacknowledged* signals
+    only; `validate.py --text-fit` adds advisory `layout-overflow` WARNs
+    (documented in `docs/error-codes.md`).
+- **Surfaces:** exports in `sdk.__all__` (manifest + discovery pick-up), MCP
+  server instructions mention, example client
+  `static/examples/declutter_and_overflow.py` (before/after + printed
+  reports), ADR-0007. Golden locks unmoved — signals never alter rendered
+  bytes; the solver runs only when called.
+- **Tests:** `tests/test_sdk_separate.py` (21), `tests/test_overflow_signals.py`
+  (12) — kernel properties, audit convergence, regression guards on
+  truncations/tstats, SDK/MCP/CLI propagation tiers.
 
 ## Unreleased — feat(model,render,vision): user-space gradient geometry + AA-aware subpixel tracing (2026-07-22)
 

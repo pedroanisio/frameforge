@@ -76,6 +76,7 @@ from frameforge.mcp.usecases import (
     mark_points as _uc_mark_points,
     measure_image as _uc_measure_image,
     overlay_images as _uc_overlay_images,
+    refine_reconstruction as _uc_refine_reconstruction,
     score_reconstruction as _uc_score_reconstruction,
     vectorize_image as _uc_vectorize_image,
     workspace as _uc_workspace,
@@ -369,7 +370,12 @@ def create_server(
             "frameforge.library (7 themes, symbol packs, honeycomb/module generators), "
             "svg_to_objects (SVG text / .svg path / data:image/svg+xml URI → native "
             "objects) + lower_embedded_svg (replace embedded-SVG image objects with "
-            "native groups, provenance ids); "
+            "native groups, provenance ids), sdk.separate (deterministic collision/"
+            "label separation: apply_separation resolves the overlaps the `overlap` "
+            "audit flags in free groups / meta.no_overlap clusters; separate_rects is "
+            "the pure AABB kernel), overflow_report (typed layout-overflow signals — "
+            "clips, `overflow: visible` spill, flow lines wider than their column — "
+            "also on every render result as diagnostics.overflow); "
             "v0.1-dialect documents migrate via tooling/codemod.py --from-v01.\n"
             "• Image → draft: propose_from_image / propose_from_document / propose_from_svg "
             "(UNVERIFIED drafts, round-tripped through render).\n"
@@ -385,8 +391,11 @@ def create_server(
             "fill/polygon per region, three methods + shape clustering), construct_vectors "
             "(draw SDK geometry from anchor points), vectorize_image (AUTO trace: auto / "
             "region / outline / trace(potrace) / layers; fill_mode='gradient' fits exact "
-            "user-space gradient fills from the source, thresholds=[...] stacks luminance "
-            "levels, supersample=2..3 traces AA edges subpixel), score_reconstruction (NUMERIC convergence: "
+            "user-space gradient fills from the source, 'shading' adds contour-following "
+            "rim bands, thresholds=[...] stacks luminance levels, supersample=2..3 traces "
+            "AA edges subpixel), refine_reconstruction (visibility-aware descent: refit "
+            "every paint on its VISIBLE pixels against the source — run it after any "
+            "vectorize), score_reconstruction (NUMERIC convergence: "
             "how far the drawn vectors sit from the source's edges — on_edge_frac / "
             "mean_dist, complements compare_images), map_coordinates (homography / 2D↔3D / "
             "warp image rectification).\n"
@@ -1487,6 +1496,36 @@ def create_server(
                 fill=fill, supersample=supersample,
                 fill_mode=fill_mode, thresholds=thresholds,
                 ocr=ocr, title=title, session_id=session_id, session_root=root,
+            ),
+        )
+        return _maybe_call_tool_result(result)
+
+    @server.tool()
+    def refine_reconstruction(
+        session_id: Annotated[str, Field(description="Session whose generated.fg.yaml holds the reconstruction to refine (e.g. a prior vectorize_image session).")],
+        image: Annotated[str, Field(description="The reference/source image the reconstruction targets: a filesystem path, frameforge:// URI, or data: URI. Must match the page canvas pixel-for-pixel.")],
+        raster_png: Annotated[bool, Field(description="Re-render the refined document to PNG so the improvement is visible.")] = True,
+        min_pixels: Annotated[int, Field(description="Smallest visible-pixel count an entry needs before its paint is refitted (below it the existing paint is kept).")] = 24,
+    ):
+        """Refine a reconstruction against its source image (the B6 descent pass).
+
+        Recomputes per-pixel paint OWNERSHIP in z-order and refits every evaluable
+        paint on its VISIBLE pixels only — the fitting lane samples full masks, so
+        overlapped shapes inherit contaminated fits this pass corrects. A refit is
+        kept only when its analytic rms improves (the pass can only descend; it is
+        deterministic and idempotent). Summary under `result.refine`
+        (`refit`/`improved`/`rms_before`/`rms_after`); the refined document
+        replaces the session's generated.fg.yaml and is re-rendered. Verify with
+        `compare_images` against the same reference.
+        """
+        result = _logged_enveloped_call(
+            log_path,
+            "refine_reconstruction",
+            {"session_id": session_id, "image": image,
+             "raster_png": raster_png, "min_pixels": min_pixels},
+            lambda: _uc_refine_reconstruction(
+                session_id, image, raster_png=raster_png,
+                min_pixels=min_pixels, session_root=root,
             ),
         )
         return _maybe_call_tool_result(result)

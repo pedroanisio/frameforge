@@ -27,7 +27,7 @@ src/frameforge/               ← the Python package (strictly downstream of the
   live/                       ← local web UI for live MCP feedback sessions (`make live`).
 src/frameforge/model.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 docs/schema/
-  frameforge-v2.schema.json   ← GENERATED from the models (85 $defs). Do not hand-edit.
+  frameforge-v2.schema.json   ← GENERATED from the models (88 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
 docs/grammar/
   frameforge-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.

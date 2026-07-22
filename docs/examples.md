@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 131 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 132 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -45,6 +45,7 @@ The 131 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`compiler_assessment.py`](../static/examples/compiler_assessment.py) | Two Compilers, One Problem — comparative technical assessment. |
 | [`coopera_refactor_wireframes.py`](../static/examples/coopera_refactor_wireframes.py) | Twenty distinct refactor proposals for the Coopera (Sicoob) rewards site & |
 | [`cs_suite_wireframe.py`](../static/examples/cs_suite_wireframe.py) | Compose a COMPLETE low-fidelity wireframe of an advanced web app — "Helm", a |
+| [`declutter_and_overflow.py`](../static/examples/declutter_and_overflow.py) | Declutter + overflow signals — sdk.separate and overflow_report, end to end. |
 | [`demo_rebuild.py`](../static/examples/demo_rebuild.py) | Rebuild every demo/ raster as a FrameForge file — auto-routed vector ingest. |
 | [`design_trends_2026.py`](../static/examples/design_trends_2026.py) | Compose ONE FrameForge document with the Python SDK that exercises the |
 | [`doc_ray_a4_reference.py`](../static/examples/doc_ray_a4_reference.py) | FrameForge v2 — doc-ray Database Reference (A4, ERD + full data dictionary). |

@@ -32,6 +32,7 @@ from frameforge.rendering.domain.services.stroke_resolver import Markers, Stroke
 from frameforge.rendering.domain.services.layout_engine import LayoutEngine
 from frameforge.rendering.domain.services import flow_layout
 from frameforge.rendering.domain.services.math_text import math_text
+from frameforge.rendering.domain.services.overflow import OverflowSignal
 from frameforge.rendering.domain.services.style_values import StyleValues
 from frameforge.rendering.domain.services.text_fitter import TextFitter
 from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver
@@ -103,10 +104,17 @@ class Renderer:
         #                      the head of the dropped text, and whether the
         #                      clip was explicitly authored (`acknowledged`) or
         #                      the silent containment default (issue #44).
+        # `overflow`          — TYPED layout-overflow signals (OverflowSignal
+        #                      .to_dict()): every measure-time does-not-fit —
+        #                      contained clips (alongside their truncation
+        #                      record), `overflow: visible` spill (previously
+        #                      only an aggregate counter), and flow-mode lines
+        #                      the KP engine emitted wider than their column
+        #                      (previously priced internally, never reported).
         self.layout_report = bool(layout_report)
         self.diagnostics = {"warnings": [], "skipped_objects": [],
                             "skipped_flowables": {}, "font_fallbacks": [],
-                            "layout": [], "truncations": []}
+                            "layout": [], "truncations": [], "overflow": []}
         # headings placed by the LAST flow page render: {level, text, id, page}
         # (page is 1-based within that flow). Read by the PDF outline builder.
         self.flow_headings = []
@@ -372,15 +380,27 @@ class Renderer:
         # flow-mode prose — the old path silently mapped justify → left.
         justify = do_wrap and st["align"] == "justify"
 
+        # `white_space: pre-*` makes an authored "\n" a hard line break; wrapping
+        # still applies inside each segment (pre-wrap semantics). The default
+        # (`normal`) keeps the legacy collapse, so existing fixtures are unmoved.
+        preserve_nl = ("\n" in content and
+                       st.get("white_space") in ("pre", "pre-wrap", "pre-line",
+                                                 "break-spaces"))
+
         def layout(sz):
-            if not do_wrap:
-                return [content]
-            if justify:
-                para = flow_layout.layout_paragraph(
-                    content, size=sz, avg=avg, lh=lh, width=w,
-                    measure=lambda s, z, a: self.measure(s, z, a, st), align="justify")
-                return [ln.text for ln in para.lines] or [content]
-            return self.wrap_words(content, w, sz, avg, st)
+            segments = content.split("\n") if preserve_nl else [content]
+            out = []
+            for seg in segments:
+                if not do_wrap:
+                    out.append(seg)
+                elif justify:
+                    para = flow_layout.layout_paragraph(
+                        seg, size=sz, avg=avg, lh=lh, width=w,
+                        measure=lambda s, z, a: self.measure(s, z, a, st), align="justify")
+                    out.extend([ln.text for ln in para.lines] or [seg])
+                else:
+                    out.extend(self.wrap_words(seg, w, sz, avg, st))
+            return out or [content]
 
         lines = layout(size)
         if len(lines) > 1:
@@ -482,7 +502,18 @@ class Renderer:
             el = self._painter.text_block(base, "start", st, size, lines, x, size * lh,
                                           justify_width=w, justifies=justs)
         elif single_span_line:
-            el = self._painter.text_runs(base, a, tx, st, size, self._span_runs(spans, st),
+            runs = self._span_runs(spans, st)
+            if a != "start" and len(runs) > 1:
+                # Viewer portability: a middle/end-anchored multi-tspan chunk is
+                # spec-valid, but several real consumers (librsvg-family
+                # previews) wrongly apply text-anchor per tspan, centring every
+                # run independently — the runs overlap. Do the anchor
+                # arithmetic here and emit a start-anchored line at the
+                # measured start x, so every viewer agrees on the geometry.
+                total = sum(self.measure(t, size, avg, rst) for t, rst in runs)
+                tx -= total / 2 if a == "middle" else total
+                a = "start"
+            el = self._painter.text_runs(base, a, tx, st, size, runs,
                                          baseline=dom_baseline)
         else:
             el = self._painter.text_block(base, a, st, size, lines, tx, size * lh,
@@ -517,6 +548,14 @@ class Renderer:
                         "lines_kept": len(lines), "lines_dropped": len(dropped_lines),
                         "dropped_text": head, "acknowledged": acknowledged,
                     })
+                    # the same loss, on the typed layout-overflow channel
+                    self.diagnostics["overflow"].append(OverflowSignal(
+                        id=oid, page=getattr(self, "_current_page_id", None),
+                        source="text", kind=kind, policy=overflow,
+                        box=(x, y, w, h),
+                        needed=(widest,
+                                (len(lines) + len(dropped_lines)) * size * lh),
+                        acknowledged=acknowledged, detail=head).to_dict())
             else:
                 self.tstats["contained"] += 1
         elif fits:
@@ -525,6 +564,15 @@ class Renderer:
             # explicit overflow:visible long text — permitted to spill, but flagged
             self.tstats["visible_overflow"] += 1
             self.tstats["uncontained"] += 1
+            # previously only these counters: name the spill per object (typed)
+            self.diagnostics["overflow"].append(OverflowSignal(
+                id=oid, page=getattr(self, "_current_page_id", None),
+                source="text",
+                kind="width" if widest > w + 0.5 else "height",
+                policy=overflow, box=(x, y, w, h),
+                needed=(widest, len(lines) * size * lh),
+                acknowledged=bool(st["overflow"] or self.contract.get("overflow")
+                                  or text_ovf or max_lines)).to_dict())
         if self.layout_report:
             self.diagnostics["layout"].append({
                 "id": oid, "type": "text", "box": [x, y, w, h],
@@ -1618,6 +1666,13 @@ class Renderer:
         self.running_log = []
         self._current_page_id = page.get("id")
         self.contract = {**self.doc_contract, **((page.get("rendering") or {}).get("text") or {})}
+        if page.get("post"):
+            # A3: post effects are raster-stage — this vector output is
+            # byte-unaffected, and a vector consumer must know that (PALS).
+            self.warn("post_raster_only",
+                      "page declares raster post effects (post:); they apply to "
+                      "the rasterized PNG only — SVG/PDF/TeX output is unaffected",
+                      page=page.get("id"))
         w, h = self.canvas_wh(page)
         if page.get("mode") == "flow":
             return self._render_flow(page, w, h)
@@ -1978,6 +2033,27 @@ class Renderer:
                 cy += st["size"] * st["lh"]
             cy += gap_after
 
+        def note_overwide_lines(fl, para, size, lh, st=None):
+            """Typed layout-overflow signals for KP lines wider than their
+            column (an unbreakable box the engine admits at badness 1e5+ —
+            legal, previously unreported). ``LaidLine.width`` is the justify
+            target, so the NATURAL width is re-measured here. Skipped during
+            keep_together trial layouts (`measuring`); the dry/real double
+            pass needs no guard — `_render_flow` rolls the dry pass's
+            diagnostics back."""
+            if measuring:
+                return
+            for line in para.lines:
+                col = usable - line.indent
+                natural = self.measure(line.text, size, 0.52, st)
+                if natural > col + 0.5:
+                    self.diagnostics["overflow"].append(OverflowSignal(
+                        id=fl.get("id"), page=getattr(self, "_current_page_id", None),
+                        source="flow", kind="width", policy="flow",
+                        box=(x + line.indent, cy, col, size * lh),
+                        needed=(natural, size * lh),
+                        acknowledged=False, detail=line.text[:80]).to_dict())
+
         def emit_para(fl, st, first_indent):
             """A prose paragraph set through the backend-neutral flow engine
             (ADR-0003): Knuth–Plass line breaks + Liang hyphenation, a first-line
@@ -2014,6 +2090,7 @@ class Renderer:
                     flat, size=size, avg=0.52, lh=lh, width=usable,
                     measure=lambda s, z, a: self.measure(s, z, a, st), align=align,
                     first_line_indent=indent)
+                note_overwide_lines(fl, para, size, lh, st)
                 for line in para.lines:
                     if cy + size * lh > bottom:
                         newpage()
@@ -2031,6 +2108,7 @@ class Renderer:
                 text_of(fl), size=size, avg=0.52, lh=lh, width=usable,
                 measure=self.measure, align=align,
                 first_line_indent=indent)
+            note_overwide_lines(fl, para, size, lh)
             for line in para.lines:
                 if cy + size * lh > bottom:
                     newpage()

@@ -9,6 +9,7 @@ from typing import Any
 from frameforge.rendering.application.normalize import normalize_doc
 from frameforge.rendering.application import renderer as _renderer_module
 from frameforge.rendering.application.renderer import Renderer  # noqa: F401 — re-export compat
+from frameforge.rendering.domain.services.overflow import OverflowSignal
 
 from frameforge.sdk.model import validate_document
 
@@ -66,6 +67,28 @@ def render_pages_with_stats(
     return svgs, dict(renderer.tstats)
 
 
+def overflow_report(
+    model: Any,
+    *,
+    base_dir: str | None = None,
+    real_metrics: bool | None = None,
+) -> list[OverflowSignal]:
+    """Render through the proxy and return the typed layout-overflow signals.
+
+    Convenience over ``render_pages_with_stats(diagnostics=True)``: runs the
+    measure/layout pass and lifts ``diagnostics["overflow"]`` back into
+    :class:`OverflowSignal` values — every text object whose content provably
+    exceeds its box (clipped, shrunk, or spilling ``visible``) and every
+    flow-mode line the Knuth–Plass engine had to emit wider than its column.
+    An empty list means the document lays out clean. ``real_metrics`` threads
+    the renderer's glyph-advance measurement exactly as in
+    :func:`render_pages_with_stats`.
+    """
+    _svgs, _tstats, diags = render_pages_with_stats(
+        model, base_dir=base_dir, real_metrics=real_metrics, diagnostics=True)
+    return [OverflowSignal.from_dict(d) for d in diags.get("overflow", [])]
+
+
 def render_page_svgs(model: Any, *, base_dir: str | None = None) -> list[str]:
     """Render a document through the repository SVG proxy and return page SVGs."""
     svgs, _ = render_pages_with_stats(model, base_dir=base_dir)
@@ -91,7 +114,9 @@ def write_golden(path: str | Path, hashes: list[str] | tuple[str, ...]) -> None:
 
 
 __all__ = [
+    "OverflowSignal",
     "assert_golden",
+    "overflow_report",
     "page_hashes",
     "render_page_svgs",
     "render_pages_with_stats",

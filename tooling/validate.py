@@ -736,6 +736,22 @@ def text_fit_checks(doc, base_dir, findings):
             "WARN", "text-truncated",
             f"{tag} on text #{rec.get('id') or '<anonymous>'}: {what} (§3.7)",
             f"pages[{rec.get('page')}]"))
+    # Typed layout-overflow signals beyond the truncation set: `overflow:
+    # visible` spill and flow-mode lines wider than their column. Contained
+    # clips are skipped here — they are already the `text-truncated` WARNs.
+    for sig in (r.diagnostics or {}).get("overflow") or []:
+        if not (sig.get("policy") == "visible" or sig.get("source") == "flow"):
+            continue
+        needed = sig.get("needed") or [0, 0]
+        box = sig.get("box") or [0, 0, 0, 0]
+        where = ("flow line wider than its column"
+                 if sig.get("source") == "flow" else "visible spill")
+        findings.append(Finding(
+            "WARN", "layout-overflow",
+            f"{where} on #{sig.get('id') or '<anonymous>'}: needs "
+            f"{needed[0]:.0f}x{needed[1]:.0f} in a "
+            f"{box[2]:.0f}x{box[3]:.0f} box",
+            f"pages[{sig.get('page')}]"))
 
 
 def validate_doc(path, strict=False, text_fit=False):

@@ -99,6 +99,7 @@ nav:
       - ADR-0004 single-engine layout: adr-0004-single-engine-layout.md
       - ADR-0005 3D scene graph: adr-0005-3d-scene-graph.md
       - ADR-0006 no injected style: adr-0006-no-injected-style.md
+      - ADR-0007 layout feedback (separation + overflow signals): adr-0007-layout-feedback.md
       - Illustration protocol: illustration-protocol.md
       - Vector recreation improvements: frameforge-vector-recreation-improvements.md
       - Brand guideline: BRAND.md

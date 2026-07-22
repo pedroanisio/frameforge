@@ -631,6 +631,68 @@ def _paint_to_local(fill: "dict[str, Any]", obj: "dict[str, Any]") -> "dict[str,
     return fill
 
 
+def _chamfer_distance(mask, *, max_rounds: int = 64):
+    """Distance-to-boundary in EROSION rounds (8-connected shells), 0 outside.
+
+    A vectorised shell-peeling transform: round r labels the r-th 1-px shell,
+    which for the in-tree shapes matches the intuitive 'how deep inside am I'
+    band coordinate exactly (a rect centre sits at half its short side).
+    Interiors deeper than ``max_rounds`` are clipped to it — band thresholds
+    below the cap stay exact, only the core's top quantile flattens.
+    """
+    import numpy as np
+
+    cur = np.asarray(mask) > 0
+    dist = np.zeros(cur.shape, dtype=np.float32)
+    r = 0
+    while cur.any():
+        r += 1
+        dist[cur] = float(r)
+        if r >= max_rounds:
+            break
+        padded = np.pad(cur, 1, mode="constant")
+        nxt = cur.copy()
+        for dy in (0, 1, 2):
+            for dx in (0, 1, 2):
+                nxt &= padded[dy:dy + cur.shape[0], dx:dx + cur.shape[1]]
+        cur = nxt
+    return dist
+
+
+_MIN_BAND_DEPTH = 4.0        # interiors shallower than this have no room for rims
+
+
+def _band_overlay(obj: "dict[str, Any]", paint, width_img: float) -> "dict[str, Any] | None":
+    """One rim-band overlay: the SAME geometry, stroke-only, self-clipped.
+
+    An inner stroke of width ``2·t`` covers the pixels within ``t`` of the
+    boundary — the contour-following band — with zero new geometry. The clip
+    (in the object's LOCAL coordinates, riding inside its transform) keeps the
+    stroke's outer half from painting outside the shape.
+    """
+    tf = _object_transform(obj)
+    if tf is None:
+        return None
+    mag = (abs(tf[2]) + abs(tf[3])) / 2.0 or 1.0
+    overlay: dict[str, Any] = {"type": obj.get("type")}
+    if obj.get("decorative"):
+        overlay["decorative"] = True
+    if obj.get("type") == "polygon":
+        overlay["points"] = obj["points"]
+        clip = {"shape": "polygon", "args": {"points": obj["points"]}}
+    elif obj.get("type") == "path":
+        overlay["d"] = obj["d"]
+        clip = {"shape": "path", "args": {"d": obj["d"]}}
+    else:
+        return None
+    style = dict(obj.get("style") or {})
+    style["clip_path"] = clip
+    overlay["style"] = style
+    overlay["stroke"] = paint
+    overlay["stroke_style"] = {"stroke_width": round(width_img / mag, 2)}
+    return overlay
+
+
 def apply_gradient_fills(
     objects: "list[dict[str, Any]]",
     image,
@@ -638,6 +700,7 @@ def apply_gradient_fills(
     min_pixels: int | None = None,
     erode_px: int = 2,
     geometry: str = "user",
+    bands: int = 1,
 ) -> dict[str, Any]:
     """Replace flat fills with gradients fitted from ``image`` (in place).
 
@@ -652,16 +715,37 @@ def apply_gradient_fills(
     radial px ``at``+``radius`` — converted into each object's local space via
     :func:`_paint_to_local`, so the ramp lands back on the sampled pixels
     precisely. ``"bbox"`` keeps the legacy angle/fraction approximation.
+
+    ``bands`` ≥ 2 (A2 shape-conforming shading) decomposes each deep-enough
+    shape by distance-to-boundary: thresholds at interior-distance quantiles,
+    the CORE band re-fitting the object's own fill and each RIM band emitted
+    as a self-clipped inner-stroke overlay of the same geometry carrying that
+    band's fitted paint (see :func:`_band_overlay`). ``bands=1`` is the
+    previous behaviour, byte-identical.
     """
     import numpy as np
     from PIL import ImageFilter
 
     from ..domain.gradient_fit import DEFAULT_MIN_PIXELS, fit_paint
 
+    n_bands = max(1, int(bands))
     floor = DEFAULT_MIN_PIXELS if min_pixels is None else int(min_pixels)
     src = np.asarray(image.convert("RGB"), dtype=np.float64)
-    fitted = flat = skipped = 0
-    for obj in objects:
+    fitted = flat = skipped = banded = 0
+    insertions: list[tuple[int, list[dict[str, Any]]]] = []
+
+    def _fit(sel_ys, sel_xs, flipped, obj):
+        pts = np.stack([sel_xs, sel_ys], axis=1).astype(np.float64)
+        bbox = (float(sel_xs.min()), float(sel_ys.min()),
+                float(sel_xs.max()), float(sel_ys.max()))
+        out = fit_paint(pts, src[sel_ys, sel_xs], bbox=bbox, y_flipped=flipped,
+                        min_pixels=floor, geometry=geometry)
+        fill_val = out["fill"]
+        if geometry == "user" and isinstance(fill_val, dict):
+            fill_val = _paint_to_local(fill_val, obj)
+        return out["family"], fill_val
+
+    for index, obj in enumerate(objects):
         if "fill" not in obj:
             skipped += 1
             continue
@@ -680,16 +764,54 @@ def apply_gradient_fills(
         if len(ys) == 0:
             skipped += 1
             continue
-        pts = np.stack([xs, ys], axis=1).astype(np.float64)
-        bbox = (float(xs.min()), float(ys.min()), float(xs.max()), float(ys.max()))
-        out = fit_paint(pts, src[ys, xs], bbox=bbox, y_flipped=flipped,
-                        min_pixels=floor, geometry=geometry)
-        fill_val = out["fill"]
-        if geometry == "user" and isinstance(fill_val, dict):
-            fill_val = _paint_to_local(fill_val, obj)
-        obj["fill"] = fill_val
-        if out["family"] == "flat":
+
+        overlays: list[dict[str, Any]] = []
+        if n_bands >= 2 and len(ys) >= floor:
+            dist = _chamfer_distance(np.asarray(mask))
+            interior = dist[dist > 0]
+            if interior.size and float(interior.max()) >= _MIN_BAND_DEPTH:
+                qs = [k / n_bands for k in range(1, n_bands)]
+                ts = [float(t) for t in np.quantile(interior, qs)]
+                ts = sorted({t for t in ts if t >= 1.0})
+                core_sel = (dist >= ts[-1]) & (m > 0) if ts else None
+                if ts and int(core_sel.sum()) >= 12:
+                    cys, cxs = np.nonzero(core_sel)
+                    family, obj["fill"] = _fit(cys, cxs, flipped, obj)
+                    lo = 0.0
+                    ring_paints: list[tuple[float, Any]] = []
+                    for t in ts:
+                        sel = (dist > lo) & (dist <= t) & (m > 0)
+                        rys, rxs = np.nonzero(sel)
+                        if len(rys) >= 12:
+                            _, ring_fill = _fit(rys, rxs, flipped, obj)
+                            ring_paints.append((t, ring_fill))
+                        lo = t
+                    # widest (innermost ring) paints first; the narrower outer
+                    # rims overpaint it toward the boundary
+                    for t, paint in sorted(ring_paints, key=lambda p: -p[0]):
+                        overlay = _band_overlay(obj, paint, 2.0 * t)
+                        if overlay is not None:
+                            overlays.append(overlay)
+                    if overlays:
+                        banded += 1
+                        fitted += 1
+                        insertions.append((index, overlays))
+                        continue
+
+        family, obj["fill"] = _fit(ys, xs, flipped, obj)
+        if family == "flat":
             flat += 1
         else:
             fitted += 1
-    return {"fill_mode": "gradient", "fitted": fitted, "flat": flat, "skipped": skipped}
+
+    for index, overlays in sorted(insertions, key=lambda p: -p[0]):
+        objects[index + 1:index + 1] = overlays
+
+    summary: dict[str, Any] = {
+        "fill_mode": "gradient" if n_bands == 1 else "shading",
+        "fitted": fitted, "flat": flat, "skipped": skipped,
+    }
+    if n_bands > 1:
+        summary["bands"] = n_bands
+        summary["banded"] = banded
+    return summary

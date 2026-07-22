@@ -144,6 +144,12 @@ def _validate_and_render_yaml(
             renders.extend(pngs)
             if raster_warning:
                 render_warning = raster_warning
+            post_specs, post_warning = page_post_specs(document)
+            if post_specs:
+                _apply_post_to_pngs(pngs, post_specs, scale=scale)
+            if post_warning:
+                render_warning = (f"{render_warning}; {post_warning}"
+                                  if render_warning else post_warning)
 
         if to == "pdf" and renders:
             svg_pages = [
@@ -191,6 +197,19 @@ def _validate_and_render_yaml(
                    "see diagnostics.truncations" if silent
                    else " (all explicitly authored via overflow/ellipsis/max_lines)")
             )
+            render_warning = f"{render_warning}; {note}" if render_warning else note
+        # Typed layout-overflow signals (diagnostics.overflow): warn ONLY on the
+        # unacknowledged ones — flow lines wider than their column, and text
+        # overflow the author never opted into. An authored `overflow: visible`
+        # spill stays a recorded signal without a nag (the author chose it).
+        unack = [s for s in (render_diagnostics or {}).get("overflow") or []
+                 if not s.get("acknowledged")]
+        if unack:
+            named = ", ".join(f"#{s.get('id') or '<anonymous>'} (p[{s.get('page')}])"
+                              for s in unack[:3])
+            more = f" and {len(unack) - 3} more" if len(unack) > 3 else ""
+            note = (f"{len(unack)} unacknowledged layout overflow signal(s): "
+                    f"{named}{more}; see diagnostics.overflow")
             render_warning = f"{render_warning}; {note}" if render_warning else note
 
     result = {
@@ -568,6 +587,63 @@ class _BackendAbsent(RuntimeError):
 
 _RASTER_BACKENDS = {"chromium": _raster_chromium, "cairo": _raster_cairo}
 _RASTER_ORDER = ("chromium", "cairo")
+
+
+def page_post_specs(document) -> "tuple[dict[int, dict] | None, str | None]":
+    """Map 1-based page numbers to their ``Page.post`` specs (A3).
+
+    The mapping is producer-index == page-number, which holds exactly when every
+    producer is ``mode: page``. A document that BOTH declares ``post`` and
+    contains a flow section returns ``(None, warning)`` — flow pagination makes
+    the producer→page mapping renderer-internal, so the effects are SKIPPED
+    observably rather than applied to the wrong pages (PALS)."""
+    pages = (document or {}).get("pages") or []
+    specs: dict[int, dict] = {}
+    has_flow = False
+    for index, page in enumerate(pages, start=1):
+        if not isinstance(page, dict):
+            continue
+        if page.get("mode") == "flow":
+            has_flow = True
+        post = page.get("post")
+        if isinstance(post, dict) and post:
+            specs[index] = post
+    if specs and has_flow:
+        return None, (
+            "post effects skipped: the document mixes flow sections with "
+            "page-level `post` — the producer→page mapping is only 1:1 for "
+            "all-`mode: page` documents (render the posted page alone, or "
+            "apply effects to the exported raster)")
+    return specs, None
+
+
+def _apply_post_to_pngs(
+    pngs: "list[dict[str, Any]]", specs: "dict[int, dict]", *, scale: float
+) -> None:
+    """Apply per-page post effects to rasterized PNG entries, in place.
+
+    Each processed entry is re-written on disk, its ``bytes`` refreshed, and
+    annotated with ``post_effects`` (the applied names in application order) so
+    the caller can see the raster was post-processed."""
+    from frameforge.rendering.infrastructure.raster_post import (
+        apply_post_effects, effect_names,
+    )
+
+    for entry in pngs:
+        post = specs.get(entry.get("page"))
+        if not post:
+            continue
+        names = effect_names(post)
+        if not names:
+            continue
+        from PIL import Image
+
+        path = Path(entry["path"])
+        with Image.open(path) as img:
+            processed = apply_post_effects(img, post, scale=scale)
+        processed.save(path)
+        entry["bytes"] = path.stat().st_size
+        entry["post_effects"] = names
 
 
 def _rasterize_one(

@@ -50,7 +50,16 @@ meta: { … }              # optional
 `pages[]` mixes two producers, discriminated by `mode`:
 
 - **`mode: page`** — a fixed canvas with `layers[]` of absolutely-placed
-  `VisualObject`s (the deck/diagram end).
+  `VisualObject`s (the deck/diagram end). A page MAY declare **`post`**
+  (A3, HEAD): raster-stage post effects applied to the rasterized PNG in the
+  fixed order **blur → bloom → grain** (gaussian soft-focus; screen-composited
+  glow above a luminance threshold; deterministic seeded noise — `seed`
+  defaults to 0, never wall-clock). Radii are canvas px, multiplied by the
+  raster zoom. Vector targets (SVG/PDF/TeX) are byte-unaffected and the
+  renderer notes a structured `post_raster_only` warning so the degradation is
+  observable. In the MCP raster lane the producer→page mapping is 1:1 only for
+  all-`mode: page` documents; a document mixing flow sections with `post` gets
+  the effects SKIPPED with a structured warning rather than misapplied.
 - **`mode: flow`** — a `story[]` of `Flowable`s poured through a `master` (the
   book/report end), `media: paged` (default) or `continuous` (§3.9).
 
