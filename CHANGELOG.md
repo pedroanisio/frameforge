@@ -125,6 +125,27 @@ the original hand-built session sat at 0.9716 / 97.2%).
   determinism + idempotence, band-overlay handling, size guard, MCP round
   trip, tool surface).
 
+## Unreleased — fix(render): Style.background* now paints behind absolute text in the SVG proxy (2026-07-22)
+
+Silent style loss found while authoring the declutter example: every closed
+shape resolves `style.background` / `background_color` / `background_image`
+through the `_shape_fill` fallback chain, and flow blocks paint their
+backgrounds — but the absolute TEXT branch never consulted the chain, so a
+model-declared, schema-documented text background rendered in ZERO bytes of
+SVG output (the html backend mapped it to CSS — backend drift).
+
+- The text branch now paints the background chain as a rect covering the
+  authored box behind the glyphs (radius honoured, defs ids single-allocated
+  via the up-front fill resolution).
+- `style.fill` on text stays glyph paint (SVG semantics) — never a box
+  background.
+- `background_clip: "text"` (the glyph-clipped-gradient idiom, e.g. the
+  chroma-styling-showcase masthead) is excluded: a box rect would deface it.
+  Golden locks verified byte-stable (87/87). Glyph-clipped gradient fill
+  remains an open engine feature.
+- Regression tests: `tests/test_text_background.py` (6 — colour/key/gradient
+  paint, glyph-paint guard, clip-text guard, absence-is-identity).
+
 ## Unreleased — feat(sdk,render,mcp): collision/label separation + typed layout-overflow signals (2026-07-22)
 
 Closes the two detect-without-act gaps surfaced by the boxwood design review

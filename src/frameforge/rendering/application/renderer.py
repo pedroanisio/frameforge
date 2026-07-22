@@ -1087,8 +1087,29 @@ class Renderer:
             spans = o.get("spans")
             if content is None and spans:
                 content = "".join(self._flatten_span_text(s) for s in spans)
-            return self.render_text(x, y, w, h, content, self.text_style(o.get("style")),
-                                    spans=spans, oid=o.get("id"))
+            # Style.background* on a text object paints a rect covering the
+            # box BEHIND the glyphs — the same chain closed shapes resolve
+            # through `_shape_fill` and flow blocks already honour; before
+            # this, a model-declared text background rendered in zero bytes
+            # (silent style loss; the html backend mapped it to CSS). The
+            # up-front `fill` is reused when it already came from the
+            # background chain (defs ids stay single-allocated); an authored
+            # `style.fill` is glyph paint in SVG semantics, never a box
+            # background, so it re-resolves the chain without it. The
+            # `background_clip: "text"` idiom asks for the background INSIDE
+            # the glyphs (chroma masthead) — a box rect would deface it, so
+            # it is excluded here; glyph-clipped gradient fill remains an
+            # open engine feature.
+            if style.get("background_clip") == "text":
+                bg = None
+            else:
+                bg = self._background_fill(style, box) if "fill" in style else fill
+            el = self.render_text(x, y, w, h, content, self.text_style(o.get("style")),
+                                  spans=spans, oid=o.get("id"))
+            if bg:
+                r = self._shape_radius(o, style)
+                return p.rect(x, y, w, h, bg, None, radius=r) + el
+            return el
 
         if t == "bullet_list" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
@@ -1394,12 +1415,20 @@ class Renderer:
             return self.paint(o.get("fill"))
         if "fill" in style:
             return self.paint(style.get("fill"))
+        return self._background_fill(style, o.get("box"))
+
+    def _background_fill(self, style, box=None):
+        """The Style background* fallback chain (image → shorthand → colour).
+
+        Shared by `_shape_fill` (closed shapes) and the text branch: a text
+        object's box background resolves through THIS chain only — never
+        through `fill`, which on text is glyph paint in SVG semantics."""
         if "background_image" in style:
-            paint = self._background_paint(style.get("background_image"), o.get("box"), style)
+            paint = self._background_paint(style.get("background_image"), box, style)
             if paint is not None:
                 return paint
         if "background" in style:
-            paint = self._background_paint(style.get("background"), o.get("box"), style)
+            paint = self._background_paint(style.get("background"), box, style)
             if paint is not None:
                 return paint
         if "background_color" in style:
