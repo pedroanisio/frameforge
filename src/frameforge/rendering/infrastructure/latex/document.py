@@ -324,8 +324,13 @@ class _Transpiler:
     def _emit_list(self, fl, out):
         env = "enumerate" if fl.get("ordered") else "itemize"
         st = self._ts.resolve(fl.get("style") or "body")
+        opts = "leftmargin=2.2em,topsep=2pt,itemsep=1pt"
+        # An authored `marker` reaches the TeX output too (cross-backend
+        # furniture parity; the SVG path always honoured it).
+        if fl.get("marker") and not fl.get("ordered"):
+            opts += ",label={" + ltx_escape(str(fl.get("marker"))) + "}"
         items = "".join("\\item " + self._inline_text(it) + "\n" for it in (fl.get("items") or []))
-        out.append("{" + self._font(st) + f"\n\\begin{{{env}}}[leftmargin=2.2em,topsep=2pt,itemsep=1pt]\n"
+        out.append("{" + self._font(st) + f"\n\\begin{{{env}}}[{opts}]\n"
                    + items + f"\\end{{{env}}}\\par}}\n\\addvspace{{6pt}}\n")
 
     def _emit_block(self, fl, out):
@@ -366,7 +371,14 @@ class _Transpiler:
 
     def _emit_code(self, fl, out):
         code = fl.get("code") or fl.get("source") or ""
-        out.append("\\begin{verbatim}\n" + str(code) + "\n\\end{verbatim}\n")
+        verb = "\\begin{verbatim}\n" + str(code) + "\n\\end{verbatim}\n"
+        # Reserved `code` style: an authored style wins wholesale (ADR-0006,
+        # RESERVED_STYLES) — mirror the SVG path's `styled("code", ...)`.
+        # Undefined stays bare verbatim, byte-identical to before.
+        if "code" in self._ts.text_styles or "code" in self._ts.styles:
+            out.append("{" + self._font(self._ts.resolve("code")) + "\n" + verb + "}\n")
+            return
+        out.append(verb)
 
     def _cell_text(self, cell):
         """A table `CellValue` → LaTeX text.
@@ -384,6 +396,19 @@ class _Transpiler:
             return self._inline_text(cell)
         return ltx_escape(cell)
 
+    def _table_text_override(self, value):
+        """The unified colour-or-style-ref rule for `header_text`/`cell_text`
+        (mirrors `Renderer.table_text_override`; drift-map CRITICAL #3 + HIGH
+        #6): a dict is an inline fragment, a defined tokens-style name is a
+        style ref, any other string is a colour."""
+        if value is None or value == "":
+            return {}
+        if isinstance(value, str) and value not in self._ts.text_styles \
+                and value not in self._ts.styles:
+            col = self._color.resolve(value)
+            return {"color": col} if col else {}
+        return self._ts.resolve(value)
+
     def _emit_table(self, fl, out):
         header = fl.get("header") if isinstance(fl.get("header"), list) else []
         rows = [r for r in (fl.get("rows") or []) if isinstance(r, list)]
@@ -391,14 +416,28 @@ class _Transpiler:
             return
         ncol = max([len(header)] + [len(r) for r in rows] + [1])
 
+        # The table's authored chrome (same keys the SVG flow path reads —
+        # cross-backend furniture parity). Chrome it does not define keeps the
+        # booktabs defaults, byte-identical to before.
+        sty = fl.get("style") if isinstance(fl.get("style"), dict) else {}
+        head_over = self._table_text_override(sty.get("header_text"))
+        cell_over = self._table_text_override(sty.get("cell_text"))
+        header_fill = (self._book.name(self._color.resolve(sty.get("header_fill")))
+                       if sty.get("header_fill") else None)
+        head_color = self._book.name(head_over.get("color")) if head_over.get("color") else None
+        cell_color = self._book.name(cell_over.get("color")) if cell_over.get("color") else None
+
         def text_at(row, i):
             return self._cell_text(row[i]) if i < len(row) else ""
 
-        def cells(row, bold=False):
+        def cells(row, bold=False, color=None, fill=None):
             xs = [text_at(row, i) for i in range(ncol)]
             if bold:
                 xs = [("\\textbf{" + c + "}" if c else "") for c in xs]
-            return " & ".join(xs) + " \\\\\n"
+            if color:
+                xs = [("\\textcolor{" + color + "}{" + c + "}" if c else "") for c in xs]
+            lead = f"\\rowcolor{{{fill}}}" if fill else ""
+            return lead + " & ".join(xs) + " \\\\\n"
 
         # Content-proportional p{} columns: each column's width tracks its
         # longest cell, so a column of long file paths wraps inside the text
@@ -415,10 +454,12 @@ class _Transpiler:
             f">{{\\raggedright\\arraybackslash}}p{{{fnum(w * scale)}\\textwidth}}"
             for w in raw)
 
-        size = 8 if ncol >= 6 else (9 if ncol >= 4 else 10)
+        authored_size = num(sty.get("cell_size"))
+        size = authored_size or (8 if ncol >= 6 else (9 if ncol >= 4 else 10))
         lines = [f"\\begin{{tabular}}{{{spec}}}\n\\toprule\n"]
         if header:
-            lines.append(cells(header, bold=True) + "\\midrule\n")
+            lines.append(cells(header, bold=True, color=head_color,
+                               fill=header_fill) + "\\midrule\n")
         lines += [cells(r) for r in rows]
         lines.append("\\bottomrule\n\\end{tabular}")
         resolved_ink = self._color.resolve("ink")
@@ -426,8 +467,9 @@ class _Transpiler:
         # which is not an xcolor name — fall back to black instead of dying.
         inkname = ("black" if resolved_ink == "ink"
                    else self._book.name(resolved_ink) or "black")
-        block = (f"{{\\setlength{{\\tabcolsep}}{{4pt}}\\color{{{inkname}}}"
-                 f"\\fontsize{{{size}}}{{{fnum(size * 1.3)}}}\\selectfont {''.join(lines)}}}")
+        # An authored cell_text colour replaces the ink default for body cells.
+        block = (f"{{\\setlength{{\\tabcolsep}}{{4pt}}\\color{{{cell_color or inkname}}}"
+                 f"\\fontsize{{{fnum(size)}}}{{{fnum(size * 1.3)}}}\\selectfont {''.join(lines)}}}")
         cap = fl.get("caption")
         if cap is not None:
             self._emit_float(out, "table", block, cap, fl, caption_first=True)
@@ -679,6 +721,12 @@ class _Transpiler:
         # Touch a few token colours up front so they exist even if unused in body.
         for key in ("ink", "paper", "rule"):
             self._book.name(self._color.resolve(key))
+        # An authored reserved `caption` style colours \captionsetup too
+        # (cross-backend parity: the SVG caption paths already honour it).
+        # Allocate BEFORE colordefs is frozen so the \definecolor ships.
+        caption_color = None
+        if "caption" in self._ts.text_styles or "caption" in self._ts.styles:
+            caption_color = self._book.name(self._ts.resolve("caption").get("color"))
         colordefs = "\n".join(self._book.defs)
         # Page-mode docs draw one full-canvas TikZ picture per sheet, so the page
         # IS the canvas: zero the geometry margins (and head/foot reserve) so the
@@ -710,13 +758,16 @@ class _Transpiler:
             "\\usepackage{slashed}\n"
             "\\usepackage{xcolor}\n"
             "\\usepackage{booktabs}\n"
+            "\\usepackage{colortbl}\n"
             "\\usepackage{array}\n"
             "\\usepackage{enumitem}\n"
             "\\usepackage{graphicx}\n"
             "\\usepackage{float}\n"
             "\\usepackage{caption}\n"
             "\\captionsetup{font=small,labelfont=bf,textfont=it,skip=4pt}\n"
-            "\\usepackage{makeidx}\n"
+            + (f"\\captionsetup{{textfont={{it,color={caption_color}}}}}\n"
+               if caption_color else "")
+            + "\\usepackage{makeidx}\n"
             "\\usepackage[normalem]{ulem}\n"
             "\\usepackage[hidelinks]{hyperref}\n"
             "\\usepackage{nameref}\n"

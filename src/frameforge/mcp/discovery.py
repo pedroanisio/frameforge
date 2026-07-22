@@ -356,17 +356,20 @@ def describe_capabilities(
         result = _schema_topic(key, cls, "model")
         if key == "style":
             # The flow renderer resolves its defaults from the document and injects
-            # no undefined style (ADR-0006); two reserved token-style names carry
-            # those defaults, so an author must know to define them.
+            # no undefined style (ADR-0006). The reserved token-style names that
+            # carry those defaults come from the engine's single constant — never
+            # restate them here (drift-map CRITICAL #2: this literal once named
+            # two of the five).
+            from frameforge.rendering.domain.services.text_style_resolver import (
+                RESERVED_STYLES,
+            )
             result["reserved_styles"] = {
-                "body": "the flow renderer's DEFAULT text style — define it (in "
-                        "tokens.styles) to set the document face/size/colour. Absent "
-                        "→ a single documented engine fallback (ADR-0006).",
-                "caption": "styles generated figure and table captions.",
-                "note": "headings/lists/toc resolve their own `style`; a table carries "
+                **RESERVED_STYLES,
+                "note": "headings/lists resolve their own `style`; a table carries "
                         "its chrome via `style` (header_fill/header_text/cell_text/"
-                        "zebra_fill/grid_color/cell_size); chrome it does not define is "
-                        "not drawn. See ADR-0006.",
+                        "zebra_fill/grid_color/cell_size — header_text/cell_text are "
+                        "colour-or-style-ref, identical in both table renderers); "
+                        "chrome it does not define is not drawn. See ADR-0006.",
             }
         return result
     return {

@@ -9,6 +9,49 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — fix(drift): the drift-map P0/P1 closures — one rule per surface, gated (2026-07-22)
+
+The 2026-07-22 drift-risk audit's CRITICAL and HIGH findings, closed with
+regression gates (all ride `make test`):
+
+- **Reserved styles get one source of truth** (CRITICAL #2): new
+  `RESERVED_STYLES` constant (`rendering/domain/services/text_style_resolver`)
+  names all five (`body`/`caption`/`code`/`toc`/`toc_title`) with roles;
+  `describe_capabilities("style")` exports it live instead of a two-name
+  literal; spec §5.2.2 + the MCP guide now name all five. Gate:
+  `tests/test_reserved_styles_sync.py` — renderer literals ⊆ constant (and
+  back), discovery == constant, spec/guide name every key.
+- **`header_text`/`cell_text` mean ONE thing** (CRITICAL #3): the unified
+  colour-or-style-ref rule (`Renderer.table_text_override`) — dict = inline
+  fragment, defined tokens-style name = style ref (wins wholesale), any other
+  string = colour — now drives BOTH table renderers (flow and `TableObject`;
+  previously the same document language meant colour in one and a silent
+  token-lookup miss in the other). Both model docstrings state the rule.
+  Gate: `tests/test_table_style_key_parity.py` (cross-path parity + preserved
+  richer usages).
+- **The TeX backend honours the flow-furniture contracts** (HIGH #6):
+  `_emit_table` reads `header_fill` (`\rowcolor` + colortbl) /
+  `header_text` / `cell_text` (the same unified rule) / `cell_size`;
+  `_emit_code` applies an authored reserved `code` style (undefined stays
+  bare verbatim, byte-identical); `_emit_list` honours `marker`; an authored
+  `caption` colour reaches `\captionsetup`. Gate:
+  `tests/test_latex_flow_furniture.py` — the same authored tokens must reach
+  both the SVG and TeX outputs; style-silent output pinned unchanged.
+- **The MCP guide + server instructions are contract-tested** (HIGH #4):
+  `tests/test_guide_surface_sync.py` — tool-shaped names in the prose resolve
+  against the live registry, every registered tool appears in the guide,
+  named `FRAMEFORGE_*` vars are consumed, named modules import. (Its first
+  red run caught a real gap: a freshly-registered tool missing from the
+  guide.)
+- **Spec preset dimensions are read by a gate** (HIGH #5):
+  `tests/test_spec_preset_dims.py` parses every `name W×H` the spec §4 prose
+  states and compares against `CanvasResolver.PRESETS` (book trims accepted
+  in exact ×72 inch form).
+- **Enforcement**: `make hooks` installed in the working clone (pre-commit =
+  ruff gate; pre-push = full `make check`) — the drift-map CRITICAL #1
+  stopgap while Actions billing is down. The stale public pre-rename mirror
+  repo was archived with a pointer description (HIGH #7).
+
 ## Unreleased — feat(model,render,vision): user-space gradient geometry + AA-aware subpixel tracing (2026-07-22)
 
 The two remaining engine gaps from the lotus-emblem reconstruction assessment

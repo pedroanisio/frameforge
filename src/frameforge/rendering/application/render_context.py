@@ -34,6 +34,9 @@ class RendererContext:
     def text_style(self, ref):
         return self._r.text_style(ref)
 
+    def table_text_override(self, value):
+        return self._r.table_text_override(value)
+
     def style_dict(self, ref):
         return self._r._style_dict(ref)
 

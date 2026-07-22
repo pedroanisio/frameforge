@@ -343,17 +343,30 @@ inheritable text properties and flows only along `group`/flow nesting.
 
 The flow renderer resolves its defaults from the document — it injects **no**
 font, size, or colour literal of its own ([ADR-0006](../adr-0006-no-injected-style.md)).
-Two reserved token-style names carry the flow defaults:
+Five reserved token-style names carry the flow defaults (normative source:
+the engine's `RESERVED_STYLES` constant, exported live through
+`describe_capabilities("style")`; `tests/test_reserved_styles_sync.py` pins
+this list to it):
 
-- **`body`** — the flow **default text style**. Every flow element inherits it
-  and overrides it per-object via `style`. When a document defines no `body`
-  style, a single documented engine fallback applies.
-- **`caption`** — the style used for generated **figure and table captions**.
+- **`body`** — the **default text style** for every text surface. Every flow
+  element inherits it and overrides it per-object via `style`. When a document
+  defines no `body` style, a single documented engine fallback applies.
+- **`caption`** — the style used for generated **figure and table captions**
+  (fallbacks: bold for table captions; italic + centered for figure captions).
+- **`code`** — the style used for **code blocks** (fallback:
+  monospace / 10 / `#333`).
+- **`toc`** — the style used for generated **table-of-contents entry lines**.
+- **`toc_title`** — the style used for the generated **table-of-contents
+  title** (fallback: entry size × 1.5, bold).
 
-Sub-renderers read only authored values: headings, lists, and the generated
-`toc` resolve their own `style`; a `table` reads its chrome
+An authored reserved style wins wholesale — no fallback key is stamped over it.
+Sub-renderers read only authored values: headings and lists resolve their own
+`style`; a `table` reads its chrome
 (`header_fill`/`header_text`/`cell_text`/`zebra_fill`/`grid_color`/`cell_size`)
-from its `style`, and chrome it does not define is not drawn. An explicit
+from its `style`, and chrome it does not define is not drawn.
+`header_text`/`cell_text` are **colour-or-style-ref**, identically in both
+table renderers: a dict is an inline text-style fragment, a string naming a
+defined tokens style is a style ref, and any other string is a colour. An explicit
 `text_indent` (including `0`) on a paragraph style overrides the positional
 first-line-indent default. Consequence: a document that defines its styles fully
 determines its rendered design tokens — which is what makes the `--to audit`

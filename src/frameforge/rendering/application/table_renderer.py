@@ -69,10 +69,12 @@ class TableRenderer:
         st_c = {**base, "size": cell_size, "lh": cell_lh}
         head_w = style.get("header_weight")
         st_h = {**st_c, "weight": 700 if head_w is None else head_w}
+        # header_text / cell_text follow the unified colour-or-style-ref rule
+        # (Renderer.table_text_override) — same semantics as the flow table.
         if style.get("header_text"):
-            st_h = {**st_h, **self._ctx.text_style(style.get("header_text"))}
+            st_h = {**st_h, **self._ctx.table_text_override(style.get("header_text"))}
         if style.get("cell_text"):
-            st_c = {**st_c, **self._ctx.text_style(style.get("cell_text"))}
+            st_c = {**st_c, **self._ctx.table_text_override(style.get("cell_text"))}
         for ri, (kind, row) in enumerate(visual):
             ry, row_h = rowy[ri], heights[ri]
             if kind == "h" and header_fill:

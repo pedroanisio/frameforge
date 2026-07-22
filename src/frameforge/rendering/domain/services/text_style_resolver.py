@@ -24,6 +24,26 @@ FONT_MAP = {"sans": "sans-serif", "serif": "serif", "mono": "monospace",
 _SANCTIONED = {"family": "serif", "family_primary": "serif", "size": 12.0,
                "lh": 1.4, "color": "#1c1c1c", "align": "left"}
 
+# The reserved `tokens.styles` names the engine consumes (ADR-0006) — THE
+# single source of truth. The spec (§5.2.2), the MCP guide, and
+# `describe_capabilities("style")` must name exactly these keys, and every
+# reserved-style literal in the renderer must appear here
+# (tests/test_reserved_styles_sync.py enforces both directions). An authored
+# reserved style wins wholesale; absence falls back to the documented default.
+RESERVED_STYLES = {
+    "body": "the flow renderer's DEFAULT text style — define it (in "
+            "tokens.styles) to set the document face/size/colour; it cascades "
+            "to every text surface (GH #74). Absent → the single sanctioned "
+            "engine fallback (ADR-0006).",
+    "caption": "styles generated figure and table captions (fallback: bold "
+               "for table captions; italic + centered for figure captions).",
+    "code": "styles code blocks (fallback: monospace / 10 / #333).",
+    "toc": "styles generated table-of-contents entry lines (fallback: "
+           "base + lh 1.5).",
+    "toc_title": "styles the generated table-of-contents title (fallback: "
+                 "entry size × 1.5, bold).",
+}
+
 
 class TextStyleResolver:
     def __init__(self, text_styles, styles, color_resolver):

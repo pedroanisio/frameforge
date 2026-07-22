@@ -231,6 +231,25 @@ class Renderer:
     def text_style(self, ref):
         return self._text_style.resolve(ref)
 
+    def table_text_override(self, value):
+        """The ONE rule for a table's `header_text`/`cell_text` style keys.
+
+        Colour-or-style-ref, identical in BOTH table renderers (flow and
+        `TableObject`): a dict is an inline text-style fragment; a string that
+        names a defined `tokens.styles`/`tokens.text_styles` entry is a style
+        ref (wins wholesale); any other string is a COLOUR (hex / css name /
+        `tokens.colors` key). Returns a (possibly empty) dict to merge over
+        the cell/header base. Historically the flow path read colours and the
+        `TableObject` path read style refs — the same document language meant
+        different things per table type (drift-map CRITICAL #3)."""
+        if value is None or value == "":
+            return {}
+        if isinstance(value, str) and value not in (self.text_styles or {}) \
+                and value not in (self.styles or {}):
+            col = self.color(value)
+            return {"color": col} if col else {}
+        return self.text_style(value)
+
     # ---- text measurement / fitting --------------------------------------- #
     # Default path: a per-character `avg` estimate (no font metrics). When the
     # `real_metrics` opt-in is set AND fontTools resolves the family, width is
@@ -2065,11 +2084,14 @@ class Renderer:
             grid_stroke = Stroke(color=grid, width=0.5 if grid_w is None else grid_w) if grid else None
             cell_lh = num(sty.get("cell_line_height"))
             cell_lh = 1.25 if cell_lh is None else cell_lh
+            # header_text / cell_text follow the unified colour-or-style-ref
+            # rule (table_text_override) — same semantics as TableObject.
             cell_st = {**base, "size": font_size, "lh": cell_lh,
-                       "color": _c(sty.get("cell_text"), base["color"])}
+                       "color": base["color"],
+                       **self.table_text_override(sty.get("cell_text"))}
             head_w = sty.get("header_weight")
             head_st = {**cell_st, "weight": 700 if head_w is None else head_w,
-                       "color": _c(sty.get("header_text"), base["color"])}
+                       **self.table_text_override(sty.get("header_text"))}
             pad = num(fl.get("cell_padding"))            # the element's own field wins
             if pad is None:
                 pad = num(sty.get("cell_padding"))       # then the style/theme key

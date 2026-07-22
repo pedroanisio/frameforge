@@ -175,13 +175,20 @@ Fluent builder:
 
 ## Flow defaults & reserved styles (ADR-0006)
 The flow renderer injects NO undefined style — it renders only what the document
-defines. Two reserved `tokens.styles` names carry the flow defaults:
-- **`body`** — the DEFAULT text style for flow content. Define it to set the
-  document face/size/colour; without it, flow text falls back to a single
+defines. Five reserved `tokens.styles` names carry the flow defaults (the
+authoritative list is the engine's `RESERVED_STYLES` constant, exported live by
+`describe_capabilities("style")`):
+- **`body`** — the DEFAULT text style for every text surface. Define it to set
+  the document face/size/colour; without it, text falls back to a single
   documented engine default (you usually do not want that).
 - **`caption`** — styles generated figure and table captions.
-Headings/lists/`toc` resolve their own `style`; a `table` carries its chrome via
-`style` (header_fill/header_text/cell_text/zebra_fill/grid_color/cell_size) —
+- **`code`** — styles code blocks (fallback: monospace / 10 / #333).
+- **`toc`** — styles generated table-of-contents entry lines.
+- **`toc_title`** — styles the generated table-of-contents title.
+Headings/lists resolve their own `style`; a `table` carries its chrome via
+`style` (header_fill/header_text/cell_text/zebra_fill/grid_color/cell_size —
+header_text/cell_text are colour-or-style-ref: a defined style name is a style
+ref, any other string is a colour, identically in flow tables and TableObject) —
 chrome it does not define is not drawn. Every render result reports a compact
 `design` census (faces/sizes/weights/colours + sprawl health flags); the
 `design_audit` tool returns the full drift-proof report for a session.

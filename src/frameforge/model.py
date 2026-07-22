@@ -1349,7 +1349,11 @@ class TableObject(ObjBase):
                                   "zebra_fill, grid_color, cell_size, and the chrome geometry "
                                   "keys grid_width, cell_padding, header_weight, "
                                   "cell_line_height (documented fallbacks 0.5/4.0/700/1.25; "
-                                  "chrome the table does not define is not drawn; ADR-0006); "
+                                  "chrome the table does not define is not drawn; ADR-0006). "
+                                  "header_text/cell_text are colour-or-style-ref, identical "
+                                  "in BOTH table renderers: a dict = inline text-style "
+                                  "fragment; a string naming a defined tokens style = style "
+                                  "ref (wins wholesale); any other string = a colour; "
                                   "grammar: object-any.")
 
 
@@ -1480,7 +1484,11 @@ class TableFlow(BreakFields):
                                   "zebra_fill, grid_color, cell_size, and the chrome geometry "
                                   "keys grid_width, cell_padding, header_weight, "
                                   "cell_line_height (documented fallbacks 0.5/4.0/700/1.25; "
-                                  "chrome the table does not define is not drawn; ADR-0006); "
+                                  "chrome the table does not define is not drawn; ADR-0006). "
+                                  "header_text/cell_text are colour-or-style-ref, identical "
+                                  "in BOTH table renderers: a dict = inline text-style "
+                                  "fragment; a string naming a defined tokens style = style "
+                                  "ref (wins wholesale); any other string = a colour; "
                                   "grammar: object-any.")
     caption: Optional[Caption] = Field(
         default=None, description="Caption: a string or inline runs (P2).")
