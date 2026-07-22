@@ -20,6 +20,7 @@ from frameforge.mcp.paths import _session_root
 from frameforge.mcp.pipeline import _validate_and_render_yaml
 from frameforge.mcp.results import _write_diagnostics
 from frameforge.mcp.security import _assert_input_path_allowed
+from frameforge.mcp.config import publish_root as config_publish_root
 from frameforge.mcp.sessions import (
     _archive_renders,
     _prepare_session,
@@ -29,6 +30,7 @@ from frameforge.mcp.sessions import (
     _reset_session_outputs,
     _reset_session_renders,
     _session_id,
+    publish_session,
     session_resource_bytes,
 )
 from frameforge.mcp.sources import (
@@ -88,6 +90,7 @@ def _run_source(
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
     reference: str | None = None,
+    publish: bool = False,
     tool: str | None = None,
 ) -> dict[str, Any]:
     """Drive any document source: produce, then (if produced) validate + render.
@@ -98,6 +101,15 @@ def _run_source(
     but rendered artifacts are cleared only once a new render is imminent — a
     FAILED build leaves the previous call's renders intact.
     """
+    if publish and config_publish_root() is None:
+        return {
+            "ok": False,
+            "error": "publish=true but publishing is disabled: "
+                     "FRAMEFORGE_MCP_PUBLISH_ROOT is not set",
+            "hint": "set FRAMEFORGE_MCP_PUBLISH_ROOT to a durable directory "
+                    "(outside the session root), or drop publish=true — "
+                    "nothing was rendered",
+        }
     session_dir = _session_root(source.session_root) / _session_id(source.session_id)
     replaced = _session_replacement_info(session_dir, tool) if tool else None
     if session_dir.is_dir():
@@ -130,6 +142,11 @@ def _run_source(
     if tool:
         _apply_session_stamp(result, tool=tool, replaced=replaced)
     _write_diagnostics(produced.session_dir, result)
+    if publish and result.get("ok"):
+        # publish AFTER diagnostics are written so the caveats ship too
+        result["published"] = publish_session(
+            produced.sid, session_root=source.session_root,
+            revision=result.get("revision"))
     return result
 
 
@@ -149,6 +166,7 @@ def run_sdk_code(
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
     reference: str | None = None,
+    publish: bool = False,
 ) -> dict[str, Any]:
     """Execute Python SDK code, then validate and render its generated YAML.
 
@@ -174,6 +192,7 @@ def run_sdk_code(
         source, max_pages=max_pages, raster_png=raster_png, pages=pages,
         sign=sign, signed_at=signed_at, silhouette=silhouette,
         to=to, scale=scale, real_metrics=real_metrics, reference=reference,
+        publish=publish,
         tool="run_sdk_code",
     )
 
@@ -195,6 +214,7 @@ def run_sdk_client(
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
     reference: str | None = None,
+    publish: bool = False,
     repo_root: str | Path | None = None,
     edit_roots: str | list[str] | tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
@@ -231,6 +251,7 @@ def render_frameforge_yaml(
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
     reference: str | None = None,
+    publish: bool = False,
 ) -> dict[str, Any]:
     """Validate and render caller-provided FrameForge YAML."""
     if not isinstance(yaml_text, str) or not yaml_text.strip():

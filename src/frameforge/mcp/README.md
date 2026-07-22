@@ -221,6 +221,7 @@ the running server.
 | `FRAMEFORGE_MCP_MAX_TEXT_CHARS` | Page size for paginated text artifacts, capped by the result budget (default: 40000). |
 | `FRAMEFORGE_MCP_MAX_RESOURCE_BYTES` | Byte cap for binary resource endpoints (default: the inline-blob cap). |
 | `FRAMEFORGE_MCP_MIN_CLEANUP_AGE` | `cleanup_sessions` age floor, seconds — younger sessions are never pruned (default: 60). |
+| `FRAMEFORGE_MCP_PUBLISH_ROOT` | Durable root for published session deliverables; render tools accept `publish=true` and copy `document.fg.yaml`, pages, PDF, `diagnostics.json` + a sha256 manifest to `<root>/<session_id>/` (unset = publishing disabled; `publish=true` then fails fast). Must sit outside the session root; `cleanup_sessions` never touches it. |
 | `FRAMEFORGE_REAL_METRICS` | Truthy = measure text with real glyph advances (fontTools); an explicit per-call flag always wins. |
 | `FRAMEFORGE_MATH_SVG` | `fallback` forces the deterministic math-glyph fallback instead of node MathJax. |
 | `FRAMEFORGE_CHROMIUM_NO_SANDBOX` | Truthy launches the raster Chromium with `--no-sandbox` (rootless Docker). |

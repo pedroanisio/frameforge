@@ -136,6 +136,17 @@ def max_resource_bytes() -> int:
     return _positive_env("FRAMEFORGE_MCP_MAX_RESOURCE_BYTES", max_blob_bytes())
 
 
+def publish_root():
+    """Durable root for published session artifacts
+    (``FRAMEFORGE_MCP_PUBLISH_ROOT``). ``None`` = publishing disabled: render
+    tools refuse ``publish=true`` with a structured error instead of silently
+    dropping the request."""
+    from pathlib import Path
+
+    configured = os.environ.get("FRAMEFORGE_MCP_PUBLISH_ROOT", "").strip()
+    return Path(configured).expanduser() if configured else None
+
+
 def _positive_env(name: str, default: int) -> int:
     raw = os.environ.get(name)
     if raw:

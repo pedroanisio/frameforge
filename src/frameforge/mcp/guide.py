@@ -228,6 +228,14 @@ Forward (author -> render):
 - `list_sessions` / `cleanup_sessions` — enumerate and prune per-session scratch dirs.
   Cleanup respects an age floor: sessions younger than `FRAMEFORGE_MCP_MIN_CLEANUP_AGE`
   seconds are never pruned, so a concurrent loop's live session survives a sweep.
+- Publishing: the session dir is EPHEMERAL (tempdir + a 5-revision history ring).
+  When `FRAMEFORGE_MCP_PUBLISH_ROOT` is set, pass `publish=true` on a render tool
+  as the TERMINAL act of an iteration loop: the session's deliverables —
+  `document.fg.yaml`, page SVGs/PNGs, `document.pdf`, `diagnostics.json` (the
+  caveats travel with the claim) — are copied to `<root>/<session_id>/` with a
+  sha256 `manifest.json`; the result gains `result.published`. Re-publishing a
+  session replaces its published directory; `cleanup_sessions` never touches the
+  publish root. `publish=true` with the root unset fails fast (nothing renders).
 
 Render options (the three render tools): `to='pdf'` additionally assembles the rendered
 pages into a vector `document.pdf` (needs the `pdfout` group; reported under `result.pdf`

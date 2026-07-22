@@ -507,6 +507,11 @@ def create_server(
             str | None,
             Field(description="Optional reference image (path, frameforge:// URI, or data:image URI) to diff the rendered page 1 against: the result gains reference_diff with per-object ghost vectors — each authored object's displacement toward its best match in the reference — so corrections are typed from numbers instead of eyeballed off an overlay."),
         ] = None,
+
+        publish: Annotated[
+            bool,
+            Field(description="Copy this render's DELIVERABLES (document.fg.yaml, page SVGs, PNGs, PDF, diagnostics.json + a sha256 manifest) to FRAMEFORGE_MCP_PUBLISH_ROOT/<session_id>/ — the durable counterpart of the ephemeral session scratchpad. Fails fast with a structured error when the root is unset; re-publishing a session replaces its directory."),
+        ] = False,
     ):
         """Run an editable Python SDK client, validate its YAML, and return render feedback.
 
@@ -548,6 +553,7 @@ def create_server(
                 scale=scale,
                 real_metrics=real_metrics,
                 reference=reference,
+                publish=publish,
                 repo_root=repo,
                 edit_roots=edit_roots,
             )),
@@ -575,6 +581,11 @@ def create_server(
             str | None,
             Field(description="Optional reference image (path, frameforge:// URI, or data:image URI) to diff the rendered page 1 against: the result gains reference_diff with per-object ghost vectors — each authored object's displacement toward its best match in the reference — so corrections are typed from numbers instead of eyeballed off an overlay."),
         ] = None,
+
+        publish: Annotated[
+            bool,
+            Field(description="Copy this render's DELIVERABLES (document.fg.yaml, page SVGs, PNGs, PDF, diagnostics.json + a sha256 manifest) to FRAMEFORGE_MCP_PUBLISH_ROOT/<session_id>/ — the durable counterpart of the ephemeral session scratchpad. Fails fast with a structured error when the root is unset; re-publishing a session replaces its directory."),
+        ] = False,
     ):
         """Run Python SDK code, validate its YAML, and return render feedback.
 
@@ -614,6 +625,7 @@ def create_server(
                 scale=scale,
                 real_metrics=real_metrics,
                 reference=reference,
+                publish=publish,
             )),
         )
         return _maybe_call_tool_result(result)
@@ -638,6 +650,11 @@ def create_server(
             str | None,
             Field(description="Optional reference image (path, frameforge:// URI, or data:image URI) to diff the rendered page 1 against: the result gains reference_diff with per-object ghost vectors — each authored object's displacement toward its best match in the reference — so corrections are typed from numbers instead of eyeballed off an overlay."),
         ] = None,
+
+        publish: Annotated[
+            bool,
+            Field(description="Copy this render's DELIVERABLES (document.fg.yaml, page SVGs, PNGs, PDF, diagnostics.json + a sha256 manifest) to FRAMEFORGE_MCP_PUBLISH_ROOT/<session_id>/ — the durable counterpart of the ephemeral session scratchpad. Fails fast with a structured error when the root is unset; re-publishing a session replaces its directory."),
+        ] = False,
     ):
         """Validate and render FrameForge YAML without executing Python code.
 
@@ -675,6 +692,7 @@ def create_server(
                 scale=scale,
                 real_metrics=real_metrics,
                 reference=reference,
+                publish=publish,
             )),
         )
         return _maybe_call_tool_result(result)

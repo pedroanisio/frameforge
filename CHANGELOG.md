@@ -9,6 +9,32 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — feat(mcp): FRAMEFORGE_MCP_PUBLISH_ROOT — durable published output (2026-07-22)
+
+The session scratchpad is ephemeral by design (tempdir, 5-revision history
+ring, swept by `cleanup_sessions`); durable output existed only when a client
+ran directly and wrote `out/` by hand. The MCP now has a publish path:
+
+- **`FRAMEFORGE_MCP_PUBLISH_ROOT`** (unset = disabled, behaviour unchanged):
+  the three render tools accept **`publish=true`** and copy the session's
+  DELIVERABLES to `<root>/<session_id>/` — `document.fg.yaml` (renamed from
+  `generated.fg.yaml`), page SVGs/PNGs, `document.pdf`, `diagnostics.json`
+  (the caveats travel with the claim — PALS) and `audit.json`/`audit.md` when
+  present — plus a `manifest.json` (sha256/bytes per file, source session,
+  render revision, UTC timestamp). The result gains `result.published`.
+- **Explicit, never automatic**: `publish` defaults to false — publishing is
+  the terminal act of an iteration loop, not a per-render side effect.
+- **Fail-fast, never silent**: `publish=true` with the root unset returns a
+  structured error naming the env var BEFORE rendering; a publish root inside
+  the session root is refused (publishing into the scratchpad is a config
+  error); a session with no deliverables is a structured error.
+- **Replace, never accrete**: re-publishing a session id replaces its
+  published directory; `cleanup_sessions` never touches the publish root.
+- Gate: `tests/test_mcp_publish.py` — config reader, deliverable set +
+  manifest hashes, scratch exclusion, overwrite semantics, nesting refusal,
+  fail-fast wiring, publish=false byte-identity, cleanup isolation, and the
+  three server tools exposing the parameter.
+
 ## Unreleased — feat(sdk,vision,mcp): geometry refinement — descent on stroke_outline parameters (2026-07-22)
 
 Gap G3 from the authored-lane assessment: `refine_reconstruction` (B6)

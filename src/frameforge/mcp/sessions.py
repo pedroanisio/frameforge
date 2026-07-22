@@ -19,6 +19,7 @@ from frameforge.mcp.config import (
     max_result_chars,
     max_text_chars,
 )
+from frameforge.mcp.config import publish_root as config_publish_root
 from frameforge.mcp.paths import _session_root
 from frameforge.mcp.util import (
     _is_relative_to,
@@ -394,6 +395,94 @@ def list_sessions(*, session_root: str | Path | None = None) -> dict[str, Any]:
         "session_count": len(sessions),
         "sessions": sessions,
     }
+
+
+# Deliverables a publish copies (source name -> published name). Scratch —
+# history/, workspace.json, the runner script — stays in the session dir.
+_PUBLISH_RENAMES = {"generated.fg.yaml": "document.fg.yaml"}
+_PUBLISH_KEEP = ("document.pdf", "diagnostics.json", "audit.json", "audit.md")
+_PUBLISH_GLOBS = ("page-*.svg", "p[0-9][0-9][0-9].png")
+
+
+def publish_session(
+    session_id: str,
+    *,
+    session_root: str | Path | None = None,
+    publish_root: str | Path | None = None,
+    revision: int | None = None,
+) -> dict[str, Any]:
+    """Copy a session's DELIVERABLES to ``<publish_root>/<session_id>/``.
+
+    The publish path (``FRAMEFORGE_MCP_PUBLISH_ROOT``) is the durable
+    counterpart of the ephemeral session scratchpad: the built document
+    (renamed ``document.fg.yaml``), the rendered pages, the PDF when present,
+    and ``diagnostics.json`` (the caveats travel with the claim — PALS), plus
+    a ``manifest.json`` carrying sha256/bytes per file, the source session id,
+    the render revision, and a UTC timestamp. Re-publishing a session REPLACES
+    its published directory (no accretion); ``cleanup_sessions`` never touches
+    the publish root. A publish root inside the session root is refused —
+    publishing into the scratchpad is a configuration error, not a request.
+    """
+    if publish_root is None:
+        publish_root = config_publish_root()
+    if publish_root is None:
+        return {
+            "ok": False,
+            "error": "publishing is disabled: FRAMEFORGE_MCP_PUBLISH_ROOT is not set",
+            "hint": "set FRAMEFORGE_MCP_PUBLISH_ROOT to a durable directory, "
+                    "or drop publish=true",
+        }
+    root = _session_root(session_root)
+    pub_root = Path(publish_root).expanduser().resolve()
+    if pub_root == root.resolve() or pub_root.is_relative_to(root.resolve()):
+        return {
+            "ok": False,
+            "error": f"publish root {pub_root} is inside the session root {root} — "
+                     "publishing into the scratchpad is a configuration error",
+            "hint": "point FRAMEFORGE_MCP_PUBLISH_ROOT outside the session root",
+        }
+    session_dir = root / _session_id(session_id)
+    if not session_dir.is_dir():
+        return {"ok": False, "error": f"session {session_id!r} has no scratch directory",
+                "hint": "render into the session before publishing it"}
+
+    sources: list[tuple[Path, str]] = []
+    for src_name, dest_name in _PUBLISH_RENAMES.items():
+        p = session_dir / src_name
+        if p.is_file():
+            sources.append((p, dest_name))
+    for name in _PUBLISH_KEEP:
+        p = session_dir / name
+        if p.is_file():
+            sources.append((p, name))
+    for pattern in _PUBLISH_GLOBS:
+        for p in sorted(session_dir.glob(pattern)):
+            if p.is_file():
+                sources.append((p, p.name))
+    if not sources:
+        return {"ok": False, "error": f"session {session_id!r} has no deliverables to publish",
+                "hint": "render (and optionally export to='pdf') before publishing"}
+
+    dest = pub_root / session_id
+    if dest.exists():
+        shutil.rmtree(dest)                      # replace, never accrete
+    dest.mkdir(parents=True, exist_ok=True)
+    files = []
+    for src, name in sources:
+        data = src.read_bytes()
+        (dest / name).write_bytes(data)
+        files.append({"name": name, "bytes": len(data),
+                      "sha256": hashlib.sha256(data).hexdigest()})
+    manifest = {
+        "session_id": session_id,
+        "revision": revision,
+        "published_at": datetime.now(timezone.utc).isoformat(),
+        "files": files,
+    }
+    (dest / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return {"ok": True, "root": str(pub_root), "dir": str(dest),
+            "files": files, "manifest": str(dest / "manifest.json")}
 
 
 def cleanup_sessions(
