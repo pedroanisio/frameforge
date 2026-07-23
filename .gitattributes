@@ -1,0 +1,50 @@
+# Line endings are a correctness constraint in this repository, not a style
+# preference.
+#
+# Two things break on a CRLF checkout, and neither failure names the real cause:
+#
+#   1. Shebang scripts that run inside the Linux container. Git for Windows
+#      checks out CRLF by default, so `#!/usr/bin/env bash` becomes
+#      `#!/usr/bin/env bash\r` and the kernel looks for an interpreter literally
+#      named "bash\r". The image build dies with
+#      `/usr/bin/env: 'bash\r': No such file or directory`, and
+#      docker/entrypoint.sh fails the same way at container start.
+#
+#   2. The byte-exact gates. golden-check pins each b1/ oracle page's SVG output
+#      by SHA-256, and the schema/manifest/status generators are diffed against
+#      their committed output. A platform-dependent line ending makes those
+#      comparisons platform-dependent too.
+#
+# So: normalize everything to LF in the repository *and* in the working tree, on
+# every platform. Editors have handled LF on Windows for years; a corrupted
+# shebang is not similarly forgiving.
+* text=auto eol=lf
+
+# Byte-exact artifacts: git must not touch these AT ALL, in either direction.
+# golden-check pins each b1/ oracle page by SHA-256 and corpus-check verifies
+# archived files against a hash lockfile, so "harmless" normalisation of a line
+# ending is a gate failure. `-text` disables conversion entirely; it is not the
+# same as `eol=lf`, which would still rewrite them once.
+tests/golden/**            -text
+tests/fixtures/corpus/**   -text
+
+# Belt and braces for the files where a CRLF slip is fatal rather than cosmetic.
+*.sh        text eol=lf
+bin/*       text eol=lf
+docker/*    text eol=lf
+plugin/bin/* text eol=lf
+
+# Never touched: git must not "normalize" bytes that are not text.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.pdf  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.otf  binary
+*.tar  binary
+*.fp   binary

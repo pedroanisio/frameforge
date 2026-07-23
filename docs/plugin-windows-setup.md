@@ -172,6 +172,18 @@ cd frameforge
 docker build -t frameforge:2.6.0 .
 ```
 
+The repository ships a `.gitattributes` that pins shell scripts to LF, so Git
+for Windows cannot corrupt them on checkout. If you cloned **before** that
+landed, your copy has CRLF shebangs and the build dies at
+`collect-google-fonts.sh` with `/usr/bin/env: 'bash\r': No such file or
+directory`. Fix by re-cloning, or in the existing clone:
+
+```powershell
+git pull
+git rm --cached -r . -q
+git reset --hard
+```
+
 For a build that finishes in roughly a third of the time, skip the
 google/fonts corpus:
 
@@ -325,6 +337,7 @@ machine.
 | `cannot find the file specified` from any docker command | 0 row 5 | Docker Desktop not running → Step 3 |
 | Container mode prints `windows` | 0 row 6 | Right-click tray whale → Switch to Linux containers |
 | `no space left on device` | 4 | Free space or raise the Docker disk limit; `docker system prune -a` reclaims old images |
+| `/usr/bin/env: 'bash\r': No such file or directory` | 4B | CRLF shebang from an old clone. Re-clone, or `git pull; git rm --cached -r .; git reset --hard` |
 | `error from registry: denied` on pull | 4A | The image is not published yet. Not a login problem — build it with 4B. |
 | Container starts but the plugin cannot find the image | 7 | You built locally but left the Runtime image at the `ghcr.io/...` default. Set it to `frameforge:2.6.0`. |
 | `ls /workspace` shows nothing | 5b | Drive not shared → Docker Desktop → Settings → Resources → File sharing |
