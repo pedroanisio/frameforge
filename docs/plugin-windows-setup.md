@@ -254,21 +254,37 @@ docker run --rm -v "${PWD}:/workspace:ro" frameforge:2.6.0 bash -c "ls /workspac
 
 *Model B — host-wide.* FrameForge is a tool you drive from many projects,
 generating assets against a shared library of brand files, logos and templates,
-and writing output to one place. Create the two shared folders once, anywhere
-outside a project:
+and writing output to one place. Create the two shared folders once.
+
+**Put them outside your user profile** — use `C:\frameforge\...`, not
+`C:\Users\you\...`. A profile folder that OneDrive manages, or that Windows
+*Controlled Folder Access* protects, is readable but **not writable** by Docker,
+and the publish mount fails with `Permission denied`. A path off the drive root
+sidesteps both.
 
 ```powershell
-mkdir "C:\Users\you\frameforge-library" -Force
-mkdir "C:\Users\you\frameforge-out" -Force
+mkdir C:\frameforge\library -Force
+mkdir C:\frameforge\out -Force
 docker run --rm `
-  -v "C:\Users\you\frameforge-library:/library:ro" `
-  -v "C:\Users\you\frameforge-out:/publish" `
+  -v "C:\frameforge\library:/library:ro" `
+  -v "C:\frameforge\out:/publish" `
   frameforge:2.6.0 bash -c "ls /library && touch /publish/.probe && echo MOUNTS OK"
 ```
 
-✅ **Pass**: prints `MOUNTS OK`, and `.probe` appears in `frameforge-out`. That
-proves the read-only library and the writable output root both resolve. Delete
-the probe file afterwards.
+✅ **Pass**: prints `MOUNTS OK`, and `.probe` appears in `C:\frameforge\out`.
+That proves the read-only library and the writable output root both resolve.
+Delete the probe file afterwards.
+
+❌ `touch: cannot touch '/publish/.probe': Permission denied` — the output
+folder is not writable through Docker's file share. This is a Windows host
+issue, not the container (it runs as root, and reads on the same mount
+succeeded). Confirm with a plain image — `docker run --rm -v
+"<your-out-folder>:/t" debian:bookworm-slim bash -c "touch /t/x && echo OK"` —
+which fails the same way. Fixes, in order: use a folder outside your user
+profile (`C:\frameforge\out`); or Windows Security → *Ransomware protection* →
+*Controlled folder access* → *Allow an app* → add Docker Desktop; or leave the
+publish target at its named-volume default and pull output with
+`get_session_resource`.
 
 Either way this proves the mounts before Claude Code is involved.
 
@@ -314,7 +330,7 @@ Enabling the plugin prompts for four values.
 |---|---|---|
 | Runtime image | `ghcr.io/pedroanisio/frameforge:2.6.0` | **`frameforge:2.6.0` if you built it in 4B** — the default is a registry copy you do not have |
 | Session volume | `frameforge-work` | leave it, unless isolating projects from each other |
-| Shared library | `frameforge-library` | **host-wide use: the folder from Step 5b Model B** (e.g. `C:\Users\you\frameforge-library`) |
+| Shared library | `frameforge-library` | **host-wide use: the folder from Step 5b Model B** (e.g. `C:\frameforge\library`) |
 | Publish target | `frameforge-publish` | leave it, or a Windows folder if you want output on disk |
 
 Two of these decide which usage model you get:
@@ -322,8 +338,8 @@ Two of these decide which usage model you get:
 - **Per-project (Model A).** Leave Shared library and Publish target at their
   defaults. Each project's own files are the input, reached at `/workspace`.
 - **Host-wide (Model B).** Point **Shared library** at your
-  `frameforge-library` folder and **Publish target** at your `frameforge-out`
-  folder. Your brand assets, logos and templates then appear at `/library` in
+  `C:\frameforge\library` folder and **Publish target** at your
+  `C:\frameforge\out` folder. Your brand assets, logos and templates then appear at `/library` in
   *every* project, and finished work lands in one place — no copying assets into
   each repository. This is the setup for driving FrameForge as a tool across
   many contexts rather than as one project's dependency.
@@ -331,7 +347,7 @@ Two of these decide which usage model you get:
 Either way, the current project is still mounted read-only at `/workspace`, so
 Model B is additive: you get the shared library *and* the project.
 
-A host path such as `C:\Users\you\frameforge-out` for the publish target makes
+A host path such as `C:\frameforge\out` for the publish target makes
 finished artifacts appear there directly; left as a named volume, output stays
 inside Docker and you retrieve it with the `get_session_resource` tool.
 
@@ -394,6 +410,7 @@ machine.
 | Claude Code hangs on the first FrameForge request | 8 | The image is still downloading. You skipped Step 4 — run it and wait. |
 | File-not-found on a path that exists | 9 | A Windows path was used instead of `/workspace/...` |
 | `input path is outside the allowed FRAMEFORGE_MCP_INPUT_ROOTS` | 9 | The file is outside every mounted root. Copy it into the project, or into the shared library if you use one. |
+| `Permission denied` writing to `/publish` | 5b | Output folder is OneDrive/Controlled-Folder-Access protected. Use a path outside your profile such as `C:\frameforge\out`. |
 | `/library` is empty in a host-wide setup | 7 | Shared library still points at the default named volume. Set it to your folder and restart Claude Code. |
 | Fonts fall back to a generic sans | — | That family is not in the image. List what is: `docker run --rm frameforge:2.6.0 fonts` |
 | Tool list shorter than documented | — | Stale image. Re-pull, restart Claude Code. |
