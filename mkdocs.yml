@@ -91,6 +91,7 @@ nav:
   - Examples cookbook: examples.md
   - Fixture gallery: fixtures.md
   - Claude Code plugin (Windows setup): plugin-windows-setup.md
+  - Claude Desktop / Cowork setup: desktop-cowork-setup.md
   - Design records:
       - Architecture: architecture.md
       - Output space: output-space.md
