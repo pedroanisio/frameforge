@@ -18,13 +18,13 @@ available, matching Makefile's FIXTURES_YAML contract.
 import argparse
 import glob
 import os
-import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path.insert(0, os.path.join(ROOT, "tooling"))
 
+import tracked_files  # noqa: E402
 import validate as V  # noqa: E402
 
 OUT = os.path.join(ROOT, "docs", "FIXTURE-STATUS.md")
@@ -41,19 +41,24 @@ def is_top_level_fixture(path):
 
 
 def fixture_files():
-    try:
-        proc = subprocess.run(
-            ["git", "-C", ROOT, "ls-files", *PATTERNS],
-            text=True,
-            capture_output=True,
-            check=False,
+    tracked = tracked_files.tracked_paths(ROOT, *PATTERNS)
+    if not tracked:
+        return sorted(f for p in PATTERNS for f in glob.glob(os.path.join(ROOT, p)) if is_top_level_fixture(f))
+    missing = [rel for rel in tracked if not os.path.isfile(os.path.join(ROOT, rel))]
+    if missing:
+        # A validator needs a real file, so a tracked-but-deleted fixture cannot be
+        # graded — say so loudly rather than truncating the table without a word.
+        print(
+            f"gen_status: WARNING — {len(missing)} tracked fixture(s) absent from the "
+            f"worktree, omitted from the table: {', '.join(sorted(missing))}",
+            file=sys.stderr,
         )
-    except OSError:
-        proc = None
-    if proc is not None and proc.returncode == 0 and proc.stdout.strip():
-        files = [os.path.join(ROOT, line.strip()) for line in proc.stdout.splitlines() if line.strip()]
-        return [path for path in files if is_top_level_fixture(path)]
-    return sorted(f for p in PATTERNS for f in glob.glob(os.path.join(ROOT, p)) if is_top_level_fixture(f))
+    return [
+        os.path.join(ROOT, rel)
+        for rel in tracked
+        if os.path.isfile(os.path.join(ROOT, rel))
+        and is_top_level_fixture(os.path.join(ROOT, rel))
+    ]
 
 
 def build():

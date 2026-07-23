@@ -24,11 +24,15 @@ import ast
 import datetime as _dt
 import os
 import re
-import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+
+import tracked_files  # noqa: E402
+
 OUT = os.path.join(ROOT, "docs", "examples.md")
 
 _LIST_RE = re.compile(r"^\| \[`([^`]+)`\]", re.M)
@@ -36,17 +40,20 @@ _LIST_RE = re.compile(r"^\| \[`([^`]+)`\]", re.M)
 
 def tracked_examples() -> list[str]:
     """Git-tracked ``static/examples/*.py`` paths (repo-relative, sorted)."""
-    out = subprocess.run(
-        ["git", "ls-files", "static/examples/*.py"], cwd=ROOT, capture_output=True, text=True
-    ).stdout
-    return sorted(p for p in out.split() if p)
+    return tracked_files.tracked_paths(ROOT, "static/examples/*.py")
 
 
 def summarize(path: str) -> str:
     """One-line intent: first non-empty module-docstring line, else the first
-    leading ``#`` comment line, else a stated absence."""
-    with open(os.path.join(ROOT, path), encoding="utf-8") as fh:
-        source = fh.read()
+    leading ``#`` comment line, else a stated absence.
+
+    Reads the indexed blob when the worktree copy is missing: this page is
+    generated against the index and gated against it, so an example deleted
+    locally keeps its row instead of crashing or silently vanishing.
+    """
+    source = tracked_files.read_tracked(ROOT, path)
+    if source is None:
+        return "(source unreadable)"
     try:
         doc = ast.get_docstring(ast.parse(source))
     except SyntaxError:

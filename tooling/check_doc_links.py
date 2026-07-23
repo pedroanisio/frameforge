@@ -13,19 +13,23 @@ against the on-disk tree. In ``make check`` this runs right after ``docs-check``
 from __future__ import annotations
 
 import re
-import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+TOOLING = Path(__file__).resolve().parent
+if str(TOOLING) not in sys.path:
+    sys.path.insert(0, str(TOOLING))
+
+import tracked_files  # noqa: E402
 # [text](target) and ![alt](src) — capture the target.
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 
 
 def tracked_md() -> list[Path]:
-    out = subprocess.run(
-        ["git", "ls-files", "*.md"], cwd=ROOT, capture_output=True, text=True
-    ).stdout
-    return [ROOT / p for p in out.split() if p]
+    """Tracked docs present in the worktree — a doc deleted locally has no links
+    to resolve, and must not crash the gate."""
+    return [ROOT / rel for rel in tracked_files.tracked_on_disk(ROOT, "*.md")]
 
 
 def link_targets(path: Path):

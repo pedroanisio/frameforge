@@ -17,10 +17,15 @@ the check.
 """
 from __future__ import annotations
 
-import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+TOOLING = Path(__file__).resolve().parent
+if str(TOOLING) not in sys.path:
+    sys.path.insert(0, str(TOOLING))
+
+import tracked_files  # noqa: E402
 
 EXEMPT = {
     "CHANGELOG.md",                     # release log (governance)
@@ -37,10 +42,9 @@ EXEMPT = {
 
 
 def tracked_md() -> list[str]:
-    out = subprocess.run(
-        ["git", "ls-files", "*.md"], cwd=ROOT, capture_output=True, text=True
-    ).stdout
-    return [p for p in out.split() if p]
+    """Tracked docs present in the worktree — a doc deleted locally carries no
+    frontmatter to check, and must not crash the gate."""
+    return tracked_files.tracked_on_disk(ROOT, "*.md")
 
 
 def has_disclaimer(path: Path) -> bool:

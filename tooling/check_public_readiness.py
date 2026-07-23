@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import re
-import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,6 +20,7 @@ if str(TOOLING) not in sys.path:
     sys.path.insert(0, str(TOOLING))
 
 import check_package_readiness  # noqa: E402
+import tracked_files  # noqa: E402
 
 BLOCKER = "blocker"
 
@@ -62,14 +62,7 @@ class Finding:
 
 
 def _git_ls_files() -> list[str]:
-    result = subprocess.run(
-        ["git", "ls-files"],
-        cwd=ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return [line for line in result.stdout.splitlines() if line]
+    return tracked_files.tracked_paths(ROOT)
 
 
 def _check_required_files() -> Finding:
@@ -113,7 +106,9 @@ def _check_secret_literals(files: list[str]) -> Finding:
         path = ROOT / rel
         try:
             text = path.read_text(encoding="utf-8")
-        except UnicodeDecodeError:
+        except (OSError, UnicodeDecodeError):
+            # An index entry can be absent from the worktree (unstaged deletion,
+            # sparse checkout) or unreadable (binary). Neither leaks a secret.
             continue
         for label, pattern in SECRET_PATTERNS.items():
             if pattern.search(text):
@@ -127,7 +122,15 @@ def _check_secret_literals(files: list[str]) -> Finding:
 
 
 def _check_issue_config_matches_enabled_features() -> Finding:
-    config = (ROOT / ".github/ISSUE_TEMPLATE/config.yml").read_text(encoding="utf-8")
+    name = ".github/ISSUE_TEMPLATE/config.yml"
+    try:
+        config = (ROOT / name).read_text(encoding="utf-8")
+    except OSError as exc:
+        return Finding(
+            "issue-template contact links match enabled repository features",
+            ok=False,
+            detail=f"cannot read {name}: {exc.strerror}",
+        )
     stale_links = []
     if "/discussions" in config:
         stale_links.append("GitHub Discussions link is present; enable Discussions first or remove the link")
@@ -139,12 +142,14 @@ def _check_issue_config_matches_enabled_features() -> Finding:
 
 
 def evaluate() -> list[Finding]:
-    files = _git_ls_files()
     return [
         _check_required_files(),
         _check_package_ready(),
-        _check_no_tracked_local_artifacts(files),
-        _check_secret_literals(files),
+        # Index membership: a forbidden tracked path is an offender even while
+        # its file is deleted locally.
+        _check_no_tracked_local_artifacts(tracked_files.tracked_paths(ROOT)),
+        # Readable content: nothing on disk means nothing to scan.
+        _check_secret_literals(tracked_files.tracked_on_disk(ROOT)),
         _check_issue_config_matches_enabled_features(),
     ]
 
