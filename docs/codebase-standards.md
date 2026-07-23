@@ -339,7 +339,7 @@ else is generated from or checked against them** ([README.md](../README.md), *Th
 
 ## 9. Versioning and backward compatibility
 
-The **bump procedure** — the four hand-edited version sites, the regeneration
+The **bump procedure** — the eight hand-edited version sites, the regeneration
 chain, and the gate that proves each invariant — is formalised in
 [RELEASE.md](../RELEASE.md) (run `make bump VERSION=X.Y.Z`; pre-flight with
 `make bump-check`).

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "frameforge",
+  "displayName": "FrameForge",
+  "version": "2.6.0",
+  "description": "Agent-native visual-authoring substrate. Author documents, decks, diagrams and books with a Python SDK, render them through a font-rich runtime, and verify the result against the rendered pixels.",
+  "author": {
+    "name": "Pedro Anisio Silva",
+    "email": "pedroanisio@gmail.com"
+  },
+  "homepage": "https://github.com/pedroanisio/frameforge",
+  "repository": "https://github.com/pedroanisio/frameforge",
+  "license": "MIT",
+  "keywords": [
+    "documents",
+    "typesetting",
+    "svg",
+    "pdf",
+    "latex",
+    "vector",
+    "design",
+    "rendering"
+  ],
+  "userConfig": {
+    "image": {
+      "type": "string",
+      "title": "Runtime image",
+      "description": "Docker image that hosts the FrameForge MCP server. The default is the full font-rich runtime (every render lane, thousands of font families) and is a multi-gigabyte first pull.",
+      "default": "ghcr.io/pedroanisio/frameforge:2.6.0",
+      "required": true
+    },
+    "work_volume": {
+      "type": "string",
+      "title": "Session volume",
+      "description": "Named Docker volume holding MCP sessions and SDK clients written by write_sdk_client. Persists across container runs.",
+      "default": "frameforge-work"
+    },
+    "publish_target": {
+      "type": "string",
+      "title": "Publish target",
+      "description": "Where finished output lands. The default is a Docker named volume, which works identically on Windows, macOS and Linux. Replace it with an absolute host path (for example C:\\Users\\you\\frameforge-out or /home/you/frameforge-out) to have artifacts appear in your own filesystem.",
+      "default": "frameforge-publish",
+      "required": true
+    }
+  }
+}

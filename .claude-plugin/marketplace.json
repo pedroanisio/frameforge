@@ -1,0 +1,34 @@
+{
+  "name": "frameforge",
+  "description": "The FrameForge agent-native visual-authoring substrate, packaged for Claude Code.",
+  "version": "2.6.0",
+  "owner": {
+    "name": "Pedro Anisio Silva",
+    "email": "pedroanisio@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "frameforge",
+      "displayName": "FrameForge",
+      "description": "Author documents, decks, diagrams and books with a Python SDK, render them through a font-rich containerised runtime, and verify the result against the rendered pixels.",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/pedroanisio/frameforge.git",
+        "path": "plugin"
+      },
+      "category": "documents",
+      "tags": [
+        "documents",
+        "typesetting",
+        "rendering",
+        "svg",
+        "pdf",
+        "latex",
+        "vector",
+        "design"
+      ],
+      "license": "MIT",
+      "homepage": "https://github.com/pedroanisio/frameforge"
+    }
+  ]
+}

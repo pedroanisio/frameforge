@@ -135,7 +135,9 @@ Backward compatibility is **delivered, not assumed** (§9): migrate, don't freez
 
 ## 7 · Known gaps (honest)
 
-- **Five hand-edited version sites.** Cross-checked by the gates (a divergence
+- **Eight hand-edited version sites.** Five in the package proper, three in the
+  Claude Code plugin surface (the plugin manifest, the runtime image tag it
+  launches, and the marketplace manifest). Cross-checked by the gates (a divergence
   can't ship) and moved together by `make bump` — but not DRY. A single generated
   source would remove the footgun entirely; it remains unbuilt — `make release`
   (§9 `[Enforced]`) wraps bump → regenerate → gate, but the version literals stay
@@ -160,7 +162,7 @@ Backward compatibility is **delivered, not assumed** (§9): migrate, don't freez
 ## Quick reference
 
 ```sh
-make bump VERSION=X.Y.Z    # 1. rewrite the 5 version sites + regenerate
+make bump VERSION=X.Y.Z    # 1. rewrite the 8 version sites + regenerate
 #                            2. edit CHANGELOG.md (+ migration if breaking)
 make check                 # 3. all gates green == every §1 invariant holds
 make docker-build          # 4. rebake the runtime version stamp

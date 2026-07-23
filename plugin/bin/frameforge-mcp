@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+#
+# FrameForge MCP launcher — spawns the canonical font-rich runtime in Docker
+# and speaks stdio JSON-RPC to the client that exec'd it.
+#
+# NOT the plugin's MCP entry point. `.mcp.json` names the docker CLI directly,
+# because native Windows cannot spawn a shebang script and a per-platform code
+# path is worse than no script at all. This stays for POSIX hosts that want the
+# preflight checks and the friendlier errors — it lands on the Bash tool's PATH,
+# so `frameforge-mcp` is runnable by hand while the plugin is enabled.
+#
+# STDOUT IS THE PROTOCOL. Every diagnostic in this script goes to stderr; a
+# single stray line on stdout corrupts the MCP stream and the server appears
+# to fail handshake for no visible reason.
+#
+# Configuration arrives as environment variables, set from the plugin's
+# userConfig by .mcp.json. Defaults here keep the script runnable standalone.
+set -euo pipefail
+
+IMAGE="${FRAMEFORGE_IMAGE:-ghcr.io/pedroanisio/frameforge:2.6.0}"
+WORK_VOLUME="${FRAMEFORGE_WORK_VOLUME:-frameforge-work}"
+PROJECT_DIR="${FRAMEFORGE_PROJECT_DIR:-$PWD}"
+PUBLISH_DIR="${FRAMEFORGE_PUBLISH_DIR:-}"
+
+note() { printf 'frameforge-mcp: %s\n' "$*" >&2; }
+die() { note "$*"; exit 1; }
+
+command -v docker >/dev/null 2>&1 ||
+  die "docker not found on PATH. The FrameForge runtime ships as a container image; install Docker and restart the client."
+
+docker info >/dev/null 2>&1 ||
+  die "the docker daemon is not reachable. Start Docker (or fix DOCKER_HOST) and restart the client."
+
+[ -d "$PROJECT_DIR" ] ||
+  die "project directory does not exist: ${PROJECT_DIR}"
+
+if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
+  note "image ${IMAGE} is not present locally — pulling. The full runtime carries the google/fonts corpus, a TeX Live install and headless Chromium, so the first pull is several gigabytes and the server will not answer until it finishes."
+  docker pull "$IMAGE" >&2 ||
+    die "could not pull ${IMAGE}. Check network access and that the tag exists, or point the plugin's 'Runtime image' setting at an image you have built locally (make docker-build)."
+fi
+
+# FRAMEFORGE_MCP_INPUT_ROOTS confines every path-reading tool to the mounted
+# roots, so a prompt cannot steer the server into reading arbitrary container
+# paths. Each mount added below must also be added to the root list.
+roots="/workspace:/work:/app"
+mounts=(-v "${WORK_VOLUME}:/work" -v "${PROJECT_DIR}:/workspace:ro")
+publish_env=()
+
+if [ -n "$PUBLISH_DIR" ]; then
+  mkdir -p "$PUBLISH_DIR" ||
+    die "cannot create the configured publish directory: ${PUBLISH_DIR}"
+  mounts+=(-v "${PUBLISH_DIR}:/publish")
+  roots="${roots}:/publish"
+  publish_env=(-e "FRAMEFORGE_MCP_PUBLISH_ROOT=/publish")
+fi
+
+exec docker run --rm -i \
+  "${mounts[@]}" \
+  -e "FRAMEFORGE_MCP_INPUT_ROOTS=${roots}" \
+  ${publish_env[@]+"${publish_env[@]}"} \
+  "$IMAGE"

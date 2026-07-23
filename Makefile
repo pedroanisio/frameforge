@@ -13,7 +13,7 @@ DOCS_HOST ?= 127.0.0.1
 DOCS_PORT ?= 8001
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check public-check symbol-check docker-build docker-mcp docker-shell docker-fonts
+.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check public-check symbol-check plugin-sync plugin-check docker-build docker-mcp docker-shell docker-fonts
 
 DOCKER ?= docker
 IMAGE ?= frameforge
@@ -104,6 +104,16 @@ package-check:  ## assert package-emit readiness (advisory; NOT in `make check` 
 public-check:  ## assert public/open-source readiness guardrails
 	$(UV) run python tooling/check_public_readiness.py
 
+
+plugin-sync:  ## mirror the canonical skills into plugin/ (a sparse install cannot follow symlinks out)
+	rm -rf plugin/skills/typeface-and-colour
+	cp -r skills/typeface-and-colour plugin/skills/typeface-and-colour
+	cp LICENSE plugin/LICENSE
+
+plugin-check:  ## GATE the Claude Code plugin + marketplace manifests
+	claude plugin validate ./plugin --strict
+	claude plugin validate . --strict
+	$(UV) run pytest tests/test_plugin_contract.py -q
 
 corpus-ui:  ## render the CC0 UI mockups to high-def PNG (needs playwright+chromium)
 	node viewer/dev/render-ui-corpus.cjs

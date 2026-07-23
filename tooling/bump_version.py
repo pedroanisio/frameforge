@@ -40,7 +40,8 @@ _SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 # Prose/comments that hardcode the version but are NOT gated (RELEASE.md §7). We
 # don't rewrite them — prose is context-sensitive — but we list them so a bump
 # doesn't silently leave a stale "v2.3.0" in a demo or a doc.
-COSMETIC_GLOBS = ("static/examples/*.py", "skills/**/*.md", "skills/**/*.py")
+COSMETIC_GLOBS = ("static/examples/*.py", "skills/**/*.md", "skills/**/*.py",
+                  "plugin/skills/**/*.md")
 
 # (label, path, regex with a `(pre)(version)(post)` shape). The version group (2)
 # is the only thing rewritten, so surrounding text/comments are preserved.
@@ -55,6 +56,17 @@ SITES = [
      re.compile(r'(\*\*FrameForge v2\*\* \(`)(\d+\.\d+\.\d+)(`\))')),
     ("package __version__", "src/frameforge/__init__.py",
      re.compile(r'^(__version__ = ")(\d+\.\d+\.\d+)(")', re.M)),
+    # Claude Code plugin. The manifest version is what pins an installed plugin:
+    # Claude Code only re-fetches when this string changes, so a missed bump
+    # strands every installed user on the previous release.
+    ("plugin manifest", "plugin/.claude-plugin/plugin.json",
+     re.compile(r'^(  "version": ")(\d+\.\d+\.\d+)(")', re.M)),
+    # The runtime image tag the plugin launches. Must move with the release or
+    # the plugin serves a stale toolchain against a current manifest.
+    ("plugin runtime image", "plugin/.claude-plugin/plugin.json",
+     re.compile(r'(ghcr\.io/pedroanisio/frameforge:)(\d+\.\d+\.\d+)(")')),
+    ("marketplace manifest", ".claude-plugin/marketplace.json",
+     re.compile(r'^(  "version": ")(\d+\.\d+\.\d+)(")', re.M)),
 ]
 
 

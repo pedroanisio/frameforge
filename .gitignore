@@ -4,6 +4,10 @@ __pycache__/
 .codex/config.toml
 .coverage
 .mcp.json
+# ...but the plugin's server declaration is shipped source, not local config.
+# Without this the plugin publishes with no MCP server at all, and nothing in a
+# working tree notices, because the file is right there on disk.
+!plugin/.mcp.json
 .pytest_cache/
 .repo/
 .ruff_cache/
