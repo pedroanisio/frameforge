@@ -84,10 +84,12 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 
 | Script | Invocation / notes |
 |---|---|
-| `validate.py` | `validate.py doc.fg.yaml [...] [--strict] [--text-fit] [--quiet]` — exit 0 no errors, 1 errors, 2 load failure. Codes: [docs/error-codes.md](docs/error-codes.md) |
+| `validate.py` | `validate.py doc.fg.yaml [...] [--strict] [--text-fit] [--check-collision] [--real-metrics] [--quiet]` — exit 0 no errors, 1 errors, 2 load failure. `--check-collision` WARNs on same-layer ink overlaps not declared `overlap: allowed` (advisory; `--real-metrics` for a reproducible verdict). Codes: [docs/error-codes.md](docs/error-codes.md) |
 | `codemod.py` | `codemod.py doc.fg.json --in-place [--normalize-aliases] [--bump] [--from-v01]` — migrate legacy docs to HEAD; `--from-v01` lifts the v0.1 envelope (scene- and deck/slides-form) first ([docs/migration-v01.md](docs/migration-v01.md)) |
 | `frameforge_render.py` | `frameforge_render.py doc.fg.yaml [--to svg|png|pdf|pdf-tex|tex|html|audit] [--out DIR]` — the render **front door** for uninstalled checkouts: self-bootstrapping (no PYTHONPATH), delegates to `frameforge.cli` (installed trees can call `ff-render` directly) (`--list` shows live targets). `--to audit` emits a drift-proof design-token + feature census (JSON + Markdown; `rendering/application/audit.py`, [ADR-0006](docs/adr-0006-no-injected-style.md)) |
 | `render_fixtures.py` | `[paths|--all] [--out DIR] [--max-pages N] [--check-overflow] [--strict-content] [--real-metrics] [--list]` — dependency-free SVG proxy; `--check-overflow` names every content-losing text object, `--strict-content` fails on silent loss |
+| `render_golden.py` | `[--update] [--strict]` — pins the b1 oracle: SVG per-page hashes (`oracle.lock.json` + `refs/`) AND HTML per-fixture hashes (`oracle.html.lock.json`, GH #85). `--update` re-pins both; the check fails on any drift in either backend. |
+| `cross_backend_fidelity.py` | `[--update]` — SVG↔HTML raster NCC floor per oracle fixture (`tests/golden/cross-backend-fidelity.json`, GH #86). Guards only fixtures the backends render alike; flow-degraded fixtures are explicitly excluded with their score. Dep-gated (cairosvg + browser + numpy/PIL): skip-not-fail when absent. |
 | `render_chromium.py` | SVG→PNG raster via Playwright Chromium (`--group browser`); `--font-pack P.fp` scopes fontconfig to an fg-font pack (real metrics forced) so measure == render host-independently (ADR-0004) |
 | `render_pdf.py` | `[paths|--all|--single FILE] [--out DIR] [--real-metrics]` — SVG pages → one vector PDF (`--group pdfout`) |
 | `render_latex.py` | `--all` — FrameForge → LaTeX/TikZ (+ PDF when lualatex exists) |

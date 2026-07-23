@@ -48,6 +48,7 @@ from frameforge.sdk.clip import (
 from frameforge.sdk.conform import (
     OverflowSignal,
     assert_golden,
+    collision_report,
     overflow_report,
     page_hashes,
     render_page_svgs,
@@ -395,6 +396,7 @@ __all__ = [
     "obb",
     "object_bbox",
     "offset_path",
+    "collision_report",
     "overflow_report",
     "page_hashes",
     "paragraph",

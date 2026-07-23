@@ -433,6 +433,25 @@ _VALIGN_TO_ITEMS = {"top": "flex-start", "middle": "center", "center": "center",
                     "bottom": "flex-end", "baseline": "baseline"}
 
 
+def _flatten_inline_text(content: Any) -> str:
+    """The plain text of an ``Inline`` list (``LinkInline.content`` and friends).
+
+    Mirrors ``Renderer._flatten_span_text``: an inline is a bare string, a
+    ``Span``/text-bearing dict, or a nested inline list.
+    """
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, dict):
+        if content.get("text") is not None:
+            return str(content["text"])
+        return _flatten_inline_text(content.get("content"))
+    if isinstance(content, (list, tuple)):
+        return "".join(_flatten_inline_text(c) for c in content)
+    return str(content)
+
+
 def text_style_css(style: dict, tokens: Tokens) -> dict[str, str]:
     """Translate a FrameForge text style (or inline Style) to CSS declarations."""
     css: dict[str, str] = {}
@@ -514,6 +533,21 @@ body{margin:0;background:#15161a;color:#e8eaed;
 .fg-obj{position:absolute;box-sizing:border-box;}
 .fg-text{display:flex;}
 .fg-text>span{display:block;width:100%;text-align:var(--fg-text-align,left);}
+/* Links inherit the authored colour — the document decides how a link looks,
+   not the user agent; hover supplies the affordance. An `.fg-link` wrapping an
+   object stays `position:static`, so the absolutely-positioned child still
+   resolves against the page box and the geometry is unchanged.
+   Selector shape matters: a rule whose RIGHTMOST compound carries a class must
+   not also carry a type, a pseudo-class or a combinator, or it out-specifies a
+   pooled class and `fg_css_optimize.risky_properties` has to keep those
+   declarations inline (tests/test_fg_css_optimize.py). Hence `.fg-link` (bare
+   class) and `a:hover` (bare type), never `a.fg-link:hover`. */
+.fg-link{color:inherit;text-decoration:none;}
+a:hover,a:focus-visible{text-decoration:underline;}
+.fg-pagelinks{max-width:480px;font-size:13px;line-height:1.6;}
+.fg-pagelinks ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;
+  gap:6px 18px;justify-content:center;}
+.fg-pagelinks a{color:#9aa0a6;text-decoration:underline;}
 .fg-icon{display:flex;align-items:center;justify-content:center;
   line-height:1;text-align:center;}
 .fg-image-placeholder{display:flex;align-items:center;justify-content:center;
@@ -919,9 +953,16 @@ class Renderer:
         """Render one object. (ox, oy) is the origin of the positioning context."""
         t = obj.get("type")
         method = getattr(self, f"_render_{t}", None)
-        if method is None:
-            return self._render_unknown(obj, ox, oy)
-        return method(obj, ox, oy)
+        markup = (self._render_unknown(obj, ox, oy) if method is None
+                  else method(obj, ox, oy))
+        # An object-level `href` wraps its markup in a real anchor — parity with
+        # the SVG painter, which has always done this (tests/test_link_render.py).
+        # Without it an exported page had zero clickable elements (GH P1-3).
+        href = obj.get("href")
+        if href:
+            markup = (f'<a class="fg-link" '
+                      f'href="{html.escape(str(href), quote=True)}">{markup}</a>')
+        return markup
 
     def _render_rect(self, obj, ox, oy):
         x, y, w, h = _box(obj)
@@ -949,14 +990,55 @@ class Renderer:
             css.update(text_style_css(style, self.tokens))
         text = obj.get("text")
         if text is None and obj.get("spans"):
-            text = "".join(
-                s.get("text", "") if isinstance(s, dict) else str(s)
-                for s in obj["spans"]
-            )
-        body = html.escape(text or "")
+            # Emit ONE run per authored span, each carrying its own declarations.
+            # Flattening spans to a plain string silently dropped every per-span
+            # style — the brand wordmark and `fan()` labels are authored as
+            # coloured runs, so they inherited the document body colour and
+            # vanished on a light ground, while SVG rendered them correctly.
+            #
+            # The runs nest inside a single wrapper <span>, because the sheet's
+            # `.fg-text>span` rule makes a *direct* child a block: sibling runs
+            # would stack vertically instead of flowing on one line.
+            body = "".join(self._render_span(s) for s in obj["spans"])
+        else:
+            body = html.escape(text or "")
         attrs = self._common(obj, ox + x, oy + y, w, h,
                              extra_classes=classes, extra_css=css)
         return f"<div {attrs}><span>{body}</span></div>"
+
+    def _render_span(self, span: Any) -> str:
+        """One inline run: its text, plus whatever style that run declared.
+
+        A ``{"kind": "link"}`` run (``LinkInline``) becomes a real ``<a href>``
+        around its flattened content — the SVG painter has always done this, so
+        without it the same document exported to HTML had inert text where the
+        author wrote a link (GH P1-3). A link with no ``href`` degrades to plain
+        text rather than emitting an anchor with nothing to point at.
+        """
+        if not isinstance(span, dict):
+            return html.escape(str(span))
+        if span.get("kind") == "link":
+            inner = html.escape(_flatten_inline_text(span.get("content")))
+            href = span.get("href")
+            if not href:
+                return inner
+            title = span.get("title")
+            attrs = f' title="{html.escape(str(title), quote=True)}"' if title else ""
+            return (f'<a class="fg-link" href="{html.escape(str(href), quote=True)}"'
+                    f"{attrs}>{inner}</a>")
+        run = html.escape(str(span.get("text", "")))
+        style = span.get("style")
+        if not isinstance(style, dict):
+            return run
+        css = text_style_css(style, self.tokens)
+        # `text-align` is a block property; a nested inline run cannot honour it
+        # and the wrapper already carries the object's alignment.
+        css.pop("--fg-text-align", None)
+        css.pop("text-align", None)
+        if not css:
+            return run
+        decl = "".join(f"{k}:{v};" for k, v in css.items())
+        return f'<span style="{html.escape(decl, quote=True)}">{run}</span>'
 
     def _render_icon(self, obj, ox, oy):
         x, y, w, h = _box(obj)
@@ -1185,6 +1267,49 @@ def canvas_size(page: dict, default=_HTML_DEFAULT_WH) -> tuple[float, float]:
     return _PAGE_CANVAS.resolve(page)
 
 
+def page_link_href(link: dict) -> str:
+    """The href for one ``PageLink``: an external URL, or a same-document anchor.
+
+    Internal targets point at the page box's own ``id`` (``page-<id>``) rather
+    than a second, parallel anchor scheme — one id per page, so the link always
+    has something real to jump to.
+    """
+    to = str(link.get("to", ""))
+    if link.get("external") or re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:|^//|^#", to):
+        return to
+    return f"#page-{_css_ident(to)}"
+
+
+def render_page_links(page: dict) -> str:
+    """``Page.links`` as a real navigation landmark.
+
+    ``PageLink`` has been in the model since 2.0 but no backend rendered it, so
+    authored navigation vanished on export (GH P1-3). It is emitted OUTSIDE the
+    fixed-size canvas box: the page is an absolutely-positioned coordinate
+    space, and injecting flow content into it would overlay the artwork.
+    """
+    links = page.get("links") or []
+    if not links:
+        return ""
+    items = []
+    for link in links:
+        if not isinstance(link, dict) or not link.get("to"):
+            continue
+        href = page_link_href(link)
+        label = html.escape(str(link.get("label") or link.get("to")))
+        rel = link.get("relation")
+        rel_attr = f' rel="{html.escape(str(rel), quote=True)}"' if rel else ""
+        ext = ' target="_blank"' if link.get("external") else ""
+        items.append(
+            f'<li><a class="fg-link" href="{html.escape(href, quote=True)}"'
+            f"{rel_attr}{ext}>{label}</a></li>"
+        )
+    if not items:
+        return ""
+    return ('<nav class="fg-pagelinks" aria-label="Page links">\n'
+            f"<ul>{''.join(items)}</ul>\n</nav>")
+
+
 def render_page(page: dict, tokens: Tokens, index: int) -> str:
     renderer = Renderer(tokens, page_index=index)
     w, h = canvas_size(page)
@@ -1260,6 +1385,9 @@ def render_document(doc: dict) -> str:
                     f"<code>{page_id_html}</code></span>")
             meta = f'<span class="fg-figmeta">{w:g}&times;{h:g}px</span>'
         figcaption = f'<figcaption class="fg-figcaption">{head}{meta}</figcaption>'
+        nav = render_page_links(page)
+        if nav:
+            page_html = f"{page_html}\n{nav}"
         # <figure>/<figcaption> associate the caption with the artifact, and
         # aria-labelledby gives the figure its accessible name.
         blocks.append(

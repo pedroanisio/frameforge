@@ -45,6 +45,31 @@ RESERVED_STYLES = {
 }
 
 
+# The CSS-inherited text properties an inline run takes from its parent when it
+# does not declare them (`resolve(ref, base=...)`).
+#
+# DELIBERATELY EXCLUDED — metric-affecting properties. The text fitter measures a
+# line ONCE, from the object's base style, with a per-character `avg` estimate
+# that models none of these. A run is already inside its parent `<text>`/`<div>`,
+# so it INHERITS them through CSS anyway; re-emitting them per run adds nothing
+# visually but would let a future divergence widen a run past the width that was
+# measured for it. Keep them out: letter_spacing, word_spacing, font_stretch,
+# font_variant*, font_feature_settings, font_variation_settings, text_transform,
+# tab_size, hyphens, hanging_punctuation, hyphenate_*.
+#
+# Also excluded: box/fit properties (overflow, min_font_size, text_overflow,
+# max_lines, valign, nowrap, css) — they belong to the box, not to a run inside
+# it — and `text_decoration`, which CSS does not inherit.
+#
+# `family`, `size`, `weight`, `italic`, `color`, `align` and `lh` inherit through
+# the per-key default `d` inside `resolve`, so they are not repeated here.
+INHERITED_TEXT_PROPERTIES = (
+    "white_space", "word_break", "overflow_wrap",
+    "text_align_last", "text_indent", "writing_mode", "direction",
+    "unicode_bidi", "text_shadow",
+)
+
+
 class TextStyleResolver:
     def __init__(self, text_styles, styles, color_resolver):
         self.text_styles = text_styles or {}
@@ -59,7 +84,20 @@ class TextStyleResolver:
             body = self.resolve("body")
             self._default = {k: body[k] for k in _SANCTIONED}
 
-    def resolve(self, ref):
+    def resolve(self, ref, base=None):
+        """Resolve a style ref; with `base`, inherit what the ref does not declare.
+
+        `base` is an already-resolved style dict standing in as the per-key
+        default — the CSS inheritance model, used for the inline runs of a
+        `text.spans` list. Without it, resolution falls back to the document's
+        `body` style exactly as before, so every existing call is unchanged.
+
+        A run that declares only `{"color": ...}` must keep its parent object's
+        family, size and weight: resolving such a run against the DOCUMENT
+        default instead re-materialised `font-family` from `tokens.styles.body`,
+        so per-run syntax colours inside a monospaced block silently redrew every
+        coloured run in the UI sans face (GH P1-1).
+        """
         st = {}
         if isinstance(ref, str):
             st = self.text_styles.get(ref) or self.styles.get(ref) or {}
@@ -70,28 +108,32 @@ class TextStyleResolver:
         for name in ([cls] if isinstance(cls, str) else (cls or [])):
             merged.update(self.text_styles.get(name) or self.styles.get(name) or {})
         merged.update(st)
+        # Per-key defaults: the inherited base when there is one, else the
+        # document's `body` style (the pre-existing behaviour).
+        d = base if base is not None else self._default
         fam = merged.get("font_family") or merged.get("font")
         if fam is None:
-            family = self._default["family"]
-            family_primary = self._default["family_primary"]
+            family = d["family"]
+            family_primary = d["family_primary"]
         else:
             # Preserve the WHOLE fallback stack so the SVG stays portable when the
             # primary face isn't installed in the viewer (else a bare "font-family:Inter"
             # falls back to the UA default serif). Role strings ("sans"/"serif"/"mono")
             # already map to a terminating generic, so single-role styles are unchanged.
             fam_list = [str(x) for x in (fam if isinstance(fam, list) else [fam]) if x]
-            families = [FONT_MAP.get(x, x) for x in fam_list] or [self._default["family"]]
+            families = [FONT_MAP.get(x, x) for x in fam_list] or [d["family"]]
             if families[-1] not in ("sans-serif", "serif", "monospace"):
                 families.append("sans-serif")
             family = ", ".join(families)
             family_primary = families[0]
-        size = (num(merged.get("font_size") or merged.get("size"), self._default["size"])
-                or self._default["size"])
+        size = (num(merged.get("font_size") or merged.get("size"), d["size"])
+                or d["size"])
         weight = merged.get("font_weight") or merged.get("weight")
         if weight is None and merged.get("bold"):
             weight = 700
         if weight is None:
-            weight = "normal"
+            # Inherited when a base is in play; "normal" is the document default.
+            weight = d.get("weight", "normal")
         bold = str(weight) in ("bold", "600", "700", "800", "900") or (isinstance(weight, int) and weight >= 600)
         # line-height: a ratio (<=4) or an absolute length ("68px") → ratio
         lhv = merged.get("line_height")
@@ -101,18 +143,22 @@ class TextStyleResolver:
         elif isinstance(lhv, (int, float)) and not isinstance(lhv, bool):
             lh = lhv if lhv <= 4 else lhv / size
         else:
-            lh = self._default["lh"]
+            lh = d["lh"]
         # per-char advance estimate (no real shaping available) — used for fit + the check
         avg = 0.60 if "mono" in family else 0.52
         if bold:
             avg *= 1.04
         tw = merged.get("text_wrap")
-        return {
+        if "italic" in merged or "font_style" in merged:
+            italic = bool(merged.get("italic")) or merged.get("font_style") == "italic"
+        else:
+            italic = bool(d.get("italic", False))
+        out = {
             "family": family, "family_primary": family_primary,
             "size": size, "weight": weight, "bold": bold,
-            "italic": bool(merged.get("italic")) or merged.get("font_style") == "italic",
-            "color": self._color.resolve(merged.get("color")) or self._default["color"],
-            "align": merged.get("text_align") or merged.get("align") or self._default["align"],
+            "italic": italic,
+            "color": self._color.resolve(merged.get("color")) or d["color"],
+            "align": merged.get("text_align") or merged.get("align") or d["align"],
             "lh": lh, "avg": avg,
             # ---- directly renderable CSS text surface ----
             "letter_spacing": self._css_length(merged.get("letter_spacing")),
@@ -150,6 +196,11 @@ class TextStyleResolver:
             "valign": merged.get("vertical_align") or merged.get("v_align"),
             "nowrap": merged.get("white_space") == "nowrap" or tw == "nowrap" or merged.get("wrap") is False,
         }
+        if base is not None:
+            for key in INHERITED_TEXT_PROPERTIES:
+                if key not in merged and out.get(key) is None:
+                    out[key] = base.get(key)
+        return out
 
     @staticmethod
     def _css_length(v):

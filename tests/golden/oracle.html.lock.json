@@ -1,0 +1,11 @@
+{
+  "tests/fixtures/b1/amazon-proxy-2026.fg.json": "70e710c9a394bd823439c71b42db9509be7e3605ffd415d49ec8d95c702d88a8",
+  "tests/fixtures/b1/chroma-styling-showcase.fg.json": "aefbe216ee78228fd0fb1bd464265a9d4ce06b518fbe47cda57a729a81013bc1",
+  "tests/fixtures/b1/docusign-deck-v2.fg.json": "74dd7f924c8530b0161f01ac101e24c10bb4579bef69aa10d7e05e377d15e9d4",
+  "tests/fixtures/b1/ieee-reference-guide.fg.json": "d26b72a973921dad5bb405891f3200053a5cfb6b7aab2eedc6a5d9d3938df16f",
+  "tests/fixtures/b1/mckinsey-7s.fg.json": "f4dd7d7f321bccb4eb2a5f3bcbc4ee85ae64d5d2d30c98a9b10798a3230ae6a5",
+  "tests/fixtures/b1/neutron-stars.fg.json": "947df491eff5eb205a73322e80e8652834b012ceaed7bafd5d1073933e0422bd",
+  "tests/fixtures/b1/spans-and-links.fg.json": "c31b52f91ccb7357ee3d6fef13e6541b9443f9f97d19ddc19222e497101669a6",
+  "tests/fixtures/b1/spectral-methods.fg.json": "a7beec80c347de8e04136d26e1bfe207e8e77396f9210a6758cdf2b9ec1a42a1",
+  "tests/fixtures/b1/wireframing-guide.fg.json": "f9cf0c74272a6abe2ea76f2ac11d6364576d7ffcdadec5fd4ee11ebb12bddeab"
+}

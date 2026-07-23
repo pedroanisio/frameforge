@@ -9,6 +9,47 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## 2.6.0 — feat: consent-based collision gate + cross-backend text fidelity (2026-07-23)
+
+MINOR, additive (no breaking change; no codemod — every prior document validates
+unchanged; the new field defaults to absent). Two coupled fidelity fixes, each
+landed test-first, plus the settled `collision-gate/2026-07` decision (P0 + O1):
+
+- **`overlap: "allowed"`** — a new `ObjBase` consent field (§3.3). It declares
+  that an object may share ink with a same-layer sibling *on purpose* (a
+  watermark, a caption over an image, double-exposure type). Absence = no
+  consent. Read only by the audit; it never changes how the object draws. Schema
+  + grammar regenerated in lockstep.
+- **Render-time collision detector (O1)** — the `Renderer` reports same-layer
+  text-on-text **ink** overlaps lacking unanimous `overlap: allowed` to
+  `diagnostics["collisions"]`, each tagged with the metrics mode. Ink-based and
+  render-time by necessity: a static box check floods (617–1090 false positives
+  on the corpus). Surfaces: `sdk.collision_report()`, MCP `diagnostics.collisions`
+  + `render_warning`, and the opt-in `validate.py --check-collision`
+  (`collision` finding code). Advisory, **not** in `make check`.
+- **Inline-run style inheritance** — a `text.spans` run now inherits its parent
+  object's family/size/weight/colour/italic for anything it does not declare
+  (was: re-materialised from the document default, so a coloured run inside a
+  monospaced block drew in the UI sans). Metric-affecting properties are
+  deliberately not re-emitted per run (they inherit through CSS; re-emitting them
+  drifts drawn width from measured width). Fixes the SVG span path and, in the
+  HTML backend, per-run styles and authored links that were being dropped
+  entirely (the brand wordmark and `fan()` labels rendered invisible).
+- Golden re-pinned after pixel review: `amazon-proxy-2026` p10,
+  `ieee-reference-guide` p5/p6 — a bold run inside a grey italic note now inherits
+  the paragraph's colour and italic instead of resetting to the default ink.
+- **Per-backend oracle lock (GH #85)** — `render_golden.py` now pins the HTML
+  render of every oracle fixture (`oracle.html.lock.json`) alongside the SVG
+  hashes, so an HTML regression fails the same gate. A new oracle fixture,
+  `b1/spans-and-links.fg.json`, exercises coloured spans + inline/page links so
+  the lock actually guards the surfaces above (it would have caught the invisible
+  wordmark in the same run that produced it).
+- **Cross-backend fidelity floor (GH #86)** — `cross_backend_fidelity.py` pins a
+  SVG↔HTML raster-NCC floor per oracle fixture. It guards only the fixtures the
+  two backends render alike (0.76–0.93); flow-heavy fixtures, where the HTML
+  backend degrades to placeholders by design, are excluded explicitly with their
+  measured score. Dep-gated (skip-not-fail without a browser).
+
 ## 2.6.0 — feat: the reconstruction surface — user-space paint, primitive fitting, and the refine stack (2026-07-22)
 
 MINOR, additive (no breaking change; no codemod needed — every prior document

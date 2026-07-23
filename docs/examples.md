@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 138 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 139 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -62,6 +62,7 @@ The 138 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`fg_css_optimize.py`](../static/examples/fg_css_optimize.py) | fg_css_optimize.py |
 | [`fields_lattices_manifolds.py`](../static/examples/fields_lattices_manifolds.py) | Demo of the SDK field / wave / lattice / manifold helpers. |
 | [`food_tracking_ai_app.py`](../static/examples/food_tracking_ai_app.py) | High-fidelity vector recreation of the Dribbble shot |
+| [`frameforge_landing.py`](../static/examples/frameforge_landing.py) | FrameForge — the proposed landing page for the FrameForge service itself. |
 | [`frameforge_logo.py`](../static/examples/frameforge_logo.py) | FrameForge — the logo, as a standalone, reusable FrameForge document. |
 | [`frameforge_seed_deck.py`](../static/examples/frameforge_seed_deck.py) | FrameForge — Seed Pitch, authored *in* FrameForge (the canonical seed). |
 | [`geometry_topology_deck.py`](../static/examples/geometry_topology_deck.py) | GEOMETRY & TOPOLOGY — a reusable presentation *template* (FrameForge SDK). |

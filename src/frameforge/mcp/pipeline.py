@@ -211,6 +211,20 @@ def _validate_and_render_yaml(
             note = (f"{len(unack)} unacknowledged layout overflow signal(s): "
                     f"{named}{more}; see diagnostics.overflow")
             render_warning = f"{render_warning}; {note}" if render_warning else note
+        # Same-layer ink collisions (diagnostics.collisions): unintended
+        # text-on-text overlap not declared `overlap: allowed`
+        # (collision-gate/2026-07). Advisory — the verdict names the metrics mode,
+        # since an estimate-mode overlap is unverified (PALS's Law).
+        collisions = (render_diagnostics or {}).get("collisions") or []
+        if collisions:
+            mode = collisions[0].get("metrics", "estimate")
+            named = ", ".join(" × ".join(str(i or "<anonymous>") for i in c.get("ids", []))
+                              for c in collisions[:3])
+            more = f" and {len(collisions) - 3} more" if len(collisions) > 3 else ""
+            note = (f"{len(collisions)} same-layer ink collision(s) [{mode}]: {named}{more}; "
+                    "declare `overlap: allowed` on both parties if intentional, else "
+                    "separate them; see diagnostics.collisions")
+            render_warning = f"{render_warning}; {note}" if render_warning else note
 
     result = {
         "ok": report.ok and bool(renders),

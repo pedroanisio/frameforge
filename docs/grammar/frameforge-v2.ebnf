@@ -393,6 +393,7 @@ common-object-fields =                                          (* +P2: grid_spa
       [ "ports"      , ":" , Ports ] ,
       [ "bind"       , ":" , string ] ,
       [ "decorative" , ":" , boolean ] ,
+      [ "overlap"    , ":" , "allowed" ] ,  (* consent for intentional same-layer overlap (§3.3); absence ⇒ the collision detector treats an overlap as an accident *)
       [ "construction" , ":" , boolean ] ,  (* non-printing datum geometry; renders only under meta.show_construction *)
       [ "z"          , ":" , number ] ,
       [ "opacity"        , ":" , unit-interval ] ,

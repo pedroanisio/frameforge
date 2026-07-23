@@ -114,7 +114,16 @@ class Renderer:
         self.layout_report = bool(layout_report)
         self.diagnostics = {"warnings": [], "skipped_objects": [],
                             "skipped_flowables": {}, "font_fallbacks": [],
-                            "layout": [], "truncations": [], "overflow": []}
+                            "layout": [], "truncations": [], "overflow": [],
+                            # Same-layer ink overlaps not declared `overlap:
+                            # allowed` (collision-gate/2026-07, O1). Populated
+                            # per layer by _detect_collisions from the ink
+                            # rectangles render_text stashes.
+                            "collisions": []}
+        # The ink rectangle (drawn extent) of the most recent render_text call,
+        # (x0, y0, x1, y1) or None. Read by the top-level object walk so only
+        # absolute layer text — not table/flow cells — feeds the detector.
+        self._last_text_ink = None
         # headings placed by the LAST flow page render: {level, text, id, page}
         # (page is 1-based within that flow). Read by the PDF outline builder.
         self.flow_headings = []
@@ -236,8 +245,19 @@ class Renderer:
         return Markers(color=spec["color"], start=spec["start"], end=spec["end"])
 
     # ---- text style resolution -------------------------------------------- #
-    def text_style(self, ref):
-        return self._text_style.resolve(ref)
+    def text_style(self, ref, base=None):
+        """Resolve a style ref; `base` supplies the per-key defaults it omits."""
+        return self._text_style.resolve(ref, base)
+
+    def _run_style(self, ref, base_st):
+        """The resolved style of ONE inline run of a `text.spans` list.
+
+        A run inherits its parent object's style for everything it does not
+        declare (GH P1-1). Resolving the run in isolation instead re-materialised
+        the document default family over the object's own — so a monospaced block
+        with per-run syntax colours drew every coloured run in the UI sans face.
+        """
+        return self._text_style.resolve(ref, base_st) if ref else base_st
 
     def table_text_override(self, value):
         """The ONE rule for a table's `header_text`/`cell_text` style keys.
@@ -322,13 +342,13 @@ class Renderer:
                     # `link_href` key — the SVG backend wraps the run in <a>;
                     # backends that don't know the key ignore it (additive).
                     text = self._flatten_span_text(sp)
-                    sty = {**(self.text_style(sp["style"]) if sp.get("style") else base_st),
+                    sty = {**self._run_style(sp.get("style"), base_st),
                            "link_href": sp.get("href")}
                     runs.append((self._transform_text(str(text), base_st.get("text_transform")), sty))
                     continue
                 else:
                     text = sp.get("text", "")
-                sty = self.text_style(sp["style"]) if sp.get("style") else base_st
+                sty = self._run_style(sp.get("style"), base_st)
             else:
                 text, sty = (sp if isinstance(sp, str) else str(sp)), base_st
             text = self._transform_text(str(text), base_st.get("text_transform"))
@@ -578,6 +598,20 @@ class Renderer:
                 "id": oid, "type": "text", "box": [x, y, w, h],
                 "font_size": size, "lines": len(lines), "clipped": clipped,
             })
+        # Stash the INK rectangle (the drawn extent, not the authoring box) for
+        # the collision detector: horizontal span placed by the anchor, vertical
+        # span the line box. Contained text can never draw past its box, so the
+        # ink is clamped to it (a clip-path enforces the same at render time).
+        if a == "middle":
+            ix0, ix1 = tx - widest / 2.0, tx + widest / 2.0
+        elif a == "end":
+            ix0, ix1 = tx - widest, tx
+        else:
+            ix0, ix1 = tx, tx + widest
+        if contained_policy:
+            ix0, ix1 = max(ix0, x), min(ix1, x + w)
+        drawn_h = min(total_h, h) if contained_policy else total_h
+        self._last_text_ink = (ix0, top, ix1, top + drawn_h)
         return el
 
     @staticmethod
@@ -1712,16 +1746,67 @@ class Renderer:
                                        desc=self.doc.get("description"),
                                        background=self.canvas_background(page))]
 
+    # Ink overlap below this many px² is treated as touching, not collision —
+    # the same floor the free-group overlap audit uses (kerning-scale kisses of
+    # ink are not accidents).
+    _COLLISION_MIN_AREA = 4.0
+
+    def _detect_collisions(self, page_id, layer_index, ink):
+        """Flag same-layer text pairs whose INK overlaps without unanimous consent.
+
+        `ink` is the list of (id, consented, (x0, y0, x1, y1)) for one layer's
+        top-level text. A collision is an *unintended* overlap
+        (collision-gate/2026-07): if BOTH parties declare `overlap: allowed` the
+        overlap is a consented effect and is not reported. The verdict names the
+        metrics mode, because an estimate-mode overlap is unverified — under real
+        glyph advances the same pair may separate or collide (PALS's Law / B4).
+        """
+        mode = "real" if self.real_metrics else "estimate"
+        for i in range(len(ink)):
+            for j in range(i + 1, len(ink)):
+                (ia, ca, (ax0, ay0, ax1, ay1)) = ink[i]
+                (ib, cb, (bx0, by0, bx1, by1)) = ink[j]
+                ox = min(ax1, bx1) - max(ax0, bx0)
+                oy = min(ay1, by1) - max(ay0, by0)
+                if ox <= 0 or oy <= 0:
+                    continue
+                if ca and cb:                    # consented on both sides → effect
+                    continue
+                area = ox * oy
+                if area < self._COLLISION_MIN_AREA:
+                    continue
+                self.diagnostics["collisions"].append({
+                    "ids": [ia, ib], "page": page_id, "layer": layer_index,
+                    "area": round(area, 1), "metrics": mode,
+                    "overlap": [round(ox, 1), round(oy, 1)],
+                })
+
     def _render_page_body(self, page):
         body = []
         show_construction = bool((self.doc.get("meta") or {}).get("show_construction"))
-        for layer in sorted(page.get("layers") or [], key=lambda L: L.get("z", 0)):
+        for li, layer in enumerate(sorted(page.get("layers") or [], key=lambda L: L.get("z", 0))):
             if layer.get("role") == "construction" and not show_construction:
                 continue                       # non-printing datum layer (CAD semantics)
             lo = layer.get("opacity")
             objects = [o for o in layer.get("objects") or []
                        if show_construction or not (isinstance(o, dict) and o.get("construction"))]
-            inner = "".join(self.obj(o) for o in self._paint_ordered(objects))
+            # Collect the ink rectangle of each top-level absolute TEXT object so
+            # the collision detector can compare same-layer ink (O1). Nested text
+            # — table/flow cells, group children — is excluded by construction:
+            # only a top-level `text` object's own render_text result is read
+            # here (Follow-Up #4). Cross-layer overlap is never compared: the
+            # accumulator is per layer, so different layers cannot intersect.
+            ink = []
+            rendered_objs = []
+            for o in self._paint_ordered(objects):
+                self._last_text_ink = None
+                rendered_objs.append(self.obj(o))
+                if (isinstance(o, dict) and o.get("type") == "text"
+                        and not o.get("decorative") and self._last_text_ink):
+                    ink.append((o.get("id"), o.get("overlap") == "allowed",
+                                self._last_text_ink))
+            self._detect_collisions(page.get("id"), li, ink)
+            inner = "".join(rendered_objs)
             body.append(self._painter.opacity_group(inner, lo) if lo not in (None, 1) else inner)
         rendered = "".join(body)
 

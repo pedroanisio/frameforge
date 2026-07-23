@@ -111,6 +111,19 @@ pass includes the **geometric audit** (P3):
 - **Scoped non-overlap (SHOULD).** Sibling boxes within a `free`-layout `GroupObject`,
   or any cluster marked `meta.no_overlap: true`, SHOULD NOT overlap. Global/layer
   overlap stays **legal** (z-order is intentional) — the check is scoped, not blanket.
+- **Collision vs. consented overlap (SHOULD).** A *collision* is an **unintended**
+  overlap of drawn **ink** between two top-level `text` objects on the **same
+  layer**. Overlap itself is a first-class effect — a watermark over a paragraph,
+  a caption over an image, double-exposure display type — so an object declares
+  intent with `overlap: "allowed"`; when **both** parties declare it the overlap
+  is a consented effect, not a collision. Absence means no consent. Cross-layer
+  overlap is exempt by construction (different z-slab = different `layers[]`
+  container). A conforming tool MAY report unconsented same-layer ink collisions
+  as an advisory (`collision`), but the detection is **render-time and
+  ink-based** — a static box check over-reports, because a box is a layout region
+  routinely larger than its ink and blind to wrap and glyph width. The verdict
+  MUST name the metrics mode it was produced under, since an estimate-mode ink
+  overlap is unverified.
 - **Tabular regions MUST use the box-model.** Aligned tabular content (title blocks,
   key/value stacks, legends, cells) MUST be a `row`/`column`/`grid` `GroupObject` or a
   `TableObject`, not a flat list of absolutely-placed `text`. A validator SHOULD warn

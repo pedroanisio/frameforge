@@ -922,6 +922,14 @@ class ObjBase(FG):
     decorative: Optional[bool] = Field(
         default=None, description="Marks a purely decorative object: exempt from containment/"
                                   "overlap audits and from accessibility alt requirements.")
+    overlap: Optional[Literal["allowed"]] = Field(
+        default=None, description="Consent for INTENTIONAL same-layer overlap (§3.3): "
+                                  "`allowed` declares that this object may share ink with a "
+                                  "same-layer sibling on purpose — a watermark, a caption over "
+                                  "an image, double-exposure type. Absence means no consent, so "
+                                  "the render-time collision detector reports the overlap as an "
+                                  "accident. Read only by the audit; it never changes how the "
+                                  "object draws. Cross-layer overlap is exempt by construction.")
     construction: Optional[bool] = Field(
         default=None, description="Marks non-printing construction geometry (datums, guides, "
                                   "snap targets): excluded from rendering unless the document "

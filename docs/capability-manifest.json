@@ -193,6 +193,7 @@
       "clip_polygon",
       "clip_rect",
       "closed_palette",
+      "collision_report",
       "color_guide",
       "column",
       "complement",
@@ -438,6 +439,7 @@
     "tooling_codes": [
       "boxless-under-layout",
       "canvas-unresolved",
+      "collision",
       "containment",
       "dangling-ref",
       "deprecated-alias",
@@ -1684,6 +1686,13 @@
     },
     {
       "name": "closed_palette",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "collision_report",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

@@ -932,6 +932,20 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
+        },
         "construction": {
           "anyOf": [
             {
@@ -1619,6 +1633,20 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
         },
         "construction": {
           "anyOf": [
@@ -2440,6 +2468,20 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
+        },
         "construction": {
           "anyOf": [
             {
@@ -3136,6 +3178,20 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
+        },
         "construction": {
           "anyOf": [
             {
@@ -3763,6 +3819,20 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
         },
         "construction": {
           "anyOf": [
@@ -4476,6 +4546,20 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
         },
         "construction": {
           "anyOf": [
@@ -6570,6 +6654,20 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
+        },
         "construction": {
           "anyOf": [
             {
@@ -7251,6 +7349,20 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
+        },
         "construction": {
           "anyOf": [
             {
@@ -7666,6 +7778,20 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
         },
         "construction": {
           "anyOf": [
@@ -8884,6 +9010,20 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
         },
         "construction": {
           "anyOf": [
@@ -10729,6 +10869,20 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
+        },
         "construction": {
           "anyOf": [
             {
@@ -11495,6 +11649,20 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
+        },
         "construction": {
           "anyOf": [
             {
@@ -11925,6 +12093,20 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
         },
         "construction": {
           "anyOf": [
@@ -12415,6 +12597,20 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
         },
         "construction": {
           "anyOf": [
@@ -16209,6 +16405,20 @@
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
         },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
+        },
         "construction": {
           "anyOf": [
             {
@@ -16818,6 +17028,20 @@
           "default": null,
           "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
           "title": "Decorative"
+        },
+        "overlap": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Consent for INTENTIONAL same-layer overlap (§3.3): `allowed` declares that this object may share ink with a same-layer sibling on purpose — a watermark, a caption over an image, double-exposure type. Absence means no consent, so the render-time collision detector reports the overlap as an accident. Read only by the audit; it never changes how the object draws. Cross-layer overlap is exempt by construction.",
+          "title": "Overlap"
         },
         "construction": {
           "anyOf": [

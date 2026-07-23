@@ -754,7 +754,34 @@ def text_fit_checks(doc, base_dir, findings):
             f"pages[{sig.get('page')}]"))
 
 
-def validate_doc(path, strict=False, text_fit=False):
+def collision_checks(doc, base_dir, findings, real_metrics=False):
+    """Opt-in (--check-collision): render, then WARN on same-layer ink overlaps
+    that were not declared `overlap: allowed` (collision-gate/2026-07, O1).
+
+    Advisory by design: a collision is an *unintended* same-layer overlap, and
+    telling an accident from an effect needs rendered ink, which depends on the
+    installed fonts — so the verdict names the metrics mode it was produced under
+    (an estimate-mode overlap is unverified, PALS's Law). It never fails the build
+    on its own; the operator promotes it once a pinned metrics table lands (O7).
+    """
+    from render_fixtures import Renderer
+    r = Renderer(doc, base_dir, real_metrics=real_metrics)
+    for page in doc.get("pages", []):
+        if isinstance(page, dict):
+            r.render_page(page)
+    for c in (r.diagnostics or {}).get("collisions") or []:
+        ids = " × ".join(str(i or "<anonymous>") for i in c.get("ids", []))
+        ox, oy = (c.get("overlap") or [0, 0])[:2]
+        findings.append(Finding(
+            "WARN", "collision",
+            f"same-layer ink overlap [{c.get('metrics')}] between {ids}: "
+            f"~{c.get('area', 0):.0f} px² ({ox:.0f}×{oy:.0f}); if intentional, set "
+            "`overlap: allowed` on both, else separate them (§3.3)",
+            f"pages[{c.get('page')}].layers[{c.get('layer')}]"))
+
+
+def validate_doc(path, strict=False, text_fit=False, check_collision=False,
+                 real_metrics=False):
     try:
         doc = _load(path)
     except Exception as exc:  # noqa: BLE001
@@ -762,8 +789,11 @@ def validate_doc(path, strict=False, text_fit=False):
     findings: list[Finding] = []
     structural(doc, findings)
     rule_checks(doc, findings)
+    base = os.path.dirname(os.path.abspath(path))
     if text_fit:
-        text_fit_checks(doc, os.path.dirname(os.path.abspath(path)), findings)
+        text_fit_checks(doc, base, findings)
+    if check_collision:
+        collision_checks(doc, base, findings, real_metrics=real_metrics)
     if strict:
         for f in findings:
             if f.severity == "WARN":
@@ -780,11 +810,19 @@ def main(argv=None):
                     help="also run the text-fitting pass and WARN per content-losing "
                          "text object (`text-truncated`, issue #44)")
     ap.add_argument("--quiet", action="store_true", help="only print summary lines")
+    ap.add_argument("--check-collision", action="store_true",
+                    help="also WARN on same-layer ink overlaps not declared "
+                         "`overlap: allowed` (collision-gate/2026-07, advisory)")
+    ap.add_argument("--real-metrics", action="store_true",
+                    help="measure with real glyph advances (fontTools); makes the "
+                         "collision verdict reproducible where the faces are installed")
     args = ap.parse_args(argv)
 
     rc = 0
     for path in args.documents:
-        _, findings, code = validate_doc(path, strict=args.strict, text_fit=args.text_fit)
+        _, findings, code = validate_doc(path, strict=args.strict, text_fit=args.text_fit,
+                                         check_collision=args.check_collision,
+                                         real_metrics=args.real_metrics)
         rc = max(rc, code)
         e = sum(1 for f in findings if f.severity == "ERROR")
         w = sum(1 for f in findings if f.severity == "WARN")

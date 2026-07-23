@@ -16,12 +16,42 @@ revision: 2
 
 # Decision Analysis: Enforcing the collision model in `make check`
 
-**Decision id:** `collision-gate/2026-07` · **Status:** open · rev 2
+**Decision id:** `collision-gate/2026-07` · **Status:** P0+O1 IMPLEMENTED · rev 2
 **Horizon:** core CI infrastructure — multi-year · **Trigger:** `amazon-proxy-2026` page 1 header overlap
 **Model (settled):** `docs/spec/viewport-definition-proposal.md`
 **Companion visual:** `collision-gate-decision.html` + `diagram-{A,B,C}.svg`
 
 ---
+
+## Update — P0 + O1 landed (2026-07-23)
+
+The recommended primary path (**P0 + O1**, advisory) is now implemented:
+
+- **P0** — `overlap: Optional[Literal["allowed"]]` on `ObjBase` (model + schema +
+  grammar in sync; default `None` = no consent). Read only by the detector; it
+  changes nothing about how an object draws.
+- **O1** — a render-time, per-layer, **ink**-based detector in the `Renderer`
+  (`_detect_collisions`, fed by the ink rectangle `render_text` stashes). It
+  reports same-layer text-on-text overlaps that lack unanimous `overlap: allowed`
+  to `diagnostics["collisions"]`, each tagged with the metrics mode
+  (`estimate`/`real`, per B4/PALS). Scoped to top-level layer text — table/flow
+  cells are excluded (Follow-Up #4 resolved: yes, top-level only).
+
+Surfaces: `sdk.collision_report()`; MCP render results (`diagnostics.collisions`
++ a `render_warning`); the opt-in `validate.py --check-collision [--real-metrics]`
+advisory WARN (`collision` code, `docs/error-codes.md`). It is **not** in
+`make check` — advisory, non-build-blocking, exactly as the recommendation
+specifies.
+
+**Corpus scan (Follow-Up #3, answered):** 531 same-layer ink overlaps across b1,
+concentrated in `docusign-deck-v2` (254) and `amazon-proxy-2026` (23) — matching
+this doc's prediction. These are the accident-vs-effect retrofit; triaging them
+(and promoting O1 to a hard-fail via O7's pinned metrics table) remains the
+operator-gated follow-up. **The `amazon-proxy` page-10 header overlap that
+triggered this analysis is NOT in this set** — it is a text-overflow from font
+substitution (the estimate lays the line out to fit, the substituted face draws
+it wider), tracked as its own root cause (GH #88), whose fix is real metrics, not
+the collision gate.
 
 ## Update — what changed since rev 1
 

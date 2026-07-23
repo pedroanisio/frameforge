@@ -1,0 +1,30 @@
+{
+  "excluded": {
+    "tests/fixtures/b1/docusign-deck-v2.fg.json": {
+      "ncc": 0.379,
+      "reason": "HTML backend degrades flow content to placeholders (docs/output-space.md); the two backends legitimately diverge, so no fidelity floor is meaningful here"
+    },
+    "tests/fixtures/b1/ieee-reference-guide.fg.json": {
+      "ncc": 0.324,
+      "reason": "HTML backend degrades flow content to placeholders (docs/output-space.md); the two backends legitimately diverge, so no fidelity floor is meaningful here"
+    },
+    "tests/fixtures/b1/neutron-stars.fg.json": {
+      "ncc": -0.022,
+      "reason": "HTML backend degrades flow content to placeholders (docs/output-space.md); the two backends legitimately diverge, so no fidelity floor is meaningful here"
+    },
+    "tests/fixtures/b1/spectral-methods.fg.json": {
+      "ncc": -0.012,
+      "reason": "HTML backend degrades flow content to placeholders (docs/output-space.md); the two backends legitimately diverge, so no fidelity floor is meaningful here"
+    },
+    "tests/fixtures/b1/wireframing-guide.fg.json": {
+      "ncc": -0.009,
+      "reason": "HTML backend degrades flow content to placeholders (docs/output-space.md); the two backends legitimately diverge, so no fidelity floor is meaningful here"
+    }
+  },
+  "floors": {
+    "tests/fixtures/b1/amazon-proxy-2026.fg.json": 0.927,
+    "tests/fixtures/b1/chroma-styling-showcase.fg.json": 0.757,
+    "tests/fixtures/b1/mckinsey-7s.fg.json": 0.78,
+    "tests/fixtures/b1/spans-and-links.fg.json": 0.778
+  }
+}

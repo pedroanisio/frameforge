@@ -1,0 +1,61 @@
+{
+  "dsl": "FrameForge",
+  "version": "2.0.0",
+  "title": "Spans & links — HTML backend oracle",
+  "description": "Exercises the per-run style + link surfaces so the HTML golden lock guards them (GH #83/#84/#85).",
+  "lang": "en",
+  "defs": {
+    "tokens": {
+      "colors": {"ink": "#15181E", "frame": "#1F4FD8", "graph": "#12B0C3"},
+      "styles": {
+        "body": {"font_family": ["DejaVu Sans", "sans-serif"], "font_size": 16, "color": "ink"},
+        "mono": {"font_family": ["DejaVu Sans Mono", "monospace"], "font_size": 15}
+      }
+    }
+  },
+  "pages": [
+    {
+      "mode": "page",
+      "id": "cover",
+      "canvas": {"size": [600, 300], "units": "px"},
+      "rendering": {"coordinate_mode": "absolute"},
+      "links": [
+        {"to": "https://frameforge.hefestus.io", "external": true, "label": "Home", "relation": "external"},
+        {"to": "cover", "relation": "see_also", "label": "This page"}
+      ],
+      "layers": [
+        {
+          "id": "main",
+          "z": 0,
+          "objects": [
+            {"type": "rect", "id": "bg", "box": [0, 0, 600, 300], "fill": "#FBFAF6", "decorative": true},
+            {"type": "text", "id": "wordmark", "box": [40, 40, 320, 40],
+             "style": {"font_family": ["DejaVu Sans", "sans-serif"], "font_size": 32, "font_weight": 700},
+             "spans": [
+               {"text": "Frame", "style": {"color": "ink"}},
+               {"text": "Forge", "style": {"color": "frame"}}
+             ]},
+            {"type": "text", "id": "code", "box": [40, 110, 520, 24], "style": "mono",
+             "spans": [
+               {"text": "from", "style": {"color": "graph"}},
+               {"text": " frameforge.sdk ", "style": {"color": "ink"}},
+               {"text": "import", "style": {"color": "graph"}},
+               {"text": " DocumentBuilder", "style": {"color": "ink"}}
+             ]},
+            {"type": "text", "id": "cta", "box": [40, 160, 520, 24], "style": "body",
+             "spans": [
+               "Read the ",
+               {"kind": "link", "href": "https://frameforge.hefestus.io/spec", "content": ["specification"]},
+               " for details."
+             ]},
+            {"type": "rect", "id": "button", "box": [40, 210, 160, 44], "fill": "frame", "radius": 6},
+            {"type": "text", "id": "button-label", "box": [40, 222, 160, 20],
+             "style": {"font_family": ["DejaVu Sans", "sans-serif"], "font_size": 16, "font_weight": 600, "color": "#FFFFFF", "align": "center"},
+             "text": "Get started"}
+          ]
+        }
+      ],
+      "reading_order": ["wordmark", "code", "cta", "button-label"]
+    }
+  ]
+}

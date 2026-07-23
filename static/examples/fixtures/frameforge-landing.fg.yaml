@@ -1,0 +1,4558 @@
+dsl: FrameForge
+version: 2.6.0
+profile: diagram
+title: FrameForge — structured output, checked before it ships
+description: Proposed landing page for the FrameForge service, authored with the FrameForge
+  SDK. Every count is generated from the repository (see FACTS in static/examples/frameforge_landing.py).
+lang: en
+defs:
+  tokens:
+    colors:
+      ink: '#15181E'
+      paper: '#FBFAF6'
+      canvas: '#FFFFFF'
+      frame: '#1F4FD8'
+      graph: '#12B0C3'
+      gate: '#1E9E5A'
+      drift: '#D23B2B'
+      grid: '#D4D8DE'
+      mute: '#6B7280'
+      mute-s: '#4B5563'
+      surface: '#1D212A'
+      muted-r: '#A7AEBA'
+      hair-r: '#2E3542'
+    text_styles:
+      h1:
+        align: left
+        color: ink
+        font_family:
+        - Inter Display
+        - Inter
+        - Helvetica Neue
+        - DejaVu Sans
+        - sans-serif
+        font_size: 50
+        font_weight: 600
+        line_height: 1.14
+        letter_spacing: -1.0
+      h2:
+        align: left
+        color: ink
+        font_family:
+        - Inter Display
+        - Inter
+        - Helvetica Neue
+        - DejaVu Sans
+        - sans-serif
+        font_size: 40
+        font_weight: 600
+        line_height: 1.18
+        letter_spacing: -0.7
+      h2r:
+        align: left
+        color: paper
+        font_family:
+        - Inter Display
+        - Inter
+        - Helvetica Neue
+        - DejaVu Sans
+        - sans-serif
+        font_size: 40
+        font_weight: 600
+        line_height: 1.18
+        letter_spacing: -0.7
+      h3:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 20
+        font_weight: 600
+        line_height: 1.35
+        letter_spacing: 0.0
+      h3r:
+        align: left
+        color: paper
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 20
+        font_weight: 600
+        line_height: 1.35
+        letter_spacing: 0.0
+      stat:
+        align: left
+        color: ink
+        font_family:
+        - Inter Display
+        - Inter
+        - Helvetica Neue
+        - DejaVu Sans
+        - sans-serif
+        font_size: 40
+        font_weight: 600
+        line_height: 1.0
+        letter_spacing: -0.8
+      statb:
+        align: left
+        color: frame
+        font_family:
+        - Inter Display
+        - Inter
+        - Helvetica Neue
+        - DejaVu Sans
+        - sans-serif
+        font_size: 40
+        font_weight: 600
+        line_height: 1.0
+        letter_spacing: -0.8
+      lede:
+        align: left
+        color: mute
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 20
+        font_weight: 400
+        line_height: 1.55
+        letter_spacing: 0.0
+      body:
+        align: left
+        color: mute
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 16
+        font_weight: 400
+        line_height: 1.55
+        letter_spacing: 0.0
+      bodyi:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 16
+        font_weight: 400
+        line_height: 1.55
+        letter_spacing: 0.0
+      bodyr:
+        align: left
+        color: muted-r
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 16
+        font_weight: 400
+        line_height: 1.55
+        letter_spacing: 0.0
+      eyebrow:
+        align: left
+        color: frame
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 13
+        font_weight: 600
+        line_height: 1.3
+        letter_spacing: 1.8
+      eyebrowr:
+        align: left
+        color: graph
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 13
+        font_weight: 600
+        line_height: 1.3
+        letter_spacing: 1.8
+      bodysm:
+        align: left
+        color: mute-s
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 13
+        font_weight: 400
+        line_height: 1.6
+        letter_spacing: 0.0
+      cap:
+        align: left
+        color: mute-s
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 13
+        font_weight: 500
+        line_height: 1.6
+        letter_spacing: 0.3
+      capr:
+        align: left
+        color: muted-r
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 13
+        font_weight: 500
+        line_height: 1.6
+        letter_spacing: 0.3
+      capi:
+        align: left
+        color: ink
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 13
+        font_weight: 600
+        line_height: 1.6
+        letter_spacing: 0.3
+      capstate:
+        align: left
+        color: mute-s
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 13
+        font_weight: 600
+        line_height: 1.6
+        letter_spacing: 0.3
+      capstater:
+        align: left
+        color: muted-r
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 13
+        font_weight: 600
+        line_height: 1.6
+        letter_spacing: 0.3
+      code:
+        align: left
+        color: paper
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 400
+        line_height: 1.62
+        letter_spacing: 0.0
+      btn:
+        align: left
+        color: paper
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 16
+        font_weight: 600
+        line_height: 1.3
+        letter_spacing: 0.0
+      nav:
+        align: left
+        color: ink
+        font_family:
+        - Inter
+        - Helvetica Neue
+        - Arial
+        - DejaVu Sans
+        - sans-serif
+        font_size: 16
+        font_weight: 500
+        line_height: 1.3
+        letter_spacing: 0.0
+      chip:
+        align: left
+        color: ink
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 500
+        line_height: 1.3
+        letter_spacing: 0.0
+      chipr:
+        align: left
+        color: graph
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 500
+        line_height: 1.3
+        letter_spacing: 0.0
+      display:
+        color: paper
+        font_family:
+        - Inter Display
+        - Inter
+        - Helvetica Neue
+        - DejaVu Sans
+        - sans-serif
+        font_size: 132
+        font_weight: 600
+pages:
+- mode: page
+  id: landing
+  canvas:
+    size:
+    - 1440.0
+    - 6340.0
+    units: px
+  rendering:
+    coordinate_mode: absolute
+  layers:
+  - id: ground
+    objects:
+    - box:
+      - 0
+      - 0
+      - 1440
+      - 6340
+      decorative: true
+      type: rect
+      fill: paper
+  - id: page
+    objects:
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 100.0
+      - 28.0
+      to:
+      - 109.36
+      - 28.0
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 100.0
+      - 28.0
+      to:
+      - 100.0
+      - 37.36
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 100.0
+      - 64.0
+      to:
+      - 109.36
+      - 64.0
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 100.0
+      - 64.0
+      to:
+      - 100.0
+      - 54.64
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 136.0
+      - 28.0
+      to:
+      - 126.64
+      - 28.0
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 136.0
+      - 28.0
+      to:
+      - 136.0
+      - 37.36
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 136.0
+      - 64.0
+      to:
+      - 126.64
+      - 64.0
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 136.0
+      - 64.0
+      to:
+      - 136.0
+      - 54.64
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 110.08
+      - 46.0
+      to:
+      - 124.4213806866703
+      - 37.72
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 110.08
+      - 46.0
+      to:
+      - 126.64
+      - 46.0
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 110.08
+      - 46.0
+      to:
+      - 124.4213806866703
+      - 54.28
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 124.4213806866703
+      - 37.72
+      rx: 1.8719999999999999
+      ry: 1.8719999999999999
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 126.64
+      - 46.0
+      rx: 1.8719999999999999
+      ry: 1.8719999999999999
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 124.4213806866703
+      - 54.28
+      rx: 1.8719999999999999
+      ry: 1.8719999999999999
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 110.08
+      - 46.0
+      rx: 2.6999999999999997
+      ry: 2.6999999999999997
+      fill: '#1F4FD8'
+      stroke: '#1F4FD8'
+    - id: t001
+      box:
+      - 152
+      - 29.0
+      - 200
+      - 32
+      style:
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 25
+        font_weight: 700
+        letter_spacing: -1.5
+      type: text
+      spans:
+      - text: Frame
+        style:
+          color: '#15181E'
+      - text: Forge
+        style:
+          color: '#1F4FD8'
+    - id: t002
+      box:
+      - 836.5546875
+      - 0
+      - 44.53125
+      - 92
+      style: nav
+      type: text
+      text: Spec
+    - id: t003
+      box:
+      - 909.0859375
+      - 0
+      - 67.1953125
+      - 92
+      style: nav
+      type: text
+      text: Schema
+    - id: t004
+      box:
+      - 1004.28125
+      - 0
+      - 38.5625
+      - 92
+      style: nav
+      type: text
+      text: SDK
+    - id: t005
+      box:
+      - 1070.84375
+      - 0
+      - 42.359375
+      - 92
+      style: nav
+      type: text
+      text: MCP
+    - id: t006
+      box:
+      - 1141.203125
+      - 0
+      - 78.796875
+      - 92
+      style: nav
+      type: text
+      text: Examples
+    - box:
+      - 1248.0
+      - 28.0
+      - 92.0
+      - 36
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 6
+      stroke: grid
+    - id: t007
+      box:
+      - 1270.0
+      - 28.0
+      - 48.0
+      - 36
+      style: chip
+      type: text
+      text: 2.6.0
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 0.0
+      - 92.0
+      to:
+      - 1440.0
+      - 92.0
+      stroke: grid
+    - id: t008
+      box:
+      - 100
+      - 152
+      - 560
+      - 18
+      style: eyebrow
+      type: text
+      text: THE OUTPUT LAYER FOR THE AGENT ERA
+    - id: t009
+      box:
+      - 100
+      - 192
+      - 620
+      - 124
+      style: h1
+      type: text
+      text: 'Structured output,
+
+        checked before it ships.'
+    - id: t010
+      box:
+      - 100
+      - 336
+      - 560
+      - 130
+      style: lede
+      type: text
+      text: FrameForge turns a typed description — written by you, or by an agent
+        acting for you — into decks, reports, books, diagrams and vector art. Every
+        document is validated before it renders.
+    - box:
+      - 100
+      - 500
+      - 166.3359375
+      - 52
+      decorative: true
+      type: rect
+      fill: ink
+      radius: 6
+    - id: t011
+      box:
+      - 128
+      - 500
+      - 110.3359375
+      - 52
+      style: btn
+      type: text
+      text: Read the spec
+    - box:
+      - 282.3359375
+      - 500
+      - 284.0
+      - 52
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 6
+      stroke: grid
+    - id: t012
+      box:
+      - 304.3359375
+      - 500
+      - 240.0
+      - 52
+      style: chip
+      type: text
+      text: uv pip install frameforge
+    - id: t013
+      box:
+      - 100
+      - 578
+      - 620
+      - 18
+      style: cap
+      type: text
+      text: frameforge.hefestus.io  ·  MIT  ·  Python >= 3.10  ·  SDK + MCP  ·  31
+        agent tools
+    - box:
+      - 760
+      - 152
+      - 580
+      - 471
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: ink
+      radius: 10
+      stroke: hair-r
+    - id: t014
+      box:
+      - 788
+      - 172
+      - 524
+      - 26
+      style: chipr
+      type: text
+      text: $ make check
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 788.0
+      - 214.0
+      to:
+      - 1312.0
+      - 214.0
+      stroke: hair-r
+    - decorative: true
+      type: ellipse
+      center:
+      - 794.0
+      - 253.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t015
+      box:
+      - 810
+      - 242
+      - 300
+      - 22
+      style: capr
+      type: text
+      text: schema  <=> models
+    - id: t016
+      box:
+      - 810
+      - 263
+      - 300
+      - 20
+      style: capr
+      type: text
+      text: build_schema.py --check
+    - id: t017
+      box:
+      - 1257.4
+      - 242
+      - 60.6
+      - 22
+      style: capstater
+      type: text
+      text: in sync
+    - decorative: true
+      type: ellipse
+      center:
+      - 794.0
+      - 309.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t018
+      box:
+      - 810
+      - 298
+      - 300
+      - 22
+      style: capr
+      type: text
+      text: grammar <=> models
+    - id: t019
+      box:
+      - 810
+      - 319
+      - 300
+      - 20
+      style: capr
+      type: text
+      text: check_grammar_sync.py
+    - id: t020
+      box:
+      - 1249.6
+      - 298
+      - 68.4
+      - 22
+      style: capstater
+      type: text
+      text: 0 errors
+    - decorative: true
+      type: ellipse
+      center:
+      - 794.0
+      - 365.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t021
+      box:
+      - 810
+      - 354
+      - 300
+      - 22
+      style: capr
+      type: text
+      text: delivered fixtures
+    - id: t022
+      box:
+      - 810
+      - 375
+      - 300
+      - 20
+      style: capr
+      type: text
+      text: gen_status.py --check
+    - id: t023
+      box:
+      - 1187.2
+      - 354
+      - 130.8
+      - 22
+      style: capstater
+      type: text
+      text: 39/39 · 0 errors
+    - decorative: true
+      type: ellipse
+      center:
+      - 794.0
+      - 421.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t024
+      box:
+      - 810
+      - 410
+      - 300
+      - 22
+      style: capr
+      type: text
+      text: golden render lock
+    - id: t025
+      box:
+      - 810
+      - 431
+      - 300
+      - 20
+      style: capr
+      type: text
+      text: render_golden.py
+    - id: t026
+      box:
+      - 1202.8
+      - 410
+      - 115.2
+      - 22
+      style: capstater
+      type: text
+      text: 87 pages match
+    - decorative: true
+      type: ellipse
+      center:
+      - 794.0
+      - 477.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t027
+      box:
+      - 810
+      - 466
+      - 300
+      - 22
+      style: capr
+      type: text
+      text: the test suite
+    - id: t028
+      box:
+      - 810
+      - 487
+      - 300
+      - 20
+      style: capr
+      type: text
+      text: uv run pytest
+    - id: t029
+      box:
+      - 1202.8
+      - 466
+      - 115.2
+      - 22
+      style: capstater
+      type: text
+      text: 2,561 · 1 skip
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 788.0
+      - 530.0
+      to:
+      - 1312.0
+      - 530.0
+      stroke: hair-r
+    - id: t030
+      box:
+      - 788
+      - 548
+      - 524
+      - 47
+      style: capr
+      type: text
+      text: 'Read off a working tree, not a badge: every row is a command that was
+        run, and a failing one would be shown failing.'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 0.0
+      - 831.0
+      to:
+      - 1440.0
+      - 831.0
+      stroke: grid
+    - id: t031
+      box:
+      - 100.0
+      - 725
+      - 224.0
+      - 44
+      style: statb
+      type: text
+      text: 2,561
+    - id: t032
+      box:
+      - 100.0
+      - 777
+      - 224.0
+      - 18
+      style: cap
+      type: text
+      text: TESTS PASS · 1 SKIP
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 324.0
+      - 723.0
+      to:
+      - 324.0
+      - 789.0
+      stroke: grid
+    - id: t033
+      box:
+      - 348.0
+      - 725
+      - 224.0
+      - 44
+      style: stat
+      type: text
+      text: 39/39
+    - id: t034
+      box:
+      - 348.0
+      - 777
+      - 224.0
+      - 18
+      style: cap
+      type: text
+      text: FIXTURES · 0 ERRORS
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 572.0
+      - 723.0
+      to:
+      - 572.0
+      - 789.0
+      stroke: grid
+    - id: t035
+      box:
+      - 596.0
+      - 725
+      - 224.0
+      - 44
+      style: stat
+      type: text
+      text: '373'
+    - id: t036
+      box:
+      - 596.0
+      - 777
+      - 224.0
+      - 18
+      style: cap
+      type: text
+      text: DECLARED CAPABILITIES
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 820.0
+      - 723.0
+      to:
+      - 820.0
+      - 789.0
+      stroke: grid
+    - id: t037
+      box:
+      - 844.0
+      - 725
+      - 224.0
+      - 44
+      style: stat
+      type: text
+      text: '88'
+    - id: t038
+      box:
+      - 844.0
+      - 777
+      - 224.0
+      - 18
+      style: cap
+      type: text
+      text: SCHEMA DEFINITIONS
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 1068.0
+      - 723.0
+      to:
+      - 1068.0
+      - 789.0
+      stroke: grid
+    - id: t039
+      box:
+      - 1092.0
+      - 725
+      - 224.0
+      - 44
+      style: stat
+      type: text
+      text: '139'
+    - id: t040
+      box:
+      - 1092.0
+      - 777
+      - 224.0
+      - 18
+      style: cap
+      type: text
+      text: TRACKED SDK CLIENTS
+    - id: t041
+      box:
+      - 100
+      - 907
+      - 1240
+      - 18
+      style: eyebrow
+      type: text
+      text: ONE SOURCE OF TRUTH
+    - id: t042
+      box:
+      - 100
+      - 941
+      - 1240
+      - 53
+      style: h2
+      type: text
+      text: Everything else is generated from it, or gated against it.
+    - id: t043
+      box:
+      - 100
+      - 1010
+      - 720
+      - 130
+      style: lede
+      type: text
+      text: The Pydantic model is the source of truth. The schema, the capability
+        manifest and every render are generated from it; the grammar and the normative
+        prose are written by hand and then gated against it — drift fails a check
+        rather than ageing quietly.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 510.0
+      - 1325.0
+      to:
+      - 780.0
+      - 1200.0
+      stroke: '#12B0C3'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: ellipse
+      center:
+      - 780.0
+      - 1200.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - id: t044
+      box:
+      - 803.0
+      - 1184.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      type: text
+      spans:
+      - text: frameforge-v2.schema.json
+        style:
+          color: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 510.0
+      - 1325.0
+      to:
+      - 780.0
+      - 1262.5
+      stroke: '#12B0C3'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: ellipse
+      center:
+      - 780.0
+      - 1262.5
+      rx: 9.0
+      ry: 9.0
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - id: t045
+      box:
+      - 803.0
+      - 1246.5
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      type: text
+      spans:
+      - text: frameforge-v2.ebnf
+        style:
+          color: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 510.0
+      - 1325.0
+      to:
+      - 780.0
+      - 1325.0
+      stroke: '#12B0C3'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: ellipse
+      center:
+      - 780.0
+      - 1325.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - id: t046
+      box:
+      - 803.0
+      - 1309.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      type: text
+      spans:
+      - text: frameforge-v2-spec.md
+        style:
+          color: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 510.0
+      - 1325.0
+      to:
+      - 780.0
+      - 1387.5
+      stroke: '#12B0C3'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: ellipse
+      center:
+      - 780.0
+      - 1387.5
+      rx: 9.0
+      ry: 9.0
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - id: t047
+      box:
+      - 803.0
+      - 1371.5
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      type: text
+      spans:
+      - text: renders · svg png pdf html
+        style:
+          color: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 510.0
+      - 1325.0
+      to:
+      - 780.0
+      - 1450.0
+      stroke: '#12B0C3'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: ellipse
+      center:
+      - 780.0
+      - 1450.0
+      rx: 9.0
+      ry: 9.0
+      fill: '#FFFFFF'
+      stroke: '#15181E'
+    - id: t048
+      box:
+      - 803.0
+      - 1434.0
+      - 360
+      - 35.2
+      style:
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 600
+      type: text
+      spans:
+      - text: capability-manifest.json
+        style:
+          color: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: ellipse
+      center:
+      - 510.0
+      - 1325.0
+      rx: 14.0
+      ry: 14.0
+      fill: '#1F4FD8'
+      stroke: '#1F4FD8'
+    - id: t049
+      box:
+      - 260
+      - 1309.0
+      - 232
+      - 35.2
+      style:
+        align: right
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 700
+      type: text
+      spans:
+      - text: model.py
+        style:
+          color: '#15181E'
+    - id: t050
+      box:
+      - 100
+      - 1594
+      - 1240
+      - 18
+      style: eyebrow
+      type: text
+      text: WHY THIS EXISTS
+    - id: t051
+      box:
+      - 100
+      - 1628
+      - 1240
+      - 53
+      style: h2
+      type: text
+      text: What breaks when output survives only as pixels.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 100.0
+      - 1721.0
+      to:
+      - 486.6666666666667
+      - 1721.0
+      stroke: grid
+    - id: t052
+      box:
+      - 100.0
+      - 1739
+      - 386.6666666666667
+      - 56
+      style: h3
+      type: text
+      text: A screenshot is not evidence.
+    - id: t053
+      box:
+      - 100.0
+      - 1805
+      - 386.6666666666667
+      - 105
+      style: body
+      type: text
+      text: Structure, constraints, provenance and generation history flatten into
+        pixels. Teams end up debating an image because there is nothing else left
+        to inspect.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 526.6666666666667
+      - 1721.0
+      to:
+      - 913.3333333333335
+      - 1721.0
+      stroke: grid
+    - id: t054
+      box:
+      - 526.6666666666667
+      - 1739
+      - 386.6666666666667
+      - 56
+      style: h3
+      type: text
+      text: It looks right, and it is wrong.
+    - id: t055
+      box:
+      - 526.6666666666667
+      - 1805
+      - 386.6666666666667
+      - 80
+      style: body
+      type: text
+      text: Generated layouts overflow their boxes, collapse their columns and drift
+        from the brand. Nothing fails loudly, so the defect ships.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 953.3333333333334
+      - 1721.0
+      to:
+      - 1340.0
+      - 1721.0
+      stroke: grid
+    - id: t056
+      box:
+      - 953.3333333333334
+      - 1739
+      - 386.6666666666667
+      - 56
+      style: h3
+      type: text
+      text: The file is a dead end.
+    - id: t057
+      box:
+      - 953.3333333333334
+      - 1805
+      - 386.6666666666667
+      - 80
+      style: body
+      type: text
+      text: Re-prompting is not editing. Output locked inside a vendor runtime cannot
+        be diffed, migrated, or reproduced a year from now.
+    - id: t058
+      box:
+      - 100
+      - 2046
+      - 1240
+      - 18
+      style: eyebrow
+      type: text
+      text: THE LOOP
+    - id: t059
+      box:
+      - 100
+      - 2080
+      - 1240
+      - 53
+      style: h2
+      type: text
+      text: Describe. Validate. Render. Verify.
+    - id: t060
+      box:
+      - 100
+      - 2149
+      - 740
+      - 99
+      style: lede
+      type: text
+      text: 'The same four steps whether a person writes the client or an agent calls
+        the tools. The loop closes: the render is measured, and the measurement is
+        what drives the next revision.'
+    - box:
+      - 100.0
+      - 2294
+      - 292.0
+      - 225
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t061
+      box:
+      - 124.0
+      - 2318
+      - 244.0
+      - 18
+      style: eyebrow
+      type: text
+      text: '01'
+    - id: t062
+      box:
+      - 124.0
+      - 2344
+      - 244.0
+      - 26
+      style: capi
+      type: text
+      text: DESCRIBE
+    - id: t063
+      box:
+      - 124.0
+      - 2372
+      - 244.0
+      - 18
+      style: cap
+      type: text
+      text: Python SDK or MCP
+    - id: t064
+      box:
+      - 124.0
+      - 2406
+      - 244.0
+      - 68
+      style: bodysm
+      type: text
+      text: '245 public SDK exports lower to one typed model: 17 object types, 106
+        style properties.'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 396.0
+      - 2406.5
+      to:
+      - 412.0
+      - 2406.5
+      stroke: graph
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: polyline
+      points:
+      - - 407.0
+        - 2402.5
+      - - 412.0
+        - 2406.5
+      - - 407.0
+        - 2410.5
+      stroke: graph
+    - box:
+      - 416.0
+      - 2294
+      - 292.0
+      - 225
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t065
+      box:
+      - 440.0
+      - 2318
+      - 244.0
+      - 18
+      style: eyebrow
+      type: text
+      text: '02'
+    - id: t066
+      box:
+      - 440.0
+      - 2344
+      - 244.0
+      - 26
+      style: capi
+      type: text
+      text: VALIDATE
+    - id: t067
+      box:
+      - 440.0
+      - 2372
+      - 244.0
+      - 18
+      style: cap
+      type: text
+      text: before a pixel is drawn
+    - id: t068
+      box:
+      - 440.0
+      - 2406
+      - 244.0
+      - 89
+      style: bodysm
+      type: text
+      text: The model plus 25 typed rule codes — containment, overflow, dangling refs,
+        deprecated forms — each with a documented fix.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 712.0
+      - 2406.5
+      to:
+      - 728.0
+      - 2406.5
+      stroke: graph
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: polyline
+      points:
+      - - 723.0
+        - 2402.5
+      - - 728.0
+        - 2406.5
+      - - 723.0
+        - 2410.5
+      stroke: graph
+    - box:
+      - 732.0
+      - 2294
+      - 292.0
+      - 225
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t069
+      box:
+      - 756.0
+      - 2318
+      - 244.0
+      - 18
+      style: eyebrow
+      type: text
+      text: '03'
+    - id: t070
+      box:
+      - 756.0
+      - 2344
+      - 244.0
+      - 26
+      style: capi
+      type: text
+      text: RENDER
+    - id: t071
+      box:
+      - 756.0
+      - 2372
+      - 244.0
+      - 18
+      style: cap
+      type: text
+      text: one document, many backends
+    - id: t072
+      box:
+      - 756.0
+      - 2406
+      - 244.0
+      - 89
+      style: bodysm
+      type: text
+      text: SVG, headless-Chromium PNG, PDF via LaTeX/TikZ or cairosvg, HTML/CSS.
+        Each backend declares the subset it supports.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: line
+      from:
+      - 1028.0
+      - 2406.5
+      to:
+      - 1044.0
+      - 2406.5
+      stroke: graph
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.6
+      type: polyline
+      points:
+      - - 1039.0
+        - 2402.5
+      - - 1044.0
+        - 2406.5
+      - - 1039.0
+        - 2410.5
+      stroke: graph
+    - box:
+      - 1048.0
+      - 2294
+      - 292.0
+      - 225
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t073
+      box:
+      - 1072.0
+      - 2318
+      - 244.0
+      - 18
+      style: eyebrow
+      type: text
+      text: '04'
+    - id: t074
+      box:
+      - 1072.0
+      - 2344
+      - 244.0
+      - 26
+      style: capi
+      type: text
+      text: VERIFY
+    - id: t075
+      box:
+      - 1072.0
+      - 2372
+      - 244.0
+      - 18
+      style: cap
+      type: text
+      text: against the pixels
+    - id: t076
+      box:
+      - 1072.0
+      - 2406
+      - 244.0
+      - 68
+      style: bodysm
+      type: text
+      text: Structural diff, image NCC/RMSE, a design-token audit, and a golden hash
+        lock that fails the build on drift.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.4
+        stroke_dasharray:
+        - 4
+        - 4
+      type: polyline
+      points:
+      - - 1280.0
+        - 2525.0
+      - - 1280.0
+        - 2553.0
+      - - 160.0
+        - 2553.0
+      - - 160.0
+        - 2525.0
+      stroke: graph
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.4
+      type: polyline
+      points:
+      - - 156.0
+        - 2530.0
+      - - 160.0
+        - 2525.0
+      - - 164.0
+        - 2530.0
+      stroke: graph
+    - box:
+      - 548.0
+      - 2540
+      - 344.0
+      - 26
+      decorative: true
+      type: rect
+      fill: paper
+    - id: t077
+      box:
+      - 564.0
+      - 2540
+      - 316.0
+      - 26
+      style: cap
+      type: text
+      text: the measurement drives the next revision
+    - id: t078
+      box:
+      - 100
+      - 2694
+      - 1240
+      - 18
+      style: eyebrow
+      type: text
+      text: THE API
+    - id: t079
+      box:
+      - 100
+      - 2728
+      - 1240
+      - 53
+      style: h2
+      type: text
+      text: A document is a program you can read.
+    - box:
+      - 100
+      - 2827
+      - 700
+      - 412
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: ink
+      radius: 10
+      stroke: hair-r
+    - decorative: true
+      type: ellipse
+      center:
+      - 128.0
+      - 2853.0
+      rx: 5.0
+      ry: 5.0
+      fill: drift
+    - decorative: true
+      type: ellipse
+      center:
+      - 146.0
+      - 2853.0
+      rx: 5.0
+      ry: 5.0
+      fill: mute
+    - decorative: true
+      type: ellipse
+      center:
+      - 164.0
+      - 2853.0
+      rx: 5.0
+      ry: 5.0
+      fill: gate
+    - id: t080
+      box:
+      - 196
+      - 2841
+      - 300
+      - 24
+      style: capr
+      type: text
+      text: q3_review.py
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 100.0
+      - 2873.0
+      to:
+      - 800.0
+      - 2873.0
+      stroke: hair-r
+    - id: t081
+      box:
+      - 128
+      - 2899
+      - 644
+      - 26
+      style:
+        color: paper
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 400
+      type: text
+      spans:
+      - text: from
+        style:
+          color: '#12B0C3'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: ' frameforge.sdk '
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: import
+        style:
+          color: '#12B0C3'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: ' DocumentBuilder'
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+    - id: t082
+      box:
+      - 128
+      - 2951
+      - 644
+      - 26
+      style:
+        color: paper
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 400
+      type: text
+      spans:
+      - text: doc = DocumentBuilder(title=
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"Q3 Review"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: ', profile='
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"deck"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: )
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+    - id: t083
+      box:
+      - 128
+      - 2977
+      - 644
+      - 26
+      style:
+        color: paper
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 400
+      type: text
+      spans:
+      - text: doc.define_color(
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"ink"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: ', '
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"#15181E"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: )
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+    - id: t084
+      box:
+      - 128
+      - 3003
+      - 644
+      - 26
+      style:
+        color: paper
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 400
+      type: text
+      spans:
+      - text: doc.define_text_style(
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"display"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: ', font_size='
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '132'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: ', color='
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"#FBFAF6"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: )
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+    - id: t085
+      box:
+      - 128
+      - 3055
+      - 644
+      - 26
+      style:
+        color: paper
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 400
+      type: text
+      spans:
+      - text: page = doc.page(
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"cover"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: ', canvas='
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"deck-16x9"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: )
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+    - id: t086
+      box:
+      - 128
+      - 3081
+      - 644
+      - 26
+      style:
+        color: paper
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 400
+      type: text
+      spans:
+      - text: page.rect([
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: 0, 0, 1920, 1080
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '], fill='
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"ink"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: )
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+    - id: t087
+      box:
+      - 128
+      - 3107
+      - 644
+      - 26
+      style:
+        color: paper
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 400
+      type: text
+      spans:
+      - text: page.text([
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: 160, 430, 1360, 210
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '], '
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"Q3 Review"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: ', style='
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"display"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: )
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+    - id: t088
+      box:
+      - 128
+      - 3159
+      - 644
+      - 26
+      style:
+        color: paper
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 400
+      type: text
+      spans:
+      - text: report = doc.write(
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"q3.fg.yaml"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: ', format='
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '"yaml"'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: )
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+    - id: t089
+      box:
+      - 128
+      - 3185
+      - 644
+      - 26
+      style:
+        color: paper
+        font_family:
+        - IBM Plex Mono
+        - DejaVu Sans Mono
+        - Menlo
+        - monospace
+        font_size: 16
+        font_weight: 400
+      type: text
+      spans:
+      - text: 'print(report.ok, '
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: len
+        style:
+          color: '#12B0C3'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: (report.issues))
+        style:
+          color: '#FBFAF6'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+      - text: '   # -> True 0'
+        style:
+          color: '#A7AEBA'
+          font_family:
+          - IBM Plex Mono
+          - DejaVu Sans Mono
+          - Menlo
+          - monospace
+          font_size: 16
+          font_weight: 400
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 844.0
+      - 2831.0
+      to:
+      - 1340.0
+      - 2831.0
+      stroke: grid
+    - id: t090
+      box:
+      - 844
+      - 2849
+      - 496
+      - 28
+      style: h3
+      type: text
+      text: Validated at build time, not at render time.
+    - id: t091
+      box:
+      - 844
+      - 2885
+      - 496
+      - 55
+      style: body
+      type: text
+      text: '`write()` returns a report of typed issues before anything is drawn.
+        An error is a build failure, not a visual surprise.'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 844.0
+      - 2968.0
+      to:
+      - 1340.0
+      - 2968.0
+      stroke: grid
+    - id: t092
+      box:
+      - 844
+      - 2986
+      - 496
+      - 28
+      style: h3
+      type: text
+      text: One document, every backend.
+    - id: t093
+      box:
+      - 844
+      - 3022
+      - 496
+      - 55
+      style: body
+      type: text
+      text: The same `.fg.yaml` renders to SVG, PNG, PDF and HTML. Nothing about the
+        document is renderer-specific.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 844.0
+      - 3105.0
+      to:
+      - 1340.0
+      - 3105.0
+      stroke: grid
+    - id: t094
+      box:
+      - 844
+      - 3123
+      - 496
+      - 28
+      style: h3
+      type: text
+      text: Migrated forward, not rewritten.
+    - id: t095
+      box:
+      - 844
+      - 3159
+      - 496
+      - 55
+      style: body
+      type: text
+      text: '`codemod.py` migrates older documents to HEAD — exactly the forms the
+        validator rejects. Your archive keeps opening.'
+    - id: t096
+      box:
+      - 100
+      - 3370
+      - 1240
+      - 18
+      style: eyebrow
+      type: text
+      text: OUTPUTS
+    - id: t097
+      box:
+      - 100
+      - 3404
+      - 1240
+      - 53
+      style: h2
+      type: text
+      text: What it renders today — and what still degrades.
+    - id: t098
+      box:
+      - 100
+      - 3473
+      - 720
+      - 68
+      style: lede
+      type: text
+      text: Only backends that are verified in this repository appear here. A renderer
+        that degrades says so, on the page, next to the ones that do not.
+    - box:
+      - 100.0
+      - 3587
+      - 292.0
+      - 128
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t099
+      box:
+      - 122.0
+      - 3611
+      - 248.0
+      - 32
+      style: h3
+      type: text
+      text: SVG
+    - id: t100
+      box:
+      - 122.0
+      - 3645
+      - 248.0
+      - 18
+      style: cap
+      type: text
+      text: vector · primary
+    - decorative: true
+      type: ellipse
+      center:
+      - 127.0
+      - 3686.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t101
+      box:
+      - 140.0
+      - 3677
+      - 220
+      - 18
+      style: capstate
+      type: text
+      text: verified
+    - box:
+      - 416.0
+      - 3587
+      - 292.0
+      - 128
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t102
+      box:
+      - 438.0
+      - 3611
+      - 248.0
+      - 32
+      style: h3
+      type: text
+      text: PNG
+    - id: t103
+      box:
+      - 438.0
+      - 3645
+      - 248.0
+      - 18
+      style: cap
+      type: text
+      text: headless Chromium
+    - decorative: true
+      type: ellipse
+      center:
+      - 443.0
+      - 3686.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t104
+      box:
+      - 456.0
+      - 3677
+      - 220
+      - 18
+      style: capstate
+      type: text
+      text: verified
+    - box:
+      - 732.0
+      - 3587
+      - 292.0
+      - 128
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t105
+      box:
+      - 754.0
+      - 3611
+      - 248.0
+      - 32
+      style: h3
+      type: text
+      text: PDF
+    - id: t106
+      box:
+      - 754.0
+      - 3645
+      - 248.0
+      - 18
+      style: cap
+      type: text
+      text: LaTeX / TikZ
+    - decorative: true
+      type: ellipse
+      center:
+      - 759.0
+      - 3686.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t107
+      box:
+      - 772.0
+      - 3677
+      - 220
+      - 18
+      style: capstate
+      type: text
+      text: verified
+    - box:
+      - 1048.0
+      - 3587
+      - 292.0
+      - 128
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t108
+      box:
+      - 1070.0
+      - 3611
+      - 248.0
+      - 32
+      style: h3
+      type: text
+      text: PDF
+    - id: t109
+      box:
+      - 1070.0
+      - 3645
+      - 248.0
+      - 18
+      style: cap
+      type: text
+      text: cairosvg
+    - decorative: true
+      type: ellipse
+      center:
+      - 1075.0
+      - 3686.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t110
+      box:
+      - 1088.0
+      - 3677
+      - 220
+      - 18
+      style: capstate
+      type: text
+      text: verified
+    - box:
+      - 100.0
+      - 3737
+      - 292.0
+      - 128
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t111
+      box:
+      - 122.0
+      - 3761
+      - 248.0
+      - 32
+      style: h3
+      type: text
+      text: HTML / CSS
+    - id: t112
+      box:
+      - 122.0
+      - 3795
+      - 248.0
+      - 18
+      style: cap
+      type: text
+      text: web
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.8
+      type: ellipse
+      center:
+      - 127.0
+      - 3836.0
+      rx: 4.5
+      ry: 4.5
+      fill: canvas
+      stroke: drift
+    - id: t113
+      box:
+      - 140.0
+      - 3827
+      - 220
+      - 18
+      style: capstate
+      type: text
+      text: degrades flow
+    - box:
+      - 416.0
+      - 3737
+      - 292.0
+      - 128
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t114
+      box:
+      - 438.0
+      - 3761
+      - 248.0
+      - 32
+      style: h3
+      type: text
+      text: Math
+    - id: t115
+      box:
+      - 438.0
+      - 3795
+      - 248.0
+      - 18
+      style: cap
+      type: text
+      text: TeX -> SVG (MathJax)
+    - decorative: true
+      type: ellipse
+      center:
+      - 443.0
+      - 3836.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t116
+      box:
+      - 456.0
+      - 3827
+      - 220
+      - 18
+      style: capstate
+      type: text
+      text: verified
+    - box:
+      - 732.0
+      - 3737
+      - 292.0
+      - 128
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t117
+      box:
+      - 754.0
+      - 3761
+      - 248.0
+      - 32
+      style: h3
+      type: text
+      text: JSON Schema
+    - id: t118
+      box:
+      - 754.0
+      - 3795
+      - 248.0
+      - 18
+      style: cap
+      type: text
+      text: the format contract
+    - decorative: true
+      type: ellipse
+      center:
+      - 759.0
+      - 3836.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t119
+      box:
+      - 772.0
+      - 3827
+      - 220
+      - 18
+      style: capstate
+      type: text
+      text: verified
+    - box:
+      - 1048.0
+      - 3737
+      - 292.0
+      - 128
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t120
+      box:
+      - 1070.0
+      - 3761
+      - 248.0
+      - 32
+      style: h3
+      type: text
+      text: Audit
+    - id: t121
+      box:
+      - 1070.0
+      - 3795
+      - 248.0
+      - 18
+      style: cap
+      type: text
+      text: design-token census
+    - decorative: true
+      type: ellipse
+      center:
+      - 1075.0
+      - 3836.0
+      rx: 4.5
+      ry: 4.5
+      fill: gate
+    - id: t122
+      box:
+      - 1088.0
+      - 3827
+      - 220
+      - 18
+      style: capstate
+      type: text
+      text: verified
+    - id: t123
+      box:
+      - 100
+      - 4001
+      - 1240
+      - 18
+      style: eyebrow
+      type: text
+      text: AGENT-NATIVE
+    - id: t124
+      box:
+      - 100
+      - 4035
+      - 1240
+      - 53
+      style: h2
+      type: text
+      text: Built for the agent that has to be right.
+    - id: t125
+      box:
+      - 100
+      - 4104
+      - 760
+      - 99
+      style: lede
+      type: text
+      text: '31 MCP tools over the same model the SDK uses: author and render, draft
+        from an image, then measure the result and prove it converged. Bounded operations,
+        inspectable state, verifiable results.'
+    - box:
+      - 100.0
+      - 4249
+      - 232.0
+      - 286
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t126
+      box:
+      - 120.0
+      - 4269
+      - 192.0
+      - 24
+      style: capi
+      type: text
+      text: Author -> render
+    - id: t127
+      box:
+      - 120.0
+      - 4295
+      - 192.0
+      - 18
+      style: eyebrow
+      type: text
+      text: 6 tools
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 120.0
+      - 4323.0
+      to:
+      - 312.0
+      - 4323.0
+      stroke: grid
+    - id: mcp-0
+      box:
+      - 120.0
+      - 4341
+      - 200.0
+      - 128
+      type: group
+      children:
+      - id: t128
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: run_sdk_code
+      - id: t129
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: run_sdk_client
+      - id: t130
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: render_frameforge_yaml
+      - id: t131
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: write_sdk_client
+      - id: t132
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: read_sdk_client
+      - id: t133
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: list_sdk_clients
+      layout:
+        kind: column
+        gap: 4
+    - box:
+      - 352.0
+      - 4249
+      - 232.0
+      - 286
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t134
+      box:
+      - 372.0
+      - 4269
+      - 192.0
+      - 24
+      style: capi
+      type: text
+      text: Image -> draft
+    - id: t135
+      box:
+      - 372.0
+      - 4295
+      - 192.0
+      - 18
+      style: eyebrow
+      type: text
+      text: 5 tools
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 372.0
+      - 4323.0
+      to:
+      - 564.0
+      - 4323.0
+      stroke: grid
+    - id: mcp-1
+      box:
+      - 372.0
+      - 4341
+      - 200.0
+      - 106
+      type: group
+      children:
+      - id: t136
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: propose_from_image
+      - id: t137
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: propose_from_document
+      - id: t138
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: propose_from_svg
+      - id: t139
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: vectorize_image
+      - id: t140
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: coach_vectorize
+      layout:
+        kind: column
+        gap: 4
+    - box:
+      - 604.0
+      - 4249
+      - 232.0
+      - 286
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t141
+      box:
+      - 624.0
+      - 4269
+      - 192.0
+      - 24
+      style: capi
+      type: text
+      text: Visual QA
+    - id: t142
+      box:
+      - 624.0
+      - 4295
+      - 192.0
+      - 18
+      style: eyebrow
+      type: text
+      text: 5 tools
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 624.0
+      - 4323.0
+      to:
+      - 816.0
+      - 4323.0
+      stroke: grid
+    - id: mcp-2
+      box:
+      - 624.0
+      - 4341
+      - 200.0
+      - 106
+      type: group
+      children:
+      - id: t143
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: compare_images
+      - id: t144
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: diff_renders
+      - id: t145
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: overlay_images
+      - id: t146
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: design_audit
+      - id: t147
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: score_reconstruction
+      layout:
+        kind: column
+        gap: 4
+    - box:
+      - 856.0
+      - 4249
+      - 232.0
+      - 286
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t148
+      box:
+      - 876.0
+      - 4269
+      - 192.0
+      - 24
+      style: capi
+      type: text
+      text: Reconstruction
+    - id: t149
+      box:
+      - 876.0
+      - 4295
+      - 192.0
+      - 18
+      style: eyebrow
+      type: text
+      text: 8 tools
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 876.0
+      - 4323.0
+      to:
+      - 1068.0
+      - 4323.0
+      stroke: grid
+    - id: mcp-3
+      box:
+      - 876.0
+      - 4341
+      - 200.0
+      - 172
+      type: group
+      children:
+      - id: t150
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: measure_image
+      - id: t151
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: mark_points
+      - id: t152
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: map_coordinates
+      - id: t153
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: workspace
+      - id: t154
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: construct_vectors
+      - id: t155
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: fit_primitives
+      - id: t156
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: detect_regions
+      - id: t157
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: refine_reconstruction
+      layout:
+        kind: column
+        gap: 4
+    - box:
+      - 1108.0
+      - 4249
+      - 232.0
+      - 286
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 8
+      stroke: grid
+    - id: t158
+      box:
+      - 1128.0
+      - 4269
+      - 192.0
+      - 24
+      style: capi
+      type: text
+      text: Discovery
+    - id: t159
+      box:
+      - 1128.0
+      - 4295
+      - 192.0
+      - 18
+      style: eyebrow
+      type: text
+      text: 7 tools
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 1128.0
+      - 4323.0
+      to:
+      - 1320.0
+      - 4323.0
+      stroke: grid
+    - id: mcp-4
+      box:
+      - 1128.0
+      - 4341
+      - 200.0
+      - 150
+      type: group
+      children:
+      - id: t160
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: describe_capabilities
+      - id: t161
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: get_guide
+      - id: t162
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: list_fonts
+      - id: t163
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: match_font
+      - id: t164
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: list_sessions
+      - id: t165
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: get_session_resource
+      - id: t166
+        box:
+        - 0
+        - 0
+        - 200.0
+        - 18
+        style: cap
+        type: text
+        text: cleanup_sessions
+      layout:
+        kind: column
+        gap: 4
+    - box:
+      - 0
+      - 4607
+      - 1440
+      - 753
+      decorative: true
+      type: rect
+      fill: ink
+    - id: t167
+      box:
+      - 100
+      - 4683
+      - 1240
+      - 18
+      style: eyebrowr
+      type: text
+      text: THE PROOF
+    - id: t168
+      box:
+      - 100
+      - 4717
+      - 1240
+      - 53
+      style: h2r
+      type: text
+      text: The sync guarantee.
+    - id: t169
+      box:
+      - 100
+      - 4786
+      - 700
+      - 55
+      style: bodyr
+      type: text
+      text: Four couplings that would silently rot in any other stack. Here each one
+        is a gate, and a gate that fails stops the build.
+    - decorative: true
+      type: ellipse
+      center:
+      - 107.0
+      - 4896.0
+      rx: 5.5
+      ry: 5.5
+      fill: gate
+    - id: t170
+      box:
+      - 126.0
+      - 4885
+      - 574.0
+      - 28
+      style: h3r
+      type: text
+      text: Schema follows the models.
+    - id: t171
+      box:
+      - 126.0
+      - 4921
+      - 574.0
+      - 80
+      style: bodyr
+      type: text
+      text: '`docs/schema/frameforge-v2.schema.json` is produced by `Document.model_json_schema()`.
+        `build_schema.py --check` returns non-zero if the committed file differs from
+        a fresh build.'
+    - decorative: true
+      type: ellipse
+      center:
+      - 747.0
+      - 4896.0
+      rx: 5.5
+      ry: 5.5
+      fill: gate
+    - id: t172
+      box:
+      - 766.0
+      - 4885
+      - 574.0
+      - 28
+      style: h3r
+      type: text
+      text: The validator is the same model.
+    - id: t173
+      box:
+      - 766.0
+      - 4921
+      - 574.0
+      - 55
+      style: bodyr
+      type: text
+      text: '`validate.py` validates against that same `Document`, then layers the
+        spec''s structural and geometric rules on top.'
+    - decorative: true
+      type: ellipse
+      center:
+      - 107.0
+      - 5020.0
+      rx: 5.5
+      ry: 5.5
+      fill: gate
+    - id: t174
+      box:
+      - 126.0
+      - 5009
+      - 574.0
+      - 28
+      style: h3r
+      type: text
+      text: The codemod is the validator, inverted.
+    - id: t175
+      box:
+      - 126.0
+      - 5045
+      - 574.0
+      - 55
+      style: bodyr
+      type: text
+      text: Its migrations are exactly the breaking and renamed forms the validator
+        rejects. Running it makes a legacy document pass.
+    - decorative: true
+      type: ellipse
+      center:
+      - 747.0
+      - 5020.0
+      rx: 5.5
+      ry: 5.5
+      fill: gate
+    - id: t176
+      box:
+      - 766.0
+      - 5009
+      - 574.0
+      - 28
+      style: h3r
+      type: text
+      text: The grammar is a view, and it is checked.
+    - id: t177
+      box:
+      - 766.0
+      - 5045
+      - 574.0
+      - 55
+      style: bodyr
+      type: text
+      text: '`check_grammar_sync.py` introspects the models and diffs the EBNF, failing
+        on core-profile drift instead of trusting it.'
+    - box:
+      - 100
+      - 5153
+      - 1240
+      - 131
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: surface
+      radius: 8
+      stroke: hair-r
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.8
+      type: ellipse
+      center:
+      - 133.0
+      - 5188.0
+      rx: 4.5
+      ry: 4.5
+      fill: surface
+      stroke: drift
+    - id: t178
+      box:
+      - 146
+      - 5179
+      - 220
+      - 18
+      style: capstater
+      type: text
+      text: HONEST LIMITS
+    - id: t179
+      box:
+      - 128
+      - 5211
+      - 1184
+      - 47
+      style: capr
+      type: text
+      text: FrameForge v2 is a proposed, not-yet-conformantly-implemented system.
+        The prose and grammar are design targets to verify. The parts you can actually
+        run — the models, the generated schema, the validator and the codemod — are
+        the parts to trust.
+    - id: t180
+      box:
+      - 100
+      - 5424
+      - 1240
+      - 18
+      style: eyebrow
+      type: text
+      text: WHO IT SERVES
+    - id: t181
+      box:
+      - 100
+      - 5458
+      - 1240
+      - 53
+      style: h2
+      type: text
+      text: Three ways in.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 100.0
+      - 5551.0
+      to:
+      - 486.6666666666667
+      - 5551.0
+      stroke: grid
+    - id: t182
+      box:
+      - 100.0
+      - 5569
+      - 386.6666666666667
+      - 32
+      style: h3
+      type: text
+      text: Agent and tool builders
+    - id: t183
+      box:
+      - 100.0
+      - 5609
+      - 386.6666666666667
+      - 105
+      style: body
+      type: text
+      text: 31 MCP tools expose the same model, capabilities and renderer contracts
+        an agent needs to know what is supported, degraded or unavailable — before
+        it commits.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 526.6666666666667
+      - 5551.0
+      to:
+      - 913.3333333333335
+      - 5551.0
+      stroke: grid
+    - id: t184
+      box:
+      - 526.6666666666667
+      - 5569
+      - 386.6666666666667
+      - 32
+      style: h3
+      type: text
+      text: Design and documentation teams
+    - id: t185
+      box:
+      - 526.6666666666667
+      - 5609
+      - 386.6666666666667
+      - 105
+      style: body
+      type: text
+      text: 57 canvas presets, real typesetting — pagination, footnotes, grids, flowing
+        regions, tables, figures — and a design-token audit that catches drift in
+        the output, not in review.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 953.3333333333334
+      - 5551.0
+      to:
+      - 1340.0
+      - 5551.0
+      stroke: grid
+    - id: t186
+      box:
+      - 953.3333333333334
+      - 5569
+      - 386.6666666666667
+      - 32
+      style: h3
+      type: text
+      text: Organisations that must audit output
+    - id: t187
+      box:
+      - 953.3333333333334
+      - 5609
+      - 386.6666666666667
+      - 80
+      style: body
+      type: text
+      text: Deterministic renders, declared renderer subsets, provenance and a migration
+        path. The source outlives the tool that produced it.
+    - box:
+      - 100
+      - 5826
+      - 1240
+      - 208
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 10
+      stroke: grid
+    - box:
+      - 817.6640625
+      - 5904.0
+      - 166.3359375
+      - 52
+      decorative: true
+      type: rect
+      fill: ink
+      radius: 6
+    - id: t188
+      box:
+      - 845.6640625
+      - 5904.0
+      - 110.3359375
+      - 52
+      style: btn
+      type: text
+      text: Read the spec
+    - box:
+      - 1000.0
+      - 5904.0
+      - 284.0
+      - 52
+      decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: rect
+      fill: canvas
+      radius: 6
+      stroke: grid
+    - id: t189
+      box:
+      - 1022.0
+      - 5904.0
+      - 240.0
+      - 52
+      style: chip
+      type: text
+      text: uv pip install frameforge
+    - id: t190
+      box:
+      - 156
+      - 5884.0
+      - 605.6640625
+      - 52
+      style: h2
+      type: text
+      text: Author it. Then prove it.
+    - id: t191
+      box:
+      - 156
+      - 5946.0
+      - 605.6640625
+      - 30
+      style: body
+      type: text
+      text: Install the package, run an example, read the report it prints.
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: line
+      from:
+      - 100.0
+      - 6084.0
+      to:
+      - 1340.0
+      - 6084.0
+      stroke: grid
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 102.0
+      - 6122.0
+      to:
+      - 110.32
+      - 6122.0
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 102.0
+      - 6122.0
+      to:
+      - 102.0
+      - 6130.32
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 102.0
+      - 6154.0
+      to:
+      - 110.32
+      - 6154.0
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 102.0
+      - 6154.0
+      to:
+      - 102.0
+      - 6145.68
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 134.0
+      - 6122.0
+      to:
+      - 125.68
+      - 6122.0
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 134.0
+      - 6122.0
+      to:
+      - 134.0
+      - 6130.32
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 134.0
+      - 6154.0
+      to:
+      - 125.68
+      - 6154.0
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.1
+      type: line
+      from:
+      - 134.0
+      - 6154.0
+      to:
+      - 134.0
+      - 6145.68
+      stroke: '#15181E'
+    - decorative: true
+      stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 110.96
+      - 6138.0
+      to:
+      - 123.70789394370694
+      - 6130.64
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 110.96
+      - 6138.0
+      to:
+      - 125.67999999999999
+      - 6138.0
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 0.9
+      type: line
+      from:
+      - 110.96
+      - 6138.0
+      to:
+      - 123.70789394370694
+      - 6145.36
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 123.70789394370694
+      - 6130.64
+      rx: 1.664
+      ry: 1.664
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 125.67999999999999
+      - 6138.0
+      rx: 1.664
+      ry: 1.664
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 123.70789394370694
+      - 6145.36
+      rx: 1.664
+      ry: 1.664
+      fill: '#FFFFFF'
+      stroke: '#1F4FD8'
+    - decorative: true
+      stroke_style:
+        stroke_width: 1.0
+      type: ellipse
+      center:
+      - 110.96
+      - 6138.0
+      rx: 2.4
+      ry: 2.4
+      fill: '#1F4FD8'
+      stroke: '#1F4FD8'
+    - id: t192
+      box:
+      - 148
+      - 6125
+      - 180
+      - 26
+      style:
+        font_family:
+        - IBM Plex Sans
+        - DejaVu Sans
+        - Helvetica
+        - Arial
+        - sans-serif
+        font_size: 20
+        font_weight: 700
+        letter_spacing: -1.5
+      type: text
+      spans:
+      - text: Frame
+        style:
+          color: '#15181E'
+      - text: Forge
+        style:
+          color: '#1F4FD8'
+    - id: t193
+      box:
+      - 100
+      - 6166
+      - 340
+      - 34
+      style: cap
+      type: text
+      text: v2.6.0 · MIT · Pedro Anisio Silva
+    - id: t194
+      box:
+      - 560.0
+      - 6120
+      - 240.0
+      - 18
+      style: eyebrow
+      type: text
+      text: PRODUCT
+    - id: foot-0
+      box:
+      - 560.0
+      - 6146
+      - 240.0
+      - 102
+      type: group
+      children:
+      - id: t195
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: Spec
+      - id: t196
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: Grammar
+      - id: t197
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: JSON Schema
+      - id: t198
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: Output space
+      - id: t199
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: Error codes
+      layout:
+        kind: column
+        gap: 3
+    - id: t200
+      box:
+      - 830.0
+      - 6120
+      - 240.0
+      - 18
+      style: eyebrow
+      type: text
+      text: BUILD
+    - id: foot-1
+      box:
+      - 830.0
+      - 6146
+      - 240.0
+      - 102
+      type: group
+      children:
+      - id: t201
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: Python SDK
+      - id: t202
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: MCP server
+      - id: t203
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: Examples
+      - id: t204
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: Codemod
+      - id: t205
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: Fixtures
+      layout:
+        kind: column
+        gap: 3
+    - id: t206
+      box:
+      - 1100.0
+      - 6120
+      - 240.0
+      - 18
+      style: eyebrow
+      type: text
+      text: PROJECT
+    - id: foot-2
+      box:
+      - 1100.0
+      - 6146
+      - 240.0
+      - 102
+      type: group
+      children:
+      - id: t207
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: README
+      - id: t208
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: PURPOSE
+      - id: t209
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: CHANGELOG
+      - id: t210
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: DISCLAIMER
+      - id: t211
+        box:
+        - 0
+        - 0
+        - 240.0
+        - 18
+        style: cap
+        type: text
+        text: Brand
+      layout:
+        kind: column
+        gap: 3
+    - id: t212
+      box:
+      - 100
+      - 6282
+      - 1240
+      - 18
+      style: cap
+      type: text
+      text: frameforge.hefestus.io  ·  github.com/pedroanisio/frameforge  ·  This
+        page is itself a FrameForge document — static/examples/frameforge_landing.py
+  reading_order:
+  - t001
+  - t002
+  - t003
+  - t004
+  - t005
+  - t006
+  - t007
+  - t008
+  - t009
+  - t010
+  - t011
+  - t012
+  - t013
+  - t014
+  - t015
+  - t016
+  - t017
+  - t018
+  - t019
+  - t020
+  - t021
+  - t022
+  - t023
+  - t024
+  - t025
+  - t026
+  - t027
+  - t028
+  - t029
+  - t030
+  - t031
+  - t032
+  - t033
+  - t034
+  - t035
+  - t036
+  - t037
+  - t038
+  - t039
+  - t040
+  - t041
+  - t042
+  - t043
+  - t044
+  - t045
+  - t046
+  - t047
+  - t048
+  - t049
+  - t050
+  - t051
+  - t052
+  - t053
+  - t054
+  - t055
+  - t056
+  - t057
+  - t058
+  - t059
+  - t060
+  - t061
+  - t062
+  - t063
+  - t064
+  - t065
+  - t066
+  - t067
+  - t068
+  - t069
+  - t070
+  - t071
+  - t072
+  - t073
+  - t074
+  - t075
+  - t076
+  - t077
+  - t078
+  - t079
+  - t080
+  - t081
+  - t082
+  - t083
+  - t084
+  - t085
+  - t086
+  - t087
+  - t088
+  - t089
+  - t090
+  - t091
+  - t092
+  - t093
+  - t094
+  - t095
+  - t096
+  - t097
+  - t098
+  - t099
+  - t100
+  - t101
+  - t102
+  - t103
+  - t104
+  - t105
+  - t106
+  - t107
+  - t108
+  - t109
+  - t110
+  - t111
+  - t112
+  - t113
+  - t114
+  - t115
+  - t116
+  - t117
+  - t118
+  - t119
+  - t120
+  - t121
+  - t122
+  - t123
+  - t124
+  - t125
+  - t126
+  - t127
+  - mcp-0
+  - t128
+  - t129
+  - t130
+  - t131
+  - t132
+  - t133
+  - t134
+  - t135
+  - mcp-1
+  - t136
+  - t137
+  - t138
+  - t139
+  - t140
+  - t141
+  - t142
+  - mcp-2
+  - t143
+  - t144
+  - t145
+  - t146
+  - t147
+  - t148
+  - t149
+  - mcp-3
+  - t150
+  - t151
+  - t152
+  - t153
+  - t154
+  - t155
+  - t156
+  - t157
+  - t158
+  - t159
+  - mcp-4
+  - t160
+  - t161
+  - t162
+  - t163
+  - t164
+  - t165
+  - t166
+  - t167
+  - t168
+  - t169
+  - t170
+  - t171
+  - t172
+  - t173
+  - t174
+  - t175
+  - t176
+  - t177
+  - t178
+  - t179
+  - t180
+  - t181
+  - t182
+  - t183
+  - t184
+  - t185
+  - t186
+  - t187
+  - t188
+  - t189
+  - t190
+  - t191
+  - t192
+  - t193
+  - t194
+  - foot-0
+  - t195
+  - t196
+  - t197
+  - t198
+  - t199
+  - t200
+  - foot-1
+  - t201
+  - t202
+  - t203
+  - t204
+  - t205
+  - t206
+  - foot-2
+  - t207
+  - t208
+  - t209
+  - t210
+  - t211
+  - t212

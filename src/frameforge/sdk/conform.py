@@ -89,6 +89,31 @@ def overflow_report(
     return [OverflowSignal.from_dict(d) for d in diags.get("overflow", [])]
 
 
+def collision_report(
+    model: Any,
+    *,
+    base_dir: str | None = None,
+    real_metrics: bool | None = None,
+) -> list[dict]:
+    """Render through the proxy and return the same-layer ink COLLISIONS.
+
+    A collision is an *unintended* same-layer overlap of drawn ink — two text
+    objects whose glyphs intersect on the same layer without both declaring
+    ``overlap: allowed`` (collision-gate/2026-07). Overlap is otherwise a
+    first-class effect (watermarks, captions over images), so a consented or
+    cross-layer overlap never appears here; an empty list means the page has no
+    accidental text-on-text.
+
+    Each record is ``{ids, page, layer, area, overlap: [dx, dy], metrics}``.
+    ``metrics`` is ``"estimate"`` or ``"real"`` — an estimate-mode verdict is
+    unverified by default (PALS's Law); pass ``real_metrics=True`` (in the
+    font-rich runtime) for a reproducible one.
+    """
+    _svgs, _tstats, diags = render_pages_with_stats(
+        model, base_dir=base_dir, real_metrics=real_metrics, diagnostics=True)
+    return list(diags.get("collisions", []))
+
+
 def render_page_svgs(model: Any, *, base_dir: str | None = None) -> list[str]:
     """Render a document through the repository SVG proxy and return page SVGs."""
     svgs, _ = render_pages_with_stats(model, base_dir=base_dir)
@@ -116,6 +141,7 @@ def write_golden(path: str | Path, hashes: list[str] | tuple[str, ...]) -> None:
 __all__ = [
     "OverflowSignal",
     "assert_golden",
+    "collision_report",
     "overflow_report",
     "page_hashes",
     "render_page_svgs",

@@ -48,6 +48,11 @@ from render_fixtures import Renderer  # noqa: E402
 ORACLE_GLOB = os.path.join(ROOT, "tests", "fixtures", "b1", "*.fg.json")
 LOCK = os.path.join(ROOT, "tests", "golden", "oracle.lock.json")
 REFS = os.path.join(ROOT, "tests", "golden", "refs")
+# Per-backend HTML lock (GH #85). The SVG lock above is byte-exact estimate-mode
+# geometry; the HTML backend is a pure `render_document(doc) -> str` with no
+# optional deps, so its oracle output can be pinned unconditionally alongside —
+# a hash per fixture, so an HTML regression fails the same gate the SVG lock does.
+HTML_LOCK = os.path.join(ROOT, "tests", "golden", "oracle.html.lock.json")
 DEFAULT_TOLERANCE = 0.5
 
 # A signed integer/decimal/scientific number — the unit compared with tolerance.
@@ -132,6 +137,51 @@ def _hash(svg: str) -> str:
 def build() -> dict[str, list[str]]:
     """`{fixture-rel-path: [per-page sha256]}` — the hash manifest (primary gate)."""
     return {k: [_hash(s) for s in svgs] for k, svgs in build_svgs().items()}
+
+
+# --------------------------------------------------------------------------- #
+# HTML backend lock (GH #85) — additive; the SVG lock above is untouched.
+# --------------------------------------------------------------------------- #
+def oracle_fixtures() -> list[str]:
+    """The oracle fixture paths, sorted — the corpus both backends pin."""
+    return sorted(glob.glob(ORACLE_GLOB))
+
+
+def _load_doc(path: str) -> dict:
+    with open(path, encoding="utf-8") as fh:
+        return yaml.safe_load(fh)          # safe_load parses both JSON and YAML
+
+
+def _html_hash_of(doc: dict) -> str:
+    """SHA-256 of the HTML backend's render of one document.
+
+    Pure and deterministic: `render_document` takes no fonts, no wrap engine and
+    no optional deps, so this hash is reproducible on any machine (unlike a
+    rasterised comparison, which is why the HTML lock is a document-level hash,
+    not per page — the backend emits one `<figure>` document).
+    """
+    from frameforge.rendering.infrastructure.backends.html import render_document
+    return _hash(render_document(doc))
+
+
+def build_html_hashes() -> dict[str, str]:
+    """`{fixture-rel-path: sha256}` for the HTML render of every oracle fixture."""
+    return {os.path.relpath(p, ROOT): _html_hash_of(_load_doc(p))
+            for p in oracle_fixtures()}
+
+
+def load_html_lock():
+    if not os.path.exists(HTML_LOCK):
+        return None
+    with open(HTML_LOCK, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def write_html_lock(manifest: dict) -> None:
+    os.makedirs(os.path.dirname(HTML_LOCK), exist_ok=True)
+    with open(HTML_LOCK, "w", encoding="utf-8") as fh:
+        json.dump(manifest, fh, indent=2, sort_keys=True)
+        fh.write("\n")
 
 
 def _ref_path(fixture_relpath: str, page_index: int) -> str:
@@ -268,11 +318,15 @@ def main(argv=None) -> int:
         return 2
 
     n_pages = sum(len(v) for v in svgs.values())
+    html_hashes = build_html_hashes()
     if args.update:
         write_lock({k: [_hash(s) for s in v] for k, v in svgs.items()})
         write_refs(svgs)
+        write_html_lock(html_hashes)
         print(f"render_golden: wrote {os.path.relpath(LOCK, ROOT)} + references under "
               f"{os.path.relpath(REFS, ROOT)} ({len(svgs)} fixtures, {n_pages} pages)")
+        print(f"render_golden: wrote {os.path.relpath(HTML_LOCK, ROOT)} "
+              f"({len(html_hashes)} HTML fixtures)")
         return 0
 
     locked = load_lock()
@@ -282,9 +336,17 @@ def main(argv=None) -> int:
         return 1
 
     real, cosmetic = classify(svgs, locked, args.tolerance)
-    if real or (args.strict and cosmetic):
+    # The HTML backend has no tolerance band — it is a pure string transform, so
+    # any hash change is real drift (no coordinate jitter to forgive).
+    html_locked = load_html_lock()
+    html_drift = []
+    if html_locked is not None:
+        for k in sorted(set(html_hashes) | set(html_locked)):
+            if html_hashes.get(k) != html_locked.get(k):
+                html_drift.append(f"  {k}: HTML render changed")
+    if real or html_drift or (args.strict and cosmetic):
         print("render_golden: DRIFT — rendered output differs from the golden lock:")
-        print("\n".join(real + (cosmetic if args.strict else [])))
+        print("\n".join(real + html_drift + (cosmetic if args.strict else [])))
         print("\nIf this change is intentional, re-pin with: make golden")
         return 1
 
