@@ -12,12 +12,13 @@ disclaimer:
 
 # Examples cookbook
 
-The 139 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 144 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
 | [`a3_backend_spec.py`](../static/examples/a3_backend_spec.py) | (no module docstring) |
 | [`a4_diagrammation.py`](../static/examples/a4_diagrammation.py) | Eight A4 pages, one print identity, eight DIAGRAMMATIONS. |
+| [`agentic_ai_framework.py`](../static/examples/agentic_ai_framework.py) | Agentic AI: A Complete Framework — corrected rebuild of a garbled AI-image infographic. |
 | [`ai_mobile_app_wireframe.py`](../static/examples/ai_mobile_app_wireframe.py) | Compose a COMPLETE low-fidelity wireframe of an advanced AI mobile app with |
 | [`ai_workforce_storyboard.py`](../static/examples/ai_workforce_storyboard.py) | THE GREAT REWRITE — a complete storyboard for a 20-minute YouTube documentary |
 | [`android16_material3_guidelines.py`](../static/examples/android16_material3_guidelines.py) | Android 16 · Material 3 Expressive — UI Guidelines. |
@@ -33,6 +34,7 @@ The 139 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`brand_book.py`](../static/examples/brand_book.py) | Typeset & publish *Brand, From Products to Source Code* as a native FrameForge |
 | [`brand_book_figures.py`](../static/examples/brand_book_figures.py) | House visual system + illustration plates for the book *Brand, From Products |
 | [`build_wireframe_annotated.py`](../static/examples/build_wireframe_annotated.py) | FrameForge authoring-IDE wireframe — on ruler paper. FrameForge SDK widgets. |
+| [`catalan_solids.py`](../static/examples/catalan_solids.py) | The thirteen Catalan solids, derived — a FrameForge poster at diverse angles. |
 | [`cg_canon_residuals_demo.py`](../static/examples/cg_canon_residuals_demo.py) | Cookbook: the CG-canon residual geometry — patches, curve hits, hull, curvature. |
 | [`cg_canon_showcase.py`](../static/examples/cg_canon_showcase.py) | FrameForge v2 — *Twelve Hours of Geometry* (A4 capability showcase). |
 | [`clip_and_lettering_demo.py`](../static/examples/clip_and_lettering_demo.py) | Worked example of the SDK's clip + author-intent helpers. |
@@ -75,6 +77,8 @@ The 139 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`illustrator_vs_frameforge.py`](../static/examples/illustrator_vs_frameforge.py) | CAPABILITY TEARDOWN — Adobe Illustrator ⇄ FrameForge v2. |
 | [`imperial_doctrine_deck.py`](../static/examples/imperial_doctrine_deck.py) | IMPERIAL DOCTRINE — a 20-slide Galactic Empire command briefing. |
 | [`incidente_openai_hf_carousel.py`](../static/examples/incidente_openai_hf_carousel.py) | Incidente OpenAI × Hugging Face — document post (carrossel PT-BR, 6 slides). |
+| [`incidente_openai_huggingface.py`](../static/examples/incidente_openai_huggingface.py) | Incidente OpenAI × Hugging Face — infográfico vertical (PT-BR, para humanos). |
+| [`incidente_openai_huggingface_warrant.py`](../static/examples/incidente_openai_huggingface_warrant.py) | Incidente OpenAI × Hugging Face — o mesmo resumo, tipografado no sistema Warrant. |
 | [`infographics_guide.py`](../static/examples/infographics_guide.py) | Building Stunning Infographics — a 20-page designed field guide. |
 | [`infographics_guide_ptbr.py`](../static/examples/infographics_guide_ptbr.py) | Building Stunning Infographics — a 20-page designed field guide. |
 | [`inova_partners_whitepaper.py`](../static/examples/inova_partners_whitepaper.py) | INOVA PARTNERS — A4 white paper (PT-BR), built with the SDK. |
@@ -113,6 +117,7 @@ The 139 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`poc9_figure_coach.py`](../static/examples/poc9_figure_coach.py) | POC-09 — a coach that draws COMPLEX HUMAN FIGURES (honest end-to-end). |
 | [`prehistoric_saga_showcase.py`](../static/examples/prehistoric_saga_showcase.py) | Prehistoric Saga — an SDK capabilities showcase (A4 landscape). |
 | [`prehistoric_savanna_silhouettes.py`](../static/examples/prehistoric_savanna_silhouettes.py) | Prehistoric Savanna — 16 silhouette scenes (A4 landscape). |
+| [`psychedelic_canvas.py`](../static/examples/psychedelic_canvas.py) | Psychedelic hyperrealist recoloration of ``canvas.svg`` as a FrameForge document. |
 | [`raccoon_den.py`](../static/examples/raccoon_den.py) | Raccoon & badger late-night workbench — primitives-only scene, polish pass (v4). |
 | [`radix_nova_gallery.py`](../static/examples/radix_nova_gallery.py) | High-fidelity vector recreation of the shadcn / v0 "radix-nova" component |
 | [`rebel_alliance_field_manual.py`](../static/examples/rebel_alliance_field_manual.py) | ALLIANCE FIELD MANUAL — a 20-slide Rebel Alliance briefing. |
