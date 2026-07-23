@@ -21,6 +21,10 @@ exclude_docs: |
   request.md
   FIXTURE-STATUS.md
   quarantine-summaries.md
+  proposals/
+  bhag-pixel-perfect-4k.md
+  book-corpus-scope.md
+  prompt-implement-from-roadmap.md
 
 # Site pages legitimately deep-link to repo files outside docs_dir (examples,
 # tooling, the models). MkDocs cannot resolve those against the site, so its
@@ -86,6 +90,7 @@ nav:
   - Error codes: error-codes.md
   - Examples cookbook: examples.md
   - Fixture gallery: fixtures.md
+  - Claude Code plugin (Windows setup): plugin-windows-setup.md
   - Design records:
       - Architecture: architecture.md
       - Output space: output-space.md
@@ -103,6 +108,8 @@ nav:
       - Illustration protocol: illustration-protocol.md
       - Vector recreation improvements: frameforge-vector-recreation-improvements.md
       - Brand guideline: BRAND.md
+  - Writing:
+      - Painting with FrameForge: posts/painting-with-frameforge.md
   - Changelog: changelog.md
 
 markdown_extensions:

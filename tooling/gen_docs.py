@@ -23,7 +23,10 @@ bare/offline env; the theme is fetched at build time by `make docs`.
 
 Usage:
     python tooling/gen_docs.py            # (re)generate the pages
-    python tooling/gen_docs.py --check    # generate, then assert mkdocs.yml nav is satisfied
+    python tooling/gen_docs.py --check    # generate, then assert mkdocs.yml nav is
+                                         # satisfied *and* closed: every nav entry
+                                         # resolves, and every built page is either
+                                         # in nav or explicitly in exclude_docs
 """
 import argparse
 import importlib.util
@@ -736,10 +739,13 @@ def write_tracked():
     return [_write(rel, builder()) for rel, builder in _TRACKED_GENERATED.items()]
 
 
-def _nav_targets():
+def _mkdocs_cfg():
     import yaml
-    cfg = yaml.safe_load(open(os.path.join(ROOT, "mkdocs.yml"), encoding="utf-8"))
-    return list(_nav_entry_targets(cfg.get("nav", [])))
+    return yaml.safe_load(open(os.path.join(ROOT, "mkdocs.yml"), encoding="utf-8"))
+
+
+def _nav_targets():
+    return list(_nav_entry_targets(_mkdocs_cfg().get("nav", [])))
 
 
 def _nav_entry_targets(entries):
@@ -754,12 +760,62 @@ def _nav_entry_targets(entries):
                     yield from _nav_entry_targets(value)
 
 
+def _excluded(rel, patterns):
+    """Does ``exclude_docs`` cover this docs-relative path?
+
+    MkDocs resolves ``exclude_docs`` with full gitignore syntax via ``pathspec``.
+    This generator is constrained to stdlib + pydantic + pyyaml (see the module
+    docstring) so it cannot import that, and a *silently* weaker matcher would be
+    worse than none: a pattern this function failed to understand would read as
+    "not excluded" and the gate would report a phantom leak. So support the two
+    forms the config actually uses, and reject anything else loudly.
+    """
+    for pat in patterns:
+        if any(ch in pat for ch in "!*?[]") or pat.startswith("/"):
+            raise SystemExit(
+                f"gen_docs: exclude_docs pattern {pat!r} uses gitignore syntax this "
+                f"gate cannot evaluate. Teach _excluded() the form, or express the "
+                f"exclusion as a plain 'name.md' or 'dir/' entry."
+            )
+        if pat.endswith("/"):
+            if rel == pat.rstrip("/") or rel.startswith(pat):
+                return True
+        elif rel == pat or os.path.basename(rel) == pat:
+            return True
+    return False
+
+
+def _unreachable_pages():
+    """Pages MkDocs would build that no nav entry reaches.
+
+    ``--check`` already proves every nav entry resolves to a file. That is one
+    direction. Without the converse, any file dropped into ``docs/`` is built and
+    published while reachable only by guessing its URL — which is how two
+    superseded agent audits came to be served from the live site. Every page must
+    be a deliberate choice: in ``nav``, or in ``exclude_docs``.
+    """
+    raw = _mkdocs_cfg().get("exclude_docs") or ""
+    patterns = [ln.strip() for ln in raw.splitlines() if ln.strip()]
+    nav = set(_nav_targets())
+    unreachable = []
+    for dirpath, _dirnames, filenames in os.walk(DOCS):
+        for name in filenames:
+            if not name.endswith(".md"):
+                continue
+            rel = os.path.relpath(os.path.join(dirpath, name), DOCS).replace(os.sep, "/")
+            if rel not in nav and not _excluded(rel, patterns):
+                unreachable.append(rel)
+    return sorted(unreachable)
+
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true",
                     help="generate, then assert committed generated pages are fresh "
-                         "and every mkdocs.yml nav page exists")
+                         "every mkdocs.yml nav page exists, and every built page "
+                         "is reachable from nav or explicitly excluded")
     ap.add_argument("--sdk", action="store_true",
                     help="regenerate ONLY the committed SDK snapshots (sdk.md, "
                          "sdk-api.md) — fast; the cheap fix when --check reports drift")
@@ -785,7 +841,18 @@ def main(argv=None):
         if missing:
             print(f"NAV BROKEN: mkdocs.yml references missing pages: {missing}")
             return 1
-        print("OK: committed generated docs are fresh and every mkdocs.yml nav page exists.")
+        unreachable = _unreachable_pages()
+        if unreachable:
+            print("UNREACHABLE: these pages build into the site but no nav entry "
+                  "reaches them — a visitor can only find them by guessing the URL:")
+            for rel in unreachable:
+                print(f"  docs/{rel}")
+            print("Add each to mkdocs.yml `nav:` (reader-facing) or `exclude_docs:` "
+                  "(repo-facing). Silence is not an option: an unlisted page is "
+                  "published either way.")
+            return 1
+        print("OK: committed generated docs are fresh, every mkdocs.yml nav page "
+              "exists, and every built page is reachable or explicitly excluded.")
     return 0
 
 

@@ -178,8 +178,11 @@ Report failures plainly with the number that failed (e.g. "caption/ground is
 
 This repo renders with the FrameForge SDK/MCP; the book itself is a worked
 example — read `out/typeface-and-colour/` (PDF + per-page SVG/PNG) as the
-reference build, and see [`frameforge-mcp-docker`](../frameforge-mcp-docker/SKILL.md)
-for the runtime.
+reference build, and see
+[`frameforge-mcp-docker`](https://github.com/pedroanisio/frameforge/blob/main/skills/frameforge-mcp-docker/SKILL.md)
+for the runtime. (Absolute, not `../`: this file is mirrored verbatim into
+`plugin/skills/`, where that sibling does not exist — a sparse plugin install
+fetches only `plugin/`.)
 
 | Move | SDK enactment |
 |---|---|

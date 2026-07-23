@@ -136,26 +136,66 @@ and start Docker Desktop again.
 
 ---
 
-## Step 4 · Download the runtime image
+## Step 4 · Get the runtime image
 
-This is the ~10 GB download. Do it now, explicitly, so you can watch progress —
-if you let the plugin trigger it later, Claude Code shows no progress bar and
-the session just looks frozen.
+Two ways. Try 4A first — it takes minutes instead of an hour. If it is not
+published yet, 4B always works.
+
+### 4A · Pull the published image
 
 ```powershell
 docker pull ghcr.io/pedroanisio/frameforge:2.6.0
 ```
 
-Verify it landed:
+Do it now, explicitly, rather than letting the plugin trigger it later — Claude
+Code shows no progress bar and a first-run pull just looks like a frozen
+session.
 
-```powershell
-docker image inspect ghcr.io/pedroanisio/frameforge:2.6.0 --format "{{.Id}}"
-```
+✅ **Pass**: the pull completes. Go to the verification below.
 
-✅ **Pass**: prints a `sha256:…` digest.
+❌ `error from registry: denied` — **the image has not been published yet.**
+This is not a permissions problem on your machine and logging into GHCR will not
+fix it; the registry answers `denied` rather than `not found` for a package that
+does not exist. Use 4B.
 
 ❌ `no space left on device`: free space, or raise the disk limit in Docker
-Desktop → **Settings → Resources → Advanced**, then re-run the pull.
+Desktop → **Settings → Resources → Advanced**, then re-run.
+
+### 4B · Build the image yourself
+
+Needs [Git for Windows](https://git-scm.com/downloads/win). Expect 30–60
+minutes; it is a large build.
+
+```powershell
+git clone https://github.com/pedroanisio/frameforge
+cd frameforge
+docker build -t frameforge:2.6.0 .
+```
+
+For a build that finishes in roughly a third of the time, skip the
+google/fonts corpus:
+
+```powershell
+docker build -t frameforge:2.6.0 --build-arg INSTALL_GOOGLE_FONTS=0 .
+```
+
+You keep every render lane — SVG, PNG, PDF, LaTeX — and the full Debian font
+set, but lose thousands of Google faces. A document naming one of those falls
+back to a generic sans. Fine to start with; rebuild without the flag later if
+you need the range.
+
+**If you build, set the plugin's Runtime image to `frameforge:2.6.0`** in Step 7
+— the default points at the registry copy you do not have.
+
+### Verify (either path)
+
+```powershell
+docker image inspect frameforge:2.6.0 --format "{{.Id}}"
+```
+
+Use `ghcr.io/pedroanisio/frameforge:2.6.0` as the name instead if you pulled.
+
+✅ **Pass**: prints a `sha256:…` digest.
 
 ---
 
@@ -167,8 +207,11 @@ break later, the fault is in the plugin wiring, not in Docker.
 **5a — the runtime answers:**
 
 ```powershell
-docker run --rm ghcr.io/pedroanisio/frameforge:2.6.0 version
+docker run --rm frameforge:2.6.0 version
 ```
+
+Use `ghcr.io/pedroanisio/frameforge:2.6.0` throughout this step instead if you
+pulled in 4A.
 
 ✅ **Pass**: prints the package version, the model `HEAD_VERSION`, and a build
 stamp. The version should read `2.6.0`.
@@ -178,7 +221,7 @@ folder of yours:
 
 ```powershell
 cd C:\Users\you\my-project
-docker run --rm -v "${PWD}:/workspace:ro" ghcr.io/pedroanisio/frameforge:2.6.0 bash -c "ls /workspace"
+docker run --rm -v "${PWD}:/workspace:ro" frameforge:2.6.0 bash -c "ls /workspace"
 ```
 
 ✅ **Pass**: lists **your project's files**. That proves the exact mount the
@@ -225,7 +268,7 @@ then come back and change the third only if you want files on your own disk.
 
 | Setting | Default | Change it when |
 |---|---|---|
-| Runtime image | `ghcr.io/pedroanisio/frameforge:2.6.0` | never, unless testing an unreleased build |
+| Runtime image | `ghcr.io/pedroanisio/frameforge:2.6.0` | **you built it yourself in 4B — set `frameforge:2.6.0`** |
 | Session volume | `frameforge-work` | never, unless isolating projects from each other |
 | Publish target | `frameforge-publish` | you want finished files in a Windows folder |
 
@@ -282,13 +325,15 @@ machine.
 | `cannot find the file specified` from any docker command | 0 row 5 | Docker Desktop not running → Step 3 |
 | Container mode prints `windows` | 0 row 6 | Right-click tray whale → Switch to Linux containers |
 | `no space left on device` | 4 | Free space or raise the Docker disk limit; `docker system prune -a` reclaims old images |
+| `error from registry: denied` on pull | 4A | The image is not published yet. Not a login problem — build it with 4B. |
+| Container starts but the plugin cannot find the image | 7 | You built locally but left the Runtime image at the `ghcr.io/...` default. Set it to `frameforge:2.6.0`. |
 | `ls /workspace` shows nothing | 5b | Drive not shared → Docker Desktop → Settings → Resources → File sharing |
 | Version prints something older than `2.6.0` | 5a | Stale local image: `docker pull` again |
 | marketplace not found | 6 | Not published yet — check the 404/200 command in Step 6 |
 | Claude Code hangs on the first FrameForge request | 8 | The image is still downloading. You skipped Step 4 — run it and wait. |
 | File-not-found on a path that exists | 9 | A Windows path was used instead of `/workspace/...` |
 | `input path is outside the allowed FRAMEFORGE_MCP_INPUT_ROOTS` | 9 | The file is outside the project folder. Copy it in. |
-| Fonts fall back to a generic sans | — | That family is not in the image. List what is: `docker run --rm ghcr.io/pedroanisio/frameforge:2.6.0 fonts` |
+| Fonts fall back to a generic sans | — | That family is not in the image. List what is: `docker run --rm frameforge:2.6.0 fonts` |
 | Tool list shorter than documented | — | Stale image. Re-pull, restart Claude Code. |
 
 ---
