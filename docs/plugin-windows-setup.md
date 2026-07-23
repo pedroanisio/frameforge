@@ -21,8 +21,18 @@ plugin install at the end:
 Claude Code  ──spawns──>  docker run  ──>  FrameForge container
    (Windows)                                (Linux, ~10 GB image)
                                                   │
-                            your project  ────────┘  mounted read-only at /workspace
+                            your project  ────────┤  /workspace  (read-only)
+                     shared library (optional) ───┤  /library    (read-only)
+                          output (optional)  ─────┘  /publish     (writable)
 ```
+
+**Two ways to use it**, chosen entirely by configuration in Step 7:
+
+- **Per-project** — FrameForge is a dependency of one repository and works on
+  that repository's files.
+- **Host-wide** — FrameForge is a tool you drive across many projects, reading a
+  shared library of brand assets and templates and writing output to one place.
+  If you generate assets for multiple contexts, this is the model you want.
 
 **When you are done**, asking Claude Code to build a document returns a rendered
 image in the conversation.
@@ -228,16 +238,39 @@ pulled in 4A.
 ✅ **Pass**: prints the package version, the model `HEAD_VERSION`, and a build
 stamp. The version should read `2.6.0`.
 
-**5b — your project mounts correctly.** Replace the path with a real project
-folder of yours:
+**5b — your mounts resolve.** Which command you run depends on how you intend
+to use FrameForge. Both models are supported; pick the one that matches, or run
+both if you will do both.
+
+*Model A — per-project.* FrameForge is a dependency of one repository and reads
+that repository's files. Run from a real project folder of yours:
 
 ```powershell
-cd C:\Users\you\my-project
+cd "C:\Users\you\my-project"
 docker run --rm -v "${PWD}:/workspace:ro" frameforge:2.6.0 bash -c "ls /workspace"
 ```
 
-✅ **Pass**: lists **your project's files**. That proves the exact mount the
-plugin will use.
+✅ **Pass**: lists **your project's files**.
+
+*Model B — host-wide.* FrameForge is a tool you drive from many projects,
+generating assets against a shared library of brand files, logos and templates,
+and writing output to one place. Create the two shared folders once, anywhere
+outside a project:
+
+```powershell
+mkdir "C:\Users\you\frameforge-library" -Force
+mkdir "C:\Users\you\frameforge-out" -Force
+docker run --rm `
+  -v "C:\Users\you\frameforge-library:/library:ro" `
+  -v "C:\Users\you\frameforge-out:/publish" `
+  frameforge:2.6.0 bash -c "ls /library && touch /publish/.probe && echo MOUNTS OK"
+```
+
+✅ **Pass**: prints `MOUNTS OK`, and `.probe` appears in `frameforge-out`. That
+proves the read-only library and the writable output root both resolve. Delete
+the probe file afterwards.
+
+Either way this proves the mounts before Claude Code is involved.
 
 ❌ Empty output, or an error mentioning `invalid mount config`: open Docker
 Desktop → **Settings → Resources → File sharing** and confirm the drive is
@@ -275,18 +308,32 @@ curl.exe -s -o NUL -w "%{http_code}`n" https://raw.githubusercontent.com/pedroan
 
 ## Step 7 · Configure
 
-Enabling the plugin prompts for three values. **Accept all three defaults** —
-then come back and change the third only if you want files on your own disk.
+Enabling the plugin prompts for four values.
 
-| Setting | Default | Change it when |
+| Setting | Default | Set it to |
 |---|---|---|
-| Runtime image | `ghcr.io/pedroanisio/frameforge:2.6.0` | **you built it yourself in 4B — set `frameforge:2.6.0`** |
-| Session volume | `frameforge-work` | never, unless isolating projects from each other |
-| Publish target | `frameforge-publish` | you want finished files in a Windows folder |
+| Runtime image | `ghcr.io/pedroanisio/frameforge:2.6.0` | **`frameforge:2.6.0` if you built it in 4B** — the default is a registry copy you do not have |
+| Session volume | `frameforge-work` | leave it, unless isolating projects from each other |
+| Shared library | `frameforge-library` | **host-wide use: the folder from Step 5b Model B** (e.g. `C:\Users\you\frameforge-library`) |
+| Publish target | `frameforge-publish` | leave it, or a Windows folder if you want output on disk |
 
-For the third, an absolute Windows path such as `C:\Users\you\frameforge-out`
-makes finished artifacts appear there directly. Left as-is, output stays inside
-Docker and you retrieve it with the `get_session_resource` tool.
+Two of these decide which usage model you get:
+
+- **Per-project (Model A).** Leave Shared library and Publish target at their
+  defaults. Each project's own files are the input, reached at `/workspace`.
+- **Host-wide (Model B).** Point **Shared library** at your
+  `frameforge-library` folder and **Publish target** at your `frameforge-out`
+  folder. Your brand assets, logos and templates then appear at `/library` in
+  *every* project, and finished work lands in one place — no copying assets into
+  each repository. This is the setup for driving FrameForge as a tool across
+  many contexts rather than as one project's dependency.
+
+Either way, the current project is still mounted read-only at `/workspace`, so
+Model B is additive: you get the shared library *and* the project.
+
+A host path such as `C:\Users\you\frameforge-out` for the publish target makes
+finished artifacts appear there directly; left as a named volume, output stays
+inside Docker and you retrieve it with the `get_session_resource` tool.
 
 Changing any setting later: `/plugin`, edit, then restart Claude Code.
 
@@ -317,6 +364,7 @@ complete.**
 | `C:\Users\you\my-project\design\mockup.png` | `/workspace/design/mockup.png` |
 | `.\assets\logo.svg` | `/workspace/assets/logo.svg` |
 | `\\server\share\brief.pdf` | copy it into the project first |
+| a brand asset shared across projects | `/library/logos/mark.svg` (host-wide setup) |
 
 Forward slashes, always — a backslash is never correct inside the container,
 even though you are on Windows. This applies to `propose_from_image`,
@@ -345,7 +393,8 @@ machine.
 | marketplace not found | 6 | Not published yet — check the 404/200 command in Step 6 |
 | Claude Code hangs on the first FrameForge request | 8 | The image is still downloading. You skipped Step 4 — run it and wait. |
 | File-not-found on a path that exists | 9 | A Windows path was used instead of `/workspace/...` |
-| `input path is outside the allowed FRAMEFORGE_MCP_INPUT_ROOTS` | 9 | The file is outside the project folder. Copy it in. |
+| `input path is outside the allowed FRAMEFORGE_MCP_INPUT_ROOTS` | 9 | The file is outside every mounted root. Copy it into the project, or into the shared library if you use one. |
+| `/library` is empty in a host-wide setup | 7 | Shared library still points at the default named volume. Set it to your folder and restart Claude Code. |
 | Fonts fall back to a generic sans | — | That family is not in the image. List what is: `docker run --rm frameforge:2.6.0 fonts` |
 | Tool list shorter than documented | — | Stale image. Re-pull, restart Claude Code. |
 
@@ -384,8 +433,9 @@ The manifest resolves to one `docker run`:
     "run", "--rm", "-i",
     "-v", "${user_config.work_volume}:/work",
     "-v", "${CLAUDE_PROJECT_DIR}:/workspace:ro",
+    "-v", "${user_config.library_path}:/library:ro",
     "-v", "${user_config.publish_target}:/publish",
-    "-e", "FRAMEFORGE_MCP_INPUT_ROOTS=/workspace:/work:/app:/publish",
+    "-e", "FRAMEFORGE_MCP_INPUT_ROOTS=/workspace:/library:/work:/app:/publish",
     "-e", "FRAMEFORGE_MCP_PUBLISH_ROOT=/publish",
     "${user_config.image}"
   ]

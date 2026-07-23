@@ -67,6 +67,22 @@ host path. It is mounted writable at `/publish` with
 disk. Left at its default it is a Docker named volume — publishing still works,
 the files just stay inside Docker.
 
+## Two usage models
+
+The plugin serves both a per-project and a host-wide workflow, decided by two
+settings:
+
+- **Per-project** — Shared library and Publish target stay at their default
+  named volumes. The current project at `/workspace` is the input.
+- **Host-wide** — Shared library points at a host folder of reusable assets
+  (mounted read-only at `/library`, present in *every* project) and Publish
+  target points at a host output folder. This is the setup for driving
+  FrameForge as an asset generator across many contexts. `/workspace` is still
+  mounted, so the shared library is additive, not a replacement.
+
+Reference shared assets by their `/library` path — `/library/logos/mark.svg` —
+exactly as project files use `/workspace`.
+
 Bulk export without MCP:
 
 ```bash
@@ -100,13 +116,14 @@ already have locally.
 
 ## Configuration
 
-Three options, set when the plugin is enabled and editable later through
+Four options, set when the plugin is enabled and editable later through
 `/plugin`:
 
 | Option | Effect |
 |---|---|
 | Runtime image | The tag that runs. Point it at a locally built `frameforge` image to test an unreleased build. |
 | Session volume | Named volume holding sessions and written SDK clients. Change it to isolate projects from one another. |
+| Shared library | Read-only root mounted at `/library` in every project. Set it to a host path holding brand assets, logos and templates to use FrameForge host-wide instead of per-project. |
 | Publish target | Mounted writable at `/publish`. A named volume by default; set an absolute host path to have finished artifacts land in your own filesystem. |
 
 The plugin names the Docker CLI directly rather than running a wrapper script,

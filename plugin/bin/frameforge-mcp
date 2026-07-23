@@ -21,6 +21,7 @@ IMAGE="${FRAMEFORGE_IMAGE:-ghcr.io/pedroanisio/frameforge:2.6.0}"
 WORK_VOLUME="${FRAMEFORGE_WORK_VOLUME:-frameforge-work}"
 PROJECT_DIR="${FRAMEFORGE_PROJECT_DIR:-$PWD}"
 PUBLISH_DIR="${FRAMEFORGE_PUBLISH_DIR:-}"
+LIBRARY_DIR="${FRAMEFORGE_LIBRARY_DIR:-}"
 
 note() { printf 'frameforge-mcp: %s\n' "$*" >&2; }
 die() { note "$*"; exit 1; }
@@ -46,6 +47,15 @@ fi
 roots="/workspace:/work:/app"
 mounts=(-v "${WORK_VOLUME}:/work" -v "${PROJECT_DIR}:/workspace:ro")
 publish_env=()
+
+# Host-wide use: a read-only library of shared assets, present regardless of
+# which project the client was started in.
+if [ -n "$LIBRARY_DIR" ]; then
+  [ -d "$LIBRARY_DIR" ] ||
+    die "configured shared library does not exist: ${LIBRARY_DIR}"
+  mounts+=(-v "${LIBRARY_DIR}:/library:ro")
+  roots="${roots}:/library"
+fi
 
 if [ -n "$PUBLISH_DIR" ]; then
   mkdir -p "$PUBLISH_DIR" ||

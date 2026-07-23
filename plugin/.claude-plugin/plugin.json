@@ -35,6 +35,13 @@
       "description": "Named Docker volume holding MCP sessions and SDK clients written by write_sdk_client. Persists across container runs.",
       "default": "frameforge-work"
     },
+    "library_path": {
+      "type": "string",
+      "title": "Shared library",
+      "description": "Read-only input root available in EVERY project, mounted at /library. Use it when FrameForge is a host-wide asset generator rather than one project's dependency: put brand assets, logos, templates and reference images there once instead of copying them into each repository. Defaults to a Docker named volume; set an absolute host path such as C:\\Users\\you\\frameforge-library or /home/you/frameforge-library.",
+      "default": "frameforge-library",
+      "required": true
+    },
     "publish_target": {
       "type": "string",
       "title": "Publish target",

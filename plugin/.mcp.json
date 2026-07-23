@@ -7,8 +7,9 @@
         "run", "--rm", "-i",
         "-v", "${user_config.work_volume}:/work",
         "-v", "${CLAUDE_PROJECT_DIR}:/workspace:ro",
+        "-v", "${user_config.library_path}:/library:ro",
         "-v", "${user_config.publish_target}:/publish",
-        "-e", "FRAMEFORGE_MCP_INPUT_ROOTS=/workspace:/work:/app:/publish",
+        "-e", "FRAMEFORGE_MCP_INPUT_ROOTS=/workspace:/library:/work:/app:/publish",
         "-e", "FRAMEFORGE_MCP_PUBLISH_ROOT=/publish",
         "${user_config.image}"
       ]
