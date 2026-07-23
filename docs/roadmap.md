@@ -623,7 +623,7 @@ bibliography), structural validation + golden locks before a pixel is drawn,
 a diffable plain-text source of truth, parametric geometry (equation-driven
 curves, lattices, manifolds — charts Illustrator *does* have moved to AI-51,
 a HAS), the UI component kit, colour *science* (Chevreul harmonies + WCAG
-contrast, not just swatches), and machine authoring (25 MCP tools). Parity
+contrast, not just swatches), and machine authoring (31 MCP tools). Parity
 work must not trade these away.
 
 **The closure programme** groups the actionable rows into workstreams

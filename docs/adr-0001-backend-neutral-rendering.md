@@ -76,7 +76,7 @@ Split Increment 3 into two slices by whether they can be byte-identical.
 
 Introduce a `RenderContext` Protocol (`domain/ports.py`) naming the minimal
 rendering-primitives contract the sub-renderers need: `color`, `text_style`,
-`render_text`, `measure`, `ellipsize`, `shape_fill/stroke/radius`, `arrow_attrs`,
+`render_text`, `measure`, `ellipsize`, `shape_fill/stroke/radius`, `arrow_markers`,
 `obj`, `painter`, `stroke_styles`, and `note_skip()`. A thin application adapter
 (`RendererContext`) satisfies it by delegating to the `Renderer`; the sub-renderers
 depend on the **Protocol**, not the concrete Renderer.

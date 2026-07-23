@@ -13,7 +13,7 @@ DOCS_HOST ?= 127.0.0.1
 DOCS_PORT ?= 8001
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check public-check docker-build docker-mcp docker-shell docker-fonts
+.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check public-check symbol-check docker-build docker-mcp docker-shell docker-fonts
 
 DOCKER ?= docker
 IMAGE ?= frameforge
@@ -63,7 +63,7 @@ mcp:  ## run the optional MCP server for SDK-code -> YAML -> render feedback loo
 live:  ## run the local FrameForge MCP live-session web UI
 	$(UV) run python -m frameforge.live --host "$(LIVE_HOST)" --port "$(LIVE_PORT)"
 
-check: schema-check grammar-check spec-check a11y-check status-check ruff-check test validate overflow golden-check docs-check docs-linkcheck disclaimer-check public-check  ## run every local gate
+check: schema-check grammar-check spec-check a11y-check status-check ruff-check test validate overflow golden-check docs-check docs-linkcheck disclaimer-check symbol-check public-check  ## run every local gate
 
 ruff-check:  ## GATE the ruff rules the tree keeps clean (F811 redefinition; §16 row 1)
 	$(UV)x ruff check --select F811 --output-format concise .
@@ -104,6 +104,7 @@ package-check:  ## assert package-emit readiness (advisory; NOT in `make check` 
 public-check:  ## assert public/open-source readiness guardrails
 	$(UV) run python tooling/check_public_readiness.py
 
+
 corpus-ui:  ## render the CC0 UI mockups to high-def PNG (needs playwright+chromium)
 	node viewer/dev/render-ui-corpus.cjs
 	$(UV) run python tooling/fetch_corpus.py
@@ -142,6 +143,9 @@ docs-linkcheck:  ## fail if a tracked Markdown file has a broken relative link (
 
 disclaimer-check:  ## fail if an AI-authored doc is missing the rule-5 disclaimer frontmatter
 	$(UV) run python tooling/check_disclaimers.py
+
+symbol-check:  ## fail if prose names a symbol or tool count the live tree contradicts
+	$(UV) run python tooling/check_symbol_drift.py
 
 lint:  ## ruff (non-gating; fetched ephemerally)
 	-$(UV)x ruff check .

@@ -66,6 +66,7 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 | `docs-sdk` | regenerate ONLY the committed `docs/sdk.md` / `docs/sdk-api.md` snapshots (fast) |
 | `docs-linkcheck` | `tooling/check_doc_links.py` — broken relative links in tracked Markdown |
 | `disclaimer-check` | `tooling/check_disclaimers.py` — rule-5 frontmatter on AI-authored docs |
+| `symbol-check` | `tooling/check_symbol_drift.py` — prose naming a symbol or MCP tool count the live tree contradicts |
 | `public-check` | `tooling/check_public_readiness.py` — public/open-source readiness guardrails |
 | `package-check` | `tooling/check_package_readiness.py` (advisory; NOT in `check`) |
 | `mcp` / `live` | run the MCP server / the local live-session web UI (`make live LIVE_PORT=8790`) |
