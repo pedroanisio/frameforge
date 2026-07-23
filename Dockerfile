@@ -40,7 +40,13 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends git ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 COPY docker/collect-google-fonts.sh /usr/local/bin/collect-google-fonts.sh
-RUN chmod +x /usr/local/bin/collect-google-fonts.sh \
+# Strip CR before running. .gitattributes pins these scripts to LF, but a clone
+# taken before that landed, a GitHub source ZIP, or a host with its own
+# core.autocrlf still delivers CRLF — and the failure is unreadable:
+# `/usr/bin/env: 'bash\r': No such file or directory`, exit 127, no mention of
+# line endings. The build should not depend on how the source reached it.
+RUN sed -i 's/\r$//' /usr/local/bin/collect-google-fonts.sh \
+ && chmod +x /usr/local/bin/collect-google-fonts.sh \
  && DEST=/out/google-fonts /usr/local/bin/collect-google-fonts.sh
 
 # ─────────────────────────────────────────────────────────────
@@ -129,7 +135,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # Project source (see .dockerignore for what's excluded).
 COPY . .
-RUN chmod +x docker/*.sh \
+# Same CR strip as the fonts stage, and for the same reason. entrypoint.sh is
+# the container's ENTRYPOINT: a CRLF copy builds cleanly and then fails at
+# `docker run`, which is a worse place to discover it.
+RUN sed -i 's/\r$//' docker/*.sh bin/* 2>/dev/null || true \
+ && chmod +x docker/*.sh \
  && date -u +%Y-%m-%dT%H:%M:%SZ > /app/.build-stamp
 
 # Freshness is part of the contract: the OCI label plus the `version`

@@ -68,3 +68,22 @@ def test_container_critical_scripts_are_covered() -> None:
         assert f"{pattern}" in text, f"{pattern} must be pinned to LF explicitly"
     for critical in ("docker/entrypoint.sh", "docker/collect-google-fonts.sh"):
         assert (ROOT / critical).is_file(), f"{critical} moved — update this gate"
+
+
+def test_dockerfile_strips_cr_before_running_scripts() -> None:
+    """Defence in depth: the build must not depend on how the source arrived.
+
+    ``.gitattributes`` stops git from producing CRLF, but a clone taken before
+    it landed, a GitHub source ZIP, or a host with its own ``core.autocrlf``
+    still delivers CRLF. Both COPY sites therefore normalise before executing —
+    the fonts stage (build-time failure) and the app stage, which owns
+    ``entrypoint.sh`` and fails at ``docker run`` instead.
+    """
+    dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+    strips = [ln for ln in dockerfile.splitlines() if "sed -i 's/\\r$//'" in ln]
+    assert len(strips) >= 2, (
+        "both the fonts stage and the app stage must strip CR before chmod/exec; "
+        f"found {len(strips)} such line(s)"
+    )
+    assert any("collect-google-fonts.sh" in ln for ln in strips)
+    assert any("docker/*.sh" in ln for ln in strips)
