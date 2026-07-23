@@ -469,4 +469,6 @@ Windows, macOS, and Linux with no per-platform code path.
 
 - [`skills/frameforge-mcp-docker/`](../skills/frameforge-mcp-docker/SKILL.md) —
   wiring the dockerized server into a project without the plugin
+- [Desktop app / Cowork](desktop-cowork-setup.md) — running FrameForge in the
+  Claude Desktop app instead of Claude Code
 - [`docker/README.md`](../docker/README.md) — building the image yourself
