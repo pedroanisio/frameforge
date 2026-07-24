@@ -18,7 +18,6 @@ with verified data before any real use. Photos are labelled placeholder frames.
 """
 from __future__ import annotations
 
-import math
 import os
 import sys
 
@@ -30,7 +29,6 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
 from frameforge.sdk.paint import linear_gradient, radial_gradient, rgba  # noqa: E402
-from frameforge.sdk.geometry import Mat3  # noqa: E402
 
 # --- tokens (mirrors the reference :root) ----------------------------------- #
 GOLD, GOLD2, GOLD_SOFT = "#F2B705", "#FFC72C", "#FCEBB3"

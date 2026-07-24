@@ -26,7 +26,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
 from frameforge.sdk import DocumentBuilder, merge_figure_defs, place_figure, serialize  # noqa: E402
-from frameforge.sdk.paint import linear_gradient, rgba  # noqa: E402
+from frameforge.sdk.paint import linear_gradient  # noqa: E402
 from landing_headers import ring, cross, _dot  # noqa: E402  — reuse the kit to draw on top
 
 SRC = os.path.join(ROOT, "out", "coach", "coach-demo.fg.yaml")   # the styled owl asset

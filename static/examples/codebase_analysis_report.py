@@ -78,7 +78,6 @@ from frameforge.sdk import (  # noqa: E402
     harmony_of_scale,
     render_page_svgs,
     serialize,
-    tone_scale,
 )
 from frameforge.sdk.metrics import text_height  # noqa: E402
 from frameforge.sdk.model import validate_document  # noqa: E402

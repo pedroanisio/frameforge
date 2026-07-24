@@ -6,8 +6,9 @@ the live tree (HEAD 2.4.1); see the closing evidence appendix for file-level
 provenance. Blueprint-analytical visual system: cool paper, ink, one blue
 accent + a subdued rust for gaps.
 """
-import os, math
-from frameforge.sdk import DocumentBuilder, PageBuilder, Mat3, serialize
+import os
+import math
+from frameforge.sdk import DocumentBuilder, serialize
 
 # ---------------------------------------------------------------- palette (closed)
 PAPER="#F5F6F8"; CARD="#FFFFFF"; INK="#14171E"; SUB="#39404E"; MUTE="#5E6675"
@@ -160,7 +161,7 @@ def s_exec():
                           "A single-target (SVG-only) library"]):
         DOT(MX+400,iy+46+i*30,2.6,SIGNAL); T(MX+412,iy+40+i*30,300,t,size=SML,color=SUB)
     # right: the 4-layer stack
-    sx=MX+790; sw=W-MX-sx;
+    sx=MX+790; sw=W-MX-sx
     T(sx,y,sw,"The stack (top → bottom)",size=SML,weight=800,color=ACC_INK,spacing=0.5)
     layers=[("AUTHORING","SDK builders · 24 MCP tools · Markdown/SVG ingest",ACC),
             ("DOCUMENT IR","Pydantic model — Document → Page → Layer → Object",INK),

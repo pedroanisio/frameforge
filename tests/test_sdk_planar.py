@@ -15,7 +15,6 @@ Runs under pytest or standalone (``uv run python tests/test_sdk_planar.py``).
 """
 from __future__ import annotations
 
-import math
 import sys
 from pathlib import Path
 

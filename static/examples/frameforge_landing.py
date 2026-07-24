@@ -64,7 +64,6 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
 from frameforge.sdk import DocumentBuilder, measure_text  # noqa: E402
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 # The mark, the wordmark and the derivation fan come from the brand's single
 # source of truth (docs/BRAND.md §3) — imported, never redrawn, so this page and

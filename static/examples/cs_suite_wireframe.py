@@ -43,7 +43,6 @@ from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     Frame,
     PageBuilder,
-    column,
     grid,
     inset,
     row,

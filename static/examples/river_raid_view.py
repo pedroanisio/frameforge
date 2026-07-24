@@ -36,7 +36,6 @@ from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     linear_gradient,
     radial_gradient,
-    render_page_svgs,
     render_pages_with_stats,
     rgba,
     serialize,
