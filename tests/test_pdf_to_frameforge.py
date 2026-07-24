@@ -42,7 +42,6 @@ sys.path.insert(0, os.path.join(ROOT, "tooling"))
 import frameforge.model as fg  # noqa: E402
 import pdf_to_frameforge_yml as tool  # noqa: E402
 
-from pathlib import Path  # noqa: E402
 
 
 def _converter(tmp_path, **opts_kw):

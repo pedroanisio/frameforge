@@ -35,8 +35,6 @@ from frameforge.sdk import (  # noqa: E402
     Chart,
     DocumentBuilder,
     Frame,
-    Path,
-    Vec2,
     column,
     grid,
     inset,

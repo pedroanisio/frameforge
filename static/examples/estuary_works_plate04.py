@@ -16,8 +16,8 @@ import random
 
 from frameforge.sdk import DocumentBuilder
 from frameforge.sdk.paint import linear_gradient, radial_gradient, rgba, hatch, dots
-from frameforge.sdk.paint import (blur_filter, displacement_map, filter_chain, filter_fn,
-                                  style_effects, turbulence)
+from frameforge.sdk.paint import (blur_filter, filter_chain, filter_fn,
+                                  style_effects)
 from frameforge.sdk.chevreul import contrast_ratio
 from frameforge.sdk.metrics import measure_text, wrap_text
 

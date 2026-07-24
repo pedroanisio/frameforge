@@ -2,7 +2,6 @@
 """Regression tests for the FrameForge live-session web UI."""
 from __future__ import annotations
 
-import json
 import os
 import sys
 

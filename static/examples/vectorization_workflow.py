@@ -43,13 +43,12 @@ from frameforge.sdk import (  # noqa: E402
     measure_text,
     radial_gradient,
     rgba,
-    render_page_svgs,
     render_pages_with_stats,
     serialize,
     validate_static_rules,
 )
 from frameforge.sdk.clip import clip_rect  # noqa: E402
-from frameforge.sdk.paint import effects, shadow, soft_shadow  # noqa: E402
+from frameforge.sdk.paint import effects, shadow  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas + palette

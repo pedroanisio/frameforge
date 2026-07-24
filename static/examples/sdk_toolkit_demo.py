@@ -13,7 +13,6 @@ Run from the repository root::
 """
 from __future__ import annotations
 
-import math
 import os
 import sys
 

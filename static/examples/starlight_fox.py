@@ -35,7 +35,6 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     Path,
-    Vec2,
     serialize,
     theme,
 )

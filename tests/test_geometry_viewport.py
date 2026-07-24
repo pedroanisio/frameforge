@@ -14,7 +14,6 @@ unmoved). The equivalence test proves it reproduces the existing fit math.
 """
 from __future__ import annotations
 
-import math
 import os
 import sys
 

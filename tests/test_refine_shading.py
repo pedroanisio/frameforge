@@ -192,7 +192,6 @@ def test_band_refit_is_visibility_aware():
 
 
 def test_band_refit_improves_on_flat_refit():
-    from PIL import Image
 
     from frameforge.vision.infrastructure.refine import (
         refine_band_shading, refine_document,

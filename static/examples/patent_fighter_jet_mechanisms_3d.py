@@ -41,13 +41,10 @@ from frameforge.sdk import (  # noqa: E402
     DocumentBuilder,
     Scene3D,
     Vec3,
-    badge,
     default_theme,
-    grid,
     inset,
     linear_gradient,
     rgba,
-    row,
     serialize,
     table,
 )
