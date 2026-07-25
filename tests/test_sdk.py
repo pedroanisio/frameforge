@@ -1503,7 +1503,7 @@ def test_validate_static_rules_without_targets_stays_clean():
 # --------------------------------------------------------------------------- #
 def test_new_wireframe_atoms_lower_and_validate():
     from frameforge.sdk import (
-        breadcrumb, checkbox, dropdown, image_placeholder, navbar, radio,
+        breadcrumb, checkbox, dropdown, image_placeholder, radio,
         slider, sticky_note,
     )
 

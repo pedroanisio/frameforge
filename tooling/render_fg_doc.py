@@ -3,7 +3,10 @@
 # Generalized proxy: rect/line/text/image/table (+defs.assets). Sanity check, NOT a conformant renderer.
 # HEAD-patched: stroke is PAINT-ONLY (P3); stroke geometry comes from stroke_style (token or inline);
 # `size` content-sizing reads from `sizing` (P4). DejaVu stand-in fonts.
-import sys, os, re, yaml
+import sys
+import os
+import re
+import yaml
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties

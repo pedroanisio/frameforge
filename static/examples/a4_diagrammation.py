@@ -26,7 +26,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
 from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder, column, grid, inset, lorem, row, serialize,
+    DocumentBuilder, column, grid, inset, lorem, serialize,
 )
 from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 

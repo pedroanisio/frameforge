@@ -24,7 +24,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import Camera, Mat4, Scene3D, Vec2, Vec3  # noqa: E402
+from frameforge.sdk import Camera, Scene3D, Vec3  # noqa: E402
 
 
 def test_mat4_try_project_none_behind_near_and_equal_in_front():

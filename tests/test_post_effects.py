@@ -88,7 +88,9 @@ from PIL import Image  # noqa: E402
 
 
 def _flat(img):
-    return list(img.convert("RGB").getdata())
+    rgb = img.convert("RGB")
+    getter = getattr(rgb, "get_flattened_data", rgb.getdata)
+    return list(getter())
 
 
 def _test_image():

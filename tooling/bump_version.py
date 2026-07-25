@@ -32,7 +32,6 @@ import argparse
 import glob
 import os
 import re
-import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 _SEMVER = re.compile(r"^\d+\.\d+\.\d+$")

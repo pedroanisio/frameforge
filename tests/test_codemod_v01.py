@@ -23,7 +23,6 @@ Runs under pytest or standalone (``uv run python tests/test_codemod_v01.py``).
 from __future__ import annotations
 
 import copy
-import os
 import sys
 from pathlib import Path
 

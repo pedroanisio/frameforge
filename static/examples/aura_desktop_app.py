@@ -33,7 +33,7 @@ Apple-ecosystem UX vocabulary (Focus, Shared with You, Listen Now, Photos).
 """
 import os
 from dataclasses import replace
-from frameforge.sdk import DocumentBuilder, default_theme, avatar, pill, button, badge, field
+from frameforge.sdk import DocumentBuilder, default_theme, button, field
 from frameforge.sdk.validate import validate_static_rules
 
 # --------------------------------------------------------------------------- #

@@ -30,7 +30,6 @@ Run from the repository root::
 """
 from __future__ import annotations
 
-import math
 import os
 import sys
 
@@ -41,7 +40,6 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
 from frameforge.sdk import DocumentBuilder, measure_text, rgba  # noqa: E402
-from frameforge.sdk.clip import clip_path  # noqa: E402
 
 W, H = 2000, 1032
 

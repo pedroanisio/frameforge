@@ -109,7 +109,6 @@ from frameforge.sdk import (  # noqa: E402
     radial_gradient,
     ref,
     region_grade,
-    render_page_svgs,
     render_pages_with_stats,
     rgba,
     row,
@@ -156,7 +155,6 @@ from layout_methods_book import (  # noqa: E402  — the ELECTED, extended compo
     ts,
     wrap_atoms,
 )
-import layout_methods_figures as plates  # noqa: E402  — the elected book's plates
 
 # --------------------------------------------------------------------------- #
 # The authoritative feature inventory — the tour is gated against this file.

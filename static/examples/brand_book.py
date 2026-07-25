@@ -53,7 +53,7 @@ from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 import brand_book_figures as plates  # noqa: E402
 from brand_book_figures import (  # noqa: E402
-    AMBER, BAR, BLUE, CARD, CREAM, EMER, FAINT, GOLD, INDIGO, INK, INKBG,
+    AMBER, BLUE, CREAM, EMER, FAINT, GOLD, INDIGO, INK, INKBG,
     LINE, MONO, MUTE, PANEL, PAPER, ROSE, RULE, SANS, SERIF, SLATE, TEAL,
     VIOLET, brand_mark, ripple_field, ts,
 )

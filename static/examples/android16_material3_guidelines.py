@@ -5,7 +5,8 @@ A 64-page A4 reference, built with the FrameForge SDK from PRIMITIVES ONLY
 drawn from those primitives — no widget helpers. Specs grounded in public
 Material 3 / M3 Expressive guidance (see the closing colophon for sources).
 """
-import os, math
+import os
+import math
 from frameforge.sdk import DocumentBuilder, serialize
 
 # ============================================================ A4 + type
@@ -395,7 +396,7 @@ def p_adaptive():
     for i,(t,nav,cc,c) in enumerate(devs):
         w=dw[i]; SH([dx,yy,w,300],fill=SURFACE,radius=12,elev=1)
         if i==0:
-            R([dx,yy+270,w,30],fill=cc);
+            R([dx,yy+270,w,30],fill=cc)
             for k in range(3): DOT(dx+w/6+k*w/3,yy+285,5,fill=c)
             R([dx+12,yy+12,w-24,246],fill=SC,radius=6)
         else:
@@ -801,7 +802,7 @@ def p_button_groups():
     sect(MX,y+64,"Connected button group (M3E)",SECONDARY)
     gx=MX; labs=["Reply","Forward","Archive","More"]; bx=gx
     for i,lb in enumerate(labs):
-        w=len(lb)*8+40; R([bx,y+96,w,48],fill=SECONDARY_C,radius=(24 if i in(0,len(labs)-1) else 6));
+        w=len(lb)*8+40; R([bx,y+96,w,48],fill=SECONDARY_C,radius=(24 if i in(0,len(labs)-1) else 6))
         R([bx+ (0 if i==0 else 2),y+96,w-(2 if i>0 else 0),48],fill=SECONDARY_C,radius=(24 if i in(0,len(labs)-1) else 6))
         T(bx,y+110,w,lb,size=14,color=ON_SECONDARY_C,weight=500,align="center"); bx+=w+3
     note(MX,y+160,W-2*MX,"On press, the active button swells and neighbours compress — a spring-driven expressive detail.")
@@ -853,7 +854,7 @@ def p_icon_buttons():
         T(xx,y+132,160,lab,size=14,color=INK,weight=500)
     sect(MX,y+190,"Toggle state (unselected → selected)")
     for i,(fill,ic,fg) in enumerate([("none","favorite",ON_SURFACE_V),(TERTIARY,"favorite",ON_TERTIARY)]):
-        xx=MX+i*140;
+        xx=MX+i*140
         if fill!="none": R([xx,y+222,44,44],fill=fill,radius=22)
         else: R([xx,y+222,44,44],fill="none",stroke=OUTLINE,sw=1.4,radius=22)
         icon(ic,xx+10,y+232,24,fg,2)
@@ -940,7 +941,7 @@ def p_chips():
            ("Input","input",["Alex","Jordan","Sam"]),("Suggestion","suggestion",["Add label","Snooze","Remind me"])]
     yy=y+70
     for ti,(lab,kind,items) in enumerate(types):
-        sect(MX,yy,lab+" chips",SECONDARY); xx=MX;
+        sect(MX,yy,lab+" chips",SECONDARY); xx=MX
         for j,it in enumerate(items):
             sel=(kind=="filter" and j in(1,2)) or (kind=="input")
             w=m_chip(xx,yy+26,it,kind,selected=sel,icon_name=("directions" if kind=="assist" else None)); xx+=w+12

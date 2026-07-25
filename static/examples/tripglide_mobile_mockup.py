@@ -23,7 +23,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 from frameforge.sdk import DocumentBuilder, Mat3, serialize  # noqa: E402
 from frameforge.sdk.clip import clip_rect  # noqa: E402
-from frameforge.sdk.paint import effects, linear_gradient, radial_gradient, shadow, stroke  # noqa: E402
+from frameforge.sdk.paint import effects, linear_gradient, shadow, stroke  # noqa: E402
 from frameforge.sdk.validate import validate_static_rules  # noqa: E402
 
 OUT = os.path.join(ROOT, "tests", "fixtures", "tripglide-mobile-mockup.fg.yaml")
