@@ -9,6 +9,55 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## 2.7.1 — fix: flow diagnostics measure the real face, and the bump sweep gets honest (2026-07-27)
+
+PATCH: no schema, `$defs`, or field-contract change — a document authored against
+`2.7.0` validates and renders identically. This entry was drafted on 2026-07-23 as
+"2.6.1" against the 2.6.0 tree and stranded uncommitted; the tree reached 2.7.0
+before it landed. The runtime and gate fixes from that draft shipped inside 2.7.0
+(backfilled entry below) — what lands *here* is the remainder:
+
+- **Justified flow lines no longer report phantom width overflow** — a justified
+  line is set to `LaidLine.width` by the shaper (`textLength`), and KP only admits
+  it when the inter-word shrink can absorb the excess, so its natural ink exceeding
+  the column is justification working, not a spill. The flow `overflow` diagnostic
+  now skips `justify` lines. The case the signal exists for — the unbreakable box
+  admitted at badness 1e5+ — has no interior word gap, is never marked `justify`,
+  and still reports.
+- **Plain flow paragraphs measure in their own face** — the un-spanned paragraph
+  path called the layout engine without the paragraph's resolved style, so real
+  metrics could not resolve the face and silently fell back to the 0.52-em
+  estimate — ~43% over-wide for an old-style serif — and every line broke early
+  while a span-styled sibling in the same face broke correctly. The same style now
+  also reaches the overflow re-measure, which otherwise judged a just-fitted line
+  against a different font and raised a phantom ERROR-severity overflow.
+  Byte-neutral with real metrics off. Pinned by
+  `tests/test_flow_plain_paragraph_metrics.py`.
+- **Two 2.7.0 renderer contracts get their pins** — the authored-`\n`
+  (`white_space: pre-*`) hard-break contract and the start-anchored multi-run span
+  emission both shipped in the 2.7.0 tree with their test-first pins still
+  uncommitted. `tests/test_pre_line_breaks.py` (hard break per mode, wrapping
+  still applies inside each segment, `shrink_to_fit` re-layout preserves the
+  breaks, `normal` unchanged) and `tests/test_span_anchor_portability.py`
+  (the renderer does the anchor arithmetic; single-run spans keep the middle
+  anchor for byte-stability) now guard them.
+- **The bump moves nine → eleven sites, and the sweep can no longer go silent** —
+  `plugin/bin/frameforge-mcp` carries its own `FRAMEFORGE_IMAGE` fallback, a second
+  copy of the pinned runtime tag read whenever the launcher runs by hand instead of
+  through the plugin's MCP registration. Nothing moved it and nothing pinned it, so
+  a bump could leave the launcher pulling the previous release against a current
+  manifest. It is now a `bump_version.py` site, pinned by
+  `test_plugin_contract.py::test_launcher_default_image_tracks_the_manifest`. Two
+  further defects in the same tool: the post-bump cosmetic sweep skipped `docs/`
+  entirely — where the user-facing `docker pull ghcr.io/pedroanisio/frameforge:X.Y.Z`
+  instructions live — and its `old` version variable was clobbered inside the site
+  loop, so re-running a partial bump silently reported nothing. Two further sites were
+  gated but unmoved — the `CHANGELOG.md` top block and the spec front-matter, both
+  pinned to `HEAD_VERSION` by `tests/test_version_prose_sync.py` — so a bump left them
+  to be found by a failing gate rather than moved; they are sites now. `RELEASE.md`
+  §1/§2/§7 corrected to eleven sites, with the new I8 prose-sync invariant, the ungated
+  README headline, and the targets that are *not* on `check:` stated plainly.
+
 ## 2.7.0 — fix: close the positioned-text and validation feedback loop (2026-07-27)
 
 Schema-additive, with intentional validation-behavior changes documented in
@@ -34,6 +83,80 @@ Schema-additive, with intentional validation-behavior changes documented in
   `unwrapped_width`, while `needed` is documented as post-layout extent.
 - Regressions cover SDK, model, renderer, validator, CLI semantics, overflow wire
   compatibility, sparse-grid edges, and MCP registration/export/discovery.
+
+## 2.7.0 — fix: the runtime and the gates get their fixes (2026-07-23, backfilled)
+
+Backfilled: these defects were closed in the tree between the 2.6.0 and 2.7.0
+bumps and therefore shipped inside 2.7.0, but the entry documenting them (drafted
+as "2.6.1") was stranded uncommitted until 2.7.1.
+
+- **Image build no longer depends on the checkout's line endings** — the repository
+  had no `.gitattributes`, so Git for Windows applied its default CRLF conversion and
+  a clean Windows clone could not build the runtime image
+  (`/usr/bin/env: 'bash\r': No such file or directory`, exit 127 in the fonts stage).
+  `.gitattributes` now pins LF, and — because that stops Git *producing* CRLF but does
+  not repair a tree that already has it, nor a GitHub source ZIP, nor a host with its
+  own `core.autocrlf` — both Dockerfile COPY sites strip CR before `chmod`/exec.
+  `tests/test_line_endings.py` pins both strip sites.
+- **`docker run … version` reports the real version** — the verb imported the dead
+  pre-2.5.0 shadow path; it now imports `frameforge.model`, so the image's version
+  stamp is the package's and image/package skew is detectable again.
+- **Dependency layer copies `README.md`** — hatchling reads it at sync time, so the
+  cached dependency layer no longer breaks the build on a clean cache.
+- **Generated-artifact gates read the worktree, not the git index** — `git ls-files`
+  reports the index while the gates read the worktree, and those views diverge
+  routinely (unstaged deletion, sparse checkout, a concurrent session mid-edit). Every
+  gate that fed an index entry straight to `open()` turned that ordinary divergence
+  into a `FileNotFoundError` traceback instead of a finding: a tracked-but-deleted doc
+  crashed `check_public_readiness` (and with it two pytest cases), `check_disclaimers`,
+  and `check_doc_links`, with `gen_status` and `gen_examples_index` carrying the same
+  latent defect. `tooling/tracked_files.py` now separates "is this path tracked?" from
+  "which files can I read?".
+- **MCP server instructions advertise font enumeration** — `list_fonts` / `match_font`
+  existed but were absent from the server instructions, so an agent had no way to
+  discover that the runtime's font families are enumerable.
+- **Nav closure** — `docs/desktop-cowork-setup.md` existed but was not listed in
+  `mkdocs.yml`, which `docs-check` catches.
+- **Authored `\n` under `white_space: pre-*`** — page-mode text layout collapsed
+  newlines unconditionally, so every `pre` / `pre-wrap` / `pre-line` / `break-spaces`
+  mode rendered `"A\nB"` as the single line `"A B"`, contradicting the value set the
+  model documents. Pinned in 2.7.1 by `tests/test_pre_line_breaks.py`.
+- **Multi-run spans no longer rely on chunk anchoring** — a centred or right-aligned
+  `text.spans` line emitted one `text-anchor="middle"` element carrying the anchor on
+  its first tspan. That is valid SVG 1.1 and Chromium/Firefox render it correctly, but
+  consumers that apply the anchor per tspan (librsvg-family previews, several document
+  viewers) centre every run independently and the runs overlap — a class of defect the
+  Chromium raster QA loop can never see. The renderer now does the anchor arithmetic
+  itself and emits a start-anchored line at the measured start x; single-run spans keep
+  the middle anchor for byte-stability. Pinned in 2.7.1 by
+  `tests/test_span_anchor_portability.py`.
+- **Content hygiene** — quarantined dead reports, a stale rename map, and committed
+  build output removed from the tree (`doc-quarantine.sh` + `quarantine-manifest.json`
+  record what moved and why).
+
+## 2.6.0 — feat(plugin,tooling): Claude Code plugin distribution + prose-drift gate (2026-07-23)
+
+MINOR, additive (no breaking change; no codemod — no DSL or schema surface is
+touched). Backfilled: both additions shipped under the 2.6.0 literal and carry
+`2.6.0` in every manifest they ship in, but neither had a CHANGELOG entry.
+
+- **FrameForge ships as a Claude Code plugin** — `plugin/.claude-plugin/plugin.json`
+  and `.claude-plugin/marketplace.json` declare the plugin, its runtime image, and a
+  session volume; `plugin-sync` mirrors the canonical skills into `plugin/` because a
+  sparse install cannot follow symlinks out of the tree. `tests/test_plugin_contract.py`
+  gates version parity across the manifest, the marketplace entry, and the pinned
+  runtime image tag — a stale pin means installed users never see an update, since
+  Claude Code only re-fetches when the version string changes. Windows and
+  Claude Desktop / Cowork setup paths are documented
+  (`docs/plugin-windows-setup.md`, `docs/desktop-cowork-setup.md`).
+- **Shared library mount** — an optional host directory the plugin mounts, so
+  generated assets land somewhere durable instead of inside the session volume.
+- **`symbol-check` — prose is gated against the live tree** — `check_symbol_drift.py`
+  fails when documentation names a symbol or cites a tool count the live tree
+  contradicts. On the `check:` target.
+- Five new example clients (`agentic_ai_framework`, `catalan_solids`,
+  `incidente_openai_huggingface` + warrant, `psychedelic_canvas`); examples index
+  regenerated.
 
 ## 2.6.0 — feat: consent-based collision gate + cross-backend text fidelity (2026-07-23)
 
