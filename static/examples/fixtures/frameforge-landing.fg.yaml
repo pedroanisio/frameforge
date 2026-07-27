@@ -1,5 +1,5 @@
 dsl: FrameForge
-version: 2.6.0
+version: 2.6.1
 profile: diagram
 title: FrameForge — structured output, checked before it ships
 description: Proposed landing page for the FrameForge service, authored with the FrameForge
@@ -611,7 +611,7 @@ pages:
       - 36
       style: chip
       type: text
-      text: 2.6.0
+      text: 2.6.1
     - decorative: true
       stroke_style:
         stroke_width: 1.0
@@ -909,7 +909,7 @@ pages:
       - 22
       style: capstater
       type: text
-      text: 2,561 · 1 skip
+      text: 2,644 · 1 skip
     - decorative: true
       stroke_style:
         stroke_width: 1.0
@@ -950,7 +950,7 @@ pages:
       - 44
       style: statb
       type: text
-      text: 2,561
+      text: 2,644
     - id: t032
       box:
       - 100.0
@@ -1066,7 +1066,7 @@ pages:
       - 44
       style: stat
       type: text
-      text: '139'
+      text: '144'
     - id: t040
       box:
       - 1092.0
@@ -4129,7 +4129,7 @@ pages:
       - 34
       style: cap
       type: text
-      text: v2.6.0 · MIT · Pedro Anisio Silva
+      text: v2.6.1 · MIT · Pedro Anisio Silva
     - id: t194
       box:
       - 560.0

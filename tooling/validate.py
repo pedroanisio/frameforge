@@ -713,17 +713,23 @@ def _geometric_audit(doc, findings):
 
 
 # --------------------------------------------------------------------------- #
-def text_fit_checks(doc, base_dir, findings):
+def text_fit_checks(doc, base_dir, findings, real_metrics=False):
     """Opt-in (--text-fit): run the SVG proxy's text-fitting pass and surface
     every content-losing text object as an advisory `text-truncated` WARN —
     the validate-side face of issue #44. Rendering stays out of the default
     structural pass; this imports the renderer lazily and discards the SVG.
+
+    `real_metrics` is honoured here exactly as it is by `collision_checks`: the
+    flag exists so the verdict is reproducible against the font that will
+    actually be drawn. Without it the fit pass measures every face at the
+    0.52-em average, which over-measures an old-style serif by ~40% and reports
+    truncation on text that fits.
     """
     # Lazy import so the default structural pass stays render-free. (The model
     # lives inside the package since 2.5.0, so `frameforge` in sys.modules is
     # always the package — the historical model/package swap dance is gone.)
     from render_fixtures import Renderer
-    r = Renderer(doc, base_dir)
+    r = Renderer(doc, base_dir, real_metrics=real_metrics)
     for page in doc.get("pages", []):
         if isinstance(page, dict):
             r.render_page(page)
@@ -791,7 +797,7 @@ def validate_doc(path, strict=False, text_fit=False, check_collision=False,
     rule_checks(doc, findings)
     base = os.path.dirname(os.path.abspath(path))
     if text_fit:
-        text_fit_checks(doc, base, findings)
+        text_fit_checks(doc, base, findings, real_metrics=real_metrics)
     if check_collision:
         collision_checks(doc, base, findings, real_metrics=real_metrics)
     if strict:

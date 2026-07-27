@@ -2158,6 +2158,16 @@ class Renderer:
             if measuring:
                 return
             for line in para.lines:
+                if line.justify:
+                    # A justified line is SET to `LaidLine.width` by the shaper
+                    # (textLength), and KP only admits it when the inter-word
+                    # shrink can absorb the excess (it skips at r < -1) — so its
+                    # natural ink exceeding the column is justification working,
+                    # not a spill. The case this signal exists for is the
+                    # unbreakable box admitted at badness 1e5+; such a line has no
+                    # interior word gap, is never marked `justify`, and still
+                    # reports below.
+                    continue
                 col = usable - line.indent
                 natural = self.measure(line.text, size, 0.52, st)
                 if natural > col + 0.5:
@@ -2220,9 +2230,19 @@ class Renderer:
                 return
             para = flow_layout.layout_paragraph(
                 text_of(fl), size=size, avg=0.52, lh=lh, width=usable,
-                measure=self.measure, align=align,
+                # the paragraph's OWN resolved style, exactly as the styled-spans
+                # path above: without it `real_metrics` cannot resolve the face and
+                # a plain paragraph silently falls back to the 0.52-em estimate —
+                # ~43% over-wide for an old-style serif, so every line broke early
+                # while a span-styled sibling in the same face broke correctly.
+                # Byte-neutral with real metrics off (TextFitter ignores `st` when
+                # no provider is wired).
+                measure=lambda s, z, a: self.measure(s, z, a, st), align=align,
                 first_line_indent=indent)
-            note_overwide_lines(fl, para, size, lh)
+            # …and the SAME style for the diagnostic re-measure, or a line the
+            # engine just fitted is judged against a different font and raises a
+            # phantom ERROR-severity overflow (the styled path already did this).
+            note_overwide_lines(fl, para, size, lh, st)
             for line in para.lines:
                 if cy + size * lh > bottom:
                     newpage()

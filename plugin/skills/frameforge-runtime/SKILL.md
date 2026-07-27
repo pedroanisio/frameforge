@@ -87,7 +87,7 @@ Bulk export without MCP:
 
 ```bash
 docker run --rm -v frameforge-work:/work -v "$PWD:/out" \
-  ghcr.io/pedroanisio/frameforge:2.6.0 \
+  ghcr.io/pedroanisio/frameforge:2.6.1 \
   bash -c 'cp -r /work/sessions/<session-id> /out/'
 ```
 
@@ -106,7 +106,7 @@ old one. The symptom is a tool list shorter than the documentation describes,
 or version skew in validation output.
 
 ```bash
-docker run --rm ghcr.io/pedroanisio/frameforge:2.6.0 version
+docker run --rm ghcr.io/pedroanisio/frameforge:2.6.1 version
 ```
 
 Once connected, `describe_capabilities` answers the same question without

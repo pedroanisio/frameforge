@@ -69,6 +69,22 @@ def test_default_runtime_image_is_pinned_to_the_package_version() -> None:
     )
 
 
+def test_launcher_default_image_tracks_the_manifest() -> None:
+    """The POSIX launcher carries its own ``FRAMEFORGE_IMAGE`` fallback.
+
+    It is a second copy of the pinned tag, read whenever the script is run by
+    hand rather than through ``.mcp.json``. Nothing else pins it, so a bump that
+    moves the manifest and not this literal leaves the launcher pulling the
+    previous release against a current manifest.
+    """
+    m = re.search(r'FRAMEFORGE_IMAGE:-([^}"\s]+)', LAUNCHER)
+    assert m, "launcher no longer defines a FRAMEFORGE_IMAGE default"
+    assert m.group(1).endswith(f":{PACKAGE_VERSION}"), (
+        f"launcher default image {m.group(1)!r} must pin the released tag; it is "
+        "a bump site (tooling/bump_version.py:SITES)"
+    )
+
+
 # ── 2. self-containment ───────────────────────────────────────────────────
 
 
