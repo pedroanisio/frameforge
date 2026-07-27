@@ -87,7 +87,7 @@ STYLES = {
     "bandR":   ts(12, 700, "red", align="right", letter_spacing=0.6),
     "num":     ts(46, 800, "red", letter_spacing=-1),
     "title":   ts(21, 800, "ink", letter_spacing=-0.4, line_height=1.12),
-    "axis":    dict(font_family=MONO, font_size=11, font_weight=700, color="redDk",
+    "axis":    dict(font_family=MONO, font_size=10, font_weight=700, color="redDk",
                     letter_spacing=0.3),
     "lbl":     dict(font_family=SANS, font_size=10.5, font_weight=700, color="muted",
                     letter_spacing=1.2, text_transform="uppercase"),
@@ -138,9 +138,9 @@ DASHR = {"stroke_width": 1.4, "stroke_dasharray": [5, 3]}
 def T(page, box, s, **kw):
     """Emit one text run wrapped in a boxless one-child group.
 
-    The ``tabular-box-model`` audit counts layer-top-level text objects and does
-    not recurse into groups, so wrapping each glyph run keeps dense wireframe
-    text from reading as an (unintended) data table. See the SDK memory note.
+    The layer-level ``tabular-box-model`` audit treats the group as one
+    structured object, so dense wireframe text is not mistaken for an
+    unintended hand-built table. Deep containment still audits the child.
     """
     with page.grouped() as g:
         g.text(box, s, **kw)
@@ -364,7 +364,8 @@ def concept(b, *, n, key, title, axis, problem, approach, outcome, refactors,
         T(page, [rx, cy, rw, 13], label, style="lbl")
         cy += 20
         for ln in lines:
-            T(page, [rx, cy, rw, 40], ln, style=style)
+            line_box_h = max(40, _lines(ln) * (18 if style == "bull" else 19))
+            T(page, [rx, cy, rw, line_box_h], ln, style=style)
             cy += _lines(ln) * 17 + (4 if style == "bull" else 0)
         cy += gap_after
 
@@ -1054,7 +1055,7 @@ def p10_feed(page):
         ix, iy, iw, ih = inset(cb, 14)
         badge(page, [ix, iy, 30 + len(tag) * 7, 18], tag, tone)
         thumb(page, [ix, iy + 26, iw, ih - 96])
-        T(page, [ix, iy + ih - 64, iw, 16], _wrap(ttl, 22), style="h2")
+        T(page, [ix, iy + ih - 64, iw, 36], _wrap(ttl, 22), style="h3")
         T(page, [ix, iy + ih - 26, iw, 14], sub, style="mut")
     T(page, [x, y + h - 6, w, 14],
               "↻ reordena por comportamento · cada card é uma intenção distinta",
@@ -1075,7 +1076,7 @@ def p11_value(page):
       style=ts(10.5, 700, "faint", letter_spacing=1.2))
     T(page, [hx, hy + 18, 360, 34], "≈ R$ 1.496",
       style=ts(30, 800, "paper", letter_spacing=-1))
-    T(page, [hx + hw - 230, hy + 6, 230, 14],
+    T(page, [hx + hw - 230, hy + 6, 230, 34],
       "Cada ponto rende mais ou menos\nconforme onde você troca.",
       style=ts(12, 500, "faint", line_height=1.4, align="right"))
 
@@ -1406,7 +1407,7 @@ def p18_omni(page):
             if (gx + gy) % 2 == 0:
                 page.rect([qr[0] + 14 + gx * 18, qr[1] + 14 + gy * 18, 16, 16],
                           fill="ink", radius=2)
-    T(page, [pxx + 140, pyy + 110, pw - 140, 14],
+    T(page, [pxx + 140, pyy + 110, pw - 140, 54],
       "Mostre no caixa para\njuntar ou usar pontos\nna hora.",
       style=ts(12, 500, "faint", line_height=1.5))
     pill(page, [pxx, passcol[1] + passcol[3] - 56, pw, 34],
@@ -1458,10 +1459,10 @@ def p19_surprise(page):
           "100", style=ts(10, 700, "paper", align="center"))
     T(page, [scx - 10, scy - 110, 20, 16], "▼", style="glyphR")
     T(page, [spin[0] + 300, scy - 50, spin[2] - 320, 18], "Giro diário grátis",
-      style=ts(16, 800, "paper"))
-    T(page, [spin[0] + 300, scy - 24, spin[2] - 320, 14],
+      style=ts(14, 800, "paper"))
+    T(page, [spin[0] + 300, scy - 24, spin[2] - 320, 31],
       "Pontos, cupons ou um\nprêmio surpresa por dia.",
-      style=ts(12, 500, "faint", line_height=1.4))
+      style=ts(11, 500, "faint", line_height=1.4))
     button(page, [spin[0] + 300, scy + 24, 150, 38], "Girar agora", "primary")
 
     # mystery box
@@ -1919,7 +1920,7 @@ def ai_journey(b):
         card(page, cb, fill="paper")
         ix, iy, iw, _ = inset(cb, 14)
         T(page, [ix, iy, iw, 14], ttl, style="h3")
-        T(page, [ix, iy + 18, iw, 28], _wrap(desc, 30), style="mut")
+        T(page, [ix, iy + 18, iw, 34], _wrap(desc, 30), style="mut")
 
 
 def build() -> DocumentBuilder:

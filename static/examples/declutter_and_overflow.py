@@ -160,6 +160,7 @@ def main() -> int:
         print(f"  #{sig.id}: {sig.source}/{sig.kind} policy={sig.policy} "
               f"box={sig.box[2]:g}×{sig.box[3]:g} needs "
               f"{sig.needed[0]:.0f}×{sig.needed[1]:.0f} "
+              f"unwrapped_width={sig.unwrapped_width!r} "
               f"acknowledged={sig.acknowledged}")
     print(f"Wrote before/after SVG + YAML to {OUT_DIR}")
     return 0

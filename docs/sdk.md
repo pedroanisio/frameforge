@@ -189,7 +189,7 @@ grey = chevreul.grey_document(builder.build_dict())
 
 ## Topology, perspective & math surfaces
 
-Four solver modules turn data and parametric math into FrameForge art, each lowering to a single `group` (so the geometric audit, which does not recurse into groups, stays quiet):
+Four solver modules turn data and parametric math into FrameForge art, each lowering to a single structured `group`. Deep containment audits its children in the group-local frame; layer-level table heuristics treat the group as one object:
 
 - **Topology** (`frameforge.sdk.topology`): `Graph` builds a node-link network and lays it out with deterministic algorithms — `circular_layout`, `radial_layout`, `layered_layout` (DAG), `grid_layout`, and a seeded `spring_layout` (Fruchterman–Reingold). `Graph.render()` draws edges, arrowheads and fitted labels.
 - **Perspective** (`frameforge.sdk.geometry.Camera`): a `look_at` + field-of-view camera composes a view/projection `Mat4`. Pass a `Camera` to `Scene3D.render()`, `Graph.render()`, a `Lattice`, or any manifold to project 3D positions; `Camera.orbit()` sweeps the eye for frame-by-frame motion.
@@ -281,7 +281,7 @@ page.imported_figure(figure, [48, 48, 420, 300], caption_position="below")
 
 ## Validation
 
-`validate_static_rules()` runs Pydantic structure validation, the repository static validator, and SDK checks for references, requested targets, target hide IDs, master-region chains, and path data.
+`validate_static_rules()` runs Pydantic structure validation, the repository static validator, default text-fit diagnostics, and SDK checks for references, requested targets, target hide IDs, master-region chains, and path data. Pass `text_fit=False` only for an explicit structure-only fast path; pass the same `real_metrics` value used by rendering when exact glyph advances are required.
 
 ```python
 from frameforge.sdk import validate_static_rules
@@ -289,6 +289,23 @@ from frameforge.sdk import validate_static_rules
 report = validate_static_rules(document, targets=["print"])
 for issue in report.issues:
     print(issue.severity, issue.rule_id, issue.path, issue.message)
+```
+
+## Positioned text, whitespace, and dashes
+
+`measure_text()` and the renderer select the same metric mode. Use `fit_width()` rather than the raw advance for an absolutely positioned text box; it includes the renderer's fit tolerance. The default is deterministic estimate mode, `real_metrics=True` opts into installed glyph advances, and `FRAMEFORGE_REAL_METRICS=1` changes the shared default. Preserve authored spaces with `white_space: pre|pre-wrap|break-spaces`. Stroke dash arrays accept lists or SVG-style comma/space strings; the model normalizes strings to the canonical list form.
+
+```python
+from frameforge.sdk import fit_width, stroke
+
+family = ["Inter", "DejaVu Sans", "sans-serif"]
+width = fit_width("Advanced   SQL", font_family=family, font_size=13)
+page.text(
+    [64, 64, width, 22],
+    "Advanced   SQL",
+    style={"font_family": family, "font_size": 13, "white_space": "pre"},
+)
+page.line([64, 92], [64 + width, 92], **stroke(1, color="#2563eb", dash="4 4"))
 ```
 
 ## Expansion

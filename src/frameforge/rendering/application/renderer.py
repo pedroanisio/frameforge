@@ -60,10 +60,8 @@ class Renderer:
         # reachable through every public entry point (sdk.render_page_svgs, the
         # MCP pipeline, the CLI) without a signature change; an explicit bool —
         # e.g. the golden harness passing False — always wins over the env.
-        if real_metrics is None:
-            real_metrics = os.environ.get("FRAMEFORGE_REAL_METRICS", "").strip().lower() in (
-                "1", "true", "yes", "on")
-        self.real_metrics = bool(real_metrics)
+        from frameforge.rendering.infrastructure.font_metrics import real_metrics_enabled
+        self.real_metrics = real_metrics_enabled(real_metrics)
         # Text fitting (measure/wrap/ellipsize) is a domain service; inject the
         # infra font-metrics provider only when real_metrics is on (estimate mode
         # otherwise), keeping the domain free of the infra import.
@@ -318,6 +316,9 @@ class Renderer:
     def wrap_words(self, text, w, size, avg, st=None):
         return self._fit.wrap_words(text, w, size, avg, st)
 
+    def wrap_preserved(self, text, w, size, avg, st=None):
+        return self._fit.wrap_preserved(text, w, size, avg, st)
+
     def ellipsize(self, s, w, size, avg, st=None):
         return self._fit.ellipsize(s, w, size, avg, st)
 
@@ -381,6 +382,10 @@ class Renderer:
             return ""
         content = self._transform_text(str(content), st.get("text_transform"))
         size, avg, lh = st["size"], st["avg"], st["lh"]
+        unwrapped_width = max(
+            (self.measure(segment, size, avg, st) for segment in str(content).split("\n")),
+            default=0.0,
+        )
         # Default unspecified text to `clip`: no fixture ever requests `visible`,
         # and an authoring box is a containment constraint, so the proxy contains
         # by default (wrap first, then clip the remainder) rather than spilling.
@@ -403,9 +408,9 @@ class Renderer:
         # `white_space: pre-*` makes an authored "\n" a hard line break; wrapping
         # still applies inside each segment (pre-wrap semantics). The default
         # (`normal`) keeps the legacy collapse, so existing fixtures are unmoved.
+        white_space = st.get("white_space") or "normal"
         preserve_nl = ("\n" in content and
-                       st.get("white_space") in ("pre", "pre-wrap", "pre-line",
-                                                 "break-spaces"))
+                       white_space in ("pre", "pre-wrap", "pre-line", "break-spaces"))
 
         def layout(sz):
             segments = content.split("\n") if preserve_nl else [content]
@@ -418,6 +423,8 @@ class Renderer:
                         seg, size=sz, avg=avg, lh=lh, width=w,
                         measure=lambda s, z, a: self.measure(s, z, a, st), align="justify")
                     out.extend([ln.text for ln in para.lines] or [seg])
+                elif white_space in ("pre-wrap", "break-spaces"):
+                    out.extend(self.wrap_preserved(seg, w, sz, avg, st))
                 else:
                     out.extend(self.wrap_words(seg, w, sz, avg, st))
             return out or [content]
@@ -575,7 +582,9 @@ class Renderer:
                         box=(x, y, w, h),
                         needed=(widest,
                                 (len(lines) + len(dropped_lines)) * size * lh),
-                        acknowledged=acknowledged, detail=head).to_dict())
+                        acknowledged=acknowledged,
+                        unwrapped_width=unwrapped_width,
+                        detail=head).to_dict())
             else:
                 self.tstats["contained"] += 1
         elif fits:
@@ -592,7 +601,8 @@ class Renderer:
                 policy=overflow, box=(x, y, w, h),
                 needed=(widest, len(lines) * size * lh),
                 acknowledged=bool(st["overflow"] or self.contract.get("overflow")
-                                  or text_ovf or max_lines)).to_dict())
+                                  or text_ovf or max_lines),
+                unwrapped_width=unwrapped_width).to_dict())
         if self.layout_report:
             self.diagnostics["layout"].append({
                 "id": oid, "type": "text", "box": [x, y, w, h],
@@ -2166,7 +2176,8 @@ class Renderer:
                         source="flow", kind="width", policy="flow",
                         box=(x + line.indent, cy, col, size * lh),
                         needed=(natural, size * lh),
-                        acknowledged=False, detail=line.text[:80]).to_dict())
+                        acknowledged=False, unwrapped_width=natural,
+                        detail=line.text[:80]).to_dict())
 
         def emit_para(fl, st, first_indent):
             """A prose paragraph set through the backend-neutral flow engine

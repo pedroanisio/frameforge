@@ -44,7 +44,8 @@ Fluent builder:
   `specular_lighting`, `filter_chain`, `style_effects`, `effect`, `effect_stack`,
   and `appearance`. Stroke geometry MUST go through `stroke()` (paint in `stroke`,
   geometry in the inline `stroke_style` bundle); an inline `stroke_width` on a
-  paint-only line/polyline/path is rejected.
+  paint-only line/polyline/path is rejected. `dash=` accepts either a length list
+  or SVG-style `"4 4"` / `"4, 4"`; it normalizes to `stroke_dasharray`.
 - Widgets (`frameforge.sdk.widgets`): `avatar` `badge` `button` `card` `kpi` `pill`
   `progress` `table` `tabs` `toggle` `divider` `field`, plus `Panel`/`Theme`.
 - Data & geometry (`frameforge.sdk.chart` / `.topology` / `.geometry` / `.draw`): `Chart`+`Frame` (series: `line`, `bars`, `scatter`, `area`, `pie`,
@@ -144,8 +145,14 @@ Fluent builder:
     or value, paint literals and gradient stops; input never mutated.
   - Named gradient/pattern fills live in `defs.tokens.fill_styles` and resolve from
     any `fill:`/`stroke:` string.
-- Type finesse (`frameforge.sdk.metrics`): `measure_text`/`wrap_text`/`text_height`
-  size boxes to content BEFORE rendering; `kerned_spans(text, pairs=...)` applies
+- Type finesse (`frameforge.sdk.metrics`): `measure_text`/`fit_width`/`wrap_text`/
+  `text_height` size boxes to content BEFORE rendering. Use `fit_width` for a
+  positioned text box because it includes the renderer's fit tolerance. SDK and
+  renderer default to the same deterministic estimate mode; pass the same
+  `real_metrics=True` value to both (or set `FRAMEFORGE_REAL_METRICS=1`) to opt
+  into installed glyph advances. Preserve authored spacing with
+  `style.white_space = pre|pre-wrap|pre-line|break-spaces`;
+  `kerned_spans(text, pairs=...)` applies
   explicit pair kerning as grammar-native spans; `font_kern_pairs(family, text,
   font_size=...)` reads the resolved font's kern table (fontTools; degrades to {}).
 - Slide patterns (`frameforge.patterns`): `load_catalog()` — 375 typed layout
@@ -174,7 +181,11 @@ Fluent builder:
   is a deterministic AABB separation kernel (pairwise relaxation, world-clamped);
   `apply_separation(doc)` nudges ONLY the boxes the static audit's `overlap` rule
   flags — the solver for detect-without-solve overlap findings.
-- Validation: `validate_static_rules(doc) -> ValidationReport(ok, issues)`,
+- Validation: `validate_static_rules(doc) -> ValidationReport(ok, issues)` includes
+  text-fit diagnostics by default; use `text_fit=False` only for a structure-only
+  pass. Deep containment resolves group-local children. `decorative` is
+  accessibility/overlap intent, while `containment="allowed"` explicitly consents
+  to intentional bleed (and applies to a group's subtree). Also available:
   `assert_golden(...)`; `HEAD_VERSION` is the current spec version.
 
 ## Flow defaults & reserved styles (ADR-0006)
@@ -209,6 +220,9 @@ Discovery (look up, don't guess):
 - `list_fonts` — the font families fontconfig can resolve; pass `family` to see what a
   request actually resolves to (`resolves.exact=false` = silent substitution) BEFORE a
   render swaps in a default face. Reports a session document's pinned `defs.tokens.fonts`.
+- `fit_text` — measure a string in the render tool's selected metric mode and return
+  both its raw advance and a line-breaker-safe width; use it before assigning
+  absolutely positioned token boxes.
 - `get_guide` — this guide as a tool, for MCP clients that do not surface prompts.
 
 Forward (author -> render):

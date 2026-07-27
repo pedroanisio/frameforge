@@ -90,7 +90,7 @@ STYLES = {
     "bandR":   ts(12, 700, "red", align="right", letter_spacing=0.6),
     "num":     ts(46, 800, "red", letter_spacing=-1),
     "title":   ts(21, 800, "ink", letter_spacing=-0.4, line_height=1.12),
-    "axis":    dict(font_family=MONO, font_size=11, font_weight=700, color="redDk",
+    "axis":    dict(font_family=MONO, font_size=10, font_weight=700, color="redDk",
                     letter_spacing=0.3),
     "lbl":     dict(font_family=SANS, font_size=10.5, font_weight=700, color="muted",
                     letter_spacing=1.2, text_transform="uppercase"),
@@ -140,9 +140,9 @@ DASHR = {"stroke_width": 1.4, "stroke_dasharray": [5, 3]}
 def T(page, box, s, **kw):
     """Emit one text run wrapped in a boxless one-child group.
 
-    The ``tabular-box-model`` audit counts layer-top-level text objects and does
-    not recurse into groups, so wrapping each glyph run keeps dense wireframe
-    text from reading as an (unintended) data table. See the SDK memory note.
+    The layer-level ``tabular-box-model`` audit treats the group as one
+    structured object, so dense wireframe text is not mistaken for an
+    unintended hand-built table. Deep containment still audits the child.
     """
     with page.grouped() as g:
         g.text(box, s, **kw)
@@ -363,7 +363,8 @@ def concept(b, *, n, key, title, axis, problem, approach, outcome, refactors,
         T(page, [rx, cy, rw, 13], label, style="lbl")
         cy += 20
         for ln in lines:
-            T(page, [rx, cy, rw, 40], ln, style=style)
+            line_box_h = max(40, _lines(ln) * (18 if style == "bull" else 19))
+            T(page, [rx, cy, rw, line_box_h], ln, style=style)
             cy += _lines(ln) * 17 + (4 if style == "bull" else 0)
         cy += gap_after
 
@@ -419,11 +420,11 @@ def index(b):
     T(page, [32, 62, 1000, 18],
       "Cada proposta reestrutura a arquitetura de informação por um eixo "
       "diferente — não é re-skin. Wireframe de baixa fidelidade.", style="body")
-    pill(page, [32, 92, 188, 24], "ANÁLISE · shopcoopera.com.br", fill="redSft",
+    pill(page, [32, 92, 200, 24], "ANÁLISE · shopcoopera.com.br", fill="redSft",
          style="chipA")
-    pill(page, [228, 92, 180, 24], "Sondado via Playwright", fill="fill",
+    pill(page, [240, 92, 180, 24], "Sondado via Playwright", fill="fill",
          style="chip")
-    pill(page, [416, 92, 230, 24], "Pesquisa loyalty UX 2026", fill="fill",
+    pill(page, [428, 92, 230, 24], "Pesquisa loyalty UX 2026", fill="fill",
          style="chip")
 
     page.layer("asis")
@@ -1023,7 +1024,7 @@ def p20_omni(page):
             if (gx + gy) % 2 == 0:
                 page.rect([qr[0] + 14 + gx * 18, qr[1] + 14 + gy * 18, 16, 16],
                           fill="ink", radius=2)
-    T(page, [pxx + 140, pyy + 110, pw - 140, 14],
+    T(page, [pxx + 140, pyy + 110, pw - 140, 54],
       "Mostre no caixa do PA\npara juntar ou usar\npontos na hora.",
       style=ts(12, 500, "faint", line_height=1.5))
     pill(page, [pxx, passcol[1] + passcol[3] - 56, pw, 34],
@@ -1046,7 +1047,7 @@ def p20_omni(page):
         T(page, [cb[0] + 56, cb[1] + 10, cb[2] - 210, 16], nm, style="h3")
         T(page, [cb[0] + 56, cb[1] + 30, cb[2] - 210, 14], addr, style="mut")
         T(page, [cb[0] + cb[2] - 150, cb[1] + 10, 60, 14], dist, style="td")
-        badge(page, [cb[0] + cb[2] - 88, cb[1] + 16, 74, 20], tag, "good")
+        badge(page, [cb[0] + cb[2] - 104, cb[1] + 16, 90, 20], tag, "good")
 
 
 # ======================================================================= #
@@ -1192,7 +1193,7 @@ def p_impacto(page):
     rx, ry, rw, _ = inset(right, 18)
     T(page, [rx, ry, rw, 14], "PRINCÍPIO COOPERATIVO",
       style=ts(10.5, 700, "faint", letter_spacing=1.1))
-    T(page, [rx, ry + 22, rw, 60],
+    T(page, [rx, ry + 22, rw, 64],
       _wrap("O que você gasta no Coopera volta como sobras e como projeto na "
             "sua própria comunidade.", 30),
       style=ts(15, 700, "paper", line_height=1.4))
@@ -1375,7 +1376,7 @@ def p_safra(page):
     rx, ry, rw, _ = inset(right, 18)
     T(page, [rx, ry, rw, 14], "CRÉDITO + COOPERA",
       style=ts(10.5, 700, "faint", letter_spacing=1.1))
-    T(page, [rx, ry + 22, rw, 60],
+    T(page, [rx, ry + 22, rw, 64],
       _wrap("Cada insumo financiado pela cooperativa rende pontos — que voltam "
             "como desconto na próxima safra.", 30),
       style=ts(15, 700, "paper", line_height=1.4))
@@ -1444,7 +1445,7 @@ def p_economia(page):
         cxp, cyp = mx + mw * px, my + mh * py
         circle(page, cxp, cyp, 10, fill="red")
         circle(page, cxp, cyp, 4, fill="paper")
-    pill(page, [mx + 16, my + 16, 200, 28], "◉ Cooperados num raio de 20 km",
+    pill(page, [mx + 16, my + 16, 220, 28], "◉ Cooperados num raio de 20 km",
          fill="paper", stroke="line", style="chip", radius=8)
     # circular-economy callout
     cc = [mx + 16, my + mh - 70, mw - 32, 54]
@@ -1552,7 +1553,7 @@ def ai_journey(b):
         card(page, cb, fill="paper")
         ix, iy, iw, _ = inset(cb, 14)
         T(page, [ix, iy, iw, 14], ttl, style="h3")
-        T(page, [ix, iy + 18, iw, 28], _wrap(desc, 30), style="mut")
+        T(page, [ix, iy + 18, iw, 34], _wrap(desc, 30), style="mut")
 
 
 # ======================================================================= #

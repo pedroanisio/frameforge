@@ -138,7 +138,7 @@ def test_tools_topic_reports_the_registered_tool_names(tmp_path):
     result = _structured(server.tools["describe_capabilities"](topic="tools"))
 
     assert result["ok"] is True
-    assert {"run_sdk_code", "list_fonts", "describe_capabilities", "get_guide"} <= set(result["tools"])
+    assert {"run_sdk_code", "list_fonts", "fit_text", "describe_capabilities", "get_guide"} <= set(result["tools"])
 
 
 def test_get_guide_tool_returns_the_prompt_text(tmp_path):
@@ -151,9 +151,13 @@ def test_get_guide_tool_returns_the_prompt_text(tmp_path):
 def test_new_tools_are_registered_and_exported(tmp_path):
     server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
 
-    assert {"describe_capabilities", "list_fonts", "get_guide"} <= set(server.tools)
+    assert {"describe_capabilities", "list_fonts", "fit_text", "get_guide"} <= set(server.tools)
     # the server.__all__ gotcha (see commit 2e6f6d1): new tools must be re-exported.
-    assert {"describe_capabilities", "list_fonts"} <= set(server_mod.__all__)
+    assert {"describe_capabilities", "list_fonts", "fit_text"} <= set(server_mod.__all__)
+
+    import frameforge.mcp as mcp
+    assert "fit_text" in mcp.__all__
+    assert callable(mcp.fit_text)
 
 
 # ── guide coverage drift-gate (MCP round, 2026-07-03) ──────────────────────
@@ -192,7 +196,7 @@ _HEADLINE_SURFACES = [
     "honeycomb_capability_map", "module_hub_radial",
     "from_markdown", "--from-v01",
     # cross-cutting
-    "expand(", "humanize", "measure_text",
+    "expand(", "humanize", "measure_text", "fit_width",
 ]
 
 

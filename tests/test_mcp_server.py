@@ -839,7 +839,7 @@ def test_mcp_guide_names_headline_sdk_capabilities():
     headline = [
         "DocumentBuilder", "stroke", "fill_stroke", "text_style",
         "Chart", "Scene3D", "Graph", "table", "badge",
-        "place_figure", "FigureRef", "validate_static_rules",
+        "place_figure", "FigureRef", "validate_static_rules", "fit_width",
         "multiview", "parametric_curve", "function_plot",
     ]
     missing_export = [name for name in headline if name not in sdk.__all__]

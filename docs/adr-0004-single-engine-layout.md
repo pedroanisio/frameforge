@@ -6,6 +6,7 @@ disclaimer:
     or verifiable reference may be invalid, erroneous, or a hallucination.
   generated_by: "Claude Opus 4.8 (1M context) via Claude Code"
   date: "2026-07-03"
+  last_revised: "2026-07-27"
 ---
 
 # ADR 0004 — Single-engine layout for fidelity output; SVG + `font_metrics` is a labeled proxy
@@ -73,6 +74,14 @@ the correct reading of the reporter's objection.
    a thin machine, not only the font-rich image. This makes the model's existing
    pinned-`FontDef` (src+hash, §9.6) enforceable rather than aspirational.
 
+4. **Author-time and proxy-layout measurement select one mode.** The SDK
+   `measure_text`/`fit_width`, renderer, validator, and MCP pipeline must resolve the
+   same `real_metrics` choice and full CSS family stack. Estimate mode is the
+   deterministic default for SDK/CLI authoring; explicit real mode (or the shared
+   environment opt-in) is threaded through validation and rendering. `fit_width`
+   is the positioned-box contract: measured advance plus the renderer's published
+   fit tolerance. MCP `fit_text` exposes both values before geometry is authored.
+
 ## Consequences
 
 - The **`html` target is promoted** from "legacy" to the fidelity path for flow;
@@ -84,6 +93,10 @@ the correct reading of the reporter's objection.
 - The interim `font_metrics` fix (walk the chain browser-faithfully; reject
   fontconfig's fuzzy fallback; fall through to the next installed family) reduces
   proxy divergence but **does not remove it** — only single-engine does.
+- Optional fontTools installation no longer changes only one side of the authoring
+  contract: author-time measurement and proxy line breaking always select the same
+  provider/mode. This prevents avoidable box drift without claiming cross-rasterizer
+  fidelity.
 - This amends the SVG-primary core commitment **for flow fidelity only**; SVG
   stays primary for fixed page-mode vector output where measure≠render does not
   arise (absolute-positioned text is not re-flowed).

@@ -180,7 +180,8 @@ style-paint-group =
       [ "fill_rule"        , ":" , ( "nonzero" | "evenodd" ) ] ,
       [ "stroke"           , ":" , Paint ] ,
       [ "stroke_width"     , ":" , Length ] ,
-      [ "stroke_dasharray" , ":" , ( "none" | "[" , Length , { "," , Length } , "]" ) ] ,
+      [ "dash"             , ":" , DashArray ] ,  (* authoring alias; normalizes to stroke_dasharray *)
+      [ "stroke_dasharray" , ":" , DashArray ] ,
       [ "stroke_dashoffset", ":" , Length ] ,
       [ "stroke_linecap"   , ":" , ( "butt" | "round" | "square" ) ] ,
       [ "stroke_linejoin"  , ":" , ( "miter" | "round" | "bevel" | "arcs" | "miter-clip" ) ] ,
@@ -189,6 +190,10 @@ style-paint-group =
       [ "vector_effect"    , ":" , ( "none" | "non-scaling-stroke" ) ] ,
       [ "arrow_start"      , ":" , ( boolean | string ) ] ,   (* FG extension: marker refs *)
       [ "arrow_end"        , ":" , ( boolean | string ) ] ;
+
+DashArray = "none" | "[" , Length , { "," , Length } , "]" | string ;
+(* String form is an SVG whitespace/comma-separated list of non-negative Length
+   tokens, e.g. "4 4", "4, 4", or "4px 2pt"; models enforce the lexical form. *)
 
 Paint = "none" | "currentColor" | Color | Image ;   (* Image covers gradient/pattern paints *)
 

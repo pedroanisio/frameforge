@@ -41,6 +41,12 @@ requires_raster = pytest.mark.skipif(
     not _deps_present(), reason="raster deps (cairosvg + browser + numpy/PIL) absent")
 
 
+def test_dependency_probe_requires_an_installed_browser_binary(monkeypatch):
+    """The Playwright package alone is not a usable browser dependency."""
+    monkeypatch.setattr(fidelity.os.path, "isfile", lambda _path: False)
+    assert fidelity.deps_available() is False
+
+
 @requires_raster
 def test_svg_and_html_agree_within_the_floor():
     """Every oracle fixture's SVG and HTML page-1 raster must clear its floor."""

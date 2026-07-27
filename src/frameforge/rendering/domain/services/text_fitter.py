@@ -14,6 +14,7 @@ renderer's estimate mode. Behaviour is identical to the methods it replaces.
 """
 from __future__ import annotations
 
+import re
 from typing import Callable, Optional
 
 
@@ -27,7 +28,11 @@ class TextFitter:
     def _fm(self, st):
         if self._provider is None or not st:
             return None
-        return self._provider(st.get("family_primary") or st.get("family", ""), bool(st.get("bold")))
+        # Resolve the complete CSS stack, exactly as sdk.metrics.measure_text
+        # does.  Measuring only family_primary made a missing first face fall
+        # back to the average estimate while author-time measurement correctly
+        # advanced to the next installed family.
+        return self._provider(st.get("family") or st.get("family_primary", ""), bool(st.get("bold")))
 
     def measure(self, s, size, avg, st=None):
         fm = self._fm(st)
@@ -53,6 +58,42 @@ class TextFitter:
         if cur:
             out.append(cur)
         return out or [""]
+
+    def wrap_preserved(self, text, w, size, avg, st=None):
+        """Wrap while preserving every authored space and tab.
+
+        Used for CSS ``pre-wrap``/``break-spaces``. Tokens are whitespace runs
+        or non-whitespace runs; an overlong run is split at the largest prefix
+        accepted by the active metric provider. Concatenating the returned
+        lines reproduces the input exactly.
+        """
+        value = str(text)
+        if not value or self.measure(value, size, avg, st) <= w:
+            return [value]
+        tokens = re.findall(r"[ \t]+|[^ \t]+", value)
+        lines: list[str] = []
+        current = ""
+
+        def split_prefix(token: str) -> tuple[str, str]:
+            take = 1
+            while take < len(token) and self.measure(token[:take + 1], size, avg, st) <= w:
+                take += 1
+            return token[:take], token[take:]
+
+        for token in tokens:
+            if current and self.measure(current + token, size, avg, st) > w:
+                lines.append(current)
+                current = ""
+            while token and self.measure(token, size, avg, st) > w:
+                head, token = split_prefix(token)
+                if current:
+                    lines.append(current)
+                    current = ""
+                lines.append(head)
+            current += token
+        if current or not lines:
+            lines.append(current)
+        return lines
 
     def ellipsize(self, s, w, size, avg, st=None):
         fm = self._fm(st)

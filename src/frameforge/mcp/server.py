@@ -65,6 +65,7 @@ from frameforge.mcp.discovery import (
     list_fonts as _uc_list_fonts,
 )
 from frameforge.mcp.usecases import (
+    fit_text as _uc_fit_text,
     write_or_edit_client as _uc_write_or_edit,
     compare_images as _uc_compare_images,
     construct_vectors as _uc_construct_vectors,
@@ -112,6 +113,7 @@ from frameforge.mcp.sessions import (
     list_sessions as list_sessions,
 )
 from frameforge.mcp.usecases import (
+    fit_text as fit_text,
     compare_images as compare_images,
     construct_vectors as construct_vectors,
     detect_regions as detect_regions,
@@ -404,7 +406,9 @@ def create_server(
             "resolves to — resolves.exact=false is a SILENT substitution to a default "
             "face). Do NOT assume families cannot be enumerated and fall back to generic "
             "serif/sans-serif stacks — those collapse the rendered type. match_font ranks "
-            "resolvable families by shape similarity to a reference crop.\n"
+            "resolvable families by shape similarity to a reference crop; fit_text returns "
+            "the matching measured advance plus a line-breaker-safe fit_width before you "
+            "assign positioned text geometry.\n"
             "• Sessions/resources: artifacts live at frameforge://session/<id>/... "
             "(document.yaml, page/<n>.svg, page/<n>.png, diagnostics.json, workspace.json).\n"
             "ARCHITECTURAL CONTRACT (PALS's Law): all CV/LLM output is unverified by "
@@ -1701,6 +1705,39 @@ def create_server(
         return _maybe_call_tool_result(result)
 
     @server.tool()
+    def fit_text(
+        text: Annotated[str, Field(description="Literal text to measure before assigning a box.")],
+        font_family: Annotated[
+            str | list[str],
+            Field(description="Font family or ordered CSS fallback stack, matching text style.font_family."),
+        ],
+        font_size: Annotated[float, Field(description="Font size in FrameForge px/pt units.", gt=0)],
+        bold: Annotated[bool, Field(description="Measure the bold face/weight.")] = False,
+        real_metrics: Annotated[
+            bool | str,
+            Field(description="True/False or 'auto'; use the same value for rendering and overflow checks."),
+        ] = "auto",
+    ):
+        """Measure text and return a line-breaker-safe positioned box width.
+
+        The result names the resolved metric mode and includes both the measured
+        width and ``fit_width`` (the measurement plus the renderer tolerance).
+        Use this before placing per-token or other absolutely positioned text.
+        """
+        return _plain_tool_result(_logged_enveloped_call(
+            log_path,
+            "fit_text",
+            {
+                "text": text,
+                "font_family": font_family,
+                "font_size": font_size,
+                "bold": bold,
+                "real_metrics": real_metrics,
+            },
+            lambda: _uc_fit_text(text, font_family, font_size, bold, real_metrics),
+        ))
+
+    @server.tool()
     def match_font(
         reference: Annotated[
             str,
@@ -2006,6 +2043,7 @@ __all__ = [
     "propose_from_document",
     "propose_from_svg",
     "compare_images",
+    "fit_text",
     "measure_image",
     "mark_points",
     "overlay_images",

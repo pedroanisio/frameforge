@@ -60,8 +60,8 @@ SUB = dict(font_family=SANS, font_size=13, color=TH.sub)
 class Notes:
     """Collect a page's loose chrome text and flush it as ONE boxless group.
 
-    A boxless group keeps the text at absolute coordinates but hides it from the
-    ``tabular-box-model`` heuristic (which does not recurse into groups) — the
+    A boxless group keeps the text at absolute coordinates while the layer-level
+    ``tabular-box-model`` heuristic treats the group as structured. This is the
     same discipline the widgets follow, applied to hand-authored labels so the
     fixture validates with zero warnings.
     """

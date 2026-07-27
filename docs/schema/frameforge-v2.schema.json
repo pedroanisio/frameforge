@@ -929,8 +929,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -1631,8 +1645,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -2465,8 +2493,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -3175,8 +3217,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -3817,8 +3873,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -4544,8 +4614,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -6651,8 +6735,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -7346,8 +7444,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -7776,8 +7888,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -9008,8 +9134,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -10866,8 +11006,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -11646,8 +11800,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -12091,8 +12259,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -12595,8 +12777,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -13940,6 +14136,43 @@
           "default": null,
           "description": "Shorthand for text_wrap (False = nowrap).",
           "title": "Wrap"
+        },
+        "dash": {
+          "anyOf": [
+            {
+              "const": "none",
+              "type": "string"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "description": "Length string: '<n><unit>' with unit pt|px|pc|mm|cm|in|em|rem (absolute; bare numbers are pt/px, treated 1:1) or %|fr (relative — % resolves against the container content-box, fr only inside a layout container; spec §3.4/§3.6g).",
+                    "pattern": "^-?(?:\\d+\\.?\\d*|\\.\\d+)(?:pt|px|pc|mm|cm|in|em|rem|%|fr)$",
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "description": "SVG dash list as whitespace/comma-separated non-negative lengths.",
+              "pattern": "^\\s*(?:\\d+\\.?\\d*|\\.\\d+)(?:pt|px|pc|mm|cm|in|em|rem|%)?(?:\\s*(?:,\\s*|\\s+)(?:\\d+\\.?\\d*|\\.\\d+)(?:pt|px|pc|mm|cm|in|em|rem|%)?)*\\s*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Shorthand for stroke_dasharray; accepts a list or SVG whitespace/comma-separated string and serializes canonically as stroke_dasharray.",
+          "title": "Dash"
         },
         "color": {
           "anyOf": [
@@ -15511,11 +15744,16 @@
               "type": "array"
             },
             {
+              "description": "SVG dash list as whitespace/comma-separated non-negative lengths.",
+              "pattern": "^\\s*(?:\\d+\\.?\\d*|\\.\\d+)(?:pt|px|pc|mm|cm|in|em|rem|%)?(?:\\s*(?:,\\s*|\\s+)(?:\\d+\\.?\\d*|\\.\\d+)(?:pt|px|pc|mm|cm|in|em|rem|%)?)*\\s*$",
+              "type": "string"
+            },
+            {
               "type": "null"
             }
           ],
           "default": null,
-          "description": "Dash pattern lengths, or 'none' for a solid line.",
+          "description": "Dash pattern lengths as a list or SVG whitespace/comma-separated string; strings normalize to a list. 'none' selects a solid line.",
           "title": "Stroke Dasharray"
         },
         "stroke_dashoffset": {
@@ -16402,8 +16640,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -17026,8 +17278,22 @@
             }
           ],
           "default": null,
-          "description": "Marks a purely decorative object: exempt from containment/overlap audits and from accessibility alt requirements.",
+          "description": "Marks a purely decorative object: excluded from reading-order/accessibility requirements and scoped overlap audits. It does not suppress canvas containment; use containment: allowed for intentional bleed.",
           "title": "Decorative"
+        },
+        "containment": {
+          "anyOf": [
+            {
+              "const": "allowed",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit consent for intentional canvas bleed. `allowed` suppresses the containment advisory for this object and, for a group, its subtree; it never changes clipping or rendering.",
+          "title": "Containment"
         },
         "overlap": {
           "anyOf": [
@@ -17929,7 +18195,7 @@
       "type": "string"
     },
     "version": {
-      "description": "Spec version the document targets (semver; HEAD is 2.6.0; older targets like 2.2.0 remain valid).",
+      "description": "Spec version the document targets (semver; HEAD is 2.7.0; older targets like 2.2.0 remain valid).",
       "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$",
       "title": "Version",
       "type": "string"
@@ -18089,9 +18355,9 @@
     "version",
     "pages"
   ],
-  "title": "FrameForge v2 (HEAD 2.6.0) — generated from the Pydantic models (core conformance profile)",
+  "title": "FrameForge v2 (HEAD 2.7.0) — generated from the Pydantic models (core conformance profile)",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://frameforge.dev/schema/2.6.0/frameforge-v2.schema.json",
-  "version": "2.6.0"
+  "$id": "https://frameforge.dev/schema/2.7.0/frameforge-v2.schema.json",
+  "version": "2.7.0"
 }

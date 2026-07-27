@@ -1,5 +1,5 @@
 dsl: FrameForge
-version: 2.6.0
+version: 2.7.0
 profile: diagram
 title: FrameForge — structured output, checked before it ships
 description: Proposed landing page for the FrameForge service, authored with the FrameForge
@@ -340,7 +340,7 @@ pages:
   canvas:
     size:
     - 1440.0
-    - 6340.0
+    - 6506.0
     units: px
   rendering:
     coordinate_mode: absolute
@@ -351,7 +351,7 @@ pages:
       - 0
       - 0
       - 1440
-      - 6340
+      - 6506
       decorative: true
       type: rect
       fill: paper
@@ -548,45 +548,45 @@ pages:
           color: '#1F4FD8'
     - id: t002
       box:
-      - 836.5546875
+      - 878.3199999999999
       - 0
-      - 44.53125
+      - 39.28
       - 92
       style: nav
       type: text
       text: Spec
     - id: t003
       box:
-      - 909.0859375
+      - 945.5999999999999
       - 0
-      - 67.1953125
+      - 55.92
       - 92
       style: nav
       type: text
       text: Schema
     - id: t004
       box:
-      - 1004.28125
+      - 1029.52
       - 0
-      - 38.5625
+      - 30.96
       - 92
       style: nav
       type: text
       text: SDK
     - id: t005
       box:
-      - 1070.84375
+      - 1088.48
       - 0
-      - 42.359375
+      - 30.96
       - 92
       style: nav
       type: text
       text: MCP
     - id: t006
       box:
-      - 1141.203125
+      - 1147.44
       - 0
-      - 78.796875
+      - 72.56
       - 92
       style: nav
       type: text
@@ -611,7 +611,7 @@ pages:
       - 36
       style: chip
       type: text
-      text: 2.6.0
+      text: 2.7.0
     - decorative: true
       stroke_style:
         stroke_width: 1.0
@@ -636,7 +636,7 @@ pages:
       box:
       - 100
       - 192
-      - 620
+      - 650.96
       - 124
       style: h1
       type: text
@@ -657,7 +657,7 @@ pages:
     - box:
       - 100
       - 500
-      - 166.3359375
+      - 168.4864
       - 52
       decorative: true
       type: rect
@@ -667,13 +667,13 @@ pages:
       box:
       - 128
       - 500
-      - 110.3359375
+      - 112.4864
       - 52
       style: btn
       type: text
       text: Read the spec
     - box:
-      - 282.3359375
+      - 284.4864
       - 500
       - 284.0
       - 52
@@ -686,7 +686,7 @@ pages:
       stroke: grid
     - id: t012
       box:
-      - 304.3359375
+      - 306.4864
       - 500
       - 240.0
       - 52
@@ -701,13 +701,13 @@ pages:
       - 18
       style: cap
       type: text
-      text: frameforge.hefestus.io  ·  MIT  ·  Python >= 3.10  ·  SDK + MCP  ·  31
+      text: frameforge.hefestus.io  ·  MIT  ·  Python >= 3.10  ·  SDK + MCP  ·  32
         agent tools
     - box:
       - 760
       - 152
       - 580
-      - 471
+      - 472
       decorative: true
       stroke_style:
         stroke_width: 1.0
@@ -763,9 +763,9 @@ pages:
       text: build_schema.py --check
     - id: t017
       box:
-      - 1257.4
+      - 1255.216
       - 242
-      - 60.6
+      - 62.784
       - 22
       style: capstater
       type: text
@@ -798,9 +798,9 @@ pages:
       text: check_grammar_sync.py
     - id: t020
       box:
-      - 1249.6
+      - 1247.104
       - 298
-      - 68.4
+      - 70.896
       - 22
       style: capstater
       type: text
@@ -833,9 +833,9 @@ pages:
       text: gen_status.py --check
     - id: t023
       box:
-      - 1187.2
+      - 1182.208
       - 354
-      - 130.8
+      - 135.792
       - 22
       style: capstater
       type: text
@@ -868,13 +868,13 @@ pages:
       text: render_golden.py
     - id: t026
       box:
-      - 1202.8
+      - 1198.432
       - 410
-      - 115.2
+      - 119.568
       - 22
       style: capstater
       type: text
-      text: 87 pages match
+      text: 88 pages match
     - decorative: true
       type: ellipse
       center:
@@ -903,13 +903,13 @@ pages:
       text: uv run pytest
     - id: t029
       box:
-      - 1202.8
+      - 1190.32
       - 466
-      - 115.2
+      - 127.68
       - 22
       style: capstater
       type: text
-      text: 2,561 · 1 skip
+      text: 2,648 · 18 skip
     - decorative: true
       stroke_style:
         stroke_width: 1.0
@@ -926,7 +926,7 @@ pages:
       - 788
       - 548
       - 524
-      - 47
+      - 48
       style: capr
       type: text
       text: 'Read off a working tree, not a badge: every row is a command that was
@@ -937,44 +937,44 @@ pages:
       type: line
       from:
       - 0.0
-      - 831.0
+      - 832.0
       to:
       - 1440.0
-      - 831.0
+      - 832.0
       stroke: grid
     - id: t031
       box:
       - 100.0
-      - 725
+      - 726
       - 224.0
       - 44
       style: statb
       type: text
-      text: 2,561
+      text: 2,648
     - id: t032
       box:
       - 100.0
-      - 777
+      - 778
       - 224.0
       - 18
       style: cap
       type: text
-      text: TESTS PASS · 1 SKIP
+      text: TESTS PASS · 18 SKIP
     - decorative: true
       stroke_style:
         stroke_width: 1.0
       type: line
       from:
       - 324.0
-      - 723.0
+      - 724.0
       to:
       - 324.0
-      - 789.0
+      - 790.0
       stroke: grid
     - id: t033
       box:
       - 348.0
-      - 725
+      - 726
       - 224.0
       - 44
       style: stat
@@ -983,7 +983,7 @@ pages:
     - id: t034
       box:
       - 348.0
-      - 777
+      - 778
       - 224.0
       - 18
       style: cap
@@ -995,24 +995,24 @@ pages:
       type: line
       from:
       - 572.0
-      - 723.0
+      - 724.0
       to:
       - 572.0
-      - 789.0
+      - 790.0
       stroke: grid
     - id: t035
       box:
       - 596.0
-      - 725
+      - 726
       - 224.0
       - 44
       style: stat
       type: text
-      text: '373'
+      text: '375'
     - id: t036
       box:
       - 596.0
-      - 777
+      - 778
       - 224.0
       - 18
       style: cap
@@ -1024,15 +1024,15 @@ pages:
       type: line
       from:
       - 820.0
-      - 723.0
+      - 724.0
       to:
       - 820.0
-      - 789.0
+      - 790.0
       stroke: grid
     - id: t037
       box:
       - 844.0
-      - 725
+      - 726
       - 224.0
       - 44
       style: stat
@@ -1041,7 +1041,7 @@ pages:
     - id: t038
       box:
       - 844.0
-      - 777
+      - 778
       - 224.0
       - 18
       style: cap
@@ -1053,24 +1053,24 @@ pages:
       type: line
       from:
       - 1068.0
-      - 723.0
+      - 724.0
       to:
       - 1068.0
-      - 789.0
+      - 790.0
       stroke: grid
     - id: t039
       box:
       - 1092.0
-      - 725
+      - 726
       - 224.0
       - 44
       style: stat
       type: text
-      text: '139'
+      text: '144'
     - id: t040
       box:
       - 1092.0
-      - 777
+      - 778
       - 224.0
       - 18
       style: cap
@@ -1079,7 +1079,7 @@ pages:
     - id: t041
       box:
       - 100
-      - 907
+      - 908
       - 1240
       - 18
       style: eyebrow
@@ -1088,16 +1088,16 @@ pages:
     - id: t042
       box:
       - 100
-      - 941
+      - 942
       - 1240
-      - 53
+      - 100
       style: h2
       type: text
       text: Everything else is generated from it, or gated against it.
     - id: t043
       box:
       - 100
-      - 1010
+      - 1058
       - 720
       - 130
       style: lede
@@ -1112,10 +1112,10 @@ pages:
       type: line
       from:
       - 510.0
-      - 1325.0
+      - 1373.0
       to:
       - 780.0
-      - 1200.0
+      - 1248.0
       stroke: '#12B0C3'
     - decorative: true
       stroke_style:
@@ -1123,7 +1123,7 @@ pages:
       type: ellipse
       center:
       - 780.0
-      - 1200.0
+      - 1248.0
       rx: 9.0
       ry: 9.0
       fill: '#FFFFFF'
@@ -1131,7 +1131,7 @@ pages:
     - id: t044
       box:
       - 803.0
-      - 1184.0
+      - 1232.0
       - 360
       - 35.2
       style:
@@ -1153,10 +1153,10 @@ pages:
       type: line
       from:
       - 510.0
-      - 1325.0
+      - 1373.0
       to:
       - 780.0
-      - 1262.5
+      - 1310.5
       stroke: '#12B0C3'
     - decorative: true
       stroke_style:
@@ -1164,7 +1164,7 @@ pages:
       type: ellipse
       center:
       - 780.0
-      - 1262.5
+      - 1310.5
       rx: 9.0
       ry: 9.0
       fill: '#FFFFFF'
@@ -1172,7 +1172,7 @@ pages:
     - id: t045
       box:
       - 803.0
-      - 1246.5
+      - 1294.5
       - 360
       - 35.2
       style:
@@ -1194,10 +1194,10 @@ pages:
       type: line
       from:
       - 510.0
-      - 1325.0
+      - 1373.0
       to:
       - 780.0
-      - 1325.0
+      - 1373.0
       stroke: '#12B0C3'
     - decorative: true
       stroke_style:
@@ -1205,7 +1205,7 @@ pages:
       type: ellipse
       center:
       - 780.0
-      - 1325.0
+      - 1373.0
       rx: 9.0
       ry: 9.0
       fill: '#FFFFFF'
@@ -1213,7 +1213,7 @@ pages:
     - id: t046
       box:
       - 803.0
-      - 1309.0
+      - 1357.0
       - 360
       - 35.2
       style:
@@ -1235,10 +1235,10 @@ pages:
       type: line
       from:
       - 510.0
-      - 1325.0
+      - 1373.0
       to:
       - 780.0
-      - 1387.5
+      - 1435.5
       stroke: '#12B0C3'
     - decorative: true
       stroke_style:
@@ -1246,7 +1246,7 @@ pages:
       type: ellipse
       center:
       - 780.0
-      - 1387.5
+      - 1435.5
       rx: 9.0
       ry: 9.0
       fill: '#FFFFFF'
@@ -1254,7 +1254,7 @@ pages:
     - id: t047
       box:
       - 803.0
-      - 1371.5
+      - 1419.5
       - 360
       - 35.2
       style:
@@ -1276,10 +1276,10 @@ pages:
       type: line
       from:
       - 510.0
-      - 1325.0
+      - 1373.0
       to:
       - 780.0
-      - 1450.0
+      - 1498.0
       stroke: '#12B0C3'
     - decorative: true
       stroke_style:
@@ -1287,7 +1287,7 @@ pages:
       type: ellipse
       center:
       - 780.0
-      - 1450.0
+      - 1498.0
       rx: 9.0
       ry: 9.0
       fill: '#FFFFFF'
@@ -1295,7 +1295,7 @@ pages:
     - id: t048
       box:
       - 803.0
-      - 1434.0
+      - 1482.0
       - 360
       - 35.2
       style:
@@ -1317,7 +1317,7 @@ pages:
       type: ellipse
       center:
       - 510.0
-      - 1325.0
+      - 1373.0
       rx: 14.0
       ry: 14.0
       fill: '#1F4FD8'
@@ -1325,7 +1325,7 @@ pages:
     - id: t049
       box:
       - 260
-      - 1309.0
+      - 1357.0
       - 232
       - 35.2
       style:
@@ -1345,7 +1345,7 @@ pages:
     - id: t050
       box:
       - 100
-      - 1594
+      - 1642
       - 1240
       - 18
       style: eyebrow
@@ -1354,7 +1354,7 @@ pages:
     - id: t051
       box:
       - 100
-      - 1628
+      - 1676
       - 1240
       - 53
       style: h2
@@ -1366,15 +1366,15 @@ pages:
       type: line
       from:
       - 100.0
-      - 1721.0
+      - 1769.0
       to:
       - 486.6666666666667
-      - 1721.0
+      - 1769.0
       stroke: grid
     - id: t052
       box:
       - 100.0
-      - 1739
+      - 1787
       - 386.6666666666667
       - 56
       style: h3
@@ -1383,9 +1383,9 @@ pages:
     - id: t053
       box:
       - 100.0
-      - 1805
+      - 1853
       - 386.6666666666667
-      - 105
+      - 106
       style: body
       type: text
       text: Structure, constraints, provenance and generation history flatten into
@@ -1397,15 +1397,15 @@ pages:
       type: line
       from:
       - 526.6666666666667
-      - 1721.0
+      - 1769.0
       to:
       - 913.3333333333335
-      - 1721.0
+      - 1769.0
       stroke: grid
     - id: t054
       box:
       - 526.6666666666667
-      - 1739
+      - 1787
       - 386.6666666666667
       - 56
       style: h3
@@ -1414,9 +1414,9 @@ pages:
     - id: t055
       box:
       - 526.6666666666667
-      - 1805
+      - 1853
       - 386.6666666666667
-      - 80
+      - 106
       style: body
       type: text
       text: Generated layouts overflow their boxes, collapse their columns and drift
@@ -1427,15 +1427,15 @@ pages:
       type: line
       from:
       - 953.3333333333334
-      - 1721.0
+      - 1769.0
       to:
       - 1340.0
-      - 1721.0
+      - 1769.0
       stroke: grid
     - id: t056
       box:
       - 953.3333333333334
-      - 1739
+      - 1787
       - 386.6666666666667
       - 56
       style: h3
@@ -1444,9 +1444,9 @@ pages:
     - id: t057
       box:
       - 953.3333333333334
-      - 1805
+      - 1853
       - 386.6666666666667
-      - 80
+      - 81
       style: body
       type: text
       text: Re-prompting is not editing. Output locked inside a vendor runtime cannot
@@ -1454,7 +1454,7 @@ pages:
     - id: t058
       box:
       - 100
-      - 2046
+      - 2095
       - 1240
       - 18
       style: eyebrow
@@ -1463,7 +1463,7 @@ pages:
     - id: t059
       box:
       - 100
-      - 2080
+      - 2129
       - 1240
       - 53
       style: h2
@@ -1472,7 +1472,7 @@ pages:
     - id: t060
       box:
       - 100
-      - 2149
+      - 2198
       - 740
       - 99
       style: lede
@@ -1482,9 +1482,9 @@ pages:
         what drives the next revision.'
     - box:
       - 100.0
-      - 2294
+      - 2343
       - 292.0
-      - 225
+      - 226
       decorative: true
       stroke_style:
         stroke_width: 1.0
@@ -1495,7 +1495,7 @@ pages:
     - id: t061
       box:
       - 124.0
-      - 2318
+      - 2367
       - 244.0
       - 18
       style: eyebrow
@@ -1504,7 +1504,7 @@ pages:
     - id: t062
       box:
       - 124.0
-      - 2344
+      - 2393
       - 244.0
       - 26
       style: capi
@@ -1513,7 +1513,7 @@ pages:
     - id: t063
       box:
       - 124.0
-      - 2372
+      - 2421
       - 244.0
       - 18
       style: cap
@@ -1522,12 +1522,12 @@ pages:
     - id: t064
       box:
       - 124.0
-      - 2406
+      - 2455
       - 244.0
-      - 68
+      - 69
       style: bodysm
       type: text
-      text: '245 public SDK exports lower to one typed model: 17 object types, 106
+      text: '246 public SDK exports lower to one typed model: 17 object types, 107
         style properties.'
     - decorative: true
       stroke_style:
@@ -1535,10 +1535,10 @@ pages:
       type: line
       from:
       - 396.0
-      - 2406.5
+      - 2456.0
       to:
       - 412.0
-      - 2406.5
+      - 2456.0
       stroke: graph
     - decorative: true
       stroke_style:
@@ -1546,17 +1546,17 @@ pages:
       type: polyline
       points:
       - - 407.0
-        - 2402.5
+        - 2452.0
       - - 412.0
-        - 2406.5
+        - 2456.0
       - - 407.0
-        - 2410.5
+        - 2460.0
       stroke: graph
     - box:
       - 416.0
-      - 2294
+      - 2343
       - 292.0
-      - 225
+      - 226
       decorative: true
       stroke_style:
         stroke_width: 1.0
@@ -1567,7 +1567,7 @@ pages:
     - id: t065
       box:
       - 440.0
-      - 2318
+      - 2367
       - 244.0
       - 18
       style: eyebrow
@@ -1576,7 +1576,7 @@ pages:
     - id: t066
       box:
       - 440.0
-      - 2344
+      - 2393
       - 244.0
       - 26
       style: capi
@@ -1585,7 +1585,7 @@ pages:
     - id: t067
       box:
       - 440.0
-      - 2372
+      - 2421
       - 244.0
       - 18
       style: cap
@@ -1594,9 +1594,9 @@ pages:
     - id: t068
       box:
       - 440.0
-      - 2406
+      - 2455
       - 244.0
-      - 89
+      - 90
       style: bodysm
       type: text
       text: The model plus 25 typed rule codes — containment, overflow, dangling refs,
@@ -1607,10 +1607,10 @@ pages:
       type: line
       from:
       - 712.0
-      - 2406.5
+      - 2456.0
       to:
       - 728.0
-      - 2406.5
+      - 2456.0
       stroke: graph
     - decorative: true
       stroke_style:
@@ -1618,17 +1618,17 @@ pages:
       type: polyline
       points:
       - - 723.0
-        - 2402.5
+        - 2452.0
       - - 728.0
-        - 2406.5
+        - 2456.0
       - - 723.0
-        - 2410.5
+        - 2460.0
       stroke: graph
     - box:
       - 732.0
-      - 2294
+      - 2343
       - 292.0
-      - 225
+      - 226
       decorative: true
       stroke_style:
         stroke_width: 1.0
@@ -1639,7 +1639,7 @@ pages:
     - id: t069
       box:
       - 756.0
-      - 2318
+      - 2367
       - 244.0
       - 18
       style: eyebrow
@@ -1648,7 +1648,7 @@ pages:
     - id: t070
       box:
       - 756.0
-      - 2344
+      - 2393
       - 244.0
       - 26
       style: capi
@@ -1657,7 +1657,7 @@ pages:
     - id: t071
       box:
       - 756.0
-      - 2372
+      - 2421
       - 244.0
       - 18
       style: cap
@@ -1666,9 +1666,9 @@ pages:
     - id: t072
       box:
       - 756.0
-      - 2406
+      - 2455
       - 244.0
-      - 89
+      - 90
       style: bodysm
       type: text
       text: SVG, headless-Chromium PNG, PDF via LaTeX/TikZ or cairosvg, HTML/CSS.
@@ -1679,10 +1679,10 @@ pages:
       type: line
       from:
       - 1028.0
-      - 2406.5
+      - 2456.0
       to:
       - 1044.0
-      - 2406.5
+      - 2456.0
       stroke: graph
     - decorative: true
       stroke_style:
@@ -1690,17 +1690,17 @@ pages:
       type: polyline
       points:
       - - 1039.0
-        - 2402.5
+        - 2452.0
       - - 1044.0
-        - 2406.5
+        - 2456.0
       - - 1039.0
-        - 2410.5
+        - 2460.0
       stroke: graph
     - box:
       - 1048.0
-      - 2294
+      - 2343
       - 292.0
-      - 225
+      - 226
       decorative: true
       stroke_style:
         stroke_width: 1.0
@@ -1711,7 +1711,7 @@ pages:
     - id: t073
       box:
       - 1072.0
-      - 2318
+      - 2367
       - 244.0
       - 18
       style: eyebrow
@@ -1720,7 +1720,7 @@ pages:
     - id: t074
       box:
       - 1072.0
-      - 2344
+      - 2393
       - 244.0
       - 26
       style: capi
@@ -1729,7 +1729,7 @@ pages:
     - id: t075
       box:
       - 1072.0
-      - 2372
+      - 2421
       - 244.0
       - 18
       style: cap
@@ -1738,9 +1738,9 @@ pages:
     - id: t076
       box:
       - 1072.0
-      - 2406
+      - 2455
       - 244.0
-      - 68
+      - 90
       style: bodysm
       type: text
       text: Structural diff, image NCC/RMSE, a design-token audit, and a golden hash
@@ -1754,13 +1754,13 @@ pages:
       type: polyline
       points:
       - - 1280.0
-        - 2525.0
+        - 2575.0
       - - 1280.0
-        - 2553.0
+        - 2603.0
       - - 160.0
-        - 2553.0
+        - 2603.0
       - - 160.0
-        - 2525.0
+        - 2575.0
       stroke: graph
     - decorative: true
       stroke_style:
@@ -1768,15 +1768,15 @@ pages:
       type: polyline
       points:
       - - 156.0
-        - 2530.0
+        - 2580.0
       - - 160.0
-        - 2525.0
+        - 2575.0
       - - 164.0
-        - 2530.0
+        - 2580.0
       stroke: graph
     - box:
       - 548.0
-      - 2540
+      - 2590
       - 344.0
       - 26
       decorative: true
@@ -1785,7 +1785,7 @@ pages:
     - id: t077
       box:
       - 564.0
-      - 2540
+      - 2590
       - 316.0
       - 26
       style: cap
@@ -1794,7 +1794,7 @@ pages:
     - id: t078
       box:
       - 100
-      - 2694
+      - 2744
       - 1240
       - 18
       style: eyebrow
@@ -1803,7 +1803,7 @@ pages:
     - id: t079
       box:
       - 100
-      - 2728
+      - 2778
       - 1240
       - 53
       style: h2
@@ -1811,7 +1811,7 @@ pages:
       text: A document is a program you can read.
     - box:
       - 100
-      - 2827
+      - 2877
       - 700
       - 412
       decorative: true
@@ -1825,7 +1825,7 @@ pages:
       type: ellipse
       center:
       - 128.0
-      - 2853.0
+      - 2903.0
       rx: 5.0
       ry: 5.0
       fill: drift
@@ -1833,7 +1833,7 @@ pages:
       type: ellipse
       center:
       - 146.0
-      - 2853.0
+      - 2903.0
       rx: 5.0
       ry: 5.0
       fill: mute
@@ -1841,14 +1841,14 @@ pages:
       type: ellipse
       center:
       - 164.0
-      - 2853.0
+      - 2903.0
       rx: 5.0
       ry: 5.0
       fill: gate
     - id: t080
       box:
       - 196
-      - 2841
+      - 2891
       - 300
       - 24
       style: capr
@@ -1860,15 +1860,15 @@ pages:
       type: line
       from:
       - 100.0
-      - 2873.0
+      - 2923.0
       to:
       - 800.0
-      - 2873.0
+      - 2923.0
       stroke: hair-r
     - id: t081
       box:
       - 128
-      - 2899
+      - 2949
       - 644
       - 26
       style:
@@ -1925,7 +1925,7 @@ pages:
     - id: t082
       box:
       - 128
-      - 2951
+      - 3001
       - 644
       - 26
       style:
@@ -1992,7 +1992,7 @@ pages:
     - id: t083
       box:
       - 128
-      - 2977
+      - 3027
       - 644
       - 26
       style:
@@ -2059,7 +2059,7 @@ pages:
     - id: t084
       box:
       - 128
-      - 3003
+      - 3053
       - 644
       - 26
       style:
@@ -2146,7 +2146,7 @@ pages:
     - id: t085
       box:
       - 128
-      - 3055
+      - 3105
       - 644
       - 26
       style:
@@ -2213,7 +2213,7 @@ pages:
     - id: t086
       box:
       - 128
-      - 3081
+      - 3131
       - 644
       - 26
       style:
@@ -2280,7 +2280,7 @@ pages:
     - id: t087
       box:
       - 128
-      - 3107
+      - 3157
       - 644
       - 26
       style:
@@ -2367,7 +2367,7 @@ pages:
     - id: t088
       box:
       - 128
-      - 3159
+      - 3209
       - 644
       - 26
       style:
@@ -2434,7 +2434,7 @@ pages:
     - id: t089
       box:
       - 128
-      - 3185
+      - 3235
       - 644
       - 26
       style:
@@ -2494,15 +2494,15 @@ pages:
       type: line
       from:
       - 844.0
-      - 2831.0
+      - 2881.0
       to:
       - 1340.0
-      - 2831.0
+      - 2881.0
       stroke: grid
     - id: t090
       box:
       - 844
-      - 2849
+      - 2899
       - 496
       - 28
       style: h3
@@ -2511,9 +2511,9 @@ pages:
     - id: t091
       box:
       - 844
-      - 2885
+      - 2935
       - 496
-      - 55
+      - 81
       style: body
       type: text
       text: '`write()` returns a report of typed issues before anything is drawn.
@@ -2524,15 +2524,15 @@ pages:
       type: line
       from:
       - 844.0
-      - 2968.0
+      - 3044.0
       to:
       - 1340.0
-      - 2968.0
+      - 3044.0
       stroke: grid
     - id: t092
       box:
       - 844
-      - 2986
+      - 3062
       - 496
       - 28
       style: h3
@@ -2541,9 +2541,9 @@ pages:
     - id: t093
       box:
       - 844
-      - 3022
+      - 3098
       - 496
-      - 55
+      - 56
       style: body
       type: text
       text: The same `.fg.yaml` renders to SVG, PNG, PDF and HTML. Nothing about the
@@ -2554,15 +2554,15 @@ pages:
       type: line
       from:
       - 844.0
-      - 3105.0
+      - 3182.0
       to:
       - 1340.0
-      - 3105.0
+      - 3182.0
       stroke: grid
     - id: t094
       box:
       - 844
-      - 3123
+      - 3200
       - 496
       - 28
       style: h3
@@ -2571,9 +2571,9 @@ pages:
     - id: t095
       box:
       - 844
-      - 3159
+      - 3236
       - 496
-      - 55
+      - 56
       style: body
       type: text
       text: '`codemod.py` migrates older documents to HEAD — exactly the forms the
@@ -2581,7 +2581,7 @@ pages:
     - id: t096
       box:
       - 100
-      - 3370
+      - 3448
       - 1240
       - 18
       style: eyebrow
@@ -2590,7 +2590,7 @@ pages:
     - id: t097
       box:
       - 100
-      - 3404
+      - 3482
       - 1240
       - 53
       style: h2
@@ -2599,16 +2599,16 @@ pages:
     - id: t098
       box:
       - 100
-      - 3473
+      - 3551
       - 720
-      - 68
+      - 99
       style: lede
       type: text
       text: Only backends that are verified in this repository appear here. A renderer
         that degrades says so, on the page, next to the ones that do not.
     - box:
       - 100.0
-      - 3587
+      - 3696
       - 292.0
       - 128
       decorative: true
@@ -2621,7 +2621,7 @@ pages:
     - id: t099
       box:
       - 122.0
-      - 3611
+      - 3720
       - 248.0
       - 32
       style: h3
@@ -2630,7 +2630,7 @@ pages:
     - id: t100
       box:
       - 122.0
-      - 3645
+      - 3754
       - 248.0
       - 18
       style: cap
@@ -2640,14 +2640,14 @@ pages:
       type: ellipse
       center:
       - 127.0
-      - 3686.0
+      - 3795.0
       rx: 4.5
       ry: 4.5
       fill: gate
     - id: t101
       box:
       - 140.0
-      - 3677
+      - 3786
       - 220
       - 18
       style: capstate
@@ -2655,7 +2655,7 @@ pages:
       text: verified
     - box:
       - 416.0
-      - 3587
+      - 3696
       - 292.0
       - 128
       decorative: true
@@ -2668,7 +2668,7 @@ pages:
     - id: t102
       box:
       - 438.0
-      - 3611
+      - 3720
       - 248.0
       - 32
       style: h3
@@ -2677,7 +2677,7 @@ pages:
     - id: t103
       box:
       - 438.0
-      - 3645
+      - 3754
       - 248.0
       - 18
       style: cap
@@ -2687,14 +2687,14 @@ pages:
       type: ellipse
       center:
       - 443.0
-      - 3686.0
+      - 3795.0
       rx: 4.5
       ry: 4.5
       fill: gate
     - id: t104
       box:
       - 456.0
-      - 3677
+      - 3786
       - 220
       - 18
       style: capstate
@@ -2702,7 +2702,7 @@ pages:
       text: verified
     - box:
       - 732.0
-      - 3587
+      - 3696
       - 292.0
       - 128
       decorative: true
@@ -2715,7 +2715,7 @@ pages:
     - id: t105
       box:
       - 754.0
-      - 3611
+      - 3720
       - 248.0
       - 32
       style: h3
@@ -2724,7 +2724,7 @@ pages:
     - id: t106
       box:
       - 754.0
-      - 3645
+      - 3754
       - 248.0
       - 18
       style: cap
@@ -2734,14 +2734,14 @@ pages:
       type: ellipse
       center:
       - 759.0
-      - 3686.0
+      - 3795.0
       rx: 4.5
       ry: 4.5
       fill: gate
     - id: t107
       box:
       - 772.0
-      - 3677
+      - 3786
       - 220
       - 18
       style: capstate
@@ -2749,7 +2749,7 @@ pages:
       text: verified
     - box:
       - 1048.0
-      - 3587
+      - 3696
       - 292.0
       - 128
       decorative: true
@@ -2762,7 +2762,7 @@ pages:
     - id: t108
       box:
       - 1070.0
-      - 3611
+      - 3720
       - 248.0
       - 32
       style: h3
@@ -2771,7 +2771,7 @@ pages:
     - id: t109
       box:
       - 1070.0
-      - 3645
+      - 3754
       - 248.0
       - 18
       style: cap
@@ -2781,14 +2781,14 @@ pages:
       type: ellipse
       center:
       - 1075.0
-      - 3686.0
+      - 3795.0
       rx: 4.5
       ry: 4.5
       fill: gate
     - id: t110
       box:
       - 1088.0
-      - 3677
+      - 3786
       - 220
       - 18
       style: capstate
@@ -2796,7 +2796,7 @@ pages:
       text: verified
     - box:
       - 100.0
-      - 3737
+      - 3846
       - 292.0
       - 128
       decorative: true
@@ -2809,7 +2809,7 @@ pages:
     - id: t111
       box:
       - 122.0
-      - 3761
+      - 3870
       - 248.0
       - 32
       style: h3
@@ -2818,7 +2818,7 @@ pages:
     - id: t112
       box:
       - 122.0
-      - 3795
+      - 3904
       - 248.0
       - 18
       style: cap
@@ -2830,7 +2830,7 @@ pages:
       type: ellipse
       center:
       - 127.0
-      - 3836.0
+      - 3945.0
       rx: 4.5
       ry: 4.5
       fill: canvas
@@ -2838,7 +2838,7 @@ pages:
     - id: t113
       box:
       - 140.0
-      - 3827
+      - 3936
       - 220
       - 18
       style: capstate
@@ -2846,7 +2846,7 @@ pages:
       text: degrades flow
     - box:
       - 416.0
-      - 3737
+      - 3846
       - 292.0
       - 128
       decorative: true
@@ -2859,7 +2859,7 @@ pages:
     - id: t114
       box:
       - 438.0
-      - 3761
+      - 3870
       - 248.0
       - 32
       style: h3
@@ -2868,7 +2868,7 @@ pages:
     - id: t115
       box:
       - 438.0
-      - 3795
+      - 3904
       - 248.0
       - 18
       style: cap
@@ -2878,14 +2878,14 @@ pages:
       type: ellipse
       center:
       - 443.0
-      - 3836.0
+      - 3945.0
       rx: 4.5
       ry: 4.5
       fill: gate
     - id: t116
       box:
       - 456.0
-      - 3827
+      - 3936
       - 220
       - 18
       style: capstate
@@ -2893,7 +2893,7 @@ pages:
       text: verified
     - box:
       - 732.0
-      - 3737
+      - 3846
       - 292.0
       - 128
       decorative: true
@@ -2906,7 +2906,7 @@ pages:
     - id: t117
       box:
       - 754.0
-      - 3761
+      - 3870
       - 248.0
       - 32
       style: h3
@@ -2915,7 +2915,7 @@ pages:
     - id: t118
       box:
       - 754.0
-      - 3795
+      - 3904
       - 248.0
       - 18
       style: cap
@@ -2925,14 +2925,14 @@ pages:
       type: ellipse
       center:
       - 759.0
-      - 3836.0
+      - 3945.0
       rx: 4.5
       ry: 4.5
       fill: gate
     - id: t119
       box:
       - 772.0
-      - 3827
+      - 3936
       - 220
       - 18
       style: capstate
@@ -2940,7 +2940,7 @@ pages:
       text: verified
     - box:
       - 1048.0
-      - 3737
+      - 3846
       - 292.0
       - 128
       decorative: true
@@ -2953,7 +2953,7 @@ pages:
     - id: t120
       box:
       - 1070.0
-      - 3761
+      - 3870
       - 248.0
       - 32
       style: h3
@@ -2962,7 +2962,7 @@ pages:
     - id: t121
       box:
       - 1070.0
-      - 3795
+      - 3904
       - 248.0
       - 18
       style: cap
@@ -2972,14 +2972,14 @@ pages:
       type: ellipse
       center:
       - 1075.0
-      - 3836.0
+      - 3945.0
       rx: 4.5
       ry: 4.5
       fill: gate
     - id: t122
       box:
       - 1088.0
-      - 3827
+      - 3936
       - 220
       - 18
       style: capstate
@@ -2988,7 +2988,7 @@ pages:
     - id: t123
       box:
       - 100
-      - 4001
+      - 4110
       - 1240
       - 18
       style: eyebrow
@@ -2997,7 +2997,7 @@ pages:
     - id: t124
       box:
       - 100
-      - 4035
+      - 4144
       - 1240
       - 53
       style: h2
@@ -3006,17 +3006,17 @@ pages:
     - id: t125
       box:
       - 100
-      - 4104
+      - 4213
       - 760
       - 99
       style: lede
       type: text
-      text: '31 MCP tools over the same model the SDK uses: author and render, draft
+      text: '32 MCP tools over the same model the SDK uses: author and render, draft
         from an image, then measure the result and prove it converged. Bounded operations,
         inspectable state, verifiable results.'
     - box:
       - 100.0
-      - 4249
+      - 4358
       - 232.0
       - 286
       decorative: true
@@ -3029,7 +3029,7 @@ pages:
     - id: t126
       box:
       - 120.0
-      - 4269
+      - 4378
       - 192.0
       - 24
       style: capi
@@ -3038,7 +3038,7 @@ pages:
     - id: t127
       box:
       - 120.0
-      - 4295
+      - 4404
       - 192.0
       - 18
       style: eyebrow
@@ -3050,15 +3050,15 @@ pages:
       type: line
       from:
       - 120.0
-      - 4323.0
+      - 4432.0
       to:
       - 312.0
-      - 4323.0
+      - 4432.0
       stroke: grid
     - id: mcp-0
       box:
       - 120.0
-      - 4341
+      - 4450
       - 200.0
       - 128
       type: group
@@ -3122,7 +3122,7 @@ pages:
         gap: 4
     - box:
       - 352.0
-      - 4249
+      - 4358
       - 232.0
       - 286
       decorative: true
@@ -3135,7 +3135,7 @@ pages:
     - id: t134
       box:
       - 372.0
-      - 4269
+      - 4378
       - 192.0
       - 24
       style: capi
@@ -3144,7 +3144,7 @@ pages:
     - id: t135
       box:
       - 372.0
-      - 4295
+      - 4404
       - 192.0
       - 18
       style: eyebrow
@@ -3156,15 +3156,15 @@ pages:
       type: line
       from:
       - 372.0
-      - 4323.0
+      - 4432.0
       to:
       - 564.0
-      - 4323.0
+      - 4432.0
       stroke: grid
     - id: mcp-1
       box:
       - 372.0
-      - 4341
+      - 4450
       - 200.0
       - 106
       type: group
@@ -3219,7 +3219,7 @@ pages:
         gap: 4
     - box:
       - 604.0
-      - 4249
+      - 4358
       - 232.0
       - 286
       decorative: true
@@ -3232,7 +3232,7 @@ pages:
     - id: t141
       box:
       - 624.0
-      - 4269
+      - 4378
       - 192.0
       - 24
       style: capi
@@ -3241,7 +3241,7 @@ pages:
     - id: t142
       box:
       - 624.0
-      - 4295
+      - 4404
       - 192.0
       - 18
       style: eyebrow
@@ -3253,15 +3253,15 @@ pages:
       type: line
       from:
       - 624.0
-      - 4323.0
+      - 4432.0
       to:
       - 816.0
-      - 4323.0
+      - 4432.0
       stroke: grid
     - id: mcp-2
       box:
       - 624.0
-      - 4341
+      - 4450
       - 200.0
       - 106
       type: group
@@ -3316,7 +3316,7 @@ pages:
         gap: 4
     - box:
       - 856.0
-      - 4249
+      - 4358
       - 232.0
       - 286
       decorative: true
@@ -3329,7 +3329,7 @@ pages:
     - id: t148
       box:
       - 876.0
-      - 4269
+      - 4378
       - 192.0
       - 24
       style: capi
@@ -3338,7 +3338,7 @@ pages:
     - id: t149
       box:
       - 876.0
-      - 4295
+      - 4404
       - 192.0
       - 18
       style: eyebrow
@@ -3350,15 +3350,15 @@ pages:
       type: line
       from:
       - 876.0
-      - 4323.0
+      - 4432.0
       to:
       - 1068.0
-      - 4323.0
+      - 4432.0
       stroke: grid
     - id: mcp-3
       box:
       - 876.0
-      - 4341
+      - 4450
       - 200.0
       - 172
       type: group
@@ -3440,7 +3440,7 @@ pages:
         gap: 4
     - box:
       - 1108.0
-      - 4249
+      - 4358
       - 232.0
       - 286
       decorative: true
@@ -3453,7 +3453,7 @@ pages:
     - id: t158
       box:
       - 1128.0
-      - 4269
+      - 4378
       - 192.0
       - 24
       style: capi
@@ -3462,7 +3462,7 @@ pages:
     - id: t159
       box:
       - 1128.0
-      - 4295
+      - 4404
       - 192.0
       - 18
       style: eyebrow
@@ -3474,15 +3474,15 @@ pages:
       type: line
       from:
       - 1128.0
-      - 4323.0
+      - 4432.0
       to:
       - 1320.0
-      - 4323.0
+      - 4432.0
       stroke: grid
     - id: mcp-4
       box:
       - 1128.0
-      - 4341
+      - 4450
       - 200.0
       - 150
       type: group
@@ -3555,16 +3555,16 @@ pages:
         gap: 4
     - box:
       - 0
-      - 4607
+      - 4716
       - 1440
-      - 753
+      - 757
       decorative: true
       type: rect
       fill: ink
     - id: t167
       box:
       - 100
-      - 4683
+      - 4792
       - 1240
       - 18
       style: eyebrowr
@@ -3573,7 +3573,7 @@ pages:
     - id: t168
       box:
       - 100
-      - 4717
+      - 4826
       - 1240
       - 53
       style: h2r
@@ -3582,9 +3582,9 @@ pages:
     - id: t169
       box:
       - 100
-      - 4786
+      - 4895
       - 700
-      - 55
+      - 56
       style: bodyr
       type: text
       text: Four couplings that would silently rot in any other stack. Here each one
@@ -3593,14 +3593,14 @@ pages:
       type: ellipse
       center:
       - 107.0
-      - 4896.0
+      - 5006.0
       rx: 5.5
       ry: 5.5
       fill: gate
     - id: t170
       box:
       - 126.0
-      - 4885
+      - 4995
       - 574.0
       - 28
       style: h3r
@@ -3609,9 +3609,9 @@ pages:
     - id: t171
       box:
       - 126.0
-      - 4921
+      - 5031
       - 574.0
-      - 80
+      - 81
       style: bodyr
       type: text
       text: '`docs/schema/frameforge-v2.schema.json` is produced by `Document.model_json_schema()`.
@@ -3621,14 +3621,14 @@ pages:
       type: ellipse
       center:
       - 747.0
-      - 4896.0
+      - 5006.0
       rx: 5.5
       ry: 5.5
       fill: gate
     - id: t172
       box:
       - 766.0
-      - 4885
+      - 4995
       - 574.0
       - 28
       style: h3r
@@ -3637,9 +3637,9 @@ pages:
     - id: t173
       box:
       - 766.0
-      - 4921
+      - 5031
       - 574.0
-      - 55
+      - 56
       style: bodyr
       type: text
       text: '`validate.py` validates against that same `Document`, then layers the
@@ -3648,14 +3648,14 @@ pages:
       type: ellipse
       center:
       - 107.0
-      - 5020.0
+      - 5131.0
       rx: 5.5
       ry: 5.5
       fill: gate
     - id: t174
       box:
       - 126.0
-      - 5009
+      - 5120
       - 574.0
       - 28
       style: h3r
@@ -3664,9 +3664,9 @@ pages:
     - id: t175
       box:
       - 126.0
-      - 5045
+      - 5156
       - 574.0
-      - 55
+      - 56
       style: bodyr
       type: text
       text: Its migrations are exactly the breaking and renamed forms the validator
@@ -3675,14 +3675,14 @@ pages:
       type: ellipse
       center:
       - 747.0
-      - 5020.0
+      - 5131.0
       rx: 5.5
       ry: 5.5
       fill: gate
     - id: t176
       box:
       - 766.0
-      - 5009
+      - 5120
       - 574.0
       - 28
       style: h3r
@@ -3691,18 +3691,18 @@ pages:
     - id: t177
       box:
       - 766.0
-      - 5045
+      - 5156
       - 574.0
-      - 55
+      - 56
       style: bodyr
       type: text
       text: '`check_grammar_sync.py` introspects the models and diffs the EBNF, failing
         on core-profile drift instead of trusting it.'
     - box:
       - 100
-      - 5153
+      - 5265
       - 1240
-      - 131
+      - 132
       decorative: true
       stroke_style:
         stroke_width: 1.0
@@ -3716,7 +3716,7 @@ pages:
       type: ellipse
       center:
       - 133.0
-      - 5188.0
+      - 5300.0
       rx: 4.5
       ry: 4.5
       fill: surface
@@ -3724,7 +3724,7 @@ pages:
     - id: t178
       box:
       - 146
-      - 5179
+      - 5291
       - 220
       - 18
       style: capstater
@@ -3733,9 +3733,9 @@ pages:
     - id: t179
       box:
       - 128
-      - 5211
+      - 5323
       - 1184
-      - 47
+      - 48
       style: capr
       type: text
       text: FrameForge v2 is a proposed, not-yet-conformantly-implemented system.
@@ -3745,7 +3745,7 @@ pages:
     - id: t180
       box:
       - 100
-      - 5424
+      - 5537
       - 1240
       - 18
       style: eyebrow
@@ -3754,7 +3754,7 @@ pages:
     - id: t181
       box:
       - 100
-      - 5458
+      - 5571
       - 1240
       - 53
       style: h2
@@ -3766,29 +3766,29 @@ pages:
       type: line
       from:
       - 100.0
-      - 5551.0
+      - 5664.0
       to:
       - 486.6666666666667
-      - 5551.0
+      - 5664.0
       stroke: grid
     - id: t182
       box:
       - 100.0
-      - 5569
+      - 5682
       - 386.6666666666667
-      - 32
+      - 60
       style: h3
       type: text
       text: Agent and tool builders
     - id: t183
       box:
       - 100.0
-      - 5609
+      - 5750
       - 386.6666666666667
-      - 105
+      - 106
       style: body
       type: text
-      text: 31 MCP tools expose the same model, capabilities and renderer contracts
+      text: 32 MCP tools expose the same model, capabilities and renderer contracts
         an agent needs to know what is supported, degraded or unavailable — before
         it commits.
     - decorative: true
@@ -3797,26 +3797,26 @@ pages:
       type: line
       from:
       - 526.6666666666667
-      - 5551.0
+      - 5664.0
       to:
       - 913.3333333333335
-      - 5551.0
+      - 5664.0
       stroke: grid
     - id: t184
       box:
       - 526.6666666666667
-      - 5569
+      - 5682
       - 386.6666666666667
-      - 32
+      - 60
       style: h3
       type: text
       text: Design and documentation teams
     - id: t185
       box:
       - 526.6666666666667
-      - 5609
+      - 5750
       - 386.6666666666667
-      - 105
+      - 130
       style: body
       type: text
       text: 57 canvas presets, real typesetting — pagination, footnotes, grids, flowing
@@ -3828,33 +3828,33 @@ pages:
       type: line
       from:
       - 953.3333333333334
-      - 5551.0
+      - 5664.0
       to:
       - 1340.0
-      - 5551.0
+      - 5664.0
       stroke: grid
     - id: t186
       box:
       - 953.3333333333334
-      - 5569
+      - 5682
       - 386.6666666666667
-      - 32
+      - 60
       style: h3
       type: text
       text: Organisations that must audit output
     - id: t187
       box:
       - 953.3333333333334
-      - 5609
+      - 5750
       - 386.6666666666667
-      - 80
+      - 81
       style: body
       type: text
       text: Deterministic renders, declared renderer subsets, provenance and a migration
         path. The source outlives the tool that produced it.
     - box:
       - 100
-      - 5826
+      - 5992
       - 1240
       - 208
       decorative: true
@@ -3865,9 +3865,9 @@ pages:
       radius: 10
       stroke: grid
     - box:
-      - 817.6640625
-      - 5904.0
-      - 166.3359375
+      - 815.5136
+      - 6070.0
+      - 168.4864
       - 52
       decorative: true
       type: rect
@@ -3875,16 +3875,16 @@ pages:
       radius: 6
     - id: t188
       box:
-      - 845.6640625
-      - 5904.0
-      - 110.3359375
+      - 843.5136
+      - 6070.0
+      - 112.4864
       - 52
       style: btn
       type: text
       text: Read the spec
     - box:
       - 1000.0
-      - 5904.0
+      - 6070.0
       - 284.0
       - 52
       decorative: true
@@ -3897,7 +3897,7 @@ pages:
     - id: t189
       box:
       - 1022.0
-      - 5904.0
+      - 6070.0
       - 240.0
       - 52
       style: chip
@@ -3906,8 +3906,8 @@ pages:
     - id: t190
       box:
       - 156
-      - 5884.0
-      - 605.6640625
+      - 6049.5
+      - 603.5136
       - 52
       style: h2
       type: text
@@ -3915,9 +3915,9 @@ pages:
     - id: t191
       box:
       - 156
-      - 5946.0
-      - 605.6640625
-      - 30
+      - 6111.5
+      - 603.5136
+      - 31
       style: body
       type: text
       text: Install the package, run an example, read the report it prints.
@@ -3927,10 +3927,10 @@ pages:
       type: line
       from:
       - 100.0
-      - 6084.0
+      - 6250.0
       to:
       - 1340.0
-      - 6084.0
+      - 6250.0
       stroke: grid
     - decorative: true
       stroke_style:
@@ -3938,10 +3938,10 @@ pages:
       type: line
       from:
       - 102.0
-      - 6122.0
+      - 6288.0
       to:
       - 110.32
-      - 6122.0
+      - 6288.0
       stroke: '#15181E'
     - decorative: true
       stroke_style:
@@ -3949,10 +3949,10 @@ pages:
       type: line
       from:
       - 102.0
-      - 6122.0
+      - 6288.0
       to:
       - 102.0
-      - 6130.32
+      - 6296.32
       stroke: '#15181E'
     - decorative: true
       stroke_style:
@@ -3960,10 +3960,10 @@ pages:
       type: line
       from:
       - 102.0
-      - 6154.0
+      - 6320.0
       to:
       - 110.32
-      - 6154.0
+      - 6320.0
       stroke: '#15181E'
     - decorative: true
       stroke_style:
@@ -3971,10 +3971,10 @@ pages:
       type: line
       from:
       - 102.0
-      - 6154.0
+      - 6320.0
       to:
       - 102.0
-      - 6145.68
+      - 6311.68
       stroke: '#15181E'
     - decorative: true
       stroke_style:
@@ -3982,10 +3982,10 @@ pages:
       type: line
       from:
       - 134.0
-      - 6122.0
+      - 6288.0
       to:
       - 125.68
-      - 6122.0
+      - 6288.0
       stroke: '#15181E'
     - decorative: true
       stroke_style:
@@ -3993,10 +3993,10 @@ pages:
       type: line
       from:
       - 134.0
-      - 6122.0
+      - 6288.0
       to:
       - 134.0
-      - 6130.32
+      - 6296.32
       stroke: '#15181E'
     - decorative: true
       stroke_style:
@@ -4004,10 +4004,10 @@ pages:
       type: line
       from:
       - 134.0
-      - 6154.0
+      - 6320.0
       to:
       - 125.68
-      - 6154.0
+      - 6320.0
       stroke: '#15181E'
     - decorative: true
       stroke_style:
@@ -4015,10 +4015,10 @@ pages:
       type: line
       from:
       - 134.0
-      - 6154.0
+      - 6320.0
       to:
       - 134.0
-      - 6145.68
+      - 6311.68
       stroke: '#15181E'
     - decorative: true
       stroke_style:
@@ -4026,10 +4026,10 @@ pages:
       type: line
       from:
       - 110.96
-      - 6138.0
+      - 6304.0
       to:
       - 123.70789394370694
-      - 6130.64
+      - 6296.64
       stroke: '#1F4FD8'
     - decorative: true
       stroke_style:
@@ -4037,10 +4037,10 @@ pages:
       type: line
       from:
       - 110.96
-      - 6138.0
+      - 6304.0
       to:
       - 125.67999999999999
-      - 6138.0
+      - 6304.0
       stroke: '#1F4FD8'
     - decorative: true
       stroke_style:
@@ -4048,10 +4048,10 @@ pages:
       type: line
       from:
       - 110.96
-      - 6138.0
+      - 6304.0
       to:
       - 123.70789394370694
-      - 6145.36
+      - 6311.36
       stroke: '#1F4FD8'
     - decorative: true
       stroke_style:
@@ -4059,7 +4059,7 @@ pages:
       type: ellipse
       center:
       - 123.70789394370694
-      - 6130.64
+      - 6296.64
       rx: 1.664
       ry: 1.664
       fill: '#FFFFFF'
@@ -4070,7 +4070,7 @@ pages:
       type: ellipse
       center:
       - 125.67999999999999
-      - 6138.0
+      - 6304.0
       rx: 1.664
       ry: 1.664
       fill: '#FFFFFF'
@@ -4081,7 +4081,7 @@ pages:
       type: ellipse
       center:
       - 123.70789394370694
-      - 6145.36
+      - 6311.36
       rx: 1.664
       ry: 1.664
       fill: '#FFFFFF'
@@ -4092,7 +4092,7 @@ pages:
       type: ellipse
       center:
       - 110.96
-      - 6138.0
+      - 6304.0
       rx: 2.4
       ry: 2.4
       fill: '#1F4FD8'
@@ -4100,7 +4100,7 @@ pages:
     - id: t192
       box:
       - 148
-      - 6125
+      - 6291
       - 180
       - 26
       style:
@@ -4124,16 +4124,16 @@ pages:
     - id: t193
       box:
       - 100
-      - 6166
+      - 6332
       - 340
       - 34
       style: cap
       type: text
-      text: v2.6.0 · MIT · Pedro Anisio Silva
+      text: v2.7.0 · MIT · Pedro Anisio Silva
     - id: t194
       box:
       - 560.0
-      - 6120
+      - 6286
       - 240.0
       - 18
       style: eyebrow
@@ -4142,7 +4142,7 @@ pages:
     - id: foot-0
       box:
       - 560.0
-      - 6146
+      - 6312
       - 240.0
       - 102
       type: group
@@ -4198,7 +4198,7 @@ pages:
     - id: t200
       box:
       - 830.0
-      - 6120
+      - 6286
       - 240.0
       - 18
       style: eyebrow
@@ -4207,7 +4207,7 @@ pages:
     - id: foot-1
       box:
       - 830.0
-      - 6146
+      - 6312
       - 240.0
       - 102
       type: group
@@ -4263,7 +4263,7 @@ pages:
     - id: t206
       box:
       - 1100.0
-      - 6120
+      - 6286
       - 240.0
       - 18
       style: eyebrow
@@ -4272,7 +4272,7 @@ pages:
     - id: foot-2
       box:
       - 1100.0
-      - 6146
+      - 6312
       - 240.0
       - 102
       type: group
@@ -4328,7 +4328,7 @@ pages:
     - id: t212
       box:
       - 100
-      - 6282
+      - 6448
       - 1240
       - 18
       style: cap

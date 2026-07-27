@@ -56,8 +56,18 @@ class StaticValidationError(ValueError):
         super().__init__(message)
 
 
-def validate_static_rules(model: Any, targets: list[str] | None = None) -> ValidationReport:
-    """Validate model structure plus the repository's static rule catalogue.
+def validate_static_rules(
+    model: Any,
+    targets: list[str] | None = None,
+    *,
+    text_fit: bool = True,
+    real_metrics: bool | None = None,
+) -> ValidationReport:
+    """Validate structure, static rules, and text fit by default.
+
+    ``text_fit=False`` provides an explicit structure-only fast path.
+    ``real_metrics`` selects the same glyph-advance mode as rendering; ``None``
+    follows ``FRAMEFORGE_REAL_METRICS``.
 
     ``targets`` names render targets to additionally validate: each requested
     name must be defined under ``/targets``, and each requested target's
@@ -84,20 +94,26 @@ def validate_static_rules(model: Any, targets: list[str] | None = None) -> Valid
             )
         return ValidationReport(ok=False, issues=tuple(issues))
 
-    issues.extend(_tooling_issues(raw))
+    issues.extend(_tooling_issues(raw, text_fit=text_fit, real_metrics=real_metrics))
     issues.extend(_sdk_issues(raw, targets or []))
     ok = not any(issue.severity == "error" for issue in issues)
     return ValidationReport(ok=ok, issues=tuple(issues))
 
 
-def _tooling_issues(raw: dict[str, Any]) -> list[Issue]:
+def _tooling_issues(
+    raw: dict[str, Any], *, text_fit: bool, real_metrics: bool | None
+) -> list[Issue]:
     tooling_validate = _load_tooling_validate()
 
     fd, path = tempfile.mkstemp(suffix=".fg.json")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             json.dump(raw, fh)
-        _, findings, _code = tooling_validate.validate_doc(path)
+        _, findings, _code = tooling_validate.validate_doc(
+            path,
+            text_fit=text_fit,
+            real_metrics=real_metrics,
+        )
     finally:
         try:
             os.unlink(path)

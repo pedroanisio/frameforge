@@ -34,7 +34,7 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 | `browser` | headless-Chromium SVG→PNG raster (`tooling/render_chromium.py`) |
 | `pdf` | PDF **input** transpiler (`tooling/pdf_to_frameforge_yml.py`, PyMuPDF) |
 | `pdfout` | PDF **output** (`tooling/render_pdf.py`, cairosvg + pypdf) |
-| `metrics` | real font-advance metrics (`--real-metrics`, `sdk.measure_text`) |
+| `metrics` | real font-advance metrics (`--real-metrics`, `sdk.measure_text` / `fit_width`; estimate mode is the default) |
 | `mcp` | the MCP server + cairosvg raster fallback |
 | `vision` | image→draft proposers + the measurement layer (opencv, PIL, pytesseract) |
 
@@ -84,7 +84,7 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 
 | Script | Invocation / notes |
 |---|---|
-| `validate.py` | `validate.py doc.fg.yaml [...] [--strict] [--text-fit] [--check-collision] [--real-metrics] [--quiet]` — exit 0 no errors, 1 errors, 2 load failure. `--check-collision` WARNs on same-layer ink overlaps not declared `overlap: allowed` (advisory; `--real-metrics` for a reproducible verdict). Codes: [docs/error-codes.md](docs/error-codes.md) |
+| `validate.py` | `validate.py doc.fg.yaml [...] [--strict] [--no-text-fit] [--check-collision] [--real-metrics] [--quiet]` — text-fit diagnostics run by default; `--no-text-fit` is structure-only. Exit 0 no errors, 1 errors, 2 load failure. `--check-collision` WARNs on same-layer ink overlaps not declared `overlap: allowed` (advisory; `--real-metrics` applies to text-fit and collisions). Codes: [docs/error-codes.md](docs/error-codes.md) |
 | `codemod.py` | `codemod.py doc.fg.json --in-place [--normalize-aliases] [--bump] [--from-v01]` — migrate legacy docs to HEAD; `--from-v01` lifts the v0.1 envelope (scene- and deck/slides-form) first ([docs/migration-v01.md](docs/migration-v01.md)) |
 | `frameforge_render.py` | `frameforge_render.py doc.fg.yaml [--to svg|png|pdf|pdf-tex|tex|html|audit] [--out DIR]` — the render **front door** for uninstalled checkouts: self-bootstrapping (no PYTHONPATH), delegates to `frameforge.cli` (installed trees can call `ff-render` directly) (`--list` shows live targets). `--to audit` emits a drift-proof design-token + feature census (JSON + Markdown; `rendering/application/audit.py`, [ADR-0006](docs/adr-0006-no-injected-style.md)) |
 | `render_fixtures.py` | `[paths|--all] [--out DIR] [--max-pages N] [--check-overflow] [--strict-content] [--real-metrics] [--list]` — dependency-free SVG proxy; `--check-overflow` names every content-losing text object, `--strict-content` fails on silent loss |

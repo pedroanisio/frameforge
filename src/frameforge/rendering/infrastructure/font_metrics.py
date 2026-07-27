@@ -46,9 +46,26 @@ __all__ = [
     "first_concrete_family",
     "get_font_metrics",
     "measure_text",
+    "real_metrics_enabled",
     "resolve_family_name",
     "resolve_report",
 ]
+
+
+def real_metrics_enabled(value: bool | None) -> bool:
+    """Resolve the shared SDK/renderer real-metrics switch.
+
+    ``None`` is deterministic estimate mode unless
+    ``FRAMEFORGE_REAL_METRICS`` explicitly opts in.  Keeping this decision in
+    one place prevents author-time measurement and layout-time fitting from
+    silently selecting different metric providers merely because ``fontTools``
+    happens to be installed.
+    """
+    if value is not None:
+        return bool(value)
+    return os.environ.get("FRAMEFORGE_REAL_METRICS", "").strip().lower() in (
+        "1", "true", "yes", "on",
+    )
 
 
 class FontMetrics:

@@ -194,7 +194,8 @@ class TextStyleResolver:
             "text_overflow": merged.get("text_overflow"),
             "max_lines": merged.get("line_clamp") or merged.get("max_lines"),
             "valign": merged.get("vertical_align") or merged.get("v_align"),
-            "nowrap": merged.get("white_space") == "nowrap" or tw == "nowrap" or merged.get("wrap") is False,
+            "nowrap": merged.get("white_space") in ("nowrap", "pre")
+                      or tw == "nowrap" or merged.get("wrap") is False,
         }
         if base is not None:
             for key in INHERITED_TEXT_PROPERTIES:

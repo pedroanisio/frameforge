@@ -1,6 +1,6 @@
 ---
 title: FrameForge v2 — Specification (HEAD)
-version: 2.6.0
+version: 2.7.0
 status: PROPOSED / partially-implemented
 source_of_truth: src/frameforge/model.py (Pydantic) → schema generated; this prose is the normative reference
 supersedes: FrameForge-2.0.0-Specification.md (reverse-engineered) and the four standalone patch docs (P1–P4); style subsystem defers to frameforge-v2-style.ebnf (authoritative)
@@ -96,8 +96,11 @@ necessary but **not** sufficient. In addition to cardinality/reference checks, t
 pass includes the **geometric audit** (P3):
 
 - **Containment (SHOULD).** Every object's resolved page-space box SHOULD lie within
-  its canvas (plus declared `bleed`). Outside ⇒ warning, unless `decorative` or under
-  `overflow: clip`/bleed.
+  its canvas. The audit resolves nested group children in their parent-local frame,
+  including row/column/grid/wrap arrangement. `decorative` affects accessibility and
+  scoped overlap only; it does not suppress geometry checks. Intentional bleed is an
+  explicit `containment: "allowed"` consent on the object, or on a group for its
+  subtree. A clipped group's children need not be audited beyond the clipped parent.
 - **Construction geometry (MAY).** An object MAY carry `construction: true` (and a
   layer MAY declare `role: construction`): non-printing datum geometry — guides, snap
   targets, work axes — excluded from rendering unless the document sets
@@ -128,9 +131,12 @@ pass includes the **geometric audit** (P3):
   key/value stacks, legends, cells) MUST be a `row`/`column`/`grid` `GroupObject` or a
   `TableObject`, not a flat list of absolutely-placed `text`. A validator SHOULD warn
   when ≥ 6 absolutely-positioned text objects in one layer form an approximately
-  regular grid (the title-block-collision signature).
+  regular, at least 85%-complete grid (the title-block-collision signature). Text
+  explicitly tagged `meta.role: annotation|furniture|lettering` is not tabular data.
 
-These are enforced by `tooling/validate.py`.
+These are enforced by `tooling/validate.py`. Its text-fit pass is part of default
+validation and reports `text-truncated`/`layout-overflow`; `--no-text-fit` requests an
+explicit structure-only fast path. SDK `validate_static_rules()` has the same default.
 
 ### 3.4 Coordinate system & relative lengths
 
@@ -227,6 +233,11 @@ For a run with target width `W` (and height `H` in a fixed box):
 5. **Marker:** at the truncation point, `text_overflow: ellipsis` replaces the visible
    end of the last kept line with `…`; `clip` (default) cuts with no marker.
 
+Authored line breaks and spacing follow `Style.white_space`: `normal` collapses them;
+`pre` preserves spaces and newlines without wrapping; `pre-wrap` and `break-spaces`
+preserve them while wrapping; `pre-line` preserves newlines while collapsing repeated
+spaces.
+
 `shrink_to_fit` is a declared FrameForge fit mode a target MAY mark unsupported (§8.5).
 The shrink search MUST be a pure function of `(text, W, H, size, min_font_size,
 step/tolerance)`; each target publishes its step/tolerance.
@@ -235,7 +246,10 @@ step/tolerance)`; each target publishes its step/tolerance.
 Truncation MUST be diagnosable: a conforming renderer reports every text
 object that materially loses content to containment (identity, lines
 dropped, the head of the dropped text, and whether the clip was explicitly
-authored) — a bare aggregate count is not a diagnostic.
+authored) — a bare aggregate count is not a diagnostic. A typed overflow record's
+`needed` is the post-layout extent at the authored width (widest wrapped line and total
+height, including dropped lines); `unwrapped_width` separately reports the pre-wrap
+single-line width needed to avoid line breaking.
 
 ### 3.8 Pattern fills (P2)
 
@@ -325,7 +339,9 @@ named token styles) and a bounded **`css`** raw-CSS escape (so there is no hard 
 - `TextStyle` and `StrokeStyle` are **projections of `Style`** (`TextStyle = StrokeStyle
   = Style`). `tokens.text_styles`/`styles`/`stroke_styles`/`fill_styles` hold the
   corresponding values; `stroke_styles` entries use CSS-named `stroke_width`/
-  `stroke_dasharray`/… .
+  `stroke_dasharray`/… . `stroke_dasharray` accepts either the canonical length list,
+  `"none"`, or an SVG whitespace/comma-separated string such as `"4 4"`; strings and
+  the authoring shorthand `dash` normalize to the canonical field/list.
 - `fill`/`stroke` are **`Paint`** (`none | currentColor | Color | Image`, where `Image`
   covers gradients/patterns/url). Gradient stops use **`position`** (plus an optional
   **`opacity`** 0..1 → SVG `stop-opacity`); gradients add
@@ -466,6 +482,13 @@ font pack (a zip of the exact font files plus a `manifest.json` of
 `family → file → sha256`) that an external renderer points both `font_metrics` and
 its rasterizer at, so measure == render on any host. See
 [ADR-0004](../adr-0004-single-engine-layout.md).
+
+The authoring SDK and proxy renderer share one metric-mode switch: deterministic
+per-character estimates are the default; `real_metrics=True` (or
+`FRAMEFORGE_REAL_METRICS=1`) opts both into installed glyph advances and resolves the
+full CSS family stack. `measure_text()` reports the advance. `fit_width()` adds the
+published fit tolerance and is the supported width for absolutely positioned text.
+MCP `fit_text` returns both numbers using the same tri-state mode as render tools.
 
 ---
 

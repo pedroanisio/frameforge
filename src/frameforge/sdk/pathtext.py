@@ -99,9 +99,10 @@ def text_on_path(
 ) -> list[dict[str, Any]]:
     """Set ``text`` glyph by glyph along ``points``, offset to the concave side.
 
-    Advances come from real glyph metrics (:func:`~frameforge.sdk.metrics.measure_text`)
-    measured **on the offset path**, so spacing stays optically even through
-    curvature. Returns model ``text`` object dicts; extra ``fields`` are copied
+    Advances come from :func:`~frameforge.sdk.metrics.measure_text` in the shared
+    SDK/renderer metric mode and are measured **on the offset path**, so spacing
+    stays consistent with proxy layout through curvature. Returns model ``text``
+    object dicts; extra ``fields`` are copied
     onto every glyph object (ids, meta, opacity …).
     """
     fam_list = [family] if isinstance(family, str) else list(family)

@@ -58,7 +58,17 @@ def deps_available() -> bool:
         import cairosvg  # noqa: F401
         import numpy  # noqa: F401
         from PIL import Image  # noqa: F401
-        from playwright.sync_api import sync_playwright  # noqa: F401
+        from playwright.sync_api import sync_playwright
+    except Exception:
+        return False
+    # Installing the Python package does not install Chromium. Treat that state
+    # as dependency-absent, as the module contract promises, instead of failing
+    # later with Playwright's "Executable doesn't exist" launch error.
+    try:
+        with sync_playwright() as pw:
+            executable = pw.chromium.executable_path
+        if not os.path.isfile(executable) or not os.access(executable, os.X_OK):
+            return False
     except Exception:
         return False
     return True

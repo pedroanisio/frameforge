@@ -1,6 +1,6 @@
 # FrameForge v2
 
-**FrameForge v2** (`2.6.0`) keeps its documents, grammar, schema, prose, and
+**FrameForge v2** (`2.7.0`) keeps its documents, grammar, schema, prose, and
 Python code in sync — the Pydantic models are the source of truth and everything
 else is generated from or checked against them.
 
@@ -103,6 +103,7 @@ uv sync                                    # create/populate .venv
 uv run python docs/schema/build_schema.py --check
 
 # validate the delivered tracked fixtures — 39/39 zero errors in docs/FIXTURE-STATUS.md
+# text-fit diagnostics run by default; add --no-text-fit only for structure-only checks
 make validate
 
 # migrate a legacy v2 document to HEAD
@@ -142,6 +143,25 @@ make check
 # build & browse the generated documentation site (Material theme, live reload)
 make docs-serve
 ```
+
+For positioned text, use the shared authoring/layout metric contract rather than
+an empirical slack factor:
+
+```python
+from frameforge.sdk import fit_width, validate_static_rules
+
+family = ["Inter", "DejaVu Sans", "sans-serif"]
+w = fit_width("Advanced   SQL", font_family=family, font_size=13)
+layer.text([64, 64, w, 22], "Advanced   SQL",
+           style={"font_family": family, "font_size": 13, "white_space": "pre"})
+report = validate_static_rules(document)  # includes text-fit diagnostics
+```
+
+The SDK, validator, and proxy renderer use deterministic estimate metrics by
+default. Pass `real_metrics=True` through measurement/validation/render calls, or
+set `FRAMEFORGE_REAL_METRICS=1`, to opt the shared default into installed glyph
+advances. MCP clients can call `fit_text` to obtain both the raw advance and the
+line-breaker-safe width in the render tool's selected mode.
 
 The matplotlib proxy renderer (`tooling/render_fg_doc.py`) needs the extra
 `render` dependency group:

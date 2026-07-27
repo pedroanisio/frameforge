@@ -28,6 +28,7 @@ Version of the spec these models target: HEAD_VERSION (defined below).
 """
 from __future__ import annotations
 
+import re
 from typing import Annotated, Literal, Optional, Union
 
 from pydantic import (
@@ -37,7 +38,7 @@ from pydantic import (
     model_validator,
 )
 
-HEAD_VERSION = "2.6.0"  # v2 line; 2.4.0 adds the ordered per-object effect stack (`effects`) and the multi-pass appearance stack (`appearance`) — additive, outside the deep-core profile (§8.5, W4/#48). 2.3.0 added typed Connector, per-field schema descriptions, R12 referential integrity, Length/Angle value patterns (additive). 2.2.0 adopted the authoritative style module; P3 stroke collapse remains the one breaking change (codemod provided).
+HEAD_VERSION = "2.7.0"  # v2 line; 2.4.0 adds the ordered per-object effect stack (`effects`) and the multi-pass appearance stack (`appearance`) — additive, outside the deep-core profile (§8.5, W4/#48). 2.3.0 added typed Connector, per-field schema descriptions, R12 referential integrity, Length/Angle value patterns (additive). 2.2.0 adopted the authoritative style module; P3 stroke collapse remains the one breaking change (codemod provided).
 
 
 # --------------------------------------------------------------------------- #
@@ -56,6 +57,8 @@ class FG(BaseModel):
 LENGTH_STR_RE = r"^-?(?:\d+\.?\d*|\.\d+)(?:pt|px|pc|mm|cm|in|em|rem|%|fr)$"
 ANGLE_STR_RE = r"^-?(?:\d+\.?\d*|\.\d+)(?:deg|rad|grad|turn)$"
 PERCENT_STR_RE = r"^-?(?:\d+\.?\d*|\.\d+)%$"
+DASH_TOKEN_RE = r"(?:\d+\.?\d*|\.\d+)(?:pt|px|pc|mm|cm|in|em|rem|%)?"
+DASH_ARRAY_STR_RE = rf"^\s*{DASH_TOKEN_RE}(?:\s*(?:,\s*|\s+){DASH_TOKEN_RE})*\s*$"
 
 Length = Union[
     float, int,
@@ -66,6 +69,11 @@ Length = Union[
                     "(relative — % resolves against the container content-box, "
                     "fr only inside a layout container; spec §3.4/§3.6g).")],
 ]
+DashArrayString = Annotated[str, Field(
+    pattern=DASH_ARRAY_STR_RE,
+    description="SVG dash list as whitespace/comma-separated non-negative lengths.",
+)]
+DashArray = Union[Literal["none"], list[Length], DashArrayString]
 Color = str                 # hex (#rgb[a]/#rrggbb[aa]), CSS name, or a tokens.colors key
 UnitInterval = Annotated[float, Field(
     ge=0.0, le=1.0, description="Unit-interval number in 0.0..1.0.")]
@@ -414,6 +422,10 @@ class Style(FG):
     radius: Optional[Radius] = Field(default=None, description="Shorthand for border_radius.")
     wrap: Optional[bool] = Field(
         default=None, description="Shorthand for text_wrap (False = nowrap).")
+    dash: Optional[DashArray] = Field(
+        default=None, exclude=True,
+        description="Shorthand for stroke_dasharray; accepts a list or SVG whitespace/"
+                    "comma-separated string and serializes canonically as stroke_dasharray.")
     # text & font (CSS Text L3 + Fonts L3/L4)
     color: Optional[Color] = Field(
         default=None, description="Text/foreground colour (hex, CSS name, or tokens.colors key).")
@@ -561,8 +573,10 @@ class Style(FG):
         default=None, description="Stroke PAINT only (P3): colour/gradient/pattern; geometry "
                                   "(width/dash/caps) lives in the stroke_* properties.")
     stroke_width: Optional[Length] = Field(default=None, description="Stroke width.")
-    stroke_dasharray: Optional[Union[Literal["none"], list[Length]]] = Field(
-        default=None, description="Dash pattern lengths, or 'none' for a solid line.")
+    stroke_dasharray: Optional[DashArray] = Field(
+        default=None, description="Dash pattern lengths as a list or SVG whitespace/comma-"
+                                  "separated string; strings normalize to a list. 'none' "
+                                  "selects a solid line.")
     stroke_dashoffset: Optional[Length] = Field(
         default=None, description="Distance into the dash pattern at the path start.")
     stroke_linecap: Optional[Literal["butt", "round", "square"]] = Field(
@@ -612,6 +626,31 @@ class Style(FG):
         default=None, description="NON-CONFORMANT (G-2): accepted for round-trip but no render "
                                   "target applies 3D perspective; the validator warns. "
                                   "Author 3D via the SDK Scene3D projection.")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_dash_array(cls, data):
+        if not isinstance(data, dict):
+            return data
+        out = dict(data)
+        if "dash" in out:
+            if "stroke_dasharray" in out:
+                raise ValueError("use either dash or stroke_dasharray, not both")
+            out["stroke_dasharray"] = out.pop("dash")
+        value = out.get("stroke_dasharray")
+        if not isinstance(value, str) or value == "none":
+            return out
+        if not re.fullmatch(DASH_ARRAY_STR_RE, value):
+            raise ValueError(
+                "stroke_dasharray must be 'none', a list, or an SVG whitespace/"
+                "comma-separated list of non-negative lengths"
+            )
+        parts = [part for part in re.split(r"(?:\s*,\s*|\s+)", value.strip()) if part]
+        out["stroke_dasharray"] = [
+            float(part) if re.fullmatch(r"(?:\d+\.?\d*|\.\d+)", part) else part
+            for part in parts
+        ]
+        return out
 
 
 # TextStyle and StrokeStyle are PROJECTIONS of Style (the module's contract).
@@ -920,8 +959,14 @@ class ObjBase(FG):
     bind: Optional[str] = Field(
         default=None, description="Data-binding expression/reference (resolved at expansion).")
     decorative: Optional[bool] = Field(
-        default=None, description="Marks a purely decorative object: exempt from containment/"
-                                  "overlap audits and from accessibility alt requirements.")
+        default=None, description="Marks a purely decorative object: excluded from reading-order/"
+                                  "accessibility requirements and scoped overlap audits. It does "
+                                  "not suppress canvas containment; use containment: allowed for "
+                                  "intentional bleed.")
+    containment: Optional[Literal["allowed"]] = Field(
+        default=None, description="Explicit consent for intentional canvas bleed. `allowed` "
+                                  "suppresses the containment advisory for this object and, for "
+                                  "a group, its subtree; it never changes clipping or rendering.")
     overlap: Optional[Literal["allowed"]] = Field(
         default=None, description="Consent for INTENTIONAL same-layer overlap (§3.3): "
                                   "`allowed` declares that this object may share ink with a "

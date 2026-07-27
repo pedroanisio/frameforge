@@ -140,7 +140,7 @@ from frameforge.sdk.solids import (extrude, loft, revolve, section_loops,
 from frameforge.sdk import planar
 from frameforge.sdk.planar import (chamfer_ring, extend_segment, fill_regions,
                                    fillet_ring, trim_segment)
-from frameforge.sdk.metrics import (font_kern_pairs, kerned_spans,
+from frameforge.sdk.metrics import (fit_width, font_kern_pairs, kerned_spans,
                                     measure_text, text_height, wrap_text)
 from frameforge.sdk.model import (
     HEAD_VERSION,
@@ -341,6 +341,7 @@ __all__ = [
     "field",
     "fill_regions",
     "fill_stroke",
+    "fit_width",
     "fillet_ring",
     "filter_chain",
     "filter_fn",

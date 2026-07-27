@@ -22,8 +22,8 @@ from typing import Sequence
 
 from frameforge.rendering.infrastructure import font_metrics as _fm
 
-__all__ = ["font_kern_pairs", "kerned_spans", "measure_text", "wrap_text",
-           "text_height"]
+__all__ = ["fit_width", "font_kern_pairs", "kerned_spans", "measure_text",
+           "wrap_text", "text_height"]
 
 FontFamily = str | Sequence[str]
 
@@ -57,21 +57,53 @@ def measure_text(
     bold: bool = False,
     feature_settings: str | None = None,
     variation_settings: str | None = None,
+    real_metrics: bool | None = None,
 ) -> float:
     """Return the rendered width of ``text`` in pixels.
 
-    Uses real font metrics when available, else the ``avg`` estimate. Always
-    returns a number (0.0 for empty text). ``feature_settings`` is accepted so
+    Uses the same metric mode as the renderer: deterministic ``avg`` estimates
+    by default, or real font metrics when ``real_metrics=True`` (or the shared
+    ``FRAMEFORGE_REAL_METRICS`` opt-in is set). Always returns a number (0.0 for
+    empty text). ``feature_settings`` is accepted so
     author-time measurement has the same call surface as ``text_style``; current
     fontTools advance measurement only uses variation ``wght`` to choose the
     bold face when present.
     """
     s = str(text)
     effective_bold = bool(bold) or _variation_weight_is_bold(variation_settings)
-    real = _fm.measure_text(s, _chain(font_family), float(font_size), effective_bold)
-    if real is not None:
-        return real
+    if _fm.real_metrics_enabled(real_metrics):
+        real = _fm.measure_text(s, _chain(font_family), float(font_size), effective_bold)
+        if real is not None:
+            return real
     return len(s) * float(font_size) * _avg(font_family, effective_bold)
+
+
+def fit_width(
+    text: str,
+    *,
+    font_family: FontFamily,
+    font_size: float,
+    bold: bool = False,
+    feature_settings: str | None = None,
+    variation_settings: str | None = None,
+    real_metrics: bool | None = None,
+    tolerance: float = 0.5,
+) -> float:
+    """Return a positioned-text box width accepted by the line breaker.
+
+    Measurement and breaking must use the same ``real_metrics`` value and font
+    stack.  The non-negative tolerance covers the renderer's half-pixel fit
+    boundary and floating-point round trips through YAML/JSON.
+    """
+    return measure_text(
+        text,
+        font_family=font_family,
+        font_size=font_size,
+        bold=bold,
+        feature_settings=feature_settings,
+        variation_settings=variation_settings,
+        real_metrics=real_metrics,
+    ) + max(0.0, float(tolerance))
 
 
 def wrap_text(
@@ -83,6 +115,7 @@ def wrap_text(
     bold: bool = False,
     feature_settings: str | None = None,
     variation_settings: str | None = None,
+    real_metrics: bool | None = None,
 ) -> list[str]:
     """Greedily word-wrap ``text`` to ``width`` pixels, returning the lines.
 
@@ -102,6 +135,7 @@ def wrap_text(
             bold=bold,
             feature_settings=feature_settings,
             variation_settings=variation_settings,
+            real_metrics=real_metrics,
         )
 
     out: list[str] = []
@@ -141,6 +175,7 @@ def text_height(
     bold: bool = False,
     feature_settings: str | None = None,
     variation_settings: str | None = None,
+    real_metrics: bool | None = None,
 ) -> float:
     """Return the total height (px) of ``text`` wrapped to ``width``.
 
@@ -155,6 +190,7 @@ def text_height(
         bold=bold,
         feature_settings=feature_settings,
         variation_settings=variation_settings,
+        real_metrics=real_metrics,
     )
     return len(lines) * float(font_size) * float(line_height)
 

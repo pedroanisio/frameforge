@@ -155,9 +155,10 @@ def _wrap_text(layer):
     """Route every ``layer.text(...)`` through a one-child group.
 
     The ``tabular-box-model`` audit counts only *layer-top-level* text objects and
-    does not recurse into groups, so wrapping each glyph run keeps freeform deck
-    labels (kickers, captions, diagram annotations) from being mistaken for a data
-    grid that should have been a TableObject. See the clean-fixture-authoring note.
+    treats each group as one structured object, so wrapping each glyph run keeps
+    freeform deck labels (kickers, captions, diagram annotations) from being
+    mistaken for a data grid that should have been a TableObject. See the
+    clean-fixture-authoring note.
     """
     raw_text = layer.text
 

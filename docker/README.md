@@ -57,9 +57,9 @@ docker run --rm -i -v frameforge-work:/work frameforge
 ```
 
 Wire it into a client by replacing the `frameforge` entry in your MCP config with
-[`mcp.docker.json`](mcp.docker.json). The repo's default
-[`.mcp.json`](../.mcp.json) still uses the local `uv` env for development; the
-container is the portable, font-complete alternative.
+[`mcp.docker.json`](mcp.docker.json). Local development client configurations can
+instead use the repository's `uv` environment; the container is the portable,
+font-complete alternative.
 
 ## Using from another codebase
 

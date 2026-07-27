@@ -187,7 +187,7 @@ def stroke(
     width: float,
     *,
     color: Color | None = None,
-    dash: Sequence[float] | None = None,
+    dash: Sequence[float | str] | str | None = None,
     cap: str | None = None,
     join: str | None = None,
     miterlimit: float | None = None,
@@ -201,7 +201,7 @@ def stroke(
     """
     geometry: dict[str, Any] = {"stroke_width": width}
     if dash is not None:
-        geometry["stroke_dasharray"] = list(dash)
+        geometry["stroke_dasharray"] = dash if isinstance(dash, str) else list(dash)
     if cap is not None:
         geometry["stroke_linecap"] = cap
     if join is not None:
@@ -219,7 +219,7 @@ def fill_stroke(
     stroke_color: Color,
     width: float = 1.0,
     *,
-    dash: Sequence[float] | None = None,
+    dash: Sequence[float | str] | str | None = None,
     cap: str | None = None,
     join: str | None = None,
 ) -> dict[str, Any]:

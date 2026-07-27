@@ -15,7 +15,7 @@ the page that sells the substrate is *made of* the substrate. Top to bottom:
   7.  Code         — a real SDK client, and what it lowers to.
   8.  Outputs      — the backends that are verified *today* (docs/output-space.md),
                      each flagged verified or degraded. No aspirational rows.
-  9.  Agents       — the 31 MCP tools, grouped, named.
+  9.  Agents       — the 32 MCP tools, grouped, named.
   10. Proof (dark) — the four sync gates, plus the honest-limits card quoted
                      verbatim from README.md. The limit is on the page, not in
                      a footnote.
@@ -53,6 +53,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -63,7 +64,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder, measure_text  # noqa: E402
+from frameforge.sdk import DocumentBuilder, fit_width, measure_text, text_height  # noqa: E402
 
 # The mark, the wordmark and the derivation fan come from the brand's single
 # source of truth (docs/BRAND.md §3) — imported, never redrawn, so this page and
@@ -80,20 +81,20 @@ SITE = "frameforge.hefestus.io"
 OUT_TMP = os.path.join(ROOT, "_tmp", "landing")   # non-core output stays out of the tree
 
 FACTS = {
-    "version":      ("2.6.0", "pyproject.toml [project] version"),
-    "tests":        (2562,    "uv run pytest --collect-only -q"),
-    "tests_pass":   (2561,    "uv run pytest  -> '2561 passed, 1 skipped' (0 failed)"),
-    "tests_skip":   (1,       "same run: the one skip"),
-    "golden_pages": (87,      "uv run python tooling/render_golden.py"),
+    "version":      ("2.7.0", "pyproject.toml [project] version"),
+    "tests":        (2666,    "uv run pytest --collect-only -q"),
+    "tests_pass":   (2648,    "uv run pytest  -> '2648 passed, 18 skipped' (0 failed)"),
+    "tests_skip":   (18,      "same run: optional dependency skips"),
+    "golden_pages": (88,      "uv run python tooling/render_golden.py"),
     "fixtures":     ("39/39", "docs/FIXTURE-STATUS.md (tooling/gen_status.py)"),
-    "capabilities": (373,     "docs/capability-manifest.json .capabilities"),
+    "capabilities": (375,     "docs/capability-manifest.json .capabilities"),
     "schema_defs":  (88,      "docs/schema/frameforge-v2.schema.json .$defs"),
-    "examples":     (139,     "docs/examples.md (tooling/gen_examples_index.py)"),
-    "mcp_tools":    (31,      "docs/capability-manifest.json .mcp.tools"),
-    "sdk_exports":  (245,     "docs/capability-manifest.json .sdk.public_exports"),
+    "examples":     (144,     "docs/examples.md (tooling/gen_examples_index.py)"),
+    "mcp_tools":    (32,      "docs/capability-manifest.json .mcp.tools"),
+    "sdk_exports":  (246,     "docs/capability-manifest.json .sdk.public_exports"),
     "object_types": (17,      "docs/capability-manifest.json .model.object_types"),
     "canvas":       (57,      "docs/capability-manifest.json .model.canvas_presets"),
-    "style_props":  (106,     "docs/capability-manifest.json .model.style_property_count"),
+    "style_props":  (107,     "docs/capability-manifest.json .model.style_property_count"),
     "codes":        (25,      "docs/capability-manifest.json .validator.tooling_codes"),
 }
 F = {k: v[0] for k, v in FACTS.items()}
@@ -369,15 +370,25 @@ def cols(x, total, n, gap):
     return [(x + i * (cw + gap), cw) for i in range(n)]
 
 
-def para_h(w, text, *, size=S16, lh=1.55):
+def para_h(w, text, *, style="body", size=None, lh=None):
     """Height a paragraph needs at width `w` — measured, then rounded up.
 
     The renderer's own text-fit diagnostics flag any box that clips its content,
     so this is the number that keeps a paragraph honest: guess low and the
     render reports a SILENT truncation.
     """
-    n = max(1, int(tw(text, size) / (w - 2)) + 1)
-    return int(n * size * lh) + 6
+    resolved = STYLES.get(style, STYLES["body"])
+    actual_size = float(size if size is not None else resolved["font_size"])
+    actual_lh = float(lh if lh is not None else resolved["line_height"])
+    height = text_height(
+        text,
+        width=w - 2,
+        font_family=resolved["font_family"],
+        font_size=actual_size,
+        line_height=actual_lh,
+        bold=float(resolved.get("font_weight", 400)) >= 600,
+    )
+    return math.ceil(height) + 6
 
 
 def para(layer, x, y, w, text, *, style="body", size=S16, lh=1.55):
@@ -388,7 +399,7 @@ def para(layer, x, y, w, text, *, style="body", size=S16, lh=1.55):
     clipped. `PARA_METRICS` keeps the two in step.
     """
     size, lh = PARA_METRICS.get(style, (size, lh))
-    h = para_h(w, text, size=size, lh=lh)
+    h = para_h(w, text, style=style, size=size, lh=lh)
     layer.text([x, y, w, h], text, style=style)
     return y + h
 
@@ -594,8 +605,13 @@ def sec_nav(g, top):
 def sec_hero(g, top):
     y = top + 60
     eyebrow(g, M, y, "THE OUTPUT LAYER FOR THE AGENT ERA")
-    g.text([M, y + 40, 620, 124], "Structured output,\nchecked before it ships.",
-           style="h1")
+    headline = "Structured output,\nchecked before it ships."
+    headline_w = max(
+        fit_width(line, font_family=DISPLAY, font_size=S50, bold=True, tolerance=2)
+        for line in headline.splitlines()
+    )
+    assert headline_w <= 660, "hero headline collides with the gate panel"
+    g.text([M, y + 40, headline_w, 124], headline, style="h1")
     lede = ("FrameForge turns a typed description — written by you, or by an agent "
             "acting for you — into decks, reports, books, diagrams and vector art. "
             "Every document is validated before it renders.")
@@ -613,7 +629,8 @@ def sec_hero(g, top):
     note = ("Read off a working tree, not a badge: every row is a command that "
             "was run, and a failing one would be shown failing.")
     px, py, pw = 760, top + 60, 580
-    ph = 90 + len(GATE_ROWS) * 56 + 8 + 18 + para_h(pw - 56, note, size=S13, lh=1.6) + 28
+    ph = 90 + len(GATE_ROWS) * 56 + 8 + 18 + para_h(
+        pw - 56, note, style="capr") + 28
     card(g, [px, py, pw, ph], fill="ink", border="hair-r", radius=10)
     g.text([px + 28, py + 20, pw - 56, 26], "$ make check", style="chipr")
     rule(g, px + 28, py + 62, px + pw - 28, color="hair-r")
@@ -693,7 +710,7 @@ def sec_loop(g, top):
     # sits at 13px (a caption register, on the scale) — a knowing deviation from
     # the 45ch measure floor, which governs body copy, not four-across cards.
     body_top = 112
-    bh = body_top + max(para_h(cw - 48, b[3], size=S13, lh=1.6)
+    bh = body_top + max(para_h(cw - 48, b[3], style="bodysm")
                         for (x, cw), b in zip(boxes, LOOP)) + 24
     by = y + 46
     for i, ((x, cw), (num, name, sub, body)) in enumerate(zip(boxes, LOOP)):
@@ -805,14 +822,14 @@ def sec_proof(g, top):
     head_h = 34 + int(S40 * 1.18) + 6 + 16 + para_h(
         700, "Four couplings that would silently rot in any other stack. Here each "
              "one is a gate, and a gate that fails stops the build.",
-        size=S16, lh=1.55)
+        style="bodyr")
     boxes = cols(M, CW, 2, 40)
-    row_h = 44 + max(para_h(boxes[0][1] - 26, b, size=S16, lh=1.55) for _, b in SYNC)
+    row_h = 44 + max(para_h(boxes[0][1] - 26, b, style="bodyr") for _, b in SYNC)
     limits = ("FrameForge v2 is a proposed, not-yet-conformantly-implemented system. "
               "The prose and grammar are design targets to verify. The parts you can "
               "actually run — the models, the generated schema, the validator and the "
               "codemod — are the parts to trust.")
-    lh_ = 58 + para_h(CW - 56, limits, size=S13, lh=1.6) + 26
+    lh_ = 58 + para_h(CW - 56, limits, style="capr") + 26
     ly = y + head_h + 44 + 2 * row_h + 20
     h = int(ly + lh_ + 76 - top)
 
@@ -837,10 +854,15 @@ def sec_proof(g, top):
 def sec_audience(g, top):
     y = section_head(g, top + 64, "WHO IT SERVES", "Three ways in.")
     bottom = y
+    title_h = max(
+        math.ceil(text_height(title, width=cwid - 2, font_family=SANS,
+                              font_size=S20, line_height=1.35, bold=True)) + 6
+        for (_, cwid), (title, _) in zip(cols(M, CW, 3, 40), AUDIENCE)
+    )
     for (x, cwid), (title, body) in zip(cols(M, CW, 3, 40), AUDIENCE):
         rule(g, x, y + 40, x + cwid)
-        g.text([x, y + 58, cwid, 32], title, style="h3")
-        bottom = max(bottom, para(g, x, y + 98, cwid, body))
+        g.text([x, y + 58, cwid, title_h], title, style="h3")
+        bottom = max(bottom, para(g, x, y + 58 + title_h + 8, cwid, body))
     return int(bottom - top + 72)
 
 

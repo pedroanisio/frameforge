@@ -7,10 +7,11 @@ diagram, or 3D positions that :meth:`Graph.render` projects through a camera for
 a perspective network view. Everything is deterministic (no RNG), so a fixture
 re-rendered tomorrow is byte-identical.
 
-A rendered graph is one ``group`` object. The geometric audit in
-``tooling/validate.py`` only inspects top-level layer objects, so wrapping nodes,
-edges and labels in a group keeps containment / tabular-box-model audits silent;
-labels are still sized against real font metrics so ``--check-overflow`` passes.
+A rendered graph is one ``group`` object. Deep containment still walks its
+children in the group's local coordinate frame; the layer-level
+``tabular-box-model`` heuristic deliberately treats the graph as one structured
+object. Labels use the shared SDK/renderer metric mode so text-fit validation
+and rendering agree.
 """
 from __future__ import annotations
 

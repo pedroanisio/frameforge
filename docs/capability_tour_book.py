@@ -89,6 +89,7 @@ from frameforge.sdk import (  # noqa: E402
     hatch,
     hatch_fill,
     inset,
+    fit_width,
     klein_bottle,
     lattice,
     linear_gradient,
@@ -1183,30 +1184,33 @@ def _s6(bk: Tour):
 def _s7(bk: Tour):
     bk.section("§ 7", "Typography and metrics", "§7 · Type")
     w_px = measure_text("measured", font_family=SERIF, font_size=18)
+    fit_px = fit_width("measured", font_family=SERIF, font_size=18)
     demo_text = ("Author-side metrics decide where lines break; renderer "
                  "metrics decide how far glyphs advance.")
     h_px = text_height(demo_text, width=250, font_family=SERIF, font_size=10,
                        line_height=1.5)
     bk.para("The metrics module answers the questions pagination depends on. "
             "`measure_text` returns a string's advance width in px for a font "
-            "stack; `wrap_text` greedy-wraps to a measure; `text_height` is "
+            "stack; `fit_width` adds the proxy breaker's fit tolerance for a "
+            "positioned box; `wrap_text` greedy-wraps to a measure; `text_height` is "
             "the wrapped height — the number that sizes a text box to its "
             "content. This composer (inherited from the elected book) wraps a "
-            "hair narrow of the measure so the renderer's own metrics can "
-            "never push a wrapped line past the box: author-side measurement "
-            "decides wrap points only, never the on-page advance.")
+            "shared metric-mode choice means authoring, validation, and proxy "
+            "layout agree; explicit real-metrics mode must be threaded through "
+            "all three when installed glyph advances are required.")
     bk.code(
         f'measure_text("measured", font_family=SERIF, font_size=18)  # -> {w_px:.1f} px\n'
+        f'fit_width("measured", font_family=SERIF, font_size=18)     # -> {fit_px:.1f} px\n'
         'wrap_text(text, width=250, font_family=SERIF, font_size=10)  # -> lines\n'
         f'text_height(text, width=250, font_family=SERIF, font_size=10,\n'
         f'            line_height=1.5)                               # -> {h_px:.1f} px'
     )
     bk.ensure(120)
     pg = bk.page
-    pg.rect([MX, bk.y, w_px, 26], fill=rgba(ACCENT, 0.14))
-    pg.text([MX, bk.y + 3, w_px + 40, 22], "measured",
+    pg.rect([MX, bk.y, fit_px, 26], fill=rgba(ACCENT, 0.14))
+    pg.text([MX, bk.y + 3, fit_px, 22], "measured",
             style=ts(18, INK, family=SERIF))
-    pg.text([MX + w_px + 10, bk.y + 7, 220, 14], f"← exactly {w_px:.1f} px wide",
+    pg.text([MX + fit_px + 10, bk.y + 7, 220, 14], f"← safe box {fit_px:.1f} px wide",
             style=ts(9, MUTE, family=SANS))
     box_y = bk.y + 34
     pg.rect([MX, box_y, 250, h_px], fill="#F7F8FA", stroke=LINE,
@@ -2000,6 +2004,8 @@ def _s15(bk: Tour):
             "`ValidationError` is the failure type. **Static rules** — "
             "`validate_static_rules(doc)` returns a `ValidationReport` of "
             "`Issue`s (rule id, severity, path, message); "
+            "text-fit diagnostics run by default (`text_fit=False` is the "
+            "explicit structure-only path); "
             "`DocumentBuilder.write(fail_on_error=True)` raises "
             "`StaticValidationError` carrying the report. **Serialization** "
             "— `serialize` emits canonical YAML/JSON after validating, "
@@ -2359,7 +2365,7 @@ def _s19_bookqa(bk: Tour):
     bk.table(
         ["Recurring book defect", "The capability that fixes it", "§"],
         [["Truncated captions, entries",
-          "measure_text · wrap_text + overflow gate", "7"],
+          "fit_width · wrap_text + default overflow gate", "7"],
          ["Orphan headings, bad breaks",
           "flow keep_together · page_break", "14"],
          ["Uneven prose rhythm",

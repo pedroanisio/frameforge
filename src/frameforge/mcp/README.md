@@ -222,7 +222,7 @@ the running server.
 | `FRAMEFORGE_MCP_MAX_RESOURCE_BYTES` | Byte cap for binary resource endpoints (default: the inline-blob cap derived from the result budget — 43500 at the stock 60000). |
 | `FRAMEFORGE_MCP_MIN_CLEANUP_AGE` | `cleanup_sessions` age floor, seconds — younger sessions are never pruned (default: 60). |
 | `FRAMEFORGE_MCP_PUBLISH_ROOT` | Durable root for published session deliverables; render tools accept `publish=true` and copy `document.fg.yaml`, pages, PDF, `diagnostics.json` + a sha256 manifest to `<root>/<session_id>/` (unset = publishing disabled; `publish=true` then fails fast). Must sit outside the session root; `cleanup_sessions` never touches it. |
-| `FRAMEFORGE_REAL_METRICS` | Truthy = measure text with real glyph advances (fontTools); an explicit per-call flag always wins. |
+| `FRAMEFORGE_REAL_METRICS` | Truthy opts the shared SDK/validator/renderer default into real glyph advances (fontTools); unset means deterministic estimates, and an explicit per-call flag always wins. MCP render calls default to `real_metrics='auto'` (real when available) and report the resolved mode; use that same mode through `fit_text`. |
 | `FRAMEFORGE_MATH_SVG` | `fallback` forces the deterministic math-glyph fallback instead of node MathJax. |
 | `FRAMEFORGE_CHROMIUM_NO_SANDBOX` | Truthy launches the raster Chromium with `--no-sandbox` (rootless Docker). |
 | `FRAMEFORGE_CHROMIUM_ARGS` | Replace the raster Chromium launch flags entirely (space-separated). |

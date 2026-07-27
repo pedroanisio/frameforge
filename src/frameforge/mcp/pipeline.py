@@ -75,7 +75,7 @@ def _validate_and_render_yaml(
             # render path; the judgement itself is the caller's (advisory).
             from frameforge.coach import to_silhouette
             document = to_silhouette(document)
-        report = validate_static_rules(document)
+        report = validate_static_rules(document, real_metrics=metrics_on)
     except Exception as exc:  # noqa: BLE001
         return {
             "ok": False,

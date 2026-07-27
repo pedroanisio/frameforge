@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`BookBuilder`, `Box`, `BoxLike`, `Camera`, `ChapterBuilder`, `Chart`, `ClosedPalette`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `FlowBuilder`, `Frame`, `Graph`, `HEAD_VERSION`, `Hand`, `Handle`, `ImportedFigurePlacement`, `Issue`, `Lattice`, `MasterBuilder`, `Mat3`, `Mat4`, `Material`, `Node`, `OverflowSignal`, `PageBuilder`, `Panel`, `Path`, `Placement`, `ScalarField`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `Theme`, `ValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `VectorField`, `ViewingPipeline`, `aabb`, `aabb3`, `appearance`, `apply_humanize`, `apply_separation`, `array`, `assert_golden`, `avatar`, `badge`, `badge_width`, `bezier_patch`, `bezier_patch_point`, `blur_filter`, `breadcrumb`, `bspline_patch`, `bspline_patch_point`, `button`, `caps_tracking`, `card`, `chamfer_ring`, `checkbox`, `cite`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `closed_palette`, `color_guide`, `column`, `complement`, `conic_gradient`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `convex_hull`, `convex_hull_3d`, `default_theme`, `diffuse_lighting`, `displacement_map`, `divider`, `dominant_light`, `dots`, `dragon_curve`, `dropdown`, `effect`, `effect_stack`, `effects`, `eval_expr`, `expand`, `extend_segment`, `extract_objects`, `extrude`, `field`, `fill_regions`, `fill_stroke`, `fillet_ring`, `filter_chain`, `filter_fn`, `font_kern_pairs`, `from_markdown`, `function_plot`, `glow`, `gradient_map`, `greeble`, `grey_document`, `grid`, `grid_lines`, `grid_pattern`, `harmony_of_hues`, `harmony_of_scale`, `hatch`, `hatch_fill`, `image_placeholder`, `inset`, `johnston_margins`, `kerned_spans`, `klein_bottle`, `koch_curve`, `kpi`, `lattice`, `line_curve_intersections`, `line_intersection`, `linear_gradient`, `load_figure`, `loft`, `lorem`, `lorem_paragraphs`, `lower_embedded_svg`, `lsystem`, `manifold`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `md`, `measure_fits`, `measure_text`, `merge_figure_defs`, `mirror`, `mobius`, `model_module`, `modular_scale`, `multiview`, `navbar`, `neon`, `normalize_clip`, `normalize_mask`, `obb`, `object_bbox`, `offset_path`, `collision_report`, `overflow_report`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `parse`, `path_length`, `path_walker`, `pattern`, `pill`, `place_figure`, `place_imported_figure`, `place_region`, `place_stamp`, `planar`, `point_in_polygon`, `polar_plot`, `polygon_area`, `polyline_length`, `progress`, `quarter_circle_kappa`, `radial_gradient`, `radio`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `recolor`, `ref`, `region_grade`, `register_theme`, `relative_luminance`, `render_page_svgs`, `render_pages_with_stats`, `repeat_along_path`, `resolve_params`, `revolve`, `rgba`, `row`, `saddle`, `section_loops`, `section_object`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `select_in`, `separate_rects`, `serialize`, `shadow`, `sierpinski_arrowhead`, `slider`, `soft_shadow`, `span`, `sparkline`, `specular_lighting`, `sphere`, `sticky_note`, `stroke`, `stroke_outline`, `style_effects`, `surface_curvature`, `svg_to_objects`, `sweep`, `table`, `tabs`, `text_height`, `text_on_path`, `text_style`, `theme`, `to_plain_dict`, `toggle`, `tone_scale`, `torus`, `trim_segment`, `turbulence`, `turtle`, `validate_document`, `validate_static_rules`, `wave`, `window_to_viewport`, `wrap_text`, `write_golden`
+`BookBuilder`, `Box`, `BoxLike`, `Camera`, `ChapterBuilder`, `Chart`, `ClosedPalette`, `CubicBezier`, `Document`, `DocumentBuilder`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `FlowBuilder`, `Frame`, `Graph`, `HEAD_VERSION`, `Hand`, `Handle`, `ImportedFigurePlacement`, `Issue`, `Lattice`, `MasterBuilder`, `Mat3`, `Mat4`, `Material`, `Node`, `OverflowSignal`, `PageBuilder`, `Panel`, `Path`, `Placement`, `ScalarField`, `Scene3D`, `StackBuilder`, `StaticValidationError`, `Theme`, `ValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `VectorField`, `ViewingPipeline`, `aabb`, `aabb3`, `appearance`, `apply_humanize`, `apply_separation`, `array`, `assert_golden`, `avatar`, `badge`, `badge_width`, `bezier_patch`, `bezier_patch_point`, `blur_filter`, `breadcrumb`, `bspline_patch`, `bspline_patch_point`, `button`, `caps_tracking`, `card`, `chamfer_ring`, `checkbox`, `cite`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `closed_palette`, `color_guide`, `column`, `complement`, `conic_gradient`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `convex_hull`, `convex_hull_3d`, `default_theme`, `diffuse_lighting`, `displacement_map`, `divider`, `dominant_light`, `dots`, `dragon_curve`, `dropdown`, `effect`, `effect_stack`, `effects`, `eval_expr`, `expand`, `extend_segment`, `extract_objects`, `extrude`, `field`, `fill_regions`, `fill_stroke`, `fit_width`, `fillet_ring`, `filter_chain`, `filter_fn`, `font_kern_pairs`, `from_markdown`, `function_plot`, `glow`, `gradient_map`, `greeble`, `grey_document`, `grid`, `grid_lines`, `grid_pattern`, `harmony_of_hues`, `harmony_of_scale`, `hatch`, `hatch_fill`, `image_placeholder`, `inset`, `johnston_margins`, `kerned_spans`, `klein_bottle`, `koch_curve`, `kpi`, `lattice`, `line_curve_intersections`, `line_intersection`, `linear_gradient`, `load_figure`, `loft`, `lorem`, `lorem_paragraphs`, `lower_embedded_svg`, `lsystem`, `manifold`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `md`, `measure_fits`, `measure_text`, `merge_figure_defs`, `mirror`, `mobius`, `model_module`, `modular_scale`, `multiview`, `navbar`, `neon`, `normalize_clip`, `normalize_mask`, `obb`, `object_bbox`, `offset_path`, `collision_report`, `overflow_report`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `parse`, `path_length`, `path_walker`, `pattern`, `pill`, `place_figure`, `place_imported_figure`, `place_region`, `place_stamp`, `planar`, `point_in_polygon`, `polar_plot`, `polygon_area`, `polyline_length`, `progress`, `quarter_circle_kappa`, `radial_gradient`, `radio`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `recolor`, `ref`, `region_grade`, `register_theme`, `relative_luminance`, `render_page_svgs`, `render_pages_with_stats`, `repeat_along_path`, `resolve_params`, `revolve`, `rgba`, `row`, `saddle`, `section_loops`, `section_object`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `select_in`, `separate_rects`, `serialize`, `shadow`, `sierpinski_arrowhead`, `slider`, `soft_shadow`, `span`, `sparkline`, `specular_lighting`, `sphere`, `sticky_note`, `stroke`, `stroke_outline`, `style_effects`, `surface_curvature`, `svg_to_objects`, `sweep`, `table`, `tabs`, `text_height`, `text_on_path`, `text_style`, `theme`, `to_plain_dict`, `toggle`, `tone_scale`, `torus`, `trim_segment`, `turbulence`, `turtle`, `validate_document`, `validate_static_rules`, `wave`, `window_to_viewport`, `wrap_text`, `write_golden`
 
 ## `frameforge.sdk.author`
 
@@ -16,7 +16,7 @@
 Small fluent builder that lowers directly to the authoritative model.
 
 ```python
-DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.6.0') -> 'None'
+DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.7.0') -> 'None'
 ```
 
 | Method | Signature | Summary |
@@ -92,7 +92,7 @@ PageBuilder(page: 'dict[str, Any]') -> 'None'
 | `arrow` | `(self, start: 'Any', end: 'Any', *, color: 'str' = '#000000', width: 'float' = 2.0, head: 'float' = 9.0, head_width: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Draw a vector from ``start`` to ``end`` with a filled arrowhead at ``end``. |
 | `avatar` | `(self, box: 'Any', name: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `badge` | `(self, box: 'Any', text: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
-| `bleed` | `(self) -> "'Iterator[PageBuilder]'"` | Mark every object added in this block ``decorative``. |
+| `bleed` | `(self) -> "'Iterator[PageBuilder]'"` | Mark every object added in this block as intentional decorative bleed. |
 | `breadcrumb` | `(self, box: 'Any', items: 'list[str] \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
 | `bullet_list` | `(self, box: 'list[Any]', items: 'list[Any]', *, marker: 'str \| None' = None, marker_color: 'Any' = None, gap: 'float \| None' = None, indent: 'float \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Add a positioned bullet list (the absolute-layout list primitive; |
 | `button` | `(self, box: 'Any', label: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` |  |
@@ -591,7 +591,7 @@ normalize_clip(clip: 'Any') -> 'dict[str, Any] | str'
 One provable does-not-fit event, named at layout time.
 
 ```python
-OverflowSignal(id: 'Optional[str]', page: 'Optional[str]', source: 'str', kind: 'str', policy: 'str', box: 'tuple[float, float, float, float]', needed: 'tuple[float, float]', acknowledged: 'bool', detail: 'str' = '') -> None
+OverflowSignal(id: 'Optional[str]', page: 'Optional[str]', source: 'str', kind: 'str', policy: 'str', box: 'tuple[float, float, float, float]', needed: 'tuple[float, float]', acknowledged: 'bool', detail: 'str' = '', unwrapped_width: 'Optional[float]' = None) -> None
 ```
 
 | Method | Signature | Summary |
@@ -1691,6 +1691,68 @@ Convert a Markdown document to a validated FrameForge flow document.
 from_markdown(text: 'str', *, title: 'str | None' = None, lang: 'str | None' = None, profile: 'str | None' = None, master: 'dict[str, Any] | None' = None, page_id: 'str' = 'doc', warnings: 'list[str] | None' = None) -> 'dict[str, Any]'
 ```
 
+## `frameforge.sdk.metrics`
+
+### `fit_width`
+
+`frameforge.sdk.metrics.fit_width`
+
+Return a positioned-text box width accepted by the line breaker.
+
+```python
+fit_width(text: 'str', *, font_family: 'FontFamily', font_size: 'float', bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None, tolerance: 'float' = 0.5) -> 'float'
+```
+
+### `font_kern_pairs`
+
+`frameforge.sdk.metrics.font_kern_pairs`
+
+Real kern pairs for ``text``'s adjacent characters, in px at
+
+```python
+font_kern_pairs(font_family: 'FontFamily', text: 'str', *, font_size: 'float', bold: 'bool' = False) -> 'dict[tuple[str, str], float]'
+```
+
+### `kerned_spans`
+
+`frameforge.sdk.metrics.kerned_spans`
+
+``text`` as spans whose ``letter_spacing`` applies explicit kern pairs
+
+```python
+kerned_spans(text: 'str', *, pairs: 'dict[tuple[str, str], float]', style: 'dict | None' = None) -> 'list[dict]'
+```
+
+### `measure_text`
+
+`frameforge.sdk.metrics.measure_text`
+
+Return the rendered width of ``text`` in pixels.
+
+```python
+measure_text(text: 'str', *, font_family: 'FontFamily', font_size: 'float', bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None) -> 'float'
+```
+
+### `wrap_text`
+
+`frameforge.sdk.metrics.wrap_text`
+
+Greedily word-wrap ``text`` to ``width`` pixels, returning the lines.
+
+```python
+wrap_text(text: 'str', *, width: 'float', font_family: 'FontFamily', font_size: 'float', bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None) -> 'list[str]'
+```
+
+### `text_height`
+
+`frameforge.sdk.metrics.text_height`
+
+Return the total height (px) of ``text`` wrapped to ``width``.
+
+```python
+text_height(text: 'str', *, width: 'float', font_family: 'FontFamily', font_size: 'float', line_height: 'float' = 1.25, bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None) -> 'float'
+```
+
 ## `frameforge.sdk.model`
 
 ### `Document`
@@ -1715,7 +1777,7 @@ Document(*, dsl: Literal['FrameForge'], version: Annotated[str, _PydanticGeneral
 
 ### `HEAD_VERSION`
 
-`str` value: `'2.6.0'`
+`str` value: `'2.7.0'`
 
 ### `ValidationError`
 
@@ -1854,7 +1916,7 @@ effects(*, glow: 'dict[str, Any] | None' = None, shadow: 'dict[str, Any] | None'
 Bundle common ``fill`` + stroked-outline fields for a primitive.
 
 ```python
-fill_stroke(fill: 'Any', stroke_color: 'Color', width: 'float' = 1.0, *, dash: 'Sequence[float] | None' = None, cap: 'str | None' = None, join: 'str | None' = None) -> 'dict[str, Any]'
+fill_stroke(fill: 'Any', stroke_color: 'Color', width: 'float' = 1.0, *, dash: 'Sequence[float | str] | str | None' = None, cap: 'str | None' = None, join: 'str | None' = None) -> 'dict[str, Any]'
 ```
 
 ### `filter_chain`
@@ -1984,7 +2046,7 @@ soft_shadow(*, dy: 'float' = 6.0, blur: 'float' = 14.0, color: 'Color' = '#00000
 Build a primitive's stroke fields, honouring the P3 paint/geometry split.
 
 ```python
-stroke(width: 'float', *, color: 'Color | None' = None, dash: 'Sequence[float] | None' = None, cap: 'str | None' = None, join: 'str | None' = None, miterlimit: 'float | None' = None) -> 'dict[str, Any]'
+stroke(width: 'float', *, color: 'Color | None' = None, dash: 'Sequence[float | str] | str | None' = None, cap: 'str | None' = None, join: 'str | None' = None, miterlimit: 'float | None' = None) -> 'dict[str, Any]'
 ```
 
 ### `style_effects`
@@ -2173,10 +2235,10 @@ ValidationReport(ok: 'bool', issues: 'tuple[Issue, ...]') -> None
 
 `frameforge.sdk.validate.validate_static_rules`
 
-Validate model structure plus the repository's static rule catalogue.
+Validate structure, static rules, and text fit by default.
 
 ```python
-validate_static_rules(model: 'Any', targets: 'list[str] | None' = None) -> 'ValidationReport'
+validate_static_rules(model: 'Any', targets: 'list[str] | None' = None, *, text_fit: 'bool' = True, real_metrics: 'bool | None' = None) -> 'ValidationReport'
 ```
 
 ## `frameforge.sdk.widgets`

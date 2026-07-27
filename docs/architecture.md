@@ -7,7 +7,7 @@ disclaimer:
     relying on it.
   generated_by: "Claude Opus 4.8 via Claude Code"
   date: "2026-06-24"
-  last_revised: "2026-07-17"
+  last_revised: "2026-07-27"
 ---
 
 # FrameForge Architecture
@@ -187,6 +187,20 @@ Backends are infrastructure adapters under
   another rasterizes breaks justified/wrapped fidelity. Making both engines resolve
   the same file is ADR-0004's single-engine principle; the `fg-font` toolchain and
   `render_chromium --font-pack` operationalize it.
+- **Authoring and layout share one metric-mode decision.** SDK
+  `measure_text`/`fit_width` and the application `Renderer` both resolve
+  `real_metrics` through `font_metrics.real_metrics_enabled`: deterministic
+  estimates by default, or the same real-font provider under an explicit bool /
+  `FRAMEFORGE_REAL_METRICS`. `fit_width` adds the renderer's half-pixel fit
+  tolerance, so positioned text does not need an environment-specific slack
+  factor. MCP `fit_text` exposes the same decision before geometry is committed.
+- **Validation may invoke layout, but painting remains optional.** Structural and
+  referential rules run first. Default validation then runs the application
+  renderer's measurement pass and discards the SVG, surfacing typed
+  truncation/overflow feedback. `--no-text-fit` / `text_fit=False` is the explicit
+  structure-only lane. Geometric containment independently descends through
+  group-local arranged boxes; `containment: allowed` is the only bleed consent,
+  separate from `decorative` accessibility intent.
 
 ## File map
 

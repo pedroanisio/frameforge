@@ -13,11 +13,9 @@ How widgets lower (and why):
   widget box and whose children are authored in the group's *local* frame
   (origin ``0,0``). A group with a box translates its children by that origin in
   the renderer, so the author always passes absolute page coordinates and the
-  widget's internals stay self-contained. This also means a widget contributes a
-  single box to the ``containment`` check and hides its text from the
-  ``tabular-box-model`` heuristic (which does not recurse into groups) — so a
-  page built from widgets validates cleanly instead of tripping a warning per
-  label.
+  widget's internals stay self-contained. The layer-level ``tabular-box-model``
+  heuristic treats a widget as one structured object, while deep containment
+  still audits its children in this local frame.
 * :func:`table` emits a real ``TableObject`` (``type: "table"``), the model's
   first-class tabular primitive — column widths/alignment, an optional header
   and zebra striping, with cells clipped to the grid. This is the structured

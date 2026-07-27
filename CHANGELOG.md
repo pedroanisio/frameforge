@@ -1,6 +1,6 @@
 # FrameForge v2 — CHANGELOG (HEAD)
 
-**Version:** `2.6.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-22
+**Version:** `2.7.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-27
 
 *Convention: version headings mark schema/`HEAD_VERSION` bumps; an entry titled
 "Unreleased" landed between bumps and is contained in the nearest version
@@ -8,6 +8,32 @@ heading above it. One version number may span multiple dated entry blocks —
 cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
+
+## 2.7.0 — fix: close the positioned-text and validation feedback loop (2026-07-27)
+
+Schema-additive, with intentional validation-behavior changes documented in
+[`docs/migration-2.7-authoring-feedback.md`](docs/migration-2.7-authoring-feedback.md):
+
+- SDK measurement, proxy layout, validation, and MCP now select a shared metric
+  mode and full CSS family stack. Deterministic estimates are the SDK/CLI default;
+  `fit_width()` returns a positioned-box width including the renderer tolerance,
+  and MCP `fit_text` exposes raw/safe widths in the render tool's selected mode.
+- Containment now descends through group-local arranged children. `decorative`
+  retains accessibility/scoped-overlap meaning but no longer suppresses geometry;
+  new `containment: "allowed"` explicitly consents to object/subtree bleed, and
+  `PageBuilder.bleed()` stamps both intents.
+- Text-fit validation is on by default in the CLI and
+  `validate_static_rules()`; `--no-text-fit` / `text_fit=False` is the explicit
+  structure-only lane. The MCP pipeline threads its resolved metric mode through
+  validation and rendering.
+- Authored whitespace modes preserve spaces/newlines according to
+  `white_space`; SVG-style dash strings and `dash` shorthand normalize to
+  canonical `stroke_dasharray` lists.
+- `tabular-box-model` requires an 85%-complete grid and exempts declared
+  annotation/furniture/lettering roles. `OverflowSignal` adds backward-compatible
+  `unwrapped_width`, while `needed` is documented as post-layout extent.
+- Regressions cover SDK, model, renderer, validator, CLI semantics, overflow wire
+  compatibility, sparse-grid edges, and MCP registration/export/discovery.
 
 ## 2.6.0 — feat: consent-based collision gate + cross-backend text fidelity (2026-07-23)
 

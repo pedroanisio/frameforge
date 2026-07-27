@@ -661,6 +661,14 @@ def _walk_flow(fl, path, objs):
 
 
 def _geometric_audit(doc, findings):
+    # Imported lazily so loading the structural validator stays cheap. This is
+    # the same pure arrangement service the renderer uses, which lets deep
+    # containment inspect row/column/grid/wrap children at their FINAL local
+    # boxes instead of treating authored placeholder coordinates as page space.
+    from frameforge.rendering.domain.services.layout_engine import LayoutEngine
+
+    layout_engine = LayoutEngine()
+
     for pi, page in enumerate(collect_pages(doc)):
         if not isinstance(page, dict) or page.get("mode") != "page":
             continue
@@ -673,19 +681,59 @@ def _geometric_audit(doc, findings):
         cw, ch = wh
         for li, layer in enumerate(page.get("layers", []) or []):
             boxed_text = []
+
+            def walk_containment(o, p, origin=(0.0, 0.0), box_override=None,
+                                 inherited_allowed=False):
+                if not isinstance(o, dict):
+                    return
+                box = box_override if box_override is not None else o.get("box")
+                allowed = inherited_allowed or o.get("containment") == "allowed"
+                gx = gy = gw = gh = None
+                if box and all(_num(v) for v in box):
+                    x, y, w, h = box
+                    gx, gy, gw, gh = origin[0] + x, origin[1] + y, w, h
+                    # containment (SHOULD): object within canvas + small tolerance
+                    if not allowed and (gx < -1 or gy < -1 or gx + w > cw + 1 or gy + h > ch + 1):
+                        findings.append(Finding("WARN", "containment",
+                                                f"object box extends outside the {cw:g}×{ch:g} canvas", p))
+                if o.get("type") != "group":
+                    return
+                children = [child for child in (o.get("children") or [])
+                            if isinstance(child, dict)]
+                if not children:
+                    return
+                # A clipped group cannot draw a child outside its clip. Its own
+                # box was just audited, so descending would report invisible
+                # geometry as canvas loss.
+                style = o.get("style") if isinstance(o.get("style"), dict) else {}
+                if style.get("clip_path"):
+                    return
+                child_origin = ((gx, gy) if gx is not None else origin)
+                if gx is not None:
+                    arranged = layout_engine.arrange(gw, gh, children, o.get("layout") or {})
+                else:
+                    arranged = [None] * len(children)
+                for ci, (child, arranged_box) in enumerate(zip(children, arranged)):
+                    walk_containment(
+                        child,
+                        f"{p}.children[{ci}]",
+                        child_origin,
+                        box_override=arranged_box,
+                        inherited_allowed=allowed,
+                    )
+
             for oi, o in enumerate(layer.get("objects", []) or []):
                 if not isinstance(o, dict):
                     continue
-                box = o.get("box")
                 p = f"pages[{pi}].layers[{li}].objects[{oi}]"
-                if box and all(_num(v) for v in box):
-                    x, y, w, h = box
-                    # containment (SHOULD): object within canvas + small tolerance
-                    if not o.get("decorative") and (x < -1 or y < -1 or x + w > cw + 1 or y + h > ch + 1):
-                        findings.append(Finding("WARN", "containment",
-                                                f"object box extends outside the {cw:g}×{ch:g} canvas", p))
-                    if o.get("type") == "text" and (o.get("meta") or {}).get("role") != "lettering":
-                        boxed_text.append((x, y, w, h))
+                walk_containment(o, p)
+                # The authoring heuristic intentionally stays layer-top-level:
+                # groups are already first-class structure, not hand-built tables.
+                box = o.get("box")
+                role = (o.get("meta") or {}).get("role")
+                if (box and all(_num(v) for v in box) and o.get("type") == "text"
+                        and role not in ("lettering", "annotation", "furniture")):
+                    boxed_text.append(tuple(box))
             # NOTE: layer-level overlap is NOT flagged — global overlap is legal
             # (z-order is intentional, §3.3). Overlap is only checked inside `free`
             # groups / `meta.no_overlap` clusters (see _free_group_overlap).
@@ -705,7 +753,9 @@ def _geometric_audit(doc, findings):
                 rows = {y for y, n in ycount.items() if n >= 2}
                 cells = sum(1 for bx, by, _bw, _bh in boxed_text
                             if round(bx) in cols and round(by) in rows)
-                if len(cols) >= 2 and len(rows) >= 3 and cells >= 6:
+                grid_slots = len(cols) * len(rows)
+                density = cells / grid_slots if grid_slots else 0.0
+                if len(cols) >= 2 and len(rows) >= 3 and cells >= 6 and density >= 0.85:
                     findings.append(Finding("WARN", "tabular-box-model",
                                             f"{cells} absolutely-positioned text objects form an "
                                             "approximately regular grid; author as a row/column/grid group "
@@ -713,17 +763,19 @@ def _geometric_audit(doc, findings):
 
 
 # --------------------------------------------------------------------------- #
-def text_fit_checks(doc, base_dir, findings):
-    """Opt-in (--text-fit): run the SVG proxy's text-fitting pass and surface
-    every content-losing text object as an advisory `text-truncated` WARN —
-    the validate-side face of issue #44. Rendering stays out of the default
-    structural pass; this imports the renderer lazily and discards the SVG.
+def text_fit_checks(doc, base_dir, findings, real_metrics=False):
+    """Run the SVG proxy's text-fitting pass and surface diagnostics.
+
+    Every content-losing text object becomes an advisory ``text-truncated``
+    WARN — the validate-side face of issue #44. The pass is enabled by default;
+    ``--no-text-fit`` is the explicit structure-only fast path. The renderer is
+    imported lazily and its SVG output is discarded.
     """
-    # Lazy import so the default structural pass stays render-free. (The model
+    # Lazy import so the structure-only pass stays render-free. (The model
     # lives inside the package since 2.5.0, so `frameforge` in sys.modules is
     # always the package — the historical model/package swap dance is gone.)
-    from render_fixtures import Renderer
-    r = Renderer(doc, base_dir)
+    from frameforge.rendering.application.renderer import Renderer
+    r = Renderer(doc, base_dir, real_metrics=real_metrics)
     for page in doc.get("pages", []):
         if isinstance(page, dict):
             r.render_page(page)
@@ -764,7 +816,7 @@ def collision_checks(doc, base_dir, findings, real_metrics=False):
     (an estimate-mode overlap is unverified, PALS's Law). It never fails the build
     on its own; the operator promotes it once a pinned metrics table lands (O7).
     """
-    from render_fixtures import Renderer
+    from frameforge.rendering.application.renderer import Renderer
     r = Renderer(doc, base_dir, real_metrics=real_metrics)
     for page in doc.get("pages", []):
         if isinstance(page, dict):
@@ -780,7 +832,7 @@ def collision_checks(doc, base_dir, findings, real_metrics=False):
             f"pages[{c.get('page')}].layers[{c.get('layer')}]"))
 
 
-def validate_doc(path, strict=False, text_fit=False, check_collision=False,
+def validate_doc(path, strict=False, text_fit=True, check_collision=False,
                  real_metrics=False):
     try:
         doc = _load(path)
@@ -791,7 +843,7 @@ def validate_doc(path, strict=False, text_fit=False, check_collision=False,
     rule_checks(doc, findings)
     base = os.path.dirname(os.path.abspath(path))
     if text_fit:
-        text_fit_checks(doc, base, findings)
+        text_fit_checks(doc, base, findings, real_metrics=real_metrics)
     if check_collision:
         collision_checks(doc, base, findings, real_metrics=real_metrics)
     if strict:
@@ -806,16 +858,20 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("documents", nargs="+")
     ap.add_argument("--strict", action="store_true", help="treat warnings as errors")
-    ap.add_argument("--text-fit", action="store_true",
-                    help="also run the text-fitting pass and WARN per content-losing "
-                         "text object (`text-truncated`, issue #44)")
+    fit_group = ap.add_mutually_exclusive_group()
+    fit_group.add_argument("--text-fit", dest="text_fit", action="store_true",
+                           help="run the default text-fitting pass and WARN per "
+                                "content-losing text object (`text-truncated`)")
+    fit_group.add_argument("--no-text-fit", dest="text_fit", action="store_false",
+                           help="skip render-dependent text-fit diagnostics (structure-only)")
+    ap.set_defaults(text_fit=True)
     ap.add_argument("--quiet", action="store_true", help="only print summary lines")
     ap.add_argument("--check-collision", action="store_true",
                     help="also WARN on same-layer ink overlaps not declared "
                          "`overlap: allowed` (collision-gate/2026-07, advisory)")
     ap.add_argument("--real-metrics", action="store_true",
-                    help="measure with real glyph advances (fontTools); makes the "
-                         "collision verdict reproducible where the faces are installed")
+                    help="measure text-fit and collisions with real glyph advances "
+                         "(fontTools); reproducible where the faces are installed")
     args = ap.parse_args(argv)
 
     rc = 0

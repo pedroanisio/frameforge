@@ -5,9 +5,9 @@ Two context managers let an author declare intent the static rules already honou
 (or are taught to honour), so dense art validates clean without per-object
 boilerplate:
 
-  * ``page.bleed()``     — stamps ``decorative=True`` on everything added in the
-    block (the validator already exempts decorative objects from the containment
-    and free-group overlap rules).
+  * ``page.bleed()``     — stamps ``decorative=True`` and
+    ``containment="allowed"`` on everything added in the block, declaring both
+    accessibility/overlap and geometry intent.
   * ``page.lettering()`` — stamps ``meta.role="lettering"`` on text added in the
     block, which the tabular-box-model heuristic skips (see test_validate.py).
 """

@@ -44,6 +44,51 @@ from frameforge.mcp.sources import (
 )
 
 
+def fit_text(
+    text: str,
+    font_family: str | list[str],
+    font_size: float,
+    bold: bool = False,
+    real_metrics: bool | str = "auto",
+) -> dict[str, Any]:
+    """Measure text and return the box width the FrameForge breaker accepts."""
+    if not isinstance(text, str):
+        raise ValueError("text must be a string")
+    if not isinstance(font_family, (str, list)) or not font_family:
+        raise ValueError("font_family must be a family string or non-empty fallback list")
+    if float(font_size) <= 0:
+        raise ValueError("font_size must be positive")
+    from frameforge.mcp.pipeline import _resolve_real_metrics
+    from frameforge.sdk.metrics import fit_width, measure_text
+
+    metrics_on = _resolve_real_metrics(real_metrics)
+    measured = measure_text(
+        text,
+        font_family=font_family,
+        font_size=float(font_size),
+        bold=bool(bold),
+        real_metrics=metrics_on,
+    )
+    safe = fit_width(
+        text,
+        font_family=font_family,
+        font_size=float(font_size),
+        bold=bool(bold),
+        real_metrics=metrics_on,
+    )
+    return {
+        "ok": True,
+        "text": text,
+        "font_family": font_family,
+        "font_size": float(font_size),
+        "bold": bool(bold),
+        "real_metrics": metrics_on,
+        "measured_width": measured,
+        "fit_width": safe,
+        "tolerance": safe - measured,
+    }
+
+
 def _session_replacement_info(session_dir: Path, tool: str) -> dict[str, Any] | None:
     """Pre-reset check: is this call about to replace a DIFFERENT tool's renders?
 

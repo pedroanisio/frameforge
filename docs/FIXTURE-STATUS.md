@@ -6,15 +6,15 @@ Delivered top-level fixtures validated against the HEAD core profile (`tooling/v
 
 | Fixture | Errors | Warnings | Notes |
 |---|---:|---:|---|
-| `a4-diagrammation.fg.yaml` | 0 | 2 | advisory warnings only (tabular-box-model) |
+| `a4-diagrammation.fg.yaml` | 0 | 3 | advisory warnings only (tabular-box-model, text-truncated) |
 | `accessibility.fg.yaml` | 0 | 0 | clean |
 | `arrows.fg.yaml` | 0 | 0 | clean |
 | `book-composition.fg.yaml` | 0 | 0 | clean |
-| `calendar-3day.fg.yaml` | 0 | 0 | clean |
+| `calendar-3day.fg.yaml` | 0 | 3 | advisory warnings only (text-truncated) |
 | `canon-typography.fg.yaml` | 0 | 0 | clean |
 | `chevreul-harmonies.fg.yaml` | 0 | 0 | clean |
 | `connectors.fg.yaml` | 0 | 0 | clean |
-| `edst1-flange.fg.yaml` | 0 | 2 | advisory warnings only (tabular-box-model) |
+| `edst1-flange.fg.yaml` | 0 | 0 | clean |
 | `effects.fg.yaml` | 0 | 0 | clean |
 | `font-faces-100.fg.yaml` | 0 | 0 | clean |
 | `font-faces.fg.yaml` | 0 | 0 | clean |
@@ -23,26 +23,26 @@ Delivered top-level fixtures validated against the HEAD core profile (`tooling/v
 | `graph-autolayout.fg.yaml` | 0 | 0 | clean |
 | `group-layout.fg.yaml` | 0 | 0 | clean |
 | `king-kong-gorilla.fg.yaml` | 0 | 0 | clean |
-| `king-kong-manga.fg.yaml` | 0 | 0 | clean |
+| `king-kong-manga.fg.yaml` | 0 | 32 | advisory warnings only (containment, text-truncated) |
 | `library-honeycomb.fg.yaml` | 0 | 0 | clean |
-| `myfiles-internal.fg.yaml` | 0 | 19 | advisory warnings only (containment, overlap) |
-| `ninja-hacker-manga.fg.yaml` | 0 | 0 | clean |
-| `nyt-mideast-live.fg.yaml` | 0 | 0 | clean |
-| `pals-genai-arch-ptbr.fg.yaml` | 0 | 10 | advisory warnings only (tabular-box-model) |
-| `pals-genai-architecture.fg.yaml` | 0 | 5 | advisory warnings only (tabular-box-model) |
+| `myfiles-internal.fg.yaml` | 0 | 21 | advisory warnings only (containment, overlap) |
+| `ninja-hacker-manga.fg.yaml` | 0 | 45 | advisory warnings only (containment, text-truncated) |
+| `nyt-mideast-live.fg.yaml` | 0 | 3 | advisory warnings only (text-truncated) |
+| `pals-genai-arch-ptbr.fg.yaml` | 0 | 29 | advisory warnings only (layout-overflow, tabular-box-model) |
+| `pals-genai-architecture.fg.yaml` | 0 | 17 | advisory warnings only (layout-overflow, tabular-box-model) |
 | `pdf_table_extraction.fg.yaml` | 0 | 1 | advisory warnings only (out-of-profile) |
 | `planar-kernel.fg.yaml` | 0 | 0 | clean |
 | `sdk-ergonomics-showcase.fg.yaml` | 0 | 1 | advisory warnings only (out-of-profile) |
 | `sdk-geometry-patterns.fg.yaml` | 0 | 0 | clean |
-| `standard-model.fg.yaml` | 0 | 17 | advisory warnings only (out-of-profile) |
+| `standard-model.fg.yaml` | 0 | 19 | advisory warnings only (out-of-profile, text-truncated) |
 | `stroke-outline.fg.yaml` | 0 | 0 | clean |
 | `style-richness.fg.yaml` | 0 | 0 | clean |
 | `table-rows.fg.yaml` | 0 | 0 | clean |
 | `tables.fg.yaml` | 0 | 0 | clean |
 | `text-spans.fg.yaml` | 0 | 0 | clean |
-| `topology-perspective.fg.yaml` | 0 | 0 | clean |
+| `topology-perspective.fg.yaml` | 0 | 1 | advisory warnings only (text-truncated) |
 | `transform-scene.fg.yaml` | 0 | 0 | clean |
-| `transforms-affine.fg.yaml` | 0 | 0 | clean |
+| `transforms-affine.fg.yaml` | 0 | 2 | advisory warnings only (text-truncated) |
 | `transforms.fg.yaml` | 0 | 0 | clean |
-| `wordle-how-to-play.fg.yaml` | 0 | 15 | advisory warnings only (overlap) |
+| `wordle-how-to-play.fg.yaml` | 0 | 17 | advisory warnings only (layout-overflow, overlap, text-truncated) |
 

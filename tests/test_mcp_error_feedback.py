@@ -261,7 +261,11 @@ def test_static_validation_failure_populates_error_and_hint(tmp_path, monkeypatc
         issues=[SimpleNamespace(rule_id="R999", severity="error", path="/pages/0",
                                 message="synthetic rule failure")],
     )
-    monkeypatch.setattr(pipeline, "validate_static_rules", lambda _doc: failing_report)
+    monkeypatch.setattr(
+        pipeline,
+        "validate_static_rules",
+        lambda _doc, **_kwargs: failing_report,
+    )
 
     code = (
         "from frameforge.sdk import DocumentBuilder\n"

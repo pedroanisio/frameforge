@@ -6,6 +6,7 @@ disclaimer:
     or verifiable reference may be invalid, erroneous, or a hallucination.
   generated_by: "Claude Opus 4.8 (1M context) via Claude Code"
   date: "2026-07-22"
+  last_revised: "2026-07-27"
 ---
 
 # ADR 0007 — Layout feedback closes its own loop: a separation solver for what the audit flags, typed signals for what the measure pass proves
@@ -67,8 +68,10 @@ engine's design review (2026-07-22), which surfaced both gaps.
 - A frozen dataclass `OverflowSignal`
   (`rendering/domain/services/overflow.py`): `id`, `page`, `source`
   (`text` | `flow`), `kind` (`width` | `height` | `lines`), `policy`, `box`,
-  `needed`, `acknowledged`, `detail`. Wire form is `to_dict()`; `from_dict`
-  restores the typed value.
+  `needed`, `unwrapped_width`, `acknowledged`, `detail`. `needed` is the
+  post-layout extent at the authored width; `unwrapped_width` is the pre-wrap
+  single-line requirement. Wire form is `to_dict()`; `from_dict` restores the
+  typed value and accepts older payloads where `unwrapped_width` is absent.
 - The renderer emits signals at measure time, before any pixels: contained
   clips (alongside their existing truncation record, unchanged), visible
   spill (per object, previously counter-only), and flow overwide lines
@@ -81,8 +84,10 @@ engine's design review (2026-07-22), which surfaced both gaps.
   `diagnostics.overflow` + session `diagnostics.json`. Additions:
   `sdk.overflow_report(model)` returns typed signals; the MCP
   `render_warning` names *unacknowledged* signals only (an authored
-  `overflow: visible` stays a record, not a nag); `validate.py --text-fit`
-  surfaces the non-truncation signals as advisory `layout-overflow` WARNs.
+  `overflow: visible` stays a record, not a nag); default `validate.py` and
+  `validate_static_rules()` surface non-truncation signals as advisory
+  `layout-overflow` WARNs. `--no-text-fit` / `text_fit=False` is the explicit
+  structure-only fast path.
 
 ## Consequences
 

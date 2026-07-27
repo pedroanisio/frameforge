@@ -582,17 +582,16 @@ class PageBuilder:
 
     @contextmanager
     def bleed(self) -> "Iterator[PageBuilder]":
-        """Mark every object added in this block ``decorative``.
+        """Mark every object added in this block as intentional decorative bleed.
 
-        The static rules exempt ``decorative`` objects from both the containment
-        SHOULD (an object may extend past the canvas) and the free-group overlap
-        rule — so a full-bleed flourish, an SFX stamp or a speed-line burst stops
-        needing a hand-written flag on every call::
+        The block stamps both ``decorative=True`` (accessibility/overlap intent)
+        and ``containment="allowed"`` (geometry intent), so a full-bleed
+        flourish, an SFX stamp or a speed-line burst needs no hand-written flags::
 
             with layer.bleed():
                 speed_lines(layer, cx, cy)   # all decorative; none flagged
 
-        Already-set ``decorative`` values are left untouched. Blocks nest.
+        Already-set values are left untouched. Blocks nest.
         """
         self._decorative_depth += 1
         try:
@@ -628,6 +627,8 @@ class PageBuilder:
             return obj
         if self._decorative_depth and "decorative" not in obj:
             obj = {**obj, "decorative": True}
+        if self._decorative_depth and "containment" not in obj:
+            obj = {**obj, "containment": "allowed"}
         if self._lettering_depth and obj.get("type") == "text":
             meta = obj.get("meta")
             meta = dict(meta) if isinstance(meta, dict) else {}

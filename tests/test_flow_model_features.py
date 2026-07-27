@@ -97,7 +97,9 @@ def test_standard_model_fixture_has_no_overlap_warnings():
     """Figure-internal drawing primitives are marked `decorative`, so the §3.3
     free-group no-overlap audit is clean; the only remaining notices are the
     inherent §8.5 out-of-profile symbol-reuse constructs (use / defs.symbols)."""
-    _, findings, _ = V.validate_doc(FIXTURE)
+    # This assertion scopes the static overlap contract; default validation also
+    # runs the independent text-fit pass, which has its own fixture/status gate.
+    _, findings, _ = V.validate_doc(FIXTURE, text_fit=False)
     warn_codes = sorted({f.code for f in findings if f.severity == "WARN"})
     assert "overlap" not in warn_codes, \
         [str(f) for f in findings if f.code == "overlap"][:5]
