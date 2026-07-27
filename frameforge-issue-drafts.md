@@ -10,7 +10,7 @@ title: FrameForge 2.6.0 — issue drafts from a 20-page authoring session
 author: drafted by Claude, reviewed and resolved locally by OpenAI Codex
 frameforge_version: 2.6.0
 session_scope: two documents, 28 pages total, 1280×880 px canvases, SVG/PDF/PNG lanes
-status: implemented and regression-tested locally; upstream publication/deployment pending
+status: implemented, regression-tested, and deployed to main in 84a5ddb
 ---
 
 # Issue drafts
@@ -33,8 +33,12 @@ incomplete. All seven outcomes are implemented test-first in this workspace:
 
 The authoritative migration notes are
 [`docs/migration-2.7-authoring-feedback.md`](docs/migration-2.7-authoring-feedback.md).
-This record does not claim deployment: external issue/backlog state should be updated
-only after the changes are published by an authorized maintainer.
+Deployed to `main` in commit `84a5ddb` on 2026-07-27. The GitHub backlog was
+reviewed after publication: no open issue matched these seven findings. Related
+silent-content-loss issue
+[#44](https://github.com/pedroanisio/frameforge/issues/44) was already closed as
+completed and remains closed; its broader corpus-wide strict-mode criterion is
+outside this authoring-feedback deployment.
 
 Ordered by how much time each cost me, worst first.
 
@@ -241,10 +245,9 @@ Stated because bug lists distort:
   where its scope is too broad.
 - **`page_hashes()`** gave the deliverable a stable identity I could quote in a
   provenance record. Underrated.
-- `read_document_outline`-style honesty in messages — e.g. `search_sentences`
-  distinguishing "exhaustive scan, genuinely absent" from "flooded, try a rarer
-  term" — is a pattern the validator messages already partly share and should
-  keep.
+- Honest tool messages that distinguish "exhaustive scan, genuinely absent"
+  from "flooded, try a rarer term" are a pattern the validator already partly
+  shares and should keep.
 
 ---
 
