@@ -81,15 +81,15 @@ SITE = "frameforge.hefestus.io"
 OUT_TMP = os.path.join(ROOT, "_tmp", "landing")   # non-core output stays out of the tree
 
 FACTS = {
-    "version":      ("2.7.0", "pyproject.toml [project] version"),
-    "tests":        (2666,    "uv run pytest --collect-only -q"),
-    "tests_pass":   (2648,    "uv run pytest  -> '2648 passed, 18 skipped' (0 failed)"),
-    "tests_skip":   (18,      "same run: optional dependency skips"),
+    "version":      ("2.7.1", "pyproject.toml [project] version"),
+    "tests":        (2678,    "uv run pytest --collect-only -q"),
+    "tests_pass":   (2677,    "uv run pytest  -> '2677 passed, 1 skipped' (0 failed)"),
+    "tests_skip":   (1,       "same run: optional dependency skips"),
     "golden_pages": (88,      "uv run python tooling/render_golden.py"),
     "fixtures":     ("39/39", "docs/FIXTURE-STATUS.md (tooling/gen_status.py)"),
     "capabilities": (375,     "docs/capability-manifest.json .capabilities"),
     "schema_defs":  (88,      "docs/schema/frameforge-v2.schema.json .$defs"),
-    "examples":     (144,     "docs/examples.md (tooling/gen_examples_index.py)"),
+    "examples":     (145,     "docs/examples.md (tooling/gen_examples_index.py)"),
     "mcp_tools":    (32,      "docs/capability-manifest.json .mcp.tools"),
     "sdk_exports":  (246,     "docs/capability-manifest.json .sdk.public_exports"),
     "object_types": (17,      "docs/capability-manifest.json .model.object_types"),

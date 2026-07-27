@@ -52,10 +52,10 @@ You need the same two things the plugin needs, minus Claude Code:
    ✅ a version number, then `linux`. If not, see Steps 2–3 of the
    [plugin guide](plugin-windows-setup.md).
 
-2. **The `frameforge:2.7.0` image present locally.** Verify:
+2. **The `frameforge:2.7.1` image present locally.** Verify:
 
    ```powershell
-   docker image inspect frameforge:2.7.0 --format "{{.Id}}"
+   docker image inspect frameforge:2.7.1 --format "{{.Id}}"
    ```
 
    ✅ a `sha256:…` digest. If missing, pull or build it per Step 4 of the
@@ -120,7 +120,7 @@ it. If the file is empty, paste the whole thing.
         "-v", "C:\\frameforge\\out:/publish",
         "-e", "FRAMEFORGE_MCP_INPUT_ROOTS=/workspace:/library:/work:/app:/publish",
         "-e", "FRAMEFORGE_MCP_PUBLISH_ROOT=/publish",
-        "frameforge:2.7.0"
+        "frameforge:2.7.1"
       ]
     }
   }
@@ -142,7 +142,7 @@ it. If the file is empty, paste the whole thing.
         "-v", "/Users/you/frameforge/out:/publish",
         "-e", "FRAMEFORGE_MCP_INPUT_ROOTS=/workspace:/library:/work:/app:/publish",
         "-e", "FRAMEFORGE_MCP_PUBLISH_ROOT=/publish",
-        "frameforge:2.7.0"
+        "frameforge:2.7.1"
       ]
     }
   }
@@ -154,7 +154,7 @@ variables or relative paths in this file. On Windows, backslashes must be
 doubled (`C:\\frameforge\\out`) because it is JSON.
 
 > **If you built the image under a different tag**, change the final
-> `frameforge:2.7.0` argument to match. `ghcr.io/pedroanisio/frameforge:2.7.0`
+> `frameforge:2.7.1` argument to match. `ghcr.io/pedroanisio/frameforge:2.7.1`
 > only works once that image is published; a locally built one is whatever you
 > tagged it.
 
@@ -218,7 +218,7 @@ The desktop app writes per-server logs. Read them first:
 | Log shows `Cannot connect to the Docker daemon` | Docker Desktop is not running. Start it, then relaunch the app. |
 | `touch: cannot touch '/publish/...': Permission denied` | The `out` folder is OneDrive- or Controlled-Folder-Access-protected. Use a path outside your profile such as `C:\frameforge\out`, or allow Docker in Windows Security → Ransomware protection → Controlled folder access. |
 | `invalid mount config` / empty `/workspace` | A mount path does not exist or is not shared. Confirm the folder exists and the drive is shared under Docker Desktop → Settings → Resources → File sharing. |
-| Fonts fall back to a generic sans | The family is not in the image. `docker run --rm frameforge:2.7.0 fonts` lists what is available. |
+| Fonts fall back to a generic sans | The family is not in the image. `docker run --rm frameforge:2.7.1 fonts` lists what is available. |
 
 ---
 

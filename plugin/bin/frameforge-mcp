@@ -17,7 +17,7 @@
 # userConfig by .mcp.json. Defaults here keep the script runnable standalone.
 set -euo pipefail
 
-IMAGE="${FRAMEFORGE_IMAGE:-ghcr.io/pedroanisio/frameforge:2.7.0}"
+IMAGE="${FRAMEFORGE_IMAGE:-ghcr.io/pedroanisio/frameforge:2.7.1}"
 WORK_VOLUME="${FRAMEFORGE_WORK_VOLUME:-frameforge-work}"
 PROJECT_DIR="${FRAMEFORGE_PROJECT_DIR:-$PWD}"
 PUBLISH_DIR="${FRAMEFORGE_PUBLISH_DIR:-}"

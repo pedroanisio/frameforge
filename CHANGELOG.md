@@ -1,6 +1,6 @@
 # FrameForge v2 — CHANGELOG (HEAD)
 
-**Version:** `2.7.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-27
+**Version:** `2.7.1` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-27
 
 *Convention: version headings mark schema/`HEAD_VERSION` bumps; an entry titled
 "Unreleased" landed between bumps and is contained in the nearest version

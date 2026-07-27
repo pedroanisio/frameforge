@@ -154,7 +154,7 @@ published yet, 4B always works.
 ### 4A · Pull the published image
 
 ```powershell
-docker pull ghcr.io/pedroanisio/frameforge:2.7.0
+docker pull ghcr.io/pedroanisio/frameforge:2.7.1
 ```
 
 Do it now, explicitly, rather than letting the plugin trigger it later — Claude
@@ -179,7 +179,7 @@ minutes; it is a large build.
 ```powershell
 git clone https://github.com/pedroanisio/frameforge
 cd frameforge
-docker build -t frameforge:2.7.0 .
+docker build -t frameforge:2.7.1 .
 ```
 
 The repository ships a `.gitattributes` that pins shell scripts to LF, so Git
@@ -198,7 +198,7 @@ For a build that finishes in roughly a third of the time, skip the
 google/fonts corpus:
 
 ```powershell
-docker build -t frameforge:2.7.0 --build-arg INSTALL_GOOGLE_FONTS=0 .
+docker build -t frameforge:2.7.1 --build-arg INSTALL_GOOGLE_FONTS=0 .
 ```
 
 You keep every render lane — SVG, PNG, PDF, LaTeX — and the full Debian font
@@ -206,16 +206,16 @@ set, but lose thousands of Google faces. A document naming one of those falls
 back to a generic sans. Fine to start with; rebuild without the flag later if
 you need the range.
 
-**If you build, set the plugin's Runtime image to `frameforge:2.7.0`** in Step 7
+**If you build, set the plugin's Runtime image to `frameforge:2.7.1`** in Step 7
 — the default points at the registry copy you do not have.
 
 ### Verify (either path)
 
 ```powershell
-docker image inspect frameforge:2.7.0 --format "{{.Id}}"
+docker image inspect frameforge:2.7.1 --format "{{.Id}}"
 ```
 
-Use `ghcr.io/pedroanisio/frameforge:2.7.0` as the name instead if you pulled.
+Use `ghcr.io/pedroanisio/frameforge:2.7.1` as the name instead if you pulled.
 
 ✅ **Pass**: prints a `sha256:…` digest.
 
@@ -229,14 +229,14 @@ break later, the fault is in the plugin wiring, not in Docker.
 **5a — the runtime answers:**
 
 ```powershell
-docker run --rm frameforge:2.7.0 version
+docker run --rm frameforge:2.7.1 version
 ```
 
-Use `ghcr.io/pedroanisio/frameforge:2.7.0` throughout this step instead if you
+Use `ghcr.io/pedroanisio/frameforge:2.7.1` throughout this step instead if you
 pulled in 4A.
 
 ✅ **Pass**: prints the package version, the model `HEAD_VERSION`, and a build
-stamp. The version should read `2.7.0`.
+stamp. The version should read `2.7.1`.
 
 **5b — your mounts resolve.** Which command you run depends on how you intend
 to use FrameForge. Both models are supported; pick the one that matches, or run
@@ -247,7 +247,7 @@ that repository's files. Run from a real project folder of yours:
 
 ```powershell
 cd "C:\Users\you\my-project"
-docker run --rm -v "${PWD}:/workspace:ro" frameforge:2.7.0 bash -c "ls /workspace"
+docker run --rm -v "${PWD}:/workspace:ro" frameforge:2.7.1 bash -c "ls /workspace"
 ```
 
 ✅ **Pass**: lists **your project's files**.
@@ -268,7 +268,7 @@ mkdir C:\frameforge\out -Force
 docker run --rm `
   -v "C:\frameforge\library:/library:ro" `
   -v "C:\frameforge\out:/publish" `
-  frameforge:2.7.0 bash -c "ls /library && touch /publish/.probe && echo MOUNTS OK"
+  frameforge:2.7.1 bash -c "ls /library && touch /publish/.probe && echo MOUNTS OK"
 ```
 
 ✅ **Pass**: prints `MOUNTS OK`, and `.probe` appears in `C:\frameforge\out`.
@@ -328,7 +328,7 @@ Enabling the plugin prompts for four values.
 
 | Setting | Default | Set it to |
 |---|---|---|
-| Runtime image | `ghcr.io/pedroanisio/frameforge:2.7.0` | **`frameforge:2.7.0` if you built it in 4B** — the default is a registry copy you do not have |
+| Runtime image | `ghcr.io/pedroanisio/frameforge:2.7.1` | **`frameforge:2.7.1` if you built it in 4B** — the default is a registry copy you do not have |
 | Session volume | `frameforge-work` | leave it, unless isolating projects from each other |
 | Shared library | `frameforge-library` | **host-wide use: the folder from Step 5b Model B** (e.g. `C:\frameforge\library`) |
 | Publish target | `frameforge-publish` | leave it, or a Windows folder if you want output on disk |
@@ -403,16 +403,16 @@ machine.
 | `no space left on device` | 4 | Free space or raise the Docker disk limit; `docker system prune -a` reclaims old images |
 | `/usr/bin/env: 'bash\r': No such file or directory` | 4B | CRLF shebang from an old clone. Re-clone, or `git pull; git rm --cached -r .; git reset --hard` |
 | `error from registry: denied` on pull | 4A | The image is not published yet. Not a login problem — build it with 4B. |
-| Container starts but the plugin cannot find the image | 7 | You built locally but left the Runtime image at the `ghcr.io/...` default. Set it to `frameforge:2.7.0`. |
+| Container starts but the plugin cannot find the image | 7 | You built locally but left the Runtime image at the `ghcr.io/...` default. Set it to `frameforge:2.7.1`. |
 | `ls /workspace` shows nothing | 5b | Drive not shared → Docker Desktop → Settings → Resources → File sharing |
-| Version prints something older than `2.7.0` | 5a | Stale local image: `docker pull` again |
+| Version prints something older than `2.7.1` | 5a | Stale local image: `docker pull` again |
 | marketplace not found | 6 | Not published yet — check the 404/200 command in Step 6 |
 | Claude Code hangs on the first FrameForge request | 8 | The image is still downloading. You skipped Step 4 — run it and wait. |
 | File-not-found on a path that exists | 9 | A Windows path was used instead of `/workspace/...` |
 | `input path is outside the allowed FRAMEFORGE_MCP_INPUT_ROOTS` | 9 | The file is outside every mounted root. Copy it into the project, or into the shared library if you use one. |
 | `Permission denied` writing to `/publish` | 5b | Output folder is OneDrive/Controlled-Folder-Access protected. Use a path outside your profile such as `C:\frameforge\out`. |
 | `/library` is empty in a host-wide setup | 7 | Shared library still points at the default named volume. Set it to your folder and restart Claude Code. |
-| Fonts fall back to a generic sans | — | That family is not in the image. List what is: `docker run --rm frameforge:2.7.0 fonts` |
+| Fonts fall back to a generic sans | — | That family is not in the image. List what is: `docker run --rm frameforge:2.7.1 fonts` |
 | Tool list shorter than documented | — | Stale image. Re-pull, restart Claude Code. |
 
 ---

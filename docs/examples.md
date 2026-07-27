@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 144 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 145 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -29,6 +29,7 @@ The 144 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`asset_recolor_guide.py`](../static/examples/asset_recolor_guide.py) | Using imported assets — recolour/gradient them, or trace on top of them. |
 | [`atlantis_adventure_game.py`](../static/examples/atlantis_adventure_game.py) | THE LOST TIDE // 海淵 — a pixel-art point-&-click adventure, drawn as a comic. |
 | [`aura_desktop_app.py`](../static/examples/aura_desktop_app.py) | Aura — a polished DESKTOP web app, authored with the FrameForge SDK. |
+| [`authoring_feedback.py`](../static/examples/authoring_feedback.py) | Authoring feedback — safe text widths, whitespace, dashes, bleed, validation. |
 | [`backend_spec_v2_infographic.py`](../static/examples/backend_spec_v2_infographic.py) | The Adequacy Machine — backend_spec v2.0.0, A3 infographic. |
 | [`book_builder_demo.py`](../static/examples/book_builder_demo.py) | BookBuilder — a capability tour as a real book (roadmap item 8). |
 | [`brand_book.py`](../static/examples/brand_book.py) | Typeset & publish *Brand, From Products to Source Code* as a native FrameForge |

@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "frameforge",
   "displayName": "FrameForge",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "description": "Agent-native visual-authoring substrate. Author documents, decks, diagrams and books with a Python SDK, render them through a font-rich runtime, and verify the result against the rendered pixels.",
   "author": {
     "name": "Pedro Anisio Silva",
@@ -26,7 +26,7 @@
       "type": "string",
       "title": "Runtime image",
       "description": "Docker image that hosts the FrameForge MCP server. The default is the full font-rich runtime (every render lane, thousands of font families) and is a multi-gigabyte first pull.",
-      "default": "ghcr.io/pedroanisio/frameforge:2.7.0",
+      "default": "ghcr.io/pedroanisio/frameforge:2.7.1",
       "required": true
     },
     "work_volume": {
