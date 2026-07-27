@@ -34,6 +34,8 @@ Fluent builder:
     HEAD): endpoints are an object id, a point, or `{"ref", "port"|"side", "offset"}`;
     optional `route=[...waypoints]` + `route_kind`, boxed `label`/`label_box`, and
     `arrow_start`/`arrow_end` markers (merged into the inline `stroke_style`).
+    `route_kind="orthogonal"` with no waypoints computes real axis-aligned
+    elbows from the endpoint sides (authored waypoints always win).
     Marker kinds (validated; unknown names fail): `filled_triangle` (= `true`),
     `hollow_triangle`, `filled_diamond`, `hollow_diamond`, `open_arrow`.
   - Stacking: layers paint by `Layer.z`; within a layer/group, object `z` wins

@@ -11,8 +11,27 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ## Unreleased — fix: arrow-marker vocabulary screams; per-object stacking unified across backends (2026-07-27)
 
-Two silent-loss fixes from processed external-agent feedback (TDD;
-`tests/test_arrow_marker_vocabulary.py`, `tests/test_object_z_stacking.py`):
+Fixes from processed external-agent feedback (TDD;
+`tests/test_arrow_marker_vocabulary.py`, `tests/test_object_z_stacking.py`,
+`tests/test_connector_orthogonal_routing.py`):
+
+- **`route.kind: "orthogonal"` now computes real elbows.** Previously an
+  advisory hint that never changed drawn geometry — point-less orthogonal
+  routes rendered as straight diagonals (migrated decks in
+  `tests/fixtures/newset/` author exactly that form). With `orthogonal` and
+  no `route.points`, the renderer computes a deterministic axis-aligned chain
+  from the endpoint attachment sides (`rendering/domain/routing.py`:
+  12-unit perpendicular stubs; opposing sides split at the stub-tip midpoint,
+  same sides route via the outermost stub line, perpendicular sides take the
+  single corner extending the start axis with a midpoint fallback; free
+  endpoints — points, centres, named ports — take no stub; aligned chains
+  collapse to the straight line). Spec §3.11, `ConnectorRoute` docstrings, the
+  SDK `connector()` docstring, and the MCP guide state the new contract.
+  **Migration:** authored `route.points` always win (byte-identical);
+  `straight`/`curved`/absent kinds are unchanged; documents that authored
+  point-less `orthogonal` routes now get the elbows they declared — that
+  appearance change is the fix. The golden oracle contains no connectors, so
+  no lock changed.
 
 - **Unknown arrow-marker names no longer silently coerce.** `arrow_start`/
   `arrow_end` are now typed against the five-kind `ArrowMarkerKind` vocabulary

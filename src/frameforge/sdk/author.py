@@ -734,8 +734,11 @@ class PageBuilder:
         passed through as-is.
 
         ``route`` is an optional list of intermediate waypoints (page space, in
-        order); ``route_kind`` the advisory hint (``straight`` / ``orthogonal`` /
-        ``curved`` — the drawn geometry is always the point chain). ``label`` +
+        order) — authored waypoints always win. ``route_kind`` is ``straight`` /
+        ``orthogonal`` / ``curved``: ``route_kind="orthogonal"`` with NO
+        ``route`` computes a real axis-aligned elbow chain from the endpoint
+        sides (perpendicular stubs; §3.11), so anchored elbows survive box
+        moves; ``straight``/``curved`` remain advisory. ``label`` +
         ``label_box`` draw a boxed text label (``label_style`` a tokens key or an
         inline style). ``arrow_start``/``arrow_end`` markers merge into the inline
         ``stroke_style`` bundle — paint itself goes in ``stroke`` (e.g. via

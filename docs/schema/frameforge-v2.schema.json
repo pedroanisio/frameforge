@@ -3006,7 +3006,7 @@
     },
     "ConnectorRoute": {
       "additionalProperties": false,
-      "description": "Optional routing between the endpoints. The renderer draws the polyline\nstart → points… → end; `kind` (accepting the legacy `type` key) is an\nadvisory routing hint that does not change the drawn geometry.",
+      "description": "Optional routing between the endpoints. Authored `points` always win:\nthe renderer draws the polyline start → points… → end verbatim. With\n`kind: \"orthogonal\"` and NO points, the renderer computes a deterministic\naxis-aligned elbow chain from the endpoint attachment sides (perpendicular\nstubs, midpoint/outermost/corner rules — §3.11); `straight`/`curved`\nremain advisory. Legacy key `type` is accepted for `kind`.",
       "properties": {
         "kind": {
           "anyOf": [
@@ -3023,7 +3023,7 @@
             }
           ],
           "default": null,
-          "description": "Routing hint (legacy key `type` accepted); the drawn geometry is always the point chain.",
+          "description": "Routing kind (legacy key `type` accepted). `orthogonal` with no `points` computes real elbows from the endpoint sides; authored `points` always win; `straight`/`curved` are advisory.",
           "title": "Kind"
         },
         "points": {

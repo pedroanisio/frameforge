@@ -1335,12 +1335,17 @@ ConnectorAnchor = Union[Point, ConnectorEndpoint]
 
 
 class ConnectorRoute(FG):
-    """Optional routing between the endpoints. The renderer draws the polyline
-    start → points… → end; `kind` (accepting the legacy `type` key) is an
-    advisory routing hint that does not change the drawn geometry."""
+    """Optional routing between the endpoints. Authored `points` always win:
+    the renderer draws the polyline start → points… → end verbatim. With
+    `kind: "orthogonal"` and NO points, the renderer computes a deterministic
+    axis-aligned elbow chain from the endpoint attachment sides (perpendicular
+    stubs, midpoint/outermost/corner rules — §3.11); `straight`/`curved`
+    remain advisory. Legacy key `type` is accepted for `kind`."""
     kind: Optional[Literal["straight", "orthogonal", "curved"]] = Field(
-        default=None, description="Routing hint (legacy key `type` accepted); the drawn geometry "
-                                  "is always the point chain.")
+        default=None, description="Routing kind (legacy key `type` accepted). `orthogonal` "
+                                  "with no `points` computes real elbows from the endpoint "
+                                  "sides; authored `points` always win; `straight`/`curved` "
+                                  "are advisory.")
     points: Optional[list[Point]] = Field(
         default=None, description="Intermediate waypoints [x, y] in page space, in order.")
 

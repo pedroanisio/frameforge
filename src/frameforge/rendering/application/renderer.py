@@ -30,6 +30,7 @@ from frameforge.rendering.domain.services.paint_resolver import ColorResolver
 from frameforge.rendering.domain.services.effect_resolver import EffectResolver
 from frameforge.rendering.domain.services.stroke_resolver import (
     ARROW_MARKER_KINDS, DEFAULT_ARROW_MARKER, Markers, Stroke, StrokeResolver)
+from frameforge.rendering.domain.routing import route_orthogonal
 from frameforge.rendering.domain.stacking import effective_z, z_conflict
 from frameforge.rendering.domain.services.layout_engine import LayoutEngine
 from frameforge.rendering.domain.services import flow_layout
@@ -1327,18 +1328,27 @@ class Renderer:
         return index
 
     def _anchor_ref(self, ref):
+        return self._anchor_ref_sided(ref)[0]
+
+    def _anchor_ref_sided(self, ref):
+        """Resolve a connector anchor to `(point, side)`.
+
+        `side` is the box side the endpoint attached to ("north"/"south"/
+        "east"/"west") and feeds orthogonal routing's perpendicular stubs; it
+        is None for every free form — explicit points, named-port hits, and
+        box centres — which route stubless (§3.11)."""
         if is_point(ref):
-            return num(ref[0], 0), num(ref[1], 0)
+            return (num(ref[0], 0), num(ref[1], 0)), None
         if not isinstance(ref, dict):
-            return None
+            return None, None
         if is_point(ref.get("point")):
             p = ref.get("point")
-            return num(p[0], 0), num(p[1], 0)
+            return (num(p[0], 0), num(p[1], 0)), None
         obj_id = ref.get("object") or ref.get("ref")
         obj = self._object_index.get(obj_id)
         box = obj.get("box") if isinstance(obj, dict) else None
         if not (isinstance(box, list) and len(box) >= 4):
-            return None
+            return None, None
         ports = obj.get("ports") or {}
         port = ref.get("port")
         if port in ports and is_point(ports[port]):
@@ -1348,30 +1358,37 @@ class Renderer:
             # group origins + layout arrangement (TX-7).
             p = ports[port]
             dx, dy = obj.get("_anchor_dxy") or (0, 0)
-            return num(p[0], 0) + dx, num(p[1], 0) + dy
+            return (num(p[0], 0) + dx, num(p[1], 0) + dy), None
         x, y, w, h = (num(v, 0) for v in box[:4])
         side = ref.get("side") or port
         offset = num(ref.get("offset"), 0) or 0
         if side == "north":
-            return x + w / 2 + offset, y
+            return (x + w / 2 + offset, y), "north"
         if side == "south":
-            return x + w / 2 + offset, y + h
+            return (x + w / 2 + offset, y + h), "south"
         if side == "east":
-            return x + w, y + h / 2 + offset
+            return (x + w, y + h / 2 + offset), "east"
         if side == "west":
-            return x, y + h / 2 + offset
-        return x + w / 2, y + h / 2
+            return (x, y + h / 2 + offset), "west"
+        return (x + w / 2, y + h / 2), None
 
     def _connector(self, o, style):
         p = self._painter
-        start = self._anchor_ref(o.get("from"))
-        end = self._anchor_ref(o.get("to"))
+        start, start_side = self._anchor_ref_sided(o.get("from"))
+        end, end_side = self._anchor_ref_sided(o.get("to"))
         if start is None or end is None:
             self.skipped += 1
             return ""
         route = o.get("route") or {}
         points = route.get("points") if isinstance(route, dict) else None
-        pts = [start] + [(num(pt[0], 0), num(pt[1], 0)) for pt in (points or []) if is_point(pt)] + [end]
+        kind = (route.get("kind") or route.get("type")) if isinstance(route, dict) else None
+        if kind == "orthogonal" and not points:
+            # Declared orthogonal intent with no waypoints: compute the elbow
+            # chain from the attachment sides (§3.11; rendering/domain/routing).
+            # Authored `route.points` always win — this branch never runs then.
+            pts = route_orthogonal(start, start_side, end, end_side)
+        else:
+            pts = [start] + [(num(pt[0], 0), num(pt[1], 0)) for pt in (points or []) if is_point(pt)] + [end]
         stroke = self._shape_stroke(o, style) or Stroke(color="#000", width=1)
         markers = self._arrow_markers(o)
         if len(pts) == 2:

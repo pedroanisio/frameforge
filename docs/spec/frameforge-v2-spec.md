@@ -297,8 +297,17 @@ picks the box-edge midpoint, slid by `offset` along that edge; with neither, the
 endpoint is the target's box centre. An endpoint `point` short-circuits to fixed
 page coordinates and takes precedence over `ref`. Endpoint `ref`s MUST resolve to an
 object id on the same page (§3.1). An optional `route` carries intermediate
-`points`; the drawn geometry is always the chain start → points… → end (`route.kind`
-— legacy key `type` — is an advisory hint: `straight|orthogonal|curved`). An optional
+`points`; authored `points` always win — the drawn geometry is then the chain
+start → points… → end verbatim. `route.kind` (legacy key `type`) is
+`straight|orthogonal|curved`: **`orthogonal` with no `points` computes a
+deterministic axis-aligned elbow chain** from the endpoint attachment sides —
+a sided endpoint leaves its box side perpendicularly through a 12-unit stub
+tip; opposing sides split at the midpoint between stub tips (H-V-H / V-H-V),
+same sides route along the outermost stub line, perpendicular sides take the
+single corner extending the start axis (midpoint fallback when that corner
+would double back through a stub); free endpoints (explicit point, box centre,
+named port) take no stub, and chains collapse to a straight line when aligned.
+`straight` and `curved` remain advisory. An optional
 boxed `label` (`{text, box, style?}`) is drawn at its own box. Paint comes from
 `stroke` and geometry/arrowheads from `stroke_style` (`arrow_start`/`arrow_end`),
 exactly as for other open shapes (§3.5).
