@@ -28,7 +28,9 @@ from frameforge.rendering.domain.geometry import (
 from frameforge.rendering.domain.services.canvas_resolver import CanvasResolver
 from frameforge.rendering.domain.services.paint_resolver import ColorResolver
 from frameforge.rendering.domain.services.effect_resolver import EffectResolver
-from frameforge.rendering.domain.services.stroke_resolver import Markers, Stroke, StrokeResolver
+from frameforge.rendering.domain.services.stroke_resolver import (
+    ARROW_MARKER_KINDS, DEFAULT_ARROW_MARKER, Markers, Stroke, StrokeResolver)
+from frameforge.rendering.domain.stacking import effective_z, z_conflict
 from frameforge.rendering.domain.services.layout_engine import LayoutEngine
 from frameforge.rendering.domain.services import flow_layout
 from frameforge.rendering.domain.services.math_text import math_text
@@ -236,10 +238,26 @@ class Renderer:
 
         Reads `arrow_start`/`arrow_end` off the resolved `stroke_style`; the backend
         draws/registers its own arrowheads from the returned value object. Additive:
-        returns None unless the stroke requests an arrow."""
+        returns None unless the stroke requests an arrow.
+
+        The raw-dict path bypasses pydantic, so an unknown marker kind lands
+        here: substitute the default AND warn (`arrow_marker_fallback`) — the
+        silent painter-side coercion is what let seven wrong marker names render
+        byte-identically without a trace (2026-07-27 incident)."""
         spec = self._stroke.arrow_spec(o)
         if not spec:
             return None
+        for pos in ("start", "end"):
+            kind = spec[pos]
+            if isinstance(kind, str) and kind not in ARROW_MARKER_KINDS:
+                self.warn(
+                    "arrow_marker_fallback",
+                    f"ARROW MARKER FALLBACK: unknown arrow_{pos} kind '{kind}' — "
+                    f"substituting '{DEFAULT_ARROW_MARKER}'. Valid kinds: "
+                    + ", ".join(ARROW_MARKER_KINDS) + ".",
+                    requested=kind, substituted=DEFAULT_ARROW_MARKER,
+                    valid=list(ARROW_MARKER_KINDS), id=o.get("id"))
+                spec[pos] = DEFAULT_ARROW_MARKER
         return Markers(color=spec["color"], start=spec["start"], end=spec["end"])
 
     # ---- text style resolution -------------------------------------------- #
@@ -1832,9 +1850,10 @@ class Renderer:
         return rendered
 
     def _paint_ordered(self, objects):
-        """Objects in paint order: `style.z_index` is a STABLE sort key among
-        siblings (layer top level and group children alike; default 0), so
-        siblings without one keep document order and the
+        """Objects in paint order: the unified stacking key (`ObjBase.z`, else
+        `style.z_index` — domain/stacking.py) is a STABLE sort among siblings
+        (layer top level and group children alike; default 0), so siblings
+        declaring neither keep document order and the
         emitted bytes are unchanged. SVG paints in document order — CSS z-index
         is inert inside inline SVG — so ordering emission is the only honest
         implementation. The inert `z-index` style attribute is still emitted for
@@ -1842,11 +1861,30 @@ class Renderer:
         return sorted(objects, key=self._z_of)
 
     def _z_of(self, o):
-        """Stable z_index sort key (default 0) shared by every paint-order site."""
+        """Stable stacking sort key shared by every paint-order site.
+
+        One effective key across backends (domain/stacking.py): `ObjBase.z`
+        wins over `style.z_index`, default 0. Declaring both with different
+        values warns (`z_conflict`) once per object — deterministic, never
+        silent. Before this, `z` was dead here while the pdf-tex walker
+        honored only `z` — same document, different stacking per backend."""
         if not isinstance(o, dict):
             return 0.0
-        z = self._style_dict(o.get("style")).get("z_index")
-        return num(z, 0) or 0.0
+        style = self._style_dict(o.get("style"))
+        conflict = z_conflict(o, style)
+        if conflict is not None:
+            seen = getattr(self, "_z_conflict_warned", None)
+            if seen is None:
+                seen = self._z_conflict_warned = set()
+            if id(o) not in seen:
+                seen.add(id(o))
+                z, zi = conflict
+                self.warn(
+                    "z_conflict",
+                    f"object declares both z={z} and style.z_index={zi}; the "
+                    f"object-level `z` wins (documented precedence) — drop one.",
+                    id=o.get("id"), z=z, z_index=zi)
+        return effective_z(o, style)
 
     @classmethod
     def _story_headings(cls, story):

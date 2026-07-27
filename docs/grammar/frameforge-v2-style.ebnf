@@ -188,8 +188,15 @@ style-paint-group =
       [ "stroke_miterlimit", ":" , number ] ,
       [ "paint_order"      , ":" , string ] ,
       [ "vector_effect"    , ":" , ( "none" | "non-scaling-stroke" ) ] ,
-      [ "arrow_start"      , ":" , ( boolean | string ) ] ,   (* FG extension: marker refs *)
-      [ "arrow_end"        , ":" , ( boolean | string ) ] ;
+      [ "arrow_start"      , ":" , ( boolean | ArrowMarkerKind ) ] ,   (* FG extension: true = filled_triangle *)
+      [ "arrow_end"        , ":" , ( boolean | ArrowMarkerKind ) ] ;
+
+(* Arrow-marker vocabulary — mirrors the model's `ArrowMarkerKind` Literal
+   (enum-drift gated by tooling/check_grammar_sync.py); an unknown name fails
+   model validation and, on the raw-dict render path, SCREAMS via the
+   `arrow_marker_fallback` diagnostic instead of silently substituting. *)
+ArrowMarkerKind = "filled_triangle" | "hollow_triangle" | "filled_diamond"
+                | "hollow_diamond" | "open_arrow" ;
 
 DashArray = "none" | "[" , Length , { "," , Length } , "]" | string ;
 (* String form is an SVG whitespace/comma-separated list of non-negative Length

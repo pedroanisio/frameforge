@@ -34,6 +34,11 @@ Fluent builder:
     HEAD): endpoints are an object id, a point, or `{"ref", "port"|"side", "offset"}`;
     optional `route=[...waypoints]` + `route_kind`, boxed `label`/`label_box`, and
     `arrow_start`/`arrow_end` markers (merged into the inline `stroke_style`).
+    Marker kinds (validated; unknown names fail): `filled_triangle` (= `true`),
+    `hollow_triangle`, `filled_diamond`, `hollow_diamond`, `open_arrow`.
+  - Stacking: layers paint by `Layer.z`; within a layer/group, object `z` wins
+    over `style.z_index` (both stable, default 0; conflicting values raise a
+    `z_conflict` diagnostic).
 - Paint (`frameforge.sdk.paint`): `stroke(width, color=...)`, `fill_stroke(...)`,
   `linear_gradient`/`radial_gradient`/`conic_gradient`,
   `hatch`/`dots`/`grid_pattern`/`pattern`, `glow`/`neon`/`shadow`/`soft_shadow`,

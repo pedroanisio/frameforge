@@ -739,7 +739,11 @@ class PageBuilder:
         ``label_box`` draw a boxed text label (``label_style`` a tokens key or an
         inline style). ``arrow_start``/``arrow_end`` markers merge into the inline
         ``stroke_style`` bundle — paint itself goes in ``stroke`` (e.g. via
-        ``**stroke(...)``), matching the model's paint/geometry split.
+        ``**stroke(...)``), matching the model's paint/geometry split. Marker
+        kinds are validated: ``True`` (= ``filled_triangle``),
+        ``hollow_triangle``, ``filled_diamond``, ``hollow_diamond``,
+        ``open_arrow``; any other name fails model validation (raw-dict renders
+        substitute the default and report ``arrow_marker_fallback``).
         """
         obj: dict[str, Any] = {"type": "connector",
                                "from": _connector_endpoint(start),

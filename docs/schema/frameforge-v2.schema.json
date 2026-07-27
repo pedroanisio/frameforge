@@ -15864,6 +15864,13 @@
               "type": "boolean"
             },
             {
+              "enum": [
+                "filled_triangle",
+                "hollow_triangle",
+                "filled_diamond",
+                "hollow_diamond",
+                "open_arrow"
+              ],
               "type": "string"
             },
             {
@@ -15871,7 +15878,7 @@
             }
           ],
           "default": null,
-          "description": "FG stroke extension: arrowhead at the path start (true or a marker name); read from the resolved stroke_style.",
+          "description": "FG stroke extension: arrowhead at the path start — true (= filled_triangle) or one of filled_triangle, hollow_triangle, filled_diamond, hollow_diamond, open_arrow; read from the resolved stroke_style.",
           "title": "Arrow Start"
         },
         "arrow_end": {
@@ -15880,6 +15887,13 @@
               "type": "boolean"
             },
             {
+              "enum": [
+                "filled_triangle",
+                "hollow_triangle",
+                "filled_diamond",
+                "hollow_diamond",
+                "open_arrow"
+              ],
               "type": "string"
             },
             {
@@ -15887,7 +15901,7 @@
             }
           ],
           "default": null,
-          "description": "FG stroke extension: arrowhead at the path end (true or a marker name); read from the resolved stroke_style.",
+          "description": "FG stroke extension: arrowhead at the path end — true (= filled_triangle) or one of filled_triangle, hollow_triangle, filled_diamond, hollow_diamond, open_arrow; read from the resolved stroke_style.",
           "title": "Arrow End"
         },
         "box_shadow": {

@@ -69,6 +69,7 @@ import sys
 from typing import Any, Iterable
 
 from frameforge.rendering.domain.ports import RenderedArtifact
+from frameforge.rendering.domain.stacking import inline_effective_z
 from frameforge.rendering.domain.services.canvas_resolver import (
     CanvasResolver as _CanvasResolver,
     DEFAULT_WH as _HTML_DEFAULT_WH,
@@ -1216,7 +1217,11 @@ class Renderer:
         children = obj.get("children") or []
         positions = layout_children(obj)
         inner = []
-        for i, child in enumerate(children):
+        # Unified stacking key: paint children in effective-z order (stable, so
+        # field-less groups keep document order) while each keeps the layout
+        # position of its ORIGINAL index — same pairing the SVG renderer uses.
+        for i, child in sorted(enumerate(children),
+                               key=lambda ic: inline_effective_z(ic[1])):
             cx, cy = positions.get(i, (0.0, 0.0))
             # children are positioned relative to the group box -> origin (0,0)
             # but their own (cx, cy) offset within it.
@@ -1321,7 +1326,11 @@ def render_page(page: dict, tokens: Tokens, index: int) -> str:
     for layer in layers:
         z = _num(layer.get("z"), 0)
         lid = _css_ident(layer.get("id", f"layer{index}"))
-        objects = layer.get("objects") or []
+        # Unified stacking key (domain/stacking.py): `z`, else inline
+        # `style.z_index` — stable, so field-less documents keep byte-identical
+        # document order. Before this the HTML backend emitted raw document
+        # order and per-object stacking was silently ignored.
+        objects = sorted((layer.get("objects") or []), key=inline_effective_z)
         body = "\n".join(renderer.render(o, 0.0, 0.0) for o in objects)
         op = layer.get("opacity")
         op_css = f"opacity:{op};" if op is not None else ""

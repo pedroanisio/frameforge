@@ -29,7 +29,7 @@ Version of the spec these models target: HEAD_VERSION (defined below).
 from __future__ import annotations
 
 import re
-from typing import Annotated, Literal, Optional, Union
+from typing import Annotated, Literal, Optional, Union, get_args
 
 from pydantic import (
     BaseModel,
@@ -398,6 +398,15 @@ class ClipPath(FG):
 
 ClipPathVal = Union[str, ClipPath]
 
+# Arrow-marker vocabulary for `arrow_start`/`arrow_end`. The SVG painter's
+# `_MARKER_SHAPES` is the geometry authority for the SAME five names — a sync
+# test (tests/test_arrow_marker_vocabulary.py) keeps model, painter, and the
+# grammar's `ArrowMarkerKind` production identical, so an unknown name fails
+# HERE instead of silently substituting at render time.
+ArrowMarkerKind = Literal["filled_triangle", "hollow_triangle", "filled_diamond",
+                          "hollow_diamond", "open_arrow"]
+ARROW_MARKER_KINDS: tuple[str, ...] = get_args(ArrowMarkerKind)
+
 
 # ---- Style: the umbrella (closed bag of CSS-mapped properties) ----
 class Style(FG):
@@ -589,12 +598,16 @@ class Style(FG):
         default=None, description="SVG paint-order string (e.g. 'stroke fill markers').")
     vector_effect: Optional[Literal["none", "non-scaling-stroke"]] = Field(
         default=None, description="non-scaling-stroke keeps stroke width fixed under transforms.")
-    arrow_start: Optional[Union[bool, str]] = Field(
-        default=None, description="FG stroke extension: arrowhead at the path start "
-                                  "(true or a marker name); read from the resolved stroke_style.")
-    arrow_end: Optional[Union[bool, str]] = Field(
-        default=None, description="FG stroke extension: arrowhead at the path end "
-                                  "(true or a marker name); read from the resolved stroke_style.")
+    arrow_start: Optional[Union[bool, ArrowMarkerKind]] = Field(
+        default=None, description="FG stroke extension: arrowhead at the path start — true "
+                                  "(= filled_triangle) or one of filled_triangle, "
+                                  "hollow_triangle, filled_diamond, hollow_diamond, "
+                                  "open_arrow; read from the resolved stroke_style.")
+    arrow_end: Optional[Union[bool, ArrowMarkerKind]] = Field(
+        default=None, description="FG stroke extension: arrowhead at the path end — true "
+                                  "(= filled_triangle) or one of filled_triangle, "
+                                  "hollow_triangle, filled_diamond, hollow_diamond, "
+                                  "open_arrow; read from the resolved stroke_style.")
     # effects
     box_shadow: Optional[Union[Literal["none"], list[ShadowVal]]] = Field(
         default=None, description="Box shadow list (strings or Shadow objects), or 'none'.")

@@ -9,6 +9,37 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — fix: arrow-marker vocabulary screams; per-object stacking unified across backends (2026-07-27)
+
+Two silent-loss fixes from processed external-agent feedback (TDD;
+`tests/test_arrow_marker_vocabulary.py`, `tests/test_object_z_stacking.py`):
+
+- **Unknown arrow-marker names no longer silently coerce.** `arrow_start`/
+  `arrow_end` are now typed against the five-kind `ArrowMarkerKind` vocabulary
+  (`filled_triangle`, `hollow_triangle`, `filled_diamond`, `hollow_diamond`,
+  `open_arrow`; `true` = `filled_triangle`) — schema, grammar (enum-gated), and
+  field descriptions all enumerate it. The raw-dict render path substitutes the
+  default AND reports an `arrow_marker_fallback` diagnostic (requested,
+  substituted, valid list, object id). Previously `SvgPainter.marker()` coerced
+  any unknown string to the default triangle with no trace — seven wrong names
+  rendered byte-identically. **Migration:** documents authoring an unknown
+  marker name now fail validation; they were always rendering the default
+  triangle, so replace the name with an intended kind (or `true`). The
+  committed corpus authored only valid kinds/booleans and is unaffected.
+- **Per-object stacking is ONE key everywhere.** The model's two controls —
+  `ObjBase.z` and `Style.z_index` — were each honored by a different backend
+  (SVG: only `z_index`, object `z` dead; pdf-tex `FigureTikz`: only `z`; HTML:
+  neither at object level). All backends now sort siblings by the shared
+  effective key (`rendering/domain/stacking.py`): object `z` wins, else
+  resolved `style.z_index`, else 0, stable. Declaring both with different
+  values reports a `z_conflict` diagnostic. Spec §1.1 gains the normative
+  stacking paragraph. **Migration:** documents authoring only `z` now stack by
+  it in SVG/HTML output (previously ignored there — that was the defect);
+  documents authoring only `z_index` newly stack correctly in pdf-tex and HTML.
+  Field-less documents are byte-identical (stable sort, regression-tested).
+  In `FigureTikz`/HTML, token-REF styles carrying `z_index` are not resolved
+  (those walkers have no style-ref resolver); use object `z` there.
+
 ## 2.7.1 — fix: flow diagnostics measure the real face, and the bump sweep gets honest (2026-07-27)
 
 PATCH: no schema, `$defs`, or field-contract change — a document authored against

@@ -15,6 +15,7 @@ import math
 import re
 
 from frameforge.rendering.domain.geometry import fnum, is_point, num
+from frameforge.rendering.domain.stacking import inline_effective_z
 from frameforge.rendering.infrastructure.painters.tikz_path import arc_to_cubics, path_data, path_segments
 from frameforge.rendering.domain.services.effect_resolver import EffectResolver
 
@@ -188,10 +189,13 @@ class FigureTikz:
         return self._draw(obj)
 
     def _children(self, objs):
-        # Document order already matches z in the fixtures; a stable sort by z
-        # makes it robust without reordering equal-z siblings.
+        # The unified stacking key (domain/stacking.py): `z`, else inline
+        # `style.z_index` — the same precedence the SVG renderer paints with,
+        # so pdf-tex output stacks identically. Stable: equal-z siblings keep
+        # document order. Token-REF styles carrying z_index are not resolved
+        # here (this walker has no style-ref resolver); `z` covers that case.
         kids = [o for o in (objs or []) if isinstance(o, dict)]
-        return sorted(kids, key=lambda o: num(o.get("z"), 0) or 0)
+        return sorted(kids, key=inline_effective_z)
 
     def _draw(self, o) -> str:
         if self._is_hidden(o):

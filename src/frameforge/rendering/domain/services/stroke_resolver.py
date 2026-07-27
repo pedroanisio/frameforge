@@ -49,6 +49,18 @@ class Stroke:
     opacity: object = None
 
 
+# Arrow-marker vocabulary — the rendering-side mirror of the model's
+# `ArrowMarkerKind` Literal (the rendering layer deliberately renders raw dicts
+# without importing the model; tests/test_arrow_marker_vocabulary.py pins the
+# two lists and the SVG painter's `_MARKER_SHAPES` geometry to identical sets).
+# A kind outside this set is substituted with the default AND reported via the
+# renderer's `arrow_marker_fallback` warning — never silently.
+ARROW_MARKER_KINDS: tuple[str, ...] = (
+    "filled_triangle", "hollow_triangle", "filled_diamond",
+    "hollow_diamond", "open_arrow")
+DEFAULT_ARROW_MARKER = "filled_triangle"
+
+
 @dataclass(frozen=True)
 class Markers:
     """Arrowheads requested for an open shape, as a backend-neutral value object.

@@ -16,7 +16,8 @@ from __future__ import annotations
 import math
 
 from frameforge.rendering.domain.geometry import esc, fnum, num
-from frameforge.rendering.domain.services.stroke_resolver import StrokeResolver
+from frameforge.rendering.domain.services.stroke_resolver import (
+    DEFAULT_ARROW_MARKER, StrokeResolver)
 
 # Arrowhead `<marker>` shapes. Kind names are the v2 marker refs the grammar
 # allows for `arrow_start` / `arrow_end` (grammar/frameforge-v2-style.ebnf
@@ -32,7 +33,7 @@ _MARKER_SHAPES: dict[str, tuple[str, str, float, float, float, float, str]] = {
     "hollow_diamond": ("M0,5 L6,0 L12,5 L6,10 Z", "0 0 12 10", 12, 10, 12, 5, "hollow"),
     "open_arrow": ("M0,0 L10,5 L0,10", "0 0 10 10", 10, 10, 10, 5, "open"),
 }
-_DEFAULT_MARKER = "filled_triangle"
+_DEFAULT_MARKER = DEFAULT_ARROW_MARKER   # single default, defined in the domain
 
 
 class SvgPainter:

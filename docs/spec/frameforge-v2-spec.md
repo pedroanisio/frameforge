@@ -63,6 +63,15 @@ meta: { … }              # optional
 - **`mode: flow`** — a `story[]` of `Flowable`s poured through a `master` (the
   book/report end), `media: paged` (default) or `continuous` (§3.9).
 
+**Stacking order.** Layers paint in ascending `Layer.z` (default 0, stable —
+equal-`z` layers keep document order). Within a layer (and among a group's
+children) siblings paint in ascending **effective z**: the object-level `z`
+when set, else the resolved style's `z_index`, else 0 — object `z` wins when
+both are declared, and a renderer MUST report a `z_conflict` diagnostic when
+the two differ rather than silently preferring one. The sort is stable, so
+objects declaring neither field keep authored document order. All backends
+(SVG, HTML, pdf-tex) MUST honour the same effective key.
+
 ## 2. Value types & units
 
 | Type | Form |
@@ -420,6 +429,11 @@ deterministic text-derived sizing (§9.6).
 
 `StrokeStyle` = the geometry bundle (`color?`, `width?`, `dash?`, `arrow_start?`,
 `arrow_end?`, `linecap?`, `linejoin?`, `opacity?`). See §3.5 for the single-form rule.
+`arrow_start`/`arrow_end` accept `true` (= `filled_triangle`) or one of the
+`ArrowMarkerKind` vocabulary: `filled_triangle`, `hollow_triangle`,
+`filled_diamond`, `hollow_diamond`, `open_arrow`. Any other name fails model
+validation; on the raw-dict render path it substitutes the default AND reports
+an `arrow_marker_fallback` diagnostic — substitution is never silent.
 
 ## 6. Flow vocabulary
 
