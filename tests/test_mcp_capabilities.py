@@ -171,7 +171,7 @@ _CAPABILITY_MODULES = [
     # capability-bearing sdk modules — each MUST be named in the guide.
     "book", "canon", "chart", "chevreul", "clip", "draw", "expand", "fields",
     "figure", "flow", "fractal", "geometry", "humanize", "lattices", "layout",
-    "macros", "manifold", "markdown", "metrics", "outline", "paint", "params",
+    "macros", "manifold", "markdown", "metrics", "noise", "outline", "paint", "params",
     "pathtext", "planar", "rand", "recolor", "region", "separate", "solids", "topology",
     "sugiyama", "uml_models", "widgets",
 ]
@@ -204,6 +204,8 @@ _HEADLINE_SURFACES = [
     "expand(", "humanize", "measure_text", "fit_width",
     # deterministic generative substrate (#90)
     "Rand", "halton", "poisson_disk", "jittered_grid",
+    # sampleable coherent noise (#91)
+    "Noise", "value_noise_2d", "perlin_2d", "simplex_2d", "fbm", "domain_warp",
 ]
 
 
@@ -229,6 +231,33 @@ def test_sdk_discovery_exposes_deterministic_sampling_contracts():
     assert "low-discrepancy" in summaries["halton"].lower()
     assert "minimum separation" in summaries["poisson_disk"].lower()
     assert "one point per cell" in summaries["jittered_grid"].lower()
+
+
+def test_guide_explains_sampleable_noise_and_filter_distinction():
+    required_fragments = (
+        "frameforge.sdk.noise",
+        "from frameforge.sdk import Noise, ScalarField, domain_warp",
+        "ScalarField(Noise(7, basis=\"simplex\").field()",
+        "author-time CPU values",
+        "paint.turbulence",
+        "renderer-side",
+        "not cryptographic",
+        "run_sdk_code",
+    )
+    missing = [fragment for fragment in required_fragments if fragment not in FRAMEFORGE_GUIDE]
+    assert not missing, f"MCP guide omits sampleable-noise guidance: {missing}"
+
+
+def test_sdk_discovery_exposes_sampleable_noise_contracts():
+    result = describe_capabilities(topic="sdk")
+    summaries = {item["name"]: item["summary"] for item in result["exports"]}
+
+    assert "seed" in summaries["Noise"].lower()
+    assert "[0, 1]" in summaries["value_noise_2d"]
+    assert "perlin" in summaries["perlin_2d"].lower()
+    assert "simplex" in summaries["simplex_2d"].lower()
+    assert "brownian" in summaries["fbm"].lower()
+    assert "warped" in summaries["domain_warp"].lower()
 
 
 def test_guide_documents_pdf_tex_object_effect_coverage_and_approximations():

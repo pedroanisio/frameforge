@@ -133,6 +133,16 @@ from frameforge.sdk.macros import (
 from frameforge.sdk.outline import Placement, place_stamp, repeat_along_path, stroke_outline
 from frameforge.sdk.pathtext import offset_path, path_length, path_walker, text_on_path
 from frameforge.sdk.book import BookBuilder, ChapterBuilder
+from frameforge.sdk.noise import (
+    Noise,
+    domain_warp,
+    fbm,
+    perlin_2d,
+    remap,
+    simplex_2d,
+    to_unit,
+    value_noise_2d,
+)
 from frameforge.sdk.params import eval_expr, resolve_params
 from frameforge.sdk.rand import Rand, halton, jittered_grid, poisson_disk
 from frameforge.sdk.recolor import recolor
@@ -335,6 +345,7 @@ __all__ = [
     "Mat4",
     "Material",
     "Node",
+    "Noise",
     "OverflowSignal",
     "ObjectDiagramOptions",
     "PackageDiagramOptions",
@@ -434,6 +445,7 @@ __all__ = [
     "divider",
     "dominant_light",
     "dots",
+    "domain_warp",
     "dragon_curve",
     "dropdown",
     "effect",
@@ -445,6 +457,7 @@ __all__ = [
     "extract_objects",
     "extrude",
     "field",
+    "fbm",
     "fill_regions",
     "fill_stroke",
     "fit_width",
@@ -515,6 +528,7 @@ __all__ = [
     "path_length",
     "path_walker",
     "pattern",
+    "perlin_2d",
     "pill",
     "place_figure",
     "place_imported_figure",
@@ -536,6 +550,7 @@ __all__ = [
     "recolor",
     "ref",
     "region_grade",
+    "remap",
     "register_theme",
     "relative_luminance",
     "render_page_svgs",
@@ -557,6 +572,7 @@ __all__ = [
     "serialize",
     "shadow",
     "sierpinski_arrowhead",
+    "simplex_2d",
     "slider",
     "soft_shadow",
     "span",
@@ -577,6 +593,7 @@ __all__ = [
     "text_on_path",
     "text_style",
     "theme",
+    "to_unit",
     "to_plain_dict",
     "toggle",
     "tone_scale",
@@ -600,6 +617,7 @@ __all__ = [
     "validate_static_rules",
     "validate_timing_diagram",
     "validate_use_case_diagram",
+    "value_noise_2d",
     "wave",
     "window_to_viewport",
     "wrap_text",

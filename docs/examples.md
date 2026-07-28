@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 156 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 157 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -130,6 +130,7 @@ The 156 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`river_raid_view.py`](../static/examples/river_raid_view.py) | RIVER RAID — a vector homage to the 1982 Activision vertical shooter. |
 | [`roadmap_publication.py`](../static/examples/roadmap_publication.py) | Publish the FrameForge v2 roadmap as two brand-true deliverables from one SDK client: |
 | [`saas_hero_headers.py`](../static/examples/saas_hero_headers.py) | SaaS landing-page hero headers — built from PRIMITIVES only (no widgets). |
+| [`sampleable_noise_field.py`](../static/examples/sampleable_noise_field.py) | Sampleable coherent noise rendered through an existing ScalarField. |
 | [`sdk_3d_scene.py`](../static/examples/sdk_3d_scene.py) | A complex, shaded 3D scene composed with the FrameForge SDK — *today*. |
 | [`sdk_ergonomics_showcase.py`](../static/examples/sdk_ergonomics_showcase.py) | Generate the SDK ergonomics showcase fixture. |
 | [`sdk_geometry_patterns.py`](../static/examples/sdk_geometry_patterns.py) | Worked example for SDK pattern paint and geometry helpers. |

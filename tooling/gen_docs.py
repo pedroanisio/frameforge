@@ -32,6 +32,7 @@ import argparse
 import importlib.util
 import inspect
 import os
+import re
 import subprocess
 import sys
 import textwrap
@@ -428,6 +429,17 @@ def gen_sdk_guide():
         rand=Rand("document").derive("grid"),
     )
     """
+    noise_example = """\
+    from frameforge.sdk import Noise, ScalarField, domain_warp
+
+    source = Noise(7, frequency=0.35, basis="simplex")
+    field = ScalarField(source.field(), domain=(0, 0, 8, 5))
+    heatmap = field.heatmap(
+        box=[48, 72, 480, 320], steps_x=32, steps_y=20,
+        low="#102a43", high="#f6c453",
+    )
+    marble_xy = domain_warp(2.5, 1.25, seed=7, strength=0.8)
+    """
     lines = [
         "# Python SDK",
         "",
@@ -517,6 +529,20 @@ def gen_sdk_guide():
         "",
         "```python",
         textwrap.dedent(sampling_example).rstrip(),
+        "```",
+        "",
+        "## Sampleable coherent noise",
+        "",
+        "`frameforge.sdk.noise` evaluates deterministic value, Perlin, and 2D simplex noise as "
+        "author-time CPU values. `Noise` binds a stable seed, frequency, and basis; its `field()` "
+        "callable plugs directly into `ScalarField`, while `fbm` adds normalised octaves and "
+        "`domain_warp` returns coordinates for marble or flow-like resampling. Gradient noise uses "
+        "`[-1, 1]`, value noise uses `[0, 1]`, and `to_unit`/`remap` make conversions explicit. "
+        "This standard-library API is not cryptographic. It is separate from `paint.turbulence`, "
+        "which constructs a renderer-side SVG filter and cannot be sampled from Python.",
+        "",
+        "```python",
+        textwrap.dedent(noise_example).rstrip(),
         "```",
         "",
         "## Design Canon — colour & typography",
@@ -650,6 +676,7 @@ def gen_sdk_api():
         "frameforge.sdk.markdown",
         "frameforge.sdk.metrics",
         "frameforge.sdk.model",
+        "frameforge.sdk.noise",
         "frameforge.sdk.paint",
         "frameforge.sdk.rand",
         "frameforge.sdk.region",
@@ -735,7 +762,15 @@ def _safe_signature(obj):
         # generated signature — and therefore the committed sdk-api.md snapshot —
         # is deterministic regardless of the local Python (keeps docs-check from
         # drifting between a contributor's machine and CI).
-        return str(inspect.signature(obj)).replace("typing.", "")
+        signature = str(inspect.signature(obj)).replace("typing.", "")
+        # Callable defaults use repr(function), which embeds a process-specific
+        # memory address and makes committed API snapshots drift on every run.
+        # Preserve the meaningful callable name while removing that address.
+        return re.sub(
+            r"<function ([A-Za-z_][A-Za-z0-9_.]*) at 0x[0-9A-Fa-f]+>",
+            r"\1",
+            signature,
+        )
     except (TypeError, ValueError):
         return "()"
 

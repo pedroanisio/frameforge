@@ -9,6 +9,22 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — feat: sampleable coherent noise for author-time geometry (2026-07-28)
+
+- **The public SDK now evaluates deterministic value, improved Perlin, and 2D
+  simplex noise directly in Python.** `Noise` binds a stable seed, frequency,
+  and basis; `fbm` provides amplitude-normalised octaves; `domain_warp` returns
+  coordinates for organic re-sampling; and `to_unit`/`remap` make range
+  conversion explicit. Bounded SHA-derived permutation caches keep repeated
+  sampling fast without global RNG state. These CPU values plug directly into
+  `ScalarField`, while the existing `paint.turbulence` remains the separate
+  renderer-side SVG filter with byte-identical output.
+- Range, reference-value, continuity, cross-process, cache, guard, throughput,
+  field-render, filter-regression, MCP-discovery, generated-doc, and runnable
+  example coverage lives in `tests/test_noise.py` and
+  `tests/test_mcp_capabilities.py`. No schema, grammar, renderer, CLI,
+  configuration, or migration surface changed. Closes #91.
+
 ## Unreleased — feat: deterministic randomness and point sampling (2026-07-28)
 
 - **The public SDK now provides reproducible random streams and vector-native

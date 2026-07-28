@@ -333,6 +333,8 @@ def turbulence(
     ``opacity`` controls the generated texture's alpha and ``mode`` controls how
     it blends over ``SourceGraphic``. The noise parameters live on this same
     self-contained preset; it does not feed a later filter-chain item.
+    For Python-sampleable author-time values, use :mod:`frameforge.sdk.noise`;
+    this helper remains a declarative renderer-side filter preset.
     """
     return filter_fn(
         "turbulence",

@@ -128,6 +128,19 @@ Fluent builder:
     page space is Y-down, and the default seed is deterministic. This API is
     not cryptographic. Use it directly through `run_sdk_code`; no dedicated MCP
     tool is needed.
+  - Sampleable coherent noise (`frameforge.sdk.noise`):
+        from frameforge.sdk import Noise, ScalarField, domain_warp
+        source = Noise(7, frequency=0.35, basis="simplex")
+        field = ScalarField(Noise(7, basis="simplex").field(),
+                            domain=(0, 0, 8, 5))
+        heatmap = field.heatmap(box=[0, 0, 640, 360], steps_x=32, steps_y=20)
+        warped_xy = domain_warp(2.5, 1.25, seed=7, strength=0.8)
+    `value_noise_2d`, `perlin_2d`, and `simplex_2d` return author-time CPU values;
+    `fbm` adds normalised octaves and `domain_warp` returns coordinates
+    for re-sampling. This standard-library API is deterministic and not
+    cryptographic. It is distinct from `paint.turbulence`, which is a
+    renderer-side SVG filter and cannot position or colour geometry in Python.
+    Use sampleable noise through `run_sdk_code`; no dedicated MCP tool is needed.
   - `Frame` scales accept structured specs: `{"kind":"log","base":b}` / `{"kind":"pow","exp":e}`.
   - `multiview(scene, box=...)` — orthographic front/top/side/iso panel grid of a `Scene3D`.
   - `Graph.render(box=...)` auto-lays-out from declared edges (`auto_layout`/`layout_kind`);

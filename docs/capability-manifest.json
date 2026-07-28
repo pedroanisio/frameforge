@@ -172,6 +172,7 @@
       "Mat4",
       "Material",
       "Node",
+      "Noise",
       "ObjectDiagramOptions",
       "OverflowSignal",
       "PackageDiagramOptions",
@@ -270,6 +271,7 @@
       "diffuse_lighting",
       "displacement_map",
       "divider",
+      "domain_warp",
       "dominant_light",
       "dots",
       "dragon_curve",
@@ -282,6 +284,7 @@
       "extend_segment",
       "extract_objects",
       "extrude",
+      "fbm",
       "field",
       "fill_regions",
       "fill_stroke",
@@ -352,6 +355,7 @@
       "path_length",
       "path_walker",
       "pattern",
+      "perlin_2d",
       "pill",
       "place_figure",
       "place_imported_figure",
@@ -375,6 +379,7 @@
       "region_grade",
       "register_theme",
       "relative_luminance",
+      "remap",
       "render_page_svgs",
       "render_pages_with_stats",
       "repeat_along_path",
@@ -394,6 +399,7 @@
       "serialize",
       "shadow",
       "sierpinski_arrowhead",
+      "simplex_2d",
       "slider",
       "soft_shadow",
       "span",
@@ -415,6 +421,7 @@
       "text_style",
       "theme",
       "to_plain_dict",
+      "to_unit",
       "toggle",
       "tone_scale",
       "torus",
@@ -437,6 +444,7 @@
       "validate_static_rules",
       "validate_timing_diagram",
       "validate_use_case_diagram",
+      "value_noise_2d",
       "wave",
       "window_to_viewport",
       "wrap_text",
@@ -1627,6 +1635,13 @@
       "mcp": true
     },
     {
+      "name": "Noise",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "ObjectDiagramOptions",
       "kind": "sdk_export",
       "core": false,
@@ -2313,6 +2328,13 @@
       "mcp": true
     },
     {
+      "name": "domain_warp",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "dominant_light",
       "kind": "sdk_export",
       "core": false,
@@ -2391,6 +2413,13 @@
     },
     {
       "name": "extrude",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "fbm",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2887,6 +2916,13 @@
       "mcp": true
     },
     {
+      "name": "perlin_2d",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "pill",
       "kind": "sdk_export",
       "core": false,
@@ -3048,6 +3084,13 @@
       "mcp": true
     },
     {
+      "name": "remap",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "render_page_svgs",
       "kind": "sdk_export",
       "core": false,
@@ -3175,6 +3218,13 @@
     },
     {
       "name": "sierpinski_arrowhead",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "simplex_2d",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -3322,6 +3372,13 @@
     },
     {
       "name": "to_plain_dict",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "to_unit",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -3476,6 +3533,13 @@
     },
     {
       "name": "validate_use_case_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "value_noise_2d",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

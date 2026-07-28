@@ -171,6 +171,22 @@ cells = jittered_grid(
 )
 ```
 
+## Sampleable coherent noise
+
+`frameforge.sdk.noise` evaluates deterministic value, Perlin, and 2D simplex noise as author-time CPU values. `Noise` binds a stable seed, frequency, and basis; its `field()` callable plugs directly into `ScalarField`, while `fbm` adds normalised octaves and `domain_warp` returns coordinates for marble or flow-like resampling. Gradient noise uses `[-1, 1]`, value noise uses `[0, 1]`, and `to_unit`/`remap` make conversions explicit. This standard-library API is not cryptographic. It is separate from `paint.turbulence`, which constructs a renderer-side SVG filter and cannot be sampled from Python.
+
+```python
+from frameforge.sdk import Noise, ScalarField, domain_warp
+
+source = Noise(7, frequency=0.35, basis="simplex")
+field = ScalarField(source.field(), domain=(0, 0, 8, 5))
+heatmap = field.heatmap(
+    box=[48, 72, 480, 320], steps_x=32, steps_y=20,
+    low="#102a43", high="#f6c453",
+)
+marble_xy = domain_warp(2.5, 1.25, seed=7, strength=0.8)
+```
+
 ## Design Canon — colour & typography
 
 Two canon modules codify working design rules so authors (human or agent) start from *decided* systems instead of ad-hoc picks. `frameforge.sdk.chevreul` (after M. E. Chevreul, 1839): the 12-station painter's wheel with `complement`, tone scales, the **six harmonies** (`harmony_of_scale`/`harmony_of_hues`/`dominant_light` and the three contrasts), WCAG 2.1 `relative_luminance`/`contrast_ratio`, the `grey_document` tone audit, and `closed_palette` — duties (ground/ink/accent + quiet steps) with the 62/30/8 `AREA_GUIDE`, emitting a ready `defs.tokens.colors` fragment. `frameforge.sdk.canon` (after Edward Johnston, 1906): `modular_scale`, the inner-1½/top-2/outer-3/foot-4 margin canon (`johnston_margins`/`content_box`), the 45–75 characters-per-line measure band, and `caps_tracking`. Pure helpers only — nothing new enters the schema.
