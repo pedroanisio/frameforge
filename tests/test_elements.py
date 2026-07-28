@@ -48,6 +48,23 @@ OBJECT_SAMPLES = {
     "connector": {"type": "connector", "from": [0, 0], "to": [10, 10]},
     "table": {"type": "table", "rows": [["a", "b"]], "box": [0, 0, 100, 40]},
     "group": {"type": "group", "children": [{"type": "rect", "box": [0, 0, 5, 5]}]},
+    "uml.marker_glyph": {"type": "uml.marker_glyph", "position": [5, 5]},
+    "uml.classifier_box": {"type": "uml.classifier_box", "box": [0, 0, 100, 60]},
+    "uml.component_box": {"type": "uml.component_box", "box": [0, 0, 100, 60]},
+    "uml.state_box": {"type": "uml.state_box", "box": [0, 0, 100, 60]},
+    "uml.action": {"type": "uml.action", "box": [0, 0, 100, 40]},
+    "uml.artifact_box": {"type": "uml.artifact_box", "box": [0, 0, 100, 60]},
+    "uml.node_box": {"type": "uml.node_box", "box": [0, 0, 100, 60]},
+    "uml.lifeline": {"type": "uml.lifeline", "box": [0, 0, 100, 200]},
+    "uml.activation_bar": {"type": "uml.activation_bar", "box": [0, 0, 10, 80]},
+    "uml.actor": {"type": "uml.actor", "box": [0, 0, 60, 100]},
+    "uml.socket": {"type": "uml.socket", "box": [0, 0, 20, 20]},
+    "uml.lollipop": {"type": "uml.lollipop", "box": [0, 0, 20, 20]},
+    "uml.activity_node": {"type": "uml.activity_node", "box": [0, 0, 40, 40]},
+    "uml.pseudostate": {"type": "uml.pseudostate", "box": [0, 0, 20, 20]},
+    "uml.fragment_frame": {"type": "uml.fragment_frame", "box": [0, 0, 100, 60]},
+    "uml.swimlane": {"type": "uml.swimlane", "box": [0, 0, 100, 200]},
+    "uml.timing_lane": {"type": "uml.timing_lane", "box": [0, 0, 200, 80]},
 }
 
 FLOW_SAMPLES = {

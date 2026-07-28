@@ -96,7 +96,21 @@ Fluent builder:
     `ray_triangle_intersection`) and curve×line (`segment_curve_intersections`/
     `line_curve_intersections`, de Casteljau); curves `CubicBezier.curvature`/`arc_length` +
     `polyline_length` and surfaces `surface_curvature(fn, u, v)` → `(K, H)`; comp-geometry
-    `convex_hull`/`convex_hull_3d`/`aabb`/`aabb3`/`obb`/`polygon_area`/`point_in_polygon`.
+  `convex_hull`/`convex_hull_3d`/`aabb`/`aabb3`/`obb`/`polygon_area`/`point_in_polygon`.
+  - UML 2.5.1 (`frameforge.sdk.uml_models` + `frameforge.sdk.uml`): validate a
+    typed semantic model such as `UMLClassDiagramModel`, then call one of the 14
+    `compose_*` functions. Start with `compose_class_diagram`; behavioral
+    counterparts include `compose_sequence_diagram` and `compose_state_machine`. The
+    suite covers class, package, use-case, component, deployment, activity,
+    state-machine, sequence, timing, communication, interaction-overview,
+    profile, composite-structure, and object diagrams. A composed result's
+    `to_document(title=, page_id=, canvas_size=)` returns a model-valid v2
+    document; `to_page(...)` returns an embeddable absolute page. Hierarchical
+    composers use the deterministic four-stage `sugiyama_layout`
+    (`frameforge.sdk.sugiyama`): Eades-Lin-Smyth cycle removal, longest-path
+    layers with dummy bends, median crossing minimization, and Brandes-Kopf
+    coordinate assignment. OMG UML 2.5.1 XMI reference files and checksums live
+    under `static/specs/uml-2.5.1/` and are not loaded on the render hot path.
   - `Scene3D.render(shading=, cull_backfaces=, near_clip=)` — opt-in `near_clip=True`
     Sutherland–Hodgman-clips faces straddling the near plane instead of dropping them.
   - Fractals (`frameforge.sdk.fractal`): an `lsystem` + `turtle` engine with

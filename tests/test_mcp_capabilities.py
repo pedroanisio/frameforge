@@ -173,7 +173,7 @@ _CAPABILITY_MODULES = [
     "figure", "flow", "fractal", "geometry", "humanize", "lattices", "layout",
     "macros", "manifold", "markdown", "metrics", "outline", "paint", "params",
     "pathtext", "planar", "recolor", "region", "separate", "solids", "topology",
-    "widgets",
+    "sugiyama", "uml_models", "widgets",
 ]
 
 # Internal plumbing that carries no author-facing capability of its own — the
@@ -197,6 +197,9 @@ _HEADLINE_SURFACES = [
     "frameforge.library", "load_theme", "load_symbols",
     "honeycomb_capability_map", "module_hub_radial",
     "from_markdown", "--from-v01",
+    # UML 2.5.1 absorption (#30)
+    "sugiyama_layout", "UMLClassDiagramModel", "compose_class_diagram",
+    "compose_sequence_diagram", "compose_state_machine", "to_document",
     # cross-cutting
     "expand(", "humanize", "measure_text", "fit_width",
 ]

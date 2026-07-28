@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 154 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 155 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -162,6 +162,7 @@ The 154 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`tron_grid_protocol.py`](../static/examples/tron_grid_protocol.py) | GRID PROTOCOL — a 32-slide deck rendered entirely in flat 2D "Tron" framing. |
 | [`tron_red_sector.py`](../static/examples/tron_red_sector.py) | INFERNO // RED SECTOR — a 30-slide deck in the antagonist's register of the |
 | [`ui_trends_2025_hero.py`](../static/examples/ui_trends_2025_hero.py) | Recreate ``img12_ui_trends_2025_hero`` — a dark editorial hero banner — |
+| [`uml_composers.py`](../static/examples/uml_composers.py) | UML 2.5.1 composer atlas — typed semantics to valid FrameForge v2 pages. |
 | [`vectorization_workflow.py`](../static/examples/vectorization_workflow.py) | AI-Assisted Vectorization Workflow — a product/landing composition. |
 | [`visual_identities.py`](../static/examples/visual_identities.py) | Five documents with nothing visually in common. |
 | [`vscode_frameforge_ide.py`](../static/examples/vscode_frameforge_ide.py) | Recreate the FrameForge VSCode IDE screenshot with the FrameForge SDK. |

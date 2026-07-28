@@ -9,6 +9,27 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — feat: absorb UML 2.5.1 ontology and full Sugiyama layout (2026-07-28)
+
+- **The SDK now provides typed, deterministic UML authoring for all fourteen
+  UML 2.5.1 diagram families.** A stdlib-only four-stage Sugiyama engine
+  (cycle removal, longest-path layering with dummy nodes, median crossing
+  minimization, and Brandes–Köpf coordinate assignment) backs the hierarchical
+  composers. Strict Pydantic ontology models and `validate_*` entry points cover
+  class, package, use-case, component, deployment, activity, state-machine,
+  sequence, timing, communication, interaction-overview, profile,
+  composite-structure, and object diagrams; matching `compose_*` functions
+  emit valid v2 pages/documents through the public SDK.
+- Composer output is normalized at the v2 boundary: legacy stroke, text-style,
+  endpoint, ellipse, and group spellings are migrated; UML frames, swimlanes,
+  and timing lanes lower to portable core primitives for the canonical SVG
+  backend. Fourteen generated single-page fixtures pass strict validation and
+  overflow gates, while class, sequence, and state-machine SVG hashes are
+  pinned independently from the frozen `b1` oracle. The MCP guide, generated
+  SDK/schema/capability/example/fixture references, and the preserved OMG
+  machine-readable UML 2.5.1 XMI checksum/provenance bundle expose the feature
+  without loading reference data on the runtime path. Closes #30.
+
 ## Unreleased — fix: define and diagnose stacked filter presets (2026-07-28)
 
 - **`style.filter` lists now have an explicit stacked-preset contract.** Each

@@ -1,0 +1,14 @@
+{
+  "specification": "OMG Unified Modeling Language 2.5.1",
+  "source_publication": "https://www.omg.org/spec/UML/2.5.1",
+  "source_identifiers": [
+    "ptc-18-01-01",
+    "ptc-18-01-02",
+    "ptc-18-01-03",
+    "ptc-18-01-04"
+  ],
+  "absorbed_from": "pedroanisio/framegraph static/specs",
+  "absorbed_on": "2026-07-28",
+  "integrity_file": "SHA256SUMS",
+  "purpose": "Reference metamodel data for the typed FrameForge UML 2.5.1 ontology; never loaded on the rendering hot path."
+}

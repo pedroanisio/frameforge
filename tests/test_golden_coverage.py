@@ -36,8 +36,16 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Core object types NO golden (b1/) fixture exercises yet — flagged, not hidden.
 # Closing one = add a coverage fixture + re-pin the lock, then drop it from here.
+# The optional UML extension intentionally cannot enter the frozen pre-codemod b1
+# oracle. Its fourteen generated fixtures live at tests/fixtures/uml-*.fg.yaml;
+# class/sequence/state hashes are pinned by tests/golden/uml-composers.lock.json.
 KNOWN_UNCOVERED = frozenset({
     "circle", "polygon", "curve", "bezier", "icon", "dimension", "connector",
+    "uml.marker_glyph", "uml.classifier_box", "uml.component_box", "uml.state_box",
+    "uml.action", "uml.artifact_box", "uml.node_box", "uml.lifeline",
+    "uml.activation_bar", "uml.actor", "uml.socket", "uml.lollipop",
+    "uml.activity_node", "uml.pseudostate", "uml.fragment_frame", "uml.swimlane",
+    "uml.timing_lane",
 })
 
 

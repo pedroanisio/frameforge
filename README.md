@@ -27,7 +27,7 @@ src/frameforge/               ← the Python package (strictly downstream of the
   live/                       ← local web UI for live MCP feedback sessions (`make live`).
 src/frameforge/model.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 docs/schema/
-  frameforge-v2.schema.json   ← GENERATED from the models (88 $defs). Do not hand-edit.
+  frameforge-v2.schema.json   ← GENERATED from the models (105 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
 docs/grammar/
   frameforge-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.
@@ -102,7 +102,7 @@ uv sync                                    # create/populate .venv
 # schema is generated and in sync
 uv run python docs/schema/build_schema.py --check
 
-# validate the delivered tracked fixtures — 39/39 zero errors in docs/FIXTURE-STATUS.md
+# validate the delivered tracked fixtures — 53/53 zero errors in docs/FIXTURE-STATUS.md
 # text-fit diagnostics run by default; add --no-text-fit only for structure-only checks
 make validate
 
@@ -244,7 +244,7 @@ folded into the artifacts above; they are listed only for historical context:
 - Font pinning enables deterministic *layout* only up to a stated rounding **tolerance**
   (a defined shaping model is also required) — not pixel-exact identity (§9.6).
 - The current delivered top-level fixture status is generated in `FIXTURE-STATUS.md`;
-  at this snapshot **39/39** have zero errors. Advisory warnings, when present, are
+  at this snapshot **53/53** have zero errors. Advisory warnings, when present, are
   recorded there instead of summarized by hand here.
 - What FrameForge can — and deliberately will not — generate is mapped in
   [docs/output-space.md](docs/output-space.md): the backends wired today (whose

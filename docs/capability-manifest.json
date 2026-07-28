@@ -24,7 +24,24 @@
       "dimension",
       "connector",
       "table",
-      "group"
+      "group",
+      "uml.marker_glyph",
+      "uml.classifier_box",
+      "uml.component_box",
+      "uml.state_box",
+      "uml.action",
+      "uml.artifact_box",
+      "uml.node_box",
+      "uml.lifeline",
+      "uml.activation_bar",
+      "uml.actor",
+      "uml.socket",
+      "uml.lollipop",
+      "uml.activity_node",
+      "uml.pseudostate",
+      "uml.fragment_frame",
+      "uml.swimlane",
+      "uml.timing_lane"
     ],
     "flow_types": [
       "paragraph",
@@ -116,14 +133,20 @@
   },
   "sdk": {
     "public_exports": [
+      "ActivityDiagramOptions",
       "BookBuilder",
       "Box",
       "BoxLike",
       "Camera",
       "ChapterBuilder",
       "Chart",
+      "ClassDiagramOptions",
       "ClosedPalette",
+      "CommunicationDiagramOptions",
+      "ComponentDiagramOptions",
+      "CompositeStructureOptions",
       "CubicBezier",
+      "DeploymentDiagramOptions",
       "Document",
       "DocumentBuilder",
       "Edge",
@@ -143,21 +166,44 @@
       "ImportedFigurePlacement",
       "Issue",
       "Lattice",
+      "LayoutResult",
       "MasterBuilder",
       "Mat3",
       "Mat4",
       "Material",
       "Node",
+      "ObjectDiagramOptions",
       "OverflowSignal",
+      "PackageDiagramOptions",
       "PageBuilder",
       "Panel",
       "Path",
       "Placement",
+      "ProfileDiagramOptions",
       "ScalarField",
       "Scene3D",
+      "SequenceDiagramOptions",
       "StackBuilder",
+      "StateMachineOptions",
       "StaticValidationError",
+      "SugiyamaConfig",
       "Theme",
+      "TimingDiagramOptions",
+      "UMLActivityDiagramModel",
+      "UMLClassDiagramModel",
+      "UMLCommunicationDiagramModel",
+      "UMLComponentDiagramModel",
+      "UMLCompositeStructureModel",
+      "UMLDeploymentDiagramModel",
+      "UMLInteractionOverviewModel",
+      "UMLObjectDiagramModel",
+      "UMLPackageDiagramModel",
+      "UMLProfileDiagramModel",
+      "UMLSequenceDiagramModel",
+      "UMLStateMachineModel",
+      "UMLTimingDiagramModel",
+      "UMLUseCaseDiagramModel",
+      "UseCaseDiagramOptions",
       "ValidationError",
       "ValidationReport",
       "Vec2",
@@ -197,6 +243,20 @@
       "color_guide",
       "column",
       "complement",
+      "compose_activity_diagram",
+      "compose_class_diagram",
+      "compose_communication_diagram",
+      "compose_component_diagram",
+      "compose_composite_structure",
+      "compose_deployment_diagram",
+      "compose_interaction_overview",
+      "compose_object_diagram",
+      "compose_package_diagram",
+      "compose_profile_diagram",
+      "compose_sequence_diagram",
+      "compose_state_machine",
+      "compose_timing_diagram",
+      "compose_use_case_diagram",
       "conic_gradient",
       "content_box",
       "contrast_of_colours",
@@ -340,6 +400,7 @@
       "stroke",
       "stroke_outline",
       "style_effects",
+      "sugiyama_layout",
       "surface_curvature",
       "svg_to_objects",
       "sweep",
@@ -356,8 +417,22 @@
       "trim_segment",
       "turbulence",
       "turtle",
+      "validate_activity_diagram",
+      "validate_class_diagram",
+      "validate_communication_diagram",
+      "validate_component_diagram",
+      "validate_composite_structure",
+      "validate_deployment_diagram",
       "validate_document",
+      "validate_interaction_overview",
+      "validate_object_diagram",
+      "validate_package_diagram",
+      "validate_profile_diagram",
+      "validate_sequence_diagram",
+      "validate_state_machine",
       "validate_static_rules",
+      "validate_timing_diagram",
+      "validate_use_case_diagram",
       "wave",
       "window_to_viewport",
       "wrap_text",
@@ -593,6 +668,125 @@
       "kind": "object_type",
       "core": true,
       "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "uml.marker_glyph",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.classifier_box",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.component_box",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.state_box",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.action",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.artifact_box",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.node_box",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.lifeline",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.activation_bar",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.actor",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.socket",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.lollipop",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.activity_node",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.pseudostate",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.fragment_frame",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.swimlane",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "uml.timing_lane",
+      "kind": "object_type",
+      "core": true,
+      "sdk": false,
       "mcp": true
     },
     {
@@ -1156,6 +1350,13 @@
       "mcp": true
     },
     {
+      "name": "ActivityDiagramOptions",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "BookBuilder",
       "kind": "sdk_export",
       "core": false,
@@ -1198,6 +1399,13 @@
       "mcp": true
     },
     {
+      "name": "ClassDiagramOptions",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "ClosedPalette",
       "kind": "sdk_export",
       "core": false,
@@ -1205,7 +1413,35 @@
       "mcp": true
     },
     {
+      "name": "CommunicationDiagramOptions",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "ComponentDiagramOptions",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "CompositeStructureOptions",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "CubicBezier",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "DeploymentDiagramOptions",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1345,6 +1581,13 @@
       "mcp": true
     },
     {
+      "name": "LayoutResult",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "MasterBuilder",
       "kind": "sdk_export",
       "core": false,
@@ -1380,7 +1623,21 @@
       "mcp": true
     },
     {
+      "name": "ObjectDiagramOptions",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "OverflowSignal",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "PackageDiagramOptions",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1415,6 +1672,13 @@
       "mcp": true
     },
     {
+      "name": "ProfileDiagramOptions",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "ScalarField",
       "kind": "sdk_export",
       "core": false,
@@ -1429,7 +1693,21 @@
       "mcp": true
     },
     {
+      "name": "SequenceDiagramOptions",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "StackBuilder",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "StateMachineOptions",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1443,7 +1721,126 @@
       "mcp": true
     },
     {
+      "name": "SugiyamaConfig",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "Theme",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "TimingDiagramOptions",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLActivityDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLClassDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLCommunicationDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLComponentDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLCompositeStructureModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLDeploymentDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLInteractionOverviewModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLObjectDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLPackageDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLProfileDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLSequenceDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLStateMachineModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLTimingDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UMLUseCaseDiagramModel",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "UseCaseDiagramOptions",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1717,6 +2114,104 @@
     },
     {
       "name": "complement",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_activity_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_class_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_communication_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_component_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_composite_structure",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_deployment_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_interaction_overview",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_object_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_package_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_profile_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_sequence_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_state_machine",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_timing_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "compose_use_case_diagram",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2724,6 +3219,13 @@
       "mcp": true
     },
     {
+      "name": "sugiyama_layout",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "surface_curvature",
       "kind": "sdk_export",
       "core": false,
@@ -2836,6 +3338,48 @@
       "mcp": true
     },
     {
+      "name": "validate_activity_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_class_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_communication_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_component_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_composite_structure",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_deployment_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "validate_document",
       "kind": "sdk_export",
       "core": false,
@@ -2843,7 +3387,63 @@
       "mcp": true
     },
     {
+      "name": "validate_interaction_overview",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_object_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_package_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_profile_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_sequence_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_state_machine",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "validate_static_rules",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_timing_diagram",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "validate_use_case_diagram",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

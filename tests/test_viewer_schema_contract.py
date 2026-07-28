@@ -185,9 +185,13 @@ def test_documented_gaps_snapshot():
     _, registry = _schema_and_registry()
     assert set(registry["unsupported"]["flow_types"]) == {"column_break", "keep_together", "image"}
     assert set(registry["unsupported"]["inline_kinds"]) == {"ref", "cite", "footnote"}
-    assert registry["unsupported"]["object_types"] == {}
+    assert set(registry["unsupported"]["object_types"]) == {
+        "uml.fragment_frame",
+        "uml.swimlane",
+        "uml.timing_lane",
+    }
     # every documented gap carries a non-empty reason
-    for dim in ("flow_types", "inline_kinds"):
+    for dim in ("object_types", "flow_types", "inline_kinds"):
         for name, reason in registry["unsupported"][dim].items():
             assert isinstance(reason, str) and reason.strip(), f"{dim}.{name} needs a reason"
 

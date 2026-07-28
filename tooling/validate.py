@@ -54,6 +54,11 @@ CORE_OBJECT_TYPES = {
     "rect", "ellipse", "circle", "line", "polyline", "polygon", "path", "curve",
     "bezier", "text", "image", "icon", "bullet_list", "dimension", "connector",
     "table", "group",
+    "uml.marker_glyph", "uml.classifier_box", "uml.component_box", "uml.state_box",
+    "uml.action", "uml.artifact_box", "uml.node_box", "uml.lifeline",
+    "uml.activation_bar", "uml.actor", "uml.socket", "uml.lollipop",
+    "uml.activity_node", "uml.pseudostate", "uml.fragment_frame", "uml.swimlane",
+    "uml.timing_lane",
 }
 CORE_FLOW_TYPES = {
     "paragraph", "heading", "list", "spacer", "page_break", "column_break", "table",

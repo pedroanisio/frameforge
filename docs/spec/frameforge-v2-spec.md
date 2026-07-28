@@ -465,6 +465,36 @@ into core geometry (a `graph` lays out its declared nodes/edges via
 carries them — they are part of the *format an author writes*, documented in the
 grammar, not the model.
 
+### 7.1 UML 2.5.1 optional extension
+
+The typed UML visual-object family is an optional fixed-page extension. Its
+discriminators are `uml.action`, `uml.activation_bar`, `uml.activity_node`,
+`uml.actor`, `uml.artifact_box`, `uml.classifier_box`, `uml.component_box`,
+`uml.fragment_frame`, `uml.lifeline`, `uml.lollipop`, `uml.marker_glyph`,
+`uml.node_box`, `uml.pseudostate`, `uml.socket`, `uml.state_box`,
+`uml.swimlane`, and `uml.timing_lane`. These objects carry the common
+`VisualObject` fields plus notation-specific typed payloads; they MUST NOT be
+silently accepted by a target that does not declare UML-extension support.
+
+Diagram-level meaning is validated before visual emission by the SDK's UML
+2.5.1 ontology. The public `validate_*` / `compose_*` pairs cover class,
+package, use-case, component, deployment, activity, state-machine, sequence,
+timing, communication, interaction-overview, profile, composite-structure, and
+object diagrams. Hierarchical composers use the deterministic four-stage
+Sugiyama layout (cycle removal, longest-path layering with long-edge dummy
+nodes, median crossing minimization, and Brandes–Köpf coordinate assignment).
+`ComposedDiagram.to_visual()`, `.to_page()`, and `.to_document()` emit v2
+spelling: stroke geometry lives in `stroke_style`, connector endpoints are
+typed anchors, group children are parent-local, and legacy text keys are
+canonicalized. Composers lower fragment frames, swimlanes, and timing lanes to
+core `group`/`rect`/`text`/`line` primitives on the portable SVG path; their
+typed `uml.*` forms remain available to targets that implement them directly.
+
+The OMG UML 2.5.1 XMI bundle under `static/specs/uml-2.5.1/` is provenance-pinned
+reference data. It is not loaded during validation, composition, rendering, SDK
+discovery, or MCP startup; runtime semantics are owned by the installed Python
+models and this specification.
+
 ## 8. Conformance
 
 ### 8.5 Classes & negotiation
