@@ -7,7 +7,7 @@ disclaimer:
     relying on it.
   generated_by: "Claude Opus 4.8 via Claude Code"
   date: "2026-06-24"
-  last_revised: "2026-07-27"
+  last_revised: "2026-07-28"
 ---
 
 # FrameForge Architecture
@@ -194,6 +194,15 @@ Backends are infrastructure adapters under
   `FRAMEFORGE_REAL_METRICS`. `fit_width` adds the renderer's half-pixel fit
   tolerance, so positioned text does not need an environment-specific slack
   factor. MCP `fit_text` exposes the same decision before geometry is committed.
+- **Generative sampling is author-side computation, not IR state.**
+  `frameforge.sdk.rand` provides process-stable `Rand` streams plus Halton,
+  Poisson-disk, and jittered-grid sampling. They compute ordinary `Vec2` values
+  in Y-down page space, which authors lower into existing objects before model
+  validation. Named `Rand.derive(...)` streams isolate document regions from
+  call-order changes. No seed, RNG state, sampler object, model field, renderer
+  branch, or configuration knob enters the durable IR; reproducibility is proved
+  at the SDK/example boundary and the resulting ordinary geometry continues
+  through the unchanged parse → IR → painter pipeline.
 - **Validation may invoke layout, but painting remains optional.** Structural and
   referential rules run first. Default validation then runs the application
   renderer's measurement pass and discards the SVG, surfacing typed
@@ -208,6 +217,7 @@ Backends are infrastructure adapters under
 |---------|----------|
 | IR models | [src/frameforge/model.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/model.py) |
 | Parse/validate + SDK | [src/frameforge/sdk/](https://github.com/pedroanisio/frameforge/tree/main/src/frameforge/sdk) (`model.py`, `validate.py`, `io.py`, …) |
+| Deterministic sampling | [src/frameforge/sdk/rand.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/sdk/rand.py) (`Rand`, `halton`, `poisson_disk`, `jittered_grid`) |
 | Domain resolvers | [src/frameforge/rendering/domain/services/](https://github.com/pedroanisio/frameforge/tree/main/src/frameforge/rendering/domain/services) |
 | Painter port (seam) | [src/frameforge/rendering/domain/ports.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/domain/ports.py) |
 | Render orchestrator (application) | [src/frameforge/rendering/application/renderer.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/application/renderer.py) |

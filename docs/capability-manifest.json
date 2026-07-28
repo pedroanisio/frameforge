@@ -180,6 +180,7 @@
       "Path",
       "Placement",
       "ProfileDiagramOptions",
+      "Rand",
       "ScalarField",
       "Scene3D",
       "SequenceDiagramOptions",
@@ -298,12 +299,14 @@
       "grid",
       "grid_lines",
       "grid_pattern",
+      "halton",
       "harmony_of_hues",
       "harmony_of_scale",
       "hatch",
       "hatch_fill",
       "image_placeholder",
       "inset",
+      "jittered_grid",
       "johnston_margins",
       "kerned_spans",
       "klein_bottle",
@@ -356,6 +359,7 @@
       "place_stamp",
       "planar",
       "point_in_polygon",
+      "poisson_disk",
       "polar_plot",
       "polygon_area",
       "polyline_length",
@@ -1679,6 +1683,13 @@
       "mcp": true
     },
     {
+      "name": "Rand",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "ScalarField",
       "kind": "sdk_export",
       "core": false,
@@ -2505,6 +2516,13 @@
       "mcp": true
     },
     {
+      "name": "halton",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "harmony_of_hues",
       "kind": "sdk_export",
       "core": false,
@@ -2541,6 +2559,13 @@
     },
     {
       "name": "inset",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "jittered_grid",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2905,6 +2930,13 @@
     },
     {
       "name": "point_in_polygon",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "poisson_disk",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

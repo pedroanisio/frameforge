@@ -9,6 +9,24 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — feat: deterministic randomness and point sampling (2026-07-28)
+
+- **The public SDK now provides reproducible random streams and vector-native
+  point samplers.** `Rand` uses the same SHA-256 seed discipline as the
+  humanize pass, while `derive(...)` creates independent named streams that do
+  not depend on parent draws or sibling creation order. `halton`,
+  `poisson_disk`, and `jittered_grid` return ordinary Y-down `Vec2` geometry;
+  Poisson sampling uses Bridson's background grid, enforces its minimum-distance
+  invariant, and supports an explicit `max_points` cap. All APIs are standard-
+  library-only, deterministic by default, isolated from the global RNG, and
+  explicitly non-cryptographic. Property, subprocess, serialization-hash,
+  performance, public-export, MCP-discovery, and rendered-example regressions
+  live in `tests/test_rand.py` and `tests/test_mcp_capabilities.py`.
+- This is additive SDK-only functionality: no schema, grammar, renderer, CLI,
+  configuration, or migration change is required. Generated SDK documentation,
+  the capability manifest, architecture guide, MCP guide, and
+  `seeded_sampling_showcase.py` document the full workflow. Closes #90.
+
 ## Unreleased — fix: render object effects across the pdf-tex primitive surface (2026-07-28)
 
 - **The pdf-tex backend no longer silently drops object-level shadows and

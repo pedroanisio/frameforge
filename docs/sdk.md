@@ -152,6 +152,25 @@ with layer.local([24, 24, 360, 160], clip=[0, 0, 360, 160]) as panel:
     panel.add(sparkline([(0, 2), (1, 4), (2, 3), (3, 7)], [168, 116, 160, 32]))
 ```
 
+## Deterministic sampling
+
+`frameforge.sdk.rand` provides reproducible `Rand` streams plus Halton, Poisson-disk, and jittered-grid point sampling. Every sampler returns ordinary Y-down `Vec2` geometry; named `derive(...)` streams are independent of parent draws and sibling creation order. Spatial coordinates are quantized for stable serialization, Poisson generation uses a sparse background grid and an optional hard `max_points` cap, and no call mutates Python's global RNG. `Rand` is for deterministic authoring, not cryptographic use.
+
+```python
+from frameforge.sdk import Rand, halton, jittered_grid, poisson_disk
+
+# Named streams stay stable when sibling regions are added or reordered.
+dots = Rand("document").derive("dots")
+blue_noise = poisson_disk(
+    [48, 72, 480, 320], radius=12, rand=dots, max_points=500
+)
+anchors = halton(24, box=[48, 72, 480, 320], skip=7)
+cells = jittered_grid(
+    [560, 72, 320, 320], nx=6, ny=5, amount=0.7,
+    rand=Rand("document").derive("grid"),
+)
+```
+
 ## Design Canon — colour & typography
 
 Two canon modules codify working design rules so authors (human or agent) start from *decided* systems instead of ad-hoc picks. `frameforge.sdk.chevreul` (after M. E. Chevreul, 1839): the 12-station painter's wheel with `complement`, tone scales, the **six harmonies** (`harmony_of_scale`/`harmony_of_hues`/`dominant_light` and the three contrasts), WCAG 2.1 `relative_luminance`/`contrast_ratio`, the `grey_document` tone audit, and `closed_palette` — duties (ground/ink/accent + quiet steps) with the 62/30/8 `AREA_GUIDE`, emitting a ready `defs.tokens.colors` fragment. `frameforge.sdk.canon` (after Edward Johnston, 1906): `modular_scale`, the inner-1½/top-2/outer-3/foot-4 margin canon (`johnston_margins`/`content_box`), the 45–75 characters-per-line measure band, and `caps_tracking`. Pure helpers only — nothing new enters the schema.

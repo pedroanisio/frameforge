@@ -116,6 +116,18 @@ Fluent builder:
   - Fractals (`frameforge.sdk.fractal`): an `lsystem` + `turtle` engine with
     `koch_curve`/`dragon_curve`/`sierpinski_arrowhead` presets — self-similar curves
     lowered to plain polylines.
+  - Deterministic sampling (`frameforge.sdk.rand`):
+        from frameforge.sdk import Rand, halton, poisson_disk, jittered_grid
+        root = Rand("document")
+        dots = poisson_disk([0, 0, 640, 360], radius=12,
+                            rand=root.derive("dots"), max_points=500)
+    `derive(name)` creates an independent named sub-stream whose output does not
+    depend on parent draws or sibling creation order. `halton` produces
+    low-discrepancy points; `poisson_disk` enforces a minimum separation;
+    `jittered_grid` emits one point per cell. All return plain `Vec2` values,
+    page space is Y-down, and the default seed is deterministic. This API is
+    not cryptographic. Use it directly through `run_sdk_code`; no dedicated MCP
+    tool is needed.
   - `Frame` scales accept structured specs: `{"kind":"log","base":b}` / `{"kind":"pow","exp":e}`.
   - `multiview(scene, box=...)` — orthographic front/top/side/iso panel grid of a `Scene3D`.
   - `Graph.render(box=...)` auto-lays-out from declared edges (`auto_layout`/`layout_kind`);

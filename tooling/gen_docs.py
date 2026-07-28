@@ -414,6 +414,20 @@ def gen_sdk_guide():
     )
     page.line([64, 92], [64 + width, 92], **stroke(1, color="#2563eb", dash="4 4"))
     """
+    sampling_example = """\
+    from frameforge.sdk import Rand, halton, jittered_grid, poisson_disk
+
+    # Named streams stay stable when sibling regions are added or reordered.
+    dots = Rand("document").derive("dots")
+    blue_noise = poisson_disk(
+        [48, 72, 480, 320], radius=12, rand=dots, max_points=500
+    )
+    anchors = halton(24, box=[48, 72, 480, 320], skip=7)
+    cells = jittered_grid(
+        [560, 72, 320, 320], nx=6, ny=5, amount=0.7,
+        rand=Rand("document").derive("grid"),
+    )
+    """
     lines = [
         "# Python SDK",
         "",
@@ -490,6 +504,19 @@ def gen_sdk_guide():
         "",
         "```python",
         textwrap.dedent(macros_example).rstrip(),
+        "```",
+        "",
+        "## Deterministic sampling",
+        "",
+        "`frameforge.sdk.rand` provides reproducible `Rand` streams plus Halton, Poisson-disk, and "
+        "jittered-grid point sampling. Every sampler returns ordinary Y-down `Vec2` geometry; named "
+        "`derive(...)` streams are independent of parent draws and sibling creation order. Spatial "
+        "coordinates are quantized for stable serialization, Poisson generation uses a sparse background "
+        "grid and an optional hard `max_points` cap, and no call mutates Python's global RNG. `Rand` is "
+        "for deterministic authoring, not cryptographic use.",
+        "",
+        "```python",
+        textwrap.dedent(sampling_example).rstrip(),
         "```",
         "",
         "## Design Canon — colour & typography",
@@ -624,6 +651,7 @@ def gen_sdk_api():
         "frameforge.sdk.metrics",
         "frameforge.sdk.model",
         "frameforge.sdk.paint",
+        "frameforge.sdk.rand",
         "frameforge.sdk.region",
         "frameforge.sdk.topology",
         "frameforge.sdk.validate",

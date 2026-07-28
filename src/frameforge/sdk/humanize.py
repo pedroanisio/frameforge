@@ -47,19 +47,10 @@ from __future__ import annotations
 import copy
 import math
 from dataclasses import dataclass
-from hashlib import sha256
 from random import Random
 from typing import Any
 
-
-def _stable_seed(*parts: Any) -> int:
-    """A process-independent integer seed.
-
-    Deliberately not Python's :func:`hash`, which salts ``str``/``bytes`` per
-    process (``PYTHONHASHSEED``) and would make golden hashes drift across runs.
-    """
-    key = "\x1f".join(str(p) for p in parts)
-    return int.from_bytes(sha256(key.encode("utf-8")).digest()[:8], "big")
+from frameforge.sdk._seed import stable_seed as _stable_seed
 
 
 def _clamp(x: float, lo: float = -1.0, hi: float = 1.0) -> float:

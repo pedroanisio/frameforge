@@ -172,7 +172,7 @@ _CAPABILITY_MODULES = [
     "book", "canon", "chart", "chevreul", "clip", "draw", "expand", "fields",
     "figure", "flow", "fractal", "geometry", "humanize", "lattices", "layout",
     "macros", "manifold", "markdown", "metrics", "outline", "paint", "params",
-    "pathtext", "planar", "recolor", "region", "separate", "solids", "topology",
+    "pathtext", "planar", "rand", "recolor", "region", "separate", "solids", "topology",
     "sugiyama", "uml_models", "widgets",
 ]
 
@@ -202,7 +202,33 @@ _HEADLINE_SURFACES = [
     "compose_sequence_diagram", "compose_state_machine", "to_document",
     # cross-cutting
     "expand(", "humanize", "measure_text", "fit_width",
+    # deterministic generative substrate (#90)
+    "Rand", "halton", "poisson_disk", "jittered_grid",
 ]
+
+
+def test_guide_explains_deterministic_sampling_workflow():
+    required_fragments = (
+        "frameforge.sdk.rand",
+        "from frameforge.sdk import Rand, halton, poisson_disk, jittered_grid",
+        "independent named sub-stream",
+        "page space is Y-down",
+        "not cryptographic",
+        "run_sdk_code",
+    )
+
+    missing = [fragment for fragment in required_fragments if fragment not in FRAMEFORGE_GUIDE]
+    assert not missing, f"MCP guide omits deterministic sampling guidance: {missing}"
+
+
+def test_sdk_discovery_exposes_deterministic_sampling_contracts():
+    result = describe_capabilities(topic="sdk")
+    summaries = {item["name"]: item["summary"] for item in result["exports"]}
+
+    assert "deterministic" in summaries["Rand"].lower()
+    assert "low-discrepancy" in summaries["halton"].lower()
+    assert "minimum separation" in summaries["poisson_disk"].lower()
+    assert "one point per cell" in summaries["jittered_grid"].lower()
 
 
 def test_guide_documents_pdf_tex_object_effect_coverage_and_approximations():

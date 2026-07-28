@@ -134,6 +134,7 @@ from frameforge.sdk.outline import Placement, place_stamp, repeat_along_path, st
 from frameforge.sdk.pathtext import offset_path, path_length, path_walker, text_on_path
 from frameforge.sdk.book import BookBuilder, ChapterBuilder
 from frameforge.sdk.params import eval_expr, resolve_params
+from frameforge.sdk.rand import Rand, halton, jittered_grid, poisson_disk
 from frameforge.sdk.recolor import recolor
 from frameforge.sdk.solids import (extrude, loft, revolve, section_loops,
                                    section_object, sweep)
@@ -342,6 +343,7 @@ __all__ = [
     "Path",
     "Placement",
     "ProfileDiagramOptions",
+    "Rand",
     "ScalarField",
     "Scene3D",
     "SequenceDiagramOptions",
@@ -459,12 +461,14 @@ __all__ = [
     "grid",
     "grid_lines",
     "grid_pattern",
+    "halton",
     "harmony_of_hues",
     "harmony_of_scale",
     "hatch",
     "hatch_fill",
     "image_placeholder",
     "inset",
+    "jittered_grid",
     "johnston_margins",
     "kerned_spans",
     "klein_bottle",
@@ -518,6 +522,7 @@ __all__ = [
     "place_stamp",
     "planar",
     "point_in_polygon",
+    "poisson_disk",
     "polar_plot",
     "polygon_area",
     "polyline_length",

@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 155 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 156 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -136,6 +136,7 @@ The 155 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`sdk_layout_stacks.py`](../static/examples/sdk_layout_stacks.py) | Generate the SDK layout stacks fixture. |
 | [`sdk_symbol_instancing.py`](../static/examples/sdk_symbol_instancing.py) | Symbol instancing & object-level effects — the SDK affordances for repeated detail. |
 | [`sdk_toolkit_demo.py`](../static/examples/sdk_toolkit_demo.py) | Minimal worked example of the SDK's Tier-1 authoring toolkit. |
+| [`seeded_sampling_showcase.py`](../static/examples/seeded_sampling_showcase.py) | Deterministic sampling: Halton, Poisson disk, and a jittered grid. |
 | [`showcase_guided_draw.py`](../static/examples/showcase_guided_draw.py) | Showcase — guided draw: a line-art trace becomes the under-drawing, and we |
 | [`ski_rebuilt_composition.py`](../static/examples/ski_rebuilt_composition.py) | Ingest ``ski_rebuilt.flat.svg`` and compose + transform it as native FrameForge. |
 | [`slide_diagrammation.py`](../static/examples/slide_diagrammation.py) | Nine slides, one identity, nine DIAGRAMMATIONS. |

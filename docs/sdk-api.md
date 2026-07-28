@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`ActivityDiagramOptions`, `BookBuilder`, `Box`, `BoxLike`, `Camera`, `ClassDiagramOptions`, `ChapterBuilder`, `Chart`, `ClosedPalette`, `CommunicationDiagramOptions`, `ComponentDiagramOptions`, `CompositeStructureOptions`, `CubicBezier`, `Document`, `DocumentBuilder`, `DeploymentDiagramOptions`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `FlowBuilder`, `Frame`, `Graph`, `HEAD_VERSION`, `Hand`, `Handle`, `ImportedFigurePlacement`, `Issue`, `Lattice`, `LayoutResult`, `MasterBuilder`, `Mat3`, `Mat4`, `Material`, `Node`, `OverflowSignal`, `ObjectDiagramOptions`, `PackageDiagramOptions`, `PageBuilder`, `Panel`, `Path`, `Placement`, `ProfileDiagramOptions`, `ScalarField`, `Scene3D`, `SequenceDiagramOptions`, `StackBuilder`, `StaticValidationError`, `StateMachineOptions`, `SugiyamaConfig`, `Theme`, `TimingDiagramOptions`, `UMLActivityDiagramModel`, `UMLClassDiagramModel`, `UMLCommunicationDiagramModel`, `UMLComponentDiagramModel`, `UMLCompositeStructureModel`, `UMLDeploymentDiagramModel`, `UMLInteractionOverviewModel`, `UMLObjectDiagramModel`, `UMLPackageDiagramModel`, `UMLProfileDiagramModel`, `UMLSequenceDiagramModel`, `UMLStateMachineModel`, `UMLTimingDiagramModel`, `UMLUseCaseDiagramModel`, `UseCaseDiagramOptions`, `ValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `VectorField`, `ViewingPipeline`, `aabb`, `aabb3`, `appearance`, `apply_humanize`, `apply_separation`, `array`, `assert_golden`, `avatar`, `badge`, `badge_width`, `bezier_patch`, `bezier_patch_point`, `blur_filter`, `breadcrumb`, `bspline_patch`, `bspline_patch_point`, `button`, `caps_tracking`, `card`, `chamfer_ring`, `checkbox`, `cite`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `closed_palette`, `color_guide`, `column`, `compose_activity_diagram`, `compose_class_diagram`, `compose_communication_diagram`, `compose_component_diagram`, `compose_composite_structure`, `compose_deployment_diagram`, `compose_interaction_overview`, `compose_object_diagram`, `compose_package_diagram`, `compose_profile_diagram`, `compose_sequence_diagram`, `compose_state_machine`, `compose_timing_diagram`, `compose_use_case_diagram`, `complement`, `conic_gradient`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `convex_hull`, `convex_hull_3d`, `default_theme`, `diffuse_lighting`, `displacement_map`, `divider`, `dominant_light`, `dots`, `dragon_curve`, `dropdown`, `effect`, `effect_stack`, `effects`, `eval_expr`, `expand`, `extend_segment`, `extract_objects`, `extrude`, `field`, `fill_regions`, `fill_stroke`, `fit_width`, `fillet_ring`, `filter_chain`, `filter_fn`, `font_kern_pairs`, `from_markdown`, `function_plot`, `glow`, `gradient_map`, `greeble`, `grey_document`, `grid`, `grid_lines`, `grid_pattern`, `harmony_of_hues`, `harmony_of_scale`, `hatch`, `hatch_fill`, `image_placeholder`, `inset`, `johnston_margins`, `kerned_spans`, `klein_bottle`, `koch_curve`, `kpi`, `lattice`, `line_curve_intersections`, `line_intersection`, `linear_gradient`, `load_figure`, `loft`, `lorem`, `lorem_paragraphs`, `lower_embedded_svg`, `lsystem`, `manifold`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `md`, `measure_fits`, `measure_text`, `merge_figure_defs`, `mirror`, `mobius`, `model_module`, `modular_scale`, `multiview`, `navbar`, `neon`, `normalize_clip`, `normalize_mask`, `obb`, `object_bbox`, `offset_path`, `collision_report`, `overflow_report`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `parse`, `path_length`, `path_walker`, `pattern`, `pill`, `place_figure`, `place_imported_figure`, `place_region`, `place_stamp`, `planar`, `point_in_polygon`, `polar_plot`, `polygon_area`, `polyline_length`, `progress`, `quarter_circle_kappa`, `radial_gradient`, `radio`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `recolor`, `ref`, `region_grade`, `register_theme`, `relative_luminance`, `render_page_svgs`, `render_pages_with_stats`, `repeat_along_path`, `resolve_params`, `revolve`, `rgba`, `row`, `saddle`, `section_loops`, `section_object`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `select_in`, `separate_rects`, `serialize`, `shadow`, `sierpinski_arrowhead`, `slider`, `soft_shadow`, `span`, `sparkline`, `specular_lighting`, `sphere`, `sticky_note`, `stroke`, `stroke_outline`, `sugiyama_layout`, `style_effects`, `surface_curvature`, `svg_to_objects`, `sweep`, `table`, `tabs`, `text_height`, `text_on_path`, `text_style`, `theme`, `to_plain_dict`, `toggle`, `tone_scale`, `torus`, `trim_segment`, `turbulence`, `turtle`, `validate_document`, `validate_activity_diagram`, `validate_class_diagram`, `validate_communication_diagram`, `validate_component_diagram`, `validate_composite_structure`, `validate_deployment_diagram`, `validate_interaction_overview`, `validate_object_diagram`, `validate_package_diagram`, `validate_profile_diagram`, `validate_sequence_diagram`, `validate_state_machine`, `validate_static_rules`, `validate_timing_diagram`, `validate_use_case_diagram`, `wave`, `window_to_viewport`, `wrap_text`, `write_golden`
+`ActivityDiagramOptions`, `BookBuilder`, `Box`, `BoxLike`, `Camera`, `ClassDiagramOptions`, `ChapterBuilder`, `Chart`, `ClosedPalette`, `CommunicationDiagramOptions`, `ComponentDiagramOptions`, `CompositeStructureOptions`, `CubicBezier`, `Document`, `DocumentBuilder`, `DeploymentDiagramOptions`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `FlowBuilder`, `Frame`, `Graph`, `HEAD_VERSION`, `Hand`, `Handle`, `ImportedFigurePlacement`, `Issue`, `Lattice`, `LayoutResult`, `MasterBuilder`, `Mat3`, `Mat4`, `Material`, `Node`, `OverflowSignal`, `ObjectDiagramOptions`, `PackageDiagramOptions`, `PageBuilder`, `Panel`, `Path`, `Placement`, `ProfileDiagramOptions`, `Rand`, `ScalarField`, `Scene3D`, `SequenceDiagramOptions`, `StackBuilder`, `StaticValidationError`, `StateMachineOptions`, `SugiyamaConfig`, `Theme`, `TimingDiagramOptions`, `UMLActivityDiagramModel`, `UMLClassDiagramModel`, `UMLCommunicationDiagramModel`, `UMLComponentDiagramModel`, `UMLCompositeStructureModel`, `UMLDeploymentDiagramModel`, `UMLInteractionOverviewModel`, `UMLObjectDiagramModel`, `UMLPackageDiagramModel`, `UMLProfileDiagramModel`, `UMLSequenceDiagramModel`, `UMLStateMachineModel`, `UMLTimingDiagramModel`, `UMLUseCaseDiagramModel`, `UseCaseDiagramOptions`, `ValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `VectorField`, `ViewingPipeline`, `aabb`, `aabb3`, `appearance`, `apply_humanize`, `apply_separation`, `array`, `assert_golden`, `avatar`, `badge`, `badge_width`, `bezier_patch`, `bezier_patch_point`, `blur_filter`, `breadcrumb`, `bspline_patch`, `bspline_patch_point`, `button`, `caps_tracking`, `card`, `chamfer_ring`, `checkbox`, `cite`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `closed_palette`, `color_guide`, `column`, `compose_activity_diagram`, `compose_class_diagram`, `compose_communication_diagram`, `compose_component_diagram`, `compose_composite_structure`, `compose_deployment_diagram`, `compose_interaction_overview`, `compose_object_diagram`, `compose_package_diagram`, `compose_profile_diagram`, `compose_sequence_diagram`, `compose_state_machine`, `compose_timing_diagram`, `compose_use_case_diagram`, `complement`, `conic_gradient`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `convex_hull`, `convex_hull_3d`, `default_theme`, `diffuse_lighting`, `displacement_map`, `divider`, `dominant_light`, `dots`, `dragon_curve`, `dropdown`, `effect`, `effect_stack`, `effects`, `eval_expr`, `expand`, `extend_segment`, `extract_objects`, `extrude`, `field`, `fill_regions`, `fill_stroke`, `fit_width`, `fillet_ring`, `filter_chain`, `filter_fn`, `font_kern_pairs`, `from_markdown`, `function_plot`, `glow`, `gradient_map`, `greeble`, `grey_document`, `grid`, `grid_lines`, `grid_pattern`, `halton`, `harmony_of_hues`, `harmony_of_scale`, `hatch`, `hatch_fill`, `image_placeholder`, `inset`, `jittered_grid`, `johnston_margins`, `kerned_spans`, `klein_bottle`, `koch_curve`, `kpi`, `lattice`, `line_curve_intersections`, `line_intersection`, `linear_gradient`, `load_figure`, `loft`, `lorem`, `lorem_paragraphs`, `lower_embedded_svg`, `lsystem`, `manifold`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `md`, `measure_fits`, `measure_text`, `merge_figure_defs`, `mirror`, `mobius`, `model_module`, `modular_scale`, `multiview`, `navbar`, `neon`, `normalize_clip`, `normalize_mask`, `obb`, `object_bbox`, `offset_path`, `collision_report`, `overflow_report`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `parse`, `path_length`, `path_walker`, `pattern`, `pill`, `place_figure`, `place_imported_figure`, `place_region`, `place_stamp`, `planar`, `point_in_polygon`, `poisson_disk`, `polar_plot`, `polygon_area`, `polyline_length`, `progress`, `quarter_circle_kappa`, `radial_gradient`, `radio`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `recolor`, `ref`, `region_grade`, `register_theme`, `relative_luminance`, `render_page_svgs`, `render_pages_with_stats`, `repeat_along_path`, `resolve_params`, `revolve`, `rgba`, `row`, `saddle`, `section_loops`, `section_object`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `select_in`, `separate_rects`, `serialize`, `shadow`, `sierpinski_arrowhead`, `slider`, `soft_shadow`, `span`, `sparkline`, `specular_lighting`, `sphere`, `sticky_note`, `stroke`, `stroke_outline`, `sugiyama_layout`, `style_effects`, `surface_curvature`, `svg_to_objects`, `sweep`, `table`, `tabs`, `text_height`, `text_on_path`, `text_style`, `theme`, `to_plain_dict`, `toggle`, `tone_scale`, `torus`, `trim_segment`, `turbulence`, `turtle`, `validate_document`, `validate_activity_diagram`, `validate_class_diagram`, `validate_communication_diagram`, `validate_component_diagram`, `validate_composite_structure`, `validate_deployment_diagram`, `validate_interaction_overview`, `validate_object_diagram`, `validate_package_diagram`, `validate_profile_diagram`, `validate_sequence_diagram`, `validate_state_machine`, `validate_static_rules`, `validate_timing_diagram`, `validate_use_case_diagram`, `wave`, `window_to_viewport`, `wrap_text`, `write_golden`
 
 ## `frameforge.sdk.author`
 
@@ -2088,6 +2088,61 @@ Build a visible blend-texture ``feTurbulence`` preset.
 
 ```python
 turbulence(*, base_frequency: 'float | int | str | Sequence[float | int | str]', num_octaves: 'int | None' = None, seed: 'int | None' = None, stitch_tiles: 'str | None' = None, type: 'str | None' = None, opacity: 'float | int | str | None' = None, mode: 'str | None' = None) -> 'dict[str, Any]'
+```
+
+## `frameforge.sdk.rand`
+
+### `Rand`
+
+`frameforge.sdk.rand.Rand`
+
+Deterministic non-cryptographic random stream.
+
+```python
+Rand(seed: 'Any' = 0) -> 'None'
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `choice` | `(self, seq: 'Sequence[T]') -> 'T'` | Choose one member of ``seq`` without modifying it. |
+| `derive` | `(self, *parts: 'Any') -> 'Rand'` | Return an independent named stream derived from this stream's seed. |
+| `gauss` | `(self, mu: 'float' = 0.0, sigma: 'float' = 1.0) -> 'float'` | Return one Gaussian draw with mean ``mu`` and deviation ``sigma``. |
+| `jitter` | `(self, p: 'Vec2 \| Sequence[float]', radius: 'float') -> 'Vec2'` | Return ``p`` displaced by an area-uniform amount within ``radius``. |
+| `point_in_circle` | `(self, cx: 'float', cy: 'float', r: 'float') -> 'Vec2'` | Return a point uniformly distributed by area inside a circle. |
+| `point_in_rect` | `(self, box: 'Sequence[float]') -> 'Vec2'` | Return an area-uniform point inside ``box=[x, y, width, height]``. |
+| `randint` | `(self, lo: 'int', hi: 'int') -> 'int'` | Return an integer in ``[lo, hi]`` (both endpoints inclusive). |
+| `sample` | `(self, seq: 'Sequence[T]', k: 'int') -> 'list[T]'` | Choose ``k`` unique members of ``seq`` without modifying it. |
+| `shuffled` | `(self, seq: 'Sequence[T]') -> 'list[T]'` | Return a shuffled copy of ``seq``; never mutate the caller's value. |
+| `uniform` | `(self, lo: 'float' = 0.0, hi: 'float' = 1.0) -> 'float'` | Return a uniformly distributed float in the inclusive range bounds. |
+
+### `halton`
+
+`frameforge.sdk.rand.halton`
+
+Return ``n`` deterministic low-discrepancy Halton points in O(n).
+
+```python
+halton(n: 'int', *, base_x: 'int' = 2, base_y: 'int' = 3, box: 'Sequence[float] | None' = None, skip: 'int' = 0) -> 'list[Vec2]'
+```
+
+### `jittered_grid`
+
+`frameforge.sdk.rand.jittered_grid`
+
+Return one point per cell deterministically in row-major order.
+
+```python
+jittered_grid(box: 'Sequence[float]', *, nx: 'int', ny: 'int', amount: 'float' = 1.0, rand: 'Rand | None' = None) -> 'list[Vec2]'
+```
+
+### `poisson_disk`
+
+`frameforge.sdk.rand.poisson_disk`
+
+Return Bridson Poisson-disk points with minimum separation ``radius``.
+
+```python
+poisson_disk(box: 'Sequence[float]', *, radius: 'float', k: 'int' = 30, rand: 'Rand | None' = None, max_points: 'int | None' = None) -> 'list[Vec2]'
 ```
 
 ## `frameforge.sdk.region`
