@@ -27,6 +27,11 @@ coordinate authority) — this module never re-derives norm ⇄ px maths.
 OpenCV/NumPy are imported lazily, so importing this module costs nothing until a
 function runs (the package convention for the optional ``vision`` group).
 
+The supported public surface is ``DetectedRegion`` plus ``detect_regions``, in
+lockstep with :mod:`frameforge.vision.infrastructure`. Lower-level analysis
+helpers remain available for explicit internal imports, but are intentionally
+excluded from star imports and compatibility guarantees.
+
 ⚠ ARCHITECTURAL CONTRACT (PALS's LAW): thresholds, k-means palettes, and level-set
 ensembles are heuristics, not ground truth. Region lists are *measurements to
 verify* (render the overlay, check the numbers), never proof of image content.
@@ -42,22 +47,7 @@ from ..domain.coordinates import normalize_point
 
 __all__ = [
     "DetectedRegion",
-    "RegionAnalysis",
     "detect_regions",
-    "detect_closed_regions",
-    "segment_fill_regions",
-    "consensus_smooth_regions",
-    "cluster_regions",
-    "render_overlay",
-    "smooth_regions_svg",
-    "load_image",
-    "mollify",
-    "smooth_loop",
-    "green_area",
-    "ensemble_vote",
-    "solid_ink_regions",
-    "distinct_colors",
-    "main",
 ]
 
 METHODS = ("closed", "flat", "consensus")

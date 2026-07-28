@@ -9,6 +9,16 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — chore: align vision region exports with the package boundary (2026-07-28)
+
+- **The region-analysis module now advertises only its supported public API.**
+  `frameforge.vision.infrastructure.regions.__all__` contains
+  `DetectedRegion` and `detect_regions`, matching the infrastructure package's
+  re-exports. Lower-level detection and smoothing helpers remain available to
+  existing internal callers through explicit imports, but star imports no
+  longer imply that they carry compatibility guarantees. A dependency-free
+  contract test keeps the module and package boundaries aligned. Closes #58.
+
 ## Unreleased — fix: arrow-marker vocabulary screams; per-object stacking unified across backends (2026-07-27)
 
 Fixes from processed external-agent feedback (TDD;
