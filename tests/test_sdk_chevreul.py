@@ -23,6 +23,32 @@ from frameforge.sdk import chevreul as ch  # noqa: E402
 from frameforge.sdk.model import validate_document  # noqa: E402
 
 
+def test_legacy_outputs_are_frozen_before_perceptual_colour_integration() -> None:
+    """Opt-in colour spaces must never change the established sRGB defaults."""
+    assert ch.tone_scale("#33689c", steps=9) == [
+        "#d6e1eb", "#adc3d7", "#85a4c4", "#5c86b0", "#33689c",
+        "#29537d", "#1f3e5e", "#142a3e", "#0a151f",
+    ]
+    assert ch.harmony_of_scale("#b5402c", n=5) == [
+        "#e6bfb9", "#ce8072", "#b5402c", "#792b1d", "#3c150f",
+    ]
+    assert ch.harmony_of_hues("green", n=3) == ["#a9c04a", "#5d9e52", "#3d8f7c"]
+    assert ch.dominant_light(
+        ["#d7332f", "#33689c", "#5d9e52"], "#f0b32e", strength=0.35,
+    ) == ["#e0602f", "#758276", "#90a545"]
+    assert ch.closed_palette(
+        ground="#fbf8f1", ink="#1d1e22", accent="#b5402c",
+    ).tokens() == {
+        "ground": "#fbf8f1",
+        "ink": "#1d1e22",
+        "accent": "#b5402c",
+        "quiet1": "#a5a5a5",
+        "quiet2": "#787878",
+        "quiet3": "#4b4b4b",
+    }
+    assert ch.nearest_station("#d92b2b") == "red"
+
+
 # ── the wheel ─────────────────────────────────────────────────────────────
 
 
