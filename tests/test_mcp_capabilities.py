@@ -181,6 +181,8 @@ _CAPABILITY_MODULES = [
 _PLUMBING_EXEMPT = {"author", "conform", "io", "model", "validate"}
 
 _HEADLINE_SURFACES = [
+    # SDK discovery residuals (#57)
+    "FlowBuilder", "grid(", "inset(",
     # W1 planar kernel (#45)
     "union", "offset_polygon", "split_at", "cut_along", "fill_regions",
     # W2 stroke outlines + kerning (#46)
@@ -221,6 +223,35 @@ def test_guide_mentions_every_capability_bearing_sdk_module():
 def test_guide_covers_the_delivered_headline_surfaces():
     missing = [s for s in _HEADLINE_SURFACES if s not in FRAMEFORGE_GUIDE]
     assert not missing, f"delivered surfaces missing from the guide: {missing}"
+
+
+def test_guide_explains_standalone_flow_and_static_layout_entry_points():
+    required_fragments = (
+        "from frameforge.sdk import FlowBuilder, grid, inset",
+        "FlowBuilder().heading",
+        ".story()",
+        'doc.flow("report", master=body_master, story=story)',
+        "inset([0, 0, 1280, 720], [48, 64])",
+        "grid(content, cols=3, count=5, gap=24)",
+        "[x, y, w, h]",
+    )
+
+    missing = [fragment for fragment in required_fragments if fragment not in FRAMEFORGE_GUIDE]
+    assert not missing, f"MCP guide omits executable SDK discovery guidance: {missing}"
+
+
+def test_get_guide_delivers_live_top_level_flow_and_layout_exports(tmp_path):
+    import frameforge.sdk as sdk
+
+    for name in ("FlowBuilder", "grid", "inset"):
+        assert name in sdk.__all__
+        assert callable(getattr(sdk, name))
+
+    server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
+    guide = server.tools["get_guide"]()
+    assert "from frameforge.sdk import FlowBuilder, grid, inset" in guide
+    assert "DocumentBuilder.flow" in guide
+    assert "pure functions returning static `[x, y, w, h]`" in guide
 
 
 def test_color_guide_is_a_top_level_sdk_export():

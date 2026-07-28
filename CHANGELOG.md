@@ -9,6 +9,16 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — docs: expose standalone flow and layout helpers through MCP (2026-07-28)
+
+- **MCP clients can now discover the SDK's standalone story and static-box
+  builders without guessing names.** The `frameforge_guide` prompt and
+  `get_guide` tool document the top-level `FlowBuilder`, `grid()`, and
+  `inset()` exports with an executable import-and-use example, explain their
+  relationship to `DocumentBuilder.flow` / `section`, and distinguish static
+  box computation from renderer-arranged stacks. The guide coverage gate now
+  pins all three names and the live MCP delivery path. Closes #57.
+
 ## Unreleased — chore: align vision region exports with the package boundary (2026-07-28)
 
 - **The region-analysis module now advertises only its supported public API.**

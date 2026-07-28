@@ -24,6 +24,19 @@ Fluent builder:
     page.text([64, 96, 900, 80], "Hello", id="title", style=h1)
     doc.write(OUTPUT_YAML_PATH, fail_on_error=True)
 
+- Standalone flow and static layout builders are top-level SDK exports:
+      from frameforge.sdk import FlowBuilder, grid, inset
+      story = FlowBuilder().heading(1, "Results").para("Verified findings.").story()
+      doc.flow("report", master=body_master, story=story)
+      content = inset([0, 0, 1280, 720], [48, 64])
+      cards = grid(content, cols=3, count=5, gap=24)
+  `FlowBuilder` (`frameforge.sdk.flow`) provides typed, chainable helpers for
+  every flowable and lowers with `.story()` into `DocumentBuilder.flow`; prefer
+  `DocumentBuilder.section(...)` when a context manager is more convenient.
+  `inset(box, pad)` and `grid(box, cols=, rows=|count=, gap=, pad=)`
+  (`frameforge.sdk.layout`) are pure functions returning static `[x, y, w, h]`
+  boxes for page primitives; use `Box.inset()` / `Box.grid()` for typed results,
+  or renderer-arranged `.stack(...)` when layout should remain dynamic.
 - Primitives via `PageBuilder`: `.rect` `.text` `.line` `.image` `.ellipse` `.circle`
   `.polyline` `.polygon` `.path` `.curve`, plus `.icon`, `.dimension`, `.arc`,
   `.sector`, `.ring`, `.star`, `.add(obj)` / `.extend(objs)`, and
