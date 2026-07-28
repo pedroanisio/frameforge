@@ -9,6 +9,18 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — fix: expose deterministic noise controls in filter helpers (2026-07-28)
+
+- **`displacement_map()` and `turbulence()` now expose every parameter their
+  SVG presets consume.** Displacement authoring can set its self-generated
+  noise's `base_frequency`, `num_octaves`, `seed`, and `type` without dropping
+  to raw `filter_fn()`; turbulence authoring can set texture `opacity` and blend
+  `mode`. SDK docstrings, model-field discovery text, live MCP SDK discovery,
+  the guide, schema, and SDK reference state the same contract. A full
+  helper→builder→model→SVG regression pins deterministic seed deduplication,
+  distinct-seed definitions, channel selectors, texture strength, and blend
+  mode. Closes #79.
+
 ## Unreleased — docs: expose standalone flow and layout helpers through MCP (2026-07-28)
 
 - **MCP clients can now discover the SDK's standalone story and static-box

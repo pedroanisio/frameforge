@@ -323,8 +323,15 @@ def turbulence(
     seed: int | None = None,
     stitch_tiles: str | None = None,
     type: str | None = None,
+    opacity: float | int | str | None = None,
+    mode: str | None = None,
 ) -> dict[str, Any]:
-    """Build an SVG ``feTurbulence`` filter primitive."""
+    """Build a visible blend-texture ``feTurbulence`` preset.
+
+    ``opacity`` controls the generated texture's alpha and ``mode`` controls how
+    it blends over ``SourceGraphic``. The noise parameters live on this same
+    self-contained preset; it does not feed a later filter-chain item.
+    """
     return filter_fn(
         "turbulence",
         base_frequency=list(base_frequency) if isinstance(base_frequency, tuple) else base_frequency,
@@ -332,21 +339,39 @@ def turbulence(
         seed=seed,
         stitch_tiles=stitch_tiles,
         type=type,
+        opacity=opacity,
+        mode=mode,
     )
 
 
 def displacement_map(
     *,
     scale: float | int | str,
+    base_frequency: float | int | str | Sequence[float | int | str] | None = None,
+    num_octaves: int | None = None,
+    seed: int | None = None,
+    type: str | None = None,
     x_channel: str | None = None,
     y_channel: str | None = None,
     mode: str | None = None,
     opacity: float | int | str | None = None,
 ) -> dict[str, Any]:
-    """Build an SVG ``feDisplacementMap`` filter primitive."""
+    """Build a self-noised SVG ``feDisplacementMap`` preset.
+
+    The preset generates its own ``feTurbulence`` input, so
+    ``base_frequency``, ``num_octaves``, ``seed``, and ``type`` belong on this
+    helper rather than on a preceding :func:`turbulence` chain item. Identical
+    parameter sets deduplicate to byte-identical filter definitions.
+    """
     return filter_fn(
         "displacement_map",
         scale=scale,
+        base_frequency=(
+            list(base_frequency) if isinstance(base_frequency, tuple) else base_frequency
+        ),
+        num_octaves=num_octaves,
+        seed=seed,
+        type=type,
         x_channel=x_channel,
         y_channel=y_channel,
         mode=mode,

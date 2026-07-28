@@ -254,6 +254,28 @@ def test_get_guide_delivers_live_top_level_flow_and_layout_exports(tmp_path):
     assert "pure functions returning static `[x, y, w, h]`" in guide
 
 
+def test_guide_explains_noise_filter_preset_contracts():
+    required_fragments = (
+        "`displacement_map(...)` is self-noised",
+        "`base_frequency`, `num_octaves`, `seed`, and noise `type`",
+        "do not prepend a",
+        "`turbulence(...)` item",
+        "strength is `opacity`",
+        "blend operation is `mode`",
+    )
+
+    missing = [fragment for fragment in required_fragments if fragment not in FRAMEFORGE_GUIDE]
+    assert not missing, f"MCP guide omits noise-filter preset semantics: {missing}"
+
+
+def test_sdk_discovery_summarizes_noise_filter_preset_contracts():
+    result = describe_capabilities(topic="sdk")
+    summaries = {item["name"]: item["summary"] for item in result["exports"]}
+
+    assert "self-noised" in summaries["displacement_map"]
+    assert "blend-texture" in summaries["turbulence"]
+
+
 def test_color_guide_is_a_top_level_sdk_export():
     # `chevreul.color_guide` is advertised in the guide, the headline gate above,
     # and the server handshake — it must be a top-level `frameforge.sdk` export so

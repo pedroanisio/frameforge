@@ -305,16 +305,17 @@ class FilterFn(FG):
     shadow: Optional[ShadowVal] = Field(
         default=None, description="drop_shadow: the shadow spec.")
     base_frequency: Optional[Union[float, int, str, list[Union[float, int, str]]]] = Field(
-        default=None, description="turbulence: feTurbulence baseFrequency (one value or [x, y]).")
+        default=None, description="turbulence/displacement_map: generated feTurbulence baseFrequency (one value or [x, y]).")
     num_octaves: Optional[int] = Field(
-        default=None, description="turbulence: feTurbulence numOctaves.")
-    seed: Optional[int] = Field(default=None, description="turbulence: feTurbulence seed.")
+        default=None, description="turbulence/displacement_map: generated feTurbulence numOctaves.")
+    seed: Optional[int] = Field(
+        default=None, description="turbulence/displacement_map: deterministic feTurbulence seed.")
     stitch_tiles: Optional[Literal["stitch", "noStitch"]] = Field(
         default=None, description="turbulence: feTurbulence stitchTiles.")
     type: Optional[Literal["fractalNoise", "turbulence"]] = Field(
-        default=None, description="turbulence: noise type (feTurbulence type).")
+        default=None, description="turbulence/displacement_map: generated feTurbulence noise type.")
     mode: Optional[str] = Field(
-        default=None, description="displacement_map/lighting: composite or blend mode string.")
+        default=None, description="turbulence/displacement_map/lighting: preset blend or composite mode string.")
     opacity: Optional[Union[float, int, str]] = Field(
         default=None, description="Filter-level opacity applied to the primitive result.")
     scale: Optional[Union[float, int, str]] = Field(

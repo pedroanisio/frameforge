@@ -1863,10 +1863,10 @@ diffuse_lighting(*, surface_scale: 'float | int | str | None' = None, lighting_c
 
 `frameforge.sdk.paint.displacement_map`
 
-Build an SVG ``feDisplacementMap`` filter primitive.
+Build a self-noised SVG ``feDisplacementMap`` preset.
 
 ```python
-displacement_map(*, scale: 'float | int | str', x_channel: 'str | None' = None, y_channel: 'str | None' = None, mode: 'str | None' = None, opacity: 'float | int | str | None' = None) -> 'dict[str, Any]'
+displacement_map(*, scale: 'float | int | str', base_frequency: 'float | int | str | Sequence[float | int | str] | None' = None, num_octaves: 'int | None' = None, seed: 'int | None' = None, type: 'str | None' = None, x_channel: 'str | None' = None, y_channel: 'str | None' = None, mode: 'str | None' = None, opacity: 'float | int | str | None' = None) -> 'dict[str, Any]'
 ```
 
 ### `dots`
@@ -2083,10 +2083,10 @@ text_style(size: 'float | int | str | None' = None, *, family: 'Sequence[str] | 
 
 `frameforge.sdk.paint.turbulence`
 
-Build an SVG ``feTurbulence`` filter primitive.
+Build a visible blend-texture ``feTurbulence`` preset.
 
 ```python
-turbulence(*, base_frequency: 'float | int | str | Sequence[float | int | str]', num_octaves: 'int | None' = None, seed: 'int | None' = None, stitch_tiles: 'str | None' = None, type: 'str | None' = None) -> 'dict[str, Any]'
+turbulence(*, base_frequency: 'float | int | str | Sequence[float | int | str]', num_octaves: 'int | None' = None, seed: 'int | None' = None, stitch_tiles: 'str | None' = None, type: 'str | None' = None, opacity: 'float | int | str | None' = None, mode: 'str | None' = None) -> 'dict[str, Any]'
 ```
 
 ## `frameforge.sdk.region`

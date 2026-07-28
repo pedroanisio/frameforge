@@ -176,6 +176,68 @@ def test_group_a_paint_helpers_expose_model_native_filters_and_appearance():
     }
 
 
+def test_noise_filter_helpers_reach_the_seeded_svg_presets() -> None:
+    wobble = displacement_map(
+        scale=16,
+        base_frequency=(0.004, 0.09),
+        num_octaves=4,
+        seed=18497,
+        type="turbulence",
+        x_channel="B",
+        y_channel="A",
+    )
+    different_wobble = displacement_map(
+        scale=16,
+        base_frequency=(0.004, 0.09),
+        num_octaves=4,
+        seed=18498,
+        type="turbulence",
+        x_channel="B",
+        y_channel="A",
+    )
+    grain = turbulence(
+        base_frequency=0.08,
+        num_octaves=3,
+        seed=7,
+        stitch_tiles="stitch",
+        type="fractalNoise",
+        opacity=0.12,
+        mode="overlay",
+    )
+
+    assert wobble["base_frequency"] == [0.004, 0.09]
+    assert wobble["seed"] == 18497
+    assert grain["opacity"] == 0.12
+    assert grain["mode"] == "overlay"
+
+    builder = DocumentBuilder(profile="diagram")
+    layer = builder.page(
+        "filters",
+        canvas={"size": [240, 140], "units": "px"},
+        coordinate_mode="absolute",
+    ).layer("main")
+    layer.rect([10, 10, 40, 40], fill="#111111", **style_effects(filter=filter_chain(wobble)))
+    layer.rect([60, 10, 40, 40], fill="#222222", **style_effects(filter=filter_chain(wobble)))
+    layer.rect(
+        [110, 10, 40, 40],
+        fill="#333333",
+        **style_effects(filter=filter_chain(different_wobble)),
+    )
+    layer.rect([160, 10, 40, 40], fill="#444444", **style_effects(filter=filter_chain(grain)))
+
+    svg = render_page_svgs(builder.build(), base_dir=ROOT)[0]
+    assert (
+        '<feTurbulence type="turbulence" baseFrequency="0.004 0.09" '
+        'numOctaves="4" seed="18497" result="noise"/>'
+    ) in svg
+    assert 'xChannelSelector="B" yChannelSelector="A"' in svg
+    assert svg.count('seed="18497"') == 1
+    assert svg.count('filter="url(#fx1)"') == 2
+    assert 'seed="18498"' in svg
+    assert '<feFuncA type="linear" slope="0.12"/>' in svg
+    assert '<feBlend in="SourceGraphic" in2="texture" mode="overlay"/>' in svg
+
+
 def test_text_style_exposes_variable_font_and_opentype_fields():
     assert text_style(
         16,

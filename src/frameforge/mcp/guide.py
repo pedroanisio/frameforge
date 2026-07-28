@@ -62,7 +62,11 @@ Fluent builder:
   `variant_caps`, `variant_numeric`, `variant_ligatures`). Filter/style helpers:
   `blur_filter`, `turbulence`, `displacement_map`, `diffuse_lighting`,
   `specular_lighting`, `filter_chain`, `style_effects`, `effect`, `effect_stack`,
-  and `appearance`. Stroke geometry MUST go through `stroke()` (paint in `stroke`,
+  and `appearance`. `displacement_map(...)` is self-noised: set its own
+  `base_frequency`, `num_octaves`, `seed`, and noise `type`; do not prepend a
+  `turbulence(...)` item. Standalone `turbulence(...)` is a visible texture
+  overlay whose strength is `opacity` and whose blend operation is `mode`.
+  Stroke geometry MUST go through `stroke()` (paint in `stroke`,
   geometry in the inline `stroke_style` bundle); an inline `stroke_width` on a
   paint-only line/polyline/path is rejected. `dash=` accepts either a length list
   or SVG-style `"4 4"` / `"4, 4"`; it normalizes to `stroke_dasharray`.
