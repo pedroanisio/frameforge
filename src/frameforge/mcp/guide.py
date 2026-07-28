@@ -296,6 +296,14 @@ or a swallowed object is reported there, not silently passed (PALS's Law).
 Failures are structured: every tool returns `{ok: false, error, error_type?, hint?}` on an
 expected failure (bad path, bad session id, missing dependency) — read the `hint`, it names
 the fix (e.g. which tool lists valid inputs). `ok: false` always carries an `error`.
+Schema failures from `run_sdk_code` / `run_sdk_client` also return `error_groups`,
+`issues_total`, and `groups_total`. Each group localizes the root cause to the
+authoring file, line, and function, names a producing SDK helper when known, and
+keeps one representative path/message/hint instead of repeating Pydantic union-arm
+noise. `validation.issues` contains those compact representatives. Capture is on
+for MCP SDK subprocesses; pass `DocumentBuilder(capture_provenance=False)` or set
+`FRAMEFORGE_SDK_PROVENANCE=0` for a hot path. Provenance is sidecar-only and never
+changes serialized documents or render hashes.
 
 Security posture: `describe_capabilities(topic="security")` reports the live confinement.
 Propose inputs are open by default — any readable path, the localhost-dev posture; set

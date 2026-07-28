@@ -9,6 +9,19 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — feat: localize SDK validation failures at their authoring cause (2026-07-28)
+
+- **MCP SDK validation failures now report actionable root-cause groups.**
+  `DocumentBuilder` carries transient author-site metadata for pages, layers,
+  objects, and known paint helpers while MCP SDK code runs, then emits it only
+  through the build-error sidecar. Pydantic union-arm echoes collapse into
+  `error_groups` with `issues_total` / `groups_total`, the authoring
+  `file:line:function`, a representative model path, and helper-specific hints.
+  Capture is O(1) per emitted object, defaults on only under `run_sdk_code` /
+  `run_sdk_client`, and can be disabled per builder or through
+  `FRAMEFORGE_SDK_PROVENANCE=0`. Provenance-on and provenance-off documents
+  serialize byte-identically. Closes #77.
+
 ## Unreleased — fix: make MCP discovery reflect the live checkout (2026-07-28)
 
 - **Long-running MCP servers no longer serve stale capability or guide imports.**

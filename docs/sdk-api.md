@@ -16,7 +16,7 @@
 Small fluent builder that lowers directly to the authoritative model.
 
 ```python
-DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.7.1') -> 'None'
+DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.7.1', capture_provenance: 'bool | None' = None) -> 'None'
 ```
 
 | Method | Signature | Summary |
@@ -40,6 +40,7 @@ DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lan
 | `master` | `(self, name: 'str', canvas: 'str \| dict[str, Any]', **fields: 'Any') -> "'MasterBuilder'"` | Define a page master and return its fluent :class:`MasterBuilder`. |
 | `meta` | `(self, **entries: 'Any') -> "'DocumentBuilder'"` | Merge entries into the document-level ``meta`` mapping. |
 | `page` | `(self, id: 'str', *, canvas: 'str \| dict[str, Any] \| None' = None, master: 'Handle \| str \| None' = None, reading_order: 'list[str] \| None' = None, coordinate_mode: 'str \| None' = None, **fields: 'Any') -> "'PageBuilder'"` | Append a page and return its builder. |
+| `provenance_map` | `(self) -> 'dict[str, dict[str, Any]]'` | Return the transient author-site sidecar for the unexpanded document. |
 | `section` | `(self, id: 'str', *, master: 'Handle \| str', **fields: 'Any')` | Author a ``mode: flow`` section's story with typed builder calls. |
 | `symbol` | `(self, name: 'str', box: 'list[Any]', **fields: 'Any') -> "'Iterator[PageBuilder]'"` | Author a reusable symbol with normal ``PageBuilder`` calls. |
 | `text_contract` | `(self, **fields: 'Any') -> "'DocumentBuilder'"` | Set the document-level text contract (``min_font_size``, ``overflow``, |
@@ -82,7 +83,7 @@ MasterBuilder(name: 'str', master: 'dict[str, Any]') -> 'None'
 Builder for a single page's layers and visual objects.
 
 ```python
-PageBuilder(page: 'dict[str, Any]') -> 'None'
+PageBuilder(page: 'dict[str, Any]', *, capture_provenance: 'bool' = False) -> 'None'
 ```
 
 | Method | Signature | Summary |

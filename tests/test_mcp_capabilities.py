@@ -178,7 +178,7 @@ _CAPABILITY_MODULES = [
 
 # Internal plumbing that carries no author-facing capability of its own — the
 # only sdk modules allowed to be absent from both the guide and the list above.
-_PLUMBING_EXEMPT = {"author", "conform", "io", "model", "validate"}
+_PLUMBING_EXEMPT = {"author", "conform", "io", "model", "provenance", "validate"}
 
 _HEADLINE_SURFACES = [
     # SDK discovery residuals (#57)

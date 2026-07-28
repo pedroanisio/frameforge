@@ -12,6 +12,15 @@ from frameforge.sdk.expand import ExpandOptions, expand
 from frameforge.sdk.geometry import Mat3, Path as _GeomPath, Vec2
 from frameforge.sdk.layout import Box
 from frameforge.sdk.model import HEAD_VERSION, validate_document
+from frameforge.sdk.provenance import (
+    AuthoredDict,
+    capture_author_site,
+    clone_authored,
+    provenance_enabled,
+    provenance_map as _provenance_map,
+    strip_provenance,
+    with_author_site,
+)
 
 
 @dataclass(frozen=True)
@@ -35,8 +44,15 @@ class DocumentBuilder:
         profile: str | None = None,
         lang: str | None = None,
         version: str = HEAD_VERSION,
+        capture_provenance: bool | None = None,
     ) -> None:
-        self._doc: dict[str, Any] = {"dsl": "FrameForge", "version": version, "pages": []}
+        self._capture_provenance = provenance_enabled(capture_provenance)
+        document: dict[str, Any] = {"dsl": "FrameForge", "version": version, "pages": []}
+        self._doc = (
+            with_author_site(document, capture_author_site())
+            if self._capture_provenance
+            else document
+        )
         if title is not None:
             self._doc["title"] = title
         if profile is not None:
@@ -181,7 +197,9 @@ class DocumentBuilder:
         block exit they are installed under ``defs.symbols[name]``. Instances can
         then be placed with :meth:`PageBuilder.use` or :meth:`PageBuilder.use_at`.
         """
-        sub = PageBuilder({"layers": []}).layer("_symbol")
+        sub = PageBuilder(
+            {"layers": []}, capture_provenance=self._capture_provenance
+        ).layer("_symbol")
         yield sub
         objects = sub._current_layer.get("objects", []) if sub._current_layer else []
         self.define_symbol(name, box=_coerce_handles(box), objects=objects, **fields)
@@ -219,8 +237,10 @@ class DocumentBuilder:
         if coordinate_mode is not None:
             page["rendering"] = {"coordinate_mode": coordinate_mode}
         page.update(_coerce_handles(fields))
+        if self._capture_provenance:
+            page = with_author_site(page, capture_author_site())
         self._doc["pages"].append(page)
-        builder = PageBuilder(page)
+        builder = PageBuilder(page, capture_provenance=self._capture_provenance)
         builder._document = self._doc
         return builder
 
@@ -232,6 +252,8 @@ class DocumentBuilder:
             "story": _coerce_handles(story),
         }
         section.update(_coerce_handles(fields))
+        if self._capture_provenance:
+            section = with_author_site(section, capture_author_site())
         self._doc["pages"].append(section)
 
     @contextmanager
@@ -260,12 +282,23 @@ class DocumentBuilder:
                 exclude_none=True,
             )
         validate_document(self._doc)
-        return _coerce_handles(self._doc)
+        return strip_provenance(_coerce_handles(self._doc))
 
     def build(self, *, expand_reuse: bool = True):
         if expand_reuse:
             return expand(self._doc, opts=ExpandOptions(pin_assets=False)).document
         return validate_document(self._doc)
+
+    def provenance_map(self) -> dict[str, dict[str, Any]]:
+        """Return the transient author-site sidecar for the unexpanded document.
+
+        JSON-pointer prefixes identify authored pages, layers, objects, and
+        helper-produced values. The mapping is never included in ``build()``,
+        ``build_dict()``, or serialized FrameForge output.
+        """
+        if not self._capture_provenance:
+            return {}
+        return _provenance_map(self._doc)
 
     def write(
         self,
@@ -400,7 +433,7 @@ class StackBuilder:
         self._children: list[dict[str, Any]] = []
 
     def add(self, obj: dict[str, Any]) -> "StackBuilder":
-        self._children.append(_local_child(_coerce_handles(obj)))
+        self._children.append(_local_child(self._parent._prepare_object(obj)))
         return self
 
     def extend(self, objects: list[dict[str, Any]]) -> "StackBuilder":
@@ -502,8 +535,11 @@ class StackBuilder:
 class PageBuilder:
     """Builder for a single page's layers and visual objects."""
 
-    def __init__(self, page: dict[str, Any]) -> None:
+    def __init__(
+        self, page: dict[str, Any], *, capture_provenance: bool = False
+    ) -> None:
         self._page = page
+        self._capture_provenance = bool(capture_provenance)
         self._document: dict[str, Any] | None = None
         self._current_layer: dict[str, Any] | None = None
         self._decorative_depth = 0
@@ -512,19 +548,27 @@ class PageBuilder:
     def layer(self, id: str, **fields: Any) -> "PageBuilder":
         layer = {"id": id, "objects": []}
         layer.update(_coerce_handles(fields))
+        if self._capture_provenance:
+            layer = with_author_site(layer, capture_author_site())
         self._page.setdefault("layers", []).append(layer)
         self._current_layer = layer
         return self
 
     def add(self, obj: dict[str, Any]) -> "PageBuilder":
-        self._objects().append(_coerce_handles(self._stamp(obj)))
+        self._objects().append(self._prepare_object(obj))
         return self
 
     def extend(self, objects: list[dict[str, Any]]) -> "PageBuilder":
         """Add many objects at once (e.g. the output of a Chart or a layout)."""
         objs = self._objects()
-        objs.extend(_coerce_handles(self._stamp(obj)) for obj in objects)
+        objs.extend(self._prepare_object(obj) for obj in objects)
         return self
+
+    def _prepare_object(self, obj: dict[str, Any]) -> dict[str, Any]:
+        coerced = _coerce_handles(self._stamp(obj))
+        if self._capture_provenance:
+            return with_author_site(coerced, capture_author_site())
+        return strip_provenance(coerced)
 
     @contextmanager
     def stack(
@@ -1174,7 +1218,9 @@ class PageBuilder:
         This is the context-manager form of :meth:`group`: author children with
         normal ``PageBuilder`` calls, then lower them as one grouped object.
         """
-        sub = PageBuilder({"layers": []}).layer("_group")
+        sub = PageBuilder(
+            {"layers": []}, capture_provenance=self._capture_provenance
+        ).layer("_group")
         yield sub
         children = sub._current_layer.get("objects", []) if sub._current_layer else []
         self.group(children, transform=transform, clip=clip, **fields)
@@ -1187,7 +1233,9 @@ class PageBuilder:
         from ``[0, 0]`` without manually adding the panel origin to every child.
         The group carries ``box``; children remain local to that box.
         """
-        sub = PageBuilder({"layers": []}).layer("_local")
+        sub = PageBuilder(
+            {"layers": []}, capture_provenance=self._capture_provenance
+        ).layer("_local")
         yield sub
         children = sub._current_layer.get("objects", []) if sub._current_layer else []
         self.group(children, box=box, clip=clip, **fields)
@@ -1225,7 +1273,9 @@ class PageBuilder:
         """
         sy = scale if scale_y is None else scale_y
         matrix = Mat3.translate(x, y) @ Mat3.rotate(rotate) @ Mat3.scale(flip * scale, sy)
-        sub = PageBuilder({"layers": []}).layer("_frame")
+        sub = PageBuilder(
+            {"layers": []}, capture_provenance=self._capture_provenance
+        ).layer("_frame")
         yield sub
         children = sub._current_layer.get("objects", []) if sub._current_layer else []
         self.group(children, transform=matrix, clip=clip)
@@ -1400,7 +1450,8 @@ def _local_child(obj: dict[str, Any]) -> dict[str, Any]:
         return obj
     box = obj.get("box")
     if isinstance(box, list) and len(box) >= 4:
-        return {**obj, "box": [0, 0, box[2], box[3]]}
+        items = {**obj, "box": [0, 0, box[2], box[3]]}
+        return clone_authored(obj, items) if isinstance(obj, AuthoredDict) else items
     return obj
 
 
@@ -1411,7 +1462,8 @@ def _coerce_handles(value: Any, field: str | None = None) -> Any:
     if isinstance(value, Box):
         return value.list()
     if isinstance(value, dict):
-        return {k: _coerce_handles(v, str(k)) for k, v in value.items()}
+        items = {k: _coerce_handles(v, str(k)) for k, v in value.items()}
+        return clone_authored(value, items) if isinstance(value, AuthoredDict) else items
     if isinstance(value, list):
         return [_coerce_handles(v, field) for v in value]
     if isinstance(value, tuple):

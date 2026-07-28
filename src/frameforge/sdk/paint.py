@@ -19,6 +19,8 @@ from __future__ import annotations
 
 from typing import Any, Literal, Sequence, Union
 
+from frameforge.sdk.provenance import mark_helper
+
 Color = str
 Position = Union[float, int, str]
 Stop = Union[Color, "tuple[Color, Position]", "tuple[Color, Position, float]"]
@@ -78,7 +80,7 @@ def linear_gradient(
         grad["line"] = [list(p) for p in line]
     if repeating is not None:
         grad["repeating"] = repeating
-    return grad
+    return mark_helper(grad, "sdk.paint.linear_gradient")
 
 
 def radial_gradient(
@@ -111,7 +113,7 @@ def radial_gradient(
         grad["focal"] = list(focal)
     if repeating is not None:
         grad["repeating"] = repeating
-    return grad
+    return mark_helper(grad, "sdk.paint.radial_gradient")
 
 
 def conic_gradient(
@@ -133,7 +135,7 @@ def conic_gradient(
         grad["from"] = from_angle
     if repeating is not None:
         grad["repeating"] = repeating
-    return grad
+    return mark_helper(grad, "sdk.paint.conic_gradient")
 
 
 def pattern(

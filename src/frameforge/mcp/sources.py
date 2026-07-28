@@ -38,6 +38,7 @@ from frameforge.mcp.security import (
     _resolve_client_path,
 )
 from frameforge.mcp.sessions import _prepare_session, _reset_session_inputs, _session_id
+from frameforge.sdk.provenance import PROVENANCE_ENV
 
 _VISION_GROUP_HINT = (
     "The vision proposal lane needs the optional `vision` dependency group. "
@@ -163,6 +164,7 @@ class SdkCodeSource(DocumentSource):
         )
 
         env = _subprocess_env(get_default_repo_root())
+        env.setdefault(PROVENANCE_ENV, "1")
         try:
             proc = subprocess.run(
                 [sys.executable, str(harness_path)],
@@ -229,6 +231,7 @@ class SdkClientSource(DocumentSource):
             encoding="utf-8",
         )
         env = _subprocess_env(root)
+        env.setdefault(PROVENANCE_ENV, "1")
         client_fields = {
             "client_path": str(client_path),
             "client_uri": _display_path(client_path, root),

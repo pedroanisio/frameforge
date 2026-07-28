@@ -187,10 +187,16 @@ warning, install a backend, and re-render.
   traceback is visible without a second fetch of the diagnostics resource. The summary
   also surfaces `hint`, `pdf`, and `replaced_renders` whenever they are present, and
   vision-group import failures carry the install command as a separate `hint`.
-- A schema-invalid document returns structured `validation.issues`
-  (`{rule_id, severity, path, message}`) — the harness lowers the Pydantic errors into
-  a `build_error.json` sidecar that the result is enriched from. Static-rule failures also
-  set `error` + a `hint` pointing at `validation.issues` and `describe_capabilities`.
+- A schema-invalid SDK build returns root-cause-grouped `error_groups` plus
+  `issues_total` / `groups_total`. Each group carries the nearest authoring
+  `file:line:function`, a representative path/message, and a known-helper hint when
+  available; `validation.issues` retains one compact representative per group instead of
+  every Pydantic union-arm echo. The harness lowers these into `build_error.json`, and the
+  parent result is enriched from that sidecar. Capture is enabled by default only in the
+  MCP SDK subprocesses; `DocumentBuilder(capture_provenance=False)` or
+  `FRAMEFORGE_SDK_PROVENANCE=0` opts out. Provenance never enters serialized documents.
+  Static-rule failures still set `error` + a `hint` pointing at `validation.issues` and
+  `describe_capabilities`.
 
 ## Operational note — live discovery; restart rendering code after changes
 
@@ -215,6 +221,7 @@ development rather than the running server.
 | `FRAMEFORGE_MCP_EDIT_ROOTS` | `os.pathsep`-joined roots the client-file tools may read/write (default: `static/examples`). |
 | `FRAMEFORGE_MCP_INPUT_ROOTS` | Confine `propose_*` inputs to these roots (unset = any readable path). |
 | `FRAMEFORGE_MCP_KEEP_ENV` | Truthy keeps secret-looking env vars in the code subprocess (default: stripped). |
+| `FRAMEFORGE_SDK_PROVENANCE` | Set `0`/`false`/`off` to disable author-site capture in MCP SDK subprocesses (default: enabled there; disabled for ordinary SDK use). |
 | `FRAMEFORGE_MCP_STRUCT_LOG_PATH` | Path for the JSONL structured tool log (default: under the session root). |
 | `FRAMEFORGE_MCP_RENDER_TIMEOUT` | Soft per-render wall-clock budget, seconds (default: 30). |
 | `FRAMEFORGE_MCP_RENDER_MAX_PAGES` | Hard page ceiling refused before the in-process render starts (default: 200). |

@@ -63,6 +63,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from frameforge.sdk.io import serialize
+from frameforge.mcp.validation_feedback import group_validation_errors
 
 SESSION_DIR = {str(session_dir)!r}
 OUTPUT_YAML_PATH = {str(yaml_path)!r}
@@ -103,28 +104,30 @@ def _emit_runtime_error(exc):
     raise SystemExit(1)
 
 
-def _pointer(loc):
-    if not loc:
-        return ""
-    return "/" + "/".join(str(p).replace("~", "~0").replace("/", "~1") for p in loc)
+def _candidate_provenance(candidate, namespace):
+    values = [candidate]
+    values.extend(namespace.get(name) for name in ("doc", "document", "builder"))
+    for value in values:
+        method = getattr(value, "provenance_map", None)
+        if callable(method):
+            return method()
+    return {{}}
 
 
-def _emit_validation_error(exc):
-    issues = [
-        {{
-            "rule_id": "structure",
-            "severity": "error",
-            "path": _pointer(err.get("loc", ())),
-            "message": str(err.get("msg", "")),
-        }}
-        for err in exc.errors()
-    ]
+def _emit_validation_error(exc, candidate, namespace):
+    feedback = group_validation_errors(
+        exc.errors(),
+        _candidate_provenance(candidate, namespace),
+    )
+    payload = dict(error="document failed schema validation")
+    payload.update(feedback)
     Path(BUILD_ERROR_PATH).write_text(
-        json.dumps({{"error": "document failed schema validation", "issues": issues}}),
+        json.dumps(payload),
         encoding="utf-8",
     )
     print("FrameForge document failed schema validation: "
-          + str(len(issues)) + " issue(s)", file=sys.stderr)
+          + str(feedback["issues_total"]) + " issue(s) in "
+          + str(feedback["groups_total"]) + " root-cause group(s)", file=sys.stderr)
     raise SystemExit(1)
 
 
@@ -135,6 +138,7 @@ namespace = {{
     "OUTPUT_YAML_PATH": OUTPUT_YAML_PATH,
 }}
 source = Path({str(script_path)!r}).read_text(encoding="utf-8")
+candidate = None
 try:
     exec(compile(source, {str(script_path)!r}, "exec"), namespace)
     out = Path(OUTPUT_YAML_PATH)
@@ -157,7 +161,7 @@ try:
             raise SystemExit("no FrameForge document found; write OUTPUT_YAML_PATH, set doc/document/builder, or expose build()")
         out.write_text(serialize(candidate, format="yaml"), encoding="utf-8")
 except ValidationError as exc:
-    _emit_validation_error(exc)
+    _emit_validation_error(exc, candidate, namespace)
 except SystemExit as exc:
     # The document-discovery contract (and any explicit non-zero exit): carry the
     # message itself, never the opaque "exited with a non-zero status".
@@ -197,6 +201,9 @@ def _apply_build_error(result: dict[str, Any], session_dir: Path) -> None:
         return
     issues = data.get("issues") or []
     result["validation"] = {"ok": False, "issues": issues}
+    for key in ("issues_total", "groups_total", "error_groups"):
+        if key in data:
+            result[key] = data[key]
     if data.get("error"):
         result["error"] = data["error"]
     if data.get("hint"):
