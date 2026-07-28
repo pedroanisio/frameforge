@@ -9,6 +9,19 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — fix: define and diagnose stacked filter presets (2026-07-28)
+
+- **`style.filter` lists now have an explicit stacked-preset contract.** Each
+  `filter_chain(...)` entry remains a self-contained preset applied
+  independently in order; entries are not composed into one SVG primitive
+  graph. Static validation emits the `filter-chain-presets` warning when a
+  turbulence, displacement, or lighting preset appears in a longer chain and
+  names the safe displacement idiom: put noise parameters on
+  `displacement_map(...)` itself and do not prepend `turbulence(...)`. Model
+  discovery, SDK docstrings, the MCP guide, generated schema/reference, and the
+  capability manifest state the same choice; markup coverage pins the existing
+  separate-definitions/separate-wrappers renderer behavior. Closes #80.
+
 ## Unreleased — feat: localize SDK validation failures at their authoring cause (2026-07-28)
 
 - **MCP SDK validation failures now report actionable root-cause groups.**

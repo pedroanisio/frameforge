@@ -70,6 +70,9 @@ Fluent builder:
   `base_frequency`, `num_octaves`, `seed`, and noise `type`; do not prepend a
   `turbulence(...)` item. Standalone `turbulence(...)` is a visible texture
   overlay whose strength is `opacity` and whose blend operation is `mode`.
+  `filter_chain(...)` entries are stacked self-contained presets, applied
+  independently in order; they are not wired into one SVG primitive graph.
+  Static validation warns when a primitive preset is mixed into a longer chain.
   Stroke geometry MUST go through `stroke()` (paint in `stroke`,
   geometry in the inline `stroke_style` bundle); an inline `stroke_width` on a
   paint-only line/polyline/path is rejected. `dash=` accepts either a length list

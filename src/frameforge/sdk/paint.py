@@ -442,7 +442,12 @@ def specular_lighting(
 
 
 def filter_chain(*items: dict[str, Any] | str) -> list[dict[str, Any] | str]:
-    """Return a model-native ordered style ``filter`` chain."""
+    """Return ordered, stacked self-contained presets for ``style.filter``.
+
+    Each item is rendered independently in order; the list is not wired into a
+    single SVG primitive graph. In particular, configure displacement noise on
+    :func:`displacement_map` itself instead of prepending :func:`turbulence`.
+    """
     return list(items)
 
 

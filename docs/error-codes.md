@@ -71,11 +71,12 @@ here. The same enumeration ships machine-readably in
 ## SDK rule ids (`src/frameforge/sdk/validate.py`)
 
 `validate_static_rules()` re-emits every tooling code above as `Issue.rule_id`
-(severity `error`/`warning`), plus these SDK-only checks (all severity `error`):
+(severity `error`/`warning`), plus these SDK-only checks:
 
 | Rule id | Meaning | How to fix |
 |---|---|---|
 | `structure` | The built document failed model validation before any rule ran (same meaning as the tooling code; the SDK reports it per Pydantic error with a JSON-pointer path). | Fix the field named by the pointer. |
+| `filter-chain-presets` *(warning)* | A `style.filter` list mixes a primitive-like preset (`turbulence`, `displacement_map`, `diffuse_lighting`, or `specular_lighting`) with another filter. Filter lists are stacked self-contained presets that paint independently, not one composed SVG primitive graph, so the apparent primitive pipeline is misleading. | Use one self-contained preset per intended effect. For displaced noise, put `base_frequency`, `num_octaves`, `seed`, and `type` directly on `displacement_map`; do not prepend `turbulence`. |
 | `reference` | A dangling reference: a page `master`, `reading_order` id, image asset ref, master-region `next`, or a target-adjustment `hide` id that resolves to nothing. | Define the referenced master/asset/object id, or fix the typo. |
 | `reference-cycle` | A master's region `next` chain loops back on itself, so flow content would never terminate. | Break the cycle; region chains must be linear. |
 | `path-data` | A `path` object's `d` string is not parseable SVG path data (unknown command or wrong arity). | Fix the path data, or author it via `frameforge.sdk.Path` (use `object(structured=True)` for the typed G-1 segment form). |

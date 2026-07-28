@@ -13,6 +13,10 @@ from pydantic import ValidationError
 
 from frameforge.sdk.model import validate_document
 
+_PRIMITIVE_FILTER_PRESETS = frozenset(
+    {"turbulence", "displacement_map", "diffuse_lighting", "specular_lighting"}
+)
+
 
 @dataclass(frozen=True)
 class Issue:
@@ -190,11 +194,41 @@ def _sdk_issues(raw: dict[str, Any], requested_targets: list[str]) -> list[Issue
                 src = obj.get("src")
                 if _looks_like_asset_ref(src) and src not in assets:
                     issues.append(_error("reference", f"{path}/src", f"asset {src!r} is not defined"))
+            warning = _filter_chain_preset_warning(obj, path)
+            if warning is not None:
+                issues.append(warning)
 
     issues.extend(_master_region_issues(masters))
     issues.extend(_target_adjustment_issues(targets, raw))
     issues.extend(_requested_target_issues(targets, raw, requested_targets))
     return issues
+
+
+def _filter_chain_preset_warning(obj: dict[str, Any], path: str) -> Issue | None:
+    style = obj.get("style")
+    if not isinstance(style, dict):
+        return None
+    chain = style.get("filter")
+    if not isinstance(chain, list) or len(chain) < 2:
+        return None
+    names = {
+        item.get("fn")
+        for item in chain
+        if isinstance(item, dict) and isinstance(item.get("fn"), str)
+    }
+    if not names.intersection(_PRIMITIVE_FILTER_PRESETS):
+        return None
+    return Issue(
+        rule_id="filter-chain-presets",
+        severity="warning",
+        path=f"{path}/style/filter",
+        message=(
+            "filter lists are stacked self-contained presets, not one composed SVG "
+            "primitive graph; each entry paints independently. For displacement noise, "
+            "put base_frequency, num_octaves, seed, and type on displacement_map and "
+            "do not prepend turbulence."
+        ),
+    )
 
 
 def _master_region_issues(masters: dict[str, Any]) -> list[Issue]:

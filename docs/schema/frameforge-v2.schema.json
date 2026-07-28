@@ -15947,7 +15947,7 @@
             }
           ],
           "default": null,
-          "description": "Filter chain: CSS filter string or a list of FilterFn objects.",
+          "description": "Filter chain: CSS filter string or a list of stacked self-contained presets; each list entry is applied independently in order, never wired into one SVG primitive graph.",
           "title": "Filter"
         },
         "backdrop_filter": {

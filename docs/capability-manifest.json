@@ -466,6 +466,7 @@
       "unpinned-font"
     ],
     "sdk_rule_ids": [
+      "filter-chain-presets",
       "path-data",
       "reference",
       "reference-cycle",

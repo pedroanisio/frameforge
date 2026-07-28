@@ -1924,7 +1924,7 @@ fill_stroke(fill: 'Any', stroke_color: 'Color', width: 'float' = 1.0, *, dash: '
 
 `frameforge.sdk.paint.filter_chain`
 
-Return a model-native ordered style ``filter`` chain.
+Return ordered, stacked self-contained presets for ``style.filter``.
 
 ```python
 filter_chain(*items: 'dict[str, Any] | str') -> 'list[dict[str, Any] | str]'

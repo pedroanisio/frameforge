@@ -613,7 +613,7 @@ class Style(FG):
     box_shadow: Optional[Union[Literal["none"], list[ShadowVal]]] = Field(
         default=None, description="Box shadow list (strings or Shadow objects), or 'none'.")
     filter: Optional[Filter] = Field(
-        default=None, description="Filter chain: CSS filter string or a list of FilterFn objects.")
+        default=None, description="Filter chain: CSS filter string or a list of stacked self-contained presets; each list entry is applied independently in order, never wired into one SVG primitive graph.")
     backdrop_filter: Optional[Filter] = Field(
         default=None, description="Filter applied to the backdrop behind the element.")
     mix_blend_mode: Optional[BlendMode] = Field(
