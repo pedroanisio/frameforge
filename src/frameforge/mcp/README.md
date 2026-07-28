@@ -192,15 +192,20 @@ warning, install a backend, and re-render.
   a `build_error.json` sidecar that the result is enriched from. Static-rule failures also
   set `error` + a `hint` pointing at `validation.issues` and `describe_capabilities`.
 
-## Operational note — restart after code changes
+## Operational note — live discovery; restart rendering code after changes
 
-The SDK **client** runs in a fresh per-call subprocess, but the **validate/render
-pipeline runs in the long-lived MCP server process**. Edits to `src/frameforge/mcp/*`,
-`src/frameforge/rendering/*`, or the models therefore **do not take effect until the server
-restarts** — the running process keeps the modules it imported at start. After changing
-that code, restart `make mcp` (and `make live`, which shares the same functions) to pick
-it up. Use a fresh interpreter to verify pipeline changes during development rather than
-the running server.
+`describe_capabilities` and `get_guide` import the configured source tree in a fresh,
+secret-stripped subprocess. Their results are cached by a metadata token covering
+`src/frameforge/**/*.py`; a source edit invalidates the cache on the next call without an
+MCP restart. Every `describe_capabilities` payload carries `source_token` and
+`introspected_at`, so clients can record exactly which discovery snapshot they used.
+
+The SDK **client** also runs in a fresh per-call subprocess, but the **validate/render
+pipeline still runs in the long-lived MCP server process**. Edits to validation,
+rendering, or other already-imported server code therefore **do not take effect until the
+server restarts**. After changing that code, restart `make mcp` (and `make live`, which
+shares the same functions). Use a fresh interpreter to verify pipeline changes during
+development rather than the running server.
 
 ## Configuration (environment variables)
 

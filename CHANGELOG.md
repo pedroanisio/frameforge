@@ -9,6 +9,18 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — fix: make MCP discovery reflect the live checkout (2026-07-28)
+
+- **Long-running MCP servers no longer serve stale capability or guide imports.**
+  `describe_capabilities`, `get_guide`, and the guide prompt now read the
+  configured checkout in a bounded, secret-stripped fresh interpreter. A
+  source-metadata token gives unchanged calls an in-process LRU cache hit, while
+  any Python source edit invalidates the answer. Capability responses expose
+  `source_token` and `introspected_at`; an end-to-end regression mutates a copied
+  SDK and guide after server creation, proves both changes are visible without a
+  restart, and proves same-token calls do not spawn. The SDK-code execution and
+  long-lived validation/render paths are unchanged. Closes #78.
+
 ## Unreleased — fix: expose deterministic noise controls in filter helpers (2026-07-28)
 
 - **`displacement_map()` and `turbulence()` now expose every parameter their

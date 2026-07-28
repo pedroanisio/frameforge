@@ -39,6 +39,10 @@ from frameforge.mcp.descriptions import (
     _DESC_TOPIC,
 )
 from frameforge.mcp.guide import FRAMEFORGE_GUIDE
+from frameforge.mcp.live_discovery import (
+    live_describe_capabilities as _live_describe_capabilities,
+    live_guide as _live_guide,
+)
 from frameforge.mcp.paths import _repo_root, _session_root
 from frameforge.mcp.sessions import (
     read_session_resource,
@@ -60,10 +64,7 @@ from frameforge.mcp.sessions import (
     cleanup_sessions as _uc_cleanup_sessions,
     list_sessions as _uc_list_sessions,
 )
-from frameforge.mcp.discovery import (
-    describe_capabilities as _uc_describe_capabilities,
-    list_fonts as _uc_list_fonts,
-)
+from frameforge.mcp.discovery import list_fonts as _uc_list_fonts
 from frameforge.mcp.usecases import (
     fit_text as _uc_fit_text,
     write_or_edit_client as _uc_write_or_edit,
@@ -1784,7 +1785,12 @@ def create_server(
     @server.prompt()
     def frameforge_guide() -> str:
         """Guide to what the FrameForge SDK offers and the server's authoring + proposal tools."""
-        return _logged_call(log_path, "prompt.frameforge_guide", {}, lambda: FRAMEFORGE_GUIDE)
+        return _logged_call(
+            log_path,
+            "prompt.frameforge_guide",
+            {},
+            lambda: _live_guide(repo_root=repo),
+        )
 
     @server.tool()
     def get_guide() -> str:
@@ -1794,7 +1800,12 @@ def create_server(
         prompts; this tool is the fallback so any agent can retrieve the full
         SDK + workflow reference in-band.
         """
-        return _logged_call(log_path, "get_guide", {}, lambda: FRAMEFORGE_GUIDE)
+        return _logged_call(
+            log_path,
+            "get_guide",
+            {},
+            lambda: _live_guide(repo_root=repo),
+        )
 
     @server.tool()
     def describe_capabilities(
@@ -1802,9 +1813,10 @@ def create_server(
     ):
         """Runtime discovery of the FrameForge document model (live, read-only introspection).
 
-        Sourced from the authoritative Pydantic model (``frameforge.model``)
-        at call time — the same module validation runs against — so it cannot
-        drift. Omit ``topic`` for the compact capability index; pass a catalog
+        Sourced in a fresh interpreter from the configured checkout's authoritative
+        Pydantic model (``frameforge.model``), so a long-running server does not
+        retain a stale import. The payload includes ``introspected_at`` and a
+        source-tree ``source_token``. Omit ``topic`` for the compact capability index; pass a catalog
         topic (``flowables``/``inlines``/``style``/``presets``/``tools``) or a
         type name (``rect``, ``paragraph``, ``document``, ...) for details +
         JSON schema. Use it to look up fields BEFORE authoring instead of
@@ -1814,7 +1826,11 @@ def create_server(
             log_path,
             "describe_capabilities",
             {"topic": topic},
-            lambda: _uc_describe_capabilities(topic, tool_names=_registered_tool_names(server)),
+            lambda: _live_describe_capabilities(
+                topic,
+                tool_names=_registered_tool_names(server),
+                repo_root=repo,
+            ),
         ))
 
     @server.tool()

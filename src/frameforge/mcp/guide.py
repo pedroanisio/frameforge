@@ -12,7 +12,11 @@ verify rendered output — CV/LLM output is unverified by default (PALS's Law).
 This guide is hand-maintained prose and can drift behind the code. The
 `describe_capabilities` tool is the authoritative, live-introspected source of
 the model surface and the server's security posture — when this text and its
-output disagree, `describe_capabilities` wins.
+output disagree, `describe_capabilities` wins. It imports the configured source
+tree in a fresh interpreter and returns `source_token` plus `introspected_at`;
+compare those fields when diagnosing checkout/server skew. `get_guide` uses the
+same source-token cache, so both discovery surfaces notice Python source edits
+without an MCP server restart.
 
 ## Author with the SDK (`frameforge.sdk`)
 Fluent builder:
