@@ -205,6 +205,15 @@ _HEADLINE_SURFACES = [
 ]
 
 
+def test_guide_documents_pdf_tex_object_effect_coverage_and_approximations():
+    guide = " ".join(FRAMEFORGE_GUIDE.split())
+    assert "pdf-tex" in guide
+    assert "line, polyline, polygon, path, curve/bezier, text, image, and table" in guide
+    assert "translated translucent silhouette" in guide
+    assert "eight fixed neighbouring silhouettes" in guide
+    assert "bounding-box silhouette" in guide
+
+
 def test_guide_mentions_every_capability_bearing_sdk_module():
     from pathlib import Path
     sdk_dir = Path(__file__).resolve().parent.parent / "src" / "frameforge" / "sdk"

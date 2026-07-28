@@ -210,6 +210,8 @@ class FigureTikz:
             return ""
         try:
             body = fn(o)
+            if body:
+                body = self._object_effects(o, fn) + body
             body = body + self._side_borders(o) if body else ""
             body = self._clip_scope(o, body) if body else ""
             return self._wrap_object(o, body) if body else ""
@@ -1153,6 +1155,145 @@ class FigureTikz:
             return []
         opacity = num(params.get("opacity"), 0.14 if kind == "shadow" else 0.55)
         return [f"fill={expr}", f"fill opacity={fnum(opacity)}"]
+
+    _GENERIC_EFFECT_TYPES = frozenset({
+        "line", "polyline", "polygon", "path", "curve", "bezier",
+        "text", "image", "table",
+    })
+
+    def _object_effects(self, o, draw_fn):
+        """Render flat TikZ underlays for objects without native effects.
+
+        TikZ has no portable blur/drop-shadow filter.  Rectangles and ellipses
+        retain their geometry-specific approximations below; the remaining
+        model families use this shared silhouette path so a declared effect is
+        never silently discarded.  Shadows translate one translucent
+        silhouette.  Glows widen vector silhouettes, spread text through eight
+        deterministic neighbours, and expand box silhouettes for image/table.
+        """
+        object_type = o.get("type")
+        if object_type not in self._GENERIC_EFFECT_TYPES:
+            return ""
+        out = []
+        for kind, params in self._effect_specs(o):
+            body = self._effect_silhouette(o, draw_fn, kind, params)
+            if not body:
+                continue
+            opacity = num(params.get("opacity"), 0.14 if kind == "shadow" else 0.55)
+            out.append(f"% frameforge-effect:{kind}\n")
+            if kind == "shadow":
+                dx = num(params.get("dx"), 0)
+                dy = num(params.get("dy"), 2)
+                out.append(self._effect_scope(body, dx, dy, opacity))
+            elif object_type == "text":
+                spread = max(1, num(params.get("blur"), 4) / 2)
+                offsets = (
+                    (-spread, 0), (spread, 0), (0, -spread), (0, spread),
+                    (-spread, -spread), (-spread, spread),
+                    (spread, -spread), (spread, spread),
+                )
+                layer_opacity = opacity / len(offsets)
+                out.extend(self._effect_scope(body, dx, dy, layer_opacity)
+                           for dx, dy in offsets)
+            else:
+                out.append(self._effect_scope(body, 0, 0, opacity))
+        return "".join(out)
+
+    @staticmethod
+    def _effect_scope(body, dx, dy, opacity):
+        opts = []
+        if dx or dy:
+            opts.append(f"shift={{({fnum(dx)},{fnum(dy)})}}")
+        opts.append(f"opacity={fnum(opacity)}")
+        return f"\\begin{{scope}}[{','.join(opts)}]\n{body}\\end{{scope}}\n"
+
+    def _effect_silhouette(self, o, draw_fn, kind, params):
+        object_type = o.get("type")
+        color = params.get("color") or ("#000000" if kind == "shadow" else "#FFD700")
+
+        # Images and tables are compound/raster objects.  Repainting their
+        # contents would duplicate readable text or raster colour instead of
+        # approximating an alpha mask, so use a solid box silhouette.
+        if object_type in {"image", "table"}:
+            box = self._box(o)
+            if not box:
+                return ""
+            x, y, w, h = box
+            if kind == "glow":
+                spread = max(1, num(params.get("blur"), 4) / 2)
+                x, y, w, h = x - spread, y - spread, w + 2 * spread, h + 2 * spread
+            geom = f"({fnum(x)},{fnum(y)}) rectangle ({fnum(x + w)},{fnum(y + h)})"
+            expr, _ = color_expr(color)
+            return self._path([f"fill={expr}"] if expr is not None else [], geom)
+
+        clone = self._effect_clone(o, object_type, color, kind, params)
+        return draw_fn(clone)
+
+    def _effect_clone(self, o, object_type, color, kind, params):
+        clone = dict(o)
+        for key in ("shadow", "glow", "effects", "appearance", "opacity",
+                    "fill_opacity", "stroke_opacity", "outer_ring"):
+            clone.pop(key, None)
+
+        # Resolve style references before overriding paint, then remove every
+        # style-level effect source.  This prevents token/CSS shadows from
+        # recursively repainting inside a silhouette while retaining typography
+        # and stroke geometry.
+        style = self._without_style_effects(self._style_dict(o))
+        if object_type == "text":
+            style["color"] = color
+            clone["style"] = style
+            if isinstance(o.get("spans"), list):
+                base_style = self._ts.resolve(o.get("style"))
+                spans = []
+                for span in o["spans"]:
+                    if not isinstance(span, dict):
+                        spans.append(span)
+                        continue
+                    run = dict(span)
+                    run_style = self._ts.resolve(span.get("style"), base=base_style)
+                    run_style = self._without_style_effects(run_style)
+                    run_style["color"] = color
+                    run["style"] = run_style
+                    spans.append(run)
+                clone["spans"] = spans
+            return clone
+
+        clone["style"] = style
+        source_fill = self._fill_value(o, self._style_dict(o))
+        source_stroke = o.get("stroke") if "stroke" in o else self._style_dict(o).get("stroke")
+        open_geometry = object_type in {"line", "curve", "bezier"} or (
+            object_type == "polyline" and not o.get("closed")
+        )
+        clone["fill"] = "none" if open_geometry or source_fill in (None, "none") else color
+        if open_geometry or source_stroke not in (None, "none") or kind == "glow":
+            clone["stroke"] = color
+        else:
+            clone["stroke"] = "none"
+
+        if kind == "glow":
+            spread = max(1, num(params.get("blur"), 4) / 2)
+            stroke_style = dict(self._stroke_bundle(o))
+            stroke_style["stroke_width"] = self._stroke_width(o) + 2 * spread
+            # Arrowheads belong to the source semantic line, not its glow halo.
+            stroke_style.pop("arrow_start", None)
+            stroke_style.pop("arrow_end", None)
+            clone["stroke_style"] = stroke_style
+        return clone
+
+    @staticmethod
+    def _without_style_effects(value):
+        style = dict(value) if isinstance(value, dict) else {}
+        for key in ("box_shadow", "text_shadow", "filter", "backdrop_filter"):
+            style.pop(key, None)
+        if isinstance(style.get("css"), str):
+            kept = []
+            for declaration in style["css"].split(";"):
+                name = declaration.split(":", 1)[0].strip().lower()
+                if name not in {"box-shadow", "text-shadow", "filter", "backdrop-filter"}:
+                    kept.append(declaration)
+            style["css"] = ";".join(kept)
+        return style
 
     def _rect_effects(self, o, x, y, w, h, r=0):
         out = []

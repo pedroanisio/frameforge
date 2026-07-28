@@ -5,17 +5,200 @@ from __future__ import annotations
 import os
 import sys
 
+import pytest
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
 from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
+from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
 from frameforge.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
 
 
 def _fig(colors=None):
     color = ColorResolver(colors or {})
     return FigureTikz(color, TextStyleResolver({}, {}, color), {})
+
+
+@pytest.mark.parametrize(
+    ("obj", "source_fragment"),
+    [
+        (
+            {"type": "line", "from": [0, 1], "to": [20, 1], "stroke": "#123456"},
+            "draw={rgb,255:red,18;green,52;blue,86}",
+        ),
+        (
+            {"type": "polyline", "points": [[0, 0], [10, 5], [20, 0]], "stroke": "#123456"},
+            "draw={rgb,255:red,18;green,52;blue,86}",
+        ),
+        (
+            {"type": "polygon", "points": [[0, 0], [20, 0], [10, 10]], "fill": "#123456"},
+            "fill={rgb,255:red,18;green,52;blue,86}",
+        ),
+        (
+            {"type": "path", "d": "M 0 0 L 20 0 L 10 10 Z", "fill": "#123456"},
+            "fill={rgb,255:red,18;green,52;blue,86}",
+        ),
+        (
+            {
+                "type": "curve",
+                "from": [0, 0],
+                "control1": [5, 10],
+                "control2": [15, 10],
+                "to": [20, 0],
+                "stroke": "#123456",
+            },
+            "draw={rgb,255:red,18;green,52;blue,86}",
+        ),
+        (
+            {"type": "text", "box": [0, 0, 60, 20], "text": "Effect", "style": {"color": "#123456"}},
+            "text={rgb,255:red,18;green,52;blue,86}",
+        ),
+        (
+            {"type": "image", "box": [0, 0, 40, 20], "src": "missing.png", "alt": "Image"},
+            "fill={rgb,255:red,245;green,245;blue,245}",
+        ),
+        (
+            {"type": "table", "box": [0, 0, 40, 20], "rows": [["A", "B"]]},
+            "\\draw (0,0) rectangle (40,20)",
+        ),
+    ],
+)
+def test_object_shadow_covers_every_pdf_tex_object_family(obj, source_fragment):
+    obj = {
+        **obj,
+        "shadow": {"color": "#d946ef", "dx": 3, "dy": 4, "blur": 6, "opacity": 0.35},
+    }
+
+    tex = _fig().render(obj)
+
+    marker = "% frameforge-effect:shadow"
+    assert marker in tex
+    assert "{rgb,255:red,217;green,70;blue,239}" in tex
+    assert "shift={(3,4)},opacity=0.35" in tex
+    assert tex.index(marker) < tex.index(source_fragment)
+
+
+def test_object_effect_stack_preserves_authored_order_for_non_basic_shape():
+    obj = {
+        "type": "line",
+        "from": [0, 0],
+        "to": [20, 0],
+        "stroke": "#123456",
+        "effects": [
+            {"kind": "shadow", "color": "#111111", "dx": 1, "dy": 2, "opacity": 0.2},
+            {"kind": "glow", "color": "#22cc88", "blur": 8, "opacity": 0.4},
+            {"kind": "shadow", "color": "#334455", "dx": 5, "dy": 6, "opacity": 0.6},
+        ],
+    }
+
+    tex = _fig().render(obj)
+
+    markers = [line for line in tex.splitlines() if line.startswith("% frameforge-effect:")]
+    assert markers == [
+        "% frameforge-effect:shadow",
+        "% frameforge-effect:glow",
+        "% frameforge-effect:shadow",
+    ]
+    assert tex.index("shift={(1,2)},opacity=0.2") < tex.index("opacity=0.4")
+    assert tex.index("opacity=0.4") < tex.index("shift={(5,6)},opacity=0.6")
+
+
+def test_text_glow_uses_deterministic_spread_underlay_before_source_text():
+    obj = {
+        "type": "text",
+        "box": [10, 20, 80, 20],
+        "text": "Glow",
+        "style": {"color": "#123456"},
+        "glow": {"color": "#22cc88", "blur": 8, "opacity": 0.4},
+    }
+
+    first = _fig().render(obj)
+    second = _fig().render(obj)
+
+    assert first == second
+    assert first.count("% frameforge-effect:glow") == 1
+    assert first.count("opacity=0.05") == 8
+    assert first.index("% frameforge-effect:glow") < first.index("text={rgb,255:red,18;green,52;blue,86}")
+
+
+def test_text_effect_silhouette_overrides_every_inline_span_colour():
+    obj = {
+        "type": "text",
+        "box": [0, 0, 100, 20],
+        "spans": [
+            {"text": "Red", "style": {"color": "#ff0000", "bold": True}},
+            {"text": "Blue", "style": {"color": "#0000ff", "italic": True}},
+        ],
+        "shadow": {"color": "#22cc88", "dx": 2, "dy": 3, "opacity": 0.4},
+    }
+
+    tex = _fig().render(obj)
+
+    effect_start = tex.index("% frameforge-effect:shadow")
+    effect_end = tex.index("\\end{scope}", effect_start)
+    underlay = tex[effect_start:effect_end]
+    assert "red,34;green,204;blue,136" in underlay
+    assert "red,255;green,0;blue,0" not in underlay
+    assert "red,0;green,0;blue,255" not in underlay
+    assert "red,255;green,0;blue,0" in tex[effect_end:]
+    assert "red,0;green,0;blue,255" in tex[effect_end:]
+
+
+@pytest.mark.parametrize("object_type", ["image", "table"])
+def test_compound_object_glow_expands_one_box_silhouette(object_type):
+    obj = ({"type": "image", "box": [0, 0, 40, 20], "src": "missing.png"}
+           if object_type == "image"
+           else {"type": "table", "box": [0, 0, 40, 20], "rows": [["A"]]})
+    obj["glow"] = {"color": "#22cc88", "blur": 6, "opacity": 0.5}
+
+    tex = _fig().render(obj)
+
+    effect_start = tex.index("% frameforge-effect:glow")
+    source_start = tex.index("\\end{scope}", effect_start)
+    underlay = tex[effect_start:source_start]
+    assert "(-3,-3) rectangle (43,23)" in underlay
+    assert underlay.count("opacity=0.5") == 1
+    assert "fill opacity" not in underlay
+
+
+def test_public_pdf_tex_transpiler_preserves_effects_through_page_rendering():
+    doc = {
+        "dsl": "FrameForge",
+        "version": "2.7.1",
+        "pages": [{
+            "mode": "page",
+            "id": "effects",
+            "canvas": {"size": [120, 80]},
+            "layers": [{
+                "id": "main",
+                "objects": [
+                    {
+                        "type": "line",
+                        "from": [10, 20],
+                        "to": [100, 20],
+                        "stroke": "#123456",
+                        "shadow": {"color": "#111111", "dx": 2, "dy": 3, "opacity": 0.25},
+                    },
+                    {
+                        "type": "table",
+                        "box": [10, 35, 100, 30],
+                        "rows": [["A", "B"]],
+                        "glow": {"color": "#22cc88", "blur": 4, "opacity": 0.4},
+                    },
+                ],
+            }],
+        }],
+    }
+
+    tex = transpile(doc)
+
+    assert "\\begin{tikzpicture}[x=1pt,y=-1pt]" in tex
+    assert "% frameforge-effect:shadow" in tex
+    assert "% frameforge-effect:glow" in tex
+    assert tex.index("% frameforge-effect:shadow") < tex.index("draw={rgb,255:red,18;green,52;blue,86}")
+    assert "(8,33) rectangle (112,67)" in tex
 
 
 def test_rect_shadow_draws_translucent_offset_shape_before_rect():

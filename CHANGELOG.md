@@ -9,6 +9,18 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — fix: render object effects across the pdf-tex primitive surface (2026-07-28)
+
+- **The pdf-tex backend no longer silently drops object-level shadows and
+  glows on non-basic primitives.** Line, polyline, polygon, path, curve/bezier,
+  text, image, and table objects now paint deterministic effect underlays before
+  their source geometry, including repeated entries in the authored `effects`
+  stack. TikZ's filter limitation remains explicit: shadows are translated
+  translucent silhouettes; vector glows widen the silhouette; text glows use
+  eight fixed neighbouring silhouettes; image/table effects use an expanded
+  bounding-box silhouette. Inline text-run colours are replaced only in the
+  underlay, while typography and the source content remain intact. Closes #56.
+
 ## Unreleased — feat: absorb UML 2.5.1 ontology and full Sugiyama layout (2026-07-28)
 
 - **The SDK now provides typed, deterministic UML authoring for all fourteen

@@ -186,6 +186,14 @@ Fluent builder:
     produce PNGs without a browser but is limited and may not honor those style
     effects fully; inspect render diagnostics and rerender with Chromium when
     those effects are material to the output.
+    The `pdf-tex` target renders object-level shadow/glow fields and ordered
+    effect stacks on rect, ellipse/circle, line, polyline, polygon, path,
+    curve/bezier, text, image, and table. Because portable TikZ has no blur
+    filter, its contract is deterministic approximation: a shadow is a
+    translated translucent silhouette; vector glows widen or expand the
+    silhouette; text glows use eight fixed neighbouring silhouettes; and
+    image/table effects use a bounding-box silhouette. Use Chromium when exact
+    CSS filter pixels, raster-alpha contours, or true blur are material.
   - `recolor(doc, mapping)` — one-call palette remap: `defs.tokens.colors` by name
     or value, paint literals and gradient stops; input never mutated.
   - Named gradient/pattern fills live in `defs.tokens.fill_styles` and resolve from
