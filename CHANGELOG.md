@@ -1,6 +1,6 @@
 # FrameForge v2 — CHANGELOG (HEAD)
 
-**Version:** `2.7.1` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-27
+**Version:** `2.8.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-31
 
 *Convention: version headings mark schema/`HEAD_VERSION` bumps; an entry titled
 "Unreleased" landed between bumps and is contained in the nearest version
@@ -8,6 +8,53 @@ heading above it. One version number may span multiple dated entry blocks —
 cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
+
+## 2.8.0 — perceptual colour, sampleable randomness, and justified-text fidelity
+
+Additive feature release: the public SDK gains perceptual colour spaces (#92),
+coherent noise (#91), and deterministic sampling (#90); the UML 2.5.1 composer
+suite lands (#30); and the absolute-text justify paths gain first-line indent
+and TeX's overfull-last-line rule. No schema `$defs` or field contract changed,
+so a document authored on 2.7.1 still validates unchanged — no codemod needed.
+The dated "Unreleased" blocks below are contained in this release.
+
+## Unreleased — fix: justified absolute text honors text_indent and never spills (2026-07-31)
+
+- **`style.text_indent` now reaches the absolute-text justify paths.** The flow
+  engine has carried `first_line_indent` through `layout_paragraph` since
+  ADR-0003 and the style resolver has surfaced `text_indent`, but neither the
+  plain nor the span-aware absolute justify path passed it through — a justified
+  paragraph could not carry the book first-line indent at all. Both paths now
+  do: the first laid line is shifted by the indent and its justify target
+  narrowed to match, while later lines keep the full column.
+- **An overfull last or underfull line is compressed to its column instead of
+  painted into the clip** (TeX's overfull-last-line rule). A line that
+  Knuth-Plass shrink-set past the column is now flushed to its target width via
+  `textLength` rather than allowed to spill.
+- **The width-overflow diagnostic no longer reports phantom loss on flushed
+  lines.** A line the painter flushes via `textLength` renders at exactly its
+  justify target, so its natural measure is not width loss; only unflushed lines
+  can actually paint past the box, and only those are now measured. Five `b1`
+  oracle pages re-pinned accordingly (the visible change is overfull lines
+  gaining a `textLength`).
+
+## Unreleased — feat: perceptual colour spaces and interpolation (2026-07-28)
+
+- **The public SDK now converts sRGB through D65 CIE XYZ, CIELab/LCh, and
+  OKLab/OKLCh, and provides perceptual `mix`, `ramp`, and `delta_e` helpers.**
+  New interpolation defaults to OKLab, cylindrical hue follows the shorter
+  arc, and out-of-gamut output clips per sRGB channel. The implementation uses
+  the IEC sRGB transfer constants, CIE 15:2004 Lab transform, and Björn
+  Ottosson's published OKLab matrices; it is pure, deterministic, and
+  standard-library-only.
+- Existing Chevreul outputs remain byte-identical by default. `tone_scale`,
+  `harmony_of_scale`, and `dominant_light` accept an opt-in `space=`, while
+  `nearest_station(metric="oklab")` enables perceptual classification. A
+  committed pre-change regression net, reference values, 20,000+ stratified
+  round trips, property tests, throughput coverage, MCP discovery, generated
+  docs, and a deterministic runnable example protect the new surface. No
+  schema, renderer, CLI, configuration, or migration surface changed. Closes
+  #92.
 
 ## Unreleased — feat: sampleable coherent noise for author-time geometry (2026-07-28)
 

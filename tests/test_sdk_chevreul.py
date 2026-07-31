@@ -19,7 +19,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.sdk import chevreul as ch  # noqa: E402
+from frameforge.sdk import chevreul as ch, to_oklab  # noqa: E402
 from frameforge.sdk.model import validate_document  # noqa: E402
 
 
@@ -139,6 +139,42 @@ def test_dominant_light_pulls_every_colour_toward_the_tint() -> None:
         d_before = ch._rgb_distance(before, "#f0b32e")
         d_after = ch._rgb_distance(after, "#f0b32e")
         assert d_after < d_before
+
+
+def test_perceptual_mix_is_opt_in_and_ordered_by_oklab_lightness() -> None:
+    legacy = ch.tone_scale("#33689c", steps=9)
+    perceptual = ch.tone_scale("#33689c", steps=9, space="oklab")
+    assert perceptual != legacy
+    lightness = [to_oklab(color)[0] for color in perceptual]
+    # tone_scale is documented light-to-dark, so the issue's "strictly
+    # increases" wording is directionally inverted; preserve the public order.
+    assert all(left > right for left, right in zip(lightness, lightness[1:]))
+    assert ch.harmony_of_scale("#33689c", n=5, space="oklab") != ch.harmony_of_scale(
+        "#33689c", n=5,
+    )
+    colors = [ch.WHEEL["red"], ch.WHEEL["blue"]]
+    assert ch.dominant_light(colors, "#f0b32e", space="oklab") != ch.dominant_light(
+        colors, "#f0b32e",
+    )
+
+
+def test_nearest_station_supports_an_opt_in_oklab_metric() -> None:
+    assert ch.nearest_station("#0000dd") == "blue"
+    assert ch.nearest_station("#0000dd", metric="oklab") == "blue-violet"
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        lambda: ch.tone_scale("#33689c", space="hsl"),
+        lambda: ch.harmony_of_scale("#33689c", space="hsv"),
+        lambda: ch.dominant_light(["#33689c"], "#ffffff", space="xyz"),
+        lambda: ch.nearest_station("#33689c", metric="cie76"),
+    ],
+)
+def test_chevreul_opt_in_guards_list_accepted_values(call) -> None:
+    with pytest.raises(ValueError, match="must be one of"):
+        call()
 
 
 def test_contrast_harmonies() -> None:

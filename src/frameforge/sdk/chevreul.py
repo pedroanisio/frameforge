@@ -38,7 +38,7 @@ import copy
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Sequence
 
-Color = str
+from frameforge.sdk.colorspace import Color, delta_e, mix as _colorspace_mix
 
 # The 12 stations of the painter's (RYB) wheel, in wheel order. Neighbours
 # share pigment; opposites (6 stations apart) share nothing — Chevreul's map
@@ -63,6 +63,7 @@ WHEEL: dict[str, Color] = {
 AREA_GUIDE: dict[str, float] = {"ground": 0.62, "text_structure": 0.30, "accent": 0.08}
 
 _STATIONS = list(WHEEL)
+_MIX_SPACES = ("srgb", "linear", "lab", "lch", "oklab", "oklch")
 
 
 def _norm_station(name: str) -> str:
@@ -89,6 +90,17 @@ def _mix(a: Color, b: Color, t: float) -> Color:
     ra, ga, ba = _parse_hex(a)
     rb, gb, bb = _parse_hex(b)
     return _to_hex((ra + (rb - ra) * t, ga + (gb - ga) * t, ba + (bb - ba) * t))
+
+
+def _mix_in_space(a: Color, b: Color, t: float, space: str) -> Color:
+    # Preserve the original function and rounding path byte-for-byte by
+    # default. New colour-science behaviour is deliberately opt-in.
+    if space not in _MIX_SPACES:
+        choices = ", ".join(repr(choice) for choice in _MIX_SPACES)
+        raise ValueError(f"space must be one of {choices}; got {space!r}")
+    if space == "srgb":
+        return _mix(a, b, t)
+    return _colorspace_mix(a, b, t, space=space)
 
 
 def _rgb_distance(a: Color, b: Color) -> float:
@@ -125,21 +137,29 @@ def contrast_ratio(a: Color, b: Color) -> float:
     return (lighter + 0.05) / (darker + 0.05)
 
 
-def tone_scale(color: Color, steps: int = 9) -> list[Color]:
+def tone_scale(color: Color, steps: int = 9, *, space: str = "srgb") -> list[Color]:
     """A Chevreul tone ladder: light tones → the pure colour → deep tones.
 
     "The assemblage of tones of the same colour … the pure colour is the
     normal tone of the scale." Returns ``steps`` colours from near-white to
-    near-black with ``color`` as the middle (normal) tone. Mixes are sRGB
-    lerps — a pragmatic ladder, not a perceptually uniform ramp. (In pigment
+    near-black with ``color`` as the middle (normal) tone. The historical
+    ``space="srgb"`` default is a pragmatic, non-uniform channel lerp and is
+    retained byte-for-byte. Opt into ``"linear"``, ``"lab"``, ``"lch"``,
+    ``"oklab"``, or ``"oklch"`` for colour-aware interpolation. (In pigment
     the normal tone's rank varies by scale — yellow reaches full intensity
     while still light; parameterise by slicing if that matters.)
     """
     if steps < 3:
         raise ValueError("a tone scale needs at least 3 steps")
     half = steps // 2
-    light = [_mix("#ffffff", color, (i + 1) / (half + 1)) for i in range(half)]
-    dark = [_mix(color, "#000000", (i + 1) / (steps - half)) for i in range(steps - half - 1)]
+    light = [
+        _mix_in_space("#ffffff", color, (i + 1) / (half + 1), space)
+        for i in range(half)
+    ]
+    dark = [
+        _mix_in_space(color, "#000000", (i + 1) / (steps - half), space)
+        for i in range(steps - half - 1)
+    ]
     return light + [color] + dark
 
 
@@ -166,20 +186,27 @@ def complement(station: str) -> Color:
     return WHEEL[complement_name(station)]
 
 
-def nearest_station(color: Color) -> str:
-    """The wheel station nearest to a colour (RGB distance — approximate;
-    good for classifying palette members, not for colour science)."""
-    return min(WHEEL, key=lambda name: _rgb_distance(color, WHEEL[name]))
+def nearest_station(color: Color, *, metric: str = "rgb") -> str:
+    """Return the nearest wheel station using legacy RGB or perceptual OKLab.
+
+    ``metric="rgb"`` preserves the historical approximate classifier.
+    ``metric="oklab"`` uses perceptual :func:`colorspace.delta_e` distance.
+    """
+    if metric == "rgb":
+        return min(WHEEL, key=lambda name: _rgb_distance(color, WHEEL[name]))
+    if metric == "oklab":
+        return min(WHEEL, key=lambda name: delta_e(color, WHEEL[name]))
+    raise ValueError(f"metric must be one of 'rgb', 'oklab'; got {metric!r}")
 
 
 # ── the six harmonies ────────────────────────────────────────────────────
 
 
-def harmony_of_scale(color: Color, n: int = 5) -> list[Color]:
-    """Analogy 1 — tones of one scale, read in order (the monochrome)."""
+def harmony_of_scale(color: Color, n: int = 5, *, space: str = "srgb") -> list[Color]:
+    """Analogy 1 — tones of one scale, with legacy sRGB mixing by default."""
     if n < 2:
         raise ValueError("a harmony needs at least 2 colours")
-    ladder = tone_scale(color, steps=max(n, 5))
+    ladder = tone_scale(color, steps=max(n, 5), space=space)
     step = (len(ladder) - 1) / (n - 1)
     return [ladder[round(i * step)] for i in range(n)]
 
@@ -197,12 +224,23 @@ def harmony_of_hues(station: str, n: int = 3, tone: int | None = None) -> list[C
     return colours
 
 
-def dominant_light(colors: Sequence[Color], tint: Color, strength: float = 0.35) -> list[Color]:
+def dominant_light(
+    colors: Sequence[Color],
+    tint: Color,
+    strength: float = 0.35,
+    *,
+    space: str = "srgb",
+) -> list[Color]:
     """Analogy 3 — many colours seen through one tint ("as would result from
-    the view of these colours through a slightly-coloured glass")."""
+    the view of these colours through a slightly-coloured glass"). The
+    historical default remains an sRGB lerp; choose a perceptual ``space``
+    explicitly when even visual steps matter."""
+    if space not in _MIX_SPACES:
+        choices = ", ".join(repr(choice) for choice in _MIX_SPACES)
+        raise ValueError(f"space must be one of {choices}; got {space!r}")
     if not 0.0 <= strength <= 1.0:
         raise ValueError("strength must be within [0, 1]")
-    return [_mix(c, tint, strength) for c in colors]
+    return [_mix_in_space(c, tint, strength, space) for c in colors]
 
 
 def contrast_of_scale(color: Color) -> tuple[Color, Color]:

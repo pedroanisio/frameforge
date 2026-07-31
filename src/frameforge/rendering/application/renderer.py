@@ -431,6 +431,11 @@ class Renderer:
         preserve_nl = ("\n" in content and
                        white_space in ("pre", "pre-wrap", "pre-line", "break-spaces"))
 
+        # `text_indent` shifts and narrows the first laid line of a justified
+        # object (book first-line indent) — the flow engine has carried
+        # `first_line_indent` since ADR-0003; here the absolute paths pass it.
+        ind = num(st.get("text_indent"), 0.0) or 0.0
+
         def layout(sz):
             segments = content.split("\n") if preserve_nl else [content]
             out = []
@@ -440,7 +445,8 @@ class Renderer:
                 elif justify:
                     para = flow_layout.layout_paragraph(
                         seg, size=sz, avg=avg, lh=lh, width=w,
-                        measure=lambda s, z, a: self.measure(s, z, a, st), align="justify")
+                        measure=lambda s, z, a: self.measure(s, z, a, st), align="justify",
+                        first_line_indent=(ind if not out else 0.0))
                     out.extend([ln.text for ln in para.lines] or [seg])
                 elif white_space in ("pre-wrap", "break-spaces"):
                     out.extend(self.wrap_preserved(seg, w, sz, avg, st))
@@ -516,6 +522,7 @@ class Renderer:
         a = self._painter.anchor(st["align"])
         tx = x + (w / 2 if a == "middle" else (w if a == "end" else 0))
         single_span_line = spans and len(lines) == 1 and lines[0] == content
+        flushed = None                       # per-line textLength-flush flags (justify)
         # Pass the neutral style dict + fitted size; the backend formats the font.
         # Rich `text.spans`: when the fitted text is a single, untruncated line,
         # emit per-run styled tspans (the common inline-emphasis case). Wrapped or
@@ -528,25 +535,48 @@ class Renderer:
             flat = "".join(t for t, _ in runs)
             para = flow_layout.layout_paragraph(
                 flat, size=size, avg=avg, lh=lh, width=w,
-                measure=lambda s, z, a: self.measure(s, z, a, st), align="justify")
+                measure=lambda s, z, a: self.measure(s, z, a, st), align="justify",
+                first_line_indent=ind)
             segs = []
+            flushed = []
             for i, ln in enumerate(para.lines):
                 lruns = flow_layout.slice_runs(runs, ln.start, ln.end) or [(ln.text, st)]
                 if ln.text.endswith("-"):            # carry the soft hyphen on the last run
                     lruns = [*lruns[:-1], (lruns[-1][0] + "-", lruns[-1][1])]
+                # An unflushed (last/underfull) line that KP shrink-set past the
+                # column is compressed to it, not painted into the clip (TeX's
+                # overfull-last-line rule).
+                flush = ln.justify or self.measure(ln.text, size, avg, st) > ln.width + 0.5
+                flushed.append(flush)
                 segs.append(self._painter.text_runs(
-                    base + i * (size * lh), "start", x, st, size, lruns,
-                    text_len=(w if ln.justify else None)))
+                    base + i * (size * lh), "start", x + ln.indent, st, size, lruns,
+                    text_len=(ln.width if flush else None)))
             el = "".join(segs)
         elif justify and not single_span_line:
             # Plain justified prose: flush each line via textLength EXCEPT lone or
             # underfull lines (no interior gap, or < half the column) — those stay
             # ragged, never stretched into cavernous letterspacing. Last line ragged.
-            justs = [(k < len(lines) - 1 and (" " in ln.strip())
-                      and self.measure(ln, size, avg, st) >= 0.5 * w)
-                     for k, ln in enumerate(lines)]
-            el = self._painter.text_block(base, "start", st, size, lines, x, size * lh,
-                                          justify_width=w, justifies=justs)
+            justs = []
+            for k, ln in enumerate(lines):
+                t_k = (w - ind) if (ind and k == 0 and len(lines) > 1) else w
+                nat = self.measure(ln, size, avg, st)
+                # flush interior lines; compress an overfull last/underfull line
+                # to its target instead of painting it into the clip.
+                justs.append((k < len(lines) - 1 and (" " in ln.strip())
+                              and nat >= 0.5 * w) or nat > t_k + 0.5)
+            flushed = justs
+            if ind and len(lines) > 1:
+                # First line shifted + narrowed by text_indent: emit it as its
+                # own block so the indent and the flush width both hold.
+                el = (self._painter.text_block(base, "start", st, size, lines[:1],
+                                               x + ind, size * lh,
+                                               justify_width=w - ind, justifies=justs[:1])
+                      + self._painter.text_block(base + size * lh, "start", st, size,
+                                                 lines[1:], x, size * lh,
+                                                 justify_width=w, justifies=justs[1:]))
+            else:
+                el = self._painter.text_block(base, "start", st, size, lines, x, size * lh,
+                                              justify_width=w, justifies=justs)
         elif single_span_line:
             runs = self._span_runs(spans, st)
             if a != "start" and len(runs) > 1:
@@ -580,7 +610,14 @@ class Renderer:
                 # `acknowledged` = the author explicitly chose a containment
                 # behaviour; the bare default is a silent clip.
                 kind = "lines" if dropped_lines else None
-                if kind is None and widest > w + 2:
+                # A line the painter flushes via textLength renders at exactly
+                # its justify target, so its natural measure is not width loss —
+                # only unflushed lines can actually paint past the box.
+                unflushed = max((self.measure(ln, size, avg, st)
+                                 for k, ln in enumerate(lines)
+                                 if not (flushed and k < len(flushed) and flushed[k])),
+                                default=0)
+                if kind is None and unflushed > w + 2:
                     kind = "width"
                 elif kind is None and len(lines) * size * lh > h + max(2.0, size * lh * 0.5):
                     kind = "height"

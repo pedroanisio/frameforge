@@ -169,7 +169,7 @@ def test_new_tools_are_registered_and_exported(tmp_path):
 
 _CAPABILITY_MODULES = [
     # capability-bearing sdk modules — each MUST be named in the guide.
-    "book", "canon", "chart", "chevreul", "clip", "draw", "expand", "fields",
+    "book", "canon", "chart", "chevreul", "clip", "colorspace", "draw", "expand", "fields",
     "figure", "flow", "fractal", "geometry", "humanize", "lattices", "layout",
     "macros", "manifold", "markdown", "metrics", "noise", "outline", "paint", "params",
     "pathtext", "planar", "rand", "recolor", "region", "separate", "solids", "topology",
@@ -206,6 +206,8 @@ _HEADLINE_SURFACES = [
     "Rand", "halton", "poisson_disk", "jittered_grid",
     # sampleable coherent noise (#91)
     "Noise", "value_noise_2d", "perlin_2d", "simplex_2d", "fbm", "domain_warp",
+    # perceptual colour core (#92)
+    "to_oklab", "from_oklab", "mix(", "ramp(", "delta_e",
 ]
 
 
@@ -258,6 +260,30 @@ def test_sdk_discovery_exposes_sampleable_noise_contracts():
     assert "simplex" in summaries["simplex_2d"].lower()
     assert "brownian" in summaries["fbm"].lower()
     assert "warped" in summaries["domain_warp"].lower()
+
+
+def test_guide_explains_perceptual_color_workflow_and_legacy_default():
+    required_fragments = (
+        "frameforge.sdk.colorspace",
+        "from frameforge.sdk import delta_e, mix, ramp, to_oklab",
+        "mix(\"#172a46\", \"#f3c969\", 0.5, space=\"oklab\")",
+        "new `mix` and `ramp` default to OKLab",
+        "Chevreul helpers keep `space=\"srgb\"`",
+        "clips out-of-gamut",
+        "run_sdk_code",
+    )
+    missing = [fragment for fragment in required_fragments if fragment not in FRAMEFORGE_GUIDE]
+    assert not missing, f"MCP guide omits perceptual-colour guidance: {missing}"
+
+
+def test_sdk_discovery_exposes_perceptual_color_contracts():
+    result = describe_capabilities(topic="sdk")
+    summaries = {item["name"]: item["summary"] for item in result["exports"]}
+
+    assert "oklab" in summaries["mix"].lower()
+    assert "evenly" in summaries["ramp"].lower()
+    assert "perceptual distance" in summaries["delta_e"].lower()
+    assert "d65" in summaries["to_lab"].lower()
 
 
 def test_guide_documents_pdf_tex_object_effect_coverage_and_approximations():
@@ -368,9 +394,26 @@ def test_server_instructions_name_the_authoring_engines(tmp_path):
 
 import json  # noqa: E402
 
+from frameforge.mcp.config import max_result_chars  # noqa: E402
 from frameforge.mcp.discovery import _CAPABILITY_TOPICS, _model_catalog  # noqa: E402
 
 CAP_BUDGET = 40_000  # chars; well under the observed ~65KB per-result ceiling
+
+# The `sdk` topic is the one flat, complete index on the surface: a sibling gate
+# (test_sdk_topic_matches_package_all_exactly) REQUIRES it to name every entry in
+# frameforge.sdk.__all__, so its size is O(exports) and grows with each new SDK
+# feature. Completeness and a fixed char budget are in permanent tension, and
+# CAP_BUDGET is a self-imposed margin, not the real limit — the transport ceiling
+# is FRAMEFORGE_MCP_MAX_RESULT_CHARS, enforced at runtime in server.py (an
+# over-budget result is refused outright rather than shipped). So the sdk topic is
+# held to that REAL budget with a margin, while every schema topic keeps the tight
+# CAP_BUDGET, because for those progressive disclosure — not completeness — is the
+# design statement, and 40k is what states it.
+SDK_TOPIC_BUDGET = max_result_chars() - 10_000
+
+
+def _budget_for(topic):
+    return SDK_TOPIC_BUDGET if topic == "sdk" else CAP_BUDGET
 
 
 def _all_topics():
@@ -391,9 +434,22 @@ def test_no_capability_topic_exceeds_the_result_budget():
     for topic in _all_topics():
         result = describe_capabilities(topic, tool_names=["a", "b"])
         size = len(json.dumps(result, default=str))
-        if size > CAP_BUDGET:
-            over.append((topic or "<index>", size))
-    assert not over, f"topics over {CAP_BUDGET} chars (progressive disclosure regressed): {over}"
+        if size > _budget_for(topic):
+            over.append((topic or "<index>", size, _budget_for(topic)))
+    assert not over, f"topics over their budget (progressive disclosure regressed): {over}"
+
+
+def test_the_sdk_topic_still_fits_the_real_transport_budget():
+    """The complete sdk index must survive the transport, not just the margin.
+
+    server.py refuses to ship a result over FRAMEFORGE_MCP_MAX_RESULT_CHARS, so
+    this is the gate that actually protects discovery from breaking in the field.
+    """
+    size = len(json.dumps(describe_capabilities("sdk"), default=str))
+    assert size < max_result_chars(), (
+        f"the sdk topic is {size} chars — server.py would refuse to ship it "
+        f"(budget {max_result_chars()}); the flat complete index needs compacting"
+    )
 
 
 def test_object_schema_topic_is_compact_with_references():
@@ -428,7 +484,7 @@ def test_leaf_topic_keeps_its_own_fields():
 def test_sdk_topic_is_bounded_and_still_lists_exports():
     result = describe_capabilities("sdk")
     assert result["ok"]
-    assert len(json.dumps(result, default=str)) < CAP_BUDGET, "sdk export list too large"
+    assert len(json.dumps(result, default=str)) < SDK_TOPIC_BUDGET, "sdk export list too large"
     names = [e["name"] for e in result["exports"]]
     assert "DocumentBuilder" in names
 

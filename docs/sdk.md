@@ -189,10 +189,10 @@ marble_xy = domain_warp(2.5, 1.25, seed=7, strength=0.8)
 
 ## Design Canon — colour & typography
 
-Two canon modules codify working design rules so authors (human or agent) start from *decided* systems instead of ad-hoc picks. `frameforge.sdk.chevreul` (after M. E. Chevreul, 1839): the 12-station painter's wheel with `complement`, tone scales, the **six harmonies** (`harmony_of_scale`/`harmony_of_hues`/`dominant_light` and the three contrasts), WCAG 2.1 `relative_luminance`/`contrast_ratio`, the `grey_document` tone audit, and `closed_palette` — duties (ground/ink/accent + quiet steps) with the 62/30/8 `AREA_GUIDE`, emitting a ready `defs.tokens.colors` fragment. `frameforge.sdk.canon` (after Edward Johnston, 1906): `modular_scale`, the inner-1½/top-2/outer-3/foot-4 margin canon (`johnston_margins`/`content_box`), the 45–75 characters-per-line measure band, and `caps_tracking`. Pure helpers only — nothing new enters the schema.
+Two canon modules codify working design rules so authors (human or agent) start from *decided* systems instead of ad-hoc picks. `frameforge.sdk.chevreul` (after M. E. Chevreul, 1839): the 12-station painter's wheel with `complement`, tone scales, the **six harmonies** (`harmony_of_scale`/`harmony_of_hues`/`dominant_light` and the three contrasts), WCAG 2.1 `relative_luminance`/`contrast_ratio`, the `grey_document` tone audit, and `closed_palette` — duties (ground/ink/accent + quiet steps) with the 62/30/8 `AREA_GUIDE`, emitting a ready `defs.tokens.colors` fragment. `frameforge.sdk.colorspace` adds D65 sRGB/XYZ, CIELab/LCh, and OKLab/OKLCh conversion plus perceptual `mix(..., space="oklab")`, `ramp`, and `delta_e`. New `mix`/`ramp` calls default to OKLab; Chevreul's established helpers remain opt-in and byte-identical by default with `space="srgb"`. Out-of-gamut conversion clips sRGB channels. `frameforge.sdk.canon` (after Edward Johnston, 1906): `modular_scale`, the inner-1½/top-2/outer-3/foot-4 margin canon (`johnston_margins`/`content_box`), the 45–75 characters-per-line measure band, and `caps_tracking`. Pure helpers only — nothing new enters the schema.
 
 ```python
-from frameforge.sdk import DocumentBuilder, canon, chevreul
+from frameforge.sdk import DocumentBuilder, canon, chevreul, delta_e, mix, ramp
 
 # one decided colour system + one decided size system, before any drawing
 palette = chevreul.closed_palette(ground="#fbf8f1", ink="#1d1e22", accent="#b5402c")
@@ -217,6 +217,11 @@ layer.text([x, y + 40, w, sizes["h1"] * 1.4], "The letter & the hue",
 # accents that agree: an analogous walk, or one complementary chord
 accents = chevreul.harmony_of_hues("blue", n=3)
 field, event = chevreul.contrast_of_colours("red")
+
+# New colour work defaults to OKLab; Chevreul remains legacy-sRGB unless opted in.
+perceptual = ramp(["#172a46", "#b5402c", "#f3c969"], 7)
+midpoint = mix(perceptual[0], perceptual[-1], 0.5, space="oklab")
+separation = delta_e(perceptual[0], perceptual[-1])
 
 # the grey test: strip hue, re-render, check the hierarchy still reads
 grey = chevreul.grey_document(builder.build_dict())

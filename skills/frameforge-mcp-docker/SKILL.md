@@ -94,7 +94,7 @@ list, or version skew in validation).
 
 ```bash
 docker run --rm frameforge version
-# package 2.7.1 / models HEAD_VERSION 2.7.1 / built 2026-07-27T...
+# package 2.8.0 / models HEAD_VERSION 2.8.0 / built 2026-07-27T...
 ```
 
 Compare against your frameforge checkout; on skew, rebuild

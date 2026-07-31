@@ -70,7 +70,7 @@ def _migrate(doc_dict):
 
 # --------------------------------------------------------------------------- #
 def test_version_is_head():
-    assert fg.HEAD_VERSION == "2.7.1"
+    assert fg.HEAD_VERSION == "2.8.0"
 
 
 def test_schema_in_sync_with_models():

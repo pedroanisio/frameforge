@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`ActivityDiagramOptions`, `BookBuilder`, `Box`, `BoxLike`, `Camera`, `ClassDiagramOptions`, `ChapterBuilder`, `Chart`, `ClosedPalette`, `CommunicationDiagramOptions`, `ComponentDiagramOptions`, `CompositeStructureOptions`, `CubicBezier`, `Document`, `DocumentBuilder`, `DeploymentDiagramOptions`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `FlowBuilder`, `Frame`, `Graph`, `HEAD_VERSION`, `Hand`, `Handle`, `ImportedFigurePlacement`, `Issue`, `Lattice`, `LayoutResult`, `MasterBuilder`, `Mat3`, `Mat4`, `Material`, `Node`, `Noise`, `OverflowSignal`, `ObjectDiagramOptions`, `PackageDiagramOptions`, `PageBuilder`, `Panel`, `Path`, `Placement`, `ProfileDiagramOptions`, `Rand`, `ScalarField`, `Scene3D`, `SequenceDiagramOptions`, `StackBuilder`, `StaticValidationError`, `StateMachineOptions`, `SugiyamaConfig`, `Theme`, `TimingDiagramOptions`, `UMLActivityDiagramModel`, `UMLClassDiagramModel`, `UMLCommunicationDiagramModel`, `UMLComponentDiagramModel`, `UMLCompositeStructureModel`, `UMLDeploymentDiagramModel`, `UMLInteractionOverviewModel`, `UMLObjectDiagramModel`, `UMLPackageDiagramModel`, `UMLProfileDiagramModel`, `UMLSequenceDiagramModel`, `UMLStateMachineModel`, `UMLTimingDiagramModel`, `UMLUseCaseDiagramModel`, `UseCaseDiagramOptions`, `ValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `VectorField`, `ViewingPipeline`, `aabb`, `aabb3`, `appearance`, `apply_humanize`, `apply_separation`, `array`, `assert_golden`, `avatar`, `badge`, `badge_width`, `bezier_patch`, `bezier_patch_point`, `blur_filter`, `breadcrumb`, `bspline_patch`, `bspline_patch_point`, `button`, `caps_tracking`, `card`, `chamfer_ring`, `checkbox`, `cite`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `closed_palette`, `color_guide`, `column`, `compose_activity_diagram`, `compose_class_diagram`, `compose_communication_diagram`, `compose_component_diagram`, `compose_composite_structure`, `compose_deployment_diagram`, `compose_interaction_overview`, `compose_object_diagram`, `compose_package_diagram`, `compose_profile_diagram`, `compose_sequence_diagram`, `compose_state_machine`, `compose_timing_diagram`, `compose_use_case_diagram`, `complement`, `conic_gradient`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `convex_hull`, `convex_hull_3d`, `default_theme`, `diffuse_lighting`, `displacement_map`, `divider`, `dominant_light`, `dots`, `domain_warp`, `dragon_curve`, `dropdown`, `effect`, `effect_stack`, `effects`, `eval_expr`, `expand`, `extend_segment`, `extract_objects`, `extrude`, `field`, `fbm`, `fill_regions`, `fill_stroke`, `fit_width`, `fillet_ring`, `filter_chain`, `filter_fn`, `font_kern_pairs`, `from_markdown`, `function_plot`, `glow`, `gradient_map`, `greeble`, `grey_document`, `grid`, `grid_lines`, `grid_pattern`, `halton`, `harmony_of_hues`, `harmony_of_scale`, `hatch`, `hatch_fill`, `image_placeholder`, `inset`, `jittered_grid`, `johnston_margins`, `kerned_spans`, `klein_bottle`, `koch_curve`, `kpi`, `lattice`, `line_curve_intersections`, `line_intersection`, `linear_gradient`, `load_figure`, `loft`, `lorem`, `lorem_paragraphs`, `lower_embedded_svg`, `lsystem`, `manifold`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `md`, `measure_fits`, `measure_text`, `merge_figure_defs`, `mirror`, `mobius`, `model_module`, `modular_scale`, `multiview`, `navbar`, `neon`, `normalize_clip`, `normalize_mask`, `obb`, `object_bbox`, `offset_path`, `collision_report`, `overflow_report`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `parse`, `path_length`, `path_walker`, `pattern`, `perlin_2d`, `pill`, `place_figure`, `place_imported_figure`, `place_region`, `place_stamp`, `planar`, `point_in_polygon`, `poisson_disk`, `polar_plot`, `polygon_area`, `polyline_length`, `progress`, `quarter_circle_kappa`, `radial_gradient`, `radio`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `recolor`, `ref`, `region_grade`, `remap`, `register_theme`, `relative_luminance`, `render_page_svgs`, `render_pages_with_stats`, `repeat_along_path`, `resolve_params`, `revolve`, `rgba`, `row`, `saddle`, `section_loops`, `section_object`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `select_in`, `separate_rects`, `serialize`, `shadow`, `sierpinski_arrowhead`, `simplex_2d`, `slider`, `soft_shadow`, `span`, `sparkline`, `specular_lighting`, `sphere`, `sticky_note`, `stroke`, `stroke_outline`, `sugiyama_layout`, `style_effects`, `surface_curvature`, `svg_to_objects`, `sweep`, `table`, `tabs`, `text_height`, `text_on_path`, `text_style`, `theme`, `to_unit`, `to_plain_dict`, `toggle`, `tone_scale`, `torus`, `trim_segment`, `turbulence`, `turtle`, `validate_document`, `validate_activity_diagram`, `validate_class_diagram`, `validate_communication_diagram`, `validate_component_diagram`, `validate_composite_structure`, `validate_deployment_diagram`, `validate_interaction_overview`, `validate_object_diagram`, `validate_package_diagram`, `validate_profile_diagram`, `validate_sequence_diagram`, `validate_state_machine`, `validate_static_rules`, `validate_timing_diagram`, `validate_use_case_diagram`, `value_noise_2d`, `wave`, `window_to_viewport`, `wrap_text`, `write_golden`
+`ActivityDiagramOptions`, `BookBuilder`, `Box`, `BoxLike`, `Camera`, `ClassDiagramOptions`, `ChapterBuilder`, `Chart`, `ClosedPalette`, `CommunicationDiagramOptions`, `ComponentDiagramOptions`, `CompositeStructureOptions`, `CubicBezier`, `Document`, `DocumentBuilder`, `DeploymentDiagramOptions`, `Edge`, `ExpandOptions`, `ExpandedDocument`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `FlowBuilder`, `Frame`, `Graph`, `HEAD_VERSION`, `Hand`, `Handle`, `ImportedFigurePlacement`, `Issue`, `Lattice`, `LayoutResult`, `MasterBuilder`, `Mat3`, `Mat4`, `Material`, `Node`, `Noise`, `OverflowSignal`, `ObjectDiagramOptions`, `PackageDiagramOptions`, `PageBuilder`, `Panel`, `Path`, `Placement`, `ProfileDiagramOptions`, `Rand`, `ScalarField`, `Scene3D`, `SequenceDiagramOptions`, `StackBuilder`, `StaticValidationError`, `StateMachineOptions`, `SugiyamaConfig`, `Theme`, `TimingDiagramOptions`, `UMLActivityDiagramModel`, `UMLClassDiagramModel`, `UMLCommunicationDiagramModel`, `UMLComponentDiagramModel`, `UMLCompositeStructureModel`, `UMLDeploymentDiagramModel`, `UMLInteractionOverviewModel`, `UMLObjectDiagramModel`, `UMLPackageDiagramModel`, `UMLProfileDiagramModel`, `UMLSequenceDiagramModel`, `UMLStateMachineModel`, `UMLTimingDiagramModel`, `UMLUseCaseDiagramModel`, `UseCaseDiagramOptions`, `ValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `VectorField`, `ViewingPipeline`, `aabb`, `aabb3`, `appearance`, `apply_humanize`, `apply_separation`, `array`, `assert_golden`, `avatar`, `badge`, `badge_width`, `bezier_patch`, `bezier_patch_point`, `blur_filter`, `breadcrumb`, `bspline_patch`, `bspline_patch_point`, `button`, `caps_tracking`, `card`, `chamfer_ring`, `checkbox`, `cite`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `closed_palette`, `color_guide`, `column`, `compose_activity_diagram`, `compose_class_diagram`, `compose_communication_diagram`, `compose_component_diagram`, `compose_composite_structure`, `compose_deployment_diagram`, `compose_interaction_overview`, `compose_object_diagram`, `compose_package_diagram`, `compose_profile_diagram`, `compose_sequence_diagram`, `compose_state_machine`, `compose_timing_diagram`, `compose_use_case_diagram`, `complement`, `conic_gradient`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `convex_hull`, `convex_hull_3d`, `default_theme`, `delta_e`, `diffuse_lighting`, `displacement_map`, `divider`, `dominant_light`, `dots`, `domain_warp`, `dragon_curve`, `dropdown`, `effect`, `effect_stack`, `effects`, `eval_expr`, `expand`, `extend_segment`, `extract_objects`, `extrude`, `field`, `fbm`, `fill_regions`, `fill_stroke`, `fit_width`, `fillet_ring`, `filter_chain`, `filter_fn`, `font_kern_pairs`, `from_lab`, `from_lch`, `from_markdown`, `from_oklab`, `from_oklch`, `from_xyz`, `function_plot`, `glow`, `gradient_map`, `greeble`, `grey_document`, `grid`, `grid_lines`, `grid_pattern`, `halton`, `harmony_of_hues`, `harmony_of_scale`, `hatch`, `hatch_fill`, `image_placeholder`, `inset`, `jittered_grid`, `johnston_margins`, `kerned_spans`, `klein_bottle`, `koch_curve`, `kpi`, `lattice`, `line_curve_intersections`, `line_intersection`, `linear_to_srgb`, `linear_gradient`, `load_figure`, `loft`, `lorem`, `lorem_paragraphs`, `lower_embedded_svg`, `lsystem`, `manifold`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `md`, `measure_fits`, `measure_text`, `merge_figure_defs`, `mirror`, `mix`, `mobius`, `model_module`, `modular_scale`, `multiview`, `navbar`, `neon`, `normalize_clip`, `normalize_mask`, `obb`, `object_bbox`, `offset_path`, `collision_report`, `overflow_report`, `page_hashes`, `paragraph`, `parametric`, `parametric_curve`, `parse`, `path_length`, `path_walker`, `pattern`, `perlin_2d`, `pill`, `place_figure`, `place_imported_figure`, `place_region`, `place_stamp`, `planar`, `point_in_polygon`, `poisson_disk`, `polar_plot`, `polygon_area`, `polyline_length`, `progress`, `quarter_circle_kappa`, `radial_gradient`, `radio`, `ramp`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `recolor`, `ref`, `region_grade`, `remap`, `register_theme`, `relative_luminance`, `render_page_svgs`, `render_pages_with_stats`, `repeat_along_path`, `resolve_params`, `revolve`, `rgba`, `row`, `saddle`, `section_loops`, `section_object`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `select_in`, `separate_rects`, `serialize`, `shadow`, `sierpinski_arrowhead`, `simplex_2d`, `slider`, `soft_shadow`, `span`, `sparkline`, `specular_lighting`, `sphere`, `srgb_to_linear`, `sticky_note`, `stroke`, `stroke_outline`, `sugiyama_layout`, `style_effects`, `surface_curvature`, `svg_to_objects`, `sweep`, `table`, `tabs`, `text_height`, `text_on_path`, `text_style`, `theme`, `to_unit`, `to_lab`, `to_lch`, `to_oklab`, `to_oklch`, `to_plain_dict`, `to_xyz`, `toggle`, `tone_scale`, `torus`, `trim_segment`, `turbulence`, `turtle`, `validate_document`, `validate_activity_diagram`, `validate_class_diagram`, `validate_communication_diagram`, `validate_component_diagram`, `validate_composite_structure`, `validate_deployment_diagram`, `validate_interaction_overview`, `validate_object_diagram`, `validate_package_diagram`, `validate_profile_diagram`, `validate_sequence_diagram`, `validate_state_machine`, `validate_static_rules`, `validate_timing_diagram`, `validate_use_case_diagram`, `value_noise_2d`, `wave`, `window_to_viewport`, `wrap_text`, `write_golden`
 
 ## `frameforge.sdk.author`
 
@@ -16,7 +16,7 @@
 Small fluent builder that lowers directly to the authoritative model.
 
 ```python
-DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.7.1', capture_provenance: 'bool | None' = None) -> 'None'
+DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.8.0', capture_provenance: 'bool | None' = None) -> 'None'
 ```
 
 | Method | Signature | Summary |
@@ -378,7 +378,7 @@ contrast_ratio(a: 'Color', b: 'Color') -> 'float'
 Analogy 3 — many colours seen through one tint ("as would result from
 
 ```python
-dominant_light(colors: 'Sequence[Color]', tint: 'Color', strength: 'float' = 0.35) -> 'list[Color]'
+dominant_light(colors: 'Sequence[Color]', tint: 'Color', strength: 'float' = 0.35, *, space: 'str' = 'srgb') -> 'list[Color]'
 ```
 
 ### `grey_document`
@@ -415,20 +415,20 @@ harmony_of_hues(station: 'str', n: 'int' = 3, tone: 'int | None' = None) -> 'lis
 
 `frameforge.sdk.chevreul.harmony_of_scale`
 
-Analogy 1 — tones of one scale, read in order (the monochrome).
+Analogy 1 — tones of one scale, with legacy sRGB mixing by default.
 
 ```python
-harmony_of_scale(color: 'Color', n: 'int' = 5) -> 'list[Color]'
+harmony_of_scale(color: 'Color', n: 'int' = 5, *, space: 'str' = 'srgb') -> 'list[Color]'
 ```
 
 ### `nearest_station`
 
 `frameforge.sdk.chevreul.nearest_station`
 
-The wheel station nearest to a colour (RGB distance — approximate;
+Return the nearest wheel station using legacy RGB or perceptual OKLab.
 
 ```python
-nearest_station(color: 'Color') -> 'str'
+nearest_station(color: 'Color', *, metric: 'str' = 'rgb') -> 'str'
 ```
 
 ### `relative_luminance`
@@ -458,7 +458,7 @@ to_grey(color: 'Color') -> 'Color'
 A Chevreul tone ladder: light tones → the pure colour → deep tones.
 
 ```python
-tone_scale(color: 'Color', steps: 'int' = 9) -> 'list[Color]'
+tone_scale(color: 'Color', steps: 'int' = 9, *, space: 'str' = 'srgb') -> 'list[Color]'
 ```
 
 ## `frameforge.sdk.clip`
@@ -581,6 +581,158 @@ Coerce a ``clip=`` argument to a model ``clip_path`` value.
 
 ```python
 normalize_clip(clip: 'Any') -> 'dict[str, Any] | str'
+```
+
+## `frameforge.sdk.colorspace`
+
+### `delta_e`
+
+`frameforge.sdk.colorspace.delta_e`
+
+Return perceptual distance using Euclidean OKLab or CIE76 CIELab.
+
+```python
+delta_e(a: 'Color', b: 'Color', *, method: 'str' = 'oklab') -> 'float'
+```
+
+### `from_lab`
+
+`frameforge.sdk.colorspace.from_lab`
+
+Convert D65 CIELab to clipped, lowercase six-digit sRGB hex.
+
+```python
+from_lab(lab: 'Sequence[float]') -> 'Color'
+```
+
+### `from_lch`
+
+`frameforge.sdk.colorspace.from_lch`
+
+Convert D65 CIELCh to clipped, lowercase six-digit sRGB hex.
+
+```python
+from_lch(lch: 'Sequence[float]') -> 'Color'
+```
+
+### `from_oklab`
+
+`frameforge.sdk.colorspace.from_oklab`
+
+Convert OKLab to lowercase sRGB hex, clipping out-of-gamut channels.
+
+```python
+from_oklab(lab: 'Sequence[float]') -> 'Color'
+```
+
+### `from_oklch`
+
+`frameforge.sdk.colorspace.from_oklch`
+
+Convert OKLCh to lowercase sRGB hex, clipping out-of-gamut channels.
+
+```python
+from_oklch(lch: 'Sequence[float]') -> 'Color'
+```
+
+### `from_xyz`
+
+`frameforge.sdk.colorspace.from_xyz`
+
+Convert D65 CIE XYZ to clipped, lowercase six-digit sRGB hex.
+
+```python
+from_xyz(xyz: 'Sequence[float]') -> 'Color'
+```
+
+### `linear_to_srgb`
+
+`frameforge.sdk.colorspace.linear_to_srgb`
+
+Encode one linear-light sRGB channel without clipping its value.
+
+```python
+linear_to_srgb(c: 'float') -> 'float'
+```
+
+### `mix`
+
+`frameforge.sdk.colorspace.mix`
+
+Interpolate two colours in ``space``; new calls default to OKLab.
+
+```python
+mix(a: 'Color', b: 'Color', t: 'float', *, space: 'str' = 'oklab') -> 'Color'
+```
+
+### `ramp`
+
+`frameforge.sdk.colorspace.ramp`
+
+Return ``n`` evenly positioned colours through two or more ``stops``.
+
+```python
+ramp(stops: 'Sequence[Color]', n: 'int', *, space: 'str' = 'oklab') -> 'list[Color]'
+```
+
+### `srgb_to_linear`
+
+`frameforge.sdk.colorspace.srgb_to_linear`
+
+Decode one gamma-encoded sRGB channel, conventionally in ``[0, 1]``.
+
+```python
+srgb_to_linear(c: 'float') -> 'float'
+```
+
+### `to_lab`
+
+`frameforge.sdk.colorspace.to_lab`
+
+Convert an sRGB hex colour to CIELab relative to D65.
+
+```python
+to_lab(color: 'Color') -> 'tuple[float, float, float]'
+```
+
+### `to_lch`
+
+`frameforge.sdk.colorspace.to_lch`
+
+Convert an sRGB hex colour to cylindrical D65 CIELCh.
+
+```python
+to_lch(color: 'Color') -> 'tuple[float, float, float]'
+```
+
+### `to_oklab`
+
+`frameforge.sdk.colorspace.to_oklab`
+
+Convert an sRGB hex colour to Ottosson's D65 OKLab coordinates.
+
+```python
+to_oklab(color: 'Color') -> 'tuple[float, float, float]'
+```
+
+### `to_oklch`
+
+`frameforge.sdk.colorspace.to_oklch`
+
+Convert an sRGB hex colour to cylindrical OKLCh.
+
+```python
+to_oklch(color: 'Color') -> 'tuple[float, float, float]'
+```
+
+### `to_xyz`
+
+`frameforge.sdk.colorspace.to_xyz`
+
+Convert an sRGB hex colour to CIE XYZ using the D65 white point.
+
+```python
+to_xyz(color: 'Color') -> 'tuple[float, float, float]'
 ```
 
 ## `frameforge.sdk.conform`
@@ -1778,7 +1930,7 @@ Document(*, dsl: Literal['FrameForge'], version: Annotated[str, _PydanticGeneral
 
 ### `HEAD_VERSION`
 
-`str` value: `'2.7.1'`
+`str` value: `'2.8.0'`
 
 ### `ValidationError`
 

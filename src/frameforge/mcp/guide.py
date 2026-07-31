@@ -162,6 +162,19 @@ Fluent builder:
     `color_guide(base)` returns all six harmonies for any base colour (the declarative Color Guide); `contrast_ratio(a, b)` (WCAG) checks text-on-ground legibility BEFORE rendering;
     `grey_document(doc)` is the tone audit — render it next to the original to prove
     hierarchy survives without hue.
+  - Perceptual colour (`frameforge.sdk.colorspace`):
+    `from frameforge.sdk import delta_e, mix, ramp, to_oklab` gives pure sRGB ↔ XYZ ↔
+    CIELab/LCh and OKLab/OKLCh conversions, perceptual distance, and shorter-arc hue
+    interpolation. Every transform is an invertible pair — `to_oklab`/`from_oklab`,
+    `to_oklch`/`from_oklch`, `to_lab`/`from_lab`, `to_lch`/`from_lch`, `to_xyz`/`from_xyz`,
+    plus `srgb_to_linear`/`linear_to_srgb` for the transfer function alone — so a hex
+    colour round-trips through any space. `mix(a, b, t)` blends two colours and
+    `ramp(stops, n)` walks a multi-stop scale into `n` evenly spaced steps. For example,
+    `mix("#172a46", "#f3c969", 0.5, space="oklab")`. The new `mix` and `ramp` default to OKLab;
+    existing Chevreul helpers keep `space="srgb"` so old documents remain byte-identical.
+    Conversion clips out-of-gamut sRGB channels rather than applying chroma-preserving
+    gamut mapping. Use these author-time functions through `run_sdk_code`; no dedicated
+    MCP tool or renderer change is needed.
   - Typography (`frameforge.sdk.canon`, after Johnston 1906): `modular_scale(base, ratio)`
     for sizes that agree; `content_box(page_w, page_h, unit, side="recto"|"verso")` for
     the book margin canon (inner 1½ · top 2 · outer 3 · foot 4); `measure_fits(chars)`
