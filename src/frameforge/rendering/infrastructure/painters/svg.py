@@ -88,6 +88,20 @@ class SvgPainter:
     def anchor(align):
         return {"center": "middle", "right": "end", "end": "middle"}.get(align, "start")
 
+    # `white-space` (emitted in font_style) is CSS-Text/SVG2: Chromium honours it,
+    # SVG 1.1 consumers do not. cairosvg — the `--to pdf` backend — therefore ran
+    # XML whitespace processing and collapsed every authored run to one space, so
+    # a monospace ledger kept its columns through `--to png` and lost them through
+    # `--to pdf` from the IDENTICAL SVG. `xml:space="preserve"` is the SVG 1.1
+    # mechanism every consumer implements; emit it on the text element (never on
+    # the root, which would change the layout of every other text element).
+    PRESERVING_WHITE_SPACE = ("pre", "pre-wrap", "break-spaces")
+
+    @classmethod
+    def space_attr(cls, st):
+        ws = st.get("white_space") if hasattr(st, "get") else None
+        return ' xml:space="preserve"' if ws in cls.PRESERVING_WHITE_SPACE else ""
+
     @staticmethod
     def font_style(st, size):
         style = f'font-family:{esc(st["family"])};font-size:{fnum(size)}px;fill:{esc(st["color"])}'
@@ -692,7 +706,7 @@ class SvgPainter:
                if text_len is not None and a == "start" else "")
         style = self.font_style(st, st["size"])
         return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}"{baseline}'
-                f'{fit} style="{style}">{esc(content)}</text>')
+                f'{fit}{self.space_attr(st)} style="{style}">{esc(content)}</text>')
 
     def text_block(self, base_y, anchor, st, size, lines, tx, line_dy,
                    justify_width=None, justifies=None, baseline=None):
@@ -711,7 +725,8 @@ class SvgPainter:
                    if flush(i, ln) else "")
             return f'<tspan x="{fnum(tx)}"{dy}{fit}>{esc(ln)}</tspan>'
         spans = "".join(span(i, ln) for i, ln in enumerate(lines))
-        return f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{dom} style="{style}">{spans}</text>'
+        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{dom}'
+                f'{self.space_attr(st)} style="{style}">{spans}</text>')
 
     def text_runs(self, base_y, anchor, tx, base_st, size, runs, text_len=None, baseline=None):
         """A single baseline of inline styled runs (rich `text.spans`).
@@ -734,8 +749,8 @@ class SvgPainter:
         fit = (f' textLength="{fnum(text_len)}" lengthAdjust="spacing"'
                if text_len is not None and anchor == "start" else "")
         dom = f' dominant-baseline="{baseline}"' if baseline else ""
-        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{fit}{dom} '
-                f'style="{base_style}">{"".join(segs)}</text>')
+        return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{fit}{dom}'
+                f'{self.space_attr(base_st)} style="{base_style}">{"".join(segs)}</text>')
 
     def text_line_runs(self, x, y, w, h, groups, st):
         """One flow-text line as href-aware inline runs.

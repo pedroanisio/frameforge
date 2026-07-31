@@ -6,7 +6,7 @@ import katex from "katex";
 import "katex/dist/katex.min.css";
 import {
   ChevronLeft, ChevronRight, Maximize2, Crosshair, Upload, X,
-  Palette, Layers, Type as TypeIcon, Info,
+  Palette, Layers, Type as TypeIcon, Info, Sun, Moon,
 } from "lucide-react";
 import { normalizeFrameForgeDoc } from "./frameforge-normalize.mjs";
 
@@ -17,25 +17,88 @@ const DEMO_DOC = {"dsl":"FrameForge","version":"2.2.0","profile":"deck","title":
 
 /* ============================================================ *
  *  Viewer chrome theme — a neutral graphite "light table" so the
- *  warm document reads with accurate color. Accent is used only as
+ *  document reads with accurate color. Accent is used only as
  *  thin registration marks, never as large fills.
+ *
+ *  Two schemes ship: `dark` (graphite bench) and `light` (paper
+ *  bench). Both were checked against WCAG contrast on every surface
+ *  they are used over; the light scheme meets or beats the dark one
+ *  for every text role. Chrome colour is read through `useUI()` —
+ *  never off a module constant — so a theme flip re-renders.
  * ============================================================ */
 const UI = {
-  bg: "#15171C",
-  rail: "#0E1014",
-  panel: "#1A1D23",
-  panelAlt: "#20242B",
-  hair: "#2B313A",
-  hairSoft: "#22272E",
-  hi: "#ECEEF1",
-  mid: "#98A0AB",
-  lo: "#5A626D",
-  faint: "#3A4049",
-  accent: "#E8553D",
-  accentDim: "#B8412E",
   mono: "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace",
   sans: "'Space Grotesk', ui-sans-serif, system-ui, sans-serif",
 };
+
+/* Fallback ink for *document* content (image placeholders, caption and
+   block defaults). Documents carry their own paper colour, so these are
+   deliberately fixed — they must not follow the viewer chrome theme. */
+const DOC = {
+  muted: "#98A0AB",
+  accent: "#E8553D",
+};
+
+const THEMES = {
+  dark: {
+    ...UI,
+    id: "dark",
+    scheme: "dark",
+    bg: "#15171C",
+    rail: "#0E1014",
+    panel: "#1A1D23",
+    panelAlt: "#20242B",
+    hair: "#2B313A",
+    hairSoft: "#22272E",
+    dot: "#22272E",
+    hi: "#ECEEF1",
+    mid: "#98A0AB",
+    lo: "#5A626D",
+    faint: "#3A4049",
+    accent: "#E8553D",
+    accentDim: "#B8412E",
+    onAccent: "#15171C",
+    errBg: "#2A1714",
+    errText: "#F0B5A8",
+    swatchRing: "rgba(255,255,255,.12)",
+    artboardShadow: "0 24px 70px -20px rgba(0,0,0,.65), 0 0 0 1px rgba(0,0,0,.4)",
+  },
+  light: {
+    ...UI,
+    id: "light",
+    scheme: "light",
+    bg: "#E4E7EC",
+    rail: "#F1F3F6",
+    panel: "#FFFFFF",
+    panelAlt: "#EDEFF3",
+    hair: "#D2D7DE",
+    hairSoft: "#E6E9EE",
+    dot: "#CFD5DD",
+    hi: "#14171C",
+    mid: "#5C6572",
+    lo: "#767E8B",
+    faint: "#AEB5BF",
+    accent: "#C4462C",
+    accentDim: "#9C3620",
+    onAccent: "#FFFFFF",
+    errBg: "#FDECE8",
+    errText: "#8C2A16",
+    swatchRing: "rgba(0,0,0,.16)",
+    artboardShadow: "0 18px 46px -22px rgba(20,23,28,.38), 0 0 0 1px rgba(20,23,28,.12)",
+  },
+};
+
+const ThemeContext = React.createContext(THEMES.dark);
+function useUI() {
+  return React.useContext(ThemeContext);
+}
+
+/** Resolve the scheme the OS asks for. Falls back to dark where
+ *  `matchMedia` is unavailable (older headless runtimes). */
+function preferredThemeId() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return "dark";
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
 
 const PRESET_CANVASES = {
   A3: [842, 1191],
@@ -131,8 +194,29 @@ function resolveTextStyle(doc, ref) {
     align: merged.align != null ? merged.align : merged.text_align,
     v_align: merged.v_align != null ? merged.v_align : merged.vertical_align,
     wrap: merged.wrap != null ? merged.wrap : ["wrap", "balance", "pretty"].includes(merged.text_wrap),
+    // Wrapping + whitespace mirror the engine's resolver EXACTLY
+    // (rendering/domain/services/text_style_resolver.py: `nowrap`): an authoring
+    // box is a containment constraint, so text wraps to it unless `white_space`
+    // is nowrap/pre, `text_wrap` is nowrap, or `wrap` is explicitly false.
+    // `wrap` above keeps its legacy false-default for other call sites.
+    nowrap: ["nowrap", "pre"].includes(merged.white_space)
+            || merged.text_wrap === "nowrap" || merged.wrap === false,
     line_height: merged.line_height != null ? (typeof merged.line_height === "string" && /px|pt|in|cm|mm/.test(merged.line_height) ? `${toPx(merged.line_height)}px` : merged.line_height) : undefined,
   };
+}
+
+/** CSS `white-space` for a resolved text style.
+ *
+ * Spec §"Authored line breaks and spacing": authored `\n` and space runs follow
+ * `Style.white_space`, and the default `normal` COLLAPSES them. The viewer used
+ * to hardcode pre-wrap/pre, so it preserved breaks every other backend dropped —
+ * the same document rendered as a ledger here and as one reflowed paragraph in
+ * SVG/PDF. An authored value is passed through verbatim (all six model values
+ * are valid CSS); otherwise the default follows the wrap decision above.
+ */
+function whiteSpaceCss(style) {
+  if (style.white_space) return style.white_space;
+  return style.nowrap ? "nowrap" : "normal";
 }
 
 function resolveStyle(doc, ref) {
@@ -179,6 +263,43 @@ function resolveStroke(doc, geomRef, paint) {
     arrowEnd: !!st.arrow_end,
     opacity: st.opacity != null ? st.opacity : 1,
   };
+}
+
+// Paint precedence for closed shapes and vectors, mirroring
+// renderer._shape_fill / renderer._shape_stroke: the ELEMENT field wins, then
+// the object's own `style` bag. Resolving only the element field silently drops
+// every style-authored paint — and `fill` / `stroke` / `stroke-width` reach the
+// DOM as SVG *presentation* properties, which do nothing on the HTML elements
+// this viewer builds for closed shapes, and are overridden by the explicit
+// attributes the vector path sets. So a rect authored
+// `style: {fill: "#101418"}` previewed transparent while the engine painted it,
+// and a line authored `style: {stroke: "#C9D0D6", stroke_width: 1}` previewed
+// as the hardcoded black hairline. Both renderers must read the same keys.
+const STYLE_STROKE_KEYS = [
+  "stroke", "stroke_width", "stroke_dasharray", "stroke_linecap", "stroke_linejoin",
+];
+
+function shapeFill(doc, o) {
+  if (o?.fill != null) return resolveFill(doc, o.fill);
+  const st = resolveStyle(doc, o?.style);
+  return st.fill != null ? resolveFill(doc, st.fill) : null;
+}
+
+function shapeStroke(doc, o) {
+  if (o && (o.stroke != null || o.stroke_style != null)) {
+    return resolveStroke(doc, o.stroke_style, o.stroke);
+  }
+  const st = resolveStyle(doc, o?.style);
+  // `style.border` is deliberately NOT handled here: the engine lowers it to a
+  // stroke, but every viewer element that can carry one is an HTML box where
+  // styleToCss already emits the equivalent CSS `border`.
+  return STYLE_STROKE_KEYS.some((k) => st[k] != null) ? resolveStroke(doc, st, null) : null;
+}
+
+function dashArray(stroke) {
+  const dash = stroke?.dash;
+  if (!dash) return undefined;
+  return Array.isArray(dash) ? dash.join(" ") : String(dash);
 }
 
 function resolveFill(doc, fill) {
@@ -541,7 +662,7 @@ function FitText({ children, style, baseStyle, width, height, active }) {
   const ref = useRef(null);
   const base = style.size || 16;
   const min = style.min_font_size != null ? style.min_font_size : base;
-  const wrap = !!style.wrap;
+  const wrap = !style.nowrap;
   const [size, setSize] = useState(base);
 
   useLayoutEffect(() => {
@@ -570,7 +691,7 @@ function FitText({ children, style, baseStyle, width, height, active }) {
   return (
     <div ref={ref} style={{ ...baseStyle, fontSize: size,
       width: wrap ? "100%" : "max-content",
-      whiteSpace: wrap ? "pre-wrap" : "pre" }}>
+      whiteSpace: whiteSpaceCss(style) }}>
       {children}
     </div>
   );
@@ -583,10 +704,11 @@ function RectObj({ doc, o }) {
   const box = (o.box || [0, 0, 0, 0]).map(toPx);
   const [x, y, w, h] = box;
   const radius = o.radius != null ? toPx(o.radius) : 0;
-  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);   // 2.2.0: geometry from stroke_style, paint from stroke
-  let bg = resolveFill(doc, o.fill);
-  if (typeof o.fill === "string" && o.fill_opacity != null && o.fill_opacity < 1)
-    bg = withAlpha(resolveColor(doc, o.fill), o.fill_opacity);
+  const stroke = shapeStroke(doc, o);   // 2.2.0 split form, then the `style` bag
+  const fillSource = o.fill != null ? o.fill : resolveStyle(doc, o.style).fill;
+  let bg = shapeFill(doc, o) ?? "transparent";
+  if (typeof fillSource === "string" && o.fill_opacity != null && o.fill_opacity < 1)
+    bg = withAlpha(resolveColor(doc, fillSource), o.fill_opacity);
   const st = {
     position: "absolute", left: x, top: y, width: w, height: h,
     background: bg, borderRadius: radius, boxSizing: "border-box",
@@ -670,7 +792,7 @@ function TextObj({ doc, o, active }) {
         </FitText>
       ) : (
         <div style={{ ...baseStyle, fontSize: style.size || 16, width: "100%",
-          whiteSpace: style.wrap ? "pre-wrap" : "pre" }}>
+          whiteSpace: whiteSpaceCss(style) }}>
           {content}
         </div>
       )}
@@ -679,14 +801,15 @@ function TextObj({ doc, o, active }) {
 }
 
 function VectorObj({ doc, o, cw, ch, reg }) {
-  const fill = o.fill != null ? resolveFill(doc, o.fill) : "none";
-  const hasFill = o.fill != null && o.fill !== "none" && fill !== "none" && fill !== "transparent";
-  const stroke = resolveStroke(doc, o.stroke_style, o.stroke) || (hasFill ? null : { color: "#000", width: 1 });   // 2.2.0 split form
+  const fillSource = o.fill != null ? o.fill : resolveStyle(doc, o.style).fill;
+  const fill = fillSource != null ? resolveFill(doc, fillSource) : "none";
+  const hasFill = fillSource != null && fillSource !== "none" && fill !== "none" && fill !== "transparent";
+  const stroke = shapeStroke(doc, o) || (hasFill ? null : { color: "#000", width: 1 });   // 2.2.0 split form, then `style`
   const op = o.opacity != null ? o.opacity : 1;
   const mid = o.id ? o.id.replace(/[^a-zA-Z0-9_-]/g, "_") : Math.random().toString(36).slice(2);
   const dimArrows = o.type === "dimension" && (o.arrows == null || o.arrows === "both" || o.arrows === "first" || o.arrows === "second");
   const arrow = stroke && (stroke.arrowStart || stroke.arrowEnd || dimArrows);
-  const dash = stroke?.dash ? stroke.dash.join(" ") : undefined;
+  const dash = dashArray(stroke);
   const common = {
     "data-frameforge-vector": o.id || "",
     stroke: stroke?.color || "none", strokeWidth: stroke?.width, strokeDasharray: dash,
@@ -876,7 +999,7 @@ function ImageObj({ doc, o }) {
   const asset = src && doc?.defs?.assets?.[src];
   const resolvedSrc = asset?.data || asset?.url || asset?.src || src;
   const canLoad = typeof resolvedSrc === "string" && /^(data:|blob:|https?:\/\/)/i.test(resolvedSrc);
-  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+  const stroke = shapeStroke(doc, o);
   const border = stroke ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}` : undefined;
   return (
     <div data-frameforge-object={o.id || ""} data-frameforge-type="image" style={{
@@ -888,7 +1011,7 @@ function ImageObj({ doc, o }) {
       {canLoad ? <img src={resolvedSrc} alt={o.alt || o.actual_text || o.id || ""} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /> : null}
       {!canLoad && <div style={{
         width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-        textAlign: "center", fontFamily: UI.mono, fontSize: Math.max(9, Math.min(12, h / 5)), color: UI.lo,
+        textAlign: "center", fontFamily: UI.mono, fontSize: Math.max(9, Math.min(12, h / 5)), color: DOC.muted,
         padding: 8, boxSizing: "border-box",
       }}>{src || "image"}</div>}
     </div>
@@ -990,11 +1113,11 @@ function umlBoxSections(o) {
 function UmlBoxObj({ doc, o }) {
   const box = (o.box || [0, 0, 0, 0]).map(toPx);
   const [x, y, w, h] = box;
-  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+  const stroke = shapeStroke(doc, o);
   const border = stroke
     ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}`
     : "1px solid #777";
-  const fill = resolveFill(doc, o.fill);
+  const fill = shapeFill(doc, o) ?? "transparent";
   const titleRows = [
     o.stereotype ? `<<${o.stereotype}>>` : "",
     o.type === "uml.node_box" && o.kind ? `<<${o.kind}>>` : "",
@@ -1117,10 +1240,10 @@ function UmlLifelineObj({ doc, o }) {
   const box = (o.box || [0, 0, 0, 0]).map(toPx);
   const [x, y, w, h] = box;
   const headH = Math.max(18, Math.min(h, toPx(o.head_height) || 42));
-  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
+  const stroke = shapeStroke(doc, o);
   const lineColor = stroke?.color || "#555";
   const border = stroke ? `${stroke.width}px ${stroke.dash ? "dashed" : "solid"} ${stroke.color}` : "1px solid #555";
-  const fill = resolveFill(doc, o.fill);
+  const fill = shapeFill(doc, o) ?? "transparent";
   const rows = [o.name || o.id || "", o.type_name || ""].filter(Boolean);
   return (
     <div data-frameforge-object={o.id || ""} data-frameforge-type="uml.lifeline" style={{
@@ -1156,8 +1279,8 @@ function UmlLifelineObj({ doc, o }) {
 function UmlActivationBarObj({ doc, o }) {
   const box = (o.box || [0, 0, 0, 0]).map(toPx);
   const [x, y, w, h] = box;
-  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
-  const fill = resolveFill(doc, o.fill);
+  const stroke = shapeStroke(doc, o);
+  const fill = shapeFill(doc, o) ?? "transparent";
   return (
     <div data-frameforge-object={o.id || ""} data-frameforge-type="uml.activation_bar" style={{
       position: "absolute", left: x, top: y, width: w, height: h,
@@ -1404,7 +1527,7 @@ function textCss(doc, ref, fallback = {}) {
     lineHeight: style.line_height != null ? style.line_height : (fallback.line_height || 1.25),
     color: style.color ? resolveColor(doc, style.color) : (fallback.color || "#181211"),
     textAlign: style.align || fallback.align || "left",
-    whiteSpace: style.white_space === "pre" ? "pre" : (style.wrap ? "pre-wrap" : "normal"),
+    whiteSpace: whiteSpaceCss(style),
     ...styleToCss(doc, ref, { text: true }),
   };
 }
@@ -1438,10 +1561,31 @@ function TableView({ doc, o, absolute = true }) {
   const rows = o.rows || [];
   const columns = o.columns || [];
   const tableStyle = resolveStyle(doc, o.style);
-  const stroke = resolveStroke(doc, o.stroke_style, o.stroke);
-  const strokeColor = stroke?.color || resolveColor(doc, "rule") || "#ddd";
-  const strokeWidth = stroke?.width != null ? stroke.width : 1;
-  const strokeCss = `${strokeWidth}px ${stroke?.dash ? "dashed" : "solid"} ${strokeColor}`;
+  const stroke = shapeStroke(doc, o);
+  // Table chrome is OPT-IN and mirrors rendering/application/table_renderer.py
+  // (ADR-0006 / #69): the engine draws grid, fills and zebra ONLY where the
+  // document defines them. A viewer that invents a grey grid — or a zebra tint
+  // the table never authored — previews a page the renderer will not produce.
+  // Grid precedence: object stroke/stroke_style, else `grid_color` (+ optional
+  // `grid_width`), else no grid at all. Documented fallbacks (grid_width 0.5,
+  // cell_padding 4, header_weight 700, cell_line_height 1.25) each fire only
+  // under an authored key.
+  const gridStroke = stroke
+    ? {
+      color: stroke.color || resolveColor(doc, "rule") || "#ddd",
+      width: stroke.width != null ? stroke.width : 1,
+      dashed: !!stroke.dash,
+    }
+    : (tableStyle.grid_color
+      ? {
+        color: resolveColor(doc, tableStyle.grid_color),
+        width: tableStyle.grid_width != null ? toPx(tableStyle.grid_width) : 0.5,
+        dashed: false,
+      }
+      : null);
+  const strokeCss = gridStroke
+    ? `${gridStroke.width}px ${gridStroke.dashed ? "dashed" : "solid"} ${gridStroke.color}`
+    : undefined;
   const colWidth = (c) => {
     const width = c?.width;
     if (width == null) return "1fr";
@@ -1451,27 +1595,34 @@ function TableView({ doc, o, absolute = true }) {
   const colTemplate = columns.length
     ? columns.map(colWidth).join(" ")
     : `repeat(${Math.max(1, header.length || rows[0]?.length || 1)}, 1fr)`;
-  const pad = o.cell_padding;
+  const pad = o.cell_padding != null ? o.cell_padding : tableStyle.cell_padding;  // element field wins
   const cellPad = Array.isArray(pad)
     ? pad.map(toPx)
-    : (pad != null ? [toPx(pad), toPx(pad), toPx(pad), toPx(pad)] : (absolute ? [5, 8, 5, 8] : [3, 8, 3, 8]));
+    : (pad != null ? [toPx(pad), toPx(pad), toPx(pad), toPx(pad)] : [4, 4, 4, 4]);
   const headerFill = tableStyle.header_fill ? resolveColor(doc, tableStyle.header_fill) : null;
+  const zebraFill = tableStyle.zebra_fill ? resolveColor(doc, tableStyle.zebra_fill) : null;
+  const tableFill = tableStyle.table_fill ? resolveColor(doc, tableStyle.table_fill) : null;
   const headerTextStyle = tableStyle.header_text;
   const cellTextStyle = tableStyle.cell_text;
+  const headerWeight = tableStyle.header_weight != null ? tableStyle.header_weight : 700;
   const outer = absolute ? {
     position: "absolute", left: x, top: y, width: w || "auto", height: h || "auto",
-    overflow: "hidden", ...styleToCss(doc, o.style), ...rotationStyle(o.rotation, box),
-  } : { width: "100%", ...styleToCss(doc, o.style) };
+    overflow: "hidden", ...(tableFill ? { background: tableFill } : {}),
+    ...styleToCss(doc, o.style), ...rotationStyle(o.rotation, box),
+  } : { width: "100%", ...(tableFill ? { background: tableFill } : {}), ...styleToCss(doc, o.style) };
   const cellStyle = (cell, isHead, ri, ci) => ({
     padding: cellPad.map((v) => `${v}px`).join(" "),
     minHeight: toPx(isHead ? o.header_height : o.row_height) || undefined,
     borderBottom: strokeCss,
-    borderRight: ci < Math.max(header.length, rows[0]?.length || 0) - 1 ? strokeCss : undefined,
-    background: isHead && headerFill ? headerFill : (!isHead && o.zebra && ri % 2 ? "rgba(0,0,0,.035)" : "transparent"),
+    borderRight: strokeCss && ci < Math.max(header.length, rows[0]?.length || 0) - 1 ? strokeCss : undefined,
+    background: isHead && headerFill
+      ? headerFill
+      : (!isHead && o.zebra && ri % 2 && zebraFill ? zebraFill : "transparent"),
     ...textCss(doc, cell?.style || (isHead ? headerTextStyle || "th" : cellTextStyle || "cell"), {
-      size: tableStyle.size || tableStyle.font_size || 13,
-      line_height: tableStyle.line_height || 1.25,
+      size: tableStyle.cell_size || tableStyle.size || tableStyle.font_size || 13,
+      line_height: tableStyle.cell_line_height || tableStyle.line_height || 1.25,
       align: columns[ci]?.align,
+      ...(isHead ? { weight: headerWeight } : {}),
     }),
   });
   return (
@@ -1482,7 +1633,7 @@ function TableView({ doc, o, absolute = true }) {
           <div key={`${ri}-${ci}`} data-table-cell={`${o.id || "table"}:r:${ri}:${ci}`} style={cellStyle(cell, false, ri, ci)}>{textContent(cell)}</div>
         )))}
       </div>
-      {o.caption && <div style={{ marginTop: 6, ...textCss(doc, "caption", { size: 12, color: UI.mid, align: "center" }) }}>{o.caption}</div>}
+      {o.caption && <div style={{ marginTop: 6, ...textCss(doc, "caption", { size: 12, color: DOC.muted, align: "center" }) }}>{o.caption}</div>}
     </div>
   );
 }
@@ -1531,13 +1682,13 @@ function FlowBlock({ doc, block, width }) {
             {block.object ? <RenderObject doc={doc} o={block.object} cw={rawW} ch={rawH} reg={{}} active /> : null}
           </div>
         </div>
-        {block.caption && <figcaption style={{ marginTop: 6, ...textCss(doc, "caption", { size: 12, color: UI.mid, align: "center" }) }}>{block.caption}</figcaption>}
+        {block.caption && <figcaption style={{ marginTop: 6, ...textCss(doc, "caption", { size: 12, color: DOC.muted, align: "center" }) }}>{block.caption}</figcaption>}
       </figure>
     );
   }
-  if (type === "block") return <div style={{ margin: "8px 0", padding: 10, borderLeft: `3px solid ${UI.accent}`, ...textCss(doc, block.style, { size: 14 }) }}>{(block.children || []).map((c, i) => <FlowBlock key={i} doc={doc} block={c} width={width ? Math.max(0, width - 24) : width} />)}</div>;
+  if (type === "block") return <div style={{ margin: "8px 0", padding: 10, borderLeft: `3px solid ${DOC.accent}`, ...textCss(doc, block.style, { size: 14 }) }}>{(block.children || []).map((c, i) => <FlowBlock key={i} doc={doc} block={c} width={width ? Math.max(0, width - 24) : width} />)}</div>;
   if (type === "bibliography") return <div style={{ marginTop: 12, ...textCss(doc, block.style, { size: 13 }) }}>{block.title || "References"}</div>;
-  return <div style={{ margin: "6px 0", ...textCss(doc, block.style, { size: 13, color: UI.mid }) }}>{textContent(block) || `[${type}]`}</div>;
+  return <div style={{ margin: "6px 0", ...textCss(doc, block.style, { size: 13, color: DOC.muted }) }}>{textContent(block) || `[${type}]`}</div>;
 }
 
 function RenderObject({ doc, o, cw, ch, reg, active }) {
@@ -1779,6 +1930,7 @@ function niceStep(span) {
   return 1000;
 }
 function Ruler({ length, span, scale, vertical, cursor }) {
+  const ui = useUI();
   const step = niceStep(span);
   const ticks = [];
   for (let v = 0; v <= span + 0.5; v += step) ticks.push(v);
@@ -1794,27 +1946,28 @@ function Ruler({ length, span, scale, vertical, cursor }) {
         const p = v * scale;
         return vertical ? (
           <g key={v}>
-            <line x1={RULER - 6} y1={p} x2={RULER} y2={p} stroke={UI.hair} strokeWidth="1" />
+            <line x1={RULER - 6} y1={p} x2={RULER} y2={p} stroke={ui.hair} strokeWidth="1" />
             <text x={RULER - 9} y={p + 3} textAnchor="end"
-              fontFamily={UI.mono} fontSize="8.5" fill={UI.lo}>{v}</text>
+              fontFamily={ui.mono} fontSize="8.5" fill={ui.lo}>{v}</text>
           </g>
         ) : (
           <g key={v}>
-            <line x1={p} y1={RULER - 6} x2={p} y2={RULER} stroke={UI.hair} strokeWidth="1" />
-            <text x={p + 3} y={RULER - 9} fontFamily={UI.mono} fontSize="8.5" fill={UI.lo}>{v}</text>
+            <line x1={p} y1={RULER - 6} x2={p} y2={RULER} stroke={ui.hair} strokeWidth="1" />
+            <text x={p + 3} y={RULER - 9} fontFamily={ui.mono} fontSize="8.5" fill={ui.lo}>{v}</text>
           </g>
         );
       })}
       {cursor != null && cursor >= 0 && cursor <= span && (
         vertical
-          ? <line x1={0} y1={cursor * scale} x2={RULER} y2={cursor * scale} stroke={UI.accent} strokeWidth="1" />
-          : <line x1={cursor * scale} y1={0} x2={cursor * scale} y2={RULER} stroke={UI.accent} strokeWidth="1" />
+          ? <line x1={0} y1={cursor * scale} x2={RULER} y2={cursor * scale} stroke={ui.accent} strokeWidth="1" />
+          : <line x1={cursor * scale} y1={0} x2={cursor * scale} y2={RULER} stroke={ui.accent} strokeWidth="1" />
       )}
     </svg>
   );
 }
 function Registration({ w, h }) {
-  const L = 14, off = 8, c = UI.faint;
+  const ui = useUI();
+  const L = 14, off = 8, c = ui.faint;
   const Bracket = ({ style, d }) => (
     <svg width={L + 2} height={L + 2} style={{ position: "absolute", overflow: "visible", pointerEvents: "none", ...style }}>
       <path d={d} stroke={c} strokeWidth="1" fill="none" />
@@ -1834,6 +1987,7 @@ function Registration({ w, h }) {
  *  Stage — fits the page, draws rulers, tracks coordinates
  * ============================================================ */
 function Stage({ doc, page, zoom, onCoord, showRulers }) {
+  const ui = useUI();
   const ref = useRef(null);
   const [avail, setAvail] = useState({ w: 800, h: 600 });
   const { w: cw, h: ch } = canvasOf(doc, page);
@@ -1867,9 +2021,10 @@ function Stage({ doc, page, zoom, onCoord, showRulers }) {
   return (
     <div ref={ref} className="flex-1 min-w-0 relative overflow-auto"
       style={{
-        background: UI.bg,
-        backgroundImage:
-          `radial-gradient(${UI.hairSoft} 1px, transparent 1px)`,
+        /* longhand only — mixing `background` with the longhands makes
+           React warn (and drop paint) when the theme flips at runtime */
+        backgroundColor: ui.bg,
+        backgroundImage: `radial-gradient(${ui.dot} 1px, transparent 1px)`,
         backgroundSize: "26px 26px",
       }}>
       <div className="min-w-full min-h-full flex items-center justify-center"
@@ -1881,20 +2036,20 @@ function Stage({ doc, page, zoom, onCoord, showRulers }) {
               <Ruler length={sh} span={ch} scale={scale} vertical cursor={cursor?.y} />
               <div style={{ position: "absolute", left: -22, top: -22, width: 22, height: 22,
                 display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ width: 5, height: 5, border: `1px solid ${UI.hair}` }} />
+                <div style={{ width: 5, height: 5, border: `1px solid ${ui.hair}` }} />
               </div>
             </>
           )}
           <Registration w={sw} h={sh} />
           {/* canvas badge — below artboard, clear of the top ruler */}
           <div style={{ position: "absolute", top: sh + 9, right: 0,
-            fontFamily: UI.mono, fontSize: 10, color: UI.lo, letterSpacing: ".04em" }}>
+            fontFamily: ui.mono, fontSize: 10, color: ui.lo, letterSpacing: ".04em" }}>
             {Math.round(cw)} × {Math.round(ch)} px
           </div>
           {/* artboard */}
           <div onMouseMove={move} onMouseLeave={leave}
             style={{ width: sw, height: sh, position: "relative",
-              boxShadow: "0 24px 70px -20px rgba(0,0,0,.65), 0 0 0 1px rgba(0,0,0,.4)" }}>
+              boxShadow: ui.artboardShadow }}>
             <div style={{ width: cw, height: ch, transform: `scale(${scale})`, transformOrigin: "top left" }}>
               <PageCanvas doc={doc} page={page} active />
             </div>
@@ -1909,6 +2064,7 @@ function Stage({ doc, page, zoom, onCoord, showRulers }) {
  *  Thumbnail rail
  * ============================================================ */
 function Thumb({ doc, page, index, total, current, onSelect }) {
+  const ui = useUI();
   const { w, h } = canvasOf(doc, page);
   const TW = 118;
   const scale = TW / w;
@@ -1919,13 +2075,13 @@ function Thumb({ doc, page, index, total, current, onSelect }) {
       className="group relative block w-full text-left outline-none"
       style={{ marginBottom: 12 }}>
       <div className="absolute -left-2 top-0 bottom-0 flex items-center" style={{ width: 4 }}>
-        <div style={{ width: 2, height: isCur ? "70%" : 0, background: UI.accent,
+        <div style={{ width: 2, height: isCur ? "70%" : 0, background: ui.accent,
           borderRadius: 2, transition: "height .18s ease" }} />
       </div>
       <div style={{
         width: TW, height: h * scale, position: "relative", overflow: "hidden",
         borderRadius: 3,
-        boxShadow: isCur ? `0 0 0 1.5px ${UI.accent}` : `0 0 0 1px ${UI.hair}`,
+        boxShadow: isCur ? `0 0 0 1.5px ${ui.accent}` : `0 0 0 1px ${ui.hair}`,
         transition: "box-shadow .15s ease",
       }} className="mx-auto">
         <div style={{ width: w, height: h, transform: `scale(${scale})`, transformOrigin: "top left" }}>
@@ -1933,9 +2089,9 @@ function Thumb({ doc, page, index, total, current, onSelect }) {
         </div>
       </div>
       <div className="flex items-center gap-1.5 mt-1.5" style={{ paddingLeft: 4 }}>
-        <span style={{ fontFamily: UI.mono, fontSize: 10,
-          color: isCur ? UI.accent : UI.lo }}>{String(index + 1).padStart(2, "0")}</span>
-        <span className="truncate" style={{ fontFamily: UI.mono, fontSize: 9.5, color: UI.faint }}>
+        <span style={{ fontFamily: ui.mono, fontSize: 10,
+          color: isCur ? ui.accent : ui.lo }}>{String(index + 1).padStart(2, "0")}</span>
+        <span className="truncate" style={{ fontFamily: ui.mono, fontSize: 9.5, color: ui.faint }}>
           {(page.id || "").replace(/^slide_\d+_/, "")}
         </span>
       </div>
@@ -1947,22 +2103,25 @@ function Thumb({ doc, page, index, total, current, onSelect }) {
  *  Inspector
  * ============================================================ */
 function Row({ k, v, mono }) {
+  const ui = useUI();
   return (
-    <div className="flex gap-3 py-1.5" style={{ borderBottom: `1px solid ${UI.hairSoft}` }}>
-      <div style={{ fontFamily: UI.mono, fontSize: 10, color: UI.lo, width: 78, flexShrink: 0,
+    <div className="flex gap-3 py-1.5" style={{ borderBottom: `1px solid ${ui.hairSoft}` }}>
+      <div style={{ fontFamily: ui.mono, fontSize: 10, color: ui.lo, width: 78, flexShrink: 0,
         textTransform: "uppercase", letterSpacing: ".05em", paddingTop: 1 }}>{k}</div>
-      <div style={{ fontFamily: mono ? UI.mono : UI.sans, fontSize: 12, color: UI.hi, lineHeight: 1.4 }}>{v}</div>
+      <div style={{ fontFamily: mono ? ui.mono : ui.sans, fontSize: 12, color: ui.hi, lineHeight: 1.4 }}>{v}</div>
     </div>
   );
 }
 function SectionLabel({ children }) {
+  const ui = useUI();
   return (
-    <div style={{ fontFamily: UI.mono, fontSize: 10, color: UI.accent, letterSpacing: ".12em",
+    <div style={{ fontFamily: ui.mono, fontSize: 10, color: ui.accent, letterSpacing: ".12em",
       textTransform: "uppercase", margin: "18px 0 8px" }}>{children}</div>
   );
 }
 
 function Inspector({ doc, page, tab, setTab }) {
+  const ui = useUI();
   const colors = doc?.defs?.tokens?.colors || {};
   const fonts = doc?.defs?.tokens?.fonts || {};
   const textStyles = doc?.defs?.tokens?.text_styles || {};
@@ -1979,19 +2138,19 @@ function Inspector({ doc, page, tab, setTab }) {
   }, [page]);
 
   return (
-    <div className="h-full flex flex-col" style={{ background: UI.panel, borderLeft: `1px solid ${UI.hair}` }}>
-      <div className="flex" style={{ borderBottom: `1px solid ${UI.hair}` }}>
+    <div className="h-full flex flex-col" style={{ background: ui.panel, borderLeft: `1px solid ${ui.hair}` }}>
+      <div className="flex" style={{ borderBottom: `1px solid ${ui.hair}` }}>
         {tabs.map((t) => {
           const on = tab === t.id;
           const Icon = t.icon;
           return (
             <button key={t.id} onClick={() => setTab(t.id)}
               className="flex-1 flex items-center justify-center gap-1.5 outline-none"
-              style={{ height: 40, color: on ? UI.hi : UI.mid,
-                borderBottom: on ? `2px solid ${UI.accent}` : "2px solid transparent",
-                background: on ? UI.panelAlt : "transparent" }}>
+              style={{ height: 40, color: on ? ui.hi : ui.mid,
+                borderBottom: on ? `2px solid ${ui.accent}` : "2px solid transparent",
+                background: on ? ui.panelAlt : "transparent" }}>
               <Icon size={13} />
-              <span style={{ fontFamily: UI.mono, fontSize: 10.5, letterSpacing: ".04em" }}>{t.label}</span>
+              <span style={{ fontFamily: ui.mono, fontSize: 10.5, letterSpacing: ".04em" }}>{t.label}</span>
             </button>
           );
         })}
@@ -2012,13 +2171,13 @@ function Inspector({ doc, page, tab, setTab }) {
             {doc.description && (
               <>
                 <SectionLabel>Description</SectionLabel>
-                <p style={{ fontFamily: UI.sans, fontSize: 12, color: UI.mid, lineHeight: 1.55 }}>{doc.description}</p>
+                <p style={{ fontFamily: ui.sans, fontSize: 12, color: ui.mid, lineHeight: 1.55 }}>{doc.description}</p>
               </>
             )}
             {doc.meta?.status && (
               <>
                 <SectionLabel>Status</SectionLabel>
-                <p style={{ fontFamily: UI.mono, fontSize: 11, color: UI.mid, lineHeight: 1.5 }}>{doc.meta.status}</p>
+                <p style={{ fontFamily: ui.mono, fontSize: 11, color: ui.mid, lineHeight: 1.5 }}>{doc.meta.status}</p>
               </>
             )}
           </div>
@@ -2031,10 +2190,10 @@ function Inspector({ doc, page, tab, setTab }) {
               {Object.entries(colors).map(([name, val]) => (
                 <div key={name} className="flex items-center gap-2 min-w-0">
                   <div style={{ width: 18, height: 18, borderRadius: 3, flexShrink: 0,
-                    background: val, boxShadow: `inset 0 0 0 1px rgba(255,255,255,.12)` }} />
+                    background: val, boxShadow: `inset 0 0 0 1px ${ui.swatchRing}` }} />
                   <div className="min-w-0">
-                    <div className="truncate" style={{ fontFamily: UI.mono, fontSize: 10, color: UI.hi }}>{name}</div>
-                    <div style={{ fontFamily: UI.mono, fontSize: 9, color: UI.lo }}>{String(val).toUpperCase()}</div>
+                    <div className="truncate" style={{ fontFamily: ui.mono, fontSize: 10, color: ui.hi }}>{name}</div>
+                    <div style={{ fontFamily: ui.mono, fontSize: 9, color: ui.lo }}>{String(val).toUpperCase()}</div>
                   </div>
                 </div>
               ))}
@@ -2049,9 +2208,9 @@ function Inspector({ doc, page, tab, setTab }) {
             <SectionLabel>Text styles · {Object.keys(textStyles).length}</SectionLabel>
             <div className="flex flex-wrap gap-1.5">
               {Object.keys(textStyles).map((name) => (
-                <span key={name} style={{ fontFamily: UI.mono, fontSize: 10, color: UI.mid,
-                  padding: "3px 7px", borderRadius: 4, background: UI.panelAlt,
-                  border: `1px solid ${UI.hair}` }}>{name}</span>
+                <span key={name} style={{ fontFamily: ui.mono, fontSize: 10, color: ui.mid,
+                  padding: "3px 7px", borderRadius: 4, background: ui.panelAlt,
+                  border: `1px solid ${ui.hair}` }}>{name}</span>
               ))}
             </div>
           </div>
@@ -2069,10 +2228,10 @@ function Inspector({ doc, page, tab, setTab }) {
             <div className="flex flex-col gap-1.5">
               {Object.entries(objCounts).map(([type, n]) => (
                 <div key={type} className="flex items-center justify-between"
-                  style={{ fontFamily: UI.mono, fontSize: 11 }}>
-                  <span style={{ color: UI.mid }}>{type}</span>
-                  <div className="flex-1 mx-3" style={{ height: 1, background: UI.hairSoft, alignSelf: "center" }} />
-                  <span style={{ color: UI.hi }}>{n}</span>
+                  style={{ fontFamily: ui.mono, fontSize: 11 }}>
+                  <span style={{ color: ui.mid }}>{type}</span>
+                  <div className="flex-1 mx-3" style={{ height: 1, background: ui.hairSoft, alignSelf: "center" }} />
+                  <span style={{ color: ui.hi }}>{n}</span>
                 </div>
               ))}
             </div>
@@ -2080,10 +2239,10 @@ function Inspector({ doc, page, tab, setTab }) {
             <SectionLabel>Layers</SectionLabel>
             {(page.layers || []).map((l, i) => (
               <div key={l.id || i} className="flex items-center gap-2 py-1.5"
-                style={{ borderBottom: `1px solid ${UI.hairSoft}` }}>
-                <Layers size={12} style={{ color: UI.lo }} />
-                <span style={{ fontFamily: UI.mono, fontSize: 11, color: UI.hi }}>{l.id || `layer ${i}`}</span>
-                <span style={{ fontFamily: UI.mono, fontSize: 9.5, color: UI.lo, marginLeft: "auto" }}>
+                style={{ borderBottom: `1px solid ${ui.hairSoft}` }}>
+                <Layers size={12} style={{ color: ui.lo }} />
+                <span style={{ fontFamily: ui.mono, fontSize: 11, color: ui.hi }}>{l.id || `layer ${i}`}</span>
+                <span style={{ fontFamily: ui.mono, fontSize: 9.5, color: ui.lo, marginLeft: "auto" }}>
                   z {l.z ?? 0} · {(l.objects || []).length} obj
                 </span>
               </div>
@@ -2099,18 +2258,21 @@ function Inspector({ doc, page, tab, setTab }) {
  *  Top + bottom bars
  * ============================================================ */
 function Chip({ children }) {
+  const ui = useUI();
   return (
-    <span style={{ fontFamily: UI.mono, fontSize: 10.5, color: UI.mid,
-      padding: "3px 8px", borderRadius: 4, border: `1px solid ${UI.hair}`,
-      background: UI.panelAlt, letterSpacing: ".03em", whiteSpace: "nowrap" }}>{children}</span>
+    <span style={{ fontFamily: ui.mono, fontSize: 10.5, color: ui.mid,
+      padding: "3px 8px", borderRadius: 4, border: `1px solid ${ui.hair}`,
+      background: ui.panelAlt, letterSpacing: ".03em", whiteSpace: "nowrap" }}>{children}</span>
   );
 }
-function RegMark({ size = 16, color = UI.accent }) {
+function RegMark({ size = 16, color }) {
+  const ui = useUI();
+  const stroke = color || ui.accent;
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="6.2" fill="none" stroke={color} strokeWidth="1.2" />
-      <line x1="8" y1="0.5" x2="8" y2="15.5" stroke={color} strokeWidth="1.2" />
-      <line x1="0.5" y1="8" x2="15.5" y2="8" stroke={color} strokeWidth="1.2" />
+      <circle cx="8" cy="8" r="6.2" fill="none" stroke={stroke} strokeWidth="1.2" />
+      <line x1="8" y1="0.5" x2="8" y2="15.5" stroke={stroke} strokeWidth="1.2" />
+      <line x1="0.5" y1="8" x2="15.5" y2="8" stroke={stroke} strokeWidth="1.2" />
     </svg>
   );
 }
@@ -2123,7 +2285,33 @@ function App() {
   const [showInspector, setShowInspector] = useState(true);
   const [coord, setCoord] = useState(null);
   const [err, setErr] = useState(null);
+  /* `null` = follow the OS; a string = the reader has taken over. The
+     Artifact runtime forbids browser storage, so the override lives in
+     component state only and resets on reload. */
+  const [themeOverride, setThemeOverride] = useState(null);
+  const [systemTheme, setSystemTheme] = useState(preferredThemeId);
   const fileRef = useRef(null);
+
+  const themeId = themeOverride || systemTheme;
+  const ui = THEMES[themeId] || THEMES.dark;
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(prefers-color-scheme: light)");
+    const onChange = (e) => setSystemTheme(e.matches ? "light" : "dark");
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
+
+  /* Paint the host document too, so overscroll and any gap around the
+     app shell match the chrome instead of flashing UA white. */
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute("data-frameforge-theme", themeId);
+    root.style.colorScheme = ui.scheme;
+    root.style.background = ui.bg;
+    document.body.style.background = ui.bg;
+  }, [themeId, ui]);
 
   const pages = useMemo(() => expandDocumentPages(doc), [doc]);
   const page = pages[Math.min(idx, pages.length - 1)];
@@ -2143,12 +2331,20 @@ function App() {
       setPage(nextIdx) {
         setIdx(Math.max(0, Math.min((nextIdx || 0), Math.max(0, pages.length - 1))));
       },
+      setTheme(next) {
+        if (next == null) { setThemeOverride(null); return; }
+        if (!THEMES[next]) throw new Error(`Unknown theme: ${next}`);
+        setThemeOverride(next);
+      },
+      theme() {
+        return { id: themeId, following: themeOverride == null, system: systemTheme, palette: { ...ui } };
+      },
       state() {
-        return { title: doc.title, pageIndex: idx, pageCount: pages.length, sourcePageCount: (doc.pages || []).length };
+        return { title: doc.title, pageIndex: idx, pageCount: pages.length, sourcePageCount: (doc.pages || []).length, theme: themeId };
       },
     };
     return () => { delete window.__FRAMEFORGE_VIEWER__; };
-  }, [doc, idx, pages]);
+  }, [doc, idx, pages, themeId, themeOverride, systemTheme, ui]);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -2184,53 +2380,66 @@ function App() {
   const zoomOpts = [["fit", "Fit"], [0.5, "50"], [1, "100"], [2, "200"]];
 
   return (
+    <ThemeContext.Provider value={ui}>
     <div className="w-full h-screen flex flex-col select-none"
-      style={{ background: UI.bg, color: UI.hi, fontFamily: UI.sans }}>
+      data-frameforge-theme={themeId}
+      style={{ background: ui.bg, color: ui.hi, fontFamily: ui.sans, colorScheme: ui.scheme }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
         * { -webkit-font-smoothing: antialiased; }
         ::-webkit-scrollbar { width: 9px; height: 9px; }
-        ::-webkit-scrollbar-thumb { background: ${UI.hair}; border-radius: 6px; }
+        ::-webkit-scrollbar-thumb { background: ${ui.hair}; border-radius: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        button:focus-visible { outline: 2px solid ${UI.accent}; outline-offset: 2px; }
+        button:focus-visible { outline: 2px solid ${ui.accent}; outline-offset: 2px; }
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
       `}</style>
 
       {/* Top bar */}
       <header className="flex items-center gap-3 px-4 flex-shrink-0"
-        style={{ height: 50, background: UI.panel, borderBottom: `1px solid ${UI.hair}` }}>
+        style={{ height: 50, background: ui.panel, borderBottom: `1px solid ${ui.hair}` }}>
         <div className="flex items-center gap-2">
           <RegMark />
-          <span style={{ fontFamily: UI.sans, fontWeight: 600, fontSize: 15, letterSpacing: "-.01em" }}>
+          <span style={{ fontFamily: ui.sans, fontWeight: 600, fontSize: 15, letterSpacing: "-.01em" }}>
             framelight
           </span>
         </div>
-        <div style={{ width: 1, height: 22, background: UI.hair }} />
+        <div style={{ width: 1, height: 22, background: ui.hair }} />
         <div className="min-w-0 flex-1">
-          <div className="truncate" style={{ fontSize: 12.5, color: UI.mid }}>{doc.title}</div>
+          <div className="truncate" style={{ fontSize: 12.5, color: ui.mid }}>{doc.title}</div>
         </div>
         <Chip>{doc.profile}</Chip>
         <Chip>{doc.dsl} {doc.version}</Chip>
         <button onClick={() => fileRef.current?.click()}
           className="flex items-center gap-1.5 outline-none"
-          style={{ fontFamily: UI.mono, fontSize: 11, color: UI.mid, padding: "5px 10px",
-            borderRadius: 5, border: `1px solid ${UI.hair}`, background: UI.panelAlt }}>
+          style={{ fontFamily: ui.mono, fontSize: 11, color: ui.mid, padding: "5px 10px",
+            borderRadius: 5, border: `1px solid ${ui.hair}`, background: ui.panelAlt }}>
           <Upload size={12} /> Open
         </button>
         <input ref={fileRef} type="file" accept=".json,.yaml,.yml,application/json,text/yaml,application/yaml" onChange={openFile} className="hidden" />
+        <button onClick={() => setThemeOverride(themeId === "dark" ? "light" : "dark")}
+          className="outline-none flex items-center justify-center"
+          data-frameforge-theme-toggle
+          aria-label={themeId === "dark" ? "Switch to light bench" : "Switch to dark bench"}
+          title={themeOverride == null
+            ? `Bench: ${themeId} (following system) — click for ${themeId === "dark" ? "light" : "dark"}`
+            : `Bench: ${themeId} — click for ${themeId === "dark" ? "light" : "dark"}`}
+          style={{ width: 30, height: 30, borderRadius: 5, color: ui.mid,
+            border: `1px solid ${ui.hair}`, background: ui.panelAlt }}>
+          {themeId === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+        </button>
         <button onClick={() => setShowInspector((s) => !s)}
           className="outline-none flex items-center justify-center"
           title={showInspector ? "Hide inspector" : "Show inspector"}
-          style={{ width: 30, height: 30, borderRadius: 5, color: showInspector ? UI.hi : UI.mid,
-            border: `1px solid ${UI.hair}`, background: showInspector ? UI.panelAlt : "transparent" }}>
+          style={{ width: 30, height: 30, borderRadius: 5, color: showInspector ? ui.hi : ui.mid,
+            border: `1px solid ${ui.hair}`, background: showInspector ? ui.panelAlt : "transparent" }}>
           <Layers size={14} />
         </button>
       </header>
 
       {err && (
         <div className="flex items-center gap-2 px-4 py-2 flex-shrink-0"
-          style={{ background: "#2A1714", borderBottom: `1px solid ${UI.accentDim}`,
-            fontFamily: UI.mono, fontSize: 11.5, color: "#F0B5A8" }}>
+          style={{ background: ui.errBg, borderBottom: `1px solid ${ui.accentDim}`,
+            fontFamily: ui.mono, fontSize: 11.5, color: ui.errText }}>
           <X size={13} style={{ cursor: "pointer" }} onClick={() => setErr(null)} /> {err}
         </div>
       )}
@@ -2238,8 +2447,8 @@ function App() {
       <div className="flex-1 flex min-h-0">
         {/* Filmstrip */}
         <nav className="flex-shrink-0 overflow-auto hidden sm:block"
-          style={{ width: 158, background: UI.rail, borderRight: `1px solid ${UI.hair}`, padding: "14px 14px 14px 16px" }}>
-          <div style={{ fontFamily: UI.mono, fontSize: 9.5, color: UI.lo, letterSpacing: ".12em",
+          style={{ width: 158, background: ui.rail, borderRight: `1px solid ${ui.hair}`, padding: "14px 14px 14px 16px" }}>
+          <div style={{ fontFamily: ui.mono, fontSize: 9.5, color: ui.lo, letterSpacing: ".12em",
             textTransform: "uppercase", marginBottom: 12 }}>
             {total} pages
           </div>
@@ -2261,42 +2470,42 @@ function App() {
 
       {/* Bottom bar */}
       <footer className="flex items-center gap-3 px-4 flex-shrink-0"
-        style={{ height: 46, background: UI.panel, borderTop: `1px solid ${UI.hair}` }}>
+        style={{ height: 46, background: ui.panel, borderTop: `1px solid ${ui.hair}` }}>
         <div className="flex items-center gap-1">
           <button onClick={() => go(-1)} disabled={idx === 0}
             className="outline-none flex items-center justify-center"
-            style={{ width: 30, height: 30, borderRadius: 5, color: idx === 0 ? UI.faint : UI.hi,
-              border: `1px solid ${UI.hair}`, background: UI.panelAlt }}>
+            style={{ width: 30, height: 30, borderRadius: 5, color: idx === 0 ? ui.faint : ui.hi,
+              border: `1px solid ${ui.hair}`, background: ui.panelAlt }}>
             <ChevronLeft size={16} />
           </button>
           <button onClick={() => go(1)} disabled={idx === total - 1}
             className="outline-none flex items-center justify-center"
-            style={{ width: 30, height: 30, borderRadius: 5, color: idx === total - 1 ? UI.faint : UI.hi,
-              border: `1px solid ${UI.hair}`, background: UI.panelAlt }}>
+            style={{ width: 30, height: 30, borderRadius: 5, color: idx === total - 1 ? ui.faint : ui.hi,
+              border: `1px solid ${ui.hair}`, background: ui.panelAlt }}>
             <ChevronRight size={16} />
           </button>
         </div>
-        <div style={{ fontFamily: UI.mono, fontSize: 13, color: UI.hi }}>
+        <div style={{ fontFamily: ui.mono, fontSize: 13, color: ui.hi }}>
           {String(idx + 1).padStart(2, "0")}
-          <span style={{ color: UI.lo }}> / {String(total).padStart(2, "0")}</span>
+          <span style={{ color: ui.lo }}> / {String(total).padStart(2, "0")}</span>
         </div>
-        <div className="truncate hidden sm:block" style={{ fontFamily: UI.mono, fontSize: 11, color: UI.lo }}>
+        <div className="truncate hidden sm:block" style={{ fontFamily: ui.mono, fontSize: 11, color: ui.lo }}>
           {page?.id}
         </div>
 
         <div className="flex-1" />
 
         {/* zoom segmented control */}
-        <div className="flex items-center" style={{ border: `1px solid ${UI.hair}`, borderRadius: 6, overflow: "hidden" }}>
+        <div className="flex items-center" style={{ border: `1px solid ${ui.hair}`, borderRadius: 6, overflow: "hidden" }}>
           {zoomOpts.map(([val, label], i) => {
             const on = zoom === val;
             return (
               <button key={String(val)} onClick={() => setZoom(val)}
                 className="outline-none flex items-center justify-center gap-1"
-                style={{ height: 28, padding: "0 10px", color: on ? UI.bg : UI.mid,
-                  background: on ? UI.accent : "transparent",
-                  borderLeft: i ? `1px solid ${UI.hair}` : "none",
-                  fontFamily: UI.mono, fontSize: 11, fontWeight: on ? 600 : 400 }}>
+                style={{ height: 28, padding: "0 10px", color: on ? ui.onAccent : ui.mid,
+                  background: on ? ui.accent : "transparent",
+                  borderLeft: i ? `1px solid ${ui.hair}` : "none",
+                  fontFamily: ui.mono, fontSize: 11, fontWeight: on ? 600 : 400 }}>
                 {val === "fit" && <Maximize2 size={11} />}{label}
               </button>
             );
@@ -2306,16 +2515,17 @@ function App() {
         {/* live coordinate readout */}
         <div className="hidden sm:flex items-center gap-1.5"
           style={{ minWidth: 138, justifyContent: "flex-end" }}>
-          <Crosshair size={12} style={{ color: coord ? UI.accent : UI.faint }} />
-          <span style={{ fontFamily: UI.mono, fontSize: 11.5, color: coord ? UI.hi : UI.faint }}>
+          <Crosshair size={12} style={{ color: coord ? ui.accent : ui.faint }} />
+          <span style={{ fontFamily: ui.mono, fontSize: 11.5, color: coord ? ui.hi : ui.faint }}>
             {coord ? `x ${String(coord.x).padStart(4, " ")}` : "x ····"}
           </span>
-          <span style={{ fontFamily: UI.mono, fontSize: 11.5, color: coord ? UI.hi : UI.faint }}>
+          <span style={{ fontFamily: ui.mono, fontSize: 11.5, color: coord ? ui.hi : ui.faint }}>
             {coord ? `y ${String(coord.y).padStart(4, " ")}` : "y ····"}
           </span>
         </div>
       </footer>
     </div>
+    </ThemeContext.Provider>
   );
 }
 

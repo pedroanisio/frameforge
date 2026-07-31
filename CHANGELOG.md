@@ -1,6 +1,6 @@
 # FrameForge v2 — CHANGELOG (HEAD)
 
-**Version:** `2.8.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-31
+**Version:** `2.8.1` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-31
 
 *Convention: version headings mark schema/`HEAD_VERSION` bumps; an entry titled
 "Unreleased" landed between bumps and is contained in the nearest version
@@ -8,6 +8,42 @@ heading above it. One version number may span multiple dated entry blocks —
 cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
+
+## 2.8.1 — the collision gate actually fires, and the viewer paints style-bag fill/stroke
+
+Patch release. Two silent-failure defects: a document could paint an entire
+content block on top of another one and pass `validate` and BOTH render
+backends without a word, and the JS viewer dropped every `fill`/`stroke`
+authored in a `style` bag. No schema `$defs` or field contract changed.
+
+- **The collision gate runs by DEFAULT.** The render-time ink detector
+  (collision-gate/2026-07, O1) was correct and well-tested — and unreachable:
+  opt-in behind `--check-collision`, worst verdict WARN, *"never fails the
+  build on its own"*, and the flag named in no Makefile target, gate or test.
+  A detector nothing calls is not a gate. `validate` now runs it unless
+  `--no-check-collision` is passed, which is the deliberate override.
+- **Collision severity scales with magnitude.** Estimate-mode metrics are
+  unverified (PALS's Law) and that is why the verdict stayed advisory — but the
+  uncertainty is bounded: estimating glyph advances errs by a fraction of a
+  line, so it cannot manufacture a 466×65 px text-on-text overlap. Above
+  `GROSS_COLLISION_AREA` (2000 px², minor axis > 8 px) a collision is an ERROR;
+  below it stays a WARN, so measurement noise still never fails a build.
+  Gated by `tests/test_collision_gate_wiring.py`.
+- **Viewer: `fill` and `stroke` authored in the style bag now paint.** The
+  viewer resolved both only from the element field, mirroring neither
+  `renderer._shape_fill` nor `_shape_stroke` (element → `style.border` →
+  `style.stroke*`). `styleToCss` then emitted `fill`/`stroke`/`stroke-width` as
+  SVG *presentation* properties onto HTML elements, where they are inert, so a
+  rect authored `style: {fill: "#101418"}` previewed transparent while the
+  engine painted it. New `shapeFill`/`shapeStroke` helpers carry the engine's
+  precedence through all eight shape components. Measured against the engine
+  PNG on a 10-page spec: page 1 NCC **−0.043 → +0.984**.
+- **Viewer table chrome is opt-in, matching `table_renderer`.** `grid_color`,
+  `zebra_fill`, `table_fill`, `cell_size`, `grid_width`, `header_weight`,
+  `cell_line_height` and style-level `cell_padding` were all ignored while the
+  viewer invented a `#ddd` grid and an `rgba(0,0,0,.035)` zebra no document had
+  authored (ADR-0006 / #69). The coverage gate's allowlist now names the full
+  documented table-style set.
 
 ## 2.8.0 — perceptual colour, sampleable randomness, and justified-text fidelity
 

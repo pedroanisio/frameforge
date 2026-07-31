@@ -9,6 +9,11 @@ from typing import Any
 from frameforge.rendering.application.normalize import normalize_doc
 from frameforge.rendering.application import renderer as _renderer_module
 from frameforge.rendering.application.renderer import Renderer  # noqa: F401 — re-export compat
+from frameforge.rendering.domain.services.legibility import (
+    LegibilityPolicy,
+    LegibilitySignal,
+    assess_pages,
+)
 from frameforge.rendering.domain.services.overflow import OverflowSignal
 
 from frameforge.sdk.model import validate_document
@@ -63,7 +68,18 @@ def render_pages_with_stats(
             renderer.font_report()
         except Exception as exc:  # fc-match absent/broken must not kill the render
             renderer.diagnostics["warnings"].append(f"font_report failed: {exc}")
-        return svgs, dict(renderer.tstats), copy.deepcopy(renderer.diagnostics)
+        diags = copy.deepcopy(renderer.diagnostics)
+        # Human-legibility signals read the FINISHED SVG (type below the legible
+        # floor, WCAG contrast against the ink actually painted behind the text,
+        # measure, leading), so they are assessed here rather than inside the
+        # renderer. The channel always exists — an empty list means the pages
+        # passed, never that the check did not run.
+        try:
+            diags["legibility"] = [s.to_dict() for s in assess_pages(svgs)]
+        except Exception as exc:  # noqa: BLE001 — advisory: never break a render
+            diags["legibility"] = []
+            diags["warnings"].append(f"legibility assessment failed: {exc}")
+        return svgs, dict(renderer.tstats), diags
     return svgs, dict(renderer.tstats)
 
 
@@ -87,6 +103,32 @@ def overflow_report(
     _svgs, _tstats, diags = render_pages_with_stats(
         model, base_dir=base_dir, real_metrics=real_metrics, diagnostics=True)
     return [OverflowSignal.from_dict(d) for d in diags.get("overflow", [])]
+
+
+def legibility_report(
+    model: Any,
+    *,
+    base_dir: str | None = None,
+    real_metrics: bool | None = None,
+    policy: LegibilityPolicy | None = None,
+) -> list[LegibilitySignal]:
+    """Render through the proxy and return the typed HUMAN-LEGIBILITY signals.
+
+    The companion to :func:`overflow_report`: that one reports what the layout
+    could not fit, this one reports what it fitted and made unreadable — type
+    below the legible floor for the page, text failing WCAG 2.1 SC 1.4.3
+    against the ink actually painted behind it, an untrackable measure, or
+    leading too tight to separate the lines. An empty list means every check
+    passed; an ``info``-level ``contrast-unverified`` signal means a backdrop
+    could not be resolved and was deliberately NOT scored as a pass.
+
+    ``policy`` overrides the default thresholds (house minimum type size, a
+    stricter contrast target, a narrower measure); see
+    :class:`~frameforge.rendering.domain.services.legibility.LegibilityPolicy`.
+    """
+    svgs, _tstats = render_pages_with_stats(
+        model, base_dir=base_dir, real_metrics=real_metrics)
+    return assess_pages(svgs, policy=policy)
 
 
 def collision_report(

@@ -19,8 +19,19 @@ const PAGE_MODES = new Set(["page", "flow", undefined]);
 const ABSOLUTE_TYPES = new Set(REGISTRY.supported.object_types);
 const FLOW_TYPES = new Set(REGISTRY.supported.flow_types);
 const STYLE_KEYS = new Set([...Object.keys(SCHEMA.$defs.Style.properties), "class_"]);
+// Table `style` is not a Style object: the model (TableObject.style / the flow
+// table's style) documents a loose bag of renderer keys, so none of them appear
+// in SCHEMA.$defs.Style.properties. This is the full documented set — paint
+// keys, the colour-or-style-ref text keys, and the chrome geometry keys with
+// their documented fallbacks (grid_width 0.5, cell_padding 4, header_weight
+// 700, cell_line_height 1.25). Every one is honoured by TableView; keep the two
+// in step, because a key listed here but unrendered is exactly the silent drift
+// this gate exists to catch.
 const STYLE_METADATA_KEYS = new Set([
-  "cell_text", "header_fill", "header_text", "meta",
+  "header_fill", "zebra_fill", "table_fill", "grid_color",
+  "header_text", "cell_text",
+  "grid_width", "cell_padding", "cell_size", "header_weight", "cell_line_height",
+  "meta",
 ]);
 
 function files(dir) {

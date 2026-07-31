@@ -35,7 +35,8 @@ viewer/
 │   ├── schema-contract.mjs   Gate: viewer type registry ⇄ model schema reconciliation.
 │   ├── fixture-coverage.mjs  Gate: static coverage over ../tests/fixtures/*.fg.yaml.
 │   ├── fixture-browser-smoke.mjs  Loads every fixture in headless Chromium.
-│   ├── math|style|layout|table-browser-smoke.mjs  Per-subsystem render smokes.
+│   ├── math|style|layout|table|paint-browser-smoke.mjs  Per-subsystem render smokes.
+│   ├── theme-browser-smoke.mjs    Gate: dark/light chrome, OS preference, toggle, contrast.
 │   ├── render-ui-corpus.cjs  Renders the corpus UI mockups (tests/fixtures/corpus/ui).
 │   ├── type-registry.json    The viewer's supported/unsupported type registry.
 │   └── shot.cjs              Playwright script that screenshots representative slides.
@@ -96,10 +97,31 @@ npm run test:math      # math (TeX/MathML) render smoke assertions
 npm run test:style     # computed-style smoke assertions
 npm run test:layout    # row/grid layout placement smoke assertions
 npm run test:table     # table render smoke assertions
+npm run test:paint     # paint (fill/stroke) render smoke assertions
+npm run test:theme     # dark/light chrome assertions (OS preference, toggle, contrast)
 npm run verify         # runs dev/shot.cjs; writes shot_*.png into dev/
 npm run render-ui-corpus  # renders tests/fixtures/corpus/ui mockups to PNG
-npm run test:all       # build + test + browser/math/style/layout/table + verify
+npm run test:all       # build + test + browser/math/style/layout/table/paint/theme + verify
 ```
+
+---
+
+## Dark and light bench
+The viewer chrome ships in two schemes — `dark` (graphite bench) and `light` (paper bench).
+The document itself is never recoloured: it carries its own tokens, so only the shell,
+filmstrip, rulers, registration marks, stage backdrop and inspector change.
+
+- **First paint follows the OS**, via `prefers-color-scheme`, and keeps following it while
+  the OS setting changes.
+- **The sun/moon button in the top bar** flips the bench and takes over from the OS for the
+  rest of the session. The Artifact runtime forbids browser storage, so the choice lives in
+  component state and resets on reload — the OS preference is the persistent setting.
+- **Programmatic control**: `window.__FRAMEFORGE_VIEWER__.setTheme("light" | "dark" | null)`
+  (`null` hands control back to the OS) and `.theme()` → `{ id, following, system, palette }`.
+  The active scheme is also on `<html data-frameforge-theme>` and on the app shell.
+- Both palettes were checked against WCAG contrast on every surface each role is drawn over;
+  the light scheme meets or beats the dark one for every text role. `npm run test:theme`
+  re-asserts that in Chromium under both simulated OS preferences.
 
 ---
 

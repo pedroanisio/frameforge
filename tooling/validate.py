@@ -811,15 +811,33 @@ def text_fit_checks(doc, base_dir, findings, real_metrics=False):
             f"pages[{sig.get('page')}]"))
 
 
-def collision_checks(doc, base_dir, findings, real_metrics=False):
-    """Opt-in (--check-collision): render, then WARN on same-layer ink overlaps
-    that were not declared `overlap: allowed` (collision-gate/2026-07, O1).
+# An ink overlap this large cannot be an artefact of estimated glyph advances:
+# estimation errs by a fraction of a line's width, so the residual is tens of
+# px², not thousands, and never in BOTH axes at once. Above these bounds the
+# overlap is drawn ink on drawn ink — the re-metro cover stacked a whole content
+# block on another at ~30,000 px² (466x65) and still validated clean.
+GROSS_COLLISION_AREA = 2_000.0     # px²
+GROSS_COLLISION_MIN_AXIS = 8.0     # px, the minor axis — rules out grazing contact
 
-    Advisory by design: a collision is an *unintended* same-layer overlap, and
-    telling an accident from an effect needs rendered ink, which depends on the
-    installed fonts — so the verdict names the metrics mode it was produced under
-    (an estimate-mode overlap is unverified, PALS's Law). It never fails the build
-    on its own; the operator promotes it once a pinned metrics table lands (O7).
+
+def collision_checks(doc, base_dir, findings, real_metrics=False):
+    """Default-ON: render, then report same-layer ink overlaps that were not
+    declared `overlap: allowed` (collision-gate/2026-07, O1).
+
+    Telling an accident from an effect needs rendered ink, which depends on the
+    installed fonts — so every verdict names the metrics mode it was produced
+    under (an estimate-mode overlap is unverified, PALS's Law). That uncertainty
+    is why this stayed advisory, and it is real but BOUNDED: estimating glyph
+    advances errs by a fraction of a line, not by hundreds of px. So severity
+    scales with magnitude instead of being pinned at WARN —
+
+    * area > GROSS_COLLISION_AREA and both axes materially overlapping: ERROR.
+      No metrics table turns a clean layout into a block painted over a block;
+      shipping that silently is the defect this gate exists to stop.
+    * anything smaller: WARN, exactly as before, so measurement noise and tight
+      leading can never fail a build.
+
+    `--no-check-collision` is the deliberate override.
     """
     from frameforge.rendering.application.renderer import Renderer
     r = Renderer(doc, base_dir, real_metrics=real_metrics)
@@ -829,15 +847,17 @@ def collision_checks(doc, base_dir, findings, real_metrics=False):
     for c in (r.diagnostics or {}).get("collisions") or []:
         ids = " × ".join(str(i or "<anonymous>") for i in c.get("ids", []))
         ox, oy = (c.get("overlap") or [0, 0])[:2]
+        area = c.get("area", 0)
+        gross = area > GROSS_COLLISION_AREA and min(ox, oy) > GROSS_COLLISION_MIN_AXIS
         findings.append(Finding(
-            "WARN", "collision",
+            "ERROR" if gross else "WARN", "collision",
             f"same-layer ink overlap [{c.get('metrics')}] between {ids}: "
-            f"~{c.get('area', 0):.0f} px² ({ox:.0f}×{oy:.0f}); if intentional, set "
+            f"~{area:.0f} px² ({ox:.0f}×{oy:.0f}); if intentional, set "
             "`overlap: allowed` on both, else separate them (§3.3)",
             f"pages[{c.get('page')}].layers[{c.get('layer')}]"))
 
 
-def validate_doc(path, strict=False, text_fit=True, check_collision=False,
+def validate_doc(path, strict=False, text_fit=True, check_collision=True,
                  real_metrics=False):
     try:
         doc = _load(path)
@@ -871,9 +891,14 @@ def main(argv=None):
                            help="skip render-dependent text-fit diagnostics (structure-only)")
     ap.set_defaults(text_fit=True)
     ap.add_argument("--quiet", action="store_true", help="only print summary lines")
-    ap.add_argument("--check-collision", action="store_true",
-                    help="also WARN on same-layer ink overlaps not declared "
-                         "`overlap: allowed` (collision-gate/2026-07, advisory)")
+    col_group = ap.add_mutually_exclusive_group()
+    col_group.add_argument("--check-collision", dest="check_collision", action="store_true",
+                           help="report same-layer ink overlaps not declared "
+                                "`overlap: allowed` (collision-gate/2026-07); ON by default")
+    col_group.add_argument("--no-check-collision", dest="check_collision", action="store_false",
+                           help="render a document that paints text over text anyway — the "
+                                "deliberate override, never the default")
+    ap.set_defaults(check_collision=True)
     ap.add_argument("--real-metrics", action="store_true",
                     help="measure text-fit and collisions with real glyph advances "
                          "(fontTools); reproducible where the faces are installed")

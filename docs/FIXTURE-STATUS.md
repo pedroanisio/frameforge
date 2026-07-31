@@ -14,7 +14,7 @@ Delivered top-level fixtures validated against the HEAD core profile (`tooling/v
 | `canon-typography.fg.yaml` | 0 | 0 | clean |
 | `chevreul-harmonies.fg.yaml` | 0 | 0 | clean |
 | `connectors.fg.yaml` | 0 | 0 | clean |
-| `edst1-flange.fg.yaml` | 0 | 0 | clean |
+| `edst1-flange.fg.yaml` | 0 | 2 | advisory warnings only (collision) |
 | `effects.fg.yaml` | 0 | 0 | clean |
 | `font-faces-100.fg.yaml` | 0 | 0 | clean |
 | `font-faces.fg.yaml` | 0 | 0 | clean |
@@ -28,8 +28,8 @@ Delivered top-level fixtures validated against the HEAD core profile (`tooling/v
 | `myfiles-internal.fg.yaml` | 0 | 21 | advisory warnings only (containment, overlap) |
 | `ninja-hacker-manga.fg.yaml` | 0 | 45 | advisory warnings only (containment, text-truncated) |
 | `nyt-mideast-live.fg.yaml` | 0 | 3 | advisory warnings only (text-truncated) |
-| `pals-genai-arch-ptbr.fg.yaml` | 0 | 29 | advisory warnings only (layout-overflow, tabular-box-model) |
-| `pals-genai-architecture.fg.yaml` | 0 | 17 | advisory warnings only (layout-overflow, tabular-box-model) |
+| `pals-genai-arch-ptbr.fg.yaml` | 0 | 33 | advisory warnings only (collision, layout-overflow, tabular-box-model) |
+| `pals-genai-architecture.fg.yaml` | 0 | 25 | advisory warnings only (collision, layout-overflow, tabular-box-model) |
 | `pdf_table_extraction.fg.yaml` | 0 | 1 | advisory warnings only (out-of-profile) |
 | `planar-kernel.fg.yaml` | 0 | 0 | clean |
 | `sdk-ergonomics-showcase.fg.yaml` | 0 | 1 | advisory warnings only (out-of-profile) |

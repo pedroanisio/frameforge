@@ -17,6 +17,7 @@ const doc = {
         hairline: "#123456",
         white: "#ffffff",
         ink: "#202020",
+        zebra: "#eef3f1",
       },
       text_styles: {
         tbl_head: {
@@ -50,6 +51,7 @@ const doc = {
         header_fill: "brand",
         header_text: "tbl_head",
         cell_text: "tbl_cell",
+        zebra_fill: "zebra",
       },
       zebra: true,
     }] }],
@@ -95,7 +97,9 @@ const checks = [
   ["cell text color", styles.cellColor === "rgb(32, 32, 32)"],
   ["cell text size", styles.cellSize === "10px"],
   ["column align", styles.cellAlign === "right"],
-  ["zebra fill", styles.zebraBg !== "rgba(0, 0, 0, 0)" && styles.zebraBg !== "transparent"],
+  // Chrome is opt-in: the zebra tint is the AUTHORED zebra_fill, never an
+  // invented default (renderer.table_renderer / ADR-0006).
+  ["zebra fill", styles.zebraBg === "rgb(238, 243, 241)"],
 ];
 
 for (const [name, ok] of checks) {

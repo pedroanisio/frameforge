@@ -430,6 +430,16 @@ class Renderer:
         white_space = st.get("white_space") or "normal"
         preserve_nl = ("\n" in content and
                        white_space in ("pre", "pre-wrap", "pre-line", "break-spaces"))
+        # Collapsing is conformant, but silently reflowing an authored ledger or
+        # address block into one paragraph is exactly the invisible failure the
+        # core principles ban — so say so. (Report only; layout is unchanged.)
+        if "\n" in content and not preserve_nl:
+            self.warn(
+                "collapsed_line_breaks",
+                f"{content.count(chr(10))} authored line break(s) collapsed under "
+                f"white_space: {white_space} — set white_space: pre-wrap to keep them",
+                object=oid, white_space=white_space,
+                line_breaks=content.count("\n"))
 
         # `text_indent` shifts and narrows the first laid line of a justified
         # object (book first-line indent) — the flow engine has carried
@@ -1846,8 +1856,8 @@ class Renderer:
         mode = "real" if self.real_metrics else "estimate"
         for i in range(len(ink)):
             for j in range(i + 1, len(ink)):
-                (ia, ca, (ax0, ay0, ax1, ay1)) = ink[i]
-                (ib, cb, (bx0, by0, bx1, by1)) = ink[j]
+                (ia, ca, (ax0, ay0, ax1, ay1), ta) = ink[i]
+                (ib, cb, (bx0, by0, bx1, by1), tb) = ink[j]
                 ox = min(ax1, bx1) - max(ax0, bx0)
                 oy = min(ay1, by1) - max(ay0, by0)
                 if ox <= 0 or oy <= 0:
@@ -1857,11 +1867,23 @@ class Renderer:
                 area = ox * oy
                 if area < self._COLLISION_MIN_AREA:
                     continue
+                # `ids` are optional and generated documents routinely omit
+                # them, so also carry the ink rectangles and a bounded excerpt:
+                # a report of `[None, None]` names nothing an author can act on.
                 self.diagnostics["collisions"].append({
                     "ids": [ia, ib], "page": page_id, "layer": layer_index,
                     "area": round(area, 1), "metrics": mode,
                     "overlap": [round(ox, 1), round(oy, 1)],
+                    "boxes": [[round(v, 1) for v in (ax0, ay0, ax1, ay1)],
+                              [round(v, 1) for v in (bx0, by0, bx1, by1)]],
+                    "texts": [self._excerpt(ta), self._excerpt(tb)],
                 })
+
+    @staticmethod
+    def _excerpt(text, limit=60):
+        """A one-line, bounded quote of an object's text for a diagnostic."""
+        flat = " ".join(str(text or "").split())
+        return flat if len(flat) <= limit else flat[: limit - 1] + "…"
 
     def _render_page_body(self, page):
         body = []
@@ -1886,7 +1908,7 @@ class Renderer:
                 if (isinstance(o, dict) and o.get("type") == "text"
                         and not o.get("decorative") and self._last_text_ink):
                     ink.append((o.get("id"), o.get("overlap") == "allowed",
-                                self._last_text_ink))
+                                self._last_text_ink, o.get("text")))
             self._detect_collisions(page.get("id"), li, ink)
             inner = "".join(rendered_objs)
             body.append(self._painter.opacity_group(inner, lo) if lo not in (None, 1) else inner)

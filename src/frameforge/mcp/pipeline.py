@@ -225,6 +225,23 @@ def _validate_and_render_yaml(
                     "declare `overlap: allowed` on both parties if intentional, else "
                     "separate them; see diagnostics.collisions")
             render_warning = f"{render_warning}; {note}" if render_warning else note
+        # Human-legibility signals (diagnostics.legibility): the render succeeded
+        # and the reader still cannot read it — type below the legible floor for
+        # the page, WCAG 1.4.3 contrast failures against the ink actually painted
+        # behind the text, untrackable measure, colliding leading. Only error/warn
+        # nag; `info` (contrast-unverified, print-scale-mismatch) stays in the
+        # channel. The first offender's own `basis` rides the warning, because the
+        # number alone ("10 units") is exactly what an authoring agent misreads.
+        legibility = [s for s in (render_diagnostics or {}).get("legibility") or []
+                      if s.get("level") in ("error", "warn")]
+        if legibility:
+            worst = legibility[0]
+            more = f"; and {len(legibility) - 1} more" if len(legibility) > 1 else ""
+            note = (f"{len(legibility)} legibility failure(s) — READERS CANNOT READ THIS: "
+                    f"{worst.get('code')} on p[{worst.get('page')}] "
+                    f"(x{worst.get('count', 1)}, e.g. {worst.get('detail', '')!r}): "
+                    f"{worst.get('basis', '')}{more}; see diagnostics.legibility")
+            render_warning = f"{render_warning}; {note}" if render_warning else note
 
     result = {
         "ok": report.ok and bool(renders),

@@ -32,6 +32,11 @@ COPY --from=build /app/verification   /usr/share/nginx/html/verification
 COPY --from=build /app/frameforge-viewer.jsx /usr/share/nginx/html/frameforge-viewer.jsx
 COPY --from=build /app/README.md      /usr/share/nginx/html/README.md
 
+# COPY preserves the build context's mode bits. A umask-077 checkout yields
+# 0600 files, which the unprivileged nginx worker cannot read (403 on every
+# request). Force the served tree readable regardless of host permissions.
+RUN chmod -R a+rX /usr/share/nginx/html /etc/nginx/conf.d/default.conf
+
 EXPOSE 80
 
 # Lightweight liveness check.

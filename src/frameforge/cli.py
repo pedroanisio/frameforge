@@ -271,7 +271,18 @@ def r_audit(path, out_dir, args):
     JSON report + a human Markdown summary and prints a one-line verdict."""
     from frameforge.rendering.application.audit import (
         audit_document, render_markdown, summary_line)
-    report = audit_document(_load_dict(path), list(_svgs(path, args.pages)))
+    from frameforge.sdk import parse
+    from frameforge.sdk.conform import render_pages_with_stats
+    # Render through the stats/diagnostics seam rather than `_svgs`: text
+    # collisions are measured from ink rectangles during the render and are
+    # unrecoverable from the finished SVG, so the audit has to be handed them.
+    svgs, _stats, diags = render_pages_with_stats(
+        parse(_read(path)), base_dir=os.path.dirname(os.path.abspath(path)),
+        diagnostics=True)
+    if args.pages:
+        svgs = svgs[:args.pages]
+    report = audit_document(_load_dict(path), svgs,
+                            collisions=diags.get("collisions"))
     md = render_markdown(report, title=os.path.basename(path))
     print(summary_line(report))
     for flag in report["health"]:

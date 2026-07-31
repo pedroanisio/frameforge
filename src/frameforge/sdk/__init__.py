@@ -63,9 +63,12 @@ from frameforge.sdk.clip import (
     normalize_mask,
 )
 from frameforge.sdk.conform import (
+    LegibilityPolicy,
+    LegibilitySignal,
     OverflowSignal,
     assert_golden,
     collision_report,
+    legibility_report,
     overflow_report,
     page_hashes,
     render_page_svgs,
@@ -544,6 +547,9 @@ __all__ = [
     "object_bbox",
     "offset_path",
     "collision_report",
+    "legibility_report",
+    "LegibilityPolicy",
+    "LegibilitySignal",
     "overflow_report",
     "page_hashes",
     "paragraph",

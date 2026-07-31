@@ -92,11 +92,16 @@ def test_compact_census_matches_helper_contract():
             "shape_fill": {"distinct": ["#fff"]},
             "stroke_color": {"distinct": ["#222"]},   # dup with text → 3 unique
         },
+        "legibility": [
+            {"code": "type-too-small", "level": "warn"},
+            {"code": "low-contrast", "level": "error"},
+            {"code": "print-scale-mismatch", "level": "info"},   # info never counts
+        ],
         "health": [{"level": "ok", "code": "within-budget", "message": "-"}],
     }
     c = compact_census(fake)
     assert c == {"faces": 1, "sizes": 3, "weights": 2, "colours": 3,
-                 "health": fake["health"]}
+                 "unreadable": 2, "health": fake["health"]}
 
 
 # --------------------------------------------------------------------------- #

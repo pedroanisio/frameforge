@@ -31,6 +31,8 @@ import re
 from collections import Counter
 from typing import Any
 
+from frameforge.rendering.domain.services.legibility import assess_pages
+
 # --------------------------------------------------------------------------- #
 #  SVG token census (the drift-proof visual sink)                             #
 # --------------------------------------------------------------------------- #
@@ -296,17 +298,73 @@ def _fmt(sizes: list[float]) -> str:
 # --------------------------------------------------------------------------- #
 #  Public API                                                                 #
 # --------------------------------------------------------------------------- #
-def audit_document(doc: dict, svg_pages: list[str]) -> dict[str, Any]:
-    """Full design-token + feature-usage audit of a rendered document."""
+def audit_document(doc: dict, svg_pages: list[str],
+                   collisions: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Full design-token + feature-usage audit of a rendered document.
+
+    ``collisions`` is the renderer's ``diagnostics["collisions"]`` — unintended
+    same-layer text overlap. It is measured during the render (ink rectangles are
+    only known there), so it is passed in rather than re-derived. The channel is
+    always present in the report: an empty list means checked-and-clean, never
+    not-checked.
+    """
     svg = _audit_svg(svg_pages)
+    legibility = [s.to_dict() for s in assess_pages(svg_pages)]
+    overlaps = list(collisions or [])
     return {
         "pages": len(svg_pages),
         "methodology": "tokens read from the emitted SVG; features from a generic "
                        "model walk — new features are captured with no new code",
         "svg": svg,
         "model": _audit_model(doc),
-        "health": _health(svg),
+        "legibility": legibility,
+        "collisions": overlaps,
+        "health": _health(svg) + _legibility_flags(legibility) + _collision_flags(overlaps),
     }
+
+
+def _collision_flags(collisions: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """Lift text collisions into health flags.
+
+    Overlapping text is unreadable text, so these are errors, not craft warnings.
+    `ids` are optional and generated documents routinely omit them — the message
+    therefore leans on the page, the overlap extent and the text excerpts the
+    renderer captured, so the pair is locatable either way.
+    """
+    flags: list[dict[str, str]] = []
+    for c in collisions:
+        ids = [i for i in (c.get("ids") or []) if i]
+        who = " / ".join(ids) if ids else " vs ".join(
+            repr(t) for t in (c.get("texts") or ["?", "?"]))
+        ox, oy = (c.get("overlap") or [0, 0])[:2]
+        flags.append({
+            "level": "error",
+            "code": "text-collision",
+            "message": (f"p[{c.get('page')}]: text overlaps by {ox}x{oy} units "
+                        f"(~{c.get('area')} units², {c.get('metrics')} metrics) — {who}"),
+        })
+    return flags
+
+
+def _legibility_flags(legibility: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """Lift the legibility signals into health flags.
+
+    Design-system sprawl is a *craft* problem; a legibility failure is a
+    *usability* one — the document renders and cannot be read. Both belong in
+    the same health list so a single glance covers them, but the legibility
+    codes keep their own severity (``error`` survives as ``error``)."""
+    flags: list[dict[str, str]] = []
+    for signal in legibility:
+        if signal.get("level") == "info":
+            continue
+        count = signal.get("count", 1)
+        flags.append({
+            "level": signal.get("level", "warn"),
+            "code": str(signal.get("code", "legibility")),
+            "message": (f"p[{signal.get('page')}] ×{count}: {signal.get('basis', '')}"
+                        f" — e.g. {signal.get('detail', '')!r}"),
+        })
+    return flags
 
 
 def compact_census(report: dict) -> dict[str, Any]:
@@ -320,6 +378,8 @@ def compact_census(report: dict) -> dict[str, Any]:
         "sizes": svg["font_size_px"]["n_distinct"],
         "weights": svg["font_weight"]["n_distinct"],
         "colours": len(colours),
+        "unreadable": sum(1 for s in report.get("legibility", [])
+                          if s.get("level") in ("error", "warn")),
         "health": report["health"],
     }
 
@@ -327,7 +387,7 @@ def compact_census(report: dict) -> dict[str, Any]:
 def summary_line(report: dict) -> str:
     svg = report["svg"]
     worst = max((f for f in report["health"]),
-                key=lambda f: {"warn": 2, "info": 1, "ok": 0}.get(f["level"], 0))
+                key=lambda f: {"error": 3, "warn": 2, "info": 1, "ok": 0}.get(f["level"], 0))
     return (f"audit: {report['pages']} page(s) · "
             f"{svg['font_family']['n_distinct']} face(s) · "
             f"{svg['font_size_px']['n_distinct']} sizes · "
@@ -344,9 +404,22 @@ def render_markdown(report: dict, *, title: str) -> str:
 
     out.append("## Health\n")
     for f in health:
-        mark = {"warn": "⚠", "info": "ℹ", "ok": "✓"}.get(f["level"], "•")
+        mark = {"error": "✖", "warn": "⚠", "info": "ℹ", "ok": "✓"}.get(f["level"], "•")
         out.append(f"- {mark} **{f['code']}** — {f['message']}")
     out.append("")
+
+    legibility = report.get("legibility") or []
+    if legibility:
+        out.append("## Legibility (can a human read it?)\n")
+        out.append("| Page | Code | Level | Measured | Floor | Runs | Basis |")
+        out.append("|---|---|---|---:|---:|---:|---|")
+        for s in legibility:
+            out.append(
+                f"| {s.get('page') if s.get('page') is not None else '—'} "
+                f"| `{s['code']}` | {s['level']} "
+                f"| {s['value']:g} {s['unit']} | {s['threshold']:g} "
+                f"| {s.get('count', 1)} | {s.get('basis', '')} |")
+        out.append("")
 
     out.append("## Visual tokens (from the emitted SVG)\n")
     out.append("| Token | distinct | values (count) |")

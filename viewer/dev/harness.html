@@ -1,5 +1,12 @@
 <!doctype html><html><head><meta charset="utf-8">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="./bundle.css">
-<style>html,body,#root{height:100%;margin:0}</style>
+<style>
+html,body,#root{height:100%;margin:0}
+/* Pre-mount backdrop, so the first paint matches the bench the app is
+   about to choose instead of flashing UA white. The app takes over both
+   `background` and `color-scheme` as soon as it mounts. */
+html{color-scheme:light dark;background:#E4E7EC}
+@media (prefers-color-scheme: dark){html{background:#15171C}}
+</style>
 </head><body><div id="root"></div><script src="./bundle.js"></script></body></html>
