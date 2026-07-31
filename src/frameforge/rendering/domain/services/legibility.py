@@ -48,7 +48,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, Iterable, Optional
 
-__all__ = ["LegibilitySignal", "LegibilityPolicy", "assess_pages"]
+__all__ = ["LegibilityPolicy", "LegibilitySignal", "assess_pages"]
 
 
 # --------------------------------------------------------------------------- #
@@ -273,20 +273,35 @@ class _Rect:
 
 @dataclass(frozen=True)
 class _Line:
+    """One LAID LINE — not one ``<tspan>``.
+
+    A single justified line is emitted as several inline ``<tspan>``s when the
+    author styled words inside it (an italic term, a coloured lead-in). Those
+    continuation spans carry no ``x``/``y``/``dy``, so they are appended to the
+    line in progress instead of starting a new one; treating each as its own
+    line would report a paragraph's measure as a handful of characters.
+    """
     text: str
     x: float
     y: float
     dy: Optional[float]
-
-
-@dataclass(frozen=True)
-class _Run:
-    """One ``<text>`` element as read off the SVG."""
     size: float
     fill: Optional[str]
     weight: str
     opacity: float
+
+
+@dataclass(frozen=True)
+class _Run:
+    """One ``<text>`` element as read off the SVG.
+
+    ``lines`` are the laid lines; ``inline`` holds differently-inked spans
+    within those lines, which are their own contrast subjects (a grey lead-in
+    inside dark body copy fails on its own) but are not separate lines for the
+    measure and leading checks.
+    """
     lines: tuple[_Line, ...]
+    inline: tuple[_Line, ...]
     transformed: bool
     backdrops: tuple[_Rect, ...]
 
@@ -308,10 +323,28 @@ def _parse_page(svg: str) -> tuple[float, float, list[_Run]]:
 
         # text content of the element that just closed / the span we are inside
         if in_text is not None and in_text.get("open_span") is not None:
-            chunk = _unescape(svg[pos:token.start()]).strip()
-            if chunk:
-                span = in_text["open_span"]
-                in_text["lines"].append(_Line(chunk, span["x"], span["y"], span["dy"]))
+            chunk = _unescape(svg[pos:token.start()])
+            span = in_text["open_span"]
+            if chunk.strip():
+                if span["continuation"] and in_text["lines"]:
+                    # an inline span mid-line: extend the line, keep its origin
+                    # and the SMALLEST size/worst ink seen on it
+                    last = in_text["lines"][-1]
+                    in_text["lines"][-1] = _Line(
+                        text=last.text + chunk, x=last.x, y=last.y, dy=last.dy,
+                        size=min(last.size, span["size"]),
+                        fill=last.fill, weight=last.weight, opacity=last.opacity)
+                    if span["fill"] != last.fill:
+                        # a differently-inked span is its own contrast subject
+                        in_text["extra"].append(_Line(
+                            text=chunk.strip(), x=last.x, y=last.y, dy=None,
+                            size=span["size"], fill=span["fill"],
+                            weight=span["weight"], opacity=span["opacity"]))
+                else:
+                    in_text["lines"].append(_Line(
+                        text=chunk.strip(), x=span["x"], y=span["y"], dy=span["dy"],
+                        size=span["size"], fill=span["fill"],
+                        weight=span["weight"], opacity=span["opacity"]))
             in_text["open_span"] = None
         pos = token.end()
 
@@ -324,11 +357,8 @@ def _parse_page(svg: str) -> tuple[float, float, list[_Run]]:
                     stack.pop()
             elif tag == "text" and in_text is not None:
                 runs.append(_Run(
-                    size=in_text["size"],
-                    fill=in_text["fill"],
-                    weight=in_text["weight"],
-                    opacity=in_text["opacity"],
                     lines=tuple(in_text["lines"]),
+                    inline=tuple(in_text["extra"]),
                     transformed=in_text["transformed"],
                     backdrops=tuple(rects),
                 ))
@@ -350,31 +380,35 @@ def _parse_page(svg: str) -> tuple[float, float, list[_Run]]:
                     width, height = box[2], box[3]
 
         if tag == "text":
+            css = {k: v for k, v in inherited.items() if k in _INHERITED}
             in_text = {
-                "size": _num(inherited.get("font-size"), 16.0) or 16.0,
-                "fill": inherited.get("fill", "#000000"),
-                "weight": str(inherited.get("font-weight", "400")),
-                "opacity": _opacity(inherited),
+                "css": css,
                 "lines": [],
+                "extra": [],
                 "transformed": bool(transform_depth) or "transform" in props,
                 "open_span": {"x": _num(props.get("x"), 0.0) or 0.0,
                               "y": _num(props.get("y"), 0.0) or 0.0,
-                              "dy": _num(props.get("dy"))},
+                              "dy": _num(props.get("dy")),
+                              "continuation": False,
+                              **_style_of(css)},
                 "y": _num(props.get("y"), 0.0) or 0.0,
                 "x": _num(props.get("x"), 0.0) or 0.0,
             }
         elif tag == "tspan" and in_text is not None:
             dy = _num(props.get("dy"))
             base_y = in_text["lines"][-1].y if in_text["lines"] else in_text["y"]
+            # SVG: a span WITHOUT its own x/y/dy flows inline — it continues the
+            # current line rather than starting a new one.
+            continuation = not ({"x", "y", "dy"} & set(props))
+            span_css = {**in_text["css"],
+                        **{k: props[k] for k in _INHERITED if k in props}}
             in_text["open_span"] = {
                 "x": _num(props.get("x"), in_text["x"]) or 0.0,
                 "y": (base_y + dy) if dy is not None else _num(props.get("y"), base_y),
                 "dy": dy,
+                "continuation": continuation,
+                **_style_of(span_css),
             }
-            if "font-size" in props:
-                in_text["size"] = _num(props["font-size"], in_text["size"])
-            if "fill" in props:
-                in_text["fill"] = props["fill"]
         elif tag == "rect" and in_text is None:
             rects.append(_rect_of(props, inherited, width, height, transform_depth))
 
@@ -387,6 +421,16 @@ def _parse_page(svg: str) -> tuple[float, float, list[_Run]]:
             stack.append(inherited)
 
     return width, height, runs
+
+
+def _style_of(css: dict[str, str]) -> dict[str, Any]:
+    """The four properties a legibility verdict needs, resolved from a CSS map."""
+    return {
+        "size": _num(css.get("font-size"), 16.0) or 16.0,
+        "fill": css.get("fill", "#000000"),
+        "weight": str(css.get("font-weight", "400")),
+        "opacity": _opacity(css),
+    }
 
 
 def _opacity(props: dict[str, str]) -> float:
@@ -552,26 +596,30 @@ def _assess_page(page: int, width: float, runs: list[_Run],
             continue
         head = text[:48]
 
-        # --- type size (proportional; dpi-independent) ---
-        if run.size / width < pol.min_size_fraction:
-            small.setdefault(round(run.size, 3), []).append(head)
-
-        # --- contrast (WCAG 2.1 SC 1.4.3) ---
-        fg = _rgb(run.fill)
-        need = (pol.contrast_large if _is_large(run, pol) else pol.contrast_normal)
-        worst: Optional[float] = None
-        for line in run.lines:
+        # Type size and contrast are per SUBJECT — every laid line, plus every
+        # differently-inked inline span, so a grey lead-in or a 6-unit
+        # superscript inside otherwise healthy body copy is not averaged away.
+        for line in run.lines + run.inline:
             if not line.text.strip():
                 continue
+            subject = line.text.strip()[:48] or head
+
+            # --- type size (proportional; dpi-independent) ---
+            if line.size / width < pol.min_size_fraction:
+                small.setdefault(round(line.size, 3), []).append(subject)
+
+            # --- contrast (WCAG 2.1 SC 1.4.3) ---
+            fg = _rgb(line.fill)
             bg, resolved = _backdrop(run, line)
             if fg is None or bg is None or not resolved:
-                if head not in unverified:
-                    unverified.append(head)
+                if subject not in unverified:
+                    unverified.append(subject)
                 continue
-            ratio = _contrast(_over(fg, bg, run.opacity), bg)
-            worst = ratio if worst is None else min(worst, ratio)
-        if worst is not None and worst < need:
-            low.setdefault((round(worst, 2), need), []).append(head)
+            need = (pol.contrast_large if _is_large(line, pol)
+                    else pol.contrast_normal)
+            ratio = _contrast(_over(fg, bg, line.opacity), bg)
+            if ratio < need:
+                low.setdefault((round(ratio, 2), need), []).append(subject)
 
         # --- measure and leading (multi-line text only) ---
         lines = [line for line in run.lines if line.text.strip()]
@@ -583,8 +631,9 @@ def _assess_page(page: int, width: float, runs: list[_Run],
             elif median < pol.min_measure_ch:
                 short_measure.append((float(median), head))
             leads = [line.dy for line in lines[1:] if line.dy]
-            if leads and run.size > 0:
-                em = min(leads) / run.size
+            size = max((line.size for line in lines), default=0.0)
+            if leads and size > 0:
+                em = min(leads) / size
                 if em < pol.min_leading_em:
                     tight.append((round(em, 3), head))
 
@@ -647,10 +696,10 @@ def _assess_page(page: int, width: float, runs: list[_Run],
     return out
 
 
-def _is_large(run: _Run, pol: LegibilityPolicy) -> bool:
+def _is_large(line: _Line, pol: LegibilityPolicy) -> bool:
     """WCAG 2.1 "large scale" text: >= 18 pt, or >= 14 pt bold — expressed in
     CSS px, which is what a canvas unit is on the SVG path."""
-    weight = _num(run.weight)
+    weight = _num(line.weight)
     bold = (weight is not None and weight >= pol.bold_weight) or \
-        run.weight.strip().lower() in ("bold", "bolder")
-    return run.size >= (pol.large_bold_px if bold else pol.large_px)
+        line.weight.strip().lower() in ("bold", "bolder")
+    return line.size >= (pol.large_bold_px if bold else pol.large_px)

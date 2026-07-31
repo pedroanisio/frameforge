@@ -29,6 +29,7 @@ Runs under pytest or standalone
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 

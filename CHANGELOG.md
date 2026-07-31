@@ -45,6 +45,43 @@ authored in a `style` bag. No schema `$defs` or field contract changed.
   authored (ADR-0006 / #69). The coverage gate's allowlist now names the full
   documented table-style set.
 
+## Unreleased — feat: warn when a render is faithful but unreadable (2026-07-31)
+
+FrameForge reported what a render *lost* — clipped text (`truncations`),
+provable overflow (`overflow`), accidental ink overlap (`collisions`) — and
+said nothing about what it *kept and made unreadable*. A document could set
+body copy at 7.5 pt in 2.85:1 grey and come back `ok: true`, silent.
+
+- **New `diagnostics.legibility` channel**, typed as `LegibilitySignal`
+  (`rendering/domain/services/legibility.py`), reading the emitted SVG — the
+  same drift-proof sink as the design audit, so any future feature that draws
+  text is measured with no new instrumentation. Codes: `type-too-small`,
+  `low-contrast`, `contrast-unverified`, `measure-too-long`,
+  `measure-too-short`, `leading-too-tight`, `print-scale-mismatch`.
+- **Type size is judged proportionally, because a canvas unit is not a point.**
+  The same `font_size: 10` is 10 pt on a 595-wide points canvas and 7.5 pt on a
+  794-wide CSS-pixel canvas — the conflation that ships documents ~25 % smaller
+  than authored. The gate measures against page width (floor: 1/70 of the
+  measure; 1/95 escalates to ERROR) and reports the pt equivalent of the
+  SVG→PDF path (1 unit = 0.75 pt at CairoSVG `dpi=96`) in the signal's `basis`.
+- **`print-scale-mismatch` names the trap directly.** A 595×842 canvas — the
+  `A4` preset — exports as a 446.2×631.5 pt page, i.e. 6.20×8.77 in, *not* ISO
+  A4 (8.27×11.69 in). Informational, since the page's proportions stay
+  internally consistent, but no longer silent.
+- **Contrast is scored against the ink actually painted behind the text** (the
+  topmost preceding rect containing the baseline anchor, translucency
+  composited), per WCAG 2.1 SC 1.4.3 — 4.5:1, or 3:1 for large text (≥ 24 px,
+  or ≥ 18.66 px bold). A backdrop the pass cannot resolve (transform in scope,
+  gradient/pattern ground, unknown colour keyword) is reported as
+  `contrast-unverified` and **never scored as a pass** (PALS's Law).
+- **Surfaced everywhere an author can see it:** `sdk.legibility_report(model,
+  policy=…)`, `render_pages_with_stats(diagnostics=True)`, the MCP render
+  result's `render_warning` (error/warn only — `info` never nags), and the
+  design audit's health list + a new Legibility table in `--to audit`.
+  Thresholds are a `LegibilityPolicy` dataclass, so a house minimum is an
+  override rather than an argument.
+- Gated by `tests/test_legibility_signals.py` (21 cases).
+
 ## 2.8.0 — perceptual colour, sampleable randomness, and justified-text fidelity
 
 Additive feature release: the public SDK gains perceptual colour spaces (#92),
