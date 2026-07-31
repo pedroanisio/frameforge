@@ -473,6 +473,7 @@
       "compare_images",
       "construct_vectors",
       "describe_capabilities",
+      "describe_render",
       "design_audit",
       "detect_regions",
       "diff_renders",
@@ -3723,6 +3724,13 @@
     },
     {
       "name": "describe_capabilities",
+      "kind": "mcp_tool",
+      "core": false,
+      "sdk": false,
+      "mcp": true
+    },
+    {
+      "name": "describe_render",
       "kind": "mcp_tool",
       "core": false,
       "sdk": false,
