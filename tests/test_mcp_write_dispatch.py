@@ -30,10 +30,10 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.mcp.clients import write_sdk_client  # noqa: E402
-from frameforge.mcp.config import MAX_CLIENT_BYTES  # noqa: E402
-from frameforge.mcp.server import create_server  # noqa: E402
-from frameforge.mcp.usecases import write_or_edit_client  # noqa: E402
+from frameforge_mcp.clients import write_sdk_client  # noqa: E402
+from frameforge_mcp.config import MAX_CLIENT_BYTES  # noqa: E402
+from frameforge_mcp.server import create_server  # noqa: E402
+from frameforge_mcp.usecases import write_or_edit_client  # noqa: E402
 
 CODE = "def build():\n    return {'dsl': 'FrameForge'}\n"
 

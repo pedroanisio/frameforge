@@ -192,7 +192,7 @@ def test_concrete_detectors_satisfy_the_detector_port():
 # MCP tool surface (forward verification of the inverse proposal)
 # --------------------------------------------------------------------------- #
 def test_mcp_propose_from_image_validates_and_renders(tmp_path):
-    from frameforge.mcp.server import propose_from_image
+    from frameforge_mcp.server import propose_from_image
 
     image_b64 = base64.b64encode(_png_bytes()).decode("ascii")
     result = propose_from_image(
@@ -217,7 +217,7 @@ def test_mcp_propose_from_image_validates_and_renders(tmp_path):
 
 
 def test_mcp_propose_from_image_requires_an_image():
-    from frameforge.mcp.server import propose_from_image
+    from frameforge_mcp.server import propose_from_image
 
     with pytest.raises(ValueError, match="image_path or image_base64"):
         propose_from_image()
@@ -225,7 +225,7 @@ def test_mcp_propose_from_image_requires_an_image():
 
 def test_mcp_propose_from_document_reports_missing_backend_gracefully(tmp_path, monkeypatch):
     from frameforge_vision.infrastructure.pdf_source import PdfDocumentSource
-    from frameforge.mcp.server import propose_from_document
+    from frameforge_mcp.server import propose_from_document
 
     monkeypatch.setattr(PdfDocumentSource, "available", lambda self: False)
     result = propose_from_document("/nonexistent.pdf", session_id="vision-doc", session_root=tmp_path)

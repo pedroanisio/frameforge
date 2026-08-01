@@ -18,8 +18,8 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-import frameforge.mcp.server as server_mod  # noqa: E402
-from frameforge.mcp.server import FRAMEFORGE_GUIDE, create_server, describe_capabilities  # noqa: E402
+import frameforge_mcp.server as server_mod  # noqa: E402
+from frameforge_mcp.server import FRAMEFORGE_GUIDE, create_server, describe_capabilities  # noqa: E402
 
 
 class FakeFastMCP:
@@ -155,7 +155,7 @@ def test_new_tools_are_registered_and_exported(tmp_path):
     # the server.__all__ gotcha (see commit 2e6f6d1): new tools must be re-exported.
     assert {"describe_capabilities", "list_fonts", "fit_text"} <= set(server_mod.__all__)
 
-    import frameforge.mcp as mcp
+    import frameforge_mcp as mcp
     assert "fit_text" in mcp.__all__
     assert callable(mcp.fit_text)
 
@@ -399,8 +399,8 @@ def test_server_instructions_name_the_authoring_engines(tmp_path):
 
 import json  # noqa: E402
 
-from frameforge.mcp.config import max_result_chars  # noqa: E402
-from frameforge.mcp.discovery import _CAPABILITY_TOPICS, _model_catalog  # noqa: E402
+from frameforge_mcp.config import max_result_chars  # noqa: E402
+from frameforge_mcp.discovery import _CAPABILITY_TOPICS, _model_catalog  # noqa: E402
 
 CAP_BUDGET = 40_000  # chars; well under the observed ~65KB per-result ceiling
 

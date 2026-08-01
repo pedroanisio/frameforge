@@ -186,7 +186,7 @@ def test_mcp_geometry_flag_roundtrip(tmp_path):
     pytest.importorskip("cairosvg")
     import yaml as _yaml
 
-    from frameforge.mcp.usecases import refine_reconstruction, render_frameforge_yaml
+    from frameforge_mcp.usecases import refine_reconstruction, render_frameforge_yaml
 
     ref_path = tmp_path / "ref.png"
     _reference_image().save(ref_path)
@@ -213,7 +213,7 @@ def test_mcp_geometry_flag_roundtrip(tmp_path):
 def test_mcp_tool_exposes_geometry_flag(tmp_path):
     import inspect
 
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
 
     class FakeFastMCP:
         def __init__(self, name, **kwargs):

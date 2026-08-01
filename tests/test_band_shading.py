@@ -197,7 +197,7 @@ def test_banded_beats_single_gradient():
 # ------------------------------------------------------------------- mcp lane
 def test_mcp_fill_mode_shading(tmp_path):
     pytest.importorskip("cv2")
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
 
     p = tmp_path / "shaded.png"
     _shaded_image().save(p)
@@ -211,7 +211,7 @@ def test_mcp_fill_mode_shading(tmp_path):
 
 
 def test_mcp_shading_on_outline_is_a_structured_error(tmp_path):
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
 
     p = tmp_path / "shaded.png"
     _shaded_image().save(p)

@@ -18,7 +18,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path.insert(0, ROOT)
 
-from frameforge.coach import (  # noqa: E402
+from frameforge_coach import (  # noqa: E402
     curve_count,
     is_circular,
     is_rectangular,

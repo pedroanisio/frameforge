@@ -17,7 +17,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path.insert(0, ROOT)
 
-from frameforge.coach import (  # noqa: E402
+from frameforge_coach import (  # noqa: E402
     STYLES, cleanup_params, clean, node_count, redraw, redraw_params, resolve_style,
 )
 

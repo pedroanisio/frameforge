@@ -31,7 +31,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.coach import (  # noqa: E402
+from frameforge_coach import (  # noqa: E402
     atmosphere, clean, cleanup_params, create_plan, curve_count, gradientize, ingest, node_count,
     parse_intent, recolor_to_style, redraw, redraw_params, resolve_style, stage_rubric,
     to_silhouette, validate_order,

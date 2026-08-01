@@ -97,7 +97,7 @@ def test_fit_primitive_reports_ranked_candidates():
 
 
 def test_usecase_accepts_plain_shape_dicts(tmp_path):
-    from frameforge.mcp import usecases
+    from frameforge_mcp import usecases
     pts = band_arc((300, 200), 120, -120, 80, thickness=18).tolist()
     out = usecases.fit_primitives(
         shapes=[{"name": "bowl", "points": pts}],
@@ -134,7 +134,7 @@ class _FakeFastMCP:
 
 
 def test_server_registers_and_dispatches_fit_primitives(tmp_path):
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
     server = create_server(session_root=tmp_path, fastmcp_cls=_FakeFastMCP)
     assert "fit_primitives" in server.tools
     pts = band_arc((100, 90), 60, -90, 90, thickness=10).tolist()

@@ -192,7 +192,7 @@ def _two_petal_image(tmp_path):
 
 def test_detect_regions_fit_spines_payload(tmp_path):
     pytest.importorskip("cv2")
-    from frameforge.mcp.usecases import detect_regions
+    from frameforge_mcp.usecases import detect_regions
 
     src = _two_petal_image(tmp_path)
     res = detect_regions(image=src, method="flat", fit_spines=True,
@@ -216,7 +216,7 @@ def test_detect_regions_fit_spines_payload(tmp_path):
 def test_mcp_tool_exposes_fit_spines(tmp_path):
     import inspect
 
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
 
     class FakeFastMCP:
         def __init__(self, name, **kwargs):

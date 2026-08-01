@@ -5,7 +5,7 @@ A hard delete driven by ``older_than_seconds`` below a minimum-age floor is
 almost always a mistake (``older_than_seconds=0`` wipes every session). The
 contract under test:
 
-* ``DEFAULT_MIN_CLEANUP_AGE_SECONDS = 60`` lives in ``frameforge.mcp.config``,
+* ``DEFAULT_MIN_CLEANUP_AGE_SECONDS = 60`` lives in ``frameforge_mcp.config``,
   overridable via ``FRAMEFORGE_MCP_MIN_CLEANUP_AGE`` (the ``_positive_env``
   pattern) and read PER CALL, not at import time.
 * A hard delete (``dry_run=False``) with ``older_than_seconds`` below the
@@ -30,7 +30,7 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 import time  # noqa: E402
 from pathlib import Path  # noqa: E402
 
-from frameforge.mcp.sessions import cleanup_sessions  # noqa: E402
+from frameforge_mcp.sessions import cleanup_sessions  # noqa: E402
 
 
 def _make_session(root: Path, name: str, *, age_seconds: float = 0.0) -> Path:
@@ -46,7 +46,7 @@ def _make_session(root: Path, name: str, *, age_seconds: float = 0.0) -> Path:
 
 def test_min_cleanup_age_floor_constant_declared():
     # New symbol — imported lazily so only this test fails on the missing constant.
-    from frameforge.mcp.config import DEFAULT_MIN_CLEANUP_AGE_SECONDS
+    from frameforge_mcp.config import DEFAULT_MIN_CLEANUP_AGE_SECONDS
 
     assert DEFAULT_MIN_CLEANUP_AGE_SECONDS == 60
 

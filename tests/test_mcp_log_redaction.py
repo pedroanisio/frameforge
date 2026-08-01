@@ -31,8 +31,8 @@ from pathlib import Path  # noqa: E402
 
 import pytest  # noqa: E402
 
-from frameforge.mcp.config import STRUCTURED_LOG_MAX_FIELD_CHARS  # noqa: E402
-from frameforge.mcp.logging import _logged_call  # noqa: E402
+from frameforge_mcp.config import STRUCTURED_LOG_MAX_FIELD_CHARS  # noqa: E402
+from frameforge_mcp.logging import _logged_call  # noqa: E402
 
 
 def _last_log_line(log_path: Path) -> str:

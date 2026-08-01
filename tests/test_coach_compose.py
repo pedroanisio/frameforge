@@ -19,7 +19,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path.insert(0, ROOT)
 
-from frameforge.coach import compose_objects, resolve_style  # noqa: E402
+from frameforge_coach import compose_objects, resolve_style  # noqa: E402
 from frameforge.conform import render_page_svgs  # noqa: E402
 
 
@@ -67,7 +67,7 @@ def test_coach_vectorize_renders_and_gates(tmp_path):
     p = tmp_path / "shape.png"
     cv2.imwrite(str(p), img)
 
-    from frameforge.mcp.usecases import coach_vectorize
+    from frameforge_mcp.usecases import coach_vectorize
     res = coach_vectorize(str(p), style="comic_ink", session_root=tmp_path,
                           max_pages=1, raster_png=False, silhouette=True)
     assert res.get("ok"), res.get("error")
@@ -77,6 +77,6 @@ def test_coach_vectorize_renders_and_gates(tmp_path):
 
 def test_coach_vectorize_unreadable_path_returns_clean_error(tmp_path):
     """A bad/unreadable image yields a structured error, never a raised exception."""
-    from frameforge.mcp.usecases import coach_vectorize
+    from frameforge_mcp.usecases import coach_vectorize
     res = coach_vectorize(str(tmp_path / "does-not-exist.png"), session_root=tmp_path, raster_png=False)
     assert res.get("ok") is False or "error" in res

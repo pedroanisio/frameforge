@@ -16,7 +16,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.mcp.server import propose_from_svg  # noqa: E402
+from frameforge_mcp.server import propose_from_svg  # noqa: E402
 
 SVG = (
     '<svg viewBox="0 0 100 100">'

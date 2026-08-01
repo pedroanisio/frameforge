@@ -94,7 +94,7 @@ pages:
 
 
 def test_pipeline_resolves_params_end_to_end(tmp_path):
-    from frameforge.mcp.usecases import render_frameforge_yaml
+    from frameforge_mcp.usecases import render_frameforge_yaml
     r1 = render_frameforge_yaml(_yaml(120), session_id="par1", session_root=tmp_path,
                                 raster_png=False)
     assert r1["ok"] is True, r1.get("validation")

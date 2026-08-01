@@ -29,7 +29,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 from frameforge_sdk import DocumentBuilder, serialize  # noqa: E402
 from frameforge_sdk.paint import linear_gradient, rgba  # noqa: E402
-from frameforge.coach import (  # noqa: E402  — the PROCESS layer
+from frameforge_coach import (  # noqa: E402  — the PROCESS layer
     create_plan, parse_intent, resolve_style, stage_rubric, to_silhouette, validate_order,
 )
 import landing_headers as kit  # noqa: E402  — the VOCABULARY layer (reused)

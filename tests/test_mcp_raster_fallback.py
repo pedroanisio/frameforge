@@ -16,7 +16,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-import frameforge.mcp.pipeline as pipeline  # noqa: E402
+import frameforge_mcp.pipeline as pipeline  # noqa: E402
 
 _PNG_1X1 = bytes.fromhex(
     "89504e470d0a1a0a0000000d4948445200000001000000010806000000"

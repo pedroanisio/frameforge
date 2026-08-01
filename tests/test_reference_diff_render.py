@@ -80,7 +80,7 @@ def _yaml(square_x):
 
 
 def _render_png(yaml_text, tmp_path, sid):
-    from frameforge.mcp.usecases import render_frameforge_yaml
+    from frameforge_mcp.usecases import render_frameforge_yaml
     out = render_frameforge_yaml(yaml_text, session_id=sid, session_root=tmp_path,
                                  raster_png=True)
     if not out.get("ok") or not any(r.get("mimeType") == "image/png"
@@ -90,7 +90,7 @@ def _render_png(yaml_text, tmp_path, sid):
 
 
 def test_render_with_reference_reports_object_ghosts(tmp_path):
-    from frameforge.mcp.usecases import render_frameforge_yaml
+    from frameforge_mcp.usecases import render_frameforge_yaml
     ref_png = _render_png(_yaml(square_x=58), tmp_path, "ghost-ref")
     out = render_frameforge_yaml(_yaml(square_x=50), session_id="ghost-cand",
                                  session_root=tmp_path, raster_png=True,
@@ -105,7 +105,7 @@ def test_render_with_reference_reports_object_ghosts(tmp_path):
 
 
 def test_reference_without_raster_is_a_structured_note(tmp_path):
-    from frameforge.mcp.usecases import render_frameforge_yaml
+    from frameforge_mcp.usecases import render_frameforge_yaml
     out = render_frameforge_yaml(_yaml(square_x=50), session_id="ghost-norast",
                                  session_root=tmp_path, raster_png=False,
                                  reference="/nonexistent/ref.png")
@@ -119,7 +119,7 @@ def test_object_boxes_survive_exotic_objects(tmp_path):
     """A stroke_outline path carries `d` as a list — one exotic object must
     neither raise nor evict the measurable objects from the diff (field bug
     found reconstructing a real poster)."""
-    from frameforge.mcp.usecases import _doc_object_boxes
+    from frameforge_mcp.usecases import _doc_object_boxes
     from frameforge_sdk import DocumentBuilder, serialize
     from frameforge_sdk.outline import stroke_outline
     b = DocumentBuilder(title="exotic", profile="diagram")

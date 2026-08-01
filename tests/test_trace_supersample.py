@@ -141,7 +141,7 @@ def test_usecase_lane_fits_supersampled_trace_back_to_page(tmp_path):
     lotus end-to-end run, pinned here."""
     import yaml
 
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
     from frameforge_vision.domain.gradient_fit import flatten_path_d
     from frameforge_vision.infrastructure.vectorize import _object_transform
 

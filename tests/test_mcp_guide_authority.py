@@ -19,7 +19,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.mcp.server import FRAMEFORGE_GUIDE  # noqa: E402
+from frameforge_mcp.server import FRAMEFORGE_GUIDE  # noqa: E402
 
 _OPENING_LINES = 40
 
@@ -122,7 +122,7 @@ class _RegistryFastMCP:
 
 
 def _registered_tools(tmp_path):
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
 
     server = create_server(session_root=tmp_path, fastmcp_cls=_RegistryFastMCP)
     return set(server.tools)

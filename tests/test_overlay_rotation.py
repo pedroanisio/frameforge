@@ -71,7 +71,7 @@ def _data_uri(size, color):
 
 
 def test_usecase_opt_in_rotation_reports_angle(tmp_path):
-    from frameforge.mcp.usecases import overlay_images
+    from frameforge_mcp.usecases import overlay_images
     landmarks = [{"base": list(b), "overlay": list(o)} for b, o in _pairs()]
     out = overlay_images(
         base=_data_uri((200, 160), (240, 240, 240)),
@@ -86,7 +86,7 @@ def test_usecase_opt_in_rotation_reports_angle(tmp_path):
 
 
 def test_usecase_default_stays_rotation_free(tmp_path):
-    from frameforge.mcp.usecases import overlay_images
+    from frameforge_mcp.usecases import overlay_images
     landmarks = [{"base": list(b), "overlay": list(o)} for b, o in _pairs()]
     out = overlay_images(
         base=_data_uri((200, 160), (240, 240, 240)),

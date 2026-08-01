@@ -89,7 +89,7 @@ def _doc_fills(session_root, sid):
 # ------------------------------------------------------------------- trace lane
 @pytest.mark.skipif(not _HAS_POTRACE, reason="potrace binary not installed")
 def test_trace_gradient_recovers_ramp_endpoints_and_axis(tmp_path):
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
 
     res = vectorize_image(
         image=_ramp_rect_png(tmp_path), mode="trace", fill_mode="gradient",
@@ -115,7 +115,7 @@ def test_trace_gradient_recovers_ramp_endpoints_and_axis(tmp_path):
 
 @pytest.mark.skipif(not _HAS_POTRACE, reason="potrace binary not installed")
 def test_trace_gradient_fits_radial_disc(tmp_path):
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
 
     res = vectorize_image(
         image=_radial_disc_png(tmp_path), mode="trace", fill_mode="gradient",
@@ -135,7 +135,7 @@ def test_trace_gradient_fits_radial_disc(tmp_path):
 
 @pytest.mark.skipif(not _HAS_POTRACE, reason="potrace binary not installed")
 def test_trace_thresholds_layering(tmp_path):
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
 
     single = vectorize_image(
         image=_two_level_png(tmp_path), mode="trace", threshold=40,
@@ -153,7 +153,7 @@ def test_trace_thresholds_layering(tmp_path):
 # ------------------------------------------------------------------ region lane
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV (vision group) not installed")
 def test_region_gradient_fits_and_validates(tmp_path):
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
 
     res = vectorize_image(
         image=_ramp_rect_png(tmp_path), mode="region", fill_mode="gradient",
@@ -169,7 +169,7 @@ def test_region_gradient_fits_and_validates(tmp_path):
 # ------------------------------------------------------- regression + errors
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV (vision group) not installed")
 def test_default_fill_mode_flat_is_unchanged(tmp_path):
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
 
     res = vectorize_image(
         image=_ramp_rect_png(tmp_path), mode="region", colors=5,
@@ -182,7 +182,7 @@ def test_default_fill_mode_flat_is_unchanged(tmp_path):
 
 
 def test_gradient_on_outline_is_a_structured_error(tmp_path):
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
 
     res = vectorize_image(
         image=_ramp_rect_png(tmp_path), mode="outline", fill_mode="gradient",
@@ -193,7 +193,7 @@ def test_gradient_on_outline_is_a_structured_error(tmp_path):
 
 
 def test_unknown_fill_mode_is_a_structured_error(tmp_path):
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
 
     res = vectorize_image(
         image=_ramp_rect_png(tmp_path), mode="region", fill_mode="mesh",
@@ -204,7 +204,7 @@ def test_unknown_fill_mode_is_a_structured_error(tmp_path):
 
 
 def test_thresholds_outside_trace_is_a_structured_error(tmp_path):
-    from frameforge.mcp.usecases import vectorize_image
+    from frameforge_mcp.usecases import vectorize_image
 
     res = vectorize_image(
         image=_ramp_rect_png(tmp_path), mode="region", thresholds=[40, 160],
@@ -217,7 +217,7 @@ def test_thresholds_outside_trace_is_a_structured_error(tmp_path):
 def test_mcp_tool_exposes_fill_mode_and_thresholds(tmp_path):
     import inspect
 
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
 
     class FakeFastMCP:
         def __init__(self, name, **kwargs):

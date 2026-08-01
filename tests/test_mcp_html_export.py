@@ -41,7 +41,7 @@ DOC = {
 
 
 def _run(tmp_path, to="html", raster_png=False):
-    from frameforge.mcp.pipeline import _validate_and_render_yaml
+    from frameforge_mcp.pipeline import _validate_and_render_yaml
     return _validate_and_render_yaml(
         json.dumps(DOC),
         session_id="s1",

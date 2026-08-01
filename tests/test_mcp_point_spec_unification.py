@@ -98,7 +98,7 @@ def test_overlay_session_scoped_dict_forms_raise_naming_supported_forms():
 # 2. construct_vectors / score_reconstruction shape points
 # ─────────────────────────────────────────────────────────────
 def _construct_yaml(tmp_path, session_id, points):
-    from frameforge.mcp import usecases
+    from frameforge_mcp import usecases
 
     res = usecases.construct_vectors(
         shapes=[{"kind": "line", "points": points}],
@@ -127,7 +127,7 @@ def test_construct_vectors_landmark_dict_resolves_via_pin_anchors(tmp_path):
                               pins=[ws.Pin("P1", 10.0, 20.0)])
     ws.save_state(ws_dir, state)
 
-    from frameforge.mcp import usecases
+    from frameforge_mcp import usecases
 
     def build(session_id, points):
         res = usecases.construct_vectors(
@@ -145,7 +145,7 @@ def test_construct_vectors_landmark_dict_resolves_via_pin_anchors(tmp_path):
 
 
 def test_construct_vectors_unknown_dict_key_names_accepted_forms(tmp_path):
-    from frameforge.mcp import usecases
+    from frameforge_mcp import usecases
 
     res = usecases.construct_vectors(
         shapes=[{"kind": "line", "points": [{"bogus": [1, 2]}, [3, 4]]}],
@@ -158,7 +158,7 @@ def test_construct_vectors_unknown_dict_key_names_accepted_forms(tmp_path):
 
 
 def test_score_reconstruction_accepts_dict_point_grammar(tmp_path):
-    from frameforge.mcp import usecases
+    from frameforge_mcp import usecases
 
     image = _write_test_png(tmp_path, size=(60, 40))
     legacy = usecases.score_reconstruction(
@@ -188,7 +188,7 @@ _HOMOGRAPHY_PAIRS = [
 
 
 def test_map_homography_px_dicts_equal_bare_lists(tmp_path):
-    from frameforge.mcp import usecases
+    from frameforge_mcp import usecases
 
     legacy = usecases.map_coordinates(
         "homography",
@@ -208,7 +208,7 @@ def test_map_homography_px_dicts_equal_bare_lists(tmp_path):
 
 
 def test_map_homography_norm_dicts_resolve_with_width_height(tmp_path):
-    from frameforge.mcp import usecases
+    from frameforge_mcp import usecases
 
     legacy = usecases.map_coordinates(
         "homography",
@@ -235,7 +235,7 @@ def test_map_homography_norm_dicts_resolve_with_width_height(tmp_path):
 
 
 def test_map_homography_norm_without_dims_is_structured_error(tmp_path):
-    from frameforge.mcp import usecases
+    from frameforge_mcp import usecases
 
     res = usecases.map_coordinates(
         "homography",
@@ -254,7 +254,7 @@ def test_map_homography_norm_without_dims_is_structured_error(tmp_path):
 def test_map_warp_norm_dst_resolves_against_out_size(tmp_path):
     """A warp pair's ``dst`` lives in the OUTPUT canvas: ``{"norm": ..}`` on the dst
     side must resolve against ``out_size``, not the source image dims."""
-    from frameforge.mcp import usecases
+    from frameforge_mcp import usecases
 
     image = _write_test_png(tmp_path, size=(100, 50))
     res = usecases.map_coordinates(

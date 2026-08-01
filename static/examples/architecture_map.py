@@ -157,7 +157,7 @@ def build() -> DocumentBuilder:
          "sdk.expand · sdk.validate", "#1E40AF",
          ["lowers builders → model; validates THERE"], "#1E40AF")
     node(page, [60, 374, 320, 60], INTEG,
-         "frameforge.mcp — FastMCP server", "#0F766E",
+         "frameforge_mcp — FastMCP server", "#0F766E",
          ["run_sdk_code · render SVG/PNG · propose_from_*",
           "the AI authoring feedback loop"], "#0F766E")
     node(page, [60, 442, 320, 58], INTEG,

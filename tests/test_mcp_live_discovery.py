@@ -12,8 +12,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.mcp import live_discovery  # noqa: E402
-from frameforge.mcp.server import create_server  # noqa: E402
+from frameforge_mcp import live_discovery  # noqa: E402
+from frameforge_mcp.server import create_server  # noqa: E402
 
 
 class FakeFastMCP:
@@ -64,6 +64,18 @@ def test_long_running_server_refreshes_sdk_and_guide_without_restart(tmp_path, m
         source_root,
         ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
     )
+    # The server itself is the `frameforge-mcp` distribution since the
+    # 2026-08-01 split, so the tree it watches must contain a copy of it: the
+    # introspection subprocess puts `<repo>/src` first on PYTHONPATH, and
+    # `_source_roots` prefers a vendored `<repo>/src/<pkg>` over the installed
+    # one. Without this the fake repo has no guide.py to edit.
+    import frameforge_mcp as _mcp_pkg
+    mcp_root = repo / "src" / "frameforge_mcp"
+    shutil.copytree(
+        pathlib.Path(_mcp_pkg.__file__).resolve().parent,
+        mcp_root,
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
     live_discovery._cached_request.cache_clear()
     server = create_server(
         session_root=tmp_path / "sessions",
@@ -95,10 +107,10 @@ def test_long_running_server_refreshes_sdk_and_guide_without_restart(tmp_path, m
     assert "`source_token`" in initial_guide
     assert "`introspected_at`" in initial_guide
     marker = "Issue 78 live guide probe."
-    guide_path = source_root / "mcp" / "guide.py"
+    guide_path = mcp_root / "guide.py"
     _make_newest(
         guide_path,
-        source_root,
+        mcp_root,
         f'\nFRAMEFORGE_GUIDE += "\\n\\n{marker}"\n',
     )
     refreshed_guide = server.tools["get_guide"]()

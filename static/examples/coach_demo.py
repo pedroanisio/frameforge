@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Vector Construction Coach — staged-loop demo (frameforge.coach POC).
+"""Vector Construction Coach — staged-loop demo (frameforge_coach POC).
 
 Shows the disciplined loop the coach enforces, reusing the SDK end-to-end:
 
@@ -30,7 +30,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 from frameforge_sdk import DocumentBuilder, serialize  # noqa: E402
 from frameforge_sdk.paint import rgba  # noqa: E402
-from frameforge.coach import (  # noqa: E402
+from frameforge_coach import (  # noqa: E402
     create_plan,
     parse_intent,
     resolve_style,

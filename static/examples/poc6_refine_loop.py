@@ -31,7 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from frameforge_sdk import DocumentBuilder
 from frameforge.conform import render_page_svgs  # noqa: E402
-from frameforge.coach import ingest  # noqa: E402
+from frameforge_coach import ingest  # noqa: E402
 from poc3_ingest_compose import ink_iou, restyle_strokes, place  # noqa: E402
 
 Obj = dict[str, Any]

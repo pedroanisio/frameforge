@@ -1,4 +1,4 @@
-"""Tests for the Vector Construction Coach POC (frameforge.coach).
+"""Tests for the Vector Construction Coach POC (frameforge_coach).
 
 The coach is a disciplined-process layer over the SDK: it does not draw for the
 model, it provides the deterministic scaffold (style-as-grammar, layer-order
@@ -19,7 +19,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 from frameforge_sdk import DocumentBuilder  # noqa: E402
 from frameforge.conform import render_page_svgs
-from frameforge.coach import (
+from frameforge_coach import (
     STYLES,
     DrawingIntent,
     LayerPlan,
@@ -78,12 +78,12 @@ def test_canonical_plan_validates():
     plan = create_plan()
     assert isinstance(plan, LayerPlan)
     assert plan.layers
-    from frameforge.coach import validate_order
+    from frameforge_coach import validate_order
     assert validate_order(plan.layers) == []
 
 
 def test_detail_before_silhouette_is_flagged():
-    from frameforge.coach import validate_order
+    from frameforge_coach import validate_order
     bad = ["00_canvas", "05_details", "03_silhouette", "04_forms"]
     issues = validate_order(bad)
     assert issues
@@ -91,7 +91,7 @@ def test_detail_before_silhouette_is_flagged():
 
 
 def test_shadows_before_colors_is_flagged():
-    from frameforge.coach import validate_order
+    from frameforge_coach import validate_order
     bad = ["00_canvas", "03_silhouette", "08_shadows", "07_flat_colors"]
     issues = validate_order(bad)
     assert any("shadow" in i.lower() for i in issues)
@@ -136,7 +136,7 @@ def test_stage_rubric_returns_checklist():
 
 # --- ingest re-skin transforms (pure; no OpenCV) --------------------------- #
 def test_recolor_to_style_preserves_geometry_and_maps_palette():
-    from frameforge.coach import recolor_to_style
+    from frameforge_coach import recolor_to_style
     objs = [{"type": "polygon", "points": [[0, 0], [10, 0], [10, 10]], "fill": "#777777"},
             {"type": "polygon", "points": [[1, 1], [5, 1], [5, 5]], "fill": "#222222"},
             {"type": "polyline", "points": [[0, 0], [9, 9]], "stroke": "#000000"}]
@@ -148,7 +148,7 @@ def test_recolor_to_style_preserves_geometry_and_maps_palette():
 
 
 def test_gradientize_lifts_flat_fills_to_gradients():
-    from frameforge.coach import gradientize
+    from frameforge_coach import gradientize
     out = gradientize([{"type": "polygon", "points": [[0, 0]], "fill": "#445566"}])
     grad = out[0]["fill"]
     assert isinstance(grad, dict) and grad.get("stops") and grad["kind"] == "linear"
@@ -156,7 +156,7 @@ def test_gradientize_lifts_flat_fills_to_gradients():
 
 # --- image-agnostic line/contour cleanup ----------------------------------- #
 def test_simplify_reduces_nodes_within_tolerance():
-    from frameforge.coach import simplify_strokes, node_count
+    from frameforge_coach import simplify_strokes, node_count
     # a near-straight noisy line: many points that RDP should collapse
     pts = [[i, (i % 2) * 0.4] for i in range(40)]            # tiny ±0.4 jitter on y=~0
     objs = [{"type": "polyline", "points": pts}]
@@ -167,7 +167,7 @@ def test_simplify_reduces_nodes_within_tolerance():
 
 
 def test_denoise_drops_speckle_keeps_real_strokes():
-    from frameforge.coach import denoise_strokes
+    from frameforge_coach import denoise_strokes
     speck = {"type": "polyline", "points": [[0, 0], [1, 1], [2, 0]]}       # ~2px
     real = {"type": "polyline", "points": [[0, 0], [50, 10], [100, 0]]}    # ~100px
     out = denoise_strokes([speck, real], min_span=6.0)
@@ -175,7 +175,7 @@ def test_denoise_drops_speckle_keeps_real_strokes():
 
 
 def test_clean_preserves_object_type_and_shape_endpoints():
-    from frameforge.coach import clean
+    from frameforge_coach import clean
     poly = {"type": "polygon", "points": [[0, 0], [10, 0.3], [20, 0], [20, 20], [0, 20]]}
     out = clean([poly], eps=1.0)
     assert out[0]["type"] == "polygon"
@@ -223,7 +223,7 @@ def _figure_points(*, head_count=8.0, fig_h=800.0, midline=400.0, top=40.0, n=90
 
 
 def test_canons_have_documented_head_counts():
-    from frameforge.coach import CANONS
+    from frameforge_coach import CANONS
     assert abs(CANONS["vitruvian"].head_count() - 8.0) < 0.05
     assert abs(CANONS["polykleitos"].head_count() - 7.5) < 0.05
     assert abs(CANONS["fashion"].head_count() - 9.0) < 0.05
@@ -234,7 +234,7 @@ def test_canons_have_documented_head_counts():
 
 
 def test_blend_signatures_interpolates_head_count():
-    from frameforge.coach import CANONS, blend_signatures
+    from frameforge_coach import CANONS, blend_signatures
     lo, hi = CANONS["polykleitos"], CANONS["fashion"]
     assert abs(blend_signatures(lo, hi, 0.0).head_count() - lo.head_count()) < 0.05
     assert abs(blend_signatures(lo, hi, 1.0).head_count() - hi.head_count()) < 0.05
@@ -243,7 +243,7 @@ def test_blend_signatures_interpolates_head_count():
 
 
 def test_remap_dy_pins_landmarks_and_endpoints():
-    from frameforge.coach import remap_dy
+    from frameforge_coach import remap_dy
     src = [0.0, 1.0, 2.0, 3.0]
     tgt = [0.0, 0.5, 1.0, 3.0]        # last segment stretched
     assert remap_dy(0.0, src, tgt) == 0.0
@@ -253,7 +253,7 @@ def test_remap_dy_pins_landmarks_and_endpoints():
 
 
 def test_dominant_contour_picks_largest_polygon():
-    from frameforge.coach import dominant_contour
+    from frameforge_coach import dominant_contour
     objs = [
         {"type": "polyline", "points": [[0, 0], [1, 0], [1, 1]]},       # tiny
         {"type": "polygon", "points": _figure_points()},               # the figure
@@ -264,7 +264,7 @@ def test_dominant_contour_picks_largest_polygon():
 
 
 def test_analyze_detects_ordered_anatomical_landmarks():
-    from frameforge.coach import analyze
+    from frameforge_coach import analyze
     fm = analyze(_figure_points())
     names = [lm.name for lm in fm.landmarks]
     # the structural majors are found, and in head-to-toe order
@@ -279,7 +279,7 @@ def test_analyze_detects_ordered_anatomical_landmarks():
 
 
 def test_plausibility_passes_canon_and_flags_degenerate():
-    from frameforge.coach import CANONS, ProportionSignature, plausibility
+    from frameforge_coach import CANONS, ProportionSignature, plausibility
     ok = plausibility(CANONS["vitruvian"])
     assert ok["plausible"] and not ok["issues"]
     # a 3-head squashed figure: head segment is a third of the body
@@ -295,7 +295,7 @@ def test_plausibility_passes_canon_and_flags_degenerate():
 
 
 def test_plausibility_distance_to_references_is_advisory_not_a_gate():
-    from frameforge.coach import CANONS, plausibility
+    from frameforge_coach import CANONS, plausibility
     # supplying references attaches a distance but never fabricates a hard verdict
     rep = plausibility(CANONS["vitruvian"], references=list(CANONS.values()))
     assert "reference_distance" in rep
@@ -303,7 +303,7 @@ def test_plausibility_distance_to_references_is_advisory_not_a_gate():
 
 
 def test_retarget_preserves_height_and_changes_geometry():
-    from frameforge.coach import analyze, retarget
+    from frameforge_coach import analyze, retarget
     fm = analyze(_figure_points())
     out = retarget(fm, "fashion")
     ys_in = [p[1] for p in fm.points]
@@ -316,7 +316,7 @@ def test_retarget_preserves_height_and_changes_geometry():
 
 
 def test_mirror_outer_is_symmetric_about_midline():
-    from frameforge.coach import mirror_outer
+    from frameforge_coach import mirror_outer
     # an asymmetric right-leaning half-figure
     raw = [[400, 40], [470, 200], [430, 400], [500, 600], [400, 760]]
     full = mirror_outer(raw, midline=400.0)
@@ -327,7 +327,7 @@ def test_mirror_outer_is_symmetric_about_midline():
 
 
 def test_to_polygon_obj_emits_validatable_shape():
-    from frameforge.coach import to_polygon_obj
+    from frameforge_coach import to_polygon_obj
     obj = to_polygon_obj(_figure_points(), fill="#101820", stroke="#FFFFFF", width=1.5)
     assert obj["type"] == "polygon"
     assert len(obj["points"]) == len(_figure_points())
@@ -341,7 +341,7 @@ def test_mcp_pipeline_silhouette_flag(tmp_path):
     from pathlib import Path
 
     from frameforge_sdk import serialize
-    from frameforge.mcp.pipeline import _validate_and_render_yaml
+    from frameforge_mcp.pipeline import _validate_and_render_yaml
 
     yaml_text = serialize(_subject_doc().build(), format="yaml")
     res = _validate_and_render_yaml(

@@ -273,7 +273,7 @@ def test_mcp_bands_flag_roundtrip(tmp_path):
     pytest.importorskip("cairosvg")
     import yaml as _yaml
 
-    from frameforge.mcp.usecases import refine_reconstruction, render_frameforge_yaml
+    from frameforge_mcp.usecases import refine_reconstruction, render_frameforge_yaml
 
     body = _petal(fill="#808080")
     ref_img = _shaded_reference(_mask(body))
@@ -300,7 +300,7 @@ def test_mcp_bands_flag_roundtrip(tmp_path):
 def test_mcp_tool_exposes_bands(tmp_path):
     import inspect
 
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
 
     class FakeFastMCP:
         def __init__(self, name, **kwargs):

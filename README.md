@@ -20,9 +20,6 @@ for the full why and scope.
 ```
 src/frameforge/               ← the Python package (strictly downstream of the models — ADR-0002):
   rendering/                  ← renderer (DDD split): domain + application (the Renderer) + infrastructure.
-  mcp/                        ← MCP server: author→render loop + the coordinate/measurement tool layer.
-  coach/                      ← Vector Construction Coach: style-grammar, layer order, silhouette gate.
-  live/                       ← local web UI for live MCP feedback sessions (`make live`).
 src/frameforge/model.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
 docs/schema/
   frameforge-v2.schema.json   ← GENERATED from the models (105 $defs). Do not hand-edit.
@@ -137,7 +134,7 @@ uv run python tooling/pdf_to_frameforge_yml.py input.pdf output.frameforge.yml
 # Python SDK code -> generated FrameForge YAML -> validation + rendered SVG/PNG,
 # plus the coordinate-aware measurement layer (see "Subsystems" below)
 uv sync --group mcp
-uv run --group mcp python -m frameforge.mcp
+uv run --group mcp python -m frameforge_mcp
 # or: make mcp
 
 # optional local web UI over the same MCP feedback functions

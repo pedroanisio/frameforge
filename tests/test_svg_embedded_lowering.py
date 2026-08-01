@@ -224,7 +224,7 @@ with open(OUTPUT_YAML_PATH, "w", encoding="utf-8") as fh:
 
 
 def test_lowering_reachable_via_mcp_run_sdk_code(tmp_path):
-    from frameforge.mcp.server import run_sdk_code
+    from frameforge_mcp.server import run_sdk_code
     result = run_sdk_code(MCP_SCRIPT, session_id="lower1",
                           session_root=tmp_path, raster_png=False)
     assert result["ok"] is True

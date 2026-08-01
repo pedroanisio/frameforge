@@ -25,7 +25,7 @@ pytest.importorskip("PIL")
 
 from PIL import Image, ImageDraw  # noqa: E402
 
-from frameforge.mcp.server import (  # noqa: E402
+from frameforge_mcp.server import (  # noqa: E402
     construct_vectors,
     create_server,
     map_coordinates,

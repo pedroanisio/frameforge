@@ -8,8 +8,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.mcp.guide import FRAMEFORGE_GUIDE  # noqa: E402
-from frameforge.mcp.usecases import run_sdk_client  # noqa: E402
+from frameforge_mcp.guide import FRAMEFORGE_GUIDE  # noqa: E402
+from frameforge_mcp.usecases import run_sdk_client  # noqa: E402
 from frameforge_sdk import DocumentBuilder  # noqa: E402
 from frameforge_sdk.io import serialize  # noqa: E402
 from frameforge_sdk.paint import linear_gradient  # noqa: E402

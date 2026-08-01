@@ -115,7 +115,7 @@ def test_overflow_report_names_objects_and_strict_fails():
 
 def test_mcp_render_result_carries_truncations(tmp_path):
     import yaml as _yaml
-    from frameforge.mcp.usecases import render_frameforge_yaml
+    from frameforge_mcp.usecases import render_frameforge_yaml
     doc = _doc({"id": "lede", "type": "text", "box": [20, 20, 200, 18],
                 "text": LONG, "style": {"font_size": 14, "line_height": 1.25}})
     result = render_frameforge_yaml(_yaml.safe_dump(doc, sort_keys=False),

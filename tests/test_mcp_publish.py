@@ -32,10 +32,10 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.mcp import config as C  # noqa: E402
-from frameforge.mcp.sessions import publish_session  # noqa: E402
-from frameforge.mcp.sessions import cleanup_sessions  # noqa: E402
-from frameforge.mcp.usecases import run_sdk_code  # noqa: E402
+from frameforge_mcp import config as C  # noqa: E402
+from frameforge_mcp.sessions import publish_session  # noqa: E402
+from frameforge_mcp.sessions import cleanup_sessions  # noqa: E402
+from frameforge_mcp.usecases import run_sdk_code  # noqa: E402
 
 SDK_SCRIPT = """
 from frameforge_sdk import DocumentBuilder
@@ -184,7 +184,7 @@ def test_all_three_render_tools_expose_publish(tmp_path):
     """The MCP surface itself carries the parameter — all three render tools."""
     import inspect
 
-    from frameforge.mcp import server as server_mod
+    from frameforge_mcp import server as server_mod
 
     class FakeFastMCP:
         def __init__(self, name, **kwargs):

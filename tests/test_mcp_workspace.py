@@ -22,7 +22,7 @@ pytest.importorskip("PIL")
 
 from PIL import Image  # noqa: E402
 
-from frameforge.mcp.server import (  # noqa: E402
+from frameforge_mcp.server import (  # noqa: E402
     construct_vectors,
     map_coordinates,
     workspace,
@@ -61,7 +61,7 @@ def test_workspace_state_is_readable_as_a_resource(tmp_path):
     """The persisted pins are exposed at frameforge://session/<id>/workspace.json."""
     import json
 
-    from frameforge.mcp.sessions import read_session_resource
+    from frameforge_mcp.sessions import read_session_resource
 
     img = _png(tmp_path / "src.png")
     workspace("open", image=img, session_id="w", session_root=tmp_path)

@@ -24,8 +24,8 @@ pytest.importorskip("PIL")
 
 from PIL import Image  # noqa: E402
 
-from frameforge.mcp.server import compare_images, mcp_content_blocks  # noqa: E402
-from frameforge.mcp.sessions import _prepare_session  # noqa: E402
+from frameforge_mcp.server import compare_images, mcp_content_blocks  # noqa: E402
+from frameforge_mcp.sessions import _prepare_session  # noqa: E402
 from frameforge_vision.infrastructure.image_compare import (  # noqa: E402
     Region,
     auto_regions,

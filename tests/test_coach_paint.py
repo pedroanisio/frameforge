@@ -17,8 +17,8 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path.insert(0, ROOT)
 
-from frameforge.coach import resolve_style  # noqa: E402
-from frameforge.coach.paint import (  # noqa: E402
+from frameforge_coach import resolve_style  # noqa: E402
+from frameforge_coach.paint import (  # noqa: E402
     atmosphere,
     darkest,
     fade,

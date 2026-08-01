@@ -9,8 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.mcp.discovery import describe_capabilities  # noqa: E402
-from frameforge.mcp.guide import FRAMEFORGE_GUIDE  # noqa: E402
+from frameforge_mcp.discovery import describe_capabilities  # noqa: E402
+from frameforge_mcp.guide import FRAMEFORGE_GUIDE  # noqa: E402
 from frameforge_sdk import DocumentBuilder, displacement_map, filter_chain, style_effects, turbulence, validate_static_rules  # noqa: E402
 from frameforge.conform import render_page_svgs
 

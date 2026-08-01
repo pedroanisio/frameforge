@@ -31,8 +31,8 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import pytest  # noqa: E402
 
-from frameforge.mcp.guide import FRAMEFORGE_GUIDE  # noqa: E402
-from frameforge.mcp import server as server_mod  # noqa: E402
+from frameforge_mcp.guide import FRAMEFORGE_GUIDE  # noqa: E402
+from frameforge_mcp import server as server_mod  # noqa: E402
 
 
 class FakeFastMCP:
@@ -138,9 +138,24 @@ def test_every_registered_tool_is_mentioned_in_guide(registry):
 
 
 # --- env vars + sdk modules the prose names actually exist ----------------- #
+def _walk_all(roots):
+    for root in roots:
+        yield from os.walk(root)
+
+
 def _consumed_env_vars():
     out = set()
-    for base, _dirs, files in os.walk(os.path.join(ROOT, "src")):
+    roots = [os.path.join(ROOT, "src")]
+    # The server, the coach and the measurement lane are separate distributions
+    # since the 2026-08-01 split; the guide documents knobs they read, so a
+    # census of `src/` alone calls every one of those rows stale.
+    for _mod in ("frameforge_mcp", "frameforge_coach", "frameforge_sdk",
+                 "frameforge_vision"):
+        try:
+            roots.append(os.path.dirname(os.path.abspath(__import__(_mod).__file__)))
+        except ImportError:
+            pass
+    for base, _dirs, files in _walk_all(roots):
         for fn in files:
             if fn.endswith(".py"):
                 with open(os.path.join(base, fn), encoding="utf-8") as fh:

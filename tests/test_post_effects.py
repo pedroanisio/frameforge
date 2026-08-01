@@ -180,7 +180,7 @@ def test_mcp_raster_applies_post_deterministically(tmp_path):
     pytest.importorskip("cairosvg")
     import yaml as _yaml
 
-    from frameforge.mcp.usecases import render_frameforge_yaml
+    from frameforge_mcp.usecases import render_frameforge_yaml
 
     plain = _yaml.safe_dump(_doc(post=None), sort_keys=False)
     posted = _yaml.safe_dump(_doc(post={"grain": {"amount": 0.06, "seed": 3}}),
@@ -203,7 +203,7 @@ def test_mcp_raster_applies_post_deterministically(tmp_path):
 
 
 def test_flow_documents_skip_post_with_observable_warning():
-    from frameforge.mcp.pipeline import page_post_specs
+    from frameforge_mcp.pipeline import page_post_specs
 
     flow_doc = {"dsl": "FrameForge", "version": "2.2.0",
                 "defs": {"masters": {"m": {"regions": [

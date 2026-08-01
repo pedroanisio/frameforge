@@ -23,7 +23,7 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
 PIL = pytest.importorskip("PIL.Image")
 
-from frameforge.mcp.usecases import _resolve_image_arg, overlay_images  # noqa: E402
+from frameforge_mcp.usecases import _resolve_image_arg, overlay_images  # noqa: E402
 
 
 def _png_bytes(color, size=(16, 16)):

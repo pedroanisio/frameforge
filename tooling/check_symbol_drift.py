@@ -199,7 +199,8 @@ def _sibling_package_roots() -> list[Path]:
 
     The family is several distributions now — `frameforge-api` holds the
     contract, `frameforge-sdk` the authoring surface, `frameforge-vision` the
-    measurement lane. Their names are still live references in this repo's prose,
+    measurement lane, `frameforge-mcp` the agent server and the construction
+    coach. Their names are still live references in this repo's prose,
     so harvesting only `src/` declares that prose stale the moment a package
     moves out, and invites deleting documentation that is perfectly true.
 
@@ -207,7 +208,8 @@ def _sibling_package_roots() -> list[Path]:
     pin or a wheel, and skips silently when an optional sibling is absent.
     """
     roots: list[Path] = []
-    for mod in ("frameforge_api", "frameforge_sdk", "frameforge_vision"):
+    for mod in ("frameforge_api", "frameforge_sdk", "frameforge_vision",
+                "frameforge_mcp", "frameforge_coach"):
         try:
             pkg = __import__(mod)
         except ImportError:

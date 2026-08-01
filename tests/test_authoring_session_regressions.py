@@ -372,7 +372,7 @@ class _FakeFastMCP:
 
 
 def test_mcp_fit_text_exposes_the_same_metric_mode_and_safe_width(tmp_path):
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
 
     server = create_server(session_root=tmp_path, fastmcp_cls=_FakeFastMCP)
 

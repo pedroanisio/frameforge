@@ -633,6 +633,7 @@ browser = [
     { name = "playwright" },
 ]
 dev = [
+    { name = "frameforge-mcp" },
     { name = "frameforge-vision", extra = ["cv", "ocr"] },
     { name = "hypothesis" },
     { name = "pytest" },
@@ -680,6 +681,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 browser = [{ name = "playwright", specifier = ">=1.44" }]
 dev = [
+    { name = "frameforge-mcp", editable = "../frameforge-mcp" },
     { name = "frameforge-vision", extras = ["cv", "ocr"], editable = "../frameforge-vision" },
     { name = "hypothesis", specifier = ">=6" },
     { name = "pytest", specifier = ">=8" },
@@ -714,6 +716,46 @@ version = "1.0.0"
 source = { git = "https://github.com/pedroanisio/frameforge-api.git?branch=main#e188cee6d39a5bbd526dcb83754494a5a43af9d1" }
 dependencies = [
     { name = "pydantic" },
+]
+
+[[package]]
+name = "frameforge-mcp"
+version = "1.0.0"
+source = { editable = "../frameforge-mcp" }
+dependencies = [
+    { name = "cairosvg" },
+    { name = "frameforge" },
+    { name = "frameforge-sdk" },
+    { name = "mcp", extra = ["cli"] },
+    { name = "pydantic" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "accelerate", marker = "extra == 'vlm'", specifier = ">=0.30" },
+    { name = "cairosvg", specifier = ">=2.7" },
+    { name = "frameforge", editable = "." },
+    { name = "frameforge-sdk", editable = "../frameforge-sdk" },
+    { name = "frameforge-vision", marker = "extra == 'vision'", editable = "../frameforge-vision" },
+    { name = "mcp", extras = ["cli"], specifier = ">=1.27,<2" },
+    { name = "num2words", marker = "extra == 'vlm'", specifier = ">=0.5" },
+    { name = "pillow", marker = "extra == 'vlm'", specifier = ">=10" },
+    { name = "playwright", marker = "extra == 'browser'", specifier = ">=1.44" },
+    { name = "pydantic", specifier = ">=2" },
+    { name = "pymupdf", marker = "extra == 'pdf'", specifier = ">=1.24" },
+    { name = "pyyaml", specifier = ">=6" },
+    { name = "torch", marker = "extra == 'vlm'", specifier = ">=2.2" },
+    { name = "transformers", marker = "extra == 'vlm'", specifier = ">=4.46" },
+]
+provides-extras = ["vision", "vlm", "pdf", "browser"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=1.11" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "pytest-cov", specifier = ">=5" },
+    { name = "ruff", specifier = ">=0.6" },
 ]
 
 [[package]]
@@ -766,7 +808,7 @@ ocr = [
 [package.metadata]
 requires-dist = [
     { name = "accelerate", marker = "extra == 'vlm'", specifier = ">=0.30" },
-    { name = "frameforge", marker = "extra == 'raster'", editable = "../frameforge" },
+    { name = "frameforge", marker = "extra == 'raster'", editable = "." },
     { name = "frameforge-sdk", marker = "extra == 'author'", editable = "../frameforge-sdk" },
     { name = "num2words", marker = "extra == 'vlm'", specifier = ">=0.5" },
     { name = "numpy", specifier = ">=1.24" },

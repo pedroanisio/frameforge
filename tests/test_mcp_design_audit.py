@@ -21,7 +21,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.mcp.server import (  # noqa: E402
+from frameforge_mcp.server import (  # noqa: E402
     FRAMEFORGE_GUIDE,
     describe_capabilities,
     design_audit,

@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from frameforge_sdk import DocumentBuilder
 from frameforge.conform import render_page_svgs  # noqa: E402
-from frameforge.coach import (  # noqa: E402
+from frameforge_coach import (  # noqa: E402
     create_plan, gradientize, ingest, recolor_to_style, resolve_style, stage_rubric,
     to_silhouette, validate_order,
 )

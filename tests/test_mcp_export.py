@@ -20,7 +20,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.mcp.server import (  # noqa: E402
+from frameforge_mcp.server import (  # noqa: E402
     read_session_resource,
     render_frameforge_yaml,
     run_sdk_code,
@@ -180,7 +180,7 @@ def test_real_metrics_true_reaches_the_renderer(tmp_path, monkeypatch):
 def test_real_metrics_auto_honors_env_override(monkeypatch):
     """'auto' must not silently override an operator's FRAMEFORGE_REAL_METRICS
     (e.g. forcing the byte-stable estimator for golden reproduction)."""
-    from frameforge.mcp.pipeline import _resolve_real_metrics
+    from frameforge_mcp.pipeline import _resolve_real_metrics
 
     monkeypatch.setenv("FRAMEFORGE_REAL_METRICS", "0")
     assert _resolve_real_metrics("auto") is False

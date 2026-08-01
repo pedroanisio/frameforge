@@ -22,7 +22,11 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-README = os.path.join(ROOT, "src", "frameforge", "mcp", "README.md")
+# The MCP server is its own distribution since the 2026-08-01 split, so its
+# configuration table travels with the package rather than living under src/.
+import frameforge_mcp as _mcp_pkg
+_MCP_DIR = os.path.dirname(_mcp_pkg.__file__)
+README = os.path.join(_MCP_DIR, "README.md")
 
 # an env READ (or write) — not a Python constant named FRAMEFORGE_*
 _READ = re.compile(
@@ -38,7 +42,8 @@ def _consumer_roots():
     is what exposes them. Scanning only `src/` calls those rows stale.
     """
     roots = [os.path.join(ROOT, "src")]
-    for mod in ("frameforge_sdk", "frameforge_vision", "frameforge_api"):
+    for mod in ("frameforge_sdk", "frameforge_vision", "frameforge_api",
+                "frameforge_mcp", "frameforge_coach"):
         try:
             roots.append(os.path.dirname(os.path.abspath(__import__(mod).__file__)))
         except ImportError:
@@ -95,7 +100,7 @@ def test_every_documented_env_var_is_consumed():
 
 
 def test_edit_roots_row_states_the_real_default():
-    from frameforge.mcp.config import DEFAULT_CLIENT_ROOTS
+    from frameforge_mcp.config import DEFAULT_CLIENT_ROOTS
     _, section = _documented()
     row = next((ln for ln in section.splitlines()
                 if "FRAMEFORGE_MCP_EDIT_ROOTS" in ln), "")
@@ -110,7 +115,7 @@ def test_stated_numeric_defaults_equal_the_code_defaults():
     """The documented default for every numeric knob is the CODE's default —
     change a constant without updating its row and this fails. Sourced from
     the config constants, never restated here."""
-    from frameforge.mcp import config as cfg
+    from frameforge_mcp import config as cfg
 
     expected = {
         "FRAMEFORGE_MCP_RENDER_TIMEOUT": cfg.DEFAULT_RENDER_TIMEOUT_SECONDS,

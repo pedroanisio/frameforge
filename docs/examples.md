@@ -39,7 +39,7 @@ The 159 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`cg_canon_residuals_demo.py`](../static/examples/cg_canon_residuals_demo.py) | Cookbook: the CG-canon residual geometry — patches, curve hits, hull, curvature. |
 | [`cg_canon_showcase.py`](../static/examples/cg_canon_showcase.py) | FrameForge v2 — *Twelve Hours of Geometry* (A4 capability showcase). |
 | [`clip_and_lettering_demo.py`](../static/examples/clip_and_lettering_demo.py) | Worked example of the SDK's clip + author-intent helpers. |
-| [`coach_demo.py`](../static/examples/coach_demo.py) | Vector Construction Coach — staged-loop demo (frameforge.coach POC). |
+| [`coach_demo.py`](../static/examples/coach_demo.py) | Vector Construction Coach — staged-loop demo (frameforge_coach POC). |
 | [`coach_draw_workspace.py`](../static/examples/coach_draw_workspace.py) | Coach draws ``demo/images.jpeg`` — a flat workspace illustration. |
 | [`coach_icon_set.py`](../static/examples/coach_icon_set.py) | Coach challenge — a 6-icon set, one style, A/B vs one-shot drift. |
 | [`coach_paint_showcase.py`](../static/examples/coach_paint_showcase.py) | Coach, end-to-end, with the new paint layer — raster → on-brand painted scene. |

@@ -454,7 +454,7 @@ def test_codemod_does_not_run_the_migration_without_the_flag(tmp_path):
 #  9. MCP surface                                                             #
 # --------------------------------------------------------------------------- #
 def test_mcp_render_warning_names_the_paint_channel():
-    from frameforge.mcp.pipeline import _paint_warning
+    from frameforge_mcp.pipeline import _paint_warning
     note = _paint_warning([
         {"code": "invisible-shape", "id": "chevron", "page": "p1", "type": "polyline",
          "level": "warn", "detail": "no fill and no stroke"},
@@ -464,7 +464,7 @@ def test_mcp_render_warning_names_the_paint_channel():
 
 
 def test_mcp_paint_warning_is_empty_when_clean():
-    from frameforge.mcp.pipeline import _paint_warning
+    from frameforge_mcp.pipeline import _paint_warning
     assert _paint_warning([]) == ""
 
 

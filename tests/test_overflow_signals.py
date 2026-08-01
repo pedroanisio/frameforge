@@ -195,7 +195,7 @@ def test_flat_conform_export():
 
 def test_mcp_result_carries_overflow_and_warns_on_unacknowledged(tmp_path):
     import yaml as _yaml
-    from frameforge.mcp.usecases import render_frameforge_yaml
+    from frameforge_mcp.usecases import render_frameforge_yaml
     doc = _flow_doc(f"before {UNBREAKABLE} after")
     result = render_frameforge_yaml(_yaml.safe_dump(doc, sort_keys=False),
                                     session_id="ovf", session_root=tmp_path,
@@ -208,7 +208,7 @@ def test_mcp_result_carries_overflow_and_warns_on_unacknowledged(tmp_path):
 
 def test_mcp_acknowledged_visible_spill_does_not_warn(tmp_path):
     import yaml as _yaml
-    from frameforge.mcp.usecases import render_frameforge_yaml
+    from frameforge_mcp.usecases import render_frameforge_yaml
     doc = _doc({"id": "spill", "type": "text", "box": [20, 20, 200, 18],
                 "text": LONG,
                 "style": {"font_size": 14, "line_height": 1.25,

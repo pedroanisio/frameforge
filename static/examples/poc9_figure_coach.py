@@ -11,7 +11,7 @@ The thesis, proven with real execution rather than prose:
               → plausibility gate → retarget onto a drawing canon
               → mirror → silhouette gate → compose
 
-The new piece is ``frameforge.coach.figures``: it reads the silhouette *width
+The new piece is ``frameforge_coach.figures``: it reads the silhouette *width
 profile* and recovers anatomical structure (shoulders / waist / hips / knees)
 where the naive region trace collapses a shaded figure into a black block.
 With that structure the figure becomes editable PROPORTION: retarget it onto
@@ -39,7 +39,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from frameforge_sdk import DocumentBuilder, validate_static_rules
 from frameforge.conform import render_page_svgs  # noqa: E402
-from frameforge.coach import (  # noqa: E402
+from frameforge_coach import (  # noqa: E402
     CANONS,
     analyze,
     clean,

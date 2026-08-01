@@ -27,12 +27,12 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.mcp.clients import (  # noqa: E402
+from frameforge_mcp.clients import (  # noqa: E402
     list_sdk_clients,
     read_sdk_client,
     write_sdk_client,
 )
-from frameforge.mcp.security import _client_roots, _resolve_client_path  # noqa: E402
+from frameforge_mcp.security import _client_roots, _resolve_client_path  # noqa: E402
 
 CODE = "def build():\n    return {'dsl': 'FrameForge'}\n"
 

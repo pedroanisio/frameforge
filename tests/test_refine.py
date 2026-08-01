@@ -132,7 +132,7 @@ def test_mcp_refine_reconstruction_roundtrip(tmp_path):
     pytest.importorskip("cv2")
     import yaml as _yaml
 
-    from frameforge.mcp.usecases import refine_reconstruction, vectorize_image
+    from frameforge_mcp.usecases import refine_reconstruction, vectorize_image
 
     src = tmp_path / "scene.png"
     _ramp_image().save(src)
@@ -155,7 +155,7 @@ def test_mcp_refine_reconstruction_roundtrip(tmp_path):
 
 
 def test_mcp_refine_missing_session_is_structured(tmp_path):
-    from frameforge.mcp.usecases import refine_reconstruction
+    from frameforge_mcp.usecases import refine_reconstruction
 
     out = refine_reconstruction(session_id="nope", image=__file__,
                                 session_root=tmp_path)
@@ -166,7 +166,7 @@ def test_mcp_refine_missing_session_is_structured(tmp_path):
 def test_mcp_tool_exposes_refine_reconstruction(tmp_path):
     import inspect
 
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
 
     class FakeFastMCP:
         def __init__(self, name, **kwargs):

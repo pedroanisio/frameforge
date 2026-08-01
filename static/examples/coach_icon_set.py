@@ -28,7 +28,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
 from frameforge_sdk import DocumentBuilder, serialize  # noqa: E402
-from frameforge.coach import resolve_style, stage_rubric, to_silhouette  # noqa: E402
+from frameforge_coach import resolve_style, stage_rubric, to_silhouette  # noqa: E402
 
 W, H, M = 1240, 640, 70
 INK_UI, SUB, BG, PAPER = "#1E2030", "#8A90A6", "#F2F3F8", "#FFFFFF"

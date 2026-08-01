@@ -28,8 +28,8 @@ pytest.importorskip("PIL")
 
 from PIL import Image, ImageDraw  # noqa: E402
 
-from frameforge.mcp.server import vectorize_image  # noqa: E402
-from frameforge.mcp.usecases import _translate_objects  # noqa: E402
+from frameforge_mcp.server import vectorize_image  # noqa: E402
+from frameforge_mcp.usecases import _translate_objects  # noqa: E402
 
 _HAS_POTRACE = shutil.which("potrace") is not None
 try:
@@ -72,7 +72,7 @@ def test_translate_objects_noop_on_zero():
 
 
 def test_shift_path_d_absolute_and_bails_on_curves():
-    from frameforge.mcp.usecases import _shift_path_d
+    from frameforge_mcp.usecases import _shift_path_d
     assert _shift_path_d("M 1 2 L 3 4 Z", 10, 20) == "M 11.00 22.00 L 13.00 24.00 Z"
     # unknown command (C) → returned unchanged rather than corrupted
     assert _shift_path_d("M 0 0 C 1 1 2 2 3 3", 5, 5) == "M 0 0 C 1 1 2 2 3 3"

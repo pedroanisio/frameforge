@@ -51,7 +51,7 @@ def _reference_data_uri(family, size=64):
 
 
 def test_self_family_wins_the_ranking(tmp_path):
-    from frameforge.mcp.usecases import match_font
+    from frameforge_mcp.usecases import match_font
     ref = _reference_data_uri("DejaVu Sans")
     out = match_font(
         reference=ref, text=SAMPLE,
@@ -66,7 +66,7 @@ def test_self_family_wins_the_ranking(tmp_path):
 
 
 def test_serif_reference_prefers_serif(tmp_path):
-    from frameforge.mcp.usecases import match_font
+    from frameforge_mcp.usecases import match_font
     ref = _reference_data_uri("DejaVu Serif")
     out = match_font(
         reference=ref, text=SAMPLE,
@@ -77,7 +77,7 @@ def test_serif_reference_prefers_serif(tmp_path):
 
 
 def test_no_resolvable_candidates_is_structured(tmp_path):
-    from frameforge.mcp.usecases import match_font
+    from frameforge_mcp.usecases import match_font
     ref = _reference_data_uri("DejaVu Sans")
     out = match_font(reference=ref, text=SAMPLE,
                      candidates=["No Such Face 9000"],
@@ -87,7 +87,7 @@ def test_no_resolvable_candidates_is_structured(tmp_path):
 
 
 def test_server_registers_match_font(tmp_path):
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
 
     class _Fake:
         def __init__(self, name, **kw):

@@ -22,7 +22,7 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
 from pathlib import Path  # noqa: E402
 
-from frameforge.mcp.usecases import diff_renders, render_frameforge_yaml  # noqa: E402
+from frameforge_mcp.usecases import diff_renders, render_frameforge_yaml  # noqa: E402
 
 
 def _yaml(fill="#ffffff"):
@@ -94,7 +94,7 @@ def test_diff_renders_needs_two_revisions(tmp_path):
 
 
 def test_server_registers_diff_renders(tmp_path):
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
 
     class _Fake:
         def __init__(self, name, **kw):

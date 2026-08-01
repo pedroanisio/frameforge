@@ -115,7 +115,7 @@ def test_compact_census_reports_zero_when_clean():
 #  MCP — the render result and the `design_audit` tool
 # --------------------------------------------------------------------------- #
 def _render(tmp_path, doc, session_id="collision-parity"):
-    from frameforge.mcp.server import render_frameforge_yaml
+    from frameforge_mcp.server import render_frameforge_yaml
     from frameforge_sdk.io import serialize
     return render_frameforge_yaml(serialize(doc, format="yaml"),
                                   session_id=session_id, session_root=tmp_path,
@@ -136,7 +136,7 @@ def test_mcp_render_result_surfaces_the_collision(tmp_path):
 
 def test_mcp_design_audit_matches_the_cli_report(tmp_path):
     _render(tmp_path, _colliding_doc())
-    from frameforge.mcp.server import design_audit
+    from frameforge_mcp.server import design_audit
     audit = design_audit(session_id="collision-parity", session_root=tmp_path)
     assert audit["ok"] is True, audit.get("error")
     assert audit["audit"]["collisions"], "design_audit must report what the CLI reports"

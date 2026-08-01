@@ -2425,7 +2425,7 @@ between 2026-06-25 and 2026-07-01 that previously had no CHANGELOG entry.
 - Region toolkit: `select_in` / `place_region` / `region_grade` /
   `extract_objects` / `object_bbox` / `gradient_map` (`29f8f71`).
 
-**Coach (`frameforge.coach`):**
+**Coach (`frameforge_coach`):**
 - Vector Construction Coach package: style-grammar, layer-order rules,
   silhouette gate (+ MCP flag), SVG ingest/clean, figure-proportion helpers
   (`bc8c3b8`, `a5a39d1`, `991da7e`, `24bde8b`).

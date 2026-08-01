@@ -273,7 +273,7 @@ def test_mcp_render_result_warns_and_carries_the_channel(tmp_path):
 
     root = _os.path.normpath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), ".."))
     _sys.path[:0] = [root, _os.path.join(root, "src"), _os.path.join(root, "docs")]
-    from frameforge.mcp.server import render_frameforge_yaml
+    from frameforge_mcp.server import render_frameforge_yaml
     from frameforge_sdk import DocumentBuilder
     from frameforge_sdk.io import serialize
 

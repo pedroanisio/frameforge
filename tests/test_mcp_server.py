@@ -14,7 +14,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.mcp.server import (  # noqa: E402
+from frameforge_mcp.server import (  # noqa: E402
     cleanup_sessions,
     create_server,
     list_sdk_clients,
@@ -110,7 +110,7 @@ def test_mcp_content_blocks_ships_png_not_svg_as_image(tmp_path):
 
 def test_render_warning_when_raster_backend_unavailable(tmp_path, monkeypatch):
     """raster_png=True but no browser backend -> ok stays True, but a warning is surfaced."""
-    import frameforge.mcp.pipeline as pipeline
+    import frameforge_mcp.pipeline as pipeline
 
     def _unavailable(svg_paths, session_dir, session_id, **_kwargs):
         return [], "PNG rasterization unavailable: stub. install the `browser` group."
@@ -125,7 +125,7 @@ def test_render_warning_when_raster_backend_unavailable(tmp_path, monkeypatch):
 
 
 def test_render_exception_returns_structured_error_not_traceback(tmp_path, monkeypatch):
-    import frameforge.mcp.pipeline as pipeline
+    import frameforge_mcp.pipeline as pipeline
 
     def _boom(document, base_dir, **_kwargs):
         raise RuntimeError("renderer exploded")
@@ -319,7 +319,7 @@ def test_pages_selector_accepts_int_list(tmp_path):
 
 def test_mcp_content_blocks_caps_inlined_images(tmp_path):
     """Only the first N PNG renders are inlined as image blocks; the rest stay resource links."""
-    import frameforge.mcp.server as server
+    import frameforge_mcp.server as server
 
     renders = []
     for page in range(1, 7):
@@ -340,7 +340,7 @@ def test_mcp_content_blocks_caps_inlined_images(tmp_path):
 
 def test_rasterization_respects_page_cap_and_uses_true_page_filenames(tmp_path, monkeypatch):
     """P4: rasterization is capped; truncation is reported, ok stays True, PNGs keep true-page names."""
-    import frameforge.mcp.pipeline as pipeline
+    import frameforge_mcp.pipeline as pipeline
 
     monkeypatch.setattr(
         "frameforge.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
@@ -364,7 +364,7 @@ def test_rasterization_respects_page_cap_and_uses_true_page_filenames(tmp_path, 
 
 def test_rasterization_respects_time_budget(tmp_path, monkeypatch):
     """P4: a soft time budget stops the raster loop between pages with a structured warning."""
-    import frameforge.mcp.pipeline as pipeline
+    import frameforge_mcp.pipeline as pipeline
 
     monkeypatch.setattr(
         "frameforge.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
@@ -569,7 +569,7 @@ def test_create_server_writes_structured_log_for_tool_instructions_and_responses
     events = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
 
     assert [event["tool"] for event in events] == ["run_sdk_code", "read_sdk_client"]
-    assert events[0]["schema"] == "frameforge.mcp.structured_log.v1"
+    assert events[0]["schema"] == "frameforge_mcp.structured_log.v1"
     assert events[0]["instruction"]["code"] == SDK_SCRIPT
     assert events[0]["instruction"]["session_id"] == "logged"
     assert events[0]["response"]["ok"] is True
@@ -580,7 +580,7 @@ def test_create_server_writes_structured_log_for_tool_instructions_and_responses
 
 
 def test_subprocess_env_strips_secrets_by_default(tmp_path, monkeypatch):
-    import frameforge.mcp.server as server
+    import frameforge_mcp.server as server
 
     monkeypatch.setenv("MY_API_TOKEN", "supersecret")
     monkeypatch.setenv("DEPLOY_PASSWORD", "hunter2")
@@ -598,7 +598,7 @@ def test_subprocess_env_strips_secrets_by_default(tmp_path, monkeypatch):
 
 
 def test_new_generated_yaml_uses_content_hash_not_mtime(tmp_path):
-    import frameforge.mcp.server as server
+    import frameforge_mcp.server as server
 
     examples = tmp_path / "static" / "examples"
     examples.mkdir(parents=True)
@@ -617,7 +617,7 @@ def test_new_generated_yaml_uses_content_hash_not_mtime(tmp_path):
 
 
 def test_structured_log_truncates_oversized_fields(tmp_path):
-    import frameforge.mcp.server as server
+    import frameforge_mcp.server as server
 
     log_path = tmp_path / "log.jsonl"
     big = "x" * (server.STRUCTURED_LOG_MAX_FIELD_CHARS + 500)
@@ -629,7 +629,7 @@ def test_structured_log_truncates_oversized_fields(tmp_path):
 
 
 def test_propose_confines_input_path_when_input_roots_set(tmp_path, monkeypatch):
-    from frameforge.mcp.server import propose_from_image
+    from frameforge_mcp.server import propose_from_image
 
     monkeypatch.setenv("FRAMEFORGE_MCP_INPUT_ROOTS", str(tmp_path / "allowed"))
     outside = tmp_path / "outside.png"
@@ -642,7 +642,7 @@ def test_propose_confines_input_path_when_input_roots_set(tmp_path, monkeypatch)
 
 
 def test_propose_from_image_reports_missing_vision_group(tmp_path, monkeypatch):
-    import frameforge.mcp.server as server
+    import frameforge_mcp.server as server
 
     # A None entry in sys.modules makes the in-function import raise ImportError,
     # standing in for an environment without the `vision` dependency group.
@@ -681,7 +681,7 @@ def test_list_and_cleanup_sessions(tmp_path):
 
 
 def test_clamp_stream_keeps_head_and_tail_with_marker():
-    import frameforge.mcp.server as server
+    import frameforge_mcp.server as server
 
     limit = server.TRANSPORT_STREAM_MAX_CHARS
     text = "HEAD" + ("x" * (limit + 4_000)) + "TAIL"
@@ -698,7 +698,7 @@ def test_clamp_stream_keeps_head_and_tail_with_marker():
 def test_run_sdk_code_tool_bounds_streams_but_diagnostics_keep_full(tmp_path):
     """The transported structuredContent clamps stdout/stderr; the on-disk
     diagnostics resource keeps the full stream so debugging is not lost."""
-    import frameforge.mcp.server as server
+    import frameforge_mcp.server as server
 
     noise = server.TRANSPORT_STREAM_MAX_CHARS + 5_000
     code = (
@@ -834,7 +834,7 @@ def test_mcp_guide_names_headline_sdk_capabilities():
     in the guide, so a new SDK capability cannot ship invisible to MCP agents.
     """
     import frameforge_sdk as sdk
-    from frameforge.mcp.server import FRAMEFORGE_GUIDE
+    from frameforge_mcp.server import FRAMEFORGE_GUIDE
 
     headline = [
         "DocumentBuilder", "stroke", "fill_stroke", "text_style",
@@ -870,7 +870,7 @@ def _regions_png(tmp_path):
 
 def test_detect_regions_tool_returns_regions_and_overlay(tmp_path):
     pytest.importorskip("cv2")
-    from frameforge.mcp.server import detect_regions
+    from frameforge_mcp.server import detect_regions
 
     result = detect_regions(str(_regions_png(tmp_path)), method="flat",
                             cluster="translation",
@@ -898,7 +898,7 @@ def test_detect_regions_tool_returns_regions_and_overlay(tmp_path):
 
 def test_detect_regions_tool_overlay_false_reports_numbers_only(tmp_path):
     pytest.importorskip("cv2")
-    from frameforge.mcp.server import detect_regions
+    from frameforge_mcp.server import detect_regions
 
     result = detect_regions(str(_regions_png(tmp_path)), method="flat", overlay=False,
                             session_id="regnum", session_root=tmp_path)
@@ -908,7 +908,7 @@ def test_detect_regions_tool_overlay_false_reports_numbers_only(tmp_path):
 
 
 def test_detect_regions_tool_structured_errors(tmp_path):
-    from frameforge.mcp.server import detect_regions
+    from frameforge_mcp.server import detect_regions
 
     bad_method = detect_regions(str(_regions_png(tmp_path)), method="nope",
                                 session_id="regbad", session_root=tmp_path)
@@ -932,7 +932,7 @@ def test_detect_regions_tool_structured_errors(tmp_path):
 
 def test_vectorize_auto_mode_reports_router_decision(tmp_path):
     pytest.importorskip("cv2")
-    from frameforge.mcp.server import vectorize_image
+    from frameforge_mcp.server import vectorize_image
 
     result = vectorize_image(str(_regions_png(tmp_path)), mode="auto",
                              session_id="vauto", session_root=tmp_path, raster_png=False)
@@ -946,7 +946,7 @@ def test_vectorize_auto_mode_reports_router_decision(tmp_path):
 
 def test_vectorize_ocr_reports_backend_status_not_silent_empty(tmp_path):
     pytest.importorskip("cv2")
-    from frameforge.mcp.server import vectorize_image
+    from frameforge_mcp.server import vectorize_image
 
     result = vectorize_image(str(_regions_png(tmp_path)), mode="region", ocr=True,
                              session_id="vocr", session_root=tmp_path, raster_png=False)
@@ -962,7 +962,7 @@ def test_vectorize_ocr_reports_backend_status_not_silent_empty(tmp_path):
 
 def test_score_reconstruction_geometry_args_accept_pin_ids(tmp_path):
     pytest.importorskip("cv2")
-    from frameforge.mcp.server import score_reconstruction, workspace
+    from frameforge_mcp.server import score_reconstruction, workspace
 
     img = _regions_png(tmp_path)
     opened = workspace("open", image=str(img), session_id="pins", session_root=tmp_path)
@@ -1052,7 +1052,7 @@ def test_render_unsigned_by_default_is_byte_identical_to_signed_body(tmp_path):
 
 def test_render_frameforge_yaml_sign_threads_through(tmp_path):
     """The YAML render tool also honors sign/signed_at."""
-    from frameforge.mcp.server import render_frameforge_yaml
+    from frameforge_mcp.server import render_frameforge_yaml
     from frameforge_sdk import DocumentBuilder
     from frameforge_sdk.io import serialize
 
@@ -1080,8 +1080,8 @@ def test_custom_document_source_drives_the_shared_runner(tmp_path):
     renders whatever YAML any ``DocumentSource.produce`` writes, so a bespoke source
     flows through the same validate -> render -> diagnostics tail as the built-ins.
     """
-    from frameforge.mcp.sources import DocumentSource, Produced
-    from frameforge.mcp.usecases import _run_source
+    from frameforge_mcp.sources import DocumentSource, Produced
+    from frameforge_mcp.usecases import _run_source
     from frameforge_sdk import DocumentBuilder
     from frameforge_sdk.io import serialize
 
@@ -1093,7 +1093,7 @@ def test_custom_document_source_drives_the_shared_runner(tmp_path):
             page.layer("main").rect([0, 0, 160, 90], fill="#ffffff")
             page.text([12, 16, 140, 24], "custom-source-marker", id="t")
             yaml_path.write_text(serialize(builder.build(), format="yaml"), encoding="utf-8")
-            from frameforge.mcp.results import _base_result
+            from frameforge_mcp.results import _base_result
 
             result = _base_result(sid, session_dir, yaml_path, "", "", 0)
             return Produced(sid, session_dir, yaml_path, result, proceed=True, base_dir=session_dir)
@@ -1117,7 +1117,7 @@ def test_custom_document_source_drives_the_shared_runner(tmp_path):
 
 def test_cross_tool_session_reuse_reports_replaced_renders(tmp_path):
     """A second tool overwriting a prior tool's renders in the same session says so."""
-    from frameforge.mcp.server import render_frameforge_yaml
+    from frameforge_mcp.server import render_frameforge_yaml
     from frameforge_sdk import DocumentBuilder
     from frameforge_sdk.io import serialize
 
@@ -1240,7 +1240,7 @@ def test_vectorize_auto_explicit_default_valued_arg_beats_preset(tmp_path):
     src = tmp_path / "flat.png"
     img.save(src)
 
-    from frameforge.mcp import usecases
+    from frameforge_mcp import usecases
 
     explicit = usecases.vectorize_image(str(src), mode="auto", colors=8,
                                         session_id="vx", session_root=tmp_path,
@@ -1261,7 +1261,7 @@ def test_detect_regions_accepts_svg_input(tmp_path):
     """The documented '.svg — rasterised first' path must work end to end."""
     pytest.importorskip("cv2")
     pytest.importorskip("cairosvg")
-    from frameforge.mcp.server import detect_regions
+    from frameforge_mcp.server import detect_regions
 
     svg_path = tmp_path / "two-boxes.svg"
     svg_path.write_text(

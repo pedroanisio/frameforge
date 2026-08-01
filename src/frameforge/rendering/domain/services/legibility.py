@@ -29,7 +29,7 @@ authoring agent that conflates the two ships a document ~25% smaller than
 intended. The only dpi-independent statement is proportional: *this glyph is
 1/N of the page width*. That is the gate. The pt equivalent is reported in
 ``basis`` for the SVG->PDF export path, where one canvas unit is 0.75 pt
-(CairoSVG ``svg2pdf(dpi=96)``, pinned in ``frameforge.mcp.pipeline._export_pdf``;
+(CairoSVG ``svg2pdf(dpi=96)``, pinned in ``frameforge_mcp.pipeline._export_pdf``;
 measured: a 595x842 canvas yields a 446.2x631.5 pt page).
 
 NO GUESSING (PALS's Law)

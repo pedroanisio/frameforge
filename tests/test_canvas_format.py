@@ -30,7 +30,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):  # the models modul
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.mcp.discovery import describe_capabilities  # noqa: E402
+from frameforge_mcp.discovery import describe_capabilities  # noqa: E402
 from frameforge.rendering.domain.geometry import fnum, fnum_precise  # noqa: E402
 from frameforge.rendering.domain.services.canvas_resolver import (  # noqa: E402
     CanvasResolver, DEFAULT_WH, PRESETS,

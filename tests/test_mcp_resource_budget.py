@@ -31,8 +31,8 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.mcp.server import _enveloped  # noqa: E402
-from frameforge.mcp.sessions import (  # noqa: E402
+from frameforge_mcp.server import _enveloped  # noqa: E402
+from frameforge_mcp.sessions import (  # noqa: E402
     read_session_resource,
     session_resource_bytes,
     session_resource_endpoint_bytes,

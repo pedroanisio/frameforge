@@ -20,7 +20,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.mcp.server import describe_capabilities  # noqa: E402
+from frameforge_mcp.server import describe_capabilities  # noqa: E402
 
 _POSTURE_ENV_VARS = (
     "FRAMEFORGE_MCP_INPUT_ROOTS",
@@ -35,7 +35,7 @@ def _clear_posture_env(monkeypatch) -> None:
 
 
 def _posture() -> dict:
-    from frameforge.mcp.security import security_posture
+    from frameforge_mcp.security import security_posture
 
     return security_posture()
 
@@ -54,7 +54,7 @@ def test_default_env_reports_open_mode_with_warnings(monkeypatch):
 
 
 def test_default_edit_roots_cover_the_repo_client_root(monkeypatch):
-    from frameforge.mcp.paths import get_default_repo_root
+    from frameforge_mcp.paths import get_default_repo_root
 
     _clear_posture_env(monkeypatch)
 

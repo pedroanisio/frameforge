@@ -25,7 +25,7 @@ pytest.importorskip("PIL")
 
 from PIL import Image  # noqa: E402
 
-from frameforge.mcp.server import (  # noqa: E402
+from frameforge_mcp.server import (  # noqa: E402
     mark_points,
     mcp_content_blocks,
     measure_image,

@@ -26,7 +26,7 @@ pypdf = pytest.importorskip("pypdf")
 # import at collection time, before tooling/validate.py can re-shadow the
 # `frameforge` package with the models module (repo test convention)
 from frameforge import cli  # noqa: E402
-from frameforge.mcp.pipeline import _export_pdf  # noqa: E402
+from frameforge_mcp.pipeline import _export_pdf  # noqa: E402
 
 SVG_800x600 = ('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" '
                'viewBox="0 0 800 600"><rect width="800" height="600" fill="#fff"/></svg>')

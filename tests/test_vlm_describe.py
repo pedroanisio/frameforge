@@ -18,7 +18,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
 from frameforge_vision import vlm  # noqa: E402
-from frameforge.mcp.usecases import describe_render  # noqa: E402
+from frameforge_mcp.usecases import describe_render  # noqa: E402
 
 
 def _fake_vlm(monkeypatch):
@@ -58,7 +58,7 @@ def test_describe_render_free_form_question(monkeypatch, tmp_path):
 
 def test_describe_render_runs_the_coach_stage_rubric(monkeypatch, tmp_path):
     _fake_vlm(monkeypatch)
-    from frameforge.coach.critique import stage_rubric
+    from frameforge_coach.critique import stage_rubric
     p = tmp_path / "page.png"
     p.write_bytes(b"x")
     res = describe_render(str(p), stage="silhouette", session_root=tmp_path)

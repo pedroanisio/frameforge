@@ -33,7 +33,8 @@ RENDERER = os.path.join(ROOT, "src", "frameforge", "rendering", "application", "
 RESOLVER = os.path.join(ROOT, "src", "frameforge", "rendering", "domain", "services",
                         "text_style_resolver.py")
 SPEC_SRC = os.path.join(ROOT, "docs", "spec", "frameforge-v2-spec.md")
-GUIDE = os.path.join(ROOT, "src", "frameforge", "mcp", "guide.py")
+import frameforge_mcp as _mcp_pkg
+GUIDE = os.path.join(os.path.dirname(_mcp_pkg.__file__), "guide.py")
 
 EXPECTED = {"body", "caption", "code", "toc", "toc_title"}
 
@@ -73,7 +74,7 @@ def test_every_constant_key_is_actually_consumed():
 
 
 def test_discovery_exports_exactly_the_constant():
-    from frameforge.mcp.discovery import describe_capabilities
+    from frameforge_mcp.discovery import describe_capabilities
     result = describe_capabilities("style")
     reserved = result.get("reserved_styles")
     assert isinstance(reserved, dict), "style topic must export reserved_styles"

@@ -21,7 +21,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.mcp.server import create_server, mcp_content_blocks, run_sdk_code  # noqa: E402
+from frameforge_mcp.server import create_server, mcp_content_blocks, run_sdk_code  # noqa: E402
 
 
 class FakeFastMCP:
@@ -254,7 +254,7 @@ def test_pages_selector_matching_nothing_populates_error(tmp_path):
 
 
 def test_static_validation_failure_populates_error_and_hint(tmp_path, monkeypatch):
-    import frameforge.mcp.pipeline as pipeline
+    import frameforge_mcp.pipeline as pipeline
 
     failing_report = SimpleNamespace(
         ok=False,

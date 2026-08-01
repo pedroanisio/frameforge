@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from frameforge_sdk import DocumentBuilder, serialize, validate_static_rules
 from frameforge.conform import render_page_svgs  # noqa: E402
-from frameforge.coach import clean, ingest, node_count  # noqa: E402
+from frameforge_coach import clean, ingest, node_count  # noqa: E402
 from poc3_ingest_compose import ink_iou, restyle_strokes  # noqa: E402
 
 IMG = os.path.join(ROOT, "demo", "images.jpeg")

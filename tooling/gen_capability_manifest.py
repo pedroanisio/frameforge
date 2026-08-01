@@ -189,7 +189,7 @@ class _RecordingMCP:
 
 def _mcp_registry() -> _RecordingMCP:
     _ensure_package_importable()
-    from frameforge.mcp.server import create_server
+    from frameforge_mcp.server import create_server
 
     with tempfile.TemporaryDirectory(prefix="fg-manifest-") as tmp:
         return create_server(

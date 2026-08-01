@@ -72,6 +72,11 @@ Issues = "https://github.com/pedroanisio/frameforge/issues"
 [dependency-groups]
 dev = [
     "frameforge-vision[cv,ocr]",
+    # The agent surface (MCP server, live UI, construction coach) left for the
+    # `frameforge-mcp` distribution on 2026-08-01. That package depends on THIS
+    # one, so the edge back must never be a runtime dependency: it lives in dev,
+    # purely so this repo's own tests and examples can exercise the loop.
+    "frameforge-mcp",
     "hypothesis>=6",
     "pytest>=8",
     # TOML backport for the gate/tooling that read pyproject.toml. stdlib `tomllib`
@@ -139,6 +144,7 @@ exclude = [
 # Develop against the sibling checkouts: none of the family is on PyPI yet.
 # Drop this block (or point it at an index) to build against published wheels.
 [tool.uv.sources]
+frameforge-mcp = { path = "../frameforge-mcp", editable = true }
 # `frameforge-api` is pinned to the SAME git URL `frameforge-sdk` uses. uv
 # rejects conflicting URLs for one package across a resolution, so the engine
 # and the SDK must agree on where the contract comes from — a local path here

@@ -20,8 +20,8 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-import frameforge.mcp.discovery as discovery  # noqa: E402
-from frameforge.mcp.server import list_fonts  # noqa: E402
+import frameforge_mcp.discovery as discovery  # noqa: E402
+from frameforge_mcp.server import list_fonts  # noqa: E402
 
 
 def _fake_fc(outputs: dict[str, str]):

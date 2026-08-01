@@ -128,7 +128,7 @@ uv run pytest tests/test_head.py -q    # focused file
 
 ```bash
 uv sync --group mcp
-uv run --group mcp python -m frameforge.mcp     # or: make mcp   (stdio transport)
+uv run --group mcp python -m frameforge_mcp     # or: make mcp   (stdio transport)
 make live                                       # web UI over the same functions
 ```
 

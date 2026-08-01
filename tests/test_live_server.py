@@ -11,7 +11,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.live.server import LiveSessionStore, html_index  # noqa: E402
+from frameforge_mcp.live.server import LiveSessionStore, html_index  # noqa: E402
 
 
 def test_live_session_prompt_runs_through_mcp_feedback_loop(tmp_path):
