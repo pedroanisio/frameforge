@@ -400,7 +400,7 @@ def propose_from_image(
         except ValueError as exc:
             return _vision_error(str(exc))
     try:
-        from frameforge.vision.application.service import propose_from_image as _vision_propose
+        from frameforge_vision.application.service import propose_from_image as _vision_propose
     except ImportError:
         return _vision_error(_VISION_GROUP_HINT)
 
@@ -444,7 +444,7 @@ def describe_render(
     steer with it, then verify with compare_images / score_reconstruction / the
     validator — never treat it as the check.
     """
-    from frameforge.vision import vlm
+    from frameforge_vision import vlm
 
     if not vlm.available():
         return {"ok": False, "advisory": True, "error": _VLM_GROUP_HINT}
@@ -546,7 +546,7 @@ def propose_from_document(
     except ValueError as exc:
         return _vision_error(str(exc))
     try:
-        from frameforge.vision.application.service import propose_from_document as _vision_propose
+        from frameforge_vision.application.service import propose_from_document as _vision_propose
     except ImportError:
         return _vision_error(_VISION_GROUP_HINT)
 
@@ -591,7 +591,7 @@ def propose_from_svg(
     """Ingest an SVG into a FrameForge document, optionally grade it by region, then render.
 
     Lowers the SVG's elements to FrameForge primitives (1:1, no raster step) via
-    :func:`frameforge.vision.infrastructure.svg_import.svg_to_objects`, sizes a page
+    :func:`frameforge_vision.infrastructure.svg_import.svg_to_objects`, sizes a page
     to the drawing's extent, and renders it through the same forward pipeline the
     other tools use. When ``regions`` is given, each object is recoloured by the
     region its centroid falls in (``frameforge_sdk.region.region_grade``): every
@@ -611,7 +611,7 @@ def propose_from_svg(
     from frameforge_sdk.author import DocumentBuilder
     from frameforge_sdk.io import serialize
     from frameforge_sdk.region import object_bbox, region_grade
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     try:
         objects = svg_to_objects(svg_text if svg_text else svg_path)
@@ -686,7 +686,7 @@ def _resolve_image_arg(arg: str, *, session_root: str | Path | None) -> bytes:
 
 def _parse_regions(regions: list[dict[str, Any]] | None, grid: list[int] | None):
     """Build the region list: explicit ``regions`` win, else a ``grid``, else 2×3."""
-    from frameforge.vision.infrastructure.image_compare import Region, auto_regions
+    from frameforge_vision.infrastructure.image_compare import Region, auto_regions
 
     if regions:
         out = []
@@ -745,7 +745,7 @@ def compare_images(
 
     ⚠ PALS's LAW: the pixel-match score is a naive luminance-difference hint, not a
     verdict; the panels (judged visually) are the signal. See
-    :mod:`frameforge.vision.infrastructure.image_compare`.
+    :mod:`frameforge_vision.infrastructure.image_compare`.
     """
     try:
         ref_bytes = _resolve_image_arg(reference, session_root=session_root)
@@ -754,7 +754,7 @@ def compare_images(
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 
     try:
-        from frameforge.vision.infrastructure.image_compare import build_panels
+        from frameforge_vision.infrastructure.image_compare import build_panels
     except RuntimeError as exc:  # Pillow missing
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 
@@ -814,7 +814,7 @@ def compare_images(
 
 def _parse_named_boxes(items: list[dict[str, Any]] | None, *, kind: str):
     """Parse ``[{"name": str, "box": [x, y, w, h]}]`` (normalized) into Regions."""
-    from frameforge.vision.infrastructure.image_compare import Region
+    from frameforge_vision.infrastructure.image_compare import Region
 
     out = []
     for i, r in enumerate(items or []):
@@ -828,7 +828,7 @@ def _parse_named_boxes(items: list[dict[str, Any]] | None, *, kind: str):
 
 def _measure_regions(regions: list[dict[str, Any]] | None, region_grid: list[int] | None):
     """Explicit named regions win; else a [cols, rows] grid; else none."""
-    from frameforge.vision.infrastructure.image_compare import auto_regions
+    from frameforge_vision.infrastructure.image_compare import auto_regions
 
     if regions:
         return _parse_named_boxes(regions, kind="region")
@@ -861,7 +861,7 @@ def _viewport_region(viewport: dict[str, Any] | None):
     """Parse a single ``{"name", "box": [x, y, w, h]}`` viewport into a Region or None."""
     if viewport is None:
         return None
-    from frameforge.vision.infrastructure.image_compare import Region
+    from frameforge_vision.infrastructure.image_compare import Region
 
     box = viewport.get("box") if isinstance(viewport, dict) else None
     if not box or len(box) != 4:
@@ -907,7 +907,7 @@ def measure_image(
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 
     try:
-        from frameforge.vision.infrastructure.measure import build_measurement
+        from frameforge_vision.infrastructure.measure import build_measurement
     except RuntimeError as exc:  # Pillow missing
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 
@@ -985,7 +985,7 @@ def mark_points(
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 
     try:
-        from frameforge.vision.infrastructure.measure import build_marks
+        from frameforge_vision.infrastructure.measure import build_marks
     except RuntimeError as exc:  # Pillow missing
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 
@@ -1055,7 +1055,7 @@ def overlay_images(
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 
     try:
-        from frameforge.vision.infrastructure.overlay_align import build_overlay
+        from frameforge_vision.infrastructure.overlay_align import build_overlay
     except RuntimeError as exc:  # Pillow missing
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 
@@ -1130,7 +1130,7 @@ def workspace(
     re-renders the overlay (+ viewport crop) with all pins and returns each pin resolved
     in every frame. Pins are image-anchored, so their coordinates hold as the viewport moves.
     """
-    from frameforge.vision.infrastructure import workspace as ws
+    from frameforge_vision.infrastructure import workspace as ws
 
     try:
         root = _session_root(session_root)
@@ -1150,7 +1150,7 @@ def workspace(
             if not image:
                 raise ValueError("action 'open' needs an image")
             img_bytes = _resolve_image_arg(image, session_root=session_root)
-            from frameforge.vision.infrastructure.image_compare import load_rgb
+            from frameforge_vision.infrastructure.image_compare import load_rgb
             w, h = load_rgb(img_bytes).size
             state = ws.WorkspaceState(image_ref=image, width=w, height=h, origin=origin)
         else:
@@ -1277,7 +1277,7 @@ def _resolve_shape_points(shapes: list[dict[str, Any]], anchors: dict[str, tuple
     ``width``/``height``, or ``{"landmark": id, "dx"?, "dy"?}`` resolved via the
     same ``anchors`` as ``pins``.
     """
-    from frameforge.vision.domain.coordinates import resolve_plain_point
+    from frameforge_vision.domain.coordinates import resolve_plain_point
 
     out = []
     for i, sh in enumerate(shapes):
@@ -1335,7 +1335,7 @@ def construct_vectors(
     state = None
     ws_ref = from_workspace or session_id
     if ws_ref:
-        from frameforge.vision.infrastructure import workspace as ws
+        from frameforge_vision.infrastructure import workspace as ws
         ws_dir = root / _session_id(ws_ref)
         if ws_dir.exists():
             state = ws.load_state(ws_dir)
@@ -1347,7 +1347,7 @@ def construct_vectors(
     if not (W and H) and image:
         try:
             img_bytes = _resolve_image_arg(image, session_root=session_root)
-            from frameforge.vision.infrastructure.image_compare import load_rgb
+            from frameforge_vision.infrastructure.image_compare import load_rgb
             W, H = load_rgb(img_bytes).size
         except (ValueError, FileNotFoundError, OSError) as exc:
             return {"ok": False, "error": str(exc), "renders": [], "resources": []}
@@ -1359,7 +1359,7 @@ def construct_vectors(
 
     try:
         resolved = _resolve_shape_points(shapes, anchors, width=W, height=H)
-        from frameforge.vision.infrastructure.construct import build_document
+        from frameforge_vision.infrastructure.construct import build_document
         yaml_text, summaries = build_document(
             resolved, width=W, height=H, background=background, title=title)
     except (ValueError, KeyError, TypeError) as exc:
@@ -1387,14 +1387,14 @@ def _workspace_anchors(ws_ref: str | None, session_root: str | Path | None):
     """
     if not ws_ref:
         return {}
-    from frameforge.vision.infrastructure import workspace as ws
+    from frameforge_vision.infrastructure import workspace as ws
     ws_dir = _session_root(session_root) / _session_id(ws_ref)
     if not ws_dir.exists():
         return {}
     state = ws.load_state(ws_dir)
     if state is None:
         return {}
-    from frameforge.vision.infrastructure.measure import structural_landmarks
+    from frameforge_vision.infrastructure.measure import structural_landmarks
     anchors = {p.id: (p.x, p.y) for p in state.pins}
     anchors.update({lm.id: (lm.x_px, lm.y_px) for lm in structural_landmarks(state.cs())})
     return anchors
@@ -1441,12 +1441,12 @@ def score_reconstruction(
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 
     try:
-        from frameforge.vision.infrastructure import matchscore
+        from frameforge_vision.infrastructure import matchscore
     except ImportError:
         return _vision_error(_VISION_GROUP_HINT)
 
     try:
-        from frameforge.vision.infrastructure.image_compare import load_rgb
+        from frameforge_vision.infrastructure.image_compare import load_rgb
         src_w, src_h = load_rgb(img_bytes).size
         anchors = _workspace_anchors(from_workspace or session_id, session_root)
         resolved = _resolve_shape_points(shapes, anchors, width=src_w, height=src_h)
@@ -1464,7 +1464,7 @@ def score_reconstruction(
                 "renders": [], "resources": []}
 
     if symmetry_pairs or collinear_groups:
-        from frameforge.vision.domain import geometry as _geom
+        from frameforge_vision.domain import geometry as _geom
         try:
             # geometry args accept workspace pin/landmark ids ("P3" / "A9") as well
             # as raw [x, y] points — resolved against the SAME anchors the shape
@@ -1504,7 +1504,7 @@ def _attach_spines(spatial: dict[str, Any], *, min_area: float = 300.0) -> None:
     """G1: attach a spine fit to every big-enough region, in place.
 
     Rasterises each region's polygon (+holes) at image size and runs
-    :func:`frameforge.vision.domain.spine_fit.fit_spine` — the inverse of
+    :func:`frameforge_vision.domain.spine_fit.fit_spine` — the inverse of
     ``sdk.outline.stroke_outline``: spine polyline + anchored cubic + width
     profile + peak, the exact vocabulary an authored petal spec-table holds.
     Regions that are too small, polygon-less, or unfit-table simply carry no
@@ -1513,7 +1513,7 @@ def _attach_spines(spatial: dict[str, Any], *, min_area: float = 300.0) -> None:
     import numpy as np
     from PIL import Image as _Image, ImageDraw as _ImageDraw
 
-    from frameforge.vision.domain.spine_fit import fit_spine
+    from frameforge_vision.domain.spine_fit import fit_spine
 
     info = spatial.get("image") or {}
     w = int(info.get("width_px") or info.get("width") or 0)
@@ -1554,7 +1554,7 @@ def detect_regions(
 ) -> dict[str, Any]:
     """Detect an image's closed/filled/stable regions and report exact geometry.
 
-    Wraps the pure :func:`frameforge.vision.infrastructure.regions.detect_regions`
+    Wraps the pure :func:`frameforge_vision.infrastructure.regions.detect_regions`
     in the shared session envelope: the annotated overlay becomes the session's
     page-1 render artifact and the detection payload rides ``spatial`` (method,
     params, region list with ``bbox_px`` + ``box_norm`` + centroids + sampled
@@ -1573,7 +1573,7 @@ def detect_regions(
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}
 
     try:
-        from frameforge.vision.infrastructure import regions as _regions
+        from frameforge_vision.infrastructure import regions as _regions
     except ImportError:
         return _vision_error(_VISION_GROUP_HINT)
 
@@ -1663,7 +1663,7 @@ def _resolve_map_point(pt: Any, width: float | None, height: float | None):
     """Resolve one 2D map_coordinates point: dicts (``{"px": ..}`` / ``{"norm": ..}``)
     via the shared point-spec grammar, bare ``[x, y]`` lists passed through untouched."""
     if isinstance(pt, dict):
-        from frameforge.vision.domain.coordinates import resolve_plain_point
+        from frameforge_vision.domain.coordinates import resolve_plain_point
         return list(resolve_plain_point(pt, width=width, height=height))
     return pt
 
@@ -1699,7 +1699,7 @@ def map_coordinates(
     ``src`` and ``out_size`` for ``dst`` — each side's own frame).
     """
     try:
-        from frameforge.vision.infrastructure import mapping3d
+        from frameforge_vision.infrastructure import mapping3d
     except RuntimeError as exc:
         return {"ok": False, "error": str(exc)}
 
@@ -1711,7 +1711,7 @@ def map_coordinates(
             return {"ok": False, "error": "warp needs an 'image'", "renders": [], "resources": []}
         try:
             image_bytes = _resolve_image_arg(image, session_root=session_root)
-            from frameforge.vision.infrastructure.image_compare import load_rgb
+            from frameforge_vision.infrastructure.image_compare import load_rgb
             iw, ih = load_rgb(image_bytes).size
             osz = out_size or [iw, ih]
             # src lives in the source image; dst lives in the OUTPUT canvas, so a
@@ -1894,7 +1894,7 @@ def vectorize_image(
         ox = oy = 0.0
         try:
             if mode == "auto":
-                from frameforge.vision.infrastructure.vectorize import resolve_auto_mode
+                from frameforge_vision.infrastructure.vectorize import resolve_auto_mode
                 mode, auto_meta = resolve_auto_mode(src)
                 # Route presets apply ONLY to args the caller left unset (None
                 # sentinel) — an explicitly passed value always wins over the
@@ -1915,9 +1915,9 @@ def vectorize_image(
             min_area = 90.0 if min_area is None else float(min_area)
             max_dim = 900 if max_dim is None else int(max_dim)
             if mode in ("region", "outline"):
-                from frameforge.vision.infrastructure.vectorize import raster_to_objects
+                from frameforge_vision.infrastructure.vectorize import raster_to_objects
                 if region_box:
-                    from frameforge.vision.infrastructure.measure import denorm_box
+                    from frameforge_vision.infrastructure.measure import denorm_box
                     ox, oy, cw, ch = denorm_box(
                         region_box[0], region_box[1], region_box[2], region_box[3], W, H)
                     crop_path = tmp / "crop.png"
@@ -1933,8 +1933,8 @@ def vectorize_image(
                         max_dim=max_dim, ink=ink, stroke_width=stroke_width)
                 backend = f"opencv:{mode}"
             elif mode == "trace":
-                from frameforge.vision.infrastructure.svg_import import svg_to_objects
-                from frameforge.vision.infrastructure.vectorize import trace_to_svg
+                from frameforge_vision.infrastructure.svg_import import svg_to_objects
+                from frameforge_vision.infrastructure.vectorize import trace_to_svg
                 # thresholds: one potrace pass per luminance level, stacked
                 # darkest-first (the lowest threshold covers the most ink, so
                 # brighter levels paint on top of it).
@@ -1959,9 +1959,9 @@ def vectorize_image(
                 page_w, page_h = W, H
                 backend = "potrace"
             elif mode == "layers":
-                from frameforge.vision.infrastructure.vectorize import raster_to_layers
+                from frameforge_vision.infrastructure.vectorize import raster_to_layers
                 if region_box:
-                    from frameforge.vision.infrastructure.measure import denorm_box
+                    from frameforge_vision.infrastructure.measure import denorm_box
                     ox, oy, cw, ch = denorm_box(
                         region_box[0], region_box[1], region_box[2], region_box[3], W, H)
                     crop_path = tmp / "crop.png"
@@ -1985,7 +1985,7 @@ def vectorize_image(
                                      "outline mode emits stroked polylines with no "
                                      "fills; use region, trace, or layers",
                             "renders": [], "resources": []}
-                from frameforge.vision.infrastructure.vectorize import apply_gradient_fills
+                from frameforge_vision.infrastructure.vectorize import apply_gradient_fills
                 # The fit samples the source in the objects' own coordinate
                 # space: region/layers geometry lives at the (possibly
                 # downscaled) page size, trace geometry at full image size.
@@ -1998,7 +1998,7 @@ def vectorize_image(
             if ocr:
                 # The status variant makes the degradation observable (PALS's Law):
                 # a silent [] was indistinguishable from a text-free image.
-                from frameforge.vision.infrastructure.vectorize import ocr_text_objects_status
+                from frameforge_vision.infrastructure.vectorize import ocr_text_objects_status
                 ocr_objects, ocr_status = ocr_text_objects_status(src)
                 objects = list(objects) + ocr_objects
         except ImportError as exc:
@@ -2093,7 +2093,7 @@ def refine_reconstruction(
                 "renders": [], "resources": []}
     from PIL import Image as _Image
 
-    from frameforge.vision.infrastructure.refine import (
+    from frameforge_vision.infrastructure.refine import (
         refine_band_shading, refine_document, refine_geometry,
     )
 
@@ -2211,7 +2211,7 @@ def fit_primitives(
     the parameters straight into SDK primitives instead of tracing paths.
     """
     try:
-        from frameforge.vision.domain.primitives_fit import fit_primitive
+        from frameforge_vision.domain.primitives_fit import fit_primitive
     except ImportError as exc:  # numpy missing — vision maths unavailable
         raise RuntimeError(
             "fit_primitives needs numpy (install the 'vision' or 'mcp' extras group)"
@@ -2382,7 +2382,7 @@ def _reference_diff(result: dict[str, Any], reference: str, *,
     except ImportError as exc:
         return {"ok": False, "error": f"reference diff needs numpy+Pillow: {exc}"}
     try:
-        from frameforge.vision.domain.ghosting import ghost_vectors
+        from frameforge_vision.domain.ghosting import ghost_vectors
 
         render_img = Image.open(png["path"]).convert("L")
         ref_img = Image.open(_io.BytesIO(ref_bytes)).convert("L")
@@ -2445,7 +2445,7 @@ def match_font(
         return {"ok": False, "error": "no candidate families to rank",
                 "renders": [], "resources": []}
     try:
-        from frameforge.vision.infrastructure.fontmatch import match_font_ranking
+        from frameforge_vision.infrastructure.fontmatch import match_font_ranking
         ranking = match_font_ranking(ref_bytes, text, candidates, box=box)
     except (RuntimeError, ValueError) as exc:
         return {"ok": False, "error": str(exc), "renders": [], "resources": []}

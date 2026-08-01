@@ -4,7 +4,7 @@ The vectorize lane's gradient recipe end to end, self-contained: synthesize a
 small "shaded emblem" raster (a linear-ramp lozenge + a radial-glow disc on
 black), trace it, and re-paint the traced shapes from the source pixels with
 ``apply_gradient_fills`` — flat/linear/radial candidates ranked per shape by
-colour rms (``frameforge.vision.domain.gradient_fit``). The same capability is
+colour rms (``frameforge_vision.domain.gradient_fit``). The same capability is
 one argument over MCP: ``vectorize_image(fill_mode='gradient')``, plus
 ``thresholds=[30, 110, 190]`` in trace mode to stack darkest-first luminance
 layers for glossy multi-level art.
@@ -47,7 +47,7 @@ def _synthesize_source(path: pathlib.Path) -> None:
 
 def build():
     from frameforge_sdk import DocumentBuilder
-    from frameforge.vision.infrastructure.vectorize import (
+    from frameforge_vision.infrastructure.vectorize import (
         apply_gradient_fills,
         raster_to_objects,
     )

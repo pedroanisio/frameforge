@@ -56,7 +56,7 @@ from frameforge_sdk import (
 )
 from frameforge.conform import render_page_svgs
 from frameforge_sdk.validate import validate_static_rules  # noqa: E402
-from frameforge.vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
+from frameforge_vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
 
 SVG_PATH = os.path.join(ROOT, "ski_rebuilt.flat.svg")
 

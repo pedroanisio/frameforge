@@ -45,7 +45,7 @@ pytest.importorskip("PIL")
 def _petal_mask(size=(600, 800)):
     """Ground-truth mask from a KNOWN stroke_outline (the round-trip oracle)."""
     from frameforge_sdk.outline import stroke_outline
-    from frameforge.vision.infrastructure.vectorize import _shape_mask
+    from frameforge_vision.infrastructure.vectorize import _shape_mask
 
     spine = _true_spine()
     obj = stroke_outline(spine, 110, profile=_true_profile, cap="round",
@@ -91,15 +91,15 @@ def _iou(a, b):
 
 # ----------------------------------------------------------------- domain lane
 def test_chamfer_distance_is_domain_owned():
-    from frameforge.vision.domain.spine_fit import chamfer_distance
-    from frameforge.vision.infrastructure.vectorize import _chamfer_distance
+    from frameforge_vision.domain.spine_fit import chamfer_distance
+    from frameforge_vision.infrastructure.vectorize import _chamfer_distance
 
     assert _chamfer_distance is chamfer_distance, \
         "one distance transform, owned by the domain (vectorize keeps the alias)"
 
 
 def test_straight_bar_recovers_axis_and_width():
-    from frameforge.vision.domain.spine_fit import fit_spine
+    from frameforge_vision.domain.spine_fit import fit_spine
 
     mask = np.zeros((260, 400), dtype=bool)
     mask[100:160, 50:350] = True                    # 300×60 horizontal bar
@@ -115,7 +115,7 @@ def test_straight_bar_recovers_axis_and_width():
 
 
 def test_round_trip_recovers_the_authored_petal():
-    from frameforge.vision.domain.spine_fit import fit_spine
+    from frameforge_vision.domain.spine_fit import fit_spine
 
     mask, _ = _petal_mask()
     fit = fit_spine(mask)
@@ -131,8 +131,8 @@ def test_round_trip_recovers_the_authored_petal():
 
 def test_round_trip_reconstruction_iou():
     from frameforge_sdk.outline import stroke_outline
-    from frameforge.vision.domain.spine_fit import fit_spine, spine_profile
-    from frameforge.vision.infrastructure.vectorize import _shape_mask
+    from frameforge_vision.domain.spine_fit import fit_spine, spine_profile
+    from frameforge_vision.infrastructure.vectorize import _shape_mask
 
     mask, _ = _petal_mask()
     fit = fit_spine(mask)
@@ -145,7 +145,7 @@ def test_round_trip_reconstruction_iou():
 
 
 def test_disk_does_not_crash_and_reports_low_elongation():
-    from frameforge.vision.domain.spine_fit import fit_spine
+    from frameforge_vision.domain.spine_fit import fit_spine
 
     yy, xx = np.mgrid[0:300, 0:300]
     mask = (xx - 150) ** 2 + (yy - 150) ** 2 <= 80 * 80
@@ -155,7 +155,7 @@ def test_disk_does_not_crash_and_reports_low_elongation():
 
 
 def test_tiny_masks_are_loud():
-    from frameforge.vision.domain.spine_fit import fit_spine
+    from frameforge_vision.domain.spine_fit import fit_spine
 
     mask = np.zeros((40, 40), dtype=bool)
     mask[10:14, 10:20] = True
@@ -164,7 +164,7 @@ def test_tiny_masks_are_loud():
 
 
 def test_fit_is_deterministic():
-    from frameforge.vision.domain.spine_fit import fit_spine
+    from frameforge_vision.domain.spine_fit import fit_spine
 
     mask, _ = _petal_mask()
     assert fit_spine(mask) == fit_spine(mask)
@@ -175,7 +175,7 @@ def _two_petal_image(tmp_path):
     from PIL import Image
 
     from frameforge_sdk.outline import stroke_outline
-    from frameforge.vision.infrastructure.vectorize import _shape_mask
+    from frameforge_vision.infrastructure.vectorize import _shape_mask
 
     img = np.zeros((800, 600, 3), dtype=np.uint8)
     for spine, col in ((_true_spine(), (60, 160, 250)),

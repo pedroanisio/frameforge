@@ -31,8 +31,8 @@ from frameforge.mcp.server import (  # noqa: E402
     measure_image,
     overlay_images,
 )
-from frameforge.vision.infrastructure.image_compare import Region  # noqa: E402
-from frameforge.vision.infrastructure.measure import (  # noqa: E402
+from frameforge_vision.infrastructure.image_compare import Region  # noqa: E402
+from frameforge_vision.infrastructure.measure import (  # noqa: E402
     CoordinateSystem,
     build_marks,
     build_measurement,
@@ -44,7 +44,7 @@ from frameforge.vision.infrastructure.measure import (  # noqa: E402
     structural_landmarks,
     resolve_point_spec,
 )
-from frameforge.vision.infrastructure.overlay_align import (  # noqa: E402
+from frameforge_vision.infrastructure.overlay_align import (  # noqa: E402
     build_overlay,
     fit_similarity,
 )
@@ -61,7 +61,7 @@ def test_draw_points_overlay_is_the_shared_marks_builder():
     adds exactly one enlarged crop rendered at the crop's render_px."""
     from io import BytesIO
 
-    from frameforge.vision.infrastructure.image_compare import load_rgb
+    from frameforge_vision.infrastructure.image_compare import load_rgb
 
     buf = BytesIO()
     Image.new("RGB", (240, 180), (20, 20, 20)).save(buf, "PNG")

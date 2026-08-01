@@ -69,7 +69,7 @@ def _poly_obj():
 
 # ------------------------------------------------------------------ dist field
 def test_chamfer_distance_rect():
-    from frameforge.vision.infrastructure.vectorize import _chamfer_distance
+    from frameforge_vision.infrastructure.vectorize import _chamfer_distance
 
     mask = np.zeros((120, 200), dtype=np.uint8)
     mask[30:90, 40:160] = 1
@@ -81,7 +81,7 @@ def test_chamfer_distance_rect():
 
 # ------------------------------------------------------------ band emission
 def test_bands_emit_selfclipped_inner_strokes():
-    from frameforge.vision.infrastructure.vectorize import apply_gradient_fills
+    from frameforge_vision.infrastructure.vectorize import apply_gradient_fills
 
     objs = [_poly_obj()]
     summary = apply_gradient_fills(objs, _shaded_image(), min_pixels=200, bands=3)
@@ -101,7 +101,7 @@ def test_bands_emit_selfclipped_inner_strokes():
 
 
 def test_bands_1_is_identity_with_previous_behaviour():
-    from frameforge.vision.infrastructure.vectorize import apply_gradient_fills
+    from frameforge_vision.infrastructure.vectorize import apply_gradient_fills
 
     img = _shaded_image()
     single = [_poly_obj()]
@@ -113,7 +113,7 @@ def test_bands_1_is_identity_with_previous_behaviour():
 
 
 def test_thin_shapes_are_not_banded():
-    from frameforge.vision.infrastructure.vectorize import apply_gradient_fills
+    from frameforge_vision.infrastructure.vectorize import apply_gradient_fills
 
     img = Image.new("RGB", (200, 120), (0, 0, 0))
     px = img.load()
@@ -181,7 +181,7 @@ def _stack_rms(objs, img):
 
 
 def test_banded_beats_single_gradient():
-    from frameforge.vision.infrastructure.vectorize import apply_gradient_fills
+    from frameforge_vision.infrastructure.vectorize import apply_gradient_fills
 
     img = _shaded_image()
     single = [_poly_obj()]

@@ -134,7 +134,7 @@ def build_hero(guide_objs: list[Obj], src: tuple[int, int]):
 
 
 def trace(image: str):
-    from frameforge.vision.infrastructure.vectorize import raster_to_objects
+    from frameforge_vision.infrastructure.vectorize import raster_to_objects
     return raster_to_objects(image, mode="outline", detail=0.0015, min_area=16.0, max_dim=1500)
 
 

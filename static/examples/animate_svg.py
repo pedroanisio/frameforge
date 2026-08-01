@@ -39,7 +39,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 from frameforge_sdk import DocumentBuilder, Mat3, place_region
 from frameforge.conform import render_page_svgs  # noqa: E402
 from frameforge.rendering.infrastructure.cairo import rasterize_svg_cairo  # noqa: E402
-from frameforge.vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
+from frameforge_vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
 
 _NUM = re.compile(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?")
 

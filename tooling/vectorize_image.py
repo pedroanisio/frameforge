@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """CLI: a raster image → a layered FrameForge vector base.
 
-Wraps the ingestion front-end (``frameforge.vision.infrastructure.vectorize``)
+Wraps the ingestion front-end (``frameforge_vision.infrastructure.vectorize``)
 into a one-shot "drop a raster, get an editable FrameForge document" command. The
 result is layered — a ``region`` fill base, an ``outline`` line layer, and an OCR
 ``text`` layer — so each can be edited or restyled independently.
@@ -22,7 +22,7 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from frameforge_sdk import DocumentBuilder  # noqa: E402
-from frameforge.vision.infrastructure.vectorize import (  # noqa: E402
+from frameforge_vision.infrastructure.vectorize import (  # noqa: E402
     ocr_text_objects,
     raster_to_objects,
 )
@@ -40,7 +40,7 @@ def build_document(image, *, modes=("region",), colors=12, detail=0.004,
         layers.append((mode, objs))
     text = ocr_text_objects(image, max_dim=max_dim) if ocr else []
     if w is None:
-        from frameforge.vision.infrastructure.vectorize import image_size
+        from frameforge_vision.infrastructure.vectorize import image_size
         w, h = image_size(image)
     page = builder.page("traced", canvas={"size": [w, h], "units": "px"},
                         coordinate_mode="absolute")

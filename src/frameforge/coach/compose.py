@@ -131,7 +131,7 @@ def compose_from_image(
         outline, w, h = ingest(image, mode="outline", detail=detail,
                                min_area=max(12.0, min_area / 6), max_dim=max(max_dim, 1400))
     if w is None:
-        from frameforge.vision.infrastructure.vectorize import image_size
+        from frameforge_vision.infrastructure.vectorize import image_size
         w, h = image_size(image)
     return compose_objects(region, outline, (w, h), style=sty, paint=paint,
                            canvas_width=canvas_width, title=title or "coach-compose")

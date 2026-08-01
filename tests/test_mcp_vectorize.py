@@ -89,7 +89,7 @@ def test_translate_objects_shifts_path_d():
 # ─────────────────────────────────────────────────────────────
 @pytest.mark.skipif(not _HAS_POTRACE, reason="potrace binary not installed")
 def test_trace_to_svg_produces_paths(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import trace_to_svg
+    from frameforge_vision.infrastructure.vectorize import trace_to_svg
 
     src = _mark_png(tmp_path / "mark.png")
     svg, meta = trace_to_svg(src, fill="#f2f2f0")
@@ -139,7 +139,7 @@ def _ring_png(path, size=(120, 120)):
 
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
 def test_raster_to_layers_emits_evenodd_paths(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import raster_to_layers
+    from frameforge_vision.infrastructure.vectorize import raster_to_layers
 
     objs, w, h = raster_to_layers(_ring_png(tmp_path / "ring.png"), max_colors=2)
     assert (w, h) == (120, 120)
@@ -231,7 +231,7 @@ def _heavy_ink_png(path, size=(120, 120)):
 
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
 def test_classify_raster_reports_metrics_and_kind(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import classify_raster
+    from frameforge_vision.infrastructure.vectorize import classify_raster
 
     info = classify_raster(_mark_png(tmp_path / "line.png", dark_bg=False))
     assert info["kind"] == "lineart"
@@ -241,7 +241,7 @@ def test_classify_raster_reports_metrics_and_kind(tmp_path):
 
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
 def test_auto_mode_routes_lineart_to_outline(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import resolve_auto_mode
+    from frameforge_vision.infrastructure.vectorize import resolve_auto_mode
 
     mode, meta = resolve_auto_mode(_mark_png(tmp_path / "line.png", dark_bg=False))
     assert mode == "outline"
@@ -252,7 +252,7 @@ def test_auto_mode_routes_lineart_to_outline(tmp_path):
 
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
 def test_auto_mode_routes_flat_solid_bg_to_layers(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import resolve_auto_mode
+    from frameforge_vision.infrastructure.vectorize import resolve_auto_mode
 
     mode, meta = resolve_auto_mode(_flat_on_solid_png(tmp_path / "flat.png"))
     assert mode == "layers"
@@ -261,7 +261,7 @@ def test_auto_mode_routes_flat_solid_bg_to_layers(tmp_path):
 
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
 def test_auto_mode_routes_gradient_to_region(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import resolve_auto_mode
+    from frameforge_vision.infrastructure.vectorize import resolve_auto_mode
 
     mode, _ = resolve_auto_mode(_gradient_png(tmp_path / "grad.png"))
     assert mode == "region"
@@ -269,7 +269,7 @@ def test_auto_mode_routes_gradient_to_region(tmp_path):
 
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
 def test_auto_mode_routes_heavy_bilevel_ink_by_potrace_presence(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import resolve_auto_mode
+    from frameforge_vision.infrastructure.vectorize import resolve_auto_mode
 
     mode, meta = resolve_auto_mode(_heavy_ink_png(tmp_path / "ink.png"))
     assert mode == ("trace" if _HAS_POTRACE else "layers")
@@ -278,7 +278,7 @@ def test_auto_mode_routes_heavy_bilevel_ink_by_potrace_presence(tmp_path):
 
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
 def test_raster_to_objects_accepts_auto_mode(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import raster_to_objects
+    from frameforge_vision.infrastructure.vectorize import raster_to_objects
 
     objs, w, h = raster_to_objects(_mark_png(tmp_path / "line.png", dark_bg=False),
                                    mode="auto", min_area=10)
@@ -290,8 +290,8 @@ def test_raster_to_objects_accepts_auto_mode(tmp_path):
 # ─────────────────────────────────────────────────────────────
 @pytest.mark.skipif(not _HAS_POTRACE, reason="potrace binary not installed")
 def test_trace_region_px_agrees_with_domain_denorm_box(tmp_path):
-    from frameforge.vision.domain.coordinates import denorm_box
-    from frameforge.vision.infrastructure.vectorize import trace_to_svg
+    from frameforge_vision.domain.coordinates import denorm_box
+    from frameforge_vision.infrastructure.vectorize import trace_to_svg
 
     src = _mark_png(tmp_path / "mark.png", size=(240, 200))
     box = [0.1, 0.2, 0.5, 0.9]                              # overruns the bottom → clamped
@@ -303,7 +303,7 @@ def test_trace_region_px_agrees_with_domain_denorm_box(tmp_path):
 
 def test_vectorize_has_no_private_clamp():
     """The norm→px clamp lives in domain.coordinates, not re-derived here."""
-    from frameforge.vision.infrastructure import vectorize
+    from frameforge_vision.infrastructure import vectorize
 
     assert not hasattr(vectorize, "_clamp01")
 
@@ -326,7 +326,7 @@ def _fake_pytesseract(data):
 
 
 def test_ocr_status_reflects_this_environment(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import ocr_text_objects_status
+    from frameforge_vision.infrastructure.vectorize import ocr_text_objects_status
 
     objs, status = ocr_text_objects_status(_mark_png(tmp_path / "m.png"))
     assert status["status"] in ("ok", "no_text", "unavailable", "error")
@@ -337,7 +337,7 @@ def test_ocr_status_reflects_this_environment(tmp_path):
 
 @pytest.mark.skipif(not _HAS_CV2, reason="OpenCV not installed")
 def test_ocr_status_distinguishes_no_text_from_missing_backend(monkeypatch, tmp_path):
-    from frameforge.vision.infrastructure.vectorize import ocr_text_objects_status
+    from frameforge_vision.infrastructure.vectorize import ocr_text_objects_status
 
     src = _mark_png(tmp_path / "m.png")
     monkeypatch.setitem(sys.modules, "pytesseract",
@@ -354,7 +354,7 @@ def test_ocr_status_distinguishes_no_text_from_missing_backend(monkeypatch, tmp_
 
 
 def test_ocr_status_reports_missing_dependency(monkeypatch, tmp_path):
-    from frameforge.vision.infrastructure.vectorize import ocr_text_objects_status
+    from frameforge_vision.infrastructure.vectorize import ocr_text_objects_status
 
     monkeypatch.setitem(sys.modules, "pytesseract", None)   # import → ImportError
     objs, status = ocr_text_objects_status(_mark_png(tmp_path / "m.png"))
@@ -363,7 +363,7 @@ def test_ocr_status_reports_missing_dependency(monkeypatch, tmp_path):
 
 
 def test_text_detector_availability_names_the_missing_piece(monkeypatch):
-    from frameforge.vision.infrastructure.ocr_detector import TextDetector
+    from frameforge_vision.infrastructure.ocr_detector import TextDetector
 
     det = TextDetector()
     monkeypatch.setitem(sys.modules, "pytesseract", None)
@@ -386,7 +386,7 @@ def test_text_detector_availability_names_the_missing_piece(monkeypatch):
 # construct: text + arc shape kinds
 # ─────────────────────────────────────────────────────────────
 def test_construct_text_kind_anchors_content_at_a_point():
-    from frameforge.vision.infrastructure.construct import build_document
+    from frameforge_vision.infrastructure.construct import build_document
 
     yaml_text, summaries = build_document(
         [{"kind": "text", "points": [[40, 60]], "text": "Hello", "size": 18}],
@@ -398,7 +398,7 @@ def test_construct_text_kind_anchors_content_at_a_point():
 
 
 def test_construct_text_requires_content_and_size():
-    from frameforge.vision.infrastructure.construct import build_document
+    from frameforge_vision.infrastructure.construct import build_document
 
     with pytest.raises(ValueError, match="text"):
         build_document([{"kind": "text", "points": [[1, 2]], "size": 12}],
@@ -409,7 +409,7 @@ def test_construct_text_requires_content_and_size():
 
 
 def test_construct_arc_three_point_derives_the_circumcircle():
-    from frameforge.vision.infrastructure.construct import build_document
+    from frameforge_vision.infrastructure.construct import build_document
 
     yaml_text, summaries = build_document(
         [{"kind": "arc", "points": [[0, 50], [50, 0], [100, 50]]}],
@@ -422,7 +422,7 @@ def test_construct_arc_three_point_derives_the_circumcircle():
 
 
 def test_construct_arc_center_radius_angles():
-    from frameforge.vision.infrastructure.construct import build_document
+    from frameforge_vision.infrastructure.construct import build_document
 
     _, summaries = build_document(
         [{"kind": "arc", "points": [[50, 50]], "r": 20,
@@ -433,7 +433,7 @@ def test_construct_arc_center_radius_angles():
 
 
 def test_construct_arc_rejects_collinear_and_degenerate():
-    from frameforge.vision.infrastructure.construct import build_document
+    from frameforge_vision.infrastructure.construct import build_document
 
     with pytest.raises(ValueError, match="collinear"):
         build_document([{"kind": "arc", "points": [[0, 0], [1, 1], [2, 2]]}],
@@ -444,7 +444,7 @@ def test_construct_arc_rejects_collinear_and_degenerate():
 
 
 def test_matchscore_samples_arc_along_the_circle():
-    from frameforge.vision.infrastructure import matchscore as MS
+    from frameforge_vision.infrastructure import matchscore as MS
 
     pts = MS.sample_shape({"kind": "arc", "points": [[0, 50], [50, 0], [100, 50]]},
                           spacing=2.0)
@@ -457,7 +457,7 @@ def test_matchscore_samples_arc_along_the_circle():
 
 
 def test_matchscore_text_contributes_no_edge_samples():
-    from frameforge.vision.infrastructure import matchscore as MS
+    from frameforge_vision.infrastructure import matchscore as MS
 
     assert MS.sample_shape({"kind": "text", "points": [[10, 10]],
                             "text": "x", "size": 12}) == []
@@ -467,7 +467,7 @@ def test_matchscore_text_contributes_no_edge_samples():
 # matchscore: geometry args accept workspace pin ids
 # ─────────────────────────────────────────────────────────────
 def test_resolve_geometry_args_mixes_pin_ids_and_raw_points():
-    from frameforge.vision.infrastructure import matchscore as MS
+    from frameforge_vision.infrastructure import matchscore as MS
 
     anchors = {"P1": (10.0, 20.0), "A9": (50.0, 40.0)}
     pairs, groups = MS.resolve_geometry_args(
@@ -477,14 +477,14 @@ def test_resolve_geometry_args_mixes_pin_ids_and_raw_points():
 
 
 def test_resolve_geometry_args_unknown_pin_is_loud():
-    from frameforge.vision.infrastructure import matchscore as MS
+    from frameforge_vision.infrastructure import matchscore as MS
 
     with pytest.raises(ValueError, match="unknown pin"):
         MS.resolve_geometry_args([["NOPE", [0, 0]]], None, {"P1": (1.0, 2.0)})
 
 
 def test_resolve_geometry_args_passes_none_through():
-    from frameforge.vision.infrastructure import matchscore as MS
+    from frameforge_vision.infrastructure import matchscore as MS
 
     assert MS.resolve_geometry_args(None, None, {}) == (None, None)
 
@@ -493,7 +493,7 @@ def test_resolve_geometry_args_passes_none_through():
 # svg_import: <use>, CSS <style>, <text>, gradientTransform, clipPath
 # ─────────────────────────────────────────────────────────────
 def test_svg_use_instances_a_defs_shape_once():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     objs = svg_to_objects(
         '<svg viewBox="0 0 100 100"><defs>'
@@ -506,7 +506,7 @@ def test_svg_use_instances_a_defs_shape_once():
 
 
 def test_svg_use_xlink_href_and_self_cycle_guard():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     objs = svg_to_objects(
         '<svg viewBox="0 0 10 10" xmlns:xlink="http://www.w3.org/1999/xlink">'
@@ -517,7 +517,7 @@ def test_svg_use_xlink_href_and_self_cycle_guard():
 
 
 def test_svg_css_class_rule_resolves_paint():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     objs = svg_to_objects(
         '<svg viewBox="0 0 10 10">'
@@ -529,7 +529,7 @@ def test_svg_css_class_rule_resolves_paint():
 
 
 def test_svg_inline_style_attribute_wins_over_presentation():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     o = svg_to_objects('<svg viewBox="0 0 10 10">'
                        '<rect x="0" y="0" width="4" height="4" fill="#000" '
@@ -538,7 +538,7 @@ def test_svg_inline_style_attribute_wins_over_presentation():
 
 
 def test_svg_text_lowers_to_text_object():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     o = svg_to_objects('<svg viewBox="0 0 100 40"><text x="10" y="30" font-size="20" '
                        'fill="#222" font-family="Inter, sans-serif">Hi</text></svg>')[0]
@@ -551,7 +551,7 @@ def test_svg_text_lowers_to_text_object():
 
 
 def test_svg_text_anchor_middle_shifts_the_box():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     left = svg_to_objects('<svg viewBox="0 0 100 40">'
                           '<text x="50" y="30" font-size="10">mm</text></svg>')[0]
@@ -561,7 +561,7 @@ def test_svg_text_anchor_middle_shifts_the_box():
 
 
 def test_svg_gradient_transform_rotates_the_angle():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     svg = ('<svg viewBox="0 0 10 10"><defs>'
            '<linearGradient id="g" x1="0" y1="0" x2="1" y2="0" '
@@ -574,7 +574,7 @@ def test_svg_gradient_transform_rotates_the_angle():
 
 
 def test_svg_gradient_href_inherits_stops():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     svg = ('<svg viewBox="0 0 10 10" xmlns:xlink="http://www.w3.org/1999/xlink"><defs>'
            '<linearGradient id="base">'
@@ -588,7 +588,7 @@ def test_svg_gradient_href_inherits_stops():
 
 
 def test_svg_clip_path_rect_lowers_to_style_clip():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     svg = ('<svg viewBox="0 0 10 10"><defs><clipPath id="c">'
            '<rect x="1" y="2" width="3" height="4"/></clipPath></defs>'
@@ -598,7 +598,7 @@ def test_svg_clip_path_rect_lowers_to_style_clip():
 
 
 def test_svg_clip_path_circle_and_polygon_lower():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     svg = ('<svg viewBox="0 0 10 10"><defs>'
            '<clipPath id="c1"><circle cx="5" cy="5" r="2"/></clipPath>'
@@ -613,7 +613,7 @@ def test_svg_clip_path_circle_and_polygon_lower():
 
 
 def test_svg_unresolvable_clip_path_is_dropped_not_fatal():
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     o = svg_to_objects('<svg viewBox="0 0 10 10"><rect width="4" height="4" fill="#123" '
                        'clip-path="url(#missing)"/></svg>')[0]
@@ -623,7 +623,7 @@ def test_svg_unresolvable_clip_path_is_dropped_not_fatal():
 def test_svg_symbol_renders_only_when_instanced():
     """Per SVG spec a <symbol> paints only via <use>: the sprite convention
     (symbols as direct <svg> children) must not double-emit geometry."""
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
 
     svg = ("<svg xmlns='http://www.w3.org/2000/svg' "
            "xmlns:xlink='http://www.w3.org/1999/xlink' width='200' height='40'>"

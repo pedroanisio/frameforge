@@ -56,9 +56,9 @@ def _aa_disk_png(tmp_path, name="disk.png"):
 
 def _traced_radial_error(img_path, supersample):
     """Trace the disk and measure mean |radius − R| of the boundary points."""
-    from frameforge.vision.domain.gradient_fit import flatten_path_d
-    from frameforge.vision.infrastructure.svg_import import svg_to_objects
-    from frameforge.vision.infrastructure.vectorize import _object_transform, trace_to_svg
+    from frameforge_vision.domain.gradient_fit import flatten_path_d
+    from frameforge_vision.infrastructure.svg_import import svg_to_objects
+    from frameforge_vision.infrastructure.vectorize import _object_transform, trace_to_svg
 
     svg_text, meta = trace_to_svg(img_path, threshold=128, supersample=supersample)
     objs = svg_to_objects(svg_text, box=[0, 0, 200, 200])
@@ -90,7 +90,7 @@ def test_supersample_improves_boundary_placement(tmp_path):
 
 def test_turdsize_keeps_source_pixel_semantics(tmp_path):
     """A 3×3 speck must stay dropped at s=3 when turdsize says 'drop < 12 px'."""
-    from frameforge.vision.infrastructure.vectorize import trace_to_svg
+    from frameforge_vision.infrastructure.vectorize import trace_to_svg
 
     img = Image.new("L", (200, 200), 0)
     d = ImageDraw.Draw(img)
@@ -107,7 +107,7 @@ def test_turdsize_keeps_source_pixel_semantics(tmp_path):
 
 
 def test_meta_keeps_source_coordinates(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import trace_to_svg
+    from frameforge_vision.infrastructure.vectorize import trace_to_svg
 
     img = _aa_disk_png(tmp_path)
     _, meta = trace_to_svg(img, threshold=128, supersample=2)
@@ -117,7 +117,7 @@ def test_meta_keeps_source_coordinates(tmp_path):
 
 
 def test_supersample_bounds_are_loud(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import trace_to_svg
+    from frameforge_vision.infrastructure.vectorize import trace_to_svg
 
     img = _aa_disk_png(tmp_path)
     for bad in (0, 5, -1):
@@ -126,7 +126,7 @@ def test_supersample_bounds_are_loud(tmp_path):
 
 
 def test_default_supersample_is_identity(tmp_path):
-    from frameforge.vision.infrastructure.vectorize import trace_to_svg
+    from frameforge_vision.infrastructure.vectorize import trace_to_svg
 
     img = _aa_disk_png(tmp_path)
     _, meta = trace_to_svg(img, threshold=128)
@@ -142,8 +142,8 @@ def test_usecase_lane_fits_supersampled_trace_back_to_page(tmp_path):
     import yaml
 
     from frameforge.mcp.usecases import vectorize_image
-    from frameforge.vision.domain.gradient_fit import flatten_path_d
-    from frameforge.vision.infrastructure.vectorize import _object_transform
+    from frameforge_vision.domain.gradient_fit import flatten_path_d
+    from frameforge_vision.infrastructure.vectorize import _object_transform
 
     img = _aa_disk_png(tmp_path)
     res = vectorize_image(image=img, mode="trace", supersample=2, threshold=128,

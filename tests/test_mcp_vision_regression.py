@@ -36,12 +36,12 @@ from frameforge.mcp.server import (  # noqa: E402
     score_reconstruction,
     workspace,
 )
-from frameforge.vision.infrastructure.mapping3d import apply_homography  # noqa: E402
-from frameforge.vision.infrastructure.measure import (  # noqa: E402
+from frameforge_vision.infrastructure.mapping3d import apply_homography  # noqa: E402
+from frameforge_vision.infrastructure.measure import (  # noqa: E402
     CoordinateSystem,
     detected_landmarks,
 )
-from frameforge.vision.infrastructure.overlay_align import (  # noqa: E402
+from frameforge_vision.infrastructure.overlay_align import (  # noqa: E402
     fit_similarity,
     landmark_offsets,
     rms_residual,

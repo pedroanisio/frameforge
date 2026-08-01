@@ -29,6 +29,10 @@ HISTORICAL = {
     # vision lane became standalone packages. Every CHANGELOG entry citing one of
     # their old in-repo paths is a true statement about where that code lived.
     "tests/test_viewer_schema_contract.py": "removed with the bundled viewer",
+    # The vision context became the standalone `frameforge-vision` package and
+    # its unit tests went with it; the entries citing them are true statements
+    # about where that code lived when they were written.
+    "tests/test_gradient_fit_domain.py": "moved to frameforge-vision (2026-08-01)",
 }
 
 _PATH = re.compile(r"\b((?:tests|docs|src|tooling)/[A-Za-z0-9_\-./]+\.(?:py|md|json|ebnf|yaml|yml|mjs))\b")

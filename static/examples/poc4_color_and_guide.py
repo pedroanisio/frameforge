@@ -110,7 +110,7 @@ def as_guide(objs: Iterable[Obj], *, opacity: float = 0.18, ink: str = "#3A4A7A"
 # --------------------------------------------------------------------------- #
 def trace(image: str, *, mode: str, colors: int = 12, detail: float = 0.0018,
           min_area: float = 30.0, max_dim: int = 1400) -> tuple[list[Obj], int, int]:
-    from frameforge.vision.infrastructure.vectorize import raster_to_objects
+    from frameforge_vision.infrastructure.vectorize import raster_to_objects
     return raster_to_objects(image, mode=mode, colors=colors, detail=detail,
                              min_area=min_area, max_dim=max_dim)
 

@@ -21,7 +21,7 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
 np = pytest.importorskip("numpy")
 
-from frameforge.vision.domain.ghosting import ghost_vectors  # noqa: E402
+from frameforge_vision.domain.ghosting import ghost_vectors  # noqa: E402
 
 
 def _field(square_xy, size=(120, 90), sq=14):

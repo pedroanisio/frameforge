@@ -68,7 +68,7 @@ def _occluded_doc():
 
 # ---------------------------------------------------------------- engine lane
 def test_refine_refits_on_visible_pixels_only():
-    from frameforge.vision.infrastructure.refine import refine_document
+    from frameforge_vision.infrastructure.refine import refine_document
 
     doc, a, b = _occluded_doc()
     summary = refine_document(doc, _ramp_image())
@@ -86,7 +86,7 @@ def test_refine_refits_on_visible_pixels_only():
 
 
 def test_refine_only_descends_and_is_deterministic():
-    from frameforge.vision.infrastructure.refine import refine_document
+    from frameforge_vision.infrastructure.refine import refine_document
 
     img = _ramp_image()
     doc1, _, _ = _occluded_doc()
@@ -100,8 +100,8 @@ def test_refine_only_descends_and_is_deterministic():
 
 
 def test_refine_handles_band_overlays():
-    from frameforge.vision.infrastructure.refine import refine_document
-    from frameforge.vision.infrastructure.vectorize import apply_gradient_fills
+    from frameforge_vision.infrastructure.refine import refine_document
+    from frameforge_vision.infrastructure.vectorize import apply_gradient_fills
 
     img = Image.new("RGB", (200, 120), (0, 0, 0))
     px = img.load()
@@ -120,7 +120,7 @@ def test_refine_handles_band_overlays():
 
 
 def test_refine_size_mismatch_is_loud():
-    from frameforge.vision.infrastructure.refine import refine_document
+    from frameforge_vision.infrastructure.refine import refine_document
 
     doc, _, _ = _occluded_doc()
     with pytest.raises(ValueError, match="size"):

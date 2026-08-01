@@ -26,16 +26,16 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 from frameforge.conform import render_page_svgs  # noqa: E402
 from frameforge_sdk.io import parse  # noqa: E402
 from frameforge_sdk.validate import validate_static_rules  # noqa: E402
-from frameforge.vision import (  # noqa: E402
+from frameforge_vision import (  # noqa: E402
     Detector,
     Observation,
     Proposer,
     RasterImage,
 )
-from frameforge.vision.application.mapper import DefaultObservationMapper  # noqa: E402
-from frameforge.vision.infrastructure.image_source import DefaultImageSource  # noqa: E402
-from frameforge.vision.infrastructure.opencv_detectors import ColorRegionDetector  # noqa: E402
-from frameforge.vision.infrastructure.vlm_detector import VlmDetector  # noqa: E402
+from frameforge_vision.application.mapper import DefaultObservationMapper  # noqa: E402
+from frameforge_vision.infrastructure.image_source import DefaultImageSource  # noqa: E402
+from frameforge_vision.infrastructure.opencv_detectors import ColorRegionDetector  # noqa: E402
+from frameforge_vision.infrastructure.vlm_detector import VlmDetector  # noqa: E402
 
 
 class FakeDetector:
@@ -224,7 +224,7 @@ def test_mcp_propose_from_image_requires_an_image():
 
 
 def test_mcp_propose_from_document_reports_missing_backend_gracefully(tmp_path, monkeypatch):
-    from frameforge.vision.infrastructure.pdf_source import PdfDocumentSource
+    from frameforge_vision.infrastructure.pdf_source import PdfDocumentSource
     from frameforge.mcp.server import propose_from_document
 
     monkeypatch.setattr(PdfDocumentSource, "available", lambda self: False)

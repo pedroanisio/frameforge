@@ -24,7 +24,7 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
 np = pytest.importorskip("numpy")
 
-from frameforge.vision.domain.primitives_fit import (  # noqa: E402
+from frameforge_vision.domain.primitives_fit import (  # noqa: E402
     fit_circle_arc, fit_ellipse_arc, fit_line, fit_primitive)
 
 

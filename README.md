@@ -21,7 +21,6 @@ for the full why and scope.
 src/frameforge/               ← the Python package (strictly downstream of the models — ADR-0002):
   rendering/                  ← renderer (DDD split): domain + application (the Renderer) + infrastructure.
   mcp/                        ← MCP server: author→render loop + the coordinate/measurement tool layer.
-  vision/                     ← raster→vector lane: measure/compare/vectorize/propose (optional deps).
   coach/                      ← Vector Construction Coach: style-grammar, layer order, silhouette gate.
   live/                       ← local web UI for live MCP feedback sessions (`make live`).
 src/frameforge/model.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.

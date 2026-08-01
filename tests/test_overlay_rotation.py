@@ -2,7 +2,7 @@
 """overlay_images rotation fit — opt-in contract extension (recon gap F6b).
 
 The similarity fit deliberately excluded rotation (see
-frameforge.vision.domain.fitting's scope note); tilted-scan references
+frameforge_vision.domain.fitting's scope note); tilted-scan references
 therefore surfaced as unexplainable residuals. This adds rotation as an
 explicitly opt-in second model — the default contract stays rotation-free
 and byte-stable.
@@ -23,7 +23,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
-from frameforge.vision.domain.fitting import (  # noqa: E402
+from frameforge_vision.domain.fitting import (  # noqa: E402
     fit_similarity, fit_similarity_rotation)
 
 PIL = pytest.importorskip("PIL.Image")

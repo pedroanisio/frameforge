@@ -126,7 +126,7 @@ def render_html_png(fixture: str) -> bytes | None:
 def cross_backend_ncc(fixture: str) -> float | None:
     """Phase-aligned NCC between the SVG and HTML page-1 rasters (None if either
     backend produced nothing to compare)."""
-    from frameforge.vision.infrastructure.image_compare import image_metrics, load_rgb
+    from frameforge_vision.infrastructure.image_compare import image_metrics, load_rgb
     html_png = render_html_png(fixture)
     if html_png is None:
         return None

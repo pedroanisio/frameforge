@@ -196,7 +196,7 @@ def curve_count(objs: Iterable[Obj]) -> int:
 # Ingest + page.
 # --------------------------------------------------------------------------- #
 def trace(image: str, *, mode: str, **kw) -> tuple[list[Obj], int, int]:
-    from frameforge.vision.infrastructure.vectorize import raster_to_objects
+    from frameforge_vision.infrastructure.vectorize import raster_to_objects
     return raster_to_objects(image, mode=mode, **kw)
 
 

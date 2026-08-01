@@ -633,6 +633,7 @@ browser = [
     { name = "playwright" },
 ]
 dev = [
+    { name = "frameforge-vision", extra = ["cv", "ocr"] },
     { name = "hypothesis" },
     { name = "pytest" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
@@ -657,9 +658,7 @@ render = [
     { name = "pillow" },
 ]
 vision = [
-    { name = "opencv-python-headless" },
-    { name = "pillow" },
-    { name = "pytesseract" },
+    { name = "frameforge-vision", extra = ["cv", "ocr"] },
 ]
 vlm = [
     { name = "accelerate" },
@@ -681,6 +680,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 browser = [{ name = "playwright", specifier = ">=1.44" }]
 dev = [
+    { name = "frameforge-vision", extras = ["cv", "ocr"], editable = "../frameforge-vision" },
     { name = "hypothesis", specifier = ">=6" },
     { name = "pytest", specifier = ">=8" },
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2" },
@@ -699,11 +699,7 @@ render = [
     { name = "matplotlib", specifier = ">=3.7" },
     { name = "pillow", specifier = ">=10" },
 ]
-vision = [
-    { name = "opencv-python-headless", specifier = ">=4.9" },
-    { name = "pillow", specifier = ">=10" },
-    { name = "pytesseract", specifier = ">=0.3.10" },
-]
+vision = [{ name = "frameforge-vision", extras = ["cv", "ocr"], editable = "../frameforge-vision" }]
 vlm = [
     { name = "accelerate", specifier = ">=0.30" },
     { name = "num2words", specifier = ">=0.5" },
@@ -734,13 +730,60 @@ requires-dist = [
     { name = "fonttools", marker = "extra == 'metrics'", specifier = ">=4.53" },
     { name = "frameforge-api", git = "https://github.com/pedroanisio/frameforge-api.git?branch=main" },
     { name = "frameforge-fonts", marker = "extra == 'metrics'", git = "https://github.com/pedroanisio/frameforge-fonts.git?branch=main" },
+    { name = "frameforge-vision", marker = "extra == 'svg'", specifier = ">=1.0,<2" },
     { name = "pyyaml", specifier = ">=6" },
 ]
-provides-extras = ["metrics"]
+provides-extras = ["svg", "metrics"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "mypy", specifier = ">=1.11" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "pytest-cov", specifier = ">=5" },
+    { name = "pyyaml", specifier = ">=6" },
+    { name = "ruff", specifier = ">=0.6" },
+]
+
+[[package]]
+name = "frameforge-vision"
+version = "1.0.0"
+source = { editable = "../frameforge-vision" }
+dependencies = [
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
+    { name = "numpy", version = "2.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+]
+
+[package.optional-dependencies]
+cv = [
+    { name = "opencv-python-headless" },
+    { name = "pillow" },
+]
+ocr = [
+    { name = "pytesseract" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "accelerate", marker = "extra == 'vlm'", specifier = ">=0.30" },
+    { name = "frameforge", marker = "extra == 'raster'", editable = "../frameforge" },
+    { name = "frameforge-sdk", marker = "extra == 'author'", editable = "../frameforge-sdk" },
+    { name = "num2words", marker = "extra == 'vlm'", specifier = ">=0.5" },
+    { name = "numpy", specifier = ">=1.24" },
+    { name = "opencv-python-headless", marker = "extra == 'cv'", specifier = ">=4.9" },
+    { name = "pillow", marker = "extra == 'cv'", specifier = ">=10" },
+    { name = "pillow", marker = "extra == 'vlm'", specifier = ">=10" },
+    { name = "pytesseract", marker = "extra == 'ocr'", specifier = ">=0.3.10" },
+    { name = "torch", marker = "extra == 'vlm'", specifier = ">=2.2" },
+    { name = "transformers", marker = "extra == 'vlm'", specifier = ">=4.46" },
+]
+provides-extras = ["cv", "ocr", "author", "raster", "vlm"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=1.11" },
+    { name = "opencv-python-headless", specifier = ">=4.9" },
+    { name = "pillow", specifier = ">=10" },
     { name = "pytest", specifier = ">=8" },
     { name = "pytest-cov", specifier = ">=5" },
     { name = "pyyaml", specifier = ">=6" },

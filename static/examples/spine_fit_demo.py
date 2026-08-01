@@ -3,7 +3,7 @@
 The round trip that closed the authored-lane fidelity gap, self-contained:
 author a flame petal with ``sdk.outline.stroke_outline`` (a KNOWN spine +
 width profile), rasterise its mask, then recover the parameters with
-``frameforge.vision.domain.spine_fit.fit_spine`` — skeleton thinning, the
+``frameforge_vision.domain.spine_fit.fit_spine`` — skeleton thinning, the
 longest skeleton path extended to the tips, exact perpendicular-chord widths,
 and an anchored least-squares cubic. Re-authoring from the FIT must reproduce
 the shape (IoU printed; the test suite pins ≥ 0.90).
@@ -33,8 +33,8 @@ from frameforge_sdk import DocumentBuilder
 from frameforge_sdk.io import serialize
 from frameforge_sdk.outline import stroke_outline
 from frameforge_sdk.paint import linear_gradient
-from frameforge.vision.domain.spine_fit import fit_spine, spine_profile
-from frameforge.vision.infrastructure.vectorize import _shape_mask
+from frameforge_vision.domain.spine_fit import fit_spine, spine_profile
+from frameforge_vision.infrastructure.vectorize import _shape_mask
 
 SIZE = (600, 800)
 

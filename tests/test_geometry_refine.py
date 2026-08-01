@@ -73,7 +73,7 @@ def _petal(width, shift=0.0, **kw):
 
 
 def _mask(obj):
-    from frameforge.vision.infrastructure.vectorize import _shape_mask
+    from frameforge_vision.infrastructure.vectorize import _shape_mask
 
     return np.asarray(_shape_mask(obj, SIZE)[0]) > 0
 
@@ -122,7 +122,7 @@ def test_provenance_opt_out_and_user_meta_survive():
 
 # ---------------------------------------------------------------- descent lane
 def test_recovery_of_width_and_position():
-    from frameforge.vision.infrastructure.refine import refine_geometry
+    from frameforge_vision.infrastructure.refine import refine_geometry
 
     wrong = _petal(86, shift=10.0)
     true_mask = _mask(_petal(110))
@@ -140,7 +140,7 @@ def test_recovery_of_width_and_position():
 
 
 def test_descent_only_at_the_truth():
-    from frameforge.vision.infrastructure.refine import refine_geometry
+    from frameforge_vision.infrastructure.refine import refine_geometry
 
     doc = _doc(_petal(110))
     true_mask = _mask(_petal(110))
@@ -151,7 +151,7 @@ def test_descent_only_at_the_truth():
 
 
 def test_objects_without_provenance_are_skipped_untouched():
-    from frameforge.vision.infrastructure.refine import refine_geometry
+    from frameforge_vision.infrastructure.refine import refine_geometry
 
     frozen = _petal(86, emit_params=False)
     import copy
@@ -163,7 +163,7 @@ def test_objects_without_provenance_are_skipped_untouched():
 
 
 def test_refine_geometry_is_deterministic():
-    from frameforge.vision.infrastructure.refine import refine_geometry
+    from frameforge_vision.infrastructure.refine import refine_geometry
 
     d1 = _doc(_petal(86, shift=10.0))
     s1 = refine_geometry(d1, _reference_image())
@@ -175,7 +175,7 @@ def test_refine_geometry_is_deterministic():
 def test_size_mismatch_is_loud():
     from PIL import Image
 
-    from frameforge.vision.infrastructure.refine import refine_geometry
+    from frameforge_vision.infrastructure.refine import refine_geometry
 
     with pytest.raises(ValueError, match="size"):
         refine_geometry(_doc(_petal(110)), Image.new("RGB", (64, 64)))

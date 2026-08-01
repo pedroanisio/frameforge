@@ -65,7 +65,7 @@ def test_svg_and_html_agree_within_the_floor():
 @requires_raster
 def test_identical_backends_score_perfectly():
     """Sanity: the same raster against itself is NCC 1.0 (the metric is sound)."""
-    from frameforge.vision.infrastructure.image_compare import image_metrics, load_rgb
+    from frameforge_vision.infrastructure.image_compare import image_metrics, load_rgb
     png = fidelity.render_svg_png(fidelity.oracle_fixtures()[0])
     img = load_rgb(png)
     assert image_metrics(img, img)["ncc"] >= 0.999

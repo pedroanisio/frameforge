@@ -71,6 +71,7 @@ Issues = "https://github.com/pedroanisio/frameforge/issues"
 #   then:  uv run python tooling/render_latex.py fixtures/<doc>.fg.yaml --png
 [dependency-groups]
 dev = [
+    "frameforge-vision[cv,ocr]",
     "hypothesis>=6",
     "pytest>=8",
     # TOML backport for the gate/tooling that read pyproject.toml. stdlib `tomllib`
@@ -102,7 +103,11 @@ mcp = ["mcp[cli]>=1.27,<2", "cairosvg>=2.7"]
 # OCR only load when a propose tool runs; the VLM lane needs no extra dependency
 # (stdlib HTTP). `pytesseract` additionally needs the system Tesseract binary;
 # PDF input reuses the `pdf` group. numpy ships with opencv.
-vision = ["opencv-python-headless>=4.9", "pillow>=10", "pytesseract>=0.3.10"]
+# The vision context is the standalone `frameforge-vision` package: measurement,
+# primitive fitting, vectorisation and image->document proposals. Every import
+# of it here is lazy, and its imports back into this tree are lazy too, so
+# neither distribution hard-depends on the other.
+vision = ["frameforge-vision[cv,ocr]>=1.0,<2"]
 # Optional local vision-language describer (framegraph.vision.vlm + the MCP
 # describe_render tool). CPU-runnable; the default SmolVLM-256M model is ~0.5GB
 # and downloaded on first use. Kept separate from `vision` because torch is heavy.
@@ -144,6 +149,7 @@ frameforge-api = { git = "https://github.com/pedroanisio/frameforge-api.git", br
 # published HEAD (0f0d3bf) is behind the working tree, which still holds the
 # `EngineUnavailable` re-export this repo's SDK-surface gate requires.
 frameforge-sdk = { path = "../frameforge-sdk", editable = true }
+frameforge-vision = { path = "../frameforge-vision", editable = true }
 
 [tool.uv]
 # Real package since 2.5.0: the authoritative model moved INTO the package

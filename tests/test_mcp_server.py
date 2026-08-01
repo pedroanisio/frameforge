@@ -646,7 +646,7 @@ def test_propose_from_image_reports_missing_vision_group(tmp_path, monkeypatch):
 
     # A None entry in sys.modules makes the in-function import raise ImportError,
     # standing in for an environment without the `vision` dependency group.
-    monkeypatch.setitem(sys.modules, "frameforge.vision.application.service", None)
+    monkeypatch.setitem(sys.modules, "frameforge_vision.application.service", None)
 
     result = server.propose_from_image(image_base64="AAAA", session_id="novision", session_root=tmp_path)
 

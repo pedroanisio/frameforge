@@ -28,7 +28,7 @@ def ingest(image: str, *, mode: str = "outline", colors: int = 8, detail: float 
     clear error if the vision group is not installed.
     """
     try:
-        from frameforge.vision.infrastructure.vectorize import raster_to_objects
+        from frameforge_vision.infrastructure.vectorize import raster_to_objects
     except ImportError as exc:  # pragma: no cover - depends on optional group
         raise RuntimeError(
             "coach.ingest needs the vision group: `uv sync --group vision`"

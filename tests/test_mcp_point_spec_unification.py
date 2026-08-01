@@ -2,7 +2,7 @@
 """RED — unified point-spec grammar across overlay/construct/score/map tools.
 
 The discriminated point dict already accepted by ``mark_points``/``workspace``
-(``resolve_point_spec`` in ``frameforge.vision.domain.coordinates``) must become
+(``resolve_point_spec`` in ``frameforge_vision.domain.coordinates``) must become
 accepted — ADDITIVELY, with every legacy shape byte-identical — in:
 
 1. ``overlay_images`` landmark pairs (``_to_pairs``): ``{"px": ..}`` / ``{"norm": ..}``
@@ -51,7 +51,7 @@ def _write_test_png(tmp_path, name="source.png", size=(60, 40)):
 # 1. overlay_images pair parsing (_to_pairs)
 # ─────────────────────────────────────────────────────────────
 def test_overlay_px_dict_equals_legacy_list():
-    from frameforge.vision.infrastructure.overlay_align import _to_pairs
+    from frameforge_vision.infrastructure.overlay_align import _to_pairs
 
     legacy = _to_pairs([{"base": [10, 20], "overlay": [3, 4]}], BASE_SIZE, OVERLAY_SIZE)
     dicts = _to_pairs([{"base": {"px": [10, 20]}, "overlay": {"px": [3, 4]}}],
@@ -60,7 +60,7 @@ def test_overlay_px_dict_equals_legacy_list():
 
 
 def test_overlay_norm_dict_resolves_against_own_sides_dims():
-    from frameforge.vision.infrastructure.overlay_align import _to_pairs
+    from frameforge_vision.infrastructure.overlay_align import _to_pairs
 
     pairs = _to_pairs(
         [{"base": {"norm": [0.5, 0.5]}, "overlay": {"norm": [0.5, 0.5]}}],
@@ -71,7 +71,7 @@ def test_overlay_norm_dict_resolves_against_own_sides_dims():
 
 
 def test_overlay_mixed_dict_and_legacy_with_pair_level_norm_flag():
-    from frameforge.vision.infrastructure.overlay_align import _to_pairs
+    from frameforge_vision.infrastructure.overlay_align import _to_pairs
 
     # dict entries are self-describing: the pair-level "norm" flag must apply
     # to the legacy list side only and be ignored for the dict side.
@@ -84,7 +84,7 @@ def test_overlay_mixed_dict_and_legacy_with_pair_level_norm_flag():
 
 
 def test_overlay_session_scoped_dict_forms_raise_naming_supported_forms():
-    from frameforge.vision.infrastructure.overlay_align import _to_pairs
+    from frameforge_vision.infrastructure.overlay_align import _to_pairs
 
     for bad in ({"cs": [1, 2]}, {"landmark": "A1"}, {"viewport_px": [5, 5]}):
         with pytest.raises(ValueError) as exc_info:
@@ -119,7 +119,7 @@ def test_construct_vectors_px_and_norm_dicts_match_legacy_yaml(tmp_path):
 
 
 def test_construct_vectors_landmark_dict_resolves_via_pin_anchors(tmp_path):
-    from frameforge.vision.infrastructure import workspace as ws
+    from frameforge_vision.infrastructure import workspace as ws
 
     ws_dir = tmp_path / "anchors"
     ws_dir.mkdir()

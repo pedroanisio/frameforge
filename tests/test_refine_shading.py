@@ -68,7 +68,7 @@ def _petal(width=110, shift=0.0, fill="#d0d0e0", **kw):
 
 
 def _mask(obj):
-    from frameforge.vision.infrastructure.vectorize import _shape_mask
+    from frameforge_vision.infrastructure.vectorize import _shape_mask
 
     return np.asarray(_shape_mask(obj, SIZE)[0]) > 0
 
@@ -100,7 +100,7 @@ def _edge_scene():
 
 
 def test_edge_term_recovers_when_colour_is_uninformative():
-    from frameforge.vision.infrastructure.refine import refine_geometry
+    from frameforge_vision.infrastructure.refine import refine_geometry
 
     reference, wrong = _edge_scene()
     truth = _mask(_petal())
@@ -114,7 +114,7 @@ def test_edge_term_recovers_when_colour_is_uninformative():
 
 
 def test_edge_weight_zero_restores_pure_colour_behaviour():
-    from frameforge.vision.infrastructure.refine import refine_geometry
+    from frameforge_vision.infrastructure.refine import refine_geometry
 
     reference, wrong = _edge_scene()
     truth = _mask(_petal())
@@ -128,7 +128,7 @@ def test_edge_weight_zero_restores_pure_colour_behaviour():
 def test_edge_term_is_descent_only_at_the_truth():
     from PIL import Image
 
-    from frameforge.vision.infrastructure.refine import refine_geometry
+    from frameforge_vision.infrastructure.refine import refine_geometry
 
     img = np.full((SIZE[1], SIZE[0], 3), 0x10, dtype=np.uint8)
     img[_mask(_petal(fill="#4488ff"))] = (0x44, 0x88, 0xFF)
@@ -144,7 +144,7 @@ def _shaded_reference(mask):
     """Dark contour-following rim → bright core over the given mask."""
     from PIL import Image
 
-    from frameforge.vision.domain.spine_fit import chamfer_distance
+    from frameforge_vision.domain.spine_fit import chamfer_distance
 
     dist = chamfer_distance(mask.astype(np.uint8), max_rounds=64)
     img = np.zeros((SIZE[1], SIZE[0], 3), dtype=np.float64)
@@ -161,7 +161,7 @@ def test_band_refit_is_visibility_aware():
     band's fitted paint must come from the VISIBLE rim only."""
     from PIL import Image
 
-    from frameforge.vision.infrastructure.refine import refine_band_shading
+    from frameforge_vision.infrastructure.refine import refine_band_shading
 
     body = _petal(fill="#808080")
     mask = _mask(body)
@@ -193,7 +193,7 @@ def test_band_refit_is_visibility_aware():
 
 def test_band_refit_improves_on_flat_refit():
 
-    from frameforge.vision.infrastructure.refine import (
+    from frameforge_vision.infrastructure.refine import (
         refine_band_shading, refine_document,
     )
 
@@ -216,7 +216,7 @@ def test_decorative_overlays_neither_occlude_nor_get_banded():
     not steal the body's visible pixels for band statistics, and they must
     never be banded themselves — measured on the clone-v3 lotus, letting them
     occlude inverts the ring fits into bright halos."""
-    from frameforge.vision.infrastructure.refine import refine_band_shading
+    from frameforge_vision.infrastructure.refine import refine_band_shading
 
     body = _petal(fill="#808080")
     ref = _shaded_reference(_mask(body))
@@ -243,7 +243,7 @@ def test_decorative_overlays_neither_occlude_nor_get_banded():
 
 
 def test_band_shading_is_idempotent():
-    from frameforge.vision.infrastructure.refine import refine_band_shading
+    from frameforge_vision.infrastructure.refine import refine_band_shading
 
     body = _petal(fill="#808080")
     ref = _shaded_reference(_mask(body))
@@ -258,7 +258,7 @@ def test_band_shading_is_idempotent():
 def test_bands_1_is_a_noop():
     import copy
 
-    from frameforge.vision.infrastructure.refine import refine_band_shading
+    from frameforge_vision.infrastructure.refine import refine_band_shading
 
     body = _petal(fill="#808080")
     ref = _shaded_reference(_mask(body))

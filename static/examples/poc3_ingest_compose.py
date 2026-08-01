@@ -218,7 +218,7 @@ STYLES: list[dict[str, Any]] = [
 def trace(image: str, *, colors: int = 8, detail: float = 0.0015,
           min_area: float = 16.0, max_dim: int = 1500) -> tuple[list[Obj], int, int]:
     """Ingest a raster to outline FrameForge objects (lazy OpenCV import)."""
-    from frameforge.vision.infrastructure.vectorize import raster_to_objects
+    from frameforge_vision.infrastructure.vectorize import raster_to_objects
     return raster_to_objects(image, mode="outline", colors=colors, detail=detail,
                              min_area=min_area, max_dim=max_dim)
 

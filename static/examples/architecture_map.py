@@ -161,7 +161,7 @@ def build() -> DocumentBuilder:
          ["run_sdk_code · render SVG/PNG · propose_from_*",
           "the AI authoring feedback loop"], "#0F766E")
     node(page, [60, 442, 320, 58], INTEG,
-         "frameforge.vision — propose_from_*", "#0F766E",
+         "frameforge_vision — propose_from_*", "#0F766E",
          ["OpenCV/VLM + pdf_to_frameforge_yml → proposed doc",
           "UNVERIFIED draft (PALS's Law)"], "#0F766E")
 
