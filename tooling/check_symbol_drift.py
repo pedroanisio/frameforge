@@ -181,7 +181,10 @@ def doc_files() -> list[str]:
     ]
 
 
-HARVEST_ROOTS = ("src", "tooling", "static/examples", "docs")
+# `static/examples` was a harvest root until the cookbook became
+# `frameforge-example`. Prose here may no longer name a client as a live
+# symbol — it is not in this tree to define one.
+HARVEST_ROOTS = ("src", "tooling", "docs")
 
 # Tests are harvested *shallowly* — module stems and def/class names only.
 # Prose legitimately cites "`test_head`" and a named test function, but a local

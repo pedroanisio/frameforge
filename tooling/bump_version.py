@@ -49,7 +49,9 @@ _SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 # Prose/comments that hardcode the version but are NOT gated (RELEASE.md §7). We
 # don't rewrite them — prose is context-sensitive — but we list them so a bump
 # doesn't silently leave a stale "v2.3.0" in a demo or a doc.
-COSMETIC_GLOBS = ("static/examples/*.py", "skills/**/*.md", "skills/**/*.py",
+# (the cookbook's clients used to be listed here; they left with the corpus
+# for `frameforge-example`, which bumps on its own line)
+COSMETIC_GLOBS = ("skills/**/*.md", "skills/**/*.py",
                   "plugin/skills/**/*.md", "docs/**/*.md")
 
 # (label, path, regex with a `(pre)(version)(post)` shape). The version group (2)
