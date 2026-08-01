@@ -56,9 +56,9 @@ from pydantic import ValidationError  # noqa: E402
 _YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 
 CORE_OBJECT_TYPES = {
-    "rect", "ellipse", "circle", "line", "polyline", "polygon", "path", "curve",
-    "bezier", "text", "image", "icon", "bullet_list", "dimension", "connector",
-    "table", "group",
+    "rect", "ellipse", "circle", "line", "polyline", "polygon", "star", "path",
+    "curve", "bezier", "text", "image", "icon", "bullet_list", "dimension",
+    "connector", "table", "group", "generative",
     "uml.marker_glyph", "uml.classifier_box", "uml.component_box", "uml.state_box",
     "uml.action", "uml.artifact_box", "uml.node_box", "uml.lifeline",
     "uml.activation_bar", "uml.actor", "uml.socket", "uml.lollipop",

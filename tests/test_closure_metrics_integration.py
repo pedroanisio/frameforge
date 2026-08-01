@@ -8,7 +8,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 has no stdlib tomllib
+    import tomli as tomllib  # type: ignore[no-redefine]
+
 from frameforge_render.application.renderer import Renderer
 from frameforge_sdk import DocumentBuilder
 

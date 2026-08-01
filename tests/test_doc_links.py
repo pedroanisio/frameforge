@@ -39,13 +39,23 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 
 # A markdown link [text](url) whose url is one of THIS repo's GitHub blob/tree
-# permalinks, with an optional #Ln or #Ln-Lm anchor.
+# permalinks, with an optional #Ln or #Ln-Lm anchor. Only this repo's links are
+# path-checkable here: the files behind a sibling's link are not in this tree.
 _LINK = re.compile(
     r"\[(?P<text>[^\]]*)\]\("
     r"https://github\.com/pedroanisio/frameforge/(?P<kind>blob|tree)/[^/]+/"
     r"(?P<path>[^)#\s]+)"
     r"(?:#L(?P<l1>\d+)(?:-L(?P<l2>\d+))?)?"
     r"\)"
+)
+# The same shape pointing at any distribution in the family. The model, the SDK,
+# the renderer, the MCP surface and the vision lane all left this repo, and the
+# prose that described them correctly followed — `docs/architecture.md` alone
+# repointed fifteen links at `frameforge-render` and `frameforge-api`. Those are
+# still real, maintained links; this repo simply cannot resolve their paths, so
+# they count toward the coverage floor without being path-checked.
+_FAMILY_LINK = re.compile(
+    r"\[[^\]]*\]\(https://github\.com/pedroanisio/frameforge[a-z-]*/(?:blob|tree)/[^)\s]+\)"
 )
 # Code-comment leaders we refuse a line anchor to land on (a def/class/statement
 # is the useful target; a comment line is a sign the anchor has slipped).
@@ -130,10 +140,21 @@ def test_guard_actually_catches_drift():
 
 def test_some_links_are_actually_checked():
     """Coverage floor: the scan must find real links (so a future refactor that
-    silently empties the doc set can't make this suite pass vacuously)."""
-    found = sum(len(_LINK.findall(open(os.path.join(ROOT, rel), encoding="utf-8").read()))
-                for rel in _docs_to_check())
-    assert found >= 10, f"expected the docs to carry repo links; found only {found}"
+    silently empties the doc set can't make this suite pass vacuously).
+
+    Counted across the whole family, not just this repo. The proof that the
+    checker itself is not vacuous is `test_guard_actually_catches_drift`, which
+    fires it on synthetic input; this floor only asserts the corpus it runs over
+    is real. Counting this repo alone would have made the floor a measure of how
+    much code had NOT yet been extracted.
+    """
+    corpus = [open(os.path.join(ROOT, rel), encoding="utf-8").read()
+              for rel in _docs_to_check()]
+    checked = sum(len(_LINK.findall(text)) for text in corpus)
+    family = sum(len(_FAMILY_LINK.findall(text)) for text in corpus)
+    assert checked >= 3, (
+        f"no meaningful set of THIS repo's links is being path-checked: {checked}")
+    assert family >= 10, f"expected the docs to carry repo links; found only {family}"
 
 
 if __name__ == "__main__":

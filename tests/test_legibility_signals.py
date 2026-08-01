@@ -211,9 +211,12 @@ def test_signal_round_trips_through_its_wire_form():
     page = svg(WHITE_PAGE + text("tiny", size=8))
     hit = next(s for s in assess_pages([page]) if s.code == "type-too-small")
     assert LegibilitySignal.from_dict(hit.to_dict()) == hit
+    # `total` is the denominator `count` was measured against, when one exists —
+    # `contrast-unverified` sets it to every contrast subject on the page so a
+    # consumer can state coverage as `1 - count/total` without parsing `basis`.
     assert set(hit.to_dict()) == {
         "page", "code", "level", "value", "threshold", "unit", "count",
-        "detail", "basis"}
+        "detail", "basis", "total"}
 
 
 def test_policy_thresholds_are_overridable():

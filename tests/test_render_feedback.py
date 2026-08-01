@@ -45,17 +45,22 @@ def _page_doc(objects):
 
 # ---- skipped flowables ------------------------------------------------------ #
 def test_dropped_flowables_are_counted_by_type():
+    # A block the proxy has no emitter for and that carries no text is content
+    # the render silently loses — the counter is the "no silence" guarantee.
+    # `bibliography` used to stand in here and no longer can: the renderer grew
+    # `emit_bibliography`, so it is now a *supported* type (asserted below).
     doc = _flow_doc([{"type": "paragraph", "text": "kept"},
-                     {"type": "bibliography", "entries": [{"id": "a"}]},
-                     {"type": "bibliography", "entries": [{"id": "b"}]}])
+                     {"type": "sidenote", "entries": [{"id": "a"}]},
+                     {"type": "sidenote", "entries": [{"id": "b"}]}])
     r = Renderer(doc, ".")
     r.render_page(doc["pages"][0])
-    assert r.diagnostics["skipped_flowables"] == {"bibliography": 2}
+    assert r.diagnostics["skipped_flowables"] == {"sidenote": 2}
 
 
 def test_supported_flowables_are_not_counted_as_skipped():
     doc = _flow_doc([{"type": "paragraph", "text": "kept"},
-                     {"type": "heading", "level": 1, "text": "H"}])
+                     {"type": "heading", "level": 1, "text": "H"},
+                     {"type": "bibliography", "entries": [{"id": "a"}]}])
     r = Renderer(doc, ".")
     r.render_page(doc["pages"][0])
     assert r.diagnostics["skipped_flowables"] == {}

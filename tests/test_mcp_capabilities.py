@@ -169,11 +169,13 @@ def test_new_tools_are_registered_and_exported(tmp_path):
 
 _CAPABILITY_MODULES = [
     # capability-bearing sdk modules — each MUST be named in the guide.
-    "book", "canon", "chart", "chevreul", "clip", "colorspace", "draw", "expand", "fields",
-    "figure", "flow", "fractal", "geometry", "humanize", "lattices", "layout",
+    "book", "canon", "chart", "chevreul", "clip", "colorspace", "curves", "draw",
+    "expand", "explain", "fields", "fieldsets", "figure", "flow", "fractal",
+    "geometry", "humanize",
+    "lattices", "layout",
     "macros", "manifold", "markdown", "metrics", "noise", "outline", "paint", "params",
     "pathtext", "planar", "rand", "recolor", "region", "separate", "solids", "topology",
-    "sugiyama", "uml_models", "widgets",
+    "spatial", "sugiyama", "uml_models", "widgets",
 ]
 
 # Internal plumbing that carries no author-facing capability of its own — the

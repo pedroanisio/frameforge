@@ -43,7 +43,7 @@ def _consumer_roots():
     """
     roots = [os.path.join(ROOT, "src")]
     for mod in ("frameforge_sdk", "frameforge_vision", "frameforge_api",
-                "frameforge_mcp", "frameforge_coach"):
+                "frameforge_mcp", "frameforge_coach", "frameforge_render"):
         try:
             roots.append(os.path.dirname(os.path.abspath(__import__(mod).__file__)))
         except ImportError:

@@ -1,11 +1,11 @@
 {
-  "tests/fixtures/b1/amazon-proxy-2026.fg.json": "8a6191b6bf86d16e4f6306c28f867d68c749acf10cd4135d909b2818ecc3a355",
-  "tests/fixtures/b1/chroma-styling-showcase.fg.json": "2fd2f1a85e62cacb01b1040a4648c3c1a9aadd37d50e954b113cb9e72e57fa21",
-  "tests/fixtures/b1/docusign-deck-v2.fg.json": "8bbcb5c58bf00068158b07eb35e01ca598d2035965262bda96865643d41ff835",
-  "tests/fixtures/b1/ieee-reference-guide.fg.json": "a93085b0659749368a7cbfd16b5603d86f4e05d7d8b1e2efb4adccdb190e2d78",
-  "tests/fixtures/b1/mckinsey-7s.fg.json": "7b14b4caf324b1042f59282bb21322d60fda7945a6078dafe9f181ce9b1e870b",
-  "tests/fixtures/b1/neutron-stars.fg.json": "6b361f45f7b3ce13292a3ca786a6532fab0a573ff0af7a5488ef1e138ca5e382",
-  "tests/fixtures/b1/spans-and-links.fg.json": "b55ea670c73e9455f3b29f1204f57eff39fba6e84bb3defb6a9b805475a9405b",
-  "tests/fixtures/b1/spectral-methods.fg.json": "2224635c7ba283d49759ab4649335cf4fd267c02f32039b7707136e0e42c8a7b",
-  "tests/fixtures/b1/wireframing-guide.fg.json": "4d09db4cc0d3b89a4942c4c37a5d62fdada3c561a346a87c07d0fce91be1757c"
+  "tests/fixtures/b1/amazon-proxy-2026.fg.json": "9e58ea4d7963fe71d6b6c0a594d7f2d655e42b863c98dbf0cf3895b269258ce2",
+  "tests/fixtures/b1/chroma-styling-showcase.fg.json": "eb1c0bef50ce60d3bfd95e9cea74c12166e33621c3bc0f7d8fb2dbf0eef391ce",
+  "tests/fixtures/b1/docusign-deck-v2.fg.json": "c669ff0c7fc415f1f48444cf934c9f0e0a6f34543357def101dc0f9a85692b1c",
+  "tests/fixtures/b1/ieee-reference-guide.fg.json": "ea460ec7612e31925e6b17da081ac0e78c6e3017947bd2bd25388cded3283d90",
+  "tests/fixtures/b1/mckinsey-7s.fg.json": "c2f6c5718ce0ad78dd287d458df2384c69620135461829d88c8840eaee4e5eda",
+  "tests/fixtures/b1/neutron-stars.fg.json": "7b999f6bdea9248afcc07419a412e942e4e2cce457aa3569f312856c485bfb17",
+  "tests/fixtures/b1/spans-and-links.fg.json": "58e598bf7414a8c1f0c89f7627cd71fb54974fa7862c9c10cf89e6813cbc6259",
+  "tests/fixtures/b1/spectral-methods.fg.json": "264773984e66744d50f253868ac394398e1be9d0fa6295788a2efb48d8bee984",
+  "tests/fixtures/b1/wireframing-guide.fg.json": "74a5747ccffd2c5d93caed8616ac678a3be4cfcdcc61b690a3d370213061f134"
 }

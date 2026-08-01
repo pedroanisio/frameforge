@@ -13,6 +13,7 @@ Runs under pytest or standalone (``uv run python tests/test_sdk_outline.py``).
 """
 from __future__ import annotations
 
+import re
 import math
 import sys
 from pathlib import Path
@@ -184,9 +185,22 @@ def test_structured_d_survives_the_model_round_trip_to_svg():
     svgs, _ = render_pages_with_stats(doc, base_dir=str(ROOT))
     assert "('" not in svgs[0] and "(&#x27;" not in svgs[0], \
         "structured d must not stringify as Python tuples"
-    assert 'd="M 10 6' in svgs[0] or 'd="M 10.0 6' in svgs[0] or \
-        "M 10" in svgs[0].split('d="')[1][:20]
-    assert " Z" in svgs[0].split('d="')[1].split('"')[0]
+    # Assert the OUTLINE, not the winding. A width-8 outline of the segment
+    # (10,10)->(90,10) is the rectangle x=10..90, y=6..14; which corner the
+    # emitter starts from is its own business and has changed before. Pinning
+    # the start point made this test fail on a correct render.
+    # NB: split on `d="` would match `id="` first — the bug that made the old
+    # assertion's fallback branch test the string `m"><path ` instead of a path.
+    match = re.search(r'<path[^>]*\sd="([^"]+)"', svgs[0])
+    assert match, f"no <path d=...> in the render: {svgs[0]!r}"
+    data = match.group(1)
+    assert data.startswith("M "), f"path data must start with a moveto: {data!r}"
+    assert data.rstrip().endswith("Z"), f"outline must close: {data!r}"
+    corners = {(10.0, 6.0), (90.0, 6.0), (90.0, 14.0), (10.0, 14.0)}
+    numbers = [float(t) for t in data.replace("M", " ").replace("L", " ")
+               .replace("Z", " ").split()]
+    drawn = set(zip(numbers[0::2], numbers[1::2], strict=True))
+    assert drawn == corners, f"outline corners moved: {sorted(drawn)}"
 
 
 # ── kerning (AI-24) ─────────────────────────────────────────────────────

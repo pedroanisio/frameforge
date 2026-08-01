@@ -583,7 +583,7 @@ harness it relies on to stay honest) and item 2 (the a11y gate it must satisfy).
 suite* — capability for capability, reached declaratively (by grammar and tool
 call, not cursor). The evidence base is the 51-feature teardown
 **Adobe Illustrator 2024+2025 vs FrameForge** (v4, 2026-07-05;
-generator: `static/examples/illustrator_vs_frameforge.py`). Provenance:
+generator: `illustrator_vs_frameforge.py` (repo `frameforge-example`)). Provenance:
 Illustrator's surface mined from **three manuals** over the doc-ray corpus
 ([24] "Adobe Illustrator 2024 User's Guide", 231 pp, 2,283 sentences;
 [25] "Master Adobe Illustrator 2025", 159 pp, 1,875 sentences;
@@ -591,12 +591,12 @@ Illustrator's surface mined from **three manuals** over the doc-ray corpus
 feature round-tripped to a source-sentence ordinal; FrameForge coverage
 quoted from the gated `docs/capability-manifest.json` (278 capabilities,
 sha256-pinned in the teardown's audit block +
-`static/examples/illustrator_vs_frameforge.audit.json`).
+`illustrator_vs_frameforge.audit.json`, repo `frameforge-example`).
 
 **Rubric (v3.1):** HAS = a direct *functional* equivalent (same user
 outcome, even if authored declaratively); PARTIAL = narrower / missing
 interactivity or output fidelity; REFRAMED = same end by naming / tool call /
-author→render loop; NONE carries a three-way `gap_type` — **architectural**
+author→render loop; NONE carries a three-way gap-type field — **architectural**
 (the declarative model precludes it), **maturity** (plausible in the model,
 simply unbuilt), or **non-goal** (declared scope choice) — and every M/L row
 carries a confidence tag. The audit is git-stamped (`source_identity()`:
@@ -624,7 +624,7 @@ bibliography), structural validation + golden locks before a pixel is drawn,
 a diffable plain-text source of truth, parametric geometry (equation-driven
 curves, lattices, manifolds — charts Illustrator *does* have moved to AI-51,
 a HAS), the UI component kit, colour *science* (Chevreul harmonies + WCAG
-contrast, not just swatches), and machine authoring (33 MCP tools). Parity
+contrast, not just swatches), and machine authoring (35 MCP tools). Parity
 work must not trade these away.
 
 **The closure programme** groups the actionable rows into workstreams
@@ -1258,12 +1258,12 @@ The render boundary is unchanged: after expansion the renderer sees `path`, `pol
 > gains **Phong** shading (B6), with B1/B2 approved to harden the 3D leg. Re-run the teardown
 > generator to refresh the sha256-pinned evidence (HEAD was 2.4.1 at the v4 audit,
 > 2026-07-05; re-running the generator re-stamps against current HEAD). Source:
-> `static/examples/illustrator_vs_frameforge.py`; Illustrator surface mined
+> `illustrator_vs_frameforge.py` (repo `frameforge-example`); Illustrator surface mined
 > from three manuals over doc-ray ("AI 2024 User's Guide" [24], "Master AI
 > 2025" [25], "BMG 106: Computer Graphics II" [26]) with sentence-ordinal
 > round-trips; FG coverage quoted from the gated capability manifest
 > (sha256-pinned; full audit committed at
-> `static/examples/illustrator_vs_frameforge.audit.json`). Verdicts: **HAS** direct
+> `illustrator_vs_frameforge.audit.json`, repo `frameforge-example`). Verdicts: **HAS** direct
 > *functional* equivalent · **PARTIAL** narrower/different form · **NONE**
 > (`arch` = the declarative model precludes it · `non-goal` = declared scope
 > choice) · **REFRAMED** same end by naming/tool-call. `·H/M/L` = evidence
