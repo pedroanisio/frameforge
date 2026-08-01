@@ -621,6 +621,8 @@ name = "frameforge"
 version = "2.8.2"
 source = { editable = "." }
 dependencies = [
+    { name = "frameforge-api" },
+    { name = "frameforge-sdk" },
     { name = "pydantic" },
     { name = "pyphen" },
     { name = "pyyaml" },
@@ -669,6 +671,8 @@ vlm = [
 
 [package.metadata]
 requires-dist = [
+    { name = "frameforge-api", git = "https://github.com/pedroanisio/frameforge-api.git?branch=main" },
+    { name = "frameforge-sdk", editable = "../frameforge-sdk" },
     { name = "pydantic", specifier = ">=2" },
     { name = "pyphen", specifier = ">=0.15" },
     { name = "pyyaml", specifier = ">=6" },
@@ -706,6 +710,41 @@ vlm = [
     { name = "pillow", specifier = ">=10" },
     { name = "torch", specifier = ">=2.2" },
     { name = "transformers", specifier = ">=4.46" },
+]
+
+[[package]]
+name = "frameforge-api"
+version = "1.0.0"
+source = { git = "https://github.com/pedroanisio/frameforge-api.git?branch=main#e188cee6d39a5bbd526dcb83754494a5a43af9d1" }
+dependencies = [
+    { name = "pydantic" },
+]
+
+[[package]]
+name = "frameforge-sdk"
+version = "1.0.0"
+source = { editable = "../frameforge-sdk" }
+dependencies = [
+    { name = "frameforge-api" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fonttools", marker = "extra == 'metrics'", specifier = ">=4.53" },
+    { name = "frameforge-api", git = "https://github.com/pedroanisio/frameforge-api.git?branch=main" },
+    { name = "frameforge-fonts", marker = "extra == 'metrics'", git = "https://github.com/pedroanisio/frameforge-fonts.git?branch=main" },
+    { name = "pyyaml", specifier = ">=6" },
+]
+provides-extras = ["metrics"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=1.11" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "pytest-cov", specifier = ">=5" },
+    { name = "pyyaml", specifier = ">=6" },
+    { name = "ruff", specifier = ">=0.6" },
 ]
 
 [[package]]

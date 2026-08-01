@@ -7,7 +7,7 @@ SDK validator accepts a path authored from them, `object(structured=True)` emits
 them, and the default `object()` stays the byte-identical `d` string (so golden
 output is unaffected).
 
-Package-only (imports `frameforge.sdk`, never the models module) so the
+Package-only (imports `frameforge_sdk`, never the models module) so the
 `frameforge` package is not shadowed — validation goes through the SDK's own
 `validate_document`, which reaches the models internally.
 """
@@ -17,8 +17,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import HEAD_VERSION, validate_document  # noqa: E402
-from frameforge.sdk.geometry import Path  # noqa: E402
+from frameforge_sdk import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge_sdk.geometry import Path  # noqa: E402
 
 
 def _built_path():

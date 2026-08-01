@@ -25,7 +25,7 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 from pydantic import ValidationError  # noqa: E402
 
 from frameforge.patterns import compose, load_sidecars  # noqa: E402
-from frameforge.sdk.model import validate_document  # noqa: E402
+from frameforge_sdk.model import validate_document  # noqa: E402
 
 SIDECARS = load_sidecars()
 
@@ -83,7 +83,7 @@ def test_every_sidecared_pattern_renders_with_no_uncontained_text():
     """The issue's acceptance gate, as a test: all 17 example fills compose,
     validate, and render through the real SVG proxy with zero text spilling a
     containing box."""
-    from frameforge.sdk import render_pages_with_stats
+    from frameforge.conform import render_pages_with_stats
     for pid, sidecar in sorted(SIDECARS.items()):
         doc = compose(pid, sidecar.example_fill)
         validate_document(doc)
@@ -98,7 +98,7 @@ def test_composed_pages_render_with_no_clipped_text():
     boxes shorter than their line box (~1.35 default line-height) — every
     composed page counted clipped text objects. Single-line display slots
     pin line_height 1.0."""
-    from frameforge.sdk import render_pages_with_stats
+    from frameforge.conform import render_pages_with_stats
     doc = compose(10, {"strengths": ["Deterministic"],
                        "weaknesses": ["Proxy fonts"],
                        "opportunities": ["Corpus growth"],

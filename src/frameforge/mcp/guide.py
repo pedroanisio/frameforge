@@ -18,9 +18,9 @@ compare those fields when diagnosing checkout/server skew. `get_guide` uses the
 same source-token cache, so both discovery surfaces notice Python source edits
 without an MCP server restart.
 
-## Author with the SDK (`frameforge.sdk`)
+## Author with the SDK (`frameforge_sdk`)
 Fluent builder:
-    from frameforge.sdk import DocumentBuilder
+    from frameforge_sdk import DocumentBuilder
     doc = DocumentBuilder(title="Deck", profile="deck")
     h1 = doc.define_text_style("h1", font_family="sans", font_size=48, color="#E8EAED")
     page = doc.page("p1", canvas={"size": [1280, 720], "units": "px"}, coordinate_mode="absolute")
@@ -29,16 +29,16 @@ Fluent builder:
     doc.write(OUTPUT_YAML_PATH, fail_on_error=True)
 
 - Standalone flow and static layout builders are top-level SDK exports:
-      from frameforge.sdk import FlowBuilder, grid, inset
+      from frameforge_sdk import FlowBuilder, grid, inset
       story = FlowBuilder().heading(1, "Results").para("Verified findings.").story()
       doc.flow("report", master=body_master, story=story)
       content = inset([0, 0, 1280, 720], [48, 64])
       cards = grid(content, cols=3, count=5, gap=24)
-  `FlowBuilder` (`frameforge.sdk.flow`) provides typed, chainable helpers for
+  `FlowBuilder` (`frameforge_sdk.flow`) provides typed, chainable helpers for
   every flowable and lowers with `.story()` into `DocumentBuilder.flow`; prefer
   `DocumentBuilder.section(...)` when a context manager is more convenient.
   `inset(box, pad)` and `grid(box, cols=, rows=|count=, gap=, pad=)`
-  (`frameforge.sdk.layout`) are pure functions returning static `[x, y, w, h]`
+  (`frameforge_sdk.layout`) are pure functions returning static `[x, y, w, h]`
   boxes for page primitives; use `Box.inset()` / `Box.grid()` for typed results,
   or renderer-arranged `.stack(...)` when layout should remain dynamic.
 - Primitives via `PageBuilder`: `.rect` `.text` `.line` `.image` `.ellipse` `.circle`
@@ -58,7 +58,7 @@ Fluent builder:
   - Stacking: layers paint by `Layer.z`; within a layer/group, object `z` wins
     over `style.z_index` (both stable, default 0; conflicting values raise a
     `z_conflict` diagnostic).
-- Paint (`frameforge.sdk.paint`): `stroke(width, color=...)`, `fill_stroke(...)`,
+- Paint (`frameforge_sdk.paint`): `stroke(width, color=...)`, `fill_stroke(...)`,
   `linear_gradient`/`radial_gradient`/`conic_gradient`,
   `hatch`/`dots`/`grid_pattern`/`pattern`, `glow`/`neon`/`shadow`/`soft_shadow`,
   `rgba`, and `text_style(size, color=...)` for the text subset of `Style`,
@@ -77,18 +77,18 @@ Fluent builder:
   geometry in the inline `stroke_style` bundle); an inline `stroke_width` on a
   paint-only line/polyline/path is rejected. `dash=` accepts either a length list
   or SVG-style `"4 4"` / `"4, 4"`; it normalizes to `stroke_dasharray`.
-- Widgets (`frameforge.sdk.widgets`): `avatar` `badge` `button` `card` `kpi` `pill`
+- Widgets (`frameforge_sdk.widgets`): `avatar` `badge` `button` `card` `kpi` `pill`
   `progress` `table` `tabs` `toggle` `divider` `field`, plus `Panel`/`Theme`.
-- Data & geometry (`frameforge.sdk.chart` / `.topology` / `.geometry` / `.draw`): `Chart`+`Frame` (series: `line`, `bars`, `scatter`, `area`, `pie`,
+- Data & geometry (`frameforge_sdk.chart` / `.topology` / `.geometry` / `.draw`): `Chart`+`Frame` (series: `line`, `bars`, `scatter`, `area`, `pie`,
   `donut`, plus `marker`/`axes`/`legend`), `Graph`/`Node`/`Edge`, `Camera`/`Scene3D`/
   `Mat3`/`Mat4`, `CubicBezier`/`Path`, `ScalarField`/`VectorField`, `lattice`/`Lattice`/`manifold`
-  (`frameforge.sdk.lattices` / `.fields` / `.manifold`), `greeble`, `grid_lines` (`frameforge.sdk.macros`).
+  (`frameforge_sdk.lattices` / `.fields` / `.manifold`), `greeble`, `grid_lines` (`frameforge_sdk.macros`).
   - Curve sampling: `parametric_curve(fn, domain)`, `function_plot(f, frame)`,
     `polar_plot(r, frame)` — adaptive subdivision, emit polyline/path.
-  - Surfaces (`frameforge.sdk.manifold`): `sphere`/`torus`/`mobius`/`klein_bottle`/`saddle`/`wave`
+  - Surfaces (`frameforge_sdk.manifold`): `sphere`/`torus`/`mobius`/`klein_bottle`/`saddle`/`wave`
     plus `parametric(fn, u=, v=)` and the bicubic patches `bezier_patch(net)` /
     `bspline_patch(net)` (4×4+ control grid → a tessellated `Scene3D`).
-  - Geometry kernel (`frameforge.sdk.geometry`, CG-canon): `Mat3.reflect`/`mirror`; the
+  - Geometry kernel (`frameforge_sdk.geometry`, CG-canon): `Mat3.reflect`/`mirror`; the
     named viewing pipeline `window_to_viewport(window, viewport)` / `ViewingPipeline`
     (the fit `Scene3D.render` uses); 2-D intersections (`segment_intersection`/
     `ray_segment_intersection`/`line_intersection`/`segment_polygon_intersections`),
@@ -97,7 +97,7 @@ Fluent builder:
     `line_curve_intersections`, de Casteljau); curves `CubicBezier.curvature`/`arc_length` +
     `polyline_length` and surfaces `surface_curvature(fn, u, v)` → `(K, H)`; comp-geometry
   `convex_hull`/`convex_hull_3d`/`aabb`/`aabb3`/`obb`/`polygon_area`/`point_in_polygon`.
-  - UML 2.5.1 (`frameforge.sdk.uml_models` + `frameforge.sdk.uml`): validate a
+  - UML 2.5.1 (`frameforge_sdk.uml_models` + `frameforge_sdk.uml`): validate a
     typed semantic model such as `UMLClassDiagramModel`, then call one of the 14
     `compose_*` functions. Start with `compose_class_diagram`; behavioral
     counterparts include `compose_sequence_diagram` and `compose_state_machine`. The
@@ -107,17 +107,17 @@ Fluent builder:
     `to_document(title=, page_id=, canvas_size=)` returns a model-valid v2
     document; `to_page(...)` returns an embeddable absolute page. Hierarchical
     composers use the deterministic four-stage `sugiyama_layout`
-    (`frameforge.sdk.sugiyama`): Eades-Lin-Smyth cycle removal, longest-path
+    (`frameforge_sdk.sugiyama`): Eades-Lin-Smyth cycle removal, longest-path
     layers with dummy bends, median crossing minimization, and Brandes-Kopf
     coordinate assignment. OMG UML 2.5.1 XMI reference files and checksums live
     under `static/specs/uml-2.5.1/` and are not loaded on the render hot path.
   - `Scene3D.render(shading=, cull_backfaces=, near_clip=)` — opt-in `near_clip=True`
     Sutherland–Hodgman-clips faces straddling the near plane instead of dropping them.
-  - Fractals (`frameforge.sdk.fractal`): an `lsystem` + `turtle` engine with
+  - Fractals (`frameforge_sdk.fractal`): an `lsystem` + `turtle` engine with
     `koch_curve`/`dragon_curve`/`sierpinski_arrowhead` presets — self-similar curves
     lowered to plain polylines.
-  - Deterministic sampling (`frameforge.sdk.rand`):
-        from frameforge.sdk import Rand, halton, poisson_disk, jittered_grid
+  - Deterministic sampling (`frameforge_sdk.rand`):
+        from frameforge_sdk import Rand, halton, poisson_disk, jittered_grid
         root = Rand("document")
         dots = poisson_disk([0, 0, 640, 360], radius=12,
                             rand=root.derive("dots"), max_points=500)
@@ -128,8 +128,8 @@ Fluent builder:
     page space is Y-down, and the default seed is deterministic. This API is
     not cryptographic. Use it directly through `run_sdk_code`; no dedicated MCP
     tool is needed.
-  - Sampleable coherent noise (`frameforge.sdk.noise`):
-        from frameforge.sdk import Noise, ScalarField, domain_warp
+  - Sampleable coherent noise (`frameforge_sdk.noise`):
+        from frameforge_sdk import Noise, ScalarField, domain_warp
         source = Noise(7, frequency=0.35, basis="simplex")
         field = ScalarField(Noise(7, basis="simplex").field(),
                             domain=(0, 0, 8, 5))
@@ -149,12 +149,12 @@ Fluent builder:
     object that `sdk.expand` lowers into a positioned group at expansion time —
     the render-time auto-layout bridge (nodes+edges in, computed geometry out;
     a node's `pos` overrides the algorithm). Prefer it over baking coordinates.
-- Figures (`frameforge.sdk.figure`): `place_figure(source, box)` / `load_figure` /
+- Figures (`frameforge_sdk.figure`): `place_figure(source, box)` / `load_figure` /
   `FigureRef` import another FrameForge page's objects as editable children (not a frozen
   image); `FigureAsset` / `place_imported_figure` place an extracted book/PDF figure with
   caption + provenance.
 - Design canon — START HERE for colour and type decisions, instead of ad-hoc picks:
-  - Colour (`frameforge.sdk.chevreul`, after Chevreul 1839): `closed_palette(ground=,
+  - Colour (`frameforge_sdk.chevreul`, after Chevreul 1839): `closed_palette(ground=,
     ink=, accent=)` assigns every colour a duty and emits a `defs.tokens.colors` fragment
     (dose per `AREA_GUIDE` ≈ 62/30/8); the six harmonies (`harmony_of_scale`,
     `harmony_of_hues`, `dominant_light`, `contrast_of_scale`, `contrast_of_hues`,
@@ -162,8 +162,8 @@ Fluent builder:
     `color_guide(base)` returns all six harmonies for any base colour (the declarative Color Guide); `contrast_ratio(a, b)` (WCAG) checks text-on-ground legibility BEFORE rendering;
     `grey_document(doc)` is the tone audit — render it next to the original to prove
     hierarchy survives without hue.
-  - Perceptual colour (`frameforge.sdk.colorspace`):
-    `from frameforge.sdk import delta_e, mix, ramp, to_oklab` gives pure sRGB ↔ XYZ ↔
+  - Perceptual colour (`frameforge_sdk.colorspace`):
+    `from frameforge_sdk import delta_e, mix, ramp, to_oklab` gives pure sRGB ↔ XYZ ↔
     CIELab/LCh and OKLab/OKLCh conversions, perceptual distance, and shorter-arc hue
     interpolation. Every transform is an invertible pair — `to_oklab`/`from_oklab`,
     `to_oklch`/`from_oklch`, `to_lab`/`from_lab`, `to_lch`/`from_lch`, `to_xyz`/`from_xyz`,
@@ -175,37 +175,37 @@ Fluent builder:
     Conversion clips out-of-gamut sRGB channels rather than applying chroma-preserving
     gamut mapping. Use these author-time functions through `run_sdk_code`; no dedicated
     MCP tool or renderer change is needed.
-  - Typography (`frameforge.sdk.canon`, after Johnston 1906): `modular_scale(base, ratio)`
+  - Typography (`frameforge_sdk.canon`, after Johnston 1906): `modular_scale(base, ratio)`
     for sizes that agree; `content_box(page_w, page_h, unit, side="recto"|"verso")` for
     the book margin canon (inner 1½ · top 2 · outer 3 · foot 4); `measure_fits(chars)`
     for the 45–75 chars/line band; `caps_tracking(font_size)` for all-caps labels.
-- Markdown (`frameforge.sdk.markdown`): `from_markdown(text)` converts a whole
+- Markdown (`frameforge_sdk.markdown`): `from_markdown(text)` converts a whole
   CommonMark/GFM-subset document into a validated flow document (headings,
   lists, tables, code, quotes, images; front-matter; page breaks) — the fast
   path from prose to a paginated render.
 - Geometry engines (compute in the SDK, emit plain paths — never hand-place what
   these can derive):
-  - Planar kernel (`frameforge.sdk.planar`, Pathfinder-class): `union`/`intersect`/
+  - Planar kernel (`frameforge_sdk.planar`, Pathfinder-class): `union`/`intersect`/
     `subtract`/`divide` booleans on flattened rings (holes native — multi-ring
     even-odd paths), `offset_polygon(ring, d)` (miter, collapse-aware),
     `split_at(points, t)` / `cut_along(ring, p1, p2)` path surgery,
     `fill_regions(shapes)` (every bounded region of an overlay as its own fillable
     face, <=8 shapes), `to_path(rings, fill=...)` to emit.
-  - Stroke outlines & brushes (`frameforge.sdk.outline`): `stroke_outline(points,
+  - Stroke outlines & brushes (`frameforge_sdk.outline`): `stroke_outline(points,
     width, profile=t->scale, pen_angle=, pen_thin=, cap=, join=, smooth=True)` lowers
     a centre-line to a CLOSED filled path — constant width = outline-stroke, profile
     = variable width, pen_angle = calligraphic nib; `repeat_along_path(points,
     spacing=, stamp=obj)` places copies by arc length with tangent rotation.
-  - Clipping & masking (`frameforge.sdk.clip`): `clip_rect`/`clip_circle`/`clip_ellipse`/
+  - Clipping & masking (`frameforge_sdk.clip`): `clip_rect`/`clip_circle`/`clip_ellipse`/
     `clip_inset`/`clip_polygon`/`clip_path` build the `clip` bag for an object or group;
     `normalize_clip` canonicalises it. `mask_url`, `mask_gradient`, `mask_none`,
     `normalize_mask`, and `mask_style` build the model-native `style.mask` values.
     Nest a clip on a STATIC parent — a clip on a transformed group rides along inside
     the transform.
-  - Regions & grading (`frameforge.sdk.region`): `select_in(doc, box)` / `extract_objects`
+  - Regions & grading (`frameforge_sdk.region`): `select_in(doc, box)` / `extract_objects`
     pick objects by area; `region_grade` / `gradient_map(objects, ...)` apply a positional
     colour grade; `place_region` re-lays a captured region; `object_bbox` measures it.
-  - SVG ingest & embedded lowering (`frameforge.sdk.io`): `svg_to_objects(svg, box=...)`
+  - SVG ingest & embedded lowering (`frameforge_sdk.io`): `svg_to_objects(svg, box=...)`
     ingests SVG text, a `.svg` path, or a `data:image/svg+xml` URI (plain/URL-encoded/
     base64) as native objects; `lower_embedded_svg(doc)` walks a document and replaces
     every embedded-SVG `image` (literal src or a `defs.assets` key) with a `group` of
@@ -236,7 +236,7 @@ Fluent builder:
     or value, paint literals and gradient stops; input never mutated.
   - Named gradient/pattern fills live in `defs.tokens.fill_styles` and resolve from
     any `fill:`/`stroke:` string.
-- Type finesse (`frameforge.sdk.metrics`): `measure_text`/`fit_width`/`wrap_text`/
+- Type finesse (`frameforge_sdk.metrics`): `measure_text`/`fit_width`/`wrap_text`/
   `text_height` size boxes to content BEFORE rendering. Use `fit_width` for a
   positioned text box because it includes the renderer's fit tolerance. SDK and
   renderer default to the same deterministic estimate mode; pass the same
@@ -256,19 +256,19 @@ Fluent builder:
   symbol packs instantiated via `use` objects and lowered by `sdk.expand`;
   `honeycomb_capability_map(data)` / `module_hub_radial(data)` generate whole
   diagram pages from plain data dicts (render-ready, pre-expanded).
-- Books (`frameforge.sdk.book`): `BookBuilder(title=, author=)` -> `.chapter(t)`
+- Books (`frameforge_sdk.book`): `BookBuilder(title=, author=)` -> `.chapter(t)`
   -> `.section(t)` / `.para` / `.figure(obj, caption=)` composes front matter +
   chapters into ONE paginated flow document — numbering computed at build time
   (chapters `1`, sections `1.1`, captions `Figure 2.1 — ...`), chapters open on
   fresh pages, figures keep their captions (`keep_with_caption`), boxless
   geometry gets a derived size, and the TOC lists chapters only.
-- Symbols & lowering (`frameforge.sdk.expand`): `expand(doc)` lowers grammar-level
+- Symbols & lowering (`frameforge_sdk.expand`): `expand(doc)` lowers grammar-level
   `use`/`component` objects into core primitives and pins asset/font hashes — run it
   before rendering any document that carries `defs.symbols`.
 - Humanize (seeded imperfection): set `humanize: {seed: N, roughen: ..., drift_deg:
   ...}` on the document or any object — a deterministic hand-drawn wobble applied at
   expansion; absence is identity, same seed = same page.
-- Overlap separation (`frameforge.sdk.separate`): `separate_rects(boxes, world=...)`
+- Overlap separation (`frameforge_sdk.separate`): `separate_rects(boxes, world=...)`
   is a deterministic AABB separation kernel (pairwise relaxation, world-clamped);
   `apply_separation(doc)` nudges ONLY the boxes the static audit's `overlap` rule
   flags — the solver for detect-without-solve overlap findings.
@@ -305,7 +305,7 @@ Discovery (look up, don't guess):
   capability index (object types, flowable types, inline kinds, canvas presets, profiles,
   tool names, SDK export count); topic = `flowables`/`inlines`/`style`/`presets`/`tools`/
   `sdk` (the ENTIRE public SDK surface — every export with kind, signature and a one-line
-  explanation, introspected live from `frameforge.sdk.__all__`), or a type name
+  explanation, introspected live from `frameforge_sdk.__all__`), or a type name
   (`rect`, `paragraph`, `document`, `page`, `canvas`) for its fields + JSON schema.
   Check the schema BEFORE authoring instead of iterating on validation errors.
 - `list_fonts` — the font families fontconfig can resolve; pass `family` to see what a
@@ -604,14 +604,14 @@ Tools:
   image — perspective correction, emits the corrected PNG).
 
 The CAD operator layer (parametric, computed, verified):
-- Solids (`frameforge.sdk.solids`): `extrude(profile, depth)`, `revolve(profile,
+- Solids (`frameforge_sdk.solids`): `extrude(profile, depth)`, `revolve(profile,
   segments=, angle=)` (partial angles grow end caps), `sweep(profile, path3d)`
   (tangent-oriented rings, mitred corners), `loft(profiles, heights=)` — all
   emit `Scene3D` meshes for `render`/`multiview`. `section_loops(scene,
   plane_point=, plane_normal=)` cuts a scene into closed 2D loops;
   `section_object(...)` fits them into a frame as one even-odd hatched path —
   the engineering section view.
-- Sketch surgery (`frameforge.sdk.planar`): `fillet_ring(ring, r)` /
+- Sketch surgery (`frameforge_sdk.planar`): `fillet_ring(ring, r)` /
   `chamfer_ring(ring, d)` round or cut corners (per-corner selection, oversized
   radii left sharp); `trim_segment` / `extend_segment` cut or prolong to a line.
 - Patterns: `array(obj, linear=(dx, dy, n) | polar=(cx, cy, n) | along=pts,
@@ -621,7 +621,7 @@ The CAD operator layer (parametric, computed, verified):
   layers are non-printing datums — excluded from renders unless the document
   sets `meta.show_construction`. Layer `role` also declares
   geometry/annotation/dimension intent.
-- Document parameters (`frameforge.sdk.params`, `defs.params`): named numbers
+- Document parameters (`frameforge_sdk.params`, `defs.params`): named numbers
   (or '=expr' strings over earlier ones); ANY '=expr' string field resolves
   before validation — geometry positions become numbers, `text` fields become
   formatted strings (driven dimension labels). Whitelisted arithmetic AST, never
@@ -648,7 +648,7 @@ Primitives-first reconstruction (numeric loop closure):
 - `overlay_images(rotation=true)` opts into the full-similarity fit (2D
   Procrustes, >=2 pairs) and a rotated composite; the default stays
   rotation-free so tilt keeps surfacing honestly as residuals.
-- SDK type-on-path (`frameforge.sdk.pathtext`): `text_on_path(points, text,
+- SDK type-on-path (`frameforge_sdk.pathtext`): `text_on_path(points, text,
   size=, family=, offset=, ...)` sets type glyph-by-glyph along a polyline —
   real-metric advances measured on the offset path (concave side at +offset),
   tangent-following rotation; `offset_path`/`path_walker`/`path_length` are the

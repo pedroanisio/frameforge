@@ -27,7 +27,8 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from frameforge.rendering.application.audit import (  # noqa: E402
     audit_document, compact_census)
-from frameforge.sdk import DocumentBuilder, collision_report  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge.conform import collision_report
 
 _SANS = ["DejaVu Sans", "sans-serif"]
 
@@ -115,7 +116,7 @@ def test_compact_census_reports_zero_when_clean():
 # --------------------------------------------------------------------------- #
 def _render(tmp_path, doc, session_id="collision-parity"):
     from frameforge.mcp.server import render_frameforge_yaml
-    from frameforge.sdk.io import serialize
+    from frameforge_sdk.io import serialize
     return render_frameforge_yaml(serialize(doc, format="yaml"),
                                   session_id=session_id, session_root=tmp_path,
                                   raster_png=False)

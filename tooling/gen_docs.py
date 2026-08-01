@@ -193,14 +193,7 @@ def gen_sdk_guide():
     example = """\
     from pathlib import Path
 
-    from frameforge.sdk import (
-        DocumentBuilder,
-        ExpandOptions,
-        expand,
-        parse,
-        serialize,
-        validate_static_rules,
-    )
+    from frameforge_sdk import DocumentBuilder, ExpandOptions, expand, parse, serialize, validate_static_rules
 
     builder = DocumentBuilder(title="SDK quickstart", profile="deck")
     ink = builder.define_color("ink", "#111827")
@@ -225,7 +218,7 @@ def gen_sdk_guide():
     parsed = parse(yaml_text, forgiving=False)
     """
     reuse_example = """\
-    from frameforge.sdk import DocumentBuilder
+    from frameforge_sdk import DocumentBuilder
 
     builder = DocumentBuilder()
     with builder.symbol("badge", [0, 0, 100, 32]) as badge:
@@ -243,14 +236,7 @@ def gen_sdk_guide():
     doc = builder.build()
     """
     paint_geometry_example = """\
-    from frameforge.sdk import (
-        DocumentBuilder,
-        dots,
-        grid_pattern,
-        hatch,
-        neon,
-        stroke,
-    )
+    from frameforge_sdk import DocumentBuilder, dots, grid_pattern, hatch, neon, stroke
 
     builder = DocumentBuilder()
     page = builder.page("p", canvas={"size": [420, 240], "units": "px"})
@@ -268,7 +254,7 @@ def gen_sdk_guide():
                    fill="none", stroke="#7c3aed")
     """
     macros_example = """\
-    from frameforge.sdk import DocumentBuilder, greeble, grid_lines, hatch_fill, sparkline
+    from frameforge_sdk import DocumentBuilder, greeble, grid_lines, hatch_fill, sparkline
 
     builder = DocumentBuilder()
     layer = builder.page("p", canvas={"size": [420, 220], "units": "px"}).layer("main")
@@ -280,7 +266,7 @@ def gen_sdk_guide():
         panel.add(sparkline([(0, 2), (1, 4), (2, 3), (3, 7)], [168, 116, 160, 32]))
     """
     stack_example = """\
-    from frameforge.sdk import DocumentBuilder, badge, button
+    from frameforge_sdk import DocumentBuilder, badge, button
 
     builder = DocumentBuilder()
     layer = builder.page("p", canvas={"size": [640, 240], "units": "px"}).layer("main")
@@ -297,7 +283,7 @@ def gen_sdk_guide():
     doc = builder.build()
     """
     canon_example = """\
-    from frameforge.sdk import DocumentBuilder, canon, chevreul, delta_e, mix, ramp
+    from frameforge_sdk import DocumentBuilder, canon, chevreul, delta_e, mix, ramp
 
     # one decided colour system + one decided size system, before any drawing
     palette = chevreul.closed_palette(ground="#fbf8f1", ink="#1d1e22", accent="#b5402c")
@@ -334,9 +320,7 @@ def gen_sdk_guide():
     topology_example = """\
     import math
 
-    from frameforge.sdk import (
-        Camera, DocumentBuilder, Graph, ScalarField, Vec3, lattice, manifold,
-    )
+    from frameforge_sdk import Camera, DocumentBuilder, Graph, ScalarField, Vec3, lattice, manifold
 
     builder = DocumentBuilder(profile="diagram")
     layer = builder.page("p", canvas={"size": [960, 320], "units": "px"},
@@ -364,7 +348,7 @@ def gen_sdk_guide():
     doc = builder.build()
     """
     figure_example = """\
-    from frameforge.sdk import DocumentBuilder, FigureRef
+    from frameforge_sdk import DocumentBuilder, FigureRef
 
     def draw_plate(builder):
         plate = builder.page("plate", canvas={"size": [400, 240], "units": "px"})
@@ -382,7 +366,7 @@ def gen_sdk_guide():
     )
     """
     imported_figure_example = """\
-    from frameforge.sdk import DocumentBuilder, FigureAsset
+    from frameforge_sdk import DocumentBuilder, FigureAsset
 
     figure = FigureAsset.from_pdf_image(
         "book-assets/biology-fig-1-1.jpg",
@@ -402,19 +386,14 @@ def gen_sdk_guide():
     page.imported_figure(figure, [48, 48, 420, 300], caption_position="below")
     """
     validate_example = """\
-    from frameforge.sdk import validate_static_rules
+    from frameforge_sdk import validate_static_rules
 
     report = validate_static_rules(document, targets=["print"])
     for issue in report.issues:
         print(issue.severity, issue.rule_id, issue.path, issue.message)
     """
     verify_example = """\
-    from frameforge.sdk import (
-        collision_report,
-        legibility_report,
-        overflow_report,
-        paint_report,
-    )
+    from frameforge.conform import collision_report, legibility_report, overflow_report, paint_report
 
     for c in collision_report(document):
         # `ids` is [None, None] unless BOTH objects were authored with an `id`, so
@@ -431,7 +410,7 @@ def gen_sdk_guide():
     assert not overflow_report(document), "content does not fit its boxes"
     """
     metrics_example = """\
-    from frameforge.sdk import fit_width, stroke
+    from frameforge_sdk import fit_width, stroke
 
     family = ["Inter", "DejaVu Sans", "sans-serif"]
     width = fit_width("Advanced   SQL", font_family=family, font_size=13)
@@ -443,7 +422,7 @@ def gen_sdk_guide():
     page.line([64, 92], [64 + width, 92], **stroke(1, color="#2563eb", dash="4 4"))
     """
     sampling_example = """\
-    from frameforge.sdk import Rand, halton, jittered_grid, poisson_disk
+    from frameforge_sdk import Rand, halton, jittered_grid, poisson_disk
 
     # Named streams stay stable when sibling regions are added or reordered.
     dots = Rand("document").derive("dots")
@@ -457,7 +436,7 @@ def gen_sdk_guide():
     )
     """
     noise_example = """\
-    from frameforge.sdk import Noise, ScalarField, domain_warp
+    from frameforge_sdk import Noise, ScalarField, domain_warp
 
     source = Noise(7, frequency=0.35, basis="simplex")
     field = ScalarField(source.field(), domain=(0, 0, 8, 5))
@@ -474,7 +453,7 @@ def gen_sdk_guide():
         "    Generated by `tooling/gen_docs.py` from examples in the docs pipeline and checked by `docs-check`. "
         "Do not hand-edit.",
         "",
-        "The Python SDK lives under `frameforge.sdk`. It is a hand-written binding over the repository's "
+        "The Python SDK lives under `frameforge_sdk`. It is a hand-written binding over the repository's "
         "authoritative Pydantic model, so document-producing APIs validate through `frameforge.model.Document` "
         "instead of redeclaring core schema types.",
         "",
@@ -483,10 +462,10 @@ def gen_sdk_guide():
         "Use it from the repository checkout with the project environment:",
         "",
         "```bash",
-        "uv run python -c \"from frameforge.sdk import DocumentBuilder; print(DocumentBuilder)\"",
+        "uv run python -c \"from frameforge_sdk import DocumentBuilder; print(DocumentBuilder)\"",
         "```",
         "",
-        "Most public helpers are re-exported from `frameforge.sdk`: builders, parse/serialize, validation, "
+        "Most public helpers are re-exported from `frameforge_sdk`: builders, parse/serialize, validation, "
         "expansion, geometry, draw helpers, and macros. See [Python SDK API](sdk-api.md) for signatures.",
         "",
         "## Quickstart",
@@ -538,7 +517,7 @@ def gen_sdk_guide():
         "",
         "## Procedural Texture Macros",
         "",
-        "Macros under `frameforge.sdk.macros` return ordinary objects/lists that can be added directly or passed "
+        "Macros under `frameforge_sdk.macros` return ordinary objects/lists that can be added directly or passed "
         "to `PageBuilder.extend()`.",
         "",
         "```python",
@@ -547,7 +526,7 @@ def gen_sdk_guide():
         "",
         "## Deterministic sampling",
         "",
-        "`frameforge.sdk.rand` provides reproducible `Rand` streams plus Halton, Poisson-disk, and "
+        "`frameforge_sdk.rand` provides reproducible `Rand` streams plus Halton, Poisson-disk, and "
         "jittered-grid point sampling. Every sampler returns ordinary Y-down `Vec2` geometry; named "
         "`derive(...)` streams are independent of parent draws and sibling creation order. Spatial "
         "coordinates are quantized for stable serialization, Poisson generation uses a sparse background "
@@ -560,7 +539,7 @@ def gen_sdk_guide():
         "",
         "## Sampleable coherent noise",
         "",
-        "`frameforge.sdk.noise` evaluates deterministic value, Perlin, and 2D simplex noise as "
+        "`frameforge_sdk.noise` evaluates deterministic value, Perlin, and 2D simplex noise as "
         "author-time CPU values. `Noise` binds a stable seed, frequency, and basis; its `field()` "
         "callable plugs directly into `ScalarField`, while `fbm` adds normalised octaves and "
         "`domain_warp` returns coordinates for marble or flow-like resampling. Gradient noise uses "
@@ -575,16 +554,16 @@ def gen_sdk_guide():
         "## Design Canon — colour & typography",
         "",
         "Two canon modules codify working design rules so authors (human or agent) start from *decided* "
-        "systems instead of ad-hoc picks. `frameforge.sdk.chevreul` (after M. E. Chevreul, 1839): the "
+        "systems instead of ad-hoc picks. `frameforge_sdk.chevreul` (after M. E. Chevreul, 1839): the "
         "12-station painter's wheel with `complement`, tone scales, the **six harmonies** "
         "(`harmony_of_scale`/`harmony_of_hues`/`dominant_light` and the three contrasts), WCAG 2.1 "
         "`relative_luminance`/`contrast_ratio`, the `grey_document` tone audit, and `closed_palette` — "
         "duties (ground/ink/accent + quiet steps) with the 62/30/8 `AREA_GUIDE`, emitting a ready "
-        "`defs.tokens.colors` fragment. `frameforge.sdk.colorspace` adds D65 sRGB/XYZ, CIELab/LCh, "
+        "`defs.tokens.colors` fragment. `frameforge_sdk.colorspace` adds D65 sRGB/XYZ, CIELab/LCh, "
         "and OKLab/OKLCh conversion plus perceptual `mix(..., space=\"oklab\")`, `ramp`, and `delta_e`. "
         "New `mix`/`ramp` calls default to OKLab; Chevreul's established helpers remain opt-in and "
         "byte-identical by default with `space=\"srgb\"`. Out-of-gamut conversion clips sRGB channels. "
-        "`frameforge.sdk.canon` (after Edward Johnston, 1906): "
+        "`frameforge_sdk.canon` (after Edward Johnston, 1906): "
         "`modular_scale`, the inner-1½/top-2/outer-3/foot-4 margin canon (`johnston_margins`/"
         "`content_box`), the 45–75 characters-per-line measure band, and `caps_tracking`. "
         "Pure helpers only — nothing new enters the schema.",
@@ -599,16 +578,16 @@ def gen_sdk_guide():
         "structured `group`. Deep containment audits its children in the group-local frame; layer-level "
         "table heuristics treat the group as one object:",
         "",
-        "- **Topology** (`frameforge.sdk.topology`): `Graph` builds a node-link network and lays it out with "
+        "- **Topology** (`frameforge_sdk.topology`): `Graph` builds a node-link network and lays it out with "
         "deterministic algorithms — `circular_layout`, `radial_layout`, `layered_layout` (DAG), `grid_layout`, "
         "and a seeded `spring_layout` (Fruchterman–Reingold). `Graph.render()` draws edges, arrowheads and "
         "fitted labels.",
-        "- **Perspective** (`frameforge.sdk.geometry.Camera`): a `look_at` + field-of-view camera composes a "
+        "- **Perspective** (`frameforge_sdk.geometry.Camera`): a `look_at` + field-of-view camera composes a "
         "view/projection `Mat4`. Pass a `Camera` to `Scene3D.render()`, `Graph.render()`, a `Lattice`, or any "
         "manifold to project 3D positions; `Camera.orbit()` sweeps the eye for frame-by-frame motion.",
-        "- **Fields** (`frameforge.sdk.fields`): `VectorField` samples `(x, y) -> (u, v)` into a grid of arrows; "
+        "- **Fields** (`frameforge_sdk.fields`): `VectorField` samples `(x, y) -> (u, v)` into a grid of arrows; "
         "`ScalarField` renders `(x, y) -> value` as a `heatmap` and/or marching-squares `contours`.",
-        "- **Lattices & manifolds** (`frameforge.sdk.lattices`, `frameforge.sdk.manifold`): `lattice(kind, ...)` "
+        "- **Lattices & manifolds** (`frameforge_sdk.lattices`, `frameforge_sdk.manifold`): `lattice(kind, ...)` "
         "builds 2D (square/triangular/honeycomb) and 3D (cubic/bcc/fcc) crystals with nearest-neighbour bonds, "
         "rendered through the same `Graph` engine; `manifold.{sphere,torus,mobius,klein_bottle,saddle,wave}` "
         "build perspective-ready parametric `Scene3D` surfaces — `wave` is the interference heightfield.",
@@ -725,43 +704,43 @@ def gen_sdk_guide():
 
 def gen_sdk_api():
     _ensure_sdk_importable()
-    import frameforge.sdk as sdk
+    import frameforge_sdk as sdk
 
     modules = [
-        "frameforge.sdk.author",
-        "frameforge.sdk.canon",
-        "frameforge.sdk.chart",
-        "frameforge.sdk.chevreul",
-        "frameforge.sdk.clip",
-        "frameforge.sdk.colorspace",
-        "frameforge.sdk.conform",
-        "frameforge.sdk.draw",
-        "frameforge.sdk.expand",
-        "frameforge.sdk.fields",
-        "frameforge.sdk.figure",
-        "frameforge.sdk.fractal",
-        "frameforge.sdk.geometry",
-        "frameforge.sdk.io",
-        "frameforge.sdk.lattices",
-        "frameforge.sdk.layout",
-        "frameforge.sdk.macros",
-        "frameforge.sdk.manifold",
-        "frameforge.sdk.markdown",
-        "frameforge.sdk.metrics",
-        "frameforge.sdk.model",
-        "frameforge.sdk.noise",
-        "frameforge.sdk.paint",
-        "frameforge.sdk.rand",
-        "frameforge.sdk.region",
-        "frameforge.sdk.topology",
-        "frameforge.sdk.validate",
-        "frameforge.sdk.widgets",
+        "frameforge_sdk.author",
+        "frameforge_sdk.canon",
+        "frameforge_sdk.chart",
+        "frameforge_sdk.chevreul",
+        "frameforge_sdk.clip",
+        "frameforge_sdk.colorspace",
+        "frameforge.conform",
+        "frameforge_sdk.draw",
+        "frameforge_sdk.expand",
+        "frameforge_sdk.fields",
+        "frameforge_sdk.figure",
+        "frameforge_sdk.fractal",
+        "frameforge_sdk.geometry",
+        "frameforge_sdk.io",
+        "frameforge_sdk.lattices",
+        "frameforge_sdk.layout",
+        "frameforge_sdk.macros",
+        "frameforge_sdk.manifold",
+        "frameforge_sdk.markdown",
+        "frameforge_sdk.metrics",
+        "frameforge_sdk.model",
+        "frameforge_sdk.noise",
+        "frameforge_sdk.paint",
+        "frameforge_sdk.rand",
+        "frameforge_sdk.region",
+        "frameforge_sdk.topology",
+        "frameforge_sdk.validate",
+        "frameforge_sdk.widgets",
     ]
     lines = [
         "# Python SDK API",
         "",
         "!!! info \"Generated\"",
-        "    Generated by `tooling/gen_docs.py` from `frameforge.sdk` public exports, docstrings, and signatures. "
+        "    Generated by `tooling/gen_docs.py` from `frameforge_sdk` public exports, docstrings, and signatures. "
         "Do not hand-edit.",
         "",
         "## Public exports",

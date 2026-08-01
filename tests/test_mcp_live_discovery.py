@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import os
+import pathlib
 import shutil
+
 import sys
 from pathlib import Path
 
@@ -75,24 +77,19 @@ def test_long_running_server_refreshes_sdk_and_guide_without_restart(tmp_path, m
     assert initial["source_token"]
     assert "issue78_live_probe" not in initial_names
 
-    sdk_init = source_root / "sdk" / "__init__.py"
-    _make_newest(
-        sdk_init,
-        source_root,
-        """
-
-def issue78_live_probe():
-    \"\"\"Prove that a long-running MCP server sees a new SDK export.\"\"\"
-
-
-__all__.append(\"issue78_live_probe\")
-""",
-    )
-    refreshed = _structured(server.tools["describe_capabilities"](topic="sdk"))
-    refreshed_names = {entry["name"] for entry in refreshed["exports"]}
-    assert "issue78_live_probe" in refreshed_names
-    assert len(refreshed_names) == len(initial_names) + 1
-    assert refreshed["source_token"] != initial["source_token"]
+    # The SDK-export half of this probe retired with the 2026-08-01 split.
+    #
+    # It used to edit `source_root/sdk/__init__.py` — a COPY of the tree the
+    # server watches — and assert a new export appeared without a restart. The
+    # SDK is now the installed `frameforge-sdk` distribution, so its exports do
+    # not come from that tree at all: the only way to make this assertion pass
+    # again would be to mutate site-packages (an editable install points at the
+    # developer's real checkout), which is not something a test may do.
+    #
+    # What still holds, and is still worth gating, is the mechanism itself: the
+    # server must notice a source edit to a module it DOES own and refresh both
+    # the guide and its source token without a restart. That is asserted below.
+    # Live-reload of an installed dependency is the dependency's problem.
 
     initial_guide = server.tools["get_guide"]()
     assert "`source_token`" in initial_guide
@@ -108,9 +105,12 @@ __all__.append(\"issue78_live_probe\")
     assert marker not in initial_guide
     assert marker in refreshed_guide
     assert server.prompts["frameforge_guide"]() == refreshed_guide
+    # The capability set is stable across an ENGINE edit — SDK exports come from
+    # an installed distribution now — but the source token must still move,
+    # because the server re-read the tree it owns.
     final_capabilities = _structured(server.tools["describe_capabilities"](topic="sdk"))
-    assert {entry["name"] for entry in final_capabilities["exports"]} == refreshed_names
-    assert final_capabilities["source_token"] != refreshed["source_token"]
+    assert {entry["name"] for entry in final_capabilities["exports"]} == initial_names
+    assert final_capabilities["source_token"] != initial["source_token"]
 
     def unexpected_spawn(*_args, **_kwargs):
         raise AssertionError("same-token discovery must be served from the cache")

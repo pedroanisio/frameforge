@@ -23,13 +23,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.sdk import (  # noqa: E402
-    kerned_spans,
-    repeat_along_path,
-    stroke_outline,
-)
-from frameforge.sdk.geometry import Path as GPath  # noqa: E402
-from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge_sdk import kerned_spans, repeat_along_path, stroke_outline  # noqa: E402
+from frameforge_sdk.geometry import Path as GPath  # noqa: E402
+from frameforge_sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 
 def _ring(obj):
@@ -177,7 +173,7 @@ def test_structured_d_survives_the_model_round_trip_to_svg():
     stringified Python tuple (garbage that also hangs cairosvg). The SDK
     render path (validate → model_dump → normalize → render) must emit
     real path data."""
-    from frameforge.sdk import render_pages_with_stats
+    from frameforge.conform import render_pages_with_stats
     obj = stroke_outline([(10, 10), (90, 10)], width=8, fill="#123456")
     doc = {"dsl": "FrameForge", "version": HEAD_VERSION, "title": "d",
            "profile": "diagram",
@@ -211,7 +207,7 @@ def test_kerned_spans_without_pairs_is_a_single_run():
 
 
 def test_font_kern_pairs_degrades_without_fonttools():
-    from frameforge.sdk import font_kern_pairs
+    from frameforge_sdk import font_kern_pairs
     pairs = font_kern_pairs("NoSuchFamilyXYZ", "AV", font_size=100)
     assert pairs == {}, "unknown font must degrade to no kerning, not crash"
 

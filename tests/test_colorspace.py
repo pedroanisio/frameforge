@@ -10,24 +10,8 @@ import time
 import pytest
 from hypothesis import given, settings, strategies as st
 
-from frameforge.sdk import (
-    delta_e,
-    from_lab,
-    from_lch,
-    from_oklab,
-    from_oklch,
-    from_xyz,
-    linear_to_srgb,
-    mix,
-    ramp,
-    srgb_to_linear,
-    to_lab,
-    to_lch,
-    to_oklab,
-    to_oklch,
-    to_xyz,
-)
-from frameforge.sdk import chevreul
+from frameforge_sdk import delta_e, from_lab, from_lch, from_oklab, from_oklch, from_xyz, linear_to_srgb, mix, ramp, srgb_to_linear, to_lab, to_lch, to_oklab, to_oklch, to_xyz
+from frameforge_sdk import chevreul
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -241,7 +225,7 @@ def test_generated_sdk_docs_and_manifest_expose_colorspace() -> None:
     manifest = json.loads((ROOT / "docs/capability-manifest.json").read_text(encoding="utf-8"))
     assert "perceptual" in sdk_guide.lower()
     assert "mix(..., space=\"oklab\")" in sdk_guide
-    assert "## `frameforge.sdk.colorspace`" in sdk_api
+    assert "## `frameforge_sdk.colorspace`" in sdk_api
     assert "mix(a: 'Color', b: 'Color', t: 'float', *, space: 'str' = 'oklab')" in sdk_api
     assert {"mix", "ramp", "delta_e", "to_oklab", "from_oklab"} <= set(
         manifest["sdk"]["public_exports"]

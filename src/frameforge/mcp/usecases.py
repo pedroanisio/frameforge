@@ -59,7 +59,7 @@ def fit_text(
     if float(font_size) <= 0:
         raise ValueError("font_size must be positive")
     from frameforge.mcp.pipeline import _resolve_real_metrics
-    from frameforge.sdk.metrics import fit_width, measure_text
+    from frameforge_sdk.metrics import fit_width, measure_text
 
     metrics_on = _resolve_real_metrics(real_metrics)
     measured = measure_text(
@@ -510,7 +510,7 @@ def coach_vectorize(
         return _vision_error(str(exc))
     try:
         from frameforge.coach.compose import compose_from_image
-        from frameforge.sdk.io import serialize
+        from frameforge_sdk.io import serialize
     except ImportError:
         return _vision_error(_VISION_GROUP_HINT)
 
@@ -566,7 +566,7 @@ def _coerce_paint(value: Any) -> Any:
 
     Region/default paint arrives over the wire as JSON, so a ramp is a list of
     ``[position, colour]`` pairs; lower it to the ``(float, str)`` tuples
-    :func:`frameforge.sdk.region.region_grade` expects.
+    :func:`frameforge_sdk.region.region_grade` expects.
     """
     if value is None or isinstance(value, str):
         return value
@@ -594,7 +594,7 @@ def propose_from_svg(
     :func:`frameforge.vision.infrastructure.svg_import.svg_to_objects`, sizes a page
     to the drawing's extent, and renders it through the same forward pipeline the
     other tools use. When ``regions`` is given, each object is recoloured by the
-    region its centroid falls in (``frameforge.sdk.region.region_grade``): every
+    region its centroid falls in (``frameforge_sdk.region.region_grade``): every
     region is ``{"box": [x, y, w, h], "ramp": "#hex" | [[pos, "#hex"], ...]}``;
     objects outside every region take ``default_ramp`` (omit it to leave them
     unchanged). Region clip/transform stay in the SDK (``place_region``), reachable
@@ -608,9 +608,9 @@ def propose_from_svg(
         except ValueError as exc:
             return _vision_error(str(exc))
 
-    from frameforge.sdk.author import DocumentBuilder
-    from frameforge.sdk.io import serialize
-    from frameforge.sdk.region import object_bbox, region_grade
+    from frameforge_sdk.author import DocumentBuilder
+    from frameforge_sdk.io import serialize
+    from frameforge_sdk.region import object_bbox, region_grade
     from frameforge.vision.infrastructure.svg_import import svg_to_objects
 
     try:
@@ -2015,8 +2015,8 @@ def vectorize_image(
         return {"ok": False, "error": "the image produced no drawable objects (tune colors/threshold/min_area)",
                 "renders": [], "resources": []}
 
-    from frameforge.sdk.author import DocumentBuilder
-    from frameforge.sdk.io import serialize
+    from frameforge_sdk.author import DocumentBuilder
+    from frameforge_sdk.io import serialize
 
     builder = DocumentBuilder(title=title, lang="en")
     page = builder.page("vectorized", canvas={"size": [int(page_w), int(page_h)], "units": "px"},
@@ -2316,8 +2316,8 @@ def _doc_object_boxes(yaml_path: str | Path, *, img_w: int, img_h: int,
     slivers are excluded — a ghost search needs patches that are both local and
     measurable.
     """
-    from frameforge.sdk.io import parse
-    from frameforge.sdk.region import object_bbox
+    from frameforge_sdk.io import parse
+    from frameforge_sdk.region import object_bbox
 
     doc = parse(Path(yaml_path).read_text(encoding="utf-8"), validate=False)
     pages = doc.get("pages") or []

@@ -43,9 +43,9 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk.model import validate_document          # noqa: E402
-from frameforge.sdk.separate import apply_separation, separate_rects  # noqa: E402
-from frameforge.sdk.validate import validate_static_rules   # noqa: E402
+from frameforge_sdk.model import validate_document          # noqa: E402
+from frameforge_sdk.separate import apply_separation, separate_rects  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules   # noqa: E402
 
 EPS = 1e-6
 
@@ -320,7 +320,7 @@ def test_output_round_trips_through_the_model():
 
 
 def test_flat_sdk_export():
-    import frameforge.sdk as sdk
+    import frameforge_sdk as sdk
     assert sdk.separate_rects is separate_rects
     assert sdk.apply_separation is apply_separation
     assert "separate_rects" in sdk.__all__ and "apply_separation" in sdk.__all__

@@ -79,7 +79,8 @@ def test_soft_shadow_fades_out():
 
 
 def test_atmosphere_renders_through_frameforge():
-    from frameforge.sdk import DocumentBuilder, render_page_svgs
+    from frameforge_sdk import DocumentBuilder
+    from frameforge.conform import render_page_svgs
     b = DocumentBuilder(title="paint")
     p = b.page("p", canvas={"size": [200, 120], "units": "px"}, coordinate_mode="absolute")
     layer = p.layer("m")

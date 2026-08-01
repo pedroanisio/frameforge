@@ -6,7 +6,7 @@ Three discovery axes live here:
   client run produced (the run tools' fixture-discovery fallback).
 - :func:`describe_capabilities` — LIVE introspection of the authoritative
   document model (``frameforge.model`` (src/frameforge/model.py), loaded through the same
-  ``frameforge.sdk.model`` mechanism the pipeline uses), so an agent can look
+  ``frameforge_sdk.model`` mechanism the pipeline uses), so an agent can look
   up object types, flowables, inlines, style fields, and canvas presets
   instead of guessing and iterating on validation errors.
 - :func:`list_fonts` — fontconfig font-family enumeration + resolution, so a
@@ -77,7 +77,7 @@ _CAPABILITY_TOPICS = (
 
 @functools.lru_cache(maxsize=1)
 def _sdk_surface() -> tuple[dict[str, Any], ...]:
-    """The public SDK surface, introspected LIVE from ``frameforge.sdk.__all__``.
+    """The public SDK surface, introspected LIVE from ``frameforge_sdk.__all__``.
 
     One entry per export — name, kind, signature (callables), and a one-line
     explanation from the object's own docstring — so the whole SDK is
@@ -89,7 +89,7 @@ def _sdk_surface() -> tuple[dict[str, Any], ...]:
     """
     import inspect
 
-    import frameforge.sdk as sdk
+    import frameforge_sdk as sdk
 
     entries: list[dict[str, Any]] = []
     for name in sdk.__all__:
@@ -222,13 +222,13 @@ def _schema_topic(key: str, cls: type, kind: str) -> dict[str, Any]:
 def _model_catalog() -> dict[str, Any]:
     """The live model surface, introspected from ``frameforge.model`` (src/frameforge/model.py).
 
-    Loaded through :func:`frameforge.sdk.model.model_module` — the same
+    Loaded through :func:`frameforge_sdk.model.model_module` — the same
     mechanism the render pipeline uses — so the catalog can never drift from
     what validation actually enforces. Cached for the process lifetime: the
     model module is import-stable, and describe_capabilities sits on the hot
     MCP tool path (full typing introspection per call otherwise).
     """
-    from frameforge.sdk.model import model_module
+    from frameforge_sdk.model import model_module
 
     model = model_module()
     objects = {
@@ -277,7 +277,7 @@ def describe_capabilities(
     ``paragraph``, ...) or model name (``document``, ``page``, ``canvas``)
     returns its JSON schema.
     """
-    from frameforge.sdk.model import HEAD_VERSION
+    from frameforge_sdk.model import HEAD_VERSION
 
     catalog = _model_catalog()
     key = (topic or "").strip().lower()
@@ -294,7 +294,7 @@ def describe_capabilities(
             "sdk_exports": len(_sdk_surface()),
             "topics": list(_CAPABILITY_TOPICS),
             "security_posture": security_posture(),
-            "source": "src/frameforge/model.py (live introspection via frameforge.sdk.model)",
+            "source": "src/frameforge/model.py (live introspection via frameforge_sdk.model)",
         }
     if key == "tools":
         return {"ok": True, "topic": "tools", "tools": sorted(tool_names or [])}
@@ -314,7 +314,7 @@ def describe_capabilities(
             "ok": True,
             "topic": "sdk",
             "exports": exports,
-            "note": "introspected live from frameforge.sdk.__all__ — every export is "
+            "note": "introspected live from frameforge_sdk.__all__ — every export is "
                     "importable inside run_sdk_code; full signatures: docs/sdk-api.md",
         }
     if key == "security":

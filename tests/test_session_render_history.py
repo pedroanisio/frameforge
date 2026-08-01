@@ -26,7 +26,7 @@ from frameforge.mcp.usecases import diff_renders, render_frameforge_yaml  # noqa
 
 
 def _yaml(fill="#ffffff"):
-    from frameforge.sdk import DocumentBuilder, serialize
+    from frameforge_sdk import DocumentBuilder, serialize
     b = DocumentBuilder(title="hist", profile="diagram")
     pg = b.page("p1", canvas={"size": [120, 80], "units": "px"})
     pg.layer("main").rect([0, 0, 120, 80], fill=fill)

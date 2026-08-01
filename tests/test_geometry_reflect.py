@@ -21,7 +21,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import Mat3, Vec2, mirror  # noqa: E402
+from frameforge_sdk import Mat3, Vec2, mirror  # noqa: E402
 
 
 def _close(p, q, tol=1e-9):

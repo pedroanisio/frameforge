@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """test_geometry_hull.py — B10: convex hull + computational-geometry primitives.
 
-`frameforge.sdk.geometry` gains `convex_hull` (2D Andrew's monotone chain — the
+`frameforge_sdk.geometry` gains `convex_hull` (2D Andrew's monotone chain — the
 Mortenson §21 primitive), `aabb` (axis-aligned bounds), `polygon_area` (signed
 shoelace), and `point_in_polygon` (ray-crossing). The hull is verified against a
 brute-force oracle; collinear and duplicate points are handled explicitly.
@@ -19,13 +19,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    Vec2,
-    aabb,
-    convex_hull,
-    point_in_polygon,
-    polygon_area,
-)
+from frameforge_sdk import Vec2, aabb, convex_hull, point_in_polygon, polygon_area  # noqa: E402
 
 
 def _brute_hull_vertices(points):

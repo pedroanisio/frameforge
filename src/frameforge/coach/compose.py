@@ -10,7 +10,7 @@ Two seams:
 - :func:`compose_from_image` adds the raster ingest in front (lazy OpenCV via
   ``coach.ingest``), the form the CLI and the MCP tool call.
 
-Boundary: imports only ``frameforge.sdk`` + intra-package (no ``tooling``).
+Boundary: imports only ``frameforge_sdk`` + intra-package (no ``tooling``).
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from frameforge.coach.ingest import gradientize, recolor_to_style
 from frameforge.coach.paint import atmosphere, lightest
 from frameforge.coach.redraw import redraw
 from frameforge.coach.style import StyleProfile, cleanup_params, redraw_params, resolve_style
-from frameforge.sdk.author import DocumentBuilder
+from frameforge_sdk.author import DocumentBuilder
 
 Obj = dict[str, Any]
 

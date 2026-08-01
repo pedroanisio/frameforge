@@ -22,7 +22,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
 
 CANVAS = {"size": [300, 300], "units": "px"}
 

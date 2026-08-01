@@ -6,6 +6,6 @@
   "tests/fixtures/b1/mckinsey-7s.fg.json": "b3b640913cf89c8e1a68fbb2a761a4606bb2d815b4bf315f4454ee47c61351e9",
   "tests/fixtures/b1/neutron-stars.fg.json": "d42bb1084c52e28cf3bf3057c80dac89e0b8ed497737369b4bbfa2ed79aeb89d",
   "tests/fixtures/b1/spans-and-links.fg.json": "f3ece2a1b8162da57a0f91288958b887c066e252f7870fbcd470d4f538c78342",
-  "tests/fixtures/b1/spectral-methods.fg.json": "9a22af8473258ca7a432bc40254018a721ef7b7bf31e718d319681b3465cad67",
+  "tests/fixtures/b1/spectral-methods.fg.json": "a9d081d9f05d7b3cfc4d40940436f118763a0c88471b8bf0da733278608b22f3",
   "tests/fixtures/b1/wireframing-guide.fg.json": "ef5b10f106922daee9352730baf079113861c5ff7f421d07dbc33b69c285a96e"
 }

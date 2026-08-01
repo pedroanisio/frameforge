@@ -32,6 +32,7 @@ from __future__ import annotations
 import argparse
 import glob
 import hashlib
+import contextlib
 import json
 import os
 import re
@@ -59,6 +60,27 @@ DEFAULT_TOLERANCE = 0.5
 _NUM = re.compile(r"-?\d+\.?\d*(?:[eE][-+]?\d+)?")
 
 
+@contextlib.contextmanager
+def pinned_math():
+    """Force the deterministic math glyph for a golden render.
+
+    Math is the one part of a render that reaches outside the process: TeX shells
+    out to `tooling/mathjax_tex_to_svg.mjs`, which needs Node and the gitignored
+    `tooling/node_modules`. Hashing that output unpinned yields a lock that only
+    reproduces on the machine that wrote it — which is exactly how the HTML lock
+    shipped red, since `_html_hash_of` pinned `real_metrics` but not this.
+    """
+    previous = os.environ.get("FRAMEFORGE_MATH_SVG")
+    os.environ["FRAMEFORGE_MATH_SVG"] = "fallback"
+    try:
+        yield
+    finally:
+        if previous is None:
+            os.environ.pop("FRAMEFORGE_MATH_SVG", None)
+        else:
+            os.environ["FRAMEFORGE_MATH_SVG"] = previous
+
+
 def _page_svgs(path: str) -> list[str]:
     """Render one fixture and return the emitted SVG string per page, in order."""
     with open(path, encoding="utf-8") as fh:
@@ -70,19 +92,12 @@ def _page_svgs(path: str) -> list[str]:
     # depend on whether the optional Node + tooling/node_modules MathJax toolchain
     # resolves on this machine (CI never installs it). Scoped + restored so a
     # shared pytest process does not inherit the override.
-    previous = os.environ.get("FRAMEFORGE_MATH_SVG")
-    os.environ["FRAMEFORGE_MATH_SVG"] = "fallback"
-    try:
+    with pinned_math():
         r = Renderer(doc, os.path.dirname(path), real_metrics=False)
         svgs: list[str] = []
         for page in (doc.get("pages") or []):
             svgs.extend(r.render_page(page))
         return svgs
-    finally:
-        if previous is None:
-            os.environ.pop("FRAMEFORGE_MATH_SVG", None)
-        else:
-            os.environ["FRAMEFORGE_MATH_SVG"] = previous
 
 
 def _find_humanize(node, trail: str = "doc"):
@@ -163,7 +178,8 @@ def _html_hash_of(doc: dict) -> str:
     because the backend emits one HTML file containing every `<figure>`.
     """
     from frameforge.rendering.infrastructure.backends.html import render_document
-    return _hash(render_document(doc, real_metrics=False))
+    with pinned_math():
+        return _hash(render_document(doc, real_metrics=False))
 
 
 def build_html_hashes() -> dict[str, str]:

@@ -194,6 +194,30 @@ SHALLOW_ROOTS = ("tests",)
 SHALLOW_FILES = ("conftest.py",)
 
 
+def _sibling_package_roots() -> list[Path]:
+    """Installed FrameForge sibling packages, harvested like `src/`.
+
+    The family is several distributions now — `frameforge-api` holds the
+    contract, `frameforge-sdk` the authoring surface, `frameforge-vision` the
+    measurement lane. Their names are still live references in this repo's prose,
+    so harvesting only `src/` declares that prose stale the moment a package
+    moves out, and invites deleting documentation that is perfectly true.
+
+    Resolved through the import system, so it follows an editable checkout, a git
+    pin or a wheel, and skips silently when an optional sibling is absent.
+    """
+    roots: list[Path] = []
+    for mod in ("frameforge_api", "frameforge_sdk", "frameforge_vision"):
+        try:
+            pkg = __import__(mod)
+        except ImportError:
+            continue
+        loc = getattr(pkg, "__file__", None)
+        if loc:
+            roots.append(Path(loc).resolve().parent)
+    return roots
+
+
 def _harvest_python(universe: set[str]) -> None:
     """Every name *defined* in the Python tree, via ast — no imports.
 
@@ -203,6 +227,8 @@ def _harvest_python(universe: set[str]) -> None:
     paths: list[tuple[Path, bool]] = []
     for rel in HARVEST_ROOTS:
         paths.extend((p, False) for p in (ROOT / rel).rglob("*.py"))
+    for sibling in _sibling_package_roots():
+        paths.extend((p, False) for p in sibling.rglob("*.py"))
     for rel in SHALLOW_ROOTS:
         paths.extend((p, True) for p in (ROOT / rel).rglob("*.py"))
     paths.extend((ROOT / name, True) for name in SHALLOW_FILES if (ROOT / name).is_file())

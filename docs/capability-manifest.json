@@ -3,7 +3,7 @@
   "version": "2.8.2",
   "semantics": {
     "core": "the authoritative model (src/frameforge/model.py) admits the capability",
-    "sdk": "a same-named public builder method exists on a frameforge.sdk.author class (raw-dict authoring always works and does not count), or the capability is itself a frameforge.sdk export",
+    "sdk": "a same-named public builder method exists on a frameforge_sdk.author class (raw-dict authoring always works and does not count), or the capability is itself a frameforge_sdk export",
     "mcp": "reachable through the live MCP registry: model capabilities via an author→render tool, SDK exports via run_sdk_code, tools directly"
   },
   "model": {
@@ -150,6 +150,7 @@
       "Document",
       "DocumentBuilder",
       "Edge",
+      "EngineUnavailable",
       "ExpandOptions",
       "ExpandedDocument",
       "FigureAsset",
@@ -167,8 +168,6 @@
       "Issue",
       "Lattice",
       "LayoutResult",
-      "LegibilityPolicy",
-      "LegibilitySignal",
       "MasterBuilder",
       "Mat3",
       "Mat4",
@@ -176,10 +175,8 @@
       "Node",
       "Noise",
       "ObjectDiagramOptions",
-      "OverflowSignal",
       "PackageDiagramOptions",
       "PageBuilder",
-      "PaintSignal",
       "Panel",
       "Path",
       "Placement",
@@ -221,7 +218,6 @@
       "apply_humanize",
       "apply_separation",
       "array",
-      "assert_golden",
       "avatar",
       "badge",
       "badge_width",
@@ -244,7 +240,6 @@
       "clip_polygon",
       "clip_rect",
       "closed_palette",
-      "collision_report",
       "color_guide",
       "column",
       "complement",
@@ -325,7 +320,6 @@
       "koch_curve",
       "kpi",
       "lattice",
-      "legibility_report",
       "line_curve_intersections",
       "line_intersection",
       "linear_gradient",
@@ -358,9 +352,6 @@
       "obb",
       "object_bbox",
       "offset_path",
-      "overflow_report",
-      "page_hashes",
-      "paint_report",
       "paragraph",
       "parametric",
       "parametric_curve",
@@ -394,9 +385,6 @@
       "register_theme",
       "relative_luminance",
       "remap",
-      "render_html",
-      "render_page_svgs",
-      "render_pages_with_stats",
       "repeat_along_path",
       "resolve_params",
       "revolve",
@@ -468,8 +456,7 @@
       "value_noise_2d",
       "wave",
       "window_to_viewport",
-      "wrap_text",
-      "write_golden"
+      "wrap_text"
     ]
   },
   "mcp": {
@@ -1503,6 +1490,13 @@
       "mcp": true
     },
     {
+      "name": "EngineUnavailable",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "ExpandOptions",
       "kind": "sdk_export",
       "core": false,
@@ -1622,20 +1616,6 @@
       "mcp": true
     },
     {
-      "name": "LegibilityPolicy",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
-      "name": "LegibilitySignal",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
       "name": "MasterBuilder",
       "kind": "sdk_export",
       "core": false,
@@ -1685,13 +1665,6 @@
       "mcp": true
     },
     {
-      "name": "OverflowSignal",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
       "name": "PackageDiagramOptions",
       "kind": "sdk_export",
       "core": false,
@@ -1700,13 +1673,6 @@
     },
     {
       "name": "PageBuilder",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
-      "name": "PaintSignal",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2000,13 +1966,6 @@
       "mcp": true
     },
     {
-      "name": "assert_golden",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
       "name": "avatar",
       "kind": "sdk_export",
       "core": false,
@@ -2155,13 +2114,6 @@
     },
     {
       "name": "closed_palette",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
-      "name": "collision_report",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2728,13 +2680,6 @@
       "mcp": true
     },
     {
-      "name": "legibility_report",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
       "name": "line_curve_intersections",
       "kind": "sdk_export",
       "core": false,
@@ -2953,27 +2898,6 @@
     },
     {
       "name": "offset_path",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
-      "name": "overflow_report",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
-      "name": "page_hashes",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
-      "name": "paint_report",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -3205,27 +3129,6 @@
     },
     {
       "name": "remap",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
-      "name": "render_html",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
-      "name": "render_page_svgs",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
-      "name": "render_pages_with_stats",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -3730,13 +3633,6 @@
     },
     {
       "name": "wrap_text",
-      "kind": "sdk_export",
-      "core": false,
-      "sdk": true,
-      "mcp": true
-    },
-    {
-      "name": "write_golden",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

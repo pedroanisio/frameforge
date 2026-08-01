@@ -49,8 +49,11 @@ def repo_root() -> str:
 
 @pytest.fixture(scope="session")
 def models_fg():
-    """The authoritative model module (``frameforge.model``), via the SDK's
-    accessor."""
-    from frameforge.sdk.model import model_module
+    """The authoritative model module, via the SDK's accessor.
+
+    The contract lives in `frameforge-api` and the accessor in `frameforge-sdk`
+    since the 2026-07/08 split; the fixture name is unchanged so no test had to
+    move with it."""
+    from frameforge_sdk.model import model_module
 
     return model_module()

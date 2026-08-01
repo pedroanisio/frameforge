@@ -37,7 +37,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
 from frameforge_sdk import (
-    # noqa: E402     DocumentBuilder,
+    DocumentBuilder,  # noqa: E402
     apply_separation,
     serialize,
     validate_static_rules,

@@ -32,8 +32,8 @@ from frameforge.library import (  # noqa: E402
     module_hub_radial,
     support_text_styles,
 )
-from frameforge.sdk import render_pages_with_stats  # noqa: E402
-from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge.conform import render_pages_with_stats  # noqa: E402
+from frameforge_sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 THEMES = ("bain", "bcg", "deloitte", "ey", "kpmg", "mckinsey", "pwc")
 V01_STYLE_KEYS = {"font", "size", "weight", "v_align", "wrap"}
@@ -144,7 +144,7 @@ def test_load_symbols_merges_packs_for_defs():
 
 
 def test_cover_symbol_expands_and_renders_contained():
-    from frameforge.sdk import expand
+    from frameforge_sdk import expand
     doc = {"dsl": "FrameForge", "version": HEAD_VERSION,
            "title": "cover probe", "profile": "deck",
            "defs": {"tokens": {**load_theme("mckinsey"),

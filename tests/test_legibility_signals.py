@@ -22,7 +22,7 @@ The contract these tests pin:
   * QUIET WHEN CLEAN — a well-set page emits nothing; the channel always
     exists, so consumers never branch on key presence.
   * PROPAGATED — the channel rides ``render_pages_with_stats(diagnostics=True)``
-    and ``sdk.legibility_report()``, and the MCP render warning names it.
+    and ``conform.legibility_report()``, and the MCP render warning names it.
 
 Runs under pytest or standalone
 (``uv run python tests/test_legibility_signals.py``).
@@ -232,7 +232,8 @@ def test_clean_page_emits_nothing():
 #  propagation                                                                #
 # --------------------------------------------------------------------------- #
 def test_channel_rides_the_render_diagnostics():
-    from frameforge.sdk import DocumentBuilder, legibility_report
+    from frameforge_sdk import DocumentBuilder
+    from frameforge.conform import legibility_report
 
     doc = DocumentBuilder(title="legibility probe", profile="diagram")
     page = doc.page("p1", canvas={"size": [794, 1123]})
@@ -245,15 +246,15 @@ def test_channel_rides_the_render_diagnostics():
     assert "type-too-small" in {s.code for s in signals}
     assert all(isinstance(s, LegibilitySignal) for s in signals)
 
-    from frameforge.sdk.conform import render_pages_with_stats
+    from frameforge.conform import render_pages_with_stats
     _svgs, _stats, diags = render_pages_with_stats(model, diagnostics=True)
     assert "legibility" in diags
     assert "type-too-small" in {d["code"] for d in diags["legibility"]}
 
 
 def test_clean_document_has_an_empty_channel_not_a_missing_key():
-    from frameforge.sdk import DocumentBuilder
-    from frameforge.sdk.conform import render_pages_with_stats
+    from frameforge_sdk import DocumentBuilder
+    from frameforge.conform import render_pages_with_stats
 
     doc = DocumentBuilder(title="clean", profile="diagram")
     page = doc.page("p1", canvas={"size": [794, 1123]})
@@ -273,8 +274,8 @@ def test_mcp_render_result_warns_and_carries_the_channel(tmp_path):
     root = _os.path.normpath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), ".."))
     _sys.path[:0] = [root, _os.path.join(root, "src"), _os.path.join(root, "docs")]
     from frameforge.mcp.server import render_frameforge_yaml
-    from frameforge.sdk import DocumentBuilder
-    from frameforge.sdk.io import serialize
+    from frameforge_sdk import DocumentBuilder
+    from frameforge_sdk.io import serialize
 
     b = DocumentBuilder(title="Unreadable Probe", profile="deck")
     p = b.page("p1", canvas={"size": [794, 1123], "units": "px"})

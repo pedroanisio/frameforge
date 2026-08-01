@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from frameforge.sdk.provenance import format_author_site
+from frameforge_sdk.provenance import format_author_site
 
 _GRADIENT_HELPERS = {
     "sdk.paint.linear_gradient",

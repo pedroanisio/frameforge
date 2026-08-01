@@ -40,7 +40,7 @@ _HYPHEN_PENALTY = 50.0
 _DOUBLE_HYPHEN = 3000.0
 _INF = float("inf")
 
-# The canon proportions (mirror frameforge.sdk.canon.MARGIN_CANON; kept local to
+# The canon proportions (mirror frameforge_sdk.canon.MARGIN_CANON; kept local to
 # avoid a rendering→sdk dependency — test_flow_layout pins the two in agreement).
 _INNER, _TOP, _OUTER, _FOOT = 1.5, 2.0, 3.0, 4.0
 

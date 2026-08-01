@@ -11,15 +11,8 @@ sys.path[:0] = [str(ROOT), str(ROOT / "src"), str(ROOT / "docs")]
 
 from frameforge.mcp.discovery import describe_capabilities  # noqa: E402
 from frameforge.mcp.guide import FRAMEFORGE_GUIDE  # noqa: E402
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
-    displacement_map,
-    filter_chain,
-    render_page_svgs,
-    style_effects,
-    turbulence,
-    validate_static_rules,
-)
+from frameforge_sdk import DocumentBuilder, displacement_map, filter_chain, style_effects, turbulence, validate_static_rules  # noqa: E402
+from frameforge.conform import render_page_svgs
 
 
 def _document(*filters):

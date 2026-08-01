@@ -1445,7 +1445,7 @@ class UMLVisualBase(ObjBase):
     """Shared typed envelope for the renderer's UML extension object family.
 
     Diagram-level semantic constraints are intentionally enforced by
-    ``frameforge.sdk.uml_models`` before composition.  These visual models type
+    ``frameforge_sdk.uml_models`` before composition.  These visual models type
     the rendering boundary while permitting notation-specific payload fields.
     """
 

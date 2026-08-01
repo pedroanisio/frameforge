@@ -91,7 +91,7 @@ def test_author_overlay_contributes_real_colour_including_a_gradient():
 
 
 def test_build_color_and_guide_renders_with_gradients():
-    from frameforge.sdk import render_page_svgs
+    from frameforge.conform import render_page_svgs
     b = build_color_and_guide(_regions(), _lines(), (10, 10))
     svg = render_page_svgs(b.build())[0]
     assert svg.startswith("<svg")

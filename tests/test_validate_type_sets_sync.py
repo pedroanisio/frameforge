@@ -20,7 +20,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
-import frameforge.sdk.model  # noqa: F401,E402  — lock the package
+import frameforge_sdk.model  # noqa: F401,E402  — lock the package
 
 import gen_capability_manifest as G  # noqa: E402  (tooling/, via conftest)
 import validate as V  # noqa: E402

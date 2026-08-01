@@ -33,7 +33,7 @@ from frameforge.rendering.infrastructure.font_metrics import (
     get_font_metrics,
     measure_text as fm_measure,
 )
-from frameforge.sdk import measure_text, text_height, wrap_text
+from frameforge_sdk import measure_text, text_height, wrap_text
 from tooling.render_fixtures import Renderer
 
 

@@ -79,7 +79,7 @@ def test_runtime_error_names_the_exception_in_the_error_headline(tmp_path):
     over the payload. Regression for the opaque-headline defect.
     """
     code = (
-        "from frameforge.sdk.canon import modular_scale\n"
+        "from frameforge_sdk.canon import modular_scale\n"
         "scale = modular_scale(11)\n"
         "big = scale[0]   # it is a mapping, not a list\n"
     )
@@ -132,7 +132,7 @@ def test_missing_document_explains_the_build_contract(tmp_path):
 def test_invalid_document_returns_structured_validation_issues(tmp_path):
     """A schema-invalid build lowers Pydantic errors into validation.issues."""
     code = (
-        "from frameforge.sdk import DocumentBuilder\n"
+        "from frameforge_sdk import DocumentBuilder\n"
         "doc = DocumentBuilder(title='Bad')\n"
         # coordinate_mode only accepts absolute|flow; this fails model validation
         "doc.page('p', canvas={'size': [100, 100], 'units': 'px'}, coordinate_mode='diagonal')\n"
@@ -151,7 +151,7 @@ def test_invalid_document_returns_structured_validation_issues(tmp_path):
 def test_successful_build_writes_no_build_error_sidecar(tmp_path):
     """The structured-error path is additive: a clean build leaves no sidecar."""
     code = (
-        "from frameforge.sdk import DocumentBuilder\n"
+        "from frameforge_sdk import DocumentBuilder\n"
         "doc = DocumentBuilder(title='Good')\n"
         "page = doc.page('p', canvas={'size': [120, 80], 'units': 'px'})\n"
         "page.layer('main').rect([0, 0, 120, 80], fill='#ffffff')\n"
@@ -205,7 +205,7 @@ def test_get_session_resource_tool_missing_artifact_returns_envelope(tmp_path):
     server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
     ok = _structured(
         server.tools["run_sdk_code"](
-            "from frameforge.sdk import DocumentBuilder\n"
+            "from frameforge_sdk import DocumentBuilder\n"
             "doc = DocumentBuilder(title='R')\n"
             "page = doc.page('p', canvas={'size': [100, 80], 'units': 'px'})\n"
             "page.layer('m').rect([0, 0, 100, 80], fill='#fff')\n",
@@ -241,7 +241,7 @@ def test_run_sdk_code_tool_bad_session_id_returns_envelope(tmp_path):
 
 def test_pages_selector_matching_nothing_populates_error(tmp_path):
     code = (
-        "from frameforge.sdk import DocumentBuilder\n"
+        "from frameforge_sdk import DocumentBuilder\n"
         "doc = DocumentBuilder(title='One')\n"
         "page = doc.page('p', canvas={'size': [100, 80], 'units': 'px'})\n"
         "page.layer('m').rect([0, 0, 100, 80], fill='#fff')\n"
@@ -268,7 +268,7 @@ def test_static_validation_failure_populates_error_and_hint(tmp_path, monkeypatc
     )
 
     code = (
-        "from frameforge.sdk import DocumentBuilder\n"
+        "from frameforge_sdk import DocumentBuilder\n"
         "doc = DocumentBuilder(title='V')\n"
         "page = doc.page('p', canvas={'size': [100, 80], 'units': 'px'})\n"
         "page.layer('m').rect([0, 0, 100, 80], fill='#fff')\n"

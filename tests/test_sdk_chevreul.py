@@ -19,8 +19,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.sdk import chevreul as ch, to_oklab  # noqa: E402
-from frameforge.sdk.model import validate_document  # noqa: E402
+from frameforge_sdk import chevreul as ch, to_oklab  # noqa: E402
+from frameforge_sdk.model import validate_document  # noqa: E402
 
 
 def test_legacy_outputs_are_frozen_before_perceptual_colour_integration() -> None:

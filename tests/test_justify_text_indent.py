@@ -8,7 +8,8 @@ so a justified paragraph could not carry the book first-line indent.
 
 import re
 
-from frameforge.sdk import DocumentBuilder, render_page_svgs, span
+from frameforge_sdk import DocumentBuilder, span
+from frameforge.conform import render_page_svgs
 
 IND = 24.0
 X = 100

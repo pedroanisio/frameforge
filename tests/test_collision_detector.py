@@ -127,6 +127,6 @@ def test_table_cells_do_not_self_collide():
 
 
 def test_collisions_ride_on_the_sdk_collision_report():
-    from frameforge.sdk import collision_report
+    from frameforge.conform import collision_report
     rep = collision_report(_doc(OVERLAP))
     assert any(frozenset(c["ids"]) == frozenset({"a", "b"}) for c in rep)

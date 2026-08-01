@@ -19,7 +19,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
-from frameforge.sdk.params import eval_expr, resolve_params  # noqa: E402
+from frameforge_sdk.params import eval_expr, resolve_params  # noqa: E402
 
 
 def test_eval_arithmetic_and_math_whitelist():

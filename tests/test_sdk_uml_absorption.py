@@ -9,49 +9,14 @@ from hashlib import sha256
 import pytest
 from pydantic import ValidationError
 
-from frameforge.sdk import page_hashes, parse, render_page_svgs, validate_document
-from frameforge.sdk.uml import (
-    compose_activity_diagram,
-    compose_class_diagram,
-    compose_communication_diagram,
-    compose_component_diagram,
-    compose_composite_structure,
-    compose_deployment_diagram,
-    compose_interaction_overview,
-    compose_object_diagram,
-    compose_package_diagram,
-    compose_profile_diagram,
-    compose_sequence_diagram,
-    compose_state_machine,
-    compose_timing_diagram,
-    compose_use_case_diagram,
-)
-from frameforge.sdk.uml_models import (
-    UMLAssociation,
-    UMLAttribute,
-    UMLClass,
-    UMLEnumeration,
-    UMLInterface,
-    UMLOperation,
-    validate_activity_diagram,
-    validate_class_diagram,
-    validate_communication_diagram,
-    validate_component_diagram,
-    validate_composite_structure,
-    validate_deployment_diagram,
-    validate_interaction_overview,
-    validate_object_diagram,
-    validate_package_diagram,
-    validate_profile_diagram,
-    validate_sequence_diagram,
-    validate_state_machine,
-    validate_timing_diagram,
-    validate_use_case_diagram,
-)
+from frameforge_sdk import parse, validate_document
+from frameforge.conform import page_hashes, render_page_svgs
+from frameforge_sdk.uml import compose_activity_diagram, compose_class_diagram, compose_communication_diagram, compose_component_diagram, compose_composite_structure, compose_deployment_diagram, compose_interaction_overview, compose_object_diagram, compose_package_diagram, compose_profile_diagram, compose_sequence_diagram, compose_state_machine, compose_timing_diagram, compose_use_case_diagram
+from frameforge_sdk.uml_models import UMLAssociation, UMLAttribute, UMLClass, UMLEnumeration, UMLInterface, UMLOperation, validate_activity_diagram, validate_class_diagram, validate_communication_diagram, validate_component_diagram, validate_composite_structure, validate_deployment_diagram, validate_interaction_overview, validate_object_diagram, validate_package_diagram, validate_profile_diagram, validate_sequence_diagram, validate_state_machine, validate_timing_diagram, validate_use_case_diagram
 
 
 def test_uml_and_sugiyama_are_public_sdk_capabilities():
-    import frameforge.sdk as sdk
+    import frameforge_sdk as sdk
 
     required = {
         "SugiyamaConfig",

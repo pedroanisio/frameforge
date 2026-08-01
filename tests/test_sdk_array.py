@@ -19,7 +19,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
-from frameforge.sdk.macros import array  # noqa: E402
+from frameforge_sdk.macros import array  # noqa: E402
 
 RECT = {"type": "rect", "box": [10.0, 10.0, 20.0, 12.0], "fill": "#AA3311"}
 
@@ -69,8 +69,8 @@ def test_along_array_follows_tangent():
 
 
 def test_arrays_validate_and_render():
-    from frameforge.sdk import DocumentBuilder, validate_static_rules
-    from frameforge.sdk.conform import render_page_svgs
+    from frameforge_sdk import DocumentBuilder, validate_static_rules
+    from frameforge.conform import render_page_svgs
     b = DocumentBuilder(title="arr", profile="diagram")
     pg = b.page("p1", canvas={"size": [400, 300], "units": "px"})
     pg.layer("main")

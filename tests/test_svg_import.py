@@ -93,7 +93,8 @@ def test_undefined_gradient_still_falls_back_to_grey():
 
 def test_resolved_gradient_renders_a_gradient():
     objs = svg_to_objects(_GRAD_SVG)
-    from frameforge.sdk import DocumentBuilder, render_page_svgs
+    from frameforge_sdk import DocumentBuilder
+    from frameforge.conform import render_page_svgs
     b = DocumentBuilder(title="grad")
     pg = b.page("p", canvas={"size": [10, 10], "units": "px"}, coordinate_mode="absolute")
     layer = pg.layer("m")
@@ -121,7 +122,8 @@ def test_real_corpus_svg_roundtrips_through_frameforge():
     objs = svg_to_objects(Path(ROOT) / "tests/fixtures/corpus/vector/wikimedia-nasa-logo.svg",
                           box=[0, 0, 200, 200])
     assert len(objs) >= 40  # circles (stars) + the 11 paths
-    from frameforge.sdk import DocumentBuilder, render_page_svgs
+    from frameforge_sdk import DocumentBuilder
+    from frameforge.conform import render_page_svgs
     b = DocumentBuilder(title="import")
     pg = b.page("p", canvas={"size": [200, 200], "units": "px"}, coordinate_mode="absolute")
     layer = pg.layer("m")

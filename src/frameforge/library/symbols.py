@@ -10,7 +10,7 @@ translated to v2 under ``data/symbols/``:
   ``hex_node_*``) consumed by :mod:`frameforge.library.generators`.
 
 Symbols are instantiated with grammar-level ``use`` objects and lowered by
-:func:`frameforge.sdk.expand`. Their text objects reference style tokens by
+:func:`frameforge_sdk.expand`. Their text objects reference style tokens by
 name; ``shared`` relies on theme styles (``body``, ``callout``,
 ``exhibit_header`` …) while the other packs need the pack-scoped styles
 served by :func:`support_text_styles` — merge those into the document's

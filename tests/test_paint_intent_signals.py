@@ -45,7 +45,7 @@ The contract:
   * QUIET WHEN CLEAN — a correctly painted document emits nothing; the channel
     always exists, so consumers never branch on key presence.
   * PROPAGATED — the channel rides ``render_pages_with_stats(diagnostics=True)``
-    and ``sdk.paint_report()``, the MCP render warning names it, the design
+    and ``conform.paint_report()``, the MCP render warning names it, the design
     audit lifts it into health, and ``tooling/codemod.py --fix-inert-stroke``
     migrates it mechanically.
 
@@ -105,7 +105,7 @@ CORRECT_POLYLINE = {"type": "polyline", "id": "ok_chevron",
 
 def render_diags(doc):
     """Render through the SVG proxy and return (svgs, diagnostics)."""
-    from frameforge.sdk.conform import render_pages_with_stats
+    from frameforge.conform import render_pages_with_stats
     svgs, _stats, diags = render_pages_with_stats(doc, diagnostics=True)
     return svgs, diags
 
@@ -247,7 +247,7 @@ def test_signals_are_locatable_by_page_and_id():
 #  4. the channel must not change a single rendered byte                      #
 # --------------------------------------------------------------------------- #
 def test_diagnostics_do_not_alter_the_rendered_svg():
-    from frameforge.sdk.conform import render_pages_with_stats
+    from frameforge.conform import render_pages_with_stats
     doc = doc_with(INERT_LINE, INERT_POLYLINE, CORRECT_LINE)
     without = render_pages_with_stats(doc)[0]
     with_diags = render_pages_with_stats(doc, diagnostics=True)[0]
@@ -330,20 +330,23 @@ def test_committed_fixture_corpus_stays_clean():
 #  6. SDK surface                                                             #
 # --------------------------------------------------------------------------- #
 def test_sdk_paint_report_returns_typed_signals():
-    from frameforge.sdk.conform import paint_report
+    from frameforge.conform import paint_report
     sigs = paint_report(doc_with(INERT_LINE, INERT_POLYLINE))
     assert sigs and all(isinstance(s, PaintSignal) for s in sigs)
     assert {s.code for s in sigs} >= {"inert-stroke-declaration", "invisible-shape"}
 
 
 def test_sdk_paint_report_is_empty_for_a_clean_document():
-    from frameforge.sdk.conform import paint_report
+    from frameforge.conform import paint_report
     assert paint_report(doc_with(CORRECT_LINE, CORRECT_POLYLINE)) == []
 
 
-def test_paint_report_is_exported_from_the_sdk_package():
-    import frameforge.sdk as sdk
-    assert hasattr(sdk, "paint_report")
+def test_paint_report_is_exported_from_the_engine():
+    """Reporting paint intent means resolving fill and stroke, which is a render.
+    So it lives with the engine — the 2026-08-01 split kept VERIFICATION in the engine (`frameforge.conform`)
+    and COMPOSITION in `frameforge-sdk`; rendering needs real pixels, so it stayed."""
+    from frameforge import conform
+    assert hasattr(conform, "paint_report")
 
 
 # --------------------------------------------------------------------------- #

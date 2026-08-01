@@ -316,7 +316,7 @@ def test_regression_code_panel_runs_stay_monospaced():
            "style": {"font_family": MONO, "font_size": 16, "font_weight": 400},
            "spans": [
                {"text": "from", "style": {"color": "#12B0C3"}},
-               {"text": " frameforge.sdk ", "style": {"color": "#FBFAF6"}},
+               {"text": " frameforge_sdk ", "style": {"color": "#FBFAF6"}},
                {"text": "import", "style": {"color": "#12B0C3"}},
                {"text": " DocumentBuilder", "style": {"color": "#FBFAF6"}}]}
     doc = _doc([obj], styles={"body": {"font_family": ["Inter", "sans-serif"]}})
@@ -454,7 +454,7 @@ def test_resolve_without_base_is_unchanged():
 # --------------------------------------------------------------------------- #
 def test_sdk_authored_spans_inherit_through_the_builder():
     """The SDK is the authoring front door — inheritance must survive lowering."""
-    from frameforge.sdk import DocumentBuilder
+    from frameforge_sdk import DocumentBuilder
     b = DocumentBuilder(title="t", profile="diagram")
     page = b.page("p", canvas={"size": [400, 100], "units": "px"},
                   coordinate_mode="absolute")

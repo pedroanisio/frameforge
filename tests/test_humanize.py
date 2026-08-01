@@ -21,10 +21,10 @@ import statistics
 
 import pytest
 
-from frameforge.sdk.conform import page_hashes
-from frameforge.sdk.expand import ExpandOptions, expand
-from frameforge.sdk.humanize import Hand, apply_humanize
-from frameforge.sdk.model import validate_document
+from frameforge.conform import page_hashes
+from frameforge_sdk.expand import ExpandOptions, expand
+from frameforge_sdk.humanize import Hand, apply_humanize
+from frameforge_sdk.model import validate_document
 
 
 # --------------------------------------------------------------------------- #

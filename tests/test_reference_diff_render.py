@@ -70,7 +70,7 @@ def test_vectors_sorted_by_displacement_magnitude():
 
 
 def _yaml(square_x):
-    from frameforge.sdk import DocumentBuilder, serialize
+    from frameforge_sdk import DocumentBuilder, serialize
     b = DocumentBuilder(title="ghost", profile="diagram")
     pg = b.page("p1", canvas={"size": [160, 120], "units": "px"})
     pg.layer("main")
@@ -120,8 +120,8 @@ def test_object_boxes_survive_exotic_objects(tmp_path):
     neither raise nor evict the measurable objects from the diff (field bug
     found reconstructing a real poster)."""
     from frameforge.mcp.usecases import _doc_object_boxes
-    from frameforge.sdk import DocumentBuilder, serialize
-    from frameforge.sdk.outline import stroke_outline
+    from frameforge_sdk import DocumentBuilder, serialize
+    from frameforge_sdk.outline import stroke_outline
     b = DocumentBuilder(title="exotic", profile="diagram")
     pg = b.page("p1", canvas={"size": [160, 120], "units": "px"})
     pg.layer("main")

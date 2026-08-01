@@ -21,8 +21,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import Scene3D, Vec3  # noqa: E402
-from frameforge.sdk.geometry import Mat4, window_to_viewport  # noqa: E402
+from frameforge_sdk import Scene3D, Vec3  # noqa: E402
+from frameforge_sdk.geometry import Mat4, window_to_viewport  # noqa: E402
 
 
 def _scene():

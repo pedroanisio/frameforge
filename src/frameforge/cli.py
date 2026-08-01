@@ -65,7 +65,8 @@ def _load_dict(path):
 
 
 def _svgs(path, pages):
-    from frameforge.sdk import parse, render_page_svgs
+    from frameforge_sdk import parse
+    from frameforge.conform import render_page_svgs
     base = os.path.dirname(os.path.abspath(path))
     svgs = render_page_svgs(parse(_read(path)), base_dir=base)
     return svgs[:pages] if pages else svgs
@@ -80,7 +81,7 @@ def _render_with_outline(path, pages):
     Returns `(doc_dict, svgs, outline, links)` where each outline entry is
     `{"title", "level", "page"}` and each link is `{"page", "rect", "target_page"}`,
     all with 0-based global SVG page indices."""
-    from frameforge.sdk import parse
+    from frameforge_sdk import parse
     from frameforge.rendering.application.normalize import normalize_doc
     from frameforge.rendering.application.renderer import Renderer
     base = os.path.dirname(os.path.abspath(path))
@@ -271,8 +272,8 @@ def r_audit(path, out_dir, args):
     JSON report + a human Markdown summary and prints a one-line verdict."""
     from frameforge.rendering.application.audit import (
         audit_document, render_markdown, summary_line)
-    from frameforge.sdk import parse
-    from frameforge.sdk.conform import render_pages_with_stats
+    from frameforge_sdk import parse
+    from frameforge.conform import render_pages_with_stats
     # Render through the stats/diagnostics seam rather than `_svgs`: text
     # collisions are measured from ink rectangles during the render and are
     # unrecoverable from the finished SVG, so the audit has to be handed them.
@@ -380,7 +381,7 @@ def main(argv=None):
         # Markdown front door (issue #31): convert to a flow document first.
         # The intermediate .fg.yaml is written next to the render output — it
         # is the real, editable artifact the conversion produced.
-        from frameforge.sdk import from_markdown, serialize
+        from frameforge_sdk import from_markdown, serialize
         notes: list = []
         doc = from_markdown(_read(args.input), warnings=notes)
         for note in notes:

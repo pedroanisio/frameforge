@@ -19,7 +19,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import Camera, Scene3D, Vec3  # noqa: E402
+from frameforge_sdk import Camera, Scene3D, Vec3  # noqa: E402
 
 CAM = Camera(eye=Vec3(0, 0, 5), target=Vec3(0, 0, 0), up=Vec3(0, 1, 0),
              fov=60, aspect=1.0, near=0.1, far=100.0)

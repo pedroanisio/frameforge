@@ -25,6 +25,10 @@ HISTORICAL = {
     # the 2.5.0 packaging entry itself describes the move away from this path
     "docs/models/frameforge.py": "moved to src/frameforge/model.py by "
                                  "2.5.0 — feat(packaging)",
+    # The viewer became a companion runtime; the SDK, the contract and the
+    # vision lane became standalone packages. Every CHANGELOG entry citing one of
+    # their old in-repo paths is a true statement about where that code lived.
+    "tests/test_viewer_schema_contract.py": "removed with the bundled viewer",
 }
 
 _PATH = re.compile(r"\b((?:tests|docs|src|tooling)/[A-Za-z0-9_\-./]+\.(?:py|md|json|ebnf|yaml|yml|mjs))\b")

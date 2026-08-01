@@ -221,6 +221,7 @@ development rather than the running server.
 
 | Variable | Effect |
 |---|---|
+| `FRAMEFORGE_REPO` | Where the standalone `frameforge-sdk` looks for this engine's `tooling/validate.py`. Read by `frameforge_sdk.validate` when the engine is not pip-installed (an uninstalled checkout); unset, it resolves through the installed `frameforge` package and raises `EngineUnavailable` if neither is found. |
 | `FRAMEFORGE_MCP_SESSION_ROOT` | Where per-session scratch dirs/artifacts live (default: `frameforge-mcp-sessions` under the system temp dir). |
 | `FRAMEFORGE_MCP_EDIT_ROOTS` | `os.pathsep`-joined roots the client-file tools may read/write (default: `static/examples`). |
 | `FRAMEFORGE_MCP_INPUT_ROOTS` | Confine `propose_*` inputs to these roots (unset = any readable path). |

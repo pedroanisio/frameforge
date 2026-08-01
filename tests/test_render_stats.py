@@ -16,8 +16,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.conform import render_page_svgs, render_pages_with_stats  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge.conform import render_page_svgs, render_pages_with_stats  # noqa: E402
 
 
 def _clipping_doc():

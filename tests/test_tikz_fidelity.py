@@ -173,7 +173,7 @@ def test_painter_warns_per_dropped_effect():
 def test_svg_backend_composites_effects_without_warning():
     """The warning is backend-specific: SVG really renders the filters, so it
     must NOT emit the unsupported-effect warning."""
-    from frameforge.sdk import render_pages_with_stats
+    from frameforge.conform import render_pages_with_stats
     doc = {"dsl": "FrameForge", "version": "2.4.1", "title": "t",
            "profile": "diagram",
            "pages": [{"mode": "page", "id": "p",

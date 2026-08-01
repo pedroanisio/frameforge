@@ -55,7 +55,8 @@ def test_outline_mode_traces_polylines(tmp_path):
 
 def test_region_objects_roundtrip_through_frameforge(tmp_path):
     objs, w, h = raster_to_objects(_two_color_image(tmp_path), mode="region", colors=3, min_area=20)
-    from frameforge.sdk import DocumentBuilder, render_page_svgs
+    from frameforge_sdk import DocumentBuilder
+    from frameforge.conform import render_page_svgs
     b = DocumentBuilder(title="trace")
     pg = b.page("p", canvas={"size": [w, h], "units": "px"}, coordinate_mode="absolute")
     layer = pg.layer("m")

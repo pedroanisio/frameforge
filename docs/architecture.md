@@ -32,7 +32,7 @@ There are really two layers of "intermediate":
 ```
 *.fg.json / *.fg.yaml
         │
-        │  parse + validate            src/frameforge/sdk/model.py  (validate_document)
+        │  parse + validate            src/frameforge_sdk/model.py  (validate_document)
         ▼
    Document IR  ───────────────────────  src/frameforge/model.py  (class Document)
    (Pydantic model tree)
@@ -55,7 +55,7 @@ There are really two layers of "intermediate":
 The IR is the Pydantic model hierarchy rooted at `Document`, defined in
 [`src/frameforge/model.py`](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/model.py).
 It is produced by validating the input file via `validate_document()` in
-[`src/frameforge/sdk/model.py`](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/sdk/model.py).
+[`src/frameforge_sdk/model.py`](https://github.com/pedroanisio/frameforge-sdk/blob/main/src/frameforge_sdk/model.py).
 
 Because it is a Pydantic tree, the IR is:
 
@@ -84,9 +84,9 @@ across backends.
 
 ### 1. Parse → IR
 
-`validate_document()` ([src/frameforge/sdk/model.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/sdk/model.py))
+`validate_document()` ([src/frameforge_sdk/model.py](https://github.com/pedroanisio/frameforge-sdk/blob/main/src/frameforge_sdk/model.py))
 loads JSON/YAML and validates it into a `Document` instance. The SDK
-(`src/frameforge/sdk/`) also provides authoring, conform, expand, draw, and IO
+(`src/frameforge_sdk/`) also provides authoring, conform, expand, draw, and IO
 helpers around this model.
 
 ### 2. Resolve + walk → display-list calls
@@ -216,8 +216,8 @@ Backends are infrastructure adapters under
 | Concern | Location |
 |---------|----------|
 | IR models | [src/frameforge/model.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/model.py) |
-| Parse/validate + SDK | [src/frameforge/sdk/](https://github.com/pedroanisio/frameforge/tree/main/src/frameforge/sdk) (`model.py`, `validate.py`, `io.py`, …) |
-| Deterministic sampling | [src/frameforge/sdk/rand.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/sdk/rand.py) (`Rand`, `halton`, `poisson_disk`, `jittered_grid`) |
+| Parse/validate + SDK | [src/frameforge_sdk/](https://github.com/pedroanisio/frameforge-sdk) (`model.py`, `validate.py`, `io.py`, …) |
+| Deterministic sampling | [src/frameforge_sdk/rand.py](https://github.com/pedroanisio/frameforge-sdk/blob/main/src/frameforge_sdk/rand.py) (`Rand`, `halton`, `poisson_disk`, `jittered_grid`) |
 | Domain resolvers | [src/frameforge/rendering/domain/services/](https://github.com/pedroanisio/frameforge/tree/main/src/frameforge/rendering/domain/services) |
 | Painter port (seam) | [src/frameforge/rendering/domain/ports.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/domain/ports.py) |
 | Render orchestrator (application) | [src/frameforge/rendering/application/renderer.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/application/renderer.py) |

@@ -12,7 +12,7 @@ Coverage is not claimed, it is gated: ``main()`` loads
 ``docs/capability-manifest.json`` (the generated, test-gated capability
 inventory) and fails unless every capability name appears in this document's
 serialized text. Appendix A is generated at build time by introspecting
-``frameforge.sdk`` itself, so the reference cannot drift from the code.
+``frameforge_sdk`` itself, so the reference cannot drift from the code.
 
 Run from the repository root::
 
@@ -50,87 +50,10 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-import frameforge.sdk as sdk  # noqa: E402  — Appendix A introspects the full surface
-from frameforge.sdk import (  # noqa: E402
-    Camera,
-    CubicBezier,
-    DocumentBuilder,
-    FigureAsset,
-    FigureProvenance,
-    Frame,
-    Graph,
-    HEAD_VERSION,
-    Mat3,
-    Mat4,
-    Path,
-    ScalarField,
-    Scene3D,
-    Vec3,
-    VectorField,
-    assert_golden,
-    cite,
-    clip_circle,
-    clip_ellipse,
-    clip_inset,
-    clip_path,
-    clip_polygon,
-    clip_rect,
-    default_theme,
-    dots,
-    effects,
-    extract_objects,
-    fill_stroke,
-    function_plot,
-    glow,
-    gradient_map,
-    greeble,
-    grid_lines,
-    grid_pattern,
-    hatch,
-    hatch_fill,
-    inset,
-    fit_width,
-    klein_bottle,
-    lattice,
-    linear_gradient,
-    lorem,
-    md,
-    measure_text,
-    mobius,
-    multiview,
-    neon,
-    object_bbox,
-    page_hashes,
-    parametric_curve,
-    parse,
-    pattern,
-    place_region,
-    polar_plot,
-    quarter_circle_kappa,
-    radial_gradient,
-    ref,
-    region_grade,
-    render_pages_with_stats,
-    rgba,
-    row,
-    saddle,
-    select_in,
-    serialize,
-    soft_shadow,
-    sparkline,
-    sphere,
-    stroke,
-    svg_to_objects,
-    text_style,
-    theme,
-    to_plain_dict,
-    torus,
-    validate_static_rules,
-    wave,
-    wrap_text,
-    write_golden,
-)
-from frameforge.sdk.metrics import text_height  # noqa: E402
+import frameforge_sdk as sdk  # noqa: E402  — Appendix A introspects the full surface
+from frameforge_sdk import Camera, CubicBezier, DocumentBuilder, FigureAsset, FigureProvenance, Frame, Graph, HEAD_VERSION, Mat3, Mat4, Path, ScalarField, Scene3D, Vec3, VectorField, cite, clip_circle, clip_ellipse, clip_inset, clip_path, clip_polygon, clip_rect, default_theme, dots, effects, extract_objects, fill_stroke, function_plot, glow, gradient_map, greeble, grid_lines, grid_pattern, hatch, hatch_fill, inset, fit_width, klein_bottle, lattice, linear_gradient, lorem, md, measure_text, mobius, multiview, neon, object_bbox, parametric_curve, parse, pattern, place_region, polar_plot, quarter_circle_kappa, radial_gradient, ref, region_grade, rgba, row, saddle, select_in, serialize, soft_shadow, sparkline, sphere, stroke, svg_to_objects, text_style, theme, to_plain_dict, torus, validate_static_rules, wave, wrap_text  # noqa: E402
+from frameforge.conform import assert_golden, page_hashes, render_pages_with_stats, write_golden
+from frameforge_sdk.metrics import text_height  # noqa: E402
 from frameforge.rendering.domain.services.canvas_resolver import PRESETS  # noqa: E402
 
 from layout_methods_book import (  # noqa: E402  — the ELECTED, extended composer
@@ -2464,7 +2387,7 @@ def _appendix_a(bk: Tour):
     bk.section("Appendix A", f"All {len(BY_KIND['sdk_export'])} SDK "
                "exports, introspected", "Appendix A")
     bk.callout("GENERATED MACHINE REFERENCE — built by importing "
-               "frameforge.sdk and reading each export's docstring at build "
+               "frameforge_sdk and reading each export's docstring at build "
                "time, so it cannot drift from the code; the coverage gate "
                "fails if this surface and the manifest disagree. Not meant "
                "to be read linearly: scan by module, or arrive from "
@@ -2482,7 +2405,7 @@ def _appendix_a(bk: Tour):
             one = ((obj.__doc__ or "").strip().splitlines() or [""])[0]
         else:
             mod = (getattr(obj, "__module__", "") or "").replace(
-                "frameforge.sdk.", "sdk.").replace("frameforge.", "")
+                "frameforge_sdk.", "sdk.").replace("frameforge.", "")
             if mod.startswith("pydantic_core"):
                 mod = "sdk.model (re-exported)"
             if mod in ("typing",):
@@ -2623,7 +2546,7 @@ def _colophon(bk: Tour):
          "one of the " + str(gate_n) + " capability names in the manifest "
          "(" + ", ".join(f"{len(v)} {k.replace('_', ' ')}s"
                          for k, v in BY_KIND.items()) + ") appears in the "
-         "serialized text. Appendix A is introspected from frameforge.sdk "
+         "serialized text. Appendix A is introspected from frameforge_sdk "
          "at build time. Completeness here is a checked property, not a "
          "claim."),
         ("Revision",

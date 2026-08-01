@@ -17,7 +17,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import Vec3, convex_hull_3d  # noqa: E402
+from frameforge_sdk import Vec3, convex_hull_3d  # noqa: E402
 
 
 def _tetra():

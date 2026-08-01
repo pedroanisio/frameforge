@@ -119,7 +119,8 @@ def test_grid_positions_are_prefix_sums_no_remainder_drop():
 # --------------------------------------------------------------------------- #
 def _table_cell_geometry(columns, usable_hint=600):
     """Render a one-table flow doc; return the first body row's rect x/width."""
-    from frameforge.sdk import parse, render_page_svgs
+    from frameforge_sdk import parse
+    from frameforge.conform import render_page_svgs
 
     doc = {
         "dsl": "FrameForge", "version": "2.5.0",
@@ -158,7 +159,8 @@ def test_flow_table_percent_column_resolves():
 #  LAY-7 — page-break admission uses the line BOX (size*lh), not bare size     #
 # --------------------------------------------------------------------------- #
 def test_last_line_cannot_overhang_the_region_bottom():
-    from frameforge.sdk import parse, render_page_svgs
+    from frameforge_sdk import parse
+    from frameforge.conform import render_page_svgs
 
     doc = {
         "dsl": "FrameForge", "version": "2.5.0",

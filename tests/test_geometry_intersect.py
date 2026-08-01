@@ -2,7 +2,7 @@
 """test_geometry_intersect.py — B8: the 2D geometric-intersection primitives.
 
 The CG-canon backlog's B8 (foundational for hit-testing / snapping / clipping)
-lands its 2D primitive core in `frameforge.sdk.geometry`: line×line, segment×
+lands its 2D primitive core in `frameforge_sdk.geometry`: line×line, segment×
 segment, ray×segment, and segment×polygon. Each is parametric (a 2D cross-product
 solve); parallel/collinear inputs return no crossing (None / []). The 3D
 (plane) and curve intersections named in the backlog are the item's documented
@@ -19,13 +19,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    Vec2,
-    line_intersection,
-    ray_segment_intersection,
-    segment_intersection,
-    segment_polygon_intersections,
-)
+from frameforge_sdk import Vec2, line_intersection, ray_segment_intersection, segment_intersection, segment_polygon_intersections  # noqa: E402
 
 
 def _close(p, q, tol=1e-9):

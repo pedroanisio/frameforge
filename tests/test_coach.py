@@ -17,8 +17,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.conform import render_page_svgs
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge.conform import render_page_svgs
 from frameforge.coach import (
     STYLES,
     DrawingIntent,
@@ -340,7 +340,7 @@ def test_mcp_pipeline_silhouette_flag(tmp_path):
     and attaches the rubric — the gate any agent gets for free via the tools."""
     from pathlib import Path
 
-    from frameforge.sdk import serialize
+    from frameforge_sdk import serialize
     from frameforge.mcp.pipeline import _validate_and_render_yaml
 
     yaml_text = serialize(_subject_doc().build(), format="yaml")

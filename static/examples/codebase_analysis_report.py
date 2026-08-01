@@ -69,7 +69,7 @@ sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 from dataclasses import replace as _dc_replace
 
 from frameforge_sdk import (
-    # noqa: E402     BookBuilder,
+    BookBuilder,  # noqa: E402
     Frame,
     badge,
     closed_palette,

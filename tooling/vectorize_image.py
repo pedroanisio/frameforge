@@ -21,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
 from frameforge.vision.infrastructure.vectorize import (  # noqa: E402
     ocr_text_objects,
     raster_to_objects,
@@ -81,7 +81,7 @@ def main(argv=None) -> int:
         builder.write(args.out)
         print(f"  wrote {args.out}")
     if args.svg_out:
-        from frameforge.sdk import render_page_svgs
+        from frameforge.conform import render_page_svgs
         os.makedirs(os.path.dirname(os.path.abspath(args.svg_out)), exist_ok=True)
         with open(args.svg_out, "w", encoding="utf-8") as fh:
             fh.write(render_page_svgs(builder.build())[0])

@@ -107,7 +107,8 @@ def test_redraw_one_call_snaps_then_smooths():
 
 
 def test_redraw_output_renders_through_frameforge():
-    from frameforge.sdk import DocumentBuilder, render_page_svgs
+    from frameforge_sdk import DocumentBuilder
+    from frameforge.conform import render_page_svgs
     objs = [{"type": "polyline", "points": _circle(n=24, r=8, cx=12, cy=12), "stroke": "#111"}] * 4
     out = redraw_smooth(objs, simplify_tol=1.0)
     b = DocumentBuilder(title="redraw")

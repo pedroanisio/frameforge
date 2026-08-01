@@ -20,7 +20,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 sys.path.insert(0, ROOT)
 
 from frameforge.coach import compose_objects, resolve_style  # noqa: E402
-from frameforge.sdk import render_page_svgs  # noqa: E402
+from frameforge.conform import render_page_svgs  # noqa: E402
 
 
 def _region():

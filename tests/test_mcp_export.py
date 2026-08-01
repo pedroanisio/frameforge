@@ -27,7 +27,7 @@ from frameforge.mcp.server import (  # noqa: E402
 )
 
 SDK_SCRIPT = """
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 
 doc = DocumentBuilder(title="Export Probe", profile="deck")
 page = doc.page("p1", canvas={"size": [320, 180], "units": "px"})
@@ -65,8 +65,8 @@ def test_run_sdk_code_to_pdf_assembles_document_pdf(tmp_path):
 
 @pytest.mark.skipif(not _PDF_DEPS, reason="cairosvg/pypdf (pdfout group) not installed")
 def test_document_pdf_is_readable_as_a_session_resource(tmp_path):
-    from frameforge.sdk import DocumentBuilder
-    from frameforge.sdk.io import serialize
+    from frameforge_sdk import DocumentBuilder
+    from frameforge_sdk.io import serialize
 
     builder = DocumentBuilder(title="PDF YAML", profile="deck")
     page = builder.page("p1", canvas={"size": [120, 80], "units": "px"})

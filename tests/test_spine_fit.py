@@ -44,7 +44,7 @@ pytest.importorskip("PIL")
 # --------------------------------------------------------------- test helpers
 def _petal_mask(size=(600, 800)):
     """Ground-truth mask from a KNOWN stroke_outline (the round-trip oracle)."""
-    from frameforge.sdk.outline import stroke_outline
+    from frameforge_sdk.outline import stroke_outline
     from frameforge.vision.infrastructure.vectorize import _shape_mask
 
     spine = _true_spine()
@@ -130,7 +130,7 @@ def test_round_trip_recovers_the_authored_petal():
 
 
 def test_round_trip_reconstruction_iou():
-    from frameforge.sdk.outline import stroke_outline
+    from frameforge_sdk.outline import stroke_outline
     from frameforge.vision.domain.spine_fit import fit_spine, spine_profile
     from frameforge.vision.infrastructure.vectorize import _shape_mask
 
@@ -174,7 +174,7 @@ def test_fit_is_deterministic():
 def _two_petal_image(tmp_path):
     from PIL import Image
 
-    from frameforge.sdk.outline import stroke_outline
+    from frameforge_sdk.outline import stroke_outline
     from frameforge.vision.infrastructure.vectorize import _shape_mask
 
     img = np.zeros((800, 600, 3), dtype=np.uint8)

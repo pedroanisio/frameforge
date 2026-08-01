@@ -19,22 +19,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
-    Mat3,
-    Path,
-    clip_circle,
-    clip_ellipse,
-    clip_inset,
-    clip_path,
-    clip_polygon,
-    clip_rect,
-    mask_gradient,
-    mask_none,
-    mask_style,
-    mask_url,
-)
-from frameforge.sdk.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk import DocumentBuilder, Mat3, Path, clip_circle, clip_ellipse, clip_inset, clip_path, clip_polygon, clip_rect, mask_gradient, mask_none, mask_style, mask_url  # noqa: E402
+from frameforge.conform import render_page_svgs  # noqa: E402
 
 CANVAS = {"size": [200, 200], "units": "px"}
 

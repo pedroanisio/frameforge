@@ -10,9 +10,9 @@ sys.path[:0] = [str(ROOT), str(ROOT / "src"), str(ROOT / "docs")]
 
 from frameforge.mcp.guide import FRAMEFORGE_GUIDE  # noqa: E402
 from frameforge.mcp.usecases import run_sdk_client  # noqa: E402
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.io import serialize  # noqa: E402
-from frameforge.sdk.paint import linear_gradient  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk.io import serialize  # noqa: E402
+from frameforge_sdk.paint import linear_gradient  # noqa: E402
 
 
 def _valid_builder(*, capture_provenance: bool) -> DocumentBuilder:
@@ -49,7 +49,7 @@ def test_run_sdk_client_groups_gradient_union_noise_at_author_site(tmp_path):
     client = examples / "gradient_error.py"
     client.write_text(
         """\
-from frameforge.sdk import DocumentBuilder, linear_gradient
+from frameforge_sdk import DocumentBuilder, linear_gradient
 
 def broken_gradient():
     return linear_gradient([

@@ -2,14 +2,14 @@
 
 Depends only on the :class:`Detector` and :class:`ObservationMapper` ports. The
 FrameForge envelope is assembled with the SDK's own authoring API
-(:class:`frameforge.sdk.author.DocumentBuilder`) rather than a hand-rolled dict,
+(:class:`frameforge_sdk.author.DocumentBuilder`) rather than a hand-rolled dict,
 so the document contract lives in one place (SDK reuse, not a fork).
 """
 from __future__ import annotations
 
 from typing import Iterable, Sequence
 
-from frameforge.sdk.author import DocumentBuilder
+from frameforge_sdk.author import DocumentBuilder
 
 from ..observation import Observation, Proposal, RasterImage, SkippedDetector
 from ..ports import Detector, ObservationMapper

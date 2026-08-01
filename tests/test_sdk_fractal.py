@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """test_sdk_fractal.py — B4: the fractal / procedural generator (CG-canon backlog).
 
-`frameforge.sdk.fractal` is a small L-system + turtle engine (Harrington Ch11 /
+`frameforge_sdk.fractal` is a small L-system + turtle engine (Harrington Ch11 /
 Mortenson) that lowers self-similar curves to plain polylines. Tests pin the
 string-rewriting, the turtle's coordinate maps, the exact Koch generator, and the
 fractal growth law (Koch: 4ⁿ segments, Dragon: 2ⁿ) — all deterministic.
@@ -18,13 +18,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    dragon_curve,
-    koch_curve,
-    lsystem,
-    sierpinski_arrowhead,
-    turtle,
-)
+from frameforge_sdk import dragon_curve, koch_curve, lsystem, sierpinski_arrowhead, turtle  # noqa: E402
 
 
 def test_lsystem_rewrites_the_axiom():

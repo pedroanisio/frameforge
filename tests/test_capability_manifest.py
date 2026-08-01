@@ -9,7 +9,7 @@ hand-drift (same contract as ``build_schema.py --check`` / ``gen_status.py``):
   MCP tool registry, renderer entry points, validator codes).
 - ``docs/error-codes.md`` — must document every validator finding code in
   ``tooling/validate.py`` and every SDK ``rule_id`` in
-  ``frameforge/sdk/validate.py`` (codes are extracted from the sources, so a
+  ``frameforge_sdk/validate.py`` (the standalone SDK package) (codes are extracted from the sources, so a
   new code cannot land undocumented).
 - ``docs/examples.md`` — must list exactly the tracked ``examples/*.py``
   scripts (``tooling/gen_examples_index.py``).

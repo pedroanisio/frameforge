@@ -19,9 +19,9 @@ from pathlib import Path
 from typing import Any
 
 from frameforge.rendering.provenance import sign_svg, utc_now_iso
-from frameforge.sdk.conform import render_pages_with_stats
-from frameforge.sdk.io import parse
-from frameforge.sdk.validate import validate_static_rules
+from frameforge.conform import render_pages_with_stats
+from frameforge_sdk.io import parse
+from frameforge_sdk.validate import validate_static_rules
 
 from frameforge.mcp.config import (
     DEFAULT_RASTER_MAX_PAGES,
@@ -72,7 +72,7 @@ def _validate_and_render_yaml(
         if isinstance(document, dict) and ((document.get("defs") or {}).get("params")):
             # defs.params: resolve "=expr" strings BEFORE model validation —
             # the expression form is a pre-document authoring surface.
-            from frameforge.sdk.params import resolve_params
+            from frameforge_sdk.params import resolve_params
             document = resolve_params(document)
         if silhouette:
             # The silhouette gate (frameforge.coach): flatten to black-on-white so
@@ -355,7 +355,7 @@ def _export_html(
     """Write the document as one self-contained ``document.html``.
 
     Reuses the CLI's ``--to html`` mechanism through the SDK entry point
-    (:func:`frameforge.sdk.render_html`), so MCP, the CLI and the SDK all reach
+    (:func:`frameforge.conform.render_html`), so MCP, the CLI and the SDK all reach
     the SAME renderer — the duplication this backend was ported to remove must
     not reappear one layer up.
 
@@ -366,7 +366,7 @@ def _export_html(
     The document body is never returned inline — only its path, URI and size —
     because a whole HTML file would exceed the MCP result budget by itself.
     """
-    from frameforge.sdk.conform import render_html
+    from frameforge.conform import render_html
     try:
         text = render_html(document, base_dir=str(base_dir),
                            real_metrics=_resolve_real_metrics(real_metrics))
@@ -552,7 +552,7 @@ def _render_pages_with_stats(
 ) -> tuple[list[str], dict[str, int], dict[str, Any]]:
     """Render page SVGs + telemetry through the SDK conformance path.
 
-    ``frameforge.sdk.conform.render_pages_with_stats`` now threads the renderer's
+    ``frameforge.conform.render_pages_with_stats`` now threads the renderer's
     ``real_metrics`` flag and returns its structured ``diagnostics``, so the MCP
     pipeline no longer replicates the render loop. ``real_metrics`` arrives here
     already resolved to a bool by :func:`_resolve_real_metrics` (tool argument >

@@ -23,8 +23,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.sdk import chevreul, recolor, render_pages_with_stats  # noqa: E402
-from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge_sdk import chevreul, recolor  # noqa: E402
+from frameforge.conform import render_pages_with_stats
+from frameforge_sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 
 def _doc(objects, colors=None):

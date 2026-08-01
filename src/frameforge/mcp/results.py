@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from frameforge.sdk.validate import ValidationReport
+from frameforge_sdk.validate import ValidationReport
 
 from frameforge.mcp.transport import mcp_content_blocks
 

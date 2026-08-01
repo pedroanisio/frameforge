@@ -99,7 +99,7 @@ def test_bbox_over_mixed_geometry():
 
 
 def test_style_matrix_builds_and_renders_distinct_styles():
-    from frameforge.sdk import render_page_svgs
+    from frameforge.conform import render_page_svgs
     base = _trace_objs()
     b, ids = build_style_matrix(base, (20, 20))
     svg = render_page_svgs(b.build())[0]
@@ -153,7 +153,7 @@ def test_translate_objs_shifts_coordinates_and_preserves_count():
 
 
 def test_build_parts_recompose_is_a_real_edit():
-    from frameforge.sdk import render_page_svgs
+    from frameforge.conform import render_page_svgs
     # objects landing in build_parts' board ([2,6,30,58]) and figure ([28,18,20,66])
     # fractional regions for a 100x100 source, plus some elsewhere.
     def pl(p):
@@ -172,7 +172,7 @@ def test_build_parts_recompose_is_a_real_edit():
 
 
 def test_composition_carries_native_text_and_chart():
-    from frameforge.sdk import render_page_svgs
+    from frameforge.conform import render_page_svgs
     base = _trace_objs()
     b = build_composition(base, (20, 20), n_objs=len(base), fidelity=0.42)
     svg = render_page_svgs(b.build())[0]

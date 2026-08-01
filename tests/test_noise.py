@@ -14,22 +14,10 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from frameforge.sdk import (
-    DocumentBuilder,
-    Noise,
-    ScalarField,
-    domain_warp,
-    fbm,
-    perlin_2d,
-    remap,
-    render_page_svgs,
-    simplex_2d,
-    to_unit,
-    validate_static_rules,
-    value_noise_2d,
-)
-from frameforge.sdk.noise import _fade, _permutation
-from frameforge.sdk.paint import turbulence
+from frameforge_sdk import DocumentBuilder, Noise, ScalarField, domain_warp, fbm, perlin_2d, remap, simplex_2d, to_unit, validate_static_rules, value_noise_2d
+from frameforge.conform import render_page_svgs
+from frameforge_sdk.noise import _fade, _permutation
+from frameforge_sdk.paint import turbulence
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -88,7 +76,7 @@ def test_primitives_are_seeded_deterministic_and_distinct():
 def test_noise_sample_grid_hash_is_reproducible_across_fresh_processes():
     code = (
         "import hashlib,json; "
-        "from frameforge.sdk import perlin_2d,simplex_2d,value_noise_2d,fbm; "
+        "from frameforge_sdk import perlin_2d,simplex_2d,value_noise_2d,fbm; "
         "fs=(value_noise_2d,perlin_2d,simplex_2d,fbm); "
         "v=[[f(x/7,y/11,seed=18497) for y in range(-5,6)] "
         "for f in fs for x in range(-7,8)]; "
@@ -277,7 +265,7 @@ def test_paint_turbulence_output_is_byte_identical_to_pre_noise_contract():
     assert hashlib.sha256(payload.encode()).hexdigest() == (
         "88b7db0c765b109317622ab3dfbcd89f4ffe021ff22edf0737fae603efef9590"
     )
-    assert "frameforge.sdk.noise" in (turbulence.__doc__ or "")
+    assert "frameforge_sdk.noise" in (turbulence.__doc__ or "")
 
 
 def test_sampleable_noise_example_builds_valid_deterministic_svg():
@@ -296,7 +284,7 @@ def test_generated_sdk_docs_include_noise_signatures_and_usage():
     api = (ROOT / "docs/sdk-api.md").read_text(encoding="utf-8")
     guide = (ROOT / "docs/sdk.md").read_text(encoding="utf-8")
     api_fragments = (
-        "## `frameforge.sdk.noise`",
+        "## `frameforge_sdk.noise`",
         "### `Noise`",
         "### `value_noise_2d`",
         "### `perlin_2d`",
@@ -315,7 +303,7 @@ def test_generated_sdk_docs_include_noise_signatures_and_usage():
     )
     assert not [fragment for fragment in api_fragments if fragment not in api]
     assert not [fragment for fragment in guide_fragments if fragment not in guide]
-    noise_api = api.split("## `frameforge.sdk.noise`", 1)[1].split("\n## `", 1)[0]
+    noise_api = api.split("## `frameforge_sdk.noise`", 1)[1].split("\n## `", 1)[0]
     assert " at 0x" not in noise_api
     assert "basis: 'NoiseBasis' = perlin_2d" in noise_api
     assert "basis: 'NoiseBasis' = fbm" in noise_api

@@ -107,7 +107,7 @@ def test_unbreakable_token_stays_in_kp_not_greedy():
 
 
 def test_canon_fallback_agrees_with_authoring_helper():
-    from frameforge.sdk import canon
+    from frameforge_sdk import canon
     for side, page_index in (("recto", 1), ("verso", 2)):
         got = FL.content_box(None, 794, 1123, page_index=page_index, unit=40)
         want = canon.content_box(794, 1123, unit=40, side=side)

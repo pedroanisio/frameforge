@@ -21,7 +21,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 import pytest  # noqa: E402
 
-from frameforge.sdk import surface_curvature  # noqa: E402
+from frameforge_sdk import surface_curvature  # noqa: E402
 
 
 def _sphere(radius):

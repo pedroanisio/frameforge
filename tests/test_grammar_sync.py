@@ -126,8 +126,15 @@ def test_expand_dispatch_matches_the_documented_set():
     is expected to document — so adding an expansion form without a grammar
     entry (or vice versa) trips this gate, not a silent doc drift."""
     import re
-    expand_src = open(os.path.join(ROOT, "src", "frameforge", "sdk",
-                                   "expand.py"), encoding="utf-8").read()
+    # `sdk.expand` is in the standalone `frameforge-sdk` distribution since
+    # 2026-08-01, so resolve it through the import system rather than a path
+    # inside this repo — the grammar it is checked against still lives here.
+    # `import_module`, not `import frameforge_sdk.expand as _expand`: the package
+    # re-exports a FUNCTION named `expand` at its root, which shadows the
+    # submodule on attribute access.
+    import importlib
+    _expand = importlib.import_module("frameforge_sdk.expand")
+    expand_src = open(_expand.__file__, encoding="utf-8").read()
     dispatched = set(re.findall(r'kind == "([a-z_]+)"', expand_src))
     assert dispatched == set(EXPANSION_AUTHORING_TYPES), (
         f"sdk.expand dispatches {dispatched}, documented set is "

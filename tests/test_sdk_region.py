@@ -19,17 +19,8 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import pytest  # noqa: E402
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
-    Mat3,
-    extract_objects,
-    gradient_map,
-    object_bbox,
-    place_region,
-    region_grade,
-    select_in,
-)
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, Mat3, extract_objects, gradient_map, object_bbox, place_region, region_grade, select_in  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 
 def _source_doc() -> DocumentBuilder:

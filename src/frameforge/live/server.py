@@ -30,7 +30,7 @@ DEFAULT_PORT = 8789
 
 
 SAMPLE_SDK_CODE = """\
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 
 doc = DocumentBuilder(title="Live FrameForge Session", profile="deck")
 title = doc.define_text_style("title", font_family="sans", font_size=34, color="#0f172a")
@@ -633,7 +633,7 @@ def build_prompt_code(prompt: str) -> str:
     """Build a conservative SDK draft from a prompt for the live feedback loop."""
     text = " ".join(str(prompt or "Untitled FrameForge live session").split())[:900]
     return f"""\
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 
 prompt = {text!r}
 doc = DocumentBuilder(title="Agentic FrameForge Draft", profile="deck")

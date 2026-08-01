@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """test_geometry_viewport.py — B1: the formal viewing pipeline (CG-canon backlog).
 
-`frameforge.sdk.geometry` gains the named window→viewport transform (Harrington
+`frameforge_sdk.geometry` gains the named window→viewport transform (Harrington
 Ch6/¶43) that was previously hand-rolled inside `Scene3D.render`:
 
 * `window_to_viewport(window, viewport, uniform=…)` — the affine that maps a
@@ -23,7 +23,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import Camera, Vec2, Vec3, ViewingPipeline, window_to_viewport  # noqa: E402
+from frameforge_sdk import Camera, Vec2, Vec3, ViewingPipeline, window_to_viewport  # noqa: E402
 
 
 def _close(p, q, tol=1e-6):

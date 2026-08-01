@@ -6,7 +6,7 @@ placement vocabulary, applies the ``enterprise_layout`` treatments (card
 fill/stroke/corner, accent bar, label slot), and emits plain core objects —
 ``rect`` / ``text`` / ``bullet_list`` / ``table`` / ``image`` — on one
 absolute 1920×1080 page. Nothing new enters the schema; the returned
-document has already passed :func:`~frameforge.sdk.model.validate_document`.
+document has already passed :func:`~frameforge_sdk.model.validate_document`.
 
 Layout families (all 17 sidecared patterns fall in the first three; the
 rules are general):
@@ -31,7 +31,7 @@ from typing import Any
 
 from frameforge.patterns.catalog import PatternZone, SlidePattern, load_catalog
 from frameforge.patterns.fill import load_fill
-from frameforge.sdk.model import HEAD_VERSION, validate_document
+from frameforge_sdk.model import HEAD_VERSION, validate_document
 
 CANVAS_W, CANVAS_H = 1920.0, 1080.0
 MARGIN, HEADER_H, GAP = 64.0, 108.0, 24.0

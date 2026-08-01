@@ -46,7 +46,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 from render_fixtures import Renderer                    # noqa: E402
 from frameforge.rendering.domain.services.overflow import OverflowSignal  # noqa: E402
-from frameforge.sdk.conform import overflow_report, render_pages_with_stats  # noqa: E402
+from frameforge.conform import overflow_report, render_pages_with_stats  # noqa: E402
 
 LONG = ("A page works on the reader twice; once through its letters and once "
         "through its colour, and whatever third voice the designer admits.")
@@ -180,11 +180,14 @@ def test_overflow_report_empty_for_clean_document():
     assert overflow_report(doc) == []
 
 
-def test_flat_sdk_export():
-    import frameforge.sdk as sdk
-    assert sdk.OverflowSignal is OverflowSignal
-    assert sdk.overflow_report is overflow_report
-    assert "OverflowSignal" in sdk.__all__ and "overflow_report" in sdk.__all__
+def test_flat_conform_export():
+    """`overflow_report` is an ENGINE surface, not an SDK one —
+    the 2026-08-01 split kept VERIFICATION in the engine (`frameforge.conform`)
+    and COMPOSITION in `frameforge-sdk`; rendering needs real pixels, so it stayed."""
+    from frameforge import conform
+    assert conform.OverflowSignal is OverflowSignal
+    assert conform.overflow_report is overflow_report
+    assert "OverflowSignal" in conform.__all__ and "overflow_report" in conform.__all__
 
 
 # ── MCP: signals inside the authoring loop ───────────────────────────────

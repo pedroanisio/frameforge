@@ -10,8 +10,8 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-from frameforge.sdk.author import DocumentBuilder
-from frameforge.sdk.model import validate_document
+from frameforge_sdk.author import DocumentBuilder
+from frameforge_sdk.model import validate_document
 
 
 def _as_dict(doc: Any) -> dict[str, Any]:

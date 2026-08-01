@@ -18,9 +18,9 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
-from frameforge.sdk import DocumentBuilder, validate_static_rules  # noqa: E402
-from frameforge.sdk.pathtext import offset_path, path_length, text_on_path  # noqa: E402
-from frameforge.sdk.metrics import measure_text  # noqa: E402
+from frameforge_sdk import DocumentBuilder, validate_static_rules  # noqa: E402
+from frameforge_sdk.pathtext import offset_path, path_length, text_on_path  # noqa: E402
+from frameforge_sdk.metrics import measure_text  # noqa: E402
 
 FAM = "DejaVu Sans"
 

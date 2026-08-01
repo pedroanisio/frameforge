@@ -15,94 +15,25 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (
-    Chart,
-    Box,
-    DocumentBuilder,
-    ExpandOptions,
-    Frame,
-    Material,
-    Mat3,
-    Path,
-    Scene3D,
-    Vec2,
-    Vec3,
-    column,
-    greeble,
-    expand,
-    grid,
-    grid_lines,
-    hatch_fill,
-    inset,
-    lorem,
-    lorem_paragraphs,
-    md,
-    paragraph,
-    parse,
-    row,
-    serialize,
-    sparkline,
-    theme,
-)
-from frameforge.sdk import (
-    appearance,
-    blur_filter,
-    conic_gradient,
-    diffuse_lighting,
-    displacement_map,
-    dots,
-    effect,
-    effect_stack,
-    effects,
-    fill_stroke,
-    filter_chain,
-    grid_pattern,
-    glow,
-    hatch,
-    linear_gradient,
-    neon,
-    pattern,
-    radial_gradient,
-    rgba,
-    shadow,
-    soft_shadow,
-    stroke,
-    style_effects,
-    specular_lighting,
-    text_style,
-    turbulence,
-)
-from frameforge.sdk import (
-    Panel,
-    avatar,
-    badge,
-    badge_width,
-    button,
-    card,
-    default_theme,
-    divider,
-    field,
-    kpi,
-    pill,
-    progress,
-    register_theme,
-    table,
-    tabs,
-    toggle,
-)
-from frameforge.sdk.conform import page_hashes, render_page_svgs
-from frameforge.sdk.geometry import CubicBezier, Mat4, quarter_circle_kappa
-from frameforge.sdk.validate import validate_static_rules
+from frameforge_sdk import Chart, Box, DocumentBuilder, ExpandOptions, Frame, Material, Mat3, Path, Scene3D, Vec2, Vec3, column, greeble, expand, grid, grid_lines, hatch_fill, inset, lorem, lorem_paragraphs, md, paragraph, parse, row, serialize, sparkline, theme
+from frameforge_sdk import appearance, blur_filter, conic_gradient, diffuse_lighting, displacement_map, dots, effect, effect_stack, effects, fill_stroke, filter_chain, grid_pattern, glow, hatch, linear_gradient, neon, pattern, radial_gradient, rgba, shadow, soft_shadow, stroke, style_effects, specular_lighting, text_style, turbulence
+from frameforge_sdk import Panel, avatar, badge, badge_width, button, card, default_theme, divider, field, kpi, pill, progress, register_theme, table, tabs, toggle
+from frameforge.conform import page_hashes, render_page_svgs
+from frameforge_sdk.geometry import CubicBezier, Mat4, quarter_circle_kappa
+from frameforge_sdk.validate import validate_static_rules
 
 
 def test_top_level_sdk_reexports_module_public_surface():
-    import frameforge.sdk as sdk
+    import frameforge_sdk as sdk
 
     modules = [
         "author",
         "chart",
         "clip",
-        "conform",
+        # `conform` is NOT in this list any more: the 2026-08-01 split kept
+        # VERIFICATION with the engine (`frameforge.conform`) because rendering
+        # needs real pixels, while COMPOSITION became the standalone SDK. Listing
+        # it here would assert the leaf still owns a renderer.
         "draw",
         "expand",
         "fields",
@@ -123,7 +54,7 @@ def test_top_level_sdk_reexports_module_public_surface():
     ]
     missing: list[str] = []
     for module_name in modules:
-        module = importlib.import_module(f"frameforge.sdk.{module_name}")
+        module = importlib.import_module(f"frameforge_sdk.{module_name}")
         for name in getattr(module, "__all__", ()):
             if name not in sdk.__all__ or not hasattr(sdk, name):
                 missing.append(f"{module_name}.{name}")
@@ -963,7 +894,7 @@ def test_scene3d_perspective_paints_near_over_far():
     but wrong for any solid or separated geometry. The last child is drawn on top
     and must be the NEAR (green) face.
     """
-    from frameforge.sdk import Camera
+    from frameforge_sdk import Camera
 
     cam = Camera(eye=Vec3(0, 0, 3), target=Vec3(0, 0, 0), fov=45, aspect=1.0)
     group = _near_far_scene().render(box=[0, 0, 100, 100], camera=cam)
@@ -1267,7 +1198,7 @@ def test_conformance_page_hashes_are_stable():
 
 
 # --------------------------------------------------------------------------- #
-#  widgets (frameforge.sdk.widgets)
+#  widgets (frameforge_sdk.widgets)
 # --------------------------------------------------------------------------- #
 def _widgets_doc():
     """A page exercising every widget, for validation + render assertions."""
@@ -1492,7 +1423,7 @@ def test_page_level_links_notes_meta_and_link_helper():
 #  write(fail_on_error=True) surfaces the whole report
 # --------------------------------------------------------------------------- #
 def test_write_fail_on_error_raises_typed_error_with_all_errors(tmp_path):
-    from frameforge.sdk import StaticValidationError, ValidationReport
+    from frameforge_sdk import StaticValidationError, ValidationReport
 
     builder = DocumentBuilder()
     layer = builder.page("p", canvas={"size": [100, 100], "units": "px"}).layer("main")
@@ -1564,10 +1495,7 @@ def test_validate_static_rules_without_targets_stays_clean():
 #  wireframe widget atoms
 # --------------------------------------------------------------------------- #
 def test_new_wireframe_atoms_lower_and_validate():
-    from frameforge.sdk import (
-        breadcrumb, checkbox, dropdown, image_placeholder, radio,
-        slider, sticky_note,
-    )
+    from frameforge_sdk import breadcrumb, checkbox, dropdown, image_placeholder, radio, slider, sticky_note
 
     builder = DocumentBuilder(profile="deck")
     layer = builder.page("p", canvas={"size": [640, 640], "units": "px"},
@@ -1631,7 +1559,7 @@ def test_group_composes_token_style_with_transform_and_clip():
 #  SVG ingest is visible on the SDK surface
 # --------------------------------------------------------------------------- #
 def test_svg_to_objects_is_reexported_through_the_sdk():
-    from frameforge.sdk import svg_to_objects
+    from frameforge_sdk import svg_to_objects
 
     objects = svg_to_objects(
         '<svg viewBox="0 0 10 10">'
@@ -1653,7 +1581,7 @@ def test_svg_to_objects_is_reexported_through_the_sdk():
 def test_render_pages_with_stats_optionally_returns_renderer_diagnostics():
     """diagnostics=True adds the renderer's structured feedback as a third
     element; the default stays the frozen (svgs, tstats) 2-tuple contract."""
-    from frameforge.sdk.conform import render_pages_with_stats
+    from frameforge.conform import render_pages_with_stats
 
     builder = DocumentBuilder(title="diag", profile="diagram")
     layer = builder.page("p", canvas={"size": [100, 80], "units": "px"},

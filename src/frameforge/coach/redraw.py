@@ -9,7 +9,7 @@ mechanical contour dump.
 
 It reuses ``coach.clean``'s RDP simplification (one implementation of the
 decimation lever) and the SDK's ``Path`` builder for the Béziers — so it stays
-within the package boundary (``frameforge.sdk`` + stdlib, no ``tooling``) and adds
+within the package boundary (``frameforge_sdk`` + stdlib, no ``tooling``) and adds
 no duplicate geometry code.
 """
 from __future__ import annotations
@@ -19,7 +19,7 @@ import math
 from typing import Any, Iterable, Sequence
 
 from frameforge.coach.clean import simplify_strokes
-from frameforge.sdk import Path
+from frameforge_sdk import Path
 
 Obj = dict[str, Any]
 Pt = Sequence[float]

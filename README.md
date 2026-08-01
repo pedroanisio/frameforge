@@ -20,7 +20,6 @@ for the full why and scope.
 ```
 src/frameforge/               ← the Python package (strictly downstream of the models — ADR-0002):
   rendering/                  ← renderer (DDD split): domain + application (the Renderer) + infrastructure.
-  sdk/                        ← authoring SDK: builders/geometry/paint/widgets that lower into the models.
   mcp/                        ← MCP server: author→render loop + the coordinate/measurement tool layer.
   vision/                     ← raster→vector lane: measure/compare/vectorize/propose (optional deps).
   coach/                      ← Vector Construction Coach: style-grammar, layer order, silhouette gate.

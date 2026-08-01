@@ -214,7 +214,7 @@ def test_render_pages_with_stats_diagnostics_wires_font_report():
     calls renderer.font_report() before snapshotting (a substitution otherwise
     stays invisible — the exact silent failure the feature exists to surface)."""
     from frameforge.rendering.application import renderer as renderer_mod
-    from frameforge.sdk import conform
+    from frameforge import conform
 
     calls = []
     real = renderer_mod.Renderer

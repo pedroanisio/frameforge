@@ -3,7 +3,7 @@
 
 Three guarantees, drift-proof by construction:
 
-G1 — the ENTIRE public SDK surface (``frameforge.sdk.__all__``) is enumerable
+G1 — the ENTIRE public SDK surface (``frameforge_sdk.__all__``) is enumerable
      from inside the MCP via ``describe_capabilities(topic="sdk")``, each entry
      carrying kind, signature (callables), and a one-line explanation.
 G2 — every export FrameForge itself defines carries a docstring; typing aliases
@@ -24,7 +24,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-import frameforge.sdk as sdk  # noqa: E402
+import frameforge_sdk as sdk  # noqa: E402
 from frameforge.mcp.server import describe_capabilities  # noqa: E402
 
 

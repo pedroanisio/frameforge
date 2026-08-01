@@ -23,7 +23,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import render_page_svgs  # noqa: E402
+from frameforge.conform import render_page_svgs  # noqa: E402
 from tooling import render_fixtures as R  # noqa: E402
 
 HEAD_HEX = "#123456"

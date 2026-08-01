@@ -4,14 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from frameforge.sdk.sugiyama import (
-    SugiyamaConfig,
-    _assign_layers,
-    _count_crossings_between_layers,
-    _median,
-    _remove_cycles,
-    sugiyama_layout,
-)
+from frameforge_sdk.sugiyama import SugiyamaConfig, _assign_layers, _count_crossings_between_layers, _median, _remove_cycles, sugiyama_layout
 
 
 def test_each_sugiyama_stage_enforces_its_structural_contract():

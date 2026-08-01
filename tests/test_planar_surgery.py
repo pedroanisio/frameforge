@@ -20,8 +20,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
-from frameforge.sdk.planar import (  # noqa: E402
-    chamfer_ring, extend_segment, fillet_ring, ring_area, trim_segment)
+from frameforge_sdk.planar import chamfer_ring, extend_segment, fillet_ring, ring_area, trim_segment  # noqa: E402
 
 SQUARE = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]
 

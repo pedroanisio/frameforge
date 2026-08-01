@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Story/flow authoring tests for the Python FrameForge SDK.
 
-Covers the ``frameforge.sdk.flow`` builders (FlowBuilder + DocumentBuilder
+Covers the ``frameforge_sdk.flow`` builders (FlowBuilder + DocumentBuilder
 ``section``/``master`` wiring), the rich-inline additions to ``macros.md`` /
 ``macros.span``, and the span-list form of ``PageBuilder.text``. Every builder
 must round-trip through the authoritative model (``DocumentBuilder.build``)
@@ -20,15 +20,9 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
-    FlowBuilder,
-    MasterBuilder,
-    md,
-    render_page_svgs,
-    span,
-)
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, FlowBuilder, MasterBuilder, md, span  # noqa: E402
+from frameforge.conform import render_page_svgs
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 
 def _builder_with_master() -> tuple[DocumentBuilder, MasterBuilder]:

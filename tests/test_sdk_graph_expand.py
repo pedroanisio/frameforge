@@ -22,8 +22,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.sdk import expand, render_pages_with_stats  # noqa: E402
-from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge_sdk import expand  # noqa: E402
+from frameforge.conform import render_pages_with_stats
+from frameforge_sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 
 def _doc(graph_obj):
@@ -167,7 +168,7 @@ def test_committed_showcase_fixture_renders_clean():
 
 
 def test_graph_to_object_round_trips_through_expand():
-    from frameforge.sdk.topology import Graph
+    from frameforge_sdk.topology import Graph
     g = Graph().node("a", "A").node("b", "B").edge("a", "b", directed=True)
     obj = g.to_object(box=[0, 0, 200, 120], algorithm="layered", id="rt")
     assert obj["type"] == "graph" and obj["id"] == "rt"

@@ -32,7 +32,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from frameforge.model import Document  # noqa: E402
-from frameforge.sdk import lower_embedded_svg, svg_to_objects  # noqa: E402
+from frameforge_sdk import lower_embedded_svg, svg_to_objects  # noqa: E402
 
 
 SVG = '<svg viewBox="0 0 10 10"><circle cx="5" cy="6" r="3" fill="#abc"/></svg>'
@@ -209,7 +209,7 @@ def test_lowered_document_renders_native_objects():
 # --- integration: the capability is reachable through the MCP surface ------ #
 MCP_SCRIPT = """
 import yaml
-from frameforge.sdk import DocumentBuilder, lower_embedded_svg, serialize
+from frameforge_sdk import DocumentBuilder, lower_embedded_svg, serialize
 
 doc = DocumentBuilder(title="Lowering Probe", profile="diagram")
 page = doc.page("p1", canvas={"size": [320, 180], "units": "px"})

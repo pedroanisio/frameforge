@@ -13,17 +13,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (
-    DocumentBuilder,
-    FigureAsset,
-    FigureProvenance,
-    FigureRef,
-    load_figure,
-    place_figure,
-    place_imported_figure,
-    serialize,
-)
-from frameforge.sdk.validate import validate_static_rules
+from frameforge_sdk import DocumentBuilder, FigureAsset, FigureProvenance, FigureRef, load_figure, place_figure, place_imported_figure, serialize
+from frameforge_sdk.validate import validate_static_rules
 
 
 def _plate(builder: DocumentBuilder) -> int:

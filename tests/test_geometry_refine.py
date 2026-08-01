@@ -41,7 +41,7 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 np = pytest.importorskip("numpy")
 pytest.importorskip("PIL")
 
-from frameforge.sdk.outline import stroke_outline  # noqa: E402
+from frameforge_sdk.outline import stroke_outline  # noqa: E402
 
 SIZE = (600, 800)
 PETAL_FILL = "#4488ff"

@@ -27,7 +27,7 @@ for p in (os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from frameforge.sdk.conform import render_page_svgs  # noqa: E402
+from frameforge.conform import render_page_svgs  # noqa: E402
 
 
 def _doc(style, box, text="8"):

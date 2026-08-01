@@ -2,7 +2,7 @@
 
 Closes issue #35. Two root causes, both src-layout refactor casualties:
 
-- ``frameforge.sdk.model`` hard-imports ``frameforge.model`` and relied on the
+- ``frameforge_sdk.model`` hard-imports ``frameforge.model`` and relied on the
   caller exporting ``PYTHONPATH=docs`` — the Makefile compensates, the CLI
   front door did not, so ``uv run frameforge-render … --to svg`` crashed with
   ``ModuleNotFoundError: models``.
@@ -52,7 +52,7 @@ def test_sdk_model_resolves_without_docs_on_path(tmp_path):
     ``src`` importable — no PYTHONPATH, no repo CWD (the fallback derives
     ``<repo>/docs`` from its own location)."""
     code = ("import sys; sys.path.insert(0, %r); "
-            "from frameforge.sdk.model import HEAD_VERSION; print(HEAD_VERSION)" % SRC)
+            "from frameforge_sdk.model import HEAD_VERSION; print(HEAD_VERSION)" % SRC)
     proc = subprocess.run([sys.executable, "-c", code], capture_output=True,
                           text=True, env=_clean_env(), cwd=tmp_path)
     assert proc.returncode == 0, proc.stderr

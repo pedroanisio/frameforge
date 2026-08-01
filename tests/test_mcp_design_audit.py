@@ -29,8 +29,8 @@ from frameforge.mcp.server import (  # noqa: E402
     render_frameforge_yaml,
 )
 from frameforge.rendering.application.audit import compact_census  # noqa: E402
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.io import serialize  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk.io import serialize  # noqa: E402
 
 _INTER = ["Inter", "sans-serif"]
 

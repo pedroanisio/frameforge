@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import pytest
 
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.conform import render_page_svgs
+from frameforge_sdk import DocumentBuilder
+from frameforge.conform import render_page_svgs
 
 
 def _diagram():

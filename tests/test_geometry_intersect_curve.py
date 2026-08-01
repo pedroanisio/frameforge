@@ -18,12 +18,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    CubicBezier,
-    Vec2,
-    line_curve_intersections,
-    segment_curve_intersections,
-)
+from frameforge_sdk import CubicBezier, Vec2, line_curve_intersections, segment_curve_intersections  # noqa: E402
 
 
 def _arch():

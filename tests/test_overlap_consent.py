@@ -70,7 +70,7 @@ def test_overlap_field_is_in_the_generated_schema():
 
 def test_sdk_builder_passes_overlap_through():
     """The authoring surface: any object accepts `overlap` and it survives build."""
-    from frameforge.sdk import DocumentBuilder
+    from frameforge_sdk import DocumentBuilder
     b = DocumentBuilder(title="t", profile="diagram")
     page = b.page("p", canvas={"size": [100, 100], "units": "px"},
                   coordinate_mode="absolute")
@@ -85,7 +85,8 @@ def test_sdk_builder_passes_overlap_through():
 
 def test_collision_detector_reads_the_authored_consent_end_to_end():
     """SDK-authored consent must actually suppress the render-time collision."""
-    from frameforge.sdk import DocumentBuilder, collision_report
+    from frameforge_sdk import DocumentBuilder
+    from frameforge.conform import collision_report
     b = DocumentBuilder(title="t", profile="diagram")
     page = b.page("p", canvas={"size": [400, 200], "units": "px"},
                   coordinate_mode="absolute")

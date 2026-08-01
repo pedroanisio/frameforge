@@ -593,7 +593,7 @@ def create_server(
     def run_sdk_code(
         code: Annotated[
             str,
-            Field(description="Python source that uses frameforge.sdk and emits a document: write OUTPUT_YAML_PATH, or expose a doc/document/builder global or a build() function."),
+            Field(description="Python source that uses frameforge_sdk and emits a document: write OUTPUT_YAML_PATH, or expose a doc/document/builder global or a build() function."),
         ],
         session_id: Annotated[str | None, Field(description=_DESC_SESSION_ID)] = None,
         timeout_seconds: Annotated[int, Field(description=_DESC_TIMEOUT)] = DEFAULT_TIMEOUT_SECONDS,

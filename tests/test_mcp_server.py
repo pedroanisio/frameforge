@@ -29,7 +29,7 @@ from frameforge.mcp.server import (  # noqa: E402
 
 
 SDK_SCRIPT = """
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 
 doc = DocumentBuilder(title="Live MCP Render", profile="deck")
 body = doc.define_text_style("body", font_family="sans", font_size=18, color="#14213d")
@@ -44,7 +44,7 @@ def _derive_code(marker: str) -> str:
     """SDK code that exposes a built document (the *derive* path) without writing
     ``OUTPUT_YAML_PATH`` — the path where session reuse could serve a stale render."""
     return f"""
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 
 builder = DocumentBuilder(title="Stale Probe", profile="deck")
 page = builder.page("p1", canvas={{"size": [200, 120], "units": "px"}})
@@ -140,7 +140,7 @@ def test_render_exception_returns_structured_error_not_traceback(tmp_path, monke
 
 def test_max_pages_zero_renders_all_pages(tmp_path):
     code = """
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 
 doc = DocumentBuilder(title="Two Pages", profile="deck")
 for pid in ("p1", "p2"):
@@ -157,7 +157,7 @@ doc.write(OUTPUT_YAML_PATH, fail_on_error=True)
 
 def test_run_sdk_code_derives_yaml_from_document_variable(tmp_path):
     code = """
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 
 builder = DocumentBuilder(title="Derived YAML", profile="deck")
 builder.page("p", canvas={"size": [120, 80], "units": "px"}).layer("main").text(
@@ -266,7 +266,7 @@ _PNG_1X1 = bytes.fromhex(
 
 def _multi_page_code(n: int) -> str:
     return f"""
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 
 b = DocumentBuilder(title="Pages", profile="deck")
 for i in range({n}):
@@ -400,7 +400,7 @@ def test_sdk_client_file_tools_edit_and_run_python_example(tmp_path):
     client_path = examples / "client.py"
     client_path.write_text(
         """
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 
 doc = DocumentBuilder(title="Editable client", profile="deck")
 body = doc.define_text_style("body", font_family="sans", font_size=18, color="#1f2937")
@@ -703,7 +703,7 @@ def test_run_sdk_code_tool_bounds_streams_but_diagnostics_keep_full(tmp_path):
     noise = server.TRANSPORT_STREAM_MAX_CHARS + 5_000
     code = (
         f'print("N" * {noise})\n'
-        "from frameforge.sdk import DocumentBuilder\n"
+        "from frameforge_sdk import DocumentBuilder\n"
         'doc = DocumentBuilder(title="Chatty", profile="deck")\n'
         'page = doc.page("p1", canvas={"size": [120, 80], "units": "px"})\n'
         'page.layer("main").rect([0, 0, 120, 80], fill="#ffffff")\n'
@@ -770,7 +770,7 @@ def test_session_page_png_resource_returns_png_bytes(tmp_path):
 # --- text-fit telemetry: clipped text is surfaced even though the render is ok ---
 
 CLIP_SCRIPT = """
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 b = DocumentBuilder(title="clip", profile="diagram")
 layer = b.page("p", canvas={"size": [200, 120], "units": "px"}, coordinate_mode="absolute").layer("m")
 layer.text([10, 10, 120, 16],
@@ -806,7 +806,7 @@ def test_render_result_surfaces_renderer_diagnostics(tmp_path):
 
 
 TWO_OBJECT_SCRIPT = """
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 b = DocumentBuilder(title="two", profile="diagram")
 m = b.page("p", canvas={"size": [100, 100], "units": "px"}, coordinate_mode="absolute").layer("m")
 m.rect([0, 0, 50, 50], fill="#111")
@@ -833,7 +833,7 @@ def test_mcp_guide_names_headline_sdk_capabilities():
     This pins that each headline public capability is both a real export and discoverable
     in the guide, so a new SDK capability cannot ship invisible to MCP agents.
     """
-    import frameforge.sdk as sdk
+    import frameforge_sdk as sdk
     from frameforge.mcp.server import FRAMEFORGE_GUIDE
 
     headline = [
@@ -1053,8 +1053,8 @@ def test_render_unsigned_by_default_is_byte_identical_to_signed_body(tmp_path):
 def test_render_frameforge_yaml_sign_threads_through(tmp_path):
     """The YAML render tool also honors sign/signed_at."""
     from frameforge.mcp.server import render_frameforge_yaml
-    from frameforge.sdk import DocumentBuilder
-    from frameforge.sdk.io import serialize
+    from frameforge_sdk import DocumentBuilder
+    from frameforge_sdk.io import serialize
 
     builder = DocumentBuilder(title="Signed YAML", profile="deck")
     page = builder.page("p1", canvas={"size": [120, 80], "units": "px"})
@@ -1082,8 +1082,8 @@ def test_custom_document_source_drives_the_shared_runner(tmp_path):
     """
     from frameforge.mcp.sources import DocumentSource, Produced
     from frameforge.mcp.usecases import _run_source
-    from frameforge.sdk import DocumentBuilder
-    from frameforge.sdk.io import serialize
+    from frameforge_sdk import DocumentBuilder
+    from frameforge_sdk.io import serialize
 
     class _InMemorySource(DocumentSource):
         def produce(self) -> Produced:
@@ -1118,8 +1118,8 @@ def test_custom_document_source_drives_the_shared_runner(tmp_path):
 def test_cross_tool_session_reuse_reports_replaced_renders(tmp_path):
     """A second tool overwriting a prior tool's renders in the same session says so."""
     from frameforge.mcp.server import render_frameforge_yaml
-    from frameforge.sdk import DocumentBuilder
-    from frameforge.sdk.io import serialize
+    from frameforge_sdk import DocumentBuilder
+    from frameforge_sdk.io import serialize
 
     first = run_sdk_code(SDK_SCRIPT, session_id="shared", session_root=tmp_path, raster_png=False)
     assert first["ok"] is True

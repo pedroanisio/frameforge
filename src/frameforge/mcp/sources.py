@@ -38,7 +38,7 @@ from frameforge.mcp.security import (
     _resolve_client_path,
 )
 from frameforge.mcp.sessions import _prepare_session, _reset_session_inputs, _session_id
-from frameforge.sdk.provenance import PROVENANCE_ENV
+from frameforge_sdk.provenance import PROVENANCE_ENV
 
 _VISION_GROUP_HINT = (
     "The vision proposal lane needs the optional `vision` dependency group. "

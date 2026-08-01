@@ -5,7 +5,7 @@ An agent authoring YAML/SDK code through the server must be able to look up the
 live model surface (object types, flowables, inlines, style fields, canvas
 presets, tool names) instead of guessing and iterating on validation errors.
 The catalog is introspected LIVE from ``models/frameforge.py`` via the same
-``frameforge.sdk.model`` mechanism the pipeline uses — never hand-maintained.
+``frameforge_sdk.model`` mechanism the pipeline uses — never hand-maintained.
 """
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ def _structured(result):
 
 
 def test_capability_index_reflects_the_live_model():
-    from frameforge.sdk.model import HEAD_VERSION
+    from frameforge_sdk.model import HEAD_VERSION
 
     result = describe_capabilities()
 
@@ -213,8 +213,8 @@ _HEADLINE_SURFACES = [
 
 def test_guide_explains_deterministic_sampling_workflow():
     required_fragments = (
-        "frameforge.sdk.rand",
-        "from frameforge.sdk import Rand, halton, poisson_disk, jittered_grid",
+        "frameforge_sdk.rand",
+        "from frameforge_sdk import Rand, halton, poisson_disk, jittered_grid",
         "independent named sub-stream",
         "page space is Y-down",
         "not cryptographic",
@@ -237,8 +237,8 @@ def test_sdk_discovery_exposes_deterministic_sampling_contracts():
 
 def test_guide_explains_sampleable_noise_and_filter_distinction():
     required_fragments = (
-        "frameforge.sdk.noise",
-        "from frameforge.sdk import Noise, ScalarField, domain_warp",
+        "frameforge_sdk.noise",
+        "from frameforge_sdk import Noise, ScalarField, domain_warp",
         "ScalarField(Noise(7, basis=\"simplex\").field()",
         "author-time CPU values",
         "paint.turbulence",
@@ -264,8 +264,8 @@ def test_sdk_discovery_exposes_sampleable_noise_contracts():
 
 def test_guide_explains_perceptual_color_workflow_and_legacy_default():
     required_fragments = (
-        "frameforge.sdk.colorspace",
-        "from frameforge.sdk import delta_e, mix, ramp, to_oklab",
+        "frameforge_sdk.colorspace",
+        "from frameforge_sdk import delta_e, mix, ramp, to_oklab",
         "mix(\"#172a46\", \"#f3c969\", 0.5, space=\"oklab\")",
         "new `mix` and `ramp` default to OKLab",
         "Chevreul helpers keep `space=\"srgb\"`",
@@ -297,7 +297,12 @@ def test_guide_documents_pdf_tex_object_effect_coverage_and_approximations():
 
 def test_guide_mentions_every_capability_bearing_sdk_module():
     from pathlib import Path
-    sdk_dir = Path(__file__).resolve().parent.parent / "src" / "frameforge" / "sdk"
+
+    # The SDK is the standalone `frameforge-sdk` distribution since 2026-08-01,
+    # so its modules are no longer a path inside this repo. Resolve through the
+    # import system: this follows an editable checkout, a git pin or a wheel.
+    import frameforge_sdk
+    sdk_dir = Path(frameforge_sdk.__file__).resolve().parent
     live = {p.stem for p in sdk_dir.glob("*.py") if not p.stem.startswith("_")}
     missing_from_tree = set(_CAPABILITY_MODULES) - live
     assert not missing_from_tree, f"gate list names dead modules: {missing_from_tree}"
@@ -320,7 +325,7 @@ def test_guide_covers_the_delivered_headline_surfaces():
 
 def test_guide_explains_standalone_flow_and_static_layout_entry_points():
     required_fragments = (
-        "from frameforge.sdk import FlowBuilder, grid, inset",
+        "from frameforge_sdk import FlowBuilder, grid, inset",
         "FlowBuilder().heading",
         ".story()",
         'doc.flow("report", master=body_master, story=story)',
@@ -334,7 +339,7 @@ def test_guide_explains_standalone_flow_and_static_layout_entry_points():
 
 
 def test_get_guide_delivers_live_top_level_flow_and_layout_exports(tmp_path):
-    import frameforge.sdk as sdk
+    import frameforge_sdk as sdk
 
     for name in ("FlowBuilder", "grid", "inset"):
         assert name in sdk.__all__
@@ -342,7 +347,7 @@ def test_get_guide_delivers_live_top_level_flow_and_layout_exports(tmp_path):
 
     server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
     guide = server.tools["get_guide"]()
-    assert "from frameforge.sdk import FlowBuilder, grid, inset" in guide
+    assert "from frameforge_sdk import FlowBuilder, grid, inset" in guide
     assert "DocumentBuilder.flow" in guide
     assert "pure functions returning static `[x, y, w, h]`" in guide
 
@@ -371,11 +376,11 @@ def test_sdk_discovery_summarizes_noise_filter_preset_contracts():
 
 def test_color_guide_is_a_top_level_sdk_export():
     # `chevreul.color_guide` is advertised in the guide, the headline gate above,
-    # and the server handshake — it must be a top-level `frameforge.sdk` export so
+    # and the server handshake — it must be a top-level `frameforge_sdk` export so
     # the introspected capability manifest (built from sdk.__all__) can see it.
-    import frameforge.sdk as sdk
-    assert "color_guide" in sdk.__all__, "color_guide missing from frameforge.sdk.__all__"
-    assert hasattr(sdk, "color_guide"), "color_guide not re-exported from frameforge.sdk"
+    import frameforge_sdk as sdk
+    assert "color_guide" in sdk.__all__, "color_guide missing from frameforge_sdk.__all__"
+    assert hasattr(sdk, "color_guide"), "color_guide not re-exported from frameforge_sdk"
 
 
 def test_server_instructions_name_the_authoring_engines(tmp_path):
@@ -401,7 +406,7 @@ CAP_BUDGET = 40_000  # chars; well under the observed ~65KB per-result ceiling
 
 # The `sdk` topic is the one flat, complete index on the surface: a sibling gate
 # (test_sdk_topic_matches_package_all_exactly) REQUIRES it to name every entry in
-# frameforge.sdk.__all__, so its size is O(exports) and grows with each new SDK
+# frameforge_sdk.__all__, so its size is O(exports) and grows with each new SDK
 # feature. Completeness and a fixed char budget are in permanent tension, and
 # CAP_BUDGET is a self-imposed margin, not the real limit — the transport ceiling
 # is FRAMEFORGE_MCP_MAX_RESULT_CHARS, enforced at runtime in server.py (an

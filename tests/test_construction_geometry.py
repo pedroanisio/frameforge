@@ -18,8 +18,8 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
-from frameforge.sdk import DocumentBuilder, validate_static_rules  # noqa: E402
-from frameforge.sdk.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk import DocumentBuilder, validate_static_rules  # noqa: E402
+from frameforge.conform import render_page_svgs  # noqa: E402
 
 MARK = "#0BA51E"          # construction marker colour, greppable in SVG
 KEEP = "#AA1133"          # ordinary geometry that must always render

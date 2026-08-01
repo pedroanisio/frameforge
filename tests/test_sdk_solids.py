@@ -18,8 +18,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
-from frameforge.sdk.solids import (  # noqa: E402
-    extrude, loft, revolve, section_loops, section_object, sweep)
+from frameforge_sdk.solids import extrude, loft, revolve, section_loops, section_object, sweep  # noqa: E402
 
 SQUARE = [(0, 0), (1, 0), (1, 1), (0, 1)]
 
@@ -97,7 +96,7 @@ def test_section_of_box_is_the_profile():
 
 
 def test_section_of_torus_through_axis_gives_two_loops():
-    from frameforge.sdk.manifold import torus
+    from frameforge_sdk.manifold import torus
     sc = torus(1.0, 0.3, steps_u=48, steps_v=24)
     loops = section_loops(sc, plane_point=(0, 0, 0), plane_normal=(0, 0, 1))
     assert len(loops) == 2
@@ -106,7 +105,7 @@ def test_section_of_torus_through_axis_gives_two_loops():
 
 
 def test_section_object_emits_a_valid_hatched_path():
-    from frameforge.sdk import DocumentBuilder, validate_static_rules
+    from frameforge_sdk import DocumentBuilder, validate_static_rules
     sc = extrude(SQUARE, 5.0)
     obj = section_object(sc, plane_point=(0, 0, 2.5), plane_normal=(0, 0, 1),
                         frame=[100, 100, 200, 200], hatch_color="#888888")

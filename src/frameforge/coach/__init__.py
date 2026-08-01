@@ -8,7 +8,7 @@ gate — by *reusing* the existing SDK (primitives, renderer, validator). The
 creative work (decomposition, control points, aesthetic judgement) stays with
 the model; the critique rubrics are advisory VLM prompts, never measurements.
 
-Boundary: this package imports only ``frameforge.sdk`` + stdlib (no ``tooling``),
+Boundary: this package imports only ``frameforge_sdk`` + stdlib (no ``tooling``),
 per the package-boundary gate.
 """
 from __future__ import annotations

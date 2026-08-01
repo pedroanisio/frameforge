@@ -16,12 +16,12 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from frameforge.sdk import Rand, halton, jittered_grid, poisson_disk
-from frameforge.sdk._seed import stable_seed
-from frameforge.sdk.conform import render_page_svgs
-from frameforge.sdk.geometry import Vec2
-from frameforge.sdk.humanize import _stable_seed
-from frameforge.sdk.model import validate_document
+from frameforge_sdk import Rand, halton, jittered_grid, poisson_disk
+from frameforge_sdk._seed import stable_seed
+from frameforge.conform import render_page_svgs
+from frameforge_sdk.geometry import Vec2
+from frameforge_sdk.humanize import _stable_seed
+from frameforge_sdk.model import validate_document
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -98,7 +98,7 @@ def test_rand_derive_is_independent_and_creation_order_stable():
 
 def test_rand_is_reproducible_in_fresh_processes():
     code = (
-        "import json; from frameforge.sdk import Rand; "
+        "import json; from frameforge_sdk import Rand; "
         "r=Rand(('doc', 42)); "
         "print(json.dumps([r.uniform(), r.randint(1, 9), r.gauss(), "
         "r.derive('child').uniform()]))"
@@ -347,7 +347,7 @@ def test_generated_sdk_docs_include_sampling_signatures_and_usage():
     guide = (ROOT / "docs/sdk.md").read_text(encoding="utf-8")
 
     api_fragments = (
-        "## `frameforge.sdk.rand`",
+        "## `frameforge_sdk.rand`",
         "### `Rand`",
         "### `halton`",
         "### `poisson_disk`",

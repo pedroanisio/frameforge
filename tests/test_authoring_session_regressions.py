@@ -11,13 +11,14 @@ from pathlib import Path
 
 import pytest
 
-from frameforge import sdk
+import frameforge_sdk as sdk
+from frameforge import conform
 from frameforge.model import Style
 from frameforge.rendering.application.renderer import Renderer
 from frameforge.rendering.domain.services.overflow import OverflowSignal
 from frameforge.rendering.infrastructure import font_metrics as fmmod
-from frameforge.sdk.conform import render_pages_with_stats
-from frameforge.sdk.validate import validate_static_rules
+from frameforge.conform import render_pages_with_stats
+from frameforge_sdk.validate import validate_static_rules
 import validate as tooling_validate
 
 
@@ -96,7 +97,7 @@ def test_real_metric_measurement_and_breaker_resolve_the_same_full_font_stack(mo
     }])
 
     assert width >= measured
-    assert sdk.overflow_report(doc, real_metrics=True) == []
+    assert conform.overflow_report(doc, real_metrics=True) == []
     assert seen and set(seen) == {"Missing Primary, Carlito, sans-serif"}
 
 
@@ -335,7 +336,7 @@ def test_wrapped_overflow_distinguishes_laid_out_extent_from_unwrapped_width():
         "style": {"font_size": 10, "line_height": 1.2},
     }])
 
-    signal = sdk.overflow_report(doc, real_metrics=False)[0]
+    signal = conform.overflow_report(doc, real_metrics=False)[0]
 
     assert signal.needed[0] <= signal.box[2]
     assert signal.unwrapped_width is not None

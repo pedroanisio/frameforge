@@ -13,7 +13,7 @@ made the prose lie to every consuming agent. Pinned here, both directions:
     `instructions` is a summary and only checked forward;
   * every `FRAMEFORGE_*` env var either prose names is actually consumed
     somewhere under src/;
-  * every `frameforge.sdk.<mod>` / `frameforge.<pkg>` module either prose
+  * every `frameforge_sdk.<mod>` / `frameforge.<pkg>` module either prose
     names actually imports.
 """
 from __future__ import annotations
@@ -119,7 +119,7 @@ def test_instructions_tool_names_resolve(registry):
     known_non_tools = {"run_in", "lower_embedded_svg", "list_fonts"}  # sdk fn + real tools ok
     dead = {w for w in tool_shaped - tools
             if w not in known_non_tools and not hasattr(
-                importlib.import_module("frameforge.sdk"), w)}
+                importlib.import_module("frameforge_sdk"), w)}
     assert not dead, (
         f"server instructions name tool(s) {sorted(dead)} that are neither "
         "registered tools nor SDK exports")
@@ -166,7 +166,7 @@ def test_guide_module_mentions_import(registry):
         try:
             importlib.import_module(mod)
         except ImportError:
-            # `frameforge.sdk.foo` prose may name an attribute path, not a module
+            # `frameforge_sdk.foo` prose may name an attribute path, not a module
             parent, _, leaf = mod.rpartition(".")
             try:
                 if not hasattr(importlib.import_module(parent), leaf):

@@ -1,6 +1,6 @@
 """Default mapper: one :class:`Observation` → one FrameForge object dict.
 
-Stroke geometry goes through the SDK's :func:`frameforge.sdk.paint.stroke`
+Stroke geometry goes through the SDK's :func:`frameforge_sdk.paint.stroke`
 helper, which emits the P3-correct inline ``stroke_style`` bundle (paint in
 ``stroke``, geometry in ``stroke_style``). No bespoke stroke-token registry —
 the SDK already owns that contract.
@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from frameforge.sdk.paint import stroke as stroke_fields
+from frameforge_sdk.paint import stroke as stroke_fields
 
 from ..domain.observation import Observation
 

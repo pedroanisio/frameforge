@@ -34,6 +34,7 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs"), str(ROOT / "tooling")]
 
 
 import codemod as C  # noqa: E402
+from frameforge import conform  # noqa: E402  (verification stayed with the engine)
 import yaml  # noqa: E402
 
 
@@ -44,10 +45,10 @@ def _sdk():
     MODEL module as `frameforge`; the SDK needs the package from src/.
     """
     sys.path.insert(0, str(ROOT / "src"))
-    import frameforge.sdk  # noqa: F401
-    # a cached frameforge.sdk is not re-attached to a re-imported parent —
+    import frameforge_sdk  # noqa: F401
+    # a cached frameforge_sdk is not re-attached to a re-imported parent —
     # take the submodule from sys.modules, never as a parent attribute
-    return sys.modules["frameforge.sdk"]
+    return sys.modules["frameforge_sdk"]
 
 V01_SCENE = {
     "dsl": "FrameForge",
@@ -339,7 +340,7 @@ def test_genai_ecosystem_migrates_end_to_end():
              if o.get("bind")]
     assert len(binds) >= 10, "object→semantic bindings must survive"
 
-    svgs, rstats = sdk.render_pages_with_stats(out, base_dir=str(ROOT))
+    svgs, rstats = conform.render_pages_with_stats(out, base_dir=str(ROOT))
     assert len(svgs) == 1
     assert rstats.get("uncontained", 0) == 0
 
@@ -391,7 +392,7 @@ def test_fill_style_tokens_render_as_gradients():
                       "layers": [{"id": "m", "objects": [
                           {"type": "rect", "box": [10, 10, 180, 80],
                            "fill": "fade"}]}]}]}
-    svgs, _ = sdk.render_pages_with_stats(doc, base_dir=str(ROOT))
+    svgs, _ = conform.render_pages_with_stats(doc, base_dir=str(ROOT))
     assert "linearGradient" in svgs[0]
     assert 'fill="url(#' in svgs[0]
 
@@ -413,7 +414,7 @@ def test_pals_ptbr_deck_migrates_end_to_end():
     fills = out["defs"]["tokens"]["fill_styles"]
     assert all(g.get("kind") == "linear" for g in fills.values())
 
-    svgs, rstats = sdk.render_pages_with_stats(out, base_dir=str(ROOT))
+    svgs, rstats = conform.render_pages_with_stats(out, base_dir=str(ROOT))
     assert len(svgs) == 15
     assert rstats.get("clipped", 0) == 0
     assert rstats.get("uncontained", 0) == rstats.get("visible_overflow", 0)
@@ -453,7 +454,7 @@ def test_pals_en_deck_migrates_end_to_end():
                for p in out["pages"] for layer in p["layers"]
                for o in walk(layer["objects"]))
 
-    svgs, rstats = sdk.render_pages_with_stats(out, base_dir=str(ROOT))
+    svgs, rstats = conform.render_pages_with_stats(out, base_dir=str(ROOT))
     assert len(svgs) == 8
     # v0.1 semantics: content may spill its authoring box (explicit
     # overflow:visible — permitted by the corpus gate) but must NEVER be

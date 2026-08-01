@@ -62,7 +62,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from frameforge.sdk.io import serialize
+from frameforge_sdk.io import serialize
 from frameforge.mcp.validation_feedback import group_validation_errors
 
 SESSION_DIR = {str(session_dir)!r}

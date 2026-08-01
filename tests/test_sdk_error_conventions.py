@@ -19,8 +19,8 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 import pytest  # noqa: E402
 
-from frameforge.sdk import ScalarField, VectorField  # noqa: E402
-from frameforge.sdk.widgets import dropdown  # noqa: E402
+from frameforge_sdk import ScalarField, VectorField  # noqa: E402
+from frameforge_sdk.widgets import dropdown  # noqa: E402
 
 
 def test_dropdown_rejects_an_out_of_range_selection():

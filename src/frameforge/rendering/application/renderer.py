@@ -66,7 +66,7 @@ class Renderer:
         # from real glyph advances instead of the per-char `avg` estimate. OFF by
         # default so render_page()/golden output stays byte-identical (§8).
         # `None` (the default) consults FRAMEFORGE_REAL_METRICS so the flag is
-        # reachable through every public entry point (sdk.render_page_svgs, the
+        # reachable through every public entry point (conform.render_page_svgs, the
         # MCP pipeline, the CLI) without a signature change; an explicit bool —
         # e.g. the golden harness passing False — always wins over the env.
         from frameforge.rendering.infrastructure.font_metrics import real_metrics_enabled

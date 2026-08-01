@@ -11,7 +11,7 @@ scripts — same input data contract, same geometry:
 Both consume a plain data dict (see ``data/examples/*.yml`` for committed
 samples, loadable via :func:`load_example`), author a document that
 instantiates the ``hex`` symbol pack through grammar-level ``use`` objects,
-then lower it through :func:`frameforge.sdk.expand` — the returned document
+then lower it through :func:`frameforge_sdk.expand` — the returned document
 is plain core primitives, validated and render-ready.
 
 v0.1 → v2 notes: per-node colors were injected as ``hash()``-derived color
@@ -30,8 +30,8 @@ from typing import Any
 import yaml
 
 from frameforge.library.symbols import load_symbols, support_text_styles
-from frameforge.sdk.expand import expand
-from frameforge.sdk.model import HEAD_VERSION
+from frameforge_sdk.expand import expand
+from frameforge_sdk.model import HEAD_VERSION
 
 EXAMPLES_DIR = Path(__file__).resolve().parent / "data" / "examples"
 

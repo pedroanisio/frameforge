@@ -22,6 +22,12 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
+    # The family, split out of this repo (2026-07/08). Each is a leaf below the
+    # engine: the CONTRACT (what a document is) and the SDK (how to build one).
+    # The engine keeps what needs to measure real pixels — render, verify, MCP —
+    # which is why `conform` stayed here while the rest of the SDK left.
+    "frameforge-api>=1.0,<2",
+    "frameforge-sdk>=1.0,<2",
     # Runtime core: the models are Pydantic v2; documents load via PyYAML
     # (PyYAML also parses JSON, so it covers .json / .yaml / .yml fixtures).
     "pydantic>=2",
@@ -124,6 +130,20 @@ exclude = [
     "/site",
     "/tooling/node_modules",
 ]
+
+# Develop against the sibling checkouts: none of the family is on PyPI yet.
+# Drop this block (or point it at an index) to build against published wheels.
+[tool.uv.sources]
+# `frameforge-api` is pinned to the SAME git URL `frameforge-sdk` uses. uv
+# rejects conflicting URLs for one package across a resolution, so the engine
+# and the SDK must agree on where the contract comes from — a local path here
+# and a git URL there is an unresolvable graph, not a preference.
+frameforge-api = { git = "https://github.com/pedroanisio/frameforge-api.git", branch = "main" }
+# TODO(cutover): flip to the git pin once the SDK checkout's local work is
+# committed and pushed — https://github.com/pedroanisio/frameforge-sdk. Its
+# published HEAD (0f0d3bf) is behind the working tree, which still holds the
+# `EngineUnavailable` re-export this repo's SDK-surface gate requires.
+frameforge-sdk = { path = "../frameforge-sdk", editable = true }
 
 [tool.uv]
 # Real package since 2.5.0: the authoritative model moved INTO the package

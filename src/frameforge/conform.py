@@ -17,7 +17,7 @@ from frameforge.rendering.domain.services.legibility import (
 from frameforge.rendering.domain.services.overflow import OverflowSignal
 from frameforge.rendering.domain.services.paint_intent import PaintSignal
 
-from frameforge.sdk.model import validate_document
+from frameforge_sdk.model import validate_document
 
 
 def render_pages_with_stats(
@@ -117,7 +117,8 @@ def render_html(
 
     Example::
 
-        from frameforge.sdk import DocumentBuilder, render_html
+        from frameforge_sdk import DocumentBuilder
+        from frameforge.conform import render_html
 
         b = DocumentBuilder(title="Report")
         page = b.page("p1", size=(800, 600))
@@ -240,7 +241,7 @@ def collision_report(
 
     Example — fail a build on unintended overlap::
 
-        from frameforge.sdk import collision_report
+        from frameforge.conform import collision_report
         hits = collision_report(doc)
         for c in hits:
             print(f"p{c['page']}: {c['texts'][0]!r} over {c['texts'][1]!r} "

@@ -30,9 +30,26 @@ _READ = re.compile(
     r"\s*[\"'](FRAMEFORGE_[A-Z_]+)")
 
 
+def _consumer_roots():
+    """Every tree that can legitimately READ a FRAMEFORGE_* env var.
+
+    Not just `src/`: the SDK and the vision lane are standalone packages now and
+    still read their own knobs, which this repo documents because the MCP server
+    is what exposes them. Scanning only `src/` calls those rows stale.
+    """
+    roots = [os.path.join(ROOT, "src")]
+    for mod in ("frameforge_sdk", "frameforge_vision", "frameforge_api"):
+        try:
+            roots.append(os.path.dirname(os.path.abspath(__import__(mod).__file__)))
+        except ImportError:
+            pass
+    for root in roots:
+        yield from os.walk(root)
+
+
 def _consumed():
     out = set()
-    for base, _dirs, files in os.walk(os.path.join(ROOT, "src")):
+    for base, _dirs, files in _consumer_roots():
         for fn in files:
             if fn.endswith(".py"):
                 with open(os.path.join(base, fn), encoding="utf-8") as fh:

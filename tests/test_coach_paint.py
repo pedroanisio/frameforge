@@ -81,7 +81,8 @@ def test_atmosphere_is_style_driven_and_layered():
 
 
 def test_atmosphere_renders_through_frameforge():
-    from frameforge.sdk import DocumentBuilder, render_page_svgs
+    from frameforge_sdk import DocumentBuilder
+    from frameforge.conform import render_page_svgs
     style = resolve_style("children_book")
     atm = atmosphere(style, 200, 120)
     b = DocumentBuilder(title="atm")

@@ -20,7 +20,7 @@ ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from frameforge_sdk import (
-    # noqa: E402     HEAD_VERSION,
+    HEAD_VERSION,  # noqa: E402
     compose_activity_diagram,
     compose_class_diagram,
     compose_communication_diagram,

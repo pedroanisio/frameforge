@@ -12,8 +12,8 @@ the model/SDK/MCP surfaces grow:
   presets, ``Style`` property count) from the authoritative model module, loaded
   read-only via the SDK's non-shadowing loader (``src/frameforge/model.py`` stays
   the single source of truth, exactly as ``schema/build_schema.py`` treats it);
-- SDK public exports from ``frameforge.sdk.__all__`` and builder-method coverage
-  from the classes defined in ``frameforge.sdk.author``;
+- SDK public exports from ``frameforge_sdk.__all__`` and builder-method coverage
+  from the classes defined in ``frameforge_sdk.author``;
 - MCP tool/prompt/resource names from the live registry (``create_server`` is
   instantiated against a recording stub, so the enumeration is the real
   ``@server.tool()`` surface, not a parallel list);
@@ -24,7 +24,7 @@ Status semantics per capability (documented in the emitted ``semantics`` block):
 
 - ``core``  — the model admits it (enumerated from the discriminated unions).
 - ``sdk``   — a same-named public builder method exists on a class defined in
-  ``frameforge.sdk.author`` (direct authoring ergonomics; raw-dict authoring is
+  ``frameforge_sdk.author`` (direct authoring ergonomics; raw-dict authoring is
   always possible and deliberately does not count), or the capability *is* an
   SDK export.
 - ``mcp``   — reachable through the MCP surface: model capabilities are MCP-
@@ -61,7 +61,7 @@ def _ensure_package_importable() -> None:
 
 def _models():
     _ensure_package_importable()
-    from frameforge.sdk.model import model_module
+    from frameforge_sdk.model import model_module
 
     return model_module()
 
@@ -133,15 +133,15 @@ def style_property_count() -> int:
 # --------------------------------------------------------------------------- #
 def sdk_public_exports() -> list[str]:
     _ensure_package_importable()
-    import frameforge.sdk as sdk
+    import frameforge_sdk as sdk
 
     return list(sdk.__all__)
 
 
 def sdk_builder_methods() -> set[str]:
-    """Public callables on every class *defined in* ``frameforge.sdk.author``."""
+    """Public callables on every class *defined in* ``frameforge_sdk.author``."""
     _ensure_package_importable()
-    import frameforge.sdk.author as author
+    import frameforge_sdk.author as author
 
     methods: set[str] = set()
     for _name, cls in inspect.getmembers(author, inspect.isclass):
@@ -238,7 +238,13 @@ def tooling_finding_codes() -> set[str]:
 def sdk_rule_ids() -> set[str]:
     """Every SDK ``rule_id`` from ``frameforge/sdk/validate.py`` (its own ids;
     tooling codes it re-surfaces via ``rule_id=f.code`` are covered above)."""
-    path = os.path.join(ROOT, "src", "frameforge", "sdk", "validate.py")
+    # The SDK is the standalone `frameforge-sdk` distribution since 2026-08-01,
+    # so its validator is no longer a path inside this repo. Resolve it through
+    # the import system: that follows an editable checkout, a git pin or a
+    # published wheel, and fails loudly if the dependency is missing rather than
+    # silently extracting zero rule ids.
+    import frameforge_sdk.validate as _sdk_validate
+    path = _sdk_validate.__file__
     with open(path, encoding="utf-8") as fh:
         source = fh.read()
     ids = set(re.findall(r'_error\(\s*"([^"]+)"', source))
@@ -286,9 +292,9 @@ def build() -> dict:
         "semantics": {
             "core": "the authoritative model (src/frameforge/model.py) admits the capability",
             "sdk": (
-                "a same-named public builder method exists on a frameforge.sdk.author "
+                "a same-named public builder method exists on a frameforge_sdk.author "
                 "class (raw-dict authoring always works and does not count), or the "
-                "capability is itself a frameforge.sdk export"
+                "capability is itself a frameforge_sdk export"
             ),
             "mcp": (
                 "reachable through the live MCP registry: model capabilities via an "

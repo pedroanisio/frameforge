@@ -3,7 +3,7 @@
 
 Exposes the SVG ingestion lane (until now reachable only by writing a Python
 client) as a first-class MCP verb, with optional region-level recolouring via the
-SDK :func:`frameforge.sdk.region.region_grade`.
+SDK :func:`frameforge_sdk.region.region_grade`.
 """
 from __future__ import annotations
 

@@ -299,7 +299,7 @@ def test_figuretikz_user_radial_is_exact_in_page_space():
 # that cannot express `line`/`radius`/`focal`/stop-opacity would leave the SDK
 # lane inconsistent with the schema it feeds.
 def test_sdk_helpers_expose_user_space_geometry():
-    from frameforge.sdk.paint import linear_gradient, radial_gradient
+    from frameforge_sdk.paint import linear_gradient, radial_gradient
 
     g = linear_gradient([("#000", "0%"), ("#fff", "100%")], line=[[10, 20], [110, 20]])
     Gradient.model_validate(g)
@@ -312,7 +312,7 @@ def test_sdk_helpers_expose_user_space_geometry():
 
 
 def test_sdk_stop_triples_carry_opacity():
-    from frameforge.sdk.paint import linear_gradient
+    from frameforge_sdk.paint import linear_gradient
 
     g = linear_gradient([("#fff", "0%", 0.4), ("#000", "100%")], line=[[0, 0], [10, 0]])
     Gradient.model_validate(g)

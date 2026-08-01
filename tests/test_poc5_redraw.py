@@ -93,7 +93,7 @@ def test_snap_primitives_recovers_clean_shapes():
 
 
 def test_build_redraw_renders_curved_paths():
-    from frameforge.sdk import render_page_svgs
+    from frameforge.conform import render_page_svgs
     outline = [{"type": "polyline", "points": _circle(n=24, r=8, cx=12, cy=12), "stroke": "#111"}] * 5
     b = build_redraw(outline, (24, 24))
     svg = render_page_svgs(b.build())[0]

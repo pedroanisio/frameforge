@@ -38,7 +38,7 @@ from frameforge.mcp.sessions import cleanup_sessions  # noqa: E402
 from frameforge.mcp.usecases import run_sdk_code  # noqa: E402
 
 SDK_SCRIPT = """
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 doc = DocumentBuilder(title="Publish Probe", profile="deck")
 page = doc.page("p1", canvas={"size": [200, 120], "units": "px"})
 page.layer("main").rect([0, 0, 200, 120], fill="#f5f5f0")
