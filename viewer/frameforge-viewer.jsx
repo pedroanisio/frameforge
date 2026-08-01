@@ -128,6 +128,33 @@ const UML_BOX_TYPES = new Set([
  *  Resolver engine — turns FrameForge tokens/objects into CSS.
  *  Pure functions, given the whole `doc` for token lookups.
  * ============================================================ */
+/** `fnum` from the engine (rendering/domain/geometry.py): compact SVG numbers —
+ *  integers bare, everything else to 3 decimals with trailing zeros stripped. */
+function fnum(x) {
+  const f = Number(x);
+  if (!Number.isFinite(f)) return "0";
+  return Number.isInteger(f) ? String(f) : f.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+/** Lower a `Path.d` to a path-data string.
+ *
+ * `d` is `string | [[cmd, ...numbers], ...]` (schema $defs.Path.d). Handing the
+ * structured form straight to the SVG attribute let JS array coercion stringify
+ * it — `[["M",0,21],["L",64,21]]` became `"M,0,21,L,64,21"`, which is not path
+ * data, so Chromium rejected the attribute and the shape did not render at all.
+ * This mirrors the engine's lowering (renderer.py, `t == "path"`): segments join
+ * on single spaces and a no-arg segment (Z) emits just its command.
+ */
+function pathData(d) {
+  if (typeof d === "string") return d;
+  if (!Array.isArray(d)) return "";
+  return d.map((seg) => {
+    if (!Array.isArray(seg)) return String(seg);
+    if (!seg.length) return "";
+    return [String(seg[0]), ...seg.slice(1).map(fnum)].join(" ");
+  }).filter(Boolean).join(" ");
+}
+
 function toPx(v) {
   if (v == null) return 0;
   if (typeof v === "number") return v;
@@ -458,7 +485,9 @@ function cssClipPath(clip) {
     return `polygon(${args.points.map(cssPoint).join(", ")})`;
   }
   if (shape === "path" && args.d) {
-    return `path("${String(args.d).replace(/"/g, '\\"')}")`;
+    // same structured-vs-string `d` contract as <path> — a clip authored with
+    // segments would otherwise become an unparseable comma-joined string.
+    return `path("${pathData(args.d).replace(/"/g, '\\"')}")`;
   }
   return shape ? `${shape}()` : undefined;
 }
@@ -892,7 +921,7 @@ function VectorObj({ doc, o, cw, ch, reg }) {
     const pts = (o.points || []).map((p) => `${toPx(p[0])},${toPx(p[1])}`).join(" ");
     shape = <polygon points={pts} {...common} />;
   } else if (o.type === "path") {
-    shape = <path d={o.d} {...common} />;
+    shape = <path d={pathData(o.d)} {...common} />;
   } else if (o.type === "ellipse") {
     const c = o.center || [0, 0];
     shape = <ellipse cx={toPx(c[0])} cy={toPx(c[1])} rx={o.rx} ry={o.ry} {...common} />;

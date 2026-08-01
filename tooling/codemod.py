@@ -39,6 +39,10 @@ try:
 except Exception:  # noqa: BLE001
     HEAD_VERSION = "2.2.0"
 
+from frameforge.rendering.domain.services.paint_intent import (  # noqa: E402
+    inert_stroke_keys,
+)
+
 GEOMETRY_KEYS = ("width", "dash", "linecap", "linejoin", "arrow_start", "arrow_end", "opacity")
 # 2.2.0: stroke geometry migrates to CSS-named Style properties (the style module).
 GEOM_TO_CSS = {
@@ -50,7 +54,7 @@ GEOM_TO_CSS = {
 
 class Stats:
     def __init__(self):
-        self.stroke = self.size = self.grad = self.alias = self.v01 = 0
+        self.stroke = self.size = self.grad = self.alias = self.v01 = self.inert = 0
 
 
 def _pct(v):
@@ -142,6 +146,50 @@ def migrate_stroke_bundles(doc, stats):
         if isinstance(b, dict) and any(k in b for k in ("width", "dash", "linecap", "linejoin")):
             ss[name] = {m.get(k, k): v for k, v in b.items()}
             stats.stroke += 1
+
+
+def fix_inert_stroke(node, stats: Stats, styles=None):
+    """paint-intent/2026-07-31: `style: {color, width, dash}` on a stroke-painted
+    shape → the P3 single form (`stroke` paint + `stroke_style` geometry).
+
+    The keys VALIDATE in v2 as unrelated CSS props — `Style.color` is text
+    colour, `Style.width` is box width — so the authored appearance is silently
+    discarded and the shape is painted `#000`/1px (line/connector) or not at all
+    (polyline/path/curve). Same failure class the v0.1 text-style lift already
+    handles for `size`/`weight`; this is its stroke twin.
+
+    Only fires where `inert_stroke_keys` fires, so a `style.color` on text (the
+    correct way to colour text) and any object that already declares a real
+    stroke are left untouched. Idempotent: after the rewrite the object declares
+    `stroke`, so the rule no longer matches.
+    """
+    if isinstance(node, list):
+        for item in node:
+            fix_inert_stroke(item, stats, styles)
+        return node
+    if not isinstance(node, dict):
+        return node
+    if styles is None:
+        styles = (((node.get("defs") or {}).get("tokens") or {}).get("styles") or {})
+    if node.get("type"):
+        raw = node.get("style")
+        # An inline bag can be rewritten in place; a shared token cannot — two
+        # objects may reference it — so a token-referencing object is reported
+        # and skipped rather than silently editing every other user of the token.
+        resolved = styles.get(raw, {}) if isinstance(raw, str) else raw
+        keys = inert_stroke_keys(node, resolved)
+        if keys and isinstance(raw, dict):
+            if "color" in keys:
+                node["stroke"] = raw.pop("color")
+            geometry = {GEOM_TO_CSS[k]: raw.pop(k) for k in ("width", "dash") if k in keys}
+            if geometry:
+                node.setdefault("stroke_style", {}).update(geometry)
+            if not raw:
+                node.pop("style", None)
+            stats.inert += 1
+    for value in node.values():
+        fix_inert_stroke(value, stats, styles)
+    return node
 
 
 # ── v0.1 dialect lift (issue #33 — the deck-corpus conversion path) ──────
@@ -427,6 +475,12 @@ def main(argv=None):
     ap.add_argument("--bump", action="store_true", help=f"set version to {HEAD_VERSION}")
     ap.add_argument("--from-v01", action="store_true",
                     help="lift a v0.1 envelope (scene: or deck:/slides:) to v2 first")
+    ap.add_argument("--fix-inert-stroke", action="store_true",
+                    help="rewrite `style: {color,width,dash}` on stroke-painted shapes "
+                         "(line/polyline/polygon/path/curve/connector) to the P3 single "
+                         "form `stroke` + `stroke_style` — those keys validate as text "
+                         "colour / box width and paint nothing, so the shape renders "
+                         "#000/1px or invisible (validate.py: inert-stroke-declaration)")
     args = ap.parse_args(argv)
 
     total = Stats()
@@ -437,6 +491,8 @@ def main(argv=None):
             doc = lift_v01(doc, st)
         migrate_stroke_bundles(doc, st)
         doc = migrate(doc, st, args.normalize_aliases)
+        if args.fix_inert_stroke:
+            fix_inert_stroke(doc, st)
         if args.bump and isinstance(doc, dict) and doc.get("dsl") == "FrameForge":
             doc["version"] = HEAD_VERSION
         if args.in_place:
@@ -451,10 +507,12 @@ def main(argv=None):
             else:
                 yaml.safe_dump(doc, fh, sort_keys=False, allow_unicode=True, width=120)
         print(f"{os.path.basename(path)} -> {os.path.basename(out)} "
-              f"(v01:{st.v01} stroke:{st.stroke} size→sizing:{st.size} grad:{st.grad} alias:{st.alias})")
-        for f in ("stroke", "size", "grad", "alias", "v01"):
+              f"(v01:{st.v01} stroke:{st.stroke} inert:{st.inert} "
+              f"size→sizing:{st.size} grad:{st.grad} alias:{st.alias})")
+        for f in ("stroke", "size", "grad", "alias", "v01", "inert"):
             setattr(total, f, getattr(total, f) + getattr(st, f))
-    print(f"TOTAL  v01:{total.v01}  stroke:{total.stroke}  size→sizing:{total.size}  grad:{total.grad}  alias:{total.alias}")
+    print(f"TOTAL  v01:{total.v01}  stroke:{total.stroke}  inert:{total.inert}  "
+          f"size→sizing:{total.size}  grad:{total.grad}  alias:{total.alias}")
     return 0
 
 

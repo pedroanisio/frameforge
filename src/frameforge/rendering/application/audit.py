@@ -299,18 +299,22 @@ def _fmt(sizes: list[float]) -> str:
 #  Public API                                                                 #
 # --------------------------------------------------------------------------- #
 def audit_document(doc: dict, svg_pages: list[str],
-                   collisions: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+                   collisions: list[dict[str, Any]] | None = None,
+                   paint: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     """Full design-token + feature-usage audit of a rendered document.
 
     ``collisions`` is the renderer's ``diagnostics["collisions"]`` — unintended
-    same-layer text overlap. It is measured during the render (ink rectangles are
-    only known there), so it is passed in rather than re-derived. The channel is
-    always present in the report: an empty list means checked-and-clean, never
-    not-checked.
+    same-layer text overlap. ``paint`` is its ``diagnostics["paint"]`` — ink the
+    author declared that the render discarded, substituted or never painted.
+    Both are measured *during* the render (ink rectangles and resolved paint are
+    only known there), so they are passed in rather than re-derived. Both
+    channels are always present in the report: an empty list means
+    checked-and-clean, never not-checked.
     """
     svg = _audit_svg(svg_pages)
     legibility = [s.to_dict() for s in assess_pages(svg_pages)]
     overlaps = list(collisions or [])
+    paint_signals = list(paint or [])
     return {
         "pages": len(svg_pages),
         "methodology": "tokens read from the emitted SVG; features from a generic "
@@ -319,23 +323,39 @@ def audit_document(doc: dict, svg_pages: list[str],
         "model": _audit_model(doc),
         "legibility": legibility,
         "collisions": overlaps,
-        "health": _health(svg) + _legibility_flags(legibility) + _collision_flags(overlaps),
+        "paint": paint_signals,
+        "health": (_health(svg) + _legibility_flags(legibility)
+                   + _collision_flags(overlaps) + _paint_flags(paint_signals)),
     }
+
+
+def name_collision(collision: dict[str, Any]) -> str:
+    """Name the two colliding objects for a human-facing message.
+
+    THE single naming rule, shared by the audit health flags and the MCP render
+    warning so every surface reads identically. `ids` are optional and generated
+    documents routinely omit them, so an id-less pair falls back to the text
+    excerpts the renderer captured — "<anonymous> × <anonymous>" names nothing an
+    author can act on, which is how a 17-page spec shipped with five of these.
+    """
+    ids = [i for i in (collision.get("ids") or []) if i]
+    if ids:
+        return " × ".join(str(i) for i in ids)
+    texts = collision.get("texts") or []
+    if any(texts):
+        return " × ".join(repr(t) for t in texts)
+    boxes = collision.get("boxes") or []
+    return " × ".join(str(b) for b in boxes) if boxes else "<anonymous> × <anonymous>"
 
 
 def _collision_flags(collisions: list[dict[str, Any]]) -> list[dict[str, str]]:
     """Lift text collisions into health flags.
 
     Overlapping text is unreadable text, so these are errors, not craft warnings.
-    `ids` are optional and generated documents routinely omit them — the message
-    therefore leans on the page, the overlap extent and the text excerpts the
-    renderer captured, so the pair is locatable either way.
     """
     flags: list[dict[str, str]] = []
     for c in collisions:
-        ids = [i for i in (c.get("ids") or []) if i]
-        who = " / ".join(ids) if ids else " vs ".join(
-            repr(t) for t in (c.get("texts") or ["?", "?"]))
+        who = name_collision(c)
         ox, oy = (c.get("overlap") or [0, 0])[:2]
         flags.append({
             "level": "error",
@@ -367,6 +387,30 @@ def _legibility_flags(legibility: list[dict[str, Any]]) -> list[dict[str, str]]:
     return flags
 
 
+def _paint_flags(paint: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """Lift the paint-intent signals into health flags.
+
+    A design-token sprawl is a craft problem and a legibility failure is a
+    reader problem; a paint failure is a *fidelity* problem — the page does not
+    show what the document says. `info` signals (``injected-stroke-default``,
+    which merely names the substitution already implied by its
+    ``inert-stroke-declaration`` sibling) stay in the channel and out of health,
+    exactly as ``contrast-unverified`` does.
+    """
+    flags: list[dict[str, str]] = []
+    for signal in paint:
+        if signal.get("level") == "info":
+            continue
+        who = signal.get("id") or f"<anonymous {signal.get('type')}>"
+        flags.append({
+            "level": signal.get("level", "warn"),
+            "code": str(signal.get("code", "paint")),
+            "message": (f"p[{signal.get('page')}] {who}: {signal.get('detail', '')}"
+                        f" — use {signal.get('remedy', '')}"),
+        })
+    return flags
+
+
 def compact_census(report: dict) -> dict[str, Any]:
     """A small design-token summary for surfacing on a render result — the
     distinct counts plus the health flags, without the full value lists."""
@@ -380,6 +424,15 @@ def compact_census(report: dict) -> dict[str, Any]:
         "colours": len(colours),
         "unreadable": sum(1 for s in report.get("legibility", [])
                           if s.get("level") in ("error", "warn")),
+        # Unintended text-on-text ink. Counted here so the number rides on every
+        # render result next to `unreadable`, not only in the full audit — the
+        # loudest defect class must not be the one you have to ask for.
+        "collisions": len(report.get("collisions", [])),
+        # Shapes that painted no ink at all. Counted next to `collisions` for the
+        # same reason: an object silently missing from the page is the one defect
+        # a visual review cannot catch, because there is nothing there to look at.
+        "unpainted": sum(1 for s in report.get("paint", [])
+                         if s.get("code") == "invisible-shape"),
         "health": report["health"],
     }
 
@@ -419,6 +472,20 @@ def render_markdown(report: dict, *, title: str) -> str:
                 f"| `{s['code']}` | {s['level']} "
                 f"| {s['value']:g} {s['unit']} | {s['threshold']:g} "
                 f"| {s.get('count', 1)} | {s.get('basis', '')} |")
+        out.append("")
+
+    paint = report.get("paint") or []
+    if paint:
+        out.append("## Paint intent (did the page paint what the document says?)\n")
+        out.append("| Page | Object | Type | Code | Declared | Painted | Fix |")
+        out.append("|---|---|---|---|---|---|---|")
+        for s in paint:
+            declared = ", ".join(f"{k}: {v!r}" for k, v in (s.get("declared") or {}).items()) or "—"
+            painted = ", ".join(f"{k}: {v!r}" for k, v in (s.get("substituted") or {}).items()) or "—"
+            out.append(
+                f"| {s.get('page') if s.get('page') is not None else '—'} "
+                f"| `{s.get('id') or '<anonymous>'}` | {s.get('type', '')} "
+                f"| `{s['code']}` | {declared} | {painted} | `{s.get('remedy', '')}` |")
         out.append("")
 
     out.append("## Visual tokens (from the emitted SVG)\n")

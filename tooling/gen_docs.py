@@ -408,6 +408,28 @@ def gen_sdk_guide():
     for issue in report.issues:
         print(issue.severity, issue.rule_id, issue.path, issue.message)
     """
+    verify_example = """\
+    from frameforge.sdk import (
+        collision_report,
+        legibility_report,
+        overflow_report,
+        paint_report,
+    )
+
+    for c in collision_report(document):
+        # `ids` is [None, None] unless BOTH objects were authored with an `id`, so
+        # `texts`/`boxes` are what locate the pair in a generated document.
+        print(f"p{c['page']}: {c['texts'][0]!r} over {c['texts'][1]!r} "
+              f"({c['overlap'][0]}x{c['overlap'][1]} units)")
+
+    for signal in legibility_report(document):
+        print(signal.code, signal.basis)
+
+    for signal in paint_report(document):
+        print(signal.id, signal.code, "->", signal.remedy)
+
+    assert not overflow_report(document), "content does not fit its boxes"
+    """
     metrics_example = """\
     from frameforge.sdk import fit_width, stroke
 
@@ -631,14 +653,55 @@ def gen_sdk_guide():
         textwrap.dedent(validate_example).rstrip(),
         "```",
         "",
+        "## Verifying a render",
+        "",
+        "`validate_static_rules()` answers \"is this document legal\". These answer \"is the rendered page "
+        "usable\" — a document can be perfectly legal, render `ok`, and still be unreadable. Each renders "
+        "through the proxy and returns typed signals; an empty list means checked-and-clean, never "
+        "not-checked (PALS's Law).",
+        "",
+        "| Helper | Reports |",
+        "|---|---|",
+        "| `overflow_report()` | what the layout could **not fit** — clips, `overflow: visible` spill, flow "
+        "lines wider than their column |",
+        "| `legibility_report()` | what it fitted and made **unreadable** — WCAG 2.1 SC 1.4.3 contrast, type "
+        "below the legible floor, measure, leading |",
+        "| `paint_report()` | ink the author asked for that the render did **not produce** — inert stroke "
+        "declarations, injected defaults, shapes that paint nothing |",
+        "| `collision_report()` | unintended **text painted over text** on the same layer |",
+        "",
+        "```python",
+        textwrap.dedent(verify_example).rstrip(),
+        "```",
+        "",
+        "Overlap that *is* the design — a watermark, a caption over an image — is declared with "
+        "`overlap: \"allowed\"` on **both** objects and never reported.",
+        "",
+        "The same channels ride on every render without asking: the CLI's `--to audit` writes them into "
+        "`audit.json` (`collisions`, `legibility`, `paint`) and prints `text-collision` / `low-contrast` / "
+        "`invisible-shape` health flags; "
+        "the MCP surfaces the counts on every render result as `design.collisions` / `design.unreadable` / "
+        "`design.unpainted`, with the full records under `diagnostics`. Verify through whichever door you "
+        "already use — they report identically.",
+        "",
+        "```bash",
+        "uv run python -m frameforge.cli doc.fg.yaml --to audit --out out/audit",
+        "```",
+        "",
         "## Positioned text, whitespace, and dashes",
         "",
         "`measure_text()` and the renderer select the same metric mode. Use `fit_width()` rather than the raw "
         "advance for an absolutely positioned text box; it includes the renderer's fit tolerance. The default "
         "is deterministic estimate mode, `real_metrics=True` opts into installed glyph advances, and "
-        "`FRAMEFORGE_REAL_METRICS=1` changes the shared default. Preserve authored spaces with "
-        "`white_space: pre|pre-wrap|break-spaces`. Stroke dash arrays accept lists or SVG-style comma/space "
-        "strings; the model normalizes strings to the canonical list form.",
+        "`FRAMEFORGE_REAL_METRICS=1` changes the shared default. Stroke dash arrays accept lists or SVG-style "
+        "comma/space strings; the model normalizes strings to the canonical list form.",
+        "",
+        "**Authored `\\n` and space runs need `white_space`.** The default is CSS `normal`, which *collapses* "
+        "both: a monospace ledger written as one text object with newlines reflows into a single paragraph, "
+        "and `\"DS   892bdce5\"` loses its column alignment to `\"DS 892bdce5\"`. Set `white_space: pre` "
+        "(preserve, no wrap), `pre-wrap` / `break-spaces` (preserve and wrap), or `pre-line` (newlines only). "
+        "Collapsing is not silent — the render emits a `collapsed_line_breaks` warning naming the object and "
+        "the number of breaks dropped.",
         "",
         "```python",
         textwrap.dedent(metrics_example).rstrip(),

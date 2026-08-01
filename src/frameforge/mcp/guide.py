@@ -408,6 +408,39 @@ Inverse (image/document -> author):
   so you see whether it holds, lists which detectors ran vs were skipped, and returns
   the per-object observations. A starting point to refine with the SDK — never final.
 
+Machine verification (read this BEFORE declaring a render done):
+A render that returns `ok: true` can still be unusable, so every render result
+carries the signals that say so. Check them — they cost nothing and they are the
+difference between "it rendered" and "it is readable".
+- `design.collisions` — unintended same-layer text painted OVER text. The records
+  are in `diagnostics.collisions`, each naming the page, the overlap extent, both
+  ink rectangles (`boxes`) and a bounded excerpt of each party (`texts`). `ids` is
+  `[None, None]` unless both objects were authored with an `id`, which generated
+  documents rarely are — so read `texts` to find them. Non-zero means two blocks
+  are stacked; fix the layout, or declare `overlap: "allowed"` on BOTH objects if
+  the overlap is the design (watermark, caption over an image).
+- `design.unreadable` — the render was faithful and the reader still cannot read
+  it: WCAG 2.1 SC 1.4.3 contrast failures against the ink actually painted behind
+  the text, type below the legible floor for the page width, runaway measure,
+  colliding leading. Details in `diagnostics.legibility`, each with a `basis`
+  string carrying the measured number and the threshold.
+- `design.unpainted` — shapes that painted NO INK: the object is in the model,
+  passes validation, reaches the SVG, and is invisible. This is the one defect a
+  visual check cannot catch, because there is nothing on the page to look at.
+  The usual cause is stroke intent written as `style: {color, width}` — the shape
+  of the pre-P3 bundle, which validates (`Style.color` is TEXT colour,
+  `Style.width` is BOX width) and paints nothing. Put paint in `stroke` and
+  geometry in `stroke_style`. Details in `diagnostics.paint`, each carrying what
+  was `declared`, what was `substituted`, and a copy-pasteable `remedy`; a `line`
+  or `connector` with the same mistake is painted `#000`/1px instead of vanishing,
+  which is why it survives review. `validate` reports the static half of this as
+  `inert-stroke-declaration` before you ever render.
+- `render_warning` — the same findings in one line, plus text-fit losses,
+  `collapsed_line_breaks` (an authored `\n` collapsed because `white_space` is
+  `normal` — set `pre-wrap` to keep the rows), and font substitutions.
+- `design_audit` — the full report for the session's last render, identical to the
+  CLI's `--to audit`, persisted as `audit.json`/`audit.md`.
+
 Visual QA:
 - `compare_images` — crop matching regions from a reference and a candidate, lay them
   out reference|candidate|difference (bright red = mismatch) scaled up, so you *see*

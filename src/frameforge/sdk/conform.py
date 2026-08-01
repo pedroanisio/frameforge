@@ -15,6 +15,7 @@ from frameforge.rendering.domain.services.legibility import (
     assess_pages,
 )
 from frameforge.rendering.domain.services.overflow import OverflowSignal
+from frameforge.rendering.domain.services.paint_intent import PaintSignal
 
 from frameforge.sdk.model import validate_document
 
@@ -151,6 +152,41 @@ def overflow_report(
     return [OverflowSignal.from_dict(d) for d in diags.get("overflow", [])]
 
 
+def paint_report(
+    model: Any,
+    *,
+    base_dir: str | None = None,
+    real_metrics: bool | None = None,
+) -> list[PaintSignal]:
+    """Render through the proxy and return the typed PAINT-INTENT signals.
+
+    The third member of the family: :func:`overflow_report` names what the
+    layout could not fit and :func:`legibility_report` what it fitted and made
+    unreadable — this one names ink the author asked for that the render did
+    not produce:
+
+      * ``inert-stroke-declaration`` — stroke intent written as
+        ``style: {color, width, dash}`` (the pre-P3 bundle shape). Those keys
+        validate as text colour / box width / an unrelated dash, so the authored
+        appearance is discarded;
+      * ``injected-stroke-default`` — the engine painted its own ``#000``/1px
+        over that ignored declaration;
+      * ``invisible-shape`` — the shape resolved to no fill and no stroke: it
+        emits geometry and paints zero ink.
+
+    An empty list means every shape painted what it declared. ``signal.remedy``
+    carries the copy-pasteable P3 spelling, and
+    ``tooling/codemod.py --fix-inert-stroke`` applies it across a document::
+
+        >>> for s in paint_report(doc):
+        ...     print(s.page, s.id, s.code, "->", s.remedy)
+        p1 hairline inert-stroke-declaration -> stroke: '#d5d0c6' + stroke_style: {stroke_width: 1}
+    """
+    _svgs, _tstats, diags = render_pages_with_stats(
+        model, base_dir=base_dir, real_metrics=real_metrics, diagnostics=True)
+    return [PaintSignal.from_dict(d) for d in diags.get("paint", [])]
+
+
 def legibility_report(
     model: Any,
     *,
@@ -192,10 +228,27 @@ def collision_report(
     cross-layer overlap never appears here; an empty list means the page has no
     accidental text-on-text.
 
-    Each record is ``{ids, page, layer, area, overlap: [dx, dy], metrics}``.
-    ``metrics`` is ``"estimate"`` or ``"real"`` — an estimate-mode verdict is
-    unverified by default (PALS's Law); pass ``real_metrics=True`` (in the
-    font-rich runtime) for a reproducible one.
+    Each record is ``{ids, page, layer, area, overlap: [dx, dy], metrics, boxes,
+    texts}``. ``metrics`` is ``"estimate"`` or ``"real"`` — an estimate-mode
+    verdict is unverified by default (PALS's Law); pass ``real_metrics=True`` (in
+    the font-rich runtime) for a reproducible one.
+
+    ``ids`` is ``[None, None]`` unless both objects were authored with an ``id``,
+    so ``boxes`` (the two ink rectangles, ``[x0, y0, x1, y1]``) and ``texts`` (a
+    bounded excerpt of each) are what make an id-less pair locatable — generated
+    documents rarely carry ids, and a report that names neither is unactionable.
+
+    Example — fail a build on unintended overlap::
+
+        from frameforge.sdk import collision_report
+        hits = collision_report(doc)
+        for c in hits:
+            print(f"p{c['page']}: {c['texts'][0]!r} over {c['texts'][1]!r} "
+                  f"({c['overlap'][0]}x{c['overlap'][1]} units)")
+        assert not hits, f"{len(hits)} unintended text collision(s)"
+
+    Overlap that IS the design (a watermark, a caption over an image) is declared
+    with ``overlap: "allowed"`` on both objects and never appears here.
     """
     _svgs, _tstats, diags = render_pages_with_stats(
         model, base_dir=base_dir, real_metrics=real_metrics, diagnostics=True)

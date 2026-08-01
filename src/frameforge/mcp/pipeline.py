@@ -195,7 +195,9 @@ def _validate_and_render_yaml(
         # Surface the design-token census (fonts/sizes/weights/colours + sprawl
         # health) the same way — an authoring agent must see it created 15 sizes
         # or off-palette colours, exactly as it sees clipped text (PALS's Law).
-        design_census = _design_census(document, svgs)
+        design_census = _design_census(
+            document, svgs, (render_diagnostics or {}).get("collisions"),
+            (render_diagnostics or {}).get("paint"))
         if design_census and any(f["level"] == "warn" for f in design_census["health"]):
             msgs = [f["message"] for f in design_census["health"] if f["level"] == "warn"]
             note = "design: " + "; ".join(msgs[:2])
@@ -235,9 +237,12 @@ def _validate_and_render_yaml(
         # since an estimate-mode overlap is unverified (PALS's Law).
         collisions = (render_diagnostics or {}).get("collisions") or []
         if collisions:
+            from frameforge.rendering.application.audit import name_collision
             mode = collisions[0].get("metrics", "estimate")
-            named = ", ".join(" × ".join(str(i or "<anonymous>") for i in c.get("ids", []))
-                              for c in collisions[:3])
+            # One naming rule across CLI/audit/MCP: ids when authored, else the
+            # text excerpts — never "<anonymous> × <anonymous>", which is a nag
+            # an author cannot act on.
+            named = ", ".join(name_collision(c) for c in collisions[:3])
             more = f" and {len(collisions) - 3} more" if len(collisions) > 3 else ""
             note = (f"{len(collisions)} same-layer ink collision(s) [{mode}]: {named}{more}; "
                     "declare `overlap: allowed` on both parties if intentional, else "
@@ -260,6 +265,14 @@ def _validate_and_render_yaml(
                     f"(x{worst.get('count', 1)}, e.g. {worst.get('detail', '')!r}): "
                     f"{worst.get('basis', '')}{more}; see diagnostics.legibility")
             render_warning = f"{render_warning}; {note}" if render_warning else note
+        # Paint-intent signals (diagnostics.paint): the document declared ink the
+        # render did not produce — a stroke written in keys the engine does not
+        # read, the engine's own #000 substituted over it, or a shape that paints
+        # nothing at all. This one MUST be spoken: an invisible object leaves no
+        # pixels for a visual check to notice (PALS's Law).
+        paint_note = _paint_warning((render_diagnostics or {}).get("paint"))
+        if paint_note:
+            render_warning = f"{render_warning}; {paint_note}" if render_warning else paint_note
 
     result = {
         "ok": report.ok and bool(renders),
@@ -455,15 +468,48 @@ def _export_pdf(
     return entry, summary, warning
 
 
-def _design_census(document: Any, svgs: list[str]) -> dict[str, Any] | None:
+def _paint_warning(paint: list[dict[str, Any]] | None) -> str:
+    """The render-warning sentence for ``diagnostics["paint"]`` (or ``""``).
+
+    An authoring agent cannot see that a shape is missing — there is nothing on
+    the page to look at — so the paint channel has to say it in words. `info`
+    signals stay in the channel; only the two authoring defects nag.
+    """
+    signals = [s for s in (paint or []) if s.get("level") in ("error", "warn")]
+    if not signals:
+        return ""
+    blind = sum(1 for s in signals if s.get("code") == "invisible-shape")
+    worst = next((s for s in signals if s.get("code") == "invisible-shape"), signals[0])
+    who = worst.get("id") or f"<anonymous {worst.get('type')}>"
+    more = f"; and {len(signals) - 1} more" if len(signals) > 1 else ""
+    lead = (f"{blind} shape(s) PAINT NO INK" if blind
+            else f"{len(signals)} shape(s) did not paint what they declare")
+    return (f"{lead}: {worst.get('code')} on p[{worst.get('page')}] "
+            f"({who}, {worst.get('type')}) — {worst.get('detail', '')}; "
+            f"use {worst.get('remedy', '')}{more}; see diagnostics.paint")
+
+
+def _design_census(document: Any, svgs: list[str],
+                   collisions: list[dict[str, Any]] | None = None,
+                   paint: list[dict[str, Any]] | None = None) -> dict[str, Any] | None:
     """Compact design-token census for the render result (fonts/sizes/weights/
     colours + sprawl health). Advisory: a census failure must never break a
-    render, so it degrades to ``None``."""
+    render, so it degrades to ``None``.
+
+    ``collisions`` is the render's ``diagnostics["collisions"]``: it is measured
+    from ink rectangles during the render and cannot be recovered from the
+    finished SVG, so it is threaded in rather than re-derived. Without it the
+    census reports a clean bill of health for a document painting text over text.
+    ``paint`` is ``diagnostics["paint"]`` and is threaded in for the same reason:
+    whether a shape painted any ink is a render-time fact, not an SVG-readable
+    one, so without it the census cannot count an invisible object.
+    """
     try:
         from frameforge.rendering.application.audit import audit_document, compact_census
         doc_dict = (document.model_dump(by_alias=True, exclude_none=True)
                     if hasattr(document, "model_dump") else document)
-        return compact_census(audit_document(doc_dict, list(svgs)))
+        return compact_census(audit_document(doc_dict, list(svgs),
+                                             collisions=collisions, paint=paint))
     except Exception:  # noqa: BLE001 — advisory telemetry, never break a render
         return None
 

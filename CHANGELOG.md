@@ -79,6 +79,48 @@ the 9 HTML hashes were re-pinned.
   pre-pooled, so zero pooled classes on a token-driven document is the correct
   result rather than a failure.
 
+## Unreleased — the page must paint what the document says (2026-07-31)
+
+A fourth silent-failure channel, found by auditing one 15-page concept spec:
+**62 shapes declared their stroke in keys the engine does not read.** Every
+gate passed — `validate` clean, no overflow, no collisions — and the render was
+wrong anyway. No schema `$defs` or field contract changed; no rendered byte
+changed.
+
+- **New `diagnostics.paint` channel**, typed as `PaintSignal`
+  (`rendering/domain/services/paint_intent.py`). It reports the failure mode the
+  other three channels structurally cannot see: not content *lost*
+  (`truncations`/`overflow`), not content *collided* (`collisions`), not content
+  *unreadable* (`legibility`) — but ink the author asked for that the render
+  never produced. Three codes: `inert-stroke-declaration`,
+  `injected-stroke-default` (info), `invisible-shape`.
+- **`style: {color, width, dash}` on a stroke-painted shape is now a finding.**
+  It is the shape of the pre-P3 stroke bundle and it *validates* — `Style.color`
+  is text colour, `Style.width` is box width, `Style.dash` is unrelated to
+  `stroke_dasharray`. So the authored appearance is discarded and the shape
+  renders `#000`/1px (`line`/`connector`, which have an engine fallback) or
+  **paints nothing at all** (`polyline`/`polygon`/`path`/`curve`, which do not).
+  In the spec that exposed this: 51 rules printed black-1px instead of the
+  authored `#d5d0c6`/`#6b757e`/2px, and 11 chevrons were invisible on the page
+  while present in model, validation and SVG. Same failure class the v0.1 lift
+  already handles for text styles (`size` → `font_size`); this is its stroke twin.
+- **Two surfaces, split by what each can actually prove.** The static rule
+  (`inert_stroke_keys`) needs no render, so `validate.py` gates it as a WARN
+  (`inert-stroke-declaration`, ERROR under `--strict`). Invisibility is *not*
+  statically decidable — paint can arrive from a group style, a token, or a
+  stroke-outline lowering — so `invisible-shape` and `injected-stroke-default`
+  are decided in the renderer, where fill and stroke are resolved. Measured over
+  the committed corpus before shipping: the static rule fires 0 times, a static
+  guess at invisibility would have fired 124.
+- **Every surface speaks it.** `sdk.paint_report()` returns the typed signals;
+  `--to audit` writes a `paint` section and lifts the two defects into `health`;
+  the MCP render warning names them and `design.unpainted` counts the blind
+  shapes; `tooling/codemod.py --fix-inert-stroke` rewrites a document to the P3
+  single form. Each signal carries a copy-pasteable `remedy`.
+- **Observes, never mutates.** The `#000` substitution is long-standing
+  behaviour the golden corpus depends on, so the channel reports it rather than
+  changing it — `tests/test_paint_intent_signals.py` pins byte-identical output.
+
 ## 2.8.1 — the collision gate actually fires, and the viewer paints style-bag fill/stroke
 
 Patch release. Two silent-failure defects: a document could paint an entire
@@ -114,6 +156,65 @@ authored in a `style` bag. No schema `$defs` or field contract changed.
   viewer invented a `#ddd` grid and an `rgba(0,0,0,.035)` zebra no document had
   authored (ADR-0006 / #69). The coverage gate's allowlist now names the full
   documented table-style set.
+
+## Unreleased — fix: whitespace survives to PDF; a collision report you can act on (2026-07-31)
+
+Three silent failures found by rendering one 17-page spec through every door
+and comparing. No schema `$defs` or field contract changed.
+
+- **`white_space` now survives the SVG→PDF backend.** `pre` / `pre-wrap` /
+  `break-spaces` kept authored space runs in the model *and* in the emitted
+  SVG, but the painter expressed that intent only as CSS `white-space` — a
+  CSS-Text/SVG2 property. Chromium implements it; SVG 1.1 consumers do not, so
+  cairosvg (`--to pdf`) ran XML whitespace processing and collapsed every run.
+  The same monospace table rendered with perfect columns through `--to png` and
+  with every column collapsed through `--to pdf`, **from the identical SVG**.
+  The painter now also emits `xml:space="preserve"` on the owning `<text>`
+  element (never on the root, which would move every other text element).
+  Golden lock re-pinned for `b1/spectral-methods`; verified attribute-only —
+  the render is byte-identical once the attribute is stripped, so no geometry
+  moved. Gated by `tests/test_preserved_space_runs.py`.
+  *General lesson: a CSS property in the SVG output is not a cross-backend
+  guarantee. The proxy feeds at least three engines with different feature sets.*
+- **Collapsing an authored `\n` is no longer silent.** `white_space: normal`
+  collapses newlines and space runs, CSS-style — conformant, and invisible: a
+  monospace ledger reflows into one paragraph and nothing says so. The renderer
+  now emits a typed `collapsed_line_breaks` warning naming the object, the mode
+  and the number of breaks dropped. Report-only; layout is unchanged. On the
+  spec that prompted this: 51 objects, 138 dropped breaks, previously silent.
+  Gated by `tests/test_collapsed_line_breaks.py`.
+- **A collision report you can act on.** Records keyed only on `ids`, which are
+  optional — generated documents routinely omit them, so every record read
+  `ids: [None, None]` and every message built from one read
+  `"<anonymous> × <anonymous>"`. Records now also carry `boxes` (both ink
+  rectangles) and `texts` (a bounded excerpt of each), and one shared
+  `audit.name_collision()` rule names the pair for *every* surface, so the CLI,
+  the audit health flag and the MCP render warning read identically.
+- **`--to audit` reports collisions at all.** The audit is the verification
+  surface an author runs before shipping, and it lifted legibility into
+  `health` but not collisions — so a spec whose cover ran two independent
+  y-cursors over the same band audited as merely "low contrast + small type"
+  while five overlapping text blocks went unmentioned. `audit_document(...,
+  collisions=…)` now adds a `collisions` channel and ERROR-severity
+  `text-collision` flags; `compact_census` counts them, so the number rides on
+  every MCP render result next to `unreadable`. The MCP `design_audit` tool
+  reads them back from the session's persisted diagnostics. Gated by
+  `tests/test_audit_reports_collisions.py` and
+  `tests/test_collision_surface_parity.py` (CLI ⇄ SDK ⇄ MCP parity).
+- **Viewer: structured path `d` renders.** `Path.d` is
+  `string | [[cmd, ...numbers], …]`; the viewer passed the value straight to
+  the SVG attribute, so JS array coercion turned `[["M",0,21],["L",64,21]]`
+  into `"M,0,21,L,64,21"` — not path data. Chromium rejected the attribute and
+  the shape did not render *at all*: 68 such errors across the committed
+  fixture corpus, with `npm run test:browser` exiting 1 on them the whole time.
+  New `pathData()` mirrors the engine's lowering, and covers the CSS
+  `clip-path: path()` site too. Gated by `viewer/dev/path-browser-smoke.mjs`.
+- **Viewer: `white_space` is honoured and text wraps to its box.** The viewer
+  hardcoded `pre-wrap`/`pre` and did not wrap unless `wrap` was authored — the
+  opposite of the engine on both axes, so the same document read as a ledger in
+  the viewer and as a reflowed paragraph in PDF. `whiteSpaceCss()` +
+  a `nowrap` derivation mirror `text_style_resolver.py` exactly. Gated by
+  `viewer/dev/paint-browser-smoke.mjs`.
 
 ## Unreleased — feat: warn when a render is faithful but unreadable (2026-07-31)
 

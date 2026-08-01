@@ -129,3 +129,41 @@ decision:
 Regression gate: `tests/test_no_injected_style_regressions.py` pins both
 directions — authored values win everywhere, and every documented fallback is
 byte-identical to the pre-amendment output for style-silent documents.
+
+## Amendment (2026-07-31) — the shape fallbacks are documented and *observable*
+
+The decision covered text and chrome. Two shape-level fallbacks were never
+named, and a 15-page concept spec shipped wrong because of it:
+
+1. **`line` and `connector` fall back to `Stroke("#000", 1)`.** A shape with no
+   resolvable stroke paint would otherwise be invisible, so the engine paints an
+   opaque black hairline. That is a documented fallback, not a bug — but it is
+   *indistinguishable at a glance* from an authored black rule, so a document
+   whose stroke the engine could not read looks plausible and reviews clean.
+2. **`polyline`/`polygon`/`path`/`curve` have no fallback.** Unfilled and
+   unstroked, they emit `fill="none"` with no stroke and paint **zero ink** —
+   present in model, validation and SVG, absent from the page.
+
+Neither is changed here: the golden corpus depends on those exact bytes, and
+guessing differently would be a new injection, not a smaller one. What changes
+is that both are now **observable**, which is what the decision actually
+requires — a fallback the author cannot see is indistinguishable from a fallback
+the engine invented.
+
+`diagnostics.paint` (`rendering/domain/services/paint_intent.py`) reports:
+
+| code | level | meaning |
+|---|---|---|
+| `inert-stroke-declaration` | warn | stroke intent written in keys the shape does not read (`style: {color, width, dash}` — the pre-P3 bundle shape, which validates as text colour / box width) |
+| `injected-stroke-default` | info | fallback (1) fired over such a declaration |
+| `invisible-shape` | warn | case (2): the shape painted nothing |
+
+The static half gates in `validate.py` as `inert-stroke-declaration`; the
+resolved half is render-time, because paint can still arrive from a group style,
+a token or a stroke-outline lowering, and a static guess at invisibility
+produced 124 false positives on the committed corpus against 0 for the static
+rule. `tooling/codemod.py --fix-inert-stroke` migrates a document to the P3
+single form.
+
+Regression gate: `tests/test_paint_intent_signals.py`, which also pins that
+observing the fallbacks changes no rendered byte.

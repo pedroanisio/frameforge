@@ -41373,6 +41373,20 @@ ${exception.mark.snippet}`;
     "uml.artifact_box",
     "uml.node_box"
   ]);
+  function fnum(x) {
+    const f = Number(x);
+    if (!Number.isFinite(f)) return "0";
+    return Number.isInteger(f) ? String(f) : f.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+  }
+  function pathData(d) {
+    if (typeof d === "string") return d;
+    if (!Array.isArray(d)) return "";
+    return d.map((seg) => {
+      if (!Array.isArray(seg)) return String(seg);
+      if (!seg.length) return "";
+      return [String(seg[0]), ...seg.slice(1).map(fnum)].join(" ");
+    }).filter(Boolean).join(" ");
+  }
   function toPx(v) {
     if (v == null) return 0;
     if (typeof v === "number") return v;
@@ -41654,7 +41668,7 @@ ${exception.mark.snippet}`;
       return `polygon(${args.points.map(cssPoint).join(", ")})`;
     }
     if (shape === "path" && args.d) {
-      return `path("${String(args.d).replace(/"/g, '\\"')}")`;
+      return `path("${pathData(args.d).replace(/"/g, '\\"')}")`;
     }
     return shape ? `${shape}()` : void 0;
   }
@@ -42079,7 +42093,7 @@ ${exception.mark.snippet}`;
       const pts = (o.points || []).map((p) => `${toPx(p[0])},${toPx(p[1])}`).join(" ");
       shape = /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polygon", { points: pts, ...common });
     } else if (o.type === "path") {
-      shape = /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: o.d, ...common });
+      shape = /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: pathData(o.d), ...common });
     } else if (o.type === "ellipse") {
       const c = o.center || [0, 0];
       shape = /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ellipse", { cx: toPx(c[0]), cy: toPx(c[1]), rx: o.rx, ry: o.ry, ...common });

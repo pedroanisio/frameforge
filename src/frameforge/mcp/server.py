@@ -390,7 +390,14 @@ def create_server(
             "result as diagnostics.legibility, and warned about on the render result "
             "when a page is unreadable; a canvas unit is NOT a point, so judge type size by the "
             "signal's reported fraction-of-page, not by the number you authored); "
-            "v0.1-dialect documents migrate via tooling/codemod.py --from-v01.\n"
+            "paint_report (typed PAINT-INTENT signals — ink the document declared that the "
+            "render did not produce: a stroke written as `style: {color,width}` VALIDATES "
+            "but is text colour / box width, so a line paints #000/1px and a polyline/path "
+            "paints NOTHING AT ALL; also on every render result as diagnostics.paint and "
+            "counted as design.unpainted, with a copy-pasteable `remedy` per signal — "
+            "an invisible shape is the one defect a screenshot cannot show you); "
+            "v0.1-dialect documents migrate via tooling/codemod.py --from-v01, and "
+            "inert stroke declarations via --fix-inert-stroke.\n"
             "• Image → draft: propose_from_image / propose_from_document / propose_from_svg "
             "(UNVERIFIED drafts, round-tripped through render).\n"
             "• Visual QA: compare_images (zoomed reference|candidate|diff panels + real "
@@ -732,6 +739,22 @@ def create_server(
         sizes). Run a render tool first; the compact census also rides on every
         render result's ``design`` key. Persists ``audit.json``/``audit.md`` as
         session resources.
+
+        Two ERROR-severity classes ride here too, because a document can render
+        perfectly and still be unusable:
+
+        * ``low-contrast`` / ``type-too-small`` / ``measure-*`` — the reader
+          cannot read it (WCAG 2.1 SC 1.4.3 and the legible-size floor); the
+          count is ``design.unreadable``, the detail in ``audit.legibility``.
+        * ``text-collision`` — unintended same-layer text painted over text; the
+          count is ``design.collisions``, the records in ``audit.collisions``,
+          each naming the page, the overlap extent, both ink rectangles and a
+          text excerpt of each party (ids are optional, so excerpts are what make
+          an id-less pair locatable). Declare ``overlap: "allowed"`` on both
+          objects when the overlap is the design.
+
+        This is the same report as the CLI's ``--to audit`` and the SDK's
+        ``collision_report()`` — verify through any door and get the same answer.
         """
         result = _logged_call(
             log_path,

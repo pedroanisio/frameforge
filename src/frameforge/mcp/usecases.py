@@ -343,7 +343,22 @@ def design_audit(
         }
     doc_dict = _yaml.safe_load(doc_path.read_text(encoding="utf-8"))
     svgs = [path.read_text(encoding="utf-8") for path in svg_paths]
-    report = audit_document(doc_dict, svgs)
+    # Collisions are measured during the render (from ink rectangles) and are not
+    # recoverable from the finished SVG, so they are read back from the session's
+    # persisted diagnostics rather than re-derived. Missing/unreadable
+    # diagnostics degrade to "none reported" — the audit must never fail on it.
+    collisions: list = []
+    paint: list = []
+    diag_path = session_dir / "diagnostics.json"
+    if diag_path.is_file():
+        try:
+            diag = _json.loads(diag_path.read_text(encoding="utf-8"))
+            channel = diag.get("diagnostics") or diag
+            collisions = list(channel.get("collisions") or [])
+            paint = list(channel.get("paint") or [])
+        except (OSError, ValueError, AttributeError):
+            collisions, paint = [], []
+    report = audit_document(doc_dict, svgs, collisions=collisions, paint=paint)
     (session_dir / "audit.json").write_text(
         _json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     (session_dir / "audit.md").write_text(render_markdown(report, title=sid), encoding="utf-8")

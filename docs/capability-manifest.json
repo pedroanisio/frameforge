@@ -179,6 +179,7 @@
       "OverflowSignal",
       "PackageDiagramOptions",
       "PageBuilder",
+      "PaintSignal",
       "Panel",
       "Path",
       "Placement",
@@ -359,6 +360,7 @@
       "offset_path",
       "overflow_report",
       "page_hashes",
+      "paint_report",
       "paragraph",
       "parametric",
       "parametric_curve",
@@ -555,6 +557,7 @@
       "fr-under-free",
       "grid_span-parent",
       "hug-on-shape",
+      "inert-stroke-declaration",
       "layout-overflow",
       "load",
       "non-conformant-3d",
@@ -1697,6 +1700,13 @@
     },
     {
       "name": "PageBuilder",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "PaintSignal",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2957,6 +2967,13 @@
     },
     {
       "name": "page_hashes",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "paint_report",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

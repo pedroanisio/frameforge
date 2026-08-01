@@ -54,3 +54,23 @@ def test_no_collisions_is_a_present_empty_channel():
 def test_audit_still_works_without_collision_data():
     report = audit_document(DOC, ["<svg></svg>"])
     assert report["collisions"] == []
+
+
+# --------------------------------------------------------------------------- #
+#  paint-intent signals travel the same road as collisions
+# --------------------------------------------------------------------------- #
+PAINT = {"page": "cover", "id": "hairline", "code": "invisible-shape",
+         "level": "error", "remedy": "stroke: '#d5d0c6' + stroke_style: {stroke_width: 1}"}
+
+
+def test_paint_signals_are_kept_as_structured_data():
+    """`compact_census` counts `report["paint"]` for its `unpainted` tally, so
+    the audit has to accept and store the channel — measured during the render
+    (like collisions) and unrecoverable from the finished SVG."""
+    report = audit_document(DOC, ["<svg></svg>"], paint=[PAINT])
+    assert report["paint"] == [PAINT]
+
+
+def test_paint_channel_is_present_and_empty_when_clean():
+    assert audit_document(DOC, ["<svg></svg>"], paint=[])["paint"] == []
+    assert audit_document(DOC, ["<svg></svg>"])["paint"] == []

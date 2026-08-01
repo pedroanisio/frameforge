@@ -155,6 +155,28 @@ objects, anchor/port references between objects, and `overflow: shrink_to_fit` t
 (font-size is binary-searched against measured overflow — this is what the esfera deck's
 "fit-safe label styles" rely on).
 
+### Where the viewer must agree with the engine
+This is a **second renderer** — an independent React implementation of the model, not a
+consumer of the engine's SVG. Anywhere the two disagree, the document renders one way
+here and another way in PDF, which is worse than not previewing at all. Three contracts
+are therefore pinned by browser gates rather than left to drift:
+
+- **Paint may be authored in the style bag.** `style: {fill: …, stroke: …}` is as legal
+  as the object-level `fill`/`stroke`, and the engine honours both. Div-backed objects
+  resolve through `shapeFill`/`shapeStroke`; CSS `fill` is inert on an HTML element.
+  (`npm run test:paint`)
+- **`white_space` governs authored `\n` and space runs**, and text wraps to its box
+  unless the mode is `nowrap`/`pre` — `whiteSpaceCss()` mirrors the engine's
+  `text_style_resolver.py` derivation exactly. The default `normal` *collapses*.
+  (`npm run test:paint`)
+- **`Path.d` may be structured** — `[[cmd, ...numbers], …]` as well as a string —
+  and must be lowered with `pathData()`, matching the engine. Passing the array
+  straight to the attribute yields `"M,0,21,…"`, which does not parse, so the shape
+  vanishes. (`npm run test:path`)
+
+`npm run test:browser` renders every committed fixture and fails on any console error,
+which is what catches this class.
+
 ---
 
 ## Note on the demo data (one correction)

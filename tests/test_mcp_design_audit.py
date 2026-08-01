@@ -97,11 +97,33 @@ def test_compact_census_matches_helper_contract():
             {"code": "low-contrast", "level": "error"},
             {"code": "print-scale-mismatch", "level": "info"},   # info never counts
         ],
+        "collisions": [
+            {"ids": [None, None], "page": "p1", "overlap": [10, 4], "area": 40,
+             "texts": ["a", "b"]},
+        ],
         "health": [{"level": "ok", "code": "within-budget", "message": "-"}],
     }
     c = compact_census(fake)
     assert c == {"faces": 1, "sizes": 3, "weights": 2, "colours": 3,
-                 "unreadable": 2, "health": fake["health"]}
+                 "unreadable": 2, "collisions": 1, "unpainted": 0,
+                 "health": fake["health"]}
+
+
+def test_compact_census_defaults_the_signal_counts_to_zero():
+    """A report without the legibility/collision channels must read as
+    checked-and-clean (0), never as a missing key the caller has to guard."""
+    fake = {
+        "svg": {
+            "font_family": {"n_distinct": 1}, "font_size_px": {"n_distinct": 1},
+            "font_weight": {"n_distinct": 1},
+            "text_color": {"distinct": ["#111"]}, "shape_fill": {"distinct": []},
+            "stroke_color": {"distinct": []},
+        },
+        "health": [],
+    }
+    c = compact_census(fake)
+    for signal in ("unreadable", "collisions", "unpainted"):
+        assert c[signal] == 0, f"{signal} must default to 0, not a missing key"
 
 
 # --------------------------------------------------------------------------- #

@@ -46,6 +46,10 @@ sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "src")))
 
 import yaml  # noqa: E402
 import frameforge.model as fg  # noqa: E402  (package-qualified: never shadow the real package)
+from frameforge.rendering.domain.services.paint_intent import (  # noqa: E402
+    inert_stroke_keys,
+    remedy_for,
+)
 from pydantic import ValidationError  # noqa: E402
 
 _YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
@@ -369,6 +373,22 @@ def rule_checks(doc, findings):
                 findings.append(Finding("ERROR", "unpinned-font",
                                         "content-sized text must reference a pinned font "
                                         "(tokens.fonts entry with both `src` and `hash`) — §9.6/P4", path))
+        # R13 inert stroke declaration (paint-intent/2026-07-31): the pre-P3
+        # bundle shape {color,width,dash} written inside `style` on a
+        # stroke-painted shape. It VALIDATES — Style really has those fields —
+        # but they mean text colour / box width / an unrelated dash, so the
+        # authored appearance is silently discarded and the shape is painted
+        # black (line/connector) or not at all (polyline/path/curve).
+        sd = o.get("style")
+        sd = styles.get(sd, {}) if isinstance(sd, str) else sd
+        inert = inert_stroke_keys(o, sd)
+        if inert:
+            keys = ", ".join(f"style.{k}" for k in inert)
+            findings.append(Finding(
+                "WARN", "inert-stroke-declaration",
+                f"{keys} on a {t!r} is not stroke paint — the render discards it and paints "
+                f"{'#000/1px' if t in ('line', 'connector') else 'nothing'}; use "
+                f"{remedy_for(sd, inert)} (codemod: --fix-inert-stroke)", path))
         # R10 deprecated alias types
         if t in DEPRECATED_ALIASES:
             findings.append(Finding("WARN", "deprecated-alias",

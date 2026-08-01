@@ -36,6 +36,12 @@ from frameforge.rendering.domain.services.layout_engine import LayoutEngine
 from frameforge.rendering.domain.services import flow_layout
 from frameforge.rendering.domain.services.math_text import math_text
 from frameforge.rendering.domain.services.overflow import OverflowSignal
+from frameforge.rendering.domain.services.paint_intent import (
+    PaintSignal,
+    STROKE_PAINTED_TYPES,
+    inert_stroke_keys,
+    remedy_for,
+)
 from frameforge.rendering.domain.services.style_values import StyleValues
 from frameforge.rendering.domain.services.text_fitter import TextFitter
 from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver
@@ -120,7 +126,11 @@ class Renderer:
                             # allowed` (collision-gate/2026-07, O1). Populated
                             # per layer by _detect_collisions from the ink
                             # rectangles render_text stashes.
-                            "collisions": []}
+                            "collisions": [],
+                            # Paint-intent findings (paint-intent/2026-07-31):
+                            # authored ink the engine discarded, substituted or
+                            # never painted. Populated by _note_paint_intent.
+                            "paint": []}
         # The ink rectangle (drawn extent) of the most recent render_text call,
         # (x0, y0, x1, y1) or None. Read by the top-level object walk so only
         # absolute layer text — not table/flow cells — feeds the detector.
@@ -1110,6 +1120,11 @@ class Renderer:
         fill = self._shape_fill(o, style)
         fill_opacity = o.get("fill_opacity", style.get("fill_opacity"))
         fill_rule = o.get("fill_rule", style.get("fill_rule"))
+        # Observe paint intent BEFORE the type branches: this is the one point
+        # where the resolved fill and the object's stroke declaration are both
+        # in hand. Read-only — it allocates no <defs> id and emits no bytes.
+        if t in STROKE_PAINTED_TYPES:
+            self._note_paint_intent(o, t, style, fill)
 
         if t == "rect" and box:
             x, y, w, h = (num(v, 0) for v in box[:4])
@@ -1629,6 +1644,83 @@ class Renderer:
         if isinstance(val, list):
             val = val[0] if val else 0
         return num(val, 0) or 0
+
+    def _stroke_is_declared(self, o, style):
+        """True when `_shape_stroke` has SOME declaration to resolve.
+
+        Mirrors `_shape_stroke`'s branch conditions exactly, without calling it —
+        re-resolving would re-allocate a gradient's `<defs>` id and shift the
+        emitted bytes. `False` therefore guarantees `_shape_stroke` returns
+        `None`; `True` is treated as "declared" even in the rare case the paint
+        resolves to `none`, so the paint channel never invents a false positive.
+        """
+        if any(k in o for k in ("stroke", "stroke_style")):
+            return True
+        if isinstance(style.get("border"), (dict, str)):
+            return True
+        return any(k in style for k in ("stroke", "stroke_width", "stroke_dasharray",
+                                        "stroke_linecap", "stroke_linejoin"))
+
+    def _note_paint_intent(self, o, t, style, fill):
+        """Record `diagnostics['paint']` for one stroke-painted shape.
+
+        Three findings, all read-only (see domain/services/paint_intent):
+
+          * `inert-stroke-declaration` — style keys shaped like the pre-P3 stroke
+            bundle (`color`/`width`/`dash`) on a shape that never reads them;
+          * `injected-stroke-default` — the engine painted its own `#000`/1
+            over that ignored declaration (`line`/`connector` only: the other
+            open shapes have no fallback);
+          * `invisible-shape` — nothing paints: no resolved fill, no stroke.
+
+        A shape that declares nothing at all is NOT reported as an injected
+        default — a bare `line` taking the engine's default is documented
+        shorthand, and flagging ~2.8k of them across the corpus would bury the
+        real defect. Zero ink is still reported, because that is never intended.
+        """
+        oid = o.get("id")
+        page = getattr(self, "_current_page_id", None)
+        inert = inert_stroke_keys(o, style)
+        declared = self._stroke_is_declared(o, style)
+        sink = self.diagnostics["paint"]
+
+        if inert:
+            evidence = {k: style.get(k) for k in inert}
+            sink.append(PaintSignal(
+                id=oid, page=page, type=t, code="inert-stroke-declaration", level="warn",
+                declared=evidence,
+                substituted=({"stroke": "#000", "stroke_width": 1.0}
+                             if t in ("line", "connector") else {"stroke": None}),
+                remedy=remedy_for(style, inert),
+                detail=(f"style.{'/style.'.join(inert)} on a {t} is not stroke paint "
+                        f"(Style.color is text colour, Style.width is box width); "
+                        f"the authored appearance was discarded"),
+            ).to_dict())
+            if t in ("line", "connector"):
+                sink.append(PaintSignal(
+                    id=oid, page=page, type=t, code="injected-stroke-default", level="info",
+                    declared=evidence,
+                    substituted={"stroke": "#000", "stroke_width": 1.0},
+                    remedy=remedy_for(style, inert),
+                    detail="the engine substituted its fallback stroke for paint it could not read",
+                ).to_dict())
+
+        # Zero ink: no resolved fill and no stroke declaration. `line`/`connector`
+        # always paint (the fallback), so they can never be invisible.
+        if declared or t in ("line", "connector"):
+            return
+        closed = t == "polygon" or bool(o.get("closed"))
+        painted_fill = fill if (t not in ("polyline", "polygon") or closed) else None
+        if painted_fill is None:
+            sink.append(PaintSignal(
+                id=oid, page=page, type=t, code="invisible-shape", level="warn",
+                declared={k: style.get(k) for k in inert},
+                substituted={"fill": "none", "stroke": None},
+                remedy=(remedy_for(style, inert) if inert
+                        else "declare `stroke` (paint) or `fill`; an open shape with neither paints nothing"),
+                detail=(f"{t} resolved to no fill and no stroke — it emits geometry "
+                        f"and paints zero ink"),
+            ).to_dict())
 
     def _shape_stroke(self, o, style):
         """Resolve an object's stroke to a neutral `Stroke` (or None)."""
