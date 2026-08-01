@@ -83,6 +83,52 @@ def render_pages_with_stats(
     return svgs, dict(renderer.tstats)
 
 
+def render_html(
+    model: Any,
+    *,
+    base_dir: str | None = None,
+    real_metrics: bool | None = None,
+) -> str:
+    """Render a document to one self-contained HTML page.
+
+    The in-process equivalent of ``ff-render <doc> --to html``: a validated model
+    (or a plain document dict) in, the whole HTML file out as a string. Before
+    this, HTML was the one shipped output with no SDK entry point, so an
+    application holding a document in memory had to write it to disk and shell
+    out to obtain it.
+
+    The result is a complete document — ``<!DOCTYPE html>`` through ``</html>``
+    — with the artwork as inline SVG, one hoisted stylesheet carrying the
+    document's own palette (``:root`` custom properties) and named text styles
+    (``.fg-ts-<name>``), a screen-reader landmark, and one ``<figure>`` per page.
+    It needs no assets, no network and no optional dependency, so it can be
+    written straight to a file or served as-is.
+
+    Object-type coverage equals ``--to svg``: since the DRY/SOLID port the HTML
+    target is painted by the same ``Renderer`` (see
+    ``rendering/infrastructure/painters/html.py``), so tables, UML, connectors,
+    dimensions and ``mode: flow`` documents all render rather than degrading to
+    placeholders.
+
+    ``real_metrics`` threads the renderer's glyph-advance text measurement
+    exactly as ``render_pages_with_stats`` does: ``None`` (the default) consults
+    ``FRAMEFORGE_REAL_METRICS``; an explicit bool always wins over the env var.
+
+    Example::
+
+        from frameforge.sdk import DocumentBuilder, render_html
+
+        b = DocumentBuilder(title="Report")
+        page = b.page("p1", size=(800, 600))
+        page.text("h", box=(40, 40, 720, 40), text="Q3 results")
+        open("report.html", "w").write(render_html(b.build()))
+    """
+    from frameforge.rendering.infrastructure.backends.html import (
+        render_document as _render_html_document)
+    data = validate_document(model).model_dump(by_alias=True, exclude_none=True)
+    return _render_html_document(data, base_dir, real_metrics=real_metrics)
+
+
 def overflow_report(
     model: Any,
     *,
@@ -186,6 +232,7 @@ __all__ = [
     "collision_report",
     "overflow_report",
     "page_hashes",
+    "render_html",
     "render_page_svgs",
     "render_pages_with_stats",
     "write_golden",

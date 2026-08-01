@@ -729,6 +729,10 @@ class Renderer:
                         "id": o.get("id"), "type": o.get("type"),
                         "box": [num(v, 0) for v in box[:4]],
                     })
+            # Identity first, accessibility outside it: a11y_wrap's semantic
+            # group must contain the whole object, and `link_wrap` below stays
+            # outermost so the entire semantic group is the hit area.
+            inner = self._painter.object_group(inner, o)
             svg = self._painter.a11y_wrap(inner, o)
             # dict-level `href` pass-through: any visual object carrying a link
             # target is wrapped in <a href> (outermost, so the whole semantic
@@ -1911,7 +1915,11 @@ class Renderer:
                                 self._last_text_ink, o.get("text")))
             self._detect_collisions(page.get("id"), li, ink)
             inner = "".join(rendered_objs)
-            body.append(self._painter.opacity_group(inner, lo) if lo not in (None, 1) else inner)
+            if lo not in (None, 1):
+                inner = self._painter.opacity_group(inner, lo)
+            # The structural seam: offer the layer node itself, so a backend whose
+            # medium carries layers can rebuild the tree. Identity on SVG/TikZ.
+            body.append(self._painter.layer_group(inner, layer))
         rendered = "".join(body)
 
         # `reading_order` is accessibility STRUCTURE, never z-order. Reordering

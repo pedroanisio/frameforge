@@ -19,11 +19,26 @@ Why not a DOM parser? HTML parsers (bs4/lxml/html.parser) lowercase SVG's
 camelCase ``viewBox`` to ``viewbox``, which silently breaks scaling. So this
 tool rewrites only the *values* of the ``style`` and ``class`` attributes via
 targeted regex and copies every other attribute — ``viewBox`` included — plus
-every non-tag byte through verbatim. Inner SVG tags (``<svg>``/``<polygon>``/
-``<polyline>``/``<path>``) now DO carry a ``style`` attribute (paint +
-positioning); they are pooled like any other element, which is safe because
-SVG paint applied via a CSS class renders identically to the inline form and
-no other rule targets them.
+every non-tag byte through verbatim.
+
+What is left to pool (updated for the shared-builder HTML backend)
+------------------------------------------------------------------
+The backend used to draw shapes as ``<div style="background:…">``, so every
+repeated rect was poolable. It now emits inline SVG, which changes the picture
+in two ways, both reducing this tool's job:
+
+* **Geometry paint is a presentation attribute** (``fill="#123456"``), not a
+  ``style`` declaration. This tool never touches attributes other than
+  ``style``/``class``, so that paint is not merely safe — it is unreachable.
+* **Named text styles are already hoisted** by the painter into ``.fg-ts-<name>``
+  classes, so a document that names its styles arrives pre-pooled.
+
+What still compounds is the inline ``style`` on ``<text>`` elements whose style
+was written anonymously rather than as a named token — plus any hand-authored
+HTML built the same way. The consolidation guarantee is unchanged; there is
+simply less left to consolidate, because the backend now does part of the work
+natively. On a fully token-driven document, a run of this tool that reports zero
+pooled classes is the *correct* result.
 
 Passes
 ------

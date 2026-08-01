@@ -126,18 +126,104 @@ class ScenePainter(Protocol):
     # backend formats the font (runs is a list of (text, run_style_dict) pairs).
     # `baseline` (set for a centred single line) requests vertical centring on the
     # box centre via the backend's own metrics rather than the baseline grid.
-    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy, *, baseline=None) -> str: ...
-    def text_runs(self, base_y, anchor, tx, base_st, size, runs, *, baseline=None) -> str: ...
+    # `justify_width`/`justifies` carry the justification decision the flow
+    # layout already made (ADR-0003): `justify_width` is the target measure and
+    # `justifies[i]` says whether line i is flush (a paragraph's last line is
+    # not). `text_len` requests an exact advance for one run sequence. All three
+    # are optional — a backend that cannot honour them still renders the text,
+    # just ragged — but they are NOT optional to *declare*: the builder passes
+    # them at real call sites, so a backend implementing the signature without
+    # them raises TypeError on the first justified paragraph.
+    def text_block(self, base_y, anchor, st, size, lines, tx, line_dy,
+                   justify_width=None, justifies=None, baseline=None) -> str: ...
+    def text_runs(self, base_y, anchor, tx, base_st, size, runs,
+                  text_len=None, baseline=None) -> str: ...
+
+    # ---- text helpers ----
+    def anchor(self, align) -> str:
+        """Map a neutral `align` value onto the backend's text-anchor value."""
 
     # ---- grouping / document ----
     def group(self, inner: str, translate=None) -> str: ...
     def opacity_group(self, inner: str, opacity) -> str: ...
+
+    def metadata_group(self, inner: str, attrs: Mapping[str, str]) -> str:
+        """Wrap `inner` in a group carrying non-visual metadata (e.g.
+        `data-reading-order`). Purely structural — it must not alter paint."""
+
+    def style_group(self, inner: str, attrs: Mapping[str, str], raw: str = "") -> str:
+        """Wrap `inner` in a group applying presentational style `attrs`. `raw`
+        is the bounded `css` escape hatch (§8.4) for non-text objects."""
+
+    # ---- structural seams ----
+    # These carry the STRUCTURE the builder walked — the layer tree and object
+    # identity — which a flattened display list destroys. A backend whose output
+    # is structure-bearing (HTML: `<section data-layer>`, `id`, classes) cannot
+    # rebuild them from concatenated geometry.
+    #
+    # Contract: structural only. A backend that cannot express the structure
+    # MUST return `inner` unchanged, and no implementation may alter paint — the
+    # SVG and TikZ backends are identity passthroughs here, which is why adding
+    # these seams left the golden oracle byte-for-byte identical.
+
+    def layer_group(self, inner: str, layer: Mapping[str, Any]) -> str:
+        """Wrap one layer's accumulated content. Called once per painted layer,
+        in resolved paint order (z-sorted, construction layers already dropped).
+        `layer` is the authored node — `id`/`name`, `z`, `role`, `opacity`."""
+
+    def object_group(self, inner: str, obj: Mapping[str, Any]) -> str:
+        """Wrap one object's output with its authored identity.
+
+        Called for every rendered object including group children, so a backend
+        can nest its own tree. `obj` is the authored node: `id` and `type` are
+        what a semantic backend emits. Distinct from `a11y_wrap`, which carries
+        accessibility semantics — identity and accessibility are separate
+        concerns and a backend may implement either without the other.
+        """
+
+    def a11y_wrap(self, inner: str, obj: Mapping[str, Any]) -> str:
+        """Wrap one object's output with its accessibility semantics.
+
+        Receives the *source object* — the one place the backend still sees the
+        authored node — so `decorative`, `role`, `alt` and `actual_text` can
+        become native markup. Must be byte-for-byte identity for an object that
+        carries no accessibility fields.
+        """
+
     def document(self, w, h, body: str, lang=None, title=None, desc=None,
                  background=None) -> str:
         """Assemble a full page document from accumulated defs + body. `lang`/`title`/
         `desc` are root accessibility attributes a backend may use or ignore.
         `background` is the resolved page background colour; None means the
         backend's documented default (white, per ADR-0006)."""
+
+
+class PainterCapabilities(Protocol):
+    """Optional painter extensions the builder probes for and degrades without.
+
+    Segregated from `ScenePainter` deliberately (ISP): a backend is not forced to
+    implement these to be a valid painter, and the builder reaches every one of
+    them through `getattr(painter, name, None)` with a working fallback. They are
+    declared here rather than left undocumented so a backend author can *discover*
+    them — an optional capability nobody can find is not optional, it is missing.
+
+    A backend implements any subset. `SvgPainter` implements all of them.
+    """
+
+    def pattern(self, spec: Mapping[str, Any]) -> str:
+        """Register a tiled pattern paint and return a backend paint reference.
+        Without it the builder falls back to the pattern's flat colour."""
+
+    def mask_def(self, body: str) -> str:
+        """Register a luminance mask from already-emitted content; return its handle."""
+
+    def has_def_id(self, def_id: str) -> bool:
+        """True when this page already allocated a def with `def_id`. Lets the
+        builder flag authored `url(#…)` references that point at nothing."""
+
+    def link_wrap(self, inner: str, href: str, title=None) -> str:
+        """Wrap one object's output in a hyperlink. Without it, `href` is dropped
+        and the object still renders."""
 
 
 # --------------------------------------------------------------------------- #

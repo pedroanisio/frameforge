@@ -134,12 +134,20 @@ def test_figuretikz_children_stable_without_fields():
 
 
 # --------------------------------------------------------------------------- #
-#  HTML backend (emitted raw document order — FR4 audit says: fix emission)    #
+#  HTML backend                                                                #
 # --------------------------------------------------------------------------- #
+# The HTML target used to sort objects itself, in a copy of the stacking rule
+# (FR4 audit: "fix emission"). It is driven by the shared builder now, so paint
+# order comes from the ONE implementation — `Renderer._paint_ordered` over
+# `domain/stacking.py`. These cases therefore no longer guard an HTML-private
+# sort; they guard that HTML still *reaches* the shared one, which is the
+# property that can silently break if the backend ever forks again.
 def _html(objects):
-    page = {"mode": "page", "id": "p", "canvas": {"size": [100, 100], "units": "px"},
-            "layers": [{"id": "l", "objects": objects}]}
-    return html_backend.render_page(page, html_backend.Tokens({}), 0)
+    doc = {"dsl": "FrameForge", "version": "2.0.0", "title": "z",
+           "pages": [{"mode": "page", "id": "p",
+                      "canvas": {"size": [100, 100], "units": "px"},
+                      "layers": [{"id": "l", "objects": objects}]}]}
+    return html_backend.render_document(doc)
 
 
 def test_html_object_z_inverts_document_order():

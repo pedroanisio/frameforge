@@ -200,30 +200,56 @@ def test_html_path_lane_passes_user_line_through():
     assert 'x1="10"' in out and 'y1="20"' in out and 'x2="110"' in out
 
 
+# ONE LANE, NOT TWO
+# The standalone HTML backend had two gradient implementations: a CSS
+# `radial-gradient()` for div-backed rects, and an SVG `<radialGradient>` for
+# inline shapes. Two lanes meant two chances to place a gradient differently, and
+# a rect and a polygon in one document could disagree about where the same
+# authored paint sat. Driving the shared builder leaves ONE lane — the SVG defs —
+# for every shape, so the cases below now assert the *absence* of divergence
+# rather than each lane's private arithmetic.
 def test_html_polygon_lane_shifts_user_radial_into_rebased_viewbox():
     # polygon bbox min (20, 30), stroke-less pad 1.0 → svg-local origin (19, 29)
     out = fgh.render_document(_hdoc([
         {"type": "polygon", "points": [[20, 30], [120, 30], [70, 110]],
          "fill": {"kind": "radial", "stops": _STOPS, "at": [70, 60], "radius": 40}}]))
     assert 'gradientUnits="userSpaceOnUse"' in out
-    assert 'cx="51"' in out and 'cy="31"' in out and 'r="40"' in out
+    assert 'cx="70"' in out and 'cy="60"' in out and 'r="40"' in out
 
 
-def test_html_rect_css_lane_places_user_radial_in_px():
+def test_html_rect_places_a_user_radial_in_the_one_shared_lane():
     out = fgh.render_document(_hdoc([
         {"type": "rect", "box": [40, 30, 200, 150],
          "fill": {"kind": "radial", "stops": _STOPS, "at": [140, 105], "radius": 60}}]))
-    assert "radial-gradient(circle 60px at 100px 75px" in out
+    assert "radial-gradient" not in out, "the second, CSS-only lane must be gone"
+    assert 'gradientUnits="userSpaceOnUse"' in out
+    assert 'cx="140"' in out and 'cy="105"' in out and 'r="60"' in out
 
 
-def test_html_rect_css_lane_preserves_line_direction():
+def test_html_rect_preserves_line_direction_in_the_shared_lane():
     out = fgh.render_document(_hdoc([
         {"type": "rect", "box": [0, 0, 200, 150],
          "fill": {"kind": "linear", "stops": _STOPS, "line": [[0, 0], [100, 100]]}}]))
-    assert "linear-gradient(135deg" in out
+    assert "linear-gradient" not in out
+    assert 'x1="0"' in out and 'y1="0"' in out
+    assert 'x2="100"' in out and 'y2="100"' in out
 
 
-def test_html_stop_opacity_both_lanes():
+def test_rect_and_polygon_agree_on_the_same_authored_gradient():
+    """The divergence the two lanes made possible must now be unrepresentable."""
+    paint = {"kind": "radial", "stops": _STOPS, "at": [70, 60], "radius": 40}
+    rect = fgh.render_document(_hdoc([
+        {"type": "rect", "box": [20, 30, 100, 80], "fill": paint}]))
+    poly = fgh.render_document(_hdoc([
+        {"type": "polygon", "points": [[20, 30], [120, 30], [70, 110]], "fill": paint}]))
+    for attr in ('cx="70"', 'cy="60"', 'r="40"', 'gradientUnits="userSpaceOnUse"'):
+        assert attr in rect and attr in poly, f"{attr} differs between shapes"
+
+
+def test_html_stop_opacity_reaches_every_shape_through_one_lane():
+    """Stop opacity used to need expressing twice, once per lane, in two
+    notations (`stop-opacity` vs `rgba()`). One lane means one notation, and a
+    path and a rect carrying the same authored paint cannot disagree."""
     stops = [{"color": "#ffffff", "position": "0%", "opacity": 0.4},
              {"color": "#000000", "position": "100%"}]
     out = fgh.render_document(_hdoc([
@@ -231,8 +257,10 @@ def test_html_stop_opacity_both_lanes():
          "fill": {"kind": "linear", "stops": stops, "line": [[0, 0], [50, 0]]}},
         {"type": "rect", "box": [0, 0, 100, 80],
          "fill": {"kind": "linear", "stops": stops, "line": [[0, 0], [100, 0]]}}]))
-    assert 'stop-opacity="0.4"' in out               # SVG defs lane
-    assert "rgba(255,255,255,0.4)" in out            # CSS lane
+    assert out.count('stop-opacity="0.4"') == 2      # once per shape, one notation
+    # scope to the artwork: the document shell's own box-shadow uses rgba()
+    artwork = out[out.index("<svg"):out.rindex("</svg>")]
+    assert "rgba(" not in artwork, "the second, CSS-only lane must be gone"
 
 
 # ------------------------------------------------------------------- tikz lane

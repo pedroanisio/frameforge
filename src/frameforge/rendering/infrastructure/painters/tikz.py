@@ -134,6 +134,25 @@ class TikzPainter:
         text methods map it to TikZ base-anchors."""
         return {"center": "middle", "right": "end", "end": "middle"}.get(align, "start")
 
+    @staticmethod
+    def layer_group(inner, layer):
+        """A TikZ picture is a flat stream of paths; layers have no scope of their
+        own to carry. Structural passthrough (see the ScenePainter contract)."""
+        return inner
+
+    @staticmethod
+    def object_group(inner, obj):
+        """TikZ carries no per-object identity attribute. Structural passthrough."""
+        return inner
+
+    @staticmethod
+    def metadata_group(inner, attrs):
+        """SVG emits non-visual metadata as `<g data-*>` attributes; a TikZ picture
+        has no attribute channel to carry them, so this is a passthrough. Purely
+        structural either way — the port forbids it from altering paint, and
+        dropping the metadata changes no rendered mark."""
+        return inner
+
     def style_group(self, inner, attrs, raw=""):
         """CSS compositing wrapper. TikZ supports `opacity` and `visibility:hidden`;
         blend-modes/backdrop/CSS filters/clip-path have no TikZ equivalent and pass

@@ -67,8 +67,16 @@ def _runs(svg: str) -> list[str]:
 
 
 def _obj_frag(html_out: str, oid: str) -> str:
+    """One object's markup out of the HTML document.
+
+    The HTML backend emits inline SVG now, so an object is a `<g id=…>` closed by
+    `</g>` rather than a `<div>`. Runs inside it are `<tspan>`s in one `<text>`,
+    exactly as in the SVG target — which is the point of the shared builder, and
+    is why the cross-backend agreement test below can now compare like with like.
+    """
     frag = html_out[html_out.index(f'id="{oid}"'):]
-    return frag[:frag.index("</div>")]
+    end = frag.find("</g>")
+    return frag[:end] if end != -1 else frag
 
 
 # A code line: the object is monospace; the runs carry only colours.
@@ -171,26 +179,45 @@ def test_html_emits_one_run_per_span_with_its_own_colour():
     assert "#1F4FD8" in out, "second run lost its colour"
 
 
-def test_html_runs_nest_inside_one_wrapper_span():
-    """`.fg-text>span` is a block rule: sibling runs would stack vertically."""
+def test_html_runs_nest_inside_one_text_element():
+    """Sibling text elements would each start a new baseline; runs must share one.
+
+    The div-era rule was `.fg-text>span` (a block rule that would stack sibling
+    runs vertically). The inline-SVG equivalent of the same hazard is emitting one
+    `<text>` per run instead of one `<text>` holding several `<tspan>`s.
+    """
     frag = _obj_frag(fgh.render_document(_doc([LOCKUP_OBJ])), "lockup")
-    assert frag.count("<span") == 3, f"runs must nest in one wrapper: {frag!r}"
+    assert frag.count("<text") == 1, f"runs must share one text element: {frag!r}"
+    assert frag.count("<tspan") == 2, f"expected one tspan per span: {frag!r}"
 
 
 def test_html_run_does_not_re_declare_an_undeclared_family():
     frag = _obj_frag(fgh.render_document(_doc([CODE_OBJ])), "code")
-    for style in re.findall(r'<span style="([^"]*)"', frag):
+    runs = re.findall(r'<tspan[^>]*style="([^"]*)"', frag)
+    assert runs, "expected per-run tspans"
+    for style in runs:
         assert "Inter" not in style, f"run re-materialised a default family: {style!r}"
 
 
 def test_backends_agree_on_which_runs_are_coloured():
-    """Cross-backend parity: same document, same set of authored run colours."""
+    """Cross-backend parity: same document, same set of authored run colours.
+
+    Both targets now report colour the same way (`fill:`), because both are
+    painted by the same builder — so this compares like with like instead of
+    translating between two vocabularies. HTML wraps a palette colour in
+    `var(--token, literal)`, and the literal is what is compared.
+    """
     doc = _doc([CODE_OBJ, LOCKUP_OBJ])
-    svg_colours = set(re.findall(r"fill:(#[0-9A-Fa-f]{6})", _svg(doc)))
-    html_colours = set(re.findall(r"color:(#[0-9A-Fa-f]{6})", fgh.render_document(doc)))
+    colour = re.compile(r"fill:(?:var\(--fg-[^,]+,\s*)?(#[0-9A-Fa-f]{6})")
+    svg_colours = set(colour.findall(_svg(doc)))
+    html_colours = set(colour.findall(fgh.render_document(doc)))
     for authored in {"#12B0C3", "#FBFAF6", "#15181E", "#1F4FD8"}:
         assert authored in svg_colours, f"SVG dropped {authored}"
         assert authored in html_colours, f"HTML dropped {authored}"
+    assert svg_colours == html_colours, (
+        f"backends disagree on run colours: SVG-only {svg_colours - html_colours}, "
+        f"HTML-only {html_colours - svg_colours}"
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -324,9 +351,27 @@ def test_regression_fan_labels_are_not_the_body_colour_in_html():
 # Edge cases
 # --------------------------------------------------------------------------- #
 def test_empty_spans_list_renders_nothing_but_does_not_crash():
+    """An empty run list is a no-op, not an error and not an empty element.
+
+    The div-era backend emitted an empty `<div id="t">` for this, so the id was
+    present in the output. Painting nothing emits nothing now — which is what the
+    test name always claimed. The distinction that matters is that the object is
+    a clean no-op rather than a *swallowed exception*, so this asserts the
+    builder's skip counter stayed at zero for both targets.
+    """
     obj = {"type": "text", "id": "t", "box": [0, 0, 100, 20], "spans": []}
-    assert "id=\"t\"" in fgh.render_document(_doc([obj]))
-    _svg(_doc([obj]))
+    doc = _doc([obj])
+
+    out = fgh.render_document(doc)
+    assert 'id="t"' not in out          # nothing painted, so nothing emitted
+    assert "<text" not in out           # and no empty text element left behind
+
+    renderer = Renderer(doc, ".")
+    renderer.render_page(doc["pages"][0])
+    assert renderer.skipped == 0, (
+        f"an empty spans list was treated as a failure: "
+        f"{renderer.diagnostics['skipped_objects']}"
+    )
 
 
 def test_span_with_empty_style_dict_inherits_everything():

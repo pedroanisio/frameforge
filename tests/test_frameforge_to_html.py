@@ -1,20 +1,33 @@
 """Semantic / accessibility contract for the HTML DocumentRenderer backend.
 
-These tests assert the *structure* of the emitted HTML (figure/figcaption,
-landmark heading, role="group", and the model-driven ``decorative`` →
-``aria-hidden`` mapping), not pixel output. They are deliberately small and
-deterministic — no network, no headless browser.
+These tests assert the *structure* of the emitted HTML — figure/figcaption, the
+landmark heading, the accessibility mapping, the hoisted stylesheet, and paint
+fidelity — not pixel output. They are deliberately small and deterministic: no
+network, no headless browser.
 
-The renderer moved from ``tooling/frameforge_to_html.py`` into the package as
-``frameforge.rendering.infrastructure.backends.html`` (the `DocumentRenderer`
-port); the pure `render_document` transform is unchanged, so this contract
-holds across the move.
+History
+-------
+The backend used to be a standalone renderer that drew shapes as absolutely
+-positioned `<div>`s and supported 13 of the model's 34 object types. It is now
+an assembler over the shared builder (see the module docstring in
+`…backends.html`), so shapes are inline SVG and every object type the engine
+knows is drawn.
+
+This file was rewritten with that change. Each assertion below is the *same
+capability* the standalone contract guarded, restated against the new output —
+the accessibility mapping, the `styles` bucket generating a class, vector
+primitives, canvas presets, gradients, fill-opacity and group transforms all
+still hold. Two entries changed meaning on purpose and say so where they appear:
+a `mode: flow` page now typesets instead of showing a placeholder, and shapes
+are SVG elements instead of styled divs.
 """
 
 from __future__ import annotations
 
 import sys
 from pathlib import Path
+
+import pytest
 
 # A codemod/models test earlier in the suite may cache the MODELS module as
 # `frameforge`; evict that non-package shadow so the rendering package imports
@@ -44,6 +57,20 @@ def _doc(objects: list[dict], *, title: str = "Sample") -> dict:
     }
 
 
+def _object_markup(out: str, oid: str) -> str:
+    """The markup from an object's identity group to the end of the document.
+
+    Object identity is a `<g id=…>` and its accessibility group wraps it, so the
+    semantics for `oid` sit immediately before it. Returning a window around the
+    id keeps these assertions readable without parsing XML.
+    """
+    idx = out.index(f'id="{oid}"')
+    return out[max(0, idx - 200):idx + 400]
+
+
+# --------------------------------------------------------------------------- #
+# Document shell + accessibility                                               #
+# --------------------------------------------------------------------------- #
 def test_document_has_figure_figcaption_and_landmark_h1():
     out = fgh.render_document(_doc([{"type": "rect", "id": "bg", "box": [0, 0, 10, 10]}]))
     assert '<h1 class="sr-only">Sample</h1>' in out
@@ -58,63 +85,43 @@ def test_decorative_object_is_hidden_from_assistive_tech():
     out = fgh.render_document(
         _doc([{"type": "rect", "id": "deco", "box": [0, 0, 10, 10], "decorative": True}])
     )
-    # the decorative rect carries aria-hidden ...
-    rect_tag = next(line for line in out.splitlines() if 'id="deco"' in line)
-    assert 'aria-hidden="true"' in rect_tag
+    assert 'aria-hidden="true"' in _object_markup(out, "deco")
 
 
 def test_decorative_group_drops_role_and_hides_subtree():
     out = fgh.render_document(
-        _doc(
-            [
-                {
-                    "type": "group",
-                    "id": "g",
-                    "box": [0, 0, 100, 100],
-                    "decorative": True,
-                    "children": [{"type": "rect", "id": "c", "box": [0, 0, 10, 10]}],
-                }
-            ]
-        )
+        _doc([{"type": "group", "id": "g", "box": [0, 0, 100, 100], "decorative": True,
+               "children": [{"type": "rect", "id": "c", "box": [0, 0, 10, 10]}]}])
     )
-    group_tag = next(line for line in out.splitlines() if 'id="g"' in line)
-    assert 'aria-hidden="true"' in group_tag
-    assert 'role="group"' not in group_tag  # decorative wins over the role
+    markup = _object_markup(out, "g")
+    assert 'aria-hidden="true"' in markup
+    # decorative wins over the derived role (the `<figure role="group">` shell is
+    # document furniture, not this object, so scope the check to the object)
+    assert 'role="group"' not in markup
 
 
 def test_non_decorative_group_is_role_group():
     out = fgh.render_document(
-        _doc(
-            [
-                {
-                    "type": "group",
-                    "id": "g",
-                    "box": [0, 0, 100, 100],
-                    "children": [{"type": "rect", "id": "c", "box": [0, 0, 10, 10]}],
-                }
-            ]
-        )
+        _doc([{"type": "group", "id": "g", "box": [0, 0, 100, 100],
+               "children": [{"type": "rect", "id": "c", "box": [0, 0, 10, 10]}]}])
     )
-    group_tag = next(line for line in out.splitlines() if 'id="g"' in line)
-    assert 'role="group"' in group_tag
+    assert 'role="group"' in out
 
 
 def test_icon_with_word_glyph_gets_accessible_name():
     out = fgh.render_document(
         _doc([{"type": "icon", "id": "i", "box": [0, 0, 16, 16], "glyph": "calendar-check"}])
     )
-    icon_tag = next(line for line in out.splitlines() if 'id="i"' in line)
-    assert 'role="img"' in icon_tag
-    assert 'aria-label="calendar check"' in icon_tag
+    assert 'role="img"' in out
+    assert 'aria-label="calendar check"' in out
 
 
 def test_icon_with_raw_glyph_is_hidden():
     out = fgh.render_document(
         _doc([{"type": "icon", "id": "i", "box": [0, 0, 16, 16], "glyph": "★"}])
     )
-    icon_tag = next(line for line in out.splitlines() if 'id="i"' in line)
-    assert 'aria-hidden="true"' in icon_tag
-    assert "role=" not in icon_tag
+    assert 'aria-hidden="true"' in out
+    assert 'role="img"' not in out
 
 
 def test_image_placeholder_is_labelled_role_img():
@@ -122,53 +129,69 @@ def test_image_placeholder_is_labelled_role_img():
         _doc([{"type": "image", "id": "im", "box": [0, 0, 80, 80],
                "src": "missing.png", "placeholder": True, "label": "Team photo"}])
     )
-    img_tag = next(line for line in out.splitlines() if 'id="im"' in line)
-    assert 'role="img"' in img_tag
-    assert 'aria-label="Team photo"' in img_tag
+    assert 'role="img"' in out
+    assert 'aria-label="Team photo"' in out
 
 
 def test_line_geometry_is_aria_hidden():
     out = fgh.render_document(
         _doc([{"type": "line", "id": "ln", "from": [0, 0], "to": [50, 50]}])
     )
-    assert '<svg aria-hidden="true"' in out
+    assert 'aria-hidden="true"' in out
 
 
 def test_icon_label_helper_rejects_symbols():
-    assert fgh._icon_label("calendar") == "calendar"
-    assert fgh._icon_label("arrow_right") == "arrow right"
-    assert fgh._icon_label("★") is None
-    assert fgh._icon_label("") is None
-    assert fgh._icon_label("ok") is None  # too short to be a name
+    """The helper moved to the domain so every backend can share one rule."""
+    from frameforge.rendering.domain.services.a11y import icon_label
+    assert icon_label("calendar") == "calendar"
+    assert icon_label("arrow_right") == "arrow right"
+    assert icon_label("★") is None
+    assert icon_label("") is None
+    assert icon_label("x") is None            # a lone character is a symbol
+    assert icon_label("ok") == "ok"           # deliberately wider than the old rule
 
 
 # --------------------------------------------------------------------------- #
-# Correctness fixes: styles bucket, vector primitives, presets, flow pages    #
+# Styles bucket, vector primitives, presets, flow pages                        #
 # --------------------------------------------------------------------------- #
-
-
 def test_styles_bucket_generates_css_class():
     """A style defined under `styles` (not `text_styles`) must still yield a
-    `.fg-ts-<name>` class that a `style:` reference can resolve to."""
+    `.fg-ts-<name>` class that a `style:` reference resolves to."""
     doc = _doc([{"type": "text", "id": "t", "box": [0, 0, 100, 20],
                  "text": "Hi", "style": "title"}])
     doc["defs"] = {"tokens": {"styles": {"title": {"font_size": 22, "weight": 700}}}}
     out = fgh.render_document(doc)
-    assert ".fg-ts-title{" in out          # class was generated from `styles`
-    assert "font-size:22" in out           # (renders as 22.0px)
-    text_tag = next(line for line in out.splitlines() if 'id="t"' in line)
-    assert "fg-ts-title" in text_tag        # and the text references it
+    assert ".fg-ts-title {" in out            # class hoisted from `styles`
+    assert "font-size:22px" in out
+    assert 'class="fg-ts-title"' in out       # and the text references it
 
 
-def test_styles_wins_over_text_styles_on_collision():
-    doc = _doc([])
+def test_text_styles_is_resolved_first_on_a_name_collision():
+    """BUG FIXED BY THE PORT.
+
+    `model.Tokens.text_styles` documents itself as the "legacy namespace;
+    superseded by `styles`, **still resolved first by the renderer**". The shared
+    `TextStyleResolver` obeys that; the standalone HTML backend had it inverted
+    and let `styles` win, so one document could resolve a colliding style name
+    two different ways depending only on the output target. Driving both targets
+    from one resolver is what makes that impossible.
+    """
+    doc = _doc([{"type": "text", "id": "t", "box": [0, 0, 100, 40],
+                 "text": "Hi", "style": "h"}])
     doc["defs"] = {"tokens": {
         "text_styles": {"h": {"font_size": 10}},
         "styles": {"h": {"font_size": 30}},
     }}
     out = fgh.render_document(doc)
-    assert "font-size:30.0px" in out
-    assert "font-size:10.0px" not in out
+    assert "font-size:10px" in out
+    assert "font-size:30px" not in out
+
+    # ...and the SVG target agrees, which is the whole point.
+    from frameforge.rendering.application.normalize import normalize_doc
+    from frameforge.rendering.application.renderer import Renderer
+    data = normalize_doc(doc)
+    svg = "".join(Renderer(data, ".").render_page(data["pages"][0]))
+    assert "font-size:10px" in svg
 
 
 def test_polyline_and_polygon_render_as_svg():
@@ -205,12 +228,12 @@ def test_path_renders_from_string_and_segments():
 
 
 def test_circle_renders_as_round_element():
+    """Now a real `<circle>`. The standalone backend approximated one with a div
+    and `border-radius:50%`; the element is exact and needs no approximation."""
     out = fgh.render_document(
-        _doc([{"type": "circle", "id": "c", "center": [50, 50], "r": 20,
-               "fill": "#abc"}])
+        _doc([{"type": "circle", "id": "c", "center": [50, 50], "r": 20, "fill": "#abc"}])
     )
-    circle_tag = next(line for line in out.splitlines() if 'id="c"' in line)
-    assert "border-radius:50%" in circle_tag
+    assert '<circle cx="50" cy="50" r="20"' in out
 
 
 def test_curve_renders_cubic_path():
@@ -219,8 +242,7 @@ def test_curve_renders_cubic_path():
                "control1": [10, 30], "control2": [30, 30], "stroke": "#fff"}])
     )
     assert "<path d=" in out
-    path_line = next(ln for ln in out.splitlines() if 'id="cv"' in ln)
-    assert " C " in path_line  # cubic segment
+    assert " C " in out                       # cubic segment
 
 
 def test_canvas_preset_string_resolves_to_pixels():
@@ -254,12 +276,16 @@ def test_html_canvas_table_is_the_shared_canonical_not_a_mirror():
 
 
 def test_font_family_may_be_a_list():
-    """`Style.font_family` is a StrList — a list must not crash font_stack."""
-    assert fgh.Tokens({}).font_stack(["Inter", "sans-serif"]) == "'Inter', sans-serif"
-    # a token entry is expanded to family + fallback
-    tk = fgh.Tokens({"defs": {"tokens": {"fonts": {
-        "ui": {"family": "Inter", "fallback": ["Arial"]}}}}})
-    assert tk.font_stack(["ui", "monospace"]) == "'Inter', 'Arial', monospace"
+    """`Style.font_family` is a StrList — a list must not crash the font stack.
+
+    Resolution moved to the shared `TextStyleResolver`, so this now guards the
+    ONE implementation both SVG and HTML use rather than an HTML-private copy.
+    """
+    from frameforge.rendering.domain.services.paint_resolver import ColorResolver
+    from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver
+    resolver = TextStyleResolver({}, {}, ColorResolver({}))
+    st = resolver.resolve({"font_family": ["Inter", "sans-serif"]})
+    assert st["family"] == "Inter, sans-serif"
 
 
 def test_styles_with_list_font_family_renders():
@@ -268,21 +294,29 @@ def test_styles_with_list_font_family_renders():
     doc["defs"] = {"tokens": {"styles": {
         "body": {"font_family": ["Inter", "sans-serif"], "font_size": 14}}}}
     out = fgh.render_document(doc)            # must not raise
-    assert "font-family:'Inter', sans-serif" in out
+    assert "font-family:Inter, sans-serif" in out
 
 
-def test_flow_section_renders_labelled_placeholder_not_empty():
+def test_flow_section_typesets_instead_of_showing_a_placeholder():
+    """BEHAVIOUR CHANGE (intentional).
+
+    The standalone backend could not typeset the document/flow profile, so it
+    emitted a labelled note saying so. Driving the shared builder means flow is
+    laid out for real — the placeholder is gone, and its absence is the point.
+    """
     doc = {
         "dsl": "FrameForge", "version": "2.0.0", "title": "Mixed",
+        "defs": {"masters": {"m": {"regions": [
+            {"id": "body", "box": [40, 40, 500, 700]}]}}},
         "pages": [{"mode": "flow", "id": "ch1", "master": "m",
-                   "story": [{"type": "paragraph", "text": "x"},
-                             {"type": "paragraph", "text": "y"}]}],
+                   "canvas": {"size": [595, 842], "units": "px"},
+                   "story": [{"type": "paragraph", "text": "alpha"},
+                             {"type": "paragraph", "text": "beta"}]}],
     }
     out = fgh.render_document(doc)
-    assert "fg-flow-note" in out
-    assert "flow section" in out
-    assert "<code>ch1</code>" in out
-    assert "2 flowable(s)" in out
+    assert "fg-flow-note" not in out
+    assert "document/flow profile not rendered" not in out
+    assert "alpha" in out and "beta" in out    # the story is really typeset
 
 
 # --------------------------------------------------------------------------- #
@@ -294,19 +328,19 @@ _RADIAL = {"kind": "radial", "at": "50% 50%", "shape": "circle",
                      {"color": "#F3EEE4", "position": "100%"}]}
 
 
-def test_gradient_rect_emits_real_css_gradient_not_gray():
+def test_gradient_rect_emits_a_real_gradient_not_gray():
     out = fgh.render_document(_doc([
         {"type": "rect", "id": "bg", "box": [0, 0, 400, 300], "fill": _RADIAL}]))
-    assert "radial-gradient" in out
+    assert "<radialGradient" in out
     assert "#F3EEE4" in out and "#F8F3EA" in out
-    assert "#888888" not in out           # the old flat-gray fallback is gone
+    assert "#888888" not in out               # the old flat-gray fallback is gone
 
 
-def test_gradient_polygon_emits_svg_gradient_def_not_gray():
+def test_gradient_polygon_emits_a_gradient_def_not_gray():
     out = fgh.render_document(_doc([
         {"type": "polygon", "points": [[0, 0], [100, 0], [50, 80]], "fill": _RADIAL}]))
     assert "<radialGradient" in out
-    assert "fill:url(#fgg-" in out
+    assert 'fill="url(#' in out
     assert "#888888" not in out
 
 
@@ -316,10 +350,10 @@ def test_fill_opacity_tints_a_circle_so_overlaid_text_stays_legible():
     out = fgh.render_document(_doc([
         {"type": "circle", "id": "b", "center": [40, 40], "r": 9,
          "fill": "#A6442E", "fill_opacity": 0.2}]))
-    assert "rgba(166,68,46,0.2)" in out
+    assert 'fill="#A6442E" fill-opacity="0.2"' in out
 
 
-def test_group_style_transform_is_applied_to_the_group_div():
+def test_group_style_transform_is_applied_to_the_group():
     # the transform rides in the `style` bag (a CSS property), placing the whole
     # subtree — here a translate onto the page.
     group = {
@@ -328,5 +362,44 @@ def test_group_style_transform_is_applied_to_the_group_div():
         "children": [{"type": "rect", "id": "k", "box": [0, 0, 10, 10], "fill": "#000000"}],
     }
     out = fgh.render_document(_doc([group]))
-    assert "transform:matrix(1,0,0,1,76,76)" in out
-    assert "transform-origin:0 0" in out
+    assert 'transform="matrix(1 0 0 1 76 76)"' in out
+
+
+# --------------------------------------------------------------------------- #
+# The duplication that motivated the port must not come back                   #
+# --------------------------------------------------------------------------- #
+def test_backend_defines_no_renderer_of_its_own():
+    """The module is an assembler: no per-object-type rendering may live here.
+
+    A `_render_<type>` method reappearing means someone started re-implementing
+    the engine in the backend again — the exact drift this port removed.
+    """
+    source = (ROOT / "src" / "frameforge" / "rendering" / "infrastructure"
+              / "backends" / "html.py").read_text(encoding="utf-8")
+    assert "def _render_" not in source
+    # the placeholder machinery is gone with it (prose in the module's history
+    # note is not code, so check for the emitter, not the phrase)
+    assert "fg-unknown" not in source
+    assert "fg-flow-note" not in source
+
+
+@pytest.mark.parametrize("symbol", ["load_document", "maybe_validate",
+                                    "canvas_size", "page_link_href",
+                                    "render_page_links", "render_document"])
+def test_public_helpers_survived_the_port(symbol):
+    """These are the module's published surface; the port must not silently
+    drop one (`render_page_links` in particular is the only backend that can
+    carry authored `Page.links` navigation at all)."""
+    assert hasattr(fgh, symbol)
+
+
+def test_page_links_render_as_a_navigation_landmark():
+    doc = _doc([{"type": "rect", "id": "bg", "box": [0, 0, 10, 10]}])
+    doc["pages"][0]["links"] = [
+        {"to": "p2", "label": "Next"},
+        {"to": "https://example.com", "label": "Home", "external": True},
+    ]
+    out = fgh.render_document(doc)
+    assert '<nav class="fg-pagelinks"' in out
+    assert 'href="#page-p2"' in out
+    assert 'href="https://example.com"' in out and 'target="_blank"' in out

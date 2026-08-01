@@ -71,39 +71,35 @@ def test_html_hash_is_content_sensitive():
 def test_html_lock_catches_flattened_spans_regression():
     """The lock must bite on the exact bug it exists for (GH #83).
 
-    Reintroduce the old behaviour — flatten `spans` to a plain string, dropping
-    per-run colour — and confirm the fixture's HTML hash changes. Without a fixture
-    that USES coloured spans this lock would be theater; `spans-and-links` is that
-    fixture.
+    Reintroduce the old behaviour — flatten styled runs into one unstyled run,
+    dropping per-span colour — and confirm the fixture's HTML hash changes.
+    Without a fixture that USES coloured spans this lock would be theater;
+    `spans-and-links` is that fixture.
+
+    The injection point moved with the architecture: the bug used to live in the
+    standalone backend's `_render_text`, and now the equivalent seam is the
+    painter's `text_runs`, which is where per-run styles become markup. Patching
+    the painter also proves the lock covers the shared render path rather than a
+    backend-private one.
     """
-    import html as _h
-    from frameforge.rendering.infrastructure.backends import html as H
+    from frameforge.rendering.infrastructure.painters.html import HtmlPainter
     spans = [f for f in RG.oracle_fixtures() if "spans-and-links" in f]
     assert spans, "the spans-and-links oracle fixture must exist to guard #83"
     doc = RG._load_doc(spans[0])
     good = RG._html_hash_of(doc)
 
-    def flattened(self, obj, ox, oy):
-        x, y, w, h = H._box(obj)
-        classes, css = [], {}
-        style = obj.get("style")
-        if isinstance(style, str):
-            classes.append(f"fg-ts-{H._css_ident(style)}")
-        elif isinstance(style, dict):
-            css.update(H.text_style_css(style, self.tokens))
-        text = obj.get("text")
-        if text is None and obj.get("spans"):
-            text = "".join(s.get("text", "") if isinstance(s, dict) else str(s)
-                           for s in obj["spans"])
-        body = _h.escape(text or "")
-        attrs = self._common(obj, ox + x, oy + y, w, h,
-                             extra_classes=classes, extra_css=css)
-        return f"<div {attrs}><span>{body}</span></div>"
+    def flattened(self, base_y, anchor, tx, base_st, size, runs,
+                  text_len=None, baseline=None):
+        """The #83 defect: concatenate the runs and paint them all in the base
+        style, so every per-span colour/weight is silently lost."""
+        merged = "".join(text for text, _run_style in runs)
+        return HtmlPainter.text_block(self, base_y, anchor, base_st, size,
+                                      [merged], tx, 0, baseline=baseline)
 
-    orig = H.Renderer._render_text
-    H.Renderer._render_text = flattened
+    orig = HtmlPainter.text_runs
+    HtmlPainter.text_runs = flattened
     try:
         broken = RG._html_hash_of(doc)
     finally:
-        H.Renderer._render_text = orig
+        HtmlPainter.text_runs = orig
     assert broken != good, "the HTML lock did not catch a flattened-spans regression"

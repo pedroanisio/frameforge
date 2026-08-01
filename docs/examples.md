@@ -12,7 +12,7 @@ disclaimer:
 
 # Examples cookbook
 
-The 158 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
+The 159 tracked, runnable SDK clients under `static/examples/`, indexed by their stated intent (the module docstring's first line). Run any of them with `uv run python static/examples/<name>.py`; most write their output under `out/` or `_tmp/`.
 
 | Example | Intent |
 |---|---|
@@ -75,6 +75,7 @@ The 158 tracked, runnable SDK clients under `static/examples/`, indexed by their
 | [`gradient_vectorize_demo.py`](../static/examples/gradient_vectorize_demo.py) | Gradient paint extraction — raster→vector with fitted gradient fills. |
 | [`graph_autolayout_demo.py`](../static/examples/graph_autolayout_demo.py) | Declarative graph auto-layout — the render-time bridge (roadmap item 1). |
 | [`guided_paint.py`](../static/examples/guided_paint.py) | Painter kit — render-safe atmosphere primitives for guided-draw compositions. |
+| [`html_export_parity.py`](../static/examples/html_export_parity.py) | Export a document to a self-contained, accessible HTML page — and prove parity. |
 | [`humanize_hand.py`](../static/examples/humanize_hand.py) | Hand-drawn diagram via the seeded humanize 'hand' (roughen + drift + weight + ink). |
 | [`humanize_variations.py`](../static/examples/humanize_variations.py) | The Humanize Hand — a specimen sheet of the seeded imperfection pass. |
 | [`illustrator_vs_frameforge.py`](../static/examples/illustrator_vs_frameforge.py) | CAPABILITY TEARDOWN — Adobe Illustrator ⇄ FrameForge v2. |

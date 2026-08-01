@@ -344,7 +344,13 @@ Forward (author -> render):
 
 Render options (the three render tools): `to='pdf'` additionally assembles the rendered
 pages into a vector `document.pdf` (needs the `pdfout` group; reported under `result.pdf`
-and as the `frameforge://session/<id>/document.pdf` resource). `scale` controls the PNG
+and as the `frameforge://session/<id>/document.pdf` resource). `to='html'` additionally
+writes a self-contained `document.html` — semantic shell, inline SVG artwork, the
+document's own palette hoisted to `:root` custom properties, named text styles as
+`.fg-ts-<name>` classes, and a screen-reader landmark. It needs no extra dependency and
+has full object-type parity with SVG (same engine), so it is the target to ask for when
+the deliverable is a shareable, accessible page rather than a raster or a print PDF.
+Both are reported BY REFERENCE (path + uri + bytes), never inlined. `scale` controls the PNG
 raster zoom (2.0 = double resolution — DPI control). `real_metrics` ('auto'|true|false,
 default 'auto' = on when fontTools is installed) measures text with real glyph advances
 so wrap/ellipsis decisions match the rendered pixels; the result reports the resolved mode.
@@ -636,6 +642,7 @@ verify. The overlay images are drawing aids; the `spatial` JSON is the source of
 ## Resources
 Every tool writes artifacts under `frameforge://session/<id>/`: `document.yaml`,
 `page/<n>.svg`, `page/<n>.png`, `document.pdf` (after a `to='pdf'` render),
+`document.html` (after a `to='html'` render),
 `diagnostics.json` (the full result incl. the complete `spatial` payload), and
 `workspace.json` (persisted pins). Read `diagnostics.json` for the exact numbers behind
 any measurement; the tool response only summarizes them.

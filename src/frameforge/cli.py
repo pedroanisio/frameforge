@@ -14,7 +14,7 @@ Targets (see ``--list``):
   pdf      vector PDF via CairoSVG (SVG→PDF, exact vector)            [pdfout]
   pdf-tex  typeset PDF via LaTeX/TikZ (TeX owns pagination + math)    [lua/pdflatex]
   tex      LaTeX/TikZ source (.tex, no compile)
-  html     HTML/CSS (legacy; flow + gradient limits)
+  html     HTML document — semantic shell + inline SVG (full engine parity)
 
 Every target renders *through the package*, in-process. The core targets (svg,
 png, pdf, tex) go through the SVG proxy / Chromium rasteriser / LaTeX transpiler;
@@ -282,7 +282,8 @@ def r_audit(path, out_dir, args):
     if args.pages:
         svgs = svgs[:args.pages]
     report = audit_document(_load_dict(path), svgs,
-                            collisions=diags.get("collisions"))
+                            collisions=diags.get("collisions"),
+                            paint=diags.get("paint"))
     md = render_markdown(report, title=os.path.basename(path))
     print(summary_line(report))
     for flag in report["health"]:
@@ -311,7 +312,8 @@ TARGETS: dict[str, Target] = {
     "pdf-tex": Target("typeset", "typeset PDF via LaTeX/TikZ (TeX owns pagination + math)",
                       lambda: _port_check("pdf-tex"), r_pdf_tex),
     "tex": Target("source", "LaTeX/TikZ source (.tex, no compile)", _ok, r_tex),
-    "html": Target("web", "HTML/CSS (semantic; flow + gradient limits)",
+    "html": Target("web", "HTML document — semantic shell + inline SVG "
+                   "(same builder as svg: full object-type parity)",
                    lambda: _port_check("html"), r_html),
     "audit": Target("report", "design-token + feature-usage audit (JSON + Markdown; "
                     "drift-proof — read off the emitted SVG + model)", _ok, r_audit),

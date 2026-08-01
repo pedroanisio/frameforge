@@ -45,6 +45,76 @@ authored in a `style` bag. No schema `$defs` or field contract changed.
   authored (ADR-0006 / #69). The coverage gate's allowlist now names the full
   documented table-style set.
 
+## Unreleased — the HTML target shares the engine (2026-07-31)
+
+The HTML backend was a second renderer. It received the raw document and
+re-derived group layout, text fitting and wrapping, tables, UML, connectors and
+dimensions — 1462 lines duplicating the shared builder. It drew **13 of the
+model's 34 object types** and emitted the other 21 as grey "unsupported type"
+placeholders; a `mode: flow` page became a note saying the profile was not
+rendered. `make check` was fully green throughout, because only SVG was gated
+for coverage.
+
+It is now driven by the same `Renderer` as SVG. No rendered SVG byte changed —
+the golden oracle (`oracle.lock.json`, 9 fixtures / 88 pages) is untouched; only
+the 9 HTML hashes were re-pinned.
+
+- **Full object-type parity, asserted structurally.** `HtmlPainter`
+  (`rendering/infrastructure/painters/html.py`) implements `ScenePainter` and
+  inherits every geometry primitive from `SvgPainter`, so it *cannot* support
+  fewer types than SVG. Tables, bullet lists, connectors, dimensions and all 17
+  UML shapes render; `mode: flow` typesets for real.
+  `tests/test_html_backend_parity.py` compares the marks the two targets emit
+  for every oracle fixture, so a future object type is covered the day the
+  builder learns it.
+- **`ScenePainter` now declares what the builder actually requires.** Four
+  methods the builder called were never in the port (`anchor`, `a11y_wrap`,
+  `metadata_group`, `style_group`); four more were probed by `getattr` and
+  documented nowhere (`pattern`, `mask_def`, `has_def_id`, `link_wrap`); and
+  `text_block`/`text_runs` still carried pre-justification signatures, so a
+  backend written against the port raised `TypeError` on the first justified
+  paragraph. The optional four moved to a separate `PainterCapabilities`
+  protocol (ISP). `tests/test_scene_painter_port.py` derives the requirement set
+  from the builder by AST, so the port cannot fall behind again.
+  `TikzPainter` was missing `metadata_group` — a latent `AttributeError` — and
+  now implements it.
+- **Two new structural seams, contract-bound not to alter paint.**
+  `layer_group` and `object_group` carry the layer tree and object identity a
+  flattened display list destroys. SVG and TikZ implement both as identity
+  passthroughs, which is why the oracle did not move.
+- **Token provenance survives resolution.** `TextStyleResolver` stamps
+  `style_ref` and `ColorResolver.token_for()` inverts the palette, so HTML
+  hoists `.fg-ts-<name>` classes and a `:root` palette instead of repeating
+  literals. Text paint is emitted as `var(--token, literal)`; geometry paint
+  stays literal on purpose (CSS custom properties are not dependable in SVG
+  *presentation* attributes, and a paint that fails to resolve is a blank shape).
+- **Derived accessibility moved to the domain** (`domain/services/a11y.py`) and
+  gained a case. A group announces as a group, bare connector geometry is hidden
+  rather than announced as an unnamed graphic, and a word-glyph icon gets a real
+  name while a raw symbol is hidden rather than mislabelled. `ImageObject.label`
+  now reaches assistive technology — the model spells it `label`, not `alt`, so
+  no painter's authored-field path had ever picked it up. SVG keeps
+  authored-only semantics: consuming the derived ones would shift every golden
+  byte, so that is a separate, explicit decision.
+- **Bug found by the port: colliding style names resolved differently per
+  target.** `model.Tokens.text_styles` documents itself as "superseded by
+  `styles`, still resolved first by the renderer". The shared resolver obeyed
+  that; the standalone HTML backend had it inverted, so one document could
+  resolve the same style name two ways depending only on `--to`. One resolver
+  makes it unrepresentable.
+- **Gradients had two lanes in HTML** — a CSS `radial-gradient()` for div-backed
+  rects and an SVG `<radialGradient>` for inline shapes, so a rect and a polygon
+  carrying the same authored paint could disagree about where it sat. There is
+  one lane now.
+- **Preserved**: `Page.links` navigation (`render_page_links` — still the only
+  backend that can carry it), the shared canvas-preset table identity gate, the
+  `load_document`/`maybe_validate` loaders, and every accessibility behaviour the
+  standalone contract guarded.
+- **`static/examples/fg_css_optimize.py`** updated: geometry paint is now a
+  presentation attribute it cannot reach, and named text styles arrive
+  pre-pooled, so zero pooled classes on a token-driven document is the correct
+  result rather than a failure.
+
 ## Unreleased — feat: warn when a render is faithful but unreadable (2026-07-31)
 
 FrameForge reported what a render *lost* — clipped text (`truncations`),

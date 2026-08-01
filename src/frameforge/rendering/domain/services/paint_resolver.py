@@ -35,6 +35,31 @@ class GradientPaint:
 class ColorResolver:
     def __init__(self, colors):
         self.colors = colors or {}
+        self._by_literal = None
+
+    def token_for(self, literal):
+        """The palette token whose value is `literal`, or None.
+
+        The inverse of `resolve` for the simple token→hex case. A backend whose
+        medium carries named colours (a CSS custom property, an xcolor name) uses
+        this to re-materialise `var(--fg-navy)` from the resolved `#14213f`,
+        instead of baking a literal and losing the palette.
+
+        Matching is case-insensitive because authoring casing is arbitrary, and
+        the FIRST declared token wins when several share a value — so the mapping
+        is deterministic for a given document rather than dict-order dependent.
+        Only direct string values are indexed; a token aliasing another token
+        resolves through `resolve` and has no single literal of its own.
+        """
+        if not isinstance(literal, str):
+            return None
+        if self._by_literal is None:
+            index = {}
+            for name, value in self.colors.items():
+                if isinstance(value, str):
+                    index.setdefault(value.strip().lower(), name)
+            self._by_literal = index
+        return self._by_literal.get(literal.strip().lower())
 
     def resolve(self, c, depth=0):
         if c is None or depth > 8:

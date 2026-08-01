@@ -2,7 +2,11 @@
 
 Validation gates rendering; the pure-Python renderer runs in a bounded daemon
 thread; page selection, provenance signing, PNG rasterization (with a raster
-``scale``), and the optional PDF export lane (``to='pdf'``) follow.
+``scale``), and the optional export lanes — ``to='pdf'`` (CairoSVG + pypdf) and
+``to='html'`` (a self-contained accessible page, no optional dependency) —
+follow. Both export lanes report their artifact BY REFERENCE (path, uri, bytes);
+neither ever inlines a document into the tool result, which the MCP result
+budget forbids.
 """
 from __future__ import annotations
 
@@ -51,12 +55,13 @@ def _validate_and_render_yaml(
     scale: float = 1.0,
     real_metrics: bool | str = "auto",
 ) -> dict[str, Any]:
-    if to not in ("png", "pdf"):
+    if to not in ("png", "pdf", "html"):
         return {
             "ok": False,
             "error": f"unknown export target to={to!r}",
-            "hint": "use to='png' (default; the raster feedback loop) or to='pdf' "
-                    "(additionally assemble the rendered pages into document.pdf)",
+            "hint": "use to='png' (default; the raster feedback loop), to='pdf' "
+                    "(assemble the rendered pages into document.pdf), or to='html' "
+                    "(a self-contained, accessible document.html — no extra deps)",
             "validation": {"ok": False, "issues": []},
             "renders": [],
             "resources": _resource_links(session_id, renders=[]),
@@ -91,6 +96,9 @@ def _validate_and_render_yaml(
     design_census: dict[str, Any] | None = None
     render_diagnostics: dict[str, Any] | None = None
     pdf_summary: dict[str, Any] | None = None
+    # Initialised here, not at the export site: the render block is skipped
+    # entirely when validation fails, and the result assembly below runs anyway.
+    html_summary_out: dict[str, Any] | None = None
     if report.ok:
         oversized = _render_size_guard(document)
         if oversized:
@@ -150,6 +158,16 @@ def _validate_and_render_yaml(
             if post_warning:
                 render_warning = (f"{render_warning}; {post_warning}"
                                   if render_warning else post_warning)
+
+        if to == "html":
+            html_entry, html_summary, html_warning = _export_html(
+                document, session_dir, session_id, base_dir, real_metrics)
+            if html_entry:
+                renders.append(html_entry)
+            html_summary_out = html_summary
+            if html_warning:
+                render_warning = (f"{render_warning}; {html_warning}"
+                                  if render_warning else html_warning)
 
         if to == "pdf" and renders:
             svg_pages = [
@@ -262,6 +280,10 @@ def _validate_and_render_yaml(
         result["diagnostics"] = render_diagnostics
     if pdf_summary is not None:
         result["pdf"] = pdf_summary
+    if html_summary_out is not None:
+        # By reference only (path + uri + size): a whole HTML document inlined
+        # here would blow the MCP result budget on its own.
+        result["html"] = html_summary_out
     if sign and renders:
         # Record the provenance stamp applied to every rendered SVG so the caller
         # can confirm the artifacts are signed (and with which timestamp).
@@ -311,6 +333,54 @@ def _resolve_real_metrics(value: bool | str | None) -> bool:
     if env:  # mirror the Renderer's own parsing: any set value decides
         return env in ("1", "true", "yes", "on")
     return importlib.util.find_spec("fontTools") is not None
+
+
+def _export_html(
+    document: Any, session_dir: Path, session_id: str, base_dir: Path,
+    real_metrics: bool | str = "auto",
+) -> tuple[dict[str, Any] | None, dict[str, Any], str | None]:
+    """Write the document as one self-contained ``document.html``.
+
+    Reuses the CLI's ``--to html`` mechanism through the SDK entry point
+    (:func:`frameforge.sdk.render_html`), so MCP, the CLI and the SDK all reach
+    the SAME renderer — the duplication this backend was ported to remove must
+    not reappear one layer up.
+
+    Returns ``(render_entry, summary, warning)``. Unlike :func:`_export_pdf` this
+    target has no optional dependency and no external binary, so it cannot report
+    unavailable; a failure here is a real bug, reported rather than swallowed.
+
+    The document body is never returned inline — only its path, URI and size —
+    because a whole HTML file would exceed the MCP result budget by itself.
+    """
+    from frameforge.sdk.conform import render_html
+    try:
+        text = render_html(document, base_dir=str(base_dir),
+                           real_metrics=_resolve_real_metrics(real_metrics))
+    except Exception as exc:  # noqa: BLE001 — never kill an otherwise-good render
+        summary = {
+            "ok": False,
+            "error": f"HTML export failed: {type(exc).__name__}: {exc}",
+            "hint": "the SVG/PNG renders remain available as resources",
+        }
+        return None, summary, str(summary["error"])
+
+    out_path = session_dir / "document.html"
+    out_path.write_text(text, encoding="utf-8")
+    entry = {
+        "kind": "html",
+        "path": str(out_path),
+        "uri": f"frameforge://session/{session_id}/document.html",
+        "mimeType": "text/html",
+        "bytes": out_path.stat().st_size,
+    }
+    summary = {
+        "ok": True,
+        "path": entry["path"],
+        "uri": entry["uri"],
+        "bytes": entry["bytes"],
+    }
+    return entry, summary, None
 
 
 def _export_pdf(

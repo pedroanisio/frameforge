@@ -687,6 +687,16 @@ class SvgPainter:
         return (f'<image x="{fnum(x)}" y="{fnum(y)}" width="{fnum(w)}" height="{fnum(h)}" '
                 f'href="{esc(href)}" preserveAspectRatio="{esc(preserve_aspect_ratio)}"/>')
 
+    def _text_class_attr(self, st):
+        """Extension point: extra attributes for a `<text>` element.
+
+        Returns "" here — the SVG backend puts every text rule in the inline
+        `style` attribute, so its bytes are unchanged. A subclass whose medium
+        has a style-sharing mechanism (HtmlPainter's CSS classes) overrides this
+        to reference the hoisted rule via the style's `style_ref` provenance.
+        """
+        return ""
+
     def text_tag(self, x, y, w, h, content, st, vcenter=None, text_len=None):
         if content is None or content == "":
             return ""
@@ -706,7 +716,8 @@ class SvgPainter:
                if text_len is not None and a == "start" else "")
         style = self.font_style(st, st["size"])
         return (f'<text x="{fnum(tx)}" y="{fnum(ty)}" text-anchor="{a}"{baseline}'
-                f'{fit}{self.space_attr(st)} style="{style}">{esc(content)}</text>')
+                f'{fit}{self.space_attr(st)}{self._text_class_attr(st)} '
+                f'style="{style}">{esc(content)}</text>')
 
     def text_block(self, base_y, anchor, st, size, lines, tx, line_dy,
                    justify_width=None, justifies=None, baseline=None):
@@ -726,7 +737,8 @@ class SvgPainter:
             return f'<tspan x="{fnum(tx)}"{dy}{fit}>{esc(ln)}</tspan>'
         spans = "".join(span(i, ln) for i, ln in enumerate(lines))
         return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{dom}'
-                f'{self.space_attr(st)} style="{style}">{spans}</text>')
+                f'{self.space_attr(st)}{self._text_class_attr(st)} '
+                f'style="{style}">{spans}</text>')
 
     def text_runs(self, base_y, anchor, tx, base_st, size, runs, text_len=None, baseline=None):
         """A single baseline of inline styled runs (rich `text.spans`).
@@ -750,7 +762,8 @@ class SvgPainter:
                if text_len is not None and anchor == "start" else "")
         dom = f' dominant-baseline="{baseline}"' if baseline else ""
         return (f'<text y="{fnum(base_y)}" text-anchor="{anchor}"{fit}{dom}'
-                f'{self.space_attr(base_st)} style="{base_style}">{"".join(segs)}</text>')
+                f'{self.space_attr(base_st)}{self._text_class_attr(base_st)} '
+                f'style="{base_style}">{"".join(segs)}</text>')
 
     def text_line_runs(self, x, y, w, h, groups, st):
         """One flow-text line as href-aware inline runs.
@@ -795,18 +808,38 @@ class SvgPainter:
     def opacity_group(self, inner, opacity):
         return f'<g opacity="{fnum(opacity)}">{inner}</g>'
 
+    # ---- structural seams (identity on this backend) ---------------------- #
     @staticmethod
-    def a11y_wrap(svg, obj):
+    def layer_group(inner, layer):
+        """SVG has no layer element. Emitting a `<g data-layer>` here would be
+        harmless but would shift every golden byte for zero visual gain, so this
+        backend declines the structure and returns `inner` untouched. The seam
+        exists for backends whose medium *does* carry it (HTML `<section>`)."""
+        return inner
+
+    @staticmethod
+    def object_group(inner, obj):
+        """Object identity rides in SVG through `a11y_wrap`'s semantic group when
+        the object carries accessibility fields; there is no separate id/class
+        channel worth an extra `<g>` per object. Identity passthrough."""
+        return inner
+
+    @staticmethod
+    def a11y_wrap(inner, obj):
         """Wrap one object's SVG with accessibility markup when it carries any.
 
         Additive and minimal: objects with no accessibility semantics are returned
         byte-for-byte unchanged. `decorative` nodes become `aria-hidden`; any
         object with `role`, `alt`, or `actual_text` gets a semantic group. `alt`
-        is the short label; `actual_text` is the verbatim content."""
-        if not svg or not isinstance(obj, dict):
-            return svg
+        is the short label; `actual_text` is the verbatim content.
+
+        The parameter is named `inner` to match the `ScenePainter` port and the
+        sibling wrap methods — this is the one seam where a painter still sees
+        the authored object, so the name must not be backend-specific."""
+        if not inner or not isinstance(obj, dict):
+            return inner
         if obj.get("decorative"):
-            return f'<g aria-hidden="true">{svg}</g>'
+            return f'<g aria-hidden="true">{inner}</g>'
         role = obj.get("role")
         alt, actual = obj.get("alt"), obj.get("actual_text")
         if role or alt or actual:
@@ -814,8 +847,8 @@ class SvgPainter:
             title = f"<title>{esc(alt)}</title>" if alt else ""
             desc = f"<desc>{esc(actual)}</desc>" if actual else ""
             label = f' aria-label="{esc(alt)}"' if alt else ""
-            return f'<g role="{esc(semantic_role)}"{label}>{title}{desc}{svg}</g>'
-        return svg
+            return f'<g role="{esc(semantic_role)}"{label}>{title}{desc}{inner}</g>'
+        return inner
 
     def document(self, w, h, body, lang=None, title=None, desc=None,
                  background=None):

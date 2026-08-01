@@ -74,9 +74,13 @@ _DESC_VLM_STAGE = (
 )
 
 _DESC_TO = (
-    "Export target: 'png' (default — the raster feedback loop) or 'pdf' (additionally assemble "
-    "the rendered pages into a vector document.pdf; needs the 'pdfout' group). The PDF is "
-    "reported under result.pdf and as the frameforge://session/<id>/document.pdf resource."
+    "Export target: 'png' (default — the raster feedback loop), 'pdf' (additionally assemble "
+    "the rendered pages into a vector document.pdf; needs the 'pdfout' group), or 'html' "
+    "(additionally write a self-contained document.html — semantic shell, inline SVG artwork, "
+    "hoisted palette + text-style classes, screen-reader landmark; no extra dependency, and "
+    "full object-type parity with SVG since it is painted by the same engine). The artifact is "
+    "reported under result.pdf / result.html and as the "
+    "frameforge://session/<id>/document.pdf|.html resource — by reference, never inlined."
 )
 _DESC_SCALE = (
     "Raster zoom for the PNG pages: 1.0 renders at the SVG's pixel size; 2.0 doubles the output "

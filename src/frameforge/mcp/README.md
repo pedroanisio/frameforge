@@ -45,7 +45,11 @@ Forward (author → render):
 
 Render options (all three render tools): `to='pdf'` additionally assembles the rendered pages
 into a vector `document.pdf` via CairoSVG + pypdf (the `pdfout` group; the CLI `--to pdf`
-mechanism), reported under `result.pdf` and as a session resource. `scale` sets the PNG raster
+mechanism), reported under `result.pdf` and as a session resource. `to='html'` additionally
+writes a self-contained `document.html` (the CLI `--to html` mechanism, via
+`sdk.render_html`): semantic shell, inline SVG artwork, hoisted palette + text-style
+classes, screen-reader landmark — no extra dependency, and full object-type parity with SVG
+because the same engine paints it. Both are reported by reference, never inlined. `scale` sets the PNG raster
 zoom (2.0 = double resolution — DPI control). `real_metrics` (`'auto'`|`true`|`false`, default
 `'auto'` = on when fontTools is installed) measures text with real glyph advances so
 wrap/shrink/ellipsis decisions match the rendered pixels; the resolved mode is reported as
@@ -149,7 +153,7 @@ Sessions:
 
 - `get_session_resource`, `list_sessions`, `cleanup_sessions`.
 - Resources: `frameforge://session/{id}/document.yaml`, `…/document.pdf` (after a `to='pdf'`
-  render), `…/page/{n}.svg`, `…/page/{n}.png`, `…/diagnostics.json` (full result incl. the
+  render), `…/document.html` (after a `to='html'` render), `…/page/{n}.svg`, `…/page/{n}.png`, `…/diagnostics.json` (full result incl. the
   complete `spatial` coordinate payload), `…/workspace.json` (persisted `workspace` pins +
   viewport).
 - **Render clobber:** every image tool resets the session's `page/*.png` on each call, so

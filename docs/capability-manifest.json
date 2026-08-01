@@ -392,6 +392,7 @@
       "register_theme",
       "relative_luminance",
       "remap",
+      "render_html",
       "render_page_svgs",
       "render_pages_with_stats",
       "repeat_along_path",
@@ -3187,6 +3188,13 @@
     },
     {
       "name": "remap",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "render_html",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

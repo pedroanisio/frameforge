@@ -81,6 +81,19 @@ def test_keyframes_block_survives():
 # --------------------------------------------------------------------------- #
 
 
+# NOTE ON FIXTURES
+# Shapes used to be `<div style="background:…">`, so any repeated rect gave the
+# optimizer something to pool. The HTML backend now emits inline SVG, where
+# geometry paint travels in *presentation attributes* (`fill="#123456"`) that no
+# CSS pass may touch. What still repeats — and so is still worth pooling — is the
+# inline `style` on `<text>` elements whose style is anonymous (a named style is
+# already hoisted to `.fg-ts-*` by the painter). These fixtures use text for that
+# reason; the tool's guarantees are unchanged.
+def _text_rows(n: int, **style) -> list[dict]:
+    return [{"type": "text", "id": f"t{i}", "box": [0, i * 30, 200, 20],
+             "text": f"row {i}", "style": dict(style)} for i in range(n)]
+
+
 def test_roundtrip_preserves_viewBox_case_and_paint():
     html = _render([
         {"type": "polygon", "id": f"pg{i}", "points": [[0, 0], [10, 0], [5, 10]],
@@ -89,35 +102,48 @@ def test_roundtrip_preserves_viewBox_case_and_paint():
     out, _ = opt.optimize(html, quiet=True)
     assert html.count("viewBox=") == out.count("viewBox=")   # all preserved
     assert "viewbox=" not in out                              # none lowercased
-    # paint still present (inline or pooled into a class rule)
-    assert "fill:#facc15" in out and "stroke:#22d3ee" in out
+    # Paint survives untouched. It is a presentation attribute now, which is the
+    # stronger guarantee: the optimizer rewrites only `style`/`class` values, so
+    # geometry paint is not even reachable by a pooling bug.
+    assert out.count('fill="#facc15"') == html.count('fill="#facc15"')
+    assert out.count('stroke="#22d3ee"') == html.count('stroke="#22d3ee"')
 
 
 def test_every_inline_property_still_applies_after_pooling():
-    # many identical rects -> their theme set pools into a class
-    html = _render([{"type": "rect", "id": f"r{i}", "box": [i, i, 20, 20],
-                     "fill": "#3366cc", "radius": 4} for i in range(6)])
+    html = _render(_text_rows(6, font_size=14, color="#3366cc"))
     out, _ = opt.optimize(html, quiet=True)
-    # background got pooled out of inline styles into a .t* class rule...
     assert "fg-doc" in out
-    head = out.split("</style>")[0]
-    body = out.split("</style>")[1]
+    head, body = out.split("</style>")[0], out.split("</style>")[1]
     # the property survives somewhere (a pooled rule or still inline)
-    assert "background:#3366cc" in head or "background:#3366cc" in body
+    assert "fill:#3366cc" in head or "fill:#3366cc" in body
     # and at least one element references the pooled class
     assert re.search(r'class="[^"]*\bt\d+\b', body)
 
 
 def test_pooling_actually_compounds_repeated_styles():
-    html = _render([{"type": "rect", "id": f"r{i}", "box": [0, 0, 10, 10],
-                     "fill": "#123456"} for i in range(4)])
+    html = _render(_text_rows(4, font_size=14, color="#123456"))
     out, stats = opt.optimize(html, quiet=True)
     assert stats[0]["pooled_classes"] >= 1
     assert stats[0]["theme_pooled"] >= 4              # 4 repeats compounded
     assert stats[0]["bytes_after"] < stats[0]["bytes_before"]
     # the shared declaration now lives in a generated .t* rule, not 4x inline
     head = out.split("</style>")[0]
-    assert re.search(r"\.t\d+\{[^}]*background:#123456", head)
+    assert re.search(r"\.t\d+\{[^}]*fill:#123456", head)
+
+
+def test_named_styles_are_already_pooled_by_the_backend():
+    """The optimizer's job shrank because the backend does part of it natively.
+
+    A *named* text style is hoisted to a `.fg-ts-<name>` class by the painter, so
+    there is no repeated inline theme left for the optimizer to compound. This is
+    the intended division of labour, not a regression in the tool.
+    """
+    doc_objects = [{"type": "text", "id": f"t{i}", "box": [0, i * 30, 200, 20],
+                    "text": f"row {i}", "style": "body"} for i in range(5)]
+    html = _render(doc_objects,
+                   defs={"tokens": {"styles": {"body": {"font_size": 14}}}})
+    assert html.count('class="fg-ts-body"') == 5
+    assert ".fg-ts-body {" in html
 
 
 def test_idempotent():

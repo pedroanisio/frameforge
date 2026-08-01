@@ -101,11 +101,28 @@ the correct reading of the reporter's objection.
   stays primary for fixed page-mode vector output where measure≠render does not
   arise (absolute-positioned text is not re-flowed).
 
+## Progress
+
+**Done — the HTML backend renders flow.** It was a standalone transform that
+drew 13 of the model's 34 object types and replaced a `mode: flow` page with a
+labelled "profile not rendered" note. It is now driven by the shared `Renderer`
+through `HtmlPainter`
+(`src/frameforge/rendering/infrastructure/painters/html.py`), with
+`…/backends/html.py` reduced to the document shell. Consequences for this ADR:
+
+- Flow documents typeset in HTML: page masters, running heads, tables and TOC all
+  arrive from the shared builder, because HTML no longer has an opinion about
+  them. Object-type parity with SVG is now *structural* and gated
+  (`tests/test_html_backend_parity.py`).
+- The measure≠render problem this ADR names is **unchanged**. HTML output is
+  still measured with `font_metrics` and rasterised by a browser, so it remains a
+  proxy in exactly the sense described above. Sharing a builder removed the
+  *backend* divergence, not the *engine* divergence.
+
 ## Not yet done (the real project this ADR names)
 
-- Make the HTML backend (`src/frameforge/rendering/infrastructure/backends/html.py`,
-  the `DocumentRenderer` port) a first-class flow renderer (page masters,
-  running heads, tables, TOC, CSS paged-media) → Chromium PDF.
+- CSS paged-media output → Chromium PDF, so the engine that measures is the
+  engine that paginates.
 - Route `run`/`--to pdf` for flow documents through the single engine, leaving SVG
   as the explicit `--to svg` proxy.
 

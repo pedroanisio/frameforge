@@ -275,6 +275,39 @@ geometry primitive takes value objects (`Stroke`, `Markers`, transform ops, colo
 url fills) and the port declares the full surface. **3b-5 is all that remains** — the
 second adapter that proves the seam by construction and collapses the LaTeX fork.
 
+### 3c — the HTML adapter (done)
+
+The HTML target was the last renderer living *outside* this seam: a standalone
+`DocumentRenderer` that re-derived layout, text, tables and UML, supported 13 of
+34 object types, and drifted from the engine with every release. It is now an
+`HtmlPainter` on this port plus a document-shell assembler. Three things that
+audit found, and this ADR now records:
+
+1. **The port was under-declared.** The builder required four methods
+   `ScenePainter` never mentioned (`anchor`, `a11y_wrap`, `metadata_group`,
+   `style_group`), probed four more by `getattr` that were documented nowhere
+   (`pattern`, `mask_def`, `has_def_id`, `link_wrap`), and declared `text_block`
+   /`text_runs` signatures that predated justified text — so a backend written
+   against the port would raise `TypeError` on the first justified paragraph.
+   All are declared now, with the optional four segregated into
+   `PainterCapabilities` (ISP) so no backend is forced to implement them.
+   `tests/test_scene_painter_port.py` derives the requirement set from the
+   builder by AST and fails if the port falls behind again.
+2. **The seam lost structure.** Layers were concatenated into one string, so a
+   backend could never rebuild the layer tree, and object identity reached a
+   painter only incidentally through `a11y_wrap`. `layer_group` and
+   `object_group` are now explicit, contract-bound to be structural only — SVG
+   and TikZ implement them as identity, which is why the golden oracle is
+   byte-for-byte unchanged by this work.
+3. **Token provenance was destroyed before the painter saw it.** A resolved
+   style is a flat dict and a resolved colour is a literal, so a medium with a
+   style-sharing mechanism could not use one. `TextStyleResolver` now stamps
+   `style_ref`, and `ColorResolver.token_for()` inverts the palette, letting the
+   HTML painter hoist `.fg-ts-<name>` classes and a `:root` palette.
+
+The seam is now proven by **two** independent non-SVG adapters rather than one,
+and the HTML adapter is wired into the shipped render path (TikZ still is not).
+
 ## Consequences
 
 - After 3a, the sub-renderers depend on a small, documented, mockable contract

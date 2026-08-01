@@ -155,13 +155,15 @@ def _load_doc(path: str) -> dict:
 def _html_hash_of(doc: dict) -> str:
     """SHA-256 of the HTML backend's render of one document.
 
-    Pure and deterministic: `render_document` takes no fonts, no wrap engine and
-    no optional deps, so this hash is reproducible on any machine (unlike a
-    rasterised comparison, which is why the HTML lock is a document-level hash,
-    not per page — the backend emits one `<figure>` document).
+    The HTML backend now drives the SAME builder as SVG, so it shares the SVG
+    lock's determinism contract rather than being independent of it:
+    `real_metrics=False` pins estimate-mode text measurement, keeping the hash
+    reproducible on a machine with a different font set. Still no optional deps
+    and no headless browser. The lock is a document-level hash, not per page,
+    because the backend emits one HTML file containing every `<figure>`.
     """
     from frameforge.rendering.infrastructure.backends.html import render_document
-    return _hash(render_document(doc))
+    return _hash(render_document(doc, real_metrics=False))
 
 
 def build_html_hashes() -> dict[str, str]:

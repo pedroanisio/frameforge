@@ -55,7 +55,7 @@ Since 2.5.0 these backends share one front door: `ff-render <doc> --to <target>`
 | **Raster** (matplotlib proxy) | raster, sanity check | `tooling/render_fg_doc.py` |
 | **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `src/frameforge/rendering/infrastructure/latex/document.py` |
 | **PDF** via cairosvg (SVG → PDF) | vector PDF | `tooling/render_pdf.py` |
-| **HTML/CSS** (ADR-0004 promotes this to the intended flow-fidelity path; the current implementation still degrades flow — documented flow/gradient limits) | web | `src/frameforge/rendering/infrastructure/backends/html.py` (the `DocumentRenderer` port; `--to html`) |
+| **HTML** — semantic shell + inline SVG (ADR-0004 promotes this to the intended flow-fidelity path; **since the DRY/SOLID port it is driven by the shared `Renderer`, so its object-type coverage equals SVG's and `mode: flow` typesets for real**) | web | `src/frameforge/rendering/infrastructure/painters/html.py` (`HtmlPainter`, the `ScenePainter`) assembled by `…/backends/html.py` (the `DocumentRenderer` port; `--to html`) |
 | **Math** TeX → SVG (MathJax) | embedded glyphs | `tooling/mathjax_tex_to_svg.mjs` |
 | **JSON Schema** | format contract | `docs/schema/build_schema.py` |
 | **Docs site** (reference/gallery/SDK/spec) | documentation | `tooling/gen_docs.py` |

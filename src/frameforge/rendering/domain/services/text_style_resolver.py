@@ -196,6 +196,13 @@ class TextStyleResolver:
             "valign": merged.get("vertical_align") or merged.get("v_align"),
             "nowrap": merged.get("white_space") in ("nowrap", "pre")
                       or tw == "nowrap" or merged.get("wrap") is False,
+            # ---- token provenance ----
+            # The NAME this style was resolved from, when it came from one. A
+            # backend whose medium has a style-sharing mechanism (an HTML class,
+            # a LaTeX macro) needs it to hoist the flattened rules back into one
+            # named rule instead of repeating them inline on every object. None
+            # for an anonymous inline style dict — there is no token to name.
+            "style_ref": ref if isinstance(ref, str) else None,
         }
         if base is not None:
             for key in INHERITED_TEXT_PROPERTIES:

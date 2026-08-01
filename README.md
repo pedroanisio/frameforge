@@ -43,8 +43,10 @@ tooling/
   render_chromium.py          ← optional Headless-Chromium SVG→PNG raster renderer (CSS-fidelity path).
   render_fg_doc.py            ← the matplotlib PROXY renderer, patched to HEAD (sanity check only).
   pdf_to_frameforge_yml.py    ← optional PyMuPDF PDF → fixed-layout FrameForge YAML extractor.
-  (HTML export moved into the package → `ff-render --to html`; the DocumentRenderer
-   port at src/frameforge/rendering/infrastructure/backends/html.py — contract-tested.)
+  (HTML export lives in the package → `ff-render --to html`. It is driven by the SAME
+   builder as SVG through `painters/html.py` (`HtmlPainter`) and assembled by
+   `backends/html.py` (the DocumentRenderer port), so its object-type coverage equals
+   SVG's — semantic HTML shell, inline SVG artwork, contract- and golden-tested.)
   gen_status.py               ← GENERATES docs/FIXTURE-STATUS.md from the validator (`--check` gates drift).
   gen_docs.py                 ← GENERATES the docs-site pages (reference/gallery/spec/grammar plus SDK docs).
   gen_capability_manifest.py  ← GENERATES docs/capability-manifest.json (core/SDK/MCP status per capability).
