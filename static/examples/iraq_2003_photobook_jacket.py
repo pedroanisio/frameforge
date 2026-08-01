@@ -67,10 +67,10 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.chevreul import contrast_ratio  # noqa: E402
-from frameforge.sdk.geometry import Mat3  # noqa: E402
-from frameforge.sdk.metrics import measure_text, wrap_text  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk.chevreul import contrast_ratio  # noqa: E402
+from frameforge_sdk.geometry import Mat3  # noqa: E402
+from frameforge_sdk.metrics import measure_text, wrap_text  # noqa: E402
 
 # The EAN-13/EAN-5 encoder + its decoder already exist in the sibling jacket
 # client. A second copy of the GS1 parity tables is a second thing to get wrong,
@@ -1306,7 +1306,7 @@ def check_contrast(floor: float = 4.5) -> list[tuple[str, str, str, float]]:
 
 
 if __name__ == "__main__":
-    from frameforge.sdk.validate import validate_static_rules
+    from frameforge_sdk.validate import validate_static_rules
 
     print(f"brief  sha256 {BRIEF_SHA}")
     print(f"image  sha256 {IMAGE_SHA}")

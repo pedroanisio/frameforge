@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Demo: author a 30-page naval-engineering deck with the FrameForge Python SDK.
 
-This script is a *demonstration* of the public SDK surface in :mod:`frameforge.sdk`.
+This script is a *demonstration* of the public SDK surface in :mod:`frameforge_sdk`.
 It builds a full slide deck on ship design — hull geometry, hydrostatics, stability,
 resistance & propulsion, structures and seakeeping — and leans heavily on:
 
@@ -42,8 +42,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    Chart,
+from frameforge_sdk import (
+    # noqa: E402     Chart,
     DocumentBuilder,
     Frame,
     Path,
@@ -55,7 +55,7 @@ from frameforge.sdk import (  # noqa: E402
     serialize,
     theme,
 )
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas, palette and the shared style sheet                                   #
@@ -1223,7 +1223,7 @@ def page_closing(builder):
                "drawing helpers, then validated against the authoritative model.",
                style={"class": "bodyD", "font_size": 16})
     layer.text([MARGIN_X, 600, 900, 26],
-               "frameforge.sdk · DocumentBuilder · Frame · Path · Scene3D · theme",
+               "frameforge_sdk · DocumentBuilder · Frame · Path · Scene3D · theme",
                style={"class": "source", "color": "#7E93AB"})
     layer.text([1044, 680, 160, 22], f"{TOTAL_PAGES:02d} / {TOTAL_PAGES}",
                style={"class": "pnum", "align": "right"})
@@ -1321,7 +1321,7 @@ def main() -> int:
     print(f"Wrote {args.yaml}")
 
     if args.render:
-        from frameforge.sdk.conform import render_page_svgs
+        from frameforge.conform import render_page_svgs
         svgs = render_page_svgs(doc, base_dir=ROOT)
         os.makedirs(args.out, exist_ok=True)
         for idx, svg in enumerate(svgs, 1):

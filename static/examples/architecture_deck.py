@@ -8,7 +8,7 @@ accent + a subdued rust for gaps.
 """
 import os
 import math
-from frameforge.sdk import DocumentBuilder, serialize
+from frameforge_sdk import DocumentBuilder, serialize
 
 # ---------------------------------------------------------------- palette (closed)
 PAPER="#F5F6F8"; CARD="#FFFFFF"; INK="#14171E"; SUB="#39404E"; MUTE="#5E6675"
@@ -186,10 +186,10 @@ def s_context():
     def n3(cx,cw,items):
         for i,(t,d,a) in enumerate(items):
             node(cx+14,y+50+i*128,cw,110,t,d,accent=a)
-    n3(cols[0],224,[("Author / Engineer","writes an SDK client\n(frameforge.sdk · Python)",ACC),
+    n3(cols[0],224,[("Author / Engineer","writes an SDK client\n(frameforge_sdk · Python)",ACC),
                     ("AI agent","emits MCP tool calls\nrun_sdk_code · render_*",ACC),
                     ("Existing artwork","Markdown · SVG · raster\n— to be ingested",MUTE)])
-    n3(cols[1],256,[("SDK · frameforge.sdk","DocumentBuilder / PageBuilder\npage · layer · shapes",ACC),
+    n3(cols[1],256,[("SDK · frameforge_sdk","DocumentBuilder / PageBuilder\npage · layer · shapes",ACC),
                     ("MCP server · 24 tools","author · vision · QA\ndiscovery · sessions",ACC),
                     ("Ingest","svg_to_objects\npropose_from_image/svg/doc",MUTE)])
     node(cols[2]+14,y+50,224,150,"Document IR","the typed source of truth\nvalidate() → JSON-pointer\nDocument·Page·Layer·Obj",title_sz=SML,accent=INK,tint=ACC_SOFT,tstroke="#C9D6F7")

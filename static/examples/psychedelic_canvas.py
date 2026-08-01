@@ -36,7 +36,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge_sdk import DocumentBuilder
+from frameforge.conform import render_page_svgs  # noqa: E402
 
 W = H = 1080
 SOURCE = os.path.join(ROOT, "canvas.svg")

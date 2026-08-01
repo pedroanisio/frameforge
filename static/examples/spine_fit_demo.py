@@ -29,10 +29,10 @@ sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import numpy as np
 
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.io import serialize
-from frameforge.sdk.outline import stroke_outline
-from frameforge.sdk.paint import linear_gradient
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.io import serialize
+from frameforge_sdk.outline import stroke_outline
+from frameforge_sdk.paint import linear_gradient
 from frameforge.vision.domain.spine_fit import fit_spine, spine_profile
 from frameforge.vision.infrastructure.vectorize import _shape_mask
 

@@ -5,8 +5,8 @@ Design system per Johnston (letter), Chevreul (hue), Batchelder (arrangement):
 tone structure first, closed palette with assigned duties, modular scale,
 every text/ground pair verified against WCAG floors before authoring.
 """
-from frameforge.sdk import DocumentBuilder, widgets
-from frameforge.sdk.paint import stroke
+from frameforge_sdk import DocumentBuilder, widgets
+from frameforge_sdk.paint import stroke
 
 # ---------------------------------------------------------------- palette
 PAPER      = "#F2EEE6"   # ground, warm

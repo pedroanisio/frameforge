@@ -6,9 +6,9 @@ Archivo (variable grotesque) for display over Fira Sans text, sizes from a
 one focal mass balanced steelyard-fashion against the footer band.
 """
 
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.chevreul import contrast_ratio
-from frameforge.sdk.paint import stroke as _stroke
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.chevreul import contrast_ratio
+from frameforge_sdk.paint import stroke as _stroke
 
 # ---------------------------------------------------------------- canvas ----
 W, H = 1240, 1754                      # A4 portrait @ ~150 dpi

@@ -31,7 +31,8 @@ from typing import Any, Iterable, Sequence
 sys.path.insert(0, os.environ.get("FG_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from frameforge.sdk import DocumentBuilder, Path, render_page_svgs  # noqa: E402
+from frameforge_sdk import DocumentBuilder, Path
+from frameforge.conform import render_page_svgs  # noqa: E402
 from poc3_ingest_compose import place, restyle_strokes  # noqa: E402
 
 Obj = dict[str, Any]

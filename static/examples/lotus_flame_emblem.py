@@ -26,9 +26,9 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.outline import stroke_outline
-from frameforge.sdk.paint import linear_gradient, radial_gradient
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.outline import stroke_outline
+from frameforge_sdk.paint import linear_gradient, radial_gradient
 
 W = H = 1254
 AX = 627.0                      # bilateral mirror axis
@@ -231,7 +231,7 @@ def build():
 if __name__ == "__main__":
     import pathlib
 
-    from frameforge.sdk.io import serialize
+    from frameforge_sdk.io import serialize
 
     out = pathlib.Path(ROOT) / "_tmp" / "lotus-flame-emblem"
     out.mkdir(parents=True, exist_ok=True)

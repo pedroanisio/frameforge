@@ -17,8 +17,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import planar, render_page_svgs, serialize  # noqa: E402
-from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge_sdk import planar, serialize
+from frameforge.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 _SANS = ["DejaVu Sans", "Arial", "sans-serif"]
 _FACE = ["#0f7d88", "#b5642c", "#7c3aed", "#3f7d4e", "#b03060", "#1d4ed8"]

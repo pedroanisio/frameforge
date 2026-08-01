@@ -8,7 +8,7 @@ Brand colour: #FF6200. This reproduces a registered trademark for reconstruction
 / tooling-demo purposes only.
 """
 import os
-from frameforge.sdk import DocumentBuilder, serialize
+from frameforge_sdk import DocumentBuilder, serialize
 
 ORANGE = "#FF6200"
 C = 1024

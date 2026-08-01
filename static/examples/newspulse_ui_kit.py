@@ -25,12 +25,12 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 import copy  # noqa: E402
 
-from frameforge.sdk import DocumentBuilder, Mat3, serialize  # noqa: E402
-from frameforge.sdk.clip import clip_path  # noqa: E402
-from frameforge.sdk.metrics import measure_text, wrap_text  # noqa: E402
-from frameforge.sdk.paint import effects, linear_gradient, shadow, stroke  # noqa: E402
-from frameforge.sdk.params import resolve_params  # noqa: E402
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, Mat3, serialize  # noqa: E402
+from frameforge_sdk.clip import clip_path  # noqa: E402
+from frameforge_sdk.metrics import measure_text, wrap_text  # noqa: E402
+from frameforge_sdk.paint import effects, linear_gradient, shadow, stroke  # noqa: E402
+from frameforge_sdk.params import resolve_params  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 OUT_DIR = os.path.join(ROOT, "out", "newspulse-ui")
 OUT = os.path.join(OUT_DIR, "newspulse-ui.fg.yaml")

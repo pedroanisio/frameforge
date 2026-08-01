@@ -27,8 +27,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
-from frameforge.sdk.paint import linear_gradient, rgba  # noqa: E402
+from frameforge_sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge_sdk.paint import linear_gradient, rgba  # noqa: E402
 from frameforge.coach import (  # noqa: E402  — the PROCESS layer
     create_plan, parse_intent, resolve_style, stage_rubric, to_silhouette, validate_order,
 )
@@ -157,7 +157,7 @@ doc = build_document()
 
 
 def main() -> int:
-    from frameforge.sdk.validate import validate_static_rules
+    from frameforge_sdk.validate import validate_static_rules
     built = doc.build()
     rep = validate_static_rules(built)
     errs = [i for i in rep.issues if i.severity == "error"]

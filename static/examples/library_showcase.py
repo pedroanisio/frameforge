@@ -23,8 +23,9 @@ from frameforge.library import (  # noqa: E402
     module_hub_radial,
     support_text_styles,
 )
-from frameforge.sdk import expand, render_page_svgs, serialize  # noqa: E402
-from frameforge.sdk.model import HEAD_VERSION  # noqa: E402
+from frameforge_sdk import expand, serialize
+from frameforge.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk.model import HEAD_VERSION  # noqa: E402
 
 
 def build():

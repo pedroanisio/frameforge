@@ -22,8 +22,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import (  # noqa: E402
-    BookBuilder,
+from frameforge_sdk import (
+    # noqa: E402     BookBuilder,
     Camera,
     Chart,
     Frame,
@@ -33,12 +33,12 @@ from frameforge.sdk import (  # noqa: E402
     multiview,
     planar,
     recolor,
-    render_page_svgs,
     repeat_along_path,
     serialize,
     stroke_outline,
 )
-from frameforge.sdk.draw import Scene3D  # noqa: E402
+from frameforge.conform import render_page_svgs
+from frameforge_sdk.draw import Scene3D  # noqa: E402
 
 TEAL, RUST, VIOLET, INK, PAPER = ("#0f7d88", "#b5642c", "#7c3aed",
                                   "#1d1e22", "#fcfbf8")
@@ -801,7 +801,7 @@ doc = book.build()                            # validated flow document""",
             "reads the capability guide, and authors through the identical "
             "builders — with coverage gates that fail the build if a new "
             "capability ever ships without appearing in that guide.")
-    ch.para("Colophon: composed by frameforge.sdk.book on an A5 master, "
+    ch.para("Colophon: composed by frameforge_sdk.book on an A5 master, "
             "set with the ADR-0003 flow engine, every plate computed by "
             "the capability it depicts.")
     return ch
@@ -823,7 +823,7 @@ def build():
             tokens.setdefault(section, {}).update(
                 {k: v for k, v in entries.items()
                  if k not in tokens.get(section, {})})
-    from frameforge.sdk.model import validate_document
+    from frameforge_sdk.model import validate_document
     validate_document(doc)
     return doc
 

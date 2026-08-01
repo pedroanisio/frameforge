@@ -30,14 +30,14 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
+from frameforge_sdk import (
+    # noqa: E402     DocumentBuilder,
     linear_gradient,
     radial_gradient,
     rgba,
     stroke,
 )
-from frameforge.sdk.paint import effects, shadow  # noqa: E402
+from frameforge_sdk.paint import effects, shadow  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas + palette

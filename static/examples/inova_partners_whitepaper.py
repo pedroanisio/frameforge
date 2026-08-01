@@ -42,12 +42,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    Chart,
-    DocumentBuilder,
-    Frame,
-)
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import Chart, DocumentBuilder, Frame  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # --- geometry --------------------------------------------------------------- #
 W, H = 794, 1123                 # A4 portrait @ 96 dpi
@@ -918,7 +914,7 @@ def main() -> int:
           f"errors={len(errors)} warnings={len(report.issues) - len(errors)}")
     for i in report.issues[:40]:
         print(f"  [{i.severity}] [{i.rule_id}] {i.path}: {i.message}")
-    from frameforge.sdk import serialize
+    from frameforge_sdk import serialize
     out = os.path.join(ROOT, "tests", "fixtures", "inova-partners-whitepaper.fg.yaml")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as fh:

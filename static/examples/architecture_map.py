@@ -24,8 +24,9 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder, render_page_svgs, serialize  # noqa: E402
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, serialize
+from frameforge.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1340, 984
 CANVAS = {"size": [W, H], "units": "px"}
@@ -149,7 +150,7 @@ def build() -> DocumentBuilder:
 
     # Authoring region nodes.
     node(page, [60, 250, 320, 62], DOM,
-         "frameforge.sdk — DocumentBuilder", "#1E40AF",
+         "frameforge_sdk — DocumentBuilder", "#1E40AF",
          ["PageBuilder · layout · paint · widgets · macros ·",
           "charts · geometry · 3D scenes · topology · fields"], "#1E40AF")
     node(page, [60, 320, 320, 46], DOM,

@@ -27,7 +27,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge_sdk import DocumentBuilder, serialize  # noqa: E402
 from frameforge.coach import resolve_style, stage_rubric, to_silhouette  # noqa: E402
 
 W, H, M = 1240, 640, 70
@@ -196,7 +196,7 @@ def _signatures(kits):
 
 
 def main() -> int:
-    from frameforge.sdk.validate import validate_static_rules
+    from frameforge_sdk.validate import validate_static_rules
     built = doc.build()
     rep = validate_static_rules(built)
     errs = [i for i in rep.issues if i.severity == "error"]

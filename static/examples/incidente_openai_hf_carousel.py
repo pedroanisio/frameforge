@@ -11,8 +11,8 @@ Roteiro dos 6 slides (versão condensada):
   4 a cadeia, passo a passo (7 passos) · 5 detecção + números ·
   6 resposta + por que importa + pergunta final.
 """
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.paint import stroke
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.paint import stroke
 
 W, H = 1080, 1350
 MX = 72

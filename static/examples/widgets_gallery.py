@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gallery + dashboard for the SDK's UI-widget layer (``frameforge.sdk.widgets``).
+"""Gallery + dashboard for the SDK's UI-widget layer (``frameforge_sdk.widgets``).
 
 Page 1 is a component gallery — every widget (kpi, badge, pill, button, avatar,
 toggle, progress, tabs, field, divider, card, table) on one screen. Page 2
@@ -25,8 +25,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
+from frameforge_sdk import (
+    # noqa: E402     DocumentBuilder,
     avatar,
     badge,
     button,
@@ -43,7 +43,7 @@ from frameforge.sdk import (  # noqa: E402
     tabs,
     toggle,
 )
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1440, 900
 M = 48

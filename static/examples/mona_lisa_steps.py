@@ -18,7 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import DocumentBuilder, Path, rgba  # noqa: E402
+from frameforge_sdk import DocumentBuilder, Path, rgba  # noqa: E402
 
 W, H = 1440.0, 1040.0
 GC = "#a7bccd"          # pencil guideline (light blue)
@@ -218,7 +218,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from frameforge.sdk import serialize
+    from frameforge_sdk import serialize
     out = os.environ.get("OUTPUT_YAML_PATH", "mona_lisa_steps.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))
     print(f"wrote {out}")

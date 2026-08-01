@@ -76,10 +76,10 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.clip import clip_circle  # noqa: E402
-from frameforge.sdk.outline import stroke_outline  # noqa: E402
-from frameforge.sdk.paint import (blur_filter, displacement_map,  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk.clip import clip_circle  # noqa: E402
+from frameforge_sdk.outline import stroke_outline  # noqa: E402
+from frameforge_sdk.paint import (blur_filter, displacement_map,  # noqa: E402
                                   filter_chain,
                                   radial_gradient, rgba, style_effects,
                                   turbulence)

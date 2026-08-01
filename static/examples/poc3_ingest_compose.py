@@ -33,7 +33,8 @@ from typing import Any, Callable, Iterable, Sequence
 
 sys.path.insert(0, os.environ.get("FG_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge_sdk import DocumentBuilder
+from frameforge.conform import render_page_svgs  # noqa: E402
 
 Obj = dict[str, Any]
 

@@ -51,9 +51,9 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
 import gingaone_house_style as G  # noqa: E402  — the house style we build on
-from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
-from frameforge.sdk.paint import linear_gradient  # noqa: E402
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge_sdk.paint import linear_gradient  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # ── borrow the house design system verbatim (one swap point) ────────────────
 PAL, SCALE, WEIGHT, SPACE, INTER = G.PAL, G.SCALE, G.WEIGHT, G.SPACE, G.INTER

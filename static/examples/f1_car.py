@@ -30,7 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import DocumentBuilder, Path, linear_gradient, radial_gradient, rgba  # noqa: E402
+from frameforge_sdk import DocumentBuilder, Path, linear_gradient, radial_gradient, rgba  # noqa: E402
 
 W, H = 1280.0, 720.0
 TARGET_LAYERS = 256
@@ -390,7 +390,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from frameforge.sdk import serialize
+    from frameforge_sdk import serialize
     out = os.environ.get("OUTPUT_YAML_PATH", "f1_car_128_layers.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))
     print(f"wrote {out}  ({len(scene())} layers)")

@@ -27,8 +27,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder, serialize  # noqa: E402
-from frameforge.sdk.paint import linear_gradient, radial_gradient, rgba  # noqa: E402
+from frameforge_sdk import DocumentBuilder, serialize  # noqa: E402
+from frameforge_sdk.paint import linear_gradient, radial_gradient, rgba  # noqa: E402
 
 # --- tokens (mirrors the reference :root) ----------------------------------- #
 GOLD, GOLD2, GOLD_SOFT = "#F2B705", "#FFC72C", "#FCEBB3"
@@ -742,7 +742,7 @@ doc = build_document()
 
 
 def main() -> int:
-    from frameforge.sdk.validate import validate_static_rules
+    from frameforge_sdk.validate import validate_static_rules
     built = doc.build()
     rep = validate_static_rules(built)
     errs = [i for i in rep.issues if i.severity == "error"]

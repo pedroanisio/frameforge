@@ -15,7 +15,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import delta_e, mix, ramp  # noqa: E402
+from frameforge_sdk import delta_e, mix, ramp  # noqa: E402
 
 
 def build_payload() -> dict[str, object]:

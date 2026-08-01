@@ -68,19 +68,19 @@ sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from dataclasses import replace as _dc_replace
 
-from frameforge.sdk import (  # noqa: E402
-    BookBuilder,
+from frameforge_sdk import (
+    # noqa: E402     BookBuilder,
     Frame,
     badge,
     closed_palette,
     contrast_ratio,
     default_theme,
     harmony_of_scale,
-    render_page_svgs,
     serialize,
 )
-from frameforge.sdk.metrics import text_height  # noqa: E402
-from frameforge.sdk.model import validate_document  # noqa: E402
+from frameforge.conform import render_page_svgs
+from frameforge_sdk.metrics import text_height  # noqa: E402
+from frameforge_sdk.model import validate_document  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Palette & type scale — see the typeface-and-colour skill. One closed
@@ -662,7 +662,7 @@ _STAT_GAP_V = 8.0
 
 
 def _stat_card_height(label: str, value: str, *, value_size: float, content_w: float) -> tuple[float, float, float]:
-    """Real SDK-measured height (frameforge.sdk.metrics.text_height), not a
+    """Real SDK-measured height (frameforge_sdk.metrics.text_height), not a
     guessed constant — a fixed 16px single-line label box is exactly what
     silently dropped "PHASES"/"ASSUMPTIONS"/"RESOLUTIONS" off real stat
     cards before this fix: multi-word tracked-caps labels wrap to 2 lines
@@ -880,7 +880,7 @@ def _verbatim_receipt(sample: dict[str, str], model: str | None, locale: str, *,
     provenance line — the standard every other AI-generated line in this
     report is held to (PALS's Law), made visible once instead of asserted
     once in a disclaimer and then forgotten. Box height is the SDK's own
-    measured wrap height (frameforge.sdk.metrics — real glyph advances when
+    measured wrap height (frameforge_sdk.metrics — real glyph advances when
     fontTools is installed, the same proxy the renderer itself falls back to
     otherwise), not a hand-rolled chars-per-line guess: an early version of
     this function estimated wrapping itself and silently dropped a line on
@@ -952,7 +952,7 @@ def _risk_callout(kind: str, description: str, index: int, total: int, *,
     rule, a kind tag, the full description — sourced verbatim from the
     recomposer's ``known_violations_to_not_replicate_blindly`` (real,
     evidence-backed structural analysis, not a raw frequency count). Height
-    comes from the SDK's own measured wrap (frameforge.sdk.metrics.text_height),
+    comes from the SDK's own measured wrap (frameforge_sdk.metrics.text_height),
     not an estimate — see _verbatim_receipt's docstring for why that matters."""
     ink, warn = PALETTE["ink"], PALETTE["warn"]
     kind_label = kind.replace("_", " ").upper()

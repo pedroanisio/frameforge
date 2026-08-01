@@ -14,7 +14,7 @@ contradito, o vermelho não aparece.
 """
 from __future__ import annotations
 
-from frameforge.sdk import DocumentBuilder, wrap_text
+from frameforge_sdk import DocumentBuilder, wrap_text
 
 # ------------------------------------------------------- warrant palette ----
 PAPER = "#EEF1EF"

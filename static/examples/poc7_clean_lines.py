@@ -20,7 +20,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.environ.get("FG_ROOT", ROOT))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge_sdk import DocumentBuilder
+from frameforge.conform import render_page_svgs  # noqa: E402
 from frameforge.coach import clean, ingest, node_count  # noqa: E402
 from poc3_ingest_compose import ink_iou, place, restyle_strokes  # noqa: E402
 

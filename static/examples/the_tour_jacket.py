@@ -43,9 +43,9 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.geometry import Mat3  # noqa: E402
-from frameforge.sdk.paint import stroke  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk.geometry import Mat3  # noqa: E402
+from frameforge_sdk.paint import stroke  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # §1 · Print geometry (O16) — everything downstream derives from these
@@ -482,7 +482,7 @@ def build():
     # §11 · Back panel (C24/C26/C27)
     # ------------------------------------------------------------------ #
     pg.layer("back")
-    from frameforge.sdk.metrics import wrap_text
+    from frameforge_sdk.metrics import wrap_text
 
     MEASURE = 430.0                    # px -> ~65 characters at 13.2 px Archivo
     LEAD = S_BODY * BODY_LH
@@ -612,8 +612,8 @@ def build():
 
 
 if __name__ == "__main__":
-    from frameforge.sdk.chevreul import contrast_ratio
-    from frameforge.sdk.validate import validate_static_rules
+    from frameforge_sdk.chevreul import contrast_ratio
+    from frameforge_sdk.validate import validate_static_rules
 
     ratio = contrast_ratio(BLACK, YELLOW)
     print(f"C31 proof: {BLACK} on {YELLOW} = {ratio:.2f}:1 "

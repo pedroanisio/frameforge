@@ -20,7 +20,8 @@ from typing import Any, Sequence
 sys.path.insert(0, os.environ.get("FG_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge_sdk import DocumentBuilder
+from frameforge.conform import render_page_svgs  # noqa: E402
 from guided_paint import fade, glow, haze, linear, radial, soft_shadow, stop, vignette, wash  # noqa: E402
 from poc3_ingest_compose import place  # noqa: E402
 from poc4_color_and_guide import as_guide  # noqa: E402

@@ -48,9 +48,9 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.clip import clip_path  # noqa: E402
-from frameforge.sdk.paint import (  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk.clip import clip_path  # noqa: E402
+from frameforge_sdk.paint import (  # noqa: E402
     effects,
     glow,
     linear_gradient,
@@ -343,7 +343,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from frameforge.sdk.validate import validate_static_rules
+    from frameforge_sdk.validate import validate_static_rules
 
     out = os.path.join(ROOT, "_tmp", "ui-trends-2025")
     os.makedirs(out, exist_ok=True)

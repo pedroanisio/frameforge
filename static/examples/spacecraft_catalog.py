@@ -24,8 +24,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
+from frameforge_sdk import (
+    # noqa: E402     DocumentBuilder,
     Mat4,
     Scene3D,
     badge,
@@ -36,7 +36,7 @@ from frameforge.sdk import (  # noqa: E402
     serialize,
     table,
 )
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1440, 900
 M = 56
@@ -727,7 +727,7 @@ def cover(b):
                             "idxk", align="right"))
 
     notes.append(_t([60, H - 40, 900, 16],
-                    "Built with frameforge.sdk · Scene3D + widgets · one composed document",
+                    "Built with frameforge_sdk · Scene3D + widgets · one composed document",
                     "foot"))
     page.add({"type": "group", "children": notes, "meta": {"role": "labels"}})
 

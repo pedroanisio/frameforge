@@ -14,8 +14,8 @@ Source document: _tmp/PALS.md (CONVERGENCE / PEDRO.SYSTEM v1.0).
 """
 import math
 
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.paint import linear_gradient, radial_gradient, rgba, stroke
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.paint import linear_gradient, radial_gradient, rgba, stroke
 
 # ---------------------------------------------------------------- tokens (§22)
 W, H = 1600, 1000

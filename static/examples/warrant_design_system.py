@@ -10,7 +10,7 @@ every content block. The document eats its own dogfood.
 """
 from __future__ import annotations
 
-from frameforge.sdk import DocumentBuilder
+from frameforge_sdk import DocumentBuilder
 
 # ---------------------------------------------------------------- canvas ----
 W, H = 1240, 1754                      # A4 portrait @ ~150 dpi

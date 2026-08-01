@@ -16,7 +16,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder, pattern, stroke  # noqa: E402
+from frameforge_sdk import DocumentBuilder, pattern, stroke  # noqa: E402
 
 
 def build() -> DocumentBuilder:

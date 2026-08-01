@@ -5,9 +5,10 @@ brand mark) is drawn as vector geometry so the render is crisp and tofu-free."""
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from frameforge.sdk import DocumentBuilder, Mat3, PageBuilder, render_pages_with_stats
-from frameforge.sdk.paint import linear_gradient, radial_gradient, rgba
-from frameforge.sdk.macros import span
+from frameforge_sdk import DocumentBuilder, Mat3, PageBuilder
+from frameforge.conform import render_pages_with_stats
+from frameforge_sdk.paint import linear_gradient, radial_gradient, rgba
+from frameforge_sdk.macros import span
 from itau_logo import GLYPHS as _GLYPHS, SQUIRCLE as _SQUIRCLE   # authentic reconstructed mark
 
 OUT = os.environ.get("ITAU_OUT", ".")

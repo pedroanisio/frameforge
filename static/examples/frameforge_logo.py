@@ -35,13 +35,9 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
-    measure_text,
-    render_page_svgs,
-    serialize,
-)
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, measure_text, serialize
+from frameforge.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Brand tokens used by the mark (docs/BRAND.md §4). The mark needs only these.

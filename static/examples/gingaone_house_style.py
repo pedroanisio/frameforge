@@ -40,10 +40,10 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.author import MasterBuilder  # noqa: E402
-from frameforge.sdk.paint import linear_gradient  # noqa: E402
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk.author import MasterBuilder  # noqa: E402
+from frameforge_sdk.paint import linear_gradient  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # ═══════════════════════════════════════════════════════════════════════════
 #  DESIGN SYSTEM — the only sizes / weights / colours / spacings allowed
@@ -397,7 +397,7 @@ def main() -> int:
           f"errors={len(errors)} warnings={len(report.issues) - len(errors)}")
     for i in report.issues[:20]:
         print(f"  [{i.severity}] [{i.rule_id}] {i.path}: {i.message}")
-    from frameforge.sdk import serialize
+    from frameforge_sdk import serialize
     out_dir = os.path.join(ROOT, "out", "gingaone")
     os.makedirs(out_dir, exist_ok=True)
     out = os.path.join(out_dir, "gingaone-template.fg.yaml")

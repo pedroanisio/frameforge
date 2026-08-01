@@ -64,7 +64,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder, fit_width, measure_text, text_height  # noqa: E402
+from frameforge_sdk import DocumentBuilder, fit_width, measure_text, text_height  # noqa: E402
 
 # The mark, the wordmark and the derivation fan come from the brand's single
 # source of truth (docs/BRAND.md §3) — imported, never redrawn, so this page and
@@ -465,7 +465,7 @@ LOOP = [
 # with an invented result — the first draft of this block claimed `True 0` while
 # actually returning `False 2`, because `"ink"` and `"display"` were never
 # declared. That is precisely the defect the page is about.
-CODE_SOURCE = '''from frameforge.sdk import DocumentBuilder
+CODE_SOURCE = '''from frameforge_sdk import DocumentBuilder
 
 doc = DocumentBuilder(title="Q3 Review", profile="deck")
 doc.define_color("ink", "#15181E")
@@ -481,7 +481,7 @@ print(report.ok, len(report.issues))'''
 CODE_RESULT = "True 0"
 
 CODE = [
-    [("from", "graph"), (" frameforge.sdk ", "paper"), ("import", "graph"),
+    [("from", "graph"), (" frameforge_sdk ", "paper"), ("import", "graph"),
      (" DocumentBuilder", "paper")],
     [],
     [("doc = DocumentBuilder(title=", "paper"), ('"Q3 Review"', "muted-r"),

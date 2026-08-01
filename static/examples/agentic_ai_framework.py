@@ -7,8 +7,8 @@ lives in exactly one ring), computed crescent-ring geometry, consistent type sca
 """
 import math
 
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.paint import stroke
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.paint import stroke
 
 W, H = 1160, 1500
 CY = 855
@@ -156,8 +156,8 @@ for (outer, inner), items in RING_ITEMS.items():
 # the thin left seam of the outer ring carries its two labels as arc text
 # (a horizontal box cannot sit inside that crescent without crossing a rim)
 def arc_label(outer, inner, center_deg, s, size=10.5):
-    from frameforge.sdk import measure_text
-    from frameforge.sdk.pathtext import text_on_path
+    from frameforge_sdk import measure_text
+    from frameforge_sdk.pathtext import text_on_path
     cxo, ro = LAYERS[outer][0], LAYERS[outer][1]
     cxi, ri = LAYERS[inner][0], LAYERS[inner][1]
     _ux, _uy, t_in = ray_hit(cxo, ro, cxi, ri, center_deg)

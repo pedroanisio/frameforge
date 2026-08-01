@@ -4,7 +4,7 @@
 Every page is a hand-composed *illustration*: there are no external image assets.
 The fox, the little star, the moon, the rolling hills, the silver pond, the owl
 and the tall trees are all drawn from geometry primitives exposed by
-:mod:`frameforge.sdk` — ``Path`` (Bézier / Catmull-Rom curves), polylines,
+:mod:`frameforge_sdk` — ``Path`` (Bézier / Catmull-Rom curves), polylines,
 ellipses, gradient fills and the ``Frame`` mapping helper. The story text is set
 through the same builder, and the whole book is validated against the
 authoritative model before it is serialised.
@@ -32,13 +32,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
-    Path,
-    serialize,
-    theme,
-)
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, Path, serialize, theme  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas & palette                                                            #
@@ -780,7 +775,7 @@ def main() -> int:
     print(f"Wrote {args.yaml}")
 
     if args.render:
-        from frameforge.sdk.conform import render_page_svgs
+        from frameforge.conform import render_page_svgs
         svgs = render_page_svgs(doc, base_dir=ROOT)
         os.makedirs(args.out, exist_ok=True)
         for idx, svg in enumerate(svgs, 1):

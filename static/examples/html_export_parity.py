@@ -18,7 +18,7 @@ Run it::
 Three ways to reach the same renderer
 -------------------------------------
 * CLI  — ``ff-render doc.fg.yaml --to html --out DIR``
-* SDK  — ``from frameforge.sdk import render_html`` (used below)
+* SDK  — ``from frameforge_sdk import render_html`` (used below)
 * MCP  — any render tool with ``to="html"``; the page is written into the
   session and reported as ``result.html`` + the
   ``frameforge://session/<id>/document.html`` resource (by reference — the tool
@@ -43,8 +43,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import DocumentBuilder, render_html  # noqa: E402
-from frameforge.sdk.conform import render_pages_with_stats  # noqa: E402
+from frameforge_sdk import DocumentBuilder
+from frameforge.conform import render_html  # noqa: E402
+from frameforge.conform import render_pages_with_stats  # noqa: E402
 
 #: Leaf marks, so the parity check compares artwork and ignores the structural
 #: `<g>` wrappers HTML adds (layer tree, object identity) and SVG declines.

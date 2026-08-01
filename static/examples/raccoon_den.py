@@ -4,8 +4,8 @@ Everything is geometry: smooth blobs are Catmull-Rom curves sampled into dense
 polygons; glows are stacked translucent ellipses; the LED text is a 3x5 dot font.
 """
 import math
-from frameforge.sdk import DocumentBuilder, rgba
-from frameforge.sdk.paint import stroke
+from frameforge_sdk import DocumentBuilder, rgba
+from frameforge_sdk.paint import stroke
 
 def S(w, c):
     return stroke(w, color=c)

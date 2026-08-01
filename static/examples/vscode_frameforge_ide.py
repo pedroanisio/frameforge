@@ -17,8 +17,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from frameforge.sdk import DocumentBuilder, stroke  # noqa: E402
-from frameforge.sdk.metrics import measure_text, wrap_text  # noqa: E402
+from frameforge_sdk import DocumentBuilder, stroke  # noqa: E402
+from frameforge_sdk.metrics import measure_text, wrap_text  # noqa: E402
 
 OUT = ROOT / "static" / "examples" / "fixtures" / "vscode-frameforge-ide.fg.yaml"
 

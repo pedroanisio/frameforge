@@ -14,7 +14,8 @@ import math
 import sys
 import os
 sys.path.insert(0, os.environ.get("FG_ROOT", "."))
-from frameforge.sdk import DocumentBuilder, render_page_svgs
+from frameforge_sdk import DocumentBuilder
+from frameforge.conform import render_page_svgs
 
 # ---------- tiny 3D ---------------------------------------------------------- #
 def roty(p, a):

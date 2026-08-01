@@ -16,8 +16,8 @@ from __future__ import annotations
 import math
 import os
 
-from frameforge.sdk import DocumentBuilder, paint
-from frameforge.sdk.macros import span
+from frameforge_sdk import DocumentBuilder, paint
+from frameforge_sdk.macros import span
 
 # ------------------------------------------------------------------ palette ---
 PAPER = "#F3EEE4"   # warm ground
@@ -292,7 +292,7 @@ def p4():
     p = new_page("def-texto")
     ink(p)
     running_head(p, "I · A definição")
-    from frameforge.sdk.macros import span
+    from frameforge_sdk.macros import span
     p.text([ML, 96 - BODY * 0.8, CW, LEAD * 1.5],
            [span("Recolher", font=SC, color=RED, letter_spacing=0.3, size=BODY),
             span(" é a prática de extrair capacidade reutilizável", font=GAR, color=INK, size=BODY)],

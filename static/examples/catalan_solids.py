@@ -46,8 +46,9 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
-from frameforge.sdk.draw import Camera, Scene3D, Vec3  # noqa: E402
+from frameforge_sdk import DocumentBuilder
+from frameforge.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk.draw import Camera, Scene3D, Vec3  # noqa: E402
 
 OUT_DIR = os.path.join(ROOT, "out", "catalan_solids")
 

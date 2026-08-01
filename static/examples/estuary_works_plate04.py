@@ -14,12 +14,12 @@ from __future__ import annotations
 import math
 import random
 
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.paint import linear_gradient, radial_gradient, rgba, hatch, dots
-from frameforge.sdk.paint import (blur_filter, filter_chain, filter_fn,
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.paint import linear_gradient, radial_gradient, rgba, hatch, dots
+from frameforge_sdk.paint import (blur_filter, filter_chain, filter_fn,
                                   style_effects)
-from frameforge.sdk.chevreul import contrast_ratio
-from frameforge.sdk.metrics import measure_text, wrap_text
+from frameforge_sdk.chevreul import contrast_ratio
+from frameforge_sdk.metrics import measure_text, wrap_text
 
 W, H = 3840, 2160
 SEED = 1849

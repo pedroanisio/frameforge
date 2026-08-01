@@ -68,12 +68,12 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import DocumentBuilder                      # noqa: E402
-from frameforge.sdk.chevreul import contrast_ratio              # noqa: E402
-from frameforge.sdk.clip import clip_polygon                    # noqa: E402
-from frameforge.sdk.metrics import measure_text                 # noqa: E402
-from frameforge.sdk.paint import stroke                         # noqa: E402
-from frameforge.sdk.pathtext import path_length, text_on_path   # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk.chevreul import contrast_ratio              # noqa: E402
+from frameforge_sdk.clip import clip_polygon                    # noqa: E402
+from frameforge_sdk.metrics import measure_text                 # noqa: E402
+from frameforge_sdk.paint import stroke                         # noqa: E402
+from frameforge_sdk.pathtext import path_length, text_on_path   # noqa: E402
 
 REGISTRY_SHA256 = "3966b0501e0ffb8005565c5bd291f8b7204c4ff76a69cb82ba32779e045b5bcd"
 

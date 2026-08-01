@@ -8,8 +8,8 @@ inventado. Técnicas de infográfico aplicadas (público → propósito → UMA
 mensagem central como ponto focal → evidência em blocos → conclusão + ação);
 estilo próprio de briefing de segurança, não copiado de nenhum guia.
 """
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.paint import stroke
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.paint import stroke
 
 W, H = 1080, 3380
 MX = 64

@@ -20,9 +20,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import expand, render_page_svgs, serialize  # noqa: E402
-from frameforge.sdk.model import HEAD_VERSION  # noqa: E402
-from frameforge.sdk.topology import Graph  # noqa: E402
+from frameforge_sdk import expand, serialize
+from frameforge.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk.model import HEAD_VERSION  # noqa: E402
+from frameforge_sdk.topology import Graph  # noqa: E402
 
 _SANS = ["DejaVu Sans", "Arial", "sans-serif"]
 

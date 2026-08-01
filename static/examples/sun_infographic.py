@@ -43,13 +43,13 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.canon import caps_tracking, measure_fits, modular_scale  # noqa: E402
-from frameforge.sdk.chevreul import contrast_ratio  # noqa: E402
-from frameforge.sdk.clip import clip_polygon  # noqa: E402
-from frameforge.sdk.metrics import measure_text, wrap_text  # noqa: E402
-from frameforge.sdk.outline import stroke_outline  # noqa: E402
-from frameforge.sdk.paint import (blur_filter, filter_chain, radial_gradient,  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk.canon import caps_tracking, measure_fits, modular_scale  # noqa: E402
+from frameforge_sdk.chevreul import contrast_ratio  # noqa: E402
+from frameforge_sdk.clip import clip_polygon  # noqa: E402
+from frameforge_sdk.metrics import measure_text, wrap_text  # noqa: E402
+from frameforge_sdk.outline import stroke_outline  # noqa: E402
+from frameforge_sdk.paint import (blur_filter, filter_chain, radial_gradient,  # noqa: E402
                                   rgba, style_effects)
 # the physics — imported so the disk here is the SAME derivation as the plate
 from sun_photosphere import (blackbody, brightness_ratio, layer_temperature,  # noqa: E402

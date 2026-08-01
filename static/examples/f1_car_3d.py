@@ -33,7 +33,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import DocumentBuilder, rgba  # noqa: E402
+from frameforge_sdk import DocumentBuilder, rgba  # noqa: E402
 
 PI = math.pi
 PAGE_W, PAGE_H = 1460.0, 940.0
@@ -484,7 +484,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from frameforge.sdk import serialize
+    from frameforge_sdk import serialize
     _, nc = build_model()
     out = os.environ.get("OUTPUT_YAML_PATH", "f1_car_3d.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))

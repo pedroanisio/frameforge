@@ -43,7 +43,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 
 from pathlib import Path  # noqa: E402
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
 
 W, H = 452, 678
 MX, MY = W / 4, H / 4  # 113, 169.5 -- the lattice module
@@ -130,7 +130,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from frameforge.sdk.validate import validate_static_rules
+    from frameforge_sdk.validate import validate_static_rules
 
     out = Path(ROOT) / "_tmp" / "lesson-02"
     out.mkdir(parents=True, exist_ok=True)

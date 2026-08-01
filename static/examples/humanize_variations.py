@@ -29,7 +29,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
 
 # A hand's world: warm paper, one ink, one earth-red accent (the build_a6 lineage).
 BG, INK, MUT, HAIR, ACCENT, FILL = "#F4EFE6", "#23201A", "#8A7F6B", "#DAD1BF", "#B04A2F", "#EAE2D1"
@@ -161,7 +161,7 @@ def build() -> DocumentBuilder:
 
 
 def main() -> int:
-    from frameforge.sdk import render_page_svgs
+    from frameforge.conform import render_page_svgs
 
     args = sys.argv[1:]
     doc = build().build()

@@ -13,12 +13,12 @@ from __future__ import annotations
 
 import math
 
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.paint import (rgba, hatch, radial_gradient, filter_chain, filter_fn,
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.paint import (rgba, hatch, radial_gradient, filter_chain, filter_fn,
                                   style_effects)
-from frameforge.sdk.outline import stroke_outline
-from frameforge.sdk.metrics import measure_text
-from frameforge.sdk.pathtext import text_on_path
+from frameforge_sdk.outline import stroke_outline
+from frameforge_sdk.metrics import measure_text
+from frameforge_sdk.pathtext import text_on_path
 
 W, H = 476, 667
 ART = (12, 12, 450, 593)          # measured art-area frame on the white page

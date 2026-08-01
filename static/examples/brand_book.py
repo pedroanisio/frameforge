@@ -42,14 +42,10 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
-    FigureRef,
-    render_page_svgs,
-    serialize,
-)
-from frameforge.sdk.metrics import measure_text, wrap_text  # noqa: E402
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, FigureRef, serialize
+from frameforge.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk.metrics import measure_text, wrap_text  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 import brand_book_figures as plates  # noqa: E402
 from brand_book_figures import (  # noqa: E402
@@ -391,7 +387,7 @@ class Book:
         widget bakes no colours (the renderer otherwise defaults to a saturated
         blue header), so we inject a ``style`` dict directly: an ink header with
         cream labels and warm hairline rules."""
-        from frameforge.sdk.widgets import table as _wtable
+        from frameforge_sdk.widgets import table as _wtable
         n = len(headers)
         weights = weights or [1.0] * n
         tot = sum(weights)

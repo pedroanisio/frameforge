@@ -24,7 +24,7 @@ Run from the repository root::
 
 NOTE ON FIDELITY
 ----------------
-This script is written against the public ``frameforge.sdk`` surface as used by
+This script is written against the public ``frameforge_sdk`` surface as used by
 the other examples. Almost everything is stock. The ONE author-side flourish is
 ``floor_flow()`` — it projects gradient streamlines onto the floor plane through
 the same Camera, exactly the way ``sdk_3d_scene.py`` adds Lambert shading via the
@@ -47,8 +47,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    Camera,
+from frameforge_sdk import (
+    # noqa: E402     Camera,
     DocumentBuilder,
     Scene3D,
     Vec3,
@@ -63,7 +63,7 @@ from frameforge.sdk import (  # noqa: E402
     row,
     sparkline,
 )
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 W, H = 1440, 900
@@ -403,7 +403,7 @@ def main() -> int:
     for i in report.issues[:20]:
         print(f"  [{i.severity}] [{i.rule_id}] {i.path}: {i.message}")
 
-    from frameforge.sdk import serialize  # noqa: E402
+    from frameforge_sdk import serialize  # noqa: E402
     out = os.path.join(ROOT, "tests", "fixtures", "stratoscope.fg.yaml")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as fh:
@@ -411,7 +411,7 @@ def main() -> int:
     print(f"Wrote {out}")
 
     if "--svg" in args:
-        from frameforge.sdk.conform import render_page_svgs
+        from frameforge.conform import render_page_svgs
         dst = args[args.index("--svg") + 1]
         os.makedirs(dst, exist_ok=True)
         for idx, svg in enumerate(render_page_svgs(doc, base_dir=ROOT), 1):

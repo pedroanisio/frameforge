@@ -19,14 +19,14 @@ Run from the repository root::
 """
 from __future__ import annotations
 
-from frameforge.sdk import (
+from frameforge_sdk import (
     DocumentBuilder,
     fit_width,
     measure_text,
-    overflow_report,
     stroke,
     validate_static_rules,
 )
+from frameforge.conform import overflow_report
 
 
 def build() -> dict:

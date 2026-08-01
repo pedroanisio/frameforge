@@ -31,9 +31,19 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs"), HERE]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder, canon, chart, chevreul, fields, macros, outline, planar, rgba, topology)
-from frameforge.sdk.geometry import Camera, ViewingPipeline, Vec3, convex_hull  # noqa: E402
+from frameforge_sdk import (
+    # noqa: E402     DocumentBuilder,
+    canon,
+    chart,
+    chevreul,
+    fields,
+    macros,
+    outline,
+    planar,
+    rgba,
+    topology,
+)
+from frameforge_sdk.geometry import Camera, ViewingPipeline, Vec3, convex_hull  # noqa: E402
 
 import f1_car_3d as base  # noqa: E402  (the shared organic 3D model + helpers)
 
@@ -370,7 +380,7 @@ def build():
 
 
 if __name__ == "__main__":
-    from frameforge.sdk import serialize
+    from frameforge_sdk import serialize
     out = os.environ.get("OUTPUT_YAML_PATH", "f1_spec_sheet.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(builder.build()))
     print(f"wrote {out}  ({len(scene())} layers, subsystems={sorted(USED)})")

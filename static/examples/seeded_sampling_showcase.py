@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic sampling: Halton, Poisson disk, and a jittered grid.
 
-The three panels use the public ``frameforge.sdk.rand`` surface to generate
+The three panels use the public ``frameforge_sdk.rand`` surface to generate
 ordinary circle geometry in Y-down page space.  Named ``Rand.derive`` streams
 keep each panel stable when another panel is edited or reordered.  ``build()``
 is the MCP ``run_sdk_code`` contract and returns a validated-ready plain
@@ -17,15 +17,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import (
-    Rand,
-    halton,
-    jittered_grid,
-    poisson_disk,
-    render_page_svgs,
-    serialize,
-)
-from frameforge.sdk.model import HEAD_VERSION
+from frameforge_sdk import Rand, halton, jittered_grid, poisson_disk, serialize
+from frameforge.conform import render_page_svgs
+from frameforge_sdk.model import HEAD_VERSION
 
 _SANS = ["DejaVu Sans", "Arial", "sans-serif"]
 

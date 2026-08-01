@@ -52,9 +52,9 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
 from frameforge.rendering.infrastructure.font_metrics import get_font_metrics  # noqa: E402
-from frameforge.sdk import DocumentBuilder  # noqa: E402
-from frameforge.sdk.paint import radial_gradient, stroke  # noqa: E402
-from frameforge.sdk.pathtext import text_on_path  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk.paint import radial_gradient, stroke  # noqa: E402
+from frameforge_sdk.pathtext import text_on_path  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # §1 · Sheet — an 18 x 24 in poster authored at 72 px/in
@@ -210,7 +210,7 @@ def band_window(r, *, x_limit, y_limit, a_max, keep_out):
 
 def phrase_width(phrase, *, size, track):
     """Set width of `phrase` the way ``text_on_path`` will actually lay it."""
-    from frameforge.sdk.metrics import measure_text
+    from frameforge_sdk.metrics import measure_text
     return (measure_text(phrase, font_family=SLAB_CHAIN, font_size=size)
             + track * len(phrase))
 
@@ -424,8 +424,8 @@ def build():
 
 
 if __name__ == "__main__":
-    from frameforge.sdk.chevreul import contrast_ratio
-    from frameforge.sdk.validate import validate_static_rules
+    from frameforge_sdk.chevreul import contrast_ratio
+    from frameforge_sdk.validate import validate_static_rules
 
     print(f"C31 proof: {INK} on {CREAM} = {contrast_ratio(INK, CREAM):.2f}:1 "
           f"(max possible 21.00:1)")

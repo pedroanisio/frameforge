@@ -29,7 +29,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder, cite, ref  # noqa: E402
+from frameforge_sdk import DocumentBuilder, cite, ref  # noqa: E402
 import layout_methods_figures as plates     # noqa: E402
 
 INK = "#1F2530"

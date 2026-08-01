@@ -1,10 +1,23 @@
 """FrameForge authoring-IDE wireframe — on ruler paper. FrameForge SDK widgets."""
 import math as m
 import os
-from frameforge.sdk import (DocumentBuilder, PageBuilder, Mat3, default_theme,
-                            register_theme, card, checkbox, avatar, image_placeholder,
-                            field, badge, button, pill, measure_text)
-from frameforge.sdk.validate import validate_static_rules
+from frameforge_sdk import (
+    DocumentBuilder,
+    PageBuilder,
+    Mat3,
+    default_theme,
+    register_theme,
+    card,
+    checkbox,
+    avatar,
+    image_placeholder,
+    field,
+    badge,
+    button,
+    pill,
+    measure_text,
+)
+from frameforge_sdk.validate import validate_static_rules
 
 OUT="/home/admin/github-mirror/_apis/api-pdf2text/research/fg"
 TH=default_theme(); gt=lambda n,d: getattr(TH,n,d)

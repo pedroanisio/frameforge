@@ -20,7 +20,7 @@ Euler's polyhedron formula ``V - E + F = 2``; the genus relation
 lemma ``sum(deg) = 2|E|``; coordination numbers of the cubic lattices.
 
 Provenance: AI-generated (Claude Opus 4.8) original illustration, authored
-through ``frameforge.sdk`` and validated against the authoritative model
+through ``frameforge_sdk`` and validated against the authoritative model
 before serialisation. Geometry is grounded (icosahedron from the canonical
 ``cyclic-perm(0, +/-1, +/-phi)`` vertices; surfaces from their standard
 parametrisations); layout coordinates are hand-composed.
@@ -43,8 +43,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    Camera,
+from frameforge_sdk import (
+    # noqa: E402     Camera,
     DocumentBuilder,
     Graph,
     ScalarField,
@@ -61,7 +61,7 @@ from frameforge.sdk import (  # noqa: E402
     sphere,
     torus,
 )
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Canvas, palette, type                                                        #
@@ -733,7 +733,7 @@ def main() -> int:
     print(f"Wrote {args.yaml}")
 
     if args.render:
-        from frameforge.sdk.conform import render_page_svgs
+        from frameforge.conform import render_page_svgs
         svgs = render_page_svgs(doc, base_dir=ROOT)
         os.makedirs(args.out, exist_ok=True)
         for idx, svg in enumerate(svgs, 1):

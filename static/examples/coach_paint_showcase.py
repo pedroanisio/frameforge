@@ -36,7 +36,8 @@ from frameforge.coach import (  # noqa: E402
     parse_intent, recolor_to_style, redraw, redraw_params, resolve_style, stage_rubric,
     to_silhouette, validate_order,
 )
-from frameforge.sdk import DocumentBuilder, render_page_svgs  # noqa: E402
+from frameforge_sdk import DocumentBuilder
+from frameforge.conform import render_page_svgs  # noqa: E402
 
 
 def _place(objs, box, src):

@@ -41,12 +41,9 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
-    render_page_svgs,
-    serialize,
-)
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, serialize
+from frameforge.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # The house palette — a sober, print-weight editorial system. One restrained
@@ -210,7 +207,7 @@ def header(page, H, kicker, title, *, sub=None):
 
 def caption(page, H, text, *, width=None):
     """A muted takeaway pinned to the plate's bottom edge; wraps to ≤2 lines."""
-    from frameforge.sdk.metrics import wrap_text
+    from frameforge_sdk.metrics import wrap_text
     cw = width or (W - 2 * MARGIN)
     lines = wrap_text(text, width=cw, font_family=SANS, font_size=12)[:2]
     y0 = H - 30 - (len(lines) - 1) * 15

@@ -46,7 +46,7 @@ def _synthesize_source(path: pathlib.Path) -> None:
 
 
 def build():
-    from frameforge.sdk import DocumentBuilder
+    from frameforge_sdk import DocumentBuilder
     from frameforge.vision.infrastructure.vectorize import (
         apply_gradient_fills,
         raster_to_objects,
@@ -73,7 +73,7 @@ def build():
 if __name__ == "__main__":
     out = pathlib.Path(__file__).resolve().parents[2] / "_tmp" / "gradient-vectorize-demo"
     out.mkdir(parents=True, exist_ok=True)
-    from frameforge.sdk.io import serialize
+    from frameforge_sdk.io import serialize
 
     doc = build().build()
     (out / "gradient-vectorize-demo.fg.yaml").write_text(

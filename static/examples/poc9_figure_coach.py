@@ -37,7 +37,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.environ.get("FG_ROOT", ROOT))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from frameforge.sdk import DocumentBuilder, render_page_svgs, validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, validate_static_rules
+from frameforge.conform import render_page_svgs  # noqa: E402
 from frameforge.coach import (  # noqa: E402
     CANONS,
     analyze,

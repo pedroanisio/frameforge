@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A complex, shaded 3D scene composed with the FrameForge SDK — *today*.
 
-The SDK already ships a software 3D pipeline: :class:`frameforge.sdk.Scene3D`
+The SDK already ships a software 3D pipeline: :class:`frameforge_sdk.Scene3D`
 projects meshes / parametric surfaces / revolved solids / extrusions through a
 :class:`Camera` (perspective ``look_at`` + ``perspective_fov``) into depth-sorted
 2D polylines. Its only gap is shading — faces are emitted flat.
@@ -35,8 +35,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    Camera,
+from frameforge_sdk import (
+    # noqa: E402     Camera,
     DocumentBuilder,
     Scene3D,
     Vec3,
@@ -45,7 +45,7 @@ from frameforge.sdk import (  # noqa: E402
     rgba,
     serialize,
 )
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 W, H = 1440, 900
 SCENE_BOX = [70, 96, 1300, 740]

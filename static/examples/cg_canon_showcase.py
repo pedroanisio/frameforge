@@ -2,7 +2,7 @@
 """FrameForge v2 — *Twelve Hours of Geometry* (A4 capability showcase).
 
 A polished, multi-page A4 reference for the CG-canon geometry/fractal/3D APIs
-shipped to `frameforge.sdk` in one 12-hour session (roadmap backlog B1–B10 + the
+shipped to `frameforge_sdk` in one 12-hour session (roadmap backlog B1–B10 + the
 2D/3D intersection, hull, OBB, curvature, and shading work). Every figure in this
 book is drawn by CALLING the very API it documents — the reflections come from
 `Mat3.reflect`, the hulls from `convex_hull`, the fractals from `sdk.fractal`, the
@@ -34,8 +34,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    Camera,
+from frameforge_sdk import (
+    # noqa: E402     Camera,
     CubicBezier,
     DocumentBuilder,
     Material,
@@ -58,9 +58,9 @@ from frameforge.sdk import (  # noqa: E402
     turtle,
     window_to_viewport,
 )
-from frameforge.sdk.geometry import Mat3  # noqa: E402
-from frameforge.sdk.manifold import sphere, torus  # noqa: E402
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk.geometry import Mat3  # noqa: E402
+from frameforge_sdk.manifold import sphere, torus  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Page geometry — A4 @ 96 dpi (794 × 1123), portrait.
@@ -594,7 +594,7 @@ def fig_orbit(box, part):
 
 def fig_ray_triangle(box, part):
     """B8 residual — ray × triangle (Möller–Trumbore), the hit projected to 2D."""
-    from frameforge.sdk import ray_triangle_intersection
+    from frameforge_sdk import ray_triangle_intersection
     inner = _F(box)
     fx, fy, fw, fh = inner
     tri = [Vec3(-1, -0.6, 0), Vec3(1.2, -0.4, 0.3), Vec3(0.1, 1.1, -0.2)]
@@ -630,7 +630,7 @@ def _chrome(L, part, running):
 
 def _footer(L, pageno):
     L.add(LN(MX, PH - 52, PW - MX, PH - 52, color=HAIR, width=1.0))
-    L.add(T(MX, PH - 44, 400, 14, "frameforge.sdk · CG-canon release", size=8.5, color=FAINT))
+    L.add(T(MX, PH - 44, 400, 14, "frameforge_sdk · CG-canon release", size=8.5, color=FAINT))
     L.add(T(PW - MX - 60, PH - 44, 60, 14, str(pageno), size=10, color=MUTE, weight=600,
             align="right"))
 
@@ -732,7 +732,7 @@ class Book:
             L.add(T(MX, yy + 6, 30, 20, f"{pi:02d}", size=13, color=col, weight=800))
             L.add(T(MX + 44, yy + 7, CW - 44, 20, title, size=14, color=INK, weight=600))
             yy += 36
-        L.add(T(MX, PH - 74, CW, 16, "frameforge.sdk · geometry · fractal · draw — "
+        L.add(T(MX, PH - 74, CW, 16, "frameforge_sdk · geometry · fractal · draw — "
                 "authored end-to-end through the SDK; every figure is live API output.",
                 size=10, color=FAINT, font=SERIF))
         return self

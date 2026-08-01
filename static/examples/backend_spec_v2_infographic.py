@@ -6,8 +6,8 @@ Every claim on the poster is drawn from that document; nothing is invented.
 """
 import math
 
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.paint import stroke
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.paint import stroke
 
 W, H = 842, 1191
 MX = 36
@@ -152,7 +152,7 @@ L.circle(center=[CXR, CYR], r=176, fill=PANEL, opacity=0.35)
 
 # orbital microtext ring (axis-applicability law, §2.4)
 try:
-    from frameforge.sdk.pathtext import text_on_path
+    from frameforge_sdk.pathtext import text_on_path
     _arc = [list(axpos(a / 10.0, 183)) for a in range(-300, 1501, 25)]
     _ring_txt = ("AXIS APPLICABILITY — SPECIFIED · NOT_APPLICABLE · "
                  "UNKNOWN (DIAGNOSTIC ONLY)")

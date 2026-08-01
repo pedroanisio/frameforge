@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Author a 30-sheet engineering drawing package for a counterweight trebuchet.
 
-This is a *demonstration* of the public FrameForge Python SDK (:mod:`frameforge.sdk`)
+This is a *demonstration* of the public FrameForge Python SDK (:mod:`frameforge_sdk`)
 that deliberately picks a different output genre from the slide decks in this
 folder: it is a **drafting package**, not a deck. Every sheet wears the furniture
 of a real engineering drawing —
@@ -47,8 +47,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    Chart,
+from frameforge_sdk import (
+    # noqa: E402     Chart,
     DocumentBuilder,
     Frame,
     Mat4,
@@ -58,7 +58,7 @@ from frameforge.sdk import (  # noqa: E402
     serialize,
     theme,
 )
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Sheet, identity and type                                                     #
@@ -661,7 +661,7 @@ def page_cover(builder):
         layer.text([bx + ox, by + oy + 14, 200, 18], val,
                    style={"class": "tbv", "color": BPW, "font_family": MONO})
     layer.text([FX0 + 6, H - 70, 700, 16],
-               "frameforge.sdk · DocumentBuilder · MScale · Path · Chart · Mat4.isometric",
+               "frameforge_sdk · DocumentBuilder · MScale · Path · Chart · Mat4.isometric",
                style={"class": "small", "color": BPL})
 
 
@@ -1904,7 +1904,7 @@ def page_bom(builder):
     notes_panel(layer, [FX0 + 676, FY0 + 360, 624, 110], "END OF SET", [
         "Sheets 01–30 complete. Every view, dimension, section and chart on this set "
         "was generated programmatically through the FrameForge Python SDK and validated "
-        "against the authoritative model. — frameforge.sdk",
+        "against the authoritative model. — frameforge_sdk",
     ], numbered=False)
 
 
@@ -1994,7 +1994,7 @@ def main() -> int:
     print(f"Wrote {args.yaml}")
 
     if args.render:
-        from frameforge.sdk.conform import render_page_svgs
+        from frameforge.conform import render_page_svgs
         svgs = render_page_svgs(doc, base_dir=ROOT)
         os.makedirs(args.out, exist_ok=True)
         for idx, svg in enumerate(svgs, 1):

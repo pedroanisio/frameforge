@@ -20,7 +20,8 @@ ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from frameforge.patterns import compose, load_sidecars  # noqa: E402
-from frameforge.sdk import render_page_svgs, serialize  # noqa: E402
+from frameforge_sdk import serialize
+from frameforge.conform import render_page_svgs  # noqa: E402
 
 SHOWN = (10, 44, 111)
 

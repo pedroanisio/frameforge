@@ -20,8 +20,8 @@ from __future__ import annotations
 
 import math
 
-from frameforge.sdk import DocumentBuilder, paint
-from frameforge.sdk.macros import span
+from frameforge_sdk import DocumentBuilder, paint
+from frameforge_sdk.macros import span
 
 # ---------------------------------------------------------------- palette ----
 # One paper, one ink, one quiet grey, one rubric accent. Every hue has a duty;

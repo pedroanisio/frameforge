@@ -23,7 +23,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import DocumentBuilder  # noqa: E402
+from frameforge_sdk import DocumentBuilder  # noqa: E402
 
 # The recolher palette (honouring build_a6.py).
 BG, INK, MUT, RED, FILL = "#F3EEE4", "#211C16", "#6E6656", "#A6442E", "#E7DFCF"
@@ -86,7 +86,7 @@ def build() -> DocumentBuilder:
 
 
 def main() -> int:
-    from frameforge.sdk import render_page_svgs
+    from frameforge.conform import render_page_svgs
 
     doc = build().build()
     svgs = render_page_svgs(doc)

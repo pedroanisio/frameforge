@@ -40,14 +40,10 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
-    FigureRef,
-    render_page_svgs,
-    serialize,
-)
-from frameforge.sdk.metrics import measure_text, wrap_text  # noqa: E402
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, FigureRef, serialize
+from frameforge.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk.metrics import measure_text, wrap_text  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 import layout_methods_figures as plates  # noqa: E402
 
@@ -411,7 +407,7 @@ class Book:
     def table(self, headers, rows, *, weights=None, row_height=30, header_height=34):
         """A real TableObject via the widgets table helper, themed to the book."""
         from dataclasses import replace
-        from frameforge.sdk.widgets import default_theme
+        from frameforge_sdk.widgets import default_theme
         n = len(headers)
         weights = weights or [1.0] * n
         tot = sum(weights)

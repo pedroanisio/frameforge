@@ -19,8 +19,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import (  # noqa: E402
-    HEAD_VERSION,
+from frameforge_sdk import (
+    # noqa: E402     HEAD_VERSION,
     compose_activity_diagram,
     compose_class_diagram,
     compose_communication_diagram,
@@ -35,7 +35,6 @@ from frameforge.sdk import (  # noqa: E402
     compose_state_machine,
     compose_timing_diagram,
     compose_use_case_diagram,
-    render_page_svgs,
     serialize,
     validate_activity_diagram,
     validate_class_diagram,
@@ -52,6 +51,7 @@ from frameforge.sdk import (  # noqa: E402
     validate_timing_diagram,
     validate_use_case_diagram,
 )
+from frameforge.conform import render_page_svgs
 
 _CANVAS = (640.0, 480.0)
 

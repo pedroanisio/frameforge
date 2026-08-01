@@ -7,7 +7,7 @@ Material 3 / M3 Expressive guidance (see the closing colophon for sources).
 """
 import os
 import math
-from frameforge.sdk import DocumentBuilder, serialize
+from frameforge_sdk import DocumentBuilder, serialize
 
 # ============================================================ A4 + type
 W, H = 1000, 1414                      # A4 portrait ratio (1 : 1.414)

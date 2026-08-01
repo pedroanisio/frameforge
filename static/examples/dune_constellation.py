@@ -19,8 +19,8 @@ Source: a doc-ray analysis of Frank Herbert's Dune, book 1 (entity_frequency
 + document_evidence). Render: run_sdk_client (to='pdf').
 """
 import math
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.paint import stroke, radial_gradient, linear_gradient
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.paint import stroke, radial_gradient, linear_gradient
 
 # ── closed palette: warm-monochrome + spice light + one blue visitor ──
 D0, D1 = "#0A0805", "#15100A"          # ground gradient (desert night)

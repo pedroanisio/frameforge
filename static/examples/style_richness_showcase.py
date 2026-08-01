@@ -16,14 +16,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import (  # noqa: E402
-    chevreul,
-    measure_text,
-    recolor,
-    render_page_svgs,
-    serialize,
-)
-from frameforge.sdk.model import HEAD_VERSION, validate_document  # noqa: E402
+from frameforge_sdk import chevreul, measure_text, recolor, serialize
+from frameforge.conform import render_page_svgs  # noqa: E402
+from frameforge_sdk.model import HEAD_VERSION, validate_document  # noqa: E402
 
 _SANS = ["DejaVu Sans", "Arial", "sans-serif"]
 

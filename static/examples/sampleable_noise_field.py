@@ -15,13 +15,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import (
-    DocumentBuilder,
-    Noise,
-    ScalarField,
-    render_page_svgs,
-    serialize,
-)
+from frameforge_sdk import DocumentBuilder, Noise, ScalarField, serialize
+from frameforge.conform import render_page_svgs
 
 _SANS = ["DejaVu Sans", "Arial", "sans-serif"]
 

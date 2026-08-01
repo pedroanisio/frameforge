@@ -15,8 +15,8 @@ Design contract (typeface-and-colour skill):
 Render:  ff-render, or the MCP run_sdk_client tool (to='pdf', max_pages=0).
 """
 import math
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.paint import stroke, radial_gradient, linear_gradient
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.paint import stroke, radial_gradient, linear_gradient
 
 GROUND, PANEL = "#141009", "#1D160D"
 INK, INK_2, INK_3, INK_4 = "#EFE3CC", "#B8A889", "#7E7059", "#4C4133"

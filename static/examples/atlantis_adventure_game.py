@@ -44,13 +44,9 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder,
-    rgba,
-    serialize,
-)
-from frameforge.sdk.layout import column, row  # noqa: E402
-from frameforge.sdk.validate import validate_static_rules  # noqa: E402
+from frameforge_sdk import DocumentBuilder, rgba, serialize  # noqa: E402
+from frameforge_sdk.layout import column, row  # noqa: E402
+from frameforge_sdk.validate import validate_static_rules  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Page + palette  (320x400 logical px, scaled x4 -> a tall "two-screen" comic)

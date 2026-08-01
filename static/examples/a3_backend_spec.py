@@ -1,6 +1,6 @@
 import math
-from frameforge.sdk import DocumentBuilder
-from frameforge.sdk.paint import stroke
+from frameforge_sdk import DocumentBuilder
+from frameforge_sdk.paint import stroke
 
 def S(w, c):
     return stroke(w, color=c)

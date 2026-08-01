@@ -23,17 +23,29 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.sdk import (  # noqa: E402
-    DocumentBuilder, Path, apply_humanize, chevreul, fractal, from_markdown,
-    linear_gradient, macros, outline, planar, radial_gradient, region, rgba, widgets,
+from frameforge_sdk import (
+    # noqa: E402     DocumentBuilder,
+    Path,
+    apply_humanize,
+    chevreul,
+    fractal,
+    from_markdown,
+    linear_gradient,
+    macros,
+    outline,
+    planar,
+    radial_gradient,
+    region,
+    rgba,
+    widgets,
 )
-from frameforge.sdk.canon import content_box, modular_scale  # noqa: E402
-from frameforge.sdk.chart import Chart  # noqa: E402
-from frameforge.sdk.clip import clip_rect  # noqa: E402
-from frameforge.sdk.draw import Frame, Scene3D  # noqa: E402
-from frameforge.sdk.fields import ScalarField  # noqa: E402
-from frameforge.sdk.layout import grid  # noqa: E402
-from frameforge.sdk.topology import Graph  # noqa: E402
+from frameforge_sdk.canon import content_box, modular_scale  # noqa: E402
+from frameforge_sdk.chart import Chart  # noqa: E402
+from frameforge_sdk.clip import clip_rect  # noqa: E402
+from frameforge_sdk.draw import Frame, Scene3D  # noqa: E402
+from frameforge_sdk.fields import ScalarField  # noqa: E402
+from frameforge_sdk.layout import grid  # noqa: E402
+from frameforge_sdk.topology import Graph  # noqa: E402
 
 W, H = 842.0, 595.0
 
@@ -456,7 +468,7 @@ def build():
 doc = build()
 
 if __name__ == "__main__":
-    from frameforge.sdk import serialize
+    from frameforge_sdk import serialize
     out = os.environ.get("OUTPUT_YAML_PATH", "prehistoric_saga.fg.yaml")
     open(out, "w", encoding="utf-8").write(serialize(doc))
     print(f"wrote {out}")
