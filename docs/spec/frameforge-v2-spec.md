@@ -247,6 +247,17 @@ Authored line breaks and spacing follow `Style.white_space`: `normal` collapses 
 preserve them while wrapping; `pre-line` preserves newlines while collapsing repeated
 spaces.
 
+Because `normal` is the default, a text object whose content carries `\n` reflows into
+one paragraph unless a preserving mode is set — the conformant behaviour, but a silent
+one, so a conforming tool SHOULD report it (FrameForge emits a `collapsed_line_breaks`
+render warning naming the object and the number of breaks dropped).
+
+An SVG-emitting target MUST NOT rely on the CSS `white-space` property alone to carry a
+preserving mode: `white-space` is CSS-Text/SVG2 and SVG 1.1 consumers apply XML
+whitespace processing instead, collapsing every run. Such a target MUST also mark the
+owning text element `xml:space="preserve"` (SVG 1.1 §10.15), scoped to that element and
+never to the document root, so preserved runs survive to every consumer.
+
 `shrink_to_fit` is a declared FrameForge fit mode a target MAY mark unsupported (§8.5).
 The shrink search MUST be a pure function of `(text, W, H, size, min_font_size,
 step/tolerance)`; each target publishes its step/tolerance.
