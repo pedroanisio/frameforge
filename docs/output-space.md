@@ -43,26 +43,26 @@ These are wired and exercised in the repo. Each names its entry point; the paths
 here are pinned by `tests/test_output_space_doc.py` (drift → gate failure).
 
 The shared core is the port + renderer:
-`src/frameforge/rendering/domain/ports.py` (the `ScenePainter` port) and
-`src/frameforge/rendering/application/renderer.py` (the model-walking `Renderer`).
+`frameforge_render/domain/ports.py` (the `ScenePainter` port) and
+`frameforge_render/application/renderer.py` (the model-walking `Renderer`).
 Since 2.5.0 these backends share one front door: `ff-render <doc> --to <target>`
 (`src/frameforge/cli.py`; `--list` shows live availability).
 
 | Output | Kind | Entry point |
 |---|---|---|
-| **SVG** | vector (primary) | `src/frameforge/rendering/infrastructure/painters/svg.py`, driven by `tooling/render_fixtures.py` |
+| **SVG** | vector (primary) | `frameforge_render/infrastructure/painters/svg.py`, driven by `tooling/render_fixtures.py` |
 | **PNG** (headless Chromium) | raster, CSS-fidelity; `--font-pack P.fp` scopes fonts so measure == render (ADR-0004) | `tooling/render_chromium.py` |
 | **Raster** (matplotlib proxy) | raster, sanity check | `tooling/render_fg_doc.py` |
-| **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `src/frameforge/rendering/infrastructure/latex/document.py` |
+| **PDF** via LaTeX/TikZ (lualatex *or* pdflatex) | print/typeset | `tooling/render_latex.py`, `frameforge_render/infrastructure/latex/document.py` |
 | **PDF** via cairosvg (SVG → PDF) | vector PDF | `tooling/render_pdf.py` |
-| **HTML** — semantic shell + inline SVG (ADR-0004 promotes this to the intended flow-fidelity path; **since the DRY/SOLID port it is driven by the shared `Renderer`, so its object-type coverage equals SVG's and `mode: flow` typesets for real**) | web | `src/frameforge/rendering/infrastructure/painters/html.py` (`HtmlPainter`, the `ScenePainter`) assembled by `…/backends/html.py` (the `DocumentRenderer` port; `--to html`) |
+| **HTML** — semantic shell + inline SVG (ADR-0004 promotes this to the intended flow-fidelity path; **since the DRY/SOLID port it is driven by the shared `Renderer`, so its object-type coverage equals SVG's and `mode: flow` typesets for real**) | web | `frameforge_render/infrastructure/painters/html.py` (`HtmlPainter`, the `ScenePainter`) assembled by `…/backends/html.py` (the `DocumentRenderer` port; `--to html`) |
 | **Math** TeX → SVG (MathJax) | embedded glyphs | `tooling/mathjax_tex_to_svg.mjs` |
 | **JSON Schema** | format contract | `docs/schema/build_schema.py` |
 | **Docs site** (reference/gallery/SDK/spec) | documentation | `tooling/gen_docs.py` |
 | **Golden hashes** (per-page SHA-256 of SVG) | regression lock | `tooling/render_golden.py` |
-| **Audit** report (design-token + feature census) | report / QA | `src/frameforge/rendering/application/audit.py` (`--to audit`; tokens read off the emitted SVG + a generic model walk — drift-proof; sprawl health flags; [ADR-0006](adr-0006-no-injected-style.md)) |
+| **Audit** report (design-token + feature census) | report / QA | `frameforge_render/application/audit.py` (`--to audit`; tokens read off the emitted SVG + a generic model walk — drift-proof; sprawl health flags; [ADR-0006](adr-0006-no-injected-style.md)) |
 
-The second-painter migration (`src/frameforge/rendering/infrastructure/painters/tikz.py`,
+The second-painter migration (`frameforge_render/infrastructure/painters/tikz.py`,
 `TikzPainter`) is in progress — when wired it routes the LaTeX/TikZ output through
 the same port, collapsing the `FigureTikz` fork.
 

@@ -24,9 +24,9 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):   # evict a models-
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.domain.stacking import effective_z  # noqa: E402
-from frameforge.rendering.infrastructure.backends import html as html_backend  # noqa: E402
-from frameforge.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
+from frameforge_render.domain.stacking import effective_z  # noqa: E402
+from frameforge_render.infrastructure.backends import html as html_backend  # noqa: E402
+from frameforge_render.infrastructure.latex.tikz import FigureTikz  # noqa: E402
 from tooling.render_fixtures import Renderer  # noqa: E402
 
 RED, BLUE = "#ff0000", "#0000ff"

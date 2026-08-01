@@ -39,7 +39,7 @@ try:
 except Exception:  # noqa: BLE001
     HEAD_VERSION = "2.2.0"
 
-from frameforge.rendering.domain.services.paint_intent import (  # noqa: E402
+from frameforge_render.domain.services.paint_intent import (  # noqa: E402
     inert_stroke_keys,
 )
 

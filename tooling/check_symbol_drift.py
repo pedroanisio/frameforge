@@ -208,8 +208,8 @@ def _sibling_package_roots() -> list[Path]:
     pin or a wheel, and skips silently when an optional sibling is absent.
     """
     roots: list[Path] = []
-    for mod in ("frameforge_api", "frameforge_sdk", "frameforge_vision",
-                "frameforge_mcp", "frameforge_coach"):
+    for mod in ("frameforge_api", "frameforge_sdk", "frameforge_render",
+                "frameforge_vision", "frameforge_mcp", "frameforge_coach"):
         try:
             pkg = __import__(mod)
         except ImportError:

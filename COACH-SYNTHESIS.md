@@ -22,7 +22,7 @@ it does not fake quality or measurement.
 | **POC-03** ingest×compose | the trace is *programmable*: restyle, **select a region / edit one element / recompose**, place beside native text+chart; gated (geometry-invariant, distinct renders, strict-subset) |
 | **POC-04** colour/guide | fill + **gradient** region traces; use line-art as a low-opacity **guide** to draw on top |
 | **POC-05** redraw | **redraw over** a trace: RDP-simplify, **smooth to Catmull-Rom cubic paths**, **snap blobs to clean primitives** |
-| `guided_paint` + guided-draw showcase | render-safe **atmosphere** (glow/haze/vignette/wash) → finished painted illustration over a guide |
+| the guided-paint + guided-draw showcase clients (repo `frameforge-example`) | render-safe **atmosphere** (glow/haze/vignette/wash) → finished painted illustration over a guide |
 
 ## 2. How the maintainer's `frameforge/coach/` distilled it
 
@@ -58,7 +58,8 @@ painting layer, and it lived only in `examples/`.
   `StyleProfile` palette** (key-light glow from the palette's lightest colour,
   vignette from its darkest). Paint that is *on-brand by construction*, not
   hand-picked — this is the "improve **with** the coach" part, not just a port.
-- DRY: `examples/guided_paint.py` is now a thin re-export of `coach.paint`
+- DRY: the cookbook's guided-paint client (repo `frameforge-example`) is a thin
+  re-export of `coach.paint`
   (RDP/hexshift/atmosphere live in one place).
 
 The hard constraint is encoded, not hidden: cairosvg (the browser-free
@@ -66,7 +67,8 @@ rasteriser) **drops blur filters and `mix-blend-mode`** (verified), so every
 primitive fakes soft light with *transparent gradient stops* — it survives the
 fallback path a real browser would render anyway.
 
-`examples/coach_paint_showcase.py` runs the whole coach in one pass on a real
+The cookbook's coach-paint showcase client (repo `frameforge-example`) runs the
+whole coach in one pass on a real
 image — `parse_intent → resolve_style → create_plan/validate → ingest(region+
 outline) → clean → recolor_to_style → gradientize → atmosphere → to_silhouette` —
 turning a photo into an on-brand, atmospheric, layer-disciplined illustration,
@@ -86,7 +88,7 @@ with the silhouette gate on the cleaned line-art.
    RDP tolerance, edge → smoothing, line weight + snap from the grammar). One
    style name now reconfigures the *whole* pipeline: `comic_ink` → heavy ink
    (width 5), keep detail, snap on; `flat_icon` → simplify hard. Wired into
-   `coach_paint_showcase`.
+   the coach-paint showcase client (repo `frameforge-example`).
 3. ✅ **MCP tool** (DONE) — `coach_vectorize` exposes the whole pipeline as one
    MCP call: image → ingest → clean → redraw → recolor → gradientize → paint,
    driven by a named `style`, then validate + render + silhouette gate (reuses the

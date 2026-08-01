@@ -26,14 +26,14 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "docs")]
 
-from frameforge.rendering.application.normalize import normalize_doc  # noqa: E402
-from frameforge.rendering.application.renderer import Renderer  # noqa: E402
-from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-from frameforge.rendering.domain.services.text_style_resolver import (  # noqa: E402
+from frameforge_render.application.normalize import normalize_doc  # noqa: E402
+from frameforge_render.application.renderer import Renderer  # noqa: E402
+from frameforge_render.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from frameforge_render.domain.services.text_style_resolver import (  # noqa: E402
     TextStyleResolver,
 )
-from frameforge.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
-from frameforge.rendering.infrastructure.painters.tikz import TikzPainter  # noqa: E402
+from frameforge_render.infrastructure.latex.tikz import FigureTikz  # noqa: E402
+from frameforge_render.infrastructure.painters.tikz import TikzPainter  # noqa: E402
 
 
 def _figtikz():

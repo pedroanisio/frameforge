@@ -98,12 +98,21 @@ def test_radial_without_at_keeps_legacy_bytes():
     assert '<radialGradient id="g1">' in svg
 
 
-def test_conic_fallback_emits_structured_warning():
+def test_conic_is_synthesised_not_approximated_by_a_radial():
+    """A conic sweep is BUILT, and no longer borrowed from `<radialGradient>`.
+
+    The engine used to emit a radial gradient plus a `gradient_conic_fallback`
+    warning saying so. A radial is not a coarse conic — conic colour varies with
+    the ANGLE about a centre, radial with the DISTANCE from it, so a colour wheel
+    came out as concentric rings. `frameforge-render` 1.4.0 subdivides the turn
+    into wedges and renders the fan into a `<pattern>`, which is a real paint
+    server. The warning is gone because there is nothing left to disclose.
+    """
     svg, r = _render({"kind": "conic", "stops": _STOPS})
-    assert "<radialGradient" in svg  # documented approximation
+    assert "<pattern" in svg, "conic sweep is not synthesised"
+    assert "<radialGradient" not in svg, "conic fell back to a radial approximation"
     warns = [w for w in r.diagnostics["warnings"] if w["kind"] == "gradient_conic_fallback"]
-    assert warns, f"no structured conic warning: {r.diagnostics['warnings']}"
-    assert "radial" in warns[0]["message"]
+    assert not warns, f"conic no longer approximates, so it must not warn: {warns}"
 
 
 if __name__ == "__main__":

@@ -343,7 +343,7 @@ def test_rasterization_respects_page_cap_and_uses_true_page_filenames(tmp_path, 
     import frameforge_mcp.pipeline as pipeline
 
     monkeypatch.setattr(
-        "frameforge.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
+        "frameforge_render.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
     )
     monkeypatch.setattr(pipeline, "_raster_max_pages", lambda: 1)
 
@@ -367,7 +367,7 @@ def test_rasterization_respects_time_budget(tmp_path, monkeypatch):
     import frameforge_mcp.pipeline as pipeline
 
     monkeypatch.setattr(
-        "frameforge.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
+        "frameforge_render.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
     )
     monkeypatch.setattr(pipeline, "_raster_max_pages", lambda: 99)
     monkeypatch.setattr(pipeline, "_raster_timeout", lambda: 1.0)

@@ -177,7 +177,7 @@ def _html_hash_of(doc: dict) -> str:
     and no headless browser. The lock is a document-level hash, not per page,
     because the backend emits one HTML file containing every `<figure>`.
     """
-    from frameforge.rendering.infrastructure.backends.html import render_document
+    from frameforge_render.infrastructure.backends.html import render_document
     with pinned_math():
         return _hash(render_document(doc, real_metrics=False))
 

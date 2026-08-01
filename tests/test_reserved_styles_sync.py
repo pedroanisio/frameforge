@@ -25,15 +25,26 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.domain.services.text_style_resolver import (  # noqa: E402
+from frameforge_render.domain.services.text_style_resolver import (  # noqa: E402
     RESERVED_STYLES,
 )
 
-RENDERER = os.path.join(ROOT, "src", "frameforge", "rendering", "application", "renderer.py")
-RESOLVER = os.path.join(ROOT, "src", "frameforge", "rendering", "domain", "services",
+def _render_src():
+    """Directory of the installed `frameforge_render` package source.
+
+    The engine became its own distribution on 2026-08-01; gates that read its
+    source must resolve it through the module, not a path in this repository.
+    """
+    import frameforge_render
+    return os.path.dirname(os.path.abspath(frameforge_render.__file__))
+
+
+RENDERER = os.path.join(_render_src(), "application", "renderer.py")
+RESOLVER = os.path.join(_render_src(), "domain", "services",
                         "text_style_resolver.py")
 SPEC_SRC = os.path.join(ROOT, "docs", "spec", "frameforge-v2-spec.md")
 import frameforge_mcp as _mcp_pkg
+
 GUIDE = os.path.join(os.path.dirname(_mcp_pkg.__file__), "guide.py")
 
 EXPECTED = {"body", "caption", "code", "toc", "toc_title"}

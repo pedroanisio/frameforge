@@ -170,7 +170,7 @@ Backward compatibility is **delivered, not assumed** (§9): migrate, don't freez
   a reader who follows them pulls the *previous* release while the plugin manifest
   asks for the current one. Cosmetic-only: the `docs/index.md` minimal-document
   example's `version:` literal (`test_doc_examples.py` checks it *validates*, not
-  that it is current), the `frameforge_landing` demo, and sample console output in
+  that it is current), the landing demo (repo `frameforge-example`), and sample console output in
   `skills/frameforge-mcp-docker/SKILL.md`. The landing demo additionally carries a
   self-verifying `FACTS` table — run
   `python examples/frameforge_landing.py --verify` in the sibling `frameforge-example`

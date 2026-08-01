@@ -127,7 +127,7 @@ def test_scale_threads_to_the_raster_backend(tmp_path, monkeypatch):
         return Path(out_path)
 
     monkeypatch.setattr(
-        "frameforge.rendering.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
+        "frameforge_render.infrastructure.browser.rasterize_svg", _fake_rasterize_svg
     )
 
     result = run_sdk_code(
@@ -157,7 +157,7 @@ def test_real_metrics_resolution_is_reported(tmp_path):
 
 
 def test_real_metrics_true_reaches_the_renderer(tmp_path, monkeypatch):
-    import frameforge.rendering.application.renderer as renderer_mod
+    import frameforge_render.application.renderer as renderer_mod
 
     seen: list[bool] = []
     real_renderer = renderer_mod.Renderer

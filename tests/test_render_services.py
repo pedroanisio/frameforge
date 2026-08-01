@@ -17,11 +17,11 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):  # the models modul
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.domain.services.canvas_resolver import (  # noqa: E402
+from frameforge_render.domain.services.canvas_resolver import (  # noqa: E402
     CanvasResolver, DEFAULT_WH,
 )
-from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-import frameforge.rendering.domain.ports as ports  # noqa: E402
+from frameforge_render.domain.services.paint_resolver import ColorResolver  # noqa: E402
+import frameforge_render.domain.ports as ports  # noqa: E402
 
 
 # --- CanvasResolver ----------------------------------------------------------- #
@@ -77,7 +77,7 @@ def test_canvas_presets_match_page_preset_literal():
     """Guard drift: the resolver's PRESET keys must equal the model's PagePreset."""
     import typing
 
-    from frameforge.rendering.domain.services.canvas_resolver import PRESETS
+    from frameforge_render.domain.services.canvas_resolver import PRESETS
     from frameforge import model as model
     assert set(PRESETS) == set(typing.get_args(model.PagePreset))
 

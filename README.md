@@ -18,9 +18,10 @@ for the full why and scope.
 ## Layout
 
 ```
-src/frameforge/               ← the Python package (strictly downstream of the models — ADR-0002):
-  rendering/                  ← renderer (DDD split): domain + application (the Renderer) + infrastructure.
-src/frameforge/model.py     ← SOURCE OF TRUTH (Pydantic v2). Core conformance profile + all patches.
+src/frameforge/               ← integration package: conform.py, cli.py, fontpack.py.
+../frameforge-api/            ← SOURCE OF TRUTH for the Pydantic document contract.
+../frameforge-sdk/            ← authoring, measurement, and static validation.
+../frameforge-render/         ← renderer DDD boundary: domain, application, infrastructure.
 docs/schema/
   frameforge-v2.schema.json   ← GENERATED from the models (105 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
@@ -28,9 +29,6 @@ docs/grammar/
   frameforge-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.
   frameforge-v2-style.ebnf    ← the AUTHORITATIVE CSS style module (adopted verbatim at 2.2.0).
 docs/spec/frameforge-v2-spec.md ← the normative prose (folds P1–P4 + the style module + cascade + corrections).
-static/examples/              ← runnable SDK clients — indexed in docs/examples.md (GENERATED).
-  frameforge_logo.py          ← the BRAND LOGO source of truth → generates the (out-of-tree) logo masters.
-  frameforge_seed_deck.py     ← the canonical seed pitch deck (imports the mark + wordmark from above).
 tooling/
   validate.py                 ← structural (models) + static/geometric rules the schema can't express.
   codemod.py                  ← migrates a document to HEAD (stroke split, size→sizing, gradient, aliases).
@@ -45,7 +43,6 @@ tooling/
   gen_status.py               ← GENERATES docs/FIXTURE-STATUS.md from the validator (`--check` gates drift).
   gen_docs.py                 ← GENERATES the docs-site pages (reference/gallery/spec/grammar plus SDK docs).
   gen_capability_manifest.py  ← GENERATES docs/capability-manifest.json (core/SDK/MCP status per capability).
-  gen_examples_index.py       ← GENERATES docs/examples.md (the examples cookbook index).
   check_grammar_sync.py       ← GATES grammar ⇄ models drift (core profile); `--strict` for full parity.
   check_accessibility.py      ← GATES page reading_order integrity; warns on missing image alt (a11y).
   render_golden.py            ← GATES b1/ oracle SVG output against a pinned hash lock (golden).
@@ -73,7 +70,7 @@ Makefile + .github/workflows/ ← `make check` = the local gate; CI mirrors it (
 ## Companion repositories
 
 - [frameforge-viewer](https://github.com/pedroanisio/frameforge-viewer) is the independent React display package extracted from this repository with its viewer history preserved. FrameForge publishes a versioned `frameforge-render-bundle` manifest plus measured SVG/PNG/PDF artifacts; the artifact viewer consumes those outputs without needing the viewing host’s fonts. Its direct-document mode remains an explicitly separate browser renderer.
-- [frameforge-fonts](https://github.com/pedroanisio/frameforge-fonts) is the composition-time font catalog and exact-face closure companion. It currently meets FrameForge through the `fp_version: 1` closure contract; FrameForge does not yet delegate SDK measurement to it.
+- [frameforge-fonts](https://github.com/pedroanisio/frameforge-fonts) owns the exact-face closure and shared metrics provider. SDK measurement/validation, `frameforge.conform`, the renderer, and MCP can all consume one provider over `fp_version: 1` bytes.
 
 The companions own their npm/Python dependencies, CI, releases, and upstream compatibility checks. They are siblings, not subdirectories of this codebase.
 
@@ -152,20 +149,33 @@ For positioned text, use the shared authoring/layout metric contract rather than
 an empirical slack factor:
 
 ```python
-from frameforge.sdk import fit_width, validate_static_rules
+from frameforge_sdk import closure_metrics, fit_width, validate_static_rules
+from frameforge.conform import render_pages_with_stats
 
 family = ["Inter", "DejaVu Sans", "sans-serif"]
-w = fit_width("Advanced   SQL", font_family=family, font_size=13)
+provider = closure_metrics(
+    "book.fp", strict=True,
+    generics={"sans-serif": "Inter"},
+)
+w = fit_width(
+    "Advanced   SQL", font_family=family, font_size=13,
+    metrics_provider=provider)
 layer.text([64, 64, w, 22], "Advanced   SQL",
            style={"font_family": family, "font_size": 13, "white_space": "pre"})
-report = validate_static_rules(document)  # includes text-fit diagnostics
+report = validate_static_rules(document, metrics_provider=provider)
+svgs, stats = render_pages_with_stats(document, metrics_provider=provider)
 ```
 
-The SDK, validator, and proxy renderer use deterministic estimate metrics by
-default. Pass `real_metrics=True` through measurement/validation/render calls, or
-set `FRAMEFORGE_REAL_METRICS=1`, to opt the shared default into installed glyph
-advances. MCP clients can call `fit_text` to obtain both the raw advance and the
-line-breaker-safe width in the render tool's selected mode.
+Install the local umbrella group with `uv sync --group metrics`; published
+consumers install `frameforge-sdk[metrics]` plus `frameforge-render[fonts]`.
+The provider outranks `real_metrics`, and diagnostics report
+`metrics_mode: closure`. Without a provider, the historical host-bound `real`
+and deterministic `estimate` modes remain available. MCP render and `fit_text`
+calls accept the closure path as `font_closure` and an optional
+`font_generics` map.
+
+See [the closure migration guide](docs/migration-closure-metrics.md) and the
+runnable `examples/closure_metrics.py`.
 
 The matplotlib proxy renderer (`tooling/render_fg_doc.py`) needs the extra
 `render` dependency group:
@@ -193,7 +203,7 @@ uv sync --group render                     # adds matplotlib + pillow
   loop over the SDK — style-grammar checks, layer-order rules, a silhouette
   gate, SVG ingest/cleaning, and figure-proportion helpers. It coaches
   *construction* discipline; it is not a curve-drawing engine. Demos:
-  `static/examples/coach_demo.py` and the other `coach_*` examples.
+  `coach_demo.py` and the other `coach_*` clients in the `frameforge-example` repo.
 - **Docker runtime** (`Dockerfile` + `docker/`). The font-rich canonical
   SDK/MCP runtime (thousands of font families baked in) for font-faithful
   raster verification: `make docker-build` / `docker-mcp` / `docker-shell` /
@@ -216,7 +226,7 @@ uv sync --group render                     # adds matplotlib + pillow
 
 Programmatic entry points for all of the above — every make target and tooling
 CLI with flags — are catalogued in [AGENTS.md](AGENTS.md); the examples
-cookbook is generated at [docs/examples.md](docs/examples.md).
+cookbook lives in the sibling `frameforge-example` repo (`docs/examples.md` there).
 
 ## How the pre-HEAD (2.0.x) bundle was folded in (2.1.0–2.2.0)
 
@@ -256,6 +266,6 @@ folded into the artifacts above; they are listed only for historical context:
 - How FrameForge presents itself — name, voice, colour, type, and the logo — is the
   [docs/BRAND.md](docs/BRAND.md) guideline (a proposal). The logo is *generated*: the
   mark/wordmark source of truth is
-  [static/examples/frameforge_logo.py](static/examples/frameforge_logo.py), which writes
+  `frameforge_logo.py` in the sibling `frameforge-example` repo, which writes
   the masters out of tree (`_tmp/brand/`) — brand assets are non-core and are not
   tracked in this repository.

@@ -9,6 +9,49 @@ cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
 
+## Unreleased — the cookbook leaves the engine repo (2026-08-01)
+
+`static/examples/` — 159 runnable SDK clients, 88,428 LOC — is removed from this
+repository. It is now the `frameforge-example` distribution, a **private** repo:
+the corpus carries client-facing commercial work (Esfera/Santander and
+Coopera/Sicoob refactor proposals, an Itaú UI/UX proposal and trademark
+reconstruction, a client-acquisition proposal, an FDPM requirements export) plus
+real contact data, which the engine repos never did.
+
+Everything that asserted a property of a client moved with it, so this repo
+keeps no edge back into the corpus:
+
+| moved | to |
+|---|---|
+| six test modules already wholly about a client (naval deck, `fg_css_optimize`, poc3/4/5, `guided_paint`) | `frameforge-example/tests/` |
+| five example-dependent tests appended to engine modules (`test_sdk_regression`'s two shipped-artifact cases; the colorspace/noise/rand determinism checks) | `test_example_parity.py` |
+| `tooling/gen_examples_index.py`, `docs/examples.md`, and the two gates over them | `frameforge-example`, wired to `make examples-index` |
+| the BRAND.md §4 ↔ `frameforge_logo.py` palette gate | `test_brand_palette_parity.py` — the generator is the declared source of truth, so the gate lives with it and reads this repo's BRAND.md when present |
+
+The engine keeps the palette *detectors* and their red-path self-tests; only the
+live cross-check left.
+
+Also here: the Docker image no longer offers `/app/static/examples` as a second
+MCP edit root — the path does not exist inside it any more, so `write_sdk_client`
+resolves to `/work/clients` alone.
+
+**Still open:** `frameforge-mcp`'s `DEFAULT_CLIENT_ROOTS` is `("static/examples",)`,
+which now names a directory this repo does not have. Changing it is a shipped-
+distribution behaviour change and is not made here.
+
+## Unreleased — portable closure metrics across SDK, render, and MCP (2026-08-01)
+
+- `frameforge.conform` now accepts `metrics_provider=` on SVG, HTML, reports,
+  page hashes, and golden assertions, and forwards it to the standalone engine.
+- Engine-side text-fit/collision validation accepts the same provider as SDK
+  `validate_static_rules`; validation and rendering no longer need different
+  font evidence.
+- The `metrics` dependency group installs the SDK metrics and renderer
+  fonts/metrics extras. A closure provider has explicit precedence over
+  host-bound `real_metrics`.
+- Architecture, usage, migration, and runnable example surfaces document the
+  `closure` / `real` / `estimate` evidence hierarchy.
+
 ## 2.8.2 — the HTML target shares the engine (2026-07-31)
 
 The HTML backend was a second renderer. It received the raw document and

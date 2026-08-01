@@ -36,7 +36,7 @@ import zipfile
 
 import yaml
 
-from frameforge.rendering.infrastructure import font_metrics as FM
+from frameforge_render.infrastructure import font_metrics as FM
 
 _GENERIC = {"sans-serif", "serif", "monospace", "system-ui", "cursive", "fantasy",
             "sans", "mono", "ui-sans-serif", "ui-serif", "ui-monospace"}

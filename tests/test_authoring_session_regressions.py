@@ -14,9 +14,9 @@ import pytest
 import frameforge_sdk as sdk
 from frameforge import conform
 from frameforge.model import Style
-from frameforge.rendering.application.renderer import Renderer
-from frameforge.rendering.domain.services.overflow import OverflowSignal
-from frameforge.rendering.infrastructure import font_metrics as fmmod
+from frameforge_render.application.renderer import Renderer
+from frameforge_render.domain.services.overflow import OverflowSignal
+from frameforge_render.infrastructure import font_metrics as fmmod
 from frameforge.conform import render_pages_with_stats
 from frameforge_sdk.validate import validate_static_rules
 import validate as tooling_validate

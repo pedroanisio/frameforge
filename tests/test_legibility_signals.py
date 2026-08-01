@@ -37,7 +37,7 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from frameforge.rendering.domain.services.legibility import (  # noqa: E402
+from frameforge_render.domain.services.legibility import (  # noqa: E402
     LegibilityPolicy,
     LegibilitySignal,
     assess_pages,

@@ -19,8 +19,8 @@ Targets (see ``--list``):
 Every target renders *through the package*, in-process. The core targets (svg,
 png, pdf, tex) go through the SVG proxy / Chromium rasteriser / LaTeX transpiler;
 the html and pdf-tex targets go through the `DocumentRenderer` output port
-(``frameforge.rendering.domain.ports``) and its backends
-(``frameforge.rendering.infrastructure.backends``). Nothing here shells out to a
+(``frameforge_render.domain.ports``) and its backends
+(``frameforge_render.infrastructure.backends``). Nothing here shells out to a
 script in ``tooling/``; a backend that needs an external *binary* (a TeX engine)
 reports unavailable when it is absent.
 """
@@ -82,8 +82,8 @@ def _render_with_outline(path, pages):
     `{"title", "level", "page"}` and each link is `{"page", "rect", "target_page"}`,
     all with 0-based global SVG page indices."""
     from frameforge_sdk import parse
-    from frameforge.rendering.application.normalize import normalize_doc
-    from frameforge.rendering.application.renderer import Renderer
+    from frameforge_render.application.normalize import normalize_doc
+    from frameforge_render.application.renderer import Renderer
     base = os.path.dirname(os.path.abspath(path))
     model = parse(_read(path))
     data = model if isinstance(model, dict) else model.model_dump(by_alias=True, exclude_none=True)
@@ -136,7 +136,7 @@ def _render_via_port(target, path, out_dir, args, options=None):
     The CLI is the driving adapter: it parses the document, calls the backend's
     `render`, and owns all disk I/O — so html/pdf-tex reach a renderer in-process
     through the port, never via a subprocess to one of our own scripts."""
-    from frameforge.rendering.infrastructure.backends import get_backend
+    from frameforge_render.infrastructure.backends import get_backend
     backend = get_backend(target)
     doc = _load_dict(path)
     art = backend.render(doc, base_dir=os.path.dirname(os.path.abspath(path)),
@@ -151,7 +151,7 @@ def _render_via_port(target, path, out_dir, args, options=None):
 
 def _port_check(target):
     """Availability probe for a port-backed target: delegate to the backend."""
-    from frameforge.rendering.infrastructure.backends import get_backend
+    from frameforge_render.infrastructure.backends import get_backend
     return get_backend(target).available()
 
 
@@ -245,7 +245,7 @@ def _pdf_links(writer, links, page_index):
 
 
 def r_png(path, out_dir, args):
-    from frameforge.rendering.infrastructure.browser import rasterize_svgs
+    from frameforge_render.infrastructure.browser import rasterize_svgs
     base = os.path.dirname(os.path.abspath(path))
     paths = rasterize_svgs(_svgs(path, args.pages), out_dir, base_dir=base,
                            prefix=args.stem, scale=args.scale)
@@ -253,7 +253,7 @@ def r_png(path, out_dir, args):
 
 
 def r_tex(path, out_dir, args):
-    from frameforge.rendering.infrastructure.latex import transpile
+    from frameforge_render.infrastructure.latex import transpile
     return [_write(os.path.join(out_dir, f"{args.stem}.tex"), transpile(_load_dict(path)))]
 
 
@@ -268,9 +268,9 @@ def r_html(path, out_dir, args):
 def r_audit(path, out_dir, args):
     """Design-token + feature-usage audit: renders the doc to SVG, then reads
     every visual token off the emitted SVG and every feature off a generic model
-    walk (drift-proof — see frameforge.rendering.application.audit). Writes a
+    walk (drift-proof — see frameforge_render.application.audit). Writes a
     JSON report + a human Markdown summary and prints a one-line verdict."""
-    from frameforge.rendering.application.audit import (
+    from frameforge_render.application.audit import (
         audit_document, render_markdown, summary_line)
     from frameforge_sdk import parse
     from frameforge.conform import render_pages_with_stats

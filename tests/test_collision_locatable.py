@@ -11,7 +11,7 @@ the offending objects are locatable with or without ids.
 """
 from __future__ import annotations
 
-from frameforge.rendering.application.renderer import Renderer
+from frameforge_render.application.renderer import Renderer
 
 
 def _collisions(objects):

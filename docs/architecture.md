@@ -7,7 +7,7 @@ disclaimer:
     relying on it.
   generated_by: "Claude Opus 4.8 via Claude Code"
   date: "2026-06-24"
-  last_revised: "2026-07-28"
+  last_revised: "2026-08-01"
 ---
 
 # FrameForge Architecture
@@ -32,14 +32,14 @@ There are really two layers of "intermediate":
 ```
 *.fg.json / *.fg.yaml
         │
-        │  parse + validate            src/frameforge_sdk/model.py  (validate_document)
+        │  parse + validate            frameforge_api + frameforge_sdk
         ▼
-   Document IR  ───────────────────────  src/frameforge/model.py  (class Document)
+   Document IR  ───────────────────────  frameforge_api.model.Document
    (Pydantic model tree)
         │
-        │  resolve + walk in z-order    src/frameforge/rendering/domain/services/
+        │  resolve + walk in z-order    frameforge_render/domain/services/
         ▼
-   primitive display-list calls  ──────  src/frameforge/rendering/domain/ports.py  (ScenePainter)
+   primitive display-list calls  ──────  frameforge_render/domain/ports.py  (ScenePainter)
         │
    ┌────┴───────────────┐
    ▼                    ▼
@@ -53,7 +53,7 @@ There are really two layers of "intermediate":
 ## The IR: the `Document` model tree
 
 The IR is the Pydantic model hierarchy rooted at `Document`, defined in
-[`src/frameforge/model.py`](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/model.py).
+[`frameforge_api.model`](https://github.com/pedroanisio/frameforge-api/tree/main/src/frameforge_api/model).
 It is produced by validating the input file via `validate_document()` in
 [`src/frameforge_sdk/model.py`](https://github.com/pedroanisio/frameforge-sdk/blob/main/src/frameforge_sdk/model.py).
 
@@ -86,8 +86,9 @@ across backends.
 
 `validate_document()` ([src/frameforge_sdk/model.py](https://github.com/pedroanisio/frameforge-sdk/blob/main/src/frameforge_sdk/model.py))
 loads JSON/YAML and validates it into a `Document` instance. The SDK
-(`src/frameforge_sdk/`) also provides authoring, conform, expand, draw, and IO
-helpers around this model.
+(`src/frameforge_sdk/`) provides authoring, validation, expand, draw, and IO
+helpers around this model. Pixel-dependent conformance helpers remain in
+`frameforge.conform` and delegate to the standalone render engine.
 
 ### 2. Resolve + walk → display-list calls
 
@@ -95,7 +96,7 @@ A **builder** walks the IR in z-order and, for each primitive, calls a method on
 a `ScenePainter`. Along the way it uses pure **domain resolvers** to normalize
 the IR's abstract values (tokens, styles, layout) into concrete numbers and
 colors. The resolvers live in
-[src/frameforge/rendering/domain/services/](https://github.com/pedroanisio/frameforge/tree/main/src/frameforge/rendering/domain/services):
+[src/frameforge_render/domain/services/](https://github.com/pedroanisio/frameforge-render/tree/main/src/frameforge_render/domain/services):
 
 | Resolver | Responsibility |
 |----------|----------------|
@@ -112,12 +113,12 @@ colors. The resolvers live in
 | `math_text` | Dependency-free TeX→Unicode display fallback |
 
 Shared geometric math lives one level up, in
-`src/frameforge/rendering/domain/geometry.py` (not a service). The
+`src/frameforge_render/domain/geometry.py` (not a service). The
 `flow_layout` engine emits the `LaidLine`/`LaidParagraph` IR and the
 recto/verso `content_box`.
 
 For the SVG path, the builder is the `Renderer` class in
-[`src/frameforge/rendering/application/renderer.py`](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/application/renderer.py),
+[`src/frameforge_render/application/renderer.py`](https://github.com/pedroanisio/frameforge-render/blob/main/src/frameforge_render/application/renderer.py),
 the rendering bounded context's **application layer**. It wires up the resolvers
 and an `SvgPainter`, then emits primitives page by page (`render_page`,
 `render_text`, …). [`tooling/render_fixtures.py`](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_fixtures.py)
@@ -128,29 +129,29 @@ re-exports `Renderer` for backward compatibility.
 
 The seam between the builder and a backend is the **`ScenePainter` port**, an
 *immediate-mode display list* defined in
-[`src/frameforge/rendering/domain/ports.py`](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/domain/ports.py).
+[`src/frameforge_render/domain/ports.py`](https://github.com/pedroanisio/frameforge-render/blob/main/src/frameforge_render/domain/ports.py).
 The builder calls methods like `rect()`, `ellipse()`, `path()`, `text_block()`,
 `group()`, `document()`; each returns the backend's representation of that
 primitive and manages per-page backend resources (gradient/clip id counters, the
 `<defs>` registry).
 
 Backends are infrastructure adapters under
-[src/frameforge/rendering/infrastructure/](https://github.com/pedroanisio/frameforge/tree/main/src/frameforge/rendering/infrastructure):
+[src/frameforge_render/infrastructure/](https://github.com/pedroanisio/frameforge-render/tree/main/src/frameforge_render/infrastructure):
 
 - **SVG** — `SvgPainter`
-  ([painters/svg.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/infrastructure/painters/svg.py))
+  ([painters/svg.py](https://github.com/pedroanisio/frameforge-render/blob/main/src/frameforge_render/infrastructure/painters/svg.py))
   implements `ScenePainter`, returning SVG string fragments and assembling a full
   page in `document()`.
 - **LaTeX / TikZ** — driven by `render_latex.py`
   ([tooling/render_latex.py](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_latex.py)), which transpiles the
   IR via `_Transpiler`
-  ([latex/document.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/infrastructure/latex/document.py))
+  ([latex/document.py](https://github.com/pedroanisio/frameforge-render/blob/main/src/frameforge_render/infrastructure/latex/document.py))
   and renders vector figures through `FigureTikz`
-  ([latex/tikz.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/infrastructure/latex/tikz.py)).
+  ([latex/tikz.py](https://github.com/pedroanisio/frameforge-render/blob/main/src/frameforge_render/infrastructure/latex/tikz.py)).
   The emitted `.tex` is compiled to PDF with `lualatex` when `luaotfload` is
   available, else `pdflatex` (`--engine auto`).
 - **TikZ painter (in progress)** — `TikzPainter`
-  ([painters/tikz.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/infrastructure/painters/tikz.py))
+  ([painters/tikz.py](https://github.com/pedroanisio/frameforge-render/blob/main/src/frameforge_render/infrastructure/painters/tikz.py))
   is a second `ScenePainter` adapter, test-gated (`test_tikz_painter.py` /
   `test_tikz_wiring.py` / `test_tikz_fidelity.py`) and covering the port
   except `text_block`/`text_runs` — intentionally not yet wired into the
@@ -177,25 +178,19 @@ Backends are infrastructure adapters under
   docstring notes a possible future **retained-mode `Scene`** — a materialized
   list of primitive value objects on the same seam — which would turn the
   transient display list into a second, inspectable IR.
-- **Measure-time font must equal render-time font.** Wrapping and justification
-  measure line widths through `font_metrics`
-  ([infrastructure/font_metrics.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/infrastructure/font_metrics.py)),
-  which resolves the CSS font-family chain the browser's way and rejects fontconfig's
-  fuzzy fallback (e.g. `Charter` → `Noto Sans`). When the layout face is not the
-  requested face, the `Renderer` emits a **screaming** `font_substitution` warning
-  (stderr *and* a diagnostic, once per family), because measuring one face while
-  another rasterizes breaks justified/wrapped fidelity. Making both engines resolve
-  the same file is ADR-0004's single-engine principle; the `fg-font` toolchain and
-  `render_chromium --font-pack` operationalize it.
-- **Authoring and layout share one metric-mode decision.** SDK
-  `measure_text`/`fit_width` and the application `Renderer` both resolve
-  `real_metrics` through `font_metrics.real_metrics_enabled`: deterministic
-  estimates by default, or the same real-font provider under an explicit bool /
-  `FRAMEFORGE_REAL_METRICS`. `fit_width` adds the renderer's half-pixel fit
-  tolerance, so positioned text does not need an environment-specific slack
-  factor. MCP `fit_text` exposes the same decision before geometry is committed.
+- **Measure-time font must equal render-time font.** The strongest mode is a
+  `frameforge-fonts` closure provider: HarfBuzz shapes SHA-256-pinned bytes and
+  the same callable is injected into SDK measurement, static validation,
+  `frameforge.conform`, SVG/HTML rendering, reports, and MCP tools. The renderer
+  reports `metrics_mode: closure`; strict mode raises for an unpinned family.
+- **Metric evidence has three explicit strengths.** `closure` is portable and
+  byte-pinned; host-bound `real` uses the file local fontconfig resolves;
+  `estimate` is deterministic arithmetic. A supplied `metrics_provider` always
+  outranks `real_metrics` / `FRAMEFORGE_REAL_METRICS`. MCP accepts
+  `font_closure` plus `font_generics`, confines the path with
+  `FRAMEFORGE_MCP_INPUT_ROOTS`, and reports the closure digest.
 - **Generative sampling is author-side computation, not IR state.**
-  `frameforge.sdk.rand` provides process-stable `Rand` streams plus Halton,
+  `frameforge_sdk.rand` provides process-stable `Rand` streams plus Halton,
   Poisson-disk, and jittered-grid sampling. They compute ordinary `Vec2` values
   in Y-down page space, which authors lower into existing objects before model
   validation. Named `Rand.derive(...)` streams isolate document regions from
@@ -215,13 +210,15 @@ Backends are infrastructure adapters under
 
 | Concern | Location |
 |---------|----------|
-| IR models | [src/frameforge/model.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/model.py) |
+| IR models | [frameforge_api/model](https://github.com/pedroanisio/frameforge-api/tree/main/src/frameforge_api/model) |
 | Parse/validate + SDK | [src/frameforge_sdk/](https://github.com/pedroanisio/frameforge-sdk) (`model.py`, `validate.py`, `io.py`, …) |
 | Deterministic sampling | [src/frameforge_sdk/rand.py](https://github.com/pedroanisio/frameforge-sdk/blob/main/src/frameforge_sdk/rand.py) (`Rand`, `halton`, `poisson_disk`, `jittered_grid`) |
-| Domain resolvers | [src/frameforge/rendering/domain/services/](https://github.com/pedroanisio/frameforge/tree/main/src/frameforge/rendering/domain/services) |
-| Painter port (seam) | [src/frameforge/rendering/domain/ports.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/domain/ports.py) |
-| Render orchestrator (application) | [src/frameforge/rendering/application/renderer.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/application/renderer.py) |
-| SVG backend | [src/frameforge/rendering/infrastructure/painters/svg.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/rendering/infrastructure/painters/svg.py) |
-| LaTeX/TikZ backend | [src/frameforge/rendering/infrastructure/latex/](https://github.com/pedroanisio/frameforge/tree/main/src/frameforge/rendering/infrastructure/latex) |
+| Domain resolvers | [frameforge_render/domain/services](https://github.com/pedroanisio/frameforge-render/tree/main/src/frameforge_render/domain/services) |
+| Painter port (seam) | [frameforge_render/domain/ports.py](https://github.com/pedroanisio/frameforge-render/blob/main/src/frameforge_render/domain/ports.py) |
+| Render orchestrator (application) | [frameforge_render/application/renderer.py](https://github.com/pedroanisio/frameforge-render/blob/main/src/frameforge_render/application/renderer.py) |
+| SVG backend | [frameforge_render/infrastructure/painters/svg.py](https://github.com/pedroanisio/frameforge-render/blob/main/src/frameforge_render/infrastructure/painters/svg.py) |
+| LaTeX/TikZ backend | [frameforge_render/infrastructure/latex](https://github.com/pedroanisio/frameforge-render/tree/main/src/frameforge_render/infrastructure/latex) |
+| Portable metrics owner | [frameforge_fonts/metrics.py](https://github.com/pedroanisio/frameforge-fonts/blob/main/src/frameforge_fonts/metrics.py) |
+| Conformance adapter | [src/frameforge/conform.py](https://github.com/pedroanisio/frameforge/blob/main/src/frameforge/conform.py) |
 | SVG render CLI driver | [tooling/render_fixtures.py](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_fixtures.py) |
 | LaTeX render CLI | [tooling/render_latex.py](https://github.com/pedroanisio/frameforge/blob/main/tooling/render_latex.py) |

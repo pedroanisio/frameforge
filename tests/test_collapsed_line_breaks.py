@@ -9,7 +9,7 @@ the exact class CLAUDE.md's core principles ban, so the renderer emits a typed
 """
 from __future__ import annotations
 
-from frameforge.rendering.application.renderer import Renderer
+from frameforge_render.application.renderer import Renderer
 
 
 LEDGER = "DS   892bdce5  Design Systems\nHX   ee74dc0b  Human-Centric AI"

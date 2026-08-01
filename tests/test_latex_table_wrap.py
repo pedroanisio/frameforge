@@ -18,7 +18,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge_render.infrastructure.latex import transpile  # noqa: E402
 
 
 def _doc(header, rows):

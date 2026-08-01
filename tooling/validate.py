@@ -46,11 +46,12 @@ sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "src")))
 
 import yaml  # noqa: E402
 import frameforge.model as fg  # noqa: E402  (package-qualified: never shadow the real package)
-from frameforge.rendering.domain.services.paint_intent import (  # noqa: E402
+from frameforge_render.domain.services.paint_intent import (  # noqa: E402
     inert_stroke_keys,
     remedy_for,
 )
 from pydantic import ValidationError  # noqa: E402
+
 
 _YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 
@@ -75,8 +76,18 @@ DEPRECATED_ALIASES = {"circle", "polygon", "curve", "bezier"}
 # --------------------------------------------------------------------------- #
 #  Canvas presets — sourced from the renderer (single pixel source, spec §4)  #
 # --------------------------------------------------------------------------- #
+def _render_src():
+    """Directory of the installed `frameforge_render` package source.
+
+    The engine became its own distribution on 2026-08-01; gates that read its
+    source must resolve it through the module, not a path in this repository.
+    """
+    import frameforge_render
+    return os.path.dirname(os.path.abspath(frameforge_render.__file__))
+
+
 _CANVAS_RESOLVER_SRC = os.path.normpath(os.path.join(
-    HERE, "..", "src", "frameforge", "rendering", "domain", "services", "canvas_resolver.py"))
+    _render_src(), "domain", "services", "canvas_resolver.py"))
 # Standalone fallback for when the source is unreadable. Kept an exact copy of
 # CanvasResolver.PRESETS/DEFAULT_WH; tests/test_validate.py gates the equality.
 _FALLBACK_PRESETS = {
@@ -690,7 +701,7 @@ def _geometric_audit(doc, findings):
     # the same pure arrangement service the renderer uses, which lets deep
     # containment inspect row/column/grid/wrap children at their FINAL local
     # boxes instead of treating authored placeholder coordinates as page space.
-    from frameforge.rendering.domain.services.layout_engine import LayoutEngine
+    from frameforge_render.domain.services.layout_engine import LayoutEngine
 
     layout_engine = LayoutEngine()
 
@@ -788,7 +799,8 @@ def _geometric_audit(doc, findings):
 
 
 # --------------------------------------------------------------------------- #
-def text_fit_checks(doc, base_dir, findings, real_metrics=False):
+def text_fit_checks(doc, base_dir, findings, real_metrics=False,
+                    metrics_provider=None):
     """Run the SVG proxy's text-fitting pass and surface diagnostics.
 
     Every content-losing text object becomes an advisory ``text-truncated``
@@ -799,8 +811,9 @@ def text_fit_checks(doc, base_dir, findings, real_metrics=False):
     # Lazy import so the structure-only pass stays render-free. (The model
     # lives inside the package since 2.5.0, so `frameforge` in sys.modules is
     # always the package — the historical model/package swap dance is gone.)
-    from frameforge.rendering.application.renderer import Renderer
-    r = Renderer(doc, base_dir, real_metrics=real_metrics)
+    from frameforge_render.application.renderer import Renderer
+    r = Renderer(doc, base_dir, real_metrics=real_metrics,
+                 metrics_provider=metrics_provider)
     for page in doc.get("pages", []):
         if isinstance(page, dict):
             r.render_page(page)
@@ -840,7 +853,8 @@ GROSS_COLLISION_AREA = 2_000.0     # px²
 GROSS_COLLISION_MIN_AXIS = 8.0     # px, the minor axis — rules out grazing contact
 
 
-def collision_checks(doc, base_dir, findings, real_metrics=False):
+def collision_checks(doc, base_dir, findings, real_metrics=False,
+                     metrics_provider=None):
     """Default-ON: render, then report same-layer ink overlaps that were not
     declared `overlap: allowed` (collision-gate/2026-07, O1).
 
@@ -859,8 +873,9 @@ def collision_checks(doc, base_dir, findings, real_metrics=False):
 
     `--no-check-collision` is the deliberate override.
     """
-    from frameforge.rendering.application.renderer import Renderer
-    r = Renderer(doc, base_dir, real_metrics=real_metrics)
+    from frameforge_render.application.renderer import Renderer
+    r = Renderer(doc, base_dir, real_metrics=real_metrics,
+                 metrics_provider=metrics_provider)
     for page in doc.get("pages", []):
         if isinstance(page, dict):
             r.render_page(page)
@@ -878,7 +893,7 @@ def collision_checks(doc, base_dir, findings, real_metrics=False):
 
 
 def validate_doc(path, strict=False, text_fit=True, check_collision=True,
-                 real_metrics=False):
+                 real_metrics=False, metrics_provider=None):
     try:
         doc = _load(path)
     except Exception as exc:  # noqa: BLE001
@@ -888,9 +903,11 @@ def validate_doc(path, strict=False, text_fit=True, check_collision=True,
     rule_checks(doc, findings)
     base = os.path.dirname(os.path.abspath(path))
     if text_fit:
-        text_fit_checks(doc, base, findings, real_metrics=real_metrics)
+        text_fit_checks(doc, base, findings, real_metrics=real_metrics,
+                        metrics_provider=metrics_provider)
     if check_collision:
-        collision_checks(doc, base, findings, real_metrics=real_metrics)
+        collision_checks(doc, base, findings, real_metrics=real_metrics,
+                         metrics_provider=metrics_provider)
     if strict:
         for f in findings:
             if f.severity == "WARN":

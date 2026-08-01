@@ -31,7 +31,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):   # evict a models-
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.domain.routing import route_orthogonal  # noqa: E402
+from frameforge_render.domain.routing import route_orthogonal  # noqa: E402
 from tooling.render_fixtures import Renderer  # noqa: E402
 
 

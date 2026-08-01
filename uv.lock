@@ -622,9 +622,9 @@ version = "2.8.2"
 source = { editable = "." }
 dependencies = [
     { name = "frameforge-api" },
+    { name = "frameforge-render" },
     { name = "frameforge-sdk" },
     { name = "pydantic" },
-    { name = "pyphen" },
     { name = "pyyaml" },
 ]
 
@@ -645,6 +645,8 @@ mcp = [
 ]
 metrics = [
     { name = "fonttools" },
+    { name = "frameforge-render", extra = ["fonts", "metrics"] },
+    { name = "frameforge-sdk", extra = ["metrics"] },
 ]
 pdf = [
     { name = "pymupdf" },
@@ -671,10 +673,10 @@ vlm = [
 
 [package.metadata]
 requires-dist = [
-    { name = "frameforge-api", git = "https://github.com/pedroanisio/frameforge-api.git?branch=main" },
+    { name = "frameforge-api", editable = "../frameforge-api" },
+    { name = "frameforge-render", editable = "../frameforge-render" },
     { name = "frameforge-sdk", editable = "../frameforge-sdk" },
     { name = "pydantic", specifier = ">=2" },
-    { name = "pyphen", specifier = ">=0.15" },
     { name = "pyyaml", specifier = ">=6" },
 ]
 
@@ -691,7 +693,11 @@ mcp = [
     { name = "cairosvg", specifier = ">=2.7" },
     { name = "mcp", extras = ["cli"], specifier = ">=1.27,<2" },
 ]
-metrics = [{ name = "fonttools", specifier = ">=4" }]
+metrics = [
+    { name = "fonttools", specifier = ">=4" },
+    { name = "frameforge-render", extras = ["fonts", "metrics"], editable = "../frameforge-render" },
+    { name = "frameforge-sdk", extras = ["metrics"], editable = "../frameforge-sdk" },
+]
 pdf = [{ name = "pymupdf", specifier = ">=1.24" }]
 pdfout = [
     { name = "cairosvg", specifier = ">=2.7" },
@@ -712,10 +718,49 @@ vlm = [
 
 [[package]]
 name = "frameforge-api"
-version = "1.0.0"
-source = { git = "https://github.com/pedroanisio/frameforge-api.git?branch=main#e188cee6d39a5bbd526dcb83754494a5a43af9d1" }
+version = "1.2.0"
+source = { editable = "../frameforge-api" }
 dependencies = [
     { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pydantic", specifier = ">=2" },
+    { name = "pyyaml", marker = "extra == 'yaml'", specifier = ">=6" },
+]
+provides-extras = ["yaml"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=1.11" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "pytest-cov", specifier = ">=5" },
+    { name = "pyyaml", specifier = ">=6" },
+    { name = "ruff", specifier = ">=0.6" },
+]
+
+[[package]]
+name = "frameforge-fonts"
+version = "0.1.0"
+source = { editable = "../frameforge-fonts" }
+dependencies = [
+    { name = "fonttools" },
+    { name = "uharfbuzz" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fonttools", specifier = ">=4.53" },
+    { name = "uharfbuzz", specifier = ">=0.39" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=1.11" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "pytest-cov", specifier = ">=5" },
+    { name = "ruff", specifier = ">=0.6" },
 ]
 
 [[package]]
@@ -725,7 +770,8 @@ source = { editable = "../frameforge-mcp" }
 dependencies = [
     { name = "cairosvg" },
     { name = "frameforge" },
-    { name = "frameforge-sdk" },
+    { name = "frameforge-api" },
+    { name = "frameforge-sdk", extra = ["metrics"] },
     { name = "mcp", extra = ["cli"] },
     { name = "pydantic" },
     { name = "pyyaml" },
@@ -736,7 +782,8 @@ requires-dist = [
     { name = "accelerate", marker = "extra == 'vlm'", specifier = ">=0.30" },
     { name = "cairosvg", specifier = ">=2.7" },
     { name = "frameforge", editable = "." },
-    { name = "frameforge-sdk", editable = "../frameforge-sdk" },
+    { name = "frameforge-api", editable = "../frameforge-api" },
+    { name = "frameforge-sdk", extras = ["metrics"], editable = "../frameforge-sdk" },
     { name = "frameforge-vision", marker = "extra == 'vision'", editable = "../frameforge-vision" },
     { name = "mcp", extras = ["cli"], specifier = ">=1.27,<2" },
     { name = "num2words", marker = "extra == 'vlm'", specifier = ">=0.5" },
@@ -759,6 +806,44 @@ dev = [
 ]
 
 [[package]]
+name = "frameforge-render"
+version = "1.9.0"
+source = { editable = "../frameforge-render" }
+dependencies = [
+    { name = "pyphen" },
+]
+
+[package.optional-dependencies]
+fonts = [
+    { name = "frameforge-fonts" },
+]
+metrics = [
+    { name = "fonttools" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cairosvg", marker = "extra == 'cairo'", specifier = ">=2.7" },
+    { name = "fonttools", marker = "extra == 'metrics'", specifier = ">=4.53" },
+    { name = "frameforge-fonts", marker = "extra == 'fonts'", editable = "../frameforge-fonts" },
+    { name = "jsonschema", marker = "extra == 'loader'", specifier = ">=4" },
+    { name = "numpy", marker = "extra == 'raster'", specifier = ">=1.24" },
+    { name = "pillow", marker = "extra == 'raster'", specifier = ">=10" },
+    { name = "playwright", marker = "extra == 'browser'", specifier = ">=1.44" },
+    { name = "pyphen", specifier = ">=0.15" },
+    { name = "pyyaml", marker = "extra == 'loader'", specifier = ">=6" },
+]
+provides-extras = ["metrics", "browser", "cairo", "raster", "loader", "fonts"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "frameforge-fonts", editable = "../frameforge-fonts" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "pyyaml", specifier = ">=6" },
+    { name = "ruff", specifier = ">=0.6" },
+]
+
+[[package]]
 name = "frameforge-sdk"
 version = "1.0.0"
 source = { editable = "../frameforge-sdk" }
@@ -767,12 +852,18 @@ dependencies = [
     { name = "pyyaml" },
 ]
 
+[package.optional-dependencies]
+metrics = [
+    { name = "fonttools" },
+    { name = "frameforge-fonts" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "fonttools", marker = "extra == 'metrics'", specifier = ">=4.53" },
-    { name = "frameforge-api", git = "https://github.com/pedroanisio/frameforge-api.git?branch=main" },
-    { name = "frameforge-fonts", marker = "extra == 'metrics'", git = "https://github.com/pedroanisio/frameforge-fonts.git?branch=main" },
-    { name = "frameforge-vision", marker = "extra == 'svg'", specifier = ">=1.0,<2" },
+    { name = "frameforge-api", editable = "../frameforge-api" },
+    { name = "frameforge-fonts", marker = "extra == 'metrics'", editable = "../frameforge-fonts" },
+    { name = "frameforge-vision", marker = "extra == 'svg'", editable = "../frameforge-vision" },
     { name = "pyyaml", specifier = ">=6" },
 ]
 provides-extras = ["svg", "metrics"]
@@ -3229,6 +3320,28 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/55/e3/70399cb7dd41c10ac53367ae42139cf4b1ca5f36bb3dc6c9d33acdb43655/typing_inspection-0.4.2.tar.gz", hash = "sha256:ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464", size = 75949, upload-time = "2025-10-01T02:14:41.687Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/dc/9b/47798a6c91d8bdb567fe2698fe81e0c6b7cb7ef4d13da4114b41d239f65d/typing_inspection-0.4.2-py3-none-any.whl", hash = "sha256:4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7", size = 14611, upload-time = "2025-10-01T02:14:40.154Z" },
+]
+
+[[package]]
+name = "uharfbuzz"
+version = "0.56.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/58/85/c7545959fdf6b9377b926c826f6d80bddf034ac361b09306d430a0f556a5/uharfbuzz-0.56.0.tar.gz", hash = "sha256:77f4ad1c9f32f44cc6f0c0c4f98fab54587719c96c810a043d01669f704d3e0c", size = 38643044, upload-time = "2026-07-31T16:43:53.61Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5e/6d/e007fcdb9e11d5cac2c9d3ae8d260a57a3fd41eceffdf9c2624dc3909cb9/uharfbuzz-0.56.0-cp310-abi3-macosx_10_9_universal2.whl", hash = "sha256:86ceb18ce68cef062224ed9919f4925624f4d8e33869e27fe1d8edef1eba83e1", size = 3253438, upload-time = "2026-07-31T16:43:28.795Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/50/a13e8930633fc376882d01566dd23322ab5b4db5b8daf75dba535057061e/uharfbuzz-0.56.0-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:beec7ae03ec5d0d130ca317795ff2ba24f75226a031c26a921e1706f8c59f36c", size = 1871496, upload-time = "2026-07-31T16:43:30.93Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/8f/6541f3855ed2f592204363091276b0b19a00e6078d1a4ff9bbbdd5970021/uharfbuzz-0.56.0-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3b4bb4398270bbb8e1005a7a3d56acd5258c5b00484a06633cb30776da9cc3ab", size = 1949388, upload-time = "2026-07-31T16:43:32.845Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/28/8a8f8d8d3513973d17cd83f057e2c85c6c813cb06b88245c9fe0242ecd1b/uharfbuzz-0.56.0-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:032382a82e3b9e2a460116aee2934bb713e4757efb68d7f11f55dbbb1ae57184", size = 2895856, upload-time = "2026-07-31T16:43:34.446Z" },
+    { url = "https://files.pythonhosted.org/packages/27/b1/a238405fcca1bab989b70adfe37182ba2d4394a8c2900037d3898e2a3dca/uharfbuzz-0.56.0-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:e3a80b0d94baf19be47708903246e2ff4bd1069e1f6bf9ed530bf1c9e3e476b4", size = 3006312, upload-time = "2026-07-31T16:43:36.41Z" },
+    { url = "https://files.pythonhosted.org/packages/14/fb/04a21974d722acaf389da834904f3635c23a23f377d07f81a58e1fb4eef4/uharfbuzz-0.56.0-cp310-abi3-pyemscripten_2025_0_wasm32.whl", hash = "sha256:f3631cb67335d94318d7b9514f8d5d860a68780d523a188317ecf7861754a395", size = 895029, upload-time = "2026-07-31T16:43:37.999Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/db/4de0c571a8920e00f3c108d0bfda5d170111b670a7e1b5c49c24a7b46842/uharfbuzz-0.56.0-cp310-abi3-pyemscripten_2026_0_wasm32.whl", hash = "sha256:2ac2c4d59d0059265cad9d6c005dd330d36b2b4a2068626db7d09a1c18e5a05c", size = 893134, upload-time = "2026-07-31T16:43:39.436Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/e6/c1d4bfa188eec34fec251a907d770840387272f2d2b90ec172a968df0904/uharfbuzz-0.56.0-cp310-abi3-win32.whl", hash = "sha256:45413c77ffdcec7ba94a3e6b8c3af384a28688dafee4bbf343afb85249af3f9a", size = 1086028, upload-time = "2026-07-31T16:43:41.046Z" },
+    { url = "https://files.pythonhosted.org/packages/96/84/6c63afa111bcaed79ac011fc112c4a8d8cb60904ff5999f2e435bb79db4a/uharfbuzz-0.56.0-cp310-abi3-win_amd64.whl", hash = "sha256:0e7c628f327ce862a8606de93766f001704a5201e97d598686730ef2c1605c03", size = 1410443, upload-time = "2026-07-31T16:43:42.593Z" },
+    { url = "https://files.pythonhosted.org/packages/18/19/e7f0a7c139a419fc890de5a5314dee8ae16f5a49cdc0632ad4bb07957a22/uharfbuzz-0.56.0-pp311-pypy311_pp73-macosx_10_15_x86_64.whl", hash = "sha256:c4507b64a4c53fe9af89a47efbacffd707b20bb8afb3714f970390cd4319e476", size = 1571295, upload-time = "2026-07-31T16:43:44.221Z" },
+    { url = "https://files.pythonhosted.org/packages/ed/e1/2aeecb52d043a0da02807a6dddcdb0399caebfbd2fdd17f0655668dbbf82/uharfbuzz-0.56.0-pp311-pypy311_pp73-macosx_11_0_arm64.whl", hash = "sha256:4d5885586ccf247dff92033fdc15988c4c4931406e0faa445d0c6f0941061dc4", size = 1455110, upload-time = "2026-07-31T16:43:45.68Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/fa/86c9601eb879fe858410a0bb74498c91186acd95f7d3fbec08717521ae72/uharfbuzz-0.56.0-pp311-pypy311_pp73-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0c707baaeabf3d90ae3fde6e12cdfa05a3f77b754aaa4b930a527aaf9d165d0e", size = 1697682, upload-time = "2026-07-31T16:43:47.296Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/3a/2947144fe8f87e7056051cfe44877aa8f04b47d86e12168457598bb27c91/uharfbuzz-0.56.0-pp311-pypy311_pp73-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:84aafa43bf29729d839ae7eabdbbfe86bea2b3a8594195231b79b94a7f5be07d", size = 1774181, upload-time = "2026-07-31T16:43:49.135Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/50/b41d4b0ee13b6f152c912fb052ccea437bd0642c92824b779a20b87e1958/uharfbuzz-0.56.0-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:d8768c480c1474f856da26a2e7195ca24c25fdb08e71a8d2ea30b50a413df1a7", size = 1431797, upload-time = "2026-07-31T16:43:50.832Z" },
 ]
 
 [[package]]

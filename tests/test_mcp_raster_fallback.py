@@ -34,14 +34,14 @@ def _pairs(session_dir, pages=(1, 2)):
 
 
 def _browser_unavailable(*_a, **_k):
-    from frameforge.rendering.infrastructure.browser import BrowserRendererUnavailable
+    from frameforge_render.infrastructure.browser import BrowserRendererUnavailable
     raise BrowserRendererUnavailable("no chromium in this environment")
 
 
 def test_raster_falls_back_to_cairo_when_browser_unavailable(tmp_path, monkeypatch):
     """Chromium unavailable + CairoSVG present -> PNGs are still produced via Cairo."""
     monkeypatch.setattr(
-        "frameforge.rendering.infrastructure.browser.rasterize_svg", _browser_unavailable
+        "frameforge_render.infrastructure.browser.rasterize_svg", _browser_unavailable
     )
 
     def _fake_cairo(svg, out_path, *, base_dir=None, scale=1.0):
@@ -50,7 +50,7 @@ def test_raster_falls_back_to_cairo_when_browser_unavailable(tmp_path, monkeypat
         return Path(out_path)
 
     monkeypatch.setattr(
-        "frameforge.rendering.infrastructure.cairo.rasterize_svg_cairo", _fake_cairo
+        "frameforge_render.infrastructure.cairo.rasterize_svg_cairo", _fake_cairo
     )
 
     renders, warning = pipeline._try_rasterize_pngs(_pairs(tmp_path), tmp_path, "fb")
@@ -73,10 +73,10 @@ def test_raster_prefers_chromium_when_available(tmp_path, monkeypatch):
         raise AssertionError("Cairo must not be used when Chromium is available")
 
     monkeypatch.setattr(
-        "frameforge.rendering.infrastructure.browser.rasterize_svg", _fake_browser
+        "frameforge_render.infrastructure.browser.rasterize_svg", _fake_browser
     )
     monkeypatch.setattr(
-        "frameforge.rendering.infrastructure.cairo.rasterize_svg_cairo", _explode_cairo
+        "frameforge_render.infrastructure.cairo.rasterize_svg_cairo", _explode_cairo
     )
 
     renders, warning = pipeline._try_rasterize_pngs(_pairs(tmp_path), tmp_path, "ch")
@@ -87,16 +87,16 @@ def test_raster_prefers_chromium_when_available(tmp_path, monkeypatch):
 
 def test_raster_reports_when_no_backend_available(tmp_path, monkeypatch):
     """Neither backend -> no renders and a warning naming both, so the gap is loud."""
-    from frameforge.rendering.infrastructure.cairo import CairoRendererUnavailable
+    from frameforge_render.infrastructure.cairo import CairoRendererUnavailable
 
     def _cairo_unavailable(*_a, **_k):
         raise CairoRendererUnavailable("CairoSVG is not installed")
 
     monkeypatch.setattr(
-        "frameforge.rendering.infrastructure.browser.rasterize_svg", _browser_unavailable
+        "frameforge_render.infrastructure.browser.rasterize_svg", _browser_unavailable
     )
     monkeypatch.setattr(
-        "frameforge.rendering.infrastructure.cairo.rasterize_svg_cairo", _cairo_unavailable
+        "frameforge_render.infrastructure.cairo.rasterize_svg_cairo", _cairo_unavailable
     )
 
     renders, warning = pipeline._try_rasterize_pngs(_pairs(tmp_path), tmp_path, "none")
@@ -110,7 +110,7 @@ def test_cairo_rasterizer_writes_a_real_png(tmp_path):
     """The CairoSVG backend itself produces a PNG (skipped if CairoSVG absent)."""
     import pytest
 
-    cairo = pytest.importorskip("frameforge.rendering.infrastructure.cairo")
+    cairo = pytest.importorskip("frameforge_render.infrastructure.cairo")
     if not cairo.available():
         pytest.skip("cairosvg not installed")
     svg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="#f2a81c"/></svg>'

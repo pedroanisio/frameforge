@@ -1,6 +1,6 @@
 """The `ScenePainter` port must describe what the builder actually demands.
 
-`ScenePainter` (frameforge.rendering.domain.ports) is the contract a rendering
+`ScenePainter` (frameforge_render.domain.ports) is the contract a rendering
 backend implements to be driven by the shared builder. Its whole value is that a
 new backend author can read the Protocol and know what to implement — so a
 method the builder calls but the port never declares is a *lying contract*: the
@@ -35,11 +35,22 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from frameforge.rendering.domain.ports import (  # noqa: E402
+from frameforge_render.domain.ports import (  # noqa: E402
     PainterCapabilities, ScenePainter)
-from frameforge.rendering.infrastructure.painters.svg import SvgPainter  # noqa: E402
+from frameforge_render.infrastructure.painters.svg import SvgPainter  # noqa: E402
 
-APPLICATION = os.path.join(ROOT, "src", "frameforge", "rendering", "application")
+
+def _render_src():
+    """Directory of the installed `frameforge_render` package source.
+
+    The engine became its own distribution on 2026-08-01; gates that read its
+    source must resolve it through the module, not a path in this repository.
+    """
+    import frameforge_render
+    return os.path.dirname(os.path.abspath(frameforge_render.__file__))
+
+
+APPLICATION = os.path.join(_render_src(), "application")
 
 #: Attribute names that hold a painter in the application layer. `self._painter`
 #: is the builder's own; `ctx.painter` / `self.painter` is how the sub-renderers
@@ -192,8 +203,8 @@ def test_port_signature_accepts_every_real_call_site(name):
 
 
 def _other_painters():
-    from frameforge.rendering.infrastructure.painters.html import HtmlPainter
-    from frameforge.rendering.infrastructure.painters.tikz import TikzPainter
+    from frameforge_render.infrastructure.painters.html import HtmlPainter
+    from frameforge_render.infrastructure.painters.tikz import TikzPainter
     return {"TikzPainter": TikzPainter, "HtmlPainter": HtmlPainter}
 
 

@@ -21,6 +21,8 @@ repeat the disclaimer block.
 
 ## MANDATORY
 
+- Do not-dramatized a small thing.
+- Meta processing IS NEVER to be documented unless requested.
 - Treat generated artifacts as generated: edit source inputs or generators, then
   rerun the corresponding check.
 - Do not hand-edit `FIXTURE-STATUS.md`, generated MkDocs pages, or generated
@@ -51,7 +53,6 @@ models and fixtures.
 │   ├── schema/               #   generated JSON schema + generator
 │   ├── spec/  grammar/       #   normative prose + EBNF views
 │   └── *.md                  #   site pages, design records, generated snapshots
-├── static/examples/          # runnable SDK clients (the cookbook)
 ├── tooling/                  # validation, render, codemod, docs generators
 ├── tests/                    # regression and sync gates
 │   └── fixtures/             # gated fixture corpus (b1/ = the oracle)

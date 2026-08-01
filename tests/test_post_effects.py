@@ -103,7 +103,7 @@ def _test_image():
 
 
 def test_identity_when_no_effects():
-    from frameforge.rendering.infrastructure.raster_post import apply_post_effects
+    from frameforge_render.infrastructure.raster_post import apply_post_effects
 
     img = _test_image()
     assert _flat(apply_post_effects(img, None)) == _flat(img)
@@ -111,7 +111,7 @@ def test_identity_when_no_effects():
 
 
 def test_grain_is_seed_deterministic():
-    from frameforge.rendering.infrastructure.raster_post import apply_post_effects
+    from frameforge_render.infrastructure.raster_post import apply_post_effects
 
     img = _test_image()
     a = apply_post_effects(img, {"grain": {"amount": 0.05, "seed": 7}})
@@ -123,7 +123,7 @@ def test_grain_is_seed_deterministic():
 
 
 def test_blur_reduces_high_frequency_energy():
-    from frameforge.rendering.infrastructure.raster_post import apply_post_effects
+    from frameforge_render.infrastructure.raster_post import apply_post_effects
 
     def hf_energy(img):
         # squared gradient energy — total variation (sum |Δ|) is invariant
@@ -139,7 +139,7 @@ def test_blur_reduces_high_frequency_energy():
 
 
 def test_bloom_brightens_near_bright_regions_only():
-    from frameforge.rendering.infrastructure.raster_post import apply_post_effects
+    from frameforge_render.infrastructure.raster_post import apply_post_effects
 
     img = _test_image()
     out = apply_post_effects(
@@ -152,7 +152,7 @@ def test_bloom_brightens_near_bright_regions_only():
 
 
 def test_scale_multiplies_effect_radii():
-    from frameforge.rendering.infrastructure.raster_post import apply_post_effects
+    from frameforge_render.infrastructure.raster_post import apply_post_effects
 
     img = _test_image().resize((240, 160), Image.NEAREST)
     a = apply_post_effects(img, {"blur": 2.0}, scale=2.0)

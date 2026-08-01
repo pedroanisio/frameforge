@@ -88,7 +88,7 @@ def render_svg_png(fixture: str) -> bytes:
     matching input aspect ratios is what keeps the comparison honest.
     """
     import cairosvg
-    from frameforge.rendering.application.renderer import Renderer
+    from frameforge_render.application.renderer import Renderer
     doc = _load_doc(fixture)
     svg = Renderer(doc, os.path.dirname(fixture)).render_page(doc["pages"][0])[0]
     return cairosvg.svg2png(bytestring=svg.encode("utf-8"))
@@ -104,7 +104,7 @@ def render_html_png(fixture: str) -> bytes | None:
     import tempfile
     from pathlib import Path
     from playwright.sync_api import sync_playwright
-    from frameforge.rendering.infrastructure.backends.html import render_document
+    from frameforge_render.infrastructure.backends.html import render_document
     html = render_document(_load_doc(fixture))
     with tempfile.TemporaryDirectory() as td:
         p = Path(td) / "doc.html"

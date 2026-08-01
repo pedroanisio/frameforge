@@ -24,7 +24,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.domain.services.layout_engine import LayoutEngine  # noqa: E402
+from frameforge_render.domain.services.layout_engine import LayoutEngine  # noqa: E402
 
 E = LayoutEngine()
 

@@ -33,6 +33,22 @@ HISTORICAL = {
     # its unit tests went with it; the entries citing them are true statements
     # about where that code lived when they were written.
     "tests/test_gradient_fit_domain.py": "moved to frameforge-vision (2026-08-01)",
+    # The render engine became the standalone `frameforge-render` package; this
+    # module is now frameforge_render/application/audit.py. The entries citing
+    # the old path are true statements about where that code lived.
+    "src/frameforge/rendering/application/audit.py":
+        "moved to frameforge-render (2026-08-01)",
+    # The cookbook became the standalone `frameforge-example` distribution; its
+    # generated index and the generator went with it. Every entry citing them is
+    # a true statement about where that content lived when it was written.
+    "docs/examples.md": "moved to frameforge-example (2026-08-01)",
+    "tooling/gen_examples_index.py": "moved to frameforge-example (2026-08-01)",
+    # Renamed the same day: the launcher's module name shadowed the new
+    # `frameforge_render` distribution on sys.path (conftest puts tooling/ on
+    # it) — the one-name-one-owner invariant conftest.py documents.
+    "tooling/frameforge_render.py":
+        "renamed to tooling/ff_render.py (2026-08-01) — the old name shadowed "
+        "the frameforge_render distribution",
 }
 
 _PATH = re.compile(r"\b((?:tests|docs|src|tooling)/[A-Za-z0-9_\-./]+\.(?:py|md|json|ebnf|yaml|yml|mjs))\b")

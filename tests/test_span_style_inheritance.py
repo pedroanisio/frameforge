@@ -36,8 +36,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.rendering.application.renderer import Renderer  # noqa: E402
-from frameforge.rendering.infrastructure.backends import html as fgh  # noqa: E402
+from frameforge_render.application.renderer import Renderer  # noqa: E402
+from frameforge_render.infrastructure.backends import html as fgh  # noqa: E402
 
 MONO = ["IBM Plex Mono", "monospace"]
 
@@ -393,7 +393,7 @@ def test_span_style_by_token_name_also_inherits():
 
 def test_run_does_not_inherit_box_only_properties():
     """`max_lines`/`overflow` belong to the box, never to an inline run."""
-    from frameforge.rendering.domain.services.text_style_resolver import (
+    from frameforge_render.domain.services.text_style_resolver import (
         TextStyleResolver, INHERITED_TEXT_PROPERTIES)
     r = TextStyleResolver({}, {}, _NullColor())
     base = r.resolve({"font_family": "mono", "max_lines": 3, "overflow": "hidden",
@@ -417,7 +417,7 @@ def test_run_does_not_re_emit_metric_affecting_properties():
     overflowing its box. Pinned after a first cut of this change re-emitted
     `letter-spacing`/`hyphens` on every run and moved four golden pages.
     """
-    from frameforge.rendering.domain.services.text_style_resolver import (
+    from frameforge_render.domain.services.text_style_resolver import (
         TextStyleResolver, INHERITED_TEXT_PROPERTIES)
     metric_affecting = (
         "letter_spacing", "word_spacing", "font_stretch", "text_transform",
@@ -444,7 +444,7 @@ class _NullColor:
 
 def test_resolve_without_base_is_unchanged():
     """The no-base path must be byte-identical — every existing caller uses it."""
-    from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver
+    from frameforge_render.domain.services.text_style_resolver import TextStyleResolver
     r = TextStyleResolver({}, {}, _NullColor())
     assert r.resolve({"color": "#111"}) == r.resolve({"color": "#111"}, None)
 

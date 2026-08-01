@@ -56,10 +56,10 @@ def _load_yaml_file(path):
             return yaml.load(fh, Loader=yaml.SafeLoader)
 
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
-from frameforge.rendering.application.normalize import normalize_doc  # noqa: E402
-from frameforge.rendering.application.renderer import Renderer  # noqa: E402
-from frameforge.rendering.provenance import sign_svg, utc_now_iso  # noqa: E402
-from frameforge.rendering.domain.geometry import esc  # noqa: E402
+from frameforge_render.application.normalize import normalize_doc  # noqa: E402
+from frameforge_render.application.renderer import Renderer  # noqa: E402
+from frameforge_render.provenance import sign_svg, utc_now_iso  # noqa: E402
+from frameforge_render.domain.geometry import esc  # noqa: E402
 
 # ``normalize_doc`` was relocated into frameforge/rendering/application/normalize.py
 # so the package no longer imports up into tooling/. It is re-exported here for the

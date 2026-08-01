@@ -14,9 +14,9 @@ import warnings
 
 import pytest
 
-from frameforge.rendering.application.renderer import Renderer
-from frameforge.rendering.domain.services.canvas_resolver import DEFAULT_WH
-from frameforge.rendering.infrastructure.backends.html import canvas_size
+from frameforge_render.application.renderer import Renderer
+from frameforge_render.domain.services.canvas_resolver import DEFAULT_WH
+from frameforge_render.infrastructure.backends.html import canvas_size
 
 import validate as V
 
@@ -105,7 +105,7 @@ def test_validate_unit_table_is_lockstep_with_the_resolver():
     makes divergence loud."""
     import importlib
 
-    from frameforge.rendering.domain.services.canvas_resolver import _UNIT_TO_PX as _CR_UNITS
+    from frameforge_render.domain.services.canvas_resolver import _UNIT_TO_PX as _CR_UNITS
 
     validate = importlib.import_module("validate")
     assert validate._UNIT_TO_PX == _CR_UNITS
@@ -116,7 +116,7 @@ def test_validate_orientation_matches_resolver_for_samples():
     physical-unit paths the C2 handoffs added."""
     import importlib
 
-    from frameforge.rendering.domain.services.canvas_resolver import CanvasResolver
+    from frameforge_render.domain.services.canvas_resolver import CanvasResolver
 
     validate = importlib.import_module("validate")
     samples = [

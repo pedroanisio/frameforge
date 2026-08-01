@@ -6,17 +6,18 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-from frameforge.rendering.application.normalize import normalize_doc
-from frameforge.rendering.application import renderer as _renderer_module
-from frameforge.rendering.application.renderer import Renderer  # noqa: F401 — re-export compat
-from frameforge.rendering.domain.services.legibility import (
+from frameforge_render.application.normalize import normalize_doc
+from frameforge_render.application import renderer as _renderer_module
+from frameforge_render.application.renderer import Renderer  # noqa: F401 — re-export compat
+from frameforge_render.domain.services.legibility import (
     LegibilityPolicy,
     LegibilitySignal,
     assess_pages,
 )
-from frameforge.rendering.domain.services.overflow import OverflowSignal
-from frameforge.rendering.domain.services.paint_intent import PaintSignal
+from frameforge_render.domain.services.overflow import OverflowSignal
+from frameforge_render.domain.services.paint_intent import PaintSignal
 
+from frameforge_sdk import MetricsProvider
 from frameforge_sdk.model import validate_document
 
 
@@ -25,6 +26,7 @@ def render_pages_with_stats(
     *,
     base_dir: str | None = None,
     real_metrics: bool | None = None,
+    metrics_provider: MetricsProvider | None = None,
     layout_report: bool = False,
     diagnostics: bool = False,
 ):
@@ -44,6 +46,10 @@ def render_pages_with_stats(
     over the env var. ``layout_report=True`` additionally collects per-object final
     boxes + fitted font sizes in the diagnostics ``layout`` list.
 
+    ``metrics_provider`` supplies exact per-face widths to SDK and renderer
+    alike. When present it takes precedence over ``real_metrics`` and the
+    diagnostics report ``metrics_mode="closure"``.
+
     With ``diagnostics=True`` a third element is returned — the renderer's
     structured feedback dict (``warnings``, ``skipped_objects``,
     ``skipped_flowables``, ``font_fallbacks``, ``layout``) — so callers such as the
@@ -57,7 +63,8 @@ def render_pages_with_stats(
     # binding) so tests/tools that monkeypatch `renderer.Renderer` are honored —
     # the contract the MCP pipeline's real-metrics wiring is verified against.
     renderer = _renderer_module.Renderer(
-        doc, root, real_metrics=real_metrics, layout_report=layout_report)
+        doc, root, real_metrics=real_metrics, metrics_provider=metrics_provider,
+        layout_report=layout_report)
     svgs: list[str] = []
     for page in doc.get("pages", []):
         if isinstance(page, dict):
@@ -89,6 +96,7 @@ def render_html(
     *,
     base_dir: str | None = None,
     real_metrics: bool | None = None,
+    metrics_provider: MetricsProvider | None = None,
 ) -> str:
     """Render a document to one self-contained HTML page.
 
@@ -125,10 +133,11 @@ def render_html(
         page.text("h", box=(40, 40, 720, 40), text="Q3 results")
         open("report.html", "w").write(render_html(b.build()))
     """
-    from frameforge.rendering.infrastructure.backends.html import (
+    from frameforge_render.infrastructure.backends.html import (
         render_document as _render_html_document)
     data = validate_document(model).model_dump(by_alias=True, exclude_none=True)
-    return _render_html_document(data, base_dir, real_metrics=real_metrics)
+    return _render_html_document(
+        data, base_dir, real_metrics=real_metrics, metrics_provider=metrics_provider)
 
 
 def overflow_report(
@@ -136,6 +145,7 @@ def overflow_report(
     *,
     base_dir: str | None = None,
     real_metrics: bool | None = None,
+    metrics_provider: MetricsProvider | None = None,
 ) -> list[OverflowSignal]:
     """Render through the proxy and return the typed layout-overflow signals.
 
@@ -149,7 +159,8 @@ def overflow_report(
     :func:`render_pages_with_stats`.
     """
     _svgs, _tstats, diags = render_pages_with_stats(
-        model, base_dir=base_dir, real_metrics=real_metrics, diagnostics=True)
+        model, base_dir=base_dir, real_metrics=real_metrics,
+        metrics_provider=metrics_provider, diagnostics=True)
     return [OverflowSignal.from_dict(d) for d in diags.get("overflow", [])]
 
 
@@ -158,6 +169,7 @@ def paint_report(
     *,
     base_dir: str | None = None,
     real_metrics: bool | None = None,
+    metrics_provider: MetricsProvider | None = None,
 ) -> list[PaintSignal]:
     """Render through the proxy and return the typed PAINT-INTENT signals.
 
@@ -184,7 +196,8 @@ def paint_report(
         p1 hairline inert-stroke-declaration -> stroke: '#d5d0c6' + stroke_style: {stroke_width: 1}
     """
     _svgs, _tstats, diags = render_pages_with_stats(
-        model, base_dir=base_dir, real_metrics=real_metrics, diagnostics=True)
+        model, base_dir=base_dir, real_metrics=real_metrics,
+        metrics_provider=metrics_provider, diagnostics=True)
     return [PaintSignal.from_dict(d) for d in diags.get("paint", [])]
 
 
@@ -193,6 +206,7 @@ def legibility_report(
     *,
     base_dir: str | None = None,
     real_metrics: bool | None = None,
+    metrics_provider: MetricsProvider | None = None,
     policy: LegibilityPolicy | None = None,
 ) -> list[LegibilitySignal]:
     """Render through the proxy and return the typed HUMAN-LEGIBILITY signals.
@@ -207,10 +221,11 @@ def legibility_report(
 
     ``policy`` overrides the default thresholds (house minimum type size, a
     stricter contrast target, a narrower measure); see
-    :class:`~frameforge.rendering.domain.services.legibility.LegibilityPolicy`.
+    :class:`~frameforge_render.domain.services.legibility.LegibilityPolicy`.
     """
     svgs, _tstats = render_pages_with_stats(
-        model, base_dir=base_dir, real_metrics=real_metrics)
+        model, base_dir=base_dir, real_metrics=real_metrics,
+        metrics_provider=metrics_provider)
     return assess_pages(svgs, policy=policy)
 
 
@@ -219,6 +234,7 @@ def collision_report(
     *,
     base_dir: str | None = None,
     real_metrics: bool | None = None,
+    metrics_provider: MetricsProvider | None = None,
 ) -> list[dict]:
     """Render through the proxy and return the same-layer ink COLLISIONS.
 
@@ -252,24 +268,43 @@ def collision_report(
     with ``overlap: "allowed"`` on both objects and never appears here.
     """
     _svgs, _tstats, diags = render_pages_with_stats(
-        model, base_dir=base_dir, real_metrics=real_metrics, diagnostics=True)
+        model, base_dir=base_dir, real_metrics=real_metrics,
+        metrics_provider=metrics_provider, diagnostics=True)
     return list(diags.get("collisions", []))
 
 
-def render_page_svgs(model: Any, *, base_dir: str | None = None) -> list[str]:
+def render_page_svgs(
+    model: Any, *, base_dir: str | None = None,
+    metrics_provider: MetricsProvider | None = None,
+) -> list[str]:
     """Render a document through the repository SVG proxy and return page SVGs."""
-    svgs, _ = render_pages_with_stats(model, base_dir=base_dir)
+    svgs, _ = render_pages_with_stats(
+        model, base_dir=base_dir, metrics_provider=metrics_provider)
     return svgs
 
 
-def page_hashes(model: Any, *, base_dir: str | None = None) -> tuple[str, ...]:
+def page_hashes(
+    model: Any, *, base_dir: str | None = None,
+    metrics_provider: MetricsProvider | None = None,
+) -> tuple[str, ...]:
     """Return SHA-256 hashes for the proxy SVG render of each page."""
-    return tuple(sha256(svg.encode("utf-8")).hexdigest() for svg in render_page_svgs(model, base_dir=base_dir))
+    return tuple(
+        sha256(svg.encode("utf-8")).hexdigest()
+        for svg in render_page_svgs(
+            model, base_dir=base_dir, metrics_provider=metrics_provider)
+    )
 
 
-def assert_golden(model: Any, expected: list[str] | tuple[str, ...], *, base_dir: str | None = None) -> None:
+def assert_golden(
+    model: Any,
+    expected: list[str] | tuple[str, ...],
+    *,
+    base_dir: str | None = None,
+    metrics_provider: MetricsProvider | None = None,
+) -> None:
     """Assert that a document's proxy-render page hashes match ``expected``."""
-    got = page_hashes(model, base_dir=base_dir)
+    got = page_hashes(
+        model, base_dir=base_dir, metrics_provider=metrics_provider)
     want = tuple(expected)
     if got != want:
         raise AssertionError(f"golden mismatch: expected {want!r}, got {got!r}")

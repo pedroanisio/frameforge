@@ -63,7 +63,7 @@ def test_justified_shrink_lines_are_not_reported_clipped():
     """A KP shrink-set line measures naturally wider than the column but is
     painted flushed to it via textLength — the containment telemetry must not
     report it as width loss."""
-    from frameforge.rendering.application.renderer import Renderer
+    from frameforge_render.application.renderer import Renderer
     text = ("And now he will grind himself against it, she thought. Let him "
             "grind. A blade is not asked to forgive the whetstone. But he "
             "will not do it alone.")
@@ -87,7 +87,7 @@ def test_justified_overfull_last_line_is_compressed_not_clipped():
     """A KP shrink-set FINAL line has no flush flag; painting it at natural
     width pushes it past the column into the clip. The painter must compress
     it to the column (textLength) instead — TeX's overfull-last-line rule."""
-    from frameforge.rendering.application.renderer import Renderer
+    from frameforge_render.application.renderer import Renderer
     text = ("Paul gripped back and gave him the only true blessing he had: "
             "“The timing is good. I have seen the schedule boards in "
             "Carthag.”")

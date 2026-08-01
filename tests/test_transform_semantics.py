@@ -31,7 +31,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):  # the models modul
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from tooling.render_fixtures import Renderer  # noqa: E402
-from frameforge.rendering.domain.services.style_values import StyleValues  # noqa: E402
+from frameforge_render.domain.services.style_values import StyleValues  # noqa: E402
 
 
 def _page_svg(objects):
@@ -240,5 +240,5 @@ def test_tx4_flow_figure_scale_emitted_precise():
     frac = emitted.split(".", 1)[1] if "." in emitted else ""
     assert len(frac) > 3, f"fit scale still 3-decimal quantized: {emitted}"
     # and it must round-trip to the exact value the layout used
-    from frameforge.rendering.domain.geometry import fnum_precise
+    from frameforge_render.domain.geometry import fnum_precise
     assert emitted == fnum_precise(float(emitted))

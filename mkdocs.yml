@@ -100,6 +100,7 @@ nav:
       - Migrating 2.7 authoring behavior: migration-2.7-authoring-feedback.md
       - Migrating inert stroke declarations: migration-inert-stroke.md
       - Migrating v0.1 documents: migration-v01.md
+      - Migrating to closure metrics: migration-closure-metrics.md
       - ADR-0001 backend-neutral rendering: adr-0001-backend-neutral-rendering.md
       - ADR-0002 SDK lags core delivery: adr-0002-sdk-lags-core-delivery.md
       - ADR-0003 backend-neutral flow layout: adr-0003-backend-neutral-flow-layout.md

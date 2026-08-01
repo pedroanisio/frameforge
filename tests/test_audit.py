@@ -4,7 +4,7 @@ The audit must (a) count every distinct visual token from the emitted SVG,
 (b) surface features generically from the model (so new node types need no new
 code — the drift-proof property), and (c) flag design-system sprawl.
 """
-from frameforge.rendering.application.audit import (
+from frameforge_render.application.audit import (
     audit_document, render_markdown, summary_line)
 
 # A tiny two-element SVG page: one Inter heading, one serif body line, plus a
@@ -63,7 +63,17 @@ def test_health_flags_sprawl_and_mixed_weights():
 
 def test_clean_document_passes_and_renders():
     report = audit_document(_DOC, _SVG)
-    assert [f for f in report["health"] if f["level"] == "warn"] == []  # no sprawl
+    # This asserts the SPRAWL health of a deliberately tiny token set. Since
+    # `frameforge-render` 1.1.0 the legibility gate also reports its own
+    # COVERAGE — `contrast-coverage-low` means "I could not resolve what is
+    # painted behind this type, so my contrast verdict does not cover the page".
+    # That is a disclosure about the check, not a finding about the design, and
+    # it is correct here: this fixture's `<text>` carries no coordinates, so
+    # nothing can be located behind it. Excluded by code rather than by
+    # loosening the assertion, so a real sprawl warning still fails.
+    sprawl = [f for f in report["health"]
+              if f["level"] == "warn" and f["code"] != "contrast-coverage-low"]
+    assert sprawl == []
     assert isinstance(summary_line(report), str)
     md = render_markdown(report, title="t")
     assert "Design audit" in md and "Visual tokens" in md

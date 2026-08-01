@@ -27,10 +27,10 @@ import pytest
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.application.normalize import normalize_doc  # noqa: E402
-from frameforge.rendering.application.renderer import Renderer  # noqa: E402
-from frameforge.rendering.infrastructure.backends import get_backend  # noqa: E402
-from frameforge.rendering.infrastructure.painters.html import HtmlPainter  # noqa: E402
+from frameforge_render.application.normalize import normalize_doc  # noqa: E402
+from frameforge_render.application.renderer import Renderer  # noqa: E402
+from frameforge_render.infrastructure.backends import get_backend  # noqa: E402
+from frameforge_render.infrastructure.painters.html import HtmlPainter  # noqa: E402
 
 B1 = os.path.join(ROOT, "tests", "fixtures", "b1")
 FIXTURES = sorted(glob.glob(os.path.join(B1, "*.fg.json")))

@@ -16,7 +16,7 @@ import pytest
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
-from frameforge.rendering.domain.services.a11y import (  # noqa: E402
+from frameforge_render.domain.services.a11y import (  # noqa: E402
     GEOMETRY_TYPES, derive_semantics, icon_label)
 
 

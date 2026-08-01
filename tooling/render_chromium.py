@@ -24,7 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.infrastructure.browser import (  # noqa: E402
+from frameforge_render.infrastructure.browser import (  # noqa: E402
     BrowserRendererUnavailable,
     rasterize_svgs,
 )

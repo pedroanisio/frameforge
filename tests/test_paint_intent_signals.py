@@ -63,7 +63,7 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from frameforge.rendering.domain.services.paint_intent import (  # noqa: E402
+from frameforge_render.domain.services.paint_intent import (  # noqa: E402
     INERT_STROKE_KEYS,
     PaintSignal,
     STROKE_PAINTED_TYPES,
@@ -356,7 +356,7 @@ def _audit(doc):
     """Audit a document exactly as the render front door does: the paint channel
     is render-time evidence, so it is threaded in like `collisions` rather than
     re-derived (the audit never re-renders)."""
-    from frameforge.rendering.application.audit import audit_document
+    from frameforge_render.application.audit import audit_document
     svgs, diags = render_diags(doc)
     return audit_document(doc, svgs, collisions=diags.get("collisions"),
                           paint=diags.get("paint"))
@@ -385,7 +385,7 @@ def test_audit_info_level_signals_do_not_become_health_flags():
 
 
 def test_audit_summary_counts_unpainted_objects():
-    from frameforge.rendering.application.audit import compact_census
+    from frameforge_render.application.audit import compact_census
     report = _audit(doc_with(INERT_POLYLINE))
     assert compact_census(report)["unpainted"] == 1
 

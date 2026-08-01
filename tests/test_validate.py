@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.join(ROOT, "tooling"))
 import validate as V  # noqa: E402
 
 
+
 def _doc(objects, canvas=None):
     page = {"mode": "page", "id": "p", "layers": [{"id": "l", "objects": objects}]}
     if canvas:
@@ -217,11 +218,21 @@ def test_flow_section_figure_object_is_walked():
 
 
 # --- canvas presets: sourced from the renderer, covering every model preset --- #
+def _render_src():
+    """Directory of the installed `frameforge_render` package source.
+
+    The engine became its own distribution on 2026-08-01; gates that read its
+    source must resolve it through the module, not a path in this repository.
+    """
+    import frameforge_render
+    return os.path.dirname(os.path.abspath(frameforge_render.__file__))
+
+
 def _renderer_presets():
     """CanvasResolver.PRESETS/DEFAULT_WH read straight from the source file (AST),
     so this gate holds without importing the rendering package."""
     import ast
-    src = os.path.join(ROOT, "src", "frameforge", "rendering", "domain", "services",
+    src = os.path.join(_render_src(), "domain", "services",
                        "canvas_resolver.py")
     presets = default = None
     for node in ast.parse(open(src, encoding="utf-8").read()).body:

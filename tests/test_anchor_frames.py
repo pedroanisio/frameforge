@@ -12,7 +12,7 @@ returned verbatim, missing nested targets by exactly the ancestor offset.
 """
 import re
 
-from frameforge.rendering.application.renderer import Renderer
+from frameforge_render.application.renderer import Renderer
 
 
 def _render(doc):

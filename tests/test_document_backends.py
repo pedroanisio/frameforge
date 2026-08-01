@@ -25,14 +25,14 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 import frameforge.cli as cli
-from frameforge.rendering.domain.ports import RenderedArtifact
-from frameforge.rendering.infrastructure.backends import (
+from frameforge_render.domain.ports import RenderedArtifact
+from frameforge_render.infrastructure.backends import (
     HtmlDocumentRenderer,
     PdfTexDocumentRenderer,
     all_backends,
     get_backend,
 )
-from frameforge.rendering.infrastructure.latex.compile import (
+from frameforge_render.infrastructure.latex.compile import (
     compile_tex,
     engine_available,
     pick_engine,

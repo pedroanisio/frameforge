@@ -29,7 +29,7 @@ def _ensure_frameforge_package():
     """A models-module test collected *after* this file can leave the models
     module (``docs/models/frameforge.py``) owning ``sys.modules["frameforge"]``
     AND ``docs/models`` first on ``sys.path``. These tests call ``cli.main``
-    which lazily imports ``frameforge_sdk`` / ``frameforge.rendering`` at RUN
+    which lazily imports ``frameforge_sdk`` / ``frameforge_render`` at RUN
     time, so re-assert the package here — a collection-time preamble alone is
     order-dependent (audit finding #11). Everything is saved and restored, so
     this isolation never leaks to the next test."""

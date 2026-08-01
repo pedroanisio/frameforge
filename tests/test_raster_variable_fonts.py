@@ -30,7 +30,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.infrastructure import browser as B  # noqa: E402
+from frameforge_render.infrastructure import browser as B  # noqa: E402
 
 SVG_VAR = (
     '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="120" viewBox="0 0 600 120">'

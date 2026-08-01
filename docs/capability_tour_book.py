@@ -54,7 +54,7 @@ import frameforge_sdk as sdk  # noqa: E402  — Appendix A introspects the full 
 from frameforge_sdk import Camera, CubicBezier, DocumentBuilder, FigureAsset, FigureProvenance, Frame, Graph, HEAD_VERSION, Mat3, Mat4, Path, ScalarField, Scene3D, Vec3, VectorField, cite, clip_circle, clip_ellipse, clip_inset, clip_path, clip_polygon, clip_rect, default_theme, dots, effects, extract_objects, fill_stroke, function_plot, glow, gradient_map, greeble, grid_lines, grid_pattern, hatch, hatch_fill, inset, fit_width, klein_bottle, lattice, linear_gradient, lorem, md, measure_text, mobius, multiview, neon, object_bbox, parametric_curve, parse, pattern, place_region, polar_plot, quarter_circle_kappa, radial_gradient, ref, region_grade, rgba, row, saddle, select_in, serialize, soft_shadow, sparkline, sphere, stroke, svg_to_objects, text_style, theme, to_plain_dict, torus, validate_static_rules, wave, wrap_text  # noqa: E402
 from frameforge.conform import assert_golden, page_hashes, render_pages_with_stats, write_golden
 from frameforge_sdk.metrics import text_height  # noqa: E402
-from frameforge.rendering.domain.services.canvas_resolver import PRESETS  # noqa: E402
+from frameforge_render.domain.services.canvas_resolver import PRESETS  # noqa: E402
 
 from layout_methods_book import (  # noqa: E402  — the ELECTED, extended composer
     ACCENT,

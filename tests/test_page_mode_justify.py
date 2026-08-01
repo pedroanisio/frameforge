@@ -35,10 +35,19 @@ def _svg(align, *, width=300, text=PROSE):
     return Renderer(doc, ".").render_page(doc["pages"][0])[0]
 
 
-def test_justify_emits_textlength_on_wrapped_lines():
+def test_justify_opens_word_spaces_not_letter_spaces():
+    """Justification distributes slack across WORD gaps, never glyph advances.
+
+    This used to assert `textLength=` + `lengthAdjust="spacing"`, which asks the
+    renderer to spread the slack over every glyph — so a loose line came out
+    letterspaced inside its words. Letterspacing minuscules is a defect in every
+    typographic tradition, and it is what made a justified column read as gappy
+    beside an identical ragged one. `frameforge-render` 1.2.0 emits a per-line
+    `word-spacing` instead (negative values compress an overfull line).
+    """
     svg = _svg("justify")
-    assert "textLength=" in svg
-    assert 'lengthAdjust="spacing"' in svg
+    assert "word-spacing:" in svg, "justified lines carry no word-space adjustment"
+    assert 'lengthAdjust="spacing"' not in svg, "justification must not letterspace"
 
 
 def test_left_align_is_unchanged_no_justification():
@@ -71,7 +80,10 @@ def test_justify_preserves_inline_bold_spans():
         }]}],
     }]}
     svg = Renderer(doc, ".").render_page(doc["pages"][0])[0]
-    assert "textLength=" in svg                       # justified
+    # Span-aware justification opens WORD gaps (1.2.0); it no longer asks the
+    # renderer to letterspace via textLength/lengthAdjust.
+    assert "word-spacing:" in svg                     # justified
+    assert 'lengthAdjust="spacing"' not in svg        # and not by letterspacing
     assert "font-weight:bold" in svg                  # the bold span survived
     assert "life" in svg
 

@@ -31,7 +31,15 @@ def _doc():
 def test_cited_entry_points_exist():
     paths = sorted(set(_PATH_RE.findall(_doc())))
     assert paths, "output-space.md cites no entry-point paths to protect"
-    missing = [p for p in paths if not os.path.exists(os.path.join(ROOT, p))]
+    # `frameforge_render/...` citations name modules in the render engine, which
+    # became its own distribution on 2026-08-01 — they resolve against the
+    # installed package, not against this repository.
+    import frameforge_render
+    render_parent = os.path.dirname(os.path.dirname(
+        os.path.abspath(frameforge_render.__file__)))
+    missing = [p for p in paths
+               if not os.path.exists(os.path.join(ROOT, p))
+               and not os.path.exists(os.path.join(render_parent, p))]
     assert not missing, (
         f"output-space.md cites path(s) that no longer exist (DRIFT): {missing}. "
         "Update the doc's 'Generated today' anchor to match the repo.")

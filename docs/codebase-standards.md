@@ -111,7 +111,7 @@ Rules of reading:
   the package ([src/frameforge/model.py](../src/frameforge/model.py)), which removed the
   hazard and the stance with it. For uninstalled checkouts the launchers remain: the
   self-bootstrapping `bin/ff-render` (symlink it onto your PATH),
-  `uv run python tooling/frameforge_render.py` (PYTHONPATH-free; issue #35),
+  `uv run python tooling/ff_render.py` (PYTHONPATH-free; issue #35),
   `python -m frameforge.cli` where `src` is already on the path, and
   `uv run python tooling/fg_font.py` (thin launcher over `frameforge.fontpack`;
   also `make font-list` / `font-check`).
@@ -178,7 +178,7 @@ The gate is the contract for "done." It has **one definition**, run two places.
   `brand/` asset directory (tokens + generated logo masters) among it — stays **out of the
   codebase tree**. With their comparison inputs untracked, both gates had nothing to gate.
   The logo *generator* remains in-tree
-  ([static/examples/frameforge_logo.py](../static/examples/frameforge_logo.py)); it now
+  (`frameforge_logo.py`, repo `frameforge-example`); it now
   writes masters out of tree (`_tmp/brand/`).
 - **`[Enforced]`** **CI runs `make check` verbatim.** The `python` job syncs from the lock
   (`uv sync --locked --group pdf`) and executes the Makefile target as a single step
@@ -285,7 +285,7 @@ else is generated from or checked against them** ([README.md](../README.md), *Th
   the site's content pages — schema reference from the schema, fixture gallery from the
   renderer, spec/grammar/changelog verbatim (transient build artifacts) — and the repo keeps
   four **committed generated snapshots**: `docs/sdk.md` + `docs/sdk-api.md` (SDK guide/API),
-  `docs/examples.md` ([tooling/gen_examples_index.py](../tooling/gen_examples_index.py)), and
+  `docs/examples.md` (`gen_examples_index.py`, repo `frameforge-example`), and
   `docs/capability-manifest.json` ([tooling/gen_capability_manifest.py](../tooling/gen_capability_manifest.py)).
   Snapshot freshness is gated twice — `docs-check` and the pytest suite (above).
 - **`[Adopted]`** **Hand-written pages are in nav alongside generated ones.** The

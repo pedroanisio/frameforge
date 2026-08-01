@@ -182,7 +182,7 @@ def test_repeating_composes_with_user_space_line():
 # defs lane must lower user-space geometry exactly (shifted into each shape's
 # rebased viewBox), and its CSS lane must preserve direction (linear) and
 # px placement (radial — CSS radial-gradient speaks px natively).
-from frameforge.rendering.infrastructure.backends import html as fgh  # noqa: E402
+from frameforge_render.infrastructure.backends import html as fgh  # noqa: E402
 
 
 def _hdoc(objects):
@@ -268,10 +268,10 @@ def test_html_stop_opacity_reaches_every_shape_through_one_lane():
 # approximations; A1 requires them to (a) preserve a `line` gradient's DIRECTION
 # via the derived CSS angle and (b) draw a user-space radial exactly — TikZ
 # shades already live in page coordinates, so numeric at + radius map 1:1.
-from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
-from frameforge.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
-from frameforge.rendering.infrastructure.painters.tikz import TikzPainter  # noqa: E402
+from frameforge_render.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from frameforge_render.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
+from frameforge_render.infrastructure.latex.tikz import FigureTikz  # noqa: E402
+from frameforge_render.infrastructure.painters.tikz import TikzPainter  # noqa: E402
 
 
 def _fig():

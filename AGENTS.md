@@ -58,7 +58,6 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 | `status` / `status-check` | regenerate / drift-gate `FIXTURE-STATUS.md` (`tooling/gen_status.py`) |
 | `golden` / `golden-check` | re-pin / drift-gate the b1/ oracle SVG hash lock (`tooling/render_golden.py`) |
 | `manifest` / `manifest-check` | regenerate / drift-gate `docs/capability-manifest.json` (`tooling/gen_capability_manifest.py`) |
-| `examples-index` | regenerate `docs/examples.md` (`tooling/gen_examples_index.py`) |
 | `render` | render every fixture to `out/render/` + contact sheet |
 | `render-latex` | flow fixtures → LaTeX/TikZ + PDF via lualatex (`out/latex/`) |
 | `pdf PDF=in.pdf [OUT=…]` | PDF → FrameForge YAML transpile (pulls the `pdf` group) |
@@ -85,7 +84,7 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 |---|---|
 | `validate.py` | `validate.py doc.fg.yaml [...] [--strict] [--no-text-fit] [--check-collision] [--real-metrics] [--quiet]` — text-fit diagnostics run by default; `--no-text-fit` is structure-only. Exit 0 no errors, 1 errors, 2 load failure. `--check-collision` WARNs on same-layer ink overlaps not declared `overlap: allowed` (advisory; `--real-metrics` applies to text-fit and collisions). Also WARNs `inert-stroke-declaration` when a stroke-painted shape declares its stroke as `style: {color,width,dash}` — those keys validate as text colour / box width and paint nothing, so the shape renders #000/1px or invisible (`--fix-inert-stroke` migrates it). Codes: [docs/error-codes.md](docs/error-codes.md) |
 | `codemod.py` | `codemod.py doc.fg.json --in-place [--normalize-aliases] [--bump] [--from-v01] [--fix-inert-stroke]` — migrate legacy docs to HEAD; `--from-v01` lifts the v0.1 envelope (scene- and deck/slides-form) first ([docs/migration-v01.md](docs/migration-v01.md)); `--fix-inert-stroke` rewrites `style: {color,width,dash}` on line/polyline/polygon/path/curve/connector to the P3 single form `stroke` + `stroke_style` |
-| `frameforge_render.py` | `frameforge_render.py doc.fg.yaml [--to svg|png|pdf|pdf-tex|tex|html|audit] [--out DIR]` — the render **front door** for uninstalled checkouts: self-bootstrapping (no PYTHONPATH), delegates to `frameforge.cli` (installed trees can call `ff-render` directly) (`--list` shows live targets). `--to audit` emits a drift-proof design-token + feature census (JSON + Markdown; `rendering/application/audit.py`, [ADR-0006](docs/adr-0006-no-injected-style.md)) |
+| `ff_render.py` | `ff_render.py doc.fg.yaml [--to svg|png|pdf|pdf-tex|tex|html|audit] [--out DIR]` — the render **front door** for uninstalled checkouts: self-bootstrapping (no PYTHONPATH), delegates to `frameforge.cli` (installed trees can call `ff-render` directly) (`--list` shows live targets). `--to audit` emits a drift-proof design-token + feature census (JSON + Markdown; `rendering/application/audit.py`, [ADR-0006](docs/adr-0006-no-injected-style.md)) |
 | `render_fixtures.py` | `[paths|--all] [--out DIR] [--max-pages N] [--check-overflow] [--strict-content] [--real-metrics] [--list]` — dependency-free SVG proxy; `--check-overflow` names every content-losing text object, `--strict-content` fails on silent loss |
 | `render_golden.py` | `[--update] [--strict]` — pins the b1 oracle: SVG per-page hashes (`oracle.lock.json` + `refs/`) AND HTML per-fixture hashes (`oracle.html.lock.json`, GH #85). `--update` re-pins both; the check fails on any drift in either backend. |
 | `cross_backend_fidelity.py` | `[--update]` — SVG↔HTML raster NCC floor per oracle fixture (`tests/golden/cross-backend-fidelity.json`, GH #86). Guards only fixtures the backends render alike; flow-degraded fixtures are explicitly excluded with their score. Dep-gated (cairosvg + browser + numpy/PIL): skip-not-fail when absent. |
@@ -100,7 +99,6 @@ pass, non-zero on failure; generators pair a write mode with `--check`
 | `gen_status.py` | `[--check]` — validator → `FIXTURE-STATUS.md` |
 | `gen_docs.py` | `[--check] [--sdk]` — docs-site pages + committed SDK snapshots |
 | `gen_capability_manifest.py` | `[--check]` — live-tree introspection → `docs/capability-manifest.json` (core/sdk/mcp status per capability) |
-| `gen_examples_index.py` | `[--check]` — tracked `static/examples/*.py` docstrings → `docs/examples.md` |
 | `check_grammar_sync.py` | `[--strict] [--quiet]` — EBNF ⇄ models drift |
 | `check_spec_sync.py` | `[--quiet]` — spec prose ⇄ model discriminators |
 | `check_accessibility.py` | `<docs…> [--quiet]` — page `reading_order` integrity, alt warnings |

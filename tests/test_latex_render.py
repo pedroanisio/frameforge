@@ -11,7 +11,7 @@ import yaml
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge_render.infrastructure.latex import transpile  # noqa: E402
 from tooling import render_latex as CLI  # noqa: E402
 
 

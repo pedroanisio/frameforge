@@ -20,7 +20,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.domain.services.canvas_resolver import PRESETS  # noqa: E402
+from frameforge_render.domain.services.canvas_resolver import PRESETS  # noqa: E402
 
 SPEC_SRC = os.path.join(ROOT, "docs", "spec", "frameforge-v2-spec.md")
 

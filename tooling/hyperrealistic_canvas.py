@@ -37,7 +37,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.application.renderer import Renderer  # noqa: E402
+from frameforge_render.application.renderer import Renderer  # noqa: E402
 from frameforge_sdk.region import object_bbox  # noqa: E402
 from frameforge_vision.infrastructure.svg_import import svg_to_objects  # noqa: E402
 

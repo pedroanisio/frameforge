@@ -22,7 +22,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.infrastructure.browser import (  # noqa: E402
+from frameforge_render.infrastructure.browser import (  # noqa: E402
     BrowserRendererUnavailable,
     rasterize_svg,
     svg_size,
@@ -154,7 +154,7 @@ def test_fit_png_file_crop_preserves_pixels(tmp_path):
     """Cropping by scanline truncation must keep every surviving pixel intact
     across PNG filter types (Pillow picks adaptive filters when saving)."""
     PIL = pytest.importorskip("PIL.Image")
-    from frameforge.rendering.infrastructure.browser import _fit_png_file
+    from frameforge_render.infrastructure.browser import _fit_png_file
     src = PIL.new("RGBA", (23, 17))
     src.putdata([(x * 11 % 256, y * 13 % 256, (x + y) % 256, 255)
                  for y in range(17) for x in range(23)])
@@ -172,7 +172,7 @@ def test_fit_png_file_edge_extends_under_render(tmp_path):
     to the exact target by clamping the edge pixel (no background stripe, no
     raise) — the fix for real-Chromium fractional flakiness."""
     PIL = pytest.importorskip("PIL.Image")
-    from frameforge.rendering.infrastructure.browser import _fit_png_file
+    from frameforge_render.infrastructure.browser import _fit_png_file
     src = PIL.new("RGB", (10, 6))
     # distinct edge column/row so an extension is visible and checkable
     src.putdata([((x * 20) % 256, (y * 30) % 256, 40) for y in range(6) for x in range(10)])

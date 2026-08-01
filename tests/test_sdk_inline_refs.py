@@ -20,7 +20,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from frameforge_sdk import cite, md, ref  # noqa: E402
-from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge_render.infrastructure.latex import transpile  # noqa: E402
 
 
 # -- the builders --------------------------------------------------------- #

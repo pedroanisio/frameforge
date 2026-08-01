@@ -31,12 +31,12 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 FIXTURES = os.path.join(ROOT, "tests", "fixtures")
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge_render.infrastructure.latex import transpile  # noqa: E402
 # The TeX orchestration now lives in the package (a driven infrastructure
 # adapter); this CLI re-exports it so `pick_engine`/`to_pdflatex`/`compile_tex`/
 # `rasterize` (and the `_PDFLATEX_GLYPHS` map the pdflatex tests assert on) stay
 # importable as attributes of this module.
-from frameforge.rendering.infrastructure.latex.compile import (  # noqa: E402,F401
+from frameforge_render.infrastructure.latex.compile import (  # noqa: E402,F401
     _PDFLATEX_GLYPHS,
     compile_tex,
     pick_engine,

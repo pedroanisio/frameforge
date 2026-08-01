@@ -27,8 +27,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.rendering.infrastructure import font_metrics as fmmod
-from frameforge.rendering.infrastructure.font_metrics import (
+from frameforge_render.infrastructure import font_metrics as fmmod
+from frameforge_render.infrastructure.font_metrics import (
     FontMetrics,
     get_font_metrics,
     measure_text as fm_measure,

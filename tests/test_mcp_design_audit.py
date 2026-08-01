@@ -28,7 +28,7 @@ from frameforge_mcp.server import (  # noqa: E402
     read_session_resource,
     render_frameforge_yaml,
 )
-from frameforge.rendering.application.audit import compact_census  # noqa: E402
+from frameforge_render.application.audit import compact_census  # noqa: E402
 from frameforge_sdk import DocumentBuilder  # noqa: E402
 from frameforge_sdk.io import serialize  # noqa: E402
 

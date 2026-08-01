@@ -45,7 +45,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
 from render_fixtures import Renderer                    # noqa: E402
-from frameforge.rendering.domain.services.overflow import OverflowSignal  # noqa: E402
+from frameforge_render.domain.services.overflow import OverflowSignal  # noqa: E402
 from frameforge.conform import overflow_report, render_pages_with_stats  # noqa: E402
 
 LONG = ("A page works on the reader twice; once through its letters and once "

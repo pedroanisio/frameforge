@@ -91,13 +91,13 @@ def test_cli_renders_end_to_end_without_pythonpath(tmp_path):
 
 
 def test_tooling_launcher_is_pythonpath_and_cwd_free(tmp_path):
-    """`uv run python tooling/frameforge_render.py` is the virtual-project
+    """`uv run python tooling/ff_render.py` is the virtual-project
     front door (the [project.scripts] entry stays inert by the §2 decision):
     it must bootstrap src+docs itself and run from any CWD, clean env."""
     doc = tmp_path / "mini.fg.yaml"
     doc.write_text(MINI_DOC, encoding="utf-8")
     out = tmp_path / "out"
-    launcher = os.path.join(ROOT, "tooling", "frameforge_render.py")
+    launcher = os.path.join(ROOT, "tooling", "ff_render.py")
     proc = subprocess.run(
         [sys.executable, launcher, str(doc), "--to", "svg", "--out", str(out)],
         capture_output=True, text=True, env=_clean_env(), cwd=tmp_path)

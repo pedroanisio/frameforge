@@ -22,8 +22,8 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.rendering.infrastructure import font_metrics as fmmod  # noqa: E402
-from frameforge.rendering.infrastructure.font_metrics import FontMetrics  # noqa: E402
+from frameforge_render.infrastructure import font_metrics as fmmod  # noqa: E402
+from frameforge_render.infrastructure.font_metrics import FontMetrics  # noqa: E402
 from tooling.render_fixtures import Renderer  # noqa: E402
 
 WORDS = " ".join(["aaaa"] * 60)

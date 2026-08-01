@@ -97,7 +97,7 @@ def test_render_html_is_deterministic():
 
 def test_render_html_matches_the_cli_backend():
     """One implementation: the SDK entry point must not become a third renderer."""
-    from frameforge.rendering.infrastructure.backends import get_backend
+    from frameforge_render.infrastructure.backends import get_backend
     from frameforge.conform import render_html
     from frameforge.conform import validate_document
 

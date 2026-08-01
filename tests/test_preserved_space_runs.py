@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import pytest
 
-from frameforge.rendering.application.renderer import Renderer
+from frameforge_render.application.renderer import Renderer
 
 
 ROWS = "PATTERN        PURPOSE                GROUNDED IN\nTile           Scan state             DS:492"

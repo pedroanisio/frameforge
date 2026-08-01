@@ -78,7 +78,7 @@ def test_swallowed_object_exception_is_recorded():
 
 # ---- font resolution feedback ----------------------------------------------- #
 def test_font_report_surfaces_substituted_families(monkeypatch):
-    import frameforge.rendering.infrastructure.font_metrics as fm
+    import frameforge_render.infrastructure.font_metrics as fm
     monkeypatch.setattr(fm, "resolve_family_name", lambda family: "DejaVu Sans")
     doc = _page_doc([{"type": "text", "box": [0, 0, 200, 20], "text": "hello",
                       "style": {"font_family": "Inter"}}])
@@ -91,7 +91,7 @@ def test_font_report_surfaces_substituted_families(monkeypatch):
 
 
 def test_font_report_ignores_generic_only_chains(monkeypatch):
-    import frameforge.rendering.infrastructure.font_metrics as fm
+    import frameforge_render.infrastructure.font_metrics as fm
     monkeypatch.setattr(fm, "resolve_family_name", lambda family: "DejaVu Sans")
     doc = _page_doc([{"type": "text", "box": [0, 0, 200, 20], "text": "hello"}])  # default "sans"
     r = Renderer(doc, ".")
@@ -213,7 +213,7 @@ def test_render_pages_with_stats_diagnostics_wires_font_report():
     """The advertised font_fallbacks signal must actually fire: diagnostics=True
     calls renderer.font_report() before snapshotting (a substitution otherwise
     stays invisible — the exact silent failure the feature exists to surface)."""
-    from frameforge.rendering.application import renderer as renderer_mod
+    from frameforge_render.application import renderer as renderer_mod
     from frameforge import conform
 
     calls = []

@@ -82,7 +82,7 @@ def test_html_lock_catches_flattened_spans_regression():
     the painter also proves the lock covers the shared render path rather than a
     backend-private one.
     """
-    from frameforge.rendering.infrastructure.painters.html import HtmlPainter
+    from frameforge_render.infrastructure.painters.html import HtmlPainter
     spans = [f for f in RG.oracle_fixtures() if "spans-and-links" in f]
     assert spans, "the spans-and-links oracle fixture must exist to guard #83"
     doc = RG._load_doc(spans[0])

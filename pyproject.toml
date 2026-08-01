@@ -28,13 +28,17 @@ dependencies = [
     # which is why `conform` stayed here while the rest of the SDK left.
     "frameforge-api>=1.0,<2",
     "frameforge-sdk>=1.0,<2",
+    # The RENDER ENGINE, split out 2026-08-01. `frameforge.rendering` was a leaf
+    # with zero outbound imports into the rest of this package — `Renderer` takes
+    # a plain dict, never the model — so it left whole as `frameforge_render`,
+    # and this distribution now consumes it like any other client. What stayed is
+    # everything that *uses* the engine rather than *is* it: `conform` (which
+    # needs real pixels to answer) and `cli` (the `ff-render` front door).
+    "frameforge-render>=1.0,<2",
     # Runtime core: the models are Pydantic v2; documents load via PyYAML
     # (PyYAML also parses JSON, so it covers .json / .yaml / .yml fixtures).
     "pydantic>=2",
     "pyyaml>=6",
-    # Justified flow layout hyphenates with Liang patterns (ADR-0003). Pure
-    # Python, bundles its dictionaries, deterministic → reproducible golden.
-    "pyphen>=0.15",
 ]
 
 # The render front-door (frameforge/cli.py): `ff-render <doc> --to <target>`
@@ -93,10 +97,14 @@ pdf = ["pymupdf>=1.24"]
 # *input* (the PDF -> FrameForge transpiler). Optional and only imported by that
 # tool, so core rendering stays dependency-free.
 pdfout = ["cairosvg>=2.7", "pypdf>=4"]
-# Real font-advance metrics for accurate text wrap/fit (frameforge.sdk.measure_text
-# and render_fixtures.py --real-metrics). Optional: absent it, callers fall back to
-# the per-character estimate, so core rendering stays dependency-free (§13).
-metrics = ["fonttools>=4"]
+# Portable closure metrics for SDK sizing/validation and renderer text fit,
+# plus the legacy host-bound fontTools path. The provider is explicit; absent
+# it, callers retain the documented host/estimate fallback.
+metrics = [
+    "fonttools>=4",
+    "frameforge-sdk[metrics]>=1.0,<2",
+    "frameforge-render[fonts,metrics]>=1.0,<2",
+]
 # Model Context Protocol server boundary for AI coding feedback loops. Optional:
 # the core SDK and renderers do not import it unless frameforge.mcp.create_server()
 # is called. CairoSVG is the browser-free PNG rasterizer the render tools fall back
@@ -156,13 +164,18 @@ frameforge-mcp = { path = "../frameforge-mcp", editable = true }
 # rejects conflicting URLs for one package across a resolution, so the engine
 # and the SDK must agree on where the contract comes from — a local path here
 # and a git URL there is an unresolvable graph, not a preference.
-frameforge-api = { git = "https://github.com/pedroanisio/frameforge-api.git", branch = "main" }
+frameforge-api = { path = "../frameforge-api", editable = true }
 # TODO(cutover): flip to the git pin once the SDK checkout's local work is
 # committed and pushed — https://github.com/pedroanisio/frameforge-sdk. Its
 # published HEAD (0f0d3bf) is behind the working tree, which still holds the
 # `EngineUnavailable` re-export this repo's SDK-surface gate requires.
 frameforge-sdk = { path = "../frameforge-sdk", editable = true }
 frameforge-vision = { path = "../frameforge-vision", editable = true }
+# The engine. A PATH for the same reason the others are: its published HEAD is
+# behind this working tree, which carries the font-closure metrics provider and
+# the math-toolchain root fix this repo's gates exercise. Flip to a git pin once
+# https://github.com/pedroanisio/frameforge-render is pushed past that.
+frameforge-render = { path = "../frameforge-render", editable = true }
 
 [tool.uv]
 # Real package since 2.5.0: the authoritative model moved INTO the package

@@ -22,9 +22,9 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
-from frameforge.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
+from frameforge_render.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from frameforge_render.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
+from frameforge_render.infrastructure.latex.tikz import FigureTikz  # noqa: E402
 
 
 def _fig():

@@ -33,7 +33,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.rendering.application.renderer import Renderer  # noqa: E402
+from frameforge_render.application.renderer import Renderer  # noqa: E402
 
 BIGFONT = {"font_family": ["DejaVu Sans", "sans-serif"], "font_size": 20}
 

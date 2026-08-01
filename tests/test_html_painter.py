@@ -20,11 +20,11 @@ import pytest
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.application.renderer import Renderer  # noqa: E402
-from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-from frameforge.rendering.infrastructure.painters.html import (  # noqa: E402
+from frameforge_render.application.renderer import Renderer  # noqa: E402
+from frameforge_render.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from frameforge_render.infrastructure.painters.html import (  # noqa: E402
     HtmlPainter, css_ident)
-from frameforge.rendering.infrastructure.painters.svg import SvgPainter  # noqa: E402
+from frameforge_render.infrastructure.painters.svg import SvgPainter  # noqa: E402
 
 FIXTURE = os.path.join(ROOT, "tests", "fixtures", "b1", "mckinsey-7s.fg.json")
 
@@ -223,7 +223,7 @@ def _render_object(obj, **doc_extra):
            "pages": [{"id": "p", "size": [400, 300],
                       "layers": [{"id": "main", "objects": [obj]}]}],
            **doc_extra}
-    from frameforge.rendering.application.normalize import normalize_doc
+    from frameforge_render.application.normalize import normalize_doc
     _p, out, _r = _drive(normalize_doc(doc))
     return out
 
@@ -284,7 +284,7 @@ def test_svg_accessibility_output_is_byte_stable():
     golden byte and is a separate, explicit decision — not something to smuggle
     into this port.
     """
-    from frameforge.rendering.application.normalize import normalize_doc
+    from frameforge_render.application.normalize import normalize_doc
     doc = normalize_doc({"schema_version": "2.0.0", "meta": {"title": "a11y"},
                          "pages": [{"id": "p", "size": [400, 300], "layers": [
                              {"id": "main", "objects": [

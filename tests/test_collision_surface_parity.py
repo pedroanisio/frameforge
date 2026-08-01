@@ -25,7 +25,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.application.audit import (  # noqa: E402
+from frameforge_render.application.audit import (  # noqa: E402
     audit_document, compact_census)
 from frameforge_sdk import DocumentBuilder  # noqa: E402
 from frameforge.conform import collision_report

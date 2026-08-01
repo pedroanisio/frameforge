@@ -19,7 +19,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "docs"))
 # Models-only test: evict a `frameforge` *package* shadow (it has __path__) left by
 # a renderer test in the shared pytest process, so `frameforge` resolves to the
-# models module. Evict only the top-level name — cached `frameforge.rendering.*`
+# models module. Evict only the top-level name — cached `frameforge_render.*`
 # submodules must survive so later renderer tests still resolve them — see
 # test_elements.py / test_head.py.
 import frameforge.model as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)

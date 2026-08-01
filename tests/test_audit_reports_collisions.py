@@ -9,7 +9,7 @@ the most visible failure class trains authors to trust a clean bill of health.
 """
 from __future__ import annotations
 
-from frameforge.rendering.application.audit import audit_document
+from frameforge_render.application.audit import audit_document
 
 
 DOC = {"dsl": "FrameForge", "version": "2.8.0", "pages": [{

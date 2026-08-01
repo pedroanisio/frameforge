@@ -36,7 +36,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-from frameforge.rendering.infrastructure.backends import html as fgh  # noqa: E402
+from frameforge_render.infrastructure.backends import html as fgh  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -142,7 +142,7 @@ def test_line_geometry_is_aria_hidden():
 
 def test_icon_label_helper_rejects_symbols():
     """The helper moved to the domain so every backend can share one rule."""
-    from frameforge.rendering.domain.services.a11y import icon_label
+    from frameforge_render.domain.services.a11y import icon_label
     assert icon_label("calendar") == "calendar"
     assert icon_label("arrow_right") == "arrow right"
     assert icon_label("★") is None
@@ -187,8 +187,8 @@ def test_text_styles_is_resolved_first_on_a_name_collision():
     assert "font-size:30px" not in out
 
     # ...and the SVG target agrees, which is the whole point.
-    from frameforge.rendering.application.normalize import normalize_doc
-    from frameforge.rendering.application.renderer import Renderer
+    from frameforge_render.application.normalize import normalize_doc
+    from frameforge_render.application.renderer import Renderer
     data = normalize_doc(doc)
     svg = "".join(Renderer(data, ".").render_page(data["pages"][0]))
     assert "font-size:10px" in svg
@@ -246,7 +246,7 @@ def test_curve_renders_cubic_path():
 
 
 def test_canvas_preset_string_resolves_to_pixels():
-    from frameforge.rendering.domain.services.canvas_resolver import DEFAULT_WH
+    from frameforge_render.domain.services.canvas_resolver import DEFAULT_WH
     assert fgh.canvas_size({"canvas": "deck-16x9"}) == (1920, 1080)
     assert fgh.canvas_size({"canvas": {"preset": "A4"}}) == (595, 842)
     assert fgh.canvas_size({"canvas": {"size": [320, 240]}}) == (320, 240)
@@ -267,7 +267,7 @@ def test_html_canvas_table_is_the_shared_canonical_not_a_mirror():
     """drift-risk-map #4: the HTML backend must use the SAME preset table (keys AND
     size values) as the canonical render path, so a size can never diverge between
     `--to svg`/`pdf-tex` and `--to html`. Enforced by sharing the object, not copying."""
-    from frameforge.rendering.domain.services import canvas_resolver as CR
+    from frameforge_render.domain.services import canvas_resolver as CR
     # identity: the HTML symbol IS the canonical table (a shared import, no copy)
     assert fgh._CANVAS_PRESETS is CR.PRESETS
     # value-level guard (would catch a future divergence even if the copy returned)
@@ -281,8 +281,8 @@ def test_font_family_may_be_a_list():
     Resolution moved to the shared `TextStyleResolver`, so this now guards the
     ONE implementation both SVG and HTML use rather than an HTML-private copy.
     """
-    from frameforge.rendering.domain.services.paint_resolver import ColorResolver
-    from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver
+    from frameforge_render.domain.services.paint_resolver import ColorResolver
+    from frameforge_render.domain.services.text_style_resolver import TextStyleResolver
     resolver = TextStyleResolver({}, {}, ColorResolver({}))
     st = resolver.resolve({"font_family": ["Inter", "sans-serif"]})
     assert st["family"] == "Inter, sans-serif"
@@ -374,7 +374,10 @@ def test_backend_defines_no_renderer_of_its_own():
     A `_render_<type>` method reappearing means someone started re-implementing
     the engine in the backend again — the exact drift this port removed.
     """
-    source = (ROOT / "src" / "frameforge" / "rendering" / "infrastructure"
+    import frameforge_render
+    from pathlib import Path as _P
+    # The engine is its own distribution since 2026-08-01; read its source there.
+    source = (_P(frameforge_render.__file__).resolve().parent / "infrastructure"
               / "backends" / "html.py").read_text(encoding="utf-8")
     assert "def _render_" not in source
     # the placeholder machinery is gone with it (prose in the module's history

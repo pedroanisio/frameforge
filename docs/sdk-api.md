@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`ActivityDiagramOptions`, `BookBuilder`, `Box`, `BoxLike`, `Camera`, `ClassDiagramOptions`, `ChapterBuilder`, `Chart`, `ClosedPalette`, `CommunicationDiagramOptions`, `ComponentDiagramOptions`, `CompositeStructureOptions`, `CubicBezier`, `Document`, `DocumentBuilder`, `DeploymentDiagramOptions`, `Edge`, `EngineUnavailable`, `ExpandOptions`, `ExpandedDocument`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `FlowBuilder`, `Frame`, `Graph`, `HEAD_VERSION`, `Hand`, `Handle`, `ImportedFigurePlacement`, `Issue`, `Lattice`, `LayoutResult`, `MasterBuilder`, `Mat3`, `Mat4`, `Material`, `Node`, `Noise`, `ObjectDiagramOptions`, `PackageDiagramOptions`, `PageBuilder`, `Panel`, `Path`, `Placement`, `ProfileDiagramOptions`, `Rand`, `ScalarField`, `Scene3D`, `SequenceDiagramOptions`, `StackBuilder`, `StaticValidationError`, `StateMachineOptions`, `SugiyamaConfig`, `Theme`, `TimingDiagramOptions`, `UMLActivityDiagramModel`, `UMLClassDiagramModel`, `UMLCommunicationDiagramModel`, `UMLComponentDiagramModel`, `UMLCompositeStructureModel`, `UMLDeploymentDiagramModel`, `UMLInteractionOverviewModel`, `UMLObjectDiagramModel`, `UMLPackageDiagramModel`, `UMLProfileDiagramModel`, `UMLSequenceDiagramModel`, `UMLStateMachineModel`, `UMLTimingDiagramModel`, `UMLUseCaseDiagramModel`, `UseCaseDiagramOptions`, `ValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `VectorField`, `ViewingPipeline`, `aabb`, `aabb3`, `appearance`, `apply_humanize`, `apply_separation`, `array`, `avatar`, `badge`, `badge_width`, `bezier_patch`, `bezier_patch_point`, `blur_filter`, `breadcrumb`, `bspline_patch`, `bspline_patch_point`, `button`, `caps_tracking`, `card`, `chamfer_ring`, `checkbox`, `cite`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `closed_palette`, `color_guide`, `column`, `compose_activity_diagram`, `compose_class_diagram`, `compose_communication_diagram`, `compose_component_diagram`, `compose_composite_structure`, `compose_deployment_diagram`, `compose_interaction_overview`, `compose_object_diagram`, `compose_package_diagram`, `compose_profile_diagram`, `compose_sequence_diagram`, `compose_state_machine`, `compose_timing_diagram`, `compose_use_case_diagram`, `complement`, `conic_gradient`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `convex_hull`, `convex_hull_3d`, `default_theme`, `delta_e`, `diffuse_lighting`, `displacement_map`, `divider`, `dominant_light`, `dots`, `domain_warp`, `dragon_curve`, `dropdown`, `effect`, `effect_stack`, `effects`, `eval_expr`, `expand`, `extend_segment`, `extract_objects`, `extrude`, `field`, `fbm`, `fill_regions`, `fill_stroke`, `fit_width`, `fillet_ring`, `filter_chain`, `filter_fn`, `font_kern_pairs`, `from_lab`, `from_lch`, `from_markdown`, `from_oklab`, `from_oklch`, `from_xyz`, `function_plot`, `glow`, `gradient_map`, `greeble`, `grey_document`, `grid`, `grid_lines`, `grid_pattern`, `halton`, `harmony_of_hues`, `harmony_of_scale`, `hatch`, `hatch_fill`, `image_placeholder`, `inset`, `jittered_grid`, `johnston_margins`, `kerned_spans`, `klein_bottle`, `koch_curve`, `kpi`, `lattice`, `line_curve_intersections`, `line_intersection`, `linear_to_srgb`, `linear_gradient`, `load_figure`, `loft`, `lorem`, `lorem_paragraphs`, `lower_embedded_svg`, `lsystem`, `manifold`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `md`, `measure_fits`, `measure_text`, `merge_figure_defs`, `mirror`, `mix`, `mobius`, `model_module`, `modular_scale`, `multiview`, `navbar`, `neon`, `normalize_clip`, `normalize_mask`, `obb`, `object_bbox`, `offset_path`, `paragraph`, `parametric`, `parametric_curve`, `parse`, `path_length`, `path_walker`, `pattern`, `perlin_2d`, `pill`, `place_figure`, `place_imported_figure`, `place_region`, `place_stamp`, `planar`, `point_in_polygon`, `poisson_disk`, `polar_plot`, `polygon_area`, `polyline_length`, `progress`, `quarter_circle_kappa`, `radial_gradient`, `radio`, `ramp`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `recolor`, `ref`, `region_grade`, `remap`, `register_theme`, `relative_luminance`, `repeat_along_path`, `resolve_params`, `revolve`, `rgba`, `row`, `saddle`, `section_loops`, `section_object`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `select_in`, `separate_rects`, `serialize`, `shadow`, `sierpinski_arrowhead`, `simplex_2d`, `slider`, `soft_shadow`, `span`, `sparkline`, `specular_lighting`, `sphere`, `srgb_to_linear`, `sticky_note`, `stroke`, `stroke_outline`, `sugiyama_layout`, `style_effects`, `surface_curvature`, `svg_to_objects`, `sweep`, `table`, `tabs`, `text_height`, `text_on_path`, `text_style`, `theme`, `to_unit`, `to_lab`, `to_lch`, `to_oklab`, `to_oklch`, `to_plain_dict`, `to_xyz`, `toggle`, `tone_scale`, `torus`, `trim_segment`, `turbulence`, `turtle`, `validate_document`, `validate_activity_diagram`, `validate_class_diagram`, `validate_communication_diagram`, `validate_component_diagram`, `validate_composite_structure`, `validate_deployment_diagram`, `validate_interaction_overview`, `validate_object_diagram`, `validate_package_diagram`, `validate_profile_diagram`, `validate_sequence_diagram`, `validate_state_machine`, `validate_static_rules`, `validate_timing_diagram`, `validate_use_case_diagram`, `value_noise_2d`, `wave`, `window_to_viewport`, `wrap_text`
+`ActivityDiagramOptions`, `BookBuilder`, `Box`, `BoxLike`, `Camera`, `ClassDiagramOptions`, `ChapterBuilder`, `Chart`, `ClosedPalette`, `CommunicationDiagramOptions`, `ComponentDiagramOptions`, `CompositeStructureOptions`, `CubicBezier`, `Document`, `DocumentBuilder`, `DeploymentDiagramOptions`, `Edge`, `EngineUnavailable`, `ExpandOptions`, `ExpandedDocument`, `FaceMetrics`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `FlowBuilder`, `Frame`, `Graph`, `HEAD_VERSION`, `Hand`, `Handle`, `ImportedFigurePlacement`, `Issue`, `Lattice`, `LayoutResult`, `MasterBuilder`, `Mat3`, `Mat4`, `Material`, `Node`, `Noise`, `ObjectDiagramOptions`, `PackageDiagramOptions`, `PageBuilder`, `Panel`, `Path`, `Placement`, `ProfileDiagramOptions`, `Rand`, `ScalarField`, `Scene3D`, `SequenceDiagramOptions`, `StackBuilder`, `StaticValidationError`, `StateMachineOptions`, `SugiyamaConfig`, `Theme`, `TimingDiagramOptions`, `UMLActivityDiagramModel`, `UMLClassDiagramModel`, `UMLCommunicationDiagramModel`, `UMLComponentDiagramModel`, `UMLCompositeStructureModel`, `UMLDeploymentDiagramModel`, `UMLInteractionOverviewModel`, `UMLObjectDiagramModel`, `UMLPackageDiagramModel`, `UMLProfileDiagramModel`, `UMLSequenceDiagramModel`, `UMLStateMachineModel`, `UMLTimingDiagramModel`, `UMLUseCaseDiagramModel`, `UseCaseDiagramOptions`, `ValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `VectorField`, `ViewingPipeline`, `aabb`, `aabb3`, `appearance`, `apply_humanize`, `apply_separation`, `array`, `avatar`, `badge`, `badge_width`, `bezier_patch`, `bezier_patch_point`, `blur_filter`, `breadcrumb`, `bspline_patch`, `bspline_patch_point`, `button`, `caps_tracking`, `card`, `chamfer_ring`, `checkbox`, `cite`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `closed_palette`, `closure_metrics`, `color_guide`, `column`, `compose_activity_diagram`, `compose_class_diagram`, `compose_communication_diagram`, `compose_component_diagram`, `compose_composite_structure`, `compose_deployment_diagram`, `compose_interaction_overview`, `compose_object_diagram`, `compose_package_diagram`, `compose_profile_diagram`, `compose_sequence_diagram`, `compose_state_machine`, `compose_timing_diagram`, `compose_use_case_diagram`, `complement`, `conic_gradient`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `convex_hull`, `convex_hull_3d`, `default_theme`, `delta_e`, `diffuse_lighting`, `displacement_map`, `divider`, `dominant_light`, `dots`, `domain_warp`, `dragon_curve`, `dropdown`, `effect`, `effect_stack`, `effects`, `eval_expr`, `expand`, `extend_segment`, `extract_objects`, `extrude`, `field`, `fbm`, `fill_regions`, `fill_stroke`, `fit_width`, `fillet_ring`, `filter_chain`, `filter_fn`, `font_kern_pairs`, `from_lab`, `from_lch`, `from_markdown`, `from_oklab`, `from_oklch`, `from_xyz`, `function_plot`, `glow`, `gradient_map`, `greeble`, `grey_document`, `grid`, `grid_lines`, `grid_pattern`, `halton`, `harmony_of_hues`, `harmony_of_scale`, `hatch`, `hatch_fill`, `image_placeholder`, `inset`, `jittered_grid`, `johnston_margins`, `kerned_spans`, `klein_bottle`, `koch_curve`, `kpi`, `lattice`, `line_curve_intersections`, `line_intersection`, `linear_to_srgb`, `linear_gradient`, `load_figure`, `loft`, `lorem`, `lorem_paragraphs`, `lower_embedded_svg`, `lsystem`, `manifold`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `md`, `measure_fits`, `measure_text`, `MetricsProvider`, `merge_figure_defs`, `mirror`, `mix`, `mobius`, `model_module`, `modular_scale`, `multiview`, `navbar`, `neon`, `normalize_clip`, `normalize_mask`, `obb`, `object_bbox`, `offset_path`, `paragraph`, `parametric`, `parametric_curve`, `parse`, `path_length`, `path_walker`, `pattern`, `perlin_2d`, `pill`, `place_figure`, `place_imported_figure`, `place_region`, `place_stamp`, `planar`, `point_in_polygon`, `poisson_disk`, `polar_plot`, `polygon_area`, `polyline_length`, `progress`, `quarter_circle_kappa`, `radial_gradient`, `radio`, `ramp`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `recolor`, `ref`, `region_grade`, `remap`, `register_theme`, `relative_luminance`, `repeat_along_path`, `resolve_params`, `revolve`, `rgba`, `row`, `saddle`, `section_loops`, `section_object`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `select_in`, `separate_rects`, `serialize`, `shadow`, `sierpinski_arrowhead`, `simplex_2d`, `slider`, `soft_shadow`, `span`, `sparkline`, `specular_lighting`, `sphere`, `srgb_to_linear`, `sticky_note`, `stroke`, `stroke_outline`, `sugiyama_layout`, `style_effects`, `surface_curvature`, `svg_to_objects`, `sweep`, `table`, `tabs`, `text_height`, `text_on_path`, `text_style`, `theme`, `to_unit`, `to_lab`, `to_lch`, `to_oklab`, `to_oklch`, `to_plain_dict`, `to_xyz`, `toggle`, `tone_scale`, `torus`, `trim_segment`, `turbulence`, `turtle`, `lint_deprecations`, `migrate_deprecations`, `validate_document`, `validate_activity_diagram`, `validate_class_diagram`, `validate_communication_diagram`, `validate_component_diagram`, `validate_composite_structure`, `validate_deployment_diagram`, `validate_interaction_overview`, `validate_object_diagram`, `validate_package_diagram`, `validate_profile_diagram`, `validate_sequence_diagram`, `validate_state_machine`, `validate_static_rules`, `validate_timing_diagram`, `validate_use_case_diagram`, `value_noise_2d`, `wave`, `window_to_viewport`, `wrap_text`
 
 ## `frameforge_sdk.author`
 
@@ -16,7 +16,7 @@
 Small fluent builder that lowers directly to the authoritative model.
 
 ```python
-DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.8.2', capture_provenance: 'bool | None' = None) -> 'None'
+DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.11.0', capture_provenance: 'bool | None' = None) -> 'None'
 ```
 
 | Method | Signature | Summary |
@@ -739,7 +739,7 @@ to_xyz(color: 'Color') -> 'tuple[float, float, float]'
 
 ### `OverflowSignal`
 
-`frameforge.rendering.domain.services.overflow.OverflowSignal`
+`frameforge_render.domain.services.overflow.OverflowSignal`
 
 One provable does-not-fit event, named at layout time.
 
@@ -758,7 +758,7 @@ OverflowSignal(id: 'Optional[str]', page: 'Optional[str]', source: 'str', kind: 
 Assert that a document's proxy-render page hashes match ``expected``.
 
 ```python
-assert_golden(model: 'Any', expected: 'list[str] | tuple[str, ...]', *, base_dir: 'str | None' = None) -> 'None'
+assert_golden(model: 'Any', expected: 'list[str] | tuple[str, ...]', *, base_dir: 'str | None' = None, metrics_provider: 'MetricsProvider | None' = None) -> 'None'
 ```
 
 ### `collision_report`
@@ -768,7 +768,7 @@ assert_golden(model: 'Any', expected: 'list[str] | tuple[str, ...]', *, base_dir
 Render through the proxy and return the same-layer ink COLLISIONS.
 
 ```python
-collision_report(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool | None' = None) -> 'list[dict]'
+collision_report(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool | None' = None, metrics_provider: 'MetricsProvider | None' = None) -> 'list[dict]'
 ```
 
 ### `overflow_report`
@@ -778,7 +778,7 @@ collision_report(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: '
 Render through the proxy and return the typed layout-overflow signals.
 
 ```python
-overflow_report(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool | None' = None) -> 'list[OverflowSignal]'
+overflow_report(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool | None' = None, metrics_provider: 'MetricsProvider | None' = None) -> 'list[OverflowSignal]'
 ```
 
 ### `page_hashes`
@@ -788,7 +788,7 @@ overflow_report(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'b
 Return SHA-256 hashes for the proxy SVG render of each page.
 
 ```python
-page_hashes(model: 'Any', *, base_dir: 'str | None' = None) -> 'tuple[str, ...]'
+page_hashes(model: 'Any', *, base_dir: 'str | None' = None, metrics_provider: 'MetricsProvider | None' = None) -> 'tuple[str, ...]'
 ```
 
 ### `render_html`
@@ -798,7 +798,7 @@ page_hashes(model: 'Any', *, base_dir: 'str | None' = None) -> 'tuple[str, ...]'
 Render a document to one self-contained HTML page.
 
 ```python
-render_html(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool | None' = None) -> 'str'
+render_html(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool | None' = None, metrics_provider: 'MetricsProvider | None' = None) -> 'str'
 ```
 
 ### `render_page_svgs`
@@ -808,7 +808,7 @@ render_html(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool 
 Render a document through the repository SVG proxy and return page SVGs.
 
 ```python
-render_page_svgs(model: 'Any', *, base_dir: 'str | None' = None) -> 'list[str]'
+render_page_svgs(model: 'Any', *, base_dir: 'str | None' = None, metrics_provider: 'MetricsProvider | None' = None) -> 'list[str]'
 ```
 
 ### `render_pages_with_stats`
@@ -818,7 +818,7 @@ render_page_svgs(model: 'Any', *, base_dir: 'str | None' = None) -> 'list[str]'
 Render a document through the SVG proxy, returning the page SVGs and the
 
 ```python
-render_pages_with_stats(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool | None' = None, layout_report: 'bool' = False, diagnostics: 'bool' = False)
+render_pages_with_stats(model: 'Any', *, base_dir: 'str | None' = None, real_metrics: 'bool | None' = None, metrics_provider: 'MetricsProvider | None' = None, layout_report: 'bool' = False, diagnostics: 'bool' = False)
 ```
 
 ### `write_golden`
@@ -1856,6 +1856,34 @@ from_markdown(text: 'str', *, title: 'str | None' = None, lang: 'str | None' = N
 
 ## `frameforge_sdk.metrics`
 
+### `FaceMetrics`
+
+`frameforge_sdk.metrics.FaceMetrics`
+
+One exact face selected by a reusable metrics provider.
+
+```python
+FaceMetrics(*args, **kwargs)
+```
+
+| Method | Signature | Summary |
+|---|---|---|
+| `width` | `(self, text: 'str', font_size: 'float') -> 'float'` |  |
+
+### `MetricsProvider`
+
+`_CallableGenericAlias` value: `collections.abc.Callable[[str, bool], frameforge_sdk.metrics.FaceMetrics | None]`
+
+### `closure_metrics`
+
+`frameforge_sdk.metrics.closure_metrics`
+
+Load a portable ``.fp`` closure as the SDK's exact metrics provider.
+
+```python
+closure_metrics(closure_path: 'str | Path', *, store_root: 'str | Path | None' = None, strict: 'bool' = False, generics: 'Mapping[str, str] | None' = None) -> 'MetricsProvider'
+```
+
 ### `fit_width`
 
 `frameforge_sdk.metrics.fit_width`
@@ -1863,7 +1891,7 @@ from_markdown(text: 'str', *, title: 'str | None' = None, lang: 'str | None' = N
 Return a positioned-text box width accepted by the line breaker.
 
 ```python
-fit_width(text: 'str', *, font_family: 'FontFamily', font_size: 'float', bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None, tolerance: 'float' = 0.5) -> 'float'
+fit_width(text: 'str', *, font_family: 'FontFamily', font_size: 'float', bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None, metrics_provider: 'MetricsProvider | None' = None, tolerance: 'float' = 0.5) -> 'float'
 ```
 
 ### `font_kern_pairs`
@@ -1893,17 +1921,7 @@ kerned_spans(text: 'str', *, pairs: 'dict[tuple[str, str], float]', style: 'dict
 Return the rendered width of ``text`` in pixels.
 
 ```python
-measure_text(text: 'str', *, font_family: 'FontFamily', font_size: 'float', bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None) -> 'float'
-```
-
-### `wrap_text`
-
-`frameforge_sdk.metrics.wrap_text`
-
-Greedily word-wrap ``text`` to ``width`` pixels, returning the lines.
-
-```python
-wrap_text(text: 'str', *, width: 'float', font_family: 'FontFamily', font_size: 'float', bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None) -> 'list[str]'
+measure_text(text: 'str', *, font_family: 'FontFamily', font_size: 'float', bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None, metrics_provider: 'MetricsProvider | None' = None) -> 'float'
 ```
 
 ### `text_height`
@@ -1913,7 +1931,17 @@ wrap_text(text: 'str', *, width: 'float', font_family: 'FontFamily', font_size: 
 Return the total height (px) of ``text`` wrapped to ``width``.
 
 ```python
-text_height(text: 'str', *, width: 'float', font_family: 'FontFamily', font_size: 'float', line_height: 'float' = 1.25, bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None) -> 'float'
+text_height(text: 'str', *, width: 'float', font_family: 'FontFamily', font_size: 'float', line_height: 'float' = 1.25, bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None, metrics_provider: 'MetricsProvider | None' = None) -> 'float'
+```
+
+### `wrap_text`
+
+`frameforge_sdk.metrics.wrap_text`
+
+Greedily word-wrap ``text`` to ``width`` pixels, returning the lines.
+
+```python
+wrap_text(text: 'str', *, width: 'float', font_family: 'FontFamily', font_size: 'float', bold: 'bool' = False, feature_settings: 'str | None' = None, variation_settings: 'str | None' = None, real_metrics: 'bool | None' = None, metrics_provider: 'MetricsProvider | None' = None) -> 'list[str]'
 ```
 
 ## `frameforge_sdk.model`
@@ -1940,7 +1968,7 @@ Document(*, dsl: Literal['FrameForge'], version: Annotated[str, _PydanticGeneral
 
 ### `HEAD_VERSION`
 
-`str` value: `'2.8.2'`
+`str` value: `'2.11.0'`
 
 ### `ValidationError`
 
@@ -2544,6 +2572,26 @@ Validation result for a FrameForge document.
 ValidationReport(ok: 'bool', issues: 'tuple[Issue, ...]') -> None
 ```
 
+### `lint_deprecations`
+
+`frameforge_sdk.validate.lint_deprecations`
+
+Report every deprecated FrameForge form in `model`, without changing it.
+
+```python
+lint_deprecations(model: 'Any') -> 'ValidationReport'
+```
+
+### `migrate_deprecations`
+
+`frameforge_sdk.validate.migrate_deprecations`
+
+Rewrite every auto-migratable deprecated form; return `(document, report)`.
+
+```python
+migrate_deprecations(model: 'Any') -> 'tuple[dict[str, Any], ValidationReport]'
+```
+
 ### `validate_static_rules`
 
 `frameforge_sdk.validate.validate_static_rules`
@@ -2551,7 +2599,7 @@ ValidationReport(ok: 'bool', issues: 'tuple[Issue, ...]') -> None
 Validate structure, static rules, and text fit by default.
 
 ```python
-validate_static_rules(model: 'Any', targets: 'list[str] | None' = None, *, text_fit: 'bool' = True, real_metrics: 'bool | None' = None) -> 'ValidationReport'
+validate_static_rules(model: 'Any', targets: 'list[str] | None' = None, *, text_fit: 'bool' = True, real_metrics: 'bool | None' = None, metrics_provider: 'MetricsProvider | None' = None) -> 'ValidationReport'
 ```
 
 ## `frameforge_sdk.widgets`
