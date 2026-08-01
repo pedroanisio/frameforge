@@ -144,6 +144,13 @@ exclude = [
 # Develop against the sibling checkouts: none of the family is on PyPI yet.
 # Drop this block (or point it at an index) to build against published wheels.
 [tool.uv.sources]
+# Stays a PATH even though the repo is live
+# (https://github.com/pedroanisio/frameforge-mcp): resolving it from git makes
+# uv read that package's own `[tool.uv.sources]`, whose `path = "../frameforge"`
+# is interpreted inside the git checkout and becomes `subdirectory=../frameforge`,
+# which does not exist. The engine is this repo, so it cannot be a git URL there
+# either without conflicting with the local project here. Flip to a git pin only
+# after those relative path entries leave frameforge-mcp's pyproject.
 frameforge-mcp = { path = "../frameforge-mcp", editable = true }
 # `frameforge-api` is pinned to the SAME git URL `frameforge-sdk` uses. uv
 # rejects conflicting URLs for one package across a resolution, so the engine
