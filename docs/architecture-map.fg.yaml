@@ -1,5 +1,5 @@
 dsl: FrameForge
-version: 2.2.0
+version: 2.8.2
 profile: diagram
 title: FrameForge v2 — Architecture Map
 lang: en
@@ -405,7 +405,7 @@ pages:
         font_size: 14
         font_weight: 700
       type: text
-      text: models/frameforge.py
+      text: docs/models/frameforge.py
     - box:
       - 510
       - 130
@@ -693,7 +693,7 @@ pages:
         font_size: 13
         font_weight: 700
       type: text
-      text: schema/…schema.json
+      text: docs/schema/…schema.json
     - box:
       - 972
       - 154
@@ -735,7 +735,7 @@ pages:
         font_size: 13
         font_weight: 700
       type: text
-      text: grammar/*.ebnf
+      text: docs/grammar/*.ebnf
     - box:
       - 972
       - 204
@@ -777,7 +777,7 @@ pages:
         font_size: 13
         font_weight: 700
       type: text
-      text: spec/…spec.md
+      text: docs/spec/…spec.md
     - box:
       - 972
       - 254
@@ -903,7 +903,7 @@ pages:
         font_size: 13
         font_weight: 700
       type: text
-      text: viewer/ type sets
+      text: frameforge-viewer
     - box:
       - 972
       - 404
@@ -918,7 +918,7 @@ pages:
         - sans-serif
         font_size: 10.5
       type: text
-      text: set-membership parity test
+      text: external contract + upstream CI
     - box:
       - 428
       - 574

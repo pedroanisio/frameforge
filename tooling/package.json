@@ -1,0 +1,13 @@
+{
+  "name": "frameforge-tooling",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Optional Node helpers owned by the FrameForge renderer and corpus tooling.",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "mathjax-full": "3.2.1",
+    "playwright": "1.61.0"
+  }
+}

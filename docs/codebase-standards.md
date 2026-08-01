@@ -69,8 +69,7 @@ Rules of reading:
 
 - **`[Enforced]`** Source language is Python. Minimum runtime **3.10**
   (`requires-python = ">=3.10"`, [pyproject.toml:6](../pyproject.toml#L6)).
-- **`[Adopted]`** New code is Python. The "TypeScript over JavaScript" default applies
-  only to the standalone [viewer/](../viewer/) (a separate JS bundle), not the core.
+- **`[Adopted]`** New code in this repository is Python. The independent [frameforge-viewer](https://github.com/pedroanisio/frameforge-viewer) sibling owns its JavaScript/React language and package standards.
 - **`[Adopted]`** The core SVG proxy renderer is **dependency-free** at its core
   ([README.md](../README.md), *Run it*) — pure-Python rendering is load-bearing (§13).
 - **`[Enforced]`** Declared `classifiers` for 3.10/3.11/3.12 ([pyproject.toml](../pyproject.toml))
@@ -187,10 +186,9 @@ The gate is the contract for "done." It has **one definition**, run two places.
   The wiring itself is pinned: [tests/test_ci_make_check_sync.py](../tests/test_ci_make_check_sync.py)
   fails if the literal `run: make check` leaves the workflow. (Earlier revisions of this
   document asked for make/CI lockstep by discipline; it is now enforced by test.)
-- **`[Enforced]`** Two further **blocking** CI jobs sit outside `make check`: `docs` re-runs
+- **`[Enforced]`** One further **blocking** CI job sits outside `make check`: `docs` re-runs
   `gen_docs.py --check` and builds the site with `mkdocs build --strict`
-  (ci.yml `docs` job); `viewer-contract` runs the Node twin of
-  the viewer ⇄ model type contract (ci.yml `viewer-contract` job, §8).
+  (ci.yml `docs` job). Viewer compatibility is owned by the sibling repository’s pinned contract and upstream-FrameForge CI job (§8).
 - **`[Adopted]`** `manifest-check` (capability-manifest drift, Makefile `manifest-check` target)
   is a make target but not a `make check` dependency; the same freshness is blocking anyway via
   [tests/test_capability_manifest.py](../tests/test_capability_manifest.py) in the `test` gate.
@@ -322,10 +320,7 @@ else is generated from or checked against them** ([README.md](../README.md), *Th
 - **`[Enforced]`** **Disclaimers.** `disclaimer-check` ([tooling/check_disclaimers.py](../tooling/check_disclaimers.py))
   fails if a tracked agent-authored `.md` is missing the rule-5 frontmatter (§12); exemptions
   are an explicit named set in the checker, not a heuristic.
-- **`[Enforced]`** **Viewer ⇄ model.** The JS viewer hand-mirrors the document model, so its
-  declared type surface (`viewer/dev/type-registry.json`) must stay reconciled with the model's
-  discriminators: [tests/test_viewer_schema_contract.py](../tests/test_viewer_schema_contract.py)
-  in the blocking pytest gate, plus its Node twin in the blocking `viewer-contract` CI job (§3).
+- **`[Enforced — companion-owned]`** **Viewer ⇄ model.** The independent [frameforge-viewer](https://github.com/pedroanisio/frameforge-viewer) repository pins FrameForge’s generated schema and fixture contract, runs its type-surface and browser gates against that snapshot, and checks a fresh FrameForge `main` in its own CI. FrameForge publishes the contract and render-bundle format; it does not duplicate the consumer’s gate in this repository (§3).
 - **`[Enforced]`** **CI ⇄ Makefile.** [tests/test_ci_make_check_sync.py](../tests/test_ci_make_check_sync.py)
   asserts the workflow delegates to `make check` (§3), so a Makefile-only gate cannot silently
   stop blocking pull requests.
@@ -380,9 +375,7 @@ chain, and the gate that proves each invariant — is formalised in
   the `python` job runs `make check` itself — all fourteen gates in one step, across the
   3.10/3.11/3.12 matrix, drift-proof by test (§3) — plus non-blocking ruff; a `docs` job runs
   `gen_docs.py --check` + `mkdocs build --strict`, and on pushes to `main` a `docs-deploy` job
-  publishes versioned docs to GitHub Pages via `mike`; the `viewer-contract` job is
-  **blocking** (viewer ⇄ model type surface, §8); the `viewer` smoke build stays
-  **non-blocking** (`continue-on-error: true`).
+  publishes versioned docs to GitHub Pages via `mike`. The extracted viewer’s contract and browser jobs run in the [frameforge-viewer](https://github.com/pedroanisio/frameforge-viewer) sibling (§8).
 - **`[Adopted]`** A committed [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) runs
   "the same gate, earlier": `make ruff-check` (the F811 redefinition gate) at **commit** time
   and the full `make check` at **push** time — both `local`/`language: system` hooks that shell

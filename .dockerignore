@@ -26,8 +26,8 @@ site/
 .repo
 .github
 
-# the viewer ships its own image (viewer/Dockerfile)
-viewer/node_modules
+# optional Node tooling is not part of the Python/runtime image
+tooling/node_modules
 node_modules
 
 # docker build context doesn't need its own outputs

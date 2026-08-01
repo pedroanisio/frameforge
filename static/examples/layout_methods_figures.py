@@ -594,7 +594,7 @@ def fig_grid(b):
     base = 196
     scale = 0.62
     labels = ["docs/schema/…json", "docs/grammar/*.ebnf", "docs/spec/…md", "docs/ (MkDocs)",
-              "FIXTURE-STATUS", "viewer/ types"]
+              "FIXTURE-STATUS", "viewer contract"]
     for i, yv in enumerate(rows_y):
         yy = base + i * int(42 * scale + 8 * scale)
         bh = int(42 * scale)

@@ -67,7 +67,7 @@ def _page_svgs(path: str) -> list[str]:
     # always wins over FRAMEFORGE_REAL_METRICS, so a user's env var cannot cause
     # spurious golden drift (the lock is byte-exact estimate-mode output).
     # FRAMEFORGE_MATH_SVG=fallback pins math the same way: golden hashes must not
-    # depend on whether the optional node + viewer/node_modules MathJax toolchain
+    # depend on whether the optional Node + tooling/node_modules MathJax toolchain
     # resolves on this machine (CI never installs it). Scoped + restored so a
     # shared pytest process does not inherit the override.
     previous = os.environ.get("FRAMEFORGE_MATH_SVG")

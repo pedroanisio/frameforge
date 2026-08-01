@@ -266,13 +266,13 @@ def _harvest_schema(universe: set[str]) -> None:
 
 
 def _harvest_document_ids(universe: set[str]) -> None:
-    """Object ids authored in tracked documents and the viewer's own sources.
+    """Object ids authored in tracked documents and examples.
 
     Prose legitimately names a fixture's objects ("on `slide_05_palette` the
     deck places…"). Those ids live in YAML/JS, which ``ast`` never sees.
     """
     patterns = ("tests/fixtures/**/*.yaml", "tests/fixtures/**/*.yml",
-                "viewer/**/*.yml", "viewer/*.jsx", "viewer/*.js", "static/**/*.yaml")
+                "static/**/*.yaml")
     for pattern in patterns:
         for path in ROOT.glob(pattern):
             if "node_modules" in path.parts:

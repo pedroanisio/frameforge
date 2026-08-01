@@ -10,6 +10,9 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import unquote, urlparse
 
+import yaml
+
+from frameforge import __version__
 from frameforge.mcp.config import (
     DEFAULT_MIN_CLEANUP_AGE_SECONDS,
     SESSION_ID_RE,
@@ -402,6 +405,55 @@ def list_sessions(*, session_root: str | Path | None = None) -> dict[str, Any]:
 _PUBLISH_RENAMES = {"generated.fg.yaml": "document.fg.yaml"}
 _PUBLISH_KEEP = ("document.pdf", "diagnostics.json", "audit.json", "audit.md")
 _PUBLISH_GLOBS = ("page-*.svg", "p[0-9][0-9][0-9].png")
+RENDER_BUNDLE_FORMAT = "frameforge-render-bundle"
+RENDER_BUNDLE_FORMAT_VERSION = 1
+
+
+def _published_page_manifest(session_dir: Path, names: set[str]) -> list[dict[str, Any]]:
+    """Describe rendered pages in stable display order for artifact consumers."""
+    source_path = session_dir / "generated.fg.yaml"
+    try:
+        document = yaml.safe_load(source_path.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        document = {}
+    source_pages = document.get("pages") if isinstance(document, dict) else None
+    if not isinstance(source_pages, list):
+        source_pages = []
+
+    page_numbers: set[int] = set()
+    for name in names:
+        try:
+            if name.startswith("page-") and name.endswith(".svg"):
+                page_numbers.add(int(name[5:-4]))
+            elif name.startswith("p") and name.endswith(".png"):
+                page_numbers.add(int(name[1:-4]))
+        except ValueError:
+            continue
+
+    pages: list[dict[str, Any]] = []
+    for number in sorted(page_numbers):
+        source_page = source_pages[number - 1] if number <= len(source_pages) else {}
+        if not isinstance(source_page, dict):
+            source_page = {}
+        canvas = source_page.get("canvas")
+        if not isinstance(canvas, dict):
+            canvas = {}
+        size = canvas.get("size")
+        if not isinstance(size, list) or len(size) != 2:
+            size = None
+        svg_name = f"page-{number:03d}.svg"
+        png_name = f"p{number:03d}.png"
+        pages.append(
+            {
+                "number": number,
+                "id": source_page.get("id") or f"page-{number}",
+                "size": size,
+                "units": canvas.get("units") or "px",
+                "svg": svg_name if svg_name in names else None,
+                "png": png_name if png_name in names else None,
+            }
+        )
+    return pages
 
 
 def publish_session(
@@ -473,10 +525,19 @@ def publish_session(
         (dest / name).write_bytes(data)
         files.append({"name": name, "bytes": len(data),
                       "sha256": hashlib.sha256(data).hexdigest()})
+    copied_names = {entry["name"] for entry in files}
     manifest = {
+        "format": RENDER_BUNDLE_FORMAT,
+        "format_version": RENDER_BUNDLE_FORMAT_VERSION,
+        "frameforge_version": __version__,
         "session_id": session_id,
         "revision": revision,
         "published_at": datetime.now(timezone.utc).isoformat(),
+        "document": "document.fg.yaml" if "document.fg.yaml" in copied_names else None,
+        "diagnostics": "diagnostics.json" if "diagnostics.json" in copied_names else None,
+        "pdf": "document.pdf" if "document.pdf" in copied_names else None,
+        "pages": _published_page_manifest(session_dir, copied_names),
+        "fonts": [],
         "files": files,
     }
     (dest / "manifest.json").write_text(

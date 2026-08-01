@@ -51,7 +51,7 @@ class MathSvgRenderer:
             return None
         # FRAMEFORGE_MATH_SVG=fallback forces the deterministic fallback glyph.
         # The golden gate sets it so pinned hashes never depend on whether the
-        # optional node + viewer/node_modules MathJax toolchain resolves.
+        # optional Node + tooling/node_modules MathJax toolchain resolves.
         if os.environ.get("FRAMEFORGE_MATH_SVG") == "fallback":
             result = self._fallback(source, input_kind)
             self._cache[cache_key] = result

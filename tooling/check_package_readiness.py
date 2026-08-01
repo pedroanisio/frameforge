@@ -72,7 +72,7 @@ REQUIRED_SDIST_EXCLUDES = (
     "/dist",
     "/out",
     "/site",
-    "/viewer/node_modules",
+    "/tooling/node_modules",
 )
 
 

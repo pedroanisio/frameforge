@@ -230,7 +230,7 @@ def s_components():
     y2=y+146
     box(MX,y2,cw,110,"vision  (raster→vector)","measure·detect·vectorize\nmark·overlay·workspace\nconstruct·map·score\ndomain: coordinates·fitting",c=SIGNAL)
     box(MX+(cw+g),y2,cw,110,"validate + gates","sdk/validate.py\nPydantic + static rules\nmake check · golden b1/\ncapability-manifest.json",c=HAVE)
-    box(MX+2*(cw+g),y2,cw,110,"live  +  viewer","live/server.py (sessions)\nviewer/*.jsx (React)\nzoom·pan·page-nav\n(interactivity lives here)",c=MUTE)
+    box(MX+2*(cw+g),y2,cw,110,"live  +  companion","live/server.py (sessions)\nframeforge-viewer (sibling)\nrender bundle + direct doc\n(interactivity lives there)",c=MUTE)
     box(MX+3*(cw+g),y2,cw,110,"coach  +  tooling","coach/ construction\ntooling/ render_* · codemod\ngen_* generators\nbump_version · fixtures",c=MUTE)
     # dependency spine
     y3=y2+134
@@ -602,7 +602,7 @@ def s_gap2():
          ("Path","entry-point registry for object types + painters + MCP tools"),
          ("Deps","LOW-MED — the port Protocols already define the seams"),
          ("Example","register_element('gauge', GaugePainter)")],prio="P2",cx="M")
-    T(MX,y+350,W-2*MX,"Design rule for all of Part II: interaction is added as a layer that CONSUMES the IR (in the viewer/runtime), so the document stays a verifiable, backend-neutral snapshot.",
+    T(MX,y+350,W-2*MX,"Design rule for all of Part II: interaction is added as a layer that CONSUMES the IR (in a companion runtime), so the document stays a verifiable, backend-neutral snapshot.",
       size=SML,color=SIGNAL,italic=True)
 
 def s_roadmap():

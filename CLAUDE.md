@@ -55,8 +55,9 @@ models and fixtures.
 ├── tooling/                  # validation, render, codemod, docs generators
 ├── tests/                    # regression and sync gates
 │   └── fixtures/             # gated fixture corpus (b1/ = the oracle)
-└── viewer/                   # standalone JS viewer (separate bundle)
 ```
+
+The standalone [frameforge-viewer](https://github.com/pedroanisio/frameforge-viewer) and [frameforge-fonts](https://github.com/pedroanisio/frameforge-fonts) projects are sibling repositories. They are integrations, not directories or gate implementations in this tree.
 
 Non-core content (brand assets, demo media, scratch experiments) stays **out of
 the codebase tree** by operator direction (2026-07-02 folder refactor).

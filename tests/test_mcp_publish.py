@@ -82,7 +82,24 @@ def test_publish_copies_deliverables_with_manifest(tmp_path):
     assert "_run_sdk_client.py" not in names and "_run_sdk.py" not in names
     assert "history" not in names and "workspace.json" not in names
     manifest = json.loads((pub / "manifest.json").read_text())
+    assert manifest["format"] == "frameforge-render-bundle"
+    assert manifest["format_version"] == 1
+    assert manifest["frameforge_version"] == "2.8.2"
     assert manifest["session_id"] == "probe" and manifest["revision"] == 1
+    assert manifest["document"] == "document.fg.yaml"
+    assert manifest["diagnostics"] == "diagnostics.json"
+    assert manifest["pdf"] is None
+    assert manifest["fonts"] == []
+    assert manifest["pages"] == [
+        {
+            "number": 1,
+            "id": "p1",
+            "size": [200, 120],
+            "units": "px",
+            "svg": "page-001.svg",
+            "png": None,
+        }
+    ]
     listed = {f["name"] for f in manifest["files"]}
     assert "document.fg.yaml" in listed and "page-001.svg" in listed
     for f in manifest["files"]:

@@ -13,7 +13,7 @@ DOCS_HOST ?= 127.0.0.1
 DOCS_PORT ?= 8001
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean viewer-build viewer-test corpus corpus-check corpus-ui package-check public-check symbol-check plugin-sync plugin-check docker-build docker-mcp docker-shell docker-fonts
+.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean corpus corpus-check corpus-ui package-check public-check symbol-check plugin-sync plugin-check docker-build docker-mcp docker-shell docker-fonts
 
 DOCKER ?= docker
 IMAGE ?= frameforge
@@ -116,7 +116,8 @@ plugin-check:  ## GATE the Claude Code plugin + marketplace manifests
 	$(UV) run pytest tests/test_plugin_contract.py -q
 
 corpus-ui:  ## render the CC0 UI mockups to high-def PNG (needs playwright+chromium)
-	node viewer/dev/render-ui-corpus.cjs
+	npm --prefix tooling ci
+	node tooling/render_ui_corpus.cjs
 	$(UV) run python tooling/fetch_corpus.py
 
 status:  ## regenerate FIXTURE-STATUS.md from the validator
@@ -164,12 +165,6 @@ clean:  ## remove generated output + caches
 	rm -rf out site docs/assets .ruff_cache .pytest_cache
 	rm -f docs/reference.md docs/grammar.md docs/spec.md docs/fixtures.md docs/changelog.md
 	find . -name __pycache__ -type d -prune -exec rm -rf {} +
-
-viewer-build:  ## build the JS viewer bundle
-	npm --prefix viewer ci && npm --prefix viewer run build
-
-viewer-test:  ## viewer node coverage check
-	npm --prefix viewer test
 
 golden:  ## re-pin the golden-render lock (after an intentional render change)
 	$(UV) run python tooling/render_golden.py --update

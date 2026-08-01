@@ -71,7 +71,6 @@ surfaces; when in doubt, `make help` and `<script> --help` are authoritative.
 | `package-check` | `tooling/check_package_readiness.py` (advisory; NOT in `check`) |
 | `mcp` / `live` | run the MCP server / the local live-session web UI (`make live LIVE_PORT=8790`) |
 | `corpus` / `corpus-check` / `corpus-ui` | fetch / verify / re-render the expressiveness corpus |
-| `viewer-build` / `viewer-test` | JS viewer bundle build / node coverage |
 | `docker-build` / `docker-mcp` / `docker-shell` / `docker-fonts` | font-rich runtime image (below) |
 | `font-list` / `font-check` / `font-pack` / `font-install` | `fg-font` (below): list resolvable families / gate `DOC=` for substituting content fonts / bundle `DOC=`'s fonts into a portable `.fp` (`FETCH=1` pulls misses from Google Fonts) / extract `PACK=`.fp into a scoped fontconfig |
 | `sync` / `lint` / `clean` | uv venv refresh / ruff (non-gating) / remove generated output |

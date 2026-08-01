@@ -40,7 +40,8 @@ raster-UI surface (layered cards, gradients, shadows, inline-SVG charts).
 ```bash
 npm --prefix viewer ci                              # installs playwright (a viewer devDep)
 npx --prefix viewer playwright install chromium     # one-time browser download
-node viewer/dev/render-ui-corpus.cjs                # render ui/_src/*.html -> ui/*.png
+npm --prefix tooling ci
+node tooling/render_ui_corpus.cjs                   # render ui/_src/*.html -> ui/*.png
 python tooling/fetch_corpus.py                       # re-pin the produced bytes in the lockfile
 ```
 

@@ -11,7 +11,7 @@ marked in red.
 
 Run from the repository root::
 
-    uv run python examples/architecture_map.py     # writes architecture-map.svg
+    uv run python static/examples/architecture_map.py  # writes docs/architecture-map.*
 """
 from __future__ import annotations
 
@@ -171,7 +171,7 @@ def build() -> DocumentBuilder:
         ("docs/spec/…spec.md", "membership · every type named in prose", 224),
         ("docs/ (MkDocs)", "regenerate + diff · gen_docs.py", 274),
         ("FIXTURE-STATUS.md", "regenerate + byte-equal", 324),
-        ("viewer/ type sets", "set-membership parity test", 374),
+        ("frameforge-viewer", "external contract + upstream CI", 374),
     ]
     for title, sub, y in gen_rows:
         node(page, [958, y, 322, 42], GEN, title, "#854D0E", [sub], "#92400E")
@@ -302,14 +302,14 @@ def main() -> int:
         print(f"  [{i.severity}] [{i.rule_id}] {i.path}: {i.message}")
 
     svg = render_page_svgs(doc)[0]
-    out_svg = os.path.join(ROOT, "architecture-map.svg")
+    out_svg = os.path.join(ROOT, "docs", "architecture-map.svg")
     with open(out_svg, "w", encoding="utf-8") as fh:
         fh.write(svg)
     print(f"Wrote {out_svg}")
 
     # Root, not fixtures/ — this is an analysis asset, not part of the gated
     # fixture corpus (a file in fixtures/ would desync FIXTURE-STATUS.md).
-    out_yaml = os.path.join(ROOT, "architecture-map.fg.yaml")
+    out_yaml = os.path.join(ROOT, "docs", "architecture-map.fg.yaml")
     with open(out_yaml, "w", encoding="utf-8") as fh:
         fh.write(serialize(doc, format="yaml"))
     print(f"Wrote {out_yaml}")

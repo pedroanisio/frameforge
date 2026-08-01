@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 import { readFileSync } from 'node:fs';
-import { mathjax } from '../viewer/node_modules/mathjax-full/js/mathjax.js';
-import { TeX } from '../viewer/node_modules/mathjax-full/js/input/tex.js';
-import { MathML } from '../viewer/node_modules/mathjax-full/js/input/mathml.js';
-import { SVG } from '../viewer/node_modules/mathjax-full/js/output/svg.js';
-import { liteAdaptor } from '../viewer/node_modules/mathjax-full/js/adaptors/liteAdaptor.js';
-import { RegisterHTMLHandler } from '../viewer/node_modules/mathjax-full/js/handlers/html.js';
-import { AllPackages } from '../viewer/node_modules/mathjax-full/js/input/tex/AllPackages.js';
+import { mathjax } from 'mathjax-full/js/mathjax.js';
+import { TeX } from 'mathjax-full/js/input/tex.js';
+import { MathML } from 'mathjax-full/js/input/mathml.js';
+import { SVG } from 'mathjax-full/js/output/svg.js';
+import { liteAdaptor } from 'mathjax-full/js/adaptors/liteAdaptor.js';
+import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html.js';
+import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 
 const EX_TO_PX = 8;
 

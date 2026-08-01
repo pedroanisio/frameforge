@@ -75,6 +75,13 @@ pyproject.toml + uv.lock      ← the real hatchling package since 2.5.0 (`[tool
 Makefile + .github/workflows/ ← `make check` = the local gate; CI mirrors it (+ a docs build/deploy job).
 ```
 
+## Companion repositories
+
+- [frameforge-viewer](https://github.com/pedroanisio/frameforge-viewer) is the independent React display package extracted from this repository with its viewer history preserved. FrameForge publishes a versioned `frameforge-render-bundle` manifest plus measured SVG/PNG/PDF artifacts; the artifact viewer consumes those outputs without needing the viewing host’s fonts. Its direct-document mode remains an explicitly separate browser renderer.
+- [frameforge-fonts](https://github.com/pedroanisio/frameforge-fonts) is the composition-time font catalog and exact-face closure companion. It currently meets FrameForge through the `fp_version: 1` closure contract; FrameForge does not yet delegate SDK measurement to it.
+
+The companions own their npm/Python dependencies, CI, releases, and upstream compatibility checks. They are siblings, not subdirectories of this codebase.
+
 ## The sync guarantee (what "in sync" means here, concretely)
 
 1. **Schema ⇄ models.** `docs/schema/frameforge-v2.schema.json` is produced by
