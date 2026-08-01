@@ -176,7 +176,7 @@ pillarbox bars, the message bar, and three text runs. The viewport is
 deliberately **blocked in, not reconstructed** — three gradient bands standing in
 for a dungeon.
 
-No client is committed to [the cookbook](../../examples.md) for this lesson, on
+No client is committed to the cookbook (repo `frameforge-example`) for this lesson, on
 purpose: that index is for clients worth reusing, and a deliberately incomplete
 blocking-in is not one. The document lives in the `run_sdk_code` call above.
 

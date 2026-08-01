@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import hashlib
-import importlib.util
 import json
 import math
 import random
@@ -18,10 +17,8 @@ from hypothesis import strategies as st
 
 from frameforge_sdk import Rand, halton, jittered_grid, poisson_disk
 from frameforge_sdk._seed import stable_seed
-from frameforge.conform import render_page_svgs
 from frameforge_sdk.geometry import Vec2
 from frameforge_sdk.humanize import _stable_seed
-from frameforge_sdk.model import validate_document
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -36,15 +33,6 @@ def _minimum_distance(points: list[Vec2]) -> float:
         for i, a in enumerate(points)
         for b in points[i + 1 :]
     )
-
-
-def _load_sampling_example():
-    path = ROOT / "static/examples/seeded_sampling_showcase.py"
-    spec = importlib.util.spec_from_file_location("seeded_sampling_showcase", path)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
 
 
 def test_stable_seed_shared_helper_preserves_humanize_contract():
@@ -322,26 +310,8 @@ def test_poisson_serialized_output_has_stable_regression_hash():
     assert digest == "ca03b2b43e6708dccc883a85d9938dda30ba33d1f651f1ca05395050e400024a"
 
 
-def test_seeded_sampling_example_builds_valid_deterministic_render():
-    module = _load_sampling_example()
-    first = module.build()
-    second = module.build()
-
-    validate_document(first)
-    assert first == second
-    first_svg = render_page_svgs(first)
-    second_svg = render_page_svgs(second)
-    assert first_svg == second_svg
-    assert len(first_svg) == 1
-    assert first_svg[0].count("<ellipse") >= 150
-    assert not [
-        obj
-        for layer in first["pages"][0]["layers"]
-        for obj in layer["objects"]
-        if obj["type"] == "circle"
-    ]
-
-
+# The example-parity test that lived here moved out with the cookbook;
+# it now runs in frameforge-example/tests/test_example_parity.py.
 def test_generated_sdk_docs_include_sampling_signatures_and_usage():
     api = (ROOT / "docs/sdk-api.md").read_text(encoding="utf-8")
     guide = (ROOT / "docs/sdk.md").read_text(encoding="utf-8")

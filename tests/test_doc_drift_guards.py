@@ -116,18 +116,11 @@ def test_check_prereqs_are_real_targets():
     assert not ghosts, f"check: names prerequisite(s) with no rule: {ghosts}"
 
 
-def test_brand_palette_matches_logo_generator():
-    palette = brand_palette(_read("docs/BRAND.md"))
-    colors = generator_colors(_read("static/examples/frameforge_logo.py"))
-    drifted = {
-        token: (palette.get(token), colors.get(const))
-        for token, const in BRAND_TO_GENERATOR.items()
-        if palette.get(token) != colors.get(const)
-    }
-    assert not drifted, (
-        f"BRAND.md §4 palette and frameforge_logo.py disagree: {drifted} — "
-        "the generator is the source of truth for the five shared tokens"
-    )
+# The live BRAND.md-vs-generator cross-check moved out with the cookbook:
+# frameforge_logo.py is the source of truth for the five shared tokens and now
+# lives in frameforge-example, so the gate runs there
+# (frameforge-example/tests/test_brand_palette_parity.py) against this repo's
+# BRAND.md. The detectors below stay here, with their red-path self-tests.
 
 
 # --------------------------------------------------------------------------- #
@@ -151,9 +144,9 @@ def test_detector_flags_undocumented_gate():
 
 def test_detector_flags_palette_drift():
     drifted_brand = "| `ink` | `#000000` | wrong on purpose |\n"
-    live_generator = _read("static/examples/frameforge_logo.py")
+    generator_stub = 'INK = "#101418"\nPAPER = "#FFFFFF"\n'
     palette = brand_palette(drifted_brand)
-    colors = generator_colors(live_generator)
+    colors = generator_colors(generator_stub)
     assert palette["ink"] != colors["INK"]
 
 

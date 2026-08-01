@@ -111,12 +111,12 @@ and honest about what is still proposed in the *format* — never hedged about t
 ## 3. Logo
 
 The logo is **generated, not hand-drawn**. The single source of truth is
-[`static/examples/frameforge_logo.py`](../static/examples/frameforge_logo.py) — the same `mark()`
+`frameforge_logo.py` (sibling repo `frameforge-example`) — the same `mark()`
 and `wordmark()` the seed deck imports, so the asset and every place that stamps it
 can never diverge. Regenerate the masters with:
 
 ```sh
-uv run python static/examples/frameforge_logo.py   # regenerates frameforge-*.svg + the .fg.yaml
+uv run python examples/frameforge_logo.py   # in frameforge-example; regenerates frameforge-*.svg + the .fg.yaml
 ```
 
 The masters are regenerated on demand (no longer tracked; retired in the
@@ -278,7 +278,7 @@ The palette and type system map 1:1 onto the native `Defs.tokens` surface
 document and reference the tokens by name. The standalone `frameforge.tokens.fg.yaml`
 was retired with the masters and no generator emits it today — treat this guideline's
 §4 palette as the token source until one does (the masters regenerate via
-`static/examples/frameforge_logo.py`). This is the intended dogfood: **the brand
+`frameforge_logo.py`, sibling repo `frameforge-example`). This is the intended dogfood: **the brand
 guideline should ultimately be authored as a FrameForge document**, rendered by the
 project's own renderer, gated by the project's own checks.
 

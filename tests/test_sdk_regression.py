@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 """Regression tests for the FrameForge SDK.
 
-These complement the public-surface assertions in ``test_sdk.py`` with two
-regression guards the existing suite does not cover:
+These complement the public-surface assertions in ``test_sdk.py`` with a
+regression guard the existing suite does not cover:
 
-1. **Shipped-artifact regression.** Every committed ``examples/*.py`` document
-   (the Esfera / Coopera refactor decks and the composed 3D scene) must still
-   *build from its source* and validate with **zero errors** at the current
-   ``HEAD_VERSION``. This catches an SDK change silently breaking a real,
-   checked-in document — the failure mode unit tests on helpers miss.
+**3D projection determinism.** ``Scene3D`` + ``Camera`` is a software
+projector; its output must be deterministic and bounded to the render box, so a
+regression in the projection/painter's-sort math is caught here rather than only
+showing up as a visually-wrong fixture.
 
-2. **3D projection determinism.** ``Scene3D`` + ``Camera`` is a software
-   projector; its output must be deterministic and bounded to the render box,
-   so a regression in the projection/painter's-sort math is caught here rather
-   than only showing up as a visually-wrong fixture.
+The shipped-artifact regression that used to live here — the Esfera / Coopera
+decks and the composed 3D scene, each rebuilt from source and revalidated —
+moved out with the cookbook. It now lives beside the clients it guards, in
+``frameforge-example/tests/test_example_parity.py``.
 
 Per the repo standard (codebase-standards.md §6) the module is deterministic,
 isolated, and runnable both under pytest and standalone (``python
@@ -21,7 +20,6 @@ tests/test_sdk_regression.py``).
 """
 from __future__ import annotations
 
-import importlib.util
 import os
 import sys
 
@@ -34,59 +32,6 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
 from frameforge_sdk import Camera, Scene3D, Vec3, inset, linear_gradient, radial_gradient, rgba, row  # noqa: E402
-from frameforge_sdk.validate import validate_static_rules  # noqa: E402
-
-
-# --------------------------------------------------------------------------- #
-#  shipped-artifact regression: the committed example documents stay valid
-# --------------------------------------------------------------------------- #
-# (module filename under examples/, expected page count)
-SHIPPED_EXAMPLES = [
-    ("esfera_refactor_wireframes.py", 22),
-    ("coopera_refactor_wireframes.py", 22),
-    ("sdk_3d_scene.py", 1),
-]
-
-
-def _load_example(filename: str):
-    """Import an ``examples/*.py`` module under a unique name, without running it.
-
-    The examples guard their build/write behind ``if __name__ == '__main__'``,
-    so importing only defines ``build()`` — no files are written.
-    """
-    path = os.path.join(ROOT, "static", "examples", filename)
-    name = "ex_" + os.path.splitext(filename)[0]
-    spec = importlib.util.spec_from_file_location(name, path)
-    assert spec and spec.loader, f"cannot load {path}"
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-@pytest.mark.parametrize("filename, expected_pages", SHIPPED_EXAMPLES)
-def test_shipped_example_builds_and_validates(filename, expected_pages):
-    module = _load_example(filename)
-    assert hasattr(module, "build"), f"{filename} has no build()"
-    doc = module.build().build()
-    assert len(doc.pages) == expected_pages, (
-        f"{filename}: expected {expected_pages} pages, got {len(doc.pages)}")
-    report = validate_static_rules(doc)
-    errors = [i for i in report.issues if i.severity == "error"]
-    assert not errors, (
-        f"{filename}: {len(errors)} validation error(s): "
-        + "; ".join(f"[{i.rule_id}] {i.path}: {i.message}" for i in errors[:5]))
-
-
-def test_shipped_examples_are_warning_free():
-    """The decks were authored to 0 warnings (the clean-fixture-art bar); keep them there."""
-    offenders = {}
-    for filename, _pages in SHIPPED_EXAMPLES:
-        doc = _load_example(filename).build().build()
-        report = validate_static_rules(doc)
-        warns = [i for i in report.issues if i.severity != "error"]
-        if warns:
-            offenders[filename] = [f"[{i.rule_id}] {i.path}" for i in warns[:5]]
-    assert not offenders, f"unexpected validator warnings: {offenders}"
 
 
 # --------------------------------------------------------------------------- #

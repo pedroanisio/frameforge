@@ -27,8 +27,6 @@ import yaml  # noqa: E402
 from tooling import render_fixtures as R  # noqa: E402
 
 STANDARD_MODEL = os.path.join(R.FIXTURES, "standard-model.fg.yaml")
-if not os.path.exists(STANDARD_MODEL):
-    STANDARD_MODEL = os.path.join(ROOT, "static", "examples", "fixtures", "standard-model.fg.yaml")
 
 # A minimal flow doc whose single figure draws a rect + a symbol `use` (which the
 # normaliser must expand to an ellipse) and carries a caption.
@@ -159,10 +157,14 @@ def test_flow_mathml_renders_as_mathjax_svg_not_raw_xml(tmp_path):
 
 def test_math_svg_conversion_failure_does_not_disable_later_math(monkeypatch):
     # The math->SVG path is now the MathSvgRenderer infrastructure adapter.
-    from frameforge.rendering.domain.services.math_text import math_text
-    from frameforge.rendering.infrastructure.math_svg import MathSvgRenderer
+    from frameforge_render.domain.services.math_text import math_text
+    from frameforge_render.infrastructure.math_svg import MathSvgRenderer
 
-    m = MathSvgRenderer(math_text)
+    # Since the engine became the `frameforge-render` distribution it can no
+    # longer derive THIS repo's root from its own __file__, so the toolchain root
+    # is passed in. Without it the adapter finds no MathJax helper and returns
+    # the deterministic fallback before `subprocess.run` is ever reached.
+    m = MathSvgRenderer(math_text, repo_root=ROOT)
     calls = []
 
     def fake_run(_cmd, input=None, **_kwargs):

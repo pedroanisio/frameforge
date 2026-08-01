@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import hashlib
-import importlib.util
 import json
 import math
 import subprocess
@@ -20,15 +19,6 @@ from frameforge_sdk.noise import _fade, _permutation
 from frameforge_sdk.paint import turbulence
 
 ROOT = Path(__file__).resolve().parent.parent
-
-
-def _load_noise_example():
-    path = ROOT / "static/examples/sampleable_noise_field.py"
-    spec = importlib.util.spec_from_file_location("sampleable_noise_field", path)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
 
 
 def test_quintic_fade_matches_perlin_reference_values():
@@ -268,18 +258,8 @@ def test_paint_turbulence_output_is_byte_identical_to_pre_noise_contract():
     assert "frameforge_sdk.noise" in (turbulence.__doc__ or "")
 
 
-def test_sampleable_noise_example_builds_valid_deterministic_svg():
-    module = _load_noise_example()
-    first = module.build()
-    second = module.build()
-    assert first == second
-    assert validate_static_rules(first).ok is True
-    first_svg = render_page_svgs(first)
-    assert first_svg == render_page_svgs(second)
-    assert len(first_svg) == 1
-    assert first_svg[0].count("<rect") >= 900
-
-
+# The example-parity test that lived here moved out with the cookbook;
+# it now runs in frameforge-example/tests/test_example_parity.py.
 def test_generated_sdk_docs_include_noise_signatures_and_usage():
     api = (ROOT / "docs/sdk-api.md").read_text(encoding="utf-8")
     guide = (ROOT / "docs/sdk.md").read_text(encoding="utf-8")

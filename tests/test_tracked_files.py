@@ -19,7 +19,6 @@ sys.path.insert(0, str(ROOT / "tooling"))
 import check_disclaimers as CD  # noqa: E402
 import check_doc_links as CDL  # noqa: E402
 import check_public_readiness as CPR  # noqa: E402
-import gen_examples_index as GEI  # noqa: E402
 import gen_status as GS  # noqa: E402
 import tracked_files as TF  # noqa: E402
 
@@ -147,23 +146,9 @@ def test_doc_link_gate_skips_docs_deleted_from_the_worktree(tmp_path, monkeypatc
     assert CDL.tracked_md() == [repo / "kept.md"]
 
 
-# ── the two generators: index-faithful, never truncated in silence ───────────
-
-def test_examples_index_summarizes_a_deleted_example_from_the_indexed_blob(
-    tmp_path, monkeypatch
-):
-    """A generator's output is gated against the *index*, so a locally deleted
-    example must keep its row rather than crash or silently vanish."""
-    repo = _repo(
-        tmp_path,
-        {"static/examples/gone.py": '"""Stated intent."""\n'},
-        delete=("static/examples/gone.py",),
-    )
-    monkeypatch.setattr(GEI, "ROOT", str(repo))
-
-    assert GEI.tracked_examples() == ["static/examples/gone.py"]
-    assert GEI.summarize("static/examples/gone.py") == "Stated intent."
-
+# ── the status generator: index-faithful, never truncated in silence ─────────
+# The examples-index counterpart moved out with the cookbook; it now runs as
+# frameforge-example/tests/test_index_generator.py.
 
 def test_status_generator_warns_and_skips_a_deleted_fixture(tmp_path, monkeypatch, capsys):
     repo = _repo(

@@ -88,7 +88,6 @@ nav:
       - Guide: sdk.md
       - API reference: sdk-api.md
   - Error codes: error-codes.md
-  - Examples cookbook: examples.md
   - Fixture gallery: fixtures.md
   - Claude Code plugin (Windows setup): plugin-windows-setup.md
   - Claude Desktop / Cowork setup: desktop-cowork-setup.md

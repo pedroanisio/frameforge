@@ -173,7 +173,8 @@ Backward compatibility is **delivered, not assumed** (§9): migrate, don't freez
   that it is current), the `frameforge_landing` demo, and sample console output in
   `skills/frameforge-mcp-docker/SKILL.md`. The landing demo additionally carries a
   self-verifying `FACTS` table — run
-  `python static/examples/frameforge_landing.py --verify` on a bump; it re-derives
+  `python examples/frameforge_landing.py --verify` in the sibling `frameforge-example`
+  repo on a bump; it re-derives
   every count and reports drift, and it is **not** on `check:`.
 - **CI docs-deploy probe — RESOLVED (2.5.0).** The `docs-deploy` job no longer
   hardcodes a `docs/models` path; it derives the version from

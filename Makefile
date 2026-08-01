@@ -13,7 +13,7 @@ DOCS_HOST ?= 127.0.0.1
 DOCS_PORT ?= 8001
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check examples-index lint clean corpus corpus-check corpus-ui package-check public-check symbol-check plugin-sync plugin-check docker-build docker-mcp docker-shell docker-fonts
+.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check lint clean corpus corpus-check corpus-ui package-check public-check symbol-check plugin-sync plugin-check docker-build docker-mcp docker-shell docker-fonts
 
 DOCKER ?= docker
 IMAGE ?= frameforge
@@ -31,7 +31,7 @@ schema:  ## regenerate docs/schema/frameforge-v2.schema.json from the models
 bump:  ## bump the HEAD version at every site + regen derived artifacts (VERSION=X.Y.Z); see RELEASE.md
 	@test -n "$(VERSION)" || { echo "usage: make bump VERSION=X.Y.Z"; exit 2; }
 	$(UV) run python tooling/bump_version.py $(VERSION)
-	$(MAKE) schema manifest examples-index
+	$(MAKE) schema manifest
 	@echo ""
 	@echo "  bumped to $(VERSION). remaining (RELEASE.md): 1) CHANGELOG.md entry  2) make check  3) make docker-build"
 
@@ -41,7 +41,7 @@ bump-check:  ## assert every hand-edited version site agrees (no edit)
 release:  ## full release: bump VERSION, regenerate every derived artifact, run the gate (RELEASE.md §16-7)
 	@test -n "$(VERSION)" || { echo "usage: make release VERSION=X.Y.Z"; exit 2; }
 	$(UV) run python tooling/bump_version.py $(VERSION)
-	$(MAKE) schema manifest docs-sdk status examples-index
+	$(MAKE) schema manifest docs-sdk status
 	$(MAKE) check
 	@echo ""
 	@echo "  released $(VERSION): all sites bumped, artifacts regenerated, make check green."
@@ -126,11 +126,11 @@ status:  ## regenerate FIXTURE-STATUS.md from the validator
 status-check:  ## fail if FIXTURE-STATUS.md drifted from the validator
 	$(UV) run python tooling/gen_status.py --check
 
-docs: manifest examples-index  ## generate pages + build the static site into site/ (theme fetched ephemerally)
+docs: manifest  ## generate pages + build the static site into site/ (theme fetched ephemerally)
 	$(UV) run python tooling/gen_docs.py
 	$(UV) run --with mkdocs-material --with mkdocs-print-site-plugin mkdocs build --strict
 
-docs-serve: manifest examples-index  ## generate pages + serve with live reload (http://127.0.0.1:8001; override DOCS_HOST/DOCS_PORT)
+docs-serve: manifest  ## generate pages + serve with live reload (http://127.0.0.1:8001; override DOCS_HOST/DOCS_PORT)
 	$(UV) run python tooling/gen_docs.py
 	$(UV) run --with mkdocs-material --with mkdocs-print-site-plugin mkdocs serve -a $(DOCS_HOST):$(DOCS_PORT)
 
@@ -145,9 +145,6 @@ manifest:  ## regenerate docs/capability-manifest.json from the live tree (ADR-0
 
 manifest-check:  ## fail if the committed capability manifest drifted from the live tree
 	$(UV) run python tooling/gen_capability_manifest.py --check
-
-examples-index:  ## regenerate docs/examples.md from the tracked examples/*.py docstrings
-	$(UV) run python tooling/gen_examples_index.py
 
 docs-linkcheck:  ## fail if a tracked Markdown file has a broken relative link (run after docs)
 	$(UV) run python tooling/check_doc_links.py

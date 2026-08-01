@@ -16,14 +16,11 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.infrastructure.latex import transpile  # noqa: E402
+from frameforge_render.infrastructure.latex import transpile  # noqa: E402
 
 
 def _fixture_path(*parts):
-    root_path = os.path.join(ROOT, "tests", "fixtures", *parts)
-    if os.path.exists(root_path):
-        return root_path
-    return os.path.join(ROOT, "static", "examples", "fixtures", *parts)
+    return os.path.join(ROOT, "tests", "fixtures", *parts)
 
 
 def _flow(*story):

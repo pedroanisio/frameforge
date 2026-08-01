@@ -21,7 +21,7 @@ These are distinct from the neighbouring pages:
 |---|---|
 | **Tutorial** (here) | *"Teach me the method by building one real thing."* |
 | [Python SDK guide](../sdk.md) | *"What are the SDK's parts?"* |
-| [Examples cookbook](../examples.md) | *"Show me a client that already does X."* |
+| Examples cookbook (repo `frameforge-example`) | *"Show me a client that already does X."* |
 | [Specification](../spec.md) | *"What is the normative rule?"* |
 
 ## Lessons

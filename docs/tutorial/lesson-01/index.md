@@ -19,7 +19,7 @@ prove the result matches by measurement rather than by eye.
 |---|---|
 | Target | [`target/lesson-01.png`](target/lesson-01.png) — 444×669 px |
 | Result | [`render/reconstruction.png`](render/reconstruction.png) |
-| Client | [`static/examples/lesson_01_book_cover.py`](../../../static/examples/lesson_01_book_cover.py) |
+| Client | `lesson_01_book_cover.py` (repo `frameforge-example`) |
 | Outcome | 8/8 text lines placed within **3 px**; 96% pixel-match overall |
 
 <div style="display:flex;gap:1rem;align-items:flex-start">
@@ -289,4 +289,4 @@ uv run python static/examples/lesson_01_book_cover.py   # -> _tmp/lesson-01/
 ---
 
 *Back to [the tutorial index](../index.md) · the [Python SDK guide](../../sdk.md)
-· the [examples cookbook](../../examples.md)*
+· the examples cookbook (repo `frameforge-example`)*

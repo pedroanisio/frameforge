@@ -19,7 +19,7 @@ a FrameForge document, and prove it matches by measurement.
 |---|---|
 | Target | [`target/lesson-03.png`](target/lesson-03.png) — 602×932 px |
 | Result | [`render/reconstruction.png`](render/reconstruction.png) |
-| Client | [`static/examples/lesson_03_chapter_page.py`](../../../static/examples/lesson_03_chapter_page.py) |
+| Client | `lesson_03_chapter_page.py` (repo `frameforge-example`) |
 | Outcome | 13/13 elements within **2 px**; every justified line's right edge exact; 98.3% pixel-match |
 
 <div style="display:flex;gap:1rem;align-items:flex-start">

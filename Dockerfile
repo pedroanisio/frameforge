@@ -151,10 +151,12 @@ LABEL org.opencontainers.image.title="frameforge" \
       org.opencontainers.image.source="https://github.com/pedroanisio/frameforge"
 
 # Untrusted SDK code runs in a subprocess; the container boundary is the sandbox.
-# SDK clients written over MCP resolve to the persistent volume first so they
-# outlive the `--rm` container; the in-repo cookbook stays readable/editable.
+# SDK clients written over MCP resolve to the persistent volume so they outlive
+# the `--rm` container. The in-repo cookbook used to be a second root here; it
+# left with the corpus (now the `frameforge-example` distribution), so the image
+# no longer offers a path that does not exist inside it.
 ENV FRAMEFORGE_MCP_SESSION_ROOT=/work/sessions \
-    FRAMEFORGE_MCP_EDIT_ROOTS=/work/clients:/app/static/examples
+    FRAMEFORGE_MCP_EDIT_ROOTS=/work/clients
 RUN mkdir -p /work/clients /work/sessions
 VOLUME ["/work"]
 

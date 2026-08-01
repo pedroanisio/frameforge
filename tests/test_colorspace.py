@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import math
-import importlib.util
 import json
 from pathlib import Path
 import time
@@ -198,27 +197,8 @@ def test_conversion_throughput_floor() -> None:
     assert samples / elapsed >= 100_000, f"{samples / elapsed:,.0f} conversions/s"
 
 
-def test_runnable_example_uses_the_public_api_deterministically(capsys) -> None:
-    path = ROOT / "static/examples/perceptual_color_ramp.py"
-    spec = importlib.util.spec_from_file_location("perceptual_color_ramp", path)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    expected = {
-        "delta_e_oklab": 0.597438,
-        "legacy_midpoint": "#857a58",
-        "oklab_ramp": [
-            "#172a46", "#4e3744", "#813f3c", "#b5402c",
-            "#cc703f", "#e19c54", "#f3c969",
-        ],
-        "perceptual_midpoint": "#7e7761",
-    }
-    assert module.build_payload() == expected
-    assert module.build_payload() == expected
-    assert module.main() == 0
-    assert json.loads(capsys.readouterr().out) == expected
-
-
+# The example-parity test that lived here moved out with the cookbook;
+# it now runs in frameforge-example/tests/test_example_parity.py.
 def test_generated_sdk_docs_and_manifest_expose_colorspace() -> None:
     sdk_guide = (ROOT / "docs/sdk.md").read_text(encoding="utf-8")
     sdk_api = (ROOT / "docs/sdk-api.md").read_text(encoding="utf-8")

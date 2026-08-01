@@ -20,7 +20,7 @@ pixels rather than guessing it, and reporting where a vector reconstruction
 |---|---|
 | Target | [`target/lesson-02.jpg`](target/lesson-02.jpg) — 452×678 px |
 | Result | [`render/reconstruction.png`](render/reconstruction.png) |
-| Client | [`static/examples/lesson_02_book_cover.py`](../../../static/examples/lesson_02_book_cover.py) |
+| Client | `lesson_02_book_cover.py` (repo `frameforge-example`) |
 | Outcome | 5/5 text lines within **1 px** of their cap band; the lattice exact (16 faces tiling 452×678 to the pixel); **6 of 16 fills exact, 10 reduced**; 92% pixel-match overall |
 
 <div style="display:flex;gap:1rem;align-items:flex-start">
@@ -378,4 +378,4 @@ uv run python static/examples/lesson_02_book_cover.py   # -> _tmp/lesson-02/
 ---
 
 *Back to [the tutorial index](../index.md) · [Lesson 01](../lesson-01/index.md)
-· the [Python SDK guide](../../sdk.md) · the [examples cookbook](../../examples.md)*
+· the [Python SDK guide](../../sdk.md) · the examples cookbook (repo `frameforge-example`)*

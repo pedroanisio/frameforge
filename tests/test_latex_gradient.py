@@ -16,16 +16,13 @@ import sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.rendering.domain.services.paint_resolver import ColorResolver  # noqa: E402
-from frameforge.rendering.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
-from frameforge.rendering.infrastructure.latex.tikz import FigureTikz  # noqa: E402
+from frameforge_render.domain.services.paint_resolver import ColorResolver  # noqa: E402
+from frameforge_render.domain.services.text_style_resolver import TextStyleResolver  # noqa: E402
+from frameforge_render.infrastructure.latex.tikz import FigureTikz  # noqa: E402
 
 
 def _fixture_path(*parts):
-    root_path = os.path.join(ROOT, "tests", "fixtures", *parts)
-    if os.path.exists(root_path):
-        return root_path
-    return os.path.join(ROOT, "static", "examples", "fixtures", *parts)
+    return os.path.join(ROOT, "tests", "fixtures", *parts)
 
 
 def _fig():
@@ -145,7 +142,16 @@ def test_style_background_image_radial_gradient_emits_shade():
     assert "fill={rgb" not in tex
 
 
-def test_conic_gradient_rect_uses_radial_fallback_like_svg_proxy():
+def test_conic_gradient_rect_declines_rather_than_faking_a_radial():
+    """TikZ DECLINES a conic instead of substituting a radial for it.
+
+    pgf has no conic shading. This used to emit `\\shade[inner color=...]` —
+    concentric rings for an angular sweep, silently, because radial colour is a
+    different function of position than conic colour. Since `frameforge-render`
+    1.4.0 the SVG backend synthesises a real wedge fan; TikZ cannot verify one
+    (no TikZ fixture exercises it), so it paints the solid first stop and reports
+    `gradient_conic_unsupported` rather than claiming to be a gradient.
+    """
     tex = _fig().render({
         "type": "rect",
         "box": [0, 0, 100, 100],
@@ -161,15 +167,12 @@ def test_conic_gradient_rect_uses_radial_fallback_like_svg_proxy():
         },
     })
 
-    assert tex.count("\\shade[") == 2
-    assert "\\clip (0,0) rectangle (100,100);" in tex
-    assert "(50,50) ellipse (50pt and 50pt)" in tex
-    assert "inner color={rgb,255:red,255;green,0;blue,0}" in tex
-    assert "outer color={rgb,255:red,0;green,0;blue,255}" in tex
-    assert "fill={rgb" not in tex
+    assert "\\shade[" not in tex, "conic must not be faked with a radial shade"
+    # the solid first stop, stated plainly as a fill rather than as a gradient
+    assert "fill={rgb,255:red,255;green,0;blue,0}" in tex
 
 
-def test_style_background_image_conic_gradient_emits_radial_fallback():
+def test_style_background_image_conic_gradient_also_declines():
     tex = _fig().render({
         "type": "rect",
         "box": [0, 0, 80, 80],
@@ -184,9 +187,8 @@ def test_style_background_image_conic_gradient_emits_radial_fallback():
         },
     })
 
-    assert "\\shade[inner color=" in tex
-    assert "\\clip (0,0) rectangle (80,80);" in tex
-    assert "fill={rgb" not in tex
+    assert "\\shade[inner color=" not in tex, "conic must not be faked with a radial shade"
+    assert "fill={rgb,255:red,255;green,255;blue,255}" in tex
 
 
 def test_radial_gradient_ellipse_is_clipped_to_ellipse_shape():
@@ -348,7 +350,7 @@ def test_diagonal_gradient_stroke_line_falls_back_to_solid_stroke():
 
 
 def test_b1_chroma_spectrum_renders_as_gradient():
-    from frameforge.rendering.infrastructure.latex import transpile
+    from frameforge_render.infrastructure.latex import transpile
     doc = json.load(open(_fixture_path("b1", "chroma-styling-showcase.fg.json"), encoding="utf-8"))
     tex = transpile(doc)
     # the 7-stop spectrum -> 6 horizontal segments (plus the other gradients)

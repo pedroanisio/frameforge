@@ -80,7 +80,10 @@ def test_compose_documents_the_workspace_convention() -> None:
 
 
 def test_dockerfile_persists_sdk_clients_on_the_work_volume() -> None:
-    assert "FRAMEFORGE_MCP_EDIT_ROOTS=/work/clients:/app/static/examples" in DOCKERFILE
+    assert "FRAMEFORGE_MCP_EDIT_ROOTS=/work/clients" in DOCKERFILE
+    assert "static/examples" not in DOCKERFILE, (
+        "the cookbook left this repo; the image must not offer an edit root "
+        "that does not exist inside it")
     assert "mkdir -p /work/clients" in DOCKERFILE
 
 

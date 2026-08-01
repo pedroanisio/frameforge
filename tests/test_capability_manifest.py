@@ -1,6 +1,6 @@
 """Drift gates for the generated capability + documentation surfaces.
 
-Three committed artifacts are generated from the live tree and must not
+Two committed artifacts are generated from the live tree and must not
 hand-drift (same contract as ``build_schema.py --check`` / ``gen_status.py``):
 
 - ``docs/capability-manifest.json`` — the machine-readable core-vs-SDK-vs-MCP
@@ -11,9 +11,6 @@ hand-drift (same contract as ``build_schema.py --check`` / ``gen_status.py``):
   ``tooling/validate.py`` and every SDK ``rule_id`` in
   ``frameforge_sdk/validate.py`` (the standalone SDK package) (codes are extracted from the sources, so a
   new code cannot land undocumented).
-- ``docs/examples.md`` — must list exactly the tracked ``examples/*.py``
-  scripts (``tooling/gen_examples_index.py``).
-
 This file deliberately carries no ``sys.path`` bootstrap: the root
 ``conftest.py`` provides it (repo root + ``tooling/`` + ``schema/``).
 """
@@ -21,10 +18,8 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
 
 import gen_capability_manifest as M
-import gen_examples_index as X
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
@@ -120,31 +115,6 @@ def test_manifest_validator_section_uses_the_same_extraction():
     manifest = json.loads(M.render())
     assert manifest["validator"]["tooling_codes"] == sorted(M.tooling_finding_codes())
     assert manifest["validator"]["sdk_rule_ids"] == sorted(M.sdk_rule_ids())
-
-
-# --------------------------------------------------------------------------- #
-#  Examples index                                                             #
-# --------------------------------------------------------------------------- #
-def _tracked_examples() -> set[str]:
-    out = subprocess.run(
-        ["git", "ls-files", "static/examples/*.py"], cwd=ROOT, capture_output=True, text=True
-    ).stdout
-    return {os.path.basename(p) for p in out.split() if p}
-
-
-def test_examples_index_lists_exactly_the_tracked_examples():
-    path = os.path.join(ROOT, "docs", "examples.md")
-    assert os.path.exists(path), (
-        "docs/examples.md is missing — run `make examples-index` and commit it"
-    )
-    with open(path, encoding="utf-8") as fh:
-        listed = X.listed_files(fh.read())
-    tracked = _tracked_examples()
-    assert listed == tracked, (
-        "docs/examples.md is out of sync with tracked examples/*.py — run "
-        f"`make examples-index` (missing: {sorted(tracked - listed)}; "
-        f"orphaned: {sorted(listed - tracked)})"
-    )
 
 
 # --------------------------------------------------------------------------- #
