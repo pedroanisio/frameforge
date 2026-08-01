@@ -34,7 +34,9 @@ dependencies = [
     # and this distribution now consumes it like any other client. What stayed is
     # everything that *uses* the engine rather than *is* it: `conform` (which
     # needs real pixels to answer) and `cli` (the `ff-render` front door).
-    "frameforge-render>=1.0,<2",
+    # Floor is 1.9, not 1.0: `conform` passes `metrics_provider=` through to the
+    # Renderer, and an older renderer raises TypeError on every render call.
+    "frameforge-render>=1.9,<2",
     # Runtime core: the models are Pydantic v2; documents load via PyYAML
     # (PyYAML also parses JSON, so it covers .json / .yaml / .yml fixtures).
     "pydantic>=2",
