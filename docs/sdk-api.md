@@ -16,7 +16,7 @@
 Small fluent builder that lowers directly to the authoritative model.
 
 ```python
-DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.8.1', capture_provenance: 'bool | None' = None) -> 'None'
+DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lang: 'str | None' = None, version: 'str' = '2.8.2', capture_provenance: 'bool | None' = None) -> 'None'
 ```
 
 | Method | Signature | Summary |
@@ -1940,7 +1940,7 @@ Document(*, dsl: Literal['FrameForge'], version: Annotated[str, _PydanticGeneral
 
 ### `HEAD_VERSION`
 
-`str` value: `'2.8.1'`
+`str` value: `'2.8.2'`
 
 ### `ValidationError`
 
