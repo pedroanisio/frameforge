@@ -265,7 +265,7 @@ you must call a layout method explicitly in the SDK and bake the coordinates.
     Two layers exist. **Container** layout: `Group.layout` with
     `kind: row | column | grid | free` plus `gap` / `row_gap` / `column_gap` /
     `padding` / `align`, realized by `LayoutEngine.arrange`
-    ([src/frameforge/rendering/domain/services/layout_engine.py](../src/frameforge/rendering/domain/services/layout_engine.py))
+    ([layout_engine.py, in the frameforge-render distribution](https://github.com/pedroanisio/frameforge-render/blob/main/src/frameforge_render/domain/services/layout_engine.py))
     — a box-model packer that repositions a group's children into rows / columns /
     a grid and does **not** resize them; it cannot place nodes from edges.
     **Graph** layout: `sdk.topology.Graph.{layered,spring,circular,radial,grid}_layout`

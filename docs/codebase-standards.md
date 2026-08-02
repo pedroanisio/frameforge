@@ -447,37 +447,45 @@ non-negotiable absent an explicit, documented decision.
   render backends behind the [src/frameforge/cli.py](../src/frameforge/cli.py) front door
   (`ff-render`; `--list` shows live availability). None of them is conformant
   (honest scope, below).
-- **MCP boundary.** [src/frameforge/mcp/](../src/frameforge/mcp/) is an optional adapter for AI coding
+- **MCP boundary.** [`frameforge_mcp`](https://github.com/pedroanisio/frameforge-mcp) is an
+  optional adapter for AI coding
   feedback loops: Python SDK code runs in a per-session subprocess, emits FrameForge YAML, and
-  the existing validator/SVG proxy renderer produce artifacts for inspection. MCP dependencies
-  stay in the optional `mcp` group; do not import them from the core SDK or renderer path.
-- **Live-session boundary.** [src/frameforge/live/](../src/frameforge/live/) is a local HTTP UI over the
+  the existing validator/SVG proxy renderer produce artifacts for inspection. It is a separate
+  distribution, so the boundary is now enforced by packaging: nothing on the core model or
+  renderer path may import it.
+- **Live-session boundary.** `frameforge_mcp.live` is a local HTTP UI over the
   same MCP/session functions. It may serve browser chrome, session metadata, diagnostics, and
   rendered artifacts, but it must not become a separate renderer or introduce core web deps.
-- **Vision boundary.** [src/frameforge/vision/](../src/frameforge/vision/) (image→draft proposers and
-  the coordinate measurement layer) sits behind the optional `vision` dependency group and is
+- **Vision boundary.** [`frameforge_vision`](https://github.com/pedroanisio/frameforge-vision)
+  (image→draft proposers and
+  the coordinate measurement layer) is a separate distribution behind the optional `vision`
+  dependency group and is
   lazily imported — the classical detectors and OCR load only when a propose tool runs. All
   CV/LLM proposals are UNVERIFIED drafts (§14) and must round-trip through the
   validator/renderer.
 - **Honest scope.** FrameForge v2 is a **proposed** format. No renderer is conformant; the
   matplotlib and SVG proxies are sanity checks, not fidelity guarantees. Font pinning gives
   deterministic *layout* only up to a stated tolerance, not pixel-exact identity (§9.6).
-- **In-progress restructuring.** A DDD split is underway. The package now hosts several
-  bounded contexts — [src/frameforge/rendering](../src/frameforge/rendering/) (render orchestrator +
-  `normalize_doc` under `rendering/application/`, re-exported by `tooling/render_fixtures.py`
-  for its CLI), [src/frameforge/sdk](../src/frameforge/sdk/), [src/frameforge/cli.py](../src/frameforge/cli.py),
-  [src/frameforge/mcp](../src/frameforge/mcp/), [src/frameforge/live](../src/frameforge/live/),
-  [src/frameforge/vision](../src/frameforge/vision/), [src/frameforge/coach](../src/frameforge/coach/),
+- **Restructuring — the bounded contexts are now distributions.** The DDD split no longer runs
+  inside one package: each context that had earned its own boundary has left this repository for
+  its own distribution, so the boundary is enforced by packaging rather than by convention.
+  The SDK is [`frameforge-sdk`](https://github.com/pedroanisio/frameforge-sdk), the renderer
+  (orchestrator + `normalize_doc` under `application/`, re-exported by
+  `tooling/render_fixtures.py` for its CLI) is
+  [`frameforge-render`](https://github.com/pedroanisio/frameforge-render), the agent surface and
+  its live UI are [`frameforge-mcp`](https://github.com/pedroanisio/frameforge-mcp)
+  (`frameforge_mcp`, `frameforge_mcp.live`, and `frameforge_coach`), and the image→draft layer is
+  [`frameforge-vision`](https://github.com/pedroanisio/frameforge-vision).
+  What remains here is the engine: the authoritative model
+  ([src/frameforge/model.py](../src/frameforge/model.py), moved into the package in 2.5.0), the
+  engine-side conformance shim ([src/frameforge/conform.py](../src/frameforge/conform.py)), the
+  [`ff-render` front door](../src/frameforge/cli.py),
   [src/frameforge/patterns](../src/frameforge/patterns/) (the #28/#29 slide-template catalog),
   [src/frameforge/library](../src/frameforge/library/) (the #32 themes/symbols/generators content
   library), and [src/frameforge/fontpack.py](../src/frameforge/fontpack.py) (ADR-0004 font packs;
-  the `fg-font` console script) —
-  while the authoritative model now lives in the package
-  ([src/frameforge/model.py](../src/frameforge/model.py), moved in 2.5.0) and the remaining
-  conformance/schema tooling still lives in [docs/schema/](./schema/) and
-  [tooling/](../tooling/) and migrates in later steps
-  ([src/frameforge/__init__.py](../src/frameforge/__init__.py)). Do not justify a decision by the
-  *current* mid-migration shape; move toward the target structure. **The package no longer
+  the `fg-font` console script). The conformance/schema tooling still lives in
+  [docs/schema/](./schema/) and [tooling/](../tooling/).
+  **The package no longer
   imports up into `tooling/`** — [tests/test_package_boundary.py](../tests/test_package_boundary.py)
   pins this in the gate, and `make package-check` re-asserts it.
 - **Non-goals (do not build):** a WYSIWYG editor; a browser-only rendering stack in the core;

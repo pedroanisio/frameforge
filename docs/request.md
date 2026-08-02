@@ -17,7 +17,7 @@ with example requests and the tool each one triggers.
 
 Back to the [README](../README.md). Deep tool reference: ask the agent to *"show the
 `frameforge_guide`"* (the model-facing capability prompt) or read
-[src/frameforge/mcp/README.md](../src/frameforge/mcp/README.md).
+[the frameforge-mcp README](https://github.com/pedroanisio/frameforge-mcp/blob/main/src/frameforge_mcp/README.md).
 
 ---
 

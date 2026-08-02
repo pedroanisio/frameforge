@@ -16,7 +16,10 @@ layout with no automated guard, so two silent rot modes exist:
 This converts that coupling from ``silent`` to ``test-failure``:
 
   * every ``github.com/pedroanisio/frameforge`` ``blob|tree`` link resolves to a
-    path that exists in the working tree;
+    path that exists in the working tree — unless it is pinned to a commit SHA,
+    in which case it is a historical citation and is resolved *at that commit*
+    instead (a dated design record must be able to cite code that has since
+    moved without either lying or being forced to drop the reference);
   * any ``#Lnnn`` / ``#Lnnn-Lmmm`` anchor points at a real, non-blank,
     non-comment line, and — when the link *text* carries a ``path:line`` suffix —
     the visible line number agrees with the URL anchor.
@@ -43,11 +46,18 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 # path-checkable here: the files behind a sibling's link are not in this tree.
 _LINK = re.compile(
     r"\[(?P<text>[^\]]*)\]\("
-    r"https://github\.com/pedroanisio/frameforge/(?P<kind>blob|tree)/[^/]+/"
+    r"https://github\.com/pedroanisio/frameforge/(?P<kind>blob|tree)/(?P<ref>[^/]+)/"
     r"(?P<path>[^)#\s]+)"
     r"(?:#L(?P<l1>\d+)(?:-L(?P<l2>\d+))?)?"
     r"\)"
 )
+# A link pinned to a commit SHA is a HISTORICAL citation, not a claim about the
+# live tree: it is how a dated design record cites the code it actually read.
+# Resolving one against the working tree is the wrong question — the whole point
+# of the pin is that the path may since have moved, been renamed, or left the
+# repository. Those links are validated at their own commit instead (below), so
+# the anchor still has to be real; it just has to be real *there*.
+_SHA_REF = re.compile(r"\A[0-9a-f]{7,40}\Z")
 # The same shape pointing at any distribution in the family. The model, the SDK,
 # the renderer, the MCP surface and the vision lane all left this repo, and the
 # prose that described them correctly followed — `docs/architecture.md` alone
@@ -73,17 +83,55 @@ def _docs_to_check():
     return [p for p in out.splitlines() if os.path.isfile(os.path.join(ROOT, p))]
 
 
+def _blob_at_commit(ref, path, *, kind, root):
+    """Resolve ``path`` as it stood at commit ``ref``.
+
+    Returns ``(exists, lines)`` — ``lines`` is ``None`` for a ``tree`` link, which
+    has no content to anchor into. Returns ``None`` (not a tuple) when ``ref``
+    itself is not present locally: a shallow clone genuinely cannot answer the
+    question, and refusing to answer is the honest outcome. The full-history run
+    (every developer checkout, and CI whenever it fetches depth) still checks it.
+    """
+    try:
+        known = subprocess.run(
+            ["git", "cat-file", "-e", f"{ref}^{{commit}}"],
+            cwd=root, capture_output=True,
+        )
+        if known.returncode != 0:
+            return None
+        blob = subprocess.run(
+            ["git", "show", f"{ref}:{path}"],
+            cwd=root, capture_output=True, text=True,
+        )
+    except OSError:                                   # no git binary available
+        return None
+    if blob.returncode != 0:
+        return (False, None)
+    return (True, None if kind == "tree" else blob.stdout.splitlines())
+
+
 def link_violations(text, *, root=ROOT):
     """Every project repo link in ``text`` that fails to resolve, as a list of
     human-readable strings. Pure over ``(text, root)`` so it is unit-testable on
     synthetic input (see ``test_guard_actually_catches_drift``)."""
     bad = []
     for m in _LINK.finditer(text):
-        kind, path = m.group("kind"), m.group("path")
-        abspath = os.path.join(root, path)
-        exists = os.path.isdir(abspath) if kind == "tree" else os.path.isfile(abspath)
+        kind, path, ref = m.group("kind"), m.group("path"), m.group("ref")
+        historical = bool(_SHA_REF.match(ref))
+
+        if historical:
+            found = _blob_at_commit(ref, path, kind=kind, root=root)
+            if found is None:
+                continue                      # commit absent locally — unverifiable
+            exists, lines = found
+            where = f"missing at commit {ref[:7]}"
+        else:
+            abspath = os.path.join(root, path)
+            exists = os.path.isdir(abspath) if kind == "tree" else os.path.isfile(abspath)
+            lines = None
+            where = "missing path"
         if not exists:
-            bad.append(f"{kind} link to missing path: {path}")
+            bad.append(f"{kind} link to {where}: {path}")
             continue
 
         l1, l2 = m.group("l1"), m.group("l2")
@@ -93,7 +141,8 @@ def link_violations(text, *, root=ROOT):
             bad.append(f"line anchor on a non-file ({kind}) link: {path}#L{l1}")
             continue
 
-        lines = open(abspath, encoding="utf-8").read().splitlines()
+        if lines is None:
+            lines = open(os.path.join(root, path), encoding="utf-8").read().splitlines()
         for raw in filter(None, (l1, l2)):
             n = int(raw)
             if not (1 <= n <= len(lines)):

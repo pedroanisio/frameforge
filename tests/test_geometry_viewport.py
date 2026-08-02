@@ -84,7 +84,9 @@ def test_viewing_pipeline_clips_points_behind_the_camera():
     # the near plane and must be clipped out of the projected set.
     camera = Camera(eye=Vec3(0, 0, 5), target=Vec3(0, 0, 0))
     pipe = ViewingPipeline(camera, [0, 0, 100, 100])
-    out = pipe.project([Vec3(0, 0, 0), Vec3(0.5, 0, 0), Vec3(0, 0, 100)])
+    # `mode="points"` is the unordered-cloud reading: no edges to preserve, so a
+    # vertex behind the near plane is dropped rather than cut at the plane.
+    out = pipe.project([Vec3(0, 0, 0), Vec3(0.5, 0, 0), Vec3(0, 0, 100)], mode="points")
     assert len(out) == 2  # the behind-camera point dropped
 
 
@@ -94,5 +96,7 @@ def test_viewing_pipeline_fits_inside_the_box():
     cube = [Vec3(x, y, z) for x in (-1, 1) for y in (-1, 1) for z in (-1, 1)]
     pts = ViewingPipeline(camera, box).project(cube)
     assert pts, "cube should project to points"
-    assert all(box[0] - 1e-6 <= p.x <= box[0] + box[2] + 1e-6 for p in pts)
-    assert all(box[1] - 1e-6 <= p.y <= box[1] + box[3] + 1e-6 for p in pts)
+    # Only the box EXTENT is used — the fit stays in local coordinates, because a
+    # renderer translates a group's children by the group's own box origin.
+    assert all(-1e-6 <= p.x <= box[2] + 1e-6 for p in pts)
+    assert all(-1e-6 <= p.y <= box[3] + 1e-6 for p in pts)

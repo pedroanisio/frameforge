@@ -77,12 +77,12 @@ Issues = "https://github.com/pedroanisio/frameforge/issues"
 #   then:  uv run python tooling/render_latex.py fixtures/<doc>.fg.yaml --png
 [dependency-groups]
 dev = [
-    "frameforge-vision[cv,ocr]",
+    "frameforge-vision[cv,ocr]>=1.0,<2",
     # The agent surface (MCP server, live UI, construction coach) left for the
     # `frameforge-mcp` distribution on 2026-08-01. That package depends on THIS
     # one, so the edge back must never be a runtime dependency: it lives in dev,
     # purely so this repo's own tests and examples can exercise the loop.
-    "frameforge-mcp",
+    "frameforge-mcp>=1.0,<2",
     "hypothesis>=6",
     "pytest>=8",
     # TOML backport for the gate/tooling that read pyproject.toml. stdlib `tomllib`
@@ -105,7 +105,9 @@ pdfout = ["cairosvg>=2.7", "pypdf>=4"]
 metrics = [
     "fonttools>=4",
     "frameforge-sdk[metrics]>=1.0,<2",
-    "frameforge-render[fonts,metrics]>=1.0,<2",
+    # Floor tracks the base requirement above (>=1.9), not 1.0: this is the
+    # SAME renderer, and `conform` needs `metrics_provider=` either way.
+    "frameforge-render[fonts,metrics]>=1.9,<2",
 ]
 # Model Context Protocol server boundary for AI coding feedback loops. Optional:
 # the core SDK and renderers do not import it unless frameforge.mcp.create_server()

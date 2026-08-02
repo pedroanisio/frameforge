@@ -9,6 +9,12 @@ disclaimer:
     doc 5f2e8322). Items touching modern CG (GPU/shaders/PBR/texture/ray tracing) are
     FLAGGED BRIDGES — beyond the ~1987 corpus — and marked as such per the operator's
     "corpus + flagged bridges" directive.
+  code_permalinks: >-
+    Codebase citations link to commit 1315200 (the 2.4.1 release), where the quoted
+    file:line are exactly true. Paths there read `src/framegraph/sdk/...`: the package
+    was renamed to `frameforge` on 2026-07-17, and the SDK later left this repository
+    for the `frameforge-sdk` distribution. The permalinks are the historical record;
+    the live code is at https://github.com/pedroanisio/frameforge-sdk.
   generated_by: "Claude Opus 4.8 via Claude Code"
   method: >-
     Domain reference = the GraphQL knowledge corpus (kb v1.4.0, 91 docs, re-verified
@@ -143,7 +149,7 @@ document-IR nature):
 ### B1 — Formal viewing pipeline: world → NDC → viewport
 - **Problem.** Coordinate handling is ad-hoc; 3D projection and 2D placement don't share a
   rigorous, named pipeline, so correctness (clipping, aspect, fit) is re-derived per call site.
-- **Evidence.** `Scene3D.render` hand-rolls fit/scale/offset ([draw.py:192–207](../../src/frameforge/sdk/draw.py#L192)); no window→viewport transform in `geometry.py`.
+- **Evidence.** `Scene3D.render` hand-rolls fit/scale/offset ([draw.py:192–207](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/draw.py#L192)); no window→viewport transform in `geometry.py`.
 - **GraphQL support.** ¶43 "world-coordinate space… normalized device coordinates"; ¶28 windowing/clipping.
 - **Change.** A small `ViewingPipeline` (world → view → projection → **clip** → NDC → viewport)
   in `sdk/geometry.py`, consumed by `Scene3D` and available to 2D. Names the stages B2 needs.
@@ -161,7 +167,7 @@ document-IR nature):
 ### B3 — True 3D scene graph (the direction the lifted block permits)
 - **Problem.** `Scene3D` is a flat face list projected once; no nodes/instancing/hierarchy — so
   no reusable 3D assets, no per-node transforms, no scene composition.
-- **Evidence.** `Scene3D.faces: list[...]` ([draw.py:95](../../src/frameforge/sdk/draw.py#L95)); `Scene3D` docstring "Minimal 3D scene."
+- **Evidence.** `Scene3D.faces: list[...]` ([draw.py:95](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/draw.py#L95)); `Scene3D` docstring "Minimal 3D scene."
 - **GraphQL support.** Ch8–11 (the full 3D pipeline) + ¶43–45 (world-space objects, segments, PHIGS
   hierarchy). **Bridge note:** modern comparator is three.js; the *math* is all in-corpus.
 - **Change.** A node hierarchy (transform per node, instancing, grouping) lowering through B1+B2;
@@ -183,7 +189,7 @@ document-IR nature):
 
 ### B5 — Curved-surface patches (canon Ch11)
 - **Problem.** 3D surfaces are tessellated quads (`parametric_surface`); no Bézier/B-spline patch.
-- **Evidence.** [draw.py:108–130](../../src/frameforge/sdk/draw.py#L108).
+- **Evidence.** [draw.py:108–130](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/draw.py#L108).
 - **GraphQL support.** Ch11 curved surfaces.
 - **Change.** Bézier/B-spline patch primitive with adaptive tessellation, lowering through B1/B2.
 - **Complexity.** **M**. Gated on B2. **Priority Low** until B3.
@@ -191,7 +197,7 @@ document-IR nature):
 
 ### B6 — Shading model completion (canon Ch10)
 - **Problem.** Shading is Lambert/Gouraud, default **off**; no flat default, no specular/Phong.
-- **Evidence.** [draw.py:170–182](../../src/frameforge/sdk/draw.py#L170).
+- **Evidence.** [draw.py:170–182](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/draw.py#L170).
 - **GraphQL support.** Ch10 shading & colour.
 - **Change.** Add `flat` (sane default for closed meshes) + optional Phong/specular term.
 - **Complexity.** **S**. **Bridge note:** texture-modulated shading is F2 (deferred).
@@ -314,7 +320,7 @@ B1–B6 and from F1/F2.
 ### B7 — Reflection / mirror transform
 - **Problem.** Mirroring requires hand-building a matrix; there is no reflection primitive.
 - **Evidence.** `Mat3` exposes only `identity/translate/scale/rotate/inverse`
-  ([geometry.py:66–99](../../src/frameforge/sdk/geometry.py#L66)) — **no `reflect`**; roadmap
+  ([geometry.py:66–99](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/geometry.py#L66)) — **no `reflect`**; roadmap
   Appendix A *sketched* `Mat3.reflect` but it never shipped.
 - **GraphQL support.** Mortenson §3.6 Reflection (*"develops the algebra and geometry of
   translations, rotations, reflection"*; 50 hits).
@@ -339,7 +345,7 @@ B1–B6 and from F1/F2.
 ### B9 — Curvature & arc-length API for curves/surfaces
 - **Problem.** Adaptive tessellation uses an internal **flatness proxy**; no exposed
   curvature/arc-length, so dashing, text-on-path, and offsets can't be arc-length-uniform.
-- **Evidence.** [draw.py:249/275](../../src/frameforge/sdk/draw.py#L249) (flatness subdivision,
+- **Evidence.** [draw.py:249/275](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/draw.py#L249) (flatness subdivision,
   *"samples concentrate where curvature is high"*); `CubicBezier` exposes only `.point(t)`.
 - **GraphQL support.** Mortenson §6.7 Curvature (50 hits).
 - **Change.** `curvature(t)`, arc-length parameterization, arc-length-uniform sampling on

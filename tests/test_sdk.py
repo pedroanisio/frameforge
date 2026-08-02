@@ -950,7 +950,10 @@ def test_scene3d_lambert_shading_bakes_distinct_face_fills():
     assert len(fills) >= 2
 
 
-def test_scene3d_gouraud_shading_bakes_vertex_normal_average():
+def test_scene3d_smooth_shading_bakes_vertex_normal_average():
+    # This is what `shading="gouraud"` meant before v1.1: averaged vertex normals
+    # collapsed back to ONE flat fill per face. The SDK now carries that under the
+    # honest name `smooth`; `gouraud` interpolates and emits a gradient Paint.
     scene = Scene3D().extrude([(0, 0), (1, 0), (1, 1), (0, 1)], depth=0.5)
     group = scene.render(
         box=[0, 0, 120, 100],
@@ -958,7 +961,7 @@ def test_scene3d_gouraud_shading_bakes_vertex_normal_average():
         light=Vec3(0, 0, 1),
         ambient=0.25,
         diffuse=0.75,
-        shading="gouraud",
+        shading="smooth",
     )
 
     fills = {child["fill"] for child in group["children"]}
@@ -1009,7 +1012,10 @@ def test_layout_box_is_sequence_compatible_and_has_geometry_helpers():
     assert list(box) == [10, 20, 100, 50]
     assert box.right == 110
     assert box.bottom == 70
-    assert box.center == [60, 45]
+    # `center` answers in the SDK's own point type (frameforge-sdk 1.1), so the
+    # geometry vocabulary stays closed; the old list spelling is `.tuple()`.
+    assert box.center == Vec2(60, 45)
+    assert list(box.center.tuple()) == [60, 45]
     assert box.inset(10).list() == [20, 30, 80, 30]
     assert box.move(5, -5).list() == [15, 15, 100, 50]
     assert box.resize(h=20).list() == [10, 20, 100, 20]

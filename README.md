@@ -197,7 +197,7 @@ uv sync --group render                     # adds matplotlib + pillow
   `vision` dependency group. Every runtime knob (`FRAMEFORGE_*` env vars —
   session/publish roots, transport budgets, render ceilings, Chromium flags,
   the VLM lane) is documented with its real default in the gated table at
-  [src/frameforge/mcp/README.md](src/frameforge/mcp/README.md#configuration-environment-variables);
+  [the frameforge-mcp README](https://github.com/pedroanisio/frameforge-mcp/blob/main/src/frameforge_mcp/README.md#configuration-environment-variables);
   container-only knobs live in [docker/README.md](docker/README.md).
 - **Vector Construction Coach** (`src/frameforge/coach/`). A staged construction
   loop over the SDK — style-grammar checks, layer-order rules, a silhouette

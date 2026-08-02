@@ -8,6 +8,12 @@ disclaimer:
     at repo HEAD 2.4.1; domain claims cite the reference corpus (¶ = sentence
     ordinal) and could be narrowed by re-reading. Recommendations touching modern
     CG (GPU/shaders/PBR/texture) are FLAGGED BRIDGES — beyond the corpus, marked as such.
+  code_permalinks: >-
+    Codebase citations link to commit 1315200 (the 2.4.1 release), where the quoted
+    file:line are exactly true. Paths there read `src/framegraph/sdk/...`: the package
+    was renamed to `frameforge` on 2026-07-17, and the SDK later left this repository
+    for the `frameforge-sdk` distribution. The permalinks are the historical record;
+    the live code is at https://github.com/pedroanisio/frameforge-sdk.
   generated_by: "Claude Opus 4.8 via Claude Code"
   method: >-
     Domain reference = the GraphQL knowledge corpus (kb API v1.4.0), primary source
@@ -37,10 +43,10 @@ with documented failure cases and no mitigation.
 **Main problems found (all in the 3D path; the 2D path is calibrated as *not* broken).**
 
 1. **Projection is not robust and is not preceded by clipping.** `Mat4.project`
-   ([geometry.py:207](../../src/frameforge/sdk/geometry.py#L207)) divides by the
+   ([geometry.py:207](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/geometry.py#L207)) divides by the
    homogeneous `w` but **raises `ValueError` when `|w|<1e-12`** and has **no `w>0`
    guard**, and `Scene3D.render` projects *every* vertex directly
-   ([draw.py:183](../../src/frameforge/sdk/draw.py#L183)). Geometry on or behind the
+   ([draw.py:183](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/draw.py#L183)). Geometry on or behind the
    camera plane therefore **crashes the render** (w≈0) or **projects inverted** (w<0).
    The canon treats "three-dimensional clipping" as a first-class stage *between*
    projection and rasterization (¶34) precisely to prevent this.
@@ -50,8 +56,8 @@ with documented failure cases and no mitigation.
    *with* the painter's algorithm as the two hidden-surface methods (¶36).
 3. **Painter's-algorithm depth heuristic with no fallback.** Hidden surfaces are
    resolved by an **average-z priority sort** (`sorted(..., key=_avg_z)`,
-   [draw.py:205](../../src/frameforge/sdk/draw.py#L205) / `_avg_z`
-   [draw.py:423](../../src/frameforge/sdk/draw.py#L423)). Average-z is a known-incorrect
+   [draw.py:205](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/draw.py#L205) / `_avg_z`
+   [draw.py:423](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/draw.py#L423)). Average-z is a known-incorrect
    ordering for interpenetrating or cyclically-overlapping faces; there is no polygon
    splitting and no z-buffer. The canon documents the **Z-buffer** as the robust
    per-fragment alternative (¶3713/3717).
@@ -106,9 +112,9 @@ and is marked as such below.
 - **Data model.** A retained scene (`Document → Page → Layer → Object`) — a direct
   analogue of the canon's "segments." 3D is *lowered* to this: `Scene3D.render`
   projects faces to 2D closed polylines and returns a group
-  ([draw.py:162–211](../../src/frameforge/sdk/draw.py#L162)).
+  ([draw.py:162–211](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/draw.py#L162)).
 - **2D pipeline (mature, aligned).** Homogeneous `Mat3` (`translate/scale/rotate/@/inverse`,
-  [geometry.py:55](../../src/frameforge/sdk/geometry.py#L55)); curves + `arc_to`; planar
+  [geometry.py:55](https://github.com/pedroanisio/frameforge/blob/1315200/src/framegraph/sdk/geometry.py#L55)); curves + `arc_to`; planar
   booleans; clipping via SVG `clipPath`; gradients/patterns; Chevreul colour.
 - **3D pipeline (minimal).** `Scene3D` offers `mesh/parametric_surface/extrude/revolve`;
   `render()` builds a projection matrix (isometric default, or `Camera`), runs an optional

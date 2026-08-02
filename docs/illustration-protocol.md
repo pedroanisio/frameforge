@@ -224,4 +224,4 @@ re-wrap L3.
 
 [↑ Back to the project README](../README.md) ·
 related: `saas_hero_headers.py` (repo `frameforge-example`) ·
-[src/frameforge/mcp/README.md](../src/frameforge/mcp/README.md)
+[the frameforge-mcp README](https://github.com/pedroanisio/frameforge-mcp/blob/main/src/frameforge_mcp/README.md)

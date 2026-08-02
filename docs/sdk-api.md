@@ -5,7 +5,7 @@
 
 ## Public exports
 
-`ActivityDiagramOptions`, `BookBuilder`, `Box`, `BoxLike`, `Camera`, `ClassDiagramOptions`, `ChapterBuilder`, `Chart`, `ClosedPalette`, `CommunicationDiagramOptions`, `ComponentDiagramOptions`, `CompositeStructureOptions`, `CubicBezier`, `Document`, `DocumentBuilder`, `DeploymentDiagramOptions`, `Edge`, `EngineUnavailable`, `ExpandOptions`, `ExpandedDocument`, `FaceMetrics`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `FlowBuilder`, `Frame`, `Graph`, `HEAD_VERSION`, `Hand`, `Handle`, `ImportedFigurePlacement`, `Issue`, `Lattice`, `LayoutResult`, `MasterBuilder`, `Mat3`, `Mat4`, `Material`, `Node`, `Noise`, `ObjectDiagramOptions`, `PackageDiagramOptions`, `PageBuilder`, `Panel`, `Path`, `Placement`, `ProfileDiagramOptions`, `Rand`, `ScalarField`, `Scene3D`, `SequenceDiagramOptions`, `StackBuilder`, `StaticValidationError`, `StateMachineOptions`, `SugiyamaConfig`, `Theme`, `TimingDiagramOptions`, `UMLActivityDiagramModel`, `UMLClassDiagramModel`, `UMLCommunicationDiagramModel`, `UMLComponentDiagramModel`, `UMLCompositeStructureModel`, `UMLDeploymentDiagramModel`, `UMLInteractionOverviewModel`, `UMLObjectDiagramModel`, `UMLPackageDiagramModel`, `UMLProfileDiagramModel`, `UMLSequenceDiagramModel`, `UMLStateMachineModel`, `UMLTimingDiagramModel`, `UMLUseCaseDiagramModel`, `UseCaseDiagramOptions`, `ValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `VectorField`, `ViewingPipeline`, `aabb`, `aabb3`, `appearance`, `apply_humanize`, `apply_separation`, `array`, `avatar`, `badge`, `badge_width`, `bezier_patch`, `bezier_patch_point`, `blur_filter`, `breadcrumb`, `bspline_patch`, `bspline_patch_point`, `button`, `caps_tracking`, `card`, `chamfer_ring`, `checkbox`, `cite`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_rect`, `closed_palette`, `closure_metrics`, `color_guide`, `column`, `compose_activity_diagram`, `compose_class_diagram`, `compose_communication_diagram`, `compose_component_diagram`, `compose_composite_structure`, `compose_deployment_diagram`, `compose_interaction_overview`, `compose_object_diagram`, `compose_package_diagram`, `compose_profile_diagram`, `compose_sequence_diagram`, `compose_state_machine`, `compose_timing_diagram`, `compose_use_case_diagram`, `complement`, `conic_gradient`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `convex_hull`, `convex_hull_3d`, `default_theme`, `delta_e`, `diffuse_lighting`, `displacement_map`, `divider`, `dominant_light`, `dots`, `domain_warp`, `dragon_curve`, `dropdown`, `effect`, `effect_stack`, `effects`, `eval_expr`, `expand`, `extend_segment`, `extract_objects`, `extrude`, `field`, `fbm`, `fill_regions`, `fill_stroke`, `fit_width`, `fillet_ring`, `filter_chain`, `filter_fn`, `font_kern_pairs`, `from_lab`, `from_lch`, `from_markdown`, `from_oklab`, `from_oklch`, `from_xyz`, `function_plot`, `glow`, `gradient_map`, `greeble`, `grey_document`, `grid`, `grid_lines`, `grid_pattern`, `halton`, `harmony_of_hues`, `harmony_of_scale`, `hatch`, `hatch_fill`, `image_placeholder`, `inset`, `jittered_grid`, `johnston_margins`, `kerned_spans`, `klein_bottle`, `koch_curve`, `kpi`, `lattice`, `line_curve_intersections`, `line_intersection`, `linear_to_srgb`, `linear_gradient`, `load_figure`, `loft`, `lorem`, `lorem_paragraphs`, `lower_embedded_svg`, `lsystem`, `manifold`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `md`, `measure_fits`, `measure_text`, `MetricsProvider`, `merge_figure_defs`, `mirror`, `mix`, `mobius`, `model_module`, `modular_scale`, `multiview`, `navbar`, `neon`, `normalize_clip`, `normalize_mask`, `obb`, `object_bbox`, `offset_path`, `paragraph`, `parametric`, `parametric_curve`, `parse`, `path_length`, `path_walker`, `pattern`, `perlin_2d`, `pill`, `place_figure`, `place_imported_figure`, `place_region`, `place_stamp`, `planar`, `point_in_polygon`, `poisson_disk`, `polar_plot`, `polygon_area`, `polyline_length`, `progress`, `quarter_circle_kappa`, `radial_gradient`, `radio`, `ramp`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `recolor`, `ref`, `region_grade`, `remap`, `register_theme`, `relative_luminance`, `repeat_along_path`, `resolve_params`, `revolve`, `rgba`, `row`, `saddle`, `section_loops`, `section_object`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `select_in`, `separate_rects`, `serialize`, `shadow`, `sierpinski_arrowhead`, `simplex_2d`, `slider`, `soft_shadow`, `span`, `sparkline`, `specular_lighting`, `sphere`, `srgb_to_linear`, `sticky_note`, `stroke`, `stroke_outline`, `sugiyama_layout`, `style_effects`, `surface_curvature`, `svg_to_objects`, `sweep`, `table`, `tabs`, `text_height`, `text_on_path`, `text_style`, `theme`, `to_unit`, `to_lab`, `to_lch`, `to_oklab`, `to_oklch`, `to_plain_dict`, `to_xyz`, `toggle`, `tone_scale`, `torus`, `trim_segment`, `turbulence`, `turtle`, `lint_deprecations`, `migrate_deprecations`, `validate_document`, `validate_activity_diagram`, `validate_class_diagram`, `validate_communication_diagram`, `validate_component_diagram`, `validate_composite_structure`, `validate_deployment_diagram`, `validate_interaction_overview`, `validate_object_diagram`, `validate_package_diagram`, `validate_profile_diagram`, `validate_sequence_diagram`, `validate_state_machine`, `validate_static_rules`, `validate_timing_diagram`, `validate_use_case_diagram`, `value_noise_2d`, `wave`, `window_to_viewport`, `wrap_text`
+`AABBTree`, `ActivityDiagramOptions`, `BookBuilder`, `Box`, `BoxLike`, `Camera`, `ClassDiagramOptions`, `ChapterBuilder`, `Chart`, `ClosedPalette`, `CommunicationDiagramOptions`, `ComponentDiagramOptions`, `CompositeStructureOptions`, `CubicBezier`, `Document`, `DocumentBuilder`, `DeploymentDiagramOptions`, `Edge`, `EngineUnavailable`, `ExpandOptions`, `ExpandedDocument`, `ExplainedError`, `FaceMetrics`, `FieldProblem`, `FigureAsset`, `FigureContent`, `FigurePlacement`, `FigureProvenance`, `FigureRef`, `FlowBuilder`, `Frame`, `Graph`, `HEAD_VERSION`, `Hand`, `Handle`, `ImportedFigurePlacement`, `Issue`, `Lattice`, `LayoutResult`, `MasterBuilder`, `Mat3`, `Mat4`, `Material`, `Node`, `Noise`, `NurbsCurve`, `NurbsSurface`, `ObjectDiagramOptions`, `PackageDiagramOptions`, `PageBuilder`, `Panel`, `Path`, `Placement`, `ProfileDiagramOptions`, `Quadtree`, `Rand`, `RationalBezier`, `ScalarField`, `Scene3D`, `SequenceDiagramOptions`, `StackBuilder`, `StaticValidationError`, `StateMachineOptions`, `SugiyamaConfig`, `Theme`, `TimingDiagramOptions`, `UMLActivityDiagramModel`, `UMLClassDiagramModel`, `UMLCommunicationDiagramModel`, `UMLComponentDiagramModel`, `UMLCompositeStructureModel`, `UMLDeploymentDiagramModel`, `UMLInteractionOverviewModel`, `UMLObjectDiagramModel`, `UMLPackageDiagramModel`, `UMLProfileDiagramModel`, `UMLSequenceDiagramModel`, `UMLStateMachineModel`, `UMLTimingDiagramModel`, `UMLUseCaseDiagramModel`, `UseCaseDiagramOptions`, `ValidationError`, `ValidationReport`, `Vec2`, `Vec3`, `VectorField`, `ViewingPipeline`, `aabb`, `aabb3`, `appearance`, `apply_humanize`, `apply_separation`, `array`, `avatar`, `badge`, `badge_width`, `bezier_patch`, `bezier_patch_point`, `bezier_point`, `blur_filter`, `bounds_of`, `breadcrumb`, `bspline_patch`, `bspline_patch_point`, `button`, `caps_tracking`, `card`, `chamfer_ring`, `checkbox`, `circular_arc`, `cite`, `clip_circle`, `clip_ellipse`, `clip_inset`, `clip_path`, `clip_polygon`, `clip_polygon_near`, `clip_rect`, `closed_palette`, `closure_metrics`, `color_guide`, `column`, `compose_activity_diagram`, `compose_class_diagram`, `compose_communication_diagram`, `compose_component_diagram`, `compose_composite_structure`, `compose_deployment_diagram`, `compose_interaction_overview`, `compose_object_diagram`, `compose_package_diagram`, `compose_profile_diagram`, `compose_sequence_diagram`, `compose_state_machine`, `compose_timing_diagram`, `compose_use_case_diagram`, `complement`, `conic_gradient`, `content_box`, `contrast_of_colours`, `contrast_of_hues`, `contrast_of_scale`, `contrast_ratio`, `convex_hull`, `convex_hull_3d`, `curve_curve_intersections`, `default_theme`, `delta_e`, `depth_key_average`, `depth_key_from_homogeneous`, `diffuse_lighting`, `displacement_map`, `divider`, `dominant_light`, `dots`, `domain_warp`, `dragon_curve`, `dropdown`, `effect`, `effect_stack`, `effects`, `elevate_degree`, `eval_expr`, `expand`, `explain_validation_error`, `extend_segment`, `extract_objects`, `extrude`, `face_vertex_intensities`, `field`, `fbm`, `fill_regions`, `fill_stroke`, `fit_cubic`, `fit_width`, `fillet_ring`, `filter_chain`, `filter_fn`, `flow_fields`, `font_kern_pairs`, `from_lab`, `from_lch`, `from_markdown`, `from_oklab`, `from_oklch`, `from_xyz`, `function_plot`, `glow`, `gouraud_fit_residual`, `gouraud_gradient`, `gradient_map`, `greeble`, `grey_document`, `grid`, `grid_lines`, `grid_pattern`, `halton`, `harmony_of_hues`, `harmony_of_scale`, `hatch`, `hatch_fill`, `hermite`, `image_placeholder`, `inset`, `is_back_face`, `jittered_grid`, `johnston_margins`, `kerned_spans`, `klein_bottle`, `koch_curve`, `kpi`, `lattice`, `line_curve_intersections`, `line_intersection`, `linear_to_srgb`, `linear_gradient`, `load_figure`, `loft`, `lorem`, `lorem_paragraphs`, `lower_embedded_svg`, `lsystem`, `manifold`, `mask_gradient`, `mask_none`, `mask_style`, `mask_url`, `md`, `measure_fits`, `measure_text`, `MetricsProvider`, `merge_figure_defs`, `mirror`, `mix`, `mobius`, `model_module`, `modular_scale`, `multiview`, `named_keys`, `navbar`, `neon`, `normalize_clip`, `normalize_mask`, `nurbs_curve`, `nurbs_surface`, `obb`, `object_bbox`, `object_fields`, `offset_path`, `paragraph`, `parametric`, `parametric_curve`, `parse`, `path_length`, `path_walker`, `pattern`, `perlin_2d`, `pill`, `place_figure`, `place_imported_figure`, `place_region`, `place_stamp`, `planar`, `point_in_polygon`, `poisson_disk`, `polar_plot`, `polygon_area`, `polyline_length`, `progress`, `quarter_circle_kappa`, `radial_gradient`, `radio`, `ramp`, `ray_plane_intersection`, `ray_segment_intersection`, `ray_triangle_intersection`, `recolor`, `ref`, `region_grade`, `remap`, `register_theme`, `relative_luminance`, `render_output`, `rendering_contract`, `repeat_along_path`, `resolve_params`, `revolve`, `rgba`, `row`, `saddle`, `section_loops`, `section_object`, `segment_curve_intersections`, `segment_intersection`, `segment_plane_intersection`, `segment_polygon_intersections`, `select_in`, `separate_rects`, `serialize`, `shadow`, `sierpinski_arrowhead`, `simplex_2d`, `slider`, `soft_shadow`, `span`, `sparkline`, `specular_lighting`, `sphere`, `srgb_to_linear`, `sticky_note`, `stroke`, `stroke_outline`, `sugiyama_layout`, `style_effects`, `surface_curvature`, `svg_to_objects`, `sweep`, `table`, `tabs`, `text_height`, `text_on_path`, `text_style`, `theme`, `to_unit`, `to_lab`, `to_lch`, `to_oklab`, `to_oklch`, `to_plain_dict`, `to_xyz`, `toggle`, `tone_scale`, `torus`, `trim_segment`, `turbulence`, `turtle`, `lint_deprecations`, `migrate_deprecations`, `validate_document`, `validate_activity_diagram`, `validate_class_diagram`, `validate_communication_diagram`, `validate_component_diagram`, `validate_composite_structure`, `validate_deployment_diagram`, `validate_interaction_overview`, `validate_object_diagram`, `validate_package_diagram`, `validate_profile_diagram`, `validate_sequence_diagram`, `validate_state_machine`, `validate_static_rules`, `validate_timing_diagram`, `validate_use_case_diagram`, `value_noise_2d`, `wave`, `window_to_viewport`, `wrap_text`
 
 ## `frameforge_sdk.author`
 
@@ -32,7 +32,7 @@ DocumentBuilder(*, title: 'str | None' = None, profile: 'str | None' = None, lan
 | `define_stroke_style` | `(self, name: 'str', **style: 'Any') -> 'Handle'` |  |
 | `define_style` | `(self, name: 'str', **style: 'Any') -> 'Handle'` |  |
 | `define_symbol` | `(self, name: 'str', *, box: 'list[Any]', objects: 'list[dict[str, Any]]', **fields: 'Any') -> 'Handle'` |  |
-| `define_target` | `(self, name: 'str', canvas: 'str \| dict[str, Any]', *, adjustments: 'dict[str, Any] \| None' = None, font_scale: 'float \| None' = None, hide: 'list[str] \| None' = None, padding_delta: 'float \| None' = None) -> 'Handle'` | Add a render target (multi-canvas output) with optional adjustments. |
+| `define_target` | `(self, name: 'str', canvas: 'str \| dict[str, Any]', *, adjustments: 'dict[str, Any] \| None' = None, font_scale: 'float \| None' = None, hide: 'list[str] \| None' = None, padding_delta: 'float \| None' = None, output: 'dict[str, Any] \| None' = None, **fields: 'Any') -> 'Handle'` | Add a render target (multi-canvas output) with optional adjustments. |
 | `define_text_style` | `(self, name: 'str', **style: 'Any') -> 'Handle'` |  |
 | `describe` | `(self, description: 'str') -> "'DocumentBuilder'"` | Set the document's ``description`` (semantic summary for readers/agents). |
 | `flow` | `(self, id: 'str', *, master: 'Handle \| str', story: 'list[dict[str, Any]]', **fields: 'Any') -> 'None'` |  |
@@ -879,8 +879,9 @@ Scene3D(faces: 'list[tuple[list[Vec3], dict[str, object]]]' = <factory>) -> None
 | `extrude` | `(self, polygon: 'Sequence[Sequence[float]]', depth: 'float', **style: 'object') -> "'Scene3D'"` |  |
 | `mesh` | `(self, vertices: 'Sequence[Sequence[float] \| Vec3]', faces: 'Sequence[Sequence[int]]', **style: 'object') -> "'Scene3D'"` |  |
 | `parametric_surface` | `(self, fn: 'Callable[[float, float], Sequence[float] \| Vec3]', *, u: 'tuple[float, float]', v: 'tuple[float, float]', steps_u: 'int', steps_v: 'int', **style: 'object') -> "'Scene3D'"` |  |
-| `render` | `(self, *, camera: 'Mat4 \| Camera \| None' = None, box: 'Sequence[float]', fill: 'str' = '#ddd', stroke: 'str' = '#333', material: 'Material \| None' = None, light: 'Vec3 \| Sequence[float]' = Vec3(x=-0.35, y=-0.65, z=0.8), ambient: 'float' = 0.38, diffuse: 'float' = 0.62, shading: "Literal['none', 'lambert', 'gouraud', 'phong']" = 'none', specular: 'float' = 0.35, shininess: 'float' = 16.0, cull_backfaces: 'bool' = False, near_clip: 'bool' = False, id: 'str \| None' = None) -> 'dict[str, object]'` |  |
+| `render` | `(self, *, camera: 'Mat4 \| Camera \| None' = None, pipeline: "'ViewingPipeline \| None'" = None, box: 'Sequence[float]', fill: 'str' = '#ddd', stroke: 'str' = '#333', material: 'Material \| None' = None, light: 'Vec3 \| Sequence[float]' = Vec3(x=-0.35, y=-0.65, z=0.8), ambient: 'float' = 0.38, diffuse: 'float' = 0.62, shading: "Literal['none', 'flat', 'lambert', 'smooth', 'gouraud', 'phong']" = 'none', specular: 'float' = 0.35, shininess: 'float' = 16.0, cull_backfaces: 'bool' = False, near_clip: 'bool' = False, depth_sort: "Literal['average', 'newell', 'none']" = 'average', id: 'str \| None' = None) -> 'dict[str, object]'` | Project the scene to a FrameForge group of filled polygons. |
 | `revolve` | `(self, profile: 'Sequence[Sequence[float]]', *, segments: 'int' = 24, **style: 'object') -> "'Scene3D'"` |  |
+| `wireframe` | `(self, *, camera: 'Mat4 \| Camera \| None' = None, pipeline: "'ViewingPipeline \| None'" = None, box: 'Sequence[float]', hidden: "Literal['omit', 'dash', 'show']" = 'omit', stroke: 'str' = '#333', stroke_width: 'float \| None' = None, dasharray: 'str' = '3 3', near_clip: 'bool' = True, id: 'str \| None' = None) -> 'dict[str, object]'` | Render the scene as a LINE DRAWING with hidden-line removal. |
 
 ## `frameforge_sdk.expand`
 
@@ -1251,15 +1252,23 @@ Vec3(x: 'float', y: 'float', z: 'float') -> None
 
 `frameforge_sdk.geometry.ViewingPipeline`
 
-The named viewing pipeline (B1, Harrington ¶43/Ch6/8):
+The SDK's ONE viewing pipeline (B1/B2, Harrington ¶43/Ch6/8):
 
 ```python
-ViewingPipeline(camera: 'Camera', box: 'Sequence[float]') -> None
+ViewingPipeline(camera: "'Camera | Mat4'", box: 'Sequence[float]') -> None
 ```
 
 | Method | Signature | Summary |
 |---|---|---|
-| `project` | `(self, points: 'Iterable[Vec3 \| Sequence[float]]') -> 'list[Vec2]'` | World points → clipped, projected, box-fitted :class:`Vec2` page |
+| `clip_polygon` | `(self, face: 'Iterable[Vec3 \| Sequence[float]]') -> 'list[Vec3]'` | Sutherland–Hodgman clip of a CLOSED face against the near plane. |
+| `clip_polyline` | `(self, points: 'Iterable[Vec3 \| Sequence[float]]') -> 'list[Vec3]'` | Clip an OPEN chain against the near plane, cutting crossing segments at |
+| `depth_key` | `(self, face: 'Sequence[Vec3 \| Sequence[float]]') -> 'float'` | Painter's-algorithm ordering key — LARGER is NEARER, for every |
+| `fit` | `(self, faces: 'Sequence[Sequence[Vec2]]') -> 'list[list[Vec2]]'` | The isotropic window → viewport fit, computed once over EVERY face so |
+| `is_back_face` | `(self, pts: 'Sequence[Vec2]') -> 'bool'` | Screen-space winding cull — see :func:`is_back_face`. |
+| `matrix` | `(self) -> 'Mat4'` | The combined ``projection @ view`` transform. |
+| `near_plane` | `(self) -> 'tuple[Vec3, Vec3] \| None'` | World-space near plane as ``(point, normal)``, or ``None`` for a bare |
+| `project` | `(self, points: 'Iterable[Vec3 \| Sequence[float]]', *, mode: 'str' = 'polyline') -> 'list[Vec2]'` | World points → clipped, projected, box-fitted page coordinates. |
+| `project_polygon` | `(self, face: 'Sequence[Vec3 \| Sequence[float]]', *, near_clip: 'bool' = True) -> 'tuple[list[Vec2], float] \| None'` | Clip + project + depth-key a face in one pass. ``None`` when nothing |
 
 ### `aabb`
 
@@ -1281,6 +1290,16 @@ aabb(points: 'Iterable[Vec2 | Sequence[float]]') -> 'tuple[Vec2, Vec2]'
 aabb3(points: 'Iterable[Vec3 | Sequence[float]]') -> 'tuple[Vec3, Vec3]'
 ```
 
+### `clip_polygon_near`
+
+`frameforge_sdk.geometry.clip_polygon_near`
+
+Sutherland–Hodgman clip of ``face`` against the ``w >= near_eps``
+
+```python
+clip_polygon_near(matrix: 'Mat4', face: 'Sequence[Vec3]', near_eps: 'float' = 1e-09) -> 'tuple[list[Vec2], float] | None'
+```
+
 ### `convex_hull`
 
 `frameforge_sdk.geometry.convex_hull`
@@ -1299,6 +1318,36 @@ The 3D convex hull of ``points`` as **outward-oriented triangular faces**
 
 ```python
 convex_hull_3d(points: 'Iterable[Vec3 | Sequence[float]]') -> 'list[tuple[Vec3, Vec3, Vec3]]'
+```
+
+### `depth_key_average`
+
+`frameforge_sdk.geometry.depth_key_average`
+
+Painter's-algorithm depth key — LARGER = NEARER for every projection.
+
+```python
+depth_key_average(matrix: 'Mat4', face: 'Sequence[Vec3]') -> 'float'
+```
+
+### `depth_key_from_homogeneous`
+
+`frameforge_sdk.geometry.depth_key_from_homogeneous`
+
+:func:`depth_key_average` computed from already-transformed homogeneous
+
+```python
+depth_key_from_homogeneous(matrix: 'Mat4', hom: 'Sequence[Sequence[float]]') -> 'float'
+```
+
+### `is_back_face`
+
+`frameforge_sdk.geometry.is_back_face`
+
+Screen-space back-face test (G3): a face whose PROJECTED polygon winds
+
+```python
+is_back_face(pts: 'Sequence[Vec2]') -> 'bool'
 ```
 
 ### `obb`
@@ -1555,14 +1604,20 @@ Box(x: 'float', y: 'float', w: 'float', h: 'float') -> None
 | Method | Signature | Summary |
 |---|---|---|
 | `column` | `(self, count: 'int \| None' = None, *, gap: 'float' = 0.0, pad: 'Pad' = 0.0, weights: 'Sequence[float] \| None' = None) -> "list['Box']"` | Split this box into vertical child boxes. |
+| `corners` | `(self) -> 'tuple[Vec2, Vec2, Vec2, Vec2]'` | The four corners, clockwise from the origin (page space is Y-down). |
 | `count` | `(self, value)` | S.count(value) -> integer -- return number of occurrences of value |
 | `grid` | `(self, *, cols: 'int', rows: 'int \| None' = None, count: 'int \| None' = None, gap: 'float' = 0.0, row_gap: 'float \| None' = None, col_gap: 'float \| None' = None, pad: 'Pad' = 0.0) -> "list['Box']"` | Tile this box into a row-major grid of child boxes. |
 | `index` | `(self, value, start=0, stop=None)` | S.index(value, [start, [stop]]) -> integer -- return first index of value. |
 | `inset` | `(self, pad: 'Pad') -> "'Box'"` | Return this box shrunk inward by ``pad``. |
+| `intersection` | `(self, other: 'BoxLike') -> "'Box \| None'"` | The overlap, or ``None`` when there is none. |
 | `list` | `(self) -> 'list[float]'` | Return this box as a plain ``[x, y, w, h]`` list. |
 | `move` | `(self, dx: 'float' = 0.0, dy: 'float' = 0.0) -> "'Box'"` | Return this box translated by ``dx``/``dy``. |
 | `resize` | `(self, w: 'float \| None' = None, h: 'float \| None' = None) -> "'Box'"` | Return this box with a replaced width and/or height. |
 | `row` | `(self, count: 'int \| None' = None, *, gap: 'float' = 0.0, pad: 'Pad' = 0.0, weights: 'Sequence[float] \| None' = None) -> "list['Box']"` | Split this box into horizontal child boxes. |
+| `scaled` | `(self, sx: 'float', sy: 'float \| None' = None) -> "'Box'"` | Return this box with its extent scaled about its origin corner. |
+| `split_x` | `(self, t: 'float') -> "tuple['Box', 'Box']"` | Cut vertically at fraction ``t`` of the width -> ``(left, right)``. |
+| `split_y` | `(self, t: 'float') -> "tuple['Box', 'Box']"` | Cut horizontally at fraction ``t`` of the height -> ``(top, bottom)``. |
+| `union` | `(self, other: 'BoxLike') -> "'Box'"` | The smallest box containing both. Closed, associative, commutative. |
 
 ### `BoxLike`
 
