@@ -28,7 +28,7 @@ import yaml
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-import frameforge.model as fg  # noqa: E402
+import frameforge_api.model as fg  # noqa: E402
 
 
 def _read(rel: str) -> str:

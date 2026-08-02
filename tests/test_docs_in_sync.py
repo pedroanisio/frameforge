@@ -31,7 +31,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [os.path.join(ROOT, "docs", "schema")]
 
-import frameforge.model as fg  # noqa: E402
+import frameforge_api.model as fg  # noqa: E402
 import build_schema as B  # noqa: E402
 
 README = open(os.path.join(ROOT, "README.md"), encoding="utf-8").read()

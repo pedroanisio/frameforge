@@ -1,8 +1,8 @@
 ---
 title: FrameForge v2 — Specification (HEAD)
-version: 2.8.2
+version: 2.11.0
 status: PROPOSED / partially-implemented
-source_of_truth: src/frameforge/model.py (Pydantic) → schema generated; this prose is the normative reference
+source_of_truth: frameforge_api.model (Pydantic, the frameforge-api distribution) → schema generated; this prose is the normative reference
 supersedes: FrameForge-2.0.0-Specification.md (reverse-engineered) and the four standalone patch docs (P1–P4); style subsystem defers to frameforge-v2-style.ebnf (authoritative)
 date: 2026-07-01
 disclaimer: >
@@ -19,7 +19,7 @@ FrameForge is a declarative JSON/YAML language describing a paginated or continu
 document — decks, books, reports, diagrams — rendered to vector output. This is the
 **HEAD** specification: the consolidation of the base grammar with Patches 1–4 and
 the (now drafted) CSS style module. It is the normative companion to
-`docs/grammar/frameforge-v2.ebnf` and `src/frameforge/model.py`.
+`docs/grammar/frameforge-v2.ebnf` and `frameforge_api.model`.
 
 This document records only the **rules**; for the descriptive walk-through of the
 format see the reverse-engineered spec (provenance). Section numbers match the
@@ -465,7 +465,8 @@ content (`Inline`) covers plain runs, `Span`, `ref`, `cite`, `footnote`, `math`,
 
 ## 7. Fixed vocabulary
 
-`VisualObject` core: `rect`, `ellipse`, `line`, `polyline`, `path`, `dimension`,
+`VisualObject` core: `rect`, `ellipse`, `line`, `polyline`, `path`, `star`,
+`generative`, `dimension`,
 `connector` (§3.11), `text`, `image`, `icon`, `bullet_list`, `table`, `group`.
 (`circle`/`polygon`/`curve` are **deprecated** renderer shortcuts → `ellipse`/closed
 `polyline`/`path`.) Charts, components/use/symbols/graphs, and the UML family
@@ -475,6 +476,53 @@ into core geometry (a `graph` lays out its declared nodes/edges via
 `sdk.topology` and becomes a positioned `group`), so a validated document never
 carries them — they are part of the *format an author writes*, documented in the
 grammar, not the model.
+
+### 7.0.1 `star` — parametric stars and regular polygons
+
+A `star` is a closed parametric outline around `center` with `points` spokes and
+an `outer_radius`. `star_type` selects the reading: `star` (the default)
+alternates between `outer_radius` and `inner_radius`, so `inner_radius` is
+REQUIRED for it; `polygon` uses `outer_radius` alone and ignores any
+`inner_radius`. `outer_roundness` and `inner_roundness` are unit-interval knobs
+that bend the straight spokes into rounded lobes — `0` (the default) keeps the
+corners sharp, `1` is fully rounded. `direction` fixes the winding order
+(`clockwise` | `counter-clockwise`) and therefore, with `fill_rule`, which
+enclosed regions read as holes.
+
+A conforming renderer MUST derive the outline from these parameters rather than
+from a baked point list, so the shape stays editable and resolution-independent.
+
+### 7.0.2 `generative` — unresolved authoring intent
+
+A `generative` object records a REQUEST for content a generative model is asked
+to produce — `kind` (`image` | `text` | `diagram`), the `prompt`, and the `model`
+asked — not the result. Optional `params` (`GenerationParams`: `seed`, `size`,
+`style`) make a request reproducible, and `regenerate` states whether a cached
+resolution may be reused or the request must be re-run.
+
+It is a **declaration, not a rendering**. A conforming renderer that cannot
+resolve the request MUST NOT invent pixels for it; it renders a placeholder or
+omits the object, and either way the accessible text comes from `alt` /
+`actual_text`, which are authored and therefore verifiable. This is the format's
+PALS boundary: model output enters a document as an explicitly unresolved,
+clearly labelled request, never as an unmarked fact.
+
+### 7.0.3 `matte` — compositing through another object
+
+Any object MAY carry `matte`, which composites it through another object on the
+same page: `source` is that object's `id`, `mode` reads either its `alpha`
+(default) or its `luma`, and `invert` flips the sense of either. The source
+object is used for its coverage only — it is not itself painted a second time.
+
+### 7.0.4 `ruby` and `warichu` — inline annotation
+
+Two inline kinds carry East Asian annotation. `ruby` sets a pronunciation or
+gloss alongside a base run: `base` and `text` may each be a list, in which case
+they pair run-for-run so each base segment takes its own annotation, with
+`position` (`over` | `under` | `inter-character`), `align`, and `size` governing
+placement. `warichu` sets an inline note as two or more short lines *inside* the
+text line, with `lines` and `brackets` (`none` | `parenthesis` | `bracket` |
+`tortoise` | `lenticular`).
 
 ### 7.1 UML 2.5.1 optional extension
 

@@ -42,7 +42,7 @@ SPEC = os.path.join(ROOT, "docs", "spec", "frameforge-v2-spec.md")
 # source of truth shadows any installed distribution, and the ./frameforge package
 # (if already imported) must not shadow src/frameforge/model.py.
 sys.path.insert(0, os.path.join(ROOT, "src"))
-import frameforge.model as fg  # noqa: E402  (package-qualified: never shadow or evict the real package)
+import frameforge_api.model as fg  # noqa: E402  (package-qualified: never shadow or evict the real package)
 
 # Deprecated renderer-shortcut aliases the models accept but the normative surface
 # omits (codemod normalises them); kept identical to check_grammar_sync.py.

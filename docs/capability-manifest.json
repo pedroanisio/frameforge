@@ -152,6 +152,7 @@
       "CompositeStructureOptions",
       "CubicBezier",
       "DeploymentDiagramOptions",
+      "DesignProblem",
       "Document",
       "DocumentBuilder",
       "Edge",
@@ -159,6 +160,7 @@
       "ExpandOptions",
       "ExpandedDocument",
       "ExplainedError",
+      "ExplainedReport",
       "FaceMetrics",
       "FieldProblem",
       "FigureAsset",
@@ -185,6 +187,7 @@
       "Noise",
       "NurbsCurve",
       "NurbsSurface",
+      "Obj",
       "ObjectDiagramOptions",
       "PackageDiagramOptions",
       "PageBuilder",
@@ -231,6 +234,7 @@
       "apply_humanize",
       "apply_separation",
       "array",
+      "as_obj",
       "avatar",
       "badge",
       "badge_width",
@@ -303,6 +307,7 @@
       "eval_expr",
       "expand",
       "explain_validation_error",
+      "explain_validation_report",
       "extend_segment",
       "extract_objects",
       "extrude",
@@ -387,6 +392,7 @@
       "obb",
       "object_bbox",
       "object_fields",
+      "objects",
       "offset_path",
       "paragraph",
       "parametric",
@@ -462,6 +468,7 @@
       "text_on_path",
       "text_style",
       "theme",
+      "tiers",
       "to_lab",
       "to_lch",
       "to_oklab",
@@ -1544,6 +1551,13 @@
       "mcp": true
     },
     {
+      "name": "DesignProblem",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "Document",
       "kind": "sdk_export",
       "core": false,
@@ -1587,6 +1601,13 @@
     },
     {
       "name": "ExplainedError",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "ExplainedReport",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -1769,6 +1790,13 @@
     },
     {
       "name": "NurbsSurface",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "Obj",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2091,6 +2119,13 @@
     },
     {
       "name": "array",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "as_obj",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -2595,6 +2630,13 @@
     },
     {
       "name": "explain_validation_error",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "explain_validation_report",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,
@@ -3189,6 +3231,13 @@
       "mcp": true
     },
     {
+      "name": "objects",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
       "name": "offset_path",
       "kind": "sdk_export",
       "core": false,
@@ -3708,6 +3757,13 @@
     },
     {
       "name": "theme",
+      "kind": "sdk_export",
+      "core": false,
+      "sdk": true,
+      "mcp": true
+    },
+    {
+      "name": "tiers",
       "kind": "sdk_export",
       "core": false,
       "sdk": true,

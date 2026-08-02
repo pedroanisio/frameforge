@@ -48,7 +48,7 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 # The rendering package ``frameforge`` (./frameforge) shares the name; if it is
 # already imported (e.g. under pytest) it would shadow src/frameforge/model.py.
 # Evict the package so we always introspect the source of truth — see test_head.
-import frameforge.model as fg  # noqa: E402  (package-qualified: never shadow or evict the real package)
+import frameforge_api.model as fg  # noqa: E402  (package-qualified: never shadow or evict the real package)
 
 CORE_EBNF = os.path.join(ROOT, "docs", "grammar", "frameforge-v2.ebnf")
 STYLE_EBNF = os.path.join(ROOT, "docs", "grammar", "frameforge-v2-style.ebnf")

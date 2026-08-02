@@ -31,7 +31,7 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 import pydantic  # noqa: E402
 
-import frameforge.model as fg  # noqa: E402
+import frameforge_api.model as fg  # noqa: E402
 from frameforge_render.infrastructure.painters import svg as svg_painter  # noqa: E402
 from tooling.render_fixtures import Renderer  # noqa: E402
 

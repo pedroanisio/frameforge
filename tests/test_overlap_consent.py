@@ -20,7 +20,7 @@ _shadow = sys.modules.get("frameforge")
 if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 
-import frameforge.model as fg  # noqa: E402
+import frameforge_api.model as fg  # noqa: E402
 
 
 def _rect(**extra):

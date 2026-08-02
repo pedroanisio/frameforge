@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.join(ROOT, "docs"))
 # models module. Evict only the top-level name — cached `frameforge_render.*`
 # submodules must survive so later renderer tests still resolve them — see
 # test_elements.py / test_head.py.
-import frameforge.model as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)
+import frameforge_api.model as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)
 
 
 def _doc_with_path(d):

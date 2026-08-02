@@ -1,6 +1,6 @@
 # FrameForge v2
 
-**FrameForge v2** (`2.8.2`) keeps its documents, grammar, schema, prose, and
+**FrameForge v2** (`2.11.0`) keeps its documents, grammar, schema, prose, and
 Python code in sync — the Pydantic models are the source of truth and everything
 else is generated from or checked against them.
 
@@ -23,7 +23,7 @@ src/frameforge/               ← integration package: conform.py, cli.py, fontp
 ../frameforge-sdk/            ← authoring, measurement, and static validation.
 ../frameforge-render/         ← renderer DDD boundary: domain, application, infrastructure.
 docs/schema/
-  frameforge-v2.schema.json   ← GENERATED from the models (105 $defs). Do not hand-edit.
+  frameforge-v2.schema.json   ← GENERATED from the models (119 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
 docs/grammar/
   frameforge-v2.ebnf          ← the consolidated CORE grammar (base + P1–P4); styling deferred to the module.

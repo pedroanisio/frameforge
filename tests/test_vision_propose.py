@@ -228,7 +228,12 @@ def test_mcp_propose_from_document_reports_missing_backend_gracefully(tmp_path, 
     from frameforge_mcp.server import propose_from_document
 
     monkeypatch.setattr(PdfDocumentSource, "available", lambda self: False)
-    result = propose_from_document("/nonexistent.pdf", session_id="vision-doc", session_root=tmp_path)
+    # The path must sit INSIDE an allowed input root: since frameforge-mcp 2.0.0
+    # confinement is checked before the file is, so a path like `/nonexistent.pdf`
+    # is refused for being out of bounds and never reaches the backend check this
+    # test is about. It still does not exist — that is the point.
+    absent = tmp_path / "nonexistent.pdf"
+    result = propose_from_document(str(absent), session_id="vision-doc", session_root=tmp_path)
 
     # A missing optional backend is a clean error, not an import traceback.
     assert result["ok"] is False

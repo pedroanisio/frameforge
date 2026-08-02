@@ -32,7 +32,11 @@ class FakeFastMCP:
 
     def tool(self, **_kwargs):
         def decorate(func):
-            self.tools[func.__name__] = func
+            # Since frameforge-mcp 2.0.0 a registered tool is an async wrapper that
+            # offloads the real body to a worker thread. It publishes that body as
+            # `__frameforge_sync__` precisely so in-process callers like this fake
+            # host can invoke it directly instead of driving an event loop.
+            self.tools[func.__name__] = getattr(func, "__frameforge_sync__", func)
             return func
 
         return decorate
@@ -397,12 +401,22 @@ def test_color_guide_is_a_top_level_sdk_export():
     assert hasattr(sdk, "color_guide"), "color_guide not re-exported from frameforge_sdk"
 
 
-def test_server_instructions_name_the_authoring_engines(tmp_path):
+def test_the_authoring_engines_are_reachable_from_the_handshake(tmp_path):
+    """The SDK tour is served on demand, not injected into every connection.
+
+    frameforge-mcp 2.0.0 cut the `instructions` preamble by 65%: it was 7,019
+    characters sent to every client before the agent asked for anything, most of
+    it duplicating `get_guide`. Nothing was deleted — it moved. So the invariant
+    worth holding is REACHABILITY, not presence in the handshake: the preamble
+    must point at the guide, and the guide must still name every surface.
+    """
     server = create_server(session_root=tmp_path, fastmcp_cls=FakeFastMCP)
-    text = server.kwargs["instructions"]
+    preamble = server.kwargs["instructions"]
+    assert "get_guide" in preamble, (
+        "the handshake must tell an agent where the full reference lives")
     for surface in ("sdk.planar", "sdk.outline", "frameforge.patterns",
                     "frameforge.library", "--from-v01"):
-        assert surface in text, f"handshake instructions omit {surface}"
+        assert surface in FRAMEFORGE_GUIDE, f"the guide omits {surface}"
 
 
 # --- output-size resilience: no topic may blow the MCP result ceiling --------

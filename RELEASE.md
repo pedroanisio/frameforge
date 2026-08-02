@@ -11,7 +11,7 @@ disclaimer:
 # RELEASE.md — the FrameForge HEAD version-bump procedure
 
 The package version is one *logical* source of truth — `[project] version` in
-[pyproject.toml](pyproject.toml) — that, by necessity, lives in eleven hand-edited
+[pyproject.toml](pyproject.toml) — that, by necessity, lives in ten hand-edited
 literals plus one human-authored CHANGELOG entry. The gates cross-check the
 literals so a **half-bump can never ship**: `make check` fails on the smallest
 divergence. This document formalises the invariants, the ordered procedure, and
@@ -30,8 +30,8 @@ machine-checked; the "Gate" column is where a violation surfaces.
 
 | # | Invariant | Sites | Gate |
 |---|---|---|---|
-| **I1** | declared version == the models' reported version | [pyproject.toml:3](pyproject.toml#L3) == [model.py:41 `HEAD_VERSION`](src/frameforge/model.py#L41) | `tests/test_docs_in_sync.py` |
-| **I2** | the models' version == the pinned test literal | `HEAD_VERSION` == [test_head.py:73](tests/test_head.py#L73) | `tests/test_head.py::test_version_is_head` |
+| **I1** | declared version == the CONTRACT revision this engine is built against | [pyproject.toml:3](pyproject.toml#L3) == [`frameforge_api.model.HEAD_VERSION`](https://github.com/pedroanisio/frameforge-api) | `tests/test_docs_in_sync.py` |
+| **I2** | the contract's version == the pinned test literal | `frameforge_api.model.HEAD_VERSION` == [test_head.py](tests/test_head.py) | `tests/test_head.py::test_version_is_head` |
 | **I2b** | declared version == the package runtime `__version__` | [pyproject.toml:3](pyproject.toml#L3) == [frameforge/__init__.py `__version__`](src/frameforge/__init__.py) | `tests/test_docs_in_sync.py::test_package_runtime_version_matches_pyproject` |
 | **I3** | the committed schema is generated-in-sync **and** its title carries the version | models → `docs/schema/frameforge-v2.schema.json` | `schema-check` + `test_head.py::test_schema_in_sync_with_models` + `test_docs_in_sync.py` |
 | **I4** | the capability manifest reflects the live tree | `docs/capability-manifest.json` | `tests/test_capability_manifest.py::test_committed_manifest_matches_fresh_build` (the `manifest-check` target is the same contract, but it is **not** on `check:` — the test is what runs) |
@@ -51,13 +51,12 @@ gated by nothing (§7).
 
 ## 2 · Source of truth vs. derived
 
-**Authored on a bump (hand-edited — `make bump` moves the eleven literals):**
+**Authored on a bump (hand-edited — `make bump` moves the ten literals):**
 
 | Artifact | Literal |
 |---|---|
 | [pyproject.toml:3](pyproject.toml#L3) | `version = "X.Y.Z"` — the declared package version |
-| [src/frameforge/model.py:41](src/frameforge/model.py#L41) | `HEAD_VERSION = "X.Y.Z"` — the models' report |
-| [tests/test_head.py:73](tests/test_head.py#L73) | `HEAD_VERSION == "X.Y.Z"` — the version pin |
+| [tests/test_head.py](tests/test_head.py) | `HEAD_VERSION == "X.Y.Z"` — the contract pin |
 | [README.md](README.md) | `**FrameForge v2** (\`X.Y.Z\`)` — the human headline (**ungated**, §7) |
 | [src/frameforge/__init__.py](src/frameforge/__init__.py) | `__version__ = "X.Y.Z"` — the package runtime version |
 | [plugin/.claude-plugin/plugin.json](plugin/.claude-plugin/plugin.json) | `"version"` — what an installed plugin re-fetches on |
@@ -81,7 +80,7 @@ Each step names the gate that verifies it.
 
 0. **Preconditions.** Clean working tree; `CHANGELOG.md` not mid-merge; choose
    the bump type (§4).
-1. **Move the eleven literals** → `make bump VERSION=X.Y.Z` (the raw mover,
+1. **Move the ten literals** → `make bump VERSION=X.Y.Z` (the raw mover,
    `python tooling/bump_version.py X.Y.Z`, moves the literals only — no regen
    chain; see §6); or collapse steps 1, 2, and 4 in one shot with
    `make release VERSION=X.Y.Z`, which also regenerates every derived artifact
@@ -118,6 +117,15 @@ Rule of thumb: if the schema `$defs` or any field contract changes → at least
 **MINOR** + a CHANGELOG migration note. If a document authored on the prior
 version no longer validates → provide `codemod.py --bump` coverage.
 
+**Since 2.11.0 the contract sets the clock.** The models are the `frameforge-api`
+distribution, which versions the *format* on its own schedule; this repo declares
+which revision of that contract it is built and gated against, and I1/I2 hold the
+two equal. So a bump here is normally "adopt contract X.Y.Z", and the semver
+question above is answered by what the CONTRACT changed, not by what this
+repository changed. Engine-only work that adopts no new contract still moves the
+patch digit — but it may not silently redefine what `X.Y.Z` means, because the
+number is shared with a package that publishes its own.
+
 ---
 
 ## 5 · Breaking changes
@@ -135,9 +143,9 @@ Backward compatibility is **delivered, not assumed** (§9): migrate, don't freez
 ## 6 · Automation
 
 - **`make bump VERSION=X.Y.Z`** → [tooling/bump_version.py](tooling/bump_version.py)
-  rewrites the eleven literals, then regenerates schema + manifest + examples-index,
+  rewrites the ten literals, then regenerates schema + manifest + examples-index,
   then prints the remaining human steps.
-- **`make bump-check`** → assert the eleven sites agree (a fast pre-flight;
+- **`make bump-check`** → assert the ten sites agree (a fast pre-flight;
   `test_head` + `test_docs_in_sync` remain the authoritative gates).
 - **`python tooling/bump_version.py X.Y.Z --dry-run`** → show the edits, write
   nothing.
@@ -168,9 +176,15 @@ Backward compatibility is **delivered, not assumed** (§9): migrate, don't freez
   [docs/desktop-cowork-setup.md](docs/desktop-cowork-setup.md), and
   [plugin/skills/frameforge-runtime/SKILL.md](plugin/skills/frameforge-runtime/SKILL.md):
   a reader who follows them pulls the *previous* release while the plugin manifest
-  asks for the current one. Cosmetic-only: the `docs/index.md` minimal-document
-  example's `version:` literal (`test_doc_examples.py` checks it *validates*, not
-  that it is current), the landing demo (repo `frameforge-example`), and sample console output in
+  asks for the current one.
+- **A gated site the mover does not move: `docs/index.md`.** The minimal-document
+  example's `version:` literal is **not** cosmetic —
+  `tests/test_doc_drift_guards.py::test_index_example_version_is_head` fails the
+  bump until it matches `HEAD_VERSION`. It is reported by the cosmetic sweep but
+  rewritten by nobody, so a bump that stops at `make bump` leaves `make check` red.
+  Edit it by hand (or teach [bump_version.py](tooling/bump_version.py) a twelfth
+  site — the honest fix, still unbuilt).
+  Genuinely cosmetic-only: the landing demo (repo `frameforge-example`), and sample console output in
   `skills/frameforge-mcp-docker/SKILL.md`. The landing demo additionally carries a
   self-verifying `FACTS` table — run
   `python examples/frameforge_landing.py --verify` in the sibling `frameforge-example`
@@ -178,7 +192,7 @@ Backward compatibility is **delivered, not assumed** (§9): migrate, don't freez
   every count and reports drift, and it is **not** on `check:`.
 - **CI docs-deploy probe — RESOLVED (2.5.0).** The `docs-deploy` job no longer
   hardcodes a `docs/models` path; it derives the version from
-  `frameforge.model.HEAD_VERSION` (ci.yml), which the pre-merge gates already
+  `frameforge_api.model.HEAD_VERSION` (ci.yml), which the pre-merge gates already
   exercise.
 - **Tag + publish remain manual.** `make release VERSION=X.Y.Z`
   ([Makefile](Makefile), `release` target) bumps every site, regenerates every

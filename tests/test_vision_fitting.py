@@ -116,7 +116,9 @@ class _FakeFastMCP:
 
     def tool(self, **_kw):
         def dec(fn):
-            self.tools[fn.__name__] = fn
+            # frameforge-mcp 2.0.0 registers an async wrapper; `__frameforge_sync__`
+            # is the real body, published for in-process callers like this fake host.
+            self.tools[fn.__name__] = getattr(fn, "__frameforge_sync__", fn)
             return fn
         return dec
 

@@ -27,7 +27,7 @@ import pytest  # noqa: E402
 import yaml  # noqa: E402
 from pydantic import ValidationError  # noqa: E402
 
-import frameforge.model as fg  # noqa: E402
+import frameforge_api.model as fg  # noqa: E402
 import build_schema as B  # noqa: E402
 import validate as V  # noqa: E402
 

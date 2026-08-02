@@ -39,7 +39,7 @@ sys.path.insert(0, os.path.join(ROOT, "tooling"))
 # this module — and the tool's internal `import frameforge as fg` — both bind the
 # models module that lives on the models/ path inserted above.
 
-import frameforge.model as fg  # noqa: E402
+import frameforge_api.model as fg  # noqa: E402
 import pdf_to_frameforge_yml as tool  # noqa: E402
 
 

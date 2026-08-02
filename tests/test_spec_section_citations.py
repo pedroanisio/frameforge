@@ -12,6 +12,7 @@ explicit sub-item label) exists in the spec source.
 from __future__ import annotations
 
 import os
+import pathlib
 import re
 import sys
 
@@ -21,13 +22,26 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-MODEL = os.path.join(ROOT, "src", "frameforge", "model.py")
 SPEC = os.path.join(ROOT, "docs", "spec", "frameforge-v2-spec.md")
+
+def _contract_source() -> str:
+    """Every line of the contract's model package, concatenated.
+
+    The models left this repository for the `frameforge-api` distribution, so
+    there is no `src/frameforge/model.py` to read any more. Resolve the package
+    through the import system — that follows an editable checkout, a git pin or a
+    wheel — and read the sources it actually ships. This gate is still ours to
+    run: it asserts that the spec THIS repo publishes documents every section the
+    contract we consume cites.
+    """
+    import frameforge_api.model
+    pkg = pathlib.Path(frameforge_api.model.__file__).resolve().parent
+    return "\n".join(p.read_text(encoding="utf-8")
+                     for p in sorted(pkg.rglob("*.py")))
 
 
 def _cited():
-    with open(MODEL, encoding="utf-8") as fh:
-        src = fh.read()
+    src = _contract_source()
     # §3, §3.6, §3.6e, §5.2.2 …
     return sorted(set(re.findall(r"§(\d+(?:\.\d+)*[a-z]?)", src)))
 

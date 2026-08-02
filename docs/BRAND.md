@@ -136,7 +136,7 @@ a fixed page / bounding box) enclose a small derivation graph — the source→d
 architecture glyph, the *Forge* at work: one
 filled **source node** fanning out to three outlined **derived nodes** placed on a
 common arc (equal radius, equal angle — *constructed, not eyeballed*). That is
-literally the project's architecture — `src/frameforge/model.py` → `{schema, grammar,
+literally the project's architecture — `frameforge_api.model` → `{schema, grammar,
 spec, renders}` — turned into a glyph. The source node is the only filled, coloured
 element; everything generated from it is outline-only. The hierarchy of the picture
 *is* the hierarchy of the system.
@@ -273,7 +273,7 @@ Reusable motifs, all drawn from the toolchain's real vocabulary:
 ## 8. Design tokens (in FrameForge's own model)
 
 The palette and type system map 1:1 onto the native `Defs.tokens` surface
-([`frameforge.model`](../src/frameforge/model.py), `class Tokens`), so the brand is
+([`frameforge_api.model`](https://github.com/pedroanisio/frameforge-api), `class Tokens`), so the brand is
 *consumable from FrameForge itself*: drop a `defs:` block with these values into a
 document and reference the tokens by name. The standalone `frameforge.tokens.fg.yaml`
 was retired with the masters and no generator emits it today — treat this guideline's

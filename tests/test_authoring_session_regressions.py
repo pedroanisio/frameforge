@@ -13,7 +13,7 @@ import pytest
 
 import frameforge_sdk as sdk
 from frameforge import conform
-from frameforge.model import Style
+from frameforge_api.model import Style
 from frameforge_render.application.renderer import Renderer
 from frameforge_render.domain.services.overflow import OverflowSignal
 from frameforge_render.infrastructure import font_metrics as fmmod
@@ -354,7 +354,11 @@ class _FakeFastMCP:
 
     def tool(self, **_kwargs):
         def decorate(func):
-            self.tools[func.__name__] = func
+            # Since frameforge-mcp 2.0.0 a registered tool is an async wrapper that
+            # offloads the real body to a worker thread. It publishes that body as
+            # `__frameforge_sync__` precisely so in-process callers like this fake
+            # host can invoke it directly instead of driving an event loop.
+            self.tools[func.__name__] = getattr(func, "__frameforge_sync__", func)
             return func
         return decorate
 

@@ -8,8 +8,8 @@ real package afterwards (the MCP server, the SDK, the root conftest fixture
 test) then received a module without ``__path__``, producing order-dependent
 test failures (the deterministic repro was ``pytest test_capability_manifest.py
 test_doc_tooling.py`` → 6 failures). Since 2.5.0 the model lives inside the
-package (``src/frameforge/model.py``), so the canonical import is
-``frameforge.model``; this gate pins that no generator or tooling script ever
+distribution (``frameforge_api.model``), so the canonical import is
+``frameforge_api.model``; this gate pins that no generator or tooling script ever
 hijacks the package name again.
 """
 from __future__ import annotations
@@ -29,7 +29,7 @@ assert shadow is None or hasattr(shadow, "__path__"), (
     "build_schema import left a shadowed sys.modules['frameforge']: %r" % shadow)
 import frameforge
 assert hasattr(frameforge, "__path__"), "the real package must still resolve"
-assert build_schema.fg.__name__ == "frameforge.model", (
+assert build_schema.fg.__name__ == "frameforge_api.model", (
     "the generator must use the canonical package-qualified model import, got %r"
     % build_schema.fg.__name__)
 print("OK")

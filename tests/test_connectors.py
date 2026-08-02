@@ -23,7 +23,7 @@ FIXTURE = os.path.join(ROOT, "tests", "fixtures", "connectors.fg.yaml")
 
 sys.path[:0] = [os.path.join(ROOT, "tooling")]
 
-import frameforge.model as fg  # noqa: E402
+import frameforge_api.model as fg  # noqa: E402
 import validate as V  # noqa: E402
 
 

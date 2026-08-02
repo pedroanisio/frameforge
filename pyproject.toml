@@ -1,6 +1,6 @@
 [project]
 name = "frameforge"
-version = "2.8.2"
+version = "2.11.0"
 description = "FrameForge v2 — HEAD toolchain: Pydantic models (source of truth), generated JSON schema, validator, codemod, and the dependency-free SVG / matplotlib proxy renderers."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -82,7 +82,10 @@ dev = [
     # `frameforge-mcp` distribution on 2026-08-01. That package depends on THIS
     # one, so the edge back must never be a runtime dependency: it lives in dev,
     # purely so this repo's own tests and examples can exercise the loop.
-    "frameforge-mcp>=1.0,<2",
+    # 2.x line: frameforge-mcp released 2.0.0. A cap of <2 excluded the
+    # checkout while path sources hid it — see the range-admits-checkout
+    # test in tests/test_dependency_pins.py.
+    "frameforge-mcp>=2.0,<3",
     "hypothesis>=6",
     "pytest>=8",
     # TOML backport for the gate/tooling that read pyproject.toml. stdlib `tomllib`

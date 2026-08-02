@@ -23,7 +23,7 @@ import typing
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(ROOT, "docs"))
-import frameforge.model as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)
+import frameforge_api.model as fg  # noqa: E402  (package-qualified: the real frameforge package stays importable)
 import pytest  # noqa: E402
 from hypothesis import given, settings  # noqa: E402
 from hypothesis import strategies as st  # noqa: E402
@@ -46,6 +46,11 @@ OBJECT_SAMPLES = {
     "bullet_list": {"type": "bullet_list", "items": ["a", "b"], "box": [0, 0, 100, 40]},
     "dimension": {"type": "dimension", "kind": "linear", "from": [0, 0], "to": [10, 0]},
     "connector": {"type": "connector", "from": [0, 0], "to": [10, 10]},
+    "star": {"type": "star", "center": [50, 50], "points": 5,
+             "outer_radius": 20, "inner_radius": 8},
+    "generative": {"type": "generative", "kind": "image",
+                   "prompt": "a plain grey square", "model": "test-model",
+                   "alt": "a plain grey square"},
     "table": {"type": "table", "rows": [["a", "b"]], "box": [0, 0, 100, 40]},
     "group": {"type": "group", "children": [{"type": "rect", "box": [0, 0, 5, 5]}]},
     "uml.marker_glyph": {"type": "uml.marker_glyph", "position": [5, 5]},
@@ -90,6 +95,8 @@ INLINE_SAMPLES = {
     "cite": {"kind": "cite", "key": "smith2020"},
     "math": {"kind": "math", "tex": "x"},
     "code": {"kind": "code", "text": "x = 1"},
+    "ruby": {"kind": "ruby", "base": "漢字", "text": "かんじ"},
+    "warichu": {"kind": "warichu", "content": ["a note"]},
     "link": {"kind": "link", "href": "https://example.com", "content": ["example"]},
     "footnote": {"kind": "footnote", "content": [{"type": "paragraph", "text": "n"}]},
 }

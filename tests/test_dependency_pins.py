@@ -209,6 +209,61 @@ def test_every_locked_family_package_is_a_real_sibling_or_absent():
 
 
 # --------------------------------------------------------------------------- #
+#  The declared range admits the version that is actually on disk              #
+# --------------------------------------------------------------------------- #
+def _admits(spec: str, version: str) -> bool:
+    """Whether `version` satisfies every clause of `spec`.
+
+    A deliberately small comparator rather than `packaging`: this gate must run
+    in every family repository, and none of them declares `packaging` as a test
+    dependency. It understands the three operators the family actually uses.
+    """
+    target = _version_key(version)
+    for clause in (c.strip() for c in spec.split(",") if c.strip()):
+        match = re.match(r"(>=|<=|==|>|<|!=)\s*([0-9][^\s]*)", clause)
+        if not match:
+            continue
+        op, bound = match.group(1), _version_key(match.group(2))
+        width = max(len(target), len(bound))
+        left = target + (0,) * (width - len(target))
+        right = bound + (0,) * (width - len(bound))
+        if not {">=": left >= right, "<=": left <= right, "==": left == right,
+                ">": left > right, "<": left < right, "!=": left != right}[op]:
+            return False
+    return True
+
+
+def test_declared_ranges_admit_the_sibling_checkout_versions():
+    """A range that excludes the version on disk is a defect path sources hide.
+
+    `uv` resolves an editable path source to the checkout regardless of the
+    declared specifier, so a stale cap fails nothing locally and fails every
+    install from an index. This caught `frameforge-mcp>=1.0,<2` in the engine
+    on the day `frameforge-mcp` released 2.0.0 — a cap written hours earlier,
+    already wrong, and invisible to `uv lock --check`.
+    """
+    excluded = []
+    for section, name, spec in _family_requirements():
+        actual = _sibling_version(name)
+        if actual is None or not spec:
+            continue
+        if not _admits(spec, actual):
+            excluded.append(f"{section}: '{name} {spec}' excludes the checkout at {actual}")
+    assert not excluded, "; ".join(excluded)
+
+
+def test_the_range_comparator_understands_the_operators_in_use():
+    """Guards the guard: a comparator that silently admits everything would
+    make the test above vacuous."""
+    assert _admits(">=1.0,<2", "1.5.0")
+    assert not _admits(">=1.0,<2", "2.0.0")
+    assert not _admits(">=1.1,<2", "1.0.0")
+    assert _admits(">=2.9,<3", "2.11.0"), "2.11 must not compare as 2.1"
+    assert _admits(">=0.1,<1", "0.1.0")
+    assert not _admits(">=0.1,<1", "1.0.0")
+
+
+# --------------------------------------------------------------------------- #
 #  NOT propagated: the version/CHANGELOG pairing test                          #
 # --------------------------------------------------------------------------- #
 # `frameforge-sdk` also asserts that the newest CHANGELOG heading equals the

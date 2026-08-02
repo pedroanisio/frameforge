@@ -34,7 +34,7 @@ sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "src")))
 import yaml  # noqa: E402
 
 try:
-    import frameforge.model as fg  # noqa: E402  (package-qualified: never shadow the real package)
+    import frameforge_api.model as fg  # noqa: E402  (package-qualified: never shadow the real package)
     HEAD_VERSION = fg.HEAD_VERSION
 except Exception:  # noqa: BLE001
     HEAD_VERSION = "2.2.0"

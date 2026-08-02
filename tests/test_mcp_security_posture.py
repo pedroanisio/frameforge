@@ -40,16 +40,35 @@ def _posture() -> dict:
     return security_posture()
 
 
-def test_default_env_reports_open_mode_with_warnings(monkeypatch):
+def test_default_env_confines_inputs_without_warning(monkeypatch):
+    """The safe posture is the DEFAULT one, not the one you opt into.
+
+    Before frameforge-mcp 2.0.0 an unset `FRAMEFORGE_MCP_INPUT_ROOTS` meant "any
+    readable path", so an agent steered by a poisoned document could ask a
+    propose tool for `~/.ssh/id_rsa` with the user's own privileges — the
+    confused-deputy shape, shipped as the default. Confinement is now the
+    default and needs no warning; it is OPENNESS that has to announce itself
+    (see the test below).
+    """
     _clear_posture_env(monkeypatch)
 
     posture = _posture()
 
+    assert posture["input_roots"]["mode"] == "restricted"
+    assert posture["input_roots"]["roots"], "confinement must name its roots"
+    assert posture["warnings"] == [], "the safe default has nothing to warn about"
+
+
+def test_explicit_star_opens_inputs_and_says_so(monkeypatch):
+    _clear_posture_env(monkeypatch)
+    monkeypatch.setenv("FRAMEFORGE_MCP_INPUT_ROOTS", "*")
+
+    posture = _posture()
+
     assert posture["input_roots"]["mode"] == "open"
-    assert posture["input_roots"]["roots"] == []
     warnings = posture["warnings"]
     assert isinstance(warnings, list) and warnings, "open mode must warn"
-    assert any("any readable path" in warning for warning in warnings)
+    assert any("ANY readable path" in warning for warning in warnings)
     assert any("FRAMEFORGE_MCP_INPUT_ROOTS" in warning for warning in warnings)
 
 
@@ -103,19 +122,19 @@ def test_posture_is_computed_per_call(tmp_path, monkeypatch):
     _clear_posture_env(monkeypatch)
 
     first = _posture()
-    assert first["input_roots"]["mode"] == "open"
+    assert first["input_roots"]["mode"] == "restricted"
     assert first["code_execution"]["env_secret_stripping"] is True
 
-    monkeypatch.setenv("FRAMEFORGE_MCP_INPUT_ROOTS", str(tmp_path))
+    monkeypatch.setenv("FRAMEFORGE_MCP_INPUT_ROOTS", "*")
     monkeypatch.setenv("FRAMEFORGE_MCP_KEEP_ENV", "1")
     second = _posture()
-    assert second["input_roots"]["mode"] == "restricted"
+    assert second["input_roots"]["mode"] == "open"
     assert second["code_execution"]["env_secret_stripping"] is False
 
     monkeypatch.delenv("FRAMEFORGE_MCP_INPUT_ROOTS")
     monkeypatch.delenv("FRAMEFORGE_MCP_KEEP_ENV")
     third = _posture()
-    assert third["input_roots"]["mode"] == "open"
+    assert third["input_roots"]["mode"] == "restricted"
     assert third["code_execution"]["env_secret_stripping"] is True
 
 

@@ -1,7 +1,7 @@
 {
   "name": "frameforge",
   "description": "The FrameForge agent-native visual-authoring substrate, packaged for Claude Code.",
-  "version": "2.8.2",
+  "version": "2.11.0",
   "owner": {
     "name": "Pedro Anisio Silva",
     "email": "pedroanisio@gmail.com"

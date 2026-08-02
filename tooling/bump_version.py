@@ -7,19 +7,26 @@ below — the package proper plus the Claude Code plugin surface — which the g
 cross-check so a divergence can never ship:
 
   1. pyproject.toml            `version = "X.Y.Z"`          (the declared version)
-  2. src/frameforge/model.py   `HEAD_VERSION = "X.Y.Z"`     (the models' report)
-  3. tests/test_head.py        `HEAD_VERSION == "X.Y.Z"`    (the version pin)
-  4. README.md                 `**FrameForge v2** (`X.Y.Z`)`(the human headline)
-  5. src/frameforge/__init__.py`__version__ = "X.Y.Z"`      (the runtime version)
-  6-9. the plugin manifest, the runtime image tag it launches, the launcher's
+  2. tests/test_head.py        `HEAD_VERSION == "X.Y.Z"`    (the contract pin)
+  3. README.md                 `**FrameForge v2** (`X.Y.Z`)`(the human headline)
+  4. src/frameforge/__init__.py`__version__ = "X.Y.Z"`      (the runtime version)
+  5-8. the plugin manifest, the runtime image tag it launches, the launcher's
        standalone image fallback, and the marketplace manifest
-  10-11. the CHANGELOG top block and the spec front-matter (prose restatements)
+  9-10. the CHANGELOG top block and the spec front-matter (prose restatements)
 
-`tests/test_head.py` pins (2)==(3) and generated-in-sync schema; `tests/
-test_docs_in_sync.py` pins (1)==(2)==(5) and the schema title;
-`tests/test_plugin_contract.py` pins (6)-(9) to (1); `tests/
-test_version_prose_sync.py` pins (10)-(11) to (2). So `make check` FAILS on any
-half-bump — this tool moves every site together so it passes first try.
+NOT a site any more: the models' own `HEAD_VERSION`. The contract left this
+repository for the `frameforge-api` distribution, which owns that literal and its
+clock; carrying a second copy here is what let the two drift two minor versions
+apart. (2) is therefore a *pin*, not a source: it records which contract revision
+this engine is built and gated against, and moving it is a deliberate statement
+that the engine has been checked against that revision — not a rename.
+
+`tests/test_head.py` pins (2) to the live `frameforge_api.model.HEAD_VERSION` and
+pins the schema mirror as generated-in-sync; `tests/test_docs_in_sync.py` pins
+(1)==(4) and the schema title; `tests/test_plugin_contract.py` pins (5)-(8) to
+(1); `tests/test_version_prose_sync.py` pins (9)-(10) to the contract. So `make
+check` FAILS on any half-bump — this tool moves every site together so it passes
+first try.
 
 (4) is the exception: nothing gates the README headline. It is moved here, but a
 hand-edit that drifts it will not fail `make check`.
@@ -59,9 +66,7 @@ COSMETIC_GLOBS = ("skills/**/*.md", "skills/**/*.py",
 SITES = [
     ("pyproject.toml", "pyproject.toml",
      re.compile(r'^(version = ")(\d+\.\d+\.\d+)(")', re.M)),
-    ("models HEAD_VERSION", "src/frameforge/model.py",
-     re.compile(r'^(HEAD_VERSION = ")(\d+\.\d+\.\d+)(")', re.M)),
-    ("test_head pin", "tests/test_head.py",
+    ("contract pin", "tests/test_head.py",
      re.compile(r'(HEAD_VERSION == ")(\d+\.\d+\.\d+)(")')),
     ("README headline", "README.md",
      re.compile(r'(\*\*FrameForge v2\*\* \(`)(\d+\.\d+\.\d+)(`\))')),

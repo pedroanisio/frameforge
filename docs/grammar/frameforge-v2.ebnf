@@ -373,6 +373,7 @@ Layer =
 
 VisualObject =
       RectObject     | EllipseObject | LineObject     | PolylineObject | PathObject
+    | StarObject      | GenerativeObject                               (* +2.11.0 *)
     | DimensionObject                                                  (* +P3 *)
     | TextObject     | ImageObject   | IconObject
     | BarChartObject | LineChartObject | LegendObject
@@ -407,6 +408,8 @@ common-object-fields =                                          (* +P2: grid_spa
       [ "outer_ring" , ":" , OuterRing ] ,
       [ "grid_span"  , ":" , "[" , integer , "," , integer , "]" ] ,  (* +P2: [cols, rows]; only under a grid layout parent — §3.6e *)
       [ "sizing"     , ":" , Sizing ] ,                               (* +P4: per-axis content sizing; absent => fixed/fixed — §3.6g. Renamed from `size` (collided with IconObject.size). *)
+      [ "name"       , ":" , string ] ,     (* human-readable label for tooling and review; NOT an address — `id` is the stable one other objects reference *)
+      [ "matte"      , ":" , MatteSpec ] ,  (* composite through another object on this page as an alpha or luminance matte *)
       [ "meta"       , ":" , object-any ] ;
 
 (* ── primitives ── *)
@@ -429,6 +432,47 @@ EllipseObject =
       common-object-fields ,
     "}" ;
 
+(* 2.11.0: a parametric star or regular polygon. `points` is the number of star
+   points (or polygon sides); `inner_radius` is required for a star and ignored
+   for a polygon. The roundness pair bends the spokes into rounded lobes. *)
+StarObject =
+    "{" , "type" , ":" , "star" ,
+      "center" , ":" , Point ,
+      "points" , ":" , integer ,
+      "outer_radius" , ":" , number ,
+      [ "star_type"        , ":" , ( "star" | "polygon" ) ] ,
+      [ "inner_radius"     , ":" , number ] ,
+      [ "outer_roundness"  , ":" , unit-interval ] ,
+      [ "inner_roundness"  , ":" , unit-interval ] ,
+      [ "direction"        , ":" , ( "clockwise" | "counter-clockwise" ) ] ,
+      [ "fill"   , ":" , Fill ] ,
+      [ "stroke" , ":" , Stroke ] ,
+      common-object-fields ,
+    "}" ;
+
+(* 2.11.0: UNRESOLVED authoring intent — content a generative model is asked to
+   produce, recorded as the request rather than the result. It is a declaration,
+   not a rendering: a conforming renderer that cannot resolve it MUST NOT invent
+   pixels for it. `alt`/`actual_text` carry the accessible text either way, and
+   `regenerate` states whether a cached resolution may be reused. *)
+GenerativeObject =
+    "{" , "type" , ":" , "generative" ,
+      "kind"   , ":" , ( "image" | "text" | "diagram" ) ,
+      "prompt" , ":" , string ,
+      "model"  , ":" , string ,
+      [ "params"      , ":" , GenerationParams ] ,
+      [ "alt"         , ":" , string ] ,
+      [ "actual_text" , ":" , string ] ,
+      [ "regenerate"  , ":" , boolean ] ,
+      common-object-fields ,
+    "}" ;
+
+GenerationParams =
+    "{" , [ "seed"  , ":" , integer ] ,
+          [ "size"  , ":" , ( string | "[" , integer , "," , integer , "]" ) ] ,
+          [ "style" , ":" , string ] ,
+    "}" ;
+
 LineObject =
     "{" , "type" , ":" , "line" ,
       "from" , ":" , Anchor ,
@@ -441,6 +485,7 @@ PolylineObject =
     "{" , "type" , ":" , "polyline" ,
       "points" , ":" , "[" , Point , { "," , Point } , "]" ,
       [ "closed" , ":" , boolean ] ,
+      [ "direction" , ":" , ( "clockwise" | "counter-clockwise" ) ] ,  (* winding order of the outline; with `fill_rule` it decides which enclosed regions are holes *)
       [ "fill"   , ":" , Fill ] ,
       [ "stroke" , ":" , Stroke ] ,
       common-object-fields ,
@@ -449,6 +494,7 @@ PolylineObject =
 PathObject =
     "{" , "type" , ":" , "path" ,
       "d" , ":" , ( string | PathSegList ) ,   (* SVG path-data string, OR structured segments (G-1) *)
+      [ "direction" , ":" , ( "clockwise" | "counter-clockwise" ) ] ,  (* winding order of the outline; with `fill_rule` it decides which enclosed regions are holes *)
       [ "fill"   , ":" , Fill ] ,
       [ "stroke" , ":" , Stroke ] ,
       common-object-fields ,
@@ -966,6 +1012,7 @@ Caption = string | "[" , Inline , { "," , Inline } , "]" ;
 TextContent = ( "text" , ":" , string ) | ( "spans" , ":" , "[" , Inline , { "," , Inline } , "]" ) ;
 
 Inline = string | Span | RefInline | CiteInline | FootnoteInline | MathInline | CodeInline | LinkInline
+       | RubyInline | WarichuInline                                    (* +2.11.0 *)
        | IndexInline | GlossaryInline | MarginNoteInline ;
 
 Span = "{" , "text" , ":" , string , [ "," , "style" , ":" , StyleRef ] , [ "," , "lang" , ":" , string ] , "}" ;
@@ -990,6 +1037,27 @@ FootnoteInline =
       "content" , ":" , "[" , Flowable , { "," , Flowable } , "]" ,
       [ "placement" , ":" , ( "footnote" | "endnote" ) ] ,
       [ "id" , ":" , string ] ,
+    "}" ;
+
+(* 2.11.0: ruby — a pronunciation or gloss set alongside a base run (CSS Ruby,
+   JIS X 4051). `base` and `text` may each be a list, in which case they pair up
+   run-for-run so each base segment gets its own annotation. *)
+RubyInline =
+    "{" , "kind" , ":" , "ruby" ,
+      "base" , ":" , ( string | "[" , InlineOrString , { "," , InlineOrString } , "]" ) ,
+      "text" , ":" , ( string | "[" , string , { "," , string } , "]" ) ,
+      [ "position" , ":" , ( "over" | "under" | "inter-character" ) ] ,
+      [ "align" , ":" , ( "start" | "center" | "space-between" | "space-around" | "auto" ) ] ,
+      [ "size" , ":" , Length ] ,
+    "}" ;
+
+(* 2.11.0: warichu — an inline note set as two or more short lines INSIDE the
+   text line, bracketed by convention. *)
+WarichuInline =
+    "{" , "kind" , ":" , "warichu" ,
+      "content" , ":" , "[" , InlineOrString , { "," , InlineOrString } , "]" ,
+      [ "lines" , ":" , integer ] ,
+      [ "brackets" , ":" , ( "none" | "parenthesis" | "bracket" | "tortoise" | "lenticular" ) ] ,
     "}" ;
 
 MathInline = "{" , "kind" , ":" , "math" , [ "mathml" , ":" , string ] , [ "tex" , ":" , string ] , "}" ;
@@ -1050,6 +1118,15 @@ Layout =
       [ "columns"    , ":" , integer ] ,    (* grid: cells per row, row-major *)
       [ "align"      , ":" , ( "start" | "center" | "end" | "stretch" ) ] ,  (* +P1: cross-axis; default start *)
       [ "justify"    , ":" , ( "start" | "center" | "end" | "space-between" | "space-around" | "space-evenly" ) ] ,
+    "}" ;
+
+(* 2.11.0: composite an object through another object on the same page. `source`
+   is the id of the matte object; `alpha` reads its opacity, `luma` its
+   brightness; `invert` flips the sense of either. *)
+MatteSpec =
+    "{" , "source" , ":" , string ,
+          [ "mode"   , ":" , ( "alpha" | "luma" ) ] ,
+          [ "invert" , ":" , boolean ] ,
     "}" ;
 
 ClipSpec = boolean | "{" , "shape" , ":" , ( "rect" | "ellipse" | "path" ) , [ "," , "radius" , ":" , Length ] , "}" ;

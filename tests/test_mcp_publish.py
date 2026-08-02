@@ -84,7 +84,11 @@ def test_publish_copies_deliverables_with_manifest(tmp_path):
     manifest = json.loads((pub / "manifest.json").read_text())
     assert manifest["format"] == "frameforge-render-bundle"
     assert manifest["format_version"] == 1
-    assert manifest["frameforge_version"] == "2.8.2"
+    # Read the live version rather than re-pinning it: `test_head.py` already owns
+    # the "HEAD_VERSION is X.Y.Z" assertion, so a literal here only means a second
+    # site every bump has to find, and RELEASE.md's eleven-site list does not list it.
+    from frameforge_api.model import HEAD_VERSION
+    assert manifest["frameforge_version"] == HEAD_VERSION
     assert manifest["session_id"] == "probe" and manifest["revision"] == 1
     assert manifest["document"] == "document.fg.yaml"
     assert manifest["diagnostics"] == "diagnostics.json"

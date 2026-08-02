@@ -31,7 +31,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.model import Document  # noqa: E402
+from frameforge_api.model import Document  # noqa: E402
 from frameforge_sdk import lower_embedded_svg, svg_to_objects  # noqa: E402
 
 

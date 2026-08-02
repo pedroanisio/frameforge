@@ -32,7 +32,7 @@ example in the spec, this page, and the README and checks it against the models)
 
 ```yaml
 dsl: FrameForge
-version: "2.8.2"
+version: "2.11.0"
 title: Minimal document
 pages:
   - mode: page
@@ -71,7 +71,7 @@ pages are hand-written. Build with `make docs` (it runs the generators first).
 ## The guarantee
 
 ```
-src/frameforge/model.py  ──model_json_schema()──►  schema/frameforge-v2.schema.json
+frameforge_api.model    ──build_schema()───────►  schema/frameforge-v2.schema.json
         │                                                │
         │ validate.py / pytest                           │ build_schema.py --check
         ▼                                                ▼

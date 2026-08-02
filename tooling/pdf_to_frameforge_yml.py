@@ -91,7 +91,7 @@ except Exception as exc:  # pragma: no cover
         "Missing dependency: PyYAML. Install with: pip install pyyaml"
     ) from exc
 
-import frameforge.model as fg  # noqa: E402  (package-qualified via the docs/ path above)
+import frameforge_api.model as fg  # noqa: E402  (package-qualified via the docs/ path above)
 
 
 def _import_fitz() -> Any:

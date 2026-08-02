@@ -1,6 +1,6 @@
 # FrameForge v2 — CHANGELOG (HEAD)
 
-**Version:** `2.8.2` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-07-31
+**Version:** `2.11.0` · **Status:** PROPOSED / partially-implemented · **Date:** 2026-08-02
 
 *Convention: version headings mark schema/`HEAD_VERSION` bumps; an entry titled
 "Unreleased" landed between bumps and is contained in the nearest version
@@ -8,6 +8,113 @@ heading above it. One version number may span multiple dated entry blocks —
 cite entries by their full "version — subtitle" heading, not version alone.*
 
 ---
+
+## 2.11.0 — the contract has one definition (2026-08-02)
+
+This repository carried `src/frameforge/model.py`, 2,118 lines described in its own
+docstring as "the single source of truth". The contract had already become the
+`frameforge-api` distribution, which shipped the same models under its own clock.
+Both were real, both were maintained, and they had drifted **two minor versions
+apart**:
+
+| | the copy here | `frameforge-api` |
+|---|---|---|
+| declared | `2.8.2` | `2.11.0` |
+| `$defs` | 105 | 119 |
+
+The copy here was a strict subset — fourteen types missing, none unique to it —
+and nothing could see that, because every gate in this repo generated the schema
+from the local model and then checked it against the local model. A closed loop
+validating itself. `frameforge-api` names this exact failure in its own source:
+*"two different files claiming one revision is exactly the drift this contract is
+built to prevent."*
+
+**`frameforge.model` is deleted.** The contract is `frameforge_api.model`, and the
+25 modules that imported the local copy now import that. Nothing is aliased —
+same reasoning as the `frameforge.rendering` split: an alias keeps the old path
+importable and lets new code go on writing it.
+
+**The schema is mirrored, not regenerated.** `docs/schema/build_schema.py` used to
+re-implement generation — `model_json_schema()` plus a hand-set `$id`/`version`/
+`title` — and that re-implementation was the same defect one level down: it
+silently omitted the `x-frameforge-deprecations` registry the contract emits, so
+this repo published a schema no other consumer would produce. It now delegates to
+`frameforge_api.build_schema()`, and the committed file is byte-identical to the
+contract's own.
+
+**Adopting 2.11.0 widened the format** by fourteen `$defs`, and the hand-authored
+*views* of the contract caught up with them:
+
+- typed print colour — `CmykColor`, `SpotColor`, `IccColor`, `ColorProfileDef`;
+- `BaselineGrid`, spine-relative `PageMargin`, `RenderOutput`, `MatteSpec`,
+  `SymbolDef`, `Star`, `GenerativeObject`, `GenerationParams`;
+- `RubyInline` and `WarichuInline`.
+- The **EBNF** gained productions for `star`, `generative`, `ruby`, `warichu`,
+  `MatteSpec` and `GenerationParams`, the `name`/`matte` fields on
+  `common-object-fields`, and `direction` on `path`/`polyline`.
+- The **spec** gained §7.0.1–§7.0.4. `generative` is documented as what it is: a
+  *declaration, not a rendering*. A conforming renderer that cannot resolve the
+  request MUST NOT invent pixels for it, and the accessible text comes from
+  authored `alt`/`actual_text` — model output enters a document as an explicitly
+  unresolved, labelled request, never as an unmarked fact.
+
+**The version sites drop from eleven to ten.** `HEAD_VERSION` is not ours to move
+any more; `tests/test_head.py` now *pins* which contract revision this engine is
+built and gated against. `RELEASE.md` §4 records the consequence: a bump here is
+normally "adopt contract X.Y.Z", and the semver question is answered by what the
+contract changed.
+
+### Tracking `frameforge-mcp` 2.0.0
+
+The agent surface released a major with two breaking changes this repo's tests
+encoded the old side of:
+
+- **File inputs are confined by default.** `FRAMEFORGE_MCP_INPUT_ROOTS` unset used
+  to mean *any readable path* — the confused-deputy shape, shipped as the default.
+  `tests/conftest.py` now declares the suite's input roots the way a deployment
+  declares its own, deliberately narrow (pytest's temp base plus the working
+  directory, never `*`), and `tests/test_mcp_security_posture.py` asserts the
+  inverted contract: confinement is silent, openness announces itself.
+- **Tool bodies run in a worker thread**, so a registered tool is now an async
+  wrapper. The in-process fake hosts call `__frameforge_sync__`, which the server
+  publishes for exactly this.
+
+### Also
+
+`tests/test_doc_links.py` resolves a commit-pinned GitHub permalink **at that
+commit** instead of against the working tree. A dated design record has to be able
+to cite the code it actually read; the two `cg-canon` proposals now permalink to
+`1315200` (the 2.4.1 release), where their `file:line` citations are exactly true,
+rather than pointing at paths two renames and an extraction later.
+
+## Unreleased
+
+### Dependency pins are bounded, consistent, and gated
+
+A pin audit across the eight family repositories found defects that a local run
+can never surface, because siblings resolve by path in development and by
+version only once published. `tests/test_dependency_pins.py` (new) now reads
+`pyproject.toml` and `uv.lock` directly and fails on:
+
+- a family requirement with no floor or **no cap** — a future major accepted
+  without review;
+- a cap that is not the next major (`<2` for a 1.x floor, `<1` for a 0.x one);
+- an **extra restating a lower floor** than the base requirement for the same
+  package — harmless while both are present, since the resolver intersects
+  them, but a real defect the moment the base pin is edited;
+- a **lockfile recording a version the sibling checkout no longer has**, which
+  `uv sync` would faithfully reproduce.
+
+- `frameforge-vision[cv,ocr]` and `frameforge-mcp` in the dev group carried **no
+  version constraint at all**; both now `>=1.0,<2`.
+- The `metrics` extra floored `frameforge-render[fonts,metrics]` at `>=1.0`
+  while the base requirement floors it at `>=1.9`, with a comment in the same
+  file explaining that an older renderer "raises TypeError on every render
+  call". The extra now tracks the base.
+
+The gate reads `pyproject.toml` through the family's guarded `tomllib` /
+`tomli` idiom, so it runs on the Python 3.10 floor the package claims; `tomli`
+is declared as a dev dependency, marked to be a no-op on 3.11+.
 
 ## Unreleased — the cookbook leaves the engine repo (2026-08-01)
 

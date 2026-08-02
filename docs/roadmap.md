@@ -42,7 +42,7 @@ appendix_references:
     `models/`, `schema/`, `grammar/`, `spec/` → `docs/…`, `fixtures/` →
     `tests/fixtures/`, `examples/` → `static/examples/`. (Second hop — 2.5.0,
     2026-07-17: `docs/models/frameforge.py` moved again, into the package;
-    the authoritative model is now `src/frameforge/model.py`, imported as
+    the authoritative model is now `frameforge_api.model`, imported as
     `frameforge.model`.) (2) The **2.3.0
     release** (2026-07-01, an additive improvement pass unrelated to the
     "next minor" direction sketched at the end of this draft) — the `2.2.0`

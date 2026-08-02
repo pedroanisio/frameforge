@@ -36,7 +36,7 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 import pytest  # noqa: E402
 from pydantic import ValidationError  # noqa: E402
 
-from frameforge.model import Gradient, GradientStop  # noqa: E402
+from frameforge_api.model import Gradient, GradientStop  # noqa: E402
 from tooling.render_fixtures import Renderer  # noqa: E402
 
 _STOPS = [{"color": "#102030", "position": "0%"}, {"color": "#e0f0ff", "position": "100%"}]

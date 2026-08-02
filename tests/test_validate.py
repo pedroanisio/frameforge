@@ -255,7 +255,7 @@ def test_preset_table_matches_the_renderer():
 
 def test_every_model_preset_resolves():
     import typing
-    import frameforge.model as fg  # noqa: E402
+    import frameforge_api.model as fg  # noqa: E402
     for preset in typing.get_args(fg.PagePreset):
         assert V._canvas_wh(preset), f"PagePreset {preset!r} has no size in the validator table"
 

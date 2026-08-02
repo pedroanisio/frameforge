@@ -21,7 +21,7 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
     del sys.modules["frameforge"]
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
-from frameforge.model import Document, HEAD_VERSION  # noqa: E402
+from frameforge_api.model import Document, HEAD_VERSION  # noqa: E402
 
 
 def test_document_version_field_prose_states_head_version():
@@ -32,11 +32,20 @@ def test_document_version_field_prose_states_head_version():
 
 
 def test_model_source_interpolates_head_version_not_a_literal():
-    src_path = os.path.join(ROOT, "src", "frameforge", "model.py")
-    with open(src_path, encoding="utf-8") as fh:
-        src = fh.read()
+    """The contract must not hardcode its own version in field prose.
+
+    Reads the `frameforge-api` package the engine consumes: the models left this
+    repository, so there is no local file to read, but the invariant still
+    matters here — a stale literal in the contract's prose is what
+    `Document.version`'s description would show every reader of OUR spec.
+    """
+    import pathlib
+
+    import frameforge_api.model
+    pkg = pathlib.Path(frameforge_api.model.__file__).resolve().parent
+    src = "\n".join(f.read_text(encoding="utf-8") for f in sorted(pkg.rglob("*.py")))
     assert "HEAD is {HEAD_VERSION}" in src, (
-        "model.py hardcodes the HEAD version in prose again — use the "
+        "the contract hardcodes the HEAD version in prose again — use the "
         "f-string interpolation so bumps cannot leave it stale")
 
 

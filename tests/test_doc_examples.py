@@ -24,7 +24,7 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = []
 # the top-level frameforge/ package would shadow models/frameforge.py
 
-import frameforge.model as fg  # noqa: E402
+import frameforge_api.model as fg  # noqa: E402
 
 SOURCES = ["docs/spec/frameforge-v2-spec.md", "docs/index.md", "README.md"]
 _FENCE = re.compile(r"```(?:yaml|yml|json)\s*\n(.*?)\n```", re.S)

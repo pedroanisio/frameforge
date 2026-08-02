@@ -35,7 +35,7 @@ sys.path[:0] = [ROOT, os.path.join(ROOT, "src"), os.path.join(ROOT, "docs")]
 
 from pydantic import ValidationError  # noqa: E402
 
-from frameforge.model import Document  # noqa: E402
+from frameforge_api.model import Document  # noqa: E402
 from tooling.render_fixtures import Renderer  # noqa: E402
 
 

@@ -25,6 +25,12 @@ HISTORICAL = {
     # the 2.5.0 packaging entry itself describes the move away from this path
     "docs/models/frameforge.py": "moved to src/frameforge/model.py by "
                                  "2.5.0 — feat(packaging)",
+    # ...and 2.11.0 moved it on again. The contract is the `frameforge-api`
+    # distribution (`frameforge_api.model`); the copy carried here had drifted two
+    # minor versions behind it. Entries citing the in-repo path are true
+    # statements about where the models lived when they were written.
+    "src/frameforge/model.py": "moved to frameforge-api by 2.11.0 — "
+                               "the contract has one definition",
     # The viewer became a companion runtime; the SDK, the contract and the
     # vision lane became standalone packages. Every CHANGELOG entry citing one of
     # their old in-repo paths is a true statement about where that code lived.

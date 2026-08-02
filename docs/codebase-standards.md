@@ -52,7 +52,7 @@ Rules of reading:
 |---|---|---|
 | Toolchain, deps, version, packaging | [pyproject.toml](../pyproject.toml) | exists |
 | The quality gate (what must pass) | [Makefile](../Makefile) (`make check`), mirrored by [ci.yml](../.github/workflows/ci.yml) | exists |
-| Format / conformance (the data model) | [src/frameforge/model.py](../src/frameforge/model.py) (Pydantic v2, **source of truth**) | exists |
+| Format / conformance (the data model) | [`frameforge_api.model`](https://github.com/pedroanisio/frameforge-api) (Pydantic v2, **source of truth**, its own distribution) | exists |
 | Generated JSON schema | [docs/schema/build_schema.py](./schema/build_schema.py) (`--check` fails on drift) | exists |
 | Normative prose & grammar | [docs/spec/](./spec/), [docs/grammar/](./grammar/) (grammar ⇄ models gated by [check_grammar_sync.py](../tooling/check_grammar_sync.py)) | exists |
 | Status, scope, honest limits | [README.md](../README.md), [CHANGELOG.md](../CHANGELOG.md) | exists |
@@ -108,7 +108,7 @@ Rules of reading:
   the project editable and puts both on PATH. The historical virtual-project stance
   (`package = false`) existed because an installed `frameforge` distribution would have
   shadowed the model module at `docs/models/frameforge.py`; 2.5.0 moved the model into
-  the package ([src/frameforge/model.py](../src/frameforge/model.py)), which removed the
+  the package, and in 2.11.0 on to [`frameforge-api`](https://github.com/pedroanisio/frameforge-api), which removed the
   hazard and the stance with it. For uninstalled checkouts the launchers remain: the
   self-bootstrapping `bin/ff-render` (symlink it onto your PATH),
   `uv run python tooling/ff_render.py` (PYTHONPATH-free; issue #35),
@@ -477,7 +477,8 @@ non-negotiable absent an explicit, documented decision.
   (`frameforge_mcp`, `frameforge_mcp.live`, and `frameforge_coach`), and the image→draft layer is
   [`frameforge-vision`](https://github.com/pedroanisio/frameforge-vision).
   What remains here is the engine: the authoritative model
-  ([src/frameforge/model.py](../src/frameforge/model.py), moved into the package in 2.5.0), the
+  ([`frameforge_api.model`](https://github.com/pedroanisio/frameforge-api), moved into the package in 2.5.0 and out to its own
+  distribution in 2.11.0), the
   engine-side conformance shim ([src/frameforge/conform.py](../src/frameforge/conform.py)), the
   [`ff-render` front door](../src/frameforge/cli.py),
   [src/frameforge/patterns](../src/frameforge/patterns/) (the #28/#29 slide-template catalog),

@@ -45,7 +45,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "src")))
 
 import yaml  # noqa: E402
-import frameforge.model as fg  # noqa: E402  (package-qualified: never shadow the real package)
+import frameforge_api.model as fg  # noqa: E402  (package-qualified: never shadow the real package)
 from frameforge_render.domain.services.paint_intent import (  # noqa: E402
     inert_stroke_keys,
     remedy_for,

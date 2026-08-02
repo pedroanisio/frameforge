@@ -2,7 +2,7 @@
 """test_model_no_name_collisions.py — the source-of-truth model must not bind one
 name to two different meanings.
 
-`src/frameforge/model.py` once defined ``Image = Union[Gradient, UrlImage, str]``
+The contract's model source once defined ``Image = Union[Gradient, UrlImage, str]``
 (a paint-value type alias) and later ``class Image(ObjBase)`` (the image *object*).
 With ``from __future__ import annotations`` field annotations resolve lazily against
 the module namespace, so which ``Image`` a field binds to depends on *definition
@@ -16,9 +16,14 @@ Dependency-free (AST only), so it runs in the base suite with no ruff/tomli.
 """
 import ast
 import os
+import pathlib
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-MODEL = os.path.join(ROOT, "src", "frameforge", "model.py")
+def _contract_model_sources():
+    """The contract's model sources — see test_spec_section_citations."""
+    import frameforge_api.model
+    pkg = pathlib.Path(frameforge_api.model.__file__).resolve().parent
+    return sorted(pkg.rglob("*.py"))
 
 
 def _module_level_bindings(path):
@@ -38,11 +43,15 @@ def _module_level_bindings(path):
 
 
 def test_no_module_level_class_shadows_a_type_alias():
-    classes, aliases = _module_level_bindings(MODEL)
-    collisions = classes & aliases
-    assert collisions == set(), (
+    offenders = {}
+    for path in _contract_model_sources():
+        classes, aliases = _module_level_bindings(path)
+        collisions = classes & aliases
+        if collisions:
+            offenders[path.name] = sorted(collisions)
+    assert offenders == {}, (
         "these names are bound to BOTH a module-level class and a top-level "
-        f"assignment in src/frameforge/model.py: {sorted(collisions)}. A model "
+        f"assignment in the contract's model sources: {offenders}. A model "
         "class must not share its name with a type alias — under lazy annotations "
         "the meaning a field binds to becomes definition-order dependent (the "
         "`Image` alias/class hazard).")
