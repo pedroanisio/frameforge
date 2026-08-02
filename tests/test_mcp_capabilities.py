@@ -173,9 +173,10 @@ _CAPABILITY_MODULES = [
     "expand", "explain", "fields", "fieldsets", "figure", "flow", "fractal",
     "geometry", "humanize",
     "lattices", "layout",
-    "macros", "manifold", "markdown", "metrics", "noise", "outline", "paint", "params",
+    "macros", "manifold", "markdown", "metrics", "noise", "objects", "outline",
+    "paint", "params",
     "pathtext", "planar", "rand", "recolor", "region", "separate", "solids", "topology",
-    "spatial", "sugiyama", "uml_models", "widgets",
+    "spatial", "sugiyama", "tiers", "uml_models", "widgets",
 ]
 
 # Internal plumbing that carries no author-facing capability of its own — the
@@ -315,6 +316,17 @@ def test_guide_mentions_every_capability_bearing_sdk_module():
     assert not unclassified, (
         "new sdk modules are neither declared capabilities nor exempt plumbing "
         f"(classify them): {sorted(unclassified)}")
+    # And the classification is not ours to invent: the SDK publishes its own
+    # author-facing taxonomy, so anything it declares a capability module must be
+    # one here too. Only the names in _PLUMBING_EXEMPT may disagree, and each of
+    # those is a deliberate, listed judgement — a new module cannot be quietly
+    # exempted just because naming it in the guide would be work.
+    from frameforge_sdk import tiers
+    declared = {m for m in tiers.MODULES if m in live} - _PLUMBING_EXEMPT
+    downgraded = declared - set(_CAPABILITY_MODULES)
+    assert not downgraded, (
+        "the sdk declares these author-facing (frameforge_sdk.tiers.MODULES) but "
+        f"this gate does not: {sorted(downgraded)}")
     unmentioned = [m for m in _CAPABILITY_MODULES if m not in FRAMEFORGE_GUIDE]
     assert not unmentioned, (
         f"sdk modules invisible to MCP clients (extend the guide): {unmentioned}")

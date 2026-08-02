@@ -18,10 +18,23 @@ if _shadow is not None and not hasattr(_shadow, "__path__"):
 sys.path[:0] = [ROOT, os.path.join(ROOT, "src")]
 
 from frameforge_vision import vlm  # noqa: E402
+from frameforge_mcp import extras  # noqa: E402
 from frameforge_mcp.usecases import describe_render  # noqa: E402
 
 
 def _fake_vlm(monkeypatch):
+    """Pretend the whole `vlm` lane is installed.
+
+    TWO gates, not one. `describe_render` checks `extras.lane_available("vlm")`
+    BEFORE importing `frameforge_vision.vlm` — deliberately, so a torch-only
+    install returns the install hint instead of raising ImportError out of the
+    tool. Stubbing only `vlm.available` leaves that first gate live, and every
+    test here then asserts against the graceful-degradation path it is not
+    trying to exercise.
+    """
+    real_lane = extras.lane_available
+    monkeypatch.setattr(extras, "lane_available",
+                        lambda name: True if name == "vlm" else real_lane(name))
     monkeypatch.setattr(vlm, "available", lambda: True)
     monkeypatch.setattr(vlm, "describe_image",
                         lambda image, prompt, **kw: f"ANSWER<{prompt[:24]}>")
