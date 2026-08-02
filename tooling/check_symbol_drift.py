@@ -184,6 +184,11 @@ def doc_files() -> list[str]:
 # `static/examples` was a harvest root until the cookbook became
 # `frameforge-example`. Prose here may no longer name a client as a live
 # symbol — it is not in this tree to define one.
+#: Distributions the family split into. Their names are live references in this
+#: repo's prose, and their contents are harvested for symbols.
+SIBLING_PACKAGES = ("frameforge_api", "frameforge_sdk", "frameforge_render",
+                    "frameforge_vision", "frameforge_mcp", "frameforge_coach")
+
 HARVEST_ROOTS = ("src", "tooling", "docs")
 
 # Tests are harvested *shallowly* — module stems and def/class names only.
@@ -211,8 +216,7 @@ def _sibling_package_roots() -> list[Path]:
     pin or a wheel, and skips silently when an optional sibling is absent.
     """
     roots: list[Path] = []
-    for mod in ("frameforge_api", "frameforge_sdk", "frameforge_render",
-                "frameforge_vision", "frameforge_mcp", "frameforge_coach"):
+    for mod in SIBLING_PACKAGES:
         try:
             pkg = __import__(mod)
         except ImportError:
@@ -221,6 +225,26 @@ def _sibling_package_roots() -> list[Path]:
         if loc:
             roots.append(Path(loc).resolve().parent)
     return roots
+
+
+def _installed_sibling_names() -> set[str]:
+    """The sibling DISTRIBUTION names themselves, when importable.
+
+    `_harvest_python` walks each sibling's `*.py` and records what those files
+    define — so `renderer`, `ports`, `layout_engine` all land in the universe,
+    but `frameforge_render` never does: the package name is the directory
+    holding those files, not a module basename inside it. Prose naming the
+    package (`docs/roadmap.md` links `frameforge_render`'s layout_engine) then
+    reads as a dead symbol while every symbol *inside* it resolves.
+    """
+    names: set[str] = set()
+    for mod in SIBLING_PACKAGES:
+        try:
+            __import__(mod)
+        except ImportError:
+            continue
+        names.add(mod)
+    return names
 
 
 def _harvest_python(universe: set[str]) -> None:
@@ -332,6 +356,7 @@ def live_symbols() -> tuple[frozenset[str], tuple[str, ...]]:
     universe: set[str] = set(tools)
     universe.update(manifest["mcp"]["prompts"])
     universe.update(manifest["sdk"]["public_exports"])
+    universe.update(_installed_sibling_names())
     _harvest_python(universe)
     _harvest_schema(universe)
     _harvest_document_ids(universe)
