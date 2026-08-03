@@ -220,8 +220,17 @@ def test_no_family_source_is_a_relative_path():
 def test_every_locked_family_package_is_pinned_to_a_family_repository():
     """Each family package in the lock resolves from its own public repository
     at a full commit sha — so the resolution is reproducible off this machine,
-    and a locked name that matches no repository is a typo or a rename."""
-    text = (ROOT / "uv.lock").read_text(encoding="utf-8")
+    and a locked name that matches no repository is a typo or a rename.
+
+    A repository may legitimately ship no lockfile: `frameforge-mcp` cannot
+    produce a portable one until the family is published, because it may not
+    declare a source for the engine (see its README), and a lock nobody can
+    reproduce is worse than none.
+    """
+    lock = ROOT / "uv.lock"
+    if not lock.is_file():
+        pytest.skip("no committed lockfile in this repository")
+    text = lock.read_text(encoding="utf-8")
     pinned = {m.group(1): (m.group("url"), m.group("rev"))
               for m in LOCKED_GIT_SOURCE.finditer(text)}
     locked = set(_locked_family_versions()) - {_pyproject().get("project", {})["name"]}
