@@ -19,9 +19,6 @@ for the full why and scope.
 
 ```
 src/frameforge/               ← integration package: conform.py, cli.py, fontpack.py.
-../frameforge-api/            ← SOURCE OF TRUTH for the Pydantic document contract.
-../frameforge-sdk/            ← authoring, measurement, and static validation.
-../frameforge-render/         ← renderer DDD boundary: domain, application, infrastructure.
 docs/schema/
   frameforge-v2.schema.json   ← GENERATED from the models (119 $defs). Do not hand-edit.
   build_schema.py             ← regenerates the schema; `--check` fails if it drifts.
@@ -67,6 +64,16 @@ pyproject.toml + uv.lock      ← the real hatchling package since 2.5.0 (`[tool
 Makefile + .github/workflows/ ← `make check` = the local gate; CI mirrors it (+ a docs build/deploy job).
 ```
 
+The contract, the authoring SDK, and the renderer are **separate distributions**,
+not directories in this tree: [`frameforge-api`](https://github.com/pedroanisio/frameforge-api)
+(SOURCE OF TRUTH for the Pydantic document contract),
+[`frameforge-sdk`](https://github.com/pedroanisio/frameforge-sdk) (authoring,
+measurement, static validation) and
+[`frameforge-render`](https://github.com/pedroanisio/frameforge-render) (the
+renderer DDD boundary: domain, application, infrastructure). `uv sync` installs
+them from their repositories at the commits `uv.lock` pins — a checkout beside
+this one is not required, and is not what a build resolves.
+
 ## Companion repositories
 
 - [frameforge-viewer](https://github.com/pedroanisio/frameforge-viewer) is the independent React display package extracted from this repository with its viewer history preserved. FrameForge publishes a versioned `frameforge-render-bundle` manifest plus measured SVG/PNG/PDF artifacts; the artifact viewer consumes those outputs without needing the viewing host’s fonts. Its direct-document mode remains an explicitly separate browser renderer.
@@ -96,6 +103,11 @@ The project is managed with [uv](https://docs.astral.sh/uv/). `uv sync` once
 creates `.venv` with the runtime deps and the `dev` group (see
 `pyproject.toml`), and installs the `frameforge` package itself — putting the
 `ff-render` and `fg-font` console scripts on PATH; prefix commands with `uv run`.
+
+A fresh `git clone` is all it needs: the family packages resolve from their own
+repositories at the commits `uv.lock` pins. To develop the engine against a
+sibling checkout instead of the pinned commit, `make dev-link` reinstalls the
+ones you have next to this tree as editable; a later `uv sync` undoes it.
 
 ```bash
 uv sync                                    # create/populate .venv

@@ -87,7 +87,60 @@ to cite the code it actually read; the two `cg-canon` proposals now permalink to
 `1315200` (the 2.4.1 release), where their `file:line` citations are exactly true,
 rather than pointing at paths two renames and an extraction later.
 
-## Unreleased
+## Unreleased — a clean clone installs (2026-08-03)
+
+### The documented install required five undocumented working copies
+
+`uv sync` — the install this README documents and every CI job runs — could not
+complete from a fresh `git clone`. `[tool.uv.sources]` resolved five family
+packages from `../frameforge-api`, `../frameforge-sdk`, `../frameforge-render`,
+`../frameforge-vision` and `../frameforge-mcp`, so a checkout without those five
+siblings beside it died at metadata resolution:
+
+```
+error: Failed to generate package metadata for `frameforge-api==1.3.1 @ editable+../frameforge-api`
+  Caused by: Distribution not found at: file:///.../frameforge-api
+```
+
+Every family source is now a git URL to the package's own public repository, and
+`uv.lock` pins the exact commit — so the resolution is reproducible off this
+machine rather than dependent on what happens to sit next to it.
+
+The relative paths had to leave the siblings' pyprojects too, and that is the
+part worth remembering: **a path source is not local-only**. uv reads a git
+dependency's own `[tool.uv.sources]` and rewrites `path = "../x"` into
+`git+<that repo>#subdirectory=../x`, which cannot exist — one such entry in one
+sibling breaks resolution for every consumer. `frameforge-render`,
+`frameforge-sdk`, `frameforge-vision` and `frameforge-mcp` were fixed and pushed
+alongside this change. `frameforge-mcp` additionally declares **no** source for
+`frameforge`: this repository is the root project in that resolution — a path
+source by construction — so any URL for it elsewhere in the graph is a second,
+conflicting URL and uv rejects the whole graph.
+
+Gates, because the defect was invisible to the suite that was supposed to cover
+packaging:
+
+- `test_no_family_source_is_a_relative_path` — the clean-clone invariant itself.
+- `test_every_locked_family_package_is_pinned_to_a_family_repository` — every
+  locked family package resolves from its own repository at a full commit sha.
+- `test_the_lockfile_pins_family_versions_that_still_exist` and
+  `test_every_locked_family_package_is_a_real_sibling_or_absent` are gone: both
+  asserted the sibling-checkout model, and the second one *failed* in a clean
+  clone — a gate that only passed where the defect was invisible.
+- `README.md`'s Layout block no longer lists `../frameforge-*` as tree entries
+  (`test_layout_paths_exist` failed on them in a clean clone, for the same
+  reason); the companions are described as the distributions they are.
+
+`make dev-link` (new) reinstalls whichever siblings are checked out as editable
+over the synced venv, for the cross-repo loop the path sources used to give;
+`uv sync` restores the pinned commits.
+
+**Not fixed, and not fixable here:** the built wheel declares
+`Requires-Dist: frameforge-api`, `frameforge-sdk`, `frameforge-render`, none of
+which exists on any package index, so `pip install frameforge-2.11.0-*.whl`
+fails for anyone outside this family's git checkouts. Only publishing the family
+closes that — and PyPI's `frameforge` name is already taken by an unrelated
+0.0.1 stub uploaded 2024-11-28.
 
 ### Dependency pins are bounded, consistent, and gated
 

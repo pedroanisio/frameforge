@@ -156,33 +156,34 @@ exclude = [
     "/tooling/node_modules",
 ]
 
-# Develop against the sibling checkouts: none of the family is on PyPI yet.
-# Drop this block (or point it at an index) to build against published wheels.
+# None of the family is on a package index yet, so each sibling resolves from
+# its public repository. The lockfile records the exact commit, so this is
+# reproducible; point the block at an index to build against published wheels.
+#
+# These were `path = "../frameforge-*"` entries until 2026-08-03, which meant a
+# clean clone of this repository could not be installed AT ALL: `uv sync` (and
+# therefore every CI job, which runs `uv sync --locked` on a bare checkout) died
+# on `Distribution not found at: .../frameforge-api`. Five sibling working
+# copies were a silent precondition of the documented install.
+#
+# Two rules the resolver enforces, both verified against a real failure:
+#
+#  1. Never a relative path. uv reads a git dependency's own
+#     `[tool.uv.sources]` and rewrites `path = "../x"` into
+#     `git+<that repo>#subdirectory=../x`, which cannot exist. The path entries
+#     had to leave the siblings' pyprojects too, and they did.
+#  2. `frameforge-mcp` declares NO source for `frameforge`. This repo is the root
+#     project in this resolution — a path (editable) source by construction — so
+#     a URL for it anywhere in the graph is a second, conflicting URL and uv
+#     rejects it ("Requirements contain conflicting URLs for package
+#     `frameforge`"). `frameforge-vision` may keep its own `frameforge` source
+#     because the extra that needs it (`raster`) is not requested here.
 [tool.uv.sources]
-# Stays a PATH even though the repo is live
-# (https://github.com/pedroanisio/frameforge-mcp): resolving it from git makes
-# uv read that package's own `[tool.uv.sources]`, whose `path = "../frameforge"`
-# is interpreted inside the git checkout and becomes `subdirectory=../frameforge`,
-# which does not exist. The engine is this repo, so it cannot be a git URL there
-# either without conflicting with the local project here. Flip to a git pin only
-# after those relative path entries leave frameforge-mcp's pyproject.
-frameforge-mcp = { path = "../frameforge-mcp", editable = true }
-# `frameforge-api` is pinned to the SAME git URL `frameforge-sdk` uses. uv
-# rejects conflicting URLs for one package across a resolution, so the engine
-# and the SDK must agree on where the contract comes from — a local path here
-# and a git URL there is an unresolvable graph, not a preference.
-frameforge-api = { path = "../frameforge-api", editable = true }
-# TODO(cutover): flip to the git pin once the SDK checkout's local work is
-# committed and pushed — https://github.com/pedroanisio/frameforge-sdk. Its
-# published HEAD (0f0d3bf) is behind the working tree, which still holds the
-# `EngineUnavailable` re-export this repo's SDK-surface gate requires.
-frameforge-sdk = { path = "../frameforge-sdk", editable = true }
-frameforge-vision = { path = "../frameforge-vision", editable = true }
-# The engine. A PATH for the same reason the others are: its published HEAD is
-# behind this working tree, which carries the font-closure metrics provider and
-# the math-toolchain root fix this repo's gates exercise. Flip to a git pin once
-# https://github.com/pedroanisio/frameforge-render is pushed past that.
-frameforge-render = { path = "../frameforge-render", editable = true }
+frameforge-mcp = { git = "https://github.com/pedroanisio/frameforge-mcp" }
+frameforge-api = { git = "https://github.com/pedroanisio/frameforge-api" }
+frameforge-sdk = { git = "https://github.com/pedroanisio/frameforge-sdk" }
+frameforge-vision = { git = "https://github.com/pedroanisio/frameforge-vision" }
+frameforge-render = { git = "https://github.com/pedroanisio/frameforge-render" }
 
 [tool.uv]
 # Real package since 2.5.0: the authoritative model moved INTO the package

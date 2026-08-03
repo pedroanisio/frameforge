@@ -13,7 +13,7 @@ DOCS_HOST ?= 127.0.0.1
 DOCS_PORT ?= 8001
 
 .DEFAULT_GOAL := help
-.PHONY: help sync schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check lint clean corpus corpus-check corpus-ui package-check public-check symbol-check plugin-sync plugin-check docker-build docker-mcp docker-shell docker-fonts
+.PHONY: help sync dev-link schema bump bump-check release render render-latex pdf mcp live check schema-check grammar-check spec-check a11y-check ruff-check hooks golden golden-check test validate overflow status status-check docs docs-serve docs-check docs-sdk manifest manifest-check lint clean corpus corpus-check corpus-ui package-check public-check symbol-check plugin-sync plugin-check docker-build docker-mcp docker-shell docker-fonts
 
 DOCKER ?= docker
 IMAGE ?= frameforge
@@ -24,6 +24,22 @@ help:  ## list targets
 
 sync:  ## create/refresh the venv from uv.lock
 	$(UV) sync
+
+# The family resolves from git (pyproject `[tool.uv.sources]`), which is what
+# makes a clean clone installable — a sibling working copy is no longer a
+# precondition of `uv sync`, and no longer what a build resolves. When you ARE
+# editing a sibling next to this tree, this reinstalls the ones present as
+# editable so the engine sees the working copy without a commit/push/lock cycle.
+# It writes only into .venv; `uv sync` restores the pinned commits.
+dev-link:  ## install sibling checkouts (../frameforge-*) editable over the synced venv
+	@for pkg in frameforge-api frameforge-sdk frameforge-render frameforge-vision frameforge-mcp frameforge-fonts; do \
+		if [ -f ../$$pkg/pyproject.toml ]; then \
+			echo "  editable  ../$$pkg"; \
+			$(UV) pip install -q --no-deps -e ../$$pkg || exit 1; \
+		else \
+			echo "  skipped   ../$$pkg (not checked out)"; \
+		fi; \
+	done
 
 schema:  ## regenerate docs/schema/frameforge-v2.schema.json from the models
 	$(UV) run python docs/schema/build_schema.py
