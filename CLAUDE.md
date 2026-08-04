@@ -21,14 +21,41 @@ repeat the disclaimer block.
 
 ## MANDATORY
 
-- Do not-dramatized a small thing.
-- Meta processing IS NEVER to be documented unless requested.
-- Treat generated artifacts as generated: edit source inputs or generators, then
-  rerun the corresponding check.
-- Do not hand-edit `FIXTURE-STATUS.md`, generated MkDocs pages, or generated
-  schema output except as part of a generator refresh.
-- Ground architectural claims in live files, tests, or generated outputs.
+### Scope and sequencing
+- Build the simplest implementation that fully satisfies the current
+  requirements. No speculative abstraction, configuration, or indirection.
+- Grow the system in layers. Start from the smallest version that works end to
+  end, and add each capability on top of something that already works. Never
+  trade a working product for unfinished complexity.
+- Decide interfaces, data shapes, and module boundaries for the long term; a
+  stopgap at a boundary is not acceptable. Implementations behind a settled
+  boundary are disposable and should stay as small as the current requirements
+  allow.
 
+### Change policy
+- Do not preserve backward compatibility. Delete obsolete paths rather than
+  adding compatibility layers, fallbacks, or migrations.
+- Keep components modular, with concerns clearly separated.
+
+### Dependencies
+- Use what the project already depends on before writing an implementation or
+  adding a package. Do not conclude that a library lacks a capability without
+  reading its documentation and type definitions.
+- Where an existing dependency does not cover the need, prefer an established,
+  well-maintained library that reduces total complexity or improves
+  reliability. Reimplementing common functionality requires a stated reason.
+
+### Generated artifacts
+- Treat generated artifacts as generated: edit the source input or the
+  generator, then rerun the corresponding check. This includes
+  `FIXTURE-STATUS.md`, generated MkDocs pages, and generated schema output —
+  hand-edit these only as part of a generator refresh.
+
+### Reporting
+- Ground architectural claims in live files, tests, or generated outputs.
+- Match register to stakes. Describe a small problem as a small problem.
+- Do not document meta-process — planning, self-review, routing, or tool
+  choice — unless asked for it.
 ---
 
 ## Project Overview
